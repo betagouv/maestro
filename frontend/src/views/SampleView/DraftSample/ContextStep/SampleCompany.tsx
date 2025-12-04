@@ -88,22 +88,37 @@ const SampleCompany = ({
     isLocalPrescriptionLoading
   ]);
 
-  useEffect(() => {
-    if (
-      programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
-      !isLocalPrescriptionLoading &&
-      filteredCompanies?.length &&
-      company &&
-      !filteredCompanies.some((c) => c.siret === company.siret)
-    ) {
-      onCompanyChange(undefined);
-    }
-  }, [
-    filteredCompanies,
-    company,
-    programmingPlan.distributionKind,
-    isLocalPrescriptionLoading
-  ]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(
+    () => {
+      if (
+        programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
+        !isLocalPrescriptionLoading &&
+        filteredCompanies
+      ) {
+        if (
+          company &&
+          !filteredCompanies.some((c) => c.siret === company.siret)
+        ) {
+          onCompanyChange(undefined);
+        } else if (filteredCompanies.length === 1 && !company) {
+          onCompanyChange(filteredCompanies[0]);
+          if (onGeolocationChange) {
+            onGeolocationChange(
+              filteredCompanies[0].geolocation?.x,
+              filteredCompanies[0].geolocation?.y
+            );
+          }
+        }
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      filteredCompanies,
+      company,
+      programmingPlan.distributionKind,
+      isLocalPrescriptionLoading
+    ]
+  );
 
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>

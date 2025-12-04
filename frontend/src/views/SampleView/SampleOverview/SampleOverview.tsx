@@ -170,9 +170,6 @@ const SampleOverview = ({ sample }: Props) => {
             )
           }
         ]}
-        classes={{
-          panel: 'white-container'
-        }}
       />
       <div className="back">
         <Button

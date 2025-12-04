@@ -23,7 +23,7 @@ import { pluralize, quote } from 'src/utils/stringUtils';
 import StepSummary, {
   StepSummaryMode
 } from 'src/views/SampleView/StepSummary/StepSummary';
-import SampleDocument from '../../../components/SampleDocument/SampleDocument';
+import SampleDocument from '../../../components/Sample/SampleDocument/SampleDocument';
 
 const getSpecificDataValue = (
   inputKey: SampleMatrixSpecificDataKeys,

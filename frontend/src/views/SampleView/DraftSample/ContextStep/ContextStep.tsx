@@ -6,8 +6,7 @@ import clsx from 'clsx';
 import { isNil } from 'lodash-es';
 import {
   LegalContext,
-  LegalContextLabels,
-  LegalContextList
+  LegalContextLabels
 } from 'maestro-shared/referential/LegalContext';
 import { Company } from 'maestro-shared/schema/Company/Company';
 import {
@@ -98,7 +97,11 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const [programmingPlanKind, setProgrammingPlanKind] = useState(
     partialSample?.specificData.programmingPlanKind ?? ''
   );
-  const [legalContext, setLegalContext] = useState(partialSample?.legalContext);
+  const [legalContext, setLegalContext] = useState(
+    programmingPlan.legalContexts.length === 1
+      ? programmingPlan.legalContexts[0]
+      : partialSample?.legalContext
+  );
 
   const [geolocationX, setGeolocationX] = useState(
     partialSample?.geolocation?.x ??
@@ -244,10 +247,13 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
     OutsideProgrammingPlan: warning
   };
 
-  const legalContextOptions = selectOptionsFromList(LegalContextList, {
-    labels: LegalContextLabels,
-    withDefault: false
-  });
+  const legalContextOptions = selectOptionsFromList(
+    programmingPlan.legalContexts ?? [],
+    {
+      labels: LegalContextLabels,
+      withDefault: false
+    }
+  );
 
   const programmingPlanKindOptions = selectOptionsFromList(
     programmingPlan.kinds ?? [],
@@ -559,37 +565,39 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
           />
         </div>
       )}
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
-          <AppRadioButtons
-            legend="Cadre juridique"
-            options={
-              legalContextOptions?.map(({ label, value }) => ({
-                key: `legalContext-option-${value}`,
-                label,
-                nativeInputProps: {
-                  checked: legalContext === value,
-                  onChange: () => setLegalContext(value as LegalContext)
-                },
-                illustration: (
-                  <img
-                    src={value === 'B' ? controle : balance}
-                    alt=""
-                    aria-hidden
-                  />
-                )
-              })) ?? []
-            }
-            colSm={6}
-            inputForm={form}
-            inputKey="legalContext"
-            whenValid="Cadre juridique correctement renseigné."
-            required
-            disabled={readonly}
-            data-testid="legalContext-radio"
-          />
+      {legalContextOptions.length > 1 && (
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
+            <AppRadioButtons
+              legend="Cadre juridique"
+              options={
+                legalContextOptions?.map(({ label, value }) => ({
+                  key: `legalContext-option-${value}`,
+                  label,
+                  nativeInputProps: {
+                    checked: legalContext === value,
+                    onChange: () => setLegalContext(value as LegalContext)
+                  },
+                  illustration: (
+                    <img
+                      src={value === 'B' ? controle : balance}
+                      alt=""
+                      aria-hidden
+                    />
+                  )
+                })) ?? []
+              }
+              colSm={6}
+              inputForm={form}
+              inputKey="legalContext"
+              whenValid="Cadre juridique correctement renseigné."
+              required
+              disabled={readonly}
+              data-testid="legalContext-radio"
+            />
+          </div>
         </div>
-      </div>
+      )}
       {programmingPlanKind === 'PPV' && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>

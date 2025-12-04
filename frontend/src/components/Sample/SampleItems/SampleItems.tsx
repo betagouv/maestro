@@ -12,7 +12,7 @@ import {
   SubstanceKindLabels
 } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useMemo, useState } from 'react';
-import { UseForm } from '../../hooks/useForm';
+import { UseForm } from '../../../hooks/useForm';
 import SampleItemsContent from './SampleItemsContent';
 
 interface Props {
@@ -62,14 +62,13 @@ const SampleItems = ({
   }
 
   return (
-    <div>
-      <h5>Échantillons</h5>
+    <>
       {groupedItems.length > 1 ? (
         <Tabs
           selectedTabId={selectedTabId}
           onTabChange={setSelectedTabId}
           tabs={groupedItems.map((groupedItem, groupIndex) => ({
-            label: `Éch. N°${groupIndex + 1} - ${SubstanceKindLabels[groupedItem[0].substanceKind as SubstanceKind]}`,
+            label: `Éch. n°${groupIndex + 1} - ${SubstanceKindLabels[groupedItem[0].substanceKind as SubstanceKind]}`,
             tabId: String(groupIndex + 1)
           }))}
           classes={{
@@ -99,7 +98,7 @@ const SampleItems = ({
           />
         </div>
       )}
-    </div>
+    </>
   );
 };
 

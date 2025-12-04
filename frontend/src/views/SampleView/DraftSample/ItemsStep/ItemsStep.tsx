@@ -28,7 +28,8 @@ import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
-import SampleItems from '../../../../components/SampleItems/SampleItems';
+import SampleItems from '../../../../components/Sample/SampleItems/SampleItems';
+import SampleProcedure from '../../../../components/Sample/SampleProcedure/SampleProcedure';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { useAppSelector } from '../../../../hooks/useStore';
@@ -246,6 +247,7 @@ const ItemsStep = ({ partialSample }: Props) => {
         </Button>
         <AppRequiredText />
       </div>
+      <SampleProcedure partialSample={partialSample} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
           <AppTextInput
@@ -264,15 +266,18 @@ const ItemsStep = ({ partialSample }: Props) => {
         </div>
       </div>
       <hr />
-      <SampleItems
-        partialSample={partialSample}
-        items={items}
-        onChangeItem={changeItem}
-        onAddItem={addItem}
-        onRemoveItem={removeItem}
-        readonly={readonly}
-        form={form}
-      />
+      <div>
+        <h5>Échantillons</h5>
+        <SampleItems
+          partialSample={partialSample}
+          items={items}
+          onChangeItem={changeItem}
+          onAddItem={addItem}
+          onRemoveItem={removeItem}
+          readonly={readonly}
+          form={form}
+        />
+      </div>
 
       {form.hasIssue('items') && (
         <Alert
@@ -280,6 +285,25 @@ const ItemsStep = ({ partialSample }: Props) => {
           description={form.message('items') as string}
           small
         />
+      )}
+      {form.hasIssue('items', [], {
+        partial: true
+      }) && (
+        <div>
+          {items
+            .filter((_) =>
+              form.hasIssue('items', [_.itemNumber - 1], {
+                partial: true
+              })
+            )
+            .map((_) => (
+              <Alert
+                severity="error"
+                description={`La saisie de l'échantillon n°${_.itemNumber} est incorrecte`}
+                key={`item-error-${_.itemNumber}-${_.copyNumber}`}
+              />
+            ))}
+        </div>
       )}
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
