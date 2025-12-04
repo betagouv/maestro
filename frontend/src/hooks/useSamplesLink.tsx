@@ -26,6 +26,10 @@ export const useSamplesLink = () => {
     navigate(sampleLink(sampleId, step));
   };
 
+  const navigateToSampleEdit = (sampleId: string) => {
+    navigate(AuthenticatedAppRoutes.SampleAnalysisEditRoute.link(sampleId));
+  };
+
   const navigateToSamples = () => {
     if (samplesLink) {
       navigate(samplesLink);
@@ -44,6 +48,7 @@ export const useSamplesLink = () => {
   return {
     sampleLink,
     navigateToSample,
+    navigateToSampleEdit,
     samplesLink,
     navigateToSamples,
     getSampleStepParam

@@ -128,6 +128,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
   return (
     <form
       className={clsx(
+        'border',
         cx(
           'fr-callout',
           ['Analysis', 'Completed'].includes(sample.status)

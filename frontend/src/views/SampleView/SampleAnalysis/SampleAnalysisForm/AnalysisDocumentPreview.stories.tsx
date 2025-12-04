@@ -1,15 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import Button from '@codegouvfr/react-dsfr/Button';
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { getMockApi } from '../../../services/mockApiClient';
+import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
+import { getMockApi } from '../../../../services/mockApiClient';
 import { AnalysisDocumentPreview } from './AnalysisDocumentPreview';
 
 const meta = {
   title: 'Views/AnalysisDocumentPreview',
   component: AnalysisDocumentPreview,
   args: {
-    analysisId: 'fakeAnalysisId',
+    partialAnalysis: genPartialAnalysis({}),
     sampleId: 'fakeAnalysisId',
     readonly: true
   }
@@ -22,18 +21,7 @@ export const Default: Story = {};
 
 export const NotReadonly: Story = {
   args: {
-    readonly: false,
-    button: (
-      <Button
-        priority="secondary"
-        iconId="fr-icon-add-line"
-        className={cx('fr-mt-0')}
-        size="small"
-        onClick={() => {}}
-      >
-        Ajouter
-      </Button>
-    )
+    readonly: false
   }
 };
 

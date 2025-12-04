@@ -14,16 +14,16 @@ export const PartialAnalysis = z.object({
     .boolean({
       message: "Veuillez renseigner la conformité de l'échantillon."
     })
-    .optional(),
-  notesOnCompliance: z.string().nullish()
+    .nullable(),
+  notesOnCompliance: z.string().nullable()
 });
 
 export const Analysis = z.object({
   ...PartialAnalysis.shape,
-  ...PartialAnalysis.pick({
-    status: true,
-    compliance: true
-  }).required().shape,
+  compliance: z.boolean({
+    message: "Veuillez renseigner la conformité de l'échantillon."
+  }),
+  notesOnCompliance: z.string().nullable(),
   residues: z.array(Residue)
 });
 
@@ -38,18 +38,7 @@ export const AnalysisToUpdate = PartialAnalysis.omit({
   createdBy: true
 });
 
-export const CreatedAnalysis = z.object({
-  ...AnalysisToCreate.shape,
-  ...Analysis.pick({
-    id: true,
-    createdAt: true,
-    createdBy: true,
-    status: true
-  }).shape
-});
-
 export type Analysis = z.infer<typeof Analysis>;
 export type AnalysisToCreate = z.infer<typeof AnalysisToCreate>;
 export type AnalysisToUpdate = z.infer<typeof AnalysisToUpdate>;
-export type CreatedAnalysis = z.infer<typeof CreatedAnalysis>;
 export type PartialAnalysis = z.infer<typeof PartialAnalysis>;

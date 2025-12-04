@@ -2,11 +2,7 @@ import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { OptionalBooleanList } from '../referential/OptionnalBoolean';
 import { AnalyteList } from '../referential/Residue/Analyte';
-import {
-  Analysis,
-  AnalysisToCreate,
-  PartialAnalysis
-} from '../schema/Analysis/Analysis';
+import { AnalysisToCreate, PartialAnalysis } from '../schema/Analysis/Analysis';
 import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
 import { AnalysisStatusList } from '../schema/Analysis/AnalysisStatus';
 import { Analyte, PartialAnalyte } from '../schema/Analysis/Analyte';
@@ -22,13 +18,16 @@ export const genAnalysisToCreate = (
 });
 
 export const genPartialAnalysis = (
-  data?: Omit<Partial<Analysis>, 'residues'> & Pick<PartialAnalysis, 'residues'>
+  data?: Omit<Partial<PartialAnalysis>, 'residues'> &
+    Pick<PartialAnalysis, 'residues'>
 ): PartialAnalysis => ({
   ...genAnalysisToCreate(),
   id: uuidv4(),
   createdAt: new Date(),
   createdBy: uuidv4(),
   status: oneOf(AnalysisStatusList),
+  compliance: null,
+  notesOnCompliance: null,
   ...data
 });
 

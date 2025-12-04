@@ -1,4 +1,3 @@
-import { isNil, omitBy } from 'lodash-es';
 import {
   Analysis,
   AnalysisToCreate,
@@ -14,8 +13,7 @@ const analysisApi = api.injectEndpoints({
         url: 'analysis',
         params: { sampleId }
       }),
-      transformResponse: (response: any) =>
-        PartialAnalysis.parse(omitBy(response, isNil)),
+      transformResponse: (response: any) => PartialAnalysis.parse(response),
       providesTags: (_result, _error, sampleId) => [
         { type: 'SampleAnalysis', id: sampleId }
       ]
@@ -26,8 +24,7 @@ const analysisApi = api.injectEndpoints({
         method: 'POST',
         body: { ...draft }
       }),
-      transformResponse: (response: any) =>
-        PartialAnalysis.parse(omitBy(response, isNil)),
+      transformResponse: (response: any) => PartialAnalysis.parse(response),
       invalidatesTags: (_result, _error, draft) => [
         { type: 'SampleAnalysis', id: draft.sampleId },
         { type: 'Sample' as const, id: draft.sampleId },
@@ -43,8 +40,7 @@ const analysisApi = api.injectEndpoints({
         method: 'PUT',
         body: partialAnalysis
       }),
-      transformResponse: (response: any) =>
-        PartialAnalysis.parse(omitBy(response, isNil)),
+      transformResponse: (response: any) => PartialAnalysis.parse(response),
       invalidatesTags: (_result, _error, draft) => [
         { type: 'SampleAnalysis', id: draft.sampleId },
         { type: 'Sample' as const, id: draft.sampleId },
@@ -54,7 +50,10 @@ const analysisApi = api.injectEndpoints({
     getAnalysisReportDocumentIds: builder.query<string[], string>({
       query: (analysisId) => ({
         url: `analysis/${analysisId}/reportDocuments`
-      })
+      }),
+      providesTags: (_result, _error, analysisId) => [
+        { type: 'AnalysisReportDocuments', id: analysisId }
+      ]
     }),
     createAnalysisReportDocument: builder.mutation<
       void,
@@ -65,8 +64,8 @@ const analysisApi = api.injectEndpoints({
         method: 'POST',
         body: { documentId }
       }),
-      invalidatesTags: (_result, _error, { sampleId }) => [
-        { type: 'SampleAnalysis', id: sampleId }
+      invalidatesTags: (_result, _error, { analysisId }) => [
+        { type: 'AnalysisReportDocuments', id: analysisId }
       ]
     }),
     deleteAnalysisReportDocument: builder.mutation<
@@ -78,8 +77,8 @@ const analysisApi = api.injectEndpoints({
         method: 'DELETE',
         body: { documentId }
       }),
-      invalidatesTags: (_result, _error, { sampleId }) => [
-        { type: 'SampleAnalysis', id: sampleId }
+      invalidatesTags: (_result, _error, { analysisId }) => [
+        { type: 'AnalysisReportDocuments', id: analysisId }
       ]
     })
   })

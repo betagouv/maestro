@@ -5,17 +5,20 @@ import clsx from 'clsx';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
-import { FunctionComponent, useContext, useState } from 'react';
+import { FunctionComponent, useContext, useMemo, useState } from 'react';
 import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import SampleAdmissibility from 'src/views/SampleView/SampleAnalysis/SampleAdmissibility/SampleAdmissibility';
-import SampleAnalysisOverview from 'src/views/SampleView/SampleAnalysis/SampleAnalysisOverview/SampleAnalysisOverview';
-import SampleDraftAnalysis from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/SampleDraftAnalysis';
 import UserFeedback from '../../../components/UserFeedback/UserFeedback';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
-import { SampleAnalysisReview } from './SampleAnalysisReview/SampleAnalysisReview';
+import { SampleAnalysisForm } from './SampleAnalysisForm/SampleAnalysisForm';
+import { SampleAnalysisOverview } from './SampleAnalysisOverview/SampleAnalysisOverview';
+
+import { useLocation } from 'react-router';
+import './SampleAnalysis.scss';
+import { AnalysisDocumentPreview } from './SampleAnalysisForm/AnalysisDocumentPreview';
 
 type Props = {
   sample: Sample;
@@ -23,10 +26,11 @@ type Props = {
 
 const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
   const apiClient = useContext(ApiClientContext);
-  const { hasUserPermission } = useAuthentication();
+  const { hasUserPermission, user } = useAuthentication();
+  const location = useLocation();
 
   const { getSampleItemLaboratory } = usePartialSample(sample);
-  const { navigateToSample } = useSamplesLink();
+  const { navigateToSample, navigateToSampleEdit } = useSamplesLink();
   const [updateSample, { isSuccess: isSendingSuccess }] =
     apiClient.useUpdateSampleMutation({
       fixedCacheKey: `sending-sample-${sample.id}`
@@ -48,7 +52,15 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
     sample.receivedAt ? dateFormat.format(sample.receivedAt) : undefined
   );
 
-  const [continueToAnalysis, setContinueToAnalysis] = useState(false);
+  const readonly = useMemo(
+    () =>
+      !hasUserPermission('createAnalysis') || sample.region !== user?.region,
+    [hasUserPermission, sample, user?.region]
+  );
+
+  const isEditing: boolean =
+    !readonly &&
+    (location.pathname.endsWith('/edit') || analysis?.status !== 'Completed');
 
   return (
     <div>
@@ -87,7 +99,7 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
         <div style={{ flex: 1 }}>
           <h3>
             <div className="sample-status">
-              <div>Suivi du prélèvement</div>
+              <div>Suivi des résultats</div>
               <div>
                 {sample.status === 'Completed' &&
                   hasUserPermission('restoreSampleToReview') && (
@@ -148,48 +160,33 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
       {sample.status !== 'InReview' ? (
         <SampleAdmissibility sample={sample} />
       ) : null}
-      {sample.status === 'Analysis' && !analysis && !continueToAnalysis ? (
-        <Button
-          iconId="fr-icon-arrow-down-line"
-          iconPosition="right"
-          className="fr-m-0"
-          onClick={() => setContinueToAnalysis(true)}
-        >
-          Saisir le résultat
-        </Button>
-      ) : (
-        <>
-          {['Analysis', 'InReview', 'Completed'].includes(sample.status) && (
-            <div
-              className={clsx(
-                cx(
-                  'fr-callout',
-                  ['Completed', 'InReview'].includes(sample.status)
-                    ? 'fr-callout--green-emeraude'
-                    : 'fr-callout--pink-tuile'
-                ),
-                'sample-callout',
-                'analysis-container',
-                'fr-mt-5w'
-              )}
-            >
-              {sample.status === 'InReview' && analysis !== undefined ? (
-                <SampleAnalysisReview
-                  sample={sample}
-                  partialAnalysis={analysis}
-                  onReviewDone={() => navigateToSample(sample.id)}
-                />
-              ) : (
-                <SampleDraftAnalysis sample={sample} />
-              )}
-              {sample.status === 'Completed' && (
-                <SampleAnalysisOverview sample={sample} />
-              )}
-            </div>
-          )}
-          {sample.status === 'InReview' && <UserFeedback />}
-        </>
-      )}
+
+      <AnalysisDocumentPreview
+        partialAnalysis={analysis}
+        sampleId={sample.id}
+        readonly={!isEditing}
+      />
+
+      {['Analysis', 'InReview', 'Completed'].includes(sample.status) &&
+        analysis && (
+          <div className={clsx('analysis-container', 'fr-mt-4w')}>
+            {!isEditing ? (
+              <SampleAnalysisOverview
+                sample={sample}
+                analysis={analysis}
+                readonly={readonly}
+                onEdit={() => navigateToSampleEdit(sample.id)}
+              />
+            ) : (
+              <SampleAnalysisForm
+                partialAnalysis={analysis}
+                sample={sample}
+                onDone={() => navigateToSample(sample.id)}
+              />
+            )}
+          </div>
+        )}
+      {sample.status === 'InReview' && <UserFeedback />}
     </div>
   );
 };

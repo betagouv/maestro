@@ -151,12 +151,13 @@ const parsePartialAnalysis = (
 ): PartialAnalysis =>
   partialAnalysisJoinedDbo &&
   PartialAnalysis.parse({
-    ...omit(omitBy(partialAnalysisJoinedDbo, isNil), ['residues', 'analytes']),
-    residues: partialAnalysisJoinedDbo.residues?.map((residue) =>
+    ...omit(partialAnalysisJoinedDbo, ['residues', 'analytes']),
+    residues: partialAnalysisJoinedDbo.residues?.map((residue, i) =>
       convertKeysToCamelCase(
         omitBy(
           {
             ...residue,
+            residueNumber: i + 1,
             analytes: residue.analytes?.map((analyte) =>
               convertKeysToCamelCase(omitBy(analyte, isNil))
             )

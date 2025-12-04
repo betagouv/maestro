@@ -13,7 +13,9 @@ describe('update', () => {
     analysis = {
       sampleId: Sample13Fixture.id,
       status: 'Completed',
-      createdAt: new Date()
+      createdAt: new Date(),
+      compliance: null,
+      notesOnCompliance: null
     };
   });
   test("don't delete the ND residues", async () => {
@@ -213,7 +215,7 @@ describe('findUnique', () => {
           analysisMethod: 'Mono',
           lmr: 10,
           reference: 'RF-00000010-PAR',
-          residueNumber: 3,
+          residueNumber: 2,
           result: 1
         }
       ],
