@@ -63,7 +63,11 @@ const SampleItemsContent = ({
                   copyNumber: lastItem.copyNumber + 1,
                   quantity: lastItem.quantity,
                   quantityUnit: lastItem.quantityUnit,
-                  substanceKind: lastItem.substanceKind
+                  substanceKind: lastItem.substanceKind,
+                  compliance200263:
+                    partialSample.specificData.programmingPlanKind === 'PPV'
+                      ? undefined
+                      : true
                 });
               }}
               className={cx('fr-my-1w')}
