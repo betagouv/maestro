@@ -113,8 +113,9 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
         'd-flex-align-start',
         'fr-grid-row'
       )}
+      style={{ gap: '2rem' }}
     >
-      <div className={clsx(cx('fr-col-7'))}>
+      <div className={clsx(cx('fr-col'))}>
         <h6 className={clsx('d-flex-align-center', cx('fr-pl-1w'))}>
           <div className="flex-grow-1">Document du rapport d’analyse</div>
         </h6>
@@ -128,7 +129,10 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
       </div>
       {!readonly && (
         <div
-          className={clsx(cx('fr-p-2w', 'fr-col-4', 'fr-ml-auto'), 'border')}
+          className={clsx(
+            cx('fr-p-2w', 'fr-col-12', 'fr-col-lg-4', 'fr-ml-auto'),
+            'border'
+          )}
         >
           <AppUpload
             nativeInputProps={{
