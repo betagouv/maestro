@@ -1,4 +1,3 @@
-import { isNil, omitBy } from 'lodash-es';
 import {
   Analysis,
   AnalysisToCreate,
@@ -25,8 +24,7 @@ const analysisApi = api.injectEndpoints({
         method: 'POST',
         body: { ...draft }
       }),
-      transformResponse: (response: any) =>
-        PartialAnalysis.parse(omitBy(response, isNil)),
+      transformResponse: (response: any) => PartialAnalysis.parse(response),
       invalidatesTags: (_result, _error, draft) => [
         { type: 'SampleAnalysis', id: draft.sampleId },
         { type: 'Sample' as const, id: draft.sampleId },
