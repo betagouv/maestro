@@ -115,7 +115,7 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
                 ) < departmentalPrescription.sampleCount
             )}
           >
-            Notifier les préleveurs
+            Envoyer aux préleveurs
           </Button>
         </div>
       )}

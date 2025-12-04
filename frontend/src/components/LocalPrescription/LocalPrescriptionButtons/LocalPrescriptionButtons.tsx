@@ -31,8 +31,7 @@ const LocalPrescriptionButtons = ({
   ...buttonsGroupProps
 }: Props) => {
   const dispatch = useAppDispatch();
-  const { hasUserLocalPrescriptionPermission, hasUserPermission } =
-    useAuthentication();
+  const { hasUserLocalPrescriptionPermission } = useAuthentication();
 
   const hasEmptySubstanceKindsLaboratory = useMemo(
     () =>
@@ -130,7 +129,8 @@ const LocalPrescriptionButtons = ({
               }
             }
           : undefined,
-        hasUserPermission('commentPrescription')
+        hasUserLocalPrescriptionPermission(programmingPlan, localPrescription)
+          ?.comment
           ? {
               children: (
                 <span className="no-wrap">

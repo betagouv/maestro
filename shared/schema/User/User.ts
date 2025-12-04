@@ -2,7 +2,7 @@ import { intersection, isNil } from 'lodash-es';
 import { v4 as uuidv4 } from 'uuid';
 import { RefinementCtx, z } from 'zod';
 import { Department } from '../../referential/Department';
-import { Region, RegionList, Regions } from '../../referential/Region';
+import { Region, RegionList } from '../../referential/Region';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserPermission } from './UserPermission';
 
@@ -104,11 +104,6 @@ export const userRegions = (user?: User): Region[] =>
         ? [user.region]
         : []
     : [];
-
-export const userDepartments = (user?: User): Department[] =>
-  user?.department
-    ? [user.department]
-    : userRegions(user).flatMap((region) => Regions[region].departments);
 
 export const hasPermission = (user: User, ...permissions: UserPermission[]) =>
   intersection(permissions, UserRolePermissions[user.role]).length > 0;

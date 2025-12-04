@@ -2,7 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
-import { isEmpty, mapValues, max, omitBy } from 'lodash-es';
+import { isEmpty, isNil, mapValues, max, omitBy } from 'lodash-es';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
@@ -205,35 +205,40 @@ const ProgrammingView = () => {
                 classes={{
                   panel: clsx('white-container')
                 }}
-                tabs={
-                  [
-                    {
-                      label: 'Programmation',
-                      tabId: 'ProgrammationTab',
-                      iconId: 'fr-icon-survey-line'
-                    },
-                    ...(hasUserPermission('manageProgrammingPlan') ||
-                    (programmingPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
-                      hasUserPermission('distributePrescriptionToDepartments'))
-                      ? [
-                          {
-                            label: 'Phase de consultation',
-                            tabId: 'ConsultationTab',
-                            iconId: 'fr-icon-chat-check-line'
-                          }
-                        ]
-                      : []),
-                    ...(hasUserPermission('commentPrescription')
-                      ? [
-                          {
-                            label: 'Commentaires',
-                            tabId: 'CommentsTab',
-                            iconId: 'fr-icon-chat-3-line'
-                          }
-                        ]
-                      : [])
-                  ] as any
-                }
+                tabs={[
+                  {
+                    label: 'Programmation',
+                    tabId: 'ProgrammationTab',
+                    iconId: 'fr-icon-survey-line' as const
+                  },
+                  programmingPlan?.distributionKind === 'REGIONAL' &&
+                  hasUserPermission('manageProgrammingPlan')
+                    ? {
+                        label: 'Phase de consultation',
+                        tabId: 'ConsultationTab',
+                        iconId: 'fr-icon-chat-check-line' as const
+                      }
+                    : undefined,
+                  programmingPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
+                  (hasUserPermission('manageProgrammingPlan') ||
+                    hasUserPermission('distributePrescriptionToDepartments'))
+                    ? {
+                        label: hasNationalView
+                          ? 'Statut par région'
+                          : 'Statut par département',
+                        tabId: 'ConsultationTab',
+                        iconId: 'fr-icon-chat-check-line' as const
+                      }
+                    : undefined,
+                  programmingPlan?.distributionKind === 'REGIONAL' &&
+                  hasUserPermission('commentPrescription')
+                    ? {
+                        label: 'Commentaires',
+                        tabId: 'CommentsTab',
+                        iconId: 'fr-icon-chat-3-line' as const
+                      }
+                    : undefined
+                ].filter((tab) => !isNil(tab))}
               >
                 {programmingPlan ? (
                   <>

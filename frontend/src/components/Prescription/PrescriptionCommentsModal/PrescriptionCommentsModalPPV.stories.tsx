@@ -6,10 +6,9 @@ import {
   FoieDeBovinPrescriptionFixture,
   genPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
-import { DAOAInProgressProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
+import { PPVInProgressProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import { genLocalPrescriptionComment } from 'maestro-shared/test/regionalPrescriptionCommentFixture';
 import {
-  DepartmentalCoordinator,
   genAuthUser,
   NationalCoordinator,
   Region1Fixture,
@@ -24,7 +23,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import PrescriptionCommentsModal from './PrescriptionCommentsModal';
 
 const meta = {
-  title: 'Components/PrescriptionCommentsModal',
+  title: 'Components/PrescriptionCommentsModal/PPV',
   component: PrescriptionCommentsModal,
   parameters: {
     layout: 'fullscreen'
@@ -83,18 +82,11 @@ const recentComments = [
 const allComments = [...oldComments, ...recentComments];
 
 const getProgrammingPlanWithStatus = (status: ProgrammingPlanStatus) => ({
-  ...DAOAInProgressProgrammingPlanFixture,
+  ...PPVInProgressProgrammingPlanFixture,
   regionalStatus: RegionList.map((region) => ({
     region,
     status
-  })),
-  departmentalStatus: RegionList.flatMap((region) =>
-    Regions[region].departments.map((department) => ({
-      region,
-      department,
-      status
-    }))
-  )
+  }))
 });
 
 export const NationalCoordinatorViewByPrescription: Story = {
@@ -175,8 +167,8 @@ export const NationalCoordinatorViewByRegion: Story = {
           programmingPlan: getProgrammingPlanWithStatus('SubmittedToRegion'),
           prescription: genPrescription({
             id: '22222222-2222-2222-2222-222222222222',
-            programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
-            programmingPlanKind: 'DAOA_BREEDING',
+            programmingPlanId: PPVInProgressProgrammingPlanFixture.id,
+            programmingPlanKind: 'PPV',
             context: 'Surveillance',
             matrixKind: 'A01SN',
             stages: ['STADE10']
@@ -246,112 +238,6 @@ export const RegionalCoordinatorViewPlanSubmittedToRegions: Story = {
 
     await expect(
       canvas.getByText('Message au coordinateur national')
-    ).toBeInTheDocument();
-  }
-};
-
-export const RegionalCoordinatorViewPlanSubmittedToDepartments: Story = {
-  args: {
-    onSubmitLocalPrescriptionComment
-  },
-  parameters: {
-    preloadedState: {
-      auth: { authUser: genAuthUser(RegionalCoordinator) }
-    },
-    prescriptionCommentsData: {
-      viewBy: 'Prescription',
-      programmingPlan: getProgrammingPlanWithStatus('SubmittedToDepartments'),
-      prescription: FoieDeBovinPrescriptionFixture,
-      currentRegion: Region1Fixture,
-      regionalCommentsList: [
-        {
-          region: Region1Fixture,
-          comments: allComments
-        },
-        {
-          region: Region1Fixture,
-          department: Regions[Region1Fixture].departments[0],
-          comments: [
-            genLocalPrescriptionComment({
-              createdBy: DepartmentalCoordinator.id
-            })
-          ]
-        },
-        {
-          region: Region1Fixture,
-          department: Regions[Region1Fixture].departments[1],
-          comments: [
-            genLocalPrescriptionComment({
-              createdBy: RegionalCoordinator.id
-            })
-          ]
-        }
-      ]
-    }
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    const title = canvas.queryByText(
-      getPrescriptionTitle(FoieDeBovinPrescriptionFixture)
-    );
-    await expect(title).toBeInTheDocument();
-
-    await expect(
-      canvas.getByText('Message au coordinateur national')
-    ).toBeInTheDocument();
-
-    const departmentsSegment = canvas.getByText('Départements');
-    await expect(departmentsSegment).toBeInTheDocument();
-
-    await userEvent.click(departmentsSegment);
-
-    await expect(
-      canvas.getByText('Message au coordinateur départemental')
-    ).toBeInTheDocument();
-  }
-};
-
-export const DepartmentalCoordinatorView: Story = {
-  args: {
-    onSubmitLocalPrescriptionComment
-  },
-  parameters: {
-    preloadedState: {
-      auth: { authUser: genAuthUser(DepartmentalCoordinator) },
-      prescriptions: {
-        prescriptionFilters: {},
-        prescriptionListDisplay: 'cards'
-      }
-    },
-    prescriptionCommentsData: {
-      viewBy: 'Prescription',
-      programmingPlan: getProgrammingPlanWithStatus('SubmittedToDepartments'),
-      prescription: FoieDeBovinPrescriptionFixture,
-      currentRegion: Region1Fixture,
-      regionalCommentsList: [
-        {
-          region: Region1Fixture,
-          department: Regions[Region1Fixture].departments[0],
-          comments: [
-            genLocalPrescriptionComment({
-              createdBy: RegionalCoordinator.id
-            })
-          ]
-        }
-      ]
-    }
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    const title = canvas.queryByText(
-      getPrescriptionTitle(FoieDeBovinPrescriptionFixture)
-    );
-    await expect(title).toBeInTheDocument();
-
-    await expect(
-      canvas.getByText('Message au coordinateur régional')
     ).toBeInTheDocument();
   }
 };
