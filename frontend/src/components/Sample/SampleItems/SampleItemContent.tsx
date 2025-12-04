@@ -272,61 +272,65 @@ const SampleItemContent = ({
             />
           )}
         </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          {itemsForm ? (
-            <AppRadioButtons
-              legend="Directive 2002/63"
-              options={[
-                {
-                  label: 'Respectée',
-                  nativeInputProps: {
-                    checked: item.compliance200263 === true,
-                    onChange: () =>
-                      onChangeItem?.({ ...item, compliance200263: true })
-                  }
-                },
-                {
-                  label: 'Non respectée',
-                  nativeInputProps: {
-                    checked: item.compliance200263 === false,
-                    onChange: () =>
-                      onChangeItem?.({ ...item, compliance200263: false })
-                  }
-                }
-              ]}
-              colSm={6}
-              inputForm={form}
-              inputKey="items"
-              inputPathFromKey={[itemIndex, 'compliance200263']}
-              whenValid="Directive 2002/63 correctement renseignée."
-              disabled={readonly}
-              required
-            />
-          ) : (
-            <div className="icon-text">
-              <div
-                className={cx('fr-icon-bookmark-fill', {
-                  'fr-label--error': !item.compliance200263,
-                  'fr-label--success': item.compliance200263
-                })}
-              />
-              <div>
-                Directive 2002/63{' '}
-                <b> {!item.compliance200263 && 'non '}respectée</b>
-              </div>
+        {partialSample?.specificData.programmingPlanKind === 'PPV' && (
+          <>
+            <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+              {itemsForm ? (
+                <AppRadioButtons
+                  legend="Directive 2002/63"
+                  options={[
+                    {
+                      label: 'Respectée',
+                      nativeInputProps: {
+                        checked: item.compliance200263 === true,
+                        onChange: () =>
+                          onChangeItem?.({ ...item, compliance200263: true })
+                      }
+                    },
+                    {
+                      label: 'Non respectée',
+                      nativeInputProps: {
+                        checked: item.compliance200263 === false,
+                        onChange: () =>
+                          onChangeItem?.({ ...item, compliance200263: false })
+                      }
+                    }
+                  ]}
+                  colSm={6}
+                  inputForm={form}
+                  inputKey="items"
+                  inputPathFromKey={[itemIndex, 'compliance200263']}
+                  whenValid="Directive 2002/63 correctement renseignée."
+                  disabled={readonly}
+                  required
+                />
+              ) : (
+                <div className="icon-text">
+                  <div
+                    className={cx('fr-icon-bookmark-fill', {
+                      'fr-label--error': !item.compliance200263,
+                      'fr-label--success': item.compliance200263
+                    })}
+                  />
+                  <div>
+                    Directive 2002/63{' '}
+                    <b> {!item.compliance200263 && 'non '}respectée</b>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-        {itemsForm && (
-          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <Link
-              to="https://eur-lex.europa.eu/legal-content/FR/TXT/HTML/?uri=CELEX:02002L0063-20020723"
-              className={clsx(cx('fr-link'), { 'float-right': !isMobile })}
-              target="_blank"
-            >
-              Directive 2002/63
-            </Link>
-          </div>
+            {itemsForm && (
+              <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                <Link
+                  to="https://eur-lex.europa.eu/legal-content/FR/TXT/HTML/?uri=CELEX:02002L0063-20020723"
+                  className={clsx(cx('fr-link'), { 'float-right': !isMobile })}
+                  target="_blank"
+                >
+                  Directive 2002/63
+                </Link>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
