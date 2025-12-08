@@ -23,7 +23,7 @@ type Props = {
 const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
   const { openDocument } = useDocument();
 
-  const [selectedItem, setSelectedItem] = useState(1);
+  const [selectedItem, setSelectedItem] = useState(0);
 
   if (sample.items.length === 0) {
     return <></>;

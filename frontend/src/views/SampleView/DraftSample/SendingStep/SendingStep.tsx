@@ -224,7 +224,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppRadioButtons
-              legend="Le détenteur accepte les informations portées au présent procès verbal"
+              legend="Le détenteur accepte les informations portées au présent procès-verbal"
               options={[
                 {
                   label: 'Oui',
@@ -270,7 +270,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12')}>
               <SupportDocumentSelect
-                label="Document d'accompagnement du prélèvement / Procès verbal"
+                label="Document d'accompagnement du prélèvement / Procès-verbal"
                 sample={sample}
                 renderButtons={(onClick) => (
                   <ButtonsGroup
@@ -298,7 +298,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
         ) : (
           <div className="d-flex-align-center">
             <span className={cx('fr-icon-warning-line', 'fr-mr-1w')}></span>
-            Le document d'accompagnement du prélèvement / Procès verbal sera
+            Le document d'accompagnement du prélèvement / Procès-verbal sera
             disponible lorsque la connexion Internet sera rétablie.
           </div>
         )}
@@ -306,7 +306,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12', 'fr-mb-1w')}>
               <h6 className={cx('fr-mb-0')}>
-                Envoyer le procès verbal au détenteur de la marchandise
+                Envoyer le procès-verbal au détenteur de la marchandise
               </h6>
               {sample.items.length}{' '}
               {pluralize(sample.items.length)("document d'accompagnement")}
@@ -345,7 +345,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
                 inputKey="ownerEmail"
                 whenValid="Email valide"
                 label="E-mail du détenteur"
-                hintText="Le détenteur recevra une copie du procès verbal"
+                hintText="Le détenteur recevra une copie du procès-verbal"
                 disabled={readonly}
               />
             </div>
