@@ -19,9 +19,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const programmingPlan = genProgrammingPlan({
-  kinds: ['PPV']
-});
+const programmingPlan = genProgrammingPlan();
 
 export const EmptyForm: Story = {
   args: { programmingPlan },

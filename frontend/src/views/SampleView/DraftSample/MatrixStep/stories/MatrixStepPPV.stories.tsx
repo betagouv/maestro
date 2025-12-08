@@ -105,7 +105,7 @@ export const MatrixStepPPV: Story = {
     ).toBeInTheDocument();
     await expect(canvas.getAllByTestId('notes-input')).toHaveLength(2);
 
-    await expect(canvas.getByTestId('previous-button')).toBeInTheDocument();
+    await expect(canvas.getAllByTestId('previous-button')).toHaveLength(2);
     await expect(canvas.getByTestId('save-button')).toBeInTheDocument();
     await expect(canvas.getByTestId('submit-button')).toBeInTheDocument();
   }
