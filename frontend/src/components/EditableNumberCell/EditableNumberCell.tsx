@@ -19,7 +19,6 @@ const EditableNumberCell = ({
   max
 }: EditableCellProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  // const [value, setValue] = useState(initialValue);
   const [isEditingError, setIsEditingError] = useState(false);
 
   const submitEdition = (value: number) => {
