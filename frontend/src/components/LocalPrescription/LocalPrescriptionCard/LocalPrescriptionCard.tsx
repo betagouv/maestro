@@ -95,7 +95,7 @@ const LocalPrescriptionCard = ({
                 }
                 className="no-wrap"
               >
-                Instructions
+                Info prélèvement
               </Button>
             </div>
             <div className="fr-card__end">

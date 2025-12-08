@@ -25,6 +25,7 @@ import { useAppDispatch } from 'src/hooks/useStore';
 import LocalPrescriptionButtons from '../../../components/LocalPrescription/LocalPrescriptionButtons/LocalPrescriptionButtons';
 import LocalPrescriptionDistributionBadge from '../../../components/LocalPrescription/LocalPrescriptionDistributionBadge/LocalPrescriptionDistributionBadge';
 import PrescriptionBreadcrumb from '../../../components/Prescription/PrescriptionBreadcrumb/PrescriptionBreadcrumb';
+import PrescriptionProgrammingInstruction from '../../../components/Prescription/PrescriptionProgrammingInstruction/PrescriptionProgrammingInstruction';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import { pluralize } from '../../../utils/stringUtils';
@@ -146,6 +147,10 @@ const ProgrammingLocalPrescriptionTable = ({
               prescription={prescription}
               programmingPlan={programmingPlan}
             />
+            <PrescriptionProgrammingInstruction
+              programmingPlan={programmingPlan}
+              value={prescription.programmingInstruction}
+            />
           </div>,
           <div
             className={clsx(cx('fr-text--bold'), 'border-left', 'sample-count')}
@@ -242,7 +247,7 @@ const ProgrammingLocalPrescriptionTable = ({
                 )
               }
             >
-              Instructions
+              Info prélèvement
             </Button>
             <LocalPrescriptionButtons
               programmingPlan={programmingPlan}

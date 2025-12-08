@@ -17,6 +17,7 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { useCallback, useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
+import { useAuthentication } from '../../../hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from '../../../hooks/useStore';
 import { ApiClientContext } from '../../../services/apiClient';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
@@ -33,6 +34,7 @@ const ProgrammingPlanRegionalValidationList = ({
   assert<Equals<keyof typeof _rest, never>>();
   const dispatch = useAppDispatch();
   const apiClient = useContext(ApiClientContext);
+  const { hasUserPermission } = useAuthentication();
 
   const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
@@ -137,9 +139,14 @@ const ProgrammingPlanRegionalValidationList = ({
       >
         <div className={clsx('d-flex-align-center')}>
           <h4 className={clsx(cx('fr-mb-0', 'fr-mr-3w'), 'flex-grow-1')}>
-            {t('region_has_validated', {
-              count: validatedRegions.length
-            })}
+            {t(
+              programmingPlan.distributionKind === 'REGIONAL'
+                ? 'region_has_validated'
+                : 'region_has_sent',
+              {
+                count: validatedRegions.length
+              }
+            )}
           </h4>
           <div className={cx('fr-mr-2w')}>
             <Select
@@ -159,20 +166,28 @@ const ProgrammingPlanRegionalValidationList = ({
           </div>
           <div>
             <Select
-              label="Status"
+              label="Statut"
               nativeSelectProps={{
                 value: statusFilter ?? '',
                 onChange: (e) =>
                   setStatusFilter(e.target.value as ProgrammingPlanStatus)
               }}
             >
-              <option value="">Tous les status</option>
-              {[
-                'SubmittedToRegion',
-                'ApprovedByRegion',
-                'Validated',
-                'Closed'
-              ].map((status) => (
+              <option value="">Tous les statuts</option>
+              {(programmingPlan.distributionKind === 'REGIONAL'
+                ? [
+                    'InProgress',
+                    'SubmittedToRegion',
+                    'ApprovedByRegion',
+                    'Validated'
+                  ]
+                : [
+                    'InProgress',
+                    'SubmittedToRegion',
+                    'SubmittedToDepartments',
+                    'Validated'
+                  ]
+              ).map((status) => (
                 <option key={`select-status-${status}`} value={status}>
                   {ProgrammingPlanStatusLabels[status as ProgrammingPlanStatus]}
                 </option>
@@ -245,75 +260,80 @@ const ProgrammingPlanRegionalValidationList = ({
                           ),
                           { preserveCount: true }
                         )('prélèvement')}
-                        <Badge
-                          noIcon
-                          severity={
-                            validatedRegions.some(
-                              (validatedRegion) =>
-                                validatedRegion.region === region
-                            )
-                              ? 'success'
-                              : 'warning'
-                          }
-                          className={'fr-mx-1w'}
-                        >
-                          {validatedRegions.some(
+                      </div>
+
+                      <Badge
+                        noIcon
+                        severity={
+                          validatedRegions.some(
                             (validatedRegion) =>
                               validatedRegion.region === region
                           )
-                            ? 'Consultation terminée'
-                            : 'En attente'}
-                        </Badge>
-                      </div>
+                            ? 'success'
+                            : 'warning'
+                        }
+                        className={'fr-my-1w'}
+                      >
+                        {
+                          ProgrammingPlanStatusLabels[
+                            programmingPlan.regionalStatus.find(
+                              (rs) => rs.region === region
+                            )?.status as ProgrammingPlanStatus
+                          ]
+                        }
+                      </Badge>
                     </div>
                   </div>
                 </div>
-                <ButtonsGroup
-                  buttonsEquisized
-                  buttonsSize="small"
-                  alignment="center"
-                  inlineLayoutWhen="always"
-                  className={cx('fr-m-0')}
-                  buttons={[
-                    {
-                      children: (
-                        <span className="no-wrap">
-                          {t('comment', {
-                            count: sumBy(
+                {programmingPlan?.distributionKind === 'REGIONAL' &&
+                  hasUserPermission('commentPrescription') && (
+                    <ButtonsGroup
+                      buttonsEquisized
+                      buttonsSize="small"
+                      alignment="center"
+                      inlineLayoutWhen="always"
+                      className={cx('fr-m-0')}
+                      buttons={[
+                        {
+                          children: (
+                            <span className="no-wrap">
+                              {t('comment', {
+                                count: sumBy(
+                                  regionalCommentedPrescriptions(region),
+                                  (rcp) => (rcp.comments ?? []).length
+                                )
+                              })}
+                            </span>
+                          ),
+                          disabled:
+                            sumBy(
                               regionalCommentedPrescriptions(region),
                               (rcp) => (rcp.comments ?? []).length
-                            )
-                          })}
-                        </span>
-                      ),
-                      disabled:
-                        sumBy(
-                          regionalCommentedPrescriptions(region),
-                          (rcp) => (rcp.comments ?? []).length
-                        ) === 0,
-                      priority: 'tertiary no outline',
-                      onClick: () =>
-                        dispatch(
-                          prescriptionsSlice.actions.setPrescriptionCommentsData(
-                            {
-                              viewBy: 'Region',
-                              region,
-                              prescriptionCommentsList:
-                                regionalCommentedPrescriptions(region).map(
-                                  (rcp) => ({
-                                    programmingPlan,
-                                    prescription: rcp.prescription,
-                                    comments: rcp.comments ?? []
-                                  })
-                                )
-                            }
-                          )
-                        ),
-                      iconId: 'fr-icon-chat-3-line',
-                      className: cx('fr-m-0')
-                    }
-                  ]}
-                />
+                            ) === 0,
+                          priority: 'tertiary no outline',
+                          onClick: () =>
+                            dispatch(
+                              prescriptionsSlice.actions.setPrescriptionCommentsData(
+                                {
+                                  viewBy: 'Region',
+                                  region,
+                                  prescriptionCommentsList:
+                                    regionalCommentedPrescriptions(region).map(
+                                      (rcp) => ({
+                                        programmingPlan,
+                                        prescription: rcp.prescription,
+                                        comments: rcp.comments ?? []
+                                      })
+                                    )
+                                }
+                              )
+                            ),
+                          iconId: 'fr-icon-chat-3-line',
+                          className: cx('fr-m-0')
+                        }
+                      ]}
+                    />
+                  )}
               </div>
             </div>
           ))}

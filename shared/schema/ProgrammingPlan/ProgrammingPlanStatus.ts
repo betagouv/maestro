@@ -25,12 +25,12 @@ export const ProgrammingPlanStatusLabels: Record<
   ProgrammingPlanStatus,
   string
 > = {
-  InProgress: 'Programmation en cours',
-  SubmittedToRegion: 'Soumis à la région',
-  SubmittedToDepartments: 'Soumis aux départements',
+  InProgress: 'En cours',
+  SubmittedToRegion: 'Envoyée à la région',
+  SubmittedToDepartments: 'Envoyée aux départements',
   ApprovedByRegion: 'Approuvé par la région',
-  Validated: 'Campagne en cours',
-  Closed: 'Campagne terminée'
+  Validated: 'Campagne de prélèvements en cours',
+  Closed: 'Campagne de prélèvements terminée'
 };
 
 export const ProgrammingPlanStatusPermissions: Record<

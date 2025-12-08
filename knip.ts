@@ -29,7 +29,10 @@ export default {
         //Utilisé de façon indirecte par fetch-intercept
         'whatwg-fetch'
       ],
-      ignore: ['src/serviceWorker.js']
+      ignore: [
+        'src/serviceWorker.js',
+        'src/components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModalDAOA.stories.old.tsx'
+      ]
     },
     shared: {
       ignore: [

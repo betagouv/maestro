@@ -4,13 +4,7 @@ import { Department, DepartmentSort } from '../../referential/Department';
 import { Region, RegionSort } from '../../referential/Region';
 import { Prescription } from '../Prescription/Prescription';
 import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
-import {
-  hasPermission,
-  User,
-  userDepartments,
-  userRegions
-} from '../User/User';
-import { hasNationalRole, hasRegionalRole } from '../User/UserRole';
+import { hasPermission, User, userRegions } from '../User/User';
 import { LocalPrescriptionComment } from './LocalPrescriptionComment';
 import { LocalPrescriptionKey } from './LocalPrescriptionKey';
 import {
@@ -172,28 +166,12 @@ export const hasLocalPrescriptionPermission = (
   comment:
     hasPermission(user, 'commentPrescription') &&
     userRegions(user).includes(localPrescription.region) &&
-    ((programmingPlan.distributionKind === 'REGIONAL' &&
-      programmingPlan.regionalStatus.some(
-        (regionStatus) =>
-          regionStatus.region === localPrescription.region &&
-          regionStatus.status === 'SubmittedToRegion'
-      )) ||
-      (programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
-        (((hasNationalRole(user) || hasRegionalRole(user)) &&
-          programmingPlan.regionalStatus.some(
-            (regionStatus) =>
-              regionStatus.region === localPrescription.region &&
-              ['SubmittedToRegion', 'SubmittedToDepartments'].includes(
-                regionStatus.status
-              )
-          )) ||
-          programmingPlan.departmentalStatus.some(
-            (departmentalStatus) =>
-              departmentalStatus.region === localPrescription.region &&
-              departmentalStatus.department === localPrescription.department &&
-              userDepartments(user).includes(localPrescription.department) &&
-              departmentalStatus.status === 'SubmittedToDepartments'
-          )))),
+    programmingPlan.distributionKind === 'REGIONAL' &&
+    programmingPlan.regionalStatus.some(
+      (regionStatus) =>
+        regionStatus.region === localPrescription.region &&
+        regionStatus.status === 'SubmittedToRegion'
+    ),
   updateLaboratories:
     hasPermission(user, 'updatePrescriptionLaboratories') &&
     userRegions(user).includes(localPrescription.region) &&

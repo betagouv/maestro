@@ -41,7 +41,7 @@ La programmation de prélèvements pour la prochaine campagne de surveillance / 
   ProgrammingPlanSubmittedToDepartments: () => `
 ${Brand} vient d’être mis à jour !  
 
-Une nouvelle programmation pour la prochaine campagne de surveillance / contrôle officielle a été déposée sur ${Brand}  par la coordination régionale.   
+Une nouvelle programmation pour la prochaine campagne de surveillance / contrôle officielle a été déposée sur ${Brand} par la coordination régionale.   
 
 Merci de prendre connaissance de ces nouveaux éléments.`,
   ProgrammingPlanValidated: () => `
