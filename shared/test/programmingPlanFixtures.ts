@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 import { RegionList } from '../referential/Region';
-import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatusList } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { oneOf } from './testFixtures';
@@ -14,7 +13,7 @@ export const genProgrammingPlan = (
   title: 'Production primaire végétale',
   kinds: ['PPV'],
   distributionKind: 'REGIONAL',
-  contexts: [oneOf(ProgrammingPlanContextList)],
+  contexts: ['Control', 'Surveillance'],
   legalContexts: ['A', 'B'],
   substanceKinds: ['Any'],
   samplesOutsidePlanAllowed: true,

@@ -75,7 +75,6 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const { trackEvent } = useAnalytics();
   const { user } = useAuthentication();
   const apiClient = useContext(ApiClientContext);
-
   const [resytalId, setResytalId] = useState(
     partialSample?.resytalId ?? undefined
   );
