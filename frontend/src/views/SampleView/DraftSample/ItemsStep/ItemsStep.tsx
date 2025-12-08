@@ -258,7 +258,7 @@ const ItemsStep = ({ partialSample }: Props) => {
       </div>
       <SampleProcedure partialSample={partialSample} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
+        <div className={cx('fr-col-6')}>
           <AppTextInput
             type="datetime-local"
             defaultValue={sampledAt}
@@ -273,7 +273,7 @@ const ItemsStep = ({ partialSample }: Props) => {
             disabled={readonly}
           />
         </div>
-        <div className={cx('fr-col-12')}>
+        <div className={cx('fr-col-6')}>
           <AppTextInput
             type="date"
             defaultValue={shippingDate ?? ''}
