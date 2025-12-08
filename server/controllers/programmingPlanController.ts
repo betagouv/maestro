@@ -226,24 +226,32 @@ export const programmingPlanRouter = {
                   programmingPlanKinds: programmingPlan.kinds
                 });
 
-                const category =
-                  programmingPlanLocalStatus.status === 'SubmittedToRegion'
-                    ? 'ProgrammingPlanSubmittedToRegion'
-                    : 'ProgrammingPlanValidated';
-
-                await notificationService.sendNotification(
+                const link = `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
                   {
-                    category,
-                    link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
+                    year: programmingPlan.year.toString(),
+                    planIds: programmingPlan.id
+                  }
+                ).toString()}`;
+
+                await (programmingPlanLocalStatus.status === 'SubmittedToRegion'
+                  ? notificationService.sendNotification(
                       {
-                        year: programmingPlan.year.toString(),
-                        planIds: programmingPlan.id
+                        category: 'ProgrammingPlanSubmittedToRegion',
+                        link
+                      },
+                      regionalCoordinators,
+                      {
+                        sender: 'coordination nationale'
                       }
-                    ).toString()}`
-                  },
-                  regionalCoordinators,
-                  undefined
-                );
+                    )
+                  : notificationService.sendNotification(
+                      {
+                        category: 'ProgrammingPlanValidated',
+                        link
+                      },
+                      regionalCoordinators,
+                      undefined
+                    ));
               } else if (
                 programmingPlanLocalStatus.status === 'ApprovedByRegion'
               ) {
@@ -298,7 +306,9 @@ export const programmingPlanRouter = {
                     ).toString()}`
                   },
                   departmentalCoordinators,
-                  undefined
+                  {
+                    sender: 'coordination régionale'
+                  }
                 );
               } else {
                 return { status: constants.HTTP_STATUS_BAD_REQUEST };

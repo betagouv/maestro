@@ -16,7 +16,12 @@ export const Templates = {
       sampledAt: z.string()
     })
   },
-  SubmittedProgrammingPlanTemplate: { id: 3, params: z.undefined() },
+  SubmittedProgrammingPlanTemplate: {
+    id: 3,
+    params: z.object({
+      sender: z.string()
+    })
+  },
   ApprovedProgrammingPlanTemplate: {
     id: 13,
     params: z.object({
