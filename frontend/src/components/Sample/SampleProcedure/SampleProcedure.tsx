@@ -10,7 +10,7 @@ interface Props {
 }
 
 const SampleProcedure = ({ partialSample }: Props) => {
-  if (!partialSample.specificData.programmingPlanKind === 'DAOA_SLAUGHTER') {
+  if (partialSample.specificData.programmingPlanKind !== 'DAOA_SLAUGHTER') {
     return <></>;
   }
 

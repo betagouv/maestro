@@ -116,26 +116,30 @@ describe('Sample router', () => {
     });
   });
 
-  describe('GET /samples/{sampleId}/items/{copyNumber}/document', () => {
-    const testRoute = (sampleId: string, copyNumber: number) =>
-      `/api/samples/${sampleId}/items/${copyNumber}/document`;
+  describe('GET /samples/{sampleId}/items/{itemNumber}/copy/{copyNumber}/document', () => {
+    const testRoute = (
+      sampleId: string,
+      itemNumber: number,
+      copyNumber: number
+    ) =>
+      `/api/samples/${sampleId}/items/${itemNumber}/copy/${copyNumber}/document`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
-        .get(testRoute(Sample11Fixture.id, 1))
+        .get(testRoute(Sample11Fixture.id, 1, 1))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     test('should get a valid sample id', async () => {
       await request(app)
-        .get(`${testRoute(fakerFR.string.alphanumeric(32), 1)}`)
+        .get(`${testRoute(fakerFR.string.alphanumeric(32), 1, 1)}`)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     test('should fail if the sample does not exist', async () => {
       await request(app)
-        .get(`${testRoute(uuidv4(), 1)}`)
+        .get(`${testRoute(uuidv4(), 1, 1)}`)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
@@ -143,7 +147,7 @@ describe('Sample router', () => {
     test('should fail if the sample does not belong to the user region', async () => {
       const forbiddenRequestTest = async (user: User) =>
         request(app)
-          .get(`${testRoute(Sample2Fixture.id, 1)}`)
+          .get(`${testRoute(Sample2Fixture.id, 1, 1)}`)
           .use(tokenProvider(user))
           .expect(constants.HTTP_STATUS_FORBIDDEN);
 
@@ -155,7 +159,7 @@ describe('Sample router', () => {
     test('should successfully get the document', async () => {
       const successRequestTest = async (user: User) => {
         await request(app)
-          .get(`${testRoute(Sample11Fixture.id, 1)}`)
+          .get(`${testRoute(Sample11Fixture.id, 1, 1)}`)
           .use(tokenProvider(user))
           .expect(constants.HTTP_STATUS_OK);
       };

@@ -34,12 +34,14 @@ const ItemsStepSummary = ({ sample, mode = 'section', onEdit }: Props) => {
           à <b>{format(sample.sampledAt, "HH'h'mm")}</b>
         </div>
       </div>
-      <div className="summary-item icon-text">
-        <div className={cx('fr-icon-calendar-event-line')}></div>
-        <div>
-          Date d'expédition : <b>{format(sample.sampledAt, 'dd/MM/yyyy')}</b>
+      {sample.shippingDate && (
+        <div className="summary-item icon-text">
+          <div className={cx('fr-icon-mail-send-line')}></div>
+          <div>
+            Expédié le <b>{format(sample.shippingDate, 'dd/MM/yyyy')}</b>
+          </div>
         </div>
-      </div>
+      )}
       <SampleItems partialSample={sample} items={sample.items} readonly />
       {sample.notesOnItems && (
         <div className="summary-item icon-text">

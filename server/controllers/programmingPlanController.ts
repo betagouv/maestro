@@ -86,7 +86,9 @@ export const programmingPlanRouter = {
         .map(([status]) => status);
 
       const filterProgrammingPlanStatus =
-        hasNationalRole(user) || hasRegionalRole(user)
+        hasNationalRole(user) ||
+        hasRegionalRole(user) ||
+        programmingPlan.distributionKind === 'REGIONAL'
           ? programmingPlan.regionalStatus.filter(
               (_) =>
                 userStatusAuthorized.includes(_.status) &&
@@ -439,6 +441,7 @@ export const programmingPlanRouter = {
         domain: previousProgrammingPlan.domain,
         kinds: previousProgrammingPlan.kinds,
         contexts: previousProgrammingPlan.contexts,
+        legalContexts: previousProgrammingPlan.legalContexts,
         samplesOutsidePlanAllowed:
           previousProgrammingPlan.samplesOutsidePlanAllowed,
         distributionKind: previousProgrammingPlan.distributionKind,
