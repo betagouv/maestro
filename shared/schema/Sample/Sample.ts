@@ -13,6 +13,7 @@ import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import { Region } from '../../referential/Region';
 import { SSD2Id } from '../../referential/Residue/SSD2Id';
 import { Stage } from '../../referential/Stage';
+import { maestroDate } from '../../utils/date';
 import { isDefined } from '../../utils/utils';
 import { Company } from '../Company/Company';
 import { Geolocation } from '../Geolocation/Geolocation';
@@ -154,6 +155,7 @@ export const SampleItemsData = z
         error: () => 'La date de prélèvement est invalide.'
       })
     ),
+    shippingDate: maestroDate.nullish(),
     items: z
       .array(SampleItem)
       .min(1, { message: 'Veuillez renseigner au moins un échantillon.' }),
