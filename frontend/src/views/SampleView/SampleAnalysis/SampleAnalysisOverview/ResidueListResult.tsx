@@ -82,8 +82,28 @@ export const ResidueListResult: FunctionComponent<Props> = ({
           </button>
         ) : null}
       </div>
-      <div className={clsx(cx('fr-p-3w'), 'residue-detail', 'border-left')}>
-        {residuePanel(selectedIndex)}
+      <div className={clsx('border-left', 'residue-detail')}>
+        <div className={clsx(cx('fr-p-3w'), 'border-bottom')}>
+          {residuePanel(selectedIndex)}
+        </div>
+        <div className={clsx(cx('fr-p-3w'), 'd-flex-align-center')}>
+          <Button
+            priority={'tertiary no outline'}
+            iconId={'fr-icon-arrow-left-s-line'}
+            onClick={() => setSelectedIndex((i) => i - 1)}
+          >
+            Résidu n
+          </Button>
+          <Button
+            priority={'tertiary no outline'}
+            iconId={'fr-icon-arrow-right-s-line'}
+            iconPosition={'right'}
+            className={clsx(cx('fr-ml-auto'))}
+            onClick={() => setSelectedIndex((i) => i + 1)}
+          >
+            Résidu n
+          </Button>
+        </div>
       </div>
     </div>
   ) : (
