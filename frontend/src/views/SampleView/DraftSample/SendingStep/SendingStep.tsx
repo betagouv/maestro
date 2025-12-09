@@ -38,6 +38,7 @@ import SavedAlert from 'src/views/SampleView/SavedAlert';
 import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSummary';
 import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
+import { z } from 'zod';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { ApiClientContext } from '../../../../services/apiClient';
@@ -73,11 +74,36 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
       fixedCacheKey: `sending-sample-${sample.id}`
     });
 
+  const substanceKindsLaboratories = useMemo(
+    () =>
+      sample.items
+        .filter((_) => _.copyNumber === 1)
+        .map((item) => ({
+          substanceKind: item.substanceKind,
+          laboratory: getSampleItemLaboratory(item.itemNumber) as Laboratory
+        })),
+    [sample.items, getSampleItemLaboratory]
+  );
+
+  const hasAllLaboratories = useMemo(
+    () =>
+      substanceKindsLaboratories.every(({ laboratory }) =>
+        isDefined(laboratory)
+      ),
+    [substanceKindsLaboratories]
+  );
+
   const isSendable = useMemo(
     () =>
-      SampleToCreate.merge(SampleOwnerData.partial()).safeParse(sample)
-        .success && isOnline,
-    [sample, isOnline]
+      z
+        .object({
+          ...SampleToCreate.shape,
+          ...SampleOwnerData.partial().shape
+        })
+        .safeParse(sample).success &&
+      isOnline &&
+      hasAllLaboratories,
+    [sample, isOnline, hasAllLaboratories]
   );
 
   const sendingSampleModal = useMemo(
@@ -355,23 +381,28 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
           <Alert
             severity="warning"
             description={
-              <>
-                En l’absence de connexion lors de la saisie, certaines
-                informations n’ont pu être validées (<b>entité contrôlée</b> et
-                <b> localisation de la parcelle</b>)
-                <div>
-                  <Link
-                    to=""
-                    onClick={async (e: React.MouseEvent<HTMLElement>) => {
-                      e.preventDefault();
-                      await save('Draft');
-                      navigateToSample(sample.id, 1);
-                    }}
-                  >
-                    Compléter ces informations
-                  </Link>
-                </div>
-              </>
+              hasAllLaboratories ? (
+                <>
+                  En l’absence de connexion lors de la saisie, certaines
+                  informations n’ont pu être validées (<b>entité contrôlée</b>{' '}
+                  et
+                  <b> localisation de la parcelle</b>)
+                  <div>
+                    <Link
+                      to=""
+                      onClick={async (e: React.MouseEvent<HTMLElement>) => {
+                        e.preventDefault();
+                        await save('Draft');
+                        navigateToSample(sample.id, 1);
+                      }}
+                    >
+                      Compléter ces informations
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                'Le laboratoire destinataire de certaines analyses n’a pas été renseigné lors de la programmation.'
+              )
             }
             small
           />
@@ -454,15 +485,10 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
         </div>
         <SavedAlert isOpen={isSaved} />
       </div>
-      {!readonly && (
+      {!readonly && isSendable && (
         <SendingModal
           modal={sendingSampleModal}
-          substanceKindsLaboratories={sample.items
-            .filter((_) => _.copyNumber === 1)
-            .map((item) => ({
-              substanceKind: item.substanceKind,
-              laboratory: getSampleItemLaboratory(item.itemNumber) as Laboratory
-            }))}
+          substanceKindsLaboratories={substanceKindsLaboratories}
           onConfirm={submit}
         />
       )}
