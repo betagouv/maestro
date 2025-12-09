@@ -35,7 +35,7 @@ const DocumentListView = () => {
   const apiClient = useContext(ApiClientContext);
   useDocumentTitle('Liste des documents ressources');
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const { hasUserPermission } = useAuthentication();
 
   const { data: resources } = apiClient.useFindResourcesQuery();
