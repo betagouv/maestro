@@ -1,7 +1,11 @@
 import { constants } from 'http2';
 import { genUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import request from 'supertest';
-import { userRepository, Users } from '../../repositories/userRepository';
+import {
+  UserCompanies,
+  userRepository,
+  Users
+} from '../../repositories/userRepository';
 import { createServer } from '../../server';
 
 import { fakerFR } from '@faker-js/faker';
@@ -28,6 +32,7 @@ describe('Auth routes', () => {
   });
 
   afterAll(async () => {
+    await UserCompanies().delete().where('userId', user.id);
     await Users().delete().where('email', user.email);
   });
 
