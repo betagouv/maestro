@@ -13,5 +13,9 @@ const consumer = await createConsumer();
 
 process.on('SIGINT', () => {
   console.log('\nGracefully shutting down from SIGINT...');
-  consumer.disconnect().then(() => process.exit());
+  if (consumer) {
+    consumer.disconnect().then(() => process.exit());
+  } else {
+    process.exit();
+  }
 });

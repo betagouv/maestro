@@ -1,11 +1,20 @@
+import { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { toMaestroDate } from 'maestro-shared/utils/date';
-import { generateXMLDAI } from '../sachaToXML';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'path';
+import { encryptFile } from '../../gpgService';
+import { mailService } from '../../mailService';
+import { zip } from '../../zipService';
+import { generateXMLDAI, XmlFile } from '../sachaToXML';
 import { DAI, toSachaDateTime } from '../sachaValidator';
 
-export const generateDAI = (
-  sample: Sample & { programmingPlanKind: 'DAOA_SLAUGHTER' }
-) => {
+export const generateDAI = async (sample: Sample) => {
+  let xmlFile: XmlFile | null = null;
+
+  // TODO
+  const laboratoryName: LaboratoryShortName = 'CAP 29';
   if (sample.specificData.programmingPlanKind === 'DAOA_SLAUGHTER') {
     const dai: DAI['DemandeType'] = {
       DialogueDemandeIntervention: {
@@ -32,7 +41,7 @@ export const generateDAI = (
           //FIXME
           SigleIdentifiant: '',
           Identifiant: '',
-          Nom: sample.sampler.name
+          Nom: sample.sampler.name ?? ''
           //FIXME email
         }
       },
@@ -44,7 +53,7 @@ export const generateDAI = (
             SigleMatriceSpecifique: '',
             NumeroIdentificationExterne: 'ECHANTILLON 1',
             //FIXME on le met où le numéro de scellé !?
-            NumeroEtiquette: sample.items[0].sealId
+            NumeroEtiquette: sample.items[0].sealId.substring(0, 27)
           }
         }
       ],
@@ -63,8 +72,51 @@ export const generateDAI = (
       }
     };
 
-    return generateXMLDAI(dai, 'CAP 29');
+    xmlFile = generateXMLDAI(dai, laboratoryName);
   }
 
+  if (xmlFile) {
+    //--- Without PEL
+    // Create directory with xml file inside
+    const directoryPath = path.join(tmpdir(), xmlFile.fileName);
+    await mkdir(directoryPath);
+
+    const filePath = path.join(directoryPath, `${xmlFile.fileName}.xml`);
+    await writeFile(filePath, xmlFile.content);
+
+    // Zip directory
+    const zipFileName = `${xmlFile.fileName}.zip`;
+    const zipFilePath = await zip(directoryPath, zipFileName);
+
+    // Encrypt
+    // TODO
+    const laboratoryGpgEmail = 'admin@maestro.beta.gouv.fr';
+    const encryptFileName = `${zipFileName}.gpg`;
+    const encryptFilePath = await encryptFile(
+      zipFilePath,
+      laboratoryGpgEmail,
+      encryptFileName
+    );
+    const encryptFileBuffer = await readFile(encryptFilePath);
+
+    // Send by email or FTP
+    await mailService.send({
+      //TODO use generic template
+      templateName: 'AnalysisReviewTodoTemplate',
+      attachment: [
+        {
+          name: encryptFileName,
+          content: Buffer.from(encryptFileBuffer).toString('base64')
+        }
+      ],
+      recipients: [laboratoryGpgEmail],
+      params: {
+        link: 'https://maestro.beta.gouv.fr'
+      }
+    });
+
+    //--- With PEL
+    // Send with KAFKA
+  }
   return null;
 };

@@ -16,11 +16,13 @@ import {
 const xml = z.string().brand('XML');
 export type Xml = z.infer<typeof xml>;
 
+export type XmlFile = { fileName: string; content: Xml };
+
 export const generateXMLAcquitement = (
   messagesAcquittement: Acquittement['MessageAcquittement'],
   messagesNonAcquittement: Acquittement['MessageNonAcquittement'],
   laboratory: LaboratoryShortName
-): Xml => {
+): XmlFile => {
   return generateXML(
     'AN',
     {
@@ -34,7 +36,7 @@ export const generateXMLAcquitement = (
 export const generateXMLDAI = (
   dai: DAI['DemandeType'],
   laboratory: LaboratoryShortName
-): Xml => {
+): XmlFile => {
   return generateXML(
     'DA',
     {
@@ -74,13 +76,16 @@ const generateXML = <T extends FileType>(
   fileType: T,
   content: z.infer<(typeof fileTypeConf)[T]['content']>,
   laboratory: LaboratoryShortName
-): Xml => {
+): XmlFile => {
   const builder = new XMLBuilder({
     ignoreAttributes: false,
     format: true
   });
 
   const conf = fileTypeConf[fileType];
+
+  // TODO
+  const fileName: string = 'TODO_' + Math.random();
 
   const fullContent = z
     .object({
@@ -93,7 +98,7 @@ const generateXML = <T extends FileType>(
         CodeScenario: 'E.D.I. SIGAL/LABOS',
         VersionScenario: '1.0.1',
         TypeFichier: `${fileType}01`,
-        NomFichier: '',
+        NomFichier: fileName,
         NomLogicielCreation: 'SIGAL',
         VersionLogicielCreation: '4.0'
       },
@@ -136,5 +141,5 @@ const generateXML = <T extends FileType>(
   validator.validate(xmlDocument);
 
   xmlDocument.dispose();
-  return xmlResult;
+  return { fileName, content: xmlResult };
 };
