@@ -15,13 +15,15 @@ interface Props {
   documentKind?: DocumentKind;
   onViewDocumentNotes: (document: Document) => void;
   onRemoveDocument: (document: Document) => void;
+  newDocumentId?: string | null;
 }
 
 const DocumentListTabContent = ({
   resources,
   documentKind,
   onViewDocumentNotes,
-  onRemoveDocument
+  onRemoveDocument,
+  newDocumentId
 }: Props) => {
   const [documentListDisplay, setDocumentListDisplay] = useState<
     'cards' | 'table'
@@ -97,6 +99,7 @@ const DocumentListTabContent = ({
                 document={resource}
                 onViewNotes={onViewDocumentNotes}
                 onRemove={onRemoveDocument}
+                isNew={resource.id === newDocumentId}
               />
             </div>
           ))}

@@ -1,3 +1,4 @@
+import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import Card from '@codegouvfr/react-dsfr/Card';
@@ -6,6 +7,7 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { Document } from 'maestro-shared/schema/Document/Document';
 import { DocumentKindLabels } from 'maestro-shared/schema/Document/DocumentKind';
+import { NotificationCategoryTitles } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { formatDate } from 'maestro-shared/utils/date';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocument } from 'src/hooks/useDocument';
@@ -16,9 +18,10 @@ type Props = {
   document: Document;
   onViewNotes: (document: Document) => void;
   onRemove: (document: Document) => void;
+  isNew?: boolean;
 };
 
-const DocumentCard = ({ document, onViewNotes, onRemove }: Props) => {
+const DocumentCard = ({ document, onViewNotes, onRemove, isNew }: Props) => {
   const { hasUserPermission } = useAuthentication();
   const { downloadDocument } = useDocument();
 
@@ -26,8 +29,8 @@ const DocumentCard = ({ document, onViewNotes, onRemove }: Props) => {
     <>
       <Card
         start={
-          <div className={clsx('d-flex-align-start')}>
-            <div className="flex-grow-1">
+          <div className={clsx('d-flex-align-center')}>
+            <div className={clsx('d-flex-align-center', 'flex-grow-1')}>
               <Tag>{DocumentKindLabels[document.kind]}</Tag>
             </div>
             {hasUserPermission('createResource') && (
@@ -51,6 +54,16 @@ const DocumentCard = ({ document, onViewNotes, onRemove }: Props) => {
                 className={'fr-ml-1w'}
               />
             )}
+            {isNew && (
+              <Badge
+                noIcon
+                severity="success"
+                small
+                className="d-flex-align-center"
+              >
+                {NotificationCategoryTitles['ResourceDocumentUploaded']}
+              </Badge>
+            )}
           </div>
         }
         title={document.name}
@@ -60,13 +73,12 @@ const DocumentCard = ({ document, onViewNotes, onRemove }: Props) => {
             <span className={cx('fr-hint-text', 'fr-pb-2w', 'fr-pt-1w')}>
               Version du {formatDate(document.createdAt)}
             </span>
-            <div className={cx('fr-text--regular')}>
+            <span className={cx('fr-text--regular')}>
               <DocumentLink
                 documentId={document.id}
                 iconId="fr-icon-eye-line"
               />
-            </div>
-            <hr className={cx('fr-my-3v')} />
+            </span>
           </>
         }
         size="small"
@@ -101,8 +113,9 @@ const DocumentCard = ({ document, onViewNotes, onRemove }: Props) => {
         }
         classes={{
           end: 'd-none',
-          footer: cx('fr-pb-2w'),
-          content: cx('fr-pb-0')
+          footer: cx('fr-pb-2w', 'fr-mt-1v'),
+          content: cx('fr-pb-0'),
+          desc: clsx(cx('fr-pb-3v'), 'border-bottom')
         }}
       />
     </>

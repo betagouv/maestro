@@ -2,6 +2,7 @@ import { FrIconClassName } from '@codegouvfr/react-dsfr';
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { BadgeProps } from '@codegouvfr/react-dsfr/src/Badge';
 import Tile from '@codegouvfr/react-dsfr/Tile';
 import { Badge as MuiBadge } from '@mui/material';
 import clsx from 'clsx';
@@ -74,15 +75,20 @@ const NotificationsView = () => {
     }
   };
 
-  const Icon: Record<NotificationCategory, FrIconClassName> = {
+  const Icon: Partial<Record<NotificationCategory, FrIconClassName>> = {
     Surveillance: 'fr-icon-line-chart-fill',
     Control: 'fr-icon-line-chart-fill',
     ProgrammingPlanSubmittedToRegion: 'fr-icon-line-chart-fill',
     ProgrammingPlanApprovedByRegion: 'fr-icon-line-chart-fill',
     ProgrammingPlanSubmittedToDepartments: 'fr-icon-line-chart-fill',
     ProgrammingPlanValidated: 'fr-icon-line-chart-fill',
-    AnalysisReviewTodo: 'fr-icon-edit-box-line',
-    ResourceDocumentUploaded: 'fr-icon-article-line'
+    AnalysisReviewTodo: 'fr-icon-edit-box-line'
+  };
+
+  const BadgeSeverity: Partial<
+    Record<NotificationCategory, BadgeProps['severity']>
+  > = {
+    ResourceDocumentUploaded: 'success'
   };
 
   return (
@@ -129,17 +135,19 @@ const NotificationsView = () => {
                     start={
                       <Badge
                         noIcon
-                        severity="new"
+                        severity={BadgeSeverity[notification.category] || 'new'}
                         small
                         className="d-flex-align-center"
                       >
-                        <span
-                          className={cx(
-                            'fr-icon--xs',
-                            'fr-mr-1v',
-                            Icon[notification.category] as FrIconClassName
-                          )}
-                        />
+                        {Icon[notification.category] && (
+                          <span
+                            className={cx(
+                              'fr-icon--xs',
+                              'fr-mr-1v',
+                              Icon[notification.category]
+                            )}
+                          />
+                        )}
                         {NotificationCategoryTitles[notification.category]}
                       </Badge>
                     }

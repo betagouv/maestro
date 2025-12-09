@@ -2,7 +2,6 @@ import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
 import { constants } from 'http2';
 import { isNil } from 'lodash-es';
-import { Brand } from 'maestro-shared/constants';
 import DocumentMissingError from 'maestro-shared/errors/documentMissingError';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { Document } from 'maestro-shared/schema/Document/Document';
@@ -76,7 +75,8 @@ export const documentsRouter = {
           laboratoryUsers,
           {
             object: 'Nouveau document disponible',
-            content: `Le document suivant a été déposé sur ${Brand} : ${document.name}. Veuillez en prendre connaissance.`
+            content: `Une nouvelle ressource a été ajoutée ou mise à jour.  
+            **${document.name}**`
           }
         );
       }

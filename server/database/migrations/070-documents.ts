@@ -30,7 +30,4 @@ export const down = async (knex: Knex) => {
       kind: 'Resource'
     })
     .whereIn('kind', ['TechnicalInstruction', 'OtherResourceDocument']);
-  await knex('documents')
-    .whereNotIn('kind', ['TechnicalInstruction', 'OtherResourceDocument'])
-    .delete();
 };

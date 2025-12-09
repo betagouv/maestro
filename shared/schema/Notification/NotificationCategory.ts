@@ -28,5 +28,5 @@ export const NotificationCategoryTitles: Record<NotificationCategory, string> =
       'Nouveau plan de programmation disponible',
     ProgrammingPlanValidated: 'Lancement de la campagne de prélèvements',
     AnalysisReviewTodo: 'Analyse reçue, interprétation à faire',
-    ResourceDocumentUploaded: 'Nouveau document ressource disponible'
+    ResourceDocumentUploaded: 'Nouveau document'
   };

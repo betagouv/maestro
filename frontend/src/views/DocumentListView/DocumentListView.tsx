@@ -10,7 +10,7 @@ import {
   DocumentKindLabels,
   ResourceDocumentKindList
 } from 'maestro-shared/schema/Document/DocumentKind';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import ressources from 'src/assets/illustrations/ressources.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
@@ -71,18 +71,6 @@ const DocumentListView = () => {
     onConceal: () => setCurrentDocument(undefined)
   });
 
-  useEffect(() => {
-    if (searchParams.get('documentId')) {
-      const documentId = searchParams.get('documentId') as string;
-      const document = resources?.find((doc) => doc.id === documentId);
-      if (document && document.notes) {
-        onViewNotes(document);
-        searchParams.delete('documentId');
-        setSearchParams(searchParams);
-      }
-    }
-  }, [searchParams, resources]); // eslint-disable-line react-hooks/exhaustive-deps
-
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
       <AppToast
@@ -125,6 +113,7 @@ const DocumentListView = () => {
                 resources={resources ?? []}
                 onViewDocumentNotes={onViewNotes}
                 onRemoveDocument={onRemove}
+                newDocumentId={searchParams.get('documentId')}
               />
             )
           },
