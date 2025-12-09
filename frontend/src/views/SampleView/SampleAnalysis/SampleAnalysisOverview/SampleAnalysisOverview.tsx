@@ -64,8 +64,7 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
               analysis.compliance
                 ? 'fr-callout--green-emeraude'
                 : 'fr-callout--pink-tuile',
-              'bg-white',
-              'border',
+              'white-container',
               'border-bottom'
             )}
           >

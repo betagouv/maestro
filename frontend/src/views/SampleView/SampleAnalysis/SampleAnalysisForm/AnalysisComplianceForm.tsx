@@ -45,8 +45,7 @@ export const AnalysisComplianceForm: FunctionComponent<Props> = ({
           : partialAnalysis.compliance === false
             ? 'fr-callout--pink-tuile'
             : undefined,
-        'bg-white',
-        'border',
+        'white-container',
         'border-bottom'
       )}
     >
