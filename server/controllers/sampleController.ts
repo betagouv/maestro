@@ -539,7 +539,6 @@ export const sampleRouter = {
               : null;
 
             if (sampleItem.copyNumber === 1) {
-              //TODO à vérifier cette condition
               const laboratory = (await laboratoryRepository.findUnique(
                 sampleItem.laboratoryId as string
               )) as Laboratory;
