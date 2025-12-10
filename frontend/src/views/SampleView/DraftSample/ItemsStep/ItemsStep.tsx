@@ -37,10 +37,6 @@ import { useAppSelector } from '../../../../hooks/useStore';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 
-type Props = {
-  partialSample: PartialSample | PartialSampleToCreate;
-};
-
 const ItemsStep = ({ partialSample }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
@@ -152,7 +148,24 @@ const ItemsStep = ({ partialSample }: Props) => {
     items: true
   });
 
-  const FormRefinement = Form.check(uniqueSampleItemSealIdCheck);
+  const FormRefinement = Form.check(uniqueSampleItemSealIdCheck).check(
+    (ctx) => {
+      ctx.value.items.forEach((item, index) => {
+        if (
+          item.copyNumber === 1 &&
+          isNil(item.laboratoryId) &&
+          !isProgrammingPlanSample(partialSample)
+        ) {
+          ctx.issues.push({
+            code: 'custom' as const,
+            path: ['items', index, 'laboratoryId'],
+            input: 'items',
+            message: 'Veuillez sélectionner un laboratoire.'
+          });
+        }
+      });
+    }
+  );
 
   useEffect(
     () => {
@@ -199,7 +212,10 @@ const ItemsStep = ({ partialSample }: Props) => {
       sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
       shippingDate,
       notesOnItems,
-      items,
+      items: items.map((item) => ({
+        ...item,
+        laboratoryId: item.laboratoryId || undefined
+      })),
       status
     });
   };
@@ -405,6 +421,10 @@ const ItemsStep = ({ partialSample }: Props) => {
       <SavedAlert isOpen={isSaved} isDraft />
     </form>
   );
+};
+
+type Props = {
+  partialSample: PartialSample | PartialSampleToCreate;
 };
 
 export default ItemsStep;
