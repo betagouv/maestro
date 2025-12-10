@@ -206,9 +206,11 @@ const generateSampleSupportPDF = async (
     sampleItems: (sampleItems.length > 0 ? sampleItems : emptySampleItems).map(
       (sampleItem) => ({
         ...sampleItem,
-        quantityUnit: sampleItem?.quantityUnit
-          ? QuantityUnitLabels[sampleItem.quantityUnit]
-          : '',
+        quantity: `${sampleItem.quantity ?? ''}${
+          sampleItem.quantityUnit
+            ? ` ${QuantityUnitLabels[sampleItem.quantityUnit]}`
+            : ''
+        }`,
         currentItem:
           sampleItem.itemNumber === itemNumber &&
           sampleItem.copyNumber === copyNumber
