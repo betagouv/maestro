@@ -39,6 +39,7 @@ export const ResidueListResult: FunctionComponent<Props> = ({
 
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const oldResiduesLength = useRef(residues.length);
+  const container = useRef<null | HTMLDivElement>(null);
 
   useEffect(() => {
     if (oldResiduesLength.current < residues.length) {
@@ -50,7 +51,7 @@ export const ResidueListResult: FunctionComponent<Props> = ({
   }, [residues]);
 
   return isDesktop ? (
-    <div className={clsx('residue-list-container', 'border')}>
+    <div className={clsx('residue-list-container', 'border')} ref={container}>
       <div className={clsx('residues-side-menu')}>
         {residues.map((r, i) => (
           <ResidueMenuItem
@@ -86,24 +87,36 @@ export const ResidueListResult: FunctionComponent<Props> = ({
         <div className={clsx(cx('fr-p-3w'), 'border-bottom')}>
           {residuePanel(selectedIndex)}
         </div>
-        <div className={clsx(cx('fr-p-3w'), 'd-flex-align-center')}>
-          <Button
-            priority={'tertiary no outline'}
-            iconId={'fr-icon-arrow-left-s-line'}
-            onClick={() => setSelectedIndex((i) => i - 1)}
-          >
-            Résidu n
-          </Button>
-          <Button
-            priority={'tertiary no outline'}
-            iconId={'fr-icon-arrow-right-s-line'}
-            iconPosition={'right'}
-            className={clsx(cx('fr-ml-auto'))}
-            onClick={() => setSelectedIndex((i) => i + 1)}
-          >
-            Résidu n
-          </Button>
-        </div>
+        {residues.length > 1 && (
+          <div className={clsx(cx('fr-p-3w'), 'd-flex-align-center')}>
+            {selectedIndex !== 0 && (
+              <Button
+                priority={'tertiary no outline'}
+                iconId={'fr-icon-arrow-left-s-line'}
+                onClick={() => {
+                  container.current?.scrollIntoView({ behavior: 'smooth' });
+                  return setSelectedIndex((i) => i - 1);
+                }}
+              >
+                Résidu n°{selectedIndex}
+              </Button>
+            )}
+            {selectedIndex !== residues.length - 1 && (
+              <Button
+                priority={'tertiary no outline'}
+                iconId={'fr-icon-arrow-right-s-line'}
+                iconPosition={'right'}
+                className={clsx(cx('fr-ml-auto'))}
+                onClick={() => {
+                  container.current?.scrollIntoView({ behavior: 'smooth' });
+                  return setSelectedIndex((i) => i + 1);
+                }}
+              >
+                Résidu n°{selectedIndex + 2}
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   ) : (
