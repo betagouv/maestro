@@ -2,9 +2,13 @@
 
   display: flex;
   flex-direction: row;
+  position:relative;
 
   .residues-side-menu{
 
+    position:sticky;
+    top: 0;
+    align-self: self-start;
     width: 200px;
 
     .residues-side-menu-item-container{
