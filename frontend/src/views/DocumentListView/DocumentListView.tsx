@@ -125,6 +125,7 @@ const DocumentListView = () => {
                 documentKind={kind}
                 onViewDocumentNotes={onViewNotes}
                 onRemoveDocument={onRemove}
+                newDocumentId={searchParams.get('documentId')}
               />
             )
           }))
