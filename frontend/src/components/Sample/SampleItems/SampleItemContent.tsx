@@ -1,5 +1,6 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import {
   PrimaryQuantityUnitList,
@@ -77,19 +78,6 @@ const SampleItemContent = ({
   const { getSampleItemLaboratory } = usePartialSample(partialSample);
 
   const form = itemsForm ?? fakeForm;
-  // const FormRefinement = Form.check(uniqueSampleItemSealIdCheck).check(
-  //   (ctx) => {
-  //     const laboratoryId = ctx.value.laboratoryId;
-  //     if (!isProgrammingPlanSample(partialSample) && !isDefined(laboratoryId)) {
-  //       ctx.issues.push({
-  //         code: 'custom',
-  //         path: ['laboratoryId'],
-  //         input: laboratoryId,
-  //         message: 'Veuillez sélectionner un laboratoire.'
-  //       });
-  //     }
-  //   }
-  // );
   const readonly = useMemo(
     () => !itemsForm || forceReadonly,
     [itemsForm, forceReadonly]
@@ -125,8 +113,13 @@ const SampleItemContent = ({
               />
             )}
           </div>
-          <div className={clsx(cx('fr-text--bold'))}>
-            {SubstanceKindLabels[item.substanceKind as SubstanceKind]}
+          <div className={clsx('d-flex-align-center')}>
+            <span className={cx('fr-mr-1w')}>Analyse</span>
+            {SubstanceKindLabels[item.substanceKind as SubstanceKind]
+              .split(' et ')
+              .map((label) => (
+                <Tag key={label}>{label}</Tag>
+              ))}
           </div>
         </div>
       </div>

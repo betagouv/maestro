@@ -302,23 +302,28 @@ const MatrixStep = ({ partialSample }: Props) => {
   const matrixOptions = useMemo(
     () =>
       selectOptionsFromList(
-        matrixKind
-          ? (MatrixListByKind[matrixKind as MatrixKind]?.filter((m) =>
-              prescriptions?.some(
-                (p) =>
-                  p.programmingPlanKind === specificData.programmingPlanKind &&
-                  p.matrixKind === matrixKind &&
-                  (isNil(p.matrix) || p.matrix === m)
-              )
-            ) ?? matrixKind)
-          : [],
+        matrixKind === OtherMatrixKind.value
+          ? []
+          : matrixKind
+            ? (MatrixListByKind[matrixKind as MatrixKind]?.filter((m) =>
+                isProgrammingPlanSample(partialSample)
+                  ? prescriptions?.some(
+                      (p) =>
+                        p.programmingPlanKind ===
+                          specificData.programmingPlanKind &&
+                        p.matrixKind === matrixKind &&
+                        (isNil(p.matrix) || p.matrix === m)
+                    )
+                  : true
+              ) ?? matrixKind)
+            : [],
         {
           labels: MatrixLabels,
           withSort: true,
           withDefault: false
         }
       ),
-    [matrixKind, prescriptions, specificData.programmingPlanKind]
+    [matrixKind, prescriptions, specificData.programmingPlanKind, partialSample]
   );
 
   const stageOptions = useMemo(
@@ -405,6 +410,11 @@ const MatrixStep = ({ partialSample }: Props) => {
               disabled: matrixKind === OtherMatrixKind.value,
               'data-testid': 'matrix-kind-select'
             }}
+            renderOption={(props, option) => (
+              <li {...props} key={option.value}>
+                {option.label}
+              </li>
+            )}
           />
           {isOutsideProgrammingPlanSample(partialSample) && (
             <Checkbox

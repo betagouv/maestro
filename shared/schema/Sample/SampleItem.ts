@@ -33,7 +33,12 @@ export const SampleItem = z.object({
     .min(1, 'Veuillez renseigner le numéro de scellé.'),
   supportDocumentId: z.guid().nullish(),
   recipientKind: SampleItemRecipientKind,
-  laboratoryId: z.guid().nullish(),
+  laboratoryId: z
+    .guid({
+      error: () =>
+        "Veuillez renseigner le laboratoire destinataire de l'échantillon."
+    })
+    .nullish(),
   substanceKind: SubstanceKind
 });
 
