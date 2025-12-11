@@ -37,7 +37,8 @@ const LocalPrescriptionCard = ({
   onToggleSelection
 }: Props) => {
   const dispatch = useAppDispatch();
-  const { hasUserPermission } = useAuthentication();
+  const { hasUserPermission, hasUserLocalPrescriptionPermission } =
+    useAuthentication();
 
   if (!programmingPlan || !localPrescription) {
     return <></>;
@@ -125,12 +126,23 @@ const LocalPrescriptionCard = ({
                         preserveCount: true
                       })('prélèvement programmé')}
                     </span>
-                    {' • '}
-                    <LocalPrescriptionDistributionBadge
-                      localPrescription={localPrescription}
-                      subLocalPrescriptions={subLocalPrescriptions}
-                      small
-                    />
+                    {(hasUserLocalPrescriptionPermission(
+                      programmingPlan,
+                      localPrescription
+                    )?.distributeToDepartments ||
+                      hasUserLocalPrescriptionPermission(
+                        programmingPlan,
+                        localPrescription
+                      )?.distributeToSlaughterhouses) && (
+                      <>
+                        {' • '}
+                        <LocalPrescriptionDistributionBadge
+                          localPrescription={localPrescription}
+                          subLocalPrescriptions={subLocalPrescriptions}
+                          small
+                        />
+                      </>
+                    )}
                   </>
                 )}
                 {(hasUserPermission('distributePrescriptionToDepartments') ||
