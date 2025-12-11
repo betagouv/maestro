@@ -77,6 +77,8 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
     return <></>;
   }
 
+  console.log(departmentalPrescriptions);
+
   return (
     <>
       {departmentalPrescriptions.some(
