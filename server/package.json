@@ -55,7 +55,7 @@
     "kysely": "^0.27.4",
     "maestro-shared": "^0.0.1",
     "mailparser": "^3.7.5",
-    "nodemailer": "^7.0.10",
+    "nodemailer": "^7.0.11",
     "openid-client": "^5.7.1",
     "pdf-lib": "^1.17.1",
     "pg": "^8.13.1",
