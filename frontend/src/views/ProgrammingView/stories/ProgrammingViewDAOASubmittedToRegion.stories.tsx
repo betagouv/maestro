@@ -134,5 +134,9 @@ export const RegionalCoordinatorView: Story = {
     ).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
+
+    await expect(canvasElement.querySelectorAll('.fr-badge')).toHaveLength(
+      prescriptions.length
+    );
   }
 };

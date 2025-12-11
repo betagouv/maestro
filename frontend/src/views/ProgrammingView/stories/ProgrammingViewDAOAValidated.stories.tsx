@@ -170,6 +170,10 @@ export const RegionalCoordinatorView: Story = {
     await expect(canvas.queryByTestId('Commentaires')).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
+
+    await expect(canvasElement.querySelectorAll('.fr-badge')).toHaveLength(
+      prescriptions.length
+    );
   }
 };
 
@@ -218,6 +222,10 @@ export const DepartmentalCoordinatorView: Story = {
     await expect(canvas.queryByTestId('Commentaires')).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
+
+    await expect(canvasElement.querySelectorAll('.fr-badge')).toHaveLength(
+      prescriptions.length
+    );
   }
 };
 
@@ -264,5 +272,7 @@ export const SamplerView: Story = {
     await expect(canvas.queryByText('Commentaires')).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
+
+    await expect(canvasElement.querySelectorAll('.fr-badge')).toHaveLength(0);
   }
 };
