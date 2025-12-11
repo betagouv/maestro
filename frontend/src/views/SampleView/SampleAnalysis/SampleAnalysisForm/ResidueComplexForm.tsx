@@ -17,18 +17,19 @@ import AppSearchInput from 'src/components/_app/AppSearchInput/AppSearchInput';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
-import { Props as AnalysisResidueForm } from './AnalysisResidueForm';
-import SimpleResidueForm from './SimpleResidueForm';
+import { UseForm } from '../../../../hooks/useForm';
+import ResidueSimpleForm from './ResidueSimpleForm';
+import { ResiduesLmrValidator } from './SampleAnalysisForm';
 
 interface Props {
-  form: AnalysisResidueForm['form'];
+  form: UseForm<ResiduesLmrValidator>;
   residue: Omit<PartialResidue, 'reference'>;
   residueIndex: number;
   residueReference: SSD2Id;
   changeResidue: (residue: Props['residue'], residueIndex: number) => void;
 }
 
-function ComplexResidueForm({
+function ResidueComplexForm({
   form,
   residue,
   residueIndex,
@@ -64,13 +65,13 @@ function ComplexResidueForm({
   return (
     <>
       {residue.analytes?.map((analyte, analyteIndex) => (
-        <div key={`analyte-${analyteIndex}`} className="analyte-form">
-          <div className="d-flex-align-center">
+        <div key={`analyte-${analyteIndex}`}>
+          <div className={clsx(cx('fr-mb-2w'), 'd-flex-align-center')}>
             <Badge severity="warning" noIcon>
               Analyte n°{analyteIndex + 1} du résidu complexe
             </Badge>
             <div className="border-middle"></div>
-            {analyteIndex > 0 && (
+            {(residue.analytes?.length ?? 0) > 1 && (
               <Button
                 iconId="fr-icon-delete-line"
                 onClick={() => removeAnalyte(analyteIndex)}
@@ -187,7 +188,7 @@ function ComplexResidueForm({
         >
           Ajouter un analyte
         </Button>
-        <div className="border-middle"></div>
+        <div className={clsx('border-middle', cx('fr-my-0'))}></div>
       </div>
       <h6 className={cx('fr-mb-0')}>
         <span
@@ -198,7 +199,7 @@ function ComplexResidueForm({
         ></span>
         Somme des analytes
       </h6>
-      <SimpleResidueForm
+      <ResidueSimpleForm
         form={form}
         residue={residue}
         residueIndex={residueIndex}
@@ -208,4 +209,4 @@ function ComplexResidueForm({
   );
 }
 
-export default ComplexResidueForm;
+export default ResidueComplexForm;

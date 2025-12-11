@@ -25,7 +25,7 @@ export const ReviewWithoutResidu: Story = {
   args: {
     sample: {
       ...Sample11Fixture,
-      status: 'InReview',
+      status: 'Analysis',
       receivedAt: new Date(12345)
     } as Sample
   },

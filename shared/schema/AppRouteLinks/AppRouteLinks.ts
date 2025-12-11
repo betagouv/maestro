@@ -21,6 +21,9 @@ export const AppRouteLinks = {
   SampleRoute: {
     link: (sampleId: string) => `/prelevements/${sampleId}`
   },
+  SampleAnalysisEditRoute: {
+    link: (sampleId: string) => `/prelevements/${sampleId}/edit`
+  },
   NewDocumentRoute: {
     link: '/documents/nouveau'
   },
