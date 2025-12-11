@@ -26,6 +26,7 @@ import {
   PartialSampleItem,
   SampleItemMaxCopyCount
 } from 'maestro-shared/schema/Sample/SampleItem';
+import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { formatWithTz } from 'maestro-shared/utils/utils';
 import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
@@ -74,6 +75,11 @@ const generatePDF = async (template: Template, data: unknown) => {
     function (this: any, arr: any, options: any) {
       return Array.isArray(arr) ? options.fn(this) : options.inverse(this);
     }
+  );
+
+  handlebars.registerHelper(
+    'isEmpty',
+    (a?: string | null) => isNil(a) || String(a).trim() === ''
   );
 
   const compiledTemplate = handlebars.compile(templateContent(template));
@@ -211,6 +217,9 @@ const generateSampleSupportPDF = async (
             ? ` ${QuantityUnitLabels[sampleItem.quantityUnit]}`
             : ''
         }`,
+        recipientKind: sampleItem.recipientKind
+          ? SampleItemRecipientKindLabels[sampleItem.recipientKind]
+          : '',
         currentItem:
           sampleItem.itemNumber === itemNumber &&
           sampleItem.copyNumber === copyNumber
