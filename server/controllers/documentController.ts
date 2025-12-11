@@ -1,13 +1,20 @@
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
 import { constants } from 'http2';
+import { isNil } from 'lodash-es';
 import DocumentMissingError from 'maestro-shared/errors/documentMissingError';
+import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { Document } from 'maestro-shared/schema/Document/Document';
-import { UploadDocumentKindList } from 'maestro-shared/schema/Document/DocumentKind';
+import {
+  ResourceDocumentKindList,
+  UploadDocumentKindList
+} from 'maestro-shared/schema/Document/DocumentKind';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { documentRepository } from '../repositories/documentRepository';
+import { userRepository } from '../repositories/userRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 import { documentService } from '../services/documentService';
+import { notificationService } from '../services/notificationService';
 import { s3Service } from '../services/s3Service';
 import config from '../utils/config';
 
@@ -20,7 +27,7 @@ export const documentsRouter = {
         };
       }
       if (
-        documentToCreate.kind === 'Resource' &&
+        ResourceDocumentKindList.includes(documentToCreate.kind) &&
         !hasPermission(user, 'createResource')
       ) {
         return {
@@ -54,6 +61,26 @@ export const documentsRouter = {
 
       await documentRepository.insert(document);
 
+      const laboratoryUsers = await userRepository.findMany({
+        roles: ['LaboratoryUser']
+      });
+
+      if (ResourceDocumentKindList.includes(documentToCreate.kind)) {
+        await notificationService.sendNotification(
+          {
+            category: 'ResourceDocumentUploaded',
+            author: user,
+            link: `${AppRouteLinks.DocumentsRoute.link}?documentId=${document.id}`
+          },
+          laboratoryUsers,
+          {
+            object: 'Nouveau document disponible',
+            content: `Une nouvelle ressource a été ajoutée ou mise à jour.  
+            **${document.name}**`
+          }
+        );
+      }
+
       return {
         status: constants.HTTP_STATUS_CREATED,
         response: document
@@ -65,7 +92,7 @@ export const documentsRouter = {
       console.info('Find documents');
 
       const documents = await documentRepository.findMany({
-        kind: 'Resource'
+        kinds: ResourceDocumentKindList
       });
       return {
         status: constants.HTTP_STATUS_OK,
@@ -75,7 +102,10 @@ export const documentsRouter = {
   },
   '/documents/upload-signed-url': {
     post: async ({ user, body }) => {
-      if (body.kind === 'Resource' && !hasPermission(user, 'createResource')) {
+      if (
+        ResourceDocumentKindList.includes(body.kind) &&
+        !hasPermission(user, 'createResource')
+      ) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
       if (
@@ -99,8 +129,14 @@ export const documentsRouter = {
       const document = await documentRepository.findUnique(documentId);
 
       if (
-        document?.kind !== 'SampleDocument' ||
-        !hasPermission(user, 'updateSample')
+        isNil(document) ||
+        ![...ResourceDocumentKindList, 'SampleDocument'].includes(
+          document.kind
+        ) ||
+        (document.kind === 'SampleDocument' &&
+          !hasPermission(user, 'updateSample')) ||
+        (ResourceDocumentKindList.includes(document.kind) &&
+          !hasPermission(user, 'createResource'))
       ) {
         return {
           status: constants.HTTP_STATUS_FORBIDDEN
@@ -131,7 +167,7 @@ export const documentsRouter = {
       }
 
       if (
-        document?.kind === 'Resource' &&
+        ResourceDocumentKindList.includes(document.kind) &&
         !hasPermission(user, 'deleteDocument')
       ) {
         return {

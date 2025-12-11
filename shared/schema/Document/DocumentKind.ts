@@ -2,11 +2,13 @@ import { z } from 'zod';
 import { CreatedSampleData } from '../Sample/Sample';
 
 export const DocumentKind = z.enum([
-  'Resource',
   'SupportDocument',
   'AnalysisReportDocument',
   'AnalysisRequestDocument',
-  'SampleDocument'
+  'SampleDocument',
+  'ProgrammingPlanNotice',
+  'TechnicalInstruction',
+  'OtherResourceDocument'
 ]);
 
 export const getSupportDocumentFilename = (
@@ -23,9 +25,35 @@ export const getAnalysisReportDocumentFilename = (
 export const DocumentKindList: DocumentKind[] = DocumentKind.options;
 
 export const UploadDocumentKindList: DocumentKind[] = [
-  'Resource',
   'AnalysisReportDocument',
-  'SampleDocument'
+  'SampleDocument',
+  'ProgrammingPlanNotice',
+  'TechnicalInstruction',
+  'OtherResourceDocument'
 ];
 
 export type DocumentKind = z.infer<typeof DocumentKind>;
+
+export const DocumentKindLabels: Partial<Record<DocumentKind, string>> = {
+  ProgrammingPlanNotice: 'Fiche de plan',
+  TechnicalInstruction: 'Instruction technique',
+  OtherResourceDocument: 'Autre'
+};
+
+export const ResourceDocumentKindList: DocumentKind[] = [
+  'ProgrammingPlanNotice',
+  'TechnicalInstruction',
+  'OtherResourceDocument'
+];
+
+export const SortedResourceDocumentKindList: DocumentKind[] = (
+  [
+    'ProgrammingPlanNotice',
+    'TechnicalInstruction',
+    'OtherResourceDocument'
+  ] as DocumentKind[]
+).sort((a, b) => {
+  return (DocumentKindLabels[a as DocumentKind] || a).localeCompare(
+    DocumentKindLabels[b as DocumentKind] || b
+  );
+});

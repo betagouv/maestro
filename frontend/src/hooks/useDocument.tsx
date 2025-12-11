@@ -11,5 +11,19 @@ export const useDocument = () => {
     window.open(url);
   };
 
-  return { openDocument };
+  const downloadDocument = async (documentId: string, filename: string) => {
+    const url = await getDocumentUrl(documentId).unwrap();
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(blobUrl);
+  };
+
+  return { openDocument, downloadDocument };
 };

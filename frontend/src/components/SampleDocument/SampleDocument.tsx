@@ -72,7 +72,11 @@ const SampleDocument = ({ documentId, readonly, onRemove }: Props) => {
               defaultValue: document.legend || '',
               onChange: (e) => {
                 e.preventDefault();
-                updateDocument({ documentId, legend: e.target.value });
+                updateDocument({
+                  documentId,
+                  kind: document.kind,
+                  legend: e.target.value
+                });
               },
               rows: 1
             }}

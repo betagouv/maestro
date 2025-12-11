@@ -52,6 +52,12 @@ const inProgressProgrammingPlan = {
   })
 };
 
+export const ProgrammingPlans = [
+  closedProgrammingPlan,
+  validatedProgrammingPlan,
+  inProgressProgrammingPlan
+];
+
 export const NotAuthenticated: Story = {
   args: {
     id: 'id',
@@ -72,7 +78,7 @@ export const NotAuthenticated: Story = {
   }
 };
 
-export const Authenticated: Story = {
+export const NationalCoordinator: Story = {
   args: {
     id: 'id',
     filters: {}
@@ -87,11 +93,7 @@ export const Authenticated: Story = {
     },
     apiClient: getMockApi({
       useFindProgrammingPlansQuery: {
-        data: [
-          closedProgrammingPlan,
-          validatedProgrammingPlan,
-          inProgressProgrammingPlan
-        ]
+        data: ProgrammingPlans
       }
     })
   },
@@ -116,6 +118,14 @@ export const Authenticated: Story = {
       within(navigation).getByText('Documents ressources')
     ).toBeInTheDocument();
 
+    await expect(
+      within(navigation).queryByText('Utilisateurs')
+    ).not.toBeInTheDocument();
+
+    await expect(
+      within(navigation).queryByText('Administration')
+    ).not.toBeInTheDocument();
+
     const historyMenu = within(navigation).getByText('Historique');
     await expect(historyMenu).toBeInTheDocument();
   }
@@ -133,6 +143,96 @@ export const Administrator: Story = {
           role: 'Administrator'
         })
       }
-    }
+    },
+    apiClient: getMockApi({
+      useFindProgrammingPlansQuery: {
+        data: ProgrammingPlans
+      }
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const navigation = canvas.getByRole('navigation');
+
+    await expect(navigation).toBeInTheDocument();
+
+    await expect(
+      within(navigation).getByText('Tableau de bord')
+    ).toBeInTheDocument();
+
+    await expect(
+      within(navigation).getByText('Prélèvements')
+    ).toBeInTheDocument();
+
+    const programmingPlanMenu = within(navigation).getByText('Programmation');
+    await expect(programmingPlanMenu).toBeInTheDocument();
+
+    await expect(
+      within(navigation).getByText('Documents ressources')
+    ).toBeInTheDocument();
+
+    await expect(
+      within(navigation).getByText('Utilisateurs')
+    ).toBeInTheDocument();
+
+    await expect(
+      within(navigation).getByText('Administration')
+    ).toBeInTheDocument();
+
+    const historyMenu = within(navigation).getByText('Historique');
+    await expect(historyMenu).toBeInTheDocument();
+  }
+};
+
+export const LaboratoryUser: Story = {
+  args: {
+    id: 'id',
+    filters: {}
+  },
+  parameters: {
+    preloadedState: {
+      auth: {
+        authUser: genAuthUser({
+          role: 'LaboratoryUser'
+        })
+      }
+    },
+    apiClient: getMockApi({
+      useFindProgrammingPlansQuery: {
+        data: ProgrammingPlans
+      }
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const navigation = canvas.getByRole('navigation');
+
+    await expect(navigation).toBeInTheDocument();
+
+    await expect(
+      within(navigation).queryByText('Tableau de bord')
+    ).not.toBeInTheDocument();
+
+    await expect(
+      within(navigation).queryByText('Prélèvements')
+    ).not.toBeInTheDocument();
+
+    const programmingPlanMenu = within(navigation).queryByText('Programmation');
+    await expect(programmingPlanMenu).not.toBeInTheDocument();
+
+    await expect(
+      within(navigation).getByText('Documents ressources')
+    ).toBeInTheDocument();
+
+    await expect(
+      within(navigation).queryByText('Utilisateurs')
+    ).not.toBeInTheDocument();
+
+    await expect(
+      within(navigation).queryByText('Administration')
+    ).not.toBeInTheDocument();
+
+    const historyMenu = within(navigation).queryByText('Historique');
+    await expect(historyMenu).not.toBeInTheDocument();
   }
 };

@@ -1,9 +1,9 @@
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import {
   Document,
+  DocumentToCreate,
   DocumentUpdate
 } from 'maestro-shared/schema/Document/Document';
-import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { api } from 'src/services/api.service';
 
 const documentApi = api.injectEndpoints({
@@ -16,10 +16,10 @@ const documentApi = api.injectEndpoints({
     }),
     createDocument: builder.mutation<
       Document,
-      { file: File; kind: DocumentKind; legend?: string }
+      Omit<DocumentToCreate, 'id' | 'filename'> & { file: File }
     >({
       queryFn: async (
-        { file, kind, legend },
+        { file, ...document },
         _queryApi,
         _extraOptions,
         fetchWithBQ
@@ -27,7 +27,7 @@ const documentApi = api.injectEndpoints({
         const signedUrlResult = await fetchWithBQ({
           url: 'documents/upload-signed-url',
           method: 'POST',
-          body: { filename: file.name, kind }
+          body: { filename: file.name, kind: document.kind }
         });
         if (signedUrlResult.error) {
           return { error: signedUrlResult.error as FetchBaseQueryError };
@@ -55,10 +55,9 @@ const documentApi = api.injectEndpoints({
           url: 'documents',
           method: 'POST',
           body: {
+            ...document,
             id: documentId,
-            filename: file.name,
-            kind,
-            legend
+            filename: file.name
           }
         });
         return result.data

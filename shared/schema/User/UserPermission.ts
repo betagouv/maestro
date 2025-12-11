@@ -34,7 +34,8 @@ export const UserPermission = z.enum([
   'readCompanies',
   'createAnalysis',
   'readAnalysis',
-  'restoreSampleToReview'
+  'restoreSampleToReview',
+  'viewDashboard'
 ]);
 
 export type UserPermission = z.infer<typeof UserPermission>;

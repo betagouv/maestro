@@ -1,30 +1,75 @@
+import Button from '@codegouvfr/react-dsfr/Button';
+import { createModal } from '@codegouvfr/react-dsfr/Modal';
+import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
+import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
-import { t } from 'i18next';
 import { Brand } from 'maestro-shared/constants';
-import { useContext } from 'react';
+import { Document } from 'maestro-shared/schema/Document/Document';
+import {
+  DocumentKindLabels,
+  ResourceDocumentKindList
+} from 'maestro-shared/schema/Document/DocumentKind';
+import { useContext, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import ressources from 'src/assets/illustrations/ressources.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
-import { useOnLine } from 'src/hooks/useOnLine';
-import AddDocument from 'src/views/DocumentListView/AddDocument';
-import DocumentTable from 'src/views/DocumentListView/DocumentTable';
+import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
 import { ApiClientContext } from '../../services/apiClient';
+import DocumentListTabContent from './DocumentListTabContent/DocumentListTabContent';
+
+const noteModal = createModal({
+  id: `note-modal`,
+  isOpenedByDefault: false
+});
+
+const removeModal = createModal({
+  id: `remove-modal`,
+  isOpenedByDefault: false
+});
+
 const DocumentListView = () => {
   const apiClient = useContext(ApiClientContext);
   useDocumentTitle('Liste des documents ressources');
-  const { isOnline } = useOnLine();
 
+  const [searchParams] = useSearchParams();
   const { hasUserPermission } = useAuthentication();
 
   const { data: resources } = apiClient.useFindResourcesQuery();
+
   const [, { isSuccess: isCreateSuccess }] =
     apiClient.useCreateDocumentMutation({
       fixedCacheKey: 'createDocument'
     });
+  const [, { isSuccess: isUpdateSuccess }] =
+    apiClient.useUpdateDocumentMutation({
+      fixedCacheKey: 'updateDocument'
+    });
+  const [deleteDocument, { isSuccess: isDeleteSuccess }] =
+    apiClient.useDeleteDocumentMutation({
+      fixedCacheKey: 'deleteDocument'
+    });
+
+  const [currentDocument, setCurrentDocument] = useState<Document>();
+
+  const onViewNotes = (document: Document) => {
+    setCurrentDocument(document);
+    setTimeout(() => noteModal.open(), 100);
+  };
+  const onRemove = (document: Document) => {
+    setCurrentDocument(document);
+    removeModal.open();
+  };
+
+  useIsModalOpen(noteModal, {
+    onConceal: () => setCurrentDocument(undefined)
+  });
+  useIsModalOpen(removeModal, {
+    onConceal: () => setCurrentDocument(undefined)
+  });
 
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
@@ -32,33 +77,80 @@ const DocumentListView = () => {
         open={isCreateSuccess}
         description="Ressource déposée avec succès."
       />
+      <AppToast
+        open={isUpdateSuccess}
+        description="Ressource mise à jour avec succès."
+      />
+      <AppToast
+        open={isDeleteSuccess}
+        description="Ressource supprimée avec succès."
+      />
       <SectionHeader
         title="Ressources"
         subtitle={`Consultez les ressources mises à disposition des utilisateurs de ${Brand}`}
         illustration={ressources}
+        action={
+          hasUserPermission('createResource') && (
+            <Button
+              linkProps={{
+                to: '/documents/nouveau'
+              }}
+              priority="secondary"
+              data-testid="add-document"
+            >
+              Ajouter un document
+            </Button>
+          )
+        }
       />
 
-      {isOnline ? (
-        <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
-          <div className={cx('fr-mb-4w')}>
-            {t('document', { count: resources?.length || 0 })}
-          </div>
-          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-            <div className={cx('fr-col-7', 'fr-col-offset-1--right')}>
-              {resources && resources.length > 0 && (
-                <DocumentTable documents={resources} />
-              )}
-            </div>
-            {hasUserPermission('createResource') && (
-              <div className={cx('fr-col-4')}>
-                <AddDocument key={`add-document-${isCreateSuccess}`} />
-              </div>
-            )}
-          </div>
-        </div>
-      ) : (
-        <Skeleton variant="rectangular" width="100%" height={400} />
-      )}
+      <Tabs
+        tabs={[
+          {
+            label: 'Toutes les ressources',
+            content: (
+              <DocumentListTabContent
+                resources={resources ?? []}
+                onViewDocumentNotes={onViewNotes}
+                onRemoveDocument={onRemove}
+                newDocumentId={searchParams.get('documentId')}
+              />
+            )
+          },
+          ...ResourceDocumentKindList.map((kind) => ({
+            label: DocumentKindLabels[kind],
+            content: (
+              <DocumentListTabContent
+                resources={resources ?? []}
+                documentKind={kind}
+                onViewDocumentNotes={onViewNotes}
+                onRemoveDocument={onRemove}
+                newDocumentId={searchParams.get('documentId')}
+              />
+            )
+          }))
+        ]}
+      />
+      <noteModal.Component
+        title="Notes sur la ressource"
+        concealingBackdrop={false}
+        topAnchor
+      >
+        {currentDocument?.notes}
+      </noteModal.Component>
+      <ConfirmationModal
+        modal={removeModal}
+        title="Supprimer un document"
+        onConfirm={async () => {
+          if (currentDocument) {
+            await deleteDocument(currentDocument.id);
+          }
+        }}
+        confirmLabel="Supprimer"
+        closeOnConfirm
+      >
+        Êtes-vous sûr de vouloir supprimer cette ressource ?
+      </ConfirmationModal>
     </section>
   );
 };

@@ -3,8 +3,8 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { Sample, SampleBase } from 'maestro-shared/schema/Sample/Sample';
+import { formatDate } from 'maestro-shared/utils/date';
 import React, { useContext, useMemo, useState } from 'react';
 import check from 'src/assets/illustrations/check.svg';
 import warning from 'src/assets/illustrations/warning.svg';
@@ -264,7 +264,7 @@ const SampleAdmissibility = ({ sample }: Props) => {
             <>
               <div className={cx('fr-text--md', 'fr-text--regular')}>
                 Prélèvement reçu par le laboratoire le{' '}
-                {format(sample.receivedAt, 'dd MMMM yyyy', { locale: fr })}
+                {formatDate(sample.receivedAt)}
               </div>
               <div>
                 {sample.status !== 'NotAdmissible' ? (
