@@ -3,6 +3,7 @@ import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { isEmpty, isNil, mapValues, max, omitBy } from 'lodash-es';
+import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
@@ -146,7 +147,7 @@ const ProgrammingView = () => {
                     ].toLowerCase()}
                 </>
               }
-              subtitle={Regions[region as Region]?.name}
+              subtitle={`${region ? Regions[region]?.name : ''}${user?.department ? ` - ${DepartmentLabels[user?.department]}` : ''}`}
               illustration={programmation}
               action={
                 <SegmentedControl
