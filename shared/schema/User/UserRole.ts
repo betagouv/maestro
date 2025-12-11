@@ -135,7 +135,6 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'deleteDocument',
     'readCompanies',
     'readAnalysis',
-    'restoreSampleToReview',
     'viewDashboard'
   ],
   LaboratoryUser: ['readDocuments']

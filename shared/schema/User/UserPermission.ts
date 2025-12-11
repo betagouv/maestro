@@ -34,7 +34,6 @@ export const UserPermission = z.enum([
   'readCompanies',
   'createAnalysis',
   'readAnalysis',
-  'restoreSampleToReview',
   'viewDashboard'
 ]);
 

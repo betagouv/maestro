@@ -398,11 +398,7 @@ export const sampleRouter = {
         user
       );
 
-      if (sample.status !== 'InReview' && sampleUpdate.status === 'InReview') {
-        if (!hasPermission(user, 'restoreSampleToReview')) {
-          throw new UserRoleMissingError();
-        }
-      } else if (!hasPermission(user, 'updateSample')) {
+      if (!hasPermission(user, 'updateSample')) {
         throw new UserRoleMissingError();
       } else if (sample.region !== user.region) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
