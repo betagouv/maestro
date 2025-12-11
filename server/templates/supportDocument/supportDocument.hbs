@@ -64,46 +64,52 @@
                   <div class='fr-grid-row fr-grid-row--gutters'>
                     <div class='fr-col-6'>
                       <div class='fr-container'>
-                        <div class='sample-section-header'>
-                          <span class="uppercase">Contexte du prélèvement</span>
-                        </div>
-                        <div class='sample-section-item'>
-                          <div class='label'>
-                            Donneur d'ordre
-                          </div>
-                          <div class='value {{#unless establishment.name}}empty{{/unless}}'>
-                            {{establishment.name}}
-                          </div>
-                          <div class='sub-value'>
-                            {{#if establishment.additionalLine}}
-                              {{establishment.additionalLine}}, 
-                            {{/if}}
-                            {{establishment.street}}, 
-                            {{establishment.postalCode}} {{establishment.city}}
-                          </div>
-                        </div>
-                        <div class='sample-section-item'>
-                          <div class='label'>
-                            Agent habilité
-                          </div>
-                          <div class='value {{#unless sampler.name}}empty{{/unless}}'>
-                            {{sampler.name}}
-                          </div>
-                          <div class='sub-value'>
-                            {{sampler.email}}
-                          </div>
-                          <div class='notice'>
-                            habilitée(s) à procéder à l’inspection, et au contrôle tels que prévus aux articles R.206-1,
-                            R.206-2, R.250-1 et L.250-6 du code rural et de la pêche maritime
-                          </div>
-                        </div>
                         <div class='fr-grid-row fr-grid-row--gutters'>
+                          <div class='fr-col-12'>
+                            <div class='sample-section-header'>
+                              <span class="uppercase">Contexte du prélèvement</span>
+                            </div>
+                          </div>
+                          <div class='fr-col-12'>
+                            <div class='sample-section-item'>
+                              <div class='label'>
+                                Donneur d'ordre
+                              </div>
+                              <div class='value {{#if (isEmpty establishment.name)}}empty{{/if}}'>
+                                {{establishment.name}}
+                              </div>
+                              <div class='sub-value'>
+                                {{#if establishment.additionalLine}}
+                                  {{establishment.additionalLine}}, 
+                                {{/if}}
+                                {{establishment.street}}, 
+                                {{establishment.postalCode}} {{establishment.city}}
+                              </div>
+                            </div>
+                          </div>
+                          <div class='fr-col-12'>
+                            <div class='sample-section-item'>
+                              <div class='label'>
+                                Agent habilité
+                              </div>
+                              <div class='value {{#if (isEmpty sampler.name)}}empty{{/if}}'>
+                                {{sampler.name}}
+                              </div>
+                              <div class='sub-value'>
+                                {{sampler.email}}
+                              </div>
+                              <div class='notice'>
+                                habilitée(s) à procéder à l’inspection, et au contrôle tels que prévus aux articles R.206-1,
+                                R.206-2, R.250-1 et L.250-6 du code rural et de la pêche maritime
+                              </div>
+                            </div>
+                          </div>
                           <div class='fr-col-6'>
                             <div class='sample-section-item'>
                               <div class='label'>
                                 Date
                               </div>
-                              <div class='value {{#unless sampledAtDate}}empty{{/unless}}'>
+                              <div class='value {{#if (isEmpty sampledAtDate)}}empty{{/if}}'>
                                 {{sampledAtDate}}
                               </div>
                             </div>
@@ -113,63 +119,73 @@
                               <div class='label'>
                                 Heure
                               </div>
-                              <div class='value {{#unless sampledAtTime}}empty{{/unless}}'>
+                              <div class='value {{#if (isEmpty sampledAtTime)}}empty{{/if}}'>
                                 {{sampledAtTime}}
                               </div>
                             </div>
                           </div>
-                        </div>
-                        <div class='sample-section-item'>
-                          <div class='label'>
-                            Note additionnelle
-                          </div>
-                          <div class='value {{#unless notesOnCreation}}empty{{/unless}}'>
-                            {{breaklines notesOnCreation}}&nbsp;
+                          <div class='fr-col-12'>
+                            <div class='sample-section-item'>
+                              <div class='label'>
+                                Note additionnelle
+                              </div>
+                              <div class='value {{#if (isEmpty notesOnCreation)}}empty{{/if}}'>
+                                {{breaklines notesOnCreation}}&nbsp;
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                     <div class='fr-col-6'>
                       <div class='fr-container'>
-                        <div class='sample-section-header'>
-                          <span class="uppercase">{{context}}</span>
-                        </div>
-                        <div class='sample-section-item'>
-                          <div class='label'>
-                            Numéro
-                          </div>
-                          <div class='value {{#unless reference}}empty{{/unless}}'>
-                            {{reference}}
-                          </div>
-                        </div>
-                        <div class='sample-section-item'>
-                          <div class='label'>
-                            Cadre juridique
-                          </div>
-                          <div class='value {{#unless legalContext}}empty{{/unless}}'>
-                            {{legalContext}}
-                          </div>
-                        </div>
-                        <div class='sample-section-item'>
-                          <div class='label'>
-                            Entité contrôlée
-                          </div>
-                          <div class='value {{#unless company.name}}empty{{/unless}}'>
-                            {{company.name}}
-                          </div>
-                          <div class='sub-value'>
-                            {{company.address}}, 
-                            {{company.postalCode}}, 
-                            {{company.city}}
-                          </div>
-                        </div>
                         <div class='fr-grid-row fr-grid-row--gutters'>
+                          <div class='fr-col-12'>
+                            <div class='sample-section-header'>
+                              <span class="uppercase">{{context}}</span>
+                            </div>
+                          </div>
+                          <div class='fr-col-12'>
+                            <div class='sample-section-item'>
+                              <div class='label'>
+                                Numéro
+                              </div>
+                              <div class='value {{#if (isEmpty reference)}}empty{{/if}}'>
+                                {{reference}}
+                              </div>
+                            </div>
+                          </div>
+                          <div class='fr-col-12'>
+                            <div class='sample-section-item'>
+                              <div class='label'>
+                                Cadre juridique
+                              </div>
+                              <div class='value {{#if (isEmpty legalContext)}}empty{{/if}}'>
+                                {{legalContext}}
+                              </div>
+                            </div>
+                          </div>
+                          <div class='fr-col-12'>
+                            <div class='sample-section-item'>
+                              <div class='label'>
+                                Entité contrôlée
+                              </div>
+                              <div class='value {{#if (isEmpty company.name)}}empty{{/if}}'>
+                                {{company.name}}
+                              </div>
+                              <div class='sub-value'>
+                                {{company.address}}, 
+                                {{company.postalCode}}, 
+                                {{company.city}}
+                              </div>
+                            </div>
+                          </div>
                           <div class='fr-col-6'>
                             <div class='sample-section-item'>
                               <div class='label'>
                                 N° ou appellation de la parcelle
                               </div>
-                              <div class='value {{#unless parcel}}empty{{/unless}}'>
+                              <div class='value {{#if (isEmpty parcel)}}empty{{/if}}'>
                                 {{parcel}}&nbsp;
                               </div>
                             </div>
@@ -179,7 +195,7 @@
                               <div class='label'>
                                 Département
                               </div>
-                              <div class='value {{#unless department}}empty{{/unless}}'>
+                              <div class='value {{#if (isEmpty department)}}empty{{/if}}'>
                                 {{department}}
                               </div>
                             </div>
@@ -189,7 +205,7 @@
                               <div class='label'>
                                 Identifiant Resytal
                               </div>
-                              <div class='value {{#unless sample.resytalId}}empty{{/unless}}'>
+                              <div class='value {{#if (isEmpty sample.resytalId)}}empty{{/if}}'>
                                 {{sample.resytalId}}&nbsp;
                               </div>
                             </div>
@@ -199,7 +215,7 @@
                               <div class='label'>
                                 Siret
                               </div>
-                              <div class='value {{#unless company.siret}}empty{{/unless}}'>
+                              <div class='value {{#if (isEmpty company.siret)}}empty{{/if}}'>
                                 {{company.siret}}
                               </div>
                             </div>
@@ -210,18 +226,20 @@
                   </div>
                 </section>
 
-                <section class='sample-section border {{#if fullVersion}}full-version{{/if}}'>
+                <section class='sample-section border {{#if fullVersion}}full-version{{/if}}' style="border-left: 2px solid #2A401A;">
                   <div class='fr-container'>
-                    <div class='sample-section-header'>
-                      <span class="uppercase">Matrice contrôlée et analyses</span>
-                    </div>
                     <div class='fr-grid-row fr-grid-row--gutters'>
+                      <div class='fr-col-12'>
+                        <div class='sample-section-header'>
+                          <span class="uppercase">Matrice contrôlée et analyses</span>
+                        </div>
+                      </div>
                       <div class='fr-col-4'>
                         <div class='sample-section-item'>
                           <div class='label'>
                             Catégorie de matrice
                           </div>
-                          <div class='value {{#unless matrixKind}}empty{{/unless}}'>
+                          <div class='value {{#if (isEmpty matrixKind)}}empty{{/if}}'>
                             {{matrixKind}}&nbsp;
                           </div>
                         </div>
@@ -231,7 +249,7 @@
                           <div class='label'>
                             Matrice
                           </div>
-                          <div class='value {{#unless matrix}}empty{{/unless}}'>
+                          <div class='value {{#if (isEmpty matrix)}}empty{{/if}}'>
                             {{matrix}}&nbsp;
                           </div>
                         </div>
@@ -241,7 +259,7 @@
                           <div class='label'>
                             LMR/ Partie du végétal concernée
                           </div>
-                          <div class='value {{#unless matrixPart}}empty{{/unless}}'>
+                          <div class='value {{#if (isEmpty matrixPart)}}empty{{/if}}'>
                             {{matrixPart}}&nbsp;
                           </div>
                         </div>
@@ -249,9 +267,9 @@
                       <div class='fr-col-4'>
                         <div class='sample-section-item'>
                           <div class='label'>
-                            Details de la matrice
+                            Détails de la matrice
                           </div>
-                          <div class='value {{#unless matrixDetails}}empty{{/unless}}'>
+                          <div class='value {{#if (isEmpty matrixDetails)}}empty{{/if}}'>
                             {{matrixDetails}}&nbsp;
                           </div>
                         </div>
@@ -261,7 +279,7 @@
                           <div class='label'>
                             Type de culture
                           </div>
-                          <div class='value {{#unless cultureKind}}empty{{/unless}}'>
+                          <div class='value {{#if (isEmpty cultureKind)}}empty{{/if}}'>
                             {{cultureKind}}&nbsp;
                           </div>
                         </div>
@@ -271,13 +289,11 @@
                           <div class='label'>
                             Stade
                           </div>
-                          <div class='value {{#unless stage}}empty{{/unless}}'>
+                          <div class='value {{#if (isEmpty stage)}}empty{{/if}}'>
                             {{stage}}&nbsp;
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div class="fr-grid-row fr-grid-row--gutters">
                       <div class='fr-col-6'>
                         <div class='substances-container'>
                           {{#if matrix}}
@@ -334,13 +350,15 @@
                           {{/if}}
                         </div>
                       </div>
-                    </div>
-                    <div class='sample-section-item'>
-                      <div class='label'>
-                        Note additionnelle
-                      </div>
-                      <div class='value {{#unless notesOnMatrix}}empty{{/unless}}'>
-                        {{breaklines notesOnMatrix}}&nbsp;
+                      <div class='fr-col-12'>
+                        <div class='sample-section-item'>
+                          <div class='label'>
+                            Note additionnelle
+                          </div>
+                          <div class='value {{#if (isEmpty notesOnMatrix)}}empty{{/if}}'>
+                            {{breaklines notesOnMatrix}}&nbsp;
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -427,27 +445,29 @@
                       été placé(s) sous scellé(s). L'étiquette
                       d’identification comportant le numéro est glissée dans
                       l'emballage placé sous scellé porteur d’un numéro
-                      d’ordre unique.
+                      d’ordre unique. 
                       {{#if fullVersion}}
-                        <br />
                         En application de l’article R.250-2 du code rural et
                         de la pêche maritime, les dispositions de l’article 35 du règlement (UE) 2017/625 du parlement
-                        européen et du Conseil du 15
-                        mars 2017 s’appliquent à tous les prélèvements d’échantillon réalisés en application du présent
-                        livre et notamment en application du paragraphe 3 de l’article 35 du même règlement.
-                        <br />
+                        européen et du Conseil du 15 mars 2017 s’appliquent à tous les prélèvements d’échantillon réalisés
+                        en application du présent livre et notamment en application du paragraphe 3 de l’article 35 du même règlement.
                         En application de l’article R.250-2 les échantillons prélevés ne donnent lieu à aucun remboursement.
-                        <br />
                       {{/if}}
                       Dans le cas où un des échantillons a été remis au détenteur, ce dernier en a accepté le dépôt et s’est
                       engagé à le conserver sous température négative.
+                      <b>En application de l’article R. 250-2 les échantillons prélevés ne donnent lieu à aucun remboursement.</b>
                     </div>
                   </div>
                   <div class='fr-grid-row fr-grid-row--gutters'>
                     {{#each sampleItems}}
                       {{#if (or ../fullVersion currentItem)}}
                         <div class="fr-col-4">
-                          <div class='sample-item {{#if currentItem}}current-item{{/if}}'>
+                          {{#if currentItem}}
+                            <div class='current-sample-item uppercase'>
+                              Exemplaire rattaché au procès-verbal
+                            </div>
+                          {{/if}}
+                          <div class='sample-item'>
                             <div class='sample-section-item'>
                               <div class="sample-item-title">
                                 Échantillon n°{{itemNumber}}
@@ -460,7 +480,7 @@
                               <div class='label'>
                                 Quantité
                               </div>
-                              <div class='value {{#unless quantity}}empty{{/unless}}'>
+                              <div class='value {{#if (isEmpty quantity)}}empty{{/if}}'>
                                 {{quantity}}&nbsp;
                               </div>
                             </div>
@@ -468,136 +488,53 @@
                               <div class='label'>
                                 Numéro de scellé
                               </div>
-                              <div class='value {{#unless sealId}}empty{{/unless}}'>
+                              <div class='value {{#if (isEmpty sealId)}}empty{{/if}}'>
                                 {{sealId}}&nbsp;
+                              </div>
+                            </div>
+                            <div class='sample-section-item'>
+                              <div class='label'>
+                                Destinataire
+                              </div>
+                              {{#if (eq copyNumber 1)}}
+                                <div class='value {{#if (isEmpty ../laboratory)}}empty{{/if}}'>
+                                  {{#if ../laboratory}}
+                                    Laboratoire {{../laboratory.name}}
+                                  {{/if}}
+                                </div>
+                              {{/if}}
+                              {{#if (or (eq copyNumber 2) (eq copyNumber 3))}}
+                                <div class='value {{#if (isEmpty recipientKind)}}empty{{/if}}'>
+                                  {{recipientKind}}
+                                </div>
+                              {{/if}}
+                            </div>
+                            <div class='sample-section-item'>
+                              <div class='label'>
+                                Directive 2002/63
+                              </div>
+                              <div class='value {{#if (isEmpty compliance200263)}}empty{{/if}} {{#if (eq compliance200263 true)}}fr-label--success{{/if}} {{#if (eq compliance200263 false)}}fr-label--error{{/if}}'>
+                                {{#if (eq compliance200263 true)}}Respectée{{/if}}
+                                {{#if (eq compliance200263 false)}}Non Respectée{{/if}}
                               </div>
                             </div>
                           </div>
                         </div>
-<!--                          <div class='sample-section-block'>-->
-<!--                            <span-->
-<!--                              class='fr-icon-send-plane-line fr-icon--sm'-->
-<!--                            ></span>-->
-<!--                            <div class='fr-container fr-pl-1w'>-->
-<!--                              <div class='fr-grid-row fr-grid-row--gutters'>-->
-<!--                                <div class='fr-col-6 sample-section-item'>-->
-<!--                                  {{#if (eq copyNumber 1)}}-->
-<!--                                    <div class='label'>-->
-<!--                                      Destinataire de l'échantillon-->
-<!--                                    </div>-->
-<!--                                    <div class='value'>-->
-<!--                                      {{#if ../laboratory}}-->
-<!--                                        Laboratoire {{../laboratory.name}}-->
-<!--                                      {{else}}-->
-<!--                                        Laboratoire-->
-<!--                                      {{/if}}-->
-<!--                                    </div>-->
-<!--                                  {{/if}}-->
-<!--                                  {{#if (or (eq copyNumber 2) (eq copyNumber 3))}}-->
-<!--                                    <fieldset class="fr-fieldset fr-px-1v">-->
-<!--                                      <legend class="fr-fieldset__legend fr-col-12 fr-pb-1w label">-->
-<!--                                        Destinataire de l'échantillon-->
-<!--                                      </legend>-->
-<!--                                      <div class="fr-grid-row fr-grid-row--gutters fr-mx-0">-->
-<!--                                        <div class="fr-radio-group fr-col-12 fr-py-0">-->
-<!--                                          <input type="radio" {{#if (eq recipientKind 'Operator')}}checked{{/if}}>-->
-<!--                                          <label class="fr-label fr-pt-1v fr-pl-3w">Détenteur</label>-->
-<!--                                        </div>-->
-<!--                                        <div class="fr-radio-group fr-col-12 fr-py-0">-->
-<!--                                          <input type="radio" {{#if (eq recipientKind 'Sampler')}}checked{{/if}}>-->
-<!--                                          <label class="fr-label fr-pt-1v fr-pl-3w">Préleveur</label>-->
-<!--                                        </div>-->
-<!--                                      </div>-->
-<!--                                    </fieldset>-->
-<!--                                  {{/if}}-->
-<!--                                </div>-->
-<!--                                <div class='fr-col-6 sample-section-item'>-->
-<!--                                  <div class='fr-container fr-pl-1w'>-->
-<!--                                    <fieldset class="fr-fieldset fr-px-0">-->
-<!--                                      <legend class="fr-fieldset__legend fr-col-12 fr-pb-1w label">-->
-<!--                                        Directive 2002/63-->
-<!--                                      </legend>-->
-<!--                                      <div class="fr-grid-row fr-grid-row--gutters fr-mx-0">-->
-<!--                                        <div class="fr-radio-group fr-col-12 fr-py-0">-->
-<!--                                          <input type="radio" {{#if (eq compliance200263 true)}}checked{{/if}}>-->
-<!--                                          <label class="fr-label fr-pt-1v fr-pl-3w">Respectée</label>-->
-<!--                                        </div>-->
-<!--                                        <div class="fr-radio-group fr-col-12 fr-py-0">-->
-<!--                                          <input type="radio" {{#if (eq compliance200263 false)}}checked{{/if}}>-->
-<!--                                          <label class="fr-label fr-pt-1v fr-pl-3w">Non Respectée</label>-->
-<!--                                        </div>-->
-<!--                                      </div>-->
-<!--                                    </fieldset>-->
-<!--                                  </div>-->
-<!--                                </div>-->
-<!--                              </div>-->
-<!--                            </div>-->
-<!--                          </div>-->
                       {{/if}}
                     {{/each}}
+                    <div class='fr-col-12'>
+                      <div class='sample-section-item'>
+                        <div class='label'>
+                          Note additionnelle concernant les échantillons
+                        </div>
+                        <div class='value {{#if (isEmpty notesOnItems)}}empty{{/if}}'>
+                          {{breaklines notesOnItems}}&nbsp;
+                        </div>
+                      </div>
+                    </div>
                   </div>
-<!--                  {{#if fullVersion}}-->
-<!--                    <div class='sample-section-block indent-back'>-->
-<!--                      <span class='fr-icon-quote-line fr-icon--sm'></span>-->
-<!--                      <div class='fr-container fr-pl-1w'>-->
-<!--                        <div class='fr-grid-row fr-grid-row--gutters'>-->
-<!--                          <div class='fr-col-12 sample-section-item'>-->
-<!--                            <div class='label'>-->
-<!--                              Note additionnelle concernant les échantillons-->
-<!--                            </div>-->
-<!--                            <div class='value'>-->
-<!--                              {{breaklines notesOnItems}}&nbsp;-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-<!--                    </div>-->
-<!--                    <div class='sample-section-block indent-back'>-->
-<!--                      <span-->
-<!--                        class='fr-icon-error-warning-line fr-icon--sm'-->
-<!--                      ></span>-->
-<!--                      <div class='fr-container fr-pl-1w'>-->
-<!--                        <div class='fr-grid-row fr-grid-row--gutters'>-->
-<!--                          <div class='fr-col-12 sample-section-item'>-->
-<!--                            <div class='notice'>-->
-<!--                              En application de l’article R. 250-2 les-->
-<!--                              échantillons prélevés ne donnent lieu à aucun-->
-<!--                              remboursement.-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-<!--                    </div>-->
-<!--                    <div class='sample-section-block indent-back'>-->
-<!--                      <span class='fr-icon-user-line fr-icon--sm'></span>-->
-<!--                      <div class='fr-container fr-pl-1w'>-->
-<!--                        <fieldset class="fr-fieldset fr-px-0 fr-my-0">-->
-<!--                          <legend class="fr-fieldset__legend fr-col-12 fr-pb-1w label">-->
-<!--                            Le détenteur accepte les informations portées au présent procès-verbal-->
-<!--                          </legend>-->
-<!--                          <div class="fr-grid-row fr-grid-row--gutters fr-mx-0 fr-mb-2w">-->
-<!--                            <div class="fr-radio-group fr-col-12 fr-py-0">-->
-<!--                              <input type="radio" {{#if (eq ownerAgreement true)}}checked{{/if}}>-->
-<!--                              <label class="fr-label fr-pt-1v">Oui</label>-->
-<!--                            </div>-->
-<!--                            <div class="fr-radio-group fr-col-12 fr-py-0">-->
-<!--                              <input type="radio"{{#if (eq ownerAgreement false)}}checked{{/if}}>-->
-<!--                              <label class="fr-label fr-pt-1v">Non</label>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                        </fieldset>-->
-<!--                        <div class='fr-grid-row fr-grid-row--gutters'>-->
-<!--                          <div class='fr-col-12 sample-section-item'>-->
-<!--                            <div class='label'>-->
-<!--                              Déclaration du détenteur-->
-<!--                            </div>-->
-<!--                            <div class='value'>-->
-<!--                              {{breaklines notesOnOwnerAgreement}}&nbsp;-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-<!--                    </div>-->
+
+
 <!--                    {{#if ownerEmail}}-->
 <!--                      <div class='sample-section-block indent-back'>-->
 <!--                        <span class='fr-icon-mail-line fr-icon--sm'></span>-->
@@ -612,7 +549,37 @@
 <!--                        </div>-->
 <!--                      </div>-->
 <!--                    {{/if}}-->
-<!--                  {{/if}}-->
+                </section>
+
+
+                <section class='sample-section border {{#if fullVersion}}full-version{{/if}}'>
+                  <div class='fr-container'>
+                    <div class='fr-grid-row fr-grid-row--gutters'>
+                      <div class='fr-col-6'>
+                        <div class='sample-section-item'>
+                          <div class='value'>
+                            Le détenteur accepte les informations portées au présent procès-verbal
+                          </div>
+                          <div class="fr-radio-group">
+                            <input type="radio" {{#if (eq ownerAgreement true)}}checked{{/if}}>
+                            <label class="fr-label">Oui</label>
+                            <input type="radio"{{#if (eq ownerAgreement false)}}checked{{/if}}>
+                            <label class="fr-label">Non</label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class='fr-col-6'>
+                        <div class='sample-section-item'>
+                          <div class='label'>
+                            Déclaration du détenteur
+                          </div>
+                          <div class='value {{#if (isEmpty notesOnOwnerAgreement)}}empty{{/if}}'>
+                            {{breaklines notesOnOwnerAgreement}}&nbsp;
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </section>
 <!--                {{#if fullVersion}}-->
 <!--                  {{#if hasNoteToSampler}}-->
