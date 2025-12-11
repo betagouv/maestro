@@ -2,7 +2,7 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
-import { sumBy } from 'lodash-es';
+import { isNil, sumBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { Region } from 'maestro-shared/referential/Region';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
@@ -99,11 +99,13 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
             iconPosition="right"
             id="notify-regions-button"
             onClick={() => submissionModal.open()}
+            className="no-wrap"
             disabled={departmentalPrescriptions.some(
               (departmentalPrescription) =>
+                !departmentalPrescription.substanceKindsLaboratories?.length ||
                 departmentalPrescription.substanceKindsLaboratories?.some(
                   (substanceKindLaboratory) =>
-                    !substanceKindLaboratory.laboratoryId
+                    isNil(substanceKindLaboratory.laboratoryId)
                 ) ||
                 sumBy(
                   companyPrescriptions.filter(
