@@ -6,8 +6,11 @@ import {
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
-import { useMemo, useState } from 'react';
+import {
+  SampleItem,
+  SampleItemSort
+} from 'maestro-shared/schema/Sample/SampleItem';
+import { useState } from 'react';
 import { useDocument } from 'src/hooks/useDocument';
 import { getSupportDocumentURL } from 'src/services/sample.service';
 import './SupportDocumentSelect.scss';
@@ -20,31 +23,34 @@ type Props = {
 const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
   const { openDocument } = useDocument();
 
-  const [selectedItemNumber, setSelectedItemNumber] = useState(1);
+  const [selectedItem, setSelectedItem] = useState(0);
 
-  const firstCopyItems = useMemo(
-    () => sample.items.filter((item) => item.copyNumber === 1),
-    [sample.items]
-  );
-
-  if (firstCopyItems.length === 0) {
+  if (sample.items.length === 0) {
     return <></>;
   }
+
+  const sortedItems = [...sample.items].sort(SampleItemSort);
 
   const getDocument = async (sampleItem: SampleItem) => {
     if (sampleItem.supportDocumentId) {
       await openDocument(sampleItem.supportDocumentId);
     } else {
-      window.open(getSupportDocumentURL(sample.id, sampleItem.itemNumber));
+      window.open(
+        getSupportDocumentURL(
+          sample.id,
+          sampleItem.itemNumber,
+          sampleItem.copyNumber
+        )
+      );
     }
   };
 
-  return firstCopyItems.length === 1 ? (
+  return sortedItems.length === 1 ? (
     <div className="d-flex-align-center">
       {label && (
         <label className={clsx(cx('fr-label'), 'flex-grow-1')}>{label}</label>
       )}
-      {renderButtons(() => getDocument(firstCopyItems[0]))}
+      {renderButtons(() => getDocument(sortedItems[0]))}
     </div>
   ) : (
     <div className="select-with-button">
@@ -52,22 +58,20 @@ const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
         className={cx('fr-mr-2w')}
         label={label ?? "Document d'accompagnement"}
         nativeSelectProps={{
-          onChange: (event) =>
-            setSelectedItemNumber(Number(event.target.value)),
-          value: selectedItemNumber
+          onChange: (event) => setSelectedItem(Number(event.target.value)),
+          value: selectedItem
         }}
       >
-        {firstCopyItems.map((item) => (
+        {sortedItems.map((item, itemIndex) => (
           <option
-            key={`sample-item-${item.itemNumber}-${item.itemNumber}`}
-            value={item.itemNumber}
-            label={`Echantillon n°${item.itemNumber}`}
+            key={`sample-item-${item.itemNumber}-${item.copyNumber}`}
+            value={itemIndex}
           >
-            {item.itemNumber}
+            {`Echantillon ${item.itemNumber} - exemplaire n°${item.copyNumber}`}
           </option>
         ))}
       </Select>
-      {renderButtons(() => getDocument(firstCopyItems[selectedItemNumber - 1]))}
+      {renderButtons(() => getDocument(sample.items[selectedItem]))}
     </div>
   );
 };

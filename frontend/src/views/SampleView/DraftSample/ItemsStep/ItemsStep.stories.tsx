@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { QuantityUnitList } from 'maestro-shared/referential/QuantityUnit';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
@@ -28,9 +29,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const programmingPlan = genProgrammingPlan({
-  kinds: ['PPV']
-});
+const programmingPlan = genProgrammingPlan();
 const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
   context: 'Control',
@@ -77,7 +76,7 @@ export const OneItem: Story = {
       canvas.queryByTestId('item-quantity-input-1')
     ).not.toBeInTheDocument();
 
-    await expect(canvas.getByTestId('previous-button')).toBeInTheDocument();
+    await expect(canvas.getAllByTestId('previous-button')).toHaveLength(2);
     await expect(canvas.getByTestId('submit-button')).toBeInTheDocument();
   }
 };
@@ -146,7 +145,13 @@ export const SubmittingErrors: Story = {
   args: {
     partialSample: {
       ...partialSample,
-      items: [{}],
+      items: partialSample.items.slice(0, 1).map((item: PartialSampleItem) => ({
+        ...item,
+        quantity: undefined,
+        quantityUnit: undefined,
+        sealId: undefined,
+        compliance200263: undefined
+      })) as PartialSampleItem[],
       status: 'DraftItems' as const
     } as Sample
   },

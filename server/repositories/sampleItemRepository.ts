@@ -14,11 +14,12 @@ export const SampleItems = (transaction = db) =>
 
 const findUnique = async (
   sampleId: string,
+  itemNumber: number,
   copyNumber: number
 ): Promise<PartialSampleItem | undefined> => {
-  console.info('Find sampleItem', sampleId, copyNumber);
+  console.info('Find sampleItem', sampleId, itemNumber, copyNumber);
   return SampleItems()
-    .where({ sampleId, copyNumber })
+    .where({ sampleId, itemNumber, copyNumber })
     .first()
     .then((_) => _ && PartialSampleItem.parse(omitBy(_, isNil)));
 };
@@ -59,6 +60,7 @@ const updateMany = async (
 
 const update = async (
   sampleId: string,
+  itemNumber: number,
   copyNumber: number,
   partialSampleItem: PartialSampleItem,
   trx: KyselyMaestro = kysely
@@ -67,6 +69,7 @@ const update = async (
   await trx
     .updateTable('sampleItems')
     .where('sampleId', '=', sampleId)
+    .where('itemNumber', '=', itemNumber)
     .where('copyNumber', '=', copyNumber)
     .set(partialSampleItem)
     .execute();

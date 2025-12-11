@@ -4,7 +4,7 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
-import { isNil, maxBy } from 'lodash-es';
+import { isNil, uniq } from 'lodash-es';
 import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -16,40 +16,26 @@ import {
   SampleItemsData,
   uniqueSampleItemSealIdCheck
 } from 'maestro-shared/schema/Sample/Sample';
-import {
-  PartialSampleItem,
-  SampleItemSort
-} from 'maestro-shared/schema/Sample/SampleItem';
+import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import { MaestroDate } from 'maestro-shared/utils/date';
 import { toArray } from 'maestro-shared/utils/utils';
-import React, {
-  Fragment,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
-import SampleItemDetails from 'src/views/SampleView/SampleItemDetails/SampleItemDetails';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
+import SampleItems from '../../../../components/Sample/SampleItems/SampleItems';
+import SampleProcedure from '../../../../components/Sample/SampleProcedure/SampleProcedure';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { useAppSelector } from '../../../../hooks/useStore';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
-
-const MaxCopyCount = 3;
-
-type Props = {
-  partialSample: PartialSample | PartialSampleToCreate;
-};
 
 const ItemsStep = ({ partialSample }: Props) => {
   const apiClient = useContext(ApiClientContext);
@@ -65,6 +51,7 @@ const ItemsStep = ({ partialSample }: Props) => {
   const [sampledAt, setSampledAt] = useState(
     format(partialSample.sampledAt ?? new Date(), 'yyyy-MM-dd HH:mm')
   );
+  const [shippingDate, setShippingDate] = useState(partialSample.shippingDate);
   const [items, setItems] = useState(partialSample.items ?? []);
   const [notesOnItems, setNotesOnItems] = useState(partialSample.notesOnItems);
   const [isSaved, setIsSaved] = useState(false);
@@ -126,9 +113,8 @@ const ItemsStep = ({ partialSample }: Props) => {
   useEffect(() => {
     if (
       programmingPlan &&
-      (isNil(items) ||
-        (items.length === 0 &&
-          (localPrescription || !isProgrammingPlanSample(partialSample))))
+      !items?.length &&
+      (localPrescription || !isProgrammingPlanSample(partialSample))
     ) {
       setItems(
         [
@@ -145,7 +131,11 @@ const ItemsStep = ({ partialSample }: Props) => {
             copyNumber: 1,
             recipientKind: 'Laboratory',
             laboratoryId: substanceKindLaboratory.laboratoryId,
-            substanceKind: substanceKindLaboratory.substanceKind
+            substanceKind: substanceKindLaboratory.substanceKind,
+            compliance200263:
+              partialSample.specificData.programmingPlanKind === 'PPV'
+                ? undefined
+                : true
           }))
       );
     }
@@ -153,11 +143,29 @@ const ItemsStep = ({ partialSample }: Props) => {
 
   const Form = SampleItemsData.pick({
     sampledAt: true,
+    shippingDate: true,
     notesOnItems: true,
     items: true
   });
 
-  const FormRefinement = Form.check(uniqueSampleItemSealIdCheck);
+  const FormRefinement = Form.check(uniqueSampleItemSealIdCheck).check(
+    (ctx) => {
+      ctx.value.items.forEach((item, index) => {
+        if (
+          item.copyNumber === 1 &&
+          isNil(item.laboratoryId) &&
+          !isProgrammingPlanSample(partialSample)
+        ) {
+          ctx.issues.push({
+            code: 'custom' as const,
+            path: ['items', index, 'laboratoryId'],
+            input: 'items',
+            message: 'Veuillez sélectionner un laboratoire.'
+          });
+        }
+      });
+    }
+  );
 
   useEffect(
     () => {
@@ -202,13 +210,17 @@ const ItemsStep = ({ partialSample }: Props) => {
     await createOrUpdateSample({
       ...partialSample,
       sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
+      shippingDate,
       notesOnItems,
-      items,
+      items: items.map((item) => ({
+        ...item,
+        laboratoryId: item.laboratoryId || undefined
+      })),
       status
     });
   };
 
-  const changeItems = (item: PartialSampleItem) =>
+  const changeItem = (item: PartialSampleItem) =>
     setItems(
       items.map((_) =>
         _.itemNumber === item.itemNumber && _.copyNumber === item.copyNumber
@@ -217,11 +229,27 @@ const ItemsStep = ({ partialSample }: Props) => {
       )
     );
 
+  const addItem = (item: PartialSampleItem) => {
+    setItems([...items, item]);
+  };
+
+  const removeItem = (item: PartialSampleItem) => {
+    setItems(
+      items.filter(
+        (_) =>
+          !(
+            _.itemNumber === item.itemNumber && _.copyNumber === item.copyNumber
+          )
+      )
+    );
+  };
+
   const form = useForm(
     FormRefinement,
     {
       sampledAt,
-      items: items,
+      shippingDate,
+      items,
       notesOnItems
     },
     save
@@ -229,9 +257,24 @@ const ItemsStep = ({ partialSample }: Props) => {
 
   return (
     <form data-testid="draft_sample_items_form" className="sample-form">
-      <AppRequiredText />
+      <div>
+        <Button
+          {...PreviousButton({
+            sampleId: partialSample.id,
+            currentStep: 3,
+            onSave: readonly ? undefined : () => save('DraftMatrix')
+          })}
+          size="small"
+          priority="tertiary no outline"
+          className={cx('fr-pl-0', 'fr-mb-1v')}
+        >
+          Étape précédente
+        </Button>
+        <AppRequiredText />
+      </div>
+      <SampleProcedure partialSample={partialSample} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
+        <div className={cx('fr-col-6')}>
           <AppTextInput
             type="datetime-local"
             defaultValue={sampledAt}
@@ -246,88 +289,60 @@ const ItemsStep = ({ partialSample }: Props) => {
             disabled={readonly}
           />
         </div>
+        <div className={cx('fr-col-6')}>
+          <AppTextInput
+            type="date"
+            defaultValue={shippingDate ?? ''}
+            onChange={(e) => setShippingDate(e.target.value as MaestroDate)}
+            inputForm={form}
+            inputKey="shippingDate"
+            whenValid="Date d'expédition"
+            label="Date d'expédition"
+            hintText="Format attendu › JJ/MM/AAAA"
+            disabled={readonly}
+          />
+        </div>
       </div>
-      <div className="sample-items">
-        {[...items]?.sort(SampleItemSort).map((item, itemIndex) => (
-          <Fragment key={`item-${itemIndex}`}>
-            <div
-              className={clsx(
-                cx(
-                  'fr-callout',
-                  'fr-callout--pink-tuile',
-                  'fr-mb-0',
-                  'fr-pb-2w'
-                ),
-                'sample-callout'
-              )}
-            >
-              <SampleItemDetails
-                partialSample={partialSample}
-                item={item}
-                itemIndex={itemIndex}
-                onRemoveItem={(item: PartialSampleItem) =>
-                  setItems(
-                    items
-                      .filter((_) => _ !== item)
-                      .map((_) => ({
-                        ..._,
-                        copyNumber:
-                          _.itemNumber === item.itemNumber &&
-                          _.copyNumber > item.copyNumber
-                            ? _.copyNumber - 1
-                            : _.copyNumber
-                      }))
-                  )
-                }
-                onChangeItem={changeItems}
-                itemsForm={form}
-                readonly={readonly}
-              />
-            </div>
-            {item ===
-              maxBy(
-                items.filter((_) => _.itemNumber === item.itemNumber),
-                'copyNumber'
-              ) &&
-              item.copyNumber < MaxCopyCount &&
-              !readonly && (
-                <Button
-                  iconId="fr-icon-add-line"
-                  priority="secondary"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setItems(
-                      [
-                        ...items,
-                        {
-                          sampleId: partialSample.id,
-                          itemNumber: item.itemNumber,
-                          copyNumber: item.copyNumber + 1,
-                          quantity: item.quantity,
-                          quantityUnit: item.quantityUnit,
-                          substanceKind: item.substanceKind
-                        }
-                      ].sort(SampleItemSort)
-                    );
-                  }}
-                  style={{
-                    alignSelf: 'center'
-                  }}
-                  data-testid="add-item-button"
-                >
-                  Ajouter un exemplaire
-                </Button>
-              )}
-          </Fragment>
-        ))}
+      <hr />
+      <div>
+        <h5>Échantillons</h5>
+        <SampleItems
+          partialSample={partialSample}
+          items={items}
+          onChangeItem={changeItem}
+          onAddItem={addItem}
+          onRemoveItem={removeItem}
+          readonly={readonly}
+          form={form}
+        />
       </div>
+
       {form.hasIssue('items') && (
         <Alert
           severity="error"
           description={form.message('items') as string}
           small
-          className={cx('fr-mb-4w')}
         />
+      )}
+      {form.hasIssue('items', [], {
+        partial: true
+      }) && (
+        <div>
+          {uniq(items.map((_) => _.itemNumber))
+            .filter((itemNumber) =>
+              form.hasIssue('items', [itemNumber - 1], {
+                partial: true
+              })
+            )
+            .map((itemNumber) => (
+              <Alert
+                severity="error"
+                description={`La saisie de l'échantillon n°${itemNumber} est incorrecte`}
+                key={`item-error-${itemNumber}`}
+                small
+              />
+            ))}
+        </div>
       )}
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
@@ -390,7 +405,7 @@ const ItemsStep = ({ partialSample }: Props) => {
             <li>
               {!readonly ? (
                 <Button
-                  children="Continuer"
+                  children="Récapitulatif"
                   onClick={submit}
                   iconId="fr-icon-arrow-right-line"
                   iconPosition="right"
@@ -406,6 +421,10 @@ const ItemsStep = ({ partialSample }: Props) => {
       <SavedAlert isOpen={isSaved} isDraft />
     </form>
   );
+};
+
+type Props = {
+  partialSample: PartialSample | PartialSampleToCreate;
 };
 
 export default ItemsStep;

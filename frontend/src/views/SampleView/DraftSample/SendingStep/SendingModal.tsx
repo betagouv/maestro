@@ -76,7 +76,7 @@ const SendingModal = ({
       {substanceKindsLaboratories.map((substanceKindLaboratory, index) => (
         <div key={substanceKindLaboratory.substanceKind}>
           {index > 0 && <hr className={cx('fr-my-2w')} />}
-          La demande d’
+          La demande d’analyse{' '}
           {SubstanceKindLabels[
             substanceKindLaboratory.substanceKind
           ].toLowerCase()}{' '}

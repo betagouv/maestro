@@ -26,7 +26,11 @@ import {
   Sample,
   sampleSendCheck
 } from 'maestro-shared/schema/Sample/Sample';
-import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import {
+  SampleItem,
+  SampleItemMaxCopyCount,
+  SampleItemSort
+} from 'maestro-shared/schema/Sample/SampleItem';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import companyRepository from '../repositories/companyRepository';
@@ -49,6 +53,7 @@ import { hasPermission } from 'maestro-shared/schema/User/User';
 import { hasNationalRole } from 'maestro-shared/schema/User/UserRole';
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
+import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
 import {
   getAndCheckSample,
   getAndCheckSampleDepartement
@@ -70,16 +75,20 @@ const streamToBase64 = async (stream: Readable): Promise<string> => {
 const generateAndStoreSampleSupportDocument = async (
   sample: Sample,
   sampleItems: SampleItem[],
+  itemNumber: number,
   copyNumber: number
 ) => {
   const pdfBuffer = await pdfService.generateSampleSupportPDF(
     sample,
     sampleItems,
+    itemNumber,
     copyNumber,
     true
   );
 
-  const sampleItem = sampleItems.find((item) => item.copyNumber === copyNumber);
+  const sampleItem = sampleItems.find(
+    (item) => item.itemNumber === itemNumber && item.copyNumber === copyNumber
+  );
 
   if (!sampleItem) {
     throw new Error(`Sample item ${copyNumber} not found`);
@@ -87,16 +96,25 @@ const generateAndStoreSampleSupportDocument = async (
 
   if (sampleItem.supportDocumentId) {
     console.info('Delete previous document', sampleItem.supportDocumentId);
-    await sampleItemRepository.update(sample.id, sampleItem.copyNumber, {
-      ...sampleItem,
-      supportDocumentId: null
-    });
+    await sampleItemRepository.update(
+      sample.id,
+      sampleItem.itemNumber,
+      sampleItem.copyNumber,
+      {
+        ...sampleItem,
+        supportDocumentId: null
+      }
+    );
     await documentService.deleteDocument(sampleItem.supportDocumentId);
   }
 
   const file = new File(
     [pdfBuffer],
-    getSupportDocumentFilename(sample, sampleItem.copyNumber),
+    getSupportDocumentFilename(
+      sample,
+      sampleItem.itemNumber,
+      sampleItem.copyNumber
+    ),
     { type: 'application/pdf' }
   );
 
@@ -107,6 +125,7 @@ const generateAndStoreSampleSupportDocument = async (
     (documentId, trx) =>
       sampleItemRepository.update(
         sample.id,
+        sampleItem.itemNumber,
         sampleItem.copyNumber,
         {
           ...sampleItem,
@@ -127,6 +146,7 @@ const generateAndStoreAnalysisRequestDocuments = async (
 
   const excelFilename = getAnalysisReportDocumentFilename(
     analysisRequestData,
+    analysisRequestData.itemNumber,
     analysisRequestData.copyNumber,
     'xlsx'
   );
@@ -144,6 +164,7 @@ const generateAndStoreAnalysisRequestDocuments = async (
 
   const csvFilename = getAnalysisReportDocumentFilename(
     analysisRequestData,
+    analysisRequestData.itemNumber,
     analysisRequestData.copyNumber,
     'csv'
   );
@@ -153,6 +174,7 @@ const generateAndStoreAnalysisRequestDocuments = async (
       [csvBuffer],
       getAnalysisReportDocumentFilename(
         analysisRequestData,
+        analysisRequestData.itemNumber,
         analysisRequestData.copyNumber,
         'xlsx'
       ),
@@ -271,15 +293,31 @@ export const sampleRouter = {
   '/samples/:sampleId/document': {
     get: async ({ user }, { sampleId }, { setHeader }) => {
       const sample = await getAndCheckSample(sampleId, user);
+      const programmingPlan = await getAndCheckProgrammingPlan(
+        sample.programmingPlanId
+      );
       console.info('Get sample document', sample.id);
 
       const sampleItems = await sampleItemRepository.findMany(sample.id);
 
       const pdfBuffers = await Promise.all(
-        [1, 2, 3].map((copyNumber) =>
+        (sampleItems?.length
+          ? [...sampleItems].sort(SampleItemSort)
+          : Array.from(
+              Array(programmingPlan.substanceKinds.length).keys()
+            ).flatMap((itemNumber) =>
+              Array.from(Array(SampleItemMaxCopyCount).keys()).map(
+                (copyNumber) => ({
+                  itemNumber: itemNumber + 1,
+                  copyNumber: copyNumber + 1
+                })
+              )
+            )
+        ).map(({ itemNumber, copyNumber }) =>
           pdfService.generateSampleSupportPDF(
             sample,
             sampleItems,
+            itemNumber,
             copyNumber,
             false
           )
@@ -308,8 +346,12 @@ export const sampleRouter = {
       return { status: constants.HTTP_STATUS_OK, response: pdfBuffer };
     }
   },
-  '/samples/:sampleId/items/:copyNumber/document': {
-    get: async ({ user }, { sampleId, copyNumber }, { setHeader }) => {
+  '/samples/:sampleId/items/:itemNumber/copy/:copyNumber/document': {
+    get: async (
+      { user },
+      { sampleId, itemNumber, copyNumber },
+      { setHeader }
+    ) => {
       const sample = await getAndCheckSample(sampleId, user);
 
       console.info('Get sample document', sample.id);
@@ -319,6 +361,7 @@ export const sampleRouter = {
       const pdfBuffer = await pdfService.generateSampleSupportPDF(
         sample,
         sampleItems,
+        itemNumber,
         copyNumber,
         true
       );
@@ -326,7 +369,7 @@ export const sampleRouter = {
       setHeader('Content-Type', 'application/pdf');
       setHeader(
         'Content-Disposition',
-        `inline; filename="${getSupportDocumentFilename(sample, copyNumber)}"`
+        `inline; filename="${getSupportDocumentFilename(sample, itemNumber, copyNumber)}"`
       );
       return { status: constants.HTTP_STATUS_OK, response: pdfBuffer };
     }
@@ -480,6 +523,7 @@ export const sampleRouter = {
               await generateAndStoreSampleSupportDocument(
                 updatedSample,
                 sampleItems as SampleItem[],
+                sampleItem.itemNumber,
                 sampleItem.copyNumber
               );
 
@@ -487,6 +531,7 @@ export const sampleRouter = {
               ? {
                   name: `${getSupportDocumentFilename(
                     updatedSample,
+                    sampleItem.itemNumber,
                     sampleItem.copyNumber
                   )}`,
                   content: sampleSupportDoc.toString('base64')

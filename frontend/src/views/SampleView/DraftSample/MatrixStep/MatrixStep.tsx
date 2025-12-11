@@ -50,7 +50,8 @@ import { selectOptionsFromList } from '../../../../components/_app/AppSelect/App
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
 import AppUpload from '../../../../components/_app/AppUpload/AppUpload';
-import SampleDocument from '../../../../components/SampleDocument/SampleDocument';
+import SampleDocument from '../../../../components/Sample/SampleDocument/SampleDocument';
+import SampleProcedure from '../../../../components/Sample/SampleProcedure/SampleProcedure';
 import SubstanceSearch from '../../../../components/SubstanceSearch/SubstanceSearch';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
@@ -77,7 +78,6 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   const isSubmittingRef = useRef<boolean>(false);
-
   const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
   const [matrix, setMatrix] = useState(partialSample.matrix);
   const [stage, setStage] = useState(partialSample.stage);
@@ -299,6 +299,33 @@ const MatrixStep = ({ partialSample }: Props) => {
     [prescriptions, partialSample, specificData.programmingPlanKind]
   );
 
+  const matrixOptions = useMemo(
+    () =>
+      selectOptionsFromList(
+        matrixKind === OtherMatrixKind.value
+          ? []
+          : matrixKind
+            ? (MatrixListByKind[matrixKind as MatrixKind]?.filter((m) =>
+                isProgrammingPlanSample(partialSample)
+                  ? prescriptions?.some(
+                      (p) =>
+                        p.programmingPlanKind ===
+                          specificData.programmingPlanKind &&
+                        p.matrixKind === matrixKind &&
+                        (isNil(p.matrix) || p.matrix === m)
+                    )
+                  : true
+              ) ?? matrixKind)
+            : [],
+        {
+          labels: MatrixLabels,
+          withSort: true,
+          withDefault: false
+        }
+      ),
+    [matrixKind, prescriptions, specificData.programmingPlanKind, partialSample]
+  );
+
   const stageOptions = useMemo(
     () =>
       selectOptionsFromList(
@@ -314,7 +341,8 @@ const MatrixStep = ({ partialSample }: Props) => {
         ),
         {
           labels: StageLabels,
-          defaultLabel: 'Sélectionner un stade'
+          defaultLabel: 'Sélectionner un stade',
+          withDefault: 'auto'
         }
       ),
     [partialSample, prescriptions, specificData.programmingPlanKind, matrixKind]
@@ -322,7 +350,21 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   return (
     <form data-testid="draft_sample_matrix_form" className="sample-form">
-      <AppRequiredText />
+      <div>
+        <Button
+          {...PreviousButton({
+            sampleId: partialSample.id,
+            currentStep: 2,
+            onSave: readonly ? undefined : () => save('Draft')
+          })}
+          size="small"
+          priority="tertiary no outline"
+          className={cx('fr-pl-0', 'fr-mb-1v')}
+        >
+          Étape précédente
+        </Button>
+        <AppRequiredText />
+      </div>
 
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         {(
@@ -344,6 +386,11 @@ const MatrixStep = ({ partialSample }: Props) => {
               onChange={setSpecificData}
             />
           ))}
+        <div className={cx('fr-col-12', 'fr-pb-0')}>
+          <span className={cx('fr-text--md', 'fr-text--bold')}>
+            La matrice à prélever
+          </span>
+        </div>
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
           <AppSearchInput
             value={matrixKind ?? ''}
@@ -363,6 +410,11 @@ const MatrixStep = ({ partialSample }: Props) => {
               disabled: matrixKind === OtherMatrixKind.value,
               'data-testid': 'matrix-kind-select'
             }}
+            renderOption={(props, option) => (
+              <li {...props} key={option.value}>
+                {option.label}
+              </li>
+            )}
           />
           {isOutsideProgrammingPlanSample(partialSample) && (
             <Checkbox
@@ -404,16 +456,7 @@ const MatrixStep = ({ partialSample }: Props) => {
           ) : (
             <AppSearchInput
               value={matrix ?? ''}
-              options={selectOptionsFromList(
-                matrixKind
-                  ? (MatrixListByKind[matrixKind as MatrixKind] ?? matrixKind)
-                  : [],
-                {
-                  labels: MatrixLabels,
-                  withSort: true,
-                  withDefault: false
-                }
-              )}
+              options={matrixOptions}
               placeholder="Sélectionner une matrice"
               onSelect={(value) => {
                 setMatrix(value as Matrix);
@@ -443,6 +486,9 @@ const MatrixStep = ({ partialSample }: Props) => {
             required
           />
         </div>
+      </div>
+      <SampleProcedure partialSample={partialSample} />
+      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         {(
           Object.entries(
             MatrixSpecificDataForm[specificData.programmingPlanKind]
@@ -529,11 +575,11 @@ const MatrixStep = ({ partialSample }: Props) => {
                 {form.message('substances')}
               </div>
             )}
-            <div className={cx('fr-col-12')}>
-              <hr />
-            </div>
           </>
         )}
+      </div>
+      <div className={cx('fr-col-12')}>
+        <hr />
       </div>
       {renderSampleAttachments?.()}
       <hr />

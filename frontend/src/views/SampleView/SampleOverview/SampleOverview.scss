@@ -1,20 +1,22 @@
 @use '../../../constants' as constant;
 
 .sample-overview {
-  .fr-tabs__panel {
-    gap: 2rem;
-    display: flex;
-    flex-direction: column;
-  }
+  & > .fr-tabs {
+    & > .fr-tabs__panel {
+      gap: 2rem;
+      display: flex;
+      flex-direction: column;
+    }
 
-  .fr-tabs__list,
-  .fr-tabs__panel {
-    padding-left: 12rem;
-    padding-right: 12rem;
+    & > .fr-tabs__list,
+    .fr-tabs__panel {
+      padding-left: 12rem;
+      padding-right: 12rem;
 
-    @media (max-width: constant.$breakpoint-md) {
-      padding-left: 1rem;
-      padding-right: 1rem;
+      @media (max-width: constant.$breakpoint-md) {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
     }
   }
 
