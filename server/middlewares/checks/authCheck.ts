@@ -25,22 +25,21 @@ export const jwtCheck = (credentialsRequired: boolean) =>
     ignoreExpiration: !credentialsRequired
   });
 
-const setUser = async (
-  request: Request,
-  user: User | undefined
-): Promise<void> => {
+export const getUser = async (
+  cookies: Record<string, string> | undefined,
+  user: User
+): Promise<User> => {
   if (user?.role === 'Administrator') {
-    const mascaradeUserId = request.cookies?.[COOKIE_MAESTRO_MASCARADE];
+    const mascaradeUserId = cookies?.[COOKIE_MAESTRO_MASCARADE];
     if (mascaradeUserId !== undefined) {
       const mascaradeUser = await userRepository.findUnique(mascaradeUserId);
       if (mascaradeUser !== undefined) {
-        request.user = mascaradeUser;
-        return;
+        return mascaradeUser;
       }
     }
   }
 
-  request.user = user;
+  return user;
 };
 
 export const userCheck = (credentialsRequired: boolean) =>
@@ -63,13 +62,13 @@ export const userCheck = (credentialsRequired: boolean) =>
         throw new AuthenticationFailedError();
       }
 
-      await setUser(request, user);
+      request.user = await getUser(request.cookies, user);
     } else {
       if (request.auth && request.auth.userId) {
-        await setUser(
-          request,
-          await userRepository.findUnique(request.auth.userId)
-        );
+        const user = await userRepository.findUnique(request.auth.userId);
+        if (user) {
+          request.user = await getUser(request.cookies, user);
+        }
       }
     }
     next();

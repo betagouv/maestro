@@ -46,6 +46,7 @@ type MaestroRouteMethod<
   request: {
     body: RouteValidator<key, method, 'body'>;
     query: RouteValidator<key, method, 'query'>;
+    cookies: Record<string, string> | undefined;
   } & (IsProtected extends true
     ? {
         user: User;
@@ -187,7 +188,8 @@ export const generateRoutes = <
             {
               ...validatedRequest,
               user: request.user,
-              auth: request.auth
+              auth: request.auth,
+              cookies: request.cookies
             },
             validatedRequest.params,
             responseMethods
