@@ -101,6 +101,7 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
             iconPosition="right"
             id="notify-regions-button"
             onClick={() => submissionModal.open()}
+            className="no-wrap"
             disabled={departmentalPrescriptions.some(
               (departmentalPrescription) =>
                 !departmentalPrescription.substanceKindsLaboratories?.length ||
