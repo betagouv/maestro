@@ -5,6 +5,7 @@ import AuthenticationFailedError from 'maestro-shared/errors/authenticationFaile
 import { AuthMaybeUnknownUser } from 'maestro-shared/schema/User/AuthUser';
 import { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
 import { v4 as uuidv4 } from 'uuid';
+import { getUser } from '../middlewares/checks/authCheck';
 import { userRepository } from '../repositories/userRepository';
 import {
   ProtectedSubRouter,
@@ -26,7 +27,7 @@ export const authUnprotectedRouter = {
     }
   },
   '/auth': {
-    post: async ({ body: authRedirectUrl }, _, { cookie }) => {
+    post: async ({ body: authRedirectUrl, cookies }, _, { cookie }) => {
       const authService = await getAuthService;
 
       console.log('authenticate', authRedirectUrl);
@@ -55,7 +56,7 @@ export const authUnprotectedRouter = {
         const result: AuthMaybeUnknownUser =
           user !== undefined
             ? {
-                user
+                user: await getUser(cookies, user)
               }
             : {
                 user: null,
