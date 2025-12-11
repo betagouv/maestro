@@ -51,7 +51,7 @@ main {
 
 .white-container {
   background-color: #fff;
-  border: 1px solid var(--border-default-grey);
+  border: 1px solid var(--border-default-grey) !important;
 }
 
 .bg-white {

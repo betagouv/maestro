@@ -21,8 +21,13 @@ import {
   getSampleMatrixLabel,
   PartialSample
 } from 'maestro-shared/schema/Sample/Sample';
-import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
-import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
+import {
+  getSampleItemReference,
+  PartialSampleItem,
+  SampleItemMaxCopyCount
+} from 'maestro-shared/schema/Sample/SampleItem';
+import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
+import { formatWithTz } from 'maestro-shared/utils/utils';
 import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
@@ -70,6 +75,11 @@ const generatePDF = async (template: Template, data: unknown) => {
     function (this: any, arr: any, options: any) {
       return Array.isArray(arr) ? options.fn(this) : options.inverse(this);
     }
+  );
+
+  handlebars.registerHelper(
+    'isEmpty',
+    (a?: string | null) => isNil(a) || String(a).trim() === ''
   );
 
   const compiledTemplate = handlebars.compile(templateContent(template));
@@ -158,6 +168,7 @@ const generateSampleSupportPDF = async (
   sample: PartialSample,
   sampleItems: PartialSampleItem[],
   itemNumber: number,
+  copyNumber: number,
   fullVersion: boolean
 ) => {
   const programmingPlan = await programmingPlanRepository.findUnique(
@@ -174,7 +185,7 @@ const generateSampleSupportPDF = async (
   }
 
   const emptySampleItems: PartialSampleItem[] = new Array(
-    programmingPlan.substanceKinds.length * 3
+    programmingPlan.substanceKinds.length * SampleItemMaxCopyCount
   )
     .fill(null)
     .map((_, index) => ({
@@ -188,7 +199,7 @@ const generateSampleSupportPDF = async (
   });
 
   const currentSampleItem = sampleItems.find(
-    (item) => item.itemNumber === itemNumber && item.copyNumber === 1
+    (item) => item.itemNumber === itemNumber && item.copyNumber === copyNumber
   );
 
   const laboratory = currentSampleItem?.laboratoryId
@@ -201,14 +212,21 @@ const generateSampleSupportPDF = async (
     sampleItems: (sampleItems.length > 0 ? sampleItems : emptySampleItems).map(
       (sampleItem) => ({
         ...sampleItem,
-        quantityUnit: sampleItem?.quantityUnit
-          ? QuantityUnitLabels[sampleItem.quantityUnit]
+        quantity: `${sampleItem.quantity ?? ''}${
+          sampleItem.quantityUnit
+            ? ` ${QuantityUnitLabels[sampleItem.quantityUnit]}`
+            : ''
+        }`,
+        recipientKind: sampleItem.recipientKind
+          ? SampleItemRecipientKindLabels[sampleItem.recipientKind]
           : '',
         currentItem:
-          sampleItem.itemNumber === itemNumber && sampleItem.copyNumber === 1
+          sampleItem.itemNumber === itemNumber &&
+          sampleItem.copyNumber === copyNumber
       })
     ),
     itemNumber,
+    copyNumber,
     sampler,
     laboratory: !isNil(laboratory)
       ? {
@@ -222,9 +240,7 @@ const generateSampleSupportPDF = async (
     multiSubstances: sample.multiSubstances?.map(
       (substance) => SSD2IdLabel[substance]
     ),
-    reference: [sample.reference, itemNumber] //TODO
-      .filter(isDefinedAndNotNull)
-      .join('-'),
+    reference: getSampleItemReference(sample, itemNumber, copyNumber),
     ...(sample.sampledAt
       ? {
           sampledAt: formatWithTz(

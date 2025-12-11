@@ -16,20 +16,26 @@ export function useForm<
 
   function issue<K extends keyof U>(
     key?: K,
-    pathFromKey?: (string | number)[]
+    pathFromKey?: (string | number)[],
+    options?: { partial?: boolean }
   ): z.ZodIssue | undefined {
     return isTouched && key
       ? error?.issues?.find((issue) =>
-          isEqual(issue.path, [key, ...(pathFromKey ?? [])])
+          options?.partial
+            ? [key, ...(pathFromKey ?? [])].every((segment, index) =>
+                isEqual(issue.path[index], segment)
+              )
+            : isEqual(issue.path, [key, ...(pathFromKey ?? [])])
         )
       : error?.issues[0];
   }
 
   function hasIssue<K extends keyof U>(
     key?: K,
-    pathFromKey?: (string | number)[]
+    pathFromKey?: (string | number)[],
+    options?: { partial?: boolean }
   ): boolean {
-    return issue(key, pathFromKey) !== undefined;
+    return issue(key, pathFromKey, options) !== undefined;
   }
 
   function isValid(): boolean {
@@ -39,19 +45,21 @@ export function useForm<
   function message<K extends keyof U>(
     key: K,
     pathFromKey?: (string | number)[],
-    whenValid?: string
+    whenValid?: string,
+    options?: { partial?: boolean }
   ): string | undefined {
-    return messageType(key, pathFromKey) === 'success' && whenValid
+    return messageType(key, pathFromKey, options) === 'success' && whenValid
       ? whenValid
-      : issue(key, pathFromKey)?.message;
+      : issue(key, pathFromKey, options)?.message;
   }
 
   function messageType<K extends keyof U>(
     key: K,
-    pathFromKey?: (string | number)[]
+    pathFromKey?: (string | number)[],
+    options?: { partial?: boolean }
   ): MessageType {
     if (isTouched) {
-      if (hasIssue(key, pathFromKey)) {
+      if (hasIssue(key, pathFromKey, options)) {
         return 'error';
       }
       return 'success';

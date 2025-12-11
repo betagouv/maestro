@@ -38,6 +38,7 @@ import SavedAlert from 'src/views/SampleView/SavedAlert';
 import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSummary';
 import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
+import { z } from 'zod';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { ApiClientContext } from '../../../../services/apiClient';
@@ -73,11 +74,36 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
       fixedCacheKey: `sending-sample-${sample.id}`
     });
 
+  const substanceKindsLaboratories = useMemo(
+    () =>
+      sample.items
+        .filter((_) => _.copyNumber === 1)
+        .map((item) => ({
+          substanceKind: item.substanceKind,
+          laboratory: getSampleItemLaboratory(item.itemNumber) as Laboratory
+        })),
+    [sample.items, getSampleItemLaboratory]
+  );
+
+  const hasAllLaboratories = useMemo(
+    () =>
+      substanceKindsLaboratories.every(({ laboratory }) =>
+        isDefined(laboratory)
+      ),
+    [substanceKindsLaboratories]
+  );
+
   const isSendable = useMemo(
     () =>
-      SampleToCreate.merge(SampleOwnerData.partial()).safeParse(sample)
-        .success && isOnline,
-    [sample, isOnline]
+      z
+        .object({
+          ...SampleToCreate.shape,
+          ...SampleOwnerData.partial().shape
+        })
+        .safeParse(sample).success &&
+      isOnline &&
+      hasAllLaboratories,
+    [sample, isOnline, hasAllLaboratories]
   );
 
   const sendingSampleModal = useMemo(
@@ -158,27 +184,73 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
   return (
     <>
       <div data-testid="sample_data" className="sample-form">
-        <h3 className={cx('fr-m-0')}>
-          Récapitulatif du prélèvement{' '}
-          {isCreatedPartialSample(sample) && sample.reference}
-          {!readonly && (
-            <div className={cx('fr-text--md', 'fr-text--regular', 'fr-m-0')}>
-              Vérifiez l’ensemble des informations avant de finaliser votre
-              envoi
-            </div>
-          )}
-        </h3>
-        <ContextStepSummary sample={sample} onChangeResytalId={setResytalId} />
+        <div>
+          <Button
+            {...PreviousButton({
+              sampleId: sample.id,
+              currentStep: 4,
+              onSave: readonly ? undefined : () => save('DraftItems')
+            })}
+            size="small"
+            priority="tertiary no outline"
+            className={cx('fr-pl-0', 'fr-mb-1v')}
+          >
+            Étape précédente
+          </Button>
+          <h3 className={cx('fr-m-0')}>
+            Récapitulatif du prélèvement{' '}
+            {isCreatedPartialSample(sample) && sample.reference}
+            {!readonly && (
+              <div className={cx('fr-text--md', 'fr-text--regular', 'fr-m-0')}>
+                Vérifiez l’ensemble des informations avant de finaliser votre
+                envoi
+              </div>
+            )}
+          </h3>
+        </div>
+        <hr />
+        <ContextStepSummary
+          sample={sample}
+          onChangeResytalId={setResytalId}
+          onEdit={
+            !readonly
+              ? async () => {
+                  await save('Draft');
+                  navigateToSample(sample.id, 1);
+                }
+              : undefined
+          }
+        />
         <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
-        <MatrixStepSummary sample={sample} />
+        <MatrixStepSummary
+          sample={sample}
+          onEdit={
+            !readonly
+              ? async () => {
+                  await save('DraftMatrix');
+                  navigateToSample(sample.id, 2);
+                }
+              : undefined
+          }
+        />
         <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
-        <ItemsStepSummary sample={sample} />
+        <ItemsStepSummary
+          sample={sample}
+          onEdit={
+            !readonly
+              ? async () => {
+                  await save('DraftItems');
+                  navigateToSample(sample.id, 3);
+                }
+              : undefined
+          }
+        />
         <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
         <h3 className={cx('fr-m-0')}>Consentement par le détenteur</h3>
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppRadioButtons
-              legend="Le détenteur accepte les informations portées au présent procès verbal"
+              legend="Le détenteur accepte les informations portées au présent procès-verbal"
               options={[
                 {
                   label: 'Oui',
@@ -217,11 +289,14 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
             />
           </div>
         </div>
+
+        <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
+        <h3 className={cx('fr-m-0')}>Procès-verbal</h3>
         {isOnline ? (
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12')}>
               <SupportDocumentSelect
-                label="Document d'accompagnement du prélèvement / Procès verbal"
+                label="Document d'accompagnement du prélèvement / Procès-verbal"
                 sample={sample}
                 renderButtons={(onClick) => (
                   <ButtonsGroup
@@ -249,7 +324,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
         ) : (
           <div className="d-flex-align-center">
             <span className={cx('fr-icon-warning-line', 'fr-mr-1w')}></span>
-            Le document d'accompagnement du prélèvement / Procès verbal sera
+            Le document d'accompagnement du prélèvement / Procès-verbal sera
             disponible lorsque la connexion Internet sera rétablie.
           </div>
         )}
@@ -257,7 +332,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12', 'fr-mb-1w')}>
               <h6 className={cx('fr-mb-0')}>
-                Envoyer le procès verbal au détenteur de la marchandise
+                Envoyer le procès-verbal au détenteur de la marchandise
               </h6>
               {sample.items.length}{' '}
               {pluralize(sample.items.length)("document d'accompagnement")}
@@ -296,7 +371,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
                 inputKey="ownerEmail"
                 whenValid="Email valide"
                 label="E-mail du détenteur"
-                hintText="Le détenteur recevra une copie du procès verbal"
+                hintText="Le détenteur recevra une copie du procès-verbal"
                 disabled={readonly}
               />
             </div>
@@ -306,23 +381,28 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
           <Alert
             severity="warning"
             description={
-              <>
-                En l’absence de connexion lors de la saisie, certaines
-                informations n’ont pu être validées (<b>entité contrôlée</b> et
-                <b> localisation de la parcelle</b>)
-                <div>
-                  <Link
-                    to=""
-                    onClick={async (e: React.MouseEvent<HTMLElement>) => {
-                      e.preventDefault();
-                      await save('Draft');
-                      navigateToSample(sample.id, 1);
-                    }}
-                  >
-                    Compléter ces informations
-                  </Link>
-                </div>
-              </>
+              hasAllLaboratories ? (
+                <>
+                  En l’absence de connexion lors de la saisie, certaines
+                  informations n’ont pu être validées (<b>entité contrôlée</b>{' '}
+                  et
+                  <b> localisation de la parcelle</b>)
+                  <div>
+                    <Link
+                      to=""
+                      onClick={async (e: React.MouseEvent<HTMLElement>) => {
+                        e.preventDefault();
+                        await save('Draft');
+                        navigateToSample(sample.id, 1);
+                      }}
+                    >
+                      Compléter ces informations
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                'Le laboratoire destinataire de certaines analyses n’a pas été renseigné lors de la programmation.'
+              )
             }
             small
           />
@@ -405,15 +485,10 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
         </div>
         <SavedAlert isOpen={isSaved} />
       </div>
-      {!readonly && (
+      {!readonly && isSendable && (
         <SendingModal
           modal={sendingSampleModal}
-          substanceKindsLaboratories={sample.items
-            .filter((_) => _.copyNumber === 1)
-            .map((item) => ({
-              substanceKind: item.substanceKind,
-              laboratory: getSampleItemLaboratory(item.itemNumber) as Laboratory
-            }))}
+          substanceKindsLaboratories={substanceKindsLaboratories}
           onConfirm={submit}
         />
       )}

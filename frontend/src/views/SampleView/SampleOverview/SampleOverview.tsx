@@ -69,19 +69,19 @@ const SampleOverview = ({ sample }: Props) => {
           },
           {
             label: SampleStepTitles(sample)[1],
-            content: <MatrixStepSummary sample={sample} showLabel={false} />
+            content: <MatrixStepSummary sample={sample} mode="tab" />
           },
           {
             label: SampleStepTitles(sample)[2],
             content: (
               <>
-                <ItemsStepSummary sample={sample} showLabel={false} />
+                <ItemsStepSummary sample={sample} mode="tab" />
                 <hr />
                 <h3 className={cx('fr-m-0')}>Consentement par le détenteur</h3>
                 <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
                   <div className={cx('fr-col-12')}>
                     <RadioButtons
-                      legend="Le détenteur accepte les informations portées au présent procès verbal"
+                      legend="Le détenteur accepte les informations portées au présent procès-verbal"
                       options={[
                         {
                           label: 'Oui',
@@ -123,7 +123,7 @@ const SampleOverview = ({ sample }: Props) => {
                   <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
                     <div className={cx('fr-col-12', 'fr-mb-1w')}>
                       <h6 className={cx('fr-mb-0')}>
-                        Envoi du procès verbal au détenteur de la marchandise
+                        Envoi du procès-verbal au détenteur de la marchandise
                       </h6>
                       {sample.items.length}{' '}
                       {pluralize(sample.items.length)(
@@ -156,7 +156,7 @@ const SampleOverview = ({ sample }: Props) => {
                     <div className={cx('fr-col-12', 'fr-col-sm-6')}>
                       <Input
                         label="E-mail du détenteur"
-                        hintText="Le détenteur a reçu une copie du procès verbal"
+                        hintText="Le détenteur a reçu une copie du procès-verbal"
                         disabled
                         nativeInputProps={{
                           disabled: true,
@@ -170,9 +170,6 @@ const SampleOverview = ({ sample }: Props) => {
             )
           }
         ]}
-        classes={{
-          panel: 'white-container'
-        }}
       />
       <div className="back">
         <Button

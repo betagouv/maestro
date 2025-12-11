@@ -6,8 +6,7 @@ import clsx from 'clsx';
 import { isNil } from 'lodash-es';
 import {
   LegalContext,
-  LegalContextLabels,
-  LegalContextList
+  LegalContextLabels
 } from 'maestro-shared/referential/LegalContext';
 import { Company } from 'maestro-shared/schema/Company/Company';
 import {
@@ -40,7 +39,6 @@ import check from 'src/assets/illustrations/check.svg';
 import controle from 'src/assets/illustrations/controle.svg';
 import leaf from 'src/assets/illustrations/leaf.svg';
 import warning from 'src/assets/illustrations/warning.svg';
-import CompanySearch from 'src/components/CompanySearch/CompanySearch';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import {
@@ -52,6 +50,7 @@ import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useForm } from 'src/hooks/useForm';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
+import SampleCompany from 'src/views/SampleView/DraftSample/ContextStep/SampleCompany';
 import SampleGeolocation from 'src/views/SampleView/DraftSample/ContextStep/SampleGeolocation';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import { v4 as uuidv4 } from 'uuid';
@@ -76,14 +75,17 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const { trackEvent } = useAnalytics();
   const { user } = useAuthentication();
   const apiClient = useContext(ApiClientContext);
-
-  const [resytalId, setResytalId] = useState(partialSample?.resytalId);
+  const [resytalId, setResytalId] = useState(
+    partialSample?.resytalId ?? undefined
+  );
   const [context, setContext] = useState<
     ProgrammingPlanContext | 'OutsideProgrammingPlan' | undefined
   >(
-    isOutsideProgrammingPlanSample(partialSample)
-      ? 'OutsideProgrammingPlan'
-      : ProgrammingPlanContext.safeParse(partialSample?.context).data
+    programmingPlan.contexts.length === 1
+      ? programmingPlan.contexts[0]
+      : isOutsideProgrammingPlanSample(partialSample)
+        ? 'OutsideProgrammingPlan'
+        : ProgrammingPlanContext.safeParse(partialSample?.context).data
   );
   const [outsideProgrammingPlanContext, setOutsideProgrammingPlanContext] =
     useState<OutsideProgrammingPlanContext | undefined>(
@@ -94,7 +96,11 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const [programmingPlanKind, setProgrammingPlanKind] = useState(
     partialSample?.specificData.programmingPlanKind ?? ''
   );
-  const [legalContext, setLegalContext] = useState(partialSample?.legalContext);
+  const [legalContext, setLegalContext] = useState(
+    programmingPlan.legalContexts.length === 1
+      ? programmingPlan.legalContexts[0]
+      : partialSample?.legalContext
+  );
 
   const [geolocationX, setGeolocationX] = useState(
     partialSample?.geolocation?.x ??
@@ -240,10 +246,13 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
     OutsideProgrammingPlan: warning
   };
 
-  const legalContextOptions = selectOptionsFromList(LegalContextList, {
-    labels: LegalContextLabels,
-    withDefault: false
-  });
+  const legalContextOptions = selectOptionsFromList(
+    programmingPlan.legalContexts ?? [],
+    {
+      labels: LegalContextLabels,
+      withDefault: false
+    }
+  );
 
   const programmingPlanKindOptions = selectOptionsFromList(
     programmingPlan.kinds ?? [],
@@ -275,7 +284,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
     legalContext: legalContext as LegalContext,
     company,
     companyOffline,
-    resytalId: resytalId as string,
+    resytalId: resytalId || undefined,
     notesOnCreation,
     status: 'Draft' as const,
     specificData: specificData as PartialSampleMatrixSpecificData
@@ -348,7 +357,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
     legalContext,
     company,
     companyOffline,
-    resytalId,
+    resytalId: resytalId || undefined,
     notesOnCreation,
     status: 'DraftMatrix',
     specificData
@@ -358,7 +367,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
 
   return (
     <form data-testid="draft_sample_creation_form" className="sample-form">
-      {!isBrowserGeolocation && !readonly && (
+      {programmingPlanKind === 'PPV' && !isBrowserGeolocation && !readonly && (
         <Alert
           severity="info"
           title=""
@@ -369,110 +378,114 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
         />
       )}
       <AppRequiredText />
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
-          <AppSelect
-            defaultValue={partialSample?.sampler?.id || ''}
-            options={samplersOptions(samplers, user?.id)}
-            onChange={(e) =>
-              setSampler(
-                samplers?.find((sampler) => sampler.id === e.target.value)
-              )
-            }
-            inputForm={form}
-            inputKey="sampler"
-            whenValid="Préleveur correctement renseigné."
-            label="Le préleveur"
-            hint="La personne qui réalise le prélevement"
-            required
-          />
-        </div>
-      </div>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12', 'fr-pb-0')}>
-          <div className={cx('fr-text--bold')}>
-            Emplacement{' '}
-            {programmingPlanKind === 'PPV'
-              ? 'de la parcelle contrôlée'
-              : 'du contrôle'}
-          </div>
-          <div className={cx('fr-text--light')}>
-            Placez votre repère sur la zone correspondante ou renseignez
-            manuellement les coordonnées GPS
-          </div>
-        </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-8')}>
-          {isOnline && !readonly ? (
-            <SampleGeolocation
-              key={`geolocation-${isBrowserGeolocation}`}
-              location={
-                geolocationX && geolocationY
-                  ? { x: geolocationX, y: geolocationY }
-                  : undefined
+      {programmingPlanKind === 'PPV' && (
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
+            <AppSelect
+              defaultValue={partialSample?.sampler?.id || ''}
+              options={samplersOptions(samplers, user?.id)}
+              onChange={(e) =>
+                setSampler(
+                  samplers?.find((sampler) => sampler.id === e.target.value)
+                )
               }
-              onLocationChange={async (location) => {
-                setGeolocationX(location.x);
-                setGeolocationY(location.y);
-              }}
+              inputForm={form}
+              inputKey="sampler"
+              whenValid="Préleveur correctement renseigné."
+              label="Le préleveur"
+              hint="La personne qui réalise le prélevement"
+              required
             />
-          ) : (
-            <Skeleton variant="rectangular" height={375} />
-          )}
+          </div>
         </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-            <div className={cx('fr-col-12')}>
-              <AppTextInput
-                type="number"
-                step={0.000001}
-                value={geolocationX ?? ''}
-                onChange={(e) => setGeolocationX(Number(e.target.value))}
-                inputForm={form}
-                inputKey="geolocationX"
-                whenValid="Latitude correctement renseignée."
-                data-testid="geolocationX-input"
-                label="Latitude"
-                required={isOnline}
-                min={-90}
-                max={90}
-                disabled={readonly}
-              />
+      )}
+      {programmingPlanKind === 'PPV' && (
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12', 'fr-pb-0')}>
+            <div className={cx('fr-text--bold')}>
+              Emplacement{' '}
+              {programmingPlanKind === 'PPV'
+                ? 'de la parcelle contrôlée'
+                : 'du contrôle'}
             </div>
-            <div className={cx('fr-col-12')}>
-              <AppTextInput
-                type="number"
-                step={0.000001}
-                value={geolocationY ?? ''}
-                onChange={(e) => setGeolocationY(Number(e.target.value))}
-                inputForm={form}
-                inputKey="geolocationY"
-                whenValid="Longitude correctement renseignée."
-                data-testid="geolocationY-input"
-                label="Longitude"
-                required={isOnline}
-                min={-180}
-                max={180}
-                disabled={readonly}
-              />
+            <div className={cx('fr-text--light')}>
+              Placez votre repère sur la zone correspondante ou renseignez
+              manuellement les coordonnées GPS
             </div>
-            {programmingPlanKind === 'PPV' && (
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-sm-8')}>
+            {isOnline && !readonly ? (
+              <SampleGeolocation
+                key={`geolocation-${isBrowserGeolocation}`}
+                location={
+                  geolocationX && geolocationY
+                    ? { x: geolocationX, y: geolocationY }
+                    : undefined
+                }
+                onLocationChange={async (location) => {
+                  setGeolocationX(location.x);
+                  setGeolocationY(location.y);
+                }}
+              />
+            ) : (
+              <Skeleton variant="rectangular" height={375} />
+            )}
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+            <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
               <div className={cx('fr-col-12')}>
                 <AppTextInput
-                  defaultValue={parcel ?? ''}
-                  onChange={(e) => setParcel(e.target.value)}
+                  type="number"
+                  step={0.000001}
+                  value={geolocationX ?? ''}
+                  onChange={(e) => setGeolocationX(Number(e.target.value))}
                   inputForm={form}
-                  inputKey="parcel"
-                  whenValid="Parcelle correctement renseignée."
-                  data-testid="parcel-input"
-                  label="N° ou appellation de la parcelle"
-                  hintText="Facultatif"
+                  inputKey="geolocationX"
+                  whenValid="Latitude correctement renseignée."
+                  data-testid="geolocationX-input"
+                  label="Latitude"
+                  required={isOnline}
+                  min={-90}
+                  max={90}
                   disabled={readonly}
                 />
               </div>
-            )}
+              <div className={cx('fr-col-12')}>
+                <AppTextInput
+                  type="number"
+                  step={0.000001}
+                  value={geolocationY ?? ''}
+                  onChange={(e) => setGeolocationY(Number(e.target.value))}
+                  inputForm={form}
+                  inputKey="geolocationY"
+                  whenValid="Longitude correctement renseignée."
+                  data-testid="geolocationY-input"
+                  label="Longitude"
+                  required={isOnline}
+                  min={-180}
+                  max={180}
+                  disabled={readonly}
+                />
+              </div>
+              {programmingPlanKind === 'PPV' && (
+                <div className={cx('fr-col-12')}>
+                  <AppTextInput
+                    defaultValue={parcel ?? ''}
+                    onChange={(e) => setParcel(e.target.value)}
+                    inputForm={form}
+                    inputKey="parcel"
+                    whenValid="Parcelle correctement renseignée."
+                    data-testid="parcel-input"
+                    label="N° ou appellation de la parcelle"
+                    hintText="Facultatif"
+                    disabled={readonly}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
       {programmingPlanKindOptions.length > 2 && (
         <AppSelect
           defaultValue={programmingPlanKind}
@@ -491,44 +504,46 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
           className={cx('fr-mb-0')}
         />
       )}
-      <AppRadioButtons
-        legend="Contexte du prélèvement"
-        options={[
-          ...contextOptions.map(({ label, value }) => ({
-            key: `context-option-${value}`,
-            label,
-            nativeInputProps: {
-              checked: context === value,
-              onChange: () => {
-                setContext(
-                  value as ProgrammingPlanContext | 'OutsideProgrammingPlan'
-                );
-                if (value !== 'OutsideProgrammingPlan') {
-                  setOutsideProgrammingPlanContext(undefined);
-                }
-              }
-            },
-            illustration: (
-              <img
-                src={
-                  ContextIllustrations[
+      {contextOptions.length > 1 && (
+        <AppRadioButtons
+          legend="Contexte du prélèvement"
+          options={[
+            ...contextOptions.map(({ label, value }) => ({
+              key: `context-option-${value}`,
+              label,
+              nativeInputProps: {
+                checked: context === value,
+                onChange: () => {
+                  setContext(
                     value as ProgrammingPlanContext | 'OutsideProgrammingPlan'
-                  ]
+                  );
+                  if (value !== 'OutsideProgrammingPlan') {
+                    setOutsideProgrammingPlanContext(undefined);
+                  }
                 }
-                alt=""
-                aria-hidden
-              />
-            )
-          }))
-        ]}
-        colSm={6}
-        inputForm={form}
-        inputKey="context"
-        whenValid="Contexte du prélèvement correctement renseigné."
-        required
-        disabled={readonly}
-        data-testid="context-radio"
-      />
+              },
+              illustration: (
+                <img
+                  src={
+                    ContextIllustrations[
+                      value as ProgrammingPlanContext | 'OutsideProgrammingPlan'
+                    ]
+                  }
+                  alt=""
+                  aria-hidden
+                />
+              )
+            }))
+          ]}
+          colSm={6}
+          inputForm={form}
+          inputKey="context"
+          whenValid="Contexte du prélèvement correctement renseigné."
+          required
+          disabled={readonly}
+          data-testid="context-radio"
+        />
+      )}
       {context === 'OutsideProgrammingPlan' && (
         <div className={cx('fr-col-12', 'fr-col-sm-6')}>
           <AppSelect
@@ -549,85 +564,45 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
           />
         </div>
       )}
-      <AppRadioButtons
-        legend="Cadre juridique"
-        options={
-          legalContextOptions?.map(({ label, value }) => ({
-            key: `legalContext-option-${value}`,
-            label,
-            nativeInputProps: {
-              checked: legalContext === value,
-              onChange: () => setLegalContext(value as LegalContext)
-            },
-            illustration: (
-              <img
-                src={value === 'B' ? controle : balance}
-                alt=""
-                aria-hidden
-              />
-            )
-          })) ?? []
-        }
-        colSm={6}
-        inputForm={form}
-        inputKey="legalContext"
-        whenValid="Cadre juridique correctement renseigné."
-        required
-        disabled={readonly}
-        data-testid="legalContext-radio"
-      />
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        {isOnline && companyOffline && !company && (
-          <div
-            className={cx(
-              'fr-col-12',
-              'fr-col-sm-6',
-              'fr-col-offset-sm-6--right'
-            )}
-          >
-            <span className="missing-data">
-              Entité saisie hors ligne à compléter :{' '}
-            </span>
-            {companyOffline}
-          </div>
-        )}
-        <div className={cx('fr-col-12', 'fr-col-sm-8')}>
-          {isOnline && !readonly ? (
-            <CompanySearch
-              initialCompany={company ?? undefined}
-              onSelectCompany={(result) => {
-                setCompany(result);
-              }}
-              state={form.messageType('company')}
-              stateRelatedMessage={
-                form.message('company') ?? 'Entité correctement renseignée'
+      {legalContextOptions.length > 1 && (
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
+            <AppRadioButtons
+              legend="Cadre juridique"
+              options={
+                legalContextOptions?.map(({ label, value }) => ({
+                  key: `legalContext-option-${value}`,
+                  label,
+                  nativeInputProps: {
+                    checked: legalContext === value,
+                    onChange: () => setLegalContext(value as LegalContext)
+                  },
+                  illustration: (
+                    <img
+                      src={value === 'B' ? controle : balance}
+                      alt=""
+                      aria-hidden
+                    />
+                  )
+                })) ?? []
               }
-              companies={
-                programmingPlan.distributionKind === 'SLAUGHTERHOUSE'
-                  ? user?.companies
-                  : undefined
-              }
-            />
-          ) : (
-            <AppTextInput
-              type="text"
-              defaultValue={companyOffline ?? ''}
-              onChange={(e) => setCompanyOffline(e.target.value)}
+              colSm={6}
               inputForm={form}
-              inputKey="companyOffline"
-              whenValid="Entité correctement renseignée."
-              label="Entité contrôlée"
-              hintText="Saisissez le nom, un SIRET ou un SIREN"
+              inputKey="legalContext"
+              whenValid="Cadre juridique correctement renseigné."
               required
               disabled={readonly}
+              data-testid="legalContext-radio"
             />
-          )}
+          </div>
         </div>
-        {programmingPlanKind === 'PPV' && (
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
+      )}
+      {programmingPlanKind === 'PPV' && (
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
             <AppTextInput
               type="text"
-              defaultValue={partialSample?.resytalId || ''}
+              defaultValue={(partialSample?.resytalId ?? '') as string}
               onChange={(e) => setResytalId(e.target.value)}
               inputForm={form}
               inputKey="resytalId"
@@ -638,8 +613,24 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
               hintText="Format AA-XXXXXX"
             />
           </div>
-        )}
-      </div>
+        </div>
+      )}
+      <SampleCompany
+        programmingPlan={programmingPlan}
+        partialSample={partialSample}
+        programmingPlanKind={programmingPlanKind}
+        company={company}
+        companyOffline={companyOffline ?? undefined}
+        isOnline={isOnline}
+        readonly={readonly}
+        form={form}
+        onCompanyChange={setCompany}
+        onCompanyOfflineChange={setCompanyOffline}
+        onGeolocationChange={(x, y) => {
+          setGeolocationX(x);
+          setGeolocationY(y);
+        }}
+      />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
           <AppTextAreaInput
