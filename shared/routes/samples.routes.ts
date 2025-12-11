@@ -59,7 +59,7 @@ export const samplesRoutes = {
     },
     put: {
       body: PartialSample,
-      permissions: ['updateSample', 'restoreSampleToReview'],
+      permissions: ['updateSample'],
       response: PartialSample
     },
     delete: {
