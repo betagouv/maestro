@@ -4,10 +4,14 @@ import { sumBy } from 'lodash-es';
 import {
   Department,
   DepartmentLabels,
-  DepartmentList
+  DepartmentList,
+  DepartmentSort
 } from 'maestro-shared/referential/Department';
 import { Regions } from 'maestro-shared/referential/Region';
-import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import {
+  LocalPrescription,
+  LocalPrescriptionSort
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useMemo } from 'react';
@@ -39,9 +43,11 @@ const LocalPrescriptionDepartmentalDistributionTable = ({
 
   const departmentList = useMemo(
     () =>
-      DepartmentList.filter((_) =>
-        Regions[regionalPrescription.region].departments.includes(_)
-      ),
+      [
+        ...DepartmentList.filter((_) =>
+          Regions[regionalPrescription.region].departments.includes(_)
+        )
+      ].sort(DepartmentSort),
     [regionalPrescription]
   );
 
@@ -78,7 +84,8 @@ const LocalPrescriptionDepartmentalDistributionTable = ({
         />
       ))}
       data={[
-        departmentalPrescriptions
+        [...departmentalPrescriptions]
+          .sort(LocalPrescriptionSort)
           .slice(start, end)
           .map((departmentalPrescription) => (
             <DistributionCountCell

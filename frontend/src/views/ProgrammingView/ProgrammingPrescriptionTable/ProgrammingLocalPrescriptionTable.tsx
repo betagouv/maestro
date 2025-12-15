@@ -4,7 +4,10 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
 import { sumBy } from 'lodash-es';
-import { DepartmentLabels } from 'maestro-shared/referential/Department';
+import {
+  DepartmentLabels,
+  DepartmentSort
+} from 'maestro-shared/referential/Department';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import {
   LocalPrescription,
@@ -76,11 +79,13 @@ const ProgrammingLocalPrescriptionTable = ({
 
   const departmentList = useMemo(
     () =>
-      hasRegionalView && programmingPlan.distributionKind !== 'REGIONAL'
-        ? user?.department
-          ? [user.department]
-          : Regions[region].departments
-        : [],
+      [
+        ...(hasRegionalView && programmingPlan.distributionKind !== 'REGIONAL'
+          ? user?.department
+            ? [user.department]
+            : Regions[region].departments
+          : [])
+      ].sort(DepartmentSort),
     [region, programmingPlan.distributionKind, hasRegionalView, user]
   );
 
