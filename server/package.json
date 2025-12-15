@@ -8,7 +8,7 @@
     "dev": "npm run migrate-latest && node --enable-source-maps --import @swc-node/register/esm-register --watch --inspect ./index.ts",
     "build": "tsc",
     "tsc": "tsc",
-    "start": "npm run migrate-latest && NODE_EXTRA_CA_CERTS=identification-agriculture-gouv-fr-chain.pem node --enable-source-maps --import @swc-node/register/esm-register ./index.ts",
+    "start": "npm run migrate-latest && node --enable-source-maps --import @swc-node/register/esm-register ./index.ts",
     "test": "vitest",
     "test:integration": "vitest --project integration",
     "test:unit": "vitest --project unit",
