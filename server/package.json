@@ -41,7 +41,7 @@
     "exceljs": "^4.4.0",
     "express": "^5.1.0",
     "express-fileupload": "^1.4.0",
-    "express-jwt": "^8.4.1",
+    "express-jwt": "^8.5.1",
     "express-rate-limit": "^8.1.0",
     "fast-xml-parser": "^4.5.1",
     "handlebars": "^4.7.8",
