@@ -43,7 +43,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
               (schema.properties?.programmingPlanKind as JSONSchema).const ===
               specificData.programmingPlanKind
           ) as JSONSchema
-      ).required ?? [],
+      )?.required ?? [],
     [specificData.programmingPlanKind]
   );
 

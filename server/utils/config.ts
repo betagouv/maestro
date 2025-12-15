@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import { z, ZodType } from 'zod';
+import { NoUndefined } from 'zod/v4/core/util';
 
 if (!process.env.API_PORT) {
   dotenv.config({ path: path.join(import.meta.dirname, '../../.env') });
@@ -9,7 +10,10 @@ const isProduction = process.env.NODE_ENV === 'production';
 const MailProvider = z.enum(['fake', 'brevo', 'nodemailer']);
 export type MailProvider = z.infer<typeof MailProvider>;
 
-const devDefaultValue = <T extends ZodType>(t: T, defaultValue: z.infer<T>) => {
+const devDefaultValue = <T extends ZodType>(
+  t: T,
+  defaultValue: NoUndefined<z.infer<T>>
+) => {
   if (!isProduction) {
     return t.default(defaultValue);
   }
