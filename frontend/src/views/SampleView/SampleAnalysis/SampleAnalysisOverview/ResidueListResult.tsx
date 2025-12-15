@@ -43,12 +43,19 @@ export const ResidueListResult: FunctionComponent<Props> = ({
 
   useEffect(() => {
     if (oldResiduesLength.current < residues.length) {
-      setSelectedIndex(residues.length - 1);
+      selectResidueAndScrollToTop(residues.length - 1);
     } else if (oldResiduesLength.current > residues.length) {
-      setSelectedIndex(0);
+      selectResidueAndScrollToTop(0);
     }
     oldResiduesLength.current = residues.length;
   }, [residues]);
+
+  const selectResidueAndScrollToTop = (newIndex: number) => {
+    setSelectedIndex(newIndex);
+    setTimeout(() => {
+      container.current?.scrollIntoView({ behavior: 'smooth' });
+    });
+  };
 
   return isDesktop ? (
     <div className={clsx('residue-list-container', 'border')} ref={container}>
@@ -59,7 +66,7 @@ export const ResidueListResult: FunctionComponent<Props> = ({
             residue={r}
             residueIndex={i + 1}
             className={[selectedIndex === i ? 'current-residue' : undefined]}
-            onClick={() => setSelectedIndex(i)}
+            onClick={() => selectResidueAndScrollToTop(i)}
           />
         ))}
         {onAddResidue ? (
@@ -94,8 +101,7 @@ export const ResidueListResult: FunctionComponent<Props> = ({
                 priority={'tertiary no outline'}
                 iconId={'fr-icon-arrow-left-s-line'}
                 onClick={() => {
-                  container.current?.scrollIntoView({ behavior: 'smooth' });
-                  return setSelectedIndex((i) => i - 1);
+                  selectResidueAndScrollToTop(selectedIndex - 1);
                 }}
               >
                 Résidu n°{selectedIndex}
@@ -108,8 +114,7 @@ export const ResidueListResult: FunctionComponent<Props> = ({
                 iconPosition={'right'}
                 className={clsx(cx('fr-ml-auto'))}
                 onClick={() => {
-                  container.current?.scrollIntoView({ behavior: 'smooth' });
-                  return setSelectedIndex((i) => i + 1);
+                  selectResidueAndScrollToTop(selectedIndex + 1);
                 }}
               >
                 Résidu n°{selectedIndex + 2}
