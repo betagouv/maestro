@@ -53,6 +53,8 @@ table {
   font-size: 7px;
   line-height: 9px;
   padding: 4px;
+  min-height: 13px;
+  height: 13px;
 }
 
 .sample-section {
