@@ -267,8 +267,6 @@ const generateSampleSupportPDF = async (
     releaseControl:
       sample.specificData?.programmingPlanKind === 'PPV'
         ? sample.specificData.releaseControl
-          ? 'Oui'
-          : 'Non'
         : undefined,
     establishment: Regions[sample.region].establishment,
     department: sample.department ? DepartmentLabels[sample.department] : '',

@@ -37,7 +37,7 @@
                 <b>Étiquette du prélèvement</b>
                 {{#if (and laboratory (eq copyNumber 1))}}
                   <br />
-                  A envoyer à <b>{{laboratory.name}}</b>
+                  À envoyer à <b>{{laboratory.name}}</b>
                   <br />
                   {{laboratory.address}} - {{laboratory.postalCode}} {{laboratory.city}}
                 {{/if}}
@@ -142,7 +142,10 @@
                         <div class='fr-grid-row fr-grid-row--gutters'>
                           <div class='fr-col-12'>
                             <div class='sample-section-header'>
-                              <span class="uppercase">{{context}}</span>
+                              <div class="uppercase" style="flex-grow: 1">{{context}}</div>
+                              {{#if releaseControl}}
+                                <div class="fr-badge fr-badge--sm fr-badge--purple-glycine fr-m-0">Contrôle libératoire</div>
+                              {{/if}}
                             </div>
                           </div>
                           <div class='fr-col-12'>
@@ -350,7 +353,7 @@
                           {{/if}}
                         </div>
                       </div>
-                      <div class='fr-col-12'>
+                      <div class='{{#if sampleDocuments}}fr-col-6{{else}}fr-col-12{{/if}}'>
                         <div class='sample-section-item'>
                           <div class='label'>
                             Note additionnelle
@@ -360,78 +363,27 @@
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                  {{#if fullVersion}}
-                  <div class='sample-section-body'>
-<!--                      <div class='sample-section-block'>-->
-<!--                        <span class='fr-icon-seedling-line fr-icon--sm'></span>-->
-<!--                        <div class='fr-container fr-pl-1w'>-->
-
-<!--                          <div class='fr-grid-row fr-grid-row--gutters'>-->
-<!--                            <div class='fr-col-6 sample-section-item'>-->
-<!--                              {{#if matrix}}-->
-<!--                                {{#if sample.releaseControl}}-->
-<!--                                  <div class='label'>-->
-<!--                                    Type de contrôle-->
-<!--                                  </div>-->
-<!--                                  <div class='value'>-->
-<!--                                    Contrôle libératoire-->
-<!--                                  </div>-->
-<!--                                {{/if}}-->
-<!--                              {{else}}-->
-<!--                                <div class='label'>-->
-<!--                                  Type de contrôle-->
-<!--                                </div>-->
-<!--                                <div class='value'>-->
-<!--                                  &nbsp;-->
-<!--                                </div>-->
-<!--                              {{/if}}-->
-<!--                            </div>-->
-<!--                            <div class='fr-col-6 sample-section-item'>-->
-<!--                              <div class='label'>-->
-<!--                                Laboratoire destinataire-->
-<!--                              </div>-->
-<!--                              <div class='value'>-->
-<!--                                {{#if laboratory}}-->
-<!--                                  {{laboratory.fullName}}-->
-<!--                                {{else}}-->
-<!--                                  &nbsp;-->
-<!--                                {{/if}}-->
-<!--                              </div>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                        </div>-->
-<!--                      </div>-->
                       {{#if sampleDocuments}}
-                        <div class='sample-section-block'>
-                          <span class='fr-icon-attachment-line fr-icon--sm'></span>
-                          <div class='fr-container fr-pl-1w'>
-                            <div class='fr-grid-row fr-grid-row--gutters'>
-                              {{#each sampleDocuments}}
-                                <div class='fr-col-3 sample-section-item'>
-                                  <div class='label'>
-                                    Pièce jointe n°{{inc @index}}
-                                  </div>
-                                  <div class='value'>
-                                    {{filename}}&nbsp;
-                                  </div>
-                                </div>
-                                <div class='fr-col-3 sample-section-item'>
-                                  <div class='label'>
-                                    &nbsp;
-                                  </div>
-                                  <div class='value'>
-                                    {{legend}}&nbsp;
-                                  </div>
-                                </div>
-                              {{/each}}
+                        <div class='fr-col-6'>
+                          <div class='sample-section-item'>
+                            <div class='label'>
+                              Pièces jointes
                             </div>
+                            <ul class="fr-mt-0">
+                              {{#each sampleDocuments}}
+                                <li class='value'>
+                                    {{filename}}
+                                  {{#if legend}}
+                                    : {{legend}}
+                                  {{/if}}
+                                </li>
+                              {{/each}}
+                            </ul>
                           </div>
                         </div>
                       {{/if}}
+                    </div>
                   </div>
-                  {{/if}}
                 </section>
 
                 <section class='sample-section  {{#if fullVersion}}full-version{{/if}}'>
@@ -456,6 +408,11 @@
                       Dans le cas où un des échantillons a été remis au détenteur, ce dernier en a accepté le dépôt et s’est
                       engagé à le conserver sous température négative.
                       <b>En application de l’article R. 250-2 les échantillons prélevés ne donnent lieu à aucun remboursement.</b>
+                      {{#if (and fullVersion hasNoteToSampler)}}
+                        <b>Conservation et transmission : </b>
+                        L'échantillon doit être conservé dans des conditions optimales pour préserver ses propriétés initiales.
+                        La personne qui accepte le dépôt de ce scellé est prévenue qu'elle en assume l'entière responsabilité.
+                      {{/if}}
                     </div>
                   </div>
                   <div class='fr-grid-row fr-grid-row--gutters'>
@@ -499,7 +456,7 @@
                               {{#if (eq copyNumber 1)}}
                                 <div class='value {{#if (isEmpty ../laboratory)}}empty{{/if}}'>
                                   {{#if ../laboratory}}
-                                    Laboratoire {{../laboratory.name}}
+                                    Laboratoire {{../laboratory.fullName}}
                                   {{/if}}
                                 </div>
                               {{/if}}
@@ -533,22 +490,6 @@
                       </div>
                     </div>
                   </div>
-
-
-<!--                    {{#if ownerEmail}}-->
-<!--                      <div class='sample-section-block indent-back'>-->
-<!--                        <span class='fr-icon-mail-line fr-icon--sm'></span>-->
-<!--                        <div class='fr-container fr-pl-1w'>-->
-<!--                          <div class='fr-grid-row fr-grid-row--gutters'>-->
-<!--                            <div class='fr-col-12 sample-section-item'>-->
-<!--                              <div class='label'>-->
-<!--                                Le détenteur de la marchandise a reçu par e-mail le procès-verbal du prélèvement-->
-<!--                              </div>-->
-<!--                            </div>-->
-<!--                          </div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-<!--                    {{/if}}-->
                 </section>
 
 
@@ -567,6 +508,11 @@
                             <label class="fr-label">Non</label>
                           </div>
                         </div>
+                        {{#if ownerEmail}}
+                          <div class='label fr-mt-1w'>
+                            Le détenteur de la marchandise a reçu par e-mail le procès-verbal du prélèvement
+                          </div>
+                        {{/if}}
                       </div>
                       <div class='fr-col-6'>
                         <div class='sample-section-item'>
@@ -581,19 +527,7 @@
                     </div>
                   </div>
                 </section>
-<!--                {{#if fullVersion}}-->
-<!--                  {{#if hasNoteToSampler}}-->
-<!--                    <div class='fr-alert fr-alert--warning fr-mt-8w'>-->
-<!--                      <h3 class='fr-alert__title'>Conservation et transmission-->
-<!--                        de l’échantillon</h3>-->
-<!--                      <p>-->
-<!--                        L'échantillon doit être conservé dans des conditions optimales pour préserver ses propriétés initiales.-->
-<!--                        <br/>-->
-<!--                        La personne qui accepte le dépôt de ce scellé est prévenue qu'elle assume l'entière responsabilité de sa conservation.-->
-<!--                      </p>-->
-<!--                    </div>-->
-<!--                  {{/if}}-->
-<!--                {{/if}}-->
+
               </div>
             </td>
           </tr>
