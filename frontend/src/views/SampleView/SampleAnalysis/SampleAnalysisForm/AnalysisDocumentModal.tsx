@@ -86,7 +86,7 @@ export const AnalysisDocumentModal = ({
         modal.close();
       });
     }
-  }, [fileInput]);
+  }, [fileInput]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const Form = z.object({
     fileInput: FileInput(acceptFileTypes).nullish()
