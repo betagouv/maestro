@@ -33,7 +33,7 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
   return (
     <div
       className={clsx(
-        cx('fr-pt-3w', 'fr-px-5w'),
+        cx('fr-py-3w', 'fr-px-5w'),
         'border',
         'd-flex-align-start',
         'fr-grid-row'

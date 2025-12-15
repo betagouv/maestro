@@ -14,6 +14,7 @@ import { SampleAnalysisForm } from './SampleAnalysisForm/SampleAnalysisForm';
 import { SampleAnalysisOverview } from './SampleAnalysisOverview/SampleAnalysisOverview';
 
 import { useLocation } from 'react-router';
+import { SampleAdmissibilityForm } from './SampleAdmissibility/SampleAdmissibilityForm';
 import './SampleAnalysis.scss';
 import { AnalysisDocumentPreview } from './SampleAnalysisForm/AnalysisDocumentPreview';
 
@@ -87,14 +88,22 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
           <h3 className={cx('fr-m-0')}>Suivi des résultats</h3>
           <SampleStatusBadge status={sample.status} sampleId={sample.id} />
         </div>
-        <SampleAdmissibility sample={sample} readonly={readonly} />
+        {['Analysis', 'InReview', 'Completed', 'NotAdmissible'].includes(
+          sample.status
+        ) && <SampleAdmissibility sample={sample} readonly={readonly} />}
       </div>
 
-      <AnalysisDocumentPreview
-        partialAnalysis={analysis}
-        sampleId={sample.id}
-        readonly={!isEditing}
-      />
+      {isEditing && sample.status === 'Sent' && (
+        <SampleAdmissibilityForm sample={sample} withSubmitButton={true} />
+      )}
+
+      {sample.status !== 'NotAdmissible' && (
+        <AnalysisDocumentPreview
+          partialAnalysis={analysis}
+          sampleId={sample.id}
+          readonly={!isEditing}
+        />
+      )}
 
       {['Analysis', 'InReview', 'Completed'].includes(sample.status) &&
         analysis && (
