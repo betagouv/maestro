@@ -156,24 +156,20 @@ export const UserRoleSorted = [...UserRoleList].sort((a, b) =>
   UserRoleLabels[a].localeCompare(UserRoleLabels[b])
 );
 
-export const hasNationalRole = (user: Nullable<Pick<User, 'role'>>) =>
-  NationalUserRole.safeParse(user.role).success ||
-  RegionalAndNationalUserRole.safeParse(user.role).success;
+export const isNationalRole = (userRole?: UserRole) =>
+  NationalUserRole.safeParse(userRole).success ||
+  RegionalAndNationalUserRole.safeParse(userRole).success;
 
-export const hasRegionalRole = (
-  user: Nullable<Pick<User, 'role'>>
-): user is {
-  role:
-    | z.infer<typeof RegionalUserRole>
-    | z.infer<typeof RegionalAndNationalUserRole>;
-  region: Region;
-} =>
-  RegionalUserRole.safeParse(user.role).success ||
-  RegionalAndNationalUserRole.safeParse(user.role).success;
+export const isRegionalRole = (userRole?: UserRole) =>
+  RegionalUserRole.safeParse(userRole).success ||
+  RegionalAndNationalUserRole.safeParse(userRole).success;
 
 export const canHaveDepartment = (
-  user: Nullable<Pick<User, 'role'>>
+  user: Nullable<Pick<User, 'roles'>>
 ): user is {
-  role: 'DepartmentalCoordinator' | 'Sampler';
+  roles: ('DepartmentalCoordinator' | 'Sampler')[];
   region: Region;
-} => user.role === 'DepartmentalCoordinator' || user.role === 'Sampler';
+} =>
+  user?.roles?.some(
+    (role) => role === 'DepartmentalCoordinator' || role === 'Sampler'
+  ) ?? false;

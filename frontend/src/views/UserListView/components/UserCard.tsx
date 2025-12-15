@@ -8,7 +8,7 @@ import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan
 import { User } from 'maestro-shared/schema/User/User';
 import {
   canHaveDepartment,
-  hasRegionalRole,
+  isRegionalRole,
   UserRoleLabels
 } from 'maestro-shared/schema/User/UserRole';
 import { isNotEmpty } from 'maestro-shared/utils/typescript';
@@ -85,7 +85,7 @@ export const UserCard: FunctionComponent<Props> = ({
             />
             {canHaveDepartment(user)
               ? `${Regions[user.region].name}${user.department ? ` - ${DepartmentLabels[user.department]}` : ''}`
-              : hasRegionalRole(user)
+              : isRegionalRole(user)
                 ? Regions[user.region].name
                 : 'France'}
           </span>

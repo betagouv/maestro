@@ -14,8 +14,8 @@ import { hasPermission } from 'maestro-shared/schema/User/User';
 import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
 import {
   canHaveDepartment,
-  hasNationalRole,
-  hasRegionalRole,
+  isNationalRole,
+  isRegionalRole,
   UserRole
 } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
@@ -35,17 +35,17 @@ export const useAuthentication = () => {
 
   const hasRole = useCallback(
     (role: UserRole) => {
-      return isAuthenticated && authUser?.user?.role === role;
+      return isAuthenticated && authUser?.role === role;
     },
     [authUser, isAuthenticated]
   );
 
   const hasNationalView = useMemo(() => {
-    return isAuthenticated && authUser && hasNationalRole(authUser.user);
+    return isAuthenticated && authUser && isNationalRole(authUser.user);
   }, [authUser, isAuthenticated]);
 
   const hasRegionalView = useMemo(() => {
-    return isAuthenticated && authUser && hasRegionalRole(authUser.user);
+    return isAuthenticated && authUser && isRegionalRole(authUser.user);
   }, [authUser, isAuthenticated]);
 
   const hasDepartmentalView = useMemo(() => {

@@ -31,6 +31,7 @@ export const useMascarade = () => {
         authSlice.actions.signinUser({
           authUser: {
             user: authUser.data ?? null,
+            userRole: authUser.data?.roles[0] ?? null,
             userEmail: authUser.data?.email ?? ''
           }
         })

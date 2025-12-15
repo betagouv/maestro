@@ -9,13 +9,15 @@ import {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { User, userRegions } from 'maestro-shared/schema/User/User';
+import { User, userRegionsForRole } from 'maestro-shared/schema/User/User';
+import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { departmentRepository } from '../../repositories/departmentRepository';
 import { sampleRepository } from '../../repositories/sampleRepository';
 
 export const getAndCheckSample = async (
   sampleId: string,
-  user: User
+  user: User,
+  userRole: UserRole
 ): Promise<PartialSample> => {
   const sample = await sampleRepository.findUnique(sampleId);
 
@@ -23,7 +25,7 @@ export const getAndCheckSample = async (
     throw new SampleMissingError(sampleId);
   }
 
-  if (!userRegions(user).includes(sample.region)) {
+  if (!userRegionsForRole(user, userRole).includes(sample.region)) {
     throw new HttpError({
       status: constants.HTTP_STATUS_FORBIDDEN,
       name: 'BadRegionError',
@@ -36,7 +38,8 @@ export const getAndCheckSample = async (
 
 export const getAndCheckSampleDepartement = async (
   sample: PartialSampleToCreate,
-  user: User
+  user: User,
+  userRole: UserRole
 ) => {
   const department = await departmentRepository.getDepartment(
     sample.geolocation?.x,
@@ -50,7 +53,7 @@ export const getAndCheckSampleDepartement = async (
     });
   }
 
-  const regions = userRegions(user);
+  const regions = userRegionsForRole(user, userRole);
   if (regions.length === 0) {
     throw new NoRegionError();
   }

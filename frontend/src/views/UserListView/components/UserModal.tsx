@@ -18,8 +18,8 @@ import {
 } from 'maestro-shared/schema/User/User';
 import {
   canHaveDepartment,
-  hasNationalRole,
-  hasRegionalRole,
+  isNationalRole,
+  isRegionalRole,
   UserRole,
   UserRoleLabels
 } from 'maestro-shared/schema/User/UserRole';
@@ -173,7 +173,7 @@ export const UserModal = ({
             );
             if (success) {
               setUser((u) => ({ ...u, role: data }));
-              if (data === null || hasNationalRole({ role: data })) {
+              if (data === null || isNationalRole({ role: data })) {
                 setUser((u) => ({ ...u, region: null }));
               }
             }
@@ -188,7 +188,7 @@ export const UserModal = ({
           }}
           required
         />
-        {user.role && (hasRegionalRole(user) || canHaveDepartment(user)) && (
+        {user.role && (isRegionalRole(user) || canHaveDepartment(user)) && (
           <AppSelect
             onChange={(e) => {
               const { data, success } = Region.safeParse(e.target.value);

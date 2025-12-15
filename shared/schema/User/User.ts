@@ -10,8 +10,8 @@ import { Nullable } from '../../utils/typescript';
 import { Company } from '../Company/Company';
 import {
   canHaveDepartment,
-  hasNationalRole,
-  hasRegionalRole,
+  isNationalRole,
+  isRegionalRole,
   UserRole,
   UserRolePermissions
 } from './UserRole';
@@ -21,7 +21,7 @@ const BaseUser = z.object({
   email: z.email({ error: 'Veuillez renseigner un email valide.' }),
   name: z.string().nullable(),
   programmingPlanKinds: z.array(ProgrammingPlanKind),
-  role: UserRole,
+  roles: z.array(UserRole).min(1, 'Veuillez renseigner au moins un rôle.'),
   region: Region.nullable(),
   department: Department.nullable(),
   companies: z.array(Company),
@@ -31,7 +31,7 @@ const BaseUser = z.object({
 const userChecks = <
   T extends Pick<
     User,
-    'region' | 'role' | 'department' | 'companies' | 'programmingPlanKinds'
+    'region' | 'roles' | 'department' | 'companies' | 'programmingPlanKinds'
   >
 >(
   user: T,
@@ -47,7 +47,10 @@ const userChecks = <
       message: 'Au moins un plan est obligatoire pour ce rôle.'
     });
   }
-  if (!user.region && (hasRegionalRole(user) || canHaveDepartment(user))) {
+  if (
+    !user.region &&
+    (user.roles.some((role) => isRegionalRole(role)) || canHaveDepartment(user))
+  ) {
     ctx.addIssue({
       code: 'custom',
       path: ['region'],
@@ -96,22 +99,29 @@ export const Sampler = BaseUser.pick({
 export type User = z.infer<typeof User>;
 export type Sampler = z.infer<typeof Sampler>;
 
-export const userRegions = (user?: User): Region[] =>
+export const userRegionsForRole = (user: User, userRole: UserRole): Region[] =>
   user
-    ? hasNationalRole(user)
+    ? isNationalRole(userRole)
       ? RegionList
       : !isNil(user.region)
         ? [user.region]
         : []
     : [];
 
-export const userDepartments = (user?: User): Department[] =>
+export const userDepartmentsForRole = (
+  user: User,
+  userRole: UserRole
+): Department[] =>
   user?.department
     ? [user.department]
-    : userRegions(user).flatMap((region) => Regions[region].departments);
+    : userRegionsForRole(user, userRole).flatMap(
+        (region) => Regions[region].departments
+      );
 
-export const hasPermission = (user: User, ...permissions: UserPermission[]) =>
-  intersection(permissions, UserRolePermissions[user.role]).length > 0;
+export const hasPermission = (
+  userRole: UserRole,
+  ...permissions: UserPermission[]
+) => intersection(permissions, UserRolePermissions[userRole]).length > 0;
 
 export const ANS94ALnrEtmId = uuidv4();
 export const ANS94ALnrPestId = uuidv4();
@@ -148,13 +158,15 @@ export const DummyLaboratoryIds = [
 ];
 
 export const companiesIsRequired = (
-  user: Pick<Nullable<User>, 'programmingPlanKinds' | 'role'>
+  user: Pick<Nullable<User>, 'programmingPlanKinds' | 'roles'>
 ): boolean =>
-  user.role === 'Sampler' &&
-  (user.programmingPlanKinds?.includes('DAOA_BREEDING') ||
-    user.programmingPlanKinds?.includes('DAOA_SLAUGHTER') ||
-    false);
+  (user.roles?.includes('Sampler') &&
+    (user.programmingPlanKinds?.includes('DAOA_BREEDING') ||
+      user.programmingPlanKinds?.includes('DAOA_SLAUGHTER'))) ??
+  false;
 
 export const programmingPlanKindsIsRequired = (
-  user: Pick<Nullable<User>, 'role'>
-): boolean => user.role !== 'Administrator' && user.role !== 'LaboratoryUser';
+  user: Pick<Nullable<User>, 'roles'>
+): boolean =>
+  !user.roles?.includes('Administrator') &&
+  !user.roles?.includes('LaboratoryUser');

@@ -13,12 +13,12 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   hasPermission,
-  userDepartments,
-  userRegions
+  userDepartmentsForRole,
+  userRegionsForRole
 } from 'maestro-shared/schema/User/User';
 import {
-  hasNationalRole,
-  hasRegionalRole
+  isNationalRole,
+  isRegionalRole
 } from 'maestro-shared/schema/User/UserRole';
 import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
@@ -32,13 +32,13 @@ import { notificationService } from '../services/notificationService';
 
 export const programmingPlanRouter = {
   '/programming-plans': {
-    get: async ({ query: findOptions, user }) => {
+    get: async ({ query: findOptions, user, userRole }) => {
       console.info('Find programmingPlans for user', user.id, findOptions);
 
       const userStatusAuthorized = Object.entries(
         ProgrammingPlanStatusPermissions
       )
-        .filter(([, permission]) => hasPermission(user, permission))
+        .filter(([, permission]) => hasPermission(userRole, permission))
         .map(([status]) => status);
 
       const findOptionsStatus = findOptions.status
@@ -52,7 +52,7 @@ export const programmingPlanRouter = {
           userStatusAuthorized
         ) as ProgrammingPlanStatus[],
         kinds:
-          user?.role === 'Administrator'
+          userRole === 'Administrator'
             ? ProgrammingPlanKindList
             : user.programmingPlanKinds,
         region: user.region || findOptions.region,
@@ -65,7 +65,7 @@ export const programmingPlanRouter = {
     }
   },
   '/programming-plans/:programmingPlanId': {
-    get: async ({ user }, { programmingPlanId }) => {
+    get: async ({ user, userRole }, { programmingPlanId }) => {
       console.info('Get programming plan', programmingPlanId);
 
       const programmingPlan =
@@ -82,23 +82,23 @@ export const programmingPlanRouter = {
       const userStatusAuthorized = Object.entries(
         ProgrammingPlanStatusPermissions
       )
-        .filter(([, permission]) => hasPermission(user, permission))
+        .filter(([, permission]) => hasPermission(userRole, permission))
         .map(([status]) => status);
 
       const filterProgrammingPlanStatus =
-        hasNationalRole(user) ||
-        hasRegionalRole(user) ||
+        isNationalRole(userRole) ||
+        isRegionalRole(userRole) ||
         programmingPlan.distributionKind === 'REGIONAL'
           ? programmingPlan.regionalStatus.filter(
               (_) =>
                 userStatusAuthorized.includes(_.status) &&
-                userRegions(user).includes(_.region)
+                userRegionsForRole(user, userRole).includes(_.region)
             )
           : programmingPlan.departmentalStatus.filter(
               (_) =>
                 userStatusAuthorized.includes(_.status) &&
-                userRegions(user).includes(_.region) &&
-                userDepartments(user).includes(_.department)
+                userRegionsForRole(user, userRole).includes(_.region) &&
+                userDepartmentsForRole(user, userRole).includes(_.department)
             );
       if (filterProgrammingPlanStatus.length === 0) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
@@ -162,7 +162,7 @@ export const programmingPlanRouter = {
   },
   '/programming-plans/:programmingPlanId/local-status': {
     put: async (
-      { user, body: programmingPlanLocalStatusList },
+      { user, userRole, body: programmingPlanLocalStatusList },
       { programmingPlanId }
     ) => {
       const programmingPlan =
@@ -195,7 +195,9 @@ export const programmingPlanRouter = {
         if (
           programmingPlanLocalStatusList.some(
             (programmingPlanLocalStatus) =>
-              !userRegions(user).includes(programmingPlanLocalStatus.region) ||
+              !userRegionsForRole(user, userRole).includes(
+                programmingPlanLocalStatus.region
+              ) ||
               (programmingPlanLocalStatus.department &&
                 !Regions[user.region as Region].departments.includes(
                   programmingPlanLocalStatus.department
@@ -381,7 +383,7 @@ export const programmingPlanRouter = {
     }
   },
   '/programming-plans/years/:year': {
-    get: async ({ user }, { year }) => {
+    get: async ({ user, userRole }, { year }) => {
       console.info('Get programming plan for year', year);
 
       const programmingPlan = await programmingPlanRepository.findOne(
@@ -399,7 +401,7 @@ export const programmingPlanRouter = {
       const userStatusAuthorized = Object.entries(
         ProgrammingPlanStatusPermissions
       )
-        .filter(([, permission]) => hasPermission(user, permission))
+        .filter(([, permission]) => hasPermission(userRole, permission))
         .map(([status]) => status);
 
       const filterProgrammingPlanStatus = programmingPlan.regionalStatus.filter(

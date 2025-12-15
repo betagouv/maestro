@@ -7,6 +7,7 @@ declare global {
     interface Request {
       auth?: jwt.JwtPayload & TokenPayload;
       user?: User;
+      userRole: UserRole;
     }
   }
 }

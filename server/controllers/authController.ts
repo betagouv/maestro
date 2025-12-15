@@ -56,7 +56,8 @@ export const authUnprotectedRouter = {
         const result: AuthMaybeUnknownUser =
           user !== undefined
             ? {
-                user: await getUser(cookies, user)
+                user: await getUser(cookies, user),
+                userRole: user.roles[0]
               }
             : {
                 user: null,

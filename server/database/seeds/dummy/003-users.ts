@@ -12,14 +12,14 @@ export const seed = async function () {
       email: 'admin@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: [],
-      role: 'Administrator'
+      roles: ['Administrator']
     },
     {
       id: uuidv4(),
       email: 'laboratory@maestro.beta.gouv.fr',
       name: `Laboratoire - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: [],
-      role: 'LaboratoryUser'
+      roles: ['LaboratoryUser']
     },
 
     //PPV
@@ -28,14 +28,14 @@ export const seed = async function () {
       email: 'coordinateur.national@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ['PPV'],
-      role: 'NationalCoordinator'
+      roles: ['NationalCoordinator']
     },
     {
       id: uuidv4(),
       email: 'coordinateur.regional@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ['PPV'],
-      role: 'RegionalCoordinator',
+      roles: ['RegionalCoordinator'],
       region: '44'
     },
     {
@@ -43,7 +43,7 @@ export const seed = async function () {
       email: 'coordinateur.regional.drom@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ['PPV'],
-      role: 'RegionalCoordinator',
+      roles: ['RegionalCoordinator'],
       region: '01'
     },
     {
@@ -51,7 +51,7 @@ export const seed = async function () {
       email: 'preleveur@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ['PPV'],
-      role: 'Sampler',
+      roles: ['Sampler'],
       region: '44'
     },
     {
@@ -59,7 +59,7 @@ export const seed = async function () {
       email: 'preleveur.drom@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ['PPV'],
-      role: 'Sampler',
+      roles: ['Sampler'],
       region: '01'
     },
     {
@@ -67,14 +67,14 @@ export const seed = async function () {
       email: 'suivi.national@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ['PPV'],
-      role: 'NationalObserver'
+      roles: ['NationalObserver']
     },
     {
       id: uuidv4(),
       email: 'suivi.regional@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ['PPV'],
-      role: 'RegionalObserver',
+      roles: ['RegionalObserver'],
       region: '44'
     },
     {
@@ -82,7 +82,7 @@ export const seed = async function () {
       email: 'preleveur.ressource@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ['PPV'],
-      role: 'SamplerAndNationalObserver',
+      roles: ['SamplerAndNationalObserver'],
       region: '44'
     },
 
@@ -92,14 +92,14 @@ export const seed = async function () {
       email: 'coordinateur.national.daoa@maestro.beta.gouv.fr',
       name: `DAOA - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ['DAOA_BREEDING', 'DAOA_SLAUGHTER'],
-      role: 'NationalCoordinator'
+      roles: ['NationalCoordinator']
     },
     {
       id: uuidv4(),
       email: 'coordinateur.regional.daoa@maestro.beta.gouv.fr',
       name: `DAOA - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ['DAOA_BREEDING', 'DAOA_SLAUGHTER'],
-      role: 'RegionalCoordinator',
+      roles: ['RegionalCoordinator'],
       region: '52'
     },
     {
@@ -107,7 +107,7 @@ export const seed = async function () {
       email: 'coordinateur.departemental.daoa@maestro.beta.gouv.fr',
       name: `DAOA - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ['DAOA_BREEDING', 'DAOA_SLAUGHTER'],
-      role: 'DepartmentalCoordinator',
+      roles: ['DepartmentalCoordinator'],
       region: '52',
       department: '85'
     },
@@ -116,7 +116,7 @@ export const seed = async function () {
       email: 'preleveur.daoa@maestro.beta.gouv.fr',
       name: `DAOA - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ['DAOA_BREEDING', 'DAOA_SLAUGHTER'],
-      role: 'Sampler',
+      roles: ['Sampler'],
       region: '52',
       department: '85'
     }

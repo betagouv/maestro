@@ -4,7 +4,8 @@ import { Department, DepartmentSort } from '../../referential/Department';
 import { Region, RegionSort } from '../../referential/Region';
 import { Prescription } from '../Prescription/Prescription';
 import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
-import { hasPermission, User, userRegions } from '../User/User';
+import { hasPermission, User, userRegionsForRole } from '../User/User';
+import { UserRole } from '../User/UserRole';
 import { LocalPrescriptionComment } from './LocalPrescriptionComment';
 import { LocalPrescriptionKey } from './LocalPrescriptionKey';
 import {
@@ -134,26 +135,27 @@ export type LocalPrescriptionPermission = z.infer<
 
 export const hasLocalPrescriptionPermission = (
   user: User,
+  userRole: UserRole,
   programmingPlan: ProgrammingPlan,
   localPrescription: { region: Region; department?: Department | null }
 ): Record<LocalPrescriptionPermission, boolean> => ({
   updateSampleCount:
-    hasPermission(user, 'updatePrescription') &&
-    userRegions(user).includes(localPrescription.region) &&
+    hasPermission(userRole, 'updatePrescription') &&
+    userRegionsForRole(user, userRole).includes(localPrescription.region) &&
     programmingPlan.regionalStatus.find(
       (regionStatus) => regionStatus.region === localPrescription.region
     )?.status !== 'Closed',
   distributeToDepartments:
     programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
-    hasPermission(user, 'distributePrescriptionToDepartments') &&
-    userRegions(user).includes(localPrescription.region) &&
+    hasPermission(userRole, 'distributePrescriptionToDepartments') &&
+    userRegionsForRole(user, userRole).includes(localPrescription.region) &&
     programmingPlan.regionalStatus.find(
       (regionStatus) => regionStatus.region === localPrescription.region
     )?.status !== 'Closed',
   distributeToSlaughterhouses:
     programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
-    hasPermission(user, 'distributePrescriptionToSlaughterhouses') &&
-    userRegions(user).includes(localPrescription.region) &&
+    hasPermission(userRole, 'distributePrescriptionToSlaughterhouses') &&
+    userRegionsForRole(user, userRole).includes(localPrescription.region) &&
     user.department === localPrescription.department &&
     programmingPlan.departmentalStatus.some(
       (departmentalStatus) =>
@@ -164,8 +166,8 @@ export const hasLocalPrescriptionPermission = (
         )
     ),
   comment:
-    hasPermission(user, 'commentPrescription') &&
-    userRegions(user).includes(localPrescription.region) &&
+    hasPermission(userRole, 'commentPrescription') &&
+    userRegionsForRole(user, userRole).includes(localPrescription.region) &&
     programmingPlan.distributionKind === 'REGIONAL' &&
     programmingPlan.regionalStatus.some(
       (regionStatus) =>
@@ -173,8 +175,8 @@ export const hasLocalPrescriptionPermission = (
         regionStatus.status === 'SubmittedToRegion'
     ),
   updateLaboratories:
-    hasPermission(user, 'updatePrescriptionLaboratories') &&
-    userRegions(user).includes(localPrescription.region) &&
+    hasPermission(userRole, 'updatePrescriptionLaboratories') &&
+    userRegionsForRole(user, userRole).includes(localPrescription.region) &&
     ((programmingPlan.distributionKind === 'REGIONAL' &&
       programmingPlan.regionalStatus.some(
         (regionStatus) =>

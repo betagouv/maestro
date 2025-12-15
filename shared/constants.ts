@@ -3,3 +3,4 @@ export const Brand = 'Maestro';
 
 export const COOKIE_MAESTRO_ACCESS_TOKEN = 'maestroAccessToken';
 export const COOKIE_MAESTRO_MASCARADE = 'maestroMascarade';
+export const COOKIE_MAESTRO_USER_ROLE = 'maestroUserRole';
