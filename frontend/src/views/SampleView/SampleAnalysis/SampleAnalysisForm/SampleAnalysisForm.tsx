@@ -1,3 +1,4 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
@@ -10,7 +11,7 @@ import {
   ResidueLmrCheck
 } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import React, { FunctionComponent, useContext, useState } from 'react';
+import React, { FunctionComponent, useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { z } from 'zod';
 import { useForm } from '../../../../hooks/useForm';
@@ -94,6 +95,15 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
     });
   };
 
+  const residueIndexWithIssue = useMemo(() => {
+    const index = residues.findIndex((_, i) =>
+      form.hasIssue('residues', [i - 1], {
+        partial: true
+      })
+    );
+    return index !== -1 ? index : undefined;
+  }, [residues, form]);
+
   const removeResidue = (i: number) => () =>
     setResidues((currentResidues) => {
       return currentResidues.filter((_r, index) => i != index);
@@ -147,6 +157,14 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
               setAnalysis((a) => ({ ...a, compliance, notesOnCompliance }))
             }
           />
+
+          {residueIndexWithIssue !== undefined && (
+            <Alert
+              severity="error"
+              description={`La saisie du résidu n°${residueIndexWithIssue} est incorrecte`}
+              small
+            />
+          )}
 
           <Button
             children="Enregistrer"

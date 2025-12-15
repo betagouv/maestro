@@ -38,7 +38,6 @@ export const AnalysisComplianceForm: FunctionComponent<Props> = ({
   return (
     <div
       className={clsx(
-        cx('fr-grid-row'),
         cx('fr-callout', 'fr-m-0'),
         partialAnalysis.compliance
           ? 'fr-callout--green-emeraude'

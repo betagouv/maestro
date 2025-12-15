@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import {
@@ -10,6 +9,7 @@ import {
 } from 'maestro-shared/test/analysisFixtures';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import '../SampleAnalysis.scss';
 import { SampleAnalysisForm } from './SampleAnalysisForm';
 
 const meta = {
@@ -74,27 +74,8 @@ const meta = {
     }
   },
   decorators: (Story) => (
-    <div>
-      <Tabs
-        tabs={[
-          {
-            label: 'Tab 1',
-            iconId: 'fr-icon-add-line',
-            content: <p>Content of tab1</p>
-          },
-          {
-            label: 'Tab 2',
-            iconId: 'fr-icon-ball-pen-fill',
-            content: <p>Content of tab2</p>
-          },
-          { label: 'Tab 3', content: <p>Content of tab3</p> },
-          {
-            label: 'Tab 4',
-            isDefault: true,
-            content: <Story />
-          }
-        ]}
-      />
+    <div className={'analysis-container'}>
+      <Story />
     </div>
   )
 } satisfies Meta<typeof SampleAnalysisForm>;
