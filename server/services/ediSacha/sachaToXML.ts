@@ -3,10 +3,10 @@ import { fr } from 'date-fns/locale';
 import { XMLBuilder } from 'fast-xml-parser';
 import { XmlDocument, XsdValidator } from 'libxml2-wasm';
 import { Brand } from 'maestro-shared/constants';
-import { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
 import fs from 'node:fs';
 import path from 'path';
 import { z, ZodObject } from 'zod';
+import { Laboratories } from '../../repositories/kysely.type';
 import {
   Acquittement,
   acquittementValidator,
@@ -23,7 +23,7 @@ export type XmlFile = { fileName: string; content: Xml };
 export const generateXMLAcquitement = (
   messagesAcquittement: Acquittement['MessageAcquittement'],
   messagesNonAcquittement: Acquittement['MessageNonAcquittement'],
-  laboratory: LaboratoryShortName,
+  laboratory: Laboratories,
   dateNow: number
 ): XmlFile => {
   return generateXML(
@@ -39,7 +39,7 @@ export const generateXMLAcquitement = (
 
 export const generateXMLDAI = (
   dai: DAI['DemandeType'],
-  laboratory: LaboratoryShortName,
+  laboratory: Laboratories,
   dateNow: number
 ): XmlFile => {
   return generateXML(
@@ -81,7 +81,7 @@ const fileTypeConf = {
 const generateXML = <T extends FileType>(
   fileType: T,
   content: z.infer<(typeof fileTypeConf)[T]['content']>,
-  laboratory: LaboratoryShortName,
+  laboratory: Laboratories,
   dateNow: number
 ): XmlFile => {
   const builder = new XMLBuilder({
@@ -89,13 +89,21 @@ const generateXML = <T extends FileType>(
     format: true
   });
 
+  if (
+    laboratory.sachaEmail === null ||
+    laboratory.sachaSigle === null ||
+    laboratory.sachaGpgPublicKey === null
+  ) {
+    throw new Error(
+      `Le laboratoire ${laboratory.shortName} n'est pas configuré pour utiliser les EDI Sacha`
+    );
+  }
   const conf = fileTypeConf[fileType];
 
   const currentDate: string = format(dateNow, 'yyMMddHHmm', {
     locale: fr
   });
-  // TODO laboratory shortname
-  const fileName: string = `${fileType}01${laboratory.replaceAll(' ', '')}${currentDate}_1`;
+  const fileName: string = `${fileType}01${laboratory.sachaSigle}${currentDate}_1`;
 
   const fullContent = z
     .object({
@@ -119,13 +127,12 @@ const generateXML = <T extends FileType>(
         LibellePartenaire: Brand,
         EmailPartenaire: Brand
       },
-      //FIXME
       Destinataire: {
-        Sigle: laboratory,
-        Nom: laboratory,
-        Telephone: laboratory,
-        LibellePartenaire: laboratory,
-        EmailPartenaire: laboratory
+        Sigle: laboratory.sachaSigle,
+        Nom: laboratory.shortName,
+        Telephone: '',
+        LibellePartenaire: laboratory.name,
+        EmailPartenaire: laboratory.sachaEmail
       },
       ...content
     });
