@@ -29,5 +29,7 @@ export const toMaestroDate = (date: Date): MaestroDate => {
     return parsedDate.data;
   }
 
-  throw new Error(`Shouldn't get here (invalid toDateStr provided): ${date}`);
+  throw new Error(
+    `Shouldn't get here (invalid toDateStr provided): ${date} ${dateString} ${parsedDate.error}`
+  );
 };
