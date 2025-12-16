@@ -1,4 +1,5 @@
 import { constants } from 'http2';
+import { UserBase } from 'maestro-shared/schema/User/User';
 import { genNotification } from 'maestro-shared/test/notificationFixtures';
 import {
   NationalCoordinator,
@@ -22,12 +23,12 @@ describe('Notification router', () => {
 
   const notification1 = genNotification({
     recipientId: Sampler1Fixture.id,
-    author: RegionalCoordinator,
+    author: UserBase.parse(RegionalCoordinator),
     read: false
   });
   const notification2 = genNotification({
     recipientId: Sampler1Fixture.id,
-    author: NationalCoordinator,
+    author: UserBase.parse(RegionalCoordinator),
     read: false
   });
   const notification3 = genNotification({

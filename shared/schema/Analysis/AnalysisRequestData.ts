@@ -3,12 +3,12 @@ import { Company } from '../Company/Company';
 import { Laboratory } from '../Laboratory/Laboratory';
 import { SampleBase } from '../Sample/Sample';
 import { SampleItem } from '../Sample/SampleItem';
-import { User } from '../User/User';
+import { UserBase } from '../User/User';
 
 export const AnalysisRequestData = z.object({
   ...SampleBase.shape,
   ...SampleItem.shape,
-  sampler: User,
+  sampler: UserBase,
   company: z.object({
     ...Company.shape,
     fullAddress: z.string()

@@ -16,12 +16,11 @@ import {
   UserRolePermissions
 } from './UserRole';
 
-const BaseUser = z.object({
+export const UserBase = z.object({
   id: z.guid(),
   email: z.email({ error: 'Veuillez renseigner un email valide.' }),
   name: z.string().nullable(),
   programmingPlanKinds: z.array(ProgrammingPlanKind),
-  roles: z.array(UserRole).min(1, 'Veuillez renseigner au moins un rôle.'),
   region: Region.nullable(),
   department: Department.nullable(),
   companies: z.array(Company),
@@ -77,29 +76,38 @@ const userChecks = <
   }
 };
 
-export const User = BaseUser.superRefine(userChecks);
+export const User = z
+  .object({
+    ...UserBase.shape,
+    roles: z.array(UserRole).min(1, 'Veuillez renseigner au moins un rôle.')
+  })
+  .superRefine(userChecks);
 
-export const UserToCreate = BaseUser.omit({
+export const UserToCreate = User.omit({
   id: true,
   name: true
 }).superRefine(userChecks);
 export type UserToCreate = z.infer<typeof UserToCreate>;
 
-export const UserToUpdate = BaseUser.omit({
+export const UserToUpdate = User.omit({
   name: true
 }).superRefine(userChecks);
 
 export type UserToUpdate = z.infer<typeof UserToUpdate>;
 
-export const Sampler = BaseUser.pick({
+export const Sampler = User.pick({
   id: true,
   name: true
 });
 
 export type User = z.infer<typeof User>;
+export type UserBase = z.infer<typeof UserBase>;
 export type Sampler = z.infer<typeof Sampler>;
 
-export const userRegionsForRole = (user: User, userRole: UserRole): Region[] =>
+export const userRegionsForRole = (
+  user: UserBase,
+  userRole: UserRole
+): Region[] =>
   user
     ? isNationalRole(userRole)
       ? RegionList
@@ -109,7 +117,7 @@ export const userRegionsForRole = (user: User, userRole: UserRole): Region[] =>
     : [];
 
 export const userDepartmentsForRole = (
-  user: User,
+  user: UserBase,
   userRole: UserRole
 ): Department[] =>
   user?.department

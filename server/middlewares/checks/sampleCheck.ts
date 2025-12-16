@@ -9,14 +9,14 @@ import {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { User, userRegionsForRole } from 'maestro-shared/schema/User/User';
+import { UserBase, userRegionsForRole } from 'maestro-shared/schema/User/User';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { departmentRepository } from '../../repositories/departmentRepository';
 import { sampleRepository } from '../../repositories/sampleRepository';
 
 export const getAndCheckSample = async (
   sampleId: string,
-  user: User,
+  user: UserBase,
   userRole: UserRole
 ): Promise<PartialSample> => {
   const sample = await sampleRepository.findUnique(sampleId);
@@ -38,7 +38,7 @@ export const getAndCheckSample = async (
 
 export const getAndCheckSampleDepartement = async (
   sample: PartialSampleToCreate,
-  user: User,
+  user: UserBase,
   userRole: UserRole
 ) => {
   const department = await departmentRepository.getDepartment(

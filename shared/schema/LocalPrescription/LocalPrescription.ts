@@ -4,7 +4,7 @@ import { Department, DepartmentSort } from '../../referential/Department';
 import { Region, RegionSort } from '../../referential/Region';
 import { Prescription } from '../Prescription/Prescription';
 import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
-import { hasPermission, User, userRegionsForRole } from '../User/User';
+import { UserBase, hasPermission, userRegionsForRole } from '../User/User';
 import { UserRole } from '../User/UserRole';
 import { LocalPrescriptionComment } from './LocalPrescriptionComment';
 import { LocalPrescriptionKey } from './LocalPrescriptionKey';
@@ -134,7 +134,7 @@ export type LocalPrescriptionPermission = z.infer<
 >;
 
 export const hasLocalPrescriptionPermission = (
-  user: User,
+  user: UserBase,
   userRole: UserRole,
   programmingPlan: ProgrammingPlan,
   localPrescription: { region: Region; department?: Department | null }
