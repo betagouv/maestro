@@ -13,17 +13,20 @@ test(`génère un XML d'acquittement`, () => {
         }
       ],
       undefined,
-      'LDA 72'
+      'LDA 72',
+
+      1765876056798
     )
   ).toMatchInlineSnapshot(
     `
-    "<?xml version="1.0" encoding="UTF-8"?>
+    {
+      "content": "<?xml version="1.0" encoding="UTF-8"?>
     <AcquittementNonAcquittement schemavalidation="AcquittementNonAcquittement.xsd">
       <MessageParametres>
         <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
         <VersionScenario>1.0.1</VersionScenario>
         <TypeFichier>AN01</TypeFichier>
-        <NomFichier></NomFichier>
+        <NomFichier>AN01LDA722512161007_1</NomFichier>
         <NomLogicielCreation>SIGAL</NomLogicielCreation>
         <VersionLogicielCreation>4.0</VersionLogicielCreation>
       </MessageParametres>
@@ -46,7 +49,9 @@ test(`génère un XML d'acquittement`, () => {
         <DateAcquittement>1970-01-01T04:25:41</DateAcquittement>
       </MessageAcquittement>
     </AcquittementNonAcquittement>
-    "
+    ",
+      "fileName": "AN01LDA722512161007_1",
+    }
   `
   );
 });
@@ -89,16 +94,18 @@ test(`génère un XML de DAI`, () => {
           }
         }
       },
-      'LDA 72'
+      'LDA 72',
+      1765876056798
     )
   ).toMatchInlineSnapshot(`
-    "<?xml version="1.0" encoding="UTF-8"?>
+    {
+      "content": "<?xml version="1.0" encoding="UTF-8"?>
     <DemandesAnalyses schemavalidation="DemandesAnalyses.xsd">
       <MessageParametres>
         <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
         <VersionScenario>1.0.1</VersionScenario>
         <TypeFichier>DA01</TypeFichier>
-        <NomFichier></NomFichier>
+        <NomFichier>DA01LDA722512161007_1</NomFichier>
         <NomLogicielCreation>SIGAL</NomLogicielCreation>
         <VersionLogicielCreation>4.0</VersionLogicielCreation>
       </MessageParametres>
@@ -152,6 +159,8 @@ test(`génère un XML de DAI`, () => {
         </ReferencePlanAnalyseType>
       </DemandeType>
     </DemandesAnalyses>
-    "
+    ",
+      "fileName": "DA01LDA722512161007_1",
+    }
   `);
 });
