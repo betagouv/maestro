@@ -28,13 +28,15 @@ const sachaDateTime = z
 
 export const toSachaDateTime = (date: Date): z.infer<typeof sachaDateTime> => {
   // Use the Sweden locale because it uses the ISO format
-  const dateString = `${date.toLocaleDateString('sv')}T${date.toLocaleTimeString()}`;
+  const dateString = `${date.toLocaleDateString('sv')}T${date.toLocaleTimeString('sv', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
   const parsedDate = sachaDateTime.safeParse(dateString);
   if (parsedDate.success) {
     return parsedDate.data;
   }
 
-  throw new Error(`Shouldn't get here (invalid toDateStr provided): ${date}`);
+  throw new Error(
+    `Shouldn't get here (invalid toDateStr provided): ${date} ${dateString} ${parsedDate.error}`
+  );
 };
 
 const booleanLabel = z.codec(z.literal(['O', 'N']), z.boolean(), {
