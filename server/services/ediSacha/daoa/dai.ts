@@ -72,7 +72,7 @@ export const generateDAI = async (sample: Sample) => {
       }
     };
 
-    xmlFile = generateXMLDAI(dai, laboratoryName);
+    xmlFile = generateXMLDAI(dai, laboratoryName, Date.now());
   }
 
   if (xmlFile) {

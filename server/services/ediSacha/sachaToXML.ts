@@ -1,3 +1,5 @@
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { XMLBuilder } from 'fast-xml-parser';
 import { XmlDocument, XsdValidator } from 'libxml2-wasm';
 import { Brand } from 'maestro-shared/constants';
@@ -21,7 +23,8 @@ export type XmlFile = { fileName: string; content: Xml };
 export const generateXMLAcquitement = (
   messagesAcquittement: Acquittement['MessageAcquittement'],
   messagesNonAcquittement: Acquittement['MessageNonAcquittement'],
-  laboratory: LaboratoryShortName
+  laboratory: LaboratoryShortName,
+  dateNow: number
 ): XmlFile => {
   return generateXML(
     'AN',
@@ -29,20 +32,23 @@ export const generateXMLAcquitement = (
       MessageAcquittement: messagesAcquittement,
       MessageNonAcquittement: messagesNonAcquittement
     },
-    laboratory
+    laboratory,
+    dateNow
   );
 };
 
 export const generateXMLDAI = (
   dai: DAI['DemandeType'],
-  laboratory: LaboratoryShortName
+  laboratory: LaboratoryShortName,
+  dateNow: number
 ): XmlFile => {
   return generateXML(
     'DA',
     {
       DemandeType: dai
     },
-    laboratory
+    laboratory,
+    dateNow
   );
 };
 
@@ -75,7 +81,8 @@ const fileTypeConf = {
 const generateXML = <T extends FileType>(
   fileType: T,
   content: z.infer<(typeof fileTypeConf)[T]['content']>,
-  laboratory: LaboratoryShortName
+  laboratory: LaboratoryShortName,
+  dateNow: number
 ): XmlFile => {
   const builder = new XMLBuilder({
     ignoreAttributes: false,
@@ -84,8 +91,11 @@ const generateXML = <T extends FileType>(
 
   const conf = fileTypeConf[fileType];
 
-  // TODO
-  const fileName: string = 'TODO_' + Math.random();
+  const currentDate: string = format(dateNow, 'yyMMddHHmm', {
+    locale: fr
+  });
+  // TODO laboratory shortname
+  const fileName: string = `${fileType}01${laboratory.replaceAll(' ', '')}${currentDate}_1`;
 
   const fullContent = z
     .object({
