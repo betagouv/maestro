@@ -6,6 +6,7 @@ import {
 import { FunctionComponent } from 'react';
 import { Navigate } from 'react-router';
 import { assert, type Equals } from 'tsafe';
+import { useAuthentication } from './hooks/useAuthentication';
 import { SESSION_STORAGE_REDIRECT_URL } from './views/LoginCallbackView/LoginCallbackView';
 
 type AppRoute = AppRouteLink & {
@@ -116,6 +117,8 @@ export type AuthenticatedAppRoutes = keyof typeof AuthenticatedAppRoutes;
 export const RedirectRoute: FunctionComponent = ({ ..._rest }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
+  const { hasRole } = useAuthentication();
+
   if (
     window.location.pathname !== '/logout-callback' &&
     window.location.pathname !== '/'
@@ -124,6 +127,10 @@ export const RedirectRoute: FunctionComponent = ({ ..._rest }) => {
       SESSION_STORAGE_REDIRECT_URL,
       window.location.pathname
     );
+  }
+
+  if (hasRole('LaboratoryUser')) {
+    return <Navigate to="/documents" replace={true} />;
   }
 
   return <Navigate to="/" replace={true} />;
