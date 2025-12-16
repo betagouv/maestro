@@ -29,8 +29,7 @@ import {
   Region2Fixture,
   RegionalCoordinator,
   RegionalObserver,
-  Sampler1Fixture,
-  SamplerAndNationalObserver
+  Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { withISOStringDates } from 'maestro-shared/utils/utils';
@@ -324,7 +323,6 @@ describe('Local prescriptions router', () => {
 
       await successRequestTest(NationalCoordinator);
       await successRequestTest(NationalObserver);
-      await successRequestTest(SamplerAndNationalObserver);
       await successRequestTest(AdminFixture);
     });
 
@@ -492,7 +490,6 @@ describe('Local prescriptions router', () => {
       await forbiddenRequestTest(RegionalObserver);
       await forbiddenRequestTest(RegionalCoordinator);
       await forbiddenRequestTest(NationalObserver);
-      await forbiddenRequestTest(SamplerAndNationalObserver);
       await forbiddenRequestTest(AdminFixture);
     });
 
@@ -901,7 +898,6 @@ describe('Local prescriptions router', () => {
       await forbiddenRequestTest(Sampler1Fixture);
       await forbiddenRequestTest(RegionalObserver);
       await forbiddenRequestTest(NationalObserver);
-      await forbiddenRequestTest(SamplerAndNationalObserver);
       await forbiddenRequestTest(AdminFixture);
     });
 

@@ -38,10 +38,14 @@ export const UserCard: FunctionComponent<Props> = ({
       className={'user-list-item-card'}
       title={
         <div className={clsx('user-card-title')}>
-          <Tag as={'span'} small>
-            {UserRoleLabels[user.role]}
-          </Tag>
           <div>
+            {user.roles.map((role) => (
+              <Tag as={'span'} small key={role}>
+                {UserRoleLabels[role]}
+              </Tag>
+            ))}
+          </div>
+          <div className="d-flex-align-center">
             <Button
               size="small"
               className={clsx('fr-mr-1w')}
@@ -85,7 +89,7 @@ export const UserCard: FunctionComponent<Props> = ({
             />
             {canHaveDepartment(user)
               ? `${Regions[user.region].name}${user.department ? ` - ${DepartmentLabels[user.department]}` : ''}`
-              : isRegionalRole(user)
+              : user.roles.some((role) => isRegionalRole(role)) && user.region
                 ? Regions[user.region].name
                 : 'France'}
           </span>

@@ -79,7 +79,7 @@ const UsersSearchInput: FunctionComponent<{
             {
               labels: users.reduce(
                 (acc, u) => {
-                  let label = `${u.name ?? u.email} - ${UserRoleLabels[u.role]}`;
+                  let label = `${u.name ?? u.email} - ${u.roles.map((role) => UserRoleLabels[role]).join(',')}`;
                   if (u.programmingPlanKinds) {
                     label += ` - ${u.programmingPlanKinds.join(',')}`;
                   }

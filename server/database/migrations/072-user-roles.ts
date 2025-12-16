@@ -6,6 +6,10 @@ export const up = async (knex: Knex) => {
 
   await knex('users').update({ roles: knex.raw(`ARRAY[role]`) });
 
+  await knex('users')
+    .whereRaw(`role = 'SamplerAndNationalObserver'`)
+    .update({ roles: knex.raw(`ARRAY['Sampler','NationalObserver']`) });
+
   await knex.schema.alterTable('users', (table) => {
     table.dropColumn('role');
     table.specificType('roles', `text[]`).notNullable().alter();

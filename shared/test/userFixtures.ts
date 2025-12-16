@@ -11,6 +11,7 @@ import {
 import {
   canHaveDepartment,
   isRegionalRole,
+  UserRole,
   UserRoleList
 } from '../schema/User/UserRole';
 import { SlaughterhouseCompanyFixture1 } from './companyFixtures';
@@ -114,11 +115,6 @@ export const NationalObserver = genUser({
   roles: ['NationalObserver'],
   id: '99999999-9999-9999-9999-999999999999'
 });
-export const SamplerAndNationalObserver = genUser({
-  roles: ['SamplerAndNationalObserver'],
-  id: '10101010-1010-1010-1010-101010101010',
-  region: Region1Fixture
-});
 export const DepartmentalCoordinator = genUser({
   roles: ['DepartmentalCoordinator'],
   id: '12121212-1212-1212-1212-121212121212',
@@ -134,7 +130,16 @@ export const SamplerDaoaFixture = genUser({
   department: Regions[Region1Fixture].departments[0]
 });
 
-export const genAuthUser = (data?: Partial<User>): AuthUser => ({
-  user: genUser(data ?? {}),
-  userRole: oneOf(UserRoleList)
-});
+export const genAuthUser = (
+  data?: Partial<User & { userRole: UserRole }>
+): AuthUser => {
+  const role = data?.userRole ?? data?.roles?.[0] ?? oneOf(UserRoleList);
+  return {
+    user: genUser(
+      data ?? {
+        roles: [role]
+      }
+    ),
+    userRole: role
+  };
+};

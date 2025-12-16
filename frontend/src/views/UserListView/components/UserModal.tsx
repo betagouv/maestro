@@ -18,10 +18,9 @@ import {
 } from 'maestro-shared/schema/User/User';
 import {
   canHaveDepartment,
-  isNationalRole,
   isRegionalRole,
-  UserRole,
-  UserRoleLabels
+  UserRoleLabels,
+  UserRoleList
 } from 'maestro-shared/schema/User/UserRole';
 import { Nullable } from 'maestro-shared/utils/typescript';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
@@ -41,11 +40,6 @@ interface Props {
   setAlertMessage: (message: string) => void;
 }
 
-const userRoleOptions = selectOptionsFromList(UserRole.options, {
-  labels: UserRoleLabels,
-  withSort: true
-});
-
 const regionOptions = selectOptionsFromList(RegionList, {
   labels: RegionList.reduce(
     (acc, r) => {
@@ -59,7 +53,7 @@ const regionOptions = selectOptionsFromList(RegionList, {
 
 const userDefaultValue: Nullable<UserToCreate> = {
   email: null,
-  role: null,
+  roles: [],
   programmingPlanKinds: [],
   region: null,
   department: null,
@@ -103,6 +97,15 @@ export const UserModal = ({
       setUser(rest);
     }
   }, [userToUpdate]);
+
+  useEffect(() => {
+    if (!user.roles?.some((role) => isRegionalRole(role))) {
+      setUser((u) => ({ ...u, region: null }));
+    }
+    if (!canHaveDepartment(user)) {
+      setUser((u) => ({ ...u, department: null }));
+    }
+  }, [user.roles, user.region]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useIsModalOpen(modal, {
     onConceal: () => {
@@ -166,34 +169,32 @@ export const UserModal = ({
           value={user.email ?? ''}
           required
         />
-        <AppSelect
-          onChange={(e) => {
-            const { data, success } = UserRole.nullable().safeParse(
-              e.target.value === '' ? null : e.target.value
-            );
-            if (success) {
-              setUser((u) => ({ ...u, role: data }));
-              if (data === null || isNationalRole({ role: data })) {
-                setUser((u) => ({ ...u, region: null }));
-              }
-            }
-          }}
-          value={user.role ?? ''}
+        <AppMultiSelect
           inputForm={form}
-          inputKey={'role'}
-          label="Rôle"
-          options={userRoleOptions}
+          inputKey={'roles'}
+          items={UserRoleList}
+          onChange={(roles) =>
+            setUser((u) => ({
+              ...u,
+              roles
+            }))
+          }
+          values={user.roles ?? []}
+          keysWithLabels={UserRoleLabels}
+          defaultLabel={'rôle sélectionné'}
+          label={'Rôles'}
           nativeSelectProps={{
             'data-testid': 'user-form-role-select'
           }}
           required
         />
-        {user.role && (isRegionalRole(user) || canHaveDepartment(user)) && (
+        {(user.roles?.some((role) => isRegionalRole(role)) ||
+          canHaveDepartment(user)) && (
           <AppSelect
             onChange={(e) => {
               const { data, success } = Region.safeParse(e.target.value);
               if (success) {
-                setUser((u) => ({ ...u, region: data }));
+                setUser((u) => ({ ...u, region: data, department: null }));
               }
             }}
             value={user.region ?? ''}
@@ -204,7 +205,7 @@ export const UserModal = ({
             required
           />
         )}
-        {user.role && user.region && canHaveDepartment(user) && (
+        {user.roles && user.region && canHaveDepartment(user) && (
           <AppSelect
             onChange={(e) => {
               const { data, success } = Department.safeParse(e.target.value);

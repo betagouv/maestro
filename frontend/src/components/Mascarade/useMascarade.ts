@@ -26,13 +26,12 @@ export const useMascarade = () => {
   const refreshCurrentUser = async (newUserId: string | undefined) => {
     if (newUserId) {
       dispatch(api.util.resetApiState());
-      const authUser = await getUser(newUserId);
+      const authUser = await getUser(newUserId).unwrap();
       dispatch(
         authSlice.actions.signinUser({
           authUser: {
-            user: authUser.data ?? null,
-            userRole: authUser.data?.roles[0] ?? null,
-            userEmail: authUser.data?.email ?? ''
+            user: authUser ?? null,
+            userRole: authUser?.roles?.[0] ?? null
           }
         })
       );

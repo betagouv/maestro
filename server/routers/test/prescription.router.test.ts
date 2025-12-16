@@ -16,8 +16,7 @@ import {
   NationalObserver,
   RegionalCoordinator,
   RegionalObserver,
-  Sampler1Fixture,
-  SamplerAndNationalObserver
+  Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
@@ -286,7 +285,6 @@ describe('Prescriptions router', () => {
       await forbiddenRequestTest(RegionalObserver);
       await forbiddenRequestTest(RegionalCoordinator);
       await forbiddenRequestTest(NationalObserver);
-      await forbiddenRequestTest(SamplerAndNationalObserver);
       await forbiddenRequestTest(AdminFixture);
     });
 
@@ -398,7 +396,6 @@ describe('Prescriptions router', () => {
       await forbiddenRequestTest(RegionalObserver);
       await forbiddenRequestTest(RegionalCoordinator);
       await forbiddenRequestTest(NationalObserver);
-      await forbiddenRequestTest(SamplerAndNationalObserver);
       await forbiddenRequestTest(AdminFixture);
     });
 
@@ -493,7 +490,6 @@ describe('Prescriptions router', () => {
       await forbiddenRequestTest(RegionalObserver);
       await forbiddenRequestTest(RegionalCoordinator);
       await forbiddenRequestTest(NationalObserver);
-      await forbiddenRequestTest(SamplerAndNationalObserver);
       await forbiddenRequestTest(AdminFixture);
     });
 

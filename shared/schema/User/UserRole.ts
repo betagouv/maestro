@@ -11,14 +11,11 @@ const NationalUserRole = z.enum([
   'LaboratoryUser'
 ]);
 
-const RegionalAndNationalUserRole = z.enum(['SamplerAndNationalObserver']);
-
 const RegionalUserRole = z.enum(['RegionalCoordinator', 'RegionalObserver']);
 
 export const UserRole = z.enum(
   [
     ...NationalUserRole.options,
-    ...RegionalAndNationalUserRole.options,
     ...RegionalUserRole.options,
     'DepartmentalCoordinator',
     'Sampler'
@@ -104,10 +101,6 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   ],
   NationalObserver: ObserverPermissionsList,
   RegionalObserver: ObserverPermissionsList,
-  SamplerAndNationalObserver: [
-    ...ObserverPermissionsList,
-    ...UserSamplerPermissionsList
-  ],
   Sampler: UserSamplerPermissionsList,
   DepartmentalCoordinator: [
     ...UserSamplerPermissionsList,
@@ -146,7 +139,6 @@ export const UserRoleLabels: Record<UserRole, string> = {
   NationalObserver: 'Suivi national',
   RegionalObserver: 'Suivi régional',
   DepartmentalCoordinator: 'Coordinateur départemental',
-  SamplerAndNationalObserver: 'Personne ressource',
   Sampler: 'Préleveur',
   Administrator: 'Administrateur',
   LaboratoryUser: 'Laboratoire'
@@ -157,12 +149,10 @@ export const UserRoleSorted = [...UserRoleList].sort((a, b) =>
 );
 
 export const isNationalRole = (userRole?: UserRole) =>
-  NationalUserRole.safeParse(userRole).success ||
-  RegionalAndNationalUserRole.safeParse(userRole).success;
+  NationalUserRole.safeParse(userRole).success;
 
 export const isRegionalRole = (userRole?: UserRole) =>
-  RegionalUserRole.safeParse(userRole).success ||
-  RegionalAndNationalUserRole.safeParse(userRole).success;
+  RegionalUserRole.safeParse(userRole).success;
 
 export const canHaveDepartment = (
   user: Nullable<Pick<User, 'roles'>>

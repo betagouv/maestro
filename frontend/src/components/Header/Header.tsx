@@ -8,8 +8,9 @@ import { uniq } from 'lodash-es';
 import { Brand } from 'maestro-shared/constants';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { isClosed } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { UserRole, UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
-import { useContext, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
@@ -18,7 +19,9 @@ import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import logo from '../../assets/logo.svg';
 import { usePrescriptionFilters } from '../../hooks/usePrescriptionFilters';
 import useWindowSize from '../../hooks/useWindowSize';
+import { api } from '../../services/api.service';
 import { ApiClientContext } from '../../services/apiClient';
+import authSlice from '../../store/reducers/authSlice';
 import prescriptionsSlice from '../../store/reducers/prescriptionsSlice';
 import config from '../../utils/config';
 import { MascaradeButton } from '../Mascarade/MascaradeButton';
@@ -40,8 +43,12 @@ const Header = () => {
   const domainMenuRef = useRef<
     (HTMLDivElement & { closeMenu: () => Promise<boolean> }) | null
   >(null);
+  const roleMenuRef = useRef<
+    (HTMLDivElement & { closeMenu: () => Promise<boolean> }) | null
+  >(null);
 
-  const { isAuthenticated, hasUserPermission, user } = useAuthentication();
+  const { isAuthenticated, hasUserPermission, user, userRole } =
+    useAuthentication();
   const { mascaradeEnabled, disableMascarade } = useMascarade();
   const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
@@ -108,6 +115,24 @@ const Header = () => {
     strictPath
       ? location.pathname === path
       : location.pathname.startsWith(path);
+
+  const changeUserRole = useCallback(
+    (userRole: UserRole) => {
+      if (user) {
+        dispatch(api.util.resetApiState());
+        dispatch(
+          authSlice.actions.signinUser({
+            authUser: {
+              user,
+              userRole
+            }
+          })
+        );
+        window.location.reload();
+      }
+    },
+    [user] // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   return (
     <>
@@ -317,6 +342,22 @@ const Header = () => {
                         className={clsx(cx('fr-m-0'), 'no-wrap')}
                       >
                         {ProgrammingPlanDomainLabels[domain]}
+                      </Button>
+                    ))}
+                  />
+                ) : undefined,
+                userRole && user?.roles && user.roles.length > 1 ? (
+                  <HeaderMenu
+                    key="roleMenu"
+                    ref={roleMenuRef}
+                    value={UserRoleLabels[userRole]}
+                    menuItems={user.roles.map((role) => (
+                      <Button
+                        key={`role-menu-${role}`}
+                        onClick={() => changeUserRole(role)}
+                        className={clsx(cx('fr-m-0'), 'no-wrap')}
+                      >
+                        {UserRoleLabels[role]}
                       </Button>
                     ))}
                   />

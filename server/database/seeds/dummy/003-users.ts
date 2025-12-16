@@ -77,14 +77,6 @@ export const seed = async function () {
       roles: ['RegionalObserver'],
       region: '44'
     },
-    {
-      id: uuidv4(),
-      email: 'preleveur.ressource@maestro.beta.gouv.fr',
-      name: `PPV - ${fakerFR.person.fullName()}`,
-      programmingPlanKinds: ['PPV'],
-      roles: ['SamplerAndNationalObserver'],
-      region: '44'
-    },
 
     //DAOA
     {
