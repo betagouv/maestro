@@ -169,7 +169,7 @@ describe('Sample router', () => {
       await successRequestTest(NationalObserver);
       await successRequestTest(AdminFixture);
 
-      expect(mockGenerateSampleSupportPDF).toHaveBeenCalledTimes(7);
+      expect(mockGenerateSampleSupportPDF).toHaveBeenCalledTimes(6);
     });
   });
 
