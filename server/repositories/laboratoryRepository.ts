@@ -12,10 +12,7 @@ export const Laboratories = () => db<Laboratory>(laboratoryTable);
 
 const findUnique = async (id: string): Promise<Laboratory | undefined> => {
   console.info('Find laboratory by id', id);
-  return Laboratories()
-    .where({ id })
-    .first()
-    .then((_) => _ && Laboratory.parse(omitBy(_, isNil)));
+  return Laboratories().where({ id }).first();
 };
 
 const findMany = async (

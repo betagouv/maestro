@@ -114,6 +114,9 @@ export interface Laboratories {
   postalCode: string;
   city: string;
   emailsAnalysisResult: string[];
+  sachaEmail: string | null;
+  sachaGpgPublicKey: string | null;
+  sachaSigle: string | null;
 }
 
 export interface LaboratoryResidueMapping {
