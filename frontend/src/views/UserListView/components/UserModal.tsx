@@ -1,3 +1,4 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import {
@@ -79,6 +80,8 @@ export const UserModal = ({
   const [createUser] = apiClient.useCreateUserMutation();
   const [updateUser] = apiClient.useUpdateUserMutation();
 
+  const [apiError, setApiError] = useState<null | string>(null);
+
   const [user, setUser] = useState<Nullable<UserToCreate>>(userDefaultValue);
 
   const form = useForm(UserToCreate, {
@@ -106,6 +109,7 @@ export const UserModal = ({
   useIsModalOpen(modal, {
     onConceal: () => {
       form.reset();
+      setApiError(null);
       setTimeout(() => {
         setUser(userDefaultValue);
       }, 2);
@@ -113,18 +117,23 @@ export const UserModal = ({
   });
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
+    setApiError(null);
     await form.validate(async (n) => {
-      if (userToUpdate?.id) {
-        await updateUser({ ...n, id: userToUpdate.id });
-        setAlertMessage(
-          `L'utilisateur ${userToUpdate.name} a bien été modifié.`
-        );
-      } else {
-        await createUser(n);
-        setAlertMessage(`L'utilisateur ${n.email} a bien été créé.`);
+      try {
+        if (userToUpdate?.id) {
+          await updateUser({ ...n, id: userToUpdate.id }).unwrap();
+          setAlertMessage(
+            `L'utilisateur ${userToUpdate.name} a bien été modifié.`
+          );
+        } else {
+          await createUser(n).unwrap();
+          setAlertMessage(`L'utilisateur ${n.email} a bien été créé.`);
+        }
+        e.preventDefault();
+        modal.close();
+      } catch (e: any) {
+        setApiError(e.data);
       }
-      e.preventDefault();
-      modal.close();
     });
   };
 
@@ -252,6 +261,10 @@ export const UserModal = ({
             label={'Abattoirs'}
             required
           />
+        )}
+
+        {!!apiError && (
+          <Alert severity={'error'} small description={apiError} />
         )}
       </form>
     </modal.Component>

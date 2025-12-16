@@ -162,7 +162,7 @@ export const generateRoutes = <
 
           if ('permissions' in conf) {
             if (!request.user) {
-              throw new AuthenticationMissingError();
+              throw new AuthenticationMissingError(request.user);
             }
             if (conf.permissions !== 'NONE') {
               if (
@@ -183,23 +183,33 @@ export const generateRoutes = <
               response.cookie(name, val, options)
           };
 
-          // @ts-expect-error TS2345 Impossible de faire mieux
-          const result = await subRouter[route][method](
-            {
-              ...validatedRequest,
-              user: request.user,
-              auth: request.auth,
-              cookies: request.cookies
-            },
-            validatedRequest.params,
-            responseMethods
-          );
+          try {
+            // @ts-expect-error TS2345 Impossible de faire mieux
+            const result = await subRouter[route][method](
+              {
+                ...validatedRequest,
+                user: request.user,
+                auth: request.auth,
+                cookies: request.cookies
+              },
+              validatedRequest.params,
+              responseMethods
+            );
 
-          if ('status' in result && !('response' in result)) {
-            response.sendStatus(result.status);
-          } else {
-            const strippedResult = conf.response?.parse(result.response);
-            response.status(result.status).send(strippedResult);
+            if ('status' in result && !('response' in result)) {
+              response.status(result.status).send(undefined);
+            } else {
+              const strippedResult = conf.response?.parse(result.response);
+              response.status(result.status).send(strippedResult);
+            }
+          } catch (e: any) {
+            if (!('status' in e)) {
+              response
+                .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
+                .send(e.message);
+            } else {
+              throw e;
+            }
           }
         });
       }

@@ -29,7 +29,7 @@ export const genUser = <T extends Partial<User>>(data: T): User & T => {
     : [];
   return {
     id: uuidv4(),
-    email: fakerFR.internet.email(),
+    email: fakerFR.internet.email().toLowerCase(),
     name: fakerFR.person.fullName(),
     programmingPlanKinds,
     role,

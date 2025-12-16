@@ -46,7 +46,7 @@ export const userCheck = (credentialsRequired: boolean) =>
   async function (request: Request, _response: Response, next: NextFunction) {
     if (credentialsRequired) {
       if (!request.auth || !request.auth.userId || !request.auth.loggedSecret) {
-        throw new AuthenticationMissingError();
+        throw new AuthenticationMissingError(request.auth);
       }
 
       const user = await userRepository.findUnique(request.auth.userId);
