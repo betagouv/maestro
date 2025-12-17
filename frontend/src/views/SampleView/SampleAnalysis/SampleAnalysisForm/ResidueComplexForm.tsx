@@ -154,7 +154,10 @@ function ResidueComplexForm({
                     value={analyte.result ?? ''}
                     onChange={(e) =>
                       changeAnalyte(
-                        { ...analyte, result: Number(e.target.value) },
+                        {
+                          ...analyte,
+                          result: e.target.value ? Number(e.target.value) : null
+                        },
                         analyteIndex
                       )
                     }
