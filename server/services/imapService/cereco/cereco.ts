@@ -15,6 +15,17 @@ import {
 } from './cerecoReferential';
 
 const methodValidator = z.literal(['Multi-résidus', 'Mono résidus']).nullish();
+
+export const cerecoRefValidator = z.string().transform((l) => {
+  let firstPart: string;
+  if (l.includes(':')) {
+    firstPart = l.substring(0, l.indexOf(':'));
+  } else {
+    firstPart = l.substring(0, l.lastIndexOf('-'));
+  }
+
+  return firstPart.trim().substring(0, firstPart.lastIndexOf('-'));
+});
 const fileValidator = z.array(
   z
     .looseObject({})
@@ -28,12 +39,7 @@ const fileValidator = z.array(
     })
     .pipe(
       z.object({
-        'Sample Name': z.string().transform((l) => {
-          return l
-            .substring(0, l.indexOf(':'))
-            .trim()
-            .substring(0, l.lastIndexOf('-'));
-        }),
+        'Sample Name': cerecoRefValidator,
         "Date d'analyse": z
           .date()
           .transform((d) => {

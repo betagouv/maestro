@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import path from 'path';
 import { expect, test } from 'vitest';
-import { cerecoConf } from './cereco';
+import { cerecoConf, cerecoRefValidator } from './cereco';
 
 test('exportDataFromEmail', async () => {
   const file = path.join(import.meta.dirname, './example.xls');
@@ -112,4 +112,10 @@ test('exportDataFromEmail', async () => {
     ],
     sampleReference: 'OCC-25-0001'
   });
+});
+test.each<[string, string]>([
+  ['ARA-25-0094-1 : Olives', 'ARA-25-0094'],
+  ['ARA-25-0094-1 - Olives', 'ARA-25-0094']
+])('cerecoRefValidator', (value, expected) => {
+  expect(cerecoRefValidator.parse(value)).toBe(expected);
 });
