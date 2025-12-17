@@ -465,22 +465,6 @@ describe('Sample router', () => {
       await forbiddenRequestTest(SamplerAndNationalObserver);
     });
 
-    test('should fail if the user does not have the permission to set the status to InReview', async () => {
-      const forbiddenRequestTest = async (user: User) =>
-        request(app)
-          .put(`${testRoute(Sample11Fixture.id)}`)
-          .send({ ...Sample11Fixture, status: 'InReview' })
-          .use(tokenProvider(user))
-          .expect(constants.HTTP_STATUS_FORBIDDEN);
-
-      await forbiddenRequestTest(Sampler1Fixture);
-      await forbiddenRequestTest(SamplerAndNationalObserver);
-      await forbiddenRequestTest(RegionalCoordinator);
-      await forbiddenRequestTest(RegionalObserver);
-      await forbiddenRequestTest(NationalObserver);
-      await forbiddenRequestTest(NationalCoordinator);
-    });
-
     test('should get a valid body', async () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)

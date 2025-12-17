@@ -9,3 +9,14 @@
     max-width: calc(1200% / 12);
   }
 }
+
+.maestro-radio-group-inline {
+  .fr-radio-group {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+  }
+
+    > .fr-messages-group{
+      margin-top: 1rem ;
+    }
+  }

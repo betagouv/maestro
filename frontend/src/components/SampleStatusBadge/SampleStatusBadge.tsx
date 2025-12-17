@@ -18,17 +18,17 @@ export const SampleStatusBadge = ({ status, sampleId, ...props }: Props) => {
 
   const [getAnalysis] = apiClient.useLazyGetSampleAnalysisQuery();
 
-  const [compliance, setCompliance] = useState<boolean | undefined>(undefined);
+  const [compliance, setCompliance] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (status === 'Completed') {
       getAnalysis(sampleId)
         .unwrap()
         .then((analysis) => {
-          setCompliance(analysis?.compliance);
+          setCompliance(analysis?.compliance ?? null);
         });
     }
-    return setCompliance(undefined);
+    return setCompliance(null);
   }, [sampleId, status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <StatusBadge status={status} compliance={compliance} {...props} />;
@@ -36,7 +36,7 @@ export const SampleStatusBadge = ({ status, sampleId, ...props }: Props) => {
 
 type StatusBadgeProps = Omit<BadgeProps, 'children'> & {
   status: SampleStatus;
-  compliance: boolean | undefined;
+  compliance: boolean | null;
 };
 
 const StatusBadge = ({ status, compliance, ...props }: StatusBadgeProps) => {

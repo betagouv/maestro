@@ -52,6 +52,12 @@ export const AuthenticatedAppRoutes = {
     label: 'Prélèvement',
     key: 'sample_route'
   },
+  SampleAnalysisEditRoute: {
+    ...AppRouteLinks.SampleAnalysisEditRoute,
+    path: '/prelevements/:sampleId/edit',
+    label: 'Prélèvement',
+    key: 'sample_analysis_edit_route'
+  },
   DocumentsRoute: {
     ...AppRouteLinks.DocumentsRoute,
     path: '/documents',

@@ -21,32 +21,38 @@ import {
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
-import AppRadioButtons from '../../../../../components/_app/AppRadioButtons/AppRadioButtons';
-import AppSearchInput from '../../../../../components/_app/AppSearchInput/AppSearchInput';
-import { selectOptionsFromList } from '../../../../../components/_app/AppSelect/AppSelectOption';
-import { UseForm } from '../../../../../hooks/useForm';
-import { AnalysisResiduesValidator } from './AnalysisResiduesForm';
-import ComplexResidueForm from './ComplexResidueForm';
+import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
+import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
+import { selectOptionsFromList } from '../../../../components/_app/AppSelect/AppSelectOption';
+import { UseForm } from '../../../../hooks/useForm';
+import { ResidueHeader } from '../SampleAnalysisOverview/ResidueResultOverview';
+import '../SampleAnalysisOverview/ResidueResultOverview.scss';
+import ResidueComplexForm from './ResidueComplexForm';
 import { ResidueInterpretationForm } from './ResidueInterpretationForm';
-import SimpleResidueForm from './SimpleResidueForm';
+import ResidueSimpleForm from './ResidueSimpleForm';
+import { ResiduesLmrValidator } from './SampleAnalysisForm';
 
-export type Props = {
+type Props = {
+  residue: PartialResidue | undefined;
   residueIndex: number;
-  residue: PartialResidue;
-  form: UseForm<AnalysisResiduesValidator>;
-  onDeleteResidue: () => void;
-  changeResidue: (residue: PartialResidue, residueIndex: number) => void;
+  form: UseForm<ResiduesLmrValidator>;
+  onDelete: () => void;
+  onChange: (residue: PartialResidue, index: number) => void;
 };
-export const AnalysisResidueForm: FunctionComponent<Props> = ({
-  residueIndex,
+export const ResidueResultForm: FunctionComponent<Props> = ({
   residue,
-  onDeleteResidue,
-  changeResidue,
+  residueIndex,
   form,
+  onDelete,
+  onChange,
+
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
+  if (!residue) {
+    return null;
+  }
   const kind: ResidueKind =
     residue.reference && isComplex(residue.reference) ? 'Complex' : 'Simple';
 
@@ -60,30 +66,23 @@ export const AnalysisResidueForm: FunctionComponent<Props> = ({
   });
 
   return (
-    <>
-      <div
-        className={clsx(cx('fr-icon-microscope-line', 'fr-mr-1w'), 'icon-grey')}
-      ></div>
-      <div className={clsx(cx('fr-px-0'), 'residue-form')}>
-        <h5>
-          <div>Résidu n°{residueIndex + 1}</div>
-          {residueIndex > 0 && (
-            <>
-              <div className="border-middle"></div>
-              <Button
-                title="Supprimer"
-                iconId="fr-icon-delete-line"
-                priority="tertiary"
-                size="small"
-                onClick={(e) => {
-                  e.preventDefault();
-                  onDeleteResidue();
-                }}
-                className={cx('fr-mt-0')}
-              />
-            </>
-          )}
-        </h5>
+    <div className={clsx('residue-detail-container')}>
+      <div className={clsx('d-flex-align-center')}>
+        <ResidueHeader residue={residue} residueIndex={residueIndex} />
+        <Button
+          iconId={'fr-icon-delete-line'}
+          size={'small'}
+          type={'button'}
+          title={`supprimer le résidu numéro ${residueIndex}`}
+          priority={'secondary'}
+          onClick={onDelete}
+          className={cx('fr-ml-auto')}
+          style={{ flexShrink: 0 }}
+        />
+      </div>
+      <hr />
+      <div className={clsx('result-detail-bloc')}>
+        <h6 className={cx('fr-mb-0')}>Analyse</h6>
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppRadioButtons
@@ -92,18 +91,19 @@ export const AnalysisResidueForm: FunctionComponent<Props> = ({
                 labels: AnalysisMethodLabels,
                 withDefault: false
               }).map(({ label, value }) => ({
-                key: `residue-${residueIndex}-analysisMethod-option-${value}`,
+                key: `residue-${residue.residueNumber}-analysisMethod-option-${value}`,
                 label,
                 nativeInputProps: {
                   checked: residue.analysisMethod === value,
-                  onChange: () =>
-                    changeResidue(
+                  onChange: () => {
+                    onChange(
                       {
                         ...residue,
                         analysisMethod: value as AnalysisMethod
                       },
                       residueIndex
-                    )
+                    );
+                  }
                 }
               }))}
               colSm={6}
@@ -115,6 +115,7 @@ export const AnalysisResidueForm: FunctionComponent<Props> = ({
             />
           </div>
         </div>
+
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppSearchInput
@@ -129,15 +130,24 @@ export const AnalysisResidueForm: FunctionComponent<Props> = ({
                 residueIndex,
                 'reference'
               ])}
-              onSelect={(value) =>
-                changeResidue(
+              onSelect={(value) => {
+                onChange(
                   {
                     ...residue,
-                    reference: value as SSD2Id
+                    reference: value as SSD2Id,
+                    analytes: isComplex(value as SSD2Id)
+                      ? [
+                          {
+                            analysisId: residue.analysisId,
+                            residueNumber: residueIndex,
+                            analyteNumber: 1
+                          }
+                        ]
+                      : undefined
                   },
                   residueIndex
-                )
-              }
+                );
+              }}
               renderOption={(props, option) => {
                 // eslint-disable-next-line react/prop-types
                 const { key, ...optionProps } = props;
@@ -170,36 +180,36 @@ export const AnalysisResidueForm: FunctionComponent<Props> = ({
             />
           </div>
         </div>
-        {residue.reference !== undefined ? (
-          <>
-            {kind === 'Simple' && (
-              <SimpleResidueForm
-                form={form}
-                residue={residue}
-                residueIndex={residueIndex}
-                changeResidue={changeResidue}
-              />
-            )}
-            {kind === 'Complex' && (
-              <ComplexResidueForm
-                form={form}
-                residue={residue}
-                residueReference={residue.reference}
-                residueIndex={residueIndex}
-                changeResidue={changeResidue}
-              />
-            )}
-            {kind && (
-              <ResidueInterpretationForm
-                form={form}
-                onChangeResidue={changeResidue}
-                residue={residue}
-                residueIndex={residueIndex}
-              />
-            )}{' '}
-          </>
-        ) : null}
       </div>
-    </>
+      {residue.reference !== undefined ? (
+        <>
+          {kind === 'Simple' && (
+            <ResidueSimpleForm
+              form={form}
+              residue={residue}
+              residueIndex={residueIndex}
+              changeResidue={onChange}
+            />
+          )}
+          {kind === 'Complex' && (
+            <ResidueComplexForm
+              form={form}
+              residue={residue}
+              residueReference={residue.reference}
+              residueIndex={residueIndex}
+              changeResidue={onChange}
+            />
+          )}
+          {kind && (
+            <ResidueInterpretationForm
+              form={form}
+              onChangeResidue={onChange}
+              residue={residue}
+              residueIndex={residueIndex}
+            />
+          )}
+        </>
+      ) : null}
+    </div>
   );
 };

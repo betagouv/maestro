@@ -1,21 +1,22 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
-import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import clsx from 'clsx';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
-import { FunctionComponent, useContext, useState } from 'react';
+import { FunctionComponent, useContext, useMemo } from 'react';
 import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { usePartialSample } from 'src/hooks/usePartialSample';
-import SampleAdmissibility from 'src/views/SampleView/SampleAnalysis/SampleAdmissibility/SampleAdmissibility';
-import SampleAnalysisOverview from 'src/views/SampleView/SampleAnalysis/SampleAnalysisOverview/SampleAnalysisOverview';
-import SampleDraftAnalysis from 'src/views/SampleView/SampleAnalysis/SampleDraftAnalysis/SampleDraftAnalysis';
+import { SampleAdmissibility } from 'src/views/SampleView/SampleAnalysis/SampleAdmissibility/SampleAdmissibility';
 import UserFeedback from '../../../components/UserFeedback/UserFeedback';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
-import { SampleAnalysisReview } from './SampleAnalysisReview/SampleAnalysisReview';
+import { SampleAnalysisForm } from './SampleAnalysisForm/SampleAnalysisForm';
+import { SampleAnalysisOverview } from './SampleAnalysisOverview/SampleAnalysisOverview';
+
+import { useLocation } from 'react-router';
+import { SampleAdmissibilityForm } from './SampleAdmissibility/SampleAdmissibilityForm';
+import './SampleAnalysis.scss';
+import { AnalysisDocumentPreview } from './SampleAnalysisForm/AnalysisDocumentPreview';
 
 type Props = {
   sample: Sample;
@@ -23,11 +24,12 @@ type Props = {
 
 const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
   const apiClient = useContext(ApiClientContext);
-  const { hasUserPermission } = useAuthentication();
+  const { hasUserPermission, user } = useAuthentication();
+  const location = useLocation();
 
   const { getSampleItemLaboratory } = usePartialSample(sample);
-  const { navigateToSample } = useSamplesLink();
-  const [updateSample, { isSuccess: isSendingSuccess }] =
+  const { navigateToSample, navigateToSampleEdit } = useSamplesLink();
+  const [_updateSample, { isSuccess: isSendingSuccess }] =
     apiClient.useUpdateSampleMutation({
       fixedCacheKey: `sending-sample-${sample.id}`
     });
@@ -37,21 +39,18 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
     });
   const { data: analysis } = apiClient.useGetSampleAnalysisQuery(sample.id);
 
-  const setAnalysisToReview = () => {
-    updateSample({ ...sample, status: 'InReview' });
-  };
-
-  const dateFormat = new Intl.DateTimeFormat('fr-FR', {
-    dateStyle: 'long'
-  });
-  const [receivedAt] = useState(
-    sample.receivedAt ? dateFormat.format(sample.receivedAt) : undefined
+  const readonly = useMemo(
+    () =>
+      !hasUserPermission('createAnalysis') || sample.region !== user?.region,
+    [hasUserPermission, sample, user?.region]
   );
 
-  const [continueToAnalysis, setContinueToAnalysis] = useState(false);
+  const isEditing: boolean =
+    !readonly &&
+    (location.pathname.endsWith('/edit') || analysis?.status !== 'Completed');
 
   return (
-    <div>
+    <div className={'analysis-container'}>
       {isSendingSuccess && sample.status !== 'InReview' && (
         <Alert
           severity="info"
@@ -83,113 +82,49 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
           className={cx('fr-mb-4w')}
         />
       )}
-      <div className="section-header">
-        <div style={{ flex: 1 }}>
-          <h3>
-            <div className="sample-status">
-              <div>Suivi du prélèvement</div>
-              <div>
-                {sample.status === 'Completed' &&
-                  hasUserPermission('restoreSampleToReview') && (
-                    <Button
-                      iconId="fr-icon-arrow-go-back-fill"
-                      iconPosition="left"
-                      priority="secondary"
-                      className="fr-mr-1w"
-                      onClick={setAnalysisToReview}
-                    >
-                      {SampleStatusLabels['InReview']}
-                    </Button>
-                  )}
-                <SampleStatusBadge
-                  status={sample.status}
-                  sampleId={sample.id}
-                />
-              </div>
-            </div>
-            {!['Completed', 'NotAdmissible'].includes(sample.status) && (
-              <>
-                {sample.status !== 'InReview' ? (
-                  <div
-                    className={cx(
-                      'fr-text--lg',
-                      'fr-text--regular',
-                      'fr-mb-1w'
-                    )}
-                  >
-                    Renseignez ci-dessous le suivi d’analyse par le laboratoire
-                  </div>
-                ) : (
-                  <div className={clsx(cx('fr-mb-1w'), 'd-flex-align-center')}>
-                    <span
-                      className={cx(
-                        'fr-icon-success-fill',
-                        'fr-label--success',
-                        'fr-mr-1w'
-                      )}
-                    />
-                    <span
-                      className={cx(
-                        'fr-text--lg',
-                        'fr-text--regular',
-                        'fr-mb-0'
-                      )}
-                    >
-                      Échantillon recevable et reçu par le laboratoire le{' '}
-                      {receivedAt}
-                    </span>
-                  </div>
-                )}
-              </>
-            )}
-          </h3>
+
+      <div>
+        <div className="sample-status">
+          <h3 className={cx('fr-m-0')}>Suivi des résultats</h3>
+          <SampleStatusBadge status={sample.status} sampleId={sample.id} />
         </div>
+        {['Analysis', 'InReview', 'Completed', 'NotAdmissible'].includes(
+          sample.status
+        ) && <SampleAdmissibility sample={sample} readonly={readonly} />}
       </div>
-      {sample.status !== 'InReview' ? (
-        <SampleAdmissibility sample={sample} />
-      ) : null}
-      {sample.status === 'Analysis' && !analysis && !continueToAnalysis ? (
-        <Button
-          iconId="fr-icon-arrow-down-line"
-          iconPosition="right"
-          className="fr-m-0"
-          onClick={() => setContinueToAnalysis(true)}
-        >
-          Saisir le résultat
-        </Button>
-      ) : (
-        <>
-          {['Analysis', 'InReview', 'Completed'].includes(sample.status) && (
-            <div
-              className={clsx(
-                cx(
-                  'fr-callout',
-                  ['Completed', 'InReview'].includes(sample.status)
-                    ? 'fr-callout--green-emeraude'
-                    : 'fr-callout--pink-tuile'
-                ),
-                'sample-callout',
-                'analysis-container',
-                'fr-mt-5w'
-              )}
-            >
-              {sample.status === 'InReview' && analysis !== undefined ? (
-                <SampleAnalysisReview
-                  sample={sample}
-                  partialAnalysis={analysis}
-                  onReviewDone={() => navigateToSample(sample.id)}
-                />
-              ) : (
-                <SampleDraftAnalysis sample={sample} />
-              )}
-              {sample.status === 'Completed' && (
-                <SampleAnalysisOverview sample={sample} />
-              )}
-            </div>
-          )}
-          {sample.status === 'InReview' && <UserFeedback />}
-        </>
+
+      {isEditing && sample.status === 'Sent' && (
+        <SampleAdmissibilityForm sample={sample} withSubmitButton={true} />
       )}
+
+      {sample.status !== 'NotAdmissible' && (
+        <AnalysisDocumentPreview
+          partialAnalysis={analysis}
+          sampleId={sample.id}
+          readonly={!isEditing}
+        />
+      )}
+
+      {['Analysis', 'InReview', 'Completed'].includes(sample.status) &&
+        analysis && (
+          <>
+            {!isEditing ? (
+              <SampleAnalysisOverview
+                sample={sample}
+                analysis={analysis}
+                readonly={readonly}
+                onEdit={() => navigateToSampleEdit(sample.id)}
+              />
+            ) : (
+              <SampleAnalysisForm
+                partialAnalysis={analysis}
+                sample={sample}
+                onDone={() => navigateToSample(sample.id)}
+              />
+            )}
+          </>
+        )}
+      {sample.status === 'InReview' && <UserFeedback />}
     </div>
   );
 };

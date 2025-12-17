@@ -2,7 +2,7 @@ import { constants } from 'http2';
 import { isEqual } from 'lodash-es';
 import AnalysisMissingError from 'maestro-shared/errors/analysisMissingError';
 import SampleMissingError from 'maestro-shared/errors/sampleMissingError';
-import { CreatedAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
+import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { v4 as uuidv4 } from 'uuid';
 import { analysisErrorsRepository } from '../repositories/analysisErrorsRepository';
@@ -34,11 +34,13 @@ export const analysisRouter = {
 
       console.info('Create analysis for sampleId', sample.id, analysisToCreate);
 
-      const analysis: CreatedAnalysis = {
+      const analysis: PartialAnalysis = {
         id: uuidv4(),
         createdAt: new Date(),
         createdBy: user.id,
         status: 'Residues',
+        compliance: null,
+        notesOnCompliance: null,
         ...analysisToCreate
       };
       await analysisRepository.insert(analysis);

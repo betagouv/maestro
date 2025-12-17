@@ -97,6 +97,9 @@ export const useAuthentication = () => {
           hasUserPermission('updateSample') || hasUserPermission('readSamples')
             ? 'SampleRoute'
             : undefined,
+          hasUserPermission('updateSample')
+            ? 'SampleAnalysisEditRoute'
+            : undefined,
           hasUserPermission('administrationMaestro') ? 'UsersRoute' : undefined,
           hasUserPermission('administrationMaestro') ? 'AdminRoute' : undefined
         ].filter(isDefined)

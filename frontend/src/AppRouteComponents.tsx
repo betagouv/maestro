@@ -22,6 +22,7 @@ export const AppRouteComponents = {
   SamplesByYearRoute: () => <YearRoute element={SampleListView} />,
   NewSampleRoute: () => <YearRoute element={SampleView} />,
   SampleRoute: SampleView,
+  SampleAnalysisEditRoute: SampleView,
   DocumentsRoute: DocumentListView,
   DocumentRoute: DocumentView,
   NewDocumentRoute: DocumentView,

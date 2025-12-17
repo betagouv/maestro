@@ -14,16 +14,17 @@ import ResidueResultAlert from 'src/components/ResidueResultAlert/ResidueResultA
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
-import { Props as AnalysisResidueForm } from './AnalysisResidueForm';
+import { UseForm } from '../../../../hooks/useForm';
+import { ResiduesLmrValidator } from './SampleAnalysisForm';
 
 interface Props {
-  form: AnalysisResidueForm['form'];
+  form: UseForm<ResiduesLmrValidator>;
   residue: PartialResidue;
   residueIndex: number;
   changeResidue: (residue: PartialResidue, residueIndex: number) => void;
 }
 
-function SimpleResidueForm({
+function ResidueSimpleForm({
   form,
   residue,
   residueIndex,
@@ -123,4 +124,4 @@ function SimpleResidueForm({
   );
 }
 
-export default SimpleResidueForm;
+export default ResidueSimpleForm;

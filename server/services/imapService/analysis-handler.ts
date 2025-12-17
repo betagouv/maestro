@@ -167,7 +167,7 @@ export const analysisHandler = async (
         emailReceivedAt: emailReceivedAt,
 
         // Pour le moment on passe par une validation manuelle pour déterminer la conformité
-        // compliance: true,
+        compliance: null,
         notesOnCompliance: analyse.notes
       };
 

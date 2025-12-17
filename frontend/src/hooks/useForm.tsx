@@ -72,9 +72,9 @@ export function useForm<
   ) => {
     try {
       const validInput: z.infer<T> = await schema.parseAsync(input);
-      await onValid?.(validInput);
       setIsTouched(true);
       setError(undefined);
+      await onValid?.(validInput);
     } catch (error) {
       console.error(error, (error as z.ZodError).issues);
       setIsTouched(true);

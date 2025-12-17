@@ -1,0 +1,25 @@
+.residue-detail-container {
+
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  .result-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem
+  }
+
+  .result-detail-bloc {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .result-with-comment {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
