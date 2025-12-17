@@ -1,4 +1,3 @@
-import Alert from '@codegouvfr/react-dsfr/Alert';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import {
@@ -27,6 +26,7 @@ import {
 import { Nullable } from 'maestro-shared/utils/typescript';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
+import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import { AppMultiSelect } from '../../../components/_app/AppMultiSelect/AppMultiSelect';
 import AppSelect from '../../../components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from '../../../components/_app/AppSelect/AppSelectOption';
@@ -77,10 +77,8 @@ export const UserModal = ({
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
-  const [createUser] = apiClient.useCreateUserMutation();
-  const [updateUser] = apiClient.useUpdateUserMutation();
-
-  const [apiError, setApiError] = useState<null | string>(null);
+  const [createUser, createUserResult] = apiClient.useCreateUserMutation();
+  const [updateUser, updateUserResult] = apiClient.useUpdateUserMutation();
 
   const [user, setUser] = useState<Nullable<UserToCreate>>(userDefaultValue);
 
@@ -109,7 +107,8 @@ export const UserModal = ({
   useIsModalOpen(modal, {
     onConceal: () => {
       form.reset();
-      setApiError(null);
+      createUserResult.reset();
+      updateUserResult.reset();
       setTimeout(() => {
         setUser(userDefaultValue);
       }, 2);
@@ -117,7 +116,6 @@ export const UserModal = ({
   });
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
-    setApiError(null);
     await form.validate(async (n) => {
       try {
         if (userToUpdate?.id) {
@@ -131,8 +129,8 @@ export const UserModal = ({
         }
         e.preventDefault();
         modal.close();
-      } catch (e: any) {
-        setApiError(e.data);
+      } catch (_e: any) {
+        /* empty */
       }
     });
   };
@@ -263,9 +261,8 @@ export const UserModal = ({
           />
         )}
 
-        {!!apiError && (
-          <Alert severity={'error'} small description={apiError} />
-        )}
+        <AppServiceErrorAlert call={createUserResult} />
+        <AppServiceErrorAlert call={updateUserResult} />
       </form>
     </modal.Component>
   );

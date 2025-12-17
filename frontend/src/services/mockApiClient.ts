@@ -105,7 +105,7 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
           };
         },
         // @ts-expect-error TS7053
-        mockApi[key][1]
+        { ...mockApi[key][1], reset: fn }
       ];
     }
     return acc;
