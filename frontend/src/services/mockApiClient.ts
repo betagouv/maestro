@@ -96,7 +96,15 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
     ) {
       // @ts-expect-error TS7053
       acc[key] = () => [
-        () => ({ ...mockApi[key][0], unwrap: () => mockApi[key][0] }),
+        (arg?: any) => {
+          // @ts-expect-error TS7053
+          const fn = mockApi[key][0];
+          const result = typeof fn === 'function' ? fn(arg) : fn;
+          return {
+            unwrap: async () => result
+          };
+        },
+        // @ts-expect-error TS7053
         mockApi[key][1]
       ];
     }
