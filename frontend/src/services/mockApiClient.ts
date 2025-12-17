@@ -95,7 +95,10 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
       key.startsWith('useMascarade')
     ) {
       // @ts-expect-error TS7053
-      acc[key] = () => mockApi[key];
+      acc[key] = () => [
+        () => ({ ...mockApi[key][0], unwrap: () => mockApi[key][0] }),
+        mockApi[key][1]
+      ];
     }
     return acc;
   }, {} as ApiClient);
@@ -110,7 +113,7 @@ const defaultMockApiClientConf: MockApi = {
   useCreateAnalysisMutation: [async () => fn(), {}],
   useCreateAnalysisReportDocumentMutation: [async () => fn(), {}],
   useCreateDocumentMutation: [async () => fn(), {}],
-  useCreateOrUpdateSampleMutation: [async () => fn(), { isLoading: false }],
+  useCreateOrUpdateSampleMutation: [fn(), { isLoading: false }],
   useCreateProgrammingPlanMutation: [async () => fn(), {}],
   useDeleteAnalysisReportDocumentMutation: [async () => fn(), {}],
   useDeleteDocumentMutation: [async () => fn(), {}],
