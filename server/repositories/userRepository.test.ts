@@ -8,7 +8,7 @@ test("impossible d'avoir 2 utilisateurs avec le même email", async () => {
   const email = 'email@email.fr';
 
   await userRepository.insert(genUser({ email }));
-  await userRepository.insert(genUser({ email: 'anotheremail@email.fr' }));
+  await userRepository.insert(genUser({ email: 'ANOTHEREMAIL@email.fr' }));
 
   await expect(async () =>
     userRepository.insert(genUser({ email }))

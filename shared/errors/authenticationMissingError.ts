@@ -5,10 +5,10 @@ export default class AuthenticationMissingError
   extends HttpError
   implements HttpError
 {
-  constructor() {
+  constructor(auth: unknown) {
     super({
       name: 'AuthenticationMissingError',
-      message: `Authentication missing`,
+      message: `Authentication missing ${auth}`,
       status: constants.HTTP_STATUS_UNAUTHORIZED
     });
   }

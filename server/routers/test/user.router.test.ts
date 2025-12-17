@@ -148,6 +148,14 @@ describe('User router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
+    test('should fail if the email is known', async () => {
+      await request(app)
+        .post(testRoute())
+        .send(genUser({ email: AdminFixture.email }))
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+    });
+
     test('should create an user', async () => {
       await request(app)
         .post(testRoute())

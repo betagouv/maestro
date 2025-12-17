@@ -1,6 +1,9 @@
 import { errors as compose, ErrorHandler, Next } from 'compose-middleware';
 import { Request, Response } from 'express';
 import { constants } from 'http2';
+import { COOKIE_MAESTRO_ACCESS_TOKEN } from 'maestro-shared/constants';
+import AuthenticationFailedError from 'maestro-shared/errors/authenticationFailedError';
+import AuthenticationMissingError from 'maestro-shared/errors/authenticationMissingError';
 import { isClientError, isHttpError } from 'maestro-shared/errors/httpError';
 
 function log(
@@ -22,6 +25,13 @@ function respond(
   response: Response,
   next: Next
 ): void {
+  if (
+    error instanceof AuthenticationMissingError ||
+    error instanceof AuthenticationFailedError
+  ) {
+    response.clearCookie(COOKIE_MAESTRO_ACCESS_TOKEN);
+  }
+
   if (response.headersSent) {
     next(error);
     return;
@@ -32,7 +42,7 @@ function respond(
 
   response.status(status ?? constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
     name: error.name,
-    message: isHttpError(error) ? error.message : 'Internal Server Error'
+    message: error.message ?? 'Internal Server Error'
   });
 }
 

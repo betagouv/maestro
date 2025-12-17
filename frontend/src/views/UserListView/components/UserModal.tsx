@@ -26,6 +26,7 @@ import {
 import { Nullable } from 'maestro-shared/utils/typescript';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
+import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import { AppMultiSelect } from '../../../components/_app/AppMultiSelect/AppMultiSelect';
 import AppSelect from '../../../components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from '../../../components/_app/AppSelect/AppSelectOption';
@@ -76,8 +77,8 @@ export const UserModal = ({
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
-  const [createUser] = apiClient.useCreateUserMutation();
-  const [updateUser] = apiClient.useUpdateUserMutation();
+  const [createUser, createUserResult] = apiClient.useCreateUserMutation();
+  const [updateUser, updateUserResult] = apiClient.useUpdateUserMutation();
 
   const [user, setUser] = useState<Nullable<UserToCreate>>(userDefaultValue);
 
@@ -106,6 +107,8 @@ export const UserModal = ({
   useIsModalOpen(modal, {
     onConceal: () => {
       form.reset();
+      createUserResult.reset();
+      updateUserResult.reset();
       setTimeout(() => {
         setUser(userDefaultValue);
       }, 2);
@@ -114,17 +117,21 @@ export const UserModal = ({
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     await form.validate(async (n) => {
-      if (userToUpdate?.id) {
-        await updateUser({ ...n, id: userToUpdate.id });
-        setAlertMessage(
-          `L'utilisateur ${userToUpdate.name} a bien été modifié.`
-        );
-      } else {
-        await createUser(n);
-        setAlertMessage(`L'utilisateur ${n.email} a bien été créé.`);
+      try {
+        if (userToUpdate?.id) {
+          await updateUser({ ...n, id: userToUpdate.id }).unwrap();
+          setAlertMessage(
+            `L'utilisateur ${userToUpdate.name} a bien été modifié.`
+          );
+        } else {
+          await createUser(n).unwrap();
+          setAlertMessage(`L'utilisateur ${n.email} a bien été créé.`);
+        }
+        e.preventDefault();
+        modal.close();
+      } catch (_e: any) {
+        /* empty */
       }
-      e.preventDefault();
-      modal.close();
     });
   };
 
@@ -253,6 +260,9 @@ export const UserModal = ({
             required
           />
         )}
+
+        <AppServiceErrorAlert call={createUserResult} />
+        <AppServiceErrorAlert call={updateUserResult} />
       </form>
     </modal.Component>
   );

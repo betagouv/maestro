@@ -162,7 +162,7 @@ export const generateRoutes = <
 
           if ('permissions' in conf) {
             if (!request.user) {
-              throw new AuthenticationMissingError();
+              throw new AuthenticationMissingError(request.user);
             }
             if (conf.permissions !== 'NONE') {
               if (
@@ -196,7 +196,7 @@ export const generateRoutes = <
           );
 
           if ('status' in result && !('response' in result)) {
-            response.sendStatus(result.status);
+            response.status(result.status).send(undefined);
           } else {
             const strippedResult = conf.response?.parse(result.response);
             response.status(result.status).send(strippedResult);

@@ -38,11 +38,11 @@ const findUnique = async (
 };
 
 const findOne = async (email: string): Promise<User | undefined> => {
-  console.log('Find user with email', email);
+  console.log('Find user with email', email.toLowerCase());
   return kysely
     .selectFrom('users')
     .selectAll()
-    .where('email', '=', email)
+    .where('email', '=', email.toLowerCase())
     .select((eb) => [companies(eb.ref('users.id'), eb).as('companies')])
     .executeTakeFirst();
 };
@@ -120,11 +120,12 @@ const insert = async (
   user: Omit<User, 'id' | 'loggedSecrets' | 'name'>
 ): Promise<void> => {
   const { companies, ...rest } = user;
+  const newUser = { ...rest, email: rest.email.toLowerCase() };
 
   await executeTransaction(async (trx) => {
     const result = await trx
       .insertInto('users')
-      .values(rest)
+      .values(newUser)
       .returning('id')
       .executeTakeFirst();
 
@@ -156,7 +157,11 @@ const update = async (
       }
     }
     if (Object.keys(rest).length) {
-      await trx.updateTable('users').set(rest).where('id', '=', id).execute();
+      await trx
+        .updateTable('users')
+        .set({ ...rest, email: rest.email?.toLowerCase() })
+        .where('id', '=', id)
+        .execute();
     }
   });
 };
