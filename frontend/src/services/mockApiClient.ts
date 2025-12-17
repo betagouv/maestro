@@ -112,21 +112,21 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
   }, {} as ApiClient);
 };
 const defaultMockApiClientConf: MockApi = {
-  useAddPrescriptionMutation: [async () => fn(), {}],
-  useAuthenticateMutation: [async () => fn(), {}],
-  useCommentLocalPrescriptionMutation: [async () => fn(), {}],
+  useAddPrescriptionMutation: [fn(), {}],
+  useAuthenticateMutation: [fn(), {}],
+  useCommentLocalPrescriptionMutation: [fn(), {}],
   useCountSamplesQuery: {
     data: 0
   },
-  useCreateAnalysisMutation: [async () => fn(), {}],
-  useCreateAnalysisReportDocumentMutation: [async () => fn(), {}],
-  useCreateDocumentMutation: [async () => fn(), {}],
+  useCreateAnalysisMutation: [fn(), {}],
+  useCreateAnalysisReportDocumentMutation: [fn(), {}],
+  useCreateDocumentMutation: [fn(), {}],
   useCreateOrUpdateSampleMutation: [fn(), { isLoading: false }],
-  useCreateProgrammingPlanMutation: [async () => fn(), {}],
-  useDeleteAnalysisReportDocumentMutation: [async () => fn(), {}],
-  useDeleteDocumentMutation: [async () => fn(), {}],
-  useDeletePrescriptionMutation: [async () => fn(), {}],
-  useDeleteSampleMutation: [async () => fn(), {}],
+  useCreateProgrammingPlanMutation: [fn(), {}],
+  useDeleteAnalysisReportDocumentMutation: [fn(), {}],
+  useDeleteDocumentMutation: [fn(), {}],
+  useDeletePrescriptionMutation: [fn(), {}],
+  useDeleteSampleMutation: [fn(), {}],
   useFindCompaniesQuery: {
     data: [SlaughterhouseCompanyFixture1, SlaughterhouseCompanyFixture2]
   },
@@ -202,28 +202,28 @@ const defaultMockApiClientConf: MockApi = {
   useLazyGetUserQuery: [genUser({}), {}],
   useLazySearchAddressesQuery: [[], {}],
   useLazySearchCompaniesQuery: [[], {}],
-  useLogoutMutation: [async () => fn(), {}],
-  useUpdateAnalysisMutation: [async () => fn(), {}],
-  useUpdateDocumentMutation: [async () => fn(), {}],
-  useUpdateNotificationMutation: [async () => fn(), {}],
-  useUpdateNotificationsMutation: [async () => fn(), {}],
-  useUpdatePrescriptionMutation: [async () => fn(), {}],
-  useUpdateProgrammingPlanLocalStatusMutation: [async () => fn(), {}],
-  useUpdateProgrammingPlanStatusMutation: [async () => fn(), {}],
-  useUpdateLocalPrescriptionMutation: [async () => fn(), {}],
-  useUpdateSampleMutation: [async () => fn(), {}],
+  useLogoutMutation: [fn(), {}],
+  useUpdateAnalysisMutation: [fn(), {}],
+  useUpdateDocumentMutation: [fn(), {}],
+  useUpdateNotificationMutation: [fn(), {}],
+  useUpdateNotificationsMutation: [fn(), {}],
+  useUpdatePrescriptionMutation: [fn(), {}],
+  useUpdateProgrammingPlanLocalStatusMutation: [fn(), {}],
+  useUpdateProgrammingPlanStatusMutation: [fn(), {}],
+  useUpdateLocalPrescriptionMutation: [fn(), {}],
+  useUpdateSampleMutation: [fn(), {}],
   useGetRootNoticeQuery: {
     data: { type: 'root', title: 'titre', description: 'description' }
   },
-  useUpdateRootNoticeMutation: [async () => fn(), {}],
+  useUpdateRootNoticeMutation: [fn(), {}],
   useGetDashboardNoticeQuery: {
     data: { type: 'dashboard', title: 'titre', description: 'description' }
   },
-  useUpdateDashboardNoticeMutation: [async () => fn(), {}],
-  useMascaradeStartMutation: [async () => fn(), {}],
-  useMascaradeStopMutation: [async () => fn(), {}],
-  useCreateUserMutation: [async () => fn(), {}],
-  useUpdateUserMutation: [async () => fn(), {}]
+  useUpdateDashboardNoticeMutation: [fn(), {}],
+  useMascaradeStartMutation: [fn(), {}],
+  useMascaradeStopMutation: [fn(), {}],
+  useCreateUserMutation: [fn(), {}],
+  useUpdateUserMutation: [fn(), {}]
 };
 
 export const mockApiClient = getMockApi({});
