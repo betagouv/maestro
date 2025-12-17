@@ -65,7 +65,10 @@ function ResidueSimpleForm({
                 value={residue.result ?? ''}
                 onChange={(e) =>
                   changeResidue(
-                    { ...residue, result: Number(e.target.value) },
+                    {
+                      ...residue,
+                      result: e.target.value ? Number(e.target.value) : null
+                    },
                     residueIndex
                   )
                 }
