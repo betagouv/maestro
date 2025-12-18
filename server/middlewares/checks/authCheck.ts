@@ -56,10 +56,6 @@ export const userCheck = (credentialsRequired: boolean) =>
         throw new UserMissingError(request.auth.userId);
       }
 
-      if (request.userRole && !user.roles.includes(request.userRole)) {
-        throw new UserRoleMissingError();
-      }
-
       if (!user.loggedSecrets.includes(request.auth.loggedSecret)) {
         throw new AuthenticationFailedError();
       }
@@ -68,7 +64,12 @@ export const userCheck = (credentialsRequired: boolean) =>
         throw new AuthenticationFailedError();
       }
 
-      request.user = await getUser(request.cookies, user);
+      const requestUser = await getUser(request.cookies, user);
+      if (request.userRole && !requestUser.roles.includes(request.userRole)) {
+        throw new UserRoleMissingError();
+      }
+
+      request.user = requestUser;
     } else {
       if (request.auth && request.auth.userId) {
         const user = await userRepository.findUnique(request.auth.userId);
