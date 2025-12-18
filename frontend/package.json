@@ -34,7 +34,7 @@
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@mui/material": "^5.15.20",
-    "@reduxjs/toolkit": "^2.4.0",
+    "@reduxjs/toolkit": "^2.11.1",
     "@storybook/addon-vitest": "^10.1.10",
     "@storybook/react-vite": "^10.1.10",
     "@types/node": "^20.11.30",
