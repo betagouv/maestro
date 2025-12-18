@@ -1,3 +1,4 @@
+import { sql } from 'kysely';
 import { isNil, omitBy } from 'lodash-es';
 import { Regions } from 'maestro-shared/referential/Region';
 import { Company } from 'maestro-shared/schema/Company/Company';
@@ -66,7 +67,11 @@ const findMany = async (
         break;
       case 'kinds':
         if (!isNil(findOptions.kinds) && findOptions.kinds.length > 0) {
-          query = query.where('kinds', '@>', [findOptions.kinds]);
+          query = query.where(
+            sql<boolean>`
+              kinds && ${findOptions.kinds}::text[]
+            `
+          );
         }
         break;
       default:
