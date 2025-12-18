@@ -24,7 +24,16 @@ const ResidueResultAlert = ({ result, lmr }: Props) => {
           <Alert
             severity="error"
             small
-            description="Résultat brut supérieur à la LMR"
+            title={'Résultat brut supérieur à la LMR.'}
+            description={
+              <>
+                Merci de contacter la référente nationale résidus de pesticides
+                pour pouvoir finaliser l'interprétation :{' '}
+                <a href="mailto:florence.gerault@agriculture.gouv.fr">
+                  florence.gerault@agriculture.gouv.fr
+                </a>
+              </>
+            }
           />
           {result * 0.5 >= lmr && (
             <Alert

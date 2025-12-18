@@ -62,7 +62,7 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
             inputKey="residues"
             inputPathFromKey={[residueIndex, 'resultHigherThanArfd']}
             whenValid="Valeur correctement renseignée"
-            label="Résultat brut supérieur à l'Arfd ?"
+            label="Résultat brut entrainant un dépassement de l'Arfd ?"
           />
           <AppTextInput
             className={cx('fr-mb-0')}
