@@ -20,12 +20,12 @@ export const prescriptionsRouter = {
 
       return { status: constants.HTTP_STATUS_OK, response: prescriptions };
     },
-    post: async ({ user, body }) => {
+    post: async ({ userRole, body }) => {
       const programmingPlan = await getAndCheckProgrammingPlan(
         body.programmingPlanId
       );
 
-      if (!hasPrescriptionPermission(user, programmingPlan).create) {
+      if (!hasPrescriptionPermission(userRole, programmingPlan).create) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
@@ -118,12 +118,12 @@ export const prescriptionsRouter = {
     }
   },
   '/prescriptions/:prescriptionId': {
-    put: async ({ user, body: prescriptionUpdate }, { prescriptionId }) => {
+    put: async ({ userRole, body: prescriptionUpdate }, { prescriptionId }) => {
       const programmingPlan = await getAndCheckProgrammingPlan(
         prescriptionUpdate.programmingPlanId
       );
 
-      if (!hasPrescriptionPermission(user, programmingPlan).update) {
+      if (!hasPrescriptionPermission(userRole, programmingPlan).update) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
@@ -160,7 +160,7 @@ export const prescriptionsRouter = {
         response: updatedPrescription
       };
     },
-    delete: async ({ user }, { prescriptionId }) => {
+    delete: async ({ userRole }, { prescriptionId }) => {
       console.info('Delete prescription with id', prescriptionId);
 
       const { prescription, programmingPlan } = await getAndCheckPrescription(
@@ -168,7 +168,7 @@ export const prescriptionsRouter = {
         undefined
       );
 
-      if (!hasPrescriptionPermission(user, programmingPlan).delete) {
+      if (!hasPrescriptionPermission(userRole, programmingPlan).delete) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 

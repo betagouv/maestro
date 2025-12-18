@@ -14,8 +14,8 @@ import { hasPermission } from 'maestro-shared/schema/User/User';
 import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
 import {
   canHaveDepartment,
-  hasNationalRole,
-  hasRegionalRole,
+  isNationalRole,
+  isRegionalRole,
   UserRole
 } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
@@ -29,23 +29,23 @@ export const useAuthentication = () => {
 
   const hasUserPermission = useCallback(
     (permission: UserPermission) =>
-      isDefined(authUser?.user) && hasPermission(authUser.user, permission),
+      isDefined(authUser?.user) && hasPermission(authUser.userRole, permission),
     [authUser]
   );
 
   const hasRole = useCallback(
     (role: UserRole) => {
-      return isAuthenticated && authUser?.user?.role === role;
+      return isAuthenticated && authUser?.userRole === role;
     },
     [authUser, isAuthenticated]
   );
 
   const hasNationalView = useMemo(() => {
-    return isAuthenticated && authUser && hasNationalRole(authUser.user);
+    return isAuthenticated && authUser && isNationalRole(authUser.userRole);
   }, [authUser, isAuthenticated]);
 
   const hasRegionalView = useMemo(() => {
-    return isAuthenticated && authUser && hasRegionalRole(authUser.user);
+    return isAuthenticated && authUser && isRegionalRole(authUser.userRole);
   }, [authUser, isAuthenticated]);
 
   const hasDepartmentalView = useMemo(() => {
@@ -57,7 +57,7 @@ export const useAuthentication = () => {
       programmingPlan?: ProgrammingPlan
     ): Record<PrescriptionPermission, boolean> | null =>
       !isNil(authUser?.user) && !isNil(programmingPlan)
-        ? hasPrescriptionPermission(authUser?.user, programmingPlan)
+        ? hasPrescriptionPermission(authUser?.userRole, programmingPlan)
         : null,
     [authUser]
   );
@@ -72,6 +72,7 @@ export const useAuthentication = () => {
       !isNil(programmingPlan)
         ? hasLocalPrescriptionPermission(
             authUser.user,
+            authUser.userRole,
             programmingPlan,
             localPrescription
           )
@@ -108,6 +109,7 @@ export const useAuthentication = () => {
 
   return {
     user: authUser?.user,
+    userRole: authUser?.userRole,
     isAuthenticated,
     hasUserPermission,
     hasUserPrescriptionPermission,

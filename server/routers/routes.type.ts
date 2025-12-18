@@ -13,7 +13,8 @@ import {
   UnprotectedRoutes
 } from 'maestro-shared/routes/routes';
 import { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
-import { hasPermission, User } from 'maestro-shared/schema/User/User';
+import { hasPermission, UserBase } from 'maestro-shared/schema/User/User';
+import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import z, { ZodObject, ZodRawShape, ZodType } from 'zod';
 import { validateRequest } from '../middlewares/validator';
 
@@ -49,7 +50,8 @@ type MaestroRouteMethod<
     cookies: Record<string, string> | undefined;
   } & (IsProtected extends true
     ? {
-        user: User;
+        user: UserBase;
+        userRole: UserRole;
         auth: TokenPayload;
       }
     : Record<never, never>),
@@ -167,7 +169,7 @@ export const generateRoutes = <
             if (conf.permissions !== 'NONE') {
               if (
                 !hasPermission(
-                  request.user as unknown as User,
+                  request.userRole as unknown as UserRole,
                   ...conf.permissions
                 )
               ) {
@@ -189,6 +191,7 @@ export const generateRoutes = <
               ...validatedRequest,
               user: request.user,
               auth: request.auth,
+              userRole: request.userRole,
               cookies: request.cookies
             },
             validatedRequest.params,

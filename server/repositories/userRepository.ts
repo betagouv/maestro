@@ -86,7 +86,11 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
         break;
       case 'roles':
         if (!isNil(findOptions.roles) && findOptions.roles.length > 0) {
-          query = query.where('role', 'in', findOptions.roles);
+          query = query.where(
+            sql<boolean>`
+              roles && ${findOptions.roles}::text[]
+            `
+          );
         }
         break;
       case 'programmingPlanKinds':

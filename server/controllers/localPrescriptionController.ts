@@ -6,8 +6,8 @@ import { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescriptio
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import {
-  hasNationalRole,
-  hasRegionalRole
+  isNationalRole,
+  isRegionalRole
 } from 'maestro-shared/schema/User/UserRole';
 import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckLocalPrescription } from '../middlewares/checks/localPrescriptionCheck';
@@ -22,12 +22,12 @@ import { notificationService } from '../services/notificationService';
 
 export const localPrescriptionsRouter = {
   '/prescriptions/regions': {
-    get: async ({ query: queryFindOptions, user }) => {
-      const region = hasNationalRole(user)
+    get: async ({ userRole, query: queryFindOptions, user }) => {
+      const region = isNationalRole(userRole)
         ? queryFindOptions.region
         : user.region;
 
-      const department = hasRegionalRole(user)
+      const department = isRegionalRole(userRole)
         ? queryFindOptions.department
         : user.department;
 
@@ -79,7 +79,7 @@ export const localPrescriptionsRouter = {
     }
   },
   '/prescriptions/:prescriptionId/regions/:region': {
-    put: async ({ user, body: localPrescriptionUpdate }, params) => {
+    put: async ({ user, userRole, body: localPrescriptionUpdate }, params) => {
       console.info(
         'Update local prescription',
         params.prescriptionId,
@@ -93,12 +93,20 @@ export const localPrescriptionsRouter = {
       const localPrescription = await getAndCheckLocalPrescription(params);
 
       const canUpdateSampleCount =
-        hasLocalPrescriptionPermission(user, programmingPlan, localPrescription)
-          .updateSampleCount && localPrescriptionUpdate.key === 'sampleCount';
+        hasLocalPrescriptionPermission(
+          user,
+          userRole,
+          programmingPlan,
+          localPrescription
+        ).updateSampleCount && localPrescriptionUpdate.key === 'sampleCount';
 
       const canUpdateLaboratories =
-        hasLocalPrescriptionPermission(user, programmingPlan, localPrescription)
-          .updateLaboratories && localPrescriptionUpdate.key === 'laboratories';
+        hasLocalPrescriptionPermission(
+          user,
+          userRole,
+          programmingPlan,
+          localPrescription
+        ).updateLaboratories && localPrescriptionUpdate.key === 'laboratories';
 
       if (!canUpdateSampleCount && !canUpdateLaboratories) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
@@ -128,7 +136,7 @@ export const localPrescriptionsRouter = {
     }
   },
   '/prescriptions/:prescriptionId/regions/:region/departments/:department': {
-    put: async ({ user, body: localPrescriptionUpdate }, params) => {
+    put: async ({ user, userRole, body: localPrescriptionUpdate }, params) => {
       console.info(
         'Update local prescription for department',
         params.prescriptionId,
@@ -146,17 +154,29 @@ export const localPrescriptionsRouter = {
       // TODO: check department belongs to user region?
 
       const canDistributeToDepartments =
-        hasLocalPrescriptionPermission(user, programmingPlan, localPrescription)
-          .distributeToDepartments &&
+        hasLocalPrescriptionPermission(
+          user,
+          userRole,
+          programmingPlan,
+          localPrescription
+        ).distributeToDepartments &&
         localPrescriptionUpdate.key === 'sampleCount';
 
       const canUpdateLaboratories =
-        hasLocalPrescriptionPermission(user, programmingPlan, localPrescription)
-          .updateLaboratories && localPrescriptionUpdate.key === 'laboratories';
+        hasLocalPrescriptionPermission(
+          user,
+          userRole,
+          programmingPlan,
+          localPrescription
+        ).updateLaboratories && localPrescriptionUpdate.key === 'laboratories';
 
       const canDistributePrescriptionToSlaughterhouses =
-        hasLocalPrescriptionPermission(user, programmingPlan, localPrescription)
-          .distributeToSlaughterhouses &&
+        hasLocalPrescriptionPermission(
+          user,
+          userRole,
+          programmingPlan,
+          localPrescription
+        ).distributeToSlaughterhouses &&
         localPrescriptionUpdate.key === 'slaughterhouseSampleCounts';
 
       if (
@@ -217,7 +237,10 @@ export const localPrescriptionsRouter = {
     }
   },
   '/prescriptions/:prescriptionId/regions/:region/comments': {
-    post: async ({ user, body: draftPrescriptionComment }, params) => {
+    post: async (
+      { user, userRole, body: draftPrescriptionComment },
+      params
+    ) => {
       console.info('Comment local prescription');
 
       const programmingPlan = await getAndCheckProgrammingPlan(
@@ -231,6 +254,7 @@ export const localPrescriptionsRouter = {
 
       const canComment = hasLocalPrescriptionPermission(
         user,
+        userRole,
         programmingPlan,
         localPrescription
       ).comment;
@@ -251,7 +275,7 @@ export const localPrescriptionsRouter = {
       await localPrescriptionCommentRepository.insert(prescriptionComment);
 
       const recipients = await userRepository.findMany(
-        user.role === 'NationalCoordinator'
+        userRole === 'NationalCoordinator'
           ? {
               region: localPrescription.region,
               roles: ['RegionalCoordinator']
@@ -289,7 +313,10 @@ export const localPrescriptionsRouter = {
   },
   '/prescriptions/:prescriptionId/regions/:region/departments/:department/comments':
     {
-      post: async ({ user, body: draftPrescriptionComment }, params) => {
+      post: async (
+        { user, userRole, body: draftPrescriptionComment },
+        params
+      ) => {
         console.info('Comment local prescription');
 
         const programmingPlan = await getAndCheckProgrammingPlan(
@@ -303,6 +330,7 @@ export const localPrescriptionsRouter = {
 
         const canComment = hasLocalPrescriptionPermission(
           user,
+          userRole,
           programmingPlan,
           localPrescription
         ).comment;
@@ -324,7 +352,7 @@ export const localPrescriptionsRouter = {
         await localPrescriptionCommentRepository.insert(prescriptionComment);
 
         const recipients = await userRepository.findMany(
-          user.role === 'RegionalCoordinator'
+          userRole === 'RegionalCoordinator'
             ? {
                 region: localPrescription.region,
                 department: localPrescription.department,

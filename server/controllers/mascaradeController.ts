@@ -1,12 +1,28 @@
 import { constants } from 'http2';
-import { COOKIE_MAESTRO_MASCARADE } from 'maestro-shared/constants';
+import { isNil } from 'lodash-es';
+import {
+  COOKIE_MAESTRO_MASCARADE,
+  COOKIE_MAESTRO_USER_ROLE
+} from 'maestro-shared/constants';
+import { userRepository } from '../repositories/userRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 import config from '../utils/config';
 
 export const mascaradeRouter = {
   '/mascarade': {
-    post: async (req, _param, { clearCookie }) => {
+    post: async (req, _param, { clearCookie, cookie }) => {
       clearCookie(COOKIE_MAESTRO_MASCARADE);
+      clearCookie(COOKIE_MAESTRO_USER_ROLE);
+
+      const authUser = req.auth.userId
+        ? await userRepository.findUnique(req.auth.userId)
+        : null;
+      if (!isNil(authUser)) {
+        cookie(COOKIE_MAESTRO_USER_ROLE, authUser.roles[0], {
+          httpOnly: false,
+          secure: config.environment === 'production'
+        });
+      }
 
       return {
         status: constants.HTTP_STATUS_OK,
@@ -16,10 +32,17 @@ export const mascaradeRouter = {
   },
   '/mascarade/:userId': {
     post: async (_req, { userId }, { cookie }) => {
-      cookie(COOKIE_MAESTRO_MASCARADE, userId, {
-        httpOnly: false,
-        secure: config.environment === 'production'
-      });
+      const mascaradeUser = await userRepository.findUnique(userId);
+      if (mascaradeUser !== undefined) {
+        cookie(COOKIE_MAESTRO_MASCARADE, userId, {
+          httpOnly: false,
+          secure: config.environment === 'production'
+        });
+        cookie(COOKIE_MAESTRO_USER_ROLE, mascaradeUser.roles[0], {
+          httpOnly: false,
+          secure: config.environment === 'production'
+        });
+      }
       return {
         status: constants.HTTP_STATUS_OK
       };

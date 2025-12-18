@@ -1,7 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { Regions } from 'maestro-shared/referential/Region';
-import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { useContext } from 'react';
 import { ApiClientContext } from '../../../services/apiClient';
 
@@ -19,7 +18,7 @@ const PrescriptionCommentAuthor = ({ userId }: Props) => {
 
   return (
     <div className={cx('fr-text--sm', 'fr-mb-0')}>
-      <b>{user.name}</b> - {UserRoleLabels[user.role]}{' '}
+      <b>{user.name}</b>{' '}
       {user.department
         ? DepartmentLabels[user.department]
         : user.region

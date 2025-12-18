@@ -87,7 +87,7 @@ export const NationalCoordinator: Story = {
     preloadedState: {
       auth: {
         authUser: genAuthUser({
-          role: 'NationalCoordinator'
+          userRole: 'NationalCoordinator'
         })
       }
     },
@@ -140,7 +140,7 @@ export const Administrator: Story = {
     preloadedState: {
       auth: {
         authUser: genAuthUser({
-          role: 'Administrator'
+          userRole: 'Administrator'
         })
       }
     },
@@ -193,7 +193,7 @@ export const LaboratoryUser: Story = {
     preloadedState: {
       auth: {
         authUser: genAuthUser({
-          role: 'LaboratoryUser'
+          userRole: 'LaboratoryUser'
         })
       }
     },

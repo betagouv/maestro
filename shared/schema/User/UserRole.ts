@@ -11,14 +11,11 @@ const NationalUserRole = z.enum([
   'LaboratoryUser'
 ]);
 
-const RegionalAndNationalUserRole = z.enum(['SamplerAndNationalObserver']);
-
 const RegionalUserRole = z.enum(['RegionalCoordinator', 'RegionalObserver']);
 
 export const UserRole = z.enum(
   [
     ...NationalUserRole.options,
-    ...RegionalAndNationalUserRole.options,
     ...RegionalUserRole.options,
     'DepartmentalCoordinator',
     'Sampler'
@@ -104,10 +101,6 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   ],
   NationalObserver: ObserverPermissionsList,
   RegionalObserver: ObserverPermissionsList,
-  SamplerAndNationalObserver: [
-    ...ObserverPermissionsList,
-    ...UserSamplerPermissionsList
-  ],
   Sampler: UserSamplerPermissionsList,
   DepartmentalCoordinator: [
     ...UserSamplerPermissionsList,
@@ -146,7 +139,6 @@ export const UserRoleLabels: Record<UserRole, string> = {
   NationalObserver: 'Suivi national',
   RegionalObserver: 'Suivi régional',
   DepartmentalCoordinator: 'Coordinateur départemental',
-  SamplerAndNationalObserver: 'Personne ressource',
   Sampler: 'Préleveur',
   Administrator: 'Administrateur',
   LaboratoryUser: 'Laboratoire'
@@ -156,24 +148,18 @@ export const UserRoleSorted = [...UserRoleList].sort((a, b) =>
   UserRoleLabels[a].localeCompare(UserRoleLabels[b])
 );
 
-export const hasNationalRole = (user: Nullable<Pick<User, 'role'>>) =>
-  NationalUserRole.safeParse(user.role).success ||
-  RegionalAndNationalUserRole.safeParse(user.role).success;
+export const isNationalRole = (userRole?: UserRole) =>
+  NationalUserRole.safeParse(userRole).success;
 
-export const hasRegionalRole = (
-  user: Nullable<Pick<User, 'role'>>
-): user is {
-  role:
-    | z.infer<typeof RegionalUserRole>
-    | z.infer<typeof RegionalAndNationalUserRole>;
-  region: Region;
-} =>
-  RegionalUserRole.safeParse(user.role).success ||
-  RegionalAndNationalUserRole.safeParse(user.role).success;
+export const isRegionalRole = (userRole?: UserRole) =>
+  RegionalUserRole.safeParse(userRole).success;
 
 export const canHaveDepartment = (
-  user: Nullable<Pick<User, 'role'>>
+  user: Nullable<Pick<User, 'roles'>>
 ): user is {
-  role: 'DepartmentalCoordinator' | 'Sampler';
+  roles: ('DepartmentalCoordinator' | 'Sampler')[];
   region: Region;
-} => user.role === 'DepartmentalCoordinator' || user.role === 'Sampler';
+} =>
+  user?.roles?.some(
+    (role) => role === 'DepartmentalCoordinator' || role === 'Sampler'
+  ) ?? false;

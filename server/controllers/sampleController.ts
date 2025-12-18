@@ -50,7 +50,7 @@ import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { hasPermission } from 'maestro-shared/schema/User/User';
-import { hasNationalRole } from 'maestro-shared/schema/User/UserRole';
+import { isNationalRole } from 'maestro-shared/schema/User/UserRole';
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
@@ -198,10 +198,10 @@ const generateAndStoreAnalysisRequestDocuments = async (
 
 export const sampleRouter = {
   '/samples': {
-    get: async ({ user, query }) => {
+    get: async ({ user, userRole, query }) => {
       const findOptions = {
         ...query,
-        region: hasNationalRole(user) ? query.region : user.region
+        region: isNationalRole(userRole) ? query.region : user.region
       };
 
       console.info('Find samples for user', user.id, findOptions);
@@ -210,11 +210,12 @@ export const sampleRouter = {
 
       return { status: constants.HTTP_STATUS_OK, response: samples };
     },
-    post: async ({ user, body: sampleToCreate }) => {
+    post: async ({ user, userRole, body: sampleToCreate }) => {
       console.info('Create sample', sampleToCreate);
       sampleToCreate.department = await getAndCheckSampleDepartement(
         sampleToCreate,
-        user
+        user,
+        userRole
       );
 
       if (!user.region) {
@@ -247,10 +248,10 @@ export const sampleRouter = {
     }
   },
   '/samples/count': {
-    get: async ({ user, query: queryFindOptions }) => {
+    get: async ({ user, userRole, query: queryFindOptions }) => {
       const findOptions = {
         ...queryFindOptions,
-        region: hasNationalRole(user) ? queryFindOptions.region : user.region
+        region: isNationalRole(userRole) ? queryFindOptions.region : user.region
       };
 
       console.info('Count samples for user', user.id, findOptions);
@@ -261,10 +262,14 @@ export const sampleRouter = {
     }
   },
   '/samples/export': {
-    get: async ({ user, query: queryFindOptions }, _params, { setHeader }) => {
+    get: async (
+      { user, userRole, query: queryFindOptions },
+      _params,
+      { setHeader }
+    ) => {
       const findOptions = {
         ...queryFindOptions,
-        region: hasNationalRole(user) ? queryFindOptions.region : user.region
+        region: isNationalRole(userRole) ? queryFindOptions.region : user.region
       };
 
       console.info('Export samples for user', user.id, findOptions);
@@ -291,8 +296,8 @@ export const sampleRouter = {
     }
   },
   '/samples/:sampleId/document': {
-    get: async ({ user }, { sampleId }, { setHeader }) => {
-      const sample = await getAndCheckSample(sampleId, user);
+    get: async ({ user, userRole }, { sampleId }, { setHeader }) => {
+      const sample = await getAndCheckSample(sampleId, user, userRole);
       const programmingPlan = await getAndCheckProgrammingPlan(
         sample.programmingPlanId
       );
@@ -348,11 +353,11 @@ export const sampleRouter = {
   },
   '/samples/:sampleId/items/:itemNumber/copy/:copyNumber/document': {
     get: async (
-      { user },
+      { user, userRole },
       { sampleId, itemNumber, copyNumber },
       { setHeader }
     ) => {
-      const sample = await getAndCheckSample(sampleId, user);
+      const sample = await getAndCheckSample(sampleId, user, userRole);
 
       console.info('Get sample document', sample.id);
 
@@ -375,8 +380,8 @@ export const sampleRouter = {
     }
   },
   '/samples/:sampleId': {
-    get: async ({ user }, { sampleId }) => {
-      const sample = await getAndCheckSample(sampleId, user);
+    get: async ({ user, userRole }, { sampleId }) => {
+      const sample = await getAndCheckSample(sampleId, user, userRole);
       console.info('Get sample', sample.id);
 
       const sampleItems = await sampleItemRepository.findMany(sample.id);
@@ -389,16 +394,17 @@ export const sampleRouter = {
         }
       };
     },
-    put: async ({ body: sampleUpdate, user }, { sampleId }) => {
-      const sample = await getAndCheckSample(sampleId, user);
+    put: async ({ body: sampleUpdate, user, userRole }, { sampleId }) => {
+      const sample = await getAndCheckSample(sampleId, user, userRole);
       console.info('Update sample', sample.id, sampleUpdate);
 
       sampleUpdate.department = await getAndCheckSampleDepartement(
         sampleUpdate,
-        user
+        user,
+        userRole
       );
 
-      if (!hasPermission(user, 'updateSample')) {
+      if (!hasPermission(userRole, 'updateSample')) {
         throw new UserRoleMissingError();
       } else if (sample.region !== user.region) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
@@ -681,8 +687,8 @@ export const sampleRouter = {
         response: updatedPartialSample
       };
     },
-    delete: async ({ user }, { sampleId }) => {
-      const sample = await getAndCheckSample(sampleId, user);
+    delete: async ({ user, userRole }, { sampleId }) => {
+      const sample = await getAndCheckSample(sampleId, user, userRole);
       console.info('Delete sample', sample.id);
 
       if (!DraftStatusList.includes(sample.status)) {

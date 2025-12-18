@@ -1,12 +1,12 @@
 import { constants } from 'http2';
 import { intersection } from 'lodash-es';
-import { userRegions } from 'maestro-shared/schema/User/User';
+import { userRegionsForRole } from 'maestro-shared/schema/User/User';
 import { userRepository } from '../repositories/userRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 
 export const usersRouter = {
   '/users/:userId': {
-    get: async ({ user: authUser }, { userId }) => {
+    get: async ({ user: authUser, userRole }, { userId }) => {
       console.info('Get user', userId);
 
       const user = await userRepository.findUnique(userId);
@@ -15,7 +15,12 @@ export const usersRouter = {
         return { status: constants.HTTP_STATUS_NOT_FOUND };
       }
 
-      if (intersection(userRegions(user), userRegions(authUser)).length === 0) {
+      if (
+        intersection(
+          userRegionsForRole(user, userRole),
+          userRegionsForRole(authUser, userRole)
+        ).length === 0
+      ) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 

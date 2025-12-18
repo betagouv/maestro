@@ -92,7 +92,7 @@ describe('User router', () => {
         programmingPlanKinds: Sampler1Fixture.programmingPlanKinds,
         email: Sampler1Fixture.email,
         name: Sampler1Fixture.name,
-        role: Sampler1Fixture.role,
+        roles: Sampler1Fixture.roles,
         region: Sampler1Fixture.region,
         department: Sampler1Fixture.department || null,
         companies: Sampler1Fixture.companies || null,
@@ -187,7 +187,7 @@ describe('User router', () => {
     test('the region is required for sampler', async () => {
       await request(app)
         .put(testRoute(NationalCoordinator.id))
-        .send({ ...NationalCoordinator, role: 'Sampler' })
+        .send({ ...NationalCoordinator, roles: ['Sampler'] })
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });

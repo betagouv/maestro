@@ -10,9 +10,11 @@ import config from '../../utils/config';
 
 import {
   COOKIE_MAESTRO_ACCESS_TOKEN,
-  COOKIE_MAESTRO_MASCARADE
+  COOKIE_MAESTRO_MASCARADE,
+  COOKIE_MAESTRO_USER_ROLE
 } from 'maestro-shared/constants';
 import AuthenticationFailedError from 'maestro-shared/errors/authenticationFailedError';
+import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 
 export const jwtCheck = (credentialsRequired: boolean) =>
   expressjwt({
@@ -29,7 +31,7 @@ export const getUser = async (
   cookies: Record<string, string> | undefined,
   user: User
 ): Promise<User> => {
-  if (user?.role === 'Administrator') {
+  if (user.roles.includes('Administrator')) {
     const mascaradeUserId = cookies?.[COOKIE_MAESTRO_MASCARADE];
     if (mascaradeUserId !== undefined) {
       const mascaradeUser = await userRepository.findUnique(mascaradeUserId);
@@ -62,13 +64,28 @@ export const userCheck = (credentialsRequired: boolean) =>
         throw new AuthenticationFailedError();
       }
 
-      request.user = await getUser(request.cookies, user);
+      const requestUser = await getUser(request.cookies, user);
+      if (request.userRole && !requestUser.roles.includes(request.userRole)) {
+        throw new UserRoleMissingError();
+      }
+
+      request.user = requestUser;
     } else {
       if (request.auth && request.auth.userId) {
         const user = await userRepository.findUnique(request.auth.userId);
         if (user) {
           request.user = await getUser(request.cookies, user);
         }
+      }
+    }
+    if (request.user) {
+      if (
+        request.cookies?.[COOKIE_MAESTRO_USER_ROLE] &&
+        request.user.roles.includes(request.cookies?.[COOKIE_MAESTRO_USER_ROLE])
+      ) {
+        request.userRole = request.cookies?.[COOKIE_MAESTRO_USER_ROLE];
+      } else {
+        request.userRole = request.user.roles[0];
       }
     }
     next();

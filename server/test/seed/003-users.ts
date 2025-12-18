@@ -8,7 +8,6 @@ import {
   RegionalObserver,
   Sampler1Fixture,
   Sampler2Fixture,
-  SamplerAndNationalObserver,
   SamplerDromFixture
 } from 'maestro-shared/test/userFixtures';
 import { userRepository } from '../../repositories/userRepository';
@@ -25,8 +24,7 @@ export const seed = async (): Promise<void> => {
     AdminFixture,
     RegionalObserver,
     NationalObserver,
-    SamplerAndNationalObserver,
-    genUser({ role: 'LaboratoryUser' })
+    genUser({ roles: ['LaboratoryUser'] })
   ].map((u) => ({
     ...u,
     loggedSecrets: [TEST_LOGGED_SECRET]

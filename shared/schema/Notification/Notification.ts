@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { User } from '../User/User';
+import { UserBase } from '../User/User';
 import { NotificationCategory } from './NotificationCategory';
 
 export const Notification = z.object({
@@ -9,7 +9,7 @@ export const Notification = z.object({
   read: z.boolean(),
   message: z.string(),
   link: z.string(),
-  author: User.nullish(),
+  author: UserBase.nullish(),
   category: NotificationCategory
 });
 

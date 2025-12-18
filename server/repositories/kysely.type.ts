@@ -231,7 +231,7 @@ export interface Users {
   id: Generated<string>;
   region: Region | null;
   department: Department | null;
-  role: UserRole;
+  roles: UserRole[];
   loggedSecrets: ColumnType<string[], string[] | null, string[]>;
   programmingPlanKinds: ProgrammingPlanKind[];
   disabled: boolean;

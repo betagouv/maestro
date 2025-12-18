@@ -68,7 +68,7 @@ export const DashboardViewForSampler: Story = {
     preloadedState: {
       auth: {
         authUser: genAuthUser({
-          role: 'Sampler',
+          userRole: 'Sampler',
           region: Region1Fixture,
           id: Sampler1Fixture.id
         })
@@ -113,7 +113,7 @@ export const DashboardViewForRegionalCoordinator: Story = {
     preloadedState: {
       auth: {
         authUser: genAuthUser({
-          role: 'RegionalCoordinator',
+          userRole: 'RegionalCoordinator',
           id: RegionalCoordinator.id
         })
       }
@@ -161,7 +161,7 @@ export const DashboardViewForNationalCoordinator: Story = {
     preloadedState: {
       auth: {
         authUser: genAuthUser({
-          role: 'NationalCoordinator',
+          userRole: 'NationalCoordinator',
           id: NationalCoordinator.id
         })
       }

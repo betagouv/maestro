@@ -20,7 +20,7 @@ import config from '../utils/config';
 
 export const documentsRouter = {
   '/documents': {
-    post: async ({ body: documentToCreate, user }) => {
+    post: async ({ body: documentToCreate, user, userRole }) => {
       if (!UploadDocumentKindList.includes(documentToCreate.kind)) {
         return {
           status: constants.HTTP_STATUS_FORBIDDEN
@@ -28,7 +28,7 @@ export const documentsRouter = {
       }
       if (
         ResourceDocumentKindList.includes(documentToCreate.kind) &&
-        !hasPermission(user, 'createResource')
+        !hasPermission(userRole, 'createResource')
       ) {
         return {
           status: constants.HTTP_STATUS_FORBIDDEN
@@ -36,7 +36,7 @@ export const documentsRouter = {
       }
       if (
         documentToCreate.kind === 'AnalysisReportDocument' &&
-        !hasPermission(user, 'createAnalysis')
+        !hasPermission(userRole, 'createAnalysis')
       ) {
         return {
           status: constants.HTTP_STATUS_FORBIDDEN
@@ -44,7 +44,7 @@ export const documentsRouter = {
       }
       if (
         documentToCreate.kind === 'SampleDocument' &&
-        !hasPermission(user, 'createSample')
+        !hasPermission(userRole, 'createSample')
       ) {
         return {
           status: constants.HTTP_STATUS_FORBIDDEN
@@ -101,16 +101,16 @@ export const documentsRouter = {
     }
   },
   '/documents/upload-signed-url': {
-    post: async ({ user, body }) => {
+    post: async ({ userRole, body }) => {
       if (
         ResourceDocumentKindList.includes(body.kind) &&
-        !hasPermission(user, 'createResource')
+        !hasPermission(userRole, 'createResource')
       ) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
       if (
         body.kind === 'AnalysisReportDocument' &&
-        !hasPermission(user, 'createAnalysis')
+        !hasPermission(userRole, 'createAnalysis')
       ) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
@@ -125,7 +125,7 @@ export const documentsRouter = {
     }
   },
   '/documents/:documentId': {
-    put: async ({ body: documentUpdate, user }, { documentId }) => {
+    put: async ({ body: documentUpdate, userRole }, { documentId }) => {
       const document = await documentRepository.findUnique(documentId);
 
       if (
@@ -134,9 +134,9 @@ export const documentsRouter = {
           document.kind
         ) ||
         (document.kind === 'SampleDocument' &&
-          !hasPermission(user, 'updateSample')) ||
+          !hasPermission(userRole, 'updateSample')) ||
         (ResourceDocumentKindList.includes(document.kind) &&
-          !hasPermission(user, 'createResource'))
+          !hasPermission(userRole, 'createResource'))
       ) {
         return {
           status: constants.HTTP_STATUS_FORBIDDEN
@@ -157,7 +157,7 @@ export const documentsRouter = {
         response: updatedDocument
       };
     },
-    delete: async ({ user }, { documentId }) => {
+    delete: async ({ userRole }, { documentId }) => {
       const document = await documentRepository.findUnique(documentId);
 
       if (!document?.kind || !UploadDocumentKindList.includes(document?.kind)) {
@@ -168,7 +168,7 @@ export const documentsRouter = {
 
       if (
         ResourceDocumentKindList.includes(document.kind) &&
-        !hasPermission(user, 'deleteDocument')
+        !hasPermission(userRole, 'deleteDocument')
       ) {
         return {
           status: constants.HTTP_STATUS_FORBIDDEN
@@ -176,7 +176,7 @@ export const documentsRouter = {
       }
       if (
         document?.kind === 'SampleDocument' &&
-        !hasPermission(user, 'deleteSampleDocument')
+        !hasPermission(userRole, 'deleteSampleDocument')
       ) {
         return {
           status: constants.HTTP_STATUS_FORBIDDEN

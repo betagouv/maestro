@@ -9,7 +9,8 @@ import { Stage, StageLabels } from '../../referential/Stage';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
-import { hasPermission, User } from '../User/User';
+import { hasPermission } from '../User/User';
+import { UserRole } from '../User/UserRole';
 import { PrescriptionSubstance } from './PrescriptionSubstance';
 
 export const Prescription = z.object({
@@ -71,21 +72,21 @@ const PrescriptionPermission = z.enum(['create', 'update', 'delete']);
 export type PrescriptionPermission = z.infer<typeof PrescriptionPermission>;
 
 export const hasPrescriptionPermission = (
-  user: User,
+  userRole: UserRole,
   programmingPlan: ProgrammingPlan
 ): Record<PrescriptionPermission, boolean> => ({
   create:
-    hasPermission(user, 'createPrescription') &&
+    hasPermission(userRole, 'createPrescription') &&
     programmingPlan.regionalStatus.some(
       (regionalStatus) => regionalStatus.status !== 'Closed'
     ),
   update:
-    hasPermission(user, 'updatePrescription') &&
+    hasPermission(userRole, 'updatePrescription') &&
     programmingPlan.regionalStatus.some(
       (regionalStatus) => regionalStatus.status !== 'Closed'
     ),
   delete:
-    hasPermission(user, 'deletePrescription') &&
+    hasPermission(userRole, 'deletePrescription') &&
     programmingPlan.regionalStatus.some(
       (regionalStatus) => regionalStatus.status !== 'Closed'
     )

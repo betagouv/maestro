@@ -99,7 +99,7 @@ export const UserListView = () => {
             return false;
           }
 
-          if (filters.role && u.role !== filters.role) {
+          if (filters.role && !u.roles.includes(filters.role)) {
             return false;
           }
 

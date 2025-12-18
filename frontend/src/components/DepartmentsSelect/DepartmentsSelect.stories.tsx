@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
-  Sampler1Fixture,
-  SamplerAndNationalObserver
+  NationalObserver,
+  Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
 import { fn } from 'storybook/test';
 import { DepartmentsSelect } from './DepartmentsSelect';
@@ -33,7 +33,7 @@ export const National: Story = {
   },
   parameters: {
     preloadedState: {
-      auth: { authUser: { user: SamplerAndNationalObserver } }
+      auth: { authUser: { user: NationalObserver } }
     }
   }
 };

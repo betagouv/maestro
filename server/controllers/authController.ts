@@ -1,6 +1,9 @@
 import { constants } from 'http2';
 import jwt from 'jsonwebtoken';
-import { COOKIE_MAESTRO_ACCESS_TOKEN } from 'maestro-shared/constants';
+import {
+  COOKIE_MAESTRO_ACCESS_TOKEN,
+  COOKIE_MAESTRO_USER_ROLE
+} from 'maestro-shared/constants';
 import AuthenticationFailedError from 'maestro-shared/errors/authenticationFailedError';
 import { AuthMaybeUnknownUser } from 'maestro-shared/schema/User/AuthUser';
 import { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
@@ -56,10 +59,12 @@ export const authUnprotectedRouter = {
         const result: AuthMaybeUnknownUser =
           user !== undefined
             ? {
-                user: await getUser(cookies, user)
+                user: await getUser(cookies, user),
+                userRole: user.roles[0]
               }
             : {
                 user: null,
+                userRole: null,
                 userEmail: email
               };
 
@@ -67,6 +72,13 @@ export const authUnprotectedRouter = {
           httpOnly: true,
           secure: config.environment === 'production'
         });
+
+        if (user) {
+          cookie(COOKIE_MAESTRO_USER_ROLE, user.roles[0], {
+            httpOnly: false,
+            secure: config.environment === 'production'
+          });
+        }
 
         return { status: constants.HTTP_STATUS_OK, response: result };
       } catch (error) {
@@ -78,6 +90,26 @@ export const authUnprotectedRouter = {
 } as const satisfies UnprotectedSubRouter;
 
 export const authProtectedRouter = {
+  '/auth/role': {
+    post: async ({ body: { newRole }, user }, _p, { clearCookie, cookie }) => {
+      clearCookie(COOKIE_MAESTRO_USER_ROLE);
+
+      const userWithRoles = await userRepository.findUnique(user.id);
+
+      if (!userWithRoles || !userWithRoles.roles.includes(newRole)) {
+        throw new AuthenticationFailedError();
+      }
+
+      cookie(COOKIE_MAESTRO_USER_ROLE, newRole, {
+        httpOnly: false,
+        secure: config.environment === 'production'
+      });
+
+      return {
+        status: constants.HTTP_STATUS_OK
+      };
+    }
+  },
   '/auth/logout': {
     post: async ({ auth }, _p, { clearCookie }) => {
       const { idToken, userId, loggedSecret } = auth;

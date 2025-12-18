@@ -34,8 +34,7 @@ import {
   RegionalCoordinator,
   RegionalObserver,
   Sampler1Fixture,
-  Sampler2Fixture,
-  SamplerAndNationalObserver
+  Sampler2Fixture
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { withISOStringDates } from 'maestro-shared/utils/utils';
@@ -111,7 +110,6 @@ describe('Sample router', () => {
       await successRequestTest(RegionalObserver);
       await successRequestTest(NationalCoordinator);
       await successRequestTest(NationalObserver);
-      await successRequestTest(SamplerAndNationalObserver);
       await successRequestTest(AdminFixture);
     });
   });
@@ -169,10 +167,9 @@ describe('Sample router', () => {
       await successRequestTest(RegionalObserver);
       await successRequestTest(NationalCoordinator);
       await successRequestTest(NationalObserver);
-      await successRequestTest(SamplerAndNationalObserver);
       await successRequestTest(AdminFixture);
 
-      expect(mockGenerateSampleSupportPDF).toHaveBeenCalledTimes(7);
+      expect(mockGenerateSampleSupportPDF).toHaveBeenCalledTimes(6);
     });
   });
 
@@ -255,7 +252,6 @@ describe('Sample router', () => {
 
       await successRequestTest(NationalCoordinator);
       await successRequestTest(NationalObserver);
-      await successRequestTest(SamplerAndNationalObserver);
       await successRequestTest(AdminFixture);
     });
   });
@@ -314,7 +310,6 @@ describe('Sample router', () => {
 
       await successRequestTest(NationalCoordinator);
       await successRequestTest(NationalObserver);
-      await successRequestTest(SamplerAndNationalObserver);
       await successRequestTest(AdminFixture);
     });
   });
@@ -422,7 +417,6 @@ describe('Sample router', () => {
       await successRequestTest(Sampler1Fixture, '1');
       await successRequestTest(Sampler1Fixture, '2');
       await successRequestTest(RegionalCoordinator, '3');
-      await successRequestTest(SamplerAndNationalObserver, '4');
     });
   });
 
@@ -462,7 +456,6 @@ describe('Sample router', () => {
 
       await forbiddenRequestTest(Sampler1Fixture);
       await forbiddenRequestTest(RegionalCoordinator);
-      await forbiddenRequestTest(SamplerAndNationalObserver);
     });
 
     test('should get a valid body', async () => {
@@ -572,7 +565,6 @@ describe('Sample router', () => {
 
       await successRequestTest(Sampler1Fixture);
       await successRequestTest(RegionalCoordinator);
-      await successRequestTest(SamplerAndNationalObserver);
     });
 
     test('should be forbidden to send a sample with sampleAt in the future', async () => {
@@ -632,7 +624,6 @@ describe('Sample router', () => {
 
       await successRequestTest(Sampler1Fixture);
       await successRequestTest(RegionalCoordinator);
-      await successRequestTest(SamplerAndNationalObserver);
     });
 
     test('should update the sample compliance', async () => {
@@ -661,7 +652,6 @@ describe('Sample router', () => {
 
       await successRequestTest(Sampler1Fixture);
       await successRequestTest(RegionalCoordinator);
-      await successRequestTest(SamplerAndNationalObserver);
     });
   });
 
@@ -751,7 +741,6 @@ describe('Sample router', () => {
 
       await successRequestTest(Sampler1Fixture);
       await successRequestTest(RegionalCoordinator);
-      await successRequestTest(SamplerAndNationalObserver);
     });
   });
 });

@@ -114,6 +114,7 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
 const defaultMockApiClientConf: MockApi = {
   useAddPrescriptionMutation: [fn(), {}],
   useAuthenticateMutation: [fn(), {}],
+  useChangeRoleMutation: [fn(), {}],
   useCommentLocalPrescriptionMutation: [fn(), {}],
   useCountSamplesQuery: {
     data: 0

@@ -16,7 +16,6 @@ import {
   NotificationCategory,
   NotificationCategoryTitles
 } from 'maestro-shared/schema/Notification/NotificationCategory';
-import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { formatDate } from 'maestro-shared/utils/date';
 import { useContext, useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
@@ -204,7 +203,6 @@ const NotificationsView = () => {
                                       'fr-mr-1w'
                                     )}
                                   />
-                                  {UserRoleLabels[notification.author.role]}
                                   {notification.author.region && (
                                     <>
                                       <span

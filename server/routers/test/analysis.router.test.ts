@@ -36,8 +36,7 @@ import {
   RegionalCoordinator,
   RegionalObserver,
   Sampler1Fixture,
-  Sampler2Fixture,
-  SamplerAndNationalObserver
+  Sampler2Fixture
 } from 'maestro-shared/test/userFixtures';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { kysely } from '../../repositories/kysely';
@@ -294,7 +293,6 @@ describe('Analysis router', () => {
 
       await forbiddenRequestTest(Sampler1Fixture);
       await forbiddenRequestTest(RegionalCoordinator);
-      await forbiddenRequestTest(SamplerAndNationalObserver);
     });
 
     test('should get a valid body', async () => {
