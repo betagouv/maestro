@@ -17,7 +17,11 @@ export default {
         'superagent',
         '@types/exceljs'
       ],
-      entry: ['database/migrations/*.ts', 'repositories/kysely.type.ts']
+      entry: [
+        'database/migrations/*.ts',
+        'repositories/kysely.type.ts',
+        'scripts/*'
+      ]
     },
     frontend: {
       ignoreDependencies: [
