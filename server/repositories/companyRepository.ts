@@ -1,4 +1,3 @@
-import { sql } from 'kysely';
 import { isNil, omitBy } from 'lodash-es';
 import { Regions } from 'maestro-shared/referential/Region';
 import { Company } from 'maestro-shared/schema/Company/Company';
@@ -7,6 +6,7 @@ import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import z from 'zod';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
+import { toSqlArray } from './kysely.type';
 
 export const companiesTable = 'companies';
 
@@ -67,11 +67,7 @@ const findMany = async (
         break;
       case 'kinds':
         if (!isNil(findOptions.kinds) && findOptions.kinds.length > 0) {
-          query = query.where(
-            sql<boolean>`
-              kinds && ${findOptions.kinds}::text[]
-            `
-          );
+          query = query.where('kinds', '&&', toSqlArray(findOptions.kinds));
         }
         break;
       default:
