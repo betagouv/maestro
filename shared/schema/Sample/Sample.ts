@@ -33,6 +33,7 @@ import { SampleStatus } from './SampleStatus';
 export const SampleContextData = z.object({
   id: z.guid(),
   sampler: Sampler,
+  additionalSampler: Sampler.nullish(),
   geolocation: Geolocation.nullish(),
   department: Department.nullish(),
   parcel: z.string().nullish(),

@@ -1,4 +1,5 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
+import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Skeleton } from '@mui/material';
@@ -42,6 +43,7 @@ import warning from 'src/assets/illustrations/warning.svg';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import {
+  defaultAppSelectOption,
   samplersOptions,
   selectOptionsFromList
 } from 'src/components/_app/AppSelect/AppSelectOption';
@@ -121,6 +123,12 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const [isBrowserGeolocation, setIsBrowserGeolocation] = useState(false);
   const [sampler, setSampler] = useState<Sampler | undefined>(
     partialSample?.sampler ?? user
+  );
+  const [additionalSampler, setAdditionalSampler] = useState(
+    partialSample?.additionalSampler ?? undefined
+  );
+  const [showAdditionalSampler, setShowAdditionalSampler] = useState(
+    !isNil(partialSample?.additionalSampler)
   );
 
   const [parcel, setParcel] = useState(partialSample?.parcel);
@@ -268,6 +276,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const formData = {
     id,
     sampler: sampler as Sampler,
+    additionalSampler: showAdditionalSampler ? additionalSampler : undefined,
     geolocation:
       geolocationX && geolocationY
         ? {
@@ -349,6 +358,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const formInput = {
     id,
     sampler,
+    additionalSampler,
     geolocationX,
     geolocationY,
     parcel,
@@ -381,22 +391,75 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
       {programmingPlanKind === 'PPV' && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
-            <AppSelect
-              defaultValue={partialSample?.sampler?.id || ''}
-              options={samplersOptions(samplers, user?.id)}
-              onChange={(e) =>
-                setSampler(
-                  samplers?.find((sampler) => sampler.id === e.target.value)
-                )
-              }
-              inputForm={form}
-              inputKey="sampler"
-              whenValid="Préleveur correctement renseigné."
-              label="Le préleveur"
-              hint="La personne qui réalise le prélevement"
-              required
-            />
+            <div className={clsx('d-flex-align-start')}>
+              <AppSelect
+                defaultValue={partialSample?.sampler?.id || ''}
+                options={samplersOptions(samplers, user?.id)}
+                onChange={(e) =>
+                  setSampler(
+                    samplers?.find((sampler) => sampler.id === e.target.value)
+                  )
+                }
+                inputForm={form}
+                inputKey="sampler"
+                whenValid="Préleveur correctement renseigné."
+                label="Le préleveur"
+                hint="La personne qui réalise le prélevement"
+                required
+                className={clsx('flex-grow-1')}
+              />
+              {!showAdditionalSampler && !readonly && (
+                <Button
+                  priority="tertiary"
+                  iconId="fr-icon-user-add-line"
+                  onClick={() => setShowAdditionalSampler(true)}
+                  className={cx('fr-mt-7w', 'fr-ml-2w')}
+                >
+                  Ajouter
+                </Button>
+              )}
+            </div>
           </div>
+          {showAdditionalSampler && (
+            <div className={cx('fr-col-12')}>
+              <div className={clsx('d-flex-align-start')}>
+                <AppSelect
+                  value={additionalSampler?.id || ''}
+                  options={[
+                    defaultAppSelectOption('Sélectionner un préleveur'),
+                    ...samplersOptions(samplers).filter(
+                      (s) => s.value !== sampler?.id
+                    )
+                  ]}
+                  onChange={(e) =>
+                    setAdditionalSampler(
+                      samplers?.find((sampler) => sampler.id === e.target.value)
+                    )
+                  }
+                  inputForm={form}
+                  inputKey="additionalSampler"
+                  whenValid="Préleveur secondaire correctement renseigné."
+                  label="Préleveur secondaire"
+                  disabled={readonly}
+                  className={clsx('flex-grow-1')}
+                  required
+                />
+                {!readonly && (
+                  <Button
+                    priority="tertiary"
+                    onClick={() => {
+                      setShowAdditionalSampler(false);
+                      setAdditionalSampler(undefined);
+                    }}
+                    title="Supprimer"
+                    className={cx('fr-mt-4w', 'fr-ml-2w')}
+                  >
+                    Supprimer
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
       {programmingPlanKind === 'PPV' && (
