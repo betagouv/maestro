@@ -4,6 +4,7 @@
     "baseUrl": ".",
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
+    "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "noUnusedLocals": false,
     "types": ["vite/client", "node"]

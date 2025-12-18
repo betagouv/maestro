@@ -2,7 +2,7 @@ import {
   TypedUseLazyQuery,
   TypedUseMutation,
   TypedUseQuery
-} from '@reduxjs/toolkit/dist/query/react';
+} from '@reduxjs/toolkit/query/react';
 import { User } from 'maestro-shared/schema/User/User';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import {
@@ -114,7 +114,6 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
 const defaultMockApiClientConf: MockApi = {
   useAddPrescriptionMutation: [fn(), {}],
   useAuthenticateMutation: [fn(), {}],
-  useChangeRoleMutation: [fn(), {}],
   useCommentLocalPrescriptionMutation: [fn(), {}],
   useCountSamplesQuery: {
     data: 0
@@ -224,7 +223,8 @@ const defaultMockApiClientConf: MockApi = {
   useMascaradeStartMutation: [fn(), {}],
   useMascaradeStopMutation: [fn(), {}],
   useCreateUserMutation: [fn(), {}],
-  useUpdateUserMutation: [fn(), {}]
+  useUpdateUserMutation: [fn(), {}],
+  useChangeRoleMutation: [fn(), {}]
 };
 
 export const mockApiClient = getMockApi({});

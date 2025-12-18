@@ -10,7 +10,6 @@ import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { z, ZodObject } from 'zod';
-import { JSONSchema } from 'zod/v4/core/json-schema';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import { UseForm } from '../../../../hooks/useForm';
@@ -35,15 +34,15 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
 
   const requiredInputs = useMemo(
     () =>
-      (
-        z
-          .toJSONSchema(SampleMatrixSpecificData)
-          .anyOf?.find(
-            (schema) =>
-              (schema.properties?.programmingPlanKind as JSONSchema).const ===
+      z
+        .toJSONSchema(SampleMatrixSpecificData)
+        .anyOf?.find(
+          (schema) =>
+            schema.properties?.programmingPlanKind &&
+            typeof schema.properties?.programmingPlanKind === 'object' &&
+            schema.properties?.programmingPlanKind?.const ===
               specificData.programmingPlanKind
-          ) as JSONSchema
-      )?.required ?? [],
+        )?.required ?? [],
     [specificData.programmingPlanKind]
   );
 
