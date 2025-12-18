@@ -24,6 +24,7 @@ export const MaestroRoutes = [
   '/analysis/:analysisId',
   '/analysis/:analysisId/reportDocuments',
   '/auth',
+  '/auth/role',
   '/auth/logout',
   '/auth/redirect-url',
   '/companies',

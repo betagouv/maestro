@@ -1,5 +1,7 @@
+import { z } from 'zod';
 import { AuthRedirectUrl } from '../schema/Auth/AuthRedirectUrl';
 import { AuthMaybeUnknownUser } from '../schema/User/AuthUser';
+import { UserRole } from '../schema/User/UserRole';
 import { SubRoutes } from './routes';
 
 export const authRoutes = {
@@ -17,6 +19,16 @@ export const authRoutes = {
     get: {
       response: AuthRedirectUrl,
       unprotected: true
+    }
+  },
+  '/auth/role': {
+    params: undefined,
+    post: {
+      body: z.object({
+        newRole: UserRole
+      }),
+      permissions: 'NONE',
+      response: z.void()
     }
   },
   '/auth/logout': {

@@ -90,6 +90,26 @@ export const authUnprotectedRouter = {
 } as const satisfies UnprotectedSubRouter;
 
 export const authProtectedRouter = {
+  '/auth/role': {
+    post: async ({ body: { newRole }, user }, _p, { clearCookie, cookie }) => {
+      clearCookie(COOKIE_MAESTRO_USER_ROLE);
+
+      const userWithRoles = await userRepository.findUnique(user.id);
+
+      if (!userWithRoles || !userWithRoles.roles.includes(newRole)) {
+        throw new AuthenticationFailedError();
+      }
+
+      cookie(COOKIE_MAESTRO_USER_ROLE, newRole, {
+        httpOnly: false,
+        secure: config.environment === 'production'
+      });
+
+      return {
+        status: constants.HTTP_STATUS_OK
+      };
+    }
+  },
   '/auth/logout': {
     post: async ({ auth }, _p, { clearCookie }) => {
       const { idToken, userId, loggedSecret } = auth;

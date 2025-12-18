@@ -14,7 +14,10 @@ import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
-import { useLogoutMutation } from 'src/services/auth.service';
+import {
+  useChangeRoleMutation,
+  useLogoutMutation
+} from 'src/services/auth.service';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import logo from '../../assets/logo.svg';
 import { usePrescriptionFilters } from '../../hooks/usePrescriptionFilters';
@@ -69,6 +72,7 @@ const Header = () => {
     }
   );
   const [logout] = useLogoutMutation();
+  const [changeRole] = useChangeRoleMutation();
 
   const { domainOptions, reduceFilters } =
     usePrescriptionFilters(programmingPlans);
@@ -117,8 +121,9 @@ const Header = () => {
       : location.pathname.startsWith(path);
 
   const changeUserRole = useCallback(
-    (userRole: UserRole) => {
+    async (userRole: UserRole) => {
       if (user) {
+        await changeRole(userRole);
         dispatch(api.util.resetApiState());
         dispatch(
           authSlice.actions.signinUser({
