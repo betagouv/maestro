@@ -89,7 +89,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
         <h6 className={cx('fr-m-0')}>Interprétation du résultat</h6>
         <div className={'result-with-comment'}>
           <div className="d-flex-align-center">
-            Résultat brut supérieur à l'Arfd ?
+            Résultat brut entrainant un dépassement de l'Arfd ?
             <b className={'fr-ml-auto'}>
               {residue.resultHigherThanArfd
                 ? OptionalBooleanLabels[residue.resultHigherThanArfd]

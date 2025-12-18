@@ -120,7 +120,7 @@ const ReportDocumentList = ({
           {reportDocumentIds.length > 1 && (
             <Accordion
               className={cx('fr-mb-3w')}
-              label={`Historique des rapports (${reportDocumentIds.length})`}
+              label={`Historique des rapports (${reportDocumentIds.length - 1})`}
             >
               <div
                 className={'d-flex-align-start'}
