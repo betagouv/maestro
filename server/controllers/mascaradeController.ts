@@ -1,4 +1,5 @@
 import { constants } from 'http2';
+import { isNil } from 'lodash-es';
 import {
   COOKIE_MAESTRO_MASCARADE,
   COOKIE_MAESTRO_USER_ROLE
@@ -9,9 +10,19 @@ import config from '../utils/config';
 
 export const mascaradeRouter = {
   '/mascarade': {
-    post: async (req, _param, { clearCookie }) => {
+    post: async (req, _param, { clearCookie, cookie }) => {
       clearCookie(COOKIE_MAESTRO_MASCARADE);
       clearCookie(COOKIE_MAESTRO_USER_ROLE);
+
+      const authUser = req.auth.userId
+        ? await userRepository.findUnique(req.auth.userId)
+        : null;
+      if (!isNil(authUser)) {
+        cookie(COOKIE_MAESTRO_USER_ROLE, authUser.roles[0], {
+          httpOnly: false,
+          secure: config.environment === 'production'
+        });
+      }
 
       return {
         status: constants.HTTP_STATUS_OK,
