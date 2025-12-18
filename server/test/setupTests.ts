@@ -1,13 +1,12 @@
-import { afterAll, beforeAll } from 'vitest';
+import { afterAll, afterEach, beforeAll, Mock, vi } from 'vitest';
 import { dbManager } from './db-manager';
 import { dbSeed } from './seed';
 
-import { afterEach, vi } from 'vitest';
-
-export const mockGetAuthorizationUrl = vi.fn();
-export const mockAuthenticate = vi.fn();
-export const mockGetLogoutUrl = vi.fn();
-export const mockGenerateSampleSupportPDF = vi.fn();
+type Procedure = (...args: any[]) => any;
+export const mockGetAuthorizationUrl: Mock<Procedure> = vi.fn();
+export const mockAuthenticate: Mock<Procedure> = vi.fn();
+export const mockGetLogoutUrl: Mock<Procedure> = vi.fn();
+export const mockGenerateSampleSupportPDF: Mock<Procedure> = vi.fn();
 vi.mock('../services/authService', () => ({
   getAuthService: Promise.resolve({
     getAuthorizationUrl: () => mockGetAuthorizationUrl(),

@@ -4,7 +4,7 @@ import type {
   FrIconClassName
 } from '@codegouvfr/react-dsfr/fr/generatedFromCss/classNames';
 import clsx from 'clsx';
-import { ClassValue } from 'clsx/clsx';
+import { ClassValue } from 'clsx/lite';
 import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
