@@ -99,7 +99,10 @@ export const UserModal = ({
   }, [userToUpdate]);
 
   useEffect(() => {
-    if (!user.roles?.some((role) => isRegionalRole(role))) {
+    if (
+      !canHaveDepartment(user) &&
+      !user.roles?.some((role) => isRegionalRole(role))
+    ) {
       setUser((u) => ({ ...u, region: null }));
     }
     if (!canHaveDepartment(user)) {
