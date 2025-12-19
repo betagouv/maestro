@@ -3,7 +3,7 @@
  * Please do not edit it manually.
  */
 
-import { ColumnType, type Kysely } from 'kysely';
+import { ColumnType, Expression, type Kysely, sql } from 'kysely';
 import { Department } from 'maestro-shared/referential/Department';
 import { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
 import { type Region } from 'maestro-shared/referential/Region';
@@ -277,3 +277,7 @@ export interface DB {
   userCompanies: UserCompanies;
 }
 export type KyselyMaestro = Kysely<DB>;
+
+export const toSqlArray = <T extends string>(args: T[]) => {
+  return sql<string[]>`ARRAY[${sql.join(args)}]` as Expression<T[]>;
+};
