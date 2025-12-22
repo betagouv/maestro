@@ -8,7 +8,7 @@ import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
-import { Regions } from 'maestro-shared/referential/Region';
+import { Region, Regions } from 'maestro-shared/referential/Region';
 import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 import {
   getAnalysisReportDocumentFilename,
@@ -196,6 +196,23 @@ const generateAndStoreAnalysisRequestDocuments = async (
   ];
 };
 
+/**
+ * à partir de 2026 le numéro devient unique pour toute la France (alors qu'avant c'était par région)
+ * et il passe sur 5 digits
+ */
+export const getNewReference = async (
+  region: Region,
+  currentYear: number
+): Promise<string> => {
+  //TODO à simplifier en 2026, idem en bdd
+  const serial = await sampleRepository.getNextSequence(
+    currentYear < 2026 ? region : '01',
+    currentYear
+  );
+
+  return `${Regions[region].shortName}-${format(new Date(), 'yy')}-${String(serial).padStart(currentYear < 2026 ? 4 : 5, '0')}`;
+};
+
 export const sampleRouter = {
   '/samples': {
     get: async ({ user, userRole, query }) => {
@@ -226,7 +243,7 @@ export const sampleRouter = {
         await companyRepository.upsert(sampleToCreate.company);
       }
 
-      const serial = await sampleRepository.getNextSequence(
+      const reference = await getNewReference(
         user.region,
         new Date().getFullYear()
       );
@@ -234,7 +251,7 @@ export const sampleRouter = {
       const sample = {
         ...sampleToCreate,
         region: user.region,
-        reference: `${Regions[user.region].shortName}-${format(new Date(), 'yy')}-${String(serial).padStart(4, '0')}`,
+        reference,
         createdAt: new Date(),
         lastUpdatedAt: new Date()
       };
