@@ -167,5 +167,5 @@ export const canHaveDepartment = (
   region: Region;
 } =>
   user?.roles?.some(
-    (role) => DepartmentalUserRole.safeParse(user).success || role === 'Sampler'
+    (role) => DepartmentalUserRole.safeParse(role).success || role === 'Sampler'
   ) ?? false;
