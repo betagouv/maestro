@@ -12,12 +12,16 @@ const NationalUserRole = z.enum([
 ]);
 
 const RegionalUserRole = z.enum(['RegionalCoordinator', 'RegionalObserver']);
+const DepartmentalUserRole = z.enum([
+  'DepartmentalCoordinator',
+  'DepartmentalObserver'
+]);
 
 export const UserRole = z.enum(
   [
     ...NationalUserRole.options,
     ...RegionalUserRole.options,
-    'DepartmentalCoordinator',
+    ...DepartmentalUserRole.options,
     'Sampler'
   ],
   { error: 'Veuillez renseigner un rôle.' }
@@ -110,6 +114,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'distributePrescriptionToSlaughterhouses',
     'commentPrescription'
   ],
+  DepartmentalObserver: ObserverPermissionsList,
   Administrator: [
     'administrationMaestro',
     'readSamples',
@@ -139,6 +144,7 @@ export const UserRoleLabels: Record<UserRole, string> = {
   NationalObserver: 'Suivi national',
   RegionalObserver: 'Suivi régional',
   DepartmentalCoordinator: 'Coordinateur départemental',
+  DepartmentalObserver: 'Suivi départemental',
   Sampler: 'Préleveur',
   Administrator: 'Administrateur',
   LaboratoryUser: 'Laboratoire'
@@ -157,9 +163,9 @@ export const isRegionalRole = (userRole?: UserRole) =>
 export const canHaveDepartment = (
   user: Nullable<Pick<User, 'roles'>>
 ): user is {
-  roles: ('DepartmentalCoordinator' | 'Sampler')[];
+  roles: (z.infer<typeof DepartmentalUserRole> | 'Sampler')[];
   region: Region;
 } =>
   user?.roles?.some(
-    (role) => role === 'DepartmentalCoordinator' || role === 'Sampler'
+    (role) => DepartmentalUserRole.safeParse(user).success || role === 'Sampler'
   ) ?? false;
