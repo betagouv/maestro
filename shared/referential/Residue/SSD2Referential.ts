@@ -5961,7 +5961,8 @@ export const SSD2Referential =
       //
       // Avant: fosetyl-Al (somme du fosétyl, de l'acide phosphonique et de leurs sels, exprimée en fosétyl)
       // Après: acide phosphonique et ses sels, exprimés en acide phosphonique
-      lmrCanBeOptional: true
+      lmrCanBeOptional: true,
+      deprecated: true
     },
     'RF-0226-001-PPP': {
       reference: 'RF-0226-001-PPP',
@@ -12036,6 +12037,7 @@ type Referential = {
     otherNames: string[];
     reportable: boolean;
     lmrCanBeOptional?: true;
+    deprecated?: true;
   };
 };
 
