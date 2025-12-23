@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 // Allows to throw an error or reject a promise in controllers
 // instead of having to call the next(err) function.
+import * as Sentry from '@sentry/node';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import fileUpload from 'express-fileupload';
@@ -13,7 +14,6 @@ import { m2mProtectedRouter } from './routers/m2mProtected';
 import { protectedRouter } from './routers/protected';
 import unprotectedRouter from './routers/unprotected';
 import config from './utils/config';
-import sentry from './utils/sentry';
 
 const PORT = config.serverPort;
 
@@ -25,8 +25,6 @@ interface Server {
 
 export function createServer(): Server {
   const app = express();
-
-  sentry.init(app);
 
   app.use(cookieParser());
   app.use((req, res, next) => {
@@ -139,7 +137,11 @@ export function createServer(): Server {
   app.all('/*splat', () => {
     throw new RouteNotFoundError();
   });
-  sentry.errorHandler(app);
+
+  // The error handler must be before any other error middleware and after all controllers.
+  if (config.sentry.enabled && config.sentry.dsn) {
+    Sentry.setupExpressErrorHandler(app);
+  }
   app.use(errorHandler());
 
   const start = () =>
