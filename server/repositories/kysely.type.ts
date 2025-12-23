@@ -17,6 +17,7 @@ import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { MaestroDate } from 'maestro-shared/utils/date';
@@ -114,6 +115,12 @@ export interface Laboratories {
   emailsAnalysisResult: string[];
 }
 
+export interface LaboratoryResidueMapping {
+  laboratoryId: string;
+  label: string;
+  ssd2Id: SSD2Id | null;
+}
+
 export interface Notices {
   type: 'root' | 'dashboard';
   title: string | null;
@@ -182,10 +189,11 @@ export interface SampleItems {
   ownerLastName: string | null;
   quantity: number | null;
   quantityUnit: string | null;
-  recipientKind: string | null;
+  recipientKind: SampleItemRecipientKind | null;
   sampleId: string;
   sealId: string | null;
   supportDocumentId: string | null;
+  laboratoryId: string | null;
 }
 
 export interface Samples {
@@ -262,6 +270,7 @@ export interface DB {
   documents: Documents;
   knexMigrations: KnexMigrations;
   laboratories: Laboratories;
+  laboratoryResidueMappings: LaboratoryResidueMapping;
   notices: Notices;
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;

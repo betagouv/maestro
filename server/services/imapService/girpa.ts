@@ -12,6 +12,9 @@ import {
 } from './index';
 import { frenchNumberStringValidator } from './utils';
 
+/**
+ * @deprecated Data migrated to database table: laboratory_residue_mappings
+ */
 const girpaUnknownReferences: string[] = [
   'DMPF',
   'cyprosulfamide',
@@ -21,6 +24,9 @@ const girpaUnknownReferences: string[] = [
   'sulfluramid',
   'spinosad according reg.'
 ];
+/**
+ * @deprecated Data migrated to database table: laboratory_residue_mappings
+ */
 const girpaReferences: Record<string, SSD2Id> = {
   // Références associées manuellement
   '1-naphthylacetamide and 1-naphthylacetic acid according reg.':
@@ -866,7 +872,10 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
   }
 };
 
-export const girpaConf: LaboratoryConf = {
+export const girpaConf: LaboratoryConf & {
+  ssd2IdByLabel: Record<string, SSD2Id>;
+  unknownReferences: string[];
+} = {
   exportDataFromEmail,
   ssd2IdByLabel: girpaReferences,
   unknownReferences: girpaUnknownReferences,

@@ -1,5 +1,8 @@
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
+/**
+ * @deprecated Data migrated to database table: laboratory_residue_mappings
+ */
 export const inovalysUnknownReferences: string[] = [
   'Chlorophacinone',
   '2,6-Difluorobenzamide (métabolite du diflubenzuron)',
@@ -16,6 +19,9 @@ export const inovalysUnknownReferences: string[] = [
   'Fosetyl (+ ac. phosphoreux)' // Ancien label, n'est plus utilisé
 ];
 
+/**
+ * @deprecated Data migrated to database table: laboratory_residue_mappings
+ */
 export const inovalysReferential: Record<string, SSD2Id> = {
   // Références associées manuellement
   '2,4,5-T (L)': 'RF-0009-001-PPP',

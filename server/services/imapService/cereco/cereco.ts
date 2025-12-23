@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { maestroDate } from 'maestro-shared/utils/date';
 import XLSX, { WorkBook } from 'xlsx';
 import { z } from 'zod';
@@ -153,7 +154,10 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
   return analyzesWithPdf;
 };
 
-export const cerecoConf: LaboratoryConf = {
+export const cerecoConf: LaboratoryConf & {
+  ssd2IdByLabel: Record<string, SSD2Id>;
+  unknownReferences: string[];
+} = {
   exportDataFromEmail,
   ssd2IdByLabel: cerecoReferential,
   unknownReferences: cerecoUnknownReferences,
