@@ -1,3 +1,4 @@
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { maestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod';
@@ -256,7 +257,10 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
   return analyzesWithPdf;
 };
 
-export const inovalysConf: LaboratoryConf = {
+export const inovalysConf: LaboratoryConf & {
+  ssd2IdByLabel: Record<string, SSD2Id>;
+  unknownReferences: string[];
+} = {
   exportDataFromEmail,
   ssd2IdByLabel: inovalysReferential,
   unknownReferences: inovalysUnknownReferences,

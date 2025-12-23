@@ -12,6 +12,9 @@ import {
 } from './index';
 import { csvToJson, frenchNumberStringValidator } from './utils';
 
+/**
+ * @deprecated Data migrated to database table: laboratory_residue_mappings
+ */
 const unknownReferences = [
   'Cyprosulfamide',
   'Difethialone',
@@ -19,10 +22,12 @@ const unknownReferences = [
   'Ethyl-phosphite',
   'Metobromuron metabolite (desmethyl-metobromuron expr. as metobromuron)',
   'Metyltetraprole metabolite ISS7',
-  'Pyroxasulfone',
-  'Triflumizole (+ Triflumizole-amino (FM6-1) expr. as triflumizole)'
+  'Pyroxasulfone'
 ];
 
+/**
+ * @deprecated Data migrated to database table: laboratory_residue_mappings
+ */
 const capinovReferential: Record<string, SSD2Id> = {
   // Références associées manuellement
   'Abamectin (Avermectin B1a, B1b & Avermectin B1a (8,9,z) expr. as avermectin B1a)':
@@ -891,7 +896,10 @@ export const getAnalysisKeyByFileName = (filename: string): string => {
   return '';
 };
 
-export const capinovConf: LaboratoryConf = {
+export const capinovConf: LaboratoryConf & {
+  ssd2IdByLabel: Record<string, SSD2Id>;
+  unknownReferences: string[];
+} = {
   exportDataFromEmail,
   ssd2IdByLabel: capinovReferential,
   unknownReferences,
