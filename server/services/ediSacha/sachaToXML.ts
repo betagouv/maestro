@@ -18,16 +18,19 @@ import {
 const xml = z.string().brand('XML');
 export type Xml = z.infer<typeof xml>;
 
-export type XmlFile = { fileName: string; content: Xml };
+export type XmlFile = { fileName: string; fileType: FileType; content: Xml };
 
 export const generateXMLAcquitement = (
   messagesAcquittement: Acquittement['MessageAcquittement'],
   messagesNonAcquittement: Acquittement['MessageNonAcquittement'],
-  laboratory: Laboratories,
+  laboratory: Pick<
+    Laboratories,
+    'sachaSigle' | 'sachaEmail' | 'shortName' | 'name'
+  >,
   dateNow: number
 ): XmlFile => {
   return generateXML(
-    'AN',
+    'AN01',
     {
       MessageAcquittement: messagesAcquittement,
       MessageNonAcquittement: messagesNonAcquittement
@@ -39,11 +42,14 @@ export const generateXMLAcquitement = (
 
 export const generateXMLDAI = (
   dai: DAI['DemandeType'],
-  laboratory: Laboratories,
+  laboratory: Pick<
+    Laboratories,
+    'sachaSigle' | 'sachaEmail' | 'shortName' | 'name'
+  >,
   dateNow: number
 ): XmlFile => {
   return generateXML(
-    'DA',
+    'DA01',
     {
       DemandeType: dai
     },
@@ -52,9 +58,9 @@ export const generateXMLDAI = (
   );
 };
 
-type FileType = 'AN' | 'DA';
+type FileType = 'AN01' | 'DA01';
 const fileTypeConf = {
-  AN: {
+  AN01: {
     name: 'AcquittementNonAcquittement',
     content: acquittementValidator.omit({
       MessageParametres: true,
@@ -62,7 +68,7 @@ const fileTypeConf = {
       Destinataire: true
     })
   },
-  DA: {
+  DA01: {
     name: 'DemandesAnalyses',
     content: demandesAnalysesValidator.omit({
       MessageParametres: true,
@@ -81,7 +87,10 @@ const fileTypeConf = {
 const generateXML = <T extends FileType>(
   fileType: T,
   content: z.infer<(typeof fileTypeConf)[T]['content']>,
-  laboratory: Laboratories,
+  laboratory: Pick<
+    Laboratories,
+    'sachaSigle' | 'sachaEmail' | 'shortName' | 'name'
+  >,
   dateNow: number
 ): XmlFile => {
   const builder = new XMLBuilder({
@@ -89,21 +98,19 @@ const generateXML = <T extends FileType>(
     format: true
   });
 
-  if (
-    laboratory.sachaEmail === null ||
-    laboratory.sachaSigle === null ||
-    laboratory.sachaGpgPublicKey === null
-  ) {
+  if (laboratory.sachaEmail === null || laboratory.sachaSigle === null) {
     throw new Error(
       `Le laboratoire ${laboratory.shortName} n'est pas configuré pour utiliser les EDI Sacha`
     );
   }
   const conf = fileTypeConf[fileType];
 
-  const currentDate: string = format(dateNow, 'yyMMddHHmm', {
-    locale: fr
-  });
-  const fileName: string = `${fileType}01${laboratory.sachaSigle}${currentDate}_1`;
+  const fileName: string = getXmlFileName(
+    fileType,
+    laboratory,
+    laboratory,
+    dateNow
+  );
 
   const fullContent = z
     .object({
@@ -115,7 +122,7 @@ const generateXML = <T extends FileType>(
       MessageParametres: {
         CodeScenario: 'E.D.I. SIGAL/LABOS',
         VersionScenario: '1.0.1',
-        TypeFichier: `${fileType}01`,
+        TypeFichier: fileType,
         NomFichier: fileName,
         NomLogicielCreation: 'SIGAL',
         VersionLogicielCreation: '4.0'
@@ -158,5 +165,29 @@ const generateXML = <T extends FileType>(
   validator.validate(xmlDocument);
 
   xmlDocument.dispose();
-  return { fileName, content: xmlResult };
+  return { fileName, fileType, content: xmlResult };
+};
+
+export const getXmlFileName = (
+  fileType: FileType,
+  //TODO replace Laboratories
+  issuer: Pick<Laboratories, 'sachaSigle'>,
+  laboratory: Pick<Laboratories, 'sachaSigle'>,
+  dateNow: number
+): string => {
+  const currentDate: string = format(dateNow, 'yyMMddHHmmssSS', {
+    locale: fr
+  });
+  return `${fileType}${issuer.sachaSigle}${laboratory.sachaSigle}${currentDate}`;
+};
+
+export const getZipFileName = (
+  fileType: FileType,
+  laboratory: Pick<Laboratories, 'sachaSigle'>,
+  dateNow: number
+): string => {
+  const currentDate: string = format(dateNow, 'yyMMddHHmm', {
+    locale: fr
+  });
+  return `${fileType}${laboratory.sachaSigle}${currentDate}_1.zip`;
 };

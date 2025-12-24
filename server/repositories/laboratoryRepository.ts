@@ -1,16 +1,24 @@
-import { sql } from 'kysely';
+import { sql, Selectable } from 'kysely';
 import { isNil, omitBy } from 'lodash-es';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
+import { Laboratories as KyselyLaboratories } from './kysely.type';
 
 const laboratoryTable = 'laboratories';
 
 export const Laboratories = () => db<Laboratory>(laboratoryTable);
 
-const findUnique = async (id: string): Promise<Laboratory | undefined> => {
+const findUnique = async (
+  id: string
+): Promise<Selectable<KyselyLaboratories> | undefined> => {
   console.info('Find laboratory by id', id);
-  return Laboratories().where({ id }).first();
+
+  return kysely
+    .selectFrom('laboratories')
+    .selectAll()
+    .where('id', '=', id)
+    .executeTakeFirst();
 };
 
 const findMany = async (): Promise<Laboratory[]> => {

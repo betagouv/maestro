@@ -1,7 +1,19 @@
 import { toMaestroDate } from 'maestro-shared/utils/date';
 import { expect, test } from 'vitest';
-import { generateXMLAcquitement, generateXMLDAI } from './sachaToXML';
+import {
+  generateXMLAcquitement,
+  generateXMLDAI,
+  getXmlFileName,
+  getZipFileName
+} from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
+
+const laboratory = {
+  shortName: 'LDA 72',
+  sachaSigle: 'LDA72',
+  name: 'Innovalys 72',
+  sachaEmail: 'fake@email.fr'
+} as const;
 
 test(`génère un XML d'acquittement`, () => {
   expect(
@@ -13,7 +25,7 @@ test(`génère un XML d'acquittement`, () => {
         }
       ],
       undefined,
-      'LDA 72',
+      laboratory,
 
       1765876056798
     )
@@ -94,7 +106,7 @@ test(`génère un XML de DAI`, () => {
           }
         }
       },
-      'LDA 72',
+      laboratory,
       1765876056798
     )
   ).toMatchInlineSnapshot(`
@@ -163,4 +175,21 @@ test(`génère un XML de DAI`, () => {
       "fileName": "DA01LDA722512161007_1",
     }
   `);
+});
+
+test('getXmlFileName', () => {
+  expect(
+    getXmlFileName(
+      'AN01',
+      { sachaSigle: 'LABERCA' },
+      { sachaSigle: 'DDSV35' },
+      //16/12/2025 10:07:36
+      1765876056798
+    )
+  ).toBe('AN01LABERCADDSV3525121610073679');
+});
+test('getZipFileName', () => {
+  expect(getZipFileName('AN01', { sachaSigle: 'LDA72' }, 1765876056798)).toBe(
+    'AN01LDA722512161007_1'
+  );
 });
