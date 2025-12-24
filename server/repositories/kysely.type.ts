@@ -105,6 +105,12 @@ export interface KnexMigrations {
   name: string | null;
 }
 
+export interface SachaSender {
+  sachaSigle: string;
+  name: string;
+  sachaEmail: string;
+}
+
 export interface Laboratories {
   emails: string[];
   id: Generated<string>;
@@ -289,6 +295,7 @@ export interface DB {
   localPrescriptionComments: LocalPrescriptionComments;
   localPrescriptions: LocalPrescriptions;
   residueAnalytes: ResidueAnalytes;
+  sachaSender: SachaSender;
   sampleDocuments: SampleDocuments;
   sampleItems: SampleItems;
   samples: Samples;

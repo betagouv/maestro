@@ -1,7 +1,7 @@
 import { genCreatedSample } from 'maestro-shared/test/sampleFixtures';
 import { generateDAI } from './dai';
 
-//TODO delete me
+//FIXME delete me
 const launch = async () => {
   await generateDAI(
     genCreatedSample({

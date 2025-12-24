@@ -4,7 +4,8 @@ import {
   generateXMLAcquitement,
   generateXMLDAI,
   getXmlFileName,
-  getZipFileName
+  getZipFileName,
+  loadLaboratoryAndSenderCall
 } from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
 
@@ -15,9 +16,20 @@ const laboratory = {
   sachaEmail: 'fake@email.fr'
 } as const;
 
-test(`génère un XML d'acquittement`, () => {
+const loadLaboratoryAndSender: ReturnType<
+  typeof loadLaboratoryAndSenderCall
+> = async () => ({
+  laboratory,
+  sender: {
+    sachaSigle: 'DAAF',
+    name: 'DAAF Test',
+    sachaEmail: 'daaf@gr.gouv.fr'
+  }
+});
+
+test(`génère un XML d'acquittement`, async () => {
   expect(
-    generateXMLAcquitement(
+    await generateXMLAcquitement(
       [
         {
           DateAcquittement: toSachaDateTime(new Date(12341234)),
@@ -25,7 +37,7 @@ test(`génère un XML d'acquittement`, () => {
         }
       ],
       undefined,
-      laboratory,
+      loadLaboratoryAndSender,
 
       1765876056798
     )
@@ -38,23 +50,19 @@ test(`génère un XML d'acquittement`, () => {
         <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
         <VersionScenario>1.0.1</VersionScenario>
         <TypeFichier>AN01</TypeFichier>
-        <NomFichier>AN01LDA722512161007_1</NomFichier>
+        <NomFichier>AN01DAAFLDA7225121610073679</NomFichier>
         <NomLogicielCreation>SIGAL</NomLogicielCreation>
         <VersionLogicielCreation>4.0</VersionLogicielCreation>
       </MessageParametres>
       <Emetteur>
-        <Sigle>Maestro</Sigle>
-        <Nom>Maestro</Nom>
-        <Telephone>Maestro</Telephone>
-        <LibellePartenaire>Maestro</LibellePartenaire>
-        <EmailPartenaire>Maestro</EmailPartenaire>
+        <Sigle>DAAF</Sigle>
+        <LibellePartenaire>DAAF Test</LibellePartenaire>
+        <EmailPartenaire>daaf@gr.gouv.fr</EmailPartenaire>
       </Emetteur>
       <Destinataire>
-        <Sigle>LDA 72</Sigle>
-        <Nom>LDA 72</Nom>
-        <Telephone>LDA 72</Telephone>
-        <LibellePartenaire>LDA 72</LibellePartenaire>
-        <EmailPartenaire>LDA 72</EmailPartenaire>
+        <Sigle>LDA72</Sigle>
+        <LibellePartenaire>Innovalys 72</LibellePartenaire>
+        <EmailPartenaire>fake@email.fr</EmailPartenaire>
       </Destinataire>
       <MessageAcquittement>
         <NomFichier>RA01123123123123</NomFichier>
@@ -62,15 +70,22 @@ test(`génère un XML d'acquittement`, () => {
       </MessageAcquittement>
     </AcquittementNonAcquittement>
     ",
-      "fileName": "AN01LDA722512161007_1",
+      "fileName": "AN01DAAFLDA7225121610073679",
+      "fileType": "AN01",
+      "laboratory": {
+        "name": "Innovalys 72",
+        "sachaEmail": "fake@email.fr",
+        "sachaSigle": "LDA72",
+        "shortName": "LDA 72",
+      },
     }
   `
   );
 });
 
-test(`génère un XML de DAI`, () => {
+test(`génère un XML de DAI`, async () => {
   expect(
-    generateXMLDAI(
+    await generateXMLDAI(
       {
         DialogueDemandeIntervention: {
           NumeroDAP: 0,
@@ -106,7 +121,7 @@ test(`génère un XML de DAI`, () => {
           }
         }
       },
-      laboratory,
+      loadLaboratoryAndSender,
       1765876056798
     )
   ).toMatchInlineSnapshot(`
@@ -117,23 +132,19 @@ test(`génère un XML de DAI`, () => {
         <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
         <VersionScenario>1.0.1</VersionScenario>
         <TypeFichier>DA01</TypeFichier>
-        <NomFichier>DA01LDA722512161007_1</NomFichier>
+        <NomFichier>DA01DAAFLDA7225121610073679</NomFichier>
         <NomLogicielCreation>SIGAL</NomLogicielCreation>
         <VersionLogicielCreation>4.0</VersionLogicielCreation>
       </MessageParametres>
       <Emetteur>
-        <Sigle>Maestro</Sigle>
-        <Nom>Maestro</Nom>
-        <Telephone>Maestro</Telephone>
-        <LibellePartenaire>Maestro</LibellePartenaire>
-        <EmailPartenaire>Maestro</EmailPartenaire>
+        <Sigle>DAAF</Sigle>
+        <LibellePartenaire>DAAF Test</LibellePartenaire>
+        <EmailPartenaire>daaf@gr.gouv.fr</EmailPartenaire>
       </Emetteur>
       <Destinataire>
-        <Sigle>LDA 72</Sigle>
-        <Nom>LDA 72</Nom>
-        <Telephone>LDA 72</Telephone>
-        <LibellePartenaire>LDA 72</LibellePartenaire>
-        <EmailPartenaire>LDA 72</EmailPartenaire>
+        <Sigle>LDA72</Sigle>
+        <LibellePartenaire>Innovalys 72</LibellePartenaire>
+        <EmailPartenaire>fake@email.fr</EmailPartenaire>
       </Destinataire>
       <DemandeType>
         <DialogueDemandeIntervention>
@@ -172,7 +183,14 @@ test(`génère un XML de DAI`, () => {
       </DemandeType>
     </DemandesAnalyses>
     ",
-      "fileName": "DA01LDA722512161007_1",
+      "fileName": "DA01DAAFLDA7225121610073679",
+      "fileType": "DA01",
+      "laboratory": {
+        "name": "Innovalys 72",
+        "sachaEmail": "fake@email.fr",
+        "sachaSigle": "LDA72",
+        "shortName": "LDA 72",
+      },
     }
   `);
 });

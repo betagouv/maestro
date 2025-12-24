@@ -3,11 +3,15 @@ import { toMaestroDate } from 'maestro-shared/utils/date';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'path';
-import { laboratoryRepository } from '../../../repositories/laboratoryRepository';
 import { encryptFile } from '../../gpgService';
 import { mailService } from '../../mailService';
 import { zip } from '../../zipService';
-import { generateXMLDAI, getZipFileName, XmlFile } from '../sachaToXML';
+import {
+  generateXMLDAI,
+  getZipFileName,
+  loadLaboratoryAndSenderCall,
+  XmlFile
+} from '../sachaToXML';
 import { DAI, toSachaDateTime } from '../sachaValidator';
 
 export const generateDAI = async (sample: Sample) => {
@@ -21,19 +25,6 @@ export const generateDAI = async (sample: Sample) => {
   const dateNow = Date.now();
 
   for (const item of itemsForLaboratories) {
-    const laboratory = await laboratoryRepository.findUnique(
-      item.laboratoryId!
-    );
-
-    if (!laboratory) {
-      throw new Error(`Le laboratoire ${item.laboratoryId} est introuvable.`);
-    }
-    if (!laboratory.sachaEmail) {
-      throw new Error(
-        `Le laboratoire ${laboratory.sachaEmail} n'est pas configuré pour utiliser l'EDI Sacha.`
-      );
-    }
-
     if (sample.specificData.programmingPlanKind === 'DAOA_SLAUGHTER') {
       const dai: DAI['DemandeType'] = {
         DialogueDemandeIntervention: {
@@ -91,7 +82,11 @@ export const generateDAI = async (sample: Sample) => {
         }
       };
 
-      xmlFile = generateXMLDAI(dai, laboratory, dateNow);
+      xmlFile = await generateXMLDAI(
+        dai,
+        loadLaboratoryAndSenderCall(item.laboratoryId!, sample.sampler.id),
+        dateNow
+      );
     }
 
     if (xmlFile) {
@@ -104,11 +99,15 @@ export const generateDAI = async (sample: Sample) => {
       await writeFile(filePath, xmlFile.content);
 
       // Zip directory
-      const zipFileName = getZipFileName(xmlFile.fileType, laboratory, dateNow);
+      const zipFileName = getZipFileName(
+        xmlFile.fileType,
+        xmlFile.laboratory,
+        dateNow
+      );
       const zipFilePath = await zip(directoryPath, zipFileName);
 
       // Encrypt
-      const laboratoryGpgEmail = laboratory.sachaEmail;
+      const laboratoryGpgEmail = xmlFile.laboratory.sachaEmail;
       const encryptFileName = `${zipFileName}.gpg`;
       const encryptFilePath = await encryptFile(
         zipFilePath,
@@ -117,7 +116,7 @@ export const generateDAI = async (sample: Sample) => {
       );
       const encryptFileBuffer = await readFile(encryptFilePath);
 
-      // Send by email or FTP
+      // Send by email
       await mailService.send({
         templateName: 'GenericTemplate',
         attachment: [

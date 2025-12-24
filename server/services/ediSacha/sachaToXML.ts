@@ -2,11 +2,12 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { XMLBuilder } from 'fast-xml-parser';
 import { XmlDocument, XsdValidator } from 'libxml2-wasm';
-import { Brand } from 'maestro-shared/constants';
+import { RequiredNotNull } from 'maestro-shared/utils/typescript';
 import fs from 'node:fs';
 import path from 'path';
 import { z, ZodObject } from 'zod';
-import { Laboratories } from '../../repositories/kysely.type';
+import { Laboratories, SachaSender } from '../../repositories/kysely.type';
+import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import {
   Acquittement,
   acquittementValidator,
@@ -18,43 +19,83 @@ import {
 const xml = z.string().brand('XML');
 export type Xml = z.infer<typeof xml>;
 
-export type XmlFile = { fileName: string; fileType: FileType; content: Xml };
+export type XmlFile = {
+  fileName: string;
+  fileType: FileType;
+  content: Xml;
+  laboratory: RequiredNotNull<
+    Pick<Laboratories, 'sachaSigle' | 'sachaEmail' | 'shortName' | 'name'>
+  >;
+};
 
-export const generateXMLAcquitement = (
+export const loadLaboratoryAndSenderCall =
+  (laboratoryId: string, _sampler: string) =>
+  async (): Promise<{
+    laboratory: XmlFile['laboratory'];
+    sender: SachaSender;
+  }> => {
+    const laboratory = await laboratoryRepository.findUnique(laboratoryId);
+    if (!laboratory) {
+      throw new Error(`Le laboratoire ${laboratoryId} est introuvable.`);
+    }
+
+    if (laboratory.sachaEmail === null || laboratory.sachaSigle) {
+      throw new Error(
+        `Le laboratoire ${laboratory.shortName} n'est pas configuré pour utiliser les EDI Sacha`
+      );
+    }
+
+    if (laboratory.sachaSigle === null) {
+      throw new Error(
+        `Le laboratoire ${laboratory.shortName} n'est pas configuré pour utiliser les EDI Sacha`
+      );
+    }
+
+    return {
+      laboratory: {
+        sachaSigle: laboratory.sachaSigle,
+        sachaEmail: laboratory.sachaEmail,
+        shortName: laboratory.shortName,
+        name: laboratory.name
+      },
+      //FIXME
+      sender: {
+        sachaSigle: '',
+        name: '',
+        sachaEmail: ''
+      }
+    };
+  };
+
+export const generateXMLAcquitement = async (
   messagesAcquittement: Acquittement['MessageAcquittement'],
   messagesNonAcquittement: Acquittement['MessageNonAcquittement'],
-  laboratory: Pick<
-    Laboratories,
-    'sachaSigle' | 'sachaEmail' | 'shortName' | 'name'
-  >,
+  loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryAndSenderCall>,
   dateNow: number
-): XmlFile => {
+): Promise<XmlFile> => {
   return generateXML(
     'AN01',
     {
       MessageAcquittement: messagesAcquittement,
       MessageNonAcquittement: messagesNonAcquittement
     },
-    laboratory,
-    dateNow
+    dateNow,
+    loadLaboratoryAndSender
   );
 };
 
 export const generateXMLDAI = (
   dai: DAI['DemandeType'],
-  laboratory: Pick<
-    Laboratories,
-    'sachaSigle' | 'sachaEmail' | 'shortName' | 'name'
-  >,
+  loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryAndSenderCall>,
   dateNow: number
-): XmlFile => {
+): Promise<XmlFile> => {
   return generateXML(
     'DA01',
     {
       DemandeType: dai
     },
-    laboratory,
-    dateNow
+    dateNow,
+    loadLaboratoryAndSender
   );
 };
 
@@ -84,30 +125,24 @@ const fileTypeConf = {
   }
 >;
 
-const generateXML = <T extends FileType>(
+const generateXML = async <T extends FileType>(
   fileType: T,
   content: z.infer<(typeof fileTypeConf)[T]['content']>,
-  laboratory: Pick<
-    Laboratories,
-    'sachaSigle' | 'sachaEmail' | 'shortName' | 'name'
-  >,
-  dateNow: number
-): XmlFile => {
+  dateNow: number,
+  loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryAndSenderCall>
+): Promise<XmlFile> => {
   const builder = new XMLBuilder({
     ignoreAttributes: false,
     format: true
   });
 
-  if (laboratory.sachaEmail === null || laboratory.sachaSigle === null) {
-    throw new Error(
-      `Le laboratoire ${laboratory.shortName} n'est pas configuré pour utiliser les EDI Sacha`
-    );
-  }
+  const { laboratory, sender } = await loadLaboratoryAndSender();
+
   const conf = fileTypeConf[fileType];
 
   const fileName: string = getXmlFileName(
     fileType,
-    laboratory,
+    sender,
     laboratory,
     dateNow
   );
@@ -128,16 +163,12 @@ const generateXML = <T extends FileType>(
         VersionLogicielCreation: '4.0'
       },
       Emetteur: {
-        Sigle: Brand,
-        Nom: Brand,
-        Telephone: Brand,
-        LibellePartenaire: Brand,
-        EmailPartenaire: Brand
+        Sigle: sender.sachaSigle,
+        LibellePartenaire: sender.name,
+        EmailPartenaire: sender.sachaEmail
       },
       Destinataire: {
         Sigle: laboratory.sachaSigle,
-        Nom: laboratory.shortName,
-        Telephone: '',
         LibellePartenaire: laboratory.name,
         EmailPartenaire: laboratory.sachaEmail
       },
@@ -165,20 +196,19 @@ const generateXML = <T extends FileType>(
   validator.validate(xmlDocument);
 
   xmlDocument.dispose();
-  return { fileName, fileType, content: xmlResult };
+  return { fileName, fileType, content: xmlResult, laboratory };
 };
 
 export const getXmlFileName = (
   fileType: FileType,
-  //TODO replace Laboratories
-  issuer: Pick<Laboratories, 'sachaSigle'>,
+  sender: Pick<SachaSender, 'sachaSigle'>,
   laboratory: Pick<Laboratories, 'sachaSigle'>,
   dateNow: number
 ): string => {
   const currentDate: string = format(dateNow, 'yyMMddHHmmssSS', {
     locale: fr
   });
-  return `${fileType}${issuer.sachaSigle}${laboratory.sachaSigle}${currentDate}`;
+  return `${fileType}${sender.sachaSigle}${laboratory.sachaSigle}${currentDate}`;
 };
 
 export const getZipFileName = (
