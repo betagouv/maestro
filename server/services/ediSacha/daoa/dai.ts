@@ -119,8 +119,7 @@ export const generateDAI = async (sample: Sample) => {
 
       // Send by email or FTP
       await mailService.send({
-        //TODO use generic template
-        templateName: 'AnalysisReviewTodoTemplate',
+        templateName: 'GenericTemplate',
         attachment: [
           {
             name: encryptFileName,
@@ -129,7 +128,8 @@ export const generateDAI = async (sample: Sample) => {
         ],
         recipients: [laboratoryGpgEmail],
         params: {
-          link: 'https://maestro.beta.gouv.fr'
+          object: zipFileName,
+          content: zipFileName
         }
       });
 
