@@ -88,20 +88,39 @@
                             </div>
                           </div>
                           <div class='fr-col-12'>
-                            <div class='sample-section-item'>
-                              <div class='label'>
-                                Agent habilité
+                            <div class='fr-grid-row'>
+                              <div class='{{#if additionalSampler}}fr-col-6{{else}}fr-col-12{{/if}}'>
+                                <div class='sample-section-item'>
+                                  <div class='label'>
+                                    Agent habilité {{#if additionalSampler}}n°1{{/if}}
+                                  </div>
+                                  <div class='value {{#if (isEmpty sampler.name)}}empty{{/if}}'>
+                                    {{sampler.name}}
+                                  </div>
+                                  <div class='sub-value'>
+                                    {{sampler.email}}
+                                  </div>
+                                </div>
                               </div>
-                              <div class='value {{#if (isEmpty sampler.name)}}empty{{/if}}'>
-                                {{sampler.name}}
-                              </div>
-                              <div class='sub-value'>
-                                {{sampler.email}}
-                              </div>
-                              <div class='notice'>
-                                habilitée(s) à procéder à l’inspection, et au contrôle tels que prévus aux articles R.206-1,
-                                R.206-2, R.250-1 et L.250-6 du code rural et de la pêche maritime
-                              </div>
+                              {{#if additionalSampler}}
+                                <div class='fr-col-6'>
+                                  <div class='sample-section-item'>
+                                    <div class='label'>
+                                      Agent habilité n°2
+                                    </div>
+                                    <div class='value {{#if (isEmpty additionalSampler.name)}}empty{{/if}}'>
+                                      {{additionalSampler.name}}
+                                    </div>
+                                    <div class='sub-value'>
+                                      {{additionalSampler.email}}
+                                    </div>
+                                  </div>
+                                </div>
+                              {{/if}}
+                            </div>
+                            <div class='notice'>
+                              habilitée(s) à procéder à l’inspection, et au contrôle tels que prévus aux articles R.206-1,
+                              R.206-2, R.250-1 et L.250-6 du code rural et de la pêche maritime
                             </div>
                           </div>
                           <div class='fr-col-6'>
