@@ -165,6 +165,16 @@ export const DummyLaboratoryIds = [
   SCL91Id
 ];
 
+export const PPVDummyLaboratoryIds = [
+  CAP29Id,
+  CER30Id,
+  GIR49Id,
+  LDA66Id,
+  LDA72Id,
+  SCL34Id,
+  SCL91Id
+];
+
 export const companiesIsRequired = (
   user: Pick<Nullable<User>, 'programmingPlanKinds' | 'roles'>
 ): boolean =>

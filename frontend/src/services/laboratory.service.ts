@@ -1,4 +1,5 @@
 import { isNil, omitBy } from 'lodash-es';
+import { FindLaboratoryOptions } from 'maestro-shared/schema/Laboratory/FindLaboratoryOptions';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { api } from 'src/services/api.service';
 
@@ -12,8 +13,11 @@ const laboratoryApi = api.injectEndpoints({
         { type: 'Laboratory', id: laboratoryId }
       ]
     }),
-    findLaboratories: builder.query<Laboratory[], void>({
-      query: () => 'laboratories',
+    findLaboratories: builder.query<Laboratory[], FindLaboratoryOptions>({
+      query: (findOptions) => ({
+        url: 'laboratories',
+        params: omitBy(findOptions, isNil)
+      }),
       transformResponse: (response: any[]) =>
         response.map((_) => Laboratory.parse(omitBy(_, isNil))),
       providesTags: (result) => [

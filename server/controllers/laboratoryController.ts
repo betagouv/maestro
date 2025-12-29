@@ -17,10 +17,10 @@ export const laboratoriesRouter = {
     }
   },
   '/laboratories': {
-    get: async (_) => {
+    get: async ({ query }) => {
       console.info('Find laboratories');
 
-      const laboratories = await laboratoryRepository.findMany();
+      const laboratories = await laboratoryRepository.findMany(query);
 
       return { status: constants.HTTP_STATUS_OK, response: laboratories };
     }

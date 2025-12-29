@@ -1,6 +1,8 @@
 import { sql } from 'kysely';
 import { isNil, omitBy } from 'lodash-es';
+import { FindLaboratoryOptions } from 'maestro-shared/schema/Laboratory/FindLaboratoryOptions';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
 
@@ -16,11 +18,56 @@ const findUnique = async (id: string): Promise<Laboratory | undefined> => {
     .then((_) => _ && Laboratory.parse(omitBy(_, isNil)));
 };
 
-const findMany = async (): Promise<Laboratory[]> => {
-  console.info('Find laboratories');
-  return Laboratories().then((laboratories) =>
-    laboratories.map((_) => Laboratory.parse(omitBy(_, isNil)))
-  );
+const findMany = async (
+  findOptions: FindLaboratoryOptions = {}
+): Promise<Laboratory[]> => {
+  console.info('Find laboratories', findOptions);
+
+  let query = kysely.selectFrom('laboratories').selectAll();
+
+  const needsAgreementJoin =
+    !isNil(findOptions.programmingPlanId) || !isNil(findOptions.substanceKind);
+
+  if (needsAgreementJoin) {
+    query = query.innerJoin(
+      'laboratoryAgreements',
+      'laboratoryAgreements.laboratoryId',
+      'laboratories.id'
+    );
+  }
+
+  for (const option of FindLaboratoryOptions.keyof().options) {
+    switch (option) {
+      case 'programmingPlanId':
+        if (!isNil(findOptions.programmingPlanId)) {
+          query = query.where(
+            'laboratoryAgreements.programmingPlanId' as any,
+            '=',
+            findOptions.programmingPlanId
+          );
+        }
+        break;
+      case 'substanceKind':
+        if (!isNil(findOptions.substanceKind)) {
+          query = query.where(
+            'laboratoryAgreements.substanceKind' as any,
+            '=',
+            findOptions.substanceKind
+          );
+        }
+        break;
+      default:
+        assertUnreachable(option);
+    }
+  }
+
+  if (needsAgreementJoin) {
+    query = query.distinct();
+  }
+
+  const laboratories: Laboratory[] = await query.execute();
+
+  return laboratories.map((l) => Laboratory.parse(omitBy(l, isNil)));
 };
 
 const findByEmailSender = async (email_result_analysis: string) => {

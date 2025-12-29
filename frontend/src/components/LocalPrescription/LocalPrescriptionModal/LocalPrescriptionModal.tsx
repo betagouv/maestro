@@ -177,6 +177,9 @@ const RegionalPrescriptionModal = () => {
             {localPrescriptionModalData?.mode === 'laboratory' && (
               <LocalPrescriptionSubstanceKindsLaboratories
                 ref={modalContentRef}
+                programmingPlanId={
+                  localPrescriptionModalData.programmingPlan.id
+                }
                 substanceKindsLaboratories={
                   (
                     localPrescriptionModalData.localPrescription

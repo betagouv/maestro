@@ -6,6 +6,12 @@ import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 import { fakerFR } from '@faker-js/faker';
+import {
+  DummyLaboratoryIds,
+  LDA31Id,
+  PPVDummyLaboratoryIds
+} from 'maestro-shared/schema/User/User';
+import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import { NationalCoordinator } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
@@ -55,26 +61,53 @@ describe('Laboratory router', () => {
   });
 
   describe('GET /laboratories', () => {
-    const testRoute = '/api/laboratories';
+    const testRoute = (programmingPlanId?: string, substanceKind?: string) =>
+      `/api/laboratories${programmingPlanId || substanceKind ? '?' : ''}${programmingPlanId ? `programmingPlanId=${programmingPlanId}` : ''}${programmingPlanId && substanceKind ? '&' : ''}${substanceKind ? `substanceKind=${substanceKind}` : ''}`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
-        .get(testRoute)
+        .get(testRoute())
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     test('should find the laboratories', async () => {
       const res = await request(app)
-        .get(testRoute)
+        .get(testRoute())
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expectArrayToContainElements(res.body, [
-        expect.objectContaining({
-          id: laboratory.id,
-          shortName: laboratory.shortName
-        })
-      ]);
+      expectArrayToContainElements(
+        res.body,
+        DummyLaboratoryIds.map((laboratoryId) =>
+          expect.objectContaining({
+            id: laboratoryId
+          })
+        )
+      );
+    });
+
+    test('should filter aggregated laboratories by programmingPlanId and substanceKind', async () => {
+      const res = await request(app)
+        .get(testRoute(PPVValidatedProgrammingPlanFixture.id, 'Any'))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expectArrayToContainElements(
+        res.body,
+        PPVDummyLaboratoryIds.map((laboratoryId) =>
+          expect.objectContaining({
+            id: laboratoryId
+          })
+        )
+      );
+
+      expect(res.body).not.toMatchObject(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: LDA31Id
+          })
+        ])
+      );
     });
   });
 });
