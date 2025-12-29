@@ -183,6 +183,9 @@ const generateSampleSupportPDF = async (
   if (!sampler) {
     throw new UserMissingError(sample.sampler.id);
   }
+  const additionalSampler = sample.additionalSampler
+    ? await userRepository.findUnique(sample.additionalSampler.id)
+    : null;
 
   const emptySampleItems: PartialSampleItem[] = new Array(
     programmingPlan.substanceKinds.length * SampleItemMaxCopyCount
@@ -228,6 +231,7 @@ const generateSampleSupportPDF = async (
     itemNumber,
     copyNumber,
     sampler,
+    additionalSampler,
     laboratory: !isNil(laboratory)
       ? {
           ...laboratory,
