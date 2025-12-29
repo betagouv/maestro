@@ -47,6 +47,12 @@ const ContextStepSummary = ({
               ? `${sample.sampler.name}`
               : `${user?.name}`}
           </b>
+          {isCreatedPartialSample(sample) && sample.additionalSampler && (
+            <>
+              {' et '}
+              <b>{sample.additionalSampler.name}</b>
+            </>
+          )}
         </div>
       </div>
       <div className="summary-item icon-text">

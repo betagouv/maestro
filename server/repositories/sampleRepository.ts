@@ -16,18 +16,19 @@ export const samplesTable = 'samples';
 export const sampleDocumentsTable = 'sample_documents';
 const sampleSequenceNumbers = 'sample_sequence_numbers';
 
-const PartialSampleDbo = PartialSample.omit({
-  items: true,
-  company: true,
-  sampler: true,
-  geolocation: true
-}).merge(
-  z.object({
-    companySiret: z.string().nullish(),
-    geolocation: z.any().nullish(),
-    sampledBy: z.guid()
-  })
-);
+const PartialSampleDbo = z.object({
+  ...PartialSample.omit({
+    items: true,
+    company: true,
+    sampler: true,
+    additionalSampler: true,
+    geolocation: true
+  }).shape,
+  companySiret: z.string().nullish(),
+  geolocation: z.any().nullish(),
+  sampledBy: z.guid(),
+  additionalSampledBy: z.guid().nullish()
+});
 
 const PartialSampleJoinedDbo = PartialSampleDbo.merge(
   z.object({
@@ -40,7 +41,9 @@ const PartialSampleJoinedDbo = PartialSampleDbo.merge(
     companyNafCode: z.string().nullish(),
     companyKinds: z.array(z.string()).nullish(),
     samplerId: z.guid(),
-    samplerName: z.string()
+    samplerName: z.string(),
+    additionalSamplerId: z.guid().nullish(),
+    additionalSamplerName: z.string().nullish()
   })
 );
 
@@ -64,6 +67,8 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       `${companiesTable}.kinds as company_kinds`,
       `${usersTable}.id as sampler_id`,
       `${usersTable}.name as sampler_name`,
+      db.raw(`additional_sampler.id as additional_sampler_id`),
+      db.raw(`additional_sampler.name as additional_sampler_name`),
       db.raw(
         `coalesce(array_agg(${sampleDocumentsTable}.document_id) filter (where ${sampleDocumentsTable}.document_id is not null), '{}') as document_ids`
       )
@@ -76,6 +81,11 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
     )
     .join(usersTable, `${samplesTable}.sampled_by`, `${usersTable}.id`)
     .leftJoin(
+      `${usersTable} as additional_sampler`,
+      `${samplesTable}.additional_sampled_by`,
+      `additional_sampler.id`
+    )
+    .leftJoin(
       sampleDocumentsTable,
       `${samplesTable}.id`,
       `${sampleDocumentsTable}.sample_id`
@@ -83,7 +93,8 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
     .groupBy(
       `${samplesTable}.id`,
       `${companiesTable}.siret`,
-      `${usersTable}.id`
+      `${usersTable}.id`,
+      `additional_sampler.id`
     )
     .first()
     .then(parsePartialSample);
@@ -185,6 +196,8 @@ const findMany = async (
       `${companiesTable}.naf_code as company_naf_code`,
       `${usersTable}.id as sampler_id`,
       `${usersTable}.name as sampler_name`,
+      db.raw(`additional_sampler.id as additional_sampler_id`),
+      db.raw(`additional_sampler.name as additional_sampler_name`),
       db.raw(
         `coalesce(array_agg(${sampleDocumentsTable}.document_id) filter (where ${sampleDocumentsTable}.document_id is not null), '{}') as document_ids`
       )
@@ -196,6 +209,11 @@ const findMany = async (
     )
     .join(usersTable, `${samplesTable}.sampled_by`, `${usersTable}.id`)
     .leftJoin(
+      `${usersTable} as additional_sampler`,
+      `${samplesTable}.additional_sampled_by`,
+      `additional_sampler.id`
+    )
+    .leftJoin(
       sampleDocumentsTable,
       `${samplesTable}.id`,
       `${sampleDocumentsTable}.sample_id`
@@ -203,7 +221,8 @@ const findMany = async (
     .groupBy(
       `${samplesTable}.id`,
       `${companiesTable}.siret`,
-      `${usersTable}.id`
+      `${usersTable}.id`,
+      `additional_sampler.id`
     )
     .modify((builder) => {
       if (findOptions.page) {
@@ -304,7 +323,13 @@ const deleteOne = async (id: string): Promise<void> => {
 export const formatPartialSample = (
   partialSample: PartialSample | Sample
 ): PartialSampleDbo => ({
-  ...omit(partialSample, ['items', 'company', 'sampler', 'documentIds']),
+  ...omit(partialSample, [
+    'items',
+    'company',
+    'sampler',
+    'additionalSampler',
+    'documentIds'
+  ]),
   geolocation: partialSample.geolocation
     ? db.raw('Point(?, ?)', [
         partialSample.geolocation.x,
@@ -312,7 +337,8 @@ export const formatPartialSample = (
       ])
     : null,
   companySiret: partialSample.company?.siret,
-  sampledBy: partialSample.sampler.id
+  sampledBy: partialSample.sampler.id,
+  additionalSampledBy: partialSample.additionalSampler?.id
 });
 
 const parsePartialSample = (sample: PartialSampleJoinedDbo): PartialSample =>
@@ -341,6 +367,12 @@ const parsePartialSample = (sample: PartialSampleJoinedDbo): PartialSample =>
       id: sample.samplerId,
       name: sample.samplerName
     },
+    additionalSampler: sample.additionalSamplerId
+      ? {
+          id: sample.additionalSamplerId,
+          name: sample.additionalSamplerName!
+        }
+      : undefined,
     specificData: omitBy(sample.specificData, isNil)
   });
 
