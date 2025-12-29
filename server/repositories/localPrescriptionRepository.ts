@@ -228,6 +228,10 @@ const include = (opts?: Pick<FindLocalPrescriptionOptions, 'includes'>) => {
           db.raw(
             `count(distinct(${samplesTable}.id)) filter(where ${samplesTable}.status = any(?)) as realized_sample_count`,
             [RealizedStatusList]
+          ),
+          db.raw(
+            `count(distinct(${samplesTable}.id)) filter(where ${samplesTable}.status = ?) as not_admissible_sample_count`,
+            ['NotAdmissible']
           )
         )
         .leftJoin(samplesTable, (query) =>

@@ -36,7 +36,6 @@ export const InProgressStatusList: SampleStatus[] = [
 
 export const RealizedStatusList: SampleStatus[] = [
   'Sent',
-  'NotAdmissible',
   'Analysis',
   'InReview',
   'Completed'
