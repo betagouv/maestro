@@ -18,6 +18,7 @@ import { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+import { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { MaestroDate } from 'maestro-shared/utils/date';
 
@@ -112,6 +113,12 @@ export interface Laboratories {
   postalCode: string;
   city: string;
   emailsAnalysisResult: string[];
+}
+
+export interface LaboratoryAgreements {
+  laboratoryId: string;
+  programmingPlanId: string;
+  substanceKind: SubstanceKind;
 }
 
 export interface Notices {
@@ -262,6 +269,7 @@ export interface DB {
   documents: Documents;
   knexMigrations: KnexMigrations;
   laboratories: Laboratories;
+  laboratoryAgreements: LaboratoryAgreements;
   notices: Notices;
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;

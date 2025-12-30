@@ -55,6 +55,7 @@ const ProgrammingPrescriptionListGroupedUpdate = ({
         <div>
           <LocalPrescriptionSubstanceKindsLaboratories
             ref={laboratoriesUpdateContentRef}
+            programmingPlanId={programmingPlan.id}
             substanceKindsLaboratories={programmingPlan.substanceKinds.map(
               (substanceKind) => ({
                 substanceKind,
