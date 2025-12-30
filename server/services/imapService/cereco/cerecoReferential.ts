@@ -1,5 +1,8 @@
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
+/**
+ * @deprecated Data migrated to database table: laboratory_residue_mappings
+ */
 export const cerecoUnknownReferences: string[] = [
   '2,4 D (sum)',
   '2,4 DB (sum)',
@@ -10,7 +13,6 @@ export const cerecoUnknownReferences: string[] = [
   'cetrimonium',
   'Chlorbenzuron',
   'Chlorophacinone',
-  'Cyflufenamide',
   'Cyprosulfamide',
   'Denathonium',
   'Difethialone',
@@ -34,6 +36,9 @@ export const cerecoUnknownReferences: string[] = [
   'Trimethylsulfonium'
 ];
 
+/**
+ * @deprecated Data migrated to database table: laboratory_residue_mappings
+ */
 export const cerecoReferential: Record<string, SSD2Id> = {
   '- Glufosinate': 'RF-00003355-PAR',
   '- MPP': 'RF-0231-001-PPP',

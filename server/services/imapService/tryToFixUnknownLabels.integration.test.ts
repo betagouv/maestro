@@ -2,8 +2,10 @@ import {
   genPartialAnalysis,
   genPartialResidue
 } from 'maestro-shared/test/analysisFixtures';
-import { Sample2Fixture } from 'maestro-shared/test/sampleFixtures';
-import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import {
+  Sample11Fixture,
+  Sample1Item1Fixture
+} from 'maestro-shared/test/sampleFixtures';
 import { expect, test } from 'vitest';
 import {
   Analysis,
@@ -15,8 +17,8 @@ import { tryToFixResiduesWithUnknownLabel } from './tryToFixUnknownLabels';
 
 test('tryToFixResiduesWithUnknownLabel', async () => {
   const analysisWithResidues = genPartialAnalysis({
-    sampleId: Sample2Fixture.id,
-    createdBy: Sampler1Fixture.id
+    sampleId: Sample11Fixture.id,
+    createdBy: Sample11Fixture.id
   });
   const residues = [
     genPartialResidue({
@@ -29,15 +31,20 @@ test('tryToFixResiduesWithUnknownLabel', async () => {
       analysisId: analysisWithResidues.id,
       reference: undefined,
       residueNumber: 2,
-      unknownLabel: 'desmedipham'
-    }),
-    genPartialResidue({
-      analysisId: analysisWithResidues.id,
-      reference: undefined,
-      residueNumber: 3,
       unknownLabel: 'unknown'
     })
   ];
+
+  await kysely
+    .insertInto('laboratoryResidueMappings')
+    .values([
+      {
+        laboratoryId: Sample1Item1Fixture.laboratoryId!,
+        label: 'clodinafop-propargyl',
+        ssd2Id: 'RF-0565-001-PPP'
+      }
+    ])
+    .execute();
 
   await Analysis().insert([analysisWithResidues]);
   await AnalysisResidues().insert(residues);
@@ -49,16 +56,12 @@ test('tryToFixResiduesWithUnknownLabel', async () => {
     .where('analysisId', '=', analysisWithResidues.id)
     .selectAll()
     .execute();
-  expect(analysisResidue).toHaveLength(3);
+  expect(analysisResidue).toHaveLength(2);
   expect(analysisResidue[0]).toMatchObject({
     reference: girpaConf.ssd2IdByLabel['clodinafop-propargyl'],
     unknownLabel: null
   });
   expect(analysisResidue[1]).toMatchObject({
-    reference: girpaConf.ssd2IdByLabel['desmedipham'],
-    unknownLabel: null
-  });
-  expect(analysisResidue[2]).toMatchObject({
     reference: null,
     unknownLabel: 'unknown'
   });
