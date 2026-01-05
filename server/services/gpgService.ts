@@ -4,10 +4,25 @@ import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { kysely } from '../repositories/kysely';
 
 const exec = promisify(child_process.exec);
 
-export const importPublicKey = async (publicKey: string) => {
+export const initGpgForSacha = async (): Promise<void> => {
+  const laboratories = await kysely
+    .selectFrom('laboratories')
+    .select('sachaGpgPublicKey')
+    .where('sachaGpgPublicKey', 'is not', null)
+    .execute();
+
+  for (const laboratory of laboratories) {
+    if (laboratory.sachaGpgPublicKey) {
+      await importPublicKey(laboratory.sachaGpgPublicKey);
+    }
+  }
+};
+
+const importPublicKey = async (publicKey: string) => {
   const fileName = uuidv4();
 
   const filePath = path.join(tmpdir(), `${fileName}.gpg`);
