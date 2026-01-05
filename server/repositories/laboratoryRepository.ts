@@ -23,25 +23,22 @@ const findMany = async (
 ): Promise<Laboratory[]> => {
   console.info('Find laboratories', findOptions);
 
-  let query = kysely.selectFrom('laboratories').selectAll();
-
-  const needsAgreementJoin =
-    !isNil(findOptions.programmingPlanId) || !isNil(findOptions.substanceKind);
-
-  if (needsAgreementJoin) {
-    query = query.innerJoin(
+  let query = kysely
+    .selectFrom('laboratories')
+    .leftJoin(
       'laboratoryAgreements',
       'laboratoryAgreements.laboratoryId',
       'laboratories.id'
-    );
-  }
+    )
+    .distinct()
+    .selectAll();
 
   for (const option of FindLaboratoryOptions.keyof().options) {
     switch (option) {
       case 'programmingPlanId':
         if (!isNil(findOptions.programmingPlanId)) {
           query = query.where(
-            'laboratoryAgreements.programmingPlanId' as any,
+            'laboratoryAgreements.programmingPlanId',
             '=',
             findOptions.programmingPlanId
           );
@@ -50,7 +47,7 @@ const findMany = async (
       case 'substanceKind':
         if (!isNil(findOptions.substanceKind)) {
           query = query.where(
-            'laboratoryAgreements.substanceKind' as any,
+            'laboratoryAgreements.substanceKind',
             '=',
             findOptions.substanceKind
           );
@@ -59,10 +56,6 @@ const findMany = async (
       default:
         assertUnreachable(option);
     }
-  }
-
-  if (needsAgreementJoin) {
-    query = query.distinct();
   }
 
   const laboratories: Laboratory[] = await query.execute();
