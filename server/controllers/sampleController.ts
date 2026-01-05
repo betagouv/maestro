@@ -210,7 +210,7 @@ export const getNewReference = async (
     currentYear
   );
 
-  return `${Regions[region].shortName}-${format(new Date(), 'yy')}-${String(serial).padStart(currentYear < 2026 ? 4 : 5, '0')}`;
+  return `${Regions[region].shortName}-${currentYear - 2000}-${String(serial).padStart(currentYear < 2026 ? 4 : 5, '0')}`;
 };
 
 export const sampleRouter = {

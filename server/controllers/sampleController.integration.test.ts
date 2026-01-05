@@ -21,14 +21,14 @@ describe('getNewReference', () => {
     const currentYear = 2026;
     let reference = await getNewReference('01', currentYear);
 
-    expect(reference).toBe('GUA-25-00001');
+    expect(reference).toBe('GUA-26-00001');
 
     reference = await getNewReference('01', currentYear);
 
-    expect(reference).toBe('GUA-25-00002');
+    expect(reference).toBe('GUA-26-00002');
 
     reference = await getNewReference('02', currentYear);
 
-    expect(reference).toBe('MAR-25-00003');
+    expect(reference).toBe('MAR-26-00003');
   });
 });
