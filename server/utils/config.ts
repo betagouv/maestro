@@ -77,7 +77,8 @@ const configValidator = z
     ),
     KAFKA_URL: z.string().nullish(),
     KAFKA_TOPIC_DAI: z.string().nullish(),
-    KAFKA_TOPIC_RAI: z.string().nullish()
+    KAFKA_TOPIC_RAI: z.string().nullish(),
+    SIGAL_EMAIL: devDefaultValue(z.email(), 'contact@maestro.beta.gouv.fr')
   })
   .transform((c) => {
     return {
@@ -151,6 +152,9 @@ const configValidator = z
         url: c.KAFKA_URL,
         topicDAI: c.KAFKA_TOPIC_DAI,
         topicRAI: c.KAFKA_TOPIC_RAI
+      },
+      sigal: {
+        email: c.SIGAL_EMAIL
       }
     };
   });

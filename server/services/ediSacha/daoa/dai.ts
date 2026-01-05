@@ -1,11 +1,7 @@
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { toMaestroDate } from 'maestro-shared/utils/date';
 import { sendSachaFile } from '../sachaSender';
-import {
-  generateXMLDAI,
-  loadLaboratoryAndSenderCall,
-  XmlFile
-} from '../sachaToXML';
+import { generateXMLDAI, loadLaboratoryCall, XmlFile } from '../sachaToXML';
 import { DAI, toSachaDateTime } from '../sachaValidator';
 
 export const generateDAI = async (sample: Sample) => {
@@ -78,7 +74,8 @@ export const generateDAI = async (sample: Sample) => {
 
       xmlFile = await generateXMLDAI(
         dai,
-        loadLaboratoryAndSenderCall(item.laboratoryId!, sample.sampler.id),
+        loadLaboratoryCall(item.laboratoryId!),
+        sample.department,
         dateNow
       );
     }
