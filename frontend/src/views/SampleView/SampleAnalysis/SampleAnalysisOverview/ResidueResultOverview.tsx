@@ -97,6 +97,15 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
             </b>
           </div>
           {residue.notesOnResult && <i>{quote(residue.notesOnResult)}</i>}
+
+          {residue.resultHigherThanArfd === 'true' && (
+            <Alert
+              severity="warning"
+              className={cx('fr-mt-2w')}
+              small
+              description="Alerte risque consommateur"
+            />
+          )}
         </div>
         <div className="d-flex-align-center">
           Substance approuvée dans l'UE
@@ -123,13 +132,6 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
                   {OptionalBooleanLabels[residue.pollutionRisk]}
                 </b>
               </div>
-              {residue.pollutionRisk === 'true' && (
-                <Alert
-                  severity="warning"
-                  small
-                  description="Alerte risque consommateur"
-                />
-              )}
             </>
           )}
           {residue.notesOnPollutionRisk && (

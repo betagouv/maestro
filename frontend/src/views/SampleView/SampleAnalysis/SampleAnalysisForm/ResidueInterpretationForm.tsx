@@ -1,3 +1,4 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import {
@@ -79,6 +80,14 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
             whenValid="Note interne correctement renseignée"
             label="Note interne"
           />
+
+          {residue.resultHigherThanArfd === 'true' && (
+            <Alert
+              severity="warning"
+              small
+              description="Alerte risque consommateur"
+            />
+          )}
           <hr />
           <AppSelect
             className={cx('fr-mb-0')}
