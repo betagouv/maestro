@@ -31,12 +31,6 @@ const programmingPlanApi = api.injectEndpoints({
         ProgrammingPlan.parse(omitBy(response, isNil)),
       providesTags: (result) => [{ type: 'ProgrammingPlan', id: result?.id }]
     }),
-    getProgrammingPlanByYear: builder.query<ProgrammingPlan, number>({
-      query: (year) => `programming-plans/years/${year}`,
-      transformResponse: (response: any) =>
-        ProgrammingPlan.parse(omitBy(response, isNil)),
-      providesTags: (result) => [{ type: 'ProgrammingPlan', id: result?.id }]
-    }),
     createProgrammingPlan: builder.mutation<ProgrammingPlan, number>({
       query: (year) => ({
         url: `programming-plans/years/${year}`,
@@ -90,7 +84,6 @@ const programmingPlanApi = api.injectEndpoints({
 export const {
   useFindProgrammingPlansQuery,
   useGetProgrammingPlanQuery,
-  useGetProgrammingPlanByYearQuery,
   useCreateProgrammingPlanMutation,
   useUpdateProgrammingPlanStatusMutation,
   useUpdateProgrammingPlanLocalStatusMutation

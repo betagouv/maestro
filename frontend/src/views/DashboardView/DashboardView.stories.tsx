@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Region, RegionList } from 'maestro-shared/referential/Region';
+import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import {
   genLocalPrescription,
   genPrescription
@@ -37,17 +38,11 @@ const previousProgrammingPlan = genProgrammingPlan({
   year: new Date().getFullYear() - 1,
   regionalStatus: RegionList.map((region) => ({
     region,
-    status: 'InProgress'
+    status: 'Validated'
   })),
   contexts: ['Control', 'Surveillance']
 });
 
-const useGetProgrammingPlanByYearQueryMock = (year: number) => ({
-  data:
-    year === new Date().getFullYear() - 1
-      ? previousProgrammingPlan
-      : currentProgrammingPlan
-});
 const prescription1 = genPrescription({
   programmingPlanId: currentProgrammingPlan.id,
   context: 'Control',
@@ -75,7 +70,9 @@ export const DashboardViewForSampler: Story = {
       }
     },
     apiClient: getMockApi({
-      useGetProgrammingPlanByYearQuery: useGetProgrammingPlanByYearQueryMock,
+      useFindProgrammingPlansQuery: {
+        data: [previousProgrammingPlan, currentProgrammingPlan]
+      },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
       useFindLocalPrescriptionsQuery: {
         data: [
@@ -119,7 +116,9 @@ export const DashboardViewForRegionalCoordinator: Story = {
       }
     },
     apiClient: getMockApi({
-      useGetProgrammingPlanByYearQuery: useGetProgrammingPlanByYearQueryMock,
+      useFindProgrammingPlansQuery: {
+        data: [previousProgrammingPlan, currentProgrammingPlan]
+      },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
       useFindLocalPrescriptionsQuery: {
         data: [
@@ -167,7 +166,9 @@ export const DashboardViewForNationalCoordinator: Story = {
       }
     },
     apiClient: getMockApi({
-      useGetProgrammingPlanByYearQuery: useGetProgrammingPlanByYearQueryMock,
+      useFindProgrammingPlansQuery: {
+        data: [previousProgrammingPlan, currentProgrammingPlan]
+      },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
       useFindLocalPrescriptionsQuery: {
         data: RegionList.flatMap((region) => [
@@ -197,3 +198,52 @@ export const DashboardViewForNationalCoordinator: Story = {
     ).toBeInTheDocument();
   }
 };
+
+export const DashboardViewForNationalCoordinatorNoCurrentProgrammingPlan: Story =
+  {
+    args: {
+      id: 'id',
+      filters: {}
+    },
+    parameters: {
+      preloadedState: {
+        auth: {
+          authUser: genAuthUser({
+            userRole: 'NationalCoordinator',
+            id: NationalCoordinator.id
+          })
+        }
+      },
+      apiClient: getMockApi({
+        useFindProgrammingPlansQuery: ({
+          status
+        }: FindProgrammingPlanOptions) => ({
+          data: status?.length
+            ? []
+            : [
+                genProgrammingPlan({
+                  year: new Date().getFullYear() - 1,
+                  regionalStatus: RegionList.map((region) => ({
+                    region,
+                    status: 'Validated'
+                  })),
+                  contexts: ['Control', 'Surveillance']
+                })
+              ]
+        })
+      })
+    },
+    play: async ({ canvasElement }) => {
+      const canvas = within(canvasElement);
+
+      await expect(canvas.getByText('Tableau de bord')).toBeInTheDocument();
+      await expect(canvas.getByText(`Plan de contrôle`)).toBeInTheDocument();
+      await expect(
+        canvas.getByText(`Plan de surveillance`)
+      ).toBeInTheDocument();
+
+      await expect(
+        canvas.getByText('Créer la programmation 2026')
+      ).toBeInTheDocument();
+    }
+  };

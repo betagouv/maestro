@@ -48,10 +48,6 @@ export const programmingPlansRoutes = {
     params: {
       year: z.coerce.number().int()
     },
-    get: {
-      permissions: ['readProgrammingPlans'],
-      response: ProgrammingPlan
-    },
     post: {
       permissions: ['manageProgrammingPlan'],
       response: ProgrammingPlan
