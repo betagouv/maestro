@@ -83,13 +83,7 @@ const findMany = async (
     .where(omitBy(omit(findOptions, 'status', 'kinds'), isNil))
     .modify((builder) => {
       if (isArray(findOptions.status)) {
-        if (findOptions.department) {
-          builder
-            .whereIn('status', findOptions.status)
-            .orWhere('department', 'None');
-        } else {
-          builder.whereIn('status', findOptions.status);
-        }
+        builder.whereIn('status', findOptions.status);
       }
       if (isArray(findOptions.kinds)) {
         builder.whereRaw(`${programmingPlansTable}.kinds && ?`, [

@@ -103,20 +103,21 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
                       )}
                     />
                   )}
-                {!nextProgrammingPlan ? (
+                {!nextProgrammingPlan && currentProgrammingPlan && (
                   <PriorityActionCard
-                    title={`Créer la programmation ${new Date().getFullYear() + 1}`}
+                    title={`Créer la programmation ${currentProgrammingPlan?.year + 1}`}
                     badgeLabel="Programmation"
                     description="À réaliser"
                     onClick={async () => {
                       await createProgrammingPlan(
-                        new Date().getFullYear() + 1
+                        currentProgrammingPlan?.year + 1
                       ).unwrap();
                     }}
                   />
-                ) : (
+                )}
+                {nextProgrammingPlan && (
                   <PriorityActionCard
-                    title="Editer la programmation"
+                    title={`Éditer la programmation ${nextProgrammingPlan.year}`}
                     badgeLabel="Programmation"
                     description="À compléter"
                     to={`${AuthenticatedAppRoutes.ProgrammingRoute.link}?${new URLSearchParams(
@@ -135,7 +136,7 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
                   )) &&
                 nextProgrammingPlan ? (
                   <PriorityActionCard
-                    title="Editer la programmation"
+                    title={`Éditer la programmation ${nextProgrammingPlan.year}`}
                     badgeLabel="Programmation"
                     description="À compléter"
                     to={`${AuthenticatedAppRoutes.ProgrammingRoute.link}?${new URLSearchParams(

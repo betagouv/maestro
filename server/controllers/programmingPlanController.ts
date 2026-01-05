@@ -383,43 +383,6 @@ export const programmingPlanRouter = {
     }
   },
   '/programming-plans/years/:year': {
-    get: async ({ user, userRole }, { year }) => {
-      console.info('Get programming plan for year', year);
-
-      const programmingPlan = await programmingPlanRepository.findOne(
-        year,
-        user.programmingPlanKinds,
-        user.region
-      );
-
-      if (!programmingPlan) {
-        throw new ProgrammingPlanMissingError(String(year));
-      }
-
-      console.info('Found programming plan', programmingPlan);
-
-      const userStatusAuthorized = Object.entries(
-        ProgrammingPlanStatusPermissions
-      )
-        .filter(([, permission]) => hasPermission(userRole, permission))
-        .map(([status]) => status);
-
-      const filterProgrammingPlanStatus = programmingPlan.regionalStatus.filter(
-        (_) => userStatusAuthorized.includes(_.status)
-      );
-
-      if (filterProgrammingPlanStatus.length === 0) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
-      }
-
-      return {
-        status: constants.HTTP_STATUS_OK,
-        response: {
-          ...programmingPlan,
-          regionalStatus: filterProgrammingPlanStatus
-        }
-      };
-    },
     post: async ({ user }, { year }) => {
       const previousProgrammingPlan = await programmingPlanRepository.findOne(
         year - 1,

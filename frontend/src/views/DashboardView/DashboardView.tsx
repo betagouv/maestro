@@ -20,20 +20,42 @@ const DashboardView = () => {
   const { hasUserPermission, user, hasNationalView } = useAuthentication();
   const { isOnline } = useOnLine();
 
-  const { data: programmingPlan, isLoading: isProgrammingPlanLoading } =
-    apiClient.useGetProgrammingPlanByYearQuery(new Date().getFullYear());
-  const { data: previousProgrammingPlan } =
-    apiClient.useGetProgrammingPlanByYearQuery(new Date().getFullYear() - 1, {
-      skip:
-        !hasUserPermission('manageProgrammingPlan') &&
-        (isProgrammingPlanLoading || programmingPlan !== undefined)
-    });
-  const { data: notice } = apiClient.useGetDashboardNoticeQuery();
+  const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
+    {
+      kinds: user?.programmingPlanKinds
+    },
+    {
+      skip: !user?.programmingPlanKinds
+    }
+  );
+
+  const sortedProgrammingPlans = useMemo(
+    () =>
+      programmingPlans
+        ? [...programmingPlans].sort((a, b) => b.year - a.year)
+        : [],
+    [programmingPlans]
+  );
 
   const currentProgrammingPlan = useMemo(
-    () => programmingPlan ?? previousProgrammingPlan,
-    [programmingPlan, previousProgrammingPlan]
+    () =>
+      sortedProgrammingPlans.filter(
+        (pp) => pp.year <= new Date().getFullYear()
+      )[0],
+    [sortedProgrammingPlans]
   );
+
+  const previousProgrammingPlan = useMemo(
+    () =>
+      currentProgrammingPlan && hasUserPermission('manageProgrammingPlan')
+        ? sortedProgrammingPlans.filter(
+            (pp) => pp.year < currentProgrammingPlan.year
+          )[0]
+        : undefined,
+    [currentProgrammingPlan, sortedProgrammingPlans, hasUserPermission]
+  );
+
+  const { data: notice } = apiClient.useGetDashboardNoticeQuery();
 
   const { data: nextProgrammingPlans } = apiClient.useFindProgrammingPlansQuery(
     {

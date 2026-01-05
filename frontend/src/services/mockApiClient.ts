@@ -157,11 +157,6 @@ const defaultMockApiClientConf: MockApi = {
     data: LaboratoryFixture
   },
   useGetPrescriptionSubstancesQuery: { data: [] },
-  useGetProgrammingPlanByYearQuery: (year: number) => ({
-    data: genProgrammingPlan({
-      year
-    })
-  }),
   useGetProgrammingPlanQuery: { data: genProgrammingPlan() },
   useGetRegionsGeoJsonQuery: {
     data: JSON.parse(JSON.stringify(regionsJson))
