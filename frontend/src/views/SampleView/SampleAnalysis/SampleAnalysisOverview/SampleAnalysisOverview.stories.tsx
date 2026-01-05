@@ -28,7 +28,8 @@ const meta = {
           compliance: 'Compliant',
           resultKind: 'Q',
           result: 3.23,
-          lmr: 5
+          lmr: 5,
+          resultHigherThanArfd: 'true'
         }),
         genPartialResidue({
           reference: 'RF-0034-001-PPP',
