@@ -19,6 +19,7 @@ import {
   SampleMatrixSpecificDataKeys
 } from 'src/views/SampleView/DraftSample/MatrixStep/MatrixSpecificDataFormInputs';
 
+import { isNil } from 'lodash-es';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import StepSummary, {
   StepSummaryMode
@@ -32,6 +33,10 @@ const getSpecificDataValue = (
   const value = specificData[inputKey as keyof typeof specificData];
 
   const input = MatrixSpecificDataFormInputs[inputKey];
+
+  if (isNil(value)) {
+    return null;
+  }
 
   switch (input.inputType) {
     case 'checkbox':
