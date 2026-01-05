@@ -405,7 +405,7 @@ describe('Sample router', () => {
               id: sample.sampler.id,
               name: sample.sampler.name
             },
-            reference: `${Regions[user.region as Region].shortName}-${format(new Date(), 'yy')}-000${expectedIncrement}`
+            reference: `${Regions[user.region as Region].shortName}-${format(new Date(), 'yy')}-0000${expectedIncrement}`
           })
         );
 
