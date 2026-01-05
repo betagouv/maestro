@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import { z, ZodType } from 'zod';
-import { NoUndefined } from 'zod/v4/core/util';
+import type { NoUndefined } from 'zod/v4/core/util';
 
 if (!process.env.API_PORT) {
   dotenv.config({ path: path.join(import.meta.dirname, '../../.env') });
