@@ -5,7 +5,7 @@ import {
   generateXMLDAI,
   getXmlFileName,
   getZipFileName,
-  loadLaboratoryAndSenderCall
+  loadLaboratoryCall
 } from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
 
@@ -17,7 +17,7 @@ const laboratory = {
 } as const;
 
 const loadLaboratoryAndSender: ReturnType<
-  typeof loadLaboratoryAndSenderCall
+  typeof loadLaboratoryCall
 > = async () => ({
   laboratory,
   sender: {
@@ -38,7 +38,7 @@ test(`génère un XML d'acquittement`, async () => {
       ],
       undefined,
       loadLaboratoryAndSender,
-
+      '72',
       1765876056798
     )
   ).toMatchInlineSnapshot(
@@ -50,14 +50,14 @@ test(`génère un XML d'acquittement`, async () => {
         <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
         <VersionScenario>1.0.1</VersionScenario>
         <TypeFichier>AN01</TypeFichier>
-        <NomFichier>AN01DAAFLDA7225121610073679</NomFichier>
+        <NomFichier>AN01DDSV72LDA7225121610073679</NomFichier>
         <NomLogicielCreation>SIGAL</NomLogicielCreation>
         <VersionLogicielCreation>4.0</VersionLogicielCreation>
       </MessageParametres>
       <Emetteur>
-        <Sigle>DAAF</Sigle>
-        <LibellePartenaire>DAAF Test</LibellePartenaire>
-        <EmailPartenaire>daaf@gr.gouv.fr</EmailPartenaire>
+        <Sigle>DDSV72</Sigle>
+        <LibellePartenaire>DDPP Sarthe</LibellePartenaire>
+        <EmailPartenaire>contact@maestro.beta.gouv.fr</EmailPartenaire>
       </Emetteur>
       <Destinataire>
         <Sigle>LDA72</Sigle>
@@ -70,7 +70,7 @@ test(`génère un XML d'acquittement`, async () => {
       </MessageAcquittement>
     </AcquittementNonAcquittement>
     ",
-      "fileName": "AN01DAAFLDA7225121610073679",
+      "fileName": "AN01DDSV72LDA7225121610073679",
       "fileType": "AN01",
       "laboratory": {
         "name": "Innovalys 72",
@@ -122,6 +122,7 @@ test(`génère un XML de DAI`, async () => {
         }
       },
       loadLaboratoryAndSender,
+      '72',
       1765876056798
     )
   ).toMatchInlineSnapshot(`
@@ -132,14 +133,14 @@ test(`génère un XML de DAI`, async () => {
         <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
         <VersionScenario>1.0.1</VersionScenario>
         <TypeFichier>DA01</TypeFichier>
-        <NomFichier>DA01DAAFLDA7225121610073679</NomFichier>
+        <NomFichier>DA01DDSV72LDA7225121610073679</NomFichier>
         <NomLogicielCreation>SIGAL</NomLogicielCreation>
         <VersionLogicielCreation>4.0</VersionLogicielCreation>
       </MessageParametres>
       <Emetteur>
-        <Sigle>DAAF</Sigle>
-        <LibellePartenaire>DAAF Test</LibellePartenaire>
-        <EmailPartenaire>daaf@gr.gouv.fr</EmailPartenaire>
+        <Sigle>DDSV72</Sigle>
+        <LibellePartenaire>DDPP Sarthe</LibellePartenaire>
+        <EmailPartenaire>contact@maestro.beta.gouv.fr</EmailPartenaire>
       </Emetteur>
       <Destinataire>
         <Sigle>LDA72</Sigle>
@@ -183,7 +184,7 @@ test(`génère un XML de DAI`, async () => {
       </DemandeType>
     </DemandesAnalyses>
     ",
-      "fileName": "DA01DAAFLDA7225121610073679",
+      "fileName": "DA01DDSV72LDA7225121610073679",
       "fileType": "DA01",
       "laboratory": {
         "name": "Innovalys 72",
@@ -199,15 +200,15 @@ test('getXmlFileName', () => {
   expect(
     getXmlFileName(
       'AN01',
+      '35',
       { sachaSigle: 'LABERCA' },
-      { sachaSigle: 'DDSV35' },
       //16/12/2025 10:07:36
       1765876056798
     )
-  ).toBe('AN01LABERCADDSV3525121610073679');
+  ).toBe('AN01DDSV35LABERCA25121610073679');
 });
 test('getZipFileName', () => {
   expect(getZipFileName('AN01', { sachaSigle: 'LDA72' }, 1765876056798)).toBe(
-    'AN01LDA722512161007_1'
+    'AN01LDA722512161007_1.zip'
   );
 });

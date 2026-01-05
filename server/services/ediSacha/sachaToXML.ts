@@ -2,12 +2,17 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { XMLBuilder } from 'fast-xml-parser';
 import { XmlDocument, XsdValidator } from 'libxml2-wasm';
+import {
+  Department,
+  DepartmentLabels
+} from 'maestro-shared/referential/Department';
 import { RequiredNotNull } from 'maestro-shared/utils/typescript';
 import fs from 'node:fs';
 import path from 'path';
 import { z, ZodObject } from 'zod';
-import { Laboratories, SachaSender } from '../../repositories/kysely.type';
+import { Laboratories } from '../../repositories/kysely.type';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
+import config from '../../utils/config';
 import {
   Acquittement,
   acquittementValidator,
@@ -28,11 +33,10 @@ export type XmlFile = {
   >;
 };
 
-export const loadLaboratoryAndSenderCall =
-  (laboratoryId: string, _sampler: string) =>
+export const loadLaboratoryCall =
+  (laboratoryId: string) =>
   async (): Promise<{
     laboratory: XmlFile['laboratory'];
-    sender: SachaSender;
   }> => {
     const laboratory = await laboratoryRepository.findUnique(laboratoryId);
     if (!laboratory) {
@@ -57,12 +61,6 @@ export const loadLaboratoryAndSenderCall =
         sachaEmail: laboratory.sachaEmail,
         shortName: laboratory.shortName,
         name: laboratory.name
-      },
-      //FIXME
-      sender: {
-        sachaSigle: '',
-        name: '',
-        sachaEmail: ''
       }
     };
   };
@@ -70,7 +68,8 @@ export const loadLaboratoryAndSenderCall =
 export const generateXMLAcquitement = async (
   messagesAcquittement: Acquittement['MessageAcquittement'],
   messagesNonAcquittement: Acquittement['MessageNonAcquittement'],
-  loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryAndSenderCall>,
+  loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryCall>,
+  department: Department,
   dateNow: number
 ): Promise<XmlFile> => {
   return generateXML(
@@ -80,13 +79,15 @@ export const generateXMLAcquitement = async (
       MessageNonAcquittement: messagesNonAcquittement
     },
     dateNow,
+    department,
     loadLaboratoryAndSender
   );
 };
 
 export const generateXMLDAI = (
   dai: DAI['DemandeType'],
-  loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryAndSenderCall>,
+  loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryCall>,
+  department: Department,
   dateNow: number
 ): Promise<XmlFile> => {
   return generateXML(
@@ -95,6 +96,7 @@ export const generateXMLDAI = (
       DemandeType: dai
     },
     dateNow,
+    department,
     loadLaboratoryAndSender
   );
 };
@@ -129,20 +131,21 @@ const generateXML = async <T extends FileType>(
   fileType: T,
   content: z.infer<(typeof fileTypeConf)[T]['content']>,
   dateNow: number,
-  loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryAndSenderCall>
+  department: Department,
+  loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryCall>
 ): Promise<XmlFile> => {
   const builder = new XMLBuilder({
     ignoreAttributes: false,
     format: true
   });
 
-  const { laboratory, sender } = await loadLaboratoryAndSender();
+  const { laboratory } = await loadLaboratoryAndSender();
 
   const conf = fileTypeConf[fileType];
 
   const fileName: string = getXmlFileName(
     fileType,
-    sender,
+    department,
     laboratory,
     dateNow
   );
@@ -163,9 +166,9 @@ const generateXML = async <T extends FileType>(
         VersionLogicielCreation: '4.0'
       },
       Emetteur: {
-        Sigle: sender.sachaSigle,
-        LibellePartenaire: sender.name,
-        EmailPartenaire: sender.sachaEmail
+        Sigle: getSenderSachaSigle(department),
+        LibellePartenaire: `DDPP ${DepartmentLabels[department]}`,
+        EmailPartenaire: config.sigal.email
       },
       Destinataire: {
         Sigle: laboratory.sachaSigle,
@@ -201,14 +204,14 @@ const generateXML = async <T extends FileType>(
 
 export const getXmlFileName = (
   fileType: FileType,
-  sender: Pick<SachaSender, 'sachaSigle'>,
+  department: Department,
   laboratory: Pick<Laboratories, 'sachaSigle'>,
   dateNow: number
 ): string => {
   const currentDate: string = format(dateNow, 'yyMMddHHmmssSS', {
     locale: fr
   });
-  return `${fileType}${sender.sachaSigle}${laboratory.sachaSigle}${currentDate}`;
+  return `${fileType}${getSenderSachaSigle(department)}${laboratory.sachaSigle}${currentDate}`;
 };
 
 export const getZipFileName = (
@@ -221,3 +224,6 @@ export const getZipFileName = (
   });
   return `${fileType}${laboratory.sachaSigle}${currentDate}_1.zip`;
 };
+
+export const getSenderSachaSigle = (department: Department) =>
+  `DDSV${department}`;
