@@ -1266,7 +1266,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
           ],
           "ReferencePlanAnalyseEffectuer": {
             "PlanComplet": true,
-            "SiglePlanAnalyse": "PORGCH",
+            "SiglePlanAnalyse": "RestPest_DAOA",
           },
         },
         {
@@ -2501,7 +2501,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
           ],
           "ReferencePlanAnalyseEffectuer": {
             "PlanComplet": true,
-            "SiglePlanAnalyse": "PORGPH",
+            "SiglePlanAnalyse": "RestPest_DAOA",
           },
         },
         {
@@ -2513,7 +2513,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
           ],
           "ReferencePlanAnalyseEffectuer": {
             "PlanComplet": false,
-            "SiglePlanAnalyse": "PPYRETH",
+            "SiglePlanAnalyse": "RestPest_DAOA",
           },
         },
       ],
@@ -2677,7 +2677,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-2.xml 1`] = `
           ],
           "ReferencePlanAnalyseEffectuer": {
             "PlanComplet": true,
-            "SiglePlanAnalyse": "PCHLDCN",
+            "SiglePlanAnalyse": "RestPest_DAOA",
           },
         },
       ],
