@@ -129,6 +129,10 @@ export const SamplerDaoaFixture = genUser({
   region: Region1Fixture,
   department: Regions[Region1Fixture].departments[0]
 });
+export const LaboratoryUserFixture = genUser({
+  roles: ['LaboratoryUser'],
+  id: '14141414-1414-1414-1414-141414141414'
+});
 
 export const genAuthUser = (
   data?: Partial<User & { userRole: UserRole }>
