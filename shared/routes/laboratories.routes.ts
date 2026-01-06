@@ -1,5 +1,6 @@
 import z from 'zod';
 import { Laboratory } from '../schema/Laboratory/Laboratory';
+import { LaboratoryAnalyticalCompetence } from '../schema/Laboratory/LaboratoryAnalyticalCompetence';
 import { SubRoutes } from './routes';
 
 export const laboratoriesRoutes = {
@@ -18,5 +19,29 @@ export const laboratoriesRoutes = {
       response: Laboratory,
       permissions: 'NONE'
     }
-  }
+  },
+  '/laboratories/:laboratoryId/analytical-competences': {
+    params: {
+      laboratoryId: z.guid()
+    },
+    get: {
+      response: z.array(LaboratoryAnalyticalCompetence),
+      permissions: ['readLaboratoryCompetences']
+    }
+  },
+  '/laboratories/:laboratoryId/analytical-competences/:analyticalCompetenceId':
+    {
+      params: {
+        laboratoryId: z.guid(),
+        analyticalCompetenceId: z.guid()
+      },
+      put: {
+        body: LaboratoryAnalyticalCompetence.omit({
+          id: true,
+          laboratoryId: true
+        }),
+        permissions: ['manageLaboratoryCompetences'],
+        response: LaboratoryAnalyticalCompetence
+      }
+    }
 } as const satisfies SubRoutes<'/laboratories'>;
