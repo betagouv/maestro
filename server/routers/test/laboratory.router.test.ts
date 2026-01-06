@@ -1,9 +1,6 @@
 import { constants } from 'http2';
 import {
   genLaboratory,
-  genLaboratoryAnalyticalCompetence,
-  Laboratory1AnalyticalCompetenceFixture1,
-  Laboratory1AnalyticalCompetenceFixture2,
   LaboratoryFixture
 } from 'maestro-shared/test/laboratoryFixtures';
 import request from 'supertest';
@@ -21,7 +18,6 @@ import {
 import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   DepartmentalCoordinator,
-  LaboratoryUserFixture,
   NationalCoordinator,
   NationalObserver,
   RegionalCoordinator,
@@ -29,10 +25,19 @@ import {
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
-import { describe, expect, test } from 'vitest';
-import { LaboratoryAnalyticalCompetences } from '../../repositories/laboratoryAnalyticalCompetenceRepository';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 describe('Laboratory router', () => {
   const { app } = createServer();
+
+  const laboratory = genLaboratory();
+
+  beforeAll(async () => {
+    await Laboratories().insert(laboratory);
+  });
+
+  afterAll(async () => {
+    await Laboratories().delete().where('id', laboratory.id);
+  });
 
   describe('GET /laboratories/:id', () => {
     const testRoute = (laboratoryId: string) =>
@@ -40,7 +45,7 @@ describe('Laboratory router', () => {
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
-        .get(testRoute(LaboratoryFixture.id))
+        .get(testRoute(laboratory.id))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
@@ -53,14 +58,14 @@ describe('Laboratory router', () => {
 
     test('should find the laboratory', async () => {
       const res = await request(app)
-        .get(testRoute(LaboratoryFixture.id))
+        .get(testRoute(laboratory.id))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual(
         expect.objectContaining({
-          id: LaboratoryFixture.id,
-          shortName: LaboratoryFixture.shortName
+          id: laboratory.id,
+          shortName: laboratory.shortName
         })
       );
     });
@@ -118,8 +123,8 @@ describe('Laboratory router', () => {
 
       expectArrayToContainElements(res.body, [
         expect.objectContaining({
-          id: LaboratoryFixture.id,
-          shortName: LaboratoryFixture.shortName
+          id: laboratory.id,
+          shortName: laboratory.shortName
         })
       ]);
     });
