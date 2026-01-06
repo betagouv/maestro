@@ -146,10 +146,6 @@ export const NationalCoordinatorDaoaFixture = genUser({
   programmingPlanKinds: ['DAOA_VOLAILLE', 'DAOA_BOVIN'],
   id: '14141414-1414-1414-1414-141414141414'
 });
-export const LaboratoryUserFixture = genUser({
-  roles: ['LaboratoryUser'],
-  id: '14141414-1414-1414-1414-141414141414'
-});
 
 export const genAuthUser = (
   data?: Partial<UserRefined & { userRole: UserRole }>
