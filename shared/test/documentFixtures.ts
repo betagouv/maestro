@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Document, DocumentToCreate } from '../schema/Document/Document';
 import { DocumentKindList } from '../schema/Document/DocumentKind';
 import { oneOf } from './testFixtures';
+import { NationalCoordinator } from './userFixtures';
 
 export const genDocumentToCreate = (): DocumentToCreate => ({
   id: uuidv4(),
@@ -24,5 +25,6 @@ export const Regulation201862DocumentFixture = genDocument({
   id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   filename: 'reg 2018 62- annexe 1 du reg 396 2005',
   name: 'Règlement (UE) 2018/62 de la commission',
-  kind: 'OtherResourceDocument'
+  kind: 'OtherResourceDocument',
+  createdBy: NationalCoordinator.id
 });
