@@ -6,6 +6,9 @@ import {
   Department,
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
+import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import { toMaestroDate } from 'maestro-shared/utils/date';
 import { RequiredNotNull } from 'maestro-shared/utils/typescript';
 import fs from 'node:fs';
 import path from 'path';
@@ -13,12 +16,13 @@ import { z, ZodObject } from 'zod';
 import { Laboratories } from '../../repositories/kysely.type';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import config from '../../utils/config';
+import { SigleContexteIntervention, SiglePlanAnalyse } from './sachaFichePlan';
 import {
   Acquittement,
   acquittementValidator,
   baseValidator,
-  DAI,
-  demandesAnalysesValidator
+  demandesAnalysesValidator,
+  toSachaDateTime
 } from './sachaValidator';
 
 const xml = z.string().brand('XML');
@@ -85,18 +89,86 @@ export const generateXMLAcquitement = async (
 };
 
 export const generateXMLDAI = (
-  dai: DAI['DemandeType'],
+  sample: Pick<
+    Sample,
+    | 'specificData'
+    | 'sampledAt'
+    | 'lastUpdatedAt'
+    | 'company'
+    | 'ownerEmail'
+    | 'sampler'
+    | 'department'
+  >,
+  sampleItem: Pick<SampleItem, 'sealId'>,
   loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryCall>,
-  department: Department,
   dateNow: number
 ): Promise<XmlFile> => {
+  if (sample.specificData.programmingPlanKind === 'PPV') {
+    throw new Error("Pas d'EDI Sacha pour la PPV");
+  }
+
   return generateXML(
     'DA01',
     {
-      DemandeType: dai
+      DemandeType: {
+        DialogueDemandeIntervention: {
+          //FIXME on attend un number ici
+          NumeroDAP: 1, // getSupportDocumentFilename(sample, 1),
+          SigleContexteIntervention:
+            SigleContexteIntervention[sample.specificData.programmingPlanKind],
+          DateIntervention: toMaestroDate(sample.sampledAt),
+          DateModification: toSachaDateTime(sample.lastUpdatedAt)
+        },
+        ReferenceEtablissementType: {
+          ReferenceEtablissement: {
+            //FIXME
+            SigleIdentifiant: '',
+            Identifiant: sample.company.name,
+            Nom: sample.company.name,
+            CodePostal: `${sample.company.postalCode ?? ''} ${sample.company.city ?? ''}`,
+            Adresse1: sample.company.address ?? undefined,
+            Email: sample.ownerEmail ?? undefined
+          }
+        },
+        DialogueActeurType: {
+          DialogueActeur: {
+            //FIXME
+            SigleIdentifiant: '',
+            Identifiant: '',
+            Nom: sample.sampler.name ?? ''
+            //FIXME email
+          }
+        },
+        DialogueEchantillonCommemoratifType: [
+          {
+            DialogueEchantillonComplet: {
+              NumeroEchantillon: 1,
+              //FIXME
+              SigleMatriceSpecifique: '',
+              NumeroIdentificationExterne: 'ECHANTILLON 1',
+              //FIXME on le met où le numéro de scellé !?
+              NumeroEtiquette: sampleItem.sealId.substring(0, 27)
+            }
+          }
+        ],
+        ReferencePlanAnalyseType: {
+          ReferencePlanAnalyseEffectuer: {
+            SiglePlanAnalyse:
+              SiglePlanAnalyse[sample.specificData.programmingPlanKind]
+          },
+          ReferencePlanAnalyseContenu: {
+            LibelleMatrice: '',
+            SigleAnalyte: '',
+            SigleMethodeSpecifique: '',
+            Depistage: false,
+            Confirmation: false,
+            Statut: 'G'
+          }
+        }
+      }
     },
     dateNow,
-    department,
+    sample.department,
     loadLaboratoryAndSender
   );
 };

@@ -1,4 +1,4 @@
-import { toMaestroDate } from 'maestro-shared/utils/date';
+import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { expect, test } from 'vitest';
 import {
   generateXMLAcquitement,
@@ -87,42 +87,26 @@ test(`génère un XML de DAI`, async () => {
   expect(
     await generateXMLDAI(
       {
-        DialogueDemandeIntervention: {
-          NumeroDAP: 0,
-          SigleContexteIntervention: '',
-          DateIntervention: toMaestroDate(new Date(12341234)),
-          DateModification: toSachaDateTime(new Date(55555555))
+        sampledAt: new Date(12341234),
+        lastUpdatedAt: new Date(55555555),
+        department: '72',
+        specificData: {
+          programmingPlanKind: 'DAOA_BREEDING',
+          killingCode: '',
+          animalIdentifier: '',
+          productionMethod: 'PROD_1',
+          species: 'ESP1'
         },
-        ReferenceEtablissementType: {
-          ReferenceEtablissement: {
-            SigleIdentifiant: '',
-            Identifiant: '',
-            Nom: ''
-          }
+        company: {
+          siret: 'siret',
+          name: 'companyName'
         },
-        DialogueActeurType: {
-          DialogueActeur: {
-            SigleIdentifiant: '',
-            Identifiant: '',
-            Nom: ''
-          }
-        },
-        ReferencePlanAnalyseType: {
-          ReferencePlanAnalyseEffectuer: {
-            SiglePlanAnalyse: ''
-          },
-          ReferencePlanAnalyseContenu: {
-            LibelleMatrice: '',
-            SigleAnalyte: '',
-            SigleMethodeSpecifique: '',
-            Depistage: false,
-            Confirmation: false,
-            Statut: 'G'
-          }
-        }
+        sampler: Sampler1Fixture
+      },
+      {
+        sealId: 'sealId'
       },
       loadLaboratoryAndSender,
-      '72',
       1765876056798
     )
   ).toMatchInlineSnapshot(`
@@ -149,28 +133,37 @@ test(`génère un XML de DAI`, async () => {
       </Destinataire>
       <DemandeType>
         <DialogueDemandeIntervention>
-          <NumeroDAP>0</NumeroDAP>
-          <SigleContexteIntervention></SigleContexteIntervention>
+          <NumeroDAP>1</NumeroDAP>
+          <SigleContexteIntervention>2026_RPDA_PVOL</SigleContexteIntervention>
           <DateIntervention>1970-01-01</DateIntervention>
           <DateModification>1970-01-01T16:25:55</DateModification>
         </DialogueDemandeIntervention>
         <ReferenceEtablissementType>
           <ReferenceEtablissement>
             <SigleIdentifiant></SigleIdentifiant>
-            <Identifiant></Identifiant>
-            <Nom></Nom>
+            <Identifiant>companyName</Identifiant>
+            <Nom>companyName</Nom>
+            <CodePostal> </CodePostal>
           </ReferenceEtablissement>
         </ReferenceEtablissementType>
         <DialogueActeurType>
           <DialogueActeur>
             <SigleIdentifiant></SigleIdentifiant>
             <Identifiant></Identifiant>
-            <Nom></Nom>
+            <Nom>John Doe</Nom>
           </DialogueActeur>
         </DialogueActeurType>
+        <DialogueEchantillonCommemoratifType>
+          <DialogueEchantillonComplet>
+            <NumeroEchantillon>1</NumeroEchantillon>
+            <SigleMatriceSpecifique></SigleMatriceSpecifique>
+            <NumeroIdentificationExterne>ECHANTILLON 1</NumeroIdentificationExterne>
+            <NumeroEtiquette>sealId</NumeroEtiquette>
+          </DialogueEchantillonComplet>
+        </DialogueEchantillonCommemoratifType>
         <ReferencePlanAnalyseType>
           <ReferencePlanAnalyseEffectuer>
-            <SiglePlanAnalyse></SiglePlanAnalyse>
+            <SiglePlanAnalyse>RestPest_DAOA</SiglePlanAnalyse>
           </ReferencePlanAnalyseEffectuer>
           <ReferencePlanAnalyseContenu>
             <LibelleMatrice></LibelleMatrice>

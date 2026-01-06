@@ -1,5 +1,9 @@
 import { maestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod';
+import {
+  sigleContexteInterventionValidator,
+  siglePlanAnalyseValidator
+} from './sachaFichePlan';
 
 // FIXME à supprimer et remplir correctement isArray de XMLParser
 const coerceToArray = <Schema extends z.ZodObject>(
@@ -86,7 +90,7 @@ const dialogueEchantillonCommemoratifType = coerceToArray(
   })
 ).optional();
 const referencePlanAnalyseEffectuer = z.object({
-  SiglePlanAnalyse: z.string(),
+  SiglePlanAnalyse: siglePlanAnalyseValidator,
   EditionRapports: z.literal(['A', 'T', 'P']).optional(),
   LibelleDestinataireEchantillon: z.string().optional(),
   LigneBudgetaire: z.string().optional(),
@@ -302,7 +306,7 @@ export const demandesAnalysesValidator = z.object({
   DemandeType: z.object({
     DialogueDemandeIntervention: z.object({
       NumeroDAP: z.coerce.number().int(),
-      SigleContexteIntervention: z.string(),
+      SigleContexteIntervention: sigleContexteInterventionValidator,
       DateIntervention: sachaDate,
       DateModification: sachaDateTime
     }),
