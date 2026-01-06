@@ -11,6 +11,7 @@ import { seed as ppvPrescriptionsSeed } from './005-prescriptions-ppv';
 import { seed as samplesSeed } from './006-samples';
 import { seed as substanceAnalysisSeed } from './007-substance-analysis';
 import { seed as laboratoryAgreementsSeed } from './008-laboratory-agreements';
+import { seed as documentsSeed } from './009-documents';
 
 const run = async () => {
   initKnex();
@@ -26,6 +27,7 @@ const run = async () => {
   await substanceAnalysisSeed();
   await departmentsSeed();
   await laboratoryAgreementsSeed();
+  await documentsSeed();
 };
 run()
   .then(() => {

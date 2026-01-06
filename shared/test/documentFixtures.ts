@@ -19,3 +19,10 @@ export const genDocument = (data?: Partial<Document>): Document => ({
   kind: oneOf(DocumentKindList),
   ...data
 });
+
+export const Regulation201862DocumentFixture = genDocument({
+  id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+  filename: 'reg 2018 62- annexe 1 du reg 396 2005',
+  name: 'Règlement (UE) 2018/62 de la commission',
+  kind: 'OtherResourceDocument'
+});
