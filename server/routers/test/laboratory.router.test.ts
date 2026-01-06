@@ -1,6 +1,9 @@
 import { constants } from 'http2';
 import {
   genLaboratory,
+  genLaboratoryAnalyticalCompetence,
+  Laboratory1AnalyticalCompetenceFixture1,
+  Laboratory1AnalyticalCompetenceFixture2,
   LaboratoryFixture
 } from 'maestro-shared/test/laboratoryFixtures';
 import request from 'supertest';
@@ -25,19 +28,10 @@ import {
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
+import { LaboratoryAnalyticalCompetences } from '../../repositories/laboratoryAnalyticalCompetenceRepository';
 describe('Laboratory router', () => {
   const { app } = createServer();
-
-  const laboratory = genLaboratory();
-
-  beforeAll(async () => {
-    await Laboratories().insert(laboratory);
-  });
-
-  afterAll(async () => {
-    await Laboratories().delete().where('id', laboratory.id);
-  });
 
   describe('GET /laboratories/:id', () => {
     const testRoute = (laboratoryId: string) =>
@@ -45,7 +39,7 @@ describe('Laboratory router', () => {
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
-        .get(testRoute(laboratory.id))
+        .get(testRoute(LaboratoryFixture.id))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
@@ -58,14 +52,14 @@ describe('Laboratory router', () => {
 
     test('should find the laboratory', async () => {
       const res = await request(app)
-        .get(testRoute(laboratory.id))
+        .get(testRoute(LaboratoryFixture.id))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toEqual(
         expect.objectContaining({
-          id: laboratory.id,
-          shortName: laboratory.shortName
+          id: LaboratoryFixture.id,
+          shortName: LaboratoryFixture.shortName
         })
       );
     });
@@ -123,8 +117,8 @@ describe('Laboratory router', () => {
 
       expectArrayToContainElements(res.body, [
         expect.objectContaining({
-          id: laboratory.id,
-          shortName: laboratory.shortName
+          id: LaboratoryFixture.id,
+          shortName: LaboratoryFixture.shortName
         })
       ]);
     });

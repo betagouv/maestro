@@ -16,6 +16,8 @@ import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/Residu
 import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
+import { LaboratoryAnalyticalMethod } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalMethod';
+import { LaboratoryValidationMethod } from 'maestro-shared/schema/Laboratory/LaboratoryValidationMethod';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   CommemoratifSigle,
@@ -163,6 +165,19 @@ export interface LaboratoryAgreements {
   laboratoryId: string;
   programmingPlanId: string;
   substanceKind: SubstanceKind;
+}
+
+export interface LaboratoryAnalyticalCompetences {
+  id: Generated<string>;
+  laboratoryId: string;
+  residueReference: SSD2Id;
+  analyteReference: SSD2Id | null;
+  analyticalMethod: LaboratoryAnalyticalMethod | null;
+  validationMethod: LaboratoryValidationMethod | null;
+  analysisMethod: AnalysisMethod | null;
+  isCompleteDefinitionAnalysis: boolean | null;
+  detectionLimit: number | null;
+  quantificationLimit: number | null;
 }
 
 export interface Notices {
@@ -348,6 +363,7 @@ export interface DB {
   sampleSequenceNumbers: SampleSequenceNumbers;
   users: Users;
   userCompanies: UserCompanies;
+  laboratoryAnalyticalCompetences: LaboratoryAnalyticalCompetences;
 }
 export type KyselyMaestro = Kysely<DB>;
 
