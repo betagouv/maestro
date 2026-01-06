@@ -2,6 +2,7 @@ import {
   AdminFixture,
   DepartmentalCoordinator,
   genUser,
+  LaboratoryUserFixture,
   NationalCoordinator,
   NationalCoordinatorDaoaFixture,
   NationalObserver,
@@ -22,6 +23,7 @@ export const seed = async (): Promise<void> => {
     Sampler2Fixture,
     SamplerDromFixture,
     SamplerDaoaFixture,
+    DepartmentalCoordinator,
     RegionalCoordinator,
     RegionalDromCoordinator,
     DepartmentalCoordinator,
@@ -30,7 +32,8 @@ export const seed = async (): Promise<void> => {
     RegionalObserver,
     NationalObserver,
     NationalCoordinatorDaoaFixture,
-    genUser({ roles: ['LaboratoryUser'] })
+    genUser({ roles: ['LaboratoryUser'] }),
+    LaboratoryUserFixture
   ].map((u) => ({
     ...u,
     loggedSecrets: [TEST_LOGGED_SECRET]
