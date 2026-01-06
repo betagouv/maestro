@@ -35,6 +35,9 @@
                 <b>{{reference}}</b>
               {{else}}
                 <b>Étiquette du prélèvement</b>
+                <br />
+                Prélèvement
+                <b>{{reference}}</b>
                 {{#if (and laboratory (eq copyNumber 1))}}
                   <br />
                   À envoyer à <b>{{laboratory.name}}</b>
@@ -62,7 +65,7 @@
               <div class='fr-container'>
                 <section class='sample-section border {{#if fullVersion}}full-version{{/if}}' style='background-color: var(--beige-gris-galet-975-75)'>
                   <div class='fr-grid-row fr-grid-row--gutters'>
-                    <div class='fr-col-6'>
+                    <div class='{{#if fullVersion}}fr-col-6{{else}}fr-col-12{{/if}}'>
                       <div class='fr-container'>
                         <div class='fr-grid-row fr-grid-row--gutters'>
                           <div class='fr-col-12'>
@@ -70,7 +73,7 @@
                               <span class="uppercase">Contexte du prélèvement</span>
                             </div>
                           </div>
-                          <div class='fr-col-12'>
+                          <div class='{{#if fullVersion}}fr-col-12{{else}}fr-col-6{{/if}}'>
                             <div class='sample-section-item'>
                               <div class='label'>
                                 Donneur d'ordre
@@ -87,7 +90,19 @@
                               </div>
                             </div>
                           </div>
-                          <div class='fr-col-12'>
+                          {{#if (eq fullVersion false)}}
+                            <div class='fr-col-6'>
+                              <div class='sample-section-item'>
+                                <div class='label'>
+                                  Contexte du prélèvement
+                                </div>
+                                <div class='value {{#if (isEmpty context)}}empty{{/if}}'>
+                                  {{context}}
+                                </div>
+                              </div>
+                            </div>
+                          {{/if}}
+                          <div class='{{#if fullVersion}}fr-col-12{{else}}fr-col-6{{/if}}'>
                             <div class='fr-grid-row'>
                               <div class='{{#if additionalSampler}}fr-col-6{{else}}fr-col-12{{/if}}'>
                                 <div class='sample-section-item'>
@@ -123,6 +138,10 @@
                               R.206-2, R.250-1 et L.250-6 du code rural et de la pêche maritime
                             </div>
                           </div>
+                          {{#if (eq fullVersion false)}}
+                            <div class='fr-col-6'>
+                              <div class='fr-grid-row fr-grid-row--gutters fr-px-1v'>
+                          {{/if}}
                           <div class='fr-col-6'>
                             <div class='sample-section-item'>
                               <div class='label'>
@@ -143,108 +162,118 @@
                               </div>
                             </div>
                           </div>
-                          <div class='fr-col-12'>
-                            <div class='sample-section-item'>
-                              <div class='label'>
-                                Note additionnelle
+                          {{#if (eq fullVersion false)}}
                               </div>
-                              <div class='value {{#if (isEmpty notesOnCreation)}}empty{{/if}}'>
-                                {{breaklines notesOnCreation}}&nbsp;
+                            </div>
+                          {{/if}}
+                          {{#if fullVersion}}
+                            <div class='fr-col-12'>
+                              <div class='sample-section-item'>
+                                <div class='label'>
+                                  Note additionnelle
+                                </div>
+                                <div class='value {{#if (isEmpty notesOnCreation)}}empty{{/if}}'>
+                                  {{breaklines notesOnCreation}}
+                                </div>
+                              </div>
+                            </div>
+                          {{/if}}
+                        </div>
+                      </div>
+                    </div>
+                    {{#if fullVersion}}
+                      <div class='fr-col-6'>
+                        <div class='fr-container'>
+                          <div class='fr-grid-row fr-grid-row--gutters'>
+                            <div class='fr-col-12'>
+                              <div class='sample-section-header'>
+                                <div class="uppercase" style="flex-grow: 1">{{context}}</div>
+                                {{#if releaseControl}}
+                                  <div class="fr-badge fr-badge--sm fr-badge--purple-glycine fr-m-0">Contrôle libératoire</div>
+                                {{/if}}
+                              </div>
+                            </div>
+                            <div class='fr-col-12'>
+                              <div class='sample-section-item'>
+                                <div class='label'>
+                                  Numéro
+                                </div>
+                                <div class='value {{#if (isEmpty reference)}}empty{{/if}}'>
+                                  {{reference}}
+                                </div>
+                              </div>
+                            </div>
+                            <div class='fr-col-12'>
+                              <div class='sample-section-item'>
+                                <div class='label'>
+                                  Cadre juridique
+                                </div>
+                                <div class='value {{#if (isEmpty legalContext)}}empty{{/if}}'>
+                                  {{legalContext}}
+                                </div>
+                              </div>
+                            </div>
+                            <div class='fr-col-12'>
+                              <div class='sample-section-item'>
+                                <div class='label'>
+                                  Entité contrôlée
+                                </div>
+                                <div class='value {{#if (isEmpty company.name)}}empty{{/if}}'>
+                                  {{company.name}}
+                                </div>
+                                {{#if company.address}}
+                                  <div class='sub-value'>
+                                    {{company.address}}, 
+                                    {{company.postalCode}}, 
+                                    {{company.city}}
+                                  </div>
+                                {{/if}}
+                              </div>
+                            </div>
+                            <div class='fr-col-6'>
+                              <div class='sample-section-item'>
+                                <div class='label'>
+                                  N° ou appellation de la parcelle
+                                </div>
+                                <div class='value {{#if (isEmpty parcel)}}empty{{/if}}'>
+                                  {{parcel}}
+                                </div>
+                              </div>
+                            </div>
+                            <div class='fr-col-6'>
+                              <div class='sample-section-item'>
+                                <div class='label'>
+                                  Département
+                                </div>
+                                <div class='value {{#if (isEmpty department)}}empty{{/if}}'>
+                                  {{department}}
+                                </div>
+                              </div>
+                            </div>
+                            <div class='fr-col-6'>
+                              <div class='sample-section-item'>
+                                <div class='label'>
+                                  Identifiant Resytal
+                                </div>
+                                <div class='value {{#if (isEmpty sample.resytalId)}}empty{{/if}}'>
+                                  {{sample.resytalId}}
+                                </div>
+                              </div>
+                            </div>
+                            <div class='fr-col-6'>
+                              <div class='sample-section-item'>
+                                <div class='label'>
+                                  Siret
+                                </div>
+                                <div class='value {{#if (isEmpty company.siret)}}empty{{/if}}'>
+                                  {{company.siret}}
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div class='fr-col-6'>
-                      <div class='fr-container'>
-                        <div class='fr-grid-row fr-grid-row--gutters'>
-                          <div class='fr-col-12'>
-                            <div class='sample-section-header'>
-                              <div class="uppercase" style="flex-grow: 1">{{context}}</div>
-                              {{#if releaseControl}}
-                                <div class="fr-badge fr-badge--sm fr-badge--purple-glycine fr-m-0">Contrôle libératoire</div>
-                              {{/if}}
-                            </div>
-                          </div>
-                          <div class='fr-col-12'>
-                            <div class='sample-section-item'>
-                              <div class='label'>
-                                Numéro
-                              </div>
-                              <div class='value {{#if (isEmpty reference)}}empty{{/if}}'>
-                                {{reference}}
-                              </div>
-                            </div>
-                          </div>
-                          <div class='fr-col-12'>
-                            <div class='sample-section-item'>
-                              <div class='label'>
-                                Cadre juridique
-                              </div>
-                              <div class='value {{#if (isEmpty legalContext)}}empty{{/if}}'>
-                                {{legalContext}}
-                              </div>
-                            </div>
-                          </div>
-                          <div class='fr-col-12'>
-                            <div class='sample-section-item'>
-                              <div class='label'>
-                                Entité contrôlée
-                              </div>
-                              <div class='value {{#if (isEmpty company.name)}}empty{{/if}}'>
-                                {{company.name}}
-                              </div>
-                              <div class='sub-value'>
-                                {{company.address}}, 
-                                {{company.postalCode}}, 
-                                {{company.city}}
-                              </div>
-                            </div>
-                          </div>
-                          <div class='fr-col-6'>
-                            <div class='sample-section-item'>
-                              <div class='label'>
-                                N° ou appellation de la parcelle
-                              </div>
-                              <div class='value {{#if (isEmpty parcel)}}empty{{/if}}'>
-                                {{parcel}}&nbsp;
-                              </div>
-                            </div>
-                          </div>
-                          <div class='fr-col-6'>
-                            <div class='sample-section-item'>
-                              <div class='label'>
-                                Département
-                              </div>
-                              <div class='value {{#if (isEmpty department)}}empty{{/if}}'>
-                                {{department}}
-                              </div>
-                            </div>
-                          </div>
-                          <div class='fr-col-6'>
-                            <div class='sample-section-item'>
-                              <div class='label'>
-                                Identifiant Resytal
-                              </div>
-                              <div class='value {{#if (isEmpty sample.resytalId)}}empty{{/if}}'>
-                                {{sample.resytalId}}&nbsp;
-                              </div>
-                            </div>
-                          </div>
-                          <div class='fr-col-6'>
-                            <div class='sample-section-item'>
-                              <div class='label'>
-                                Siret
-                              </div>
-                              <div class='value {{#if (isEmpty company.siret)}}empty{{/if}}'>
-                                {{company.siret}}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    {{/if}}
                   </div>
                 </section>
 
@@ -253,7 +282,7 @@
                     <div class='fr-grid-row fr-grid-row--gutters'>
                       <div class='fr-col-12'>
                         <div class='sample-section-header'>
-                          <span class="uppercase">Matrice contrôlée et analyses</span>
+                          <span class="uppercase">Matrice contrôlée{{#if fullVersion}} et analyses{{/if}}</span>
                         </div>
                       </div>
                       <div class='fr-col-4'>
@@ -262,7 +291,7 @@
                             Catégorie de matrice
                           </div>
                           <div class='value {{#if (isEmpty matrixKind)}}empty{{/if}}'>
-                            {{matrixKind}}&nbsp;
+                            {{matrixKind}}
                           </div>
                         </div>
                       </div>
@@ -272,7 +301,7 @@
                             Matrice
                           </div>
                           <div class='value {{#if (isEmpty matrix)}}empty{{/if}}'>
-                            {{matrix}}&nbsp;
+                            {{matrix}}
                           </div>
                         </div>
                       </div>
@@ -282,130 +311,132 @@
                             LMR/ Partie du végétal concernée
                           </div>
                           <div class='value {{#if (isEmpty matrixPart)}}empty{{/if}}'>
-                            {{matrixPart}}&nbsp;
+                            {{matrixPart}}
                           </div>
                         </div>
                       </div>
-                      <div class='fr-col-4'>
-                        <div class='sample-section-item'>
-                          <div class='label'>
-                            Détails de la matrice
-                          </div>
-                          <div class='value {{#if (isEmpty matrixDetails)}}empty{{/if}}'>
-                            {{matrixDetails}}&nbsp;
-                          </div>
-                        </div>
-                      </div>
-                      <div class='fr-col-4'>
-                        <div class='sample-section-item'>
-                          <div class='label'>
-                            Type de culture
-                          </div>
-                          <div class='value {{#if (isEmpty cultureKind)}}empty{{/if}}'>
-                            {{cultureKind}}&nbsp;
-                          </div>
-                        </div>
-                      </div>
-                      <div class='fr-col-4'>
-                        <div class='sample-section-item'>
-                          <div class='label'>
-                            Stade
-                          </div>
-                          <div class='value {{#if (isEmpty stage)}}empty{{/if}}'>
-                            {{stage}}&nbsp;
-                          </div>
-                        </div>
-                      </div>
-                      <div class='fr-col-6'>
-                        <div class='substances-container'>
-                          {{#if matrix}}
-                            {{#isDefinedArray monoSubstances}}
-                              <div class='substance-label'>
-                                Mono-résidu
-                              </div>
-                              <ul>
-                              {{#each monoSubstances}}
-                                <li class='substance-value'>
-                                  {{this}}
-                                </li>
-                              {{/each}}
-                              </ul>
-                            {{/isDefinedArray}}
-                          {{else}}
-                            <div class='substance-label'>
-                              Mono-résidu
+                      {{#if fullVersion}}
+                        <div class='fr-col-4'>
+                          <div class='sample-section-item'>
+                            <div class='label'>
+                              Détails de la matrice
                             </div>
-                            <div class='empty'>
+                            <div class='value {{#if (isEmpty matrixDetails)}}empty{{/if}}'>
+                              {{matrixDetails}}
                             </div>
-                            <div class='empty'>
-                            </div>
-                            <div class='empty'>
-                            </div>
-                          {{/if}}
+                          </div>
                         </div>
-                      </div>
-                      <div class='fr-col-6'>
-                        <div class='substances-container'>
-                          {{#if matrix}}
-                            {{#isDefinedArray multiSubstances}}
-                              <div class='substance-label'>
-                                Multi-résidus dont :
-                              </div>
-                              <ul>
-                                {{#each multiSubstances}}
+                        <div class='fr-col-4'>
+                          <div class='sample-section-item'>
+                            <div class='label'>
+                              Type de culture
+                            </div>
+                            <div class='value {{#if (isEmpty cultureKind)}}empty{{/if}}'>
+                              {{cultureKind}}
+                            </div>
+                          </div>
+                        </div>
+                        <div class='fr-col-4'>
+                          <div class='sample-section-item'>
+                            <div class='label'>
+                              Stade
+                            </div>
+                            <div class='value {{#if (isEmpty stage)}}empty{{/if}}'>
+                              {{stage}}
+                            </div>
+                          </div>
+                        </div>
+                        <div class='fr-col-6'>
+                          <div class='substances-container'>
+                            {{#if matrix}}
+                              {{#isDefinedArray monoSubstances}}
+                                <div class='substance-label'>
+                                  Mono-résidu
+                                </div>
+                                <ul>
+                                {{#each monoSubstances}}
                                   <li class='substance-value'>
                                     {{this}}
                                   </li>
                                 {{/each}}
-                              </ul>
-                            {{/isDefinedArray}}
-                          {{else}}
-                            <div class='substance-label'>
-                              Multi-résidus
-                            </div>
-                            <div class='empty'>
-                            </div>
-                            <div class='empty'>
-                            </div>
-                            <div class='empty'>
-                            </div>
-                          {{/if}}
-                        </div>
-                      </div>
-                      <div class='{{#if sampleDocuments}}fr-col-6{{else}}fr-col-12{{/if}}'>
-                        <div class='sample-section-item'>
-                          <div class='label'>
-                            Note additionnelle
-                          </div>
-                          <div class='value {{#if (isEmpty notesOnMatrix)}}empty{{/if}}'>
-                            {{breaklines notesOnMatrix}}&nbsp;
+                                </ul>
+                              {{/isDefinedArray}}
+                            {{else}}
+                              <div class='substance-label'>
+                                Mono-résidu
+                              </div>
+                              <div class='empty'>
+                              </div>
+                              <div class='empty'>
+                              </div>
+                              <div class='empty'>
+                              </div>
+                            {{/if}}
                           </div>
                         </div>
-                      </div>
-                      {{#if sampleDocuments}}
                         <div class='fr-col-6'>
+                          <div class='substances-container'>
+                            {{#if matrix}}
+                              {{#isDefinedArray multiSubstances}}
+                                <div class='substance-label'>
+                                  Multi-résidus dont :
+                                </div>
+                                <ul>
+                                  {{#each multiSubstances}}
+                                    <li class='substance-value'>
+                                      {{this}}
+                                    </li>
+                                  {{/each}}
+                                </ul>
+                              {{/isDefinedArray}}
+                            {{else}}
+                              <div class='substance-label'>
+                                Multi-résidus
+                              </div>
+                              <div class='empty'>
+                              </div>
+                              <div class='empty'>
+                              </div>
+                              <div class='empty'>
+                              </div>
+                            {{/if}}
+                          </div>
+                        </div>
+                        <div class='{{#if sampleDocuments}}fr-col-6{{else}}fr-col-12{{/if}}'>
                           <div class='sample-section-item'>
                             <div class='label'>
-                              Pièces jointes
+                              Note additionnelle
                             </div>
-                            <ul class="fr-mt-0">
-                              {{#each sampleDocuments}}
-                                <li class='value'>
-                                    {{filename}}
-                                  {{#if legend}}
-                                    : {{legend}}
-                                  {{/if}}
-                                </li>
-                              {{/each}}
-                            </ul>
+                            <div class='value {{#if (isEmpty notesOnMatrix)}}empty{{/if}}'>
+                              {{breaklines notesOnMatrix}}
+                            </div>
                           </div>
                         </div>
-                      {{/if}}
-                    </div>
+                        {{#if sampleDocuments}}
+                          <div class='fr-col-6'>
+                            <div class='sample-section-item'>
+                              <div class='label'>
+                                Pièces jointes
+                              </div>
+                              <ul class="fr-mt-0">
+                                {{#each sampleDocuments}}
+                                  <li class='value'>
+                                      {{filename}}
+                                    {{#if legend}}
+                                      : {{legend}}
+                                    {{/if}}
+                                  </li>
+                                {{/each}}
+                              </ul>
+                            </div>
+                          </div>
+                        {{/if}}
+                      </div>
+                    {{/if}}
                   </div>
                 </section>
 
-                <section class='sample-section  {{#if fullVersion}}full-version{{/if}}'>
+                <section class='sample-section {{#if fullVersion}}full-version{{/if}}'>
                   <div>
                     <span class="uppercase" style="font-weight: bold;font-size: 12px;">
                       Échantillons prélevés
@@ -434,118 +465,163 @@
                       {{/if}}
                     </div>
                   </div>
-                  <div class='fr-grid-row fr-grid-row--gutters'>
+                  <div class='fr-grid-row fr-grid-row--gutters' style="padding-left: 3px; padding-right: 3px;">
                     {{#each sampleItems}}
                       {{#if (or ../fullVersion currentItem)}}
-                        <div class="fr-col-4">
-                          {{#if currentItem}}
+                        <div class="{{#if ../fullVersion}}fr-col-4{{else}}fr-col-12{{/if}}">
+                          {{#if (and fullVersion currentItem)}}
                             <div class='current-sample-item uppercase'>
                               Exemplaire rattaché au procès-verbal
                             </div>
                           {{/if}}
-                          <div class='sample-item'>
-                            <div class='sample-section-item'>
-                              <div class="sample-item-title">
-                                Échantillon n°{{itemNumber}}
+                          <div class='sample-item-container {{#if ../fullVersion}}sample-item-card{{/if}}'>
+                            <div class='fr-grid-row fr-grid-row--gutters'>
+                              <div class='fr-col-12'>
+                                <div class='sample-item-title-container'>
+                                  <div class="sample-item-title" style="{{#if ../fullVersion}}flex-grow: 1;{{/if}}">
+                                    Échantillon n°{{itemNumber}}
+                                  </div>
+                                  <div class='fr-badge fr-badge--yellow-tournesol fr-badge--sm fr-badge--no-icon fr-ml-1w'>
+                                    exemplaire n°{{copyNumber}}
+                                  </div>
+                                </div>
                               </div>
-                              <div class='fr-badge fr-badge--yellow-tournesol fr-badge--sm fr-badge--no-icon'>
-                                exemplaire n°{{copyNumber}}
+                              {{#if (or ../fullVersion quantity)}}
+                                <div class='{{#if ../fullVersion}}fr-col-12{{else}}fr-col-6{{/if}}'>
+                                  <div class='sample-section-item'>
+                                    <div class='label'>
+                                      Quantité
+                                    </div>
+                                    <div class='value {{#if (isEmpty quantity)}}empty{{/if}}'>
+                                      {{quantity}}
+                                    </div>
+                                  </div>
+                                </div>
+                              {{else}}
+                                <div class='fr-col-4'>
+                                  <div class='sample-section-item'>
+                                    <div class='label'>
+                                      Nombre
+                                    </div>
+                                    <div class='value empty'>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class='fr-col-4'>
+                                  <div class='sample-section-item'>
+                                    <div class='label'>
+                                      Unité de mesure
+                                    </div>
+                                    <div class='value empty'>
+                                    </div>
+                                  </div>
+                                </div>
+                              {{/if}}
+                              <div class="{{#if ../fullVersion}}fr-col-12{{else}}fr-col-4{{/if}}">
+                                <div class='sample-section-item'>
+                                  <div class='label'>
+                                    Numéro de scellé
+                                  </div>
+                                  <div class='value {{#if (isEmpty sealId)}}empty{{/if}}'>
+                                    {{sealId}}
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                            <div class='sample-section-item'>
-                              <div class='label'>
-                                Quantité
-                              </div>
-                              <div class='value {{#if (isEmpty quantity)}}empty{{/if}}'>
-                                {{quantity}}&nbsp;
-                              </div>
-                            </div>
-                            <div class='sample-section-item'>
-                              <div class='label'>
-                                Numéro de scellé
-                              </div>
-                              <div class='value {{#if (isEmpty sealId)}}empty{{/if}}'>
-                                {{sealId}}&nbsp;
-                              </div>
-                            </div>
-                            <div class='sample-section-item'>
-                              <div class='label'>
-                                Destinataire
-                              </div>
-                              {{#if (eq copyNumber 1)}}
-                                <div class='value {{#if (isEmpty ../laboratory)}}empty{{/if}}'>
-                                  {{#if ../laboratory}}
-                                    Laboratoire {{../laboratory.fullName}}
+                              <div class="{{#if ../fullVersion}}fr-col-12{{else}}fr-col-6{{/if}}">
+                                <div class='sample-section-item'>
+                                  <div class='label'>
+                                    Destinataire
+                                  </div>
+                                  {{#if (eq copyNumber 1)}}
+                                    <div class='value {{#if (isEmpty ../laboratory)}}empty{{/if}}'>
+                                      {{#if ../laboratory}}
+                                        Laboratoire {{../laboratory.fullName}}
+                                      {{/if}}
+                                    </div>
+                                  {{/if}}
+                                  {{#if (or (eq copyNumber 2) (eq copyNumber 3))}}
+                                    <div class='value {{#if (isEmpty recipientKind)}}empty{{/if}}'>
+                                      {{recipientKind}}
+                                    </div>
                                   {{/if}}
                                 </div>
-                              {{/if}}
-                              {{#if (or (eq copyNumber 2) (eq copyNumber 3))}}
-                                <div class='value {{#if (isEmpty recipientKind)}}empty{{/if}}'>
-                                  {{recipientKind}}
-                                </div>
-                              {{/if}}
-                            </div>
-                            <div class='sample-section-item'>
-                              <div class='label'>
-                                Directive 2002/63
                               </div>
-                              <div class='value {{#if (isEmpty compliance200263)}}empty{{/if}} {{#if (eq compliance200263 true)}}fr-label--success{{/if}} {{#if (eq compliance200263 false)}}fr-label--error{{/if}}'>
-                                {{#if (eq compliance200263 true)}}Respectée{{/if}}
-                                {{#if (eq compliance200263 false)}}Non Respectée{{/if}}
+                              <div class="{{#if ../fullVersion}}fr-col-12{{else}}fr-col-6{{/if}}">
+                                <div class='sample-section-item'>
+                                  <div class='label'>
+                                    Directive 2002/63
+                                  </div>
+                                  {{#if ../fullVersion}}
+                                    <div class='value {{#if (isEmpty compliance200263)}}empty{{/if}} {{#if (eq compliance200263 true)}}fr-label--success{{/if}} {{#if (eq compliance200263 false)}}fr-label--error{{/if}}'>
+                                      {{#if (eq compliance200263 true)}}Respectée{{/if}}
+                                      {{#if (eq compliance200263 false)}}Non Respectée{{/if}}
+                                    </div>
+                                  {{else}}
+                                    <div class="fr-radio-group">
+                                      <input type="radio" {{#if (eq compliance200263 true)}}checked{{/if}}>
+                                      <label class="fr-label">Respectée</label>
+                                      <input type="radio"{{#if (eq compliance200263 false)}}checked{{/if}}>
+                                      <label class="fr-label">Non Respectée</label>
+                                    </div>
+                                  {{/if}}
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
                       {{/if}}
                     {{/each}}
-                    <div class='fr-col-12'>
-                      <div class='sample-section-item'>
-                        <div class='label'>
-                          Note additionnelle concernant les échantillons
-                        </div>
-                        <div class='value {{#if (isEmpty notesOnItems)}}empty{{/if}}'>
-                          {{breaklines notesOnItems}}&nbsp;
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-
-
-                <section class='sample-section border {{#if fullVersion}}full-version{{/if}}'>
-                  <div class='fr-container'>
-                    <div class='fr-grid-row fr-grid-row--gutters'>
-                      <div class='fr-col-6'>
-                        <div class='sample-section-item'>
-                          <div class='value'>
-                            Le détenteur accepte les informations portées au présent procès-verbal
-                          </div>
-                          <div class="fr-radio-group">
-                            <input type="radio" {{#if (eq ownerAgreement true)}}checked{{/if}}>
-                            <label class="fr-label">Oui</label>
-                            <input type="radio"{{#if (eq ownerAgreement false)}}checked{{/if}}>
-                            <label class="fr-label">Non</label>
-                          </div>
-                        </div>
-                        {{#if ownerEmail}}
-                          <div class='label fr-mt-1w'>
-                            Le détenteur de la marchandise a reçu par e-mail le procès-verbal du prélèvement
-                          </div>
-                        {{/if}}
-                      </div>
-                      <div class='fr-col-6'>
+                    {{#if fullVersion}}
+                      <div class='fr-col-12'>
                         <div class='sample-section-item'>
                           <div class='label'>
-                            Déclaration du détenteur
+                            Note additionnelle concernant les échantillons
                           </div>
-                          <div class='value {{#if (isEmpty notesOnOwnerAgreement)}}empty{{/if}}'>
-                            {{breaklines notesOnOwnerAgreement}}&nbsp;
+                          <div class='value {{#if (isEmpty notesOnItems)}}empty{{/if}}'>
+                            {{breaklines notesOnItems}}
+                          </div>
+                        </div>
+                      </div>
+                    {{/if}}
+                  </div>
+                </section>
+
+                {{#if fullVersion}}
+                  <section class='sample-section border'>
+                    <div class='fr-container'>
+                      <div class='fr-grid-row fr-grid-row--gutters'>
+                        <div class='fr-col-6'>
+                          <div class='sample-section-item'>
+                            <div class='value'>
+                              Le détenteur accepte les informations portées au présent procès-verbal
+                            </div>
+                            <div class="fr-radio-group">
+                              <input type="radio" {{#if (eq ownerAgreement true)}}checked{{/if}}>
+                              <label class="fr-label">Oui</label>
+                              <input type="radio"{{#if (eq ownerAgreement false)}}checked{{/if}}>
+                              <label class="fr-label">Non</label>
+                            </div>
+                          </div>
+                          {{#if ownerEmail}}
+                            <div class='label fr-mt-1w'>
+                              Le détenteur de la marchandise a reçu par e-mail le procès-verbal du prélèvement
+                            </div>
+                          {{/if}}
+                        </div>
+                        <div class='fr-col-6'>
+                          <div class='sample-section-item'>
+                            <div class='label'>
+                              Déclaration du détenteur
+                            </div>
+                            <div class='value {{#if (isEmpty notesOnOwnerAgreement)}}empty{{/if}}'>
+                              {{breaklines notesOnOwnerAgreement}}
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </section>
+                  </section>
+                {{/if}}
 
               </div>
             </td>
