@@ -1,6 +1,6 @@
 import { Matrix } from './Matrix';
 
-export const MatrixLabels: Record<Matrix, string> = {
+export const MatrixLabels = {
   A00YZ: 'Houblon',
   A014C: 'Fruits à coque',
   A00PH: 'Fèves (non écossées)',
@@ -119,4 +119,4 @@ export const MatrixLabels: Record<Matrix, string> = {
   A031G: 'Oeuf de poule',
   A031K: 'Oeuf de caille',
   'A01XF#F28.A0C0S': 'Foie de bovin non transformé'
-};
+} as const satisfies Record<Matrix, string>;
