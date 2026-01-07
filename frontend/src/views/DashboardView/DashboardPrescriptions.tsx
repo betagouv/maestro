@@ -15,10 +15,7 @@ import {
   Prescription,
   PrescriptionSort
 } from 'maestro-shared/schema/Prescription/Prescription';
-import {
-  ContextLabels,
-  ProgrammingPlanContextList
-} from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   FunctionComponent,
@@ -149,7 +146,7 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
         onTabChange={({ tabIndex }) => {
           setContext(programmingPlan.contexts[tabIndex]);
         }}
-        tabs={ProgrammingPlanContextList.map((context) => ({
+        tabs={programmingPlan.contexts.map((context) => ({
           label: `${ContextLabels[context]} ${programmingPlan.year}`,
           content: (
             <>
