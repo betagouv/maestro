@@ -6,7 +6,11 @@ import {
 } from 'maestro-shared/referential/Region';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
+import {
+  genLocalPrescription,
+  genPrescription,
+  genPrescriptionSubstance
+} from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
@@ -20,7 +24,12 @@ import { withISOStringDates } from 'maestro-shared/utils/utils';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import {
+  formatLocalPrescription,
+  LocalPrescriptions
+} from '../../repositories/localPrescriptionRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
+import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
 import {
   formatProgrammingPlan,
   ProgrammingPlanLocalStatus,
@@ -67,15 +76,6 @@ describe('ProgrammingPlan router', () => {
       status: 'InProgress'
     }))
   });
-  const controlPrescriptionValidatedPlan = genPrescription({
-    programmingPlanId: validatedProgrammingPlan.id,
-    context: 'Control'
-  });
-  const surveillancePrescriptionValidatedPlan = genPrescription({
-    programmingPlanId: validatedProgrammingPlan.id,
-    context: 'Surveillance'
-  });
-
   beforeAll(async () => {
     await ProgrammingPlans().insert(
       [
@@ -98,10 +98,20 @@ describe('ProgrammingPlan router', () => {
         }))
       )
     );
-    await Prescriptions().insert([
-      controlPrescriptionValidatedPlan,
-      surveillancePrescriptionValidatedPlan
-    ]);
+
+    // await LocalPrescriptionSubstanceKindsLaboratories().insert(
+    //   [LocalPrescriptionFixture].flatMap((localPrescription) =>
+    //     (localPrescription.substanceKindsLaboratories ?? []).map(
+    //       (substanceKindLaboratory) => ({
+    //         prescriptionId: localPrescription.prescriptionId,
+    //         region: localPrescription.region,
+    //         department: localPrescription.department ?? 'None',
+    //         substanceKind: substanceKindLaboratory.substanceKind,
+    //         laboratoryId: substanceKindLaboratory.laboratoryId
+    //       })
+    //     )
+    //   )
+    // );
   });
 
   afterAll(async () => {
@@ -381,6 +391,30 @@ describe('ProgrammingPlan router', () => {
     });
 
     test('should create a new programming plan for the given year', async () => {
+      const controlPrescription = genPrescription({
+        programmingPlanId: validatedProgrammingPlan.id,
+        context: 'Control'
+      });
+      const surveillancePrescription = genPrescription({
+        programmingPlanId: validatedProgrammingPlan.id,
+        context: 'Surveillance'
+      });
+      const localPrescription = genLocalPrescription({
+        prescriptionId: controlPrescription.id
+      });
+      const prescriptionSubstance = genPrescriptionSubstance({
+        prescriptionId: controlPrescription.id
+      });
+
+      await Prescriptions().insert([
+        controlPrescription,
+        surveillancePrescription
+      ]);
+      await LocalPrescriptions().insert(
+        formatLocalPrescription(localPrescription)
+      );
+      await PrescriptionSubstances().insert(prescriptionSubstance);
+
       const res = await request(app)
         .post(testRoute('2020'))
         .use(tokenProvider(NationalCoordinator))
@@ -413,53 +447,91 @@ describe('ProgrammingPlan router', () => {
         )
       );
 
-      await expect(
-        Prescriptions()
-          .where('programmingPlanId', res.body.id)
-          .andWhere('context', 'Control')
-      ).resolves.toMatchObject(
-        expect.arrayContaining([
-          {
-            id: expect.any(String),
-            context: 'Control',
-            programmingPlanId: res.body.id,
-            matrixKind: controlPrescriptionValidatedPlan.matrixKind,
-            matrix: null,
-            stages: controlPrescriptionValidatedPlan.stages,
-            programmingPlanKind:
-              controlPrescriptionValidatedPlan.programmingPlanKind,
-            programmingInstruction:
-              controlPrescriptionValidatedPlan.programmingInstruction ?? null,
-            notes: controlPrescriptionValidatedPlan.notes ?? null
-          }
-        ])
-      );
-      await expect(
-        Prescriptions()
-          .where('programmingPlanId', res.body.id)
-          .andWhere('context', 'Surveillance')
-      ).resolves.toMatchObject(
-        expect.arrayContaining([
-          {
-            id: expect.any(String),
-            context: 'Surveillance',
-            programmingPlanId: res.body.id,
-            matrixKind: surveillancePrescriptionValidatedPlan.matrixKind,
-            matrix: null,
-            stages: surveillancePrescriptionValidatedPlan.stages,
-            programmingPlanKind:
-              controlPrescriptionValidatedPlan.programmingPlanKind,
-            programmingInstruction:
-              controlPrescriptionValidatedPlan.programmingInstruction ?? null,
-            notes: controlPrescriptionValidatedPlan.notes ?? null
-          }
-        ])
+      const newControlPrescription = await Prescriptions()
+        .where('programmingPlanId', res.body.id)
+        .andWhere('context', 'Control')
+        .first();
+
+      expect(newControlPrescription).toMatchObject({
+        id: expect.any(String),
+        context: 'Control',
+        programmingPlanId: res.body.id,
+        matrixKind: controlPrescription.matrixKind,
+        matrix: null,
+        stages: controlPrescription.stages,
+        programmingPlanKind: controlPrescription.programmingPlanKind,
+        programmingInstruction:
+          controlPrescription.programmingInstruction ?? null,
+        notes: controlPrescription.notes ?? null
+      });
+
+      const newSurveillancePrescription = await Prescriptions()
+        .where('programmingPlanId', res.body.id)
+        .andWhere('context', 'Surveillance')
+        .first();
+
+      expect(newSurveillancePrescription).toMatchObject({
+        id: expect.any(String),
+        context: 'Surveillance',
+        programmingPlanId: res.body.id,
+        matrixKind: surveillancePrescription.matrixKind,
+        matrix: null,
+        stages: surveillancePrescription.stages,
+        programmingPlanKind: controlPrescription.programmingPlanKind,
+        programmingInstruction:
+          controlPrescription.programmingInstruction ?? null,
+        notes: controlPrescription.notes ?? null
+      });
+
+      const controlLocalPrescriptions = await LocalPrescriptions().where(
+        'prescriptionId',
+        controlPrescription?.id
       );
 
-      //TODO check substances duplication
+      expect(controlLocalPrescriptions.length).toBe(1);
+      expect(controlLocalPrescriptions[0]).toMatchObject({
+        prescriptionId: controlPrescription?.id,
+        region: localPrescription.region,
+        department: localPrescription.department ?? 'None',
+        sampleCount: localPrescription.sampleCount
+      });
+
+      const newPrescriptionSubstances = await PrescriptionSubstances().where(
+        'prescriptionId',
+        newControlPrescription?.id
+      );
+
+      expect(newPrescriptionSubstances.length).toBe(1);
+      expect(newPrescriptionSubstances[0]).toMatchObject({
+        ...prescriptionSubstance,
+        prescriptionId: newControlPrescription?.id
+      });
 
       //Cleanup
-      await Prescriptions().where('programmingPlanId', res.body.id).delete();
+      await PrescriptionSubstances()
+        .whereIn('prescriptionId', [
+          controlPrescription?.id,
+          surveillancePrescription?.id,
+          newControlPrescription?.id,
+          newSurveillancePrescription?.id
+        ] as string[])
+        .delete();
+      await LocalPrescriptions()
+        .whereIn('prescriptionId', [
+          controlPrescription?.id,
+          surveillancePrescription?.id,
+          newControlPrescription?.id,
+          newSurveillancePrescription?.id
+        ] as string[])
+        .delete();
+      await Prescriptions()
+        .whereIn('id', [
+          controlPrescription?.id,
+          surveillancePrescription?.id,
+          newControlPrescription?.id,
+          newSurveillancePrescription?.id
+        ] as string[])
+        .delete();
       await ProgrammingPlans().where('id', res.body.id).delete();
     });
   });

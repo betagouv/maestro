@@ -447,8 +447,7 @@ export const programmingPlanRouter = {
               )
               .map((localPrescription) => ({
                 ...localPrescription,
-                prescriptionId: newPrescription.id,
-                laboratoryId: null
+                prescriptionId: newPrescription.id
               }))
           );
 
