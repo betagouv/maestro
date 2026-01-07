@@ -3,6 +3,7 @@ import {
   AuthMaybeUnknownUser,
   AuthUser
 } from 'maestro-shared/schema/User/AuthUser';
+import { UserRole } from 'maestro-shared/schema/User/UserRole';
 
 const authUser = JSON.parse(localStorage.getItem('authUser') ?? '{}');
 
@@ -21,6 +22,12 @@ const authSlice = createSlice({
       localStorage.setItem('authUser', JSON.stringify(action.payload.authUser));
       if (action.payload.authUser.user !== null) {
         state.authUser = action.payload.authUser;
+      }
+    },
+    changeUserRole: (state, action: PayloadAction<UserRole>) => {
+      if (state.authUser) {
+        state.authUser.userRole = action.payload;
+        localStorage.setItem('authUser', JSON.stringify(state.authUser));
       }
     },
     signoutUser: (state) => {
