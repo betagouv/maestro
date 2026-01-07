@@ -18,6 +18,7 @@ export const seed = async (): Promise<void> => {
       omit(formatLocalPrescription(_), [
         'substanceKindsLaboratories',
         'realizedSampleCount',
+        'notAdmissibleSampleCount',
         'inProgressSampleCount'
       ])
     )

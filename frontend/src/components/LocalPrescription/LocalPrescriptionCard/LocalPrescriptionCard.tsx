@@ -118,6 +118,21 @@ const LocalPrescriptionCard = ({
                     })('programmé')}
                     {' • '}
                     <CompletionBadge localPrescriptions={localPrescription} />
+                    {(localPrescription.notAdmissibleSampleCount ?? 0) > 0 && (
+                      <div
+                        className={cx('fr-hint-text', 'fr-text--sm', 'fr-mb-0')}
+                      >
+                        (
+                        {pluralize(
+                          localPrescription.notAdmissibleSampleCount ?? 0,
+                          {
+                            preserveCount: true,
+                            ignores: ['non']
+                          }
+                        )('non recevable')}
+                        )
+                      </div>
+                    )}
                   </>
                 ) : (
                   <>
