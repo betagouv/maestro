@@ -108,7 +108,12 @@ export const useAuthentication = () => {
   }, [isAuthenticated, hasUserPermission]);
 
   return {
-    user: authUser?.user,
+    user: {
+      ...authUser?.user,
+      department: isRegionalRole(authUser?.userRole)
+        ? null
+        : authUser?.user.department
+    },
     userRole: authUser?.userRole,
     isAuthenticated,
     hasUserPermission,
