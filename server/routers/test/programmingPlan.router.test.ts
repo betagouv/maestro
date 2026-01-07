@@ -98,20 +98,6 @@ describe('ProgrammingPlan router', () => {
         }))
       )
     );
-
-    // await LocalPrescriptionSubstanceKindsLaboratories().insert(
-    //   [LocalPrescriptionFixture].flatMap((localPrescription) =>
-    //     (localPrescription.substanceKindsLaboratories ?? []).map(
-    //       (substanceKindLaboratory) => ({
-    //         prescriptionId: localPrescription.prescriptionId,
-    //         region: localPrescription.region,
-    //         department: localPrescription.department ?? 'None',
-    //         substanceKind: substanceKindLaboratory.substanceKind,
-    //         laboratoryId: substanceKindLaboratory.laboratoryId
-    //       })
-    //     )
-    //   )
-    // );
   });
 
   afterAll(async () => {
