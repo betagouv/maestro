@@ -16,7 +16,12 @@ import { z, ZodObject } from 'zod';
 import { Laboratories } from '../../repositories/kysely.type';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import config from '../../utils/config';
-import { SigleContexteIntervention, SiglePlanAnalyse } from './sachaFichePlan';
+import {
+  NotPPVMatrix,
+  SigleContexteIntervention,
+  SigleMatrix,
+  SiglePlanAnalyse
+} from './sachaReferential';
 import {
   Acquittement,
   acquittementValidator,
@@ -98,8 +103,9 @@ export const generateXMLDAI = (
     | 'ownerEmail'
     | 'sampler'
     | 'department'
+    | 'matrix'
   >,
-  sampleItem: Pick<SampleItem, 'sealId'>,
+  sampleItem: Pick<SampleItem, 'sealId' | 'itemNumber'>,
   loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryCall>,
   dateNow: number
 ): Promise<XmlFile> => {
@@ -107,6 +113,12 @@ export const generateXMLDAI = (
     throw new Error("Pas d'EDI Sacha pour la PPV");
   }
 
+  const matrix = sample.matrix;
+  if (!(matrix in SigleMatrix)) {
+    throw new Error(
+      `Pas de Sigle SACHA associé à la matrice ${sample.matrix}.`
+    );
+  }
   return generateXML(
     'DA01',
     {
@@ -142,10 +154,9 @@ export const generateXMLDAI = (
         DialogueEchantillonCommemoratifType: [
           {
             DialogueEchantillonComplet: {
-              NumeroEchantillon: 1,
-              //FIXME
-              SigleMatriceSpecifique: '',
-              NumeroIdentificationExterne: 'ECHANTILLON 1',
+              // FIXME c'est bien ça ?
+              NumeroEchantillon: sampleItem.itemNumber,
+              SigleMatriceSpecifique: SigleMatrix[matrix as NotPPVMatrix],
               //FIXME on le met où le numéro de scellé !?
               NumeroEtiquette: sampleItem.sealId.substring(0, 27)
             }
@@ -160,6 +171,7 @@ export const generateXMLDAI = (
             LibelleMatrice: '',
             SigleAnalyte: '',
             SigleMethodeSpecifique: '',
+            //FIXME ??
             Depistage: false,
             Confirmation: false,
             Statut: 'G'

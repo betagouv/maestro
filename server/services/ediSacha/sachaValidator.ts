@@ -3,7 +3,7 @@ import { z } from 'zod';
 import {
   sigleContexteInterventionValidator,
   siglePlanAnalyseValidator
-} from './sachaFichePlan';
+} from './sachaReferential';
 
 // FIXME à supprimer et remplir correctement isArray de XMLParser
 const coerceToArray = <Schema extends z.ZodObject>(

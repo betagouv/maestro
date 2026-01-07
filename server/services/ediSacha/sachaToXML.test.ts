@@ -90,6 +90,7 @@ test(`génère un XML de DAI`, async () => {
         sampledAt: new Date(12341234),
         lastUpdatedAt: new Date(55555555),
         department: '72',
+        matrix: 'A01RJ#F28.A0C0S',
         specificData: {
           programmingPlanKind: 'DAOA_BREEDING',
           killingCode: '',
@@ -104,7 +105,8 @@ test(`génère un XML de DAI`, async () => {
         sampler: Sampler1Fixture
       },
       {
-        sealId: 'sealId'
+        sealId: 'sealId',
+        itemNumber: 1
       },
       loadLaboratoryAndSender,
       1765876056798
@@ -156,8 +158,7 @@ test(`génère un XML de DAI`, async () => {
         <DialogueEchantillonCommemoratifType>
           <DialogueEchantillonComplet>
             <NumeroEchantillon>1</NumeroEchantillon>
-            <SigleMatriceSpecifique></SigleMatriceSpecifique>
-            <NumeroIdentificationExterne>ECHANTILLON 1</NumeroIdentificationExterne>
+            <SigleMatriceSpecifique>VDE_OV</SigleMatriceSpecifique>
             <NumeroEtiquette>sealId</NumeroEtiquette>
           </DialogueEchantillonComplet>
         </DialogueEchantillonCommemoratifType>
