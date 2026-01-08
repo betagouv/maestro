@@ -1,16 +1,19 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import config from '../../../utils/config';
+import DocumentLink from '../../DocumentLink/DocumentLink';
 
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
 }
 
 const SampleProcedure = ({ partialSample }: Props) => {
-  if (partialSample.specificData.programmingPlanKind !== 'DAOA_SLAUGHTER') {
+  if (partialSample.specificData.programmingPlanKind === 'PPV') {
     return <></>;
   }
 
@@ -55,7 +58,19 @@ const SampleProcedure = ({ partialSample }: Props) => {
         </div>
       </div>
       <hr className={cx('fr-my-3w')} />
-      Analyses prévues Mono-résidus Multi-résidus Cuivre
+      <div>
+        <span className={cx('fr-mr-1w')}>Analyses prévues</span>
+        <Tag className={cx('fr-mx-1w')}>Mono-résidus</Tag>
+        <Tag className={cx('fr-mx-1w')}>Multi-résidus</Tag>
+        <Tag className={cx('fr-mx-1w')}>Cuivre</Tag>
+      </div>
+      <div className={cx('fr-mt-3v')}>
+        <span className={cx('fr-mr-1w')}>Réglementation</span>
+        <DocumentLink
+          documentId={config.documents.regulation201862}
+          iconId="fr-icon-external-link-line"
+        />
+      </div>
     </div>
   );
 };
