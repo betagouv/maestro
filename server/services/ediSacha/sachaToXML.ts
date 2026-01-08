@@ -303,11 +303,28 @@ export const getZipFileName = (
   laboratory: Pick<Laboratories, 'sachaSigle'>,
   dateNow: number
 ): string => {
-  const currentDate: string = format(dateNow, 'yyMMddHHmm', {
-    locale: fr
-  });
-  return `${fileType}${laboratory.sachaSigle}${currentDate}_1.zip`;
+  const toto = new Intl.DateTimeFormat();
+
+  const { year, month, day, hour, minute } = getTime(dateNow);
+  return `${fileType}${laboratory.sachaSigle}${year.substring(2)}${month}${day}${hour}${minute}_1.zip`;
 };
 
 export const getSenderSachaSigle = (department: Department) =>
   `DDSV${department}`;
+
+function getTime(timestamp: number) {
+  const date = new Date(timestamp);
+
+  const year = makeDoubleDigit(date.getUTCFullYear());
+  const month = makeDoubleDigit(date.getUTCMonth() + 1);
+  const day = makeDoubleDigit(date.getUTCDate());
+  const hour = makeDoubleDigit(date.getUTCHours());
+  const minute = makeDoubleDigit(date.getUTCMinutes());
+  const second = makeDoubleDigit(date.getUTCSeconds());
+
+  return { year, month, day, hour, minute, second };
+}
+
+const makeDoubleDigit = (x: number): string => {
+  return `${x < 10 ? '0' + x : x}`;
+};
