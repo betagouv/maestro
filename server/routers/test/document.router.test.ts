@@ -14,7 +14,7 @@ import {
   NationalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
-import { withISOStringDates } from 'maestro-shared/utils/utils';
+import { withISOStringDates } from 'maestro-shared/utils/date';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { knexInstance as db } from '../../repositories/db';
 import { sampleDocumentsTable } from '../../repositories/sampleRepository';

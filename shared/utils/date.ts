@@ -1,5 +1,7 @@
 import { format } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import { fr } from 'date-fns/locale';
+import { cloneDeepWith, isDate } from 'lodash-es';
 import { z } from 'zod';
 
 export const maestroDate = z
@@ -33,3 +35,16 @@ export const toMaestroDate = (date: Date): MaestroDate => {
     `Shouldn't get here (invalid toDateStr provided): ${date} ${dateString} ${parsedDate.error}`
   );
 };
+export function withISOStringDates(obj: any): any {
+  return cloneDeepWith(obj, (value) => {
+    if (isDate(value)) {
+      return value.toISOString();
+    }
+    return undefined;
+  });
+}
+
+export const formatWithTz = (date: Date | number, formatStr: string) =>
+  format(toZonedTime(date, 'Europe/Paris'), formatStr, {
+    locale: fr
+  });
