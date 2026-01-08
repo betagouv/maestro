@@ -83,7 +83,10 @@ const SampleItemContent = ({
     [itemsForm, forceReadonly]
   );
 
-  const { data: laboratories } = apiClient.useFindLaboratoriesQuery();
+  const { data: laboratories } = apiClient.useFindLaboratoriesQuery({
+    programmingPlanId: partialSample?.programmingPlanId,
+    substanceKind: item.substanceKind
+  });
 
   return (
     <div className={cx('fr-py-4w', 'fr-px-5w')}>

@@ -29,9 +29,14 @@ export const usePartialSample = (
     }
   );
 
-  const { data: laboratories } = apiClient.useFindLaboratoriesQuery(undefined, {
-    skip: (partialSample?.items ?? []).length === 0
-  });
+  const { data: laboratories } = apiClient.useFindLaboratoriesQuery(
+    {
+      programmingPlanId: partialSample?.programmingPlanId
+    },
+    {
+      skip: (partialSample?.items ?? []).length === 0
+    }
+  );
 
   useEffect(() => {
     if (programmingPlan) {
