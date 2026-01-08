@@ -137,20 +137,22 @@ const ContextStepSummary = ({
           )}
         </div>
       </div>
-      <div className="summary-item icon-text">
-        <div className={cx('fr-icon-map-pin-user-line')}></div>
-        <div>
-          <Input
-            label="Identifiant Resytal"
-            hintText="Format AA-XXXXXX"
-            nativeInputProps={{
-              defaultValue: sample.resytalId || '',
-              onChange: (e) => onChangeResytalId?.(e.target.value)
-            }}
-            disabled={readonly}
-          />
+      {sample.specificData.programmingPlanKind === 'PPV' && (
+        <div className="summary-item icon-text">
+          <div className={cx('fr-icon-map-pin-user-line')}></div>
+          <div>
+            <Input
+              label="Identifiant Resytal"
+              hintText="Format AA-XXXXXX"
+              nativeInputProps={{
+                defaultValue: sample.resytalId || '',
+                onChange: (e) => onChangeResytalId?.(e.target.value)
+              }}
+              disabled={readonly}
+            />
+          </div>
         </div>
-      </div>
+      )}
       {sample.notesOnCreation && (
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-quote-line')}></div>
