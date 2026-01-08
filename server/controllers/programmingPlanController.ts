@@ -55,8 +55,11 @@ export const programmingPlanRouter = {
           userRole === 'Administrator'
             ? ProgrammingPlanKindList
             : user.programmingPlanKinds,
-        region: user.region || findOptions.region,
-        department: user.department
+        region: isNationalRole(userRole) ? findOptions.region : user.region,
+        department:
+          isNationalRole(userRole) || isRegionalRole(userRole)
+            ? findOptions.department
+            : user.department
       });
 
       console.info('Found programmingPlans', programmingPlans);
