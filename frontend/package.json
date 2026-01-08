@@ -55,7 +55,7 @@
     "playwright": "^1.56.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-i18next": "^14.0.5",
+    "react-i18next": "^16.5.0",
     "react-map-gl": "^7.1.7",
     "react-markdown": "^10.1.0",
     "react-redux": "^9.2.0",
