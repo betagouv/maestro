@@ -238,6 +238,7 @@ const generateSampleSupportPDF = async (
           fullName: getLaboratoryFullName(laboratory)
         }
       : null,
+    substanceKind: currentSampleItem?.substanceKind,
     monoSubstances: sample.monoSubstances?.map(
       (substance) => SSD2IdLabel[substance]
     ),

@@ -346,62 +346,75 @@
                             </div>
                           </div>
                         </div>
-                        <div class='fr-col-6'>
-                          <div class='substances-container'>
-                            {{#if matrix}}
-                              {{#isDefinedArray monoSubstances}}
-                                <div class='substance-label'>
-                                  Mono-résidu
-                                </div>
-                                <ul>
-                                {{#each monoSubstances}}
-                                  <li class='substance-value'>
-                                    {{this}}
-                                  </li>
-                                {{/each}}
-                                </ul>
-                              {{/isDefinedArray}}
-                            {{else}}
-                              <div class='substance-label'>
-                                Mono-résidu
-                              </div>
-                              <div class='empty'>
-                              </div>
-                              <div class='empty'>
-                              </div>
-                              <div class='empty'>
-                              </div>
-                            {{/if}}
-                          </div>
-                        </div>
-                        <div class='fr-col-6'>
-                          <div class='substances-container'>
-                            {{#if matrix}}
-                              {{#isDefinedArray multiSubstances}}
-                                <div class='substance-label'>
-                                  Multi-résidus dont :
-                                </div>
-                                <ul>
-                                  {{#each multiSubstances}}
+                        {{#if (or (eq substanceKind 'Any') (eq substanceKind 'Mono'))}}
+                          <div class='{{#if (eq substanceKind 'Any')}}fr-col-6{{else}}fr-col-12{{/if}}'>
+                            <div class='substances-container'>
+                              {{#if matrix}}
+                                {{#isDefinedArray monoSubstances}}
+                                  <div class='substance-label'>
+                                    Mono-résidu
+                                  </div>
+                                  <ul>
+                                  {{#each monoSubstances}}
                                     <li class='substance-value'>
                                       {{this}}
                                     </li>
                                   {{/each}}
-                                </ul>
-                              {{/isDefinedArray}}
-                            {{else}}
-                              <div class='substance-label'>
-                                Multi-résidus
-                              </div>
-                              <div class='empty'>
-                              </div>
-                              <div class='empty'>
-                              </div>
-                              <div class='empty'>
-                              </div>
-                            {{/if}}
+                                  </ul>
+                                {{/isDefinedArray}}
+                              {{else}}
+                                <div class='substance-label'>
+                                  Mono-résidu
+                                </div>
+                                <div class='empty'>
+                                </div>
+                                <div class='empty'>
+                                </div>
+                                <div class='empty'>
+                                </div>
+                              {{/if}}
+                            </div>
                           </div>
-                        </div>
+                        {{/if}}
+                        {{#if (or (eq substanceKind 'Any') (eq substanceKind 'Multi'))}}
+                          <div class='{{#if (eq substanceKind 'Any')}}fr-col-6{{else}}fr-col-12{{/if}}'>
+                            <div class='substances-container'>
+                              {{#if matrix}}
+                                {{#isDefinedArray multiSubstances}}
+                                  <div class='substance-label'>
+                                    Multi-résidus dont :
+                                  </div>
+                                  <ul>
+                                    {{#each multiSubstances}}
+                                      <li class='substance-value'>
+                                        {{this}}
+                                      </li>
+                                    {{/each}}
+                                  </ul>
+                                {{/isDefinedArray}}
+                              {{else}}
+                                <div class='substance-label'>
+                                  Multi-résidus
+                                </div>
+                                <div class='empty'>
+                                </div>
+                                <div class='empty'>
+                                </div>
+                                <div class='empty'>
+                                </div>
+                              {{/if}}
+                            </div>
+                          </div>
+                        {{/if}}
+                        {{#if (eq substanceKind 'Copper')}}
+                          <div class='fr-col-12'>
+                            <div class='substances-container'>
+                              <div class='substance-label'>
+                                Cuivre
+                              </div>
+                            </div>
+                          </div>
+                        {{/if}}
                         <div class='{{#if sampleDocuments}}fr-col-6{{else}}fr-col-12{{/if}}'>
                           <div class='sample-section-item'>
                             <div class='label'>
@@ -469,7 +482,7 @@
                     {{#each sampleItems}}
                       {{#if (or ../fullVersion currentItem)}}
                         <div class="{{#if ../fullVersion}}fr-col-4{{else}}fr-col-12{{/if}}">
-                          {{#if (and fullVersion currentItem)}}
+                          {{#if (and ../fullVersion currentItem)}}
                             <div class='current-sample-item uppercase'>
                               Exemplaire rattaché au procès-verbal
                             </div>
@@ -535,7 +548,7 @@
                                   {{#if (eq copyNumber 1)}}
                                     <div class='value {{#if (isEmpty ../laboratory)}}empty{{/if}}'>
                                       {{#if ../laboratory}}
-                                        Laboratoire {{../laboratory.fullName}}
+                                        Laboratoire {{../laboratory.shortName}}
                                       {{/if}}
                                     </div>
                                   {{/if}}
