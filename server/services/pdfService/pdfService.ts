@@ -26,6 +26,7 @@ import {
   PartialSampleItem,
   SampleItemMaxCopyCount
 } from 'maestro-shared/schema/Sample/SampleItem';
+import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { formatWithTz } from 'maestro-shared/utils/utils';
 import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
@@ -74,6 +75,11 @@ const generatePDF = async (template: Template, data: unknown) => {
     function (this: any, arr: any, options: any) {
       return Array.isArray(arr) ? options.fn(this) : options.inverse(this);
     }
+  );
+
+  handlebars.registerHelper(
+    'isEmpty',
+    (a?: string | null) => isNil(a) || String(a).trim() === ''
   );
 
   const compiledTemplate = handlebars.compile(templateContent(template));
@@ -177,6 +183,9 @@ const generateSampleSupportPDF = async (
   if (!sampler) {
     throw new UserMissingError(sample.sampler.id);
   }
+  const additionalSampler = sample.additionalSampler
+    ? await userRepository.findUnique(sample.additionalSampler.id)
+    : null;
 
   const emptySampleItems: PartialSampleItem[] = new Array(
     programmingPlan.substanceKinds.length * SampleItemMaxCopyCount
@@ -206,8 +215,13 @@ const generateSampleSupportPDF = async (
     sampleItems: (sampleItems.length > 0 ? sampleItems : emptySampleItems).map(
       (sampleItem) => ({
         ...sampleItem,
-        quantityUnit: sampleItem?.quantityUnit
-          ? QuantityUnitLabels[sampleItem.quantityUnit]
+        quantity: `${sampleItem.quantity ?? ''}${
+          sampleItem.quantityUnit
+            ? ` ${QuantityUnitLabels[sampleItem.quantityUnit]}`
+            : ''
+        }`,
+        recipientKind: sampleItem.recipientKind
+          ? SampleItemRecipientKindLabels[sampleItem.recipientKind]
           : '',
         currentItem:
           sampleItem.itemNumber === itemNumber &&
@@ -217,12 +231,14 @@ const generateSampleSupportPDF = async (
     itemNumber,
     copyNumber,
     sampler,
+    additionalSampler,
     laboratory: !isNil(laboratory)
       ? {
           ...laboratory,
           fullName: getLaboratoryFullName(laboratory)
         }
       : null,
+    substanceKind: currentSampleItem?.substanceKind,
     monoSubstances: sample.monoSubstances?.map(
       (substance) => SSD2IdLabel[substance]
     ),
@@ -256,8 +272,6 @@ const generateSampleSupportPDF = async (
     releaseControl:
       sample.specificData?.programmingPlanKind === 'PPV'
         ? sample.specificData.releaseControl
-          ? 'Oui'
-          : 'Non'
         : undefined,
     establishment: Regions[sample.region].establishment,
     department: sample.department ? DepartmentLabels[sample.department] : '',
