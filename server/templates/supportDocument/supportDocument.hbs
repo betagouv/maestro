@@ -250,16 +250,18 @@
                                 </div>
                               </div>
                             </div>
-                            <div class='fr-col-6'>
-                              <div class='sample-section-item'>
-                                <div class='label'>
-                                  Identifiant Resytal
-                                </div>
-                                <div class='value {{#if (isEmpty sample.resytalId)}}empty{{/if}}'>
-                                  {{sample.resytalId}}
+                            {{#if (eq specificData.programmingPlanKind 'PPV')}}
+                              <div class='fr-col-6'>
+                                <div class='sample-section-item'>
+                                  <div class='label'>
+                                    Identifiant Resytal
+                                  </div>
+                                  <div class='value {{#if (isEmpty resytalId)}}empty{{/if}}'>
+                                    {{resytalId}}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
+                            {{/if}}
                             <div class='fr-col-6'>
                               <div class='sample-section-item'>
                                 <div class='label'>
