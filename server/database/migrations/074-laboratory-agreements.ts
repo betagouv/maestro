@@ -51,26 +51,18 @@ export const up = async (knex: Knex) => {
     .whereRaw('kinds @> ?', [['DAOA_BREEDING', 'DAOA_SLAUGHTER']]);
   const DAOAMonoLaboratoryIds = await knex('laboratories')
     .select('id')
-    .whereIn('short_name', ['ANS 94a - LNR ETM', 'ANS 94a - LNR PEST']);
-  //TODO limiter aux bons laboratoires
+    .whereIn('short_name', ['ANS 94a - LNR PEST']);
   const DAOAMultiLaboratoryIds = await knex('laboratories')
     .select('id')
     .whereIn('short_name', [
-      'ANS 94a - LNR ETM',
-      'ANS 94a - LNR PEST',
-      'CAP 29',
-      'CER 30',
-      'GIR 49',
       'LDA 17',
       'LDA 21',
       'LDA 22',
       'LDA 31',
-      'LDA 66',
       'LDA 72',
       'LDA 85',
       'LDA 87',
-      'SCL 34',
-      'SCL 91'
+      'ANS 94a - LNR PEST'
     ]);
   const DAOACopperLaboratoryIds = await knex('laboratories')
     .select('id')
