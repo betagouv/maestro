@@ -10,6 +10,7 @@ import { seed as daoaPrescriptionsSeed } from './005-prescriptions-daoa';
 import { seed as ppvPrescriptionsSeed } from './005-prescriptions-ppv';
 import { seed as samplesSeed } from './006-samples';
 import { seed as substanceAnalysisSeed } from './007-substance-analysis';
+import { seed as laboratoryAgreementsSeed } from './008-laboratory-agreements';
 
 const run = async () => {
   initKnex();
@@ -24,6 +25,7 @@ const run = async () => {
   await samplesSeed();
   await substanceAnalysisSeed();
   await departmentsSeed();
+  await laboratoryAgreementsSeed();
 };
 run()
   .then(() => {
