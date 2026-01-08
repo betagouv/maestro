@@ -132,11 +132,11 @@ const LocalPrescriptionSlaughterhouseDistribution = forwardRef<
                 <div className={cx('fr-col-6')}>
                   <CompanySearch
                     label="Abattoir"
-                    initialCompany={companies.find(
+                    initialValue={companies.find(
                       (company) =>
                         company.siret === slaughterhouseSampleCount.companySiret
                     )}
-                    onSelectCompany={(result) => {
+                    onSelect={(result) => {
                       setSlaughterhouseSampleCounts(
                         slaughterhouseSampleCounts.map((sp, i) =>
                           i === slaughterhouseSampleCountIndex

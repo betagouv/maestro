@@ -139,8 +139,8 @@ const SampleCompany = ({
       <div className={cx('fr-col-12')}>
         {isOnline && !readonly ? (
           <CompanySearch
-            initialCompany={company ?? undefined}
-            onSelectCompany={(result) => {
+            initialValue={company ?? undefined}
+            onSelect={(result) => {
               onCompanyChange(result);
               if (
                 programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&

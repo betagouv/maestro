@@ -27,9 +27,11 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import { AppMultiSelect } from '../../../components/_app/AppMultiSelect/AppMultiSelect';
+import AppRequiredInput from '../../../components/_app/AppRequired/AppRequiredInput';
 import AppSelect from '../../../components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from '../../../components/_app/AppSelect/AppSelectOption';
 import AppTextInput from '../../../components/_app/AppTextInput/AppTextInput';
+import CompanySearch from '../../../components/CompanySearch/CompanySearch';
 import { useForm } from '../../../hooks/useForm';
 import { ApiClientContext } from '../../../services/apiClient';
 
@@ -71,6 +73,9 @@ export const UserModal = ({
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
+
+  const [findCompanies] = apiClient.useLazyFindCompaniesQuery();
+
   const [createUser, createUserResult] = apiClient.useCreateUserMutation();
   const [updateUser, updateUserResult] = apiClient.useUpdateUserMutation();
 
@@ -109,6 +114,33 @@ export const UserModal = ({
       setUser((u) => ({ ...u, department: null }));
     }
   }, [user.roles, user.region]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const [abattoirs, setAbattoirs] = useState<Company[]>([]);
+  useEffect(() => {
+    if (
+      companiesIsRequired({
+        programmingPlanKinds: user.programmingPlanKinds,
+        roles: user.roles
+      }) &&
+      !user.programmingPlanKinds?.includes('PPV')
+    ) {
+      findCompanies({
+        kinds: ['MEAT_SLAUGHTERHOUSE', 'POULTRY_SLAUGHTERHOUSE'],
+        region: user.region ?? undefined,
+        department: user.department ?? undefined
+      }).then(({ data }) => {
+        if (data) {
+          setAbattoirs(data);
+        }
+      });
+    }
+  }, [
+    user.region,
+    user.department,
+    user.programmingPlanKinds,
+    user.roles,
+    findCompanies
+  ]);
 
   useIsModalOpen(modal, {
     onConceal: () => {
@@ -239,29 +271,28 @@ export const UserModal = ({
           label={'Plans'}
           required={programmingPlanKindsIsRequired(user)}
         />
+
         {companiesIsRequired(user) && (
-          <AppMultiSelect
-            inputForm={form}
-            inputKey={'companies'}
-            items={companies}
-            idKey={'siret'}
-            onChange={(v) => {
+          <CompanySearch
+            label={
+              <>
+                Abattoirs
+                <AppRequiredInput />
+              </>
+            }
+            multi={true}
+            initialValue={user.companies ?? []}
+            onSelect={(v) => {
               setUser((u) => ({
                 ...u,
                 companies: v
               }));
             }}
-            values={user.companies ?? []}
-            keysWithLabels={companies.reduce(
-              (acc, c) => {
-                acc[c.siret] = c.name;
-                return acc;
-              },
-              {} as Record<string, string>
-            )}
-            defaultLabel={'abattoir sélectionné'}
-            label={'Abattoirs'}
-            required
+            state={form.messageType('companies')}
+            stateRelatedMessage={
+              form.message('companies') ?? 'Abattoirs correctement renseignés'
+            }
+            companies={abattoirs}
           />
         )}
 
