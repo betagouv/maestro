@@ -7,6 +7,7 @@ import {
   getLaboratoryFullName,
   Laboratory
 } from 'maestro-shared/schema/Laboratory/Laboratory';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   SubstanceKind,
   SubstanceKindLabels
@@ -27,6 +28,7 @@ interface Props {
     isOpenedByDefault: boolean;
     id: string;
   };
+  programmingPlanKind: ProgrammingPlanKind;
   substanceKindsLaboratories: {
     substanceKind: SubstanceKind;
     laboratory: Laboratory;
@@ -37,6 +39,7 @@ interface Props {
 const SendingModal = ({
   modal,
   substanceKindsLaboratories,
+  programmingPlanKind,
   onConfirm
 }: Props) => {
   const [isConfirmationPending, setIsConfirmationPending] = useState(false);
@@ -92,25 +95,29 @@ const SendingModal = ({
             </span>
           ))}
           .
-          {!(LaboratoryWithAutomation as string[]).includes(
-            substanceKindLaboratory.laboratory.shortName
-          ) && (
-            <Alert
-              className={cx('fr-mt-2w')}
-              severity="info"
-              small={true}
-              description={
-                <>
-                  Le processus d’automatisation est en cours pour le laboratoire{' '}
-                  <b>
-                    {getLaboratoryFullName(substanceKindLaboratory.laboratory)}
-                  </b>
-                  . Les résultats d’analyses restent à renseigner manuellement
-                  pour le moment dans {Brand}.
-                </>
-              }
-            />
-          )}
+          {programmingPlanKind === 'PPV' &&
+            !(LaboratoryWithAutomation as string[]).includes(
+              substanceKindLaboratory.laboratory.shortName
+            ) && (
+              <Alert
+                className={cx('fr-mt-2w')}
+                severity="info"
+                small={true}
+                description={
+                  <>
+                    Le processus d’automatisation est en cours pour le
+                    laboratoire{' '}
+                    <b>
+                      {getLaboratoryFullName(
+                        substanceKindLaboratory.laboratory
+                      )}
+                    </b>
+                    . Les résultats d’analyses restent à renseigner manuellement
+                    pour le moment dans {Brand}.
+                  </>
+                }
+              />
+            )}
         </div>
       ))}
     </modal.Component>
