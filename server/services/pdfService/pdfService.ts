@@ -26,7 +26,7 @@ import {
   PartialSampleItem,
   SampleItemMaxCopyCount
 } from 'maestro-shared/schema/Sample/SampleItem';
-import { formatWithTz } from 'maestro-shared/utils/utils';
+import { formatWithTz } from 'maestro-shared/utils/date';
 import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';

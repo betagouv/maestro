@@ -37,7 +37,7 @@ import {
   Sampler2Fixture
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
-import { withISOStringDates } from 'maestro-shared/utils/utils';
+import { withISOStringDates } from 'maestro-shared/utils/date';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { departmentsSeed } from '../../database/seeds/departments/departmentsSeed';
 import { mockGenerateSampleSupportPDF } from '../../test/setupTests';

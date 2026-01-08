@@ -1,7 +1,7 @@
 import { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { formatWithTz } from 'maestro-shared/utils/utils';
+import { formatWithTz } from 'maestro-shared/utils/date';
 import { initKysely, kysely } from '../repositories/kysely';
 import config from '../utils/config';
 

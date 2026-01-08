@@ -32,7 +32,7 @@ import {
   SampleItemSort
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
-import { formatWithTz, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
+import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import companyRepository from '../repositories/companyRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
@@ -51,6 +51,7 @@ import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential'
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { isNationalRole } from 'maestro-shared/schema/User/UserRole';
+import { formatWithTz } from 'maestro-shared/utils/date';
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
