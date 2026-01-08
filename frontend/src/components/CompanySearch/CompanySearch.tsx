@@ -17,18 +17,28 @@ import React, {
 } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import { ApiClientContext } from '../../services/apiClient';
+import { pluralize } from '../../utils/stringUtils';
 import AppServiceErrorAlert from '../_app/AppErrorAlert/AppServiceErrorAlert';
 import './CompanySearch.scss';
 
 type Props = {
-  initialCompany?: Company;
   department?: Department;
-  onSelectCompany: (company?: Company) => void;
   state?: 'success' | 'error' | 'default';
   stateRelatedMessage?: ReactNode;
   companies?: Company[] | null;
   label?: string | React.ReactNode;
-};
+} & (
+  | {
+      multi: true;
+      initialValue?: Company[];
+      onSelect: (company: Company[]) => void;
+    }
+  | {
+      multi?: never;
+      initialValue?: Company;
+      onSelect: (company?: Company) => void;
+    }
+);
 
 const nafCodeLabels: Record<string, string> = {
   '01.11Z':
@@ -89,9 +99,10 @@ const nafCodeLabels: Record<string, string> = {
 };
 
 const CompanySearch = ({
-  initialCompany,
+  initialValue,
   department,
-  onSelectCompany,
+  onSelect,
+  multi,
   state,
   stateRelatedMessage,
   companies,
@@ -104,8 +115,8 @@ const CompanySearch = ({
   );
   const [searchCompanies, { isLoading, isFetching, isError }] =
     apiClient.useLazySearchCompaniesQuery();
-  const [company, setCompany] = useState<Company | null>(
-    initialCompany ?? null
+  const [selectedCompanies, setSeletedCompanies] = useState<Company[]>(
+    multi ? (initialValue ?? []) : initialValue ? [initialValue] : []
   );
 
   useEffect(() => {
@@ -115,8 +126,23 @@ const CompanySearch = ({
   }, [companies]);
 
   useEffect(() => {
-    setCompany(initialCompany ?? null);
-  }, [initialCompany]);
+    setSeletedCompanies(
+      multi ? (initialValue ?? []) : initialValue ? [initialValue] : []
+    );
+  }, [initialValue, multi]);
+
+  const onSelectCompanies = (newCompanies: Company[]) => {
+    setSeletedCompanies(newCompanies);
+    if (multi) {
+      onSelect(newCompanies);
+    } else {
+      if (newCompanies.length === 0) {
+        onSelect(undefined);
+      } else {
+        onSelect(newCompanies[0]);
+      }
+    }
+  };
 
   const search = useCallback(
     async (value: string) => {
@@ -144,7 +170,7 @@ const CompanySearch = ({
   );
 
   const handleInputChange = async (
-    _event: SyntheticEvent<Element, Event>,
+    _event: SyntheticEvent<Element, Event> | undefined,
     value: string
   ) => {
     setSearchQuery(value);
@@ -191,10 +217,9 @@ const CompanySearch = ({
           autoComplete
           includeInputInList
           filterSelectedOptions
-          value={company}
+          value={!multi ? selectedCompanies[0] : undefined}
           onInputChange={handleInputChange}
           renderOption={(props, option) => {
-            // eslint-disable-next-line react/prop-types
             const { key, className, ...otherProps } = props;
             return (
               <Box
@@ -235,14 +260,22 @@ const CompanySearch = ({
           }}
           onChange={(_, value) => {
             if (value) {
-              setCompany(value);
-              onSelectCompany(value);
+              let newValue;
+              if (multi) {
+                newValue = [...selectedCompanies, value];
+                setSearchQuery('');
+                handleInputChange(undefined, '');
+              } else {
+                newValue = [value];
+              }
+              onSelectCompanies(newValue);
             }
           }}
           renderInput={(params) => (
             <div ref={params.InputProps.ref}>
               <input
                 {...params.inputProps}
+                value={undefined}
                 className="fr-input"
                 type="text"
                 data-testid="companySearch-input"
@@ -252,9 +285,9 @@ const CompanySearch = ({
           loading={isLoading || isFetching}
           loadingText={`Recherche en cours...`}
           filterOptions={(x) => x}
-          options={[...companyResults].sort((a, b) =>
-            a.name.localeCompare(b.name)
-          )}
+          options={[...companyResults]
+            .filter((c) => !selectedCompanies.includes(c))
+            .sort((a, b) => a.name.localeCompare(b.name))}
           getOptionLabel={(option) => [option.name, option.siret].join(' • ')}
           noOptionsText={
             companies
@@ -263,7 +296,7 @@ const CompanySearch = ({
                 ? 'Aucun résultat'
                 : 'Saisir au moins 4 caractères'
           }
-          disabled={company !== null}
+          disabled={!multi && selectedCompanies.length === 1}
         />
       </div>
       {state !== 'default' && (
@@ -289,23 +322,32 @@ const CompanySearch = ({
           />
         )}
       </>
-      {company && (
+      {selectedCompanies.length > 0 && (
         <>
-          <div className={cx('fr-hint-text', 'fr-my-1w')}>
-            Valeur sélectionnée
+          <div className={cx('fr-hint-text', 'fr-my-1v')}>
+            {pluralize(selectedCompanies.length)('Valeur sélectionnée')}
           </div>
-          <Tag
-            dismissible
-            nativeButtonProps={{
-              onClick: () => {
-                setCompany(null);
-                setSearchQuery('');
-                onSelectCompany(undefined);
-              }
-            }}
-          >
-            {[company.name, company.siret].join(' • ')}
-          </Tag>
+          <div>
+            {selectedCompanies.map((company) => (
+              <Tag
+                key={company.siret}
+                small={true}
+                dismissible
+                nativeButtonProps={{
+                  onClick: () => {
+                    const newValue = selectedCompanies.filter(
+                      ({ siret }) => siret !== company.siret
+                    );
+                    onSelectCompanies(newValue);
+
+                    setSearchQuery('');
+                  }
+                }}
+              >
+                {[company.name, company.siret].join(' • ')}
+              </Tag>
+            ))}
+          </div>
         </>
       )}
     </div>

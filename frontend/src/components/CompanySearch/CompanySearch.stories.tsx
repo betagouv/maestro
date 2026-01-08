@@ -1,4 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import {
+  CompanyFixture,
+  genCompany
+} from 'maestro-shared/test/companyFixtures';
 import { expect, fireEvent, fn, userEvent, within } from 'storybook/test';
 import { getMockApi } from '../../services/mockApiClient';
 import CompanySearch from './CompanySearch';
@@ -40,7 +44,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    onSelectCompany: fn()
+    onSelect: fn()
   },
 
   play: async ({ canvasElement }) => {
@@ -60,7 +64,7 @@ export const Default: Story = {
 
 export const Error: Story = {
   args: {
-    onSelectCompany: fn()
+    onSelect: fn()
   },
   parameters: {
     apiClient: getMockApi({
@@ -74,5 +78,12 @@ export const Error: Story = {
         `L'API Recherche d'entreprises semble inaccessible. Veuillez réessayer ultérieurement.`
       )
     ).toBeInTheDocument();
+  }
+};
+export const Multi: Story = {
+  args: {
+    onSelect: fn(),
+    multi: true,
+    companies: [CompanyFixture, genCompany(), genCompany(), genCompany()]
   }
 };

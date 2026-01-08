@@ -49,5 +49,8 @@ const companyApi = api.injectEndpoints({
   })
 });
 
-export const { useLazySearchCompaniesQuery, useFindCompaniesQuery } =
-  companyApi;
+export const {
+  useLazySearchCompaniesQuery,
+  useFindCompaniesQuery,
+  useLazyFindCompaniesQuery
+} = companyApi;

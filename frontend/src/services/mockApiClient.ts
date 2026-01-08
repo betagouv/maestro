@@ -219,7 +219,8 @@ const defaultMockApiClientConf: MockApi = {
   useMascaradeStopMutation: [fn(), {}],
   useCreateUserMutation: [fn(), {}],
   useUpdateUserMutation: [fn(), {}],
-  useChangeRoleMutation: [fn(), {}]
+  useChangeRoleMutation: [fn(), {}],
+  useLazyFindCompaniesQuery: [[], {}]
 };
 
 export const mockApiClient = getMockApi({});
