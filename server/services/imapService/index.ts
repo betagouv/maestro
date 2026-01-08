@@ -17,6 +17,7 @@ import {
 } from 'maestro-shared/utils/typescript';
 import { Attachment, ParsedMail, simpleParser } from 'mailparser';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
+import { laboratoryResidueMappingRepository } from '../../repositories/laboratoryResidueMappingRepository';
 import config from '../../utils/config';
 import { mattermostService } from '../mattermostService';
 import { notificationService } from '../notificationService';
@@ -57,8 +58,6 @@ export type ExportDataFromEmail = (
 
 export type LaboratoryConf = {
   exportDataFromEmail: ExportDataFromEmail;
-  ssd2IdByLabel: Record<string, SSD2Id>;
-  unknownReferences: string[];
   getAnalysisKey: (email: EmailWithMessageUid) => string;
   emailCountByAnalysis: number;
 };
@@ -202,6 +201,20 @@ export const checkEmails = async () => {
         const warnings = new Set<string>();
 
         for (const laboratoryName of getRecordKeys(messagesByLaboratory)) {
+          const dbMappingsList =
+            await laboratoryResidueMappingRepository.findByLaboratoryShortName(
+              laboratoryName
+            );
+
+          const ssd2IdByLabel = dbMappingsList.reduce(
+            (acc, mapping) => {
+              acc[mapping.label] = mapping.ssd2Id;
+
+              return acc;
+            },
+            {} as Record<string, SSD2Id | null>
+          );
+
           const parsedEmails: EmailWithMessageUid[] = [];
           for (const messageUid of messagesByLaboratory[laboratoryName]) {
             //undefined permet de récupérer tout l'email
@@ -262,19 +275,13 @@ export const checkEmails = async () => {
                 })[] = analysis.residues.map((r) => {
                   return {
                     ...r,
-                    ssd2Id:
-                      laboratoriesConf[laboratoryName].ssd2IdByLabel[r.label] ??
-                      null
+                    ssd2Id: ssd2IdByLabel[r.label] ?? null
                   };
                 });
 
                 //On créer une liste de warnings avec les résidus introuvables dans SSD2
                 residues.forEach((r) => {
-                  if (
-                    !laboratoriesConf[
-                      laboratoryName
-                    ].unknownReferences.includes(r.label)
-                  ) {
+                  if (!Object.keys(ssd2IdByLabel).includes(r.label)) {
                     if (r.codeSandre !== null) {
                       if (SandreToSSD2[r.codeSandre] === undefined) {
                         if (r.ssd2Id !== null) {
@@ -321,9 +328,7 @@ export const checkEmails = async () => {
                 interestingResidues.forEach((r) => {
                   if (r.ssd2Id === null) {
                     if (
-                      laboratoriesConf[
-                        laboratoryName
-                      ].unknownReferences.includes(r.label) &&
+                      ssd2IdByLabel[r.label] === null &&
                       r.result_kind === 'ND'
                     ) {
                       warnings.add(
