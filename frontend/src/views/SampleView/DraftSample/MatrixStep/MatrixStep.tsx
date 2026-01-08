@@ -50,7 +50,6 @@ import { selectOptionsFromList } from '../../../../components/_app/AppSelect/App
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
 import AppUpload from '../../../../components/_app/AppUpload/AppUpload';
-import DocumentLink from '../../../../components/DocumentLink/DocumentLink';
 import SampleDocument from '../../../../components/Sample/SampleDocument/SampleDocument';
 import SampleProcedure from '../../../../components/Sample/SampleProcedure/SampleProcedure';
 import SubstanceSearch from '../../../../components/SubstanceSearch/SubstanceSearch';
@@ -58,7 +57,6 @@ import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
 import { useAppSelector } from '../../../../hooks/useStore';
 import { ApiClientContext } from '../../../../services/apiClient';
-import config from '../../../../utils/config';
 import NextButton from '../NextButton';
 import {
   MatrixSpecificDataForm,
@@ -487,15 +485,6 @@ const MatrixStep = ({ partialSample }: Props) => {
             label="Stade de prélèvement"
             required
           />
-        </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          Réglementation
-          <div className={cx('fr-mt-3v')}>
-            <DocumentLink
-              documentId={config.documents.regulation201862}
-              iconId="fr-icon-eye-line"
-            />
-          </div>
         </div>
       </div>
       <SampleProcedure partialSample={partialSample} />
