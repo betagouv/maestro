@@ -17,6 +17,7 @@ import { assert, type Equals } from 'tsafe';
 import './UserCard.scss';
 
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
+import { useMascarade } from '../../../components/Mascarade/useMascarade';
 
 type Props = {
   user: User;
@@ -33,12 +34,14 @@ export const UserCard: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
+  const { setMascaradeUserId } = useMascarade();
+
   return (
     <Card
       className={'user-list-item-card'}
       title={
         <div className={clsx('user-card-title')}>
-          <div>
+          <div style={{ flexBasis: 'min-content' }}>
             {user.roles.map((role) => (
               <Tag as={'span'} small key={role}>
                 {UserRoleLabels[role]}
@@ -56,14 +59,24 @@ export const UserCard: FunctionComponent<Props> = ({
               data-testid={`user-edit-button-${user.id}`}
             />
             {!user.disabled ? (
-              <Button
-                size="small"
-                onClick={onDisable}
-                priority={'tertiary'}
-                title={'désactiver'}
-                iconId={'fr-icon-logout-box-r-line'}
-                data-testid={`user-disable-button-${user.id}`}
-              />
+              <>
+                <Button
+                  size="small"
+                  onClick={onDisable}
+                  priority={'tertiary'}
+                  title={'désactiver'}
+                  iconId={'fr-icon-logout-box-r-line'}
+                  data-testid={`user-disable-button-${user.id}`}
+                />
+                <Button
+                  size="small"
+                  onClick={() => setMascaradeUserId(user.id)}
+                  priority={'tertiary'}
+                  iconId={'fr-icon-group-line'}
+                  className={'fr-ml-1w'}
+                  title={`Usurper l'identité`}
+                />
+              </>
             ) : (
               <Button
                 size="small"
