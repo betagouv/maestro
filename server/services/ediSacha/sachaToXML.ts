@@ -1,5 +1,3 @@
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { XMLBuilder } from 'fast-xml-parser';
 import { XmlDocument, XsdValidator } from 'libxml2-wasm';
 import {
@@ -8,7 +6,7 @@ import {
 } from 'maestro-shared/referential/Department';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
-import { toMaestroDate } from 'maestro-shared/utils/date';
+import { formatWithTz, toMaestroDate } from 'maestro-shared/utils/date';
 import { RequiredNotNull } from 'maestro-shared/utils/typescript';
 import fs from 'node:fs';
 import path from 'path';
@@ -292,9 +290,7 @@ export const getXmlFileName = (
   laboratory: Pick<Laboratories, 'sachaSigle'>,
   dateNow: number
 ): string => {
-  const currentDate: string = format(dateNow, 'yyMMddHHmmssSS', {
-    locale: fr
-  });
+  const currentDate: string = formatWithTz(dateNow, 'yyMMddHHmmssSS');
   return `${fileType}${getSenderSachaSigle(department)}${laboratory.sachaSigle}${currentDate}`;
 };
 
@@ -303,28 +299,9 @@ export const getZipFileName = (
   laboratory: Pick<Laboratories, 'sachaSigle'>,
   dateNow: number
 ): string => {
-  const toto = new Intl.DateTimeFormat();
-
-  const { year, month, day, hour, minute } = getTime(dateNow);
-  return `${fileType}${laboratory.sachaSigle}${year.substring(2)}${month}${day}${hour}${minute}_1.zip`;
+  const currentDate: string = formatWithTz(dateNow, 'yyMMddHHmm');
+  return `${fileType}${laboratory.sachaSigle}${currentDate}_1.zip`;
 };
 
 export const getSenderSachaSigle = (department: Department) =>
   `DDSV${department}`;
-
-function getTime(timestamp: number) {
-  const date = new Date(timestamp);
-
-  const year = makeDoubleDigit(date.getUTCFullYear());
-  const month = makeDoubleDigit(date.getUTCMonth() + 1);
-  const day = makeDoubleDigit(date.getUTCDate());
-  const hour = makeDoubleDigit(date.getUTCHours());
-  const minute = makeDoubleDigit(date.getUTCMinutes());
-  const second = makeDoubleDigit(date.getUTCSeconds());
-
-  return { year, month, day, hour, minute, second };
-}
-
-const makeDoubleDigit = (x: number): string => {
-  return `${x < 10 ? '0' + x : x}`;
-};
