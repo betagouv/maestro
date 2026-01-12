@@ -2,7 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { Geolocation } from 'maestro-shared/schema/Geolocation/Geolocation';
 import { useMemo, useState } from 'react';
-import { MarkerDragEvent } from 'react-map-gl/maplibre';
+import { MapMouseEvent, MarkerDragEvent } from 'react-map-gl/maplibre';
 import AddressSearch from 'src/components/AddressSearch/AddressSearch';
 import { SampleMap } from '../../../../components/Sample/SampleMap/SampleMap';
 
@@ -23,7 +23,7 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
     );
   }, [location]);
 
-  const onMarkerDragEnd = (event: MarkerDragEvent) => {
+  const onMarkerLocationUpdate = (event: MarkerDragEvent | MapMouseEvent) => {
     onLocationChange({
       x: Number(event.lngLat.lat.toFixed(6)),
       y: Number(event.lngLat.lng.toFixed(6))
@@ -54,7 +54,7 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
         markerX={marker.x}
         markerY={marker.y}
         markerDraggable={true}
-        onMarkerDragEnd={onMarkerDragEnd}
+        onMarkerLocationUpdate={onMarkerLocationUpdate}
       />
     </>
   );

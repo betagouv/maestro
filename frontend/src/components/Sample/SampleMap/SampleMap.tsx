@@ -4,6 +4,7 @@ import { FunctionComponent, useEffect, useState } from 'react';
 import {
   FullscreenControl,
   Map,
+  MapMouseEvent,
   Marker,
   MarkerDragEvent,
   NavigationControl
@@ -26,11 +27,11 @@ type Props = {
 } & (
   | {
       markerDraggable: true;
-      onMarkerDragEnd: (event: MarkerDragEvent) => void;
+      onMarkerLocationUpdate: (event: MarkerDragEvent | MapMouseEvent) => void;
     }
   | {
       markerDraggable?: never;
-      onMarkerDragEnd?: never;
+      onMarkerLocationUpdate?: never;
     }
 );
 export const SampleMap: FunctionComponent<Props> = ({
@@ -39,7 +40,7 @@ export const SampleMap: FunctionComponent<Props> = ({
   markerX,
   markerY,
   markerDraggable,
-  onMarkerDragEnd,
+  onMarkerLocationUpdate,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -81,6 +82,7 @@ export const SampleMap: FunctionComponent<Props> = ({
         setMapLatitude(e.viewState.latitude);
         setMapLongitude(e.viewState.longitude);
       }}
+      onClick={onMarkerLocationUpdate}
       style={{
         minHeight: 375,
         aspectRatio: '1/1',
@@ -92,9 +94,8 @@ export const SampleMap: FunctionComponent<Props> = ({
       <Marker
         longitude={markerY}
         latitude={markerX}
-        anchor="bottom"
         draggable={markerDraggable}
-        onDragEnd={onMarkerDragEnd}
+        onDragEnd={onMarkerLocationUpdate}
       />
       {ViewStyles['satellite'] && (
         <Map
