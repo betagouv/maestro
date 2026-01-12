@@ -10,6 +10,7 @@ type ProgrammingPlanKeys<P extends ProgrammingPlanKind> = Exclude<
 
 export type MatrixSpecificDataFormInputProps = {
   preTitle?: string;
+  label?: string;
   iconId?: FrIconClassName;
   position?: 'pre' | 'post';
   classes?: {
@@ -29,26 +30,37 @@ export const MatrixSpecificDataForm: {
     releaseControl: {}
   },
   DAOA_BREEDING: {
-    killingCode: {
+    sampling: {
       preTitle: 'Animal',
       iconId: 'fr-icon-bug-line',
-      classes: { container: cx('fr-col-offset-sm-6--right') }
+      classes: {}
     },
-    animalIdentifier: {},
+    animalIdentifier: {
+      label: 'Identifiant du lot'
+    },
+    age: {
+      label: 'Âge (en jours)'
+    },
     species: {},
-    productionMethod: {}
+    breedingMethod: {},
+    outdoorAccess: {}
   },
   DAOA_SLAUGHTER: {
     killingCode: {
       preTitle: 'Animal',
-      iconId: 'fr-icon-bug-line',
-      classes: { container: cx('fr-col-offset-sm-6--right') }
+      iconId: 'fr-icon-bug-line'
     },
-    animalIdentifier: {},
+    sampling: {},
+    animalIdentifier: {
+      label: "Identifiant de l'animal"
+    },
     animalKind: {},
-    productionKind: {},
     sex: {},
-    productionMethod: {},
-    age: {}
+    age: {
+      label: 'Âge (en mois)'
+    },
+    productionKind: {},
+    outdoorAccess: {},
+    seizure: {}
   }
 };

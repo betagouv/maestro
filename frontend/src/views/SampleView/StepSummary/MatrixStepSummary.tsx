@@ -100,7 +100,7 @@ const MatrixStepSummary = ({ sample, mode = 'section', onEdit }: Props) => {
                   <b>{value}</b>
                 ) : (
                   <>
-                    {input.label} : <b>{value}</b>
+                    {inputProps.label ?? input.label} : <b>{value}</b>
                   </>
                 )}
               </div>

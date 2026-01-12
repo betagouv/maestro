@@ -36,7 +36,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
     () =>
       z
         .toJSONSchema(SampleMatrixSpecificData)
-        .anyOf?.find(
+        .oneOf?.find(
           (schema) =>
             schema.properties?.programmingPlanKind &&
             typeof schema.properties?.programmingPlanKind === 'object' &&
@@ -44,6 +44,14 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
               specificData.programmingPlanKind
         )?.required ?? [],
     [specificData.programmingPlanKind]
+  );
+
+  const label = useMemo(
+    () =>
+      inputProps.label ??
+      MatrixSpecificDataFormInputs[inputKey].label ??
+      inputKey,
+    [inputKey, inputProps.label]
   );
 
   return (
@@ -76,9 +84,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   inputForm={inputForm}
                   inputKey="specificData"
                   inputPathFromKey={[inputKey]}
-                  label={
-                    MatrixSpecificDataFormInputs[inputKey].label ?? inputKey
-                  }
+                  label={label}
                   hintText={MatrixSpecificDataFormInputs[inputKey].hintText}
                   whenValid={
                     MatrixSpecificDataFormInputs[inputKey].whenValid ??
@@ -105,9 +111,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   inputForm={inputForm}
                   inputKey="specificData"
                   inputPathFromKey={[inputKey]}
-                  label={
-                    MatrixSpecificDataFormInputs[inputKey].label ?? inputKey
-                  }
+                  label={label}
                   hintText={MatrixSpecificDataFormInputs[inputKey].hintText}
                   whenValid={
                     MatrixSpecificDataFormInputs[inputKey].whenValid ??
@@ -139,9 +143,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   inputForm={inputForm}
                   inputKey="specificData"
                   inputPathFromKey={[inputKey]}
-                  label={
-                    MatrixSpecificDataFormInputs[inputKey].label ?? inputKey
-                  }
+                  label={label}
                   hintText={MatrixSpecificDataFormInputs[inputKey].hintText}
                   whenValid={
                     MatrixSpecificDataFormInputs[inputKey].whenValid ??
@@ -177,21 +179,25 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                         MatrixSpecificDataFormInputs[inputKey].optionsLabels,
                       defaultLabel:
                         MatrixSpecificDataFormInputs[inputKey]
-                          .defaultOptionLabel
+                          .defaultOptionLabel,
+                      withDefault:
+                        MatrixSpecificDataFormInputs[inputKey].withDefault ??
+                        true
                     }
                   )}
-                  onChange={(e) =>
-                    onChange({
-                      ...specificData,
-                      [inputKey]: e.target.value
-                    })
-                  }
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    if ((specificData as any)[inputKey] !== newValue) {
+                      onChange({
+                        ...specificData,
+                        [inputKey]: newValue
+                      });
+                    }
+                  }}
                   inputForm={inputForm}
                   inputKey="specificData"
                   inputPathFromKey={[inputKey]}
-                  label={
-                    MatrixSpecificDataFormInputs[inputKey].label ?? inputKey
-                  }
+                  label={label}
                   whenValid={
                     MatrixSpecificDataFormInputs[inputKey].whenValid ??
                     'Champ correctement renseigné.'
@@ -211,9 +217,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                 )}
               >
                 <ToggleSwitch
-                  label={
-                    MatrixSpecificDataFormInputs[inputKey].label ?? inputKey
-                  }
+                  label={label}
                   checked={Boolean((specificData as any)[inputKey])}
                   onChange={(checked) =>
                     onChange({

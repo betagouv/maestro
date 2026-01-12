@@ -21,7 +21,8 @@ export const Species = z.enum(
     'ESP16',
     'ESP17',
     'ESP18',
-    'ESP19'
+    'ESP19',
+    'ESP20'
   ],
   {
     error: () => "Veuillez renseigner l'espèce."
@@ -30,7 +31,6 @@ export const Species = z.enum(
 
 export type Species = z.infer<typeof Species>;
 
-//TODO mettre à jour la codification après ESP7
 export const SpeciesLabels: Record<Species, string> = {
   ESP1: 'Bovin',
   ESP2: 'Ovin',
@@ -38,7 +38,7 @@ export const SpeciesLabels: Record<Species, string> = {
   ESP4: 'Porcin',
   ESP5: 'Volaille poule',
   ESP6: 'Volaille caille',
-  ESP7: 'Poulet de chair ou coquelet',
+  ESP7: 'Poulet de chair',
   ESP8: 'Poule de réforme',
   ESP9: 'Coq de réforme',
   ESP10: 'Dinde',
@@ -50,25 +50,12 @@ export const SpeciesLabels: Record<Species, string> = {
   ESP16: 'Caille',
   ESP17: 'Perdrix',
   ESP18: 'Pigeon',
-  ESP19: 'Faisan'
+  ESP19: 'Faisan',
+  ESP20: 'Autre volaille'
 };
 
 export const SpeciesByProgrammingPlanKind: Partial<
   Record<ProgrammingPlanKind, Species[]>
 > = {
-  [ProgrammingPlanKind.enum.DAOA_BREEDING]: [
-    'ESP7',
-    'ESP8',
-    'ESP9',
-    'ESP10',
-    'ESP11',
-    'ESP12',
-    'ESP13',
-    'ESP14',
-    'ESP15',
-    'ESP16',
-    'ESP17',
-    'ESP18',
-    'ESP19'
-  ]
+  [ProgrammingPlanKind.enum.DAOA_BREEDING]: ['ESP7', 'ESP8', 'ESP10', 'ESP20']
 };

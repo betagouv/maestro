@@ -2,11 +2,13 @@ import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { AnimalKind } from '../../referential/AnimalKind';
 import { AnimalSex } from '../../referential/AnimalSex';
+import { BreedingMethod } from '../../referential/BreedingMethod';
 import { CultureKind } from '../../referential/CultureKind';
 import { MatrixPart } from '../../referential/Matrix/MatrixPart';
+import { OutdoorAccess } from '../../referential/OutdoorAccess';
 import { ProductionKind } from '../../referential/ProductionKind';
-import { ProductionMethod } from '../../referential/ProductionMethod';
 import { Species } from '../../referential/Species';
+import { Seizure } from '../../Seizure';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 
 const KillingCode = z
@@ -38,29 +40,28 @@ const SampleMatrixSpecificDataPPV = z.object({
   releaseControl: z.boolean().nullish()
 });
 
-const SampleMatrixSpecificDataDAOA = z.object({
-  programmingPlanKind: z
-    .literal(ProgrammingPlanKind.enum.DAOA_SLAUGHTER)
-    .or(z.literal(ProgrammingPlanKind.enum.DAOA_BREEDING)),
-  killingCode: KillingCode,
+const SampleMatrixSpecificDataDAOABreeding = z.object({
+  programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_BREEDING),
+  sampling: z.literal('Aléatoire'),
   animalIdentifier: AnimalIdentifier,
-  productionMethod: ProductionMethod
+  age: AnimalAge,
+  species: Species,
+  breedingMethod: BreedingMethod,
+  outdoorAccess: OutdoorAccess
 });
 
-const SampleMatrixSpecificDataDAOABreeding =
-  SampleMatrixSpecificDataDAOA.extend({
-    programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_BREEDING),
-    species: Species
-  });
-
-const SampleMatrixSpecificDataDAOASlaughter =
-  SampleMatrixSpecificDataDAOA.extend({
-    programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_SLAUGHTER),
-    animalKind: AnimalKind,
-    productionKind: ProductionKind,
-    sex: AnimalSex,
-    age: AnimalAge
-  });
+const SampleMatrixSpecificDataDAOASlaughter = z.object({
+  programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_SLAUGHTER),
+  killingCode: KillingCode,
+  sampling: z.literal('Aléatoire'),
+  animalIdentifier: AnimalIdentifier,
+  animalKind: AnimalKind,
+  sex: AnimalSex,
+  age: AnimalAge,
+  productionKind: ProductionKind,
+  outdoorAccess: OutdoorAccess,
+  seizure: Seizure
+});
 
 export const SampleMatrixSpecificData = z.discriminatedUnion(
   'programmingPlanKind',
