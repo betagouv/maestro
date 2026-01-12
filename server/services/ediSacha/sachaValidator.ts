@@ -2,10 +2,11 @@ import { maestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 import {
   sigleContexteInterventionValidator,
+  sigleMatrixValidator,
   siglePlanAnalyseValidator
 } from './sachaReferential';
 
-// FIXME à supprimer et remplir correctement isArray de XMLParser
+// FIXME EDI à supprimer et remplir correctement isArray de XMLParser
 const coerceToArray = <Schema extends z.ZodObject>(
   schema: Schema
 ): z.ZodArray<Schema> => {
@@ -77,7 +78,7 @@ const dialogueEchantillonCommemoratifType = coerceToArray(
   z.object({
     DialogueEchantillonComplet: z.object({
       NumeroEchantillon: z.coerce.number().int(),
-      SigleMatriceSpecifique: z.string(),
+      SigleMatriceSpecifique: sigleMatrixValidator,
       NumeroIdentificationExterne: z.string().optional(),
       IdentifiantLabo: z.string().optional(),
       NumeroLot: z.coerce.number().int().optional(),
@@ -204,7 +205,7 @@ export const baseValidator = z.object({
   Destinataire: partenaire
 });
 
-export const resultatsValidator = z.object({
+const resultatsValidator = z.object({
   ...baseValidator.shape,
   DialogueResultatType: z.intersection(
     z.union([
@@ -347,8 +348,6 @@ export const demandesAnalysesValidator = z.object({
     DialogueAnalyseType: dialogueAnalyseType
   })
 });
-
-export type DAI = z.infer<typeof demandesAnalysesValidator>;
 
 export const acquittementValidator = z.object({
   ...baseValidator.shape,
@@ -499,5 +498,3 @@ export const sachaValidator = z.object({
     })
     .optional()
 });
-
-export type Sacha = z.infer<typeof sachaValidator>;

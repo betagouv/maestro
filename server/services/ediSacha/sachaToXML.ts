@@ -122,7 +122,7 @@ export const generateXMLDAI = (
     {
       DemandeType: {
         DialogueDemandeIntervention: {
-          //FIXME on attend un number ici
+          //FIXME EDI on attend un number ici
           NumeroDAP: 1, // getSupportDocumentFilename(sample, 1),
           SigleContexteIntervention:
             SigleContexteIntervention[sample.specificData.programmingPlanKind],
@@ -131,7 +131,7 @@ export const generateXMLDAI = (
         },
         ReferenceEtablissementType: {
           ReferenceEtablissement: {
-            //FIXME
+            //FIXME EDI
             SigleIdentifiant: '',
             Identifiant: sample.company.name,
             Nom: sample.company.name,
@@ -142,20 +142,20 @@ export const generateXMLDAI = (
         },
         DialogueActeurType: {
           DialogueActeur: {
-            //FIXME
+            //FIXME EDI
             SigleIdentifiant: '',
             Identifiant: '',
             Nom: sample.sampler.name ?? ''
-            //FIXME email
+            //FIXME EDI email
           }
         },
         DialogueEchantillonCommemoratifType: [
           {
             DialogueEchantillonComplet: {
-              // FIXME c'est bien ça ?
+              // FIXME EDI c'est bien ça ?
               NumeroEchantillon: sampleItem.itemNumber,
               SigleMatriceSpecifique: SigleMatrix[matrix as NotPPVMatrix],
-              //FIXME on le met où le numéro de scellé !?
+              //FIXME EDI on le met où le numéro de scellé !?
               NumeroEtiquette: sampleItem.sealId.substring(0, 27)
             }
           }
@@ -169,7 +169,7 @@ export const generateXMLDAI = (
             LibelleMatrice: '',
             SigleAnalyte: '',
             SigleMethodeSpecifique: '',
-            //FIXME ??
+            //FIXME EDI ??
             Depistage: false,
             Confirmation: false,
             Statut: 'G'
@@ -238,7 +238,7 @@ const generateXML = async <T extends FileType>(
       ...conf.content.shape
     })
     .encode({
-      //FIXME
+      //FIXME EDI
       MessageParametres: {
         CodeScenario: 'E.D.I. SIGAL/LABOS',
         VersionScenario: '1.0.1',
@@ -303,5 +303,4 @@ export const getZipFileName = (
   return `${fileType}${laboratory.sachaSigle}${currentDate}_1.zip`;
 };
 
-export const getSenderSachaSigle = (department: Department) =>
-  `DDSV${department}`;
+const getSenderSachaSigle = (department: Department) => `DDSV${department}`;

@@ -1,8 +1,8 @@
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import { sendSachaFile } from '../sachaSender';
-import { generateXMLDAI, loadLaboratoryCall, XmlFile } from '../sachaToXML';
+import { sendSachaFile } from './sachaSender';
+import { generateXMLDAI, loadLaboratoryCall, XmlFile } from './sachaToXML';
 
-//FIXME à brancher avec la PPV
+//FIXME EDI à brancher avec la PPV
 export const generateDAI = async (sample: Sample) => {
   let xmlFile: XmlFile | null = null;
 
@@ -15,7 +15,7 @@ export const generateDAI = async (sample: Sample) => {
 
   for (const item of itemsForLaboratories) {
     if (sample.specificData.programmingPlanKind !== 'PPV') {
-      //FIXME il manque les descripteurs spécifiques à la fiche de plan
+      //FIXME EDI il manque les descripteurs spécifiques à la fiche de plan
 
       xmlFile = await generateXMLDAI(
         sample,
@@ -26,7 +26,8 @@ export const generateDAI = async (sample: Sample) => {
     }
 
     if (xmlFile) {
-      await sendSachaFile(xmlFile, dateNow);
+      //FIXME EDI brancher PEL
+      await sendSachaFile(xmlFile, dateNow, false);
     }
   }
   return null;

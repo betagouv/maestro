@@ -114,16 +114,16 @@ export const SigleMatrix: Record<
   z.infer<typeof sigleMatrixValidator>
 > = {
   //   'A01SN#F26.A07XE': "Viande d'autres volailles non transformée",
-  // FIXME à corriger
+  // FIXME EDI à corriger
   'A01SN#F26.A07XE': 'FOIE_BV',
   //   'A01SP#F28.A0C0S': 'Viande de poulets de chair non transformée',
-  // FIXME à corriger
+  // FIXME EDI à corriger
   'A01SP#F28.A0C0S': 'FOIE_BV',
   //   'A01SP#F31.A0CSD': 'Viande de poule de réforme non transformée',
-  // FIXME à corriger
+  // FIXME EDI à corriger
   'A01SP#F31.A0CSD': 'FOIE_BV',
   //   'A01SQ#F28.A0C0S': 'Viande de dinde non transformée',
-  // FIXME à corriger
+  // FIXME EDI à corriger
   'A01SQ#F28.A0C0S': 'FOIE_BV',
   'A01XF#F28.A0C0S': 'FOIE_BV'
 };
