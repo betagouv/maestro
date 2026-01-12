@@ -115,12 +115,15 @@ const ContextStepSummary = ({
           </div>
         </div>
       )}
-      <div className="summary-item icon-text">
-        <div className={cx('fr-icon-scales-3-line')}></div>
-        <div>
-          Cadre juridique : <b>{LegalContextLabels[sample.legalContext]}</b>
-        </div>
-      </div>
+      {programmingPlan?.legalContexts &&
+        programmingPlan.legalContexts.length > 1 && (
+          <div className="summary-item icon-text">
+            <div className={cx('fr-icon-scales-3-line')}></div>
+            <div>
+              Cadre juridique : <b>{LegalContextLabels[sample.legalContext]}</b>
+            </div>
+          </div>
+        )}
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-map-pin-2-line')}></div>
         <div>
