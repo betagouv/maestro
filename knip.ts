@@ -20,7 +20,9 @@ export default {
       entry: [
         'database/migrations/*.ts',
         'repositories/kysely.type.ts',
-        'scripts/*'
+        'scripts/*',
+        // FIXME EDI à supprimer
+        'services/ediSacha/sachaDAI.ts'
       ]
     },
     frontend: {
