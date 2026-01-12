@@ -42,7 +42,7 @@
         <DialogueEchantillonCommemoratifType>
             <DialogueEchantillonComplet>
                 <NumeroEchantillon>1</NumeroEchantillon>
-                <SigleMatriceSpecifique>GP_BV</SigleMatriceSpecifique>
+                <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                 <NumeroIdentificationExterne>ECHANTILLON 1</NumeroIdentificationExterne>
                 <IdentifiantLabo>E1234</IdentifiantLabo>
                 <NumeroEtiquette>1234</NumeroEtiquette>
@@ -56,7 +56,7 @@
             </ReferencePlanAnalyseEffectuer>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_BV</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>CHLDCN</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -96,7 +96,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_BV</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>CHLDCN</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>

@@ -5,7 +5,10 @@ import {
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
 import { Sample } from 'maestro-shared/schema/Sample/Sample';
-import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import {
+  getSampleItemReference,
+  SampleItem
+} from 'maestro-shared/schema/Sample/SampleItem';
 import { formatWithTz, toMaestroDate } from 'maestro-shared/utils/date';
 import { RequiredNotNull } from 'maestro-shared/utils/typescript';
 import fs from 'node:fs';
@@ -102,8 +105,9 @@ export const generateXMLDAI = (
     | 'sampler'
     | 'department'
     | 'matrix'
+    | 'reference'
   >,
-  sampleItem: Pick<SampleItem, 'sealId' | 'itemNumber'>,
+  sampleItem: Pick<SampleItem, 'sealId' | 'itemNumber' | 'copyNumber'>,
   loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryCall>,
   dateNow: number
 ): Promise<XmlFile> => {
@@ -122,8 +126,9 @@ export const generateXMLDAI = (
     {
       DemandeType: {
         DialogueDemandeIntervention: {
-          //FIXME EDI on attend un number ici
-          NumeroDAP: 1, // getSupportDocumentFilename(sample, 1),
+          NumeroDAP: Number(
+            `${new Date(dateNow).getFullYear()}${sample.reference.substring(sample.reference.lastIndexOf('-') + 1)}${sampleItem.copyNumber}${sampleItem.itemNumber}`
+          ),
           SigleContexteIntervention:
             SigleContexteIntervention[sample.specificData.programmingPlanKind],
           DateIntervention: toMaestroDate(sample.sampledAt),
@@ -152,11 +157,14 @@ export const generateXMLDAI = (
         DialogueEchantillonCommemoratifType: [
           {
             DialogueEchantillonComplet: {
-              // FIXME EDI c'est bien ça ?
               NumeroEchantillon: sampleItem.itemNumber,
               SigleMatriceSpecifique: SigleMatrix[matrix as NotPPVMatrix],
-              //FIXME EDI on le met où le numéro de scellé !?
-              NumeroEtiquette: sampleItem.sealId.substring(0, 27)
+              NumeroEtiquette: getSampleItemReference(
+                sample,
+                sampleItem.itemNumber,
+                sampleItem.copyNumber
+              ),
+              Commentaire: sampleItem.sealId
             }
           }
         ],

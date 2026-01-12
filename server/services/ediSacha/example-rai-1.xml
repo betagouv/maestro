@@ -37,7 +37,7 @@
         <DialogueEchantillonCommemoratifType>
             <DialogueEchantillonComplet>
                 <NumeroEchantillon>1</NumeroEchantillon>
-                <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                 <NumeroIdentificationExterne>2025010101</NumeroIdentificationExterne>
                 <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                 <NumeroEtiquette>000000</NumeroEtiquette>
@@ -51,7 +51,7 @@
             </ReferencePlanAnalyseEffectuer>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>ALDR_DLDR</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -84,7 +84,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>ALD</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -117,7 +117,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>DIELDR</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -150,7 +150,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>CLRDN_AGOX</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -183,7 +183,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>CHLRDN_CS</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -216,7 +216,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>CHLRDN_TR</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -249,7 +249,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>CHLRDN_OX</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -282,7 +282,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>CHLBNZ</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -315,7 +315,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>CLRTLNL</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -348,7 +348,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>DDT_ISOM</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -381,7 +381,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>DDT_OP</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -414,7 +414,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>DDT_PP</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -447,7 +447,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>TDE_PP</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -480,7 +480,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>DDE_PP</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -513,7 +513,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>DCFL</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -546,7 +546,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>DCFL_OP</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -579,7 +579,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>DCFL_PP</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -612,7 +612,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>ENDSLFN_ABSF</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -645,7 +645,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>ENDSLF_ALP</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -678,7 +678,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>ENDSLF_BT</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -711,7 +711,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>ENDSLF_SLF</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -744,7 +744,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>ENDRN</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -777,7 +777,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>HPTCL_HEPX</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -810,7 +810,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>HPTCL</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -843,7 +843,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>HCB</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -876,7 +876,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>HCHALPHA</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -909,7 +909,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>HCHBETA</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -942,7 +942,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>HCHGAMMA</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -975,7 +975,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>MTHXCL</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1008,7 +1008,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>PNDMTH</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1041,7 +1041,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>HPTCL_EPX</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1084,7 +1084,7 @@
             </ReferencePlanAnalyseEffectuer>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>AZNPHSTHL</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1117,7 +1117,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>CHLORPY_ETHY</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1150,7 +1150,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>CHLORPY_MET</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1183,7 +1183,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>DIAZ</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1216,7 +1216,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>DFLBZRN</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1249,7 +1249,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>DSFT_SFX_SF</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1282,7 +1282,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>DISULF</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1315,7 +1315,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>DSLFTNSLFON</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1348,7 +1348,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>DSFT_SFX</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1381,7 +1381,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>FMXD</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1414,7 +1414,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>FNTO_SFX_SF</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1447,7 +1447,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>FNT</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1480,7 +1480,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>FNTOX</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1513,7 +1513,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>FNTOX_SF</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1546,7 +1546,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>FNTOX_SFX</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1579,7 +1579,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>FNT_SF</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1612,7 +1612,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>FNT_SFX</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1645,7 +1645,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>IDXCB</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1678,7 +1678,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>METHCRFS</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1711,7 +1711,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>METHID</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1744,7 +1744,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>PRTHPROXMT</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1777,7 +1777,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>PRTHMT</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1810,7 +1810,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>PROXMT</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1843,7 +1843,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>PARTHN</SigleAnalyte>
                     <SigleMethodeSpecifique>CG_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1876,7 +1876,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>PHOXSULN</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1909,7 +1909,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>PHOR</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1942,7 +1942,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>PHRTOX</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -1975,7 +1975,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>PHRTSLF</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -2008,7 +2008,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>PIR_MET</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -2041,7 +2041,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>PROFNFS</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -2074,7 +2074,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>PYRZPHS</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -2107,7 +2107,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>TFLBZRN</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>
@@ -2140,7 +2140,7 @@
             </DialogueAnalyseType>
             <DialogueAnalyseType>
                 <DialogueAnalyse>
-                    <SigleMatriceSpecifique>GP_PC</SigleMatriceSpecifique>
+                    <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                     <SigleAnalyte>TRIAZ</SigleAnalyte>
                     <SigleMethodeSpecifique>CL_SM_SM</SigleMethodeSpecifique>
                 </DialogueAnalyse>

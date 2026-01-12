@@ -87,6 +87,7 @@ test(`génère un XML de DAI`, async () => {
   expect(
     await generateXMLDAI(
       {
+        reference: 'PEL-26-00073',
         sampledAt: new Date(1765876056798),
         lastUpdatedAt: new Date(1765876056798),
         department: '72',
@@ -106,7 +107,8 @@ test(`génère un XML de DAI`, async () => {
       },
       {
         sealId: 'sealId',
-        itemNumber: 1
+        itemNumber: 1,
+        copyNumber: 2
       },
       loadLaboratoryAndSender,
       1765876056798
@@ -135,7 +137,7 @@ test(`génère un XML de DAI`, async () => {
       </Destinataire>
       <DemandeType>
         <DialogueDemandeIntervention>
-          <NumeroDAP>1</NumeroDAP>
+          <NumeroDAP>20250007321</NumeroDAP>
           <SigleContexteIntervention>2026_RPDA_PVOL</SigleContexteIntervention>
           <DateIntervention>2025-12-16</DateIntervention>
           <DateModification>2025-12-16T10:07:36</DateModification>
@@ -159,7 +161,8 @@ test(`génère un XML de DAI`, async () => {
           <DialogueEchantillonComplet>
             <NumeroEchantillon>1</NumeroEchantillon>
             <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
-            <NumeroEtiquette>sealId</NumeroEtiquette>
+            <NumeroEtiquette>PEL-26-00073-A-2</NumeroEtiquette>
+            <Commentaire>sealId</Commentaire>
           </DialogueEchantillonComplet>
         </DialogueEchantillonCommemoratifType>
         <ReferencePlanAnalyseType>

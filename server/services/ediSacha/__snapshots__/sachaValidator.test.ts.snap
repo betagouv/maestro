@@ -103,7 +103,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             "NumeroEchantillon": 1,
             "NumeroEtiquette": "000000",
             "NumeroIdentificationExterne": "2025010101",
-            "SigleMatriceSpecifique": "GP_PC",
+            "SigleMatriceSpecifique": "FOIE_BV",
           },
         },
       ],
@@ -113,7 +113,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "ALDR_DLDR",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -150,7 +150,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "ALD",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -187,7 +187,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "DIELDR",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -224,7 +224,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "CLRDN_AGOX",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -261,7 +261,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "CHLRDN_CS",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -298,7 +298,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "CHLRDN_TR",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -335,7 +335,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "CHLRDN_OX",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -372,7 +372,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "CHLBNZ",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -409,7 +409,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "CLRTLNL",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -446,7 +446,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "DDT_ISOM",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -483,7 +483,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "DDT_OP",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -520,7 +520,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "DDT_PP",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -557,7 +557,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "TDE_PP",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -594,7 +594,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "DDE_PP",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -631,7 +631,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "DCFL",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -668,7 +668,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "DCFL_OP",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -705,7 +705,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "DCFL_PP",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -742,7 +742,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "ENDSLFN_ABSF",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -779,7 +779,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "ENDSLF_ALP",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -816,7 +816,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "ENDSLF_BT",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -853,7 +853,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "ENDSLF_SLF",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -890,7 +890,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "ENDRN",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -927,7 +927,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "HPTCL_HEPX",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -964,7 +964,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "HPTCL",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1001,7 +1001,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "HCB",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1038,7 +1038,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "HCHALPHA",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1075,7 +1075,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "HCHBETA",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1112,7 +1112,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "HCHGAMMA",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1149,7 +1149,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "MTHXCL",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1186,7 +1186,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "PNDMTH",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1223,7 +1223,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "HPTCL_EPX",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1274,7 +1274,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "AZNPHSTHL",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1311,7 +1311,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "CHLORPY_ETHY",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1348,7 +1348,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "CHLORPY_MET",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1385,7 +1385,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "DIAZ",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1422,7 +1422,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "DFLBZRN",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1459,7 +1459,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "DSFT_SFX_SF",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1496,7 +1496,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "DISULF",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1533,7 +1533,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "DSLFTNSLFON",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1570,7 +1570,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "DSFT_SFX",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1607,7 +1607,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "FMXD",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1644,7 +1644,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "FNTO_SFX_SF",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1681,7 +1681,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "FNT",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1718,7 +1718,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "FNTOX",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1755,7 +1755,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "FNTOX_SF",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1792,7 +1792,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "FNTOX_SFX",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1829,7 +1829,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "FNT_SF",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1866,7 +1866,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "FNT_SFX",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1903,7 +1903,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "IDXCB",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1940,7 +1940,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "METHCRFS",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -1977,7 +1977,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "METHID",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -2014,7 +2014,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "PRTHPROXMT",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -2051,7 +2051,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "PRTHMT",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -2088,7 +2088,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "PROXMT",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -2125,7 +2125,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "PARTHN",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CG_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -2162,7 +2162,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "PHOXSULN",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -2199,7 +2199,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "PHOR",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -2236,7 +2236,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "PHRTOX",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -2273,7 +2273,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "PHRTSLF",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -2310,7 +2310,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "PIR_MET",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -2347,7 +2347,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "PROFNFS",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -2384,7 +2384,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "PYRZPHS",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -2421,7 +2421,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "TFLBZRN",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -2458,7 +2458,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "TRIAZ",
-                "SigleMatriceSpecifique": "GP_PC",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -2573,7 +2573,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-2.xml 1`] = `
             "NumeroEchantillon": 1,
             "NumeroEtiquette": "1234",
             "NumeroIdentificationExterne": "ECHANTILLON 1",
-            "SigleMatriceSpecifique": "GP_BV",
+            "SigleMatriceSpecifique": "FOIE_BV",
           },
         },
       ],
@@ -2583,7 +2583,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-2.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "CHLDCN",
-                "SigleMatriceSpecifique": "GP_BV",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
@@ -2627,7 +2627,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-2.xml 1`] = `
             {
               "DialogueAnalyse": {
                 "SigleAnalyte": "CHLDCN",
-                "SigleMatriceSpecifique": "GP_BV",
+                "SigleMatriceSpecifique": "FOIE_BV",
                 "SigleMethodeSpecifique": "CL_SM_SM",
               },
               "DialogueCommemoratif": [
