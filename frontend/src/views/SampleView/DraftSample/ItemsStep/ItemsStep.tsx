@@ -36,6 +36,7 @@ import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { useAppSelector } from '../../../../hooks/useStore';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
+import SupportDocumentDownload from '../SupportDocumentDownload';
 
 const ItemsStep = ({ partialSample }: Props) => {
   const apiClient = useContext(ApiClientContext);
@@ -417,6 +418,9 @@ const ItemsStep = ({ partialSample }: Props) => {
             </li>
           </ul>
         </div>
+        {isCreatedPartialSample(partialSample) && !readonly && (
+          <SupportDocumentDownload partialSample={partialSample} />
+        )}
       </div>
       <SavedAlert isOpen={isSaved} isDraft />
     </form>
