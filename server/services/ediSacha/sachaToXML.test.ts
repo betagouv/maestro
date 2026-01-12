@@ -32,7 +32,7 @@ test(`génère un XML d'acquittement`, async () => {
     await generateXMLAcquitement(
       [
         {
-          DateAcquittement: toSachaDateTime(new Date(12341234)),
+          DateAcquittement: toSachaDateTime(new Date(1765876056798)),
           NomFichier: 'RA01123123123123'
         }
       ],
@@ -66,7 +66,7 @@ test(`génère un XML d'acquittement`, async () => {
       </Destinataire>
       <MessageAcquittement>
         <NomFichier>RA01123123123123</NomFichier>
-        <DateAcquittement>1970-01-01T04:25:41</DateAcquittement>
+        <DateAcquittement>2025-12-16T10:07:36</DateAcquittement>
       </MessageAcquittement>
     </AcquittementNonAcquittement>
     ",
@@ -87,8 +87,8 @@ test(`génère un XML de DAI`, async () => {
   expect(
     await generateXMLDAI(
       {
-        sampledAt: new Date(12341234),
-        lastUpdatedAt: new Date(55555555),
+        sampledAt: new Date(1765876056798),
+        lastUpdatedAt: new Date(1765876056798),
         department: '72',
         matrix: 'A01SN#F26.A07XE',
         specificData: {
@@ -137,8 +137,8 @@ test(`génère un XML de DAI`, async () => {
         <DialogueDemandeIntervention>
           <NumeroDAP>1</NumeroDAP>
           <SigleContexteIntervention>2026_RPDA_PVOL</SigleContexteIntervention>
-          <DateIntervention>1970-01-01</DateIntervention>
-          <DateModification>1970-01-01T16:25:55</DateModification>
+          <DateIntervention>2025-12-16</DateIntervention>
+          <DateModification>2025-12-16T10:07:36</DateModification>
         </DialogueDemandeIntervention>
         <ReferenceEtablissementType>
           <ReferenceEtablissement>

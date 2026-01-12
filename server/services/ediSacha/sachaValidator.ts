@@ -32,7 +32,7 @@ const sachaDateTime = z
 
 export const toSachaDateTime = (date: Date): z.infer<typeof sachaDateTime> => {
   // Use the Sweden locale because it uses the ISO format
-  const dateString = `${date.toLocaleDateString('sv')}T${date.toLocaleTimeString('sv', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+  const dateString = `${date.toLocaleDateString('sv', { timeZone: 'Europe/Paris' })}T${date.toLocaleTimeString('sv', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Europe/Paris' })}`;
   const parsedDate = sachaDateTime.safeParse(dateString);
   if (parsedDate.success) {
     return parsedDate.data;

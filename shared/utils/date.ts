@@ -25,7 +25,9 @@ export const formatDateTime = (date: Date) =>
 
 export const toMaestroDate = (date: Date): MaestroDate => {
   // Use the Sweden locale because it uses the ISO format
-  const dateString = date.toLocaleDateString('sv');
+  const dateString = date.toLocaleDateString('sv', {
+    timeZone: 'Europe/Paris'
+  });
   const parsedDate = maestroDate.safeParse(dateString);
   if (parsedDate.success) {
     return parsedDate.data;
