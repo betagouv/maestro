@@ -26,7 +26,6 @@ export default {
     frontend: {
       ignoreDependencies: [
         'geojson',
-        'playwright',
         '@vitest/coverage-v8',
         //Pas normal, ce package n'est pas utilisé mais on utilise plusieurs packages de celui-ci
         'workbox-webpack-plugin',
