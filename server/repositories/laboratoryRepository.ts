@@ -1,4 +1,4 @@
-import { sql, Selectable } from 'kysely';
+import { Selectable, sql } from 'kysely';
 import { isNil, omitBy } from 'lodash-es';
 import { FindLaboratoryOptions } from 'maestro-shared/schema/Laboratory/FindLaboratoryOptions';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
