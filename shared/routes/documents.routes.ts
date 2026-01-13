@@ -54,7 +54,7 @@ export const documentsRoutes = {
   '/documents/upload-signed-url': {
     params: undefined,
     post: {
-      body: DocumentToCreate.omit({ id: true }),
+      body: z.object(DocumentToCreate.shape).omit({ id: true }),
       permissions: ['createResource', 'createAnalysis', 'createSample'],
       response: z.object({
         url: z.string(),

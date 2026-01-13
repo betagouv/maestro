@@ -83,19 +83,25 @@ export const User = z
   })
   .superRefine(userChecks);
 
-export const UserToCreate = User.omit({
-  id: true,
-  name: true
-}).superRefine(userChecks);
+export const UserToCreate = z
+  .object(User.shape)
+  .omit({
+    id: true,
+    name: true
+  })
+  .superRefine(userChecks);
 export type UserToCreate = z.infer<typeof UserToCreate>;
 
-export const UserToUpdate = User.omit({
-  name: true
-}).superRefine(userChecks);
+export const UserToUpdate = z
+  .object(User.shape)
+  .omit({
+    name: true
+  })
+  .superRefine(userChecks);
 
 export type UserToUpdate = z.infer<typeof UserToUpdate>;
 
-export const Sampler = User.pick({
+export const Sampler = z.object(User.shape).pick({
   id: true,
   name: true
 });

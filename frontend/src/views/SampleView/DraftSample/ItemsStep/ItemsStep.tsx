@@ -28,6 +28,7 @@ import { usePartialSample } from 'src/hooks/usePartialSample';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
 import SavedAlert from 'src/views/SampleView/SavedAlert';
+import { z } from 'zod';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
 import SampleItems from '../../../../components/Sample/SampleItems/SampleItems';
@@ -143,7 +144,7 @@ const ItemsStep = ({ partialSample }: Props) => {
     }
   }, [localPrescription, programmingPlan]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const Form = SampleItemsData.pick({
+  const Form = z.object(SampleItemsData.shape).pick({
     sampledAt: true,
     shippingDate: true,
     notesOnItems: true,

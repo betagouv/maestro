@@ -23,20 +23,20 @@ export const documentChecks: CheckFn<Pick<Document, 'kind' | 'name'>> = ({
   }
 };
 
-export const Document = z
-  .object({
-    id: z.guid(),
-    filename: z.string(),
-    createdAt: z.coerce.date(),
-    createdBy: z.guid().nullish(),
-    name: z.string().nullish(),
-    kind: DocumentKind,
-    legend: z.string().nullish(),
-    notes: z.string().nullish()
-  })
-  .check(documentChecks);
+const DocumentBase = z.object({
+  id: z.guid(),
+  filename: z.string(),
+  createdAt: z.coerce.date(),
+  createdBy: z.guid().nullish(),
+  name: z.string().nullish(),
+  kind: DocumentKind,
+  legend: z.string().nullish(),
+  notes: z.string().nullish()
+});
 
-export const DocumentToCreate = Document.pick({
+export const Document = DocumentBase.check(documentChecks);
+
+export const DocumentToCreate = DocumentBase.pick({
   id: true,
   filename: true,
   name: true,
@@ -45,7 +45,7 @@ export const DocumentToCreate = Document.pick({
   notes: true
 }).check(documentChecks);
 
-export const DocumentUpdate = Document.pick({
+export const DocumentUpdate = DocumentBase.pick({
   name: true,
   legend: true,
   kind: true,

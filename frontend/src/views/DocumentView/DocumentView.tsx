@@ -82,7 +82,8 @@ const DocumentView = () => {
           file: FileInput().nullish()
         })
       : z.object({
-          ...DocumentToCreate.omit({ id: true, filename: true }).shape,
+          ...z.object(DocumentToCreate.shape).omit({ id: true, filename: true })
+            .shape,
           file: FileInput()
         })
   ).check(documentChecks);

@@ -24,6 +24,7 @@ import {
   isProgrammingPlanSample,
   PartialSample,
   Sample,
+  SampleBase,
   sampleSendCheck
 } from 'maestro-shared/schema/Sample/Sample';
 import {
@@ -433,7 +434,7 @@ export const sampleRouter = {
 
       if (
         mustBeSent &&
-        !Sample.pick({
+        !SampleBase.pick({
           sampledAt: true,
           sentAt: true
         })

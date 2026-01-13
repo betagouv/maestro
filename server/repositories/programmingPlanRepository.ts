@@ -4,13 +4,16 @@ import { Region } from 'maestro-shared/referential/Region';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanLocalStatus as ProgrammingPlanLocalStatusType } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  ProgrammingPlan,
+  ProgrammingPlanBase
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import z from 'zod';
 import { knexInstance as db } from './db';
 export const programmingPlansTable = 'programming_plans';
 const programmingPlanLocalStatusTable = 'programming_plan_local_status';
 
-const ProgrammingPlanDbo = ProgrammingPlan.omit({
+const ProgrammingPlanDbo = ProgrammingPlanBase.omit({
   regionalStatus: true,
   departmentalStatus: true
 });

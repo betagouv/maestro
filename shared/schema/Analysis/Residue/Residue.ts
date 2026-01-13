@@ -6,7 +6,7 @@ import { isComplex } from '../../../referential/Residue/SSD2Hierarchy';
 import { SSD2Id, SSD2Ids } from '../../../referential/Residue/SSD2Id';
 import { SSD2Referential } from '../../../referential/Residue/SSD2Referential';
 import { maestroDate } from '../../../utils/date';
-import { Sample } from '../../Sample/Sample';
+import { Sample, SampleBase } from '../../Sample/Sample';
 import { AnalysisMethod } from '../AnalysisMethod';
 import { Analyte, PartialAnalyte } from '../Analyte';
 import { ResidueCompliance } from './ResidueCompliance';
@@ -83,7 +83,7 @@ const sampleResidueLmrCheck: CheckFn<
 
 const LmrCheck = z
   .object({
-    ...Sample.pick({
+    ...SampleBase.pick({
       stage: true,
       specificData: true
     }).shape,

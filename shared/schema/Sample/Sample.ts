@@ -209,7 +209,7 @@ export const PartialSampleToCreate = z.object({
     sampler: true
   }).shape,
   ...PartialSampleMatrixData.shape,
-  ...SampleItemsData.partial().shape,
+  ...z.object(SampleItemsData.shape).partial().shape,
   ...SampleAdmissibilityData.partial().shape,
   ...SampleOwnerData.partial().shape,
   items: z.array(PartialSampleItem).nullish()
