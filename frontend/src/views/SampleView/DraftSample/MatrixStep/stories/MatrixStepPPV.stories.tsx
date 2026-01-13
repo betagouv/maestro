@@ -39,7 +39,8 @@ const sampler = genUser({
   region: '44'
 });
 const programmingPlan = genProgrammingPlan({
-  kinds: ['PPV']
+  kinds: ['PPV'],
+  distributionKind: 'REGIONAL'
 });
 const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
