@@ -105,6 +105,17 @@ export interface KnexMigrations {
   name: string | null;
 }
 
+export interface SachaSender {
+  sachaSigle: string;
+  name: string;
+  sachaEmail: string;
+}
+
+export interface SachaResidueMappings {
+  label: string;
+  ssd2Id: string;
+}
+
 export interface Laboratories {
   emails: string[];
   id: Generated<string>;
@@ -114,6 +125,9 @@ export interface Laboratories {
   postalCode: string;
   city: string;
   emailsAnalysisResult: string[];
+  sachaEmail: string | null;
+  sachaGpgPublicKey: string | null;
+  sachaSigle: string | null;
 }
 
 export interface LaboratoryResidueMapping {
@@ -286,6 +300,8 @@ export interface DB {
   localPrescriptionComments: LocalPrescriptionComments;
   localPrescriptions: LocalPrescriptions;
   residueAnalytes: ResidueAnalytes;
+  sachaResidueMappings: SachaResidueMappings;
+  sachaSender: SachaSender;
   sampleDocuments: SampleDocuments;
   sampleItems: SampleItems;
   samples: Samples;

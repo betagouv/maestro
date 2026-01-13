@@ -16,3 +16,7 @@ export const isNotEmpty = <T>(array: T[]): array is NonEmptyArray<T> =>
   array.length > 0;
 
 export type Nullable<T> = { [K in keyof T]: T[K] | null };
+
+export type RequiredNotNull<T> = {
+  [P in keyof T]: NonNullable<T[P]>;
+};
