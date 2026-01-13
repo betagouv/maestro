@@ -645,7 +645,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                     ? [
                         PreviousButton({
                           sampleId: partialSample.id,
-                          onClick: () => save('Draft'),
+                          onSave: () => save('Draft'),
                           currentStep: 2
                         }),
                         {
