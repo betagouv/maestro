@@ -54,7 +54,6 @@ type SpecificDataFormInput = {
       optionsValues: string[] | Partial<Record<ProgrammingPlanKind, string[]>>;
       optionsLabels?: Record<string, string>;
       defaultOptionLabel?: string;
-      withDefault?: boolean;
     }
   | { inputType: 'checkbox' }
   | {
@@ -118,8 +117,7 @@ export const MatrixSpecificDataFormInputs: Record<
     inputType: 'select',
     label: 'Echantillonnage',
     whenValid: 'Echantillonnage correctement renseigné.',
-    optionsValues: ['Aléatoire'],
-    withDefault: false
+    optionsValues: ['Aléatoire']
   },
   animalKind: {
     inputType: 'select',

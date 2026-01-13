@@ -180,9 +180,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                       defaultLabel:
                         MatrixSpecificDataFormInputs[inputKey]
                           .defaultOptionLabel,
-                      withDefault:
-                        MatrixSpecificDataFormInputs[inputKey].withDefault ??
-                        true
+                      withDefault: 'auto'
                     }
                   )}
                   onChange={(e) => {

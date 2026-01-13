@@ -4,7 +4,7 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
-import { isNil } from 'lodash-es';
+import { intersection, isNil } from 'lodash-es';
 import {
   LegalContext,
   LegalContextLabels
@@ -73,7 +73,11 @@ type Props = {
 const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const { navigateToSample, navigateToSamples } = useSamplesLink();
   const { isOnline } = useOnLine();
-  const { readonly } = usePartialSample(partialSample);
+  const {
+    readonly,
+    programmingPlanPrescriptions,
+    programmingPlanLocalPrescriptions
+  } = usePartialSample(partialSample);
   const { trackEvent } = useAnalytics();
   const { user } = useAuthentication();
   const apiClient = useContext(ApiClientContext);
@@ -263,10 +267,27 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   );
 
   const programmingPlanKindOptions = selectOptionsFromList(
-    programmingPlan.kinds ?? [],
+    intersection(
+      programmingPlan.kinds.filter((kind) =>
+        programmingPlanPrescriptions?.some(
+          (prescription) =>
+            prescription.programmingPlanKind === kind &&
+            programmingPlanLocalPrescriptions?.some(
+              (localPrescription) =>
+                localPrescription.prescriptionId === prescription.id &&
+                !isNil(localPrescription.companySiret) &&
+                user?.companies
+                  .map((_) => _.siret)
+                  .includes(localPrescription.companySiret) &&
+                localPrescription.sampleCount > 0
+            )
+        )
+      ),
+      user?.programmingPlanKinds ?? []
+    ),
     {
       labels: ProgrammingPlanKindLabels,
-      withDefault: true,
+      withDefault: 'auto',
       withSort: true
     }
   );
@@ -549,7 +570,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
           </div>
         </div>
       )}
-      {programmingPlanKindOptions.length > 2 && (
+      {programmingPlan.kinds.length > 1 && (
         <AppSelect
           defaultValue={programmingPlanKind}
           options={programmingPlanKindOptions}

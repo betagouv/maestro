@@ -18,7 +18,6 @@ export const usePartialSample = (
   const { programmingPlan: stateProgrammingPlan } = useAppSelector(
     (state) => state.programmingPlan
   );
-
   const { data: programmingPlan } = apiClient.useGetProgrammingPlanQuery(
     partialSample?.programmingPlanId as string,
     {
@@ -36,6 +35,55 @@ export const usePartialSample = (
     {
       skip: (partialSample?.items ?? []).length === 0
     }
+  );
+
+  const { data: programmingPlanPrescriptions } =
+    apiClient.useFindPrescriptionsQuery(
+      {
+        programmingPlanId: (partialSample?.programmingPlanId ??
+          stateProgrammingPlan?.id) as string
+      },
+      {
+        skip: !programmingPlan && !stateProgrammingPlan
+      }
+    );
+
+  const { data: programmingPlanLocalPrescriptionsData } =
+    apiClient.useFindLocalPrescriptionsQuery(
+      {
+        programmingPlanId: (partialSample?.programmingPlanId ??
+          stateProgrammingPlan?.id) as string
+      },
+      {
+        skip: !programmingPlan && !stateProgrammingPlan
+      }
+    );
+
+  const programmingPlanLocalPrescriptions = useMemo(
+    () =>
+      programmingPlanLocalPrescriptionsData
+        ?.filter(
+          (localPrescription) =>
+            localPrescription.region ===
+            (isCreatedPartialSample(partialSample)
+              ? partialSample.region
+              : user?.region)
+        )
+        .filter((localPrescription) =>
+          programmingPlan?.distributionKind === 'SLAUGHTERHOUSE'
+            ? localPrescription.department ===
+                (isCreatedPartialSample(partialSample)
+                  ? partialSample.department
+                  : user?.department) &&
+              localPrescription.companySiret === partialSample?.company?.siret
+            : true
+        ),
+    [
+      programmingPlanLocalPrescriptionsData,
+      partialSample,
+      user,
+      programmingPlan
+    ]
   );
 
   useEffect(() => {
@@ -70,6 +118,8 @@ export const usePartialSample = (
 
   return {
     readonly,
+    programmingPlanPrescriptions,
+    programmingPlanLocalPrescriptions,
     getSampleItemLaboratory
   };
 };
