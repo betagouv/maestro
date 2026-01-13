@@ -7,8 +7,8 @@ import { CultureKind } from '../../referential/CultureKind';
 import { MatrixPart } from '../../referential/Matrix/MatrixPart';
 import { OutdoorAccess } from '../../referential/OutdoorAccess';
 import { ProductionKind } from '../../referential/ProductionKind';
+import { Seizure } from '../../referential/Seizure';
 import { Species } from '../../referential/Species';
-import { Seizure } from '../../Seizure';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 
 const KillingCode = z

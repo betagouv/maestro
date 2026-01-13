@@ -21,6 +21,11 @@ import {
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
 import {
+  MatrixSpecificDataForm,
+  MatrixSpecificDataFormInputProps
+} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
+import { SampleMatrixSpecificDataKeys } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
+import {
   isCreatedPartialSample,
   isOutsideProgrammingPlanSample,
   isProgrammingPlanSample,
@@ -53,12 +58,7 @@ import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
-import {
-  MatrixSpecificDataForm,
-  MatrixSpecificDataFormInputProps
-} from './MatrixSpecificDataForm';
 import MatrixSpecificDataFormInput from './MatrixSpecificDataFormInput';
-import { SampleMatrixSpecificDataKeys } from './MatrixSpecificDataFormInputs';
 
 type Props = {
   partialSample: PartialSample | PartialSampleToCreate;

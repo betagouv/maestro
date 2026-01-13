@@ -1,6 +1,11 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
+import { MatrixSpecificDataFormInputProps } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
+import {
+  MatrixSpecificDataFormInputs,
+  SampleMatrixSpecificDataKeys
+} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
 import {
   PartialSampleMatrixSpecificData,
   SampleMatrixSpecificData
@@ -13,11 +18,6 @@ import { z, ZodObject } from 'zod';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import { UseForm } from '../../../../hooks/useForm';
-import { MatrixSpecificDataFormInputProps } from './MatrixSpecificDataForm';
-import {
-  MatrixSpecificDataFormInputs,
-  SampleMatrixSpecificDataKeys
-} from './MatrixSpecificDataFormInputs';
 
 type Props<T extends ZodObject, U extends UseForm<T>> = {
   specificData: PartialSampleMatrixSpecificData;

@@ -1,7 +1,5 @@
-import { FrIconClassName } from '@codegouvfr/react-dsfr';
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
+import { SampleMatrixSpecificData } from '../Sample/SampleMatrixSpecificData';
 
 type ProgrammingPlanKeys<P extends ProgrammingPlanKind> = Exclude<
   keyof Extract<SampleMatrixSpecificData, { programmingPlanKind: P }>,
@@ -11,10 +9,10 @@ type ProgrammingPlanKeys<P extends ProgrammingPlanKind> = Exclude<
 export type MatrixSpecificDataFormInputProps = {
   preTitle?: string;
   label?: string;
-  iconId?: FrIconClassName;
+  iconId?: string;
   position?: 'pre' | 'post';
   classes?: {
-    container?: string;
+    container?: string[];
   };
 };
 
@@ -24,7 +22,7 @@ export const MatrixSpecificDataForm: {
   };
 } = {
   PPV: {
-    matrixDetails: { classes: { container: cx('fr-col-sm-12', 'fr-pt-3w') } },
+    matrixDetails: { classes: { container: ['fr-col-sm-12', 'fr-pt-3w'] } },
     cultureKind: {},
     matrixPart: {},
     releaseControl: {}
