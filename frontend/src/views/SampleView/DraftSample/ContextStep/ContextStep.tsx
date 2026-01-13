@@ -28,7 +28,10 @@ import {
   SampleContextData
 } from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
-import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
+import {
+  SampleStatus,
+  SampleStatusSteps
+} from 'maestro-shared/schema/Sample/SampleStatus';
 import { Sampler } from 'maestro-shared/schema/User/User';
 import {
   UserRoleList,
@@ -408,7 +411,28 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
             ${programmingPlanKind === 'PPV' ? ' de la parcelle' : ' du contrôle'}.`}
         />
       )}
-      <AppRequiredText />
+      <div>
+        {partialSample &&
+          (!readonly ||
+            (SampleStatusSteps[partialSample.status] as number) > 1) && (
+            <div className={clsx(cx('fr-mb-1v'), 'd-flex-align-center')}>
+              <div className={clsx('flex-grow-1')} />
+              <Button
+                size="small"
+                priority="tertiary no outline"
+                className={clsx(cx('fr-pr-0'))}
+                iconId="fr-icon-arrow-right-line"
+                iconPosition="right"
+                onClick={async (e) =>
+                  readonly ? navigateToSample(partialSample.id, 2) : submit(e)
+                }
+              >
+                Étape suivante
+              </Button>
+            </div>
+          )}
+        <AppRequiredText />
+      </div>
       {programmingPlanKind === 'PPV' && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>

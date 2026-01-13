@@ -25,6 +25,8 @@ import {
   MatrixSpecificDataFormInputProps
 } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
 import { SampleMatrixSpecificDataKeys } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
+import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isCreatedPartialSample,
   isOutsideProgrammingPlanSample,
@@ -35,9 +37,14 @@ import {
   sampleMatrixCheck,
   SampleMatrixData
 } from 'maestro-shared/schema/Sample/Sample';
-import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
+import {
+  SampleStatus,
+  SampleStatusSteps
+} from 'maestro-shared/schema/Sample/SampleStatus';
+import { toArray } from 'maestro-shared/utils/utils';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import PreviousButton from 'src/views/SampleView/DraftSample/PreviousButton';
@@ -56,6 +63,7 @@ import SampleProcedure from '../../../../components/Sample/SampleProcedure/Sampl
 import SubstanceSearch from '../../../../components/SubstanceSearch/SubstanceSearch';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
+import { useAppSelector } from '../../../../hooks/useStore';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 import MatrixSpecificDataFormInput from './MatrixSpecificDataFormInput';
@@ -67,13 +75,11 @@ type Props = {
 const MatrixStep = ({ partialSample }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
-  const {
-    readonly,
-    programmingPlanPrescriptions,
-    programmingPlanLocalPrescriptions
-  } = usePartialSample(partialSample);
+  const { user } = useAuthentication();
+  const { readonly } = usePartialSample(partialSample);
   const { trackEvent } = useAnalytics();
 
+  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   const isSubmittingRef = useRef<boolean>(false);
   const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
   const [matrix, setMatrix] = useState(partialSample.matrix);
@@ -98,20 +104,45 @@ const MatrixStep = ({ partialSample }: Props) => {
   const [createDocument] = apiClient.useCreateDocumentMutation();
   const [deleteDocument] = apiClient.useDeleteDocumentMutation();
 
+  const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
+    {
+      programmingPlanId: partialSample.programmingPlanId as string,
+      contexts: toArray(
+        ProgrammingPlanContext.safeParse(partialSample.context).data
+      )
+    },
+    {
+      skip: !partialSample.programmingPlanId
+    }
+  );
+
+  const { data: localPrescriptions } = apiClient.useFindLocalPrescriptionsQuery(
+    {
+      programmingPlanId: partialSample.programmingPlanId as string,
+      contexts: toArray(
+        ProgrammingPlanContext.safeParse(partialSample.context).data
+      ),
+      region: isCreatedPartialSample(partialSample)
+        ? partialSample.region
+        : user?.region,
+      ...((programmingPlan as ProgrammingPlan).distributionKind ===
+      'SLAUGHTERHOUSE'
+        ? {
+            department: partialSample.department,
+            companySiret: partialSample.company?.siret
+          }
+        : {})
+    },
+    {
+      skip: !programmingPlan || !isProgrammingPlanSample(partialSample)
+    }
+  );
+
   const prescriptions = useMemo(() => {
-    return programmingPlanPrescriptions?.filter(
-      (prescription) =>
-        prescription.context === partialSample.context &&
-        programmingPlanLocalPrescriptions?.some(
-          (localPrescription) =>
-            localPrescription.prescriptionId === prescription.id
-        )
+    return prescriptionsData?.filter((p) =>
+      localPrescriptions?.find((rp) => rp.prescriptionId === p.id)
     );
-  }, [
-    programmingPlanPrescriptions,
-    programmingPlanLocalPrescriptions,
-    partialSample
-  ]);
+  }, [prescriptionsData, localPrescriptions]);
 
   const FilesForm = z.object({
     files: FileInput(SampleDocumentTypeList, true)
@@ -323,18 +354,37 @@ const MatrixStep = ({ partialSample }: Props) => {
   return (
     <form data-testid="draft_sample_matrix_form" className="sample-form">
       <div>
-        <Button
-          {...PreviousButton({
-            sampleId: partialSample.id,
-            currentStep: 2,
-            onSave: readonly ? undefined : () => save('Draft')
-          })}
-          size="small"
-          priority="tertiary no outline"
-          className={cx('fr-pl-0', 'fr-mb-1v')}
-        >
-          Étape précédente
-        </Button>
+        <div className={clsx(cx('fr-mb-1v'), 'd-flex-align-center')}>
+          <div className={clsx('flex-grow-1')}>
+            <Button
+              {...PreviousButton({
+                sampleId: partialSample.id,
+                currentStep: 2,
+                onSave: readonly ? undefined : () => save('Draft')
+              })}
+              size="small"
+              priority="tertiary no outline"
+              className={cx('fr-pl-0')}
+            >
+              Étape précédente
+            </Button>
+          </div>
+          {(!readonly ||
+            (SampleStatusSteps[partialSample.status] as number) > 2) && (
+            <Button
+              size="small"
+              priority="tertiary no outline"
+              className={cx('fr-pr-0')}
+              iconId="fr-icon-arrow-right-line"
+              iconPosition="right"
+              onClick={async (e) =>
+                readonly ? navigateToSample(partialSample.id, 3) : submit(e)
+              }
+            >
+              Étape suivante
+            </Button>
+          )}
+        </div>
         <AppRequiredText />
       </div>
 
@@ -595,7 +645,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                     ? [
                         PreviousButton({
                           sampleId: partialSample.id,
-                          onSave: () => save('Draft'),
+                          onClick: () => save('Draft'),
                           currentStep: 2
                         }),
                         {

@@ -17,6 +17,7 @@ import {
   uniqueSampleItemSealIdCheck
 } from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import { SampleStatusSteps } from 'maestro-shared/schema/Sample/SampleStatus';
 import { MaestroDate } from 'maestro-shared/utils/date';
 import { toArray } from 'maestro-shared/utils/utils';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -259,18 +260,37 @@ const ItemsStep = ({ partialSample }: Props) => {
   return (
     <form data-testid="draft_sample_items_form" className="sample-form">
       <div>
-        <Button
-          {...PreviousButton({
-            sampleId: partialSample.id,
-            currentStep: 3,
-            onSave: readonly ? undefined : () => save('DraftMatrix')
-          })}
-          size="small"
-          priority="tertiary no outline"
-          className={cx('fr-pl-0', 'fr-mb-1v')}
-        >
-          Étape précédente
-        </Button>
+        <div className={clsx(cx('fr-mb-1v'), 'd-flex-align-center')}>
+          <div className={clsx('flex-grow-1')}>
+            <Button
+              {...PreviousButton({
+                sampleId: partialSample.id,
+                currentStep: 3,
+                onSave: readonly ? undefined : () => save('DraftMatrix')
+              })}
+              size="small"
+              priority="tertiary no outline"
+              className={cx('fr-pl-0')}
+            >
+              Étape précédente
+            </Button>
+          </div>
+          {(!readonly ||
+            (SampleStatusSteps[partialSample.status] as number) > 3) && (
+            <Button
+              size="small"
+              priority="tertiary no outline"
+              className={cx('fr-pr-0')}
+              iconId="fr-icon-arrow-right-line"
+              iconPosition="right"
+              onClick={async (e) =>
+                readonly ? navigateToSample(partialSample.id, 4) : submit(e)
+              }
+            >
+              Étape suivante
+            </Button>
+          )}
+        </div>
         <AppRequiredText />
       </div>
       <SampleProcedure partialSample={partialSample} />
