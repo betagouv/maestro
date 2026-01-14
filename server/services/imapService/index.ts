@@ -22,11 +22,11 @@ import config from '../../utils/config';
 import { mattermostService } from '../mattermostService';
 import { notificationService } from '../notificationService';
 import { analysisHandler } from './analysis-handler';
-import { capinovConf } from './capinov';
-import { cerecoConf } from './cereco/cereco';
 import { ExtractError } from './extractError';
-import { girpaConf } from './girpa';
-import { inovalysConf } from './inovalys/inovalys';
+import { capinovConf } from './laborartories/capinov';
+import { cerecoConf } from './laborartories/cereco/cereco';
+import { girpaConf } from './laborartories/girpa';
+import { inovalysConf } from './laborartories/inovalys';
 
 export type ExportResultQuantifiable = {
   result_kind: 'Q';

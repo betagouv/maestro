@@ -1,19 +1,14 @@
 import { format } from 'date-fns';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { maestroDateRefined } from 'maestro-shared/utils/date';
 import XLSX, { WorkBook } from 'xlsx';
 import { z } from 'zod';
-import { ExtractBadFormatError, ExtractError } from '../extractError';
+import { ExtractBadFormatError, ExtractError } from '../../extractError';
 import {
   ExportAnalysis,
   ExportDataFromEmail,
   ExportDataSubstance,
   LaboratoryConf
-} from '../index';
-import {
-  cerecoReferential,
-  cerecoUnknownReferences
-} from './cerecoReferential';
+} from '../../index';
 
 const methodValidator = z.literal(['Multi-résidus', 'Mono résidus']).nullish();
 
@@ -154,13 +149,8 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
   return analyzesWithPdf;
 };
 
-export const cerecoConf: LaboratoryConf & {
-  ssd2IdByLabel: Record<string, SSD2Id>;
-  unknownReferences: string[];
-} = {
+export const cerecoConf: LaboratoryConf = {
   exportDataFromEmail,
-  ssd2IdByLabel: cerecoReferential,
-  unknownReferences: cerecoUnknownReferences,
   getAnalysisKey: (email) => email.messageUid,
   emailCountByAnalysis: 1
 };

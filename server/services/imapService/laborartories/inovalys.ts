@@ -1,4 +1,3 @@
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { maestroDateRefined } from 'maestro-shared/utils/date';
 import { z } from 'zod';
@@ -12,10 +11,6 @@ import type {
   LaboratoryConf
 } from '../index';
 import { csvToJson, frenchNumberStringValidator } from '../utils';
-import {
-  inovalysReferential,
-  inovalysUnknownReferences
-} from './inovalysReferential';
 
 const codeMethods = [
   'M-ARCO/M/021',
@@ -257,13 +252,8 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
   return analyzesWithPdf;
 };
 
-export const inovalysConf: LaboratoryConf & {
-  ssd2IdByLabel: Record<string, SSD2Id>;
-  unknownReferences: string[];
-} = {
+export const inovalysConf: LaboratoryConf = {
   exportDataFromEmail,
-  ssd2IdByLabel: inovalysReferential,
-  unknownReferences: inovalysUnknownReferences,
   getAnalysisKey: (email) => email.subject ?? '',
   emailCountByAnalysis: 2
 };

@@ -12,7 +12,6 @@ import {
   AnalysisResidues
 } from '../../repositories/analysisRepository';
 import { kysely } from '../../repositories/kysely';
-import { girpaConf } from './girpa';
 import { tryToFixResiduesWithUnknownLabel } from './tryToFixUnknownLabels';
 
 test('tryToFixResiduesWithUnknownLabel', async () => {
@@ -58,7 +57,7 @@ test('tryToFixResiduesWithUnknownLabel', async () => {
     .execute();
   expect(analysisResidue).toHaveLength(2);
   expect(analysisResidue[0]).toMatchObject({
-    reference: girpaConf.ssd2IdByLabel['clodinafop-propargyl'],
+    reference: 'RF-0565-001-PPP',
     unknownLabel: null
   });
   expect(analysisResidue[1]).toMatchObject({
