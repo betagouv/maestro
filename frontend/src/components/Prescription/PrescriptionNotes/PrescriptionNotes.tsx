@@ -1,11 +1,11 @@
 import Input from '@codegouvfr/react-dsfr/Input';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAutoSave } from 'src/hooks/useAutoSave';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   value: string;
   onSubmitNotes?: (notes: string) => Promise<void>;
 }

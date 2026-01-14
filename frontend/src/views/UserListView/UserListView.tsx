@@ -4,7 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { Brand } from 'maestro-shared/constants';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import { useCallback, useContext, useState } from 'react';
 import usersSvg from 'src/assets/illustrations/users.svg';
 import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
@@ -40,18 +40,20 @@ export const UserListView = () => {
     department: user?.department ?? undefined
   });
 
-  const [userToUpdate, setUserToUpdate] = useState<null | User>(null);
-  const [userToDisable, setUserToDisable] = useState<null | User>(null);
+  const [userToUpdate, setUserToUpdate] = useState<null | UserRefined>(null);
+  const [userToDisable, setUserToDisable] = useState<null | UserRefined>(null);
   const [alertMessage, setAlertMessage] = useState<null | string>(null);
 
-  const [usersFiltered, setUsersFiltered] = useState<User[]>(users ?? []);
+  const [usersFiltered, setUsersFiltered] = useState<UserRefined[]>(
+    users ?? []
+  );
 
-  const onEdit = async (userToEdit: User) => {
+  const onEdit = async (userToEdit: UserRefined) => {
     setUserToUpdate({ ...userToEdit });
     userFormModal.open();
   };
 
-  const onDisable = (userToDisable: User) => {
+  const onDisable = (userToDisable: UserRefined) => {
     setUserToDisable(userToDisable);
     confirmDisablingUserModal.open();
   };
@@ -66,7 +68,7 @@ export const UserListView = () => {
     }
   };
 
-  const onEnableUser = async (userToEnable: User) => {
+  const onEnableUser = async (userToEnable: UserRefined) => {
     await updateUser({ ...userToEnable, disabled: false });
     setAlertMessage(`L'utilisateur ${userToEnable.name} a bien été activé.`);
   };

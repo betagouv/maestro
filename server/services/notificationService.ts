@@ -4,7 +4,7 @@ import {
   NotificationCategory,
   NotificationCategoryTitles
 } from 'maestro-shared/schema/Notification/NotificationCategory';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import { OmitDistributive } from 'maestro-shared/utils/typescript';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
@@ -75,7 +75,7 @@ const sendNotification = async <
   >
 >(
   notificationToCreate: T,
-  recipients: Pick<User, 'id' | 'email'>[],
+  recipients: Pick<UserRefined, 'id' | 'email'>[],
   params: TemplateParams<T['category']>
 ) => {
   const message =

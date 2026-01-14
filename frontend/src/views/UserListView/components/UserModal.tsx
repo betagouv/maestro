@@ -13,8 +13,8 @@ import {
 import {
   companiesIsRequired,
   programmingPlanKindsIsRequired,
-  User,
-  UserToCreate
+  UserRefined,
+  UserToCreateRefined
 } from 'maestro-shared/schema/User/User';
 import {
   canHaveDepartment,
@@ -36,7 +36,7 @@ import { useForm } from '../../../hooks/useForm';
 import { ApiClientContext } from '../../../services/apiClient';
 
 interface Props {
-  userToUpdate: null | User;
+  userToUpdate: null | UserRefined;
   modal: ReturnType<typeof createModal>;
   companies: Company[];
   setAlertMessage: (message: string) => void;
@@ -53,7 +53,7 @@ const regionOptions = selectOptionsFromList(RegionList, {
   withSort: true
 });
 
-const userDefaultValue: Nullable<UserToCreate> = {
+const userDefaultValue: Nullable<UserToCreateRefined> = {
   email: null,
   roles: [],
   programmingPlanKinds: [],
@@ -79,9 +79,10 @@ export const UserModal = ({
   const [createUser, createUserResult] = apiClient.useCreateUserMutation();
   const [updateUser, updateUserResult] = apiClient.useUpdateUserMutation();
 
-  const [user, setUser] = useState<Nullable<UserToCreate>>(userDefaultValue);
+  const [user, setUser] =
+    useState<Nullable<UserToCreateRefined>>(userDefaultValue);
 
-  const form = useForm(UserToCreate, {
+  const form = useForm(UserToCreateRefined, {
     ...user
   });
 

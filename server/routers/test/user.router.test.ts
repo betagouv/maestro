@@ -3,7 +3,7 @@ import { constants } from 'http2';
 import { Insertable, Selectable } from 'kysely';
 import { COOKIE_MAESTRO_ACCESS_TOKEN } from 'maestro-shared/constants';
 import { Region } from 'maestro-shared/referential/Region';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   AdminFixture,
   genUser,
@@ -22,10 +22,10 @@ import { createServer } from '../../server';
 import { accessTokenTest, tokenProvider } from '../../test/testUtils';
 
 // Vérifie que le type généré par kysely correspond bien à notre type
-const userShareToKysely = (v: User): Insertable<DB['users']> => v;
+const userShareToKysely = (v: UserRefined): Insertable<DB['users']> => v;
 const userKyselyToShare = (
   v: Selectable<DB['users']>
-): Omit<User, 'companies'> => v;
+): Omit<UserRefined, 'companies'> => v;
 console.log(userShareToKysely);
 console.log(userKyselyToShare);
 

@@ -10,7 +10,7 @@ import {
   getPrescriptionTitle,
   Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useState } from 'react';
 import PrescriptionDistributionTable from 'src/components/Prescription/PrescriptionDistributionTable/PrescriptionDistributionTable';
 import PrescriptionNotes from 'src/components/Prescription/PrescriptionNotes/PrescriptionNotes';
@@ -24,7 +24,7 @@ import PrescriptionProgrammingInstruction from '../PrescriptionProgrammingInstru
 import './PrescriptionCard.scss';
 
 interface Props {
-  programmingPlan?: ProgrammingPlan;
+  programmingPlan?: ProgrammingPlanChecked;
   prescription: Prescription;
   regionalPrescriptions: LocalPrescription[];
   onChangeLocalPrescriptionCount: (region: Region, value: number) => void;

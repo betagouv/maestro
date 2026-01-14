@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   genPartialAnalysis,
   genPartialAnalyte,
@@ -17,7 +17,7 @@ const meta = {
   title: 'Views/SampleAnalysisOverview',
   component: SampleAnalysisOverview,
   args: {
-    sample: Sample11Fixture as Sample,
+    sample: Sample11Fixture as SampleChecked,
     analysis: genPartialAnalysis({
       compliance: true,
       notesOnCompliance: 'Super conforme, cool !!!',

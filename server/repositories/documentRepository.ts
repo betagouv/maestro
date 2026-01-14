@@ -1,5 +1,5 @@
 import { isNil, omit, omitBy } from 'lodash-es';
-import { Document } from 'maestro-shared/schema/Document/Document';
+import { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import { FindDocumentOptions } from 'maestro-shared/schema/Document/FindDocumentOptions';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
@@ -8,19 +8,19 @@ import { sampleDocumentsTable } from './sampleRepository';
 
 const documentsTable = 'documents';
 
-export const Documents = () => db<Document>(documentsTable);
+export const Documents = () => db<DocumentChecked>(documentsTable);
 
-const findUnique = async (id: string): Promise<Document | undefined> => {
+const findUnique = async (id: string): Promise<DocumentChecked | undefined> => {
   console.info('Find document', id);
   return Documents()
     .where({ id })
     .first()
-    .then((_) => _ && Document.parse(omitBy(_, isNil)));
+    .then((_) => _ && DocumentChecked.parse(omitBy(_, isNil)));
 };
 
 const findMany = async (
   findOptions: FindDocumentOptions
-): Promise<Document[]> => {
+): Promise<DocumentChecked[]> => {
   console.info('Find documents', omitBy(omit(findOptions, 'sampleId'), isNil));
   return Documents()
     .select(`${documentsTable}.*`)
@@ -39,12 +39,14 @@ const findMany = async (
       }
     })
     .then((documents) =>
-      documents.map((_: Document) => Document.parse(omitBy(_, isNil)))
+      documents.map((_: DocumentChecked) =>
+        DocumentChecked.parse(omitBy(_, isNil))
+      )
     );
 };
 
 const insert = async (
-  document: Document,
+  document: DocumentChecked,
   trx: KyselyMaestro = kysely
 ): Promise<void> => {
   console.info('Insert document', document.id);
@@ -52,7 +54,7 @@ const insert = async (
 };
 
 const update = async (
-  document: Document,
+  document: DocumentChecked,
   trx: KyselyMaestro = kysely
 ): Promise<void> => {
   console.info('Update document', document.id);

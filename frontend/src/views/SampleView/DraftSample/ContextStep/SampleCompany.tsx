@@ -1,6 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Company } from 'maestro-shared/schema/Company/Company';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   PartialSample,
   PartialSampleToCreate
@@ -13,7 +13,7 @@ import { UseForm } from 'src/hooks/useForm';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
 
 type Props = {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   partialSample?: PartialSample | PartialSampleToCreate;
   programmingPlanKind: string;
   company: Company | undefined;

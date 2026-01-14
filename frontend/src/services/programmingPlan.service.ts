@@ -1,14 +1,14 @@
 import { isNil, omitBy } from 'lodash-es';
 import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanLocalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { api } from 'src/services/api.service';
 
 const programmingPlanApi = api.injectEndpoints({
   endpoints: (builder) => ({
     findProgrammingPlans: builder.query<
-      ProgrammingPlan[],
+      ProgrammingPlanChecked[],
       FindProgrammingPlanOptions
     >({
       query: (options) => ({
@@ -16,7 +16,7 @@ const programmingPlanApi = api.injectEndpoints({
         params: options
       }),
       transformResponse: (response: any[]) =>
-        response.map((_) => ProgrammingPlan.parse(omitBy(_, isNil))),
+        response.map((_) => ProgrammingPlanChecked.parse(omitBy(_, isNil))),
       providesTags: (result) => [
         { type: 'ProgrammingPlan', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({
@@ -25,23 +25,23 @@ const programmingPlanApi = api.injectEndpoints({
         }))
       ]
     }),
-    getProgrammingPlan: builder.query<ProgrammingPlan, string>({
+    getProgrammingPlan: builder.query<ProgrammingPlanChecked, string>({
       query: (programmingPlanId) => `programming-plans/${programmingPlanId}`,
       transformResponse: (response: any) =>
-        ProgrammingPlan.parse(omitBy(response, isNil)),
+        ProgrammingPlanChecked.parse(omitBy(response, isNil)),
       providesTags: (result) => [{ type: 'ProgrammingPlan', id: result?.id }]
     }),
-    createProgrammingPlan: builder.mutation<ProgrammingPlan, number>({
+    createProgrammingPlan: builder.mutation<ProgrammingPlanChecked, number>({
       query: (year) => ({
         url: `programming-plans/years/${year}`,
         method: 'POST'
       }),
       transformResponse: (response: any) =>
-        ProgrammingPlan.parse(omitBy(response, isNil)),
+        ProgrammingPlanChecked.parse(omitBy(response, isNil)),
       invalidatesTags: (_result, _error) => [{ type: 'ProgrammingPlan' }]
     }),
     updateProgrammingPlanStatus: builder.mutation<
-      ProgrammingPlan,
+      ProgrammingPlanChecked,
       {
         programmingPlanId: string;
         status: ProgrammingPlanStatus;
@@ -53,14 +53,14 @@ const programmingPlanApi = api.injectEndpoints({
         body: { status }
       }),
       transformResponse: (response: any) =>
-        ProgrammingPlan.parse(omitBy(response, isNil)),
+        ProgrammingPlanChecked.parse(omitBy(response, isNil)),
       invalidatesTags: (_result, _error, { programmingPlanId }) => [
         { type: 'ProgrammingPlan', id: programmingPlanId },
         { type: 'ProgrammingPlan', id: 'LIST' }
       ]
     }),
     updateProgrammingPlanLocalStatus: builder.mutation<
-      ProgrammingPlan,
+      ProgrammingPlanChecked,
       {
         programmingPlanId: string;
         programmingPlanLocalStatusList: ProgrammingPlanLocalStatus[];
@@ -72,7 +72,7 @@ const programmingPlanApi = api.injectEndpoints({
         body: programmingPlanLocalStatusList
       }),
       transformResponse: (response: any) =>
-        ProgrammingPlan.parse(omitBy(response, isNil)),
+        ProgrammingPlanChecked.parse(omitBy(response, isNil)),
       invalidatesTags: (_result, _error, { programmingPlanId }) => [
         { type: 'ProgrammingPlan', id: programmingPlanId },
         { type: 'ProgrammingPlan', id: 'LIST' }

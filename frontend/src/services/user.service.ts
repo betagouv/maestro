@@ -1,25 +1,25 @@
 import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
 import {
-  User,
-  UserToCreate,
-  UserToUpdate
+  UserRefined,
+  UserToCreateRefined,
+  UserToUpdateRefined
 } from 'maestro-shared/schema/User/User';
 import { api } from 'src/services/api.service';
 
 const userApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getUser: builder.query<User, string>({
+    getUser: builder.query<UserRefined, string>({
       query: (userId) => `users/${userId}`,
-      transformResponse: (response: any) => User.parse(response),
+      transformResponse: (response: any) => UserRefined.parse(response),
       providesTags: (_result, _error, userId) => [{ type: 'User', id: userId }]
     }),
-    findUsers: builder.query<User[], FindUserOptions>({
+    findUsers: builder.query<UserRefined[], FindUserOptions>({
       query: (findOptions) => ({
         url: `users`,
         params: findOptions
       }),
       transformResponse: (response: any[]) =>
-        response.map((_) => User.parse(_)),
+        response.map((_) => UserRefined.parse(_)),
       providesTags: (result) => [
         { type: 'User', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({
@@ -28,7 +28,7 @@ const userApi = api.injectEndpoints({
         }))
       ]
     }),
-    updateUser: builder.mutation<void, UserToUpdate>({
+    updateUser: builder.mutation<void, UserToUpdateRefined>({
       query: (user) => ({
         url: `/users/${user.id}`,
         method: 'PUT',
@@ -39,7 +39,7 @@ const userApi = api.injectEndpoints({
         { type: 'User', id }
       ]
     }),
-    createUser: builder.mutation<void, UserToCreate>({
+    createUser: builder.mutation<void, UserToCreateRefined>({
       query: (user) => ({
         url: `/users`,
         method: 'POST',

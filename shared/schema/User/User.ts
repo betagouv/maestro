@@ -29,7 +29,7 @@ export const UserBase = z.object({
 
 const userChecks = <
   T extends Pick<
-    User,
+    UserRefined,
     'region' | 'roles' | 'department' | 'companies' | 'programmingPlanKinds'
   >
 >(
@@ -76,31 +76,37 @@ const userChecks = <
   }
 };
 
-export const User = z
+export const UserRefined = z
   .object({
     ...UserBase.shape,
     roles: z.array(UserRole).min(1, 'Veuillez renseigner au moins un rôle.')
   })
   .superRefine(userChecks);
 
-export const UserToCreate = User.omit({
-  id: true,
-  name: true
-}).superRefine(userChecks);
-export type UserToCreate = z.infer<typeof UserToCreate>;
+export const UserToCreateRefined = z
+  .object(UserRefined.shape)
+  .omit({
+    id: true,
+    name: true
+  })
+  .superRefine(userChecks);
+export type UserToCreateRefined = z.infer<typeof UserToCreateRefined>;
 
-export const UserToUpdate = User.omit({
-  name: true
-}).superRefine(userChecks);
+export const UserToUpdateRefined = z
+  .object(UserRefined.shape)
+  .omit({
+    name: true
+  })
+  .superRefine(userChecks);
 
-export type UserToUpdate = z.infer<typeof UserToUpdate>;
+export type UserToUpdateRefined = z.infer<typeof UserToUpdateRefined>;
 
-export const Sampler = User.pick({
+export const Sampler = z.object(UserRefined.shape).pick({
   id: true,
   name: true
 });
 
-export type User = z.infer<typeof User>;
+export type UserRefined = z.infer<typeof UserRefined>;
 export type UserBase = z.infer<typeof UserBase>;
 export type Sampler = z.infer<typeof Sampler>;
 
@@ -176,7 +182,7 @@ export const PPVDummyLaboratoryIds = [
 ];
 
 export const companiesIsRequired = (
-  user: Pick<Nullable<User>, 'programmingPlanKinds' | 'roles'>
+  user: Pick<Nullable<UserRefined>, 'programmingPlanKinds' | 'roles'>
 ): boolean =>
   (user.roles?.includes('Sampler') &&
     (user.programmingPlanKinds?.includes('DAOA_BREEDING') ||
@@ -184,7 +190,7 @@ export const companiesIsRequired = (
   false;
 
 export const programmingPlanKindsIsRequired = (
-  user: Pick<Nullable<User>, 'roles'>
+  user: Pick<Nullable<UserRefined>, 'roles'>
 ): boolean =>
   !user.roles?.includes('Administrator') &&
   !user.roles?.includes('LaboratoryUser');

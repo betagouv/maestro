@@ -5,7 +5,7 @@ import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
-import { Document } from 'maestro-shared/schema/Document/Document';
+import { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import { DocumentKindLabels } from 'maestro-shared/schema/Document/DocumentKind';
 import { NotificationCategoryTitles } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { formatDate } from 'maestro-shared/utils/date';
@@ -15,9 +15,9 @@ import DocumentLink from '../../../components/DocumentLink/DocumentLink';
 import './DocumentCard.scss';
 
 type Props = {
-  document: Document;
-  onViewNotes: (document: Document) => void;
-  onRemove: (document: Document) => void;
+  document: DocumentChecked;
+  onViewNotes: (document: DocumentChecked) => void;
+  onRemove: (document: DocumentChecked) => void;
   isNew?: boolean;
 };
 

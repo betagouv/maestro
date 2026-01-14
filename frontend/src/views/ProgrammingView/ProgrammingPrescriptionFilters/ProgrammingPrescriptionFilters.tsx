@@ -10,18 +10,18 @@ import {
   ProgrammingPlanKind,
   ProgrammingPlanKindLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useMemo } from 'react';
 import FiltersTags from '../../../components/FilterTags/FiltersTags';
 import { PrescriptionFilters } from '../../../store/reducers/prescriptionsSlice';
 
 interface Props {
   options: {
-    plans: ProgrammingPlan[];
+    plans: ProgrammingPlanChecked[];
     kinds: ProgrammingPlanKind[];
     contexts: ProgrammingPlanContext[];
   };
-  programmingPlans?: ProgrammingPlan[];
+  programmingPlans?: ProgrammingPlanChecked[];
   filters: PrescriptionFilters;
   onChange: (filters: Partial<PrescriptionFilters>) => void;
   renderMode: 'inline' | 'modal';

@@ -28,7 +28,7 @@ import {
   PrescriptionSort
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getSampleMatrixLabel,
   PartialSample
@@ -308,7 +308,7 @@ const generateSamplesExportExcel = async (
 };
 
 const generatePrescriptionsExportExcel = async (
-  programmingPlan: ProgrammingPlan,
+  programmingPlan: ProgrammingPlanChecked,
   prescriptions: Prescription[],
   localPrescriptions: LocalPrescription[],
   exportedRegion: Region | undefined,

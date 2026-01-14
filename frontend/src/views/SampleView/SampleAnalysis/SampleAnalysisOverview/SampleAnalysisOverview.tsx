@@ -2,7 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { type PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import check from '../../../../assets/illustrations/check.svg';
@@ -13,7 +13,7 @@ import { ResidueResultOverview } from './ResidueResultOverview';
 import { ResiduesSummary } from './ResiduesSummary';
 
 type Props = {
-  sample: Sample;
+  sample: SampleChecked;
   analysis: PartialAnalysis;
   readonly: boolean;
   onEdit: () => void;

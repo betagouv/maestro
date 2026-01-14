@@ -24,7 +24,7 @@ import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 import { fakerFR } from '@faker-js/faker';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
 import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -77,7 +77,7 @@ describe('Sample router', () => {
     });
 
     test('should fail if the sample does not belong to the user region for a regional user', async () => {
-      const forbiddenRequestTest = async (user: User) =>
+      const forbiddenRequestTest = async (user: UserRefined) =>
         request(app)
           .get(`${testRoute(Sample2Fixture.id)}`)
           .use(tokenProvider(user))
@@ -89,7 +89,7 @@ describe('Sample router', () => {
     });
 
     test('should get the sample', async () => {
-      const successRequestTest = async (user: User) => {
+      const successRequestTest = async (user: UserRefined) => {
         const res = await request(app)
           .get(`${testRoute(Sample11Fixture.id)}`)
           .use(tokenProvider(user))
@@ -143,7 +143,7 @@ describe('Sample router', () => {
     });
 
     test('should fail if the sample does not belong to the user region', async () => {
-      const forbiddenRequestTest = async (user: User) =>
+      const forbiddenRequestTest = async (user: UserRefined) =>
         request(app)
           .get(`${testRoute(Sample2Fixture.id, 1, 1)}`)
           .use(tokenProvider(user))
@@ -155,7 +155,7 @@ describe('Sample router', () => {
     });
 
     test('should successfully get the document', async () => {
-      const successRequestTest = async (user: User) => {
+      const successRequestTest = async (user: UserRefined) => {
         await request(app)
           .get(`${testRoute(Sample11Fixture.id, 1, 1)}`)
           .use(tokenProvider(user))
@@ -191,7 +191,7 @@ describe('Sample router', () => {
     });
 
     test('should find the samples with query parameters restricted to the user region', async () => {
-      const successRequestTest = async (user: User) => {
+      const successRequestTest = async (user: UserRefined) => {
         const res = await request(app)
           .get(
             testRoute({
@@ -220,7 +220,7 @@ describe('Sample router', () => {
     });
 
     test('should find national samples with a list of statuses', async () => {
-      const successRequestTest = async (user: User) => {
+      const successRequestTest = async (user: UserRefined) => {
         const res = await request(app)
           .get(
             testRoute({
@@ -274,7 +274,7 @@ describe('Sample router', () => {
     });
 
     test('should count the samples with query parameters restricted to the user region', async () => {
-      const successRequestTest = async (user: User) => {
+      const successRequestTest = async (user: UserRefined) => {
         const res = await request(app)
           .get(
             testRoute({
@@ -294,7 +294,7 @@ describe('Sample router', () => {
     });
 
     test('should count national samples with a list of statuses', async () => {
-      const successRequestTest = async (user: User) => {
+      const successRequestTest = async (user: UserRefined) => {
         const res = await request(app)
           .get(
             testRoute({
@@ -364,7 +364,7 @@ describe('Sample router', () => {
     });
 
     test('should fail if the user does not have the permission to create samples', async () => {
-      const forbiddenRequestTest = async (user: User) =>
+      const forbiddenRequestTest = async (user: UserRefined) =>
         request(app)
           .post(testRoute)
           .send(genSampleContextData())
@@ -383,7 +383,7 @@ describe('Sample router', () => {
 
     test('should create a sample with incremental reference', async () => {
       const successRequestTest = async (
-        user: User,
+        user: UserRefined,
         expectedIncrement: string
       ) => {
         const sampleId = uuidv4();
@@ -447,7 +447,7 @@ describe('Sample router', () => {
     });
 
     test('should fail if the sample region does not match the user region', async () => {
-      const forbiddenRequestTest = async (user: User) =>
+      const forbiddenRequestTest = async (user: UserRefined) =>
         request(app)
           .put(`${testRoute(Sample2Fixture.id)}`)
           .send(Sample2Fixture)
@@ -514,7 +514,7 @@ describe('Sample router', () => {
     };
 
     test('should fail if the user does not have the permission to update samples', async () => {
-      const forbiddenRequestTest = async (user: User) =>
+      const forbiddenRequestTest = async (user: UserRefined) =>
         request(app)
           .put(`${testRoute(Sample11Fixture.id)}`)
           .send(Sample11Fixture)
@@ -528,7 +528,7 @@ describe('Sample router', () => {
     });
 
     test('should update a partial sample', async () => {
-      const successRequestTest = async (user: User) => {
+      const successRequestTest = async (user: UserRefined) => {
         const res = await request(app)
           .put(`${testRoute(Sample11Fixture.id)}`)
           .send(validBody)
@@ -590,7 +590,7 @@ describe('Sample router', () => {
     });
 
     test('should update the sample send date when sending the sample', async () => {
-      const successRequestTest = async (user: User) => {
+      const successRequestTest = async (user: UserRefined) => {
         await Samples()
           .where({
             id: Sample11Fixture.id
@@ -627,7 +627,7 @@ describe('Sample router', () => {
     });
 
     test('should update the sample compliance', async () => {
-      const successRequestTest = async (user: User) => {
+      const successRequestTest = async (user: UserRefined) => {
         await request(app)
           .put(`${testRoute(Sample11Fixture.id)}`)
           .send({
@@ -686,7 +686,7 @@ describe('Sample router', () => {
     });
 
     test('should fail if the user does not have the permission to delete samples', async () => {
-      const forbiddenRequestTest = async (user: User) =>
+      const forbiddenRequestTest = async (user: UserRefined) =>
         request(app)
           .delete(testRoute(Sample11Fixture.id))
           .use(tokenProvider(user))
@@ -706,7 +706,7 @@ describe('Sample router', () => {
     });
 
     test('should delete the sample', async () => {
-      const successRequestTest = async (user: User) => {
+      const successRequestTest = async (user: UserRefined) => {
         const sampleId = uuidv4();
         await Samples().insert([
           formatPartialSample(

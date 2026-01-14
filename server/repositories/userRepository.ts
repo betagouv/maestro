@@ -2,7 +2,7 @@ import { Expression, ExpressionBuilder, sql } from 'kysely';
 import { jsonArrayFrom } from 'kysely/helpers/postgres';
 import { isNil } from 'lodash-es';
 import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import z from 'zod';
 import { knexInstance as db } from './db';
@@ -13,7 +13,7 @@ export const usersTable = 'users';
 
 const userCompaniesTable = 'user_companies';
 
-export const Users = () => db<User>(usersTable);
+export const Users = () => db<UserRefined>(usersTable);
 
 const UserCompany = z.object({
   userId: z.guid(),
@@ -26,7 +26,7 @@ export const UserCompanies = () => db<UserCompany>(userCompaniesTable);
 
 const findUnique = async (
   userId: string
-): Promise<(User & { loggedSecrets: string[] }) | undefined> => {
+): Promise<(UserRefined & { loggedSecrets: string[] }) | undefined> => {
   console.log('Get User with id', userId);
 
   return kysely
@@ -37,7 +37,7 @@ const findUnique = async (
     .executeTakeFirst();
 };
 
-const findOne = async (email: string): Promise<User | undefined> => {
+const findOne = async (email: string): Promise<UserRefined | undefined> => {
   console.log('Find user with email', email.toLowerCase());
   return kysely
     .selectFrom('users')
@@ -64,7 +64,9 @@ const companies = (
   );
 };
 
-const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
+const findMany = async (
+  findOptions: FindUserOptions
+): Promise<UserRefined[]> => {
   console.log('Find users', findOptions);
   let query = kysely
     .selectFrom('users')
@@ -115,13 +117,13 @@ const findMany = async (findOptions: FindUserOptions): Promise<User[]> => {
     }
   }
 
-  const users: User[] = await query.execute();
+  const users: UserRefined[] = await query.execute();
 
-  return users.map((u) => User.parse(u));
+  return users.map((u) => UserRefined.parse(u));
 };
 
 const insert = async (
-  user: Omit<User, 'id' | 'loggedSecrets' | 'name'>
+  user: Omit<UserRefined, 'id' | 'loggedSecrets' | 'name'>
 ): Promise<void> => {
   const { companies, ...rest } = user;
   const newUser = { ...rest, email: rest.email.toLowerCase() };
@@ -145,8 +147,8 @@ const insert = async (
 };
 
 const update = async (
-  partialUser: Partial<Omit<User, 'id' | 'loggedSecrets'>>,
-  id: User['id']
+  partialUser: Partial<Omit<UserRefined, 'id' | 'loggedSecrets'>>,
+  id: UserRefined['id']
 ): Promise<void> => {
   const { companies, ...rest } = partialUser;
 
@@ -172,7 +174,7 @@ const update = async (
 
 const addLoggedSecret = async (
   secret: string,
-  id: User['id']
+  id: UserRefined['id']
 ): Promise<void> => {
   await kysely
     .updateTable('users')
@@ -183,7 +185,7 @@ const addLoggedSecret = async (
 
 const deleteLoggedSecret = async (
   secret: string,
-  id: User['id']
+  id: UserRefined['id']
 ): Promise<void> => {
   await kysely
     .updateTable('users')

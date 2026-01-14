@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 
 type ProgrammingPlanState = {
-  programmingPlan?: ProgrammingPlan;
+  programmingPlan?: ProgrammingPlanChecked;
 };
 
 const programmingPlanSlice = createSlice({
@@ -13,7 +13,7 @@ const programmingPlanSlice = createSlice({
   reducers: {
     setProgrammingPlan: (
       state,
-      action: PayloadAction<ProgrammingPlan | undefined>
+      action: PayloadAction<ProgrammingPlanChecked | undefined>
     ) => {
       state.programmingPlan = action.payload;
     }

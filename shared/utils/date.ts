@@ -4,7 +4,7 @@ import { fr } from 'date-fns/locale';
 import { cloneDeepWith, isDate } from 'lodash-es';
 import { z } from 'zod';
 
-export const maestroDate = z
+export const maestroDateRefined = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/)
   .brand<'Date'>()
@@ -12,7 +12,7 @@ export const maestroDate = z
     message: 'date invalide'
   });
 
-export type MaestroDate = z.infer<typeof maestroDate>;
+export type MaestroDate = z.infer<typeof maestroDateRefined>;
 
 export const formatDate = (date: Date) =>
   format(date, 'dd MMMM yyyy', {
@@ -28,7 +28,7 @@ export const toMaestroDate = (date: Date): MaestroDate => {
   const dateString = date.toLocaleDateString('sv', {
     timeZone: 'Europe/Paris'
   });
-  const parsedDate = maestroDate.safeParse(dateString);
+  const parsedDate = maestroDateRefined.safeParse(dateString);
   if (parsedDate.success) {
     return parsedDate.data;
   }

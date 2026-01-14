@@ -1,6 +1,6 @@
 import { constants } from 'http2';
 import { Notice } from 'maestro-shared/schema/Notice/Notice';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   AdminFixture,
   NationalCoordinator,
@@ -73,7 +73,7 @@ describe('Notices router', () => {
     });
 
     test('should fail if the user does not have the permission', async () => {
-      const forbiddenRequestTest = async (user: User) =>
+      const forbiddenRequestTest = async (user: UserRefined) =>
         request(app)
           .put(testRoute('root'))
           .send({

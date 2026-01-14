@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { LocalPrescriptionComment } from '../LocalPrescription/LocalPrescriptionComment';
-import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
 import { getPrescriptionTitle, Prescription } from './Prescription';
 
 export const PrescriptionComments = z.object({
-  programmingPlan: ProgrammingPlan,
+  programmingPlan: ProgrammingPlanChecked,
   prescription: Prescription,
   comments: z
     .array(

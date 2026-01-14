@@ -3,7 +3,7 @@ import { skipToken } from '@reduxjs/toolkit/query';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useCallback, useContext } from 'react';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../services/apiClient';
@@ -11,7 +11,7 @@ import SubstanceSearch from '../../SubstanceSearch/SubstanceSearch';
 import '../PrescriptionModal/PrescriptionModal.scss';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   prescription: Prescription;
   onUpdatePrescriptionSubstances: (
     prescriptionSubstances: PrescriptionSubstance[]

@@ -26,7 +26,7 @@ import {
 } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
 import { SampleMatrixSpecificDataKeys } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isCreatedPartialSample,
   isOutsideProgrammingPlanSample,
@@ -125,7 +125,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       region: isCreatedPartialSample(partialSample)
         ? partialSample.region
         : user?.region,
-      ...((programmingPlan as ProgrammingPlan).distributionKind ===
+      ...((programmingPlan as ProgrammingPlanChecked).distributionKind ===
       'SLAUGHTERHOUSE'
         ? {
             department: partialSample.department,

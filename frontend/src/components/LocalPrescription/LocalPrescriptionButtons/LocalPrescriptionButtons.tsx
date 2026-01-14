@@ -7,7 +7,7 @@ import clsx from 'clsx';
 import { isNil, sumBy } from 'lodash-es';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useMemo } from 'react';
 import { useAuthentication } from '../../../hooks/useAuthentication';
@@ -17,7 +17,7 @@ import { pluralize } from '../../../utils/stringUtils';
 import './LocalPrescriptionButtons.scss';
 
 type Props = {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   prescription: Prescription;
   localPrescription: LocalPrescription;
   subLocalPrescriptions?: LocalPrescription[];

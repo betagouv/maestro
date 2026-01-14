@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import {
-  Document,
-  DocumentToCreate,
-  DocumentUpdate
+  DocumentChecked,
+  DocumentToCreateChecked,
+  DocumentUpdateChecked
 } from '../schema/Document/Document';
 import { SubRoutes } from './routes';
 
@@ -10,8 +10,8 @@ export const documentsRoutes = {
   '/documents': {
     params: undefined,
     post: {
-      response: Document,
-      body: DocumentToCreate,
+      response: DocumentChecked,
+      body: DocumentToCreateChecked,
       permissions: ['createResource', 'createAnalysis', 'createSample']
     }
   },
@@ -21,12 +21,12 @@ export const documentsRoutes = {
     },
     get: {
       permissions: ['readDocuments'],
-      response: Document
+      response: DocumentChecked
     },
     put: {
-      body: DocumentUpdate,
+      body: DocumentUpdateChecked,
       permissions: ['createSample', 'createResource'],
-      response: Document
+      response: DocumentChecked
     },
     delete: {
       permissions: ['deleteDocument', 'deleteSampleDocument'],
@@ -48,13 +48,13 @@ export const documentsRoutes = {
     params: undefined,
     get: {
       permissions: ['readDocuments'],
-      response: z.array(Document)
+      response: z.array(DocumentChecked)
     }
   },
   '/documents/upload-signed-url': {
     params: undefined,
     post: {
-      body: DocumentToCreate.omit({ id: true }),
+      body: z.object(DocumentToCreateChecked.shape).omit({ id: true }),
       permissions: ['createResource', 'createAnalysis', 'createSample'],
       response: z.object({
         url: z.string(),

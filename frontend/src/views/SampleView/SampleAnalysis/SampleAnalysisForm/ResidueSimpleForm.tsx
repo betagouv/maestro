@@ -2,7 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import {
   LmrIsValid,
   PartialResidue,
-  ResidueLmrCheck
+  ResidueLmrChecked
 } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import {
   ResultKind,
@@ -105,7 +105,9 @@ function ResidueSimpleForm({
                 min={0}
                 required={
                   !LmrIsValid({
-                    ...(form.input.residues as ResidueLmrCheck[])[residueIndex],
+                    ...(form.input.residues as ResidueLmrChecked[])[
+                      residueIndex
+                    ],
                     lmr: null
                   })
                 }

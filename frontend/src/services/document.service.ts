@@ -1,22 +1,22 @@
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import {
-  Document,
-  DocumentToCreate,
-  DocumentUpdate
+  DocumentChecked,
+  DocumentToCreateChecked,
+  DocumentUpdateChecked
 } from 'maestro-shared/schema/Document/Document';
 import { api } from 'src/services/api.service';
 
 const documentApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getDocument: builder.query<Document, string>({
+    getDocument: builder.query<DocumentChecked, string>({
       query: (documentId) => `documents/${documentId}`,
-      transformResponse: (response: any) => Document.parse(response),
+      transformResponse: (response: any) => DocumentChecked.parse(response),
       providesTags: (result, _error, documentId) =>
         result ? [{ type: 'Document', id: documentId }] : []
     }),
     createDocument: builder.mutation<
-      Document,
-      Omit<DocumentToCreate, 'id' | 'filename'> & { file: File }
+      DocumentChecked,
+      Omit<DocumentToCreateChecked, 'id' | 'filename'> & { file: File }
     >({
       queryFn: async (
         { file, ...document },
@@ -61,29 +61,29 @@ const documentApi = api.injectEndpoints({
           }
         });
         return result.data
-          ? { data: result.data as Document }
+          ? { data: result.data as DocumentChecked }
           : { error: result.error as FetchBaseQueryError };
       },
       invalidatesTags: () => [{ type: 'Document', id: 'LIST' }]
     }),
     updateDocument: builder.mutation<
-      Document,
-      DocumentUpdate & { documentId: string }
+      DocumentChecked,
+      DocumentUpdateChecked & { documentId: string }
     >({
       query: ({ documentId, ...document }) => ({
         url: `documents/${documentId}`,
         method: 'PUT',
         body: document
       }),
-      transformResponse: (response: any) => Document.parse(response),
+      transformResponse: (response: any) => DocumentChecked.parse(response),
       invalidatesTags: (_result, _error, { documentId }) => [
         { type: 'Document', documentId }
       ]
     }),
-    findResources: builder.query<Document[], void>({
+    findResources: builder.query<DocumentChecked[], void>({
       query: () => 'documents/resources',
       transformResponse: (response: any[]) =>
-        response.map((_) => Document.parse(_)),
+        response.map((_) => DocumentChecked.parse(_)),
       providesTags: (result) => [
         { type: 'Document', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({

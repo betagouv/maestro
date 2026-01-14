@@ -6,7 +6,7 @@ import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   isCreatedPartialSample,
-  Sample,
+  SampleChecked,
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
@@ -20,7 +20,7 @@ import { usePartialSample } from '../../../hooks/usePartialSample';
 import { useAppSelector } from '../../../hooks/useStore';
 
 interface Props {
-  sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
+  sample: (SampleChecked | SampleToCreate) & Partial<SampleOwnerData>;
   mode?: StepSummaryMode;
   onChangeResytalId: (resytalId: string) => void;
   onEdit?: () => void;

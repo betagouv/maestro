@@ -14,7 +14,7 @@ import {
 import {
   getSampleMatrixLabel,
   isProgrammingPlanSample,
-  Sample,
+  SampleChecked,
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
@@ -27,7 +27,7 @@ import StepSummary, {
 import SampleDocument from '../../../components/Sample/SampleDocument/SampleDocument';
 
 interface Props {
-  sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
+  sample: (SampleChecked | SampleToCreate) & Partial<SampleOwnerData>;
   mode?: StepSummaryMode;
   onEdit?: () => void;
 }

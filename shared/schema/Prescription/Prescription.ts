@@ -8,7 +8,7 @@ import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import { Stage, StageLabels } from '../../referential/Stage';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
 import { hasPermission } from '../User/User';
 import { UserRole } from '../User/UserRole';
 import { PrescriptionSubstance } from './PrescriptionSubstance';
@@ -73,7 +73,7 @@ export type PrescriptionPermission = z.infer<typeof PrescriptionPermission>;
 
 export const hasPrescriptionPermission = (
   userRole: UserRole,
-  programmingPlan: ProgrammingPlan
+  programmingPlan: ProgrammingPlanChecked
 ): Record<PrescriptionPermission, boolean> => ({
   create:
     hasPermission(userRole, 'createPrescription') &&

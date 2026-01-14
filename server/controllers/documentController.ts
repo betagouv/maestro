@@ -4,7 +4,7 @@ import { constants } from 'http2';
 import { isNil } from 'lodash-es';
 import DocumentMissingError from 'maestro-shared/errors/documentMissingError';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import { Document } from 'maestro-shared/schema/Document/Document';
+import { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import {
   ResourceDocumentKindList,
   UploadDocumentKindList
@@ -53,7 +53,7 @@ export const documentsRouter = {
 
       console.log('Create document', documentToCreate);
 
-      const document: Document = {
+      const document: DocumentChecked = {
         ...documentToCreate,
         createdAt: new Date(),
         createdBy: user.id

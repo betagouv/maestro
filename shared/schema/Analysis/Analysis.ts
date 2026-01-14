@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { AnalysisStatus } from './AnalysisStatus';
-import { PartialResidue, Residue } from './Residue/Residue';
+import { PartialResidue, ResidueChecked } from './Residue/Residue';
 
 export const PartialAnalysis = z.object({
   id: z.guid(),
@@ -24,7 +24,7 @@ export const Analysis = z.object({
     message: "Veuillez renseigner la conformité de l'échantillon."
   }),
   notesOnCompliance: z.string().nullable(),
-  residues: z.array(Residue)
+  residues: z.array(ResidueChecked)
 });
 
 export const AnalysisToCreate = Analysis.pick({

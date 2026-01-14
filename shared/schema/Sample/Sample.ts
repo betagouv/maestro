@@ -13,7 +13,7 @@ import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import { Region } from '../../referential/Region';
 import { SSD2Id } from '../../referential/Residue/SSD2Id';
 import { Stage } from '../../referential/Stage';
-import { maestroDate } from '../../utils/date';
+import { maestroDateRefined } from '../../utils/date';
 import { isDefined } from '../../utils/utils';
 import { Company } from '../Company/Company';
 import { Geolocation } from '../Geolocation/Geolocation';
@@ -149,14 +149,14 @@ export const uniqueSampleItemSealIdCheck: CheckFn<{
   }
 };
 
-export const SampleItemsData = z
+export const SampleItemsDataChecked = z
   .object({
     sampledAt: z.union([z.string(), z.date()]).pipe(
       z.coerce.date({
         error: () => 'La date de prélèvement est invalide.'
       })
     ),
-    shippingDate: maestroDate.nullish(),
+    shippingDate: maestroDateRefined.nullish(),
     items: z
       .array(SampleItem)
       .min(1, { message: 'Veuillez renseigner au moins un échantillon.' }),
@@ -209,7 +209,7 @@ export const PartialSampleToCreate = z.object({
     sampler: true
   }).shape,
   ...PartialSampleMatrixData.shape,
-  ...SampleItemsData.partial().shape,
+  ...z.object(SampleItemsDataChecked.shape).partial().shape,
   ...SampleAdmissibilityData.partial().shape,
   ...SampleOwnerData.partial().shape,
   items: z.array(PartialSampleItem).nullish()
@@ -218,7 +218,7 @@ export const PartialSampleToCreate = z.object({
 export const SampleToCreate = z.object({
   ...SampleContextData.shape,
   ...SampleMatrixData.shape,
-  ...SampleItemsData.shape,
+  ...SampleItemsDataChecked.shape,
   ...SampleAdmissibilityData.shape,
   ...SampleOwnerData.shape
 });
@@ -242,21 +242,21 @@ export const SampleBase = SampleToCreate.extend({
   items: z.array(SampleItem)
 });
 
-export const Sample = SampleBase.check(
+export const SampleChecked = SampleBase.check(
   prescriptionSubstancesCheck,
   sampleMatrixCheck
 );
 
 export type SampleContextData = z.infer<typeof SampleContextData>;
 export type SampleMatrixData = z.infer<typeof SampleMatrixData>;
-export type SampleItemsData = z.infer<typeof SampleItemsData>;
+export type SampleItemsDataChecked = z.infer<typeof SampleItemsDataChecked>;
 export type SampleOwnerData = z.infer<typeof SampleOwnerData>;
 export type CreatedSampleData = z.infer<typeof CreatedSampleData>;
 export type PartialSampleToCreate = z.infer<typeof PartialSampleToCreate>;
 export type PartialSample = z.infer<typeof PartialSample>;
 export type SampleToCreate = z.infer<typeof SampleToCreate>;
 export type SampleBase = z.infer<typeof SampleBase>;
-export type Sample = z.infer<typeof Sample>;
+export type SampleChecked = z.infer<typeof SampleChecked>;
 
 export const isCreatedPartialSample = (
   partialSample?: PartialSample | PartialSampleToCreate

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { Region } from '../../referential/Region';
 import { Nullable } from '../../utils/typescript';
-import { User } from './User';
+import { UserRefined } from './User';
 import { UserPermission } from './UserPermission';
 
 const NationalUserRole = z.enum([
@@ -161,7 +161,7 @@ export const isRegionalRole = (userRole?: UserRole) =>
   RegionalUserRole.safeParse(userRole).success;
 
 export const canHaveDepartment = (
-  user: Nullable<Pick<User, 'roles'>>
+  user: Nullable<Pick<UserRefined, 'roles'>>
 ): user is {
   roles: (z.infer<typeof DepartmentalUserRole> | 'Sampler')[];
   region: Region;

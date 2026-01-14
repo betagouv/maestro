@@ -1,5 +1,5 @@
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import React, { FunctionComponent, useContext, useRef } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { ApiClientContext } from '../../../../services/apiClient';
@@ -9,7 +9,7 @@ import {
 } from './SampleAdmissibilityForm';
 
 type Props = {
-  sample: Sample;
+  sample: SampleChecked;
   modal: ReturnType<typeof createModal>;
 };
 export const SampleAdmissibilityEditModal: FunctionComponent<Props> = ({

@@ -5,7 +5,7 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   canHaveDepartment,
   isRegionalRole,
@@ -20,7 +20,7 @@ import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { useMascarade } from '../../../components/Mascarade/useMascarade';
 
 type Props = {
-  user: User;
+  user: UserRefined;
   onEdit: () => void;
   onDisable: () => void;
   onEnable: () => void;

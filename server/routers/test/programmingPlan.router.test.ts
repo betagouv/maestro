@@ -4,7 +4,7 @@ import {
   Region,
   RegionList
 } from 'maestro-shared/referential/Region';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   genLocalPrescription,
@@ -119,7 +119,7 @@ describe('ProgrammingPlan router', () => {
       ]);
   });
 
-  const programmingPlansMatch = (programmingPlans: ProgrammingPlan[]) =>
+  const programmingPlansMatch = (programmingPlans: ProgrammingPlanChecked[]) =>
     expect.arrayContaining(
       programmingPlans.map((programmingPlan) =>
         withISOStringDates({
@@ -131,7 +131,7 @@ describe('ProgrammingPlan router', () => {
 
   const expectedBody = (
     body: any,
-    programmingPlans: ProgrammingPlan[],
+    programmingPlans: ProgrammingPlanChecked[],
     region?: Region | null
   ) => {
     const regionalProgrammingPlans = programmingPlans.map(
@@ -149,7 +149,7 @@ describe('ProgrammingPlan router', () => {
 
   const notExpectedBody = (
     body: any,
-    programmingPlans: ProgrammingPlan[],
+    programmingPlans: ProgrammingPlanChecked[],
     region?: Region | null
   ) => {
     const regionalProgrammingPlans = programmingPlans.map(
@@ -568,7 +568,7 @@ describe('ProgrammingPlan router', () => {
 
     test('should fail if the status update is forbidden', async () => {
       const badRequestTest = async (
-        programmingPlan: ProgrammingPlan,
+        programmingPlan: ProgrammingPlanChecked,
         status: ProgrammingPlanStatus
       ) =>
         request(app)
@@ -690,7 +690,7 @@ describe('ProgrammingPlan router', () => {
 
     test('should fail if the status update is forbidden', async () => {
       const badRequestTest = async (
-        programmingPlan: ProgrammingPlan,
+        programmingPlan: ProgrammingPlanChecked,
         status: ProgrammingPlanStatus
       ) =>
         request(app)

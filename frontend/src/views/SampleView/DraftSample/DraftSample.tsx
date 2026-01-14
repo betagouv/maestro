@@ -5,7 +5,7 @@ import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate,
-  Sample
+  SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatusSteps } from 'maestro-shared/schema/Sample/SampleStatus';
 import { useEffect, useState } from 'react';
@@ -91,7 +91,9 @@ const SampleView = ({ sample }: Props) => {
         )}
         {step === 2 && sample && <MatrixStep partialSample={sample} />}
         {step === 3 && sample && <ItemsStep partialSample={sample} />}
-        {step === 4 && sample && <SendingStep sample={sample as Sample} />}
+        {step === 4 && sample && (
+          <SendingStep sample={sample as SampleChecked} />
+        )}
       </div>
     </section>
   );

@@ -2,7 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { format } from 'date-fns';
 import { uniqBy } from 'lodash-es';
 import {
-  Sample,
+  SampleChecked,
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
@@ -13,7 +13,7 @@ import StepSummary, {
 import SampleItems from '../../../components/Sample/SampleItems/SampleItems';
 
 interface Props {
-  sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
+  sample: (SampleChecked | SampleToCreate) & Partial<SampleOwnerData>;
   mode?: StepSummaryMode;
   onEdit?: () => void;
 }

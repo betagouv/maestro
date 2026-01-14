@@ -7,7 +7,7 @@ import {
   ContextLabels,
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext } from 'react';
 import { pluralize } from 'src/utils/stringUtils';
 import ProgrammingPlanMap from 'src/views/DashboardView/ProgrammingPlanMap';
@@ -16,7 +16,7 @@ import { CircleProgress } from '../../components/CircleProgress/CircleProgress';
 import { ApiClientContext } from '../../services/apiClient';
 
 interface ProgrammingPlanCardProps {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   context: ProgrammingPlanContext;
 }
 

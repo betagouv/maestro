@@ -2,7 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
 import {
-  Sample,
+  SampleChecked,
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
@@ -16,7 +16,7 @@ import { getSupportDocumentURL } from 'src/services/sample.service';
 import './SupportDocumentSelect.scss';
 type Props = {
   label?: string;
-  sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
+  sample: (SampleChecked | SampleToCreate) & Partial<SampleOwnerData>;
   renderButtons: (onClick: () => void) => React.ReactElement;
 };
 

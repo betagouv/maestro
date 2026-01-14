@@ -4,7 +4,7 @@ import {
   COOKIE_MAESTRO_USER_ROLE
 } from 'maestro-shared/constants';
 import { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { Plugin } from 'superagent';
 import config from '../utils/config';
@@ -13,7 +13,10 @@ export const accessTokenTest = (payload: TokenPayload) =>
   jwt.sign(payload, config.auth.secret, { expiresIn: 86400 });
 
 export const TEST_LOGGED_SECRET = '11111111-1111-1111-1111-111111111111';
-export const tokenProvider = (user: User, userRole?: UserRole): Plugin => {
+export const tokenProvider = (
+  user: UserRefined,
+  userRole?: UserRole
+): Plugin => {
   return (request) => {
     request.set(
       'Cookie',

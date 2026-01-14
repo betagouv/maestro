@@ -9,7 +9,7 @@ import {
 import { SandreToSSD2 } from 'maestro-shared/referential/Residue/SandreToSSD2';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { MaestroDate } from 'maestro-shared/utils/date';
 import {
   getRecordKeys,
@@ -47,7 +47,7 @@ export type ExportDataSubstanceWithSSD2Id = OmitDistributive<
 > & { ssd2Id: SSD2Id | null; unknownLabel: string | null };
 
 export type ExportAnalysis = {
-  sampleReference: Sample['reference'];
+  sampleReference: SampleChecked['reference'];
   notes: string;
   pdfFile: File;
   residues: ExportDataSubstance[];

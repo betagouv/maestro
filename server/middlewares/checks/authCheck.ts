@@ -4,7 +4,7 @@ import { expressjwt } from 'express-jwt';
 import { constants } from 'http2';
 import AuthenticationMissingError from 'maestro-shared/errors/authenticationMissingError';
 import UserMissingError from 'maestro-shared/errors/userMissingError';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import { userRepository } from '../../repositories/userRepository';
 import config from '../../utils/config';
 
@@ -29,8 +29,8 @@ export const jwtCheck = (credentialsRequired: boolean) =>
 
 export const getUser = async (
   cookies: Record<string, string> | undefined,
-  user: User
-): Promise<User> => {
+  user: UserRefined
+): Promise<UserRefined> => {
   if (user.roles.includes('Administrator')) {
     const mascaradeUserId = cookies?.[COOKIE_MAESTRO_MASCARADE];
     if (mascaradeUserId !== undefined) {

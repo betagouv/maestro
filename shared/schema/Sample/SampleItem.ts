@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { QuantityUnit } from '../../referential/QuantityUnit';
 import { isDefinedAndNotNull } from '../../utils/utils';
 import { SubstanceKind } from '../Substance/SubstanceKind';
-import { Sample } from './Sample';
+import { SampleChecked } from './Sample';
 import { SampleItemRecipientKind } from './SampleItemRecipientKind';
 
 export const SampleItem = z.object({
@@ -63,7 +63,7 @@ export const SampleItemSort = (a: PartialSampleItem, b: PartialSampleItem) =>
 export const SampleItemMaxCopyCount = 3;
 
 export const getSampleItemReference = (
-  sample: Pick<Sample, 'reference'>,
+  sample: Pick<SampleChecked, 'reference'>,
   itemNumber: number,
   copyNumber: number
 ) =>

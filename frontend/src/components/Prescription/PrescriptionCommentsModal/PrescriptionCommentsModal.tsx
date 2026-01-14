@@ -24,7 +24,7 @@ import {
   PrescriptionComments,
   PrescriptionCommentSort
 } from 'maestro-shared/schema/Prescription/PrescriptionComments';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { formatDateTime } from 'maestro-shared/utils/date';
 import { useEffect, useMemo, useState } from 'react';
@@ -47,7 +47,7 @@ const prescriptionCommentsModal = createModal({
  */
 export interface Props {
   onSubmitLocalPrescriptionComment: (
-    programmingPlan: ProgrammingPlan,
+    programmingPlan: ProgrammingPlanChecked,
     localPrescriptionKey: LocalPrescriptionKey,
     comment: string
   ) => Promise<void>;
@@ -217,7 +217,7 @@ const PrescriptionCommentsModal = ({
       const plan =
         prescriptionCommentsData?.viewBy === 'Prescription'
           ? prescriptionCommentsData.programmingPlan
-          : (programmingPlan as ProgrammingPlan);
+          : (programmingPlan as ProgrammingPlanChecked);
 
       await onSubmitLocalPrescriptionComment(
         plan,

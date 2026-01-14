@@ -8,9 +8,9 @@ import {
 } from 'maestro-shared/schema/Analysis/Analysis';
 import {
   PartialResidue,
-  ResidueLmrCheck
+  ResidueLmrChecked
 } from 'maestro-shared/schema/Analysis/Residue/Residue';
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import React, { FunctionComponent, useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { z } from 'zod';
@@ -22,13 +22,13 @@ import { AnalysisComplianceForm } from './AnalysisComplianceForm';
 import { ResidueResultForm } from './ResidueResultForm';
 
 type Props = {
-  sample: Omit<Sample, 'reference'>;
+  sample: Omit<SampleChecked, 'reference'>;
   partialAnalysis: PartialAnalysis;
   onDone: () => void;
 };
 
 const residuesValidator = z.object({
-  residues: z.array(ResidueLmrCheck)
+  residues: z.array(ResidueLmrChecked)
 });
 const analysisResiduesValidator = z.object({
   ...Analysis.shape,

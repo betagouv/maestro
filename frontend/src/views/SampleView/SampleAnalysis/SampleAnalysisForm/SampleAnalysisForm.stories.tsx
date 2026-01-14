@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   genPartialAnalysis,
   genPartialAnalyte,
@@ -16,7 +16,7 @@ const meta = {
   title: 'Views/SampleAnalysisForm',
   component: SampleAnalysisForm,
   args: {
-    sample: Sample11Fixture as Sample,
+    sample: Sample11Fixture as SampleChecked,
     partialAnalysis: genPartialAnalysis({
       compliance: true,
       notesOnCompliance: 'Super conforme, cool !!!',

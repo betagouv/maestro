@@ -14,15 +14,15 @@ import { ClassValue } from 'clsx/lite';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import {
   PartialResidue,
-  ResidueLmrCheck
+  ResidueLmrChecked
 } from 'maestro-shared/schema/Analysis/Residue/Residue';
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import useWindowSize from '../../../../hooks/useWindowSize';
 import { ResidueComplianceIcon } from './ResidueComplianceIcon';
 import './ResidueListResult.scss';
 
 type Props = {
-  residues: (PartialResidue & Omit<Sample, 'reference'>)[];
+  residues: (PartialResidue & Omit<SampleChecked, 'reference'>)[];
   residuePanel: (i: number) => ReactNode;
   onAddResidue?: () => void;
 };
@@ -155,7 +155,7 @@ const ResidueMenuItem: FunctionComponent<{
 }> = ({ residue, residueIndex, className, onClick, ..._rest }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const hasIssue = !ResidueLmrCheck.safeParse(residue).success;
+  const hasIssue = !ResidueLmrChecked.safeParse(residue).success;
 
   return (
     <button

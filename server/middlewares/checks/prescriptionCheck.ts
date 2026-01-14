@@ -3,16 +3,16 @@ import { HttpError } from 'maestro-shared/errors/httpError';
 import PrescriptionMissingError from 'maestro-shared/errors/prescriptionPlanMissingError';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import prescriptionRepository from '../../repositories/prescriptionRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 
 export const getAndCheckPrescription = async (
   prescriptionId: string,
-  currentProgrammingPlan: ProgrammingPlan | undefined
+  currentProgrammingPlan: ProgrammingPlanChecked | undefined
 ): Promise<{
   prescription: Prescription;
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
 }> => {
   const prescription = await prescriptionRepository.findUnique(prescriptionId);
 

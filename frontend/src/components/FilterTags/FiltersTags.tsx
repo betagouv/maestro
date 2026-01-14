@@ -14,7 +14,7 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   FindSampleOptions,
   SampleComplianceLabels
@@ -25,7 +25,7 @@ import {
   SampleStatus,
   SampleStatusLabels
 } from 'maestro-shared/schema/Sample/SampleStatus';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { Fragment, ReactNode, useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -41,8 +41,8 @@ interface Props {
   title?: string;
   filters: Partial<FilterableType>;
   onChange: (filters: Partial<FilterableType>) => void;
-  samplers?: User[];
-  programmingPlans?: ProgrammingPlan[];
+  samplers?: UserRefined[];
+  programmingPlans?: ProgrammingPlanChecked[];
 }
 
 const tagProps = {
@@ -175,8 +175,8 @@ const filtersConfig = {
         getLabel: (
           value: NonNullable<FilterableType[key]>,
           data: {
-            sampler?: User;
-            programmingPlan?: ProgrammingPlan;
+            sampler?: UserRefined;
+            programmingPlan?: ProgrammingPlanChecked;
           }
         ) => string | null;
         getComponent?: never;

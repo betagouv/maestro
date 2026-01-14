@@ -6,7 +6,7 @@ import {
   S3ClientConfig
 } from '@aws-sdk/client-s3';
 import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
-import { DocumentToCreate } from 'maestro-shared/schema/Document/Document';
+import { DocumentToCreateChecked } from 'maestro-shared/schema/Document/Document';
 import { v4 as uuidv4 } from 'uuid';
 import config from '../utils/config';
 
@@ -21,7 +21,7 @@ const s3Config: S3ClientConfig = {
 
 const getS3Client = (): S3Client => new S3Client(s3Config);
 const getUploadSignedUrlS3 = async (
-  filename: DocumentToCreate['filename']
+  filename: DocumentToCreateChecked['filename']
 ): Promise<{ url: string; documentId: string }> => {
   console.log('Get signed url for file', filename);
 

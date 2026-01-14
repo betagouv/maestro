@@ -9,7 +9,7 @@ import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
 import { Region, Regions, RegionSort } from 'maestro-shared/referential/Region';
 import { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   NextProgrammingPlanStatus,
   ProgrammingPlanStatus
@@ -23,7 +23,7 @@ import { ApiClientContext } from '../../../services/apiClient';
 import { pluralize } from '../../../utils/stringUtils';
 import '../ProgrammingPlanNotification.scss';
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
 }
 const submissionModal = createModal({
   id: `submission-modal`,

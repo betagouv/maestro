@@ -1,7 +1,7 @@
 import z from 'zod';
 import { FindProgrammingPlanOptions } from '../schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanLocalStatus } from '../schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
-import { ProgrammingPlan } from '../schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { SubRoutes } from './routes';
 
@@ -10,7 +10,7 @@ export const programmingPlansRoutes = {
     get: {
       permissions: ['readProgrammingPlans'],
       query: FindProgrammingPlanOptions,
-      response: z.array(ProgrammingPlan)
+      response: z.array(ProgrammingPlanChecked)
     }
   },
   '/programming-plans/:programmingPlanId': {
@@ -19,14 +19,14 @@ export const programmingPlansRoutes = {
     },
     get: {
       permissions: ['readProgrammingPlans'],
-      response: ProgrammingPlan
+      response: ProgrammingPlanChecked
     },
     put: {
       permissions: ['manageProgrammingPlan', 'approveProgrammingPlan'],
       body: z.object({
         status: ProgrammingPlanStatus
       }),
-      response: ProgrammingPlan
+      response: ProgrammingPlanChecked
     }
   },
   '/programming-plans/:programmingPlanId/local-status': {
@@ -41,7 +41,7 @@ export const programmingPlansRoutes = {
         'distributePrescriptionToSlaughterhouses'
       ],
       body: z.array(ProgrammingPlanLocalStatus),
-      response: ProgrammingPlan
+      response: ProgrammingPlanChecked
     }
   },
   '/programming-plans/years/:year': {
@@ -50,7 +50,7 @@ export const programmingPlansRoutes = {
     },
     post: {
       permissions: ['manageProgrammingPlan'],
-      response: ProgrammingPlan
+      response: ProgrammingPlanChecked
     }
   }
 } as const satisfies SubRoutes<'/programming-plans'>;

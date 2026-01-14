@@ -13,7 +13,7 @@ import {
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import { PrescriptionToCreate } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import React, { useContext, useMemo, useState } from 'react';
 import { useForm } from '../../../hooks/useForm';
 import { usePrescriptionFilters } from '../../../hooks/usePrescriptionFilters';
@@ -22,7 +22,7 @@ import { ApiClientContext } from '../../../services/apiClient';
 import { PrescriptionFilters } from '../../../store/reducers/prescriptionsSlice';
 import ProgrammingPrescriptionFilters from '../../../views/ProgrammingView/ProgrammingPrescriptionFilters/ProgrammingPrescriptionFilters';
 interface AddMatrixProps {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   excludedMatrixKindList: MatrixKind[];
   excludedMatrixList: Matrix[];
 }

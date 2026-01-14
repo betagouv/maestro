@@ -7,7 +7,7 @@ import {
   getPrescriptionTitle,
   Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import { pluralize } from 'src/utils/stringUtils';
@@ -20,7 +20,7 @@ import LocalPrescriptionButtons from '../LocalPrescriptionButtons/LocalPrescript
 import LocalPrescriptionDistributionBadge from '../LocalPrescriptionDistributionBadge/LocalPrescriptionDistributionBadge';
 
 interface Props {
-  programmingPlan?: ProgrammingPlan;
+  programmingPlan?: ProgrammingPlanChecked;
   prescription: Prescription;
   localPrescription?: LocalPrescription;
   subLocalPrescriptions?: LocalPrescription[];

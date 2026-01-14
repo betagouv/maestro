@@ -1,7 +1,7 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { FunctionComponent, useContext, useMemo } from 'react';
 import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { usePartialSample } from 'src/hooks/usePartialSample';
@@ -19,7 +19,7 @@ import './SampleAnalysis.scss';
 import { AnalysisDocumentPreview } from './SampleAnalysisForm/AnalysisDocumentPreview';
 
 type Props = {
-  sample: Sample;
+  sample: SampleChecked;
 };
 
 const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {

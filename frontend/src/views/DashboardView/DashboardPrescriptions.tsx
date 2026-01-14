@@ -16,7 +16,7 @@ import {
   PrescriptionSort
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   FunctionComponent,
   useContext,
@@ -34,7 +34,7 @@ import { pluralize } from '../../utils/stringUtils';
 import './Dashboard.scss';
 
 type Props = {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   className: string;
 };
 const DashboardPrescriptions: FunctionComponent<Props> = ({
@@ -310,7 +310,7 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
 };
 
 const DashboardPrescriptionCard: FunctionComponent<{
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   prescription: Prescription;
   regionalPrescriptions: LocalPrescription[];
   region?: Region | null;

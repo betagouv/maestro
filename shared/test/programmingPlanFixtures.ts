@@ -1,13 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 import { RegionList } from '../referential/Region';
-import { ProgrammingPlan } from '../schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatusList } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { oneOf } from './testFixtures';
 import { NationalCoordinator } from './userFixtures';
 
 export const genProgrammingPlan = (
-  data?: Partial<ProgrammingPlan>
-): ProgrammingPlan => ({
+  data?: Partial<ProgrammingPlanChecked>
+): ProgrammingPlanChecked => ({
   id: uuidv4(),
   domain: 'PESTICIDE_RESIDUE',
   title: 'Production primaire végétale',
