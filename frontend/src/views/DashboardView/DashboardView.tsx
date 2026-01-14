@@ -71,38 +71,41 @@ const DashboardView = () => {
         }
       />
       {isOnline && (
-        <div className={clsx(cx('fr-grid-row', 'fr-grid-row--gutters'))}>
-          {notice?.description && (
-            <DashboardNotice
-              description={notice.description}
-              className={clsx(cx('fr-col'), 'd-flex-column')}
+        <>
+          <div className={clsx(cx('fr-grid-row', 'fr-grid-row--gutters'))}>
+            {notice?.description && (
+              <DashboardNotice
+                description={notice.description}
+                className={clsx(cx('fr-col'), 'd-flex-column')}
+              />
+            )}
+
+            <DashboardPriorityActions
+              currentValidatedProgrammingPlan={currentValidatedProgrammingPlan}
             />
-          )}
+          </div>
+          <div className={clsx(cx('fr-grid-row', 'fr-grid-row--gutters'))}>
+            {hasNationalView &&
+              currentValidatedProgrammingPlan?.contexts.map((context) => (
+                <div
+                  className={cx('fr-col-12', 'fr-col-md-6')}
+                  key={`${currentValidatedProgrammingPlan.id}-${context}`}
+                >
+                  <ProgrammingPlanCard
+                    programmingPlan={currentValidatedProgrammingPlan}
+                    context={context}
+                  />
+                </div>
+              ))}
 
-          <DashboardPriorityActions
-            currentValidatedProgrammingPlan={currentValidatedProgrammingPlan}
-          />
-
-          {hasNationalView &&
-            currentValidatedProgrammingPlan?.contexts.map((context) => (
-              <div
-                className={cx('fr-col-12', 'fr-col-md-6')}
-                key={`${currentValidatedProgrammingPlan.id}-${context}`}
-              >
-                <ProgrammingPlanCard
-                  programmingPlan={currentValidatedProgrammingPlan}
-                  context={context}
-                />
-              </div>
-            ))}
-
-          {currentValidatedProgrammingPlan && (
-            <DashboardPrescriptions
-              programmingPlan={currentValidatedProgrammingPlan}
-              className={clsx(cx('fr-col-12'))}
-            />
-          )}
-        </div>
+            {currentValidatedProgrammingPlan && (
+              <DashboardPrescriptions
+                programmingPlan={currentValidatedProgrammingPlan}
+                className={clsx(cx('fr-col-12'))}
+              />
+            )}
+          </div>
+        </>
       )}
     </section>
   );

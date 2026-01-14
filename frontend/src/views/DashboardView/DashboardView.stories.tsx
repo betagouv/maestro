@@ -83,9 +83,10 @@ export const DashboardViewForSampler: Story = {
       }
     },
     apiClient: getMockApi({
-      useFindProgrammingPlansQuery: {
-        data: [previousProgrammingPlan, currentProgrammingPlan]
-      },
+      useFindProgrammingPlansQuery: ({ status }: FindProgrammingPlanOptions) =>
+        status && status.includes('Validated')
+          ? { data: [currentProgrammingPlan] }
+          : { data: [] },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
       useFindLocalPrescriptionsQuery: {
         data: [
@@ -135,9 +136,12 @@ export const DashboardViewForRegionalCoordinator: Story = {
       }
     },
     apiClient: getMockApi({
-      useFindProgrammingPlansQuery: {
-        data: [previousProgrammingPlan, currentProgrammingPlan]
-      },
+      useFindProgrammingPlansQuery: ({ status }: FindProgrammingPlanOptions) =>
+        status && status.includes('Validated')
+          ? { data: [currentProgrammingPlan] }
+          : status && status.includes('SubmittedToRegion')
+            ? { data: [previousProgrammingPlan] }
+            : { data: [] },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
       useFindLocalPrescriptionsQuery: {
         data: [
@@ -185,9 +189,10 @@ export const DashboardViewForNationalCoordinator: Story = {
       }
     },
     apiClient: getMockApi({
-      useFindProgrammingPlansQuery: {
-        data: [previousProgrammingPlan, currentProgrammingPlan]
-      },
+      useFindProgrammingPlansQuery: ({ status }: FindProgrammingPlanOptions) =>
+        status && !status.includes('InProgress')
+          ? { data: [currentProgrammingPlan] }
+          : { data: [previousProgrammingPlan, currentProgrammingPlan] },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
       useFindLocalPrescriptionsQuery: {
         data: RegionList.flatMap((region) => [
@@ -234,21 +239,8 @@ export const DashboardViewForNationalCoordinatorNoCurrentProgrammingPlan: Story 
         }
       },
       apiClient: getMockApi({
-        useFindProgrammingPlansQuery: ({
-          status
-        }: FindProgrammingPlanOptions) => ({
-          data: status?.length
-            ? []
-            : [
-                genProgrammingPlan({
-                  year: new Date().getFullYear() - 1,
-                  regionalStatus: RegionList.map((region) => ({
-                    region,
-                    status: 'Validated'
-                  })),
-                  contexts: ['Control', 'Surveillance']
-                })
-              ]
+        useFindProgrammingPlansQuery: () => ({
+          data: []
         })
       })
     },
@@ -256,13 +248,11 @@ export const DashboardViewForNationalCoordinatorNoCurrentProgrammingPlan: Story 
       const canvas = within(canvasElement);
 
       await expect(canvas.getByText('Tableau de bord')).toBeInTheDocument();
-      await expect(canvas.getByText(`Plan de contrôle`)).toBeInTheDocument();
       await expect(
-        canvas.getByText(`Plan de surveillance`)
-      ).toBeInTheDocument();
-
+        canvas.queryByText(`Plan de contrôle`)
+      ).not.toBeInTheDocument();
       await expect(
-        canvas.getByText('Créer la programmation 2026')
-      ).toBeInTheDocument();
+        canvas.queryByText(`Plan de surveillance`)
+      ).not.toBeInTheDocument();
     }
   };

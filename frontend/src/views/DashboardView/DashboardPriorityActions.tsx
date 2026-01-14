@@ -105,7 +105,13 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
 
   const [createProgrammingPlan] = apiClient.useCreateProgrammingPlanMutation();
 
-  if (!prioritySamples && !priorityProgrammingPlans) {
+  console.log(
+    '!prioritySamples && !priorityProgrammingPlans?.length',
+    !prioritySamples,
+    !priorityProgrammingPlans || priorityProgrammingPlans.length === 0
+  );
+
+  if (!prioritySamples.length && !priorityProgrammingPlans.length) {
     return <></>;
   }
 
@@ -118,41 +124,46 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
           cx('fr-px-4w', 'fr-py-3w')
         )}
       >
-        {priorityProgrammingPlans && (
+        {priorityProgrammingPlans && priorityProgrammingPlans.length > 0 && (
           <>
             <h4 className={cx('fr-mb-1w')}>Actions prioritaires</h4>
-            {priorityProgrammingPlans.map((programmingPlan) => (
-              <>
-                {hasUserPermission('manageProgrammingPlan') &&
-                programmingPlan.regionalStatus.every(
-                  (_) => _.status === 'Validated'
-                ) ? (
-                  <ProgrammingPlanClosing
-                    programmingPlan={programmingPlan}
-                    render={({ open }) => (
-                      <PriorityActionCard
-                        title={`Clôturer la programmation ${programmingPlan.year}`}
-                        badgeLabel="Programmation"
-                        description="À réaliser"
-                        onClick={open}
-                      />
-                    )}
-                  />
-                ) : (
-                  <PriorityActionCard
-                    key={programmingPlan.id}
-                    title={`Éditer la programmation ${programmingPlan.year}`}
-                    badgeLabel="Programmation"
-                    description="À compléter"
-                    to={`${AuthenticatedAppRoutes.ProgrammingRoute.link}?${new URLSearchParams(
-                      {
-                        year: String(programmingPlan.year)
-                      }
-                    ).toString()}`}
-                  />
-                )}
-              </>
-            ))}
+            {priorityProgrammingPlans
+              .filter(
+                (programmingPlan) =>
+                  programmingPlan.id !== currentValidatedProgrammingPlan?.id
+              )
+              .map((programmingPlan) => (
+                <>
+                  {hasUserPermission('manageProgrammingPlan') &&
+                  programmingPlan.regionalStatus.every(
+                    (_) => _.status === 'Validated'
+                  ) ? (
+                    <ProgrammingPlanClosing
+                      programmingPlan={programmingPlan}
+                      render={({ open }) => (
+                        <PriorityActionCard
+                          title={`Clôturer la programmation ${programmingPlan.year}`}
+                          badgeLabel="Programmation"
+                          description="À réaliser"
+                          onClick={open}
+                        />
+                      )}
+                    />
+                  ) : (
+                    <PriorityActionCard
+                      key={programmingPlan.id}
+                      title={`Éditer la programmation ${programmingPlan.year}`}
+                      badgeLabel="Programmation"
+                      description="À compléter"
+                      to={`${AuthenticatedAppRoutes.ProgrammingRoute.link}?${new URLSearchParams(
+                        {
+                          year: String(programmingPlan.year)
+                        }
+                      ).toString()}`}
+                    />
+                  )}
+                </>
+              ))}
             {hasUserPermission('manageProgrammingPlan') &&
               currentValidatedProgrammingPlan &&
               priorityProgrammingPlans.every(
@@ -173,7 +184,7 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
               )}
           </>
         )}
-        {!priorityProgrammingPlans &&
+        {!priorityProgrammingPlans?.length &&
           currentValidatedProgrammingPlan &&
           prioritySamples && (
             <>
