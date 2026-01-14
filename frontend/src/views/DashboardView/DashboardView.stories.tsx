@@ -6,6 +6,7 @@ import {
   genPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import { genCreatedPartialSample } from 'maestro-shared/test/sampleFixtures';
 import {
   genAuthUser,
   NationalCoordinator,
@@ -53,6 +54,18 @@ const prescription2 = genPrescription({
   context: 'Control',
   matrixKind: 'A0DQS'
 });
+const sample1 = genCreatedPartialSample({
+  status: 'InReview',
+  sampler: Sampler1Fixture,
+  programmingPlanId: currentProgrammingPlan.id,
+  region: Region1Fixture
+});
+const sample2 = genCreatedPartialSample({
+  status: 'InReview',
+  sampler: Sampler1Fixture,
+  programmingPlanId: currentProgrammingPlan.id,
+  region: Region1Fixture
+});
 
 export const DashboardViewForSampler: Story = {
   args: {
@@ -85,6 +98,9 @@ export const DashboardViewForSampler: Story = {
             region: RegionalCoordinator.region as Region
           })
         ]
+      },
+      useFindSamplesQuery: {
+        data: [sample1, sample2]
       }
     })
   },
@@ -98,6 +114,9 @@ export const DashboardViewForSampler: Story = {
     await expect(
       canvas.getByText(`Plan de surveillance ${new Date().getFullYear()}`)
     ).toBeInTheDocument();
+    await expect(canvas.getByText('Actions à terminer')).toBeInTheDocument();
+    await expect(canvas.getByText(sample1.reference)).toBeInTheDocument();
+    await expect(canvas.getByText(sample2.reference)).toBeInTheDocument();
   }
 };
 

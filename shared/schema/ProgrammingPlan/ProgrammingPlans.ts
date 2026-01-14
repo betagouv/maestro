@@ -63,3 +63,8 @@ export type ProgrammingPlanChecked = z.infer<typeof ProgrammingPlanChecked>;
 export const isClosed = (plan: ProgrammingPlanChecked): boolean => {
   return !isNil(plan.closedAt);
 };
+
+export const ProgrammingPlanSort = (
+  a: ProgrammingPlanChecked,
+  b: ProgrammingPlanChecked
+) => b.year - a.year;
