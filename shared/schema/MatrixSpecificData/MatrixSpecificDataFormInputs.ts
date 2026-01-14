@@ -1,35 +1,38 @@
-import {
-  AnimalKindLabels,
-  AnimalKindsByProgrammingPlanKind
-} from 'maestro-shared/referential/AnimalKind';
-import {
-  AnimalSexLabels,
-  AnimalSexList
-} from 'maestro-shared/referential/AnimalSex';
+import { AnimalSexLabels, AnimalSexList } from '../../referential/AnimalSex';
 
 import {
   CultureKindLabels,
   CultureKindList
-} from 'maestro-shared/referential/CultureKind';
+} from '../../referential/CultureKind';
 import {
   MatrixPartLabels,
   MatrixPartList
-} from 'maestro-shared/referential/Matrix/MatrixPart';
+} from '../../referential/Matrix/MatrixPart';
 
+import { isNil } from 'lodash-es';
+import {
+  AnimalKindLabels,
+  AnimalKindsByProgrammingPlanKind
+} from '../../referential/AnimalKind';
+import {
+  BreedingMethodLabels,
+  BreedingMethodList
+} from '../../referential/BreedingMethod';
+import {
+  OutdoorAccessLabels,
+  OutdoorAccessList
+} from '../../referential/OutdoorAccess';
 import {
   ProductionKindLabels,
   ProductionKindsByProgrammingPlanKind
-} from 'maestro-shared/referential/ProductionKind';
-import {
-  ProductionMethodLabels,
-  ProductionMethodList
-} from 'maestro-shared/referential/ProductionMethod';
+} from '../../referential/ProductionKind';
+import { SeizureLabels, SeizureList } from '../../referential/Seizure';
 import {
   SpeciesByProgrammingPlanKind,
   SpeciesLabels
-} from 'maestro-shared/referential/Species';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+} from '../../referential/Species';
+import { ProgrammingPlanKind } from '../../schema/ProgrammingPlan/ProgrammingPlanKind';
+import { SampleMatrixSpecificData } from '../../schema/Sample/SampleMatrixSpecificData';
 
 type UnionKeys<T, O extends string> = T extends any ? keyof Omit<T, O> : never;
 export type SampleMatrixSpecificDataKeys = UnionKeys<
@@ -58,6 +61,33 @@ type SpecificDataFormInput = {
       colSm: 2 | 3 | 4 | 6 | 12;
     }
 );
+
+export const getSpecificDataValue = (
+  inputKey: SampleMatrixSpecificDataKeys,
+  specificData: SampleMatrixSpecificData
+): string | null => {
+  const value = specificData[inputKey as keyof typeof specificData];
+
+  const input = MatrixSpecificDataFormInputs[inputKey];
+
+  if (isNil(value)) {
+    return null;
+  }
+
+  switch (input.inputType) {
+    case 'checkbox':
+      return value ? input.label : null;
+    case 'select':
+    case 'radio':
+      return input.optionsLabels?.[value as string] || String(value);
+    case 'text':
+    case 'number':
+    case 'textarea':
+      return String(value);
+    default:
+      return String(value);
+  }
+};
 
 export const MatrixSpecificDataFormInputs: Record<
   SampleMatrixSpecificDataKeys,
@@ -108,6 +138,12 @@ export const MatrixSpecificDataFormInputs: Record<
     whenValid: 'Code tuerie correctement renseigné.',
     testId: 'killing-code-input'
   },
+  sampling: {
+    inputType: 'select',
+    label: 'Echantillonnage',
+    whenValid: 'Echantillonnage correctement renseigné.',
+    optionsValues: ['Aléatoire']
+  },
   animalKind: {
     inputType: 'select',
     label: "Type d'animal",
@@ -132,18 +168,18 @@ export const MatrixSpecificDataFormInputs: Record<
     whenValid: 'Identifiant correctement renseigné.',
     testId: 'animal-identifier-input'
   },
-  productionMethod: {
+  breedingMethod: {
     inputType: 'select',
-    label: 'Mode de production',
-    whenValid: 'Mode de production correctement renseigné.',
-    optionsValues: ProductionMethodList,
-    optionsLabels: ProductionMethodLabels,
-    defaultOptionLabel: 'Sélectionner un mode de production',
-    testId: 'production-method-select'
+    label: "Mode d'élevage",
+    whenValid: "Mode d'élevage correctement renseigné.",
+    optionsValues: BreedingMethodList,
+    optionsLabels: BreedingMethodLabels,
+    defaultOptionLabel: "Sélectionner un mode d'élevage",
+    testId: 'breeding-method-select'
   },
   age: {
     inputType: 'number',
-    label: 'Âge (en mois)',
+    label: "Âge de l'animal",
     whenValid: 'Âge correctement renseigné.',
     testId: 'age-input'
   },
@@ -155,5 +191,23 @@ export const MatrixSpecificDataFormInputs: Record<
     optionsLabels: AnimalSexLabels,
     defaultOptionLabel: 'Sélectionner un sexe',
     testId: 'sex-select'
+  },
+  seizure: {
+    inputType: 'select',
+    label: 'Saisie',
+    whenValid: 'Saisie correctement renseignée.',
+    optionsValues: SeizureList,
+    optionsLabels: SeizureLabels,
+    defaultOptionLabel: 'Sélectionner une saisie',
+    testId: 'seizure-select'
+  },
+  outdoorAccess: {
+    inputType: 'radio',
+    label: "Accès à l'extérieur des animaux de l'élevage",
+    whenValid: "Accès à l'extérieur correctement renseigné.",
+    testId: 'outdoor-access-radio',
+    optionsValues: OutdoorAccessList,
+    optionsLabels: OutdoorAccessLabels,
+    colSm: 4
   }
 };

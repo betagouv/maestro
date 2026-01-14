@@ -3,55 +3,28 @@ import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import {
+  MatrixSpecificDataForm,
+  MatrixSpecificDataFormInputProps
+} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
+import {
+  getSpecificDataValue,
+  MatrixSpecificDataFormInputs,
+  SampleMatrixSpecificDataKeys
+} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
+import {
   getSampleMatrixLabel,
   isProgrammingPlanSample,
   Sample,
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
-import {
-  MatrixSpecificDataForm,
-  MatrixSpecificDataFormInputProps
-} from 'src/views/SampleView/DraftSample/MatrixStep/MatrixSpecificDataForm';
-import {
-  MatrixSpecificDataFormInputs,
-  SampleMatrixSpecificDataKeys
-} from 'src/views/SampleView/DraftSample/MatrixStep/MatrixSpecificDataFormInputs';
 
-import { isNil } from 'lodash-es';
+import { FrIconClassName } from '@codegouvfr/react-dsfr/fr/generatedFromCss/classNames';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import StepSummary, {
   StepSummaryMode
 } from 'src/views/SampleView/StepSummary/StepSummary';
 import SampleDocument from '../../../components/Sample/SampleDocument/SampleDocument';
-
-const getSpecificDataValue = (
-  inputKey: SampleMatrixSpecificDataKeys,
-  specificData: SampleMatrixSpecificData
-): string | null => {
-  const value = specificData[inputKey as keyof typeof specificData];
-
-  const input = MatrixSpecificDataFormInputs[inputKey];
-
-  if (isNil(value)) {
-    return null;
-  }
-
-  switch (input.inputType) {
-    case 'checkbox':
-      return value ? input.label : null;
-    case 'select':
-    case 'radio':
-      return input.optionsLabels?.[value as string] || String(value);
-    case 'text':
-    case 'number':
-    case 'textarea':
-      return String(value);
-    default:
-      return String(value);
-  }
-};
 
 interface Props {
   sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
@@ -94,13 +67,17 @@ const MatrixStepSummary = ({ sample, mode = 'section', onEdit }: Props) => {
 
           return (
             <div key={inputKey} className="summary-item icon-text">
-              <div className={cx(inputProps.iconId ?? 'fr-mr-9v')}></div>
+              <div
+                className={cx(
+                  (inputProps.iconId as FrIconClassName) ?? 'fr-mr-9v'
+                )}
+              ></div>
               <div>
                 {input.inputType === 'checkbox' ? (
                   <b>{value}</b>
                 ) : (
                   <>
-                    {input.label} : <b>{value}</b>
+                    {inputProps.label ?? input.label} : <b>{value}</b>
                   </>
                 )}
               </div>

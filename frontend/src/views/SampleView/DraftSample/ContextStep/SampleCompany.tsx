@@ -1,18 +1,16 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Company } from 'maestro-shared/schema/Company/Company';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
-  isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { useContext, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import CompanySearch from 'src/components/CompanySearch/CompanySearch';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { UseForm } from 'src/hooks/useForm';
-import { ApiClientContext } from 'src/services/apiClient';
+import { usePartialSample } from '../../../../hooks/usePartialSample';
 
 type Props = {
   programmingPlan: ProgrammingPlan;
@@ -42,35 +40,27 @@ const SampleCompany = ({
   onGeolocationChange
 }: Props) => {
   const { user } = useAuthentication();
-  const apiClient = useContext(ApiClientContext);
+  const { programmingPlanPrescriptions, programmingPlanLocalPrescriptions } =
+    usePartialSample(partialSample);
 
-  const {
-    data: programmingKindLocalPrescriptions,
-    isLoading: isLocalPrescriptionLoading
-  } = apiClient.useFindLocalPrescriptionsQuery(
-    {
-      programmingPlanId: programmingPlan.id,
-      contexts: programmingPlan.contexts,
-      region: isCreatedPartialSample(partialSample)
-        ? partialSample.region
-        : user?.region,
-      department: isCreatedPartialSample(partialSample)
-        ? partialSample.department
-        : user?.department,
-      programmingPlanKinds: [programmingPlanKind as ProgrammingPlanKind]
-    },
-    {
-      skip:
-        programmingPlan.distributionKind !== 'SLAUGHTERHOUSE' ||
-        !programmingPlanKind
-    }
+  const programmingKindLocalPrescriptions = useMemo(
+    () =>
+      programmingPlanLocalPrescriptions?.filter((localPrescription) =>
+        programmingPlanPrescriptions?.some(
+          (prescription) =>
+            prescription.id === localPrescription.prescriptionId &&
+            prescription.programmingPlanKind === programmingPlanKind
+        )
+      ),
+    [
+      programmingPlanLocalPrescriptions,
+      programmingPlanPrescriptions,
+      programmingPlanKind
+    ]
   );
 
   const filteredCompanies = useMemo(() => {
-    if (
-      programmingPlan.distributionKind !== 'SLAUGHTERHOUSE' ||
-      isLocalPrescriptionLoading
-    ) {
+    if (programmingPlan.distributionKind !== 'SLAUGHTERHOUSE') {
       return undefined;
     }
     return user?.companies.filter(({ siret }) =>
@@ -84,15 +74,13 @@ const SampleCompany = ({
     programmingPlan.distributionKind,
     user?.companies,
     programmingKindLocalPrescriptions,
-    programmingPlanKind,
-    isLocalPrescriptionLoading
+    programmingPlanKind
   ]);
 
   useEffect(
     () => {
       if (
         programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
-        !isLocalPrescriptionLoading &&
         filteredCompanies
       ) {
         if (
@@ -111,13 +99,7 @@ const SampleCompany = ({
         }
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      filteredCompanies,
-      company,
-      programmingPlan.distributionKind,
-      isLocalPrescriptionLoading
-    ]
+    [filteredCompanies, company, programmingPlan.distributionKind] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   return (

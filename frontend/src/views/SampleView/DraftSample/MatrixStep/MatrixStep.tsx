@@ -20,6 +20,11 @@ import {
 } from 'maestro-shared/referential/Stage';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
+import {
+  MatrixSpecificDataForm,
+  MatrixSpecificDataFormInputProps
+} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
+import { SampleMatrixSpecificDataKeys } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -32,7 +37,10 @@ import {
   sampleMatrixCheck,
   SampleMatrixData
 } from 'maestro-shared/schema/Sample/Sample';
-import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
+import {
+  SampleStatus,
+  SampleStatusSteps
+} from 'maestro-shared/schema/Sample/SampleStatus';
 import { toArray } from 'maestro-shared/utils/utils';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
@@ -58,12 +66,7 @@ import { usePartialSample } from '../../../../hooks/usePartialSample';
 import { useAppSelector } from '../../../../hooks/useStore';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
-import {
-  MatrixSpecificDataForm,
-  MatrixSpecificDataFormInputProps
-} from './MatrixSpecificDataForm';
 import MatrixSpecificDataFormInput from './MatrixSpecificDataFormInput';
-import { SampleMatrixSpecificDataKeys } from './MatrixSpecificDataFormInputs';
 
 type Props = {
   partialSample: PartialSample | PartialSampleToCreate;
@@ -351,18 +354,37 @@ const MatrixStep = ({ partialSample }: Props) => {
   return (
     <form data-testid="draft_sample_matrix_form" className="sample-form">
       <div>
-        <Button
-          {...PreviousButton({
-            sampleId: partialSample.id,
-            currentStep: 2,
-            onSave: readonly ? undefined : () => save('Draft')
-          })}
-          size="small"
-          priority="tertiary no outline"
-          className={cx('fr-pl-0', 'fr-mb-1v')}
-        >
-          Étape précédente
-        </Button>
+        <div className={clsx(cx('fr-mb-1v'), 'd-flex-align-center')}>
+          <div className={clsx('flex-grow-1')}>
+            <Button
+              {...PreviousButton({
+                sampleId: partialSample.id,
+                currentStep: 2,
+                onSave: readonly ? undefined : () => save('Draft')
+              })}
+              size="small"
+              priority="tertiary no outline"
+              className={cx('fr-pl-0')}
+            >
+              Étape précédente
+            </Button>
+          </div>
+          {(!readonly ||
+            (SampleStatusSteps[partialSample.status] as number) > 2) && (
+            <Button
+              size="small"
+              priority="tertiary no outline"
+              className={cx('fr-pr-0')}
+              iconId="fr-icon-arrow-right-line"
+              iconPosition="right"
+              onClick={async (e) =>
+                readonly ? navigateToSample(partialSample.id, 3) : submit(e)
+              }
+            >
+              Étape suivante
+            </Button>
+          )}
+        </div>
         <AppRequiredText />
       </div>
 

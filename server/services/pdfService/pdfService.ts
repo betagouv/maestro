@@ -6,7 +6,6 @@ import { isNil } from 'lodash-es';
 import PdfGenerationError from 'maestro-shared/errors/pdfGenerationError';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import UserMissingError from 'maestro-shared/errors/userMissingError';
-import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
@@ -16,6 +15,15 @@ import { Regions } from 'maestro-shared/referential/Region';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
+import {
+  MatrixSpecificDataForm,
+  MatrixSpecificDataFormInputProps
+} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
+import {
+  getSpecificDataValue,
+  MatrixSpecificDataFormInputs,
+  SampleMatrixSpecificDataKeys
+} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   getSampleMatrixLabel,
@@ -27,6 +35,7 @@ import {
   SampleItemMaxCopyCount
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
+import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
@@ -263,12 +272,20 @@ const generateSampleSupportPDF = async (
     stage: sample.stage ? StageLabels[sample.stage] : '',
     matrixKind: sample.matrixKind ? MatrixKindLabels[sample.matrixKind] : '',
     matrix: getSampleMatrixLabel(sample),
-    matrixDetails:
-      sample.specificData?.programmingPlanKind === 'PPV'
-        ? sample.specificData?.matrixDetails
-        : undefined,
     matrixPart: getMatrixPartLabel(sample),
-    cultureKind: getCultureKindLabel(sample),
+    specificDataItems: (
+      Object.entries(
+        MatrixSpecificDataForm[sample.specificData.programmingPlanKind]
+      ) as [SampleMatrixSpecificDataKeys, MatrixSpecificDataFormInputProps][]
+    )
+      .filter(([inputKey, _]) => inputKey !== 'releaseControl')
+      .map(([inputKey, inputProps]) => ({
+        label: inputProps.label ?? MatrixSpecificDataFormInputs[inputKey].label,
+        value: getSpecificDataValue(
+          inputKey,
+          sample.specificData as SampleMatrixSpecificData
+        )
+      })),
     releaseControl:
       sample.specificData?.programmingPlanKind === 'PPV'
         ? sample.specificData.releaseControl

@@ -39,7 +39,8 @@ const sampler = genUser({
   region: '44'
 });
 const programmingPlan = genProgrammingPlan({
-  kinds: ['PPV']
+  kinds: ['PPV'],
+  distributionKind: 'REGIONAL'
 });
 const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
@@ -53,10 +54,12 @@ const prescription2 = genPrescription({
   matrixKind: 'A00TQ'
 });
 const regionalPrescription1 = genLocalPrescription({
-  prescriptionId: prescription1.id
+  prescriptionId: prescription1.id,
+  region: sampler.region
 });
 const regionalPrescription2 = genLocalPrescription({
-  prescriptionId: prescription2.id
+  prescriptionId: prescription2.id,
+  region: sampler.region
 });
 
 const storyMockApi: Partial<MockApi> = {

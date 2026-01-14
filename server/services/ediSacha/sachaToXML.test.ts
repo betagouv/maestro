@@ -94,10 +94,12 @@ test(`génère un XML de DAI`, async () => {
         matrix: 'A01SN#F26.A07XE',
         specificData: {
           programmingPlanKind: 'DAOA_BREEDING',
-          killingCode: '',
+          sampling: 'Aléatoire',
           animalIdentifier: '',
-          productionMethod: 'PROD_1',
-          species: 'ESP1'
+          age: 12,
+          species: 'ESP1',
+          breedingMethod: 'PROD_1',
+          outdoorAccess: 'PAT1'
         },
         company: {
           siret: 'siret',

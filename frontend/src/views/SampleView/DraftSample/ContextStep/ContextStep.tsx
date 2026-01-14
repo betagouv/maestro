@@ -4,7 +4,7 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
-import { isNil } from 'lodash-es';
+import { intersection, isNil } from 'lodash-es';
 import {
   LegalContext,
   LegalContextLabels
@@ -28,7 +28,10 @@ import {
   SampleContextData
 } from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
-import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
+import {
+  SampleStatus,
+  SampleStatusSteps
+} from 'maestro-shared/schema/Sample/SampleStatus';
 import { Sampler } from 'maestro-shared/schema/User/User';
 import {
   UserRoleList,
@@ -73,7 +76,11 @@ type Props = {
 const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const { navigateToSample, navigateToSamples } = useSamplesLink();
   const { isOnline } = useOnLine();
-  const { readonly } = usePartialSample(partialSample);
+  const {
+    readonly,
+    programmingPlanPrescriptions,
+    programmingPlanLocalPrescriptions
+  } = usePartialSample(partialSample);
   const { trackEvent } = useAnalytics();
   const { user } = useAuthentication();
   const apiClient = useContext(ApiClientContext);
@@ -263,10 +270,27 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   );
 
   const programmingPlanKindOptions = selectOptionsFromList(
-    programmingPlan.kinds ?? [],
+    intersection(
+      programmingPlan.kinds.filter((kind) =>
+        programmingPlanPrescriptions?.some(
+          (prescription) =>
+            prescription.programmingPlanKind === kind &&
+            programmingPlanLocalPrescriptions?.some(
+              (localPrescription) =>
+                localPrescription.prescriptionId === prescription.id &&
+                !isNil(localPrescription.companySiret) &&
+                user?.companies
+                  .map((_) => _.siret)
+                  .includes(localPrescription.companySiret) &&
+                localPrescription.sampleCount > 0
+            )
+        )
+      ),
+      user?.programmingPlanKinds ?? []
+    ),
     {
       labels: ProgrammingPlanKindLabels,
-      withDefault: true,
+      withDefault: 'auto',
       withSort: true
     }
   );
@@ -387,7 +411,28 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
             ${programmingPlanKind === 'PPV' ? ' de la parcelle' : ' du contrôle'}.`}
         />
       )}
-      <AppRequiredText />
+      <div>
+        {partialSample &&
+          (!readonly ||
+            (SampleStatusSteps[partialSample.status] as number) > 1) && (
+            <div className={clsx(cx('fr-mb-1v'), 'd-flex-align-center')}>
+              <div className={clsx('flex-grow-1')} />
+              <Button
+                size="small"
+                priority="tertiary no outline"
+                className={clsx(cx('fr-pr-0'))}
+                iconId="fr-icon-arrow-right-line"
+                iconPosition="right"
+                onClick={async (e) =>
+                  readonly ? navigateToSample(partialSample.id, 2) : submit(e)
+                }
+              >
+                Étape suivante
+              </Button>
+            </div>
+          )}
+        <AppRequiredText />
+      </div>
       {programmingPlanKind === 'PPV' && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
@@ -549,7 +594,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
           </div>
         </div>
       )}
-      {programmingPlanKindOptions.length > 2 && (
+      {programmingPlan.kinds.length > 1 && (
         <AppSelect
           defaultValue={programmingPlanKind}
           options={programmingPlanKindOptions}
