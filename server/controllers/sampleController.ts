@@ -60,6 +60,8 @@ import {
   getAndCheckSample,
   getAndCheckSampleDepartement
 } from '../middlewares/checks/sampleCheck';
+import { LaboratoryResidueMapping } from '../repositories/kysely.type';
+import { laboratoryResidueMappingRepository } from '../repositories/laboratoryResidueMappingRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
@@ -583,19 +585,21 @@ export const sampleRouter = {
                 ].join('\n')
               };
 
+              let laboratoryResiduesMapping: LaboratoryResidueMapping[] = [];
+              if (laboratory.shortName in laboratoriesConf) {
+                laboratoryResiduesMapping =
+                  await laboratoryResidueMappingRepository.findByLaboratoryShortName(
+                    laboratory.shortName as LaboratoryWithConf
+                  );
+              }
+
               const substanceToLaboratoryLabel = (
                 substance: SSD2Id
               ): string => {
-                let laboratoryLabel: string | null = null;
-                if (laboratory.shortName in laboratoriesConf) {
-                  const laboratoryShortName =
-                    laboratory.shortName as LaboratoryWithConf;
-                  laboratoryLabel =
-                    Object.entries(
-                      laboratoriesConf[laboratoryShortName].ssd2IdByLabel
-                    ).find(([_label, value]) => value === substance)?.[0] ??
-                    null;
-                }
+                const laboratoryLabel: string | null =
+                  laboratoryResiduesMapping.find(
+                    ({ ssd2Id }) => ssd2Id === substance
+                  )?.label ?? null;
                 return laboratoryLabel ?? SSD2IdLabel[substance];
               };
 
