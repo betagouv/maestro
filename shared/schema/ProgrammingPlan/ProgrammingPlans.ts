@@ -36,7 +36,7 @@ export const ProgrammingPlanBase = z.object({
   closedBy: z.guid().nullish()
 });
 
-export const ProgrammingPlan = ProgrammingPlanBase.check((ctx) => {
+export const ProgrammingPlanChecked = ProgrammingPlanBase.check((ctx) => {
   if (ctx.value.closedAt && !ctx.value.closedBy) {
     ctx.issues.push({
       input: ctx.value,
@@ -58,8 +58,8 @@ export const ProgrammingPlan = ProgrammingPlanBase.check((ctx) => {
   }
 });
 
-export type ProgrammingPlan = z.infer<typeof ProgrammingPlan>;
+export type ProgrammingPlanChecked = z.infer<typeof ProgrammingPlanChecked>;
 
-export const isClosed = (plan: ProgrammingPlan): boolean => {
+export const isClosed = (plan: ProgrammingPlanChecked): boolean => {
   return !isNil(plan.closedAt);
 };

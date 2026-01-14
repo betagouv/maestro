@@ -6,7 +6,7 @@ import { AuthUser } from '../schema/User/AuthUser';
 import {
   companiesIsRequired,
   programmingPlanKindsIsRequired,
-  User
+  UserRefined
 } from '../schema/User/User';
 import {
   canHaveDepartment,
@@ -17,7 +17,9 @@ import {
 import { SlaughterhouseCompanyFixture1 } from './companyFixtures';
 import { oneOf } from './testFixtures';
 
-export const genUser = <T extends Partial<User>>(data: T): User & T => {
+export const genUser = <T extends Partial<UserRefined>>(
+  data: T
+): UserRefined & T => {
   const roles = data?.roles ?? [oneOf(UserRoleList)];
 
   const region =
@@ -131,7 +133,7 @@ export const SamplerDaoaFixture = genUser({
 });
 
 export const genAuthUser = (
-  data?: Partial<User & { userRole: UserRole }>
+  data?: Partial<UserRefined & { userRole: UserRole }>
 ): AuthUser => {
   const role = data?.userRole ?? data?.roles?.[0] ?? oneOf(UserRoleList);
   return {

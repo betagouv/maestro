@@ -24,7 +24,7 @@ import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 import { SSD2Ids } from 'maestro-shared/referential/Residue/SSD2Id';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   Sample11Fixture,
   Sample2Fixture
@@ -192,7 +192,7 @@ describe('Analysis router', () => {
     });
 
     test('should fail if the user does not have the permission to create analysis', async () => {
-      const forbiddenRequestTest = async (user: User) =>
+      const forbiddenRequestTest = async (user: UserRefined) =>
         request(app)
           .post(testRoute)
           .send(genAnalysisToCreate())
@@ -270,7 +270,7 @@ describe('Analysis router', () => {
     });
 
     test('should fail if the user does not have the permission to update analysis', async () => {
-      const forbiddenRequestTest = async (user: User) =>
+      const forbiddenRequestTest = async (user: UserRefined) =>
         request(app)
           .put(testRoute(analysisWithoutResidue.id))
           .send(genPartialAnalysis())
@@ -284,7 +284,7 @@ describe('Analysis router', () => {
     });
 
     test('should fail if the analysis does not belong to the user region', async () => {
-      const forbiddenRequestTest = async (user: User) =>
+      const forbiddenRequestTest = async (user: UserRefined) =>
         request(app)
           .put(testRoute(analysisWithResidues.id))
           .send(genPartialAnalysis(analysisWithResidues))

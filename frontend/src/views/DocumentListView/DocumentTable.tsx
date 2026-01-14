@@ -1,7 +1,7 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
-import { Document } from 'maestro-shared/schema/Document/Document';
+import { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import { DocumentKindLabels } from 'maestro-shared/schema/Document/DocumentKind';
 import { formatDate } from 'maestro-shared/utils/date';
 import { useDocument } from 'src/hooks/useDocument';
@@ -9,9 +9,9 @@ import DocumentLink from '../../components/DocumentLink/DocumentLink';
 import { useAuthentication } from '../../hooks/useAuthentication';
 
 interface Props {
-  documents: Document[];
-  onViewDocumentNotes: (document: Document) => void;
-  onRemoveDocument: (document: Document) => void;
+  documents: DocumentChecked[];
+  onViewDocumentNotes: (document: DocumentChecked) => void;
+  onRemoveDocument: (document: DocumentChecked) => void;
 }
 
 const DocumentTable = ({

@@ -3,7 +3,7 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import { isNil } from 'lodash-es';
-import { Document } from 'maestro-shared/schema/Document/Document';
+import { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { useMemo, useState } from 'react';
 import { pluralize } from '../../../utils/stringUtils';
@@ -11,10 +11,10 @@ import DocumentCard from '../DocumentCard/DocumentCard';
 import DocumentTable from '../DocumentTable';
 
 interface Props {
-  resources: Document[];
+  resources: DocumentChecked[];
   documentKind?: DocumentKind;
-  onViewDocumentNotes: (document: Document) => void;
-  onRemoveDocument: (document: Document) => void;
+  onViewDocumentNotes: (document: DocumentChecked) => void;
+  onRemoveDocument: (document: DocumentChecked) => void;
   newDocumentId?: string | null;
 }
 

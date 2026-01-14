@@ -23,8 +23,8 @@ import {
   getSampleMatrixLabel,
   isProgrammingPlanSample,
   PartialSample,
-  Sample,
   SampleBase,
+  SampleChecked,
   sampleSendCheck
 } from 'maestro-shared/schema/Sample/Sample';
 import {
@@ -75,7 +75,7 @@ const streamToBase64 = async (stream: Readable): Promise<string> => {
 };
 
 const generateAndStoreSampleSupportDocument = async (
-  sample: Sample,
+  sample: SampleChecked,
   sampleItems: SampleItem[],
   itemNumber: number,
   copyNumber: number
@@ -532,7 +532,7 @@ export const sampleRouter = {
       };
 
       if (mustBeSent) {
-        const updatedSample = Sample.parse(updatedPartialSample);
+        const updatedSample = SampleChecked.parse(updatedPartialSample);
         const sampleItems = await sampleItemRepository.findMany(sample.id);
 
         const attachments: ({

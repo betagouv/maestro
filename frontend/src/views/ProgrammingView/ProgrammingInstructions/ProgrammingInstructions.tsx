@@ -4,7 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { Region } from 'maestro-shared/referential/Region';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useMemo } from 'react';
 import alert from '../../../assets/illustrations/alert.svg';
 import check from '../../../assets/illustrations/check.svg';
@@ -16,7 +16,7 @@ import { ApiClientContext } from '../../../services/apiClient';
 import './ProgrammingInstructions.scss';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
 }
 
 const ProgrammingInstructions = ({ programmingPlan }: Props) => {

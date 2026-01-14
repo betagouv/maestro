@@ -1,13 +1,13 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import { isNil } from 'lodash-es';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useMemo, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAutoSave } from 'src/hooks/useAutoSave';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   value?: string | null;
   onSubmitInstruction?: (instruction: string) => Promise<void>;
 }

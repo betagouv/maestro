@@ -6,7 +6,10 @@ import { AnalysisToCreate, PartialAnalysis } from '../schema/Analysis/Analysis';
 import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
 import { AnalysisStatusList } from '../schema/Analysis/AnalysisStatus';
 import { Analyte, PartialAnalyte } from '../schema/Analysis/Analyte';
-import { PartialResidue, Residue } from '../schema/Analysis/Residue/Residue';
+import {
+  PartialResidue,
+  ResidueChecked
+} from '../schema/Analysis/Residue/Residue';
 import { ResidueComplianceList } from '../schema/Analysis/Residue/ResidueCompliance';
 import { oneOf } from './testFixtures';
 
@@ -32,7 +35,7 @@ export const genPartialAnalysis = (
 });
 
 export const genPartialResidue = (
-  data?: Partial<Omit<Residue, 'analytes'>> & {
+  data?: Partial<Omit<ResidueChecked, 'analytes'>> & {
     analytes?: PartialAnalyte[];
     unknownLabel?: string;
   }

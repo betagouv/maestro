@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { Sample, SampleBase } from 'maestro-shared/schema/Sample/Sample';
+import { SampleBase, SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import React, { useContext, useState } from 'react';
 import z from 'zod';
 import { useForm } from '../../../../hooks/useForm';
@@ -16,7 +16,7 @@ import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTe
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
 import { ApiClientContext } from '../../../../services/apiClient';
 
-const Form = SampleBase.pick({
+const FormChecked = SampleBase.pick({
   receivedAt: true,
   notesOnAdmissibility: true
 })
@@ -49,9 +49,9 @@ const Form = SampleBase.pick({
     }
   });
 
-export type FormRefinement = ReturnType<typeof useForm<typeof Form>>;
+export type FormRefinement = ReturnType<typeof useForm<typeof FormChecked>>;
 type Props = {
-  sample: Sample;
+  sample: SampleChecked;
   withSubmitButton: boolean;
   setForm?: (form: FormRefinement) => void;
 };
@@ -85,7 +85,7 @@ export const SampleAdmissibilityForm: FunctionComponent<Props> = ({
     sample.notesOnAdmissibility
   );
 
-  const form = useForm(Form, {
+  const form = useForm(FormChecked, {
     isReceived,
     receivedAt,
     isAdmissible,

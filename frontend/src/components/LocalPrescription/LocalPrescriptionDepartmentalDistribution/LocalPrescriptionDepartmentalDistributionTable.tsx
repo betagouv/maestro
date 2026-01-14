@@ -13,7 +13,7 @@ import {
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useMemo } from 'react';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
 import { assert, type Equals } from 'tsafe';
@@ -21,7 +21,7 @@ import { useAuthentication } from '../../../hooks/useAuthentication';
 import TableHeaderCell from '../../TableHeaderCell/TableHeaderCell';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   prescription: Prescription;
   regionalPrescription: LocalPrescription;
   departmentalPrescriptions: LocalPrescription[];

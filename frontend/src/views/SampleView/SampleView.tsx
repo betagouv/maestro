@@ -1,7 +1,7 @@
 import {
   PartialSample,
   PartialSampleToCreate,
-  Sample
+  SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { useContext } from 'react';
@@ -46,7 +46,7 @@ const SampleView = () => {
       {[...DraftStatusList, 'Submitted'].includes(sample.status) ? (
         <DraftSample sample={sample} />
       ) : (
-        <SampleOverview sample={sample as Sample} />
+        <SampleOverview sample={sample as SampleChecked} />
       )}
     </>
   );

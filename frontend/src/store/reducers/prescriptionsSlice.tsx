@@ -8,7 +8,7 @@ import { PrescriptionComments } from 'maestro-shared/schema/Prescription/Prescri
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { PrescriptionListDisplay } from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionList';
 import { z } from 'zod';
 
@@ -28,7 +28,7 @@ export type PrescriptionFilters = z.infer<typeof PrescriptionFilters>;
 const PrescriptionCommentsData = z.discriminatedUnion('viewBy', [
   z.object({
     viewBy: z.literal('Prescription'),
-    programmingPlan: ProgrammingPlan,
+    programmingPlan: ProgrammingPlanChecked,
     prescription: Prescription,
     currentRegion: Region.nullish(),
     regionalCommentsList: z.array(
@@ -57,14 +57,14 @@ const PrescriptionCommentsData = z.discriminatedUnion('viewBy', [
 
 const PrescriptionModalData = z.object({
   mode: z.enum(['analysis', 'details']),
-  programmingPlan: ProgrammingPlan,
+  programmingPlan: ProgrammingPlanChecked,
   prescription: Prescription
 });
 
 const LocalPrescriptionModalData = z.discriminatedUnion('viewBy', [
   z.object({
     mode: z.literal('laboratory'),
-    programmingPlan: ProgrammingPlan,
+    programmingPlan: ProgrammingPlanChecked,
     prescription: Prescription,
     localPrescription: LocalPrescription
   }),
@@ -73,7 +73,7 @@ const LocalPrescriptionModalData = z.discriminatedUnion('viewBy', [
       'distributionToDepartments',
       'distributionToSlaughterhouses'
     ]),
-    programmingPlan: ProgrammingPlan,
+    programmingPlan: ProgrammingPlanChecked,
     prescription: Prescription,
     localPrescription: LocalPrescription,
     subLocalPrescriptions: z.array(LocalPrescription)

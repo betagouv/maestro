@@ -5,8 +5,8 @@ import { OptionalBoolean } from '../../../referential/OptionnalBoolean';
 import { isComplex } from '../../../referential/Residue/SSD2Hierarchy';
 import { SSD2Id, SSD2Ids } from '../../../referential/Residue/SSD2Id';
 import { SSD2Referential } from '../../../referential/Residue/SSD2Referential';
-import { maestroDate } from '../../../utils/date';
-import { Sample, SampleBase } from '../../Sample/Sample';
+import { maestroDateRefined } from '../../../utils/date';
+import { SampleBase, SampleChecked } from '../../Sample/Sample';
 import { AnalysisMethod } from '../AnalysisMethod';
 import { Analyte, PartialAnalyte } from '../Analyte';
 import { ResidueCompliance } from './ResidueCompliance';
@@ -16,7 +16,7 @@ const ResidueBase = z.object({
   analysisId: z.guid(),
   residueNumber: z.number().int().positive(),
   analysisMethod: AnalysisMethod,
-  analysisDate: maestroDate.nullish(),
+  analysisDate: maestroDateRefined.nullish(),
   reference: SSD2Id,
   resultKind: ResultKind,
   result: z.number().min(0).nullish(),
@@ -32,7 +32,7 @@ const ResidueBase = z.object({
   analytes: z.array(Analyte).nullish()
 });
 
-const sampleResidueCheck: CheckFn<Residue> = (ctx) => {
+const sampleResidueCheck: CheckFn<ResidueChecked> = (ctx) => {
   if (ctx.value.compliance === 'Other' && !ctx.value.otherCompliance) {
     ctx.issues.push({
       input: ctx.value,
@@ -66,10 +66,10 @@ const sampleResidueCheck: CheckFn<Residue> = (ctx) => {
   }
 };
 
-export const Residue = ResidueBase.check(sampleResidueCheck);
+export const ResidueChecked = ResidueBase.check(sampleResidueCheck);
 const sampleResidueLmrCheck: CheckFn<
-  Pick<Sample, 'stage' | 'specificData'> &
-    Pick<Residue, 'resultKind' | 'lmr' | 'reference'>
+  Pick<SampleChecked, 'stage' | 'specificData'> &
+    Pick<ResidueChecked, 'resultKind' | 'lmr' | 'reference'>
 > = (ctx) => {
   if (!LmrIsValid(ctx.value)) {
     ctx.issues.push({
@@ -81,7 +81,7 @@ const sampleResidueLmrCheck: CheckFn<
   }
 };
 
-const LmrCheck = z
+const LmrCheckChecked = z
   .object({
     ...SampleBase.pick({
       stage: true,
@@ -95,7 +95,9 @@ const LmrCheck = z
   })
   .check(sampleResidueLmrCheck);
 
-export const LmrIsValid = (sample: z.infer<typeof LmrCheck>): boolean => {
+export const LmrIsValid = (
+  sample: z.infer<typeof LmrCheckChecked>
+): boolean => {
   let lmrCanBeOptional: boolean = false;
   if (sample.reference && SSD2Ids.includes(sample.reference)) {
     lmrCanBeOptional =
@@ -131,14 +133,14 @@ export const PartialResidue = z.object({
   analytes: z.array(PartialAnalyte).nullish()
 });
 
-export const ResidueLmrCheck = z
+export const ResidueLmrChecked = z
   .object({
-    ...Residue.shape,
-    ...LmrCheck.shape
+    ...ResidueChecked.shape,
+    ...LmrCheckChecked.shape
   })
   .check(sampleResidueCheck)
   .check(sampleResidueLmrCheck);
 
-export type Residue = z.infer<typeof Residue>;
+export type ResidueChecked = z.infer<typeof ResidueChecked>;
 export type PartialResidue = z.infer<typeof PartialResidue>;
-export type ResidueLmrCheck = z.infer<typeof ResidueLmrCheck>;
+export type ResidueLmrChecked = z.infer<typeof ResidueLmrChecked>;

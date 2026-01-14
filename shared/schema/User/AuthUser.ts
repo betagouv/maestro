@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { User } from './User';
+import { UserRefined } from './User';
 import { UserRole } from './UserRole';
 
 export const AuthUser = z.object({
-  user: User,
+  user: UserRefined,
   userRole: UserRole
 });
 

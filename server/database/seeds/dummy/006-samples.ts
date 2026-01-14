@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { Region, Regions } from 'maestro-shared/referential/Region';
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import { genCreatedSample } from 'maestro-shared/test/sampleFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
@@ -42,7 +42,7 @@ export const seed = async function () {
   }
 
   const samples = [
-    faker.helpers.multiple<Sample>(
+    faker.helpers.multiple<SampleChecked>(
       () =>
         genCreatedSample({
           sampler,
@@ -58,7 +58,7 @@ export const seed = async function () {
         }),
       { count: 2 }
     ),
-    faker.helpers.multiple<Sample>(
+    faker.helpers.multiple<SampleChecked>(
       () =>
         genCreatedSample({
           sampler,
@@ -74,7 +74,7 @@ export const seed = async function () {
         }),
       { count: 8 }
     ),
-    faker.helpers.multiple<Sample>(
+    faker.helpers.multiple<SampleChecked>(
       () =>
         genCreatedSample({
           sampler,
@@ -90,7 +90,7 @@ export const seed = async function () {
         }),
       { count: 3 }
     ),
-    faker.helpers.multiple<Sample>(
+    faker.helpers.multiple<SampleChecked>(
       () =>
         genCreatedSample({
           sampler,
@@ -106,7 +106,7 @@ export const seed = async function () {
         }),
       { count: 4 }
     ),
-    faker.helpers.multiple<Sample>(
+    faker.helpers.multiple<SampleChecked>(
       () =>
         genCreatedSample({
           sampler,
@@ -122,7 +122,7 @@ export const seed = async function () {
         }),
       { count: 7 }
     ),
-    faker.helpers.multiple<Sample>(
+    faker.helpers.multiple<SampleChecked>(
       () =>
         genCreatedSample({
           sampler,
@@ -138,7 +138,7 @@ export const seed = async function () {
         }),
       { count: 6 }
     ),
-    faker.helpers.multiple<Sample>(
+    faker.helpers.multiple<SampleChecked>(
       () =>
         genCreatedSample({
           sampler,
@@ -158,7 +158,7 @@ export const seed = async function () {
 
   const sampleItems = samples
     .flat()
-    .map((sample: Sample) => sample.items)
+    .map((sample: SampleChecked) => sample.items)
     .flat();
 
   await Samples().insert(

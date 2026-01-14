@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { QuantityUnitList } from 'maestro-shared/referential/QuantityUnit';
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
@@ -153,7 +153,7 @@ export const SubmittingErrors: Story = {
         compliance200263: undefined
       })) as PartialSampleItem[],
       status: 'DraftItems' as const
-    } as Sample
+    } as SampleChecked
   },
   parameters: {
     preloadedState: {
@@ -206,7 +206,7 @@ export const SubmittingSuccess: Story = {
           substanceKind: 'Any'
         }
       ]
-    } as Sample
+    } as SampleChecked
   },
   parameters: {
     preloadedState: {

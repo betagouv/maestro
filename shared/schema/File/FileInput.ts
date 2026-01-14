@@ -7,7 +7,7 @@ export const FileInput = (
   acceptFileTypes: Readonly<[FileType, ...FileType[]]> = FileTypeList,
   multiple = false
 ) => {
-  const fileSchema = z
+  const fileSchemaRefined = z
     .any()
     .refine((file) => file instanceof File, 'Veuillez sélectionner un fichier.')
     .refine(
@@ -23,7 +23,7 @@ export const FileInput = (
     }, "Ce type de fichier n'est pas accepté.");
   if (multiple) {
     return z
-      .array(fileSchema)
+      .array(fileSchemaRefined)
       .nonempty('Veuillez sélectionner au moins un fichier.')
       .superRefine((files, ctx) => {
         files.forEach((file) => {
@@ -47,5 +47,5 @@ export const FileInput = (
       });
   }
 
-  return fileSchema;
+  return fileSchemaRefined;
 };

@@ -1,9 +1,9 @@
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { sendSachaFile } from './sachaSender';
 import { generateXMLDAI, loadLaboratoryCall, XmlFile } from './sachaToXML';
 
 //FIXME EDI à brancher avec la PPV
-export const generateDAI = async (sample: Sample) => {
+export const generateDAI = async (sample: SampleChecked) => {
   let xmlFile: XmlFile | null = null;
 
   const itemsForLaboratories = sample.items.filter(

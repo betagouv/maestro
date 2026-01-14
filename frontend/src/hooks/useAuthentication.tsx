@@ -9,7 +9,7 @@ import {
   hasPrescriptionPermission,
   PrescriptionPermission
 } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
 import {
@@ -54,7 +54,7 @@ export const useAuthentication = () => {
 
   const hasUserPrescriptionPermission = useCallback(
     (
-      programmingPlan?: ProgrammingPlan
+      programmingPlan?: ProgrammingPlanChecked
     ): Record<PrescriptionPermission, boolean> | null =>
       !isNil(authUser?.user) && !isNil(programmingPlan)
         ? hasPrescriptionPermission(authUser?.userRole, programmingPlan)
@@ -64,7 +64,7 @@ export const useAuthentication = () => {
 
   const hasUserLocalPrescriptionPermission = useCallback(
     (
-      programmingPlan?: ProgrammingPlan,
+      programmingPlan?: ProgrammingPlanChecked,
       localPrescription?: { region: Region; department?: Department | null }
     ): Record<LocalPrescriptionPermission, boolean> | null =>
       !isNil(authUser?.user) &&

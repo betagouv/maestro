@@ -1,5 +1,5 @@
 import { constants } from 'http2';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   genAnalysisToCreate,
   genPartialAnalysis
@@ -134,7 +134,7 @@ describe('Analysis Report Documents router', () => {
     });
 
     test('should fail if the user does not have the permission to create analysis', async () => {
-      const forbiddenRequestTest = async (user: User) =>
+      const forbiddenRequestTest = async (user: UserRefined) =>
         request(app)
           .post(testRoute(analysisWithoutReportDocuments.id))
           .send({ documentId: document1.id })
@@ -191,7 +191,7 @@ describe('Analysis Report Documents router', () => {
     });
 
     test('should fail if the user does not have the permission to create analysis', async () => {
-      const forbiddenRequestTest = async (user: User) =>
+      const forbiddenRequestTest = async (user: UserRefined) =>
         request(app)
           .delete(testRoute(analysisWithoutReportDocuments.id))
           .send({ documentId: document1.id })

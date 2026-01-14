@@ -7,13 +7,13 @@ import { format, parse } from 'date-fns';
 import { isNil, uniq } from 'lodash-es';
 import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isCreatedPartialSample,
   isProgrammingPlanSample,
   PartialSample,
   PartialSampleToCreate,
-  SampleItemsData,
+  SampleItemsDataChecked,
   uniqueSampleItemSealIdCheck
 } from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
@@ -90,7 +90,7 @@ const ItemsStep = ({ partialSample }: Props) => {
         ? partialSample.region
         : user?.region,
       includes: 'laboratories',
-      ...((programmingPlan as ProgrammingPlan).distributionKind ===
+      ...((programmingPlan as ProgrammingPlanChecked).distributionKind ===
       'SLAUGHTERHOUSE'
         ? {
             department: partialSample.department
@@ -105,7 +105,7 @@ const ItemsStep = ({ partialSample }: Props) => {
   const localPrescription = useMemo(
     () =>
       data?.find((_) =>
-        (programmingPlan as ProgrammingPlan).distributionKind ===
+        (programmingPlan as ProgrammingPlanChecked).distributionKind ===
         'SLAUGHTERHOUSE'
           ? isNil(_.companySiret)
           : isNil(_.department)
@@ -144,31 +144,29 @@ const ItemsStep = ({ partialSample }: Props) => {
     }
   }, [localPrescription, programmingPlan]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const Form = z.object(SampleItemsData.shape).pick({
+  const Form = z.object(SampleItemsDataChecked.shape).pick({
     sampledAt: true,
     shippingDate: true,
     notesOnItems: true,
     items: true
   });
 
-  const FormRefinement = Form.check(uniqueSampleItemSealIdCheck).check(
-    (ctx) => {
-      ctx.value.items.forEach((item, index) => {
-        if (
-          item.copyNumber === 1 &&
-          isNil(item.laboratoryId) &&
-          !isProgrammingPlanSample(partialSample)
-        ) {
-          ctx.issues.push({
-            code: 'custom' as const,
-            path: ['items', index, 'laboratoryId'],
-            input: 'items',
-            message: 'Veuillez sélectionner un laboratoire.'
-          });
-        }
-      });
-    }
-  );
+  const FormChecked = Form.check(uniqueSampleItemSealIdCheck).check((ctx) => {
+    ctx.value.items.forEach((item, index) => {
+      if (
+        item.copyNumber === 1 &&
+        isNil(item.laboratoryId) &&
+        !isProgrammingPlanSample(partialSample)
+      ) {
+        ctx.issues.push({
+          code: 'custom' as const,
+          path: ['items', index, 'laboratoryId'],
+          input: 'items',
+          message: 'Veuillez sélectionner un laboratoire.'
+        });
+      }
+    });
+  });
 
   useEffect(
     () => {
@@ -248,7 +246,7 @@ const ItemsStep = ({ partialSample }: Props) => {
   };
 
   const form = useForm(
-    FormRefinement,
+    FormChecked,
     {
       sampledAt,
       shippingDate,

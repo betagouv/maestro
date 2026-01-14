@@ -1,7 +1,7 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import EditableNumberCell from 'src/components/EditableNumberCell/EditableNumberCell';
 import { useAppDispatch } from 'src/hooks/useStore';
@@ -9,7 +9,7 @@ import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import { assert, type Equals } from 'tsafe';
 import './DistributionCountCell.scss';
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   prescription: Prescription;
   localPrescription: LocalPrescription;
   isEditable?: boolean;

@@ -9,7 +9,7 @@ import { sumBy } from 'lodash-es';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { NextProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import React, { useContext, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -19,7 +19,7 @@ import { ApiClientContext } from '../../../services/apiClient';
 import { pluralize } from '../../../utils/stringUtils';
 import '../ProgrammingPlanNotification.scss';
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   regionalPrescriptions: LocalPrescription[];
   departmentalPrescriptions: LocalPrescription[];
 }

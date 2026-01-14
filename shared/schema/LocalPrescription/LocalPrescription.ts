@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { Department, DepartmentSort } from '../../referential/Department';
 import { Region, RegionSort } from '../../referential/Region';
 import { Prescription } from '../Prescription/Prescription';
-import { ProgrammingPlan } from '../ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
 import { UserBase, hasPermission, userRegionsForRole } from '../User/User';
 import { UserRole } from '../User/UserRole';
 import { LocalPrescriptionComment } from './LocalPrescriptionComment';
@@ -137,7 +137,7 @@ export type LocalPrescriptionPermission = z.infer<
 export const hasLocalPrescriptionPermission = (
   user: UserBase,
   userRole: UserRole,
-  programmingPlan: ProgrammingPlan,
+  programmingPlan: ProgrammingPlanChecked,
   localPrescription: { region: Region; department?: Department | null }
 ): Record<LocalPrescriptionPermission, boolean> => ({
   updateSampleCount:

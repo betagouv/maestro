@@ -2,7 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { formatDate } from 'maestro-shared/utils/date';
 import './SampleAdmissibility.scss';
 
@@ -10,7 +10,7 @@ import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { SampleAdmissibilityEditModal } from './SampleAdmissibilityEditModal';
 interface Props {
-  sample: Sample;
+  sample: SampleChecked;
   readonly: boolean;
 }
 

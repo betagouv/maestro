@@ -7,7 +7,7 @@ import { SSD2IdSort } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   AdditionalSubstanceKindList,
   SubstanceKindLabels
@@ -21,7 +21,7 @@ import { ApiClientContext } from '../../../services/apiClient';
 import '../PrescriptionModal/PrescriptionModal.scss';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   prescription: Prescription;
   renderMode: 'inline' | 'modal';
 }

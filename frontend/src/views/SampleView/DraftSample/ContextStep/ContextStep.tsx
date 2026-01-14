@@ -20,7 +20,7 @@ import {
   ProgrammingPlanKind,
   ProgrammingPlanKindLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isOutsideProgrammingPlanSample,
   PartialSample,
@@ -69,7 +69,7 @@ import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 
 type Props = {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   partialSample?: PartialSample | PartialSampleToCreate;
 };
 

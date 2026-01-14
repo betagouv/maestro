@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { maestroDate } from 'maestro-shared/utils/date';
+import { maestroDateRefined } from 'maestro-shared/utils/date';
 import XLSX, { WorkBook } from 'xlsx';
 import { z } from 'zod';
 import { ExtractBadFormatError, ExtractError } from '../extractError';
@@ -46,7 +46,7 @@ const fileValidator = z.array(
           .transform((d) => {
             return format(d, 'yyyy-MM-dd');
           })
-          .pipe(maestroDate),
+          .pipe(maestroDateRefined),
         Méthode: methodValidator,
         "Méthode d'analyse": methodValidator,
         Paramètre: z.string(),

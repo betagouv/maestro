@@ -1,4 +1,4 @@
-import { maestroDate } from 'maestro-shared/utils/date';
+import { maestroDateRefined } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 import {
   sigleContexteInterventionValidator,
@@ -23,7 +23,7 @@ const coerceToArray = <Schema extends z.ZodObject>(
 };
 
 // 1900-01-01
-const sachaDate = maestroDate;
+const sachaDate = maestroDateRefined;
 
 // 1900-01-01T00:00:00
 const sachaDateTime = z

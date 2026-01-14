@@ -4,7 +4,7 @@ import {
   Department,
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   getSampleItemReference,
   SampleItem
@@ -96,7 +96,7 @@ export const generateXMLAcquitement = async (
 
 export const generateXMLDAI = (
   sample: Pick<
-    Sample,
+    SampleChecked,
     | 'specificData'
     | 'sampledAt'
     | 'lastUpdatedAt'

@@ -1,5 +1,5 @@
 import Button from '@codegouvfr/react-dsfr/Button';
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import React, { useContext, useState } from 'react';
 import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSummary';
 import { usePartialSample } from '../../../hooks/usePartialSample';
@@ -7,7 +7,7 @@ import { ApiClientContext } from '../../../services/apiClient';
 import SavedAlert from '../SavedAlert';
 import './SampleOverview.scss';
 interface Props {
-  sample: Sample;
+  sample: SampleChecked;
 }
 
 const SampleOverviewContextTab = ({ sample }: Props) => {

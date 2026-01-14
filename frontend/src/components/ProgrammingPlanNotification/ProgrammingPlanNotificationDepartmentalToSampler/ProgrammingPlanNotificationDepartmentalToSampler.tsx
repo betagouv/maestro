@@ -6,7 +6,7 @@ import { isNil, sumBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { Region } from 'maestro-shared/referential/Region';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   NextProgrammingPlanStatus,
   ProgrammingPlanStatus
@@ -16,7 +16,7 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { ApiClientContext } from '../../../services/apiClient';
 import '../ProgrammingPlanNotification.scss';
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   departmentalPrescriptions: LocalPrescription[];
   companyPrescriptions: LocalPrescription[];
 }

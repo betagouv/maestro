@@ -6,7 +6,7 @@ import {
   LocalPrescription
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import maplibregl, {
   MapGeoJSONFeature,
   Point,
@@ -27,7 +27,7 @@ import { ApiClientContext } from '../../services/apiClient';
 import { getURLQuery } from '../../utils/fetchUtils';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   context: ProgrammingPlanContext;
   localPrescriptions: LocalPrescription[];
 }

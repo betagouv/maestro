@@ -1,6 +1,6 @@
 import { groupBy } from 'lodash-es';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { maestroDate } from 'maestro-shared/utils/date';
+import { maestroDateRefined } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 import { ExtractBadFormatError, ExtractError } from './extractError';
 import {
@@ -769,7 +769,7 @@ export const extractAnalyzes = (
           const [d, m, y] = date.substring(0, 10).split('/');
           return `${y}-${m}-${d}`;
         })
-        .pipe(maestroDate),
+        .pipe(maestroDateRefined),
       COMMENTAIRE: z.string().nullish()
     })
   );

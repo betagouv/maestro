@@ -1,17 +1,22 @@
 import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
-import { Document, DocumentToCreate } from '../schema/Document/Document';
+import {
+  DocumentChecked,
+  DocumentToCreateChecked
+} from '../schema/Document/Document';
 import { DocumentKindList } from '../schema/Document/DocumentKind';
 import { oneOf } from './testFixtures';
 import { NationalCoordinator } from './userFixtures';
 
-export const genDocumentToCreate = (): DocumentToCreate => ({
+export const genDocumentToCreate = (): DocumentToCreateChecked => ({
   id: uuidv4(),
   filename: fakerFR.string.alphanumeric(32),
   kind: oneOf(DocumentKindList)
 });
 
-export const genDocument = (data?: Partial<Document>): Document => ({
+export const genDocument = (
+  data?: Partial<DocumentChecked>
+): DocumentChecked => ({
   id: uuidv4(),
   filename: fakerFR.string.alphanumeric(32),
   createdAt: new Date(),

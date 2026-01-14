@@ -4,6 +4,7 @@ import { SSD2IdLabel, SSD2Referential } from './SSD2Referential';
 
 export const SSD2Ids = Object.keys(SSD2Referential);
 
+// eslint-disable-next-line no-restricted-syntax
 export const SSD2Id = z
   .string({
     error: (issue) =>

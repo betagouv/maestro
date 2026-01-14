@@ -5,7 +5,7 @@ import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { Brand } from 'maestro-shared/constants';
-import { Document } from 'maestro-shared/schema/Document/Document';
+import { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import {
   DocumentKindLabels,
   ResourceDocumentKindList
@@ -53,13 +53,13 @@ const DocumentListView = () => {
       fixedCacheKey: 'deleteDocument'
     });
 
-  const [currentDocument, setCurrentDocument] = useState<Document>();
+  const [currentDocument, setCurrentDocument] = useState<DocumentChecked>();
 
-  const onViewNotes = (document: Document) => {
+  const onViewNotes = (document: DocumentChecked) => {
     setCurrentDocument(document);
     setTimeout(() => noteModal.open(), 100);
   };
-  const onRemove = (document: Document) => {
+  const onRemove = (document: DocumentChecked) => {
     setCurrentDocument(document);
     removeModal.open();
   };

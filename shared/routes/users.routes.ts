@@ -1,20 +1,24 @@
 import z from 'zod';
 import { FindUserOptions } from '../schema/User/FindUserOptions';
-import { User, UserToCreate, UserToUpdate } from '../schema/User/User';
+import {
+  UserRefined,
+  UserToCreateRefined,
+  UserToUpdateRefined
+} from '../schema/User/User';
 import { SubRoutes } from './routes';
 
 export const usersRoutes = {
   '/users': {
     params: undefined,
     get: {
-      response: z.array(User),
+      response: z.array(UserRefined),
       query: FindUserOptions,
       permissions: 'NONE'
     },
     post: {
       response: z.void(),
       permissions: ['administrationMaestro'],
-      body: UserToCreate
+      body: UserToCreateRefined
     }
   },
   '/users/:userId': {
@@ -22,13 +26,13 @@ export const usersRoutes = {
       userId: z.guid()
     },
     get: {
-      response: User,
+      response: UserRefined,
       permissions: 'NONE'
     },
     put: {
       response: z.void(),
       permissions: ['administrationMaestro'],
-      body: UserToUpdate
+      body: UserToUpdateRefined
     }
   }
 } as const satisfies SubRoutes<'/users'>;

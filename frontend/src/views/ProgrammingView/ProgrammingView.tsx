@@ -9,7 +9,7 @@ import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/Lo
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
@@ -116,7 +116,7 @@ const ProgrammingView = () => {
 
   const submitLocalPrescriptionComment = useCallback(
     async (
-      programmingPlan: ProgrammingPlan,
+      programmingPlan: ProgrammingPlanChecked,
       regionalPrescriptionKey: LocalPrescriptionKey,
       comment: string
     ) => {

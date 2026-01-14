@@ -6,10 +6,9 @@ import {
   ResourceDocumentKindList
 } from './DocumentKind';
 
-export const documentChecks: CheckFn<Pick<Document, 'kind' | 'name'>> = ({
-  value,
-  issues
-}) => {
+export const documentChecks: CheckFn<
+  Pick<DocumentChecked, 'kind' | 'name'>
+> = ({ value, issues }) => {
   if (
     ResourceDocumentKindList.includes(value.kind) &&
     (!value.name || value.name.trim() === '')
@@ -34,9 +33,9 @@ const DocumentBase = z.object({
   notes: z.string().nullish()
 });
 
-export const Document = DocumentBase.check(documentChecks);
+export const DocumentChecked = DocumentBase.check(documentChecks);
 
-export const DocumentToCreate = DocumentBase.pick({
+export const DocumentToCreateChecked = DocumentBase.pick({
   id: true,
   filename: true,
   name: true,
@@ -45,13 +44,13 @@ export const DocumentToCreate = DocumentBase.pick({
   notes: true
 }).check(documentChecks);
 
-export const DocumentUpdate = DocumentBase.pick({
+export const DocumentUpdateChecked = DocumentBase.pick({
   name: true,
   legend: true,
   kind: true,
   notes: true
 }).check(documentChecks);
 
-export type Document = z.infer<typeof Document>;
-export type DocumentToCreate = z.infer<typeof DocumentToCreate>;
-export type DocumentUpdate = z.infer<typeof DocumentUpdate>;
+export type DocumentChecked = z.infer<typeof DocumentChecked>;
+export type DocumentToCreateChecked = z.infer<typeof DocumentToCreateChecked>;
+export type DocumentUpdateChecked = z.infer<typeof DocumentUpdateChecked>;

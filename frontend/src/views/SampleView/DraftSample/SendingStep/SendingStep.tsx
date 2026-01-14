@@ -7,8 +7,8 @@ import { isNil } from 'lodash-es';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import {
   isCreatedPartialSample,
-  Sample,
   SampleBase,
+  SampleChecked,
   SampleOwnerData,
   sampleSendCheck,
   SampleToCreate
@@ -45,7 +45,7 @@ import { ApiClientContext } from '../../../../services/apiClient';
 import SupportDocumentDownload from '../SupportDocumentDownload';
 
 type Props = {
-  sample: (Sample | SampleToCreate) & Partial<SampleOwnerData>;
+  sample: (SampleChecked | SampleToCreate) & Partial<SampleOwnerData>;
 };
 
 const SendingStep: FunctionComponent<Props> = ({ sample }) => {
@@ -115,7 +115,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
     [sample.id]
   );
 
-  const Form = SampleBase.pick({
+  const FormChecked = SampleBase.pick({
     resytalId: true,
     ownerFirstName: true,
     ownerLastName: true,
@@ -167,7 +167,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
   };
 
   const form = useForm(
-    Form,
+    FormChecked,
     {
       resytalId,
       ownerFirstName,

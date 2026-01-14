@@ -3,7 +3,7 @@ import {
   TypedUseMutation,
   TypedUseQuery
 } from '@reduxjs/toolkit/query/react';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import {
   SlaughterhouseCompanyFixture1,
@@ -182,7 +182,7 @@ const defaultMockApiClientConf: MockApi = {
     ].find((_) => _.id === id) ??
       genUser({
         id
-      })) as User
+      })) as UserRefined
   }),
   useLazyFindPrescriptionsQuery: [[], {}],
   useLazyFindSamplesQuery: [[], {}],

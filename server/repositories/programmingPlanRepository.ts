@@ -5,8 +5,8 @@ import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPla
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanLocalStatus as ProgrammingPlanLocalStatusType } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import {
-  ProgrammingPlan,
-  ProgrammingPlanBase
+  ProgrammingPlanBase,
+  ProgrammingPlanChecked
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import z from 'zod';
 import { knexInstance as db } from './db';
@@ -53,19 +53,21 @@ const ProgrammingPlanQuery = () =>
     )
     .groupBy(`${programmingPlansTable}.id`);
 
-const findUnique = async (id: string): Promise<ProgrammingPlan | undefined> => {
+const findUnique = async (
+  id: string
+): Promise<ProgrammingPlanChecked | undefined> => {
   console.info('Find programming plan', id);
   return ProgrammingPlanQuery()
     .where({ id })
     .first()
-    .then((_) => _ && ProgrammingPlan.parse(omitBy(_, isNil)));
+    .then((_) => _ && ProgrammingPlanChecked.parse(omitBy(_, isNil)));
 };
 
 const findOne = async (
   year: number,
   kinds: ProgrammingPlanKind[],
   region?: Region | null
-): Promise<ProgrammingPlan | undefined> => {
+): Promise<ProgrammingPlanChecked | undefined> => {
   console.info('Find programming plan', year, kinds, region);
   return ProgrammingPlanQuery()
     .where({ year, kinds })
@@ -75,12 +77,12 @@ const findOne = async (
       }
     })
     .first()
-    .then((_) => _ && ProgrammingPlan.parse(omitBy(_, isNil)));
+    .then((_) => _ && ProgrammingPlanChecked.parse(omitBy(_, isNil)));
 };
 
 const findMany = async (
   findOptions: FindProgrammingPlanOptions
-): Promise<ProgrammingPlan[]> => {
+): Promise<ProgrammingPlanChecked[]> => {
   console.info('Find programming plans', omitBy(findOptions, isNil));
   return ProgrammingPlanQuery()
     .where(omitBy(omit(findOptions, 'status', 'kinds'), isNil))
@@ -95,11 +97,15 @@ const findMany = async (
       }
     })
     .then((programmingPlans) =>
-      programmingPlans.map((_: any) => ProgrammingPlan.parse(omitBy(_, isNil)))
+      programmingPlans.map((_: any) =>
+        ProgrammingPlanChecked.parse(omitBy(_, isNil))
+      )
     );
 };
 
-const insert = async (programmingPlan: ProgrammingPlan): Promise<void> => {
+const insert = async (
+  programmingPlan: ProgrammingPlanChecked
+): Promise<void> => {
   console.info('Insert programming plan', programmingPlan.id);
 
   await db.transaction(async (transaction) => {
@@ -119,7 +125,9 @@ const insert = async (programmingPlan: ProgrammingPlan): Promise<void> => {
   });
 };
 
-const update = async (programmingPlan: ProgrammingPlan): Promise<void> => {
+const update = async (
+  programmingPlan: ProgrammingPlanChecked
+): Promise<void> => {
   console.info('Update programming plan with id', programmingPlan.id);
   await ProgrammingPlans()
     .where({ id: programmingPlan.id })
@@ -165,7 +173,7 @@ const updateLocalStatus = async (
 };
 
 export const formatProgrammingPlan = (
-  programmingPlan: ProgrammingPlan
+  programmingPlan: ProgrammingPlanChecked
 ): ProgrammingPlanDbo => ProgrammingPlanDbo.parse(programmingPlan);
 
 export default {

@@ -4,7 +4,7 @@ import Tile from '@codegouvfr/react-dsfr/Tile';
 import clsx from 'clsx';
 import {
   isClosed,
-  ProgrammingPlan
+  ProgrammingPlanChecked
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { FunctionComponent, useContext } from 'react';
 import { Link } from 'react-router';
@@ -16,9 +16,9 @@ import { ApiClientContext } from '../../services/apiClient';
 import ProgrammingPlanClosing from './ProgrammingPlanClosing';
 
 type Props = {
-  currentProgrammingPlan?: ProgrammingPlan;
-  previousProgrammingPlan?: ProgrammingPlan;
-  nextProgrammingPlan?: ProgrammingPlan;
+  currentProgrammingPlan?: ProgrammingPlanChecked;
+  previousProgrammingPlan?: ProgrammingPlanChecked;
+  nextProgrammingPlan?: ProgrammingPlanChecked;
   className: string;
 };
 const DashboardPriorityActions: FunctionComponent<Props> = ({

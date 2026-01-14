@@ -1,7 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { maestroDate } from 'maestro-shared/utils/date';
+import { maestroDateRefined } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 import { ExtractBadFormatError, ExtractError } from './extractError';
 import {
@@ -747,7 +747,7 @@ export const analyseXmlValidator = z.object({
       const [d, m, y] = date.substring(0, 10).split('/');
       return `${y}-${m}-${d}`;
     })
-    .pipe(maestroDate),
+    .pipe(maestroDateRefined),
   Code_méthode: z
     .string()
     .transform((s) => (s.endsWith('*') ? s.substring(0, s.length - 1) : s))

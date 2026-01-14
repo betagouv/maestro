@@ -14,7 +14,7 @@ import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import {
   CreatedSampleData,
   PartialSample,
-  Sample,
+  SampleChecked,
   SampleContextData
 } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
@@ -89,9 +89,11 @@ export const genCreatedPartialSample = (
     ...data
   };
 };
-export const genCreatedSample = (data?: Partial<Sample>): Sample => {
+export const genCreatedSample = (
+  data?: Partial<SampleChecked>
+): SampleChecked => {
   const sample = genCreatedPartialSample(data);
-  return Sample.parse({
+  return SampleChecked.parse({
     ...sample,
     geolocation: sample.geolocation as Geolocation,
     company: sample.company as Company,

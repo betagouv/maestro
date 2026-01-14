@@ -12,7 +12,7 @@ import {
   LocalPrescriptionCommentToCreate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
 import { genLaboratory } from 'maestro-shared/test/laboratoryFixtures';
 import {
@@ -296,7 +296,7 @@ describe('Local prescriptions router', () => {
     });
 
     test('should find all the local prescriptions for a national role', async () => {
-      const successRequestTest = async (user: User) => {
+      const successRequestTest = async (user: UserRefined) => {
         const res = await request(app)
           .get(testRoute)
           .query({
@@ -327,7 +327,7 @@ describe('Local prescriptions router', () => {
     });
 
     test('should find the non empty local prescriptions with laboratories of the programmingPlan with Control context for a regional role', async () => {
-      const successRequestTest = async (user: User) => {
+      const successRequestTest = async (user: UserRefined) => {
         const res = await request(app)
           .get(testRoute)
           .query({
@@ -480,7 +480,7 @@ describe('Local prescriptions router', () => {
     });
 
     test('should fail if the user does not have the permission to update prescriptions', async () => {
-      const forbiddenRequestTest = async (user: User) =>
+      const forbiddenRequestTest = async (user: UserRefined) =>
         request(app)
           .put(testRoute())
           .send(submittedLocalPrescriptionUpdate)
@@ -889,7 +889,7 @@ describe('Local prescriptions router', () => {
     });
 
     test('should fail if the user does not have the permission to comment prescriptions', async () => {
-      const forbiddenRequestTest = async (user: User) =>
+      const forbiddenRequestTest = async (user: UserRefined) =>
         await request(app)
           .post(testRoute())
           .send(validComment)

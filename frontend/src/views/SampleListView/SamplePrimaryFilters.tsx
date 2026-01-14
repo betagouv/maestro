@@ -17,7 +17,7 @@ import {
   SampleStatusLabels,
   SampleStatusList
 } from 'maestro-shared/schema/Sample/SampleStatus';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   samplersOptions,
   selectOptionsFromList
@@ -26,7 +26,7 @@ import {
 interface Props {
   filters: Partial<FindSampleOptions>;
   onChange: (filters: Partial<FindSampleOptions>) => void;
-  samplers?: User[];
+  samplers?: UserRefined[];
   prescriptions?: Prescription[];
   currentUserId: string | undefined;
 }

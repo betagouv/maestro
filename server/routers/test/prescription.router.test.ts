@@ -3,7 +3,7 @@ import { constants } from 'http2';
 import { MatrixKindEffective } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { RegionList } from 'maestro-shared/referential/Region';
 import { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Prescription';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   genPrescription,
   genPrescriptionSubstance
@@ -274,7 +274,7 @@ describe('Prescriptions router', () => {
     });
 
     test('should fail if the user does not have the permission to create prescriptions', async () => {
-      const forbiddenRequestTest = async (user: User) =>
+      const forbiddenRequestTest = async (user: UserRefined) =>
         request(app)
           .post(testRoute)
           .send(validBody)
@@ -385,7 +385,7 @@ describe('Prescriptions router', () => {
     });
 
     test('should fail if the user does not have the permission to update prescriptions', async () => {
-      const forbiddenRequestTest = async (user: User) =>
+      const forbiddenRequestTest = async (user: UserRefined) =>
         request(app)
           .put(testRoute())
           .send(prescriptionUpdate)
@@ -480,7 +480,7 @@ describe('Prescriptions router', () => {
     });
 
     test('should fail if the user does not have the permission to delete prescriptions', async () => {
-      const forbiddenRequestTest = async (user: User) =>
+      const forbiddenRequestTest = async (user: UserRefined) =>
         request(app)
           .delete(testRoute(inProgressControlPrescription.id))
           .use(tokenProvider(user))

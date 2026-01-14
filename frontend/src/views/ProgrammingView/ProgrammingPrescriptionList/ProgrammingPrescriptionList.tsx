@@ -15,7 +15,7 @@ import {
   PrescriptionSort,
   PrescriptionUpdate
 } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import AppToast from 'src/components/_app/AppToast/AppToast';
@@ -36,7 +36,7 @@ import ProgrammingRegionalPrescriptionTable from '../ProgrammingPrescriptionTabl
 export type PrescriptionListDisplay = 'table' | 'cards';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   region?: Region;
   department?: Department;
   companies?: Company[];

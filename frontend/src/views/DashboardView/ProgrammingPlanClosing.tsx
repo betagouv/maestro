@@ -1,11 +1,11 @@
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useMemo } from 'react';
 import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
 import { ApiClientContext } from '../../services/apiClient';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   render: (args: { open: () => void }) => React.ReactNode;
 }
 

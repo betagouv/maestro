@@ -13,7 +13,7 @@ import {
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import { useState } from 'react';
 import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
@@ -271,7 +271,7 @@ const SamplerBlock = ({
   user
 }: {
   sample: PartialSample | PartialSampleToCreate;
-  user?: User;
+  user?: UserRefined;
 }) => {
   return (
     <span className="icon-text">

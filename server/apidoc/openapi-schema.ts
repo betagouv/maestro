@@ -4,7 +4,7 @@ import {
   OpenAPIRegistry
 } from '@asteasolutions/zod-to-openapi';
 import { Brand } from 'maestro-shared/constants';
-import { User } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import { OpenAPIObject } from 'openapi3-ts/oas31';
 import { z } from 'zod';
 
@@ -26,7 +26,7 @@ export const getOpenApiSchema = (): OpenAPIObject => {
         description: 'Utilisateur aves ses informations',
         content: {
           'application/json': {
-            schema: User
+            schema: UserRefined
           }
         }
       }

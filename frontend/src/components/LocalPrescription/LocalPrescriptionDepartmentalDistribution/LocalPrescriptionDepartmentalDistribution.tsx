@@ -3,13 +3,13 @@ import { t } from 'i18next';
 import { Department } from 'maestro-shared/referential/Department';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import LocalPrescriptionDistributionBadge from '../LocalPrescriptionDistributionBadge/LocalPrescriptionDistributionBadge';
 import LocalPrescriptionDepartmentalDistributionTable from './LocalPrescriptionDepartmentalDistributionTable';
 
 interface Props {
-  programmingPlan: ProgrammingPlan;
+  programmingPlan: ProgrammingPlanChecked;
   prescription: Prescription;
   regionalPrescription: LocalPrescription;
   departmentalPrescriptions: LocalPrescription[];

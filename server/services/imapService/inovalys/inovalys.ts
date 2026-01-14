@@ -1,6 +1,6 @@
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { maestroDate } from 'maestro-shared/utils/date';
+import { maestroDateRefined } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 import { ExtractBadFormatError, ExtractError } from '../extractError';
 import type {
@@ -135,7 +135,7 @@ export const extractAnalyzes = (
           const [d, m, y] = date.substring(0, 10).split('/');
           return `${y}-${m}-${d}`;
         })
-        .pipe(maestroDate.nullable())
+        .pipe(maestroDateRefined.nullable())
     })
   );
 

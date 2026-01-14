@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Sample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
@@ -46,7 +46,7 @@ export const Complet: Story = {
       matrixKind: 'A0D9Y',
       prescriptionId: prescription1.id,
       programmingPlanId: programmingPlan.id
-    } as Sample
+    } as SampleChecked
   },
   parameters: {
     preloadedState: {

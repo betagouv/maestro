@@ -1,10 +1,10 @@
 import { uniq } from 'lodash-es';
-import { ProgrammingPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useCallback, useMemo } from 'react';
 import { PrescriptionFilters } from '../store/reducers/prescriptionsSlice';
 
 export const usePrescriptionFilters = (
-  programmingPlans?: ProgrammingPlan[]
+  programmingPlans?: ProgrammingPlanChecked[]
 ) => {
   const domainOptions = useMemo(
     () => uniq((programmingPlans ?? [])?.map((_) => _.domain)),

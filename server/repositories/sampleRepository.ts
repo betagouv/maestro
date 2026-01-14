@@ -2,7 +2,10 @@ import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import { Region } from 'maestro-shared/referential/Region';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
-import { PartialSample, Sample } from 'maestro-shared/schema/Sample/Sample';
+import {
+  PartialSample,
+  SampleChecked
+} from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import z from 'zod';
 import { analysisResiduesTable, analysisTable } from './analysisRepository';
@@ -321,7 +324,7 @@ const deleteOne = async (id: string): Promise<void> => {
 };
 
 export const formatPartialSample = (
-  partialSample: PartialSample | Sample
+  partialSample: PartialSample | SampleChecked
 ): PartialSampleDbo => ({
   ...omit(partialSample, [
     'items',

@@ -7,8 +7,8 @@ import clsx from 'clsx';
 import { isNil } from 'lodash-es';
 import {
   documentChecks,
-  DocumentToCreate,
-  DocumentUpdate
+  DocumentToCreateChecked,
+  DocumentUpdateChecked
 } from 'maestro-shared/schema/Document/Document';
 import {
   DocumentKind,
@@ -75,15 +75,16 @@ const DocumentView = () => {
     }
   }, [document]);
 
-  const Form = (
+  const FormChecked = (
     document
       ? z.object({
-          ...DocumentUpdate.shape,
+          ...DocumentUpdateChecked.shape,
           file: FileInput().nullish()
         })
       : z.object({
-          ...z.object(DocumentToCreate.shape).omit({ id: true, filename: true })
-            .shape,
+          ...z
+            .object(DocumentToCreateChecked.shape)
+            .omit({ id: true, filename: true }).shape,
           file: FileInput()
         })
   ).check(documentChecks);
@@ -95,7 +96,7 @@ const DocumentView = () => {
     notes,
     legend: undefined
   };
-  const form = useForm(Form, formData);
+  const form = useForm(FormChecked, formData);
 
   const selectFile = (event?: any) => {
     setFile(event?.target?.files?.[0]);
