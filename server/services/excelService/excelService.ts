@@ -35,11 +35,8 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
-import {
-  formatWithTz,
-  isDefined,
-  isDefinedAndNotNull
-} from 'maestro-shared/utils/utils';
+import { formatWithTz } from 'maestro-shared/utils/date';
+import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { Template, templatePath } from '../../templates/templates';
