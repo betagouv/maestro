@@ -1,7 +1,8 @@
-import { sumBy } from 'lodash-es';
+import { isNil, sumBy } from 'lodash-es';
 import { z } from 'zod';
 import { Department, DepartmentSort } from '../../referential/Department';
 import { Region, RegionSort } from '../../referential/Region';
+import { Company } from '../Company/Company';
 import { Prescription } from '../Prescription/Prescription';
 import { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
 import { UserBase, hasPermission, userRegionsForRole } from '../User/User';
@@ -195,3 +196,29 @@ export const hasLocalPrescriptionPermission = (
             )
         )))
 });
+
+export const filteredLocalPrescriptions = (
+  localPrescriptions: LocalPrescription[],
+  {
+    region,
+    department,
+    companies
+  }: { region?: Region; department?: Department; companies?: Company[] }
+) =>
+  (localPrescriptions ?? []).filter((_) => {
+    if (companies && companies.length > 0) {
+      return (
+        _.region === region &&
+        _.department === department &&
+        companies.some((c) => c.siret === _.companySiret)
+      );
+    }
+    if (department) {
+      return (
+        _.region === region &&
+        _.department === department &&
+        isNil(_.companySiret)
+      );
+    }
+    return isNil(_.department);
+  });
