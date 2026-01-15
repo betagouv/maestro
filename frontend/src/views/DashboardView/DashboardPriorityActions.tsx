@@ -138,7 +138,7 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
   );
 };
 
-export type PriorityActionCardProps = {
+type PriorityActionCardProps = {
   title: string;
   badgeLabel: string;
   description?: string;
