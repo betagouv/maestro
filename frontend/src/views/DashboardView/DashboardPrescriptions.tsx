@@ -7,6 +7,7 @@ import clsx from 'clsx';
 import { sumBy } from 'lodash-es';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
+  filteredLocalPrescriptions,
   getCompletionRate,
   LocalPrescription
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
@@ -66,11 +67,21 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
     findPrescriptionOptions
   );
 
-  const { data: regionalPrescriptions } =
+  const { data: localPrescriptionsData } =
     apiClient.useFindLocalPrescriptionsQuery({
       ...findPrescriptionOptions,
       includes: ['sampleCounts']
     });
+
+  const localPrescriptions = useMemo(
+    () =>
+      filteredLocalPrescriptions(localPrescriptionsData ?? [], {
+        region: regionFilter ?? undefined,
+        department: user?.department ?? undefined,
+        companies: user?.companies
+      }),
+    [localPrescriptionsData, regionFilter, user]
+  );
 
   const sortedPrescriptions = useMemo(
     () =>
@@ -78,21 +89,19 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
         .sort(PrescriptionSort)
         .map((prescription) => ({
           prescription,
-          regionalPrescriptions: (regionalPrescriptions ?? []).filter(
+          localPrescriptions: (localPrescriptions ?? []).filter(
             (regionalPrescription) =>
               regionalPrescription.prescriptionId === prescription.id
           )
         }))
-        .filter(
-          ({ regionalPrescriptions }) => regionalPrescriptions.length > 0
-        ),
-    [prescriptions, regionalPrescriptions]
+        .filter(({ localPrescriptions }) => localPrescriptions.length > 0),
+    [prescriptions, localPrescriptions]
   );
 
   const realizedPrescriptionsCount = useMemo(
     () =>
-      sortedPrescriptions.filter(({ regionalPrescriptions }) =>
-        regionalPrescriptions.every(
+      sortedPrescriptions.filter(({ localPrescriptions }) =>
+        localPrescriptions.every(
           (regionalPrescription) =>
             (regionalPrescription.realizedSampleCount as number) >=
             regionalPrescription.sampleCount
@@ -104,13 +113,13 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
   const inProgressPrescriptionsCount = useMemo(
     () =>
       sortedPrescriptions.filter(
-        ({ regionalPrescriptions }) =>
-          regionalPrescriptions.some(
+        ({ localPrescriptions }) =>
+          localPrescriptions.some(
             (regionalPrescription) =>
               (regionalPrescription.realizedSampleCount as number) <
               regionalPrescription.sampleCount
           ) &&
-          regionalPrescriptions.some(
+          localPrescriptions.some(
             (regionalPrescription) =>
               (regionalPrescription.inProgressSampleCount as number) > 0 ||
               (regionalPrescription.realizedSampleCount as number) > 0
@@ -122,13 +131,13 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
   const remainingPrescriptionsCount = useMemo(
     () =>
       sortedPrescriptions.filter(
-        ({ regionalPrescriptions }) =>
-          regionalPrescriptions.every(
+        ({ localPrescriptions }) =>
+          localPrescriptions.every(
             (regionalPrescription) =>
               (regionalPrescription.inProgressSampleCount as number) === 0 &&
               (regionalPrescription.realizedSampleCount as number) === 0
           ) &&
-          regionalPrescriptions.some(
+          localPrescriptions.some(
             (regionalPrescription) =>
               (regionalPrescription.realizedSampleCount as number) <
               regionalPrescription.sampleCount
@@ -158,8 +167,8 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
                       'matrice programmée'
                     )}
                   </h4>
-                  {sumBy(regionalPrescriptions, 'sampleCount')}{' '}
-                  {pluralize(sumBy(regionalPrescriptions, 'sampleCount'))(
+                  {sumBy(localPrescriptions, 'sampleCount')}{' '}
+                  {pluralize(sumBy(localPrescriptions, 'sampleCount'))(
                     'prélèvement'
                   )}{' '}
                   à réaliser
@@ -172,7 +181,7 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
                 >
                   <CircleProgress
                     progress={getCompletionRate(
-                      regionalPrescriptions ?? [],
+                      localPrescriptions ?? [],
                       regionFilter,
                       true
                     )}
@@ -288,12 +297,12 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
                   </div>
                   <div className={cx('fr-grid-row')}>
                     {sortedPrescriptions.map(
-                      ({ prescription, regionalPrescriptions }) => (
+                      ({ prescription, localPrescriptions }) => (
                         <DashboardPrescriptionCard
                           key={prescription.id}
                           programmingPlan={programmingPlan}
                           prescription={prescription}
-                          regionalPrescriptions={regionalPrescriptions}
+                          localPrescriptions={localPrescriptions}
                           region={regionFilter}
                         />
                       )
@@ -312,9 +321,9 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
 const DashboardPrescriptionCard: FunctionComponent<{
   programmingPlan: ProgrammingPlanChecked;
   prescription: Prescription;
-  regionalPrescriptions: LocalPrescription[];
+  localPrescriptions: LocalPrescription[];
   region?: Region | null;
-}> = ({ programmingPlan, prescription, regionalPrescriptions, region }) => {
+}> = ({ programmingPlan, prescription, localPrescriptions, region }) => {
   const linkQuery = getURLQuery({
     programmingPlanId: programmingPlan.id,
     matrixKind: prescription.matrixKind,
@@ -338,30 +347,30 @@ const DashboardPrescriptionCard: FunctionComponent<{
       end={
         <>
           <CircleProgress
-            progress={getCompletionRate(regionalPrescriptions)}
+            progress={getCompletionRate(localPrescriptions)}
             sizePx={80}
             type="total"
-            total={sumBy(regionalPrescriptions, 'sampleCount')}
+            total={sumBy(localPrescriptions, 'sampleCount')}
             values={[
-              sumBy(regionalPrescriptions, 'realizedSampleCount'),
-              sumBy(regionalPrescriptions, 'inProgressSampleCount')
+              sumBy(localPrescriptions, 'realizedSampleCount'),
+              sumBy(localPrescriptions, 'inProgressSampleCount')
             ]}
           />
           <div className={cx('fr-pl-2w')}>
             <div className={clsx('d-flex-align-center')}>
               <div className={clsx('bullet', 'realized')}></div>
               <span className={cx('fr-hint-text', 'fr-text--sm', 'fr-mb-0')}>
-                {sumBy(regionalPrescriptions, 'realizedSampleCount')}{' '}
-                {pluralize(sumBy(regionalPrescriptions, 'realizedSampleCount'))(
+                {sumBy(localPrescriptions, 'realizedSampleCount')}{' '}
+                {pluralize(sumBy(localPrescriptions, 'realizedSampleCount'))(
                   'réalisé'
                 )}
               </span>
             </div>
-            {sumBy(regionalPrescriptions, 'notAdmissibleSampleCount') > 0 && (
+            {sumBy(localPrescriptions, 'notAdmissibleSampleCount') > 0 && (
               <div className={cx('fr-hint-text', 'fr-text--sm', 'fr-mb-0')}>
                 (
                 {pluralize(
-                  sumBy(regionalPrescriptions, 'notAdmissibleSampleCount'),
+                  sumBy(localPrescriptions, 'notAdmissibleSampleCount'),
                   {
                     preserveCount: true,
                     ignores: ['non']
@@ -373,7 +382,7 @@ const DashboardPrescriptionCard: FunctionComponent<{
             <div className={clsx('d-flex-align-center')}>
               <div className={clsx('bullet', 'in-progress')}></div>
               <span className={cx('fr-hint-text', 'fr-text--sm', 'fr-mb-0')}>
-                {sumBy(regionalPrescriptions, 'inProgressSampleCount')} en cours
+                {sumBy(localPrescriptions, 'inProgressSampleCount')} en cours
               </span>
             </div>
             <div className={clsx('d-flex-align-center')}>
@@ -381,9 +390,9 @@ const DashboardPrescriptionCard: FunctionComponent<{
               <span className={cx('fr-hint-text', 'fr-text--sm', 'fr-mb-0')}>
                 {Math.max(
                   0,
-                  sumBy(regionalPrescriptions, 'sampleCount') -
-                    sumBy(regionalPrescriptions, 'realizedSampleCount') -
-                    sumBy(regionalPrescriptions, 'inProgressSampleCount')
+                  sumBy(localPrescriptions, 'sampleCount') -
+                    sumBy(localPrescriptions, 'realizedSampleCount') -
+                    sumBy(localPrescriptions, 'inProgressSampleCount')
                 )}{' '}
                 à faire
               </span>
