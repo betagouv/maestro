@@ -6,6 +6,7 @@ import {
   genPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import { genCreatedPartialSample } from 'maestro-shared/test/sampleFixtures';
 import {
   genAuthUser,
   NationalCoordinator,
@@ -53,6 +54,18 @@ const prescription2 = genPrescription({
   context: 'Control',
   matrixKind: 'A0DQS'
 });
+const sample1 = genCreatedPartialSample({
+  status: 'InReview',
+  sampler: Sampler1Fixture,
+  programmingPlanId: currentProgrammingPlan.id,
+  region: Region1Fixture
+});
+const sample2 = genCreatedPartialSample({
+  status: 'InReview',
+  sampler: Sampler1Fixture,
+  programmingPlanId: currentProgrammingPlan.id,
+  region: Region1Fixture
+});
 
 export const DashboardViewForSampler: Story = {
   args: {
@@ -70,9 +83,10 @@ export const DashboardViewForSampler: Story = {
       }
     },
     apiClient: getMockApi({
-      useFindProgrammingPlansQuery: {
-        data: [previousProgrammingPlan, currentProgrammingPlan]
-      },
+      useFindProgrammingPlansQuery: ({ status }: FindProgrammingPlanOptions) =>
+        status && status.includes('Validated')
+          ? { data: [currentProgrammingPlan] }
+          : { data: [] },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
       useFindLocalPrescriptionsQuery: {
         data: [
@@ -85,6 +99,9 @@ export const DashboardViewForSampler: Story = {
             region: RegionalCoordinator.region as Region
           })
         ]
+      },
+      useFindSamplesQuery: {
+        data: [sample1, sample2]
       }
     })
   },
@@ -98,6 +115,9 @@ export const DashboardViewForSampler: Story = {
     await expect(
       canvas.getByText(`Plan de surveillance ${new Date().getFullYear()}`)
     ).toBeInTheDocument();
+    await expect(canvas.getByText('Actions à terminer')).toBeInTheDocument();
+    await expect(canvas.getByText(sample1.reference)).toBeInTheDocument();
+    await expect(canvas.getByText(sample2.reference)).toBeInTheDocument();
   }
 };
 
@@ -116,9 +136,12 @@ export const DashboardViewForRegionalCoordinator: Story = {
       }
     },
     apiClient: getMockApi({
-      useFindProgrammingPlansQuery: {
-        data: [previousProgrammingPlan, currentProgrammingPlan]
-      },
+      useFindProgrammingPlansQuery: ({ status }: FindProgrammingPlanOptions) =>
+        status && status.includes('Validated')
+          ? { data: [currentProgrammingPlan] }
+          : status && status.includes('SubmittedToRegion')
+            ? { data: [previousProgrammingPlan] }
+            : { data: [] },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
       useFindLocalPrescriptionsQuery: {
         data: [
@@ -166,9 +189,10 @@ export const DashboardViewForNationalCoordinator: Story = {
       }
     },
     apiClient: getMockApi({
-      useFindProgrammingPlansQuery: {
-        data: [previousProgrammingPlan, currentProgrammingPlan]
-      },
+      useFindProgrammingPlansQuery: ({ status }: FindProgrammingPlanOptions) =>
+        status && !status.includes('InProgress')
+          ? { data: [currentProgrammingPlan] }
+          : { data: [previousProgrammingPlan, currentProgrammingPlan] },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
       useFindLocalPrescriptionsQuery: {
         data: RegionList.flatMap((region) => [
@@ -215,21 +239,8 @@ export const DashboardViewForNationalCoordinatorNoCurrentProgrammingPlan: Story 
         }
       },
       apiClient: getMockApi({
-        useFindProgrammingPlansQuery: ({
-          status
-        }: FindProgrammingPlanOptions) => ({
-          data: status?.length
-            ? []
-            : [
-                genProgrammingPlan({
-                  year: new Date().getFullYear() - 1,
-                  regionalStatus: RegionList.map((region) => ({
-                    region,
-                    status: 'Validated'
-                  })),
-                  contexts: ['Control', 'Surveillance']
-                })
-              ]
+        useFindProgrammingPlansQuery: () => ({
+          data: []
         })
       })
     },
@@ -237,13 +248,11 @@ export const DashboardViewForNationalCoordinatorNoCurrentProgrammingPlan: Story 
       const canvas = within(canvasElement);
 
       await expect(canvas.getByText('Tableau de bord')).toBeInTheDocument();
-      await expect(canvas.getByText(`Plan de contrôle`)).toBeInTheDocument();
       await expect(
-        canvas.getByText(`Plan de surveillance`)
-      ).toBeInTheDocument();
-
+        canvas.queryByText(`Plan de contrôle`)
+      ).not.toBeInTheDocument();
       await expect(
-        canvas.getByText('Créer la programmation 2026')
-      ).toBeInTheDocument();
+        canvas.queryByText(`Plan de surveillance`)
+      ).not.toBeInTheDocument();
     }
   };

@@ -1,8 +1,16 @@
 @use '../../constants' as constants;
 
-.fr-callout {
-  border-bottom: 0;
+.dashboard-notice-full-width {
+  display: flex;
+  flex-direction: column;
 
+  @media (min-width: constants.$breakpoint-md) {
+    flex-direction: row;
+    gap: 0;
+  }
+}
+
+.fr-callout {
   .fr-quote {
     background-image: none;
     padding: 1rem;
@@ -25,8 +33,10 @@
       gap: 1rem;
 
       img {
-        border-radius: 50%;
+        border-radius: 50% !important;
         width: 68px;
+        height: 68px;
+        object-fit: cover;
       }
 
       .manon {
@@ -34,6 +44,31 @@
         flex-direction: column;
         align-items: flex-start;
       }
+    }
+  }
+}
+
+.quote-fullwidth {
+  @media (min-width: constants.$breakpoint-md) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 100%;
+
+    &::before {
+      display: none;
+    }
+
+    figcaption {
+      order: -1;
+      border-right: 1px solid var(--border-default-grey);
+      padding-right: 2.5rem;
+    }
+
+    blockquote {
+      flex: 1;
+      text-align: left;
+      padding-left: 3rem;
     }
   }
 }
@@ -49,12 +84,28 @@
   & > div {
     flex: 1;
     border: 1px solid var(--border-default-grey);
-    justify-content: center;
+    text-align: center;
     padding: 1.5rem 0;
-    gap: 0.75rem;
 
-    &:first-child {
+    &:not(:last-child) {
       border-right: 0;
+    }
+  }
+}
+
+.links-container-vertical {
+  @media (min-width: constants.$breakpoint-md) {
+    flex-direction: column;
+    width: auto;
+    min-width: 280px;
+
+    & > div {
+      border-right: 1px solid var(--border-default-grey) !important;
+      border-bottom: 0;
+
+      &:last-child {
+        border-bottom: 1px solid var(--border-default-grey);
+      }
     }
   }
 }

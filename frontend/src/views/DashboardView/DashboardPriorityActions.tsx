@@ -2,10 +2,9 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tile from '@codegouvfr/react-dsfr/Tile';
 import clsx from 'clsx';
-import {
-  isClosed,
-  ProgrammingPlanChecked
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { PartialSample } from 'maestro-shared/schema/Sample/Sample';
+import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import { FunctionComponent, useContext } from 'react';
 import { Link } from 'react-router';
 import { assert, type Equals } from 'tsafe';
@@ -16,16 +15,17 @@ import { ApiClientContext } from '../../services/apiClient';
 import ProgrammingPlanClosing from './ProgrammingPlanClosing';
 
 type Props = {
-  currentProgrammingPlan?: ProgrammingPlanChecked;
-  previousProgrammingPlan?: ProgrammingPlanChecked;
-  nextProgrammingPlan?: ProgrammingPlanChecked;
-  className: string;
+  currentValidatedProgrammingPlan?: ProgrammingPlanChecked;
+  prioritySamples?: PartialSample[];
+  prioritySamplesStatus?: SampleStatus[];
+  priorityProgrammingPlans?: ProgrammingPlanChecked[];
 };
+
 const DashboardPriorityActions: FunctionComponent<Props> = ({
-  currentProgrammingPlan,
-  previousProgrammingPlan,
-  nextProgrammingPlan,
-  className,
+  currentValidatedProgrammingPlan,
+  prioritySamples,
+  prioritySamplesStatus,
+  priorityProgrammingPlans,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -33,26 +33,14 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
 
   const { user, hasUserPermission } = useAuthentication();
 
-  const { useFindSamplesQuery } = useContext(ApiClientContext);
-  const { data: samplesInReview } = useFindSamplesQuery(
-    {
-      programmingPlanId: currentProgrammingPlan?.id as string,
-      region: user?.region ?? undefined,
-      page: 1,
-      perPage: 2,
-      status: 'InReview'
-    },
-    { skip: !currentProgrammingPlan }
-  );
-
   const [createProgrammingPlan] = apiClient.useCreateProgrammingPlanMutation();
 
-  if (currentProgrammingPlan && !samplesInReview) {
+  if (!prioritySamples?.length && !priorityProgrammingPlans?.length) {
     return <></>;
   }
 
   return (
-    <div className={className}>
+    <div className={cx('fr-col')}>
       <div
         className={clsx(
           'white-container',
@@ -60,98 +48,91 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
           cx('fr-px-4w', 'fr-py-3w')
         )}
       >
-        {currentProgrammingPlan && hasUserPermission('updateSample') ? (
-          <>
-            <h4 className={cx('fr-mb-1w')}>Rapports à terminer</h4>
-            {(samplesInReview ?? []).length === 0 ? (
-              <>Pas de rapports à terminer</>
-            ) : (
-              <>
-                {samplesInReview?.map((s) => (
-                  <SampleCard sample={s} horizontal key={s.id} />
-                ))}
-                <div className={clsx('more-actions-link')}>
-                  <Link
-                    to={`${AuthenticatedAppRoutes.SamplesByYearRoute.link(currentProgrammingPlan.year)}?status=InReview`}
-                    className={cx('fr-link', 'fr-link--sm')}
-                  >
-                    Tous les rapports à terminer
-                  </Link>
-                </div>
-              </>
-            )}
-          </>
-        ) : (
+        {priorityProgrammingPlans && priorityProgrammingPlans.length > 0 && (
           <>
             <h4 className={cx('fr-mb-1w')}>Actions prioritaires</h4>
-
-            {hasUserPermission('manageProgrammingPlan') ? (
-              <>
-                {previousProgrammingPlan &&
-                  previousProgrammingPlan.id !== currentProgrammingPlan?.id &&
-                  !isClosed(previousProgrammingPlan) &&
-                  hasUserPermission('manageProgrammingPlan') && (
+            {priorityProgrammingPlans
+              .filter(
+                (programmingPlan) =>
+                  programmingPlan.id !== currentValidatedProgrammingPlan?.id
+              )
+              .map((programmingPlan) => (
+                <>
+                  {hasUserPermission('manageProgrammingPlan') &&
+                  programmingPlan.regionalStatus.every(
+                    (_) => _.status === 'Validated'
+                  ) ? (
                     <ProgrammingPlanClosing
-                      programmingPlan={previousProgrammingPlan}
+                      programmingPlan={programmingPlan}
                       render={({ open }) => (
                         <PriorityActionCard
-                          title={`Clôturer la programmation ${previousProgrammingPlan.year}`}
+                          title={`Clôturer la programmation ${programmingPlan.year}`}
                           badgeLabel="Programmation"
                           description="À réaliser"
                           onClick={open}
                         />
                       )}
                     />
+                  ) : (
+                    <PriorityActionCard
+                      key={programmingPlan.id}
+                      title={`Éditer la programmation ${programmingPlan.year}`}
+                      badgeLabel="Programmation"
+                      description="À compléter"
+                      to={`${AuthenticatedAppRoutes.ProgrammingRoute.link}?${new URLSearchParams(
+                        {
+                          year: String(programmingPlan.year)
+                        }
+                      ).toString()}`}
+                    />
                   )}
-                {!nextProgrammingPlan && currentProgrammingPlan && (
-                  <PriorityActionCard
-                    title={`Créer la programmation ${currentProgrammingPlan?.year + 1}`}
-                    badgeLabel="Programmation"
-                    description="À réaliser"
-                    onClick={async () => {
-                      await createProgrammingPlan(
-                        currentProgrammingPlan?.year + 1
-                      ).unwrap();
-                    }}
-                  />
-                )}
-                {nextProgrammingPlan && (
-                  <PriorityActionCard
-                    title={`Éditer la programmation ${nextProgrammingPlan.year}`}
-                    badgeLabel="Programmation"
-                    description="À compléter"
-                    to={`${AuthenticatedAppRoutes.ProgrammingRoute.link}?${new URLSearchParams(
-                      {
-                        year: String(nextProgrammingPlan.year)
-                      }
-                    ).toString()}`}
-                  />
-                )}
-              </>
-            ) : (
-              <>
-                {(hasUserPermission('distributePrescriptionToDepartments') ||
-                  hasUserPermission(
-                    'distributePrescriptionToSlaughterhouses'
-                  )) &&
-                nextProgrammingPlan ? (
-                  <PriorityActionCard
-                    title={`Éditer la programmation ${nextProgrammingPlan.year}`}
-                    badgeLabel="Programmation"
-                    description="À compléter"
-                    to={`${AuthenticatedAppRoutes.ProgrammingRoute.link}?${new URLSearchParams(
-                      {
-                        year: String(nextProgrammingPlan.year)
-                      }
-                    ).toString()}`}
-                  />
-                ) : (
-                  <>Pas d’actions prioritaires identifiées</>
-                )}
-              </>
-            )}
+                </>
+              ))}
+            {hasUserPermission('manageProgrammingPlan') &&
+              currentValidatedProgrammingPlan &&
+              priorityProgrammingPlans.every(
+                (programmingPlan) =>
+                  programmingPlan.year <= currentValidatedProgrammingPlan.year
+              ) && (
+                <PriorityActionCard
+                  title={`Créer la programmation ${currentValidatedProgrammingPlan?.year + 1}`}
+                  badgeLabel="Programmation"
+                  description="À réaliser"
+                  onClick={async () => {
+                    await createProgrammingPlan(
+                      currentValidatedProgrammingPlan?.year + 1
+                    ).unwrap();
+                  }}
+                />
+              )}
           </>
         )}
+        {!priorityProgrammingPlans?.length &&
+          currentValidatedProgrammingPlan &&
+          prioritySamples && (
+            <>
+              <h4 className={cx('fr-mb-1w')}>Actions à terminer</h4>
+              {(prioritySamples ?? []).length === 0 ? (
+                <>Pas d'actions à terminer</>
+              ) : (
+                <>
+                  {prioritySamples?.map((s) => (
+                    <SampleCard sample={s} horizontal key={s.id} />
+                  ))}
+                  {prioritySamplesStatus && (
+                    <div className={clsx('more-actions-link')}>
+                      <Link
+                        to={`${AuthenticatedAppRoutes.SamplesByYearRoute.link(currentValidatedProgrammingPlan.year)}?status=${prioritySamplesStatus}&sampledBy=${user?.id}`}
+                        className={cx('fr-link', 'fr-link--sm')}
+                      >
+                        Toutes les actions à terminer
+                      </Link>
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+          )}
       </div>
     </div>
   );
