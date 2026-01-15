@@ -10,10 +10,9 @@ import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useOnLine } from 'src/hooks/useOnLine';
 import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
-import { DashboardNotice } from '../../components/DashboardNotice/DashboardNotice';
 import { ApiClientContext } from '../../services/apiClient';
+import DashboardNoticeAndActions from './DashboardNoticeAndActions';
 import DashboardPrescriptions from './DashboardPrescriptions';
-import DashboardPriorityActions from './DashboardPriorityActions';
 
 const DashboardView = () => {
   useDocumentTitle('Tableau de bord');
@@ -40,8 +39,6 @@ const DashboardView = () => {
     [validatedProgrammingPlans]
   );
 
-  const { data: notice } = apiClient.useGetDashboardNoticeQuery();
-
   if (!user) {
     return <></>;
   }
@@ -50,7 +47,7 @@ const DashboardView = () => {
     <section className={clsx(cx('fr-container'), 'main-section')}>
       <SectionHeader
         title="Tableau de bord"
-        subtitle="Un rapide coup d’oeil sur votre activité"
+        subtitle="Un rapide coup d'oeil sur votre activité"
         illustration={dashboard}
         action={
           currentValidatedProgrammingPlan &&
@@ -72,18 +69,9 @@ const DashboardView = () => {
       />
       {isOnline && (
         <>
-          <div className={clsx(cx('fr-grid-row', 'fr-grid-row--gutters'))}>
-            {notice?.description && (
-              <DashboardNotice
-                description={notice.description}
-                className={clsx(cx('fr-col'), 'd-flex-column')}
-              />
-            )}
-
-            <DashboardPriorityActions
-              currentValidatedProgrammingPlan={currentValidatedProgrammingPlan}
-            />
-          </div>
+          <DashboardNoticeAndActions
+            currentValidatedProgrammingPlan={currentValidatedProgrammingPlan}
+          />
           <div className={clsx(cx('fr-grid-row', 'fr-grid-row--gutters'))}>
             {hasNationalView &&
               currentValidatedProgrammingPlan?.contexts.map((context) => (

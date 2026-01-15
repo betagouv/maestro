@@ -2,12 +2,10 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tile from '@codegouvfr/react-dsfr/Tile';
 import clsx from 'clsx';
-import { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { PartialSample } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
-import { UserRole } from 'maestro-shared/schema/User/UserRole';
-import { FunctionComponent, useContext, useMemo } from 'react';
+import { FunctionComponent, useContext } from 'react';
 import { Link } from 'react-router';
 import { assert, type Equals } from 'tsafe';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
@@ -16,102 +14,28 @@ import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
 import ProgrammingPlanClosing from './ProgrammingPlanClosing';
 
-const prioritySamplesStatusList = {
-  REGIONAL: {
-    Sampler: ['InReview'],
-    RegionalCoordinator: ['InReview']
-  },
-  SLAUGHTERHOUSE: {
-    Sampler: ['Submitted'],
-    DepartmentalCoordinator: ['Submitted', 'InReview']
-  }
-} satisfies Record<DistributionKind, Partial<Record<UserRole, SampleStatus[]>>>;
-
-const priorityProgrammingPlansStatusList = {
-  NationalCoordinator: [
-    'InProgress',
-    'SubmittedToRegion',
-    'ApprovedByRegion',
-    'Validated'
-  ],
-  RegionalCoordinator: ['SubmittedToRegion'],
-  DepartmentalCoordinator: ['SubmittedToDepartments']
-} satisfies Partial<Record<UserRole, ProgrammingPlanStatus[]>>;
-
 type Props = {
   currentValidatedProgrammingPlan?: ProgrammingPlanChecked;
+  prioritySamples?: PartialSample[];
+  prioritySamplesStatus?: SampleStatus[];
+  priorityProgrammingPlans?: ProgrammingPlanChecked[];
 };
+
 const DashboardPriorityActions: FunctionComponent<Props> = ({
   currentValidatedProgrammingPlan,
+  prioritySamples,
+  prioritySamplesStatus,
+  priorityProgrammingPlans,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
   const apiClient = useContext(ApiClientContext);
 
-  const { user, hasUserPermission, userRole } = useAuthentication();
-
-  const { useFindSamplesQuery } = useContext(ApiClientContext);
-
-  const prioritySamplesStatus = useMemo(() => {
-    if (!currentValidatedProgrammingPlan || !userRole) {
-      return undefined;
-    }
-    const statusByRoleForDistributionKind =
-      prioritySamplesStatusList[
-        currentValidatedProgrammingPlan.distributionKind
-      ];
-    return userRole in statusByRoleForDistributionKind
-      ? statusByRoleForDistributionKind[
-          userRole as keyof typeof statusByRoleForDistributionKind
-        ]
-      : undefined;
-  }, [currentValidatedProgrammingPlan, userRole]);
-
-  const { data: prioritySamples } = useFindSamplesQuery(
-    {
-      programmingPlanId: currentValidatedProgrammingPlan?.id as string,
-      region: user?.region ?? undefined,
-      sampledBy: user?.id,
-      page: 1,
-      perPage: 2,
-      status: prioritySamplesStatus
-    },
-    {
-      skip: !currentValidatedProgrammingPlan || !prioritySamplesStatus
-    }
-  );
-
-  const priorityProgrammingPlansStatus = useMemo(() => {
-    if (!userRole) {
-      return undefined;
-    }
-    return userRole in priorityProgrammingPlansStatusList
-      ? priorityProgrammingPlansStatusList[
-          userRole as keyof typeof priorityProgrammingPlansStatusList
-        ]
-      : undefined;
-  }, [userRole]);
-
-  const { data: priorityProgrammingPlans } =
-    apiClient.useFindProgrammingPlansQuery(
-      {
-        kinds: user?.programmingPlanKinds,
-        status: priorityProgrammingPlansStatus
-      },
-      {
-        skip: !user?.programmingPlanKinds || !priorityProgrammingPlansStatus
-      }
-    );
+  const { user, hasUserPermission } = useAuthentication();
 
   const [createProgrammingPlan] = apiClient.useCreateProgrammingPlanMutation();
 
-  console.log(
-    '!prioritySamples && !priorityProgrammingPlans?.length',
-    !prioritySamples,
-    !priorityProgrammingPlans || priorityProgrammingPlans.length === 0
-  );
-
-  if (!prioritySamples.length && !priorityProgrammingPlans.length) {
+  if (!prioritySamples?.length && !priorityProgrammingPlans?.length) {
     return <></>;
   }
 
@@ -169,8 +93,7 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
               priorityProgrammingPlans.every(
                 (programmingPlan) =>
                   programmingPlan.year <= currentValidatedProgrammingPlan.year
-              ) &&
-              currentValidatedProgrammingPlan && (
+              ) && (
                 <PriorityActionCard
                   title={`Créer la programmation ${currentValidatedProgrammingPlan?.year + 1}`}
                   badgeLabel="Programmation"
@@ -196,14 +119,16 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
                   {prioritySamples?.map((s) => (
                     <SampleCard sample={s} horizontal key={s.id} />
                   ))}
-                  <div className={clsx('more-actions-link')}>
-                    <Link
-                      to={`${AuthenticatedAppRoutes.SamplesByYearRoute.link(currentValidatedProgrammingPlan.year)}?status=${prioritySamplesStatus}&sampledBy=${user?.id}`}
-                      className={cx('fr-link', 'fr-link--sm')}
-                    >
-                      Toutes les actions à terminer
-                    </Link>
-                  </div>
+                  {prioritySamplesStatus && (
+                    <div className={clsx('more-actions-link')}>
+                      <Link
+                        to={`${AuthenticatedAppRoutes.SamplesByYearRoute.link(currentValidatedProgrammingPlan.year)}?status=${prioritySamplesStatus}&sampledBy=${user?.id}`}
+                        className={cx('fr-link', 'fr-link--sm')}
+                      >
+                        Toutes les actions à terminer
+                      </Link>
+                    </div>
+                  )}
                 </>
               )}
             </>
