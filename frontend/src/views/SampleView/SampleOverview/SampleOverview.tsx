@@ -16,6 +16,7 @@ import SampleOverviewContextTab from 'src/views/SampleView/SampleOverview/Sample
 import { SampleStepTitles } from 'src/views/SampleView/SampleView';
 import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
+import SupportDocumentDownload from '../DraftSample/SupportDocumentDownload';
 import './SampleOverview.scss';
 interface Props {
   sample: SampleChecked;
@@ -76,7 +77,7 @@ const SampleOverview = ({ sample }: Props) => {
             content: (
               <>
                 <ItemsStepSummary sample={sample} mode="tab" />
-                <hr />
+                <SupportDocumentDownload partialSample={sample} />
                 <h3 className={cx('fr-m-0')}>Consentement par le détenteur</h3>
                 <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
                   <div className={cx('fr-col-12')}>
