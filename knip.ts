@@ -22,7 +22,8 @@ export default {
         'repositories/kysely.type.ts',
         'scripts/*',
         // FIXME EDI à supprimer
-        'services/ediSacha/sachaDAI.ts'
+        'services/ediSacha/sachaDAI.ts',
+        'services/ediSacha/sftpService.ts'
       ]
     },
     frontend: {

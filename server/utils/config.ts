@@ -78,7 +78,11 @@ const configValidator = z
     KAFKA_URL: z.string().nullish(),
     KAFKA_TOPIC_DAI: z.string().nullish(),
     KAFKA_TOPIC_RAI: z.string().nullish(),
-    SIGAL_EMAIL: devDefaultValue(z.email(), 'contact@maestro.beta.gouv.fr')
+    SIGAL_EMAIL: devDefaultValue(z.email(), 'contact@maestro.beta.gouv.fr'),
+    SIGAL_SFTP_HOST: z.string().nullish(),
+    SIGAL_SFTP_PASSPHRASE: z.string().nullish(),
+    SIGAL_SFTP_PRIVATE_KEY: z.string().nullish(),
+    SIGAL_SFTP_USERNAME: z.string().nullish()
   })
   .transform((c) => {
     return {
@@ -154,7 +158,13 @@ const configValidator = z
         topicRAI: c.KAFKA_TOPIC_RAI
       },
       sigal: {
-        email: c.SIGAL_EMAIL
+        email: c.SIGAL_EMAIL,
+        sftp: {
+          privateKey: c.SIGAL_SFTP_PRIVATE_KEY,
+          passphrase: c.SIGAL_SFTP_PASSPHRASE,
+          host: c.SIGAL_SFTP_HOST,
+          username: c.SIGAL_SFTP_USERNAME
+        }
       }
     };
   });
