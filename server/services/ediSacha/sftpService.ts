@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 import path from 'path';
+import { unzip } from '../zipService';
 
 const readdir = promisify(fs.readdir);
 
@@ -32,14 +33,21 @@ const doSftp = async () => {
     const sftpDirectory = path.join(tmpdir(), 'sftp');
     await sftpClient.downloadDir('uploads/RA01Maestro', sftpDirectory);
 
-    const files = await readdir(path.join(sftpDirectory, 'data'));
-    console.info('test', files);
+    const dataDirectory = path.join(sftpDirectory, 'data');
+    const files = await readdir(dataDirectory);
 
     for (const file of files) {
-      //FIXME EDI On doit supprimer le fichier déclencheur dans decl
-      //FIXME EDI On doit supprimer le fichier de data
+      if (file.endsWith('.zip')) {
+        await unzip(dataDirectory, file);
 
-      console.log('TODO Traitement de ', file);
+        //FIXME EDI On doit supprimer le fichier déclencheur dans decl
+        //FIXME EDI On doit supprimer le fichier de data
+
+        //FIXME EDI Envoie de l'acquittement
+        console.log('TODO Traitement de ', file);
+      } else {
+        console.warn(`Le fichier ${file} n'est pas une archive`);
+      }
     }
   } catch (e: any) {
     console.error(e.message);

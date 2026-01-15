@@ -13,3 +13,12 @@ export const zip = async (
 
   return path.join(folderToZipPath, desiredNameOfZipFile);
 };
+
+export const unzip = async (
+  folderToUnzipPath: string,
+  archiveName: string
+): Promise<void> => {
+  await exec(`unzip ${archiveName}`, {
+    cwd: folderToUnzipPath
+  });
+};
