@@ -45,7 +45,7 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
   const apiClient = useContext(ApiClientContext);
-  const { user, hasNationalView, userRole } = useAuthentication();
+  const { user, hasNationalView } = useAuthentication();
 
   const [context, setContext] = useState(programmingPlan.contexts[0]);
   const [regionFilter, setRegionFilter] = useState(user?.region);
