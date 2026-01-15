@@ -6,7 +6,10 @@ import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region } from 'maestro-shared/referential/Region';
 import { Company } from 'maestro-shared/schema/Company/Company';
 import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
-import { LocalPrescriptionUpdate } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import {
+  filteredLocalPrescriptions,
+  LocalPrescriptionUpdate
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
@@ -177,22 +180,10 @@ const ProgrammingPrescriptionList = ({
 
   const localPrescriptions = useMemo(
     () =>
-      allLocalPrescriptions?.filter((_) => {
-        if (companies && companies.length > 0) {
-          return (
-            _.region === region &&
-            _.department === department &&
-            companies.some((c) => c.siret === _.companySiret)
-          );
-        }
-        if (department) {
-          return (
-            _.region === region &&
-            _.department === department &&
-            isNil(_.companySiret)
-          );
-        }
-        return isNil(_.department);
+      filteredLocalPrescriptions(allLocalPrescriptions ?? [], {
+        region,
+        department,
+        companies
       }),
     [allLocalPrescriptions, department, region, companies]
   );
