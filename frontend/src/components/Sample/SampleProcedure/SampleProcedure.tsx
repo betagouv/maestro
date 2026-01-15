@@ -39,7 +39,7 @@ const SampleProcedure = ({ partialSample }: Props) => {
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-col-md-6')}>
           <div className={cx('fr-my-1v')}>
-            Contenant : <b>Papier d'aluminium</b>
+            <b>Contenant en platique</b>
           </div>
           <div className={cx('fr-my-1v')}>
             Température : <b>-18° </b>
@@ -50,7 +50,13 @@ const SampleProcedure = ({ partialSample }: Props) => {
         </div>
         <div className={clsx(cx('fr-col-12', 'fr-col-md-6'), 'border-left')}>
           <div className={cx('fr-my-1v')}>
-            Matière prélevée : <b>Foie de bovin</b>
+            Matière prélevée :{' '}
+            <b>
+              {partialSample.specificData.programmingPlanKind ===
+              'DAOA_SLAUGHTER'
+                ? 'Foie de bovin'
+                : 'Muscle de volaille'}
+            </b>
           </div>
           <div className={cx('fr-my-1v')}>
             Quantité par échantillon : <b>200 grammes</b>
