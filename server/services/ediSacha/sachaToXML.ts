@@ -4,13 +4,18 @@ import {
   Department,
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   getSampleItemReference,
   SampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
+import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { formatWithTz, toMaestroDate } from 'maestro-shared/utils/date';
-import { RequiredNotNull } from 'maestro-shared/utils/typescript';
+import {
+  getRecordKeys,
+  RequiredNotNull
+} from 'maestro-shared/utils/typescript';
 import fs from 'node:fs';
 import path from 'path';
 import { z, ZodObject } from 'zod';
@@ -18,6 +23,7 @@ import { Laboratories } from '../../repositories/kysely.type';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import config from '../../utils/config';
 import {
+  mapping,
   NotPPVMatrix,
   SigleContexteIntervention,
   SigleMatrix,
@@ -94,6 +100,25 @@ export const generateXMLAcquitement = async (
   );
 };
 
+const getCommemoratifs = <P extends Exclude<ProgrammingPlanKind, 'PPV'>>(
+  specificData: SampleMatrixSpecificData & { programmingPlanKind: P }
+): { sigle: string; value: string }[] => {
+  const commemoratifs: { sigle: string; value: string }[] = [];
+  for (const specificDataKey of getRecordKeys(specificData)) {
+    if (specificDataKey !== 'programmingPlanKind') {
+      const data: (typeof mapping)[P]['age'] =
+        mapping[specificData.programmingPlanKind][specificDataKey];
+      if (data) {
+        commemoratifs.push({
+          sigle: data.sigle,
+          value: data.value(specificData[specificDataKey])
+        });
+      }
+    }
+  }
+  return commemoratifs;
+};
+
 export const generateXMLDAI = (
   sample: Pick<
     SampleChecked,
@@ -111,7 +136,8 @@ export const generateXMLDAI = (
   loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryCall>,
   dateNow: number
 ): Promise<XmlFile> => {
-  if (sample.specificData.programmingPlanKind === 'PPV') {
+  const programmingPlanKind = sample.specificData.programmingPlanKind;
+  if (programmingPlanKind === 'PPV') {
     throw new Error("Pas d'EDI Sacha pour la PPV");
   }
 
@@ -121,6 +147,9 @@ export const generateXMLDAI = (
       `Pas de Sigle SACHA associé à la matrice ${sample.matrix}.`
     );
   }
+
+  const commemoratifs = getCommemoratifs(sample.specificData);
+
   return generateXML(
     'DA01',
     {
@@ -130,7 +159,7 @@ export const generateXMLDAI = (
             `${new Date(dateNow).getFullYear()}${sample.reference.substring(sample.reference.lastIndexOf('-') + 1)}${sampleItem.copyNumber}${sampleItem.itemNumber}`
           ),
           SigleContexteIntervention:
-            SigleContexteIntervention[sample.specificData.programmingPlanKind],
+            SigleContexteIntervention[programmingPlanKind],
           DateIntervention: toMaestroDate(sample.sampledAt),
           DateModification: toSachaDateTime(sample.lastUpdatedAt)
         },
@@ -165,13 +194,16 @@ export const generateXMLDAI = (
                 sampleItem.copyNumber
               ),
               Commentaire: sampleItem.sealId ?? ''
-            }
+            },
+            DialogueCommemoratif: commemoratifs.map((c) => ({
+              Sigle: c.sigle,
+              SigleValeur: c.value
+            }))
           }
         ],
         ReferencePlanAnalyseType: {
           ReferencePlanAnalyseEffectuer: {
-            SiglePlanAnalyse:
-              SiglePlanAnalyse[sample.specificData.programmingPlanKind]
+            SiglePlanAnalyse: SiglePlanAnalyse[programmingPlanKind]
           },
           ReferencePlanAnalyseContenu: {
             LibelleMatrice: '',

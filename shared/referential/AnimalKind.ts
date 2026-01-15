@@ -42,13 +42,11 @@ export const AnimalKindLabels: Record<AnimalKind, string> = {
   TYPEA14: 'Poule - Gallus gallus'
 };
 
-export const AnimalKindsByProgrammingPlanKind: Partial<
-  Record<ProgrammingPlanKind, AnimalKind[]>
-> = {
+export const AnimalKindsByProgrammingPlanKind = {
   [ProgrammingPlanKind.enum.DAOA_SLAUGHTER]: [
     'TYPEA1',
     'TYPEA2',
     'TYPEA3',
     'TYPEA4'
   ]
-};
+} as const satisfies Partial<Record<ProgrammingPlanKind, AnimalKind[]>>;

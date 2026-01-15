@@ -1,6 +1,9 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
-import { AnimalKind } from '../../referential/AnimalKind';
+import {
+  AnimalKind,
+  AnimalKindsByProgrammingPlanKind
+} from '../../referential/AnimalKind';
 import { AnimalSex } from '../../referential/AnimalSex';
 import { BreedingMethod } from '../../referential/BreedingMethod';
 import { CultureKind } from '../../referential/CultureKind';
@@ -8,7 +11,10 @@ import { MatrixPart } from '../../referential/Matrix/MatrixPart';
 import { OutdoorAccess } from '../../referential/OutdoorAccess';
 import { ProductionKind } from '../../referential/ProductionKind';
 import { Seizure } from '../../referential/Seizure';
-import { Species } from '../../referential/Species';
+import {
+  Species,
+  SpeciesByProgrammingPlanKind
+} from '../../referential/Species';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 
 const KillingCode = z
@@ -50,7 +56,7 @@ const SampleMatrixSpecificDataDAOABreeding = z.object({
   sampling: z.literal('Aléatoire'),
   animalIdentifier: AnimalIdentifier,
   ageInDays: AnimalAgeInDays,
-  species: Species,
+  species: Species.extract(SpeciesByProgrammingPlanKind['DAOA_BREEDING']),
   breedingMethod: BreedingMethod,
   outdoorAccess: OutdoorAccess
 });
@@ -60,7 +66,9 @@ const SampleMatrixSpecificDataDAOASlaughter = z.object({
   killingCode: KillingCode,
   sampling: z.literal('Aléatoire'),
   animalIdentifier: AnimalIdentifier,
-  animalKind: AnimalKind,
+  animalKind: AnimalKind.extract(
+    AnimalKindsByProgrammingPlanKind['DAOA_SLAUGHTER']
+  ),
   sex: AnimalSex,
   ageInMonths: AnimalAgeInMonths,
   productionKind: ProductionKind,

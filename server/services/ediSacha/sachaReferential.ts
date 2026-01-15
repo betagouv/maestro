@@ -1,5 +1,10 @@
+import { AnimalKindsByProgrammingPlanKind } from 'maestro-shared/referential/AnimalKind';
+import { AnimalSex } from 'maestro-shared/referential/AnimalSex';
 import { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
+import { ProductionKindsByProgrammingPlanKind } from 'maestro-shared/referential/ProductionKind';
+import { SpeciesByProgrammingPlanKind } from 'maestro-shared/referential/Species';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import z from 'zod';
 
 export const sigleContexteInterventionValidator = z.enum([
@@ -382,3 +387,120 @@ export const SigleMatrix: Record<
   'A01SQ#F28.A0C0S': 'FOIE_BV',
   'A01XF#F28.A0C0S': 'FOIE_BV'
 };
+
+//  <Cle>100000000913</Cle><Sigle>SEX1</Sigle>
+export const SigleSex: Record<AnimalSex, string> = {
+  // SEX1: 'Mâle entier',
+  SEX1: 'MALE',
+  // SEX2: 'Mâle castré',
+  SEX2: 'CASTR',
+  // SEX3: 'Mâle non déterminé',
+  SEX3: 'ML_ND',
+  // SEX4: 'Femelle',
+  SEX4: 'FEMEL',
+  // SEX5: 'Sexe inconnu'
+  SEX5: 'INDETERM'
+};
+
+export const SigleAnimalKind = {
+  // TYPEA1: 'Veau < 6 mois',
+  TYPEA1: 'VES6',
+  // TYPEA2: 'Jeune bovin entre 6 et 24 mois',
+  TYPEA2: 'BV6I24',
+  // TYPEA3: 'Bovin > 24 mois hors vache de réforme',
+  TYPEA3: 'BVAUT',
+  // TYPEA4: 'Vache de réforme',
+  TYPEA4: 'VAREF'
+} as const satisfies Record<
+  (typeof AnimalKindsByProgrammingPlanKind)['DAOA_SLAUGHTER'][number],
+  string
+>;
+
+export const SigleProductionKind = {
+  PROD_1: 'A', //'Allaitant',
+  PROD_2: 'L', //'Laitier',
+  PROD_3: 'I', //'Inconnu (BV, OV ou CP)',
+  //FIXME EDI n'existe pas
+  PROD_4: '' //'Boucherie (PC ou EQ)'
+} as const satisfies Record<
+  (typeof ProductionKindsByProgrammingPlanKind)['DAOA_SLAUGHTER'][number],
+  string
+>;
+
+export const SigleSpecies = {
+  ESP7: 'POULCHA', //'Poulet de chair',
+  ESP8: 'POULREF', //'Poule de réforme',
+  ESP10: 'AVIDIN', //'Dinde',
+  //FIXME EDI n'existe pas
+  ESP20: '' //'Autre volaille'
+} as const satisfies Record<
+  (typeof SpeciesByProgrammingPlanKind)['DAOA_BREEDING'][number],
+  string
+>;
+
+export const mapping = {
+  DAOA_SLAUGHTER: {
+    sex: {
+      sigle: 'SEX1',
+      value: (v) => SigleSex[v]
+    },
+    animalIdentifier: {
+      sigle: 'ID_ANIM',
+      value: (v) => `${v}`
+    },
+    age: {
+      sigle: 'AGEM',
+      value: (v) => `${v}`
+    },
+    //FIXME EDI
+    outdoorAccess: null,
+    sampling: null,
+    //FIXME EDI
+    killingCode: null,
+    animalKind: {
+      sigle: 'TAXOEF',
+      value: (v) => SigleAnimalKind[v]
+    },
+    productionKind: {
+      sigle: 'TYP_PROD',
+      value: (v) => SigleProductionKind[v]
+    },
+
+    //FIXME EDI
+    seizure: null
+  },
+  DAOA_BREEDING: {
+    animalIdentifier: {
+      sigle: 'ID_ANIM',
+      value: (v) => `${v}`
+    },
+    //FIXME EDI n'existe pas en jours, on met la date de naissance?
+    age: null,
+    species: {
+      sigle: 'ESPPVO',
+      value: (v) => SigleSpecies[v]
+    },
+    //FIXME EDI n'existe pas
+    breedingMethod: null,
+    //FIXME EDI
+    outdoorAccess: null,
+    sampling: null
+  }
+} as const satisfies {
+  [k in Exclude<ProgrammingPlanKind, 'PPV'>]: {
+    [s in MappingByProgrammingPlanKind<k>]: {
+      sigle: string;
+      value: (value: ValueType<k>[s]) => string;
+    } | null;
+  };
+};
+
+type MappingByProgrammingPlanKind<P extends ProgrammingPlanKind> = Exclude<
+  keyof ValueType<P>,
+  'programmingPlanKind'
+>;
+
+type ValueType<P extends ProgrammingPlanKind> = Extract<
+  SampleMatrixSpecificData,
+  { programmingPlanKind: P }
+>;

@@ -54,8 +54,6 @@ export const SpeciesLabels: Record<Species, string> = {
   ESP20: 'Autre volaille'
 };
 
-export const SpeciesByProgrammingPlanKind: Partial<
-  Record<ProgrammingPlanKind, Species[]>
-> = {
+export const SpeciesByProgrammingPlanKind = {
   [ProgrammingPlanKind.enum.DAOA_BREEDING]: ['ESP7', 'ESP8', 'ESP10', 'ESP20']
-};
+} as const satisfies Partial<Record<ProgrammingPlanKind, Species[]>>;

@@ -14,13 +14,11 @@ export const ProductionKindLabels: Record<ProductionKind, string> = {
   PROD_4: 'Boucherie'
 };
 
-export const ProductionKindsByProgrammingPlanKind: Partial<
-  Record<ProgrammingPlanKind, ProductionKind[]>
-> = {
+export const ProductionKindsByProgrammingPlanKind = {
   [ProgrammingPlanKind.enum.DAOA_SLAUGHTER]: [
     'PROD_1',
     'PROD_2',
     'PROD_4',
     'PROD_3'
   ]
-};
+} as const satisfies Partial<Record<ProgrammingPlanKind, ProductionKind[]>>;
