@@ -164,9 +164,24 @@ export const RegionalCoordinatorView: Story = {
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
 
-    await expect(canvasElement.querySelectorAll('.fr-badge')).toHaveLength(
-      prescriptions.length
+    await expect(
+      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
+        el.textContent?.toLowerCase().includes('%')
+      )
+    ).toHaveLength(prescriptions.length);
+    await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
+
+    await userEvent.click(canvas.getByTestId('prescriptions-table-segment'));
+
+    await expect(
+      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
+        el.textContent?.toLowerCase().includes('%')
+      )
+    ).toHaveLength(
+      (Regions[RegionalCoordinator.region].departments.length + 1) *
+        (prescriptions.length + 1)
     );
+    await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
   }
 };
 
@@ -216,9 +231,21 @@ export const DepartmentalCoordinatorView: Story = {
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
 
-    await expect(canvasElement.querySelectorAll('.fr-badge')).toHaveLength(
-      prescriptions.length
-    );
+    await expect(
+      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
+        el.textContent?.toLowerCase().includes('%')
+      )
+    ).toHaveLength(prescriptions.length);
+    await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
+
+    await userEvent.click(canvas.getByTestId('prescriptions-table-segment'));
+
+    await expect(
+      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
+        el.textContent?.toLowerCase().includes('%')
+      )
+    ).toHaveLength(prescriptions.length + 1);
+    await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
   }
 };
 
@@ -237,7 +264,11 @@ export const SamplerView: Story = {
       useFindLocalPrescriptionsQuery: {
         data: regionalPrescriptions
           .filter((_) => _.department === DepartmentalCoordinator.department)
-          .map((_, index) => ({ ..._, sampleCount: index + 5 }))
+          .map((_, index) => ({
+            ..._,
+            companySiret: SamplerDaoaFixture.companies[0].siret,
+            sampleCount: index + 5
+          }))
       },
       useFindCompaniesQuery: { data: companies },
       useFindLaboratoriesQuery: { data: laboratories }
@@ -266,6 +297,20 @@ export const SamplerView: Story = {
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
 
-    await expect(canvasElement.querySelectorAll('.fr-badge')).toHaveLength(0);
+    await expect(
+      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
+        el.textContent?.toLowerCase().includes('%')
+      )
+    ).toHaveLength(prescriptions.length);
+    await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
+
+    await userEvent.click(canvas.getByTestId('prescriptions-table-segment'));
+
+    await expect(
+      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
+        el.textContent?.toLowerCase().includes('%')
+      )
+    ).toHaveLength(prescriptions.length + 1);
+    await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
   }
 };
