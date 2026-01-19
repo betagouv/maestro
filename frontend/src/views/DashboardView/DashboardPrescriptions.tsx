@@ -45,7 +45,8 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
   const apiClient = useContext(ApiClientContext);
-  const { user, hasNationalView } = useAuthentication();
+  const { user, userDepartment, userCompanies, hasNationalView } =
+    useAuthentication();
 
   const [context, setContext] = useState(programmingPlan.contexts[0]);
   const [regionFilter, setRegionFilter] = useState(user?.region);
@@ -77,10 +78,10 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
     () =>
       filteredLocalPrescriptions(localPrescriptionsData ?? [], {
         region: regionFilter ?? undefined,
-        department: user?.department ?? undefined,
-        companies: user?.companies
+        department: userDepartment,
+        companies: userCompanies
       }),
-    [localPrescriptionsData, regionFilter, user]
+    [localPrescriptionsData, regionFilter, userDepartment, userCompanies]
   );
 
   const sortedPrescriptions = useMemo(

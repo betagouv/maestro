@@ -14,7 +14,7 @@ export const usePartialSample = (
 ) => {
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
-  const { hasUserPermission, user } = useAuthentication();
+  const { hasUserPermission, user, userDepartment } = useAuthentication();
   const { programmingPlan: stateProgrammingPlan } = useAppSelector(
     (state) => state.programmingPlan
   );
@@ -74,7 +74,7 @@ export const usePartialSample = (
             ? localPrescription.department ===
                 (isCreatedPartialSample(partialSample)
                   ? partialSample.department
-                  : user?.department) &&
+                  : userDepartment) &&
               localPrescription.companySiret === partialSample?.company?.siret
             : true
         ),

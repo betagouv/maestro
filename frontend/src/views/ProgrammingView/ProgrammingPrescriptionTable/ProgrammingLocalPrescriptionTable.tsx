@@ -58,8 +58,11 @@ const ProgrammingLocalPrescriptionTable = ({
   onTogglePrescriptionSelection
 }: Props) => {
   const dispatch = useAppDispatch();
-  const { user, hasUserLocalPrescriptionPermission, hasRegionalView } =
-    useAuthentication();
+  const {
+    userDepartment,
+    hasUserLocalPrescriptionPermission,
+    hasRegionalView
+  } = useAuthentication();
 
   const getLocalPrescription = useCallback(
     (prescriptionId: string) =>
@@ -81,12 +84,12 @@ const ProgrammingLocalPrescriptionTable = ({
     () =>
       [
         ...(hasRegionalView && programmingPlan.distributionKind !== 'REGIONAL'
-          ? user?.department
-            ? [user.department]
+          ? userDepartment
+            ? [userDepartment]
             : Regions[region].departments
           : [])
       ].sort(DepartmentSort),
-    [region, programmingPlan.distributionKind, hasRegionalView, user]
+    [region, programmingPlan.distributionKind, hasRegionalView, userDepartment]
   );
 
   const headers = useMemo(

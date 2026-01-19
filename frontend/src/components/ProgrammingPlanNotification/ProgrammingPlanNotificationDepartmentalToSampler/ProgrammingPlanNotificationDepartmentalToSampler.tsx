@@ -31,7 +31,8 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
   companyPrescriptions
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
-  const { user, hasUserLocalPrescriptionPermission } = useAuthentication();
+  const { user, userDepartment, hasUserLocalPrescriptionPermission } =
+    useAuthentication();
 
   const [updateLocalStatus] =
     apiClient.useUpdateProgrammingPlanLocalStatusMutation();
@@ -58,7 +59,7 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
         programmingPlanLocalStatusList: [
           {
             region: user?.region as Region,
-            department: user?.department as Department,
+            department: userDepartment as Department,
             status: NextProgrammingPlanStatus[programmingPlan.distributionKind][
               'SubmittedToDepartments'
             ] as ProgrammingPlanStatus
