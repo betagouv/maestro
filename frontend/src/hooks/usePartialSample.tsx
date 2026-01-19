@@ -82,7 +82,8 @@ export const usePartialSample = (
       programmingPlanLocalPrescriptionsData,
       partialSample,
       user,
-      programmingPlan
+      programmingPlan,
+      userDepartment
     ]
   );
 
