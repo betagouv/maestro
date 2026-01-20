@@ -39,7 +39,7 @@ const SampleCompany = ({
   onCompanyOfflineChange,
   onGeolocationChange
 }: Props) => {
-  const { userCompanies } = useAuthentication();
+  const { user } = useAuthentication();
   const { programmingPlanPrescriptions, programmingPlanLocalPrescriptions } =
     usePartialSample(partialSample);
 
@@ -63,7 +63,7 @@ const SampleCompany = ({
     if (programmingPlan.distributionKind !== 'SLAUGHTERHOUSE') {
       return undefined;
     }
-    return userCompanies.filter(({ siret }) =>
+    return user?.companies?.filter(({ siret }) =>
       programmingPlanKind
         ? programmingKindLocalPrescriptions?.some(
             (_) => _.companySiret === siret
@@ -72,7 +72,7 @@ const SampleCompany = ({
     );
   }, [
     programmingPlan.distributionKind,
-    userCompanies,
+    user?.companies,
     programmingKindLocalPrescriptions,
     programmingPlanKind
   ]);

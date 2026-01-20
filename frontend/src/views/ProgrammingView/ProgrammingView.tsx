@@ -45,14 +45,8 @@ const ProgrammingView = () => {
   const [selectedTabId, setSelectedTabId] =
     useState<ProgrammingViewTab>('ProgrammationTab');
   const [searchParams, setSearchParams] = useSearchParams();
-  const {
-    user,
-    hasNationalView,
-    hasRegionalView,
-    userDepartment,
-    userCompanies,
-    hasUserPermission
-  } = useAuthentication();
+  const { user, hasNationalView, hasRegionalView, hasUserPermission } =
+    useAuthentication();
   const { prescriptionFilters, prescriptionListDisplay } = useAppSelector(
     (state) => state.prescriptions
   );
@@ -153,7 +147,7 @@ const ProgrammingView = () => {
                     ].toLowerCase()}
                 </>
               }
-              subtitle={`${region ? Regions[region]?.name : ''}${userDepartment ? ` - ${DepartmentLabels[userDepartment]}` : ''}`}
+              subtitle={`${region ? Regions[region]?.name : ''}${user?.department ? ` - ${DepartmentLabels[user?.department]}` : ''}`}
               illustration={programmation}
               action={
                 <SegmentedControl
@@ -253,8 +247,8 @@ const ProgrammingView = () => {
                       <ProgrammingPrescriptionList
                         programmingPlan={programmingPlan}
                         region={region ?? undefined}
-                        department={userDepartment}
-                        companies={userCompanies}
+                        department={user?.department ?? undefined}
+                        companies={user?.companies ?? undefined}
                       />
                     )}
                     {selectedTabId === 'ConsultationTab' && hasNationalView && (

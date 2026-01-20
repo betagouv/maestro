@@ -1,4 +1,4 @@
-import { isNil, omit } from 'lodash-es';
+import { isNil } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { Region } from 'maestro-shared/referential/Region';
 import {
@@ -107,25 +107,9 @@ export const useAuthentication = () => {
       : ['LoginRoute', 'LoginCallbackRoute'];
   }, [isAuthenticated, hasUserPermission]);
 
-  const userDepartment = useMemo(() => {
-    if (authUser?.user && canHaveDepartment(authUser.user)) {
-      return authUser.user.department ?? undefined;
-    }
-    return undefined;
-  }, [authUser]);
-
-  const userCompanies = useMemo(() => {
-    if (authUser?.user && hasRole('Sampler')) {
-      return authUser.user.companies;
-    }
-    return [];
-  }, [authUser, hasRole]);
-
   return {
-    user: omit(authUser?.user, ['companies', 'department']),
+    user: authUser?.user,
     userRole: authUser?.userRole,
-    userDepartment,
-    userCompanies,
     isAuthenticated,
     hasUserPermission,
     hasUserPrescriptionPermission,

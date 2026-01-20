@@ -121,7 +121,6 @@ export const RegionalCoordinatorView: Story = {
         authUser: genAuthUser({
           ...RegionalCoordinator,
           programmingPlanKinds: ['DAOA_SLAUGHTER', 'DAOA_BREEDING'],
-          department: '44',
           companies: [CompanyFixture]
         })
       }

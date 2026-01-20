@@ -65,7 +65,6 @@ const PrescriptionCommentsModal = ({
   const {
     hasUserLocalPrescriptionPermission,
     user,
-    userDepartment,
     hasRegionalView,
     hasDepartmentalView
   } = useAuthentication();
@@ -201,15 +200,9 @@ const PrescriptionCommentsModal = ({
       department:
         recipientsSegment === 'DepartmentalCoordinator'
           ? (currentTag as Department)
-          : userDepartment
+          : user?.department
     }),
-    [
-      currentTag,
-      recipientsSegment,
-      user,
-      prescriptionCommentsData,
-      userDepartment
-    ]
+    [currentTag, recipientsSegment, user, prescriptionCommentsData]
   );
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {

@@ -5,7 +5,10 @@ import {
   COOKIE_MAESTRO_USER_ROLE
 } from 'maestro-shared/constants';
 import AuthenticationFailedError from 'maestro-shared/errors/authenticationFailedError';
-import { AuthMaybeUnknownUser } from 'maestro-shared/schema/User/AuthUser';
+import {
+  AuthMaybeUnknownUser,
+  AuthUserTransformed
+} from 'maestro-shared/schema/User/AuthUser';
 import { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
 import { v4 as uuidv4 } from 'uuid';
 import { getUser } from '../middlewares/checks/authCheck';
@@ -58,10 +61,10 @@ export const authUnprotectedRouter = {
         }
         const result: AuthMaybeUnknownUser =
           user !== undefined
-            ? {
+            ? AuthUserTransformed.parse({
                 user: await getUser(cookies, user),
                 userRole: user.roles[0]
-              }
+              })
             : {
                 user: null,
                 userRole: null,
@@ -91,12 +94,16 @@ export const authUnprotectedRouter = {
 
 export const authProtectedRouter = {
   '/auth/role': {
-    post: async ({ body: { newRole }, user }, _p, { clearCookie, cookie }) => {
+    post: async (
+      { body: { newRole }, user: authUser },
+      _p,
+      { clearCookie, cookie }
+    ) => {
       clearCookie(COOKIE_MAESTRO_USER_ROLE);
 
-      const userWithRoles = await userRepository.findUnique(user.id);
+      const user = await userRepository.findUnique(authUser.id);
 
-      if (!userWithRoles || !userWithRoles.roles.includes(newRole)) {
+      if (!user || !user.roles.includes(newRole)) {
         throw new AuthenticationFailedError();
       }
 
@@ -106,7 +113,11 @@ export const authProtectedRouter = {
       });
 
       return {
-        status: constants.HTTP_STATUS_OK
+        status: constants.HTTP_STATUS_OK,
+        response: AuthUserTransformed.parse({
+          user,
+          userRole: newRole
+        })
       };
     }
   },

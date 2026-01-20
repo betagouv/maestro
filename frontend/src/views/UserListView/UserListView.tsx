@@ -30,14 +30,14 @@ export const UserListView = () => {
   useDocumentTitle('Gestions des utilisateurs');
 
   const apiClient = useContext(ApiClientContext);
-  const { user, userDepartment } = useAuthentication();
+  const { user } = useAuthentication();
 
   const { data: users } = apiClient.useFindUsersQuery({});
   const [updateUser] = apiClient.useUpdateUserMutation();
   const { data: companies } = apiClient.useFindCompaniesQuery({
     kinds: ['MEAT_SLAUGHTERHOUSE', 'POULTRY_SLAUGHTERHOUSE'],
     region: user?.region ?? undefined,
-    department: userDepartment
+    department: user?.department ?? undefined
   });
 
   const [userToUpdate, setUserToUpdate] = useState<null | UserRefined>(null);

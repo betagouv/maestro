@@ -320,6 +320,11 @@ const ProgrammingPrescriptionList = ({
     [programmingPlan, localPrescriptions, hasUserLocalPrescriptionPermission]
   );
 
+  console.log('prescriptions', prescriptions);
+  console.log('localPrescriptions', allLocalPrescriptions);
+  console.log('region', region);
+  console.log('user', user);
+
   return (
     <>
       <AppToast open={isAddSuccess} description="Matrice ajoutée" />

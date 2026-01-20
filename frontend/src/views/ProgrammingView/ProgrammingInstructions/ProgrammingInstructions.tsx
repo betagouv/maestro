@@ -21,8 +21,7 @@ interface Props {
 
 const ProgrammingInstructions = ({ programmingPlan }: Props) => {
   const apiClient = useContext(ApiClientContext);
-  const { hasRegionalView, hasDepartmentalView, user, userDepartment } =
-    useAuthentication();
+  const { hasRegionalView, hasDepartmentalView, user } = useAuthentication();
 
   const regionalValidationModal = createModal({
     id: `regional-validation-modal`,
@@ -46,16 +45,16 @@ const ProgrammingInstructions = ({ programmingPlan }: Props) => {
 
   const status = useMemo(
     () =>
-      userDepartment
+      user?.department
         ? programmingPlan.departmentalStatus.find(
             (status) =>
               status.region === user?.region &&
-              status.department === userDepartment
+              status.department === user?.department
           )?.status
         : programmingPlan.regionalStatus.find(
             (status) => status.region === user?.region
           )?.status,
-    [programmingPlan, userDepartment, user]
+    [programmingPlan, user]
   );
 
   const instructionSteps = useMemo(() => {

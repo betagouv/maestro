@@ -82,7 +82,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
     programmingPlanLocalPrescriptions
   } = usePartialSample(partialSample);
   const { trackEvent } = useAnalytics();
-  const { user, userCompanies } = useAuthentication();
+  const { user } = useAuthentication();
   const apiClient = useContext(ApiClientContext);
   const [resytalId, setResytalId] = useState(
     partialSample?.resytalId ?? undefined
@@ -113,19 +113,19 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
 
   const [geolocationX, setGeolocationX] = useState(
     partialSample?.geolocation?.x ??
-      (userCompanies?.length === 1
-        ? userCompanies?.[0].geolocation?.x
+      (user?.companies?.length === 1
+        ? user?.companies?.[0].geolocation?.x
         : undefined)
   );
   const [geolocationY, setGeolocationY] = useState(
     partialSample?.geolocation?.y ??
-      (userCompanies?.length === 1
-        ? userCompanies?.[0].geolocation?.y
+      (user?.companies?.length === 1
+        ? user?.companies?.[0].geolocation?.y
         : undefined)
   );
   const [company, setCompany] = useState(
     partialSample?.company ??
-      (userCompanies?.length === 1 ? userCompanies?.[0] : undefined)
+      (user?.companies?.length === 1 ? user?.companies?.[0] : undefined)
   );
   const [isBrowserGeolocation, setIsBrowserGeolocation] = useState(false);
   const [sampler, setSampler] = useState<Sampler | undefined>(
@@ -279,8 +279,8 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
               (localPrescription) =>
                 localPrescription.prescriptionId === prescription.id &&
                 !isNil(localPrescription.companySiret) &&
-                userCompanies
-                  .map((_) => _.siret)
+                user?.companies
+                  ?.map((_) => _.siret)
                   .includes(localPrescription.companySiret) &&
                 localPrescription.sampleCount > 0
             )
