@@ -419,9 +419,9 @@ export const SigleAnimalKind = {
 export const SigleProductionKind = {
   PROD_1: 'A', //'Allaitant',
   PROD_2: 'L', //'Laitier',
-  PROD_3: 'I', //'Inconnu (BV, OV ou CP)',
+  PROD_3: 'I', //'Inconnu',
   //FIXME EDI n'existe pas
-  PROD_4: '' //'Boucherie (PC ou EQ)'
+  PROD_4: '' //'Boucherie'
 } as const satisfies Record<
   (typeof ProductionKindsByProgrammingPlanKind)['DAOA_SLAUGHTER'][number],
   string
