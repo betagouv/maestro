@@ -125,7 +125,6 @@ const Header = () => {
       if (user) {
         const authUser = await changeRole(userRole).unwrap();
         dispatch(api.util.resetApiState());
-        // dispatch(authSlice.actions.changeUserRole(userRole));
         dispatch(
           authSlice.actions.signinUser({
             authUser
