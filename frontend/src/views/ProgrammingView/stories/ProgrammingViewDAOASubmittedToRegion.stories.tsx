@@ -135,8 +135,18 @@ export const RegionalCoordinatorView: Story = {
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
 
-    await expect(canvasElement.querySelectorAll('.fr-badge')).toHaveLength(
-      prescriptions.length
-    );
+    await expect(
+      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
+        el.textContent?.toLowerCase().includes('attribué')
+      )
+    ).toHaveLength(prescriptions.length);
+
+    await userEvent.click(canvas.getByTestId('prescriptions-table-segment'));
+
+    await expect(
+      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
+        el.textContent?.toLowerCase().includes('attribué')
+      )
+    ).toHaveLength(prescriptions.length);
   }
 };

@@ -3,7 +3,7 @@ import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
-import { sumBy } from 'lodash-es';
+import { isNil, sumBy } from 'lodash-es';
 import {
   DepartmentLabels,
   DepartmentSort
@@ -119,154 +119,177 @@ const ProgrammingLocalPrescriptionTable = ({
 
   const prescriptionsData = useMemo(
     () =>
-      prescriptions.map((prescription) =>
-        [
-          onTogglePrescriptionSelection ? (
-            <div key={`select-${prescription.id}`}>
-              <Checkbox
-                options={[
-                  {
-                    label: '',
-                    nativeInputProps: {
-                      checked: selectedPrescriptions.some(
-                        (p) => p.id === prescription.id
-                      ),
-                      onChange: () =>
-                        onTogglePrescriptionSelection(prescription)
+      prescriptions
+        .filter((prescription) => !isNil(getLocalPrescription(prescription.id)))
+        .map((prescription) =>
+          [
+            onTogglePrescriptionSelection ? (
+              <div key={`select-${prescription.id}`}>
+                <Checkbox
+                  options={[
+                    {
+                      label: '',
+                      nativeInputProps: {
+                        checked: selectedPrescriptions.some(
+                          (p) => p.id === prescription.id
+                        ),
+                        onChange: () =>
+                          onTogglePrescriptionSelection(prescription)
+                      }
                     }
+                  ]}
+                  small
+                />
+              </div>
+            ) : undefined,
+            <div
+              className={clsx(cx('fr-text--bold'), {
+                'border-left': onTogglePrescriptionSelection
+              })}
+              data-testid={`matrix-${prescription.id}`}
+              key={`matrix-${prescription.id}`}
+            >
+              {getPrescriptionTitle(prescription)}
+              <PrescriptionBreadcrumb
+                prescription={prescription}
+                programmingPlan={programmingPlan}
+              />
+              <PrescriptionProgrammingInstruction
+                programmingPlan={programmingPlan}
+                value={prescription.programmingInstruction}
+              />
+            </div>,
+            <div
+              className={clsx(
+                cx('fr-text--bold'),
+                'border-left',
+                'sample-count'
+              )}
+              key={`total-${prescription.id}`}
+            >
+              <div className="no-wrap">
+                {pluralize(
+                  getLocalPrescription(prescription.id)?.sampleCount ?? 0,
+                  {
+                    preserveCount: true
                   }
-                ]}
-                small
+                )('prélèvement programmé')}
+              </div>
+              {programmingPlan.regionalStatus.every((_) =>
+                ['Validated', 'Closed'].includes(_.status)
+              ) ? (
+                <>
+                  <div>
+                    {pluralize(
+                      getLocalPrescription(prescription.id)
+                        ?.realizedSampleCount ?? 0,
+                      {
+                        preserveCount: true
+                      }
+                    )('réalisé')}
+                  </div>
+                  <div>
+                    <CompletionBadge localPrescriptions={localPrescriptions} />
+                  </div>
+                </>
+              ) : (
+                <>
+                  {(hasUserLocalPrescriptionPermission(
+                    programmingPlan,
+                    getLocalPrescription(prescription.id)
+                  )?.distributeToDepartments ||
+                    hasUserLocalPrescriptionPermission(
+                      programmingPlan,
+                      getLocalPrescription(prescription.id)
+                    )?.distributeToSlaughterhouses) && (
+                    <LocalPrescriptionDistributionBadge
+                      localPrescription={getLocalPrescription(prescription.id)}
+                      subLocalPrescriptions={getSubLocalPrescriptions(
+                        prescription.id
+                      )}
+                      small
+                    />
+                  )}
+                </>
+              )}
+            </div>,
+            ...(hasRegionalView &&
+            programmingPlan.distributionKind !== 'REGIONAL'
+              ? getSubLocalPrescriptions(prescription.id).map(
+                  (localPrescription) => (
+                    <div
+                      className="border-left"
+                      data-testid={`cell-${prescription.id}`}
+                      key={`cell-${prescription.id}-${localPrescription.region}`}
+                    >
+                      <DistributionCountCell
+                        programmingPlan={programmingPlan}
+                        prescription={prescription}
+                        localPrescription={localPrescription}
+                        isEditable={
+                          hasUserLocalPrescriptionPermission(
+                            programmingPlan,
+                            localPrescription
+                          )?.distributeToDepartments
+                        }
+                        max={
+                          (getLocalPrescription(prescription.id)?.sampleCount ??
+                            0) -
+                          sumBy(
+                            getSubLocalPrescriptions(prescription.id),
+                            'sampleCount'
+                          ) +
+                          localPrescription.sampleCount
+                        }
+                        onChange={async (value) =>
+                          onChangeLocalPrescriptionCount(
+                            {
+                              prescriptionId: localPrescription.prescriptionId,
+                              region: localPrescription.region,
+                              department: localPrescription.department
+                            },
+                            value
+                          )
+                        }
+                      />
+                    </div>
+                  )
+                )
+              : []),
+            <div
+              className={clsx('border-left', 'align-right')}
+              key={`actions-${prescription.id}`}
+            >
+              <Button
+                priority="tertiary"
+                size="small"
+                onClick={() =>
+                  dispatch(
+                    prescriptionsSlice.actions.setPrescriptionModalData({
+                      mode: 'details',
+                      programmingPlan,
+                      prescription
+                    })
+                  )
+                }
+              >
+                Info prélèvement
+              </Button>
+              <LocalPrescriptionButtons
+                programmingPlan={programmingPlan}
+                prescription={prescription}
+                localPrescription={
+                  getLocalPrescription(prescription.id) as LocalPrescription
+                }
+                subLocalPrescriptions={getSubLocalPrescriptions(
+                  prescription.id
+                )}
+                alignment="right"
+                className={clsx(cx('fr-mt-1w'), 'link-underline')}
               />
             </div>
-          ) : undefined,
-          <div
-            className={clsx(cx('fr-text--bold'), {
-              'border-left': onTogglePrescriptionSelection
-            })}
-            data-testid={`matrix-${prescription.id}`}
-            key={`matrix-${prescription.id}`}
-          >
-            {getPrescriptionTitle(prescription)}
-            <PrescriptionBreadcrumb
-              prescription={prescription}
-              programmingPlan={programmingPlan}
-            />
-            <PrescriptionProgrammingInstruction
-              programmingPlan={programmingPlan}
-              value={prescription.programmingInstruction}
-            />
-          </div>,
-          <div
-            className={clsx(cx('fr-text--bold'), 'border-left', 'sample-count')}
-            key={`total-${prescription.id}`}
-          >
-            <div>
-              {pluralize(
-                getLocalPrescription(prescription.id)?.sampleCount ?? 0,
-                {
-                  preserveCount: true
-                }
-              )('prélèvement programmé')}
-            </div>
-            <LocalPrescriptionDistributionBadge
-              localPrescription={getLocalPrescription(prescription.id)}
-              subLocalPrescriptions={getSubLocalPrescriptions(prescription.id)}
-              small
-            />
-            {programmingPlan.regionalStatus.some(
-              (_) => _.status === 'Validated'
-            ) && (
-              <>
-                <div>
-                  {pluralize(
-                    getLocalPrescription(prescription.id)
-                      ?.realizedSampleCount ?? 0,
-                    {
-                      preserveCount: true
-                    }
-                  )('réalisé')}
-                </div>
-                <div>
-                  <CompletionBadge localPrescriptions={localPrescriptions} />
-                </div>
-              </>
-            )}
-          </div>,
-          ...(hasRegionalView && programmingPlan.distributionKind !== 'REGIONAL'
-            ? getSubLocalPrescriptions(prescription.id).map(
-                (localPrescription) => (
-                  <div
-                    className="border-left"
-                    data-testid={`cell-${prescription.id}`}
-                    key={`cell-${prescription.id}-${localPrescription.region}`}
-                  >
-                    <DistributionCountCell
-                      programmingPlan={programmingPlan}
-                      prescription={prescription}
-                      localPrescription={localPrescription}
-                      isEditable={
-                        hasUserLocalPrescriptionPermission(
-                          programmingPlan,
-                          localPrescription
-                        )?.distributeToDepartments
-                      }
-                      max={
-                        (getLocalPrescription(prescription.id)?.sampleCount ??
-                          0) -
-                        sumBy(
-                          getSubLocalPrescriptions(prescription.id),
-                          'sampleCount'
-                        ) +
-                        localPrescription.sampleCount
-                      }
-                      onChange={async (value) =>
-                        onChangeLocalPrescriptionCount(
-                          {
-                            prescriptionId: localPrescription.prescriptionId,
-                            region: localPrescription.region,
-                            department: localPrescription.department
-                          },
-                          value
-                        )
-                      }
-                    />
-                  </div>
-                )
-              )
-            : []),
-          <div
-            className={clsx('border-left', 'align-right')}
-            key={`actions-${prescription.id}`}
-          >
-            <Button
-              priority="tertiary"
-              size="small"
-              onClick={() =>
-                dispatch(
-                  prescriptionsSlice.actions.setPrescriptionModalData({
-                    mode: 'details',
-                    programmingPlan,
-                    prescription
-                  })
-                )
-              }
-            >
-              Info prélèvement
-            </Button>
-            <LocalPrescriptionButtons
-              programmingPlan={programmingPlan}
-              prescription={prescription}
-              localPrescription={
-                getLocalPrescription(prescription.id) as LocalPrescription
-              }
-              subLocalPrescriptions={getSubLocalPrescriptions(prescription.id)}
-              alignment="right"
-              className={clsx(cx('fr-mt-1w'), 'link-underline')}
-            />
-          </div>
-        ].filter(isDefined)
-      ), // eslint-disable-next-line react-hooks/exhaustive-deps
+          ].filter(isDefined)
+        ), // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       programmingPlan,
       prescriptions,
@@ -291,13 +314,26 @@ const ProgrammingLocalPrescriptionTable = ({
           Total
         </div>,
         <div className="border-left fr-text--bold" key="total-total">
-          <div>{sumBy(localPrescriptions, 'sampleCount')}</div>
+          <div>
+            <div className="no-wrap">
+              {pluralize(sumBy(localPrescriptions, 'sampleCount'), {
+                preserveCount: true
+              })('prélèvement programmé')}
+            </div>
+          </div>
 
-          {programmingPlan.regionalStatus.some(
-            (_) => _.status === 'Validated'
+          {programmingPlan.regionalStatus.some((_) =>
+            ['Validated', 'Closed'].includes(_.status)
           ) && (
             <>
-              <div>{sumBy(localPrescriptions, 'realizedSampleCount')}</div>
+              <div>
+                {pluralize(
+                  sumBy(subLocalPrescriptions, 'realizedSampleCount') ?? 0,
+                  {
+                    preserveCount: true
+                  }
+                )('réalisé')}
+              </div>
               <CompletionBadge localPrescriptions={localPrescriptions} />
             </>
           )}
@@ -315,8 +351,10 @@ const ProgrammingLocalPrescriptionTable = ({
                 'sampleCount'
               )}
             </div>
-            {programmingPlan.regionalStatus.some(
-              (_) => _.region === department && _.status === 'Validated'
+            {programmingPlan.departmentalStatus.some(
+              (_) =>
+                _.department === department &&
+                ['Validated', 'Closed'].includes(_.status)
             ) && (
               <>
                 <div>
