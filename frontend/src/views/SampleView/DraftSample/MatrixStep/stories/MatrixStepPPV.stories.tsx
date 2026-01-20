@@ -171,7 +171,6 @@ export const MatrixStepPPVSaveOnBlurWithoutHandlingErrors: Story = {
       MatrixKindLabels[prescription1.matrixKind]
     );
     await userEvent.click(stageSelect);
-    console.log('API Client mock:', parameters.apiClient);
     await expect(
       canvas.queryByText(
         'Veuillez renseigner la catégorie de matrice programmée.'
