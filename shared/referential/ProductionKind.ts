@@ -10,8 +10,8 @@ export type ProductionKind = z.infer<typeof ProductionKind>;
 export const ProductionKindLabels: Record<ProductionKind, string> = {
   PROD_1: 'Allaitant',
   PROD_2: 'Laitier',
-  PROD_3: 'Inconnu (BV, OV ou CP)',
-  PROD_4: 'Boucherie (PC ou EQ)'
+  PROD_3: 'Inconnu',
+  PROD_4: 'Boucherie'
 };
 
 export const ProductionKindsByProgrammingPlanKind: Partial<
