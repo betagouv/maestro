@@ -21,13 +21,14 @@ export const UserBase = z.object({
   email: z.email({ error: 'Veuillez renseigner un email valide.' }),
   name: z.string().nullable(),
   programmingPlanKinds: z.array(ProgrammingPlanKind),
+  roles: z.array(UserRole).min(1, 'Veuillez renseigner au moins un rôle.'),
   region: Region.nullable(),
   department: Department.nullable(),
   companies: z.array(Company),
   disabled: z.boolean()
 });
 
-const userChecks = <
+export const userChecks = <
   T extends Pick<
     UserRefined,
     'region' | 'roles' | 'department' | 'companies' | 'programmingPlanKinds'
@@ -78,8 +79,7 @@ const userChecks = <
 
 export const UserRefined = z
   .object({
-    ...UserBase.shape,
-    roles: z.array(UserRole).min(1, 'Veuillez renseigner au moins un rôle.')
+    ...UserBase.shape
   })
   .superRefine(userChecks);
 

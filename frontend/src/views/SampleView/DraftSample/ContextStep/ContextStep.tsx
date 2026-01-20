@@ -280,7 +280,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
                 localPrescription.prescriptionId === prescription.id &&
                 !isNil(localPrescription.companySiret) &&
                 user?.companies
-                  .map((_) => _.siret)
+                  ?.map((_) => _.siret)
                   .includes(localPrescription.companySiret) &&
                 localPrescription.sampleCount > 0
             )

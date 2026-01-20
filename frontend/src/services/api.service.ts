@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { AuthUser } from 'maestro-shared/schema/User/AuthUser';
+import { AuthUserTransformed } from 'maestro-shared/schema/User/AuthUser';
 import config from '../utils/config';
 
 export const tagTypes = [
@@ -27,7 +27,9 @@ export const api = createApi({
       if (isMascaradeEnable) {
         const authUser = localStorage.getItem('authUser');
         if (authUser) {
-          const mascaradeUser = AuthUser.safeParse(JSON.parse(authUser)).data;
+          const mascaradeUser = AuthUserTransformed.safeParse(
+            JSON.parse(authUser)
+          ).data;
           if (mascaradeUser) {
             const mascaradeId = mascaradeUser.user.id;
             if (mascaradeId) {

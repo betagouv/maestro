@@ -2,7 +2,7 @@ import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { RegionList, Regions } from '../referential/Region';
 import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
-import { AuthUser } from '../schema/User/AuthUser';
+import { AuthUserTransformed } from '../schema/User/AuthUser';
 import {
   companiesIsRequired,
   programmingPlanKindsIsRequired,
@@ -134,14 +134,13 @@ export const SamplerDaoaFixture = genUser({
 
 export const genAuthUser = (
   data?: Partial<UserRefined & { userRole: UserRole }>
-): AuthUser => {
+): AuthUserTransformed => {
   const role = data?.userRole ?? data?.roles?.[0] ?? oneOf(UserRoleList);
-  return {
-    user: genUser(
-      data ?? {
-        roles: [role]
-      }
-    ),
+  return AuthUserTransformed.parse({
+    user: genUser({
+      ...data,
+      roles: data?.roles ?? [role]
+    }),
     userRole: role
-  };
+  });
 };
