@@ -63,7 +63,7 @@ const SampleCompany = ({
     if (programmingPlan.distributionKind !== 'SLAUGHTERHOUSE') {
       return undefined;
     }
-    return user?.companies.filter(({ siret }) =>
+    return user?.companies?.filter(({ siret }) =>
       programmingPlanKind
         ? programmingKindLocalPrescriptions?.some(
             (_) => _.companySiret === siret

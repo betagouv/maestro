@@ -15,6 +15,7 @@ import {
 } from 'maestro-shared/constants';
 import AuthenticationFailedError from 'maestro-shared/errors/authenticationFailedError';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
+import { AuthUserTransformed } from 'maestro-shared/schema/User/AuthUser';
 
 export const jwtCheck = (credentialsRequired: boolean) =>
   expressjwt({
@@ -44,49 +45,61 @@ export const getUser = async (
   return user;
 };
 
-export const userCheck = (credentialsRequired: boolean) =>
-  async function (request: Request, _response: Response, next: NextFunction) {
-    if (credentialsRequired) {
-      if (!request.auth || !request.auth.userId || !request.auth.loggedSecret) {
-        throw new AuthenticationMissingError(request.auth);
-      }
+const getRequestUser = async (
+  request: Request,
+  credentialsRequired: boolean
+) => {
+  if (credentialsRequired) {
+    if (!request.auth || !request.auth.userId || !request.auth.loggedSecret) {
+      throw new AuthenticationMissingError(request.auth);
+    }
 
+    const user = await userRepository.findUnique(request.auth.userId);
+    if (!user) {
+      throw new UserMissingError(request.auth.userId);
+    }
+
+    if (!user.loggedSecrets.includes(request.auth.loggedSecret)) {
+      throw new AuthenticationFailedError();
+    }
+
+    if (user.disabled) {
+      throw new AuthenticationFailedError();
+    }
+
+    const requestUser = await getUser(request.cookies, user);
+    if (request.userRole && !requestUser.roles.includes(request.userRole)) {
+      throw new UserRoleMissingError();
+    }
+    return requestUser;
+  } else {
+    if (request.auth && request.auth.userId) {
       const user = await userRepository.findUnique(request.auth.userId);
-      if (!user) {
-        throw new UserMissingError(request.auth.userId);
-      }
-
-      if (!user.loggedSecrets.includes(request.auth.loggedSecret)) {
-        throw new AuthenticationFailedError();
-      }
-
-      if (user.disabled) {
-        throw new AuthenticationFailedError();
-      }
-
-      const requestUser = await getUser(request.cookies, user);
-      if (request.userRole && !requestUser.roles.includes(request.userRole)) {
-        throw new UserRoleMissingError();
-      }
-
-      request.user = requestUser;
-    } else {
-      if (request.auth && request.auth.userId) {
-        const user = await userRepository.findUnique(request.auth.userId);
-        if (user) {
-          request.user = await getUser(request.cookies, user);
-        }
+      if (user) {
+        return await getUser(request.cookies, user);
       }
     }
-    if (request.user) {
-      if (
+    return undefined;
+  }
+};
+
+export const userCheck = (credentialsRequired: boolean) =>
+  async function (request: Request, _response: Response, next: NextFunction) {
+    const requestUser = await getRequestUser(request, credentialsRequired);
+
+    if (requestUser) {
+      const requestUserRole =
         request.cookies?.[COOKIE_MAESTRO_USER_ROLE] &&
-        request.user.roles.includes(request.cookies?.[COOKIE_MAESTRO_USER_ROLE])
-      ) {
-        request.userRole = request.cookies?.[COOKIE_MAESTRO_USER_ROLE];
-      } else {
-        request.userRole = request.user.roles[0];
-      }
+        requestUser.roles.includes(request.cookies?.[COOKIE_MAESTRO_USER_ROLE])
+          ? request.cookies?.[COOKIE_MAESTRO_USER_ROLE]
+          : requestUser.roles[0];
+
+      const parsed = AuthUserTransformed.parse({
+        user: requestUser,
+        userRole: requestUserRole
+      });
+      request.user = parsed.user;
+      request.userRole = parsed.userRole;
     }
     next();
   };

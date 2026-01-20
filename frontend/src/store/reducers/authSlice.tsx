@@ -1,14 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   AuthMaybeUnknownUser,
-  AuthUser
+  AuthUserTransformed
 } from 'maestro-shared/schema/User/AuthUser';
-import { UserRole } from 'maestro-shared/schema/User/UserRole';
 
 const authUser = JSON.parse(localStorage.getItem('authUser') ?? '{}');
 
 type AuthState = {
-  authUser?: AuthUser;
+  authUser?: AuthUserTransformed;
 };
 
 const authSlice = createSlice({
@@ -22,12 +21,6 @@ const authSlice = createSlice({
       localStorage.setItem('authUser', JSON.stringify(action.payload.authUser));
       if (action.payload.authUser.user !== null) {
         state.authUser = action.payload.authUser;
-      }
-    },
-    changeUserRole: (state, action: PayloadAction<UserRole>) => {
-      if (state.authUser) {
-        state.authUser.userRole = action.payload;
-        localStorage.setItem('authUser', JSON.stringify(state.authUser));
       }
     },
     signoutUser: (state) => {

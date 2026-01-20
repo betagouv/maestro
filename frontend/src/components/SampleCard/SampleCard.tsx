@@ -13,7 +13,6 @@ import {
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
-import { UserRefined } from 'maestro-shared/schema/User/User';
 import { useState } from 'react';
 import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
@@ -110,7 +109,7 @@ const SampleCard = ({ sample, horizontal }: Props) => {
               </span>
               <span className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
                 <span className={cx('fr-col-6')}>
-                  <SamplerBlock sample={sample} user={user} />
+                  <SamplerBlock sample={sample} userName={user?.name} />
                 </span>
                 <span className={cx('fr-col-6')}>
                   <MatrixBlock sample={sample} />
@@ -126,7 +125,7 @@ const SampleCard = ({ sample, horizontal }: Props) => {
                   <DepartmentBlock sample={sample} />
                   <ContextBlock sample={sample} />
                   <MatrixBlock sample={sample} />
-                  <SamplerBlock sample={sample} user={user} />
+                  <SamplerBlock sample={sample} userName={user?.name} />
                 </>
               )}
             </>
@@ -268,17 +267,17 @@ const MatrixBlock = ({
 
 const SamplerBlock = ({
   sample,
-  user
+  userName
 }: {
   sample: PartialSample | PartialSampleToCreate;
-  user?: UserRefined;
+  userName?: string | null;
 }) => {
   return (
     <span className="icon-text">
       <span className={cx('fr-icon-user-line', 'fr-icon--sm')}></span>
       {isCreatedPartialSample(sample)
         ? `${sample.sampler.name}`
-        : `${user?.name}`}
+        : `${userName}`}
     </span>
   );
 };
