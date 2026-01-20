@@ -18,6 +18,7 @@ import {
   SampleStatusList
 } from 'maestro-shared/schema/Sample/SampleStatus';
 import { UserRefined } from 'maestro-shared/schema/User/User';
+import AppSearchInput from 'src/components/_app/AppSearchInput/AppSearchInput';
 import {
   samplersOptions,
   selectOptionsFromList
@@ -41,16 +42,9 @@ const SamplePrimaryFilters = ({
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
-        <Select
-          label="Catégorie de matrice"
-          nativeSelectProps={{
-            value: filters.matrixKind || '',
-            onChange: (e) =>
-              onChange({ matrixKind: e.target.value as MatrixKind })
-          }}
-        >
-          <option value="">Toutes</option>
-          {selectOptionsFromList(
+        <AppSearchInput
+          value={filters.matrixKind || ''}
+          options={selectOptionsFromList(
             MatrixKindList.filter(
               (matrixKind) =>
                 !filters.programmingPlanId ||
@@ -63,23 +57,23 @@ const SamplePrimaryFilters = ({
               withDefault: false,
               withSort: true
             }
-          ).map((option) => (
-            <option key={option.value} value={option.value}>
+          )}
+          placeholder="Sélectionner une catégorie"
+          onSelect={(value) => {
+            onChange({ matrixKind: value as MatrixKind });
+          }}
+          label="Catégorie de matrice"
+          renderOption={(props, option) => (
+            <li {...props} key={option.value}>
               {option.label}
-            </option>
-          ))}
-        </Select>
+            </li>
+          )}
+        />
       </div>
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
-        <Select
-          label="Matrice"
-          nativeSelectProps={{
-            value: filters.matrix || '',
-            onChange: (e) => onChange({ matrix: e.target.value as Matrix })
-          }}
-        >
-          <option value="">Toutes</option>
-          {selectOptionsFromList(
+        <AppSearchInput
+          value={filters.matrix ?? ''}
+          options={selectOptionsFromList(
             MatrixList.filter(
               (matrix) =>
                 (!filters.programmingPlanId ||
@@ -95,12 +89,21 @@ const SamplePrimaryFilters = ({
               labels: MatrixLabels,
               withDefault: false
             }
-          ).map((option) => (
-            <option key={option.value} value={option.value}>
+          )}
+          placeholder="Sélectionner une matrice"
+          onSelect={(value) => {
+            onChange({ matrix: value as Matrix });
+          }}
+          label="Matrice"
+          inputProps={{
+            'data-testid': 'matrix-select'
+          }}
+          renderOption={(props, option) => (
+            <li {...props} key={option.value}>
               {option.label}
-            </option>
-          ))}
-        </Select>
+            </li>
+          )}
+        />
       </div>
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
         <Select
