@@ -151,7 +151,7 @@ export const MatrixStepPPVSaveOnBlurWithoutHandlingErrors: Story = {
       })
     }
   },
-  play: async ({ canvasElement, parameters }) => {
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
     const matrixKindInput = canvas.getAllByTestId('matrix-kind-select')[0];
