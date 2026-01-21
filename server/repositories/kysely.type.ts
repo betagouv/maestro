@@ -9,6 +9,10 @@ import { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
 import { type Region } from 'maestro-shared/referential/Region';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { Stage } from 'maestro-shared/referential/Stage';
+import {
+  CommemoratifSigle,
+  CommemoratifValueSigle
+} from 'maestro-shared/schema/Commemoratif/CommemoratifSigle';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
@@ -114,6 +118,23 @@ export interface SachaSender {
 export interface SachaResidueMappings {
   label: string;
   ssd2Id: string;
+}
+
+export interface SachaCommemoratifs {
+  sigle: CommemoratifSigle;
+  cle: string;
+  libelle: string;
+  statut: string;
+  typeDonnee: string | null;
+  unite: string | null;
+}
+
+export interface SachaCommemoratifValues {
+  sigle: CommemoratifValueSigle;
+  commemoratifSigle: CommemoratifSigle;
+  cle: string;
+  libelle: string;
+  statut: string;
 }
 
 export interface Laboratories {
@@ -301,6 +322,8 @@ export interface DB {
   localPrescriptions: LocalPrescriptions;
   residueAnalytes: ResidueAnalytes;
   sachaResidueMappings: SachaResidueMappings;
+  sachaCommemoratifs: SachaCommemoratifs;
+  sachaCommemoratifValues: SachaCommemoratifValues;
   sachaSender: SachaSender;
   sampleDocuments: SampleDocuments;
   sampleItems: SampleItems;
