@@ -11,6 +11,9 @@ export type LaboratoryAnalyticalMethod = z.infer<
   typeof LaboratoryAnalyticalMethod
 >;
 
+export const LaboratoryAnalyticalMethodList =
+  LaboratoryAnalyticalMethod.options;
+
 export const LaboratoryAnalyticalMethodLabels: Record<
   LaboratoryAnalyticalMethod,
   string

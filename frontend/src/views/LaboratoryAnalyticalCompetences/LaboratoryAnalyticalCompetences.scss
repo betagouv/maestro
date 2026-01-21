@@ -1,0 +1,54 @@
+.analytical-competences-container {
+  max-width: 90rem !important;
+
+  .analytical-competence-container {
+    .residue-reference {
+      text-align: start;
+      white-space: nowrap;
+      min-width: 140px;
+    }
+
+    .residue-name {
+      text-align: start;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .fr-btn {
+      margin-bottom: 0;
+    }
+
+    .fr-table {
+      margin-bottom: 1.5rem;
+    }
+
+    table {
+      width: 100% !important;
+      display: table !important;
+
+      .fr-input {
+        width: 130px;
+      }
+
+      .fr-input-group:not(:last-child) {
+        margin-bottom: 0;
+        margin-right: 1rem;
+      }
+
+      .fr-checkbox-group {
+        input[type='checkbox'] + label {
+          padding: 0;
+
+          &::before {
+            top: 0;
+          }
+        }
+
+        &:not(:last-child) {
+          margin-bottom: 1rem;
+        }
+      }
+    }
+  }
+}

@@ -6,6 +6,7 @@ import DashboardView from './views/DashboardView/DashboardView';
 import DocumentListView from './views/DocumentListView/DocumentListView';
 import DocumentView from './views/DocumentView/DocumentView';
 import HomeView from './views/HomeView/HomeView';
+import LaboratoryAnalyticalCompetencesView from './views/LaboratoryAnalyticalCompetences/LaboratoryAnalyticalCompetences';
 import { LoginCallbackView } from './views/LoginCallbackView/LoginCallbackView';
 import { LogoutCallbackView } from './views/LogoutCallbackView/LogoutCallbackView';
 import NotificationsView from './views/NotificationsView/NotificationsView';
@@ -31,5 +32,6 @@ export const AppRouteComponents = {
   LoginRoute: HomeView,
   LoginCallbackRoute: LoginCallbackView,
   AdminRoute: AdminView,
-  UsersRoute: UserListView
+  UsersRoute: UserListView,
+  LaboratoryAnalyticalCompetencesRoute: LaboratoryAnalyticalCompetencesView
 } as const satisfies Record<AppRouteKeys, () => ReactElement>;
