@@ -139,19 +139,19 @@ main {
     }
   }
 
-  td:has(.fr-input-group) {
-    padding: 0.5rem 0 0 0;
-    max-width: 56px;
-
-    .fr-label + .fr-input {
-      margin: 0;
-      padding-right: 0;
-    }
-
-    .fr-input-group {
-      position: inherit;
-    }
-  }
+  //td:has(.fr-input-group) {
+  //  padding: 0.5rem 0 0 0;
+  //  max-width: 56px;
+  //
+  //  .fr-label + .fr-input {
+  //    margin: 0;
+  //    padding-right: 0;
+  //  }
+  //
+  //  .fr-input-group {
+  //    position: inherit;
+  //  }
+  //}
 
   td:has(.editable-cell) {
     padding: 0;

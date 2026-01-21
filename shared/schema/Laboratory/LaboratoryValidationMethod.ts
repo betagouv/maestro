@@ -8,6 +8,9 @@ export type LaboratoryValidationMethod = z.infer<
   typeof LaboratoryValidationMethod
 >;
 
+export const LaboratoryValidationMethodList =
+  LaboratoryValidationMethod.options;
+
 export const LaboratoryValidationMethodLabels: Record<
   LaboratoryValidationMethod,
   string

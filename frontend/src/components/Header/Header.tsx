@@ -283,6 +283,19 @@ const Header = () => {
                     text: 'Administration',
                     isActive: location.pathname.startsWith('/admin')
                   }
+                : undefined,
+              hasUserPermission('readLaboratoryCompetences')
+                ? {
+                    linkProps: {
+                      to: AuthenticatedAppRoutes
+                        .LaboratoryAnalyticalCompetencesRoute.link,
+                      target: '_self'
+                    },
+                    text: 'Compétences analytiques',
+                    isActive: location.pathname.startsWith(
+                      '/competences-analytiques'
+                    )
+                  }
                 : undefined
             ]
           : []
