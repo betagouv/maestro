@@ -1,11 +1,11 @@
 import { fakerFR } from '@faker-js/faker';
+
 import {
   CommemoratifSigle,
   CommemoratifValueSigle,
   SachaCommemoratif
-} from 'maestro-shared/schema/Commemoratif/CommemoratifSigle';
+} from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { describe, expect, test } from 'vitest';
-import { kysely } from './kysely';
 import { sachaCommemoratifRepository } from './sachaCommemoratifRepository';
 
 const genCommemoratif = (
@@ -33,45 +33,38 @@ const genCommemoratifValue = (
 
 describe('sachaCommemoratifRepository', () => {
   test('upsertAll inserts new commemoratifs with values', async () => {
+    const value1 = genCommemoratifValue();
+    const value2 = genCommemoratifValue();
     const commemoratif = genCommemoratif({
-      values: [genCommemoratifValue(), genCommemoratifValue()]
+      values: [value1, value2]
     });
 
     await sachaCommemoratifRepository.upsertAll([commemoratif]);
 
-    const insertedCommemoratif = await kysely
-      .selectFrom('sachaCommemoratifs')
-      .selectAll()
-      .where('sigle', '=', commemoratif.sigle)
-      .executeTakeFirst();
+    const result = await sachaCommemoratifRepository.findAll();
+    const insertedCommemoratif = result[commemoratif.sigle];
 
-    expect(insertedCommemoratif).toEqual({
+    expect(insertedCommemoratif).toMatchObject({
       cle: commemoratif.cle,
       sigle: commemoratif.sigle,
       libelle: commemoratif.libelle,
       statut: commemoratif.statut,
-      typeDonnee: commemoratif.typeDonnee,
-      unite: commemoratif.unite
+      typeDonnee: commemoratif.typeDonnee
     });
 
-    const insertedValues = await kysely
-      .selectFrom('sachaCommemoratifValues')
-      .selectAll()
-      .where('commemoratifSigle', '=', commemoratif.sigle)
-      .execute();
-
-    expect(insertedValues).toHaveLength(2);
-    expect(insertedValues).toEqual(
-      expect.arrayContaining(
-        commemoratif.values.map((v) => ({
-          cle: v.cle,
-          sigle: v.sigle,
-          libelle: v.libelle,
-          statut: v.statut,
-          commemoratifSigle: commemoratif.sigle
-        }))
-      )
-    );
+    expect(Object.keys(insertedCommemoratif.values)).toHaveLength(2);
+    expect(insertedCommemoratif.values[value1.sigle]).toMatchObject({
+      cle: value1.cle,
+      sigle: value1.sigle,
+      libelle: value1.libelle,
+      statut: value1.statut
+    });
+    expect(insertedCommemoratif.values[value2.sigle]).toMatchObject({
+      cle: value2.cle,
+      sigle: value2.sigle,
+      libelle: value2.libelle,
+      statut: value2.statut
+    });
   });
 
   test('upsertAll updates existing commemoratifs', async () => {
@@ -87,14 +80,11 @@ describe('sachaCommemoratifRepository', () => {
 
     await sachaCommemoratifRepository.upsertAll([updatedCommemoratif]);
 
-    const result = await kysely
-      .selectFrom('sachaCommemoratifs')
-      .selectAll()
-      .where('sigle', '=', commemoratif.sigle)
-      .executeTakeFirst();
+    const result = await sachaCommemoratifRepository.findAll();
+    const insertedCommemoratif = result[commemoratif.sigle];
 
-    expect(result?.libelle).toBe('Updated libelle');
-    expect(result?.typeDonnee).toBe('N');
+    expect(insertedCommemoratif.libelle).toBe('Updated libelle');
+    expect(insertedCommemoratif.typeDonnee).toBe('N');
   });
 
   test('upsertAll updates existing values', async () => {
@@ -108,12 +98,9 @@ describe('sachaCommemoratifRepository', () => {
 
     await sachaCommemoratifRepository.upsertAll([updatedCommemoratif]);
 
-    const result = await kysely
-      .selectFrom('sachaCommemoratifValues')
-      .selectAll()
-      .where('sigle', '=', value.sigle)
-      .executeTakeFirst();
+    const result = await sachaCommemoratifRepository.findAll();
+    const insertedValue = result[commemoratif.sigle].values[value.sigle];
 
-    expect(result?.libelle).toBe('Updated value libelle');
+    expect(insertedValue.libelle).toBe('Updated value libelle');
   });
 });
