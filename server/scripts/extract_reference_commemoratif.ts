@@ -1,7 +1,15 @@
 import { XMLParser } from 'fast-xml-parser';
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync } from 'fs';
+import {
+  CommemoratifSigle,
+  CommemoratifValueSigle,
+  SachaCommemoratif
+} from 'maestro-shared/schema/Commemoratif/CommemoratifSigle';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { initKysely } from '../repositories/kysely';
+import { sachaCommemoratifRepository } from '../repositories/sachaCommemoratifRepository';
+import config from '../utils/config';
 
 interface ReferenceCommemoratif {
   Cle: string;
@@ -27,7 +35,6 @@ interface ReferenceCommemoratifType {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const xmlPath = join(__dirname, '../../sacha/donneesStandardisees.xml');
-const outputPath = join(__dirname, 'reference_commemoratif_types.json');
 
 const xmlContent = readFileSync(xmlPath, 'utf-8');
 
@@ -43,26 +50,9 @@ const parsed = parser.parse(xmlContent);
 const referenceCommemoratifTypes: ReferenceCommemoratifType[] =
   parsed.DonneesStandardisees.ReferenceCommemoratifType ?? [];
 
-interface SachaCommemoratifValue {
-  cle: string;
-  sigle: string;
-  libelle: string;
-  statut: string;
-}
-
-interface SachaCommemoratif {
-  cle: string;
-  sigle: string;
-  libelle: string;
-  statut: string;
-  typeDonnee: string | null;
-  unite: string | null;
-  values: SachaCommemoratifValue[];
-}
-
 const results: SachaCommemoratif[] = referenceCommemoratifTypes.map((item) => ({
   cle: item.ReferenceCommemoratif.Cle,
-  sigle: item.ReferenceCommemoratif.Sigle,
+  sigle: item.ReferenceCommemoratif.Sigle as CommemoratifSigle,
   libelle: item.ReferenceCommemoratif.Libelle,
   statut: item.ReferenceCommemoratif.Statut,
   typeDonnee: item.ReferenceCommemoratif.TypeDonnee ?? null,
@@ -70,12 +60,11 @@ const results: SachaCommemoratif[] = referenceCommemoratifTypes.map((item) => ({
 
   values: (item.ReferenceCommemoratifsValeurs ?? []).map((valeur) => ({
     cle: valeur.Cle,
-    sigle: valeur.Sigle,
+    sigle: valeur.Sigle as CommemoratifValueSigle,
     libelle: valeur.Libelle,
     statut: valeur.Statut
   }))
 }));
 
-writeFileSync(outputPath, JSON.stringify(results, null, 2), 'utf-8');
-
-console.log('Done');
+initKysely(config.databaseUrl);
+await sachaCommemoratifRepository.upsertAll(results);
