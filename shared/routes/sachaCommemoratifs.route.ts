@@ -1,12 +1,12 @@
 import z from 'zod';
-import { SachaCommemoratif } from '../schema/SachaCommemoratif/SachaCommemoratif';
+import { SachaCommemoratifRecord } from '../schema/SachaCommemoratif/SachaCommemoratif';
 import { SubRoutes } from './routes';
 
 export const sachaCommemoratifsRoute = {
   '/sacha/commemoratifs': {
     params: undefined,
     get: {
-      response: z.array(SachaCommemoratif),
+      response: SachaCommemoratifRecord,
       permissions: ['administrationMaestro']
     },
     post: {

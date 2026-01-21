@@ -1,16 +1,18 @@
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import {
   MatrixSpecificDataForm,
   ProgrammingPlanKeys
 } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
-import { MatrixSpecificDataFormInputs } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
 import {
   ProgrammingPlanKind,
   ProgrammingPlanKindLabels,
   ProgrammingPlanKindListSorted
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { SachaCommemoratifRecord } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { FunctionComponent, useContext, useState } from 'react';
 import { ApiClientContext } from '../../services/apiClient';
+import { CommemoratifSigleForm } from './CommemoratifSigleForm';
 import { SachaCommemoratifsUpload } from './SachaCommemoratifsUpload';
 
 export const SachaCommemoratifs: FunctionComponent = () => {
@@ -50,6 +52,7 @@ export const SachaCommemoratifs: FunctionComponent = () => {
       {programmingPlanSelected && sachaCommemoratifs && (
         <CommemoratifsForAProgrammingPlanKind
           programmingPlanKind={programmingPlanSelected}
+          sachaCommemoratifs={sachaCommemoratifs}
         />
       )}
     </div>
@@ -59,33 +62,28 @@ export const SachaCommemoratifs: FunctionComponent = () => {
 const CommemoratifsForAProgrammingPlanKind = <
   P extends Exclude<ProgrammingPlanKind, 'PPV'>
 >({
-  programmingPlanKind
+  programmingPlanKind,
+  sachaCommemoratifs
 }: {
   programmingPlanKind: P;
+  sachaCommemoratifs: SachaCommemoratifRecord;
 }) => {
   const schema = MatrixSpecificDataForm[programmingPlanKind];
   const attributes = Object.keys(schema) as ProgrammingPlanKeys<P>[];
 
   return (
-    <ul>
+    <div>
       {attributes.map((attribute) => (
-        <CommemoratifSigleForm
-          key={attribute as string}
-          attribute={attribute}
-          programmingPlanKind={programmingPlanKind}
-        ></CommemoratifSigleForm>
+        <>
+          <CommemoratifSigleForm
+            key={attribute as string}
+            attribute={attribute}
+            programmingPlanKind={programmingPlanKind}
+            sachaCommemoratifs={sachaCommemoratifs}
+          ></CommemoratifSigleForm>
+          <hr className={cx('fr-mb-2w')} />
+        </>
       ))}
-    </ul>
+    </div>
   );
-};
-
-const CommemoratifSigleForm = <P extends Exclude<ProgrammingPlanKind, 'PPV'>>({
-  attribute,
-  programmingPlanKind
-}: {
-  attribute: ProgrammingPlanKeys<P>;
-  programmingPlanKind: P;
-}) => {
-  const toto = MatrixSpecificDataForm[programmingPlanKind][attribute];
-  return <li>{toto.label ?? MatrixSpecificDataFormInputs[attribute].label}</li>;
 };

@@ -1,9 +1,9 @@
-import { SachaCommemoratif } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import { SachaCommemoratifRecord } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { api } from 'src/services/api.service';
 
 export const sachaCommemoratifsApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getSachaCommemoratifs: builder.query<SachaCommemoratif[], void>({
+    getSachaCommemoratifs: builder.query<SachaCommemoratifRecord, void>({
       query: () => '/sacha/commemoratifs',
       providesTags: ['SachaCommemoratif']
     }),
