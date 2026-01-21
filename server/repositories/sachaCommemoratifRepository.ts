@@ -1,5 +1,22 @@
-import { SachaCommemoratif } from 'maestro-shared/schema/Commemoratif/CommemoratifSigle';
-import { executeTransaction } from './kysely';
+import { SachaCommemoratif } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import { executeTransaction, kysely } from './kysely';
+
+const findAll = async (): Promise<SachaCommemoratif[]> => {
+  const commemoratifs = await kysely
+    .selectFrom('sachaCommemoratifs')
+    .selectAll()
+    .execute();
+
+  const values = await kysely
+    .selectFrom('sachaCommemoratifValues')
+    .selectAll()
+    .execute();
+
+  return commemoratifs.map((c) => ({
+    ...c,
+    values: values.filter((v) => v.commemoratifSigle === c.sigle)
+  }));
+};
 
 const upsertAll = async (commemoratifs: SachaCommemoratif[]): Promise<void> => {
   await executeTransaction(async (trx) => {
@@ -42,5 +59,6 @@ const upsertAll = async (commemoratifs: SachaCommemoratif[]): Promise<void> => {
 };
 
 export const sachaCommemoratifRepository = {
+  findAll,
   upsertAll
 };
