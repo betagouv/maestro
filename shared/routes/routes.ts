@@ -16,6 +16,7 @@ import { noticesRoutes } from './notices.routes';
 import { notificationsRoutes } from './notifications.routes';
 import { prescriptionsRoutes } from './prescriptions.routes';
 import { programmingPlansRoutes } from './programmingPlans.routes';
+import { sachaCommemoratifsRoute } from './sachaCommemoratifs.route';
 import { samplesRoutes } from './samples.routes';
 import { usersRoutes } from './users.routes';
 
@@ -53,6 +54,7 @@ export const MaestroRoutes = [
   '/programming-plans/years/:year',
   '/programming-plans/:programmingPlanId',
   '/programming-plans/:programmingPlanId/local-status',
+  '/sacha/commemoratifs',
   '/samples',
   '/samples/count',
   '/samples/export',
@@ -74,6 +76,7 @@ export const routes = {
   ...notificationsRoutes,
   ...prescriptionsRoutes,
   ...programmingPlansRoutes,
+  ...sachaCommemoratifsRoute,
   ...samplesRoutes,
   ...usersRoutes
 } as const satisfies {
