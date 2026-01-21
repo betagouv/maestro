@@ -14,7 +14,6 @@ export const SachaCommemoratifValue = z.object({
   libelle: z.string(),
   statut: z.string()
 });
-export type SachaCommemoratifValue = z.infer<typeof SachaCommemoratifValue>;
 
 export const SachaCommemoratif = z.object({
   cle: z.string(),
@@ -26,3 +25,13 @@ export const SachaCommemoratif = z.object({
   values: z.array(SachaCommemoratifValue)
 });
 export type SachaCommemoratif = z.infer<typeof SachaCommemoratif>;
+
+export const SachaCommemoratifRecord = z.record(
+  CommemoratifSigle,
+  z.object({
+    ...SachaCommemoratif.shape,
+    values: z.record(CommemoratifValueSigle, SachaCommemoratifValue)
+  })
+);
+
+export type SachaCommemoratifRecord = z.infer<typeof SachaCommemoratifRecord>;

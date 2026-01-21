@@ -1,7 +1,10 @@
-import { SachaCommemoratif } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import {
+  SachaCommemoratif,
+  SachaCommemoratifRecord
+} from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { executeTransaction, kysely } from './kysely';
 
-const findAll = async (): Promise<SachaCommemoratif[]> => {
+const findAll = async (): Promise<SachaCommemoratifRecord> => {
   const commemoratifs = await kysely
     .selectFrom('sachaCommemoratifs')
     .selectAll()
@@ -12,10 +15,19 @@ const findAll = async (): Promise<SachaCommemoratif[]> => {
     .selectAll()
     .execute();
 
-  return commemoratifs.map((c) => ({
-    ...c,
-    values: values.filter((v) => v.commemoratifSigle === c.sigle)
-  }));
+  return Object.fromEntries(
+    commemoratifs.map((c) => [
+      c.sigle,
+      {
+        ...c,
+        values: Object.fromEntries(
+          values
+            .filter((v) => v.commemoratifSigle === c.sigle)
+            .map((v) => [v.sigle, v])
+        )
+      }
+    ])
+  ) as SachaCommemoratifRecord;
 };
 
 const upsertAll = async (commemoratifs: SachaCommemoratif[]): Promise<void> => {
