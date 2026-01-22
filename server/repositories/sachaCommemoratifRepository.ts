@@ -27,7 +27,7 @@ const findAll = async (): Promise<SachaCommemoratifRecord> => {
         )
       }
     ])
-  ) as SachaCommemoratifRecord;
+  );
 };
 
 const upsertAll = async (commemoratifs: SachaCommemoratif[]): Promise<void> => {

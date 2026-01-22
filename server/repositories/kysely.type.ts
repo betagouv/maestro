@@ -9,10 +9,6 @@ import { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
 import { type Region } from 'maestro-shared/referential/Region';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { Stage } from 'maestro-shared/referential/Stage';
-import {
-  CommemoratifSigle,
-  CommemoratifValueSigle
-} from 'maestro-shared/schema/Commemoratif/CommemoratifSigle';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
@@ -20,7 +16,14 @@ import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/Residu
 import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import {
+  ProgrammingPlanKind,
+  ProgrammingPlanKindWithSacha
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import {
+  CommemoratifSigle,
+  CommemoratifValueSigle
+} from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
@@ -209,6 +212,20 @@ export interface LocalPrescriptions {
   sampleCount: number | null;
 }
 
+export interface ProgrammingPlanSpecificDataAttribute {
+  programmingPlanKind: ProgrammingPlanKindWithSacha;
+  attribute: string;
+  sachaCommemoratifSigle: CommemoratifSigle;
+  inDAI: boolean;
+}
+
+export interface ProgrammingPlanSpecificDataAttributeValue {
+  programmingPlanKind: ProgrammingPlanKindWithSacha;
+  attribute: string;
+  attributeValue: string;
+  sachaCommemoratifValueSigle: CommemoratifValueSigle;
+}
+
 export interface ResidueAnalytes {
   analysisId: string;
   analyteNumber: number;
@@ -318,6 +335,8 @@ export interface DB {
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;
   programmingPlans: ProgrammingPlans;
+  programmingPlanSpecificDataAttribute: ProgrammingPlanSpecificDataAttribute;
+  programmingPlanSpecificDataAttributeValue: ProgrammingPlanSpecificDataAttributeValue;
   localPrescriptionComments: LocalPrescriptionComments;
   localPrescriptions: LocalPrescriptions;
   residueAnalytes: ResidueAnalytes;
