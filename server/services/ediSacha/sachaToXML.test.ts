@@ -96,7 +96,7 @@ test(`génère un XML de DAI`, async () => {
           programmingPlanKind: 'DAOA_BREEDING',
           sampling: 'Aléatoire',
           animalIdentifier: '',
-          age: 12,
+          ageInDays: 12,
           species: 'ESP1',
           breedingMethod: 'PROD_1',
           outdoorAccess: 'PAT1'

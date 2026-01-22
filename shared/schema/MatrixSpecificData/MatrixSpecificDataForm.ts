@@ -36,9 +36,7 @@ export const MatrixSpecificDataForm: {
     animalIdentifier: {
       label: 'Identifiant du lot'
     },
-    age: {
-      label: 'Âge (en jours)'
-    },
+    ageInDays: {},
     species: {},
     breedingMethod: {},
     outdoorAccess: {}
@@ -54,9 +52,7 @@ export const MatrixSpecificDataForm: {
     },
     animalKind: {},
     sex: {},
-    age: {
-      label: 'Âge (en mois)'
-    },
+    ageInMonths: {},
     productionKind: {},
     outdoorAccess: {},
     seizure: {}
