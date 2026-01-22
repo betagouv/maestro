@@ -176,7 +176,7 @@ const ProgrammingLocalPrescriptionTable = ({
               )}
               key={`total-${prescription.id}`}
             >
-              <div className="no-wrap">
+              <div>
                 {pluralize(
                   getLocalPrescription(prescription.id)?.sampleCount ?? 0,
                   {
@@ -201,7 +201,11 @@ const ProgrammingLocalPrescriptionTable = ({
                     )('réalisé')}
                   </div>
                   <div>
-                    <CompletionBadge localPrescriptions={localPrescriptions} />
+                    <CompletionBadge
+                      localPrescriptions={
+                        getLocalPrescription(prescription.id) ?? []
+                      }
+                    />
                   </div>
                 </>
               ) : (
@@ -349,7 +353,7 @@ const ProgrammingLocalPrescriptionTable = ({
                   }
                 )('réalisé')}
               </div>
-              <CompletionBadge localPrescriptions={localPrescriptions} />
+              <CompletionBadge localPrescriptions={subLocalPrescriptions} />
             </>
           )}
         </div>,
@@ -376,13 +380,15 @@ const ProgrammingLocalPrescriptionTable = ({
                 <div>
                   {sumBy(
                     subLocalPrescriptions.filter(
-                      (r) => r.region === department
+                      (r) => r.department === department
                     ),
                     'realizedSampleCount'
                   )}
                 </div>
                 <CompletionBadge
-                  localPrescriptions={subLocalPrescriptions}
+                  localPrescriptions={subLocalPrescriptions.filter(
+                    (r) => r.department === department
+                  )}
                   region={region}
                 />
               </>

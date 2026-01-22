@@ -5,6 +5,7 @@ import { hasLocalPrescriptionPermission } from 'maestro-shared/schema/LocalPresc
 import { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
+import { companiesIsRequired } from 'maestro-shared/schema/User/User';
 import {
   isNationalRole,
   isRegionalRole
@@ -31,10 +32,15 @@ export const localPrescriptionsRouter = {
         ? queryFindOptions.department
         : user.department;
 
+      const companySirets = companiesIsRequired(user)
+        ? user.companies.map((company) => company.siret)
+        : queryFindOptions.companySirets;
+
       const findOptions = {
         ...queryFindOptions,
         region,
-        department
+        department,
+        companySirets
       };
 
       console.info('Find local prescriptions', user.id, findOptions);
@@ -57,7 +63,7 @@ export const localPrescriptionsRouter = {
                     _.sampleCount > 0
                 );
           }
-          if (isNil(queryFindOptions.companySiret)) {
+          if (isNil(companySirets)) {
             return isNil(localPrescription.companySiret)
               ? localPrescription.sampleCount > 0
               : localPrescriptions.some(

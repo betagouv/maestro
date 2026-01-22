@@ -22,7 +22,7 @@ export const FindLocalPrescriptionOptions = z.object({
   contexts: coerceToArray(z.array(ProgrammingPlanContext)).nullish(),
   region: Region.nullish(),
   department: Department.nullish(),
-  companySiret: z.string().nullish(),
+  companySirets: coerceToArray(z.array(z.string())).nullish(),
   includes: z
     .union([
       LocalPrescriptionOptionsInclude,
