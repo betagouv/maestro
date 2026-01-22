@@ -25,6 +25,7 @@ export const SiglePlanAnalyse: Record<
   Exclude<ProgrammingPlanKind, 'PPV'>,
   z.infer<typeof siglePlanAnalyseValidator>
 > = {
+  //FIXME EDI attention valeur qui change en fonction de l'analyse à faire RestPest_DAOA (multi-résidu) VS RestPest_DAOA_CU (cuivre)
   DAOA_BREEDING: 'RestPest_DAOA',
   DAOA_SLAUGHTER: 'RestPest_DAOA'
 };
