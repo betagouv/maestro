@@ -12,6 +12,7 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   companiesIsRequired,
+  departmentIsRequired,
   programmingPlanKindsIsRequired,
   UserRefined,
   UserToCreateRefined
@@ -254,6 +255,7 @@ export const UserModal = ({
             inputKey={'department'}
             label="Département"
             options={departmentOptions}
+            required={departmentIsRequired(user)}
           />
         )}
         <AppMultiSelect

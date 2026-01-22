@@ -10,6 +10,7 @@ import { Nullable } from '../../utils/typescript';
 import { Company } from '../Company/Company';
 import {
   canHaveDepartment,
+  isDepartmentalRole,
   isNationalRole,
   isRegionalRole,
   UserRole,
@@ -62,6 +63,13 @@ export const userChecks = <
       code: 'custom',
       path: ['department'],
       message: 'Ce rôle ne peut pas être lié à un département.'
+    });
+  }
+  if (departmentIsRequired(user) && !user.department) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['department'],
+      message: 'Le département est obligatoire pour ce rôle.'
     });
   }
 
@@ -187,6 +195,15 @@ export const companiesIsRequired = (
   (user.roles?.includes('Sampler') &&
     (user.programmingPlanKinds?.includes('DAOA_BREEDING') ||
       user.programmingPlanKinds?.includes('DAOA_SLAUGHTER'))) ??
+  false;
+
+export const departmentIsRequired = (
+  user: Pick<Nullable<UserRefined>, 'programmingPlanKinds' | 'roles'>
+): boolean =>
+  (user.roles?.some((role) => isDepartmentalRole(role)) ||
+    (user.roles?.includes('Sampler') &&
+      (user.programmingPlanKinds?.includes('DAOA_BREEDING') ||
+        user.programmingPlanKinds?.includes('DAOA_SLAUGHTER')))) ??
   false;
 
 export const programmingPlanKindsIsRequired = (
