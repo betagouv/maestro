@@ -5,6 +5,7 @@ import { ProgrammingPlanKindList } from '../schema/ProgrammingPlan/ProgrammingPl
 import { AuthUserTransformed } from '../schema/User/AuthUser';
 import {
   companiesIsRequired,
+  departmentIsRequired,
   programmingPlanKindsIsRequired,
   UserRefined
 } from '../schema/User/User';
@@ -38,7 +39,9 @@ export const genUser = <T extends Partial<UserRefined>>(
     roles,
     region,
     department:
-      region && canHaveDepartment({ roles }) && fakerFR.datatype.boolean()
+      region &&
+      departmentIsRequired({ programmingPlanKinds, roles }) &&
+      fakerFR.datatype.boolean()
         ? oneOf(Regions[region].departments)
         : null,
     companies: companiesIsRequired({
