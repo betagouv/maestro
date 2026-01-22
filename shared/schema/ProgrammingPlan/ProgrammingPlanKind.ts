@@ -12,6 +12,11 @@ export type ProgrammingPlanKind = z.infer<typeof ProgrammingPlanKind>;
 export const ProgrammingPlanKindList: ProgrammingPlanKind[] =
   ProgrammingPlanKind.options;
 
+export const ProgrammingPlanDAOAKindList: ProgrammingPlanKind[] = [
+  'DAOA_BREEDING',
+  'DAOA_SLAUGHTER'
+];
+
 export const ProgrammingPlanKindLabels: Record<ProgrammingPlanKind, string> = {
   PPV: 'Production primaire végétale',
   DAOA_BREEDING: 'Abattoir / Viande de volaille',

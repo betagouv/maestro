@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { RegionList } from '../referential/Region';
+import { ProgrammingPlanDAOAKindList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatusList } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { oneOf } from './testFixtures';
@@ -86,7 +87,7 @@ export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   id: 'fafc6f2e-aec5-4998-adeb-84090d971a90',
   domain: 'PESTICIDE_RESIDUE',
   title: "Produit carné à l'abattoir",
-  kinds: ['DAOA_BREEDING', 'DAOA_SLAUGHTER'],
+  kinds: ProgrammingPlanDAOAKindList,
   distributionKind: 'SLAUGHTERHOUSE',
   contexts: ['Surveillance'],
   legalContexts: ['A'],

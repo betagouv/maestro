@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
+import { ProgrammingPlanDAOAKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   SlaughterhouseCompanyFixture1,
   SlaughterhouseCompanyFixture2
@@ -123,7 +124,7 @@ export const RegionalCoordinatorView: Story = {
       auth: {
         authUser: genAuthUser({
           ...RegionalCoordinator,
-          programmingPlanKinds: ['DAOA_SLAUGHTER', 'DAOA_BREEDING']
+          programmingPlanKinds: ProgrammingPlanDAOAKindList
         })
       }
     },

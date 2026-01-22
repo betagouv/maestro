@@ -3,7 +3,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { RefinementCtx, z } from 'zod';
 import { Department } from '../../referential/Department';
 import { Region, RegionList, Regions } from '../../referential/Region';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
+import {
+  ProgrammingPlanDAOAKindList,
+  ProgrammingPlanKind
+} from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserPermission } from './UserPermission';
 
 import { Nullable } from '../../utils/typescript';
@@ -193,8 +196,8 @@ export const companiesIsRequired = (
   user: Pick<Nullable<UserRefined>, 'programmingPlanKinds' | 'roles'>
 ): boolean =>
   (user.roles?.includes('Sampler') &&
-    (user.programmingPlanKinds?.includes('DAOA_BREEDING') ||
-      user.programmingPlanKinds?.includes('DAOA_SLAUGHTER'))) ??
+    intersection(user.programmingPlanKinds, ProgrammingPlanDAOAKindList)
+      .length > 0) ??
   false;
 
 export const departmentIsRequired = (
@@ -202,8 +205,8 @@ export const departmentIsRequired = (
 ): boolean =>
   (user.roles?.some((role) => isDepartmentalRole(role)) ||
     (user.roles?.includes('Sampler') &&
-      (user.programmingPlanKinds?.includes('DAOA_BREEDING') ||
-        user.programmingPlanKinds?.includes('DAOA_SLAUGHTER')))) ??
+      intersection(user.programmingPlanKinds, ProgrammingPlanDAOAKindList)
+        .length > 0)) ??
   false;
 
 export const programmingPlanKindsIsRequired = (
