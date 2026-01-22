@@ -201,7 +201,8 @@ const ProgrammingView = () => {
                   setSelectedTabId(tabId as ProgrammingViewTab)
                 }
                 className={clsx({
-                  'full-width': prescriptionListDisplay === 'table'
+                  'full-width':
+                    hasNationalView && prescriptionListDisplay === 'table'
                 })}
                 classes={{
                   panel: clsx('white-container')

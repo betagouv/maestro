@@ -189,7 +189,6 @@ const ProgrammingRegionalPrescriptionTable = ({
         noCaption
         headers={headers}
         data={[...prescriptionsData, totalData]}
-        className="full-width"
       />
     </div>
   );
