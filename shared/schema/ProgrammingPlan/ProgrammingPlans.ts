@@ -2,6 +2,8 @@ import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { LegalContext } from '../../referential/LegalContext';
 import { SubstanceKind } from '../Substance/SubstanceKind';
+import { UserRefined } from '../User/User';
+import { isNationalRole, isRegionalRole, UserRole } from '../User/UserRole';
 import { ProgrammingPlanContext } from './Context';
 import { DistributionKind } from './DistributionKind';
 import { ProgrammingPlanDomain } from './ProgrammingPlanDomain';
@@ -10,6 +12,7 @@ import {
   ProgrammingPlanDepartmentalStatus,
   ProgrammingPlanRegionalStatus
 } from './ProgrammingPlanLocalStatus';
+import { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
 
 export const ProgrammingPlanBase = z.object({
   id: z.guid(),
@@ -68,3 +71,28 @@ export const ProgrammingPlanSort = (
   a: ProgrammingPlanChecked,
   b: ProgrammingPlanChecked
 ) => b.year - a.year;
+
+export const hasProgrammingPlanStatusForAuthUser = (
+  programmingPlan: ProgrammingPlanChecked,
+  status: ProgrammingPlanStatus[],
+  user?: UserRefined,
+  userRole?: UserRole
+) =>
+  userRole &&
+  user &&
+  (isNationalRole(userRole)
+    ? programmingPlan.regionalStatus.every((regionalStatus) =>
+        status.includes(regionalStatus.status)
+      )
+    : isRegionalRole(userRole) ||
+        programmingPlan.distributionKind === 'REGIONAL'
+      ? programmingPlan.regionalStatus.some(
+          (regionalStatus) =>
+            regionalStatus.region === user.region &&
+            status.includes(regionalStatus.status)
+        )
+      : programmingPlan.departmentalStatus.some(
+          (departmentalStatus) =>
+            departmentalStatus.department === user.department &&
+            status.includes(departmentalStatus.status)
+        ));
