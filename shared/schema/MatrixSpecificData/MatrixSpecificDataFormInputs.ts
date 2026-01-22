@@ -31,8 +31,8 @@ import {
   SpeciesByProgrammingPlanKind,
   SpeciesLabels
 } from '../../referential/Species';
-import { ProgrammingPlanKind } from '../../schema/ProgrammingPlan/ProgrammingPlanKind';
-import { SampleMatrixSpecificData } from '../../schema/Sample/SampleMatrixSpecificData';
+import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
+import { SampleMatrixSpecificData } from '../Sample/SampleMatrixSpecificData';
 
 type UnionKeys<T, O extends string> = T extends any ? keyof Omit<T, O> : never;
 export type SampleMatrixSpecificDataKeys = UnionKeys<
@@ -177,9 +177,15 @@ export const MatrixSpecificDataFormInputs: Record<
     defaultOptionLabel: "Sélectionner un mode d'élevage",
     testId: 'breeding-method-select'
   },
-  age: {
+  ageInDays: {
     inputType: 'number',
-    label: "Âge de l'animal",
+    label: 'Âge (en jours)',
+    whenValid: 'Âge correctement renseigné.',
+    testId: 'age-input'
+  },
+  ageInMonths: {
+    inputType: 'number',
+    label: 'Âge (en mois)',
     whenValid: 'Âge correctement renseigné.',
     testId: 'age-input'
   },
