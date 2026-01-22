@@ -27,7 +27,12 @@ const AnimalIdentifier = z
   })
   .min(1, "Veuillez renseigner l'identifiant du lot ou de l'animal.");
 
-const AnimalAge = z.coerce
+const AnimalAgeInDays = z.coerce
+  .number({ error: "Veuillez renseigner l'âge de l'animal." })
+  .int()
+  .nonnegative();
+
+const AnimalAgeInMonths = z.coerce
   .number({ error: "Veuillez renseigner l'âge de l'animal." })
   .int()
   .nonnegative();
@@ -44,7 +49,7 @@ const SampleMatrixSpecificDataDAOABreeding = z.object({
   programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_BREEDING),
   sampling: z.literal('Aléatoire'),
   animalIdentifier: AnimalIdentifier,
-  age: AnimalAge,
+  ageInDays: AnimalAgeInDays,
   species: Species,
   breedingMethod: BreedingMethod,
   outdoorAccess: OutdoorAccess
@@ -57,7 +62,7 @@ const SampleMatrixSpecificDataDAOASlaughter = z.object({
   animalIdentifier: AnimalIdentifier,
   animalKind: AnimalKind,
   sex: AnimalSex,
-  age: AnimalAge,
+  ageInMonths: AnimalAgeInMonths,
   productionKind: ProductionKind,
   outdoorAccess: OutdoorAccess,
   seizure: Seizure
