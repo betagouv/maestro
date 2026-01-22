@@ -225,12 +225,12 @@ const defaultMockApiClientConf: MockApi = {
     data: {
       DAOA_BREEDING: {
         programmingPlanKind: 'DAOA_BREEDING',
-        inDAI: false,
+        inDai: false,
         attributes: {}
       },
       DAOA_SLAUGHTER: {
         programmingPlanKind: 'DAOA_SLAUGHTER',
-        inDAI: false,
+        inDai: false,
         attributes: {}
       }
     }

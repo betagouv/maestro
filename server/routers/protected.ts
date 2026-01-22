@@ -38,8 +38,8 @@ const router = {
   ...notificationsRouter,
   ...prescriptionsRouter,
   ...localPrescriptionsRouter,
-  ...programmingPlanRouter,
   ...programmingPlanSpecificDataProtectedRouter,
+  ...programmingPlanRouter,
   ...sachaCommemoratifsProtectedRouter,
   ...sampleRouter,
   ...usersRouter

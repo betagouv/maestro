@@ -9,6 +9,7 @@ import {
   ProgrammingPlanKindLabels,
   ProgrammingPlanKindListSorted
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingPlanSpecificDataRecord } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSpecificDataAttribute';
 import { SachaCommemoratifRecord } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { FunctionComponent, useContext, useState } from 'react';
 import { ApiClientContext } from '../../services/apiClient';
@@ -16,9 +17,14 @@ import { CommemoratifSigleForm } from './CommemoratifSigleForm';
 import { SachaCommemoratifsUpload } from './SachaCommemoratifsUpload';
 
 export const SachaCommemoratifs: FunctionComponent = () => {
-  const { useGetSachaCommemoratifsQuery } = useContext(ApiClientContext);
+  const {
+    useGetSachaCommemoratifsQuery,
+    useGetProgrammingPlanSpecificDataQuery
+  } = useContext(ApiClientContext);
 
   const { data: sachaCommemoratifs } = useGetSachaCommemoratifsQuery();
+  const { data: programmingPlanSpecifiDataRecord } =
+    useGetProgrammingPlanSpecificDataQuery();
 
   const [programmingPlanSelected, setProgrammingPlanSelected] =
     useState<Exclude<ProgrammingPlanKind, 'PPV'> | null>(null);
@@ -49,12 +55,15 @@ export const SachaCommemoratifs: FunctionComponent = () => {
           )
         )}
       </Select>
-      {programmingPlanSelected && sachaCommemoratifs && (
-        <CommemoratifsForAProgrammingPlanKind
-          programmingPlanKind={programmingPlanSelected}
-          sachaCommemoratifs={sachaCommemoratifs}
-        />
-      )}
+      {!!programmingPlanSelected &&
+        !!sachaCommemoratifs &&
+        !!programmingPlanSpecifiDataRecord && (
+          <CommemoratifsForAProgrammingPlanKind
+            programmingPlanKind={programmingPlanSelected}
+            sachaCommemoratifs={sachaCommemoratifs}
+            programmingPlanSpecifiDataRecord={programmingPlanSpecifiDataRecord}
+          />
+        )}
     </div>
   );
 };
@@ -63,10 +72,12 @@ const CommemoratifsForAProgrammingPlanKind = <
   P extends Exclude<ProgrammingPlanKind, 'PPV'>
 >({
   programmingPlanKind,
-  sachaCommemoratifs
+  sachaCommemoratifs,
+  programmingPlanSpecifiDataRecord
 }: {
   programmingPlanKind: P;
   sachaCommemoratifs: SachaCommemoratifRecord;
+  programmingPlanSpecifiDataRecord: ProgrammingPlanSpecificDataRecord;
 }) => {
   const schema = MatrixSpecificDataForm[programmingPlanKind];
   const attributes = Object.keys(schema) as ProgrammingPlanKeys<P>[];
@@ -80,7 +91,8 @@ const CommemoratifsForAProgrammingPlanKind = <
             attribute={attribute}
             programmingPlanKind={programmingPlanKind}
             sachaCommemoratifs={sachaCommemoratifs}
-          ></CommemoratifSigleForm>
+            programmingPlanSpecifiDataRecord={programmingPlanSpecifiDataRecord}
+          />
           <hr className={cx('fr-mb-2w')} />
         </>
       ))}

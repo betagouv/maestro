@@ -216,7 +216,7 @@ export interface ProgrammingPlanSpecificDataAttribute {
   programmingPlanKind: ProgrammingPlanKindWithSacha;
   attribute: string;
   sachaCommemoratifSigle: CommemoratifSigle;
-  inDAI: boolean;
+  inDai: boolean;
 }
 
 export interface ProgrammingPlanSpecificDataAttributeValue {
