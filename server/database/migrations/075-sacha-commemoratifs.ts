@@ -25,36 +25,31 @@ export const up = async (knex: Knex) => {
     table.index(['commemoratif_sigle']);
   });
 
-  await knex.schema.createTable(
-    'programming_plan_specific_data_attribute',
-    (table) => {
-      table.string('programming_plan_kind').notNullable();
-      table.string('attribute').notNullable();
-      table.string('sacha_commemoratif_sigle').notNullable();
-      table.boolean('in_dai').notNullable().defaultTo(false);
+  await knex.schema.createTable('sample_specific_data_attribute', (table) => {
+    table.string('attribute').notNullable();
+    table.string('sacha_commemoratif_sigle').notNullable();
+    table.boolean('in_dai').notNullable().defaultTo(false);
 
-      table.primary(['programming_plan_kind', 'attribute']);
-      table
-        .foreign('sacha_commemoratif_sigle')
-        .references('sigle')
-        .inTable('sacha_commemoratifs')
-        .onDelete('CASCADE');
-    }
-  );
+    table.primary(['attribute']);
+    table
+      .foreign('sacha_commemoratif_sigle')
+      .references('sigle')
+      .inTable('sacha_commemoratifs')
+      .onDelete('CASCADE');
+  });
 
   await knex.schema.createTable(
-    'programming_plan_specific_data_attribute_value',
+    'sample_specific_data_attribute_value',
     (table) => {
-      table.string('programming_plan_kind').notNullable();
       table.string('attribute').notNullable();
       table.string('attribute_value').notNullable();
       table.string('sacha_commemoratif_value_sigle').notNullable();
 
-      table.primary(['programming_plan_kind', 'attribute', 'attribute_value']);
+      table.primary(['attribute', 'attribute_value']);
       table
-        .foreign(['programming_plan_kind', 'attribute'])
-        .references(['programming_plan_kind', 'attribute'])
-        .inTable('programming_plan_specific_data_attribute')
+        .foreign(['attribute'])
+        .references(['attribute'])
+        .inTable('sample_specific_data_attribute')
         .onDelete('CASCADE');
       table
         .foreign('sacha_commemoratif_value_sigle')
@@ -66,8 +61,8 @@ export const up = async (knex: Knex) => {
 };
 
 export const down = async (knex: Knex) => {
-  await knex.schema.dropTable('programming_plan_specific_data_attribute_value');
-  await knex.schema.dropTable('programming_plan_specific_data_attribute');
+  await knex.schema.dropTable('sample_specific_data_attribute_value');
+  await knex.schema.dropTable('sample_specific_data_attribute');
   await knex.schema.dropTable('sacha_commemoratif_values');
   await knex.schema.dropTable('sacha_commemoratifs');
 };

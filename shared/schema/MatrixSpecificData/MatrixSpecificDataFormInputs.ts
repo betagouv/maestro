@@ -1,38 +1,16 @@
-import { AnimalSexLabels, AnimalSexList } from '../../referential/AnimalSex';
+import { AnimalSexLabels } from '../../referential/AnimalSex';
 
-import {
-  CultureKindLabels,
-  CultureKindList
-} from '../../referential/CultureKind';
-import {
-  MatrixPartLabels,
-  MatrixPartList
-} from '../../referential/Matrix/MatrixPart';
+import { CultureKindLabels } from '../../referential/CultureKind';
+import { MatrixPartLabels } from '../../referential/Matrix/MatrixPart';
 
 import { isNil } from 'lodash-es';
-import {
-  AnimalKindLabels,
-  AnimalKindsByProgrammingPlanKind
-} from '../../referential/AnimalKind';
-import {
-  BreedingMethodLabels,
-  BreedingMethodList
-} from '../../referential/BreedingMethod';
-import {
-  OutdoorAccessLabels,
-  OutdoorAccessList
-} from '../../referential/OutdoorAccess';
-import {
-  ProductionKindLabels,
-  ProductionKindsByProgrammingPlanKind
-} from '../../referential/ProductionKind';
-import { SeizureLabels, SeizureList } from '../../referential/Seizure';
-import {
-  SpeciesByProgrammingPlanKind,
-  SpeciesLabels
-} from '../../referential/Species';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
-import { SampleMatrixSpecificData } from '../Sample/SampleMatrixSpecificData';
+import { AnimalKindLabels } from '../../referential/AnimalKind';
+import { BreedingMethodLabels } from '../../referential/BreedingMethod';
+import { OutdoorAccessLabels } from '../../referential/OutdoorAccess';
+import { ProductionKindLabels } from '../../referential/ProductionKind';
+import { SeizureLabels } from '../../referential/Seizure';
+import { SpeciesLabels } from '../../referential/Species';
+import { SampleMatrixSpecificData } from '../../schema/Sample/SampleMatrixSpecificData';
 
 type UnionKeys<T, O extends string> = T extends any ? keyof Omit<T, O> : never;
 export type SampleMatrixSpecificDataKeys = UnionKeys<
@@ -49,14 +27,12 @@ type SpecificDataFormInput = {
   | { inputType: 'textarea'; hintText?: string; rows?: number }
   | {
       inputType: 'select';
-      optionsValues: string[] | Partial<Record<ProgrammingPlanKind, string[]>>;
       optionsLabels?: Record<string, string>;
       defaultOptionLabel?: string;
     }
   | { inputType: 'checkbox' }
   | {
       inputType: 'radio';
-      optionsValues: string[] | Partial<Record<ProgrammingPlanKind, string[]>>;
       optionsLabels: Record<string, string>;
       colSm: 2 | 3 | 4 | 6 | 12;
     }
@@ -104,7 +80,6 @@ export const MatrixSpecificDataFormInputs: Record<
     inputType: 'select',
     label: 'Type de culture',
     whenValid: 'Type de culture correctement renseigné.',
-    optionsValues: CultureKindList,
     optionsLabels: CultureKindLabels,
     defaultOptionLabel: 'Sélectionner un type de culture',
     testId: 'culturekind-select'
@@ -113,7 +88,6 @@ export const MatrixSpecificDataFormInputs: Record<
     inputType: 'select',
     label: 'LMR / Partie du végétal concernée',
     whenValid: 'Partie du végétal correctement renseignée.',
-    optionsValues: MatrixPartList,
     optionsLabels: MatrixPartLabels,
     defaultOptionLabel: 'Sélectionner une partie du végétal',
     testId: 'matrixpart-select'
@@ -127,7 +101,6 @@ export const MatrixSpecificDataFormInputs: Record<
     inputType: 'select',
     label: 'Espèce animale',
     whenValid: 'Expèce animale correctement renseignée.',
-    optionsValues: SpeciesByProgrammingPlanKind,
     optionsLabels: SpeciesLabels,
     defaultOptionLabel: 'Sélectionner une espèce',
     testId: 'species-select'
@@ -141,14 +114,12 @@ export const MatrixSpecificDataFormInputs: Record<
   sampling: {
     inputType: 'select',
     label: 'Echantillonnage',
-    whenValid: 'Echantillonnage correctement renseigné.',
-    optionsValues: ['Aléatoire']
+    whenValid: 'Echantillonnage correctement renseigné.'
   },
   animalKind: {
     inputType: 'select',
     label: "Type d'animal",
     whenValid: "Type d'animal correctement renseigné.",
-    optionsValues: AnimalKindsByProgrammingPlanKind,
     optionsLabels: AnimalKindLabels,
     defaultOptionLabel: "Sélectionner un type d'animal",
     testId: 'animal-kind-select'
@@ -157,7 +128,6 @@ export const MatrixSpecificDataFormInputs: Record<
     inputType: 'select',
     label: 'Type de production',
     whenValid: 'Type de production correctement renseigné.',
-    optionsValues: ProductionKindsByProgrammingPlanKind,
     optionsLabels: ProductionKindLabels,
     defaultOptionLabel: 'Sélectionner un type de production',
     testId: 'production-kind-select'
@@ -172,7 +142,6 @@ export const MatrixSpecificDataFormInputs: Record<
     inputType: 'select',
     label: "Mode d'élevage",
     whenValid: "Mode d'élevage correctement renseigné.",
-    optionsValues: BreedingMethodList,
     optionsLabels: BreedingMethodLabels,
     defaultOptionLabel: "Sélectionner un mode d'élevage",
     testId: 'breeding-method-select'
@@ -193,7 +162,6 @@ export const MatrixSpecificDataFormInputs: Record<
     inputType: 'select',
     label: 'Sexe',
     whenValid: 'Sexe correctement renseigné.',
-    optionsValues: AnimalSexList,
     optionsLabels: AnimalSexLabels,
     defaultOptionLabel: 'Sélectionner un sexe',
     testId: 'sex-select'
@@ -202,7 +170,6 @@ export const MatrixSpecificDataFormInputs: Record<
     inputType: 'select',
     label: 'Saisie',
     whenValid: 'Saisie correctement renseignée.',
-    optionsValues: SeizureList,
     optionsLabels: SeizureLabels,
     defaultOptionLabel: 'Sélectionner une saisie',
     testId: 'seizure-select'
@@ -212,7 +179,6 @@ export const MatrixSpecificDataFormInputs: Record<
     label: "Accès à l'extérieur des animaux de l'élevage",
     whenValid: "Accès à l'extérieur correctement renseigné.",
     testId: 'outdoor-access-radio',
-    optionsValues: OutdoorAccessList,
     optionsLabels: OutdoorAccessLabels,
     colSm: 4
   }

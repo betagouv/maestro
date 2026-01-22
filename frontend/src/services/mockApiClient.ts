@@ -221,7 +221,7 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateUserMutation: [fn(), {}],
   useChangeRoleMutation: [fn(), {}],
   useLazyFindCompaniesQuery: [[], {}],
-  useGetProgrammingPlanSpecificDataQuery: {
+  useGetSampleSpecificDataQuery: {
     data: {
       DAOA_BREEDING: {
         programmingPlanKind: 'DAOA_BREEDING',
@@ -235,8 +235,8 @@ const defaultMockApiClientConf: MockApi = {
       }
     }
   },
-  useUpdateProgrammingPlanSpecificDataAttributeMutation: [fn(), {}],
-  useUpdateProgrammingPlanSpecificDataAttributeValueMutation: [fn(), {}],
+  useUpdateSampleSpecificDataAttributeMutation: [fn(), {}],
+  useUpdateSampleSpecificDataAttributeValueMutation: [fn(), {}],
   useGetSachaCommemoratifsQuery: {
     data: {}
   },

@@ -16,10 +16,7 @@ import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/Residu
 import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
-import {
-  ProgrammingPlanKind,
-  ProgrammingPlanKindWithSacha
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   CommemoratifSigle,
   CommemoratifValueSigle
@@ -212,15 +209,13 @@ export interface LocalPrescriptions {
   sampleCount: number | null;
 }
 
-export interface ProgrammingPlanSpecificDataAttribute {
-  programmingPlanKind: ProgrammingPlanKindWithSacha;
+export interface SampleSpecificDataAttribute {
   attribute: string;
   sachaCommemoratifSigle: CommemoratifSigle;
   inDai: boolean;
 }
 
-export interface ProgrammingPlanSpecificDataAttributeValue {
-  programmingPlanKind: ProgrammingPlanKindWithSacha;
+export interface SampleSpecificDataAttributeValue {
   attribute: string;
   attributeValue: string;
   sachaCommemoratifValueSigle: CommemoratifValueSigle;
@@ -335,8 +330,8 @@ export interface DB {
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;
   programmingPlans: ProgrammingPlans;
-  programmingPlanSpecificDataAttribute: ProgrammingPlanSpecificDataAttribute;
-  programmingPlanSpecificDataAttributeValue: ProgrammingPlanSpecificDataAttributeValue;
+  sampleSpecificDataAttribute: SampleSpecificDataAttribute;
+  sampleSpecificDataAttributeValue: SampleSpecificDataAttributeValue;
   localPrescriptionComments: LocalPrescriptionComments;
   localPrescriptions: LocalPrescriptions;
   residueAnalytes: ResidueAnalytes;

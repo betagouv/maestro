@@ -16,9 +16,9 @@ import { noticesRoutes } from './notices.routes';
 import { notificationsRoutes } from './notifications.routes';
 import { prescriptionsRoutes } from './prescriptions.routes';
 import { programmingPlansRoutes } from './programmingPlans.routes';
-import { programmingPlanSpecificDataRoutes } from './programmingPlanSpecificData';
 import { sachaCommemoratifsRoute } from './sachaCommemoratifs.route';
 import { samplesRoutes } from './samples.routes';
+import { sampleSpecificDataRoutes } from './sampleSpecificData';
 import { usersRoutes } from './users.routes';
 
 export const MaestroRoutes = [
@@ -53,8 +53,6 @@ export const MaestroRoutes = [
   '/prescriptions/:prescriptionId',
   '/programming-plans',
   '/programming-plans/years/:year',
-  '/programming-plans/specific-data-attribute',
-  '/programming-plans/specific-data-attribute/value',
   '/programming-plans/:programmingPlanId',
   '/programming-plans/:programmingPlanId/local-status',
   '/sacha/commemoratifs',
@@ -64,6 +62,8 @@ export const MaestroRoutes = [
   '/samples/:sampleId/document',
   '/samples/:sampleId/items/:itemNumber/copy/:copyNumber/document',
   '/samples/:sampleId',
+  '/specific-data-attribute/value',
+  '/specific-data-attribute',
   '/users',
   '/users/:userId'
 ] as const;
@@ -79,7 +79,7 @@ export const routes = {
   ...notificationsRoutes,
   ...prescriptionsRoutes,
   ...programmingPlansRoutes,
-  ...programmingPlanSpecificDataRoutes,
+  ...sampleSpecificDataRoutes,
   ...sachaCommemoratifsRoute,
   ...samplesRoutes,
   ...usersRoutes
