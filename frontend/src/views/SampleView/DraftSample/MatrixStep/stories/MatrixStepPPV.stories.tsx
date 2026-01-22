@@ -36,7 +36,8 @@ type Story = StoryObj<typeof meta>;
 
 const sampler = genUser({
   roles: ['Sampler'],
-  region: '44'
+  region: '44',
+  programmingPlanKinds: ['PPV']
 });
 const programmingPlan = genProgrammingPlan({
   kinds: ['PPV'],

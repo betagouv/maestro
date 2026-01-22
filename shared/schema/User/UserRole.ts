@@ -160,12 +160,14 @@ export const isNationalRole = (userRole?: UserRole) =>
 export const isRegionalRole = (userRole?: UserRole) =>
   RegionalUserRole.safeParse(userRole).success;
 
+export const isDepartmentalRole = (userRole?: UserRole) =>
+  DepartmentalUserRole.safeParse(userRole).success;
+
 export const canHaveDepartment = (
   user: Nullable<Pick<UserRefined, 'roles'>>
 ): user is {
   roles: (z.infer<typeof DepartmentalUserRole> | 'Sampler')[];
   region: Region;
 } =>
-  user?.roles?.some(
-    (role) => DepartmentalUserRole.safeParse(role).success || role === 'Sampler'
-  ) ?? false;
+  user?.roles?.some((role) => isDepartmentalRole(role) || role === 'Sampler') ??
+  false;
