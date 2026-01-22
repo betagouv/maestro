@@ -16,7 +16,7 @@ export const sachaCommemoratifsProtectedRouter = {
     post: async ({ body: { xmlContent } }) => {
       await updateSachaCommemoratifs(xmlContent);
       return {
-        status: constants.HTTP_STATUS_CREATED
+        status: constants.HTTP_STATUS_OK
       };
     }
   }
