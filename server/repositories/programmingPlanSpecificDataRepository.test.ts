@@ -23,7 +23,7 @@ describe('programmingPlanSpecificDataRepository', () => {
         programmingPlanKind,
         attribute,
         sachaCommemoratifSigle: commemoratif.sigle,
-        inDAI: true
+        inDai: true
       }
     );
 
@@ -49,7 +49,7 @@ describe('programmingPlanSpecificDataRepository', () => {
         programmingPlanKind,
         attribute,
         sachaCommemoratifSigle: commemoratif1.sigle,
-        inDAI: true
+        inDai: true
       }
     );
 
@@ -58,7 +58,7 @@ describe('programmingPlanSpecificDataRepository', () => {
         programmingPlanKind,
         attribute,
         sachaCommemoratifSigle: commemoratif2.sigle,
-        inDAI: true
+        inDai: true
       }
     );
 
@@ -83,7 +83,7 @@ describe('programmingPlanSpecificDataRepository', () => {
         programmingPlanKind,
         attribute,
         sachaCommemoratifSigle: commemoratif.sigle,
-        inDAI: true
+        inDai: true
       }
     );
 
@@ -117,7 +117,7 @@ describe('programmingPlanSpecificDataRepository', () => {
         programmingPlanKind,
         attribute,
         sachaCommemoratifSigle: commemoratif.sigle,
-        inDAI: true
+        inDai: true
       }
     );
 

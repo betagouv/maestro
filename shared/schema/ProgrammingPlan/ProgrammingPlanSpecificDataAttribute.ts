@@ -9,7 +9,7 @@ export const ProgrammingPlanSpecificDataAttribute = z.object({
   programmingPlanKind: ProgrammingPlanKindWithSacha,
   attribute: z.string(),
   sachaCommemoratifSigle: CommemoratifSigle,
-  inDAI: z.boolean()
+  inDai: z.boolean()
 });
 
 export type ProgrammingPlanSpecificDataAttribute = z.infer<
@@ -31,12 +31,12 @@ export const ProgrammingPlanSpecificDataRecord = z.record(
   ProgrammingPlanKindWithSacha,
   z.object({
     programmingPlanKind: ProgrammingPlanKindWithSacha,
-    inDAI: z.boolean(),
     attributes: z.record(
       z.string(),
       z.object({
         attribute: z.string(),
         sachaCommemoratifSigle: CommemoratifSigle,
+        inDai: z.boolean(),
         values: z.record(z.string(), CommemoratifValueSigle)
       })
     )

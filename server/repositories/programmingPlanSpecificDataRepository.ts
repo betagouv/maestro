@@ -1,12 +1,12 @@
 import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlanSpecificDataSigleRecord } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSpecificDataSigle';
+import { ProgrammingPlanSpecificDataRecord } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSpecificDataAttribute';
 import { kysely } from './kysely';
 import {
   ProgrammingPlanSpecificDataAttribute,
   ProgrammingPlanSpecificDataAttributeValue
 } from './kysely.type';
 
-const findAll = async (): Promise<ProgrammingPlanSpecificDataSigleRecord> => {
+const findAll = async (): Promise<ProgrammingPlanSpecificDataRecord> => {
   const specificDataSigles = await kysely
     .selectFrom('programmingPlanSpecificDataAttribute')
     .selectAll()
@@ -30,6 +30,7 @@ const findAll = async (): Promise<ProgrammingPlanSpecificDataSigleRecord> => {
               {
                 attribute: c.attribute,
                 sachaCommemoratifSigle: c.sachaCommemoratifSigle,
+                inDai: c.inDai,
                 values: Object.fromEntries(
                   valueSigles
                     .filter(
@@ -47,7 +48,7 @@ const findAll = async (): Promise<ProgrammingPlanSpecificDataSigleRecord> => {
         )
       }
     ])
-  ) as ProgrammingPlanSpecificDataSigleRecord;
+  ) as ProgrammingPlanSpecificDataRecord;
 };
 
 const updateProgrammingPlanSpecificDataAttribute = async (
@@ -60,7 +61,7 @@ const updateProgrammingPlanSpecificDataAttribute = async (
       oc.columns(['programmingPlanKind', 'attribute']).doUpdateSet({
         sachaCommemoratifSigle:
           programmingPlanSpecificDataAttribute.sachaCommemoratifSigle,
-        inDAI: programmingPlanSpecificDataAttribute.inDAI
+        inDai: programmingPlanSpecificDataAttribute.inDai
       })
     )
     .execute();

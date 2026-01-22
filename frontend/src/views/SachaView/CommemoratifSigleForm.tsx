@@ -9,6 +9,7 @@ import {
   SampleMatrixSpecificDataKeys
 } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingPlanSpecificDataRecord } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSpecificDataAttribute';
 import {
   CommemoratifSigle,
   SachaCommemoratifRecord
@@ -21,6 +22,7 @@ type Props<P extends Exclude<ProgrammingPlanKind, 'PPV'>> = {
   attribute: ProgrammingPlanKeys<P>;
   programmingPlanKind: P;
   sachaCommemoratifs: SachaCommemoratifRecord;
+  programmingPlanSpecifiDataRecord: ProgrammingPlanSpecificDataRecord;
 };
 
 const getOptionsValues = (
@@ -43,6 +45,7 @@ export const CommemoratifSigleForm = <
   attribute,
   programmingPlanKind,
   sachaCommemoratifs,
+  programmingPlanSpecifiDataRecord,
   ..._rest
 }: Props<P>) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -50,9 +53,16 @@ export const CommemoratifSigleForm = <
   const inputConf =
     MatrixSpecificDataFormInputs[attribute as SampleMatrixSpecificDataKeys];
 
-  const [selectedSigle, setSelectedSigle] = useState<string | null>(null);
+  const attributeConfInDb =
+    programmingPlanSpecifiDataRecord[programmingPlanKind].attributes[
+      attribute as string
+    ];
+
+  const [selectedSigle, setSelectedSigle] = useState<string | null>(
+    attributeConfInDb?.sachaCommemoratifSigle ?? null
+  );
   const [selectedValues, setSelectedValues] = useState<Record<string, string>>(
-    {}
+    attributeConfInDb?.values ?? {}
   );
 
   const onSelectSigle = (sigle?: string) => {
