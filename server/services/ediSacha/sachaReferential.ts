@@ -2,7 +2,6 @@ import { AnimalKindsByProgrammingPlanKind } from 'maestro-shared/referential/Ani
 import { AnimalSex } from 'maestro-shared/referential/AnimalSex';
 import { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
 import { ProductionKindsByProgrammingPlanKind } from 'maestro-shared/referential/ProductionKind';
-import { SpeciesByProgrammingPlanKind } from 'maestro-shared/referential/Species';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import z from 'zod';
@@ -434,10 +433,7 @@ export const SigleSpecies = {
   ESP10: 'AVIDIN', //'Dinde',
   //FIXME EDI n'existe pas
   ESP20: '' //'Autre volaille'
-} as const satisfies Record<
-  (typeof SpeciesByProgrammingPlanKind)['DAOA_BREEDING'][number],
-  string
->;
+} as const satisfies Record<string, string>;
 
 export const mapping = {
   DAOA_SLAUGHTER: {

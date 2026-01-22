@@ -1,62 +1,38 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import {
-  MatrixSpecificDataForm,
-  ProgrammingPlanKeys
-} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
+import { uniq } from 'lodash-es';
 import {
   MatrixSpecificDataFormInputs,
   SampleMatrixSpecificDataKeys
 } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlanSpecificDataRecord } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSpecificDataAttribute';
+import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   CommemoratifSigle,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import { getSampleMatrixSpecificDataAttributeValues } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
 import { useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppSearchInput from '../../components/_app/AppSearchInput/AppSearchInput';
 
-type Props<P extends Exclude<ProgrammingPlanKind, 'PPV'>> = {
-  attribute: ProgrammingPlanKeys<P>;
-  programmingPlanKind: P;
+type Props = {
+  attribute: SampleMatrixSpecificDataKeys;
   sachaCommemoratifs: SachaCommemoratifRecord;
-  programmingPlanSpecifiDataRecord: ProgrammingPlanSpecificDataRecord;
+  programmingPlanSpecifiDataRecord: SampleSpecificDataRecord;
 };
 
-const getOptionsValues = (
-  input: (typeof MatrixSpecificDataFormInputs)[keyof typeof MatrixSpecificDataFormInputs],
-  programmingPlanKind: ProgrammingPlanKind
-): string[] => {
-  if (input.inputType !== 'select' && input.inputType !== 'radio') {
-    return [];
-  }
-  const optionsValues = input.optionsValues;
-  if (Array.isArray(optionsValues)) {
-    return optionsValues;
-  }
-  return optionsValues[programmingPlanKind] ?? [];
-};
-
-export const CommemoratifSigleForm = <
-  P extends Exclude<ProgrammingPlanKind, 'PPV'>
->({
+export const CommemoratifSigleForm = ({
   attribute,
-  programmingPlanKind,
   sachaCommemoratifs,
   programmingPlanSpecifiDataRecord,
   ..._rest
-}: Props<P>) => {
+}: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
-  const attributeConf = MatrixSpecificDataForm[programmingPlanKind][attribute];
-  const inputConf =
-    MatrixSpecificDataFormInputs[attribute as SampleMatrixSpecificDataKeys];
+  const inputConf = MatrixSpecificDataFormInputs[attribute];
 
   const attributeConfInDb =
-    programmingPlanSpecifiDataRecord[programmingPlanKind].attributes[
-      attribute as string
-    ];
+    programmingPlanSpecifiDataRecord[attribute as string];
 
   const [selectedSigle, setSelectedSigle] = useState<string | null>(
     attributeConfInDb?.sachaCommemoratifSigle ?? null
@@ -86,12 +62,16 @@ export const CommemoratifSigleForm = <
 
   const isSelectOrRadio =
     inputConf.inputType === 'select' || inputConf.inputType === 'radio';
-  const optionValues = getOptionsValues(inputConf, programmingPlanKind);
+  const optionsValues = uniq(
+    ProgrammingPlanKindWithSacha.options.flatMap((p) =>
+      getSampleMatrixSpecificDataAttributeValues(p, attribute)
+    )
+  );
 
   return (
     <div>
       <AppSearchInput
-        label={attributeConf.label ?? inputConf.label}
+        label={inputConf.label}
         options={options}
         value={selectedSigle ?? ''}
         onSelect={onSelectSigle}
@@ -105,7 +85,7 @@ export const CommemoratifSigleForm = <
             cx('fr-m-2w', 'fr-p-2w', 'fr-pl-4w')
           )}
         >
-          {optionValues.map((optionValue) => (
+          {optionsValues.map((optionValue) => (
             <OptionValueLine
               key={optionValue}
               optionValue={optionValue}

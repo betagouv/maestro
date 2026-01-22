@@ -54,7 +54,6 @@ export const DAOABreeding = {
   render: () => (
     <CommemoratifSigleForm
       attribute="breedingMethod"
-      programmingPlanKind="DAOA_BREEDING"
       sachaCommemoratifs={mockSachaCommemoratifs}
     />
   )
@@ -64,7 +63,6 @@ export const DAOASlaughter = {
   render: () => (
     <CommemoratifSigleForm
       attribute="animalKind"
-      programmingPlanKind="DAOA_SLAUGHTER"
       sachaCommemoratifs={mockSachaCommemoratifs}
     />
   )
