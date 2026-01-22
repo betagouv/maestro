@@ -73,7 +73,7 @@ const findMany = async (
           'region',
           'department',
           'contexts',
-          'companySiret'
+          'companySirets'
         ),
         isNil
       )
@@ -112,10 +112,10 @@ const findMany = async (
           );
         }
       }
-      if (findOptions.companySiret) {
-        builder.where(
+      if (findOptions.companySirets && findOptions.companySirets.length > 0) {
+        builder.whereIn(
           `${localPrescriptionsTable}.company_siret`,
-          findOptions.companySiret
+          findOptions.companySirets
         );
       }
       if (findOptions.programmingPlanKinds) {
