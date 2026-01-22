@@ -18,7 +18,10 @@ import {
   getPrescriptionTitle,
   Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  hasProgrammingPlanStatusForAuthUser,
+  ProgrammingPlanChecked
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useMemo } from 'react';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
@@ -58,8 +61,12 @@ const ProgrammingLocalPrescriptionTable = ({
   onTogglePrescriptionSelection
 }: Props) => {
   const dispatch = useAppDispatch();
-  const { user, hasUserLocalPrescriptionPermission, hasRegionalView } =
-    useAuthentication();
+  const {
+    user,
+    userRole,
+    hasUserLocalPrescriptionPermission,
+    hasRegionalView
+  } = useAuthentication();
 
   const getLocalPrescription = useCallback(
     (prescriptionId: string) =>
@@ -92,7 +99,9 @@ const ProgrammingLocalPrescriptionTable = ({
   const headers = useMemo(
     () =>
       [
-        onTogglePrescriptionSelection ? <div key={'select'}></div> : undefined,
+        onTogglePrescriptionSelection ? (
+          <div key={'select'} className={cx('fr-checkbox-group')}></div>
+        ) : undefined,
         <div
           key={'matrice'}
           className={clsx({ 'border-left': onTogglePrescriptionSelection })}
@@ -175,8 +184,11 @@ const ProgrammingLocalPrescriptionTable = ({
                   }
                 )('prélèvement programmé')}
               </div>
-              {programmingPlan.regionalStatus.every((_) =>
-                ['Validated', 'Closed'].includes(_.status)
+              {hasProgrammingPlanStatusForAuthUser(
+                programmingPlan,
+                ['Validated', 'Closed'],
+                user,
+                userRole
               ) ? (
                 <>
                   <div>
@@ -322,8 +334,11 @@ const ProgrammingLocalPrescriptionTable = ({
             </div>
           </div>
 
-          {programmingPlan.regionalStatus.some((_) =>
-            ['Validated', 'Closed'].includes(_.status)
+          {hasProgrammingPlanStatusForAuthUser(
+            programmingPlan,
+            ['Validated', 'Closed'],
+            user,
+            userRole
           ) && (
             <>
               <div>
@@ -351,10 +366,11 @@ const ProgrammingLocalPrescriptionTable = ({
                 'sampleCount'
               )}
             </div>
-            {programmingPlan.departmentalStatus.some(
-              (_) =>
-                _.department === department &&
-                ['Validated', 'Closed'].includes(_.status)
+            {hasProgrammingPlanStatusForAuthUser(
+              programmingPlan,
+              ['Validated', 'Closed'],
+              user,
+              userRole
             ) && (
               <>
                 <div>
@@ -387,9 +403,9 @@ const ProgrammingLocalPrescriptionTable = ({
       <Table
         bordered
         noCaption
+        fixed
         headers={headers}
         data={[...prescriptionsData, totalData]}
-        className="full-width"
       />
     </div>
   );

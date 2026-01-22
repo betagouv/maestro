@@ -7,8 +7,10 @@ import {
   getPrescriptionTitle,
   Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import {
+  hasProgrammingPlanStatusForAuthUser,
+  ProgrammingPlanChecked
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import { pluralize } from 'src/utils/stringUtils';
 import { useAuthentication } from '../../../hooks/useAuthentication';
@@ -37,8 +39,12 @@ const LocalPrescriptionCard = ({
   onToggleSelection
 }: Props) => {
   const dispatch = useAppDispatch();
-  const { hasUserPermission, hasUserLocalPrescriptionPermission } =
-    useAuthentication();
+  const {
+    hasUserPermission,
+    hasUserLocalPrescriptionPermission,
+    user,
+    userRole
+  } = useAuthentication();
 
   if (!programmingPlan || !localPrescription) {
     return <></>;
@@ -101,10 +107,11 @@ const LocalPrescriptionCard = ({
             </div>
             <div className="fr-card__end">
               <div>
-                {['Validated', 'Closed'].includes(
-                  programmingPlan.regionalStatus.find(
-                    (_) => _.region === localPrescription.region
-                  )?.status as ProgrammingPlanStatus
+                {hasProgrammingPlanStatusForAuthUser(
+                  programmingPlan,
+                  ['Validated', 'Closed'],
+                  user,
+                  userRole
                 ) ? (
                   <>
                     <span className={cx('fr-text--bold')}>
