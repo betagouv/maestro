@@ -7,7 +7,7 @@ import {
 import AuthenticationFailedError from 'maestro-shared/errors/authenticationFailedError';
 import {
   AuthMaybeUnknownUser,
-  AuthUserTransformed
+  AuthUserRefined
 } from 'maestro-shared/schema/User/AuthUser';
 import { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
 import { v4 as uuidv4 } from 'uuid';
@@ -61,7 +61,7 @@ export const authUnprotectedRouter = {
         }
         const result: AuthMaybeUnknownUser =
           user !== undefined
-            ? AuthUserTransformed.parse({
+            ? AuthUserRefined.parse({
                 user: await getUser(cookies, user),
                 userRole: user.roles[0]
               })
@@ -114,7 +114,7 @@ export const authProtectedRouter = {
 
       return {
         status: constants.HTTP_STATUS_OK,
-        response: AuthUserTransformed.parse({
+        response: AuthUserRefined.parse({
           user,
           userRole: newRole
         })

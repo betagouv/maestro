@@ -28,9 +28,7 @@ const authUserCheck = (
   }
 };
 
-export const AuthUserTransformed = AuthUser.superRefine(
-  authUserCheck
-).transform(({ user, userRole }) => {
+export const AuthUserRefined = AuthUser.transform(({ user, userRole }) => {
   return {
     user: {
       ...user,
@@ -40,9 +38,9 @@ export const AuthUserTransformed = AuthUser.superRefine(
     },
     userRole
   };
-});
+}).superRefine(authUserCheck);
 
-export type AuthUserTransformed = z.infer<typeof AuthUserTransformed>;
+export type AuthUserRefined = z.infer<typeof AuthUserRefined>;
 
 const authUnknownUserValidator = z.object({
   user: z.null(),
@@ -50,7 +48,7 @@ const authUnknownUserValidator = z.object({
   userEmail: z.string()
 });
 export const AuthMaybeUnknownUser = z.union([
-  AuthUserTransformed,
+  AuthUserRefined,
   authUnknownUserValidator
 ]);
 export type AuthMaybeUnknownUser = z.infer<typeof AuthMaybeUnknownUser>;
