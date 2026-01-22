@@ -8,7 +8,7 @@ import {
 import { describe, expect, test } from 'vitest';
 import { sachaCommemoratifRepository } from './sachaCommemoratifRepository';
 
-const genCommemoratif = (
+export const genCommemoratif = (
   overrides?: Partial<SachaCommemoratif>
 ): SachaCommemoratif => ({
   cle: fakerFR.string.numeric(12),
@@ -21,7 +21,7 @@ const genCommemoratif = (
   ...overrides
 });
 
-const genCommemoratifValue = (
+export const genCommemoratifValue = (
   overrides?: Partial<SachaCommemoratif['values'][number]>
 ): SachaCommemoratif['values'][number] => ({
   cle: fakerFR.string.numeric(12),

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const ProgrammingPlanKindWithSacha = z.enum([
+export const ProgrammingPlanKindWithSacha = z.enum([
   'DAOA_BREEDING',
   'DAOA_SLAUGHTER'
 ]);
