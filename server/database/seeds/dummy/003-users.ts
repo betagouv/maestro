@@ -1,5 +1,5 @@
 import { fakerFR } from '@faker-js/faker';
-import { ProgrammingPlanDAOAKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingPlanKindWithSachaList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { NationalCoordinator } from 'maestro-shared/test/userFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { UserCompanies, Users } from '../../../repositories/userRepository';
@@ -84,14 +84,14 @@ export const seed = async function () {
       id: uuidv4(),
       email: 'coordinateur.national.daoa@maestro.beta.gouv.fr',
       name: `DAOA - ${fakerFR.person.fullName()}`,
-      programmingPlanKinds: ProgrammingPlanDAOAKindList,
+      programmingPlanKinds: ProgrammingPlanKindWithSachaList,
       roles: ['NationalCoordinator']
     },
     {
       id: uuidv4(),
       email: 'coordinateur.regional.daoa@maestro.beta.gouv.fr',
       name: `DAOA - ${fakerFR.person.fullName()}`,
-      programmingPlanKinds: ProgrammingPlanDAOAKindList,
+      programmingPlanKinds: ProgrammingPlanKindWithSachaList,
       roles: ['RegionalCoordinator'],
       region: '52'
     },
@@ -99,7 +99,7 @@ export const seed = async function () {
       id: uuidv4(),
       email: 'coordinateur.departemental.daoa@maestro.beta.gouv.fr',
       name: `DAOA - ${fakerFR.person.fullName()}`,
-      programmingPlanKinds: ProgrammingPlanDAOAKindList,
+      programmingPlanKinds: ProgrammingPlanKindWithSachaList,
       roles: ['DepartmentalCoordinator'],
       region: '52',
       department: '85'
@@ -108,7 +108,7 @@ export const seed = async function () {
       id: samplerDaoaId,
       email: 'preleveur.daoa@maestro.beta.gouv.fr',
       name: `DAOA - ${fakerFR.person.fullName()}`,
-      programmingPlanKinds: ProgrammingPlanDAOAKindList,
+      programmingPlanKinds: ProgrammingPlanKindWithSachaList,
       roles: ['Sampler'],
       region: '52',
       department: '85'

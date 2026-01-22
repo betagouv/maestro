@@ -2,8 +2,8 @@ import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { RegionList, Regions } from '../referential/Region';
 import {
-  ProgrammingPlanDAOAKindList,
-  ProgrammingPlanKindList
+  ProgrammingPlanKindList,
+  ProgrammingPlanKindWithSachaList
 } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { AuthUserTransformed } from '../schema/User/AuthUser';
 import {
@@ -34,7 +34,7 @@ export const genUser = <T extends Partial<UserRefined>>(
   const programmingPlanKinds = programmingPlanKindsIsRequired({ roles })
     ? (data?.programmingPlanKinds ??
       (roles?.includes('DepartmentalCoordinator')
-        ? [oneOf(ProgrammingPlanDAOAKindList)]
+        ? [oneOf(ProgrammingPlanKindWithSachaList)]
         : [oneOf(ProgrammingPlanKindList)]))
     : [];
   return {
@@ -45,9 +45,7 @@ export const genUser = <T extends Partial<UserRefined>>(
     roles,
     region,
     department:
-      region &&
-      departmentIsRequired({ programmingPlanKinds, roles }) &&
-      fakerFR.datatype.boolean()
+      region && departmentIsRequired({ programmingPlanKinds, roles })
         ? oneOf(Regions[region].departments)
         : null,
     companies: companiesIsRequired({
@@ -129,14 +127,14 @@ export const NationalObserver = genUser({
 export const DepartmentalCoordinator = genUser({
   roles: ['DepartmentalCoordinator'],
   id: '12121212-1212-1212-1212-121212121212',
-  programmingPlanKinds: ProgrammingPlanDAOAKindList,
+  programmingPlanKinds: ProgrammingPlanKindWithSachaList,
   region: Region1Fixture,
   department: Regions[Region1Fixture].departments[0]
 });
 export const SamplerDaoaFixture = genUser({
   roles: ['Sampler'],
   id: '13131313-1313-1313-1313-131313131313',
-  programmingPlanKinds: ProgrammingPlanDAOAKindList,
+  programmingPlanKinds: ProgrammingPlanKindWithSachaList,
   region: Region1Fixture,
   department: Regions[Region1Fixture].departments[0]
 });

@@ -1,21 +1,21 @@
 import { z } from 'zod';
 
-export const ProgrammingPlanKind = z.enum(
-  ['PPV', 'DAOA_BREEDING', 'DAOA_SLAUGHTER'],
-  {
-    error: () => 'Veuillez renseigner le type de plan.'
-  }
-);
+export const ProgrammingPlanKindWithSacha = z.enum([
+  'DAOA_BREEDING',
+  'DAOA_SLAUGHTER'
+]);
 
-export type ProgrammingPlanKind = z.infer<typeof ProgrammingPlanKind>;
+export const ProgrammingPlanKind = z.enum([
+  'PPV',
+  ...ProgrammingPlanKindWithSacha.options
+]);
 
 export const ProgrammingPlanKindList: ProgrammingPlanKind[] =
   ProgrammingPlanKind.options;
+export const ProgrammingPlanKindWithSachaList =
+  ProgrammingPlanKindWithSacha.options;
 
-export const ProgrammingPlanDAOAKindList: ProgrammingPlanKind[] = [
-  'DAOA_BREEDING',
-  'DAOA_SLAUGHTER'
-];
+export type ProgrammingPlanKind = z.infer<typeof ProgrammingPlanKind>;
 
 export const ProgrammingPlanKindLabels: Record<ProgrammingPlanKind, string> = {
   PPV: 'Production primaire végétale',

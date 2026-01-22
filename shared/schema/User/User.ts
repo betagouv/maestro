@@ -4,8 +4,8 @@ import { RefinementCtx, z } from 'zod';
 import { Department } from '../../referential/Department';
 import { Region, RegionList, Regions } from '../../referential/Region';
 import {
-  ProgrammingPlanDAOAKindList,
-  ProgrammingPlanKind
+  ProgrammingPlanKind,
+  ProgrammingPlanKindWithSachaList
 } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserPermission } from './UserPermission';
 
@@ -196,7 +196,7 @@ export const companiesIsRequired = (
   user: Pick<Nullable<UserRefined>, 'programmingPlanKinds' | 'roles'>
 ): boolean =>
   (user.roles?.includes('Sampler') &&
-    intersection(user.programmingPlanKinds, ProgrammingPlanDAOAKindList)
+    intersection(user.programmingPlanKinds, ProgrammingPlanKindWithSachaList)
       .length > 0) ??
   false;
 
@@ -205,7 +205,7 @@ export const departmentIsRequired = (
 ): boolean =>
   (user.roles?.some((role) => isDepartmentalRole(role)) ||
     (user.roles?.includes('Sampler') &&
-      intersection(user.programmingPlanKinds, ProgrammingPlanDAOAKindList)
+      intersection(user.programmingPlanKinds, ProgrammingPlanKindWithSachaList)
         .length > 0)) ??
   false;
 
