@@ -11,10 +11,7 @@ import { MatrixPart } from '../../referential/Matrix/MatrixPart';
 import { OutdoorAccess } from '../../referential/OutdoorAccess';
 import { ProductionKind } from '../../referential/ProductionKind';
 import { Seizure } from '../../referential/Seizure';
-import {
-  Species,
-  SpeciesByProgrammingPlanKind
-} from '../../referential/Species';
+import { Species } from '../../referential/Species';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 
 const KillingCode = z
@@ -56,7 +53,7 @@ export const SampleMatrixSpecificDataDAOABreeding = z.object({
   sampling: z.literal('Aléatoire'),
   animalIdentifier: AnimalIdentifier,
   ageInDays: AnimalAgeInDays,
-  species: Species.extract(SpeciesByProgrammingPlanKind['DAOA_BREEDING']),
+  species: Species.extract(['ESP7', 'ESP8', 'ESP10', 'ESP20']),
   breedingMethod: BreedingMethod,
   outdoorAccess: OutdoorAccess
 });
@@ -110,3 +107,33 @@ export type SampleMatrixSpecificData = z.infer<typeof SampleMatrixSpecificData>;
 export type PartialSampleMatrixSpecificData = z.infer<
   typeof PartialSampleMatrixSpecificData
 >;
+
+const schemasByProgrammingPlanKind = {
+  PPV: SampleMatrixSpecificDataPPV,
+  DAOA_BREEDING: SampleMatrixSpecificDataDAOABreeding,
+  DAOA_SLAUGHTER: SampleMatrixSpecificDataDAOASlaughter
+} as const satisfies {
+  [P in ProgrammingPlanKind]: z.ZodType<
+    Extract<SampleMatrixSpecificData, { programmingPlanKind: P }>
+  >;
+};
+
+export function getSampleMatrixSpecificDataAttributeValues(
+  programmingPlanKind: ProgrammingPlanKind,
+  attributeName: string
+): string[] {
+  const schema = schemasByProgrammingPlanKind[programmingPlanKind];
+
+  const shape = schema.shape;
+  const fieldSchema = shape[attributeName as keyof typeof shape];
+
+  if (!fieldSchema) {
+    return [];
+  }
+
+  if ('options' in fieldSchema && Array.isArray(fieldSchema.options)) {
+    return fieldSchema.options;
+  }
+
+  return [];
+}

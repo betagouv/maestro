@@ -12,10 +12,7 @@ import {
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { formatWithTz, toMaestroDate } from 'maestro-shared/utils/date';
-import {
-  getRecordKeys,
-  RequiredNotNull
-} from 'maestro-shared/utils/typescript';
+import { RequiredNotNull } from 'maestro-shared/utils/typescript';
 import fs from 'node:fs';
 import path from 'path';
 import { z, ZodObject } from 'zod';
@@ -23,7 +20,6 @@ import { Laboratories } from '../../repositories/kysely.type';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import config from '../../utils/config';
 import {
-  mapping,
   NotPPVMatrix,
   SigleContexteIntervention,
   SigleMatrix,
@@ -104,18 +100,19 @@ const getCommemoratifs = <P extends Exclude<ProgrammingPlanKind, 'PPV'>>(
   specificData: SampleMatrixSpecificData & { programmingPlanKind: P }
 ): { sigle: string; value: string }[] => {
   const commemoratifs: { sigle: string; value: string }[] = [];
-  for (const specificDataKey of getRecordKeys(specificData)) {
-    if (specificDataKey !== 'programmingPlanKind') {
-      const data: (typeof mapping)[P]['age'] =
-        mapping[specificData.programmingPlanKind][specificDataKey];
-      if (data) {
-        commemoratifs.push({
-          sigle: data.sigle,
-          value: data.value(specificData[specificDataKey])
-        });
-      }
-    }
-  }
+  //FIXME EDI
+  // for (const specificDataKey of getRecordKeys(specificData)) {
+  //   if (specificDataKey !== 'programmingPlanKind') {
+  //     const data: (typeof mapping)[P]['age'] =
+  //       mapping[specificData.programmingPlanKind][specificDataKey];
+  //     if (data) {
+  //       commemoratifs.push({
+  //         sigle: data.sigle,
+  //         value: data.value(specificData[specificDataKey])
+  //       });
+  //     }
+  //   }
+  // }
   return commemoratifs;
 };
 
