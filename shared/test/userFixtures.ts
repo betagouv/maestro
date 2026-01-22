@@ -5,7 +5,7 @@ import {
   ProgrammingPlanKindList,
   ProgrammingPlanKindWithSachaList
 } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
-import { AuthUserTransformed } from '../schema/User/AuthUser';
+import { AuthUserRefined } from '../schema/User/AuthUser';
 import {
   companiesIsRequired,
   departmentIsRequired,
@@ -141,9 +141,9 @@ export const SamplerDaoaFixture = genUser({
 
 export const genAuthUser = (
   data?: Partial<UserRefined & { userRole: UserRole }>
-): AuthUserTransformed => {
+): AuthUserRefined => {
   const role = data?.userRole ?? data?.roles?.[0] ?? oneOf(UserRoleList);
-  return AuthUserTransformed.parse({
+  return AuthUserRefined.parse({
     user: genUser({
       ...data,
       roles: data?.roles ?? [role]

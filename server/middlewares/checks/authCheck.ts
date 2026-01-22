@@ -15,7 +15,7 @@ import {
 } from 'maestro-shared/constants';
 import AuthenticationFailedError from 'maestro-shared/errors/authenticationFailedError';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
-import { AuthUserTransformed } from 'maestro-shared/schema/User/AuthUser';
+import { AuthUserRefined } from 'maestro-shared/schema/User/AuthUser';
 
 export const jwtCheck = (credentialsRequired: boolean) =>
   expressjwt({
@@ -94,7 +94,7 @@ export const userCheck = (credentialsRequired: boolean) =>
           ? request.cookies?.[COOKIE_MAESTRO_USER_ROLE]
           : requestUser.roles[0];
 
-      const parsed = AuthUserTransformed.parse({
+      const parsed = AuthUserRefined.parse({
         user: requestUser,
         userRole: requestUserRole
       });
