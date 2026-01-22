@@ -11,6 +11,7 @@ export const tagTypes = [
   'Prescription',
   'PrescriptionSubstance',
   'ProgrammingPlan',
+  'ProgrammingPlanSpecificData',
   'LocalPrescription',
   'Regions',
   'SachaCommemoratif',

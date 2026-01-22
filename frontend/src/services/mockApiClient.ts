@@ -220,7 +220,27 @@ const defaultMockApiClientConf: MockApi = {
   useCreateUserMutation: [fn(), {}],
   useUpdateUserMutation: [fn(), {}],
   useChangeRoleMutation: [fn(), {}],
-  useLazyFindCompaniesQuery: [[], {}]
+  useLazyFindCompaniesQuery: [[], {}],
+  useGetProgrammingPlanSpecificDataQuery: {
+    data: {
+      DAOA_BREEDING: {
+        programmingPlanKind: 'DAOA_BREEDING',
+        inDAI: false,
+        attributes: {}
+      },
+      DAOA_SLAUGHTER: {
+        programmingPlanKind: 'DAOA_SLAUGHTER',
+        inDAI: false,
+        attributes: {}
+      }
+    }
+  },
+  useUpdateProgrammingPlanSpecificDataAttributeMutation: [fn(), {}],
+  useUpdateProgrammingPlanSpecificDataAttributeValueMutation: [fn(), {}],
+  useGetSachaCommemoratifsQuery: {
+    data: {}
+  },
+  useUpdateSachaCommemoratifsMutation: [fn(), {}]
 };
 
 export const mockApiClient = getMockApi({});

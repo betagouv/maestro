@@ -12,6 +12,7 @@ import { noticesProtectedRouter } from '../controllers/noticeController';
 import { notificationsRouter } from '../controllers/notificationController';
 import { prescriptionsRouter } from '../controllers/prescriptionController';
 import { programmingPlanRouter } from '../controllers/programmingPlanController';
+import { programmingPlanSpecificDataProtectedRouter } from '../controllers/programmingPlanSpecificDataController';
 import { sachaCommemoratifsProtectedRouter } from '../controllers/sachaCommemoratifsController';
 import { sampleRouter } from '../controllers/sampleController';
 import { usersRouter } from '../controllers/userController';
@@ -38,6 +39,7 @@ const router = {
   ...prescriptionsRouter,
   ...localPrescriptionsRouter,
   ...programmingPlanRouter,
+  ...programmingPlanSpecificDataProtectedRouter,
   ...sachaCommemoratifsProtectedRouter,
   ...sampleRouter,
   ...usersRouter
