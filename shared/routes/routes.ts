@@ -16,6 +16,7 @@ import { noticesRoutes } from './notices.routes';
 import { notificationsRoutes } from './notifications.routes';
 import { prescriptionsRoutes } from './prescriptions.routes';
 import { programmingPlansRoutes } from './programmingPlans.routes';
+import { programmingPlanSpecificDataRoutes } from './programmingPlanSpecificData';
 import { sachaCommemoratifsRoute } from './sachaCommemoratifs.route';
 import { samplesRoutes } from './samples.routes';
 import { usersRoutes } from './users.routes';
@@ -52,6 +53,8 @@ export const MaestroRoutes = [
   '/prescriptions/:prescriptionId',
   '/programming-plans',
   '/programming-plans/years/:year',
+  '/programming-plans/specific-data-attribute',
+  '/programming-plans/specific-data-attribute/value',
   '/programming-plans/:programmingPlanId',
   '/programming-plans/:programmingPlanId/local-status',
   '/sacha/commemoratifs',
@@ -76,6 +79,7 @@ export const routes = {
   ...notificationsRoutes,
   ...prescriptionsRoutes,
   ...programmingPlansRoutes,
+  ...programmingPlanSpecificDataRoutes,
   ...sachaCommemoratifsRoute,
   ...samplesRoutes,
   ...usersRoutes
