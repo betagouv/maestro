@@ -1,13 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   AuthMaybeUnknownUser,
-  AuthUserTransformed
+  AuthUserRefined
 } from 'maestro-shared/schema/User/AuthUser';
 
 const authUser = JSON.parse(localStorage.getItem('authUser') ?? '{}');
 
 type AuthState = {
-  authUser?: AuthUserTransformed;
+  authUser?: AuthUserRefined;
 };
 
 const authSlice = createSlice({

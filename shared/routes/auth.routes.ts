@@ -1,9 +1,6 @@
 import { z } from 'zod';
 import { AuthRedirectUrl } from '../schema/Auth/AuthRedirectUrl';
-import {
-  AuthMaybeUnknownUser,
-  AuthUserTransformed
-} from '../schema/User/AuthUser';
+import { AuthMaybeUnknownUser, AuthUserRefined } from '../schema/User/AuthUser';
 import { UserRole } from '../schema/User/UserRole';
 import { SubRoutes } from './routes';
 
@@ -31,7 +28,7 @@ export const authRoutes = {
         newRole: UserRole
       }),
       permissions: 'NONE',
-      response: AuthUserTransformed
+      response: AuthUserRefined
     }
   },
   '/auth/logout': {
