@@ -202,7 +202,8 @@ const ProgrammingView = () => {
                 }
                 className={clsx({
                   'full-width':
-                    hasNationalView && prescriptionListDisplay === 'table'
+                    (hasNationalView || hasRegionalView) &&
+                    prescriptionListDisplay === 'table'
                 })}
                 classes={{
                   panel: clsx('white-container')
