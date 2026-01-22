@@ -78,7 +78,8 @@ export const DashboardViewForSampler: Story = {
         authUser: genAuthUser({
           userRole: 'Sampler',
           region: Region1Fixture,
-          id: Sampler1Fixture.id
+          id: Sampler1Fixture.id,
+          programmingPlanKinds: ['PPV']
         })
       }
     },
