@@ -32,9 +32,10 @@ export const genUser = <T extends Partial<UserRefined>>(
       : null;
 
   const programmingPlanKinds = programmingPlanKindsIsRequired({ roles })
-    ? (data?.programmingPlanKinds ?? roles?.includes('DepartmentalCoordinator'))
-      ? [oneOf(ProgrammingPlanDAOAKindList)]
-      : [oneOf(ProgrammingPlanKindList)]
+    ? (data?.programmingPlanKinds ??
+      (roles?.includes('DepartmentalCoordinator')
+        ? [oneOf(ProgrammingPlanDAOAKindList)]
+        : [oneOf(ProgrammingPlanKindList)]))
     : [];
   return {
     id: uuidv4(),
