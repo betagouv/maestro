@@ -1,4 +1,5 @@
 import { COOKIE_MAESTRO_MASCARADE } from 'maestro-shared/constants';
+import { AuthUserTransformed } from 'maestro-shared/schema/User/AuthUser';
 import { useContext, useState } from 'react';
 import { useAppDispatch } from '../../hooks/useStore';
 import { api } from '../../services/api.service';
@@ -29,10 +30,10 @@ export const useMascarade = () => {
       const authUser = await getUser(newUserId).unwrap();
       dispatch(
         authSlice.actions.signinUser({
-          authUser: {
+          authUser: AuthUserTransformed.parse({
             user: authUser ?? null,
             userRole: authUser?.roles?.[0] ?? null
-          }
+          })
         })
       );
       window.location.reload();
