@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 
 export const Species = z.enum(
   [
@@ -53,10 +52,3 @@ export const SpeciesLabels: Record<Species, string> = {
   ESP19: 'Faisan',
   ESP20: 'Autre volaille'
 };
-
-//FIXME à supprimer,
-// et tous les autres aussi
-// corriger les SpecificData
-export const SpeciesByProgrammingPlanKind = {
-  [ProgrammingPlanKind.enum.DAOA_BREEDING]: ['ESP7', 'ESP8', 'ESP10', 'ESP20']
-} as const satisfies Partial<Record<ProgrammingPlanKind, Species[]>>;

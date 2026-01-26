@@ -1,9 +1,6 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
-import {
-  AnimalKind,
-  AnimalKindsByProgrammingPlanKind
-} from '../../referential/AnimalKind';
+import { AnimalKind } from '../../referential/AnimalKind';
 import { AnimalSex } from '../../referential/AnimalSex';
 import { BreedingMethod } from '../../referential/BreedingMethod';
 import { CultureKind } from '../../referential/CultureKind';
@@ -12,6 +9,7 @@ import { OutdoorAccess } from '../../referential/OutdoorAccess';
 import { ProductionKind } from '../../referential/ProductionKind';
 import { Seizure } from '../../referential/Seizure';
 import { Species } from '../../referential/Species';
+import { SampleMatrixSpecificDataKeys } from '../MatrixSpecificData/MatrixSpecificDataFormInputs';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 
 const KillingCode = z
@@ -63,12 +61,15 @@ export const SampleMatrixSpecificDataDAOASlaughter = z.object({
   killingCode: KillingCode,
   sampling: z.literal('Aléatoire'),
   animalIdentifier: AnimalIdentifier,
-  animalKind: AnimalKind.extract(
-    AnimalKindsByProgrammingPlanKind['DAOA_SLAUGHTER']
-  ),
+  animalKind: AnimalKind.extract(['TYPEA1', 'TYPEA2', 'TYPEA3', 'TYPEA4']),
   sex: AnimalSex,
   ageInMonths: AnimalAgeInMonths,
-  productionKind: ProductionKind,
+  productionKind: ProductionKind.extract([
+    'PROD_1',
+    'PROD_2',
+    'PROD_4',
+    'PROD_3'
+  ]),
   outdoorAccess: OutdoorAccess,
   seizure: Seizure
 });
@@ -120,7 +121,7 @@ const schemasByProgrammingPlanKind = {
 
 export function getSampleMatrixSpecificDataAttributeValues(
   programmingPlanKind: ProgrammingPlanKind,
-  attributeName: string
+  attributeName: SampleMatrixSpecificDataKeys
 ): string[] {
   const schema = schemasByProgrammingPlanKind[programmingPlanKind];
 
