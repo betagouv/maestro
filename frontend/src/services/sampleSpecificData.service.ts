@@ -8,7 +8,7 @@ import { api } from 'src/services/api.service';
 const sampleSpecificDataApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getSampleSpecificData: builder.query<SampleSpecificDataRecord, void>({
-      query: () => '/programming-plans/specific-data-attribute',
+      query: () => '/specific-data-attribute',
       providesTags: ['SampleSpecificData']
     }),
     updateSampleSpecificDataAttribute: builder.mutation<
@@ -16,7 +16,7 @@ const sampleSpecificDataApi = api.injectEndpoints({
       SampleSpecificDataAttribute
     >({
       query: (body) => ({
-        url: '/programming-plans/specific-data-attribute',
+        url: '/specific-data-attribute',
         method: 'POST',
         body
       }),
@@ -27,7 +27,7 @@ const sampleSpecificDataApi = api.injectEndpoints({
       SampleSpecificDataAttributeValue
     >({
       query: (body) => ({
-        url: '/programming-plans/specific-data-attribute/value',
+        url: '/specific-data-attribute/value',
         method: 'POST',
         body
       }),

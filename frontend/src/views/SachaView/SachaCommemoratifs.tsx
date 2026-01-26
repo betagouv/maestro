@@ -1,8 +1,10 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { MatrixSpecificDataFormInputs } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
+import { uniq } from 'lodash-es';
+import { SampleMatrixSpecificDataKeys } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
+import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SachaCommemoratifRecord } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import { schemasByProgrammingPlanKind } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
-import { getRecordKeys } from 'maestro-shared/utils/typescript';
 import { FunctionComponent, useContext } from 'react';
 import { ApiClientContext } from '../../services/apiClient';
 import { CommemoratifSigleForm } from './CommemoratifSigleForm';
@@ -37,7 +39,13 @@ const CommemoratifsForAProgrammingPlanKind = ({
   sachaCommemoratifs: SachaCommemoratifRecord;
   programmingPlanSpecifiDataRecord: SampleSpecificDataRecord;
 }) => {
-  const attributes = getRecordKeys(MatrixSpecificDataFormInputs);
+  const attributes = uniq(
+    ProgrammingPlanKindWithSacha.options.flatMap((kind) =>
+      Object.keys(schemasByProgrammingPlanKind[kind].shape)
+    )
+  ).filter(
+    (key): key is SampleMatrixSpecificDataKeys => key !== 'programmingPlanKind'
+  );
 
   return (
     <div>
