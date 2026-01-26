@@ -71,12 +71,10 @@ export const CommemoratifSigleForm = ({
   );
 
   return (
-    <div>
-      <fieldset className={cx('fr-fieldset')}>
-        <legend className={cx('fr-fieldset__legend')}>{inputConf.label}</legend>
-        <div
-          className={clsx('d-flex-align-center', cx('fr-fieldset__content'))}
-        >
+    <div className={clsx('border', cx('fr-p-4w'))}>
+      <div className={clsx('d-flex-row')}>
+        <div className={clsx('d-flex-column', 'd-flex-align-start')}>
+          <h6 className={cx()}>{inputConf.label}</h6>
           <ToggleSwitch
             label={'Inclure dans la DAI ?'}
             checked={inDai}
@@ -84,41 +82,43 @@ export const CommemoratifSigleForm = ({
             onChange={() => {
               setInDai(!inDai);
             }}
-            className={clsx(cx('fr-mr-4w'))}
           />
-          {inDai && (
-            <AppSearchInput
-              label={'Sigle Sacha'}
-              options={options}
-              value={selectedSigle ?? ''}
-              onSelect={onSelectSigle}
-              placeholder="Rechercher un sigle"
-              className={clsx('flex-grow-1')}
-            />
-          )}
         </div>
-      </fieldset>
+        {inDai && (
+          <AppSearchInput
+            label={'Sigle Sacha'}
+            options={options}
+            value={selectedSigle ?? ''}
+            onSelect={onSelectSigle}
+            placeholder="Rechercher un sigle"
+            className={clsx(cx('fr-ml-auto', 'fr-mb-0'))}
+          />
+        )}
+      </div>
       {inDai && selectedSigle !== null && isSelectOrRadio && (
-        <div
-          className={clsx(
-            'd-flex-column',
-            'border',
-            cx('fr-m-2w', 'fr-p-2w', 'fr-pl-4w')
-          )}
-        >
-          {optionsValues.map((optionValue) => (
-            <OptionValueLine
-              key={optionValue}
-              optionValue={optionValue}
-              inputConf={inputConf}
-              selectedCommemoratif={
-                sachaCommemoratifs[selectedSigle as CommemoratifSigle]
-              }
-              selectedValue={selectedValues[optionValue] ?? ''}
-              onSelectValue={(v) => onSelectValue(optionValue, v)}
-            />
-          ))}
-        </div>
+        <>
+          <hr className={cx('fr-my-2w')} />
+          <div className={cx('fr-text--lg')}>
+            Association des valeurs possibles
+          </div>
+          <div
+            className={clsx('d-flex-row')}
+            style={{ justifyContent: 'space-between' }}
+          >
+            {optionsValues.map((optionValue) => (
+              <OptionValueLine
+                key={optionValue}
+                optionValue={optionValue}
+                inputConf={inputConf}
+                selectedCommemoratif={
+                  sachaCommemoratifs[selectedSigle as CommemoratifSigle]
+                }
+                selectedValue={selectedValues[optionValue] ?? ''}
+                onSelectValue={(v) => onSelectValue(optionValue, v)}
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
