@@ -5,6 +5,10 @@ export const ProgrammingPlanKindWithSacha = z.enum([
   'DAOA_SLAUGHTER'
 ]);
 
+export type ProgrammingPlanKindWithSacha = z.infer<
+  typeof ProgrammingPlanKindWithSacha
+>;
+
 export const ProgrammingPlanKind = z.enum([
   'PPV',
   ...ProgrammingPlanKindWithSacha.options

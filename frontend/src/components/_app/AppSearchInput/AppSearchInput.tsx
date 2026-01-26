@@ -1,5 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Autocomplete } from '@mui/material';
+import clsx from 'clsx';
 import * as React from 'react';
 import { ReactNode, useEffect } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
@@ -21,6 +22,8 @@ interface Props {
   placeholder?: string;
   whenValid?: string;
   inputProps?: any;
+  disabled?: boolean;
+  className?: string;
 }
 
 const AppSearchInput = ({
@@ -35,7 +38,9 @@ const AppSearchInput = ({
   hintText,
   placeholder,
   whenValid,
-  inputProps
+  inputProps,
+  disabled,
+  className
 }: Props) => {
   useEffect(() => {
     if (options.length === 1 && options[0].value !== value) {
@@ -45,18 +50,21 @@ const AppSearchInput = ({
 
   return (
     <div
-      className={cx(
-        'fr-input-group',
-        (() => {
-          switch (state) {
-            case 'error':
-              return 'fr-input-group--error';
-            case 'success':
-              return 'fr-input-group--valid';
-            case 'default':
-              return undefined;
-          }
-        })()
+      className={clsx(
+        className,
+        cx(
+          'fr-input-group',
+          (() => {
+            switch (state) {
+              case 'error':
+                return 'fr-input-group--error';
+              case 'success':
+                return 'fr-input-group--valid';
+              case 'default':
+                return undefined;
+            }
+          })()
+        )
       )}
     >
       <label className={cx('fr-label')}>
@@ -91,6 +99,7 @@ const AppSearchInput = ({
           renderOption={renderOption}
           options={options}
           noOptionsText={'Aucun résultat'}
+          disabled={disabled}
         />
       </div>
       {state !== 'default' && (
