@@ -11,8 +11,12 @@ import {
   SampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
 import { formatWithTz, toMaestroDate } from 'maestro-shared/utils/date';
-import { RequiredNotNull } from 'maestro-shared/utils/typescript';
+import {
+  getRecordKeys,
+  RequiredNotNull
+} from 'maestro-shared/utils/typescript';
 import fs from 'node:fs';
 import path from 'path';
 import { z, ZodObject } from 'zod';
@@ -97,22 +101,30 @@ export const generateXMLAcquitement = async (
 };
 
 const getCommemoratifs = (
-  specificData: SampleMatrixSpecificData
+  specificData: SampleMatrixSpecificData,
+  sampleSpecifDataRecord: SampleSpecificDataRecord
 ): { sigle: string; value: string }[] => {
   const commemoratifs: { sigle: string; value: string }[] = [];
-  //FIXME EDI
-  // for (const specificDataKey of getRecordKeys(specificData)) {
-  //   if (specificDataKey !== 'programmingPlanKind') {
-  //     const data: (typeof mapping)[P]['age'] =
-  //       mapping[specificData.programmingPlanKind][specificDataKey];
-  //     if (data) {
-  //       commemoratifs.push({
-  //         sigle: data.sigle,
-  //         value: data.value(specificData[specificDataKey])
-  //       });
-  //     }
-  //   }
-  // }
+  // FIXME ajouter des tests
+  for (const specificDataKey of getRecordKeys(sampleSpecifDataRecord)) {
+    if (
+      specificDataKey !== 'programmingPlanKind' &&
+      specificDataKey in specificData
+    ) {
+      const { inDai, sachaCommemoratifSigle } =
+        sampleSpecifDataRecord[specificDataKey];
+      if (inDai) {
+        const specificDataValue: string =
+          specificData[specificDataKey as keyof SampleMatrixSpecificData];
+        commemoratifs.push({
+          sigle: sachaCommemoratifSigle,
+          value:
+            sampleSpecifDataRecord[specificDataKey].values[specificDataValue]
+        });
+        //FIXME boolean et autre type
+      }
+    }
+  }
   return commemoratifs;
 };
 
@@ -131,7 +143,9 @@ export const generateXMLDAI = (
   >,
   sampleItem: Pick<SampleItem, 'sealId' | 'itemNumber' | 'copyNumber'>,
   loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryCall>,
-  dateNow: number
+  dateNow: number,
+
+  sampleSpecifDataRecord: SampleSpecificDataRecord
 ): Promise<XmlFile> => {
   const programmingPlanKind = sample.specificData
     .programmingPlanKind as ProgrammingPlanKindWithSacha;
@@ -147,7 +161,10 @@ export const generateXMLDAI = (
     );
   }
 
-  const commemoratifs = getCommemoratifs(sample.specificData);
+  const commemoratifs = getCommemoratifs(
+    sample.specificData,
+    sampleSpecifDataRecord
+  );
 
   return generateXML(
     'DA01',
