@@ -100,7 +100,10 @@ const ProgrammingLocalPrescriptionTable = ({
     () =>
       [
         onTogglePrescriptionSelection ? (
-          <div key={'select'} className={cx('fr-checkbox-group')}></div>
+          <div
+            key={'select'}
+            className={clsx(cx('fr-checkbox-group'), 'selectable-cell')}
+          ></div>
         ) : undefined,
         <div
           key={'matrice'}
@@ -133,7 +136,10 @@ const ProgrammingLocalPrescriptionTable = ({
         .map((prescription) =>
           [
             onTogglePrescriptionSelection ? (
-              <div key={`select-${prescription.id}`}>
+              <div
+                className="selectable-cell"
+                key={`select-${prescription.id}`}
+              >
                 <Checkbox
                   options={[
                     {

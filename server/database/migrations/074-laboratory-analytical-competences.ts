@@ -14,10 +14,13 @@ export const up = async (knex: Knex) => {
         .onDelete('CASCADE');
       table.string('residue_reference').notNullable();
       table.string('analyte_reference');
+      table
+        .specificType('last_updated_at', 'timestamptz')
+        .defaultTo(knex.raw('current_timestamp'));
       table.string('analytical_method');
       table.string('validation_method');
       table.string('analysis_method');
-      table.boolean('is_complete_definition_analysis');
+      table.string('is_complete_definition_analysis');
       table.decimal('detection_limit', 10, 4);
       table.decimal('quantification_limit', 10, 4);
     }

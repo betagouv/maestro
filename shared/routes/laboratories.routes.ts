@@ -1,7 +1,10 @@
 import z from 'zod';
 import { FindLaboratoryOptions } from '../schema/Laboratory/FindLaboratoryOptions';
 import { Laboratory } from '../schema/Laboratory/Laboratory';
-import { LaboratoryAnalyticalCompetence } from '../schema/Laboratory/LaboratoryAnalyticalCompetence';
+import {
+  LaboratoryAnalyticalCompetence,
+  LaboratoryAnalyticalCompetenceToSave
+} from '../schema/Laboratory/LaboratoryAnalyticalCompetence';
 import { SubRoutes } from './routes';
 
 export const laboratoriesRoutes = {
@@ -29,6 +32,11 @@ export const laboratoriesRoutes = {
     get: {
       response: z.array(LaboratoryAnalyticalCompetence),
       permissions: ['readLaboratoryCompetences']
+    },
+    post: {
+      body: LaboratoryAnalyticalCompetenceToSave,
+      response: z.array(LaboratoryAnalyticalCompetence),
+      permissions: ['manageLaboratoryCompetences']
     }
   },
   '/laboratories/:laboratoryId/analytical-competences/:analyticalCompetenceId':
@@ -38,12 +46,9 @@ export const laboratoriesRoutes = {
         analyticalCompetenceId: z.guid()
       },
       put: {
-        body: LaboratoryAnalyticalCompetence.omit({
-          id: true,
-          laboratoryId: true
-        }),
+        body: LaboratoryAnalyticalCompetenceToSave,
         permissions: ['manageLaboratoryCompetences'],
-        response: LaboratoryAnalyticalCompetence
+        response: z.array(LaboratoryAnalyticalCompetence)
       }
     }
 } as const satisfies SubRoutes<'/laboratories'>;
