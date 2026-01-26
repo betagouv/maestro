@@ -22,6 +22,17 @@ const findManyByLaboratoryId = async (
     );
 };
 
+const insertMany = async (
+  analyticalCompetences: LaboratoryAnalyticalCompetence[]
+): Promise<void> => {
+  console.info(
+    'Insert laboratory analytical competences',
+    analyticalCompetences.length
+  );
+
+  await LaboratoryAnalyticalCompetences().insert(analyticalCompetences);
+};
+
 const update = async (
   analyticalCompetence: LaboratoryAnalyticalCompetence
 ): Promise<void> => {
@@ -37,5 +48,6 @@ const update = async (
 
 export default {
   findManyByLaboratoryId,
+  insertMany,
   update
 };

@@ -1,4 +1,6 @@
 import { constants } from 'http2';
+import { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
+import { v4 as uuidv4 } from 'uuid';
 import laboratoryAnalyticalCompetenceRepository from '../repositories/laboratoryAnalyticalCompetenceRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
@@ -39,6 +41,35 @@ export const laboratoriesRouter = {
         status: constants.HTTP_STATUS_OK,
         response: analyticalCompetences
       };
+    },
+    post: async ({ body }, { laboratoryId }) => {
+      console.info('Create laboratory analytical competence', laboratoryId);
+
+      const { analyteAnalyticalCompetences, ...analyteCompetence } = body;
+
+      const competencesToCreate = [
+        {
+          ...analyteCompetence,
+          id: uuidv4(),
+          laboratoryId,
+          lastUpdatedAt: new Date()
+        },
+        ...(analyteAnalyticalCompetences || []).map((analyticalCompetence) => ({
+          ...analyticalCompetence,
+          id: uuidv4(),
+          laboratoryId,
+          lastUpdatedAt: new Date()
+        }))
+      ];
+
+      await laboratoryAnalyticalCompetenceRepository.insertMany(
+        competencesToCreate.map((_) => LaboratoryAnalyticalCompetence.parse(_))
+      );
+
+      return {
+        status: constants.HTTP_STATUS_CREATED,
+        response: competencesToCreate
+      };
     }
   },
   '/laboratories/:laboratoryId/analytical-competences/:analyticalCompetenceId':
@@ -46,17 +77,35 @@ export const laboratoriesRouter = {
       put: async ({ body }, { laboratoryId, analyticalCompetenceId }) => {
         console.info('Update laboratory analytical competence', laboratoryId);
 
-        const competence = {
-          ...body,
-          id: analyticalCompetenceId,
-          laboratoryId
-        };
+        const { analyteAnalyticalCompetences, ...analyteCompetence } = body;
 
-        await laboratoryAnalyticalCompetenceRepository.update(competence);
+        const competencesToUpdate = [
+          {
+            ...analyteCompetence,
+            id: analyticalCompetenceId,
+            laboratoryId,
+            lastUpdatedAt: new Date()
+          },
+          ...(analyteAnalyticalCompetences || []).map(
+            (analyticalCompetence) => ({
+              ...analyticalCompetence,
+              laboratoryId,
+              lastUpdatedAt: new Date()
+            })
+          )
+        ];
+
+        await Promise.all(
+          competencesToUpdate.map((competence) =>
+            laboratoryAnalyticalCompetenceRepository.update(
+              LaboratoryAnalyticalCompetence.parse(competence)
+            )
+          )
+        );
 
         return {
           status: constants.HTTP_STATUS_OK,
-          response: competence
+          response: competencesToUpdate
         };
       }
     }
