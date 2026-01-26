@@ -1,4 +1,5 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import { uniq } from 'lodash-es';
 import {
@@ -34,6 +35,7 @@ export const CommemoratifSigleForm = ({
   const attributeConfInDb =
     programmingPlanSpecifiDataRecord[attribute as string];
 
+  const [inDai, setInDai] = useState<boolean>(false);
   const [selectedSigle, setSelectedSigle] = useState<string | null>(
     attributeConfInDb?.sachaCommemoratifSigle ?? null
   );
@@ -70,14 +72,33 @@ export const CommemoratifSigleForm = ({
 
   return (
     <div>
-      <AppSearchInput
-        label={inputConf.label}
-        options={options}
-        value={selectedSigle ?? ''}
-        onSelect={onSelectSigle}
-        placeholder="Rechercher un sigle"
-      />
-      {selectedSigle !== null && isSelectOrRadio && (
+      <fieldset className={cx('fr-fieldset')}>
+        <legend className={cx('fr-fieldset__legend')}>{inputConf.label}</legend>
+        <div
+          className={clsx('d-flex-align-center', cx('fr-fieldset__content'))}
+        >
+          <ToggleSwitch
+            label={'Inclure dans la DAI ?'}
+            checked={inDai}
+            labelPosition={'left'}
+            onChange={() => {
+              setInDai(!inDai);
+            }}
+            className={clsx(cx('fr-mr-4w'))}
+          />
+          {inDai && (
+            <AppSearchInput
+              label={'Sigle Sacha'}
+              options={options}
+              value={selectedSigle ?? ''}
+              onSelect={onSelectSigle}
+              placeholder="Rechercher un sigle"
+              className={clsx('flex-grow-1')}
+            />
+          )}
+        </div>
+      </fieldset>
+      {inDai && selectedSigle !== null && isSelectOrRadio && (
         <div
           className={clsx(
             'd-flex-column',
