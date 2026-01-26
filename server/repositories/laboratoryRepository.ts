@@ -34,7 +34,20 @@ const findMany = async (
       'laboratories.id'
     )
     .distinctOn('laboratories.id')
-    .selectAll();
+    .select([
+      'laboratories.id',
+      'laboratories.shortName',
+      'laboratories.name',
+      'laboratories.address',
+      'laboratories.postalCode',
+      'laboratories.city',
+      'laboratories.emails',
+      'laboratories.emailsAnalysisResult',
+      'laboratories.sachaEmail',
+      'laboratories.sachaGpgPublicKey',
+      'laboratories.sachaSigle'
+    ])
+    .orderBy('laboratories.name', 'asc');
 
   for (const option of FindLaboratoryOptions.keyof().options) {
     switch (option) {
