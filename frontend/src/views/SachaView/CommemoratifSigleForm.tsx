@@ -1,34 +1,32 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
-import { uniq } from 'lodash-es';
 import {
   MatrixSpecificDataFormInputs,
   SampleMatrixSpecificDataKeys
 } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
-import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   CommemoratifSigle,
   CommemoratifValueSigle,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
-import { getSampleMatrixSpecificDataAttributeValues } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
 import { useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppSearchInput from '../../components/_app/AppSearchInput/AppSearchInput';
 import { ApiClientContext } from '../../services/apiClient';
+import { canHaveValue, getAttributeExpectedValues } from './sachaUtils';
 
 type Props = {
   attribute: SampleMatrixSpecificDataKeys;
   sachaCommemoratifs: SachaCommemoratifRecord;
-  programmingPlanSpecifiDataRecord: SampleSpecificDataRecord;
+  sampleSpecifiDataRecord: SampleSpecificDataRecord;
 };
 
 export const CommemoratifSigleForm = ({
   attribute,
   sachaCommemoratifs,
-  programmingPlanSpecifiDataRecord,
+  sampleSpecifiDataRecord,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -41,8 +39,7 @@ export const CommemoratifSigleForm = ({
     apiClient.useUpdateSampleSpecificDataAttributeValueMutation();
   const inputConf = MatrixSpecificDataFormInputs[attribute];
 
-  const attributeConfInDb =
-    programmingPlanSpecifiDataRecord[attribute as string];
+  const attributeConfInDb = sampleSpecifiDataRecord[attribute as string];
 
   const [inDai, setInDai] = useState<boolean>(
     attributeConfInDb?.inDai ?? false
@@ -102,13 +99,8 @@ export const CommemoratifSigleForm = ({
     }))
     .sort((a, b) => a.label.localeCompare(b.label));
 
-  const isSelectOrRadio =
-    inputConf.inputType === 'select' || inputConf.inputType === 'radio';
-  const optionsValues = uniq(
-    ProgrammingPlanKindWithSacha.options.flatMap((p) =>
-      getSampleMatrixSpecificDataAttributeValues(p, attribute)
-    )
-  );
+  const attributeCanHaveValue = canHaveValue(inputConf);
+  const optionsValues = getAttributeExpectedValues(attribute);
 
   return (
     <div className={clsx('border', cx('fr-p-4w'))}>
@@ -135,7 +127,7 @@ export const CommemoratifSigleForm = ({
           />
         )}
       </div>
-      {inDai && selectedSigle !== null && isSelectOrRadio && (
+      {inDai && selectedSigle !== null && attributeCanHaveValue && (
         <>
           <hr className={cx('fr-my-2w')} />
           <div className={cx('fr-text--lg')}>
@@ -178,10 +170,9 @@ const OptionValueLine = ({
   selectedValue,
   onSelectValue
 }: OptionValueLineProps) => {
-  const optionLabel =
-    inputConf.inputType === 'select' || inputConf.inputType === 'radio'
-      ? (inputConf.optionsLabels?.[optionValue] ?? optionValue)
-      : optionValue;
+  const optionLabel = canHaveValue(inputConf)
+    ? (inputConf.optionsLabels?.[optionValue] ?? optionValue)
+    : optionValue;
 
   const valueOptions = selectedCommemoratif
     ? Object.values(selectedCommemoratif.values)
