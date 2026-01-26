@@ -109,7 +109,7 @@ export type PartialSampleMatrixSpecificData = z.infer<
   typeof PartialSampleMatrixSpecificData
 >;
 
-const schemasByProgrammingPlanKind = {
+export const schemasByProgrammingPlanKind = {
   PPV: SampleMatrixSpecificDataPPV,
   DAOA_BREEDING: SampleMatrixSpecificDataDAOABreeding,
   DAOA_SLAUGHTER: SampleMatrixSpecificDataDAOASlaughter
