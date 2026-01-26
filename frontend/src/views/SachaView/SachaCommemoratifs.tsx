@@ -1,4 +1,4 @@
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import clsx from 'clsx';
 import { uniq } from 'lodash-es';
 import { SampleMatrixSpecificDataKeys } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
 import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
@@ -48,17 +48,14 @@ const CommemoratifsForAProgrammingPlanKind = ({
   );
 
   return (
-    <div>
+    <div className={clsx('d-flex-column')} style={{ gap: '2rem' }}>
       {attributes.map((attribute) => (
-        <>
-          <CommemoratifSigleForm
-            key={attribute as string}
-            attribute={attribute}
-            sachaCommemoratifs={sachaCommemoratifs}
-            programmingPlanSpecifiDataRecord={programmingPlanSpecifiDataRecord}
-          />
-          <hr className={cx('fr-mb-2w')} />
-        </>
+        <CommemoratifSigleForm
+          key={attribute as string}
+          attribute={attribute}
+          sachaCommemoratifs={sachaCommemoratifs}
+          programmingPlanSpecifiDataRecord={programmingPlanSpecifiDataRecord}
+        />
       ))}
     </div>
   );
