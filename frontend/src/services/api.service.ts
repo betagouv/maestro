@@ -7,6 +7,7 @@ export const tagTypes = [
   'Company',
   'Document',
   'Laboratory',
+  'LaboratoryAnalyticalCompetence',
   'Notification',
   'Prescription',
   'PrescriptionSubstance',
