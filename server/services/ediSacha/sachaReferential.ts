@@ -1,7 +1,5 @@
-import { AnimalKindsByProgrammingPlanKind } from 'maestro-shared/referential/AnimalKind';
 import { AnimalSex } from 'maestro-shared/referential/AnimalSex';
 import { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
-import { ProductionKindsByProgrammingPlanKind } from 'maestro-shared/referential/ProductionKind';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import z from 'zod';
@@ -402,31 +400,6 @@ export const SigleSex: Record<AnimalSex, string> = {
   SEX5: 'INDETERM'
 };
 
-export const SigleAnimalKind = {
-  // TYPEA1: 'Veau < 6 mois',
-  TYPEA1: 'VES6',
-  // TYPEA2: 'Jeune bovin entre 6 et 24 mois',
-  TYPEA2: 'BV6I24',
-  // TYPEA3: 'Bovin > 24 mois hors vache de réforme',
-  TYPEA3: 'BVAUT',
-  // TYPEA4: 'Vache de réforme',
-  TYPEA4: 'VAREF'
-} as const satisfies Record<
-  (typeof AnimalKindsByProgrammingPlanKind)['DAOA_SLAUGHTER'][number],
-  string
->;
-
-export const SigleProductionKind = {
-  PROD_1: 'A', //'Allaitant',
-  PROD_2: 'L', //'Laitier',
-  PROD_3: 'I', //'Inconnu',
-  //FIXME EDI n'existe pas
-  PROD_4: '' //'Boucherie'
-} as const satisfies Record<
-  (typeof ProductionKindsByProgrammingPlanKind)['DAOA_SLAUGHTER'][number],
-  string
->;
-
 export const SigleSpecies = {
   ESP7: 'POULCHA', //'Poulet de chair',
   ESP8: 'POULREF', //'Poule de réforme',
@@ -456,11 +429,11 @@ export const mapping = {
     killingCode: null,
     animalKind: {
       sigle: 'TAXOEF',
-      value: (v) => SigleAnimalKind[v]
+      value: (v) => 'SigleAnimalKind[v]'
     },
     productionKind: {
       sigle: 'TYP_PROD',
-      value: (v) => SigleProductionKind[v]
+      value: (v) => ''
     },
 
     //FIXME EDI

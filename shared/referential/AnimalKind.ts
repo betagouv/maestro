@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 
 export const AnimalKind = z.enum(
   [
@@ -41,12 +40,3 @@ export const AnimalKindLabels: Record<AnimalKind, string> = {
   TYPEA13: 'Caille',
   TYPEA14: 'Poule - Gallus gallus'
 };
-
-export const AnimalKindsByProgrammingPlanKind = {
-  [ProgrammingPlanKind.enum.DAOA_SLAUGHTER]: [
-    'TYPEA1',
-    'TYPEA2',
-    'TYPEA3',
-    'TYPEA4'
-  ]
-} as const satisfies Partial<Record<ProgrammingPlanKind, AnimalKind[]>>;
