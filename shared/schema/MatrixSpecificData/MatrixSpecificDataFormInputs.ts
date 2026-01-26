@@ -18,7 +18,7 @@ export type SampleMatrixSpecificDataKeys = UnionKeys<
   'programmingPlanKind'
 >;
 
-type SpecificDataFormInput = {
+export type SpecificDataFormInput = {
   label: string;
   whenValid: string;
   testId?: string;
