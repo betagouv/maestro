@@ -9,13 +9,15 @@ import {
 import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   CommemoratifSigle,
+  CommemoratifValueSigle,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { getSampleMatrixSpecificDataAttributeValues } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppSearchInput from '../../components/_app/AppSearchInput/AppSearchInput';
+import { ApiClientContext } from '../../services/apiClient';
 
 type Props = {
   attribute: SampleMatrixSpecificDataKeys;
@@ -30,29 +32,67 @@ export const CommemoratifSigleForm = ({
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
+
+  const apiClient = useContext(ApiClientContext);
+
+  const [updateSampleSpecificDataAttribute] =
+    apiClient.useUpdateSampleSpecificDataAttributeMutation();
+  const [updateSampleSpecificDataAttributeValue] =
+    apiClient.useUpdateSampleSpecificDataAttributeValueMutation();
   const inputConf = MatrixSpecificDataFormInputs[attribute];
 
   const attributeConfInDb =
     programmingPlanSpecifiDataRecord[attribute as string];
 
-  const [inDai, setInDai] = useState<boolean>(false);
-  const [selectedSigle, setSelectedSigle] = useState<string | null>(
+  const [inDai, setInDai] = useState<boolean>(
+    attributeConfInDb?.inDai ?? false
+  );
+  const [selectedSigle, setSelectedSigle] = useState<CommemoratifSigle | null>(
     attributeConfInDb?.sachaCommemoratifSigle ?? null
   );
-  const [selectedValues, setSelectedValues] = useState<Record<string, string>>(
-    attributeConfInDb?.values ?? {}
-  );
+  const [selectedValues, setSelectedValues] = useState<
+    Record<string, CommemoratifValueSigle>
+  >(attributeConfInDb?.values ?? {});
 
-  const onSelectSigle = (sigle?: string) => {
-    setSelectedSigle(sigle ?? null);
+  const onSelectSigle = (sachaCommemoratifSigle?: CommemoratifSigle) => {
+    if (sachaCommemoratifSigle) {
+      updateSampleSpecificDataAttribute({
+        attribute,
+        sachaCommemoratifSigle,
+        inDai
+      });
+    }
+    setSelectedSigle(sachaCommemoratifSigle ?? null);
     setSelectedValues({});
   };
 
-  const onSelectValue = (optionValue: string, valueSigle?: string) => {
-    setSelectedValues((prev) => ({
-      ...prev,
-      [optionValue]: valueSigle ?? ''
-    }));
+  const onToggleInDai = (newInDai: boolean) => {
+    setInDai(newInDai);
+    if (selectedSigle && newInDai) {
+      updateSampleSpecificDataAttribute({
+        attribute,
+        sachaCommemoratifSigle: selectedSigle,
+        inDai: true
+      });
+    }
+  };
+
+  const onSelectValue = (
+    attributeValue: string,
+    sachaCommemoratifValueSigle?: CommemoratifValueSigle
+  ) => {
+    if (sachaCommemoratifValueSigle?.length) {
+      updateSampleSpecificDataAttributeValue({
+        attribute,
+        attributeValue,
+        sachaCommemoratifValueSigle
+      });
+
+      setSelectedValues((prev) => ({
+        ...prev,
+        [attributeValue]: sachaCommemoratifValueSigle
+      }));
+    }
   };
 
   const options = Object.values(sachaCommemoratifs)
@@ -80,7 +120,7 @@ export const CommemoratifSigleForm = ({
             checked={inDai}
             labelPosition={'left'}
             onChange={() => {
-              setInDai(!inDai);
+              onToggleInDai(!inDai);
             }}
           />
         </div>
@@ -89,7 +129,7 @@ export const CommemoratifSigleForm = ({
             label={'Sigle Sacha'}
             options={options}
             value={selectedSigle ?? ''}
-            onSelect={onSelectSigle}
+            onSelect={(value) => onSelectSigle(value as CommemoratifSigle)}
             placeholder="Rechercher un sigle"
             className={clsx(cx('fr-ml-auto', 'fr-mb-0'))}
           />
@@ -103,18 +143,18 @@ export const CommemoratifSigleForm = ({
           </div>
           <div
             className={clsx('d-flex-row')}
-            style={{ justifyContent: 'space-between' }}
+            style={{ gap: '2rem', flexWrap: 'wrap' }}
           >
             {optionsValues.map((optionValue) => (
               <OptionValueLine
                 key={optionValue}
                 optionValue={optionValue}
                 inputConf={inputConf}
-                selectedCommemoratif={
-                  sachaCommemoratifs[selectedSigle as CommemoratifSigle]
-                }
+                selectedCommemoratif={sachaCommemoratifs[selectedSigle]}
                 selectedValue={selectedValues[optionValue] ?? ''}
-                onSelectValue={(v) => onSelectValue(optionValue, v)}
+                onSelectValue={(v) =>
+                  onSelectValue(optionValue, v as CommemoratifValueSigle)
+                }
               />
             ))}
           </div>
