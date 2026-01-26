@@ -243,6 +243,11 @@ h6,
   justify-content: center;
 }
 
+.d-flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
 .d-flex-column {
   display: flex;
   flex-direction: column;
