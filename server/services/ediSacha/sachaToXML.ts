@@ -4,7 +4,7 @@ import {
   Department,
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   getSampleItemReference,
@@ -96,8 +96,8 @@ export const generateXMLAcquitement = async (
   );
 };
 
-const getCommemoratifs = <P extends Exclude<ProgrammingPlanKind, 'PPV'>>(
-  specificData: SampleMatrixSpecificData & { programmingPlanKind: P }
+const getCommemoratifs = (
+  specificData: SampleMatrixSpecificData
 ): { sigle: string; value: string }[] => {
   const commemoratifs: { sigle: string; value: string }[] = [];
   //FIXME EDI
@@ -133,9 +133,11 @@ export const generateXMLDAI = (
   loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryCall>,
   dateNow: number
 ): Promise<XmlFile> => {
-  const programmingPlanKind = sample.specificData.programmingPlanKind;
-  if (programmingPlanKind === 'PPV') {
-    throw new Error("Pas d'EDI Sacha pour la PPV");
+  const programmingPlanKind = sample.specificData
+    .programmingPlanKind as ProgrammingPlanKindWithSacha;
+
+  if (!ProgrammingPlanKindWithSacha.options.includes(programmingPlanKind)) {
+    throw new Error(`Pas d'EDI Sacha pour ${programmingPlanKind}`);
   }
 
   const matrix = sample.matrix;
