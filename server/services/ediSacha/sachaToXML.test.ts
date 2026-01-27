@@ -1,8 +1,15 @@
+import {
+  CommemoratifSigle,
+  CommemoratifValueSigle
+} from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import {
   generateXMLAcquitement,
   generateXMLDAI,
+  getCommemoratifs,
   getXmlFileName,
   getZipFileName,
   loadLaboratoryCall
@@ -210,4 +217,153 @@ test('getZipFileName', () => {
   expect(getZipFileName('AN01', { sachaSigle: 'LDA72' }, 1765876056798)).toBe(
     'AN01LDA722512161007_1.zip'
   );
+});
+
+describe('getCommemoratifs', () => {
+  const specificData: SampleMatrixSpecificData = {
+    programmingPlanKind: 'DAOA_BREEDING',
+    sampling: 'Aléatoire',
+    animalIdentifier: 'ID123',
+    ageInDays: 30,
+    species: 'ESP7',
+    breedingMethod: 'PROD_1',
+    outdoorAccess: 'PAT1'
+  };
+
+  const sampleSpecificDataRecord: SampleSpecificDataRecord = {
+    sampling: {
+      attribute: 'sampling',
+      sachaCommemoratifSigle: null,
+      inDai: false,
+      values: {}
+    },
+    animalIdentifier: {
+      attribute: 'animalIdentifier',
+      sachaCommemoratifSigle: null,
+      inDai: false,
+      values: {}
+    },
+    ageInDays: {
+      attribute: 'ageInDays',
+      sachaCommemoratifSigle: null,
+      inDai: false,
+      values: {}
+    },
+    species: {
+      attribute: 'species',
+      sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
+      inDai: false,
+      values: { ESP7: 'POULE' as CommemoratifValueSigle }
+    },
+    breedingMethod: {
+      attribute: 'breedingMethod',
+      sachaCommemoratifSigle: null,
+      inDai: false,
+      values: {}
+    },
+    outdoorAccess: {
+      attribute: 'outdoorAccess',
+      sachaCommemoratifSigle: null,
+      inDai: false,
+      values: {}
+    }
+  };
+
+  test("retourne un tableau vide quand aucun attribut n'est inlus dans la DAI", () => {
+    expect(getCommemoratifs(specificData, sampleSpecificDataRecord)).toEqual(
+      []
+    );
+  });
+
+  test('retourne les commémoratifs pour les attributs inclus dans la DAI', () => {
+    expect(
+      getCommemoratifs(specificData, {
+        ...sampleSpecificDataRecord,
+        species: {
+          attribute: 'species',
+          sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
+          inDai: true,
+          values: {
+            ESP7: 'POULE' as CommemoratifValueSigle,
+            ESP8: 'CANARD' as CommemoratifValueSigle
+          }
+        }
+      })
+    ).toEqual([{ sigle: 'ESPECE', value: 'POULE' }]);
+  });
+
+  test('ignore les attributs qui ne sont pas dans specificData', () => {
+    expect(
+      getCommemoratifs(specificData, {
+        ...sampleSpecificDataRecord,
+
+        species: {
+          attribute: 'species',
+          sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
+          inDai: true,
+          values: {
+            ESP7: 'POULE' as CommemoratifValueSigle,
+            ESP8: 'CANARD' as CommemoratifValueSigle
+          }
+        },
+        unknownAttribute: {
+          attribute: 'unknownAttribute',
+          sachaCommemoratifSigle: 'UNKNOWN' as CommemoratifSigle,
+          inDai: true,
+          values: { val1: 'VAL1' as CommemoratifValueSigle }
+        }
+      })
+    ).toEqual([{ sigle: 'ESPECE', value: 'POULE' }]);
+  });
+
+  test('retourne plusieurs commémoratifs quand plusieurs attributs inclus dans la DAI', () => {
+    const result = getCommemoratifs(specificData, {
+      ...sampleSpecificDataRecord,
+      species: {
+        attribute: 'species',
+        sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
+        inDai: true,
+        values: {
+          ESP7: 'POULE' as CommemoratifValueSigle,
+          ESP8: 'CANARD' as CommemoratifValueSigle
+        }
+      },
+      breedingMethod: {
+        attribute: 'breedingMethod',
+        sachaCommemoratifSigle: 'MODE_ELEVAGE' as CommemoratifSigle,
+        inDai: true,
+        values: {
+          PROD_1: 'INTENSIF' as CommemoratifValueSigle,
+          PROD_2: 'EXTENSIF' as CommemoratifValueSigle
+        }
+      }
+    });
+    expect(result).toHaveLength(2);
+    expect(result).toContainEqual({ sigle: 'ESPECE', value: 'POULE' });
+    expect(result).toContainEqual({ sigle: 'MODE_ELEVAGE', value: 'INTENSIF' });
+  });
+
+  test('émet une erreur quand le sachaCommemoratifSigle est manquant', () => {
+    const { species: _, ...sampleSpecifiDataRecordWithoutSpecies } =
+      sampleSpecificDataRecord;
+
+    expect(() =>
+      getCommemoratifs(specificData, sampleSpecifiDataRecordWithoutSpecies)
+    ).toThrow('Configuration SACHA incomplète: species');
+  });
+
+  test("émet une erreur quand la valeur n'est pas mappée", () => {
+    expect(() =>
+      getCommemoratifs(specificData, {
+        ...sampleSpecificDataRecord,
+
+        species: {
+          attribute: 'species',
+          sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
+          inDai: true,
+          values: { ESP8: 'CANARD' as CommemoratifValueSigle } // ESP7 n'est pas mappé
+        }
+      })
+    ).toThrow('Configuration SACHA incomplète: species ESP7');
+  });
 });
