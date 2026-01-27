@@ -316,7 +316,7 @@ export const MatrixLabels = {
   A0DPN: 'Racines de konjac',
   A0DQA: 'Goyaves de Chine/Goyages-fraises',
   A0CGK: 'Grain de fonio noir',
-  A00MJ: 'épinards',
+  A00MJ: 'Épinards',
   A00RP: 'Racines de raiponce cultivée',
   A04KT:
     'Farines de céréales et de grains de type céréale non mentionnées séparément.',

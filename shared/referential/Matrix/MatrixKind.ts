@@ -238,7 +238,7 @@ export const MatrixKindLabels: Record<MatrixKind | OtherMatrixKind, string> = {
   A00ZT: 'Pommes de terre',
   A01GL: 'Pêches et similaires',
   A003X: 'Farine de blé',
-  A00MH: 'épinards et similaires',
+  A00MH: 'Épinards et similaires',
   A0DQE: 'Papayes et similaires',
   A0ETN: 'Germes de céréales',
   A00VB: 'Algue verte',
