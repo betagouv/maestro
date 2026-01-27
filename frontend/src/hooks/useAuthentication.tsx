@@ -103,12 +103,14 @@ export const useAuthentication = () => {
             : undefined,
           hasUserPermission('administrationMaestro') ? 'UsersRoute' : undefined,
           hasUserPermission('administrationMaestro') ? 'AdminRoute' : undefined,
-          hasUserPermission('readLaboratoryCompetences')
+          (hasUserPermission('readLaboratoryCompetences') ||
+            hasUserPermission('manageLaboratoryCompetences')) &&
+          authUser?.user.programmingPlanKinds.includes('PPV')
             ? 'LaboratoryAnalyticalCompetencesRoute'
             : undefined
         ].filter(isDefined)
       : ['LoginRoute', 'LoginCallbackRoute'];
-  }, [isAuthenticated, hasUserPermission]);
+  }, [isAuthenticated, hasUserPermission, authUser]);
 
   return {
     user: authUser?.user,
