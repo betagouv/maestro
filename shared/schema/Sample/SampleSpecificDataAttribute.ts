@@ -28,7 +28,7 @@ export const SampleSpecificDataRecord = z.record(
   z.string(),
   z.object({
     attribute: z.string(),
-    sachaCommemoratifSigle: CommemoratifSigle,
+    sachaCommemoratifSigle: CommemoratifSigle.nullable(),
     inDai: z.boolean(),
     values: z.record(z.string(), CommemoratifValueSigle)
   })
