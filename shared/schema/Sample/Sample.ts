@@ -133,9 +133,23 @@ export const prescriptionSubstancesCheck: CheckFn<{
   }
 };
 
-export const uniqueSampleItemSealIdCheck: CheckFn<{
+export const sampleItemSealIdCheck: CheckFn<{
+  context: Context;
   items: PartialSampleItem[];
 }> = (ctx) => {
+  if (ctx.value.context !== 'Surveillance') {
+    ctx.value.items
+      .filter((item) => isNil(item.sealId))
+      .forEach((item) => {
+        ctx.issues.push({
+          input: item.sealId,
+          code: 'invalid_type',
+          message: 'Veuillez renseigner le numéro de scellé.',
+          path: ['items', item.itemNumber - 1, 'sealId'],
+          expected: 'string'
+        });
+      });
+  }
   if (
     uniqBy(ctx.value.items, (item) => item.sealId).length !==
     ctx.value.items.length
@@ -151,6 +165,7 @@ export const uniqueSampleItemSealIdCheck: CheckFn<{
 
 export const SampleItemsDataChecked = z
   .object({
+    context: Context,
     sampledAt: z.union([z.string(), z.date()]).pipe(
       z.coerce.date({
         error: () => 'La date de prélèvement est invalide.'
@@ -162,7 +177,7 @@ export const SampleItemsDataChecked = z
       .min(1, { message: 'Veuillez renseigner au moins un échantillon.' }),
     notesOnItems: z.string().nullish()
   })
-  .check(uniqueSampleItemSealIdCheck);
+  .check(sampleItemSealIdCheck);
 
 const SampleAdmissibilityData = z.object({
   sentAt: z.coerce.date().nullish(),
