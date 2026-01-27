@@ -33,7 +33,7 @@ export const genLaboratoryAnalyticalCompetence = (
   analyticalMethod: oneOf(LaboratoryAnalyticalMethod.options),
   validationMethod: oneOf(LaboratoryValidationMethod.options),
   analysisMethod: oneOf(AnalysisMethod.options),
-  isCompleteDefinitionAnalysis: true,
+  isCompleteDefinitionAnalysis: 'true',
   detectionLimit: fakerFR.number.float({
     min: 0,
     max: 10,
@@ -44,6 +44,7 @@ export const genLaboratoryAnalyticalCompetence = (
     max: 10,
     fractionDigits: 2
   }),
+  lastUpdatedAt: new Date(),
   ...data
 });
 

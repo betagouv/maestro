@@ -10,11 +10,11 @@ export type LaboratoryValidationMethod = z.infer<
 
 export const LaboratoryValidationMethodList =
   LaboratoryValidationMethod.options;
-
-export const LaboratoryValidationMethodLabels: Record<
-  LaboratoryValidationMethod,
-  string
-> = {
-  V001A: 'Accréditée selon exigences de la norme 17025 (COFRAC)',
-  V005A: 'Validé en interne'
-};
+//
+// export const LaboratoryValidationMethodLabels: Record<
+//   LaboratoryValidationMethod,
+//   string
+// > = {
+//   V001A: 'Accréditée selon exigences de la norme 17025 (COFRAC)',
+//   V005A: 'Validé en interne'
+// };

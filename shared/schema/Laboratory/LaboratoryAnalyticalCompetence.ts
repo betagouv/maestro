@@ -27,10 +27,14 @@ export const LaboratoryAnalyticalCompetenceToSave = z.object({
   }).shape,
   analyteAnalyticalCompetences: z
     .array(
-      LaboratoryAnalyticalCompetence.omit({
-        laboratoryId: true,
-        isCompleteDefinitionAnalysis: true,
-        lastUpdatedAt: true
+      z.object({
+        id: z.guid().nullish(),
+        ...LaboratoryAnalyticalCompetence.omit({
+          id: true,
+          laboratoryId: true,
+          isCompleteDefinitionAnalysis: true,
+          lastUpdatedAt: true
+        }).shape
       })
     )
     .nullish()

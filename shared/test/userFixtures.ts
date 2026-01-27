@@ -9,6 +9,7 @@ import { AuthUserRefined } from '../schema/User/AuthUser';
 import {
   companiesIsRequired,
   departmentIsRequired,
+  laboratoryIsRequired,
   programmingPlanKindsIsRequired,
   UserRefined
 } from '../schema/User/User';
@@ -19,6 +20,7 @@ import {
   UserRoleList
 } from '../schema/User/UserRole';
 import { SlaughterhouseCompanyFixture1 } from './companyFixtures';
+import { LaboratoryFixture } from './laboratoryFixtures';
 import { oneOf } from './testFixtures';
 
 export const genUser = <T extends Partial<UserRefined>>(
@@ -54,6 +56,9 @@ export const genUser = <T extends Partial<UserRefined>>(
     })
       ? [SlaughterhouseCompanyFixture1]
       : [],
+    laboratoryId: laboratoryIsRequired({ roles })
+      ? (data?.laboratoryId ?? LaboratoryFixture.id)
+      : null,
     disabled: false,
     ...data
   };

@@ -115,13 +115,6 @@ describe('Laboratory router', () => {
           })
         ])
       );
-
-      expectArrayToContainElements(res.body, [
-        expect.objectContaining({
-          id: LaboratoryFixture.id,
-          shortName: LaboratoryFixture.shortName
-        })
-      ]);
     });
   });
 
@@ -268,11 +261,14 @@ describe('Laboratory router', () => {
         .send(validBody)
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject({
-        ...validBody,
-        id: Laboratory1AnalyticalCompetenceFixture1.id,
-        laboratoryId: LaboratoryFixture.id
-      });
+      expectArrayToContainElements(res.body, [
+        {
+          ...validBody,
+          id: Laboratory1AnalyticalCompetenceFixture1.id,
+          laboratoryId: LaboratoryFixture.id,
+          lastUpdatedAt: expect.any(String)
+        }
+      ]);
 
       await expect(
         LaboratoryAnalyticalCompetences()
@@ -283,7 +279,8 @@ describe('Laboratory router', () => {
         detectionLimit: validBody.detectionLimit?.toFixed(4),
         quantificationLimit: validBody.quantificationLimit?.toFixed(4),
         id: Laboratory1AnalyticalCompetenceFixture1.id,
-        laboratoryId: LaboratoryFixture.id
+        laboratoryId: LaboratoryFixture.id,
+        lastUpdatedAt: expect.any(Date)
       });
     });
   });
