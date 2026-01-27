@@ -10,12 +10,15 @@ import {
   CommemoratifValueSigle,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import {
+  canHaveValue,
+  getAttributeExpectedValues
+} from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
 import { useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppSearchInput from '../../components/_app/AppSearchInput/AppSearchInput';
 import { ApiClientContext } from '../../services/apiClient';
-import { canHaveValue, getAttributeExpectedValues } from './sachaUtils';
 
 type Props = {
   attribute: SampleMatrixSpecificDataKeys;
@@ -52,26 +55,22 @@ export const CommemoratifSigleForm = ({
   >(attributeConfInDb?.values ?? {});
 
   const onSelectSigle = (sachaCommemoratifSigle?: CommemoratifSigle) => {
-    if (sachaCommemoratifSigle) {
-      updateSampleSpecificDataAttribute({
-        attribute,
-        sachaCommemoratifSigle,
-        inDai
-      });
-    }
+    updateSampleSpecificDataAttribute({
+      attribute,
+      sachaCommemoratifSigle: sachaCommemoratifSigle ?? null,
+      inDai
+    });
     setSelectedSigle(sachaCommemoratifSigle ?? null);
     setSelectedValues({});
   };
 
   const onToggleInDai = (newInDai: boolean) => {
     setInDai(newInDai);
-    if (selectedSigle && newInDai) {
-      updateSampleSpecificDataAttribute({
-        attribute,
-        sachaCommemoratifSigle: selectedSigle,
-        inDai: true
-      });
-    }
+    updateSampleSpecificDataAttribute({
+      attribute,
+      sachaCommemoratifSigle: selectedSigle,
+      inDai: newInDai
+    });
   };
 
   const onSelectValue = (
@@ -124,6 +123,8 @@ export const CommemoratifSigleForm = ({
             onSelect={(value) => onSelectSigle(value as CommemoratifSigle)}
             placeholder="Rechercher un sigle"
             className={clsx(cx('fr-ml-auto', 'fr-mb-0'))}
+            required={true}
+            state={selectedSigle ? 'default' : 'error'}
           />
         )}
       </div>
