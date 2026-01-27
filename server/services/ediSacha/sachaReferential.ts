@@ -1,5 +1,5 @@
 import { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import z from 'zod';
 
 export const sigleContexteInterventionValidator = z.enum([
@@ -7,7 +7,7 @@ export const sigleContexteInterventionValidator = z.enum([
   '2026_RPDA_PBOV'
 ]);
 export const SigleContexteIntervention: Record<
-  Exclude<ProgrammingPlanKind, 'PPV'>,
+  ProgrammingPlanKindWithSacha,
   z.infer<typeof sigleContexteInterventionValidator>
 > = {
   DAOA_BREEDING: '2026_RPDA_PVOL',
@@ -17,9 +17,10 @@ export const SigleContexteIntervention: Record<
 export const siglePlanAnalyseValidator = z.enum(['RestPest_DAOA']);
 
 export const SiglePlanAnalyse: Record<
-  Exclude<ProgrammingPlanKind, 'PPV'>,
+  ProgrammingPlanKindWithSacha,
   z.infer<typeof siglePlanAnalyseValidator>
 > = {
+  //FIXME EDI attention valeur qui change en fonction de l'analyse à faire RestPest_DAOA (multi-résidu) VS RestPest_DAOA_CU (cuivre)
   DAOA_BREEDING: 'RestPest_DAOA',
   DAOA_SLAUGHTER: 'RestPest_DAOA'
 };

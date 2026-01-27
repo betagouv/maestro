@@ -17,6 +17,10 @@ import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import {
+  CommemoratifSigle,
+  CommemoratifValueSigle
+} from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
@@ -116,6 +120,23 @@ export interface SachaResidueMappings {
   ssd2Id: string;
 }
 
+export interface SachaCommemoratifs {
+  sigle: CommemoratifSigle;
+  cle: string;
+  libelle: string;
+  statut: string;
+  typeDonnee: string | null;
+  unite: string | null;
+}
+
+export interface SachaCommemoratifValues {
+  sigle: CommemoratifValueSigle;
+  commemoratifSigle: CommemoratifSigle;
+  cle: string;
+  libelle: string;
+  statut: string;
+}
+
 export interface Laboratories {
   emails: string[];
   id: Generated<string>;
@@ -186,6 +207,18 @@ export interface LocalPrescriptions {
   prescriptionId: string;
   region: string;
   sampleCount: number | null;
+}
+
+export interface SampleSpecificDataAttribute {
+  attribute: string;
+  sachaCommemoratifSigle: CommemoratifSigle | null;
+  inDai: boolean;
+}
+
+export interface SampleSpecificDataAttributeValue {
+  attribute: string;
+  attributeValue: string;
+  sachaCommemoratifValueSigle: CommemoratifValueSigle;
 }
 
 export interface ResidueAnalytes {
@@ -297,10 +330,14 @@ export interface DB {
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;
   programmingPlans: ProgrammingPlans;
+  sampleSpecificDataAttribute: SampleSpecificDataAttribute;
+  sampleSpecificDataAttributeValue: SampleSpecificDataAttributeValue;
   localPrescriptionComments: LocalPrescriptionComments;
   localPrescriptions: LocalPrescriptions;
   residueAnalytes: ResidueAnalytes;
   sachaResidueMappings: SachaResidueMappings;
+  sachaCommemoratifs: SachaCommemoratifs;
+  sachaCommemoratifValues: SachaCommemoratifValues;
   sachaSender: SachaSender;
   sampleDocuments: SampleDocuments;
   sampleItems: SampleItems;

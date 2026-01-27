@@ -1,7 +1,7 @@
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { SampleMatrixSpecificData } from '../Sample/SampleMatrixSpecificData';
 
-type ProgrammingPlanKeys<P extends ProgrammingPlanKind> = Exclude<
+export type ProgrammingPlanKeys<P extends ProgrammingPlanKind> = Exclude<
   keyof Extract<SampleMatrixSpecificData, { programmingPlanKind: P }>,
   'programmingPlanKind'
 >;

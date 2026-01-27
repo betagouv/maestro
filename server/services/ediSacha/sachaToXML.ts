@@ -4,11 +4,14 @@ import {
   Department,
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
+import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   getSampleItemReference,
   SampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
+import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
 import { formatWithTz, toMaestroDate } from 'maestro-shared/utils/date';
 import { RequiredNotNull } from 'maestro-shared/utils/typescript';
 import fs from 'node:fs';
@@ -94,6 +97,43 @@ export const generateXMLAcquitement = async (
   );
 };
 
+export const getCommemoratifs = (
+  specificData: SampleMatrixSpecificData,
+  sampleSpecifDataRecord: SampleSpecificDataRecord
+): { sigle: string; value: string }[] => {
+  const commemoratifs: { sigle: string; value: string }[] = [];
+  for (const specificDataKey of Object.keys(specificData)) {
+    if (
+      specificDataKey !== 'programmingPlanKind' &&
+      specificDataKey in specificData
+    ) {
+      const conf = sampleSpecifDataRecord[specificDataKey];
+      if (conf?.inDai) {
+        const specificDataValue: string =
+          specificData[specificDataKey as keyof SampleMatrixSpecificData];
+
+        if (
+          !conf.sachaCommemoratifSigle ||
+          !sampleSpecifDataRecord[specificDataKey].values[specificDataValue]
+        ) {
+          throw new Error(
+            `Configuration SACHA incomplète: ${specificDataKey} ${specificDataValue}`
+          );
+        }
+        commemoratifs.push({
+          sigle: conf.sachaCommemoratifSigle,
+          value:
+            sampleSpecifDataRecord[specificDataKey].values[specificDataValue]
+        });
+        //FIXME boolean et autre type
+      } else if (conf === undefined) {
+        throw new Error(`Configuration SACHA incomplète: ${specificDataKey}`);
+      }
+    }
+  }
+  return commemoratifs;
+};
+
 export const generateXMLDAI = (
   sample: Pick<
     SampleChecked,
@@ -109,10 +149,15 @@ export const generateXMLDAI = (
   >,
   sampleItem: Pick<SampleItem, 'sealId' | 'itemNumber' | 'copyNumber'>,
   loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryCall>,
-  dateNow: number
+  dateNow: number,
+
+  sampleSpecifDataRecord: SampleSpecificDataRecord
 ): Promise<XmlFile> => {
-  if (sample.specificData.programmingPlanKind === 'PPV') {
-    throw new Error("Pas d'EDI Sacha pour la PPV");
+  const programmingPlanKind = sample.specificData
+    .programmingPlanKind as ProgrammingPlanKindWithSacha;
+
+  if (!ProgrammingPlanKindWithSacha.options.includes(programmingPlanKind)) {
+    throw new Error(`Pas d'EDI Sacha pour ${programmingPlanKind}`);
   }
 
   const matrix = sample.matrix;
@@ -121,6 +166,12 @@ export const generateXMLDAI = (
       `Pas de Sigle SACHA associé à la matrice ${sample.matrix}.`
     );
   }
+
+  const commemoratifs = getCommemoratifs(
+    sample.specificData,
+    sampleSpecifDataRecord
+  );
+
   return generateXML(
     'DA01',
     {
@@ -130,7 +181,7 @@ export const generateXMLDAI = (
             `${new Date(dateNow).getFullYear()}${sample.reference.substring(sample.reference.lastIndexOf('-') + 1)}${sampleItem.copyNumber}${sampleItem.itemNumber}`
           ),
           SigleContexteIntervention:
-            SigleContexteIntervention[sample.specificData.programmingPlanKind],
+            SigleContexteIntervention[programmingPlanKind],
           DateIntervention: toMaestroDate(sample.sampledAt),
           DateModification: toSachaDateTime(sample.lastUpdatedAt)
         },
@@ -165,13 +216,16 @@ export const generateXMLDAI = (
                 sampleItem.copyNumber
               ),
               Commentaire: sampleItem.sealId
-            }
+            },
+            DialogueCommemoratif: commemoratifs.map((c) => ({
+              Sigle: c.sigle,
+              SigleValeur: c.value
+            }))
           }
         ],
         ReferencePlanAnalyseType: {
           ReferencePlanAnalyseEffectuer: {
-            SiglePlanAnalyse:
-              SiglePlanAnalyse[sample.specificData.programmingPlanKind]
+            SiglePlanAnalyse: SiglePlanAnalyse[programmingPlanKind]
           },
           ReferencePlanAnalyseContenu: {
             LibelleMatrice: '',

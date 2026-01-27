@@ -4,7 +4,6 @@ import express, { Application } from 'express';
 import * as Sentry from '@sentry/node';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import fileUpload from 'express-fileupload';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import path from 'path';
@@ -84,8 +83,7 @@ export function createServer(): Server {
     );
   }
 
-  app.use(fileUpload());
-  app.use(express.json());
+  app.use(express.json({ limit: '3mb' }));
   app.use(express.urlencoded({ extended: true }));
 
   const rateLimiter = rateLimit({

@@ -7,6 +7,7 @@ import {
   SampleMatrixSpecificDataKeys
 } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
 import {
+  getSampleMatrixSpecificDataAttributeValues,
   PartialSampleMatrixSpecificData,
   SampleMatrixSpecificData
 } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
@@ -167,13 +168,10 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                 <AppSelect
                   defaultValue={(specificData as any)[inputKey] ?? ''}
                   options={selectOptionsFromList(
-                    Array.isArray(
-                      MatrixSpecificDataFormInputs[inputKey].optionsValues
-                    )
-                      ? MatrixSpecificDataFormInputs[inputKey].optionsValues
-                      : (MatrixSpecificDataFormInputs[inputKey].optionsValues[
-                          specificData.programmingPlanKind
-                        ] ?? []),
+                    getSampleMatrixSpecificDataAttributeValues(
+                      specificData.programmingPlanKind,
+                      inputKey
+                    ),
                     {
                       labels:
                         MatrixSpecificDataFormInputs[inputKey].optionsLabels,
@@ -243,13 +241,10 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   }
                   options={
                     selectOptionsFromList(
-                      Array.isArray(
-                        MatrixSpecificDataFormInputs[inputKey].optionsValues
-                      )
-                        ? MatrixSpecificDataFormInputs[inputKey].optionsValues
-                        : (MatrixSpecificDataFormInputs[inputKey].optionsValues[
-                            specificData.programmingPlanKind
-                          ] ?? []),
+                      getSampleMatrixSpecificDataAttributeValues(
+                        specificData.programmingPlanKind,
+                        inputKey
+                      ),
                       {
                         labels:
                           MatrixSpecificDataFormInputs[inputKey].optionsLabels,
