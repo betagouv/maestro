@@ -6,6 +6,7 @@
 import { ColumnType, Expression, type Kysely, sql } from 'kysely';
 import { Department } from 'maestro-shared/referential/Department';
 import { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
+import { LegalContext } from 'maestro-shared/referential/LegalContext';
 import { type Region } from 'maestro-shared/referential/Region';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { Stage } from 'maestro-shared/referential/Stage';
@@ -19,6 +20,9 @@ import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { LaboratoryAnalyticalMethod } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalMethod';
 import { LaboratoryValidationMethod } from 'maestro-shared/schema/Laboratory/LaboratoryValidationMethod';
 import { LocalPrescriptionSubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
+import { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   CommemoratifSigle,
@@ -225,6 +229,16 @@ export interface ProgrammingPlans {
   status: string;
   statusDrom: string | null;
   year: number;
+  domain: ProgrammingPlanDomain;
+  kinds: ProgrammingPlanKind[];
+  contexts: Context[];
+  legalContexts: LegalContext[];
+  samplesOutsidePlanAllowed: boolean;
+  title: string;
+  substanceKinds: SubstanceKind[];
+  distributionKind: DistributionKind;
+  closedAt: Timestamp | null;
+  closedBy: string | null;
 }
 
 export interface LocalPrescriptionComments {
@@ -336,6 +350,7 @@ export interface Users {
   roles: UserRole[];
   loggedSecrets: ColumnType<string[], string[] | null, string[]>;
   programmingPlanKinds: ProgrammingPlanKind[];
+  laboratoryId: string | null;
   disabled: boolean;
 }
 
