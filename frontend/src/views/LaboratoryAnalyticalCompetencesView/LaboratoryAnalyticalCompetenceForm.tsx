@@ -316,7 +316,7 @@ const LaboratoryAnalyticalCompetencesForm = ({
                     className={clsx('no-wrap', 'residue-reference')}
                     as="span"
                   >
-                    {ssd2Referential.reference}
+                    {analyteReference}
                   </Tag>
                   <div className={cx('fr-text--bold', 'fr-mt-1w')}>
                     {SSD2IdLabel[analyteReference]}

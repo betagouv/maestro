@@ -75,7 +75,11 @@ export const laboratoriesRouter = {
   '/laboratories/:laboratoryId/analytical-competences/:analyticalCompetenceId':
     {
       put: async ({ body }, { laboratoryId, analyticalCompetenceId }) => {
-        console.info('Update laboratory analytical competence', laboratoryId);
+        console.info(
+          'Update laboratory analytical competence',
+          laboratoryId,
+          analyticalCompetenceId
+        );
 
         const { analyteAnalyticalCompetences, ...analyteCompetence } = body;
 
