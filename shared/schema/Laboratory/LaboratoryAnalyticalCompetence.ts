@@ -6,7 +6,7 @@ import { LaboratoryAnalyticalMethod } from './LaboratoryAnalyticalMethod';
 import { LaboratoryValidationMethod } from './LaboratoryValidationMethod';
 
 export const LaboratoryAnalyticalCompetence = z.object({
-  id: z.guid().nullish(),
+  id: z.guid(),
   laboratoryId: z.guid(),
   residueReference: SSD2Id,
   analyteReference: SSD2Id.nullish(),
@@ -28,7 +28,6 @@ export const LaboratoryAnalyticalCompetenceToSave = z.object({
   analyteAnalyticalCompetences: z
     .array(
       LaboratoryAnalyticalCompetence.omit({
-        id: true,
         laboratoryId: true,
         isCompleteDefinitionAnalysis: true,
         lastUpdatedAt: true
