@@ -13,6 +13,7 @@ import {
 import {
   companiesIsRequired,
   departmentIsRequired,
+  laboratoryIsRequired,
   programmingPlanKindsIsRequired,
   UserRefined,
   UserToCreateRefined
@@ -61,6 +62,7 @@ const userDefaultValue: Nullable<UserToCreateRefined> = {
   region: null,
   department: null,
   companies: [],
+  laboratoryId: null,
   disabled: false
 };
 
@@ -82,6 +84,13 @@ export const UserModal = ({
 
   const [user, setUser] =
     useState<Nullable<UserToCreateRefined>>(userDefaultValue);
+
+  const { data: laboratories } = apiClient.useFindLaboratoriesQuery(
+    {},
+    {
+      skip: !laboratoryIsRequired(user)
+    }
+  );
 
   const form = useForm(UserToCreateRefined, {
     ...user
@@ -296,6 +305,31 @@ export const UserModal = ({
               form.message('companies') ?? 'Abattoirs correctement renseignés'
             }
             companies={abattoirs}
+          />
+        )}
+        {laboratoryIsRequired(user) && (
+          <AppSelect
+            onChange={(e) => {
+              setUser((u) => ({ ...u, laboratoryId: e.target.value }));
+            }}
+            value={user.laboratoryId ?? ''}
+            inputForm={form}
+            inputKey={'laboratoryId'}
+            label="Laboratoire"
+            options={selectOptionsFromList(
+              laboratories?.map((lab) => lab.id) ?? [],
+              {
+                labels: laboratories?.reduce(
+                  (acc, lab) => {
+                    acc[lab.id] = lab.name;
+                    return acc;
+                  },
+                  {} as Record<string, string>
+                ),
+                withSort: true
+              }
+            )}
+            required
           />
         )}
 

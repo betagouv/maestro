@@ -17,6 +17,7 @@ import { useSearchParams } from 'react-router';
 import microscope from 'src/assets/illustrations/microscope.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
+import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
 import { getURLQuery } from '../../utils/fetchUtils';
 import { pluralize } from '../../utils/stringUtils';
@@ -26,21 +27,24 @@ import './LaboratoryAnalyticalCompetences.scss';
 const LaboratoryAnalyticalCompetencesView = () => {
   useDocumentTitle('Compétence analytique des laboratoires');
   const apiClient = useContext(ApiClientContext);
+  const { user } = useAuthentication();
 
   const [searchParams] = useSearchParams();
 
   const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
   const allResidues = Object.entries(SSD2Referential);
-  const [laboratoryId, setLaboratoryId] = useState<string>();
+  const [laboratoryId, setLaboratoryId] = useState(user?.laboratoryId);
   const [residueKind, setResidueKind] = useState<ResidueKind>();
-  const [residueSearch, setResidueSearch] = useState<string>('');
+  const [residueSearch, setResidueSearch] = useState('');
 
   const { data: laboratoryAnalyticalCompetences } =
     apiClient.useGetLaboratoryAnalyticalCompetencesQuery(
       laboratoryId ?? skipToken
     );
 
-  const { data: laboratories } = apiClient.useFindLaboratoriesQuery({});
+  const { data: laboratories } = apiClient.useFindLaboratoriesQuery({
+    programmingPlanKind: 'PPV'
+  });
 
   const filteredResidues = useMemo(
     () =>
@@ -85,22 +89,28 @@ const LaboratoryAnalyticalCompetencesView = () => {
         illustration={microscope}
       />
       <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
-        <Select
-          label="Laboratoire"
-          nativeSelectProps={{
-            defaultValue: laboratoryId || '',
-            onChange: (e) => setLaboratoryId(e.target.value as string)
-          }}
-        >
-          {laboratories?.map((laboratory) => (
-            <option
-              key={`laboratory-option-${laboratory.id}`}
-              value={laboratory.id}
-            >
-              {laboratory.name}
+        {!user?.laboratoryId && (
+          <Select
+            label="Laboratoire"
+            nativeSelectProps={{
+              defaultValue: laboratoryId || '',
+              onChange: (e) => setLaboratoryId(e.target.value as string)
+            }}
+            style={{ width: '25%' }}
+          >
+            <option value="" disabled>
+              Sélectionner un laboratoire
             </option>
-          ))}
-        </Select>
+            {laboratories?.map((laboratory) => (
+              <option
+                key={`laboratory-option-${laboratory.id}`}
+                value={laboratory.id}
+              >
+                {laboratory.name}
+              </option>
+            ))}
+          </Select>
+        )}
         <div className="d-flex-align-center">
           <h3 className={clsx(cx('fr-mb-0'), 'flex-grow-1')}>
             {pluralize(filteredResidues.length, {
