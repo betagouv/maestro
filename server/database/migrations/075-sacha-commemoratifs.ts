@@ -27,7 +27,7 @@ export const up = async (knex: Knex) => {
 
   await knex.schema.createTable('sample_specific_data_attribute', (table) => {
     table.string('attribute').notNullable();
-    table.string('sacha_commemoratif_sigle').notNullable();
+    table.string('sacha_commemoratif_sigle').nullable();
     table.boolean('in_dai').notNullable().defaultTo(false);
 
     table.primary(['attribute']);
