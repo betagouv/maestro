@@ -13,10 +13,7 @@ import {
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
 import { formatWithTz, toMaestroDate } from 'maestro-shared/utils/date';
-import {
-  getRecordKeys,
-  RequiredNotNull
-} from 'maestro-shared/utils/typescript';
+import { RequiredNotNull } from 'maestro-shared/utils/typescript';
 import fs from 'node:fs';
 import path from 'path';
 import { z, ZodObject } from 'zod';
@@ -100,28 +97,37 @@ export const generateXMLAcquitement = async (
   );
 };
 
-const getCommemoratifs = (
+export const getCommemoratifs = (
   specificData: SampleMatrixSpecificData,
   sampleSpecifDataRecord: SampleSpecificDataRecord
 ): { sigle: string; value: string }[] => {
   const commemoratifs: { sigle: string; value: string }[] = [];
-  // FIXME ajouter des tests
-  for (const specificDataKey of getRecordKeys(sampleSpecifDataRecord)) {
+  for (const specificDataKey of Object.keys(specificData)) {
     if (
       specificDataKey !== 'programmingPlanKind' &&
       specificDataKey in specificData
     ) {
-      const { inDai, sachaCommemoratifSigle } =
-        sampleSpecifDataRecord[specificDataKey];
-      if (inDai) {
+      const conf = sampleSpecifDataRecord[specificDataKey];
+      if (conf?.inDai) {
         const specificDataValue: string =
           specificData[specificDataKey as keyof SampleMatrixSpecificData];
+
+        if (
+          !conf.sachaCommemoratifSigle ||
+          !sampleSpecifDataRecord[specificDataKey].values[specificDataValue]
+        ) {
+          throw new Error(
+            `Configuration SACHA incomplète: ${specificDataKey} ${specificDataValue}`
+          );
+        }
         commemoratifs.push({
-          sigle: sachaCommemoratifSigle,
+          sigle: conf.sachaCommemoratifSigle,
           value:
             sampleSpecifDataRecord[specificDataKey].values[specificDataValue]
         });
         //FIXME boolean et autre type
+      } else if (conf === undefined) {
+        throw new Error(`Configuration SACHA incomplète: ${specificDataKey}`);
       }
     }
   }
