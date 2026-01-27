@@ -34,6 +34,45 @@ const loadLaboratoryAndSender: ReturnType<
   }
 });
 
+const sampleSpecificDataRecord: SampleSpecificDataRecord = {
+  sampling: {
+    attribute: 'sampling',
+    sachaCommemoratifSigle: null,
+    inDai: false,
+    values: {}
+  },
+  animalIdentifier: {
+    attribute: 'animalIdentifier',
+    sachaCommemoratifSigle: null,
+    inDai: false,
+    values: {}
+  },
+  ageInDays: {
+    attribute: 'ageInDays',
+    sachaCommemoratifSigle: null,
+    inDai: false,
+    values: {}
+  },
+  species: {
+    attribute: 'species',
+    sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
+    inDai: false,
+    values: { ESP7: 'POULE' as CommemoratifValueSigle }
+  },
+  breedingMethod: {
+    attribute: 'breedingMethod',
+    sachaCommemoratifSigle: null,
+    inDai: false,
+    values: {}
+  },
+  outdoorAccess: {
+    attribute: 'outdoorAccess',
+    sachaCommemoratifSigle: null,
+    inDai: false,
+    values: {}
+  }
+};
+
 test(`génère un XML d'acquittement`, async () => {
   expect(
     await generateXMLAcquitement(
@@ -104,7 +143,7 @@ test(`génère un XML de DAI`, async () => {
           sampling: 'Aléatoire',
           animalIdentifier: '',
           ageInDays: 12,
-          species: 'ESP1',
+          species: 'ESP7',
           breedingMethod: 'PROD_1',
           outdoorAccess: 'PAT1'
         },
@@ -120,7 +159,19 @@ test(`génère un XML de DAI`, async () => {
         copyNumber: 2
       },
       loadLaboratoryAndSender,
-      1765876056798
+      1765876056798,
+      {
+        ...sampleSpecificDataRecord,
+
+        species: {
+          attribute: 'species',
+          inDai: true,
+          sachaCommemoratifSigle: 'SIGLE_SACHA' as CommemoratifSigle,
+          values: {
+            ESP7: 'SIGLE_VALUE_SACHA' as CommemoratifValueSigle
+          }
+        }
+      }
     )
   ).toMatchInlineSnapshot(`
     {
@@ -173,6 +224,10 @@ test(`génère un XML de DAI`, async () => {
             <NumeroEtiquette>PEL-26-00073-A-2</NumeroEtiquette>
             <Commentaire>sealId</Commentaire>
           </DialogueEchantillonComplet>
+          <DialogueCommemoratif>
+            <Sigle>SIGLE_SACHA</Sigle>
+            <SigleValeur>SIGLE_VALUE_SACHA</SigleValeur>
+          </DialogueCommemoratif>
         </DialogueEchantillonCommemoratifType>
         <ReferencePlanAnalyseType>
           <ReferencePlanAnalyseEffectuer>
@@ -228,45 +283,6 @@ describe('getCommemoratifs', () => {
     species: 'ESP7',
     breedingMethod: 'PROD_1',
     outdoorAccess: 'PAT1'
-  };
-
-  const sampleSpecificDataRecord: SampleSpecificDataRecord = {
-    sampling: {
-      attribute: 'sampling',
-      sachaCommemoratifSigle: null,
-      inDai: false,
-      values: {}
-    },
-    animalIdentifier: {
-      attribute: 'animalIdentifier',
-      sachaCommemoratifSigle: null,
-      inDai: false,
-      values: {}
-    },
-    ageInDays: {
-      attribute: 'ageInDays',
-      sachaCommemoratifSigle: null,
-      inDai: false,
-      values: {}
-    },
-    species: {
-      attribute: 'species',
-      sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
-      inDai: false,
-      values: { ESP7: 'POULE' as CommemoratifValueSigle }
-    },
-    breedingMethod: {
-      attribute: 'breedingMethod',
-      sachaCommemoratifSigle: null,
-      inDai: false,
-      values: {}
-    },
-    outdoorAccess: {
-      attribute: 'outdoorAccess',
-      sachaCommemoratifSigle: null,
-      inDai: false,
-      values: {}
-    }
   };
 
   test("retourne un tableau vide quand aucun attribut n'est inlus dans la DAI", () => {
