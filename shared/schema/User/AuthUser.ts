@@ -34,7 +34,8 @@ export const AuthUserRefined = AuthUser.transform(({ user, userRole }) => {
       ...user,
       region: isNationalRole(userRole) ? null : user.region,
       department: isRegionalRole(userRole) ? null : user.department,
-      companies: userRole === 'Sampler' ? user.companies : []
+      companies: userRole === 'Sampler' ? user.companies : [],
+      laboratoryId: userRole === 'LaboratoryUser' ? user.laboratoryId : null
     },
     userRole
   };
