@@ -211,7 +211,7 @@ export interface LocalPrescriptions {
 
 export interface SampleSpecificDataAttribute {
   attribute: string;
-  sachaCommemoratifSigle: CommemoratifSigle;
+  sachaCommemoratifSigle: CommemoratifSigle | null;
   inDai: boolean;
 }
 

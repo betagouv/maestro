@@ -1,4 +1,4 @@
-import { isNil } from 'lodash-es';
+import { isNil, uniq } from 'lodash-es';
 import { z } from 'zod';
 import { AnimalKind } from '../../referential/AnimalKind';
 import { AnimalSex } from '../../referential/AnimalSex';
@@ -9,8 +9,14 @@ import { OutdoorAccess } from '../../referential/OutdoorAccess';
 import { ProductionKind } from '../../referential/ProductionKind';
 import { Seizure } from '../../referential/Seizure';
 import { Species } from '../../referential/Species';
-import { SampleMatrixSpecificDataKeys } from '../MatrixSpecificData/MatrixSpecificDataFormInputs';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
+import {
+  SampleMatrixSpecificDataKeys,
+  SpecificDataFormInput
+} from '../MatrixSpecificData/MatrixSpecificDataFormInputs';
+import {
+  ProgrammingPlanKind,
+  ProgrammingPlanKindWithSacha
+} from '../ProgrammingPlan/ProgrammingPlanKind';
 
 const KillingCode = z
   .string({
@@ -138,3 +144,25 @@ export function getSampleMatrixSpecificDataAttributeValues(
 
   return [];
 }
+export const getAllSachaAttributes = (): SampleMatrixSpecificDataKeys[] =>
+  uniq(
+    ProgrammingPlanKindWithSacha.options.flatMap((kind) =>
+      Object.keys(schemasByProgrammingPlanKind[kind].shape)
+    )
+  ).filter(
+    (key): key is SampleMatrixSpecificDataKeys => key !== 'programmingPlanKind'
+  );
+export const getAttributeExpectedValues = (
+  attribute: SampleMatrixSpecificDataKeys
+): string[] =>
+  uniq(
+    ProgrammingPlanKindWithSacha.options.flatMap((p) =>
+      getSampleMatrixSpecificDataAttributeValues(p, attribute)
+    )
+  );
+export const canHaveValue = (
+  inputConf: SpecificDataFormInput
+): inputConf is Extract<
+  SpecificDataFormInput,
+  { inputType: 'select' | 'radio' }
+> => inputConf.inputType === 'select' || inputConf.inputType === 'radio';

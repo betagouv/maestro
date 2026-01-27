@@ -3,16 +3,16 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { MatrixSpecificDataFormInputs } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
 import { SachaCommemoratifRecord } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import {
+  canHaveValue,
+  getAllSachaAttributes,
+  getAttributeExpectedValues
+} from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
 import { FunctionComponent, useContext, useMemo } from 'react';
 import { ApiClientContext } from '../../services/apiClient';
 import { CommemoratifSigleForm } from './CommemoratifSigleForm';
 import { SachaCommemoratifsUpload } from './SachaCommemoratifsUpload';
-import {
-  canHaveValue,
-  getAllSachaAttributes,
-  getAttributeExpectedValues
-} from './sachaUtils';
 
 export const SachaCommemoratifs: FunctionComponent = () => {
   const { useGetSachaCommemoratifsQuery, useGetSampleSpecificDataQuery } =
