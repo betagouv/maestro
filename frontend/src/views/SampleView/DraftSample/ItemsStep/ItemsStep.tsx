@@ -14,7 +14,7 @@ import {
   PartialSample,
   PartialSampleToCreate,
   SampleItemsDataChecked,
-  uniqueSampleItemSealIdCheck
+  sampleItemSealIdCheck
 } from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleStatusSteps } from 'maestro-shared/schema/Sample/SampleStatus';
@@ -145,13 +145,14 @@ const ItemsStep = ({ partialSample }: Props) => {
   }, [localPrescription, programmingPlan]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const Form = z.object(SampleItemsDataChecked.shape).pick({
+    context: true,
     sampledAt: true,
     shippingDate: true,
     notesOnItems: true,
     items: true
   });
 
-  const FormChecked = Form.check(uniqueSampleItemSealIdCheck).check((ctx) => {
+  const FormChecked = Form.check(sampleItemSealIdCheck).check((ctx) => {
     ctx.value.items.forEach((item, index) => {
       if (
         item.copyNumber === 1 &&
@@ -248,6 +249,7 @@ const ItemsStep = ({ partialSample }: Props) => {
   const form = useForm(
     FormChecked,
     {
+      context: partialSample.context,
       sampledAt,
       shippingDate,
       items,
