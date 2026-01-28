@@ -11,7 +11,7 @@ import {
   ResidueKind,
   ResidueKindLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import microscope from 'src/assets/illustrations/microscope.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
@@ -30,7 +30,7 @@ const LaboratoryAnalyticalCompetencesView = () => {
   const apiClient = useContext(ApiClientContext);
   const { user } = useAuthentication();
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
   const allResidues = Object.entries(SSD2Referential);
@@ -46,7 +46,6 @@ const LaboratoryAnalyticalCompetencesView = () => {
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery({
     programmingPlanKind: 'PPV'
   });
-
   const filteredResidues = useMemo(
     () =>
       allResidues
@@ -76,6 +75,12 @@ const LaboratoryAnalyticalCompetencesView = () => {
       ),
     [filteredResidues, page]
   );
+
+  useEffect(() => {
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    newSearchParams.set('page', '1');
+    setSearchParams(newSearchParams, { replace: true });
+  }, [residueKind, residueSearch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <section
