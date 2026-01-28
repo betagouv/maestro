@@ -5,7 +5,11 @@ import {
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
 import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { SachaCommemoratifRecord } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import {
+  CommemoratifSigle,
+  CommemoratifValueSigle,
+  SachaCommemoratifRecord
+} from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   getSampleItemReference,
@@ -102,8 +106,11 @@ export const getCommemoratifs = (
   specificData: SampleMatrixSpecificData,
   sampleSpecifDataRecord: SampleSpecificDataRecord,
   sachaCommemoratifRecord: SachaCommemoratifRecord
-): { sigle: string; value: string }[] => {
-  const commemoratifs: { sigle: string; value: string }[] = [];
+): ({ sigle: CommemoratifSigle } & (
+  | { textValue: string }
+  | { sigleValue: CommemoratifValueSigle }
+))[] => {
+  const commemoratifs: ReturnType<typeof getCommemoratifs> = [];
   for (const specificDataKey of Object.keys(specificData)) {
     if (
       specificDataKey !== 'programmingPlanKind' &&
@@ -123,8 +130,6 @@ export const getCommemoratifs = (
         const typeDonnee =
           sachaCommemoratifRecord[conf.sachaCommemoratifSigle].typeDonnee;
 
-        let value;
-
         if (typeDonnee === 'list') {
           if (
             !sampleSpecifDataRecord[specificDataKey].values[specificDataValue]
@@ -133,18 +138,23 @@ export const getCommemoratifs = (
               `Configuration SACHA incomplète: ${specificDataKey} ${specificDataValue}`
             );
           }
-          value =
-            sampleSpecifDataRecord[specificDataKey].values[specificDataValue];
-        } else if (typeDonnee === 'date') {
-          value = toSachaDateTime(new Date(specificDataValue));
+          commemoratifs.push({
+            sigle: conf.sachaCommemoratifSigle,
+            sigleValue:
+              sampleSpecifDataRecord[specificDataKey].values[specificDataValue]
+          });
         } else {
-          value = specificDataValue;
+          let textValue;
+          if (typeDonnee === 'date') {
+            textValue = toSachaDateTime(new Date(specificDataValue));
+          } else {
+            textValue = `${specificDataValue}`;
+          }
+          commemoratifs.push({
+            sigle: conf.sachaCommemoratifSigle,
+            textValue
+          });
         }
-
-        commemoratifs.push({
-          sigle: conf.sachaCommemoratifSigle,
-          value
-        });
       } else if (conf === undefined) {
         throw new Error(`Configuration SACHA incomplète: ${specificDataKey}`);
       }
@@ -238,10 +248,18 @@ export const generateXMLDAI = (
               ),
               Commentaire: sampleItem.sealId ?? ''
             },
-            DialogueCommemoratif: commemoratifs.map((c) => ({
-              Sigle: c.sigle,
-              SigleValeur: c.value
-            }))
+            DialogueCommemoratif: commemoratifs.map((c) => {
+              if ('sigleValue' in c) {
+                return {
+                  Sigle: c.sigle,
+                  SigleValeur: c.sigleValue
+                };
+              }
+              return {
+                Sigle: c.sigle,
+                TexteValeur: c.textValue
+              };
+            })
           }
         ],
         ReferencePlanAnalyseType: {
