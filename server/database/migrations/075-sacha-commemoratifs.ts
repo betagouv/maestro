@@ -4,7 +4,7 @@ export const up = async (knex: Knex) => {
   await knex.schema.createTable('sacha_commemoratifs', (table) => {
     table.string('sigle').primary();
     table.string('libelle').notNullable();
-    table.string('type_donnee');
+    table.string('type_donnee').notNullable();
     table.string('unite');
   });
 

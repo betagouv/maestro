@@ -6,14 +6,17 @@ import {
   genCommemoratifValue
 } from '../../repositories/sachaCommemoratifRepository.test';
 import { sampleSpecificDataRepository } from '../../repositories/sampleSpecificDataRepository';
-import { updateSachaCommemoratifs } from './sachaCommemoratifsService';
+import {
+  TypeDonneeCodec,
+  updateSachaCommemoratifs
+} from './sachaCommemoratifsService';
 
 const buildXML = (
   commemoratifs: Array<{
     sigle: string;
     libelle: string;
     statut: 'G' | 'V';
-    typeDonnee?: string;
+    typeDonnee: 'V' | 'N' | 'A' | 'D';
     unite?: string;
     values?: Array<{
       sigle: string;
@@ -74,7 +77,7 @@ describe('updateSachaCommemoratifs', () => {
         sigle: commemoratif.sigle,
         libelle: commemoratif.libelle,
         statut: 'V',
-        typeDonnee: commemoratif.typeDonnee || undefined,
+        typeDonnee: TypeDonneeCodec.encode(commemoratif.typeDonnee),
         values: [
           {
             sigle: value1.sigle,
@@ -109,7 +112,8 @@ describe('updateSachaCommemoratifs', () => {
       {
         sigle: commemoratif.sigle,
         libelle: commemoratif.libelle,
-        statut: 'G'
+        statut: 'G',
+        typeDonnee: 'A'
       }
     ]);
 
@@ -130,6 +134,7 @@ describe('updateSachaCommemoratifs', () => {
       {
         sigle: commemoratif.sigle,
         libelle: commemoratif.libelle,
+        typeDonnee: 'A',
         statut: 'V',
         values: [
           {
@@ -181,6 +186,7 @@ describe('updateSachaCommemoratifs', () => {
       {
         sigle: commemoratif.sigle,
         libelle: commemoratif.libelle,
+        typeDonnee: 'A',
         statut: 'G'
       }
     ]);
@@ -226,6 +232,7 @@ describe('updateSachaCommemoratifs', () => {
       {
         sigle: commemoratif.sigle,
         libelle: commemoratif.libelle,
+        typeDonnee: 'A',
         statut: 'V',
         values: [
           {
@@ -260,6 +267,7 @@ describe('updateSachaCommemoratifs', () => {
       {
         sigle: commemoratif.sigle,
         libelle: updatedLibelle,
+        typeDonnee: 'A',
         statut: 'V'
       }
     ]);
@@ -286,6 +294,7 @@ describe('updateSachaCommemoratifs', () => {
       {
         sigle: commemoratif.sigle,
         libelle: commemoratif.libelle,
+        typeDonnee: 'A',
         statut: 'V'
       }
     ]);

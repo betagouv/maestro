@@ -3,7 +3,8 @@ import { fakerFR } from '@faker-js/faker';
 import {
   CommemoratifSigle,
   CommemoratifValueSigle,
-  SachaCommemoratif
+  SachaCommemoratif,
+  SachaCommemoratifTypeDonnee
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { describe, expect, test } from 'vitest';
 import { sachaCommemoratifRepository } from './sachaCommemoratifRepository';
@@ -13,7 +14,7 @@ export const genCommemoratif = (
 ): SachaCommemoratif => ({
   sigle: fakerFR.string.alpha(10) as CommemoratifSigle,
   libelle: fakerFR.lorem.words(3),
-  typeDonnee: fakerFR.helpers.arrayElement(['V', 'N', 'D', null]),
+  typeDonnee: fakerFR.helpers.arrayElement(SachaCommemoratifTypeDonnee.options),
   unite: null,
   values: [],
   ...overrides
@@ -65,7 +66,7 @@ describe('sachaCommemoratifRepository', () => {
     const updatedCommemoratif = {
       ...commemoratif,
       libelle: 'Updated libelle',
-      typeDonnee: 'N' as const
+      typeDonnee: 'numeric' as const
     };
 
     await sachaCommemoratifRepository.upsertAll([updatedCommemoratif]);

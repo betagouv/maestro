@@ -5,6 +5,7 @@ import {
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
 import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { SachaCommemoratifRecord } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   getSampleItemReference,
@@ -99,7 +100,8 @@ export const generateXMLAcquitement = async (
 
 export const getCommemoratifs = (
   specificData: SampleMatrixSpecificData,
-  sampleSpecifDataRecord: SampleSpecificDataRecord
+  sampleSpecifDataRecord: SampleSpecificDataRecord,
+  sachaCommemoratifRecord: SachaCommemoratifRecord
 ): { sigle: string; value: string }[] => {
   const commemoratifs: { sigle: string; value: string }[] = [];
   for (const specificDataKey of Object.keys(specificData)) {
@@ -112,20 +114,37 @@ export const getCommemoratifs = (
         const specificDataValue: string =
           specificData[specificDataKey as keyof SampleMatrixSpecificData];
 
-        if (
-          !conf.sachaCommemoratifSigle ||
-          !sampleSpecifDataRecord[specificDataKey].values[specificDataValue]
-        ) {
+        if (!conf.sachaCommemoratifSigle) {
           throw new Error(
-            `Configuration SACHA incomplète: ${specificDataKey} ${specificDataValue}`
+            `Configuration SACHA incomplète: ${specificDataKey} `
           );
         }
+
+        const typeDonnee =
+          sachaCommemoratifRecord[conf.sachaCommemoratifSigle].typeDonnee;
+
+        let value;
+
+        if (typeDonnee === 'list') {
+          if (
+            !sampleSpecifDataRecord[specificDataKey].values[specificDataValue]
+          ) {
+            throw new Error(
+              `Configuration SACHA incomplète: ${specificDataKey} ${specificDataValue}`
+            );
+          }
+          value =
+            sampleSpecifDataRecord[specificDataKey].values[specificDataValue];
+        } else if (typeDonnee === 'date') {
+          value = toSachaDateTime(new Date(specificDataValue));
+        } else {
+          value = specificDataValue;
+        }
+
         commemoratifs.push({
           sigle: conf.sachaCommemoratifSigle,
-          value:
-            sampleSpecifDataRecord[specificDataKey].values[specificDataValue]
+          value
         });
-        //FIXME boolean et autre type
       } else if (conf === undefined) {
         throw new Error(`Configuration SACHA incomplète: ${specificDataKey}`);
       }
@@ -151,7 +170,8 @@ export const generateXMLDAI = (
   loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryCall>,
   dateNow: number,
 
-  sampleSpecifDataRecord: SampleSpecificDataRecord
+  sampleSpecifDataRecord: SampleSpecificDataRecord,
+  sachaCommemoratifRecord: SachaCommemoratifRecord
 ): Promise<XmlFile> => {
   const programmingPlanKind = sample.specificData
     .programmingPlanKind as ProgrammingPlanKindWithSacha;
@@ -169,7 +189,8 @@ export const generateXMLDAI = (
 
   const commemoratifs = getCommemoratifs(
     sample.specificData,
-    sampleSpecifDataRecord
+    sampleSpecifDataRecord,
+    sachaCommemoratifRecord
   );
 
   return generateXML(
