@@ -11,10 +11,8 @@ import { sachaCommemoratifRepository } from './sachaCommemoratifRepository';
 export const genCommemoratif = (
   overrides?: Partial<SachaCommemoratif>
 ): SachaCommemoratif => ({
-  cle: fakerFR.string.numeric(12),
   sigle: fakerFR.string.alpha(10) as CommemoratifSigle,
   libelle: fakerFR.lorem.words(3),
-  statut: 'V',
   typeDonnee: fakerFR.helpers.arrayElement(['V', 'N', 'D', null]),
   unite: null,
   values: [],
@@ -24,10 +22,8 @@ export const genCommemoratif = (
 export const genCommemoratifValue = (
   overrides?: Partial<SachaCommemoratif['values'][number]>
 ): SachaCommemoratif['values'][number] => ({
-  cle: fakerFR.string.numeric(12),
   sigle: fakerFR.string.alpha(10) as CommemoratifValueSigle,
   libelle: fakerFR.lorem.words(2),
-  statut: 'V',
   ...overrides
 });
 
@@ -45,25 +41,19 @@ describe('sachaCommemoratifRepository', () => {
     const insertedCommemoratif = result[commemoratif.sigle];
 
     expect(insertedCommemoratif).toMatchObject({
-      cle: commemoratif.cle,
       sigle: commemoratif.sigle,
       libelle: commemoratif.libelle,
-      statut: commemoratif.statut,
       typeDonnee: commemoratif.typeDonnee
     });
 
     expect(Object.keys(insertedCommemoratif.values)).toHaveLength(2);
     expect(insertedCommemoratif.values[value1.sigle]).toMatchObject({
-      cle: value1.cle,
       sigle: value1.sigle,
-      libelle: value1.libelle,
-      statut: value1.statut
+      libelle: value1.libelle
     });
     expect(insertedCommemoratif.values[value2.sigle]).toMatchObject({
-      cle: value2.cle,
       sigle: value2.sigle,
-      libelle: value2.libelle,
-      statut: value2.statut
+      libelle: value2.libelle
     });
   });
 
