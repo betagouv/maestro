@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const LaboratoryAnalyticalMethod = z.enum(
-  ['F009A', 'F024A', 'F027A', 'F329A', 'F046A', 'F049A'],
+  ['F009A', 'F024A', 'F027A', 'F329A', 'F046A', 'F049A', 'LC-DAD', 'ICP-MS'],
   {
     error: () => 'Veuillez renseigner la méthode analytique.'
   }
