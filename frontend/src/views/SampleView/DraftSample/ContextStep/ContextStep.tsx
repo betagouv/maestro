@@ -173,7 +173,8 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
         permissions.includes('createSample') ||
         permissions.includes('updateSample')
       );
-    })
+    }),
+    programmingPlanKinds: programmingPlan.kinds
   });
 
   const Form = SampleContextData.omit({

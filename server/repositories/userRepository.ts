@@ -4,10 +4,11 @@ import { isNil } from 'lodash-es';
 import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
 import { UserRefined } from 'maestro-shared/schema/User/User';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
+import { toArray } from 'maestro-shared/utils/utils';
 import z from 'zod';
 import { knexInstance as db } from './db';
 import { executeTransaction, kysely } from './kysely';
-import { DB } from './kysely.type';
+import { DB, toSqlArray } from './kysely.type';
 
 export const usersTable = 'users';
 
@@ -88,11 +89,7 @@ const findMany = async (
         break;
       case 'roles':
         if (!isNil(findOptions.roles) && findOptions.roles.length > 0) {
-          query = query.where(
-            sql<boolean>`
-              roles && ${findOptions.roles}::text[]
-            `
-          );
+          query = query.where('roles', '&&', toSqlArray(findOptions.roles));
         }
         break;
       case 'programmingPlanKinds':
@@ -101,9 +98,9 @@ const findMany = async (
           findOptions.programmingPlanKinds.length > 0
         ) {
           query = query.where(
-            sql<boolean>`
-              programming_plan_kinds && ${findOptions.programmingPlanKinds}::text[]
-            `
+            'programmingPlanKinds',
+            '&&',
+            toSqlArray(toArray(findOptions.programmingPlanKinds) ?? [])
           );
         }
         break;
@@ -116,6 +113,8 @@ const findMany = async (
         assertUnreachable(option);
     }
   }
+
+  console.log('Executing user findMany query:', query.compile().sql);
 
   const users: UserRefined[] = await query.execute();
 
