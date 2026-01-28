@@ -93,6 +93,7 @@ export const laboratoriesRouter = {
           ...(analyteAnalyticalCompetences || []).map(
             (analyticalCompetence) => ({
               ...analyticalCompetence,
+              id: analyticalCompetence.id ?? uuidv4(),
               laboratoryId,
               lastUpdatedAt: new Date()
             })
