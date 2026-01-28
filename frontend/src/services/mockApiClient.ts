@@ -33,6 +33,7 @@ type MockableApiKeys = Exclude<
   | 'getPrescriptionsExportURL'
   | 'getSupportDocumentURL'
   | 'getSampleListExportURL'
+  | 'getLaboratoryAnalyticCompetencesExportURL'
 >;
 export type MockApi = {
   [Key in MockableApiKeys]: ApiClient[Key] extends TypedUseQuery<
@@ -121,6 +122,7 @@ const defaultMockApiClientConf: MockApi = {
   useCreateAnalysisMutation: [fn(), {}],
   useCreateAnalysisReportDocumentMutation: [fn(), {}],
   useCreateDocumentMutation: [fn(), {}],
+  useCreateLaboratoryAnalyticalCompetenceMutation: [fn(), {}],
   useCreateOrUpdateSampleMutation: [fn(), { isLoading: false }],
   useCreateProgrammingPlanMutation: [fn(), {}],
   useDeleteAnalysisReportDocumentMutation: [fn(), {}],
@@ -156,6 +158,7 @@ const defaultMockApiClientConf: MockApi = {
   useGetLaboratoryQuery: {
     data: LaboratoryFixture
   },
+  useGetLaboratoryAnalyticalCompetencesQuery: { data: [] },
   useGetPrescriptionSubstancesQuery: { data: [] },
   useGetProgrammingPlanQuery: { data: genProgrammingPlan() },
   useGetRegionsGeoJsonQuery: {
@@ -205,6 +208,7 @@ const defaultMockApiClientConf: MockApi = {
   useUpdatePrescriptionMutation: [fn(), {}],
   useUpdateProgrammingPlanLocalStatusMutation: [fn(), {}],
   useUpdateProgrammingPlanStatusMutation: [fn(), {}],
+  useUpdateLaboratoryAnalyticalCompetenceMutation: [fn(), {}],
   useUpdateLocalPrescriptionMutation: [fn(), {}],
   useUpdateSampleMutation: [fn(), {}],
   useGetRootNoticeQuery: {
