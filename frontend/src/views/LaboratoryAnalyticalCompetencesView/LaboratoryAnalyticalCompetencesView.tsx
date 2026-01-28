@@ -11,7 +11,6 @@ import {
   ResidueKind,
   ResidueKindLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
-import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
 import { useContext, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import microscope from 'src/assets/illustrations/microscope.svg';
@@ -23,6 +22,8 @@ import { getURLQuery } from '../../utils/fetchUtils';
 import { pluralize } from '../../utils/stringUtils';
 import LaboratoryAnalyticalCompetencesForm from './LaboratoryAnalyticalCompetenceForm';
 import './LaboratoryAnalyticalCompetences.scss';
+
+const ResiduesPerPage = 5;
 
 const LaboratoryAnalyticalCompetencesView = () => {
   useDocumentTitle('Compétence analytique des laboratoires');
@@ -70,8 +71,8 @@ const LaboratoryAnalyticalCompetencesView = () => {
   const paginatedResidues = useMemo(
     () =>
       filteredResidues.slice(
-        (page - 1) * defaultPerPage,
-        page * defaultPerPage
+        (page - 1) * ResiduesPerPage,
+        page * ResiduesPerPage
       ),
     [filteredResidues, page]
   );
@@ -111,53 +112,55 @@ const LaboratoryAnalyticalCompetencesView = () => {
             ))}
           </Select>
         )}
-        <div className="d-flex-align-center">
-          <h3 className={clsx(cx('fr-mb-0'), 'flex-grow-1')}>
-            {pluralize(filteredResidues.length, {
-              preserveCount: true
-            })('résidu')}
-          </h3>
-          <SegmentedControl
-            hideLegend
-            legend="Type de résidu"
-            segments={[
-              {
-                label: (
-                  <div>
-                    <span
-                      className={cx('fr-icon-list-unordered', 'fr-mr-1w')}
-                    />
-                    Tous
-                  </div>
-                ),
-                nativeInputProps: {
-                  checked: residueKind === undefined,
-                  onChange: () => setResidueKind(undefined)
+        {laboratoryId && (
+          <div className="d-flex-align-center">
+            <h3 className={clsx(cx('fr-mb-0'), 'flex-grow-1')}>
+              {pluralize(filteredResidues.length, {
+                preserveCount: true
+              })('résidu')}
+            </h3>
+            <SegmentedControl
+              hideLegend
+              legend="Type de résidu"
+              segments={[
+                {
+                  label: (
+                    <div>
+                      <span
+                        className={cx('fr-icon-list-unordered', 'fr-mr-1w')}
+                      />
+                      Tous
+                    </div>
+                  ),
+                  nativeInputProps: {
+                    checked: residueKind === undefined,
+                    onChange: () => setResidueKind(undefined)
+                  }
+                },
+                {
+                  label: ResidueKindLabels['Complex'],
+                  nativeInputProps: {
+                    checked: residueKind === 'Complex',
+                    onChange: () => setResidueKind('Complex')
+                  }
+                },
+                {
+                  label: ResidueKindLabels['Simple'],
+                  nativeInputProps: {
+                    checked: residueKind === 'Simple',
+                    onChange: () => setResidueKind('Simple')
+                  }
                 }
-              },
-              {
-                label: ResidueKindLabels['Complex'],
-                nativeInputProps: {
-                  checked: residueKind === 'Complex',
-                  onChange: () => setResidueKind('Complex')
-                }
-              },
-              {
-                label: ResidueKindLabels['Simple'],
-                nativeInputProps: {
-                  checked: residueKind === 'Simple',
-                  onChange: () => setResidueKind('Simple')
-                }
-              }
-            ]}
-            className={cx('fr-mr-3w')}
-          />
-          <SearchBar
-            defaultValue={residueSearch}
-            onButtonClick={(value) => setResidueSearch(value)}
-            label="Rechercher un résidu"
-          />
-        </div>
+              ]}
+              className={cx('fr-mr-3w')}
+            />
+            <SearchBar
+              defaultValue={residueSearch}
+              onButtonClick={(value) => setResidueSearch(value)}
+              label="Rechercher un résidu"
+            />
+          </div>
+        )}
       </div>
       {laboratoryId && laboratoryAnalyticalCompetences && (
         <>
@@ -185,7 +188,7 @@ const LaboratoryAnalyticalCompetencesView = () => {
               />
             ))}
           <Pagination
-            count={Math.floor(allResidues.length / defaultPerPage) + 1}
+            count={Math.floor(filteredResidues.length / ResiduesPerPage) + 1}
             defaultPage={page}
             getPageLinkProps={(page: number) => ({
               to: getURLQuery({
