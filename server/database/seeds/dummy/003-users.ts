@@ -20,7 +20,7 @@ export const seed = async function () {
       id: uuidv4(),
       email: 'laboratory@maestro.beta.gouv.fr',
       name: `Laboratoire - ${fakerFR.person.fullName()}`,
-      programmingPlanKinds: [],
+      programmingPlanKinds: ['PPV'],
       roles: ['LaboratoryUser'],
       laboratoryId: CER30Id
     },
