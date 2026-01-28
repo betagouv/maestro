@@ -1,17 +1,28 @@
 import { XMLParser } from 'fast-xml-parser';
 import { readFileSync } from 'fs';
+import { XmlDocument, XsdValidator } from 'libxml2-wasm';
+import fs from 'node:fs';
 import path from 'path';
 import { expect, test } from 'vitest';
 import { sachaValidator } from './sachaValidator';
 
 test.each([
   'example-rai-1.xml',
-  'example-rai-2.xml',
+  'example-rai-RestPest_DAOA.xml',
+  //FIXME EDI
+  //'example-rai-RestPest_DAOA_CU.xml',
   'example-an-1.xml',
   'example-an-2.xml'
 ])(`import un fichier de l'EDI Sacha RAI %s`, (fileName) => {
   const file = path.join(import.meta.dirname, `./${fileName}`);
   const content = readFileSync(file);
+
+  const xsd = path.join(import.meta.dirname, `./schema.xsd`);
+  const schema = XmlDocument.fromBuffer(fs.readFileSync(xsd));
+  const validator = XsdValidator.fromDoc(schema);
+
+  const xmlDocument = XmlDocument.fromString(content.toString());
+  validator.validate(xmlDocument);
 
   const parser = new XMLParser({
     parseTagValue: false,
