@@ -50,5 +50,14 @@ export const laboratoriesRoutes = {
         permissions: ['manageLaboratoryCompetences'],
         response: z.array(LaboratoryAnalyticalCompetence)
       }
+    },
+  '/laboratories/:laboratoryId/analytical-competences/export': {
+    params: {
+      laboratoryId: z.guid()
+    },
+    get: {
+      permissions: ['readLaboratoryCompetences'],
+      response: z.custom<Buffer>()
     }
+  }
 } as const satisfies SubRoutes<'/laboratories'>;
