@@ -1,8 +1,10 @@
 import { XMLParser } from 'fast-xml-parser';
 import {
   CommemoratifSigle,
-  CommemoratifValueSigle
+  CommemoratifValueSigle,
+  SachaCommemoratifTypeDonnee
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import z from 'zod';
 import { executeTransaction } from '../../repositories/kysely';
 import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
 import { sampleSpecificDataRepository } from '../../repositories/sampleSpecificDataRepository';
@@ -10,9 +12,10 @@ import { sampleSpecificDataRepository } from '../../repositories/sampleSpecificD
 interface ReferenceCommemoratif {
   Sigle: string;
   Libelle: string;
+  // Validé ou Gelé
   Statut: 'G' | 'V';
-  //FIXME EDI
-  TypeDonnee?: string;
+  //  A (Alphanumérique) ; N (Numérique) ; D (Date) ; V (Liste de valeur)
+  TypeDonnee: 'V' | 'N' | 'A' | 'D';
   Unite?: string;
 }
 
@@ -21,6 +24,38 @@ interface ReferenceCommemoratifsValeurs {
   Libelle: string;
   Statut: 'G' | 'V';
 }
+
+export const TypeDonneeCodec = z.codec(
+  z.enum(['V', 'N', 'A', 'D']),
+  SachaCommemoratifTypeDonnee,
+
+  {
+    encode: (value) => {
+      switch (value) {
+        case 'date':
+          return 'D';
+        case 'list':
+          return 'V';
+        case 'numeric':
+          return 'N';
+        case 'text':
+          return 'A';
+      }
+    },
+    decode: (value) => {
+      switch (value) {
+        case 'D':
+          return 'date';
+        case 'V':
+          return 'list';
+        case 'N':
+          return 'numeric';
+        case 'A':
+          return 'text';
+      }
+    }
+  }
+);
 
 interface ReferenceCommemoratifType {
   ReferenceCommemoratif: ReferenceCommemoratif;
@@ -48,7 +83,7 @@ export const updateSachaCommemoratifs = async (xmlContent: string) => {
     sigle: item.ReferenceCommemoratif.Sigle as CommemoratifSigle,
     libelle: item.ReferenceCommemoratif.Libelle,
     statut: item.ReferenceCommemoratif.Statut,
-    typeDonnee: item.ReferenceCommemoratif.TypeDonnee ?? null,
+    typeDonnee: TypeDonneeCodec.decode(item.ReferenceCommemoratif.TypeDonnee),
     unite: item.ReferenceCommemoratif.Unite ?? null,
 
     values: (item.ReferenceCommemoratifsValeurs ?? []).map((valeur) => ({
