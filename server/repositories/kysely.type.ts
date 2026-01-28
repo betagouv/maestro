@@ -19,7 +19,8 @@ import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   CommemoratifSigle,
-  CommemoratifValueSigle
+  CommemoratifValueSigle,
+  SachaCommemoratifTypeDonnee
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
@@ -123,7 +124,7 @@ export interface SachaResidueMappings {
 export interface SachaCommemoratifs {
   sigle: CommemoratifSigle;
   libelle: string;
-  typeDonnee: string | null;
+  typeDonnee: SachaCommemoratifTypeDonnee;
   unite: string | null;
 }
 

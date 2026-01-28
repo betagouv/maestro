@@ -13,10 +13,21 @@ export const SachaCommemoratifValue = z.object({
   libelle: z.string()
 });
 
+export const SachaCommemoratifTypeDonnee = z.enum([
+  'text',
+  'numeric',
+  'date',
+  'list'
+]);
+
+export type SachaCommemoratifTypeDonnee = z.infer<
+  typeof SachaCommemoratifTypeDonnee
+>;
+
 export const SachaCommemoratif = z.object({
   sigle: CommemoratifSigle,
   libelle: z.string(),
-  typeDonnee: z.string().nullable(),
+  typeDonnee: SachaCommemoratifTypeDonnee,
   unite: z.string().nullable(),
   values: z.array(SachaCommemoratifValue)
 });
