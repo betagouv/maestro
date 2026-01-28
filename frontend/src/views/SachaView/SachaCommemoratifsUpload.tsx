@@ -59,6 +59,7 @@ export const SachaCommemoratifsUpload: FunctionComponent = () => {
           }
           small
           className="fr-my-2w"
+          closable={true}
         />
       )}
     </>

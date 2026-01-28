@@ -92,6 +92,21 @@ export const CommemoratifSigleForm = ({
   };
 
   const options = Object.values(sachaCommemoratifs)
+    .filter((c) => {
+      if (inputConf.inputType === 'number') {
+        return c.typeDonnee === 'numeric';
+      }
+      if (
+        inputConf.inputType === 'textarea' ||
+        inputConf.inputType === 'text'
+      ) {
+        return c.typeDonnee === 'text';
+      }
+      if (inputConf.inputType === 'select' || inputConf.inputType === 'radio') {
+        return c.typeDonnee === 'list';
+      }
+      return false;
+    })
     .map((c) => ({
       label: `${c.libelle} (${c.sigle})`,
       value: c.sigle
