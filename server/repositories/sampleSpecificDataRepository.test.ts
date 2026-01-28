@@ -1,6 +1,5 @@
 import { fakerFR } from '@faker-js/faker';
 
-import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { describe, expect, test } from 'vitest';
 import { sachaCommemoratifRepository } from './sachaCommemoratifRepository';
 import {
@@ -117,11 +116,89 @@ describe('sampleSpecificDataRepository', () => {
     expect(result[attribute]?.values[attributeValue]).toBe(value2.sigle);
   });
 
-  test('findAll returns correct structure for all programming plan kinds', async () => {
-    const result = await sampleSpecificDataRepository.findAll();
+  test('deleteSampleSpecificDataAttributeValues deletes all values for an attribute', async () => {
+    const value1 = genCommemoratifValue();
+    const value2 = genCommemoratifValue();
+    const commemoratif = genCommemoratif({ values: [value1, value2] });
+    await sachaCommemoratifRepository.upsertAll([commemoratif]);
 
-    for (const kind of ProgrammingPlanKindWithSacha.options) {
-      expect(result[kind]).toBeDefined();
-    }
+    const attribute = fakerFR.string.alpha(10);
+    const attributeValue1 = fakerFR.string.alpha(10);
+    const attributeValue2 = fakerFR.string.alpha(10);
+
+    await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
+      attribute,
+      sachaCommemoratifSigle: commemoratif.sigle,
+      inDai: true
+    });
+
+    await sampleSpecificDataRepository.updateSampleSpecificDataAttributeValue({
+      attribute,
+      attributeValue: attributeValue1,
+      sachaCommemoratifValueSigle: value1.sigle
+    });
+
+    await sampleSpecificDataRepository.updateSampleSpecificDataAttributeValue({
+      attribute,
+      attributeValue: attributeValue2,
+      sachaCommemoratifValueSigle: value2.sigle
+    });
+
+    const resultBefore = await sampleSpecificDataRepository.findAll();
+    expect(resultBefore[attribute]?.values[attributeValue1]).toBe(value1.sigle);
+    expect(resultBefore[attribute]?.values[attributeValue2]).toBe(value2.sigle);
+
+    await sampleSpecificDataRepository.deleteSampleSpecificDataAttributeValues(
+      attribute
+    );
+
+    const resultAfter = await sampleSpecificDataRepository.findAll();
+    expect(resultAfter[attribute]).toMatchObject({
+      attribute,
+      sachaCommemoratifSigle: commemoratif.sigle,
+      values: {}
+    });
+  });
+
+  test('deleteSampleSpecificDataAttributeValue deletes a specific attribute value', async () => {
+    const value1 = genCommemoratifValue();
+    const value2 = genCommemoratifValue();
+    const commemoratif = genCommemoratif({ values: [value1, value2] });
+    await sachaCommemoratifRepository.upsertAll([commemoratif]);
+
+    const attribute = fakerFR.string.alpha(10);
+    const attributeValue1 = fakerFR.string.alpha(10);
+    const attributeValue2 = fakerFR.string.alpha(10);
+
+    await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
+      attribute,
+      sachaCommemoratifSigle: commemoratif.sigle,
+      inDai: true
+    });
+
+    await sampleSpecificDataRepository.updateSampleSpecificDataAttributeValue({
+      attribute,
+      attributeValue: attributeValue1,
+      sachaCommemoratifValueSigle: value1.sigle
+    });
+
+    await sampleSpecificDataRepository.updateSampleSpecificDataAttributeValue({
+      attribute,
+      attributeValue: attributeValue2,
+      sachaCommemoratifValueSigle: value2.sigle
+    });
+
+    const resultBefore = await sampleSpecificDataRepository.findAll();
+    expect(resultBefore[attribute]?.values[attributeValue1]).toBe(value1.sigle);
+    expect(resultBefore[attribute]?.values[attributeValue2]).toBe(value2.sigle);
+
+    await sampleSpecificDataRepository.deleteSampleSpecificDataAttributeValue(
+      attribute,
+      attributeValue1
+    );
+
+    const resultAfter = await sampleSpecificDataRepository.findAll();
+    expect(resultAfter[attribute]?.values[attributeValue1]).toBeUndefined();
+    expect(resultAfter[attribute]?.values[attributeValue2]).toBe(value2.sigle);
   });
 });

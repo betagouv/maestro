@@ -3,6 +3,7 @@ import {
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { executeTransaction, kysely } from './kysely';
+import { KyselyMaestro } from './kysely.type';
 
 const findAll = async (): Promise<SachaCommemoratifRecord> => {
   const commemoratifs = await kysely
@@ -30,19 +31,20 @@ const findAll = async (): Promise<SachaCommemoratifRecord> => {
   );
 };
 
-const upsertAll = async (commemoratifs: SachaCommemoratif[]): Promise<void> => {
-  await executeTransaction(async (trx) => {
+const upsertAll = async (
+  commemoratifs: SachaCommemoratif[],
+  trx: KyselyMaestro = kysely
+): Promise<void> => {
+  const execute = async (db: KyselyMaestro) => {
     for (const commemoratif of commemoratifs) {
       const { values, ...commemoratifData } = commemoratif;
 
-      await trx
+      await db
         .insertInto('sachaCommemoratifs')
         .values(commemoratifData)
         .onConflict((oc) =>
           oc.column('sigle').doUpdateSet({
-            cle: commemoratifData.cle,
             libelle: commemoratifData.libelle,
-            statut: commemoratifData.statut,
             typeDonnee: commemoratifData.typeDonnee,
             unite: commemoratifData.unite
           })
@@ -50,7 +52,7 @@ const upsertAll = async (commemoratifs: SachaCommemoratif[]): Promise<void> => {
         .execute();
 
       for (const value of values) {
-        await trx
+        await db
           .insertInto('sachaCommemoratifValues')
           .values({
             ...value,
@@ -58,16 +60,20 @@ const upsertAll = async (commemoratifs: SachaCommemoratif[]): Promise<void> => {
           })
           .onConflict((oc) =>
             oc.column('sigle').doUpdateSet({
-              cle: value.cle,
               libelle: value.libelle,
-              statut: value.statut,
               commemoratifSigle: commemoratif.sigle
             })
           )
           .execute();
       }
     }
-  });
+  };
+
+  if (trx === kysely) {
+    await executeTransaction(execute);
+  } else {
+    await execute(trx);
+  }
 };
 
 export const sachaCommemoratifRepository = {

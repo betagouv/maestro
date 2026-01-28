@@ -9,17 +9,13 @@ export const CommemoratifValueSigle = z
 export type CommemoratifValueSigle = z.infer<typeof CommemoratifValueSigle>;
 
 export const SachaCommemoratifValue = z.object({
-  cle: z.string(),
   sigle: CommemoratifValueSigle,
-  libelle: z.string(),
-  statut: z.string()
+  libelle: z.string()
 });
 
 export const SachaCommemoratif = z.object({
-  cle: z.string(),
   sigle: CommemoratifSigle,
   libelle: z.string(),
-  statut: z.string(),
   typeDonnee: z.string().nullable(),
   unite: z.string().nullable(),
   values: z.array(SachaCommemoratifValue)

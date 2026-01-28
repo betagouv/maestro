@@ -122,9 +122,7 @@ export interface SachaResidueMappings {
 
 export interface SachaCommemoratifs {
   sigle: CommemoratifSigle;
-  cle: string;
   libelle: string;
-  statut: string;
   typeDonnee: string | null;
   unite: string | null;
 }
@@ -132,9 +130,7 @@ export interface SachaCommemoratifs {
 export interface SachaCommemoratifValues {
   sigle: CommemoratifValueSigle;
   commemoratifSigle: CommemoratifSigle;
-  cle: string;
   libelle: string;
-  statut: string;
 }
 
 export interface Laboratories {

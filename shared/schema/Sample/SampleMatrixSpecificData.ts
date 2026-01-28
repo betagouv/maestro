@@ -125,10 +125,10 @@ export const schemasByProgrammingPlanKind = {
   >;
 };
 
-export function getSampleMatrixSpecificDataAttributeValues(
+export const getSampleMatrixSpecificDataAttributeValues = (
   programmingPlanKind: ProgrammingPlanKind,
   attributeName: SampleMatrixSpecificDataKeys
-): string[] {
+): string[] => {
   const schema = schemasByProgrammingPlanKind[programmingPlanKind];
 
   const shape = schema.shape;
@@ -143,7 +143,7 @@ export function getSampleMatrixSpecificDataAttributeValues(
   }
 
   return [];
-}
+};
 export const getAllSachaAttributes = (): SampleMatrixSpecificDataKeys[] =>
   uniq(
     ProgrammingPlanKindWithSacha.options.flatMap((kind) =>
