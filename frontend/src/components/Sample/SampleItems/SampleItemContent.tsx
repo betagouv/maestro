@@ -191,7 +191,7 @@ const SampleItemContent = ({
             label="Numéro de scellé"
             hintText="Inscrit sur le lien autobloquant de scellé"
             disabled={readonly}
-            required
+            required={partialSample.context !== 'Surveillance'}
           />
         </div>
         <div className={cx('fr-col-12')}>

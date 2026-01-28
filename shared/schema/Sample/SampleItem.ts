@@ -23,14 +23,7 @@ export const SampleItem = z.object({
         ? "Veuillez renseigner si l'échantillon respecte la directive 2002/63"
         : issue.message
   }),
-  sealId: z
-    .string({
-      error: (issue) =>
-        isNil(issue.input)
-          ? 'Veuillez renseigner le numéro de scellé.'
-          : issue.message
-    })
-    .min(1, 'Veuillez renseigner le numéro de scellé.'),
+  sealId: z.string().nullish(),
   supportDocumentId: z.guid().nullish(),
   recipientKind: SampleItemRecipientKind,
   laboratoryId: z

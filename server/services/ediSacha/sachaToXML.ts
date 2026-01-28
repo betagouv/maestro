@@ -164,7 +164,7 @@ export const generateXMLDAI = (
                 sampleItem.itemNumber,
                 sampleItem.copyNumber
               ),
-              Commentaire: sampleItem.sealId
+              Commentaire: sampleItem.sealId ?? ''
             }
           }
         ],
