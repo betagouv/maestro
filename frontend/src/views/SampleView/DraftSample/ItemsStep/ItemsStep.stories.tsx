@@ -145,6 +145,7 @@ export const SubmittingErrors: Story = {
   args: {
     partialSample: {
       ...partialSample,
+      context: 'Control',
       items: partialSample.items.slice(0, 1).map((item: PartialSampleItem) => ({
         ...item,
         quantity: undefined,
@@ -173,9 +174,6 @@ export const SubmittingErrors: Story = {
     ).toBeInTheDocument();
     await expect(
       canvas.getByText("Veuillez renseigner l'unité de mesure.")
-    ).toBeInTheDocument();
-    await expect(
-      canvas.getByText('Veuillez renseigner le numéro de scellé.')
     ).toBeInTheDocument();
     await expect(
       canvas.getByText(
