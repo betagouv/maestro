@@ -183,6 +183,12 @@ test(`génère un XML de DAI`, async () => {
           values: {
             ESP7: 'SIGLE_VALUE_SACHA' as CommemoratifValueSigle
           }
+        },
+        ageInDays: {
+          attribute: 'ageInDays',
+          inDai: true,
+          sachaCommemoratifSigle: 'AGED' as CommemoratifSigle,
+          values: {}
         }
       },
       {
@@ -192,6 +198,13 @@ test(`génère un XML de DAI`, async () => {
           libelle: 'nouveau sigle',
           typeDonnee: 'list',
           unite: null,
+          values: {}
+        },
+        ['AGED' as CommemoratifSigle]: {
+          sigle: 'AGED' as CommemoratifSigle,
+          libelle: 'age en jours',
+          typeDonnee: 'numeric',
+          unite: 'jours',
           values: {}
         }
       }
@@ -247,6 +260,10 @@ test(`génère un XML de DAI`, async () => {
             <NumeroEtiquette>PEL-26-00073-A-2</NumeroEtiquette>
             <Commentaire>sealId</Commentaire>
           </DialogueEchantillonComplet>
+          <DialogueCommemoratif>
+            <Sigle>AGED</Sigle>
+            <TexteValeur>12</TexteValeur>
+          </DialogueCommemoratif>
           <DialogueCommemoratif>
             <Sigle>SIGLE_SACHA</Sigle>
             <SigleValeur>SIGLE_VALUE_SACHA</SigleValeur>
@@ -437,5 +454,89 @@ describe('getCommemoratifs', () => {
         sachaCommemoratifRecord
       )
     ).toThrow('Configuration SACHA incomplète: species ESP7');
+  });
+
+  test('gère les commémoratifs de type texte', () => {
+    const specificDataWithText: SampleMatrixSpecificData = {
+      ...specificData,
+      animalIdentifier: 'super identifiant'
+    };
+
+    const result = getCommemoratifs(
+      specificDataWithText,
+      {
+        ...sampleSpecificDataRecord,
+        animalIdentifier: {
+          attribute: 'animalIdentifier',
+          sachaCommemoratifSigle: 'IDA' as CommemoratifSigle,
+          inDai: true,
+          values: {}
+        }
+      },
+      {
+        ...sachaCommemoratifRecord,
+        ['IDA' as CommemoratifSigle]: {
+          sigle: 'IDA' as CommemoratifSigle,
+          libelle: 'Identifiant animal',
+          typeDonnee: 'text',
+          unite: null,
+          values: {}
+        }
+      }
+    );
+
+    expect(result).toEqual([{ sigle: 'IDA', value: 'super identifiant' }]);
+  });
+
+  test('gère les commémoratifs de type numérique', () => {
+    const specificDataWithNumber: SampleMatrixSpecificData = {
+      ...specificData,
+      ageInDays: 140
+    };
+
+    const result = getCommemoratifs(
+      specificDataWithNumber,
+      {
+        ...sampleSpecificDataRecord,
+        ageInDays: {
+          attribute: 'ageInDays',
+          sachaCommemoratifSigle: 'AGED' as CommemoratifSigle,
+          inDai: true,
+          values: {}
+        }
+      },
+      {
+        ...sachaCommemoratifRecord,
+        ['AGED' as CommemoratifSigle]: {
+          sigle: 'AGED' as CommemoratifSigle,
+          libelle: 'age en jours',
+          typeDonnee: 'number',
+          unite: 'jours',
+          values: {}
+        }
+      }
+    );
+
+    expect(result).toEqual([{ sigle: 'AGED', value: 140 }]);
+  });
+
+  test("émet une erreur quand le sachaCommemoratifSigle n'existe pas dans sachaCommemoratifRecord", () => {
+    expect(() =>
+      getCommemoratifs(
+        specificData,
+        {
+          ...sampleSpecificDataRecord,
+          species: {
+            attribute: 'species',
+            sachaCommemoratifSigle: 'SIGLE_INEXISTANT' as CommemoratifSigle,
+            inDai: true,
+            values: {
+              ESP7: 'POULE' as CommemoratifValueSigle
+            }
+          }
+        },
+        sachaCommemoratifRecord
+      )
+    ).toThrow();
   });
 });
