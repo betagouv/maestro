@@ -6,6 +6,7 @@ import {
   LaboratoryAnalyticalCompetenceToSave
 } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
 import { api } from 'src/services/api.service';
+import config from '../utils/config';
 
 const laboratoryApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -99,10 +100,18 @@ const laboratoryApi = api.injectEndpoints({
   })
 });
 
+const laboratoryAnalyticCompetencesExportURL = (laboratoryId: string) =>
+  `${config.apiEndpoint}/api/laboratories/${laboratoryId}/analytical-competences/export`;
+
 export const {
   useGetLaboratoryQuery,
   useFindLaboratoriesQuery,
   useGetLaboratoryAnalyticalCompetencesQuery,
   useCreateLaboratoryAnalyticalCompetenceMutation,
-  useUpdateLaboratoryAnalyticalCompetenceMutation
-} = laboratoryApi;
+  useUpdateLaboratoryAnalyticalCompetenceMutation,
+  getLaboratoryAnalyticCompetencesExportURL
+} = {
+  ...laboratoryApi,
+  getLaboratoryAnalyticCompetencesExportURL:
+    laboratoryAnalyticCompetencesExportURL
+};

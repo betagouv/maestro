@@ -35,6 +35,7 @@ type MockableApiKeys = Exclude<
   | 'getPrescriptionsExportURL'
   | 'getSupportDocumentURL'
   | 'getSampleListExportURL'
+  | 'getLaboratoryAnalyticCompetencesExportURL'
 >;
 export type MockApi = {
   [Key in MockableApiKeys]: ApiClient[Key] extends TypedUseQuery<

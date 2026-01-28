@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import laboratoryAnalyticalCompetenceRepository from '../repositories/laboratoryAnalyticalCompetenceRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
+import { excelService } from '../services/excelService/excelService';
 
 export const laboratoriesRouter = {
   '/laboratories/:laboratoryId': {
@@ -113,5 +114,40 @@ export const laboratoriesRouter = {
           response: competencesToUpdate
         };
       }
+    },
+  '/laboratories/:laboratoryId/analytical-competences/export': {
+    get: async (_, { laboratoryId }, response) => {
+      console.info('Export laboratory analytical competences', laboratoryId);
+
+      const laboratory = await laboratoryRepository.findUnique(laboratoryId);
+
+      if (!laboratory) {
+        return { status: constants.HTTP_STATUS_NOT_FOUND };
+      }
+
+      const analyticalCompetences =
+        await laboratoryAnalyticalCompetenceRepository.findManyByLaboratoryId(
+          laboratoryId
+        );
+
+      const fileName = `competences-analytiques-${laboratory.shortName}.xlsx`;
+
+      const buffer =
+        await excelService.generateLaboratoryAnalyticCompetencesExportExcel(
+          analyticalCompetences
+        );
+
+      response.setHeader(
+        'Content-disposition',
+        `inline; filename=${encodeURIComponent(fileName)}`
+      );
+      response.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+      response.setHeader('Content-Length', `${buffer.length}`);
+
+      return { status: constants.HTTP_STATUS_OK, response: buffer };
     }
+  }
 } as const satisfies ProtectedSubRouter;

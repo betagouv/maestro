@@ -91,7 +91,8 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readCompanies',
     'readAnalysis',
     'viewDashboard',
-    'readLaboratoryCompetences'
+    'readLaboratoryCompetences',
+    'manageLaboratoryCompetences'
   ],
   RegionalCoordinator: [
     ...UserSamplerPermissionsList,

@@ -1,3 +1,4 @@
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Pagination from '@codegouvfr/react-dsfr/Pagination';
 import { SearchBar } from '@codegouvfr/react-dsfr/SearchBar';
@@ -18,6 +19,7 @@ import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
+import { getLaboratoryAnalyticCompetencesExportURL } from '../../services/laboratory.service';
 import { getURLQuery } from '../../utils/fetchUtils';
 import { pluralize } from '../../utils/stringUtils';
 import LaboratoryAnalyticalCompetencesForm from './LaboratoryAnalyticalCompetenceForm';
@@ -96,26 +98,42 @@ const LaboratoryAnalyticalCompetencesView = () => {
       />
       <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
         {!user?.laboratoryId && (
-          <Select
-            label="Laboratoire"
-            nativeSelectProps={{
-              defaultValue: laboratoryId || '',
-              onChange: (e) => setLaboratoryId(e.target.value as string)
-            }}
-            style={{ width: '25%' }}
-          >
-            <option value="" disabled>
-              Sélectionner un laboratoire
-            </option>
-            {laboratories?.map((laboratory) => (
-              <option
-                key={`laboratory-option-${laboratory.id}`}
-                value={laboratory.id}
-              >
-                {laboratory.name}
+          <div className="d-flex-align-start">
+            <Select
+              label="Laboratoire"
+              nativeSelectProps={{
+                defaultValue: laboratoryId || '',
+                onChange: (e) => setLaboratoryId(e.target.value as string)
+              }}
+              style={{ width: '25%' }}
+            >
+              <option value="" disabled>
+                Sélectionner un laboratoire
               </option>
-            ))}
-          </Select>
+              {laboratories?.map((laboratory) => (
+                <option
+                  key={`laboratory-option-${laboratory.id}`}
+                  value={laboratory.id}
+                >
+                  {laboratory.name}
+                </option>
+              ))}
+            </Select>
+            {laboratoryId && (
+              <Button
+                iconId="fr-icon-file-download-line"
+                priority="secondary"
+                onClick={() =>
+                  window.open(
+                    getLaboratoryAnalyticCompetencesExportURL(laboratoryId)
+                  )
+                }
+                className={cx('fr-ml-3w', 'fr-mt-4w')}
+              >
+                Exporter
+              </Button>
+            )}
+          </div>
         )}
         {laboratoryId && (
           <div className="d-flex-align-center">
