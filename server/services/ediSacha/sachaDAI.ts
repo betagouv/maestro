@@ -24,7 +24,9 @@ export const generateDAI = async (sample: SampleChecked) => {
         sample,
         item,
         loadLaboratoryCall(item.laboratoryId!),
-        dateNow
+        dateNow,
+        {},
+        {}
       );
     }
 
