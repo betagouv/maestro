@@ -39,7 +39,7 @@ describe('Sacha Commemoratifs router', () => {
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body).toStrictEqual({});
     });
   });
 
@@ -84,15 +84,15 @@ describe('Sacha Commemoratifs router', () => {
               <Cle>CLE_TEST</Cle>
               <Sigle>SIGLE_TEST</Sigle>
               <Libelle>Libellé Test</Libelle>
-              <Statut>Actif</Statut>
-              <TypeDonnee>Texte</TypeDonnee>
+              <Statut>V</Statut>
+              <TypeDonnee>A</TypeDonnee>
               <Unite>kg</Unite>
             </ReferenceCommemoratif>
             <ReferenceCommemoratifsValeurs>
               <Cle>CLE_VAL_1</Cle>
               <Sigle>SIGLE_VAL_1</Sigle>
               <Libelle>Valeur 1</Libelle>
-              <Statut>Actif</Statut>
+              <Statut>V</Statut>
             </ReferenceCommemoratifsValeurs>
           </ReferenceCommemoratifType>
         </DonneesStandardisees>
@@ -102,32 +102,29 @@ describe('Sacha Commemoratifs router', () => {
         .post(testRoute)
         .send({ xmlContent })
         .use(tokenProvider(AdminFixture))
-        .expect(constants.HTTP_STATUS_CREATED);
+        .expect(constants.HTTP_STATUS_OK);
 
       const res = await request(app)
         .get(testRoute)
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      const created = res.body.find(
-        (c: { sigle: string }) => c.sigle === 'SIGLE_TEST'
-      );
-      expect(created).toMatchObject({
-        cle: 'CLE_TEST',
-        sigle: 'SIGLE_TEST',
-        libelle: 'Libellé Test',
-        statut: 'Actif',
-        typeDonnee: 'Texte',
-        unite: 'kg',
-        values: [
-          {
-            cle: 'CLE_VAL_1',
-            sigle: 'SIGLE_VAL_1',
-            libelle: 'Valeur 1',
-            statut: 'Actif'
-          }
-        ]
-      });
+      expect(res.body).toMatchInlineSnapshot(`
+        {
+          "SIGLE_TEST": {
+            "libelle": "Libellé Test",
+            "sigle": "SIGLE_TEST",
+            "typeDonnee": "text",
+            "unite": "kg",
+            "values": {
+              "SIGLE_VAL_1": {
+                "libelle": "Valeur 1",
+                "sigle": "SIGLE_VAL_1",
+              },
+            },
+          },
+        }
+      `);
     });
   });
 });

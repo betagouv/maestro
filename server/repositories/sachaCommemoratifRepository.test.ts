@@ -75,7 +75,7 @@ describe('sachaCommemoratifRepository', () => {
     const insertedCommemoratif = result[commemoratif.sigle];
 
     expect(insertedCommemoratif.libelle).toBe('Updated libelle');
-    expect(insertedCommemoratif.typeDonnee).toBe('N');
+    expect(insertedCommemoratif.typeDonnee).toBe('numeric');
   });
 
   test('upsertAll updates existing values', async () => {

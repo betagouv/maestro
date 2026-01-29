@@ -17,7 +17,7 @@ describe('getSampleMatrixSpecificDataAttributeValues', () => {
       ProgrammingPlanKind.enum.PPV,
       'matrixDetails'
     );
-    expect(result).toBeNull();
+    expect(result).toHaveLength(0);
   });
 
   test('returns only the filtered species options for DAOA_BREEDING', () => {
