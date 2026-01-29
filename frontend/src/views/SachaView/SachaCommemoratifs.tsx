@@ -2,13 +2,11 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { MatrixSpecificDataFormInputs } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
-import { SachaCommemoratifRecord } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import {
   canHaveValue,
   getAllSachaAttributes,
   getAttributeExpectedValues
 } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
-import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
 import { FunctionComponent, useContext, useMemo } from 'react';
 import { ApiClientContext } from '../../services/apiClient';
 import { CommemoratifSigleForm } from './CommemoratifSigleForm';
@@ -66,32 +64,17 @@ export const SachaCommemoratifs: FunctionComponent = () => {
       )}
 
       {!!sachaCommemoratifs && !!sampleSpecifiDataRecord && (
-        <CommemoratifsForAProgrammingPlanKind
-          sachaCommemoratifs={sachaCommemoratifs}
-          sampleSpecifiDataRecord={sampleSpecifiDataRecord}
-        />
+        <div className={clsx('d-flex-column')} style={{ gap: '2rem' }}>
+          {getAllSachaAttributes().map((attribute) => (
+            <CommemoratifSigleForm
+              key={attribute as string}
+              attribute={attribute}
+              sachaCommemoratifs={sachaCommemoratifs}
+              sampleSpecifiDataRecord={sampleSpecifiDataRecord}
+            />
+          ))}
+        </div>
       )}
-    </div>
-  );
-};
-
-const CommemoratifsForAProgrammingPlanKind = ({
-  sachaCommemoratifs,
-  sampleSpecifiDataRecord
-}: {
-  sachaCommemoratifs: SachaCommemoratifRecord;
-  sampleSpecifiDataRecord: SampleSpecificDataRecord;
-}) => {
-  return (
-    <div className={clsx('d-flex-column')} style={{ gap: '2rem' }}>
-      {getAllSachaAttributes().map((attribute) => (
-        <CommemoratifSigleForm
-          key={attribute as string}
-          attribute={attribute}
-          sachaCommemoratifs={sachaCommemoratifs}
-          sampleSpecifiDataRecord={sampleSpecifiDataRecord}
-        />
-      ))}
     </div>
   );
 };

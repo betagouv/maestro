@@ -8,36 +8,28 @@ import { CommemoratifSigleForm } from './CommemoratifSigleForm';
 
 const mockSachaCommemoratifs: SachaCommemoratifRecord = {
   ['SIGLE_1' as CommemoratifSigle]: {
-    cle: '001',
     sigle: 'SIGLE_1' as CommemoratifSigle,
     libelle: 'Premier commémoratif',
-    statut: 'V',
-    typeDonnee: 'V',
+    typeDonnee: 'list',
     unite: null,
     values: {
       ['VAL_1' as CommemoratifValueSigle]: {
-        cle: '001-1',
         sigle: 'VAL_1' as CommemoratifValueSigle,
-        libelle: 'Valeur 1',
-        statut: 'V'
+        libelle: 'Valeur 1'
       }
     }
   },
   ['SIGLE_2' as CommemoratifSigle]: {
-    cle: '002',
     sigle: 'SIGLE_2' as CommemoratifSigle,
     libelle: 'Deuxième commémoratif',
-    statut: 'V',
-    typeDonnee: 'N',
+    typeDonnee: 'list',
     unite: null,
     values: {}
   },
   ['SIGLE_3' as CommemoratifSigle]: {
-    cle: '003',
     sigle: 'SIGLE_3' as CommemoratifSigle,
     libelle: 'Troisième commémoratif',
-    statut: 'V',
-    typeDonnee: null,
+    typeDonnee: 'numeric',
     unite: null,
     values: {}
   }
@@ -55,6 +47,7 @@ export const DAOABreeding = {
     <CommemoratifSigleForm
       attribute="breedingMethod"
       sachaCommemoratifs={mockSachaCommemoratifs}
+      sampleSpecifiDataRecord={{}}
     />
   )
 };
@@ -64,6 +57,7 @@ export const DAOASlaughter = {
     <CommemoratifSigleForm
       attribute="animalKind"
       sachaCommemoratifs={mockSachaCommemoratifs}
+      sampleSpecifiDataRecord={{}}
     />
   )
 };

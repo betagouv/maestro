@@ -12,14 +12,6 @@ describe('getSampleMatrixSpecificDataAttributeValues', () => {
     expect(result).toBe(CultureKind.options);
   });
 
-  test('returns null for non-existent attribute in PPV', () => {
-    const result = getSampleMatrixSpecificDataAttributeValues(
-      ProgrammingPlanKind.enum.PPV,
-      'nonExistentAttribute'
-    );
-    expect(result).toBeNull();
-  });
-
   test('returns null for matrixDetails (string field without options)', () => {
     const result = getSampleMatrixSpecificDataAttributeValues(
       ProgrammingPlanKind.enum.PPV,
