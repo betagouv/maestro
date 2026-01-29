@@ -6,8 +6,6 @@ export const BreedingMethod = z.enum(['PROD_1', 'PROD_2', 'PROD_3'], {
 
 export type BreedingMethod = z.infer<typeof BreedingMethod>;
 
-export const BreedingMethodList = BreedingMethod.options;
-
 export const BreedingMethodLabels: Record<BreedingMethod, string> = {
   PROD_1: 'Biologique',
   PROD_2: 'Standard',

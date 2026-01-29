@@ -44,7 +44,7 @@ const AnimalAgeInMonths = z.coerce
   .int()
   .nonnegative();
 
-export const SampleMatrixSpecificDataPPV = z.object({
+const SampleMatrixSpecificDataPPV = z.object({
   programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PPV),
   matrixDetails: z.string().nullish(),
   cultureKind: CultureKind,
@@ -52,7 +52,7 @@ export const SampleMatrixSpecificDataPPV = z.object({
   releaseControl: z.boolean().nullish()
 });
 
-export const SampleMatrixSpecificDataDAOABreeding = z.object({
+const SampleMatrixSpecificDataDAOABreeding = z.object({
   programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_BREEDING),
   sampling: z.literal('Aléatoire'),
   animalIdentifier: AnimalIdentifier,
@@ -62,7 +62,7 @@ export const SampleMatrixSpecificDataDAOABreeding = z.object({
   outdoorAccess: OutdoorAccess
 });
 
-export const SampleMatrixSpecificDataDAOASlaughter = z.object({
+const SampleMatrixSpecificDataDAOASlaughter = z.object({
   programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_SLAUGHTER),
   killingCode: KillingCode,
   sampling: z.literal('Aléatoire'),
@@ -115,7 +115,7 @@ export type PartialSampleMatrixSpecificData = z.infer<
   typeof PartialSampleMatrixSpecificData
 >;
 
-export const schemasByProgrammingPlanKind = {
+const schemasByProgrammingPlanKind = {
   PPV: SampleMatrixSpecificDataPPV,
   DAOA_BREEDING: SampleMatrixSpecificDataDAOABreeding,
   DAOA_SLAUGHTER: SampleMatrixSpecificDataDAOASlaughter

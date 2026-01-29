@@ -8,7 +8,7 @@ export const CommemoratifValueSigle = z
   .brand('CommemoratifValueSigle');
 export type CommemoratifValueSigle = z.infer<typeof CommemoratifValueSigle>;
 
-export const SachaCommemoratifValue = z.object({
+const SachaCommemoratifValue = z.object({
   sigle: CommemoratifValueSigle,
   libelle: z.string()
 });
