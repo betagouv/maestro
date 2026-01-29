@@ -1,5 +1,7 @@
 import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
+import { sampleSpecificDataRepository } from '../../repositories/sampleSpecificDataRepository';
 import { sendSachaFile } from './sachaSender';
 import { generateXMLDAI, loadLaboratoryCall, XmlFile } from './sachaToXML';
 
@@ -20,13 +22,16 @@ export const generateDAI = async (sample: SampleChecked) => {
         sample.specificData.programmingPlanKind as ProgrammingPlanKindWithSacha
       )
     ) {
+      const sachaCommemoratifRecord =
+        await sachaCommemoratifRepository.findAll();
+      const specificDataRecord = await sampleSpecificDataRepository.findAll();
       xmlFile = await generateXMLDAI(
         sample,
         item,
         loadLaboratoryCall(item.laboratoryId!),
         dateNow,
-        {},
-        {}
+        specificDataRecord,
+        sachaCommemoratifRecord
       );
     }
 

@@ -353,7 +353,7 @@ describe('getCommemoratifs', () => {
         },
         sachaCommemoratifRecord
       )
-    ).toEqual([{ sigle: 'ESPECE', value: 'POULE' }]);
+    ).toEqual([{ sigle: 'ESPECE', sigleValue: 'POULE' }]);
   });
 
   test('ignore les attributs qui ne sont pas dans specificData', () => {
@@ -381,7 +381,7 @@ describe('getCommemoratifs', () => {
         },
         sachaCommemoratifRecord
       )
-    ).toEqual([{ sigle: 'ESPECE', value: 'POULE' }]);
+    ).toEqual([{ sigle: 'ESPECE', sigleValue: 'POULE' }]);
   });
 
   test('retourne plusieurs commémoratifs quand plusieurs attributs inclus dans la DAI', () => {
@@ -420,8 +420,11 @@ describe('getCommemoratifs', () => {
       }
     );
     expect(result).toHaveLength(2);
-    expect(result).toContainEqual({ sigle: 'ESPECE', value: 'POULE' });
-    expect(result).toContainEqual({ sigle: 'MODE_ELEVAGE', value: 'INTENSIF' });
+    expect(result).toContainEqual({ sigle: 'ESPECE', sigleValue: 'POULE' });
+    expect(result).toContainEqual({
+      sigle: 'MODE_ELEVAGE',
+      sigleValue: 'INTENSIF'
+    });
   });
 
   test('émet une erreur quand le sachaCommemoratifSigle est manquant', () => {
@@ -485,7 +488,7 @@ describe('getCommemoratifs', () => {
       }
     );
 
-    expect(result).toEqual([{ sigle: 'IDA', value: 'super identifiant' }]);
+    expect(result).toEqual([{ sigle: 'IDA', textValue: 'super identifiant' }]);
   });
 
   test('gère les commémoratifs de type numérique', () => {
@@ -517,7 +520,7 @@ describe('getCommemoratifs', () => {
       }
     );
 
-    expect(result).toEqual([{ sigle: 'AGED', value: 140 }]);
+    expect(result).toEqual([{ sigle: 'AGED', textValue: '140' }]);
   });
 
   test("émet une erreur quand le sachaCommemoratifSigle n'existe pas dans sachaCommemoratifRecord", () => {
