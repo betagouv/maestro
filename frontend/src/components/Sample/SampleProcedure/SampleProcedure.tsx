@@ -39,7 +39,7 @@ const SampleProcedure = ({ partialSample }: Props) => {
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12', 'fr-col-md-6')}>
           <div className={cx('fr-my-1v')}>
-            <b>Contenant en platique</b>
+            <b>Contenant en plastique</b>
           </div>
           <div className={cx('fr-my-1v')}>
             Température : <b>-18° </b>
