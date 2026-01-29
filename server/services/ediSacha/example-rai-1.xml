@@ -75,7 +75,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -108,7 +108,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -141,7 +141,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -174,7 +174,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -207,7 +207,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -240,7 +240,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -273,7 +273,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -306,7 +306,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.01</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -339,7 +339,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.01</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -372,7 +372,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.005</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -405,7 +405,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.005</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -438,7 +438,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.005</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -471,7 +471,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.005</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -504,7 +504,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.005</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -537,7 +537,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.01</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -570,7 +570,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.01</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -603,7 +603,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.01</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -636,7 +636,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -669,7 +669,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -702,7 +702,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -735,7 +735,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -768,7 +768,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.01</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -801,7 +801,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.01</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -834,7 +834,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -867,7 +867,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -900,7 +900,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -933,7 +933,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -966,7 +966,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -999,7 +999,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1032,7 +1032,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.01</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1065,7 +1065,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1108,7 +1108,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1141,7 +1141,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1174,7 +1174,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1207,7 +1207,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.03</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1240,7 +1240,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.01</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1273,7 +1273,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1306,7 +1306,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1339,7 +1339,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1372,7 +1372,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1405,7 +1405,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.005</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1438,7 +1438,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.01</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1471,7 +1471,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.01</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1504,7 +1504,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.01</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1537,7 +1537,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.01</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1570,7 +1570,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.01</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1603,7 +1603,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.01</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1636,7 +1636,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.01</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1669,7 +1669,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.005</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1702,7 +1702,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.005</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1735,7 +1735,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.005</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1768,7 +1768,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1801,7 +1801,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1834,7 +1834,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1867,7 +1867,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1900,7 +1900,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1933,7 +1933,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1966,7 +1966,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -1999,7 +1999,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -2032,7 +2032,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -2065,7 +2065,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -2098,7 +2098,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -2131,7 +2131,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.01</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>
@@ -2164,7 +2164,7 @@
                     <IdentifiantLabo>1111/111/1</IdentifiantLabo>
                     <NumeroDossierLIMS>1234</NumeroDossierLIMS>
                     <IndicateurAnalyseConfirmation>N</IndicateurAnalyseConfirmation>
-                    <OperateurResultatQuantitatif></OperateurResultatQuantitatif>
+                    <OperateurResultatQuantitatif>=</OperateurResultatQuantitatif>
                     <ValeurResultatQuantitatif>0.003</ValeurResultatQuantitatif>
                     <SigleUnite>MG_KG_PR</SigleUnite>
                     <DateValidation>2025-01-02</DateValidation>

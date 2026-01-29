@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 
 export const Species = z.enum(
   [
@@ -52,10 +51,4 @@ export const SpeciesLabels: Record<Species, string> = {
   ESP18: 'Pigeon',
   ESP19: 'Faisan',
   ESP20: 'Autre volaille'
-};
-
-export const SpeciesByProgrammingPlanKind: Partial<
-  Record<ProgrammingPlanKind, Species[]>
-> = {
-  [ProgrammingPlanKind.enum.DAOA_BREEDING]: ['ESP7', 'ESP8', 'ESP10', 'ESP20']
 };

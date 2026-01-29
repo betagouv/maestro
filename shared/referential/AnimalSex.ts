@@ -6,8 +6,6 @@ export const AnimalSex = z.enum(['SEX1', 'SEX2', 'SEX3', 'SEX4', 'SEX5'], {
 
 export type AnimalSex = z.infer<typeof AnimalSex>;
 
-export const AnimalSexList = AnimalSex.options;
-
 export const AnimalSexLabels: Record<AnimalSex, string> = {
   SEX1: 'Mâle entier',
   SEX2: 'Mâle castré',
