@@ -5,7 +5,7 @@ import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
-import { Laboratories as KyselyLaboratories } from './kysely.type';
+import { Laboratories as KyselyLaboratories, toSqlArray } from './kysely.type';
 
 const laboratoryTable = 'laboratories';
 
@@ -35,8 +35,21 @@ const findMany = async (
       'laboratoryAgreements.laboratoryId',
       'laboratories.id'
     )
+    .select([
+      'laboratories.id',
+      'laboratories.shortName',
+      'laboratories.name',
+      'laboratories.address',
+      'laboratories.postalCode',
+      'laboratories.city',
+      'laboratories.emails',
+      'laboratories.emailsAnalysisResult',
+      'laboratories.sachaEmail',
+      'laboratories.sachaGpgPublicKey',
+      'laboratories.sachaSigle'
+    ])
     .distinct()
-    .selectAll();
+    .orderBy('laboratories.name', 'asc');
 
   for (const option of FindLaboratoryOptions.keyof().options) {
     switch (option) {
@@ -56,6 +69,21 @@ const findMany = async (
             '=',
             findOptions.substanceKind
           );
+        }
+        break;
+      case 'programmingPlanKind':
+        if (!isNil(findOptions.programmingPlanKind)) {
+          query = query
+            .innerJoin(
+              'programmingPlans',
+              'programmingPlans.id',
+              'laboratoryAgreements.programmingPlanId'
+            )
+            .where(
+              'programmingPlans.kinds',
+              '@>',
+              toSqlArray([findOptions.programmingPlanKind])
+            );
         }
         break;
       default:
