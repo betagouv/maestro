@@ -5,6 +5,7 @@ import {
   genCommemoratif,
   genCommemoratifValue
 } from '../../repositories/sachaCommemoratifRepository.test';
+import { sachaConfRepository } from '../../repositories/sachaConfRepository';
 import { sampleSpecificDataRepository } from '../../repositories/sampleSpecificDataRepository';
 import {
   TypeDonneeCodec,
@@ -59,6 +60,15 @@ const buildXML = (
 
   return `<?xml version="1.0" encoding="UTF-8"?>
     <DonneesStandardisees>
+      <MessageParametres>
+          <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
+          <VersionScenario>1.0.1</VersionScenario>
+          <TypeFichier>DS01</TypeFichier>
+          <NomFichier>DS01DGALDGAL251224111923306</NomFichier>
+          <NomLogicielCreation>SIGAL</NomLogicielCreation>
+          <VersionLogicielCreation>4.0</VersionLogicielCreation>
+          <CodeReferentielPrescripteur>SIGAL</CodeReferentielPrescripteur>
+      </MessageParametres>
       ${commemoratifsXML}
     </DonneesStandardisees>
   `;
@@ -271,7 +281,6 @@ describe('updateSachaCommemoratifs', () => {
         statut: 'V'
       }
     ]);
-
     await updateSachaCommemoratifs(xml);
 
     const result = await sachaCommemoratifRepository.findAll();
@@ -306,5 +315,25 @@ describe('updateSachaCommemoratifs', () => {
 
     expect(insertedCommemoratif).toBeDefined();
     expect(Object.keys(insertedCommemoratif.values)).toHaveLength(0);
+  });
+
+  test('handles sacha version', async () => {
+    const commemoratif = genCommemoratif({ values: [] });
+
+    const xml = buildXML([
+      {
+        sigle: commemoratif.sigle,
+        libelle: commemoratif.libelle,
+        typeDonnee: 'A',
+        statut: 'V'
+      }
+    ]);
+
+    await updateSachaCommemoratifs(xml);
+    const version = await sachaConfRepository.get();
+
+    expect(version.versionReferenceStandardisees).toEqual(
+      'DS01DGALDGAL251224111923306'
+    );
   });
 });

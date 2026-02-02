@@ -22,8 +22,9 @@ import { RequiredNotNull } from 'maestro-shared/utils/typescript';
 import fs from 'node:fs';
 import path from 'path';
 import { z, ZodObject } from 'zod';
-import { Laboratories } from '../../repositories/kysely.type';
+import { Laboratories, SachaConf } from '../../repositories/kysely.type';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
+import { sachaConfRepository } from '../../repositories/sachaConfRepository';
 import config from '../../utils/config';
 import {
   NotPPVMatrix,
@@ -51,10 +52,11 @@ export type XmlFile = {
   >;
 };
 
-export const loadLaboratoryCall =
+export const loadLaboratoryAndSachaConfCall =
   (laboratoryId: string) =>
   async (): Promise<{
     laboratory: XmlFile['laboratory'];
+    sachaConf: SachaConf;
   }> => {
     const laboratory = await laboratoryRepository.findUnique(laboratoryId);
     if (!laboratory) {
@@ -73,20 +75,23 @@ export const loadLaboratoryCall =
       );
     }
 
+    const sachaConf = await sachaConfRepository.get();
+
     return {
       laboratory: {
         sachaSigle: laboratory.sachaSigle,
         sachaEmail: laboratory.sachaEmail,
         shortName: laboratory.shortName,
         name: laboratory.name
-      }
+      },
+      sachaConf
     };
   };
 
 export const generateXMLAcquitement = async (
   messagesAcquittement: Acquittement['MessageAcquittement'],
   messagesNonAcquittement: Acquittement['MessageNonAcquittement'],
-  loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryCall>,
+  loadLaboratoryAndSachaConf: ReturnType<typeof loadLaboratoryAndSachaConfCall>,
   department: Department,
   dateNow: number
 ): Promise<XmlFile> => {
@@ -98,7 +103,7 @@ export const generateXMLAcquitement = async (
     },
     dateNow,
     department,
-    loadLaboratoryAndSender
+    loadLaboratoryAndSachaConf
   );
 };
 
@@ -177,7 +182,7 @@ export const generateXMLDAI = (
     | 'reference'
   >,
   sampleItem: Pick<SampleItem, 'sealId' | 'itemNumber' | 'copyNumber'>,
-  loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryCall>,
+  loadLaboratoryAndSachaConf: ReturnType<typeof loadLaboratoryAndSachaConfCall>,
   dateNow: number,
 
   sampleSpecifDataRecord: SampleSpecificDataRecord,
@@ -280,7 +285,7 @@ export const generateXMLDAI = (
     },
     dateNow,
     sample.department,
-    loadLaboratoryAndSender
+    loadLaboratoryAndSachaConf
   );
 };
 
@@ -315,14 +320,14 @@ const generateXML = async <T extends FileType>(
   content: z.infer<(typeof fileTypeConf)[T]['content']>,
   dateNow: number,
   department: Department,
-  loadLaboratoryAndSender: ReturnType<typeof loadLaboratoryCall>
+  loadLaboratoryAndSachaConf: ReturnType<typeof loadLaboratoryAndSachaConfCall>
 ): Promise<XmlFile> => {
   const builder = new XMLBuilder({
     ignoreAttributes: false,
     format: true
   });
 
-  const { laboratory } = await loadLaboratoryAndSender();
+  const { laboratory, sachaConf } = await loadLaboratoryAndSachaConf();
 
   const conf = fileTypeConf[fileType];
 
@@ -345,6 +350,8 @@ const generateXML = async <T extends FileType>(
         VersionScenario: '1.0.1',
         TypeFichier: fileType,
         NomFichier: fileName,
+        VersionReferenceStandardisees: sachaConf.versionReferenceStandardisees,
+        VersionReferencePrescripteur: '',
         NomLogicielCreation: 'SIGAL',
         VersionLogicielCreation: '4.0'
       },

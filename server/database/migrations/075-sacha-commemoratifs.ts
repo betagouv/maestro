@@ -21,6 +21,13 @@ export const up = async (knex: Knex) => {
     table.index(['commemoratif_sigle']);
   });
 
+  await knex.schema.createTable('sacha_conf', (table) => {
+    table.boolean('singleton').primary().defaultTo(true);
+    table.text('version_reference_standardisees').notNullable();
+  });
+
+  await knex('sacha_conf').insert({ version_reference_standardisees: 'v0' });
+
   await knex.schema.createTable('sample_specific_data_attributes', (table) => {
     table.string('attribute').notNullable();
     table.string('sacha_commemoratif_sigle').nullable();
@@ -60,5 +67,6 @@ export const down = async (knex: Knex) => {
   await knex.schema.dropTable('sample_specific_data_attribute_values');
   await knex.schema.dropTable('sample_specific_data_attributes');
   await knex.schema.dropTable('sacha_commemoratif_values');
+  await knex.schema.dropTable('sacha_conf');
   await knex.schema.dropTable('sacha_commemoratifs');
 };

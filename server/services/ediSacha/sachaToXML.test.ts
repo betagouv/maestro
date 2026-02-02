@@ -13,7 +13,7 @@ import {
   getCommemoratifs,
   getXmlFileName,
   getZipFileName,
-  loadLaboratoryCall
+  loadLaboratoryAndSachaConfCall
 } from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
 
@@ -24,14 +24,12 @@ const laboratory = {
   sachaEmail: 'fake@email.fr'
 } as const;
 
-const loadLaboratoryAndSender: ReturnType<
-  typeof loadLaboratoryCall
+const loadLaboratoryAndSachaConf: ReturnType<
+  typeof loadLaboratoryAndSachaConfCall
 > = async () => ({
   laboratory,
-  sender: {
-    sachaSigle: 'DAAF',
-    name: 'DAAF Test',
-    sachaEmail: 'daaf@gr.gouv.fr'
+  sachaConf: {
+    versionReferenceStandardisees: 'v12341234'
   }
 });
 
@@ -96,7 +94,7 @@ test(`génère un XML d'acquittement`, async () => {
         }
       ],
       undefined,
-      loadLaboratoryAndSender,
+      loadLaboratoryAndSachaConf,
       '72',
       1765876056798
     )
@@ -110,6 +108,8 @@ test(`génère un XML d'acquittement`, async () => {
         <VersionScenario>1.0.1</VersionScenario>
         <TypeFichier>AN01</TypeFichier>
         <NomFichier>AN01DDSV72LDA7225121610073679</NomFichier>
+        <VersionReferenceStandardisees>v12341234</VersionReferenceStandardisees>
+        <VersionReferencePrescripteur></VersionReferencePrescripteur>
         <NomLogicielCreation>SIGAL</NomLogicielCreation>
         <VersionLogicielCreation>4.0</VersionLogicielCreation>
       </MessageParametres>
@@ -171,7 +171,7 @@ test(`génère un XML de DAI`, async () => {
         itemNumber: 1,
         copyNumber: 2
       },
-      loadLaboratoryAndSender,
+      loadLaboratoryAndSachaConf,
       1765876056798,
       {
         ...sampleSpecificDataRecord,
@@ -218,6 +218,8 @@ test(`génère un XML de DAI`, async () => {
         <VersionScenario>1.0.1</VersionScenario>
         <TypeFichier>DA01</TypeFichier>
         <NomFichier>DA01DDSV72LDA7225121610073679</NomFichier>
+        <VersionReferenceStandardisees>v12341234</VersionReferenceStandardisees>
+        <VersionReferencePrescripteur></VersionReferencePrescripteur>
         <NomLogicielCreation>SIGAL</NomLogicielCreation>
         <VersionLogicielCreation>4.0</VersionLogicielCreation>
       </MessageParametres>

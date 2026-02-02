@@ -7,6 +7,7 @@ import {
 import z from 'zod';
 import { executeTransaction } from '../../repositories/kysely';
 import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
+import { sachaConfRepository } from '../../repositories/sachaConfRepository';
 import { sampleSpecificDataRepository } from '../../repositories/sampleSpecificDataRepository';
 
 interface ReferenceCommemoratif {
@@ -72,6 +73,9 @@ export const updateSachaCommemoratifs = async (xmlContent: string) => {
 
   const parsed = parser.parse(xmlContent);
 
+  const nomFichier: string =
+    parsed.DonneesStandardisees.MessageParametres.NomFichier;
+
   const referenceCommemoratifTypes: ReferenceCommemoratifType[] =
     parsed.DonneesStandardisees.ReferenceCommemoratifType ?? [];
 
@@ -96,6 +100,10 @@ export const updateSachaCommemoratifs = async (xmlContent: string) => {
   const current = await sampleSpecificDataRepository.findAll();
 
   await executeTransaction(async (trx) => {
+    await sachaConfRepository.update(
+      { versionReferenceStandardisees: nomFichier },
+      trx
+    );
     for (const attribute of Object.keys(current)) {
       const { values: specificDataAttributeValues, ...specificDataAttribute } =
         current[attribute];
@@ -157,4 +165,6 @@ export const updateSachaCommemoratifs = async (xmlContent: string) => {
       trx
     );
   });
+
+  return nomFichier;
 };

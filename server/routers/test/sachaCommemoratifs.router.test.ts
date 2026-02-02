@@ -79,6 +79,9 @@ describe('Sacha Commemoratifs router', () => {
     test('should create commemoratifs from XML and retrieve them', async () => {
       const xmlContent = `
         <DonneesStandardisees>
+          <MessageParametres>
+            <NomFichier>DS01DGALDGAL251224111923306</NomFichier>
+          </MessageParametres>
           <ReferenceCommemoratifType>
             <ReferenceCommemoratif>
               <Cle>CLE_TEST</Cle>

@@ -3,7 +3,11 @@ import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
 import { sampleSpecificDataRepository } from '../../repositories/sampleSpecificDataRepository';
 import { sendSachaFile } from './sachaSender';
-import { generateXMLDAI, loadLaboratoryCall, XmlFile } from './sachaToXML';
+import {
+  generateXMLDAI,
+  loadLaboratoryAndSachaConfCall,
+  XmlFile
+} from './sachaToXML';
 
 //FIXME EDI à brancher avec la PPV
 export const generateDAI = async (sample: SampleChecked) => {
@@ -28,7 +32,7 @@ export const generateDAI = async (sample: SampleChecked) => {
       xmlFile = await generateXMLDAI(
         sample,
         item,
-        loadLaboratoryCall(item.laboratoryId!),
+        loadLaboratoryAndSachaConfCall(item.laboratoryId!),
         dateNow,
         specificDataRecord,
         sachaCommemoratifRecord

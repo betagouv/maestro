@@ -121,6 +121,10 @@ export interface SachaResidueMappings {
   ssd2Id: string;
 }
 
+export interface SachaConf {
+  versionReferenceStandardisees: string;
+}
+
 export interface SachaCommemoratifs {
   sigle: CommemoratifSigle;
   libelle: string;
@@ -333,6 +337,7 @@ export interface DB {
   localPrescriptions: LocalPrescriptions;
   residueAnalytes: ResidueAnalytes;
   sachaResidueMappings: SachaResidueMappings;
+  sachaConf: SachaConf;
   sachaCommemoratifs: SachaCommemoratifs;
   sachaCommemoratifValues: SachaCommemoratifValues;
   sachaSender: SachaSender;
