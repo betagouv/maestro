@@ -5,8 +5,8 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
 import { isNil, uniqBy } from 'lodash-es';
+import { Region } from 'maestro-shared/referential/Region';
 import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
-import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isCreatedPartialSample,
@@ -19,7 +19,6 @@ import {
 import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleStatusSteps } from 'maestro-shared/schema/Sample/SampleStatus';
 import { MaestroDate } from 'maestro-shared/utils/date';
-import { toArray } from 'maestro-shared/utils/utils';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -79,38 +78,24 @@ const ItemsStep = ({ partialSample }: Props) => {
   const [createOrUpdateSample, createOrUpdateSampleCall] =
     apiClient.useCreateOrUpdateSampleMutation();
 
-  const { data } = apiClient.useFindLocalPrescriptionsQuery(
+  const { data: localPrescription } = apiClient.useGetLocalPrescriptionQuery(
     {
-      programmingPlanId: partialSample.programmingPlanId as string,
-      prescriptionId: partialSample.prescriptionId,
-      contexts: toArray(
-        ProgrammingPlanContext.safeParse(partialSample.context).data
-      ),
+      prescriptionId: partialSample.prescriptionId as string,
       region: isCreatedPartialSample(partialSample)
         ? partialSample.region
-        : user?.region,
+        : (user?.region as Region),
       includes: 'laboratories',
       ...((programmingPlan as ProgrammingPlanChecked).distributionKind ===
       'SLAUGHTERHOUSE'
         ? {
-            department: partialSample.department
+            department: partialSample.department,
+            companySiret: partialSample.company?.siret
           }
         : {})
     },
     {
-      skip: !programmingPlan || !isProgrammingPlanSample(partialSample)
+      skip: !partialSample.prescriptionId || !user?.region
     }
-  );
-
-  const localPrescription = useMemo(
-    () =>
-      data?.find((_) =>
-        (programmingPlan as ProgrammingPlanChecked).distributionKind ===
-        'SLAUGHTERHOUSE'
-          ? isNil(_.companySiret)
-          : isNil(_.department)
-      ),
-    [data, programmingPlan]
   );
 
   useEffect(() => {
