@@ -25,7 +25,7 @@ interface Props {
 }
 
 const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
-  const { hasNationalView } = useAuthentication();
+  const { hasNationalView, hasRegionalView } = useAuthentication();
 
   const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   return (
@@ -43,17 +43,20 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
           />
         </div>
       )}
-      <div className={cx('fr-col-12', 'fr-col-md-3')}>
-        <DepartmentsSelect
-          filters={filters}
-          id={'filter-departments'}
-          onSelect={(d) =>
-            onChange({
-              departments: [...(filters.departments ?? []), d]
-            })
-          }
-        />
-      </div>{' '}
+      {(programmingPlan?.distributionKind === 'REGIONAL' ||
+        hasRegionalView) && (
+        <div className={cx('fr-col-12', 'fr-col-md-3')}>
+          <DepartmentsSelect
+            filters={filters}
+            id={'filter-departments'}
+            onSelect={(d) =>
+              onChange({
+                departments: [...(filters.departments ?? []), d]
+              })
+            }
+          />
+        </div>
+      )}
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
         <Input
           label="Date"
