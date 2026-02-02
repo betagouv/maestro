@@ -275,7 +275,11 @@ const CompanySearch = ({
             <div ref={params.InputProps.ref}>
               <input
                 {...params.inputProps}
-                value={undefined}
+                value={
+                  !multi && selectedCompanies.length === 1
+                    ? `${selectedCompanies[0].name} • ${selectedCompanies[0].siret}`
+                    : undefined
+                }
                 className="fr-input"
                 type="text"
                 data-testid="companySearch-input"
