@@ -39,8 +39,8 @@ export const localPrescriptionsRouter = {
       const findOptions = {
         ...queryFindOptions,
         region,
-        department
-        //companySirets
+        department,
+        companySirets
       };
 
       console.info('Find local prescriptions', user.id, findOptions);
