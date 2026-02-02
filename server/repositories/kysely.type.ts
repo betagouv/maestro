@@ -206,13 +206,13 @@ export interface LocalPrescriptions {
   sampleCount: number | null;
 }
 
-export interface SampleSpecificDataAttribute {
+export interface SampleSpecificDataAttributes {
   attribute: string;
   sachaCommemoratifSigle: CommemoratifSigle | null;
   inDai: boolean;
 }
 
-export interface SampleSpecificDataAttributeValue {
+export interface SampleSpecificDataAttributeValues {
   attribute: string;
   attributeValue: string;
   sachaCommemoratifValueSigle: CommemoratifValueSigle;
@@ -327,8 +327,8 @@ export interface DB {
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;
   programmingPlans: ProgrammingPlans;
-  sampleSpecificDataAttribute: SampleSpecificDataAttribute;
-  sampleSpecificDataAttributeValue: SampleSpecificDataAttributeValue;
+  sampleSpecificDataAttributes: SampleSpecificDataAttributes;
+  sampleSpecificDataAttributeValues: SampleSpecificDataAttributeValues;
   localPrescriptionComments: LocalPrescriptionComments;
   localPrescriptions: LocalPrescriptions;
   residueAnalytes: ResidueAnalytes;

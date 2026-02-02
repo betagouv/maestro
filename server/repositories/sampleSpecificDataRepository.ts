@@ -3,20 +3,20 @@ import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpe
 import { kysely } from './kysely';
 import {
   KyselyMaestro,
-  SampleSpecificDataAttribute,
-  SampleSpecificDataAttributeValue
+  SampleSpecificDataAttributes,
+  SampleSpecificDataAttributeValues
 } from './kysely.type';
 
 const findAll = async (
   trx: KyselyMaestro = kysely
 ): Promise<SampleSpecificDataRecord> => {
   const specificDataSigles = await trx
-    .selectFrom('sampleSpecificDataAttribute')
+    .selectFrom('sampleSpecificDataAttributes')
     .selectAll()
     .execute();
 
   const valueSigles = await trx
-    .selectFrom('sampleSpecificDataAttributeValue')
+    .selectFrom('sampleSpecificDataAttributeValues')
     .selectAll()
     .execute();
 
@@ -38,11 +38,11 @@ const findAll = async (
 };
 
 const updateSampleSpecificDataAttribute = async (
-  sampleSpecificDataAttribute: SampleSpecificDataAttribute,
+  sampleSpecificDataAttribute: SampleSpecificDataAttributes,
   trx: KyselyMaestro = kysely
 ) => {
   await trx
-    .insertInto('sampleSpecificDataAttribute')
+    .insertInto('sampleSpecificDataAttributes')
     .values(sampleSpecificDataAttribute)
     .onConflict((oc) =>
       oc.columns(['attribute']).doUpdateSet({
@@ -55,11 +55,11 @@ const updateSampleSpecificDataAttribute = async (
 };
 
 const updateSampleSpecificDataAttributeValue = async (
-  sampleSpecificDataAttributeValue: SampleSpecificDataAttributeValue,
+  sampleSpecificDataAttributeValue: SampleSpecificDataAttributeValues,
   trx: KyselyMaestro = kysely
 ) => {
   await trx
-    .insertInto('sampleSpecificDataAttributeValue')
+    .insertInto('sampleSpecificDataAttributeValues')
     .values(sampleSpecificDataAttributeValue)
     .onConflict((oc) =>
       oc.columns(['attribute', 'attributeValue']).doUpdateSet({
@@ -75,7 +75,7 @@ const deleteSampleSpecificDataAttributeValues = async (
   trx: KyselyMaestro = kysely
 ) => {
   await trx
-    .deleteFrom('sampleSpecificDataAttributeValue')
+    .deleteFrom('sampleSpecificDataAttributeValues')
     .where('attribute', '=', attribute)
     .execute();
 };
@@ -86,7 +86,7 @@ const deleteSampleSpecificDataAttributeValue = async (
   trx: KyselyMaestro = kysely
 ) => {
   await trx
-    .deleteFrom('sampleSpecificDataAttributeValue')
+    .deleteFrom('sampleSpecificDataAttributeValues')
     .where('attribute', '=', attribute)
     .where('attributeValue', '=', attributeValue)
     .execute();
