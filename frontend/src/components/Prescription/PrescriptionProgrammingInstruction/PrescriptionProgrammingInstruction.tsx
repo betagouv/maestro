@@ -55,7 +55,7 @@ const PrescriptionProgrammingInstruction = ({
           nativeTextAreaProps={{
             value: instruction,
             onChange: (e) => handleInputChange(e.target.value),
-            rows: 1,
+            rows: 2,
             placeholder: 'Ajouter des consignes...'
           }}
           style={{
