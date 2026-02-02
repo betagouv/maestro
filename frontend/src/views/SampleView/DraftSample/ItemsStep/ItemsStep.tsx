@@ -4,7 +4,7 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
-import { isNil, uniq } from 'lodash-es';
+import { isNil, uniqBy } from 'lodash-es';
 import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -350,20 +350,21 @@ const ItemsStep = ({ partialSample }: Props) => {
         partial: true
       }) && (
         <div>
-          {uniq(items.map((_) => _.itemNumber))
-            .filter((itemNumber) =>
-              form.hasIssue('items', [itemNumber - 1], {
+          {uniqBy(
+            items.filter((_, itemIndex) =>
+              form.hasIssue('items', [itemIndex], {
                 partial: true
               })
-            )
-            .map((itemNumber) => (
-              <Alert
-                severity="error"
-                description={`La saisie de l'échantillon n°${itemNumber} est incorrecte`}
-                key={`item-error-${itemNumber}`}
-                small
-              />
-            ))}
+            ),
+            (_) => _.itemNumber
+          ).map((item) => (
+            <Alert
+              severity="error"
+              description={`La saisie de l'échantillon n°${item.itemNumber} est incorrecte`}
+              key={`item-error-${item.itemNumber}`}
+              small
+            />
+          ))}
         </div>
       )}
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
