@@ -59,17 +59,17 @@ export const authUnprotectedRouter = {
         if (user) {
           await userRepository.addLoggedSecret(loggedSecret, user.id);
         }
-        const result: AuthMaybeUnknownUser =
-          user !== undefined
-            ? AuthUserRefined.parse({
-                user: await getUser(cookies, user),
-                userRole: user.roles[0]
-              })
-            : {
-                user: null,
-                userRole: null,
-                userEmail: email
-              };
+        let result: AuthMaybeUnknownUser;
+
+        if (user !== undefined) {
+          const authUser = await getUser(cookies, user);
+          result = AuthUserRefined.parse({
+            user: authUser,
+            userRole: authUser.roles[0]
+          });
+        } else {
+          result = { user: null, userRole: null, userEmail: email };
+        }
 
         cookie(COOKIE_MAESTRO_ACCESS_TOKEN, accessToken, {
           httpOnly: true,
