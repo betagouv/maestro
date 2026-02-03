@@ -11,6 +11,7 @@ import {
 } from 'maestro-shared/test/companyFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
+import { genLocalPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedPartialSample,
@@ -156,6 +157,7 @@ const defaultMockApiClientConf: MockApi = {
   useGetLaboratoryQuery: {
     data: LaboratoryFixture
   },
+  useGetLocalPrescriptionQuery: { data: genLocalPrescription() },
   useGetPrescriptionSubstancesQuery: { data: [] },
   useGetProgrammingPlanQuery: { data: genProgrammingPlan() },
   useGetRegionsGeoJsonQuery: {

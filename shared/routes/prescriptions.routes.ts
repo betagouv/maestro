@@ -67,6 +67,11 @@ export const prescriptionsRoutes = {
     },
   '/prescriptions/:prescriptionId/regions/:region': {
     params: LocalPrescriptionKey.shape,
+    get: {
+      query: FindLocalPrescriptionOptions.pick({ includes: true }),
+      permissions: ['readPrescriptions'],
+      response: LocalPrescription
+    },
     put: {
       body: LocalPrescriptionUpdate,
       permissions: ['updatePrescription', 'updatePrescriptionLaboratories'],
@@ -85,6 +90,15 @@ export const prescriptionsRoutes = {
       response: LocalPrescription
     }
   },
+  '/prescriptions/:prescriptionId/regions/:region/departments/:department/companies/:companySiret':
+    {
+      params: LocalPrescriptionKey.shape,
+      get: {
+        query: FindLocalPrescriptionOptions.pick({ includes: true }),
+        permissions: ['readPrescriptions'],
+        response: LocalPrescription
+      }
+    },
   '/prescriptions/:prescriptionId': {
     params: {
       prescriptionId: z.guid()
