@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 
 export const AnimalKind = z.enum(
   [
@@ -40,15 +39,4 @@ export const AnimalKindLabels: Record<AnimalKind, string> = {
   TYPEA12: 'Truie ou verrat de réforme',
   TYPEA13: 'Caille',
   TYPEA14: 'Poule - Gallus gallus'
-};
-
-export const AnimalKindsByProgrammingPlanKind: Partial<
-  Record<ProgrammingPlanKind, AnimalKind[]>
-> = {
-  [ProgrammingPlanKind.enum.DAOA_SLAUGHTER]: [
-    'TYPEA1',
-    'TYPEA2',
-    'TYPEA3',
-    'TYPEA4'
-  ]
 };

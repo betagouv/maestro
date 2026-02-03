@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 
 export const ProductionKind = z.enum(['PROD_1', 'PROD_2', 'PROD_3', 'PROD_4'], {
   error: () => 'Veuillez renseigner le type de production.'
@@ -12,15 +11,4 @@ export const ProductionKindLabels: Record<ProductionKind, string> = {
   PROD_2: 'Laitier',
   PROD_3: 'Inconnu',
   PROD_4: 'Boucherie'
-};
-
-export const ProductionKindsByProgrammingPlanKind: Partial<
-  Record<ProgrammingPlanKind, ProductionKind[]>
-> = {
-  [ProgrammingPlanKind.enum.DAOA_SLAUGHTER]: [
-    'PROD_1',
-    'PROD_2',
-    'PROD_4',
-    'PROD_3'
-  ]
 };

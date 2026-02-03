@@ -6,8 +6,6 @@ export const Seizure = z.enum(['EMPTY', 'PARTIAL', 'TOTAL'], {
 
 export type Seizure = z.infer<typeof Seizure>;
 
-export const SeizureList = Seizure.options;
-
 export const SeizureLabels: Record<Seizure, string> = {
   EMPTY: 'Absence',
   PARTIAL: 'Partielle',

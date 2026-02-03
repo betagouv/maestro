@@ -1,4 +1,4 @@
-import { isNil } from 'lodash-es';
+import { isNil, uniq } from 'lodash-es';
 import { z } from 'zod';
 import { AnimalKind } from '../../referential/AnimalKind';
 import { AnimalSex } from '../../referential/AnimalSex';
@@ -9,7 +9,14 @@ import { OutdoorAccess } from '../../referential/OutdoorAccess';
 import { ProductionKind } from '../../referential/ProductionKind';
 import { Seizure } from '../../referential/Seizure';
 import { Species } from '../../referential/Species';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
+import {
+  SampleMatrixSpecificDataKeys,
+  SpecificDataFormInput
+} from '../MatrixSpecificData/MatrixSpecificDataFormInputs';
+import {
+  ProgrammingPlanKind,
+  ProgrammingPlanKindWithSacha
+} from '../ProgrammingPlan/ProgrammingPlanKind';
 
 const KillingCode = z
   .string({
@@ -50,7 +57,7 @@ const SampleMatrixSpecificDataDAOABreeding = z.object({
   sampling: z.literal('Aléatoire'),
   animalIdentifier: AnimalIdentifier,
   ageInDays: AnimalAgeInDays,
-  species: Species,
+  species: Species.extract(['ESP7', 'ESP8', 'ESP10', 'ESP20']),
   breedingMethod: BreedingMethod,
   outdoorAccess: OutdoorAccess
 });
@@ -60,10 +67,15 @@ const SampleMatrixSpecificDataDAOASlaughter = z.object({
   killingCode: KillingCode,
   sampling: z.literal('Aléatoire'),
   animalIdentifier: AnimalIdentifier,
-  animalKind: AnimalKind,
+  animalKind: AnimalKind.extract(['TYPEA1', 'TYPEA2', 'TYPEA3', 'TYPEA4']),
   sex: AnimalSex,
   ageInMonths: AnimalAgeInMonths,
-  productionKind: ProductionKind,
+  productionKind: ProductionKind.extract([
+    'PROD_1',
+    'PROD_2',
+    'PROD_4',
+    'PROD_3'
+  ]),
   outdoorAccess: OutdoorAccess,
   seizure: Seizure
 });
@@ -102,3 +114,55 @@ export type SampleMatrixSpecificData = z.infer<typeof SampleMatrixSpecificData>;
 export type PartialSampleMatrixSpecificData = z.infer<
   typeof PartialSampleMatrixSpecificData
 >;
+
+const schemasByProgrammingPlanKind = {
+  PPV: SampleMatrixSpecificDataPPV,
+  DAOA_BREEDING: SampleMatrixSpecificDataDAOABreeding,
+  DAOA_SLAUGHTER: SampleMatrixSpecificDataDAOASlaughter
+} as const satisfies {
+  [P in ProgrammingPlanKind]: z.ZodType<
+    Extract<SampleMatrixSpecificData, { programmingPlanKind: P }>
+  >;
+};
+
+export const getSampleMatrixSpecificDataAttributeValues = (
+  programmingPlanKind: ProgrammingPlanKind,
+  attributeName: SampleMatrixSpecificDataKeys
+): string[] => {
+  const schema = schemasByProgrammingPlanKind[programmingPlanKind];
+
+  const shape = schema.shape;
+  const fieldSchema = shape[attributeName as keyof typeof shape];
+
+  if (!fieldSchema) {
+    return [];
+  }
+
+  if ('options' in fieldSchema && Array.isArray(fieldSchema.options)) {
+    return fieldSchema.options;
+  }
+
+  return [];
+};
+export const getAllSachaAttributes = (): SampleMatrixSpecificDataKeys[] =>
+  uniq(
+    ProgrammingPlanKindWithSacha.options.flatMap((kind) =>
+      Object.keys(schemasByProgrammingPlanKind[kind].shape)
+    )
+  ).filter(
+    (key): key is SampleMatrixSpecificDataKeys => key !== 'programmingPlanKind'
+  );
+export const getAttributeExpectedValues = (
+  attribute: SampleMatrixSpecificDataKeys
+): string[] =>
+  uniq(
+    ProgrammingPlanKindWithSacha.options.flatMap((p) =>
+      getSampleMatrixSpecificDataAttributeValues(p, attribute)
+    )
+  );
+export const canHaveValue = (
+  inputConf: SpecificDataFormInput
+): inputConf is Extract<
+  SpecificDataFormInput,
+  { inputType: 'select' | 'radio' }
+> => inputConf.inputType === 'select' || inputConf.inputType === 'radio';
