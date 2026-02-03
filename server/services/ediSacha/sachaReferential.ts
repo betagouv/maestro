@@ -270,6 +270,7 @@ export type NotPPVMatrix = Exclude<
   | 'A01AA'
   | 'A0CHG'
   | 'A000T'
+  | 'A00KP'
   | 'A0CXQ'
   | 'A00QJ'
   | 'A0DVJ'
