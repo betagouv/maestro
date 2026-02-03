@@ -24,6 +24,13 @@ main {
     margin-right: 1.5rem;
     text-align: right;
   }
+
+  .laboratory-address {
+    font-size: 7px;
+    line-height: 10px;
+    text-align: right;
+    margin-top: 2px;
+  }
 }
 
 .fr-header,
