@@ -29,7 +29,8 @@ const loadLaboratoryAndSachaConf: ReturnType<
 > = async () => ({
   laboratory,
   sachaConf: {
-    versionReferenceStandardisees: 'v12341234'
+    versionReferenceStandardisees: 'v12341234',
+    versionReferencePrescripteur: 'v234'
   }
 });
 
@@ -109,7 +110,7 @@ test(`génère un XML d'acquittement`, async () => {
         <TypeFichier>AN01</TypeFichier>
         <NomFichier>AN01DDSV72LDA7225121610073679</NomFichier>
         <VersionReferenceStandardisees>v12341234</VersionReferenceStandardisees>
-        <VersionReferencePrescripteur></VersionReferencePrescripteur>
+        <VersionReferencePrescripteur>v234</VersionReferencePrescripteur>
         <NomLogicielCreation>SIGAL</NomLogicielCreation>
         <VersionLogicielCreation>4.0</VersionLogicielCreation>
       </MessageParametres>
@@ -220,7 +221,7 @@ test(`génère un XML de DAI`, async () => {
         <TypeFichier>DA01</TypeFichier>
         <NomFichier>DA01DDSV72LDA7225121610073679</NomFichier>
         <VersionReferenceStandardisees>v12341234</VersionReferenceStandardisees>
-        <VersionReferencePrescripteur></VersionReferencePrescripteur>
+        <VersionReferencePrescripteur>v234</VersionReferencePrescripteur>
         <NomLogicielCreation>SIGAL</NomLogicielCreation>
         <VersionLogicielCreation>4.0</VersionLogicielCreation>
       </MessageParametres>
