@@ -35,7 +35,9 @@ const LaboratoryAnalyticalCompetencesView = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const page = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
-  const allResidues = Object.entries(SSD2Referential);
+  const allResidues = Object.entries(SSD2Referential).filter(
+    ([_, ssd2Referential]) => ssd2Referential.reportable
+  );
   const [laboratoryId, setLaboratoryId] = useState(user?.laboratoryId);
   const [residueKind, setResidueKind] = useState<ResidueKind>();
   const [residueSearch, setResidueSearch] = useState('');
