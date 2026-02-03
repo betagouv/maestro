@@ -58,7 +58,9 @@ export const SachaCommemoratifs: FunctionComponent = () => {
         <Alert
           severity={'warning'}
           title={'Configuration incomplète'}
-          description={'Certaine DAI ne sont pas envoyables via les EDI Sacha.'}
+          description={
+            'Certaines DAI ne sont pas envoyables via les EDI Sacha.'
+          }
           className={clsx(cx('fr-mb-3w'))}
         />
       )}
