@@ -27,6 +27,7 @@ import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMat
 import { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { MaestroDate } from 'maestro-shared/utils/date';
+import { z } from 'zod';
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>
@@ -39,6 +40,9 @@ export type Point = {
 };
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
+
+export const SachaResidueId = z.string().brand<'SachaResidueId'>();
+export type SachaResidueId = z.infer<typeof SachaResidueId>;
 
 export interface Analysis {
   compliance: boolean | null;
@@ -117,8 +121,8 @@ export interface SachaSender {
 }
 
 export interface SachaResidueMappings {
-  label: string;
-  ssd2Id: string;
+  label: SachaResidueId;
+  ssd2Id: SSD2Id;
 }
 
 export interface SachaConf {

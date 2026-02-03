@@ -1,17 +1,15 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'path';
+import config, { KafkaTopic } from '../../utils/config';
 import { encryptFile } from '../gpgService';
 import { sendMessage } from '../kafkaService';
 import { mailService } from '../mailService';
 import { zip } from '../zipService';
-import { getZipFileName, XmlFile } from './sachaToXML';
+import { getZipFileName, SachaFileType, XmlFile } from './sachaToXML';
 
-export const sendSachaFile = async (
-  xmlFile: XmlFile,
-  dateNow: number,
-  withPEL: boolean
-) => {
+export const sendSachaFile = async (xmlFile: XmlFile, dateNow: number) => {
+  const withPEL: boolean = !!config.kafka.url;
   //--- Without PEL
   if (!withPEL) {
     // Create directory with xml file inside
@@ -56,7 +54,12 @@ export const sendSachaFile = async (
     });
   } else {
     //--- With PEL
+
+    const kafkaTopicConf = {
+      AN01: config.kafka.topicAN,
+      DA01: config.kafka.topicDAI
+    } as const satisfies Record<SachaFileType, KafkaTopic>;
     // Send with KAFKA
-    await sendMessage(xmlFile.content);
+    await sendMessage(xmlFile.content, kafkaTopicConf[xmlFile.fileType]);
   }
 };
