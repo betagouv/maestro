@@ -21,6 +21,7 @@ export const seed = async (): Promise<void> => {
     Sampler1Fixture,
     Sampler2Fixture,
     SamplerDromFixture,
+    SamplerDaoaFixture,
     RegionalCoordinator,
     RegionalDromCoordinator,
     DepartmentalCoordinator,

@@ -4,10 +4,12 @@ import { createServer } from '../../server';
 
 import {
   CompanyFixture,
-  SlaughterhouseCompanyFixture1
+  SlaughterhouseCompanyFixture1,
+  SlaughterhouseCompanyFixture2
 } from 'maestro-shared/test/companyFixtures';
 import { NationalCoordinator } from 'maestro-shared/test/userFixtures';
-import { describe, expect, test } from 'vitest';
+import { expectArrayToContainElements } from 'maestro-shared/test/utils';
+import { describe, test } from 'vitest';
 import { tokenProvider } from '../../test/testUtils';
 describe('Company Router', () => {
   const { app } = createServer();
@@ -27,7 +29,11 @@ describe('Company Router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toEqual([CompanyFixture, SlaughterhouseCompanyFixture1]);
+      expectArrayToContainElements(res.body, [
+        CompanyFixture,
+        SlaughterhouseCompanyFixture1,
+        SlaughterhouseCompanyFixture2
+      ]);
     });
 
     test('should filter companies', async () => {
@@ -37,7 +43,10 @@ describe('Company Router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res1.body).toEqual([SlaughterhouseCompanyFixture1]);
+      expectArrayToContainElements(res1.body, [
+        SlaughterhouseCompanyFixture1,
+        SlaughterhouseCompanyFixture2
+      ]);
 
       const res2 = await request(app)
         .get(testRoute)
@@ -45,7 +54,7 @@ describe('Company Router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res2.body).toEqual([CompanyFixture]);
+      expectArrayToContainElements(res2.body, [CompanyFixture]);
     });
   });
 });

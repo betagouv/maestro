@@ -193,7 +193,7 @@ const filtersConfig = {
 
 type FilterableProp = keyof Omit<
   FilterableType,
-  keyof Pagination | 'programmingPlanId' | 'reference'
+  keyof Pagination | 'programmingPlanId' | 'reference' | 'companySirets'
 >;
 const FiltersTags = ({
   title,

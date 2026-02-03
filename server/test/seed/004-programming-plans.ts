@@ -1,4 +1,7 @@
-import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  DAOAInProgressProgrammingPlanFixture,
+  PPVValidatedProgrammingPlanFixture
+} from 'maestro-shared/test/programmingPlanFixtures';
 import {
   formatProgrammingPlan,
   ProgrammingPlanLocalStatus,
@@ -7,7 +10,10 @@ import {
 
 export const seed = async (): Promise<void> => {
   await ProgrammingPlans().insert(
-    formatProgrammingPlan(PPVValidatedProgrammingPlanFixture)
+    [
+      PPVValidatedProgrammingPlanFixture,
+      DAOAInProgressProgrammingPlanFixture
+    ].map(formatProgrammingPlan)
   );
 
   await Promise.all(
@@ -15,6 +21,15 @@ export const seed = async (): Promise<void> => {
       ProgrammingPlanLocalStatus().insert({
         ...regionalStatus,
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id
+      })
+    )
+  );
+
+  await Promise.all(
+    DAOAInProgressProgrammingPlanFixture.regionalStatus.map((regionalStatus) =>
+      ProgrammingPlanLocalStatus().insert({
+        ...regionalStatus,
+        programmingPlanId: DAOAInProgressProgrammingPlanFixture.id
       })
     )
   );
