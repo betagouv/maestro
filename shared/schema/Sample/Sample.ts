@@ -1,4 +1,4 @@
-import { isNil, uniqBy } from 'lodash-es';
+import { isNil, uniq } from 'lodash-es';
 
 import { z } from 'zod';
 import { CheckFn } from 'zod/v4/core';
@@ -138,22 +138,22 @@ export const sampleItemSealIdCheck: CheckFn<{
   items: PartialSampleItem[];
 }> = (ctx) => {
   if (ctx.value.context !== 'Surveillance') {
-    ctx.value.items
-      .filter((item) => isNil(item.sealId))
-      .forEach((item) => {
+    ctx.value.items.forEach((item, itemIndex) => {
+      if (isNil(item.sealId) || item.sealId.trim() === '') {
         ctx.issues.push({
           input: item.sealId,
           code: 'invalid_type',
           message: 'Veuillez renseigner le numéro de scellé.',
-          path: ['items', item.itemNumber - 1, 'sealId'],
+          path: ['items', itemIndex, 'sealId'],
           expected: 'string'
         });
-      });
+      }
+    });
   }
-  if (
-    uniqBy(ctx.value.items, (item) => item.sealId).length !==
-    ctx.value.items.length
-  ) {
+  const sealsIds = ctx.value.items
+    .map((item) => item.sealId)
+    .filter((sealId) => !isNil(sealId) && sealId.trim() !== '');
+  if (uniq(sealsIds).length !== sealsIds.length) {
     ctx.issues.push({
       input: ctx.value,
       code: 'custom',
