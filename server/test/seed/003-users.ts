@@ -1,13 +1,16 @@
 import {
   AdminFixture,
+  DepartmentalCoordinator,
   genUser,
   NationalCoordinator,
+  NationalCoordinatorDaoaFixture,
   NationalObserver,
   RegionalCoordinator,
   RegionalDromCoordinator,
   RegionalObserver,
   Sampler1Fixture,
   Sampler2Fixture,
+  SamplerDaoaFixture,
   SamplerDromFixture
 } from 'maestro-shared/test/userFixtures';
 import { userRepository } from '../../repositories/userRepository';
@@ -20,10 +23,13 @@ export const seed = async (): Promise<void> => {
     SamplerDromFixture,
     RegionalCoordinator,
     RegionalDromCoordinator,
+    DepartmentalCoordinator,
     NationalCoordinator,
     AdminFixture,
     RegionalObserver,
     NationalObserver,
+    SamplerDaoaFixture,
+    NationalCoordinatorDaoaFixture,
     genUser({ roles: ['LaboratoryUser'] })
   ].map((u) => ({
     ...u,

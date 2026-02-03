@@ -319,16 +319,17 @@ export const localPrescriptionsRouter = {
 
       await localPrescriptionCommentRepository.insert(prescriptionComment);
 
-      const recipients = await userRepository.findMany(
-        userRole === 'NationalCoordinator'
+      const recipients = await userRepository.findMany({
+        programmingPlanKinds: programmingPlan.kinds,
+        ...(userRole === 'NationalCoordinator'
           ? {
               region: localPrescription.region,
               roles: ['RegionalCoordinator']
             }
           : {
               roles: ['NationalCoordinator']
-            }
-      );
+            })
+      });
 
       await notificationService.sendNotification(
         {
@@ -396,8 +397,9 @@ export const localPrescriptionsRouter = {
 
         await localPrescriptionCommentRepository.insert(prescriptionComment);
 
-        const recipients = await userRepository.findMany(
-          userRole === 'RegionalCoordinator'
+        const recipients = await userRepository.findMany({
+          programmingPlanKinds: programmingPlan.kinds,
+          ...(userRole === 'RegionalCoordinator'
             ? {
                 region: localPrescription.region,
                 department: localPrescription.department,
@@ -406,8 +408,8 @@ export const localPrescriptionsRouter = {
             : {
                 roles: ['RegionalCoordinator'],
                 region: localPrescription.region
-              }
-        );
+              })
+        });
 
         await notificationService.sendNotification(
           {
