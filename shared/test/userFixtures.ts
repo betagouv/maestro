@@ -138,6 +138,11 @@ export const SamplerDaoaFixture = genUser({
   region: Region1Fixture,
   department: Regions[Region1Fixture].departments[0]
 });
+export const NationalCoordinatorDaoaFixture = genUser({
+  roles: ['NationalCoordinator'],
+  programmingPlanKinds: ['DAOA_BREEDING', 'DAOA_SLAUGHTER'],
+  id: '14141414-1414-1414-1414-141414141414'
+});
 
 export const genAuthUser = (
   data?: Partial<UserRefined & { userRole: UserRole }>
