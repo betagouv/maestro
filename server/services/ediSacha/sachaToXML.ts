@@ -351,14 +351,13 @@ const generateXML = async <T extends FileType>(
       ...conf.content.shape
     })
     .encode({
-      //FIXME EDI
       MessageParametres: {
         CodeScenario: 'E.D.I. SIGAL/LABOS',
         VersionScenario: '1.0.1',
         TypeFichier: fileType,
         NomFichier: fileName,
         VersionReferenceStandardisees: sachaConf.versionReferenceStandardisees,
-        VersionReferencePrescripteur: '',
+        VersionReferencePrescripteur: sachaConf.versionReferencePrescripteur,
         NomLogicielCreation: 'SIGAL',
         VersionLogicielCreation: '4.0'
       },

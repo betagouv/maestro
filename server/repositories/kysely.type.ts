@@ -123,6 +123,7 @@ export interface SachaResidueMappings {
 
 export interface SachaConf {
   versionReferenceStandardisees: string;
+  versionReferencePrescripteur: string;
 }
 
 export interface SachaCommemoratifs {
