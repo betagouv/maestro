@@ -77,7 +77,7 @@ const SampleMatrixSpecificDataDAOASlaughter = z.object({
     'PROD_3'
   ]),
   outdoorAccess: OutdoorAccess,
-  seizure: Seizure
+  seizure: Seizure.nullish()
 });
 
 export const SampleMatrixSpecificData = z.discriminatedUnion(
