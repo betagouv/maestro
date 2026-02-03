@@ -13,7 +13,7 @@ import {
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { UserRefined } from 'maestro-shared/schema/User/User';
-import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
+import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
 import { genLaboratory } from 'maestro-shared/test/laboratoryFixtures';
 import {
   genLocalPrescription,
@@ -167,13 +167,21 @@ describe('Local prescriptions router', () => {
     programmingPlanId: programmingPlanClosed.id,
     prescriptionId: closedControlPrescription.id,
     region: Sampler1Fixture.region as Region,
-    company: CompanyFixture,
+    company: SlaughterhouseCompanyFixture1,
     sampler: Sampler1Fixture,
     status: 'Sent',
     specificData: {
       programmingPlanKind: 'PPV'
     }
   });
+  const submittedControlLocalPrescriptionWithCompany: LocalPrescription =
+    genLocalPrescription({
+      prescriptionId: submittedControlPrescription1.id,
+      region: RegionalCoordinator.region as Region,
+      department: '01',
+      companySiret: SlaughterhouseCompanyFixture1.siret,
+      substanceKindsLaboratories
+    });
 
   beforeAll(async () => {
     await ProgrammingPlans().insert(
@@ -207,7 +215,8 @@ describe('Local prescriptions router', () => {
         ...closedControlLocalPrescriptions,
         ...validatedControlLocalPrescriptions,
         ...submittedControlLocalPrescriptions1,
-        ...submittedControlLocalPrescriptions2
+        ...submittedControlLocalPrescriptions2,
+        submittedControlLocalPrescriptionWithCompany
       ].map((_) =>
         omit(formatLocalPrescription(_), [
           'substanceKindsLaboratories',
@@ -221,7 +230,8 @@ describe('Local prescriptions router', () => {
         ...closedControlLocalPrescriptions,
         ...validatedControlLocalPrescriptions,
         ...submittedControlLocalPrescriptions1,
-        ...submittedControlLocalPrescriptions2
+        ...submittedControlLocalPrescriptions2,
+        submittedControlLocalPrescriptionWithCompany
       ].flatMap((localPrescription) =>
         (localPrescription.substanceKindsLaboratories ?? []).map(
           (substanceKindLaboratory) => ({
@@ -524,7 +534,12 @@ describe('Local prescriptions router', () => {
       });
 
       await expect(
-        LocalPrescriptions().where(LocalPrescriptionKey.parse(res.body)).first()
+        LocalPrescriptions()
+          .where('prescription_id', submittedLocalPrescription.prescriptionId)
+          .andWhere('region', submittedLocalPrescription.region)
+          .andWhere('department', 'None')
+          .andWhere('company_siret', 'None')
+          .first()
       ).resolves.toEqual({
         ...submittedLocalPrescription,
         department: 'None',
@@ -549,7 +564,12 @@ describe('Local prescriptions router', () => {
       });
 
       await expect(
-        LocalPrescriptions().where(LocalPrescriptionKey.parse(res.body)).first()
+        LocalPrescriptions()
+          .where('prescription_id', submittedLocalPrescription.prescriptionId)
+          .andWhere('region', submittedLocalPrescription.region)
+          .andWhere('department', 'None')
+          .andWhere('company_siret', 'None')
+          .first()
       ).resolves.toEqual({
         ...submittedLocalPrescription,
         department: 'None',
@@ -560,7 +580,10 @@ describe('Local prescriptions router', () => {
 
       //Restore the initial value
       await LocalPrescriptions()
-        .where(LocalPrescriptionKey.parse(res.body))
+        .where('prescription_id', submittedLocalPrescription.prescriptionId)
+        .andWhere('region', submittedLocalPrescription.region)
+        .andWhere('department', 'None')
+        .andWhere('company_siret', 'None')
         .update({ sampleCount: submittedLocalPrescription.sampleCount });
     });
 
@@ -964,6 +987,206 @@ describe('Local prescriptions router', () => {
         region: res.body.region,
         comment: validComment.comment,
         createdBy: RegionalCoordinator.id
+      });
+    });
+  });
+
+  describe('GET /prescriptions/:prescriptionId/regions/:region', () => {
+    const submittedLocalPrescription = submittedControlLocalPrescriptions1.find(
+      (localPrescription) =>
+        isEqual(
+          LocalPrescriptionKey.parse(localPrescription),
+          LocalPrescriptionKey.parse({
+            prescriptionId: submittedControlPrescription1.id,
+            region: RegionalCoordinator.region as Region
+          })
+        )
+    ) as LocalPrescription;
+
+    const testRoute = (
+      prescriptionId: string = submittedLocalPrescription.prescriptionId,
+      region: string = submittedLocalPrescription.region
+    ) => `/api/prescriptions/${prescriptionId}/regions/${region}`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute())
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should receive valid prescriptionId and region', async () => {
+      await request(app)
+        .get(testRoute(fakerFR.string.alphanumeric(32)))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+
+      await request(app)
+        .get(testRoute(submittedControlPrescription1.id, 'invalid'))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should fail if the prescription does not exist', async () => {
+      await request(app)
+        .get(testRoute(uuidv4()))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    test('should get the regional prescription for a national role', async () => {
+      const successRequestTest = async (user: UserRefined) => {
+        const res = await request(app)
+          .get(testRoute())
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_OK);
+
+        expect(res.body).toEqual({
+          ...submittedLocalPrescription,
+          substanceKindsLaboratories: undefined
+        });
+      };
+
+      await successRequestTest(NationalCoordinator);
+      await successRequestTest(NationalObserver);
+      await successRequestTest(AdminFixture);
+    });
+
+    test('should get the regional prescription with laboratories when requested', async () => {
+      const validatedLocalPrescription =
+        validatedControlLocalPrescriptions.find((localPrescription) =>
+          isEqual(
+            LocalPrescriptionKey.parse(localPrescription),
+            LocalPrescriptionKey.parse({
+              prescriptionId: validatedControlPrescription.id,
+              region: RegionalCoordinator.region as Region
+            })
+          )
+        ) as LocalPrescription;
+
+      const res = await request(app)
+        .get(
+          testRoute(
+            validatedLocalPrescription.prescriptionId,
+            validatedLocalPrescription.region
+          )
+        )
+        .query({ includes: 'laboratories' })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toEqual(validatedLocalPrescription);
+    });
+  });
+
+  describe('GET /prescriptions/:prescriptionId/regions/:region/departments/:department/companies/:companySiret', () => {
+    const submittedLocalPrescription = submittedControlLocalPrescriptions1.find(
+      (localPrescription) =>
+        isEqual(
+          LocalPrescriptionKey.parse(localPrescription),
+          LocalPrescriptionKey.parse({
+            prescriptionId: submittedControlPrescription1.id,
+            region: RegionalCoordinator.region as Region
+          })
+        )
+    ) as LocalPrescription;
+
+    const testRoute = (
+      prescriptionId: string = submittedLocalPrescription.prescriptionId,
+      region: string = submittedLocalPrescription.region,
+      department: string = '01',
+      companySiret: string = SlaughterhouseCompanyFixture1.siret
+    ) =>
+      `/api/prescriptions/${prescriptionId}/regions/${region}/departments/${department}/companies/${companySiret}`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute())
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should receive valid prescriptionId, region, department and companySiret', async () => {
+      await request(app)
+        .get(
+          testRoute(
+            fakerFR.string.alphanumeric(32),
+            RegionalCoordinator.region as string,
+            '01',
+            SlaughterhouseCompanyFixture1.siret
+          )
+        )
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+
+      await request(app)
+        .get(
+          testRoute(
+            submittedControlPrescription1.id,
+            'invalid',
+            '01',
+            SlaughterhouseCompanyFixture1.siret
+          )
+        )
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+
+      await request(app)
+        .get(
+          testRoute(
+            submittedControlPrescription1.id,
+            RegionalCoordinator.region as string,
+            'invalid',
+            SlaughterhouseCompanyFixture1.siret
+          )
+        )
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should fail if the prescription does not exist', async () => {
+      await request(app)
+        .get(
+          testRoute(
+            uuidv4(),
+            RegionalCoordinator.region as string,
+            '01',
+            SlaughterhouseCompanyFixture1.siret
+          )
+        )
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    test('should get the local prescription for a company', async () => {
+      const successRequestTest = async (user: UserRefined) => {
+        const res = await request(app)
+          .get(testRoute())
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_OK);
+
+        expect(res.body).toMatchObject({
+          prescriptionId: submittedLocalPrescription.prescriptionId,
+          region: submittedLocalPrescription.region,
+          department: '01',
+          companySiret: SlaughterhouseCompanyFixture1.siret
+        });
+      };
+
+      await successRequestTest(NationalCoordinator);
+      await successRequestTest(AdminFixture);
+    });
+
+    test('should get the company prescription with laboratories when requested', async () => {
+      const res = await request(app)
+        .get(testRoute())
+        .query({ includes: 'laboratories' })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject({
+        prescriptionId: submittedLocalPrescription.prescriptionId,
+        region: submittedLocalPrescription.region,
+        department: '01',
+        companySiret: SlaughterhouseCompanyFixture1.siret
       });
     });
   });

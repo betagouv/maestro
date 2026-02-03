@@ -39,8 +39,8 @@ export const localPrescriptionsRouter = {
       const findOptions = {
         ...queryFindOptions,
         region,
-        department
-        //companySirets
+        department,
+        companySirets
       };
 
       console.info('Find local prescriptions', user.id, findOptions);
@@ -85,6 +85,23 @@ export const localPrescriptionsRouter = {
     }
   },
   '/prescriptions/:prescriptionId/regions/:region': {
+    get: async ({ query: { includes } }, params) => {
+      console.info(
+        'Get local prescription for region',
+        params.prescriptionId,
+        params.region
+      );
+
+      const localPrescription = await getAndCheckLocalPrescription({
+        ...params,
+        includes
+      });
+
+      return {
+        status: constants.HTTP_STATUS_OK,
+        response: localPrescription
+      };
+    },
     put: async ({ user, userRole, body: localPrescriptionUpdate }, params) => {
       console.info(
         'Update local prescription',
@@ -242,6 +259,28 @@ export const localPrescriptionsRouter = {
       };
     }
   },
+  '/prescriptions/:prescriptionId/regions/:region/departments/:department/companies/:companySiret':
+    {
+      get: async ({ query: { includes } }, params) => {
+        console.info(
+          'Get local prescription for company',
+          params.prescriptionId,
+          params.region,
+          params.department,
+          params.companySiret
+        );
+
+        const localPrescription = await getAndCheckLocalPrescription({
+          ...params,
+          includes
+        });
+
+        return {
+          status: constants.HTTP_STATUS_OK,
+          response: localPrescription
+        };
+      }
+    },
   '/prescriptions/:prescriptionId/regions/:region/comments': {
     post: async (
       { user, userRole, body: draftPrescriptionComment },

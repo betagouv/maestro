@@ -13,6 +13,27 @@ import { api } from 'src/services/api.service';
 
 const prescriptionApi = api.injectEndpoints({
   endpoints: (builder) => ({
+    getLocalPrescription: builder.query<
+      LocalPrescription,
+      LocalPrescriptionKey & Pick<FindLocalPrescriptionOptions, 'includes'>
+    >({
+      query: ({
+        prescriptionId,
+        region,
+        department,
+        companySiret,
+        includes
+      }) => ({
+        url: `prescriptions/${prescriptionId}/regions/${region}${
+          department ? `/departments/${department}` : ''
+        }${companySiret ? `/companies/${companySiret}` : ''}`,
+        params: { includes }
+      }),
+      transformResponse: (response) => LocalPrescription.parse(response),
+      providesTags: (_result, _error, { prescriptionId }) => [
+        { type: 'LocalPrescription', id: prescriptionId }
+      ]
+    }),
     findLocalPrescriptions: builder.query<
       LocalPrescription[],
       FindLocalPrescriptionOptions
@@ -72,6 +93,7 @@ const prescriptionApi = api.injectEndpoints({
 });
 
 export const {
+  useGetLocalPrescriptionQuery,
   useFindLocalPrescriptionsQuery,
   useCommentLocalPrescriptionMutation,
   useUpdateLocalPrescriptionMutation

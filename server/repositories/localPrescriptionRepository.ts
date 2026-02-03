@@ -167,10 +167,6 @@ const include = (opts?: Pick<FindLocalPrescriptionOptions, 'includes'>) => {
               `${localPrescriptionCommentsTable}.department`,
               `${localPrescriptionsTable}.department`
             )
-            .andOn(
-              `${localPrescriptionCommentsTable}.company_siret`,
-              `${localPrescriptionsTable}.companySiret`
-            )
         )
         .groupBy(
           `${localPrescriptionsTable}.prescription_id`,
@@ -208,7 +204,6 @@ const include = (opts?: Pick<FindLocalPrescriptionOptions, 'includes'>) => {
               `${localPrescriptionSubstanceKindsLaboratoriesTable}.department`,
               `${localPrescriptionsTable}.department`
             )
-            .andOn(db.raw(`${localPrescriptionsTable}.company_siret = 'None'`))
         )
         .groupBy(
           `${localPrescriptionsTable}.prescription_id`,
