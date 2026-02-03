@@ -496,10 +496,12 @@ const generateLaboratoryAnalyticCompetencesExportExcel = async (
     residueReference: string,
     analyteReference?: string
   ) => {
-    return laboratoryAnalyticalCompetences.find((competence) =>
-      competence.residueReference === residueReference && analyteReference
-        ? competence.analyteReference === analyteReference
-        : !competence.analyteReference
+    return laboratoryAnalyticalCompetences.find(
+      (competence) =>
+        competence.residueReference === residueReference &&
+        (analyteReference
+          ? competence.analyteReference === analyteReference
+          : !competence.analyteReference)
     );
   };
 
@@ -510,13 +512,16 @@ const generateLaboratoryAnalyticCompetencesExportExcel = async (
         .flat()
         .filter(isDefined)
         .map((v) => ({ value: v })),
-      competences: Object.entries(SSD2Referential).flatMap(
-        ([ssd2Code, ssd2Referential]) => [
+      competences: Object.entries(SSD2Referential)
+        .filter(([_, ssd2Referential]) => ssd2Referential.reportable)
+        .flatMap(([ssd2Code, ssd2Referential]) => [
           {
             residueReference: ssd2Code,
             residueName: SSD2IdLabel[ssd2Code],
             analyteReference: '',
             analyteName: '',
+            isResidue: 1,
+            isComplexResidue: isComplex(ssd2Code) ? 1 : null,
             isCompleteDefinitionAnalysis: !isNil(
               getCompetence(ssd2Code)?.isCompleteDefinitionAnalysis
             )
@@ -526,7 +531,13 @@ const generateLaboratoryAnalyticCompetencesExportExcel = async (
                 ]
               : undefined,
             detectionLimit: getCompetence(ssd2Code)?.detectionLimit,
-            quantificationLimit: getCompetence(ssd2Code)?.quantificationLimit
+            quantificationLimit: getCompetence(ssd2Code)?.quantificationLimit,
+            analyticalMethod: getCompetence(ssd2Code)?.analyticalMethod,
+            validationMethod: getCompetence(ssd2Code)?.validationMethod,
+            analysisMethodMono:
+              getCompetence(ssd2Code)?.analysisMethod === 'Mono' ? 1 : null,
+            analysisMethodMulti:
+              getCompetence(ssd2Code)?.analysisMethod === 'Multi' ? 1 : null
           },
           ...Array.from(getAnalytes(ssd2Referential.reference)).map(
             (analyteReference) => ({
@@ -534,15 +545,29 @@ const generateLaboratoryAnalyticCompetencesExportExcel = async (
               residueName: SSD2IdLabel[ssd2Code],
               analyteReference,
               analyteName: SSD2IdLabel[analyteReference],
+              isAnalyte: 1,
               isCompleteDefinitionAnalysis: 'Sans objet',
               detectionLimit: getCompetence(ssd2Code, analyteReference)
                 ?.detectionLimit,
               quantificationLimit: getCompetence(ssd2Code, analyteReference)
-                ?.quantificationLimit
+                ?.quantificationLimit,
+              analyticalMethod: getCompetence(ssd2Code, analyteReference)
+                ?.analyticalMethod,
+              validationMethod: getCompetence(ssd2Code, analyteReference)
+                ?.validationMethod,
+              analysisMethodMono:
+                getCompetence(ssd2Code, analyteReference)?.analysisMethod ===
+                'Mono'
+                  ? 1
+                  : null,
+              analysisMethodMulti:
+                getCompetence(ssd2Code, analyteReference)?.analysisMethod ===
+                'Multi'
+                  ? 1
+                  : null
             })
           )
-        ]
-      )
+        ])
     },
 
     {}
