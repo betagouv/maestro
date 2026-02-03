@@ -50,7 +50,10 @@ import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
-import { hasPermission } from 'maestro-shared/schema/User/User';
+import {
+  companiesIsRequired,
+  hasPermission
+} from 'maestro-shared/schema/User/User';
 import { isNationalRole } from 'maestro-shared/schema/User/UserRole';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { Readable } from 'node:stream';
@@ -220,9 +223,14 @@ export const getNewReference = async (
 export const sampleRouter = {
   '/samples': {
     get: async ({ user, userRole, query }) => {
+      const companySirets = companiesIsRequired(user)
+        ? user.companies.map((company) => company.siret)
+        : query.companySirets;
+
       const findOptions = {
         ...query,
-        region: isNationalRole(userRole) ? query.region : user.region
+        region: isNationalRole(userRole) ? query.region : user.region,
+        companySirets
       };
 
       console.info('Find samples for user', user.id, findOptions);

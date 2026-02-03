@@ -152,6 +152,12 @@ const findRequest = (findOptions: FindSampleOptions) =>
       if (findOptions.departments) {
         builder.whereIn(`${samplesTable}.department`, findOptions.departments);
       }
+      if (findOptions.companySirets) {
+        builder.whereIn(
+          `${samplesTable}.companySiret`,
+          findOptions.companySirets
+        );
+      }
       if (!isNil(findOptions.compliance)) {
         builder.leftJoin(
           analysisTable,

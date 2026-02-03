@@ -136,7 +136,8 @@ export const SamplerDaoaFixture = genUser({
   id: '13131313-1313-1313-1313-131313131313',
   programmingPlanKinds: ProgrammingPlanKindWithSachaList,
   region: Region1Fixture,
-  department: Regions[Region1Fixture].departments[0]
+  department: Regions[Region1Fixture].departments[0],
+  companies: [SlaughterhouseCompanyFixture1]
 });
 
 export const genAuthUser = (

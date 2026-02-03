@@ -8,6 +8,7 @@ import {
   RegionalObserver,
   Sampler1Fixture,
   Sampler2Fixture,
+  SamplerDaoaFixture,
   SamplerDromFixture
 } from 'maestro-shared/test/userFixtures';
 import { userRepository } from '../../repositories/userRepository';
@@ -18,6 +19,7 @@ export const seed = async (): Promise<void> => {
     Sampler1Fixture,
     Sampler2Fixture,
     SamplerDromFixture,
+    SamplerDaoaFixture,
     RegionalCoordinator,
     RegionalDromCoordinator,
     NationalCoordinator,

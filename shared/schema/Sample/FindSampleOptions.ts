@@ -21,6 +21,7 @@ export const FindSampleOptions = z
     contexts: coerceToArray(z.array(Context)).nullish(),
     region: Region.nullish(),
     departments: coerceToArray(z.array(Department)).nullish(),
+    companySirets: coerceToArray(z.array(z.string())).nullish(),
     status: z
       .union([SampleStatus, coerceToArray(z.array(SampleStatus))])
       .nullish(),

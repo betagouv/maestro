@@ -10,7 +10,8 @@ import {
   Sample11Fixture,
   Sample12Fixture,
   Sample13Fixture,
-  Sample2Fixture
+  Sample2Fixture,
+  SampleDAOA1Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import request from 'supertest';
@@ -26,7 +27,10 @@ import { tokenProvider } from '../../test/testUtils';
 import { fakerFR } from '@faker-js/faker';
 import { UserRefined } from 'maestro-shared/schema/User/User';
 import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
-import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  DAOAInProgressProgrammingPlanFixture,
+  PPVValidatedProgrammingPlanFixture
+} from 'maestro-shared/test/programmingPlanFixtures';
 import {
   AdminFixture,
   NationalCoordinator,
@@ -34,7 +38,8 @@ import {
   RegionalCoordinator,
   RegionalObserver,
   Sampler1Fixture,
-  Sampler2Fixture
+  Sampler2Fixture,
+  SamplerDaoaFixture
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { withISOStringDates } from 'maestro-shared/utils/date';
@@ -217,6 +222,25 @@ describe('Sample router', () => {
       await successRequestTest(Sampler1Fixture);
       await successRequestTest(RegionalCoordinator);
       await successRequestTest(RegionalObserver);
+    });
+
+    test('should find the samples with query parameters restricted to the daoa sampler company', async () => {
+      const res = await request(app)
+        .get(
+          testRoute({
+            programmingPlanId: DAOAInProgressProgrammingPlanFixture.id
+          })
+        )
+        .use(tokenProvider(SamplerDaoaFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const expectedSamples = [
+        expect.objectContaining({
+          id: SampleDAOA1Fixture.id
+        })
+      ].map(withISOStringDates);
+      expect(res.body).toHaveLength(expectedSamples.length);
+      expectArrayToContainElements(res.body, expectedSamples);
     });
 
     test('should find national samples with a list of statuses', async () => {
