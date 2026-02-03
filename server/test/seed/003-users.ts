@@ -29,7 +29,6 @@ export const seed = async (): Promise<void> => {
     AdminFixture,
     RegionalObserver,
     NationalObserver,
-    SamplerDaoaFixture,
     NationalCoordinatorDaoaFixture,
     genUser({ roles: ['LaboratoryUser'] })
   ].map((u) => ({
