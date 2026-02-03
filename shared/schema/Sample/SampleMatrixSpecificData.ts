@@ -142,6 +142,10 @@ export const getSampleMatrixSpecificDataAttributeValues = (
     return fieldSchema.options;
   }
 
+  if (fieldSchema.type === 'literal') {
+    return Array.from(fieldSchema.values);
+  }
+
   return [];
 };
 export const getAllSachaAttributes = (): SampleMatrixSpecificDataKeys[] =>
