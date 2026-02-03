@@ -169,7 +169,8 @@ test(`génère un XML de DAI`, async () => {
       {
         sealId: 'sealId',
         itemNumber: 1,
-        copyNumber: 2
+        copyNumber: 2,
+        substanceKind: 'Copper'
       },
       loadLaboratoryAndSachaConf,
       1765876056798,
@@ -273,7 +274,7 @@ test(`génère un XML de DAI`, async () => {
         </DialogueEchantillonCommemoratifType>
         <ReferencePlanAnalyseType>
           <ReferencePlanAnalyseEffectuer>
-            <SiglePlanAnalyse>RestPest_DAOA</SiglePlanAnalyse>
+            <SiglePlanAnalyse>RestPest_DAOA_CU</SiglePlanAnalyse>
           </ReferencePlanAnalyseEffectuer>
           <ReferencePlanAnalyseContenu>
             <LibelleMatrice></LibelleMatrice>

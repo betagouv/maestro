@@ -181,7 +181,10 @@ export const generateXMLDAI = (
     | 'matrix'
     | 'reference'
   >,
-  sampleItem: Pick<SampleItem, 'sealId' | 'itemNumber' | 'copyNumber'>,
+  sampleItem: Pick<
+    SampleItem,
+    'sealId' | 'itemNumber' | 'copyNumber' | 'substanceKind'
+  >,
   loadLaboratoryAndSachaConf: ReturnType<typeof loadLaboratoryAndSachaConfCall>,
   dateNow: number,
 
@@ -200,6 +203,10 @@ export const generateXMLDAI = (
     throw new Error(
       `Pas de Sigle SACHA associé à la matrice ${sample.matrix}.`
     );
+  }
+
+  if (sampleItem.substanceKind === 'Any') {
+    throw new Error("Pas de plan d'analyse de configuré.");
   }
 
   const commemoratifs = getCommemoratifs(
@@ -269,7 +276,7 @@ export const generateXMLDAI = (
         ],
         ReferencePlanAnalyseType: {
           ReferencePlanAnalyseEffectuer: {
-            SiglePlanAnalyse: SiglePlanAnalyse[programmingPlanKind]
+            SiglePlanAnalyse: SiglePlanAnalyse[sampleItem.substanceKind]
           },
           ReferencePlanAnalyseContenu: {
             LibelleMatrice: '',
