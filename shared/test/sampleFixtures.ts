@@ -19,16 +19,25 @@ import {
 } from '../schema/Sample/Sample';
 import { SampleItem } from '../schema/Sample/SampleItem';
 import { DummyLaboratoryIds } from '../schema/User/User';
-import { CompanyFixture, genCompany } from './companyFixtures';
+import {
+  CompanyFixture,
+  genCompany,
+  SlaughterhouseCompanyFixture1,
+  SlaughterhouseCompanyFixture2
+} from './companyFixtures';
 import { LaboratoryFixture } from './laboratoryFixtures';
 import { PrescriptionFixture } from './prescriptionFixtures';
-import { PPVValidatedProgrammingPlanFixture } from './programmingPlanFixtures';
+import {
+  DAOAInProgressProgrammingPlanFixture,
+  PPVValidatedProgrammingPlanFixture
+} from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
 import {
   Region1Fixture,
   Region2Fixture,
   Sampler1Fixture,
-  Sampler2Fixture
+  Sampler2Fixture,
+  SamplerDaoaFixture
 } from './userFixtures';
 
 export const genSampleContextData = (
@@ -193,4 +202,20 @@ export const Sample2Fixture = genCreatedPartialSample({
   department: '53',
   region: Region2Fixture,
   reference: 'PDL-08-24-313-A'
+});
+export const SampleDAOA1Fixture = genCreatedPartialSample({
+  sampler: SamplerDaoaFixture,
+  programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
+  context: 'Surveillance',
+  company: SlaughterhouseCompanyFixture1,
+  department: SamplerDaoaFixture.department,
+  region: SamplerDaoaFixture.region
+});
+export const SampleDAOA2Fixture = genCreatedPartialSample({
+  sampler: SamplerDaoaFixture,
+  programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
+  context: 'Surveillance',
+  company: SlaughterhouseCompanyFixture2,
+  department: SamplerDaoaFixture.department,
+  region: SamplerDaoaFixture.region
 });
