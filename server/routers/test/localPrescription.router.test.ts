@@ -24,6 +24,7 @@ import { genCreatedPartialSample } from 'maestro-shared/test/sampleFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
+  DepartmentalCoordinator,
   NationalCoordinator,
   NationalObserver,
   Region2Fixture,
@@ -54,6 +55,7 @@ import {
   Samples
 } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
+import { mockSendNotification } from '../../test/setupTests';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('Local prescriptions router', () => {
@@ -988,6 +990,112 @@ describe('Local prescriptions router', () => {
         comment: validComment.comment,
         createdBy: RegionalCoordinator.id
       });
+    });
+
+    test('should send notification when adding a comment', async () => {
+      mockSendNotification.mockClear();
+
+      await request(app)
+        .post(testRoute())
+        .send(validComment)
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_CREATED);
+
+      expect(mockSendNotification).toHaveBeenCalledTimes(1);
+
+      const [notificationData, recipients, params] =
+        mockSendNotification.mock.calls[0];
+
+      expect(recipients).toHaveLength(1);
+      expect(recipients[0]).toMatchObject({
+        id: NationalCoordinator.id,
+        roles: ['NationalCoordinator']
+      });
+
+      expect(notificationData).toMatchObject({
+        category: submittedControlPrescription1.context,
+        author: RegionalCoordinator,
+        link: expect.stringContaining(submittedControlPrescription1.id)
+      });
+
+      expect(params).toMatchObject({
+        comment: validComment.comment,
+        author: RegionalCoordinator.name
+      });
+    });
+  });
+
+  describe('POST /{prescriptionId}/regions/{region}/departments/{department}/comments', () => {
+    const validComment: LocalPrescriptionCommentToCreate = {
+      programmingPlanId: programmingPlanSubmitted.id,
+      comment: fakerFR.string.alphanumeric(32)
+    };
+
+    const departmentalPrescription = genLocalPrescription({
+      prescriptionId: submittedControlPrescription1.id,
+      region: DepartmentalCoordinator.region as Region,
+      department: DepartmentalCoordinator.department,
+      substanceKindsLaboratories
+    });
+
+    const testRoute = (
+      prescriptionId: string = departmentalPrescription.prescriptionId,
+      region: string = departmentalPrescription.region,
+      department: string = departmentalPrescription.department as string
+    ) =>
+      `/api/prescriptions/${prescriptionId}/regions/${region}/departments/${department}/comments`;
+
+    test('should send notification when adding a departmental comment as DepartmentalCoordinator', async () => {
+      await LocalPrescriptions().insert(
+        omit(formatLocalPrescription(departmentalPrescription), [
+          'substanceKindsLaboratories',
+          'realizedSampleCount',
+          'inProgressSampleCount'
+        ])
+      );
+
+      mockSendNotification.mockClear();
+
+      await request(app)
+        .post(testRoute())
+        .send(validComment)
+        .use(tokenProvider(DepartmentalCoordinator))
+        .expect(constants.HTTP_STATUS_CREATED);
+
+      expect(mockSendNotification).toHaveBeenCalledTimes(1);
+
+      const [notificationData, recipients, params] =
+        mockSendNotification.mock.calls[0];
+
+      expect(recipients).toHaveLength(1);
+      expect(recipients[0]).toMatchObject({
+        id: RegionalCoordinator.id,
+        roles: ['RegionalCoordinator']
+      });
+
+      expect(notificationData).toMatchObject({
+        category: submittedControlPrescription1.context,
+        author: DepartmentalCoordinator,
+        link: expect.stringContaining(submittedControlPrescription1.id)
+      });
+
+      expect(params).toMatchObject({
+        comment: validComment.comment,
+        author: DepartmentalCoordinator.name
+      });
+
+      await LocalPrescriptionComments()
+        .where('prescription_id', departmentalPrescription.prescriptionId)
+        .andWhere('region', departmentalPrescription.region)
+        .andWhere('department', departmentalPrescription.department)
+        .delete();
+
+      await LocalPrescriptions()
+        .where('prescription_id', departmentalPrescription.prescriptionId)
+        .andWhere('region', departmentalPrescription.region)
+        .andWhere('department', departmentalPrescription.department)
+        .andWhere('company_siret', 'None')
+        .delete();
     });
   });
 
