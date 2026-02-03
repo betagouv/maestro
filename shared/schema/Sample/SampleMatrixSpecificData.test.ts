@@ -27,4 +27,11 @@ describe('getSampleMatrixSpecificDataAttributeValues', () => {
     );
     expect(result).toEqual(['ESP7', 'ESP8', 'ESP10', 'ESP20']);
   });
+  test('returns correctly value from literal', () => {
+    const result = getSampleMatrixSpecificDataAttributeValues(
+      ProgrammingPlanKind.enum.DAOA_SLAUGHTER,
+      'sampling'
+    );
+    expect(result).toEqual(['Aléatoire']);
+  });
 });
