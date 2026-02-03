@@ -12,7 +12,9 @@ import * as notificationApi from './notification.service';
 import * as prescriptionApi from './prescription.service';
 import * as programmingPlanApi from './programmingPlan.service';
 import * as regionApi from './region.service';
+import * as sachaCommemoratifsApi from './sachaCommemoratifs.service';
 import * as sampleApi from './sample.service';
+import * as sampleSpecificDataApi from './sampleSpecificData.service';
 import * as userApi from './user.service';
 
 export type ApiClient = typeof analysisApi &
@@ -25,8 +27,10 @@ export type ApiClient = typeof analysisApi &
   typeof notificationApi &
   typeof prescriptionApi &
   typeof programmingPlanApi &
+  typeof sampleSpecificDataApi &
   typeof regionApi &
   typeof localPrescriptionApi &
+  typeof sachaCommemoratifsApi &
   typeof sampleApi &
   typeof userApi &
   typeof noticeApi;
@@ -45,6 +49,8 @@ export const apiClient: ApiClient = {
   ...localPrescriptionApi,
   ...regionApi,
   ...noticeApi,
+  ...sachaCommemoratifsApi,
+  ...sampleSpecificDataApi,
   ...sampleApi,
   ...userApi
 };

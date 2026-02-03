@@ -3,6 +3,7 @@ import {
   TypedUseMutation,
   TypedUseQuery
 } from '@reduxjs/toolkit/query/react';
+import { CommemoratifSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { UserRefined } from 'maestro-shared/schema/User/User';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import {
@@ -222,7 +223,29 @@ const defaultMockApiClientConf: MockApi = {
   useCreateUserMutation: [fn(), {}],
   useUpdateUserMutation: [fn(), {}],
   useChangeRoleMutation: [fn(), {}],
-  useLazyFindCompaniesQuery: [[], {}]
+  useLazyFindCompaniesQuery: [[], {}],
+  useGetSampleSpecificDataQuery: {
+    data: {
+      DAOA_BREEDING: {
+        inDai: false,
+        attribute: '',
+        sachaCommemoratifSigle: '' as CommemoratifSigle,
+        values: {}
+      },
+      DAOA_SLAUGHTER: {
+        inDai: false,
+        attribute: '',
+        sachaCommemoratifSigle: '' as CommemoratifSigle,
+        values: {}
+      }
+    }
+  },
+  useUpdateSampleSpecificDataAttributeMutation: [fn(), {}],
+  useUpdateSampleSpecificDataAttributeValueMutation: [fn(), {}],
+  useGetSachaCommemoratifsQuery: {
+    data: {}
+  },
+  useUpdateSachaCommemoratifsMutation: [fn(), {}]
 };
 
 export const mockApiClient = getMockApi({});

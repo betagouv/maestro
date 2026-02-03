@@ -1,6 +1,13 @@
+import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
+import { sampleSpecificDataRepository } from '../../repositories/sampleSpecificDataRepository';
 import { sendSachaFile } from './sachaSender';
-import { generateXMLDAI, loadLaboratoryCall, XmlFile } from './sachaToXML';
+import {
+  generateXMLDAI,
+  loadLaboratoryAndSachaConfCall,
+  XmlFile
+} from './sachaToXML';
 
 //FIXME EDI à brancher avec la PPV
 export const generateDAI = async (sample: SampleChecked) => {
@@ -14,14 +21,21 @@ export const generateDAI = async (sample: SampleChecked) => {
   const dateNow = Date.now();
 
   for (const item of itemsForLaboratories) {
-    if (sample.specificData.programmingPlanKind !== 'PPV') {
-      //FIXME EDI il manque les descripteurs spécifiques à la fiche de plan
-
+    if (
+      ProgrammingPlanKindWithSacha.options.includes(
+        sample.specificData.programmingPlanKind as ProgrammingPlanKindWithSacha
+      )
+    ) {
+      const sachaCommemoratifRecord =
+        await sachaCommemoratifRepository.findAll();
+      const specificDataRecord = await sampleSpecificDataRepository.findAll();
       xmlFile = await generateXMLDAI(
         sample,
         item,
-        loadLaboratoryCall(item.laboratoryId!),
-        dateNow
+        loadLaboratoryAndSachaConfCall(item.laboratoryId!),
+        dateNow,
+        specificDataRecord,
+        sachaCommemoratifRecord
       );
     }
 
