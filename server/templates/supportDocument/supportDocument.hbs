@@ -39,10 +39,11 @@
                 Prélèvement
                 <b>{{reference}}</b>
                 {{#if (and laboratory (eq copyNumber 1))}}
-                  <br />
-                  À envoyer à <b>{{laboratory.name}}</b>
-                  <br />
-                  {{laboratory.address}} - {{laboratory.postalCode}} {{laboratory.city}}
+                  <div class="laboratory-address">
+                    À envoyer à <b>{{laboratory.name}}</b>
+                    <br />
+                    {{laboratory.address}} - {{laboratory.postalCode}} {{laboratory.city}}
+                  </div>
                 {{/if}}
               {{/if}}
             </div>
@@ -532,9 +533,9 @@
                                     Destinataire
                                   </div>
                                   {{#if (eq copyNumber 1)}}
-                                    <div class='value {{#if (isEmpty ../laboratory)}}empty{{/if}}'>
-                                      {{#if ../laboratory}}
-                                        Laboratoire {{../laboratory.shortName}}
+                                    <div class='value {{#if (isEmpty laboratory)}}empty{{/if}}'>
+                                      {{#if laboratory}}
+                                        Laboratoire {{laboratory.shortName}}
                                       {{/if}}
                                     </div>
                                   {{/if}}

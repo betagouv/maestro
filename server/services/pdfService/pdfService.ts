@@ -214,8 +214,12 @@ const generateSampleSupportPDF = async (
     (item) => item.itemNumber === itemNumber && item.copyNumber === copyNumber
   );
 
-  const laboratory = currentSampleItem?.laboratoryId
-    ? await laboratoryRepository.findUnique(currentSampleItem.laboratoryId)
+  const laboratories = await laboratoryRepository.findMany({
+    programmingPlanId: sample.programmingPlanId
+  });
+
+  const currentLaboratory = currentSampleItem?.laboratoryId
+    ? laboratories.find((lab) => lab.id === currentSampleItem?.laboratoryId)
     : null;
 
   return generatePDF('supportDocument', {
@@ -234,17 +238,20 @@ const generateSampleSupportPDF = async (
           : '',
         currentItem:
           sampleItem.itemNumber === itemNumber &&
-          sampleItem.copyNumber === copyNumber
+          sampleItem.copyNumber === copyNumber,
+        laboratory: !isNil(sampleItem.laboratoryId)
+          ? laboratories.find((lab) => lab.id === sampleItem.laboratoryId)
+          : null
       })
     ),
     itemNumber,
     copyNumber,
     sampler,
     additionalSampler,
-    laboratory: !isNil(laboratory)
+    laboratory: !isNil(currentLaboratory)
       ? {
-          ...laboratory,
-          fullName: getLaboratoryFullName(laboratory)
+          ...currentLaboratory,
+          fullName: getLaboratoryFullName(currentLaboratory)
         }
       : null,
     substanceKind: currentSampleItem?.substanceKind,
