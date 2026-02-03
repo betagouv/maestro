@@ -151,7 +151,8 @@ export const NationalCoordinatorDaoaFixture = genUser({
 });
 export const LaboratoryUserFixture = genUser({
   roles: ['LaboratoryUser'],
-  id: '14141414-1414-1414-1414-141414141414'
+  id: '15151515-1515-1515-1515-151515151515',
+  laboratoryId: LaboratoryFixture.id
 });
 
 export const genAuthUser = (
