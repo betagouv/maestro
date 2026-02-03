@@ -135,27 +135,19 @@ type MaestroRouteHasProtectedMethod<T> = T extends MaestroRoutes
     : true
   : false;
 
-type FilterProtectedRoutes<R> =
-  R extends Readonly<[infer First, ...infer Rest]>
-    ? MaestroRouteHasProtectedMethod<First> extends true
-      ? [First, ...FilterProtectedRoutes<Rest>]
-      : FilterProtectedRoutes<Rest>
-    : [];
-
-type FilterUnprotectedRoutes<R> =
-  R extends Readonly<[infer First, ...infer Rest]>
-    ? MaestroRouteHasUnprotectedMethod<First> extends true
-      ? [First, ...FilterUnprotectedRoutes<Rest>]
-      : FilterUnprotectedRoutes<Rest>
-    : [];
-
 export type MaestroRoutes = (typeof MaestroRoutes)[number];
-export type ProtectedRoutes = FilterProtectedRoutes<
-  typeof MaestroRoutes
->[number];
-export type UnprotectedRoutes = FilterUnprotectedRoutes<
-  typeof MaestroRoutes
->[number];
+
+export type ProtectedRoutes = {
+  [K in MaestroRoutes]: MaestroRouteHasProtectedMethod<K> extends true
+    ? K
+    : never;
+}[MaestroRoutes];
+
+export type UnprotectedRoutes = {
+  [K in MaestroRoutes]: MaestroRouteHasUnprotectedMethod<K> extends true
+    ? K
+    : never;
+}[MaestroRoutes];
 
 export type ToRoute = {
   query?: ZodObject;
