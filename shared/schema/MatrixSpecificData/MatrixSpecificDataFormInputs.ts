@@ -113,8 +113,8 @@ export const MatrixSpecificDataFormInputs: Record<
   },
   sampling: {
     inputType: 'select',
-    label: 'Echantillonnage',
-    whenValid: 'Echantillonnage correctement renseigné.'
+    label: 'Échantillonnage',
+    whenValid: 'Échantillonnage correctement renseigné.'
   },
   animalKind: {
     inputType: 'select',
