@@ -5,7 +5,7 @@ import {
   Partitioners,
   ProducerRecord
 } from 'kafkajs';
-import config from '../utils/config';
+import config, { KafkaTopic } from '../utils/config';
 import { Xml } from './ediSacha/sachaToXML';
 
 let kafka: Kafka | null = null;
@@ -50,9 +50,12 @@ export const createConsumer = async (): Promise<Consumer | null> => {
   return consumer;
 };
 
-export const sendMessage = async (message: Xml): Promise<void> => {
-  if (!kafka || !config.kafka.topicDAI) {
-    console.warn("Kakfa n'est pas configuré pour recevoir les RAI.");
+export const sendMessage = async (
+  message: Xml,
+  topic: KafkaTopic | null
+): Promise<void> => {
+  if (!kafka || !topic) {
+    console.warn("Kakfa n'est pas configuré.");
     return;
   }
   const producer = kafka.producer({
@@ -60,7 +63,7 @@ export const sendMessage = async (message: Xml): Promise<void> => {
   });
 
   const topicMessages: ProducerRecord = {
-    topic: config.kafka.topicDAI,
+    topic,
     messages: [{ value: message }]
   };
   await producer.connect();

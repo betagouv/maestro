@@ -1,5 +1,4 @@
 import { XMLBuilder } from 'fast-xml-parser';
-import { XmlDocument, XsdValidator } from 'libxml2-wasm';
 import {
   Department,
   DepartmentLabels
@@ -19,8 +18,6 @@ import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMat
 import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
 import { formatWithTz, toMaestroDate } from 'maestro-shared/utils/date';
 import { RequiredNotNull } from 'maestro-shared/utils/typescript';
-import fs from 'node:fs';
-import path from 'path';
 import { z, ZodObject } from 'zod';
 import { Laboratories, SachaConf } from '../../repositories/kysely.type';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
@@ -39,13 +36,14 @@ import {
   demandesAnalysesValidator,
   toSachaDateTime
 } from './sachaValidator';
+import { validateSachaXml } from './validateSachaXml';
 
 const xml = z.string().brand('XML');
 export type Xml = z.infer<typeof xml>;
 
 export type XmlFile = {
   fileName: string;
-  fileType: FileType;
+  fileType: SachaFileType;
   content: Xml;
   laboratory: RequiredNotNull<
     Pick<Laboratories, 'sachaSigle' | 'sachaEmail' | 'shortName' | 'name'>
@@ -296,7 +294,7 @@ export const generateXMLDAI = (
   );
 };
 
-type FileType = 'AN01' | 'DA01';
+export type SachaFileType = 'AN01' | 'DA01';
 const fileTypeConf = {
   AN01: {
     name: 'AcquittementNonAcquittement',
@@ -315,14 +313,14 @@ const fileTypeConf = {
     })
   }
 } as const satisfies Record<
-  FileType,
+  SachaFileType,
   {
     name: string;
     content: ZodObject;
   }
 >;
 
-const generateXML = async <T extends FileType>(
+const generateXML = async <T extends SachaFileType>(
   fileType: T,
   content: z.infer<(typeof fileTypeConf)[T]['content']>,
   dateNow: number,
@@ -387,19 +385,13 @@ const generateXML = async <T extends FileType>(
 
   const xmlResult = xml.parse(xmlContent);
 
-  const xsd = path.join(import.meta.dirname, `./schema.xsd`);
-  const schema = XmlDocument.fromBuffer(fs.readFileSync(xsd));
-  const validator = XsdValidator.fromDoc(schema);
+  validateSachaXml(xmlResult);
 
-  const xmlDocument = XmlDocument.fromString(xmlResult);
-  validator.validate(xmlDocument);
-
-  xmlDocument.dispose();
   return { fileName, fileType, content: xmlResult, laboratory };
 };
 
 export const getXmlFileName = (
-  fileType: FileType,
+  fileType: SachaFileType,
   department: Department,
   laboratory: Pick<Laboratories, 'sachaSigle'>,
   dateNow: number
@@ -409,7 +401,7 @@ export const getXmlFileName = (
 };
 
 export const getZipFileName = (
-  fileType: FileType,
+  fileType: SachaFileType,
   laboratory: Pick<Laboratories, 'sachaSigle'>,
   dateNow: number
 ): string => {

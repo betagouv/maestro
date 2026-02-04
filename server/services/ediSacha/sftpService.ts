@@ -1,13 +1,23 @@
 import sftp from 'ssh2-sftp-client';
 import config from '../../utils/config';
 
+import { readFileSync } from 'fs';
 import fs from 'node:fs';
 import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 import path from 'path';
 import { unzip } from '../zipService';
+import { processSachaRAI } from './sachaRAI';
+import { sendSachaFile } from './sachaSender';
+import {
+  generateXMLAcquitement,
+  loadLaboratoryAndSachaConfCall
+} from './sachaToXML';
+import { toSachaDateTime } from './sachaValidator';
+import { validateAndDecodeSachaXml } from './validateSachaXml';
 
 const readdir = promisify(fs.readdir);
+const unlink = promisify(fs.unlink);
 
 const doSftp = async () => {
   if (
@@ -34,19 +44,56 @@ const doSftp = async () => {
     await sftpClient.downloadDir('uploads/RA01Maestro', sftpDirectory);
 
     const dataDirectory = path.join(sftpDirectory, 'data');
-    const files = await readdir(dataDirectory);
+    const zipFiles = await readdir(dataDirectory);
 
-    for (const file of files) {
-      if (file.endsWith('.zip')) {
-        await unzip(dataDirectory, file);
+    for (const zipFile of zipFiles.filter((z) => !z.startsWith('Decl_'))) {
+      if (zipFile.endsWith('.zip')) {
+        await unzip(dataDirectory, zipFile);
 
-        //FIXME EDI On doit supprimer le fichier déclencheur dans decl
-        //FIXME EDI On doit supprimer le fichier de data
+        const unzipFile = path.join(
+          dataDirectory,
+          zipFile.substring(0, zipFile.length - 4)
+        );
 
-        //FIXME EDI Envoie de l'acquittement
-        console.log('TODO Traitement de ', file);
+        const content = readFileSync(unzipFile);
+
+        const json = validateAndDecodeSachaXml(content.toString());
+
+        if (!json.Resultats) {
+          throw new Error(`Aucun résultat trouvé dans ${zipFile}`);
+        }
+
+        //FIXME EDI gérer les erreurs et les non acquittements
+        processSachaRAI(json.Resultats);
+
+        await sftpClient.delete(`uploads/RA01Maestro/data/Decl_${zipFile}`);
+        await sftpClient.delete(`uploads/RA01Maestro/data/${zipFile}`);
+
+        await unlink(unzipFile);
+        await unlink(path.join(dataDirectory, zipFile));
+        await unlink(path.join(dataDirectory, `Decl_${zipFile}`));
+
+        const dateNow = Date.now();
+        const xml = await generateXMLAcquitement(
+          [
+            {
+              NomFichier: json.Resultats.MessageParametres.NomFichier,
+              DateAcquittement: toSachaDateTime(new Date(dateNow))
+            }
+          ],
+          undefined,
+          //FIXME EDI récupérer le laboId
+          loadLaboratoryAndSachaConfCall('analysis.laboratoryId'),
+          //FIXME EDI récupérer correctement le département
+          '01',
+          dateNow
+        );
+
+        await sendSachaFile(xml, dateNow);
+
+        console.log('TODO Traitement de ', unzipFile, json);
       } else {
-        console.warn(`Le fichier ${file} n'est pas une archive`);
+        console.warn(`Le fichier ${zipFile} n'est pas une archive`);
       }
     }
   } catch (e: any) {

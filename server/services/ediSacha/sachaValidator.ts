@@ -302,6 +302,8 @@ const resultatsValidator = z.object({
   )
 });
 
+export type SachaResultats = z.infer<typeof resultatsValidator>;
+
 export const demandesAnalysesValidator = z.object({
   ...baseValidator.shape,
   DemandeType: z.object({
