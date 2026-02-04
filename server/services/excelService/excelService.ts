@@ -38,6 +38,7 @@ import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
+import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { Template, templatePath } from '../../templates/templates';
 
@@ -74,53 +75,48 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
   cultureKind: string;
   releaseControl: string;
   notesOnMatrix: string;
-  quantity1: string;
-  quantityUnit1: string;
-  sealId1: string;
-  recipient1: string;
-  compliance2002631: string;
-  quantity2: string;
-  quantityUnit2: string;
-  sealId2: string;
-  recipient2: string;
-  compliance2002632: string;
-  quantity3: string;
-  quantityUnit3: string;
-  sealId3: string;
-  recipient3: string;
-  compliance2002633: string;
   notesOnItems: string;
   notesOnAdmissibility: string;
-  compliance: string;
-  residues: SetAttributesNullOrUndefined<{
+  items: SetAttributesNullOrUndefined<{
     sampleReference: string;
-    reference: string;
-    kind: string;
-    referenceLabel: string;
-    residueNumber: number;
-    analysisMethod: string;
-    analysisDate: string;
-    resultKind: string;
-    result: number;
-    resultUnit: string;
-    lmr: number;
-    resultHigherThanArfd: string;
-    notesOnResult: string;
-    substanceApproved: string;
-    substanceAuthorised: string;
-    pollutionRisk: string;
-    notesOnPollutionRisk: string;
+    itemNumber: number;
+    copyNumber: number;
+    quantity: number;
+    quantityUnit: string;
+    sealId: string;
+    recipient: string;
+    compliance200263: string;
     compliance: string;
-    otherCompliance: string;
-    sampleCompliance: string;
-    analytes: SetAttributesNullOrUndefined<{
+    residues: SetAttributesNullOrUndefined<{
       sampleReference: string;
-      residueNumber: number;
-      analyteNumber: number;
       reference: string;
+      kind: string;
       referenceLabel: string;
+      residueNumber: number;
+      analysisMethod: string;
+      analysisDate: string;
       resultKind: string;
       result: number;
+      resultUnit: string;
+      lmr: number;
+      resultHigherThanArfd: string;
+      notesOnResult: string;
+      substanceApproved: string;
+      substanceAuthorised: string;
+      pollutionRisk: string;
+      notesOnPollutionRisk: string;
+      compliance: string;
+      otherCompliance: string;
+      sampleCompliance: string;
+      analytes: SetAttributesNullOrUndefined<{
+        sampleReference: string;
+        residueNumber: number;
+        analyteNumber: number;
+        reference: string;
+        referenceLabel: string;
+        resultKind: string;
+        result: number;
+      }>[];
     }>[];
   }>[];
 }>;
@@ -137,18 +133,35 @@ const optionalBooleanToString = (
 const generateSamplesExportExcel = async (
   samples: PartialSample[]
 ): Promise<Buffer> => {
-  // const laboratories = await laboratoryRepository.findMany();
+  const laboratories = await laboratoryRepository.findMany();
 
   return highland(samples)
     .flatMap((sample) =>
       highland(
-        Promise.all([
-          sampleItemRepository.findMany(sample.id),
-          analysisRepository.findUnique({ sampleId: sample.id })
-        ]).then(([items, analysis]) => ({ sample, items, analysis }))
+        sampleItemRepository
+          .findMany(sample.id)
+          .then((items) => ({ sample, items }))
       )
     )
-    .map(({ sample, items, analysis }) => {
+    .flatMap(({ sample, items }) =>
+      highland(
+        Promise.all(
+          items.map((item) =>
+            analysisRepository
+              .findUnique({
+                sampleId: sample.id,
+                itemNumber: item.itemNumber,
+                copyNumber: item.copyNumber
+              })
+              .then((analysis) => ({
+                ...item,
+                analysis
+              }))
+          )
+        ).then((itemsWithAnalysis) => ({ sample, itemsWithAnalysis }))
+      )
+    )
+    .map(({ sample, itemsWithAnalysis }) => {
       const data: SamplesExportExcelData = {
         reference: sample.reference,
         department: sample.department,
@@ -193,95 +206,83 @@ const generateSamplesExportExcel = async (
               : 'Non'
             : undefined,
         notesOnMatrix: sample.notesOnMatrix,
-        ...items.reduce(
-          (acc, item, index) => ({
-            ...acc,
-            [`quantity${index + 1}`]: item.quantity,
-            [`quantityUnit${index + 1}`]: item.quantityUnit
-              ? QuantityUnitLabels[item.quantityUnit]
-              : undefined,
-            [`sealId${index + 1}`]: item.sealId,
-            [`recipient${index + 1}`]:
-              item.recipientKind &&
-              (item.recipientKind === 'Laboratory'
-                ? 'Laboratoire '
-                : // + TODO
-                  // laboratories.find((lab) => lab.id === sample.laboratoryId)
-                  //   ?.name
-                  SampleItemRecipientKindLabels[item.recipientKind]),
-            [`compliance200263${index + 1}`]: item.compliance200263
-              ? 'Oui'
-              : 'Non'
-          }),
-          {} as Pick<
-            SamplesExportExcelData,
-            | 'quantity1'
-            | 'quantityUnit1'
-            | 'sealId1'
-            | 'recipient1'
-            | 'compliance2002631'
-            | 'quantity2'
-            | 'quantityUnit2'
-            | 'sealId2'
-            | 'recipient2'
-            | 'compliance2002632'
-            | 'quantity3'
-            | 'quantityUnit3'
-            | 'sealId3'
-            | 'recipient3'
-            | 'compliance2002633'
-          >
-        ),
         notesOnItems: sample.notesOnItems,
         notesOnAdmissibility: sample.notesOnAdmissibility,
-        compliance: isDefinedAndNotNull(analysis?.compliance)
-          ? analysis?.compliance
-            ? 'Oui'
-            : 'Non'
-          : '',
-        residues: (analysis?.residues ?? []).map((r) => ({
+        items: itemsWithAnalysis.map(({ analysis, ...item }) => ({
           sampleReference: sample.reference,
-          referenceLabel: r.reference ? SSD2IdLabel[r.reference] : undefined,
-          kind: r.reference
-            ? isComplex(r.reference)
-              ? ResidueKindLabels['Complex']
-              : ResidueKindLabels['Simple']
+          itemNumber: item.itemNumber,
+          copyNumber: item.copyNumber,
+          quantity: item.quantity,
+          quantityUnit: item.quantityUnit
+            ? QuantityUnitLabels[item.quantityUnit]
             : undefined,
-          reference: r.reference,
-          residueNumber: r.residueNumber,
-          analysisMethod: r.analysisMethod
-            ? AnalysisMethodLabels[r.analysisMethod]
-            : undefined,
-          analysisDate: r.analysisDate,
-          resultKind: r.resultKind ? ResultKindLabels[r.resultKind] : undefined,
-          result: r.result,
-          resultUnit: 'mg/kg',
-          lmr: r.lmr,
-          resultHigherThanArfd: optionalBooleanToString(r.resultHigherThanArfd),
-          notesOnResult: r.notesOnResult,
-          substanceApproved: optionalBooleanToString(r.substanceApproved),
-          substanceAuthorised: optionalBooleanToString(r.substanceAuthorised),
-          pollutionRisk: optionalBooleanToString(r.pollutionRisk),
-          notesOnPollutionRisk: r.notesOnPollutionRisk,
-          compliance: r.compliance
-            ? ResidueComplianceLabels[r.compliance]
-            : undefined,
-          otherCompliance: r.otherCompliance,
-          sampleCompliance: isDefinedAndNotNull(analysis?.compliance)
+          sealId: item.sealId,
+          recipient:
+            item.recipientKind &&
+            (item.recipientKind === 'Laboratory'
+              ? 'Laboratoire ' +
+                laboratories.find((lab) => lab.id === item.laboratoryId)?.name
+              : SampleItemRecipientKindLabels[item.recipientKind]),
+          compliance200263: item.compliance200263 ? 'Oui' : 'Non',
+          compliance: isDefinedAndNotNull(analysis?.compliance)
             ? analysis?.compliance
               ? 'Oui'
               : 'Non'
             : '',
-          analytes: (r.analytes ?? []).map((a) => ({
+          residues: (analysis?.residues ?? []).map((r) => ({
             sampleReference: sample.reference,
-            residueNumber: a.residueNumber,
-            analyteNumber: a.analyteNumber,
-            reference: a.reference,
-            referenceLabel: a.reference ? SSD2IdLabel[a.reference] : undefined,
-            resultKind: a.resultKind
-              ? ResultKindLabels[a.resultKind]
+            itemNumber: item.itemNumber,
+            copyNumber: item.copyNumber,
+            referenceLabel: r.reference ? SSD2IdLabel[r.reference] : undefined,
+            kind: r.reference
+              ? isComplex(r.reference)
+                ? ResidueKindLabels['Complex']
+                : ResidueKindLabels['Simple']
               : undefined,
-            result: a.result
+            reference: r.reference,
+            residueNumber: r.residueNumber,
+            analysisMethod: r.analysisMethod
+              ? AnalysisMethodLabels[r.analysisMethod]
+              : undefined,
+            analysisDate: r.analysisDate,
+            resultKind: r.resultKind
+              ? ResultKindLabels[r.resultKind]
+              : undefined,
+            result: r.result,
+            resultUnit: 'mg/kg',
+            lmr: r.lmr,
+            resultHigherThanArfd: optionalBooleanToString(
+              r.resultHigherThanArfd
+            ),
+            notesOnResult: r.notesOnResult,
+            substanceApproved: optionalBooleanToString(r.substanceApproved),
+            substanceAuthorised: optionalBooleanToString(r.substanceAuthorised),
+            pollutionRisk: optionalBooleanToString(r.pollutionRisk),
+            notesOnPollutionRisk: r.notesOnPollutionRisk,
+            compliance: r.compliance
+              ? ResidueComplianceLabels[r.compliance]
+              : undefined,
+            otherCompliance: r.otherCompliance,
+            sampleCompliance: isDefinedAndNotNull(analysis?.compliance)
+              ? analysis?.compliance
+                ? 'Oui'
+                : 'Non'
+              : '',
+            analytes: (r.analytes ?? []).map((a) => ({
+              sampleReference: sample.reference,
+              itemNumber: item.itemNumber,
+              copyNumber: item.copyNumber,
+              residueNumber: a.residueNumber,
+              analyteNumber: a.analyteNumber,
+              reference: a.reference,
+              referenceLabel: a.reference
+                ? SSD2IdLabel[a.reference]
+                : undefined,
+              resultKind: a.resultKind
+                ? ResultKindLabels[a.resultKind]
+                : undefined,
+              result: a.result
+            }))
           }))
         }))
       };
@@ -290,7 +291,12 @@ const generateSamplesExportExcel = async (
     })
     .collect()
     .map((s) => {
-      const residues = s.flatMap((r) => r.residues).filter((r) => !isNil(r));
+      const items = s
+        .flatMap((sample) => sample.items)
+        .filter((i) => !isNil(i));
+      const residues = items
+        .flatMap((i) => i?.residues)
+        .filter((r) => !isNil(r));
       const analytes = residues
         .flatMap((r) => r.analytes)
         .filter((a) => !isNil(a));
@@ -298,6 +304,7 @@ const generateSamplesExportExcel = async (
         'samplesExport',
         {
           samples: s,
+          items,
           residues,
           analytes
         },

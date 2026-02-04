@@ -6,10 +6,16 @@ import { SubstanceKind } from '../Substance/SubstanceKind';
 import { SampleChecked } from './Sample';
 import { SampleItemRecipientKind } from './SampleItemRecipientKind';
 
-export const SampleItem = z.object({
+export const SampleItemKey = z.object({
   sampleId: z.guid(),
-  itemNumber: z.number().int().positive(),
-  copyNumber: z.number().int().positive(),
+  itemNumber: z.coerce.number().int().positive(),
+  copyNumber: z.coerce.number().int().positive()
+});
+
+export type SampleItemKey = z.infer<typeof SampleItemKey>;
+
+export const SampleItem = z.object({
+  ...SampleItemKey.shape,
   quantity: z
     .number({
       error: (issue) =>

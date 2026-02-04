@@ -2,6 +2,7 @@ import { isNil, omit, omitBy } from 'lodash-es';
 import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { PartialAnalyte } from 'maestro-shared/schema/Analysis/Analyte';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import { SampleItemKey } from 'maestro-shared/schema/Sample/SampleItem';
 import { convertKeysToCamelCase } from 'maestro-shared/utils/utils';
 import z from 'zod';
 import { knexInstance as db } from './db';
@@ -16,11 +17,10 @@ const PartialAnalysisDbo = PartialAnalysis.omit({
   residues: true
 });
 
-const PartialAnalysisJoinedDbo = PartialAnalysisDbo.merge(
-  z.object({
-    residues: z.array(PartialResidue).nullish()
-  })
-);
+const PartialAnalysisJoinedDbo = z.object({
+  ...PartialAnalysisDbo.shape,
+  residues: z.array(PartialResidue).nullish()
+});
 
 type PartialAnalysisDbo = z.infer<typeof PartialAnalysisDbo>;
 type PartialAnalysisJoinedDbo = z.infer<typeof PartialAnalysisJoinedDbo>;
@@ -33,7 +33,7 @@ export const ResidueAnalytes = (transaction = db) =>
   transaction<PartialAnalyte>(residueAnalytesTable);
 
 const findUnique = async (
-  key: string | { sampleId: string }
+  key: string | SampleItemKey
 ): Promise<PartialAnalysis | undefined> => {
   console.info('Find analysis with key', key);
   return Analysis()
@@ -60,7 +60,15 @@ const findUnique = async (
         `${analysisTable}.id`
       ).andOnVal(`${analysisResiduesTable}.result_kind`, '<>', 'ND');
     })
-    .where(typeof key === 'string' ? { id: key } : { sampleId: key.sampleId })
+    .where(
+      typeof key === 'string'
+        ? { id: key }
+        : {
+            sampleId: key.sampleId,
+            itemNumber: key.itemNumber,
+            copyNumber: key.copyNumber
+          }
+    )
     .groupBy(`${analysisTable}.id`)
     .first()
     .then(parsePartialAnalysis);

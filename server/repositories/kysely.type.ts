@@ -52,6 +52,8 @@ export interface Analysis {
   id: Generated<string>;
   notesOnCompliance: string | null;
   sampleId: string | null;
+  itemNumber: number | null;
+  copyNumber: number | null;
   status: AnalysisStatus;
 }
 
