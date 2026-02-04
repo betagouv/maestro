@@ -40,8 +40,7 @@ export const generateDAI = async (sample: SampleChecked) => {
     }
 
     if (xmlFile) {
-      //FIXME EDI brancher PEL
-      await sendSachaFile(xmlFile, dateNow, false);
+      await sendSachaFile(xmlFile, dateNow);
     }
   }
   return null;
