@@ -4,6 +4,7 @@ import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import Tag from '@codegouvfr/react-dsfr/Tag';
+import Tooltip from '@codegouvfr/react-dsfr/Tooltip';
 import clsx from 'clsx';
 import { format } from 'date-fns';
 import {
@@ -29,9 +30,13 @@ import {
   LaboratoryAnalyticalCompetence,
   LaboratoryAnalyticalCompetenceToSave
 } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
-import { LaboratoryAnalyticalMethodList } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalMethod';
+import {
+  LaboratoryAnalyticalMethodLabels,
+  LaboratoryAnalyticalMethodList
+} from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalMethod';
 import {
   LaboratoryValidationMethod,
+  LaboratoryValidationMethodLabels,
   LaboratoryValidationMethodList
 } from 'maestro-shared/schema/Laboratory/LaboratoryValidationMethod';
 import React, { useContext, useState } from 'react';
@@ -195,14 +200,39 @@ const LaboratoryAnalyticalCompetencesForm = ({
         noCaption
         noScroll
         headers={[
-          <TableHeaderCell
-            name={'Analyse selon définition complète'}
-            key={`header-1`}
-          />,
-          <TableHeaderCell name={'Limites (en mg/kg)'} key={`header-2`} />,
-          <TableHeaderCell name={'Méthode analytique'} key={`header-3`} />,
-          <TableHeaderCell name={'Validation'} key={`header-4`} />,
-          <TableHeaderCell name={'Résidu recherché'} key={`header-5`} />
+          <span key={`header-1`}>Analyse selon définition complète</span>,
+          <span key={`header-2`}>Limites (en mg/kg)</span>,
+          <div key={`header-3`} className="d-flex-align-center">
+            <span className="flex-grow-1">Méthode analytique</span>
+            <Tooltip
+              kind="hover"
+              title={
+                <div>
+                  {LaboratoryAnalyticalMethodList.map((method) => (
+                    <div key={`analytical-method-label-${method}`}>
+                      {method}: {LaboratoryAnalyticalMethodLabels[method]}
+                    </div>
+                  ))}
+                </div>
+              }
+            />
+          </div>,
+          <div key={`header-4`} className="d-flex-align-center">
+            <span className="flex-grow-1">Validation</span>
+            <Tooltip
+              kind="hover"
+              title={
+                <div>
+                  {LaboratoryValidationMethodList.map((method) => (
+                    <div key={`validation-method-label-${method}`}>
+                      {method}: {LaboratoryValidationMethodLabels[method]}
+                    </div>
+                  ))}
+                </div>
+              }
+            />
+          </div>,
+          <span key={`header-5`}>Résidu recherché</span>
         ]}
         data={[
           [
