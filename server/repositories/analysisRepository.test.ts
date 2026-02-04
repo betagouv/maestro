@@ -137,6 +137,8 @@ describe('findUnique', () => {
       .values([
         {
           sampleId: Sample13Fixture.id,
+          itemNumber: 1,
+          copyNumber: 1,
           id: analysisId,
           status: 'Completed'
         }

@@ -130,6 +130,7 @@ export const genSampleItem = (data?: Partial<SampleItem>): SampleItem => ({
 const Sample11FixtureId = '11111111-1111-1111-1111-111111111111';
 export const Sample1Item1Fixture = genSampleItem({
   sampleId: Sample11FixtureId,
+  itemNumber: 1,
   copyNumber: 1,
   quantity: 534,
   quantityUnit: 'G185A',
