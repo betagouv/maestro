@@ -39,10 +39,6 @@ const laboratoryApi = api.injectEndpoints({
     >({
       query: (laboratoryId) =>
         `laboratories/${laboratoryId}/analytical-competences`,
-      transformResponse: (response: any[]) =>
-        response.map((_) =>
-          LaboratoryAnalyticalCompetence.parse(omitBy(_, isNil))
-        ),
       providesTags: (_result, _error, laboratoryId) => [
         {
           type: 'LaboratoryAnalyticalCompetence',
@@ -51,7 +47,7 @@ const laboratoryApi = api.injectEndpoints({
       ]
     }),
     createLaboratoryAnalyticalCompetence: builder.mutation<
-      LaboratoryAnalyticalCompetence,
+      LaboratoryAnalyticalCompetence[],
       {
         laboratoryId: string;
         laboratoryAnalyticalCompetence: LaboratoryAnalyticalCompetenceToSave;
@@ -62,8 +58,6 @@ const laboratoryApi = api.injectEndpoints({
         method: 'POST',
         body: laboratoryAnalyticalCompetence
       }),
-      transformResponse: (response: any) =>
-        LaboratoryAnalyticalCompetence.parse(omitBy(response, isNil)),
       invalidatesTags: (_result, _error, { laboratoryId }) => [
         {
           type: 'LaboratoryAnalyticalCompetence',
@@ -88,8 +82,6 @@ const laboratoryApi = api.injectEndpoints({
         method: 'PUT',
         body: laboratoryAnalyticalCompetence
       }),
-      transformResponse: (response: any) =>
-        LaboratoryAnalyticalCompetence.parse(omitBy(response, isNil)),
       invalidatesTags: (_result, _error, { laboratoryId }) => [
         {
           type: 'LaboratoryAnalyticalCompetence',
