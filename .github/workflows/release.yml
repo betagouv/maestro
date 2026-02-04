@@ -22,4 +22,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           MATTERMOST_WEBHOOK: ${{ secrets.MATTERMOST_WEBHOOK }}
-        run: npm run semantic-release
+        run: npx --package semantic-release@25.0.3 --package semantic-release-mattermost@1.2.3 semantic-release
+
