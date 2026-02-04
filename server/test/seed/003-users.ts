@@ -25,7 +25,6 @@ export const seed = async (): Promise<void> => {
     DepartmentalCoordinator,
     RegionalCoordinator,
     RegionalDromCoordinator,
-    DepartmentalCoordinator,
     NationalCoordinator,
     AdminFixture,
     RegionalObserver,
