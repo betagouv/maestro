@@ -101,7 +101,13 @@ describe('Analysis router', () => {
   describe('GET /analysis', () => {
     const testRoute = (sampleItemKey?: SampleItemKey) =>
       `/api/analysis?${
-        sampleItemKey ? new URLSearchParams(sampleItemKey).toString() : ''
+        sampleItemKey
+          ? new URLSearchParams({
+              sampleId: sampleItemKey.sampleId,
+              itemNumber: String(sampleItemKey.itemNumber),
+              copyNumber: String(sampleItemKey.copyNumber)
+            }).toString()
+          : ''
       }`;
 
     test('should fail if the user is not authenticated', async () => {
