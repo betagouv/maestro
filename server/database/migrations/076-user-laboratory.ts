@@ -11,7 +11,7 @@ export const up = async (knex: Knex) => {
   const laboratories = await knex('laboratories').select();
 
   const ansesPestLab = laboratories.find(
-    (lab) => lab.short_name === 'ANS 94a - LNR PEST'
+    (lab) => lab.shortName === 'ANS 94a - LNR PEST'
   );
   if (ansesPestLab) {
     await knex('users')
@@ -19,21 +19,21 @@ export const up = async (knex: Knex) => {
       .update({ laboratory_id: ansesPestLab.id });
   }
 
-  const lda31Lab = laboratories.find((lab) => lab.short_name === 'LDA 31');
+  const lda31Lab = laboratories.find((lab) => lab.shortName === 'LDA 31');
   if (lda31Lab) {
     await knex('users')
       .whereILike('users.email', '%@cd31.fr')
       .update({ laboratory_id: lda31Lab.id });
   }
 
-  const lda87Lab = laboratories.find((lab) => lab.short_name === 'LDA 87');
+  const lda87Lab = laboratories.find((lab) => lab.shortName === 'LDA 87');
   if (lda87Lab) {
     await knex('users')
       .whereILike('users.email', '%@haute-vienne.fr')
       .update({ laboratory_id: lda87Lab.id });
   }
 
-  const lda85Lab = laboratories.find((lab) => lab.short_name === 'LDA 85');
+  const lda85Lab = laboratories.find((lab) => lab.shortName === 'LDA 85');
   if (lda85Lab) {
     await knex('users')
       .whereILike('users.email', '%@vendee.fr')
