@@ -13,15 +13,14 @@ export type LaboratoryAnalyticalMethod = z.infer<
 
 export const LaboratoryAnalyticalMethodList =
   LaboratoryAnalyticalMethod.options;
-//
-// export const LaboratoryAnalyticalMethodLabels: Record<
-//   LaboratoryAnalyticalMethod,
-//   string
-// > = {
-//   F009A: 'Spectroscopie UV-visible',
-//   F024A: 'HPLC-Electrical Conductivity Detector',
-//   F027A: 'Chromatographie liquide - Spectrométrie masse tandem',
-//   F329A: 'Chromatographie liquide - Spectrométrie de masse haute résolution',
-//   F046A: 'Chromatographie gazeuse - Spectrométrie de masse',
-//   F049A: 'Chromatographie gazeuse - Spectrométrie de masse en tandem'
-// };
+
+export const LaboratoryAnalyticalMethodLabels: Partial<
+  Record<LaboratoryAnalyticalMethod, string>
+> = {
+  F009A: 'Spectroscopie UV-visible',
+  F024A: 'HPLC-Electrical Conductivity Detector',
+  F027A: 'Chromatographie liquide - Spectrométrie masse tandem',
+  F329A: 'Chromatographie liquide - Spectrométrie de masse haute résolution',
+  F046A: 'Chromatographie gazeuse - Spectrométrie de masse',
+  F049A: 'Chromatographie gazeuse - Spectrométrie de masse en tandem'
+};
