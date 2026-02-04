@@ -1,16 +1,18 @@
 import { fakerFR } from '@faker-js/faker';
 import { expect, test } from 'vitest';
 import { kysely } from './kysely';
-import { SachaResidueMappings } from './kysely.type';
+import { SachaResidueId, SachaResidueMappings } from './kysely.type';
 import { sachaResidueMappingRepository } from './sachaResidueMappingRepository';
 
 test('findByLabel', async () => {
-  let ssd2Id = await sachaResidueMappingRepository.findByLabel('none');
+  let ssd2Id = await sachaResidueMappingRepository.findByLabel(
+    'none' as SachaResidueId
+  );
 
   expect(ssd2Id).toBeNull();
 
   const residueMapping: SachaResidueMappings = {
-    label: fakerFR.string.alphanumeric(),
+    label: fakerFR.string.alphanumeric() as SachaResidueId,
     ssd2Id: fakerFR.string.alphanumeric()
   };
   await kysely
