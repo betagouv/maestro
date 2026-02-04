@@ -34,4 +34,11 @@ describe('getSampleMatrixSpecificDataAttributeValues', () => {
     );
     expect(result).toEqual(['Aléatoire']);
   });
+  test('returns correctly value from nullish', () => {
+    const result = getSampleMatrixSpecificDataAttributeValues(
+      ProgrammingPlanKind.enum.DAOA_SLAUGHTER,
+      'seizure'
+    );
+    expect(result).toEqual(['EMPTY', 'PARTIAL', 'TOTAL']);
+  });
 });

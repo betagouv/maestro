@@ -1,5 +1,5 @@
 import { isNil, uniq } from 'lodash-es';
-import { z } from 'zod';
+import { z, ZodType } from 'zod';
 import { AnimalKind } from '../../referential/AnimalKind';
 import { AnimalSex } from '../../referential/AnimalSex';
 import { BreedingMethod } from '../../referential/BreedingMethod';
@@ -125,6 +125,18 @@ const schemasByProgrammingPlanKind = {
   >;
 };
 
+const unwrapSchema = (zodType: ZodType | undefined): ZodType | undefined => {
+  if (!zodType) {
+    return zodType;
+  }
+  if ('unwrap' in zodType) {
+    //@ts-expect-error TS18046
+    return unwrapSchema(zodType.unwrap());
+  }
+
+  return zodType;
+};
+
 export const getSampleMatrixSpecificDataAttributeValues = (
   programmingPlanKind: ProgrammingPlanKind,
   attributeName: SampleMatrixSpecificDataKeys
@@ -132,7 +144,10 @@ export const getSampleMatrixSpecificDataAttributeValues = (
   const schema = schemasByProgrammingPlanKind[programmingPlanKind];
 
   const shape = schema.shape;
-  const fieldSchema = shape[attributeName as keyof typeof shape];
+  let fieldSchema: ZodType | undefined =
+    shape[attributeName as keyof typeof shape];
+
+  fieldSchema = unwrapSchema(fieldSchema);
 
   if (!fieldSchema) {
     return [];
@@ -142,8 +157,8 @@ export const getSampleMatrixSpecificDataAttributeValues = (
     return fieldSchema.options;
   }
 
-  if (fieldSchema.type === 'literal') {
-    return Array.from(fieldSchema.values);
+  if (fieldSchema.type === 'literal' && 'values' in fieldSchema) {
+    return Array.from(fieldSchema.values as string[]);
   }
 
   return [];
