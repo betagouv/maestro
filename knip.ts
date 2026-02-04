@@ -8,7 +8,7 @@ export default {
     '@gouvfr/dsfr',
     'lint-staged'
   ],
-  ignoreBinaries: ['playwright'],
+  ignoreBinaries: ['playwright', 'semantic-release'],
   workspaces: {
     server: {
       ignoreDependencies: [
