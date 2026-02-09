@@ -396,6 +396,7 @@ describe('Sample router', () => {
           .expect(constants.HTTP_STATUS_FORBIDDEN);
 
       await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(RegionalCoordinator);
       await forbiddenRequestTest(NationalCoordinator);
       await forbiddenRequestTest(NationalObserver);
       await forbiddenRequestTest(AdminFixture);
@@ -440,7 +441,6 @@ describe('Sample router', () => {
 
       await successRequestTest(Sampler1Fixture, '1');
       await successRequestTest(Sampler1Fixture, '2');
-      await successRequestTest(RegionalCoordinator, '3');
     });
   });
 
@@ -546,6 +546,7 @@ describe('Sample router', () => {
           .expect(constants.HTTP_STATUS_FORBIDDEN);
 
       await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(RegionalCoordinator);
       await forbiddenRequestTest(NationalObserver);
       await forbiddenRequestTest(NationalCoordinator);
       await forbiddenRequestTest(AdminFixture);
@@ -588,7 +589,6 @@ describe('Sample router', () => {
       };
 
       await successRequestTest(Sampler1Fixture);
-      await successRequestTest(RegionalCoordinator);
     });
 
     test('should be forbidden to send a sample with sampleAt in the future', async () => {
@@ -647,7 +647,6 @@ describe('Sample router', () => {
       };
 
       await successRequestTest(Sampler1Fixture);
-      await successRequestTest(RegionalCoordinator);
     });
 
     test('should update the sample compliance', async () => {
@@ -675,7 +674,6 @@ describe('Sample router', () => {
       };
 
       await successRequestTest(Sampler1Fixture);
-      await successRequestTest(RegionalCoordinator);
     });
   });
 
@@ -717,6 +715,7 @@ describe('Sample router', () => {
           .expect(constants.HTTP_STATUS_FORBIDDEN);
 
       await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(RegionalCoordinator);
       await forbiddenRequestTest(NationalObserver);
       await forbiddenRequestTest(NationalCoordinator);
       await forbiddenRequestTest(AdminFixture);
@@ -764,7 +763,6 @@ describe('Sample router', () => {
       };
 
       await successRequestTest(Sampler1Fixture);
-      await successRequestTest(RegionalCoordinator);
     });
   });
 });
