@@ -38,10 +38,6 @@ export const up = async (knex: Knex) => {
     await knex('users')
       .whereILike('users.email', '%@vendee.fr')
       .update({ laboratory_id: lda85Lab.id });
-
-    await knex('users')
-      .whereILike('users.email', '%@alsace.eu')
-      .update({ laboratory_id: lda85Lab.id });
   }
 };
 
