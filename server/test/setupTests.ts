@@ -8,6 +8,8 @@ export const mockAuthenticate: Mock<Procedure> = vi.fn();
 export const mockGetLogoutUrl: Mock<Procedure> = vi.fn();
 export const mockGenerateSampleSupportPDF: Mock<Procedure> = vi.fn();
 export const mockSendNotification: Mock<Procedure> = vi.fn();
+export const mockMattermostSend: Mock<Procedure> = vi.fn();
+export const mockMailSend: Mock<Procedure> = vi.fn();
 vi.mock('../services/authService', () => ({
   getAuthService: Promise.resolve({
     getAuthorizationUrl: () => mockGetAuthorizationUrl(),
@@ -18,6 +20,16 @@ vi.mock('../services/authService', () => ({
 vi.mock('../services/pdfService/pdfService', () => ({
   pdfService: {
     generateSampleSupportPDF: () => mockGenerateSampleSupportPDF()
+  }
+}));
+vi.mock('../services/mattermostService', () => ({
+  mattermostService: {
+    send: (...args: any[]) => mockMattermostSend(...args)
+  }
+}));
+vi.mock('../services/mailService', () => ({
+  mailService: {
+    send: (...args: any[]) => mockMailSend(...args)
   }
 }));
 vi.mock('../services/notificationService', () => ({

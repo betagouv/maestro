@@ -45,7 +45,11 @@ import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { withISOStringDates } from 'maestro-shared/utils/date';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { departmentsSeed } from '../../database/seeds/departments/departmentsSeed';
-import { mockGenerateSampleSupportPDF } from '../../test/setupTests';
+import {
+  mockGenerateSampleSupportPDF,
+  mockMailSend,
+  mockMattermostSend
+} from '../../test/setupTests';
 
 beforeAll(async () => {
   await departmentsSeed();
@@ -648,6 +652,78 @@ describe('Sample router', () => {
 
       await successRequestTest(Sampler1Fixture);
       await successRequestTest(RegionalCoordinator);
+    });
+
+    test('should send a mattermost notification when sending a DAOA sample', async () => {
+      mockMattermostSend.mockClear();
+      mockMailSend.mockClear();
+
+      await Samples()
+        .where({
+          id: SampleDAOA1Fixture.id
+        })
+        .update({
+          status: 'Submitted',
+          matrixKind: 'A0C0Z',
+          matrix: 'A01GL',
+          ownerAgreement: true,
+          sentAt: null,
+          specificData: {
+            ...SampleDAOA1Fixture.specificData,
+            programmingPlanKind: 'DAOA_BREEDING'
+          }
+        });
+
+      await request(app)
+        .put(`${testRoute(SampleDAOA1Fixture.id)}`)
+        .send({
+          ...SampleDAOA1Fixture,
+          status: 'Sent',
+          specificData: {
+            ...SampleDAOA1Fixture.specificData,
+            outdoorAccess: 'PAT1',
+            breedingMethod: 'PROD_1',
+            species: 'ESP7',
+            ageInDays: 12,
+            animalIdentifier: 'id',
+            sampling: 'Aléatoire',
+            programmingPlanKind: 'DAOA_BREEDING'
+          }
+        })
+        .use(tokenProvider(SamplerDaoaFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(mockMattermostSend).toHaveBeenCalledWith(
+        `ATTENTION, un prélèvement DAOA vient d'être réalisé https://app.maestro.beta.gouv.fr/prelevements/${SampleDAOA1Fixture.id}`
+      );
+      expect(mockMailSend).not.toHaveBeenCalled();
+    });
+
+    test('should not send a mattermost notification when sending a non-DAOA sample', async () => {
+      mockMattermostSend.mockClear();
+      mockMailSend.mockClear();
+
+      await Samples()
+        .where({
+          id: Sample11Fixture.id
+        })
+        .update({
+          status: 'Submitted',
+          ownerAgreement: true,
+          sentAt: null
+        });
+
+      await request(app)
+        .put(`${testRoute(Sample11Fixture.id)}`)
+        .send({
+          ...Sample11Fixture,
+          status: 'Sent'
+        })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(mockMattermostSend).not.toHaveBeenCalled();
+      expect(mockMailSend).toHaveBeenCalled();
     });
 
     test('should update the sample compliance', async () => {

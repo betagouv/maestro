@@ -51,6 +51,10 @@ import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import {
+  ProgrammingPlanKindWithSacha,
+  ProgrammingPlanKindWithSachaList
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import {
   companiesIsRequired,
   hasPermission
 } from 'maestro-shared/schema/User/User';
@@ -69,6 +73,7 @@ import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
+import { mattermostService } from '../services/mattermostService';
 
 const streamToBase64 = async (stream: Readable): Promise<string> => {
   const chunks: any[] = [];
@@ -542,6 +547,16 @@ export const sampleRouter = {
       };
 
       if (mustBeSent) {
+        const withEdiSacha: boolean = ProgrammingPlanKindWithSachaList.includes(
+          updatedPartialSample.specificData
+            .programmingPlanKind as ProgrammingPlanKindWithSacha
+        );
+        if (withEdiSacha) {
+          //FIXME EDI à brancher
+          await mattermostService.send(
+            `ATTENTION, un prélèvement DAOA vient d'être réalisé https://app.maestro.beta.gouv.fr/prelevements/${updatedPartialSample.id}`
+          );
+        }
         const updatedSample = SampleChecked.parse(updatedPartialSample);
         const sampleItems = await sampleItemRepository.findMany(sample.id);
 
@@ -569,7 +584,8 @@ export const sampleRouter = {
                 }
               : null;
 
-            if (sampleItem.copyNumber === 1) {
+            //FIXME EDI à brancher
+            if (!withEdiSacha && sampleItem.copyNumber === 1) {
               const laboratory = (await laboratoryRepository.findUnique(
                 sampleItem.laboratoryId as string
               )) as Laboratory;
