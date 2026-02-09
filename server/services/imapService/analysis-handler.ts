@@ -161,6 +161,8 @@ export const analysisHandler = async (
     async (documentId, trx) => {
       const newAnalysis: Omit<PartialAnalysis, 'id'> = {
         sampleId,
+        itemNumber: 1, //TODO à gérer
+        copyNumber: 1, //TODO à gérer
         status: 'Compliance',
         createdBy: null,
         createdAt: new Date(),

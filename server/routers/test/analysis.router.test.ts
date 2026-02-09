@@ -24,6 +24,7 @@ import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 import { SSD2Ids } from 'maestro-shared/referential/Residue/SSD2Id';
+import { SampleItemKey } from 'maestro-shared/schema/Sample/SampleItem';
 import { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   Sample11Fixture,
@@ -98,14 +99,26 @@ describe('Analysis router', () => {
   });
 
   describe('GET /analysis', () => {
-    const testRoute = (sampleId?: string) =>
+    const testRoute = (sampleItemKey?: SampleItemKey) =>
       `/api/analysis?${
-        sampleId ? new URLSearchParams({ sampleId }).toString() : ''
+        sampleItemKey
+          ? new URLSearchParams({
+              sampleId: sampleItemKey.sampleId,
+              itemNumber: String(sampleItemKey.itemNumber),
+              copyNumber: String(sampleItemKey.copyNumber)
+            }).toString()
+          : ''
       }`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
-        .get(testRoute(analysisWithoutResidue.sampleId))
+        .get(
+          testRoute({
+            sampleId: analysisWithoutResidue.sampleId,
+            itemNumber: 1,
+            copyNumber: 1
+          })
+        )
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
@@ -116,21 +129,39 @@ describe('Analysis router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await request(app)
-        .get(testRoute('123'))
+        .get(
+          testRoute({
+            sampleId: '123',
+            itemNumber: 1,
+            copyNumber: 1
+          })
+        )
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     test('should fail if the analysis does not exist', async () => {
       await request(app)
-        .get(testRoute(uuidv4()))
+        .get(
+          testRoute({
+            sampleId: uuidv4(),
+            itemNumber: 1,
+            copyNumber: 1
+          })
+        )
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
     test('should get a analysis without residue', async () => {
       const res = await request(app)
-        .get(testRoute(analysisWithoutResidue.sampleId))
+        .get(
+          testRoute({
+            sampleId: analysisWithoutResidue.sampleId,
+            itemNumber: 1,
+            copyNumber: 1
+          })
+        )
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -142,7 +173,13 @@ describe('Analysis router', () => {
 
     test('should get an analysis with residues', async () => {
       const res = await request(app)
-        .get(testRoute(analysisWithResidues.sampleId))
+        .get(
+          testRoute({
+            sampleId: analysisWithResidues.sampleId,
+            itemNumber: 1,
+            copyNumber: 1
+          })
+        )
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 

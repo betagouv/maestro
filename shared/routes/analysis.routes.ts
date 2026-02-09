@@ -4,12 +4,13 @@ import {
   AnalysisToUpdate,
   PartialAnalysis
 } from '../schema/Analysis/Analysis';
+import { SampleItemKey } from '../schema/Sample/SampleItem';
 import { SubRoutes } from './routes';
 
 export const analysisRoutes = {
   '/analysis': {
     get: {
-      query: z.object({ sampleId: z.guid() }),
+      query: SampleItemKey,
       permissions: ['readAnalysis'],
       response: PartialAnalysis
     },

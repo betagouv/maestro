@@ -16,13 +16,13 @@ type Props = Omit<BadgeProps, 'children'> & {
 export const SampleStatusBadge = ({ status, sampleId, ...props }: Props) => {
   const apiClient = useContext(ApiClientContext);
 
-  const [getAnalysis] = apiClient.useLazyGetSampleAnalysisQuery();
+  const [getAnalysis] = apiClient.useLazyGetSampleItemAnalysisQuery();
 
   const [compliance, setCompliance] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (status === 'Completed') {
-      getAnalysis(sampleId)
+      getAnalysis({ sampleId, itemNumber: 1, copyNumber: 1 }) //TODO à gérer
         .unwrap()
         .then((analysis) => {
           setCompliance(analysis?.compliance ?? null);

@@ -64,7 +64,9 @@ export const AnalysisDocumentModal = ({
         let analysisId = partialAnalysis?.id;
         if (!analysisId) {
           const { data: analysis } = await createAnalysis({
-            sampleId
+            sampleId,
+            itemNumber: 1, //TODO à gérer
+            copyNumber: 1 //TODO à gérer
           });
           analysisId = analysis!.id;
         }
