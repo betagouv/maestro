@@ -22,7 +22,7 @@ export const SampleStatusBadge = ({ status, sampleId, ...props }: Props) => {
 
   useEffect(() => {
     if (status === 'Completed') {
-      getAnalysis({ sampleId, itemNumber: 1, copyNumber: 1 }) //TDO à gérer
+      getAnalysis({ sampleId, itemNumber: 1, copyNumber: 1 }) //TODO à gérer
         .unwrap()
         .then((analysis) => {
           setCompliance(analysis?.compliance ?? null);
