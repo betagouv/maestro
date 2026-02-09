@@ -68,23 +68,15 @@ const LaboratoryAnalyticalCompetencesForm = ({
   const [createLaboratoryAnalyticalCompetence] =
     apiClient.useCreateLaboratoryAnalyticalCompetenceMutation();
 
-  const [isCompleteDefinitionAnalysis, setIsCompleteDefinitionAnalysis] =
-    useState(residueAnalyticalCompetence?.isCompleteDefinitionAnalysis);
-  const [quantificationLimit, setQuantificationLimit] = useState(
-    residueAnalyticalCompetence?.quantificationLimit
-  );
-  const [detectionLimit, setDetectionLimit] = useState(
-    residueAnalyticalCompetence?.detectionLimit
-  );
-  const [analyticalMethod, setAnalyticalMethod] = useState(
-    residueAnalyticalCompetence?.analyticalMethod
-  );
-  const [validationMethod, setValidationMethod] = useState(
-    residueAnalyticalCompetence?.validationMethod
-  );
-  const [analysisMethod, setAnalysisMethod] = useState(
-    residueAnalyticalCompetence?.analysisMethod
-  );
+  const [competenceData, setCompetenceData] = useState({
+    isCompleteDefinitionAnalysis:
+      residueAnalyticalCompetence?.isCompleteDefinitionAnalysis,
+    quantificationLimit: residueAnalyticalCompetence?.quantificationLimit,
+    detectionLimit: residueAnalyticalCompetence?.detectionLimit,
+    analyticalMethod: residueAnalyticalCompetence?.analyticalMethod,
+    validationMethod: residueAnalyticalCompetence?.validationMethod,
+    analysisMethod: residueAnalyticalCompetence?.analysisMethod
+  });
   const [analyteCompetences, setAnalyteCompetences] = useState<
     LaboratoryAnalyticalCompetenceToSave['analyteAnalyticalCompetences']
   >(
@@ -104,12 +96,12 @@ const LaboratoryAnalyticalCompetencesForm = ({
   const laboratoryAnalyticalCompetenceFormData = {
     residueReference: ssd2Referential.reference,
     analyteReference: undefined,
-    detectionLimit,
-    quantificationLimit,
-    analyticalMethod,
-    isCompleteDefinitionAnalysis,
-    validationMethod,
-    analysisMethod,
+    detectionLimit: competenceData.detectionLimit,
+    quantificationLimit: competenceData.quantificationLimit,
+    analyticalMethod: competenceData.analyticalMethod,
+    isCompleteDefinitionAnalysis: competenceData.isCompleteDefinitionAnalysis,
+    validationMethod: competenceData.validationMethod,
+    analysisMethod: competenceData.analysisMethod,
     analyteAnalyticalCompetences: analyteCompetences
   };
 
@@ -139,14 +131,15 @@ const LaboratoryAnalyticalCompetencesForm = ({
 
   const cancel = () => {
     form.reset();
-    setDetectionLimit(residueAnalyticalCompetence?.detectionLimit);
-    setQuantificationLimit(residueAnalyticalCompetence?.quantificationLimit);
-    setAnalyticalMethod(residueAnalyticalCompetence?.analyticalMethod);
-    setIsCompleteDefinitionAnalysis(
-      residueAnalyticalCompetence?.isCompleteDefinitionAnalysis
-    );
-    setValidationMethod(residueAnalyticalCompetence?.validationMethod);
-    setAnalysisMethod(residueAnalyticalCompetence?.analysisMethod);
+    setCompetenceData({
+      detectionLimit: residueAnalyticalCompetence?.detectionLimit,
+      quantificationLimit: residueAnalyticalCompetence?.quantificationLimit,
+      analyticalMethod: residueAnalyticalCompetence?.analyticalMethod,
+      isCompleteDefinitionAnalysis:
+        residueAnalyticalCompetence?.isCompleteDefinitionAnalysis,
+      validationMethod: residueAnalyticalCompetence?.validationMethod,
+      analysisMethod: residueAnalyticalCompetence?.analysisMethod
+    });
   };
 
   const getAnalyseCompetence = (analyteReference: SSD2Id) => {
@@ -164,7 +157,6 @@ const LaboratoryAnalyticalCompetencesForm = ({
         ? { ..._, ...updatedCompetence }
         : _
     );
-    console.log(updatedCompetences);
     setAnalyteCompetences(updatedCompetences);
   };
 
@@ -238,13 +230,15 @@ const LaboratoryAnalyticalCompetencesForm = ({
           [
             <AppSelect
               key={`row-1`}
-              value={isCompleteDefinitionAnalysis ?? ''}
+              value={competenceData.isCompleteDefinitionAnalysis ?? ''}
               onChange={(e) =>
-                setIsCompleteDefinitionAnalysis(
-                  e.target.value as OptionalBoolean
-                )
+                setCompetenceData({
+                  ...competenceData,
+                  isCompleteDefinitionAnalysis: e.target
+                    .value as OptionalBoolean
+                })
               }
-              label="Le résidu est-il analysé selon la définition complète ?"
+              label="Le résidu est-il analysé selon la définition complète ?"
               inputForm={form}
               inputKey="isCompleteDefinitionAnalysis"
               options={selectOptionsFromList(OptionalBooleanList, {
@@ -253,8 +247,13 @@ const LaboratoryAnalyticalCompetencesForm = ({
             />,
             <div key={`row-2`} className="d-flex-align-center">
               <AppTextInput
-                value={detectionLimit ?? ''}
-                onChange={(e) => setDetectionLimit(Number(e.target.value))}
+                value={competenceData.detectionLimit ?? ''}
+                onChange={(e) =>
+                  setCompetenceData({
+                    ...competenceData,
+                    detectionLimit: Number(e.target.value)
+                  })
+                }
                 type="number"
                 label="Détection"
                 inputForm={form}
@@ -262,8 +261,13 @@ const LaboratoryAnalyticalCompetencesForm = ({
                 min={0}
               />
               <AppTextInput
-                value={quantificationLimit ?? ''}
-                onChange={(e) => setQuantificationLimit(Number(e.target.value))}
+                value={competenceData.quantificationLimit ?? ''}
+                onChange={(e) =>
+                  setCompetenceData({
+                    ...competenceData,
+                    quantificationLimit: Number(e.target.value)
+                  })
+                }
                 type="number"
                 label="Quantification"
                 inputForm={form}
@@ -273,12 +277,13 @@ const LaboratoryAnalyticalCompetencesForm = ({
             </div>,
             <AppSelect
               key={`row-3`}
-              value={analyticalMethod ?? ''}
+              value={competenceData.analyticalMethod ?? ''}
               onChange={(e) =>
-                setAnalyticalMethod(
-                  e.target
+                setCompetenceData({
+                  ...competenceData,
+                  analyticalMethod: e.target
                     .value as LaboratoryAnalyticalCompetence['analyticalMethod']
-                )
+                })
               }
               label="Méthode analytique"
               inputForm={form}
@@ -294,9 +299,12 @@ const LaboratoryAnalyticalCompetencesForm = ({
                   key: `validationMethod-option-${value}`,
                   label,
                   nativeInputProps: {
-                    checked: validationMethod === value,
+                    checked: competenceData.validationMethod === value,
                     onChange: () =>
-                      setValidationMethod(value as LaboratoryValidationMethod)
+                      setCompetenceData({
+                        ...competenceData,
+                        validationMethod: value as LaboratoryValidationMethod
+                      })
                   }
                 }))}
               />
@@ -311,11 +319,13 @@ const LaboratoryAnalyticalCompetencesForm = ({
                   key: `analysisMethod-option-${value}`,
                   label,
                   nativeInputProps: {
-                    checked: analysisMethod === value,
+                    checked: competenceData.analysisMethod === value,
                     onChange: () =>
-                      setAnalysisMethod(
-                        value as LaboratoryAnalyticalCompetence['analysisMethod']
-                      )
+                      setCompetenceData({
+                        ...competenceData,
+                        analysisMethod:
+                          value as LaboratoryAnalyticalCompetence['analysisMethod']
+                      })
                   }
                 }))}
               />

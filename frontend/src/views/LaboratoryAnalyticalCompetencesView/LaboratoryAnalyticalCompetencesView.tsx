@@ -28,7 +28,7 @@ import './LaboratoryAnalyticalCompetences.scss';
 const ResiduesPerPage = 5;
 
 const LaboratoryAnalyticalCompetencesView = () => {
-  useDocumentTitle('Compétence analytique des laboratoires');
+  useDocumentTitle('Compétences analytiques des laboratoires');
   const apiClient = useContext(ApiClientContext);
   const { user } = useAuthentication();
 
@@ -95,7 +95,7 @@ const LaboratoryAnalyticalCompetencesView = () => {
       )}
     >
       <SectionHeader
-        title="Compétence analytique des laboratoires"
+        title="Compétences analytiques des laboratoires"
         illustration={microscope}
       />
       <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
