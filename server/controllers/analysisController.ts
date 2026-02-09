@@ -14,8 +14,8 @@ import { mattermostService } from '../services/mattermostService';
 export const analysisRouter = {
   '/analysis': {
     get: async (request) => {
-      const { sampleId } = request.query;
-      const analysis = await analysisRepository.findUnique({ sampleId });
+      const sampleItemKey = request.query;
+      const analysis = await analysisRepository.findUnique(sampleItemKey);
 
       if (!analysis) {
         return { status: constants.HTTP_STATUS_NOT_FOUND };

@@ -12,6 +12,8 @@ describe('update', () => {
   beforeAll(async () => {
     analysis = {
       sampleId: Sample13Fixture.id,
+      itemNumber: 1,
+      copyNumber: 1,
       status: 'Completed',
       createdAt: new Date(),
       compliance: null,
@@ -135,6 +137,8 @@ describe('findUnique', () => {
       .values([
         {
           sampleId: Sample13Fixture.id,
+          itemNumber: 1,
+          copyNumber: 1,
           id: analysisId,
           status: 'Completed'
         }

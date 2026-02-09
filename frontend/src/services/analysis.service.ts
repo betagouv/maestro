@@ -4,17 +4,18 @@ import {
   AnalysisToUpdate,
   PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
+import { SampleItemKey } from 'maestro-shared/schema/Sample/SampleItem';
 import { api } from 'src/services/api.service';
 
 const analysisApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getSampleAnalysis: builder.query<PartialAnalysis, string>({
-      query: (sampleId) => ({
+    getSampleItemAnalysis: builder.query<PartialAnalysis, SampleItemKey>({
+      query: (sampleItemKey) => ({
         url: 'analysis',
-        params: { sampleId }
+        params: sampleItemKey
       }),
       transformResponse: (response: any) => PartialAnalysis.parse(response),
-      providesTags: (_result, _error, sampleId) => [
+      providesTags: (_result, _error, { sampleId }) => [
         { type: 'SampleAnalysis', id: sampleId }
       ]
     }),
@@ -87,8 +88,8 @@ const analysisApi = api.injectEndpoints({
 export const {
   useCreateAnalysisMutation,
   useUpdateAnalysisMutation,
-  useGetSampleAnalysisQuery,
-  useLazyGetSampleAnalysisQuery,
+  useGetSampleItemAnalysisQuery,
+  useLazyGetSampleItemAnalysisQuery,
   useCreateAnalysisReportDocumentMutation,
   useGetAnalysisReportDocumentIdsQuery,
   useLazyGetAnalysisReportDocumentIdsQuery,
