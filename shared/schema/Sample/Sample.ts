@@ -85,10 +85,9 @@ export const sampleMatrixCheck: CheckFn<{
   }
 };
 
-export const sampleSendCheck: CheckFn<{
-  sampledAt?: Date | null;
-  sentAt?: Date | null;
-}> = (ctx) => {
+export const sampleSendCheck: CheckFn<
+  Pick<SampleBase, 'sampledAt' | 'sentAt' | 'specificData'>
+> = (ctx) => {
   if (
     !isNil(ctx.value.sampledAt) &&
     !isNil(ctx.value.sentAt) &&
@@ -100,6 +99,18 @@ export const sampleSendCheck: CheckFn<{
       message:
         "La date de prélèvement ne peut pas être postérieure à la date d'envoi au laboratoire.",
       path: ['sampledAt']
+    });
+  }
+
+  if (
+    ctx.value.specificData.programmingPlanKind === 'DAOA_SLAUGHTER' &&
+    isNil(ctx.value.specificData.seizure)
+  ) {
+    ctx.issues.push({
+      input: ctx.value,
+      code: 'custom',
+      message: 'La saisie est obligatoire pour pouvoir envoyer le prélèvement.',
+      path: ['specificData.seizure']
     });
   }
 };
