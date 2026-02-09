@@ -3,7 +3,7 @@ import { z, ZodType } from 'zod';
 import { AnimalKind } from '../../referential/AnimalKind';
 import { AnimalSex } from '../../referential/AnimalSex';
 import { BreedingMethod } from '../../referential/BreedingMethod';
-import { CultureKind } from '../../referential/CultureKind';
+import { CultureKind, CultureKindList } from '../../referential/CultureKind';
 import { MatrixPart } from '../../referential/Matrix/MatrixPart';
 import { OutdoorAccess } from '../../referential/OutdoorAccess';
 import { ProductionKind } from '../../referential/ProductionKind';
@@ -47,7 +47,8 @@ const AnimalAgeInMonths = z.coerce
 const SampleMatrixSpecificDataPPV = z.object({
   programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PPV),
   matrixDetails: z.string().nullish(),
-  cultureKind: CultureKind,
+  cultureKind: CultureKind.nullish(),
+  productionKind: ProductionKind.extract(['PD07A', 'Z0216', 'PD09A']),
   matrixPart: MatrixPart,
   releaseControl: z.boolean().nullish()
 });
@@ -151,6 +152,10 @@ export const getSampleMatrixSpecificDataAttributeValues = (
 
   if (!fieldSchema) {
     return [];
+  }
+
+  if (attributeName === 'cultureKind') {
+    return CultureKindList;
   }
 
   if ('options' in fieldSchema && Array.isArray(fieldSchema.options)) {

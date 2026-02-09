@@ -6,6 +6,7 @@ import { LegalContextList } from '../referential/LegalContext';
 import { Matrix, MatrixEffective } from '../referential/Matrix/Matrix';
 import { MatrixKind } from '../referential/Matrix/MatrixKind';
 import { MatrixPartList } from '../referential/Matrix/MatrixPart';
+import { ProductionKind } from '../referential/ProductionKind';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { Regions } from '../referential/Region';
 import { Company } from '../schema/Company/Company';
@@ -90,6 +91,9 @@ export const genCreatedPartialSample = (
     specificData: {
       programmingPlanKind: 'PPV',
       matrixPart: oneOf(MatrixPartList),
+      productionKind: oneOf(
+        ProductionKind.extract(['PD07A', 'Z0216', 'PD09A']).options
+      ),
       cultureKind: oneOf(CultureKindList),
       releaseControl: fakerFR.datatype.boolean()
     },
@@ -162,9 +166,10 @@ export const Sample11Fixture = genCreatedPartialSample({
   matrix: 'A00GZ',
   stage: PrescriptionFixture.stages[0],
   specificData: {
-    programmingPlanKind: PPVValidatedProgrammingPlanFixture.kinds[0],
+    programmingPlanKind: 'PPV',
     matrixPart: 'PART1',
-    cultureKind: 'PD07A',
+    productionKind: 'PD07A',
+    cultureKind: 'PD06A',
     releaseControl: false
   },
   prescriptionId: PrescriptionFixture.id,
