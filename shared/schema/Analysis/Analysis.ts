@@ -1,10 +1,11 @@
 import { z } from 'zod';
+import { SampleItemKey } from '../Sample/SampleItem';
 import { AnalysisStatus } from './AnalysisStatus';
 import { PartialResidue, ResidueChecked } from './Residue/Residue';
 
 export const PartialAnalysis = z.object({
   id: z.guid(),
-  sampleId: z.guid(),
+  ...SampleItemKey.shape,
   createdAt: z.coerce.date(),
   emailReceivedAt: z.coerce.date().nullish(),
   createdBy: z.guid().nullish(),
@@ -28,12 +29,16 @@ export const Analysis = z.object({
 });
 
 export const AnalysisToCreate = Analysis.pick({
-  sampleId: true
+  sampleId: true,
+  itemNumber: true,
+  copyNumber: true
 });
 
 export const AnalysisToUpdate = PartialAnalysis.omit({
   id: true,
   sampleId: true,
+  itemNumber: true,
+  copyNumber: true,
   createdAt: true,
   createdBy: true
 });

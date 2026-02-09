@@ -164,9 +164,11 @@ const defaultMockApiClientConf: MockApi = {
   useGetRegionsGeoJsonQuery: {
     data: JSON.parse(JSON.stringify(regionsJson))
   },
-  useGetSampleAnalysisQuery: {
+  useGetSampleItemAnalysisQuery: {
     data: genPartialAnalysis({
       sampleId: Sample11Fixture.id,
+      itemNumber: 1,
+      copyNumber: 1,
       createdBy: Sampler1Fixture.id,
       status: 'Residues'
     })
@@ -195,7 +197,7 @@ const defaultMockApiClientConf: MockApi = {
     {}
   ],
   useLazyGetPrescriptionSubstancesQuery: [[], {}],
-  useLazyGetSampleAnalysisQuery: [genPartialAnalysis(), {}],
+  useLazyGetSampleItemAnalysisQuery: [genPartialAnalysis(), {}],
   useLazyGetSampleQuery: [genCreatedPartialSample(), {}],
   useLazyGetUserQuery: [genUser({}), {}],
   useLazySearchAddressesQuery: [[], {}],

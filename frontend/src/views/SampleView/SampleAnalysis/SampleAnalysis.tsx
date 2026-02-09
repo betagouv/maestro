@@ -37,7 +37,11 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
     apiClient.useUpdateAnalysisMutation({
       fixedCacheKey: `complete-analysis-${sample.id}`
     });
-  const { data: analysis } = apiClient.useGetSampleAnalysisQuery(sample.id);
+  const { data: analysis } = apiClient.useGetSampleItemAnalysisQuery({
+    sampleId: sample.id,
+    itemNumber: 1, //TODO à gérer
+    copyNumber: 1 //TODO à gérer
+  });
 
   const readonly = useMemo(
     () =>

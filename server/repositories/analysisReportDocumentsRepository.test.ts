@@ -19,6 +19,8 @@ describe('analysisReportDocuments', () => {
 
     const analysisId = await analysisRepository.insert({
       sampleId: Sample13Fixture.id,
+      itemNumber: 1,
+      copyNumber: 1,
       status: 'Completed',
       createdAt: new Date(),
       compliance: null,
