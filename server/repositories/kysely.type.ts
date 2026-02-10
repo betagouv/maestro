@@ -221,6 +221,7 @@ export interface SampleSpecificDataAttributes {
   attribute: string;
   sachaCommemoratifSigle: CommemoratifSigle | null;
   inDai: boolean;
+  optional: boolean;
 }
 
 export interface SampleSpecificDataAttributeValues {

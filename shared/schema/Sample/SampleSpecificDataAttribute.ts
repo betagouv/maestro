@@ -7,7 +7,8 @@ import {
 export const SampleSpecificDataAttribute = z.object({
   attribute: z.string(),
   sachaCommemoratifSigle: CommemoratifSigle.nullable(),
-  inDai: z.boolean()
+  inDai: z.boolean(),
+  optional: z.boolean()
 });
 
 export type SampleSpecificDataAttribute = z.infer<
@@ -30,6 +31,7 @@ export const SampleSpecificDataRecord = z.record(
     attribute: z.string(),
     sachaCommemoratifSigle: CommemoratifSigle.nullable(),
     inDai: z.boolean(),
+    optional: z.boolean(),
     values: z.record(z.string(), CommemoratifValueSigle)
   })
 );

@@ -27,6 +27,7 @@ const findAll = async (
         attribute: c.attribute,
         sachaCommemoratifSigle: c.sachaCommemoratifSigle,
         inDai: c.inDai,
+        optional: c.optional,
         values: Object.fromEntries(
           valueSigles
             .filter((v) => v.attribute === c.attribute)
@@ -48,7 +49,8 @@ const updateSampleSpecificDataAttribute = async (
       oc.columns(['attribute']).doUpdateSet({
         sachaCommemoratifSigle:
           sampleSpecificDataAttribute.sachaCommemoratifSigle,
-        inDai: sampleSpecificDataAttribute.inDai
+        inDai: sampleSpecificDataAttribute.inDai,
+        optional: sampleSpecificDataAttribute.optional
       })
     )
     .execute();
