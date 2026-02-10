@@ -17,6 +17,7 @@ export default {
         'superagent',
         '@types/exceljs'
       ],
+      knex: false,
       entry: [
         'database/migrations/*.ts',
         'repositories/kysely.type.ts',
@@ -35,14 +36,11 @@ export default {
         //Utilisé de façon indirecte par fetch-intercept
         'whatwg-fetch'
       ],
-      ignore: [
-        'src/serviceWorker.js',
-        'src/components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModalDAOA.stories.old.tsx'
-      ]
+      ignore: ['src/serviceWorker.js']
     },
     shared: {
-      ignore: [
-        //Je ne comprends pas le problème avec ces fichiers
+      entry: [
+        //Ces fichiers sont utilisés que par le front, donc d'après Knip ils ne sont pas utilisés dans shared
         'referential/Matrix/MatrixListByKind.ts',
         'schema/Address/AddressSearchResult.ts',
         'schema/Prescription/PrescriptionComments.ts',
