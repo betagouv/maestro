@@ -446,7 +446,8 @@ export const sampleRouter = {
         mustBeSent &&
         !SampleBase.pick({
           sampledAt: true,
-          sentAt: true
+          sentAt: true,
+          specificData: true
         })
           .check(sampleSendCheck)
           .safeParse({

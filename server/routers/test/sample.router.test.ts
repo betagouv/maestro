@@ -26,7 +26,10 @@ import { tokenProvider } from '../../test/testUtils';
 
 import { fakerFR } from '@faker-js/faker';
 import { UserRefined } from 'maestro-shared/schema/User/User';
-import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
+import {
+  CompanyFixture,
+  SlaughterhouseCompanyFixture1
+} from 'maestro-shared/test/companyFixtures';
 import {
   DAOAInProgressProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
@@ -610,6 +613,43 @@ describe('Sample router', () => {
           sampledAt: addDays(new Date(), 1)
         })
         .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should be forbidden to send a DAOA_SLAUGHTER sample without seizure', async () => {
+      const sampleId = uuidv4();
+      const sample = genCreatedPartialSample({
+        id: sampleId,
+        sampler: SamplerDaoaFixture,
+        programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
+        region: SamplerDaoaFixture.region,
+        department: SamplerDaoaFixture.department,
+        company: SlaughterhouseCompanyFixture1,
+        status: 'Submitted',
+        ownerAgreement: true,
+        matrixKind: 'A0C0Z',
+        matrix: 'A0BAV',
+        specificData: {
+          programmingPlanKind: 'DAOA_SLAUGHTER',
+          killingCode: '1234',
+          sampling: 'Aléatoire',
+          animalIdentifier: 'FR1234567890',
+          animalKind: 'TYPEA1',
+          sex: 'SEX1',
+          ageInMonths: 24,
+          productionKind: 'PROD_1',
+          outdoorAccess: 'PAT1'
+        }
+      });
+      await Samples().insert(formatPartialSample(sample));
+
+      await request(app)
+        .put(`${testRoute(sampleId)}`)
+        .send({
+          ...sample,
+          status: 'Sent'
+        })
+        .use(tokenProvider(SamplerDaoaFixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 

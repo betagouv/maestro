@@ -123,7 +123,8 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
     ownerAgreement: true,
     notesOnOwnerAgreement: true,
     sampledAt: true,
-    sentAt: true
+    sentAt: true,
+    specificData: true
   }).check(sampleSendCheck);
 
   useEffect(
@@ -176,7 +177,8 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
       ownerAgreement,
       notesOnOwnerAgreement,
       sampledAt,
-      sentAt
+      sentAt,
+      specificData: sample.specificData
     },
     save
   );
@@ -483,6 +485,14 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
             </li>
           </ul>
         </div>
+        {!!form.error && (
+          <Alert
+            severity={'error'}
+            small={true}
+            title={form.error.issues.map((i) => i.message).join(',') ?? ''}
+            description={''}
+          />
+        )}
         <SavedAlert isOpen={isSaved} />
       </div>
       {!readonly && isSendable && (
