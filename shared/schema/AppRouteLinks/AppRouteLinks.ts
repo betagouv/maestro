@@ -50,6 +50,9 @@ export const AppRouteLinks = {
   },
   UsersRoute: {
     link: '/utilisateurs'
+  },
+  LaboratoryAnalyticalCompetencesRoute: {
+    link: '/competences-analytiques'
   }
 } as const satisfies Record<string, AppRouteLink>;
 

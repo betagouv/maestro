@@ -1,7 +1,12 @@
 import { isNil, omitBy } from 'lodash-es';
 import { FindLaboratoryOptions } from 'maestro-shared/schema/Laboratory/FindLaboratoryOptions';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import {
+  LaboratoryAnalyticalCompetence,
+  LaboratoryAnalyticalCompetenceToSave
+} from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
 import { api } from 'src/services/api.service';
+import config from '../utils/config';
 
 const laboratoryApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -27,9 +32,78 @@ const laboratoryApi = api.injectEndpoints({
           id
         }))
       ]
+    }),
+    getLaboratoryAnalyticalCompetences: builder.query<
+      LaboratoryAnalyticalCompetence[],
+      string
+    >({
+      query: (laboratoryId) =>
+        `laboratories/${laboratoryId}/analytical-competences`,
+      providesTags: (_result, _error, laboratoryId) => [
+        {
+          type: 'LaboratoryAnalyticalCompetence',
+          id: laboratoryId
+        }
+      ]
+    }),
+    createLaboratoryAnalyticalCompetence: builder.mutation<
+      LaboratoryAnalyticalCompetence[],
+      {
+        laboratoryId: string;
+        laboratoryAnalyticalCompetence: LaboratoryAnalyticalCompetenceToSave;
+      }
+    >({
+      query: ({ laboratoryId, laboratoryAnalyticalCompetence }) => ({
+        url: `laboratories/${laboratoryId}/analytical-competences`,
+        method: 'POST',
+        body: laboratoryAnalyticalCompetence
+      }),
+      invalidatesTags: (_result, _error, { laboratoryId }) => [
+        {
+          type: 'LaboratoryAnalyticalCompetence',
+          id: laboratoryId
+        }
+      ]
+    }),
+    updateLaboratoryAnalyticalCompetence: builder.mutation<
+      LaboratoryAnalyticalCompetence,
+      {
+        laboratoryId: string;
+        analyticalCompetenceId: string;
+        laboratoryAnalyticalCompetence: LaboratoryAnalyticalCompetenceToSave;
+      }
+    >({
+      query: ({
+        laboratoryId,
+        analyticalCompetenceId,
+        laboratoryAnalyticalCompetence
+      }) => ({
+        url: `laboratories/${laboratoryId}/analytical-competences/${analyticalCompetenceId}`,
+        method: 'PUT',
+        body: laboratoryAnalyticalCompetence
+      }),
+      invalidatesTags: (_result, _error, { laboratoryId }) => [
+        {
+          type: 'LaboratoryAnalyticalCompetence',
+          id: laboratoryId
+        }
+      ]
     })
   })
 });
 
-export const { useGetLaboratoryQuery, useFindLaboratoriesQuery } =
-  laboratoryApi;
+const laboratoryAnalyticCompetencesExportURL = (laboratoryId: string) =>
+  `${config.apiEndpoint}/api/laboratories/${laboratoryId}/analytical-competences/export`;
+
+export const {
+  useGetLaboratoryQuery,
+  useFindLaboratoriesQuery,
+  useGetLaboratoryAnalyticalCompetencesQuery,
+  useCreateLaboratoryAnalyticalCompetenceMutation,
+  useUpdateLaboratoryAnalyticalCompetenceMutation,
+  getLaboratoryAnalyticCompetencesExportURL
+} = {
+  ...laboratoryApi,
+  getLaboratoryAnalyticCompetencesExportURL:
+    laboratoryAnalyticCompetencesExportURL
+};

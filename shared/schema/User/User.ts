@@ -29,13 +29,19 @@ export const UserBase = z.object({
   region: Region.nullable(),
   department: Department.nullable(),
   companies: z.array(Company),
+  laboratoryId: z.string().nullable(),
   disabled: z.boolean()
 });
 
 export const userChecks = <
   T extends Pick<
     UserRefined,
-    'region' | 'roles' | 'department' | 'companies' | 'programmingPlanKinds'
+    | 'region'
+    | 'roles'
+    | 'department'
+    | 'companies'
+    | 'programmingPlanKinds'
+    | 'laboratoryId'
   >
 >(
   user: T,
@@ -84,6 +90,14 @@ export const userChecks = <
       code: 'custom',
       path: ['companies'],
       message: 'Un abattoir est obligatoire pour ce rôle.'
+    });
+  }
+
+  if (!user.laboratoryId && laboratoryIsRequired(user)) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['laboratoryId'],
+      message: 'Le laboratoire est obligatoire pour ce rôle.'
     });
   }
 };
@@ -214,3 +228,7 @@ export const programmingPlanKindsIsRequired = (
 ): boolean =>
   !user.roles?.includes('Administrator') &&
   !user.roles?.includes('LaboratoryUser');
+
+export const laboratoryIsRequired = (
+  user: Pick<Nullable<UserRefined>, 'roles'>
+): boolean => user.roles?.includes('LaboratoryUser') ?? false;

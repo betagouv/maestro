@@ -96,6 +96,12 @@ export const AuthenticatedAppRoutes = {
     ...AppRouteLinks.UsersRoute,
     path: '/utilisateurs',
     key: 'users_route'
+  },
+  LaboratoryAnalyticalCompetencesRoute: {
+    ...AppRouteLinks.LaboratoryAnalyticalCompetencesRoute,
+    path: '/competences-analytiques',
+    label: 'Compétences analytiques',
+    key: 'laboratory_analytical_competences_route'
   }
 } as const satisfies Partial<Record<AppRouteKeys, AppRoute>>;
 
