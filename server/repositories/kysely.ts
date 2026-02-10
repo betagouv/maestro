@@ -25,7 +25,7 @@ export const initKysely = (connectionString: string) =>
     dialect: new PostgresDialect({
       pool: new pg.Pool({
         connectionString,
-        max: 10
+        max: 30
       })
     }),
     plugins: [new CamelCasePlugin()]
