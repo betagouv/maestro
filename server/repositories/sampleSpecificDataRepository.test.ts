@@ -19,7 +19,8 @@ describe('sampleSpecificDataRepository', () => {
     await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
       attribute,
       sachaCommemoratifSigle: commemoratif.sigle,
-      inDai: true
+      inDai: true,
+      optional: false
     });
 
     const result = await sampleSpecificDataRepository.findAll();
@@ -42,13 +43,15 @@ describe('sampleSpecificDataRepository', () => {
     await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
       attribute,
       sachaCommemoratifSigle: commemoratif1.sigle,
-      inDai: true
+      inDai: true,
+      optional: false
     });
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
       attribute,
       sachaCommemoratifSigle: commemoratif2.sigle,
-      inDai: true
+      inDai: true,
+      optional: false
     });
 
     const result = await sampleSpecificDataRepository.findAll();
@@ -70,7 +73,8 @@ describe('sampleSpecificDataRepository', () => {
     await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
       attribute,
       sachaCommemoratifSigle: commemoratif.sigle,
-      inDai: true
+      inDai: true,
+      optional: false
     });
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttributeValue({
@@ -96,7 +100,8 @@ describe('sampleSpecificDataRepository', () => {
     await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
       attribute,
       sachaCommemoratifSigle: commemoratif.sigle,
-      inDai: true
+      inDai: true,
+      optional: false
     });
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttributeValue({
@@ -129,7 +134,8 @@ describe('sampleSpecificDataRepository', () => {
     await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
       attribute,
       sachaCommemoratifSigle: commemoratif.sigle,
-      inDai: true
+      inDai: true,
+      optional: false
     });
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttributeValue({
@@ -173,7 +179,8 @@ describe('sampleSpecificDataRepository', () => {
     await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
       attribute,
       sachaCommemoratifSigle: commemoratif.sigle,
-      inDai: true
+      inDai: true,
+      optional: false
     });
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttributeValue({

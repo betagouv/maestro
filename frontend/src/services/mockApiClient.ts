@@ -232,11 +232,13 @@ const defaultMockApiClientConf: MockApi = {
         inDai: false,
         attribute: '',
         sachaCommemoratifSigle: '' as CommemoratifSigle,
+        optional: false,
         values: {}
       },
       DAOA_SLAUGHTER: {
         inDai: false,
         attribute: '',
+        optional: false,
         sachaCommemoratifSigle: '' as CommemoratifSigle,
         values: {}
       }

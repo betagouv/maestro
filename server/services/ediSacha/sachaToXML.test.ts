@@ -41,36 +41,42 @@ const sampleSpecificDataRecord: SampleSpecificDataRecord = {
     attribute: 'sampling',
     sachaCommemoratifSigle: null,
     inDai: false,
+    optional: false,
     values: {}
   },
   animalIdentifier: {
     attribute: 'animalIdentifier',
     sachaCommemoratifSigle: null,
     inDai: false,
+    optional: false,
     values: {}
   },
   ageInDays: {
     attribute: 'ageInDays',
     sachaCommemoratifSigle: null,
     inDai: false,
+    optional: false,
     values: {}
   },
   species: {
     attribute: 'species',
     sachaCommemoratifSigle: sachaCommemoratifSigleEspece,
     inDai: false,
+    optional: false,
     values: { ESP7: 'POULE' as CommemoratifValueSigle }
   },
   breedingMethod: {
     attribute: 'breedingMethod',
     sachaCommemoratifSigle: null,
     inDai: false,
+    optional: false,
     values: {}
   },
   outdoorAccess: {
     attribute: 'outdoorAccess',
     sachaCommemoratifSigle: null,
     inDai: false,
+    optional: false,
     values: {}
   }
 };
@@ -181,6 +187,7 @@ test(`génère un XML de DAI`, async () => {
         species: {
           attribute: 'species',
           inDai: true,
+          optional: false,
           sachaCommemoratifSigle: 'SIGLE_SACHA' as CommemoratifSigle,
           values: {
             ESP7: 'SIGLE_VALUE_SACHA' as CommemoratifValueSigle
@@ -189,6 +196,7 @@ test(`génère un XML de DAI`, async () => {
         ageInDays: {
           attribute: 'ageInDays',
           inDai: true,
+          optional: false,
           sachaCommemoratifSigle: 'AGED' as CommemoratifSigle,
           values: {}
         }
@@ -349,6 +357,7 @@ describe('getCommemoratifs', () => {
             attribute: 'species',
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
             inDai: true,
+            optional: false,
             values: {
               ESP7: 'POULE' as CommemoratifValueSigle,
               ESP8: 'CANARD' as CommemoratifValueSigle
@@ -371,6 +380,7 @@ describe('getCommemoratifs', () => {
             attribute: 'species',
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
             inDai: true,
+            optional: false,
             values: {
               ESP7: 'POULE' as CommemoratifValueSigle,
               ESP8: 'CANARD' as CommemoratifValueSigle
@@ -380,6 +390,7 @@ describe('getCommemoratifs', () => {
             attribute: 'unknownAttribute',
             sachaCommemoratifSigle: 'UNKNOWN' as CommemoratifSigle,
             inDai: true,
+            optional: false,
             values: { val1: 'VAL1' as CommemoratifValueSigle }
           }
         },
@@ -397,6 +408,7 @@ describe('getCommemoratifs', () => {
           attribute: 'species',
           sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
           inDai: true,
+          optional: false,
           values: {
             ESP7: 'POULE' as CommemoratifValueSigle,
             ESP8: 'CANARD' as CommemoratifValueSigle
@@ -406,6 +418,7 @@ describe('getCommemoratifs', () => {
           attribute: 'breedingMethod',
           sachaCommemoratifSigle: 'MODE_ELEVAGE' as CommemoratifSigle,
           inDai: true,
+          optional: false,
           values: {
             PROD_1: 'INTENSIF' as CommemoratifValueSigle,
             PROD_2: 'EXTENSIF' as CommemoratifValueSigle
@@ -455,12 +468,33 @@ describe('getCommemoratifs', () => {
             attribute: 'species',
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
             inDai: true,
+            optional: false,
             values: { ESP8: 'CANARD' as CommemoratifValueSigle } // ESP7 n'est pas mappé
           }
         },
         sachaCommemoratifRecord
       )
     ).toThrow('Configuration SACHA incomplète: species ESP7');
+  });
+
+  test("n'émet pas d'erreur quand la valeur n'est pas mappée et que le commemoratif est optionnel", () => {
+    expect(
+      getCommemoratifs(
+        specificData,
+        {
+          ...sampleSpecificDataRecord,
+
+          species: {
+            attribute: 'species',
+            sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
+            inDai: true,
+            optional: true,
+            values: { ESP8: 'CANARD' as CommemoratifValueSigle } // ESP7 n'est pas mappé
+          }
+        },
+        sachaCommemoratifRecord
+      )
+    ).toMatchInlineSnapshot(`[]`);
   });
 
   test('gère les commémoratifs de type texte', () => {
@@ -477,6 +511,7 @@ describe('getCommemoratifs', () => {
           attribute: 'animalIdentifier',
           sachaCommemoratifSigle: 'IDA' as CommemoratifSigle,
           inDai: true,
+          optional: false,
           values: {}
         }
       },
@@ -509,6 +544,7 @@ describe('getCommemoratifs', () => {
           attribute: 'ageInDays',
           sachaCommemoratifSigle: 'AGED' as CommemoratifSigle,
           inDai: true,
+          optional: false,
           values: {}
         }
       },
@@ -537,6 +573,7 @@ describe('getCommemoratifs', () => {
             attribute: 'species',
             sachaCommemoratifSigle: 'SIGLE_INEXISTANT' as CommemoratifSigle,
             inDai: true,
+            optional: false,
             values: {
               ESP7: 'POULE' as CommemoratifValueSigle
             }
