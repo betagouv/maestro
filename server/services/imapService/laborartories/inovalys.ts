@@ -50,8 +50,12 @@ const codeMethodsAnalyseMethod = {
 export const inovalysRefClientValidator = z.string().transform((l) => {
   const count = (l.match(/-/g) || []).length;
 
-  if (count === 3) {
-    return l.substring(0, l.lastIndexOf('-'));
+  if (count > 2) {
+    const result = l.substring(0, l.lastIndexOf('-'));
+    if (count === 4) {
+      return result.substring(0, result.lastIndexOf('-'));
+    }
+    return result;
   }
 
   return l;

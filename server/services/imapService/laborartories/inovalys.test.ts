@@ -392,7 +392,8 @@ test(`un résidu issue d'un calcul avec comme résultat <LQ est redéfini en ND`
 test.each<[string, string]>([
   ['OCC-25-0007', 'OCC-25-0007'],
   ['OCC-25-0007-01', 'OCC-25-0007'],
-  ['OCC-25-0007-1', 'OCC-25-0007']
+  ['OCC-25-0007-1', 'OCC-25-0007'],
+  ['REU-25-0015-A-01', 'REU-25-0015']
 ])('inovalysRefClientValidator', (value, expected) => {
   expect(inovalysRefClientValidator.parse(value)).toBe(expected);
 });
