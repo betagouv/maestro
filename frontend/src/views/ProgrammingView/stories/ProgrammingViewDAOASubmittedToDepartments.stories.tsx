@@ -242,7 +242,7 @@ export const SamplerView: Story = {
       }
     },
     apiClient: getMockApi({
-      useFindProgrammingPlansQuery: { data: [programmingPlan] },
+      useFindProgrammingPlansQuery: { data: [] },
       useFindPrescriptionsQuery: {
         data: prescriptions
       },

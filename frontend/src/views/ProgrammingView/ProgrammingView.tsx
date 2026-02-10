@@ -10,10 +10,7 @@ import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/Lo
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import {
-  hasProgrammingPlanStatusForAuthUser,
-  ProgrammingPlanChecked
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
@@ -49,14 +46,8 @@ const ProgrammingView = () => {
   const [selectedTabId, setSelectedTabId] =
     useState<ProgrammingViewTab>('ProgrammationTab');
   const [searchParams, setSearchParams] = useSearchParams();
-  const {
-    user,
-    userRole,
-    hasNationalView,
-    hasRegionalView,
-    hasUserPermission,
-    hasRole
-  } = useAuthentication();
+  const { user, hasNationalView, hasRegionalView, hasUserPermission } =
+    useAuthentication();
   const { prescriptionFilters, prescriptionListDisplay } = useAppSelector(
     (state) => state.prescriptions
   );
@@ -205,14 +196,7 @@ const ProgrammingView = () => {
         <div className={cx('fr-container')}>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12')}>
-              {programmingPlan &&
-              hasRole('Sampler') &&
-              hasProgrammingPlanStatusForAuthUser(
-                programmingPlan as ProgrammingPlanChecked,
-                ['InProgress', 'SubmittedToRegion', 'SubmittedToDepartments'],
-                user,
-                userRole
-              ) ? (
+              {!programmingPlan ? (
                 <Alert
                   description={
                     <>
