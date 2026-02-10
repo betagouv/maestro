@@ -105,6 +105,49 @@ test('<LQ et "d, NQ" sont équivalent', () => {
   `);
 });
 
+test('récupère la LMR dans l autre colonne si besoin', () => {
+  const line = {
+    PREFIXE_NOM: '2025',
+    DEMANDE_NUMERO: '0003',
+    ECHANT_NUMERO: '1',
+    LOT: 'ARA-1234-333-1',
+    PARAMETRE_NOM: 'SAP00010',
+    RESULTAT_VALTEXTE: '0,5',
+    RESULTAT_VALNUM: '0.5',
+    PARAMETRE_LIBELLE: 'Acephate',
+    LIMITE_LQ: '0.01',
+    INCERTITUDE: '0',
+    CAS_NUMBER: '135158-54-2',
+    TECHNIQUE: 'Multi',
+    LMR_NUM: '0',
+    LMR: '0.5*',
+    ECHANT_DATE_DIFFUSION: '16/04/2025',
+    COMMENTAIRE: 'Pas de problème'
+  };
+
+  expect(extractAnalyzes([line])).toMatchInlineSnapshot(`
+    [
+      {
+        "capinovRef": "2025 0003 1",
+        "notes": "Pas de problème",
+        "residues": [
+          {
+            "analysisDate": "2025-04-16",
+            "analysisMethod": "Multi",
+            "casNumber": "135158-54-2",
+            "codeSandre": null,
+            "label": "Acephate",
+            "lmr": 0.5,
+            "result": 0.5,
+            "result_kind": "Q",
+          },
+        ],
+        "sampleReference": "ARA-1234-333",
+      },
+    ]
+  `);
+});
+
 test('considère <LQ pour les calculs en ND', () => {
   const defaultLine = {
     PREFIXE_NOM: '2025',
