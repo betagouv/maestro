@@ -132,40 +132,45 @@ export const CommemoratifSigleForm = ({
 
   return (
     <div className={clsx('border', cx('fr-p-4w'))}>
-      <div className={clsx('d-flex-row')}>
+      <div>
         <div className={clsx('d-flex-column', 'd-flex-align-start')}>
-          <h6 className={cx()}>{inputConf.label}</h6>
-          <ToggleSwitch
-            label={'Inclure dans la DAI ?'}
-            checked={inDai}
-            labelPosition={'left'}
-            onChange={() => {
-              onToggleInDai(!inDai);
-            }}
-          />
+          <h6>{inputConf.label}</h6>
+          <div
+            className={clsx('d-flex-row', 'd-flex-align-center')}
+            style={{ width: '100%' }}
+          >
+            <ToggleSwitch
+              label={'Inclure dans la DAI ?'}
+              checked={inDai}
+              labelPosition={'left'}
+              onChange={() => {
+                onToggleInDai(!inDai);
+              }}
+            />
+            {inDai && (
+              <ToggleSwitch
+                label={'Optionnel ?'}
+                checked={optional}
+                labelPosition={'left'}
+                onChange={() => {
+                  onToggleOptional(!optional);
+                }}
+              />
+            )}
+            {inDai && (
+              <AppSearchInput
+                label={'Sigle Sacha'}
+                options={options}
+                value={selectedSigle ?? ''}
+                onSelect={(value) => onSelectSigle(value as CommemoratifSigle)}
+                placeholder="Rechercher un sigle"
+                className={clsx(cx('fr-ml-auto', 'fr-mb-0'))}
+                required={true}
+                state={selectedSigle ? 'default' : 'error'}
+              />
+            )}
+          </div>
         </div>
-        {inDai && (
-          <ToggleSwitch
-            label={'Optionnel ?'}
-            checked={optional}
-            labelPosition={'left'}
-            onChange={() => {
-              onToggleOptional(!optional);
-            }}
-          />
-        )}
-        {inDai && (
-          <AppSearchInput
-            label={'Sigle Sacha'}
-            options={options}
-            value={selectedSigle ?? ''}
-            onSelect={(value) => onSelectSigle(value as CommemoratifSigle)}
-            placeholder="Rechercher un sigle"
-            className={clsx(cx('fr-ml-auto', 'fr-mb-0'))}
-            required={true}
-            state={selectedSigle ? 'default' : 'error'}
-          />
-        )}
       </div>
       {inDai && selectedSigle !== null && attributeCanHaveValue && (
         <>
@@ -235,7 +240,7 @@ const OptionValueLine = ({
       onSelect={onSelectValue}
       placeholder="Rechercher une valeur"
       required={!optional}
-      state={selectedValue ? 'default' : 'error'}
+      state={selectedValue || optional ? 'default' : 'error'}
     />
   );
 };
