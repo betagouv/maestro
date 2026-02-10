@@ -104,6 +104,19 @@ const findMany = async (
           );
         }
         break;
+      case 'companySirets':
+        if (
+          !isNil(findOptions.companySirets) &&
+          findOptions.companySirets.length > 0
+        ) {
+          query = query.where('id', 'in', (eb) =>
+            eb
+              .selectFrom('userCompanies')
+              .select('userId')
+              .where('companySiret', 'in', findOptions.companySirets ?? [])
+          );
+        }
+        break;
       case 'disabled':
         if (findOptions.disabled === false || findOptions.disabled === true) {
           query = query.where('disabled', 'is', findOptions.disabled);
