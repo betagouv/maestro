@@ -18,7 +18,8 @@ import {
   DepartmentalCoordinator,
   genAuthUser,
   NationalCoordinator,
-  RegionalCoordinator
+  RegionalCoordinator,
+  SamplerDaoaFixture
 } from 'maestro-shared/test/userFixtures';
 import { expect, userEvent, within } from 'storybook/test';
 import { getMockApi } from '../../../services/mockApiClient';
@@ -230,5 +231,44 @@ export const DepartmentalCoordinatorView: Story = {
         el.textContent?.toLowerCase().includes('attribué')
       )
     ).toHaveLength(prescriptions.length);
+  }
+};
+
+export const SamplerView: Story = {
+  parameters: {
+    preloadedState: {
+      auth: {
+        authUser: genAuthUser(SamplerDaoaFixture)
+      }
+    },
+    apiClient: getMockApi({
+      useFindProgrammingPlansQuery: { data: [] },
+      useFindPrescriptionsQuery: {
+        data: prescriptions
+      },
+      useFindLocalPrescriptionsQuery: {
+        data: regionalPrescriptions
+          .filter((_) => _.department === SamplerDaoaFixture.department)
+          .map((_, index) => ({ ..._, sampleCount: index + 5 }))
+      },
+      useFindCompaniesQuery: { data: companies },
+      useFindLaboratoriesQuery: { data: laboratories }
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.queryByTestId('prescriptions-cards-segment')
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId('prescriptions-table-segment')
+    ).not.toBeInTheDocument();
+
+    await expect(
+      canvas.getByText('La programmation sera disponible une fois que', {
+        exact: false
+      })
+    ).toBeInTheDocument();
   }
 };
