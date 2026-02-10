@@ -748,5 +748,43 @@ describe('ProgrammingPlan router', () => {
         .where('programmingPlanId', submittedProgrammingPlan.id)
         .update({ status: 'SubmittedToRegion' });
     });
+
+    test('should validate a programming plan', async () => {
+      const res = await request(app)
+        .put(testRoute(submittedProgrammingPlan.id))
+        .send(programmingPlanLocalStatusList)
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject(
+        withISOStringDates({
+          ...submittedProgrammingPlan,
+          regionalStatus: expect.arrayContaining(
+            submittedProgrammingPlan.regionalStatus.map((regionalStatus) =>
+              regionalStatus.region === programmingPlanLocalStatusList[0].region
+                ? programmingPlanLocalStatusList[0]
+                : regionalStatus
+            )
+          )
+        })
+      );
+
+      await expect(
+        ProgrammingPlanLocalStatus()
+          .where({
+            programmingPlanId: submittedProgrammingPlan.id,
+            region: programmingPlanLocalStatusList[0].region
+          })
+          .first()
+      ).resolves.toMatchObject({
+        region: programmingPlanLocalStatusList[0].region,
+        status: 'ApprovedByRegion'
+      });
+
+      //Cleanup
+      await ProgrammingPlanLocalStatus()
+        .where('programmingPlanId', submittedProgrammingPlan.id)
+        .update({ status: 'SubmittedToRegion' });
+    });
   });
 });

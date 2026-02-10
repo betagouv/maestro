@@ -1,9 +1,11 @@
 import { constants } from 'http2';
-import { intersection } from 'lodash-es';
+import { intersection, isNil } from 'lodash-es';
+import { Brand } from 'maestro-shared/constants';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import { Department } from 'maestro-shared/referential/Department';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
+import { NotificationCategoryTitles } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { ProgrammingPlanKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   NextProgrammingPlanStatus,
@@ -213,27 +215,47 @@ export const programmingPlanRouter = {
       await Promise.all(
         programmingPlanLocalStatusList.map(
           async (programmingPlanLocalStatus) => {
-            if (programmingPlanLocalStatus.department) {
-              //TODO ne notifier que les préleveurs des abattoires concernés par des prélevements
+            const link = `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
+              {
+                year: programmingPlan.year.toString(),
+                planIds: programmingPlan.id
+              }
+            ).toString()}`;
+
+            if (
+              programmingPlanLocalStatus.department &&
+              programmingPlanLocalStatus.status === 'Validated'
+            ) {
+              const localPrescriptions =
+                await localPrescriptionRepository.findMany({
+                  programmingPlanId,
+                  region: programmingPlanLocalStatus.region,
+                  department: programmingPlanLocalStatus.department
+                });
+
               const samplers = await userRepository.findMany({
                 roles: ['Sampler'],
                 region: programmingPlanLocalStatus.region,
                 department: programmingPlanLocalStatus.department as Department,
-                programmingPlanKinds: programmingPlan.kinds
+                programmingPlanKinds: programmingPlan.kinds,
+                companySirets: localPrescriptions
+                  .map((localPrescription) => localPrescription.companySiret)
+                  .filter((_) => !isNil(_))
               });
 
               await notificationService.sendNotification(
                 {
                   category: 'ProgrammingPlanValidated',
-                  link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
-                    {
-                      year: programmingPlan.year.toString(),
-                      planIds: programmingPlan.id
-                    }
-                  ).toString()}`
+                  link
                 },
                 samplers,
-                undefined
+                {
+                  object: NotificationCategoryTitles.ProgrammingPlanValidated,
+                  content: `
+L’étape de la répartition de la programmation a été réalisée par votre coordinateur. La campagne est lancée !
+
+Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’onglet "Programmation" et saisir des prélèvements.`
+                }
               );
             } else {
               if (
@@ -246,13 +268,6 @@ export const programmingPlanRouter = {
                   region: programmingPlanLocalStatus.region,
                   programmingPlanKinds: programmingPlan.kinds
                 });
-
-                const link = `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
-                  {
-                    year: programmingPlan.year.toString(),
-                    planIds: programmingPlan.id
-                  }
-                ).toString()}`;
 
                 await (programmingPlanLocalStatus.status === 'SubmittedToRegion'
                   ? notificationService.sendNotification(
@@ -271,7 +286,16 @@ export const programmingPlanRouter = {
                         link
                       },
                       regionalCoordinators,
-                      undefined
+                      {
+                        object:
+                          NotificationCategoryTitles.ProgrammingPlanValidated,
+                        content: `
+L’étape de programmation a été clôturée par la coordination nationale.  
+
+En tant que coordinateur régional, vous pouvez dorénavant vous connecter à ${Brand} sur l’espace "programmation" afin d’attribuer le/les laboratoires responsables des analyses officielles en lien avec les matrices programmées pour la prochaine campagne du dispositif PSPC dans votre région.  
+
+Une fois le/les laboratoires attribués, la campagne sera officiellement lancée et les inspecteurs/préleveurs de vos régions pourront initier leurs prélèvements.`
+                      }
                     ));
               } else if (
                 programmingPlanLocalStatus.status === 'ApprovedByRegion'
@@ -284,12 +308,7 @@ export const programmingPlanRouter = {
                 await notificationService.sendNotification(
                   {
                     category: 'ProgrammingPlanApprovedByRegion',
-                    link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
-                      {
-                        year: programmingPlan.year.toString(),
-                        planIds: programmingPlan.id
-                      }
-                    ).toString()}`
+                    link
                   },
                   nationalCoordinators,
                   {
@@ -319,12 +338,7 @@ export const programmingPlanRouter = {
                 await notificationService.sendNotification(
                   {
                     category: 'ProgrammingPlanSubmittedToDepartments',
-                    link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
-                      {
-                        year: programmingPlan.year.toString(),
-                        planIds: programmingPlan.id
-                      }
-                    ).toString()}`
+                    link
                   },
                   departmentalCoordinators,
                   {

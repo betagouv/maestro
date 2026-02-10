@@ -11,6 +11,7 @@ export const FindUserOptions = z.object({
   programmingPlanKinds: z
     .union([ProgrammingPlanKind, coerceToArray(z.array(ProgrammingPlanKind))])
     .nullish(),
+  companySirets: coerceToArray(z.array(z.string())).nullish(),
   disabled: coerceToBooleanNullish()
 });
 
