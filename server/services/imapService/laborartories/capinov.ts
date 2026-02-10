@@ -34,6 +34,11 @@ export const extractAnalyzes = (
         error: (iss): string => `Received ${iss.input}`
       }),
       LMR_NUM: frenchNumberStringValidator.nullish(),
+      LMR: z
+        .string()
+        .transform((s) => Number(s.replace('*', '')))
+        .pipe(z.number())
+        .nullish(),
       // 16/04/2025
       ECHANT_DATE_DIFFUSION: z
         .string()
@@ -91,7 +96,11 @@ export const extractAnalyzes = (
             : {
                 result_kind: 'Q',
                 result: residue.RESULTAT_VALNUM,
-                lmr: residue.LMR_NUM ?? null
+                lmr: residue.LMR_NUM
+                  ? residue.LMR_NUM
+                  : residue.LMR
+                    ? residue.LMR
+                    : null
               };
       analysis.residues.push({
         ...result,
