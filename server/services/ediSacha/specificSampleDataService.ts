@@ -14,7 +14,8 @@ export const initSampleSpecificDataAttributes = async () => {
       await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
         attribute,
         inDai: true,
-        sachaCommemoratifSigle: null
+        sachaCommemoratifSigle: null,
+        optional: false
       });
     }
   }

@@ -137,15 +137,20 @@ export const getCommemoratifs = (
           if (
             !sampleSpecifDataRecord[specificDataKey].values[specificDataValue]
           ) {
-            throw new Error(
-              `Configuration SACHA incomplète: ${specificDataKey} ${specificDataValue}`
-            );
+            if (!sampleSpecifDataRecord[specificDataKey].optional) {
+              throw new Error(
+                `Configuration SACHA incomplète: ${specificDataKey} ${specificDataValue}`
+              );
+            }
+          } else {
+            commemoratifs.push({
+              sigle: conf.sachaCommemoratifSigle,
+              sigleValue:
+                sampleSpecifDataRecord[specificDataKey].values[
+                  specificDataValue
+                ]
+            });
           }
-          commemoratifs.push({
-            sigle: conf.sachaCommemoratifSigle,
-            sigleValue:
-              sampleSpecifDataRecord[specificDataKey].values[specificDataValue]
-          });
         } else {
           let textValue;
           if (typeDonnee === 'date') {

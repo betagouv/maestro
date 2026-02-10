@@ -47,6 +47,9 @@ export const CommemoratifSigleForm = ({
   const [inDai, setInDai] = useState<boolean>(
     attributeConfInDb?.inDai ?? false
   );
+  const [optional, setOptional] = useState<boolean>(
+    attributeConfInDb?.optional ?? false
+  );
   const [selectedSigle, setSelectedSigle] = useState<CommemoratifSigle | null>(
     attributeConfInDb?.sachaCommemoratifSigle ?? null
   );
@@ -58,7 +61,8 @@ export const CommemoratifSigleForm = ({
     updateSampleSpecificDataAttribute({
       attribute,
       sachaCommemoratifSigle: sachaCommemoratifSigle ?? null,
-      inDai
+      inDai,
+      optional
     });
     setSelectedSigle(sachaCommemoratifSigle ?? null);
     setSelectedValues({});
@@ -69,7 +73,17 @@ export const CommemoratifSigleForm = ({
     updateSampleSpecificDataAttribute({
       attribute,
       sachaCommemoratifSigle: selectedSigle,
-      inDai: newInDai
+      inDai: newInDai,
+      optional
+    });
+  };
+  const onToggleOptional = (newOptional: boolean) => {
+    setOptional(newOptional);
+    updateSampleSpecificDataAttribute({
+      attribute,
+      sachaCommemoratifSigle: selectedSigle,
+      inDai,
+      optional: newOptional
     });
   };
 
@@ -118,30 +132,45 @@ export const CommemoratifSigleForm = ({
 
   return (
     <div className={clsx('border', cx('fr-p-4w'))}>
-      <div className={clsx('d-flex-row')}>
+      <div>
         <div className={clsx('d-flex-column', 'd-flex-align-start')}>
-          <h6 className={cx()}>{inputConf.label}</h6>
-          <ToggleSwitch
-            label={'Inclure dans la DAI ?'}
-            checked={inDai}
-            labelPosition={'left'}
-            onChange={() => {
-              onToggleInDai(!inDai);
-            }}
-          />
+          <h6>{inputConf.label}</h6>
+          <div
+            className={clsx('d-flex-row', 'd-flex-align-center')}
+            style={{ width: '100%' }}
+          >
+            <ToggleSwitch
+              label={'Inclure dans la DAI ?'}
+              checked={inDai}
+              labelPosition={'left'}
+              onChange={() => {
+                onToggleInDai(!inDai);
+              }}
+            />
+            {inDai && (
+              <ToggleSwitch
+                label={'Optionnel ?'}
+                checked={optional}
+                labelPosition={'left'}
+                onChange={() => {
+                  onToggleOptional(!optional);
+                }}
+              />
+            )}
+            {inDai && (
+              <AppSearchInput
+                label={'Sigle Sacha'}
+                options={options}
+                value={selectedSigle ?? ''}
+                onSelect={(value) => onSelectSigle(value as CommemoratifSigle)}
+                placeholder="Rechercher un sigle"
+                className={clsx(cx('fr-ml-auto', 'fr-mb-0'))}
+                required={true}
+                state={selectedSigle ? 'default' : 'error'}
+              />
+            )}
+          </div>
         </div>
-        {inDai && (
-          <AppSearchInput
-            label={'Sigle Sacha'}
-            options={options}
-            value={selectedSigle ?? ''}
-            onSelect={(value) => onSelectSigle(value as CommemoratifSigle)}
-            placeholder="Rechercher un sigle"
-            className={clsx(cx('fr-ml-auto', 'fr-mb-0'))}
-            required={true}
-            state={selectedSigle ? 'default' : 'error'}
-          />
-        )}
       </div>
       {inDai && selectedSigle !== null && attributeCanHaveValue && (
         <>
@@ -160,6 +189,7 @@ export const CommemoratifSigleForm = ({
                 inputConf={inputConf}
                 selectedCommemoratif={sachaCommemoratifs[selectedSigle]}
                 selectedValue={selectedValues[optionValue] ?? ''}
+                optional={optional}
                 onSelectValue={(v) =>
                   onSelectValue(optionValue, v as CommemoratifValueSigle)
                 }
@@ -175,6 +205,7 @@ interface OptionValueLineProps {
   optionValue: string;
   inputConf: (typeof MatrixSpecificDataFormInputs)[SampleMatrixSpecificDataKeys];
   selectedCommemoratif: SachaCommemoratifRecord[CommemoratifSigle] | null;
+  optional: boolean;
   selectedValue: string | null;
   onSelectValue: (valueSigle?: string) => void;
 }
@@ -184,6 +215,7 @@ const OptionValueLine = ({
   inputConf,
   selectedCommemoratif,
   selectedValue,
+  optional,
   onSelectValue
 }: OptionValueLineProps) => {
   const optionLabel = canHaveValue(inputConf)
@@ -207,8 +239,8 @@ const OptionValueLine = ({
       value={selectedValue ?? ''}
       onSelect={onSelectValue}
       placeholder="Rechercher une valeur"
-      required={true}
-      state={selectedValue ? 'default' : 'error'}
+      required={!optional}
+      state={selectedValue || optional ? 'default' : 'error'}
     />
   );
 };

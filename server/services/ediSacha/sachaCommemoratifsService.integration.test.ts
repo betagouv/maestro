@@ -183,7 +183,8 @@ describe('updateSachaCommemoratifs', () => {
     await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
       attribute,
       sachaCommemoratifSigle: commemoratif.sigle,
-      inDai: true
+      inDai: true,
+      optional: false
     });
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttributeValue({
@@ -223,7 +224,8 @@ describe('updateSachaCommemoratifs', () => {
     await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
       attribute,
       sachaCommemoratifSigle: commemoratif.sigle,
-      inDai: true
+      inDai: true,
+      optional: false
     });
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttributeValue({

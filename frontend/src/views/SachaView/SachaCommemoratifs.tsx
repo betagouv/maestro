@@ -27,7 +27,7 @@ export const SachaCommemoratifs: FunctionComponent = () => {
     for (const attribute of getAllSachaAttributes()) {
       const attributeConf = sampleSpecifiDataRecord[attribute];
 
-      if (attributeConf?.inDai) {
+      if (attributeConf?.inDai && !attributeConf?.optional) {
         if (!attributeConf.sachaCommemoratifSigle) {
           return false;
         }
