@@ -221,6 +221,7 @@ const ProgrammingView = () => {
                     </>
                   }
                   severity="info"
+                  title=""
                 />
               ) : (
                 <Tabs
