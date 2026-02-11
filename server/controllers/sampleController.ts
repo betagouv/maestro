@@ -14,7 +14,6 @@ import {
   getAnalysisReportDocumentFilename,
   getSupportDocumentFilename
 } from 'maestro-shared/schema/Document/DocumentKind';
-import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import {
   ContextLabels,
   ProgrammingPlanContext
@@ -71,7 +70,12 @@ import { LaboratoryResidueMapping } from '../repositories/kysely.type';
 import { laboratoryResidueMappingRepository } from '../repositories/laboratoryResidueMappingRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
+import { sachaCommemoratifRepository } from '../repositories/sachaCommemoratifRepository';
+import { sachaConfRepository } from '../repositories/sachaConfRepository';
+import { sampleSpecificDataRepository } from '../repositories/sampleSpecificDataRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
+import { generateXMLDAI } from '../services/ediSacha/sachaDAI';
+import { sendSachaFile } from '../services/ediSacha/sachaSender';
 import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
 import { mattermostService } from '../services/mattermostService';
 
@@ -548,18 +552,25 @@ export const sampleRouter = {
       };
 
       if (mustBeSent) {
-        const withEdiSacha: boolean = ProgrammingPlanKindWithSachaList.includes(
-          updatedPartialSample.specificData
-            .programmingPlanKind as ProgrammingPlanKindWithSacha
-        );
-        if (withEdiSacha) {
-          //FIXME EDI à brancher
+        const programmingPlanWithEdiSacha: boolean =
+          ProgrammingPlanKindWithSachaList.includes(
+            updatedPartialSample.specificData
+              .programmingPlanKind as ProgrammingPlanKindWithSacha
+          );
+
+        const updatedSample = SampleChecked.parse(updatedPartialSample);
+        const sampleItems = await sampleItemRepository.findMany(sample.id);
+
+        const sachaCommemoratifRecord =
+          await sachaCommemoratifRepository.findAll();
+        const specificDataRecord = await sampleSpecificDataRepository.findAll();
+        const sachaConf = await sachaConfRepository.get();
+        if (programmingPlanWithEdiSacha) {
+          //FIXME EDI à supprimer à la fin des tests
           await mattermostService.send(
             `ATTENTION, un prélèvement DAOA vient d'être réalisé https://app.maestro.beta.gouv.fr/prelevements/${updatedPartialSample.id}`
           );
         }
-        const updatedSample = SampleChecked.parse(updatedPartialSample);
-        const sampleItems = await sampleItemRepository.findMany(sample.id);
 
         const attachments: ({
           content: string;
@@ -585,131 +596,163 @@ export const sampleRouter = {
                 }
               : null;
 
-            //FIXME EDI à brancher
-            if (!withEdiSacha && sampleItem.copyNumber === 1) {
-              const laboratory = (await laboratoryRepository.findUnique(
-                sampleItem.laboratoryId as string
-              )) as Laboratory;
+            if (sampleItem.copyNumber === 1 && sampleItem.laboratoryId) {
+              const laboratory = await laboratoryRepository.findUnique(
+                sampleItem.laboratoryId
+              );
 
-              const establishment = {
-                name: Regions[updatedSample.region].establishment.name,
-                fullAddress: [
-                  Regions[updatedSample.region].establishment.additionalAddress,
-                  Regions[updatedSample.region].establishment.street,
-                  `${Regions[updatedSample.region].establishment.postalCode} ${Regions[updatedSample.region].establishment.city}`
-                ]
-                  .filter(Boolean)
-                  .join('\n')
-              };
+              //Certains laboratoires n'utilisent pas les EDI Sacha
+              if (programmingPlanWithEdiSacha && laboratory.sachaSigle) {
+                try {
+                  const dateNow = Date.now();
 
-              const company = {
-                ...updatedSample.company,
-                fullAddress: [
-                  updatedSample.company.address,
-                  `${updatedSample.company.postalCode} ${updatedSample.company.city}`
-                ].join('\n')
-              };
-
-              let laboratoryResiduesMapping: LaboratoryResidueMapping[] = [];
-              if (laboratory.shortName in laboratoriesConf) {
-                laboratoryResiduesMapping =
-                  await laboratoryResidueMappingRepository.findByLaboratoryShortName(
-                    laboratory.shortName as LaboratoryWithConf
+                  const xmlFile = await generateXMLDAI(
+                    updatedSample,
+                    SampleItem.parse(sampleItem),
+                    dateNow,
+                    specificDataRecord,
+                    sachaCommemoratifRecord,
+                    sachaConf,
+                    laboratory
                   );
-              }
 
-              const substanceToLaboratoryLabel = (
-                substance: SSD2Id
-              ): string => {
-                const laboratoryLabel: string | null =
-                  laboratoryResiduesMapping.find(
-                    ({ ssd2Id }) => ssd2Id === substance
-                  )?.label ?? null;
-                return laboratoryLabel ?? SSD2IdLabel[substance];
-              };
+                  await sendSachaFile(xmlFile, dateNow);
+                } catch (e) {
+                  await mattermostService.send(
+                    `Impossible d'envoyer la DAI au laboratoire: ${laboratory.name}`
+                  );
+                  console.error(e);
+                }
+              } else {
+                const establishment = {
+                  name: Regions[updatedSample.region].establishment.name,
+                  fullAddress: [
+                    Regions[updatedSample.region].establishment
+                      .additionalAddress,
+                    Regions[updatedSample.region].establishment.street,
+                    `${Regions[updatedSample.region].establishment.postalCode} ${Regions[updatedSample.region].establishment.city}`
+                  ]
+                    .filter(Boolean)
+                    .join('\n')
+                };
 
-              const analysisRequestDocs =
-                await generateAndStoreAnalysisRequestDocuments({
-                  ...updatedSample,
-                  ...(sampleItem as SampleItem),
-                  sampler: user,
-                  company,
-                  laboratory,
-                  monoSubstanceLabels: (updatedSample.monoSubstances ?? []).map(
-                    (substance) => substanceToLaboratoryLabel(substance)
-                  ),
-                  multiSubstanceLabels: (
-                    updatedSample.multiSubstances ?? []
-                  ).map((substance) => substanceToLaboratoryLabel(substance)),
-                  reference: [updatedSample.reference, sampleItem?.copyNumber]
-                    .filter(isDefinedAndNotNull)
-                    .join('-'),
-                  sampledAt: format(
-                    updatedSample.sampledAt,
-                    "eeee dd MMMM yyyy à HH'h'mm",
-                    {
-                      locale: fr
-                    }
-                  ),
-                  sampledAtDate: format(updatedSample.sampledAt, 'dd/MM/yyyy', {
-                    locale: fr
-                  }),
-                  sampledAtTime: formatWithTz(updatedSample.sampledAt, 'HH:mm'),
-                  context: ContextLabels[updatedSample.context],
-                  legalContext: LegalContextLabels[updatedSample.legalContext],
-                  stage: StageLabels[updatedSample.stage],
-                  matrixKindLabel: MatrixKindLabels[updatedSample.matrixKind],
-                  matrixLabel: getSampleMatrixLabel(updatedSample),
-                  matrixPart: getMatrixPartLabel(updatedSample) as string,
-                  quantityUnit: sampleItem?.quantityUnit
-                    ? QuantityUnitLabels[sampleItem.quantityUnit]
-                    : '',
-                  cultureKind: getCultureKindLabel(updatedSample) as string,
-                  compliance200263: sampleItem
-                    ? sampleItem.compliance200263
-                      ? 'Respectée'
-                      : 'Non respectée'
-                    : '',
-                  establishment,
-                  department: DepartmentLabels[updatedSample.department]
+                const company = {
+                  ...updatedSample.company,
+                  fullAddress: [
+                    updatedSample.company.address,
+                    `${updatedSample.company.postalCode} ${updatedSample.company.city}`
+                  ].join('\n')
+                };
+
+                let laboratoryResiduesMapping: LaboratoryResidueMapping[] = [];
+                if (laboratory.shortName in laboratoriesConf) {
+                  laboratoryResiduesMapping =
+                    await laboratoryResidueMappingRepository.findByLaboratoryShortName(
+                      laboratory.shortName as LaboratoryWithConf
+                    );
+                }
+
+                const substanceToLaboratoryLabel = (
+                  substance: SSD2Id
+                ): string => {
+                  const laboratoryLabel: string | null =
+                    laboratoryResiduesMapping.find(
+                      ({ ssd2Id }) => ssd2Id === substance
+                    )?.label ?? null;
+                  return laboratoryLabel ?? SSD2IdLabel[substance];
+                };
+
+                const analysisRequestDocs =
+                  await generateAndStoreAnalysisRequestDocuments({
+                    ...updatedSample,
+                    ...(sampleItem as SampleItem),
+                    sampler: user,
+                    company,
+                    laboratory,
+                    monoSubstanceLabels: (
+                      updatedSample.monoSubstances ?? []
+                    ).map((substance) => substanceToLaboratoryLabel(substance)),
+                    multiSubstanceLabels: (
+                      updatedSample.multiSubstances ?? []
+                    ).map((substance) => substanceToLaboratoryLabel(substance)),
+                    reference: [updatedSample.reference, sampleItem?.copyNumber]
+                      .filter(isDefinedAndNotNull)
+                      .join('-'),
+                    sampledAt: format(
+                      updatedSample.sampledAt,
+                      "eeee dd MMMM yyyy à HH'h'mm",
+                      {
+                        locale: fr
+                      }
+                    ),
+                    sampledAtDate: format(
+                      updatedSample.sampledAt,
+                      'dd/MM/yyyy',
+                      {
+                        locale: fr
+                      }
+                    ),
+                    sampledAtTime: formatWithTz(
+                      updatedSample.sampledAt,
+                      'HH:mm'
+                    ),
+                    context: ContextLabels[updatedSample.context],
+                    legalContext:
+                      LegalContextLabels[updatedSample.legalContext],
+                    stage: StageLabels[updatedSample.stage],
+                    matrixKindLabel: MatrixKindLabels[updatedSample.matrixKind],
+                    matrixLabel: getSampleMatrixLabel(updatedSample),
+                    matrixPart: getMatrixPartLabel(updatedSample) as string,
+                    quantityUnit: sampleItem?.quantityUnit
+                      ? QuantityUnitLabels[sampleItem.quantityUnit]
+                      : '',
+                    cultureKind: getCultureKindLabel(updatedSample) as string,
+                    compliance200263: sampleItem
+                      ? sampleItem.compliance200263
+                        ? 'Respectée'
+                        : 'Non respectée'
+                      : '',
+                    establishment,
+                    department: DepartmentLabels[updatedSample.department]
+                  });
+
+                const sampleDocuments = await Promise.all(
+                  (updatedSample.documentIds ?? []).map((documentId) =>
+                    documentService.getDocument(documentId)
+                  )
+                );
+
+                const sampleAttachments = await Promise.all(
+                  sampleDocuments
+                    .filter((document) => document !== undefined)
+                    .map(async (document) => ({
+                      name: document.filename,
+                      content: await streamToBase64(document.file as Readable)
+                    }))
+                );
+
+                await mailService.send({
+                  templateName: 'SampleAnalysisRequestTemplate',
+                  recipients: laboratory?.emails ?? [],
+                  params: {
+                    region: user.region ? Regions[user.region].name : undefined,
+                    userMail: user.email,
+                    sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
+                  },
+                  attachment: [
+                    ...sampleAttachments,
+                    ...analysisRequestDocs
+                      .filter((doc) => !isNil(doc.buffer))
+                      .map((doc) => ({
+                        name: doc.filename,
+                        content: Buffer.from(doc.buffer as Buffer).toString(
+                          'base64'
+                        )
+                      })),
+                    sampleSupportAttachment
+                  ].filter((_) => !isNil(_))
                 });
-
-              const sampleDocuments = await Promise.all(
-                (updatedSample.documentIds ?? []).map((documentId) =>
-                  documentService.getDocument(documentId)
-                )
-              );
-
-              const sampleAttachments = await Promise.all(
-                sampleDocuments
-                  .filter((document) => document !== undefined)
-                  .map(async (document) => ({
-                    name: document.filename,
-                    content: await streamToBase64(document.file as Readable)
-                  }))
-              );
-
-              await mailService.send({
-                templateName: 'SampleAnalysisRequestTemplate',
-                recipients: laboratory?.emails ?? [],
-                params: {
-                  region: user.region ? Regions[user.region].name : undefined,
-                  userMail: user.email,
-                  sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
-                },
-                attachment: [
-                  ...sampleAttachments,
-                  ...analysisRequestDocs
-                    .filter((doc) => !isNil(doc.buffer))
-                    .map((doc) => ({
-                      name: doc.filename,
-                      content: Buffer.from(doc.buffer as Buffer).toString(
-                        'base64'
-                      )
-                    })),
-                  sampleSupportAttachment
-                ].filter((_) => !isNil(_))
-              });
+              }
             }
             return sampleSupportAttachment;
           })
