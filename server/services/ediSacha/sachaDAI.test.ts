@@ -1,12 +1,15 @@
-import { expect, test } from 'vitest';
-import { SachaConf } from '../../repositories/kysely.type';
 import {
-  generateXMLAcquitement,
-  getXmlFileName,
-  getZipFileName,
-  LaboratorySachaData
-} from './sachaToXML';
-import { toSachaDateTime } from './sachaValidator';
+  CommemoratifSigle,
+  CommemoratifValueSigle,
+  SachaCommemoratifRecord
+} from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
+import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import { describe, expect, test } from 'vitest';
+import { SachaConf } from '../../repositories/kysely.type';
+import { generateXMLDAI, getCommemoratifs } from './sachaDAI';
+import { LaboratorySachaData } from './sachaToXML';
 
 const laboratory = {
   shortName: 'LDA 72',
@@ -21,31 +24,143 @@ const sachaConf = {
   versionReferencePrescripteur: 'v234'
 } as const satisfies SachaConf;
 
-test(`génère un XML d'acquittement`, async () => {
+const sachaCommemoratifSigleEspece = 'ESPECE' as CommemoratifSigle;
+
+const sampleSpecificDataRecord: SampleSpecificDataRecord = {
+  sampling: {
+    attribute: 'sampling',
+    sachaCommemoratifSigle: null,
+    inDai: false,
+    optional: false,
+    values: {}
+  },
+  animalIdentifier: {
+    attribute: 'animalIdentifier',
+    sachaCommemoratifSigle: null,
+    inDai: false,
+    optional: false,
+    values: {}
+  },
+  ageInDays: {
+    attribute: 'ageInDays',
+    sachaCommemoratifSigle: null,
+    inDai: false,
+    optional: false,
+    values: {}
+  },
+  species: {
+    attribute: 'species',
+    sachaCommemoratifSigle: sachaCommemoratifSigleEspece,
+    inDai: false,
+    optional: false,
+    values: { ESP7: 'POULE' as CommemoratifValueSigle }
+  },
+  breedingMethod: {
+    attribute: 'breedingMethod',
+    sachaCommemoratifSigle: null,
+    inDai: false,
+    optional: false,
+    values: {}
+  },
+  outdoorAccess: {
+    attribute: 'outdoorAccess',
+    sachaCommemoratifSigle: null,
+    inDai: false,
+    optional: false,
+    values: {}
+  }
+};
+
+const sachaCommemoratifRecord: SachaCommemoratifRecord = {
+  [sachaCommemoratifSigleEspece]: {
+    sigle: sachaCommemoratifSigleEspece,
+    libelle: 'espèce animal',
+    typeDonnee: 'list',
+    unite: null,
+    values: {}
+  }
+};
+
+test(`génère un XML de DAI`, async () => {
   expect(
-    await generateXMLAcquitement(
-      [
-        {
-          DateAcquittement: toSachaDateTime(new Date(1765876056798)),
-          NomFichier: 'RA01123123123123'
-        }
-      ],
-      undefined,
-      '72',
+    await generateXMLDAI(
+      {
+        reference: 'PEL-26-00073',
+        sampledAt: new Date(1765876056798),
+        lastUpdatedAt: new Date(1765876056798),
+        department: '72',
+        matrix: 'A01SN#F26.A07XE',
+        specificData: {
+          programmingPlanKind: 'DAOA_BREEDING',
+          sampling: 'Aléatoire',
+          animalIdentifier: '',
+          ageInDays: 12,
+          species: 'ESP7',
+          breedingMethod: 'PROD_1',
+          outdoorAccess: 'PAT1'
+        },
+        company: {
+          siret: 'siret',
+          name: 'companyName'
+        },
+        sampler: Sampler1Fixture
+      },
+      {
+        sealId: 'sealId',
+        itemNumber: 1,
+        copyNumber: 2,
+        substanceKind: 'Copper'
+      },
       1765876056798,
+      {
+        ...sampleSpecificDataRecord,
+
+        species: {
+          attribute: 'species',
+          inDai: true,
+          optional: false,
+          sachaCommemoratifSigle: 'SIGLE_SACHA' as CommemoratifSigle,
+          values: {
+            ESP7: 'SIGLE_VALUE_SACHA' as CommemoratifValueSigle
+          }
+        },
+        ageInDays: {
+          attribute: 'ageInDays',
+          inDai: true,
+          optional: false,
+          sachaCommemoratifSigle: 'AGED' as CommemoratifSigle,
+          values: {}
+        }
+      },
+      {
+        ...sachaCommemoratifRecord,
+        ['SIGLE_SACHA' as CommemoratifSigle]: {
+          sigle: 'SIGLE_SACHA' as CommemoratifSigle,
+          libelle: 'nouveau sigle',
+          typeDonnee: 'list',
+          unite: null,
+          values: {}
+        },
+        ['AGED' as CommemoratifSigle]: {
+          sigle: 'AGED' as CommemoratifSigle,
+          libelle: 'age en jours',
+          typeDonnee: 'numeric',
+          unite: 'jours',
+          values: {}
+        }
+      },
       sachaConf,
       laboratory
     )
-  ).toMatchInlineSnapshot(
-    `
+  ).toMatchInlineSnapshot(`
     {
       "content": "<?xml version="1.0" encoding="UTF-8"?>
-    <AcquittementNonAcquittement schemavalidation="AcquittementNonAcquittement.xsd">
+    <DemandesAnalyses schemavalidation="DemandesAnalyses.xsd">
       <MessageParametres>
         <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
         <VersionScenario>1.0.1</VersionScenario>
-        <TypeFichier>AN01</TypeFichier>
-        <NomFichier>AN01DDSV72LDA7225121610073679</NomFichier>
+        <TypeFichier>DA01</TypeFichier>
+        <NomFichier>DA01DDSV72LDA7225121610073679</NomFichier>
         <VersionReferenceStandardisees>v12341234</VersionReferenceStandardisees>
         <VersionReferencePrescripteur>v234</VersionReferencePrescripteur>
         <NomLogicielCreation>SIGAL</NomLogicielCreation>
@@ -61,14 +176,62 @@ test(`génère un XML d'acquittement`, async () => {
         <LibellePartenaire>Innovalys 72</LibellePartenaire>
         <EmailPartenaire>fake@email.fr</EmailPartenaire>
       </Destinataire>
-      <MessageAcquittement>
-        <NomFichier>RA01123123123123</NomFichier>
-        <DateAcquittement>2025-12-16T10:07:36</DateAcquittement>
-      </MessageAcquittement>
-    </AcquittementNonAcquittement>
+      <DemandeType>
+        <DialogueDemandeIntervention>
+          <NumeroDAP>20250007321</NumeroDAP>
+          <SigleContexteIntervention>2026_RPDA_PVOL</SigleContexteIntervention>
+          <DateIntervention>2025-12-16</DateIntervention>
+          <DateModification>2025-12-16T10:07:36</DateModification>
+        </DialogueDemandeIntervention>
+        <ReferenceEtablissementType>
+          <ReferenceEtablissement>
+            <SigleIdentifiant></SigleIdentifiant>
+            <Identifiant>companyName</Identifiant>
+            <Nom>companyName</Nom>
+            <CodePostal> </CodePostal>
+          </ReferenceEtablissement>
+        </ReferenceEtablissementType>
+        <DialogueActeurType>
+          <DialogueActeur>
+            <SigleIdentifiant></SigleIdentifiant>
+            <Identifiant></Identifiant>
+            <Nom>John Doe</Nom>
+          </DialogueActeur>
+        </DialogueActeurType>
+        <DialogueEchantillonCommemoratifType>
+          <DialogueEchantillonComplet>
+            <NumeroEchantillon>1</NumeroEchantillon>
+            <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
+            <NumeroEtiquette>PEL-26-00073-A-2</NumeroEtiquette>
+            <Commentaire>sealId</Commentaire>
+          </DialogueEchantillonComplet>
+          <DialogueCommemoratif>
+            <Sigle>AGED</Sigle>
+            <TexteValeur>12</TexteValeur>
+          </DialogueCommemoratif>
+          <DialogueCommemoratif>
+            <Sigle>SIGLE_SACHA</Sigle>
+            <SigleValeur>SIGLE_VALUE_SACHA</SigleValeur>
+          </DialogueCommemoratif>
+        </DialogueEchantillonCommemoratifType>
+        <ReferencePlanAnalyseType>
+          <ReferencePlanAnalyseEffectuer>
+            <SiglePlanAnalyse>RestPest_DAOA_CU</SiglePlanAnalyse>
+          </ReferencePlanAnalyseEffectuer>
+          <ReferencePlanAnalyseContenu>
+            <LibelleMatrice></LibelleMatrice>
+            <SigleAnalyte></SigleAnalyte>
+            <SigleMethodeSpecifique></SigleMethodeSpecifique>
+            <Depistage>N</Depistage>
+            <Confirmation>N</Confirmation>
+            <Statut>G</Statut>
+          </ReferencePlanAnalyseContenu>
+        </ReferencePlanAnalyseType>
+      </DemandeType>
+    </DemandesAnalyses>
     ",
-      "fileName": "AN01DDSV72LDA7225121610073679",
-      "fileType": "AN01",
+      "fileName": "DA01DDSV72LDA7225121610073679",
+      "fileType": "DA01",
       "laboratory": {
         "name": "Innovalys 72",
         "sachaEmail": "fake@email.fr",
@@ -77,47 +240,8 @@ test(`génère un XML d'acquittement`, async () => {
         "shortName": "LDA 72",
       },
     }
-  `
-  );
+  `);
 });
-
-test('getXmlFileName', () => {
-  expect(
-    getXmlFileName(
-      'AN01',
-      '35',
-      { sachaSigle: 'LABERCA' },
-      //16/12/2025 10:07:36
-      1765876056798
-    )
-  ).toBe('AN01DDSV35LABERCA25121610073679');
-});
-test('getZipFileName', () => {
-  expect(getZipFileName('AN01', { sachaSigle: 'LDA72' }, 1765876056798)).toBe(
-    'AN01LDA722512161007_1.zip'
-  );
-});
-
-describe('getNumeroDAP', () => {
-  test('calcule le numéro DAP à partir de la référence', () => {
-    expect(
-      getNumeroDAP(
-        { reference: 'PEL-26-00073' },
-        { itemNumber: 1, copyNumber: 2 }
-      )
-    ).toBe(20260007312);
-  });
-
-  test('calcule le numéro DAP avec des valeurs différentes', () => {
-    expect(
-      getNumeroDAP(
-        { reference: 'ABC-24-12345' },
-        { itemNumber: 3, copyNumber: 1 }
-      )
-    ).toBe(20241234531);
-  });
-});
-
 describe('getCommemoratifs', () => {
   const specificData: SampleMatrixSpecificData = {
     programmingPlanKind: 'DAOA_BREEDING',

@@ -6,13 +6,12 @@ import fs from 'node:fs';
 import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 import path from 'path';
+import { laboratoryRepository } from '../../repositories/laboratoryRepository';
+import { sachaConfRepository } from '../../repositories/sachaConfRepository';
 import { unzip } from '../zipService';
 import { processSachaRAI } from './sachaRAI';
 import { sendSachaFile } from './sachaSender';
-import {
-  generateXMLAcquitement,
-  loadLaboratoryAndSachaConfCall
-} from './sachaToXML';
+import { generateXMLAcquitement } from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
 import { validateAndDecodeSachaXml } from './validateSachaXml';
 
@@ -43,6 +42,8 @@ const doSftp = async () => {
     const sftpDirectory = path.join(tmpdir(), 'sftp');
     await sftpClient.downloadDir('uploads/RA01Maestro', sftpDirectory);
 
+    const sachaConf = await sachaConfRepository.get();
+
     const dataDirectory = path.join(sftpDirectory, 'data');
     const zipFiles = await readdir(dataDirectory);
 
@@ -64,7 +65,12 @@ const doSftp = async () => {
         }
 
         //FIXME EDI gérer les erreurs et les non acquittements
-        processSachaRAI(json.Resultats);
+        const { sampleItem, sample } = processSachaRAI(json.Resultats);
+        if (!sampleItem.laboratoryId) {
+          throw new Error(
+            `Cet exemplaire n'est pas destiné à un laboratoire: ${sampleItem.sampleId} ${sampleItem.itemNumber} ${sampleItem.copyNumber}`
+          );
+        }
 
         await sftpClient.delete(`uploads/RA01Maestro/data/Decl_${zipFile}`);
         await sftpClient.delete(`uploads/RA01Maestro/data/${zipFile}`);
@@ -74,6 +80,9 @@ const doSftp = async () => {
         await unlink(path.join(dataDirectory, `Decl_${zipFile}`));
 
         const dateNow = Date.now();
+        const laboratory = await laboratoryRepository.findUnique(
+          sampleItem.laboratoryId
+        );
         const xml = await generateXMLAcquitement(
           [
             {
@@ -82,11 +91,10 @@ const doSftp = async () => {
             }
           ],
           undefined,
-          //FIXME EDI récupérer le laboId
-          loadLaboratoryAndSachaConfCall('analysis.laboratoryId'),
-          //FIXME EDI récupérer correctement le département
-          '01',
-          dateNow
+          sample.department,
+          dateNow,
+          sachaConf,
+          laboratory
         );
 
         await sendSachaFile(xml, dateNow);
