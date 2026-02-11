@@ -1,15 +1,16 @@
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import z from 'zod';
 
-export const TrackEventCategory = z.enum([
+const TrackEventCategory = z.enum([
   'geolocation',
   'sample',
   'support_document'
 ]);
 
-export type TrackEventCategory = z.infer<typeof TrackEventCategory>;
+type TrackEventCategory = z.infer<typeof TrackEventCategory>;
 
-export const trackEventAction = {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const trackEventAction = {
   geolocation: z.enum(['enable', 'disable']),
   sample: z.enum([
     'push_offline',
