@@ -10,6 +10,7 @@ import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
+import { SampleStatusBadge } from '../../../components/SampleStatusBadge/SampleStatusBadge';
 import SampleAgreementOverview from './SampleAgreementOverview';
 import SampleContextOverview from './SampleContextOverview';
 import SampleItemCopiesOverview from './SampleItemCopiesOverview';
@@ -33,6 +34,12 @@ const SampleOverview = ({ sample }: Props) => {
     >
       <SectionHeader
         title={<>Prélèvement {sample.reference}</>}
+        action={
+          <div className="d-block align-right">
+            <div>Statut global du prélèvement</div>
+            <SampleStatusBadge status={sample.status} sampleId={sample.id} />
+          </div>
+        }
         subtitle="Consultez le récapitulatif du prélèvement réalisé"
         illustration={food}
       />

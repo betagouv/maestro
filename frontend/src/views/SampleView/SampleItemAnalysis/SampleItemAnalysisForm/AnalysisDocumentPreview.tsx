@@ -65,7 +65,7 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
             <span className={cx('fr-icon-eye-line', 'fr-link--icon-right')} />
           </Link>
         ) : (
-          <span className={cx('fr-ml-1w')}>Aucun rapport disponible</span>
+          <span className={cx('fr-text--bold')}>Aucun rapport disponible</span>
         )}
       </div>
       {!readonly && (

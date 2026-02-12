@@ -2,7 +2,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
-import { pluralize } from 'src/utils/stringUtils';
 import './SampleOverview.scss';
 
 interface Props {
@@ -60,8 +59,6 @@ const SampleAgreementOverview = ({ sample }: Props) => {
             <h6 className={cx('fr-mb-0')}>
               Envoi du procès-verbal au détenteur de la marchandise
             </h6>
-            {sample.items.length}{' '}
-            {pluralize(sample.items.length)("document d'accompagnement")}
           </div>
         </div>
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
