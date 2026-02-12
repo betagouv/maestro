@@ -48,7 +48,7 @@ const SampleMatrixSpecificDataPPV = z.object({
   programmingPlanKind: z.literal(ProgrammingPlanKind.enum.PPV),
   matrixDetails: z.string().nullish(),
   cultureKind: CultureKind.nullish(),
-  productionKind: ProductionKind.extract(['PD07A', 'Z0216', 'PD09A']),
+  productionKind: ProductionKind.extract(['PD07A', 'PD09A', 'Z0216']),
   matrixPart: MatrixPart,
   releaseControl: z.boolean().nullish()
 });
