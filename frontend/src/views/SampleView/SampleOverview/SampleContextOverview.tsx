@@ -10,7 +10,7 @@ interface Props {
   sample: SampleChecked;
 }
 
-const SampleOverviewContextTab = ({ sample }: Props) => {
+const SampleContextOverview = ({ sample }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { readonly } = usePartialSample(sample);
 
@@ -57,4 +57,4 @@ const SampleOverviewContextTab = ({ sample }: Props) => {
   );
 };
 
-export default SampleOverviewContextTab;
+export default SampleContextOverview;

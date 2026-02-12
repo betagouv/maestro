@@ -5,14 +5,14 @@ import { assert, type Equals } from 'tsafe';
 import { ApiClientContext } from '../../../../services/apiClient';
 import {
   FormRefinement,
-  SampleAdmissibilityForm
-} from './SampleAdmissibilityForm';
+  SampleItemAdmissibilityForm
+} from './SampleItemAdmissibilityForm';
 
 type Props = {
   sample: SampleChecked;
   modal: ReturnType<typeof createModal>;
 };
-export const SampleAdmissibilityEditModal: FunctionComponent<Props> = ({
+export const SampleItemAdmissibilityEditModal: FunctionComponent<Props> = ({
   modal,
   sample,
   ..._rest
@@ -70,7 +70,7 @@ export const SampleAdmissibilityEditModal: FunctionComponent<Props> = ({
         }
       ]}
     >
-      <SampleAdmissibilityForm
+      <SampleItemAdmissibilityForm
         sample={sample}
         withSubmitButton={false}
         setForm={(f) => (admissibilityForm.current = f)}

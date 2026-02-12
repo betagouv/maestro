@@ -522,13 +522,6 @@ export const sampleRouter = {
       }
 
       if (sampleUpdate.items) {
-        // const localPrescription = prescription
-        //   ? await localPrescriptionRepository.findUnique({
-        //     prescriptionId: prescription.id,
-        //     region: sampleUpdate.region,
-        //     includes: 'laboratories'
-        //   })
-        //   : undefined;
         await sampleItemRepository.updateMany(sample.id, sampleUpdate.items);
       }
 

@@ -16,7 +16,7 @@ const analysisApi = api.injectEndpoints({
       }),
       transformResponse: (response: any) => PartialAnalysis.parse(response),
       providesTags: (_result, _error, { sampleId }) => [
-        { type: 'SampleAnalysis', id: sampleId }
+        { type: 'SampleItemAnalysis', id: sampleId }
       ]
     }),
     createAnalysis: builder.mutation<PartialAnalysis, AnalysisToCreate>({
@@ -27,7 +27,7 @@ const analysisApi = api.injectEndpoints({
       }),
       transformResponse: (response: any) => PartialAnalysis.parse(response),
       invalidatesTags: (_result, _error, draft) => [
-        { type: 'SampleAnalysis', id: draft.sampleId },
+        { type: 'SampleItemAnalysis', id: draft.sampleId },
         { type: 'Sample' as const, id: draft.sampleId },
         { type: 'Sample', id: 'LIST' }
       ]
@@ -43,7 +43,7 @@ const analysisApi = api.injectEndpoints({
       }),
       transformResponse: (response: any) => PartialAnalysis.parse(response),
       invalidatesTags: (_result, _error, draft) => [
-        { type: 'SampleAnalysis', id: draft.sampleId },
+        { type: 'SampleItemAnalysis', id: draft.sampleId },
         { type: 'Sample' as const, id: draft.sampleId },
         { type: 'Sample', id: 'LIST' }
       ]
