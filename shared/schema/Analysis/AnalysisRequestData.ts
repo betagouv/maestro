@@ -27,6 +27,7 @@ export const AnalysisRequestData = z.object({
   matrixLabel: z.string(),
   matrixPart: z.string(),
   quantityUnit: z.string(),
+  productionKind: z.string().nullish(),
   cultureKind: z.string().nullish(),
   compliance200263: z.string(),
   establishment: z.object({

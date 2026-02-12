@@ -7,7 +7,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
       specificData: {
-        cultureKind: 'PD06A',
+        productionKind: 'PD07A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART1'
       },
@@ -20,7 +20,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
       specificData: {
-        cultureKind: 'PD06A',
+        productionKind: 'PD07A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART1'
       },
@@ -33,7 +33,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
       specificData: {
-        cultureKind: 'PD06A',
+        productionKind: 'PD07A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART1'
       },
@@ -46,7 +46,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
       specificData: {
-        cultureKind: 'PD06A',
+        productionKind: 'PD07A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART1'
       },
@@ -59,7 +59,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
       specificData: {
-        cultureKind: 'PD06A',
+        productionKind: 'PD07A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART1'
       },
@@ -72,7 +72,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
       specificData: {
-        cultureKind: 'PD06A',
+        productionKind: 'PD07A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART1'
       },
@@ -85,7 +85,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
       specificData: {
-        cultureKind: 'PD06A',
+        productionKind: 'PD07A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART1'
       },
@@ -98,7 +98,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
       specificData: {
-        cultureKind: 'PD06A',
+        productionKind: 'PD07A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART2'
       },
@@ -111,7 +111,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
       specificData: {
-        cultureKind: 'PD06A',
+        productionKind: 'PD07A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART2'
       },
@@ -124,7 +124,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
       specificData: {
-        cultureKind: 'PD06A',
+        productionKind: 'PD07A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART2'
       },
@@ -137,7 +137,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
       specificData: {
-        cultureKind: 'PD06A',
+        productionKind: 'PD07A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART2'
       },
@@ -150,7 +150,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
       specificData: {
-        cultureKind: 'PD06A',
+        productionKind: 'PD07A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART2'
       },
@@ -163,7 +163,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
       specificData: {
-        cultureKind: 'PD06A',
+        productionKind: 'PD07A',
         programmingPlanKind: 'PPV',
         matrixPart: 'PART2'
       },
@@ -177,7 +177,7 @@ test('lmr can be optional for some reference', () => {
   const sampleWithRequiredLmr = {
     stage: 'STADE1',
     specificData: {
-      cultureKind: 'PD06A',
+      productionKind: 'PD07A',
       programmingPlanKind: 'PPV',
       matrixPart: 'PART1'
     },

@@ -13,10 +13,6 @@ interface Props {
 }
 
 const SampleProcedure = ({ partialSample }: Props) => {
-  if (partialSample.specificData.programmingPlanKind === 'PPV') {
-    return <></>;
-  }
-
   return (
     <div
       className={clsx(
@@ -36,40 +32,46 @@ const SampleProcedure = ({ partialSample }: Props) => {
         ></span>
         Modalités d'échantillonnage
       </h6>
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12', 'fr-col-md-6')}>
-          <div className={cx('fr-my-1v')}>
-            <b>Contenant en plastique</b>
+      {partialSample.specificData.programmingPlanKind !== 'PPV' && (
+        <>
+          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+            <div className={cx('fr-col-12', 'fr-col-md-6')}>
+              <div className={cx('fr-my-1v')}>
+                <b>Contenant en plastique</b>
+              </div>
+              <div className={cx('fr-my-1v')}>
+                Température : <b>-18° </b>
+              </div>
+              <div className={cx('fr-my-1v')}>
+                Délais max. avant analyse : <b>30 jours</b>
+              </div>
+            </div>
+            <div
+              className={clsx(cx('fr-col-12', 'fr-col-md-6'), 'border-left')}
+            >
+              <div className={cx('fr-my-1v')}>
+                Matière prélevée :{' '}
+                <b>
+                  {partialSample.specificData.programmingPlanKind ===
+                  'DAOA_SLAUGHTER'
+                    ? 'Foie de bovin'
+                    : 'Muscle de volaille'}
+                </b>
+              </div>
+              <div className={cx('fr-my-1v')}>
+                Quantité par échantillon : <b>200 grammes</b>
+              </div>
+            </div>
           </div>
-          <div className={cx('fr-my-1v')}>
-            Température : <b>-18° </b>
+          <hr className={cx('fr-my-3w')} />
+          <div>
+            <span className={cx('fr-mr-1w')}>Analyses prévues</span>
+            <Tag className={cx('fr-mx-1w')}>Mono-résidus</Tag>
+            <Tag className={cx('fr-mx-1w')}>Multi-résidus</Tag>
+            <Tag className={cx('fr-mx-1w')}>Cuivre</Tag>
           </div>
-          <div className={cx('fr-my-1v')}>
-            Délais max. avant analyse : <b>30 jours</b>
-          </div>
-        </div>
-        <div className={clsx(cx('fr-col-12', 'fr-col-md-6'), 'border-left')}>
-          <div className={cx('fr-my-1v')}>
-            Matière prélevée :{' '}
-            <b>
-              {partialSample.specificData.programmingPlanKind ===
-              'DAOA_SLAUGHTER'
-                ? 'Foie de bovin'
-                : 'Muscle de volaille'}
-            </b>
-          </div>
-          <div className={cx('fr-my-1v')}>
-            Quantité par échantillon : <b>200 grammes</b>
-          </div>
-        </div>
-      </div>
-      <hr className={cx('fr-my-3w')} />
-      <div>
-        <span className={cx('fr-mr-1w')}>Analyses prévues</span>
-        <Tag className={cx('fr-mx-1w')}>Mono-résidus</Tag>
-        <Tag className={cx('fr-mx-1w')}>Multi-résidus</Tag>
-        <Tag className={cx('fr-mx-1w')}>Cuivre</Tag>
-      </div>
+        </>
+      )}
       <div className={cx('fr-mt-3v')}>
         <span className={cx('fr-mr-1w')}>Réglementation</span>
         <DocumentLink
@@ -77,6 +79,18 @@ const SampleProcedure = ({ partialSample }: Props) => {
           iconId="fr-icon-external-link-line"
         />
       </div>
+      {partialSample.specificData.programmingPlanKind === 'PPV' && (
+        <div>
+          <hr className={cx('fr-my-3w')} />
+          <span className={cx('fr-mr-1w')}>Analyses prévues</span>
+          {partialSample.monoSubstances && (
+            <Tag className={cx('fr-mx-1w')}>Mono-résidus</Tag>
+          )}
+          {partialSample.multiSubstances && (
+            <Tag className={cx('fr-mx-1w')}>Multi-résidus</Tag>
+          )}
+        </div>
+      )}
     </div>
   );
 };

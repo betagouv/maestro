@@ -35,6 +35,7 @@ const generateAnalysisRequestCsv = async (data: AnalysisRequestData) => {
         ? data.specificData?.matrixDetails
         : undefined
     )}`,
+    `Type de production;${escapeCsvValue(data.productionKind)}`,
     `Type de culture;${escapeCsvValue(data.cultureKind)}`,
     `Stade de prélèvement;${escapeCsvValue(data.stage)}`,
     `${data.specificData?.programmingPlanKind === 'PPV' && data.specificData?.releaseControl ? 'Type de contrôle;Contrôle libératoire' : ''}`,

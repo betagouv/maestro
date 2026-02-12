@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { CultureKind } from '../../referential/CultureKind';
+import { CultureKindList } from '../../referential/CultureKind';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { getSampleMatrixSpecificDataAttributeValues } from './SampleMatrixSpecificData';
 
@@ -9,7 +9,7 @@ describe('getSampleMatrixSpecificDataAttributeValues', () => {
       ProgrammingPlanKind.enum.PPV,
       'cultureKind'
     );
-    expect(result).toBe(CultureKind.options);
+    expect(result).toBe(CultureKindList);
   });
 
   test('returns null for matrixDetails (string field without options)', () => {
