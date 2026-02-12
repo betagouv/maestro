@@ -1,7 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
-import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
+import {
+  Sample11Fixture,
+  Sample1Item1Fixture
+} from 'maestro-shared/test/sampleFixtures';
 import { getMockApi } from '../../../services/mockApiClient';
 import SampleItemAnalysis from './SampleItemAnalysis';
 
@@ -27,7 +30,8 @@ export const ReviewWithoutResidu: Story = {
       ...Sample11Fixture,
       status: 'Analysis',
       receivedAt: new Date(12345)
-    } as SampleChecked
+    } as SampleChecked,
+    sampleItem: Sample1Item1Fixture
   },
   parameters: {
     apiClient: getMockApi({

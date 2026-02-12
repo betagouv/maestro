@@ -170,7 +170,7 @@ const ReportDocumentList = ({
               className={'d-flex-align-start'}
               style={{ flexDirection: 'column', gap: '1rem' }}
             >
-              {reportDocumentIds.map((id, index) => (
+              {reportDocumentIds.map((id) => (
                 <span
                   style={{
                     display: 'flex',
