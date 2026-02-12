@@ -3,26 +3,31 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { FunctionComponent, useContext, useMemo } from 'react';
-import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import { usePartialSample } from 'src/hooks/usePartialSample';
-import { SampleAdmissibility } from 'src/views/SampleView/SampleAnalysis/SampleAdmissibility/SampleAdmissibility';
 import UserFeedback from '../../../components/UserFeedback/UserFeedback';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
-import { SampleAnalysisForm } from './SampleAnalysisForm/SampleAnalysisForm';
-import { SampleAnalysisOverview } from './SampleAnalysisOverview/SampleAnalysisOverview';
+import { SampleAnalysisForm } from './SampleItemAnalysisForm/SampleAnalysisForm';
+import { SampleAnalysisOverview } from './SampleItemAnalysisOverview/SampleAnalysisOverview';
 
+import Accordion from '@codegouvfr/react-dsfr/Accordion';
+import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { useLocation } from 'react-router';
-import { SampleAdmissibilityForm } from './SampleAdmissibility/SampleAdmissibilityForm';
-import './SampleAnalysis.scss';
-import { AnalysisDocumentPreview } from './SampleAnalysisForm/AnalysisDocumentPreview';
+import { SampleItemAdmissibility } from './SampleItemAdmissibility/SampleItemAdmissibility';
+import { SampleItemAdmissibilityForm } from './SampleItemAdmissibility/SampleItemAdmissibilityForm';
+import './SampleItemAnalysis.scss';
+import { AnalysisDocumentPreview } from './SampleItemAnalysisForm/AnalysisDocumentPreview';
 
 type Props = {
   sample: SampleChecked;
+  sampleItem: SampleItem;
 };
 
-const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
+const SampleItemAnalysis: FunctionComponent<Props> = ({
+  sample,
+  sampleItem
+}) => {
   const apiClient = useContext(ApiClientContext);
   const { hasUserPermission, user } = useAuthentication();
   const location = useLocation();
@@ -39,8 +44,8 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
     });
   const { data: analysis } = apiClient.useGetSampleItemAnalysisQuery({
     sampleId: sample.id,
-    itemNumber: 1, //TODO à gérer
-    copyNumber: 1 //TODO à gérer
+    itemNumber: sampleItem.itemNumber,
+    copyNumber: sampleItem.copyNumber
   });
 
   const readonly = useMemo(
@@ -88,26 +93,58 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
       )}
 
       <div>
-        <div className="sample-status">
-          <h3 className={cx('fr-m-0')}>Suivi des résultats</h3>
-          <SampleStatusBadge status={sample.status} sampleId={sample.id} />
-        </div>
+        {/*<div className="sample-status">*/}
+        {/*  <SampleStatusBadge status={sample.status} sampleId={sample.id} />*/}
+        {/*</div>*/}
         {['Analysis', 'InReview', 'Completed', 'NotAdmissible'].includes(
           sample.status
-        ) && <SampleAdmissibility sample={sample} readonly={readonly} />}
+        ) && (
+          <SampleItemAdmissibility
+            sample={sample}
+            readonly={readonly}
+            sampleItem={sampleItem}
+          />
+        )}
+
+        {isEditing && sample.status === 'Sent' && (
+          <SampleItemAdmissibilityForm
+            sample={sample}
+            withSubmitButton={true}
+          />
+        )}
+
+        {sample.status !== 'NotAdmissible' && (
+          <AnalysisDocumentPreview
+            partialAnalysis={analysis}
+            sampleId={sample.id}
+            readonly={!isEditing}
+          />
+        )}
       </div>
 
-      {isEditing && sample.status === 'Sent' && (
-        <SampleAdmissibilityForm sample={sample} withSubmitButton={true} />
-      )}
-
-      {sample.status !== 'NotAdmissible' && (
-        <AnalysisDocumentPreview
-          partialAnalysis={analysis}
-          sampleId={sample.id}
-          readonly={!isEditing}
-        />
-      )}
+      <div>
+        <Accordion label="Détails de l'échantillon">
+          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+            <div className={cx('fr-col-4')}>
+              <div className={cx('fr-mb-1v')}>Quantité prélevée</div>
+              <div className={cx('fr-text--bold')}>
+                {sampleItem.quantity} {sampleItem.quantityUnit}
+              </div>
+            </div>
+            <div className={cx('fr-col-4')}>
+              <div className={cx('fr-mb-1v')}>Numéro de scellé</div>
+              <div className={cx('fr-text--bold')}>{sampleItem.sealId}</div>
+            </div>
+            <div className={cx('fr-col-4')}>
+              <div className={cx('fr-mb-1v')}>Directive 2002/63</div>
+              <div className={cx('fr-text--bold')}>
+                {!sampleItem.compliance200263 && 'non '}respectée
+              </div>
+            </div>
+          </div>
+        </Accordion>
+        {/*<Accordion label="Facturation"></Accordion>*/}
+      </div>
 
       {['Analysis', 'InReview', 'Completed'].includes(sample.status) &&
         analysis && (
@@ -133,4 +170,4 @@ const SampleAnalysis: FunctionComponent<Props> = ({ sample }) => {
   );
 };
 
-export default SampleAnalysis;
+export default SampleItemAnalysis;

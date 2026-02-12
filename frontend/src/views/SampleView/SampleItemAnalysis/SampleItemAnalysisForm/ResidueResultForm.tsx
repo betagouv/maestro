@@ -25,8 +25,8 @@ import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadi
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 import { selectOptionsFromList } from '../../../../components/_app/AppSelect/AppSelectOption';
 import { UseForm } from '../../../../hooks/useForm';
-import { ResidueHeader } from '../SampleAnalysisOverview/ResidueResultOverview';
-import '../SampleAnalysisOverview/ResidueResultOverview.scss';
+import { ResidueHeader } from '../SampleItemAnalysisOverview/ResidueResultOverview';
+import '../SampleItemAnalysisOverview/ResidueResultOverview.scss';
 import ResidueComplexForm from './ResidueComplexForm';
 import { ResidueInterpretationForm } from './ResidueInterpretationForm';
 import ResidueSimpleForm from './ResidueSimpleForm';

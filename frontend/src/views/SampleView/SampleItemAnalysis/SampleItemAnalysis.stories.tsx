@@ -3,20 +3,20 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { getMockApi } from '../../../services/mockApiClient';
-import SampleAnalysis from './SampleAnalysis';
+import SampleItemAnalysis from './SampleItemAnalysis';
 
 import { fn } from 'storybook/test';
 import '../SampleOverview/SampleOverview.scss';
 
 const meta = {
-  title: 'Views/SampleAnalysis',
-  component: SampleAnalysis,
+  title: 'Views/SampleItemAnalysis',
+  component: SampleItemAnalysis,
   decorators: (Story) => (
     <div className="sample-overview">
       <Story />
     </div>
   )
-} satisfies Meta<typeof SampleAnalysis>;
+} satisfies Meta<typeof SampleItemAnalysis>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

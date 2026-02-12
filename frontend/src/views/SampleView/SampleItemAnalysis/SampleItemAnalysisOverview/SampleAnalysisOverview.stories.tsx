@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import clsx from 'clsx';
 import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
@@ -9,15 +11,14 @@ import {
 } from 'maestro-shared/test/analysisFixtures';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
-import '../SampleAnalysis.scss';
-import { SampleAnalysisForm } from './SampleAnalysisForm';
+import { SampleAnalysisOverview } from './/SampleAnalysisOverview';
 
 const meta = {
-  title: 'Views/SampleAnalysisForm',
-  component: SampleAnalysisForm,
+  title: 'Views/SampleAnalysisOverview',
+  component: SampleAnalysisOverview,
   args: {
     sample: Sample11Fixture as SampleChecked,
-    partialAnalysis: genPartialAnalysis({
+    analysis: genPartialAnalysis({
       compliance: true,
       notesOnCompliance: 'Super conforme, cool !!!',
       residues: [
@@ -27,7 +28,8 @@ const meta = {
           compliance: 'Compliant',
           resultKind: 'Q',
           result: 3.23,
-          lmr: 5
+          lmr: 5,
+          resultHigherThanArfd: 'true'
         }),
         genPartialResidue({
           reference: 'RF-0034-001-PPP',
@@ -66,19 +68,24 @@ const meta = {
         })
       ]
     }) as Analysis,
-    onDone: () => ({})
+    readonly: true,
+    onEdit: () => ({})
   },
   parameters: {
     preloadedState: {
       auth: { authUser: genAuthUser(Sampler1Fixture) }
     }
   },
-  decorators: (Story) => (
-    <div className={'analysis-container'}>
-      <Story />
-    </div>
-  )
-} satisfies Meta<typeof SampleAnalysisForm>;
+  decorators: [
+    (Story) => (
+      <div className={clsx(cx('fr-container'))}>
+        <div className={clsx('analysis-container')}>
+          <Story />
+        </div>
+      </div>
+    )
+  ]
+} satisfies Meta<typeof SampleAnalysisOverview>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

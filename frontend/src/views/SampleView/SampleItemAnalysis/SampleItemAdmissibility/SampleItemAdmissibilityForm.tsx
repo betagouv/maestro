@@ -55,7 +55,7 @@ type Props = {
   withSubmitButton: boolean;
   setForm?: (form: FormRefinement) => void;
 };
-export const SampleAdmissibilityForm: FunctionComponent<Props> = ({
+export const SampleItemAdmissibilityForm: FunctionComponent<Props> = ({
   sample,
   withSubmitButton,
   setForm,

@@ -51,10 +51,53 @@ const updateMany = async (
   console.info('Update sampleItems for sample', sampleId);
   await db.transaction(async (transaction) => {
     await SampleItems(transaction).where({ sampleId }).forUpdate();
-    await SampleItems(transaction).where({ sampleId }).delete();
-    if (partialSampleItems.length > 0) {
-      await SampleItems(transaction).insert(partialSampleItems);
+
+    const existingItems = await SampleItems(transaction)
+      .where({ sampleId })
+      .select('itemNumber', 'copyNumber');
+
+    const existingKeys = new Set(
+      existingItems.map((item) => `${item.itemNumber}-${item.copyNumber}`)
+    );
+
+    const newKeys = new Set(
+      partialSampleItems.map((item) => `${item.itemNumber}-${item.copyNumber}`)
+    );
+
+    const itemsToDelete = existingItems.filter(
+      (item) => !newKeys.has(`${item.itemNumber}-${item.copyNumber}`)
+    );
+
+    if (itemsToDelete.length > 0) {
+      await Promise.all(
+        itemsToDelete.map((item) =>
+          SampleItems(transaction)
+            .where({
+              sampleId,
+              itemNumber: item.itemNumber,
+              copyNumber: item.copyNumber
+            })
+            .delete()
+        )
+      );
     }
+
+    await Promise.all(
+      partialSampleItems.map((item) => {
+        const key = `${item.itemNumber}-${item.copyNumber}`;
+        if (existingKeys.has(key)) {
+          return SampleItems(transaction)
+            .where({
+              sampleId,
+              itemNumber: item.itemNumber,
+              copyNumber: item.copyNumber
+            })
+            .update(item);
+        } else {
+          return SampleItems(transaction).insert(item);
+        }
+      })
+    );
   });
 };
 
