@@ -16,8 +16,8 @@ import { assert, type Equals } from 'tsafe';
 import { z } from 'zod';
 import { useForm } from '../../../../hooks/useForm';
 import { ApiClientContext } from '../../../../services/apiClient';
-import { ResidueListResult } from '../SampleAnalysisOverview/ResidueListResult';
-import { ResiduesSummary } from '../SampleAnalysisOverview/ResiduesSummary';
+import { ResidueListResult } from '../SampleItemAnalysisOverview/ResidueListResult';
+import { ResiduesSummary } from '../SampleItemAnalysisOverview/ResiduesSummary';
 import { AnalysisComplianceForm } from './AnalysisComplianceForm';
 import { ResidueResultForm } from './ResidueResultForm';
 
