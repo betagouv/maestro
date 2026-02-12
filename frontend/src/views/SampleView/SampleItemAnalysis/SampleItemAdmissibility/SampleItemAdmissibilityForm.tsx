@@ -115,7 +115,6 @@ export const SampleItemAdmissibilityForm: FunctionComponent<Props> = ({
         'border',
         cx(
           'fr-callout',
-          'fr-m-0',
           ['Analysis', 'Completed'].includes(sample.status)
             ? 'fr-callout--green-emeraude'
             : 'fr-callout--pink-tuile'

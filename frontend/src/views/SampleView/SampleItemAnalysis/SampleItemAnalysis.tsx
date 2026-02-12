@@ -122,8 +122,8 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
         )}
       </div>
 
-      <div>
-        <Accordion label="Détails de l'échantillon">
+      <div className="border">
+        <Accordion label="Détails de l'échantillon" defaultExpanded>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-4')}>
               <div className={cx('fr-mb-1v')}>Quantité prélevée</div>
