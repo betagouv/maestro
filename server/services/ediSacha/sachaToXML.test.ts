@@ -245,7 +245,7 @@ test(`génère un XML de DAI`, async () => {
       </Destinataire>
       <DemandeType>
         <DialogueDemandeIntervention>
-          <NumeroDAP>20250007321</NumeroDAP>
+          <NumeroDAP>20260007321</NumeroDAP>
           <SigleContexteIntervention>2026_RPDA_PVOL</SigleContexteIntervention>
           <DateIntervention>2025-12-16</DateIntervention>
           <DateModification>2025-12-16T10:07:36</DateModification>

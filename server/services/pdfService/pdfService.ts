@@ -1,3 +1,4 @@
+import bwipjs from 'bwip-js';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import fs from 'fs';
@@ -49,6 +50,7 @@ import {
   templateStylePath
 } from '../../templates/templates';
 import config from '../../utils/config';
+import { getNumeroDAP } from '../ediSacha/sachaToXML';
 
 const generatePDF = async (template: Template, data: unknown) => {
   handlebars.registerHelper(
@@ -144,6 +146,11 @@ const generatePDF = async (template: Template, data: unknown) => {
       path: templateStylePath(template)
     });
 
+    //  debug only
+    // const fullHtml = await page.content();
+    // fs.writeFileSync('/tmp/debug-pdf.html', fullHtml);
+    // console.log('Debug: open /tmp/debug-pdf.html in your browser');
+
     const pdfBuffer = Buffer.from(
       await page.pdf({
         printBackground: true,
@@ -221,6 +228,19 @@ const generateSampleSupportPDF = async (
   const currentLaboratory = currentSampleItem?.laboratoryId
     ? laboratories.find((lab) => lab.id === currentSampleItem?.laboratoryId)
     : null;
+
+  const reference = `${getNumeroDAP(sample, { itemNumber, copyNumber })}`;
+  const barcodeSvg = bwipjs.toSVG({
+    bcid: 'code128',
+    text: reference,
+    scale: 3,
+    width: 60,
+    height: 15,
+    includetext: true,
+    textxalign: 'center',
+    textsize: 15,
+    textyoffset: -5
+  });
 
   return generatePDF('supportDocument', {
     fullVersion,
@@ -303,7 +323,8 @@ const generateSampleSupportPDF = async (
       sampleItems.some(
         (sampleItem) => sampleItem.recipientKind === 'Sampler'
       ) || sampleItems.length === 0,
-    sampleDocuments
+    sampleDocuments,
+    barcodeSvg
   });
 };
 

@@ -15,14 +15,22 @@ main {
 
   .fr-header__brand {
     filter: none;
+    width: initial;
+  }
+
+  .barcode{
+    margin-right: 1rem;
+    width: 180px;
+    height: 60px;
   }
 
   .document-title {
     text-wrap: nowrap;
     font-size: 14px;
     line-height: 19px;
-    margin-right: 1.5rem;
+    margin-right: 1rem;
     text-align: right;
+    margin-left: auto;
   }
 
   .laboratory-address {
