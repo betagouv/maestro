@@ -54,6 +54,7 @@ const data: AnalysisRequestData = {
   specificData: {
     programmingPlanKind: 'PPV',
     matrixPart: 'PART1',
+    productionKind: 'PD07A',
     cultureKind: 'PD05A',
     matrixDetails: ''
   },
@@ -89,6 +90,7 @@ test('génère un CSV', async () => {
     Matrice;;A031K
     LMR/ Partie du végétal concernée;
     Détails de la matrice;
+    Type de production;
     Type de culture;
     Stade de prélèvement;
 
@@ -132,6 +134,7 @@ test('génère un CSV avec le BOM pour Girpa', async () => {
     Matrice;;A031K
     LMR/ Partie du végétal concernée;
     Détails de la matrice;
+    Type de production;
     Type de culture;
     Stade de prélèvement;
 

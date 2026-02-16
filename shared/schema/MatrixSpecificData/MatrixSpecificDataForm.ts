@@ -24,6 +24,7 @@ export const MatrixSpecificDataForm: {
   PPV: {
     matrixDetails: { classes: { container: ['fr-col-sm-12', 'fr-pt-3w'] } },
     cultureKind: {},
+    productionKind: {},
     matrixPart: {},
     releaseControl: {}
   },
