@@ -45,9 +45,8 @@ const SampleOverview = ({ sample }: Props) => {
       />
 
       <div className="white-container">
-        <div className="d-flex-align-start">
+        <div className={clsx('d-flex-align-start', cx('fr-m-3w'))}>
           <SideMenu
-            className={cx('fr-mt-3w', 'fr-ml-3w')}
             align="left"
             burgerMenuButtonText="Dans cette rubrique"
             sticky={true}
@@ -103,7 +102,7 @@ const SampleOverview = ({ sample }: Props) => {
           />
           <div
             className={clsx(
-              cx('fr-px-3w', 'fr-py-5w'),
+              cx('fr-py-2w', 'fr-ml-4w', 'fr-mr-5w'),
               'sample-overview-content'
             )}
           >
