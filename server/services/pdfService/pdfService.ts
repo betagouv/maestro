@@ -27,6 +27,10 @@ import {
 } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
+  ProgrammingPlanKindWithSacha,
+  ProgrammingPlanKindWithSachaList
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import {
   getSampleMatrixLabel,
   PartialSample
 } from 'maestro-shared/schema/Sample/Sample';
@@ -229,7 +233,12 @@ const generateSampleSupportPDF = async (
     ? laboratories.find((lab) => lab.id === currentSampleItem?.laboratoryId)
     : null;
 
-  const reference = `${getNumeroDAP(sample, { itemNumber, copyNumber })}`;
+  const reference = ProgrammingPlanKindWithSachaList.includes(
+    sample.specificData.programmingPlanKind as ProgrammingPlanKindWithSacha
+  )
+    ? `${getNumeroDAP(sample, { itemNumber, copyNumber })}`
+    : getSampleItemReference(sample, itemNumber, copyNumber);
+
   const barcodeSvg = bwipjs.toSVG({
     bcid: 'code128',
     text: reference,
