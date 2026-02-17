@@ -3,6 +3,7 @@ import path from 'path';
 
 export type Template =
   | 'supportDocument'
+  | 'sampleEmptyForm'
   | 'analysisReportDocument'
   | 'analysisRequest'
   | 'samplesExport'
@@ -16,6 +17,7 @@ export const templateContent = (template: Template) =>
 
 const TemplateFileTypes: Record<Template, string> = {
   supportDocument: 'hbs',
+  sampleEmptyForm: 'hbs',
   analysisReportDocument: 'hbs',
   analysisRequest: 'xlsx',
   samplesExport: 'xls',

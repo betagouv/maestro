@@ -6,6 +6,7 @@ import {
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { z } from 'zod';
 import { knexInstance as db } from './db';
+import { kysely } from './kysely';
 
 export const localPrescriptionSubstanceKindsLaboratoriesTable =
   'local_prescription_substance_kinds_laboratories';
@@ -58,6 +59,18 @@ const updateMany = async (
   });
 };
 
+export const findMany = async (
+  prescriptionId: string,
+  department: Department
+) => {
+  return kysely
+    .selectFrom('localPrescriptionSubstanceKindsLaboratories')
+    .select(['laboratoryId', 'substanceKind'])
+    .where('prescriptionId', '=', prescriptionId)
+    .where('department', '=', department)
+    .execute();
+};
 export default {
-  updateMany
+  updateMany,
+  findMany
 };

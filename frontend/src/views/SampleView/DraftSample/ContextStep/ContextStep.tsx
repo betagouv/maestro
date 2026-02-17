@@ -67,6 +67,7 @@ import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
+import { SampleEmptyFormDownload } from '../SampleEmptyFormDownload';
 
 type Props = {
   programmingPlan: ProgrammingPlanChecked;
@@ -724,6 +725,12 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
           </div>
         </div>
       )}
+      {!!programmingPlanKind &&
+        programmingPlanKind !== 'PPV' &&
+        isOnline &&
+        !readonly && (
+          <SampleEmptyFormDownload partialSample={partialSample ?? formData} />
+        )}
       <SampleCompany
         programmingPlan={programmingPlan}
         partialSample={partialSample}

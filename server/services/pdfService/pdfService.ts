@@ -16,6 +16,7 @@ import { Regions } from 'maestro-shared/referential/Region';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
+import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import {
   MatrixSpecificDataForm,
   MatrixSpecificDataFormInputProps
@@ -45,6 +46,7 @@ import { formatWithTz } from 'maestro-shared/utils/date';
 import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
+import localPrescriptionSubstanceKindLaboratoryRepository from '../../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import { userRepository } from '../../repositories/userRepository';
 import {
@@ -184,12 +186,13 @@ const generatePDF = async (template: Template, data: unknown) => {
   }
 };
 
-const generateSampleSupportPDF = async (
+const generateSamplePDF = async (
   sample: PartialSample,
   sampleItems: PartialSampleItem[],
-  itemNumber: number,
+  itemNumber: number | undefined,
   copyNumber: number,
-  fullVersion: boolean
+  fullVersion: boolean,
+  template: Extract<Template, 'supportDocument' | 'sampleEmptyForm'>
 ) => {
   const programmingPlan = await programmingPlanRepository.findUnique(
     sample.programmingPlanId as string
@@ -207,15 +210,35 @@ const generateSampleSupportPDF = async (
     ? await userRepository.findUnique(sample.additionalSampler.id)
     : null;
 
+  //FIXME pour daoa on devrait (ou pas) avoir la prescription dès la 1ère étape,
+  // mais ce n'est pas le cas, lorsqu'on arrive à la Step 2 on fait un PUT sur le sample qui ajoute la prescription sur le sample
+  const localPrescription = (
+    sample.prescriptionId && sample.department
+      ? await localPrescriptionSubstanceKindLaboratoryRepository.findMany(
+          sample.prescriptionId,
+          sample.department
+        )
+      : []
+  ).toSorted(SubstanceKindLaboratorySort);
   const emptySampleItems: PartialSampleItem[] = new Array(
     programmingPlan.substanceKinds.length * SampleItemMaxCopyCount
   )
     .fill(null)
-    .map((_, index) => ({
-      sampleId: sample.id,
-      itemNumber: (index % programmingPlan.substanceKinds.length) + 1,
-      copyNumber: Math.floor(index / programmingPlan.substanceKinds.length) + 1
-    }));
+    .map((_, index) => {
+      const itemNumber = (index % programmingPlan.substanceKinds.length) + 1;
+      const copyNumber =
+        Math.floor(index / programmingPlan.substanceKinds.length) + 1;
+      return {
+        sampleId: sample.id,
+        itemNumber,
+        copyNumber,
+        recipientKind: copyNumber === 1 ? 'Laboratory' : undefined,
+        laboratoryId:
+          copyNumber === 1
+            ? localPrescription[itemNumber - 1].laboratoryId
+            : undefined
+      };
+    });
 
   const sampleDocuments = await documentRepository.findMany({
     sampleId: sample.id
@@ -233,15 +256,22 @@ const generateSampleSupportPDF = async (
     ? laboratories.find((lab) => lab.id === currentSampleItem?.laboratoryId)
     : null;
 
-  const reference = ProgrammingPlanKindWithSachaList.includes(
-    sample.specificData.programmingPlanKind as ProgrammingPlanKindWithSacha
-  )
-    ? `${getNumeroDAP(sample, { itemNumber, copyNumber })}`
-    : getSampleItemReference(sample, itemNumber, copyNumber);
+  const reference =
+    itemNumber === undefined
+      ? sample.reference
+      : getSampleItemReference(sample, itemNumber, copyNumber);
+
+  const barcodeReference =
+    itemNumber !== undefined &&
+    ProgrammingPlanKindWithSachaList.includes(
+      sample.specificData.programmingPlanKind as ProgrammingPlanKindWithSacha
+    )
+      ? `${getNumeroDAP(sample, { itemNumber, copyNumber })}`
+      : reference;
 
   const barcodeSvg = bwipjs.toSVG({
     bcid: 'code128',
-    text: reference,
+    text: barcodeReference,
     scale: 3,
     width: 60,
     height: 15,
@@ -251,7 +281,7 @@ const generateSampleSupportPDF = async (
     textyoffset: -5
   });
 
-  return generatePDF('supportDocument', {
+  return generatePDF(template, {
     fullVersion,
     ...sample,
     sampleItems: (sampleItems.length > 0 ? sampleItems : emptySampleItems).map(
@@ -290,7 +320,7 @@ const generateSampleSupportPDF = async (
     multiSubstances: sample.multiSubstances?.map(
       (substance) => SSD2IdLabel[substance]
     ),
-    reference: getSampleItemReference(sample, itemNumber, copyNumber),
+    reference,
     ...(sample.sampledAt
       ? {
           sampledAt: formatWithTz(
@@ -337,6 +367,29 @@ const generateSampleSupportPDF = async (
   });
 };
 
+const generateSampleSupportPDF = (
+  sample: PartialSample,
+  sampleItems: PartialSampleItem[],
+  itemNumber: number,
+  copyNumber: number,
+  fullVersion: boolean
+) => {
+  return generateSamplePDF(
+    sample,
+    sampleItems,
+    itemNumber,
+    copyNumber,
+    fullVersion,
+    'supportDocument'
+  );
+};
+
+const generateSampleEmptyFormPDF = async (sample: PartialSample) => {
+  //FIXME on devrait pas ajouter les modalités d'échantillonnages ?
+  return generateSamplePDF(sample, [], undefined, 1, true, 'sampleEmptyForm');
+};
+
 export const pdfService = {
-  generateSampleSupportPDF
+  generateSampleSupportPDF,
+  generateSampleEmptyFormPDF
 };

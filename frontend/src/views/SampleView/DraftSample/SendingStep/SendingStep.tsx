@@ -304,10 +304,13 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
                   Envoi du compte rendu / procès verbal au détenteur
                 </h5>
                 {sample.items.length}{' '}
-                {pluralize(sample.items.length)("document d'accompagnement")}
+                {pluralize(sample.items.length)('document')}
               </div>
             </div>
-            <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+            <div
+              className={cx('fr-grid-row', 'fr-grid-row--gutters')}
+              style={{ alignItems: 'end' }}
+            >
               <div className={cx('fr-col-6', 'fr-col-sm-3')}>
                 <AppTextInput
                   value={ownerLastName ?? ''}

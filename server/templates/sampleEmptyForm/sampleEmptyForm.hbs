@@ -28,27 +28,11 @@
               </div>
             </div>
             <div class='document-title'>
-              {{#if fullVersion}}
-                <b>Procès-verbal de prélèvement</b>
+                <b>Formulaire vierge</b>
                 <br />
                 Prélèvement
                 <b>{{reference}}</b>
-              {{else}}
-                <b>Étiquette d'envoi du prélèvement</b>
-                <br />
-                Prélèvement
-                <b>{{reference}}</b>
-                {{#if (and laboratory (eq copyNumber 1))}}
-                  <div class="laboratory-address">
-                    À envoyer à <b>{{laboratory.name}}</b>
-                    <br />
-                    {{laboratory.address}} - {{laboratory.postalCode}} {{laboratory.city}}
-                  </div>
-                {{/if}}
-              {{/if}}
-            </div>
-            <div class='barcode' >
-              {{{barcodeSvg}}}
+
             </div>
           </div>
         </div>
@@ -415,30 +399,10 @@
                             </div>
                           </div>
                         </div>
-                        {{#if sampleDocuments}}
-                          <div class='fr-col-6'>
-                            <div class='sample-section-item'>
-                              <div class='label'>
-                                Pièces jointes
-                              </div>
-                              <ul class="fr-mt-0">
-                                {{#each sampleDocuments}}
-                                  <li class='value'>
-                                      {{filename}}
-                                    {{#if legend}}
-                                      : {{legend}}
-                                    {{/if}}
-                                  </li>
-                                {{/each}}
-                              </ul>
-                            </div>
-                          </div>
-                        {{/if}}
                       </div>
                     {{/if}}
                   </div>
                 </section>
-
                 <section class='sample-section {{#if fullVersion}}full-version{{/if}}'>
                   <div>
                     <span class="uppercase" style="font-weight: bold;font-size: 12px;">
@@ -470,13 +434,7 @@
                   </div>
                   <div class='fr-grid-row fr-grid-row--gutters' style="padding-left: 3px; padding-right: 3px;">
                     {{#each sampleItems}}
-                      {{#if (or ../fullVersion currentItem)}}
                         <div class="{{#if ../fullVersion}}fr-col-4{{else}}fr-col-12{{/if}}">
-                          {{#if (and ../fullVersion currentItem)}}
-                            <div class='current-sample-item uppercase'>
-                              Exemplaire rattaché au procès-verbal
-                            </div>
-                          {{/if}}
                           <div class='sample-item-container {{#if ../fullVersion}}sample-item-card{{/if}}'>
                             <div class='fr-grid-row fr-grid-row--gutters'>
                               <div class='fr-col-12'>
@@ -489,37 +447,17 @@
                                   </div>
                                 </div>
                               </div>
-                              {{#if (or ../fullVersion quantity)}}
-                                <div class='{{#if ../fullVersion}}fr-col-12{{else}}fr-col-6{{/if}}'>
-                                  <div class='sample-section-item'>
-                                    <div class='label'>
-                                      Quantité
-                                    </div>
-                                    <div class='value {{#if (isEmpty quantity)}}empty{{/if}}'>
-                                      {{quantity}}
-                                    </div>
+                              <div class='{{#if ../fullVersion}}fr-col-12{{else}}fr-col-6{{/if}}'>
+                                <div class='sample-section-item'>
+                                  <div class='label'>
+                                    Quantité
+                                  </div>
+                                  <div class='value {{#if (isEmpty quantity)}}empty{{/if}}'>
+                                    {{quantity}}
                                   </div>
                                 </div>
-                              {{else}}
-                                <div class='fr-col-4'>
-                                  <div class='sample-section-item'>
-                                    <div class='label'>
-                                      Nombre
-                                    </div>
-                                    <div class='value empty'>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class='fr-col-4'>
-                                  <div class='sample-section-item'>
-                                    <div class='label'>
-                                      Unité de mesure
-                                    </div>
-                                    <div class='value empty'>
-                                    </div>
-                                  </div>
-                                </div>
-                              {{/if}}
+                              </div>
+
                               <div class="{{#if ../fullVersion}}fr-col-12{{else}}fr-col-4{{/if}}">
                                 <div class='sample-section-item'>
                                   <div class='label'>
@@ -542,37 +480,11 @@
                                       {{/if}}
                                     </div>
                                   {{/if}}
-                                  {{#if (or (eq copyNumber 2) (eq copyNumber 3))}}
-                                    <div class='value {{#if (isEmpty recipientKind)}}empty{{/if}}'>
-                                      {{recipientKind}}
-                                    </div>
-                                  {{/if}}
-                                </div>
-                              </div>
-                              <div class="{{#if ../fullVersion}}fr-col-12{{else}}fr-col-6{{/if}}">
-                                <div class='sample-section-item'>
-                                  <div class='label'>
-                                    Directive 2002/63
-                                  </div>
-                                  {{#if ../fullVersion}}
-                                    <div class='value {{#if (isEmpty compliance200263)}}empty{{/if}} {{#if (eq compliance200263 true)}}fr-label--success{{/if}} {{#if (eq compliance200263 false)}}fr-label--error{{/if}}'>
-                                      {{#if (eq compliance200263 true)}}Respectée{{/if}}
-                                      {{#if (eq compliance200263 false)}}Non Respectée{{/if}}
-                                    </div>
-                                  {{else}}
-                                    <div class="fr-radio-group">
-                                      <input type="radio" {{#if (eq compliance200263 true)}}checked{{/if}}>
-                                      <label class="fr-label">Respectée</label>
-                                      <input type="radio"{{#if (eq compliance200263 false)}}checked{{/if}}>
-                                      <label class="fr-label">Non Respectée</label>
-                                    </div>
-                                  {{/if}}
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      {{/if}}
                     {{/each}}
                     {{#if fullVersion}}
                       <div class='fr-col-12'>
@@ -588,43 +500,6 @@
                     {{/if}}
                   </div>
                 </section>
-
-                {{#if fullVersion}}
-                  <section class='sample-section border {{#if fullVersion}}full-version{{/if}}'>
-                    <div class='fr-container'>
-                      <div class='fr-grid-row fr-grid-row--gutters'>
-                        <div class='fr-col-6'>
-                          <div class='sample-section-item'>
-                            <div class='value'>
-                              Le détenteur accepte les informations portées au présent procès-verbal
-                            </div>
-                            <div class="fr-radio-group">
-                              <input type="radio" {{#if (eq ownerAgreement true)}}checked{{/if}}>
-                              <label class="fr-label">Oui</label>
-                              <input type="radio"{{#if (eq ownerAgreement false)}}checked{{/if}}>
-                              <label class="fr-label">Non</label>
-                            </div>
-                          </div>
-                          {{#if ownerEmail}}
-                            <div class='label fr-mt-1w'>
-                              Le détenteur de la marchandise a reçu par e-mail le procès-verbal du prélèvement
-                            </div>
-                          {{/if}}
-                        </div>
-                        <div class='fr-col-6'>
-                          <div class='sample-section-item'>
-                            <div class='label'>
-                              Déclaration du détenteur
-                            </div>
-                            <div class='value {{#if (isEmpty notesOnOwnerAgreement)}}empty{{/if}}'>
-                              {{breaklines notesOnOwnerAgreement}}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-                {{/if}}
 
               </div>
             </td>
