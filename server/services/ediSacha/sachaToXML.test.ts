@@ -11,6 +11,7 @@ import {
   generateXMLAcquitement,
   generateXMLDAI,
   getCommemoratifs,
+  getNumeroDAP,
   getXmlFileName,
   getZipFileName,
   loadLaboratoryAndSachaConfCall
@@ -245,7 +246,7 @@ test(`génère un XML de DAI`, async () => {
       </Destinataire>
       <DemandeType>
         <DialogueDemandeIntervention>
-          <NumeroDAP>20260007321</NumeroDAP>
+          <NumeroDAP>20260007312</NumeroDAP>
           <SigleContexteIntervention>2026_RPDA_PVOL</SigleContexteIntervention>
           <DateIntervention>2025-12-16</DateIntervention>
           <DateModification>2025-12-16T10:07:36</DateModification>
@@ -324,6 +325,26 @@ test('getZipFileName', () => {
   expect(getZipFileName('AN01', { sachaSigle: 'LDA72' }, 1765876056798)).toBe(
     'AN01LDA722512161007_1.zip'
   );
+});
+
+describe('getNumeroDAP', () => {
+  test('calcule le numéro DAP à partir de la référence', () => {
+    expect(
+      getNumeroDAP(
+        { reference: 'PEL-26-00073' },
+        { itemNumber: 1, copyNumber: 2 }
+      )
+    ).toBe(20260007312);
+  });
+
+  test('calcule le numéro DAP avec des valeurs différentes', () => {
+    expect(
+      getNumeroDAP(
+        { reference: 'ABC-24-12345' },
+        { itemNumber: 3, copyNumber: 1 }
+      )
+    ).toBe(20241234531);
+  });
 });
 
 describe('getCommemoratifs', () => {

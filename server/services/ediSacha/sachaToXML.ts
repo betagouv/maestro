@@ -177,7 +177,7 @@ export const getNumeroDAP = (
 ) => {
   const firstSeparatorIndex = sample.reference.indexOf('-') + 1;
   return Number(
-    `${2000 + Number.parseInt(sample.reference.substring(firstSeparatorIndex, firstSeparatorIndex + 2))}${sample.reference.substring(sample.reference.lastIndexOf('-') + 1)}${sampleItem.copyNumber}${sampleItem.itemNumber}`
+    `${2000 + Number.parseInt(sample.reference.substring(firstSeparatorIndex, firstSeparatorIndex + 2))}${sample.reference.substring(sample.reference.lastIndexOf('-') + 1)}${sampleItem.itemNumber}${sampleItem.copyNumber}`
   );
 };
 export const generateXMLDAI = (
