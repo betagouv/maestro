@@ -181,6 +181,7 @@ export const isRegionalRole = (userRole?: UserRole) =>
   RegionalUserRole.safeParse(userRole).success;
 
 export const isDepartmentalRole = (userRole?: UserRole) =>
+  //FIXME un sampler c'est pas un role départemental?!
   DepartmentalUserRole.safeParse(userRole).success;
 
 export const canHaveDepartment = (
@@ -189,5 +190,6 @@ export const canHaveDepartment = (
   roles: (z.infer<typeof DepartmentalUserRole> | 'Sampler')[];
   region: Region;
 } =>
+  //FIXME bouger la condition « role === 'Sampler' », dans isDepartmentalRole?
   user?.roles?.some((role) => isDepartmentalRole(role) || role === 'Sampler') ??
   false;

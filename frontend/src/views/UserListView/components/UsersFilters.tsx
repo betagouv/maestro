@@ -149,6 +149,7 @@ const Filters: FunctionComponent<
           iconId="fr-icon-search-line"
           label="Recherche par nom ou courriel"
           nativeInputProps={{
+            autoFocus: true,
             type: 'search',
             placeholder: 'nom, courriel...',
             value: label ?? '',
