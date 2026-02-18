@@ -42,7 +42,7 @@
     "express": "^5.2.1",
     "express-jwt": "^8.5.1",
     "express-rate-limit": "^8.2.1",
-    "fast-xml-parser": "^5.3.4",
+    "fast-xml-parser": "^5.3.6",
     "handlebars": "^4.7.8",
     "helmet": "^5.0.2",
     "highland": "^2.13.5",
