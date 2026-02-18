@@ -42,6 +42,7 @@ import {
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import path from 'path';
 import puppeteer from 'puppeteer-core';
@@ -229,6 +230,9 @@ const generateSamplePDF = async (
 
   //FIXME pour daoa on devrait (ou pas) avoir la prescription dès la 1ère étape,
   // mais ce n'est pas le cas, lorsqu'on arrive à la Step 2 on fait un PUT sur le sample qui ajoute la prescription sur le sample
+  // Un bouton dans la prog pour les préleveurs dans la prog qui permettrait de créer un prélèvement ne simplifirait pas beaucoup de chose ?
+  // Le front enverrai juste l'id de la prog et le back pourrait créer une très grosse partie du prélèvement,
+  // et on aurait plus de pb lors de l'impression du formulaire vide.
   const localPrescription = (
     sample.prescriptionId && sample.department
       ? await localPrescriptionSubstanceKindLaboratoryRepository.findMany(
@@ -253,6 +257,10 @@ const generateSamplePDF = async (
         laboratoryId:
           copyNumber === 1
             ? localPrescription[itemNumber - 1].laboratoryId
+            : undefined,
+        substanceKind:
+          copyNumber === 1
+            ? localPrescription[itemNumber - 1].substanceKind
             : undefined
       };
     });
@@ -317,6 +325,9 @@ const generateSamplePDF = async (
           sampleItem.copyNumber === copyNumber,
         laboratory: !isNil(sampleItem.laboratoryId)
           ? laboratories.find((lab) => lab.id === sampleItem.laboratoryId)
+          : null,
+        substanceKind: sampleItem.substanceKind
+          ? SubstanceKindLabels[sampleItem.substanceKind]
           : null
       })
     ),
