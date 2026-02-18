@@ -13,7 +13,7 @@ import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/Pr
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
 import {
-  canHaveDepartment,
+  isDepartmentalRole,
   isNationalRole,
   isRegionalRole,
   UserRole
@@ -49,7 +49,13 @@ export const useAuthentication = () => {
   }, [authUser, isAuthenticated]);
 
   const hasDepartmentalView = useMemo(() => {
-    return isAuthenticated && authUser && canHaveDepartment(authUser.user);
+    return (
+      isAuthenticated &&
+      authUser &&
+      //FIXME pour moi la notion de sample ne devrait pas être présente ici.
+      // Au début j'avais juste mis isDepartementalRole, mais lors de ma review j'ai vu que j'avais surement introduit une régression
+      (isDepartmentalRole(authUser.userRole) || authUser.userRole === 'Sampler')
+    );
   }, [authUser, isAuthenticated]);
 
   const hasUserPrescriptionPermission = useCallback(
