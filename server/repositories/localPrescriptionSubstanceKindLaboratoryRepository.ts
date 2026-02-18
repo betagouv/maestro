@@ -59,10 +59,7 @@ const updateMany = async (
   });
 };
 
-export const findMany = async (
-  prescriptionId: string,
-  department: Department
-) => {
+const findMany = async (prescriptionId: string, department: Department) => {
   return kysely
     .selectFrom('localPrescriptionSubstanceKindsLaboratories')
     .select(['laboratoryId', 'substanceKind'])

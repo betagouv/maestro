@@ -73,7 +73,7 @@ export const SampleEmptyFormDownload = ({ partialSample }: Props) => {
         )}
       >
         <span className={clsx(cx('fr-text--bold'))}>
-          Besoin d'un formulaire vierge ?{' '}
+          Besoin d'un formulaire vierge ?
         </span>
 
         {!isMobile && <div className="border-middle"></div>}
