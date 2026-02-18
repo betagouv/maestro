@@ -174,7 +174,10 @@ const SampleListView = () => {
         action={
           <>
             {hasUserPermission('createSample') && (
-              <div>
+              <div
+                className={clsx('d-flex-row', 'd-flex-justify-center')}
+                style={{ gap: '1rem' }}
+              >
                 <Button
                   linkProps={{
                     to: AuthenticatedAppRoutes.NewSampleRoute.link(
@@ -183,7 +186,6 @@ const SampleListView = () => {
                     target: '_self'
                   }}
                   iconId="fr-icon-microscope-line"
-                  className={cx('fr-mb-1w')}
                 >
                   Saisir un prélèvement
                 </Button>
@@ -198,6 +200,7 @@ const SampleListView = () => {
                         programmingPlanKind: programmingPlan.kinds[0]
                       }
                     }}
+                    buttonPriority={'tertiary'}
                     alignRight
                   />
                 )}

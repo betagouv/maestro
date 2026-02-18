@@ -1,4 +1,4 @@
-import Button from '@codegouvfr/react-dsfr/Button';
+import Button, { ButtonProps } from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { Brand } from 'maestro-shared/constants';
@@ -19,9 +19,14 @@ import { getSupportDocumentURL } from '../../../services/sample.service';
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
   alignRight?: boolean;
+  buttonPriority?: ButtonProps.Common['priority'];
 }
 
-const SupportDocumentDownload = ({ partialSample, alignRight }: Props) => {
+const SupportDocumentDownload = ({
+  partialSample,
+  alignRight,
+  buttonPriority
+}: Props) => {
   const { isMobile } = useWindowSize();
   const { navigateToSample } = useSamplesLink();
   const { trackEvent } = useAnalytics();
@@ -97,10 +102,10 @@ const SupportDocumentDownload = ({ partialSample, alignRight }: Props) => {
               confirmationModal.open();
             }
           }}
-          priority="secondary"
+          priority={buttonPriority ?? 'tertiary no outline'}
           iconId="fr-icon-printer-fill"
         >
-          <div>{`${isCompleted ? 'Imprimer' : 'Générer'} les étiquettes`}</div>
+          <div>{`Imprimer les étiquettes`}</div>
         </Button>
         {!isMobile && !alignRight && <div className="border-middle"></div>}
       </div>

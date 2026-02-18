@@ -42,7 +42,11 @@ const SampleOverview = ({ sample }: Props) => {
               <SampleStatusBadge status={sample.status} sampleId={sample.id} />
             </div>
             <div className={clsx('border-left')}></div>
-            <SupportDocumentDownload partialSample={sample} alignRight={true} />
+            <SupportDocumentDownload
+              partialSample={sample}
+              alignRight={true}
+              buttonPriority={'secondary'}
+            />
           </div>
         }
         subtitle="Consultez le récapitulatif du prélèvement réalisé"
