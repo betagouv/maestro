@@ -231,7 +231,7 @@ const generateSamplePDF = async (
   //FIXME pour daoa on devrait (ou pas) avoir la prescription dès la 1ère étape,
   // mais ce n'est pas le cas, lorsqu'on arrive à la Step 2 on fait un PUT sur le sample qui ajoute la prescription sur le sample
   // Un bouton dans la prog pour les préleveurs dans la prog qui permettrait de créer un prélèvement ne simplifirait pas beaucoup de chose ?
-  // Le front enverrai juste l'id de la prog et le back pourrait créer une très grosse partie du prélèvement,
+  // Le front enverrai juste l'id de la prog et le back pourrait créer une très grosse partie du prélèvement (même les sampleItems?)
   // et on aurait plus de pb lors de l'impression du formulaire vide.
   const localPrescription = (
     sample.prescriptionId && sample.department
@@ -249,18 +249,19 @@ const generateSamplePDF = async (
       const itemNumber = (index % programmingPlan.substanceKinds.length) + 1;
       const copyNumber =
         Math.floor(index / programmingPlan.substanceKinds.length) + 1;
+      const currentLocalPrescription = localPrescription[itemNumber - 1];
       return {
         sampleId: sample.id,
         itemNumber,
         copyNumber,
         recipientKind: copyNumber === 1 ? 'Laboratory' : undefined,
         laboratoryId:
-          copyNumber === 1
-            ? localPrescription[itemNumber - 1].laboratoryId
+          copyNumber === 1 && currentLocalPrescription
+            ? currentLocalPrescription.laboratoryId
             : undefined,
         substanceKind:
-          copyNumber === 1
-            ? localPrescription[itemNumber - 1].substanceKind
+          copyNumber === 1 && currentLocalPrescription
+            ? currentLocalPrescription.substanceKind
             : undefined
       };
     });
