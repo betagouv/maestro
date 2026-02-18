@@ -16,7 +16,6 @@ import { Regions } from 'maestro-shared/referential/Region';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
-import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import {
   MatrixSpecificDataForm,
   MatrixSpecificDataFormInputProps
@@ -48,7 +47,6 @@ import path from 'path';
 import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
-import localPrescriptionSubstanceKindLaboratoryRepository from '../../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import { userRepository } from '../../repositories/userRepository';
 import {
@@ -228,19 +226,6 @@ const generateSamplePDF = async (
     ? await userRepository.findUnique(sample.additionalSampler.id)
     : null;
 
-  //FIXME pour daoa on devrait (ou pas) avoir la prescription dès la 1ère étape,
-  // mais ce n'est pas le cas, lorsqu'on arrive à la Step 2 on fait un PUT sur le sample qui ajoute la prescription sur le sample
-  // Un bouton dans la prog pour les préleveurs dans la prog qui permettrait de créer un prélèvement ne simplifirait pas beaucoup de chose ?
-  // Le front enverrai juste l'id de la prog et le back pourrait créer une très grosse partie du prélèvement (même les sampleItems?)
-  // et on aurait plus de pb lors de l'impression du formulaire vide.
-  const localPrescription = (
-    sample.prescriptionId && sample.department
-      ? await localPrescriptionSubstanceKindLaboratoryRepository.findMany(
-          sample.prescriptionId,
-          sample.department
-        )
-      : []
-  ).toSorted(SubstanceKindLaboratorySort);
   const emptySampleItems: PartialSampleItem[] = new Array(
     programmingPlan.substanceKinds.length * SampleItemMaxCopyCount
   )
@@ -249,20 +234,11 @@ const generateSamplePDF = async (
       const itemNumber = (index % programmingPlan.substanceKinds.length) + 1;
       const copyNumber =
         Math.floor(index / programmingPlan.substanceKinds.length) + 1;
-      const currentLocalPrescription = localPrescription[itemNumber - 1];
       return {
         sampleId: sample.id,
         itemNumber,
         copyNumber,
-        recipientKind: copyNumber === 1 ? 'Laboratory' : undefined,
-        laboratoryId:
-          copyNumber === 1 && currentLocalPrescription
-            ? currentLocalPrescription.laboratoryId
-            : undefined,
-        substanceKind:
-          copyNumber === 1 && currentLocalPrescription
-            ? currentLocalPrescription.substanceKind
-            : undefined
+        recipientKind: copyNumber === 1 ? 'Laboratory' : undefined
       };
     });
 
