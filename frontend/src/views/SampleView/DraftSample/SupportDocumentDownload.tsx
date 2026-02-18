@@ -97,7 +97,7 @@ const SupportDocumentDownload = ({ partialSample, alignRight }: Props) => {
               confirmationModal.open();
             }
           }}
-          priority="tertiary no outline"
+          priority="secondary"
           iconId="fr-icon-printer-fill"
         >
           <div>{`${isCompleted ? 'Imprimer' : 'Générer'} les étiquettes`}</div>
