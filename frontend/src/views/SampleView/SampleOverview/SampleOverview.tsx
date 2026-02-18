@@ -58,6 +58,7 @@ const SampleOverview = ({ sample }: Props) => {
               {
                 text: 'Suivi du prélèvement',
                 isActive: activeMenu === 'items',
+                expandedByDefault: true,
                 items: sample.items
                   .filter((_) => _.copyNumber === 1)
                   .map((item) => ({
