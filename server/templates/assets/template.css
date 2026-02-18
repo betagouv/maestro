@@ -37,7 +37,7 @@ main {
 
 .fr-header,
 .header-space {
-  height: 120px;
+  height: 135px;
 }
 
 .fr-grid-row--gutters > [class^=fr-col-], .fr-grid-row--gutters > [class*=" fr-col-"] {
