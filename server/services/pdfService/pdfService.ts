@@ -3,7 +3,6 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import fs from 'fs';
 import handlebars from 'handlebars';
-import path from 'path';
 import { isNil } from 'lodash-es';
 import PdfGenerationError from 'maestro-shared/errors/pdfGenerationError';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
@@ -44,6 +43,7 @@ import {
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { formatWithTz } from 'maestro-shared/utils/date';
+import path from 'path';
 import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
@@ -159,6 +159,10 @@ const generatePDF = async (template: Template, data: unknown) => {
 
     await page.addStyleTag({
       content: utilityStyleSheet
+    });
+
+    await page.addStyleTag({
+      path: assetsPath('template.css')
     });
 
     await page.addStyleTag({
