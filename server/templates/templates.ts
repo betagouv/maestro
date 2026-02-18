@@ -36,3 +36,6 @@ export const templateStylePath = (template: Template) =>
 
 export const assetsPath = (relativePath: string) =>
   path.join(import.meta.dirname, 'assets', relativePath);
+
+export const partialsPath = () =>
+  path.join(import.meta.dirname, 'partials');

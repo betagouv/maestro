@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import fs from 'fs';
 import handlebars from 'handlebars';
+import path from 'path';
 import { isNil } from 'lodash-es';
 import PdfGenerationError from 'maestro-shared/errors/pdfGenerationError';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
@@ -51,6 +52,7 @@ import programmingPlanRepository from '../../repositories/programmingPlanReposit
 import { userRepository } from '../../repositories/userRepository';
 import {
   assetsPath,
+  partialsPath,
   Template,
   templateContent,
   templateStylePath
@@ -98,6 +100,17 @@ const generatePDF = async (template: Template, data: unknown) => {
     'isEmpty',
     (a?: string | null) => isNil(a) || String(a).trim() === ''
   );
+
+  const partialsDir = partialsPath();
+  if (fs.existsSync(partialsDir)) {
+    for (const file of fs.readdirSync(partialsDir)) {
+      if (file.endsWith('.hbs')) {
+        const name = file.replace('.hbs', '');
+        const content = fs.readFileSync(path.join(partialsDir, file), 'utf8');
+        handlebars.registerPartial(name, content);
+      }
+    }
+  }
 
   const compiledTemplate = handlebars.compile(templateContent(template));
   const htmlContent = compiledTemplate(data);

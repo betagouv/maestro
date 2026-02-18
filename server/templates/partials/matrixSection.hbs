@@ -1,0 +1,155 @@
+<section class='sample-section border {{#if fullVersion}}full-version{{/if}}' style="border-left: 2px solid #2A401A;">
+  <div class='fr-container'>
+  <div class='fr-grid-row fr-grid-row--gutters'>
+    <div class='fr-col-12'>
+      <div class='sample-section-header'>
+        <span class="uppercase">Matrice contrôlée{{#if fullVersion}} et analyses{{/if}}</span>
+      </div>
+    </div>
+    <div class='fr-col-4'>
+      <div class='sample-section-item'>
+        <div class='label'>
+          Catégorie de matrice
+        </div>
+        <div class='value {{#if (isEmpty matrixKind)}}empty{{/if}}'>
+          {{matrixKind}}
+        </div>
+      </div>
+    </div>
+    <div class='fr-col-4'>
+      <div class='sample-section-item'>
+        <div class='label'>
+          Matrice
+        </div>
+        <div class='value {{#if (isEmpty matrix)}}empty{{/if}}'>
+          {{matrix}}
+        </div>
+      </div>
+    </div>
+    <div class='fr-col-4'>
+      <div class='sample-section-item'>
+        <div class='label'>
+          Stade
+        </div>
+        <div class='value {{#if (isEmpty stage)}}empty{{/if}}'>
+          {{stage}}
+        </div>
+      </div>
+    </div>
+    {{#if fullVersion}}
+      {{#each specificDataItems}}
+        <div class='fr-col-4'>
+          <div class='sample-section-item'>
+            <div class='label'>
+              {{this.label}}
+            </div>
+            <div class='value {{#if (isEmpty this.value)}}empty{{/if}}'>
+              {{this.value}}
+            </div>
+          </div>
+        </div>
+      {{/each}}
+    </div>
+      <div class='fr-grid-row fr-grid-row--gutters fr-mt-1w'>
+        {{#if (or (eq substanceKind 'Any') (eq substanceKind 'Mono'))}}
+          <div class='{{#if (eq substanceKind 'Any')}}fr-col-6{{else}}fr-col-12{{/if}}'>
+            <div class='substances-container'>
+              {{#if matrix}}
+                {{#isDefinedArray monoSubstances}}
+                  <div class='substance-label'>
+                    Mono-résidu
+                  </div>
+                  <ul>
+                    {{#each monoSubstances}}
+                      <li class='substance-value'>
+                        {{this}}
+                      </li>
+                    {{/each}}
+                  </ul>
+                {{/isDefinedArray}}
+              {{else}}
+                <div class='substance-label'>
+                  Mono-résidu
+                </div>
+                <div class='empty'>
+                </div>
+                <div class='empty'>
+                </div>
+                <div class='empty'>
+                </div>
+              {{/if}}
+            </div>
+          </div>
+        {{/if}}
+        {{#if (or (eq substanceKind 'Any') (eq substanceKind 'Multi'))}}
+          <div class='{{#if (eq substanceKind 'Any')}}fr-col-6{{else}}fr-col-12{{/if}}'>
+            <div class='substances-container'>
+              {{#if matrix}}
+                {{#isDefinedArray multiSubstances}}
+                  <div class='substance-label'>
+                    Multi-résidus dont :
+                  </div>
+                  <ul>
+                    {{#each multiSubstances}}
+                      <li class='substance-value'>
+                        {{this}}
+                      </li>
+                    {{/each}}
+                  </ul>
+                {{/isDefinedArray}}
+              {{else}}
+                <div class='substance-label'>
+                  Multi-résidus
+                </div>
+                <div class='empty'>
+                </div>
+                <div class='empty'>
+                </div>
+                <div class='empty'>
+                </div>
+              {{/if}}
+            </div>
+          </div>
+        {{/if}}
+        {{#if (eq substanceKind 'Copper')}}
+          <div class='fr-col-12'>
+            <div class='substances-container'>
+              <div class='substance-label'>
+                Cuivre
+              </div>
+            </div>
+          </div>
+        {{/if}}
+        <div class='{{#if sampleDocuments}}fr-col-6{{else}}fr-col-12{{/if}}'>
+          <div class='sample-section-item'>
+            <div class='label'>
+              Note additionnelle
+            </div>
+            <div class='value {{#if (isEmpty notesOnMatrix)}}empty{{/if}}'>
+              {{breaklines notesOnMatrix}}
+            </div>
+          </div>
+        </div>
+        {{#if sampleDocuments}}
+          <div class='fr-col-6'>
+            <div class='sample-section-item'>
+              <div class='label'>
+                Pièces jointes
+              </div>
+              <ul class="fr-mt-0">
+                {{#each sampleDocuments}}
+                  <li class='value'>
+                    {{filename}}
+                    {{#if legend}}
+                      : {{legend}}
+                    {{/if}}
+                  </li>
+                {{/each}}
+              </ul>
+            </div>
+          </div>
+        {{/if}}
+      </div>
+    {{/if}}
+  </div>
+</section>
