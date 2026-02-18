@@ -1,6 +1,5 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
-import clsx from 'clsx';
 import {
   SampleChecked,
   SampleOwnerData,
@@ -45,14 +44,7 @@ const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
     }
   };
 
-  return sortedItems.length === 1 ? (
-    <div className="d-flex-align-center">
-      {label && (
-        <label className={clsx(cx('fr-label'), 'flex-grow-1')}>{label}</label>
-      )}
-      {renderButtons(() => getDocument(sortedItems[0]))}
-    </div>
-  ) : (
+  return (
     <div className="select-with-button">
       <Select
         className={cx('fr-mr-2w')}

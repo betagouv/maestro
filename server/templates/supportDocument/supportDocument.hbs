@@ -140,26 +140,28 @@
                                   {{/if}}
                                 </div>
                               </div>
-                              <div class="{{#if ../fullVersion}}fr-col-12{{else}}fr-col-6{{/if}}">
-                                <div class='sample-section-item'>
-                                  <div class='label'>
-                                    Directive 2002/63
+                              {{#if (eq ../specificData.programmingPlanKind 'PPV')}}
+                                <div class="{{#if ../fullVersion}}fr-col-12{{else}}fr-col-6{{/if}}">
+                                  <div class='sample-section-item'>
+                                    <div class='label'>
+                                      Directive 2002/63
+                                    </div>
+                                    {{#if ../fullVersion}}
+                                      <div class='value {{#if (isEmpty compliance200263)}}empty{{/if}} {{#if (eq compliance200263 true)}}fr-label--success{{/if}} {{#if (eq compliance200263 false)}}fr-label--error{{/if}}'>
+                                        {{#if (eq compliance200263 true)}}Respectée{{/if}}
+                                        {{#if (eq compliance200263 false)}}Non Respectée{{/if}}
+                                      </div>
+                                    {{else}}
+                                      <div class="fr-radio-group">
+                                        <input type="radio" {{#if (eq compliance200263 true)}}checked{{/if}}>
+                                        <label class="fr-label">Respectée</label>
+                                        <input type="radio"{{#if (eq compliance200263 false)}}checked{{/if}}>
+                                        <label class="fr-label">Non Respectée</label>
+                                      </div>
+                                    {{/if}}
                                   </div>
-                                  {{#if ../fullVersion}}
-                                    <div class='value {{#if (isEmpty compliance200263)}}empty{{/if}} {{#if (eq compliance200263 true)}}fr-label--success{{/if}} {{#if (eq compliance200263 false)}}fr-label--error{{/if}}'>
-                                      {{#if (eq compliance200263 true)}}Respectée{{/if}}
-                                      {{#if (eq compliance200263 false)}}Non Respectée{{/if}}
-                                    </div>
-                                  {{else}}
-                                    <div class="fr-radio-group">
-                                      <input type="radio" {{#if (eq compliance200263 true)}}checked{{/if}}>
-                                      <label class="fr-label">Respectée</label>
-                                      <input type="radio"{{#if (eq compliance200263 false)}}checked{{/if}}>
-                                      <label class="fr-label">Non Respectée</label>
-                                    </div>
-                                  {{/if}}
                                 </div>
-                              </div>
+                              {{/if}}
                             </div>
                           </div>
                         </div>

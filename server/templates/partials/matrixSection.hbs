@@ -36,19 +36,19 @@
         </div>
       </div>
     </div>
-    {{#if fullVersion}}
-      {{#each specificDataItems}}
-        <div class='fr-col-4'>
-          <div class='sample-section-item'>
-            <div class='label'>
-              {{this.label}}
-            </div>
-            <div class='value {{#if (isEmpty this.value)}}empty{{/if}}'>
-              {{this.value}}
-            </div>
+    {{#each specificDataItems}}
+      <div class='fr-col-4'>
+        <div class='sample-section-item'>
+          <div class='label'>
+            {{this.label}}
+          </div>
+          <div class='value {{#if (isEmpty this.value)}}empty{{/if}}'>
+            {{this.value}}
           </div>
         </div>
-      {{/each}}
+      </div>
+    {{/each}}
+    {{#if fullVersion}}
     </div>
       <div class='fr-grid-row fr-grid-row--gutters fr-mt-1w'>
         {{#if (or (eq substanceKind 'Any') (eq substanceKind 'Mono'))}}
