@@ -728,7 +728,6 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
 
       {!!programmingPlanKind &&
         programmingPlanKind !== 'PPV' &&
-        !!company &&
         isOnline &&
         !readonly && (
           <SampleEmptyFormDownload partialSample={partialSample ?? formData} />
