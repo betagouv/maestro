@@ -1,4 +1,5 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import Tag from '@codegouvfr/react-dsfr/Tag';
@@ -12,6 +13,11 @@ import {
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
+import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import {
+  ProgrammingPlanKind,
+  ProgrammingPlanKindLabels
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   ProgrammingPlanStatus,
@@ -19,8 +25,10 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
-import { useAppSelector } from '../../../hooks/useStore';
+import LocalPrescriptionModal from '../../../components/LocalPrescription/LocalPrescriptionModal/LocalPrescriptionModal';
+import { useAppDispatch, useAppSelector } from '../../../hooks/useStore';
 import { ApiClientContext } from '../../../services/apiClient';
+import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import { pluralize } from '../../../utils/stringUtils';
 
 interface Props {
@@ -35,6 +43,7 @@ const ProgrammingPlanDepartmentalValidationList = ({
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
   const apiClient = useContext(ApiClientContext);
+  const dispatch = useAppDispatch();
 
   const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
@@ -252,6 +261,44 @@ const ProgrammingPlanDepartmentalValidationList = ({
                           ]
                         }
                       </Badge>
+
+                      {departmentalPrescriptions
+                        .filter(
+                          (_) =>
+                            _.department === department && _.sampleCount > 0
+                        )
+                        .map((localPrescription) => (
+                          <Button
+                            priority="tertiary no outline"
+                            className={clsx(cx('fr-link'), 'link-underline')}
+                            onClick={() => {
+                              dispatch(
+                                prescriptionsSlice.actions.setLocalPrescriptionModalData(
+                                  {
+                                    mode: 'laboratory',
+                                    programmingPlan,
+                                    prescription: allPrescriptions.find(
+                                      (p) =>
+                                        p.id ===
+                                        localPrescription.prescriptionId
+                                    ) as Prescription,
+                                    localPrescription
+                                  }
+                                )
+                              );
+                            }}
+                          >
+                            Laboratoires{' '}
+                            {
+                              ProgrammingPlanKindLabels[
+                                allPrescriptions.find(
+                                  (p) =>
+                                    p.id === localPrescription.prescriptionId
+                                )?.programmingPlanKind as ProgrammingPlanKind
+                              ]
+                            }
+                          </Button>
+                        ))}
                     </div>
                   </div>
                 </div>
@@ -260,6 +307,8 @@ const ProgrammingPlanDepartmentalValidationList = ({
           ))}
         </div>
       </div>
+
+      <LocalPrescriptionModal />
     </>
   );
 };
