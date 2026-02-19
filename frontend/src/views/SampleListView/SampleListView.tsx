@@ -178,17 +178,6 @@ const SampleListView = () => {
                 className={clsx('d-flex-row', 'd-flex-justify-center')}
                 style={{ gap: '1rem' }}
               >
-                <Button
-                  linkProps={{
-                    to: AuthenticatedAppRoutes.NewSampleRoute.link(
-                      programmingPlan.year
-                    ),
-                    target: '_self'
-                  }}
-                  iconId="fr-icon-microscope-line"
-                >
-                  Saisir un prélèvement
-                </Button>
                 {canDownloadSupportDocument && (
                   <SupportDocumentDownload
                     partialSample={{
@@ -204,6 +193,17 @@ const SampleListView = () => {
                     alignRight
                   />
                 )}
+                <Button
+                  linkProps={{
+                    to: AuthenticatedAppRoutes.NewSampleRoute.link(
+                      programmingPlan.year
+                    ),
+                    target: '_self'
+                  }}
+                  iconId="fr-icon-microscope-line"
+                >
+                  Saisir un prélèvement
+                </Button>
               </div>
             )}
           </>
