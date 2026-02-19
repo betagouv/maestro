@@ -9,6 +9,10 @@ main {
   top: 0;
   filter: none;
 
+  .fr-logo{
+    font-size: 0.6rem;
+  }
+
   .fr-logo::after {
     background-position-y: calc(100% + 22.5px) !important;
   }
@@ -37,7 +41,7 @@ main {
 
 .fr-header,
 .header-space {
-  height: 135px;
+  height: 120px;
 }
 
 .fr-grid-row--gutters > [class^=fr-col-], .fr-grid-row--gutters > [class*=" fr-col-"] {
