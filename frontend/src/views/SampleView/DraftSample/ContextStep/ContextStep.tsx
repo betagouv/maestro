@@ -726,6 +726,14 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
         </div>
       )}
 
+      {!!programmingPlanKind &&
+        programmingPlanKind !== 'PPV' &&
+        !!company &&
+        isOnline &&
+        !readonly && (
+          <SampleEmptyFormDownload partialSample={partialSample ?? formData} />
+        )}
+
       <SampleCompany
         programmingPlan={programmingPlan}
         partialSample={partialSample}
@@ -742,14 +750,6 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
           setGeolocationY(y);
         }}
       />
-
-      {!!programmingPlanKind &&
-        programmingPlanKind !== 'PPV' &&
-        !!company &&
-        isOnline &&
-        !readonly && (
-          <SampleEmptyFormDownload partialSample={partialSample ?? formData} />
-        )}
 
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
