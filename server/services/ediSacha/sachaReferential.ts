@@ -368,23 +368,24 @@ export type NotPPVMatrix = Exclude<
   | 'A0BB1'
   | 'A0BB0'
 >;
-export const sigleMatrixValidator = z.enum(['FOIE_BV']);
+export const sigleMatrixValidator = z.enum([
+  'FOIE_BV',
+  'MSCL_VOL',
+  'VDE_FRA_DIND',
+  'VDE_FRA_POUL'
+]);
 
 export const SigleMatrix: Record<
   NotPPVMatrix,
   z.infer<typeof sigleMatrixValidator>
 > = {
   //   'A01SN#F26.A07XE': "Viande d'autres volailles non transformée",
-  // FIXME EDI à corriger
-  'A01SN#F26.A07XE': 'FOIE_BV',
+  'A01SN#F26.A07XE': 'MSCL_VOL',
   //   'A01SP#F28.A0C0S': 'Viande de poulets de chair non transformée',
-  // FIXME EDI à corriger
-  'A01SP#F28.A0C0S': 'FOIE_BV',
+  'A01SP#F28.A0C0S': 'VDE_FRA_POUL',
   //   'A01SP#F31.A0CSD': 'Viande de poule de réforme non transformée',
-  // FIXME EDI à corriger
-  'A01SP#F31.A0CSD': 'FOIE_BV',
+  'A01SP#F31.A0CSD': 'MSCL_VOL',
   //   'A01SQ#F28.A0C0S': 'Viande de dinde non transformée',
-  // FIXME EDI à corriger
-  'A01SQ#F28.A0C0S': 'FOIE_BV',
+  'A01SQ#F28.A0C0S': 'VDE_FRA_DIND',
   'A01XF#F28.A0C0S': 'FOIE_BV'
 };
