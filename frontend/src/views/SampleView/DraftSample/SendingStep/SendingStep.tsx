@@ -1,8 +1,10 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
+import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
+import clsx from 'clsx';
 import { isNil } from 'lodash-es';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import {
@@ -247,58 +249,114 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
               : undefined
           }
         />
-        <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
-        <h3 className={cx('fr-m-0')}>Consentement par le détenteur</h3>
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12')}>
-            <AppRadioButtons
-              legend="Le détenteur accepte les informations portées au présent procès-verbal"
-              options={[
-                {
-                  label: 'Oui',
-                  nativeInputProps: {
-                    checked: ownerAgreement,
-                    onChange: () => setOwnerAgreement(true)
-                  }
-                },
-                {
-                  label: 'Non',
-                  nativeInputProps: {
-                    checked: isDefined(ownerAgreement) && !ownerAgreement,
-                    onChange: () => setOwnerAgreement(false)
-                  }
-                }
-              ]}
-              inputForm={form}
-              inputKey="ownerAgreement"
-              required
-              disabled={readonly}
-            />
+        <div className={clsx('border', cx('fr-p-5w'))}>
+          <div>
+            <h5 className={cx('fr-m-0')}>Consentement par le détenteur</h5>
+            <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+              <div className={cx('fr-col-12')}>
+                <AppRadioButtons
+                  legend="Le détenteur accepte les informations portées au présent procès-verbal"
+                  options={[
+                    {
+                      label: 'Oui',
+                      nativeInputProps: {
+                        checked: ownerAgreement,
+                        onChange: () => setOwnerAgreement(true)
+                      }
+                    },
+                    {
+                      label: 'Non',
+                      nativeInputProps: {
+                        checked: isDefined(ownerAgreement) && !ownerAgreement,
+                        onChange: () => setOwnerAgreement(false)
+                      }
+                    }
+                  ]}
+                  inputForm={form}
+                  inputKey="ownerAgreement"
+                  required
+                  disabled={readonly}
+                />
+              </div>
+            </div>
+            <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+              <div className={cx('fr-col-12')}>
+                <AppTextAreaInput
+                  defaultValue={notesOnOwnerAgreement ?? ''}
+                  onChange={(e) => setNotesOnOwnerAgreement(e.target.value)}
+                  inputForm={form}
+                  inputKey="notesOnOwnerAgreement"
+                  whenValid="Déclaration correctement renseignée."
+                  label="Déclaration du détenteur"
+                  hintText="Champ facultatif pour spécifier une éventuelle déclaration du détenteur"
+                  disabled={readonly}
+                />
+              </div>
+            </div>
+          </div>
+          <hr
+            className={cx('fr-mx-0', 'fr-my-5w', 'fr-hidden', 'fr-unhidden-sm')}
+          />
+          <div>
+            <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+              <div className={cx('fr-col-12', 'fr-mb-1w')}>
+                <h5 className={cx('fr-mb-0')}>
+                  Envoi du compte rendu / procès verbal au détenteur
+                </h5>
+                {sample.items.length}{' '}
+                {pluralize(sample.items.length)('document')}
+              </div>
+            </div>
+            <div
+              className={cx('fr-grid-row', 'fr-grid-row--gutters')}
+              style={{ alignItems: 'end' }}
+            >
+              <div className={cx('fr-col-6', 'fr-col-sm-3')}>
+                <AppTextInput
+                  value={ownerLastName ?? ''}
+                  onChange={(e) => setOwnerLastName(e.target.value)}
+                  inputForm={form}
+                  inputKey="ownerLastName"
+                  whenValid="Nom valide"
+                  label="Identité du détenteur"
+                  hintText="Nom"
+                  disabled={readonly}
+                />
+              </div>
+              <div className={cx('fr-col-6', 'fr-col-sm-3')}>
+                <AppTextInput
+                  value={ownerFirstName ?? ''}
+                  onChange={(e) => setOwnerFirstName(e.target.value)}
+                  inputForm={form}
+                  inputKey="ownerFirstName"
+                  whenValid="Prénom valide"
+                  hintText="Prénom"
+                  disabled={readonly}
+                />
+              </div>
+              <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+                <AppTextInput
+                  value={ownerEmail ?? ''}
+                  onChange={(e) => setOwnerEmail(e.target.value)}
+                  type="email"
+                  inputForm={form}
+                  inputKey="ownerEmail"
+                  whenValid="Email valide"
+                  label="E-mail du détenteur"
+                  hintText="Le détenteur recevra une copie du procès-verbal"
+                  disabled={readonly}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12')}>
-            <AppTextAreaInput
-              defaultValue={notesOnOwnerAgreement ?? ''}
-              onChange={(e) => setNotesOnOwnerAgreement(e.target.value)}
-              inputForm={form}
-              inputKey="notesOnOwnerAgreement"
-              whenValid="Déclaration correctement renseignée."
-              label="Déclaration du détenteur"
-              hintText="Champ facultatif pour spécifier une éventuelle déclaration du détenteur"
-              disabled={readonly}
-            />
-          </div>
-        </div>
-
-        <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
-        <h3 className={cx('fr-m-0')}>Procès-verbal</h3>
+        <h5 className={cx('fr-m-0')}>Documents relatifs au prélèvement</h5>
         {isOnline ? (
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12')}>
               <SupportDocumentSelect
-                label="Document d'accompagnement du prélèvement / Procès-verbal"
+                label="Compte rendu du prélèvement / Procès-verbal"
                 sample={sample}
                 renderButtons={(onClick) => (
                   <ButtonsGroup
@@ -308,12 +366,6 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
                         children: 'Aperçu',
                         iconId: 'fr-icon-external-link-line',
                         priority: 'secondary',
-                        className: cx('fr-mb-0'),
-                        onClick
-                      },
-                      {
-                        children: 'Imprimer',
-                        iconId: 'fr-icon-file-pdf-line',
                         className: cx('fr-mb-0'),
                         onClick
                       }
@@ -326,59 +378,27 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
         ) : (
           <div className="d-flex-align-center">
             <span className={cx('fr-icon-warning-line', 'fr-mr-1w')}></span>
-            Le document d'accompagnement du prélèvement / Procès-verbal sera
-            disponible lorsque la connexion Internet sera rétablie.
+            Le compte rendu du prélèvement / Procès-verbal sera disponible
+            lorsque la connexion Internet sera rétablie.
           </div>
         )}
-        <div>
-          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-            <div className={cx('fr-col-12', 'fr-mb-1w')}>
-              <h6 className={cx('fr-mb-0')}>
-                Envoyer le procès-verbal au détenteur de la marchandise
-              </h6>
-              {sample.items.length}{' '}
-              {pluralize(sample.items.length)("document d'accompagnement")}
+        {!readonly && (
+          <div
+            className={clsx('d-flex-row', 'd-flex-align-center')}
+            style={{ gap: '2rem' }}
+          >
+            <span className={cx('fr-text--lg', 'fr-m-0')}>
+              Étiquettes d'envoi
+            </span>
+            <Badge severity={'new'} noIcon={true}>
+              À joindre aux échantillons
+            </Badge>
+            <div className={cx('fr-ml-auto')}>
+              <SupportDocumentDownload partialSample={sample} alignRight />
             </div>
           </div>
-          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-            <div className={cx('fr-col-6', 'fr-col-sm-3')}>
-              <AppTextInput
-                value={ownerLastName ?? ''}
-                onChange={(e) => setOwnerLastName(e.target.value)}
-                inputForm={form}
-                inputKey="ownerLastName"
-                whenValid="Nom valide"
-                label="Identité du détenteur"
-                hintText="Nom"
-                disabled={readonly}
-              />
-            </div>
-            <div className={cx('fr-col-6', 'fr-col-sm-3')}>
-              <AppTextInput
-                value={ownerFirstName ?? ''}
-                onChange={(e) => setOwnerFirstName(e.target.value)}
-                inputForm={form}
-                inputKey="ownerFirstName"
-                whenValid="Prénom valide"
-                hintText="Prénom"
-                disabled={readonly}
-              />
-            </div>
-            <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-              <AppTextInput
-                value={ownerEmail ?? ''}
-                onChange={(e) => setOwnerEmail(e.target.value)}
-                type="email"
-                inputForm={form}
-                inputKey="ownerEmail"
-                whenValid="Email valide"
-                label="E-mail du détenteur"
-                hintText="Le détenteur recevra une copie du procès-verbal"
-                disabled={readonly}
-              />
-            </div>
-          </div>
-        </div>
+        )}
+
         {!isSendable && (
           <Alert
             severity="warning"
@@ -419,7 +439,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
           />
         )}
         {!createOrUpdateSampleCall.isError && <hr className={cx('fr-mx-0')} />}
-        {!readonly && <SupportDocumentDownload partialSample={sample} />}
+
         <div className="sample-actions">
           <ul
             className={cx(

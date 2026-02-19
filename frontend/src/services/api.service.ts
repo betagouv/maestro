@@ -16,7 +16,7 @@ export const tagTypes = [
   'Regions',
   'SachaCommemoratif',
   'Sample',
-  'SampleAnalysis',
+  'SampleItemAnalysis',
   'SampleCount',
   'User'
 ];

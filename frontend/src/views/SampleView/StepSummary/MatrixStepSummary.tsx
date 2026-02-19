@@ -20,6 +20,7 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 
 import { FrIconClassName } from '@codegouvfr/react-dsfr/fr/generatedFromCss/classNames';
+import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import StepSummary, {
   StepSummaryMode
@@ -96,7 +97,7 @@ const MatrixStepSummary = ({ sample, mode = 'section', onEdit }: Props) => {
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-list-ordered')}></div>
           <div>
-            {pluralize(sample.monoSubstances.length)('Analyse')} mono-résidu :{' '}
+            {pluralize(sample.monoSubstances.length)('Analyse')} mono-résidu :
             <ul>
               {sample.monoSubstances.map((substance) => (
                 <li key={`Mono_${substance}`}>{SSD2IdLabel[substance]}</li>
@@ -109,7 +110,7 @@ const MatrixStepSummary = ({ sample, mode = 'section', onEdit }: Props) => {
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-list-ordered')}></div>
           <div>
-            Analyses multi-résidus dont :{' '}
+            Analyses multi-résidus dont :
             <ul>
               {sample.multiSubstances.map((substance) => (
                 <li key={`Multi_${substance}`}>{SSD2IdLabel[substance]}</li>
@@ -118,6 +119,17 @@ const MatrixStepSummary = ({ sample, mode = 'section', onEdit }: Props) => {
           </div>
         </div>
       )}
+      {sample.items
+        .filter(
+          ({ substanceKind }) =>
+            !['Any', 'Multi', 'Mono'].includes(substanceKind)
+        )
+        .map(({ substanceKind }) => (
+          <div key={substanceKind} className="summary-item icon-text">
+            <div className={cx('fr-icon-list-ordered')}></div>
+            <div>{SubstanceKindLabels[substanceKind]}</div>
+          </div>
+        ))}
       {sample.documentIds?.map((documentId) => (
         <div className="summary-item icon-text" key={documentId}>
           <div className={cx('fr-icon-attachment-line')}></div>

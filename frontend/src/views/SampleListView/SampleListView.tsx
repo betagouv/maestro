@@ -102,6 +102,9 @@ const SampleListView = () => {
     );
   }, [searchParams, user?.region, sampleListDisplay]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const canDownloadSupportDocument: boolean =
+    programmingPlan?.kinds.includes('PPV') ?? false;
+
   const { data: samples } = apiClient.useFindSamplesQuery(
     { ...findSampleOptions, programmingPlanId: programmingPlan?.id as string },
     { skip: !programmingPlan }
@@ -171,7 +174,25 @@ const SampleListView = () => {
         action={
           <>
             {hasUserPermission('createSample') && (
-              <div>
+              <div
+                className={clsx('d-flex-row', 'd-flex-justify-center')}
+                style={{ gap: '1rem' }}
+              >
+                {canDownloadSupportDocument && (
+                  <SupportDocumentDownload
+                    partialSample={{
+                      id: newPartialSampleId,
+                      sampler: user,
+                      status: 'Draft' as const,
+                      programmingPlanId: programmingPlan.id as string,
+                      specificData: {
+                        programmingPlanKind: programmingPlan.kinds[0]
+                      }
+                    }}
+                    buttonPriority={'tertiary'}
+                    alignRight
+                  />
+                )}
                 <Button
                   linkProps={{
                     to: AuthenticatedAppRoutes.NewSampleRoute.link(
@@ -180,22 +201,9 @@ const SampleListView = () => {
                     target: '_self'
                   }}
                   iconId="fr-icon-microscope-line"
-                  className={cx('fr-mb-1w')}
                 >
                   Saisir un prélèvement
                 </Button>
-                <SupportDocumentDownload
-                  partialSample={{
-                    id: newPartialSampleId,
-                    sampler: user,
-                    status: 'Draft' as const,
-                    programmingPlanId: programmingPlan.id as string,
-                    specificData: {
-                      programmingPlanKind: programmingPlan.kinds[0]
-                    }
-                  }}
-                  alignRight
-                />
               </div>
             )}
           </>

@@ -171,6 +171,15 @@ export const getCommemoratifs = (
   return commemoratifs;
 };
 
+export const getNumeroDAP = (
+  sample: Pick<SampleChecked, 'reference'>,
+  sampleItem: Pick<SampleItem, 'itemNumber' | 'copyNumber'>
+) => {
+  const firstSeparatorIndex = sample.reference.indexOf('-') + 1;
+  return Number(
+    `${2000 + Number.parseInt(sample.reference.substring(firstSeparatorIndex, firstSeparatorIndex + 2))}${sample.reference.substring(sample.reference.lastIndexOf('-') + 1)}${sampleItem.itemNumber}${sampleItem.copyNumber}`
+  );
+};
 export const generateXMLDAI = (
   sample: Pick<
     SampleChecked,
@@ -223,9 +232,7 @@ export const generateXMLDAI = (
     {
       DemandeType: {
         DialogueDemandeIntervention: {
-          NumeroDAP: Number(
-            `${new Date(dateNow).getFullYear()}${sample.reference.substring(sample.reference.lastIndexOf('-') + 1)}${sampleItem.copyNumber}${sampleItem.itemNumber}`
-          ),
+          NumeroDAP: getNumeroDAP(sample, sampleItem),
           SigleContexteIntervention:
             SigleContexteIntervention[programmingPlanKind],
           DateIntervention: toMaestroDate(sample.sampledAt),

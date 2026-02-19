@@ -67,5 +67,14 @@ export const samplesRoutes = {
       permissions: ['deleteSample'],
       response: z.void()
     }
+  },
+  '/samples/:sampleId/emptyForm': {
+    params: {
+      sampleId: z.guid()
+    },
+    get: {
+      permissions: ['downloadSupportDocument'],
+      response: z.custom<Buffer>()
+    }
   }
 } as const satisfies SubRoutes<'/samples'>;

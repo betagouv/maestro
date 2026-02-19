@@ -1,0 +1,216 @@
+<section class='sample-section border {{#if fullVersion}}full-version{{/if}}'
+         style='background-color: var(--beige-gris-galet-975-75)'>
+  <div class='fr-grid-row fr-grid-row--gutters'>
+    <div class='{{#if fullVersion}}fr-col-6{{else}}fr-col-12{{/if}}'>
+      <div class='fr-container'>
+        <div class='fr-grid-row fr-grid-row--gutters'>
+          <div class='fr-col-12'>
+            <div class='sample-section-header'>
+              <span class="uppercase">Contexte du prélèvement</span>
+            </div>
+          </div>
+          <div class='{{#if fullVersion}}fr-col-12{{else}}fr-col-6{{/if}}'>
+            <div class='sample-section-item'>
+              <div class='label'>
+                Donneur d'ordre
+              </div>
+              <div class='value {{#if (isEmpty establishment.name)}}empty{{/if}}'>
+                {{establishment.name}}
+              </div>
+              <div class='sub-value'>
+                {{#if establishment.additionalLine}}
+                  {{establishment.additionalLine}},
+                {{/if}}
+                {{establishment.street}},
+                {{establishment.postalCode}} {{establishment.city}}
+              </div>
+            </div>
+          </div>
+          {{#if (eq fullVersion false)}}
+            <div class='fr-col-6'>
+              <div class='sample-section-item'>
+                <div class='label'>
+                  Contexte du prélèvement
+                </div>
+                <div class='value {{#if (isEmpty context)}}empty{{/if}}'>
+                  {{context}}
+                </div>
+              </div>
+            </div>
+          {{/if}}
+          <div class='{{#if fullVersion}}fr-col-12{{else}}fr-col-6{{/if}}'>
+            <div class='fr-grid-row'>
+              <div class='{{#if additionalSampler}}fr-col-6{{else}}fr-col-12{{/if}}'>
+                <div class='sample-section-item'>
+                  <div class='label'>
+                    Agent habilité {{#if additionalSampler}}n°1{{/if}}
+                  </div>
+                  <div class='value {{#if (isEmpty sampler.name)}}empty{{/if}}'>
+                    {{sampler.name}}
+                  </div>
+                  <div class='sub-value'>
+                    {{sampler.email}}
+                  </div>
+                </div>
+              </div>
+              {{#if additionalSampler}}
+                <div class='fr-col-6'>
+                  <div class='sample-section-item'>
+                    <div class='label'>
+                      Agent habilité n°2
+                    </div>
+                    <div class='value {{#if (isEmpty additionalSampler.name)}}empty{{/if}}'>
+                      {{additionalSampler.name}}
+                    </div>
+                    <div class='sub-value'>
+                      {{additionalSampler.email}}
+                    </div>
+                  </div>
+                </div>
+              {{/if}}
+            </div>
+            <div class='notice'>
+              habilitée(s) à procéder à l'inspection, et au contrôle tels que prévus aux articles R.206-1,
+              R.206-2, R.250-1 et L.250-6 du code rural et de la pêche maritime
+            </div>
+          </div>
+          {{#if (eq fullVersion false)}}
+          <div class='fr-col-6'>
+          <div class='fr-grid-row fr-grid-row--gutters fr-px-1v'>
+          {{/if}}
+          <div class='fr-col-6'>
+            <div class='sample-section-item'>
+              <div class='label'>
+                Date
+              </div>
+              <div class='value {{#if (isEmpty sampledAtDate)}}empty{{/if}}'>
+                {{sampledAtDate}}
+              </div>
+            </div>
+          </div>
+          <div class='fr-col-6'>
+            <div class='sample-section-item'>
+              <div class='label'>
+                Heure
+              </div>
+              <div class='value {{#if (isEmpty sampledAtTime)}}empty{{/if}}'>
+                {{sampledAtTime}}
+              </div>
+            </div>
+          </div>
+          {{#if (eq fullVersion false)}}
+          </div>
+          </div>
+          {{/if}}
+          {{#if fullVersion}}
+            <div class='fr-col-12'>
+              <div class='sample-section-item'>
+                <div class='label'>
+                  Note additionnelle
+                </div>
+                <div class='value {{#if (isEmpty notesOnCreation)}}empty{{/if}}'>
+                  {{breaklines notesOnCreation}}
+                </div>
+              </div>
+            </div>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+    {{#if fullVersion}}
+      <div class='fr-col-6'>
+        <div class='fr-container'>
+          <div class='fr-grid-row fr-grid-row--gutters'>
+            <div class='fr-col-12'>
+              <div class='sample-section-header'>
+                <div class="uppercase" style="flex-grow: 1">{{context}}</div>
+                {{#if releaseControl}}
+                  <div class="fr-badge fr-badge--sm fr-badge--purple-glycine fr-m-0">Contrôle libératoire</div>
+                {{/if}}
+              </div>
+            </div>
+            <div class='fr-col-12'>
+              <div class='sample-section-item'>
+                <div class='label'>
+                  Numéro
+                </div>
+                <div class='value {{#if (isEmpty reference)}}empty{{/if}}'>
+                  {{reference}}
+                </div>
+              </div>
+            </div>
+            <div class='fr-col-12'>
+              <div class='sample-section-item'>
+                <div class='label'>
+                  Cadre juridique
+                </div>
+                <div class='value {{#if (isEmpty legalContext)}}empty{{/if}}'>
+                  {{legalContext}}
+                </div>
+              </div>
+            </div>
+            <div class='fr-col-12'>
+              <div class='sample-section-item'>
+                <div class='label'>
+                  Entité contrôlée
+                </div>
+                <div class='value {{#if (isEmpty company.name)}}empty{{/if}}'>
+                  {{company.name}}
+                </div>
+                {{#if company.address}}
+                  <div class='sub-value'>
+                    {{company.address}},
+                    {{company.postalCode}},
+                    {{company.city}}
+                  </div>
+                {{/if}}
+              </div>
+            </div>
+            <div class='fr-col-6'>
+              <div class='sample-section-item'>
+                <div class='label'>
+                  N° ou appellation de la parcelle
+                </div>
+                <div class='value {{#if (isEmpty parcel)}}empty{{/if}}'>
+                  {{parcel}}
+                </div>
+              </div>
+            </div>
+            <div class='fr-col-6'>
+              <div class='sample-section-item'>
+                <div class='label'>
+                  Département
+                </div>
+                <div class='value {{#if (isEmpty department)}}empty{{/if}}'>
+                  {{department}}
+                </div>
+              </div>
+            </div>
+            {{#if (eq specificData.programmingPlanKind 'PPV')}}
+              <div class='fr-col-6'>
+                <div class='sample-section-item'>
+                  <div class='label'>
+                    Identifiant Resytal
+                  </div>
+                  <div class='value {{#if (isEmpty resytalId)}}empty{{/if}}'>
+                    {{resytalId}}
+                  </div>
+                </div>
+              </div>
+            {{/if}}
+            <div class='fr-col-6'>
+              <div class='sample-section-item'>
+                <div class='label'>
+                  Siret
+                </div>
+                <div class='value {{#if (isEmpty company.siret)}}empty{{/if}}'>
+                  {{company.siret}}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {{/if}}
+  </div>
+</section>

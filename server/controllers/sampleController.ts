@@ -413,6 +413,22 @@ export const sampleRouter = {
       return { status: constants.HTTP_STATUS_OK, response: pdfBuffer };
     }
   },
+  '/samples/:sampleId/emptyForm': {
+    get: async ({ user, userRole }, { sampleId }, { setHeader }) => {
+      const sample = await getAndCheckSample(sampleId, user, userRole);
+
+      console.info('Get sample empty form', sample.id);
+
+      const pdfBuffer = await pdfService.generateSampleEmptyFormPDF(sample);
+
+      setHeader('Content-Type', 'application/pdf');
+      setHeader(
+        'Content-Disposition',
+        `inline; filename="${`Formulaire-${sample.reference}.pdf`}"`
+      );
+      return { status: constants.HTTP_STATUS_OK, response: pdfBuffer };
+    }
+  },
   '/samples/:sampleId': {
     get: async ({ user, userRole }, { sampleId }) => {
       const sample = await getAndCheckSample(sampleId, user, userRole);
@@ -522,13 +538,6 @@ export const sampleRouter = {
       }
 
       if (sampleUpdate.items) {
-        // const localPrescription = prescription
-        //   ? await localPrescriptionRepository.findUnique({
-        //     prescriptionId: prescription.id,
-        //     region: sampleUpdate.region,
-        //     includes: 'laboratories'
-        //   })
-        //   : undefined;
         await sampleItemRepository.updateMany(sample.id, sampleUpdate.items);
       }
 

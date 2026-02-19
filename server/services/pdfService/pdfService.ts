@@ -1,3 +1,4 @@
+import bwipjs from 'bwip-js';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import fs from 'fs';
@@ -26,6 +27,10 @@ import {
 } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
+  ProgrammingPlanKindWithSacha,
+  ProgrammingPlanKindWithSachaList
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import {
   getSampleMatrixLabel,
   PartialSample
 } from 'maestro-shared/schema/Sample/Sample';
@@ -36,7 +41,9 @@ import {
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { formatWithTz } from 'maestro-shared/utils/date';
+import path from 'path';
 import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
@@ -44,11 +51,13 @@ import programmingPlanRepository from '../../repositories/programmingPlanReposit
 import { userRepository } from '../../repositories/userRepository';
 import {
   assetsPath,
+  partialsPath,
   Template,
   templateContent,
   templateStylePath
 } from '../../templates/templates';
 import config from '../../utils/config';
+import { getNumeroDAP } from '../ediSacha/sachaToXML';
 
 const generatePDF = async (template: Template, data: unknown) => {
   handlebars.registerHelper(
@@ -90,6 +99,17 @@ const generatePDF = async (template: Template, data: unknown) => {
     'isEmpty',
     (a?: string | null) => isNil(a) || String(a).trim() === ''
   );
+
+  const partialsDir = partialsPath();
+  if (fs.existsSync(partialsDir)) {
+    for (const file of fs.readdirSync(partialsDir)) {
+      if (file.endsWith('.hbs')) {
+        const name = file.replace('.hbs', '');
+        const content = fs.readFileSync(path.join(partialsDir, file), 'utf8');
+        handlebars.registerPartial(name, content);
+      }
+    }
+  }
 
   const compiledTemplate = handlebars.compile(templateContent(template));
   const htmlContent = compiledTemplate(data);
@@ -141,8 +161,17 @@ const generatePDF = async (template: Template, data: unknown) => {
     });
 
     await page.addStyleTag({
+      path: assetsPath('template.css')
+    });
+
+    await page.addStyleTag({
       path: templateStylePath(template)
     });
+
+    //  debug only
+    // const fullHtml = await page.content();
+    // fs.writeFileSync('/tmp/debug-pdf.html', fullHtml);
+    // console.log('Debug: open /tmp/debug-pdf.html in your browser');
 
     const pdfBuffer = Buffer.from(
       await page.pdf({
@@ -173,12 +202,13 @@ const generatePDF = async (template: Template, data: unknown) => {
   }
 };
 
-const generateSampleSupportPDF = async (
+const generateSamplePDF = async (
   sample: PartialSample,
   sampleItems: PartialSampleItem[],
-  itemNumber: number,
+  itemNumber: number | undefined,
   copyNumber: number,
-  fullVersion: boolean
+  fullVersion: boolean,
+  template: Extract<Template, 'supportDocument' | 'sampleEmptyForm'>
 ) => {
   const programmingPlan = await programmingPlanRepository.findUnique(
     sample.programmingPlanId as string
@@ -200,11 +230,17 @@ const generateSampleSupportPDF = async (
     programmingPlan.substanceKinds.length * SampleItemMaxCopyCount
   )
     .fill(null)
-    .map((_, index) => ({
-      sampleId: sample.id,
-      itemNumber: (index % programmingPlan.substanceKinds.length) + 1,
-      copyNumber: Math.floor(index / programmingPlan.substanceKinds.length) + 1
-    }));
+    .map((_, index) => {
+      const itemNumber = (index % programmingPlan.substanceKinds.length) + 1;
+      const copyNumber =
+        Math.floor(index / programmingPlan.substanceKinds.length) + 1;
+      return {
+        sampleId: sample.id,
+        itemNumber,
+        copyNumber,
+        recipientKind: copyNumber === 1 ? 'Laboratory' : undefined
+      };
+    });
 
   const sampleDocuments = await documentRepository.findMany({
     sampleId: sample.id
@@ -222,7 +258,32 @@ const generateSampleSupportPDF = async (
     ? laboratories.find((lab) => lab.id === currentSampleItem?.laboratoryId)
     : null;
 
-  return generatePDF('supportDocument', {
+  const reference =
+    itemNumber === undefined
+      ? sample.reference
+      : getSampleItemReference(sample, itemNumber, copyNumber);
+
+  const barcodeReference =
+    itemNumber !== undefined &&
+    ProgrammingPlanKindWithSachaList.includes(
+      sample.specificData.programmingPlanKind as ProgrammingPlanKindWithSacha
+    )
+      ? `${getNumeroDAP(sample, { itemNumber, copyNumber })}`
+      : reference;
+
+  const barcodeSvg = bwipjs.toSVG({
+    bcid: 'code128',
+    text: barcodeReference,
+    scale: 3,
+    width: 60,
+    height: 15,
+    includetext: true,
+    textxalign: 'center',
+    textsize: 15,
+    textyoffset: -5
+  });
+
+  return generatePDF(template, {
     fullVersion,
     ...sample,
     sampleItems: (sampleItems.length > 0 ? sampleItems : emptySampleItems).map(
@@ -241,6 +302,9 @@ const generateSampleSupportPDF = async (
           sampleItem.copyNumber === copyNumber,
         laboratory: !isNil(sampleItem.laboratoryId)
           ? laboratories.find((lab) => lab.id === sampleItem.laboratoryId)
+          : null,
+        substanceKind: sampleItem.substanceKind
+          ? SubstanceKindLabels[sampleItem.substanceKind]
           : null
       })
     ),
@@ -261,7 +325,7 @@ const generateSampleSupportPDF = async (
     multiSubstances: sample.multiSubstances?.map(
       (substance) => SSD2IdLabel[substance]
     ),
-    reference: getSampleItemReference(sample, itemNumber, copyNumber),
+    reference,
     ...(sample.sampledAt
       ? {
           sampledAt: formatWithTz(
@@ -303,10 +367,34 @@ const generateSampleSupportPDF = async (
       sampleItems.some(
         (sampleItem) => sampleItem.recipientKind === 'Sampler'
       ) || sampleItems.length === 0,
-    sampleDocuments
+    sampleDocuments,
+    barcodeSvg
   });
 };
 
+const generateSampleSupportPDF = (
+  sample: PartialSample,
+  sampleItems: PartialSampleItem[],
+  itemNumber: number,
+  copyNumber: number,
+  fullVersion: boolean
+) => {
+  return generateSamplePDF(
+    sample,
+    sampleItems,
+    itemNumber,
+    copyNumber,
+    fullVersion,
+    'supportDocument'
+  );
+};
+
+const generateSampleEmptyFormPDF = async (sample: PartialSample) => {
+  //FIXME on devrait pas ajouter les modalités d'échantillonnages ?
+  return generateSamplePDF(sample, [], undefined, 1, true, 'sampleEmptyForm');
+};
+
 export const pdfService = {
-  generateSampleSupportPDF
+  generateSampleSupportPDF,
+  generateSampleEmptyFormPDF
 };

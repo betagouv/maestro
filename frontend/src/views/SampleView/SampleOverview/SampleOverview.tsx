@@ -1,22 +1,20 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Input from '@codegouvfr/react-dsfr/Input';
-import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
-import Tabs from '@codegouvfr/react-dsfr/Tabs';
+import SideMenu from '@codegouvfr/react-dsfr/SideMenu';
 import clsx from 'clsx';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
+import { useState } from 'react';
 import food from 'src/assets/illustrations/food.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
-import SupportDocumentSelect from 'src/components/SupportDocumentSelect/SupportDocumentSelect';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
-import { pluralize } from 'src/utils/stringUtils';
-import SampleAnalysis from 'src/views/SampleView/SampleAnalysis/SampleAnalysis';
-import SampleOverviewContextTab from 'src/views/SampleView/SampleOverview/SampleOverviewContextTab';
-import { SampleStepTitles } from 'src/views/SampleView/SampleView';
-import ItemsStepSummary from 'src/views/SampleView/StepSummary/ItemsStepSummary';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
+import { SampleStatusBadge } from '../../../components/SampleStatusBadge/SampleStatusBadge';
 import SupportDocumentDownload from '../DraftSample/SupportDocumentDownload';
+import SampleAgreementOverview from './SampleAgreementOverview';
+import SampleContextOverview from './SampleContextOverview';
+import SampleItemCopiesOverview from './SampleItemCopiesOverview';
 import './SampleOverview.scss';
 interface Props {
   sample: SampleChecked;
@@ -26,6 +24,10 @@ const SampleOverview = ({ sample }: Props) => {
   useDocumentTitle(`Prélèvement ${sample.reference}`);
 
   const { navigateToSamples } = useSamplesLink();
+  const [activeMenu, setActiveMenu] = useState<
+    'items' | 'matrix' | 'context' | 'agreement'
+  >('items');
+  const [activeItemNumber, setActiveItemNumber] = useState<number>(1);
 
   return (
     <section
@@ -33,145 +35,108 @@ const SampleOverview = ({ sample }: Props) => {
     >
       <SectionHeader
         title={<>Prélèvement {sample.reference}</>}
+        action={
+          <div className={clsx('d-flex-row', 'title-right-block')}>
+            <div className={clsx('align-right')}>
+              <div>Statut global du prélèvement</div>
+              <SampleStatusBadge status={sample.status} sampleId={sample.id} />
+            </div>
+            <div className={clsx('border-left')}></div>
+            <SupportDocumentDownload
+              partialSample={sample}
+              alignRight={true}
+              buttonPriority={'secondary'}
+            />
+          </div>
+        }
         subtitle="Consultez le récapitulatif du prélèvement réalisé"
         illustration={food}
-        action={
-          <SupportDocumentSelect
-            sample={sample}
-            renderButtons={(onClick) =>
-              sample.items.length === 1 ? (
-                <Button
-                  priority="secondary"
-                  iconId="fr-icon-file-download-line"
-                  onClick={onClick}
-                >
-                  Document d'accompagnement
-                </Button>
-              ) : (
-                <Button
-                  iconId="fr-icon-file-download-line"
-                  onClick={onClick}
-                  title="Télécharger"
-                />
-              )
-            }
+      />
+
+      <div className="white-container">
+        <div className={clsx('d-flex-align-start', cx('fr-m-3w'))}>
+          <SideMenu
+            align="left"
+            burgerMenuButtonText="Dans cette rubrique"
+            sticky={true}
+            fullHeight={true}
+            style={{
+              maxWidth: '300px'
+            }}
+            items={[
+              {
+                text: 'Suivi du prélèvement',
+                isActive: activeMenu === 'items',
+                expandedByDefault: true,
+                items: sample.items
+                  .filter((_) => _.copyNumber === 1)
+                  .map((item) => ({
+                    isActive:
+                      activeItemNumber === item.itemNumber &&
+                      activeMenu === 'items',
+                    linkProps: {
+                      onClick: () => {
+                        setActiveMenu('items');
+                        setActiveItemNumber(item.itemNumber);
+                      },
+                      href: '#'
+                    },
+                    text: `Échantillon ${SubstanceKindLabels[item.substanceKind].toLowerCase()}`
+                  }))
+              },
+              {
+                text: 'Matrice contrôlée',
+                isActive: activeMenu === 'matrix',
+                linkProps: {
+                  onClick: () => setActiveMenu('matrix'),
+                  href: '#'
+                }
+              },
+              {
+                text: 'Contexte du prélèvement',
+                isActive: activeMenu === 'context',
+                linkProps: {
+                  onClick: () => setActiveMenu('context'),
+                  href: '#'
+                }
+              },
+              {
+                text: 'Consentement',
+                isActive: activeMenu === 'agreement',
+                linkProps: {
+                  onClick: () => setActiveMenu('agreement'),
+                  href: '#'
+                }
+              }
+            ]}
           />
-        }
-      />
-      <Tabs
-        tabs={[
-          {
-            label: 'Suivi des résultats',
-            content: <SampleAnalysis sample={sample} />
-          },
-          {
-            label: SampleStepTitles(sample)[0],
-            content: <SampleOverviewContextTab sample={sample} />
-          },
-          {
-            label: SampleStepTitles(sample)[1],
-            content: <MatrixStepSummary sample={sample} mode="tab" />
-          },
-          {
-            label: SampleStepTitles(sample)[2],
-            content: (
-              <>
-                <ItemsStepSummary sample={sample} mode="tab" />
-                <SupportDocumentDownload partialSample={sample} />
-                <h3 className={cx('fr-m-0')}>Consentement par le détenteur</h3>
-                <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                  <div className={cx('fr-col-12')}>
-                    <RadioButtons
-                      legend="Le détenteur accepte les informations portées au présent procès-verbal"
-                      options={[
-                        {
-                          label: 'Oui',
-                          nativeInputProps: {
-                            checked: sample.ownerAgreement,
-                            disabled: true
-                          }
-                        },
-                        {
-                          label: 'Non',
-                          nativeInputProps: {
-                            checked: !sample.ownerAgreement,
-                            disabled: true
-                          }
-                        }
-                      ]}
-                      orientation="horizontal"
-                      classes={{
-                        root: cx('fr-px-0', 'fr-my-0')
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                  <div className={cx('fr-col-12')}>
-                    <Input
-                      textArea
-                      label="Déclaration du détenteur"
-                      hintText="Champ facultatif pour spécifier une éventuelle déclaration du détenteur"
-                      disabled
-                      nativeTextAreaProps={{
-                        value: sample.notesOnOwnerAgreement ?? '',
-                        rows: 1
-                      }}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                    <div className={cx('fr-col-12', 'fr-mb-1w')}>
-                      <h6 className={cx('fr-mb-0')}>
-                        Envoi du procès-verbal au détenteur de la marchandise
-                      </h6>
-                      {sample.items.length}{' '}
-                      {pluralize(sample.items.length)(
-                        "document d'accompagnement"
-                      )}
-                    </div>
-                  </div>
-                  <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                    <div className={cx('fr-col-6', 'fr-col-sm-3')}>
-                      <Input
-                        label="Identité du détenteur"
-                        hintText="Nom"
-                        disabled
-                        nativeInputProps={{
-                          value: sample.ownerLastName ?? ''
-                        }}
-                      />
-                    </div>
-                    <div className={cx('fr-col-6', 'fr-col-sm-3')}>
-                      <Input
-                        label={' '}
-                        hintText="Prénom"
-                        disabled
-                        nativeInputProps={{
-                          disabled: true,
-                          value: sample.ownerFirstName ?? ''
-                        }}
-                      />
-                    </div>
-                    <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-                      <Input
-                        label="E-mail du détenteur"
-                        hintText="Le détenteur a reçu une copie du procès-verbal"
-                        disabled
-                        nativeInputProps={{
-                          disabled: true,
-                          value: sample.ownerEmail ?? ''
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </>
-            )
-          }
-        ]}
-      />
+          <div
+            className={clsx(
+              cx('fr-py-2w', 'fr-ml-4w', 'fr-mr-5w'),
+              'sample-overview-content'
+            )}
+          >
+            {activeMenu === 'items' && (
+              <SampleItemCopiesOverview
+                itemNumber={activeItemNumber}
+                sampleItemCopies={sample.items.filter(
+                  (item) => item.itemNumber === activeItemNumber
+                )}
+                sample={sample}
+              />
+            )}
+            {activeMenu === 'matrix' && (
+              <MatrixStepSummary sample={sample} mode="tab" />
+            )}
+            {activeMenu === 'context' && (
+              <SampleContextOverview sample={sample} />
+            )}
+            {activeMenu === 'agreement' && (
+              <SampleAgreementOverview sample={sample} />
+            )}
+          </div>
+        </div>
+      </div>
       <div className="back">
         <Button
           priority="secondary"
