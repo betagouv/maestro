@@ -1,0 +1,14 @@
+
+.sample-section {
+
+    .sample-items-container {
+        margin-top: 0;
+
+        .label, .value{
+            flex: 1
+        }
+    }
+}
+.sample-items-section{
+    padding-top: 0
+}

@@ -35,13 +35,7 @@
                 {{> contextSection}}
 
                 {{> matrixSection}}
-                <section class='sample-section {{#if fullVersion}}full-version{{/if}}'>
-                  <div>
-                    <span class="uppercase" style="font-weight: bold;font-size: 12px;">
-                      Échantillons prélevés
-                    </span>
-                    {{> sampleItemsNotice}}
-                  </div>
+                <section class='sample-section sample-items-section {{#if fullVersion}}full-version{{/if}}'>
                   <div class='fr-grid-row fr-grid-row--gutters sample-items-container'>
                     {{#each sampleItems}}
                         <div class="{{#if ../fullVersion}}fr-col-4{{else}}fr-col-12{{/if}}">
@@ -82,21 +76,8 @@
                           </div>
                         </div>
                     {{/each}}
-                    {{#if fullVersion}}
-                      <div class='fr-col-12'>
-                        <div class='sample-section-item'>
-                          <div class='label'>
-                            Note additionnelle concernant les échantillons
-                          </div>
-                          <div class='value {{#if (isEmpty notesOnItems)}}empty{{/if}}'>
-                            {{breaklines notesOnItems}}
-                          </div>
-                        </div>
-                      </div>
-                    {{/if}}
                   </div>
                 </section>
-
               </div>
             </td>
           </tr>
