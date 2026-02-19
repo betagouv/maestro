@@ -201,7 +201,7 @@ test(`génère un XML de DAI`, async () => {
         <DialogueEchantillonCommemoratifType>
           <DialogueEchantillonComplet>
             <NumeroEchantillon>1</NumeroEchantillon>
-            <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
+            <SigleMatriceSpecifique>MSCL_VOL</SigleMatriceSpecifique>
             <NumeroEtiquette>PEL-26-00073-A-2</NumeroEtiquette>
             <Commentaire>sealId</Commentaire>
           </DialogueEchantillonComplet>
