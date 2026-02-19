@@ -96,6 +96,12 @@ table {
     flex-direction: column;
   }
 
+  .sample-items-container {
+    padding-left: 3px;
+    padding-right: 3px;
+    margin-top: 20px;
+  }
+
   .current-sample-item {
     background-color: #887358;
     color: white;
