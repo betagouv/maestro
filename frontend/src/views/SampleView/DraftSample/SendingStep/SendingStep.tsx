@@ -351,9 +351,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
           </div>
         </div>
 
-        <h5 className={cx('fr-m-0')}>
-          Documents d'accompagnement du prélèvement
-        </h5>
+        <h5 className={cx('fr-m-0')}>Documents relatifs au prélèvement</h5>
         {isOnline ? (
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12')}>
