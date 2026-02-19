@@ -114,7 +114,6 @@ table {
   .sample-item-container {
     padding: 1rem;
     border: 1px solid var(--border-default-grey);
-    border-top: 2px solid #887358;
   }
 
   .current-sample-item + .sample-item-container {
