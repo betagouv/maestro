@@ -186,7 +186,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                     if ((specificData as any)[inputKey] !== newValue) {
                       onChange({
                         ...specificData,
-                        [inputKey]: newValue
+                        [inputKey]: newValue === '' ? null : newValue
                       });
                     }
                   }}
