@@ -509,8 +509,10 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
           <Alert
             severity={'error'}
             small={true}
-            title={form.error.issues.map((i) => i.message).join(',') ?? ''}
-            description={''}
+            title={''}
+            description={
+              form.error.issues.map((i) => i.message).join(',') ?? ''
+            }
           />
         )}
         <SavedAlert isOpen={isSaved} />
