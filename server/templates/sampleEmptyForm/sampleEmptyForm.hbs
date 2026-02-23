@@ -32,8 +32,10 @@
           <tr>
             <td>
               <div class='fr-container'>
-                {{> contextSection}}
-
+                {{> contextSection isFullVersion=false}}
+                {{#unless (eq specificData.programmingPlanKind 'PPV')}}
+                  {{> sampleProcedureSection}}
+                {{/unless}}
                 {{> matrixSection}}
                 <section class='sample-section sample-items-section {{#if fullVersion}}full-version{{/if}}'>
                   <div class='fr-grid-row fr-grid-row--gutters sample-items-container'>
