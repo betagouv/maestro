@@ -1,9 +1,9 @@
-<section class='sample-section border {{#if fullVersion}}full-version{{/if}}' style="border-left: 2px solid #2A401A;">
+<section class='sample-section border full-version' style="border-left: 2px solid #2A401A;">
   <div class='fr-container'>
   <div class='fr-grid-row fr-grid-row--gutters'>
     <div class='fr-col-12'>
       <div class='sample-section-header'>
-        <span class="uppercase">Matrice contrôlée{{#if fullVersion}} et analyses{{/if}}</span>
+        <span class="uppercase">Matrice contrôlée{{#if isFullVersion}} et analyses{{/if}}</span>
       </div>
     </div>
     <div class='fr-col-4'>
@@ -48,7 +48,7 @@
         </div>
       </div>
     {{/each}}
-    {{#if fullVersion}}
+    {{#if isFullVersion}}
     </div>
       <div class='fr-grid-row fr-grid-row--gutters fr-mt-1w'>
         {{#if (or (eq substanceKind 'Any') (eq substanceKind 'Mono'))}}
