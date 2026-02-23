@@ -598,7 +598,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
       )}
       {programmingPlan.kinds.length > 1 && (
         <AppSelect
-          defaultValue={programmingPlanKind}
+          value={programmingPlanKind}
           options={programmingPlanKindOptions}
           onChange={(e) =>
             setProgrammingPlanKind(e.target.value as ProgrammingPlanKind)
