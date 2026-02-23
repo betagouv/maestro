@@ -75,7 +75,9 @@ const SampleItemCopiesOverview = ({
       <SampleItemAnalysis
         sample={sample}
         sampleItem={
-          sampleItemCopies.find((copy) => copy.copyNumber === 1) as SampleItem
+          sampleItemCopies.find(
+            (copy) => copy.copyNumber === copyNumber
+          ) as SampleItem
         }
       />
     </>
