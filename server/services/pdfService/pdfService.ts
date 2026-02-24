@@ -130,22 +130,9 @@ const generatePDF = async (template: Template, data: unknown) => {
     )
       .then((response) => response.text())
       .then((utilityStyleSheet) =>
-        utilityStyleSheet
-          .replaceAll('icons', `${config.serverUrl}/dsfr/dist/icons`)
-          .replaceAll(
-            'fonts/Marianne',
-            `${config.serverUrl}/dsfr/dist/fonts/Marianne`
-          )
-      );
-
-    const utilityStyleSheet = await fetch(
-      `${config.serverUrl}/dsfr/dist/utility/utility.min.css`
-    )
-      .then((response) => response.text())
-      .then((utilityStyleSheet) =>
         utilityStyleSheet.replaceAll(
-          '../icons',
-          `${config.serverUrl}/dsfr/dist/icons`
+          'fonts/Marianne',
+          `${config.serverUrl}/dsfr/dist/fonts/Marianne`
         )
       );
 
@@ -154,10 +141,6 @@ const generatePDF = async (template: Template, data: unknown) => {
         '@media (min-width: 62em)',
         '@media (min-width: 48em)'
       )
-    });
-
-    await page.addStyleTag({
-      content: utilityStyleSheet
     });
 
     await page.addStyleTag({
