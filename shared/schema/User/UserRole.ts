@@ -90,7 +90,9 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'deleteDocument',
     'readCompanies',
     'readAnalysis',
-    'viewDashboard'
+    'viewDashboard',
+    'readLaboratoryCompetences',
+    'manageLaboratoryCompetences'
   ],
   RegionalCoordinator: [
     'readProgrammingPlans',
@@ -153,9 +155,15 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'deleteDocument',
     'readCompanies',
     'readAnalysis',
-    'viewDashboard'
+    'viewDashboard',
+    'readLaboratoryCompetences',
+    'manageLaboratoryCompetences'
   ],
-  LaboratoryUser: ['readDocuments']
+  LaboratoryUser: [
+    'readDocuments',
+    'readLaboratoryCompetences',
+    'manageLaboratoryCompetences'
+  ]
 };
 
 export const UserRoleLabels: Record<UserRole, string> = {

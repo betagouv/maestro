@@ -6,7 +6,7 @@ import './SectionHeader.scss';
 
 interface Props {
   title: string | React.ReactNode;
-  subtitle: string;
+  subtitle?: string;
   illustration: string;
   action?: React.ReactNode;
 }
@@ -18,16 +18,18 @@ const SectionHeader = ({ title, subtitle, illustration, action }: Props) => {
       {isDesktop && <img src={illustration} height="100%" aria-hidden alt="" />}
       <div style={{ flex: 1 }}>
         <h1 className={clsx('fr-mb-0')}>{title}</h1>
-        <div
-          className={cx(
-            'fr-text--lg',
-            'fr-text--regular',
-            'fr-hint-text',
-            'fr-mb-0'
-          )}
-        >
-          {subtitle}
-        </div>
+        {subtitle && (
+          <div
+            className={cx(
+              'fr-text--lg',
+              'fr-text--regular',
+              'fr-hint-text',
+              'fr-mb-0'
+            )}
+          >
+            {subtitle}
+          </div>
+        )}
       </div>
       {action}
     </div>
