@@ -19,6 +19,7 @@ import {
   ContextLabels,
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { buildFindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   getSampleMatrixLabel,
   isProgrammingPlanSample,
@@ -54,11 +55,7 @@ import {
   ProgrammingPlanKindWithSacha,
   ProgrammingPlanKindWithSachaList
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import {
-  companiesIsRequired,
-  hasPermission
-} from 'maestro-shared/schema/User/User';
-import { isNationalRole } from 'maestro-shared/schema/User/UserRole';
+import { hasPermission } from 'maestro-shared/schema/User/User';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
@@ -228,15 +225,7 @@ export const getNewReference = async (
 export const sampleRouter = {
   '/samples': {
     get: async ({ user, userRole, query }) => {
-      const companySirets = companiesIsRequired(user)
-        ? user.companies.map((company) => company.siret)
-        : query.companySirets;
-
-      const findOptions = {
-        ...query,
-        region: isNationalRole(userRole) ? query.region : user.region,
-        companySirets
-      };
+      const findOptions = buildFindSampleOptions(user, userRole, query);
 
       console.info('Find samples for user', user.id, findOptions);
 
@@ -282,11 +271,8 @@ export const sampleRouter = {
     }
   },
   '/samples/count': {
-    get: async ({ user, userRole, query: queryFindOptions }) => {
-      const findOptions = {
-        ...queryFindOptions,
-        region: isNationalRole(userRole) ? queryFindOptions.region : user.region
-      };
+    get: async ({ user, userRole, query }) => {
+      const findOptions = buildFindSampleOptions(user, userRole, query);
 
       console.info('Count samples for user', user.id, findOptions);
 
@@ -296,15 +282,8 @@ export const sampleRouter = {
     }
   },
   '/samples/export': {
-    get: async (
-      { user, userRole, query: queryFindOptions },
-      _params,
-      { setHeader }
-    ) => {
-      const findOptions = {
-        ...queryFindOptions,
-        region: isNationalRole(userRole) ? queryFindOptions.region : user.region
-      };
+    get: async ({ user, userRole, query }, _params, { setHeader }) => {
+      const findOptions = buildFindSampleOptions(user, userRole, query);
 
       console.info('Export samples for user', user.id, findOptions);
 
