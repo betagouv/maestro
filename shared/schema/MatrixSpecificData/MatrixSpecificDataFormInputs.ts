@@ -30,6 +30,11 @@ export type SpecificDataFormInput = {
       optionsLabels?: Record<string, string>;
       defaultOptionLabel?: string;
     }
+  | {
+      inputType: 'selectWithUnknown';
+      optionsLabels?: Record<string, string>;
+      defaultOptionLabel?: string;
+    }
   | { inputType: 'checkbox' }
   | {
       inputType: 'radio';
@@ -167,7 +172,7 @@ export const MatrixSpecificDataFormInputs: Record<
     testId: 'sex-select'
   },
   seizure: {
-    inputType: 'select',
+    inputType: 'selectWithUnknown',
     label: 'Saisie',
     whenValid: 'Saisie correctement renseignée.',
     optionsLabels: SeizureLabels,

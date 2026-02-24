@@ -69,6 +69,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
   const [notesOnOwnerAgreement, setNotesOnOwnerAgreement] = useState(
     sample.notesOnOwnerAgreement
   );
+  const [specificData, setSpecificData] = useState(sample.specificData);
   const [isSaved, setIsSaved] = useState(false);
 
   const [createOrUpdateSample, createOrUpdateSampleCall] =
@@ -165,6 +166,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
       ownerEmail,
       ownerAgreement,
       notesOnOwnerAgreement,
+      specificData,
       status
     });
   };
@@ -180,7 +182,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
       notesOnOwnerAgreement,
       sampledAt,
       sentAt,
-      specificData: sample.specificData
+      specificData
     },
     save
   );
@@ -236,6 +238,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
                 }
               : undefined
           }
+          onUpdateSpecificData={setSpecificData}
         />
         <hr className={cx('fr-mx-0', 'fr-hidden', 'fr-unhidden-sm')} />
         <ItemsStepSummary
