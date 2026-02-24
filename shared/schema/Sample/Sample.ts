@@ -303,4 +303,6 @@ export const getSampleMatrixLabel = (
 ) =>
   partialSample.matrixKind === OtherMatrixKind.value
     ? (partialSample.matrix ?? '')
-    : MatrixLabels[partialSample.matrix as Matrix];
+    : partialSample.matrix
+      ? MatrixLabels[partialSample.matrix as Matrix]
+      : '';
