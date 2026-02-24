@@ -27,6 +27,15 @@
       width: 100% !important;
       display: table !important;
 
+      td:has(.fr-input-group) {
+        max-width: fit-content;
+        padding: 1rem 0 0 0;
+      }
+
+      .fr-label + .fr-input {
+        margin-top: 0.5rem !important;
+      }
+
       .fr-input {
         width: 130px;
       }
