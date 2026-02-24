@@ -87,7 +87,7 @@ export const sampleMatrixCheck: CheckFn<{
   }
 };
 
-export const unknownValueCheck: CheckFn<{
+const unknownValueCheck: CheckFn<{
   specificData: SampleMatrixSpecificData;
 }> = (ctx) => {
   const specificData = ctx.value.specificData;

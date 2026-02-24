@@ -21,7 +21,7 @@ import {
 export const UnknownValue = 'Unknown';
 export const UnknownValueLabel = 'Je ne sais pas';
 
-export const withUnknown = (
+const withUnknown = (
   zodEnum: { options: readonly string[] },
   errorMessage?: string | (() => string)
 ) =>
