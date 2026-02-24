@@ -176,10 +176,15 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                       inputKey
                     ),
                     {
-                      labels: {
-                        ...MatrixSpecificDataFormInputs[inputKey].optionsLabels,
-                        [UnknownValue]: UnknownValueLabel
-                      },
+                      labels:
+                        MatrixSpecificDataFormInputs[inputKey].inputType ===
+                        'select'
+                          ? MatrixSpecificDataFormInputs[inputKey].optionsLabels
+                          : {
+                              ...MatrixSpecificDataFormInputs[inputKey]
+                                .optionsLabels,
+                              [UnknownValue]: UnknownValueLabel
+                            },
                       defaultLabel:
                         MatrixSpecificDataFormInputs[inputKey]
                           .defaultOptionLabel,
