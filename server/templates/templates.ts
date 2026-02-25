@@ -7,6 +7,7 @@ export type Template =
   | 'analysisReportDocument'
   | 'analysisRequest'
   | 'samplesExport'
+  | 'samplesExportWithCodes'
   | 'prescriptionsExport';
 
 export const templateContent = (template: Template) =>
@@ -21,6 +22,7 @@ const TemplateFileTypes: Record<Template, string> = {
   analysisReportDocument: 'hbs',
   analysisRequest: 'xlsx',
   samplesExport: 'xls',
+  samplesExportWithCodes: 'xls',
   prescriptionsExport: 'xls'
 };
 

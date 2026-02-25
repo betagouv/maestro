@@ -6,6 +6,7 @@ export const UserPermission = z.enum([
   'readSamples',
   'updateSample',
   'deleteSample',
+  'exportSamplesWithCodes',
   'downloadSupportDocument',
   'downloadAnalysisRequestDocument',
   'manageProgrammingPlan',

@@ -78,12 +78,15 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
   resytalId: string;
   notesOnCreation: string;
   matrix: string;
+  matrixCode?: string;
   matrixPart: string;
   stage: string;
+  stageCode: string;
   specificData: {
     key: SampleMatrixSpecificDataKeys;
     label: string;
     value: string | null;
+    code: string | null | undefined;
   }[];
   notesOnMatrix: string;
   notesOnItems: string;
@@ -94,6 +97,7 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
     copyNumber: number;
     quantity: number;
     quantityUnit: string;
+    quantityUnitCode: string;
     sealId: string;
     recipient: string;
     compliance200263: string;
@@ -142,7 +146,8 @@ const optionalBooleanToString = (
       : (booleanValue ?? '');
 
 const generateSamplesExportExcel = async (
-  samples: PartialSample[]
+  samples: PartialSample[],
+  withCodes = false
 ): Promise<Buffer> => {
   const laboratories = await laboratoryRepository.findMany();
 
@@ -203,8 +208,10 @@ const generateSamplesExportExcel = async (
         resytalId: sample.resytalId,
         notesOnCreation: sample.notesOnCreation,
         matrix: sample.matrix ? getSampleMatrixLabel(sample) : undefined,
+        matrixCode: sample.matrix,
         matrixPart: getMatrixPartLabel(sample),
         stage: sample.stage ? StageLabels[sample.stage] : undefined,
+        stageCode: sample.stage,
         specificData: (
           Object.entries(
             MatrixSpecificDataForm[sample.specificData.programmingPlanKind]
@@ -219,7 +226,15 @@ const generateSamplesExportExcel = async (
           value: getSpecificDataValue(
             inputKey,
             sample.specificData as SampleMatrixSpecificData
-          )
+          ),
+          code:
+            sample.specificData[inputKey as keyof SampleMatrixSpecificData] !==
+            getSpecificDataValue(
+              inputKey,
+              sample.specificData as SampleMatrixSpecificData
+            )
+              ? sample.specificData[inputKey as keyof SampleMatrixSpecificData]
+              : undefined
         })),
         notesOnMatrix: sample.notesOnMatrix,
         notesOnItems: sample.notesOnItems,
@@ -232,6 +247,7 @@ const generateSamplesExportExcel = async (
           quantityUnit: item.quantityUnit
             ? QuantityUnitLabels[item.quantityUnit]
             : undefined,
+          quantityUnitCode: item.quantityUnit,
           sealId: item.sealId,
           recipient:
             item.recipientKind &&
@@ -303,6 +319,10 @@ const generateSamplesExportExcel = async (
         }))
       };
 
+      if (withCodes) {
+        data['matrixCode'] = sample.matrix;
+      }
+
       return data;
     })
     .collect()
@@ -316,9 +336,9 @@ const generateSamplesExportExcel = async (
       const completedSamples = samples.map((sample) => ({
         ...sample,
         specificData: specificDataHeaders.map(({ key, label }) => ({
+          ...sample.specificData?.find((d) => d.key === key),
           key,
-          label,
-          value: sample.specificData?.find((d) => d.key === key)?.value ?? null
+          label
         }))
       }));
 
@@ -332,7 +352,7 @@ const generateSamplesExportExcel = async (
         .flatMap((r) => r.analytes)
         .filter((a) => !isNil(a));
       return carboneRender(
-        'samplesExport',
+        withCodes ? 'samplesExportWithCodes' : 'samplesExport',
         {
           specificDataHeaders,
           samples: completedSamples,
