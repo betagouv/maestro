@@ -30,7 +30,8 @@ export const DashboardNotice: FunctionComponent<Props> = ({
         className={clsx(
           cx('fr-callout', 'fr-callout--green-emeraude', 'fr-mb-0'),
           'white-container',
-          'full-height'
+          'full-height',
+          'flex-grow-1'
         )}
       >
         <Quote

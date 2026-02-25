@@ -21,9 +21,10 @@
     }
 
     blockquote p {
-      font-size: 1.5rem;
-      line-height: 2rem;
+      font-size: 1rem;
+      line-height: 1.5rem;
       font-weight: 400;
+      white-space: pre-line;
     }
 
     .fr-quote__author {
@@ -54,6 +55,7 @@
     flex-direction: row;
     align-items: center;
     height: 100%;
+    flex-grow: 1;
 
     &::before {
       display: none;
