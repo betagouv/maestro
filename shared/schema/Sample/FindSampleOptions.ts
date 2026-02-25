@@ -6,8 +6,12 @@ import { Region } from '../../referential/Region';
 import { coerceToArray, coerceToBooleanNullish } from '../../utils/utils';
 import { Pagination } from '../commons/Pagination';
 import { Context } from '../ProgrammingPlan/Context';
-import { companiesIsRequired, UserRefined } from '../User/User';
-import { isNationalRole, isRegionalRole, UserRole } from '../User/UserRole';
+import {
+  companiesIsRequired,
+  departmentIsRequired,
+  UserRefined
+} from '../User/User';
+import { isNationalRole, UserRole } from '../User/UserRole';
 import { SampleStatus } from './SampleStatus';
 
 export const SampleCompliance = z.enum(['conform', 'notConform']);
@@ -51,10 +55,9 @@ export const buildFindSampleOptions = (
   return {
     ...query,
     region: isNationalRole(userRole) ? query.region : user.region,
-    departments:
-      isNationalRole(userRole) || isRegionalRole(userRole)
-        ? query.departments
-        : [user.department as Department],
+    departments: departmentIsRequired(user)
+      ? [user.department as Department]
+      : query.departments,
     companySirets
   } as FindSampleOptions;
 };

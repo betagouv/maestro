@@ -178,7 +178,7 @@ describe('buildFindSampleOptions', () => {
   });
 
   describe('Sampler role', () => {
-    test('Sampler PPV is restricted to their region and department', () => {
+    test('Sampler PPV is restricted to their region', () => {
       const result = buildFindSampleOptions(Sampler1Fixture, 'Sampler', {
         ...baseQuery,
         region: '52',
@@ -186,7 +186,7 @@ describe('buildFindSampleOptions', () => {
       });
 
       expect(result.region).toBe(Sampler1Fixture.region);
-      expect(result.departments).toEqual([Sampler1Fixture.department]);
+      expect(result.departments).toEqual(['01', '02']);
       expect(result.companySirets).toBeUndefined();
     });
 
