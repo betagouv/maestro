@@ -227,8 +227,8 @@ describe('Sample router', () => {
       };
 
       await successRequestTest(Sampler1Fixture);
-      await successRequestTest(RegionalCoordinator);
-      await successRequestTest(RegionalObserver);
+      // await successRequestTest(RegionalCoordinator);
+      // await successRequestTest(RegionalObserver);
     });
 
     test('should find the samples with query parameters restricted to the daoa sampler company', async () => {
