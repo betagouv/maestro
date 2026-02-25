@@ -40,7 +40,11 @@ export const seed = async function () {
         postalCode: '72400',
         city: 'VILLAINES-LA-GONAIS',
         nafCode: '10.11A',
-        kinds: ['MEAT_SLAUGHTERHOUSE']
+        geolocation: {
+          y: 0.599698,
+          x: 48.1239
+        },
+        kinds: ['MEAT_SLAUGHTERHOUSE', 'POULTRY_SLAUGHTERHOUSE']
       },
       {
         siret: '54695037900216',
