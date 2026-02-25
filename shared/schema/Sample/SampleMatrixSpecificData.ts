@@ -18,6 +18,25 @@ import {
   ProgrammingPlanKindWithSacha
 } from '../ProgrammingPlan/ProgrammingPlanKind';
 
+export const UnknownValue = 'Unknown';
+export const UnknownValueLabel = 'Je ne sais pas';
+
+const withUnknown = (
+  zodEnum: { options: readonly string[] },
+  errorMessage?: string | (() => string)
+) =>
+  z.enum(
+    [...zodEnum.options, UnknownValue] as unknown as [string, ...string[]],
+    errorMessage
+      ? {
+          error:
+            typeof errorMessage === 'function'
+              ? errorMessage
+              : () => errorMessage
+        }
+      : undefined
+  );
+
 const KillingCode = z
   .string({
     error: (issue) =>
@@ -78,7 +97,7 @@ const SampleMatrixSpecificDataDAOASlaughter = z.object({
     'PROD_3'
   ]),
   outdoorAccess: OutdoorAccess,
-  seizure: Seizure.nullish()
+  seizure: withUnknown(Seizure, 'Veuillez renseigner la saisie.')
 });
 
 export const SampleMatrixSpecificData = z.discriminatedUnion(

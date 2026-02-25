@@ -1,7 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import { CultureKindList } from '../../referential/CultureKind';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
-import { getSampleMatrixSpecificDataAttributeValues } from './SampleMatrixSpecificData';
+import {
+  getSampleMatrixSpecificDataAttributeValues,
+  UnknownValue
+} from './SampleMatrixSpecificData';
 
 describe('getSampleMatrixSpecificDataAttributeValues', () => {
   test('returns cultureKind options for PPV', () => {
@@ -34,11 +37,11 @@ describe('getSampleMatrixSpecificDataAttributeValues', () => {
     );
     expect(result).toEqual(['Aléatoire']);
   });
-  test('returns correctly value from nullish', () => {
+  test('returns correctly value from nullish and unknow value', () => {
     const result = getSampleMatrixSpecificDataAttributeValues(
       ProgrammingPlanKind.enum.DAOA_SLAUGHTER,
       'seizure'
     );
-    expect(result).toEqual(['EMPTY', 'PARTIAL', 'TOTAL']);
+    expect(result).toEqual(['EMPTY', 'PARTIAL', 'TOTAL', UnknownValue]);
   });
 });

@@ -17,6 +17,7 @@ import { maestroDateRefined } from '../../utils/date';
 import { isDefined } from '../../utils/utils';
 import { Company } from '../Company/Company';
 import { Geolocation } from '../Geolocation/Geolocation';
+import { MatrixSpecificDataFormInputs } from '../MatrixSpecificData/MatrixSpecificDataFormInputs';
 import {
   Context,
   OutsideProgrammingPlanContext,
@@ -26,7 +27,8 @@ import { Sampler } from '../User/User';
 import { PartialSampleItem, SampleItem } from './SampleItem';
 import {
   PartialSampleMatrixSpecificData,
-  SampleMatrixSpecificData
+  SampleMatrixSpecificData,
+  UnknownValue
 } from './SampleMatrixSpecificData';
 import { SampleStatus } from './SampleStatus';
 
@@ -85,6 +87,29 @@ export const sampleMatrixCheck: CheckFn<{
   }
 };
 
+const unknownValueCheck: CheckFn<{
+  specificData: SampleMatrixSpecificData;
+}> = (ctx) => {
+  const specificData = ctx.value.specificData;
+
+  Object.entries(specificData).forEach(([key, value]) => {
+    if (value === UnknownValue) {
+      const fieldLabel =
+        key in MatrixSpecificDataFormInputs
+          ? MatrixSpecificDataFormInputs[
+              key as keyof typeof MatrixSpecificDataFormInputs
+            ]?.label
+          : undefined;
+      ctx.issues.push({
+        input: ctx.value,
+        code: 'custom',
+        message: `Veuillez renseigner le descripteur "${fieldLabel ? fieldLabel.toLowerCase() : key}".`,
+        path: ['specificData', key]
+      });
+    }
+  });
+};
+
 export const sampleSendCheck: CheckFn<
   Pick<SampleBase, 'sampledAt' | 'sentAt' | 'specificData'>
 > = (ctx) => {
@@ -102,17 +127,7 @@ export const sampleSendCheck: CheckFn<
     });
   }
 
-  if (
-    ctx.value.specificData.programmingPlanKind === 'DAOA_SLAUGHTER' &&
-    isNil(ctx.value.specificData.seizure)
-  ) {
-    ctx.issues.push({
-      input: ctx.value,
-      code: 'custom',
-      message: 'La saisie est obligatoire pour pouvoir envoyer le prélèvement.',
-      path: ['specificData.seizure']
-    });
-  }
+  unknownValueCheck(ctx);
 };
 
 export const prescriptionSubstancesCheck: CheckFn<{

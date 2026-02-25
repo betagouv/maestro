@@ -10,7 +10,11 @@ import { OutdoorAccessLabels } from '../../referential/OutdoorAccess';
 import { ProductionKindLabels } from '../../referential/ProductionKind';
 import { SeizureLabels } from '../../referential/Seizure';
 import { SpeciesLabels } from '../../referential/Species';
-import { SampleMatrixSpecificData } from '../../schema/Sample/SampleMatrixSpecificData';
+import {
+  SampleMatrixSpecificData,
+  UnknownValue,
+  UnknownValueLabel
+} from '../../schema/Sample/SampleMatrixSpecificData';
 
 type UnionKeys<T, O extends string> = T extends any ? keyof Omit<T, O> : never;
 export type SampleMatrixSpecificDataKeys = UnionKeys<
@@ -27,6 +31,11 @@ export type SpecificDataFormInput = {
   | { inputType: 'textarea'; hintText?: string; rows?: number }
   | {
       inputType: 'select';
+      optionsLabels?: Record<string, string>;
+      defaultOptionLabel?: string;
+    }
+  | {
+      inputType: 'selectWithUnknown';
       optionsLabels?: Record<string, string>;
       defaultOptionLabel?: string;
     }
@@ -56,6 +65,13 @@ export const getSpecificDataValue = (
     case 'select':
     case 'radio':
       return input.optionsLabels?.[value as string] || String(value);
+    case 'selectWithUnknown':
+      return (
+        {
+          ...input.optionsLabels,
+          [UnknownValue]: UnknownValueLabel
+        }?.[value as string] || String(value)
+      );
     case 'text':
     case 'number':
     case 'textarea':
@@ -167,7 +183,7 @@ export const MatrixSpecificDataFormInputs: Record<
     testId: 'sex-select'
   },
   seizure: {
-    inputType: 'select',
+    inputType: 'selectWithUnknown',
     label: 'Saisie',
     whenValid: 'Saisie correctement renseignée.',
     optionsLabels: SeizureLabels,

@@ -9,7 +9,9 @@ import {
 import {
   getSampleMatrixSpecificDataAttributeValues,
   PartialSampleMatrixSpecificData,
-  SampleMatrixSpecificData
+  SampleMatrixSpecificData,
+  UnknownValue,
+  UnknownValueLabel
 } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { Fragment, useMemo } from 'react';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
@@ -158,6 +160,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
             );
 
           case 'select':
+          case 'selectWithUnknown':
             return (
               <div
                 className={clsx(
@@ -174,7 +177,14 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                     ),
                     {
                       labels:
-                        MatrixSpecificDataFormInputs[inputKey].optionsLabels,
+                        MatrixSpecificDataFormInputs[inputKey].inputType ===
+                        'select'
+                          ? MatrixSpecificDataFormInputs[inputKey].optionsLabels
+                          : {
+                              ...MatrixSpecificDataFormInputs[inputKey]
+                                .optionsLabels,
+                              [UnknownValue]: UnknownValueLabel
+                            },
                       defaultLabel:
                         MatrixSpecificDataFormInputs[inputKey]
                           .defaultOptionLabel,

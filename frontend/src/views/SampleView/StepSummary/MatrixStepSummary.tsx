@@ -1,4 +1,5 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Select from '@codegouvfr/react-dsfr/Select';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
@@ -18,21 +19,34 @@ import {
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import {
+  getSampleMatrixSpecificDataAttributeValues,
+  SampleMatrixSpecificData,
+  UnknownValue
+} from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 
 import { FrIconClassName } from '@codegouvfr/react-dsfr/fr/generatedFromCss/classNames';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
+import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import StepSummary, {
   StepSummaryMode
 } from 'src/views/SampleView/StepSummary/StepSummary';
+import AppRequiredInput from '../../../components/_app/AppRequired/AppRequiredInput';
 import SampleDocument from '../../../components/Sample/SampleDocument/SampleDocument';
 
 interface Props {
   sample: (SampleChecked | SampleToCreate) & Partial<SampleOwnerData>;
   mode?: StepSummaryMode;
   onEdit?: () => void;
+  onUpdateSpecificData?: (specificData: SampleMatrixSpecificData) => void;
 }
-const MatrixStepSummary = ({ sample, mode = 'section', onEdit }: Props) => {
+const MatrixStepSummary = ({
+  sample,
+  mode = 'section',
+  onEdit,
+  onUpdateSpecificData
+}: Props) => {
   return (
     <StepSummary title="Matrice contrôlée" onEdit={onEdit} mode={mode}>
       <div className="summary-item icon-text">
@@ -76,6 +90,39 @@ const MatrixStepSummary = ({ sample, mode = 'section', onEdit }: Props) => {
               <div>
                 {input.inputType === 'checkbox' ? (
                   <b>{value}</b>
+                ) : input.inputType === 'selectWithUnknown' ? (
+                  <>
+                    {inputProps.label ?? input.label}
+                    <AppRequiredInput />{' '}
+                    <Select
+                      label=""
+                      nativeSelectProps={{
+                        value: value ?? '',
+                        onChange: (e) =>
+                          onUpdateSpecificData?.({
+                            ...sample.specificData,
+                            [inputKey]:
+                              e.target.value === ''
+                                ? UnknownValue
+                                : e.target.value
+                          })
+                      }}
+                    >
+                      {selectOptionsFromList(
+                        getSampleMatrixSpecificDataAttributeValues(
+                          sample.specificData.programmingPlanKind,
+                          inputKey
+                        ).filter((option) => option !== UnknownValue),
+                        {
+                          labels: input.optionsLabels
+                        }
+                      ).map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Select>
+                  </>
                 ) : (
                   <>
                     {inputProps.label ?? input.label} : <b>{value}</b>
@@ -97,7 +144,7 @@ const MatrixStepSummary = ({ sample, mode = 'section', onEdit }: Props) => {
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-list-ordered')}></div>
           <div>
-            {pluralize(sample.monoSubstances.length)('Analyse')} mono-résidu :
+            {pluralize(sample.monoSubstances.length)('Analyse')} mono-résidu :
             <ul>
               {sample.monoSubstances.map((substance) => (
                 <li key={`Mono_${substance}`}>{SSD2IdLabel[substance]}</li>
@@ -110,7 +157,7 @@ const MatrixStepSummary = ({ sample, mode = 'section', onEdit }: Props) => {
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-list-ordered')}></div>
           <div>
-            Analyses multi-résidus dont :
+            Analyses multi-résidus dont :
             <ul>
               {sample.multiSubstances.map((substance) => (
                 <li key={`Multi_${substance}`}>{SSD2IdLabel[substance]}</li>
