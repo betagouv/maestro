@@ -103,7 +103,7 @@ const unknownValueCheck: CheckFn<{
       ctx.issues.push({
         input: ctx.value,
         code: 'custom',
-        message: `Veuillez renseigner la donnée "${fieldLabel ? fieldLabel.toLowerCase() : key}".`,
+        message: `Veuillez renseigner le descripteur "${fieldLabel ? fieldLabel.toLowerCase() : key}".`,
         path: ['specificData', key]
       });
     }
