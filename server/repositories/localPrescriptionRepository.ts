@@ -239,6 +239,22 @@ const include = (opts?: Pick<FindLocalPrescriptionOptions, 'includes'>) => {
               `${samplesTable}.region`,
               `${localPrescriptionsTable}.region`
             )
+            .andOn((q) =>
+              q
+                .onVal(`${localPrescriptionsTable}.department`, '=', 'None')
+                .orOn(
+                  `${samplesTable}.department`,
+                  `${localPrescriptionsTable}.department`
+                )
+            )
+            .andOn((q) =>
+              q
+                .onVal(`${localPrescriptionsTable}.company_siret`, '=', 'None')
+                .orOn(
+                  `${samplesTable}.company_siret`,
+                  `${localPrescriptionsTable}.company_siret`
+                )
+            )
         )
         .groupBy(
           `${localPrescriptionsTable}.prescription_id`,
