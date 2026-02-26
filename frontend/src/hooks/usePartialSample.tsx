@@ -1,31 +1,36 @@
+import { skipToken } from '@reduxjs/toolkit/query';
 import {
   isCreatedPartialSample,
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
+import { useParams } from 'react-router';
 import { ApiClientContext } from '../services/apiClient';
-import programmingPlanSlice from '../store/reducers/programmingPlanSlice';
 import { useAuthentication } from './useAuthentication';
-import { useAppDispatch, useAppSelector } from './useStore';
 
 export const usePartialSample = (
   partialSample?: PartialSample | PartialSampleToCreate
 ) => {
   const apiClient = useContext(ApiClientContext);
-  const dispatch = useAppDispatch();
   const { hasUserPermission, user } = useAuthentication();
-  const { programmingPlan: stateProgrammingPlan } = useAppSelector(
-    (state) => state.programmingPlan
+  const { year: yearParam } = useParams<{ year: string }>();
+
+  const { data: sampleProgrammingPlan } = apiClient.useGetProgrammingPlanQuery(
+    (partialSample?.programmingPlanId as string) ?? skipToken
   );
-  const { data: programmingPlan } = apiClient.useGetProgrammingPlanQuery(
-    partialSample?.programmingPlanId as string,
+  const { data: yearProgrammingPlans } = apiClient.useFindProgrammingPlansQuery(
     {
-      skip:
-        !partialSample?.programmingPlanId ||
-        (stateProgrammingPlan &&
-          stateProgrammingPlan.id === partialSample?.programmingPlanId)
+      year: Number(yearParam)
+    },
+    {
+      skip: !!partialSample || !yearParam
     }
+  );
+
+  const programmingPlan = useMemo(
+    () => sampleProgrammingPlan || yearProgrammingPlans?.[0],
+    [sampleProgrammingPlan, yearProgrammingPlans]
   );
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery(
@@ -40,22 +45,20 @@ export const usePartialSample = (
   const { data: programmingPlanPrescriptions } =
     apiClient.useFindPrescriptionsQuery(
       {
-        programmingPlanId: (partialSample?.programmingPlanId ??
-          stateProgrammingPlan?.id) as string
+        programmingPlanId: programmingPlan?.id as string
       },
       {
-        skip: !programmingPlan && !stateProgrammingPlan
+        skip: !programmingPlan
       }
     );
 
   const { data: programmingPlanLocalPrescriptionsData } =
     apiClient.useFindLocalPrescriptionsQuery(
       {
-        programmingPlanId: (partialSample?.programmingPlanId ??
-          stateProgrammingPlan?.id) as string
+        programmingPlanId: programmingPlan?.id as string
       },
       {
-        skip: !programmingPlan && !stateProgrammingPlan
+        skip: !programmingPlan
       }
     );
 
@@ -75,7 +78,13 @@ export const usePartialSample = (
                 (isCreatedPartialSample(partialSample)
                   ? partialSample.department
                   : user?.department) &&
-              localPrescription.companySiret === partialSample?.company?.siret
+              (isCreatedPartialSample(partialSample)
+                ? localPrescription.companySiret ===
+                  partialSample?.company?.siret
+                : user?.companies.some(
+                    (company) =>
+                      company.siret === localPrescription.companySiret
+                  ))
             : true
         ),
     [
@@ -85,14 +94,6 @@ export const usePartialSample = (
       programmingPlan
     ]
   );
-
-  useEffect(() => {
-    if (programmingPlan) {
-      dispatch(
-        programmingPlanSlice.actions.setProgrammingPlan(programmingPlan)
-      );
-    }
-  }, [programmingPlan]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const readonly = useMemo(
     () =>
@@ -118,6 +119,7 @@ export const usePartialSample = (
 
   return {
     readonly,
+    programmingPlan,
     programmingPlanPrescriptions,
     programmingPlanLocalPrescriptions,
     getSampleItemLaboratory

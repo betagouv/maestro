@@ -17,7 +17,6 @@ import StepSummary, {
 } from 'src/views/SampleView/StepSummary/StepSummary';
 import { SampleMap } from '../../../components/Sample/SampleMap/SampleMap';
 import { usePartialSample } from '../../../hooks/usePartialSample';
-import { useAppSelector } from '../../../hooks/useStore';
 
 interface Props {
   sample: (SampleChecked | SampleToCreate) & Partial<SampleOwnerData>;
@@ -33,8 +32,7 @@ const ContextStepSummary = ({
   onEdit
 }: Props) => {
   const { user } = useAuthentication();
-  const { readonly } = usePartialSample(sample);
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
+  const { readonly, programmingPlan } = usePartialSample(sample);
 
   return (
     <StepSummary title="Contexte du prélèvement" onEdit={onEdit} mode={mode}>

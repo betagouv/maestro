@@ -63,7 +63,6 @@ import SampleProcedure from '../../../../components/Sample/SampleProcedure/Sampl
 import SubstanceSearch from '../../../../components/SubstanceSearch/SubstanceSearch';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
-import { useAppSelector } from '../../../../hooks/useStore';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 import MatrixSpecificDataFormInput from './MatrixSpecificDataFormInput';
@@ -76,10 +75,9 @@ const MatrixStep = ({ partialSample }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
   const { user } = useAuthentication();
-  const { readonly } = usePartialSample(partialSample);
+  const { readonly, programmingPlan } = usePartialSample(partialSample);
   const { trackEvent } = useAnalytics();
 
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   const isSubmittingRef = useRef<boolean>(false);
   const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
   const [matrix, setMatrix] = useState(partialSample.matrix);

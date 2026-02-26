@@ -118,12 +118,19 @@ const findRequest = (findOptions: FindSampleOptions) =>
           'contexts',
           'departments',
           'compliance',
-          'withAtLeastOneResidue'
+          'withAtLeastOneResidue',
+          'programmingPlanIds'
         ),
         (_) => isNil(_) || isArray(_)
       )
     )
     .modify((builder) => {
+      if (findOptions.programmingPlanIds) {
+        builder.whereIn(
+          `${samplesTable}.programmingPlanId`,
+          findOptions.programmingPlanIds
+        );
+      }
       if (findOptions.region) {
         builder.where(`${samplesTable}.region`, findOptions.region);
       }

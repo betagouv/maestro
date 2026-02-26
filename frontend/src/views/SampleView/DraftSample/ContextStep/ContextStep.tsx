@@ -20,7 +20,6 @@ import {
   ProgrammingPlanKind,
   ProgrammingPlanKindLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isOutsideProgrammingPlanSample,
   PartialSample,
@@ -70,15 +69,15 @@ import NextButton from '../NextButton';
 import { SampleEmptyFormDownload } from '../SampleEmptyFormDownload';
 
 type Props = {
-  programmingPlan: ProgrammingPlanChecked;
   partialSample?: PartialSample | PartialSampleToCreate;
 };
 
-const ContextStep = ({ programmingPlan, partialSample }: Props) => {
+const ContextStep = ({ partialSample }: Props) => {
   const { navigateToSample, navigateToSamples } = useSamplesLink();
   const { isOnline } = useOnLine();
   const {
     readonly,
+    programmingPlan,
     programmingPlanPrescriptions,
     programmingPlanLocalPrescriptions
   } = usePartialSample(partialSample);
@@ -91,8 +90,8 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   const [context, setContext] = useState<
     ProgrammingPlanContext | 'OutsideProgrammingPlan' | undefined
   >(
-    programmingPlan.contexts.length === 1
-      ? programmingPlan.contexts[0]
+    programmingPlan?.contexts.length === 1
+      ? programmingPlan?.contexts[0]
       : isOutsideProgrammingPlanSample(partialSample)
         ? 'OutsideProgrammingPlan'
         : ProgrammingPlanContext.safeParse(partialSample?.context).data
@@ -107,8 +106,8 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
     partialSample?.specificData.programmingPlanKind ?? ''
   );
   const [legalContext, setLegalContext] = useState(
-    programmingPlan.legalContexts.length === 1
-      ? programmingPlan.legalContexts[0]
+    programmingPlan?.legalContexts.length === 1
+      ? programmingPlan?.legalContexts[0]
       : partialSample?.legalContext
   );
 
@@ -152,8 +151,8 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
     apiClient.useCreateOrUpdateSampleMutation();
 
   useEffect(() => {
-    if (programmingPlan.kinds.length === 1) {
-      setProgrammingPlanKind(programmingPlan.kinds[0]);
+    if (programmingPlan?.kinds.length === 1) {
+      setProgrammingPlanKind(programmingPlan?.kinds[0]);
     }
   }, [programmingPlan]);
 
@@ -175,7 +174,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
         permissions.includes('updateSample')
       );
     }),
-    programmingPlanKinds: programmingPlan.kinds
+    programmingPlanKinds: programmingPlan?.kinds
   });
 
   const Form = SampleContextData.omit({
@@ -230,8 +229,8 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
 
   const contextOptions = selectOptionsFromList(
     [
-      programmingPlan.contexts ?? [],
-      programmingPlan.samplesOutsidePlanAllowed
+      programmingPlan?.contexts ?? [],
+      programmingPlan?.samplesOutsidePlanAllowed
         ? ['OutsideProgrammingPlan']
         : []
     ].flat(),
@@ -264,7 +263,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
   };
 
   const legalContextOptions = selectOptionsFromList(
-    programmingPlan.legalContexts ?? [],
+    programmingPlan?.legalContexts ?? [],
     {
       labels: LegalContextLabels,
       withDefault: false
@@ -273,7 +272,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
 
   const programmingPlanKindOptions = selectOptionsFromList(
     intersection(
-      programmingPlan.kinds.filter((kind) =>
+      programmingPlan?.kinds.filter((kind) =>
         programmingPlanPrescriptions?.some(
           (prescription) =>
             prescription.programmingPlanKind === kind &&
@@ -311,7 +310,7 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
           }
         : undefined,
     parcel,
-    programmingPlanId: programmingPlan.id as string,
+    programmingPlanId: programmingPlan?.id as string,
     context:
       context === 'OutsideProgrammingPlan'
         ? outsideProgrammingPlanContext
@@ -401,6 +400,9 @@ const ContextStep = ({ programmingPlan, partialSample }: Props) => {
 
   const form = useForm(Form, formInput, save);
 
+  if (!programmingPlan) {
+    return <></>;
+  }
   return (
     <form data-testid="draft_sample_creation_form" className="sample-form">
       {programmingPlanKind === 'PPV' && !isBrowserGeolocation && !readonly && (

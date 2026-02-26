@@ -28,10 +28,11 @@ import {
 } from 'maestro-shared/schema/User/UserRole';
 import {
   coerceToBooleanNullish,
-  isDefinedAndNotNull
+  isDefinedAndNotNull,
+  toArray
 } from 'maestro-shared/utils/utils';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { useParams, useSearchParams } from 'react-router';
 import FiltersTags from 'src/components/FilterTags/FiltersTags';
 import SampleCard from 'src/components/SampleCard/SampleCard';
 import SampleTable from 'src/components/SampleTable/SampleTable';
@@ -63,11 +64,22 @@ const SampleListView = () => {
   const { isMobile } = useWindowSize();
 
   const [searchParams, setSearchParams] = useSearchParams();
+  const { year } = useParams<{ year: string }>();
   const { hasUserPermission, user, hasNationalView } = useAuthentication();
   const { findSampleOptions, sampleListDisplay } = useAppSelector(
     (state) => state.samples
   );
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
+
+  const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
+    {
+      year: year ? Number(year) : undefined
+    },
+    { skip: !year }
+  );
+  const programmingPlan = useMemo(
+    () => (programmingPlans?.length === 1 ? programmingPlans[0] : undefined),
+    [programmingPlans]
+  );
 
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
@@ -105,17 +117,14 @@ const SampleListView = () => {
   const canDownloadSupportDocument: boolean =
     programmingPlan?.kinds.includes('PPV') ?? false;
 
-  const { data: samples } = apiClient.useFindSamplesQuery(
-    { ...findSampleOptions, programmingPlanId: programmingPlan?.id as string },
-    { skip: !programmingPlan }
-  );
-  const { data: samplesCount } = apiClient.useCountSamplesQuery(
-    {
-      ...omit(findSampleOptions, 'page', 'perPage'),
-      programmingPlanId: programmingPlan?.id as string
-    },
-    { skip: !programmingPlan }
-  );
+  const { data: samples } = apiClient.useFindSamplesQuery({
+    ...findSampleOptions,
+    programmingPlanIds: toArray(programmingPlan?.id)
+  });
+  const { data: samplesCount } = apiClient.useCountSamplesQuery({
+    ...omit(findSampleOptions, 'page', 'perPage'),
+    programmingPlanIds: toArray(programmingPlan?.id)
+  });
   const { data: prescriptions } = apiClient.useFindPrescriptionsQuery(
     {
       programmingPlanId: programmingPlan?.id as string,
@@ -161,19 +170,19 @@ const SampleListView = () => {
 
   const newPartialSampleId = useMemo(() => uuidv4(), []);
 
-  if (!programmingPlan || !user) {
+  if (!year || !user) {
     return <></>;
   }
 
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
       <SectionHeader
-        title={`Prélèvements ${programmingPlan.year}`}
+        title={`Prélèvements ${year}`}
         subtitle="Consultez les dossiers des prélèvements"
         illustration={food}
         action={
           <>
-            {hasUserPermission('createSample') && (
+            {programmingPlan && hasUserPermission('createSample') && (
               <div
                 className={clsx('d-flex-row', 'd-flex-justify-center')}
                 style={{ gap: '1rem' }}
@@ -225,10 +234,13 @@ const SampleListView = () => {
                     prescriptions={prescriptions}
                     currentUserId={user?.id}
                   />
-                  <SampleSecondaryFilters
-                    filters={findSampleOptions}
-                    onChange={changeFilter}
-                  />
+                  {programmingPlan && (
+                    <SampleSecondaryFilters
+                      programmingPlan={programmingPlan}
+                      filters={findSampleOptions}
+                      onChange={changeFilter}
+                    />
+                  )}
                 </div>
               </Accordion>
               <div className={cx('fr-mx-2w')}>
@@ -253,8 +265,9 @@ const SampleListView = () => {
                     prescriptions={prescriptions}
                     currentUserId={user?.id}
                   />
-                  {isFilterExpanded && (
+                  {programmingPlan && isFilterExpanded && (
                     <SampleSecondaryFilters
+                      programmingPlan={programmingPlan}
                       filters={findSampleOptions}
                       onChange={changeFilter}
                     />

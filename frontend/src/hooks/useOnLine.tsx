@@ -6,7 +6,6 @@ import { useAnalytics } from './useAnalytics';
 
 export const useOnLine = () => {
   const { isAuthenticated } = useAuthentication();
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   const [isOnline, setIsOnline] = React.useState(navigator.onLine);
   const { trackEvent } = useAnalytics();
 
@@ -48,26 +47,27 @@ export const useOnLine = () => {
         );
 
         //Load prescriptions and last samples from the server to made them available offline in order to create new samples
-        if (programmingPlan) {
-          await Promise.all(
-            programmingPlan.contexts.map(async (context) =>
-              findPrescriptions({
-                programmingPlanId: programmingPlan.id,
-                contexts: [context]
-              }).unwrap()
-            )
-          );
-
-          const samples = await findSamples({
-            programmingPlanId: programmingPlan?.id as string,
-            page: 1,
-            perPage: 5
-          }).unwrap();
-
-          await Promise.all(
-            samples.map((sample) => getSample(sample.id).unwrap())
-          );
-        }
+        // FIXME
+        // if (programmingPlan) {
+        //   await Promise.all(
+        //     programmingPlan.contexts.map(async (context) =>
+        //       findPrescriptions({
+        //         programmingPlanId: programmingPlan.id,
+        //         contexts: [context]
+        //       }).unwrap()
+        //     )
+        //   );
+        //
+        //   const samples = await findSamples({
+        //     programmingPlanIds: toArray(programmingPlan?.id),
+        //     page: 1,
+        //     perPage: 5
+        //   }).unwrap();
+        //
+        //   await Promise.all(
+        //     samples.map((sample) => getSample(sample.id).unwrap())
+        //   );
+        // }
       })();
     }
   }, [isOnline, isAuthenticated, pendingSamples]); // eslint-disable-line react-hooks/exhaustive-deps

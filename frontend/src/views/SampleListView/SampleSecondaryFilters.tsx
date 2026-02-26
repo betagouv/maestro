@@ -8,6 +8,7 @@ import {
   ContextLabels,
   ContextList
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   FindSampleOptions,
   SampleCompliance,
@@ -17,17 +18,20 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { z } from 'zod';
 import { DepartmentsSelect } from '../../components/DepartmentsSelect/DepartmentsSelect';
 import { RegionsFilter } from '../../components/RegionsFilter/RegionsFilter';
-import { useAppSelector } from '../../hooks/useStore';
 
 interface Props {
+  programmingPlan: ProgrammingPlanChecked;
   filters: Partial<FindSampleOptions>;
   onChange: (filters: Partial<FindSampleOptions>) => void;
 }
 
-const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
+const SampleSecondaryFilters = ({
+  programmingPlan,
+  filters,
+  onChange
+}: Props) => {
   const { hasNationalView, hasRegionalView } = useAuthentication();
 
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
       {hasNationalView && (

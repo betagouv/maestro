@@ -34,7 +34,11 @@ import { PrescriptionFilters } from '../../store/reducers/prescriptionsSlice';
 type FilterableType = FindSampleOptions &
   Omit<
     PrescriptionFilters,
-    'year' | 'missingSlaughterhouse' | 'missingLaboratory' | 'matrixQuery'
+    | 'year'
+    | 'missingSlaughterhouse'
+    | 'missingLaboratory'
+    | 'matrixQuery'
+    | 'programmingPlanId'
   >;
 
 interface Props {
@@ -50,6 +54,11 @@ const tagProps = {
   small: true,
   className: clsx(cx('fr-mb-1v'), 'align-left')
 };
+
+type FilterableProp = keyof Omit<
+  FilterableType,
+  keyof Pagination | 'programmingPlanIds' | 'reference' | 'companySirets'
+>;
 
 const filtersConfig = {
   matrixKind: {
@@ -191,10 +200,6 @@ const filtersConfig = {
   );
 };
 
-type FilterableProp = keyof Omit<
-  FilterableType,
-  keyof Pagination | 'programmingPlanId' | 'reference' | 'companySirets'
->;
 const FiltersTags = ({
   title,
   filters,
@@ -209,8 +214,10 @@ const FiltersTags = ({
   );
   const programmingPlan = useMemo(
     () =>
-      programmingPlans?.find((plan) => filters.programmingPlanId === plan.id),
-    [programmingPlans, filters.programmingPlanId]
+      programmingPlans?.find((plan) =>
+        filters.programmingPlanIds?.includes(plan.id)
+      ),
+    [programmingPlans, filters.programmingPlanIds]
   );
 
   const hasFilters = useMemo(

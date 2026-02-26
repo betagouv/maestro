@@ -24,7 +24,6 @@ const SampleListHeader = ({
   const dispatch = useAppDispatch();
   const { isMobile } = useWindowSize();
 
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   const { sampleListDisplay } = useAppSelector((state) => state.samples);
 
   const changeReference = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,7 +85,6 @@ const SampleListHeader = ({
               window.open(
                 getSampleListExportURL({
                   ...findSampleOptions,
-                  programmingPlanId: programmingPlan?.id as string,
                   perPage: undefined,
                   page: undefined
                 })

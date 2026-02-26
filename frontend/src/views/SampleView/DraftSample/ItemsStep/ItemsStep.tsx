@@ -34,7 +34,6 @@ import SampleItems from '../../../../components/Sample/SampleItems/SampleItems';
 import SampleProcedure from '../../../../components/Sample/SampleProcedure/SampleProcedure';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
 import { useAuthentication } from '../../../../hooks/useAuthentication';
-import { useAppSelector } from '../../../../hooks/useStore';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 import SupportDocumentDownload from '../SupportDocumentDownload';
@@ -42,11 +41,9 @@ import SupportDocumentDownload from '../SupportDocumentDownload';
 const ItemsStep = ({ partialSample }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
-  const { readonly } = usePartialSample(partialSample);
+  const { readonly, programmingPlan } = usePartialSample(partialSample);
   const { trackEvent } = useAnalytics();
   const { user } = useAuthentication();
-
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
 
   const isSubmittingRef = useRef<boolean>(false);
 
