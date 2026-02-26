@@ -47,7 +47,7 @@ const SamplePrimaryFilters = ({
           options={selectOptionsFromList(
             MatrixKindList.filter(
               (matrixKind) =>
-                !filters.programmingPlanId ||
+                (filters.programmingPlanIds ?? []).length === 0 ||
                 (filters.contexts ?? []).length === 0 ||
                 !prescriptions ||
                 prescriptions.find((p) => p.matrixKind === matrixKind)
@@ -76,7 +76,7 @@ const SamplePrimaryFilters = ({
           options={selectOptionsFromList(
             MatrixList.filter(
               (matrix) =>
-                (!filters.programmingPlanId ||
+                ((filters.programmingPlanIds ?? []).length === 0 ||
                   (filters.contexts ?? []).length === 0 ||
                   !prescriptions ||
                   prescriptions.find((p) =>
