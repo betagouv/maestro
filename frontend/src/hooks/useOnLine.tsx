@@ -15,6 +15,9 @@ export const useOnLine = () => {
   const { data: yearProgrammingPlans } = apiClient.useFindProgrammingPlansQuery(
     {
       year: Number(new Date().getFullYear())
+    },
+    {
+      skip: !isAuthenticated
     }
   );
 
