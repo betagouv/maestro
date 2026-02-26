@@ -82,12 +82,7 @@ const SampleView = ({ sample }: Props) => {
             />
           </div>
         )}
-        {step === 1 && (
-          <ContextStep
-            programmingPlan={programmingPlan}
-            partialSample={sample}
-          />
-        )}
+        {step === 1 && <ContextStep partialSample={sample} />}
         {step === 2 && sample && <MatrixStep partialSample={sample} />}
         {step === 3 && sample && <ItemsStep partialSample={sample} />}
         {step === 4 && sample && (
