@@ -90,7 +90,8 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'deleteDocument',
     'readCompanies',
     'readAnalysis',
-    'viewDashboard'
+    'viewDashboard',
+    'exportSamplesWithCodes'
   ],
   RegionalCoordinator: [
     'readProgrammingPlans',

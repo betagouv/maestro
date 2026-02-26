@@ -294,7 +294,10 @@ export const sampleRouter = {
         'yyyy-MM-dd-HH-mm-ss'
       )}.xls`;
 
-      const buffer = await excelService.generateSamplesExportExcel(samples);
+      const buffer = await excelService.generateSamplesExportExcel(
+        samples,
+        hasPermission(userRole, 'exportSamplesWithCodes')
+      );
 
       setHeader(
         'Content-disposition',

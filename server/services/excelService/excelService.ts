@@ -2,7 +2,6 @@ import carbone, { RenderOptions } from 'carbone';
 import { format } from 'date-fns';
 import highland from 'highland';
 import { isNil, sumBy } from 'lodash-es';
-import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { Department } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
@@ -23,6 +22,15 @@ import {
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
+  MatrixSpecificDataForm,
+  MatrixSpecificDataFormInputProps
+} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
+import {
+  getSpecificDataValue,
+  MatrixSpecificDataFormInputs,
+  SampleMatrixSpecificDataKeys
+} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
+import {
   getPrescriptionTitle,
   Prescription,
   PrescriptionSort
@@ -34,6 +42,7 @@ import {
   PartialSample
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
+import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
@@ -69,11 +78,16 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
   resytalId: string;
   notesOnCreation: string;
   matrix: string;
-  matrixDetails: string;
+  matrixCode?: string;
   matrixPart: string;
   stage: string;
-  cultureKind: string;
-  releaseControl: string;
+  stageCode: string;
+  specificData: {
+    key: SampleMatrixSpecificDataKeys;
+    label: string;
+    value: string | null;
+    code: string | null | undefined;
+  }[];
   notesOnMatrix: string;
   notesOnItems: string;
   notesOnAdmissibility: string;
@@ -83,6 +97,7 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
     copyNumber: number;
     quantity: number;
     quantityUnit: string;
+    quantityUnitCode: string;
     sealId: string;
     recipient: string;
     compliance200263: string;
@@ -131,7 +146,8 @@ const optionalBooleanToString = (
       : (booleanValue ?? '');
 
 const generateSamplesExportExcel = async (
-  samples: PartialSample[]
+  samples: PartialSample[],
+  withCodes = false
 ): Promise<Buffer> => {
   const laboratories = await laboratoryRepository.findMany();
 
@@ -192,19 +208,34 @@ const generateSamplesExportExcel = async (
         resytalId: sample.resytalId,
         notesOnCreation: sample.notesOnCreation,
         matrix: sample.matrix ? getSampleMatrixLabel(sample) : undefined,
-        matrixDetails:
-          sample.specificData?.programmingPlanKind === 'PPV'
-            ? sample.specificData?.matrixDetails
-            : undefined,
+        matrixCode: sample.matrix,
         matrixPart: getMatrixPartLabel(sample),
         stage: sample.stage ? StageLabels[sample.stage] : undefined,
-        cultureKind: getCultureKindLabel(sample),
-        releaseControl:
-          sample.specificData?.programmingPlanKind === 'PPV'
-            ? sample.specificData.releaseControl
-              ? 'Oui'
-              : 'Non'
-            : undefined,
+        stageCode: sample.stage,
+        specificData: (
+          Object.entries(
+            MatrixSpecificDataForm[sample.specificData.programmingPlanKind]
+          ) as [
+            SampleMatrixSpecificDataKeys,
+            MatrixSpecificDataFormInputProps
+          ][]
+        ).map(([inputKey, inputProps]) => ({
+          key: inputKey,
+          label:
+            inputProps.label ?? MatrixSpecificDataFormInputs[inputKey].label,
+          value: getSpecificDataValue(
+            inputKey,
+            sample.specificData as SampleMatrixSpecificData
+          ),
+          code:
+            sample.specificData[inputKey as keyof SampleMatrixSpecificData] !==
+            getSpecificDataValue(
+              inputKey,
+              sample.specificData as SampleMatrixSpecificData
+            )
+              ? sample.specificData[inputKey as keyof SampleMatrixSpecificData]
+              : undefined
+        })),
         notesOnMatrix: sample.notesOnMatrix,
         notesOnItems: sample.notesOnItems,
         notesOnAdmissibility: sample.notesOnAdmissibility,
@@ -216,6 +247,7 @@ const generateSamplesExportExcel = async (
           quantityUnit: item.quantityUnit
             ? QuantityUnitLabels[item.quantityUnit]
             : undefined,
+          quantityUnitCode: item.quantityUnit,
           sealId: item.sealId,
           recipient:
             item.recipientKind &&
@@ -287,11 +319,30 @@ const generateSamplesExportExcel = async (
         }))
       };
 
+      if (withCodes) {
+        data['matrixCode'] = sample.matrix;
+      }
+
       return data;
     })
     .collect()
-    .map((s) => {
-      const items = s
+    .map((samples) => {
+      const specificDataHeaders = samples
+        .flatMap((sample) => sample.specificData ?? [])
+        .reduce<
+          { key: SampleMatrixSpecificDataKeys; label: string }[]
+        >((acc, { key, label }) => (acc.some((h) => h.key === key) ? acc : [...acc, { key, label }]), []);
+
+      const completedSamples = samples.map((sample) => ({
+        ...sample,
+        specificData: specificDataHeaders.map(({ key, label }) => ({
+          ...sample.specificData?.find((d) => d.key === key),
+          key,
+          label
+        }))
+      }));
+
+      const items = completedSamples
         .flatMap((sample) => sample.items)
         .filter((i) => !isNil(i));
       const residues = items
@@ -301,9 +352,10 @@ const generateSamplesExportExcel = async (
         .flatMap((r) => r.analytes)
         .filter((a) => !isNil(a));
       return carboneRender(
-        'samplesExport',
+        withCodes ? 'samplesExportWithCodes' : 'samplesExport',
         {
-          samples: s,
+          specificDataHeaders,
+          samples: completedSamples,
           items,
           residues,
           analytes
