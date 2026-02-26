@@ -268,7 +268,7 @@ export const generateXMLDAI = (
                 sampleItem.itemNumber,
                 sampleItem.copyNumber
               ),
-              Commentaire: sampleItem.sealId ?? ''
+              Commentaire: sampleItem.sealId
             },
             DialogueCommemoratif: commemoratifs.map((c) => {
               if ('sigleValue' in c) {
