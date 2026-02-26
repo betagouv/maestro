@@ -130,7 +130,6 @@ const ItemsStep = ({ partialSample }: Props) => {
   }, [localPrescription, programmingPlan]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const Form = z.object(SampleItemsDataChecked.shape).pick({
-    context: true,
     sampledAt: true,
     shippingDate: true,
     notesOnItems: true,
@@ -234,7 +233,6 @@ const ItemsStep = ({ partialSample }: Props) => {
   const form = useForm(
     FormChecked,
     {
-      context: partialSample.context,
       sampledAt,
       shippingDate,
       items,

@@ -76,7 +76,9 @@ const MatrixStepSummary = ({
         .filter(([_, inputProps]) => inputProps.position !== 'pre')
         .map(([inputKey, inputProps]) => {
           const value = getSpecificDataValue(inputKey, sample.specificData);
-          if (!value) return null;
+          if (!value) {
+            return null;
+          }
 
           const input = MatrixSpecificDataFormInputs[inputKey];
 
@@ -97,7 +99,10 @@ const MatrixStepSummary = ({
                     <Select
                       label=""
                       nativeSelectProps={{
-                        value: value ?? '',
+                        value:
+                          sample.specificData[
+                            inputKey as keyof SampleMatrixSpecificData
+                          ] ?? '',
                         onChange: (e) =>
                           onUpdateSpecificData?.({
                             ...sample.specificData,
