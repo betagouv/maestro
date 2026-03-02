@@ -14,6 +14,7 @@ import {
   Context,
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   FindSampleOptions,
   SampleCompliance
@@ -87,6 +88,12 @@ const SampleListView = () => {
     const status = searchParams.get('status') as SampleStatus;
     dispatch(
       samplesSlice.actions.changeFindOptions({
+        programmingPlanIds:
+          (searchParams.get('programmingPlanIds')?.split(',') as string[]) ??
+          undefined,
+        kinds:
+          (searchParams.get('kinds')?.split(',') as ProgrammingPlanKind[]) ??
+          undefined,
         contexts:
           (searchParams.get('contexts')?.split(',') as Context[]) ?? undefined,
         region: hasNationalView
@@ -230,13 +237,14 @@ const SampleListView = () => {
                   <SamplePrimaryFilters
                     filters={findSampleOptions}
                     onChange={changeFilter}
+                    programmingPlans={programmingPlans}
                     samplers={samplers}
                     prescriptions={prescriptions}
                     currentUserId={user?.id}
                   />
                   {programmingPlan && (
                     <SampleSecondaryFilters
-                      programmingPlan={programmingPlan}
+                      year={Number(year)}
                       filters={findSampleOptions}
                       onChange={changeFilter}
                     />
@@ -247,6 +255,7 @@ const SampleListView = () => {
                 <FiltersTags
                   title="Filtres actifs"
                   filters={findSampleOptions}
+                  programmingPlans={programmingPlans}
                   samplers={samplers}
                   onChange={changeFilter}
                 />
@@ -258,23 +267,27 @@ const SampleListView = () => {
             >
               <div className="d-flex-align-start">
                 <div>
-                  <SamplePrimaryFilters
-                    filters={findSampleOptions}
-                    onChange={changeFilter}
-                    samplers={samplers}
-                    prescriptions={prescriptions}
-                    currentUserId={user?.id}
-                  />
-                  {programmingPlan && isFilterExpanded && (
-                    <SampleSecondaryFilters
-                      programmingPlan={programmingPlan}
+                  <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+                    <SamplePrimaryFilters
                       filters={findSampleOptions}
                       onChange={changeFilter}
+                      programmingPlans={programmingPlans}
+                      samplers={samplers}
+                      prescriptions={prescriptions}
+                      currentUserId={user?.id}
                     />
-                  )}
+                    {isFilterExpanded && (
+                      <SampleSecondaryFilters
+                        year={Number(year)}
+                        filters={findSampleOptions}
+                        onChange={changeFilter}
+                      />
+                    )}
+                  </div>
                   <FiltersTags
                     title="Filtres actifs"
                     filters={findSampleOptions}
+                    programmingPlans={programmingPlans}
                     samplers={samplers}
                     onChange={changeFilter}
                   />

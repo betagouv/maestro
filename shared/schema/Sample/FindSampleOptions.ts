@@ -6,6 +6,7 @@ import { Region } from '../../referential/Region';
 import { coerceToArray, coerceToBooleanNullish } from '../../utils/utils';
 import { Pagination } from '../commons/Pagination';
 import { Context } from '../ProgrammingPlan/Context';
+import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import {
   companiesIsRequired,
   departmentIsRequired,
@@ -24,6 +25,7 @@ export const SampleComplianceLabels = {
 export const FindSampleOptions = z
   .object({
     programmingPlanIds: coerceToArray(z.array(z.guid())).nullish(),
+    kinds: coerceToArray(z.array(ProgrammingPlanKind)).nullish(),
     contexts: coerceToArray(z.array(Context)).nullish(),
     region: Region.nullish(),
     departments: coerceToArray(z.array(Department)).nullish(),

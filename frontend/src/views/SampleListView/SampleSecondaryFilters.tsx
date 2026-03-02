@@ -8,7 +8,6 @@ import {
   ContextLabels,
   ContextList
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   FindSampleOptions,
   SampleCompliance,
@@ -20,20 +19,16 @@ import { DepartmentsSelect } from '../../components/DepartmentsSelect/Department
 import { RegionsFilter } from '../../components/RegionsFilter/RegionsFilter';
 
 interface Props {
-  programmingPlan: ProgrammingPlanChecked;
+  year: number;
   filters: Partial<FindSampleOptions>;
   onChange: (filters: Partial<FindSampleOptions>) => void;
 }
 
-const SampleSecondaryFilters = ({
-  programmingPlan,
-  filters,
-  onChange
-}: Props) => {
+const SampleSecondaryFilters = ({ year, filters, onChange }: Props) => {
   const { hasNationalView, hasRegionalView } = useAuthentication();
 
   return (
-    <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+    <>
       {hasNationalView && (
         <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
           <RegionsFilter
@@ -47,8 +42,7 @@ const SampleSecondaryFilters = ({
           />
         </div>
       )}
-      {(programmingPlan?.distributionKind === 'REGIONAL' ||
-        hasRegionalView) && (
+      {hasRegionalView && (
         <div className={cx('fr-col-12', 'fr-col-md-3')}>
           <DepartmentsSelect
             filters={filters}
@@ -67,8 +61,8 @@ const SampleSecondaryFilters = ({
           nativeInputProps={{
             type: 'date',
             value: filters.sampledAt ?? '',
-            min: `${programmingPlan?.year}-01-01`,
-            max: `${programmingPlan?.year}-12-31`,
+            min: `${year}-01-01`,
+            max: `${year}-12-31`,
             onChange: (e) => onChange({ sampledAt: e.target.value })
           }}
         />
@@ -138,7 +132,7 @@ const SampleSecondaryFilters = ({
           }
         ></ToggleSwitch>
       </div>
-    </div>
+    </>
   );
 };
 
