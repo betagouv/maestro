@@ -29,7 +29,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1000.0",
     "@faker-js/faker": "^8.2.0",
     "@gouvfr/dsfr": "^1.13.0",
-    "@sentry/node": "^10.32.1",
+    "@sentry/node": "^10.41.0",
     "@swc-node/register": "^1.11.1",
     "@swc/core": "^1.15.11",
     "bwip-js": "^4.8.0",
