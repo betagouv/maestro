@@ -119,7 +119,8 @@ const findRequest = (findOptions: FindSampleOptions) =>
           'departments',
           'compliance',
           'withAtLeastOneResidue',
-          'programmingPlanIds'
+          'programmingPlanIds',
+          'kinds'
         ),
         (_) => isNil(_) || isArray(_)
       )
@@ -129,6 +130,12 @@ const findRequest = (findOptions: FindSampleOptions) =>
         builder.whereIn(
           `${samplesTable}.programmingPlanId`,
           findOptions.programmingPlanIds
+        );
+      }
+      if (findOptions.kinds) {
+        builder.whereRaw(
+          `${samplesTable}.specific_data->>'programmingPlanKind' = ANY(?)`,
+          [findOptions.kinds]
         );
       }
       if (findOptions.region) {

@@ -126,11 +126,13 @@ const SampleListView = () => {
 
   const { data: samples } = apiClient.useFindSamplesQuery({
     ...findSampleOptions,
-    programmingPlanIds: toArray(programmingPlan?.id)
+    programmingPlanIds:
+      findSampleOptions.programmingPlanIds ?? toArray(programmingPlan?.id)
   });
   const { data: samplesCount } = apiClient.useCountSamplesQuery({
     ...omit(findSampleOptions, 'page', 'perPage'),
-    programmingPlanIds: toArray(programmingPlan?.id)
+    programmingPlanIds:
+      findSampleOptions.programmingPlanIds ?? toArray(programmingPlan?.id)
   });
   const { data: prescriptions } = apiClient.useFindPrescriptionsQuery(
     {
