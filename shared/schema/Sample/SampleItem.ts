@@ -1,6 +1,7 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { QuantityUnit } from '../../referential/QuantityUnit';
+import { maestroDateRefined } from '../../utils/date';
 import { isDefinedAndNotNull } from '../../utils/utils';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 import { SampleChecked } from './Sample';
@@ -45,7 +46,15 @@ export const SampleItem = z.object({
         "Veuillez renseigner le laboratoire destinataire de l'échantillon."
     })
     .nullish(),
-  substanceKind: SubstanceKind
+  substanceKind: SubstanceKind,
+  shippingDate: maestroDateRefined.nullish(),
+  destructionDate: maestroDateRefined.nullish(),
+  carrier: z.string().nullish(),
+  invoicingDate: maestroDateRefined.nullish(),
+  payment: z.boolean().nullish(),
+  paymentDate: maestroDateRefined.nullish(),
+  invoiceNumber: z.string().nullish(),
+  budgetNotes: z.string().nullish()
 });
 
 export const PartialSampleItem = z.object({
