@@ -63,6 +63,7 @@ export const MaestroRoutes = [
   '/samples/:sampleId/document',
   '/samples/:sampleId/emptyForm',
   '/samples/:sampleId/items/:itemNumber/copy/:copyNumber/document',
+  '/samples/:sampleId/items/:itemNumber/copy/:copyNumber',
   '/samples/:sampleId',
   '/specific-data-attribute/value',
   '/specific-data-attribute',

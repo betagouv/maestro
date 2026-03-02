@@ -404,6 +404,30 @@ export const sampleRouter = {
       return { status: constants.HTTP_STATUS_OK, response: pdfBuffer };
     }
   },
+  '/samples/:sampleId/items/:itemNumber/copy/:copyNumber': {
+    put: async (
+      { body: itemUpdate, user, userRole },
+      { sampleId, itemNumber, copyNumber }
+    ) => {
+      const sample = await getAndCheckSample(sampleId, user, userRole);
+      console.info('Update sampleItem', sample.id, itemNumber, copyNumber);
+
+      if (!hasPermission(userRole, 'updateSample')) {
+        throw new UserRoleMissingError();
+      } else if (sample.region !== user.region) {
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
+      }
+
+      await sampleItemRepository.update(
+        sample.id,
+        itemNumber,
+        copyNumber,
+        itemUpdate
+      );
+
+      return { status: constants.HTTP_STATUS_OK };
+    }
+  },
   '/samples/:sampleId/emptyForm': {
     get: async ({ user, userRole }, { sampleId }, { setHeader }) => {
       const sample = await getAndCheckSample(sampleId, user, userRole);
