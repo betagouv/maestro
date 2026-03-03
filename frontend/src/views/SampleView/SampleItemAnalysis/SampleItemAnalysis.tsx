@@ -67,8 +67,8 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
     destructionDate: maestroDateRefined.nullable(),
     carrier: z.string().nullable(),
     invoicingDate: maestroDateRefined.nullable(),
-    payment: z.boolean().nullable(),
-    paymentDate: maestroDateRefined.nullable(),
+    paid: z.boolean().nullable(),
+    paidDate: maestroDateRefined.nullable(),
     invoiceNumber: z.string().nullable(),
     budgetNotes: z.string().nullable()
   });
@@ -100,8 +100,8 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
       'destructionDate',
       'carrier',
       'invoicingDate',
-      'payment',
-      'paymentDate',
+      'paid',
+      'paidDate',
       'invoiceNumber',
       'budgetNotes'
     ),
@@ -284,15 +284,15 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                   { label: 'Payé', value: 'true' },
                   { label: 'Non payé', value: 'false' }
                 ]}
-                value={localSampleItem.payment === true ? 'true' : 'false'}
+                value={localSampleItem.paid === true ? 'true' : 'false'}
                 onChange={(e) =>
                   setLocalSampleItem({
                     ...localSampleItem,
-                    payment: e.target.value === 'true'
+                    paid: e.target.value === 'true'
                   })
                 }
                 inputForm={form}
-                inputKey="payment"
+                inputKey="paid"
                 whenValid="Statut de paiement correctement renseigné."
                 disabled={readonly}
               />
@@ -301,17 +301,17 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
               <AppTextInput
                 type="date"
                 label="Date de paiement"
-                value={localSampleItem.paymentDate ?? ''}
+                value={localSampleItem.paidDate ?? ''}
                 onChange={(e) =>
                   setLocalSampleItem({
                     ...localSampleItem,
-                    paymentDate: e.target.value as MaestroDate | null
+                    paidDate: e.target.value as MaestroDate | null
                   })
                 }
                 inputForm={form}
-                inputKey="paymentDate"
-                state={form.messageType('paymentDate')}
-                stateRelatedMessage={form.message('paymentDate')}
+                inputKey="paidDate"
+                state={form.messageType('paidDate')}
+                stateRelatedMessage={form.message('paidDate')}
                 whenValid="Date de paiement correctement renseignée."
                 disabled={readonly}
               />

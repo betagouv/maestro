@@ -51,8 +51,8 @@ export const SampleItem = z.object({
   destructionDate: maestroDateRefined.nullish(),
   carrier: z.string().nullish(),
   invoicingDate: maestroDateRefined.nullish(),
-  payment: z.boolean().nullish(),
-  paymentDate: maestroDateRefined.nullish(),
+  paid: z.boolean().nullish(),
+  paidDate: maestroDateRefined.nullish(),
   invoiceNumber: z.string().nullish(),
   budgetNotes: z.string().nullish()
 });
