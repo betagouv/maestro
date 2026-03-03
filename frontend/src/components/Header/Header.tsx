@@ -8,6 +8,7 @@ import { uniq } from 'lodash-es';
 import { Brand } from 'maestro-shared/constants';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { isClosed } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import { UserRole, UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
@@ -52,6 +53,7 @@ const Header = () => {
 
   const { isAuthenticated, hasUserPermission, user, userRole } =
     useAuthentication();
+  const userRefined = UserRefined.optional().parse(user);
   const { mascaradeEnabled, disableMascarade } = useMascarade();
   const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
@@ -350,12 +352,14 @@ const Header = () => {
                     ))}
                   />
                 ) : undefined,
-                userRole && user?.roles && user.roles.length > 1 ? (
+                userRole &&
+                userRefined?.roles &&
+                userRefined.roles.length > 1 ? (
                   <HeaderMenu
                     key="roleMenu"
                     ref={roleMenuRef}
                     value={UserRoleLabels[userRole]}
-                    menuItems={user.roles.map((role) => (
+                    menuItems={userRefined.roles.map((role) => (
                       <Button
                         key={`role-menu-${role}`}
                         onClick={() => changeUserRole(role)}
