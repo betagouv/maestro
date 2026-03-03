@@ -1,12 +1,11 @@
 import Accordion from '@codegouvfr/react-dsfr/Accordion';
 import Alert from '@codegouvfr/react-dsfr/Alert';
-import Input from '@codegouvfr/react-dsfr/Input';
-import Select from '@codegouvfr/react-dsfr/Select';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { pick } from 'lodash-es';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
-import { MaestroDate } from 'maestro-shared/utils/date';
+import { MaestroDate, maestroDateRefined } from 'maestro-shared/utils/date';
 import {
   FunctionComponent,
   useContext,
@@ -16,8 +15,13 @@ import {
 } from 'react';
 import { useLocation } from 'react-router';
 import { usePartialSample } from 'src/hooks/usePartialSample';
+import { z } from 'zod';
+import AppSelect from '../../../components/_app/AppSelect/AppSelect';
+import { defaultAppSelectOption } from '../../../components/_app/AppSelect/AppSelectOption';
+import AppTextInput from '../../../components/_app/AppTextInput/AppTextInput';
 import UserFeedback from '../../../components/UserFeedback/UserFeedback';
 import { useAuthentication } from '../../../hooks/useAuthentication';
+import { useForm } from '../../../hooks/useForm';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
 import { SampleItemAdmissibility } from './SampleItemAdmissibility/SampleItemAdmissibility';
@@ -58,53 +62,51 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
 
   const [updateSampleItem] = apiClient.useUpdateSampleItemMutation();
 
-  const [shippingDate, setShippingDate] = useState(
-    sampleItem.shippingDate ?? ''
+  const Form = z.object({
+    shippingDate: maestroDateRefined.nullable(),
+    destructionDate: maestroDateRefined.nullable(),
+    carrier: z.string().nullable(),
+    invoicingDate: maestroDateRefined.nullable(),
+    payment: z.boolean().nullable(),
+    paymentDate: maestroDateRefined.nullable(),
+    invoiceNumber: z.string().nullable(),
+    budgetNotes: z.string().nullable()
+  });
+
+  type FormSchema = z.infer<typeof Form>;
+
+  const [localSampleItem, setLocalSampleItem] = useState(
+    sampleItem as FormSchema
   );
-  const [destructionDate, setDestructionDate] = useState(
-    sampleItem.destructionDate ?? ''
-  );
-  const [carrier, setCarrier] = useState(sampleItem.carrier ?? '');
-  const [invoicingDate, setInvoicingDate] = useState(
-    sampleItem.invoicingDate ?? ''
-  );
-  const [payment, setPayment] = useState(
-    sampleItem.payment === true
-      ? 'true'
-      : sampleItem.payment === false
-        ? 'false'
-        : ''
-  );
-  const [paymentDate, setPaymentDate] = useState(sampleItem.paymentDate ?? '');
-  const [invoiceNumber, setInvoiceNumber] = useState(
-    sampleItem.invoiceNumber ?? ''
-  );
-  const [budgetNotes, setBudgetNotes] = useState(sampleItem.budgetNotes ?? '');
 
   useEffect(() => {
-    setShippingDate(sampleItem.shippingDate ?? '');
-    setDestructionDate(sampleItem.destructionDate ?? '');
-    setCarrier(sampleItem.carrier ?? '');
-    setInvoicingDate(sampleItem.invoicingDate ?? '');
-    setPayment(
-      sampleItem.payment === true
-        ? 'true'
-        : sampleItem.payment === false
-          ? 'false'
-          : ''
-    );
-    setPaymentDate(sampleItem.paymentDate ?? '');
-    setInvoiceNumber(sampleItem.invoiceNumber ?? '');
-    setBudgetNotes(sampleItem.budgetNotes ?? '');
+    setLocalSampleItem(sampleItem as FormSchema);
   }, [sampleItem]);
 
-  const saveItem = (changes: Partial<SampleItem>) =>
-    updateSampleItem({
+  const save = async () => {
+    await updateSampleItem({
       sampleId: sampleItem.sampleId,
       itemNumber: sampleItem.itemNumber,
       copyNumber: sampleItem.copyNumber,
-      item: { ...sampleItem, ...changes }
+      item: { ...sampleItem, ...localSampleItem }
     });
+  };
+
+  const form = useForm(
+    Form,
+    pick(
+      localSampleItem,
+      'shippingDate',
+      'destructionDate',
+      'carrier',
+      'invoicingDate',
+      'payment',
+      'paymentDate',
+      'invoiceNumber',
+      'budgetNotes'
+    ),
+    save
+  );
 
   const readonly = useMemo(
     () =>
@@ -194,53 +196,61 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 {!sampleItem.compliance200263 && 'non '}respectée
               </div>
             </div>
-          </div>
-          <div
-            className={cx('fr-grid-row', 'fr-grid-row--gutters', 'fr-mt-2w')}
-          >
             <div className={cx('fr-col-4')}>
-              <Input
+              <AppTextInput
+                type="date"
                 label="Date d'expédition"
-                nativeInputProps={{
-                  type: 'date',
-                  value: shippingDate,
-                  disabled: readonly,
-                  onChange: (e) => setShippingDate(e.target.value),
-                  onBlur: (e) =>
-                    void saveItem({
-                      shippingDate: (e.target.value ||
-                        null) as MaestroDate | null
-                    })
-                }}
+                value={localSampleItem.shippingDate ?? ''}
+                onChange={(e) =>
+                  setLocalSampleItem({
+                    ...localSampleItem,
+                    shippingDate: e.target.value as MaestroDate | null
+                  })
+                }
+                inputForm={form}
+                inputKey="shippingDate"
+                state={form.messageType('shippingDate')}
+                stateRelatedMessage={form.message('shippingDate')}
+                whenValid="Date d'expédition correctement renseignée."
+                disabled={readonly}
               />
             </div>
             <div className={cx('fr-col-4')}>
-              <Input
+              <AppTextInput
+                type="date"
                 label="Date de destruction"
-                nativeInputProps={{
-                  type: 'date',
-                  value: destructionDate,
-                  disabled: readonly,
-                  onChange: (e) => setDestructionDate(e.target.value),
-                  onBlur: (e) =>
-                    void saveItem({
-                      destructionDate: (e.target.value ||
-                        null) as MaestroDate | null
-                    })
-                }}
+                value={localSampleItem.destructionDate ?? ''}
+                onChange={(e) =>
+                  setLocalSampleItem({
+                    ...localSampleItem,
+                    destructionDate: e.target.value as MaestroDate | null
+                  })
+                }
+                inputForm={form}
+                inputKey="destructionDate"
+                state={form.messageType('destructionDate')}
+                stateRelatedMessage={form.message('destructionDate')}
+                whenValid="Date de destruction correctement renseignée."
+                disabled={readonly}
               />
             </div>
             <div className={cx('fr-col-4')}>
-              <Input
+              <AppTextInput
+                type="text"
                 label="Transporteur"
-                nativeInputProps={{
-                  type: 'text',
-                  value: carrier,
-                  disabled: readonly,
-                  onChange: (e) => setCarrier(e.target.value),
-                  onBlur: (e) =>
-                    void saveItem({ carrier: e.target.value || null })
-                }}
+                value={localSampleItem.carrier ?? ''}
+                onChange={(e) =>
+                  setLocalSampleItem({
+                    ...localSampleItem,
+                    carrier: e.target.value
+                  })
+                }
+                inputForm={form}
+                inputKey="carrier"
+                state={form.messageType('carrier')}
+                stateRelatedMessage={form.message('carrier')}
+                whenValid="Transporteur correctement renseigné."
+                disabled={readonly}
               />
             </div>
           </div>
@@ -248,87 +258,102 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
         <Accordion label="Facturation">
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-4')}>
-              <Input
+              <AppTextInput
+                type="date"
                 label="Date de facturation"
-                nativeInputProps={{
-                  type: 'date',
-                  value: invoicingDate,
-                  disabled: readonly,
-                  onChange: (e) => setInvoicingDate(e.target.value),
-                  onBlur: (e) =>
-                    void saveItem({
-                      invoicingDate: (e.target.value ||
-                        null) as MaestroDate | null
-                    })
-                }}
+                value={localSampleItem.invoicingDate ?? ''}
+                onChange={(e) =>
+                  setLocalSampleItem({
+                    ...localSampleItem,
+                    invoicingDate: e.target.value as MaestroDate | null
+                  })
+                }
+                inputForm={form}
+                inputKey="invoicingDate"
+                state={form.messageType('invoicingDate')}
+                stateRelatedMessage={form.message('invoicingDate')}
+                whenValid="Date de facturation correctement renseignée."
+                disabled={readonly}
               />
             </div>
             <div className={cx('fr-col-4')}>
-              <Select
+              <AppSelect
                 label="Paiement"
+                options={[
+                  defaultAppSelectOption(),
+                  { label: 'Payé', value: 'true' },
+                  { label: 'Non payé', value: 'false' }
+                ]}
+                value={localSampleItem.payment === true ? 'true' : 'false'}
+                onChange={(e) =>
+                  setLocalSampleItem({
+                    ...localSampleItem,
+                    payment: e.target.value === 'true'
+                  })
+                }
+                inputForm={form}
+                inputKey="payment"
+                whenValid="Statut de paiement correctement renseigné."
                 disabled={readonly}
-                nativeSelectProps={{
-                  value: payment,
-                  onChange: (e) => {
-                    setPayment(e.target.value);
-                    void saveItem({
-                      payment:
-                        e.target.value === 'true'
-                          ? true
-                          : e.target.value === 'false'
-                            ? false
-                            : null
-                    });
-                  }
-                }}
-              >
-                <option value="">-</option>
-                <option value="true">Payé</option>
-                <option value="false">Non payé</option>
-              </Select>
+              />
             </div>
             <div className={cx('fr-col-4')}>
-              <Input
+              <AppTextInput
+                type="date"
                 label="Date de paiement"
-                nativeInputProps={{
-                  type: 'date',
-                  value: paymentDate,
-                  disabled: readonly,
-                  onChange: (e) => setPaymentDate(e.target.value),
-                  onBlur: (e) =>
-                    void saveItem({
-                      paymentDate: (e.target.value ||
-                        null) as MaestroDate | null
-                    })
-                }}
+                value={localSampleItem.paymentDate ?? ''}
+                onChange={(e) =>
+                  setLocalSampleItem({
+                    ...localSampleItem,
+                    paymentDate: e.target.value as MaestroDate | null
+                  })
+                }
+                inputForm={form}
+                inputKey="paymentDate"
+                state={form.messageType('paymentDate')}
+                stateRelatedMessage={form.message('paymentDate')}
+                whenValid="Date de paiement correctement renseignée."
+                disabled={readonly}
               />
             </div>
           </div>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-4')}>
-              <Input
+              <AppTextInput
+                type="text"
                 label="Numéro de facture"
-                nativeInputProps={{
-                  type: 'text',
-                  value: invoiceNumber,
-                  disabled: readonly,
-                  onChange: (e) => setInvoiceNumber(e.target.value),
-                  onBlur: (e) =>
-                    void saveItem({ invoiceNumber: e.target.value || null })
-                }}
+                value={localSampleItem.invoiceNumber ?? ''}
+                onChange={(e) =>
+                  setLocalSampleItem({
+                    ...localSampleItem,
+                    invoiceNumber: e.target.value
+                  })
+                }
+                inputForm={form}
+                inputKey="invoiceNumber"
+                state={form.messageType('invoiceNumber')}
+                stateRelatedMessage={form.message('invoiceNumber')}
+                whenValid="Numéro de facture correctement renseigné."
+                disabled={readonly}
               />
             </div>
             <div className={cx('fr-col-8')}>
-              <Input
+              <AppTextInput
+                type="text"
                 label="Notes budgétaires"
-                nativeInputProps={{
-                  type: 'text',
-                  value: budgetNotes,
-                  disabled: readonly,
-                  onChange: (e) => setBudgetNotes(e.target.value),
-                  onBlur: (e) =>
-                    void saveItem({ budgetNotes: e.target.value || null })
-                }}
+                value={localSampleItem.budgetNotes ?? ''}
+                onChange={(e) =>
+                  setLocalSampleItem({
+                    ...localSampleItem,
+                    budgetNotes: e.target.value as MaestroDate | null
+                  })
+                }
+                inputForm={form}
+                inputKey="budgetNotes"
+                state={form.messageType('budgetNotes')}
+                stateRelatedMessage={form.message('budgetNotes')}
+                whenValid="Notes budgétaires correctement renseignées."
+                disabled={readonly}
               />
             </div>
           </div>
