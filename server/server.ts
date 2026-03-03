@@ -37,7 +37,6 @@ export function createServer(): Server {
             frameSrc: [],
             styleSrc: [
               "'self'",
-              'https://unpkg.com/maplibre-gl@4.1.2/dist/maplibre-gl.css',
               // https://github.com/mui/material-ui/issues/19938
               "'unsafe-inline'"
             ],

@@ -1,5 +1,6 @@
 import { Geolocation } from 'maestro-shared/schema/Geolocation/Geolocation';
 import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import { FunctionComponent, useEffect, useState } from 'react';
 import {
   FullscreenControl,

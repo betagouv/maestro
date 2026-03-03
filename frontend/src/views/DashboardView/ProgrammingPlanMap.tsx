@@ -8,19 +8,16 @@ import {
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import maplibregl, {
+  CircleLayerSpecification,
+  FillLayerSpecification,
+  LineLayerSpecification,
   MapGeoJSONFeature,
   Point,
-  StyleSpecification
+  StyleSpecification,
+  SymbolLayerSpecification
 } from 'maplibre-gl';
 import { useContext, useMemo, useRef, useState } from 'react';
-import Map, {
-  CircleLayer,
-  FillLayer,
-  Layer,
-  LineLayer,
-  Source,
-  SymbolLayer
-} from 'react-map-gl/maplibre';
+import Map, { Layer, Source } from 'react-map-gl/maplibre';
 import { useNavigate } from 'react-router';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { ApiClientContext } from '../../services/apiClient';
@@ -132,7 +129,7 @@ const ProgrammingPlanMap = ({
     }))
   });
 
-  const centerCircleLayer: CircleLayer = {
+  const centerCircleLayer: CircleLayerSpecification = {
     id: 'center-circle',
     type: 'circle',
     source: 'centers',
@@ -150,7 +147,7 @@ const ProgrammingPlanMap = ({
     }
   };
 
-  const centerCountLayer: SymbolLayer = {
+  const centerCountLayer: SymbolLayerSpecification = {
     id: 'center-count',
     type: 'symbol',
     source: 'centers',
@@ -164,7 +161,7 @@ const ProgrammingPlanMap = ({
     }
   };
 
-  const regionsFillLayer: FillLayer = {
+  const regionsFillLayer: FillLayerSpecification = {
     id: 'regions-fill',
     type: 'fill',
     source: 'mapbox',
@@ -184,7 +181,7 @@ const ProgrammingPlanMap = ({
     }
   };
 
-  const regionsLineLayer: LineLayer = {
+  const regionsLineLayer: LineLayerSpecification = {
     id: 'regions-line',
     type: 'line',
     source: 'mapbox',
