@@ -9,7 +9,9 @@ import { AppSelectOption } from 'src/components/_app/AppSelect/AppSelectOption';
 interface Props {
   options: AppSelectOption[];
   renderOption?: (
-    props: React.HTMLAttributes<HTMLLIElement> & { key: string },
+    props: React.HTMLAttributes<HTMLLIElement> & {
+      key: string | number | bigint;
+    },
     option: AppSelectOption
   ) => ReactNode;
   value: string;
