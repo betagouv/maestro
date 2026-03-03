@@ -45,7 +45,7 @@
     "express-rate-limit": "^8.2.1",
     "fast-xml-parser": "^5.4.1",
     "handlebars": "^4.7.8",
-    "helmet": "^5.0.2",
+    "helmet": "^8.1.0",
     "highland": "^2.13.5",
     "http-proxy-middleware": "^3.0.5",
     "imapflow": "^1.2.1",
