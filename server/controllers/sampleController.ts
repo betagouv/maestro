@@ -408,12 +408,6 @@ export const sampleRouter = {
       const sample = await getAndCheckSample(sampleId, user, userRole);
       console.info('Update sampleItem', sample.id, itemNumber, copyNumber);
 
-      if (!hasPermission(userRole, 'updateSample')) {
-        throw new UserRoleMissingError();
-      } else if (sample.region !== user.region) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
-      }
-
       await sampleItemRepository.update(
         sample.id,
         itemNumber,
