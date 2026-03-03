@@ -6,8 +6,8 @@ export const up = async (knex: Knex) => {
     table.string('destruction_date');
     table.string('carrier');
     table.string('invoicing_date');
-    table.boolean('payment');
-    table.string('payment_date');
+    table.boolean('paid');
+    table.string('paid_date');
     table.string('invoice_number');
     table.string('budget_notes');
   });
@@ -44,8 +44,8 @@ export const down = async (knex: Knex) => {
     table.dropColumn('destruction_date');
     table.dropColumn('carrier');
     table.dropColumn('invoicing_date');
-    table.dropColumn('payment');
-    table.dropColumn('payment_date');
+    table.dropColumn('paid');
+    table.dropColumn('paid_date');
     table.dropColumn('invoice_number');
     table.dropColumn('budget_notes');
   });

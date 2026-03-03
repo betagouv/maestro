@@ -262,8 +262,8 @@ export interface SampleItems {
   destructionDate: MaestroDate | null;
   carrier: string | null;
   invoicingDate: MaestroDate | null;
-  payment: boolean | null;
-  paymentDate: MaestroDate | null;
+  paid: boolean | null;
+  paidDate: MaestroDate | null;
   invoiceNumber: string | null;
   budgetNotes: string | null;
 }
