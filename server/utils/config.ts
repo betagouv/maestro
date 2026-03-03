@@ -24,9 +24,6 @@ const devDefaultValue = <T extends ZodType>(
 const coerceBoolean = () =>
   z.enum(['true', 'false']).transform((b) => b === 'true');
 
-const kafkaTopic = z.string().brand('kafkaTopic').nullish();
-export type KafkaTopic = z.infer<typeof kafkaTopic>;
-
 const configValidator = z
   .object({
     APPLICATION_HOST: z.url().default('http://localhost:3000'),
@@ -78,10 +75,6 @@ const configValidator = z
       z.string(),
       'ws://localhost:3002?token=1234512345'
     ),
-    KAFKA_URL: z.string().nullish(),
-    KAFKA_TOPIC_DAI: z.string().nullish(),
-    KAFKA_TOPIC_RAI: z.string().nullish(),
-    KAFKA_TOPIC_AN: z.string().nullish(),
     SIGAL_EMAIL: devDefaultValue(z.email(), 'contact@maestro.beta.gouv.fr'),
     SIGAL_SFTP_HOST: z.string().nullish(),
     SIGAL_SFTP_PASSPHRASE: z.string().nullish(),
@@ -156,12 +149,6 @@ const configValidator = z
       browserlessUrl: c.BROWSERLESS_URL,
       mattermostIncomingWebhook: c.MATTERMOST_INCOMING_WEBHOOK,
       m2mBasicToken: c.M2M_BASIC_TOKEN,
-      kafka: {
-        url: c.KAFKA_URL,
-        topicDAI: kafkaTopic.parse(c.KAFKA_TOPIC_DAI),
-        topicRAI: kafkaTopic.parse(c.KAFKA_TOPIC_RAI),
-        topicAN: kafkaTopic.parse(c.KAFKA_TOPIC_AN)
-      },
       sigal: {
         email: c.SIGAL_EMAIL,
         sftp: {
