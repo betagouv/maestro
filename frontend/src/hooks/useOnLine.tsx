@@ -1,27 +1,37 @@
-import React, { useContext, useEffect } from 'react';
+import { toArray } from 'maestro-shared/utils/utils';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppSelector } from 'src/hooks/useStore';
 import { ApiClientContext } from '../services/apiClient';
 import { useAnalytics } from './useAnalytics';
 
 export const useOnLine = () => {
+  const apiClient = useContext(ApiClientContext);
   const { isAuthenticated } = useAuthentication();
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   const [isOnline, setIsOnline] = React.useState(navigator.onLine);
   const { trackEvent } = useAnalytics();
 
-  const { pendingSamples } = useAppSelector((state) => state.samples);
-  const {
-    useLazyFindPrescriptionsQuery,
-    useCreateOrUpdateSampleMutation,
-    useLazyFindSamplesQuery,
-    useLazyGetSampleQuery
-  } = useContext(ApiClientContext);
+  //FIXME à revoir plus généralement avec la gestion de la data en offline
+  const { data: yearProgrammingPlans } = apiClient.useFindProgrammingPlansQuery(
+    {
+      year: Number(new Date().getFullYear())
+    },
+    {
+      skip: !isAuthenticated
+    }
+  );
 
-  const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
-  const [findPrescriptions] = useLazyFindPrescriptionsQuery();
-  const [getSample] = useLazyGetSampleQuery();
-  const [findSamples] = useLazyFindSamplesQuery();
+  const programmingPlan = useMemo(
+    () => yearProgrammingPlans?.[0],
+    [yearProgrammingPlans]
+  );
+
+  const { pendingSamples } = useAppSelector((state) => state.samples);
+
+  const [createOrUpdateSample] = apiClient.useCreateOrUpdateSampleMutation();
+  const [findPrescriptions] = apiClient.useLazyFindPrescriptionsQuery();
+  const [getSample] = apiClient.useLazyGetSampleQuery();
+  const [findSamples] = apiClient.useLazyFindSamplesQuery();
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -59,7 +69,7 @@ export const useOnLine = () => {
           );
 
           const samples = await findSamples({
-            programmingPlanId: programmingPlan?.id as string,
+            programmingPlanIds: toArray(programmingPlan?.id),
             page: 1,
             perPage: 5
           }).unwrap();

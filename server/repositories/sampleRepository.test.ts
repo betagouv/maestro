@@ -8,6 +8,7 @@ import {
   Sample2Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import { toArray } from 'maestro-shared/utils/utils';
 import { describe, expect, test } from 'vitest';
 import { analysisRepository } from './analysisRepository';
 import { documentRepository } from './documentRepository';
@@ -16,20 +17,20 @@ import { sampleRepository } from './sampleRepository';
 describe('count samples', async () => {
   test('count without options', async () => {
     const count = await sampleRepository.count({
-      programmingPlanId: Sample11Fixture.programmingPlanId
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId)
     });
     expect(count).toEqual(4);
   });
 
   test('count with department option', async () => {
     let count = await sampleRepository.count({
-      programmingPlanId: Sample11Fixture.programmingPlanId,
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
       departments: ['72']
     });
     expect(count).toEqual(0);
 
     count = await sampleRepository.count({
-      programmingPlanId: Sample11Fixture.programmingPlanId,
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
       departments: [Sample11Fixture.department as Department]
     });
     expect(count).toEqual(1);
@@ -37,13 +38,13 @@ describe('count samples', async () => {
 
   test('count with region option', async () => {
     let count = await sampleRepository.count({
-      programmingPlanId: Sample11Fixture.programmingPlanId,
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
       region: '01'
     });
     expect(count).toEqual(0);
 
     count = await sampleRepository.count({
-      programmingPlanId: Sample11Fixture.programmingPlanId,
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
       region: Sample11Fixture.region
     });
     expect(count).toEqual(3);
@@ -53,20 +54,20 @@ describe('count samples', async () => {
 describe('findMany samples', async () => {
   test('find without options', async () => {
     const samples = await sampleRepository.findMany({
-      programmingPlanId: Sample11Fixture.programmingPlanId
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId)
     });
     expect(samples).toHaveLength(4);
   });
 
   test('find with department option', async () => {
     let samples = await sampleRepository.findMany({
-      programmingPlanId: Sample11Fixture.programmingPlanId,
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
       departments: ['72']
     });
     expect(samples).toEqual([]);
 
     samples = await sampleRepository.findMany({
-      programmingPlanId: Sample11Fixture.programmingPlanId,
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
       departments: [Sample11Fixture.department as Department]
     });
     expect(samples).toHaveLength(1);
@@ -74,13 +75,13 @@ describe('findMany samples', async () => {
 
   test('find with matrixKind option', async () => {
     let samples = await sampleRepository.findMany({
-      programmingPlanId: Sample11Fixture.programmingPlanId,
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
       matrixKind: 'A00PX'
     });
     expect(samples).toEqual([]);
 
     samples = await sampleRepository.findMany({
-      programmingPlanId: Sample11Fixture.programmingPlanId,
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
       matrixKind: Sample11Fixture.matrixKind as MatrixKind
     });
     expect(samples).toHaveLength(1);
@@ -104,7 +105,7 @@ describe('findMany samples', async () => {
     await analysisRepository.insert(analysisOK);
 
     let samples = await sampleRepository.findMany({
-      programmingPlanId: Sample11Fixture.programmingPlanId,
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
       compliance: 'conform'
     });
     expect(samples).toHaveLength(1);
@@ -120,7 +121,7 @@ describe('findMany samples', async () => {
     await analysisRepository.insert(analysisKO);
 
     samples = await sampleRepository.findMany({
-      programmingPlanId: Sample11Fixture.programmingPlanId,
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
       compliance: 'notConform',
       status: 'DraftMatrix'
     });
@@ -128,7 +129,7 @@ describe('findMany samples', async () => {
     expect(samples[0].id).toBe(analysisKO.sampleId);
 
     samples = await sampleRepository.findMany({
-      programmingPlanId: Sample11Fixture.programmingPlanId
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId)
     });
     expect(samples).not.toHaveLength(1);
   });
@@ -182,12 +183,12 @@ describe('findMany samples', async () => {
     });
 
     let samples = await sampleRepository.findMany({
-      programmingPlanId: Sample11Fixture.programmingPlanId
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId)
     });
     expect(samples).not.toHaveLength(1);
 
     samples = await sampleRepository.findMany({
-      programmingPlanId: Sample11Fixture.programmingPlanId,
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
       withAtLeastOneResidue: true
     });
     expect(samples).toHaveLength(1);

@@ -195,13 +195,6 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    test('should fail if the programmingPlanId is not provided', async () => {
-      await request(app)
-        .get(testRoute({}))
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_BAD_REQUEST);
-    });
-
     test('should find the samples with query parameters restricted to the user region', async () => {
       const successRequestTest = async (user: UserRefined) => {
         const res = await request(app)
@@ -255,7 +248,7 @@ describe('Sample router', () => {
         const res = await request(app)
           .get(
             testRoute({
-              programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+              programmingPlanIds: PPVValidatedProgrammingPlanFixture.id,
               status: 'DraftMatrix,Draft'
             })
           )
@@ -297,13 +290,6 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    test('should fail if the programmingPlanId is not provided', async () => {
-      await request(app)
-        .get(testRoute({}))
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_BAD_REQUEST);
-    });
-
     test('should count the samples with query parameters restricted to the user region', async () => {
       const successRequestTest = async (user: UserRefined) => {
         const res = await request(app)
@@ -329,7 +315,7 @@ describe('Sample router', () => {
         const res = await request(app)
           .get(
             testRoute({
-              programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+              programmingPlanIds: PPVValidatedProgrammingPlanFixture.id,
               status: 'DraftMatrix,Draft'
             })
           )

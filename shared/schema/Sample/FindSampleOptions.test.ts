@@ -11,11 +11,12 @@ import {
   Sampler1Fixture,
   SamplerDaoaFixture
 } from '../../test/userFixtures';
+import { toArray } from '../../utils/utils';
 import { buildFindSampleOptions } from './FindSampleOptions';
 
 describe('buildFindSampleOptions', () => {
   const baseQuery = {
-    programmingPlanId: '00000000-0000-0000-0000-000000000000'
+    programmingPlanIds: toArray('00000000-0000-0000-0000-000000000000')
   };
 
   describe('National roles', () => {
@@ -241,7 +242,7 @@ describe('buildFindSampleOptions', () => {
       );
 
       expect(result).toMatchObject({
-        programmingPlanId: baseQuery.programmingPlanId,
+        programmingPlanIds: baseQuery.programmingPlanIds,
         contexts: query.contexts,
         status: query.status,
         matrix: query.matrix,

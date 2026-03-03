@@ -5,6 +5,7 @@ import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/Pr
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
+import { toArray } from 'maestro-shared/utils/utils';
 import { FunctionComponent, useContext, useMemo } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { DashboardNotice } from '../../components/DashboardNotice/DashboardNotice';
@@ -63,7 +64,7 @@ const DashboardNoticeAndActions: FunctionComponent<Props> = ({
 
   const { data: prioritySamples } = apiClient.useFindSamplesQuery(
     {
-      programmingPlanId: currentValidatedProgrammingPlan?.id as string,
+      programmingPlanIds: toArray(currentValidatedProgrammingPlan?.id),
       status: prioritySamplesStatus,
       sampledBy: user?.id
     },

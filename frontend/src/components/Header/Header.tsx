@@ -4,7 +4,7 @@ import { Header as DSFRHeader } from '@codegouvfr/react-dsfr/Header';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { Badge } from '@mui/material';
 import clsx from 'clsx';
-import { uniq } from 'lodash-es';
+import { isNil, uniq } from 'lodash-es';
 import { Brand } from 'maestro-shared/constants';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { isClosed } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -12,7 +12,7 @@ import { UserRefined } from 'maestro-shared/schema/User/User';
 import { UserRole, UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation, useParams } from 'react-router';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import {
@@ -43,6 +43,7 @@ const Header = () => {
   const { isMobile } = useWindowSize();
   const dispatch = useAppDispatch();
   const apiClient = useContext(ApiClientContext);
+  const { year: yearParam } = useParams<{ year: string }>();
 
   const domainMenuRef = useRef<
     (HTMLDivElement & { closeMenu: () => Promise<boolean> }) | null
@@ -58,8 +59,6 @@ const Header = () => {
   const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
   );
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
-
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
     {},
     { skip: !isAuthenticated }
@@ -209,7 +208,8 @@ const Header = () => {
                             text: year,
                             isActive:
                               isActive('/prelevements') &&
-                              year === programmingPlan?.year
+                              !isNil(yearParam) &&
+                              year === Number(yearParam)
                           }))
                         })
                   }

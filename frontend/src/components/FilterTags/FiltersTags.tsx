@@ -34,7 +34,11 @@ import { PrescriptionFilters } from '../../store/reducers/prescriptionsSlice';
 type FilterableType = FindSampleOptions &
   Omit<
     PrescriptionFilters,
-    'year' | 'missingSlaughterhouse' | 'missingLaboratory' | 'matrixQuery'
+    | 'year'
+    | 'missingSlaughterhouse'
+    | 'missingLaboratory'
+    | 'matrixQuery'
+    | 'programmingPlanId'
   >;
 
 interface Props {
@@ -50,6 +54,11 @@ const tagProps = {
   small: true,
   className: clsx(cx('fr-mb-1v'), 'align-left')
 };
+
+type FilterableProp = keyof Omit<
+  FilterableType,
+  keyof Pagination | 'reference' | 'companySirets'
+>;
 
 const filtersConfig = {
   matrixKind: {
@@ -149,6 +158,25 @@ const filtersConfig = {
     prop: 'domain',
     getLabel: (value) => ProgrammingPlanDomainLabels[value]
   },
+  programmingPlanIds: {
+    prop: 'programmingPlanIds',
+    getComponent: (value, onChange, { programmingPlans }) => (
+      <Fragment key={`tag-programmingPlanIds`}>
+        {value.map((id) => (
+          <Tag
+            {...tagProps}
+            key={`tag-programmingPlanId-${id}`}
+            nativeButtonProps={{
+              onClick: () =>
+                onChange({ programmingPlanIds: value.filter((v) => v !== id) })
+            }}
+          >
+            {programmingPlans?.find((plan) => plan.id === id)?.title ?? id}
+          </Tag>
+        ))}
+      </Fragment>
+    )
+  },
   kinds: {
     prop: 'kinds',
     getComponent: (value, onChange) => (
@@ -176,7 +204,6 @@ const filtersConfig = {
           value: NonNullable<FilterableType[key]>,
           data: {
             sampler?: UserRefined;
-            programmingPlan?: ProgrammingPlanChecked;
           }
         ) => string | null;
         getComponent?: never;
@@ -184,17 +211,16 @@ const filtersConfig = {
     | {
         getComponent: (
           value: NonNullable<FilterableType[key]>,
-          onChange: (filters: Partial<FilterableType>) => void
+          onChange: (filters: Partial<FilterableType>) => void,
+          data: {
+            programmingPlans?: ProgrammingPlanChecked[];
+          }
         ) => ReactNode;
         getLabel?: never;
       }
   );
 };
 
-type FilterableProp = keyof Omit<
-  FilterableType,
-  keyof Pagination | 'programmingPlanId' | 'reference' | 'companySirets'
->;
 const FiltersTags = ({
   title,
   filters,
@@ -206,11 +232,6 @@ const FiltersTags = ({
   const sampler = useMemo(
     () => samplers?.find((user) => user.id === filters.sampledBy),
     [samplers, filters.sampledBy]
-  );
-  const programmingPlan = useMemo(
-    () =>
-      programmingPlans?.find((plan) => filters.programmingPlanId === plan.id),
-    [programmingPlans, filters.programmingPlanId]
   );
 
   const hasFilters = useMemo(
@@ -245,12 +266,13 @@ const FiltersTags = ({
           if (value && (hasNationalView || conf.prop !== 'region')) {
             if ('getComponent' in conf) {
               // @ts-expect-error TS2345 il est perdu
-              return conf.getComponent(value, onChange);
+              return conf.getComponent(value, onChange, {
+                programmingPlans
+              });
             } else {
               // @ts-expect-error TS2345 il est perdu
               const label = conf.getLabel(value, {
-                sampler,
-                programmingPlan: programmingPlan
+                sampler
               });
               if (label) {
                 return (

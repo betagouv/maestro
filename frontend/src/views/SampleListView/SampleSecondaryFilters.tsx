@@ -17,19 +17,18 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { z } from 'zod';
 import { DepartmentsSelect } from '../../components/DepartmentsSelect/DepartmentsSelect';
 import { RegionsFilter } from '../../components/RegionsFilter/RegionsFilter';
-import { useAppSelector } from '../../hooks/useStore';
 
 interface Props {
+  year: number;
   filters: Partial<FindSampleOptions>;
   onChange: (filters: Partial<FindSampleOptions>) => void;
 }
 
-const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
+const SampleSecondaryFilters = ({ year, filters, onChange }: Props) => {
   const { hasNationalView, hasRegionalView } = useAuthentication();
 
-  const { programmingPlan } = useAppSelector((state) => state.programmingPlan);
   return (
-    <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+    <>
       {hasNationalView && (
         <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
           <RegionsFilter
@@ -43,8 +42,7 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
           />
         </div>
       )}
-      {(programmingPlan?.distributionKind === 'REGIONAL' ||
-        hasRegionalView) && (
+      {hasRegionalView && (
         <div className={cx('fr-col-12', 'fr-col-md-3')}>
           <DepartmentsSelect
             filters={filters}
@@ -63,8 +61,8 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
           nativeInputProps={{
             type: 'date',
             value: filters.sampledAt ?? '',
-            min: `${programmingPlan?.year}-01-01`,
-            max: `${programmingPlan?.year}-12-31`,
+            min: `${year}-01-01`,
+            max: `${year}-12-31`,
             onChange: (e) => onChange({ sampledAt: e.target.value })
           }}
         />
@@ -134,7 +132,7 @@ const SampleSecondaryFilters = ({ filters, onChange }: Props) => {
           }
         ></ToggleSwitch>
       </div>
-    </div>
+    </>
   );
 };
 

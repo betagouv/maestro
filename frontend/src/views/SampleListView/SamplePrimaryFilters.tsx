@@ -1,5 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
+import { t } from 'i18next';
 import { difference } from 'lodash-es';
 import { Matrix, MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
 import {
@@ -10,6 +11,12 @@ import {
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import {
+  ProgrammingPlanKind,
+  ProgrammingPlanKindLabels,
+  ProgrammingPlanKindList
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   DraftStatusList,
@@ -23,10 +30,11 @@ import {
   samplersOptions,
   selectOptionsFromList
 } from 'src/components/_app/AppSelect/AppSelectOption';
-
+import { pluralize } from '../../utils/stringUtils';
 interface Props {
   filters: Partial<FindSampleOptions>;
   onChange: (filters: Partial<FindSampleOptions>) => void;
+  programmingPlans?: ProgrammingPlanChecked[];
   samplers?: UserRefined[];
   prescriptions?: Prescription[];
   currentUserId: string | undefined;
@@ -35,19 +43,94 @@ interface Props {
 const SamplePrimaryFilters = ({
   filters,
   onChange,
+  programmingPlans,
   samplers,
   prescriptions,
   currentUserId
 }: Props) => {
   return (
-    <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+    <>
+      {(programmingPlans?.length ?? 0) > 1 && (
+        <>
+          <div className={cx('fr-col-12', 'fr-col-md-3')}>
+            <Select
+              label="Plan"
+              nativeSelectProps={{
+                value: '',
+                onChange: (e) =>
+                  onChange({
+                    programmingPlanIds: [
+                      ...(filters.programmingPlanIds ?? []),
+                      e.target.value as string
+                    ]
+                  })
+              }}
+            >
+              <option value="">
+                {filters.programmingPlanIds?.length
+                  ? t('programmingPlan', {
+                      count: filters.programmingPlanIds?.length
+                    })
+                  : 'Tous'}
+              </option>
+              {programmingPlans
+                ?.filter(
+                  (plan) => !filters.programmingPlanIds?.includes(plan.id)
+                )
+                .map((plan) => (
+                  <option key={`plan-${plan.id}`} value={plan.id}>
+                    {plan.title}
+                  </option>
+                ))}
+            </Select>
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-md-3')}>
+            <Select
+              label="Sous-plan"
+              nativeSelectProps={{
+                value: '',
+                onChange: (e) =>
+                  onChange({
+                    kinds: [
+                      ...(filters.kinds ?? []),
+                      e.target.value as ProgrammingPlanKind
+                    ]
+                  })
+              }}
+            >
+              <option value="">
+                {filters.kinds?.length
+                  ? pluralize(filters.kinds.length, {
+                      preserveCount: true
+                    })('sous-plan')
+                  : 'Tous'}
+              </option>
+              {ProgrammingPlanKindList.filter(
+                (kind) =>
+                  (filters.programmingPlanIds ?? []).length === 0 ||
+                  (filters.programmingPlanIds ?? []).some((id) =>
+                    programmingPlans
+                      ?.find((plan) => plan.id === id)
+                      ?.kinds.includes(kind)
+                  )
+              )
+                .filter((kind) => !filters.kinds?.includes(kind))
+                .map((kind) => (
+                  <option key={`programmingPlanKind-${kind}`} value={kind}>
+                    {ProgrammingPlanKindLabels[kind]}
+                  </option>
+                ))}
+            </Select>
+          </div>
+        </>
+      )}
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
         <AppSearchInput
           value={filters.matrixKind || ''}
           options={selectOptionsFromList(
             MatrixKindList.filter(
               (matrixKind) =>
-                !filters.programmingPlanId ||
+                (filters.programmingPlanIds ?? []).length === 0 ||
                 (filters.contexts ?? []).length === 0 ||
                 !prescriptions ||
                 prescriptions.find((p) => p.matrixKind === matrixKind)
@@ -76,7 +159,7 @@ const SamplePrimaryFilters = ({
           options={selectOptionsFromList(
             MatrixList.filter(
               (matrix) =>
-                (!filters.programmingPlanId ||
+                ((filters.programmingPlanIds ?? []).length === 0 ||
                   (filters.contexts ?? []).length === 0 ||
                   !prescriptions ||
                   prescriptions.find((p) =>
@@ -141,7 +224,7 @@ const SamplePrimaryFilters = ({
           ))}
         </Select>
       </div>
-    </div>
+    </>
   );
 };
 

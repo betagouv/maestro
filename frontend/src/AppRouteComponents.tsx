@@ -1,6 +1,5 @@
 import { AppRouteKeys } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { ReactElement } from 'react';
-import YearRoute from './components/YearRoute/YearRoute';
 import { AdminView } from './views/AdminView/AdminView';
 import DashboardView from './views/DashboardView/DashboardView';
 import DocumentListView from './views/DocumentListView/DocumentListView';
@@ -19,8 +18,8 @@ export const AppRouteComponents = {
   DashboardRoute: DashboardView,
   NotificationsRoute: NotificationsView,
   ProgrammingRoute: ProgrammingView,
-  SamplesByYearRoute: () => <YearRoute element={SampleListView} />,
-  NewSampleRoute: () => <YearRoute element={SampleView} />,
+  SamplesByYearRoute: SampleListView,
+  NewSampleRoute: SampleView,
   SampleRoute: SampleView,
   SampleAnalysisEditRoute: SampleView,
   DocumentsRoute: DocumentListView,

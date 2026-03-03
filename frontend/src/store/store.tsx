@@ -1,7 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { api, tagTypes } from 'src/services/api.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
-import programmingPlanSlice from 'src/store/reducers/programmingPlanSlice';
 import samplesSlice from 'src/store/reducers/samplesSlice';
 import authSlice from './reducers/authSlice';
 
@@ -9,7 +8,6 @@ export const applicationReducer = {
   [authSlice.name]: authSlice.reducer,
   [prescriptionsSlice.name]: prescriptionsSlice.reducer,
   [samplesSlice.name]: samplesSlice.reducer,
-  [programmingPlanSlice.name]: programmingPlanSlice.reducer,
   [api.reducerPath]: api.reducer
 };
 

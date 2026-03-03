@@ -102,7 +102,7 @@ const AppSearchInput = ({
           disabled={disabled}
         />
       </div>
-      {state !== 'default' && (
+      {state && state !== 'default' && (
         <p
           className={cx(
             (() => {

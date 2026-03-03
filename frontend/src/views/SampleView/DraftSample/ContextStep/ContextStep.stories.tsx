@@ -22,11 +22,15 @@ type Story = StoryObj<typeof meta>;
 const programmingPlan = genProgrammingPlan();
 
 export const EmptyForm: Story = {
-  args: { programmingPlan },
   parameters: {
     preloadedState: {
       auth: { authUser: genAuthUser(Sampler1Fixture) }
-    }
+    },
+    apiClient: getMockApi({
+      useFindProgrammingPlansQuery: () => ({
+        data: [programmingPlan]
+      })
+    })
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -49,11 +53,15 @@ export const EmptyForm: Story = {
 };
 
 export const SubmittingErrors: Story = {
-  args: { programmingPlan },
   parameters: {
     preloadedState: {
       auth: { authUser: genAuthUser(Sampler1Fixture) }
-    }
+    },
+    apiClient: getMockApi({
+      useFindProgrammingPlansQuery: () => ({
+        data: [programmingPlan]
+      })
+    })
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -86,7 +94,6 @@ const sampleContextData = genSampleContextData({
 
 export const SubmittingSuccess: Story = {
   args: {
-    programmingPlan,
     partialSample: {
       ...sampleContextData,
       status: 'Draft' as const
@@ -100,7 +107,10 @@ export const SubmittingSuccess: Story = {
       useCreateOrUpdateSampleMutation: [
         async (...args) => await mockCreateOrUpdateSample(...args),
         { isSuccess: true }
-      ]
+      ],
+      useGetProgrammingPlanQuery: () => ({
+        data: programmingPlan
+      })
     })
   },
   play: async ({ canvasElement }) => {
