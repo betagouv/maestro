@@ -75,7 +75,7 @@ export const ProgrammingPlanSort = (
 export const hasProgrammingPlanStatusForAuthUser = (
   programmingPlan: ProgrammingPlanChecked,
   status: ProgrammingPlanStatus[],
-  user?: UserRefined,
+  user?: Pick<UserRefined, 'region' | 'department'>,
   userRole?: UserRole
 ) =>
   userRole &&

@@ -136,7 +136,7 @@ export type LocalPrescriptionPermission = z.infer<
 >;
 
 export const hasLocalPrescriptionPermission = (
-  user: UserBase,
+  user: Pick<UserBase, 'region' | 'department'>,
   userRole: UserRole,
   programmingPlan: ProgrammingPlanChecked,
   localPrescription: { region: Region; department?: Department | null }

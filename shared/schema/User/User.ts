@@ -122,7 +122,7 @@ export type UserBase = z.infer<typeof UserBase>;
 export type Sampler = z.infer<typeof Sampler>;
 
 export const userRegionsForRole = (
-  user: UserBase,
+  user: Pick<UserBase, 'region'>,
   userRole: UserRole
 ): Region[] =>
   user
@@ -134,7 +134,7 @@ export const userRegionsForRole = (
     : [];
 
 export const userDepartmentsForRole = (
-  user: UserBase,
+  user: Pick<UserBase, 'region' | 'department'>,
   userRole: UserRole
 ): Department[] =>
   user?.department

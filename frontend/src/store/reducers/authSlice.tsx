@@ -7,7 +7,9 @@ import {
 const authUser = JSON.parse(localStorage.getItem('authUser') ?? '{}');
 
 type AuthState = {
-  authUser?: AuthUserRefined;
+  authUser?: Omit<AuthUserRefined, 'user'> & {
+    user: Omit<AuthUserRefined['user'], 'roles'>;
+  };
 };
 
 const authSlice = createSlice({
