@@ -33,9 +33,6 @@ export const AppRouteLinks = {
   DocumentsRoute: {
     link: '/documents'
   },
-  ApiDocsRoute: {
-    link: '/api-docs'
-  },
   LoginRoute: {
     link: '/'
   },

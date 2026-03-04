@@ -8,7 +8,6 @@ import HomeView from './views/HomeView/HomeView';
 import { LoginCallbackView } from './views/LoginCallbackView/LoginCallbackView';
 import { LogoutCallbackView } from './views/LogoutCallbackView/LogoutCallbackView';
 import NotificationsView from './views/NotificationsView/NotificationsView';
-import { OpenApiExplorerView } from './views/OpenApiExplorer/OpenApiExplorerView';
 import ProgrammingView from './views/ProgrammingView/ProgrammingView';
 import SampleListView from './views/SampleListView/SampleListView';
 import SampleView from './views/SampleView/SampleView';
@@ -25,7 +24,6 @@ export const AppRouteComponents = {
   DocumentsRoute: DocumentListView,
   DocumentRoute: DocumentView,
   NewDocumentRoute: DocumentView,
-  ApiDocsRoute: OpenApiExplorerView,
   LogoutCallbackRoute: LogoutCallbackView,
   LoginRoute: HomeView,
   LoginCallbackRoute: LoginCallbackView,
