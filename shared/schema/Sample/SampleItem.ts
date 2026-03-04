@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { QuantityUnit } from '../../referential/QuantityUnit';
 import { maestroDateRefined } from '../../utils/date';
 import { isDefinedAndNotNull } from '../../utils/utils';
+import { AnalysisStatus } from '../Analysis/AnalysisStatus';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 import { SampleChecked } from './Sample';
 import { SampleItemRecipientKind } from './SampleItemRecipientKind';
@@ -47,6 +48,8 @@ export const SampleItem = z.object({
     })
     .nullish(),
   substanceKind: SubstanceKind,
+  receiptDate: maestroDateRefined.nullish(),
+  notesOnAdmissibility: z.string().nullish(),
   shippingDate: maestroDateRefined.nullish(),
   destructionDate: maestroDateRefined.nullish(),
   carrier: z.string().nullish(),
@@ -67,8 +70,18 @@ export const PartialSampleItem = z.object({
   sealId: z.string().nullish()
 });
 
+export const SampleItemUpdate = z.object({
+  ...SampleItem.omit({
+    sampleId: true,
+    itemNumber: true,
+    copyNumber: true
+  }).shape,
+  analysisStatus: AnalysisStatus.nullish()
+});
+
 export type SampleItem = z.infer<typeof SampleItem>;
 export type PartialSampleItem = z.infer<typeof PartialSampleItem>;
+export type SampleItemUpdate = z.infer<typeof SampleItemUpdate>;
 
 export const SampleItemSort = (a: PartialSampleItem, b: PartialSampleItem) =>
   a.itemNumber === b.itemNumber

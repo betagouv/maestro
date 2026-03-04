@@ -1,7 +1,8 @@
 import { isNil, omitBy } from 'lodash-es';
 import {
   PartialSampleItem,
-  SampleItemSort
+  SampleItemSort,
+  SampleItemUpdate
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
@@ -105,7 +106,7 @@ const update = async (
   sampleId: string,
   itemNumber: number,
   copyNumber: number,
-  partialSampleItem: PartialSampleItem,
+  partialSampleItem: PartialSampleItem | SampleItemUpdate,
   trx: KyselyMaestro = kysely
 ): Promise<void> => {
   console.info('Update sampleItem', sampleId, copyNumber, partialSampleItem);

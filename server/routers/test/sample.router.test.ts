@@ -750,33 +750,6 @@ describe('Sample router', () => {
       expect(mockMattermostSend).not.toHaveBeenCalled();
       expect(mockMailSend).toHaveBeenCalled();
     });
-
-    test('should update the sample compliance', async () => {
-      const successRequestTest = async (user: UserRefined) => {
-        await request(app)
-          .put(`${testRoute(Sample11Fixture.id)}`)
-          .send({
-            ...validBody,
-            status: 'Analysis',
-            notesOnAdmissibility: 'Admissible'
-          })
-          .use(tokenProvider(user))
-          .expect(constants.HTTP_STATUS_OK);
-
-        await expect(
-          Samples()
-            .where({
-              id: Sample11Fixture.id
-            })
-            .first()
-        ).resolves.toMatchObject({
-          status: 'Analysis',
-          notesOnAdmissibility: 'Admissible'
-        });
-      };
-
-      await successRequestTest(Sampler1Fixture);
-    });
   });
 
   describe('DELETE /samples/{sampleId}', () => {

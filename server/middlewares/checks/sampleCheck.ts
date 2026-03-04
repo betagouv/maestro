@@ -7,7 +7,8 @@ import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { Regions } from 'maestro-shared/referential/Region';
 import {
   PartialSample,
-  PartialSampleToCreate
+  PartialSampleToCreate,
+  SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
 import { UserBase, userRegionsForRole } from 'maestro-shared/schema/User/User';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
@@ -18,7 +19,7 @@ export const getAndCheckSample = async (
   sampleId: string,
   user: UserBase,
   userRole: UserRole
-): Promise<PartialSample> => {
+): Promise<PartialSample | SampleChecked> => {
   const sample = await sampleRepository.findUnique(sampleId);
 
   if (!sample) {

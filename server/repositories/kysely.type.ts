@@ -258,6 +258,8 @@ export interface SampleItems {
   sealId: string | null;
   supportDocumentId: string | null;
   laboratoryId: string | null;
+  receiptDate: MaestroDate | null;
+  notesOnAdmissibility: string | null;
   shippingDate: MaestroDate | null;
   destructionDate: MaestroDate | null;
   carrier: string | null;
