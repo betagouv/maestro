@@ -5,19 +5,27 @@ import { createServer } from './server';
 
 vi.mock('./services/authService', () => ({
   getAuthService: Promise.resolve({
-    getAuthorizationUrl: vi.fn,
+    getAuthorizationUrl: vi.fn(() => ({
+      url: 'https://fakeUrl.com'
+    })),
     authenticate: vi.fn,
     getLogoutUrl: vi.fn
   })
 }));
+
 describe('application', () => {
   const { app } = createServer();
 
   test('les CSP sont présentes', async () => {
     const res = await request(app)
-      .get('/api/api-docs')
+      .get('/api/auth/redirect-url')
       .expect(constants.HTTP_STATUS_OK);
 
+    expect(res.body).toMatchInlineSnapshot(`
+      {
+        "url": "https://fakeUrl.com",
+      }
+    `);
     expect(res.headers['content-security-policy']).toBeDefined();
   });
 });

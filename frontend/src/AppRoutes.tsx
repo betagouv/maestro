@@ -76,12 +76,6 @@ export const AuthenticatedAppRoutes = {
     label: 'Document ressource',
     key: 'document_route'
   },
-  ApiDocsRoute: {
-    ...AppRouteLinks.ApiDocsRoute,
-    path: '/api-docs',
-    label: 'API Docs',
-    key: 'api_docs'
-  },
   LogoutCallbackRoute: {
     ...AppRouteLinks.LogoutCallbackRoute,
     path: '/logout-callback',
