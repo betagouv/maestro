@@ -17,9 +17,9 @@ const geojsonValidator = z.object({
   )
 });
 
-export const departmentsSeed = async () => {
+export const departmentsSeed = async (withBestPrecision: boolean = false) => {
   const query = await fetch(
-    'https://etalab-datasets.geo.data.gouv.fr/contours-administratifs/latest/geojson/departements-5m.geojson'
+    `https://etalab-datasets.geo.data.gouv.fr/contours-administratifs/latest/geojson/departements-${withBestPrecision ? '5' : '1000'}m.geojson`
   );
   const result = geojsonValidator.parse(await query.json());
 
