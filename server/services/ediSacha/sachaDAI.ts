@@ -12,17 +12,13 @@ import {
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
 import { toMaestroDate } from 'maestro-shared/utils/date';
-import { Laboratories, SachaConf } from '../../repositories/kysely.type';
-import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
-import { sachaConfRepository } from '../../repositories/sachaConfRepository';
-import { sampleSpecificDataRepository } from '../../repositories/sampleSpecificDataRepository';
+import { SachaConf } from '../../repositories/kysely.type';
 import {
   NotPPVMatrix,
   SigleContexteIntervention,
   SigleMatrix,
   SiglePlanAnalyse
 } from './sachaReferential';
-import { sendSachaFile } from './sachaSender';
 import {
   generateXML,
   getNumeroDAP,
@@ -30,29 +26,6 @@ import {
   XmlFile
 } from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
-
-export const generateAndSendSachaDAI = async (
-  sample: SampleChecked,
-  item: SampleItem,
-  laboratory: Laboratories
-): Promise<void> => {
-  const dateNow = Date.now();
-  const sachaCommemoratifRecord = await sachaCommemoratifRepository.findAll();
-  const specificDataRecord = await sampleSpecificDataRepository.findAll();
-  const sachaConf = await sachaConfRepository.get();
-
-  const xmlFile = await generateXMLDAI(
-    sample,
-    item,
-    dateNow,
-    specificDataRecord,
-    sachaCommemoratifRecord,
-    sachaConf,
-    laboratory
-  );
-
-  await sendSachaFile(xmlFile, dateNow);
-};
 
 export const generateXMLDAI = (
   sample: Pick<
