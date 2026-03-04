@@ -73,24 +73,22 @@ const ProgrammingPlanDepartmentalValidationList = ({
   const findLocalPrescriptionOptions = useMemo(
     () => ({
       ...findPrescriptionOptions,
-      includes: ['comments' as const, 'sampleCounts' as const]
+      includes: [
+        'comments' as const,
+        'sampleCounts' as const,
+        'laboratories' as const
+      ],
+      region
     }),
-    [findPrescriptionOptions]
+    [findPrescriptionOptions, region]
   );
 
   const { data: departmentalPrescriptions } =
-    apiClient.useFindLocalPrescriptionsQuery(
-      {
-        ...findPrescriptionOptions,
-        region,
-        includes: ['comments']
-      },
-      {
-        skip: !FindLocalPrescriptionOptions.safeParse(
-          findLocalPrescriptionOptions
-        ).success
-      }
-    );
+    apiClient.useFindLocalPrescriptionsQuery(findLocalPrescriptionOptions, {
+      skip: !FindLocalPrescriptionOptions.safeParse(
+        findLocalPrescriptionOptions
+      ).success
+    });
 
   const validatedDepartments = useMemo(
     () =>
@@ -269,6 +267,7 @@ const ProgrammingPlanDepartmentalValidationList = ({
                         )
                         .map((localPrescription) => (
                           <Button
+                            key={`${localPrescription.prescriptionId}-${localPrescription.department}`}
                             priority="tertiary no outline"
                             className={clsx(cx('fr-link'), 'link-underline')}
                             onClick={() => {

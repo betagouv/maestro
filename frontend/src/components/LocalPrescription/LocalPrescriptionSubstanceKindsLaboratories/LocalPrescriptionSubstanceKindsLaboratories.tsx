@@ -12,6 +12,7 @@ interface Props {
   onSubmit: (
     substanceKindsLaboratories: SubstanceKindLaboratory[]
   ) => Promise<void>;
+  readonly?: boolean;
 }
 
 const LocalPrescriptionSubstanceKindsLaboratories = forwardRef<
@@ -22,7 +23,8 @@ const LocalPrescriptionSubstanceKindsLaboratories = forwardRef<
     {
       programmingPlanId,
       substanceKindsLaboratories: defaultSubstanceKindsLaboratories,
-      onSubmit
+      onSubmit,
+      readonly
     },
     ref
   ) => {
@@ -62,6 +64,7 @@ const LocalPrescriptionSubstanceKindsLaboratories = forwardRef<
                     )
                   )
                 }
+                readonly={readonly}
               />
             </div>
           ))}
