@@ -1,3 +1,4 @@
+import XLSX from '@e965/xlsx';
 import { isNil, sumBy } from 'lodash-es';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
@@ -9,7 +10,6 @@ import {
 } from 'maestro-shared/test/prescriptionFixtures';
 import { DAOAInProgressProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import { describe, expect, test } from 'vitest';
-import XLSX from 'xlsx';
 import { excelService } from './excelService';
 
 const prescriptions = [
