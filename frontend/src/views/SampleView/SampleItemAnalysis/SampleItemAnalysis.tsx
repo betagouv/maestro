@@ -160,11 +160,13 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
             sample={sample}
             readonly={readonly}
             sampleItem={sampleItem}
+            sampleItemAnalysis={analysis}
           />
         )}
         {isEditing && sample.status === 'Sent' && (
           <SampleItemAdmissibilityForm
-            sample={sample}
+            sampleItem={sampleItem}
+            sampleItemAnalysis={analysis}
             withSubmitButton={true}
           />
         )}

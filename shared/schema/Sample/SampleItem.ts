@@ -47,6 +47,8 @@ export const SampleItem = z.object({
     })
     .nullish(),
   substanceKind: SubstanceKind,
+  receiptDate: maestroDateRefined.nullish(),
+  notesOnAdmissibility: z.string().nullish(),
   shippingDate: maestroDateRefined.nullish(),
   destructionDate: maestroDateRefined.nullish(),
   carrier: z.string().nullish(),

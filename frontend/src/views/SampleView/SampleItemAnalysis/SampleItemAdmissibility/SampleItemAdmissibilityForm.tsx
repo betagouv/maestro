@@ -1,5 +1,4 @@
 import { format } from 'date-fns';
-import { SampleBase, SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import React, { useContext, useState } from 'react';
 import z from 'zod';
 import { useForm } from '../../../../hooks/useForm';
@@ -7,6 +6,10 @@ import { useForm } from '../../../../hooks/useForm';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
+import { isNil } from 'lodash-es';
+import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
+import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import { MaestroDate } from 'maestro-shared/utils/date';
 import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import check from '../../../../assets/illustrations/check.svg';
@@ -16,22 +19,21 @@ import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTe
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
 import { ApiClientContext } from '../../../../services/apiClient';
 
-const FormChecked = SampleBase.pick({
-  receivedAt: true,
-  notesOnAdmissibility: true
-})
-  .merge(
-    z.object({
-      isReceived: z.boolean({
-        message:
-          'Veuillez renseigner la notification de réception par le laboratoire.'
-      }),
-      isAdmissible: z.boolean().nullish()
-    })
-  )
+const FormChecked = z
+  .object({
+    ...SampleItem.pick({
+      receiptDate: true,
+      notesOnAdmissibility: true
+    }).shape,
+    isReceived: z.boolean({
+      message:
+        'Veuillez renseigner la notification de réception par le laboratoire.'
+    }),
+    isAdmissible: z.boolean().nullish()
+  })
   .check((ctx) => {
     const val = ctx.value;
-    if (val.isReceived && !val.receivedAt) {
+    if (val.isReceived && !val.receiptDate) {
       ctx.issues.push({
         code: 'custom',
         input: val,
@@ -51,12 +53,14 @@ const FormChecked = SampleBase.pick({
 
 export type FormRefinement = ReturnType<typeof useForm<typeof FormChecked>>;
 type Props = {
-  sample: SampleChecked;
+  sampleItem: SampleItem;
+  sampleItemAnalysis?: PartialAnalysis;
   withSubmitButton: boolean;
   setForm?: (form: FormRefinement) => void;
 };
 export const SampleItemAdmissibilityForm: FunctionComponent<Props> = ({
-  sample,
+  sampleItem,
+  sampleItemAnalysis,
   withSubmitButton,
   setForm,
   ..._rest
@@ -64,30 +68,28 @@ export const SampleItemAdmissibilityForm: FunctionComponent<Props> = ({
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
-  const [updateSample] = apiClient.useUpdateSampleMutation();
+  const [updateSampleItem] = apiClient.useUpdateSampleItemMutation();
 
   const [isReceived, setIsReceived] = useState(
-    ['Analysis', 'NotAdmissible', 'Completed'].includes(sample.status)
-      ? sample.receivedAt !== undefined
+    !isNil(sampleItemAnalysis?.status)
+      ? sampleItem.receiptDate !== undefined
       : null
   );
-  const [receivedAt, setReceivedAt] = useState(
-    sample.receivedAt ? format(sample.receivedAt, 'yyyy-MM-dd') : null
-  );
+  const [receiptDate, setReceiptDate] = useState(sampleItem.receiptDate);
   const [isAdmissible, setIsAdmissible] = useState(
-    ['Analysis', 'Completed'].includes(sample.status)
-      ? true
-      : sample.status === 'NotAdmissible'
-        ? false
+    sampleItemAnalysis?.status === 'NotAdmissible'
+      ? false
+      : !isNil(sampleItemAnalysis?.status)
+        ? true
         : null
   );
   const [notesOnAdmissibility, setNotesOnAdmissibility] = useState(
-    sample.notesOnAdmissibility
+    sampleItem.notesOnAdmissibility
   );
 
   const form = useForm(FormChecked, {
     isReceived,
-    receivedAt,
+    receiptDate,
     isAdmissible,
     notesOnAdmissibility
   });
@@ -97,12 +99,17 @@ export const SampleItemAdmissibilityForm: FunctionComponent<Props> = ({
     e?.preventDefault();
 
     await form.validate(
-      async ({ receivedAt, isAdmissible, notesOnAdmissibility }) => {
-        await updateSample({
-          ...sample,
-          receivedAt,
-          status: isAdmissible === false ? 'NotAdmissible' : 'Analysis',
-          notesOnAdmissibility: notesOnAdmissibility
+      async ({ receiptDate, isAdmissible, notesOnAdmissibility }) => {
+        await updateSampleItem({
+          sampleId: sampleItem.sampleId,
+          itemNumber: sampleItem.itemNumber,
+          copyNumber: sampleItem.copyNumber,
+          item: {
+            ...sampleItem,
+            receiptDate,
+            status: isAdmissible === false ? 'NotAdmissible' : 'Analysis',
+            notesOnAdmissibility: notesOnAdmissibility
+          }
         });
         form.reset();
       }
@@ -115,9 +122,7 @@ export const SampleItemAdmissibilityForm: FunctionComponent<Props> = ({
         'border',
         cx(
           'fr-callout',
-          ['Analysis', 'Completed'].includes(sample.status)
-            ? 'fr-callout--green-emeraude'
-            : 'fr-callout--pink-tuile'
+          isAdmissible ? 'fr-callout--green-emeraude' : 'fr-callout--pink-tuile'
         ),
         'sample-callout'
       )}
@@ -132,7 +137,7 @@ export const SampleItemAdmissibilityForm: FunctionComponent<Props> = ({
               checked: isReceived === true,
               onChange: () => {
                 setIsReceived(true);
-                setReceivedAt(format(new Date(), 'yyyy-MM-dd'));
+                setReceiptDate(format(new Date(), 'yyyy-MM-dd') as MaestroDate);
               }
             }
           },
@@ -142,7 +147,7 @@ export const SampleItemAdmissibilityForm: FunctionComponent<Props> = ({
               checked: isReceived === false,
               onChange: () => {
                 setIsReceived(false);
-                setReceivedAt(null);
+                setReceiptDate(null);
                 setIsAdmissible(null);
                 setNotesOnAdmissibility(null);
               }
@@ -161,10 +166,12 @@ export const SampleItemAdmissibilityForm: FunctionComponent<Props> = ({
             <div className={cx('fr-col-12', 'fr-col-sm-6')}>
               <AppTextInput
                 type="date"
-                defaultValue={receivedAt ?? ''}
-                onChange={(e) => setReceivedAt(e.target.value)}
+                defaultValue={receiptDate ?? ''}
+                onChange={(e) =>
+                  setReceiptDate(e.target.value as MaestroDate | null)
+                }
                 inputForm={form}
-                inputKey="receivedAt"
+                inputKey="receiptDate"
                 whenValid="Date de réception correctement renseignée."
                 label="Date de réception"
                 hintText="Format attendu › JJ/MM/AAAA"
