@@ -53,7 +53,11 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
     apiClient.useUpdateAnalysisMutation({
       fixedCacheKey: `complete-analysis-${sample.id}`
     });
-  const { data: analysis } = apiClient.useGetSampleItemAnalysisQuery({
+  const {
+    data: analysis,
+    isLoading: isAnalysisLoading,
+    isFetching: isAnalysisFetching
+  } = apiClient.useGetSampleItemAnalysisQuery({
     sampleId: sample.id,
     itemNumber: sampleItem.itemNumber,
     copyNumber: sampleItem.copyNumber
@@ -152,7 +156,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
       )}
 
       <div>
-        {analysis !== undefined && (
+        {!isAnalysisFetching && !isAnalysisLoading && (
           <SampleItemAdmissibility
             sample={sample}
             readonly={readonly}
