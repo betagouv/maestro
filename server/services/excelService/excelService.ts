@@ -38,7 +38,8 @@ import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getSampleMatrixLabel,
-  PartialSample
+  PartialSample,
+  SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
@@ -68,7 +69,6 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
   status: string;
   statusCode: string;
   sentAt: string;
-  receivedAt: string;
   latitude: number;
   longitude: number;
   parcel: string;
@@ -94,7 +94,6 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
   }[];
   notesOnMatrix: string;
   notesOnItems: string;
-  notesOnAdmissibility: string;
   items: SetAttributesNullOrUndefined<{
     sampleReference: string;
     itemNumber: number;
@@ -107,6 +106,16 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
     laboratoryCode: string | null;
     compliance200263: string;
     compliance: string;
+    receiptDate: string | null;
+    notesOnAdmissibility: string | null;
+    shippingDate: string | null;
+    destructionDate: string | null;
+    carrier: string | null;
+    invoicingDate: string | null;
+    paid: string | null;
+    paidDate: string | null;
+    invoiceNumber: string | null;
+    budgetNotes: string | null;
     residues: SetAttributesNullOrUndefined<{
       sampleReference: string;
       reference: string;
@@ -183,12 +192,14 @@ const generateSamplesExportExcel = async (
           : '',
         status: SampleStatusLabels[sample.status],
         statusCode: sample.status,
-        sentAt: sample.sentAt
-          ? formatWithTz(sample.sentAt, 'dd/MM/yyyy HH:mm')
-          : '',
-        receivedAt: sample.receivedAt
-          ? format(sample.receivedAt, 'dd/MM/yyyy')
-          : '',
+        sentAt:
+          SampleChecked.safeParse(sample).success &&
+          (sample as SampleChecked).sentAt
+            ? formatWithTz(
+                (sample as SampleChecked).sentAt as Date,
+                'dd/MM/yyyy HH:mm'
+              )
+            : '',
         latitude: sample.geolocation?.x,
         longitude: sample.geolocation?.y,
         parcel: sample.parcel,
@@ -237,7 +248,6 @@ const generateSamplesExportExcel = async (
         })),
         notesOnMatrix: sample.notesOnMatrix,
         notesOnItems: sample.notesOnItems,
-        notesOnAdmissibility: sample.notesOnAdmissibility,
         items: itemsWithAnalysis.map(({ analysis, ...item }) => ({
           sampleReference: sample.reference,
           itemNumber: item.itemNumber,
@@ -265,6 +275,24 @@ const generateSamplesExportExcel = async (
               ? 'Oui'
               : 'Non'
             : '',
+          receiptDate: item.receiptDate
+            ? format(item.receiptDate, 'dd/MM/yyyy')
+            : '',
+          notesOnAdmissibility: item.notesOnAdmissibility,
+          shippingDate: item.shippingDate
+            ? format(item.shippingDate, 'dd/MM/yyyy')
+            : '',
+          destructionDate: item.destructionDate
+            ? format(item.destructionDate, 'dd/MM/yyyy')
+            : '',
+          carrier: item.carrier,
+          invoicingDate: item.invoicingDate
+            ? format(item.invoicingDate, 'dd/MM/yyyy')
+            : '',
+          paid: item.paid ? 'Oui' : 'Non',
+          paidDate: item.paidDate ? format(item.paidDate, 'dd/MM/yyyy') : '',
+          invoiceNumber: item.invoiceNumber,
+          budgetNotes: item.budgetNotes,
           residues: (analysis?.residues ?? []).map((r) => ({
             sampleReference: sample.reference,
             itemNumber: item.itemNumber,

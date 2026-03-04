@@ -2,11 +2,12 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
-import { formatDate } from 'maestro-shared/utils/date';
+import { format } from 'date-fns';
 import './SampleItemAdmissibility.scss';
 
+import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { FunctionComponent } from 'react';
@@ -16,6 +17,7 @@ import { SampleItemAdmissibilityEditModal } from './SampleItemAdmissibilityEditM
 interface Props {
   sample: SampleChecked;
   sampleItem: SampleItem;
+  sampleItemAnalysis?: PartialAnalysis;
   readonly: boolean;
 }
 
@@ -27,6 +29,7 @@ const editSampleAdmissibility = createModal({
 export const SampleItemAdmissibility: FunctionComponent<Props> = ({
   sample,
   sampleItem,
+  sampleItemAnalysis,
   readonly,
   ..._rest
 }) => {
@@ -35,8 +38,8 @@ export const SampleItemAdmissibility: FunctionComponent<Props> = ({
 
   let message: string = '';
 
-  if (sample.receivedAt) {
-    message = `${sample.status !== 'NotAdmissible' ? 'Échantillon recevable' : 'Échantillon non recevable'} reçu par le laboratoire le ${formatDate(sample.receivedAt)}`;
+  if (sampleItem.receiptDate) {
+    message = `${sampleItemAnalysis?.status !== 'NotAdmissible' ? 'Échantillon recevable' : 'Échantillon non recevable'} reçu par le laboratoire le ${format(sampleItem.receiptDate, 'dd/MM/yyyy')}`;
   } else {
     message = 'Aucune information relative à la réception par le laboratoire.';
   }
@@ -82,13 +85,14 @@ export const SampleItemAdmissibility: FunctionComponent<Props> = ({
 
         <SampleItemAdmissibilityEditModal
           modal={editSampleAdmissibility}
-          sample={sample}
+          sampleItem={sampleItem}
+          sampleItemAnalysis={sampleItemAnalysis}
         />
       </div>
 
-      {!!sample.notesOnAdmissibility &&
-        sample.notesOnAdmissibility.length > 0 && (
-          <i>{sample.notesOnAdmissibility}</i>
+      {!!sampleItem.notesOnAdmissibility &&
+        sampleItem.notesOnAdmissibility.length > 0 && (
+          <i>{sampleItem.notesOnAdmissibility}</i>
         )}
     </div>
   );
