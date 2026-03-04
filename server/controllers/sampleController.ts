@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { constants } from 'http2';
-import { isNil } from 'lodash-es';
+import { isNil, omit } from 'lodash-es';
 import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
@@ -50,6 +50,7 @@ import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
+import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import {
   ProgrammingPlanKindWithSacha,
   ProgrammingPlanKindWithSachaList
@@ -58,11 +59,13 @@ import { hasPermission } from 'maestro-shared/schema/User/User';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
+import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
 import {
   getAndCheckSample,
   getAndCheckSampleDepartement
 } from '../middlewares/checks/sampleCheck';
+import { analysisRepository } from '../repositories/analysisRepository';
 import { LaboratoryResidueMapping } from '../repositories/kysely.type';
 import { laboratoryResidueMappingRepository } from '../repositories/laboratoryResidueMappingRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
@@ -412,8 +415,34 @@ export const sampleRouter = {
         sample.id,
         itemNumber,
         copyNumber,
-        itemUpdate
+        omit(itemUpdate, 'analysisStatus')
       );
+
+      const analysis = await analysisRepository.findUnique({
+        sampleId,
+        itemNumber,
+        copyNumber
+      });
+
+      if (!analysis) {
+        const analysis: PartialAnalysis = {
+          id: uuidv4(),
+          sampleId,
+          itemNumber,
+          copyNumber,
+          createdAt: new Date(),
+          createdBy: user.id,
+          status: itemUpdate.analysisStatus ?? 'Report',
+          compliance: null,
+          notesOnCompliance: null
+        };
+        await analysisRepository.insert(analysis);
+      } else {
+        await analysisRepository.update({
+          ...analysis,
+          status: itemUpdate.analysisStatus ?? analysis.status
+        });
+      }
 
       return { status: constants.HTTP_STATUS_OK };
     }
@@ -558,7 +587,11 @@ export const sampleRouter = {
         ...sampleUpdate,
         ...prescriptionData,
         lastUpdatedAt: new Date(),
-        sentAt: mustBeSent ? new Date() : sample.sentAt
+        ...(mustBeSent
+          ? {
+              sentAt: new Date()
+            }
+          : {})
       };
 
       if (mustBeSent) {

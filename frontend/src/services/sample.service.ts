@@ -7,8 +7,8 @@ import {
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import {
-  PartialSampleItem,
-  SampleItemKey
+  SampleItemKey,
+  SampleItemUpdate
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { api } from 'src/services/api.service';
 import samplesSlice from 'src/store/reducers/samplesSlice';
@@ -104,15 +104,16 @@ const sampleApi = api.injectEndpoints({
     }),
     updateSampleItem: builder.mutation<
       void,
-      SampleItemKey & { item: PartialSampleItem }
+      SampleItemKey & { sampleItemUpdate: SampleItemUpdate }
     >({
-      query: ({ sampleId, itemNumber, copyNumber, item }) => ({
+      query: ({ sampleId, itemNumber, copyNumber, sampleItemUpdate }) => ({
         url: `samples/${sampleId}/items/${itemNumber}/copy/${copyNumber}`,
         method: 'PUT',
-        body: item
+        body: sampleItemUpdate
       }),
       invalidatesTags: (_result, _error, { sampleId }) => [
-        { type: 'Sample', id: sampleId }
+        { type: 'Sample', id: sampleId },
+        { type: 'SampleItemAnalysis', id: sampleId }
       ]
     }),
     deleteSample: builder.mutation<void, string>({

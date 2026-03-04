@@ -30,7 +30,8 @@ const PartialSampleDbo = z.object({
   companySiret: z.string().nullish(),
   geolocation: z.any().nullish(),
   sampledBy: z.guid(),
-  additionalSampledBy: z.guid().nullish()
+  additionalSampledBy: z.guid().nullish(),
+  sentAt: z.string().nullish()
 });
 
 const PartialSampleJoinedDbo = PartialSampleDbo.merge(
