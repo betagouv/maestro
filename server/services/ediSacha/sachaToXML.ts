@@ -3,6 +3,8 @@ import {
   Department,
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { RequiredNotNull } from 'maestro-shared/utils/typescript';
 import { z, ZodObject } from 'zod';

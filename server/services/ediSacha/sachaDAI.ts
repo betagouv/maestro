@@ -23,7 +23,12 @@ import {
   SiglePlanAnalyse
 } from './sachaReferential';
 import { sendSachaFile } from './sachaSender';
-import { generateXML, LaboratorySachaData, XmlFile } from './sachaToXML';
+import {
+  generateXML,
+  getNumeroDAP,
+  LaboratorySachaData,
+  XmlFile
+} from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
 
 export const generateAndSendSachaDAI = async (
@@ -101,9 +106,7 @@ export const generateXMLDAI = (
     {
       DemandeType: {
         DialogueDemandeIntervention: {
-          NumeroDAP: Number(
-            `${new Date(dateNow).getFullYear()}${sample.reference.substring(sample.reference.lastIndexOf('-') + 1)}${sampleItem.copyNumber}${sampleItem.itemNumber}`
-          ),
+          NumeroDAP: getNumeroDAP(sample, sampleItem),
           SigleContexteIntervention:
             SigleContexteIntervention[programmingPlanKind],
           DateIntervention: toMaestroDate(sample.sampledAt),
