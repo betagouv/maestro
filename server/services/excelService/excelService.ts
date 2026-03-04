@@ -98,6 +98,7 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
     quantityUnitCode: string;
     sealId: string;
     recipient: string;
+    laboratoryCode: string | null;
     compliance200263: string;
     compliance: string;
     receiptDate: string | null;
@@ -251,6 +252,11 @@ const generateSamplesExportExcel = async (
               ? 'Laboratoire ' +
                 laboratories.find((lab) => lab.id === item.laboratoryId)?.name
               : SampleItemRecipientKindLabels[item.recipientKind]),
+          laboratoryCode:
+            withCodes && item.recipientKind === 'Laboratory'
+              ? laboratories.find((lab) => lab.id === item.laboratoryId)
+                  ?.shortName
+              : null,
           compliance200263: item.compliance200263 ? 'Oui' : 'Non',
           compliance: isDefinedAndNotNull(analysis?.compliance)
             ? analysis?.compliance
