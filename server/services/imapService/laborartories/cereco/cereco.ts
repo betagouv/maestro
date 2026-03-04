@@ -1,6 +1,6 @@
+import XLSX, { WorkBook } from '@e965/xlsx';
 import { format } from 'date-fns';
 import { maestroDateRefined } from 'maestro-shared/utils/date';
-import XLSX, { WorkBook } from 'xlsx';
 import { z } from 'zod';
 import { ExtractBadFormatError, ExtractError } from '../../extractError';
 import {
