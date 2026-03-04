@@ -1,6 +1,5 @@
 import carbone, { RenderOptions } from 'carbone';
 import { format } from 'date-fns';
-import highland from 'highland';
 import { isNil, sumBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
@@ -151,33 +150,20 @@ const generateSamplesExportExcel = async (
 ): Promise<Buffer> => {
   const laboratories = await laboratoryRepository.findMany();
 
-  return highland(samples)
-    .flatMap((sample) =>
-      highland(
-        sampleItemRepository
-          .findMany(sample.id)
-          .then((items) => ({ sample, items }))
-      )
-    )
-    .flatMap(({ sample, items }) =>
-      highland(
-        Promise.all(
-          items.map((item) =>
-            analysisRepository
-              .findUnique({
-                sampleId: sample.id,
-                itemNumber: item.itemNumber,
-                copyNumber: item.copyNumber
-              })
-              .then((analysis) => ({
-                ...item,
-                analysis
-              }))
-          )
-        ).then((itemsWithAnalysis) => ({ sample, itemsWithAnalysis }))
-      )
-    )
-    .map(({ sample, itemsWithAnalysis }) => {
+  const samplesData: SamplesExportExcelData[] = await Promise.all(
+    samples.map(async (sample) => {
+      const items = await sampleItemRepository.findMany(sample.id);
+      const itemsWithAnalysis = await Promise.all(
+        items.map(async (item) => {
+          const analysis = await analysisRepository.findUnique({
+            sampleId: sample.id,
+            itemNumber: item.itemNumber,
+            copyNumber: item.copyNumber
+          });
+          return { ...item, analysis };
+        })
+      );
+
       const data: SamplesExportExcelData = {
         reference: sample.reference,
         department: sample.department,
@@ -325,45 +311,40 @@ const generateSamplesExportExcel = async (
 
       return data;
     })
-    .collect()
-    .map((samples) => {
-      const specificDataHeaders = samples
-        .flatMap((sample) => sample.specificData ?? [])
-        .reduce<
-          { key: SampleMatrixSpecificDataKeys; label: string }[]
-        >((acc, { key, label }) => (acc.some((h) => h.key === key) ? acc : [...acc, { key, label }]), []);
+  );
 
-      const completedSamples = samples.map((sample) => ({
-        ...sample,
-        specificData: specificDataHeaders.map(({ key, label }) => ({
-          ...sample.specificData?.find((d) => d.key === key),
-          key,
-          label
-        }))
-      }));
+  const specificDataHeaders = samplesData
+    .flatMap((sample) => sample.specificData ?? [])
+    .reduce<
+      { key: SampleMatrixSpecificDataKeys; label: string }[]
+    >((acc, { key, label }) => (acc.some((h) => h.key === key) ? acc : [...acc, { key, label }]), []);
 
-      const items = completedSamples
-        .flatMap((sample) => sample.items)
-        .filter((i) => !isNil(i));
-      const residues = items
-        .flatMap((i) => i?.residues)
-        .filter((r) => !isNil(r));
-      const analytes = residues
-        .flatMap((r) => r.analytes)
-        .filter((a) => !isNil(a));
-      return carboneRender(
-        withCodes ? 'samplesExportWithCodes' : 'samplesExport',
-        {
-          specificDataHeaders,
-          samples: completedSamples,
-          items,
-          residues,
-          analytes
-        },
-        {}
-      );
-    })
-    .toPromise(Promise);
+  const completedSamples = samplesData.map((sample) => ({
+    ...sample,
+    specificData: specificDataHeaders.map(({ key, label }) => ({
+      ...sample.specificData?.find((d) => d.key === key),
+      key,
+      label
+    }))
+  }));
+
+  const items = completedSamples
+    .flatMap((sample) => sample.items)
+    .filter((i) => !isNil(i));
+  const residues = items.flatMap((i) => i?.residues).filter((r) => !isNil(r));
+  const analytes = residues.flatMap((r) => r.analytes).filter((a) => !isNil(a));
+
+  return carboneRender(
+    withCodes ? 'samplesExportWithCodes' : 'samplesExport',
+    {
+      specificDataHeaders,
+      samples: completedSamples,
+      items,
+      residues,
+      analytes
+    },
+    {}
+  );
 };
 
 const generatePrescriptionsExportExcel = async (
@@ -412,16 +393,15 @@ const generatePrescriptionsExportExcel = async (
     );
   }
 
-  return highland(prescriptions.toSorted(PrescriptionSort))
-    .map((prescription) => ({
-      prescription,
-      filteredLocalPrescriptions: [
+  const prescriptionsWithColumns = prescriptions
+    .toSorted(PrescriptionSort)
+    .map((prescription) => {
+      const filteredLocalPrescriptions = [
         ...localPrescriptions.filter(
           (_) => _.prescriptionId === prescription.id && isNil(_.companySiret)
         )
-      ].toSorted(LocalPrescriptionSort)
-    }))
-    .map(({ prescription, filteredLocalPrescriptions }) => {
+      ].toSorted(LocalPrescriptionSort);
+
       const columns = [];
       if (!exportedRegion) {
         columns.push(
@@ -453,87 +433,84 @@ const generatePrescriptionsExportExcel = async (
         // )?.name
         //.map((v) => ({ value: v }))
       };
-    })
-    .collect()
-    .map((prescriptionsWithColumns) => {
-      const totalColums = [];
-      if (!exportedRegion) {
-        totalColums.push(
-          sumBy(localPrescriptions, 'sampleCount'),
-          sumBy(localPrescriptions, 'realizedSampleCount'),
-          getCompletionRate(localPrescriptions)
-        );
-      }
-      if (!exportedDepartment) {
-        totalColums.push(
-          ...exportedRegions.flatMap((region) => [
-            sumBy(
-              localPrescriptions.filter(
-                (_) => _.region === region && isNil(_.department)
-              ),
-              'sampleCount'
-            ),
-            sumBy(
-              localPrescriptions.filter(
-                (_) => _.region === region && isNil(_.department)
-              ),
-              'realizedSampleCount'
-            ),
-            getCompletionRate(
-              localPrescriptions.filter(
-                (_) => _.region === region && isNil(_.department)
-              ),
-              region
-            )
-          ])
-        );
-      }
-      if (programmingPlan.distributionKind !== 'REGIONAL') {
-        totalColums.push(
-          ...exportedDepartments.flatMap((dept) => [
-            sumBy(
-              localPrescriptions.filter(
-                (_) => _.department === dept && isNil(_.companySiret)
-              ),
-              'sampleCount'
-            ),
-            sumBy(
-              localPrescriptions.filter(
-                (_) => _.department === dept && isNil(_.companySiret)
-              ),
-              'realizedSampleCount'
-            ),
-            getCompletionRate(
-              localPrescriptions.filter(
-                (_) => _.department === dept && isNil(_.companySiret)
-              ),
-              undefined,
-              true
-            )
-          ])
-        );
-      }
+    });
 
-      return carboneRender(
-        'prescriptionsExport',
+  const totalColums = [];
+  if (!exportedRegion) {
+    totalColums.push(
+      sumBy(localPrescriptions, 'sampleCount'),
+      sumBy(localPrescriptions, 'realizedSampleCount'),
+      getCompletionRate(localPrescriptions)
+    );
+  }
+  if (!exportedDepartment) {
+    totalColums.push(
+      ...exportedRegions.flatMap((region) => [
+        sumBy(
+          localPrescriptions.filter(
+            (_) => _.region === region && isNil(_.department)
+          ),
+          'sampleCount'
+        ),
+        sumBy(
+          localPrescriptions.filter(
+            (_) => _.region === region && isNil(_.department)
+          ),
+          'realizedSampleCount'
+        ),
+        getCompletionRate(
+          localPrescriptions.filter(
+            (_) => _.region === region && isNil(_.department)
+          ),
+          region
+        )
+      ])
+    );
+  }
+  if (programmingPlan.distributionKind !== 'REGIONAL') {
+    totalColums.push(
+      ...exportedDepartments.flatMap((dept) => [
+        sumBy(
+          localPrescriptions.filter(
+            (_) => _.department === dept && isNil(_.companySiret)
+          ),
+          'sampleCount'
+        ),
+        sumBy(
+          localPrescriptions.filter(
+            (_) => _.department === dept && isNil(_.companySiret)
+          ),
+          'realizedSampleCount'
+        ),
+        getCompletionRate(
+          localPrescriptions.filter(
+            (_) => _.department === dept && isNil(_.companySiret)
+          ),
+          undefined,
+          true
+        )
+      ])
+    );
+  }
+
+  return carboneRender(
+    'prescriptionsExport',
+    {
+      columnTitles: columnTitles
+        .flat()
+        .filter(isDefined)
+        .map((v) => ({ value: v })),
+      prescriptions: [
+        ...prescriptionsWithColumns,
         {
-          columnTitles: columnTitles
-            .flat()
-            .filter(isDefined)
-            .map((v) => ({ value: v })),
-          prescriptions: [
-            ...prescriptionsWithColumns,
-            {
-              matrix: 'Total',
-              stages: '',
-              columns: totalColums.map((v) => ({ value: v }))
-            }
-          ]
-        },
-        {}
-      );
-    })
-    .toPromise(Promise);
+          matrix: 'Total',
+          stages: '',
+          columns: totalColums.map((v) => ({ value: v }))
+        }
+      ]
+    },
+    {}
+  );
 };
 
 const carboneRender = (
