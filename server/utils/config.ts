@@ -79,7 +79,8 @@ const configValidator = z
     SIGAL_SFTP_HOST: z.string().nullish(),
     SIGAL_SFTP_PASSPHRASE: z.string().nullish(),
     SIGAL_SFTP_PRIVATE_KEY: z.string().nullish(),
-    SIGAL_SFTP_USERNAME: z.string().nullish()
+    SIGAL_SFTP_USERNAME: z.string().nullish(),
+    SACHA_ENABLED: z.boolean().default(false)
   })
   .transform((c) => {
     return {
@@ -157,7 +158,8 @@ const configValidator = z
           host: c.SIGAL_SFTP_HOST,
           username: c.SIGAL_SFTP_USERNAME
         }
-      }
+      },
+      sachaEnabled: c.SACHA_ENABLED
     };
   });
 

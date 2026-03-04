@@ -1,4 +1,4 @@
-import { Selectable, sql } from 'kysely';
+import { sql } from 'kysely';
 import { isNil, omitBy } from 'lodash-es';
 import { FindLaboratoryOptions } from 'maestro-shared/schema/Laboratory/FindLaboratoryOptions';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
@@ -11,16 +11,14 @@ const laboratoryTable = 'laboratories';
 
 export const Laboratories = () => db<Laboratory>(laboratoryTable);
 
-const findUnique = async (
-  id: string
-): Promise<Selectable<KyselyLaboratories> | undefined> => {
+const findUnique = async (id: string): Promise<KyselyLaboratories> => {
   console.info('Find laboratory by id', id);
 
   return kysely
     .selectFrom('laboratories')
     .selectAll()
     .where('id', '=', id)
-    .executeTakeFirst();
+    .executeTakeFirstOrThrow();
 };
 
 const findMany = async (

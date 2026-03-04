@@ -148,7 +148,7 @@ export interface SachaCommemoratifValues {
 
 export interface Laboratories {
   emails: string[];
-  id: Generated<string>;
+  id: string;
   shortName: LaboratoryShortName;
   name: string;
   address: string;
