@@ -1,12 +1,16 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'path';
+import config from '../../utils/config';
 import { encryptFile } from '../gpgService';
 import { mailService } from '../mailService';
 import { zip } from '../zipService';
 import { getZipFileName, XmlFile } from './sachaToXML';
 
 export const sendSachaFile = async (xmlFile: XmlFile, dateNow: number) => {
+  if (!config.sachaEnabled) {
+    return;
+  }
   // Create directory with xml file inside
   const directoryPath = path.join(tmpdir(), xmlFile.fileName);
   await mkdir(directoryPath);
