@@ -92,7 +92,6 @@ export const useAuthentication = () => {
           hasUserPermission('viewDashboard') ? 'DashboardRoute' : undefined,
           'NotificationsRoute',
           'DocumentsRoute',
-          'ApiDocsRoute',
           'LogoutCallbackRoute',
           hasUserPermission('createResource') ? 'NewDocumentRoute' : undefined,
           hasUserPermission('createResource') ? 'DocumentRoute' : undefined,
