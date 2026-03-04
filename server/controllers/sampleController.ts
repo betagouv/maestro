@@ -75,6 +75,7 @@ import { generateXMLDAI } from '../services/ediSacha/sachaDAI';
 import { sendSachaFile } from '../services/ediSacha/sachaSender';
 import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
 import { mattermostService } from '../services/mattermostService';
+import config from '../utils/config';
 
 const streamToBase64 = async (stream: Readable): Promise<string> => {
   const chunks: any[] = [];
@@ -707,42 +708,46 @@ export const sampleRouter = {
                     department: DepartmentLabels[updatedSample.department]
                   });
 
-                const sampleDocuments = await Promise.all(
-                  (updatedSample.documentIds ?? []).map((documentId) =>
-                    documentService.getDocument(documentId)
-                  )
-                );
+                if (!programmingPlanWithEdiSacha || config.sachaEnabled) {
+                  const sampleDocuments = await Promise.all(
+                    (updatedSample.documentIds ?? []).map((documentId) =>
+                      documentService.getDocument(documentId)
+                    )
+                  );
 
-                const sampleAttachments = await Promise.all(
-                  sampleDocuments
-                    .filter((document) => document !== undefined)
-                    .map(async (document) => ({
-                      name: document.filename,
-                      content: await streamToBase64(document.file as Readable)
-                    }))
-                );
+                  const sampleAttachments = await Promise.all(
+                    sampleDocuments
+                      .filter((document) => document !== undefined)
+                      .map(async (document) => ({
+                        name: document.filename,
+                        content: await streamToBase64(document.file as Readable)
+                      }))
+                  );
 
-                await mailService.send({
-                  templateName: 'SampleAnalysisRequestTemplate',
-                  recipients: laboratory?.emails ?? [],
-                  params: {
-                    region: user.region ? Regions[user.region].name : undefined,
-                    userMail: user.email,
-                    sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
-                  },
-                  attachment: [
-                    ...sampleAttachments,
-                    ...analysisRequestDocs
-                      .filter((doc) => !isNil(doc.buffer))
-                      .map((doc) => ({
-                        name: doc.filename,
-                        content: Buffer.from(doc.buffer as Buffer).toString(
-                          'base64'
-                        )
-                      })),
-                    sampleSupportAttachment
-                  ].filter((_) => !isNil(_))
-                });
+                  await mailService.send({
+                    templateName: 'SampleAnalysisRequestTemplate',
+                    recipients: laboratory?.emails ?? [],
+                    params: {
+                      region: user.region
+                        ? Regions[user.region].name
+                        : undefined,
+                      userMail: user.email,
+                      sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
+                    },
+                    attachment: [
+                      ...sampleAttachments,
+                      ...analysisRequestDocs
+                        .filter((doc) => !isNil(doc.buffer))
+                        .map((doc) => ({
+                          name: doc.filename,
+                          content: Buffer.from(doc.buffer as Buffer).toString(
+                            'base64'
+                          )
+                        })),
+                      sampleSupportAttachment
+                    ].filter((_) => !isNil(_))
+                  });
+                }
               }
             }
             return sampleSupportAttachment;
