@@ -1,9 +1,8 @@
 import { format } from 'date-fns';
-import React, { useContext, useState } from 'react';
+import { useState } from 'react';
 import z from 'zod';
 import { useForm } from '../../../../hooks/useForm';
 
-import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { isNil } from 'lodash-es';
@@ -17,7 +16,6 @@ import warning from '../../../../assets/illustrations/warning.svg';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
-import { ApiClientContext } from '../../../../services/apiClient';
 
 const FormChecked = z
   .object({
@@ -55,25 +53,18 @@ export type FormRefinement = ReturnType<typeof useForm<typeof FormChecked>>;
 type Props = {
   sampleItem: SampleItem;
   sampleItemAnalysis?: PartialAnalysis;
-  withSubmitButton: boolean;
   setForm?: (form: FormRefinement) => void;
 };
 export const SampleItemAdmissibilityForm: FunctionComponent<Props> = ({
   sampleItem,
   sampleItemAnalysis,
-  withSubmitButton,
   setForm,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const apiClient = useContext(ApiClientContext);
-  const [updateSampleItem] = apiClient.useUpdateSampleItemMutation();
-
   const [isReceived, setIsReceived] = useState(
-    !isNil(sampleItemAnalysis?.status)
-      ? sampleItem.receiptDate !== undefined
-      : null
+    sampleItem.receiptDate !== undefined
   );
   const [receiptDate, setReceiptDate] = useState(sampleItem.receiptDate);
   const [isAdmissible, setIsAdmissible] = useState(
@@ -94,27 +85,6 @@ export const SampleItemAdmissibilityForm: FunctionComponent<Props> = ({
     notesOnAdmissibility
   });
   setForm?.(form);
-
-  const save = async (e?: React.MouseEvent<HTMLElement>) => {
-    e?.preventDefault();
-
-    await form.validate(
-      async ({ receiptDate, isAdmissible, notesOnAdmissibility }) => {
-        await updateSampleItem({
-          sampleId: sampleItem.sampleId,
-          itemNumber: sampleItem.itemNumber,
-          copyNumber: sampleItem.copyNumber,
-          item: {
-            ...sampleItem,
-            receiptDate,
-            status: isAdmissible === false ? 'NotAdmissible' : 'Analysis',
-            notesOnAdmissibility: notesOnAdmissibility
-          }
-        });
-        form.reset();
-      }
-    );
-  };
 
   return (
     <form
@@ -227,12 +197,6 @@ export const SampleItemAdmissibilityForm: FunctionComponent<Props> = ({
             </div>
           )}
         </>
-      )}
-
-      {withSubmitButton && (
-        <Button type={'submit'} priority={'primary'} onClick={save}>
-          Enregistrer
-        </Button>
       )}
     </form>
   );

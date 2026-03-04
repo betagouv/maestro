@@ -39,10 +39,11 @@ export const SampleItemAdmissibilityEditModal: FunctionComponent<Props> = ({
             sampleId: sampleItem.sampleId,
             itemNumber: sampleItem.itemNumber,
             copyNumber: sampleItem.copyNumber,
-            item: {
+            sampleItemUpdate: {
               ...sampleItem,
               receiptDate,
-              status: isAdmissible === false ? 'NotAdmissible' : 'Analysis',
+              analysisStatus:
+                isAdmissible === false ? 'NotAdmissible' : 'Report',
               notesOnAdmissibility: notesOnAdmissibility
             }
           });
@@ -76,7 +77,6 @@ export const SampleItemAdmissibilityEditModal: FunctionComponent<Props> = ({
       <SampleItemAdmissibilityForm
         sampleItem={sampleItem}
         sampleItemAnalysis={sampleItemAnalysis}
-        withSubmitButton={false}
         setForm={(f) => (admissibilityForm.current = f)}
       />
     </modal.Component>

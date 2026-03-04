@@ -13,12 +13,16 @@ import { ApiClientContext } from '../../../../services/apiClient';
 interface Props {
   modal: ReturnType<typeof createModal>;
   sampleId: string;
+  itemNumber: number;
+  copyNumber: number;
   partialAnalysis: PartialAnalysis | undefined;
 }
 
 export const AnalysisDocumentModal = ({
   modal,
   sampleId,
+  itemNumber,
+  copyNumber,
   partialAnalysis,
   ..._rest
 }: Props) => {
@@ -65,8 +69,8 @@ export const AnalysisDocumentModal = ({
         if (!analysisId) {
           const { data: analysis } = await createAnalysis({
             sampleId,
-            itemNumber: 1, //TODO à gérer
-            copyNumber: 1 //TODO à gérer
+            itemNumber,
+            copyNumber
           });
           analysisId = analysis!.id;
         }
