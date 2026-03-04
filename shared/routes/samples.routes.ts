@@ -1,7 +1,7 @@
 import z from 'zod';
 import { FindSampleOptions } from '../schema/Sample/FindSampleOptions';
 import { PartialSample, PartialSampleToCreate } from '../schema/Sample/Sample';
-import { PartialSampleItem } from '../schema/Sample/SampleItem';
+import { SampleItemUpdate } from '../schema/Sample/SampleItem';
 import { SubRoutes } from './routes';
 
 export const samplesRoutes = {
@@ -58,7 +58,7 @@ export const samplesRoutes = {
       copyNumber: z.coerce.number().min(1)
     },
     put: {
-      body: PartialSampleItem,
+      body: SampleItemUpdate,
       permissions: ['updateSample'],
       response: z.void()
     }

@@ -25,7 +25,6 @@ import { useForm } from '../../../hooks/useForm';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
 import { SampleItemAdmissibility } from './SampleItemAdmissibility/SampleItemAdmissibility';
-import { SampleItemAdmissibilityForm } from './SampleItemAdmissibility/SampleItemAdmissibilityForm';
 import './SampleItemAnalysis.scss';
 import { AnalysisDocumentPreview } from './SampleItemAnalysisForm/AnalysisDocumentPreview';
 import { SampleAnalysisForm } from './SampleItemAnalysisForm/SampleAnalysisForm';
@@ -88,7 +87,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
       sampleId: sampleItem.sampleId,
       itemNumber: sampleItem.itemNumber,
       copyNumber: sampleItem.copyNumber,
-      item: { ...sampleItem, ...localSampleItem }
+      sampleItemUpdate: { ...sampleItem, ...localSampleItem }
     });
   };
 
@@ -153,25 +152,20 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
       )}
 
       <div>
-        {['Analysis', 'InReview', 'Completed', 'NotAdmissible'].includes(
-          sample.status
-        ) && (
+        {analysis !== undefined && (
           <SampleItemAdmissibility
             sample={sample}
             readonly={readonly}
             sampleItem={sampleItem}
+            sampleItemAnalysis={analysis}
           />
         )}
-        {isEditing && sample.status === 'Sent' && (
-          <SampleItemAdmissibilityForm
-            sample={sample}
-            withSubmitButton={true}
-          />
-        )}
-        {sample.status !== 'NotAdmissible' && (
+        {analysis?.status !== 'NotAdmissible' && (
           <AnalysisDocumentPreview
             partialAnalysis={analysis}
             sampleId={sample.id}
+            itemNumber={sampleItem.itemNumber}
+            copyNumber={sampleItem.copyNumber}
             readonly={!isEditing}
           />
         )}
