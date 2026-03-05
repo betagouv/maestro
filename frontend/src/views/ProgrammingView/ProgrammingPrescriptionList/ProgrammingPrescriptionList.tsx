@@ -36,8 +36,6 @@ import { getPrescriptionsExportURL } from '../../../services/prescription.servic
 import ProgrammingLocalPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingLocalPrescriptionTable';
 import ProgrammingRegionalPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingRegionalPrescriptionTable';
 
-export type PrescriptionListDisplay = 'table' | 'cards';
-
 interface Props {
   programmingPlan: ProgrammingPlanChecked;
   region?: Region;

@@ -6,6 +6,11 @@ import { isNil } from 'lodash-es';
 import { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { useMemo, useState } from 'react';
+import {
+  getStoredListDisplay,
+  ListDisplay,
+  setStoredListDisplay
+} from '../../../store/localStorage';
 import { pluralize } from '../../../utils/stringUtils';
 import DocumentCard from '../DocumentCard/DocumentCard';
 import DocumentTable from '../DocumentTable';
@@ -25,9 +30,9 @@ const DocumentListTabContent = ({
   onRemoveDocument,
   newDocumentId
 }: Props) => {
-  const [documentListDisplay, setDocumentListDisplay] = useState<
-    'cards' | 'table'
-  >('cards');
+  const [documentListDisplay, setDocumentListDisplay] = useState<ListDisplay>(
+    getStoredListDisplay('documentListDisplay')
+  );
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredResources = useMemo(
@@ -73,7 +78,10 @@ const DocumentListTabContent = ({
                 iconId: 'fr-icon-layout-grid-line',
                 nativeInputProps: {
                   checked: documentListDisplay === 'cards',
-                  onChange: () => setDocumentListDisplay('cards')
+                  onChange: () => {
+                    setDocumentListDisplay('cards');
+                    setStoredListDisplay('documentListDisplay', 'cards');
+                  }
                 }
               },
               {
@@ -81,7 +89,10 @@ const DocumentListTabContent = ({
                 iconId: 'fr-icon-table-line',
                 nativeInputProps: {
                   checked: documentListDisplay === 'table',
-                  onChange: () => setDocumentListDisplay('table')
+                  onChange: () => {
+                    setDocumentListDisplay('table');
+                    setStoredListDisplay('documentListDisplay', 'table');
+                  }
                 }
               }
             ]}
