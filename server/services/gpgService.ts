@@ -23,9 +23,9 @@ export const initGpgForSacha = async (): Promise<void> => {
 };
 
 const importPublicKey = async (publicKey: string) => {
-  const fileName = uuidv4();
+  const fileName = `${uuidv4()}.gpg`;
 
-  const filePath = path.join(tmpdir(), `${fileName}.gpg`);
+  const filePath = path.join(tmpdir(), fileName);
 
   await writeFile(
     filePath,
