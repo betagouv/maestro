@@ -16,6 +16,7 @@ import {
   SortedResourceDocumentKindList
 } from 'maestro-shared/schema/Document/DocumentKind';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
+import { FileType } from 'maestro-shared/schema/File/FileType';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { z } from 'zod';
@@ -50,6 +51,7 @@ const DocumentView = () => {
   const [name, setName] = useState<string>(document?.name ?? '');
   const [notes, setNotes] = useState<string>(document?.notes ?? '');
   const [hasError, setHasError] = useState<boolean>(false);
+  const [fileError, setFileError] = useState<string | undefined>(undefined);
 
   const [createDocument, { isLoading: isCreateLoading }] =
     apiClient.useCreateDocumentMutation({
@@ -99,7 +101,17 @@ const DocumentView = () => {
   const form = useForm(FormChecked, formData);
 
   const selectFile = (event?: any) => {
-    setFile(event?.target?.files?.[0]);
+    const selectedFile: File | undefined = event?.target?.files?.[0];
+    if (selectedFile) {
+      const { success } = FileType.safeParse(selectedFile.type);
+      if (!success) {
+        setFileError("Ce type de fichier n'est pas accepté.");
+        setFile(undefined);
+        return;
+      }
+    }
+    setFileError(undefined);
+    setFile(selectedFile);
   };
 
   const submit = async () => {
@@ -226,6 +238,8 @@ const DocumentView = () => {
                 inputForm={form}
                 inputKey="file"
                 whenValid="fichier valide"
+                state={fileError ? 'error' : undefined}
+                stateRelatedMessage={fileError}
               />
             )}
             <hr className={cx('fr-my-4w')} />
