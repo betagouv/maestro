@@ -64,13 +64,16 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
   sampler: string;
   sampledAt: string;
   status: string;
+  statusCode: string;
   sentAt: string;
   receivedAt: string;
   latitude: number;
   longitude: number;
   parcel: string;
   context: string;
+  contextCode?: string;
   legalContext: string;
+  legalContextCode?: string;
   company: string;
   companyAddress: string;
   companySiret: string;
@@ -109,8 +112,10 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
       referenceLabel: string;
       residueNumber: number;
       analysisMethod: string;
+      analysisMethodCode: string;
       analysisDate: string;
       resultKind: string;
+      resultKindCode: string;
       result: number;
       resultUnit: string;
       lmr: number;
@@ -121,6 +126,7 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
       pollutionRisk: string;
       notesOnPollutionRisk: string;
       compliance: string;
+      complianceCode: string;
       otherCompliance: string;
       sampleCompliance: string;
       analytes: SetAttributesNullOrUndefined<{
@@ -130,6 +136,7 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
         reference: string;
         referenceLabel: string;
         resultKind: string;
+        resultKindCode: string;
         result: number;
       }>[];
     }>[];
@@ -173,6 +180,7 @@ const generateSamplesExportExcel = async (
           ? formatWithTz(sample.sampledAt, 'dd/MM/yyyy HH:mm')
           : '',
         status: SampleStatusLabels[sample.status],
+        statusCode: sample.status,
         sentAt: sample.sentAt
           ? formatWithTz(sample.sentAt, 'dd/MM/yyyy HH:mm')
           : '',
@@ -183,9 +191,11 @@ const generateSamplesExportExcel = async (
         longitude: sample.geolocation?.y,
         parcel: sample.parcel,
         context: sample.context ? ContextLabels[sample.context] : undefined,
+        contextCode: sample.context,
         legalContext: sample.legalContext
           ? LegalContextLabels[sample.legalContext]
           : undefined,
+        legalContextCode: sample.legalContext,
         company: sample.company?.name,
         companyAddress: [
           sample.company?.address,
@@ -243,7 +253,7 @@ const generateSamplesExportExcel = async (
                 laboratories.find((lab) => lab.id === item.laboratoryId)?.name
               : SampleItemRecipientKindLabels[item.recipientKind]),
           laboratoryCode:
-            withCodes && item.recipientKind === 'Laboratory'
+            item.recipientKind === 'Laboratory'
               ? laboratories.find((lab) => lab.id === item.laboratoryId)
                   ?.shortName
               : null,
@@ -268,10 +278,12 @@ const generateSamplesExportExcel = async (
             analysisMethod: r.analysisMethod
               ? AnalysisMethodLabels[r.analysisMethod]
               : undefined,
+            analysisMethodCode: r.analysisMethod,
             analysisDate: r.analysisDate,
             resultKind: r.resultKind
               ? ResultKindLabels[r.resultKind]
               : undefined,
+            resultKindCode: r.resultKind,
             result: r.result,
             resultUnit: 'mg/kg',
             lmr: r.lmr,
@@ -286,6 +298,7 @@ const generateSamplesExportExcel = async (
             compliance: r.compliance
               ? ResidueComplianceLabels[r.compliance]
               : undefined,
+            complianceCode: r.compliance,
             otherCompliance: r.otherCompliance,
             sampleCompliance: isDefinedAndNotNull(analysis?.compliance)
               ? analysis?.compliance
@@ -305,15 +318,12 @@ const generateSamplesExportExcel = async (
               resultKind: a.resultKind
                 ? ResultKindLabels[a.resultKind]
                 : undefined,
+              resultKindCode: a.resultKind,
               result: a.result
             }))
           }))
         }))
       };
-
-      if (withCodes) {
-        data['matrixCode'] = sample.matrix;
-      }
 
       return data;
     })
