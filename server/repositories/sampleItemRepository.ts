@@ -1,8 +1,7 @@
 import { isNil, omitBy } from 'lodash-es';
 import {
   PartialSampleItem,
-  SampleItemSort,
-  SampleItemUpdate
+  SampleItemSort
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { z } from 'zod';
 import { analysisTable } from './analysisRepository';
@@ -145,7 +144,7 @@ const update = async (
   sampleId: string,
   itemNumber: number,
   copyNumber: number,
-  partialSampleItem: PartialSampleItem | SampleItemUpdate,
+  partialSampleItem: PartialSampleItem,
   trx: KyselyMaestro = kysely
 ): Promise<void> => {
   console.info('Update sampleItem', sampleId, copyNumber, partialSampleItem);
@@ -154,7 +153,7 @@ const update = async (
     .where('sampleId', '=', sampleId)
     .where('itemNumber', '=', itemNumber)
     .where('copyNumber', '=', copyNumber)
-    .set(partialSampleItem)
+    .set(PartialSampleItemDbo.parse(partialSampleItem))
     .execute();
 };
 

@@ -82,8 +82,7 @@ export const SampleItemUpdate = z.object({
     sampleId: true,
     itemNumber: true,
     copyNumber: true
-  }).shape,
-  analysisStatus: AnalysisStatus.nullish()
+  }).shape
 });
 
 export type SampleItem = z.infer<typeof SampleItem>;
