@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 interface UseAutoSaveOptions {
-  onSave: (value: string) => void | Promise<void>;
+  onSave: (value?: string) => void | Promise<void>;
   delay?: number;
 }
 
@@ -16,7 +16,7 @@ export const useAutoSave = ({ onSave, delay = 500 }: UseAutoSaveOptions) => {
     };
   }, []);
 
-  const triggerSave = (value: string) => {
+  const triggerSave = (value?: string) => {
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
