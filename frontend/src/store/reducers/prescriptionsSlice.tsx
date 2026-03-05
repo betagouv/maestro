@@ -9,7 +9,11 @@ import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Co
 import { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { PrescriptionListDisplay } from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionList';
+import {
+  getStoredListDisplay,
+  ListDisplay,
+  setStoredListDisplay
+} from 'src/store/localStorage';
 import { z } from 'zod';
 
 export const PrescriptionFilters = z.object({
@@ -86,17 +90,18 @@ type LocalPrescriptionModalData = z.infer<typeof LocalPrescriptionModalData>;
 
 type PrescriptionsState = {
   prescriptionFilters: PrescriptionFilters;
-  prescriptionListDisplay: PrescriptionListDisplay;
+  prescriptionListDisplay: ListDisplay;
   prescriptionModalData?: PrescriptionModalData;
   localPrescriptionModalData?: LocalPrescriptionModalData;
   prescriptionCommentsData?: PrescriptionCommentsData;
 };
+
 const initialState: PrescriptionsState = {
   prescriptionFilters: {
     missingSlaughterhouse: false,
     missingLaboratory: false
   },
-  prescriptionListDisplay: 'cards'
+  prescriptionListDisplay: getStoredListDisplay('prescriptionListDisplay')
 };
 
 const prescriptionsSlice = createSlice({
@@ -109,11 +114,9 @@ const prescriptionsSlice = createSlice({
     ) => {
       state.prescriptionFilters = action.payload;
     },
-    changeListDisplay: (
-      state,
-      action: PayloadAction<PrescriptionListDisplay>
-    ) => {
+    changeListDisplay: (state, action: PayloadAction<ListDisplay>) => {
       state.prescriptionListDisplay = action.payload;
+      setStoredListDisplay('prescriptionListDisplay', action.payload);
     },
     setPrescriptionModalData: (
       state,

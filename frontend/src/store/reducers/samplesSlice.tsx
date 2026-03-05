@@ -6,7 +6,11 @@ import {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { SampleListDisplay } from 'src/views/SampleListView/SampleListView';
+import {
+  getStoredListDisplay,
+  ListDisplay,
+  setStoredListDisplay
+} from 'src/store/localStorage';
 import { z } from 'zod';
 
 const pendingSamples = JSON.parse(
@@ -23,7 +27,7 @@ const pendingSamples = JSON.parse(
 );
 
 type SamplesState = {
-  sampleListDisplay: SampleListDisplay;
+  sampleListDisplay: ListDisplay;
   findSampleOptions: Omit<FindSampleOptions, 'programmingPlanId'>;
   pendingSamples: Record<string, PartialSample | PartialSampleToCreate>;
 };
@@ -31,7 +35,7 @@ type SamplesState = {
 const samplesSlice = createSlice({
   name: 'samples',
   initialState: {
-    sampleListDisplay: 'cards',
+    sampleListDisplay: getStoredListDisplay('sampleListDisplay'),
     findSampleOptions: {
       page: 1,
       perPage: defaultPerPage,
@@ -44,8 +48,9 @@ const samplesSlice = createSlice({
     pendingSamples
   } as SamplesState,
   reducers: {
-    changeListDisplay: (state, action: PayloadAction<SampleListDisplay>) => {
+    changeListDisplay: (state, action: PayloadAction<ListDisplay>) => {
       state.sampleListDisplay = action.payload;
+      setStoredListDisplay('sampleListDisplay', action.payload);
     },
     changeFindOptions: (
       state,
