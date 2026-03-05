@@ -8,7 +8,7 @@ import { isNil, uniq } from 'lodash-es';
 import { Brand } from 'maestro-shared/constants';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { isClosed } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { UserRefined } from 'maestro-shared/schema/User/User';
+import { UserBase } from 'maestro-shared/schema/User/User';
 import { UserRole, UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
@@ -54,7 +54,7 @@ const Header = () => {
 
   const { isAuthenticated, hasUserPermission, user, userRole } =
     useAuthentication();
-  const userRefined = UserRefined.optional().parse(user);
+  const userRefined = UserBase.optional().parse(user);
   const { mascaradeEnabled, disableMascarade } = useMascarade();
   const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
