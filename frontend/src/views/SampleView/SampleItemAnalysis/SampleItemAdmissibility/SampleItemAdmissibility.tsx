@@ -81,6 +81,11 @@ export const SampleItemAdmissibility: FunctionComponent<Props> = ({
             )}
           </div>
           <div className={cx('fr-text--bold')}>{message}</div>
+
+          {!!sampleItem.notesOnAdmissibility &&
+            sampleItem.notesOnAdmissibility.length > 0 && (
+              <i>{sampleItem.notesOnAdmissibility}</i>
+            )}
         </div>
 
         <SampleItemAdmissibilityEditModal
@@ -89,11 +94,6 @@ export const SampleItemAdmissibility: FunctionComponent<Props> = ({
           sampleItemAnalysis={sampleItemAnalysis}
         />
       </div>
-
-      {!!sampleItem.notesOnAdmissibility &&
-        sampleItem.notesOnAdmissibility.length > 0 && (
-          <i>{sampleItem.notesOnAdmissibility}</i>
-        )}
     </div>
   );
 };
