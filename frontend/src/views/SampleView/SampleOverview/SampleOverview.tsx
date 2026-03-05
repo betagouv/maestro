@@ -61,7 +61,7 @@ const SampleOverview = ({ sample }: Props) => {
             sticky={true}
             fullHeight={true}
             style={{
-              maxWidth: '300px'
+              maxWidth: '330px'
             }}
             items={[
               {
@@ -81,7 +81,37 @@ const SampleOverview = ({ sample }: Props) => {
                       },
                       href: '#'
                     },
-                    text: `Échantillon ${SubstanceKindLabels[item.substanceKind].toLowerCase()}`
+                    text: (
+                      <div className="d-block">
+                        <span>
+                          Échantillon{' '}
+                          {SubstanceKindLabels[
+                            item.substanceKind
+                          ].toLowerCase()}
+                        </span>
+                        {/*TODO Gérer le statut de l'échantillon*/}
+                        {/*<div className={cx('fr-label--success', 'fr-text--xs')}>*/}
+                        {/*  <span*/}
+                        {/*    className={cx(*/}
+                        {/*      'fr-icon-checkbox-circle-line',*/}
+                        {/*      'fr-mr-1w',*/}
+                        {/*      'fr-icon--sm'*/}
+                        {/*    )}*/}
+                        {/*  />*/}
+                        {/*  Conforme*/}
+                        {/*</div>*/}
+                        {/*<div className={cx('fr-label--error', 'fr-text--xs')}>*/}
+                        {/*  <span*/}
+                        {/*    className={cx(*/}
+                        {/*      'fr-icon-close-circle-line',*/}
+                        {/*      'fr-mr-1w',*/}
+                        {/*      'fr-icon--sm'*/}
+                        {/*    )}*/}
+                        {/*  />*/}
+                        {/*  Non-conforme*/}
+                        {/*</div>*/}
+                      </div>
+                    )
                   }))
               },
               {
