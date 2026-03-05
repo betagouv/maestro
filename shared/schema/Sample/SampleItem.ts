@@ -57,7 +57,14 @@ export const SampleItem = z.object({
   paid: z.boolean().nullish(),
   paidDate: maestroDateRefined.nullish(),
   invoiceNumber: z.string().nullish(),
-  budgetNotes: z.string().nullish()
+  budgetNotes: z.string().nullish(),
+  analysis: z
+    .object({
+      status: AnalysisStatus,
+      compliance: z.boolean().nullish(),
+      notesOnCompliance: z.string().nullish()
+    })
+    .nullish()
 });
 
 export const PartialSampleItem = z.object({
@@ -75,8 +82,7 @@ export const SampleItemUpdate = z.object({
     sampleId: true,
     itemNumber: true,
     copyNumber: true
-  }).shape,
-  analysisStatus: AnalysisStatus.nullish()
+  }).shape
 });
 
 export type SampleItem = z.infer<typeof SampleItem>;

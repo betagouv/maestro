@@ -11,7 +11,7 @@ import {
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
-import { expect, fn, screen, userEvent, within } from 'storybook/test';
+import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { getMockApi, MockApi } from '../../../../../services/mockApiClient';
 import MatrixStep from '../MatrixStep';
 
@@ -187,7 +187,7 @@ export const MatrixStepPPVSaveOnBlurWithoutHandlingErrors: Story = {
       canvas.queryByText('Veuillez renseigner la partie du végétal.')
     ).not.toBeInTheDocument();
 
-    await expect(createOrUpdateMock).toHaveBeenCalled();
+    await waitFor(() => expect(createOrUpdateMock).toHaveBeenCalled());
   }
 };
 

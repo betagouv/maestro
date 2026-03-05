@@ -21,7 +21,7 @@ const PrescriptionProgrammingInstruction = ({
   const [instruction, setInstruction] = useState(value || '');
 
   const { triggerSave } = useAutoSave({
-    onSave: (value) => onSubmitInstruction?.(value),
+    onSave: (value) => onSubmitInstruction?.(value as string),
     delay: 500
   });
 

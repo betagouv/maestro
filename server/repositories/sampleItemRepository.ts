@@ -1,17 +1,31 @@
 import { isNil, omitBy } from 'lodash-es';
 import {
   PartialSampleItem,
-  SampleItemSort,
-  SampleItemUpdate
+  SampleItemSort
 } from 'maestro-shared/schema/Sample/SampleItem';
+import { z } from 'zod';
+import { analysisTable } from './analysisRepository';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
 import { KyselyMaestro } from './kysely.type';
 
 const sampleItemsTable = 'sample_items';
 
+const PartialSampleItemDbo = PartialSampleItem.omit({
+  analysis: true
+});
+const PartialSampleItemJoinedDbo = z.object({
+  ...PartialSampleItemDbo.shape,
+  analysisStatus: z.string().nullish(),
+  analysisCompliance: z.boolean().nullish(),
+  analysisNotesOnCompliance: z.string().nullish()
+});
+
+type PartialSampleItemDbo = z.infer<typeof PartialSampleItemDbo>;
+type PartialSampleItemJoinedDbo = z.infer<typeof PartialSampleItemJoinedDbo>;
+
 export const SampleItems = (transaction = db) =>
-  transaction<PartialSampleItem>(sampleItemsTable);
+  transaction<PartialSampleItemDbo>(sampleItemsTable);
 
 const findUnique = async (
   sampleId: string,
@@ -20,19 +34,43 @@ const findUnique = async (
 ): Promise<PartialSampleItem | undefined> => {
   console.info('Find sampleItem', sampleId, itemNumber, copyNumber);
   return SampleItems()
-    .where({ sampleId, itemNumber, copyNumber })
+    .select(
+      `${sampleItemsTable}.*`,
+      `${analysisTable}.status as analysisStatus`,
+      `${analysisTable}.compliance as analysisCompliance`,
+      `${analysisTable}.notesOnCompliance as analysisNotesOnCompliance`
+    )
+    .where(`${sampleItemsTable}.sampleId`, sampleId)
+    .where(`${sampleItemsTable}.itemNumber`, itemNumber)
+    .where(`${sampleItemsTable}.copyNumber`, copyNumber)
+    .leftJoin(analysisTable, (query) =>
+      query
+        .on(`${analysisTable}.sample_id`, `${sampleItemsTable}.sampleId`)
+        .andOn(`${analysisTable}.item_number`, `${sampleItemsTable}.itemNumber`)
+        .andOn(`${analysisTable}.copy_number`, `${sampleItemsTable}.copyNumber`)
+    )
     .first()
-    .then((_) => _ && PartialSampleItem.parse(omitBy(_, isNil)));
+    .then((_) => parseSampleItem(_));
 };
 
 const findMany = async (sampleId: string): Promise<PartialSampleItem[]> => {
   console.info('Find sampleItems for sample', sampleId);
   return SampleItems()
-    .where({ sampleId })
+    .select(
+      `${sampleItemsTable}.*`,
+      `${analysisTable}.status as analysisStatus`,
+      `${analysisTable}.compliance as analysisCompliance`,
+      `${analysisTable}.notesOnCompliance as analysisNotesOnCompliance`
+    )
+    .where(`${sampleItemsTable}.sampleId`, sampleId)
+    .leftJoin(analysisTable, (query) =>
+      query
+        .on(`${analysisTable}.sample_id`, `${sampleItemsTable}.sampleId`)
+        .andOn(`${analysisTable}.item_number`, `${sampleItemsTable}.itemNumber`)
+        .andOn(`${analysisTable}.copy_number`, `${sampleItemsTable}.copyNumber`)
+    )
     .then((sampleItems) =>
-      sampleItems
-        .map((_) => PartialSampleItem.parse(omitBy(_, isNil)))
-        .sort(SampleItemSort)
+      sampleItems.map(parseSampleItem).sort(SampleItemSort)
     );
 };
 
@@ -106,7 +144,7 @@ const update = async (
   sampleId: string,
   itemNumber: number,
   copyNumber: number,
-  partialSampleItem: PartialSampleItem | SampleItemUpdate,
+  partialSampleItem: PartialSampleItem,
   trx: KyselyMaestro = kysely
 ): Promise<void> => {
   console.info('Update sampleItem', sampleId, copyNumber, partialSampleItem);
@@ -115,9 +153,20 @@ const update = async (
     .where('sampleId', '=', sampleId)
     .where('itemNumber', '=', itemNumber)
     .where('copyNumber', '=', copyNumber)
-    .set(partialSampleItem)
+    .set(PartialSampleItemDbo.parse(partialSampleItem))
     .execute();
 };
+
+const parseSampleItem = (data: PartialSampleItemJoinedDbo) =>
+  data &&
+  PartialSampleItem.parse({
+    ...omitBy(data, isNil),
+    analysis: data.analysisStatus && {
+      status: data.analysisStatus,
+      compliance: data.analysisCompliance,
+      notesOnCompliance: data.analysisNotesOnCompliance
+    }
+  });
 
 export default {
   findUnique,
