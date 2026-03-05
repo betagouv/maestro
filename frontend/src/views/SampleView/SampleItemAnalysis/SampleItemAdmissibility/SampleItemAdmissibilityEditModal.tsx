@@ -1,5 +1,4 @@
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import React, { FunctionComponent, useContext, useRef } from 'react';
 import { assert, type Equals } from 'tsafe';
@@ -11,13 +10,11 @@ import {
 
 type Props = {
   sampleItem: SampleItem;
-  sampleItemAnalysis?: PartialAnalysis;
   modal: ReturnType<typeof createModal>;
 };
 export const SampleItemAdmissibilityEditModal: FunctionComponent<Props> = ({
   modal,
   sampleItem,
-  sampleItemAnalysis,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -76,7 +73,6 @@ export const SampleItemAdmissibilityEditModal: FunctionComponent<Props> = ({
     >
       <SampleItemAdmissibilityForm
         sampleItem={sampleItem}
-        sampleItemAnalysis={sampleItemAnalysis}
         setForm={(f) => (admissibilityForm.current = f)}
       />
     </modal.Component>

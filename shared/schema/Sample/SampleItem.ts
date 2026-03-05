@@ -57,7 +57,14 @@ export const SampleItem = z.object({
   paid: z.boolean().nullish(),
   paidDate: maestroDateRefined.nullish(),
   invoiceNumber: z.string().nullish(),
-  budgetNotes: z.string().nullish()
+  budgetNotes: z.string().nullish(),
+  analysis: z
+    .object({
+      status: AnalysisStatus,
+      compliance: z.boolean().nullish(),
+      notesOnCompliance: z.string().nullish()
+    })
+    .nullish()
 });
 
 export const PartialSampleItem = z.object({
