@@ -6,6 +6,7 @@ import { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
+import { useAuthentication } from '../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../services/apiClient';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import { pluralize } from '../../../utils/stringUtils';
@@ -18,12 +19,13 @@ const localPrescriptionModal = createModal({
   isOpenedByDefault: false
 });
 
-const RegionalPrescriptionModal = () => {
+const LocalPrescriptionModal = () => {
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
   const modalContentRef = useRef<
     (HTMLDivElement & { submit: () => Promise<boolean> }) | null
   >(null);
+  const { hasUserLocalPrescriptionPermission } = useAuthentication();
 
   useIsModalOpen(localPrescriptionModal, {
     onConceal: () => {
@@ -47,6 +49,16 @@ const RegionalPrescriptionModal = () => {
       localPrescriptionModal.open();
     }
   }, [localPrescriptionModalData]);
+
+  const readonly = useMemo(
+    () =>
+      localPrescriptionModalData?.mode === 'laboratory' &&
+      !hasUserLocalPrescriptionPermission(
+        localPrescriptionModalData.programmingPlan,
+        localPrescriptionModalData.localPrescription
+      )?.updateLaboratories,
+    [localPrescriptionModalData, hasUserLocalPrescriptionPermission]
+  );
 
   const submitSubstanceKindsLaboratories = async (
     substanceKindsLaboratories: SubstanceKindLaboratory[]
@@ -148,7 +160,7 @@ const RegionalPrescriptionModal = () => {
           : 'medium'
       }
       buttons={
-        isUpdateSuccess
+        isUpdateSuccess || readonly
           ? [
               {
                 children: 'Fermer',
@@ -195,6 +207,7 @@ const RegionalPrescriptionModal = () => {
                       )
                 }
                 onSubmit={submitSubstanceKindsLaboratories}
+                readonly={readonly}
               />
             )}
             {localPrescriptionModalData?.mode ===
@@ -233,4 +246,4 @@ const RegionalPrescriptionModal = () => {
   );
 };
 
-export default RegionalPrescriptionModal;
+export default LocalPrescriptionModal;

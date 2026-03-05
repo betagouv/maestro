@@ -10,12 +10,14 @@ interface Props {
   programmingPlanId: string;
   substanceKindLaboratory: SubstanceKindLaboratory;
   onSelect: (laboratoryId?: string) => void;
+  readonly?: boolean;
 }
 
 const SubstanceKindLaboratorySelect = ({
   programmingPlanId,
   substanceKindLaboratory,
-  onSelect
+  onSelect,
+  readonly
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
 
@@ -37,6 +39,7 @@ const SubstanceKindLaboratorySelect = ({
           onChange: (e) => onSelect(e.target.value || undefined)
         }}
         className={cx('fr-mb-0')}
+        disabled={readonly}
       >
         <option value="" disabled>
           Sélectionner un laboratoire
