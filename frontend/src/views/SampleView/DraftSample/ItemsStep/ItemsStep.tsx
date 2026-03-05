@@ -18,7 +18,6 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleStatusSteps } from 'maestro-shared/schema/Sample/SampleStatus';
-import { MaestroDate } from 'maestro-shared/utils/date';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -50,7 +49,6 @@ const ItemsStep = ({ partialSample }: Props) => {
   const [sampledAt, setSampledAt] = useState(
     format(partialSample.sampledAt ?? new Date(), 'yyyy-MM-dd HH:mm')
   );
-  const [shippingDate, setShippingDate] = useState(partialSample.shippingDate);
   const [items, setItems] = useState(partialSample.items ?? []);
   const [notesOnItems, setNotesOnItems] = useState(partialSample.notesOnItems);
   const [isSaved, setIsSaved] = useState(false);
@@ -128,7 +126,6 @@ const ItemsStep = ({ partialSample }: Props) => {
 
   const Form = z.object(SampleItemsDataChecked.shape).pick({
     sampledAt: true,
-    shippingDate: true,
     notesOnItems: true,
     items: true
   });
@@ -193,7 +190,6 @@ const ItemsStep = ({ partialSample }: Props) => {
     await createOrUpdateSample({
       ...partialSample,
       sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
-      shippingDate,
       notesOnItems,
       items: items.map((item) => ({
         ...item,
@@ -231,7 +227,6 @@ const ItemsStep = ({ partialSample }: Props) => {
     FormChecked,
     {
       sampledAt,
-      shippingDate,
       items,
       notesOnItems
     },
@@ -288,19 +283,6 @@ const ItemsStep = ({ partialSample }: Props) => {
             label="Date et heure de prélèvement"
             hintText="Format attendu › JJ/MM/AAAA HH:MM"
             required
-            disabled={readonly}
-          />
-        </div>
-        <div className={cx('fr-col-6')}>
-          <AppTextInput
-            type="date"
-            defaultValue={shippingDate ?? ''}
-            onChange={(e) => setShippingDate(e.target.value as MaestroDate)}
-            inputForm={form}
-            inputKey="shippingDate"
-            whenValid="Date d'expédition"
-            label="Date d'expédition"
-            hintText="Format attendu › JJ/MM/AAAA"
             disabled={readonly}
           />
         </div>

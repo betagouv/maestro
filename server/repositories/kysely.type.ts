@@ -258,6 +258,16 @@ export interface SampleItems {
   sealId: string | null;
   supportDocumentId: string | null;
   laboratoryId: string | null;
+  receiptDate: MaestroDate | null;
+  notesOnAdmissibility: string | null;
+  shippingDate: MaestroDate | null;
+  destructionDate: MaestroDate | null;
+  carrier: string | null;
+  invoicingDate: MaestroDate | null;
+  paid: boolean | null;
+  paidDate: MaestroDate | null;
+  invoiceNumber: string | null;
+  budgetNotes: string | null;
 }
 
 export interface Samples {
