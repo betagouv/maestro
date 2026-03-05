@@ -331,7 +331,7 @@ const ContextStep = ({ partialSample }: Props) => {
 
         if (createOrUpdateSampleCall.isSuccess) {
           trackEvent('sample', `submit_${formData.status}`, formData.id);
-          navigateToSample(formData.id);
+          navigateToSample(formData.id, 2);
         }
       }
     }, // eslint-disable-next-line react-hooks/exhaustive-deps
