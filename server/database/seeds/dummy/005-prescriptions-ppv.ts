@@ -1,5 +1,5 @@
 import { RegionList } from 'maestro-shared/referential/Region';
-import { DummyLaboratoryIds } from 'maestro-shared/schema/User/User';
+import { PPVDummyLaboratoryIds } from 'maestro-shared/schema/User/User';
 import {
   genLocalPrescriptions,
   genPrescription
@@ -492,7 +492,7 @@ export const seed = async function () {
         region,
         department: 'None',
         substanceKind: 'Any',
-        laboratoryId: oneOf(DummyLaboratoryIds)
+        laboratoryId: oneOf(PPVDummyLaboratoryIds)
       }))
     )
   );
