@@ -1,13 +1,16 @@
+import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
+import { isNil } from 'lodash-es';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { getSupportDocumentURL } from '../../../services/sample.service';
+import { quote } from '../../../utils/stringUtils';
 import SampleItemAnalysis from '../SampleItemAnalysis/SampleItemAnalysis';
 import './SampleOverview.scss';
 
@@ -37,6 +40,24 @@ const SampleItemCopiesOverview = ({
           {SubstanceKindLabels[sampleItemCopies[0].substanceKind]}
         </Tag>
       </div>
+      {!isNil(sampleItemCopies[0]?.analysis?.compliance) && (
+        <div>
+          <Badge
+            severity={
+              sampleItemCopies[0].analysis?.compliance ? 'success' : 'error'
+            }
+            className={'fr-px-1w'}
+          >
+            {sampleItemCopies[0].analysis?.compliance
+              ? 'Échantillon conforme'
+              : 'Échantillon non conforme'}
+          </Badge>
+          <div className={cx('fr-text--sm', 'fr-mb-0')}>
+            {sampleItemCopies[0]?.analysis?.notesOnCompliance &&
+              quote(sampleItemCopies[0]?.analysis.notesOnCompliance)}
+          </div>
+        </div>
+      )}
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-6')}>
           <div>Compte-rendu / Procès-verbal</div>

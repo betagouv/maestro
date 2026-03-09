@@ -6,7 +6,6 @@ import { useForm } from '../../../../hooks/useForm';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { isNil } from 'lodash-es';
-import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { MaestroDate } from 'maestro-shared/utils/date';
 import { FunctionComponent } from 'react';
@@ -52,12 +51,10 @@ const FormChecked = z
 export type FormRefinement = ReturnType<typeof useForm<typeof FormChecked>>;
 type Props = {
   sampleItem: SampleItem;
-  sampleItemAnalysis?: PartialAnalysis;
   setForm?: (form: FormRefinement) => void;
 };
 export const SampleItemAdmissibilityForm: FunctionComponent<Props> = ({
   sampleItem,
-  sampleItemAnalysis,
   setForm,
   ..._rest
 }) => {
@@ -68,9 +65,9 @@ export const SampleItemAdmissibilityForm: FunctionComponent<Props> = ({
   );
   const [receiptDate, setReceiptDate] = useState(sampleItem.receiptDate);
   const [isAdmissible, setIsAdmissible] = useState(
-    sampleItemAnalysis?.status === 'NotAdmissible'
+    sampleItem.analysis?.status === 'NotAdmissible'
       ? false
-      : !isNil(sampleItemAnalysis?.status)
+      : !isNil(sampleItem.analysis?.status)
         ? true
         : null
   );

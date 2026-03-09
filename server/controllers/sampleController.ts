@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { constants } from 'http2';
-import { isNil, omit } from 'lodash-es';
+import { isNil } from 'lodash-es';
 import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
@@ -415,12 +415,12 @@ export const sampleRouter = {
       const sample = await getAndCheckSample(sampleId, user, userRole);
       console.info('Update sampleItem', sample.id, itemNumber, copyNumber);
 
-      await sampleItemRepository.update(
-        sample.id,
+      await sampleItemRepository.update(sample.id, itemNumber, copyNumber, {
+        ...itemUpdate,
+        sampleId,
         itemNumber,
-        copyNumber,
-        omit(itemUpdate, 'analysisStatus')
-      );
+        copyNumber
+      });
 
       const analysis = await analysisRepository.findUnique({
         sampleId,
@@ -436,7 +436,7 @@ export const sampleRouter = {
           copyNumber,
           createdAt: new Date(),
           createdBy: user.id,
-          status: itemUpdate.analysisStatus ?? 'Report',
+          status: itemUpdate.analysis?.status ?? 'Report',
           compliance: null,
           notesOnCompliance: null
         };
@@ -444,7 +444,7 @@ export const sampleRouter = {
       } else {
         await analysisRepository.update({
           ...analysis,
-          status: itemUpdate.analysisStatus ?? analysis.status
+          status: itemUpdate.analysis?.status ?? analysis.status
         });
       }
 

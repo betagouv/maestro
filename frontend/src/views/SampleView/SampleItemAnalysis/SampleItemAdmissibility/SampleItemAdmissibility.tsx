@@ -5,7 +5,6 @@ import clsx from 'clsx';
 import { format } from 'date-fns';
 import './SampleItemAdmissibility.scss';
 
-import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
@@ -17,7 +16,6 @@ import { SampleItemAdmissibilityEditModal } from './SampleItemAdmissibilityEditM
 interface Props {
   sample: SampleChecked;
   sampleItem: SampleItem;
-  sampleItemAnalysis?: PartialAnalysis;
   readonly: boolean;
 }
 
@@ -29,7 +27,6 @@ const editSampleAdmissibility = createModal({
 export const SampleItemAdmissibility: FunctionComponent<Props> = ({
   sample,
   sampleItem,
-  sampleItemAnalysis,
   readonly,
   ..._rest
 }) => {
@@ -39,7 +36,7 @@ export const SampleItemAdmissibility: FunctionComponent<Props> = ({
   let message: string = '';
 
   if (sampleItem.receiptDate) {
-    message = `${sampleItemAnalysis?.status !== 'NotAdmissible' ? 'Échantillon recevable' : 'Échantillon non recevable'} reçu par le laboratoire le ${format(sampleItem.receiptDate, 'dd/MM/yyyy')}`;
+    message = `${sampleItem.analysis?.status !== 'NotAdmissible' ? 'Échantillon recevable' : 'Échantillon non recevable'} reçu par le laboratoire le ${format(sampleItem.receiptDate, 'dd/MM/yyyy')}`;
   } else {
     message = 'Aucune information relative à la réception par le laboratoire.';
   }
@@ -81,19 +78,18 @@ export const SampleItemAdmissibility: FunctionComponent<Props> = ({
             )}
           </div>
           <div className={cx('fr-text--bold')}>{message}</div>
+
+          {!!sampleItem.notesOnAdmissibility &&
+            sampleItem.notesOnAdmissibility.length > 0 && (
+              <i>{sampleItem.notesOnAdmissibility}</i>
+            )}
         </div>
 
         <SampleItemAdmissibilityEditModal
           modal={editSampleAdmissibility}
           sampleItem={sampleItem}
-          sampleItemAnalysis={sampleItemAnalysis}
         />
       </div>
-
-      {!!sampleItem.notesOnAdmissibility &&
-        sampleItem.notesOnAdmissibility.length > 0 && (
-          <i>{sampleItem.notesOnAdmissibility}</i>
-        )}
     </div>
   );
 };

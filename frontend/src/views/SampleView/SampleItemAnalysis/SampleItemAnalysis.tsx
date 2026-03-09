@@ -53,11 +53,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
     apiClient.useUpdateAnalysisMutation({
       fixedCacheKey: `complete-analysis-${sample.id}`
     });
-  const {
-    data: analysis,
-    isLoading: isAnalysisLoading,
-    isFetching: isAnalysisFetching
-  } = apiClient.useGetSampleItemAnalysisQuery({
+  const { data: analysis } = apiClient.useGetSampleItemAnalysisQuery({
     sampleId: sample.id,
     itemNumber: sampleItem.itemNumber,
     copyNumber: sampleItem.copyNumber
@@ -119,7 +115,8 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
 
   const isEditing: boolean =
     !readonly &&
-    (location.pathname.endsWith('/edit') || analysis?.status !== 'Completed');
+    (location.pathname.endsWith('/edit') ||
+      sampleItem.analysis?.status !== 'Completed');
 
   return (
     <div className={'analysis-container'}>
@@ -156,14 +153,11 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
       )}
 
       <div>
-        {!isAnalysisFetching && !isAnalysisLoading && (
-          <SampleItemAdmissibility
-            sample={sample}
-            readonly={readonly}
-            sampleItem={sampleItem}
-            sampleItemAnalysis={analysis}
-          />
-        )}
+        <SampleItemAdmissibility
+          sample={sample}
+          readonly={readonly}
+          sampleItem={sampleItem}
+        />
         {analysis?.status !== 'NotAdmissible' && (
           <AnalysisDocumentPreview
             partialAnalysis={analysis}
@@ -358,25 +352,24 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
         </Accordion>
       </div>
 
-      {['Analysis', 'InReview', 'Completed'].includes(sample.status) &&
-        analysis && (
-          <>
-            {!isEditing ? (
-              <SampleAnalysisOverview
-                sample={sample}
-                analysis={analysis}
-                readonly={readonly}
-                onEdit={() => navigateToSampleEdit(sample.id)}
-              />
-            ) : (
-              <SampleAnalysisForm
-                partialAnalysis={analysis}
-                sample={sample}
-                onDone={() => navigateToSample(sample.id)}
-              />
-            )}
-          </>
-        )}
+      {analysis && (
+        <>
+          {!isEditing ? (
+            <SampleAnalysisOverview
+              sample={sample}
+              analysis={analysis}
+              readonly={readonly}
+              onEdit={() => navigateToSampleEdit(sample.id)}
+            />
+          ) : (
+            <SampleAnalysisForm
+              partialAnalysis={analysis}
+              sample={sample}
+              onDone={() => navigateToSample(sample.id)}
+            />
+          )}
+        </>
+      )}
       {sample.status === 'InReview' && <UserFeedback />}
     </div>
   );

@@ -2,6 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import SideMenu from '@codegouvfr/react-dsfr/SideMenu';
 import clsx from 'clsx';
+import { isNil } from 'lodash-es';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useState } from 'react';
@@ -61,7 +62,7 @@ const SampleOverview = ({ sample }: Props) => {
             sticky={true}
             fullHeight={true}
             style={{
-              maxWidth: '300px'
+              maxWidth: '330px'
             }}
             items={[
               {
@@ -81,7 +82,45 @@ const SampleOverview = ({ sample }: Props) => {
                       },
                       href: '#'
                     },
-                    text: `Échantillon ${SubstanceKindLabels[item.substanceKind].toLowerCase()}`
+                    text: (
+                      <div className="d-block">
+                        <span>
+                          Échantillon{' '}
+                          {SubstanceKindLabels[
+                            item.substanceKind
+                          ].toLowerCase()}
+                        </span>
+                        {!!item.analysis?.compliance && (
+                          <div
+                            className={cx('fr-label--success', 'fr-text--xs')}
+                          >
+                            <span
+                              className={cx(
+                                'fr-icon-checkbox-circle-line',
+                                'fr-mr-1w',
+                                'fr-icon--sm'
+                              )}
+                            />
+                            Conforme
+                          </div>
+                        )}
+                        {!isNil(item.analysis?.compliance) &&
+                          !item.analysis?.compliance && (
+                            <div
+                              className={cx('fr-label--error', 'fr-text--xs')}
+                            >
+                              <span
+                                className={cx(
+                                  'fr-icon-close-circle-line',
+                                  'fr-mr-1w',
+                                  'fr-icon--sm'
+                                )}
+                              />
+                              Non-conforme
+                            </div>
+                          )}
+                      </div>
+                    )
                   }))
               },
               {

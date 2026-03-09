@@ -19,7 +19,7 @@ const PrescriptionNotes = ({
   const [notes, setNotes] = useState(value);
 
   const { triggerSave } = useAutoSave({
-    onSave: (value) => onSubmitNotes?.(value),
+    onSave: (value) => onSubmitNotes?.(value as string),
     delay: 500
   });
 
