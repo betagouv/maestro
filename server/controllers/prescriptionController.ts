@@ -89,12 +89,16 @@ export const prescriptionsRouter = {
         await prescriptionRepository.findMany(queryFindOptions);
       const localPrescriptions = await localPrescriptionRepository.findMany({
         ...findOptions,
-        includes: ['comments', 'sampleCounts']
+        includes: ['comments', 'sampleCounts', 'laboratories']
       });
 
-      const fileName = `prescriptions-${findOptions.contexts?.map((context) =>
-        ContextLabels[context].toLowerCase().replaceAll(' ', '-')
-      )}.xlsx`;
+      const fileName = `prescriptions${
+        findOptions.contexts
+          ? findOptions.contexts.map((context) =>
+              ContextLabels[context].toLowerCase().replaceAll(' ', '-')
+            )
+          : ''
+      }.xlsx`;
 
       const buffer = await excelService.generatePrescriptionsExportExcel(
         programmingPlan,

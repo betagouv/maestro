@@ -43,6 +43,7 @@ import {
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
+import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
@@ -377,9 +378,7 @@ const generatePrescriptionsExportExcel = async (
       ? Regions[exportedRegion].departments
       : [];
 
-  // const laboratories = exportedRegion
-  //   ? await laboratoryRepository.findMany()
-  //   : [];
+  const laboratories = await laboratoryRepository.findMany();
 
   console.log('Export prescriptions', exportedRegion, exportedDepartments);
 
@@ -393,18 +392,28 @@ const generatePrescriptionsExportExcel = async (
   if (!exportedDepartment) {
     columnTitles.push(
       ...exportedRegions.flatMap((region) => [
-        `Région ${Regions[region].shortName} - Programmés`,
-        `Région ${Regions[region].shortName} - Réalisés`,
-        `Région ${Regions[region].shortName} - Taux de réalisation`
+        `Région ${Regions[region].shortName}\nProgrammés`,
+        `Région ${Regions[region].shortName}\nRéalisés`,
+        `Région ${Regions[region].shortName}\nTaux de réalisation`,
+        ...(programmingPlan.distributionKind === 'REGIONAL'
+          ? programmingPlan.substanceKinds.flatMap(
+              (substanceKind) =>
+                `Région ${Regions[region].shortName}\nLaboratoire ${SubstanceKindLabels[substanceKind].toLowerCase()}`
+            )
+          : [])
       ])
     );
   }
-  if (programmingPlan.distributionKind !== 'REGIONAL') {
+  if (programmingPlan.distributionKind === 'SLAUGHTERHOUSE') {
     columnTitles.push(
       ...exportedDepartments.flatMap((department) => [
-        `Département ${department} - Programmés`,
-        `Département ${department} - Réalisés`,
-        `Département ${department} - Taux de réalisation`
+        `Département ${department}\nProgrammés`,
+        `Département ${department}\nRéalisés`,
+        `Département ${department}\nTaux de réalisation`,
+        ...programmingPlan.substanceKinds.flatMap(
+          (substanceKind) =>
+            `Département ${department}\nLaboratoire ${SubstanceKindLabels[substanceKind].toLowerCase()}`
+        )
       ])
     );
   }
@@ -428,10 +437,30 @@ const generatePrescriptionsExportExcel = async (
       }
       columns.push(
         ...filteredLocalPrescriptions.flatMap(
-          ({ sampleCount, realizedSampleCount, region }) => [
+          ({
+            sampleCount,
+            realizedSampleCount,
+            region,
+            department,
+            substanceKindsLaboratories
+          }) => [
             sampleCount,
             realizedSampleCount ?? 0,
-            getCompletionRate(filteredLocalPrescriptions, region)
+            getCompletionRate(filteredLocalPrescriptions, region),
+            ...((programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
+              !isNil(department)) ||
+            (programmingPlan.distributionKind === 'REGIONAL' && !isNil(region))
+              ? programmingPlan.substanceKinds.flatMap(
+                  (substanceKind) =>
+                    laboratories.find((laboratory) =>
+                      substanceKindsLaboratories?.some(
+                        (skl) =>
+                          skl.substanceKind === substanceKind &&
+                          laboratory.id === skl.laboratoryId
+                      )
+                    )?.shortName ?? ''
+                )
+              : [])
           ]
         )
       );
@@ -441,13 +470,6 @@ const generatePrescriptionsExportExcel = async (
           .map((stage) => StageLabels[stage])
           .join(', '),
         columns: columns.map((v) => ({ value: v }))
-        // laboratories.find(
-        //   (laboratory) =>
-        //     laboratory.id ===
-        //     filteredLocalPrescriptions[0]?.substanceKindsLaboratories?.[0]
-        //       ?.laboratoryId
-        // )?.name
-        //.map((v) => ({ value: v }))
       };
     });
 
@@ -483,7 +505,7 @@ const generatePrescriptionsExportExcel = async (
       ])
     );
   }
-  if (programmingPlan.distributionKind !== 'REGIONAL') {
+  if (programmingPlan.distributionKind === 'SLAUGHTERHOUSE') {
     totalColums.push(
       ...exportedDepartments.flatMap((dept) => [
         sumBy(
@@ -504,7 +526,10 @@ const generatePrescriptionsExportExcel = async (
           ),
           undefined,
           true
-        )
+        ),
+        '',
+        '',
+        ''
       ])
     );
   }
