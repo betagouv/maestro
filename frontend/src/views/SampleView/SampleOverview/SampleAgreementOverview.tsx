@@ -1,7 +1,9 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import { formatDateTime } from 'maestro-shared/utils/date';
 import './SampleOverview.scss';
 
 interface Props {
@@ -53,49 +55,20 @@ const SampleAgreementOverview = ({ sample }: Props) => {
           />
         </div>
       </div>
-      <div>
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12', 'fr-mb-1w')}>
-            <h6 className={cx('fr-mb-0')}>
-              Envoi du procès-verbal au détenteur de la marchandise
-            </h6>
-          </div>
-        </div>
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-6', 'fr-col-sm-3')}>
-            <Input
-              label="Identité du détenteur"
-              hintText="Nom"
-              disabled
-              nativeInputProps={{
-                value: sample.ownerLastName ?? ''
-              }}
-            />
-          </div>
-          <div className={cx('fr-col-6', 'fr-col-sm-3')}>
-            <Input
-              label={' '}
-              hintText="Prénom"
-              disabled
-              nativeInputProps={{
-                disabled: true,
-                value: sample.ownerFirstName ?? ''
-              }}
-            />
-          </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-            <Input
-              label="E-mail du détenteur"
-              hintText="Le détenteur a reçu une copie du procès-verbal"
-              disabled
-              nativeInputProps={{
-                disabled: true,
-                value: sample.ownerEmail ?? ''
-              }}
-            />
-          </div>
-        </div>
-      </div>
+      <Alert
+        severity={'info'}
+        small={true}
+        description={
+          <>
+            Le procès-verbal a été envoyé au détenteur{' '}
+            <b>
+              {sample.ownerLastName} {sample.ownerFirstName}
+            </b>{' '}
+            à l'email <b>{sample.ownerEmail}</b> le{' '}
+            <b>{sample.sentAt ? formatDateTime(sample.sentAt) : ''}</b>.
+          </>
+        }
+      ></Alert>
     </>
   );
 };
