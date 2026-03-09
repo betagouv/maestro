@@ -3,8 +3,9 @@ import {
   SubstanceKindLaboratory,
   SubstanceKindLaboratorySort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { forwardRef, useImperativeHandle, useState } from 'react';
-import SubstanceKindLaboratorySelect from './SubstanceKindLaboratorySelect';
+import LaboratorySelect from '../../LaboratorySelect/LaboratorySelect';
 
 interface Props {
   programmingPlanId: string;
@@ -49,9 +50,13 @@ const LocalPrescriptionSubstanceKindsLaboratories = forwardRef<
               key={`substanceKindLaboratory_${substanceKindLaboratory.substanceKind}`}
             >
               {index > 0 && <hr className={cx('fr-mb-2w')} />}
-              <SubstanceKindLaboratorySelect
+              <div className={cx('fr-text--bold', 'fr-mb-2w')}>
+                {SubstanceKindLabels[substanceKindLaboratory.substanceKind]}
+              </div>
+              <LaboratorySelect
                 programmingPlanId={programmingPlanId}
-                substanceKindLaboratory={substanceKindLaboratory}
+                substanceKind={substanceKindLaboratory.substanceKind}
+                laboratoryId={substanceKindLaboratory.laboratoryId}
                 onSelect={(laboratoryId) =>
                   setSubstanceKindsLaboratories(
                     substanceKindsLaboratories.map((sl) =>

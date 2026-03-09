@@ -8,6 +8,7 @@ import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { Regions } from 'maestro-shared/referential/Region';
 import { Pagination } from 'maestro-shared/schema/commons/Pagination';
+import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import {
   ContextLabels,
   ProgrammingPlanContext
@@ -47,6 +48,7 @@ interface Props {
   onChange: (filters: Partial<FilterableType>) => void;
   samplers?: UserRefined[];
   programmingPlans?: ProgrammingPlanChecked[];
+  laboratories?: Pick<Laboratory, 'id' | 'name'>[];
 }
 
 const tagProps = {
@@ -158,6 +160,11 @@ const filtersConfig = {
     prop: 'domain',
     getLabel: (value) => ProgrammingPlanDomainLabels[value]
   },
+  laboratoryId: {
+    prop: 'laboratoryId',
+    getLabel: (value, { laboratories }) =>
+      laboratories?.find(({ id }) => id === value)?.name ?? ''
+  },
   programmingPlanIds: {
     prop: 'programmingPlanIds',
     getComponent: (value, onChange, { programmingPlans }) => (
@@ -204,6 +211,7 @@ const filtersConfig = {
           value: NonNullable<FilterableType[key]>,
           data: {
             sampler?: UserRefined;
+            laboratories?: Props['laboratories'];
           }
         ) => string | null;
         getComponent?: never;
@@ -226,7 +234,8 @@ const FiltersTags = ({
   filters,
   onChange,
   samplers,
-  programmingPlans
+  programmingPlans,
+  laboratories
 }: Props) => {
   const { hasNationalView } = useAuthentication();
   const sampler = useMemo(
@@ -272,7 +281,8 @@ const FiltersTags = ({
             } else {
               // @ts-expect-error TS2345 il est perdu
               const label = conf.getLabel(value, {
-                sampler
+                sampler,
+                laboratories
               });
               if (label) {
                 return (

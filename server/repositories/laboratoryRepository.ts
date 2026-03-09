@@ -33,7 +33,7 @@ const findMany = async (
       'laboratoryAgreements.laboratoryId',
       'laboratories.id'
     )
-    .distinct()
+    .distinctOn('laboratories.id')
     .selectAll();
 
   for (const option of FindLaboratoryOptions.keyof().options) {

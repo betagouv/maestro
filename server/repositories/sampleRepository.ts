@@ -13,6 +13,7 @@ import { companiesTable } from './companyRepository';
 import { knexInstance as db, knexInstance } from './db';
 import { kysely } from './kysely';
 import { KyselyMaestro } from './kysely.type';
+import { sampleItemsTable } from './sampleItemRepository';
 import { usersTable } from './userRepository';
 
 export const samplesTable = 'samples';
@@ -120,7 +121,8 @@ const findRequest = (findOptions: FindSampleOptions) =>
           'compliance',
           'withAtLeastOneResidue',
           'programmingPlanIds',
-          'kinds'
+          'kinds',
+          'laboratoryId'
         ),
         (_) => isNil(_) || isArray(_)
       )
@@ -198,6 +200,19 @@ const findRequest = (findOptions: FindSampleOptions) =>
               knexInstance.raw(`${samplesTable}.id`)
             )
             .whereNot(`${analysisResiduesTable}.resultKind`, 'ND')
+            .limit(1)
+        );
+      }
+      if (findOptions.laboratoryId) {
+        builder.whereExists((c) =>
+          c
+            .select(knexInstance.raw(1))
+            .from(sampleItemsTable)
+            .where(
+              `${sampleItemsTable}.sampleId`,
+              knexInstance.raw(`${samplesTable}.id`)
+            )
+            .where(`${sampleItemsTable}.laboratoryId`, findOptions.laboratoryId)
             .limit(1)
         );
       }

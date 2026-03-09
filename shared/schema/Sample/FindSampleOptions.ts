@@ -39,7 +39,8 @@ export const FindSampleOptions = z
     sampledAt: z.string().nullish(),
     reference: z.string().nullish(),
     compliance: SampleCompliance.nullish(),
-    withAtLeastOneResidue: coerceToBooleanNullish()
+    withAtLeastOneResidue: coerceToBooleanNullish(),
+    laboratoryId: z.guid().nullish()
   })
   .merge(Pagination.partial());
 
