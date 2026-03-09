@@ -23,9 +23,7 @@ export default {
     frontend: {
       ignoreDependencies: [
         'geojson',
-        '@vitest/coverage-v8',
-        //Utilisé de façon indirecte par fetch-intercept
-        'whatwg-fetch'
+        '@vitest/coverage-v8'
       ],
       ignore: ['src/serviceWorker.js']
     },

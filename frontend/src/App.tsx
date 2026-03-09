@@ -6,7 +6,6 @@ import { AppRouteKeys } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks'
 import React, { ReactElement } from 'react';
 import { Provider } from 'react-redux';
 import { Link, Route, Routes } from 'react-router';
-import FetchInterceptor from 'src/components/FetchInterceptor/FetchInterceptor';
 import Footer from 'src/components/Footer/Footer';
 import Header from 'src/components/Header/Header';
 import ScrollToTop from 'src/components/ScrollToTop/ScrollToTop';
@@ -57,8 +56,6 @@ function App() {
     )
   );
   const { isOnline } = useOnLine();
-
-  FetchInterceptor();
 
   return (
     <React.Suspense fallback={<></>}>
