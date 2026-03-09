@@ -1,6 +1,6 @@
 import carbone, { RenderOptions } from 'carbone';
 import { format } from 'date-fns';
-import { isNil, sumBy } from 'lodash-es';
+import { isNil, sumBy, uniq } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
@@ -43,9 +43,11 @@ import {
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
+import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
+import companyRepository from '../../repositories/companyRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { Template, templatePath } from '../../templates/templates';
@@ -64,13 +66,16 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
   sampler: string;
   sampledAt: string;
   status: string;
+  statusCode: string;
   sentAt: string;
   receivedAt: string;
   latitude: number;
   longitude: number;
   parcel: string;
   context: string;
+  contextCode?: string;
   legalContext: string;
+  legalContextCode?: string;
   company: string;
   companyAddress: string;
   companySiret: string;
@@ -109,8 +114,10 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
       referenceLabel: string;
       residueNumber: number;
       analysisMethod: string;
+      analysisMethodCode: string;
       analysisDate: string;
       resultKind: string;
+      resultKindCode: string;
       result: number;
       resultUnit: string;
       lmr: number;
@@ -121,6 +128,7 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
       pollutionRisk: string;
       notesOnPollutionRisk: string;
       compliance: string;
+      complianceCode: string;
       otherCompliance: string;
       sampleCompliance: string;
       analytes: SetAttributesNullOrUndefined<{
@@ -130,6 +138,7 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
         reference: string;
         referenceLabel: string;
         resultKind: string;
+        resultKindCode: string;
         result: number;
       }>[];
     }>[];
@@ -173,6 +182,7 @@ const generateSamplesExportExcel = async (
           ? formatWithTz(sample.sampledAt, 'dd/MM/yyyy HH:mm')
           : '',
         status: SampleStatusLabels[sample.status],
+        statusCode: sample.status,
         sentAt: sample.sentAt
           ? formatWithTz(sample.sentAt, 'dd/MM/yyyy HH:mm')
           : '',
@@ -183,9 +193,11 @@ const generateSamplesExportExcel = async (
         longitude: sample.geolocation?.y,
         parcel: sample.parcel,
         context: sample.context ? ContextLabels[sample.context] : undefined,
+        contextCode: sample.context,
         legalContext: sample.legalContext
           ? LegalContextLabels[sample.legalContext]
           : undefined,
+        legalContextCode: sample.legalContext,
         company: sample.company?.name,
         companyAddress: [
           sample.company?.address,
@@ -243,7 +255,7 @@ const generateSamplesExportExcel = async (
                 laboratories.find((lab) => lab.id === item.laboratoryId)?.name
               : SampleItemRecipientKindLabels[item.recipientKind]),
           laboratoryCode:
-            withCodes && item.recipientKind === 'Laboratory'
+            item.recipientKind === 'Laboratory'
               ? laboratories.find((lab) => lab.id === item.laboratoryId)
                   ?.shortName
               : null,
@@ -268,10 +280,12 @@ const generateSamplesExportExcel = async (
             analysisMethod: r.analysisMethod
               ? AnalysisMethodLabels[r.analysisMethod]
               : undefined,
+            analysisMethodCode: r.analysisMethod,
             analysisDate: r.analysisDate,
             resultKind: r.resultKind
               ? ResultKindLabels[r.resultKind]
               : undefined,
+            resultKindCode: r.resultKind,
             result: r.result,
             resultUnit: 'mg/kg',
             lmr: r.lmr,
@@ -286,6 +300,7 @@ const generateSamplesExportExcel = async (
             compliance: r.compliance
               ? ResidueComplianceLabels[r.compliance]
               : undefined,
+            complianceCode: r.compliance,
             otherCompliance: r.otherCompliance,
             sampleCompliance: isDefinedAndNotNull(analysis?.compliance)
               ? analysis?.compliance
@@ -305,15 +320,12 @@ const generateSamplesExportExcel = async (
               resultKind: a.resultKind
                 ? ResultKindLabels[a.resultKind]
                 : undefined,
+              resultKindCode: a.resultKind,
               result: a.result
             }))
           }))
         }))
       };
-
-      if (withCodes) {
-        data['matrixCode'] = sample.matrix;
-      }
 
       return data;
     })
@@ -367,11 +379,14 @@ const generatePrescriptionsExportExcel = async (
       ? Regions[exportedRegion].departments
       : [];
 
-  // const laboratories = exportedRegion
-  //   ? await laboratoryRepository.findMany()
-  //   : [];
-
   console.log('Export prescriptions', exportedRegion, exportedDepartments);
+
+  const laboratories = await laboratoryRepository.findMany();
+  const companySirets = uniq(
+    localPrescriptions
+      .filter((_) => !isNil(_.companySiret))
+      .map((_) => _.companySiret)
+  );
 
   const columnTitles: string[] = [];
 
@@ -383,20 +398,50 @@ const generatePrescriptionsExportExcel = async (
   if (!exportedDepartment) {
     columnTitles.push(
       ...exportedRegions.flatMap((region) => [
-        `Région ${Regions[region].shortName} - Programmés`,
-        `Région ${Regions[region].shortName} - Réalisés`,
-        `Région ${Regions[region].shortName} - Taux de réalisation`
+        `Région ${Regions[region].shortName}\nProgrammés`,
+        `Région ${Regions[region].shortName}\nRéalisés`,
+        `Région ${Regions[region].shortName}\nTaux de réalisation`,
+        ...(programmingPlan.distributionKind === 'REGIONAL'
+          ? programmingPlan.substanceKinds.flatMap(
+              (substanceKind) =>
+                `Région ${Regions[region].shortName}\nLaboratoire ${SubstanceKindLabels[substanceKind].toLowerCase()}`
+            )
+          : [])
       ])
     );
   }
-  if (programmingPlan.distributionKind !== 'REGIONAL') {
+  if (programmingPlan.distributionKind === 'SLAUGHTERHOUSE') {
     columnTitles.push(
       ...exportedDepartments.flatMap((department) => [
-        `Département ${department} - Programmés`,
-        `Département ${department} - Réalisés`,
-        `Département ${department} - Taux de réalisation`
+        `Département ${department}\nProgrammés`,
+        `Département ${department}\nRéalisés`,
+        `Département ${department}\nTaux de réalisation`,
+        ...programmingPlan.substanceKinds.flatMap(
+          (substanceKind) =>
+            `Département ${department}\nLaboratoire ${SubstanceKindLabels[substanceKind].toLowerCase()}`
+        )
       ])
     );
+
+    if (exportedDepartment) {
+      const companies = await companyRepository.findMany({
+        region: exportedRegion,
+        department: exportedDepartment,
+        kinds: ['POULTRY_SLAUGHTERHOUSE', 'MEAT_SLAUGHTERHOUSE']
+      });
+      columnTitles.push(
+        ...companySirets.flatMap((companySiret) => {
+          const companyName =
+            companies.find((c) => c.siret === companySiret)?.name ??
+            (companySiret as string);
+          return [
+            `${companyName}\nProgrammés`,
+            `${companyName}\nRéalisés`,
+            `${companyName}\nTaux de réalisation`
+          ];
+        })
+      );
+    }
   }
 
   const prescriptionsWithColumns = prescriptions
@@ -418,26 +463,61 @@ const generatePrescriptionsExportExcel = async (
       }
       columns.push(
         ...filteredLocalPrescriptions.flatMap(
-          ({ sampleCount, realizedSampleCount, region }) => [
+          ({
+            sampleCount,
+            realizedSampleCount,
+            region,
+            department,
+            substanceKindsLaboratories
+          }) => [
             sampleCount,
             realizedSampleCount ?? 0,
-            getCompletionRate(filteredLocalPrescriptions, region)
+            getCompletionRate(filteredLocalPrescriptions, region),
+            ...((programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
+              !isNil(department)) ||
+            (programmingPlan.distributionKind === 'REGIONAL' && !isNil(region))
+              ? programmingPlan.substanceKinds.flatMap(
+                  (substanceKind) =>
+                    laboratories.find((laboratory) =>
+                      substanceKindsLaboratories?.some(
+                        (skl) =>
+                          skl.substanceKind === substanceKind &&
+                          laboratory.id === skl.laboratoryId
+                      )
+                    )?.shortName ?? ''
+                )
+              : [])
           ]
         )
       );
+
+      if (exportedRegion && exportedDepartment) {
+        columns.push(
+          ...companySirets.flatMap((companySiret) => {
+            const companyPrescription = localPrescriptions.find(
+              (_) =>
+                _.prescriptionId === prescription.id &&
+                _.companySiret === companySiret
+            ) ?? {
+              sampleCount: 0,
+              realizedSampleCount: 0,
+              region: exportedRegion
+            };
+            return [
+              companyPrescription?.sampleCount ?? 0,
+              companyPrescription?.realizedSampleCount ?? 0,
+              getCompletionRate(companyPrescription, undefined, true)
+            ];
+          })
+        );
+      }
+
       return {
         matrix: getPrescriptionTitle(prescription),
         stages: prescription.stages
           .map((stage) => StageLabels[stage])
           .join(', '),
         columns: columns.map((v) => ({ value: v }))
-        // laboratories.find(
-        //   (laboratory) =>
-        //     laboratory.id ===
-        //     filteredLocalPrescriptions[0]?.substanceKindsLaboratories?.[0]
-        //       ?.laboratoryId
-        // )?.name
-        //.map((v) => ({ value: v }))
       };
     });
 
@@ -473,30 +553,41 @@ const generatePrescriptionsExportExcel = async (
       ])
     );
   }
-  if (programmingPlan.distributionKind !== 'REGIONAL') {
+
+  if (programmingPlan.distributionKind === 'SLAUGHTERHOUSE') {
     totalColums.push(
-      ...exportedDepartments.flatMap((dept) => [
-        sumBy(
-          localPrescriptions.filter(
-            (_) => _.department === dept && isNil(_.companySiret)
-          ),
-          'sampleCount'
-        ),
-        sumBy(
-          localPrescriptions.filter(
-            (_) => _.department === dept && isNil(_.companySiret)
-          ),
-          'realizedSampleCount'
-        ),
-        getCompletionRate(
-          localPrescriptions.filter(
-            (_) => _.department === dept && isNil(_.companySiret)
-          ),
-          undefined,
-          true
-        )
-      ])
+      ...exportedDepartments.flatMap((dept) => {
+        const filteredLocalPrescriptions = localPrescriptions.filter(
+          (_) => _.region === exportedRegion && _.department === dept
+        );
+        return [
+          sumBy(filteredLocalPrescriptions, 'sampleCount'),
+          sumBy(filteredLocalPrescriptions, 'realizedSampleCount'),
+          getCompletionRate(filteredLocalPrescriptions, undefined, true),
+          '',
+          '',
+          ''
+        ];
+      })
     );
+
+    if (exportedRegion && exportedDepartment) {
+      totalColums.push(
+        ...companySirets.flatMap((companySiret) => {
+          const filteredLocalPrescriptions = localPrescriptions.filter(
+            (_) =>
+              _.companySiret === companySiret &&
+              _.region === exportedRegion &&
+              _.department === exportedDepartment
+          );
+          return [
+            sumBy(filteredLocalPrescriptions, 'sampleCount'),
+            sumBy(filteredLocalPrescriptions, 'realizedSampleCount'),
+            getCompletionRate(filteredLocalPrescriptions, undefined, true)
+          ];
+        })
+      );
+    }
   }
 
   return carboneRender(

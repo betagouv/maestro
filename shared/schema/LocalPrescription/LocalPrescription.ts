@@ -76,11 +76,19 @@ export type LocalPrescription = z.infer<typeof LocalPrescription>;
 export type LocalPrescriptionUpdate = z.infer<typeof LocalPrescriptionUpdate>;
 
 export const getCompletionRate = (
-  localPrescriptions: LocalPrescription | LocalPrescription[],
+  localPrescriptions:
+    | Pick<LocalPrescription, 'sampleCount' | 'realizedSampleCount' | 'region'>
+    | Pick<
+        LocalPrescription,
+        'sampleCount' | 'realizedSampleCount' | 'region'
+      >[],
   region?: Region | null,
   limitedSentCount: boolean = false
 ) => {
-  const localPrescriptionsWithLimitedSentCount: LocalPrescription[] = (
+  const localPrescriptionsWithLimitedSentCount: Pick<
+    LocalPrescription,
+    'sampleCount' | 'realizedSampleCount' | 'region'
+  >[] = (
     Array.isArray(localPrescriptions)
       ? localPrescriptions
       : [localPrescriptions]
