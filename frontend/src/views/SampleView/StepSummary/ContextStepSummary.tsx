@@ -10,6 +10,7 @@ import {
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import { formatDate } from 'maestro-shared/utils/date';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { quote } from 'src/utils/stringUtils';
 import StepSummary, {
@@ -53,6 +54,15 @@ const ContextStepSummary = ({
           )}
         </div>
       </div>
+      {isCreatedPartialSample(sample) && (
+        <div className="summary-item icon-text">
+          <div className={cx('fr-icon-calendar-event-line')}></div>
+          <div>
+            Date du prélèvement :{' '}
+            <b>{formatDate(sample.sampledAt)}</b>
+          </div>
+        </div>
+      )}
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-road-map-line')}></div>
         <div>
