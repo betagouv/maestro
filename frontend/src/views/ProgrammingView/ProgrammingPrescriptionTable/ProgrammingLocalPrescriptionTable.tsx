@@ -347,13 +347,13 @@ const ProgrammingLocalPrescriptionTable = ({
             <>
               <div>
                 {pluralize(
-                  sumBy(subLocalPrescriptions, 'realizedSampleCount') ?? 0,
+                  sumBy(localPrescriptions, 'realizedSampleCount') ?? 0,
                   {
                     preserveCount: true
                   }
                 )('réalisé')}
               </div>
-              <CompletionBadge localPrescriptions={subLocalPrescriptions} />
+              <CompletionBadge localPrescriptions={localPrescriptions} />
             </>
           )}
         </div>,
