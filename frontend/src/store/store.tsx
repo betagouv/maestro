@@ -1,8 +1,20 @@
-import { configureStore } from '@reduxjs/toolkit';
+import type { Middleware } from '@reduxjs/toolkit';
+import { configureStore, isRejectedWithValue } from '@reduxjs/toolkit';
 import { api, tagTypes } from 'src/services/api.service';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import samplesSlice from 'src/store/reducers/samplesSlice';
 import authSlice from './reducers/authSlice';
+
+const unauthorizedMiddleware: Middleware = () => (next) => (action) => {
+  if (
+    isRejectedWithValue(action) &&
+    (action.payload as { status?: number })?.status === 401
+  ) {
+    localStorage.removeItem('authUser');
+    window.location.replace('/');
+  }
+  return next(action);
+};
 
 export const applicationReducer = {
   [authSlice.name]: authSlice.reducer,
@@ -16,7 +28,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false
-    }).concat(api.middleware)
+    }).concat(api.middleware, unauthorizedMiddleware)
 });
 
 export type AppState = ReturnType<typeof store.getState>;
