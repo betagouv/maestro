@@ -5,6 +5,7 @@ import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import {
   Sample11Fixture,
+  Sample13Fixture,
   Sample2Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
@@ -193,5 +194,33 @@ describe('findMany samples', async () => {
     });
     expect(samples).toHaveLength(1);
     expect(samples[0].id).toBe(analysisWithResidues.sampleId);
+  });
+});
+
+describe('deleteDraftOnProgrammingPlan', async () => {
+  test('deletes only draft samples for the given programmingPlanId', async () => {
+    const before = await sampleRepository.findMany({
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId)
+    });
+    expect(before).toHaveLength(4);
+
+    await sampleRepository.deleteDraftOnProgrammingPlan(
+      '00000000-0000-0000-0000-000000000000'
+    );
+
+    let after = await sampleRepository.findMany({
+      programmingPlanIds: toArray(Sample2Fixture.programmingPlanId)
+    });
+    expect(after).toHaveLength(4);
+
+    await sampleRepository.deleteDraftOnProgrammingPlan(
+      Sample11Fixture.programmingPlanId
+    );
+
+    after = await sampleRepository.findMany({
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId)
+    });
+    expect(after).toHaveLength(1);
+    expect(after[0].id).toBe(Sample13Fixture.id);
   });
 });

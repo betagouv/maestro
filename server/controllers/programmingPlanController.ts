@@ -28,6 +28,7 @@ import localPrescriptionRepository from '../repositories/localPrescriptionReposi
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
+import { sampleRepository } from '../repositories/sampleRepository';
 import { userRepository } from '../repositories/userRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
@@ -154,6 +155,8 @@ export const programmingPlanRouter = {
         closedAt: new Date(),
         closedBy: user.id
       });
+
+      await sampleRepository.deleteDraftOnProgrammingPlan(programmingPlan.id);
 
       const updatedProgrammingPlan = await programmingPlanRepository.findUnique(
         programmingPlan.id
