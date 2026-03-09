@@ -6,6 +6,10 @@ import {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import {
+  SampleItemKey,
+  SampleItemUpdate
+} from 'maestro-shared/schema/Sample/SampleItem';
 import { api } from 'src/services/api.service';
 import samplesSlice from 'src/store/reducers/samplesSlice';
 import { store } from 'src/store/store';
@@ -98,13 +102,19 @@ const sampleApi = api.injectEndpoints({
         { type: 'Prescription', id: 'LIST' }
       ]
     }),
-    updateSampleItems: builder.mutation<void, { id: string; items: any[] }>({
-      query: ({ id, items }) => ({
-        url: `samples/${id}/items`,
+    updateSampleItem: builder.mutation<
+      void,
+      SampleItemKey & { sampleItemUpdate: SampleItemUpdate }
+    >({
+      query: ({ sampleId, itemNumber, copyNumber, sampleItemUpdate }) => ({
+        url: `samples/${sampleId}/items/${itemNumber}/copy/${copyNumber}`,
         method: 'PUT',
-        body: items
+        body: sampleItemUpdate
       }),
-      invalidatesTags: (_result, _error, { id }) => [{ type: 'Sample', id }]
+      invalidatesTags: (_result, _error, { sampleId }) => [
+        { type: 'Sample', id: sampleId },
+        { type: 'SampleItemAnalysis', id: sampleId }
+      ]
     }),
     deleteSample: builder.mutation<void, string>({
       query: (id) => ({
@@ -147,6 +157,7 @@ export const {
   useGetSampleQuery,
   useLazyGetSampleQuery,
   useUpdateSampleMutation,
+  useUpdateSampleItemMutation,
   useDeleteSampleMutation,
   getSupportDocumentURL,
   getSampleListExportURL,

@@ -1,6 +1,7 @@
 import z from 'zod';
 import { FindSampleOptions } from '../schema/Sample/FindSampleOptions';
 import { PartialSample, PartialSampleToCreate } from '../schema/Sample/Sample';
+import { SampleItemUpdate } from '../schema/Sample/SampleItem';
 import { SubRoutes } from './routes';
 
 export const samplesRoutes = {
@@ -48,6 +49,18 @@ export const samplesRoutes = {
     get: {
       permissions: ['downloadSupportDocument'],
       response: z.custom<Buffer>()
+    }
+  },
+  '/samples/:sampleId/items/:itemNumber/copy/:copyNumber': {
+    params: {
+      sampleId: z.guid(),
+      itemNumber: z.coerce.number().min(1),
+      copyNumber: z.coerce.number().min(1)
+    },
+    put: {
+      body: SampleItemUpdate,
+      permissions: ['updateSample'],
+      response: z.void()
     }
   },
   '/samples/:sampleId': {

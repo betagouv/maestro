@@ -1,6 +1,7 @@
 import { isEqual } from 'lodash-es';
 import { useEffect, useState } from 'react';
 import { z, ZodObject } from 'zod';
+import { useAutoSave } from './useAutoSave';
 
 type MessageType = 'error' | 'success' | 'default';
 
@@ -105,9 +106,14 @@ export function useForm<
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...Object.values(input)]);
 
+  const { triggerSave } = useAutoSave({
+    onSave: () => onInputChange?.(),
+    delay: 500
+  });
+
   useEffect(() => {
     if (isInitialized) {
-      (async () => await onInputChange?.())();
+      triggerSave?.();
     }
     setIsInitialized(true);
   }, [...Object.values(input)]); // eslint-disable-line react-hooks/exhaustive-deps

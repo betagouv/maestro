@@ -17,6 +17,8 @@ import { AnalysisDocumentModal } from './AnalysisDocumentModal';
 type Props = {
   partialAnalysis: PartialAnalysis | undefined;
   sampleId: string;
+  itemNumber: number;
+  copyNumber: number;
   readonly: boolean;
 };
 
@@ -28,6 +30,8 @@ const addFileModal = createModal({
 export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
   partialAnalysis,
   sampleId,
+  itemNumber,
+  copyNumber,
   readonly,
   ..._rest
 }) => {
@@ -83,19 +87,23 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
               ? 'Actualiser le rapport'
               : 'Ajouter le rapport'}
           </Button>
-          {partialAnalysis && reportDocumentIds?.length && (
-            <ReportDocumentList
-              sampleId={sampleId}
-              readonly={readonly}
-              analysisId={partialAnalysis.id}
-              reportDocumentIds={reportDocumentIds}
-            />
-          )}
+          {partialAnalysis &&
+            reportDocumentIds &&
+            reportDocumentIds.length > 0 && (
+              <ReportDocumentList
+                sampleId={sampleId}
+                readonly={readonly}
+                analysisId={partialAnalysis.id}
+                reportDocumentIds={reportDocumentIds}
+              />
+            )}
         </div>
       )}
       <AnalysisDocumentModal
         modal={addFileModal}
         sampleId={sampleId}
+        itemNumber={itemNumber}
+        copyNumber={copyNumber}
         partialAnalysis={partialAnalysis}
       />
     </div>

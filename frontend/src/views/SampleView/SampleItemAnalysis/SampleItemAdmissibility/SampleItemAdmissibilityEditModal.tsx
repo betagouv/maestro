@@ -1,5 +1,5 @@
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import React, { FunctionComponent, useContext, useRef } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { ApiClientContext } from '../../../../services/apiClient';
@@ -9,12 +9,12 @@ import {
 } from './SampleItemAdmissibilityForm';
 
 type Props = {
-  sample: SampleChecked;
+  sampleItem: SampleItem;
   modal: ReturnType<typeof createModal>;
 };
 export const SampleItemAdmissibilityEditModal: FunctionComponent<Props> = ({
   modal,
-  sample,
+  sampleItem,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -23,7 +23,7 @@ export const SampleItemAdmissibilityEditModal: FunctionComponent<Props> = ({
 
   const admissibilityForm = useRef<FormRefinement>(null);
 
-  const [updateSample] = apiClient.useUpdateSampleMutation();
+  const [updateSampleItem] = apiClient.useUpdateSampleItemMutation();
 
   const save = async (e?: React.MouseEvent<HTMLElement>) => {
     e?.preventDefault();
@@ -31,17 +31,20 @@ export const SampleItemAdmissibilityEditModal: FunctionComponent<Props> = ({
     if (admissibilityForm.current) {
       const form = admissibilityForm.current;
       await form.validate(
-        async ({ receivedAt, isAdmissible, notesOnAdmissibility }) => {
-          await updateSample({
-            ...sample,
-            receivedAt,
-            status:
-              isAdmissible === false
-                ? 'NotAdmissible'
-                : sample.status === 'NotAdmissible'
-                  ? 'Analysis'
-                  : sample.status,
-            notesOnAdmissibility: notesOnAdmissibility
+        async ({ receiptDate, isAdmissible, notesOnAdmissibility }) => {
+          await updateSampleItem({
+            sampleId: sampleItem.sampleId,
+            itemNumber: sampleItem.itemNumber,
+            copyNumber: sampleItem.copyNumber,
+            sampleItemUpdate: {
+              ...sampleItem,
+              receiptDate,
+              analysis: {
+                ...sampleItem.analysis,
+                status: isAdmissible === false ? 'NotAdmissible' : 'Report'
+              },
+              notesOnAdmissibility
+            }
           });
           form.reset();
         }
@@ -71,8 +74,7 @@ export const SampleItemAdmissibilityEditModal: FunctionComponent<Props> = ({
       ]}
     >
       <SampleItemAdmissibilityForm
-        sample={sample}
-        withSubmitButton={false}
+        sampleItem={sampleItem}
         setForm={(f) => (admissibilityForm.current = f)}
       />
     </modal.Component>

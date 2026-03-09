@@ -2,11 +2,11 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
-import { formatDate } from 'maestro-shared/utils/date';
+import { format } from 'date-fns';
 import './SampleItemAdmissibility.scss';
 
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { FunctionComponent } from 'react';
@@ -35,8 +35,8 @@ export const SampleItemAdmissibility: FunctionComponent<Props> = ({
 
   let message: string = '';
 
-  if (sample.receivedAt) {
-    message = `${sample.status !== 'NotAdmissible' ? 'Échantillon recevable' : 'Échantillon non recevable'} reçu par le laboratoire le ${formatDate(sample.receivedAt)}`;
+  if (sampleItem.receiptDate) {
+    message = `${sampleItem.analysis?.status !== 'NotAdmissible' ? 'Échantillon recevable' : 'Échantillon non recevable'} reçu par le laboratoire le ${format(sampleItem.receiptDate, 'dd/MM/yyyy')}`;
   } else {
     message = 'Aucune information relative à la réception par le laboratoire.';
   }
@@ -78,18 +78,18 @@ export const SampleItemAdmissibility: FunctionComponent<Props> = ({
             )}
           </div>
           <div className={cx('fr-text--bold')}>{message}</div>
+
+          {!!sampleItem.notesOnAdmissibility &&
+            sampleItem.notesOnAdmissibility.length > 0 && (
+              <i>{sampleItem.notesOnAdmissibility}</i>
+            )}
         </div>
 
         <SampleItemAdmissibilityEditModal
           modal={editSampleAdmissibility}
-          sample={sample}
+          sampleItem={sampleItem}
         />
       </div>
-
-      {!!sample.notesOnAdmissibility &&
-        sample.notesOnAdmissibility.length > 0 && (
-          <i>{sample.notesOnAdmissibility}</i>
-        )}
     </div>
   );
 };

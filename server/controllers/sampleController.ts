@@ -50,6 +50,7 @@ import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
+import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import {
   ProgrammingPlanKindWithSacha,
   ProgrammingPlanKindWithSachaList
@@ -58,11 +59,13 @@ import { hasPermission } from 'maestro-shared/schema/User/User';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
+import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
 import {
   getAndCheckSample,
   getAndCheckSampleDepartement
 } from '../middlewares/checks/sampleCheck';
+import { analysisRepository } from '../repositories/analysisRepository';
 import { LaboratoryResidueMapping } from '../repositories/kysely.type';
 import { laboratoryResidueMappingRepository } from '../repositories/laboratoryResidueMappingRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
@@ -404,6 +407,50 @@ export const sampleRouter = {
       return { status: constants.HTTP_STATUS_OK, response: pdfBuffer };
     }
   },
+  '/samples/:sampleId/items/:itemNumber/copy/:copyNumber': {
+    put: async (
+      { body: itemUpdate, user, userRole },
+      { sampleId, itemNumber, copyNumber }
+    ) => {
+      const sample = await getAndCheckSample(sampleId, user, userRole);
+      console.info('Update sampleItem', sample.id, itemNumber, copyNumber);
+
+      await sampleItemRepository.update(sample.id, itemNumber, copyNumber, {
+        ...itemUpdate,
+        sampleId,
+        itemNumber,
+        copyNumber
+      });
+
+      const analysis = await analysisRepository.findUnique({
+        sampleId,
+        itemNumber,
+        copyNumber
+      });
+
+      if (!analysis) {
+        const analysis: PartialAnalysis = {
+          id: uuidv4(),
+          sampleId,
+          itemNumber,
+          copyNumber,
+          createdAt: new Date(),
+          createdBy: user.id,
+          status: itemUpdate.analysis?.status ?? 'Report',
+          compliance: null,
+          notesOnCompliance: null
+        };
+        await analysisRepository.insert(analysis);
+      } else {
+        await analysisRepository.update({
+          ...analysis,
+          status: itemUpdate.analysis?.status ?? analysis.status
+        });
+      }
+
+      return { status: constants.HTTP_STATUS_OK };
+    }
+  },
   '/samples/:sampleId/emptyForm': {
     get: async ({ user, userRole }, { sampleId }, { setHeader }) => {
       const sample = await getAndCheckSample(sampleId, user, userRole);
@@ -544,7 +591,11 @@ export const sampleRouter = {
         ...sampleUpdate,
         ...prescriptionData,
         lastUpdatedAt: new Date(),
-        sentAt: mustBeSent ? new Date() : sample.sentAt
+        ...(mustBeSent
+          ? {
+              sentAt: new Date()
+            }
+          : {})
       };
 
       if (mustBeSent) {

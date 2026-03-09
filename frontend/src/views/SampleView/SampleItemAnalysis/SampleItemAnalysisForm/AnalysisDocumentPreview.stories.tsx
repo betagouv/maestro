@@ -10,6 +10,8 @@ const meta = {
   args: {
     partialAnalysis: genPartialAnalysis({}),
     sampleId: 'fakeAnalysisId',
+    itemNumber: 1,
+    copyNumber: 1,
     readonly: true
   }
 } satisfies Meta<typeof AnalysisDocumentPreview>;

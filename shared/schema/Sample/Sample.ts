@@ -13,7 +13,6 @@ import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import { Region } from '../../referential/Region';
 import { SSD2Id } from '../../referential/Residue/SSD2Id';
 import { Stage } from '../../referential/Stage';
-import { maestroDateRefined } from '../../utils/date';
 import { isDefined } from '../../utils/utils';
 import { Company } from '../Company/Company';
 import { Geolocation } from '../Geolocation/Geolocation';
@@ -182,7 +181,6 @@ export const SampleItemsDataChecked = z
         error: () => 'La date de prélèvement est invalide.'
       })
     ),
-    shippingDate: maestroDateRefined.nullish(),
     items: z
       .array(SampleItem)
       .min(1, { message: 'Veuillez renseigner au moins un échantillon.' }),
@@ -190,26 +188,10 @@ export const SampleItemsDataChecked = z
   })
   .check(sampleItemSealIdCheck);
 
-const SampleAdmissibilityData = z.object({
-  sentAt: z.coerce.date().nullish(),
-  receivedAt: z
-    .union([z.string(), z.date()])
-    .pipe(
-      z.coerce.date({
-        error: () => 'La date de réception est invalide.'
-      })
-    )
-    .nullish(),
-  notesOnAdmissibility: z.string().nullish()
-});
-
 export const SampleOwnerData = z.object({
   ownerFirstName: z.string().nullish(),
   ownerLastName: z.string().nullish(),
-  ownerEmail: z
-    .string()
-    .email("L'adresse email du détenteur est invalide.")
-    .nullish(),
+  ownerEmail: z.email("L'adresse email du détenteur est invalide.").nullish(),
   ownerAgreement: z.boolean({
     error: (issue) =>
       isNil(issue.input)
@@ -236,7 +218,6 @@ export const PartialSampleToCreate = z.object({
   }).shape,
   ...PartialSampleMatrixData.shape,
   ...z.object(SampleItemsDataChecked.shape).partial().shape,
-  ...SampleAdmissibilityData.partial().shape,
   ...SampleOwnerData.partial().shape,
   items: z.array(PartialSampleItem).nullish()
 });
@@ -245,7 +226,6 @@ export const SampleToCreate = z.object({
   ...SampleContextData.shape,
   ...SampleMatrixData.shape,
   ...SampleItemsDataChecked.shape,
-  ...SampleAdmissibilityData.shape,
   ...SampleOwnerData.shape
 });
 
@@ -265,7 +245,8 @@ export const SampleBase = SampleToCreate.extend({
   geolocation: Geolocation,
   department: Department,
   company: Company,
-  items: z.array(SampleItem)
+  items: z.array(SampleItem),
+  sentAt: z.coerce.date().nullish()
 });
 
 export const SampleChecked = SampleBase.check(
