@@ -24,8 +24,6 @@ export default {
       ignoreDependencies: [
         'geojson',
         '@vitest/coverage-v8',
-        //Pas normal, ce package n'est pas utilisé mais on utilise plusieurs packages de celui-ci
-        'workbox-webpack-plugin',
         //Utilisé de façon indirecte par fetch-intercept
         'whatwg-fetch'
       ],
