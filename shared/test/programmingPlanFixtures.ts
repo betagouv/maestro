@@ -62,7 +62,7 @@ export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
     region,
     status: 'Validated'
   })),
-  year: new Date().getFullYear()
+  year: 2025
 });
 
 export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({

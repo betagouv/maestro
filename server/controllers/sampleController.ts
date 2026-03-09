@@ -254,9 +254,13 @@ export const sampleRouter = {
         await companyRepository.upsert(sampleToCreate.company);
       }
 
+      const programmingPlan = await getAndCheckProgrammingPlan(
+        sampleToCreate.programmingPlanId
+      );
+
       const reference = await getNewReference(
         user.region,
-        new Date().getFullYear()
+        programmingPlan.year
       );
 
       const sample = {

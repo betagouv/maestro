@@ -1,4 +1,4 @@
-import { addDays, format } from 'date-fns';
+import { addDays } from 'date-fns';
 import { constants } from 'http2';
 import { omit } from 'lodash-es';
 import { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
@@ -423,7 +423,7 @@ describe('Sample router', () => {
               id: sample.sampler.id,
               name: sample.sampler.name
             },
-            reference: `${Regions[user.region as Region].shortName}-${format(new Date(), 'yy')}-0000${expectedIncrement}`
+            reference: `${Regions[user.region as Region].shortName}-25-000${expectedIncrement}`
           })
         );
 
