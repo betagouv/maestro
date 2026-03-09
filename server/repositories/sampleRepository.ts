@@ -6,7 +6,10 @@ import {
   PartialSample,
   SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
-import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
+import {
+  DraftStatusList,
+  SampleStatus
+} from 'maestro-shared/schema/Sample/SampleStatus';
 import z from 'zod';
 import { analysisResiduesTable, analysisTable } from './analysisRepository';
 import { companiesTable } from './companyRepository';
@@ -358,6 +361,17 @@ const deleteOne = async (id: string): Promise<void> => {
   await Samples().where({ id }).delete();
 };
 
+const deleteDraftOnProgrammingPlan = async (
+  programmingPlanId: string
+): Promise<void> => {
+  console.info('Delete draft samples on programmingPlan', programmingPlanId);
+  await kysely
+    .deleteFrom('samples')
+    .where('programmingPlanId', '=', programmingPlanId)
+    .where('status', 'in', DraftStatusList)
+    .execute();
+};
+
 export const formatPartialSample = (
   partialSample: PartialSample | SampleChecked
 ): PartialSampleDbo => ({
@@ -423,5 +437,6 @@ export const sampleRepository = {
   findMany,
   count,
   getNextSequence,
-  deleteOne
+  deleteOne,
+  deleteDraftOnProgrammingPlan
 };
