@@ -3,6 +3,7 @@ import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
+import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import {
   Sample11Fixture,
   Sample2Fixture
@@ -132,6 +133,21 @@ describe('findMany samples', async () => {
       programmingPlanIds: toArray(Sample11Fixture.programmingPlanId)
     });
     expect(samples).not.toHaveLength(1);
+  });
+
+  test('find with laboratoryId option', async () => {
+    let samples = await sampleRepository.findMany({
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
+      laboratoryId: '00000000-0000-0000-0000-000000000000'
+    });
+    expect(samples).toEqual([]);
+
+    samples = await sampleRepository.findMany({
+      programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
+      laboratoryId: LaboratoryFixture.id
+    });
+    expect(samples).toHaveLength(1);
+    expect(samples[0].id).toBe(Sample11Fixture.id);
   });
 
   test('find with withAtLeastOneResidue option', async () => {

@@ -7,7 +7,7 @@ import { knexInstance as db } from './db';
 import { kysely } from './kysely';
 import { KyselyMaestro } from './kysely.type';
 
-const sampleItemsTable = 'sample_items';
+export const sampleItemsTable = 'sample_items';
 
 export const SampleItems = (transaction = db) =>
   transaction<PartialSampleItem>(sampleItemsTable);

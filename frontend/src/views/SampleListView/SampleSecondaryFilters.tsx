@@ -16,15 +16,22 @@ import {
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { z } from 'zod';
 import { DepartmentsSelect } from '../../components/DepartmentsSelect/DepartmentsSelect';
+import LaboratorySelect from '../../components/LaboratorySelect/LaboratorySelect';
 import { RegionsFilter } from '../../components/RegionsFilter/RegionsFilter';
 
 interface Props {
   year: number;
   filters: Partial<FindSampleOptions>;
+  programmingPlanId: string | undefined;
   onChange: (filters: Partial<FindSampleOptions>) => void;
 }
 
-const SampleSecondaryFilters = ({ year, filters, onChange }: Props) => {
+const SampleSecondaryFilters = ({
+  year,
+  filters,
+  programmingPlanId,
+  onChange
+}: Props) => {
   const { hasNationalView, hasRegionalView } = useAuthentication();
 
   return (
@@ -120,6 +127,17 @@ const SampleSecondaryFilters = ({ year, filters, onChange }: Props) => {
             </option>
           ))}
         </Select>
+      </div>
+      <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
+        <LaboratorySelect
+          programmingPlanId={programmingPlanId}
+          laboratoryId={filters.laboratoryId}
+          onSelect={(laboratoryId) =>
+            onChange({
+              laboratoryId
+            })
+          }
+        />
       </div>
       <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
         <ToggleSwitch

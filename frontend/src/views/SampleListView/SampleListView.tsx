@@ -80,6 +80,10 @@ const SampleListView = () => {
     [programmingPlans]
   );
 
+  const { data: laboratories } = apiClient.useFindLaboratoriesQuery({
+    programmingPlanId: programmingPlan?.id
+  });
+
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   useEffect(() => {
@@ -109,6 +113,7 @@ const SampleListView = () => {
         compliance:
           SampleCompliance.safeParse(searchParams.get('compliance')).data ??
           undefined,
+        laboratoryId: searchParams.get('laboratoryId'),
         withAtLeastOneResidue:
           coerceToBooleanNullish().safeParse(
             searchParams.get('withAtLeastOneResidue')
@@ -247,6 +252,7 @@ const SampleListView = () => {
                       year={Number(year)}
                       filters={findSampleOptions}
                       onChange={changeFilter}
+                      programmingPlanId={programmingPlan.id}
                     />
                   )}
                 </div>
@@ -258,6 +264,7 @@ const SampleListView = () => {
                   programmingPlans={programmingPlans}
                   samplers={samplers}
                   onChange={changeFilter}
+                  laboratories={laboratories}
                 />
               </div>
             </div>
@@ -281,6 +288,7 @@ const SampleListView = () => {
                         year={Number(year)}
                         filters={findSampleOptions}
                         onChange={changeFilter}
+                        programmingPlanId={programmingPlan?.id}
                       />
                     )}
                   </div>
@@ -289,6 +297,7 @@ const SampleListView = () => {
                     filters={findSampleOptions}
                     programmingPlans={programmingPlans}
                     samplers={samplers}
+                    laboratories={laboratories}
                     onChange={changeFilter}
                   />
                 </div>
