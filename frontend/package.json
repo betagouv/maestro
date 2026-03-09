@@ -64,8 +64,7 @@
     "vite": "^7.1.12",
     "vite-plugin-pwa": "^1.0.3",
     "vite-tsconfig-paths": "^5.1.4",
-    "whatwg-fetch": "^3.6.20",
-    "workbox-webpack-plugin": "^7.4.0"
+    "whatwg-fetch": "^3.6.20"
   },
   "overrides": {
     "vite": "$vite"
