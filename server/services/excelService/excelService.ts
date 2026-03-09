@@ -1,6 +1,6 @@
 import carbone, { RenderOptions } from 'carbone';
 import { format } from 'date-fns';
-import { isNil, sumBy } from 'lodash-es';
+import { isNil, sumBy, uniq } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
@@ -47,6 +47,7 @@ import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKi
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
+import companyRepository from '../../repositories/companyRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { Template, templatePath } from '../../templates/templates';
@@ -378,9 +379,14 @@ const generatePrescriptionsExportExcel = async (
       ? Regions[exportedRegion].departments
       : [];
 
-  const laboratories = await laboratoryRepository.findMany();
-
   console.log('Export prescriptions', exportedRegion, exportedDepartments);
+
+  const laboratories = await laboratoryRepository.findMany();
+  const companySirets = uniq(
+    localPrescriptions
+      .filter((_) => !isNil(_.companySiret))
+      .map((_) => _.companySiret)
+  );
 
   const columnTitles: string[] = [];
 
@@ -416,6 +422,26 @@ const generatePrescriptionsExportExcel = async (
         )
       ])
     );
+
+    if (exportedDepartment) {
+      const companies = await companyRepository.findMany({
+        region: exportedRegion,
+        department: exportedDepartment,
+        kinds: ['POULTRY_SLAUGHTERHOUSE', 'MEAT_SLAUGHTERHOUSE']
+      });
+      columnTitles.push(
+        ...companySirets.flatMap((companySiret) => {
+          const companyName =
+            companies.find((c) => c.siret === companySiret)?.name ??
+            (companySiret as string);
+          return [
+            `${companyName}\nProgrammés`,
+            `${companyName}\nRéalisés`,
+            `${companyName}\nTaux de réalisation`
+          ];
+        })
+      );
+    }
   }
 
   const prescriptionsWithColumns = prescriptions
@@ -464,6 +490,28 @@ const generatePrescriptionsExportExcel = async (
           ]
         )
       );
+
+      if (exportedRegion && exportedDepartment) {
+        columns.push(
+          ...companySirets.flatMap((companySiret) => {
+            const companyPrescription = localPrescriptions.find(
+              (_) =>
+                _.prescriptionId === prescription.id &&
+                _.companySiret === companySiret
+            ) ?? {
+              sampleCount: 0,
+              realizedSampleCount: 0,
+              region: exportedRegion
+            };
+            return [
+              companyPrescription?.sampleCount ?? 0,
+              companyPrescription?.realizedSampleCount ?? 0,
+              getCompletionRate(companyPrescription, undefined, true)
+            ];
+          })
+        );
+      }
+
       return {
         matrix: getPrescriptionTitle(prescription),
         stages: prescription.stages
@@ -505,33 +553,41 @@ const generatePrescriptionsExportExcel = async (
       ])
     );
   }
+
   if (programmingPlan.distributionKind === 'SLAUGHTERHOUSE') {
     totalColums.push(
-      ...exportedDepartments.flatMap((dept) => [
-        sumBy(
-          localPrescriptions.filter(
-            (_) => _.department === dept && isNil(_.companySiret)
-          ),
-          'sampleCount'
-        ),
-        sumBy(
-          localPrescriptions.filter(
-            (_) => _.department === dept && isNil(_.companySiret)
-          ),
-          'realizedSampleCount'
-        ),
-        getCompletionRate(
-          localPrescriptions.filter(
-            (_) => _.department === dept && isNil(_.companySiret)
-          ),
-          undefined,
-          true
-        ),
-        '',
-        '',
-        ''
-      ])
+      ...exportedDepartments.flatMap((dept) => {
+        const filteredLocalPrescriptions = localPrescriptions.filter(
+          (_) => _.region === exportedRegion && _.department === dept
+        );
+        return [
+          sumBy(filteredLocalPrescriptions, 'sampleCount'),
+          sumBy(filteredLocalPrescriptions, 'realizedSampleCount'),
+          getCompletionRate(filteredLocalPrescriptions, undefined, true),
+          '',
+          '',
+          ''
+        ];
+      })
     );
+
+    if (exportedRegion && exportedDepartment) {
+      totalColums.push(
+        ...companySirets.flatMap((companySiret) => {
+          const filteredLocalPrescriptions = localPrescriptions.filter(
+            (_) =>
+              _.companySiret === companySiret &&
+              _.region === exportedRegion &&
+              _.department === exportedDepartment
+          );
+          return [
+            sumBy(filteredLocalPrescriptions, 'sampleCount'),
+            sumBy(filteredLocalPrescriptions, 'realizedSampleCount'),
+            getCompletionRate(filteredLocalPrescriptions, undefined, true)
+          ];
+        })
+      );
+    }
   }
 
   return carboneRender(
