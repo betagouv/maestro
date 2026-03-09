@@ -55,8 +55,6 @@ import { ApiClientContext } from '../../services/apiClient';
 import SupportDocumentDownload from '../SampleView/DraftSample/SupportDocumentDownload';
 import './SampleList.scss';
 
-export type SampleListDisplay = 'table' | 'cards';
-
 const SampleListView = () => {
   useDocumentTitle('Liste des prélèvements');
   const apiClient = useContext(ApiClientContext);
