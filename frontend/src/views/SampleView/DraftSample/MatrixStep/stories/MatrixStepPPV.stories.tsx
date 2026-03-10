@@ -11,6 +11,7 @@ import {
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
+import { PPVFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { getMockApi, MockApi } from '../../../../../services/mockApiClient';
 import MatrixStep from '../MatrixStep';
@@ -69,6 +70,9 @@ const storyMockApi: Partial<MockApi> = {
   },
   useFindLocalPrescriptionsQuery: {
     data: [regionalPrescription1, regionalPrescription2]
+  },
+  useFindPlanKindFieldConfigsQuery: {
+    data: PPVFieldConfigs
   }
 };
 

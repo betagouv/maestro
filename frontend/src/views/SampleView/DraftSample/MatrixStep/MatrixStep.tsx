@@ -24,7 +24,6 @@ import {
   MatrixSpecificDataForm,
   MatrixSpecificDataFormInputProps
 } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
-import { SampleMatrixSpecificDataKeys } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -101,6 +100,15 @@ const MatrixStep = ({ partialSample }: Props) => {
     apiClient.useCreateOrUpdateSampleMutation();
   const [createDocument] = apiClient.useCreateDocumentMutation();
   const [deleteDocument] = apiClient.useDeleteDocumentMutation();
+
+  const { data: fieldConfigs = [] } =
+    apiClient.useFindPlanKindFieldConfigsQuery(
+      specificData.programmingPlanKind
+    );
+
+  const planLayout = MatrixSpecificDataForm[
+    specificData.programmingPlanKind
+  ] as Record<string, MatrixSpecificDataFormInputProps>;
 
   const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
     {
@@ -387,20 +395,15 @@ const MatrixStep = ({ partialSample }: Props) => {
       </div>
 
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        {(
-          Object.entries(
-            MatrixSpecificDataForm[specificData.programmingPlanKind]
-          ) as [
-            SampleMatrixSpecificDataKeys,
-            MatrixSpecificDataFormInputProps
-          ][]
-        )
-          .filter(([_, inputProps]) => inputProps.position === 'pre')
-          .map(([inputKey, inputProps]) => (
+        {fieldConfigs
+          .filter(
+            (fc) => (planLayout[fc.field.key]?.position ?? 'post') === 'pre'
+          )
+          .map((fc) => (
             <MatrixSpecificDataFormInput
-              key={inputKey}
-              inputKey={inputKey}
-              inputProps={inputProps}
+              key={fc.field.key}
+              fieldConfig={fc}
+              inputProps={planLayout[fc.field.key] ?? {}}
               inputForm={form}
               specificData={specificData}
               onChange={setSpecificData}
@@ -509,20 +512,15 @@ const MatrixStep = ({ partialSample }: Props) => {
       </div>
       <SampleProcedure partialSample={partialSample} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        {(
-          Object.entries(
-            MatrixSpecificDataForm[specificData.programmingPlanKind]
-          ) as [
-            SampleMatrixSpecificDataKeys,
-            MatrixSpecificDataFormInputProps
-          ][]
-        )
-          .filter(([_, inputProps]) => inputProps.position !== 'pre')
-          .map(([inputKey, inputProps]) => (
+        {fieldConfigs
+          .filter(
+            (fc) => (planLayout[fc.field.key]?.position ?? 'post') !== 'pre'
+          )
+          .map((fc) => (
             <MatrixSpecificDataFormInput
-              key={inputKey}
-              inputKey={inputKey}
-              inputProps={inputProps}
+              key={fc.field.key}
+              fieldConfig={fc}
+              inputProps={planLayout[fc.field.key] ?? {}}
               inputForm={form}
               specificData={specificData}
               onChange={setSpecificData}

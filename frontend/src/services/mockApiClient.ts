@@ -133,6 +133,7 @@ const defaultMockApiClientConf: MockApi = {
   useFindCompaniesQuery: {
     data: [SlaughterhouseCompanyFixture1, SlaughterhouseCompanyFixture2]
   },
+  useFindPlanKindFieldConfigsQuery: { data: [] },
   useFindLaboratoriesQuery: { data: [] },
   useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },

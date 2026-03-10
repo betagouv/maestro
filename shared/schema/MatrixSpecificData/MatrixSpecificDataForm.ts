@@ -11,6 +11,7 @@ export type MatrixSpecificDataFormInputProps = {
   label?: string;
   iconId?: string;
   position?: 'pre' | 'post';
+  colSm?: 2 | 3 | 4 | 6 | 12;
   classes?: {
     container?: string[];
   };
@@ -40,7 +41,7 @@ export const MatrixSpecificDataForm: {
     ageInDays: {},
     species: {},
     breedingMethod: {},
-    outdoorAccess: {}
+    outdoorAccess: { colSm: 4 }
   },
   DAOA_BOVIN: {
     killingCode: {
@@ -55,7 +56,7 @@ export const MatrixSpecificDataForm: {
     sex: {},
     ageInMonths: {},
     productionKind: {},
-    outdoorAccess: {},
+    outdoorAccess: { colSm: 4 },
     seizure: {}
   }
 };
