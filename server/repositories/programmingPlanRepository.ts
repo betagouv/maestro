@@ -12,8 +12,10 @@ import z from 'zod';
 import { knexInstance as db } from './db';
 export const programmingPlansTable = 'programming_plans';
 const programmingPlanLocalStatusTable = 'programming_plan_local_status';
+const programmingPlanKindsTable = 'programming_plan_kinds';
 
 const ProgrammingPlanDbo = ProgrammingPlanBase.omit({
+  kinds: true,
   regionalStatus: true,
   departmentalStatus: true
 });
@@ -30,10 +32,19 @@ type ProgrammingPlanLocalStatusDbo = z.infer<
   typeof ProgrammingPlanLocalStatusDbo
 >;
 
+const ProgrammingPlanKindDbo = z.object({
+  programmingPlanId: z.guid(),
+  kind: ProgrammingPlanKind
+});
+
+type ProgrammingPlanKindDbo = z.infer<typeof ProgrammingPlanKindDbo>;
+
 export const ProgrammingPlans = (transaction = db) =>
   transaction<ProgrammingPlanDbo>(programmingPlansTable);
 export const ProgrammingPlanLocalStatus = (transaction = db) =>
   transaction<ProgrammingPlanLocalStatusDbo>(programmingPlanLocalStatusTable);
+export const ProgrammingPlanKinds = (transaction = db) =>
+  transaction<ProgrammingPlanKindDbo>(programmingPlanKindsTable);
 
 const ProgrammingPlanQuery = () =>
   ProgrammingPlans()
@@ -44,12 +55,18 @@ const ProgrammingPlanQuery = () =>
       ),
       db.raw(
         `coalesce(array_agg(to_json(${programmingPlanLocalStatusTable}.*)) filter (where ${programmingPlanLocalStatusTable}.department != 'None'), '{}') as "departmental_status"`
-      )
+      ),
+      db.raw(`array_agg(distinct(${programmingPlanKindsTable}.kind)) as kinds`)
     )
     .join(
       programmingPlanLocalStatusTable,
       `${programmingPlansTable}.id`,
       `${programmingPlanLocalStatusTable}.programming_plan_id`
+    )
+    .join(
+      programmingPlanKindsTable,
+      `${programmingPlansTable}.id`,
+      `${programmingPlanKindsTable}.programming_plan_id`
     )
     .groupBy(`${programmingPlansTable}.id`);
 
@@ -70,7 +87,8 @@ const findOne = async (
 ): Promise<ProgrammingPlanChecked | undefined> => {
   console.info('Find programming plan', year, kinds, region);
   return ProgrammingPlanQuery()
-    .where({ year, kinds })
+    .where({ year })
+    .whereIn(`${programmingPlanKindsTable}.kind`, kinds)
     .modify((builder) => {
       if (region) {
         builder.where('region', region);
@@ -91,9 +109,7 @@ const findMany = async (
         builder.whereIn('status', findOptions.status);
       }
       if (isArray(findOptions.kinds)) {
-        builder.whereRaw(`${programmingPlansTable}.kinds && ?`, [
-          findOptions.kinds
-        ]);
+        builder.whereIn(`${programmingPlanKindsTable}.kind`, findOptions.kinds);
       }
     })
     .then((programmingPlans) =>
@@ -119,6 +135,15 @@ const insert = async (
           ...regionalStatus,
           programmingPlanId: programmingPlan.id,
           department: 'None'
+        }))
+      );
+    }
+
+    if (programmingPlan.kinds.length > 0) {
+      await ProgrammingPlanKinds(transaction).insert(
+        programmingPlan.kinds.map((kind) => ({
+          programmingPlanId: programmingPlan.id,
+          kind
         }))
       );
     }

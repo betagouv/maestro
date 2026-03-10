@@ -3,6 +3,7 @@ import { constants } from 'http2';
 import { MatrixKindEffective } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { RegionList } from 'maestro-shared/referential/Region';
 import { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Prescription';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   genPrescription,
@@ -26,6 +27,7 @@ import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
 import {
   formatProgrammingPlan,
+  ProgrammingPlanKinds,
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
@@ -104,6 +106,18 @@ describe('Prescriptions router', () => {
         programmingPlan.regionalStatus.map((regionalStatus) => ({
           ...regionalStatus,
           programmingPlanId: programmingPlan.id
+        }))
+      )
+    );
+    await ProgrammingPlanKinds().insert(
+      [
+        programmingPlanSubmitted,
+        programmingPlanInProgress,
+        programmingPlanClosed
+      ].flatMap((plan) =>
+        plan.kinds.map((kind: ProgrammingPlanKind) => ({
+          programmingPlanId: plan.id,
+          kind
         }))
       )
     );
