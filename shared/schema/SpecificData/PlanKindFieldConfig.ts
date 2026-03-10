@@ -7,9 +7,20 @@ export const FieldOption = z.object({
   order: z.number()
 });
 
+export const FieldInputType = z.enum([
+  'text',
+  'number',
+  'textarea',
+  'select',
+  'selectWithUnknown',
+  'checkbox',
+  'radio'
+]);
+export type FieldInputType = z.infer<typeof FieldInputType>;
+
 export const FieldConfig = z.object({
   key: z.string(),
-  inputType: z.string(),
+  inputType: FieldInputType,
   label: z.string(),
   whenValid: z.string(),
   hintText: z.string().nullable(),

@@ -22,6 +22,7 @@ import {
   OutsideProgrammingPlanContext,
   ProgrammingPlanContext
 } from '../ProgrammingPlan/Context';
+import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { Sampler } from '../User/User';
 import { PartialSampleItem, SampleItem } from './SampleItem';
 import {
@@ -206,7 +207,9 @@ const PartialSampleMatrixData = z.object({
   matrixKind: z.union([MatrixKind, OtherMatrixKind]).nullish(),
   matrix: z.union([Matrix, z.string().nonempty()]).nullish(),
   stage: Stage.nullish(),
-  specificData: PartialSampleMatrixSpecificData
+  specificData: z
+    .object({ programmingPlanKind: ProgrammingPlanKind })
+    .passthrough() as unknown as typeof PartialSampleMatrixSpecificData
 });
 
 export const PartialSampleToCreate = z.object({

@@ -55,6 +55,7 @@ import {
   ProgrammingPlanKindWithSacha,
   ProgrammingPlanKindWithSachaList
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { Readable } from 'node:stream';
@@ -73,6 +74,7 @@ import prescriptionSubstanceRepository from '../repositories/prescriptionSubstan
 import { sachaCommemoratifRepository } from '../repositories/sachaCommemoratifRepository';
 import { sachaConfRepository } from '../repositories/sachaConfRepository';
 import { sampleSpecificDataRepository } from '../repositories/sampleSpecificDataRepository';
+import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 import { generateXMLDAI } from '../services/ediSacha/sachaDAI';
 import { sendSachaFile } from '../services/ediSacha/sachaSender';
@@ -496,6 +498,21 @@ export const sampleRouter = {
         throw new UserRoleMissingError();
       } else if (sample.region !== user.region) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
+      }
+
+      if (!DraftStatusList.includes(sampleUpdate.status)) {
+        const fieldConfigs =
+          await specificDataFieldConfigRepository.findByPlanKind(
+            sampleUpdate.specificData.programmingPlanKind
+          );
+        const specificDataSchema = buildSpecificDataSchema(
+          sampleUpdate.specificData.programmingPlanKind,
+          fieldConfigs
+        );
+        const result = specificDataSchema.safeParse(sampleUpdate.specificData);
+        if (!result.success) {
+          return { status: constants.HTTP_STATUS_BAD_REQUEST };
+        }
       }
 
       const mustBeSent =

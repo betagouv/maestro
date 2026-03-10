@@ -1,5 +1,8 @@
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import {
+  FieldInputType,
+  PlanKindFieldConfig
+} from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { kysely } from './kysely';
 
 const findByPlanKind = async (
@@ -64,7 +67,7 @@ const findByPlanKind = async (
     order: f.order,
     field: {
       key: f.key,
-      inputType: f.inputType,
+      inputType: FieldInputType.parse(f.inputType),
       label: f.label,
       whenValid: f.whenValid,
       hintText: f.hintText,

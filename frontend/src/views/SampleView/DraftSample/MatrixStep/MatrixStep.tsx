@@ -40,6 +40,7 @@ import {
   SampleStatus,
   SampleStatusSteps
 } from 'maestro-shared/schema/Sample/SampleStatus';
+import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { toArray } from 'maestro-shared/utils/utils';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
@@ -200,10 +201,16 @@ const MatrixStep = ({ partialSample }: Props) => {
     });
   };
 
+  const specificDataSchema = useMemo(
+    () =>
+      buildSpecificDataSchema(specificData.programmingPlanKind, fieldConfigs),
+    [fieldConfigs, specificData.programmingPlanKind]
+  );
+
   const form = useForm(
-    SampleMatrixData.omit({
-      documentIds: true
-    }).check(prescriptionSubstancesCheck, sampleMatrixCheck),
+    SampleMatrixData.omit({ documentIds: true, specificData: true })
+      .extend({ specificData: specificDataSchema })
+      .check(prescriptionSubstancesCheck, sampleMatrixCheck),
     {
       matrixKind,
       matrix,
