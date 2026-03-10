@@ -1,3 +1,4 @@
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   DAOAInProgressProgrammingPlanFixture,
   PPVClosedProgrammingPlanFixture,
@@ -6,6 +7,7 @@ import {
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   formatProgrammingPlan,
+  ProgrammingPlanKinds,
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../../repositories/programmingPlanRepository';
@@ -35,6 +37,15 @@ export const seed = async function () {
         programmingPlanId: plan.id,
         region: regionalStatus.region,
         status: regionalStatus.status
+      }))
+    )
+  );
+
+  await ProgrammingPlanKinds().insert(
+    plans.flatMap((plan) =>
+      plan.kinds.map((kind: ProgrammingPlanKind) => ({
+        programmingPlanId: plan.id,
+        kind
       }))
     )
   );

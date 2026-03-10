@@ -12,6 +12,7 @@ import {
   LocalPrescriptionCommentToCreate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { UserRefined } from 'maestro-shared/schema/User/User';
 import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
 import { genLaboratory } from 'maestro-shared/test/laboratoryFixtures';
@@ -47,6 +48,7 @@ import { LocalPrescriptionSubstanceKindsLaboratories } from '../../repositories/
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatProgrammingPlan,
+  ProgrammingPlanKinds,
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
@@ -202,6 +204,19 @@ describe('Local prescriptions router', () => {
         programmingPlan.regionalStatus.map((regionalStatus) => ({
           ...regionalStatus,
           programmingPlanId: programmingPlan.id
+        }))
+      )
+    );
+
+    await ProgrammingPlanKinds().insert(
+      [
+        programmingPlanClosed,
+        programmingPlanValidated,
+        programmingPlanSubmitted
+      ].flatMap((plan) =>
+        plan.kinds.map((kind: ProgrammingPlanKind) => ({
+          programmingPlanId: plan.id,
+          kind
         }))
       )
     );

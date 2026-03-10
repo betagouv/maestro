@@ -4,6 +4,7 @@ import {
   Region,
   RegionList
 } from 'maestro-shared/referential/Region';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
@@ -32,6 +33,7 @@ import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
 import {
   formatProgrammingPlan,
+  ProgrammingPlanKinds,
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
@@ -95,6 +97,20 @@ describe('ProgrammingPlan router', () => {
         programmingPlan.regionalStatus.map((regionalStatus) => ({
           ...regionalStatus,
           programmingPlanId: programmingPlan.id
+        }))
+      )
+    );
+
+    await ProgrammingPlanKinds().insert(
+      [
+        validatedDromProgrammingPlan,
+        validatedProgrammingPlan,
+        submittedProgrammingPlan,
+        inProgressProgrammingPlan
+      ].flatMap((plan) =>
+        plan.kinds.map((kind: ProgrammingPlanKind) => ({
+          programmingPlanId: plan.id,
+          kind
         }))
       )
     );
