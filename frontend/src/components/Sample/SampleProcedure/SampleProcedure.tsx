@@ -53,7 +53,7 @@ const SampleProcedure = ({ partialSample }: Props) => {
                 Matière prélevée :{' '}
                 <b>
                   {partialSample.specificData.programmingPlanKind ===
-                  'DAOA_SLAUGHTER'
+                  'DAOA_BOVIN'
                     ? 'Foie de bovin'
                     : 'Muscle de volaille'}
                 </b>

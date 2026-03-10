@@ -230,14 +230,14 @@ const defaultMockApiClientConf: MockApi = {
   useLazyFindCompaniesQuery: [[], {}],
   useGetSampleSpecificDataQuery: {
     data: {
-      DAOA_BREEDING: {
+      DAOA_VOLAILLE: {
         inDai: false,
         attribute: '',
         sachaCommemoratifSigle: '' as CommemoratifSigle,
         optional: false,
         values: {}
       },
-      DAOA_SLAUGHTER: {
+      DAOA_BOVIN: {
         inDai: false,
         attribute: '',
         optional: false,

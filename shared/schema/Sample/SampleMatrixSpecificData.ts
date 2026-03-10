@@ -72,8 +72,8 @@ const SampleMatrixSpecificDataPPV = z.object({
   releaseControl: z.boolean().nullish()
 });
 
-const SampleMatrixSpecificDataDAOABreeding = z.object({
-  programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_BREEDING),
+const SampleMatrixSpecificDataDAOAVolaille = z.object({
+  programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_VOLAILLE),
   sampling: z.literal('Aléatoire'),
   animalIdentifier: AnimalIdentifier,
   ageInDays: AnimalAgeInDays,
@@ -82,8 +82,8 @@ const SampleMatrixSpecificDataDAOABreeding = z.object({
   outdoorAccess: OutdoorAccess
 });
 
-const SampleMatrixSpecificDataDAOASlaughter = z.object({
-  programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_SLAUGHTER),
+const SampleMatrixSpecificDataDAOABovin = z.object({
+  programmingPlanKind: z.literal(ProgrammingPlanKind.enum.DAOA_BOVIN),
   killingCode: KillingCode,
   sampling: z.literal('Aléatoire'),
   animalIdentifier: AnimalIdentifier,
@@ -104,8 +104,8 @@ export const SampleMatrixSpecificData = z.discriminatedUnion(
   'programmingPlanKind',
   [
     SampleMatrixSpecificDataPPV,
-    SampleMatrixSpecificDataDAOABreeding,
-    SampleMatrixSpecificDataDAOASlaughter
+    SampleMatrixSpecificDataDAOAVolaille,
+    SampleMatrixSpecificDataDAOABovin
   ],
   {
     error: () => 'Veuillez renseigner le type de plan.'
@@ -118,10 +118,10 @@ export const PartialSampleMatrixSpecificData = z.discriminatedUnion(
     SampleMatrixSpecificDataPPV.partial().required({
       programmingPlanKind: true
     }),
-    SampleMatrixSpecificDataDAOABreeding.partial().required({
+    SampleMatrixSpecificDataDAOAVolaille.partial().required({
       programmingPlanKind: true
     }),
-    SampleMatrixSpecificDataDAOASlaughter.partial().required({
+    SampleMatrixSpecificDataDAOABovin.partial().required({
       programmingPlanKind: true
     })
   ],
@@ -137,8 +137,8 @@ export type PartialSampleMatrixSpecificData = z.infer<
 
 const schemasByProgrammingPlanKind = {
   PPV: SampleMatrixSpecificDataPPV,
-  DAOA_BREEDING: SampleMatrixSpecificDataDAOABreeding,
-  DAOA_SLAUGHTER: SampleMatrixSpecificDataDAOASlaughter
+  DAOA_VOLAILLE: SampleMatrixSpecificDataDAOAVolaille,
+  DAOA_BOVIN: SampleMatrixSpecificDataDAOABovin
 } as const satisfies {
   [P in ProgrammingPlanKind]: z.ZodType<
     Extract<SampleMatrixSpecificData, { programmingPlanKind: P }>

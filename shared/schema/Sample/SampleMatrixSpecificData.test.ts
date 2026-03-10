@@ -23,23 +23,23 @@ describe('getSampleMatrixSpecificDataAttributeValues', () => {
     expect(result).toHaveLength(0);
   });
 
-  test('returns only the filtered species options for DAOA_BREEDING', () => {
+  test('returns only the filtered species options for DAOA_VOLAILLE', () => {
     const result = getSampleMatrixSpecificDataAttributeValues(
-      ProgrammingPlanKind.enum.DAOA_BREEDING,
+      ProgrammingPlanKind.enum.DAOA_VOLAILLE,
       'species'
     );
     expect(result).toEqual(['ESP7', 'ESP8', 'ESP10', 'ESP20']);
   });
   test('returns correctly value from literal', () => {
     const result = getSampleMatrixSpecificDataAttributeValues(
-      ProgrammingPlanKind.enum.DAOA_SLAUGHTER,
+      ProgrammingPlanKind.enum.DAOA_BOVIN,
       'sampling'
     );
     expect(result).toEqual(['Aléatoire']);
   });
   test('returns correctly value from nullish and unknow value', () => {
     const result = getSampleMatrixSpecificDataAttributeValues(
-      ProgrammingPlanKind.enum.DAOA_SLAUGHTER,
+      ProgrammingPlanKind.enum.DAOA_BOVIN,
       'seizure'
     );
     expect(result).toEqual(['EMPTY', 'PARTIAL', 'TOTAL', UnknownValue]);

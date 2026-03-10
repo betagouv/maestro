@@ -24,10 +24,10 @@ type Story = StoryObj<typeof meta>;
 const sampler = genUser({
   roles: ['Sampler'],
   region: '44',
-  programmingPlanKinds: ['DAOA_SLAUGHTER']
+  programmingPlanKinds: ['DAOA_BOVIN']
 });
 const programmingPlan = genProgrammingPlan({
-  kinds: ['DAOA_SLAUGHTER'],
+  kinds: ['DAOA_BOVIN'],
   distributionKind: 'SLAUGHTERHOUSE'
 });
 
@@ -38,7 +38,7 @@ export const MatrixStepDAOA: Story = {
         programmingPlanId: programmingPlan.id,
         sampler,
         specificData: {
-          programmingPlanKind: 'DAOA_SLAUGHTER'
+          programmingPlanKind: 'DAOA_BOVIN'
         }
       }),
       ...genCreatedSampleData()

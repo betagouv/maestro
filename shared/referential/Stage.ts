@@ -53,6 +53,6 @@ export const StagesByProgrammingPlanKind: Record<ProgrammingPlanKind, Stage[]> =
       'STADE8',
       'STADE9'
     ],
-    [ProgrammingPlanKind.enum.DAOA_BREEDING]: ['STADE10'],
-    [ProgrammingPlanKind.enum.DAOA_SLAUGHTER]: ['STADE10']
+    [ProgrammingPlanKind.enum.DAOA_VOLAILLE]: ['STADE10'],
+    [ProgrammingPlanKind.enum.DAOA_BOVIN]: ['STADE10']
   };

@@ -141,7 +141,7 @@ export const SamplerDaoaFixture = genUser({
 });
 export const NationalCoordinatorDaoaFixture = genUser({
   roles: ['NationalCoordinator'],
-  programmingPlanKinds: ['DAOA_BREEDING', 'DAOA_SLAUGHTER'],
+  programmingPlanKinds: ['DAOA_VOLAILLE', 'DAOA_BOVIN'],
   id: '14141414-1414-1414-1414-141414141414'
 });
 
