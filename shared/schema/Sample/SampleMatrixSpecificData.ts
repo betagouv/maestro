@@ -10,10 +10,6 @@ import { ProductionKind } from '../../referential/ProductionKind';
 import { Seizure } from '../../referential/Seizure';
 import { Species } from '../../referential/Species';
 import {
-  SampleMatrixSpecificDataKeys,
-  SpecificDataFormInput
-} from '../MatrixSpecificData/MatrixSpecificDataFormInputs';
-import {
   ProgrammingPlanKind,
   ProgrammingPlanKindWithSacha
 } from '../ProgrammingPlan/ProgrammingPlanKind';
@@ -135,6 +131,12 @@ export type PartialSampleMatrixSpecificData = z.infer<
   typeof PartialSampleMatrixSpecificData
 >;
 
+type UnionKeys<T, O extends string> = T extends any ? keyof Omit<T, O> : never;
+export type SampleMatrixSpecificDataKeys = UnionKeys<
+  SampleMatrixSpecificData,
+  'programmingPlanKind'
+>;
+
 const schemasByProgrammingPlanKind = {
   PPV: SampleMatrixSpecificDataPPV,
   DAOA_VOLAILLE: SampleMatrixSpecificDataDAOAVolaille,
@@ -173,6 +175,7 @@ export const getSampleMatrixSpecificDataAttributeValues = (
     return [];
   }
 
+  //FIXME je crois que c'est pour la PPV, elle a différente valeurs en fonction de l'année
   if (attributeName === 'cultureKind') {
     return CultureKindList;
   }
@@ -203,9 +206,3 @@ export const getAttributeExpectedValues = (
       getSampleMatrixSpecificDataAttributeValues(p, attribute)
     )
   );
-export const canHaveValue = (
-  inputConf: SpecificDataFormInput
-): inputConf is Extract<
-  SpecificDataFormInput,
-  { inputType: 'select' | 'radio' }
-> => inputConf.inputType === 'select' || inputConf.inputType === 'radio';

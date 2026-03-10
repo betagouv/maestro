@@ -16,7 +16,6 @@ import { Stage } from '../../referential/Stage';
 import { isDefined } from '../../utils/utils';
 import { Company } from '../Company/Company';
 import { Geolocation } from '../Geolocation/Geolocation';
-import { MatrixSpecificDataFormInputs } from '../MatrixSpecificData/MatrixSpecificDataFormInputs';
 import {
   Context,
   OutsideProgrammingPlanContext,
@@ -94,16 +93,10 @@ const unknownValueCheck: CheckFn<{
 
   Object.entries(specificData).forEach(([key, value]) => {
     if (value === UnknownValue) {
-      const fieldLabel =
-        key in MatrixSpecificDataFormInputs
-          ? MatrixSpecificDataFormInputs[
-              key as keyof typeof MatrixSpecificDataFormInputs
-            ]?.label
-          : undefined;
       ctx.issues.push({
         input: ctx.value,
         code: 'custom',
-        message: `Veuillez renseigner le descripteur "${fieldLabel ? fieldLabel.toLowerCase() : key}".`,
+        message: `Veuillez renseigner le descripteur "${key}".`,
         path: ['specificData', key]
       });
     }

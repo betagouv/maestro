@@ -20,11 +20,7 @@ import {
   MatrixSpecificDataForm,
   MatrixSpecificDataFormInputProps
 } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
-import {
-  getSpecificDataValue,
-  MatrixSpecificDataFormInputs,
-  SampleMatrixSpecificDataKeys
-} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
+import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   ProgrammingPlanKindWithSacha,
@@ -40,7 +36,7 @@ import {
   SampleItemMaxCopyCount
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
-import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import path from 'path';
@@ -205,6 +201,13 @@ const generateSamplePDF = async (
   if (!sampler) {
     throw new UserMissingError(sample.sampler.id);
   }
+
+  const fieldConfigs = await specificDataFieldConfigRepository.findByPlanKind(
+    sample.specificData.programmingPlanKind
+  );
+  const planLayout = MatrixSpecificDataForm[
+    sample.specificData.programmingPlanKind
+  ] as Record<string, MatrixSpecificDataFormInputProps>;
   const additionalSampler = sample.additionalSampler
     ? await userRepository.findUnique(sample.additionalSampler.id)
     : null;
@@ -327,18 +330,11 @@ const generateSamplePDF = async (
     matrixKind: sample.matrixKind ? MatrixKindLabels[sample.matrixKind] : '',
     matrix: getSampleMatrixLabel(sample),
     matrixPart: getMatrixPartLabel(sample),
-    specificDataItems: (
-      Object.entries(
-        MatrixSpecificDataForm[sample.specificData.programmingPlanKind]
-      ) as [SampleMatrixSpecificDataKeys, MatrixSpecificDataFormInputProps][]
-    )
-      .filter(([inputKey, _]) => inputKey !== 'releaseControl')
-      .map(([inputKey, inputProps]) => ({
-        label: inputProps.label ?? MatrixSpecificDataFormInputs[inputKey].label,
-        value: getSpecificDataValue(
-          inputKey,
-          sample.specificData as SampleMatrixSpecificData
-        )
+    specificDataItems: fieldConfigs
+      .filter((fc) => fc.field.key !== 'releaseControl')
+      .map((fc) => ({
+        label: planLayout[fc.field.key]?.label ?? fc.field.label,
+        value: getFieldValueLabel(fc.field, (sample.specificData as any)[fc.field.key])
       })),
     releaseControl:
       sample.specificData?.programmingPlanKind === 'PPV'
