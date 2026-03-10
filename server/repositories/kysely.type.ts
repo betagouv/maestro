@@ -45,6 +45,23 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 export const SachaResidueId = z.string().brand<'SachaResidueId'>();
 export type SachaResidueId = z.infer<typeof SachaResidueId>;
 
+export const SpecificDataFieldId = z.string().brand<'SpecificDataFieldId'>();
+export type SpecificDataFieldId = z.infer<typeof SpecificDataFieldId>;
+
+export const SpecificDataFieldOptionId = z
+  .string()
+  .brand<'SpecificDataFieldOptionId'>();
+export type SpecificDataFieldOptionId = z.infer<
+  typeof SpecificDataFieldOptionId
+>;
+
+export const ProgrammingPlanKindFieldId = z
+  .string()
+  .brand<'ProgrammingPlanKindFieldId'>();
+export type ProgrammingPlanKindFieldId = z.infer<
+  typeof ProgrammingPlanKindFieldId
+>;
+
 export interface Analysis {
   compliance: boolean | null;
   createdAt: Generated<Timestamp | null>;
@@ -334,6 +351,37 @@ export interface Departments {
   geometry: ColumnType<never, unknown, unknown>;
 }
 
+export interface SpecificDataFields {
+  id: Generated<SpecificDataFieldId>;
+  key: string;
+  inputType: string;
+  label: string;
+  whenValid: string;
+  hintText: string | null;
+  defaultOptionLabel: string | null;
+}
+
+export interface SpecificDataFieldOptions {
+  id: Generated<SpecificDataFieldOptionId>;
+  fieldId: SpecificDataFieldId;
+  value: string;
+  label: string;
+  order: number;
+}
+
+export interface ProgrammingPlanKindFields {
+  id: Generated<ProgrammingPlanKindFieldId>;
+  programmingPlanKind: string;
+  fieldId: SpecificDataFieldId;
+  required: Generated<boolean>;
+  order: number;
+}
+
+export interface ProgrammingPlanKindFieldOptions {
+  programmingPlanKindFieldId: ProgrammingPlanKindFieldId;
+  specificDataFieldOptionId: SpecificDataFieldOptionId;
+}
+
 export interface DB {
   analysis: Analysis;
   analysisReportDocuments: AnalysisReportDocuments;
@@ -342,6 +390,10 @@ export interface DB {
   companies: Companies;
   departments: Departments;
   documents: Documents;
+  programmingPlanKindFields: ProgrammingPlanKindFields;
+  programmingPlanKindFieldOptions: ProgrammingPlanKindFieldOptions;
+  specificDataFields: SpecificDataFields;
+  specificDataFieldOptions: SpecificDataFieldOptions;
   knexMigrations: KnexMigrations;
   laboratories: Laboratories;
   laboratoryResidueMappings: LaboratoryResidueMapping;
