@@ -123,6 +123,7 @@ const updateMany = async (
 
     await Promise.all(
       partialSampleItems.map((item) => {
+        const parsedItem = PartialSampleItemDbo.parse(item);
         const key = `${item.itemNumber}-${item.copyNumber}`;
         if (existingKeys.has(key)) {
           return SampleItems(transaction)
@@ -131,9 +132,9 @@ const updateMany = async (
               itemNumber: item.itemNumber,
               copyNumber: item.copyNumber
             })
-            .update(item);
+            .update(parsedItem);
         } else {
-          return SampleItems(transaction).insert(item);
+          return SampleItems(transaction).insert(parsedItem);
         }
       })
     );
