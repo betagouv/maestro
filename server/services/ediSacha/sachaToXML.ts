@@ -76,8 +76,11 @@ export const getNumeroDAP = (
   sampleItem: Pick<SampleItem, 'itemNumber' | 'copyNumber'>
 ) => {
   const firstSeparatorIndex = sample.reference.indexOf('-') + 1;
+  const sampleIndex = sample.reference
+    .substring(sample.reference.lastIndexOf('-') + 1)
+    .padStart(6, '0');
   return Number(
-    `${2000 + Number.parseInt(sample.reference.substring(firstSeparatorIndex, firstSeparatorIndex + 2))}${sample.reference.substring(sample.reference.lastIndexOf('-') + 1)}${sampleItem.itemNumber}${sampleItem.copyNumber}`
+    `${2000 + Number.parseInt(sample.reference.substring(firstSeparatorIndex, firstSeparatorIndex + 2))}${sampleIndex}${sampleItem.itemNumber}${sampleItem.copyNumber}`
   );
 };
 
