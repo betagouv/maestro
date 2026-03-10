@@ -425,14 +425,14 @@ export const up = async (knex: Knex) => {
     ])
     .returning(['id', 'field_id', 'value'])) as {
     id: string;
-    field_id: string;
+    fieldId: string;
     value: string;
   }[];
 
   // Build lookup: optionId[fieldKey][value] = id
   const optionId: Record<string, Record<string, string>> = {};
   for (const r of optionRows) {
-    const key = fieldRows.find((f) => f.id === r.field_id)!.key;
+    const key = fieldRows.find((f) => f.id === r.fieldId)!.key;
     if (!optionId[key]) optionId[key] = {};
     optionId[key][r.value] = r.id;
   }
@@ -566,17 +566,17 @@ export const up = async (knex: Knex) => {
     ])
     .returning(['id', 'programming_plan_kind', 'field_id'])) as {
     id: string;
-    programming_plan_kind: string;
-    field_id: string;
+    programmingPlanKind: string;
+    fieldId: string;
   }[];
 
   // Build lookup: planKindFieldId[kind][fieldKey] = id
   const planKindFieldId: Record<string, Record<string, string>> = {};
   for (const r of planKindFieldRows) {
-    const key = fieldRows.find((f) => f.id === r.field_id)!.key;
-    if (!planKindFieldId[r.programming_plan_kind])
-      planKindFieldId[r.programming_plan_kind] = {};
-    planKindFieldId[r.programming_plan_kind][key] = r.id;
+    const key = fieldRows.find((f) => f.id === r.fieldId)!.key;
+    if (!planKindFieldId[r.programmingPlanKind])
+      planKindFieldId[r.programmingPlanKind] = {};
+    planKindFieldId[r.programmingPlanKind][key] = r.id;
   }
 
   // Insert plan-kind → field → option associations
