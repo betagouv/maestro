@@ -80,7 +80,7 @@ const configValidator = z
     SIGAL_SFTP_PASSPHRASE: z.string().nullish(),
     SIGAL_SFTP_PRIVATE_KEY: z.string().nullish(),
     SIGAL_SFTP_USERNAME: z.string().nullish(),
-    SACHA_ENABLED: z.boolean().default(false)
+    SACHA_ENABLED: coerceBoolean().default(false)
   })
   .transform((c) => {
     return {

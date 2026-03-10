@@ -106,7 +106,7 @@ describe('getNumeroDAP', () => {
         { reference: 'PEL-26-00073' },
         { itemNumber: 1, copyNumber: 2 }
       )
-    ).toBe(20260007312);
+    ).toBe(202600007312);
   });
 
   test('calcule le numéro DAP avec des valeurs différentes', () => {
@@ -115,6 +115,6 @@ describe('getNumeroDAP', () => {
         { reference: 'ABC-24-12345' },
         { itemNumber: 3, copyNumber: 1 }
       )
-    ).toBe(20241234531);
+    ).toBe(202401234531);
   });
 });
