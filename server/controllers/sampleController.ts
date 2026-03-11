@@ -436,7 +436,7 @@ export const sampleRouter = {
           copyNumber,
           createdAt: new Date(),
           createdBy: user.id,
-          status: itemUpdate.analysis?.status ?? 'Report',
+          status: itemUpdate.analysis?.status ?? 'Sent',
           compliance: null,
           notesOnCompliance: null
         };

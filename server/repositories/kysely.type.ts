@@ -25,6 +25,7 @@ import {
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+import { SampleStatus as SampleStatusType } from 'maestro-shared/schema/Sample/SampleStatus';
 import { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { MaestroDate } from 'maestro-shared/utils/date';
@@ -307,6 +308,17 @@ export interface SampleSequenceNumbers {
   region: string;
 }
 
+export interface SampleStatusView {
+  sampleId: string;
+  status: SampleStatusType;
+}
+
+export interface SampleItemStatusView {
+  sampleId: string;
+  itemNumber: number;
+  status: SampleStatusType | null;
+}
+
 export interface Users {
   email: string;
   name: string | null;
@@ -365,6 +377,8 @@ export interface DB {
   sampleItems: SampleItems;
   samples: Samples;
   sampleSequenceNumbers: SampleSequenceNumbers;
+  sampleStatus: SampleStatusView;
+  sampleItemStatus: SampleItemStatusView;
   users: Users;
   userCompanies: UserCompanies;
 }
