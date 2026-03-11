@@ -1,37 +1,54 @@
+import {
+  CommemoratifSigle,
+  CommemoratifValueSigle
+} from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
 
 import { kysely } from './kysely';
-import {
-  KyselyMaestro,
-  SampleSpecificDataAttributes,
-  SampleSpecificDataAttributeValues
-} from './kysely.type';
+import { KyselyMaestro } from './kysely.type';
 
 const findAll = async (
   trx: KyselyMaestro = kysely
 ): Promise<SampleSpecificDataRecord> => {
-  const specificDataSigles = await trx
-    .selectFrom('sampleSpecificDataAttributes')
-    .selectAll()
+  const fields = await trx
+    .selectFrom('specificDataFields')
+    .select(['key', 'sachaCommemoratifSigle', 'sachaInDai', 'sachaOptional'])
     .execute();
 
-  const valueSigles = await trx
-    .selectFrom('sampleSpecificDataAttributeValues')
-    .selectAll()
+  const options = await trx
+    .selectFrom('specificDataFieldOptions')
+    .innerJoin(
+      'specificDataFields',
+      'specificDataFields.id',
+      'specificDataFieldOptions.fieldId'
+    )
+    .select([
+      'specificDataFields.key as fieldKey',
+      'specificDataFieldOptions.value',
+      'specificDataFieldOptions.sachaCommemoratifValueSigle'
+    ])
+    .where(
+      'specificDataFieldOptions.sachaCommemoratifValueSigle',
+      'is not',
+      null
+    )
     .execute();
 
   return Object.fromEntries(
-    specificDataSigles.map((c) => [
-      c.attribute,
+    fields.map((f) => [
+      f.key,
       {
-        attribute: c.attribute,
-        sachaCommemoratifSigle: c.sachaCommemoratifSigle,
-        inDai: c.inDai,
-        optional: c.optional,
+        attribute: f.key,
+        sachaCommemoratifSigle: f.sachaCommemoratifSigle,
+        inDai: f.sachaInDai,
+        optional: f.sachaOptional,
         values: Object.fromEntries(
-          valueSigles
-            .filter((v) => v.attribute === c.attribute)
-            .map((v) => [v.attributeValue, v.sachaCommemoratifValueSigle])
+          options
+            .filter((o) => o.fieldKey === f.key)
+            .map((o) => [
+              o.value,
+              o.sachaCommemoratifValueSigle as CommemoratifValueSigle
+            ])
         )
       }
     ])
@@ -39,36 +56,48 @@ const findAll = async (
 };
 
 const updateSampleSpecificDataAttribute = async (
-  sampleSpecificDataAttribute: SampleSpecificDataAttributes,
+  sampleSpecificDataAttribute: {
+    attribute: string;
+    sachaCommemoratifSigle: CommemoratifSigle | null;
+    inDai: boolean;
+    optional: boolean;
+  },
   trx: KyselyMaestro = kysely
 ) => {
   await trx
-    .insertInto('sampleSpecificDataAttributes')
-    .values(sampleSpecificDataAttribute)
-    .onConflict((oc) =>
-      oc.columns(['attribute']).doUpdateSet({
-        sachaCommemoratifSigle:
-          sampleSpecificDataAttribute.sachaCommemoratifSigle,
-        inDai: sampleSpecificDataAttribute.inDai,
-        optional: sampleSpecificDataAttribute.optional
-      })
-    )
+    .updateTable('specificDataFields')
+    .set({
+      sachaCommemoratifSigle:
+        sampleSpecificDataAttribute.sachaCommemoratifSigle,
+      sachaInDai: sampleSpecificDataAttribute.inDai,
+      sachaOptional: sampleSpecificDataAttribute.optional
+    })
+    .where('key', '=', sampleSpecificDataAttribute.attribute)
     .execute();
 };
 
 const updateSampleSpecificDataAttributeValue = async (
-  sampleSpecificDataAttributeValue: SampleSpecificDataAttributeValues,
+  sampleSpecificDataAttributeValue: {
+    attribute: string;
+    attributeValue: string;
+    sachaCommemoratifValueSigle: CommemoratifValueSigle;
+  },
   trx: KyselyMaestro = kysely
 ) => {
+  const field = await trx
+    .selectFrom('specificDataFields')
+    .select('id')
+    .where('key', '=', sampleSpecificDataAttributeValue.attribute)
+    .executeTakeFirstOrThrow();
+
   await trx
-    .insertInto('sampleSpecificDataAttributeValues')
-    .values(sampleSpecificDataAttributeValue)
-    .onConflict((oc) =>
-      oc.columns(['attribute', 'attributeValue']).doUpdateSet({
-        sachaCommemoratifValueSigle:
-          sampleSpecificDataAttributeValue.sachaCommemoratifValueSigle
-      })
-    )
+    .updateTable('specificDataFieldOptions')
+    .set({
+      sachaCommemoratifValueSigle:
+        sampleSpecificDataAttributeValue.sachaCommemoratifValueSigle
+    })
+    .where('fieldId', '=', field.id)
+    .where('value', '=', sampleSpecificDataAttributeValue.attributeValue)
     .execute();
 };
 
@@ -76,9 +105,16 @@ const deleteSampleSpecificDataAttributeValues = async (
   attribute: string,
   trx: KyselyMaestro = kysely
 ) => {
+  const field = await trx
+    .selectFrom('specificDataFields')
+    .select('id')
+    .where('key', '=', attribute)
+    .executeTakeFirstOrThrow();
+
   await trx
-    .deleteFrom('sampleSpecificDataAttributeValues')
-    .where('attribute', '=', attribute)
+    .updateTable('specificDataFieldOptions')
+    .set({ sachaCommemoratifValueSigle: null })
+    .where('fieldId', '=', field.id)
     .execute();
 };
 
@@ -87,10 +123,17 @@ const deleteSampleSpecificDataAttributeValue = async (
   attributeValue: string,
   trx: KyselyMaestro = kysely
 ) => {
+  const field = await trx
+    .selectFrom('specificDataFields')
+    .select('id')
+    .where('key', '=', attribute)
+    .executeTakeFirstOrThrow();
+
   await trx
-    .deleteFrom('sampleSpecificDataAttributeValues')
-    .where('attribute', '=', attribute)
-    .where('attributeValue', '=', attributeValue)
+    .updateTable('specificDataFieldOptions')
+    .set({ sachaCommemoratifValueSigle: null })
+    .where('fieldId', '=', field.id)
+    .where('value', '=', attributeValue)
     .execute();
 };
 

@@ -612,9 +612,122 @@ export const up = async (knex: Knex) => {
       specific_data_field_option_id: optionId['seizure'][v]
     }))
   ]);
+
+  // ── Phase 7: merge Sacha tables into specific_data tables ─────────────────
+
+  // Add sacha columns to specific_data_fields
+  await knex.schema.alterTable('specific_data_fields', (table) => {
+    table
+      .string('sacha_commemoratif_sigle')
+      .nullable()
+      .references('sigle')
+      .inTable('sacha_commemoratifs')
+      .onDelete('SET NULL');
+    table.boolean('sacha_in_dai').notNullable().defaultTo(false);
+    table.boolean('sacha_optional').notNullable().defaultTo(false);
+  });
+
+  // Add sacha column to specific_data_field_options
+  await knex.schema.alterTable('specific_data_field_options', (table) => {
+    table
+      .string('sacha_commemoratif_value_sigle')
+      .nullable()
+      .references('sigle')
+      .inTable('sacha_commemoratif_values')
+      .onDelete('SET NULL');
+  });
+
+  // Migrate data: sample_specific_data_attributes → specific_data_fields
+  await knex.raw(`
+    UPDATE specific_data_fields sdf
+    SET
+      sacha_commemoratif_sigle = ssda.sacha_commemoratif_sigle,
+      sacha_in_dai = ssda.in_dai,
+      sacha_optional = ssda.optional
+    FROM sample_specific_data_attributes ssda
+    WHERE ssda.attribute = sdf.key
+  `);
+
+  // Migrate data: sample_specific_data_attribute_values → specific_data_field_options
+  await knex.raw(`
+    UPDATE specific_data_field_options sdfo
+    SET sacha_commemoratif_value_sigle = ssdav.sacha_commemoratif_value_sigle
+    FROM sample_specific_data_attribute_values ssdav
+    JOIN specific_data_fields sdf ON sdf.key = ssdav.attribute
+    WHERE sdfo.field_id = sdf.id
+      AND sdfo.value = ssdav.attribute_value
+  `);
+
+  // Drop old Sacha tables
+  await knex.schema.dropTable('sample_specific_data_attribute_values');
+  await knex.schema.dropTable('sample_specific_data_attributes');
 };
 
 export const down = async (knex: Knex) => {
+  // Recreate sample_specific_data_attributes (with optional column from migration 078)
+  await knex.schema.createTable('sample_specific_data_attributes', (table) => {
+    table.string('attribute').notNullable();
+    table.string('sacha_commemoratif_sigle').nullable();
+    table.boolean('in_dai').notNullable().defaultTo(false);
+    table.boolean('optional').notNullable().defaultTo(false);
+
+    table.primary(['attribute']);
+    table
+      .foreign('sacha_commemoratif_sigle')
+      .references('sigle')
+      .inTable('sacha_commemoratifs')
+      .onDelete('CASCADE');
+  });
+
+  // Recreate sample_specific_data_attribute_values
+  await knex.schema.createTable(
+    'sample_specific_data_attribute_values',
+    (table) => {
+      table.string('attribute').notNullable();
+      table.string('attribute_value').notNullable();
+      table.string('sacha_commemoratif_value_sigle').nullable();
+
+      table.primary(['attribute', 'attribute_value']);
+      table
+        .foreign(['attribute'])
+        .references(['attribute'])
+        .inTable('sample_specific_data_attributes')
+        .onDelete('CASCADE');
+      table
+        .foreign('sacha_commemoratif_value_sigle')
+        .references('sigle')
+        .inTable('sacha_commemoratif_values')
+        .onDelete('CASCADE');
+    }
+  );
+
+  // Migrate data back: specific_data_fields → sample_specific_data_attributes
+  await knex.raw(`
+    INSERT INTO sample_specific_data_attributes (attribute, sacha_commemoratif_sigle, in_dai, optional)
+    SELECT key, sacha_commemoratif_sigle, sacha_in_dai, sacha_optional
+    FROM specific_data_fields
+  `);
+
+  // Migrate data back: specific_data_field_options → sample_specific_data_attribute_values
+  await knex.raw(`
+    INSERT INTO sample_specific_data_attribute_values (attribute, attribute_value, sacha_commemoratif_value_sigle)
+    SELECT sdf.key, sdfo.value, sdfo.sacha_commemoratif_value_sigle
+    FROM specific_data_field_options sdfo
+    JOIN specific_data_fields sdf ON sdf.id = sdfo.field_id
+    WHERE sdfo.sacha_commemoratif_value_sigle IS NOT NULL
+  `);
+
+  // Drop sacha columns from new tables
+  await knex.schema.alterTable('specific_data_field_options', (table) => {
+    table.dropColumn('sacha_commemoratif_value_sigle');
+  });
+  await knex.schema.alterTable('specific_data_fields', (table) => {
+    table.dropColumn('sacha_commemoratif_sigle');
+    table.dropColumn('sacha_in_dai');
+    table.dropColumn('sacha_optional');
+  });
+
+  // Drop the 4 specific_data tables
   await knex.schema.dropTable('programming_plan_kind_field_options');
   await knex.schema.dropTable('programming_plan_kind_fields');
   await knex.schema.dropTable('specific_data_field_options');

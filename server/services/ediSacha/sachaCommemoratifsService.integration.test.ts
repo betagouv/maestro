@@ -1,5 +1,6 @@
 import { fakerFR } from '@faker-js/faker';
-import { describe, expect, test } from 'vitest';
+import { afterEach, describe, expect, test } from 'vitest';
+import { kysely } from '../../repositories/kysely';
 import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
 import {
   genCommemoratif,
@@ -11,6 +12,11 @@ import {
   TypeDonneeCodec,
   updateSachaCommemoratifs
 } from './sachaCommemoratifsService';
+
+// Use real field keys/option values from the seeded specific_data_fields (migration 081)
+const FIELD_KEY = 'species'; // select field with options: ESP7, ESP8, ESP10, ESP20
+const VALID_OPTION_VALUE = 'ESP7';
+const FROZEN_OPTION_VALUE = 'ESP8';
 
 const buildXML = (
   commemoratifs: Array<{
@@ -73,6 +79,27 @@ const buildXML = (
     </DonneesStandardisees>
   `;
 };
+
+afterEach(async () => {
+  // Reset sacha mappings on the species field after each test
+  await kysely
+    .updateTable('specificDataFields')
+    .set({ sachaCommemoratifSigle: null, sachaInDai: false })
+    .where('key', '=', FIELD_KEY)
+    .execute();
+
+  const field = await kysely
+    .selectFrom('specificDataFields')
+    .select('id')
+    .where('key', '=', FIELD_KEY)
+    .executeTakeFirstOrThrow();
+
+  await kysely
+    .updateTable('specificDataFieldOptions')
+    .set({ sachaCommemoratifValueSigle: null })
+    .where('fieldId', '=', field.id)
+    .execute();
+});
 
 describe('updateSachaCommemoratifs', () => {
   test('inserts new valid commemoratifs from XML', async () => {
@@ -177,19 +204,16 @@ describe('updateSachaCommemoratifs', () => {
     const commemoratif = genCommemoratif({ values: [value] });
     await sachaCommemoratifRepository.upsertAll([commemoratif]);
 
-    const attribute = fakerFR.string.alpha(10);
-    const attributeValue = fakerFR.string.alpha(10);
-
     await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
-      attribute,
+      attribute: FIELD_KEY,
       sachaCommemoratifSigle: commemoratif.sigle,
       inDai: true,
       optional: false
     });
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttributeValue({
-      attribute,
-      attributeValue,
+      attribute: FIELD_KEY,
+      attributeValue: VALID_OPTION_VALUE,
       sachaCommemoratifValueSigle: value.sigle
     });
 
@@ -205,8 +229,8 @@ describe('updateSachaCommemoratifs', () => {
     await updateSachaCommemoratifs(xml);
 
     const result = await sampleSpecificDataRepository.findAll();
-    expect(result[attribute]?.sachaCommemoratifSigle).toBeNull();
-    expect(result[attribute]?.values).toEqual({});
+    expect(result[FIELD_KEY]?.sachaCommemoratifSigle).toBeNull();
+    expect(result[FIELD_KEY]?.values).toEqual({});
   });
 
   test('deletes frozen commemoratif value from sample specific data', async () => {
@@ -217,26 +241,22 @@ describe('updateSachaCommemoratifs', () => {
     });
     await sachaCommemoratifRepository.upsertAll([commemoratif]);
 
-    const attribute = fakerFR.string.alpha(10);
-    const validAttributeValue = fakerFR.string.alpha(10);
-    const frozenAttributeValue = fakerFR.string.alpha(10);
-
     await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
-      attribute,
+      attribute: FIELD_KEY,
       sachaCommemoratifSigle: commemoratif.sigle,
       inDai: true,
       optional: false
     });
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttributeValue({
-      attribute,
-      attributeValue: validAttributeValue,
+      attribute: FIELD_KEY,
+      attributeValue: VALID_OPTION_VALUE,
       sachaCommemoratifValueSigle: validValue.sigle
     });
 
     await sampleSpecificDataRepository.updateSampleSpecificDataAttributeValue({
-      attribute,
-      attributeValue: frozenAttributeValue,
+      attribute: FIELD_KEY,
+      attributeValue: FROZEN_OPTION_VALUE,
       sachaCommemoratifValueSigle: frozenValue.sigle
     });
 
@@ -264,10 +284,10 @@ describe('updateSachaCommemoratifs', () => {
     await updateSachaCommemoratifs(xml);
 
     const result = await sampleSpecificDataRepository.findAll();
-    expect(result[attribute]?.values[validAttributeValue]).toBe(
+    expect(result[FIELD_KEY]?.values[VALID_OPTION_VALUE]).toBe(
       validValue.sigle
     );
-    expect(result[attribute]?.values[frozenAttributeValue]).toBeUndefined();
+    expect(result[FIELD_KEY]?.values[FROZEN_OPTION_VALUE]).toBeUndefined();
   });
 
   test('updates existing commemoratifs', async () => {

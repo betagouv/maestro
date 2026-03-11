@@ -235,19 +235,6 @@ export interface LocalPrescriptions {
   sampleCount: number | null;
 }
 
-export interface SampleSpecificDataAttributes {
-  attribute: string;
-  sachaCommemoratifSigle: CommemoratifSigle | null;
-  inDai: boolean;
-  optional: boolean;
-}
-
-export interface SampleSpecificDataAttributeValues {
-  attribute: string;
-  attributeValue: string;
-  sachaCommemoratifValueSigle: CommemoratifValueSigle;
-}
-
 export interface ResidueAnalytes {
   analysisId: string;
   analyteNumber: number;
@@ -357,6 +344,9 @@ export interface SpecificDataFields {
   inputType: string;
   label: string;
   hintText: string | null;
+  sachaCommemoratifSigle: CommemoratifSigle | null;
+  sachaInDai: Generated<boolean>;
+  sachaOptional: Generated<boolean>;
 }
 
 export interface SpecificDataFieldOptions {
@@ -365,6 +355,7 @@ export interface SpecificDataFieldOptions {
   value: string;
   label: string;
   order: number;
+  sachaCommemoratifValueSigle: CommemoratifValueSigle | null;
 }
 
 export interface ProgrammingPlanKindFields {
@@ -401,8 +392,6 @@ export interface DB {
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;
   programmingPlans: ProgrammingPlans;
-  sampleSpecificDataAttributes: SampleSpecificDataAttributes;
-  sampleSpecificDataAttributeValues: SampleSpecificDataAttributeValues;
   localPrescriptionComments: LocalPrescriptionComments;
   localPrescriptions: LocalPrescriptions;
   residueAnalytes: ResidueAnalytes;
