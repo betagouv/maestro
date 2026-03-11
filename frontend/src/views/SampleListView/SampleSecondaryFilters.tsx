@@ -8,11 +8,11 @@ import {
   ContextLabels,
   ContextList
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
-  type FindSampleOptions,
   SampleCompliance,
   SampleComplianceLabels
-} from 'maestro-shared/schema/Sample/FindSampleOptions';
+} from 'maestro-shared/schema/Sample/SampleCompliance';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import type { z } from 'zod';
 import { DepartmentsSelect } from '../../components/DepartmentsSelect/DepartmentsSelect';

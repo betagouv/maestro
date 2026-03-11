@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
-import { getMockApi } from '../../services/mockApiClient';
+import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { SampleStatusBadge } from './SampleStatusBadge';
 
 const meta = {
@@ -13,33 +12,28 @@ type Story = StoryObj<typeof meta>;
 
 export const Draft: Story = {
   args: {
-    status: 'Draft',
-    sampleId: ''
+    sample: { ...Sample11Fixture, step: 'Draft', status: 'Draft' }
   }
 };
 
 export const CompletedConform: Story = {
   args: {
-    status: 'Completed',
-    sampleId: ''
-  },
-  parameters: {
-    apiClient: getMockApi({
-      useLazyGetSampleItemAnalysisQuery: [
-        genPartialAnalysis({ compliance: true }),
-        { isSuccess: true }
-      ]
-    })
+    sample: {
+      ...Sample11Fixture,
+      step: 'Sent',
+      status: 'Completed',
+      compliance: 'Compliant'
+    }
   }
 };
+
 export const CompletedNonConform: Story = {
-  args: CompletedConform.args,
-  parameters: {
-    apiClient: getMockApi({
-      useLazyGetSampleItemAnalysisQuery: [
-        genPartialAnalysis({ compliance: false }),
-        { isSuccess: true }
-      ]
-    })
+  args: {
+    sample: {
+      ...Sample11Fixture,
+      step: 'Sent',
+      status: 'Completed',
+      compliance: 'NonCompliant'
+    }
   }
 };

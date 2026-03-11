@@ -86,7 +86,7 @@ export const AnalysisDocumentModal = ({
             emailReceivedAt: partialAnalysis?.emailReceivedAt,
             residues: partialAnalysis?.residues,
             analysisId,
-            status: 'Residues'
+            status: 'InReview'
           });
         }
         modal.close();

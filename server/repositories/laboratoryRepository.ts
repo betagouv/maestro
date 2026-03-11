@@ -5,10 +5,7 @@ import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
-import {
-  type Laboratories as KyselyLaboratories,
-  toSqlArray
-} from './kysely.type';
+import type { Laboratories as KyselyLaboratories } from './kysely.type';
 
 const laboratoryTable = 'laboratories';
 
@@ -135,9 +132,9 @@ const findMany = async (
               'laboratoryAgreements.programmingPlanId',
               'in',
               eb
-                .selectFrom('programmingPlans')
-                .select('id')
-                .where('programmingPlans.kinds', '@>', toSqlArray([planKind]))
+                .selectFrom('programmingPlanKinds')
+                .select('programmingPlanKinds.programmingPlanId')
+                .where('programmingPlanKinds.kind', '=', planKind)
             )
           );
         }

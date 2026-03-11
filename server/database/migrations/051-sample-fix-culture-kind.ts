@@ -1,21 +1,19 @@
 import type { Knex } from 'knex';
-import {
-  RealizedStatusList,
-  type SampleStatus
-} from 'maestro-shared/schema/Sample/SampleStatus';
+
+import type { SampleStep } from 'maestro-shared/schema/Sample/SampleStep';
 
 export const up = async (knex: Knex) => {
   const result: {
     rows: {
       id: string;
-      status: SampleStatus;
+      step: SampleStep;
       specific_data: any;
     }[];
   } = await knex.raw('select * from samples');
 
   const samplesToFix = result.rows.filter((r) => {
     return (
-      RealizedStatusList.includes(r.status) &&
+      r.step === 'Sent' &&
       r.specific_data &&
       r.specific_data.programmingPlanKind === 'PPV' &&
       !r.specific_data.cultureKind

@@ -33,8 +33,5 @@ export const down = async (knex: Knex) => {
   await knex.raw(`
       update analysis set report_document_id = (select document_id from analysis_report_documents where id = analysis_report_documents.analysis_id LIMIT 1)
   `);
-  await knex.schema.alterTable('analysis', (table) => {
-    table.uuid('report_document_id').notNullable().alter();
-  });
   await knex.schema.dropTable('analysis_report_documents');
 };
