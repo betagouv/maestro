@@ -1,6 +1,6 @@
 import { isEqual } from 'lodash-es';
 import { useEffect, useState } from 'react';
-import type { ZodObject, z } from 'zod';
+import { z, ZodObject } from 'zod';
 import { useAutoSave } from './useAutoSave';
 
 type MessageType = 'error' | 'success' | 'default';
@@ -90,6 +90,8 @@ export function useForm<
     }, 1);
   };
 
+  const inputKey = JSON.stringify(input);
+
   useEffect(() => {
     (async () => {
       if (isTouched) {
@@ -103,7 +105,8 @@ export function useForm<
         }
       }
     })();
-  }, [...Object.values(input)]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputKey]);
 
   const { triggerSave } = useAutoSave({
     onSave: () => onInputChange?.(),
@@ -115,7 +118,8 @@ export function useForm<
       triggerSave?.();
     }
     setIsInitialized(true);
-  }, [...Object.values(input)]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputKey]);
 
   return {
     isTouched,

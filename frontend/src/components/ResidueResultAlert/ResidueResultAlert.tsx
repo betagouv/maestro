@@ -1,12 +1,14 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 
 interface Props {
+  programmingPlanKind?: ProgrammingPlanKind;
   result?: number | null;
   lmr?: number | null;
 }
 
-const ResidueResultAlert = ({ result, lmr }: Props) => {
+const ResidueResultAlert = ({ programmingPlanKind, result, lmr }: Props) => {
   if (!isDefinedAndNotNull(result) || !isDefinedAndNotNull(lmr)) {
     return null;
   }
@@ -26,13 +28,22 @@ const ResidueResultAlert = ({ result, lmr }: Props) => {
             small
             title={'Résultat brut supérieur à la LMR.'}
             description={
-              <>
-                Merci de contacter la référente nationale résidus de pesticides
-                pour pouvoir finaliser l'interprétation :{' '}
-                <a href="mailto:florence.gerault@agriculture.gouv.fr">
-                  florence.gerault@agriculture.gouv.fr
-                </a>
-              </>
+              programmingPlanKind === 'PPV' ? (
+                <>
+                  Merci de contacter la référente nationale résidus de
+                  pesticides pour pouvoir finaliser l'interprétation :{' '}
+                  <a href="mailto:florence.gerault@agriculture.gouv.fr">
+                    florence.gerault@agriculture.gouv.fr
+                  </a>
+                </>
+              ) : (
+                <>
+                  Merci de contacter le BAMRA :{' '}
+                  <a href="mailto:bamra.sdssa.dgal@agriculture.gouv.fr">
+                    bamra.sdssa.dgal@agriculture.gouv.fr
+                  </a>
+                </>
+              )
             }
           />
           {result * 0.5 >= lmr && (

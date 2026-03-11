@@ -4,38 +4,37 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Box } from '@mui/material';
 import clsx from 'clsx';
 import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
-import {
-  type SSD2Id,
-  SSD2Ids
-} from 'maestro-shared/referential/Residue/SSD2Id';
+import { SSD2Id, SSD2Ids } from 'maestro-shared/referential/Residue/SSD2Id';
 import {
   SSD2IdLabel,
   SSD2Referential
 } from 'maestro-shared/referential/Residue/SSD2Referential';
 import {
-  type AnalysisMethod,
+  AnalysisMethod,
   AnalysisMethodLabels,
   AnalysisMethodList
 } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import {
-  type ResidueKind,
+  ResidueKind,
   ResidueKindLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
-import type { FunctionComponent } from 'react';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 import { selectOptionsFromList } from '../../../../components/_app/AppSelect/AppSelectOption';
-import type { UseForm } from '../../../../hooks/useForm';
+import { UseForm } from '../../../../hooks/useForm';
 import { ResidueHeader } from '../SampleItemAnalysisOverview/ResidueResultOverview';
 import '../SampleItemAnalysisOverview/ResidueResultOverview.scss';
 import ResidueComplexForm from './ResidueComplexForm';
 import { ResidueInterpretationForm } from './ResidueInterpretationForm';
 import ResidueSimpleForm from './ResidueSimpleForm';
-import type { ResiduesLmrValidator } from './SampleAnalysisForm';
+import { ResiduesLmrValidator } from './SampleAnalysisForm';
 
 type Props = {
+  programmingPlanKind: ProgrammingPlanKind;
   residue: PartialResidue | undefined;
   residueIndex: number;
   form: UseForm<ResiduesLmrValidator>;
@@ -43,6 +42,7 @@ type Props = {
   onChange: (residue: PartialResidue, index: number) => void;
 };
 export const ResidueResultForm: FunctionComponent<Props> = ({
+  programmingPlanKind,
   residue,
   residueIndex,
   form,
@@ -152,6 +152,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
                 );
               }}
               renderOption={(props, option) => {
+                // eslint-disable-next-line react/prop-types
                 const { key, ...optionProps } = props;
                 return (
                   <Box
@@ -188,6 +189,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
           {kind === 'Simple' && (
             <ResidueSimpleForm
               form={form}
+              programmingPlanKind={programmingPlanKind}
               residue={residue}
               residueIndex={residueIndex}
               changeResidue={onChange}
@@ -196,6 +198,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
           {kind === 'Complex' && (
             <ResidueComplexForm
               form={form}
+              programmingPlanKind={programmingPlanKind}
               residue={residue}
               residueReference={residue.reference}
               residueIndex={residueIndex}
@@ -206,6 +209,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
             <ResidueInterpretationForm
               form={form}
               onChangeResidue={onChange}
+              programmingPlanKind={programmingPlanKind}
               residue={residue}
               residueIndex={residueIndex}
             />

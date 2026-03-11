@@ -4,15 +4,20 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import {
   Analysis,
-  type PartialAnalysis
+  PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
 import {
-  type PartialResidue,
+  PartialResidue,
   ResidueLmrChecked
 } from 'maestro-shared/schema/Analysis/Residue/Residue';
-import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
-import type React from 'react';
-import { type FunctionComponent, useContext, useMemo, useState } from 'react';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import React, {
+  FunctionComponent,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 import { assert, type Equals } from 'tsafe';
 import { z } from 'zod';
 import { useForm } from '../../../../hooks/useForm';
@@ -23,7 +28,7 @@ import { AnalysisComplianceForm } from './AnalysisComplianceForm';
 import { ResidueResultForm } from './ResidueResultForm';
 
 type Props = {
-  sample: Omit<SampleChecked, 'reference'>;
+  sample: Omit<SampleChecked, 'reference' | 'compliance'>;
   partialAnalysis: PartialAnalysis;
   onDone: () => void;
 };
@@ -63,6 +68,12 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
     }))
   );
 
+  useEffect(() => {
+    setAnalysis({
+      ...partialAnalysis
+    });
+  }, [partialAnalysis]);
+
   const changeResidue = (residue: PartialResidue, index: number) => {
     setResidues((r) => {
       const newResidues = [...r];
@@ -90,7 +101,14 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
           residueNumber: newResidueNumber,
           resultKind: 'Q',
           result: null,
-          reference: undefined
+          reference: undefined,
+          ...(sample.programmingPlanKind === 'PPV'
+            ? {}
+            : {
+                substanceApproved: 'NA',
+                substanceAuthorised: 'NA',
+                pollutionRisk: 'NA'
+              })
         }
       ];
     });
@@ -107,7 +125,7 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
 
   const removeResidue = (i: number) => () =>
     setResidues((currentResidues) => {
-      return currentResidues.filter((_r, index) => i !== index);
+      return currentResidues.filter((_r, index) => i != index);
     });
 
   const onSubmit = async (e: React.MouseEvent<HTMLElement>) => {
@@ -141,6 +159,7 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
               residues={residues}
               residuePanel={(i) => (
                 <ResidueResultForm
+                  programmingPlanKind={sample.programmingPlanKind}
                   residue={residues[i]}
                   residueIndex={i}
                   form={form}
@@ -168,14 +187,13 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
           )}
 
           <Button
+            children="Enregistrer"
             iconId="fr-icon-save-line"
             onClick={onSubmit}
             style={{
               alignSelf: 'center'
             }}
-          >
-            Enregistrer
-          </Button>
+          />
         </>
       )}
     </>

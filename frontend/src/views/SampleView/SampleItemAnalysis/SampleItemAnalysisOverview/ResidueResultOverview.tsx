@@ -8,13 +8,14 @@ import { OptionalBooleanLabels } from 'maestro-shared/referential/OptionnalBoole
 import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { ResidueComplianceLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import {
-  type ResidueKind,
+  ResidueKind,
   ResidueKindLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
-import type { FunctionComponent } from 'react';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import ResidueResultAlert from '../../../../components/ResidueResultAlert/ResidueResultAlert';
 import { quote } from '../../../../utils/stringUtils';
@@ -25,9 +26,11 @@ import {
 import './ResidueResultOverview.scss';
 
 type Props = {
+  programmingPlanKind: ProgrammingPlanKind;
   residue: Omit<PartialResidue, 'kind'>;
 };
 export const ResidueResultOverview: FunctionComponent<Props> = ({
+  programmingPlanKind,
   residue,
   ..._rest
 }) => {
@@ -49,7 +52,10 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
           </Tag>
         </div>
 
-        <ResidueValueLabel residue={residue} />
+        <ResidueValueLabel
+          programmingPlanKind={programmingPlanKind}
+          residue={residue}
+        />
         {residue.analytes?.length && (
           <span
             className={cx(
@@ -107,41 +113,51 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
             />
           )}
         </div>
-        <div className="d-flex-align-center">
-          Substance approuvée dans l'UE
-          <b className={'fr-ml-auto'}>
-            {residue.substanceApproved
-              ? OptionalBooleanLabels[residue.substanceApproved]
-              : 'Non renseigné'}
-          </b>
-        </div>
-        <div className="d-flex-align-center">
-          Substance autorisée pour l'usage
-          <b className={'fr-ml-auto'}>
-            {residue.substanceAuthorised
-              ? OptionalBooleanLabels[residue.substanceAuthorised]
-              : 'Non renseigné'}
-          </b>
-        </div>
-        <div className={'result-with-comment'}>
-          {residue.pollutionRisk && (
+
+        {programmingPlanKind === 'PPV' && (
+          <>
             <div className="d-flex-align-center">
-              Pollution environnementale probable
+              Substance approuvée dans l'UE
               <b className={'fr-ml-auto'}>
-                {OptionalBooleanLabels[residue.pollutionRisk]}
+                {residue.substanceApproved
+                  ? OptionalBooleanLabels[residue.substanceApproved]
+                  : 'Non renseigné'}
               </b>
             </div>
-          )}
-          {residue.notesOnPollutionRisk && (
-            <i>{quote(residue.notesOnPollutionRisk)}</i>
-          )}
-        </div>
+            <div className="d-flex-align-center">
+              Substance autorisée pour l'usage
+              <b className={'fr-ml-auto'}>
+                {residue.substanceAuthorised
+                  ? OptionalBooleanLabels[residue.substanceAuthorised]
+                  : 'Non renseigné'}
+              </b>
+            </div>
+            <div className={'result-with-comment'}>
+              {residue.pollutionRisk && (
+                <>
+                  <div className="d-flex-align-center">
+                    Pollution environnementale probable
+                    <b className={'fr-ml-auto'}>
+                      {OptionalBooleanLabels[residue.pollutionRisk]}
+                    </b>
+                  </div>
+                </>
+              )}
+              {residue.notesOnPollutionRisk && (
+                <i>{quote(residue.notesOnPollutionRisk)}</i>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
 };
 
-const ResidueValueLabel = ({ residue }: Pick<Props, 'residue'>) => {
+const ResidueValueLabel = ({
+  programmingPlanKind,
+  residue
+}: Pick<Props, 'residue' | 'programmingPlanKind'>) => {
   return (
     <>
       {residue.resultKind === 'Q' && (
@@ -154,16 +170,22 @@ const ResidueValueLabel = ({ residue }: Pick<Props, 'residue'>) => {
             Valeur de la LMR
             <b className={'fr-ml-auto'}>{residue.lmr} mg/kg</b>
           </div>
-          <ResidueResultAlert result={residue.result} lmr={residue.lmr} />
+          <ResidueResultAlert
+            programmingPlanKind={programmingPlanKind}
+            result={residue.result}
+            lmr={residue.lmr}
+          />
         </>
       )}
       {residue.resultKind === 'NQ' && (
-        <div className="d-flex-align-center">
-          Valeur du résultat
-          <b className={clsx('fr-ml-auto', 'align-right')}>
-            Détecté, non quantifié
-          </b>
-        </div>
+        <>
+          <div className="d-flex-align-center">
+            Valeur du résultat
+            <b className={clsx('fr-ml-auto', 'align-right')}>
+              Détecté, non quantifié
+            </b>
+          </div>
+        </>
       )}
     </>
   );

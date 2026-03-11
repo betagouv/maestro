@@ -229,7 +229,7 @@ describe('buildFindSampleOptions', () => {
         matrix: 'A01BR' as const,
         sampledAt: '2024-01-01',
         reference: 'REF-123',
-        compliance: 'conform' as const,
+        compliance: 'Compliant' as const,
         withAtLeastOneResidue: true,
         perPage: 10,
         page: 2
