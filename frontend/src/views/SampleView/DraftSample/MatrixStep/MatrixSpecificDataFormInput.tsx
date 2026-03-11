@@ -37,6 +37,8 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
     [inputProps.label, field.label]
   );
 
+  const whenValid = useMemo(() => `${label} correctement renseigné.`, [label]);
+
   const sortedOptions = useMemo(
     () => [...field.options].sort((a, b) => a.order - b.order),
     [field.options]
@@ -95,7 +97,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   inputPathFromKey={[inputKey]}
                   label={label}
                   hintText={field.hintText ?? undefined}
-                  whenValid={field.whenValid}
+                  whenValid={whenValid}
                   required={required}
                   data-testid={testId}
                 />
@@ -119,7 +121,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   inputPathFromKey={[inputKey]}
                   label={label}
                   hintText={field.hintText ?? undefined}
-                  whenValid={field.whenValid}
+                  whenValid={whenValid}
                   required={required}
                   min={0}
                   data-testid={testId}
@@ -148,7 +150,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   inputPathFromKey={[inputKey]}
                   label={label}
                   hintText={field.hintText ?? undefined}
-                  whenValid={field.whenValid}
+                  whenValid={whenValid}
                   required={required}
                   rows={3}
                   data-testid={testId}
@@ -179,7 +181,6 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                               [UnknownValue]: UnknownValueLabel
                             }
                           : optionLabels,
-                      defaultLabel: field.defaultOptionLabel ?? undefined,
                       withDefault: 'auto'
                     }
                   )}
@@ -196,7 +197,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   inputKey="specificData"
                   inputPathFromKey={[inputKey]}
                   label={label}
-                  whenValid={field.whenValid}
+                  whenValid={whenValid}
                   required={required}
                   data-testid={testId}
                 />

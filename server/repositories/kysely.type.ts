@@ -356,9 +356,7 @@ export interface SpecificDataFields {
   key: string;
   inputType: string;
   label: string;
-  whenValid: string;
   hintText: string | null;
-  defaultOptionLabel: string | null;
 }
 
 export interface SpecificDataFieldOptions {

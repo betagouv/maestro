@@ -21,9 +21,7 @@ const findByPlanKind = async (
       'sdf.key',
       'sdf.inputType',
       'sdf.label',
-      'sdf.whenValid',
-      'sdf.hintText',
-      'sdf.defaultOptionLabel'
+      'sdf.hintText'
     ])
     .where('ppkf.programmingPlanKind', '=', kind)
     .orderBy('ppkf.order')
@@ -69,9 +67,7 @@ const findByPlanKind = async (
       key: f.key,
       inputType: FieldInputType.parse(f.inputType),
       label: f.label,
-      whenValid: f.whenValid,
       hintText: f.hintText,
-      defaultOptionLabel: f.defaultOptionLabel,
       options: optionsByFieldId[f.id] ?? []
     }
   }));

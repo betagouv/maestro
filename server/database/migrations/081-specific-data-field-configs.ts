@@ -7,9 +7,7 @@ export const up = async (knex: Knex) => {
     table.text('key').notNullable().unique();
     table.text('input_type').notNullable();
     table.text('label').notNullable();
-    table.text('when_valid').notNullable();
     table.text('hint_text').nullable();
-    table.text('default_option_label').nullable();
   });
 
   // Table 2: all possible options for a field
@@ -74,129 +72,97 @@ export const up = async (knex: Knex) => {
         key: 'matrixDetails',
         input_type: 'text',
         label: 'Détail de la matrice',
-        when_valid: 'Détail de la matrice correctement renseigné.',
-        hint_text: 'Champ facultatif pour précisions supplémentaires',
-        default_option_label: null
+        hint_text: 'Champ facultatif pour précisions supplémentaires'
       },
       {
         key: 'cultureKind',
         input_type: 'select',
         label: 'Type de culture',
-        when_valid: 'Type de culture correctement renseigné.',
-        hint_text: null,
-        default_option_label: 'Sélectionner un type de culture'
+        hint_text: null
       },
       {
         key: 'matrixPart',
         input_type: 'select',
         label: 'LMR / Partie du végétal concernée',
-        when_valid: 'Partie du végétal correctement renseignée.',
-        hint_text: null,
-        default_option_label: 'Sélectionner une partie du végétal'
+        hint_text: null
       },
       {
         key: 'releaseControl',
         input_type: 'checkbox',
         label: 'Contrôle libératoire',
-        when_valid: 'Contrôle libératoire correctement renseigné.',
-        hint_text: null,
-        default_option_label: null
+        hint_text: null
       },
       {
         key: 'species',
         input_type: 'select',
         label: 'Espèce animale',
-        when_valid: 'Expèce animale correctement renseignée.',
-        hint_text: null,
-        default_option_label: 'Sélectionner une espèce'
+        hint_text: null
       },
       {
         key: 'killingCode',
         input_type: 'text',
         label: 'Code tuerie',
-        when_valid: 'Code tuerie correctement renseigné.',
-        hint_text: null,
-        default_option_label: null
+        hint_text: null
       },
       {
         key: 'sampling',
         input_type: 'select',
         label: 'Échantillonnage',
-        when_valid: 'Échantillonnage correctement renseigné.',
-        hint_text: null,
-        default_option_label: null
+        hint_text: null
       },
       {
         key: 'animalKind',
         input_type: 'select',
         label: "Type d'animal",
-        when_valid: "Type d'animal correctement renseigné.",
-        hint_text: null,
-        default_option_label: "Sélectionner un type d'animal"
+        hint_text: null
       },
       {
         key: 'productionKind',
         input_type: 'select',
         label: 'Type de production',
-        when_valid: 'Type de production correctement renseigné.',
-        hint_text: null,
-        default_option_label: 'Sélectionner un type de production'
+        hint_text: null
       },
       {
         key: 'animalIdentifier',
         input_type: 'text',
         label: "Identifiant du lot ou de l'animal",
-        when_valid: 'Identifiant correctement renseigné.',
-        hint_text: null,
-        default_option_label: null
+        hint_text: null
       },
       {
         key: 'breedingMethod',
         input_type: 'select',
         label: "Mode d'élevage",
-        when_valid: "Mode d'élevage correctement renseigné.",
-        hint_text: null,
-        default_option_label: "Sélectionner un mode d'élevage"
+        hint_text: null
       },
       {
         key: 'ageInDays',
         input_type: 'number',
         label: 'Âge (en jours)',
-        when_valid: 'Âge correctement renseigné.',
-        hint_text: null,
-        default_option_label: null
+        hint_text: null
       },
       {
         key: 'ageInMonths',
         input_type: 'number',
         label: 'Âge (en mois)',
-        when_valid: 'Âge correctement renseigné.',
-        hint_text: null,
-        default_option_label: null
+        hint_text: null
       },
       {
         key: 'sex',
         input_type: 'select',
         label: 'Sexe',
-        when_valid: 'Sexe correctement renseigné.',
-        hint_text: null,
-        default_option_label: 'Sélectionner un sexe'
+        hint_text: null
       },
       {
         key: 'seizure',
         input_type: 'selectWithUnknown',
         label: 'Saisie',
-        when_valid: 'Saisie correctement renseignée.',
-        hint_text: null,
-        default_option_label: 'Sélectionner une saisie'
+        hint_text: null
       },
       {
         key: 'outdoorAccess',
         input_type: 'radio',
         label: "Accès à l'extérieur des animaux de l'élevage",
-        when_valid: "Accès à l'extérieur correctement renseigné.",
-        hint_text: null,
-        default_option_label: null
+        hint_text: null
       }
     ])
     .returning(['id', 'key'])) as { id: string; key: string }[];

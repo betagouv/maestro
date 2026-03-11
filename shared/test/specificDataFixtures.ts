@@ -9,9 +9,7 @@ export const PPVFieldConfigs: PlanKindFieldConfig[] = [
       key: 'matrixDetails',
       inputType: 'text',
       label: 'Détail de la matrice',
-      whenValid: 'Détail de la matrice correctement renseigné.',
       hintText: 'Champ facultatif pour précisions supplémentaires',
-      defaultOptionLabel: null,
       options: []
     }
   },
@@ -23,9 +21,7 @@ export const PPVFieldConfigs: PlanKindFieldConfig[] = [
       key: 'cultureKind',
       inputType: 'select',
       label: 'Type de culture',
-      whenValid: 'Type de culture correctement renseigné.',
       hintText: null,
-      defaultOptionLabel: 'Sélectionner un type de culture',
       options: [
         {
           value: 'Z0211',
@@ -52,9 +48,7 @@ export const PPVFieldConfigs: PlanKindFieldConfig[] = [
       key: 'productionKind',
       inputType: 'select',
       label: 'Type de production',
-      whenValid: 'Type de production correctement renseigné.',
       hintText: null,
-      defaultOptionLabel: 'Sélectionner un type de production',
       options: [
         { value: 'PD07A', label: 'Production biologique', order: 1 },
         { value: 'PD09A', label: 'Production non biologique', order: 2 },
@@ -70,9 +64,7 @@ export const PPVFieldConfigs: PlanKindFieldConfig[] = [
       key: 'matrixPart',
       inputType: 'select',
       label: 'LMR / Partie du végétal concernée',
-      whenValid: 'Partie du végétal correctement renseignée.',
       hintText: null,
-      defaultOptionLabel: 'Sélectionner une partie du végétal',
       options: [
         {
           value: 'PART1',
@@ -95,9 +87,7 @@ export const PPVFieldConfigs: PlanKindFieldConfig[] = [
       key: 'releaseControl',
       inputType: 'checkbox',
       label: 'Contrôle libératoire',
-      whenValid: 'Contrôle libératoire correctement renseigné.',
       hintText: null,
-      defaultOptionLabel: null,
       options: []
     }
   }
@@ -112,9 +102,7 @@ export const DAOABreedingFieldConfigs: PlanKindFieldConfig[] = [
       key: 'sampling',
       inputType: 'select',
       label: 'Échantillonnage',
-      whenValid: 'Échantillonnage correctement renseigné.',
       hintText: null,
-      defaultOptionLabel: null,
       options: []
     }
   },
@@ -126,9 +114,7 @@ export const DAOABreedingFieldConfigs: PlanKindFieldConfig[] = [
       key: 'animalIdentifier',
       inputType: 'text',
       label: "Identifiant du lot ou de l'animal",
-      whenValid: 'Identifiant correctement renseigné.',
       hintText: null,
-      defaultOptionLabel: null,
       options: []
     }
   },
@@ -140,9 +126,7 @@ export const DAOABreedingFieldConfigs: PlanKindFieldConfig[] = [
       key: 'ageInDays',
       inputType: 'number',
       label: 'Âge (en jours)',
-      whenValid: 'Âge correctement renseigné.',
       hintText: null,
-      defaultOptionLabel: null,
       options: []
     }
   },
@@ -154,9 +138,7 @@ export const DAOABreedingFieldConfigs: PlanKindFieldConfig[] = [
       key: 'species',
       inputType: 'select',
       label: 'Espèce animale',
-      whenValid: 'Expèce animale correctement renseignée.',
       hintText: null,
-      defaultOptionLabel: 'Sélectionner une espèce',
       options: [
         { value: 'ESP7', label: 'Poulet de chair', order: 1 },
         { value: 'ESP8', label: 'Poule de réforme', order: 2 },
@@ -173,9 +155,7 @@ export const DAOABreedingFieldConfigs: PlanKindFieldConfig[] = [
       key: 'breedingMethod',
       inputType: 'select',
       label: "Mode d'élevage",
-      whenValid: "Mode d'élevage correctement renseigné.",
       hintText: null,
-      defaultOptionLabel: "Sélectionner un mode d'élevage",
       options: [
         { value: 'PROD_1', label: 'Biologique', order: 1 },
         { value: 'PROD_2', label: 'Standard', order: 2 },
@@ -191,9 +171,7 @@ export const DAOABreedingFieldConfigs: PlanKindFieldConfig[] = [
       key: 'outdoorAccess',
       inputType: 'radio',
       label: "Accès à l'extérieur des animaux de l'élevage",
-      whenValid: "Accès à l'extérieur correctement renseigné.",
       hintText: null,
-      defaultOptionLabel: null,
       options: [
         { value: 'PAT1', label: 'Oui', order: 1 },
         { value: 'PAT0', label: 'Non', order: 2 },
@@ -212,9 +190,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
       key: 'killingCode',
       inputType: 'text',
       label: 'Code tuerie',
-      whenValid: 'Code tuerie correctement renseigné.',
       hintText: null,
-      defaultOptionLabel: null,
       options: []
     }
   },
@@ -226,9 +202,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
       key: 'sampling',
       inputType: 'select',
       label: 'Échantillonnage',
-      whenValid: 'Échantillonnage correctement renseigné.',
       hintText: null,
-      defaultOptionLabel: null,
       options: []
     }
   },
@@ -240,9 +214,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
       key: 'animalIdentifier',
       inputType: 'text',
       label: "Identifiant du lot ou de l'animal",
-      whenValid: 'Identifiant correctement renseigné.',
       hintText: null,
-      defaultOptionLabel: null,
       options: []
     }
   },
@@ -254,9 +226,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
       key: 'animalKind',
       inputType: 'select',
       label: "Type d'animal",
-      whenValid: "Type d'animal correctement renseigné.",
       hintText: null,
-      defaultOptionLabel: "Sélectionner un type d'animal",
       options: [
         { value: 'TYPEA1', label: 'Veau < 6 mois', order: 1 },
         {
@@ -281,9 +251,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
       key: 'sex',
       inputType: 'select',
       label: 'Sexe',
-      whenValid: 'Sexe correctement renseigné.',
       hintText: null,
-      defaultOptionLabel: 'Sélectionner un sexe',
       options: [
         { value: 'SEX1', label: 'Mâle entier', order: 1 },
         { value: 'SEX2', label: 'Mâle castré', order: 2 },
@@ -301,9 +269,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
       key: 'ageInMonths',
       inputType: 'number',
       label: 'Âge (en mois)',
-      whenValid: 'Âge correctement renseigné.',
       hintText: null,
-      defaultOptionLabel: null,
       options: []
     }
   },
@@ -315,9 +281,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
       key: 'productionKind',
       inputType: 'select',
       label: 'Type de production',
-      whenValid: 'Type de production correctement renseigné.',
       hintText: null,
-      defaultOptionLabel: 'Sélectionner un type de production',
       options: [
         { value: 'PROD_1', label: 'Allaitant', order: 4 },
         { value: 'PROD_2', label: 'Laitier', order: 5 },
@@ -334,9 +298,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
       key: 'outdoorAccess',
       inputType: 'radio',
       label: "Accès à l'extérieur des animaux de l'élevage",
-      whenValid: "Accès à l'extérieur correctement renseigné.",
       hintText: null,
-      defaultOptionLabel: null,
       options: [
         { value: 'PAT1', label: 'Oui', order: 1 },
         { value: 'PAT0', label: 'Non', order: 2 },
@@ -352,9 +314,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
       key: 'seizure',
       inputType: 'selectWithUnknown',
       label: 'Saisie',
-      whenValid: 'Saisie correctement renseignée.',
       hintText: null,
-      defaultOptionLabel: 'Sélectionner une saisie',
       options: [
         { value: 'EMPTY', label: 'Absence', order: 1 },
         { value: 'PARTIAL', label: 'Partielle', order: 2 },

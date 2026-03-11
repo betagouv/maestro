@@ -22,9 +22,7 @@ export const FieldConfig = z.object({
   key: z.string(),
   inputType: FieldInputType,
   label: z.string(),
-  whenValid: z.string(),
   hintText: z.string().nullable(),
-  defaultOptionLabel: z.string().nullable(),
   options: z.array(FieldOption)
 });
 
