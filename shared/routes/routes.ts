@@ -20,6 +20,7 @@ import { programmingPlansRoutes } from './programmingPlans.routes';
 import { sachaCommemoratifsRoute } from './sachaCommemoratifs.route';
 import { samplesRoutes } from './samples.routes';
 import { sampleSpecificDataRoutes } from './sampleSpecificData';
+import { specificDataFieldsRoutes } from './specificDataFields.routes';
 import { usersRoutes } from './users.routes';
 
 export const MaestroRoutes = [
@@ -54,6 +55,7 @@ export const MaestroRoutes = [
   '/prescriptions/:prescriptionId/substances',
   '/prescriptions/:prescriptionId',
   '/programming-plan-kinds/:kind/specific-data-fields',
+  '/specific-data-fields/sacha',
   '/programming-plans',
   '/programming-plans/years/:year',
   '/programming-plans/:programmingPlanId',
@@ -88,6 +90,7 @@ export const routes = {
   ...sampleSpecificDataRoutes,
   ...sachaCommemoratifsRoute,
   ...samplesRoutes,
+  ...specificDataFieldsRoutes,
   ...usersRoutes
 } as const satisfies {
   [path in MaestroRoutes]: { [method in RouteMethod]?: ToRoute } & {

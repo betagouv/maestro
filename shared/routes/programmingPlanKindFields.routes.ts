@@ -1,7 +1,6 @@
 import z from 'zod';
 import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { PlanKindFieldConfig } from '../schema/SpecificData/PlanKindFieldConfig';
-
 import { SubRoutes } from './routes';
 
 export const programmingPlanKindFieldsRoutes = {
