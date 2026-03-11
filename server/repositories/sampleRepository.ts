@@ -6,10 +6,7 @@ import {
   PartialSample,
   SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
-import {
-  DraftStatusList,
-  SampleStatus
-} from 'maestro-shared/schema/Sample/SampleStatus';
+import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import z from 'zod';
 import { analysisResiduesTable, analysisTable } from './analysisRepository';
 import { companiesTable } from './companyRepository';
@@ -20,6 +17,7 @@ import { sampleItemsTable } from './sampleItemRepository';
 import { usersTable } from './userRepository';
 
 export const samplesTable = 'samples';
+export const sampleStatusView = 'sample_status';
 export const sampleDocumentsTable = 'sample_documents';
 const sampleSequenceNumbers = 'sample_sequence_numbers';
 
@@ -79,7 +77,8 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       db.raw(`additional_sampler.name as additional_sampler_name`),
       db.raw(
         `coalesce(array_agg(${sampleDocumentsTable}.document_id) filter (where ${sampleDocumentsTable}.document_id is not null), '{}') as document_ids`
-      )
+      ),
+      db.raw(`${sampleStatusView}.status`)
     )
     .where(`${samplesTable}.id`, id)
     .leftJoin(
@@ -98,11 +97,17 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       `${samplesTable}.id`,
       `${sampleDocumentsTable}.sample_id`
     )
+    .join(
+      sampleStatusView,
+      `${sampleStatusView}.sample_id`,
+      `${samplesTable}.id`
+    )
     .groupBy(
       `${samplesTable}.id`,
       `${companiesTable}.siret`,
       `${usersTable}.id`,
-      `additional_sampler.id`
+      `additional_sampler.id`,
+      `${sampleStatusView}.status`
     )
     .first()
     .then(parsePartialSample);
@@ -110,6 +115,11 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
 
 const findRequest = (findOptions: FindSampleOptions) =>
   Samples()
+    .join(
+      sampleStatusView,
+      `${sampleStatusView}.sample_id`,
+      `${samplesTable}.id`
+    )
     .where(
       omitBy(
         omit(
@@ -149,9 +159,9 @@ const findRequest = (findOptions: FindSampleOptions) =>
       }
       if (findOptions.status) {
         if (isArray(findOptions.status)) {
-          builder.whereIn(`${samplesTable}.status`, findOptions.status);
+          builder.whereIn(`${sampleStatusView}.status`, findOptions.status);
         } else {
-          builder.where(`${samplesTable}.status`, findOptions.status);
+          builder.where(`${sampleStatusView}.status`, findOptions.status);
         }
       }
       if (findOptions.sampledAt) {
@@ -242,7 +252,8 @@ const findMany = async (
       db.raw(`additional_sampler.name as additional_sampler_name`),
       db.raw(
         `coalesce(array_agg(${sampleDocumentsTable}.document_id) filter (where ${sampleDocumentsTable}.document_id is not null), '{}') as document_ids`
-      )
+      ),
+      db.raw(`${sampleStatusView}.status`)
     )
     .leftJoin(
       companiesTable,
@@ -264,7 +275,8 @@ const findMany = async (
       `${samplesTable}.id`,
       `${companiesTable}.siret`,
       `${usersTable}.id`,
-      `additional_sampler.id`
+      `additional_sampler.id`,
+      `${sampleStatusView}.status`
     )
     .modify((builder) => {
       if (findOptions.page) {
@@ -326,18 +338,6 @@ const update = async (partialSample: PartialSample): Promise<void> => {
       .where({ id: partialSample.id })
       .update(formatPartialSample(partialSample));
   }
-};
-
-const updateStatus = async (
-  sampleId: string,
-  status: SampleStatus,
-  trx: KyselyMaestro = kysely
-) => {
-  await trx
-    .updateTable('samples')
-    .where('id', '=', sampleId)
-    .set('status', status)
-    .execute();
 };
 
 const updateDocumentIds = async (
@@ -433,7 +433,6 @@ const parsePartialSample = (sample: PartialSampleJoinedDbo): PartialSample =>
 export const sampleRepository = {
   insert,
   update,
-  updateStatus,
   updateDocumentIds,
   findUnique,
   findMany,

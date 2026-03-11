@@ -24,6 +24,7 @@ import {
   SachaCommemoratifTypeDonnee
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
+import { SampleStatus as SampleStatusType } from 'maestro-shared/schema/Sample/SampleStatus';
 import {
   ProgrammingPlanKindFieldId,
   SpecificDataFieldId,
@@ -306,6 +307,17 @@ export interface SampleSequenceNumbers {
   region: string;
 }
 
+export interface SampleStatusView {
+  sampleId: string;
+  status: SampleStatusType;
+}
+
+export interface SampleItemStatusView {
+  sampleId: string;
+  itemNumber: number;
+  status: SampleStatusType | null;
+}
+
 export interface Users {
   email: string;
   name: string | null;
@@ -406,6 +418,8 @@ export interface DB {
   sampleItems: SampleItems;
   samples: Samples;
   sampleSequenceNumbers: SampleSequenceNumbers;
+  sampleStatus: SampleStatusView;
+  sampleItemStatus: SampleItemStatusView;
   users: Users;
   userCompanies: UserCompanies;
 }
