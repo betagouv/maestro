@@ -11,8 +11,8 @@ export const SigleContexteIntervention: Record<
   ProgrammingPlanKindWithSacha,
   z.infer<typeof sigleContexteInterventionValidator>
 > = {
-  DAOA_BREEDING: '2026_RPDA_PVOL',
-  DAOA_SLAUGHTER: '2026_RPDA_PBOV'
+  DAOA_VOLAILLE: '2026_RPDA_PVOL',
+  DAOA_BOVIN: '2026_RPDA_PBOV'
 };
 
 export const siglePlanAnalyseValidator = z.enum([

@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const ProgrammingPlanKindWithSacha = z.enum([
-  'DAOA_BREEDING',
-  'DAOA_SLAUGHTER'
+  'DAOA_VOLAILLE',
+  'DAOA_BOVIN'
 ]);
 
 export type ProgrammingPlanKindWithSacha = z.infer<
@@ -23,8 +23,8 @@ export type ProgrammingPlanKind = z.infer<typeof ProgrammingPlanKind>;
 
 export const ProgrammingPlanKindLabels: Record<ProgrammingPlanKind, string> = {
   PPV: 'Production primaire végétale',
-  DAOA_BREEDING: 'Abattoir / Viande de volaille',
-  DAOA_SLAUGHTER: 'Abattoir / Foie de bovin'
+  DAOA_VOLAILLE: 'Abattoir / Viande de volaille',
+  DAOA_BOVIN: 'Abattoir / Foie de bovin'
 };
 export const ProgrammingPlanKindListSorted: ProgrammingPlanKind[] = [
   ...ProgrammingPlanKind.options

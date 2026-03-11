@@ -102,6 +102,5 @@ export const down = async (knex: Knex) => {
   await knex.schema.alterTable('programming_plans', (table) => {
     table.dropColumn('kinds');
     table.dropColumn('contexts');
-    table.unique(['year']);
   });
 };

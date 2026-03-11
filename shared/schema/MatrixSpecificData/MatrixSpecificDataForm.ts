@@ -28,7 +28,7 @@ export const MatrixSpecificDataForm: {
     matrixPart: {},
     releaseControl: {}
   },
-  DAOA_BREEDING: {
+  DAOA_VOLAILLE: {
     sampling: {
       preTitle: 'Animal',
       iconId: 'fr-icon-bug-line',
@@ -42,7 +42,7 @@ export const MatrixSpecificDataForm: {
     breedingMethod: {},
     outdoorAccess: {}
   },
-  DAOA_SLAUGHTER: {
+  DAOA_BOVIN: {
     killingCode: {
       preTitle: 'Animal',
       iconId: 'fr-icon-bug-line'

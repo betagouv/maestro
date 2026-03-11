@@ -606,7 +606,7 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    test('should be forbidden to send a DAOA_SLAUGHTER sample without seizure', async () => {
+    test('should be forbidden to send a DAOA_BOVIN sample without seizure', async () => {
       const sampleId = uuidv4();
       const sample = genCreatedPartialSample({
         id: sampleId,
@@ -620,7 +620,7 @@ describe('Sample router', () => {
         matrixKind: 'A0C0Z',
         matrix: 'A0BAV',
         specificData: {
-          programmingPlanKind: 'DAOA_SLAUGHTER',
+          programmingPlanKind: 'DAOA_BOVIN',
           killingCode: '1234',
           sampling: 'Aléatoire',
           animalIdentifier: 'FR1234567890',
@@ -695,7 +695,7 @@ describe('Sample router', () => {
           sentAt: null,
           specificData: {
             ...SampleDAOA1Fixture.specificData,
-            programmingPlanKind: 'DAOA_BREEDING'
+            programmingPlanKind: 'DAOA_VOLAILLE'
           }
         });
 
@@ -712,7 +712,7 @@ describe('Sample router', () => {
             ageInDays: 12,
             animalIdentifier: 'id',
             sampling: 'Aléatoire',
-            programmingPlanKind: 'DAOA_BREEDING'
+            programmingPlanKind: 'DAOA_VOLAILLE'
           }
         })
         .use(tokenProvider(SamplerDaoaFixture))

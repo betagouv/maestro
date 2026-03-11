@@ -73,7 +73,7 @@ export const LocalPrescriptionFixture = genLocalPrescription({
 export const FoieDeBovinPrescriptionFixture = genPrescription({
   id: '177e280f-7fc5-499f-9dcb-4970dc00af36',
   programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
-  programmingPlanKind: 'DAOA_SLAUGHTER',
+  programmingPlanKind: 'DAOA_BOVIN',
   context: 'Surveillance',
   matrixKind: 'A01QX',
   matrix: 'A01XF#F28.A0C0S',
@@ -82,7 +82,7 @@ export const FoieDeBovinPrescriptionFixture = genPrescription({
 export const VolaillePrescriptionFixture = genPrescription({
   id: '608d0973-b472-4964-a8d7-246f91ad4d39',
   programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
-  programmingPlanKind: 'DAOA_BREEDING',
+  programmingPlanKind: 'DAOA_VOLAILLE',
   context: 'Surveillance',
   matrixKind: 'A01SN',
   stages: ['STADE10']

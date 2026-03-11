@@ -42,7 +42,7 @@ const meta = {
 
 export default meta;
 
-export const DAOABreeding = {
+export const DAOAVolaille = {
   render: () => (
     <CommemoratifSigleForm
       attribute="breedingMethod"
@@ -52,7 +52,7 @@ export const DAOABreeding = {
   )
 };
 
-export const DAOASlaughter = {
+export const DAOABovin = {
   render: () => (
     <CommemoratifSigleForm
       attribute="animalKind"
