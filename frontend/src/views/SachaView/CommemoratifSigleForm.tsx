@@ -6,23 +6,20 @@ import {
   CommemoratifValueSigle,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
-import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
-import { FieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppSearchInput from '../../components/_app/AppSearchInput/AppSearchInput';
 import { ApiClientContext } from '../../services/apiClient';
 
 type Props = {
-  fieldConfig: FieldConfig;
+  fieldConfig: SachaFieldConfig;
   sachaCommemoratifs: SachaCommemoratifRecord;
-  sampleSpecifiDataRecord: SampleSpecificDataRecord;
 };
 
 export const CommemoratifSigleForm = ({
   fieldConfig,
   sachaCommemoratifs,
-  sampleSpecifiDataRecord,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -35,20 +32,23 @@ export const CommemoratifSigleForm = ({
     apiClient.useUpdateSampleSpecificDataAttributeValueMutation();
   const attribute = fieldConfig.key;
 
-  const attributeConfInDb = sampleSpecifiDataRecord[attribute as string];
-
-  const [inDai, setInDai] = useState<boolean>(
-    attributeConfInDb?.inDai ?? false
-  );
-  const [optional, setOptional] = useState<boolean>(
-    attributeConfInDb?.optional ?? false
-  );
+  const [inDai, setInDai] = useState<boolean>(fieldConfig.inDai);
+  const [optional, setOptional] = useState<boolean>(fieldConfig.optional);
   const [selectedSigle, setSelectedSigle] = useState<CommemoratifSigle | null>(
-    attributeConfInDb?.sachaCommemoratifSigle ?? null
+    fieldConfig.sachaCommemoratifSigle as CommemoratifSigle | null
   );
   const [selectedValues, setSelectedValues] = useState<
     Record<string, CommemoratifValueSigle>
-  >(attributeConfInDb?.values ?? {});
+  >(
+    Object.fromEntries(
+      fieldConfig.options
+        .filter((o) => o.sachaCommemoratifValueSigle !== null)
+        .map((o) => [
+          o.value,
+          o.sachaCommemoratifValueSigle as CommemoratifValueSigle
+        ])
+    )
+  );
 
   const onSelectSigle = (sachaCommemoratifSigle?: CommemoratifSigle) => {
     updateSampleSpecificDataAttribute({
@@ -202,7 +202,7 @@ export const CommemoratifSigleForm = ({
 };
 interface OptionValueLineProps {
   optionValue: string;
-  fieldConfig: FieldConfig;
+  fieldConfig: SachaFieldConfig;
   selectedCommemoratif: SachaCommemoratifRecord[CommemoratifSigle] | null;
   optional: boolean;
   selectedValue: string | null;

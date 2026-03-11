@@ -1,8 +1,8 @@
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
-  FieldConfig,
   FieldInputType,
-  PlanKindFieldConfig
+  PlanKindFieldConfig,
+  SachaFieldConfig
 } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { kysely } from './kysely';
 
@@ -74,7 +74,7 @@ const findByPlanKind = async (
   }));
 };
 
-const findSachaFields = async (): Promise<FieldConfig[]> => {
+const findSachaFields = async (): Promise<SachaFieldConfig[]> => {
   console.info(
     'Find specific data field configs for Sacha (non-PPV plan kinds)'
   );
@@ -82,7 +82,16 @@ const findSachaFields = async (): Promise<FieldConfig[]> => {
   const fields = await kysely
     .selectFrom('specificDataFields as sdf')
     .innerJoin('programmingPlanKindFields as ppkf', 'ppkf.fieldId', 'sdf.id')
-    .select(['sdf.id', 'sdf.key', 'sdf.inputType', 'sdf.label', 'sdf.hintText'])
+    .select([
+      'sdf.id',
+      'sdf.key',
+      'sdf.inputType',
+      'sdf.label',
+      'sdf.hintText',
+      'sdf.sachaCommemoratifSigle',
+      'sdf.sachaInDai',
+      'sdf.sachaOptional'
+    ])
     .where('ppkf.programmingPlanKind', '!=', 'PPV')
     .distinctOn('sdf.id')
     .execute();
@@ -95,17 +104,36 @@ const findSachaFields = async (): Promise<FieldConfig[]> => {
 
   const options = await kysely
     .selectFrom('specificDataFieldOptions as sdfo')
-    .select(['sdfo.fieldId', 'sdfo.value', 'sdfo.label', 'sdfo.order'])
+    .select([
+      'sdfo.fieldId',
+      'sdfo.value',
+      'sdfo.label',
+      'sdfo.order',
+      'sdfo.sachaCommemoratifValueSigle'
+    ])
     .where('sdfo.fieldId', 'in', fieldIds)
     .orderBy('sdfo.order')
     .execute();
 
   const optionsByFieldId = options.reduce<
-    Record<string, { value: string; label: string; order: number }[]>
+    Record<
+      string,
+      {
+        value: string;
+        label: string;
+        order: number;
+        sachaCommemoratifValueSigle: string | null;
+      }[]
+    >
   >((acc, opt) => {
     const id = opt.fieldId;
     if (!acc[id]) acc[id] = [];
-    acc[id].push({ value: opt.value, label: opt.label, order: opt.order });
+    acc[id].push({
+      value: opt.value,
+      label: opt.label,
+      order: opt.order,
+      sachaCommemoratifValueSigle: opt.sachaCommemoratifValueSigle ?? null
+    });
     return acc;
   }, {});
 
@@ -114,6 +142,9 @@ const findSachaFields = async (): Promise<FieldConfig[]> => {
     inputType: FieldInputType.parse(f.inputType),
     label: f.label,
     hintText: f.hintText,
+    sachaCommemoratifSigle: f.sachaCommemoratifSigle ?? null,
+    inDai: f.sachaInDai,
+    optional: f.sachaOptional,
     options: optionsByFieldId[f.id] ?? []
   }));
 };

@@ -1,16 +1,11 @@
 import {
   SampleSpecificDataAttribute,
-  SampleSpecificDataAttributeValue,
-  SampleSpecificDataRecord
+  SampleSpecificDataAttributeValue
 } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
 import { api } from 'src/services/api.service';
 
 const sampleSpecificDataApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getSampleSpecificData: builder.query<SampleSpecificDataRecord, void>({
-      query: () => '/specific-data-attribute',
-      providesTags: ['SampleSpecificData']
-    }),
     updateSampleSpecificDataAttribute: builder.mutation<
       void,
       SampleSpecificDataAttribute
@@ -37,7 +32,6 @@ const sampleSpecificDataApi = api.injectEndpoints({
 });
 
 export const {
-  useGetSampleSpecificDataQuery,
   useUpdateSampleSpecificDataAttributeMutation,
   useUpdateSampleSpecificDataAttributeValueMutation
 } = sampleSpecificDataApi;
