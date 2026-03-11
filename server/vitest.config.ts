@@ -23,6 +23,7 @@ export default defineConfig({
         test: {
           name: 'integration',
           hookTimeout: 45000,
+          testTimeout: 30000,
           setupFiles: ['../test/setupFakerJS.ts', './test/setupTests.ts'],
           include: integrationTestFiles
         }

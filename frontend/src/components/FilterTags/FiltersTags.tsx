@@ -16,13 +16,9 @@ import {
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import { SampleComplianceLabels } from 'maestro-shared/schema/Sample/SampleCompliance';
 import {
-  type FindSampleOptions,
-  SampleComplianceLabels
-} from 'maestro-shared/schema/Sample/FindSampleOptions';
-import {
-  DraftStatusList,
-  RealizedStatusList,
   type SampleStatus,
   SampleStatusLabels
 } from 'maestro-shared/schema/Sample/SampleStatus';
@@ -73,12 +69,7 @@ const filtersConfig = {
   },
   status: {
     prop: 'status',
-    getLabel: (value) =>
-      value === DraftStatusList.join(',')
-        ? 'Brouillon'
-        : value === RealizedStatusList.join(',')
-          ? 'Réalisé'
-          : SampleStatusLabels[value as SampleStatus]
+    getLabel: (value) => SampleStatusLabels[value as SampleStatus]
   },
   sampledBy: {
     prop: 'sampledBy',

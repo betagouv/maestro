@@ -12,7 +12,6 @@ import {
   type PartialSample,
   type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { useState } from 'react';
 import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
@@ -43,7 +42,7 @@ const SampleCard = ({ sample, horizontal }: Props) => {
         !horizontal && (
           <div className={clsx('d-flex-align-start')}>
             <div className="flex-grow-1">
-              <SampleStatusBadge status={sample.status} sampleId={sample.id} />
+              <SampleStatusBadge sample={sample} />
             </div>
             {isMobile &&
               (isExpanded ? (
@@ -70,9 +69,7 @@ const SampleCard = ({ sample, horizontal }: Props) => {
         isCreatedPartialSample(sample) ? (
           <div className={clsx('d-flex-align-center')}>
             <div className="flex-grow-1">{sample.reference}</div>
-            {horizontal && (
-              <SampleStatusBadge status={sample.status} sampleId={sample.id} />
-            )}{' '}
+            {horizontal && <SampleStatusBadge sample={sample} />}{' '}
           </div>
         ) : (
           'Hors ligne'
@@ -141,21 +138,13 @@ const SampleCard = ({ sample, horizontal }: Props) => {
               linkProps={{
                 to: sampleLink(sample.id)
               }}
-              priority={
-                [...DraftStatusList, 'Submitted'].includes(sample.status)
-                  ? 'primary'
-                  : 'secondary'
-              }
+              priority={sample.step !== 'Sent' ? 'primary' : 'secondary'}
             >
-              {[...DraftStatusList, 'Submitted'].includes(sample.status)
-                ? 'A compléter'
-                : 'Consulter'}
+              {sample.step !== 'Sent' ? 'A compléter' : 'Consulter'}
             </Button>
             {isOnline &&
               hasUserPermission('deleteSample') &&
-              DraftStatusList.includes(sample.status) && (
-                <RemoveSample sample={sample} />
-              )}
+              sample.step !== 'Sent' && <RemoveSample sample={sample} />}
           </div>
         )
       }

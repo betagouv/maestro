@@ -34,9 +34,9 @@ import {
   sampleMatrixCheck
 } from 'maestro-shared/schema/Sample/Sample';
 import {
-  type SampleStatus,
-  SampleStatusSteps
-} from 'maestro-shared/schema/Sample/SampleStatus';
+  type SampleStep,
+  SampleSteps
+} from 'maestro-shared/schema/Sample/SampleStep';
 import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { toArray } from 'maestro-shared/utils/utils';
 import { checkSchema } from 'maestro-shared/utils/zod';
@@ -157,24 +157,28 @@ const MatrixStep = ({ partialSample }: Props) => {
     files: FileInput(SampleDocumentTypeList, true)
   });
 
-  useEffect(() => {
-    if (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading) {
-      isSubmittingRef.current = false;
+  useEffect(
+    () => {
+      if (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading) {
+        isSubmittingRef.current = false;
 
-      if (createOrUpdateSampleCall.isSuccess) {
-        trackEvent(
-          'sample',
-          `submit_${partialSample.status}`,
-          partialSample.id
-        );
-        navigateToSample(partialSample.id, 3);
+        if (createOrUpdateSampleCall.isSuccess) {
+          trackEvent(
+            'sample',
+            `submit_${partialSample.status}`,
+            partialSample.id
+          );
+          navigateToSample(partialSample.id, 3);
+        }
       }
-    }
-  }, [
-    createOrUpdateSampleCall.isSuccess,
-    createOrUpdateSampleCall.isLoading,
-    partialSample.id
-  ]);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      createOrUpdateSampleCall.isSuccess,
+      createOrUpdateSampleCall.isLoading,
+      partialSample.id
+    ]
+  );
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -184,7 +188,7 @@ const MatrixStep = ({ partialSample }: Props) => {
     });
   };
 
-  const save = async (status: SampleStatus = partialSample.status) => {
+  const save = async (step: SampleStep = partialSample.step) => {
     await createOrUpdateSample({
       ...partialSample,
       matrixKind,
@@ -195,7 +199,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       monoSubstances,
       multiSubstances,
       documentIds,
-      status
+      step
     });
   };
 
@@ -292,7 +296,7 @@ const MatrixStep = ({ partialSample }: Props) => {
         ))}
       </>
     ),
-    [documentIds, filesForm]
+    [documentIds, filesForm] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const matrixKindOptions = useMemo(
@@ -382,8 +386,7 @@ const MatrixStep = ({ partialSample }: Props) => {
               Étape précédente
             </Button>
           </div>
-          {(!readonly ||
-            (SampleStatusSteps[partialSample.status] as number) > 2) && (
+          {(!readonly || SampleSteps[partialSample.step] > 2) && (
             <Button
               size="small"
               priority="tertiary no outline"

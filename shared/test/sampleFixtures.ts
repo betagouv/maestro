@@ -57,6 +57,7 @@ export const genSampleContextData = (
   resytalId: `23-${fakerFR.string.numeric(6)}`,
   company: genCompany(),
   notesOnCreation: fakerFR.string.alphanumeric(32),
+  step: 'Draft',
   status: 'Draft',
   specificData: {},
   ...data
@@ -100,6 +101,7 @@ export const genCreatedPartialSample = (
     },
     sampledAt: new Date(),
     items: [genSampleItem({ sampleId: contextData.id, copyNumber: 1 })],
+    ownerAgreement: true,
     ...data
   };
 };
@@ -162,7 +164,8 @@ export const Sample11Fixture = genCreatedPartialSample({
   sampler: pick(Sampler1Fixture, ['id', 'name']),
   createdAt: new Date('2023-01-02'),
   lastUpdatedAt: new Date('2024-03-04'),
-  status: 'DraftMatrix' as const,
+  step: 'DraftMatrix' as const,
+  status: 'Draft' as const,
   matrixKind: PrescriptionFixture.matrixKind,
   matrix: 'A00GZ',
   stage: PrescriptionFixture.stages[0],
@@ -183,6 +186,7 @@ export const Sample12Fixture = genCreatedPartialSample({
   context: 'Control',
   company: CompanyFixture,
   id: '11111111-2222-2222-2222-222222222222',
+  step: 'Draft' as const,
   status: 'Draft' as const,
   department: '88',
   region: Region1Fixture,
@@ -194,6 +198,7 @@ export const Sample13Fixture = genCreatedPartialSample({
   context: 'Control',
   company: CompanyFixture,
   id: '11111111-3333-3333-3333-333333333333',
+  step: 'Sent' as const,
   status: 'Sent' as const,
   department: '88',
   region: Region1Fixture,
@@ -205,7 +210,8 @@ export const Sample2Fixture = genCreatedPartialSample({
   context: 'Control',
   company: CompanyFixture,
   id: '22222222-2222-2222-2222-222222222222',
-  status: 'DraftMatrix' as const,
+  step: 'DraftMatrix' as const,
+  status: 'Draft' as const,
   department: '53',
   region: Region2Fixture,
   reference: 'PDL-08-24-313-A'
@@ -217,7 +223,10 @@ export const SampleDAOA1Fixture = genCreatedPartialSample({
   context: 'Surveillance',
   company: SlaughterhouseCompanyFixture1,
   department: SamplerDaoaFixture.department,
-  region: SamplerDaoaFixture.region
+  region: SamplerDaoaFixture.region,
+  specificData: {
+    programmingPlanKind: 'DAOA_BOVIN'
+  }
 });
 export const SampleDAOA2Fixture = genCreatedPartialSample({
   sampler: SamplerDaoaFixture,
