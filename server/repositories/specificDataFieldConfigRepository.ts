@@ -1,5 +1,6 @@
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
+  FieldConfig,
   FieldInputType,
   PlanKindFieldConfig
 } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
@@ -73,6 +74,51 @@ const findByPlanKind = async (
   }));
 };
 
+const findSachaFields = async (): Promise<FieldConfig[]> => {
+  console.info(
+    'Find specific data field configs for Sacha (non-PPV plan kinds)'
+  );
+
+  const fields = await kysely
+    .selectFrom('specificDataFields as sdf')
+    .innerJoin('programmingPlanKindFields as ppkf', 'ppkf.fieldId', 'sdf.id')
+    .select(['sdf.id', 'sdf.key', 'sdf.inputType', 'sdf.label', 'sdf.hintText'])
+    .where('ppkf.programmingPlanKind', '!=', 'PPV')
+    .distinctOn('sdf.id')
+    .execute();
+
+  if (fields.length === 0) {
+    return [];
+  }
+
+  const fieldIds = fields.map((f) => f.id);
+
+  const options = await kysely
+    .selectFrom('specificDataFieldOptions as sdfo')
+    .select(['sdfo.fieldId', 'sdfo.value', 'sdfo.label', 'sdfo.order'])
+    .where('sdfo.fieldId', 'in', fieldIds)
+    .orderBy('sdfo.order')
+    .execute();
+
+  const optionsByFieldId = options.reduce<
+    Record<string, { value: string; label: string; order: number }[]>
+  >((acc, opt) => {
+    const id = opt.fieldId;
+    if (!acc[id]) acc[id] = [];
+    acc[id].push({ value: opt.value, label: opt.label, order: opt.order });
+    return acc;
+  }, {});
+
+  return fields.map((f) => ({
+    key: f.key,
+    inputType: FieldInputType.parse(f.inputType),
+    label: f.label,
+    hintText: f.hintText,
+    options: optionsByFieldId[f.id] ?? []
+  }));
+};
+
 export const specificDataFieldConfigRepository = {
-  findByPlanKind
+  findByPlanKind,
+  findSachaFields
 };

@@ -138,3 +138,62 @@ describe('findByPlanKind', () => {
     });
   });
 });
+
+describe('findSachaFields', () => {
+  test('returns 12 distinct fields (union of DAOA_BREEDING and DAOA_SLAUGHTER, no duplicates)', async () => {
+    const fields = await specificDataFieldConfigRepository.findSachaFields();
+
+    expect(fields).toHaveLength(12);
+  });
+
+  test('does not include PPV-only fields', async () => {
+    const fields = await specificDataFieldConfigRepository.findSachaFields();
+
+    const keys = fields.map((f) => f.key);
+    expect(keys).not.toContain('matrixDetails');
+    expect(keys).not.toContain('cultureKind');
+    expect(keys).not.toContain('matrixPart');
+    expect(keys).not.toContain('releaseControl');
+  });
+
+  test('includes all expected Sacha field keys', async () => {
+    const fields = await specificDataFieldConfigRepository.findSachaFields();
+
+    const keys = fields.map((f) => f.key).sort();
+    expect(keys).toEqual(
+      [
+        'ageInDays',
+        'ageInMonths',
+        'animalIdentifier',
+        'animalKind',
+        'breedingMethod',
+        'killingCode',
+        'outdoorAccess',
+        'productionKind',
+        'sampling',
+        'seizure',
+        'sex',
+        'species'
+      ].sort()
+    );
+  });
+
+  test('species has 4 options', async () => {
+    const fields = await specificDataFieldConfigRepository.findSachaFields();
+
+    const species = fields.find((f) => f.key === 'species')!;
+    expect(species.options.map((o) => o.value)).toEqual([
+      'ESP7',
+      'ESP8',
+      'ESP10',
+      'ESP20'
+    ]);
+  });
+
+  test('fields without options have empty options array', async () => {
+    const fields = await specificDataFieldConfigRepository.findSachaFields();
+
+    const animalIdentifier = fields.find((f) => f.key === 'animalIdentifier')!;
+    expect(animalIdentifier.options).toHaveLength(0);
+  });
+});
