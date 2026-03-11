@@ -1,9 +1,10 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
-import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
-import type { FunctionComponent } from 'react';
+import { omit } from 'lodash-es';
+import { type PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { ResidueListResult } from './ResidueListResult';
 import { ResidueResultOverview } from './ResidueResultOverview';
@@ -24,7 +25,10 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const residues = analysis.residues?.map((r) => ({ ...sample, ...r }));
+  const residues = analysis.residues?.map((r) => ({
+    ...omit(sample, 'compliance'),
+    ...r
+  }));
 
   return (
     <>
@@ -50,7 +54,10 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
             <ResidueListResult
               residues={residues}
               residuePanel={(i) => (
-                <ResidueResultOverview residue={residues[i]} />
+                <ResidueResultOverview
+                  residue={residues[i]}
+                  programmingPlanKind={sample.programmingPlanKind}
+                />
               )}
             />
           )}

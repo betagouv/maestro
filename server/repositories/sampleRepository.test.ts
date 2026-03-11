@@ -1,13 +1,14 @@
-import type { Department } from 'maestro-shared/referential/Department';
-import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
-import type { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import { Department } from 'maestro-shared/referential/Department';
+import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import {
-  Sample2Fixture,
   Sample11Fixture,
-  Sample13Fixture
+  Sample13Fixture,
+  Sample2Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { toArray } from 'maestro-shared/utils/utils';
@@ -90,50 +91,42 @@ describe('findMany samples', async () => {
   });
 
   test('find with compliance option', async () => {
-    const document = genDocument({
-      createdBy: Sampler1Fixture.id,
-      kind: 'AnalysisReportDocument'
+    const sample = (await sampleRepository.findUnique(
+      Sample11Fixture.id
+    )) as SampleChecked;
+    await sampleRepository.update({
+      ...sample,
+      compliance: 'Compliant' as const
     });
-
-    await documentRepository.insert(document);
-
-    const analysisOK = genPartialAnalysis({
-      sampleId: Sample11Fixture.id,
-      createdBy: Sampler1Fixture.id,
-      status: 'Completed',
-      compliance: true
-    });
-
-    await analysisRepository.insert(analysisOK);
 
     let samples = await sampleRepository.findMany({
       programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
-      compliance: 'conform'
+      compliance: 'Compliant'
     });
     expect(samples).toHaveLength(1);
-    expect(samples[0].id).toBe(analysisOK.sampleId);
+    expect(samples[0].id).toBe(Sample11Fixture.id);
 
-    const analysisKO = genPartialAnalysis({
-      sampleId: Sample2Fixture.id,
-      createdBy: Sample2Fixture.id,
-      status: 'Completed',
-      compliance: false
+    await sampleRepository.update({
+      ...sample,
+      compliance: 'NonCompliant' as const
     });
-
-    await analysisRepository.insert(analysisKO);
 
     samples = await sampleRepository.findMany({
       programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
-      compliance: 'notConform',
-      status: 'DraftMatrix'
+      compliance: 'NonCompliant',
+      status: 'Draft'
     });
     expect(samples).toHaveLength(1);
-    expect(samples[0].id).toBe(analysisKO.sampleId);
+    expect(samples[0].id).toBe(Sample11Fixture.id);
 
     samples = await sampleRepository.findMany({
       programmingPlanIds: toArray(Sample11Fixture.programmingPlanId)
     });
     expect(samples).not.toHaveLength(1);
+
+    await sampleRepository.update({
+      ...sample
+    });
   });
 
   test('find with laboratoryId option', async () => {

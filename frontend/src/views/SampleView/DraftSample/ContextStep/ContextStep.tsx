@@ -6,7 +6,7 @@ import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { intersection, isNil } from 'lodash-es';
 import {
-  type LegalContext,
+  LegalContext,
   LegalContextLabels
 } from 'maestro-shared/referential/LegalContext';
 import { Company } from 'maestro-shared/schema/Company/Company';
@@ -17,27 +17,26 @@ import {
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
-  type ProgrammingPlanKind,
+  ProgrammingPlanKind,
   ProgrammingPlanKindLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   isOutsideProgrammingPlanSample,
-  type PartialSample,
-  type PartialSampleToCreate,
+  PartialSample,
+  PartialSampleToCreate,
   SampleContextData
 } from 'maestro-shared/schema/Sample/Sample';
 import {
-  type SampleStatus,
-  SampleStatusSteps
-} from 'maestro-shared/schema/Sample/SampleStatus';
-import type { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
-import type { Sampler } from 'maestro-shared/schema/User/User';
+  SampleStep,
+  SampleSteps
+} from 'maestro-shared/schema/Sample/SampleStep';
+import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
+import { Sampler } from 'maestro-shared/schema/User/User';
 import {
   UserRoleList,
   UserRolePermissions
 } from 'maestro-shared/schema/User/UserRole';
-import type React from 'react';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import balance from 'src/assets/illustrations/balance.svg';
 import check from 'src/assets/illustrations/check.svg';
 import controle from 'src/assets/illustrations/controle.svg';
@@ -326,24 +325,28 @@ const ContextStep = ({ partialSample }: Props) => {
     companyOffline,
     resytalId: resytalId || undefined,
     notesOnCreation,
+    step: 'Draft' as const,
     status: 'Draft' as const,
     specificData: specificData as SpecificData
   };
 
-  useEffect(() => {
-    if (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading) {
-      isSubmittingRef.current = false;
+  useEffect(
+    () => {
+      if (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading) {
+        isSubmittingRef.current = false;
 
-      if (createOrUpdateSampleCall.isSuccess) {
-        trackEvent('sample', `submit_${formData.status}`, formData.id);
-        navigateToSample(formData.id, 2);
+        if (createOrUpdateSampleCall.isSuccess) {
+          trackEvent('sample', `submit_${formData.status}`, formData.id);
+          navigateToSample(formData.id, 2);
+        }
       }
-    }
-  }, [
-    createOrUpdateSampleCall.isSuccess,
-    createOrUpdateSampleCall.isLoading,
-    formData.id
-  ]);
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      createOrUpdateSampleCall.isSuccess,
+      createOrUpdateSampleCall.isLoading,
+      formData.id
+    ]
+  );
 
   const submit = async (e?: React.MouseEvent<HTMLElement>) => {
     e?.preventDefault();
@@ -352,17 +355,18 @@ const ContextStep = ({ partialSample }: Props) => {
       await createOrUpdateSample({
         ...partialSample,
         ...formData,
-        status: 'DraftMatrix'
+        status: 'Draft',
+        step: 'DraftMatrix'
       });
     });
   };
 
-  const save = async (status = partialSample?.status) => {
+  const save = async (step = partialSample?.step) => {
     if (partialSample) {
       createOrUpdateSample({
         ...partialSample,
         ...formData,
-        status: status as SampleStatus
+        step: step as SampleStep
       });
     }
   };
@@ -381,7 +385,7 @@ const ContextStep = ({ partialSample }: Props) => {
       setIsBrowserGeolocation(false);
       trackEvent('geolocation', 'disable');
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formInput = {
     id,
@@ -398,14 +402,15 @@ const ContextStep = ({ partialSample }: Props) => {
     companyOffline,
     resytalId: resytalId || undefined,
     notesOnCreation,
-    status: 'DraftMatrix',
+    step: 'DraftMatrix',
+    status: 'Draft',
     specificData
   };
 
   const form = useForm(Form, formInput, save);
 
   if (!programmingPlan) {
-    return null;
+    return <></>;
   }
   return (
     <form data-testid="draft_sample_creation_form" className="sample-form">
@@ -421,8 +426,7 @@ const ContextStep = ({ partialSample }: Props) => {
       )}
       <div>
         {partialSample &&
-          (!readonly ||
-            (SampleStatusSteps[partialSample.status] as number) > 1) && (
+          (!readonly || SampleSteps[partialSample.step] > 1) && (
             <div className={clsx(cx('fr-mb-1v'), 'd-flex-align-center')}>
               <div className={clsx('flex-grow-1')} />
               <Button

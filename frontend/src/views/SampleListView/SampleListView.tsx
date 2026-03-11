@@ -5,24 +5,19 @@ import Pagination from '@codegouvfr/react-dsfr/Pagination';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { isEmpty, mapValues, omit, omitBy } from 'lodash-es';
-import type { Department } from 'maestro-shared/referential/Department';
-import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
-import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
-import type { Region } from 'maestro-shared/referential/Region';
+import { Department } from 'maestro-shared/referential/Department';
+import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { Region } from 'maestro-shared/referential/Region';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
 import {
-  type Context,
+  Context,
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import {
-  type FindSampleOptions,
-  SampleCompliance
-} from 'maestro-shared/schema/Sample/FindSampleOptions';
-import {
-  DraftStatusList,
-  type SampleStatus
-} from 'maestro-shared/schema/Sample/SampleStatus';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import { SampleCompliance } from 'maestro-shared/schema/Sample/SampleCompliance';
+import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import {
   UserRoleList,
   UserRolePermissions
@@ -85,7 +80,6 @@ const SampleListView = () => {
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   useEffect(() => {
-    const status = searchParams.get('status') as SampleStatus;
     dispatch(
       samplesSlice.actions.changeFindOptions({
         programmingPlanIds:
@@ -102,7 +96,7 @@ const SampleListView = () => {
         departments:
           (searchParams.get('departments')?.split(',') as Department[]) ??
           undefined,
-        status: status === 'Draft' ? DraftStatusList : (status ?? undefined),
+        status: searchParams.get('status') as SampleStatus,
         matrix: searchParams.get('matrix') as Matrix,
         matrixKind: searchParams.get('matrixKind') as MatrixKind,
         sampledBy: searchParams.get('sampledBy'),
@@ -120,7 +114,7 @@ const SampleListView = () => {
         perPage: defaultPerPage
       })
     );
-  }, [searchParams, user?.region, sampleListDisplay, programmingPlan?.id]);
+  }, [searchParams, user?.region, sampleListDisplay, programmingPlan?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const canDownloadSupportDocument: boolean =
     programmingPlan?.kinds.includes('PPV') ?? false;
@@ -175,7 +169,7 @@ const SampleListView = () => {
   const newPartialSampleId = useMemo(() => uuidv4(), []);
 
   if (!year || !user) {
-    return null;
+    return <></>;
   }
 
   return (
@@ -185,39 +179,41 @@ const SampleListView = () => {
       illustration={food}
       documentTitle="Liste des prélèvements"
       action={
-        programmingPlan &&
-        hasUserPermission('createSample') && (
-          <div
-            className={clsx('d-flex-row', 'd-flex-justify-center')}
-            style={{ gap: '1rem' }}
-          >
-            {canDownloadSupportDocument && (
-              <SupportDocumentDownload
-                partialSample={{
-                  id: newPartialSampleId,
-                  sampler: user,
-                  status: 'Draft' as const,
-                  programmingPlanId: programmingPlan.id as string,
-                  programmingPlanKind: programmingPlan.kinds[0],
-                  specificData: {}
-                }}
-                buttonPriority={'tertiary'}
-                alignRight
-              />
-            )}
-            <Button
-              linkProps={{
-                to: AuthenticatedAppRoutes.NewSampleRoute.link(
-                  programmingPlan.year
-                ),
-                target: '_self'
-              }}
-              iconId="fr-icon-microscope-line"
+        <>
+          {programmingPlan && hasUserPermission('createSample') && (
+            <div
+              className={clsx('d-flex-row', 'd-flex-justify-center')}
+              style={{ gap: '1rem' }}
             >
-              Saisir un prélèvement
-            </Button>
-          </div>
-        )
+              {canDownloadSupportDocument && (
+                <SupportDocumentDownload
+                  partialSample={{
+                    id: newPartialSampleId,
+                    sampler: user,
+                    step: 'Draft' as const,
+                    status: 'Draft' as const,
+                    programmingPlanId: programmingPlan.id as string,
+                    programmingPlanKind: programmingPlan.kinds[0],
+                    specificData: {}
+                  }}
+                  buttonPriority={'tertiary'}
+                  alignRight
+                />
+              )}
+              <Button
+                linkProps={{
+                  to: AuthenticatedAppRoutes.NewSampleRoute.link(
+                    programmingPlan.year
+                  ),
+                  target: '_self'
+                }}
+                iconId="fr-icon-microscope-line"
+              >
+                Saisir un prélèvement
+              </Button>
+            </div>
+          )}
+        </>
       }
     >
       {isOnline ? (
@@ -320,16 +316,18 @@ const SampleListView = () => {
               }
             </div>
             {sampleListDisplay === 'cards' && (
-              <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                {samples?.map((sample) => (
-                  <div
-                    className={cx('fr-col-12', 'fr-col-md-3')}
-                    key={sample.id}
-                  >
-                    <SampleCard sample={sample} />
-                  </div>
-                ))}
-              </div>
+              <>
+                <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+                  {samples?.map((sample) => (
+                    <div
+                      className={cx('fr-col-12', 'fr-col-md-3')}
+                      key={sample.id}
+                    >
+                      <SampleCard sample={sample} />
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
             {sampleListDisplay === 'table' && (
               <SampleTable samples={samples ?? []} />

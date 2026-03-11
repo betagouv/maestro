@@ -1,27 +1,25 @@
-import type { Knex } from 'knex';
+import { Knex } from 'knex';
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
-import type { Region } from 'maestro-shared/referential/Region';
+import { Region } from 'maestro-shared/referential/Region';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
-import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   PartialSample,
-  type SampleChecked
+  SampleBase,
+  SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
-import {
-  DraftStatusList,
-  type SampleStatus
-} from 'maestro-shared/schema/Sample/SampleStatus';
 import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import z from 'zod';
 import { analysisResiduesTable, analysisTable } from './analysisRepository';
 import { companiesTable } from './companyRepository';
 import { knexInstance as db, knexInstance } from './db';
 import { kysely } from './kysely';
-import type { KyselyMaestro } from './kysely.type';
+import { KyselyMaestro } from './kysely.type';
 import { sampleItemsTable } from './sampleItemRepository';
 import { usersTable } from './userRepository';
 
 export const samplesTable = 'samples';
+export const sampleStatusView = 'sample_status';
 export const sampleDocumentsTable = 'sample_documents';
 const sampleSpecificDataValuesTable = 'sample_specific_data_values';
 const sampleSequenceNumbers = 'sample_sequence_numbers';
@@ -33,7 +31,8 @@ const PartialSampleDbo = z.object({
     sampler: true,
     additionalSampler: true,
     geolocation: true,
-    specificData: true
+    specificData: true,
+    status: true
   }).shape,
   companySiret: z.string().nullish(),
   geolocation: z.any().nullish(),
@@ -87,7 +86,8 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       ),
       db.raw(
         `coalesce(jsonb_object_agg(sdf_sd.key, case sdf_sd.input_type when 'checkbox' then to_jsonb(sdv_sd.value = 'true') when 'number' then to_jsonb(sdv_sd.value::numeric) else coalesce(to_jsonb(sdv_sd.value), to_jsonb(sdfo_sd.value)) end) filter (where sdv_sd.field_id is not null), '{}'::jsonb) as specific_data`
-      )
+      ),
+      db.raw(`${sampleStatusView}.status`)
     )
     .where(`${samplesTable}.id`, id)
     .leftJoin(
@@ -117,11 +117,17 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       'sdv_sd.option_id',
       'sdfo_sd.id'
     )
+    .join(
+      sampleStatusView,
+      `${sampleStatusView}.sample_id`,
+      `${samplesTable}.id`
+    )
     .groupBy(
       `${samplesTable}.id`,
       `${companiesTable}.siret`,
       `${usersTable}.id`,
-      `additional_sampler.id`
+      `additional_sampler.id`,
+      `${sampleStatusView}.status`
     )
     .first()
     .then(parsePartialSample);
@@ -129,6 +135,11 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
 
 const findRequest = (findOptions: FindSampleOptions) =>
   Samples()
+    .join(
+      sampleStatusView,
+      `${sampleStatusView}.sample_id`,
+      `${samplesTable}.id`
+    )
     .where(
       omitBy(
         omit(
@@ -141,7 +152,6 @@ const findRequest = (findOptions: FindSampleOptions) =>
           'reference',
           'contexts',
           'departments',
-          'compliance',
           'withAtLeastOneResidue',
           'programmingPlanIds',
           'kinds',
@@ -168,9 +178,9 @@ const findRequest = (findOptions: FindSampleOptions) =>
       }
       if (findOptions.status) {
         if (isArray(findOptions.status)) {
-          builder.whereIn(`${samplesTable}.status`, findOptions.status);
+          builder.whereIn(`${sampleStatusView}.status`, findOptions.status);
         } else {
-          builder.where(`${samplesTable}.status`, findOptions.status);
+          builder.where(`${sampleStatusView}.status`, findOptions.status);
         }
       }
       if (findOptions.sampledAt) {
@@ -195,17 +205,6 @@ const findRequest = (findOptions: FindSampleOptions) =>
         builder.whereIn(
           `${samplesTable}.companySiret`,
           findOptions.companySirets
-        );
-      }
-      if (!isNil(findOptions.compliance)) {
-        builder.leftJoin(
-          analysisTable,
-          `${analysisTable}.sampleId`,
-          `${samplesTable}.id`
-        );
-        builder.where(
-          `${analysisTable}.compliance`,
-          findOptions.compliance === 'conform'
         );
       }
       if (findOptions.withAtLeastOneResidue === true) {
@@ -264,7 +263,8 @@ const findMany = async (
       ),
       db.raw(
         `coalesce(jsonb_object_agg(sdf_sd.key, case sdf_sd.input_type when 'checkbox' then to_jsonb(sdv_sd.value = 'true') when 'number' then to_jsonb(sdv_sd.value::numeric) else coalesce(to_jsonb(sdv_sd.value), to_jsonb(sdfo_sd.value)) end) filter (where sdv_sd.field_id is not null), '{}'::jsonb) as specific_data`
-      )
+      ),
+      db.raw(`${sampleStatusView}.status`)
     )
     .leftJoin(
       companiesTable,
@@ -297,7 +297,8 @@ const findMany = async (
       `${samplesTable}.id`,
       `${companiesTable}.siret`,
       `${usersTable}.id`,
-      `additional_sampler.id`
+      `additional_sampler.id`,
+      `${sampleStatusView}.status`
     )
     .modify((builder) => {
       if (findOptions.page) {
@@ -411,7 +412,9 @@ const insert = async (partialSample: PartialSample): Promise<void> => {
   });
 };
 
-const update = async (partialSample: PartialSample): Promise<void> => {
+const update = async (
+  partialSample: PartialSample | SampleBase
+): Promise<void> => {
   console.info('Update sample', partialSample.id);
   if (Object.keys(partialSample).length > 0) {
     await db.transaction(async (trx) => {
@@ -425,18 +428,6 @@ const update = async (partialSample: PartialSample): Promise<void> => {
       );
     });
   }
-};
-
-const updateStatus = async (
-  sampleId: string,
-  status: SampleStatus,
-  trx: KyselyMaestro = kysely
-) => {
-  await trx
-    .updateTable('samples')
-    .where('id', '=', sampleId)
-    .set('status', status)
-    .execute();
 };
 
 const updateDocumentIds = async (
@@ -468,7 +459,12 @@ const deleteDraftOnProgrammingPlan = async (
   await kysely
     .deleteFrom('samples')
     .where('programmingPlanId', '=', programmingPlanId)
-    .where('status', 'in', DraftStatusList)
+    .where('id', 'in', (qb) =>
+      qb
+        .selectFrom('sampleStatus')
+        .select('sampleId')
+        .where('status', '=', 'Draft')
+    )
     .execute();
 };
 
@@ -481,7 +477,8 @@ export const formatPartialSample = (
     'sampler',
     'additionalSampler',
     'documentIds',
-    'specificData'
+    'specificData',
+    'status'
   ]),
   geolocation: partialSample.geolocation
     ? db.raw('Point(?, ?)', [
@@ -533,7 +530,6 @@ const parsePartialSample = (sample: PartialSampleJoinedDbo): PartialSample =>
 export const sampleRepository = {
   insert,
   update,
-  updateStatus,
   updateDocumentIds,
   findUnique,
   findMany,

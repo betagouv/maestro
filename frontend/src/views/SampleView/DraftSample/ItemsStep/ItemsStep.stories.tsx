@@ -43,7 +43,7 @@ const partialSample = {
   matrixKind: 'A0D9Y' as MatrixKind,
   prescriptionId: prescription1.id,
   programmingPlanId: programmingPlan.id,
-  status: 'DraftItems' as const,
+  step: 'DraftItems' as const,
   sampledAt: new Date(),
   items: [genSampleItem()]
 };
@@ -152,7 +152,7 @@ export const SubmittingErrors: Story = {
         sealId: undefined,
         compliance200263: undefined
       })) as PartialSampleItem[],
-      status: 'DraftItems' as const
+      step: 'DraftItems' as const
     } as SampleChecked
   },
   parameters: {
@@ -252,7 +252,7 @@ export const SubmittingSuccess: Story = {
             substanceKind: 'Any'
           })
         ]),
-        status: 'Submitted'
+        step: 'Submitted'
       })
     );
   }

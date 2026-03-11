@@ -7,30 +7,26 @@ import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { Regions } from 'maestro-shared/referential/Region';
-import type { Pagination } from 'maestro-shared/schema/commons/Pagination';
-import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import { Pagination } from 'maestro-shared/schema/commons/Pagination';
+import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import {
   ContextLabels,
-  type ProgrammingPlanContext
+  ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import { SampleComplianceLabels } from 'maestro-shared/schema/Sample/SampleCompliance';
 import {
-  type FindSampleOptions,
-  SampleComplianceLabels
-} from 'maestro-shared/schema/Sample/FindSampleOptions';
-import {
-  DraftStatusList,
-  RealizedStatusList,
-  type SampleStatus,
+  SampleStatus,
   SampleStatusLabels
 } from 'maestro-shared/schema/Sample/SampleStatus';
-import type { UserRefined } from 'maestro-shared/schema/User/User';
+import { UserRefined } from 'maestro-shared/schema/User/User';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
-import { Fragment, type ReactNode, useMemo } from 'react';
+import { Fragment, ReactNode, useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import type { PrescriptionFilters } from '../../store/reducers/prescriptionsSlice';
+import { PrescriptionFilters } from '../../store/reducers/prescriptionsSlice';
 
 type FilterableType = FindSampleOptions &
   Omit<
@@ -73,12 +69,7 @@ const filtersConfig = {
   },
   status: {
     prop: 'status',
-    getLabel: (value) =>
-      value === DraftStatusList.join(',')
-        ? 'Brouillon'
-        : value === RealizedStatusList.join(',')
-          ? 'Réalisé'
-          : SampleStatusLabels[value as SampleStatus]
+    getLabel: (value) => SampleStatusLabels[value as SampleStatus]
   },
   sampledBy: {
     prop: 'sampledBy',
@@ -255,7 +246,7 @@ const FiltersTags = ({
   );
 
   if (!hasFilters) {
-    return null;
+    return <></>;
   }
 
   return (
@@ -301,7 +292,6 @@ const FiltersTags = ({
               }
             }
           }
-          return null;
         })}
       </div>
     </div>

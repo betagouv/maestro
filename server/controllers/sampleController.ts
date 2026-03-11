@@ -1,37 +1,26 @@
-import { constants } from 'node:http2';
-import type { Readable } from 'node:stream';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { isEqual, isNil } from 'lodash-es';
-import NoRegionError from 'maestro-shared/errors/noRegionError';
-import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
+import { constants } from 'http2';
+import { isNil } from 'lodash-es';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
-import { type Region, Regions } from 'maestro-shared/referential/Region';
-import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { StageLabels } from 'maestro-shared/referential/Stage';
-import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
-import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
+import { Region, Regions } from 'maestro-shared/referential/Region';
+import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 import {
   getAnalysisReportDocumentFilename,
   getSupportDocumentFilename
 } from 'maestro-shared/schema/Document/DocumentKind';
 import {
   ContextLabels,
-  type ProgrammingPlanContext
+  ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import {
-  type ProgrammingPlanKindWithSacha,
-  ProgrammingPlanKindWithSachaList
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { buildFindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   getSampleMatrixLabel,
   isProgrammingPlanSample,
-  type PartialSample,
+  PartialSample,
   SampleBase,
   SampleChecked,
   sampleSendCheck
@@ -41,13 +30,35 @@ import {
   SampleItemMaxCopyCount,
   SampleItemSort
 } from 'maestro-shared/schema/Sample/SampleItem';
-import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
-import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
+import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
+import companyRepository from '../repositories/companyRepository';
+import { laboratoryRepository } from '../repositories/laboratoryRepository';
+import sampleItemRepository from '../repositories/sampleItemRepository';
+import { sampleRepository } from '../repositories/sampleRepository';
+import { csvService } from '../services/csvService/csvService';
+import { documentService } from '../services/documentService';
+import { excelService } from '../services/excelService/excelService';
+import { mailService } from '../services/mailService';
+import { pdfService } from '../services/pdfService/pdfService';
+
+import { isEqual } from 'lodash-es';
+import NoRegionError from 'maestro-shared/errors/noRegionError';
+import SampleItemMissingError from 'maestro-shared/errors/sampleItemMissingError';
+import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
+import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { StageLabels } from 'maestro-shared/referential/Stage';
+import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
+import {
+  ProgrammingPlanKindWithSacha,
+  ProgrammingPlanKindWithSachaList
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { formatWithTz } from 'maestro-shared/utils/date';
-import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { checkSchema } from 'maestro-shared/utils/zod';
+import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
 import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
@@ -55,31 +66,20 @@ import {
   getAndCheckSample,
   getAndCheckSampleDepartement
 } from '../middlewares/checks/sampleCheck';
+import { analysisReportDocumentsRepository } from '../repositories/analysisReportDocumentsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
-import companyRepository from '../repositories/companyRepository';
-import type { LaboratoryResidueMapping } from '../repositories/kysely.type';
-import { laboratoryRepository } from '../repositories/laboratoryRepository';
+import { LaboratoryResidueMapping } from '../repositories/kysely.type';
 import { laboratoryResidueMappingRepository } from '../repositories/laboratoryResidueMappingRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import { sachaCommemoratifRepository } from '../repositories/sachaCommemoratifRepository';
 import { sachaConfRepository } from '../repositories/sachaConfRepository';
-import sampleItemRepository from '../repositories/sampleItemRepository';
-import { sampleRepository } from '../repositories/sampleRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
-import type { ProtectedSubRouter } from '../routers/routes.type';
-import { csvService } from '../services/csvService/csvService';
-import { documentService } from '../services/documentService';
+import { ProtectedSubRouter } from '../routers/routes.type';
 import { generateXMLDAI } from '../services/ediSacha/sachaDAI';
 import { sendSachaFile } from '../services/ediSacha/sachaSender';
-import { excelService } from '../services/excelService/excelService';
-import {
-  type LaboratoryWithConf,
-  laboratoriesConf
-} from '../services/imapService';
-import { mailService } from '../services/mailService';
+import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
 import { mattermostService } from '../services/mattermostService';
-import { pdfService } from '../services/pdfService/pdfService';
 import config from '../utils/config';
 
 const streamToBase64 = async (stream: Readable): Promise<string> => {
@@ -367,9 +367,7 @@ export const sampleRouter = {
           pdf,
           pdf.getPageIndices()
         );
-        copiedPages.forEach((page) => {
-          mergedPdf.addPage(page);
-        });
+        copiedPages.forEach((page) => mergedPdf.addPage(page));
       }
 
       const mergedPdfBuffer = await mergedPdf.save();
@@ -417,6 +415,16 @@ export const sampleRouter = {
       { sampleId, itemNumber, copyNumber }
     ) => {
       const sample = await getAndCheckSample(sampleId, user, userRole);
+      const sampleItem = await sampleItemRepository.findUnique(
+        sampleId,
+        itemNumber,
+        copyNumber
+      );
+
+      if (!sampleItem) {
+        throw new SampleItemMissingError(sampleId, itemNumber, copyNumber);
+      }
+
       console.info('Update sampleItem', sample.id, itemNumber, copyNumber);
 
       await sampleItemRepository.update(sample.id, itemNumber, copyNumber, {
@@ -432,6 +440,36 @@ export const sampleRouter = {
         copyNumber
       });
 
+      const computeStatus = () => {
+        //Pas de changement de recevabilité
+        if (
+          isNil(itemUpdate.isAdmissible) &&
+          itemUpdate.receiptDate === sampleItem.receiptDate
+        ) {
+          return analysis?.status ?? 'Sent';
+        }
+        //Passage à non recevable
+        if (itemUpdate.isAdmissible === false) {
+          return 'NotAdmissible';
+        }
+        //Pas encore d'analyse
+        if (!analysis) {
+          return 'Sent';
+        }
+        //Passage de non recevable à recevable
+        if (analysis.status === 'NotAdmissible' && itemUpdate.isAdmissible) {
+          const analysisReportDoc =
+            analysisReportDocumentsRepository.findByAnalysisId(analysis.id);
+          return !isNil(analysis?.compliance)
+            ? 'Completed'
+            : !isNil(analysisReportDoc)
+              ? 'InReview'
+              : 'Analysis';
+        }
+        return analysis.status ?? 'Sent';
+      };
+      const status = computeStatus();
+
       if (!analysis) {
         const analysis: PartialAnalysis = {
           id: uuidv4(),
@@ -440,7 +478,7 @@ export const sampleRouter = {
           copyNumber,
           createdAt: new Date(),
           createdBy: user.id,
-          status: itemUpdate.analysis?.status ?? 'Report',
+          status,
           compliance: null,
           notesOnCompliance: null
         };
@@ -448,11 +486,38 @@ export const sampleRouter = {
       } else {
         await analysisRepository.update({
           ...analysis,
-          status: itemUpdate.analysis?.status ?? analysis.status
+          ...itemUpdate.analysis,
+          status,
+          compliance:
+            itemUpdate.isAdmissible === false ? null : analysis.compliance,
+          notesOnCompliance:
+            itemUpdate.isAdmissible === false
+              ? null
+              : analysis.notesOnCompliance
         });
       }
 
       return { status: constants.HTTP_STATUS_OK };
+    }
+  },
+  '/samples/:sampleId/compliance': {
+    put: async ({ body: complianceData, user, userRole }, { sampleId }) => {
+      const sample = await getAndCheckSample(sampleId, user, userRole);
+
+      console.info('Update sample compliance', sample.id, complianceData);
+
+      if (sample.programmingPlanKind === 'PPV') {
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
+      }
+
+      const updatedSample = {
+        ...sample,
+        ...complianceData
+      } as SampleChecked;
+
+      await sampleRepository.update(updatedSample);
+
+      return { status: constants.HTTP_STATUS_OK, response: complianceData };
     }
   },
   '/samples/:sampleId/emptyForm': {
@@ -502,7 +567,7 @@ export const sampleRouter = {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
-      if (!DraftStatusList.includes(sampleUpdate.status)) {
+      if (['Sent', 'Submitted'].includes(sampleUpdate.step)) {
         const fieldConfigs =
           await specificDataFieldConfigRepository.findByPlanKind(
             sampleUpdate.programmingPlanId,
@@ -516,7 +581,7 @@ export const sampleRouter = {
       }
 
       const mustBeSent =
-        sample.status === 'Submitted' && sampleUpdate.status === 'Sent';
+        sample.step === 'Submitted' && sampleUpdate.step === 'Sent';
 
       if (
         mustBeSent &&
@@ -537,10 +602,7 @@ export const sampleRouter = {
         };
       }
 
-      if (
-        sample.context !== sampleUpdate.context &&
-        DraftStatusList.includes(sampleUpdate.status)
-      ) {
+      if (sample.context !== sampleUpdate.context) {
         //Les matrices sont différentes en fonction du contexte de prélèvement,
         // donc si le contexte change il faut réinitialiser la matrice qui est dans l'étape d'après.
         //Sinon l'utilisateur bloque tout le formulaire
@@ -665,6 +727,21 @@ export const sampleRouter = {
                   content: sampleSupportDoc.toString('base64')
                 }
               : null;
+
+            if (sampleItem.copyNumber === 1) {
+              const analysis: PartialAnalysis = {
+                id: uuidv4(),
+                sampleId,
+                itemNumber: sampleItem.itemNumber,
+                copyNumber: sampleItem.copyNumber,
+                createdAt: new Date(),
+                createdBy: user.id,
+                status: 'Sent',
+                compliance: null,
+                notesOnCompliance: null
+              };
+              await analysisRepository.insert(analysis);
+            }
 
             if (sampleItem.copyNumber === 1 && sampleItem.laboratoryId) {
               const laboratory = await laboratoryRepository.findUnique(
@@ -873,7 +950,7 @@ export const sampleRouter = {
       const sample = await getAndCheckSample(sampleId, user, userRole);
       console.info('Delete sample', sample.id);
 
-      if (!DraftStatusList.includes(sample.status)) {
+      if (sample.status !== 'Draft') {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 

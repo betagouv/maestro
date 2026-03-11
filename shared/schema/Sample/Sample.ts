@@ -25,8 +25,10 @@ import {
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { SpecificData, UnknownValue } from '../SpecificData/SpecificData';
 import { Sampler } from '../User/User';
+import { SampleCompliance } from './SampleCompliance';
 import { PartialSampleItem, SampleItem } from './SampleItem';
 import { SampleStatus } from './SampleStatus';
+import { SampleStep } from './SampleStep';
 
 export const SampleContextData = z.object({
   id: z.guid(),
@@ -43,6 +45,7 @@ export const SampleContextData = z.object({
   companyOffline: z.string().nullish(),
   resytalId: z.string().nullish(),
   notesOnCreation: z.string().nullish(),
+  step: SampleStep,
   status: SampleStatus,
   specificData: SpecificData
 });
@@ -207,6 +210,7 @@ export const PartialSampleToCreate = z.object({
     id: true,
     programmingPlanId: true,
     programmingPlanKind: true,
+    step: true,
     status: true,
     sampler: true
   }).shape,
@@ -230,13 +234,20 @@ export const CreatedSampleData = z.object({
   lastUpdatedAt: z.coerce.date()
 });
 
+export const SampleComplianceData = z.object({
+  compliance: SampleCompliance.nullish(),
+  notesOnCompliance: z.string().nullish()
+});
+
 export const PartialSample = PartialSampleToCreate.extend({
   ...CreatedSampleData.shape,
+  ...SampleComplianceData.partial().shape,
   sentAt: z.coerce.date().nullish()
 });
 
 export const SampleBase = SampleToCreate.extend({
   ...CreatedSampleData.shape,
+  ...SampleComplianceData.shape,
   geolocation: Geolocation,
   department: Department,
   company: Company,
@@ -244,10 +255,24 @@ export const SampleBase = SampleToCreate.extend({
   sentAt: z.coerce.date().nullish()
 });
 
+const sampleItemsCheck: CheckFn<{ items: SampleItem[] }> = (ctx) => {
+  ctx.value.items.forEach((item, index) => {
+    if (item.itemNumber !== 1 && !isNil(item.complianceOverride)) {
+      ctx.issues.push({
+        input: ctx.value,
+        code: 'invalid_value',
+        values: MatrixList,
+        path: ['items', index, 'complianceOverride']
+      });
+    }
+  });
+};
+
 export const SampleChecked = checkSchema(
   SampleBase,
   prescriptionSubstancesCheck,
-  sampleMatrixCheck
+  sampleMatrixCheck,
+  sampleItemsCheck
 );
 
 export type SampleContextData = z.infer<typeof SampleContextData>;
@@ -255,6 +280,7 @@ export type SampleMatrixData = z.infer<typeof SampleMatrixData>;
 export type SampleItemsDataChecked = z.infer<typeof SampleItemsDataChecked>;
 export type SampleOwnerData = z.infer<typeof SampleOwnerData>;
 export type CreatedSampleData = z.infer<typeof CreatedSampleData>;
+export type SampleComplianceData = z.infer<typeof SampleComplianceData>;
 export type PartialSampleToCreate = z.infer<typeof PartialSampleToCreate>;
 export type PartialSample = z.infer<typeof PartialSample>;
 export type SampleToCreate = z.infer<typeof SampleToCreate>;

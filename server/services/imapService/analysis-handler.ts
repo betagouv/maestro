@@ -12,7 +12,6 @@ import { analysisRepository } from '../../repositories/analysisRepository';
 import { analysisResidueRepository } from '../../repositories/analysisResidueRepository';
 import { kysely } from '../../repositories/kysely';
 import { residueAnalyteRepository } from '../../repositories/residueAnalyteRepository';
-import { sampleRepository } from '../../repositories/sampleRepository';
 import { documentService } from '../documentService';
 import { ExtractError } from './extractError';
 import type { ExportAnalysis, ExportDataSubstanceWithSSD2Id } from './index';
@@ -201,7 +200,7 @@ export const analysisHandler = async (
         sampleId,
         itemNumber: analyse.itemNumber,
         copyNumber: analyse.copyNumber,
-        status: 'Compliance',
+        status: compliance ? 'Completed' : 'InReview',
         createdBy: null,
         createdAt: new Date(),
         emailReceivedAt: emailReceivedAt,
@@ -223,8 +222,6 @@ export const analysisHandler = async (
         documentId,
         trx
       );
-
-      await sampleRepository.updateStatus(sampleId, 'InReview', trx);
 
       for (let i = 0; i < residues.length; i++) {
         const residue = residues[i];

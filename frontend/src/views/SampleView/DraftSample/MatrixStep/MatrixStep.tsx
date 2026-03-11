@@ -4,9 +4,9 @@ import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { isNil } from 'lodash-es';
-import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import {
-  type MatrixKind,
+  MatrixKind,
   MatrixKindLabels,
   MatrixKindList,
   OtherMatrixKind
@@ -14,34 +14,33 @@ import {
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import {
-  type Stage,
+  Stage,
   StageLabels,
   StagesByProgrammingPlanKind
 } from 'maestro-shared/referential/Stage';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isCreatedPartialSample,
   isOutsideProgrammingPlanSample,
   isProgrammingPlanSample,
-  type PartialSample,
-  type PartialSampleToCreate,
+  PartialSample,
+  PartialSampleToCreate,
   prescriptionSubstancesCheck,
-  SampleMatrixData,
-  sampleMatrixCheck
+  sampleMatrixCheck,
+  SampleMatrixData
 } from 'maestro-shared/schema/Sample/Sample';
 import {
-  type SampleStatus,
-  SampleStatusSteps
-} from 'maestro-shared/schema/Sample/SampleStatus';
+  SampleStep,
+  SampleSteps
+} from 'maestro-shared/schema/Sample/SampleStep';
 import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { toArray } from 'maestro-shared/utils/utils';
 import { checkSchema } from 'maestro-shared/utils/zod';
-import type React from 'react';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
@@ -157,24 +156,28 @@ const MatrixStep = ({ partialSample }: Props) => {
     files: FileInput(SampleDocumentTypeList, true)
   });
 
-  useEffect(() => {
-    if (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading) {
-      isSubmittingRef.current = false;
+  useEffect(
+    () => {
+      if (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading) {
+        isSubmittingRef.current = false;
 
-      if (createOrUpdateSampleCall.isSuccess) {
-        trackEvent(
-          'sample',
-          `submit_${partialSample.status}`,
-          partialSample.id
-        );
-        navigateToSample(partialSample.id, 3);
+        if (createOrUpdateSampleCall.isSuccess) {
+          trackEvent(
+            'sample',
+            `submit_${partialSample.status}`,
+            partialSample.id
+          );
+          navigateToSample(partialSample.id, 3);
+        }
       }
-    }
-  }, [
-    createOrUpdateSampleCall.isSuccess,
-    createOrUpdateSampleCall.isLoading,
-    partialSample.id
-  ]);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      createOrUpdateSampleCall.isSuccess,
+      createOrUpdateSampleCall.isLoading,
+      partialSample.id
+    ]
+  );
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -184,7 +187,7 @@ const MatrixStep = ({ partialSample }: Props) => {
     });
   };
 
-  const save = async (status: SampleStatus = partialSample.status) => {
+  const save = async (step: SampleStep = partialSample.step) => {
     await createOrUpdateSample({
       ...partialSample,
       matrixKind,
@@ -195,7 +198,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       monoSubstances,
       multiSubstances,
       documentIds,
-      status
+      step
     });
   };
 
@@ -292,7 +295,7 @@ const MatrixStep = ({ partialSample }: Props) => {
         ))}
       </>
     ),
-    [documentIds, filesForm]
+    [documentIds, filesForm] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const matrixKindOptions = useMemo(
@@ -382,8 +385,7 @@ const MatrixStep = ({ partialSample }: Props) => {
               Étape précédente
             </Button>
           </div>
-          {(!readonly ||
-            (SampleStatusSteps[partialSample.status] as number) > 2) && (
+          {(!readonly || SampleSteps[partialSample.step] > 2) && (
             <Button
               size="small"
               priority="tertiary no outline"
@@ -659,13 +661,12 @@ const MatrixStep = ({ partialSample }: Props) => {
             <li>
               {!readonly ? (
                 <Button
+                  children="Continuer"
                   onClick={submit}
                   iconId="fr-icon-arrow-right-line"
                   iconPosition="right"
                   data-testid="submit-button"
-                >
-                  Continuer
-                </Button>
+                />
               ) : (
                 <NextButton partialSample={partialSample} currentStep={2} />
               )}
