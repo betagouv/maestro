@@ -15,10 +15,6 @@ export const up = async (knex: Knex) => {
       .where('kind', oldKind)
       .update({ kind: newKind });
 
-    await knex('prescriptions')
-      .where('programming_plan_kind', oldKind)
-      .update({ programming_plan_kind: newKind });
-
     await knex.raw(
       `UPDATE users SET programming_plan_kinds = array_replace(programming_plan_kinds, ?, ?)`,
       [oldKind, newKind]
@@ -36,10 +32,6 @@ export const down = async (knex: Knex) => {
     await knex('programming_plan_kinds')
       .where('kind', newKind)
       .update({ kind: oldKind });
-
-    await knex('prescriptions')
-      .where('programming_plan_kind', newKind)
-      .update({ programming_plan_kind: oldKind });
 
     await knex.raw(
       `UPDATE users SET programming_plan_kinds = array_replace(programming_plan_kinds, ?, ?)`,
