@@ -134,7 +134,7 @@ export const MatrixStepPPVSubmittingErrors: Story = {
       canvas.getByText('Veuillez renseigner la matrice.')
     ).toBeInTheDocument();
     await expect(
-      canvas.getByText('Veuillez renseigner la partie du végétal.')
+      canvas.getByText('Veuillez renseigner le champ « Type de production ».')
     ).toBeInTheDocument();
     await expect(
       canvas.getByText('Veuillez renseigner le stade de prélèvement.')

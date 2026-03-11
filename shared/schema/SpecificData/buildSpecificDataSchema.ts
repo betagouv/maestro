@@ -14,27 +14,43 @@ export const buildSpecificDataSchema = (
 
   for (const { field, required } of fieldConfigs) {
     const optionValues = field.options.map((o) => o.value);
+    const errMsg = `Veuillez renseigner le champ « ${field.label} ».`;
 
     let fieldSchema: ZodTypeAny;
 
     switch (field.inputType) {
       case 'text':
       case 'textarea':
-        fieldSchema = required ? z.string().min(1) : z.string().nullish();
+        fieldSchema = required
+          ? z
+              .string({
+                error: (issue) => (issue.input == null ? errMsg : issue.message)
+              })
+              .min(1, errMsg)
+          : z.string().nullish();
         break;
 
       case 'number':
         fieldSchema = required
-          ? z.coerce.number().int().nonnegative()
+          ? z.coerce.number({ error: errMsg }).int().nonnegative()
           : z.coerce.number().int().nonnegative().nullish();
         break;
 
       case 'select':
         if (optionValues.length > 0) {
-          const enumSchema = z.enum(optionValues as [string, ...string[]]);
+          const enumSchema = z.enum(optionValues as [string, ...string[]], {
+            error: () => errMsg
+          });
           fieldSchema = required ? enumSchema : enumSchema.nullish();
         } else {
-          fieldSchema = required ? z.string().min(1) : z.string().nullish();
+          fieldSchema = required
+            ? z
+                .string({
+                  error: (issue) =>
+                    issue.input == null ? errMsg : issue.message
+                })
+                .min(1, errMsg)
+            : z.string().nullish();
         }
         break;
 
@@ -43,13 +59,15 @@ export const buildSpecificDataSchema = (
           string,
           ...string[]
         ];
-        fieldSchema = z.enum(allValues);
+        fieldSchema = z.enum(allValues, { error: () => errMsg });
         break;
       }
 
       case 'radio': {
         if (optionValues.length > 0) {
-          const enumSchema = z.enum(optionValues as [string, ...string[]]);
+          const enumSchema = z.enum(optionValues as [string, ...string[]], {
+            error: () => errMsg
+          });
           fieldSchema = required ? enumSchema : enumSchema.nullish();
         } else {
           fieldSchema = z.string().nullish();
