@@ -16,7 +16,7 @@ import { knexInstance as db } from './db';
 import { localPrescriptionCommentsTable } from './localPrescriptionCommentRepository';
 import { localPrescriptionSubstanceKindsLaboratoriesTable } from './localPrescriptionSubstanceKindLaboratoryRepository';
 import { prescriptionsTable } from './prescriptionRepository';
-import { samplesTable } from './sampleRepository';
+import { samplesTable, sampleStatusView } from './sampleRepository';
 const localPrescriptionsTable = 'local_prescriptions';
 
 const LocalPrescriptionsDbo = z.object({
@@ -217,15 +217,15 @@ const include = (opts?: Pick<FindLocalPrescriptionOptions, 'includes'>) => {
       query
         .select(
           db.raw(
-            `count(distinct(${samplesTable}.id)) filter(where ${samplesTable}.status = any(?)) as in_progress_sample_count`,
+            `count(distinct(${samplesTable}.id)) filter(where ${sampleStatusView}.status = any(?)) as in_progress_sample_count`,
             [InProgressStatusList]
           ),
           db.raw(
-            `count(distinct(${samplesTable}.id)) filter(where ${samplesTable}.status = any(?)) as realized_sample_count`,
+            `count(distinct(${samplesTable}.id)) filter(where ${sampleStatusView}.status = any(?)) as realized_sample_count`,
             [RealizedStatusList]
           ),
           db.raw(
-            `count(distinct(${samplesTable}.id)) filter(where ${samplesTable}.status = ?) as not_admissible_sample_count`,
+            `count(distinct(${samplesTable}.id)) filter(where ${sampleStatusView}.status = ?) as not_admissible_sample_count`,
             ['NotAdmissible']
           )
         )
@@ -255,6 +255,11 @@ const include = (opts?: Pick<FindLocalPrescriptionOptions, 'includes'>) => {
                   `${localPrescriptionsTable}.company_siret`
                 )
             )
+        )
+        .leftJoin(
+          sampleStatusView,
+          `${sampleStatusView}.sample_id`,
+          `${samplesTable}.id`
         )
         .groupBy(
           `${localPrescriptionsTable}.prescription_id`,

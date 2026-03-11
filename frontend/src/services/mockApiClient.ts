@@ -172,7 +172,7 @@ const defaultMockApiClientConf: MockApi = {
       itemNumber: 1,
       copyNumber: 1,
       createdBy: Sampler1Fixture.id,
-      status: 'Residues'
+      status: 'Analysis'
     })
   },
   useGetSampleQuery: {

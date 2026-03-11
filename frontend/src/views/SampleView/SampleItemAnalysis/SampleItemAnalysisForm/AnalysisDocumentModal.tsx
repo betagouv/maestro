@@ -86,7 +86,7 @@ export const AnalysisDocumentModal = ({
             ...partialAnalysis,
             id: analysisId,
             sampleId,
-            status: 'Residues'
+            status: 'Analysis'
           });
         }
         modal.close();

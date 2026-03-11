@@ -38,17 +38,12 @@ export const analysisRouter = {
         id: uuidv4(),
         createdAt: new Date(),
         createdBy: user.id,
-        status: 'Residues',
+        status: 'Analysis',
         compliance: null,
         notesOnCompliance: null,
         ...analysisToCreate
       };
       await analysisRepository.insert(analysis);
-
-      await sampleRepository.update({
-        ...sample,
-        status: 'Analysis'
-      });
 
       return {
         status: constants.HTTP_STATUS_CREATED,
@@ -119,21 +114,6 @@ export const analysisRouter = {
         ...analysisUpdate
       };
       await analysisRepository.update(updatedAnalysis);
-
-      if (updatedAnalysis.status === 'Completed') {
-        const sample = await sampleRepository.findUnique(
-          updatedAnalysis.sampleId
-        );
-
-        if (!sample) {
-          throw new SampleMissingError(updatedAnalysis.sampleId);
-        }
-
-        await sampleRepository.update({
-          ...sample,
-          status: 'Completed'
-        });
-      }
 
       return { response: updatedAnalysis, status: constants.HTTP_STATUS_OK };
     }
