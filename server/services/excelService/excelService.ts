@@ -46,8 +46,8 @@ import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import companyRepository from '../../repositories/companyRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
-import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
+import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 import { Template, templatePath } from '../../templates/templates';
 
 const generateAnalysisRequestExcel = async (data: AnalysisRequestData) => {
@@ -167,7 +167,9 @@ const generateSamplesExportExcel = async (
   const laboratories = await laboratoryRepository.findMany();
 
   const fieldConfigsCache = new Map<string, PlanKindFieldConfig[]>();
-  const getFieldConfigs = async (kind: string): Promise<PlanKindFieldConfig[]> => {
+  const getFieldConfigs = async (
+    kind: string
+  ): Promise<PlanKindFieldConfig[]> => {
     if (!fieldConfigsCache.has(kind)) {
       fieldConfigsCache.set(
         kind,

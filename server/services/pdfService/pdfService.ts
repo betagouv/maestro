@@ -20,7 +20,6 @@ import {
   MatrixSpecificDataForm,
   MatrixSpecificDataFormInputProps
 } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
-import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   ProgrammingPlanKindWithSacha,
@@ -36,7 +35,7 @@ import {
   SampleItemMaxCopyCount
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
-import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
+import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import path from 'path';
@@ -44,6 +43,7 @@ import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
+import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 import { userRepository } from '../../repositories/userRepository';
 import {
   assetsPath,
@@ -334,7 +334,10 @@ const generateSamplePDF = async (
       .filter((fc) => fc.field.key !== 'releaseControl')
       .map((fc) => ({
         label: planLayout[fc.field.key]?.label ?? fc.field.label,
-        value: getFieldValueLabel(fc.field, (sample.specificData as any)[fc.field.key])
+        value: getFieldValueLabel(
+          fc.field,
+          (sample.specificData as any)[fc.field.key]
+        )
       })),
     releaseControl:
       sample.specificData?.programmingPlanKind === 'PPV'

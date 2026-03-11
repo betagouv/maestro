@@ -10,8 +10,8 @@ import {
   genCreatedSampleData,
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
-import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { PPVFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
+import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { getMockApi, MockApi } from '../../../../../services/mockApiClient';
 import MatrixStep from '../MatrixStep';

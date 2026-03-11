@@ -7,13 +7,18 @@ import { CommemoratifSigleForm } from './CommemoratifSigleForm';
 import { SachaCommemoratifsUpload } from './SachaCommemoratifsUpload';
 
 export const SachaCommemoratifs: FunctionComponent = () => {
-  const { useGetSachaCommemoratifsQuery, useGetSampleSpecificDataQuery, useFindPlanKindFieldConfigsQuery } =
-    useContext(ApiClientContext);
+  const {
+    useGetSachaCommemoratifsQuery,
+    useGetSampleSpecificDataQuery,
+    useFindPlanKindFieldConfigsQuery
+  } = useContext(ApiClientContext);
 
   const { data: sachaCommemoratifs } = useGetSachaCommemoratifsQuery();
   const { data: sampleSpecifiDataRecord } = useGetSampleSpecificDataQuery();
-  const { data: breedingFieldConfigs = [] } = useFindPlanKindFieldConfigsQuery('DAOA_BREEDING');
-  const { data: slaughterFieldConfigs = [] } = useFindPlanKindFieldConfigsQuery('DAOA_SLAUGHTER');
+  const { data: breedingFieldConfigs = [] } =
+    useFindPlanKindFieldConfigsQuery('DAOA_BREEDING');
+  const { data: slaughterFieldConfigs = [] } =
+    useFindPlanKindFieldConfigsQuery('DAOA_SLAUGHTER');
 
   const sachaFieldConfigs = useMemo(() => {
     const seen = new Set<string>();
@@ -36,7 +41,8 @@ export const SachaCommemoratifs: FunctionComponent = () => {
         if (!attributeConf.sachaCommemoratifSigle) {
           return false;
         }
-        const canHaveVal = fc.field.inputType === 'select' || fc.field.inputType === 'radio';
+        const canHaveVal =
+          fc.field.inputType === 'select' || fc.field.inputType === 'radio';
         if (canHaveVal) {
           const expectedValues = fc.field.options.map((o) => o.value);
           const hasValueWithoutSigle = expectedValues.some(
