@@ -39,9 +39,8 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
   const { useGetAnalysisReportDocumentIdsQuery } = useContext(ApiClientContext);
   const { openDocument } = useDocument();
 
-  const { data: reportDocumentIds } = useGetAnalysisReportDocumentIdsQuery(
-    partialAnalysis?.id ?? skipToken
-  );
+  const { currentData: reportDocumentIds } =
+    useGetAnalysisReportDocumentIdsQuery(partialAnalysis?.id ?? skipToken);
 
   return (
     <div

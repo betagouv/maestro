@@ -175,7 +175,7 @@ const defaultMockApiClientConf: MockApi = {
       itemNumber: 1,
       copyNumber: 1,
       createdBy: Sampler1Fixture.id,
-      status: 'Residues'
+      status: 'Analysis'
     })
   },
   useGetSampleQuery: {
@@ -218,6 +218,7 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateLaboratoryAnalyticalCompetenceMutation: [fn(), {}],
   useUpdateLocalPrescriptionMutation: [fn(), {}],
   useUpdateSampleMutation: [fn(), {}],
+  useUpdateSampleComplianceMutation: [fn(), {}],
   useUpdateSampleItemMutation: [fn(), {}],
   useGetRootNoticeQuery: {
     data: { type: 'root', title: 'titre', description: 'description' }

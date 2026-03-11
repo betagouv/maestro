@@ -58,6 +58,7 @@ export const MaestroRoutes = [
   '/samples',
   '/samples/count',
   '/samples/export',
+  '/samples/:sampleId/compliance',
   '/samples/:sampleId/document',
   '/samples/:sampleId/emptyForm',
   '/samples/:sampleId/items/:itemNumber/copy/:copyNumber/document',

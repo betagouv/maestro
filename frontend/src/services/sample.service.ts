@@ -4,7 +4,9 @@ import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleO
 import {
   isCreatedPartialSample,
   PartialSample,
-  type PartialSampleToCreate
+  type PartialSampleToCreate,
+  type SampleChecked,
+  SampleComplianceData
 } from 'maestro-shared/schema/Sample/Sample';
 import type {
   SampleItemKey,
@@ -86,7 +88,10 @@ const sampleApi = api.injectEndpoints({
         { type: 'Prescription', id: 'LIST' }
       ]
     }),
-    updateSample: builder.mutation<PartialSample, PartialSample>({
+    updateSample: builder.mutation<
+      PartialSample,
+      PartialSample | SampleChecked
+    >({
       query: (partialSample) => ({
         url: `samples/${partialSample.id}`,
         method: 'PUT',
@@ -97,6 +102,25 @@ const sampleApi = api.injectEndpoints({
       invalidatesTags: (_result, _error, { id }) => [
         { type: 'Sample', id: 'LIST' },
         { type: 'Sample', id },
+        'SampleCount',
+        { type: 'LocalPrescription', id: 'LIST' },
+        { type: 'Prescription', id: 'LIST' }
+      ]
+    }),
+    updateSampleCompliance: builder.mutation<
+      SampleComplianceData,
+      SampleComplianceData & { sampleId: string }
+    >({
+      query: ({ sampleId, ...complianceData }) => ({
+        url: `samples/${sampleId}/compliance`,
+        method: 'PUT',
+        body: complianceData
+      }),
+      transformResponse: (response: any) =>
+        SampleComplianceData.parse(omitBy(response, isNil)),
+      invalidatesTags: (_result, _error, { sampleId }) => [
+        { type: 'Sample', id: 'LIST' },
+        { type: 'Sample', sampleId },
         'SampleCount',
         { type: 'LocalPrescription', id: 'LIST' },
         { type: 'Prescription', id: 'LIST' }
@@ -157,6 +181,7 @@ export const {
   useGetSampleQuery,
   useLazyGetSampleQuery,
   useUpdateSampleMutation,
+  useUpdateSampleComplianceMutation,
   useUpdateSampleItemMutation,
   useDeleteSampleMutation,
   getSupportDocumentURL,

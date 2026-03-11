@@ -96,7 +96,7 @@ export const SubmittingSuccess: Story = {
   args: {
     partialSample: {
       ...sampleContextData,
-      status: 'Draft' as const
+      step: 'Draft' as const
     }
   },
   parameters: {
@@ -123,7 +123,7 @@ export const SubmittingSuccess: Story = {
     await expect(mockCreateOrUpdateSample).toHaveBeenCalledWith(
       expect.objectContaining({
         ...sampleContextData,
-        status: 'DraftMatrix'
+        step: 'DraftMatrix'
       })
     );
   }

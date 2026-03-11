@@ -15,14 +15,9 @@ import {
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import {
-  type FindSampleOptions,
-  SampleCompliance
-} from 'maestro-shared/schema/Sample/FindSampleOptions';
-import {
-  DraftStatusList,
-  type SampleStatus
-} from 'maestro-shared/schema/Sample/SampleStatus';
+import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import { SampleCompliance } from 'maestro-shared/schema/Sample/SampleCompliance';
+import type { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import {
   UserRoleList,
   UserRolePermissions
@@ -85,7 +80,6 @@ const SampleListView = () => {
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   useEffect(() => {
-    const status = searchParams.get('status') as SampleStatus;
     dispatch(
       samplesSlice.actions.changeFindOptions({
         programmingPlanIds:
@@ -102,7 +96,7 @@ const SampleListView = () => {
         departments:
           (searchParams.get('departments')?.split(',') as Department[]) ??
           undefined,
-        status: status === 'Draft' ? DraftStatusList : (status ?? undefined),
+        status: searchParams.get('status') as SampleStatus,
         matrix: searchParams.get('matrix') as Matrix,
         matrixKind: searchParams.get('matrixKind') as MatrixKind,
         sampledBy: searchParams.get('sampledBy'),
@@ -120,7 +114,7 @@ const SampleListView = () => {
         perPage: defaultPerPage
       })
     );
-  }, [searchParams, user?.region, sampleListDisplay, programmingPlan?.id]);
+  }, [searchParams, user?.region, sampleListDisplay, programmingPlan?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const canDownloadSupportDocument: boolean =
     programmingPlan?.kinds.includes('PPV') ?? false;
@@ -196,6 +190,7 @@ const SampleListView = () => {
                 partialSample={{
                   id: newPartialSampleId,
                   sampler: user,
+                  step: 'Draft' as const,
                   status: 'Draft' as const,
                   programmingPlanId: programmingPlan.id as string,
                   programmingPlanKind: programmingPlan.kinds[0],

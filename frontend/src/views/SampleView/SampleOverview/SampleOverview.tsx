@@ -1,19 +1,29 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import SideMenu from '@codegouvfr/react-dsfr/SideMenu';
 import clsx from 'clsx';
-import { isNil } from 'lodash-es';
+import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import {
+  isItemAchieved,
+  isItemCompliant
+} from 'maestro-shared/schema/Sample/SampleItem';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { useState } from 'react';
+import { isDefined } from 'maestro-shared/utils/utils';
+import { useCallback, useContext, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import food from 'src/assets/illustrations/food.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
 import { SampleStatusBadge } from '../../../components/SampleStatusBadge/SampleStatusBadge';
+import { usePartialSample } from '../../../hooks/usePartialSample';
+import { ApiClientContext } from '../../../services/apiClient';
 import SupportDocumentDownload from '../DraftSample/SupportDocumentDownload';
 import SampleAgreementOverview from './SampleAgreementOverview';
+import SampleComplianceForm from './SampleComplianceForm';
 import SampleContextOverview from './SampleContextOverview';
 import SampleItemCopiesOverview from './SampleItemCopiesOverview';
 import './SampleOverview.scss';
@@ -23,12 +33,58 @@ interface Props {
 
 const SampleOverview = ({ sample }: Props) => {
   useDocumentTitle(`Prélèvement ${sample.reference}`);
+  const apiClient = useContext(ApiClientContext);
+  const complianceRef = useRef<null | HTMLDivElement>(null);
+
+  const { getSampleItemLaboratory } = usePartialSample(sample);
 
   const { navigateToSamples } = useSamplesLink();
-  const [activeMenu, setActiveMenu] = useState<
-    'items' | 'matrix' | 'context' | 'agreement'
-  >('items');
-  const [activeItemNumber, setActiveItemNumber] = useState<number>(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [_updateSample, { isSuccess: isSendingSuccess }] =
+    apiClient.useUpdateSampleMutation({
+      fixedCacheKey: `sending-sample-${sample.id}`
+    });
+
+  const activeMenu = (searchParams.get('menu') ?? 'items') as
+    | 'items'
+    | 'matrix'
+    | 'context'
+    | 'agreement';
+  const activeItemNumber = Number(searchParams.get('item') ?? 1);
+
+  const setActiveMenu = (menu: typeof activeMenu) =>
+    setSearchParams(
+      (prev) => {
+        prev.set('menu', menu);
+        prev.delete('item');
+        return prev;
+      },
+      { replace: true }
+    );
+
+  const setActiveItemNumber = (itemNumber: number) =>
+    setSearchParams(
+      (prev) => {
+        prev.set('menu', 'items');
+        prev.set('item', String(itemNumber));
+        prev.delete('copy');
+        return prev;
+      },
+      { replace: true }
+    );
+  const needCompliance =
+    sample.programmingPlanKind !== 'PPV' && sample.status === 'InReview';
+  const [activeCompliance, setActiveCompliance] = useState(needCompliance);
+
+  const sampleItemCopies = useCallback(
+    (itemNumber: number) =>
+      sample.items.filter((item) => item.itemNumber === itemNumber),
+    [sample.items]
+  );
+
+  const [updateSampleCompliance] =
+    apiClient.useUpdateSampleComplianceMutation();
 
   return (
     <section
@@ -40,7 +96,7 @@ const SampleOverview = ({ sample }: Props) => {
           <div className={clsx('d-flex-row', 'title-right-block')}>
             <div className={clsx('align-right')}>
               <div>Statut global du prélèvement</div>
-              <SampleStatusBadge status={sample.status} sampleId={sample.id} />
+              <SampleStatusBadge sample={sample} />
             </div>
             <div className={clsx('border-left')}></div>
             <SupportDocumentDownload
@@ -53,7 +109,47 @@ const SampleOverview = ({ sample }: Props) => {
         subtitle="Consultez le récapitulatif du prélèvement réalisé"
         illustration={food}
       />
+      {isSendingSuccess && sample.status !== 'InReview' && (
+        <Alert
+          severity="info"
+          small
+          description={
+            <>
+              Votre demande d'analyse a bien été transmise par email à{' '}
+              <ul>
+                {sample.items
+                  .filter((item) => item.copyNumber === 1)
+                  .map((item) => (
+                    <li key={item.itemNumber}>
+                      {getLaboratoryFullName(
+                        getSampleItemLaboratory(item.itemNumber)
+                      )}
+                    </li>
+                  ))}
+              </ul>
+            </>
+          }
+          closable
+          classes={{
+            root: 'bg-white'
+          }}
+        />
+      )}
 
+      {(needCompliance || activeCompliance) && (
+        <div ref={complianceRef}>
+          <SampleComplianceForm
+            sample={sample}
+            onChangeCompliance={async (complianceData) => {
+              await updateSampleCompliance({
+                sampleId: sample.id,
+                ...complianceData
+              });
+              setActiveCompliance(false);
+            }}
+          />
+        </div>
+      )}
       <div className="white-container">
         <div className={clsx('d-flex-align-start', cx('fr-m-3w'))}>
           <SideMenu
@@ -90,22 +186,23 @@ const SampleOverview = ({ sample }: Props) => {
                             item.substanceKind
                           ].toLowerCase()}
                         </span>
-                        {!!item.analysis?.compliance && (
-                          <div
-                            className={cx('fr-label--success', 'fr-text--xs')}
-                          >
-                            <span
-                              className={cx(
-                                'fr-icon-checkbox-circle-line',
-                                'fr-mr-1w',
-                                'fr-icon--sm'
-                              )}
-                            />
-                            Conforme
-                          </div>
-                        )}
-                        {!isNil(item.analysis?.compliance) &&
-                          !item.analysis?.compliance && (
+                        {isItemAchieved(sampleItemCopies(item.itemNumber)) &&
+                          (isItemCompliant(
+                            sampleItemCopies(item.itemNumber)
+                          ) ? (
+                            <div
+                              className={cx('fr-label--success', 'fr-text--xs')}
+                            >
+                              <span
+                                className={cx(
+                                  'fr-icon-checkbox-circle-line',
+                                  'fr-mr-1w',
+                                  'fr-icon--sm'
+                                )}
+                              />
+                              Conforme
+                            </div>
+                          ) : (
                             <div
                               className={cx('fr-label--error', 'fr-text--xs')}
                             >
@@ -118,7 +215,7 @@ const SampleOverview = ({ sample }: Props) => {
                               />
                               Non-conforme
                             </div>
-                          )}
+                          ))}
                       </div>
                     )
                   }))
@@ -146,8 +243,39 @@ const SampleOverview = ({ sample }: Props) => {
                   onClick: () => setActiveMenu('agreement'),
                   href: '#'
                 }
-              }
-            ]}
+              },
+              sample.programmingPlanKind !== 'PPV'
+                ? {
+                    text: (
+                      <div
+                        className={clsx(
+                          cx(
+                            sample.status === 'Completed'
+                              ? ['fr-btn--secondary', 'fr-py-1w', 'fr-px-2w']
+                              : 'fr-btn'
+                          ),
+                          { 'btn-disabled': sample.status !== 'Completed' }
+                        )}
+                      >
+                        Conformité du prélèvement
+                      </div>
+                    ),
+                    isActive: false,
+                    linkProps: {
+                      onClick: () => {
+                        setActiveCompliance(true);
+                        setTimeout(() => {
+                          complianceRef.current?.scrollIntoView({
+                            behavior: 'smooth'
+                          });
+                        });
+                      },
+                      href: '#',
+                      disabled: sample.status !== 'Completed'
+                    }
+                  }
+                : undefined
+            ].filter(isDefined)}
           />
           <div
             className={clsx(
@@ -158,9 +286,7 @@ const SampleOverview = ({ sample }: Props) => {
             {activeMenu === 'items' && (
               <SampleItemCopiesOverview
                 itemNumber={activeItemNumber}
-                sampleItemCopies={sample.items.filter(
-                  (item) => item.itemNumber === activeItemNumber
-                )}
+                sampleItemCopies={sampleItemCopies(activeItemNumber)}
                 sample={sample}
               />
             )}

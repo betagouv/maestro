@@ -247,6 +247,11 @@ h6,
   justify-content: center;
 }
 
+.d-flex-justify-between {
+  display: flex;
+  justify-content: space-between;
+}
+
 .d-flex-row {
   display: flex;
   flex-direction: row;
@@ -261,8 +266,8 @@ h6,
   border: 1px solid var(--border-default-grey);
 }
 
-.border-bottom {
-  border-bottom: 1px solid var(--border-default-grey);
+.border-right {
+  border-right: 1px solid var(--border-default-grey);
 }
 
 .border-left {
@@ -271,6 +276,18 @@ h6,
 
 .border-bottom {
   border-bottom: 1px solid var(--border-default-grey) !important;
+}
+
+.border-callout-green-emeraude {
+  border-left: 4px solid var(--border-default-green-emeraude);
+}
+
+.border-callout-pink-tuile {
+  border-left: 4px solid var(--border-default-pink-tuile);
+}
+
+.border-callout-beige-gris-galet {
+  border-left: 4px solid var(--border-default-beige-gris-galet);
 }
 
 .border-middle {
