@@ -323,3 +323,14 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
     }
   }
 ];
+
+export const AllFieldConfigs = [
+  ...PPVFieldConfigs,
+  ...DAOABreedingFieldConfigs,
+  ...DAOASlaughterFieldConfigs
+];
+
+export const SachaFieldConfigs = [
+  ...DAOABreedingFieldConfigs,
+  ...DAOASlaughterFieldConfigs
+];
