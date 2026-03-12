@@ -369,6 +369,13 @@ export const up = async (knex: Knex) => {
         order: 2
       },
       { field_id: fieldId.seizure, value: 'TOTAL', label: 'Totale', order: 3 },
+      // sampling (DAOA_BREEDING + DAOA_SLAUGHTER options)
+      {
+        field_id: fieldId.sampling,
+        value: 'Aléatoire',
+        label: 'Aléatoire',
+        order: 1
+      },
       // outdoorAccess (DAOA_BREEDING + DAOA_SLAUGHTER options)
       {
         field_id: fieldId.outdoorAccess,
@@ -563,6 +570,18 @@ export const up = async (knex: Knex) => {
       programming_plan_kind_field_id: planKindFieldId['PPV']['matrixPart'],
       specific_data_field_option_id: optionId['matrixPart'][v]
     })),
+    // DAOA_BREEDING → sampling (1 option)
+    {
+      programming_plan_kind_field_id:
+        planKindFieldId['DAOA_BREEDING']['sampling'],
+      specific_data_field_option_id: optionId['sampling']['Aléatoire']
+    },
+    // DAOA_SLAUGHTER → sampling (1 option)
+    {
+      programming_plan_kind_field_id:
+        planKindFieldId['DAOA_SLAUGHTER']['sampling'],
+      specific_data_field_option_id: optionId['sampling']['Aléatoire']
+    },
     // DAOA_BREEDING → species (4 options)
     ...['ESP7', 'ESP8', 'ESP10', 'ESP20'].map((v) => ({
       programming_plan_kind_field_id:

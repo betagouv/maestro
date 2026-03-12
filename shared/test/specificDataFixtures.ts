@@ -103,7 +103,7 @@ export const DAOABreedingFieldConfigs: PlanKindFieldConfig[] = [
       inputType: 'select',
       label: 'Échantillonnage',
       hintText: null,
-      options: []
+      options: [{ value: 'Aléatoire', label: 'Aléatoire', order: 1 }]
     }
   },
   {
@@ -203,7 +203,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
       inputType: 'select',
       label: 'Échantillonnage',
       hintText: null,
-      options: []
+      options: [{ value: 'Aléatoire', label: 'Aléatoire', order: 1 }]
     }
   },
   {

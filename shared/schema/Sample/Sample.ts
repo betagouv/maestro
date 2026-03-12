@@ -91,7 +91,7 @@ const unknownValueCheck: CheckFn<{
       ctx.issues.push({
         input: ctx.value,
         code: 'custom',
-        message: `Veuillez renseigner le descripteur "${key}".`,
+        message: `Veuillez renseigner le descripteur manquant.`,
         path: ['specificData', key]
       });
     }
