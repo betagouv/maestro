@@ -9,8 +9,8 @@ import {
   getSampleItemReference,
   SampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
-import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
-import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
+import { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { toMaestroDate } from 'maestro-shared/utils/date';
 import { SachaConf } from '../../repositories/kysely.type';
 import {
@@ -45,7 +45,7 @@ export const generateXMLDAI = (
     'sealId' | 'itemNumber' | 'copyNumber' | 'substanceKind'
   >,
   dateNow: number,
-  sampleSpecifDataRecord: SampleSpecificDataRecord,
+  sachaFieldConfigs: SachaFieldConfig[],
   sachaCommemoratifRecord: SachaCommemoratifRecord,
   sachaConf: SachaConf,
   laboratory: LaboratorySachaData
@@ -70,7 +70,7 @@ export const generateXMLDAI = (
 
   const commemoratifs = getCommemoratifs(
     sample.specificData,
-    sampleSpecifDataRecord,
+    sachaFieldConfigs,
     sachaCommemoratifRecord
   );
 
@@ -155,8 +155,8 @@ export const generateXMLDAI = (
 };
 
 export const getCommemoratifs = (
-  specificData: SampleMatrixSpecificData,
-  sampleSpecifDataRecord: SampleSpecificDataRecord,
+  specificData: SpecificData,
+  sachaFieldConfigs: SachaFieldConfig[],
   sachaCommemoratifRecord: SachaCommemoratifRecord
 ): ({ sigle: CommemoratifSigle } & (
   | { textValue: string }
@@ -168,10 +168,11 @@ export const getCommemoratifs = (
       specificDataKey !== 'programmingPlanKind' &&
       specificDataKey in specificData
     ) {
-      const conf = sampleSpecifDataRecord[specificDataKey];
+      const conf = sachaFieldConfigs.find((fc) => fc.key === specificDataKey);
       if (conf?.inDai) {
-        const specificDataValue: string =
-          specificData[specificDataKey as keyof SampleMatrixSpecificData];
+        const specificDataValue: string = specificData[
+          specificDataKey
+        ] as string;
 
         if (!conf.sachaCommemoratifSigle) {
           throw new Error(
@@ -180,24 +181,24 @@ export const getCommemoratifs = (
         }
 
         const typeDonnee =
-          sachaCommemoratifRecord[conf.sachaCommemoratifSigle].typeDonnee;
+          sachaCommemoratifRecord[
+            conf.sachaCommemoratifSigle as CommemoratifSigle
+          ].typeDonnee;
 
         if (typeDonnee === 'list') {
-          if (
-            !sampleSpecifDataRecord[specificDataKey].values[specificDataValue]
-          ) {
-            if (!sampleSpecifDataRecord[specificDataKey].optional) {
+          const sigleValue =
+            conf.options.find((o) => o.value === specificDataValue)
+              ?.sachaCommemoratifValueSigle ?? null;
+          if (!sigleValue) {
+            if (!conf.optional) {
               throw new Error(
                 `Configuration SACHA incomplète: ${specificDataKey} ${specificDataValue}`
               );
             }
           } else {
             commemoratifs.push({
-              sigle: conf.sachaCommemoratifSigle,
-              sigleValue:
-                sampleSpecifDataRecord[specificDataKey].values[
-                  specificDataValue
-                ]
+              sigle: conf.sachaCommemoratifSigle as CommemoratifSigle,
+              sigleValue: sigleValue as CommemoratifValueSigle
             });
           }
         } else {
@@ -208,7 +209,7 @@ export const getCommemoratifs = (
             textValue = `${specificDataValue}`;
           }
           commemoratifs.push({
-            sigle: conf.sachaCommemoratifSigle,
+            sigle: conf.sachaCommemoratifSigle as CommemoratifSigle,
             textValue
           });
         }

@@ -3,7 +3,6 @@ import {
   TypedUseMutation,
   TypedUseQuery
 } from '@reduxjs/toolkit/query/react';
-import { CommemoratifSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { UserRefined } from 'maestro-shared/schema/User/User';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import {
@@ -133,6 +132,8 @@ const defaultMockApiClientConf: MockApi = {
   useFindCompaniesQuery: {
     data: [SlaughterhouseCompanyFixture1, SlaughterhouseCompanyFixture2]
   },
+  useFindPlanKindFieldConfigsQuery: { data: [] },
+  useFindSachaFieldConfigsQuery: { data: [] },
   useFindLaboratoriesQuery: { data: [] },
   useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },
@@ -228,24 +229,6 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateUserMutation: [fn(), {}],
   useChangeRoleMutation: [fn(), {}],
   useLazyFindCompaniesQuery: [[], {}],
-  useGetSampleSpecificDataQuery: {
-    data: {
-      DAOA_VOLAILLE: {
-        inDai: false,
-        attribute: '',
-        sachaCommemoratifSigle: '' as CommemoratifSigle,
-        optional: false,
-        values: {}
-      },
-      DAOA_BOVIN: {
-        inDai: false,
-        attribute: '',
-        optional: false,
-        sachaCommemoratifSigle: '' as CommemoratifSigle,
-        values: {}
-      }
-    }
-  },
   useUpdateSampleSpecificDataAttributeMutation: [fn(), {}],
   useUpdateSampleSpecificDataAttributeValueMutation: [fn(), {}],
   useGetSachaCommemoratifsQuery: {

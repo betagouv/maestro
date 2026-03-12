@@ -2,34 +2,24 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import {
-  MatrixSpecificDataFormInputs,
-  SampleMatrixSpecificDataKeys
-} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
-import {
   CommemoratifSigle,
   CommemoratifValueSigle,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
-import {
-  canHaveValue,
-  getAttributeExpectedValues
-} from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
-import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
+import { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppSearchInput from '../../components/_app/AppSearchInput/AppSearchInput';
 import { ApiClientContext } from '../../services/apiClient';
 
 type Props = {
-  attribute: SampleMatrixSpecificDataKeys;
+  fieldConfig: SachaFieldConfig;
   sachaCommemoratifs: SachaCommemoratifRecord;
-  sampleSpecifiDataRecord: SampleSpecificDataRecord;
 };
 
 export const CommemoratifSigleForm = ({
-  attribute,
+  fieldConfig,
   sachaCommemoratifs,
-  sampleSpecifiDataRecord,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -40,22 +30,25 @@ export const CommemoratifSigleForm = ({
     apiClient.useUpdateSampleSpecificDataAttributeMutation();
   const [updateSampleSpecificDataAttributeValue] =
     apiClient.useUpdateSampleSpecificDataAttributeValueMutation();
-  const inputConf = MatrixSpecificDataFormInputs[attribute];
+  const attribute = fieldConfig.key;
 
-  const attributeConfInDb = sampleSpecifiDataRecord[attribute as string];
-
-  const [inDai, setInDai] = useState<boolean>(
-    attributeConfInDb?.inDai ?? false
-  );
-  const [optional, setOptional] = useState<boolean>(
-    attributeConfInDb?.optional ?? false
-  );
+  const [inDai, setInDai] = useState<boolean>(fieldConfig.inDai);
+  const [optional, setOptional] = useState<boolean>(fieldConfig.optional);
   const [selectedSigle, setSelectedSigle] = useState<CommemoratifSigle | null>(
-    attributeConfInDb?.sachaCommemoratifSigle ?? null
+    fieldConfig.sachaCommemoratifSigle as CommemoratifSigle | null
   );
   const [selectedValues, setSelectedValues] = useState<
     Record<string, CommemoratifValueSigle>
-  >(attributeConfInDb?.values ?? {});
+  >(
+    Object.fromEntries(
+      fieldConfig.options
+        .filter((o) => o.sachaCommemoratifValueSigle !== null)
+        .map((o) => [
+          o.value,
+          o.sachaCommemoratifValueSigle as CommemoratifValueSigle
+        ])
+    )
+  );
 
   const onSelectSigle = (sachaCommemoratifSigle?: CommemoratifSigle) => {
     updateSampleSpecificDataAttribute({
@@ -107,16 +100,19 @@ export const CommemoratifSigleForm = ({
 
   const options = Object.values(sachaCommemoratifs)
     .filter((c) => {
-      if (inputConf.inputType === 'number') {
+      if (fieldConfig.inputType === 'number') {
         return c.typeDonnee === 'numeric';
       }
       if (
-        inputConf.inputType === 'textarea' ||
-        inputConf.inputType === 'text'
+        fieldConfig.inputType === 'textarea' ||
+        fieldConfig.inputType === 'text'
       ) {
         return c.typeDonnee === 'text';
       }
-      if (inputConf.inputType === 'select' || inputConf.inputType === 'radio') {
+      if (
+        fieldConfig.inputType === 'select' ||
+        fieldConfig.inputType === 'radio'
+      ) {
         return c.typeDonnee === 'list';
       }
       return false;
@@ -127,14 +123,17 @@ export const CommemoratifSigleForm = ({
     }))
     .sort((a, b) => a.label.localeCompare(b.label));
 
-  const attributeCanHaveValue = canHaveValue(inputConf);
-  const optionsValues = getAttributeExpectedValues(attribute);
+  const attributeCanHaveValue =
+    fieldConfig.inputType === 'select' || fieldConfig.inputType === 'radio';
+  const optionsValues = [...fieldConfig.options]
+    .sort((a, b) => a.order - b.order)
+    .map((o) => o.value);
 
   return (
     <div className={clsx('border', cx('fr-p-4w'))}>
       <div>
         <div className={clsx('d-flex-column', 'd-flex-align-start')}>
-          <h6>{inputConf.label}</h6>
+          <h6>{fieldConfig.label}</h6>
           <div
             className={clsx('d-flex-row', 'd-flex-align-center')}
             style={{ width: '100%' }}
@@ -186,7 +185,7 @@ export const CommemoratifSigleForm = ({
               <OptionValueLine
                 key={optionValue}
                 optionValue={optionValue}
-                inputConf={inputConf}
+                fieldConfig={fieldConfig}
                 selectedCommemoratif={sachaCommemoratifs[selectedSigle]}
                 selectedValue={selectedValues[optionValue] ?? ''}
                 optional={optional}
@@ -203,7 +202,7 @@ export const CommemoratifSigleForm = ({
 };
 interface OptionValueLineProps {
   optionValue: string;
-  inputConf: (typeof MatrixSpecificDataFormInputs)[SampleMatrixSpecificDataKeys];
+  fieldConfig: SachaFieldConfig;
   selectedCommemoratif: SachaCommemoratifRecord[CommemoratifSigle] | null;
   optional: boolean;
   selectedValue: string | null;
@@ -212,15 +211,15 @@ interface OptionValueLineProps {
 
 const OptionValueLine = ({
   optionValue,
-  inputConf,
+  fieldConfig,
   selectedCommemoratif,
   selectedValue,
   optional,
   onSelectValue
 }: OptionValueLineProps) => {
-  const optionLabel = canHaveValue(inputConf)
-    ? (inputConf.optionsLabels?.[optionValue] ?? optionValue)
-    : optionValue;
+  const optionLabel =
+    fieldConfig.options.find((o) => o.value === optionValue)?.label ??
+    optionValue;
 
   const valueOptions = selectedCommemoratif
     ? Object.values(selectedCommemoratif.values)

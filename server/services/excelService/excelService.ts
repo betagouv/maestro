@@ -3,7 +3,6 @@ import { format } from 'date-fns';
 import { isNil, sumBy, uniq } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
-import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { OptionalBoolean } from 'maestro-shared/referential/OptionnalBoolean';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
@@ -25,16 +24,12 @@ import {
   MatrixSpecificDataFormInputProps
 } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
 import {
-  getSpecificDataValue,
-  MatrixSpecificDataFormInputs,
-  SampleMatrixSpecificDataKeys
-} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
-import {
   getPrescriptionTitle,
   Prescription,
   PrescriptionSort
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getSampleMatrixLabel,
@@ -42,8 +37,9 @@ import {
   SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
-import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
+import { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
@@ -51,6 +47,7 @@ import { analysisRepository } from '../../repositories/analysisRepository';
 import companyRepository from '../../repositories/companyRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
+import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 import { Template, templatePath } from '../../templates/templates';
 
 const generateAnalysisRequestExcel = async (data: AnalysisRequestData) => {
@@ -87,7 +84,7 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
   stage: string;
   stageCode: string;
   specificData: {
-    key: SampleMatrixSpecificDataKeys;
+    key: string;
     label: string;
     value: string | null;
     code: string | null | undefined;
@@ -169,8 +166,34 @@ const generateSamplesExportExcel = async (
 ): Promise<Buffer> => {
   const laboratories = await laboratoryRepository.findMany();
 
+  const fieldConfigsCache = new Map<string, PlanKindFieldConfig[]>();
+  const getFieldConfigs = async (
+    programmingPlanId: string,
+    kind: ProgrammingPlanKind
+  ): Promise<PlanKindFieldConfig[]> => {
+    const cacheKey = `${programmingPlanId}:${kind}`;
+    if (!fieldConfigsCache.has(cacheKey)) {
+      fieldConfigsCache.set(
+        cacheKey,
+        await specificDataFieldConfigRepository.findByPlanKind(
+          programmingPlanId,
+          kind
+        )
+      );
+    }
+    return fieldConfigsCache.get(cacheKey)!;
+  };
+
   const samplesData: SamplesExportExcelData[] = await Promise.all(
     samples.map(async (sample) => {
+      const fieldConfigs = await getFieldConfigs(
+        sample.programmingPlanId,
+        sample.specificData.programmingPlanKind
+      );
+      const planLayout = MatrixSpecificDataForm[
+        sample.specificData.programmingPlanKind
+      ] as Record<string, MatrixSpecificDataFormInputProps>;
+
       const items = await sampleItemRepository.findMany(sample.id);
       const itemsWithAnalysis = await Promise.all(
         items.map(async (item) => {
@@ -183,6 +206,9 @@ const generateSamplesExportExcel = async (
         })
       );
 
+      const matrixPartField = fieldConfigs.find(
+        (c) => c.field.key === 'matrixPart'
+      )?.field;
       const data: SamplesExportExcelData = {
         reference: sample.reference,
         department: sample.department,
@@ -219,33 +245,24 @@ const generateSamplesExportExcel = async (
         notesOnCreation: sample.notesOnCreation,
         matrix: sample.matrix ? getSampleMatrixLabel(sample) : undefined,
         matrixCode: sample.matrix,
-        matrixPart: getMatrixPartLabel(sample),
+        matrixPart: matrixPartField
+          ? (getFieldValueLabel(
+              matrixPartField,
+              sample.specificData['matrixPart']
+            ) ?? '')
+          : '',
         stage: sample.stage ? StageLabels[sample.stage] : undefined,
         stageCode: sample.stage,
-        specificData: (
-          Object.entries(
-            MatrixSpecificDataForm[sample.specificData.programmingPlanKind]
-          ) as [
-            SampleMatrixSpecificDataKeys,
-            MatrixSpecificDataFormInputProps
-          ][]
-        ).map(([inputKey, inputProps]) => ({
-          key: inputKey,
-          label:
-            inputProps.label ?? MatrixSpecificDataFormInputs[inputKey].label,
-          value: getSpecificDataValue(
-            inputKey,
-            sample.specificData as SampleMatrixSpecificData
-          ),
-          code:
-            sample.specificData[inputKey as keyof SampleMatrixSpecificData] !==
-            getSpecificDataValue(
-              inputKey,
-              sample.specificData as SampleMatrixSpecificData
-            )
-              ? sample.specificData[inputKey as keyof SampleMatrixSpecificData]
-              : undefined
-        })),
+        specificData: fieldConfigs.map((fc) => {
+          const rawValue = sample.specificData[fc.field.key];
+          const value = getFieldValueLabel(fc.field, rawValue);
+          return {
+            key: fc.field.key,
+            label: planLayout[fc.field.key]?.label ?? fc.field.label,
+            value,
+            code: rawValue !== value ? (rawValue as string) : undefined
+          };
+        }),
         notesOnMatrix: sample.notesOnMatrix,
         notesOnItems: sample.notesOnItems,
         items: itemsWithAnalysis.map(({ analysis, ...item }) => ({
@@ -362,7 +379,7 @@ const generateSamplesExportExcel = async (
   const specificDataHeaders = samplesData
     .flatMap((sample) => sample.specificData ?? [])
     .reduce<
-      { key: SampleMatrixSpecificDataKeys; label: string }[]
+      { key: string; label: string }[]
     >((acc, { key, label }) => (acc.some((h) => h.key === key) ? acc : [...acc, { key, label }]), []);
 
   const completedSamples = samplesData.map((sample) => ({

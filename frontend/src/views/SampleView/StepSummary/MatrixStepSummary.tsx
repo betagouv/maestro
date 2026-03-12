@@ -8,26 +8,23 @@ import {
   MatrixSpecificDataFormInputProps
 } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
 import {
-  getSpecificDataValue,
-  MatrixSpecificDataFormInputs,
-  SampleMatrixSpecificDataKeys
-} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
-import {
   getSampleMatrixLabel,
   isProgrammingPlanSample,
   SampleChecked,
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import {
-  getSampleMatrixSpecificDataAttributeValues,
-  SampleMatrixSpecificData,
+  SpecificData,
   UnknownValue
-} from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+} from 'maestro-shared/schema/SpecificData/SpecificData';
 
 import { FrIconClassName } from '@codegouvfr/react-dsfr/fr/generatedFromCss/classNames';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
+import { useContext } from 'react';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
+import { ApiClientContext } from 'src/services/apiClient';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import StepSummary, {
   StepSummaryMode
@@ -39,7 +36,7 @@ interface Props {
   sample: (SampleChecked | SampleToCreate) & Partial<SampleOwnerData>;
   mode?: StepSummaryMode;
   onEdit?: () => void;
-  onUpdateSpecificData?: (specificData: SampleMatrixSpecificData) => void;
+  onUpdateSpecificData?: (specificData: SpecificData) => void;
 }
 const MatrixStepSummary = ({
   sample,
@@ -47,6 +44,16 @@ const MatrixStepSummary = ({
   onEdit,
   onUpdateSpecificData
 }: Props) => {
+  const apiClient = useContext(ApiClientContext);
+  const { data: fieldConfigs = [] } =
+    apiClient.useFindPlanKindFieldConfigsQuery({
+      programmingPlanId: sample.programmingPlanId,
+      kind: sample.specificData.programmingPlanKind
+    });
+  const planLayout = MatrixSpecificDataForm[
+    sample.specificData.programmingPlanKind
+  ] as Record<string, MatrixSpecificDataFormInputProps>;
+
   return (
     <StepSummary title="Matrice contrôlée" onEdit={onEdit} mode={mode}>
       <div className="summary-item icon-text">
@@ -68,19 +75,19 @@ const MatrixStepSummary = ({
         </div>
       </div>
 
-      {(
-        Object.entries(
-          MatrixSpecificDataForm[sample.specificData.programmingPlanKind]
-        ) as [SampleMatrixSpecificDataKeys, MatrixSpecificDataFormInputProps][]
-      )
-        .filter(([_, inputProps]) => inputProps.position !== 'pre')
-        .map(([inputKey, inputProps]) => {
-          const value = getSpecificDataValue(inputKey, sample.specificData);
+      {fieldConfigs
+        .filter(
+          (fc) => (planLayout[fc.field.key]?.position ?? 'post') !== 'pre'
+        )
+        .map((fc) => {
+          const { field } = fc;
+          const inputKey = field.key;
+          const inputProps = planLayout[inputKey] ?? {};
+          const rawValue = (sample.specificData as any)[inputKey];
+          const value = getFieldValueLabel(field, rawValue);
           if (!value) {
             return null;
           }
-
-          const input = MatrixSpecificDataFormInputs[inputKey];
 
           return (
             <div key={inputKey} className="summary-item icon-text">
@@ -90,19 +97,16 @@ const MatrixStepSummary = ({
                 )}
               ></div>
               <div>
-                {input.inputType === 'checkbox' ? (
+                {field.inputType === 'checkbox' ? (
                   <b>{value}</b>
-                ) : input.inputType === 'selectWithUnknown' ? (
+                ) : field.inputType === 'selectWithUnknown' ? (
                   <>
-                    {inputProps.label ?? input.label}
+                    {inputProps.label ?? field.label}
                     <AppRequiredInput />{' '}
                     <Select
                       label=""
                       nativeSelectProps={{
-                        value:
-                          sample.specificData[
-                            inputKey as keyof SampleMatrixSpecificData
-                          ] ?? '',
+                        value: (sample.specificData[inputKey] as string) ?? '',
                         onChange: (e) =>
                           onUpdateSpecificData?.({
                             ...sample.specificData,
@@ -114,12 +118,13 @@ const MatrixStepSummary = ({
                       }}
                     >
                       {selectOptionsFromList(
-                        getSampleMatrixSpecificDataAttributeValues(
-                          sample.specificData.programmingPlanKind,
-                          inputKey
-                        ).filter((option) => option !== UnknownValue),
+                        [...field.options]
+                          .sort((a, b) => a.order - b.order)
+                          .map((o) => o.value),
                         {
-                          labels: input.optionsLabels
+                          labels: Object.fromEntries(
+                            field.options.map((o) => [o.value, o.label])
+                          )
                         }
                       ).map((option) => (
                         <option key={option.value} value={option.value}>
@@ -130,7 +135,7 @@ const MatrixStepSummary = ({
                   </>
                 ) : (
                   <>
-                    {inputProps.label ?? input.label} : <b>{value}</b>
+                    {inputProps.label ?? field.label} : <b>{value}</b>
                   </>
                 )}
               </div>

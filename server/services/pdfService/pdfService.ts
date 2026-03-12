@@ -10,7 +10,6 @@ import UserMissingError from 'maestro-shared/errors/userMissingError';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
@@ -20,11 +19,6 @@ import {
   MatrixSpecificDataForm,
   MatrixSpecificDataFormInputProps
 } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
-import {
-  getSpecificDataValue,
-  MatrixSpecificDataFormInputs,
-  SampleMatrixSpecificDataKeys
-} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   ProgrammingPlanKindWithSacha,
@@ -40,7 +34,7 @@ import {
   SampleItemMaxCopyCount
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
-import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import path from 'path';
@@ -48,6 +42,7 @@ import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
+import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 import { userRepository } from '../../repositories/userRepository';
 import {
   assetsPath,
@@ -194,17 +189,25 @@ const generateSamplePDF = async (
   template: Extract<Template, 'supportDocument' | 'sampleEmptyForm'>
 ) => {
   const programmingPlan = await programmingPlanRepository.findUnique(
-    sample.programmingPlanId as string
+    sample.programmingPlanId
   );
 
   if (!programmingPlan) {
-    throw new ProgrammingPlanMissingError(sample.programmingPlanId as string);
+    throw new ProgrammingPlanMissingError(sample.programmingPlanId);
   }
 
   const sampler = await userRepository.findUnique(sample.sampler.id);
   if (!sampler) {
     throw new UserMissingError(sample.sampler.id);
   }
+
+  const fieldConfigs = await specificDataFieldConfigRepository.findByPlanKind(
+    sample.programmingPlanId,
+    sample.specificData.programmingPlanKind
+  );
+  const planLayout = MatrixSpecificDataForm[
+    sample.specificData.programmingPlanKind
+  ] as Record<string, MatrixSpecificDataFormInputProps>;
   const additionalSampler = sample.additionalSampler
     ? await userRepository.findUnique(sample.additionalSampler.id)
     : null;
@@ -266,6 +269,10 @@ const generateSamplePDF = async (
     textyoffset: -5
   });
 
+  const matrixPartField = fieldConfigs.find(
+    (c) => c.field.key === 'matrixPart'
+  )?.field;
+
   return generatePDF(template, {
     fullVersion,
     ...sample,
@@ -326,19 +333,17 @@ const generateSamplePDF = async (
     stage: sample.stage ? StageLabels[sample.stage] : '',
     matrixKind: sample.matrixKind ? MatrixKindLabels[sample.matrixKind] : '',
     matrix: getSampleMatrixLabel(sample),
-    matrixPart: getMatrixPartLabel(sample),
-    specificDataItems: (
-      Object.entries(
-        MatrixSpecificDataForm[sample.specificData.programmingPlanKind]
-      ) as [SampleMatrixSpecificDataKeys, MatrixSpecificDataFormInputProps][]
-    )
-      .filter(([inputKey, _]) => inputKey !== 'releaseControl')
-      .map(([inputKey, inputProps]) => ({
-        label: inputProps.label ?? MatrixSpecificDataFormInputs[inputKey].label,
-        value: getSpecificDataValue(
-          inputKey,
-          sample.specificData as SampleMatrixSpecificData
-        )
+    matrixPart: matrixPartField
+      ? (getFieldValueLabel(
+          matrixPartField,
+          sample.specificData['matrixPart']
+        ) ?? '')
+      : '',
+    specificDataItems: fieldConfigs
+      .filter((fc) => fc.field.key !== 'releaseControl')
+      .map((fc) => ({
+        label: planLayout[fc.field.key]?.label ?? fc.field.label,
+        value: getFieldValueLabel(fc.field, sample.specificData[fc.field.key])
       })),
     releaseControl:
       sample.specificData?.programmingPlanKind === 'PPV'

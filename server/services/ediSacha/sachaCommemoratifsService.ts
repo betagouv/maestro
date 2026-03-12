@@ -9,6 +9,7 @@ import { executeTransaction } from '../../repositories/kysely';
 import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
 import { sachaConfRepository } from '../../repositories/sachaConfRepository';
 import { sampleSpecificDataRepository } from '../../repositories/sampleSpecificDataRepository';
+import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 
 interface ReferenceCommemoratif {
   Sigle: string;
@@ -97,30 +98,31 @@ export const updateSachaCommemoratifs = async (xmlContent: string) => {
     }))
   }));
 
-  const current = await sampleSpecificDataRepository.findAll();
+  const sachaFieldConfigs =
+    await specificDataFieldConfigRepository.findSachaFields();
 
   await executeTransaction(async (trx) => {
     await sachaConfRepository.update(
       { versionReferenceStandardisees: nomFichier },
       trx
     );
-    for (const attribute of Object.keys(current)) {
-      const { values: specificDataAttributeValues, ...specificDataAttribute } =
-        current[attribute];
+    for (const fc of sachaFieldConfigs) {
       const commemoratif = results.find(
-        (r) => r.sigle === specificDataAttribute.sachaCommemoratifSigle
+        (r) => r.sigle === fc.sachaCommemoratifSigle
       );
 
       //Si le commemoratif actuellement utilisé passe à "Gelé", il faut arrêter de l'utiliser
       if (commemoratif && commemoratif.statut === 'G') {
         await sampleSpecificDataRepository.deleteSampleSpecificDataAttributeValues(
-          attribute,
+          fc.key,
           trx
         );
 
         await sampleSpecificDataRepository.updateSampleSpecificDataAttribute(
           {
-            ...specificDataAttribute,
+            attribute: fc.key,
+            inDai: fc.inDai,
+            optional: fc.optional,
             sachaCommemoratifSigle: null
           },
           trx
@@ -128,18 +130,17 @@ export const updateSachaCommemoratifs = async (xmlContent: string) => {
       } else {
         //Si le commémoratif est toujours Valide, il faut vérifier qu'on utilise pas une Value gelée
 
-        for (const [
-          attributeValue,
-          sachaCommemoratifValueSigle
-        ] of Object.entries(specificDataAttributeValues)) {
+        for (const option of fc.options.filter(
+          (o) => o.sachaCommemoratifValueSigle !== null
+        )) {
           const commemoratifValue = commemoratif?.values.find(
-            (v) => v.sigle === sachaCommemoratifValueSigle
+            (v) => v.sigle === option.sachaCommemoratifValueSigle
           );
 
           if (commemoratifValue && commemoratifValue.statut === 'G') {
             await sampleSpecificDataRepository.deleteSampleSpecificDataAttributeValue(
-              attribute,
-              attributeValue,
+              fc.key,
+              option.value,
               trx
             );
           }

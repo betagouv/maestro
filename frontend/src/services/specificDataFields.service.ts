@@ -1,14 +1,14 @@
 import {
   SampleSpecificDataAttribute,
-  SampleSpecificDataAttributeValue,
-  SampleSpecificDataRecord
+  SampleSpecificDataAttributeValue
 } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
+import { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { api } from 'src/services/api.service';
 
-const sampleSpecificDataApi = api.injectEndpoints({
+const specificDataFieldsApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getSampleSpecificData: builder.query<SampleSpecificDataRecord, void>({
-      query: () => '/specific-data-attribute',
+    findSachaFieldConfigs: builder.query<SachaFieldConfig[], void>({
+      query: () => `/specific-data-fields/sacha`,
       providesTags: ['SampleSpecificData']
     }),
     updateSampleSpecificDataAttribute: builder.mutation<
@@ -16,7 +16,7 @@ const sampleSpecificDataApi = api.injectEndpoints({
       SampleSpecificDataAttribute
     >({
       query: (body) => ({
-        url: '/specific-data-attribute',
+        url: '/specific-data-fields/attribute',
         method: 'POST',
         body
       }),
@@ -27,7 +27,7 @@ const sampleSpecificDataApi = api.injectEndpoints({
       SampleSpecificDataAttributeValue
     >({
       query: (body) => ({
-        url: '/specific-data-attribute/value',
+        url: '/specific-data-fields/attribute/value',
         method: 'POST',
         body
       }),
@@ -37,7 +37,7 @@ const sampleSpecificDataApi = api.injectEndpoints({
 });
 
 export const {
-  useGetSampleSpecificDataQuery,
+  useFindSachaFieldConfigsQuery,
   useUpdateSampleSpecificDataAttributeMutation,
   useUpdateSampleSpecificDataAttributeValueMutation
-} = sampleSpecificDataApi;
+} = specificDataFieldsApi;

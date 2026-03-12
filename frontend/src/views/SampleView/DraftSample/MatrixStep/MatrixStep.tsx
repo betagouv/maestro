@@ -24,7 +24,6 @@ import {
   MatrixSpecificDataForm,
   MatrixSpecificDataFormInputProps
 } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
-import { SampleMatrixSpecificDataKeys } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -41,6 +40,7 @@ import {
   SampleStatus,
   SampleStatusSteps
 } from 'maestro-shared/schema/Sample/SampleStatus';
+import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { toArray } from 'maestro-shared/utils/utils';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
@@ -101,6 +101,16 @@ const MatrixStep = ({ partialSample }: Props) => {
     apiClient.useCreateOrUpdateSampleMutation();
   const [createDocument] = apiClient.useCreateDocumentMutation();
   const [deleteDocument] = apiClient.useDeleteDocumentMutation();
+
+  const { data: fieldConfigs = [] } =
+    apiClient.useFindPlanKindFieldConfigsQuery({
+      programmingPlanId: partialSample.programmingPlanId as string,
+      kind: specificData.programmingPlanKind
+    });
+
+  const planLayout = MatrixSpecificDataForm[
+    specificData.programmingPlanKind
+  ] as Record<string, MatrixSpecificDataFormInputProps>;
 
   const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
     {
@@ -192,10 +202,16 @@ const MatrixStep = ({ partialSample }: Props) => {
     });
   };
 
+  const specificDataSchema = useMemo(
+    () =>
+      buildSpecificDataSchema(specificData.programmingPlanKind, fieldConfigs),
+    [fieldConfigs, specificData.programmingPlanKind]
+  );
+
   const form = useForm(
-    SampleMatrixData.omit({
-      documentIds: true
-    }).check(prescriptionSubstancesCheck, sampleMatrixCheck),
+    SampleMatrixData.omit({ documentIds: true, specificData: true })
+      .extend({ specificData: specificDataSchema })
+      .check(prescriptionSubstancesCheck, sampleMatrixCheck),
     {
       matrixKind,
       matrix,
@@ -387,20 +403,15 @@ const MatrixStep = ({ partialSample }: Props) => {
       </div>
 
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        {(
-          Object.entries(
-            MatrixSpecificDataForm[specificData.programmingPlanKind]
-          ) as [
-            SampleMatrixSpecificDataKeys,
-            MatrixSpecificDataFormInputProps
-          ][]
-        )
-          .filter(([_, inputProps]) => inputProps.position === 'pre')
-          .map(([inputKey, inputProps]) => (
+        {fieldConfigs
+          .filter(
+            (fc) => (planLayout[fc.field.key]?.position ?? 'post') === 'pre'
+          )
+          .map((fc) => (
             <MatrixSpecificDataFormInput
-              key={inputKey}
-              inputKey={inputKey}
-              inputProps={inputProps}
+              key={fc.field.key}
+              fieldConfig={fc}
+              inputProps={planLayout[fc.field.key] ?? {}}
               inputForm={form}
               specificData={specificData}
               onChange={setSpecificData}
@@ -509,20 +520,15 @@ const MatrixStep = ({ partialSample }: Props) => {
       </div>
       <SampleProcedure partialSample={partialSample} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        {(
-          Object.entries(
-            MatrixSpecificDataForm[specificData.programmingPlanKind]
-          ) as [
-            SampleMatrixSpecificDataKeys,
-            MatrixSpecificDataFormInputProps
-          ][]
-        )
-          .filter(([_, inputProps]) => inputProps.position !== 'pre')
-          .map(([inputKey, inputProps]) => (
+        {fieldConfigs
+          .filter(
+            (fc) => (planLayout[fc.field.key]?.position ?? 'post') !== 'pre'
+          )
+          .map((fc) => (
             <MatrixSpecificDataFormInput
-              key={inputKey}
-              inputKey={inputKey}
-              inputProps={inputProps}
+              key={fc.field.key}
+              fieldConfig={fc}
+              inputProps={planLayout[fc.field.key] ?? {}}
               inputForm={form}
               specificData={specificData}
               onChange={setSpecificData}

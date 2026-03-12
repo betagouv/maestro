@@ -10,6 +10,7 @@ import {
   genCreatedSampleData,
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
+import { PPVFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { getMockApi, MockApi } from '../../../../../services/mockApiClient';
@@ -69,6 +70,9 @@ const storyMockApi: Partial<MockApi> = {
   },
   useFindLocalPrescriptionsQuery: {
     data: [regionalPrescription1, regionalPrescription2]
+  },
+  useFindPlanKindFieldConfigsQuery: {
+    data: PPVFieldConfigs
   }
 };
 
@@ -130,7 +134,7 @@ export const MatrixStepPPVSubmittingErrors: Story = {
       canvas.getByText('Veuillez renseigner la matrice.')
     ).toBeInTheDocument();
     await expect(
-      canvas.getByText('Veuillez renseigner la partie du végétal.')
+      canvas.getByText('Veuillez renseigner le champ « Type de production ».')
     ).toBeInTheDocument();
     await expect(
       canvas.getByText('Veuillez renseigner le stade de prélèvement.')

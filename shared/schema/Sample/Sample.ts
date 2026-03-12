@@ -16,19 +16,14 @@ import { Stage } from '../../referential/Stage';
 import { isDefined } from '../../utils/utils';
 import { Company } from '../Company/Company';
 import { Geolocation } from '../Geolocation/Geolocation';
-import { MatrixSpecificDataFormInputs } from '../MatrixSpecificData/MatrixSpecificDataFormInputs';
 import {
   Context,
   OutsideProgrammingPlanContext,
   ProgrammingPlanContext
 } from '../ProgrammingPlan/Context';
+import { SpecificData, UnknownValue } from '../SpecificData/SpecificData';
 import { Sampler } from '../User/User';
 import { PartialSampleItem, SampleItem } from './SampleItem';
-import {
-  PartialSampleMatrixSpecificData,
-  SampleMatrixSpecificData,
-  UnknownValue
-} from './SampleMatrixSpecificData';
 import { SampleStatus } from './SampleStatus';
 
 export const SampleContextData = z.object({
@@ -46,7 +41,7 @@ export const SampleContextData = z.object({
   resytalId: z.string().nullish(),
   notesOnCreation: z.string().nullish(),
   status: SampleStatus,
-  specificData: PartialSampleMatrixSpecificData
+  specificData: SpecificData
 });
 
 export const SampleMatrixData = z.object({
@@ -66,7 +61,7 @@ export const SampleMatrixData = z.object({
   monoSubstances: z.array(SSD2Id).nullish(),
   multiSubstances: z.array(SSD2Id).nullish(),
   documentIds: z.array(z.guid()).nullish(),
-  specificData: SampleMatrixSpecificData
+  specificData: SpecificData
 });
 
 export const sampleMatrixCheck: CheckFn<{
@@ -87,22 +82,16 @@ export const sampleMatrixCheck: CheckFn<{
 };
 
 const unknownValueCheck: CheckFn<{
-  specificData: SampleMatrixSpecificData;
+  specificData: SpecificData;
 }> = (ctx) => {
   const specificData = ctx.value.specificData;
 
   Object.entries(specificData).forEach(([key, value]) => {
     if (value === UnknownValue) {
-      const fieldLabel =
-        key in MatrixSpecificDataFormInputs
-          ? MatrixSpecificDataFormInputs[
-              key as keyof typeof MatrixSpecificDataFormInputs
-            ]?.label
-          : undefined;
       ctx.issues.push({
         input: ctx.value,
         code: 'custom',
-        message: `Veuillez renseigner le descripteur "${fieldLabel ? fieldLabel.toLowerCase() : key}".`,
+        message: `Veuillez renseigner le descripteur manquant.`,
         path: ['specificData', key]
       });
     }
@@ -206,7 +195,7 @@ const PartialSampleMatrixData = z.object({
   matrixKind: z.union([MatrixKind, OtherMatrixKind]).nullish(),
   matrix: z.union([Matrix, z.string().nonempty()]).nullish(),
   stage: Stage.nullish(),
-  specificData: PartialSampleMatrixSpecificData
+  specificData: SpecificData
 });
 
 export const PartialSampleToCreate = z.object({

@@ -640,7 +640,7 @@ describe('Sample router', () => {
           status: 'Sent'
         })
         .use(tokenProvider(SamplerDaoaFixture))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     test('should update the sample send date when sending the sample', async () => {

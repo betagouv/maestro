@@ -18,7 +18,7 @@ import { prescriptionsRoutes } from './prescriptions.routes';
 import { programmingPlansRoutes } from './programmingPlans.routes';
 import { sachaCommemoratifsRoute } from './sachaCommemoratifs.route';
 import { samplesRoutes } from './samples.routes';
-import { sampleSpecificDataRoutes } from './sampleSpecificData';
+import { specificDataFieldsRoutes } from './specificDataFields.routes';
 import { usersRoutes } from './users.routes';
 
 export const MaestroRoutes = [
@@ -52,6 +52,7 @@ export const MaestroRoutes = [
   '/prescriptions/:prescriptionId/regions/:region/departments/:department/companies/:companySiret',
   '/prescriptions/:prescriptionId/substances',
   '/prescriptions/:prescriptionId',
+  '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields',
   '/programming-plans',
   '/programming-plans/years/:year',
   '/programming-plans/:programmingPlanId',
@@ -65,8 +66,9 @@ export const MaestroRoutes = [
   '/samples/:sampleId/items/:itemNumber/copy/:copyNumber/document',
   '/samples/:sampleId/items/:itemNumber/copy/:copyNumber',
   '/samples/:sampleId',
-  '/specific-data-attribute/value',
-  '/specific-data-attribute',
+  '/specific-data-fields/sacha',
+  '/specific-data-fields/attribute',
+  '/specific-data-fields/attribute/value',
   '/users',
   '/users/:userId'
 ] as const;
@@ -81,10 +83,10 @@ export const routes = {
   ...noticesRoutes,
   ...notificationsRoutes,
   ...prescriptionsRoutes,
-  ...programmingPlansRoutes,
-  ...sampleSpecificDataRoutes,
+...programmingPlansRoutes,
   ...sachaCommemoratifsRoute,
   ...samplesRoutes,
+  ...specificDataFieldsRoutes,
   ...usersRoutes
 } as const satisfies {
   [path in MaestroRoutes]: { [method in RouteMethod]?: ToRoute } & {
