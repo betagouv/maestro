@@ -22,6 +22,9 @@ export const up = async (knex: Knex) => {
     .update({ status: 'Sent' })
     .whereIn('status', ['NotAdmissible', 'Analysis', 'InReview', 'Completed']);
 
+  await knex.raw('DROP VIEW IF EXISTS sample_status');
+  await knex.raw('DROP VIEW IF EXISTS sample_item_status');
+
   await knex.raw(`
     CREATE VIEW sample_item_status AS
     SELECT
@@ -42,7 +45,7 @@ export const up = async (knex: Knex) => {
         WHEN 3 THEN 'Analysis'
         WHEN 4 THEN 'InReview'
         WHEN 5 THEN 'Completed'
-        ELSE NULL
+        ELSE 'Sent'
       END as status
     FROM sample_items si
     LEFT JOIN analysis a
@@ -59,6 +62,13 @@ export const up = async (knex: Knex) => {
       s.id as sample_id,
       CASE
         WHEN s.status != 'Sent' THEN s.status
+        WHEN (
+          SELECT COUNT(*) FROM sample_item_status sis WHERE sis.sample_id = s.id
+        ) > 0
+        AND (
+          SELECT COUNT(*) FROM sample_item_status sis WHERE sis.sample_id = s.id AND sis.status != 'NotAdmissible'
+        ) = 0
+          THEN 'NotAdmissible'
         ELSE COALESCE(
           (
             SELECT CASE MIN(
@@ -76,7 +86,7 @@ export const up = async (knex: Knex) => {
               WHEN 3 THEN 'Analysis'
               WHEN 4 THEN 'InReview'
               WHEN 5 THEN 'Completed'
-              ELSE NULL
+              ELSE 'Sent'
             END
             FROM sample_item_status sis
             WHERE sis.sample_id = s.id
