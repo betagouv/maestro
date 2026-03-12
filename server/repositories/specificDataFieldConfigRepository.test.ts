@@ -1,7 +1,7 @@
 import {
   AllFieldConfigs,
-  DAOABreedingFieldConfigs,
-  DAOASlaughterFieldConfigs,
+  DAOABovinFieldConfigs,
+  DAOAVolailleFieldConfigs,
   PPVFieldConfigs,
   SachaFieldConfigs
 } from 'maestro-shared/test/specificDataFixtures';
@@ -64,23 +64,23 @@ describe('findByPlanKind', () => {
     });
   });
 
-  describe('DAOA_BREEDING', () => {
+  describe('DAOA_VOLAILLE', () => {
     test('returns fields in order', async () => {
       const configs =
-        await specificDataFieldConfigRepository.findByPlanKind('DAOA_BREEDING');
+        await specificDataFieldConfigRepository.findByPlanKind('DAOA_VOLAILLE');
 
-      expect(configs).toHaveLength(DAOABreedingFieldConfigs.length);
+      expect(configs).toHaveLength(DAOAVolailleFieldConfigs.length);
       expect(configs.map((c) => c.field.key)).toEqual(
-        DAOABreedingFieldConfigs.map((c) => c.field.key)
+        DAOAVolailleFieldConfigs.map((c) => c.field.key)
       );
     });
 
     test('returns correct options per field', async () => {
       const configs =
-        await specificDataFieldConfigRepository.findByPlanKind('DAOA_BREEDING');
+        await specificDataFieldConfigRepository.findByPlanKind('DAOA_VOLAILLE');
 
       const byKey = Object.fromEntries(configs.map((c) => [c.field.key, c]));
-      for (const fixture of DAOABreedingFieldConfigs) {
+      for (const fixture of DAOAVolailleFieldConfigs) {
         expect(
           byKey[fixture.field.key].field.options.map((o) => o.value)
         ).toEqual(fixture.field.options.map((o) => o.value));
@@ -88,27 +88,23 @@ describe('findByPlanKind', () => {
     });
   });
 
-  describe('DAOA_SLAUGHTER', () => {
+  describe('DAOA_BOVIN', () => {
     test('returns fields in order', async () => {
       const configs =
-        await specificDataFieldConfigRepository.findByPlanKind(
-          'DAOA_SLAUGHTER'
-        );
+        await specificDataFieldConfigRepository.findByPlanKind('DAOA_BOVIN');
 
-      expect(configs).toHaveLength(DAOASlaughterFieldConfigs.length);
+      expect(configs).toHaveLength(DAOABovinFieldConfigs.length);
       expect(configs.map((c) => c.field.key)).toEqual(
-        DAOASlaughterFieldConfigs.map((c) => c.field.key)
+        DAOABovinFieldConfigs.map((c) => c.field.key)
       );
     });
 
     test('returns correct options per field', async () => {
       const configs =
-        await specificDataFieldConfigRepository.findByPlanKind(
-          'DAOA_SLAUGHTER'
-        );
+        await specificDataFieldConfigRepository.findByPlanKind('DAOA_BOVIN');
 
       const byKey = Object.fromEntries(configs.map((c) => [c.field.key, c]));
-      for (const fixture of DAOASlaughterFieldConfigs) {
+      for (const fixture of DAOABovinFieldConfigs) {
         expect(
           byKey[fixture.field.key].field.options.map((o) => o.value)
         ).toEqual(fixture.field.options.map((o) => o.value));

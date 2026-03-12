@@ -5,7 +5,7 @@ import {
   genCreatedSampleData,
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
-import { DAOASlaughterFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
+import { DAOABovinFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { getMockApi } from '../../../../../services/mockApiClient';
 import MatrixStep from '../MatrixStep';
@@ -55,7 +55,7 @@ export const MatrixStepDAOA: Story = {
     },
     apiClient: getMockApi({
       useFindPlanKindFieldConfigsQuery: {
-        data: DAOASlaughterFieldConfigs
+        data: DAOABovinFieldConfigs
       }
     })
   }

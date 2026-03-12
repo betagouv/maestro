@@ -93,9 +93,9 @@ export const PPVFieldConfigs: PlanKindFieldConfig[] = [
   }
 ];
 
-export const DAOABreedingFieldConfigs: PlanKindFieldConfig[] = [
+export const DAOAVolailleFieldConfigs: PlanKindFieldConfig[] = [
   {
-    programmingPlanKind: 'DAOA_BREEDING',
+    programmingPlanKind: 'DAOA_VOLAILLE',
     required: true,
     order: 1,
     field: {
@@ -107,7 +107,7 @@ export const DAOABreedingFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
-    programmingPlanKind: 'DAOA_BREEDING',
+    programmingPlanKind: 'DAOA_VOLAILLE',
     required: true,
     order: 2,
     field: {
@@ -119,7 +119,7 @@ export const DAOABreedingFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
-    programmingPlanKind: 'DAOA_BREEDING',
+    programmingPlanKind: 'DAOA_VOLAILLE',
     required: true,
     order: 3,
     field: {
@@ -131,7 +131,7 @@ export const DAOABreedingFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
-    programmingPlanKind: 'DAOA_BREEDING',
+    programmingPlanKind: 'DAOA_VOLAILLE',
     required: true,
     order: 4,
     field: {
@@ -148,7 +148,7 @@ export const DAOABreedingFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
-    programmingPlanKind: 'DAOA_BREEDING',
+    programmingPlanKind: 'DAOA_VOLAILLE',
     required: true,
     order: 5,
     field: {
@@ -164,7 +164,7 @@ export const DAOABreedingFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
-    programmingPlanKind: 'DAOA_BREEDING',
+    programmingPlanKind: 'DAOA_VOLAILLE',
     required: true,
     order: 6,
     field: {
@@ -181,9 +181,9 @@ export const DAOABreedingFieldConfigs: PlanKindFieldConfig[] = [
   }
 ];
 
-export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
+export const DAOABovinFieldConfigs: PlanKindFieldConfig[] = [
   {
-    programmingPlanKind: 'DAOA_SLAUGHTER',
+    programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 1,
     field: {
@@ -195,7 +195,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
-    programmingPlanKind: 'DAOA_SLAUGHTER',
+    programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 2,
     field: {
@@ -207,7 +207,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
-    programmingPlanKind: 'DAOA_SLAUGHTER',
+    programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 3,
     field: {
@@ -219,7 +219,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
-    programmingPlanKind: 'DAOA_SLAUGHTER',
+    programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 4,
     field: {
@@ -244,7 +244,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
-    programmingPlanKind: 'DAOA_SLAUGHTER',
+    programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 5,
     field: {
@@ -262,7 +262,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
-    programmingPlanKind: 'DAOA_SLAUGHTER',
+    programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 6,
     field: {
@@ -274,7 +274,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
-    programmingPlanKind: 'DAOA_SLAUGHTER',
+    programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 7,
     field: {
@@ -291,7 +291,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
-    programmingPlanKind: 'DAOA_SLAUGHTER',
+    programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 8,
     field: {
@@ -307,7 +307,7 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
-    programmingPlanKind: 'DAOA_SLAUGHTER',
+    programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 9,
     field: {
@@ -326,11 +326,11 @@ export const DAOASlaughterFieldConfigs: PlanKindFieldConfig[] = [
 
 export const AllFieldConfigs = [
   ...PPVFieldConfigs,
-  ...DAOABreedingFieldConfigs,
-  ...DAOASlaughterFieldConfigs
+  ...DAOAVolailleFieldConfigs,
+  ...DAOABovinFieldConfigs
 ];
 
 export const SachaFieldConfigs = [
-  ...DAOABreedingFieldConfigs,
-  ...DAOASlaughterFieldConfigs
+  ...DAOAVolailleFieldConfigs,
+  ...DAOABovinFieldConfigs
 ];
