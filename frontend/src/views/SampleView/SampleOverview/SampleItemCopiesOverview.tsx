@@ -7,7 +7,7 @@ import { isNil } from 'lodash-es';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { getSupportDocumentURL } from '../../../services/sample.service';
 import { quote } from '../../../utils/stringUtils';
@@ -26,6 +26,10 @@ const SampleItemCopiesOverview = ({
   sample
 }: Props) => {
   const [copyNumber, setCopyNumber] = useState(sampleItemCopies[0].copyNumber);
+
+  useEffect(() => {
+    setCopyNumber(sampleItemCopies[0].copyNumber);
+  }, [sampleItemCopies]);
 
   return (
     <>
@@ -93,14 +97,16 @@ const SampleItemCopiesOverview = ({
           }
         />
       )}
-      <SampleItemAnalysis
-        sample={sample}
-        sampleItem={
-          sampleItemCopies.find(
-            (copy) => copy.copyNumber === copyNumber
-          ) as SampleItem
-        }
-      />
+      {sampleItemCopies.some((copy) => copy.copyNumber === copyNumber) && (
+        <SampleItemAnalysis
+          sample={sample}
+          sampleItem={
+            sampleItemCopies.find(
+              (copy) => copy.copyNumber === copyNumber
+            ) as SampleItem
+          }
+        />
+      )}
     </>
   );
 };

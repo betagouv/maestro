@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { isNil } from 'lodash-es';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import food from 'src/assets/illustrations/food.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
@@ -29,6 +29,11 @@ const SampleOverview = ({ sample }: Props) => {
     'items' | 'matrix' | 'context' | 'agreement'
   >('items');
   const [activeItemNumber, setActiveItemNumber] = useState<number>(1);
+
+  const sampleItemCopies = useMemo(
+    () => sample.items.filter((item) => item.itemNumber === activeItemNumber),
+    [sample.items, activeItemNumber]
+  );
 
   return (
     <section
@@ -158,9 +163,7 @@ const SampleOverview = ({ sample }: Props) => {
             {activeMenu === 'items' && (
               <SampleItemCopiesOverview
                 itemNumber={activeItemNumber}
-                sampleItemCopies={sample.items.filter(
-                  (item) => item.itemNumber === activeItemNumber
-                )}
+                sampleItemCopies={sampleItemCopies}
                 sample={sample}
               />
             )}
