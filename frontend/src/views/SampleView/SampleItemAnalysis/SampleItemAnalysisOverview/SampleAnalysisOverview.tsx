@@ -1,6 +1,7 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
+import { omit } from 'lodash-es';
 import { type PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { FunctionComponent } from 'react';
@@ -24,7 +25,10 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const residues = analysis.residues?.map((r) => ({ ...sample, ...r }));
+  const residues = analysis.residues?.map((r) => ({
+    ...omit(sample, 'compliance'),
+    ...r
+  }));
 
   return (
     <>

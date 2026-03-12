@@ -13,14 +13,8 @@ import {
   UserRefined
 } from '../User/User';
 import { isNationalRole, UserRole } from '../User/UserRole';
+import { SampleCompliance } from './SampleCompliance';
 import { SampleStatus } from './SampleStatus';
-
-export const SampleCompliance = z.enum(['conform', 'notConform']);
-
-export const SampleComplianceLabels = {
-  conform: 'Conforme',
-  notConform: 'Non conforme'
-} as const satisfies Record<z.infer<typeof SampleCompliance>, string>;
 
 export const FindSampleOptions = z
   .object({
