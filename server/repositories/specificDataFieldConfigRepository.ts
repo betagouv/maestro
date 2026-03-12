@@ -7,6 +7,7 @@ import {
 import { kysely } from './kysely';
 
 const findByPlanKind = async (
+  programmingPlanId: string,
   kind: ProgrammingPlanKind
 ): Promise<PlanKindFieldConfig[]> => {
   console.info('Find specific data field configs for plan kind', kind);
@@ -16,7 +17,7 @@ const findByPlanKind = async (
     .innerJoin('specificDataFields as sdf', 'sdf.id', 'ppkf.fieldId')
     .select([
       'ppkf.id',
-      'ppkf.programmingPlanKind',
+      'ppkf.kind',
       'ppkf.required',
       'ppkf.order',
       'sdf.key',
@@ -24,7 +25,8 @@ const findByPlanKind = async (
       'sdf.label',
       'sdf.hintText'
     ])
-    .where('ppkf.programmingPlanKind', '=', kind)
+    .where('ppkf.programmingPlanId', '=', programmingPlanId)
+    .where('ppkf.kind', '=', kind)
     .orderBy('ppkf.order')
     .execute();
 
@@ -61,7 +63,7 @@ const findByPlanKind = async (
   }, {});
 
   return planKindFields.map((f) => ({
-    programmingPlanKind: ProgrammingPlanKind.parse(f.programmingPlanKind),
+    programmingPlanKind: f.kind,
     required: f.required,
     order: f.order,
     field: {
@@ -92,7 +94,7 @@ const findSachaFields = async (): Promise<SachaFieldConfig[]> => {
       'sdf.sachaInDai',
       'sdf.sachaOptional'
     ])
-    .where('ppkf.programmingPlanKind', '!=', 'PPV')
+    .where('ppkf.kind', '!=', 'PPV')
     .distinctOn('sdf.id')
     .execute();
 

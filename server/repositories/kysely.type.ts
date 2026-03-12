@@ -328,6 +328,11 @@ export interface UserCompanies {
   userId: string;
 }
 
+export interface ProgrammingPlanKinds {
+  programmingPlanId: string;
+  kind: ProgrammingPlanKind;
+}
+
 export interface SampleDocuments {
   documentId: string;
   sampleId: string;
@@ -360,7 +365,8 @@ export interface SpecificDataFieldOptions {
 
 export interface ProgrammingPlanKindFields {
   id: Generated<ProgrammingPlanKindFieldId>;
-  programmingPlanKind: string;
+  programmingPlanId: string;
+  kind: ProgrammingPlanKind;
   fieldId: SpecificDataFieldId;
   required: Generated<boolean>;
   order: number;
@@ -391,6 +397,7 @@ export interface DB {
   notices: Notices;
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;
+  programmingPlanKinds: ProgrammingPlanKinds;
   programmingPlans: ProgrammingPlans;
   localPrescriptionComments: LocalPrescriptionComments;
   localPrescriptions: LocalPrescriptions;

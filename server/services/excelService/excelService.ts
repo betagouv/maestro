@@ -29,6 +29,7 @@ import {
   PrescriptionSort
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getSampleMatrixLabel,
@@ -167,20 +168,26 @@ const generateSamplesExportExcel = async (
 
   const fieldConfigsCache = new Map<string, PlanKindFieldConfig[]>();
   const getFieldConfigs = async (
-    kind: string
+    programmingPlanId: string,
+    kind: ProgrammingPlanKind
   ): Promise<PlanKindFieldConfig[]> => {
-    if (!fieldConfigsCache.has(kind)) {
+    const cacheKey = `${programmingPlanId}:${kind}`;
+    if (!fieldConfigsCache.has(cacheKey)) {
       fieldConfigsCache.set(
-        kind,
-        await specificDataFieldConfigRepository.findByPlanKind(kind as any)
+        cacheKey,
+        await specificDataFieldConfigRepository.findByPlanKind(
+          programmingPlanId,
+          kind
+        )
       );
     }
-    return fieldConfigsCache.get(kind)!;
+    return fieldConfigsCache.get(cacheKey)!;
   };
 
   const samplesData: SamplesExportExcelData[] = await Promise.all(
     samples.map(async (sample) => {
       const fieldConfigs = await getFieldConfigs(
+        sample.programmingPlanId,
         sample.specificData.programmingPlanKind
       );
       const planLayout = MatrixSpecificDataForm[

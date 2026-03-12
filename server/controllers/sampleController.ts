@@ -501,6 +501,7 @@ export const sampleRouter = {
       if (!DraftStatusList.includes(sampleUpdate.status)) {
         const fieldConfigs =
           await specificDataFieldConfigRepository.findByPlanKind(
+            sampleUpdate.programmingPlanId,
             sampleUpdate.specificData.programmingPlanKind
           );
         const specificDataSchema = buildSpecificDataSchema(
@@ -629,6 +630,7 @@ export const sampleRouter = {
           await specificDataFieldConfigRepository.findSachaFields();
         const planKindFieldConfigs =
           await specificDataFieldConfigRepository.findByPlanKind(
+            updatedSample.programmingPlanId,
             updatedSample.specificData.programmingPlanKind
           );
         const sachaConf = await sachaConfRepository.get();

@@ -46,9 +46,10 @@ const MatrixStepSummary = ({
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { data: fieldConfigs = [] } =
-    apiClient.useFindPlanKindFieldConfigsQuery(
-      sample.specificData.programmingPlanKind
-    );
+    apiClient.useFindPlanKindFieldConfigsQuery({
+      programmingPlanId: sample.programmingPlanId,
+      kind: sample.specificData.programmingPlanKind
+    });
   const planLayout = MatrixSpecificDataForm[
     sample.specificData.programmingPlanKind
   ] as Record<string, MatrixSpecificDataFormInputProps>;

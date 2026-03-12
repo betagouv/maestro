@@ -25,10 +25,21 @@ export const up = async (knex: Knex) => {
     table.unique(['field_id', 'value']);
   });
 
-  // Table 3: which fields belong to which plan kind
+  // Table 3: which fields belong to which (programming_plan_id, kind) pair
   await knex.schema.createTable('programming_plan_kind_fields', (table) => {
     table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
-    table.text('programming_plan_kind').notNullable();
+    table
+      .uuid('programming_plan_id')
+      .notNullable()
+      .references('id')
+      .inTable('programming_plans')
+      .onDelete('CASCADE');
+    table.text('kind').notNullable();
+    table
+      .foreign(['programming_plan_id', 'kind'])
+      .references(['programming_plan_id', 'kind'])
+      .inTable('programming_plan_kinds')
+      .onDelete('CASCADE');
     table
       .uuid('field_id')
       .notNullable()
@@ -37,7 +48,7 @@ export const up = async (knex: Knex) => {
       .onDelete('CASCADE');
     table.boolean('required').notNullable().defaultTo(true);
     table.integer('order').notNullable();
-    table.unique(['programming_plan_kind', 'field_id']);
+    table.unique(['programming_plan_id', 'kind', 'field_id']);
   });
 
   // Table 4: which options are allowed for a field in a plan kind
@@ -222,7 +233,7 @@ export const up = async (knex: Knex) => {
         label: 'Partie non LMR (préciser en commentaire)',
         order: 2
       },
-      // productionKind (union of PPV and DAOA_SLAUGHTER options)
+      // productionKind (union of PPV and DAOA_BOVIN options)
       {
         field_id: fieldId.productionKind,
         value: 'PD07A',
@@ -265,7 +276,7 @@ export const up = async (knex: Knex) => {
         label: 'Inconnu',
         order: 7
       },
-      // species (DAOA_BREEDING options)
+      // species (DAOA_VOLAILLE options)
       {
         field_id: fieldId.species,
         value: 'ESP7',
@@ -290,7 +301,7 @@ export const up = async (knex: Knex) => {
         label: 'Autre volaille',
         order: 4
       },
-      // animalKind (DAOA_SLAUGHTER options)
+      // animalKind (DAOA_BOVIN options)
       {
         field_id: fieldId.animalKind,
         value: 'TYPEA1',
@@ -315,7 +326,7 @@ export const up = async (knex: Knex) => {
         label: 'Vache de réforme',
         order: 4
       },
-      // breedingMethod (DAOA_BREEDING options)
+      // breedingMethod (DAOA_VOLAILLE options)
       {
         field_id: fieldId.breedingMethod,
         value: 'PROD_1',
@@ -334,7 +345,7 @@ export const up = async (knex: Knex) => {
         label: "Autre signe de qualité",
         order: 3
       },
-      // sex (DAOA_SLAUGHTER options)
+      // sex (DAOA_BOVIN options)
       {
         field_id: fieldId.sex,
         value: 'SEX1',
@@ -355,7 +366,7 @@ export const up = async (knex: Knex) => {
         label: 'Sexe inconnu',
         order: 5
       },
-      // seizure (DAOA_SLAUGHTER options; "Unknown" stays frontend-only)
+      // seizure (DAOA_BOVIN options; "Unknown" stays frontend-only)
       {
         field_id: fieldId.seizure,
         value: 'EMPTY',
@@ -369,14 +380,14 @@ export const up = async (knex: Knex) => {
         order: 2
       },
       { field_id: fieldId.seizure, value: 'TOTAL', label: 'Totale', order: 3 },
-      // sampling (DAOA_BREEDING + DAOA_SLAUGHTER options)
+      // sampling (DAOA_VOLAILLE + DAOA_BOVIN options)
       {
         field_id: fieldId.sampling,
         value: 'Aléatoire',
         label: 'Aléatoire',
         order: 1
       },
-      // outdoorAccess (DAOA_BREEDING + DAOA_SLAUGHTER options)
+      // outdoorAccess (DAOA_VOLAILLE + DAOA_BOVIN options)
       {
         field_id: fieldId.outdoorAccess,
         value: 'PAT1',
@@ -410,227 +421,117 @@ export const up = async (knex: Knex) => {
     optionId[key][r.value] = r.id;
   }
 
-  // Insert plan-kind → field associations
+  // ── Seed plan-kind → field associations per existing (programming_plan_id, kind) ──
+
+  const fieldsByKind: Record<
+    string,
+    { field_id: string; required: boolean; order: number }[]
+  > = {
+    PPV: [
+      { field_id: fieldId.matrixDetails, required: false, order: 1 },
+      { field_id: fieldId.cultureKind, required: false, order: 2 },
+      { field_id: fieldId.productionKind, required: true, order: 3 },
+      { field_id: fieldId.matrixPart, required: true, order: 4 },
+      { field_id: fieldId.releaseControl, required: false, order: 5 }
+    ],
+    DAOA_VOLAILLE: [
+      { field_id: fieldId.sampling, required: true, order: 1 },
+      { field_id: fieldId.animalIdentifier, required: true, order: 2 },
+      { field_id: fieldId.ageInDays, required: true, order: 3 },
+      { field_id: fieldId.species, required: true, order: 4 },
+      { field_id: fieldId.breedingMethod, required: true, order: 5 },
+      { field_id: fieldId.outdoorAccess, required: true, order: 6 }
+    ],
+    DAOA_BOVIN: [
+      { field_id: fieldId.killingCode, required: true, order: 1 },
+      { field_id: fieldId.sampling, required: true, order: 2 },
+      { field_id: fieldId.animalIdentifier, required: true, order: 3 },
+      { field_id: fieldId.animalKind, required: true, order: 4 },
+      { field_id: fieldId.sex, required: true, order: 5 },
+      { field_id: fieldId.ageInMonths, required: true, order: 6 },
+      { field_id: fieldId.productionKind, required: true, order: 7 },
+      { field_id: fieldId.outdoorAccess, required: true, order: 8 },
+      { field_id: fieldId.seizure, required: true, order: 9 }
+    ]
+  };
+
+  const optionsByKindField: Record<string, Record<string, string[]>> = {
+    PPV: {
+      cultureKind: ['Z0211', 'PD06A', 'PD08A', 'Z0215', 'Z0153', 'PD05A'],
+      productionKind: ['PD07A', 'PD09A', 'Z0216'],
+      matrixPart: ['PART1', 'PART2']
+    },
+    DAOA_VOLAILLE: {
+      sampling: ['Aléatoire'],
+      species: ['ESP7', 'ESP8', 'ESP10', 'ESP20'],
+      breedingMethod: ['PROD_1', 'PROD_2', 'PROD_3'],
+      outdoorAccess: ['PAT1', 'PAT0', 'PATINCO']
+    },
+    DAOA_BOVIN: {
+      sampling: ['Aléatoire'],
+      animalKind: ['TYPEA1', 'TYPEA2', 'TYPEA3', 'TYPEA4'],
+      sex: ['SEX1', 'SEX2', 'SEX3', 'SEX4', 'SEX5'],
+      productionKind: ['PROD_1', 'PROD_2', 'PROD_4', 'PROD_3'],
+      outdoorAccess: ['PAT1', 'PAT0', 'PATINCO'],
+      seizure: ['EMPTY', 'PARTIAL', 'TOTAL']
+    }
+  };
+
+  const programmingPlanKinds = (await knex('programming_plan_kinds')) as {
+    programmingPlanId: string;
+    kind: string;
+  }[];
+
+  const planKindFieldInserts = programmingPlanKinds.flatMap(
+    ({ programmingPlanId, kind }) =>
+      (fieldsByKind[kind] ?? []).map((f) => ({
+        programming_plan_id: programmingPlanId,
+        kind,
+        field_id: f.field_id,
+        required: f.required,
+        order: f.order
+      }))
+  );
+
+  if (planKindFieldInserts.length > 0) {
   const planKindFieldRows = (await knex('programming_plan_kind_fields')
-    .insert([
-      // PPV — order matches MatrixSpecificDataForm.ts
-      {
-        programming_plan_kind: 'PPV',
-        field_id: fieldId.matrixDetails,
-        required: false,
-        order: 1
-      },
-      {
-        programming_plan_kind: 'PPV',
-        field_id: fieldId.cultureKind,
-        required: false,
-        order: 2
-      },
-      {
-        programming_plan_kind: 'PPV',
-        field_id: fieldId.productionKind,
-        required: true,
-        order: 3
-      },
-      {
-        programming_plan_kind: 'PPV',
-        field_id: fieldId.matrixPart,
-        required: true,
-        order: 4
-      },
-      {
-        programming_plan_kind: 'PPV',
-        field_id: fieldId.releaseControl,
-        required: false,
-        order: 5
-      },
-      // DAOA_BREEDING
-      {
-        programming_plan_kind: 'DAOA_BREEDING',
-        field_id: fieldId.sampling,
-        required: true,
-        order: 1
-      },
-      {
-        programming_plan_kind: 'DAOA_BREEDING',
-        field_id: fieldId.animalIdentifier,
-        required: true,
-        order: 2
-      },
-      {
-        programming_plan_kind: 'DAOA_BREEDING',
-        field_id: fieldId.ageInDays,
-        required: true,
-        order: 3
-      },
-      {
-        programming_plan_kind: 'DAOA_BREEDING',
-        field_id: fieldId.species,
-        required: true,
-        order: 4
-      },
-      {
-        programming_plan_kind: 'DAOA_BREEDING',
-        field_id: fieldId.breedingMethod,
-        required: true,
-        order: 5
-      },
-      {
-        programming_plan_kind: 'DAOA_BREEDING',
-        field_id: fieldId.outdoorAccess,
-        required: true,
-        order: 6
-      },
-      // DAOA_SLAUGHTER
-      {
-        programming_plan_kind: 'DAOA_SLAUGHTER',
-        field_id: fieldId.killingCode,
-        required: true,
-        order: 1
-      },
-      {
-        programming_plan_kind: 'DAOA_SLAUGHTER',
-        field_id: fieldId.sampling,
-        required: true,
-        order: 2
-      },
-      {
-        programming_plan_kind: 'DAOA_SLAUGHTER',
-        field_id: fieldId.animalIdentifier,
-        required: true,
-        order: 3
-      },
-      {
-        programming_plan_kind: 'DAOA_SLAUGHTER',
-        field_id: fieldId.animalKind,
-        required: true,
-        order: 4
-      },
-      {
-        programming_plan_kind: 'DAOA_SLAUGHTER',
-        field_id: fieldId.sex,
-        required: true,
-        order: 5
-      },
-      {
-        programming_plan_kind: 'DAOA_SLAUGHTER',
-        field_id: fieldId.ageInMonths,
-        required: true,
-        order: 6
-      },
-      {
-        programming_plan_kind: 'DAOA_SLAUGHTER',
-        field_id: fieldId.productionKind,
-        required: true,
-        order: 7
-      },
-      {
-        programming_plan_kind: 'DAOA_SLAUGHTER',
-        field_id: fieldId.outdoorAccess,
-        required: true,
-        order: 8
-      },
-      {
-        programming_plan_kind: 'DAOA_SLAUGHTER',
-        field_id: fieldId.seizure,
-        required: true,
-        order: 9
-      }
-    ])
-    .returning(['id', 'programming_plan_kind', 'field_id'])) as {
+    .insert(planKindFieldInserts)
+    .returning(['id', 'programming_plan_id', 'kind', 'field_id'])) as {
     id: string;
-    programmingPlanKind: string;
+    programmingPlanId: string;
+    kind: string;
     fieldId: string;
   }[];
 
-  // Build lookup: planKindFieldId[kind][fieldKey] = id
-  const planKindFieldId: Record<string, Record<string, string>> = {};
+  // Build lookup: planKindFieldId[programmingPlanId][kind][fieldKey] = id
+  const planKindFieldId: Record<
+    string,
+    Record<string, Record<string, string>>
+  > = {};
   for (const r of planKindFieldRows) {
     const key = fieldRows.find((f) => f.id === r.fieldId)!.key;
-    if (!planKindFieldId[r.programmingPlanKind])
-      planKindFieldId[r.programmingPlanKind] = {};
-    planKindFieldId[r.programmingPlanKind][key] = r.id;
+    if (!planKindFieldId[r.programmingPlanId])
+      planKindFieldId[r.programmingPlanId] = {};
+    if (!planKindFieldId[r.programmingPlanId][r.kind])
+      planKindFieldId[r.programmingPlanId][r.kind] = {};
+    planKindFieldId[r.programmingPlanId][r.kind][key] = r.id;
   }
 
   // Insert plan-kind → field → option associations
-  // (fields with no selectable options — text, number, checkbox, literal — get no rows here)
-  await knex('programming_plan_kind_field_options').insert([
-    // PPV → cultureKind (all 6 options)
-    ...['Z0211', 'PD06A', 'PD08A', 'Z0215', 'Z0153', 'PD05A'].map((v) => ({
-      programming_plan_kind_field_id: planKindFieldId['PPV']['cultureKind'],
-      specific_data_field_option_id: optionId['cultureKind'][v]
-    })),
-    // PPV → productionKind (3 options: PD07A, PD09A, Z0216)
-    ...['PD07A', 'PD09A', 'Z0216'].map((v) => ({
-      programming_plan_kind_field_id: planKindFieldId['PPV']['productionKind'],
-      specific_data_field_option_id: optionId['productionKind'][v]
-    })),
-    // PPV → matrixPart (both options)
-    ...['PART1', 'PART2'].map((v) => ({
-      programming_plan_kind_field_id: planKindFieldId['PPV']['matrixPart'],
-      specific_data_field_option_id: optionId['matrixPart'][v]
-    })),
-    // DAOA_BREEDING → sampling (1 option)
-    {
+  const optionInserts = planKindFieldRows.flatMap((r) => {
+    const key = fieldRows.find((f) => f.id === r.fieldId)!.key;
+    const values = optionsByKindField[r.kind]?.[key] ?? [];
+    return values.map((v) => ({
       programming_plan_kind_field_id:
-        planKindFieldId['DAOA_BREEDING']['sampling'],
-      specific_data_field_option_id: optionId['sampling']['Aléatoire']
-    },
-    // DAOA_SLAUGHTER → sampling (1 option)
-    {
-      programming_plan_kind_field_id:
-        planKindFieldId['DAOA_SLAUGHTER']['sampling'],
-      specific_data_field_option_id: optionId['sampling']['Aléatoire']
-    },
-    // DAOA_BREEDING → species (4 options)
-    ...['ESP7', 'ESP8', 'ESP10', 'ESP20'].map((v) => ({
-      programming_plan_kind_field_id:
-        planKindFieldId['DAOA_BREEDING']['species'],
-      specific_data_field_option_id: optionId['species'][v]
-    })),
-    // DAOA_BREEDING → breedingMethod (3 options)
-    ...['PROD_1', 'PROD_2', 'PROD_3'].map((v) => ({
-      programming_plan_kind_field_id:
-        planKindFieldId['DAOA_BREEDING']['breedingMethod'],
-      specific_data_field_option_id: optionId['breedingMethod'][v]
-    })),
-    // DAOA_BREEDING → outdoorAccess (3 options)
-    ...['PAT1', 'PAT0', 'PATINCO'].map((v) => ({
-      programming_plan_kind_field_id:
-        planKindFieldId['DAOA_BREEDING']['outdoorAccess'],
-      specific_data_field_option_id: optionId['outdoorAccess'][v]
-    })),
-    // DAOA_SLAUGHTER → animalKind (4 options)
-    ...['TYPEA1', 'TYPEA2', 'TYPEA3', 'TYPEA4'].map((v) => ({
-      programming_plan_kind_field_id:
-        planKindFieldId['DAOA_SLAUGHTER']['animalKind'],
-      specific_data_field_option_id: optionId['animalKind'][v]
-    })),
-    // DAOA_SLAUGHTER → sex (5 options)
-    ...['SEX1', 'SEX2', 'SEX3', 'SEX4', 'SEX5'].map((v) => ({
-      programming_plan_kind_field_id:
-        planKindFieldId['DAOA_SLAUGHTER']['sex'],
-      specific_data_field_option_id: optionId['sex'][v]
-    })),
-    // DAOA_SLAUGHTER → productionKind (4 options: PROD_1, PROD_2, PROD_4, PROD_3)
-    ...['PROD_1', 'PROD_2', 'PROD_4', 'PROD_3'].map((v) => ({
-      programming_plan_kind_field_id:
-        planKindFieldId['DAOA_SLAUGHTER']['productionKind'],
-      specific_data_field_option_id: optionId['productionKind'][v]
-    })),
-    // DAOA_SLAUGHTER → outdoorAccess (3 options)
-    ...['PAT1', 'PAT0', 'PATINCO'].map((v) => ({
-      programming_plan_kind_field_id:
-        planKindFieldId['DAOA_SLAUGHTER']['outdoorAccess'],
-      specific_data_field_option_id: optionId['outdoorAccess'][v]
-    })),
-    // DAOA_SLAUGHTER → seizure (3 options; "Unknown" handled frontend-only)
-    ...['EMPTY', 'PARTIAL', 'TOTAL'].map((v) => ({
-      programming_plan_kind_field_id:
-        planKindFieldId['DAOA_SLAUGHTER']['seizure'],
-      specific_data_field_option_id: optionId['seizure'][v]
-    }))
-  ]);
+        planKindFieldId[r.programmingPlanId][r.kind][key],
+      specific_data_field_option_id: optionId[key][v]
+    }));
+  });
+
+  if (optionInserts.length > 0) {
+      await knex('programming_plan_kind_field_options').insert(optionInserts);
+    }
+  }
 
   // ── Phase 7: merge Sacha tables into specific_data tables ─────────────────
 

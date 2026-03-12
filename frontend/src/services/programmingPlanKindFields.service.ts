@@ -6,9 +6,10 @@ const programmingPlanKindFieldsApi = api.injectEndpoints({
   endpoints: (builder) => ({
     findPlanKindFieldConfigs: builder.query<
       PlanKindFieldConfig[],
-      ProgrammingPlanKind
+      { programmingPlanId: string; kind: ProgrammingPlanKind }
     >({
-      query: (kind) => `/programming-plan-kinds/${kind}/specific-data-fields`
+      query: ({ programmingPlanId, kind }) =>
+        `/programming-plans/${programmingPlanId}/kinds/${kind}/specific-data-fields`
     })
   })
 });

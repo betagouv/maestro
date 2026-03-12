@@ -189,11 +189,11 @@ const generateSamplePDF = async (
   template: Extract<Template, 'supportDocument' | 'sampleEmptyForm'>
 ) => {
   const programmingPlan = await programmingPlanRepository.findUnique(
-    sample.programmingPlanId as string
+    sample.programmingPlanId
   );
 
   if (!programmingPlan) {
-    throw new ProgrammingPlanMissingError(sample.programmingPlanId as string);
+    throw new ProgrammingPlanMissingError(sample.programmingPlanId);
   }
 
   const sampler = await userRepository.findUnique(sample.sampler.id);
@@ -202,6 +202,7 @@ const generateSamplePDF = async (
   }
 
   const fieldConfigs = await specificDataFieldConfigRepository.findByPlanKind(
+    sample.programmingPlanId,
     sample.specificData.programmingPlanKind
   );
   const planLayout = MatrixSpecificDataForm[

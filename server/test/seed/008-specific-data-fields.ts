@@ -50,7 +50,10 @@ export const seed = async (): Promise<void> => {
       }))
   );
 
-  const optionIdByFieldAndValue: Record<string, Record<string, string>> = {};
+  const optionIdByFieldAndValue: Record<
+    string,
+    Record<string, SpecificDataFieldOptionId>
+  > = {};
   if (allOptionInserts.length > 0) {
     const optionRows = await kysely
       .insertInto('specificDataFieldOptions')
@@ -63,37 +66,59 @@ export const seed = async (): Promise<void> => {
     }
   }
 
+  // Fetch existing (programmingPlanId, kind) pairs from the DB
+  const programmingPlanKinds = await kysely
+    .selectFrom('programmingPlanKinds')
+    .select(['programmingPlanId', 'kind'])
+    .execute();
+
+  if (programmingPlanKinds.length === 0) {
+    return;
+  }
+
   const planKindFieldRows = await kysely
     .insertInto('programmingPlanKindFields')
     .values(
-      AllFieldConfigs.map((c) => ({
-        programmingPlanKind: c.programmingPlanKind,
-        fieldId: fieldIdByKey[c.field.key],
-        required: c.required,
-        order: c.order
-      }))
+      programmingPlanKinds.flatMap(({ programmingPlanId, kind }) =>
+        AllFieldConfigs.filter((c) => c.programmingPlanKind === kind).map(
+          (c) => ({
+            programmingPlanId,
+            kind,
+            fieldId: fieldIdByKey[c.field.key],
+            required: c.required,
+            order: c.order
+          })
+        )
+      )
     )
-    .returning(['id', 'programmingPlanKind', 'fieldId'])
+    .returning(['id', 'programmingPlanId', 'kind', 'fieldId'])
     .execute();
 
   const fieldKeyById = Object.fromEntries(fieldRows.map((r) => [r.id, r.key]));
-  const planKindFieldId: Record<string, Record<string, string>> = {};
+  const planKindFieldId: Record<
+    string,
+    Record<string, Record<string, ProgrammingPlanKindFieldId>>
+  > = {};
   for (const r of planKindFieldRows) {
-    (planKindFieldId[r.programmingPlanKind] ??= {})[fieldKeyById[r.fieldId]] =
-      r.id;
+    planKindFieldId[r.programmingPlanId] ??= {};
+    (planKindFieldId[r.programmingPlanId][r.kind] ??= {})[
+      fieldKeyById[r.fieldId]
+    ] = r.id;
   }
 
   // Insert plan-kind-field-option rows (only options enabled per plan kind)
-  const planKindFieldOptionInserts = AllFieldConfigs.flatMap((c) =>
-    c.field.options.map((o) => ({
-      programmingPlanKindFieldId: planKindFieldId[c.programmingPlanKind][
-        c.field.key
-      ] as ProgrammingPlanKindFieldId,
-      specificDataFieldOptionId: optionIdByFieldAndValue[
-        fieldIdByKey[c.field.key]
-      ]?.[o.value] as SpecificDataFieldOptionId
-    }))
-  );
+  const planKindFieldOptionInserts = planKindFieldRows.flatMap((r) => {
+    const key = fieldKeyById[r.fieldId];
+    const config = AllFieldConfigs.find(
+      (c) => c.programmingPlanKind === r.kind && c.field.key === key
+    );
+    return (config?.field.options ?? []).map((o) => ({
+      programmingPlanKindFieldId:
+        planKindFieldId[r.programmingPlanId][r.kind][key],
+      specificDataFieldOptionId:
+        optionIdByFieldAndValue[fieldIdByKey[key]]?.[o.value]
+    }));
+  });
 
   if (planKindFieldOptionInserts.length > 0) {
     await kysely

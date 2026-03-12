@@ -103,9 +103,10 @@ const MatrixStep = ({ partialSample }: Props) => {
   const [deleteDocument] = apiClient.useDeleteDocumentMutation();
 
   const { data: fieldConfigs = [] } =
-    apiClient.useFindPlanKindFieldConfigsQuery(
-      specificData.programmingPlanKind
-    );
+    apiClient.useFindPlanKindFieldConfigsQuery({
+      programmingPlanId: partialSample.programmingPlanId as string,
+      kind: specificData.programmingPlanKind
+    });
 
   const planLayout = MatrixSpecificDataForm[
     specificData.programmingPlanKind
