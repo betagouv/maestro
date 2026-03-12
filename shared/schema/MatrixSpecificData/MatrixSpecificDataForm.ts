@@ -1,10 +1,4 @@
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
-import { SampleMatrixSpecificData } from '../Sample/SampleMatrixSpecificData';
-
-type ProgrammingPlanKeys<P extends ProgrammingPlanKind> = Exclude<
-  keyof Extract<SampleMatrixSpecificData, { programmingPlanKind: P }>,
-  'programmingPlanKind'
->;
 
 export type MatrixSpecificDataFormInputProps = {
   preTitle?: string;
@@ -18,9 +12,7 @@ export type MatrixSpecificDataFormInputProps = {
 };
 
 export const MatrixSpecificDataForm: {
-  [P in ProgrammingPlanKind]: {
-    [K in ProgrammingPlanKeys<P>]: MatrixSpecificDataFormInputProps;
-  };
+  [P in ProgrammingPlanKind]: Record<string, MatrixSpecificDataFormInputProps>;
 } = {
   PPV: {
     matrixDetails: { classes: { container: ['fr-col-sm-12', 'fr-pt-3w'] } },

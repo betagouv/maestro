@@ -2,12 +2,12 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import { MatrixSpecificDataFormInputProps } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
+import { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import {
-  PartialSampleMatrixSpecificData,
+  SpecificData,
   UnknownValue,
   UnknownValueLabel
-} from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
-import { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+} from 'maestro-shared/schema/SpecificData/SpecificData';
 import { Fragment, useMemo } from 'react';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
@@ -18,8 +18,8 @@ import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTe
 import { UseForm } from '../../../../hooks/useForm';
 
 type Props<T extends ZodObject, U extends UseForm<T>> = {
-  specificData: PartialSampleMatrixSpecificData;
-  onChange: (specificData: PartialSampleMatrixSpecificData) => void;
+  specificData: SpecificData;
+  onChange: (specificData: SpecificData) => void;
   fieldConfig: PlanKindFieldConfig;
   inputProps: MatrixSpecificDataFormInputProps;
   inputForm: U;

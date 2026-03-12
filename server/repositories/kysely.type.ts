@@ -24,7 +24,7 @@ import {
   SachaCommemoratifTypeDonnee
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
-import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { MaestroDate } from 'maestro-shared/utils/date';
@@ -300,7 +300,7 @@ export interface Samples {
   sampledAt: Timestamp;
   sampledBy: string | null;
   sentAt: Timestamp | null;
-  specificData: SampleMatrixSpecificData;
+  specificData: SpecificData;
   stage: Stage | null;
   status: string;
 }

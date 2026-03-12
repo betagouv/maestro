@@ -1,7 +1,7 @@
 import { z, ZodTypeAny } from 'zod';
 import { assertUnreachable } from '../../utils/typescript';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
-import { UnknownValue } from '../Sample/SampleMatrixSpecificData';
+import { UnknownValue } from './SpecificData';
 import { PlanKindFieldConfig } from './PlanKindFieldConfig';
 
 export const buildSpecificDataSchema = (

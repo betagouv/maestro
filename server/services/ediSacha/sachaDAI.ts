@@ -9,7 +9,7 @@ import {
   getSampleItemReference,
   SampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
-import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { toMaestroDate } from 'maestro-shared/utils/date';
 import { SachaConf } from '../../repositories/kysely.type';
@@ -155,7 +155,7 @@ export const generateXMLDAI = (
 };
 
 export const getCommemoratifs = (
-  specificData: SampleMatrixSpecificData,
+  specificData: SpecificData,
   sachaFieldConfigs: SachaFieldConfig[],
   sachaCommemoratifRecord: SachaCommemoratifRecord
 ): ({ sigle: CommemoratifSigle } & (
@@ -171,7 +171,7 @@ export const getCommemoratifs = (
       const conf = sachaFieldConfigs.find((fc) => fc.key === specificDataKey);
       if (conf?.inDai) {
         const specificDataValue: string =
-          specificData[specificDataKey as keyof SampleMatrixSpecificData];
+          specificData[specificDataKey] as string;
 
         if (!conf.sachaCommemoratifSigle) {
           throw new Error(

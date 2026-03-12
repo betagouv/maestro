@@ -26,11 +26,11 @@ import {
   PartialSampleToCreate,
   SampleContextData
 } from 'maestro-shared/schema/Sample/Sample';
-import { PartialSampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import {
   SampleStatus,
   SampleStatusSteps
 } from 'maestro-shared/schema/Sample/SampleStatus';
+import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { Sampler } from 'maestro-shared/schema/User/User';
 import {
   UserRoleList,
@@ -321,7 +321,7 @@ const ContextStep = ({ partialSample }: Props) => {
     resytalId: resytalId || undefined,
     notesOnCreation,
     status: 'Draft' as const,
-    specificData: specificData as PartialSampleMatrixSpecificData
+    specificData: specificData as SpecificData
   };
 
   useEffect(

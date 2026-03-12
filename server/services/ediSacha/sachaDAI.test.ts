@@ -3,7 +3,7 @@ import {
   CommemoratifValueSigle,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
-import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { describe, expect, test } from 'vitest';
@@ -281,7 +281,7 @@ test(`génère un XML de DAI`, async () => {
   `);
 });
 describe('getCommemoratifs', () => {
-  const specificData: SampleMatrixSpecificData = {
+  const specificData: SpecificData = {
     programmingPlanKind: 'DAOA_VOLAILLE',
     sampling: 'Aléatoire',
     animalIdentifier: 'ID123',
@@ -526,7 +526,7 @@ describe('getCommemoratifs', () => {
   });
 
   test('gère les commémoratifs de type texte', () => {
-    const specificDataWithText: SampleMatrixSpecificData = {
+    const specificDataWithText: SpecificData = {
       ...specificData,
       animalIdentifier: 'super identifiant'
     };
@@ -562,7 +562,7 @@ describe('getCommemoratifs', () => {
   });
 
   test('gère les commémoratifs de type numérique', () => {
-    const specificDataWithNumber: SampleMatrixSpecificData = {
+    const specificDataWithNumber: SpecificData = {
       ...specificData,
       ageInDays: 140
     };

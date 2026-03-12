@@ -21,14 +21,9 @@ import {
   OutsideProgrammingPlanContext,
   ProgrammingPlanContext
 } from '../ProgrammingPlan/Context';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
+import { SpecificData, UnknownValue } from '../SpecificData/SpecificData';
 import { Sampler } from '../User/User';
 import { PartialSampleItem, SampleItem } from './SampleItem';
-import {
-  PartialSampleMatrixSpecificData,
-  SampleMatrixSpecificData,
-  UnknownValue
-} from './SampleMatrixSpecificData';
 import { SampleStatus } from './SampleStatus';
 
 export const SampleContextData = z.object({
@@ -46,7 +41,7 @@ export const SampleContextData = z.object({
   resytalId: z.string().nullish(),
   notesOnCreation: z.string().nullish(),
   status: SampleStatus,
-  specificData: PartialSampleMatrixSpecificData
+  specificData: SpecificData
 });
 
 export const SampleMatrixData = z.object({
@@ -66,7 +61,7 @@ export const SampleMatrixData = z.object({
   monoSubstances: z.array(SSD2Id).nullish(),
   multiSubstances: z.array(SSD2Id).nullish(),
   documentIds: z.array(z.guid()).nullish(),
-  specificData: SampleMatrixSpecificData
+  specificData: SpecificData
 });
 
 export const sampleMatrixCheck: CheckFn<{
@@ -87,7 +82,7 @@ export const sampleMatrixCheck: CheckFn<{
 };
 
 const unknownValueCheck: CheckFn<{
-  specificData: SampleMatrixSpecificData;
+  specificData: SpecificData;
 }> = (ctx) => {
   const specificData = ctx.value.specificData;
 
@@ -200,9 +195,7 @@ const PartialSampleMatrixData = z.object({
   matrixKind: z.union([MatrixKind, OtherMatrixKind]).nullish(),
   matrix: z.union([Matrix, z.string().nonempty()]).nullish(),
   stage: Stage.nullish(),
-  specificData: z
-    .object({ programmingPlanKind: ProgrammingPlanKind })
-    .passthrough() as unknown as typeof PartialSampleMatrixSpecificData
+  specificData: SpecificData
 });
 
 export const PartialSampleToCreate = z.object({

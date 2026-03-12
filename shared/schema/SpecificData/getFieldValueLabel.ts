@@ -1,8 +1,5 @@
 import { isNil } from 'lodash-es';
-import {
-  UnknownValue,
-  UnknownValueLabel
-} from '../Sample/SampleMatrixSpecificData';
+import { UnknownValue, UnknownValueLabel } from './SpecificData';
 import { FieldConfig } from './PlanKindFieldConfig';
 
 export const getFieldValueLabel = (

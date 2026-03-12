@@ -14,11 +14,11 @@ import {
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import {
-  SampleMatrixSpecificData,
-  UnknownValue
-} from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
+import {
+  SpecificData,
+  UnknownValue
+} from 'maestro-shared/schema/SpecificData/SpecificData';
 
 import { FrIconClassName } from '@codegouvfr/react-dsfr/fr/generatedFromCss/classNames';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
@@ -36,7 +36,7 @@ interface Props {
   sample: (SampleChecked | SampleToCreate) & Partial<SampleOwnerData>;
   mode?: StepSummaryMode;
   onEdit?: () => void;
-  onUpdateSpecificData?: (specificData: SampleMatrixSpecificData) => void;
+  onUpdateSpecificData?: (specificData: SpecificData) => void;
 }
 const MatrixStepSummary = ({
   sample,
@@ -105,10 +105,7 @@ const MatrixStepSummary = ({
                     <Select
                       label=""
                       nativeSelectProps={{
-                        value:
-                          sample.specificData[
-                            inputKey as keyof SampleMatrixSpecificData
-                          ] ?? '',
+                        value: (sample.specificData[inputKey] as string) ?? '',
                         onChange: (e) =>
                           onUpdateSpecificData?.({
                             ...sample.specificData,
