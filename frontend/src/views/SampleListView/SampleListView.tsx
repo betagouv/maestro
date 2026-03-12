@@ -15,10 +15,8 @@ import {
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import {
-  FindSampleOptions,
-  SampleCompliance
-} from 'maestro-shared/schema/Sample/FindSampleOptions';
+import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import { SampleCompliance } from 'maestro-shared/schema/Sample/SampleCompliance';
 import {
   DraftStatusList,
   SampleStatus
