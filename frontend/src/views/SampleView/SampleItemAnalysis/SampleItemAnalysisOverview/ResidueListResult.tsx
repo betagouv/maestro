@@ -22,7 +22,8 @@ import { ResidueComplianceIcon } from './ResidueComplianceIcon';
 import './ResidueListResult.scss';
 
 type Props = {
-  residues: (PartialResidue & Omit<SampleChecked, 'reference'>)[];
+  residues: (PartialResidue &
+    Omit<SampleChecked, 'reference' | 'compliance'>)[];
   residuePanel: (i: number) => ReactNode;
   onAddResidue?: () => void;
 };

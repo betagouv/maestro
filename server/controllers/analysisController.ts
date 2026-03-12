@@ -1,5 +1,5 @@
 import { constants } from 'http2';
-import { isEqual } from 'lodash-es';
+import { isEqual, isNil } from 'lodash-es';
 import AnalysisMissingError from 'maestro-shared/errors/analysisMissingError';
 import SampleMissingError from 'maestro-shared/errors/sampleMissingError';
 import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
@@ -114,6 +114,17 @@ export const analysisRouter = {
         ...analysisUpdate
       };
       await analysisRepository.update(updatedAnalysis);
+
+      if (sample.specificData.programmingPlanKind === 'PPV') {
+        await sampleRepository.update({
+          ...sample,
+          compliance: isNil(updatedAnalysis.compliance)
+            ? undefined
+            : updatedAnalysis.compliance
+              ? ('Compliant' as const)
+              : ('NonCompliant' as const)
+        });
+      }
 
       return { response: updatedAnalysis, status: constants.HTTP_STATUS_OK };
     }

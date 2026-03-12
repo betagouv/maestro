@@ -24,6 +24,7 @@ import {
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { SpecificData, UnknownValue } from '../SpecificData/SpecificData';
 import { Sampler } from '../User/User';
+import { SampleCompliance } from './SampleCompliance';
 import { PartialSampleItem, SampleItem } from './SampleItem';
 import { SampleStatus } from './SampleStatus';
 
@@ -239,7 +240,9 @@ export const SampleBase = SampleToCreate.extend({
   department: Department,
   company: Company,
   items: z.array(SampleItem),
-  sentAt: z.coerce.date().nullish()
+  sentAt: z.coerce.date().nullish(),
+  compliance: SampleCompliance.nullish(),
+  notesOnCompliance: z.string().nullish()
 });
 
 export const SampleChecked = SampleBase.check(

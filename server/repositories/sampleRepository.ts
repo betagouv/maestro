@@ -5,6 +5,7 @@ import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   PartialSample,
+  SampleBase,
   SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
@@ -37,7 +38,10 @@ const PartialSampleDbo = z.object({
   geolocation: z.any().nullish(),
   sampledBy: z.guid(),
   additionalSampledBy: z.guid().nullish(),
-  sentAt: z.string().nullish()
+  sentAt: z.string().nullish(),
+  status: z
+    .enum(['Draft', 'DraftMatrix', 'DraftItems', 'Submitted', 'Sent'])
+    .nullish()
 });
 
 const PartialSampleJoinedDbo = PartialSampleDbo.merge(
@@ -151,7 +155,6 @@ const findRequest = (findOptions: FindSampleOptions) =>
           'reference',
           'contexts',
           'departments',
-          'compliance',
           'withAtLeastOneResidue',
           'programmingPlanIds',
           'kinds',
@@ -205,17 +208,6 @@ const findRequest = (findOptions: FindSampleOptions) =>
         builder.whereIn(
           `${samplesTable}.companySiret`,
           findOptions.companySirets
-        );
-      }
-      if (!isNil(findOptions.compliance)) {
-        builder.leftJoin(
-          analysisTable,
-          `${analysisTable}.sampleId`,
-          `${samplesTable}.id`
-        );
-        builder.where(
-          `${analysisTable}.compliance`,
-          findOptions.compliance === 'conform'
         );
       }
       if (findOptions.withAtLeastOneResidue === true) {
@@ -423,7 +415,9 @@ const insert = async (partialSample: PartialSample): Promise<void> => {
   });
 };
 
-const update = async (partialSample: PartialSample): Promise<void> => {
+const update = async (
+  partialSample: PartialSample | SampleBase
+): Promise<void> => {
   console.info('Update sample', partialSample.id);
   if (Object.keys(partialSample).length > 0) {
     await db.transaction(async (trx) => {
