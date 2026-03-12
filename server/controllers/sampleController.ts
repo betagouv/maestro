@@ -2,11 +2,9 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { constants } from 'http2';
 import { isNil } from 'lodash-es';
-import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
@@ -33,6 +31,7 @@ import {
   SampleItemSort
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
+import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import companyRepository from '../repositories/companyRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
@@ -628,6 +627,10 @@ export const sampleRouter = {
           await sachaCommemoratifRepository.findAll();
         const specificDataRecord =
           await specificDataFieldConfigRepository.findSachaFields();
+        const planKindFieldConfigs =
+          await specificDataFieldConfigRepository.findByPlanKind(
+            updatedSample.specificData.programmingPlanKind
+          );
         const sachaConf = await sachaConfRepository.get();
         if (programmingPlanWithEdiSacha) {
           //FIXME EDI à supprimer à la fin des tests
@@ -726,6 +729,13 @@ export const sampleRouter = {
                   return laboratoryLabel ?? SSD2IdLabel[substance];
                 };
 
+                const matrixPartField = planKindFieldConfigs.find(
+                  (c) => c.field.key === 'matrixPart'
+                )?.field;
+                const cultureKindField = planKindFieldConfigs.find(
+                  (c) => c.field.key === 'cultureKind'
+                )?.field;
+
                 const analysisRequestDocs =
                   await generateAndStoreAnalysisRequestDocuments({
                     ...updatedSample,
@@ -766,11 +776,21 @@ export const sampleRouter = {
                     stage: StageLabels[updatedSample.stage],
                     matrixKindLabel: MatrixKindLabels[updatedSample.matrixKind],
                     matrixLabel: getSampleMatrixLabel(updatedSample),
-                    matrixPart: getMatrixPartLabel(updatedSample) as string,
+                    matrixPart: matrixPartField
+                      ? (getFieldValueLabel(
+                          matrixPartField,
+                          updatedSample.specificData['matrixPart']
+                        ) ?? '')
+                      : '',
                     quantityUnit: sampleItem?.quantityUnit
                       ? QuantityUnitLabels[sampleItem.quantityUnit]
                       : '',
-                    cultureKind: getCultureKindLabel(updatedSample) as string,
+                    cultureKind: cultureKindField
+                      ? (getFieldValueLabel(
+                          cultureKindField,
+                          updatedSample.specificData['cultureKind']
+                        ) ?? '')
+                      : '',
                     compliance200263: sampleItem
                       ? sampleItem.compliance200263
                         ? 'Respectée'

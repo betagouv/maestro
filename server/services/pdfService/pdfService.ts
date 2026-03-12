@@ -10,7 +10,6 @@ import UserMissingError from 'maestro-shared/errors/userMissingError';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
@@ -269,6 +268,10 @@ const generateSamplePDF = async (
     textyoffset: -5
   });
 
+  const matrixPartField = fieldConfigs.find(
+    (c) => c.field.key === 'matrixPart'
+  )?.field;
+
   return generatePDF(template, {
     fullVersion,
     ...sample,
@@ -329,15 +332,17 @@ const generateSamplePDF = async (
     stage: sample.stage ? StageLabels[sample.stage] : '',
     matrixKind: sample.matrixKind ? MatrixKindLabels[sample.matrixKind] : '',
     matrix: getSampleMatrixLabel(sample),
-    matrixPart: getMatrixPartLabel(sample),
+    matrixPart: matrixPartField
+      ? (getFieldValueLabel(
+          matrixPartField,
+          sample.specificData['matrixPart']
+        ) ?? '')
+      : '',
     specificDataItems: fieldConfigs
       .filter((fc) => fc.field.key !== 'releaseControl')
       .map((fc) => ({
         label: planLayout[fc.field.key]?.label ?? fc.field.label,
-        value: getFieldValueLabel(
-          fc.field,
-          (sample.specificData as any)[fc.field.key]
-        )
+        value: getFieldValueLabel(fc.field, sample.specificData[fc.field.key])
       })),
     releaseControl:
       sample.specificData?.programmingPlanKind === 'PPV'

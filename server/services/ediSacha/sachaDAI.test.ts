@@ -3,8 +3,8 @@ import {
   CommemoratifValueSigle,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
-import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { describe, expect, test } from 'vitest';
 import { SachaConf } from '../../repositories/kysely.type';

@@ -3,7 +3,6 @@ import { format } from 'date-fns';
 import { isNil, sumBy, uniq } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
-import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { OptionalBoolean } from 'maestro-shared/referential/OptionnalBoolean';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
@@ -200,6 +199,9 @@ const generateSamplesExportExcel = async (
         })
       );
 
+      const matrixPartField = fieldConfigs.find(
+        (c) => c.field.key === 'matrixPart'
+      )?.field;
       const data: SamplesExportExcelData = {
         reference: sample.reference,
         department: sample.department,
@@ -236,17 +238,22 @@ const generateSamplesExportExcel = async (
         notesOnCreation: sample.notesOnCreation,
         matrix: sample.matrix ? getSampleMatrixLabel(sample) : undefined,
         matrixCode: sample.matrix,
-        matrixPart: getMatrixPartLabel(sample),
+        matrixPart: matrixPartField
+          ? (getFieldValueLabel(
+              matrixPartField,
+              sample.specificData['matrixPart']
+            ) ?? '')
+          : '',
         stage: sample.stage ? StageLabels[sample.stage] : undefined,
         stageCode: sample.stage,
         specificData: fieldConfigs.map((fc) => {
-          const rawValue = (sample.specificData as any)[fc.field.key];
+          const rawValue = sample.specificData[fc.field.key];
           const value = getFieldValueLabel(fc.field, rawValue);
           return {
             key: fc.field.key,
             label: planLayout[fc.field.key]?.label ?? fc.field.label,
             value,
-            code: rawValue !== value ? rawValue : undefined
+            code: rawValue !== value ? (rawValue as string) : undefined
           };
         }),
         notesOnMatrix: sample.notesOnMatrix,

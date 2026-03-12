@@ -1,13 +1,13 @@
 import z from 'zod';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 
-export const FieldOption = z.object({
+const FieldOption = z.object({
   value: z.string(),
   label: z.string(),
   order: z.number()
 });
 
-export const SachaFieldOption = FieldOption.extend({
+const SachaFieldOption = FieldOption.extend({
   sachaCommemoratifValueSigle: z.string().nullable()
 });
 
@@ -44,8 +44,6 @@ export const PlanKindFieldConfig = z.object({
   field: FieldConfig
 });
 
-export type FieldOption = z.infer<typeof FieldOption>;
-export type SachaFieldOption = z.infer<typeof SachaFieldOption>;
 export type FieldConfig = z.infer<typeof FieldConfig>;
 export type SachaFieldConfig = z.infer<typeof SachaFieldConfig>;
 export type PlanKindFieldConfig = z.infer<typeof PlanKindFieldConfig>;
