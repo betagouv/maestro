@@ -22,7 +22,7 @@ import { AnalysisComplianceForm } from './AnalysisComplianceForm';
 import { ResidueResultForm } from './ResidueResultForm';
 
 type Props = {
-  sample: Omit<SampleChecked, 'reference'>;
+  sample: Omit<SampleChecked, 'reference' | 'compliance'>;
   partialAnalysis: PartialAnalysis;
   onDone: () => void;
 };

@@ -16,10 +16,8 @@ import {
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  FindSampleOptions,
-  SampleComplianceLabels
-} from 'maestro-shared/schema/Sample/FindSampleOptions';
+import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import { SampleComplianceLabels } from 'maestro-shared/schema/Sample/SampleCompliance';
 import {
   DraftStatusList,
   RealizedStatusList,
