@@ -1,4 +1,5 @@
 import { constants } from 'http2';
+import { sampleSpecificDataRepository } from '../repositories/sampleSpecificDataRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 
@@ -25,6 +26,26 @@ export const specificDataFieldConfigRouter = {
       return {
         status: constants.HTTP_STATUS_OK,
         response: fields
+      };
+    }
+  },
+  '/specific-data-fields/attribute': {
+    post: async ({ body }) => {
+      await sampleSpecificDataRepository.updateSampleSpecificDataAttribute(
+        body
+      );
+      return {
+        status: constants.HTTP_STATUS_OK
+      };
+    }
+  },
+  '/specific-data-fields/attribute/value': {
+    post: async ({ body }) => {
+      await sampleSpecificDataRepository.updateSampleSpecificDataAttributeValue(
+        body
+      );
+      return {
+        status: constants.HTTP_STATUS_OK
       };
     }
   }

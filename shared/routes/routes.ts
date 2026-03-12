@@ -19,7 +19,6 @@ import { programmingPlanKindFieldsRoutes } from './programmingPlanKindFields.rou
 import { programmingPlansRoutes } from './programmingPlans.routes';
 import { sachaCommemoratifsRoute } from './sachaCommemoratifs.route';
 import { samplesRoutes } from './samples.routes';
-import { sampleSpecificDataRoutes } from './sampleSpecificData';
 import { specificDataFieldsRoutes } from './specificDataFields.routes';
 import { usersRoutes } from './users.routes';
 
@@ -55,7 +54,6 @@ export const MaestroRoutes = [
   '/prescriptions/:prescriptionId/substances',
   '/prescriptions/:prescriptionId',
   '/programming-plan-kinds/:kind/specific-data-fields',
-  '/specific-data-fields/sacha',
   '/programming-plans',
   '/programming-plans/years/:year',
   '/programming-plans/:programmingPlanId',
@@ -69,8 +67,9 @@ export const MaestroRoutes = [
   '/samples/:sampleId/items/:itemNumber/copy/:copyNumber/document',
   '/samples/:sampleId/items/:itemNumber/copy/:copyNumber',
   '/samples/:sampleId',
-  '/specific-data-attribute/value',
-  '/specific-data-attribute',
+  '/specific-data-fields/sacha',
+  '/specific-data-fields/attribute',
+  '/specific-data-fields/attribute/value',
   '/users',
   '/users/:userId'
 ] as const;
@@ -87,7 +86,6 @@ export const routes = {
   ...prescriptionsRoutes,
   ...programmingPlanKindFieldsRoutes,
   ...programmingPlansRoutes,
-  ...sampleSpecificDataRoutes,
   ...sachaCommemoratifsRoute,
   ...samplesRoutes,
   ...specificDataFieldsRoutes,

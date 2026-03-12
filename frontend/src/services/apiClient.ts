@@ -15,7 +15,6 @@ import * as programmingPlanKindFieldsApi from './programmingPlanKindFields.servi
 import * as regionApi from './region.service';
 import * as sachaCommemoratifsApi from './sachaCommemoratifs.service';
 import * as sampleApi from './sample.service';
-import * as sampleSpecificDataApi from './sampleSpecificData.service';
 import * as specificDataFieldsApi from './specificDataFields.service';
 import * as userApi from './user.service';
 
@@ -31,7 +30,6 @@ export type ApiClient = typeof analysisApi &
   typeof programmingPlanApi &
   typeof programmingPlanKindFieldsApi &
   typeof specificDataFieldsApi &
-  typeof sampleSpecificDataApi &
   typeof regionApi &
   typeof localPrescriptionApi &
   typeof sachaCommemoratifsApi &
@@ -56,7 +54,6 @@ export const apiClient: ApiClient = {
   ...regionApi,
   ...noticeApi,
   ...sachaCommemoratifsApi,
-  ...sampleSpecificDataApi,
   ...sampleApi,
   ...userApi
 };
