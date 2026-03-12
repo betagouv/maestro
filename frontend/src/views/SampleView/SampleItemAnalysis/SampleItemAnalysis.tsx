@@ -53,7 +53,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
     apiClient.useUpdateAnalysisMutation({
       fixedCacheKey: `complete-analysis-${sample.id}`
     });
-  const { data: analysis } = apiClient.useGetSampleItemAnalysisQuery({
+  const { currentData: analysis } = apiClient.useGetSampleItemAnalysisQuery({
     sampleId: sample.id,
     itemNumber: sampleItem.itemNumber,
     copyNumber: sampleItem.copyNumber
@@ -151,7 +151,6 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
           className={cx('fr-mb-4w')}
         />
       )}
-
       <div>
         <SampleItemAdmissibility
           sample={sample}
@@ -168,9 +167,8 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
           />
         )}
       </div>
-
       <div className="border">
-        <Accordion label="Détails de l'échantillon" defaultExpanded>
+        <Accordion label="Détails de l'échantillon">
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-4')}>
               <div className={cx('fr-mb-1v')}>Quantité prélevée</div>
@@ -351,7 +349,6 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
           </div>
         </Accordion>
       </div>
-
       {analysis && (
         <>
           {!isEditing ? (
