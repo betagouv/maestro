@@ -4,7 +4,7 @@ import {
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
-import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
+import { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { describe, expect, test } from 'vitest';
 import { SachaConf } from '../../repositories/kysely.type';
@@ -26,50 +26,75 @@ const sachaConf = {
 
 const sachaCommemoratifSigleEspece = 'ESPECE' as CommemoratifSigle;
 
-const sampleSpecificDataRecord: SampleSpecificDataRecord = {
-  sampling: {
-    attribute: 'sampling',
+const sachaFieldConfigs: SachaFieldConfig[] = [
+  {
+    key: 'sampling',
+    inputType: 'text',
+    label: 'sampling',
+    hintText: null,
     sachaCommemoratifSigle: null,
     inDai: false,
     optional: false,
-    values: {}
+    options: []
   },
-  animalIdentifier: {
-    attribute: 'animalIdentifier',
+  {
+    key: 'animalIdentifier',
+    inputType: 'text',
+    label: 'animalIdentifier',
+    hintText: null,
     sachaCommemoratifSigle: null,
     inDai: false,
     optional: false,
-    values: {}
+    options: []
   },
-  ageInDays: {
-    attribute: 'ageInDays',
+  {
+    key: 'ageInDays',
+    inputType: 'text',
+    label: 'ageInDays',
+    hintText: null,
     sachaCommemoratifSigle: null,
     inDai: false,
     optional: false,
-    values: {}
+    options: []
   },
-  species: {
-    attribute: 'species',
+  {
+    key: 'species',
+    inputType: 'select',
+    label: 'species',
+    hintText: null,
     sachaCommemoratifSigle: sachaCommemoratifSigleEspece,
     inDai: false,
     optional: false,
-    values: { ESP7: 'POULE' as CommemoratifValueSigle }
+    options: [
+      {
+        value: 'ESP7',
+        label: 'ESP7',
+        order: 0,
+        sachaCommemoratifValueSigle: 'POULE' as CommemoratifValueSigle
+      }
+    ]
   },
-  breedingMethod: {
-    attribute: 'breedingMethod',
+  {
+    key: 'breedingMethod',
+    inputType: 'text',
+    label: 'breedingMethod',
+    hintText: null,
     sachaCommemoratifSigle: null,
     inDai: false,
     optional: false,
-    values: {}
+    options: []
   },
-  outdoorAccess: {
-    attribute: 'outdoorAccess',
+  {
+    key: 'outdoorAccess',
+    inputType: 'text',
+    label: 'outdoorAccess',
+    hintText: null,
     sachaCommemoratifSigle: null,
     inDai: false,
     optional: false,
-    values: {}
+    options: []
   }
-};
+];
 
 const sachaCommemoratifRecord: SachaCommemoratifRecord = {
   [sachaCommemoratifSigleEspece]: {
@@ -112,26 +137,39 @@ test(`génère un XML de DAI`, async () => {
         substanceKind: 'Copper'
       },
       1765876056798,
-      {
-        ...sampleSpecificDataRecord,
-
-        species: {
-          attribute: 'species',
+      [
+        ...sachaFieldConfigs.filter(
+          (fc) => fc.key !== 'species' && fc.key !== 'ageInDays'
+        ),
+        {
+          key: 'species',
+          inputType: 'select' as const,
+          label: 'species',
+          hintText: null,
           inDai: true,
           optional: false,
           sachaCommemoratifSigle: 'SIGLE_SACHA' as CommemoratifSigle,
-          values: {
-            ESP7: 'SIGLE_VALUE_SACHA' as CommemoratifValueSigle
-          }
+          options: [
+            {
+              value: 'ESP7',
+              label: 'ESP7',
+              order: 0,
+              sachaCommemoratifValueSigle:
+                'SIGLE_VALUE_SACHA' as CommemoratifValueSigle
+            }
+          ]
         },
-        ageInDays: {
-          attribute: 'ageInDays',
+        {
+          key: 'ageInDays',
+          inputType: 'text' as const,
+          label: 'ageInDays',
+          hintText: null,
           inDai: true,
           optional: false,
           sachaCommemoratifSigle: 'AGED' as CommemoratifSigle,
-          values: {}
+          options: []
         }
-      },
+      ],
       {
         ...sachaCommemoratifRecord,
         ['SIGLE_SACHA' as CommemoratifSigle]: {
@@ -255,11 +293,7 @@ describe('getCommemoratifs', () => {
 
   test("retourne un tableau vide quand aucun attribut n'est inlus dans la DAI", () => {
     expect(
-      getCommemoratifs(
-        specificData,
-        sampleSpecificDataRecord,
-        sachaCommemoratifRecord
-      )
+      getCommemoratifs(specificData, sachaFieldConfigs, sachaCommemoratifRecord)
     ).toEqual([]);
   });
 
@@ -267,19 +301,32 @@ describe('getCommemoratifs', () => {
     expect(
       getCommemoratifs(
         specificData,
-        {
-          ...sampleSpecificDataRecord,
-          species: {
-            attribute: 'species',
+        [
+          ...sachaFieldConfigs.filter((fc) => fc.key !== 'species'),
+          {
+            key: 'species',
+            inputType: 'select' as const,
+            label: 'species',
+            hintText: null,
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
             inDai: true,
             optional: false,
-            values: {
-              ESP7: 'POULE' as CommemoratifValueSigle,
-              ESP8: 'CANARD' as CommemoratifValueSigle
-            }
+            options: [
+              {
+                value: 'ESP7',
+                label: 'ESP7',
+                order: 0,
+                sachaCommemoratifValueSigle: 'POULE' as CommemoratifValueSigle
+              },
+              {
+                value: 'ESP8',
+                label: 'ESP8',
+                order: 1,
+                sachaCommemoratifValueSigle: 'CANARD' as CommemoratifValueSigle
+              }
+            ]
           }
-        },
+        ],
         sachaCommemoratifRecord
       )
     ).toEqual([{ sigle: 'ESPECE', sigleValue: 'POULE' }]);
@@ -289,27 +336,49 @@ describe('getCommemoratifs', () => {
     expect(
       getCommemoratifs(
         specificData,
-        {
-          ...sampleSpecificDataRecord,
-
-          species: {
-            attribute: 'species',
+        [
+          ...sachaFieldConfigs.filter((fc) => fc.key !== 'species'),
+          {
+            key: 'species',
+            inputType: 'select' as const,
+            label: 'species',
+            hintText: null,
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
             inDai: true,
             optional: false,
-            values: {
-              ESP7: 'POULE' as CommemoratifValueSigle,
-              ESP8: 'CANARD' as CommemoratifValueSigle
-            }
+            options: [
+              {
+                value: 'ESP7',
+                label: 'ESP7',
+                order: 0,
+                sachaCommemoratifValueSigle: 'POULE' as CommemoratifValueSigle
+              },
+              {
+                value: 'ESP8',
+                label: 'ESP8',
+                order: 1,
+                sachaCommemoratifValueSigle: 'CANARD' as CommemoratifValueSigle
+              }
+            ]
           },
-          unknownAttribute: {
-            attribute: 'unknownAttribute',
+          {
+            key: 'unknownAttribute',
+            inputType: 'select' as const,
+            label: 'unknownAttribute',
+            hintText: null,
             sachaCommemoratifSigle: 'UNKNOWN' as CommemoratifSigle,
             inDai: true,
             optional: false,
-            values: { val1: 'VAL1' as CommemoratifValueSigle }
+            options: [
+              {
+                value: 'val1',
+                label: 'val1',
+                order: 0,
+                sachaCommemoratifValueSigle: 'VAL1' as CommemoratifValueSigle
+              }
+            ]
           }
-        },
+        ],
         sachaCommemoratifRecord
       )
     ).toEqual([{ sigle: 'ESPECE', sigleValue: 'POULE' }]);
@@ -318,29 +387,57 @@ describe('getCommemoratifs', () => {
   test('retourne plusieurs commémoratifs quand plusieurs attributs inclus dans la DAI', () => {
     const result = getCommemoratifs(
       specificData,
-      {
-        ...sampleSpecificDataRecord,
-        species: {
-          attribute: 'species',
+      [
+        ...sachaFieldConfigs.filter(
+          (fc) => fc.key !== 'species' && fc.key !== 'breedingMethod'
+        ),
+        {
+          key: 'species',
+          inputType: 'select' as const,
+          label: 'species',
+          hintText: null,
           sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
           inDai: true,
           optional: false,
-          values: {
-            ESP7: 'POULE' as CommemoratifValueSigle,
-            ESP8: 'CANARD' as CommemoratifValueSigle
-          }
+          options: [
+            {
+              value: 'ESP7',
+              label: 'ESP7',
+              order: 0,
+              sachaCommemoratifValueSigle: 'POULE' as CommemoratifValueSigle
+            },
+            {
+              value: 'ESP8',
+              label: 'ESP8',
+              order: 1,
+              sachaCommemoratifValueSigle: 'CANARD' as CommemoratifValueSigle
+            }
+          ]
         },
-        breedingMethod: {
-          attribute: 'breedingMethod',
+        {
+          key: 'breedingMethod',
+          inputType: 'select' as const,
+          label: 'breedingMethod',
+          hintText: null,
           sachaCommemoratifSigle: 'MODE_ELEVAGE' as CommemoratifSigle,
           inDai: true,
           optional: false,
-          values: {
-            PROD_1: 'INTENSIF' as CommemoratifValueSigle,
-            PROD_2: 'EXTENSIF' as CommemoratifValueSigle
-          }
+          options: [
+            {
+              value: 'PROD_1',
+              label: 'PROD_1',
+              order: 0,
+              sachaCommemoratifValueSigle: 'INTENSIF' as CommemoratifValueSigle
+            },
+            {
+              value: 'PROD_2',
+              label: 'PROD_2',
+              order: 1,
+              sachaCommemoratifValueSigle: 'EXTENSIF' as CommemoratifValueSigle
+            }
+          ]
         }
-      },
+      ],
       {
         ...sachaCommemoratifRecord,
         ['MODE_ELEVAGE' as CommemoratifSigle]: {
@@ -361,13 +458,10 @@ describe('getCommemoratifs', () => {
   });
 
   test('émet une erreur quand le sachaCommemoratifSigle est manquant', () => {
-    const { species: _, ...sampleSpecifiDataRecordWithoutSpecies } =
-      sampleSpecificDataRecord;
-
     expect(() =>
       getCommemoratifs(
         specificData,
-        sampleSpecifiDataRecordWithoutSpecies,
+        sachaFieldConfigs.filter((fc) => fc.key !== 'species'),
         sachaCommemoratifRecord
       )
     ).toThrow('Configuration SACHA incomplète: species');
@@ -377,17 +471,26 @@ describe('getCommemoratifs', () => {
     expect(() =>
       getCommemoratifs(
         specificData,
-        {
-          ...sampleSpecificDataRecord,
-
-          species: {
-            attribute: 'species',
+        [
+          ...sachaFieldConfigs.filter((fc) => fc.key !== 'species'),
+          {
+            key: 'species',
+            inputType: 'select' as const,
+            label: 'species',
+            hintText: null,
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
             inDai: true,
             optional: false,
-            values: { ESP8: 'CANARD' as CommemoratifValueSigle } // ESP7 n'est pas mappé
+            options: [
+              {
+                value: 'ESP8',
+                label: 'ESP8',
+                order: 0,
+                sachaCommemoratifValueSigle: 'CANARD' as CommemoratifValueSigle
+              } // ESP7 n'est pas mappé
+            ]
           }
-        },
+        ],
         sachaCommemoratifRecord
       )
     ).toThrow('Configuration SACHA incomplète: species ESP7');
@@ -397,17 +500,26 @@ describe('getCommemoratifs', () => {
     expect(
       getCommemoratifs(
         specificData,
-        {
-          ...sampleSpecificDataRecord,
-
-          species: {
-            attribute: 'species',
+        [
+          ...sachaFieldConfigs.filter((fc) => fc.key !== 'species'),
+          {
+            key: 'species',
+            inputType: 'select' as const,
+            label: 'species',
+            hintText: null,
             sachaCommemoratifSigle: 'ESPECE' as CommemoratifSigle,
             inDai: true,
             optional: true,
-            values: { ESP8: 'CANARD' as CommemoratifValueSigle } // ESP7 n'est pas mappé
+            options: [
+              {
+                value: 'ESP8',
+                label: 'ESP8',
+                order: 0,
+                sachaCommemoratifValueSigle: 'CANARD' as CommemoratifValueSigle
+              } // ESP7 n'est pas mappé
+            ]
           }
-        },
+        ],
         sachaCommemoratifRecord
       )
     ).toMatchInlineSnapshot(`[]`);
@@ -421,16 +533,19 @@ describe('getCommemoratifs', () => {
 
     const result = getCommemoratifs(
       specificDataWithText,
-      {
-        ...sampleSpecificDataRecord,
-        animalIdentifier: {
-          attribute: 'animalIdentifier',
+      [
+        ...sachaFieldConfigs.filter((fc) => fc.key !== 'animalIdentifier'),
+        {
+          key: 'animalIdentifier',
+          inputType: 'text' as const,
+          label: 'animalIdentifier',
+          hintText: null,
           sachaCommemoratifSigle: 'IDA' as CommemoratifSigle,
           inDai: true,
           optional: false,
-          values: {}
+          options: []
         }
-      },
+      ],
       {
         ...sachaCommemoratifRecord,
         ['IDA' as CommemoratifSigle]: {
@@ -454,16 +569,19 @@ describe('getCommemoratifs', () => {
 
     const result = getCommemoratifs(
       specificDataWithNumber,
-      {
-        ...sampleSpecificDataRecord,
-        ageInDays: {
-          attribute: 'ageInDays',
+      [
+        ...sachaFieldConfigs.filter((fc) => fc.key !== 'ageInDays'),
+        {
+          key: 'ageInDays',
+          inputType: 'number' as const,
+          label: 'ageInDays',
+          hintText: null,
           sachaCommemoratifSigle: 'AGED' as CommemoratifSigle,
           inDai: true,
           optional: false,
-          values: {}
+          options: []
         }
-      },
+      ],
       {
         ...sachaCommemoratifRecord,
         ['AGED' as CommemoratifSigle]: {
@@ -483,18 +601,26 @@ describe('getCommemoratifs', () => {
     expect(() =>
       getCommemoratifs(
         specificData,
-        {
-          ...sampleSpecificDataRecord,
-          species: {
-            attribute: 'species',
+        [
+          ...sachaFieldConfigs.filter((fc) => fc.key !== 'species'),
+          {
+            key: 'species',
+            inputType: 'select' as const,
+            label: 'species',
+            hintText: null,
             sachaCommemoratifSigle: 'SIGLE_INEXISTANT' as CommemoratifSigle,
             inDai: true,
             optional: false,
-            values: {
-              ESP7: 'POULE' as CommemoratifValueSigle
-            }
+            options: [
+              {
+                value: 'ESP7',
+                label: 'ESP7',
+                order: 0,
+                sachaCommemoratifValueSigle: 'POULE' as CommemoratifValueSigle
+              }
+            ]
           }
-        },
+        ],
         sachaCommemoratifRecord
       )
     ).toThrow();

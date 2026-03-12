@@ -1,18 +1,13 @@
 import z from 'zod';
 import {
   SampleSpecificDataAttribute,
-  SampleSpecificDataAttributeValue,
-  SampleSpecificDataRecord
+  SampleSpecificDataAttributeValue
 } from '../schema/Sample/SampleSpecificDataAttribute';
 import { SubRoutes } from './routes';
 
 export const sampleSpecificDataRoutes = {
   '/specific-data-attribute': {
     params: undefined,
-    get: {
-      response: SampleSpecificDataRecord,
-      permissions: ['administrationMaestro']
-    },
     post: {
       response: z.void(),
       body: SampleSpecificDataAttribute,

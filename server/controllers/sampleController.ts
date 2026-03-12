@@ -73,7 +73,6 @@ import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import { sachaCommemoratifRepository } from '../repositories/sachaCommemoratifRepository';
 import { sachaConfRepository } from '../repositories/sachaConfRepository';
-import { sampleSpecificDataRepository } from '../repositories/sampleSpecificDataRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 import { generateXMLDAI } from '../services/ediSacha/sachaDAI';
@@ -627,7 +626,8 @@ export const sampleRouter = {
 
         const sachaCommemoratifRecord =
           await sachaCommemoratifRepository.findAll();
-        const specificDataRecord = await sampleSpecificDataRepository.findAll();
+        const specificDataRecord =
+          await specificDataFieldConfigRepository.findSachaFields();
         const sachaConf = await sachaConfRepository.get();
         if (programmingPlanWithEdiSacha) {
           //FIXME EDI à supprimer à la fin des tests

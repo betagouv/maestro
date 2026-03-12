@@ -8,6 +8,7 @@ import {
 } from '../../repositories/sachaCommemoratifRepository.test';
 import { sachaConfRepository } from '../../repositories/sachaConfRepository';
 import { sampleSpecificDataRepository } from '../../repositories/sampleSpecificDataRepository';
+import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 import {
   TypeDonneeCodec,
   updateSachaCommemoratifs
@@ -228,9 +229,12 @@ describe('updateSachaCommemoratifs', () => {
 
     await updateSachaCommemoratifs(xml);
 
-    const result = await sampleSpecificDataRepository.findAll();
-    expect(result[FIELD_KEY]?.sachaCommemoratifSigle).toBeNull();
-    expect(result[FIELD_KEY]?.values).toEqual({});
+    const result = await specificDataFieldConfigRepository.findSachaFields();
+    const field = result.find((fc) => fc.key === FIELD_KEY);
+    expect(field?.sachaCommemoratifSigle).toBeNull();
+    expect(
+      field?.options.every((o) => o.sachaCommemoratifValueSigle === null)
+    ).toBe(true);
   });
 
   test('deletes frozen commemoratif value from sample specific data', async () => {
@@ -283,11 +287,16 @@ describe('updateSachaCommemoratifs', () => {
 
     await updateSachaCommemoratifs(xml);
 
-    const result = await sampleSpecificDataRepository.findAll();
-    expect(result[FIELD_KEY]?.values[VALID_OPTION_VALUE]).toBe(
-      validValue.sigle
-    );
-    expect(result[FIELD_KEY]?.values[FROZEN_OPTION_VALUE]).toBeUndefined();
+    const result = await specificDataFieldConfigRepository.findSachaFields();
+    const field = result.find((fc) => fc.key === FIELD_KEY);
+    expect(
+      field?.options.find((o) => o.value === VALID_OPTION_VALUE)
+        ?.sachaCommemoratifValueSigle
+    ).toBe(validValue.sigle);
+    expect(
+      field?.options.find((o) => o.value === FROZEN_OPTION_VALUE)
+        ?.sachaCommemoratifValueSigle
+    ).toBeNull();
   });
 
   test('updates existing commemoratifs', async () => {

@@ -2,58 +2,9 @@ import {
   CommemoratifSigle,
   CommemoratifValueSigle
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
-import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
 
 import { kysely } from './kysely';
 import { KyselyMaestro } from './kysely.type';
-
-const findAll = async (
-  trx: KyselyMaestro = kysely
-): Promise<SampleSpecificDataRecord> => {
-  const fields = await trx
-    .selectFrom('specificDataFields')
-    .select(['key', 'sachaCommemoratifSigle', 'sachaInDai', 'sachaOptional'])
-    .execute();
-
-  const options = await trx
-    .selectFrom('specificDataFieldOptions')
-    .innerJoin(
-      'specificDataFields',
-      'specificDataFields.id',
-      'specificDataFieldOptions.fieldId'
-    )
-    .select([
-      'specificDataFields.key as fieldKey',
-      'specificDataFieldOptions.value',
-      'specificDataFieldOptions.sachaCommemoratifValueSigle'
-    ])
-    .where(
-      'specificDataFieldOptions.sachaCommemoratifValueSigle',
-      'is not',
-      null
-    )
-    .execute();
-
-  return Object.fromEntries(
-    fields.map((f) => [
-      f.key,
-      {
-        attribute: f.key,
-        sachaCommemoratifSigle: f.sachaCommemoratifSigle,
-        inDai: f.sachaInDai,
-        optional: f.sachaOptional,
-        values: Object.fromEntries(
-          options
-            .filter((o) => o.fieldKey === f.key)
-            .map((o) => [
-              o.value,
-              o.sachaCommemoratifValueSigle as CommemoratifValueSigle
-            ])
-        )
-      }
-    ])
-  ) as SampleSpecificDataRecord;
-};
 
 const updateSampleSpecificDataAttribute = async (
   sampleSpecificDataAttribute: {
@@ -138,7 +89,6 @@ const deleteSampleSpecificDataAttributeValue = async (
 };
 
 export const sampleSpecificDataRepository = {
-  findAll,
   updateSampleSpecificDataAttribute,
   updateSampleSpecificDataAttributeValue,
   deleteSampleSpecificDataAttributeValues,

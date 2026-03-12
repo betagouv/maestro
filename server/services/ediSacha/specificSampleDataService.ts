@@ -1,16 +1,18 @@
 import { getAllSachaAttributes } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { sampleSpecificDataRepository } from '../../repositories/sampleSpecificDataRepository';
+import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 
 /*
 Permet de créer une configuration Sacha non valide en bdd pour chaque attribut non présent en bdd
  */
 export const initSampleSpecificDataAttributes = async () => {
-  const sampleSpecificDataRecord = await sampleSpecificDataRepository.findAll();
+  const sachaFieldConfigs =
+    await specificDataFieldConfigRepository.findSachaFields();
 
   const allSachaAttributes = getAllSachaAttributes();
 
   for (const attribute of allSachaAttributes) {
-    if (!(attribute in sampleSpecificDataRecord)) {
+    if (!sachaFieldConfigs.some((fc) => fc.key === attribute)) {
       await sampleSpecificDataRepository.updateSampleSpecificDataAttribute({
         attribute,
         inDai: true,

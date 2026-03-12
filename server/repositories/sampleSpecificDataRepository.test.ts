@@ -6,6 +6,7 @@ import {
   genCommemoratifValue
 } from './sachaCommemoratifRepository.test';
 import { sampleSpecificDataRepository } from './sampleSpecificDataRepository';
+import { specificDataFieldConfigRepository } from './specificDataFieldConfigRepository';
 
 const FIELD_KEY = 'matrixDetails';
 const FIELD_WITH_OPTIONS_KEY = 'species';
@@ -44,12 +45,15 @@ describe('sampleSpecificDataRepository', () => {
       optional: false
     });
 
-    const result = await sampleSpecificDataRepository.findAll();
+    const field = await kysely
+      .selectFrom('specificDataFields')
+      .select(['key', 'sachaCommemoratifSigle'])
+      .where('key', '=', FIELD_KEY)
+      .executeTakeFirst();
 
-    expect(result[FIELD_KEY]).toMatchObject({
-      attribute: FIELD_KEY,
-      sachaCommemoratifSigle: commemoratif.sigle,
-      values: {}
+    expect(field).toMatchObject({
+      key: FIELD_KEY,
+      sachaCommemoratifSigle: commemoratif.sigle
     });
   });
 
@@ -72,10 +76,14 @@ describe('sampleSpecificDataRepository', () => {
       optional: false
     });
 
-    const result = await sampleSpecificDataRepository.findAll();
+    const field = await kysely
+      .selectFrom('specificDataFields')
+      .select(['key', 'sachaCommemoratifSigle'])
+      .where('key', '=', FIELD_KEY)
+      .executeTakeFirst();
 
-    expect(result[FIELD_KEY]).toMatchObject({
-      attribute: FIELD_KEY,
+    expect(field).toMatchObject({
+      key: FIELD_KEY,
       sachaCommemoratifSigle: commemoratif2.sigle
     });
   });
@@ -98,11 +106,13 @@ describe('sampleSpecificDataRepository', () => {
       sachaCommemoratifValueSigle: value.sigle
     });
 
-    const result = await sampleSpecificDataRepository.findAll();
+    const result = await specificDataFieldConfigRepository.findSachaFields();
+    const field = result.find((fc) => fc.key === FIELD_WITH_OPTIONS_KEY);
 
-    expect(result[FIELD_WITH_OPTIONS_KEY]?.values[OPTION_VALUE_1]).toBe(
-      value.sigle
-    );
+    expect(
+      field?.options.find((o) => o.value === OPTION_VALUE_1)
+        ?.sachaCommemoratifValueSigle
+    ).toBe(value.sigle);
   });
 
   test('updateSampleSpecificDataAttributeValue updates existing value sigle mapping', async () => {
@@ -130,11 +140,13 @@ describe('sampleSpecificDataRepository', () => {
       sachaCommemoratifValueSigle: value2.sigle
     });
 
-    const result = await sampleSpecificDataRepository.findAll();
+    const result = await specificDataFieldConfigRepository.findSachaFields();
+    const field = result.find((fc) => fc.key === FIELD_WITH_OPTIONS_KEY);
 
-    expect(result[FIELD_WITH_OPTIONS_KEY]?.values[OPTION_VALUE_1]).toBe(
-      value2.sigle
-    );
+    expect(
+      field?.options.find((o) => o.value === OPTION_VALUE_1)
+        ?.sachaCommemoratifValueSigle
+    ).toBe(value2.sigle);
   });
 
   test('deleteSampleSpecificDataAttributeValues clears all value mappings for a field', async () => {
@@ -162,24 +174,36 @@ describe('sampleSpecificDataRepository', () => {
       sachaCommemoratifValueSigle: value2.sigle
     });
 
-    const resultBefore = await sampleSpecificDataRepository.findAll();
-    expect(resultBefore[FIELD_WITH_OPTIONS_KEY]?.values[OPTION_VALUE_1]).toBe(
-      value1.sigle
+    const resultBefore =
+      await specificDataFieldConfigRepository.findSachaFields();
+    const fieldBefore = resultBefore.find(
+      (fc) => fc.key === FIELD_WITH_OPTIONS_KEY
     );
-    expect(resultBefore[FIELD_WITH_OPTIONS_KEY]?.values[OPTION_VALUE_2]).toBe(
-      value2.sigle
-    );
+    expect(
+      fieldBefore?.options.find((o) => o.value === OPTION_VALUE_1)
+        ?.sachaCommemoratifValueSigle
+    ).toBe(value1.sigle);
+    expect(
+      fieldBefore?.options.find((o) => o.value === OPTION_VALUE_2)
+        ?.sachaCommemoratifValueSigle
+    ).toBe(value2.sigle);
 
     await sampleSpecificDataRepository.deleteSampleSpecificDataAttributeValues(
       FIELD_WITH_OPTIONS_KEY
     );
 
-    const resultAfter = await sampleSpecificDataRepository.findAll();
-    expect(resultAfter[FIELD_WITH_OPTIONS_KEY]).toMatchObject({
-      attribute: FIELD_WITH_OPTIONS_KEY,
-      sachaCommemoratifSigle: commemoratif.sigle,
-      values: {}
+    const resultAfter =
+      await specificDataFieldConfigRepository.findSachaFields();
+    const fieldAfter = resultAfter.find(
+      (fc) => fc.key === FIELD_WITH_OPTIONS_KEY
+    );
+    expect(fieldAfter).toMatchObject({
+      key: FIELD_WITH_OPTIONS_KEY,
+      sachaCommemoratifSigle: commemoratif.sigle
     });
+    expect(
+      fieldAfter?.options.every((o) => o.sachaCommemoratifValueSigle === null)
+    ).toBe(true);
   });
 
   test('deleteSampleSpecificDataAttributeValue clears a specific value mapping', async () => {
@@ -207,25 +231,37 @@ describe('sampleSpecificDataRepository', () => {
       sachaCommemoratifValueSigle: value2.sigle
     });
 
-    const resultBefore = await sampleSpecificDataRepository.findAll();
-    expect(resultBefore[FIELD_WITH_OPTIONS_KEY]?.values[OPTION_VALUE_1]).toBe(
-      value1.sigle
+    const resultBefore =
+      await specificDataFieldConfigRepository.findSachaFields();
+    const fieldBefore = resultBefore.find(
+      (fc) => fc.key === FIELD_WITH_OPTIONS_KEY
     );
-    expect(resultBefore[FIELD_WITH_OPTIONS_KEY]?.values[OPTION_VALUE_2]).toBe(
-      value2.sigle
-    );
+    expect(
+      fieldBefore?.options.find((o) => o.value === OPTION_VALUE_1)
+        ?.sachaCommemoratifValueSigle
+    ).toBe(value1.sigle);
+    expect(
+      fieldBefore?.options.find((o) => o.value === OPTION_VALUE_2)
+        ?.sachaCommemoratifValueSigle
+    ).toBe(value2.sigle);
 
     await sampleSpecificDataRepository.deleteSampleSpecificDataAttributeValue(
       FIELD_WITH_OPTIONS_KEY,
       OPTION_VALUE_1
     );
 
-    const resultAfter = await sampleSpecificDataRepository.findAll();
-    expect(
-      resultAfter[FIELD_WITH_OPTIONS_KEY]?.values[OPTION_VALUE_1]
-    ).toBeUndefined();
-    expect(resultAfter[FIELD_WITH_OPTIONS_KEY]?.values[OPTION_VALUE_2]).toBe(
-      value2.sigle
+    const resultAfter =
+      await specificDataFieldConfigRepository.findSachaFields();
+    const fieldAfter = resultAfter.find(
+      (fc) => fc.key === FIELD_WITH_OPTIONS_KEY
     );
+    expect(
+      fieldAfter?.options.find((o) => o.value === OPTION_VALUE_1)
+        ?.sachaCommemoratifValueSigle
+    ).toBeNull();
+    expect(
+      fieldAfter?.options.find((o) => o.value === OPTION_VALUE_2)
+        ?.sachaCommemoratifValueSigle
+    ).toBe(value2.sigle);
   });
 });
