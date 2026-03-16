@@ -17,7 +17,7 @@ import {
   sampleItemSealIdCheck
 } from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
-import { SampleStatusSteps } from 'maestro-shared/schema/Sample/SampleStatus';
+import { SampleSteps } from 'maestro-shared/schema/Sample/SampleStep';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -184,7 +184,7 @@ const ItemsStep = ({ partialSample }: Props) => {
     });
   };
 
-  const save = async (status = partialSample.status) => {
+  const save = async (step = partialSample.step) => {
     await createOrUpdateSample({
       ...partialSample,
       sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
@@ -193,7 +193,7 @@ const ItemsStep = ({ partialSample }: Props) => {
         ...item,
         laboratoryId: item.laboratoryId || undefined
       })),
-      status
+      step
     });
   };
 
@@ -249,8 +249,7 @@ const ItemsStep = ({ partialSample }: Props) => {
               Étape précédente
             </Button>
           </div>
-          {(!readonly ||
-            (SampleStatusSteps[partialSample.status] as number) > 3) && (
+          {(!readonly || SampleSteps[partialSample.step] > 3) && (
             <Button
               size="small"
               priority="tertiary no outline"

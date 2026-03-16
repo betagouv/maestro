@@ -25,6 +25,10 @@ export const up = async (knex: Knex) => {
   await knex.raw('DROP VIEW IF EXISTS sample_status');
   await knex.raw('DROP VIEW IF EXISTS sample_item_status');
 
+  await knex.schema.alterTable('samples', (table) => {
+    table.renameColumn('status', 'step');
+  });
+
   await knex.raw(`
     CREATE VIEW sample_item_status AS
     SELECT
@@ -61,7 +65,10 @@ export const up = async (knex: Knex) => {
     SELECT
       s.id as sample_id,
       CASE
-        WHEN s.status != 'Sent' THEN s.status
+        WHEN s.step = 'Draft' THEN 'Draft'
+        WHEN s.step = 'DraftMatrix' THEN 'Draft'
+        WHEN s.step = 'DraftItems' THEN 'Draft'
+        WHEN s.step = 'Submitted' THEN 'Submitted'
         WHEN (
           SELECT COUNT(*) FROM sample_item_status sis WHERE sis.sample_id = s.id
         ) > 0
@@ -69,7 +76,7 @@ export const up = async (knex: Knex) => {
           SELECT COUNT(*) FROM sample_item_status sis WHERE sis.sample_id = s.id AND sis.status != 'NotAdmissible'
         ) = 0
           THEN 'NotAdmissible'
-        ELSE COALESCE(
+        ELSE 
           (
             SELECT CASE MIN(
               CASE
@@ -90,9 +97,7 @@ export const up = async (knex: Knex) => {
             END
             FROM sample_item_status sis
             WHERE sis.sample_id = s.id
-          ),
-          s.status
-        )
+          )
       END as status
     FROM samples s
   `);
@@ -101,4 +106,7 @@ export const up = async (knex: Knex) => {
 export const down = async (knex: Knex) => {
   await knex.raw('DROP VIEW IF EXISTS sample_status');
   await knex.raw('DROP VIEW IF EXISTS sample_item_status');
+  await knex.schema.alterTable('samples', (table) => {
+    table.renameColumn('step', 'status');
+  });
 };

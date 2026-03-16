@@ -17,10 +17,7 @@ import {
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { SampleCompliance } from 'maestro-shared/schema/Sample/SampleCompliance';
-import {
-  DraftStatusList,
-  SampleStatus
-} from 'maestro-shared/schema/Sample/SampleStatus';
+import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import {
   UserRoleList,
   UserRolePermissions
@@ -85,7 +82,6 @@ const SampleListView = () => {
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   useEffect(() => {
-    const status = searchParams.get('status') as SampleStatus;
     dispatch(
       samplesSlice.actions.changeFindOptions({
         programmingPlanIds:
@@ -102,7 +98,7 @@ const SampleListView = () => {
         departments:
           (searchParams.get('departments')?.split(',') as Department[]) ??
           undefined,
-        status: status === 'Draft' ? DraftStatusList : (status ?? undefined),
+        status: searchParams.get('status') as SampleStatus,
         matrix: searchParams.get('matrix') as Matrix,
         matrixKind: searchParams.get('matrixKind') as MatrixKind,
         sampledBy: searchParams.get('sampledBy'),
@@ -196,6 +192,7 @@ const SampleListView = () => {
                     partialSample={{
                       id: newPartialSampleId,
                       sampler: user,
+                      step: 'Draft' as const,
                       status: 'Draft' as const,
                       programmingPlanId: programmingPlan.id as string,
                       programmingPlanKind: programmingPlan.kinds[0],

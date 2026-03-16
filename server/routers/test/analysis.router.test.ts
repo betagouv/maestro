@@ -67,6 +67,9 @@ describe('Analysis router', () => {
   });
   const analysisWithResidues = genPartialAnalysis({
     sampleId: Sample13Fixture.id,
+    itemNumber: 1,
+    copyNumber: 1,
+    status: 'Analysis',
     createdBy: Sampler1Fixture.id,
     emailReceivedAt: null
   });
@@ -280,7 +283,8 @@ describe('Analysis router', () => {
         ...analysis,
         id: res.body.id,
         createdAt: expect.any(Date),
-        createdBy: Sampler1Fixture.id
+        createdBy: Sampler1Fixture.id,
+        status: 'Analysis'
       });
 
       await expect(getSampleStatus(analysis.sampleId)).resolves.toBe(

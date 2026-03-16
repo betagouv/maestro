@@ -9,7 +9,6 @@ import {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { useMemo } from 'react';
 import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
@@ -94,9 +93,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
           />
           {isOnline &&
             hasUserPermission('deleteSample') &&
-            DraftStatusList.includes(sample.status) && (
-              <RemoveSample sample={sample} />
-            )}
+            sample.status === 'Draft' && <RemoveSample sample={sample} />}
         </div>
       ]),
     [samples] // eslint-disable-line react-hooks/exhaustive-deps

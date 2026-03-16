@@ -1,7 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import { t } from 'i18next';
-import { difference } from 'lodash-es';
 import { Matrix, MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
 import {
   MatrixKind,
@@ -19,7 +18,6 @@ import {
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
-  DraftStatusList,
   SampleStatus,
   SampleStatusLabels,
   SampleStatusList
@@ -200,8 +198,7 @@ const SamplePrimaryFilters = ({
           }}
         >
           <option value="">Tous</option>
-          <option value={DraftStatusList.join(',')}>Brouillon</option>
-          {difference(SampleStatusList, DraftStatusList).map((status) => (
+          {SampleStatusList.map((status) => (
             <option key={`status-${status}`} value={status}>
               {SampleStatusLabels[status]}
             </option>

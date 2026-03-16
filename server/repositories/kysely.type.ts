@@ -25,6 +25,7 @@ import {
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleStatus as SampleStatusType } from 'maestro-shared/schema/Sample/SampleStatus';
+import { SampleStep } from 'maestro-shared/schema/Sample/SampleStep';
 import {
   ProgrammingPlanKindFieldId,
   SpecificDataFieldId,
@@ -296,7 +297,7 @@ export interface Samples {
   sampledBy: string | null;
   sentAt: Timestamp | null;
   stage: Stage | null;
-  status: string;
+  step: SampleStep;
 }
 
 export interface SampleSpecificDataValues {

@@ -34,9 +34,9 @@ import {
   SampleMatrixData
 } from 'maestro-shared/schema/Sample/Sample';
 import {
-  SampleStatus,
-  SampleStatusSteps
-} from 'maestro-shared/schema/Sample/SampleStatus';
+  SampleStep,
+  SampleSteps
+} from 'maestro-shared/schema/Sample/SampleStep';
 import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { toArray } from 'maestro-shared/utils/utils';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -186,7 +186,7 @@ const MatrixStep = ({ partialSample }: Props) => {
     });
   };
 
-  const save = async (status: SampleStatus = partialSample.status) => {
+  const save = async (step: SampleStep = partialSample.step) => {
     await createOrUpdateSample({
       ...partialSample,
       matrixKind,
@@ -197,7 +197,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       monoSubstances,
       multiSubstances,
       documentIds,
-      status
+      step
     });
   };
 
@@ -380,8 +380,7 @@ const MatrixStep = ({ partialSample }: Props) => {
               Étape précédente
             </Button>
           </div>
-          {(!readonly ||
-            (SampleStatusSteps[partialSample.status] as number) > 2) && (
+          {(!readonly || SampleSteps[partialSample.step] > 2) && (
             <Button
               size="small"
               priority="tertiary no outline"

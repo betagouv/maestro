@@ -7,7 +7,7 @@ import {
   PartialSampleToCreate,
   SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
-import { SampleStatusSteps } from 'maestro-shared/schema/Sample/SampleStatus';
+import { SampleSteps } from 'maestro-shared/schema/Sample/SampleStep';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
@@ -37,7 +37,7 @@ const SampleView = ({ sample }: Props) => {
 
   useEffect(() => {
     if (sample) {
-      setStep(getSampleStepParam() ?? SampleStatusSteps[sample.status]);
+      setStep(getSampleStepParam() ?? SampleSteps[sample.step]);
     } else {
       setStep(1);
     }

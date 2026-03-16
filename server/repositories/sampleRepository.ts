@@ -8,7 +8,6 @@ import {
   SampleBase,
   SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
-import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import z from 'zod';
 import { analysisResiduesTable, analysisTable } from './analysisRepository';
@@ -25,14 +24,6 @@ export const sampleDocumentsTable = 'sample_documents';
 const sampleSpecificDataValuesTable = 'sample_specific_data_values';
 const sampleSequenceNumbers = 'sample_sequence_numbers';
 
-const SampleStatusDbo = z.enum([
-  'Draft',
-  'DraftMatrix',
-  'DraftItems',
-  'Submitted',
-  'Sent'
-]);
-
 const PartialSampleDbo = z.object({
   ...PartialSample.omit({
     items: true,
@@ -40,14 +31,14 @@ const PartialSampleDbo = z.object({
     sampler: true,
     additionalSampler: true,
     geolocation: true,
-    specificData: true
+    specificData: true,
+    status: true
   }).shape,
   companySiret: z.string().nullish(),
   geolocation: z.any().nullish(),
   sampledBy: z.guid(),
   additionalSampledBy: z.guid().nullish(),
-  sentAt: z.string().nullish(),
-  status: SampleStatusDbo
+  sentAt: z.string().nullish()
 });
 
 const PartialSampleJoinedDbo = PartialSampleDbo.merge(
@@ -68,7 +59,6 @@ const PartialSampleJoinedDbo = PartialSampleDbo.merge(
   })
 );
 
-type SampleStatusDbo = z.infer<typeof SampleStatusDbo>;
 type PartialSampleDbo = z.infer<typeof PartialSampleDbo>;
 type PartialSampleJoinedDbo = z.infer<typeof PartialSampleJoinedDbo>;
 
@@ -469,7 +459,12 @@ const deleteDraftOnProgrammingPlan = async (
   await kysely
     .deleteFrom('samples')
     .where('programmingPlanId', '=', programmingPlanId)
-    .where('status', 'in', DraftStatusList)
+    .where('id', 'in', (qb) =>
+      qb
+        .selectFrom('sampleStatus')
+        .select('sampleId')
+        .where('status', '=', 'Draft')
+    )
     .execute();
 };
 
@@ -485,9 +480,6 @@ export const formatPartialSample = (
     'specificData',
     'status'
   ]),
-  status: SampleStatusDbo.safeParse(partialSample.status)
-    ? (partialSample.status as SampleStatusDbo)
-    : 'Sent',
   geolocation: partialSample.geolocation
     ? db.raw('Point(?, ?)', [
         partialSample.geolocation.x,

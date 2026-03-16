@@ -173,7 +173,7 @@ describe('Local prescriptions router', () => {
     region: Sampler1Fixture.region as Region,
     company: SlaughterhouseCompanyFixture1,
     sampler: Sampler1Fixture,
-    status: 'Sent',
+    step: 'Sent',
     specificData: {
       programmingPlanKind: 'PPV'
     }

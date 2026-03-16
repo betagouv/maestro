@@ -156,7 +156,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
     });
   };
 
-  const save = async (status = sample.status) => {
+  const save = async (step = sample.step) => {
     setIsSaved(false);
     await createOrUpdateSample({
       ...sample,
@@ -167,7 +167,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
       ownerAgreement,
       notesOnOwnerAgreement,
       specificData,
-      status
+      step
     });
   };
 
@@ -470,7 +470,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
                           priority: 'tertiary',
                           onClick: async (e: React.MouseEvent<HTMLElement>) => {
                             e.preventDefault();
-                            await save(sample.status);
+                            await save(sample.step);
                             setIsSaved(true);
                           }
                         }
