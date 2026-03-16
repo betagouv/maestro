@@ -1,4 +1,3 @@
-import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import Tag from '@codegouvfr/react-dsfr/Tag';
@@ -9,8 +8,8 @@ import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
+import { StatusBadge } from '../../../components/SampleStatusBadge/SampleStatusBadge';
 import { getSupportDocumentURL } from '../../../services/sample.service';
-import { quote } from '../../../utils/stringUtils';
 import SampleItemAnalysis from '../SampleItemAnalysis/SampleItemAnalysis';
 import './SampleOverview.scss';
 
@@ -25,10 +24,10 @@ const SampleItemCopiesOverview = ({
   sampleItemCopies,
   sample
 }: Props) => {
-  const [copyNumber, setCopyNumber] = useState(sampleItemCopies[0].copyNumber);
+  const [currentItemCopy, setCurrentItemCopy] = useState(sampleItemCopies[0]);
 
   useEffect(() => {
-    setCopyNumber(sampleItemCopies[0].copyNumber);
+    setCurrentItemCopy(sampleItemCopies[0]);
   }, [sampleItemCopies]);
 
   return (
@@ -44,24 +43,6 @@ const SampleItemCopiesOverview = ({
           {SubstanceKindLabels[sampleItemCopies[0].substanceKind]}
         </Tag>
       </div>
-      {!isNil(sampleItemCopies[0]?.analysis?.compliance) && (
-        <div>
-          <Badge
-            severity={
-              sampleItemCopies[0].analysis?.compliance ? 'success' : 'error'
-            }
-            className={'fr-px-1w'}
-          >
-            {sampleItemCopies[0].analysis?.compliance
-              ? 'Échantillon conforme'
-              : 'Échantillon non conforme'}
-          </Badge>
-          <div className={cx('fr-text--sm', 'fr-mb-0')}>
-            {sampleItemCopies[0]?.analysis?.notesOnCompliance &&
-              quote(sampleItemCopies[0]?.analysis.notesOnCompliance)}
-          </div>
-        </div>
-      )}
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-6')}>
           <div>Compte-rendu / Procès-verbal</div>
@@ -70,7 +51,11 @@ const SampleItemCopiesOverview = ({
             className={cx('fr-link', 'fr-link--sm')}
             onClick={() => {
               window.open(
-                getSupportDocumentURL(sample.id, itemNumber, copyNumber)
+                getSupportDocumentURL(
+                  sample.id,
+                  itemNumber,
+                  currentItemCopy.copyNumber
+                )
               );
             }}
           >
@@ -88,24 +73,62 @@ const SampleItemCopiesOverview = ({
           legend="Exemplaire"
           segments={
             sampleItemCopies.map((sampleItemCopy) => ({
-              label: `Exemplaire ${sampleItemCopy.copyNumber}`,
+              label: (
+                <div style={{ minHeight: '44px' }}>
+                  <div>Exemplaire {sampleItemCopy.copyNumber}</div>
+                  {!!sampleItemCopy.analysis?.compliance && (
+                    <div
+                      className={cx(
+                        'fr-label--success',
+                        'fr-text--xs',
+                        'fr-mb-0'
+                      )}
+                    >
+                      <span
+                        className={cx(
+                          'fr-icon-checkbox-circle-line',
+                          'fr-mr-1w',
+                          'fr-icon--sm'
+                        )}
+                      />
+                      Conforme
+                    </div>
+                  )}
+                  {!isNil(sampleItemCopy.analysis?.compliance) &&
+                    !sampleItemCopy.analysis?.compliance && (
+                      <div
+                        className={cx(
+                          'fr-label--error',
+                          'fr-text--xs',
+                          'fr-mb-0'
+                        )}
+                      >
+                        <span
+                          className={cx(
+                            'fr-icon-close-circle-line',
+                            'fr-mr-1w',
+                            'fr-icon--sm'
+                          )}
+                        />
+                        Non-conforme
+                      </div>
+                    )}
+                </div>
+              ),
               nativeInputProps: {
-                checked: copyNumber === sampleItemCopy.copyNumber,
-                onChange: () => setCopyNumber(sampleItemCopy.copyNumber)
+                checked:
+                  sampleItemCopy.copyNumber === currentItemCopy.copyNumber,
+                onChange: () => setCurrentItemCopy(sampleItemCopy)
               }
             })) as any
           }
         />
       )}
-      {sampleItemCopies.some((copy) => copy.copyNumber === copyNumber) && (
-        <SampleItemAnalysis
-          sample={sample}
-          sampleItem={
-            sampleItemCopies.find(
-              (copy) => copy.copyNumber === copyNumber
-            ) as SampleItem
-          }
-        />
+      {currentItemCopy.analysis && (
+        <StatusBadge status={currentItemCopy.analysis?.status} />
+      )}
+      {currentItemCopy && (
+        <SampleItemAnalysis sample={sample} sampleItem={currentItemCopy} />
       )}
     </>
   );

@@ -65,11 +65,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
           sample.department,
           sample.company?.name ?? '',
           sample.context ? ContextLabels[sample.context] : '',
-          <SampleStatusBadge
-            status={sample.status}
-            sampleId={sample.id}
-            key={`${sample.id}-badge`}
-          />
+          <SampleStatusBadge sample={sample} key={`${sample.id}-badge`} />
         ].map((cell, index) => (
           <div
             key={`${sample.id}-cell-${index}`}
