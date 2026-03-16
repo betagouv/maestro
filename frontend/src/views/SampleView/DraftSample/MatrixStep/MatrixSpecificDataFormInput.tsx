@@ -1,7 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
-import { MatrixSpecificDataFormInputProps } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
 import { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import {
   SpecificData,
@@ -16,12 +15,13 @@ import { ZodObject } from 'zod';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import { UseForm } from '../../../../hooks/useForm';
+import { SpecificDataFormInputProps } from './SpecificDataForm';
 
 type Props<T extends ZodObject, U extends UseForm<T>> = {
   specificData: SpecificData;
   onChange: (specificData: SpecificData) => void;
   fieldConfig: PlanKindFieldConfig;
-  inputProps: MatrixSpecificDataFormInputProps;
+  inputProps: SpecificDataFormInputProps;
   inputForm: U;
 };
 

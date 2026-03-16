@@ -20,7 +20,6 @@ import {
 } from 'maestro-shared/referential/Stage';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
-import { MatrixSpecificDataForm } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -64,6 +63,7 @@ import { usePartialSample } from '../../../../hooks/usePartialSample';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 import MatrixSpecificDataFormInput from './MatrixSpecificDataFormInput';
+import { SpecificDataForm } from './SpecificDataForm';
 
 type Props = {
   partialSample: PartialSample | PartialSampleToCreate;
@@ -109,7 +109,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       kind: programmingPlanKind
     });
 
-  const planLayout = MatrixSpecificDataForm[programmingPlanKind];
+  const planLayout = SpecificDataForm[programmingPlanKind];
 
   const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
     {
