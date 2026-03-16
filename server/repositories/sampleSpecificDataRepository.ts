@@ -35,19 +35,13 @@ const updateSampleSpecificDataAttributeValue = async (
   },
   trx: KyselyMaestro = kysely
 ) => {
-  const field = await trx
-    .selectFrom('specificDataFields')
-    .select('id')
-    .where('key', '=', sampleSpecificDataAttributeValue.attribute)
-    .executeTakeFirstOrThrow();
-
   await trx
     .updateTable('specificDataFieldOptions')
     .set({
       sachaCommemoratifValueSigle:
         sampleSpecificDataAttributeValue.sachaCommemoratifValueSigle
     })
-    .where('fieldId', '=', field.id)
+    .where('fieldKey', '=', sampleSpecificDataAttributeValue.attribute)
     .where('value', '=', sampleSpecificDataAttributeValue.attributeValue)
     .execute();
 };
@@ -56,16 +50,10 @@ const deleteSampleSpecificDataAttributeValues = async (
   attribute: string,
   trx: KyselyMaestro = kysely
 ) => {
-  const field = await trx
-    .selectFrom('specificDataFields')
-    .select('id')
-    .where('key', '=', attribute)
-    .executeTakeFirstOrThrow();
-
   await trx
     .updateTable('specificDataFieldOptions')
     .set({ sachaCommemoratifValueSigle: null })
-    .where('fieldId', '=', field.id)
+    .where('fieldKey', '=', attribute)
     .execute();
 };
 
@@ -74,16 +62,10 @@ const deleteSampleSpecificDataAttributeValue = async (
   attributeValue: string,
   trx: KyselyMaestro = kysely
 ) => {
-  const field = await trx
-    .selectFrom('specificDataFields')
-    .select('id')
-    .where('key', '=', attribute)
-    .executeTakeFirstOrThrow();
-
   await trx
     .updateTable('specificDataFieldOptions')
     .set({ sachaCommemoratifValueSigle: null })
-    .where('fieldId', '=', field.id)
+    .where('fieldKey', '=', attribute)
     .where('value', '=', attributeValue)
     .execute();
 };

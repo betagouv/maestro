@@ -356,7 +356,7 @@ export interface SpecificDataFields {
 
 export interface SpecificDataFieldOptions {
   id: Generated<SpecificDataFieldOptionId>;
-  fieldId: SpecificDataFieldId;
+  fieldKey: string;
   value: string;
   label: string;
   order: number;

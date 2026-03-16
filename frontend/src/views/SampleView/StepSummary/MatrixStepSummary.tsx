@@ -20,7 +20,6 @@ import {
   UnknownValue
 } from 'maestro-shared/schema/SpecificData/SpecificData';
 
-import { FrIconClassName } from '@codegouvfr/react-dsfr/fr/generatedFromCss/classNames';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useContext } from 'react';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
@@ -91,11 +90,7 @@ const MatrixStepSummary = ({
 
           return (
             <div key={inputKey} className="summary-item icon-text">
-              <div
-                className={cx(
-                  (inputProps.iconId as FrIconClassName) ?? 'fr-mr-9v'
-                )}
-              ></div>
+              <div className={cx('fr-mr-9v')}></div>
               <div>
                 {field.inputType === 'checkbox' ? (
                   <b>{value}</b>

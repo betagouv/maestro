@@ -67,13 +67,6 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
 
   return (
     <Fragment key={inputKey}>
-      {inputProps.preTitle && (
-        <div className={cx('fr-col-12', 'fr-pt-3w', 'fr-pb-0')}>
-          <span className={cx('fr-text--md', 'fr-text--bold')}>
-            {inputProps.preTitle}
-          </span>
-        </div>
-      )}
       {(() => {
         switch (field.inputType) {
           case 'text':
@@ -254,7 +247,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                       }
                     })) ?? []
                   }
-                  colSm={inputProps.colSm}
+                  colSm={4}
                   inputForm={inputForm}
                   inputKey="specificData"
                   inputPathFromKey={[inputKey]}

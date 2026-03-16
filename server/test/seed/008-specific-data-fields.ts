@@ -43,7 +43,7 @@ export const seed = async (): Promise<void> => {
   const allOptionInserts = Object.entries(uniqueOptionsByFieldKey).flatMap(
     ([fieldKey, options]) =>
       options.map((o) => ({
-        fieldId: fieldIdByKey[fieldKey],
+        fieldKey,
         value: o.value,
         label: o.label,
         order: o.order
@@ -58,11 +58,11 @@ export const seed = async (): Promise<void> => {
     const optionRows = await kysely
       .insertInto('specificDataFieldOptions')
       .values(allOptionInserts)
-      .returning(['id', 'fieldId', 'value'])
+      .returning(['id', 'fieldKey', 'value'])
       .execute();
 
     for (const r of optionRows) {
-      (optionIdByFieldAndValue[r.fieldId] ??= {})[r.value] = r.id;
+      (optionIdByFieldAndValue[r.fieldKey] ??= {})[r.value] = r.id;
     }
   }
 
@@ -116,7 +116,7 @@ export const seed = async (): Promise<void> => {
       programmingPlanKindFieldId:
         planKindFieldId[r.programmingPlanId][r.kind][key],
       specificDataFieldOptionId:
-        optionIdByFieldAndValue[fieldIdByKey[key]]?.[o.value]
+        optionIdByFieldAndValue[key]?.[o.value]
     }));
   });
 

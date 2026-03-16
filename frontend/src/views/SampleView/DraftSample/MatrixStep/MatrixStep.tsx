@@ -403,20 +403,6 @@ const MatrixStep = ({ partialSample }: Props) => {
       </div>
 
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        {fieldConfigs
-          .filter(
-            (fc) => (planLayout[fc.field.key]?.position ?? 'post') === 'pre'
-          )
-          .map((fc) => (
-            <MatrixSpecificDataFormInput
-              key={fc.field.key}
-              fieldConfig={fc}
-              inputProps={planLayout[fc.field.key] ?? {}}
-              inputForm={form}
-              specificData={specificData}
-              onChange={setSpecificData}
-            />
-          ))}
         <div className={cx('fr-col-12', 'fr-pb-0')}>
           <span className={cx('fr-text--md', 'fr-text--bold')}>
             La matrice à prélever
@@ -520,20 +506,16 @@ const MatrixStep = ({ partialSample }: Props) => {
       </div>
       <SampleProcedure partialSample={partialSample} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        {fieldConfigs
-          .filter(
-            (fc) => (planLayout[fc.field.key]?.position ?? 'post') !== 'pre'
-          )
-          .map((fc) => (
-            <MatrixSpecificDataFormInput
-              key={fc.field.key}
-              fieldConfig={fc}
-              inputProps={planLayout[fc.field.key] ?? {}}
-              inputForm={form}
-              specificData={specificData}
-              onChange={setSpecificData}
-            />
-          ))}
+        {fieldConfigs.map((fc) => (
+          <MatrixSpecificDataFormInput
+            key={fc.field.key}
+            fieldConfig={fc}
+            inputProps={planLayout[fc.field.key] ?? {}}
+            inputForm={form}
+            specificData={specificData}
+            onChange={setSpecificData}
+          />
+        ))}
 
         {!isProgrammingPlanSample(partialSample) && (
           <>

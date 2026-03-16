@@ -14,15 +14,15 @@ export const up = async (knex: Knex) => {
   await knex.schema.createTable('specific_data_field_options', (table) => {
     table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
     table
-      .uuid('field_id')
+      .text('field_key')
       .notNullable()
-      .references('id')
+      .references('key')
       .inTable('specific_data_fields')
       .onDelete('CASCADE');
     table.text('value').notNullable();
     table.text('label').notNullable();
     table.integer('order').notNullable();
-    table.unique(['field_id', 'value']);
+    table.unique(['field_key', 'value']);
   });
 
   // Table 3: which fields belong to which (programming_plan_id, kind) pair
@@ -185,240 +185,239 @@ export const up = async (knex: Knex) => {
     .insert([
       // cultureKind
       {
-        field_id: fieldId.cultureKind,
+        field_key: 'cultureKind',
         value: 'Z0211',
         label: 'Sous serre/conditions de croissance protégées',
         order: 1
       },
       {
-        field_id: fieldId.cultureKind,
+        field_key: 'cultureKind',
         value: 'PD06A',
         label: 'Production traditionnelle',
         order: 2
       },
       {
-        field_id: fieldId.cultureKind,
+        field_key: 'cultureKind',
         value: 'PD08A',
         label: 'Production industrielle intensive',
         order: 3
       },
       {
-        field_id: fieldId.cultureKind,
+        field_key: 'cultureKind',
         value: 'Z0215',
         label: 'Méthode inconnue',
         order: 4
       },
       {
-        field_id: fieldId.cultureKind,
+        field_key: 'cultureKind',
         value: 'Z0153',
         label: 'Sauvages ou cueillis',
         order: 5
       },
       {
-        field_id: fieldId.cultureKind,
+        field_key: 'cultureKind',
         value: 'PD05A',
         label: 'Production en plein air',
         order: 6
       },
       // matrixPart
       {
-        field_id: fieldId.matrixPart,
+        field_key: 'matrixPart',
         value: 'PART1',
         label: "Partie à laquelle s'applique la LMR",
         order: 1
       },
       {
-        field_id: fieldId.matrixPart,
+        field_key: 'matrixPart',
         value: 'PART2',
         label: 'Partie non LMR (préciser en commentaire)',
         order: 2
       },
       // productionKind (union of PPV and DAOA_BOVIN options)
       {
-        field_id: fieldId.productionKind,
+        field_key: 'productionKind',
         value: 'PD07A',
         label: 'Production biologique',
         order: 1
       },
       {
-        field_id: fieldId.productionKind,
+        field_key: 'productionKind',
         value: 'PD09A',
         label: 'Production non biologique',
         order: 2
       },
       {
-        field_id: fieldId.productionKind,
+        field_key: 'productionKind',
         value: 'Z0216',
         label: 'Autre méthode de production',
         order: 3
       },
       {
-        field_id: fieldId.productionKind,
+        field_key: 'productionKind',
         value: 'PROD_1',
         label: 'Allaitant',
         order: 4
       },
       {
-        field_id: fieldId.productionKind,
+        field_key: 'productionKind',
         value: 'PROD_2',
         label: 'Laitier',
         order: 5
       },
       {
-        field_id: fieldId.productionKind,
+        field_key: 'productionKind',
         value: 'PROD_4',
         label: 'Boucherie',
         order: 6
       },
       {
-        field_id: fieldId.productionKind,
+        field_key: 'productionKind',
         value: 'PROD_3',
         label: 'Inconnu',
         order: 7
       },
       // species (DAOA_VOLAILLE options)
       {
-        field_id: fieldId.species,
+        field_key: 'species',
         value: 'ESP7',
         label: 'Poulet de chair',
         order: 1
       },
       {
-        field_id: fieldId.species,
+        field_key: 'species',
         value: 'ESP8',
         label: 'Poule de réforme',
         order: 2
       },
       {
-        field_id: fieldId.species,
+        field_key: 'species',
         value: 'ESP10',
         label: 'Dinde',
         order: 3
       },
       {
-        field_id: fieldId.species,
+        field_key: 'species',
         value: 'ESP20',
         label: 'Autre volaille',
         order: 4
       },
       // animalKind (DAOA_BOVIN options)
       {
-        field_id: fieldId.animalKind,
+        field_key: 'animalKind',
         value: 'TYPEA1',
         label: 'Veau < 6 mois',
         order: 1
       },
       {
-        field_id: fieldId.animalKind,
+        field_key: 'animalKind',
         value: 'TYPEA2',
         label: 'Jeune bovin entre 6 et 24 mois',
         order: 2
       },
       {
-        field_id: fieldId.animalKind,
+        field_key: 'animalKind',
         value: 'TYPEA3',
         label: 'Bovin > 24 mois hors vache de réforme',
         order: 3
       },
       {
-        field_id: fieldId.animalKind,
+        field_key: 'animalKind',
         value: 'TYPEA4',
         label: 'Vache de réforme',
         order: 4
       },
       // breedingMethod (DAOA_VOLAILLE options)
       {
-        field_id: fieldId.breedingMethod,
+        field_key: 'breedingMethod',
         value: 'PROD_1',
         label: 'Biologique',
         order: 1
       },
       {
-        field_id: fieldId.breedingMethod,
+        field_key: 'breedingMethod',
         value: 'PROD_2',
         label: 'Standard',
         order: 2
       },
       {
-        field_id: fieldId.breedingMethod,
+        field_key: 'breedingMethod',
         value: 'PROD_3',
         label: "Autre signe de qualité",
         order: 3
       },
       // sex (DAOA_BOVIN options)
       {
-        field_id: fieldId.sex,
+        field_key: 'sex',
         value: 'SEX1',
         label: 'Mâle entier',
         order: 1
       },
-      { field_id: fieldId.sex, value: 'SEX2', label: 'Mâle castré', order: 2 },
+      { field_key: 'sex', value: 'SEX2', label: 'Mâle castré', order: 2 },
       {
-        field_id: fieldId.sex,
+        field_key: 'sex',
         value: 'SEX3',
         label: 'Mâle non déterminé',
         order: 3
       },
-      { field_id: fieldId.sex, value: 'SEX4', label: 'Femelle', order: 4 },
+      { field_key: 'sex', value: 'SEX4', label: 'Femelle', order: 4 },
       {
-        field_id: fieldId.sex,
+        field_key: 'sex',
         value: 'SEX5',
         label: 'Sexe inconnu',
         order: 5
       },
       // seizure (DAOA_BOVIN options; "Unknown" stays frontend-only)
       {
-        field_id: fieldId.seizure,
+        field_key: 'seizure',
         value: 'EMPTY',
         label: 'Absence',
         order: 1
       },
       {
-        field_id: fieldId.seizure,
+        field_key: 'seizure',
         value: 'PARTIAL',
         label: 'Partielle',
         order: 2
       },
-      { field_id: fieldId.seizure, value: 'TOTAL', label: 'Totale', order: 3 },
+      { field_key: 'seizure', value: 'TOTAL', label: 'Totale', order: 3 },
       // sampling (DAOA_VOLAILLE + DAOA_BOVIN options)
       {
-        field_id: fieldId.sampling,
+        field_key: 'sampling',
         value: 'Aléatoire',
         label: 'Aléatoire',
         order: 1
       },
       // outdoorAccess (DAOA_VOLAILLE + DAOA_BOVIN options)
       {
-        field_id: fieldId.outdoorAccess,
+        field_key: 'outdoorAccess',
         value: 'PAT1',
         label: 'Oui',
         order: 1
       },
       {
-        field_id: fieldId.outdoorAccess,
+        field_key: 'outdoorAccess',
         value: 'PAT0',
         label: 'Non',
         order: 2
       },
       {
-        field_id: fieldId.outdoorAccess,
+        field_key: 'outdoorAccess',
         value: 'PATINCO',
         label: 'Inconnu',
         order: 3
       }
     ])
-    .returning(['id', 'field_id', 'value'])) as {
+    .returning(['id', 'field_key', 'value'])) as {
     id: string;
-    fieldId: string;
+    fieldKey: string;
     value: string;
   }[];
 
   // Build lookup: optionId[fieldKey][value] = id
   const optionId: Record<string, Record<string, string>> = {};
   for (const r of optionRows) {
-    const key = fieldRows.find((f) => f.id === r.fieldId)!.key;
-    if (!optionId[key]) optionId[key] = {};
-    optionId[key][r.value] = r.id;
+    if (!optionId[r.fieldKey]) optionId[r.fieldKey] = {};
+    optionId[r.fieldKey][r.value] = r.id;
   }
 
   // ── Seed plan-kind → field associations per existing (programming_plan_id, kind) ──
@@ -573,8 +572,7 @@ export const up = async (knex: Knex) => {
     UPDATE specific_data_field_options sdfo
     SET sacha_commemoratif_value_sigle = ssdav.sacha_commemoratif_value_sigle
     FROM sample_specific_data_attribute_values ssdav
-    JOIN specific_data_fields sdf ON sdf.key = ssdav.attribute
-    WHERE sdfo.field_id = sdf.id
+    WHERE sdfo.field_key = ssdav.attribute
       AND sdfo.value = ssdav.attribute_value
   `);
 
@@ -631,9 +629,8 @@ export const down = async (knex: Knex) => {
   // Migrate data back: specific_data_field_options → sample_specific_data_attribute_values
   await knex.raw(`
     INSERT INTO sample_specific_data_attribute_values (attribute, attribute_value, sacha_commemoratif_value_sigle)
-    SELECT sdf.key, sdfo.value, sdfo.sacha_commemoratif_value_sigle
+    SELECT sdfo.field_key, sdfo.value, sdfo.sacha_commemoratif_value_sigle
     FROM specific_data_field_options sdfo
-    JOIN specific_data_fields sdf ON sdf.id = sdfo.field_id
     WHERE sdfo.sacha_commemoratif_value_sigle IS NOT NULL
   `);
 

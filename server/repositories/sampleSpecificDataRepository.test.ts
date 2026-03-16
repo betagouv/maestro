@@ -20,16 +20,10 @@ afterEach(async () => {
     .where('key', 'in', [FIELD_KEY, FIELD_WITH_OPTIONS_KEY])
     .execute();
 
-  const field = await kysely
-    .selectFrom('specificDataFields')
-    .select('id')
-    .where('key', '=', FIELD_WITH_OPTIONS_KEY)
-    .executeTakeFirstOrThrow();
-
   await kysely
     .updateTable('specificDataFieldOptions')
     .set({ sachaCommemoratifValueSigle: null })
-    .where('fieldId', '=', field.id)
+    .where('fieldKey', '=', FIELD_WITH_OPTIONS_KEY)
     .execute();
 });
 

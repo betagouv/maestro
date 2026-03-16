@@ -102,22 +102,22 @@ const findSachaFields = async (): Promise<SachaFieldConfig[]> => {
     return [];
   }
 
-  const fieldIds = fields.map((f) => f.id);
+  const fieldKeys = fields.map((f) => f.key);
 
   const options = await kysely
     .selectFrom('specificDataFieldOptions as sdfo')
     .select([
-      'sdfo.fieldId',
+      'sdfo.fieldKey',
       'sdfo.value',
       'sdfo.label',
       'sdfo.order',
       'sdfo.sachaCommemoratifValueSigle'
     ])
-    .where('sdfo.fieldId', 'in', fieldIds)
+    .where('sdfo.fieldKey', 'in', fieldKeys)
     .orderBy('sdfo.order')
     .execute();
 
-  const optionsByFieldId = options.reduce<
+  const optionsByFieldKey = options.reduce<
     Record<
       string,
       {
@@ -128,9 +128,9 @@ const findSachaFields = async (): Promise<SachaFieldConfig[]> => {
       }[]
     >
   >((acc, opt) => {
-    const id = opt.fieldId;
-    if (!acc[id]) acc[id] = [];
-    acc[id].push({
+    const key = opt.fieldKey;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push({
       value: opt.value,
       label: opt.label,
       order: opt.order,
@@ -147,7 +147,7 @@ const findSachaFields = async (): Promise<SachaFieldConfig[]> => {
     sachaCommemoratifSigle: f.sachaCommemoratifSigle ?? null,
     inDai: f.sachaInDai,
     optional: f.sachaOptional,
-    options: optionsByFieldId[f.id] ?? []
+    options: optionsByFieldKey[f.key] ?? []
   }));
 };
 
