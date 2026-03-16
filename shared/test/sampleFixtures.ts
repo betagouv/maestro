@@ -51,15 +51,14 @@ export const genSampleContextData = (
     y: 4.731044
   },
   programmingPlanId: uuidv4(),
+  programmingPlanKind: 'PPV',
   context: oneOf(ProgrammingPlanContextList),
   legalContext: oneOf(LegalContextList),
   resytalId: '23-' + fakerFR.string.numeric(6),
   company: genCompany(),
   notesOnCreation: fakerFR.string.alphanumeric(32),
   status: 'Draft',
-  specificData: {
-    programmingPlanKind: 'PPV'
-  },
+  specificData: {},
   ...data
 });
 export const genCreatedSampleData = (
@@ -85,8 +84,8 @@ export const genCreatedPartialSample = (
     monoSubstances: [],
     multiSubstances: [],
     stage: 'STADE1',
+    programmingPlanKind: 'PPV',
     specificData: {
-      programmingPlanKind: 'PPV',
       matrixPart: oneOf(['PART1', 'PART2']),
       productionKind: oneOf(['PD07A', 'Z0216', 'PD09A']),
       cultureKind: oneOf([
@@ -167,8 +166,8 @@ export const Sample11Fixture = genCreatedPartialSample({
   matrixKind: PrescriptionFixture.matrixKind,
   matrix: 'A00GZ',
   stage: PrescriptionFixture.stages[0],
+  programmingPlanKind: 'PPV',
   specificData: {
-    programmingPlanKind: 'PPV',
     matrixPart: 'PART1',
     productionKind: 'PD07A',
     cultureKind: 'PD06A',

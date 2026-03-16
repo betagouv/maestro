@@ -68,7 +68,7 @@ const sampleResidueCheck: CheckFn<ResidueChecked> = (ctx) => {
 
 export const ResidueChecked = ResidueBase.check(sampleResidueCheck);
 const sampleResidueLmrCheck: CheckFn<
-  Pick<SampleChecked, 'stage' | 'specificData'> &
+  Pick<SampleChecked, 'stage' | 'specificData' | 'programmingPlanKind'> &
     Pick<ResidueChecked, 'resultKind' | 'lmr' | 'reference'>
 > = (ctx) => {
   if (!LmrIsValid(ctx.value)) {
@@ -85,7 +85,8 @@ const LmrCheckChecked = z
   .object({
     ...SampleBase.pick({
       stage: true,
-      specificData: true
+      specificData: true,
+      programmingPlanKind: true
     }).shape,
     ...ResidueBase.pick({
       resultKind: true,
@@ -110,7 +111,7 @@ export const LmrIsValid = (
   // - Et LMR / Partie du végétal concernée -> n'est pas « Partie non LMR »
   if (
     sample.resultKind === 'Q' &&
-    sample.specificData.programmingPlanKind === 'PPV' &&
+    sample.programmingPlanKind === 'PPV' &&
     sample.specificData.matrixPart === 'PART1' &&
     sample.stage !== 'STADE2' &&
     !lmrCanBeOptional

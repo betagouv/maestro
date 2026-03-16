@@ -188,10 +188,10 @@ const generateSamplesExportExcel = async (
     samples.map(async (sample) => {
       const fieldConfigs = await getFieldConfigs(
         sample.programmingPlanId,
-        sample.specificData.programmingPlanKind
+        sample.programmingPlanKind
       );
       const planLayout = MatrixSpecificDataForm[
-        sample.specificData.programmingPlanKind
+        sample.programmingPlanKind
       ] as Record<string, MatrixSpecificDataFormInputProps>;
 
       const items = await sampleItemRepository.findMany(sample.id);

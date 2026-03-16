@@ -115,8 +115,7 @@ export const seed = async (): Promise<void> => {
     return (config?.field.options ?? []).map((o) => ({
       programmingPlanKindFieldId:
         planKindFieldId[r.programmingPlanId][r.kind][key],
-      specificDataFieldOptionId:
-        optionIdByFieldAndValue[key]?.[o.value]
+      specificDataFieldOptionId: optionIdByFieldAndValue[key]?.[o.value]
     }));
   });
 

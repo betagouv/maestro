@@ -31,6 +31,7 @@ export const generateXMLDAI = (
   sample: Pick<
     SampleChecked,
     | 'specificData'
+    | 'programmingPlanKind'
     | 'sampledAt'
     | 'lastUpdatedAt'
     | 'company'
@@ -50,8 +51,8 @@ export const generateXMLDAI = (
   sachaConf: SachaConf,
   laboratory: LaboratorySachaData
 ): Promise<XmlFile> => {
-  const programmingPlanKind = sample.specificData
-    .programmingPlanKind as ProgrammingPlanKindWithSacha;
+  const programmingPlanKind =
+    sample.programmingPlanKind as ProgrammingPlanKindWithSacha;
 
   if (!ProgrammingPlanKindWithSacha.options.includes(programmingPlanKind)) {
     throw new Error(`Pas d'EDI Sacha pour ${programmingPlanKind}`);
@@ -164,10 +165,7 @@ export const getCommemoratifs = (
 ))[] => {
   const commemoratifs: ReturnType<typeof getCommemoratifs> = [];
   for (const specificDataKey of Object.keys(specificData)) {
-    if (
-      specificDataKey !== 'programmingPlanKind' &&
-      specificDataKey in specificData
-    ) {
+    if (specificDataKey in specificData) {
       const conf = sachaFieldConfigs.find((fc) => fc.key === specificDataKey);
       if (conf?.inDai) {
         const specificDataValue: string = specificData[

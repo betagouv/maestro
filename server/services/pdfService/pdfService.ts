@@ -203,10 +203,10 @@ const generateSamplePDF = async (
 
   const fieldConfigs = await specificDataFieldConfigRepository.findByPlanKind(
     sample.programmingPlanId,
-    sample.specificData.programmingPlanKind
+    sample.programmingPlanKind
   );
   const planLayout = MatrixSpecificDataForm[
-    sample.specificData.programmingPlanKind
+    sample.programmingPlanKind
   ] as Record<string, MatrixSpecificDataFormInputProps>;
   const additionalSampler = sample.additionalSampler
     ? await userRepository.findUnique(sample.additionalSampler.id)
@@ -252,7 +252,7 @@ const generateSamplePDF = async (
   const barcodeReference =
     itemNumber !== undefined &&
     ProgrammingPlanKindWithSachaList.includes(
-      sample.specificData.programmingPlanKind as ProgrammingPlanKindWithSacha
+      sample.programmingPlanKind as ProgrammingPlanKindWithSacha
     )
       ? `${getNumeroDAP(sample, { itemNumber, copyNumber })}`
       : reference;
@@ -346,7 +346,7 @@ const generateSamplePDF = async (
         value: getFieldValueLabel(fc.field, sample.specificData[fc.field.key])
       })),
     releaseControl:
-      sample.specificData?.programmingPlanKind === 'PPV'
+      sample.programmingPlanKind === 'PPV'
         ? sample.specificData.releaseControl
         : undefined,
     establishment: Regions[sample.region].establishment,

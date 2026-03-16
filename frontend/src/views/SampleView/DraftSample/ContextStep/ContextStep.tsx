@@ -103,7 +103,7 @@ const ContextStep = ({ partialSample }: Props) => {
         : undefined
     );
   const [programmingPlanKind, setProgrammingPlanKind] = useState(
-    partialSample?.specificData.programmingPlanKind ?? ''
+    partialSample?.programmingPlanKind ?? ''
   );
   const [legalContext, setLegalContext] = useState(
     programmingPlan?.legalContexts.length === 1
@@ -157,13 +157,17 @@ const ContextStep = ({ partialSample }: Props) => {
   }, [programmingPlan]);
 
   const specificData = useMemo(() => {
-    const kind = partialSample?.specificData?.programmingPlanKind;
+    const kind = partialSample?.programmingPlanKind;
     if (programmingPlanKind !== kind) {
-      return { programmingPlanKind };
+      return {};
     } else {
       return partialSample?.specificData;
     }
-  }, [programmingPlanKind, partialSample?.specificData]);
+  }, [
+    programmingPlanKind,
+    partialSample?.programmingPlanKind,
+    partialSample?.specificData
+  ]);
 
   const { data: samplers } = apiClient.useFindUsersQuery({
     region: user?.region,
@@ -311,6 +315,7 @@ const ContextStep = ({ partialSample }: Props) => {
         : undefined,
     parcel,
     programmingPlanId: programmingPlan?.id as string,
+    programmingPlanKind: programmingPlanKind as ProgrammingPlanKind,
     context:
       context === 'OutsideProgrammingPlan'
         ? outsideProgrammingPlanContext
@@ -387,6 +392,7 @@ const ContextStep = ({ partialSample }: Props) => {
     geolocationX,
     geolocationY,
     parcel,
+    programmingPlanKind,
     context,
     outsideProgrammingPlanContext,
     legalContext,

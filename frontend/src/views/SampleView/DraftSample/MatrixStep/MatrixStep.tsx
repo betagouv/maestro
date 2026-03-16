@@ -25,6 +25,7 @@ import {
   MatrixSpecificDataFormInputProps
 } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isCreatedPartialSample,
@@ -102,15 +103,19 @@ const MatrixStep = ({ partialSample }: Props) => {
   const [createDocument] = apiClient.useCreateDocumentMutation();
   const [deleteDocument] = apiClient.useDeleteDocumentMutation();
 
+  const programmingPlanKind =
+    partialSample.programmingPlanKind as ProgrammingPlanKind;
+
   const { data: fieldConfigs = [] } =
     apiClient.useFindPlanKindFieldConfigsQuery({
       programmingPlanId: partialSample.programmingPlanId as string,
-      kind: specificData.programmingPlanKind
+      kind: programmingPlanKind
     });
 
-  const planLayout = MatrixSpecificDataForm[
-    specificData.programmingPlanKind
-  ] as Record<string, MatrixSpecificDataFormInputProps>;
+  const planLayout = MatrixSpecificDataForm[programmingPlanKind] as Record<
+    string,
+    MatrixSpecificDataFormInputProps
+  >;
 
   const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
     {
@@ -203,9 +208,8 @@ const MatrixStep = ({ partialSample }: Props) => {
   };
 
   const specificDataSchema = useMemo(
-    () =>
-      buildSpecificDataSchema(specificData.programmingPlanKind, fieldConfigs),
-    [fieldConfigs, specificData.programmingPlanKind]
+    () => buildSpecificDataSchema(fieldConfigs),
+    [fieldConfigs]
   );
 
   const form = useForm(
@@ -302,7 +306,7 @@ const MatrixStep = ({ partialSample }: Props) => {
           ? MatrixKindList.filter((matrixKind) =>
               prescriptions?.some(
                 (p) =>
-                  p.programmingPlanKind === specificData.programmingPlanKind &&
+                  p.programmingPlanKind === programmingPlanKind &&
                   p.matrixKind === matrixKind
               )
             )
@@ -313,7 +317,7 @@ const MatrixStep = ({ partialSample }: Props) => {
           withDefault: false
         }
       ),
-    [prescriptions, partialSample, specificData.programmingPlanKind]
+    [prescriptions, partialSample, programmingPlanKind]
   );
 
   const matrixOptions = useMemo(
@@ -326,8 +330,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                 isProgrammingPlanSample(partialSample)
                   ? prescriptions?.some(
                       (p) =>
-                        p.programmingPlanKind ===
-                          specificData.programmingPlanKind &&
+                        p.programmingPlanKind === programmingPlanKind &&
                         p.matrixKind === matrixKind &&
                         (isNil(p.matrix) || p.matrix === m)
                     )
@@ -340,18 +343,18 @@ const MatrixStep = ({ partialSample }: Props) => {
           withDefault: false
         }
       ),
-    [matrixKind, prescriptions, specificData.programmingPlanKind, partialSample]
+    [matrixKind, prescriptions, partialSample, programmingPlanKind]
   );
 
   const stageOptions = useMemo(
     () =>
       selectOptionsFromList(
-        StagesByProgrammingPlanKind[specificData.programmingPlanKind].filter(
+        StagesByProgrammingPlanKind[programmingPlanKind].filter(
           (stage) =>
             !isProgrammingPlanSample(partialSample) ||
             prescriptions?.find(
               (p) =>
-                p.programmingPlanKind === specificData.programmingPlanKind &&
+                p.programmingPlanKind === programmingPlanKind &&
                 p.matrixKind === matrixKind &&
                 p.stages.includes(stage)
             )
@@ -362,7 +365,7 @@ const MatrixStep = ({ partialSample }: Props) => {
           withDefault: 'auto'
         }
       ),
-    [partialSample, prescriptions, specificData.programmingPlanKind, matrixKind]
+    [partialSample, prescriptions, matrixKind, programmingPlanKind]
   );
 
   return (
@@ -602,7 +605,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             data-testid="notes-input"
             label="Note additionnelle"
             hintText={
-              partialSample?.specificData.programmingPlanKind === 'PPV'
+              partialSample?.programmingPlanKind === 'PPV'
                 ? 'Champ facultatif pour précisions supplémentaires (date de semis, précédent cultural, traitements faits, protocole de prélèvement et note inspecteur, etc.)'
                 : ''
             }

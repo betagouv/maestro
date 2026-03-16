@@ -32,6 +32,7 @@ export const analysisHandler = async (
   const {
     sampleId,
     sampleStage,
+    sampleProgrammingPlanKind,
     sampleSpecificData,
     analyseId: oldAnalyseId,
     samplerId,
@@ -44,6 +45,7 @@ export const analysisHandler = async (
     .select([
       'samples.id as sampleId',
       'samples.stage as sampleStage',
+      'samples.programmingPlanKind as sampleProgrammingPlanKind',
       'samples.specificData as sampleSpecificData',
       'analysis.id as analyseId',
       'users.email as samplerEmail',
@@ -141,6 +143,7 @@ export const analysisHandler = async (
       !!r.ssd2Id &&
       !LmrIsValid({
         stage: sampleStage,
+        programmingPlanKind: sampleProgrammingPlanKind,
         specificData: sampleSpecificData,
         resultKind: r.result_kind,
         reference: r.ssd2Id ?? '',

@@ -21,6 +21,7 @@ import {
   OutsideProgrammingPlanContext,
   ProgrammingPlanContext
 } from '../ProgrammingPlan/Context';
+import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { SpecificData, UnknownValue } from '../SpecificData/SpecificData';
 import { Sampler } from '../User/User';
 import { PartialSampleItem, SampleItem } from './SampleItem';
@@ -34,6 +35,7 @@ export const SampleContextData = z.object({
   department: Department.nullish(),
   parcel: z.string().nullish(),
   programmingPlanId: z.guid(),
+  programmingPlanKind: ProgrammingPlanKind,
   context: Context,
   legalContext: LegalContext,
   company: Company.nullish(),
@@ -202,6 +204,7 @@ export const PartialSampleToCreate = z.object({
   ...SampleContextData.partial().required({
     id: true,
     programmingPlanId: true,
+    programmingPlanKind: true,
     status: true,
     sampler: true
   }).shape,

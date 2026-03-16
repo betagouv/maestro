@@ -139,9 +139,9 @@ const findRequest = (findOptions: FindSampleOptions) =>
         );
       }
       if (findOptions.kinds) {
-        builder.whereRaw(
-          `${samplesTable}.specific_data->>'programmingPlanKind' = ANY(?)`,
-          [findOptions.kinds]
+        builder.whereIn(
+          `${samplesTable}.programmingPlanKind`,
+          findOptions.kinds
         );
       }
       if (findOptions.region) {

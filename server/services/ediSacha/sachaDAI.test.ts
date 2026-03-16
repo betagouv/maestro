@@ -115,8 +115,8 @@ test(`génère un XML de DAI`, async () => {
         lastUpdatedAt: new Date(1765876056798),
         department: '72',
         matrix: 'A01SN#F26.A07XE',
+        programmingPlanKind: 'DAOA_VOLAILLE',
         specificData: {
-          programmingPlanKind: 'DAOA_VOLAILLE',
           sampling: 'Aléatoire',
           animalIdentifier: '',
           ageInDays: 12,
@@ -282,7 +282,6 @@ test(`génère un XML de DAI`, async () => {
 });
 describe('getCommemoratifs', () => {
   const specificData: SpecificData = {
-    programmingPlanKind: 'DAOA_VOLAILLE',
     sampling: 'Aléatoire',
     animalIdentifier: 'ID123',
     ageInDays: 30,

@@ -293,6 +293,7 @@ export interface Samples {
   parcel: string | null;
   prescriptionId: string | null;
   programmingPlanId: string | null;
+  programmingPlanKind: ProgrammingPlanKind;
   receivedAt: Timestamp | null;
   reference: string;
   region: string;

@@ -31,14 +31,14 @@ const generateAnalysisRequestCsv = async (data: AnalysisRequestData) => {
     `Matrice;${escapeCsvValue(data.matrixLabel)};${escapeCsvValue(data.matrix)}`,
     `LMR/ Partie du végétal concernée;${escapeCsvValue(data.matrixPart)}`,
     `Détails de la matrice;${escapeCsvValue(
-      data.specificData?.programmingPlanKind === 'PPV'
+      data.programmingPlanKind === 'PPV'
         ? data.specificData?.matrixDetails
         : undefined
     )}`,
     `Type de production;${escapeCsvValue(data.productionKind)}`,
     `Type de culture;${escapeCsvValue(data.cultureKind)}`,
     `Stade de prélèvement;${escapeCsvValue(data.stage)}`,
-    `${data.specificData?.programmingPlanKind === 'PPV' && data.specificData?.releaseControl ? 'Type de contrôle;Contrôle libératoire' : ''}`,
+    `${data.programmingPlanKind === 'PPV' && data.specificData?.releaseControl ? 'Type de contrôle;Contrôle libératoire' : ''}`,
     `Laboratoire destinataire;${escapeCsvValue(data.laboratory?.shortName)}`,
     `Analyses mono-résidu;${data.monoSubstanceLabels.join(';')}`,
     `Analyses multi-résidus dont;${data.multiSubstanceLabels.join(';')}`,

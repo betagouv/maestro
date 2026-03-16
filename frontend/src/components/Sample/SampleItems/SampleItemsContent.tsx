@@ -65,7 +65,7 @@ const SampleItemsContent = ({
                   quantityUnit: lastItem.quantityUnit,
                   substanceKind: lastItem.substanceKind,
                   compliance200263:
-                    partialSample.specificData.programmingPlanKind === 'PPV'
+                    partialSample.programmingPlanKind === 'PPV'
                       ? undefined
                       : true
                 });

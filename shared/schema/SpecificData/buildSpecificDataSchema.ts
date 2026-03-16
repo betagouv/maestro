@@ -1,16 +1,12 @@
 import { z, ZodTypeAny } from 'zod';
 import { assertUnreachable } from '../../utils/typescript';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { PlanKindFieldConfig } from './PlanKindFieldConfig';
 import { UnknownValue } from './SpecificData';
 
 export const buildSpecificDataSchema = (
-  planKind: ProgrammingPlanKind,
   fieldConfigs: PlanKindFieldConfig[]
 ): z.ZodObject<Record<string, ZodTypeAny>> => {
-  const shape: Record<string, ZodTypeAny> = {
-    programmingPlanKind: z.literal(planKind)
-  };
+  const shape: Record<string, ZodTypeAny> = {};
 
   for (const { field, required } of fieldConfigs) {
     const optionValues = field.options.map((o) => o.value);

@@ -206,9 +206,8 @@ const SampleListView = () => {
                       sampler: user,
                       status: 'Draft' as const,
                       programmingPlanId: programmingPlan.id as string,
-                      specificData: {
-                        programmingPlanKind: programmingPlan.kinds[0]
-                      }
+                      programmingPlanKind: programmingPlan.kinds[0],
+                      specificData: {}
                     }}
                     buttonPriority={'tertiary'}
                     alignRight

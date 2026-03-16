@@ -47,10 +47,10 @@ const MatrixStepSummary = ({
   const { data: fieldConfigs = [] } =
     apiClient.useFindPlanKindFieldConfigsQuery({
       programmingPlanId: sample.programmingPlanId,
-      kind: sample.specificData.programmingPlanKind
+      kind: sample.programmingPlanKind
     });
   const planLayout = MatrixSpecificDataForm[
-    sample.specificData.programmingPlanKind
+    sample.programmingPlanKind
   ] as Record<string, MatrixSpecificDataFormInputProps>;
 
   return (
@@ -74,69 +74,65 @@ const MatrixStepSummary = ({
         </div>
       </div>
 
-      {fieldConfigs
-        .filter(
-          (fc) => (planLayout[fc.field.key]?.position ?? 'post') !== 'pre'
-        )
-        .map((fc) => {
-          const { field } = fc;
-          const inputKey = field.key;
-          const inputProps = planLayout[inputKey] ?? {};
-          const rawValue = (sample.specificData as any)[inputKey];
-          const value = getFieldValueLabel(field, rawValue);
-          if (!value) {
-            return null;
-          }
+      {fieldConfigs.map((fc) => {
+        const { field } = fc;
+        const inputKey = field.key;
+        const inputProps = planLayout[inputKey] ?? {};
+        const rawValue = (sample.specificData as any)[inputKey];
+        const value = getFieldValueLabel(field, rawValue);
+        if (!value) {
+          return null;
+        }
 
-          return (
-            <div key={inputKey} className="summary-item icon-text">
-              <div className={cx('fr-mr-9v')}></div>
-              <div>
-                {field.inputType === 'checkbox' ? (
-                  <b>{value}</b>
-                ) : field.inputType === 'selectWithUnknown' ? (
-                  <>
-                    {inputProps.label ?? field.label}
-                    <AppRequiredInput />{' '}
-                    <Select
-                      label=""
-                      nativeSelectProps={{
-                        value: (sample.specificData[inputKey] as string) ?? '',
-                        onChange: (e) =>
-                          onUpdateSpecificData?.({
-                            ...sample.specificData,
-                            [inputKey]:
-                              e.target.value === ''
-                                ? UnknownValue
-                                : e.target.value
-                          })
-                      }}
-                    >
-                      {selectOptionsFromList(
-                        [...field.options]
-                          .sort((a, b) => a.order - b.order)
-                          .map((o) => o.value),
-                        {
-                          labels: Object.fromEntries(
-                            field.options.map((o) => [o.value, o.label])
-                          )
-                        }
-                      ).map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </Select>
-                  </>
-                ) : (
-                  <>
-                    {inputProps.label ?? field.label} : <b>{value}</b>
-                  </>
-                )}
-              </div>
+        return (
+          <div key={inputKey} className="summary-item icon-text">
+            <div className={cx('fr-mr-9v')}></div>
+            <div>
+              {field.inputType === 'checkbox' ? (
+                <b>{value}</b>
+              ) : field.inputType === 'selectWithUnknown' ? (
+                <>
+                  {inputProps.label ?? field.label}
+                  <AppRequiredInput />{' '}
+                  <Select
+                    label=""
+                    nativeSelectProps={{
+                      value: (sample.specificData[inputKey] as string) ?? '',
+                      onChange: (e) =>
+                        onUpdateSpecificData?.({
+                          ...sample.specificData,
+                          [inputKey]:
+                            e.target.value === ''
+                              ? UnknownValue
+                              : e.target.value
+                        })
+                    }}
+                  >
+                    {selectOptionsFromList(
+                      [...field.options]
+                        .sort((a, b) => a.order - b.order)
+                        .map((o) => o.value),
+                      {
+                        labels: Object.fromEntries(
+                          field.options.map((o) => [o.value, o.label])
+                        )
+                      }
+                    ).map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </Select>
+                </>
+              ) : (
+                <>
+                  {inputProps.label ?? field.label} : <b>{value}</b>
+                </>
+              )}
             </div>
-          );
-        })}
+          </div>
+        );
+      })}
       {isProgrammingPlanSample(sample) &&
         !sample.monoSubstances?.length &&
         !sample.multiSubstances?.length && (

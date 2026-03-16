@@ -502,12 +502,9 @@ export const sampleRouter = {
         const fieldConfigs =
           await specificDataFieldConfigRepository.findByPlanKind(
             sampleUpdate.programmingPlanId,
-            sampleUpdate.specificData.programmingPlanKind
+            sampleUpdate.programmingPlanKind
           );
-        const specificDataSchema = buildSpecificDataSchema(
-          sampleUpdate.specificData.programmingPlanKind,
-          fieldConfigs
-        );
+        const specificDataSchema = buildSpecificDataSchema(fieldConfigs);
         const result = specificDataSchema.safeParse(sampleUpdate.specificData);
         if (!result.success) {
           return { status: constants.HTTP_STATUS_BAD_REQUEST };
@@ -617,8 +614,7 @@ export const sampleRouter = {
       if (mustBeSent) {
         const programmingPlanWithEdiSacha: boolean =
           ProgrammingPlanKindWithSachaList.includes(
-            updatedPartialSample.specificData
-              .programmingPlanKind as ProgrammingPlanKindWithSacha
+            updatedPartialSample.programmingPlanKind as ProgrammingPlanKindWithSacha
           );
 
         const updatedSample = SampleChecked.parse(updatedPartialSample);
@@ -631,7 +627,7 @@ export const sampleRouter = {
         const planKindFieldConfigs =
           await specificDataFieldConfigRepository.findByPlanKind(
             updatedSample.programmingPlanId,
-            updatedSample.specificData.programmingPlanKind
+            updatedSample.programmingPlanKind
           );
         const sachaConf = await sachaConfRepository.get();
         if (programmingPlanWithEdiSacha) {

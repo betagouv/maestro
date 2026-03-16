@@ -619,8 +619,8 @@ describe('Sample router', () => {
         ownerAgreement: true,
         matrixKind: 'A0C0Z',
         matrix: 'A0BAV',
+        programmingPlanKind: 'DAOA_BOVIN',
         specificData: {
-          programmingPlanKind: 'DAOA_BOVIN',
           killingCode: '1234',
           sampling: 'Aléatoire',
           animalIdentifier: 'FR1234567890',
@@ -693,10 +693,8 @@ describe('Sample router', () => {
           matrix: 'A01GL',
           ownerAgreement: true,
           sentAt: null,
-          specificData: {
-            ...SampleDAOA1Fixture.specificData,
-            programmingPlanKind: 'DAOA_VOLAILLE'
-          }
+          programmingPlanKind: 'DAOA_VOLAILLE',
+          specificData: SampleDAOA1Fixture.specificData
         });
 
       await request(app)
@@ -704,6 +702,7 @@ describe('Sample router', () => {
         .send({
           ...SampleDAOA1Fixture,
           status: 'Sent',
+          programmingPlanKind: 'DAOA_VOLAILLE',
           specificData: {
             ...SampleDAOA1Fixture.specificData,
             outdoorAccess: 'PAT1',
@@ -711,8 +710,7 @@ describe('Sample router', () => {
             species: 'ESP7',
             ageInDays: 12,
             animalIdentifier: 'id',
-            sampling: 'Aléatoire',
-            programmingPlanKind: 'DAOA_VOLAILLE'
+            sampling: 'Aléatoire'
           }
         })
         .use(tokenProvider(SamplerDaoaFixture))
