@@ -104,3 +104,25 @@ export const getSampleItemReference = (
   [sample.reference, String.fromCharCode(64 + itemNumber), copyNumber]
     .filter(isDefinedAndNotNull)
     .join('-');
+
+export const getCompliantCopies = (sampleItemCopies: SampleItem[]) =>
+  sampleItemCopies.filter(
+    (copy) =>
+      copy.analysis?.status === 'Completed' &&
+      copy.analysis?.compliance === true
+  );
+
+export const getNonCompliantCopies = (sampleItemCopies: SampleItem[]) =>
+  sampleItemCopies.filter(
+    (copy) =>
+      copy.analysis?.status === 'Completed' &&
+      copy.analysis?.compliance === false
+  );
+
+export const isItemCompliant = (sampleItemCopies: SampleItem[]) =>
+  getCompliantCopies(sampleItemCopies).length > 0 &&
+  getNonCompliantCopies(sampleItemCopies).length === 0 &&
+  !sampleItemCopies.some(
+    (copy) =>
+      copy.analysis && !['Completed', 'Unused'].includes(copy.analysis.status)
+  );

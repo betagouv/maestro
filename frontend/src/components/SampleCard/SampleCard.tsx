@@ -42,7 +42,7 @@ const SampleCard = ({ sample, horizontal }: Props) => {
         !horizontal && (
           <div className={clsx('d-flex-align-start')}>
             <div className="flex-grow-1">
-              <SampleStatusBadge status={sample.status} sampleId={sample.id} />
+              <SampleStatusBadge sample={sample} />
             </div>
             {isMobile && (
               <>
@@ -72,9 +72,7 @@ const SampleCard = ({ sample, horizontal }: Props) => {
         isCreatedPartialSample(sample) ? (
           <div className={clsx('d-flex-align-center')}>
             <div className="flex-grow-1">{sample.reference}</div>
-            {horizontal && (
-              <SampleStatusBadge status={sample.status} sampleId={sample.id} />
-            )}{' '}
+            {horizontal && <SampleStatusBadge sample={sample} />}{' '}
           </div>
         ) : (
           'Hors ligne'
