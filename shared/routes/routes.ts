@@ -83,7 +83,7 @@ export const routes = {
   ...noticesRoutes,
   ...notificationsRoutes,
   ...prescriptionsRoutes,
-...programmingPlansRoutes,
+  ...programmingPlansRoutes,
   ...sachaCommemoratifsRoute,
   ...samplesRoutes,
   ...specificDataFieldsRoutes,
