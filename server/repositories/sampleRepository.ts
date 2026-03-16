@@ -22,6 +22,14 @@ export const sampleStatusView = 'sample_status';
 export const sampleDocumentsTable = 'sample_documents';
 const sampleSequenceNumbers = 'sample_sequence_numbers';
 
+const SampleStatusDbo = z.enum([
+  'Draft',
+  'DraftMatrix',
+  'DraftItems',
+  'Submitted',
+  'Sent'
+]);
+
 const PartialSampleDbo = z.object({
   ...PartialSample.omit({
     items: true,
@@ -35,9 +43,7 @@ const PartialSampleDbo = z.object({
   sampledBy: z.guid(),
   additionalSampledBy: z.guid().nullish(),
   sentAt: z.string().nullish(),
-  status: z
-    .enum(['Draft', 'DraftMatrix', 'DraftItems', 'Submitted', 'Sent'])
-    .nullish()
+  status: SampleStatusDbo
 });
 
 const PartialSampleJoinedDbo = PartialSampleDbo.merge(
@@ -57,6 +63,7 @@ const PartialSampleJoinedDbo = PartialSampleDbo.merge(
   })
 );
 
+type SampleStatusDbo = z.infer<typeof SampleStatusDbo>;
 type PartialSampleDbo = z.infer<typeof PartialSampleDbo>;
 type PartialSampleJoinedDbo = z.infer<typeof PartialSampleJoinedDbo>;
 
@@ -375,8 +382,12 @@ export const formatPartialSample = (
     'company',
     'sampler',
     'additionalSampler',
-    'documentIds'
+    'documentIds',
+    'status'
   ]),
+  status: SampleStatusDbo.safeParse(partialSample.status)
+    ? (partialSample.status as SampleStatusDbo)
+    : 'Sent',
   geolocation: partialSample.geolocation
     ? db.raw('Point(?, ?)', [
         partialSample.geolocation.x,
