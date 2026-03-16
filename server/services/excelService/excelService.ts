@@ -20,10 +20,6 @@ import {
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
-  MatrixSpecificDataForm,
-  MatrixSpecificDataFormInputProps
-} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
-import {
   getPrescriptionTitle,
   Prescription,
   PrescriptionSort
@@ -190,9 +186,6 @@ const generateSamplesExportExcel = async (
         sample.programmingPlanId,
         sample.programmingPlanKind
       );
-      const planLayout = MatrixSpecificDataForm[
-        sample.programmingPlanKind
-      ] as Record<string, MatrixSpecificDataFormInputProps>;
 
       const items = await sampleItemRepository.findMany(sample.id);
       const itemsWithAnalysis = await Promise.all(
@@ -258,7 +251,7 @@ const generateSamplesExportExcel = async (
           const value = getFieldValueLabel(fc.field, rawValue);
           return {
             key: fc.field.key,
-            label: planLayout[fc.field.key]?.label ?? fc.field.label,
+            label: fc.field.label,
             value,
             code: rawValue !== value ? (rawValue as string) : undefined
           };

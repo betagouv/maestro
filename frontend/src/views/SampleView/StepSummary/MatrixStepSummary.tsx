@@ -4,10 +4,6 @@ import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import {
-  MatrixSpecificDataForm,
-  MatrixSpecificDataFormInputProps
-} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
-import {
   getSampleMatrixLabel,
   isProgrammingPlanSample,
   SampleChecked,
@@ -49,9 +45,6 @@ const MatrixStepSummary = ({
       programmingPlanId: sample.programmingPlanId,
       kind: sample.programmingPlanKind
     });
-  const planLayout = MatrixSpecificDataForm[
-    sample.programmingPlanKind
-  ] as Record<string, MatrixSpecificDataFormInputProps>;
 
   return (
     <StepSummary title="Matrice contrôlée" onEdit={onEdit} mode={mode}>
@@ -77,7 +70,6 @@ const MatrixStepSummary = ({
       {fieldConfigs.map((fc) => {
         const { field } = fc;
         const inputKey = field.key;
-        const inputProps = planLayout[inputKey] ?? {};
         const rawValue = (sample.specificData as any)[inputKey];
         const value = getFieldValueLabel(field, rawValue);
         if (!value) {
@@ -92,7 +84,7 @@ const MatrixStepSummary = ({
                 <b>{value}</b>
               ) : field.inputType === 'selectWithUnknown' ? (
                 <>
-                  {inputProps.label ?? field.label}
+                  {field.label}
                   <AppRequiredInput />{' '}
                   <Select
                     label=""
@@ -126,7 +118,7 @@ const MatrixStepSummary = ({
                 </>
               ) : (
                 <>
-                  {inputProps.label ?? field.label} : <b>{value}</b>
+                  {field.label} : <b>{value}</b>
                 </>
               )}
             </div>

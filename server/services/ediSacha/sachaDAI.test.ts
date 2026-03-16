@@ -38,9 +38,9 @@ const sachaFieldConfigs: SachaFieldConfig[] = [
     options: []
   },
   {
-    key: 'animalIdentifier',
+    key: 'animalBatchIdentifier',
     inputType: 'text',
-    label: 'animalIdentifier',
+    label: 'animalBatchIdentifier',
     hintText: null,
     sachaCommemoratifSigle: null,
     inDai: false,
@@ -118,7 +118,7 @@ test(`génère un XML de DAI`, async () => {
         programmingPlanKind: 'DAOA_VOLAILLE',
         specificData: {
           sampling: 'Aléatoire',
-          animalIdentifier: '',
+          animalBatchIdentifier: '',
           ageInDays: 12,
           species: 'ESP7',
           breedingMethod: 'PROD_1',
@@ -283,7 +283,7 @@ test(`génère un XML de DAI`, async () => {
 describe('getCommemoratifs', () => {
   const specificData: SpecificData = {
     sampling: 'Aléatoire',
-    animalIdentifier: 'ID123',
+    animalBatchIdentifier: 'ID123',
     ageInDays: 30,
     species: 'ESP7',
     breedingMethod: 'PROD_1',
@@ -527,17 +527,17 @@ describe('getCommemoratifs', () => {
   test('gère les commémoratifs de type texte', () => {
     const specificDataWithText: SpecificData = {
       ...specificData,
-      animalIdentifier: 'super identifiant'
+      animalBatchIdentifier: 'super identifiant'
     };
 
     const result = getCommemoratifs(
       specificDataWithText,
       [
-        ...sachaFieldConfigs.filter((fc) => fc.key !== 'animalIdentifier'),
+        ...sachaFieldConfigs.filter((fc) => fc.key !== 'animalBatchIdentifier'),
         {
-          key: 'animalIdentifier',
+          key: 'animalBatchIdentifier',
           inputType: 'text' as const,
-          label: 'animalIdentifier',
+          label: 'animalBatchIdentifier',
           hintText: null,
           sachaCommemoratifSigle: 'IDA' as CommemoratifSigle,
           inDai: true,

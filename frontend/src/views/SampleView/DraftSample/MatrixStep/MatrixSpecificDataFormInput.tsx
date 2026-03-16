@@ -32,10 +32,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
   const { field, required } = fieldConfig;
   const inputKey = field.key;
 
-  const label = useMemo(
-    () => inputProps.label ?? field.label,
-    [inputProps.label, field.label]
-  );
+  const label = field.label;
 
   const whenValid = useMemo(() => `${label} correctement renseigné.`, [label]);
 

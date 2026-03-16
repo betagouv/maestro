@@ -623,7 +623,7 @@ describe('Sample router', () => {
         specificData: {
           killingCode: '1234',
           sampling: 'Aléatoire',
-          animalIdentifier: 'FR1234567890',
+          animalUniqueIdentifier: 'FR1234567890',
           animalKind: 'TYPEA1',
           sex: 'SEX1',
           ageInMonths: 24,
@@ -709,7 +709,7 @@ describe('Sample router', () => {
             breedingMethod: 'PROD_1',
             species: 'ESP7',
             ageInDays: 12,
-            animalIdentifier: 'id',
+            animalBatchIdentifier: 'id',
             sampling: 'Aléatoire'
           }
         })

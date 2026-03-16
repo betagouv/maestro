@@ -20,10 +20,7 @@ import {
 } from 'maestro-shared/referential/Stage';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
-import {
-  MatrixSpecificDataForm,
-  MatrixSpecificDataFormInputProps
-} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
+import { MatrixSpecificDataForm } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -112,10 +109,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       kind: programmingPlanKind
     });
 
-  const planLayout = MatrixSpecificDataForm[programmingPlanKind] as Record<
-    string,
-    MatrixSpecificDataFormInputProps
-  >;
+  const planLayout = MatrixSpecificDataForm[programmingPlanKind];
 
   const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
     {
@@ -513,7 +507,7 @@ const MatrixStep = ({ partialSample }: Props) => {
           <MatrixSpecificDataFormInput
             key={fc.field.key}
             fieldConfig={fc}
-            inputProps={planLayout[fc.field.key] ?? {}}
+            inputProps={planLayout?.[fc.field.key] ?? {}}
             inputForm={form}
             specificData={specificData}
             onChange={setSpecificData}

@@ -111,9 +111,9 @@ export const DAOAVolailleFieldConfigs: PlanKindFieldConfig[] = [
     required: true,
     order: 2,
     field: {
-      key: 'animalIdentifier',
+      key: 'animalBatchIdentifier',
       inputType: 'text',
-      label: "Identifiant du lot ou de l'animal",
+      label: 'Identifiant du lot',
       hintText: null,
       options: []
     }
@@ -211,9 +211,9 @@ export const DAOABovinFieldConfigs: PlanKindFieldConfig[] = [
     required: true,
     order: 3,
     field: {
-      key: 'animalIdentifier',
+      key: 'animalUniqueIdentifier',
       inputType: 'text',
-      label: "Identifiant du lot ou de l'animal",
+      label: "Identifiant de l'animal",
       hintText: null,
       options: []
     }

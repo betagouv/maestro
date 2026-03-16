@@ -15,10 +15,6 @@ import { Regions } from 'maestro-shared/referential/Region';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
-import {
-  MatrixSpecificDataForm,
-  MatrixSpecificDataFormInputProps
-} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   ProgrammingPlanKindWithSacha,
@@ -205,9 +201,7 @@ const generateSamplePDF = async (
     sample.programmingPlanId,
     sample.programmingPlanKind
   );
-  const planLayout = MatrixSpecificDataForm[
-    sample.programmingPlanKind
-  ] as Record<string, MatrixSpecificDataFormInputProps>;
+
   const additionalSampler = sample.additionalSampler
     ? await userRepository.findUnique(sample.additionalSampler.id)
     : null;
@@ -342,7 +336,7 @@ const generateSamplePDF = async (
     specificDataItems: fieldConfigs
       .filter((fc) => fc.field.key !== 'releaseControl')
       .map((fc) => ({
-        label: planLayout[fc.field.key]?.label ?? fc.field.label,
+        label: fc.field.label,
         value: getFieldValueLabel(fc.field, sample.specificData[fc.field.key])
       })),
     releaseControl:

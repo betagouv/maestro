@@ -134,9 +134,15 @@ export const up = async (knex: Knex) => {
         hint_text: null
       },
       {
-        key: 'animalIdentifier',
+        key: 'animalBatchIdentifier',
         input_type: 'text',
-        label: "Identifiant du lot ou de l'animal",
+        label: 'Identifiant du lot',
+        hint_text: null
+      },
+      {
+        key: 'animalUniqueIdentifier',
+        input_type: 'text',
+        label: "Identifiant de l'animal",
         hint_text: null
       },
       {
@@ -435,7 +441,7 @@ export const up = async (knex: Knex) => {
     ],
     DAOA_VOLAILLE: [
       { field_id: fieldId.sampling, required: true, order: 1 },
-      { field_id: fieldId.animalIdentifier, required: true, order: 2 },
+      { field_id: fieldId.animalBatchIdentifier, required: true, order: 2 },
       { field_id: fieldId.ageInDays, required: true, order: 3 },
       { field_id: fieldId.species, required: true, order: 4 },
       { field_id: fieldId.breedingMethod, required: true, order: 5 },
@@ -444,7 +450,7 @@ export const up = async (knex: Knex) => {
     DAOA_BOVIN: [
       { field_id: fieldId.killingCode, required: true, order: 1 },
       { field_id: fieldId.sampling, required: true, order: 2 },
-      { field_id: fieldId.animalIdentifier, required: true, order: 3 },
+      { field_id: fieldId.animalUniqueIdentifier, required: true, order: 3 },
       { field_id: fieldId.animalKind, required: true, order: 4 },
       { field_id: fieldId.sex, required: true, order: 5 },
       { field_id: fieldId.ageInMonths, required: true, order: 6 },
@@ -579,9 +585,41 @@ export const up = async (knex: Knex) => {
   // Drop old Sacha tables
   await knex.schema.dropTable('sample_specific_data_attribute_values');
   await knex.schema.dropTable('sample_specific_data_attributes');
+
+  // Rename animalIdentifier in samples.specific_data per kind
+  await knex.raw(`
+    UPDATE samples
+    SET specific_data = (specific_data - 'animalIdentifier')
+      || jsonb_build_object('animalBatchIdentifier', specific_data->'animalIdentifier')
+    WHERE specific_data->>'programmingPlanKind' = 'DAOA_VOLAILLE'
+      AND specific_data ? 'animalIdentifier'
+  `);
+  await knex.raw(`
+    UPDATE samples
+    SET specific_data = (specific_data - 'animalIdentifier')
+      || jsonb_build_object('animalUniqueIdentifier', specific_data->'animalIdentifier')
+    WHERE specific_data->>'programmingPlanKind' = 'DAOA_BOVIN'
+      AND specific_data ? 'animalIdentifier'
+  `);
 };
 
 export const down = async (knex: Knex) => {
+  // Revert animalBatchIdentifier / animalUniqueIdentifier back to animalIdentifier
+  await knex.raw(`
+    UPDATE samples
+    SET specific_data = (specific_data - 'animalBatchIdentifier')
+      || jsonb_build_object('animalIdentifier', specific_data->'animalBatchIdentifier')
+    WHERE specific_data->>'programmingPlanKind' = 'DAOA_VOLAILLE'
+      AND specific_data ? 'animalBatchIdentifier'
+  `);
+  await knex.raw(`
+    UPDATE samples
+    SET specific_data = (specific_data - 'animalUniqueIdentifier')
+      || jsonb_build_object('animalIdentifier', specific_data->'animalUniqueIdentifier')
+    WHERE specific_data->>'programmingPlanKind' = 'DAOA_BOVIN'
+      AND specific_data ? 'animalUniqueIdentifier'
+  `);
+
   // Recreate sample_specific_data_attributes (with optional column from migration 078)
   await knex.schema.createTable('sample_specific_data_attributes', (table) => {
     table.string('attribute').notNullable();
