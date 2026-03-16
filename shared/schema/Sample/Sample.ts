@@ -27,6 +27,7 @@ import { Sampler } from '../User/User';
 import { SampleCompliance } from './SampleCompliance';
 import { PartialSampleItem, SampleItem } from './SampleItem';
 import { SampleStatus } from './SampleStatus';
+import { SampleStep } from './SampleStep';
 
 export const SampleContextData = z.object({
   id: z.guid(),
@@ -43,6 +44,7 @@ export const SampleContextData = z.object({
   companyOffline: z.string().nullish(),
   resytalId: z.string().nullish(),
   notesOnCreation: z.string().nullish(),
+  step: SampleStep,
   status: SampleStatus,
   specificData: SpecificData
 });
@@ -206,6 +208,7 @@ export const PartialSampleToCreate = z.object({
     id: true,
     programmingPlanId: true,
     programmingPlanKind: true,
+    step: true,
     status: true,
     sampler: true
   }).shape,
