@@ -6,8 +6,7 @@ import {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import useWindowSize from 'src/hooks/useWindowSize';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
@@ -28,11 +27,6 @@ export const SampleEmptyFormDownload = ({ partialSample }: Props) => {
   const [shouldProcessDownload, setShouldProcessDownload] = useState(false);
 
   const { useCreateOrUpdateSampleMutation } = useContext(ApiClientContext);
-
-  const isCompleted = useMemo(
-    () => !DraftStatusList.includes(partialSample.status),
-    [partialSample]
-  );
 
   const [createOrUpdateSample, createOrUpdateSampleCall] =
     useCreateOrUpdateSampleMutation();
@@ -80,7 +74,7 @@ export const SampleEmptyFormDownload = ({ partialSample }: Props) => {
         <Button
           onClick={async (e: React.MouseEvent) => {
             e.preventDefault();
-            if (isCompleted) {
+            if (partialSample.status !== 'Draft') {
               window.open(getSupportDocumentURL(partialSample.id), '_blank');
             } else {
               if (!isCreatedPartialSample(partialSample)) {

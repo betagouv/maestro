@@ -7,7 +7,6 @@ import {
   SampleBase,
   SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
-import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import z from 'zod';
 import { analysisResiduesTable, analysisTable } from './analysisRepository';
 import { companiesTable } from './companyRepository';
@@ -22,28 +21,20 @@ export const sampleStatusView = 'sample_status';
 export const sampleDocumentsTable = 'sample_documents';
 const sampleSequenceNumbers = 'sample_sequence_numbers';
 
-const SampleStatusDbo = z.enum([
-  'Draft',
-  'DraftMatrix',
-  'DraftItems',
-  'Submitted',
-  'Sent'
-]);
-
 const PartialSampleDbo = z.object({
   ...PartialSample.omit({
     items: true,
     company: true,
     sampler: true,
     additionalSampler: true,
-    geolocation: true
+    geolocation: true,
+    status: true
   }).shape,
   companySiret: z.string().nullish(),
   geolocation: z.any().nullish(),
   sampledBy: z.guid(),
   additionalSampledBy: z.guid().nullish(),
-  sentAt: z.string().nullish(),
-  status: SampleStatusDbo
+  sentAt: z.string().nullish()
 });
 
 const PartialSampleJoinedDbo = PartialSampleDbo.merge(
@@ -63,7 +54,6 @@ const PartialSampleJoinedDbo = PartialSampleDbo.merge(
   })
 );
 
-type SampleStatusDbo = z.infer<typeof SampleStatusDbo>;
 type PartialSampleDbo = z.infer<typeof PartialSampleDbo>;
 type PartialSampleJoinedDbo = z.infer<typeof PartialSampleJoinedDbo>;
 
@@ -370,7 +360,12 @@ const deleteDraftOnProgrammingPlan = async (
   await kysely
     .deleteFrom('samples')
     .where('programmingPlanId', '=', programmingPlanId)
-    .where('status', 'in', DraftStatusList)
+    .where('id', 'in', (qb) =>
+      qb
+        .selectFrom('sampleStatus')
+        .select('sampleId')
+        .where('status', '=', 'Draft')
+    )
     .execute();
 };
 
@@ -385,9 +380,6 @@ export const formatPartialSample = (
     'documentIds',
     'status'
   ]),
-  status: SampleStatusDbo.safeParse(partialSample.status)
-    ? (partialSample.status as SampleStatusDbo)
-    : 'Sent',
   geolocation: partialSample.geolocation
     ? db.raw('Point(?, ?)', [
         partialSample.geolocation.x,

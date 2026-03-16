@@ -201,7 +201,7 @@ describe('Sample router', () => {
           .get(
             testRoute({
               programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-              status: 'DraftMatrix'
+              status: 'Sent'
             })
           )
           .use(tokenProvider(user))
@@ -209,10 +209,7 @@ describe('Sample router', () => {
 
         const expectedSamples = [
           expect.objectContaining({
-            ...omit(Sample11Fixture, ['items']),
-            createdAt: Sample11Fixture.createdAt,
-            lastUpdatedAt: Sample11Fixture.lastUpdatedAt,
-            sampledAt: Sample11Fixture.sampledAt
+            id: Sample13Fixture.id
           })
         ].map(withISOStringDates);
         expect(res.body).toHaveLength(expectedSamples.length);
@@ -249,7 +246,7 @@ describe('Sample router', () => {
           .get(
             testRoute({
               programmingPlanIds: PPVValidatedProgrammingPlanFixture.id,
-              status: 'DraftMatrix,Draft'
+              status: 'Sent,Draft'
             })
           )
           .use(tokenProvider(user))
@@ -268,6 +265,9 @@ describe('Sample router', () => {
           }),
           expect.objectContaining({
             id: Sample2Fixture.id
+          }),
+          expect.objectContaining({
+            id: Sample13Fixture.id
           })
         ].map(withISOStringDates);
         expect(res.body).toHaveLength(expectedSamples.length);
@@ -296,7 +296,7 @@ describe('Sample router', () => {
           .get(
             testRoute({
               programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-              status: 'DraftMatrix'
+              status: 'Sent'
             })
           )
           .use(tokenProvider(user))
@@ -316,13 +316,13 @@ describe('Sample router', () => {
           .get(
             testRoute({
               programmingPlanIds: PPVValidatedProgrammingPlanFixture.id,
-              status: 'DraftMatrix,Draft'
+              status: 'Sent,Draft'
             })
           )
           .use(tokenProvider(user))
           .expect(constants.HTTP_STATUS_OK);
 
-        expect(res.body).toMatchObject({ count: 3 });
+        expect(res.body).toMatchObject({ count: 4 });
       };
 
       await successRequestTest(NationalCoordinator);
@@ -590,7 +590,7 @@ describe('Sample router', () => {
           id: Sample11Fixture.id
         })
         .update({
-          status: 'Submitted',
+          step: 'Submitted',
           ownerAgreement: true,
           sentAt: null
         });
@@ -599,7 +599,7 @@ describe('Sample router', () => {
         .put(`${testRoute(Sample11Fixture.id)}`)
         .send({
           ...Sample11Fixture,
-          status: 'Sent',
+          step: 'Sent',
           sampledAt: addDays(new Date(), 1)
         })
         .use(tokenProvider(Sampler1Fixture))
@@ -615,7 +615,7 @@ describe('Sample router', () => {
         region: SamplerDaoaFixture.region,
         department: SamplerDaoaFixture.department,
         company: SlaughterhouseCompanyFixture1,
-        status: 'Submitted',
+        step: 'Submitted',
         ownerAgreement: true,
         matrixKind: 'A0C0Z',
         matrix: 'A0BAV',
@@ -637,7 +637,7 @@ describe('Sample router', () => {
         .put(`${testRoute(sampleId)}`)
         .send({
           ...sample,
-          status: 'Sent'
+          step: 'Sent'
         })
         .use(tokenProvider(SamplerDaoaFixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -650,7 +650,7 @@ describe('Sample router', () => {
             id: Sample11Fixture.id
           })
           .update({
-            status: 'Submitted',
+            step: 'Submitted',
             ownerAgreement: true,
             sentAt: null
           });
@@ -659,7 +659,7 @@ describe('Sample router', () => {
           .put(`${testRoute(Sample11Fixture.id)}`)
           .send({
             ...Sample11Fixture,
-            status: 'Sent'
+            step: 'Sent'
           })
           .use(tokenProvider(user))
           .expect(constants.HTTP_STATUS_OK);
@@ -671,7 +671,7 @@ describe('Sample router', () => {
             })
             .first()
         ).resolves.toMatchObject({
-          status: 'Sent',
+          step: 'Sent',
           sentAt: expect.any(Date)
         });
       };
@@ -688,7 +688,7 @@ describe('Sample router', () => {
           id: SampleDAOA1Fixture.id
         })
         .update({
-          status: 'Submitted',
+          step: 'Submitted',
           matrixKind: 'A0C0Z',
           matrix: 'A01GL',
           ownerAgreement: true,
@@ -701,7 +701,7 @@ describe('Sample router', () => {
         .put(`${testRoute(SampleDAOA1Fixture.id)}`)
         .send({
           ...SampleDAOA1Fixture,
-          status: 'Sent',
+          step: 'Sent',
           programmingPlanKind: 'DAOA_VOLAILLE',
           specificData: {
             ...SampleDAOA1Fixture.specificData,
@@ -731,7 +731,7 @@ describe('Sample router', () => {
           id: Sample11Fixture.id
         })
         .update({
-          status: 'Submitted',
+          step: 'Submitted',
           ownerAgreement: true,
           sentAt: null
         });
@@ -740,7 +740,7 @@ describe('Sample router', () => {
         .put(`${testRoute(Sample11Fixture.id)}`)
         .send({
           ...Sample11Fixture,
-          status: 'Sent'
+          step: 'Sent'
         })
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);

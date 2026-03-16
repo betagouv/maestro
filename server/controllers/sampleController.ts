@@ -512,7 +512,7 @@ export const sampleRouter = {
       }
 
       const mustBeSent =
-        sample.status === 'Submitted' && sampleUpdate.status === 'Sent';
+        sample.step === 'Submitted' && sampleUpdate.step === 'Sent';
 
       if (
         mustBeSent &&
@@ -532,10 +532,7 @@ export const sampleRouter = {
         };
       }
 
-      if (
-        sample.context !== sampleUpdate.context &&
-        DraftStatusList.includes(sampleUpdate.status)
-      ) {
+      if (sample.context !== sampleUpdate.context) {
         //Les matrices sont différentes en fonction du contexte de prélèvement,
         // donc si le contexte change il faut réinitialiser la matrice qui est dans l'étape d'après.
         //Sinon l'utilisateur bloque tout le formulaire
@@ -868,7 +865,7 @@ export const sampleRouter = {
       const sample = await getAndCheckSample(sampleId, user, userRole);
       console.info('Delete sample', sample.id);
 
-      if (!DraftStatusList.includes(sample.status)) {
+      if (sample.status !== 'Draft') {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 

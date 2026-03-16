@@ -7,10 +7,6 @@ import {
 } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
-import {
-  InProgressStatusList,
-  RealizedStatusList
-} from 'maestro-shared/schema/Sample/SampleStatus';
 import { z } from 'zod';
 import { knexInstance as db } from './db';
 import { localPrescriptionCommentsTable } from './localPrescriptionCommentRepository';
@@ -217,12 +213,10 @@ const include = (opts?: Pick<FindLocalPrescriptionOptions, 'includes'>) => {
       query
         .select(
           db.raw(
-            `count(distinct(${samplesTable}.id)) filter(where ${sampleStatusView}.status = any(?)) as in_progress_sample_count`,
-            [InProgressStatusList]
+            `count(distinct(${samplesTable}.id)) filter(where ${samplesTable}.step <> 'Sent') as in_progress_sample_count`
           ),
           db.raw(
-            `count(distinct(${samplesTable}.id)) filter(where ${sampleStatusView}.status = any(?)) as realized_sample_count`,
-            [RealizedStatusList]
+            `count(distinct(${samplesTable}.id)) filter(where ${samplesTable}.step = 'Sent') as realized_sample_count`
           ),
           db.raw(
             `count(distinct(${samplesTable}.id)) filter(where ${sampleStatusView}.status = ?) as not_admissible_sample_count`,

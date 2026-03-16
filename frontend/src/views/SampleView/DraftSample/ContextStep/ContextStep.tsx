@@ -27,9 +27,9 @@ import {
   SampleContextData
 } from 'maestro-shared/schema/Sample/Sample';
 import {
-  SampleStatus,
-  SampleStatusSteps
-} from 'maestro-shared/schema/Sample/SampleStatus';
+  SampleStep,
+  SampleSteps
+} from 'maestro-shared/schema/Sample/SampleStep';
 import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { Sampler } from 'maestro-shared/schema/User/User';
 import {
@@ -325,6 +325,7 @@ const ContextStep = ({ partialSample }: Props) => {
     companyOffline,
     resytalId: resytalId || undefined,
     notesOnCreation,
+    step: 'Draft' as const,
     status: 'Draft' as const,
     specificData: specificData as SpecificData
   };
@@ -354,17 +355,18 @@ const ContextStep = ({ partialSample }: Props) => {
       await createOrUpdateSample({
         ...partialSample,
         ...formData,
-        status: 'DraftMatrix'
+        status: 'Draft',
+        step: 'DraftMatrix'
       });
     });
   };
 
-  const save = async (status = partialSample?.status) => {
+  const save = async (step = partialSample?.step) => {
     if (partialSample) {
       createOrUpdateSample({
         ...partialSample,
         ...formData,
-        status: status as SampleStatus
+        step: step as SampleStep
       });
     }
   };
@@ -400,7 +402,8 @@ const ContextStep = ({ partialSample }: Props) => {
     companyOffline,
     resytalId: resytalId || undefined,
     notesOnCreation,
-    status: 'DraftMatrix',
+    step: 'DraftMatrix',
+    status: 'Draft',
     specificData
   };
 
@@ -423,8 +426,7 @@ const ContextStep = ({ partialSample }: Props) => {
       )}
       <div>
         {partialSample &&
-          (!readonly ||
-            (SampleStatusSteps[partialSample.status] as number) > 1) && (
+          (!readonly || SampleSteps[partialSample.step] > 1) && (
             <div className={clsx(cx('fr-mb-1v'), 'd-flex-align-center')}>
               <div className={clsx('flex-grow-1')} />
               <Button

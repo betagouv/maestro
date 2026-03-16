@@ -12,7 +12,6 @@ import {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { useState } from 'react';
 import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
@@ -144,21 +143,13 @@ const SampleCard = ({ sample, horizontal }: Props) => {
               linkProps={{
                 to: sampleLink(sample.id)
               }}
-              priority={
-                [...DraftStatusList, 'Submitted'].includes(sample.status)
-                  ? 'primary'
-                  : 'secondary'
-              }
+              priority={sample.step !== 'Sent' ? 'primary' : 'secondary'}
             >
-              {[...DraftStatusList, 'Submitted'].includes(sample.status)
-                ? 'A compléter'
-                : 'Consulter'}
+              {sample.step !== 'Sent' ? 'A compléter' : 'Consulter'}
             </Button>
             {isOnline &&
               hasUserPermission('deleteSample') &&
-              DraftStatusList.includes(sample.status) && (
-                <RemoveSample sample={sample} />
-              )}
+              sample.step !== 'Sent' && <RemoveSample sample={sample} />}
           </div>
         )
       }

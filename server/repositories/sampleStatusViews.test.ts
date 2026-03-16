@@ -152,7 +152,7 @@ describe('sample_status view', () => {
       sampler: Sampler1Fixture,
       company: CompanyFixture,
       programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-      status: 'Draft'
+      step: 'Draft'
     });
     await Samples().insert(formatPartialSample(sample));
     await SampleItems().insert(
@@ -192,7 +192,7 @@ describe('sample_status view', () => {
       sampler: Sampler1Fixture,
       company: CompanyFixture,
       programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-      status: 'Sent'
+      step: 'Sent'
     });
     await Samples().insert(formatPartialSample(sample));
     await SampleItems().insert([
@@ -234,7 +234,7 @@ describe('sample_status view', () => {
       sampler: Sampler1Fixture,
       company: CompanyFixture,
       programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-      status: 'Sent'
+      step: 'Sent'
     });
     await Samples().insert(formatPartialSample(sample));
     await SampleItems().insert([
@@ -274,7 +274,7 @@ describe('sample_status view', () => {
       sampler: Sampler1Fixture,
       company: CompanyFixture,
       programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-      status: 'Sent'
+      step: 'Sent'
     });
     await Samples().insert(formatPartialSample(sample));
     await SampleItems().insert([
@@ -314,7 +314,7 @@ describe('sample_status view', () => {
       sampler: Sampler1Fixture,
       company: CompanyFixture,
       programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-      status: 'Sent'
+      step: 'Sent'
     });
     await Samples().insert(formatPartialSample(sample));
     await SampleItems().insert([
