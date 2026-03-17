@@ -33,7 +33,7 @@ const SupportDocumentDownload = ({
   buttonPriority
 }: Props) => {
   const { isMobile } = useWindowSize();
-  const { navigateToSample } = useSamplesLink();
+  const { navigateToSample, getSampleStepParam } = useSamplesLink();
   const { trackEvent } = useAnalytics();
 
   const { useCreateOrUpdateSampleMutation } = useContext(ApiClientContext);
@@ -47,7 +47,7 @@ const SupportDocumentDownload = ({
 
   const openSupportDocument = (sample: PartialSample) => {
     trackEvent('support_document', `download_${sample.status}`, sample.id);
-    navigateToSample(sample.id);
+    navigateToSample(sample.id, getSampleStepParam());
     window.open(getSupportDocumentURL(sample.id), '_blank');
   };
 
