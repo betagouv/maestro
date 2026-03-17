@@ -137,6 +137,7 @@ const SampleSecondaryFilters = ({
               laboratoryId
             })
           }
+          withAllOption={true}
         />
       </div>
       <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
