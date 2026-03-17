@@ -10,9 +10,6 @@ export const SampleCompliance = z.enum(
 
 export type SampleCompliance = z.infer<typeof SampleCompliance>;
 
-export const SampleComplianceList: SampleCompliance[] =
-  SampleCompliance.options;
-
 export const SampleComplianceLabels: Record<SampleCompliance, string> = {
   Compliant: 'Conforme',
   NonCompliant: 'Non conforme',
