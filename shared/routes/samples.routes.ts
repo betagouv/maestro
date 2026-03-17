@@ -1,6 +1,10 @@
 import z from 'zod';
 import { FindSampleOptions } from '../schema/Sample/FindSampleOptions';
-import { PartialSample, PartialSampleToCreate } from '../schema/Sample/Sample';
+import {
+  PartialSample,
+  PartialSampleToCreate,
+  SampleComplianceData
+} from '../schema/Sample/Sample';
 import { SampleItemUpdate } from '../schema/Sample/SampleItem';
 import { SubRoutes } from './routes';
 
@@ -79,6 +83,16 @@ export const samplesRoutes = {
     delete: {
       permissions: ['deleteSample'],
       response: z.void()
+    }
+  },
+  '/samples/:sampleId/compliance': {
+    params: {
+      sampleId: z.guid()
+    },
+    put: {
+      body: SampleComplianceData,
+      permissions: ['updateSample'],
+      response: SampleComplianceData
     }
   },
   '/samples/:sampleId/emptyForm': {

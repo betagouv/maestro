@@ -2,21 +2,25 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import SideMenu from '@codegouvfr/react-dsfr/SideMenu';
 import clsx from 'clsx';
+import { isNil } from 'lodash-es';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   getNonCompliantCopies,
   isItemCompliant
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { useMemo, useState } from 'react';
+import { isDefined } from 'maestro-shared/utils/utils';
+import { useContext, useMemo, useRef, useState } from 'react';
 import food from 'src/assets/illustrations/food.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
 import { SampleStatusBadge } from '../../../components/SampleStatusBadge/SampleStatusBadge';
+import { ApiClientContext } from '../../../services/apiClient';
 import SupportDocumentDownload from '../DraftSample/SupportDocumentDownload';
 import SampleAgreementOverview from './SampleAgreementOverview';
+import SampleComplianceForm from './SampleComplianceForm';
 import SampleContextOverview from './SampleContextOverview';
 import SampleItemCopiesOverview from './SampleItemCopiesOverview';
 import './SampleOverview.scss';
@@ -26,17 +30,27 @@ interface Props {
 
 const SampleOverview = ({ sample }: Props) => {
   useDocumentTitle(`Prélèvement ${sample.reference}`);
+  const apiClient = useContext(ApiClientContext);
+  const complianceRef = useRef<null | HTMLDivElement>(null);
 
   const { navigateToSamples } = useSamplesLink();
   const [activeMenu, setActiveMenu] = useState<
     'items' | 'matrix' | 'context' | 'agreement'
   >('items');
-  const [activeItemNumber, setActiveItemNumber] = useState<number>(1);
+  const [activeItemNumber, setActiveItemNumber] = useState(1);
+  const [activeCompliance, setActiveCompliance] = useState(
+    sample.specificData.programmingPlanKind !== 'PPV' &&
+      sample.status === 'Completed' &&
+      isNil(sample.compliance)
+  );
 
   const sampleItemCopies = useMemo(
     () => sample.items.filter((item) => item.itemNumber === activeItemNumber),
     [sample.items, activeItemNumber]
   );
+
+  const [updateSampleCompliance] =
+    apiClient.useUpdateSampleComplianceMutation();
 
   return (
     <section
@@ -61,6 +75,21 @@ const SampleOverview = ({ sample }: Props) => {
         subtitle="Consultez le récapitulatif du prélèvement réalisé"
         illustration={food}
       />
+
+      {activeCompliance && (
+        <div ref={complianceRef}>
+          <SampleComplianceForm
+            sample={sample}
+            onChangeCompliance={async (complianceData) => {
+              await updateSampleCompliance({
+                sampleId: sample.id,
+                ...complianceData
+              });
+              setActiveCompliance(false);
+            }}
+          />
+        </div>
+      )}
 
       <div className="white-container">
         <div className={clsx('d-flex-align-start', cx('fr-m-3w'))}>
@@ -159,8 +188,37 @@ const SampleOverview = ({ sample }: Props) => {
                   onClick: () => setActiveMenu('agreement'),
                   href: '#'
                 }
-              }
-            ]}
+              },
+              sample.specificData.programmingPlanKind !== 'PPV'
+                ? {
+                    text: (
+                      <div
+                        className={cx(
+                          sample.status === 'Completed' &&
+                            !isNil(sample.compliance)
+                            ? ['fr-btn--secondary', 'fr-py-1w', 'fr-px-2w']
+                            : 'fr-btn'
+                        )}
+                      >
+                        Conformité du prélèvement
+                      </div>
+                    ),
+                    isActive: false,
+                    linkProps: {
+                      onClick: () => {
+                        setActiveCompliance(true);
+                        setTimeout(() => {
+                          complianceRef.current?.scrollIntoView({
+                            behavior: 'smooth'
+                          });
+                        });
+                      },
+                      href: '#',
+                      disabled: sample.status !== 'Completed'
+                    }
+                  }
+                : undefined
+            ].filter(isDefined)}
           />
           <div
             className={clsx(

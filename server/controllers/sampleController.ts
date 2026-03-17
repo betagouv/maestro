@@ -436,7 +436,7 @@ export const sampleRouter = {
           copyNumber,
           createdAt: new Date(),
           createdBy: user.id,
-          status: itemUpdate.analysis?.status ?? 'Sent',
+          status: itemUpdate.analysis?.status ?? 'Analysis',
           compliance: null,
           notesOnCompliance: null
         };
@@ -449,6 +449,26 @@ export const sampleRouter = {
       }
 
       return { status: constants.HTTP_STATUS_OK };
+    }
+  },
+  '/samples/:sampleId/compliance': {
+    put: async ({ body: complianceData, user, userRole }, { sampleId }) => {
+      const sample = await getAndCheckSample(sampleId, user, userRole);
+
+      console.info('Update sample compliance', sample.id, complianceData);
+
+      if (sample.specificData.programmingPlanKind === 'PPV') {
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
+      }
+
+      const updatedSample = {
+        ...sample,
+        ...complianceData
+      } as SampleChecked;
+
+      await sampleRepository.update(updatedSample);
+
+      return { status: constants.HTTP_STATUS_OK, response: complianceData };
     }
   },
   '/samples/:sampleId/emptyForm': {

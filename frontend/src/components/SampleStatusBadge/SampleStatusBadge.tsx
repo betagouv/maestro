@@ -51,7 +51,12 @@ export const StatusBadge = ({
   > = {
     NotAdmissible: 'error',
     Analysis: 'info',
-    Completed: compliance === 'NonCompliant' ? 'error' : 'success',
+    Completed:
+      compliance === 'NonCompliant'
+        ? 'error'
+        : compliance === 'Compliant'
+          ? 'success'
+          : 'info',
     InReview: 'warning'
   };
 

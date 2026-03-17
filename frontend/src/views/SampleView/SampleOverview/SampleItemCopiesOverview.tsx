@@ -1,3 +1,4 @@
+import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import Tag from '@codegouvfr/react-dsfr/Tag';
@@ -34,9 +35,8 @@ const SampleItemCopiesOverview = ({
     <>
       <div className="d-flex-align-center">
         <h3 className={clsx(cx('fr-m-0'), 'flex-grow-1')}>
-          <span className={cx('fr-icon-test-tube-line')}>
-            Échantillon n°{itemNumber}
-          </span>
+          <span className={cx('fr-icon-test-tube-line', 'fr-mr-3v')} />
+          Échantillon n°{itemNumber}
         </h3>
         <span className={cx('fr-mr-1w')}>Analyse</span>
         <Tag className={cx('fr-mx-1w')}>
@@ -124,8 +124,12 @@ const SampleItemCopiesOverview = ({
           }
         />
       )}
-      {currentItemCopy.analysis && (
-        <StatusBadge status={currentItemCopy.analysis?.status} />
+      {currentItemCopy.analysis || currentItemCopy.shippingDate ? (
+        <StatusBadge status={currentItemCopy.analysis?.status ?? 'Analysis'} />
+      ) : (
+        <Badge noIcon small severity="info">
+          Exemplaire non mis en oeuvre
+        </Badge>
       )}
       {currentItemCopy && (
         <SampleItemAnalysis sample={sample} sampleItem={currentItemCopy} />
