@@ -237,7 +237,8 @@ export const CreatedSampleData = z.object({
 });
 
 export const PartialSample = PartialSampleToCreate.extend({
-  ...CreatedSampleData.shape
+  ...CreatedSampleData.shape,
+  sentAt: z.coerce.date().nullish()
 });
 
 export const SampleBase = SampleToCreate.extend({

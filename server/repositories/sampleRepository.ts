@@ -391,7 +391,8 @@ export const formatPartialSample = (
     : null,
   companySiret: partialSample.company?.siret,
   sampledBy: partialSample.sampler.id,
-  additionalSampledBy: partialSample.additionalSampler?.id
+  additionalSampledBy: partialSample.additionalSampler?.id,
+  sentAt: partialSample.sentAt?.toISOString()
 });
 
 const parsePartialSample = (sample: PartialSampleJoinedDbo): PartialSample =>
