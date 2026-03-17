@@ -193,11 +193,14 @@ const SampleOverview = ({ sample }: Props) => {
                 ? {
                     text: (
                       <div
-                        className={cx(
-                          sample.status === 'Completed' &&
-                            !isNil(sample.compliance)
-                            ? ['fr-btn--secondary', 'fr-py-1w', 'fr-px-2w']
-                            : 'fr-btn'
+                        className={clsx(
+                          cx(
+                            sample.status === 'Completed' &&
+                              !isNil(sample.compliance)
+                              ? ['fr-btn--secondary', 'fr-py-1w', 'fr-px-2w']
+                              : 'fr-btn'
+                          ),
+                          { 'btn-disabled': sample.status !== 'Completed' }
                         )}
                       >
                         Conformité du prélèvement

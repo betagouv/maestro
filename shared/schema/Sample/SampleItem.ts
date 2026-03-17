@@ -3,7 +3,10 @@ import { z } from 'zod';
 import { QuantityUnit } from '../../referential/QuantityUnit';
 import { maestroDateRefined } from '../../utils/date';
 import { isDefinedAndNotNull } from '../../utils/utils';
-import { AnalysisStatus } from '../Analysis/AnalysisStatus';
+import {
+  AnalysisStatus,
+  AnalysisStatusPriority
+} from '../Analysis/AnalysisStatus';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 import { SampleChecked } from './Sample';
 import { SampleItemRecipientKind } from './SampleItemRecipientKind';
@@ -81,8 +84,10 @@ export const SampleItemUpdate = z.object({
   ...SampleItem.omit({
     sampleId: true,
     itemNumber: true,
-    copyNumber: true
-  }).shape
+    copyNumber: true,
+    analysis: true
+  }).shape,
+  isAdmissible: z.boolean().nullish()
 });
 
 export type SampleItem = z.infer<typeof SampleItem>;
@@ -126,3 +131,15 @@ export const isItemCompliant = (sampleItemCopies: SampleItem[]) =>
     (copy) =>
       copy.analysis && !['Completed', 'Unused'].includes(copy.analysis.status)
   );
+
+export const getItemStatus = (sampleItemCopies: SampleItem[]): AnalysisStatus =>
+  sampleItemCopies
+    .map((copy) => copy.analysis?.status)
+    .filter((status): status is AnalysisStatus => status !== undefined)
+    .reduce(
+      (worst, status) =>
+        AnalysisStatusPriority[status] > AnalysisStatusPriority[worst]
+          ? status
+          : worst,
+      'Completed' as AnalysisStatus
+    );

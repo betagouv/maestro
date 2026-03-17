@@ -349,7 +349,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
           </div>
         </Accordion>
       </div>
-      {analysis && (
+      {analysis && analysis.status !== 'Sent' && (
         <>
           {!isEditing ? (
             <SampleAnalysisOverview

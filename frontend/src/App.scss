@@ -247,6 +247,11 @@ h6,
   justify-content: center;
 }
 
+.d-flex-justify-between {
+  display: flex;
+  justify-content: space-between;
+}
+
 .d-flex-row {
   display: flex;
   flex-direction: row;
