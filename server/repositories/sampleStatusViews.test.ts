@@ -117,7 +117,7 @@ describe('sample_item_status view', () => {
         itemNumber: 1,
         copyNumber: 2,
         createdBy: Sampler1Fixture.id,
-        status: 'Analysis'
+        status: 'Sent'
       })
     );
     const result = await getItemStatus(Sample13Fixture.id, 1);
