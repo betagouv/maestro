@@ -46,6 +46,7 @@ const SampleListHeader = ({
             type: 'search',
             placeholder: 'N° de prélèvement',
             value: findSampleOptions.reference ?? '',
+            autoFocus: true,
             onChange: changeReference
           }}
           className={cx('fr-my-0', 'fr-ml-3w', 'fr-hidden', 'fr-unhidden-md')}

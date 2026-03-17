@@ -62,6 +62,7 @@ const DocumentListTabContent = ({
               type: 'search',
               placeholder: 'Rechercher',
               value: searchQuery ?? '',
+              autoFocus: true,
               onChange: (e) => setSearchQuery(e.target.value)
             }}
             className={cx('fr-my-0', 'fr-hidden', 'fr-unhidden-md')}
