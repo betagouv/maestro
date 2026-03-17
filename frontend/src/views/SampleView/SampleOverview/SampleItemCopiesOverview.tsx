@@ -124,8 +124,11 @@ const SampleItemCopiesOverview = ({
           }
         />
       )}
-      {currentItemCopy.analysis || currentItemCopy.shippingDate ? (
-        <StatusBadge status={currentItemCopy.analysis?.status ?? 'Analysis'} />
+      {currentItemCopy.analysis ? (
+        <StatusBadge
+          status={currentItemCopy.analysis?.status}
+          compliance={currentItemCopy.analysis?.compliance}
+        />
       ) : (
         <Badge noIcon small severity="info">
           Exemplaire non mis en oeuvre

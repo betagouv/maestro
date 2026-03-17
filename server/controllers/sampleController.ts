@@ -678,6 +678,21 @@ export const sampleRouter = {
                 }
               : null;
 
+            if (sampleItem.copyNumber === 1) {
+              const analysis: PartialAnalysis = {
+                id: uuidv4(),
+                sampleId,
+                itemNumber: sampleItem.itemNumber,
+                copyNumber: sampleItem.copyNumber,
+                createdAt: new Date(),
+                createdBy: user.id,
+                status: 'Sent',
+                compliance: null,
+                notesOnCompliance: null
+              };
+              await analysisRepository.insert(analysis);
+            }
+
             if (sampleItem.copyNumber === 1 && sampleItem.laboratoryId) {
               const laboratory = await laboratoryRepository.findUnique(
                 sampleItem.laboratoryId
