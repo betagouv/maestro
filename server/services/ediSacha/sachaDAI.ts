@@ -179,9 +179,7 @@ export const getCommemoratifs = (
         }
 
         const typeDonnee =
-          sachaCommemoratifRecord[
-            conf.sachaCommemoratifSigle as CommemoratifSigle
-          ].typeDonnee;
+          sachaCommemoratifRecord[conf.sachaCommemoratifSigle].typeDonnee;
 
         if (typeDonnee === 'list') {
           const sigleValue =
@@ -195,8 +193,8 @@ export const getCommemoratifs = (
             }
           } else {
             commemoratifs.push({
-              sigle: conf.sachaCommemoratifSigle as CommemoratifSigle,
-              sigleValue: sigleValue as CommemoratifValueSigle
+              sigle: conf.sachaCommemoratifSigle,
+              sigleValue: sigleValue
             });
           }
         } else {
@@ -207,7 +205,7 @@ export const getCommemoratifs = (
             textValue = `${specificDataValue}`;
           }
           commemoratifs.push({
-            sigle: conf.sachaCommemoratifSigle as CommemoratifSigle,
+            sigle: conf.sachaCommemoratifSigle,
             textValue
           });
         }

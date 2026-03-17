@@ -1,4 +1,5 @@
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { CommemoratifValueSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import {
   FieldInputType,
   PlanKindFieldConfig,
@@ -124,7 +125,7 @@ const findSachaFields = async (): Promise<SachaFieldConfig[]> => {
         value: string;
         label: string;
         order: number;
-        sachaCommemoratifValueSigle: string | null;
+        sachaCommemoratifValueSigle: CommemoratifValueSigle | null;
       }[]
     >
   >((acc, opt) => {
@@ -144,7 +145,7 @@ const findSachaFields = async (): Promise<SachaFieldConfig[]> => {
     inputType: FieldInputType.parse(f.inputType),
     label: f.label,
     hintText: f.hintText,
-    sachaCommemoratifSigle: f.sachaCommemoratifSigle ?? null,
+    sachaCommemoratifSigle: f.sachaCommemoratifSigle,
     inDai: f.sachaInDai,
     optional: f.sachaOptional,
     options: optionsByFieldKey[f.key] ?? []

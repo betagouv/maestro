@@ -24,6 +24,11 @@ import {
   SachaCommemoratifTypeDonnee
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
+import {
+  ProgrammingPlanKindFieldId,
+  SpecificDataFieldId,
+  SpecificDataFieldOptionId
+} from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
@@ -45,22 +50,11 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 export const SachaResidueId = z.string().brand<'SachaResidueId'>();
 export type SachaResidueId = z.infer<typeof SachaResidueId>;
 
-export const SpecificDataFieldId = z.string().brand<'SpecificDataFieldId'>();
-export type SpecificDataFieldId = z.infer<typeof SpecificDataFieldId>;
-
-export const SpecificDataFieldOptionId = z
-  .string()
-  .brand<'SpecificDataFieldOptionId'>();
-export type SpecificDataFieldOptionId = z.infer<
-  typeof SpecificDataFieldOptionId
->;
-
-export const ProgrammingPlanKindFieldId = z
-  .string()
-  .brand<'ProgrammingPlanKindFieldId'>();
-export type ProgrammingPlanKindFieldId = z.infer<
-  typeof ProgrammingPlanKindFieldId
->;
+export {
+  ProgrammingPlanKindFieldId,
+  SpecificDataFieldId,
+  SpecificDataFieldOptionId
+};
 
 export interface Analysis {
   compliance: boolean | null;

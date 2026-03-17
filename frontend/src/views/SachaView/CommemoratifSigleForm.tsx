@@ -35,7 +35,7 @@ export const CommemoratifSigleForm = ({
   const [inDai, setInDai] = useState<boolean>(fieldConfig.inDai);
   const [optional, setOptional] = useState<boolean>(fieldConfig.optional);
   const [selectedSigle, setSelectedSigle] = useState<CommemoratifSigle | null>(
-    fieldConfig.sachaCommemoratifSigle as CommemoratifSigle | null
+    fieldConfig.sachaCommemoratifSigle
   );
   const [selectedValues, setSelectedValues] = useState<
     Record<string, CommemoratifValueSigle>

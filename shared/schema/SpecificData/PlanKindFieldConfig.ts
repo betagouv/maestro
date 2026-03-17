@@ -1,5 +1,26 @@
 import z from 'zod';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
+import {
+  CommemoratifSigle,
+  CommemoratifValueSigle
+} from '../SachaCommemoratif/SachaCommemoratif';
+
+export const SpecificDataFieldId = z.string().brand<'SpecificDataFieldId'>();
+export type SpecificDataFieldId = z.infer<typeof SpecificDataFieldId>;
+
+export const SpecificDataFieldOptionId = z
+  .string()
+  .brand<'SpecificDataFieldOptionId'>();
+export type SpecificDataFieldOptionId = z.infer<
+  typeof SpecificDataFieldOptionId
+>;
+
+export const ProgrammingPlanKindFieldId = z
+  .string()
+  .brand<'ProgrammingPlanKindFieldId'>();
+export type ProgrammingPlanKindFieldId = z.infer<
+  typeof ProgrammingPlanKindFieldId
+>;
 
 const FieldOption = z.object({
   value: z.string(),
@@ -8,7 +29,7 @@ const FieldOption = z.object({
 });
 
 const SachaFieldOption = FieldOption.extend({
-  sachaCommemoratifValueSigle: z.string().nullable()
+  sachaCommemoratifValueSigle: CommemoratifValueSigle.nullable()
 });
 
 export const FieldInputType = z.enum([
@@ -31,7 +52,7 @@ export const FieldConfig = z.object({
 });
 
 export const SachaFieldConfig = FieldConfig.extend({
-  sachaCommemoratifSigle: z.string().nullable(),
+  sachaCommemoratifSigle: CommemoratifSigle.nullable(),
   inDai: z.boolean(),
   optional: z.boolean(),
   options: z.array(SachaFieldOption)
