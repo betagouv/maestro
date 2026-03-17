@@ -110,7 +110,7 @@ export const getSampleItemReference = (
     .filter(isDefinedAndNotNull)
     .join('-');
 
-export const getCompliantCopies = (sampleItemCopies: SampleItem[]) =>
+const getCompliantCopies = (sampleItemCopies: SampleItem[]) =>
   sampleItemCopies.filter(
     (copy) =>
       copy.analysis?.status === 'Completed' &&

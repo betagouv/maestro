@@ -101,6 +101,7 @@ export const genCreatedPartialSample = (
     },
     sampledAt: new Date(),
     items: [genSampleItem({ sampleId: contextData.id, copyNumber: 1 })],
+    ownerAgreement: true,
     ...data
   };
 };
