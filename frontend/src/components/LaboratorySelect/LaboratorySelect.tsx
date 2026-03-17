@@ -11,6 +11,7 @@ interface Props {
   laboratoryId?: string | null;
   onSelect: (laboratoryId?: string) => void;
   readonly?: boolean;
+  withAllOption?: boolean;
 }
 
 const LaboratorySelect = ({
@@ -18,7 +19,8 @@ const LaboratorySelect = ({
   substanceKind,
   laboratoryId,
   onSelect,
-  readonly
+  readonly,
+  withAllOption
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
 
@@ -38,9 +40,13 @@ const LaboratorySelect = ({
       className={cx('fr-mb-0')}
       disabled={readonly}
     >
-      <option value="" disabled>
-        Sélectionner un laboratoire
-      </option>
+      {(withAllOption ?? false) ? (
+        <option value="">Tous</option>
+      ) : (
+        <option value="" disabled>
+          Sélectionner un laboratoire
+        </option>
+      )}
       {sortBy(laboratories ?? [], 'name').map((laboratory) => (
         <option key={laboratory.id} value={laboratory.id}>
           {laboratory.name}
