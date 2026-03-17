@@ -56,7 +56,6 @@ export const up = async (knex: Knex) => {
       ON a.sample_id = si.sample_id
       AND a.item_number = si.item_number
       AND a.copy_number = si.copy_number
-      AND a.status != 'Unused'
     GROUP BY si.sample_id, si.item_number
   `);
 

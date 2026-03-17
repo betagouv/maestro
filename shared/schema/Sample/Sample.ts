@@ -232,20 +232,25 @@ export const CreatedSampleData = z.object({
   lastUpdatedAt: z.coerce.date()
 });
 
+export const SampleComplianceData = z.object({
+  compliance: SampleCompliance.nullish(),
+  notesOnCompliance: z.string().nullish()
+});
+
 export const PartialSample = PartialSampleToCreate.extend({
   ...CreatedSampleData.shape,
+  ...SampleComplianceData.partial().shape,
   sentAt: z.coerce.date().nullish()
 });
 
 export const SampleBase = SampleToCreate.extend({
   ...CreatedSampleData.shape,
+  ...SampleComplianceData.shape,
   geolocation: Geolocation,
   department: Department,
   company: Company,
   items: z.array(SampleItem),
-  sentAt: z.coerce.date().nullish(),
-  compliance: SampleCompliance.nullish(),
-  notesOnCompliance: z.string().nullish()
+  sentAt: z.coerce.date().nullish()
 });
 
 export const SampleChecked = SampleBase.check(
@@ -258,6 +263,7 @@ export type SampleMatrixData = z.infer<typeof SampleMatrixData>;
 export type SampleItemsDataChecked = z.infer<typeof SampleItemsDataChecked>;
 export type SampleOwnerData = z.infer<typeof SampleOwnerData>;
 export type CreatedSampleData = z.infer<typeof CreatedSampleData>;
+export type SampleComplianceData = z.infer<typeof SampleComplianceData>;
 export type PartialSampleToCreate = z.infer<typeof PartialSampleToCreate>;
 export type PartialSample = z.infer<typeof PartialSample>;
 export type SampleToCreate = z.infer<typeof SampleToCreate>;

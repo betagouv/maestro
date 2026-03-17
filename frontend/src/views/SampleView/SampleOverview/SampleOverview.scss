@@ -5,12 +5,17 @@
     gap: 2rem;
     display: flex;
     flex-direction: column;
-    flex: 1
+    flex: 1;
   }
-  .title-right-block{
+  .title-right-block {
     gap: 2rem;
   }
   .back {
     text-align: center;
+  }
+
+  .fr-sidemenu__link:has(.fr-btn, .fr-btn--secondary) {
+    padding: 0;
+    margin-top: 2rem;
   }
 }

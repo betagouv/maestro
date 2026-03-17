@@ -214,6 +214,7 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateProgrammingPlanStatusMutation: [fn(), {}],
   useUpdateLocalPrescriptionMutation: [fn(), {}],
   useUpdateSampleMutation: [fn(), {}],
+  useUpdateSampleComplianceMutation: [fn(), {}],
   useUpdateSampleItemMutation: [fn(), {}],
   useGetRootNoticeQuery: {
     data: { type: 'root', title: 'titre', description: 'description' }

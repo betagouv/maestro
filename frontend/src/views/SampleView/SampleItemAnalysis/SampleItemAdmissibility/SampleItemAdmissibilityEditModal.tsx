@@ -41,7 +41,7 @@ export const SampleItemAdmissibilityEditModal: FunctionComponent<Props> = ({
               receiptDate,
               analysis: {
                 ...sampleItem.analysis,
-                status: isAdmissible === false ? 'NotAdmissible' : 'Sent'
+                status: isAdmissible === false ? 'NotAdmissible' : 'Analysis'
               },
               notesOnAdmissibility
             }

@@ -63,6 +63,7 @@ const SupportDocumentDownload = ({
               confirmationModal.open();
             }
           }}
+          disabled
           priority={buttonPriority ?? 'tertiary no outline'}
           iconId="fr-icon-printer-fill"
         >

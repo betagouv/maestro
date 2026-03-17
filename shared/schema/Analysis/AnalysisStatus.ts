@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const AnalysisStatus = z.enum(
-  ['Sent', 'Unused', 'NotAdmissible', 'Analysis', 'InReview', 'Completed'],
+  ['NotAdmissible', 'Analysis', 'InReview', 'Completed'],
   {
     error: () => 'Statut non renseigné.'
   }

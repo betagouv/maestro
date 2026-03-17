@@ -117,7 +117,7 @@ describe('sample_item_status view', () => {
         itemNumber: 1,
         copyNumber: 2,
         createdBy: Sampler1Fixture.id,
-        status: 'Sent'
+        status: 'Analysis'
       })
     );
     const result = await getItemStatus(Sample13Fixture.id, 1);
@@ -126,20 +126,6 @@ describe('sample_item_status view', () => {
     await SampleItems()
       .where({ sampleId: Sample13Fixture.id, itemNumber: 1, copyNumber: 2 })
       .delete();
-  });
-
-  test('ignores Unused analyses', async () => {
-    await analysisRepository.insert(
-      genPartialAnalysis({
-        sampleId: Sample13Fixture.id,
-        itemNumber: 1,
-        copyNumber: 1,
-        createdBy: Sampler1Fixture.id,
-        status: 'Unused'
-      })
-    );
-    const result = await getItemStatus(Sample13Fixture.id, 1);
-    expect(result?.status).toBe('Sent');
   });
 });
 
