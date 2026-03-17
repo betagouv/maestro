@@ -589,17 +589,17 @@ export const up = async (knex: Knex) => {
   // Rename animalIdentifier in samples.specific_data per kind
   await knex.raw(`
     UPDATE samples
-    SET specific_data = (specific_data - 'animalIdentifier')
-      || jsonb_build_object('animalBatchIdentifier', specific_data->'animalIdentifier')
+    SET specific_data = ((specific_data::jsonb - 'animalIdentifier')
+      || jsonb_build_object('animalBatchIdentifier', specific_data->'animalIdentifier'))::json
     WHERE specific_data->>'programmingPlanKind' = 'DAOA_VOLAILLE'
-      AND specific_data ? 'animalIdentifier'
+      AND specific_data->>'animalIdentifier' IS NOT NULL
   `);
   await knex.raw(`
     UPDATE samples
-    SET specific_data = (specific_data - 'animalIdentifier')
-      || jsonb_build_object('animalUniqueIdentifier', specific_data->'animalIdentifier')
+    SET specific_data = ((specific_data::jsonb - 'animalIdentifier')
+      || jsonb_build_object('animalUniqueIdentifier', specific_data->'animalIdentifier'))::json
     WHERE specific_data->>'programmingPlanKind' = 'DAOA_BOVIN'
-      AND specific_data ? 'animalIdentifier'
+      AND specific_data->>'animalIdentifier' IS NOT NULL
   `);
 };
 
@@ -607,17 +607,17 @@ export const down = async (knex: Knex) => {
   // Revert animalBatchIdentifier / animalUniqueIdentifier back to animalIdentifier
   await knex.raw(`
     UPDATE samples
-    SET specific_data = (specific_data - 'animalBatchIdentifier')
-      || jsonb_build_object('animalIdentifier', specific_data->'animalBatchIdentifier')
+    SET specific_data = ((specific_data::jsonb - 'animalBatchIdentifier')
+      || jsonb_build_object('animalIdentifier', specific_data->'animalBatchIdentifier'))::json
     WHERE specific_data->>'programmingPlanKind' = 'DAOA_VOLAILLE'
-      AND specific_data ? 'animalBatchIdentifier'
+      AND specific_data->>'animalBatchIdentifier' IS NOT NULL
   `);
   await knex.raw(`
     UPDATE samples
-    SET specific_data = (specific_data - 'animalUniqueIdentifier')
-      || jsonb_build_object('animalIdentifier', specific_data->'animalUniqueIdentifier')
+    SET specific_data = ((specific_data::jsonb - 'animalUniqueIdentifier')
+      || jsonb_build_object('animalIdentifier', specific_data->'animalUniqueIdentifier'))::json
     WHERE specific_data->>'programmingPlanKind' = 'DAOA_BOVIN'
-      AND specific_data ? 'animalUniqueIdentifier'
+      AND specific_data->>'animalUniqueIdentifier' IS NOT NULL
   `);
 
   // Recreate sample_specific_data_attributes (with optional column from migration 078)
