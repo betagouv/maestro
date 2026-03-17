@@ -7,7 +7,6 @@ import {
   PartialSampleToCreate,
   SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
-import { SampleCompliance } from 'maestro-shared/schema/Sample/SampleCompliance';
 import {
   SampleStatus,
   SampleStatusLabels
@@ -23,7 +22,13 @@ export const SampleStatusBadge = ({ sample, ...props }: Props) => {
       status={sample.status}
       compliance={
         SampleChecked.safeParse(sample).success
-          ? (sample as SampleChecked).compliance
+          ? (sample as SampleChecked).compliance === 'Compliant'
+            ? true
+            : (sample as SampleChecked).compliance === 'NonCompliant' ||
+                (sample as SampleChecked).compliance ===
+                  'NonCompliantAndHarmful'
+              ? false
+              : null
           : undefined
       }
       {...props}
@@ -33,7 +38,7 @@ export const SampleStatusBadge = ({ sample, ...props }: Props) => {
 
 type StatusBadgeProps = Omit<BadgeProps, 'children'> & {
   status: SampleStatus | AnalysisStatus;
-  compliance?: SampleCompliance | null;
+  compliance?: boolean | null;
 };
 
 export const StatusBadge = ({
@@ -52,11 +57,7 @@ export const StatusBadge = ({
     NotAdmissible: 'error',
     Analysis: 'info',
     Completed:
-      compliance === 'NonCompliant'
-        ? 'error'
-        : compliance === 'Compliant'
-          ? 'success'
-          : 'info',
+      compliance === false ? 'error' : compliance === true ? 'success' : 'info',
     InReview: 'warning'
   };
 
