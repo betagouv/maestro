@@ -436,7 +436,11 @@ export const sampleRouter = {
           copyNumber,
           createdAt: new Date(),
           createdBy: user.id,
-          status: itemUpdate.analysis?.status ?? 'Analysis',
+          status: !itemUpdate.isAdmissible
+            ? 'NotAdmissible'
+            : itemUpdate.receiptDate
+              ? 'Analysis'
+              : 'Sent',
           compliance: null,
           notesOnCompliance: null
         };
@@ -444,7 +448,17 @@ export const sampleRouter = {
       } else {
         await analysisRepository.update({
           ...analysis,
-          status: itemUpdate.analysis?.status ?? analysis.status
+          status: !itemUpdate.isAdmissible
+            ? 'NotAdmissible'
+            : analysis.status === 'NotAdmissible' || analysis.status === 'Sent'
+              ? itemUpdate.receiptDate
+                ? 'Analysis'
+                : 'Sent'
+              : analysis.status,
+          compliance: !itemUpdate.isAdmissible ? null : analysis.compliance,
+          notesOnCompliance: !itemUpdate.isAdmissible
+            ? null
+            : analysis.notesOnCompliance
         });
       }
 

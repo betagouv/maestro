@@ -222,7 +222,10 @@ export const SampleDAOA1Fixture = genCreatedPartialSample({
   context: 'Surveillance',
   company: SlaughterhouseCompanyFixture1,
   department: SamplerDaoaFixture.department,
-  region: SamplerDaoaFixture.region
+  region: SamplerDaoaFixture.region,
+  specificData: {
+    programmingPlanKind: 'DAOA_BOVIN'
+  }
 });
 export const SampleDAOA2Fixture = genCreatedPartialSample({
   sampler: SamplerDaoaFixture,

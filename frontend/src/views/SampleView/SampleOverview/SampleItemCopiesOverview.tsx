@@ -5,7 +5,11 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { isNil } from 'lodash-es';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
-import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import {
+  getItemStatus,
+  isItemCompliant,
+  SampleItem
+} from 'maestro-shared/schema/Sample/SampleItem';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
@@ -33,12 +37,15 @@ const SampleItemCopiesOverview = ({
 
   return (
     <>
-      <div className="d-flex-align-center">
-        <h3 className={clsx(cx('fr-m-0'), 'flex-grow-1')}>
+      <div className="d-flex-align-center d-flex-justify-between">
+        <h3 className={clsx(cx('fr-m-0'))}>
           <span className={cx('fr-icon-test-tube-line', 'fr-mr-3v')} />
           Échantillon n°{itemNumber}
         </h3>
-        <span className={cx('fr-mr-1w')}>Analyse</span>
+        <StatusBadge
+          status={getItemStatus(sampleItemCopies)}
+          compliance={isItemCompliant(sampleItemCopies)}
+        />
         <Tag className={cx('fr-mx-1w')}>
           {SubstanceKindLabels[sampleItemCopies[0].substanceKind]}
         </Tag>
@@ -68,71 +75,73 @@ const SampleItemCopiesOverview = ({
       </div>
       <hr />
       {sampleItemCopies.length > 1 && (
-        <SegmentedControl
-          hideLegend
-          legend="Exemplaire"
-          segments={
-            sampleItemCopies.map((sampleItemCopy) => ({
-              label: (
-                <div style={{ minHeight: '44px' }}>
-                  <div>Exemplaire {sampleItemCopy.copyNumber}</div>
-                  {!!sampleItemCopy.analysis?.compliance && (
-                    <div
-                      className={cx(
-                        'fr-label--success',
-                        'fr-text--xs',
-                        'fr-mb-0'
-                      )}
-                    >
-                      <span
-                        className={cx(
-                          'fr-icon-checkbox-circle-line',
-                          'fr-mr-1w',
-                          'fr-icon--sm'
-                        )}
-                      />
-                      Conforme
-                    </div>
-                  )}
-                  {!isNil(sampleItemCopy.analysis?.compliance) &&
-                    !sampleItemCopy.analysis?.compliance && (
+        <>
+          <SegmentedControl
+            hideLegend
+            legend="Exemplaire"
+            segments={
+              sampleItemCopies.map((sampleItemCopy) => ({
+                label: (
+                  <div style={{ minHeight: '44px' }}>
+                    <div>Exemplaire {sampleItemCopy.copyNumber}</div>
+                    {!!sampleItemCopy.analysis?.compliance && (
                       <div
                         className={cx(
-                          'fr-label--error',
+                          'fr-label--success',
                           'fr-text--xs',
                           'fr-mb-0'
                         )}
                       >
                         <span
                           className={cx(
-                            'fr-icon-close-circle-line',
+                            'fr-icon-checkbox-circle-line',
                             'fr-mr-1w',
                             'fr-icon--sm'
                           )}
                         />
-                        Non-conforme
+                        Conforme
                       </div>
                     )}
-                </div>
-              ),
-              nativeInputProps: {
-                checked:
-                  sampleItemCopy.copyNumber === currentItemCopy.copyNumber,
-                onChange: () => setCurrentItemCopy(sampleItemCopy)
-              }
-            })) as any
-          }
-        />
-      )}
-      {currentItemCopy.analysis ? (
-        <StatusBadge
-          status={currentItemCopy.analysis?.status}
-          compliance={currentItemCopy.analysis?.compliance}
-        />
-      ) : (
-        <Badge noIcon small severity="info">
-          Exemplaire non mis en oeuvre
-        </Badge>
+                    {!isNil(sampleItemCopy.analysis?.compliance) &&
+                      !sampleItemCopy.analysis?.compliance && (
+                        <div
+                          className={cx(
+                            'fr-label--error',
+                            'fr-text--xs',
+                            'fr-mb-0'
+                          )}
+                        >
+                          <span
+                            className={cx(
+                              'fr-icon-close-circle-line',
+                              'fr-mr-1w',
+                              'fr-icon--sm'
+                            )}
+                          />
+                          Non-conforme
+                        </div>
+                      )}
+                  </div>
+                ),
+                nativeInputProps: {
+                  checked:
+                    sampleItemCopy.copyNumber === currentItemCopy.copyNumber,
+                  onChange: () => setCurrentItemCopy(sampleItemCopy)
+                }
+              })) as any
+            }
+          />
+          {currentItemCopy.analysis ? (
+            <StatusBadge
+              status={currentItemCopy.analysis?.status}
+              compliance={currentItemCopy.analysis?.compliance}
+            />
+          ) : (
+            <Badge noIcon small severity="info">
+              Exemplaire non mis en oeuvre
+            </Badge>
+          )}
+        </>
       )}
       {currentItemCopy && (
         <SampleItemAnalysis sample={sample} sampleItem={currentItemCopy} />
