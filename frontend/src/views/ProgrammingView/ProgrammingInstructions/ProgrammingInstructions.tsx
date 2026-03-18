@@ -62,29 +62,33 @@ const ProgrammingInstructions = ({ programmingPlan }: Props) => {
       if (programmingPlan.distributionKind === 'REGIONAL') {
         return [
           {
-            title: 'Consultez les objectifs de prélèvements par matrice',
+            title: 'Consulter et échanger',
             logo: dialog,
             content: (
               <div className={cx('fr-text--regular', 'fr-mb-4w')}>
                 La programmation {programmingPlan.year} vous est désormais
                 partagée. Ajoutez si besoin vos commentaires afin de les
-                remonter à la coordination nationale.
+                remonter à la coordination nationale. Les commentaires sont
+                enregistrés automatiquement.
               </div>
             )
           },
           {
-            title:
-              'Notifiez que vous avez bien pris connaissance de la programmation',
+            title: 'Confirmer la programmation',
             logo: check,
             content: (
               <div className={cx('fr-text--regular', 'fr-mb-2w')}>
-                Signalez à la coordination nationale que vous avez terminé la
-                phase de consultation.
+                Notifiez la coordination nationale que vous avez terminé la
+                phase de consultation et que la campagne peut être lancée.
               </div>
             ),
             action: (
-              <Button priority="primary" onClick={regionalValidationModal.open}>
-                J'ai terminé
+              <Button
+                priority="primary"
+                onClick={regionalValidationModal.open}
+                iconId="fr-icon-arrow-right-line"
+              >
+                Je valide
               </Button>
             )
           }
