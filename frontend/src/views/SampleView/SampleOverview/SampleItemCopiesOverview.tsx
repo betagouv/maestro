@@ -7,6 +7,7 @@ import { isNil } from 'lodash-es';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   getItemStatus,
+  getNonCompliantCopies,
   isItemCompliant,
   SampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
@@ -15,6 +16,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { StatusBadge } from '../../../components/SampleStatusBadge/SampleStatusBadge';
 import { getSupportDocumentURL } from '../../../services/sample.service';
+import { quote } from '../../../utils/stringUtils';
 import SampleItemAnalysis from '../SampleItemAnalysis/SampleItemAnalysis';
 import './SampleOverview.scss';
 
@@ -50,6 +52,23 @@ const SampleItemCopiesOverview = ({
           {SubstanceKindLabels[sampleItemCopies[0].substanceKind]}
         </Tag>
       </div>
+      {isItemCompliant(sampleItemCopies) && (
+        <Badge severity="success" className={'fr-px-1w'}>
+          Échantillon conforme
+        </Badge>
+      )}
+      {getNonCompliantCopies(sampleItemCopies).length > 0 && (
+        <div>
+          <Badge severity="error" className={'fr-px-1w'}>
+            Échantillon non conforme
+          </Badge>
+          <div className={cx('fr-text--sm', 'fr-mb-0')}>
+            {getNonCompliantCopies(sampleItemCopies)
+              .filter((_) => !isNil(_.analysis?.notesOnCompliance))
+              .map((_) => quote(_.analysis?.notesOnCompliance as string))}
+          </div>
+        </div>
+      )}
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-6')}>
           <div>Compte-rendu / Procès-verbal</div>
