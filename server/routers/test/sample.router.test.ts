@@ -693,8 +693,7 @@ describe('Sample router', () => {
           matrix: 'A01GL',
           ownerAgreement: true,
           sentAt: null,
-          programmingPlanKind: 'DAOA_VOLAILLE',
-          specificData: SampleDAOA1Fixture.specificData
+          programmingPlanKind: 'DAOA_VOLAILLE'
         });
 
       await request(app)

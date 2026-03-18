@@ -71,7 +71,12 @@ const sampleResidueLmrCheck: CheckFn<
   Pick<SampleChecked, 'stage' | 'specificData' | 'programmingPlanKind'> &
     Pick<ResidueChecked, 'resultKind' | 'lmr' | 'reference'>
 > = (ctx) => {
-  if (!LmrIsValid(ctx.value)) {
+  if (
+    !LmrIsValid({
+      ...ctx.value,
+      matrixPart: ctx.value.specificData?.matrixPart as string | undefined
+    })
+  ) {
     ctx.issues.push({
       input: ctx.value,
       code: 'custom',
@@ -97,7 +102,12 @@ const LmrCheckChecked = z
   .check(sampleResidueLmrCheck);
 
 export const LmrIsValid = (
-  sample: z.infer<typeof LmrCheckChecked>
+  sample: Pick<
+    z.infer<typeof LmrCheckChecked>,
+    'reference' | 'resultKind' | 'programmingPlanKind' | 'stage' | 'lmr'
+  > & {
+    matrixPart: string | undefined;
+  }
 ): boolean => {
   let lmrCanBeOptional: boolean = false;
   if (sample.reference && SSD2Ids.includes(sample.reference)) {
@@ -112,7 +122,7 @@ export const LmrIsValid = (
   if (
     sample.resultKind === 'Q' &&
     sample.programmingPlanKind === 'PPV' &&
-    sample.specificData.matrixPart === 'PART1' &&
+    sample.matrixPart === 'PART1' &&
     sample.stage !== 'STADE2' &&
     !lmrCanBeOptional
   ) {

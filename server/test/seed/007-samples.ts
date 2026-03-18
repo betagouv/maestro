@@ -9,10 +9,7 @@ import {
   SampleDAOA2Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import { SampleItems } from '../../repositories/sampleItemRepository';
-import {
-  formatPartialSample,
-  Samples
-} from '../../repositories/sampleRepository';
+import { sampleRepository } from '../../repositories/sampleRepository';
 
 export const seed = async (): Promise<void> => {
   const samples = [
@@ -24,7 +21,9 @@ export const seed = async (): Promise<void> => {
     SampleDAOA2Fixture
   ];
 
-  await Samples().insert(samples.map(formatPartialSample));
+  for (const sample of samples) {
+    await sampleRepository.insert(sample);
+  }
   await SampleItems().insert([
     Sample1Item1Fixture,
     ...samples

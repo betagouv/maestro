@@ -33,7 +33,6 @@ export const analysisHandler = async (
     sampleId,
     sampleStage,
     sampleProgrammingPlanKind,
-    sampleSpecificData,
     analyseId: oldAnalyseId,
     samplerId,
     samplerEmail
@@ -46,7 +45,6 @@ export const analysisHandler = async (
       'samples.id as sampleId',
       'samples.stage as sampleStage',
       'samples.programmingPlanKind as sampleProgrammingPlanKind',
-      'samples.specificData as sampleSpecificData',
       'analysis.id as analyseId',
       'users.email as samplerEmail',
       'users.id as samplerId'
@@ -61,6 +59,23 @@ export const analysisHandler = async (
   if (sampleStage === null) {
     throw new ExtractError(`Pas de stade de prélèvement`);
   }
+
+  const matrixPart =
+    sampleProgrammingPlanKind === 'PPV'
+      ? await kysely
+          .selectFrom('sampleSpecificDataValues')
+          .innerJoin(
+            'specificDataFields',
+            'specificDataFields.id',
+            'sampleSpecificDataValues.fieldId'
+          )
+          .where('sampleSpecificDataValues.sampleId', '=', sampleId)
+          .where('specificDataFields.key', '=', 'matrixPart')
+          .select('sampleSpecificDataValues.value')
+          .executeTakeFirst()
+          .then((r) => r?.value ?? undefined)
+      : undefined;
+
   const complexResidues = analyse.residues.filter(
     (
       r
@@ -144,7 +159,7 @@ export const analysisHandler = async (
       !LmrIsValid({
         stage: sampleStage,
         programmingPlanKind: sampleProgrammingPlanKind,
-        specificData: sampleSpecificData,
+        matrixPart,
         resultKind: r.result_kind,
         reference: r.ssd2Id ?? '',
         lmr: r.result_kind === 'Q' ? r.lmr : null
