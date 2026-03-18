@@ -11,6 +11,7 @@ import {
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useContext, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import food from 'src/assets/illustrations/food.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
@@ -34,10 +35,35 @@ const SampleOverview = ({ sample }: Props) => {
   const complianceRef = useRef<null | HTMLDivElement>(null);
 
   const { navigateToSamples } = useSamplesLink();
-  const [activeMenu, setActiveMenu] = useState<
-    'items' | 'matrix' | 'context' | 'agreement'
-  >('items');
-  const [activeItemNumber, setActiveItemNumber] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const activeMenu = (searchParams.get('menu') ?? 'items') as
+    | 'items'
+    | 'matrix'
+    | 'context'
+    | 'agreement';
+  const activeItemNumber = Number(searchParams.get('item') ?? 1);
+
+  const setActiveMenu = (menu: typeof activeMenu) =>
+    setSearchParams(
+      (prev) => {
+        prev.set('menu', menu);
+        prev.delete('item');
+        return prev;
+      },
+      { replace: true }
+    );
+
+  const setActiveItemNumber = (itemNumber: number) =>
+    setSearchParams(
+      (prev) => {
+        prev.set('menu', 'items');
+        prev.set('item', String(itemNumber));
+        prev.delete('copy');
+        return prev;
+      },
+      { replace: true }
+    );
   const [activeCompliance, setActiveCompliance] = useState(
     sample.programmingPlanKind !== 'PPV' &&
       sample.status === 'Completed' &&

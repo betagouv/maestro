@@ -12,8 +12,7 @@ import {
   SampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { StatusBadge } from '../../../components/SampleStatusBadge/SampleStatusBadge';
 import { getSupportDocumentURL } from '../../../services/sample.service';
 import { quote } from '../../../utils/stringUtils';
@@ -31,11 +30,21 @@ const SampleItemCopiesOverview = ({
   sampleItemCopies,
   sample
 }: Props) => {
-  const [currentItemCopy, setCurrentItemCopy] = useState(sampleItemCopies[0]);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  useEffect(() => {
-    setCurrentItemCopy(sampleItemCopies[0]);
-  }, [sampleItemCopies]);
+  const activeCopyNumber = Number(searchParams.get('copy') ?? 1);
+  const currentItemCopy =
+    sampleItemCopies.find((c) => c.copyNumber === activeCopyNumber) ??
+    sampleItemCopies[0];
+
+  const setCurrentItemCopy = (item: SampleItem) =>
+    setSearchParams(
+      (prev) => {
+        prev.set('copy', String(item.copyNumber));
+        return prev;
+      },
+      { replace: true }
+    );
 
   return (
     <>
