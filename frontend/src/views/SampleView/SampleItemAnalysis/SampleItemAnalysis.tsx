@@ -3,7 +3,6 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { pick } from 'lodash-es';
-import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { MaestroDate, maestroDateRefined } from 'maestro-shared/utils/date';
@@ -15,7 +14,6 @@ import {
   useState
 } from 'react';
 import { useLocation } from 'react-router';
-import { usePartialSample } from 'src/hooks/usePartialSample';
 import { z } from 'zod';
 import AppSelect from '../../../components/_app/AppSelect/AppSelect';
 import { defaultAppSelectOption } from '../../../components/_app/AppSelect/AppSelectOption';
@@ -44,12 +42,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
   const { hasUserPermission, user } = useAuthentication();
   const location = useLocation();
 
-  const { getSampleItemLaboratory } = usePartialSample(sample);
   const { navigateToSample, navigateToSampleEdit } = useSamplesLink();
-  const [_updateSample, { isSuccess: isSendingSuccess }] =
-    apiClient.useUpdateSampleMutation({
-      fixedCacheKey: `sending-sample-${sample.id}`
-    });
   const [, { isSuccess: isCompletingAnalysisSuccess }] =
     apiClient.useUpdateAnalysisMutation({
       fixedCacheKey: `complete-analysis-${sample.id}`
@@ -121,29 +114,6 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
 
   return (
     <div className={'analysis-container'}>
-      {isSendingSuccess && sample.status !== 'InReview' && (
-        <Alert
-          severity="info"
-          small
-          description={
-            <>
-              Votre demande d'analyse a bien été transmise par email{' '}
-              <ul>
-                {sample.items
-                  .filter((item) => item.copyNumber === 1)
-                  .map((item) => (
-                    <li key={item.itemNumber}>
-                      {getLaboratoryFullName(
-                        getSampleItemLaboratory(item.itemNumber)
-                      )}
-                    </li>
-                  ))}
-              </ul>
-            </>
-          }
-          className={cx('fr-mb-4w')}
-        />
-      )}
       {sample.status === 'Completed' && isCompletingAnalysisSuccess && (
         <Alert
           severity="info"

@@ -1,8 +1,10 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import SideMenu from '@codegouvfr/react-dsfr/SideMenu';
 import clsx from 'clsx';
 import { isNil } from 'lodash-es';
+import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   getNonCompliantCopies,
@@ -18,6 +20,7 @@ import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
 import { SampleStatusBadge } from '../../../components/SampleStatusBadge/SampleStatusBadge';
+import { usePartialSample } from '../../../hooks/usePartialSample';
 import { ApiClientContext } from '../../../services/apiClient';
 import SupportDocumentDownload from '../DraftSample/SupportDocumentDownload';
 import SampleAgreementOverview from './SampleAgreementOverview';
@@ -34,8 +37,15 @@ const SampleOverview = ({ sample }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const complianceRef = useRef<null | HTMLDivElement>(null);
 
+  const { getSampleItemLaboratory } = usePartialSample(sample);
+
   const { navigateToSamples } = useSamplesLink();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const [_updateSample, { isSuccess: isSendingSuccess }] =
+    apiClient.useUpdateSampleMutation({
+      fixedCacheKey: `sending-sample-${sample.id}`
+    });
 
   const activeMenu = (searchParams.get('menu') ?? 'items') as
     | 'items'
@@ -101,6 +111,33 @@ const SampleOverview = ({ sample }: Props) => {
         subtitle="Consultez le récapitulatif du prélèvement réalisé"
         illustration={food}
       />
+
+      {isSendingSuccess && sample.status !== 'InReview' && (
+        <Alert
+          severity="info"
+          small
+          description={
+            <>
+              Votre demande d'analyse a bien été transmise par email à{' '}
+              <ul>
+                {sample.items
+                  .filter((item) => item.copyNumber === 1)
+                  .map((item) => (
+                    <li key={item.itemNumber}>
+                      {getLaboratoryFullName(
+                        getSampleItemLaboratory(item.itemNumber)
+                      )}
+                    </li>
+                  ))}
+              </ul>
+            </>
+          }
+          closable
+          classes={{
+            root: 'bg-white'
+          }}
+        />
+      )}
 
       {activeCompliance && (
         <div ref={complianceRef}>
