@@ -51,9 +51,7 @@ const SampleComplianceForm = ({ sample, onChangeCompliance }: Props) => {
   });
 
   const sampleComplianceOptions = selectOptionsFromList(
-    SampleComplianceByProgrammingPlanKind[
-      sample.specificData.programmingPlanKind
-    ],
+    SampleComplianceByProgrammingPlanKind[sample.programmingPlanKind],
     {
       labels: SampleComplianceLabels,
       withDefault: false
