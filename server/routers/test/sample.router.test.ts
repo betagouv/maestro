@@ -220,8 +220,29 @@ describe('Sample router', () => {
       };
 
       await successRequestTest(Sampler1Fixture);
-      // await successRequestTest(RegionalCoordinator);
-      // await successRequestTest(RegionalObserver);
+      await successRequestTest(RegionalCoordinator);
+      await successRequestTest(RegionalObserver);
+    });
+
+    test('should find the samples with query parameters restricted to the user programming plan kinds', async () => {
+      const res = await request(app)
+        .get(testRoute({}))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const expectedSamples = [
+        Sample11Fixture,
+        Sample12Fixture,
+        Sample13Fixture
+      ]
+        .map((sample) =>
+          expect.objectContaining({
+            id: sample.id
+          })
+        )
+        .map(withISOStringDates);
+      expect(res.body).toHaveLength(expectedSamples.length);
+      expectArrayToContainElements(res.body, expectedSamples);
     });
 
     test('should find the samples with query parameters restricted to the daoa sampler company', async () => {
