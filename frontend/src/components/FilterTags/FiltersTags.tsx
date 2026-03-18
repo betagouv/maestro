@@ -245,11 +245,13 @@ const FiltersTags = ({
 
   const hasFilters = useMemo(
     () =>
-      Object.values(omit(filters, 'region', 'page', 'perPage')).some(
-        (value) => isDefinedAndNotNull(value) && value !== ''
-      ) ||
+      Object.values(
+        omit(filters, 'region', 'page', 'perPage', 'programmingPlanIds')
+      ).some((value) => isDefinedAndNotNull(value) && value !== '') ||
+      ((programmingPlans ?? []).length > 1 &&
+        (filters.programmingPlanIds ?? []).length > 0) ||
       (filters.region && hasNationalView),
-    [filters, hasNationalView]
+    [filters, hasNationalView, programmingPlans]
   );
 
   if (!hasFilters) {

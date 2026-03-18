@@ -118,10 +118,12 @@ export const AdminFixture = genUser({
 export const RegionalObserver = genUser({
   roles: ['RegionalObserver'],
   id: '88888888-8888-8888-8888-888888888888',
+  programmingPlanKinds: ['PPV'],
   region: Region1Fixture
 });
 export const NationalObserver = genUser({
   roles: ['NationalObserver'],
+  programmingPlanKinds: ['PPV'],
   id: '99999999-9999-9999-9999-999999999999'
 });
 export const DepartmentalCoordinator = genUser({

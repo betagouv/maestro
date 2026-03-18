@@ -10,6 +10,7 @@ import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import {
   companiesIsRequired,
   departmentIsRequired,
+  programmingPlanKindsIsRequired,
   UserRefined
 } from '../User/User';
 import { isNationalRole, UserRole } from '../User/UserRole';
@@ -61,6 +62,9 @@ export const buildFindSampleOptions = (
     departments: departmentIsRequired(user)
       ? [user.department as Department]
       : query.departments,
-    companySirets
+    companySirets,
+    kinds: programmingPlanKindsIsRequired(user)
+      ? user.programmingPlanKinds
+      : query.kinds
   } as FindSampleOptions;
 };
