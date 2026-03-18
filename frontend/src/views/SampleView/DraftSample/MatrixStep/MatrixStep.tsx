@@ -20,12 +20,8 @@ import {
 } from 'maestro-shared/referential/Stage';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
-import {
-  MatrixSpecificDataForm,
-  MatrixSpecificDataFormInputProps
-} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
-import { SampleMatrixSpecificDataKeys } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isCreatedPartialSample,
@@ -41,6 +37,7 @@ import {
   SampleStatus,
   SampleStatusSteps
 } from 'maestro-shared/schema/Sample/SampleStatus';
+import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { toArray } from 'maestro-shared/utils/utils';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
@@ -66,6 +63,7 @@ import { usePartialSample } from '../../../../hooks/usePartialSample';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 import MatrixSpecificDataFormInput from './MatrixSpecificDataFormInput';
+import { SpecificDataForm } from './SpecificDataForm';
 
 type Props = {
   partialSample: PartialSample | PartialSampleToCreate;
@@ -101,6 +99,17 @@ const MatrixStep = ({ partialSample }: Props) => {
     apiClient.useCreateOrUpdateSampleMutation();
   const [createDocument] = apiClient.useCreateDocumentMutation();
   const [deleteDocument] = apiClient.useDeleteDocumentMutation();
+
+  const programmingPlanKind =
+    partialSample.programmingPlanKind as ProgrammingPlanKind;
+
+  const { data: fieldConfigs = [] } =
+    apiClient.useFindPlanKindFieldConfigsQuery({
+      programmingPlanId: partialSample.programmingPlanId as string,
+      kind: programmingPlanKind
+    });
+
+  const planLayout = SpecificDataForm[programmingPlanKind];
 
   const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
     {
@@ -192,10 +201,15 @@ const MatrixStep = ({ partialSample }: Props) => {
     });
   };
 
+  const specificDataSchema = useMemo(
+    () => buildSpecificDataSchema(fieldConfigs),
+    [fieldConfigs]
+  );
+
   const form = useForm(
-    SampleMatrixData.omit({
-      documentIds: true
-    }).check(prescriptionSubstancesCheck, sampleMatrixCheck),
+    SampleMatrixData.omit({ documentIds: true, specificData: true })
+      .extend({ specificData: specificDataSchema })
+      .check(prescriptionSubstancesCheck, sampleMatrixCheck),
     {
       matrixKind,
       matrix,
@@ -286,7 +300,7 @@ const MatrixStep = ({ partialSample }: Props) => {
           ? MatrixKindList.filter((matrixKind) =>
               prescriptions?.some(
                 (p) =>
-                  p.programmingPlanKind === specificData.programmingPlanKind &&
+                  p.programmingPlanKind === programmingPlanKind &&
                   p.matrixKind === matrixKind
               )
             )
@@ -297,7 +311,7 @@ const MatrixStep = ({ partialSample }: Props) => {
           withDefault: false
         }
       ),
-    [prescriptions, partialSample, specificData.programmingPlanKind]
+    [prescriptions, partialSample, programmingPlanKind]
   );
 
   const matrixOptions = useMemo(
@@ -310,8 +324,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                 isProgrammingPlanSample(partialSample)
                   ? prescriptions?.some(
                       (p) =>
-                        p.programmingPlanKind ===
-                          specificData.programmingPlanKind &&
+                        p.programmingPlanKind === programmingPlanKind &&
                         p.matrixKind === matrixKind &&
                         (isNil(p.matrix) || p.matrix === m)
                     )
@@ -324,18 +337,18 @@ const MatrixStep = ({ partialSample }: Props) => {
           withDefault: false
         }
       ),
-    [matrixKind, prescriptions, specificData.programmingPlanKind, partialSample]
+    [matrixKind, prescriptions, partialSample, programmingPlanKind]
   );
 
   const stageOptions = useMemo(
     () =>
       selectOptionsFromList(
-        StagesByProgrammingPlanKind[specificData.programmingPlanKind].filter(
+        StagesByProgrammingPlanKind[programmingPlanKind].filter(
           (stage) =>
             !isProgrammingPlanSample(partialSample) ||
             prescriptions?.find(
               (p) =>
-                p.programmingPlanKind === specificData.programmingPlanKind &&
+                p.programmingPlanKind === programmingPlanKind &&
                 p.matrixKind === matrixKind &&
                 p.stages.includes(stage)
             )
@@ -346,7 +359,7 @@ const MatrixStep = ({ partialSample }: Props) => {
           withDefault: 'auto'
         }
       ),
-    [partialSample, prescriptions, specificData.programmingPlanKind, matrixKind]
+    [partialSample, prescriptions, matrixKind, programmingPlanKind]
   );
 
   return (
@@ -387,25 +400,6 @@ const MatrixStep = ({ partialSample }: Props) => {
       </div>
 
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        {(
-          Object.entries(
-            MatrixSpecificDataForm[specificData.programmingPlanKind]
-          ) as [
-            SampleMatrixSpecificDataKeys,
-            MatrixSpecificDataFormInputProps
-          ][]
-        )
-          .filter(([_, inputProps]) => inputProps.position === 'pre')
-          .map(([inputKey, inputProps]) => (
-            <MatrixSpecificDataFormInput
-              key={inputKey}
-              inputKey={inputKey}
-              inputProps={inputProps}
-              inputForm={form}
-              specificData={specificData}
-              onChange={setSpecificData}
-            />
-          ))}
         <div className={cx('fr-col-12', 'fr-pb-0')}>
           <span className={cx('fr-text--md', 'fr-text--bold')}>
             La matrice à prélever
@@ -509,25 +503,16 @@ const MatrixStep = ({ partialSample }: Props) => {
       </div>
       <SampleProcedure partialSample={partialSample} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        {(
-          Object.entries(
-            MatrixSpecificDataForm[specificData.programmingPlanKind]
-          ) as [
-            SampleMatrixSpecificDataKeys,
-            MatrixSpecificDataFormInputProps
-          ][]
-        )
-          .filter(([_, inputProps]) => inputProps.position !== 'pre')
-          .map(([inputKey, inputProps]) => (
-            <MatrixSpecificDataFormInput
-              key={inputKey}
-              inputKey={inputKey}
-              inputProps={inputProps}
-              inputForm={form}
-              specificData={specificData}
-              onChange={setSpecificData}
-            />
-          ))}
+        {fieldConfigs.map((fc) => (
+          <MatrixSpecificDataFormInput
+            key={fc.field.key}
+            fieldConfig={fc}
+            inputProps={planLayout?.[fc.field.key] ?? {}}
+            inputForm={form}
+            specificData={specificData}
+            onChange={setSpecificData}
+          />
+        ))}
 
         {!isProgrammingPlanSample(partialSample) && (
           <>
@@ -614,7 +599,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             data-testid="notes-input"
             label="Note additionnelle"
             hintText={
-              partialSample?.specificData.programmingPlanKind === 'PPV'
+              partialSample?.programmingPlanKind === 'PPV'
                 ? 'Champ facultatif pour précisions supplémentaires (date de semis, précédent cultural, traitements faits, protocole de prélèvement et note inspecteur, etc.)'
                 : ''
             }

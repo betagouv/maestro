@@ -1,12 +1,9 @@
 import { fakerFR } from '@faker-js/faker';
 import { pick } from 'lodash-es';
 import { v4 as uuidv4 } from 'uuid';
-import { CultureKindList } from '../referential/CultureKind';
 import { LegalContextList } from '../referential/LegalContext';
 import { Matrix, MatrixEffective } from '../referential/Matrix/Matrix';
 import { MatrixKind } from '../referential/Matrix/MatrixKind';
-import { MatrixPartList } from '../referential/Matrix/MatrixPart';
-import { ProductionKind } from '../referential/ProductionKind';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { Regions } from '../referential/Region';
 import { Company } from '../schema/Company/Company';
@@ -54,15 +51,14 @@ export const genSampleContextData = (
     y: 4.731044
   },
   programmingPlanId: uuidv4(),
+  programmingPlanKind: 'PPV',
   context: oneOf(ProgrammingPlanContextList),
   legalContext: oneOf(LegalContextList),
   resytalId: '23-' + fakerFR.string.numeric(6),
   company: genCompany(),
   notesOnCreation: fakerFR.string.alphanumeric(32),
   status: 'Draft',
-  specificData: {
-    programmingPlanKind: 'PPV'
-  },
+  specificData: {},
   ...data
 });
 export const genCreatedSampleData = (
@@ -88,13 +84,18 @@ export const genCreatedPartialSample = (
     monoSubstances: [],
     multiSubstances: [],
     stage: 'STADE1',
+    programmingPlanKind: 'PPV',
     specificData: {
-      programmingPlanKind: 'PPV',
-      matrixPart: oneOf(MatrixPartList),
-      productionKind: oneOf(
-        ProductionKind.extract(['PD07A', 'Z0216', 'PD09A']).options
-      ),
-      cultureKind: oneOf(CultureKindList),
+      matrixPart: oneOf(['PART1', 'PART2']),
+      productionKind: oneOf(['PD07A', 'Z0216', 'PD09A']),
+      cultureKind: oneOf([
+        'Z0211',
+        'PD06A',
+        'PD08A',
+        'Z0215',
+        'Z0153',
+        'PD05A'
+      ]),
       releaseControl: fakerFR.datatype.boolean()
     },
     sampledAt: new Date(),
@@ -165,8 +166,8 @@ export const Sample11Fixture = genCreatedPartialSample({
   matrixKind: PrescriptionFixture.matrixKind,
   matrix: 'A00GZ',
   stage: PrescriptionFixture.stages[0],
+  programmingPlanKind: 'PPV',
   specificData: {
-    programmingPlanKind: 'PPV',
     matrixPart: 'PART1',
     productionKind: 'PD07A',
     cultureKind: 'PD06A',

@@ -2,11 +2,9 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { constants } from 'http2';
 import { isNil } from 'lodash-es';
-import { getCultureKindLabel } from 'maestro-shared/referential/CultureKind';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { getMatrixPartLabel } from 'maestro-shared/referential/Matrix/MatrixPart';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
@@ -33,6 +31,7 @@ import {
   SampleItemSort
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
+import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import companyRepository from '../repositories/companyRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
@@ -55,6 +54,7 @@ import {
   ProgrammingPlanKindWithSacha,
   ProgrammingPlanKindWithSachaList
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { Readable } from 'node:stream';
@@ -72,7 +72,7 @@ import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import { sachaCommemoratifRepository } from '../repositories/sachaCommemoratifRepository';
 import { sachaConfRepository } from '../repositories/sachaConfRepository';
-import { sampleSpecificDataRepository } from '../repositories/sampleSpecificDataRepository';
+import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 import { generateXMLDAI } from '../services/ediSacha/sachaDAI';
 import { sendSachaFile } from '../services/ediSacha/sachaSender';
@@ -498,6 +498,19 @@ export const sampleRouter = {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
+      if (!DraftStatusList.includes(sampleUpdate.status)) {
+        const fieldConfigs =
+          await specificDataFieldConfigRepository.findByPlanKind(
+            sampleUpdate.programmingPlanId,
+            sampleUpdate.programmingPlanKind
+          );
+        const specificDataSchema = buildSpecificDataSchema(fieldConfigs);
+        const result = specificDataSchema.safeParse(sampleUpdate.specificData);
+        if (!result.success) {
+          return { status: constants.HTTP_STATUS_BAD_REQUEST };
+        }
+      }
+
       const mustBeSent =
         sample.status === 'Submitted' && sampleUpdate.status === 'Sent';
 
@@ -601,8 +614,7 @@ export const sampleRouter = {
       if (mustBeSent) {
         const programmingPlanWithEdiSacha: boolean =
           ProgrammingPlanKindWithSachaList.includes(
-            updatedPartialSample.specificData
-              .programmingPlanKind as ProgrammingPlanKindWithSacha
+            updatedPartialSample.programmingPlanKind as ProgrammingPlanKindWithSacha
           );
 
         const updatedSample = SampleChecked.parse(updatedPartialSample);
@@ -610,7 +622,13 @@ export const sampleRouter = {
 
         const sachaCommemoratifRecord =
           await sachaCommemoratifRepository.findAll();
-        const specificDataRecord = await sampleSpecificDataRepository.findAll();
+        const specificDataRecord =
+          await specificDataFieldConfigRepository.findSachaFields();
+        const planKindFieldConfigs =
+          await specificDataFieldConfigRepository.findByPlanKind(
+            updatedSample.programmingPlanId,
+            updatedSample.programmingPlanKind
+          );
         const sachaConf = await sachaConfRepository.get();
         if (programmingPlanWithEdiSacha) {
           //FIXME EDI à supprimer à la fin des tests
@@ -709,6 +727,13 @@ export const sampleRouter = {
                   return laboratoryLabel ?? SSD2IdLabel[substance];
                 };
 
+                const matrixPartField = planKindFieldConfigs.find(
+                  (c) => c.field.key === 'matrixPart'
+                )?.field;
+                const cultureKindField = planKindFieldConfigs.find(
+                  (c) => c.field.key === 'cultureKind'
+                )?.field;
+
                 const analysisRequestDocs =
                   await generateAndStoreAnalysisRequestDocuments({
                     ...updatedSample,
@@ -749,11 +774,21 @@ export const sampleRouter = {
                     stage: StageLabels[updatedSample.stage],
                     matrixKindLabel: MatrixKindLabels[updatedSample.matrixKind],
                     matrixLabel: getSampleMatrixLabel(updatedSample),
-                    matrixPart: getMatrixPartLabel(updatedSample) as string,
+                    matrixPart: matrixPartField
+                      ? (getFieldValueLabel(
+                          matrixPartField,
+                          updatedSample.specificData['matrixPart']
+                        ) ?? '')
+                      : '',
                     quantityUnit: sampleItem?.quantityUnit
                       ? QuantityUnitLabels[sampleItem.quantityUnit]
                       : '',
-                    cultureKind: getCultureKindLabel(updatedSample) as string,
+                    cultureKind: cultureKindField
+                      ? (getFieldValueLabel(
+                          cultureKindField,
+                          updatedSample.specificData['cultureKind']
+                        ) ?? '')
+                      : '',
                     compliance200263: sampleItem
                       ? sampleItem.compliance200263
                         ? 'Respectée'

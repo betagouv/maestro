@@ -1,73 +1,71 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
-import { MatrixSpecificDataFormInputProps } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
+import { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import {
-  MatrixSpecificDataFormInputs,
-  SampleMatrixSpecificDataKeys
-} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
-import {
-  getSampleMatrixSpecificDataAttributeValues,
-  PartialSampleMatrixSpecificData,
-  SampleMatrixSpecificData,
+  SpecificData,
   UnknownValue,
   UnknownValueLabel
-} from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+} from 'maestro-shared/schema/SpecificData/SpecificData';
 import { Fragment, useMemo } from 'react';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
-import { z, ZodObject } from 'zod';
+import { ZodObject } from 'zod';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import { UseForm } from '../../../../hooks/useForm';
+import { SpecificDataFormInputProps } from './SpecificDataForm';
 
 type Props<T extends ZodObject, U extends UseForm<T>> = {
-  specificData: PartialSampleMatrixSpecificData;
-  onChange: (specificData: PartialSampleMatrixSpecificData) => void;
-  inputKey: SampleMatrixSpecificDataKeys;
-  inputProps: MatrixSpecificDataFormInputProps;
+  specificData: SpecificData;
+  onChange: (specificData: SpecificData) => void;
+  fieldConfig: PlanKindFieldConfig;
+  inputProps: SpecificDataFormInputProps;
   inputForm: U;
 };
 
 function MatrixSpecificDataFormInput<T extends ZodObject>(
   props: Props<T, UseForm<T>>
 ) {
-  const { specificData, onChange, inputKey, inputProps, inputForm } = props;
+  const { specificData, onChange, fieldConfig, inputProps, inputForm } = props;
+  const { field, required } = fieldConfig;
+  const inputKey = field.key;
 
-  const requiredInputs = useMemo(
-    () =>
-      z
-        .toJSONSchema(SampleMatrixSpecificData)
-        .oneOf?.find(
-          (schema) =>
-            schema.properties?.programmingPlanKind &&
-            typeof schema.properties?.programmingPlanKind === 'object' &&
-            schema.properties?.programmingPlanKind?.const ===
-              specificData.programmingPlanKind
-        )?.required ?? [],
-    [specificData.programmingPlanKind]
+  const label = field.label;
+
+  const whenValid = useMemo(() => `${label} correctement renseigné.`, [label]);
+
+  const sortedOptions = useMemo(
+    () => [...field.options].sort((a, b) => a.order - b.order),
+    [field.options]
   );
 
-  const label = useMemo(
-    () =>
-      inputProps.label ??
-      MatrixSpecificDataFormInputs[inputKey].label ??
-      inputKey,
-    [inputKey, inputProps.label]
+  const optionValues = useMemo(
+    () => sortedOptions.map((o) => o.value),
+    [sortedOptions]
   );
+
+  const optionLabels = useMemo(
+    () => Object.fromEntries(sortedOptions.map((o) => [o.value, o.label])),
+    [sortedOptions]
+  );
+
+  const testId = useMemo(() => {
+    const key = inputKey.toLowerCase();
+    const suffix =
+      field.inputType === 'select' || field.inputType === 'selectWithUnknown'
+        ? 'select'
+        : field.inputType === 'radio'
+          ? 'radio'
+          : 'input';
+    return `${key}-${suffix}`;
+  }, [inputKey, field.inputType]);
 
   return (
     <Fragment key={inputKey}>
-      {inputProps.preTitle && (
-        <div className={cx('fr-col-12', 'fr-pt-3w', 'fr-pb-0')}>
-          <span className={cx('fr-text--md', 'fr-text--bold')}>
-            {inputProps.preTitle}
-          </span>
-        </div>
-      )}
       {(() => {
-        switch (MatrixSpecificDataFormInputs[inputKey].inputType) {
+        switch (field.inputType) {
           case 'text':
             return (
               <div
@@ -88,13 +86,10 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   inputKey="specificData"
                   inputPathFromKey={[inputKey]}
                   label={label}
-                  hintText={MatrixSpecificDataFormInputs[inputKey].hintText}
-                  whenValid={
-                    MatrixSpecificDataFormInputs[inputKey].whenValid ??
-                    'Champ correctement renseigné.'
-                  }
-                  required={requiredInputs.includes(inputKey)}
-                  data-testid={MatrixSpecificDataFormInputs[inputKey].testId}
+                  hintText={field.hintText ?? undefined}
+                  whenValid={whenValid}
+                  required={required}
+                  data-testid={testId}
                 />
               </div>
             );
@@ -115,14 +110,11 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   inputKey="specificData"
                   inputPathFromKey={[inputKey]}
                   label={label}
-                  hintText={MatrixSpecificDataFormInputs[inputKey].hintText}
-                  whenValid={
-                    MatrixSpecificDataFormInputs[inputKey].whenValid ??
-                    'Champ correctement renseigné.'
-                  }
-                  required={requiredInputs.includes(inputKey)}
+                  hintText={field.hintText ?? undefined}
+                  whenValid={whenValid}
+                  required={required}
                   min={0}
-                  data-testid={MatrixSpecificDataFormInputs[inputKey].testId}
+                  data-testid={testId}
                 />
               </div>
             );
@@ -147,14 +139,11 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   inputKey="specificData"
                   inputPathFromKey={[inputKey]}
                   label={label}
-                  hintText={MatrixSpecificDataFormInputs[inputKey].hintText}
-                  whenValid={
-                    MatrixSpecificDataFormInputs[inputKey].whenValid ??
-                    'Champ correctement renseigné.'
-                  }
-                  required={requiredInputs.includes(inputKey)}
-                  rows={MatrixSpecificDataFormInputs[inputKey].rows ?? 3}
-                  data-testid={MatrixSpecificDataFormInputs[inputKey].testId}
+                  hintText={field.hintText ?? undefined}
+                  whenValid={whenValid}
+                  required={required}
+                  rows={3}
+                  data-testid={testId}
                 />
               </div>
             );
@@ -171,23 +160,17 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                 <AppSelect
                   defaultValue={(specificData as any)[inputKey] ?? ''}
                   options={selectOptionsFromList(
-                    getSampleMatrixSpecificDataAttributeValues(
-                      specificData.programmingPlanKind,
-                      inputKey
-                    ),
+                    field.inputType === 'selectWithUnknown'
+                      ? [...optionValues, UnknownValue]
+                      : optionValues,
                     {
                       labels:
-                        MatrixSpecificDataFormInputs[inputKey].inputType ===
-                        'select'
-                          ? MatrixSpecificDataFormInputs[inputKey].optionsLabels
-                          : {
-                              ...MatrixSpecificDataFormInputs[inputKey]
-                                .optionsLabels,
+                        field.inputType === 'selectWithUnknown'
+                          ? {
+                              ...optionLabels,
                               [UnknownValue]: UnknownValueLabel
-                            },
-                      defaultLabel:
-                        MatrixSpecificDataFormInputs[inputKey]
-                          .defaultOptionLabel,
+                            }
+                          : optionLabels,
                       withDefault: 'auto'
                     }
                   )}
@@ -204,12 +187,9 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   inputKey="specificData"
                   inputPathFromKey={[inputKey]}
                   label={label}
-                  whenValid={
-                    MatrixSpecificDataFormInputs[inputKey].whenValid ??
-                    'Champ correctement renseigné.'
-                  }
-                  required={requiredInputs.includes(inputKey)}
-                  data-testid={MatrixSpecificDataFormInputs[inputKey].testId}
+                  whenValid={whenValid}
+                  required={required}
+                  data-testid={testId}
                 />
               </div>
             );
@@ -232,7 +212,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                     })
                   }
                   showCheckedHint={false}
-                  data-testid={MatrixSpecificDataFormInputs[inputKey].testId}
+                  data-testid={testId}
                 />
               </div>
             );
@@ -246,22 +226,13 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                 )}
               >
                 <AppRadioButtons
-                  legend={
-                    MatrixSpecificDataFormInputs[inputKey].label ?? inputKey
-                  }
+                  legend={label}
                   options={
-                    selectOptionsFromList(
-                      getSampleMatrixSpecificDataAttributeValues(
-                        specificData.programmingPlanKind,
-                        inputKey
-                      ),
-                      {
-                        labels:
-                          MatrixSpecificDataFormInputs[inputKey].optionsLabels,
-                        withDefault: false
-                      }
-                    ).map(({ label, value }) => ({
-                      key: `${MatrixSpecificDataFormInputs[inputKey].testId}-option-${value}`,
+                    selectOptionsFromList(optionValues, {
+                      labels: optionLabels,
+                      withDefault: false
+                    }).map(({ label, value }) => ({
+                      key: `${testId}-option-${value}`,
                       label,
                       nativeInputProps: {
                         checked: (specificData as any)[inputKey] === value,
@@ -273,12 +244,12 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                       }
                     })) ?? []
                   }
-                  colSm={MatrixSpecificDataFormInputs[inputKey].colSm}
+                  colSm={4}
                   inputForm={inputForm}
                   inputKey="specificData"
                   inputPathFromKey={[inputKey]}
-                  required={requiredInputs.includes(inputKey)}
-                  data-testid={MatrixSpecificDataFormInputs[inputKey].testId}
+                  required={required}
+                  data-testid={testId}
                 />
               </div>
             );

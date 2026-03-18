@@ -268,7 +268,7 @@ const SampleItemContent = ({
             />
           )}
         </div>
-        {partialSample?.specificData.programmingPlanKind === 'PPV' && (
+        {partialSample?.programmingPlanKind === 'PPV' && (
           <>
             <div className={cx('fr-col-12', 'fr-col-sm-6')}>
               {itemsForm ? (

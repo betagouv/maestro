@@ -32,7 +32,7 @@ const SampleProcedure = ({ partialSample }: Props) => {
         ></span>
         Modalités d'échantillonnage
       </h6>
-      {partialSample.specificData.programmingPlanKind !== 'PPV' && (
+      {partialSample.programmingPlanKind !== 'PPV' && (
         <>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12', 'fr-col-md-6')}>
@@ -52,8 +52,7 @@ const SampleProcedure = ({ partialSample }: Props) => {
               <div className={cx('fr-my-1v')}>
                 Matière prélevée :{' '}
                 <b>
-                  {partialSample.specificData.programmingPlanKind ===
-                  'DAOA_BOVIN'
+                  {partialSample.programmingPlanKind === 'DAOA_BOVIN'
                     ? 'Foie de bovin'
                     : 'Muscle de volaille'}
                 </b>
@@ -79,7 +78,7 @@ const SampleProcedure = ({ partialSample }: Props) => {
           iconId="fr-icon-external-link-line"
         />
       </div>
-      {partialSample.specificData.programmingPlanKind === 'PPV' && (
+      {partialSample.programmingPlanKind === 'PPV' && (
         <div>
           <hr className={cx('fr-my-3w')} />
           <span className={cx('fr-mr-1w')}>Analyses prévues</span>

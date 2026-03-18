@@ -1,54 +1,36 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { MatrixSpecificDataFormInputs } from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
-import {
-  canHaveValue,
-  getAllSachaAttributes,
-  getAttributeExpectedValues
-} from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import { FunctionComponent, useContext, useMemo } from 'react';
 import { ApiClientContext } from '../../services/apiClient';
 import { CommemoratifSigleForm } from './CommemoratifSigleForm';
 import { SachaCommemoratifsUpload } from './SachaCommemoratifsUpload';
 
 export const SachaCommemoratifs: FunctionComponent = () => {
-  const { useGetSachaCommemoratifsQuery, useGetSampleSpecificDataQuery } =
+  const { useGetSachaCommemoratifsQuery, useFindSachaFieldConfigsQuery } =
     useContext(ApiClientContext);
 
   const { data: sachaCommemoratifs } = useGetSachaCommemoratifsQuery();
-  const { data: sampleSpecifiDataRecord } = useGetSampleSpecificDataQuery();
+  const { data: sachaFieldConfigs = [] } = useFindSachaFieldConfigsQuery();
 
   const isComplete = useMemo(() => {
-    if (!sampleSpecifiDataRecord) {
-      return true;
-    }
-
-    for (const attribute of getAllSachaAttributes()) {
-      const attributeConf = sampleSpecifiDataRecord[attribute];
-
-      if (attributeConf?.inDai && !attributeConf?.optional) {
-        if (!attributeConf.sachaCommemoratifSigle) {
+    for (const fc of sachaFieldConfigs) {
+      if (fc.inDai && !fc.optional) {
+        if (!fc.sachaCommemoratifSigle) {
           return false;
         }
-        const inputConf = MatrixSpecificDataFormInputs[attribute];
-
-        if (canHaveValue(inputConf)) {
-          const expectedValues = getAttributeExpectedValues(attribute);
-
-          const hasValueWithoutSigle = expectedValues.some(
-            (value) => !attributeConf.values[value]
-          );
-
-          if (hasValueWithoutSigle) {
-            return false;
-          }
+        const canHaveVal =
+          fc.inputType === 'select' || fc.inputType === 'radio';
+        if (
+          canHaveVal &&
+          fc.options.some((o) => !o.sachaCommemoratifValueSigle)
+        ) {
+          return false;
         }
       }
     }
-
     return true;
-  }, [sampleSpecifiDataRecord]);
+  }, [sachaFieldConfigs]);
 
   return (
     <div>
@@ -65,14 +47,13 @@ export const SachaCommemoratifs: FunctionComponent = () => {
         />
       )}
 
-      {!!sachaCommemoratifs && !!sampleSpecifiDataRecord && (
+      {!!sachaCommemoratifs && (
         <div className={clsx('d-flex-column')} style={{ gap: '2rem' }}>
-          {getAllSachaAttributes().map((attribute) => (
+          {sachaFieldConfigs.map((fc) => (
             <CommemoratifSigleForm
-              key={attribute as string}
-              attribute={attribute}
+              key={fc.key}
+              fieldConfig={fc}
               sachaCommemoratifs={sachaCommemoratifs}
-              sampleSpecifiDataRecord={sampleSpecifiDataRecord}
             />
           ))}
         </div>

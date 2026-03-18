@@ -619,11 +619,11 @@ describe('Sample router', () => {
         ownerAgreement: true,
         matrixKind: 'A0C0Z',
         matrix: 'A0BAV',
+        programmingPlanKind: 'DAOA_BOVIN',
         specificData: {
-          programmingPlanKind: 'DAOA_BOVIN',
           killingCode: '1234',
           sampling: 'Aléatoire',
-          animalIdentifier: 'FR1234567890',
+          animalUniqueIdentifier: 'FR1234567890',
           animalKind: 'TYPEA1',
           sex: 'SEX1',
           ageInMonths: 24,
@@ -640,7 +640,7 @@ describe('Sample router', () => {
           status: 'Sent'
         })
         .use(tokenProvider(SamplerDaoaFixture))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     test('should update the sample send date when sending the sample', async () => {
@@ -693,10 +693,8 @@ describe('Sample router', () => {
           matrix: 'A01GL',
           ownerAgreement: true,
           sentAt: null,
-          specificData: {
-            ...SampleDAOA1Fixture.specificData,
-            programmingPlanKind: 'DAOA_VOLAILLE'
-          }
+          programmingPlanKind: 'DAOA_VOLAILLE',
+          specificData: SampleDAOA1Fixture.specificData
         });
 
       await request(app)
@@ -704,15 +702,15 @@ describe('Sample router', () => {
         .send({
           ...SampleDAOA1Fixture,
           status: 'Sent',
+          programmingPlanKind: 'DAOA_VOLAILLE',
           specificData: {
             ...SampleDAOA1Fixture.specificData,
             outdoorAccess: 'PAT1',
             breedingMethod: 'PROD_1',
             species: 'ESP7',
             ageInDays: 12,
-            animalIdentifier: 'id',
-            sampling: 'Aléatoire',
-            programmingPlanKind: 'DAOA_VOLAILLE'
+            animalBatchIdentifier: 'id',
+            sampling: 'Aléatoire'
           }
         })
         .use(tokenProvider(SamplerDaoaFixture))

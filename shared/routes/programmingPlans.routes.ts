@@ -1,8 +1,10 @@
 import z from 'zod';
 import { FindProgrammingPlanOptions } from '../schema/ProgrammingPlan/FindProgrammingPlanOptions';
+import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanLocalStatus } from '../schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { PlanKindFieldConfig } from '../schema/SpecificData/PlanKindFieldConfig';
 import { SubRoutes } from './routes';
 
 export const programmingPlansRoutes = {
@@ -51,6 +53,16 @@ export const programmingPlansRoutes = {
     post: {
       permissions: ['manageProgrammingPlan'],
       response: ProgrammingPlanChecked
+    }
+  },
+  '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields': {
+    params: {
+      programmingPlanId: z.string(),
+      kind: ProgrammingPlanKind
+    },
+    get: {
+      response: z.array(PlanKindFieldConfig),
+      permissions: 'NONE'
     }
   }
 } as const satisfies SubRoutes<'/programming-plans'>;

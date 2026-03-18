@@ -1,5 +1,4 @@
 import { Knex } from 'knex';
-import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
 import {
   RealizedStatusList,
   SampleStatus
@@ -10,7 +9,7 @@ export const up = async (knex: Knex) => {
     rows: {
       id: string;
       status: SampleStatus;
-      specific_data: SampleMatrixSpecificData;
+      specific_data: any;
     }[];
   } = await knex.raw('select * from samples');
 

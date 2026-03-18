@@ -51,8 +51,8 @@ const data: AnalysisRequestData = {
   ownerAgreement: true,
   matrixKind: 'A0D9Y',
   matrix: 'A031K',
+  programmingPlanKind: 'PPV',
   specificData: {
-    programmingPlanKind: 'PPV',
     matrixPart: 'PART1',
     productionKind: 'PD07A',
     cultureKind: 'PD05A',

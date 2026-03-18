@@ -24,7 +24,12 @@ import {
   SachaCommemoratifTypeDonnee
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
-import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+import {
+  ProgrammingPlanKindFieldId,
+  SpecificDataFieldId,
+  SpecificDataFieldOptionId
+} from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { MaestroDate } from 'maestro-shared/utils/date';
@@ -44,6 +49,12 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export const SachaResidueId = z.string().brand<'SachaResidueId'>();
 export type SachaResidueId = z.infer<typeof SachaResidueId>;
+
+export {
+  ProgrammingPlanKindFieldId,
+  SpecificDataFieldId,
+  SpecificDataFieldOptionId
+};
 
 export interface Analysis {
   compliance: boolean | null;
@@ -218,19 +229,6 @@ export interface LocalPrescriptions {
   sampleCount: number | null;
 }
 
-export interface SampleSpecificDataAttributes {
-  attribute: string;
-  sachaCommemoratifSigle: CommemoratifSigle | null;
-  inDai: boolean;
-  optional: boolean;
-}
-
-export interface SampleSpecificDataAttributeValues {
-  attribute: string;
-  attributeValue: string;
-  sachaCommemoratifValueSigle: CommemoratifValueSigle;
-}
-
 export interface ResidueAnalytes {
   analysisId: string;
   analyteNumber: number;
@@ -289,6 +287,7 @@ export interface Samples {
   parcel: string | null;
   prescriptionId: string | null;
   programmingPlanId: string | null;
+  programmingPlanKind: ProgrammingPlanKind;
   receivedAt: Timestamp | null;
   reference: string;
   region: string;
@@ -296,7 +295,7 @@ export interface Samples {
   sampledAt: Timestamp;
   sampledBy: string | null;
   sentAt: Timestamp | null;
-  specificData: SampleMatrixSpecificData;
+  specificData: SpecificData;
   stage: Stage | null;
   status: string;
 }
@@ -324,6 +323,11 @@ export interface UserCompanies {
   userId: string;
 }
 
+export interface ProgrammingPlanKinds {
+  programmingPlanId: string;
+  kind: ProgrammingPlanKind;
+}
+
 export interface SampleDocuments {
   documentId: string;
   sampleId: string;
@@ -334,6 +338,40 @@ export interface Departments {
   geometry: ColumnType<never, unknown, unknown>;
 }
 
+export interface SpecificDataFields {
+  id: Generated<SpecificDataFieldId>;
+  key: string;
+  inputType: string;
+  label: string;
+  hintText: string | null;
+  sachaCommemoratifSigle: CommemoratifSigle | null;
+  sachaInDai: Generated<boolean>;
+  sachaOptional: Generated<boolean>;
+}
+
+export interface SpecificDataFieldOptions {
+  id: Generated<SpecificDataFieldOptionId>;
+  fieldKey: string;
+  value: string;
+  label: string;
+  order: number;
+  sachaCommemoratifValueSigle: CommemoratifValueSigle | null;
+}
+
+export interface ProgrammingPlanKindFields {
+  id: Generated<ProgrammingPlanKindFieldId>;
+  programmingPlanId: string;
+  kind: ProgrammingPlanKind;
+  fieldId: SpecificDataFieldId;
+  required: Generated<boolean>;
+  order: number;
+}
+
+export interface ProgrammingPlanKindFieldOptions {
+  programmingPlanKindFieldId: ProgrammingPlanKindFieldId;
+  specificDataFieldOptionId: SpecificDataFieldOptionId;
+}
+
 export interface DB {
   analysis: Analysis;
   analysisReportDocuments: AnalysisReportDocuments;
@@ -342,6 +380,10 @@ export interface DB {
   companies: Companies;
   departments: Departments;
   documents: Documents;
+  programmingPlanKindFields: ProgrammingPlanKindFields;
+  programmingPlanKindFieldOptions: ProgrammingPlanKindFieldOptions;
+  specificDataFields: SpecificDataFields;
+  specificDataFieldOptions: SpecificDataFieldOptions;
   knexMigrations: KnexMigrations;
   laboratories: Laboratories;
   laboratoryResidueMappings: LaboratoryResidueMapping;
@@ -350,9 +392,8 @@ export interface DB {
   notices: Notices;
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;
+  programmingPlanKinds: ProgrammingPlanKinds;
   programmingPlans: ProgrammingPlans;
-  sampleSpecificDataAttributes: SampleSpecificDataAttributes;
-  sampleSpecificDataAttributeValues: SampleSpecificDataAttributeValues;
   localPrescriptionComments: LocalPrescriptionComments;
   localPrescriptions: LocalPrescriptions;
   residueAnalytes: ResidueAnalytes;

@@ -1,25 +1,27 @@
 import z from 'zod';
 import {
   SampleSpecificDataAttribute,
-  SampleSpecificDataAttributeValue,
-  SampleSpecificDataRecord
+  SampleSpecificDataAttributeValue
 } from '../schema/Sample/SampleSpecificDataAttribute';
+import { SachaFieldConfig } from '../schema/SpecificData/PlanKindFieldConfig';
 import { SubRoutes } from './routes';
 
-export const sampleSpecificDataRoutes = {
-  '/specific-data-attribute': {
-    params: undefined,
+export const specificDataFieldsRoutes = {
+  '/specific-data-fields/sacha': {
     get: {
-      response: SampleSpecificDataRecord,
+      response: z.array(SachaFieldConfig),
       permissions: ['administrationMaestro']
-    },
+    }
+  },
+  '/specific-data-fields/attribute': {
+    params: undefined,
     post: {
       response: z.void(),
       body: SampleSpecificDataAttribute,
       permissions: ['administrationMaestro']
     }
   },
-  '/specific-data-attribute/value': {
+  '/specific-data-fields/attribute/value': {
     params: undefined,
     post: {
       response: z.void(),
@@ -27,4 +29,6 @@ export const sampleSpecificDataRoutes = {
       permissions: ['administrationMaestro']
     }
   }
-} as const satisfies SubRoutes<'/specific-data-attribute'>;
+} as const satisfies SubRoutes<
+  '/specific-data-fields/sacha' | '/specific-data-fields/attribute'
+>;

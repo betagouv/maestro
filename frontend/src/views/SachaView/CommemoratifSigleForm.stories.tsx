@@ -4,6 +4,11 @@ import {
   CommemoratifValueSigle,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import {
+  DAOABovinFieldConfigs,
+  DAOAVolailleFieldConfigs
+} from 'maestro-shared/test/specificDataFixtures';
 import { CommemoratifSigleForm } from './CommemoratifSigleForm';
 
 const mockSachaCommemoratifs: SachaCommemoratifRecord = {
@@ -45,9 +50,11 @@ export default meta;
 export const DAOAVolaille = {
   render: () => (
     <CommemoratifSigleForm
-      attribute="breedingMethod"
+      fieldConfig={
+        DAOAVolailleFieldConfigs.find((c) => c.field.key === 'breedingMethod')!
+          .field as SachaFieldConfig
+      }
       sachaCommemoratifs={mockSachaCommemoratifs}
-      sampleSpecifiDataRecord={{}}
     />
   )
 };
@@ -55,9 +62,11 @@ export const DAOAVolaille = {
 export const DAOABovin = {
   render: () => (
     <CommemoratifSigleForm
-      attribute="animalKind"
+      fieldConfig={
+        DAOABovinFieldConfigs.find((c) => c.field.key === 'animalKind')!
+          .field as SachaFieldConfig
+      }
       sachaCommemoratifs={mockSachaCommemoratifs}
-      sampleSpecifiDataRecord={{}}
     />
   )
 };

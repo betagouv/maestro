@@ -5,8 +5,10 @@ import {
   genCreatedSampleData,
   genSampleContextData
 } from 'maestro-shared/test/sampleFixtures';
+import { PPVFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { expect, fn, within } from 'storybook/test';
+import { getMockApi } from '../../../../../services/mockApiClient';
 import MatrixStep from '../MatrixStep';
 
 const createOrUpdateMock = fn();
@@ -54,7 +56,12 @@ const story: Pick<Story, 'args' | 'parameters'> = {
       programmingPlan: {
         programmingPlan
       }
-    }
+    },
+    apiClient: getMockApi({
+      useFindPlanKindFieldConfigsQuery: {
+        data: PPVFieldConfigs
+      }
+    })
   }
 };
 

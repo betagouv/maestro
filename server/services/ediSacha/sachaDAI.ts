@@ -9,8 +9,8 @@ import {
   getSampleItemReference,
   SampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
-import { SampleMatrixSpecificData } from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
-import { SampleSpecificDataRecord } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
+import { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { toMaestroDate } from 'maestro-shared/utils/date';
 import { SachaConf } from '../../repositories/kysely.type';
 import {
@@ -31,6 +31,7 @@ export const generateXMLDAI = (
   sample: Pick<
     SampleChecked,
     | 'specificData'
+    | 'programmingPlanKind'
     | 'sampledAt'
     | 'lastUpdatedAt'
     | 'company'
@@ -45,13 +46,13 @@ export const generateXMLDAI = (
     'sealId' | 'itemNumber' | 'copyNumber' | 'substanceKind'
   >,
   dateNow: number,
-  sampleSpecifDataRecord: SampleSpecificDataRecord,
+  sachaFieldConfigs: SachaFieldConfig[],
   sachaCommemoratifRecord: SachaCommemoratifRecord,
   sachaConf: SachaConf,
   laboratory: LaboratorySachaData
 ): Promise<XmlFile> => {
-  const programmingPlanKind = sample.specificData
-    .programmingPlanKind as ProgrammingPlanKindWithSacha;
+  const programmingPlanKind =
+    sample.programmingPlanKind as ProgrammingPlanKindWithSacha;
 
   if (!ProgrammingPlanKindWithSacha.options.includes(programmingPlanKind)) {
     throw new Error(`Pas d'EDI Sacha pour ${programmingPlanKind}`);
@@ -70,7 +71,7 @@ export const generateXMLDAI = (
 
   const commemoratifs = getCommemoratifs(
     sample.specificData,
-    sampleSpecifDataRecord,
+    sachaFieldConfigs,
     sachaCommemoratifRecord
   );
 
@@ -155,8 +156,8 @@ export const generateXMLDAI = (
 };
 
 export const getCommemoratifs = (
-  specificData: SampleMatrixSpecificData,
-  sampleSpecifDataRecord: SampleSpecificDataRecord,
+  specificData: SpecificData,
+  sachaFieldConfigs: SachaFieldConfig[],
   sachaCommemoratifRecord: SachaCommemoratifRecord
 ): ({ sigle: CommemoratifSigle } & (
   | { textValue: string }
@@ -164,14 +165,12 @@ export const getCommemoratifs = (
 ))[] => {
   const commemoratifs: ReturnType<typeof getCommemoratifs> = [];
   for (const specificDataKey of Object.keys(specificData)) {
-    if (
-      specificDataKey !== 'programmingPlanKind' &&
-      specificDataKey in specificData
-    ) {
-      const conf = sampleSpecifDataRecord[specificDataKey];
+    if (specificDataKey in specificData) {
+      const conf = sachaFieldConfigs.find((fc) => fc.key === specificDataKey);
       if (conf?.inDai) {
-        const specificDataValue: string =
-          specificData[specificDataKey as keyof SampleMatrixSpecificData];
+        const specificDataValue: string = specificData[
+          specificDataKey
+        ] as string;
 
         if (!conf.sachaCommemoratifSigle) {
           throw new Error(
@@ -183,10 +182,11 @@ export const getCommemoratifs = (
           sachaCommemoratifRecord[conf.sachaCommemoratifSigle].typeDonnee;
 
         if (typeDonnee === 'list') {
-          if (
-            !sampleSpecifDataRecord[specificDataKey].values[specificDataValue]
-          ) {
-            if (!sampleSpecifDataRecord[specificDataKey].optional) {
+          const sigleValue =
+            conf.options.find((o) => o.value === specificDataValue)
+              ?.sachaCommemoratifValueSigle ?? null;
+          if (!sigleValue) {
+            if (!conf.optional) {
               throw new Error(
                 `Configuration SACHA incomplète: ${specificDataKey} ${specificDataValue}`
               );
@@ -194,10 +194,7 @@ export const getCommemoratifs = (
           } else {
             commemoratifs.push({
               sigle: conf.sachaCommemoratifSigle,
-              sigleValue:
-                sampleSpecifDataRecord[specificDataKey].values[
-                  specificDataValue
-                ]
+              sigleValue: sigleValue
             });
           }
         } else {

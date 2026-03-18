@@ -113,13 +113,7 @@ const ContextStepSummary = ({
           <div className={cx('fr-icon-microscope-line')}></div>
           <div>
             Type de plan :{' '}
-            <b>
-              {
-                ProgrammingPlanKindLabels[
-                  sample.specificData.programmingPlanKind
-                ]
-              }
-            </b>
+            <b>{ProgrammingPlanKindLabels[sample.programmingPlanKind]}</b>
           </div>
         </div>
       )}
@@ -148,7 +142,7 @@ const ContextStepSummary = ({
           )}
         </div>
       </div>
-      {sample.specificData.programmingPlanKind === 'PPV' && (
+      {sample.programmingPlanKind === 'PPV' && (
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-map-pin-user-line')}></div>
           <div>

@@ -4,30 +4,22 @@ import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import {
-  MatrixSpecificDataForm,
-  MatrixSpecificDataFormInputProps
-} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataForm';
-import {
-  getSpecificDataValue,
-  MatrixSpecificDataFormInputs,
-  SampleMatrixSpecificDataKeys
-} from 'maestro-shared/schema/MatrixSpecificData/MatrixSpecificDataFormInputs';
-import {
   getSampleMatrixLabel,
   isProgrammingPlanSample,
   SampleChecked,
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import {
-  getSampleMatrixSpecificDataAttributeValues,
-  SampleMatrixSpecificData,
+  SpecificData,
   UnknownValue
-} from 'maestro-shared/schema/Sample/SampleMatrixSpecificData';
+} from 'maestro-shared/schema/SpecificData/SpecificData';
 
-import { FrIconClassName } from '@codegouvfr/react-dsfr/fr/generatedFromCss/classNames';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
+import { useContext } from 'react';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
+import { ApiClientContext } from 'src/services/apiClient';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import StepSummary, {
   StepSummaryMode
@@ -39,7 +31,7 @@ interface Props {
   sample: (SampleChecked | SampleToCreate) & Partial<SampleOwnerData>;
   mode?: StepSummaryMode;
   onEdit?: () => void;
-  onUpdateSpecificData?: (specificData: SampleMatrixSpecificData) => void;
+  onUpdateSpecificData?: (specificData: SpecificData) => void;
 }
 const MatrixStepSummary = ({
   sample,
@@ -47,6 +39,13 @@ const MatrixStepSummary = ({
   onEdit,
   onUpdateSpecificData
 }: Props) => {
+  const apiClient = useContext(ApiClientContext);
+  const { data: fieldConfigs = [] } =
+    apiClient.useFindPlanKindFieldConfigsQuery({
+      programmingPlanId: sample.programmingPlanId,
+      kind: sample.programmingPlanKind
+    });
+
   return (
     <StepSummary title="Matrice contrôlée" onEdit={onEdit} mode={mode}>
       <div className="summary-item icon-text">
@@ -68,75 +67,64 @@ const MatrixStepSummary = ({
         </div>
       </div>
 
-      {(
-        Object.entries(
-          MatrixSpecificDataForm[sample.specificData.programmingPlanKind]
-        ) as [SampleMatrixSpecificDataKeys, MatrixSpecificDataFormInputProps][]
-      )
-        .filter(([_, inputProps]) => inputProps.position !== 'pre')
-        .map(([inputKey, inputProps]) => {
-          const value = getSpecificDataValue(inputKey, sample.specificData);
-          if (!value) {
-            return null;
-          }
+      {fieldConfigs.map((fc) => {
+        const { field } = fc;
+        const inputKey = field.key;
+        const rawValue = (sample.specificData as any)[inputKey];
+        const value = getFieldValueLabel(field, rawValue);
+        if (!value) {
+          return null;
+        }
 
-          const input = MatrixSpecificDataFormInputs[inputKey];
-
-          return (
-            <div key={inputKey} className="summary-item icon-text">
-              <div
-                className={cx(
-                  (inputProps.iconId as FrIconClassName) ?? 'fr-mr-9v'
-                )}
-              ></div>
-              <div>
-                {input.inputType === 'checkbox' ? (
-                  <b>{value}</b>
-                ) : input.inputType === 'selectWithUnknown' ? (
-                  <>
-                    {inputProps.label ?? input.label}
-                    <AppRequiredInput />{' '}
-                    <Select
-                      label=""
-                      nativeSelectProps={{
-                        value:
-                          sample.specificData[
-                            inputKey as keyof SampleMatrixSpecificData
-                          ] ?? '',
-                        onChange: (e) =>
-                          onUpdateSpecificData?.({
-                            ...sample.specificData,
-                            [inputKey]:
-                              e.target.value === ''
-                                ? UnknownValue
-                                : e.target.value
-                          })
-                      }}
-                    >
-                      {selectOptionsFromList(
-                        getSampleMatrixSpecificDataAttributeValues(
-                          sample.specificData.programmingPlanKind,
-                          inputKey
-                        ).filter((option) => option !== UnknownValue),
-                        {
-                          labels: input.optionsLabels
-                        }
-                      ).map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </Select>
-                  </>
-                ) : (
-                  <>
-                    {inputProps.label ?? input.label} : <b>{value}</b>
-                  </>
-                )}
-              </div>
+        return (
+          <div key={inputKey} className="summary-item icon-text">
+            <div className={cx('fr-mr-9v')}></div>
+            <div>
+              {field.inputType === 'checkbox' ? (
+                <b>{value}</b>
+              ) : field.inputType === 'selectWithUnknown' ? (
+                <>
+                  {field.label}
+                  <AppRequiredInput />{' '}
+                  <Select
+                    label=""
+                    nativeSelectProps={{
+                      value: (sample.specificData[inputKey] as string) ?? '',
+                      onChange: (e) =>
+                        onUpdateSpecificData?.({
+                          ...sample.specificData,
+                          [inputKey]:
+                            e.target.value === ''
+                              ? UnknownValue
+                              : e.target.value
+                        })
+                    }}
+                  >
+                    {selectOptionsFromList(
+                      [...field.options]
+                        .sort((a, b) => a.order - b.order)
+                        .map((o) => o.value),
+                      {
+                        labels: Object.fromEntries(
+                          field.options.map((o) => [o.value, o.label])
+                        )
+                      }
+                    ).map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </Select>
+                </>
+              ) : (
+                <>
+                  {field.label} : <b>{value}</b>
+                </>
+              )}
             </div>
-          );
-        })}
+          </div>
+        );
+      })}
       {isProgrammingPlanSample(sample) &&
         !sample.monoSubstances?.length &&
         !sample.multiSubstances?.length && (

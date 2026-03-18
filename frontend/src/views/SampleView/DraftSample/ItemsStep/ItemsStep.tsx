@@ -116,9 +116,7 @@ const ItemsStep = ({ partialSample }: Props) => {
             laboratoryId: substanceKindLaboratory.laboratoryId,
             substanceKind: substanceKindLaboratory.substanceKind,
             compliance200263:
-              partialSample.specificData.programmingPlanKind === 'PPV'
-                ? undefined
-                : true
+              partialSample.programmingPlanKind === 'PPV' ? undefined : true
           }))
       );
     }
