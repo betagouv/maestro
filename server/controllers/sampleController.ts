@@ -30,7 +30,6 @@ import {
   SampleItemMaxCopyCount,
   SampleItemSort
 } from 'maestro-shared/schema/Sample/SampleItem';
-import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import companyRepository from '../repositories/companyRepository';
@@ -532,7 +531,7 @@ export const sampleRouter = {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
-      if (!DraftStatusList.includes(sampleUpdate.status)) {
+      if (sampleUpdate.status !== 'Draft') {
         const fieldConfigs =
           await specificDataFieldConfigRepository.findByPlanKind(
             sampleUpdate.programmingPlanId,
