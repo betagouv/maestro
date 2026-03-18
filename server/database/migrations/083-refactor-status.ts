@@ -40,7 +40,7 @@ export const up = async (knex: Knex) => {
     )
     .whereNull('analysis.sample_id')
     .andWhere('step', 'Sent')
-    .andWhere('sample_items.item_number', '=', 1);
+    .andWhere('sample_items.copy_number', '=', 1);
 
   if (sampleWithoutAnalysis.length > 0) {
     await knex('analysis').insert(
