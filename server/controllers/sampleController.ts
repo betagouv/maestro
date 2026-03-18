@@ -470,7 +470,7 @@ export const sampleRouter = {
 
       console.info('Update sample compliance', sample.id, complianceData);
 
-      if (sample.specificData.programmingPlanKind === 'PPV') {
+      if (sample.programmingPlanKind === 'PPV') {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
