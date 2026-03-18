@@ -1,6 +1,7 @@
 import Accordion from '@codegouvfr/react-dsfr/Accordion';
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import clsx from 'clsx';
 import { pick } from 'lodash-es';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
@@ -168,7 +169,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
           />
         )}
       </div>
-      <div className="border">
+      <div className={clsx('border-right', 'border-left', 'border-bottom')}>
         <Accordion label="Détails de l'échantillon">
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-4')}>
