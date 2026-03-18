@@ -92,7 +92,7 @@ const SampleListView = () => {
       samplesSlice.actions.changeFindOptions({
         programmingPlanIds:
           (searchParams.get('programmingPlanIds')?.split(',') as string[]) ??
-          undefined,
+          toArray(programmingPlan?.id),
         kinds:
           (searchParams.get('kinds')?.split(',') as ProgrammingPlanKind[]) ??
           undefined,
@@ -122,21 +122,15 @@ const SampleListView = () => {
         perPage: defaultPerPage
       })
     );
-  }, [searchParams, user?.region, sampleListDisplay]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchParams, user?.region, sampleListDisplay, programmingPlan?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const canDownloadSupportDocument: boolean =
     programmingPlan?.kinds.includes('PPV') ?? false;
 
-  const { data: samples } = apiClient.useFindSamplesQuery({
-    ...findSampleOptions,
-    programmingPlanIds:
-      findSampleOptions.programmingPlanIds ?? toArray(programmingPlan?.id)
-  });
-  const { data: samplesCount } = apiClient.useCountSamplesQuery({
-    ...omit(findSampleOptions, 'page', 'perPage'),
-    programmingPlanIds:
-      findSampleOptions.programmingPlanIds ?? toArray(programmingPlan?.id)
-  });
+  const { data: samples } = apiClient.useFindSamplesQuery(findSampleOptions);
+  const { data: samplesCount } = apiClient.useCountSamplesQuery(
+    omit(findSampleOptions, 'page', 'perPage')
+  );
   const { data: prescriptions } = apiClient.useFindPrescriptionsQuery(
     {
       programmingPlanId: programmingPlan?.id as string,
