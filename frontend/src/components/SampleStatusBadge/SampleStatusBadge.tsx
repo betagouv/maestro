@@ -1,11 +1,11 @@
 import Badge, { BadgeProps } from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import type { AlertProps } from '@codegouvfr/react-dsfr/src/Alert';
+import { isNil } from 'lodash-es';
 import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import {
   PartialSample,
-  PartialSampleToCreate,
-  SampleChecked
+  PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import {
   SampleStatus,
@@ -21,14 +21,10 @@ export const SampleStatusBadge = ({ sample, ...props }: Props) => {
     <StatusBadge
       status={sample.status}
       compliance={
-        SampleChecked.safeParse(sample).success
-          ? (sample as SampleChecked).compliance === 'Compliant'
+        'compliance' in sample && !isNil(sample.compliance)
+          ? sample.compliance === 'Compliant'
             ? true
-            : (sample as SampleChecked).compliance === 'NonCompliant' ||
-                (sample as SampleChecked).compliance ===
-                  'NonCompliantAndHarmful'
-              ? false
-              : null
+            : false
           : undefined
       }
       {...props}
