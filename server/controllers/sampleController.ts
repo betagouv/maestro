@@ -531,7 +531,7 @@ export const sampleRouter = {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
-      if (sampleUpdate.status !== 'Draft') {
+      if (['Sent', 'Submitted'].includes(sampleUpdate.step)) {
         const fieldConfigs =
           await specificDataFieldConfigRepository.findByPlanKind(
             sampleUpdate.programmingPlanId,
