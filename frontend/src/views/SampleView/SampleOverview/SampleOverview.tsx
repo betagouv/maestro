@@ -39,7 +39,7 @@ const SampleOverview = ({ sample }: Props) => {
   >('items');
   const [activeItemNumber, setActiveItemNumber] = useState(1);
   const [activeCompliance, setActiveCompliance] = useState(
-    sample.specificData.programmingPlanKind !== 'PPV' &&
+    sample.programmingPlanKind !== 'PPV' &&
       sample.status === 'Completed' &&
       isNil(sample.compliance)
   );
@@ -189,7 +189,7 @@ const SampleOverview = ({ sample }: Props) => {
                   href: '#'
                 }
               },
-              sample.specificData.programmingPlanKind !== 'PPV'
+              sample.programmingPlanKind !== 'PPV'
                 ? {
                     text: (
                       <div

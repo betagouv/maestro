@@ -115,7 +115,7 @@ export const analysisRouter = {
       };
       await analysisRepository.update(updatedAnalysis);
 
-      if (sample.specificData.programmingPlanKind === 'PPV') {
+      if (sample.programmingPlanKind === 'PPV') {
         await sampleRepository.update({
           ...sample,
           compliance: isNil(updatedAnalysis.compliance)
