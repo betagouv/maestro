@@ -29,7 +29,6 @@ import {
   SpecificDataFieldId,
   SpecificDataFieldOptionId
 } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
-import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { MaestroDate } from 'maestro-shared/utils/date';
@@ -295,9 +294,16 @@ export interface Samples {
   sampledAt: Timestamp;
   sampledBy: string | null;
   sentAt: Timestamp | null;
-  specificData: SpecificData;
   stage: Stage | null;
   status: string;
+}
+
+export interface SampleSpecificDataValues {
+  id: Generated<string>;
+  sampleId: string;
+  fieldId: SpecificDataFieldId;
+  value: string | null;
+  optionId: SpecificDataFieldOptionId | null;
 }
 
 export interface SampleSequenceNumbers {
@@ -404,6 +410,7 @@ export interface DB {
   sachaSender: SachaSender;
   sampleDocuments: SampleDocuments;
   sampleItems: SampleItems;
+  sampleSpecificDataValues: SampleSpecificDataValues;
   samples: Samples;
   sampleSequenceNumbers: SampleSequenceNumbers;
   users: Users;

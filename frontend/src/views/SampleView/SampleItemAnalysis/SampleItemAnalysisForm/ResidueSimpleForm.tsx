@@ -105,9 +105,9 @@ function ResidueSimpleForm({
                 min={0}
                 required={
                   !LmrIsValid({
-                    ...(form.input.residues as ResidueLmrChecked[])[
-                      residueIndex
-                    ],
+                    ...(residue as ResidueLmrChecked),
+                    matrixPart: (residue as ResidueLmrChecked).specificData
+                      ?.matrixPart as string | undefined,
                     lmr: null
                   })
                 }

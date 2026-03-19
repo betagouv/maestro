@@ -7,10 +7,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
       programmingPlanKind: 'PPV',
-      specificData: {
-        productionKind: 'PD07A',
-        matrixPart: 'PART1'
-      },
+      matrixPart: 'PART1',
       resultKind: 'NQ',
       lmr: null
     })
@@ -20,10 +17,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
       programmingPlanKind: 'PPV',
-      specificData: {
-        productionKind: 'PD07A',
-        matrixPart: 'PART1'
-      },
+      matrixPart: 'PART1',
       resultKind: 'Q',
       lmr: null
     })
@@ -33,10 +27,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
       programmingPlanKind: 'PPV',
-      specificData: {
-        productionKind: 'PD07A',
-        matrixPart: 'PART1'
-      },
+      matrixPart: 'PART1',
       resultKind: 'Q',
       lmr: 0
     })
@@ -46,10 +37,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
       programmingPlanKind: 'PPV',
-      specificData: {
-        productionKind: 'PD07A',
-        matrixPart: 'PART1'
-      },
+      matrixPart: 'PART1',
       resultKind: 'Q',
       lmr: 0.5
     })
@@ -59,10 +47,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
       programmingPlanKind: 'PPV',
-      specificData: {
-        productionKind: 'PD07A',
-        matrixPart: 'PART1'
-      },
+      matrixPart: 'PART1',
       resultKind: 'Q',
       lmr: null
     })
@@ -72,10 +57,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
       programmingPlanKind: 'PPV',
-      specificData: {
-        productionKind: 'PD07A',
-        matrixPart: 'PART1'
-      },
+      matrixPart: 'PART1',
       resultKind: 'Q',
       lmr: 0
     })
@@ -85,10 +67,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
       programmingPlanKind: 'PPV',
-      specificData: {
-        productionKind: 'PD07A',
-        matrixPart: 'PART1'
-      },
+      matrixPart: 'PART1',
       resultKind: 'Q',
       lmr: 0.5
     })
@@ -98,10 +77,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
       programmingPlanKind: 'PPV',
-      specificData: {
-        productionKind: 'PD07A',
-        matrixPart: 'PART2'
-      },
+      matrixPart: 'PART2',
       resultKind: 'Q',
       lmr: null
     })
@@ -111,10 +87,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
       programmingPlanKind: 'PPV',
-      specificData: {
-        productionKind: 'PD07A',
-        matrixPart: 'PART2'
-      },
+      matrixPart: 'PART2',
       resultKind: 'Q',
       lmr: 0
     })
@@ -124,10 +97,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
       programmingPlanKind: 'PPV',
-      specificData: {
-        productionKind: 'PD07A',
-        matrixPart: 'PART2'
-      },
+      matrixPart: 'PART2',
       resultKind: 'Q',
       lmr: 0.5
     })
@@ -137,10 +107,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
       programmingPlanKind: 'PPV',
-      specificData: {
-        productionKind: 'PD07A',
-        matrixPart: 'PART2'
-      },
+      matrixPart: 'PART2',
       resultKind: 'Q',
       lmr: null
     })
@@ -150,10 +117,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
       programmingPlanKind: 'PPV',
-      specificData: {
-        productionKind: 'PD07A',
-        matrixPart: 'PART2'
-      },
+      matrixPart: 'PART2',
       resultKind: 'Q',
       lmr: 0
     })
@@ -163,10 +127,7 @@ test('sampleResidueLmrIsValid', () => {
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
       programmingPlanKind: 'PPV',
-      specificData: {
-        productionKind: 'PD07A',
-        matrixPart: 'PART2'
-      },
+      matrixPart: 'PART2',
       resultKind: 'Q',
       lmr: 0.5
     })
@@ -177,10 +138,7 @@ test('lmr can be optional for some reference', () => {
   const sampleWithRequiredLmr = {
     stage: 'STADE1',
     programmingPlanKind: 'PPV',
-    specificData: {
-      productionKind: 'PD07A',
-      matrixPart: 'PART1'
-    },
+    matrixPart: 'PART1',
     resultKind: 'Q',
     lmr: null
   } as const;

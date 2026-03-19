@@ -1,3 +1,4 @@
+import { Knex } from 'knex';
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import { Region } from 'maestro-shared/referential/Region';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
@@ -10,6 +11,7 @@ import {
   DraftStatusList,
   SampleStatus
 } from 'maestro-shared/schema/Sample/SampleStatus';
+import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import z from 'zod';
 import { analysisResiduesTable, analysisTable } from './analysisRepository';
 import { companiesTable } from './companyRepository';
@@ -21,6 +23,7 @@ import { usersTable } from './userRepository';
 
 export const samplesTable = 'samples';
 export const sampleDocumentsTable = 'sample_documents';
+const sampleSpecificDataValuesTable = 'sample_specific_data_values';
 const sampleSequenceNumbers = 'sample_sequence_numbers';
 
 const PartialSampleDbo = z.object({
@@ -29,7 +32,8 @@ const PartialSampleDbo = z.object({
     company: true,
     sampler: true,
     additionalSampler: true,
-    geolocation: true
+    geolocation: true,
+    specificData: true
   }).shape,
   companySiret: z.string().nullish(),
   geolocation: z.any().nullish(),
@@ -51,7 +55,8 @@ const PartialSampleJoinedDbo = PartialSampleDbo.merge(
     samplerId: z.guid(),
     samplerName: z.string(),
     additionalSamplerId: z.guid().nullish(),
-    additionalSamplerName: z.string().nullish()
+    additionalSamplerName: z.string().nullish(),
+    specificData: SpecificData
   })
 );
 
@@ -79,6 +84,9 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       db.raw(`additional_sampler.name as additional_sampler_name`),
       db.raw(
         `coalesce(array_agg(${sampleDocumentsTable}.document_id) filter (where ${sampleDocumentsTable}.document_id is not null), '{}') as document_ids`
+      ),
+      db.raw(
+        `coalesce(jsonb_object_agg(sdf_sd.key, case sdf_sd.input_type when 'checkbox' then to_jsonb(sdv_sd.value = 'true') when 'number' then to_jsonb(sdv_sd.value::numeric) else coalesce(to_jsonb(sdv_sd.value), to_jsonb(sdfo_sd.value)) end) filter (where sdv_sd.field_id is not null), '{}'::jsonb) as specific_data`
       )
     )
     .where(`${samplesTable}.id`, id)
@@ -97,6 +105,17 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       sampleDocumentsTable,
       `${samplesTable}.id`,
       `${sampleDocumentsTable}.sample_id`
+    )
+    .leftJoin(
+      `${sampleSpecificDataValuesTable} as sdv_sd`,
+      `${samplesTable}.id`,
+      'sdv_sd.sample_id'
+    )
+    .leftJoin('specific_data_fields as sdf_sd', 'sdv_sd.field_id', 'sdf_sd.id')
+    .leftJoin(
+      'specific_data_field_options as sdfo_sd',
+      'sdv_sd.option_id',
+      'sdfo_sd.id'
     )
     .groupBy(
       `${samplesTable}.id`,
@@ -242,6 +261,9 @@ const findMany = async (
       db.raw(`additional_sampler.name as additional_sampler_name`),
       db.raw(
         `coalesce(array_agg(${sampleDocumentsTable}.document_id) filter (where ${sampleDocumentsTable}.document_id is not null), '{}') as document_ids`
+      ),
+      db.raw(
+        `coalesce(jsonb_object_agg(sdf_sd.key, case sdf_sd.input_type when 'checkbox' then to_jsonb(sdv_sd.value = 'true') when 'number' then to_jsonb(sdv_sd.value::numeric) else coalesce(to_jsonb(sdv_sd.value), to_jsonb(sdfo_sd.value)) end) filter (where sdv_sd.field_id is not null), '{}'::jsonb) as specific_data`
       )
     )
     .leftJoin(
@@ -259,6 +281,17 @@ const findMany = async (
       sampleDocumentsTable,
       `${samplesTable}.id`,
       `${sampleDocumentsTable}.sample_id`
+    )
+    .leftJoin(
+      `${sampleSpecificDataValuesTable} as sdv_sd`,
+      `${samplesTable}.id`,
+      'sdv_sd.sample_id'
+    )
+    .leftJoin('specific_data_fields as sdf_sd', 'sdv_sd.field_id', 'sdf_sd.id')
+    .leftJoin(
+      'specific_data_field_options as sdfo_sd',
+      'sdv_sd.option_id',
+      'sdfo_sd.id'
     )
     .groupBy(
       `${samplesTable}.id`,
@@ -314,17 +347,83 @@ const getNextSequence = async (
   return result.nextSequence;
 };
 
+const upsertSpecificDataValues = async (
+  sampleId: string,
+  specificData: SpecificData,
+  trx: Knex.Transaction
+): Promise<void> => {
+  await trx(sampleSpecificDataValuesTable)
+    .where({ sample_id: sampleId })
+    .delete();
+
+  const entries = Object.entries(specificData).filter(
+    ([, v]) => v != null && v !== ''
+  );
+  if (entries.length === 0) return;
+
+  const fields = await trx('specific_data_fields')
+    .whereIn(
+      'key',
+      entries.map(([k]) => k)
+    )
+    .select('id', 'key');
+  const fieldMap = new Map<string, string>(
+    fields.map((f: { id: string; key: string }) => [f.key, f.id])
+  );
+
+  const valuePairs = entries.map(([key, value]) => [key, String(value)]);
+  const options = await trx('specific_data_field_options')
+    .whereIn(['field_key', 'value'], valuePairs)
+    .select('id', 'field_key', 'value');
+  const optionMap = new Map<string, string>(
+    options.map((o: { id: string; field_key: string; value: string }) => [
+      `${o.field_key}:${o.value}`,
+      o.id
+    ])
+  );
+
+  const rows = valuePairs
+    .filter(([key]) => fieldMap.has(key))
+    .map(([key, value]) => {
+      const optionId = optionMap.get(`${key}:${value}`) ?? null;
+      return {
+        sample_id: sampleId,
+        field_id: fieldMap.get(key),
+        value: optionId ? null : value,
+        option_id: optionId
+      };
+    });
+
+  if (rows.length > 0) {
+    await trx(sampleSpecificDataValuesTable).insert(rows);
+  }
+};
+
 const insert = async (partialSample: PartialSample): Promise<void> => {
   console.info('Insert sample', partialSample.id);
-  await Samples().insert(formatPartialSample(partialSample));
+  await db.transaction(async (trx) => {
+    await trx(samplesTable).insert(formatPartialSample(partialSample));
+    await upsertSpecificDataValues(
+      partialSample.id,
+      partialSample.specificData,
+      trx
+    );
+  });
 };
 
 const update = async (partialSample: PartialSample): Promise<void> => {
   console.info('Update sample', partialSample.id);
   if (Object.keys(partialSample).length > 0) {
-    await Samples()
-      .where({ id: partialSample.id })
-      .update(formatPartialSample(partialSample));
+    await db.transaction(async (trx) => {
+      await trx(samplesTable)
+        .where({ id: partialSample.id })
+        .update(formatPartialSample(partialSample));
+      await upsertSpecificDataValues(
+        partialSample.id,
+        partialSample.specificData,
+        trx
+      );
+    });
   }
 };
 
@@ -381,7 +480,8 @@ export const formatPartialSample = (
     'company',
     'sampler',
     'additionalSampler',
-    'documentIds'
+    'documentIds',
+    'specificData'
   ]),
   geolocation: partialSample.geolocation
     ? db.raw('Point(?, ?)', [
