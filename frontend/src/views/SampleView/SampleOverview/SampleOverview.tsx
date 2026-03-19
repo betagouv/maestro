@@ -2,7 +2,6 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import SideMenu from '@codegouvfr/react-dsfr/SideMenu';
 import clsx from 'clsx';
-import { isNil } from 'lodash-es';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   getNonCompliantCopies,
@@ -65,9 +64,7 @@ const SampleOverview = ({ sample }: Props) => {
       { replace: true }
     );
   const [activeCompliance, setActiveCompliance] = useState(
-    sample.programmingPlanKind !== 'PPV' &&
-      sample.status === 'Completed' &&
-      isNil(sample.compliance)
+    sample.programmingPlanKind !== 'PPV' && sample.status === 'InReview'
   );
 
   const sampleItemCopies = useMemo(
@@ -221,8 +218,7 @@ const SampleOverview = ({ sample }: Props) => {
                       <div
                         className={clsx(
                           cx(
-                            sample.status === 'Completed' &&
-                              !isNil(sample.compliance)
+                            sample.status === 'Completed'
                               ? ['fr-btn--secondary', 'fr-py-1w', 'fr-px-2w']
                               : 'fr-btn'
                           ),

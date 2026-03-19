@@ -54,7 +54,7 @@ export const up = async (knex: Knex) => {
   }
 
   await knex.raw(`
-    CREATE VIEW sample_item_status AS
+    CREATE OR REPLACE VIEW sample_item_status AS
     SELECT
       si.sample_id,
       si.item_number,
@@ -84,7 +84,7 @@ export const up = async (knex: Knex) => {
   `);
 
   await knex.raw(`
-    CREATE VIEW sample_status AS
+    CREATE OR REPLACE VIEW sample_status AS
     SELECT
       s.id as sample_id,
       CASE
@@ -115,7 +115,10 @@ export const up = async (knex: Knex) => {
               WHEN 2 THEN 'NotAdmissible'
               WHEN 3 THEN 'Analysis'
               WHEN 4 THEN 'InReview'
-              WHEN 5 THEN 'Completed'
+              WHEN 5 THEN (
+                CASE WHEN s.compliance IS NOT NULL
+                  THEN 'Completed' ELSE 'InReview' END
+              )
               ELSE 'Sent'
             END
             FROM sample_item_status sis
