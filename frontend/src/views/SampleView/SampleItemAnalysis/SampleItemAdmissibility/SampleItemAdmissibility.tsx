@@ -33,7 +33,7 @@ export const SampleItemAdmissibility: FunctionComponent<Props> = ({
   assert<Equals<keyof typeof _rest, never>>();
   const { getSampleItemLaboratory } = usePartialSample(sample);
 
-  let message: string = '';
+  let message: string;
 
   if (sampleItem.receiptDate) {
     message = `${sampleItem.analysis?.status !== 'NotAdmissible' ? 'Échantillon recevable' : 'Échantillon non recevable'} reçu par le laboratoire le ${format(sampleItem.receiptDate, 'dd/MM/yyyy')}`;
