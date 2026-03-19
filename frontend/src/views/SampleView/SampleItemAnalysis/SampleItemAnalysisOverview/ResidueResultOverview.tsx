@@ -52,7 +52,10 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
           </Tag>
         </div>
 
-        <ResidueValueLabel residue={residue} />
+        <ResidueValueLabel
+          programmingPlanKind={programmingPlanKind}
+          residue={residue}
+        />
         {residue.analytes?.length && (
           <span
             className={cx(
@@ -151,7 +154,10 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
   );
 };
 
-const ResidueValueLabel = ({ residue }: Pick<Props, 'residue'>) => {
+const ResidueValueLabel = ({
+  programmingPlanKind,
+  residue
+}: Pick<Props, 'residue' | 'programmingPlanKind'>) => {
   return (
     <>
       {residue.resultKind === 'Q' && (
@@ -164,7 +170,11 @@ const ResidueValueLabel = ({ residue }: Pick<Props, 'residue'>) => {
             Valeur de la LMR
             <b className={'fr-ml-auto'}>{residue.lmr} mg/kg</b>
           </div>
-          <ResidueResultAlert result={residue.result} lmr={residue.lmr} />
+          <ResidueResultAlert
+            programmingPlanKind={programmingPlanKind}
+            result={residue.result}
+            lmr={residue.lmr}
+          />
         </>
       )}
       {residue.resultKind === 'NQ' && (

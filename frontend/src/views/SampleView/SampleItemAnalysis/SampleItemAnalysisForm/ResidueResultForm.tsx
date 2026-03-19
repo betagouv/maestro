@@ -189,6 +189,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
           {kind === 'Simple' && (
             <ResidueSimpleForm
               form={form}
+              programmingPlanKind={programmingPlanKind}
               residue={residue}
               residueIndex={residueIndex}
               changeResidue={onChange}
@@ -197,6 +198,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
           {kind === 'Complex' && (
             <ResidueComplexForm
               form={form}
+              programmingPlanKind={programmingPlanKind}
               residue={residue}
               residueReference={residue.reference}
               residueIndex={residueIndex}
