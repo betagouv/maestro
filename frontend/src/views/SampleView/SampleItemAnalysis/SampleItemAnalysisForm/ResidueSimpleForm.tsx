@@ -77,7 +77,7 @@ function ResidueSimpleForm({
                 inputKey="residues"
                 inputPathFromKey={[residueIndex, 'result']}
                 whenValid="Valeur correctement renseignée"
-                label="Valeur numérique du résultat"
+                label="Valeur du résultat"
                 hintText="En mg/kg"
                 min={0}
                 required

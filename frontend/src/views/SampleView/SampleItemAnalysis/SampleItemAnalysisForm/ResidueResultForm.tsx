@@ -19,6 +19,7 @@ import {
   ResidueKind,
   ResidueKindLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
@@ -33,6 +34,7 @@ import ResidueSimpleForm from './ResidueSimpleForm';
 import { ResiduesLmrValidator } from './SampleAnalysisForm';
 
 type Props = {
+  programmingPlanKind: ProgrammingPlanKind;
   residue: PartialResidue | undefined;
   residueIndex: number;
   form: UseForm<ResiduesLmrValidator>;
@@ -40,6 +42,7 @@ type Props = {
   onChange: (residue: PartialResidue, index: number) => void;
 };
 export const ResidueResultForm: FunctionComponent<Props> = ({
+  programmingPlanKind,
   residue,
   residueIndex,
   form,
@@ -204,6 +207,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
             <ResidueInterpretationForm
               form={form}
               onChangeResidue={onChange}
+              programmingPlanKind={programmingPlanKind}
               residue={residue}
               residueIndex={residueIndex}
             />

@@ -14,6 +14,7 @@ import {
   ResidueKind,
   ResidueKindLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
+import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import ResidueResultAlert from '../../../../components/ResidueResultAlert/ResidueResultAlert';
@@ -25,9 +26,11 @@ import {
 import './ResidueResultOverview.scss';
 
 type Props = {
+  programmingPlanKind: ProgrammingPlanKind;
   residue: Omit<PartialResidue, 'kind'>;
 };
 export const ResidueResultOverview: FunctionComponent<Props> = ({
+  programmingPlanKind,
   residue,
   ..._rest
 }) => {
@@ -107,37 +110,42 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
             />
           )}
         </div>
-        <div className="d-flex-align-center">
-          Substance approuvée dans l'UE
-          <b className={'fr-ml-auto'}>
-            {residue.substanceApproved
-              ? OptionalBooleanLabels[residue.substanceApproved]
-              : 'Non renseigné'}
-          </b>
-        </div>
-        <div className="d-flex-align-center">
-          Substance autorisée pour l'usage
-          <b className={'fr-ml-auto'}>
-            {residue.substanceAuthorised
-              ? OptionalBooleanLabels[residue.substanceAuthorised]
-              : 'Non renseigné'}
-          </b>
-        </div>
-        <div className={'result-with-comment'}>
-          {residue.pollutionRisk && (
-            <>
-              <div className="d-flex-align-center">
-                Pollution environnementale probable
-                <b className={'fr-ml-auto'}>
-                  {OptionalBooleanLabels[residue.pollutionRisk]}
-                </b>
-              </div>
-            </>
-          )}
-          {residue.notesOnPollutionRisk && (
-            <i>{quote(residue.notesOnPollutionRisk)}</i>
-          )}
-        </div>
+
+        {programmingPlanKind === 'PPV' && (
+          <>
+            <div className="d-flex-align-center">
+              Substance approuvée dans l'UE
+              <b className={'fr-ml-auto'}>
+                {residue.substanceApproved
+                  ? OptionalBooleanLabels[residue.substanceApproved]
+                  : 'Non renseigné'}
+              </b>
+            </div>
+            <div className="d-flex-align-center">
+              Substance autorisée pour l'usage
+              <b className={'fr-ml-auto'}>
+                {residue.substanceAuthorised
+                  ? OptionalBooleanLabels[residue.substanceAuthorised]
+                  : 'Non renseigné'}
+              </b>
+            </div>
+            <div className={'result-with-comment'}>
+              {residue.pollutionRisk && (
+                <>
+                  <div className="d-flex-align-center">
+                    Pollution environnementale probable
+                    <b className={'fr-ml-auto'}>
+                      {OptionalBooleanLabels[residue.pollutionRisk]}
+                    </b>
+                  </div>
+                </>
+              )}
+              {residue.notesOnPollutionRisk && (
+                <i>{quote(residue.notesOnPollutionRisk)}</i>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

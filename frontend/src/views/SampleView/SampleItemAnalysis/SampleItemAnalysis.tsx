@@ -333,8 +333,8 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
             />
           ) : (
             <SampleAnalysisForm
-              partialAnalysis={analysis}
               sample={sample}
+              partialAnalysis={analysis}
               onDone={() => navigateToSample(sample.id)}
             />
           )}

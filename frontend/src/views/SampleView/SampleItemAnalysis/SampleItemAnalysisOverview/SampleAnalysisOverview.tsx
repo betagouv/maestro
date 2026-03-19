@@ -54,7 +54,10 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
             <ResidueListResult
               residues={residues}
               residuePanel={(i) => (
-                <ResidueResultOverview residue={residues[i]} />
+                <ResidueResultOverview
+                  residue={residues[i]}
+                  programmingPlanKind={sample.programmingPlanKind}
+                />
               )}
             />
           )}

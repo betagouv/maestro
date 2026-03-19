@@ -11,7 +11,13 @@ import {
   ResidueLmrChecked
 } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
-import React, { FunctionComponent, useContext, useMemo, useState } from 'react';
+import React, {
+  FunctionComponent,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 import { assert, type Equals } from 'tsafe';
 import { z } from 'zod';
 import { useForm } from '../../../../hooks/useForm';
@@ -62,6 +68,12 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
     }))
   );
 
+  useEffect(() => {
+    setAnalysis({
+      ...partialAnalysis
+    });
+  }, [partialAnalysis]);
+
   const changeResidue = (residue: PartialResidue, index: number) => {
     setResidues((r) => {
       const newResidues = [...r];
@@ -89,7 +101,14 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
           residueNumber: newResidueNumber,
           resultKind: 'Q',
           result: null,
-          reference: undefined
+          reference: undefined,
+          ...(sample.programmingPlanKind === 'PPV'
+            ? {}
+            : {
+                substanceApproved: 'NA',
+                substanceAuthorised: 'NA',
+                pollutionRisk: 'NA'
+              })
         }
       ];
     });
@@ -140,6 +159,7 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
               residues={residues}
               residuePanel={(i) => (
                 <ResidueResultForm
+                  programmingPlanKind={sample.programmingPlanKind}
                   residue={residues[i]}
                   residueIndex={i}
                   form={form}
