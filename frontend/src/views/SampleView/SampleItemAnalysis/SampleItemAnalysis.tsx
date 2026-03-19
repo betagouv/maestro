@@ -2,6 +2,7 @@ import Accordion from '@codegouvfr/react-dsfr/Accordion';
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { pick } from 'lodash-es';
+import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
@@ -175,7 +176,8 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
             <div className={cx('fr-col-4')}>
               <div className={cx('fr-mb-1v')}>Quantité prélevée</div>
               <div className={cx('fr-text--bold')}>
-                {sampleItem.quantity} {sampleItem.quantityUnit}
+                {sampleItem.quantity}{' '}
+                {QuantityUnitLabels[sampleItem.quantityUnit]}
               </div>
             </div>
             <div className={cx('fr-col-4')}>
