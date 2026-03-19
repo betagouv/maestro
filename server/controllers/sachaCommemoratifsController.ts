@@ -7,7 +7,6 @@ export const sachaCommemoratifsProtectedRouter = {
   '/sacha/commemoratifs': {
     get: async () => {
       const commemoratifs = await sachaCommemoratifRepository.findAll();
-
       return {
         response: commemoratifs,
         status: constants.HTTP_STATUS_OK

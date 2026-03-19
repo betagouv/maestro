@@ -1,11 +1,10 @@
-import type { AppRouteKeys } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import type { ReactElement } from 'react';
+import { AppRouteKeys } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
+import { ReactElement } from 'react';
 import { AdminView } from './views/AdminView/AdminView';
 import DashboardView from './views/DashboardView/DashboardView';
 import DocumentListView from './views/DocumentListView/DocumentListView';
 import DocumentView from './views/DocumentView/DocumentView';
 import HomeView from './views/HomeView/HomeView';
-import LaboratoryAnalyticalCompetencesView from './views/LaboratoryAnalyticalCompetencesView/LaboratoryAnalyticalCompetencesView';
 import { LoginCallbackView } from './views/LoginCallbackView/LoginCallbackView';
 import { LogoutCallbackView } from './views/LogoutCallbackView/LogoutCallbackView';
 import NotificationsView from './views/NotificationsView/NotificationsView';
@@ -18,7 +17,6 @@ export const AppRouteComponents = {
   DashboardRoute: DashboardView,
   NotificationsRoute: NotificationsView,
   ProgrammingRoute: ProgrammingView,
-  ProgrammingByYearRoute: ProgrammingView,
   SamplesByYearRoute: SampleListView,
   NewSampleRoute: SampleView,
   SampleRoute: SampleView,
@@ -30,6 +28,5 @@ export const AppRouteComponents = {
   LoginRoute: HomeView,
   LoginCallbackRoute: LoginCallbackView,
   AdminRoute: AdminView,
-  UsersRoute: UserListView,
-  LaboratoryAnalyticalCompetencesRoute: LaboratoryAnalyticalCompetencesView
+  UsersRoute: UserListView
 } as const satisfies Record<AppRouteKeys, () => ReactElement | null>;

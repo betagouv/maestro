@@ -2,10 +2,18 @@ import z from 'zod';
 import { FindProgrammingPlanOptions } from '../schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanLocalStatus } from '../schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
-import { ProgrammingPlanStatus } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
-import { PlanKindFieldConfig } from '../schema/SpecificData/PlanKindFieldConfig';
-import type { SubRoutes } from './routes';
+import { ProgrammingPlanStatus } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
+import {
+  CreatePlanKindFieldInput,
+  UpdatePlanKindFieldInput
+} from '../schema/SpecificData/FieldConfigInput';
+import {
+  PlanKindFieldConfig,
+  ProgrammingPlanKindFieldId,
+  SpecificDataFieldOptionId
+} from '../schema/SpecificData/PlanKindFieldConfig';
+import { SubRoutes } from './routes';
 
 export const programmingPlansRoutes = {
   '/programming-plans': {
@@ -77,6 +85,41 @@ export const programmingPlansRoutes = {
     get: {
       response: z.array(PlanKindFieldConfig),
       permissions: 'NONE'
+    },
+    post: {
+      permissions: ['administrationMaestro'],
+      body: CreatePlanKindFieldInput,
+      response: PlanKindFieldConfig
     }
-  }
+  },
+  '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields/:planKindFieldId':
+    {
+      params: {
+        programmingPlanId: z.string(),
+        kind: ProgrammingPlanKind,
+        planKindFieldId: ProgrammingPlanKindFieldId
+      },
+      put: {
+        permissions: ['administrationMaestro'],
+        body: UpdatePlanKindFieldInput,
+        response: PlanKindFieldConfig
+      },
+      delete: {
+        permissions: ['administrationMaestro'],
+        response: z.void()
+      }
+    },
+  '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields/:planKindFieldId/options':
+    {
+      params: {
+        programmingPlanId: z.string(),
+        kind: ProgrammingPlanKind,
+        planKindFieldId: ProgrammingPlanKindFieldId
+      },
+      put: {
+        permissions: ['administrationMaestro'],
+        body: z.array(SpecificDataFieldOptionId),
+        response: z.void()
+      }
+    }
 } as const satisfies SubRoutes<'/programming-plans'>;

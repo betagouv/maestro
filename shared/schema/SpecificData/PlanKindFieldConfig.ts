@@ -43,6 +43,11 @@ export const FieldInputType = z.enum([
 ]);
 export type FieldInputType = z.infer<typeof FieldInputType>;
 
+export const fieldInputTypeHasOptions = (inputType: FieldInputType): boolean =>
+  inputType === 'select' ||
+  inputType === 'selectWithUnknown' ||
+  inputType === 'radio';
+
 export const FieldConfig = z.object({
   key: z.string(),
   inputType: FieldInputType,
@@ -62,7 +67,8 @@ export const PlanKindFieldConfig = z.object({
   programmingPlanKind: ProgrammingPlanKind,
   required: z.boolean(),
   order: z.number(),
-  field: FieldConfig
+  field: FieldConfig,
+  id: ProgrammingPlanKindFieldId
 });
 
 export type FieldConfig = z.infer<typeof FieldConfig>;

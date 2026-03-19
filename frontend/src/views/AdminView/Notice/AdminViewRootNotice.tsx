@@ -5,10 +5,10 @@ import { Notice } from 'maestro-shared/schema/Notice/Notice';
 import { type FunctionComponent, useContext, useState } from 'react';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
-import AppTextAreaInput from '../../components/_app/AppTextAreaInput/AppTextAreaInput';
-import AppTextInput from '../../components/_app/AppTextInput/AppTextInput';
-import { RootNoticeComponent } from '../../components/RootNotice/RootNotice';
-import { useForm } from '../../hooks/useForm';
+import AppTextAreaInput from '../../../components/_app/AppTextAreaInput/AppTextAreaInput';
+import AppTextInput from '../../../components/_app/AppTextInput/AppTextInput';
+import { RootNoticeComponent } from '../../../components/RootNotice/RootNotice';
+import { useForm } from '../../../hooks/useForm';
 
 type Props = Record<never, never>;
 export const AdminViewRootNotice: FunctionComponent<Props> = ({ ..._rest }) => {

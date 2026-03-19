@@ -134,7 +134,18 @@ const defaultMockApiClientConf: MockApi = {
   useFindCompaniesQuery: {
     data: [SlaughterhouseCompanyFixture1, SlaughterhouseCompanyFixture2]
   },
+  useFindAllFieldConfigsQuery: { data: [] },
+  useCreateFieldMutation: [fn(), {}],
+  useUpdateFieldMutation: [fn(), {}],
+  useDeleteFieldMutation: [fn(), {}],
+  useCreateFieldOptionMutation: [fn(), {}],
+  useUpdateFieldOptionMutation: [fn(), {}],
+  useDeleteFieldOptionMutation: [fn(), {}],
   useFindPlanKindFieldConfigsQuery: { data: [] },
+  useAddPlanKindFieldMutation: [fn(), {}],
+  useUpdatePlanKindFieldMutation: [fn(), {}],
+  useDeletePlanKindFieldMutation: [fn(), {}],
+  useUpdatePlanKindFieldOptionsMutation: [fn(), {}],
   useFindSachaFieldConfigsQuery: { data: [] },
   useFindLaboratoriesQuery: { data: [] },
   useFindNotificationsQuery: { data: [] },
@@ -235,9 +246,7 @@ const defaultMockApiClientConf: MockApi = {
   useLazyFindCompaniesQuery: [[], {}],
   useUpdateSampleSpecificDataAttributeMutation: [fn(), {}],
   useUpdateSampleSpecificDataAttributeValueMutation: [fn(), {}],
-  useGetSachaCommemoratifsQuery: {
-    data: {}
-  },
+  useGetSachaCommemoratifsQuery: { data: {} },
   useUpdateSachaCommemoratifsMutation: [fn(), {}]
 };
 

@@ -107,7 +107,7 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const { data: fieldConfigs = [] } =
     apiClient.useFindPlanKindFieldConfigsQuery({
-      programmingPlanId: partialSample.programmingPlanId as string,
+      programmingPlanId: partialSample.programmingPlanId,
       kind: programmingPlanKind
     });
 
@@ -115,7 +115,7 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
     {
-      programmingPlanId: partialSample.programmingPlanId as string,
+      programmingPlanId: partialSample.programmingPlanId,
       contexts: toArray(
         ProgrammingPlanContext.safeParse(partialSample.context).data
       )
@@ -127,7 +127,7 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const { data: localPrescriptions } = apiClient.useFindLocalPrescriptionsQuery(
     {
-      programmingPlanId: partialSample.programmingPlanId as string,
+      programmingPlanId: partialSample.programmingPlanId,
       contexts: toArray(
         ProgrammingPlanContext.safeParse(partialSample.context).data
       ),
@@ -322,7 +322,7 @@ const MatrixStep = ({ partialSample }: Props) => {
         matrixKind === OtherMatrixKind.value
           ? []
           : matrixKind
-            ? (MatrixListByKind[matrixKind as MatrixKind]?.filter((m) =>
+            ? (MatrixListByKind[matrixKind]?.filter((m) =>
                 isProgrammingPlanSample(partialSample)
                   ? prescriptions?.some(
                       (p) =>
