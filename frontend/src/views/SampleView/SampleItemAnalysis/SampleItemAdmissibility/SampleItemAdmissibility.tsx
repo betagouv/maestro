@@ -61,30 +61,42 @@ export const SampleItemAdmissibility: FunctionComponent<Props> = ({
           </div>
         </div>
         <div className={cx('fr-col-6')}>
-          <div className={clsx('d-flex-align-center')}>
-            <span className="flex-grow-1">Réception</span>
-            {!readonly && (
-              <Button
-                priority={'tertiary no outline'}
-                iconId={'fr-icon-edit-line'}
-                size={'small'}
-                type={'button'}
-                onClick={() => {
-                  editSampleAdmissibility.open();
-                }}
-              >
-                Éditer
-              </Button>
-            )}
+          <div className="white-container">
+            <div
+              className={clsx(
+                cx('fr-py-1w', 'fr-px-2w'),
+                sampleItem.analysis?.status === 'NotAdmissible'
+                  ? 'border-callout-pink-tuile'
+                  : sampleItem.receiptDate
+                    ? 'border-callout-green-emeraude'
+                    : 'border-callout-beige-gris-galet'
+              )}
+            >
+              <div className={clsx('d-flex-align-center')}>
+                <span className="flex-grow-1">Réception</span>
+                {!readonly && (
+                  <Button
+                    priority={'tertiary no outline'}
+                    iconId={'fr-icon-edit-line'}
+                    size={'small'}
+                    type={'button'}
+                    onClick={() => {
+                      editSampleAdmissibility.open();
+                    }}
+                    className={cx('fr-mt-0')}
+                  >
+                    Éditer
+                  </Button>
+                )}
+              </div>
+              <div className={cx('fr-text--bold')}>{message}</div>
+              {!!sampleItem.notesOnAdmissibility &&
+                sampleItem.notesOnAdmissibility.length > 0 && (
+                  <i>{sampleItem.notesOnAdmissibility}</i>
+                )}
+            </div>
           </div>
-          <div className={cx('fr-text--bold')}>{message}</div>
-
-          {!!sampleItem.notesOnAdmissibility &&
-            sampleItem.notesOnAdmissibility.length > 0 && (
-              <i>{sampleItem.notesOnAdmissibility}</i>
-            )}
         </div>
-
         <SampleItemAdmissibilityEditModal
           modal={editSampleAdmissibility}
           sampleItem={sampleItem}

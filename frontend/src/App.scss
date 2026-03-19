@@ -278,6 +278,18 @@ h6,
   border-bottom: 1px solid var(--border-default-grey) !important;
 }
 
+.border-callout-green-emeraude {
+  border-left: 4px solid var(--border-default-green-emeraude);
+}
+
+.border-callout-pink-tuile {
+  border-left: 4px solid var(--border-default-pink-tuile);
+}
+
+.border-callout-beige-gris-galet {
+  border-left: 4px solid var(--border-default-beige-gris-galet);
+}
+
 .border-middle {
   border-top: 1px solid #e0e0e0;
   margin-top: 0.35rem;
