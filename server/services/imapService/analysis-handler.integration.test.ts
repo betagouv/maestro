@@ -42,11 +42,12 @@ test("Le fichier est updloadé sur le S3, n'est pas supprimé du S3 et est en bd
       }
     ]
   } as const satisfies AnalysisWithResidueWithSSD2Id;
-  const { analysisId } = await analysisHandler(
+  const { analysisId, compliance } = await analysisHandler(
     analysisToSave,
     new Date(9999999)
   );
 
+  expect(compliance).toEqual(null);
   expect(spyUploadDocument).toHaveBeenCalledOnce();
   expect(spyDeleteDocument).toHaveBeenCalledTimes(0);
 
@@ -193,7 +194,8 @@ test('On peut enregistrer un résidu complexe sans analyte si il est Non Quantif
   ).toMatchObject({
     sampleId: '11111111-3333-3333-3333-333333333333',
     samplerEmail: 'john.doe@example.net',
-    samplerId: '11111111-1111-1111-1111-111111111111'
+    samplerId: '11111111-1111-1111-1111-111111111111',
+    compliance: true
   });
 
   expect(spyUploadDocument).toHaveBeenCalledTimes(1);
@@ -230,10 +232,12 @@ test('Peut enregistrer une analyse avec un résidu complexe et ses analytes asso
     ]
   } as const satisfies AnalysisWithResidueWithSSD2Id;
 
-  const { analysisId } = await analysisHandler(
+  const { analysisId, compliance } = await analysisHandler(
     analysisToSave,
     new Date(9999999)
   );
+
+  expect(compliance).toEqual(true);
 
   const analysisResidue = await kysely
     .selectFrom('analysisResidues')
