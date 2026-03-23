@@ -23,7 +23,7 @@ export const validateAndDecodeSachaXml = (xmlString: string) => {
         'Resultats.DialogueResultatType.DialoguePlanAnalyseType',
         'Resultats.DialogueResultatType.DialoguePlanAnalyseType.DialogueAnalyseType',
         'Resultats.DialogueResultatType.DialoguePlanAnalyseType.DialogueAnalyseType.DialogueResultatEchantillonAnalyse'
-      ].includes(path);
+      ].includes(path as string);
     }
   });
   const xmlToJson = parser.parse(xmlString);
