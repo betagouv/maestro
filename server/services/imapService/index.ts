@@ -347,7 +347,7 @@ export const checkEmails = async () => {
                     ...emails.map((e) => (e.date ?? new Date()).getTime())
                   )
                 );
-                const { sampleId, samplerId, samplerEmail } =
+                const { sampleId, samplerId, samplerEmail, compliance } =
                   await analysisHandler(
                     {
                       ...analysis,
@@ -362,14 +362,17 @@ export const checkEmails = async () => {
                     emailReceivedAt
                   );
 
-                await notificationService.sendNotification(
-                  {
-                    category: 'AnalysisReviewTodo',
-                    link: AppRouteLinks.SampleRoute.link(sampleId)
-                  },
-                  [{ id: samplerId, email: samplerEmail }],
-                  undefined
-                );
+                //TODO si exemplaire 2 ou plus, alors il faut envoyer dans tous les cas
+                if (compliance === null) {
+                  await notificationService.sendNotification(
+                    {
+                      category: 'AnalysisReviewTodo',
+                      link: AppRouteLinks.SampleRoute.link(sampleId)
+                    },
+                    [{ id: samplerId, email: samplerEmail }],
+                    undefined
+                  );
+                }
               }
               for (const message of emails) {
                 await client.messageMove(

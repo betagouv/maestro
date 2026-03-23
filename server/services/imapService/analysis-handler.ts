@@ -28,6 +28,7 @@ export const analysisHandler = async (
   sampleId: string;
   analysisId: string;
   samplerEmail: string;
+  compliance: null | true;
 }> => {
   const {
     sampleId,
@@ -177,6 +178,25 @@ export const analysisHandler = async (
     'AnalysisReportDocument',
     null,
     async (documentId, trx) => {
+      for (let i = 0; i < residues.length; i++) {
+        const residue = residues[i];
+        // Si c'est un résidu complexe NQ et que toutes ses analytes sont ND alors le résidu complexe est aussi ND
+        if (
+          residue.result_kind === 'NQ' &&
+          'analytes' in residue &&
+          residue.analytes?.every((a) => a.result_kind === 'ND')
+        ) {
+          residue.result_kind = 'ND';
+        }
+      }
+
+      //Si aucune détection, on peut mettre la conformité à conforme
+      const compliance: true | null = residues.every(
+        ({ result_kind }) => result_kind === 'ND'
+      )
+        ? true
+        : null;
+
       const newAnalysis: Omit<PartialAnalysis, 'id'> = {
         sampleId,
         itemNumber: 1, //TODO à gérer
@@ -185,9 +205,7 @@ export const analysisHandler = async (
         createdBy: null,
         createdAt: new Date(),
         emailReceivedAt: emailReceivedAt,
-
-        // Pour le moment on passe par une validation manuelle pour déterminer la conformité
-        compliance: null,
+        compliance,
         notesOnCompliance: analyse.notes
       };
 
@@ -212,21 +230,11 @@ export const analysisHandler = async (
         const residue = residues[i];
         const residueNumber = i + 1;
 
-        let resultKind = residue.result_kind;
-        // Si c'est un résidu complexe NQ et que toutes ses analytes sont ND alors le résidu complexe est aussi ND
-        if (
-          resultKind === 'NQ' &&
-          'analytes' in residue &&
-          residue.analytes?.every((a) => a.result_kind === 'ND')
-        ) {
-          resultKind = 'ND';
-        }
-
         await analysisResidueRepository.insert(
           [
             {
               result: 'result' in residue ? residue.result : null,
-              resultKind,
+              resultKind: residue.result_kind,
               lmr: 'lmr' in residue ? residue.lmr : null,
               analysisId,
               analysisMethod: residue.analysisMethod,
@@ -263,7 +271,8 @@ export const analysisHandler = async (
         samplerId,
         sampleId,
         analysisId,
-        samplerEmail
+        samplerEmail,
+        compliance
       };
     }
   );
