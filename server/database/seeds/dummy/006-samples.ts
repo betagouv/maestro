@@ -7,6 +7,7 @@ import { oneOf } from 'maestro-shared/test/testFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { Companies } from '../../../repositories/companyRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
+import { SampleItems } from '../../../repositories/sampleItemRepository';
 import { sampleRepository } from '../../../repositories/sampleRepository';
 import { Users } from '../../../repositories/userRepository';
 import {
@@ -152,7 +153,14 @@ export const seed = async function () {
     )
   ];
 
+  const sampleItems = samples
+    .flat()
+    .map((sample: SampleChecked) => sample.items)
+    .flat();
+
   for (const sample of samples.flat()) {
     await sampleRepository.insert(sample);
   }
+
+  await SampleItems().insert(sampleItems);
 };
