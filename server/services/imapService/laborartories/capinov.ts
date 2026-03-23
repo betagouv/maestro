@@ -11,9 +11,23 @@ import {
 } from '../index';
 import { csvToJson, frenchNumberStringValidator } from '../utils';
 
-export const capinovCodeEchantillonValidator = z.string().transform((l) => {
-  return l.trim().replaceAll(' ', '').split('-').slice(0, 3).join('-');
-});
+export const capinovCodeEchantillonValidator = z
+  .string()
+  .transform((l, ctx) => {
+    const normalized = l.trim().replaceAll(' ', '');
+    const match = normalized.match(/^([A-Z]+-\d+-\d+)(?:-[A-Z])?(?:-(\d+))?$/);
+    if (!match) {
+      ctx.addIssue({
+        code: 'custom',
+        message: `Référence capinov invalide: ${l}`
+      });
+      return z.NEVER;
+    }
+    return {
+      reference: match[1],
+      copyNumber: match[2] ? Number.parseInt(match[2]) : 1
+    };
+  });
 // Visible for testing
 export const extractAnalyzes = (
   fileContent: Record<string, string>[]
@@ -65,13 +79,15 @@ export const extractAnalyzes = (
     );
   }
 
-  const resultsBySample = groupBy(resultatsData, 'LOT');
+  const resultsBySample = groupBy(resultatsData, (r) => r.LOT.reference);
   const result: ReturnType<typeof extractAnalyzes> = [];
 
   for (const sampleReference in resultsBySample) {
     const firstLine = resultsBySample[sampleReference][0];
     const analysis: (typeof result)[number] = {
       sampleReference,
+      copyNumber: firstLine.LOT.copyNumber,
+      itemNumber: 1,
       capinovRef: `${firstLine.PREFIXE_NOM} ${firstLine.DEMANDE_NUMERO} ${firstLine.ECHANT_NUMERO}`,
       notes: firstLine.COMMENTAIRE ?? '',
       residues: []

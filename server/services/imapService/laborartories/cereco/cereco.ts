@@ -12,15 +12,19 @@ import {
 
 const methodValidator = z.literal(['Multi-résidus', 'Mono résidus']).nullish();
 
-export const cerecoRefValidator = z.string().transform((l) => {
-  let firstPart: string;
-  if (l.includes(':')) {
-    firstPart = l.substring(0, l.indexOf(':'));
-  } else {
-    firstPart = l.substring(0, l.lastIndexOf('-'));
+export const cerecoRefValidator = z.string().transform((l, ctx) => {
+  const match = l.match(/^([A-Z]+-\d+-\d+)(?:-[A-Z])?-(\d+)\s*[:-]/);
+  if (!match) {
+    ctx.addIssue({
+      code: 'custom',
+      message: `Référence cereco invalide: ${l}`
+    });
+    return z.NEVER;
   }
-
-  return firstPart.trim().substring(0, firstPart.lastIndexOf('-'));
+  return {
+    reference: match[1],
+    copyNumber: Number.parseInt(match[2])
+  };
 });
 const fileValidator = z.array(
   z
@@ -73,7 +77,9 @@ const extractAnalyzes = async (
 
   return [
     {
-      sampleReference: data[0]['Sample Name'],
+      sampleReference: data[0]['Sample Name'].reference,
+      copyNumber: data[0]['Sample Name'].copyNumber,
+      itemNumber: 1,
       notes: data[0].Conclusion,
       residues: data.map((d) => {
         const analysisMethod = d['Méthode'] || d["Méthode d'analyse"];

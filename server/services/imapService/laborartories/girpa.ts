@@ -51,17 +51,20 @@ export const analyseXmlValidator = z.object({
     .refine((s) => isCodeMethod(s) || s === '-')
 });
 
-export const girpaCodeEchantillonValidator = z.string().transform((l) => {
-  const result = l
-    .trim()
-    .substring(0, l.length - 2)
-    .trim()
-    .replaceAll(' ', '');
-
-  if (result.endsWith('-')) {
-    return result.substring(0, result.length - 1);
+export const girpaCodeEchantillonValidator = z.string().transform((l, ctx) => {
+  const cleaned = l.replace(/\s/g, '');
+  const match = cleaned.match(/^([A-Z]+-\d+-\d+)(?:-[A-Z])?-(\d+)$/);
+  if (!match) {
+    ctx.addIssue({
+      code: 'custom',
+      message: `Code échantillon invalide: ${l}`
+    });
+    return z.NEVER;
   }
-  return result;
+  return {
+    reference: match[1],
+    copyNumber: Number.parseInt(match[2])
+  };
 });
 
 type GirpaAnaysis = Omit<ExportAnalysis, 'pdfFile'> & {
@@ -118,10 +121,13 @@ export const extractAnalyzes = (obj: unknown): GirpaAnaysis[] => {
           }
         : { result_kind: 'Q', result: a.Résultat, lmr: a.LMR, ...commonData };
     });
+    const girpaRef = girpaCodeEchantillonValidator.parse(
+      echantillon['Code_échantillon']
+    );
     return {
-      sampleReference: girpaCodeEchantillonValidator.parse(
-        echantillon['Code_échantillon']
-      ),
+      sampleReference: girpaRef.reference,
+      copyNumber: girpaRef.copyNumber,
+      itemNumber: 1,
       girpaReference: echantillon['Code_échantillon'],
       notes: echantillon.Commentaire,
       residues

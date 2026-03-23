@@ -48,6 +48,8 @@ export type ExportDataSubstanceWithSSD2Id = OmitDistributive<
 
 export type ExportAnalysis = {
   sampleReference: SampleChecked['reference'];
+  itemNumber: number;
+  copyNumber: number;
   notes: string;
   pdfFile: File;
   residues: ExportDataSubstance[];
@@ -362,8 +364,8 @@ export const checkEmails = async () => {
                     emailReceivedAt
                   );
 
-                //TODO si exemplaire 2 ou plus, alors il faut envoyer dans tous les cas
-                if (compliance === null) {
+                //si exemplaire 2 ou plus, alors il faut envoyer dans tous les cas
+                if (compliance === null || analysis.copyNumber !== 1) {
                   await notificationService.sendNotification(
                     {
                       category: 'AnalysisReviewTodo',
