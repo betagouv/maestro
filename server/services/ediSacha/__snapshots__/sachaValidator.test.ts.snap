@@ -1266,7 +1266,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
           ],
           "ReferencePlanAnalyseEffectuer": {
             "PlanComplet": true,
-            "SiglePlanAnalyse": "RestPest_DAOA",
+            "SiglePlanAnalyse": "RPDA",
           },
         },
         {
@@ -2501,7 +2501,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
           ],
           "ReferencePlanAnalyseEffectuer": {
             "PlanComplet": true,
-            "SiglePlanAnalyse": "RestPest_DAOA",
+            "SiglePlanAnalyse": "RPDA",
           },
         },
         {
@@ -2513,7 +2513,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
           ],
           "ReferencePlanAnalyseEffectuer": {
             "PlanComplet": false,
-            "SiglePlanAnalyse": "RestPest_DAOA",
+            "SiglePlanAnalyse": "RPDA",
           },
         },
       ],
@@ -2677,7 +2677,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-RestPest_DAOA.xml 1`] 
           ],
           "ReferencePlanAnalyseEffectuer": {
             "PlanComplet": true,
-            "SiglePlanAnalyse": "RestPest_DAOA",
+            "SiglePlanAnalyse": "RPDA",
           },
         },
       ],
@@ -2842,7 +2842,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-RestPest_DAOA_CU.xml 1
           ],
           "ReferencePlanAnalyseEffectuer": {
             "PlanComplet": true,
-            "SiglePlanAnalyse": "RestPest_DAOA_CU",
+            "SiglePlanAnalyse": "RPDA_CU",
           },
         },
       ],

@@ -217,7 +217,7 @@ test(`génère un XML de DAI`, async () => {
       <DemandeType>
         <DialogueDemandeIntervention>
           <NumeroDAP>202600007312</NumeroDAP>
-          <SigleContexteIntervention>2026_RPDA_PVOL</SigleContexteIntervention>
+          <SigleContexteIntervention>PR17_2026_RPDA_PVOL</SigleContexteIntervention>
           <DateIntervention>2025-12-16</DateIntervention>
           <DateModification>2025-12-16T10:07:36</DateModification>
         </DialogueDemandeIntervention>
@@ -254,7 +254,7 @@ test(`génère un XML de DAI`, async () => {
         </DialogueEchantillonCommemoratifType>
         <ReferencePlanAnalyseType>
           <ReferencePlanAnalyseEffectuer>
-            <SiglePlanAnalyse>RestPest_DAOA_CU</SiglePlanAnalyse>
+            <SiglePlanAnalyse>RPDA_CU</SiglePlanAnalyse>
           </ReferencePlanAnalyseEffectuer>
           <ReferencePlanAnalyseContenu>
             <LibelleMatrice></LibelleMatrice>

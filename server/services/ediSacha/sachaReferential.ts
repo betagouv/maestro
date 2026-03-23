@@ -4,29 +4,26 @@ import { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import z from 'zod';
 
 export const sigleContexteInterventionValidator = z.enum([
-  '2026_RPDA_PVOL',
-  '2026_RPDA_PBOV'
+  'PR17_2026_RPDA_PVOL',
+  'PR17_2026_RPDA_PBOV'
 ]);
 export const SigleContexteIntervention: Record<
   ProgrammingPlanKindWithSacha,
   z.infer<typeof sigleContexteInterventionValidator>
 > = {
-  DAOA_VOLAILLE: '2026_RPDA_PVOL',
-  DAOA_BOVIN: '2026_RPDA_PBOV'
+  DAOA_VOLAILLE: 'PR17_2026_RPDA_PVOL',
+  DAOA_BOVIN: 'PR17_2026_RPDA_PBOV'
 };
 
-export const siglePlanAnalyseValidator = z.enum([
-  'RestPest_DAOA',
-  'RestPest_DAOA_CU'
-]);
+export const siglePlanAnalyseValidator = z.enum(['RPDA', 'RPDA_CU']);
 
 export const SiglePlanAnalyse: Record<
   Exclude<SubstanceKind, 'Any'>,
   z.infer<typeof siglePlanAnalyseValidator>
 > = {
-  Copper: 'RestPest_DAOA_CU',
-  Mono: 'RestPest_DAOA',
-  Multi: 'RestPest_DAOA'
+  Copper: 'RPDA_CU',
+  Mono: 'RPDA',
+  Multi: 'RPDA'
 };
 
 export type NotPPVMatrix = Exclude<
