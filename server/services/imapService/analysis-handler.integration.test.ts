@@ -32,6 +32,8 @@ test("Le fichier est updloadé sur le S3, n'est pas supprimé du S3 et est en bd
     notes: '',
     pdfFile: new File([], 'fileName'),
     sampleReference: Sample13Fixture.reference,
+    copyNumber: 1,
+    itemNumber: 1,
     residues: [
       {
         ssd2Id: 'RF-0002-001-PPP',
@@ -85,6 +87,8 @@ test("Retourne une erreur si l'upload a échoué", async () => {
         notes: '',
         pdfFile: new File([], 'fileName'),
         sampleReference: Sample13Fixture.reference,
+        copyNumber: 1,
+        itemNumber: 1,
         residues: []
       },
       new Date(9999999)
@@ -102,6 +106,8 @@ test("Permet d'ajouter une analyse à un échantillon avec déjà une analyse", 
     notes: '',
     pdfFile: new File([], 'fileName'),
     sampleReference: Sample13Fixture.reference,
+    copyNumber: 1,
+    itemNumber: 1,
     residues: []
   };
 
@@ -123,6 +129,8 @@ test("Si une erreur intervient après l'upload sur le S3, on supprime le documen
         notes: '',
         pdfFile: new File([], 'fileName'),
         sampleReference: Sample13Fixture.reference,
+        copyNumber: 1,
+        itemNumber: 1,
         residues: [
           {
             ssd2Id: 'RF-0002-001-PPP',
@@ -150,6 +158,8 @@ test("Impossible d'enregistrer l'analyse si on trouve un résidu complexe sans a
         notes: '',
         pdfFile: new File([], 'fileName'),
         sampleReference: Sample13Fixture.reference,
+        copyNumber: 1,
+        itemNumber: 1,
         residues: [
           {
             ssd2Id: 'RF-0008-001-PPP',
@@ -179,6 +189,8 @@ test('On peut enregistrer un résidu complexe sans analyte si il est Non Quantif
         notes: '',
         pdfFile: new File([], 'fileName'),
         sampleReference: Sample13Fixture.reference,
+        copyNumber: 1,
+        itemNumber: 1,
         residues: [
           {
             ssd2Id: 'RF-0008-001-PPP',
@@ -207,6 +219,8 @@ test('Peut enregistrer une analyse avec un résidu complexe et ses analytes asso
     notes: '',
     pdfFile: new File([], 'fileName'),
     sampleReference: Sample13Fixture.reference,
+    copyNumber: 1,
+    itemNumber: 1,
     residues: [
       {
         ssd2Id: 'RF-00002588-PAR',
@@ -267,6 +281,8 @@ test('Un résidu complexe Non Quantifiable est enregistré en Non détecté si t
     notes: '',
     pdfFile: new File([], 'fileName'),
     sampleReference: Sample13Fixture.reference,
+    copyNumber: 1,
+    itemNumber: 1,
     residues: [
       {
         ssd2Id: 'RF-00002588-PAR',
@@ -305,4 +321,21 @@ test('Un résidu complexe Non Quantifiable est enregistré en Non détecté si t
   expect(analysisResidue).toHaveLength(1);
   expect(analysisResidue[0].reference).toBe(analysisToSave.residues[1].ssd2Id);
   expect(analysisResidue[0].resultKind).toBe('ND');
+});
+
+test(`emet une erreur si l'exemplaire n'existe pas`, async () => {
+  const analysisToSave = {
+    notes: '',
+    pdfFile: new File([], 'fileName'),
+    sampleReference: Sample13Fixture.reference,
+    copyNumber: 2,
+    itemNumber: 1,
+    residues: []
+  } as const satisfies AnalysisWithResidueWithSSD2Id;
+
+  await expect(
+    async () => await analysisHandler(analysisToSave, new Date(9999999))
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[error: insert or update on table "analysis" violates foreign key constraint "analysis_sample_id_item_number_copy_number_foreign"]`
+  );
 });

@@ -47,18 +47,19 @@ const codeMethodsAnalyseMethod = {
   'Méthode interne': 'Mono'
 } as const satisfies Record<(typeof codeMethods)[number], AnalysisMethod>;
 
-export const inovalysRefClientValidator = z.string().transform((l) => {
-  const count = (l.match(/-/g) || []).length;
-
-  if (count > 2) {
-    const result = l.substring(0, l.lastIndexOf('-'));
-    if (count === 4) {
-      return result.substring(0, result.lastIndexOf('-'));
-    }
-    return result;
+export const inovalysRefClientValidator = z.string().transform((l, ctx) => {
+  const match = l.match(/^([A-Z]+-\d{2}-\d+)(?:-[A-Z])?-(\d+)$/);
+  if (!match) {
+    ctx.addIssue({
+      code: 'custom',
+      message: `Référence inovalys invalide: ${l}`
+    });
+    return z.NEVER;
   }
-
-  return l;
+  return {
+    reference: match[1],
+    copyNumber: Number.parseInt(match[2])
+  };
 });
 
 // Visible for testing
@@ -202,7 +203,9 @@ export const extractAnalyzes = (
     );
 
     result.push({
-      sampleReference: sampleWithResultat.sample['Réf Client'],
+      sampleReference: sampleWithResultat.sample['Réf Client'].reference,
+      copyNumber: sampleWithResultat.sample['Réf Client'].copyNumber,
+      itemNumber: 1,
       notes: sampleWithResultat.sample.Commentaire,
       residues
     });

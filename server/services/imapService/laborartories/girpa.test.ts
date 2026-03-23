@@ -12,7 +12,7 @@ const girpaXMLExample = (analyses: z.input<typeof analyseXmlValidator>[]) => ({
   Rapport: {
     Echantillon: {
       Date_réception_échantillons: '01/09/2024',
-      Code_échantillon: 'La référence',
+      Code_échantillon: 'REU-25-00015-A-02',
       Nature_matrice: 'ORGE',
       Commentaire: 'Une note',
       Analyse: analyses
@@ -27,7 +27,7 @@ describe('parse correctement le XML', () => {
           Echantillon: [
             {
               Date_réception_échantillons: '01/09/2024',
-              Code_échantillon: 'La référence',
+              Code_échantillon: 'REU-25-00015-A-02',
               Nature_matrice: 'ORGE',
               Commentaire: 'Une note',
               Analyse: []
@@ -38,10 +38,12 @@ describe('parse correctement le XML', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "girpaReference": "La référence",
+          "copyNumber": 2,
+          "girpaReference": "REU-25-00015-A-02",
+          "itemNumber": 1,
           "notes": "Une note",
           "residues": [],
-          "sampleReference": "Laréféren",
+          "sampleReference": "REU-25-00015",
         },
       ]
     `);
@@ -65,7 +67,9 @@ describe('parse correctement le XML', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "girpaReference": "La référence",
+          "copyNumber": 2,
+          "girpaReference": "REU-25-00015-A-02",
+          "itemNumber": 1,
           "notes": "Une note",
           "residues": [
             {
@@ -79,7 +83,7 @@ describe('parse correctement le XML', () => {
               "result_kind": "Q",
             },
           ],
-          "sampleReference": "Laréféren",
+          "sampleReference": "REU-25-00015",
         },
       ]
     `);
@@ -181,10 +185,12 @@ describe('getResidue', () => {
   });
 });
 
-test.each<[string, string]>([
-  ['PAC-04-25-0001-A01', 'PAC-04-25-0001-A'],
-  ['OCC-25-0007-01', 'OCC-25-0007'],
-  ['OCC-25 -0007-01', 'OCC-25-0007']
+test.each<[string, z.infer<typeof girpaCodeEchantillonValidator>]>([
+  ['OCC-25-0007-01', { reference: 'OCC-25-0007', copyNumber: 1 }],
+  ['OCC-25-00007-01', { reference: 'OCC-25-00007', copyNumber: 1 }],
+  ['OCC-25-0007-02', { reference: 'OCC-25-0007', copyNumber: 2 }],
+  ['OCC-25-0007-A-2', { reference: 'OCC-25-0007', copyNumber: 2 }],
+  ['OCC-25 -0007-01', { reference: 'OCC-25-0007', copyNumber: 1 }]
 ])('girpaCodeEchantillonValidator', (value, expected) => {
-  expect(girpaCodeEchantillonValidator.parse(value)).toBe(expected);
+  expect(girpaCodeEchantillonValidator.parse(value)).toStrictEqual(expected);
 });

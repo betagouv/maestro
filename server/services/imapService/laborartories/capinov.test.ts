@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import z from 'zod';
 import {
   capinovCodeEchantillonValidator,
   extractAnalyzes,
@@ -25,7 +26,7 @@ describe('Parse correctement le fichier CSV', () => {
       PREFIXE_NOM: '2025',
       DEMANDE_NUMERO: '0003',
       ECHANT_NUMERO: '1',
-      LOT: '1',
+      LOT: 'REU-25-00015-A-02',
       PARAMETRE_NOM: 'SAP00010',
       RESULTAT_VALTEXTE: 'nd',
       RESULTAT_VALNUM: '0',
@@ -80,6 +81,8 @@ test('<LQ et "d, NQ" sont équivalent', () => {
     [
       {
         "capinovRef": "2025 0003 1",
+        "copyNumber": 1,
+        "itemNumber": 1,
         "notes": "Pas de problème",
         "residues": [
           {
@@ -129,6 +132,8 @@ test('récupère la LMR dans l autre colonne si besoin', () => {
     [
       {
         "capinovRef": "2025 0003 1",
+        "copyNumber": 1,
+        "itemNumber": 1,
         "notes": "Pas de problème",
         "residues": [
           {
@@ -171,6 +176,8 @@ test('considère <LQ pour les calculs en ND', () => {
     [
       {
         "capinovRef": "2025 0003 1",
+        "copyNumber": 1,
+        "itemNumber": 1,
         "notes": "Pas de problème",
         "residues": [
           {
@@ -201,10 +208,13 @@ test('getAnalysisKeyByFileName', () => {
   ).toBe(getAnalysisKeyByFileName('2025_6 8603 1  asenasen asen asne.pdf'));
 });
 
-test.each<[string, string]>([
-  ['OCC-25-0007-01', 'OCC-25-0007'],
-  ['OCC-25-0007', 'OCC-25-0007'],
-  ['OCC - 25-0007', 'OCC-25-0007']
+test.each<[string, z.infer<typeof capinovCodeEchantillonValidator>]>([
+  ['OCC-25-0007-01', { reference: 'OCC-25-0007', copyNumber: 1 }],
+  ['OCC-25-0007', { reference: 'OCC-25-0007', copyNumber: 1 }],
+  ['OCC-25-00007', { reference: 'OCC-25-00007', copyNumber: 1 }],
+  ['OCC-25-0007-2', { reference: 'OCC-25-0007', copyNumber: 2 }],
+  ['OCC-25-0007-A-2', { reference: 'OCC-25-0007', copyNumber: 2 }],
+  ['OCC - 25-0007', { reference: 'OCC-25-0007', copyNumber: 1 }]
 ])('capinovCodeEchantillonValidator', (value, expected) => {
-  expect(capinovCodeEchantillonValidator.parse(value)).toBe(expected);
+  expect(capinovCodeEchantillonValidator.parse(value)).toStrictEqual(expected);
 });

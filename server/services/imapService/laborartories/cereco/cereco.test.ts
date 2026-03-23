@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import path from 'path';
 import { expect, test } from 'vitest';
+import z from 'zod';
 import { cerecoConf, cerecoRefValidator } from './cereco';
 
 test('exportDataFromEmail', async () => {
@@ -113,9 +114,13 @@ test('exportDataFromEmail', async () => {
     sampleReference: 'OCC-25-0001'
   });
 });
-test.each<[string, string]>([
-  ['ARA-25-0094-1 : Olives', 'ARA-25-0094'],
-  ['ARA-25-0094-1 - Olives', 'ARA-25-0094']
+
+type CerecoRef = z.infer<typeof cerecoRefValidator>;
+test.each<[string, CerecoRef]>([
+  ['ARA-25-0094-1 : Olives', { reference: 'ARA-25-0094', copyNumber: 1 }],
+  ['ARA-25-0094-2 : Olives', { reference: 'ARA-25-0094', copyNumber: 2 }],
+  ['ARA-25-0094-A-2 : Olives', { reference: 'ARA-25-0094', copyNumber: 2 }],
+  ['ARA-25-00094-1 - Olives', { reference: 'ARA-25-00094', copyNumber: 1 }]
 ])('cerecoRefValidator', (value, expected) => {
-  expect(cerecoRefValidator.parse(value)).toBe(expected);
+  expect(cerecoRefValidator.parse(value)).toStrictEqual(expected);
 });
