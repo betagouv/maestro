@@ -253,14 +253,56 @@ describe('sample_status view', () => {
     await cleanupSample(sampleId);
   });
 
-  test('returns Completed when all items are Completed', async () => {
+  test('returns InReview when all items are Completed and sample compliance is empty', async () => {
     const sampleId = uuidv4();
     const sample = genCreatedPartialSample({
       id: sampleId,
       sampler: Sampler1Fixture,
       company: CompanyFixture,
       programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-      step: 'Sent'
+      step: 'Sent',
+      compliance: null
+    });
+    await Samples().insert(formatPartialSample(sample));
+    await SampleItems().insert([
+      genSampleItem({ sampleId, itemNumber: 1, copyNumber: 1 }),
+      genSampleItem({ sampleId, itemNumber: 2, copyNumber: 1 })
+    ]);
+
+    await analysisRepository.insert(
+      genPartialAnalysis({
+        sampleId,
+        itemNumber: 1,
+        copyNumber: 1,
+        createdBy: Sampler1Fixture.id,
+        status: 'Completed'
+      })
+    );
+    await analysisRepository.insert(
+      genPartialAnalysis({
+        sampleId,
+        itemNumber: 2,
+        copyNumber: 1,
+        createdBy: Sampler1Fixture.id,
+        status: 'Completed'
+      })
+    );
+
+    const result = await getSampleStatus(sampleId);
+    expect(result?.status).toBe('InReview');
+
+    await cleanupSample(sampleId);
+  });
+
+  test('returns Completed when all items are Completed and sample compliance is not empty', async () => {
+    const sampleId = uuidv4();
+    const sample = genCreatedPartialSample({
+      id: sampleId,
+      sampler: Sampler1Fixture,
+      company: CompanyFixture,
+      programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+      step: 'Sent',
+      compliance: 'Compliant'
     });
     await Samples().insert(formatPartialSample(sample));
     await SampleItems().insert([
