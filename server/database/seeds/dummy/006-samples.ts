@@ -7,11 +7,7 @@ import { oneOf } from 'maestro-shared/test/testFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { Companies } from '../../../repositories/companyRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
-import { SampleItems } from '../../../repositories/sampleItemRepository';
-import {
-  formatPartialSample,
-  Samples
-} from '../../../repositories/sampleRepository';
+import { sampleRepository } from '../../../repositories/sampleRepository';
 import { Users } from '../../../repositories/userRepository';
 import {
   abricotsEtSimilaires,
@@ -156,14 +152,7 @@ export const seed = async function () {
     )
   ];
 
-  const sampleItems = samples
-    .flat()
-    .map((sample: SampleChecked) => sample.items)
-    .flat();
-
-  await Samples().insert(
-    samples.flat().map((_: any) => formatPartialSample(_))
-  );
-
-  await SampleItems().insert(sampleItems);
+  for (const sample of samples.flat()) {
+    await sampleRepository.insert(sample);
+  }
 };
