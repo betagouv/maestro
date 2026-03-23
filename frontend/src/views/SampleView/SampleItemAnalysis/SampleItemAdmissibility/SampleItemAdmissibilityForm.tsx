@@ -84,17 +84,7 @@ export const SampleItemAdmissibilityForm: FunctionComponent<Props> = ({
   setForm?.(form);
 
   return (
-    <form
-      className={clsx(
-        'border',
-        cx(
-          'fr-callout',
-          isAdmissible ? 'fr-callout--green-emeraude' : 'fr-callout--pink-tuile'
-        ),
-        'sample-callout'
-      )}
-    >
-      <h4 className={cx('fr-mb-0')}>Recevabilité par le laboratoire</h4>
+    <form className={clsx('sample-step-summary')}>
       <AppRadioButtons
         legend="Notification de réception par le laboratoire"
         options={[
