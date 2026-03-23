@@ -1,5 +1,7 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
@@ -8,6 +10,7 @@ import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   getItemStatus,
   getNonCompliantCopies,
+  isItemAchieved,
   isItemCompliant,
   SampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
@@ -17,6 +20,7 @@ import { StatusBadge } from '../../../components/SampleStatusBadge/SampleStatusB
 import { getSupportDocumentURL } from '../../../services/sample.service';
 import { quote } from '../../../utils/stringUtils';
 import SampleItemAnalysis from '../SampleItemAnalysis/SampleItemAnalysis';
+import { SampleItemComplianceOverrideModal } from './SampleItemComplianceOverrideModal';
 import './SampleOverview.scss';
 
 interface Props {
@@ -24,6 +28,11 @@ interface Props {
   sampleItemCopies: SampleItem[];
   sample: SampleChecked;
 }
+
+const complianceOverrideModal = createModal({
+  id: 'sample-item-compliance-override-modal',
+  isOpenedByDefault: false
+});
 
 const SampleItemCopiesOverview = ({
   itemNumber,
@@ -61,21 +70,35 @@ const SampleItemCopiesOverview = ({
           {SubstanceKindLabels[sampleItemCopies[0].substanceKind]}
         </Tag>
       </div>
-      {isItemCompliant(sampleItemCopies) && (
-        <Badge severity="success" className={'fr-px-1w'}>
-          Échantillon conforme
-        </Badge>
-      )}
-      {getNonCompliantCopies(sampleItemCopies).length > 0 && (
-        <div>
-          <Badge severity="error" className={'fr-px-1w'}>
-            Échantillon non conforme
-          </Badge>
-          <div className={cx('fr-text--sm', 'fr-mb-0')}>
-            {getNonCompliantCopies(sampleItemCopies)
-              .filter((_) => !isNil(_.analysis?.notesOnCompliance))
-              .map((_) => quote(_.analysis?.notesOnCompliance as string))}
-          </div>
+      {isItemAchieved(sampleItemCopies) && (
+        <div className="d-flex-align-center">
+          {isItemCompliant(sampleItemCopies) ? (
+            <Badge severity="success" className={'fr-px-1w'}>
+              Échantillon conforme
+            </Badge>
+          ) : (
+            <div>
+              <Badge severity="error" className={'fr-px-1w'}>
+                Échantillon non conforme
+              </Badge>
+              <div className={cx('fr-text--sm', 'fr-mb-0')}>
+                {getNonCompliantCopies(sampleItemCopies)
+                  .filter((_) => !isNil(_.analysis?.notesOnCompliance))
+                  .map((_) => quote(_.analysis?.notesOnCompliance as string))}
+              </div>
+            </div>
+          )}
+          {sampleItemCopies.filter((_) => !isNil(_.analysis)).length > 1 && (
+            <Button
+              priority="tertiary no outline"
+              iconId="fr-icon-edit-line"
+              size="small"
+              type="button"
+              onClick={() => complianceOverrideModal.open()}
+            >
+              Modifier la conformité
+            </Button>
+          )}
         </div>
       )}
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -174,6 +197,13 @@ const SampleItemCopiesOverview = ({
       {currentItemCopy && (
         <SampleItemAnalysis sample={sample} sampleItem={currentItemCopy} />
       )}
+      <SampleItemComplianceOverrideModal
+        key={itemNumber}
+        modal={complianceOverrideModal}
+        sampleItem={
+          sampleItemCopies.find((_) => _.copyNumber === 1) as SampleItem
+        }
+      />
     </>
   );
 };

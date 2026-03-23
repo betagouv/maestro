@@ -6,12 +6,12 @@ import clsx from 'clsx';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
-  getNonCompliantCopies,
+  isItemAchieved,
   isItemCompliant
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { isDefined } from 'maestro-shared/utils/utils';
-import { useContext, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import food from 'src/assets/illustrations/food.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
@@ -73,13 +73,14 @@ const SampleOverview = ({ sample }: Props) => {
       },
       { replace: true }
     );
-  const [activeCompliance, setActiveCompliance] = useState(
-    sample.programmingPlanKind !== 'PPV' && sample.status === 'InReview'
-  );
+  const needCompliance =
+    sample.programmingPlanKind !== 'PPV' && sample.status === 'InReview';
+  const [activeCompliance, setActiveCompliance] = useState(needCompliance);
 
-  const sampleItemCopies = useMemo(
-    () => sample.items.filter((item) => item.itemNumber === activeItemNumber),
-    [sample.items, activeItemNumber]
+  const sampleItemCopies = useCallback(
+    (itemNumber: number) =>
+      sample.items.filter((item) => item.itemNumber === itemNumber),
+    [sample.items]
   );
 
   const [updateSampleCompliance] =
@@ -108,7 +109,6 @@ const SampleOverview = ({ sample }: Props) => {
         subtitle="Consultez le récapitulatif du prélèvement réalisé"
         illustration={food}
       />
-
       {isSendingSuccess && sample.status !== 'InReview' && (
         <Alert
           severity="info"
@@ -136,7 +136,7 @@ const SampleOverview = ({ sample }: Props) => {
         />
       )}
 
-      {activeCompliance && (
+      {(needCompliance || activeCompliance) && (
         <div ref={complianceRef}>
           <SampleComplianceForm
             sample={sample}
@@ -150,7 +150,6 @@ const SampleOverview = ({ sample }: Props) => {
           />
         </div>
       )}
-
       <div className="white-container">
         <div className={clsx('d-flex-align-start', cx('fr-m-3w'))}>
           <SideMenu
@@ -187,39 +186,41 @@ const SampleOverview = ({ sample }: Props) => {
                             item.substanceKind
                           ].toLowerCase()}
                         </span>
-                        {isItemCompliant(
-                          sample.items.filter(
-                            (_) => _.itemNumber === item.itemNumber
-                          )
-                        ) && (
-                          <div
-                            className={cx('fr-label--success', 'fr-text--xs')}
-                          >
-                            <span
-                              className={cx(
-                                'fr-icon-checkbox-circle-line',
-                                'fr-mr-1w',
-                                'fr-icon--sm'
-                              )}
-                            />
-                            Conforme
-                          </div>
-                        )}
-                        {getNonCompliantCopies(
-                          sample.items.filter(
-                            (_) => _.itemNumber === item.itemNumber
-                          )
-                        ).length > 0 && (
-                          <div className={cx('fr-label--error', 'fr-text--xs')}>
-                            <span
-                              className={cx(
-                                'fr-icon-close-circle-line',
-                                'fr-mr-1w',
-                                'fr-icon--sm'
-                              )}
-                            />
-                            Non-conforme
-                          </div>
+                        {isItemAchieved(sampleItemCopies(item.itemNumber)) && (
+                          <>
+                            {isItemCompliant(
+                              sampleItemCopies(item.itemNumber)
+                            ) ? (
+                              <div
+                                className={cx(
+                                  'fr-label--success',
+                                  'fr-text--xs'
+                                )}
+                              >
+                                <span
+                                  className={cx(
+                                    'fr-icon-checkbox-circle-line',
+                                    'fr-mr-1w',
+                                    'fr-icon--sm'
+                                  )}
+                                />
+                                Conforme
+                              </div>
+                            ) : (
+                              <div
+                                className={cx('fr-label--error', 'fr-text--xs')}
+                              >
+                                <span
+                                  className={cx(
+                                    'fr-icon-close-circle-line',
+                                    'fr-mr-1w',
+                                    'fr-icon--sm'
+                                  )}
+                                />
+                                Non-conforme
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     )
@@ -291,7 +292,7 @@ const SampleOverview = ({ sample }: Props) => {
             {activeMenu === 'items' && (
               <SampleItemCopiesOverview
                 itemNumber={activeItemNumber}
-                sampleItemCopies={sampleItemCopies}
+                sampleItemCopies={sampleItemCopies(activeItemNumber)}
                 sample={sample}
               />
             )}

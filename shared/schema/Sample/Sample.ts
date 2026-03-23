@@ -253,9 +253,23 @@ export const SampleBase = SampleToCreate.extend({
   sentAt: z.coerce.date().nullish()
 });
 
+const sampleItemsCheck: CheckFn<{ items: SampleItem[] }> = (ctx) => {
+  ctx.value.items.forEach((item, index) => {
+    if (item.itemNumber !== 1 && !isNil(item.complianceOverride)) {
+      ctx.issues.push({
+        input: ctx.value,
+        code: 'invalid_value',
+        values: MatrixList,
+        path: ['items', index, 'complianceOverride']
+      });
+    }
+  });
+};
+
 export const SampleChecked = SampleBase.check(
   prescriptionSubstancesCheck,
-  sampleMatrixCheck
+  sampleMatrixCheck,
+  sampleItemsCheck
 );
 
 export type SampleContextData = z.infer<typeof SampleContextData>;

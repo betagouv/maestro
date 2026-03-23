@@ -61,6 +61,7 @@ export const SampleItem = z.object({
   paidDate: maestroDateRefined.nullish(),
   invoiceNumber: z.string().nullish(),
   budgetNotes: z.string().nullish(),
+  complianceOverride: z.boolean().nullish(),
   analysis: z
     .object({
       status: AnalysisStatus,
@@ -84,8 +85,7 @@ export const SampleItemUpdate = z.object({
   ...SampleItem.omit({
     sampleId: true,
     itemNumber: true,
-    copyNumber: true,
-    analysis: true
+    copyNumber: true
   }).shape,
   isAdmissible: z.boolean().nullish()
 });
@@ -124,13 +124,28 @@ export const getNonCompliantCopies = (sampleItemCopies: SampleItem[]) =>
       copy.analysis?.compliance === false
   );
 
-export const isItemCompliant = (sampleItemCopies: SampleItem[]) =>
-  getCompliantCopies(sampleItemCopies).length > 0 &&
-  getNonCompliantCopies(sampleItemCopies).length === 0 &&
-  !sampleItemCopies.some(
+export const isItemAchieved = (sampleItemCopies: SampleItem[]) =>
+  sampleItemCopies.every(
     (copy) =>
-      copy.analysis && !['Completed', 'Unused'].includes(copy.analysis.status)
+      isNil(copy.analysis) ||
+      ['Completed', 'Unused'].includes(copy.analysis.status)
   );
+
+export const isItemCompliant = (sampleItemCopies: SampleItem[]) => {
+  const complianceOverride = sampleItemCopies.find(
+    (_) => _.copyNumber === 1
+  )?.complianceOverride;
+  if (!isItemAchieved(sampleItemCopies)) {
+    return null;
+  }
+  if (isNil(complianceOverride)) {
+    return (
+      getCompliantCopies(sampleItemCopies).length > 0 &&
+      getNonCompliantCopies(sampleItemCopies).length === 0
+    );
+  }
+  return complianceOverride;
+};
 
 export const getItemStatus = (sampleItemCopies: SampleItem[]): AnalysisStatus =>
   sampleItemCopies

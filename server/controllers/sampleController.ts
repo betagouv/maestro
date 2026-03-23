@@ -457,7 +457,8 @@ export const sampleRouter = {
           compliance: !itemUpdate.isAdmissible ? null : analysis.compliance,
           notesOnCompliance: !itemUpdate.isAdmissible
             ? null
-            : analysis.notesOnCompliance
+            : analysis.notesOnCompliance,
+          ...itemUpdate.analysis
         });
       }
 
