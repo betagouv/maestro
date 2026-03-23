@@ -90,6 +90,8 @@ export function useForm<
     }, 1);
   };
 
+  const inputKey = JSON.stringify(input);
+
   useEffect(() => {
     (async () => {
       if (isTouched) {
@@ -104,7 +106,7 @@ export function useForm<
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [...Object.values(input)]);
+  }, [inputKey]);
 
   const { triggerSave } = useAutoSave({
     onSave: () => onInputChange?.(),
@@ -116,7 +118,8 @@ export function useForm<
       triggerSave?.();
     }
     setIsInitialized(true);
-  }, [...Object.values(input)]); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputKey]);
 
   return {
     isTouched,
