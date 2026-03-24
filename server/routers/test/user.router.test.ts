@@ -8,9 +8,11 @@ import {
   AdminFixture,
   genUser,
   NationalCoordinator,
+  NationalCoordinatorDaoaFixture,
   RegionalCoordinator,
   Sampler1Fixture,
   Sampler2Fixture,
+  SamplerDaoaFixture,
   SamplerDromFixture
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
@@ -134,6 +136,23 @@ describe('User router', () => {
         expect.objectContaining(Sampler1Fixture),
         expect.objectContaining(Sampler2Fixture)
       ]);
+    });
+
+    test('should filter users by programmingPlanKind', async () => {
+      const res = await request(app)
+        .get(testRoute({}))
+        .use(tokenProvider(NationalCoordinatorDaoaFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expectArrayToContainElements(res.body, [
+        expect.objectContaining({ id: NationalCoordinatorDaoaFixture.id }),
+        expect.objectContaining({ id: SamplerDaoaFixture.id })
+      ]);
+      expect(res.body).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: Sampler1Fixture.id })
+        ])
+      );
     });
   });
 
