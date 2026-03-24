@@ -1,6 +1,13 @@
 import { constants } from 'http2';
 import { intersection } from 'lodash-es';
-import { userRegionsForRole } from 'maestro-shared/schema/User/User';
+import { Department } from 'maestro-shared/referential/Department';
+import {
+  companiesIsRequired,
+  departmentIsRequired,
+  programmingPlanKindsIsRequired,
+  userRegionsForRole
+} from 'maestro-shared/schema/User/User';
+import { isNationalRole } from 'maestro-shared/schema/User/UserRole';
 import { userRepository } from '../repositories/userRepository';
 import { ProtectedSubRouter } from '../routers/routes.type';
 
@@ -39,10 +46,30 @@ export const usersRouter = {
     }
   },
   '/users': {
-    get: async ({ user, query }) => {
+    get: async ({ user, userRole, query }) => {
+      const companySirets = companiesIsRequired({
+        ...user,
+        roles: [userRole]
+      })
+        ? user.companies.map((company) => company.siret)
+        : query.companySirets;
+
       const findOptions = {
         ...query,
-        region: user.region ?? query.region
+        region: isNationalRole(userRole) ? query.region : user.region,
+        department: departmentIsRequired({
+          ...user,
+          roles: [userRole]
+        })
+          ? (user.department as Department)
+          : query.department,
+        companySirets,
+        programmingPlanKinds: programmingPlanKindsIsRequired({
+          ...user,
+          roles: [userRole]
+        })
+          ? user.programmingPlanKinds
+          : query.programmingPlanKinds
       };
 
       console.info('Find users', findOptions);
