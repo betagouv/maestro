@@ -193,106 +193,110 @@ const ProgrammingView = () => {
             </div>
           </div>
         </div>
-        <div className={cx('fr-container')}>
-          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-            <div className={cx('fr-col-12')}>
-              {!programmingPlan ? (
-                <Alert
-                  description={
-                    <>
-                      La programmation sera disponible une fois que{' '}
-                      <b>votre coordinateur aura effectué la répartition.</b>
-                    </>
-                  }
-                  severity="info"
-                  title=""
-                />
-              ) : (
-                <Tabs
-                  selectedTabId={selectedTabId}
-                  onTabChange={(tabId) =>
-                    setSelectedTabId(tabId as ProgrammingViewTab)
-                  }
-                  className={clsx({
-                    'full-width':
-                      (hasNationalView || hasRegionalView) &&
-                      prescriptionListDisplay === 'table'
-                  })}
-                  classes={{
-                    panel: clsx('white-container')
-                  }}
-                  tabs={[
-                    {
-                      label: 'Programmation',
-                      tabId: 'ProgrammationTab',
-                      iconId: 'fr-icon-survey-line' as const
-                    },
-                    programmingPlan?.distributionKind === 'REGIONAL' &&
-                    hasUserPermission('manageProgrammingPlan')
-                      ? {
-                          label: 'Phase de consultation',
-                          tabId: 'ConsultationTab',
-                          iconId: 'fr-icon-chat-check-line' as const
-                        }
-                      : undefined,
-                    programmingPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
-                    (hasUserPermission('manageProgrammingPlan') ||
-                      hasUserPermission('distributePrescriptionToDepartments'))
-                      ? {
-                          label: hasNationalView
-                            ? 'Statut par région'
-                            : 'Statut par département',
-                          tabId: 'ConsultationTab',
-                          iconId: 'fr-icon-chat-check-line' as const
-                        }
-                      : undefined,
-                    programmingPlan?.distributionKind === 'REGIONAL' &&
-                    hasUserPermission('commentPrescription')
-                      ? {
-                          label: 'Commentaires',
-                          tabId: 'CommentsTab',
-                          iconId: 'fr-icon-chat-3-line' as const
-                        }
-                      : undefined
-                  ].filter((tab) => !isNil(tab))}
-                >
-                  {programmingPlan ? (
-                    <>
-                      {selectedTabId === 'ProgrammationTab' && (
-                        <ProgrammingPrescriptionList
-                          programmingPlan={programmingPlan}
-                          region={region ?? undefined}
-                          department={user?.department ?? undefined}
-                          companies={user?.companies ?? undefined}
-                        />
-                      )}
-                      {selectedTabId === 'ConsultationTab' &&
-                        hasNationalView && (
-                          <ProgrammingPlanRegionalValidationList
+        {programmingPlans && (
+          <div className={cx('fr-container')}>
+            <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+              <div className={cx('fr-col-12')}>
+                {!programmingPlans.length ? (
+                  <Alert
+                    description={
+                      <>
+                        La programmation sera disponible une fois que{' '}
+                        <b>votre coordinateur aura effectué la répartition.</b>
+                      </>
+                    }
+                    severity="info"
+                    title=""
+                  />
+                ) : (
+                  <Tabs
+                    selectedTabId={selectedTabId}
+                    onTabChange={(tabId) =>
+                      setSelectedTabId(tabId as ProgrammingViewTab)
+                    }
+                    className={clsx({
+                      'full-width':
+                        (hasNationalView || hasRegionalView) &&
+                        prescriptionListDisplay === 'table'
+                    })}
+                    classes={{
+                      panel: clsx('white-container')
+                    }}
+                    tabs={[
+                      {
+                        label: 'Programmation',
+                        tabId: 'ProgrammationTab',
+                        iconId: 'fr-icon-survey-line' as const
+                      },
+                      programmingPlan?.distributionKind === 'REGIONAL' &&
+                      hasUserPermission('manageProgrammingPlan')
+                        ? {
+                            label: 'Phase de consultation',
+                            tabId: 'ConsultationTab',
+                            iconId: 'fr-icon-chat-check-line' as const
+                          }
+                        : undefined,
+                      programmingPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
+                      (hasUserPermission('manageProgrammingPlan') ||
+                        hasUserPermission(
+                          'distributePrescriptionToDepartments'
+                        ))
+                        ? {
+                            label: hasNationalView
+                              ? 'Statut par région'
+                              : 'Statut par département',
+                            tabId: 'ConsultationTab',
+                            iconId: 'fr-icon-chat-check-line' as const
+                          }
+                        : undefined,
+                      programmingPlan?.distributionKind === 'REGIONAL' &&
+                      hasUserPermission('commentPrescription')
+                        ? {
+                            label: 'Commentaires',
+                            tabId: 'CommentsTab',
+                            iconId: 'fr-icon-chat-3-line' as const
+                          }
+                        : undefined
+                    ].filter((tab) => !isNil(tab))}
+                  >
+                    {programmingPlan ? (
+                      <>
+                        {selectedTabId === 'ProgrammationTab' && (
+                          <ProgrammingPrescriptionList
+                            programmingPlan={programmingPlan}
+                            region={region ?? undefined}
+                            department={user?.department ?? undefined}
+                            companies={user?.companies ?? undefined}
+                          />
+                        )}
+                        {selectedTabId === 'ConsultationTab' &&
+                          hasNationalView && (
+                            <ProgrammingPlanRegionalValidationList
+                              programmingPlan={programmingPlan}
+                            />
+                          )}
+                        {selectedTabId === 'ConsultationTab' &&
+                          hasRegionalView && (
+                            <ProgrammingPlanDepartmentalValidationList
+                              programmingPlan={programmingPlan}
+                              region={region as Region}
+                            />
+                          )}
+                        {selectedTabId === 'CommentsTab' && (
+                          <ProgrammingCommentList
                             programmingPlan={programmingPlan}
                           />
                         )}
-                      {selectedTabId === 'ConsultationTab' &&
-                        hasRegionalView && (
-                          <ProgrammingPlanDepartmentalValidationList
-                            programmingPlan={programmingPlan}
-                            region={region as Region}
-                          />
-                        )}
-                      {selectedTabId === 'CommentsTab' && (
-                        <ProgrammingCommentList
-                          programmingPlan={programmingPlan}
-                        />
-                      )}
-                    </>
-                  ) : (
-                    'Veuillez sélectionner un plan de programmation'
-                  )}
-                </Tabs>
-              )}
+                      </>
+                    ) : (
+                      'Veuillez sélectionner un plan de programmation'
+                    )}
+                  </Tabs>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </section>
       <PrescriptionCommentsModal
         onSubmitLocalPrescriptionComment={submitLocalPrescriptionComment}
