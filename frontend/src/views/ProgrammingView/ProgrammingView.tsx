@@ -13,7 +13,7 @@ import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/Progr
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { useParams, useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation-white.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
 import PrescriptionCommentsModal from '../../components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
@@ -42,6 +42,7 @@ const ProgrammingView = () => {
   useDocumentTitle('Programmation');
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
+  const { year } = useParams<{ year: string }>();
 
   const [selectedTabId, setSelectedTabId] =
     useState<ProgrammingViewTab>('ProgrammationTab');
@@ -53,7 +54,10 @@ const ProgrammingView = () => {
   );
 
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery({
-    status: ProgrammingPlanStatusList.filter((status) => status !== 'Closed')
+    status: year
+      ? ['Closed']
+      : ProgrammingPlanStatusList.filter((status) => status !== 'Closed'),
+    year: year ? Number(year) : undefined
   });
   const [commentLocalPrescription, { isSuccess: isCommentSuccess }] =
     apiClient.useCommentLocalPrescriptionMutation();

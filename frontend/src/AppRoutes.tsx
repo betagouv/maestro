@@ -34,6 +34,12 @@ export const AuthenticatedAppRoutes = {
     label: 'Programmation',
     key: 'programmation_route'
   },
+  ProgrammingByYearRoute: {
+    ...AppRouteLinks.ProgrammingByYearRoute,
+    path: '/programmation/:year',
+    label: 'Programmation',
+    key: 'programmation_route'
+  },
   SamplesByYearRoute: {
     ...AppRouteLinks.SamplesByYearRoute,
     path: '/programmation/:year/prelevements',

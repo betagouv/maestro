@@ -12,6 +12,9 @@ export const AppRouteLinks = {
   ProgrammingRoute: {
     link: `/programmation`
   },
+  ProgrammingByYearRoute: {
+    link: (year: number) => `/programmation/${year}`
+  },
   SamplesByYearRoute: {
     link: (year: number) => `/programmation/${year}/prelevements`
   },

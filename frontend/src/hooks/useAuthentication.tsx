@@ -96,7 +96,7 @@ export const useAuthentication = () => {
           hasUserPermission('createResource') ? 'NewDocumentRoute' : undefined,
           hasUserPermission('createResource') ? 'DocumentRoute' : undefined,
           hasUserPermission('readPrescriptions')
-            ? 'ProgrammingRoute'
+            ? ['ProgrammingByYearRoute', 'ProgrammingRoute']
             : undefined,
           hasUserPermission('readSamples') ? 'SamplesByYearRoute' : undefined,
           hasUserPermission('createSample') ? 'NewSampleRoute' : undefined,
@@ -108,7 +108,9 @@ export const useAuthentication = () => {
             : undefined,
           hasUserPermission('administrationMaestro') ? 'UsersRoute' : undefined,
           hasUserPermission('administrationMaestro') ? 'AdminRoute' : undefined
-        ].filter(isDefined)
+        ]
+          .flat()
+          .filter(isDefined)
       : ['LoginRoute', 'LoginCallbackRoute'];
   }, [isAuthenticated, hasUserPermission]);
 

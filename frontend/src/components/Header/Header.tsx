@@ -249,7 +249,9 @@ const Header = () => {
                       },
                       {
                         linkProps: {
-                          to: AuthenticatedAppRoutes.ProgrammingRoute.link,
+                          to: AuthenticatedAppRoutes.ProgrammingByYearRoute.link(
+                            year
+                          ),
                           target: '_self'
                         },
                         text: `Programmation ${year}`,
