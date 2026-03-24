@@ -7,10 +7,9 @@ import { Brand } from 'maestro-shared/constants';
 import { UserRefined } from 'maestro-shared/schema/User/User';
 import { useCallback, useContext, useState } from 'react';
 import usersSvg from 'src/assets/illustrations/users.svg';
+import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
-import SectionHeader from '../../components/SectionHeader/SectionHeader';
 import { useAuthentication } from '../../hooks/useAuthentication';
-import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { ApiClientContext } from '../../services/apiClient';
 import { UserCard } from './components/UserCard';
 import { UserModal } from './components/UserModal';
@@ -27,8 +26,6 @@ const confirmDisablingUserModal = createModal({
 });
 
 export const UserListView = () => {
-  useDocumentTitle('Gestions des utilisateurs');
-
   const apiClient = useContext(ApiClientContext);
   const { user } = useAuthentication();
 
@@ -121,24 +118,23 @@ export const UserListView = () => {
 
   return (
     <>
-      <section className={clsx(cx('fr-container'), 'main-section')}>
-        <SectionHeader
-          title="Utilisateurs"
-          subtitle={`Gestion des utilisateurs`}
-          illustration={usersSvg}
-          action={
-            <Button
-              onClick={() => {
-                setUserToUpdate(null);
-                userFormModal.open();
-              }}
-              iconId="fr-icon-microscope-line"
-            >
-              Ajouter un utilisateur
-            </Button>
-          }
-        />
-
+      <AppPage
+        title="Utilisateurs"
+        subtitle={`Gestion des utilisateurs`}
+        illustration={usersSvg}
+        documentTitle="Gestions des utilisateurs"
+        action={
+          <Button
+            onClick={() => {
+              setUserToUpdate(null);
+              userFormModal.open();
+            }}
+            iconId="fr-icon-microscope-line"
+          >
+            Ajouter un utilisateur
+          </Button>
+        }
+      >
         <UsersFilters onChange={updateUsersFiltered} />
 
         <div
@@ -170,7 +166,7 @@ export const UserListView = () => {
             ))}
           </div>
         </div>
-      </section>
+      </AppPage>
       <UserModal
         modal={userFormModal}
         userToUpdate={userToUpdate}
