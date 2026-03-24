@@ -2,8 +2,6 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import clsx from 'clsx';
 import { Brand } from 'maestro-shared/constants';
 import { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import {
@@ -13,10 +11,9 @@ import {
 import { useContext, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import ressources from 'src/assets/illustrations/ressources.svg';
-import SectionHeader from 'src/components/SectionHeader/SectionHeader';
+import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
 import { ApiClientContext } from '../../services/apiClient';
 import DocumentListTabContent from './DocumentListTabContent/DocumentListTabContent';
@@ -33,7 +30,6 @@ const removeModal = createModal({
 
 const DocumentListView = () => {
   const apiClient = useContext(ApiClientContext);
-  useDocumentTitle('Liste des documents ressources');
 
   const [searchParams] = useSearchParams();
   const { hasUserPermission } = useAuthentication();
@@ -72,7 +68,7 @@ const DocumentListView = () => {
   });
 
   return (
-    <section className={clsx(cx('fr-container'), 'main-section')}>
+    <>
       <AppToast
         open={isCreateSuccess}
         description="Ressource déposée avec succès."
@@ -85,10 +81,11 @@ const DocumentListView = () => {
         open={isDeleteSuccess}
         description="Ressource supprimée avec succès."
       />
-      <SectionHeader
+      <AppPage
         title="Ressources"
         subtitle={`Consultez les ressources mises à disposition des utilisateurs de ${Brand}`}
         illustration={ressources}
+        documentTitle="Liste des documents ressources"
         action={
           hasUserPermission('createResource') && (
             <Button
@@ -102,56 +99,56 @@ const DocumentListView = () => {
             </Button>
           )
         }
-      />
-
-      <Tabs
-        tabs={[
-          {
-            label: 'Toutes les ressources',
-            content: (
-              <DocumentListTabContent
-                resources={resources ?? []}
-                onViewDocumentNotes={onViewNotes}
-                onRemoveDocument={onRemove}
-                newDocumentId={searchParams.get('documentId')}
-              />
-            )
-          },
-          ...ResourceDocumentKindList.map((kind) => ({
-            label: DocumentKindLabels[kind],
-            content: (
-              <DocumentListTabContent
-                resources={resources ?? []}
-                documentKind={kind}
-                onViewDocumentNotes={onViewNotes}
-                onRemoveDocument={onRemove}
-                newDocumentId={searchParams.get('documentId')}
-              />
-            )
-          }))
-        ]}
-      />
-      <noteModal.Component
-        title="Notes sur la ressource"
-        concealingBackdrop={false}
-        topAnchor
       >
-        {currentDocument?.notes}
-      </noteModal.Component>
-      <ConfirmationModal
-        modal={removeModal}
-        title="Supprimer un document"
-        onConfirm={async () => {
-          if (currentDocument) {
-            await deleteDocument(currentDocument.id);
-          }
-        }}
-        confirmLabel="Supprimer"
-        closeOnConfirm
-      >
-        Êtes-vous sûr de vouloir supprimer cette ressource ?
-      </ConfirmationModal>
-    </section>
+        <Tabs
+          tabs={[
+            {
+              label: 'Toutes les ressources',
+              content: (
+                <DocumentListTabContent
+                  resources={resources ?? []}
+                  onViewDocumentNotes={onViewNotes}
+                  onRemoveDocument={onRemove}
+                  newDocumentId={searchParams.get('documentId')}
+                />
+              )
+            },
+            ...ResourceDocumentKindList.map((kind) => ({
+              label: DocumentKindLabels[kind],
+              content: (
+                <DocumentListTabContent
+                  resources={resources ?? []}
+                  documentKind={kind}
+                  onViewDocumentNotes={onViewNotes}
+                  onRemoveDocument={onRemove}
+                  newDocumentId={searchParams.get('documentId')}
+                />
+              )
+            }))
+          ]}
+        />
+        <noteModal.Component
+          title="Notes sur la ressource"
+          concealingBackdrop={false}
+          topAnchor
+        >
+          {currentDocument?.notes}
+        </noteModal.Component>
+        <ConfirmationModal
+          modal={removeModal}
+          title="Supprimer un document"
+          onConfirm={async () => {
+            if (currentDocument) {
+              await deleteDocument(currentDocument.id);
+            }
+          }}
+          confirmLabel="Supprimer"
+          closeOnConfirm
+        >
+          Êtes-vous sûr de vouloir supprimer cette ressource ?
+        </ConfirmationModal>
+      </AppPage>
+    </>
   );
 };
 

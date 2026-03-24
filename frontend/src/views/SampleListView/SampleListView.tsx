@@ -34,12 +34,11 @@ import {
 } from 'maestro-shared/utils/utils';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router';
+import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import FiltersTags from 'src/components/FilterTags/FiltersTags';
 import SampleCard from 'src/components/SampleCard/SampleCard';
 import SampleTable from 'src/components/SampleTable/SampleTable';
-import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
@@ -56,7 +55,6 @@ import SupportDocumentDownload from '../SampleView/DraftSample/SupportDocumentDo
 import './SampleList.scss';
 
 const SampleListView = () => {
-  useDocumentTitle('Liste des prélèvements');
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
   const { isOnline } = useOnLine();
@@ -181,48 +179,48 @@ const SampleListView = () => {
   }
 
   return (
-    <section className={clsx(cx('fr-container'), 'main-section')}>
-      <SectionHeader
-        title={`Prélèvements ${year}`}
-        subtitle="Consultez les dossiers des prélèvements"
-        illustration={food}
-        action={
-          <>
-            {programmingPlan && hasUserPermission('createSample') && (
-              <div
-                className={clsx('d-flex-row', 'd-flex-justify-center')}
-                style={{ gap: '1rem' }}
-              >
-                {canDownloadSupportDocument && (
-                  <SupportDocumentDownload
-                    partialSample={{
-                      id: newPartialSampleId,
-                      sampler: user,
-                      status: 'Draft' as const,
-                      programmingPlanId: programmingPlan.id as string,
-                      programmingPlanKind: programmingPlan.kinds[0],
-                      specificData: {}
-                    }}
-                    buttonPriority={'tertiary'}
-                    alignRight
-                  />
-                )}
-                <Button
-                  linkProps={{
-                    to: AuthenticatedAppRoutes.NewSampleRoute.link(
-                      programmingPlan.year
-                    ),
-                    target: '_self'
+    <AppPage
+      title={`Prélèvements ${year}`}
+      subtitle="Consultez les dossiers des prélèvements"
+      illustration={food}
+      documentTitle="Liste des prélèvements"
+      action={
+        <>
+          {programmingPlan && hasUserPermission('createSample') && (
+            <div
+              className={clsx('d-flex-row', 'd-flex-justify-center')}
+              style={{ gap: '1rem' }}
+            >
+              {canDownloadSupportDocument && (
+                <SupportDocumentDownload
+                  partialSample={{
+                    id: newPartialSampleId,
+                    sampler: user,
+                    status: 'Draft' as const,
+                    programmingPlanId: programmingPlan.id as string,
+                    programmingPlanKind: programmingPlan.kinds[0],
+                    specificData: {}
                   }}
-                  iconId="fr-icon-microscope-line"
-                >
-                  Saisir un prélèvement
-                </Button>
-              </div>
-            )}
-          </>
-        }
-      />
+                  buttonPriority={'tertiary'}
+                  alignRight
+                />
+              )}
+              <Button
+                linkProps={{
+                  to: AuthenticatedAppRoutes.NewSampleRoute.link(
+                    programmingPlan.year
+                  ),
+                  target: '_self'
+                }}
+                iconId="fr-icon-microscope-line"
+              >
+                Saisir un prélèvement
+              </Button>
+            </div>
+          )}
+        </>
+      }
+    >
       {isOnline ? (
         <>
           {isMobile ? (
@@ -358,7 +356,7 @@ const SampleListView = () => {
       ) : (
         <Skeleton variant="rectangular" height={400} />
       )}
-    </section>
+    </AppPage>
   );
 };
 

@@ -21,14 +21,12 @@ import { useContext, useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate } from 'react-router';
 import notificationsImg from 'src/assets/illustrations/notifications.svg';
-import SectionHeader from 'src/components/SectionHeader/SectionHeader';
-import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
+import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
 import './NotificationsView.scss';
 
 const NotificationsView = () => {
-  useDocumentTitle('Centre de notifications');
   const apiClient = useContext(ApiClientContext);
   const navigate = useNavigate();
   const { user } = useAuthentication();
@@ -91,29 +89,28 @@ const NotificationsView = () => {
   };
 
   return (
-    <section className={clsx(cx('fr-container'), 'main-section')}>
-      <SectionHeader
-        title="Notifications"
-        subtitle={`Votre centre de notifications suite aux activités sur ${Brand}`}
-        illustration={notificationsImg}
-        action={
-          <Button
-            iconId="fr-icon-check-line"
-            priority="secondary"
-            onClick={() =>
-              updateNotifications({
-                recipientId: user?.id as string,
-                notificationUpdate: {
-                  read: true
-                }
-              })
-            }
-          >
-            Tout marquer comme lu
-          </Button>
-        }
-      />
-
+    <AppPage
+      title="Notifications"
+      subtitle={`Votre centre de notifications suite aux activités sur ${Brand}`}
+      illustration={notificationsImg}
+      documentTitle="Centre de notifications"
+      action={
+        <Button
+          iconId="fr-icon-check-line"
+          priority="secondary"
+          onClick={() =>
+            updateNotifications({
+              recipientId: user?.id as string,
+              notificationUpdate: {
+                read: true
+              }
+            })
+          }
+        >
+          Tout marquer comme lu
+        </Button>
+      }
+    >
       {notificationsByDay &&
         Object.entries(notificationsByDay)
           .slice(0, visibleDays)
@@ -248,7 +245,7 @@ const NotificationsView = () => {
           </Button>
         </div>
       )}
-    </section>
+    </AppPage>
   );
 };
 
