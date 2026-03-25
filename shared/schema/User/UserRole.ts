@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { Region } from '../../referential/Region';
-import { Nullable } from '../../utils/typescript';
-import { UserRefined } from './User';
-import { UserPermission } from './UserPermission';
+import type { Region } from '../../referential/Region';
+import type { Nullable } from '../../utils/typescript';
+import type { UserRefined } from './User';
+import type { UserPermission } from './UserPermission';
 
 const NationalUserRole = z.enum([
   'Administrator',

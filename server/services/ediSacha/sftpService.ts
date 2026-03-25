@@ -1,13 +1,11 @@
-import sftp from 'ssh2-sftp-client';
-import config from '../../utils/config';
-
-import { readFileSync } from 'fs';
-import fs from 'node:fs';
+import fs, { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { promisify } from 'node:util';
-import path from 'path';
+import sftp from 'ssh2-sftp-client';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import { sachaConfRepository } from '../../repositories/sachaConfRepository';
+import config from '../../utils/config';
 import { unzip } from '../zipService';
 import { processSachaRAI } from './sachaRAI';
 import { sendSachaFile } from './sachaSender';

@@ -5,7 +5,7 @@ import {
   UserToCreateRefined,
   UserToUpdateRefined
 } from '../schema/User/User';
-import { SubRoutes } from './routes';
+import type { SubRoutes } from './routes';
 
 export const usersRoutes = {
   '/users': {

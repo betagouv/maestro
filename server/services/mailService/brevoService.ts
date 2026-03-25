@@ -1,9 +1,9 @@
 import SendEmailError from 'maestro-shared/errors/sendEmailError';
 import config from '../../utils/config';
 import {
-  MailService,
-  SendOptions,
-  TemplateName,
+  type MailService,
+  type SendOptions,
+  type TemplateName,
   Templates
 } from './mailService';
 

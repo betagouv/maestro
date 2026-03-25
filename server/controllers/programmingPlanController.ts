@@ -1,15 +1,19 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import { intersection, isNil } from 'lodash-es';
 import { Brand } from 'maestro-shared/constants';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
-import { Department } from 'maestro-shared/referential/Department';
-import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
+import type { Department } from 'maestro-shared/referential/Department';
+import {
+  type Region,
+  RegionList,
+  Regions
+} from 'maestro-shared/referential/Region';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { NotificationCategoryTitles } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { ProgrammingPlanKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   NextProgrammingPlanStatus,
-  ProgrammingPlanStatus,
+  type ProgrammingPlanStatus,
   ProgrammingPlanStatusList,
   ProgrammingPlanStatusPermissions
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
@@ -30,7 +34,7 @@ import prescriptionSubstanceRepository from '../repositories/prescriptionSubstan
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import { userRepository } from '../repositories/userRepository';
-import { ProtectedSubRouter } from '../routers/routes.type';
+import type { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
 
 export const programmingPlanRouter = {
@@ -142,12 +146,12 @@ export const programmingPlanRouter = {
       }
 
       await Promise.all(
-        RegionList.map((region) => {
+        RegionList.map((region) =>
           programmingPlanRepository.updateLocalStatus(programmingPlan.id, {
             region,
             status: newProgrammingPlanStatus
-          });
-        })
+          })
+        )
       );
 
       await programmingPlanRepository.update({

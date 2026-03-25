@@ -1,4 +1,4 @@
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { useContext } from 'react';
 import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSummary';
 import { ApiClientContext } from '../../../services/apiClient';

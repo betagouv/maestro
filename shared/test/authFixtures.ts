@@ -1,5 +1,5 @@
 import { fakerFR } from '@faker-js/faker';
-import { AuthRedirectUrl } from '../schema/Auth/AuthRedirectUrl';
+import type { AuthRedirectUrl } from '../schema/Auth/AuthRedirectUrl';
 
 export const genAuthRedirectUrl = (
   data?: Partial<AuthRedirectUrl>

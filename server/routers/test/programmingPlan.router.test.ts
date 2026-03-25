@@ -1,12 +1,12 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import {
   isDromRegion,
-  Region,
+  type Region,
   RegionList
 } from 'maestro-shared/referential/Region';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   genLocalPrescription,
   genPrescription,
@@ -39,6 +39,7 @@ import {
 } from '../../repositories/programmingPlanRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
+
 describe('ProgrammingPlan router', () => {
   const { app } = createServer();
 

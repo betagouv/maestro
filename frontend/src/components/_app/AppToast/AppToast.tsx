@@ -1,5 +1,5 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
-import { AlertProps } from '@codegouvfr/react-dsfr/src/Alert';
+import type { AlertProps } from '@codegouvfr/react-dsfr/src/Alert';
 import AutoClose from 'src/components/AutoClose/AutoClose';
 
 interface Props {
@@ -11,7 +11,7 @@ interface Props {
 
 const AppToast = ({ open, description, severity, onClose }: Props) => {
   if (!open) {
-    return <></>;
+    return null;
   }
 
   return (

@@ -1,4 +1,4 @@
-import { SachaCommemoratifRecord } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import type { SachaCommemoratifRecord } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { api } from 'src/services/api.service';
 
 const sachaCommemoratifsApi = api.injectEndpoints({

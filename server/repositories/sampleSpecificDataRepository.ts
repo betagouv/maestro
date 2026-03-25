@@ -1,10 +1,10 @@
-import {
+import type {
   CommemoratifSigle,
   CommemoratifValueSigle
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 
 import { kysely } from './kysely';
-import { KyselyMaestro } from './kysely.type';
+import type { KyselyMaestro } from './kysely.type';
 
 const updateSampleSpecificDataAttribute = async (
   sampleSpecificDataAttribute: {

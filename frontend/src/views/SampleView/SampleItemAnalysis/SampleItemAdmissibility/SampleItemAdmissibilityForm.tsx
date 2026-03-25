@@ -1,21 +1,19 @@
-import { format } from 'date-fns';
-import { useState } from 'react';
-import z from 'zod';
-import { useForm } from '../../../../hooks/useForm';
-
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
+import { format } from 'date-fns';
 import { isNil } from 'lodash-es';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { MaestroDate } from 'maestro-shared/utils/date';
 import { checkSchema } from 'maestro-shared/utils/zod';
 import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
+import z from 'zod';
 import check from '../../../../assets/illustrations/check.svg';
 import warning from '../../../../assets/illustrations/warning.svg';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
+import { useForm } from '../../../../hooks/useForm';
 
 const FormChecked = checkSchema(
   z.object({

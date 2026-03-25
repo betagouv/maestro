@@ -36,35 +36,31 @@ export const LoginCallbackView = () => {
       nonce: sessionStorage.getItem('nonce'),
       state: sessionStorage.getItem('state')
     });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
-  useEffect(
-    () => {
-      if (isSuccess) {
-        dispatch(authSlice.actions.signinUser({ authUser }));
+  useEffect(() => {
+    if (isSuccess) {
+      dispatch(authSlice.actions.signinUser({ authUser }));
 
-        const goTo =
-          sessionStorage.getItem(SESSION_STORAGE_REDIRECT_URL) ?? '/';
-        sessionStorage.removeItem(SESSION_STORAGE_REDIRECT_URL);
+      const goTo = sessionStorage.getItem(SESSION_STORAGE_REDIRECT_URL) ?? '/';
+      sessionStorage.removeItem(SESSION_STORAGE_REDIRECT_URL);
 
-        if (authUser.user !== null) {
-          setTimeout(() => navigate(goTo, { replace: true }));
-        } else {
-          const asyncLogout = async () => {
-            sessionStorage.setItem(
-              SESSION_STORAGE_UNKNOWN_USER_EMAIl,
-              authUser.userEmail
-            );
-            const logoutRedirectUrl = await logout().unwrap();
-            await appLogout()(dispatch);
-            window.location.href = logoutRedirectUrl.url;
-          };
-          asyncLogout();
-        }
+      if (authUser.user !== null) {
+        setTimeout(() => navigate(goTo, { replace: true }));
+      } else {
+        const asyncLogout = async () => {
+          sessionStorage.setItem(
+            SESSION_STORAGE_UNKNOWN_USER_EMAIl,
+            authUser.userEmail
+          );
+          const logoutRedirectUrl = await logout().unwrap();
+          await appLogout()(dispatch);
+          window.location.href = logoutRedirectUrl.url;
+        };
+        asyncLogout();
       }
-    },
-    [isSuccess, authUser] // eslint-disable-line react-hooks/exhaustive-deps
-  );
+    }
+  }, [isSuccess, authUser]);
 
   return (
     <section className={clsx(cx('fr-container-sm'), 'main-section')}>

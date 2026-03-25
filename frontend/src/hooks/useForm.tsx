@@ -1,6 +1,6 @@
 import { isEqual } from 'lodash-es';
 import { useEffect, useState } from 'react';
-import { z, ZodObject } from 'zod';
+import type { ZodObject, z } from 'zod';
 import { useAutoSave } from './useAutoSave';
 
 type MessageType = 'error' | 'success' | 'default';
@@ -103,7 +103,6 @@ export function useForm<
         }
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...Object.values(input)]);
 
   const { triggerSave } = useAutoSave({
@@ -116,7 +115,7 @@ export function useForm<
       triggerSave?.();
     }
     setIsInitialized(true);
-  }, [...Object.values(input)]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [...Object.values(input)]);
 
   return {
     isTouched,

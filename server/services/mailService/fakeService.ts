@@ -1,4 +1,4 @@
-import { MailService } from './mailService';
+import type { MailService } from './mailService';
 
 export const createFakeMailService = (): MailService => ({
   send: async () => {}

@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 import { OptionalBooleanList } from 'maestro-shared/referential/OptionnalBoolean';
 import { ResidueComplianceList } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { ResidueKindList } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';

@@ -1,6 +1,6 @@
-import { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
-import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
+import type { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
+import type { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import z from 'zod';
 
 export const sigleContexteInterventionValidator = z.enum([

@@ -1,11 +1,11 @@
-import { createModal } from '@codegouvfr/react-dsfr/Modal';
+import type { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import {
   Department,
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
-import { Company } from 'maestro-shared/schema/Company/Company';
+import type { Company } from 'maestro-shared/schema/Company/Company';
 import {
   ProgrammingPlanKindLabels,
   ProgrammingPlanKindList
@@ -15,7 +15,7 @@ import {
   departmentIsRequired,
   laboratoryIsRequired,
   programmingPlanKindsIsRequired,
-  UserRefined,
+  type UserRefined,
   UserToCreateRefined
 } from 'maestro-shared/schema/User/User';
 import {
@@ -24,8 +24,9 @@ import {
   UserRoleLabels,
   UserRoleList
 } from 'maestro-shared/schema/User/UserRole';
-import { Nullable } from 'maestro-shared/utils/typescript';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import type { Nullable } from 'maestro-shared/utils/typescript';
+import type React from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import { AppMultiSelect } from '../../../components/_app/AppMultiSelect/AppMultiSelect';
@@ -124,7 +125,7 @@ export const UserModal = ({
     if (!canHaveDepartment(user)) {
       setUser((u) => ({ ...u, department: null }));
     }
-  }, [user.roles, user.region]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user.roles, user.region]);
 
   const [abattoirs, setAbattoirs] = useState<Company[]>([]);
   useEffect(() => {

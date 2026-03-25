@@ -1,22 +1,22 @@
 import { isNil } from 'lodash-es';
-import { Department } from 'maestro-shared/referential/Department';
-import { Region } from 'maestro-shared/referential/Region';
+import type { Department } from 'maestro-shared/referential/Department';
+import type { Region } from 'maestro-shared/referential/Region';
 import {
   hasLocalPrescriptionPermission,
-  LocalPrescriptionPermission
+  type LocalPrescriptionPermission
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
   hasPrescriptionPermission,
-  PrescriptionPermission
+  type PrescriptionPermission
 } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { hasPermission } from 'maestro-shared/schema/User/User';
-import { UserPermission } from 'maestro-shared/schema/User/UserPermission';
+import type { UserPermission } from 'maestro-shared/schema/User/UserPermission';
 import {
   isDepartmentalRole,
   isNationalRole,
   isRegionalRole,
-  UserRole
+  type UserRole
 } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useMemo } from 'react';

@@ -1,6 +1,6 @@
 import { Autocomplete } from '@mui/material';
-import { AddressSearchResult } from 'maestro-shared/schema/Address/AddressSearchResult';
-import { SyntheticEvent, useContext, useState } from 'react';
+import type { AddressSearchResult } from 'maestro-shared/schema/Address/AddressSearchResult';
+import { type SyntheticEvent, useContext, useState } from 'react';
 import { ApiClientContext } from '../../services/apiClient';
 
 interface Props {

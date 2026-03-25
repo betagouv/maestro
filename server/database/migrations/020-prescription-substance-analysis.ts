@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 import { prescriptionsTable } from '../../repositories/prescriptionRepository';
 import { prescriptionSubstanceTable } from '../../repositories/prescriptionSubstanceRepository';
 import { programmingPlansTable } from '../../repositories/programmingPlanRepository';

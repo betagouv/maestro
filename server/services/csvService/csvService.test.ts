@@ -1,7 +1,5 @@
-/* eslint-disable no-irregular-whitespace */
-
 import { faker } from '@faker-js/faker';
-import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
+import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';

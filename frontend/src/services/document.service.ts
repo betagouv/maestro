@@ -1,8 +1,8 @@
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import {
   DocumentChecked,
-  DocumentToCreateChecked,
-  DocumentUpdateChecked
+  type DocumentToCreateChecked,
+  type DocumentUpdateChecked
 } from 'maestro-shared/schema/Document/Document';
 import { api } from 'src/services/api.service';
 

@@ -5,9 +5,9 @@ import { RegionList, Regions } from '../referential/Region';
 import { SSD2Ids } from '../referential/Residue/SSD2Id';
 import { StageList } from '../referential/Stage';
 import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
-import { LocalPrescription } from '../schema/LocalPrescription/LocalPrescription';
-import { Prescription } from '../schema/Prescription/Prescription';
-import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
+import type { LocalPrescription } from '../schema/LocalPrescription/LocalPrescription';
+import type { Prescription } from '../schema/Prescription/Prescription';
+import type { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
 import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import { LaboratoryFixture } from './laboratoryFixtures';
 import {

@@ -3,8 +3,10 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { StageLabels } from 'maestro-shared/referential/Stage';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import React, { useMemo } from 'react';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import type React from 'react';
+import { useMemo } from 'react';
+
 interface Props {
   prescription: Prescription;
   onRemove: () => Promise<void>;

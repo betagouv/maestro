@@ -1,23 +1,27 @@
 import type { FeatureCollection } from 'geojson';
 import { sumBy } from 'lodash-es';
-import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
+import {
+  type Region,
+  RegionList,
+  Regions
+} from 'maestro-shared/referential/Region';
 import {
   getCompletionRate,
-  LocalPrescription
+  type LocalPrescription
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import maplibregl, {
-  CircleLayerSpecification,
-  FillLayerSpecification,
-  LineLayerSpecification,
-  MapGeoJSONFeature,
-  Point,
-  StyleSpecification,
-  SymbolLayerSpecification
+  type CircleLayerSpecification,
+  type FillLayerSpecification,
+  type LineLayerSpecification,
+  type MapGeoJSONFeature,
+  type Point,
+  type StyleSpecification,
+  type SymbolLayerSpecification
 } from 'maplibre-gl';
 import { useContext, useMemo, useRef, useState } from 'react';
-import Map, { Layer, Source } from 'react-map-gl/maplibre';
+import { Layer, Map as MapLibre, Source } from 'react-map-gl/maplibre';
 import { useNavigate } from 'react-router';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { ApiClientContext } from '../../services/apiClient';
@@ -72,7 +76,7 @@ const ProgrammingPlanMap = ({
   }, [hoverInfo]);
 
   if (!regions || !localPrescriptions) {
-    return <></>;
+    return null;
   }
 
   const getSampleCount = (region: Region) =>
@@ -235,7 +239,7 @@ const ProgrammingPlanMap = ({
 
   return (
     <div data-testid="prescription-map">
-      <Map
+      <MapLibre
         ref={ref}
         attributionControl
         id="prescriptionMap"
@@ -314,7 +318,7 @@ const ProgrammingPlanMap = ({
           <span>1</span>
           <span style={{ float: 'right' }}>100</span>
         </div>
-      </Map>
+      </MapLibre>
     </div>
   );
 };

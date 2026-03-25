@@ -1,4 +1,4 @@
-import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
+import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 
 const escapeCsvValue = (value: any) => {
   if (value === undefined || value === null) return '';
@@ -55,7 +55,7 @@ const generateAnalysisRequestCsv = async (data: AnalysisRequestData) => {
 
   if (data.laboratory.shortName === 'GIR 49') {
     // UTF-8 BOM pour GIRPA
-    csvContent = '\ufeff' + csvContent;
+    csvContent = `\ufeff${csvContent}`;
   }
   return Buffer.from(csvContent, 'utf-8');
 };

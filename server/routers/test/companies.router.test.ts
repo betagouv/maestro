@@ -1,7 +1,4 @@
-import { constants } from 'http2';
-import request from 'supertest';
-import { createServer } from '../../server';
-
+import { constants } from 'node:http2';
 import {
   CompanyFixture,
   SlaughterhouseCompanyFixture1,
@@ -9,8 +6,11 @@ import {
 } from 'maestro-shared/test/companyFixtures';
 import { NationalCoordinator } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
+import request from 'supertest';
 import { describe, test } from 'vitest';
+import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
+
 describe('Company Router', () => {
   const { app } = createServer();
 

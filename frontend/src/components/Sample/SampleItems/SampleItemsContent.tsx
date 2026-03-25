@@ -1,15 +1,15 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import {
+import type {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import {
-  PartialSampleItem,
+  type PartialSampleItem,
   SampleItemMaxCopyCount
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { Fragment } from 'react';
-import { UseForm } from '../../../hooks/useForm';
+import type { UseForm } from '../../../hooks/useForm';
 import SampleItemContent from './SampleItemContent';
 
 interface Props {

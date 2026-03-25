@@ -2,11 +2,11 @@ import {
   getAnalytes,
   isComplex
 } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
+import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { LmrIsValid } from 'maestro-shared/schema/Analysis/Residue/Residue';
-import { OmitDistributive } from 'maestro-shared/utils/typescript';
+import type { OmitDistributive } from 'maestro-shared/utils/typescript';
 import { analysisReportDocumentsRepository } from '../../repositories/analysisReportDocumentsRepository';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import { analysisResidueRepository } from '../../repositories/analysisResidueRepository';
@@ -15,7 +15,7 @@ import { residueAnalyteRepository } from '../../repositories/residueAnalyteRepos
 import { sampleRepository } from '../../repositories/sampleRepository';
 import { documentService } from '../documentService';
 import { ExtractError } from './extractError';
-import { ExportAnalysis, ExportDataSubstanceWithSSD2Id } from './index';
+import type { ExportAnalysis, ExportDataSubstanceWithSSD2Id } from './index';
 
 export type AnalysisWithResidueWithSSD2Id = Omit<ExportAnalysis, 'residues'> & {
   residues: ExportDataSubstanceWithSSD2Id[];
@@ -209,7 +209,7 @@ export const analysisHandler = async (
         notesOnCompliance: analyse.notes
       };
 
-      let analysisId;
+      let analysisId: string;
       if (oldAnalyseId) {
         await analysisRepository.update({ ...newAnalysis, id: oldAnalyseId });
         await analysisResidueRepository.deleteByAnalysisId(oldAnalyseId, trx);

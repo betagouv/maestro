@@ -8,7 +8,6 @@ if (config.sentry.enabled && !config.sentry.dsn) {
 if (config.sentry.enabled && config.sentry.dsn) {
   const logLevel = ['error'];
 
-  // eslint-disable-next-line no-undef
   console.info(
     `Initializing Sentry for log level "${logLevel}" and config: ${config.sentry.dsn}`
   );

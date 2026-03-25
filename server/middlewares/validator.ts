@@ -1,6 +1,6 @@
-import { Request } from 'express';
+import type { Request } from 'express';
 import sanitizeHtml from 'sanitize-html';
-import { z, ZodObject } from 'zod';
+import type { ZodObject, z } from 'zod';
 
 const sanitizeObject = (obj: unknown): any => {
   if (typeof obj === 'string') {
@@ -17,10 +17,8 @@ const sanitizeObject = (obj: unknown): any => {
   if (typeof obj === 'object' && obj !== null) {
     return Object.keys(obj).reduce(
       (acc, key) => {
-        return {
-          ...acc,
-          [key]: sanitizeObject((obj as Record<string, unknown>)[key])
-        };
+        acc[key] = sanitizeObject((obj as Record<string, unknown>)[key]);
+        return acc;
       },
       {} as Record<string, unknown>
     );

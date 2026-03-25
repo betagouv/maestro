@@ -1,7 +1,7 @@
 import LocalPrescriptionMissingError from 'maestro-shared/errors/localPrescriptionPlanMissingError';
-import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
-import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import type { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
+import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import localPrescriptionRepository from '../../repositories/localPrescriptionRepository';
 
 export const getAndCheckLocalPrescription = async ({

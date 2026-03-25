@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import type { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   genPartialAnalysis,
   genPartialAnalyte,

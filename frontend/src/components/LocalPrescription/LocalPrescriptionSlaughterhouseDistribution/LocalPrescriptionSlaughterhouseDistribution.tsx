@@ -6,10 +6,10 @@ import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
 import { CompanyKindByMatrixKind } from 'maestro-shared/schema/Company/CompanyKind';
 import {
-  LocalPrescription,
+  type LocalPrescription,
   SlaughterhouseSampleCounts
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import {
   forwardRef,
   useContext,

@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { UserPermission } from '../User/UserPermission';
-import { DistributionKind } from './DistributionKind';
+import type { UserPermission } from '../User/UserPermission';
+import type { DistributionKind } from './DistributionKind';
 
 export const ProgrammingPlanStatus = z.enum(
   [

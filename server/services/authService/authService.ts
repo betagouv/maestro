@@ -1,4 +1,4 @@
-import { AuthRedirectUrl } from 'maestro-shared/schema/Auth/AuthRedirectUrl';
+import type { AuthRedirectUrl } from 'maestro-shared/schema/Auth/AuthRedirectUrl';
 
 export interface AuthService {
   getAuthorizationUrl(scope: string): AuthRedirectUrl;

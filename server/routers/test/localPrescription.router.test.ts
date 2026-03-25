@@ -1,19 +1,19 @@
+import { constants } from 'node:http2';
 import { fakerFR } from '@faker-js/faker';
-import { constants } from 'http2';
 import { isEqual, omit } from 'lodash-es';
 import { MatrixKindEffective } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { Region, RegionList } from 'maestro-shared/referential/Region';
-import {
+import { type Region, RegionList } from 'maestro-shared/referential/Region';
+import type {
   LocalPrescription,
   LocalPrescriptionUpdate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import {
+import type {
   LocalPrescriptionComment,
   LocalPrescriptionCommentToCreate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { UserRefined } from 'maestro-shared/schema/User/User';
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
 import { genLaboratory } from 'maestro-shared/test/laboratoryFixtures';
 import {

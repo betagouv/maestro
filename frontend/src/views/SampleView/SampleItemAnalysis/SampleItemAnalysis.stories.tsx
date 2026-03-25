@@ -1,14 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
-  Sample11Fixture,
-  Sample1Item1Fixture
+  Sample1Item1Fixture,
+  Sample11Fixture
 } from 'maestro-shared/test/sampleFixtures';
+import { fn } from 'storybook/test';
 import { getMockApi } from '../../../services/mockApiClient';
 import SampleItemAnalysis from './SampleItemAnalysis';
-
-import { fn } from 'storybook/test';
 import '../SampleOverview/SampleOverview.scss';
 
 const meta = {

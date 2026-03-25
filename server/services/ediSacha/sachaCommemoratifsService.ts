@@ -1,7 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import {
-  CommemoratifSigle,
-  CommemoratifValueSigle,
+  type CommemoratifSigle,
+  type CommemoratifValueSigle,
   SachaCommemoratifTypeDonnee
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import z from 'zod';

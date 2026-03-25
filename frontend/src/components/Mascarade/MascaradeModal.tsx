@@ -1,16 +1,18 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { createModal } from '@codegouvfr/react-dsfr/Modal';
+import type { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { Brand } from 'maestro-shared/constants';
 import { Regions } from 'maestro-shared/referential/Region';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
-import React, { FunctionComponent, useContext, useState } from 'react';
+import type React from 'react';
+import { type FunctionComponent, useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
 import AppSearchInput from '../_app/AppSearchInput/AppSearchInput';
 import { selectOptionsFromList } from '../_app/AppSelect/AppSelectOption';
 import { useMascarade } from './useMascarade';
+
 interface Props {
   modal: ReturnType<typeof createModal>;
 }

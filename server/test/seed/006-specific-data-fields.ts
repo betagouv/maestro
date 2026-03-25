@@ -1,6 +1,7 @@
+/** biome-ignore-all lint/suspicious/noAssignInExpressions: old */
 import { AllFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
 import { kysely } from '../../repositories/kysely';
-import {
+import type {
   ProgrammingPlanKindFieldId,
   SpecificDataFieldOptionId
 } from '../../repositories/kysely.type';

@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 export const up = async (knex: Knex) => {
   await knex.raw(
     'drop index public.prescription_substances_prescription_id_index'

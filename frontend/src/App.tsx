@@ -2,8 +2,8 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createMuiDsfrThemeProvider } from '@codegouvfr/react-dsfr/mui';
 import { startReactDsfr } from '@codegouvfr/react-dsfr/spa';
 import clsx from 'clsx';
-import { AppRouteKeys } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import React, { ReactElement } from 'react';
+import type { AppRouteKeys } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
+import React, { type ReactElement } from 'react';
 import { Provider } from 'react-redux';
 import { Link, Route, Routes } from 'react-router';
 import Footer from 'src/components/Footer/Footer';
@@ -18,7 +18,7 @@ import { AppRouteComponents } from './AppRouteComponents';
 import { AppRoutes, RedirectRoute } from './AppRoutes';
 import { MascaradeNotice } from './components/Mascarade/MascaradeNotice';
 import { RootNotice } from './components/RootNotice/RootNotice';
-import { apiClient, ApiClientContext } from './services/apiClient';
+import { ApiClientContext, apiClient } from './services/apiClient';
 import { store } from './store/store';
 
 declare module '@codegouvfr/react-dsfr/spa' {
@@ -58,7 +58,7 @@ function App() {
   const { isOnline } = useOnLine();
 
   return (
-    <React.Suspense fallback={<></>}>
+    <React.Suspense>
       <MascaradeNotice />
       <Header />
       <RootNotice />

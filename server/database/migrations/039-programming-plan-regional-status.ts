@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 export const up = async (knex: Knex) => {
   await knex.schema.alterTable('programming_plan_regional_status', (table) => {
     table.dropChecks('programming_plan_regional_status_status_check');

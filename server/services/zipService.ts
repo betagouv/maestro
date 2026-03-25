@@ -1,6 +1,7 @@
 import child_process from 'node:child_process';
+import path from 'node:path';
 import { promisify } from 'node:util';
-import path from 'path';
+
 const exec = promisify(child_process.exec);
 
 export const zip = async (

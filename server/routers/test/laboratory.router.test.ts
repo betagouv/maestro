@@ -15,6 +15,7 @@ import {
   PPVDummyLaboratoryIds,
   UserRefined
 } from 'maestro-shared/schema/User/User';
+import { genLaboratory } from 'maestro-shared/test/laboratoryFixtures';
 import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   DepartmentalCoordinator,
@@ -26,7 +27,11 @@ import {
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
+import request from 'supertest';
 import { describe, expect, test } from 'vitest';
+import { Laboratories } from '../../repositories/laboratoryRepository';
+import { createServer } from '../../server';
+import { tokenProvider } from '../../test/testUtils';
 describe('Laboratory router', () => {
   const { app } = createServer();
 

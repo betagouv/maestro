@@ -1,7 +1,7 @@
 import z from 'zod';
 import { Company } from '../schema/Company/Company';
 import { FindCompanyOptions } from '../schema/Company/FindCompanyOptions';
-import { SubRoutes } from './routes';
+import type { SubRoutes } from './routes';
 
 export const companiesRoutes = {
   '/companies': {

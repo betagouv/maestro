@@ -9,7 +9,6 @@ const TrackEventCategory = z.enum([
 
 type TrackEventCategory = z.infer<typeof TrackEventCategory>;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const trackEventAction = {
   geolocation: z.enum(['enable', 'disable']),
   sample: z.enum([

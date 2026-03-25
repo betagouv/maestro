@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 import { AnalysisMethodList } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 
 export const up = async (knex: Knex) => {

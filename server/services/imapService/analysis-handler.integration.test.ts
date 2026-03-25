@@ -4,8 +4,8 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { kysely } from '../../repositories/kysely';
 import { s3Service } from '../s3Service';
 import {
-  analysisHandler,
-  AnalysisWithResidueWithSSD2Id
+  type AnalysisWithResidueWithSSD2Id,
+  analysisHandler
 } from './analysis-handler';
 
 let spyDeleteDocument = vi.spyOn(s3Service, 'deleteDocument');

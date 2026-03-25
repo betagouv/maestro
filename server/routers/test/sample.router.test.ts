@@ -1,31 +1,10 @@
+import { constants } from 'node:http2';
+import { fakerFR } from '@faker-js/faker';
 import { addDays, format } from 'date-fns';
-import { constants } from 'http2';
 import { omit } from 'lodash-es';
 import { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
-import { Region, Regions } from 'maestro-shared/referential/Region';
-import {
-  genCreatedPartialSample,
-  genSampleContextData,
-  genSampleItem,
-  Sample11Fixture,
-  Sample12Fixture,
-  Sample13Fixture,
-  Sample2Fixture,
-  SampleDAOA1Fixture
-} from 'maestro-shared/test/sampleFixtures';
-import { oneOf } from 'maestro-shared/test/testFixtures';
-import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
-import { SampleItems } from '../../repositories/sampleItemRepository';
-import {
-  formatPartialSample,
-  Samples
-} from '../../repositories/sampleRepository';
-import { createServer } from '../../server';
-import { tokenProvider } from '../../test/testUtils';
-
-import { fakerFR } from '@faker-js/faker';
-import { UserRefined } from 'maestro-shared/schema/User/User';
+import { type Region, Regions } from 'maestro-shared/referential/Region';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   CompanyFixture,
   SlaughterhouseCompanyFixture1
@@ -34,6 +13,17 @@ import {
   DAOAInProgressProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  genCreatedPartialSample,
+  genSampleContextData,
+  genSampleItem,
+  Sample2Fixture,
+  Sample11Fixture,
+  Sample12Fixture,
+  Sample13Fixture,
+  SampleDAOA1Fixture
+} from 'maestro-shared/test/sampleFixtures';
+import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
   NationalCoordinator,
@@ -46,13 +36,22 @@ import {
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { withISOStringDates } from 'maestro-shared/utils/date';
+import request from 'supertest';
+import { v4 as uuidv4 } from 'uuid';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { departmentsSeed } from '../../database/seeds/departments/departmentsSeed';
+import { SampleItems } from '../../repositories/sampleItemRepository';
+import {
+  formatPartialSample,
+  Samples
+} from '../../repositories/sampleRepository';
+import { createServer } from '../../server';
 import {
   mockGenerateSampleSupportPDF,
   mockMailSend,
   mockMattermostSend
 } from '../../test/setupTests';
+import { tokenProvider } from '../../test/testUtils';
 
 beforeAll(async () => {
   await departmentsSeed();

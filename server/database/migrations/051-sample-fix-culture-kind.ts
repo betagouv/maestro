@@ -1,7 +1,7 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 import {
   RealizedStatusList,
-  SampleStatus
+  type SampleStatus
 } from 'maestro-shared/schema/Sample/SampleStatus';
 
 export const up = async (knex: Knex) => {
@@ -34,4 +34,4 @@ export const up = async (knex: Knex) => {
   }
 };
 
-export const down = async (knex: Knex) => {};
+export const down = async (_knex: Knex) => {};

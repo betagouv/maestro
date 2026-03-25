@@ -1,4 +1,4 @@
-import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { executeTransaction } from './kysely';
 
 const upsert = async (

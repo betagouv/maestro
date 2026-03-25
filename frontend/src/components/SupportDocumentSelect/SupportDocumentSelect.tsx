@@ -1,12 +1,12 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
-import {
+import type {
   SampleChecked,
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import {
-  SampleItem,
+  type SampleItem,
   SampleItemSort
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { useState } from 'react';
@@ -25,7 +25,7 @@ const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
   const [selectedItem, setSelectedItem] = useState(0);
 
   if (sample.items.length === 0) {
-    return <></>;
+    return null;
   }
 
   const sortedItems = [...sample.items].sort(SampleItemSort);

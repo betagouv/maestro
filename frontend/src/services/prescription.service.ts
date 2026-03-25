@@ -1,9 +1,9 @@
 import { isNil, omitBy } from 'lodash-es';
-import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
+import type { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import {
   Prescription,
-  PrescriptionToCreate,
-  PrescriptionUpdate
+  type PrescriptionToCreate,
+  type PrescriptionUpdate
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
 import { api } from 'src/services/api.service';

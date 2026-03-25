@@ -4,7 +4,7 @@ import {
   SampleSpecificDataAttributeValue
 } from '../schema/Sample/SampleSpecificDataAttribute';
 import { SachaFieldConfig } from '../schema/SpecificData/PlanKindFieldConfig';
-import { SubRoutes } from './routes';
+import type { SubRoutes } from './routes';
 
 export const specificDataFieldsRoutes = {
   '/specific-data-fields/sacha': {

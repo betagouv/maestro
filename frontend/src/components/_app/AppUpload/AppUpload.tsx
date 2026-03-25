@@ -3,14 +3,19 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Upload } from '@codegouvfr/react-dsfr/Upload';
 import { MaxFileSize } from 'maestro-shared/schema/File/FileInput';
 import {
-  FileType,
+  type FileType,
   FileTypeLabels,
   FileTypeList
 } from 'maestro-shared/schema/File/FileType';
-import { ComponentPropsWithoutRef, useEffect, useRef, useState } from 'react';
+import {
+  type ComponentPropsWithoutRef,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
-import { UseForm } from 'src/hooks/useForm';
-import { z, ZodObject } from 'zod';
+import type { UseForm } from 'src/hooks/useForm';
+import type { ZodObject, z } from 'zod';
 
 type AppUploadProps<T extends ZodObject, U extends UseForm<T>> = Partial<
   ComponentPropsWithoutRef<typeof Upload>
@@ -57,7 +62,9 @@ function AppUpload<T extends ZodObject>(props: AppUploadProps<T, UseForm<T>>) {
           const stream = await navigator.mediaDevices.getUserMedia({
             video: true
           });
-          stream.getTracks().forEach((track) => track.stop());
+          stream.getTracks().forEach((track) => {
+            track.stop();
+          });
 
           const testInput = document.createElement('input');
           testInput.setAttribute('type', 'file');

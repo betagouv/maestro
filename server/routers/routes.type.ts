@@ -1,28 +1,28 @@
-import express, { CookieOptions, Response } from 'express';
-import { constants } from 'http2';
+import { constants } from 'node:http2';
+import express, { type CookieOptions, type Response } from 'express';
 import AuthenticationMissingError from 'maestro-shared/errors/authenticationMissingError';
 import UserPermissionMissingError from 'maestro-shared/errors/userPermissionMissingError';
 import {
-  MaestroRouteProtectedMethod,
-  MaestroRoutes,
-  MaestroRouteUnprotectedMethod,
-  ProtectedRoutes,
-  RouteMethod,
+  type MaestroRouteProtectedMethod,
+  type MaestroRoutes,
+  type MaestroRouteUnprotectedMethod,
+  type ProtectedRoutes,
+  type RouteMethod,
   routes,
-  ToRoute,
-  UnprotectedRoutes
+  type ToRoute,
+  type UnprotectedRoutes
 } from 'maestro-shared/routes/routes';
-import { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
-import { hasPermission, UserBase } from 'maestro-shared/schema/User/User';
-import { UserRole } from 'maestro-shared/schema/User/UserRole';
-import z, { ZodObject, ZodRawShape, ZodType } from 'zod';
+import type { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
+import { hasPermission, type UserBase } from 'maestro-shared/schema/User/User';
+import type { UserRole } from 'maestro-shared/schema/User/UserRole';
+import z, { type ZodObject, type ZodRawShape, type ZodType } from 'zod';
 import { validateRequest } from '../middlewares/validator';
 
 type MaestroResponse<
   key extends MaestroRoutes,
   method extends keyof (typeof routes)[key],
   ResponseValidator = RouteValidator<key, method, 'response'>
-> = ResponseValidator extends undefined ? void : ResponseValidator;
+> = ResponseValidator extends undefined ? undefined : ResponseValidator;
 
 type RouteValidator<
   key extends MaestroRoutes,

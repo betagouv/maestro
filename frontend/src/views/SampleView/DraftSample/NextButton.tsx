@@ -1,5 +1,5 @@
 import Button from '@codegouvfr/react-dsfr/Button';
-import {
+import type {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
@@ -20,13 +20,12 @@ const NextButton = ({ partialSample, currentStep }: Props) => {
     !partialSample ||
     (SampleStatusSteps[partialSample.status] ?? currentStep) <= currentStep
   ) {
-    return <></>;
+    return null;
   }
 
   return (
     <Button
       title="Continuer"
-      children={isMobile ? 'Suite' : undefined}
       priority="tertiary"
       className="float-right"
       onClick={(e) => {
@@ -34,7 +33,9 @@ const NextButton = ({ partialSample, currentStep }: Props) => {
         navigateToSample(partialSample.id, currentStep + 1);
       }}
       iconId={isMobile ? undefined : 'fr-icon-arrow-right-line'}
-    />
+    >
+      {isMobile ? 'Suite' : undefined}
+    </Button>
   );
 };
 

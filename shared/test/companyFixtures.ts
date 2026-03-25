@@ -1,5 +1,5 @@
 import { fakerFR as faker, fakerFR } from '@faker-js/faker';
-import { Company } from '../schema/Company/Company';
+import type { Company } from '../schema/Company/Company';
 import { genSiret } from './testFixtures';
 
 export const genCompany = (data?: Partial<Company>): Company => ({

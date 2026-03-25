@@ -1,7 +1,5 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 export const up = async (knex: Knex) => {
-
-
   await knex.raw('CREATE EXTENSION IF NOT EXISTS "postgis";');
   await knex.raw(`
 
@@ -10,8 +8,7 @@ export const up = async (knex: Knex) => {
                                        geometry public.geometry NOT NULL
       );
 
-  `)
-
+  `);
 
   await knex.schema.alterTable('companies', (table) => {
     table.dropColumn('department');
@@ -20,7 +17,6 @@ export const up = async (knex: Knex) => {
 
 export const down = async (knex: Knex) => {
   await knex.schema.dropTable('departments');
-
 
   await knex.schema.alterTable('companies', (table) => {
     table.string('department');

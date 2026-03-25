@@ -1,10 +1,10 @@
+import { constants } from 'node:http2';
 import { fakerFR } from '@faker-js/faker';
-import { constants } from 'http2';
 import { MatrixKindEffective } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { RegionList } from 'maestro-shared/referential/Region';
-import { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { UserRefined } from 'maestro-shared/schema/User/User';
+import type { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Prescription';
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   genPrescription,
   genPrescriptionSubstance
@@ -33,6 +33,7 @@ import {
 } from '../../repositories/programmingPlanRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
+
 describe('Prescriptions router', () => {
   const { app } = createServer();
 

@@ -1,10 +1,10 @@
 import {
-  Analysis,
-  AnalysisToCreate,
-  AnalysisToUpdate,
+  type Analysis,
+  type AnalysisToCreate,
+  type AnalysisToUpdate,
   PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
-import { SampleItemKey } from 'maestro-shared/schema/Sample/SampleItem';
+import type { SampleItemKey } from 'maestro-shared/schema/Sample/SampleItem';
 import { api } from 'src/services/api.service';
 
 const analysisApi = api.injectEndpoints({

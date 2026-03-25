@@ -3,14 +3,14 @@ import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
-import { Region, RegionList } from 'maestro-shared/referential/Region';
-import { Stage } from 'maestro-shared/referential/Stage';
-import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import { type Region, RegionList } from 'maestro-shared/referential/Region';
+import type { Stage } from 'maestro-shared/referential/Stage';
+import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
   getPrescriptionTitle,
-  Prescription
+  type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useState } from 'react';
 import PrescriptionDistributionTable from 'src/components/Prescription/PrescriptionDistributionTable/PrescriptionDistributionTable';
 import PrescriptionNotes from 'src/components/Prescription/PrescriptionNotes/PrescriptionNotes';
@@ -54,7 +54,7 @@ const PrescriptionCard = ({
     useState<PrescriptionCardTab>('AnalysesTab');
 
   if (!programmingPlan) {
-    return <></>;
+    return null;
   }
 
   return (

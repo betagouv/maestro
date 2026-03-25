@@ -6,13 +6,13 @@ import { StageLabels } from 'maestro-shared/referential/Stage';
 import {
   getSampleMatrixLabel,
   isProgrammingPlanSample,
-  SampleChecked,
-  SampleOwnerData,
-  SampleToCreate
+  type SampleChecked,
+  type SampleOwnerData,
+  type SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import {
-  SpecificData,
+  type SpecificData,
   UnknownValue
 } from 'maestro-shared/schema/SpecificData/SpecificData';
 
@@ -22,7 +22,7 @@ import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOp
 import { ApiClientContext } from 'src/services/apiClient';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import StepSummary, {
-  StepSummaryMode
+  type StepSummaryMode
 } from 'src/views/SampleView/StepSummary/StepSummary';
 import AppRequiredInput from '../../../components/_app/AppRequired/AppRequiredInput';
 import SampleDocument from '../../../components/Sample/SampleDocument/SampleDocument';

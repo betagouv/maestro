@@ -6,6 +6,7 @@ import { useContext } from 'react';
 import { Link } from 'react-router';
 import { ApiClientContext } from '../../../services/apiClient';
 import { cropFileName, quote } from '../../../utils/stringUtils';
+
 interface Props {
   documentId: string;
   readonly?: boolean;
@@ -22,7 +23,7 @@ const SampleDocument = ({ documentId, readonly, onRemove }: Props) => {
   const [updateDocument] = apiClient.useUpdateDocumentMutation();
 
   if (!document) {
-    return <></>;
+    return null;
   }
 
   return (

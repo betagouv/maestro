@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { analysisTable } from './analysisRepository';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
-import { KyselyMaestro } from './kysely.type';
+import type { KyselyMaestro } from './kysely.type';
 
 export const sampleItemsTable = 'sample_items';
 

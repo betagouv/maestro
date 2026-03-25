@@ -1,4 +1,4 @@
-import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { maestroDateRefined } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 import { ExtractBadFormatError, ExtractError } from '../extractError';
@@ -58,7 +58,7 @@ export const inovalysRefClientValidator = z.string().transform((l, ctx) => {
   }
   return {
     reference: match[1],
-    copyNumber: Number.parseInt(match[2])
+    copyNumber: Number.parseInt(match[2], 10)
   };
 });
 

@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import config from '../../utils/config';
-import { MailService, SendOptions, TemplateName } from './mailService';
+import type { MailService, SendOptions, TemplateName } from './mailService';
 
 const TemplateData = {
   SampleAnalysisRequestTemplate: {

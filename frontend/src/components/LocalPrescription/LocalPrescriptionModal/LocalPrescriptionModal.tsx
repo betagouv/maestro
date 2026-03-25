@@ -1,8 +1,8 @@
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
-import { Department } from 'maestro-shared/referential/Department';
-import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import type { Department } from 'maestro-shared/referential/Department';
+import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';

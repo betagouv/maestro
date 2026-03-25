@@ -1,6 +1,6 @@
 import Notice from '@codegouvfr/react-dsfr/Notice';
-import { Notice as NoticeType } from 'maestro-shared/schema/Notice/Notice';
-import { FunctionComponent, useContext } from 'react';
+import type { Notice as NoticeType } from 'maestro-shared/schema/Notice/Notice';
+import { type FunctionComponent, useContext } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { ApiClientContext } from '../../services/apiClient';
 

@@ -1,14 +1,14 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { format } from 'date-fns';
 import { uniqBy } from 'lodash-es';
-import {
+import type {
   SampleChecked,
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import StepSummary, {
-  StepSummaryMode
+  type StepSummaryMode
 } from 'src/views/SampleView/StepSummary/StepSummary';
 import SampleItems from '../../../components/Sample/SampleItems/SampleItems';
 

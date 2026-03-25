@@ -1,6 +1,6 @@
 import { AuthRedirectUrl } from 'maestro-shared/schema/Auth/AuthRedirectUrl';
 import { AuthMaybeUnknownUser } from 'maestro-shared/schema/User/AuthUser';
-import { UserRole } from 'maestro-shared/schema/User/UserRole';
+import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { api } from 'src/services/api.service';
 
 const authApi = api.injectEndpoints({

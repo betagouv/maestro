@@ -5,7 +5,7 @@ import {
   PartialAnalysis
 } from '../schema/Analysis/Analysis';
 import { SampleItemKey } from '../schema/Sample/SampleItem';
-import { SubRoutes } from './routes';
+import type { SubRoutes } from './routes';
 
 export const analysisRoutes = {
   '/analysis': {

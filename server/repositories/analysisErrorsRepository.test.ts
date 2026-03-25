@@ -1,9 +1,9 @@
+import { Sample13Fixture } from 'maestro-shared/test/sampleFixtures';
+import { v4 as uuidv4 } from 'uuid';
 import { expect, test } from 'vitest';
 import { analysisErrorsRepository } from './analysisErrorsRepository';
 import { kysely } from './kysely';
 
-import { Sample13Fixture } from 'maestro-shared/test/sampleFixtures';
-import { v4 as uuidv4 } from 'uuid';
 test("peut ajouter une erreur d'analyse en base", async () => {
   const analysisId = uuidv4();
   await kysely

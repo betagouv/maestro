@@ -1,9 +1,9 @@
 import { fakerFR } from '@faker-js/faker';
 
 import {
-  CommemoratifSigle,
-  CommemoratifValueSigle,
-  SachaCommemoratif,
+  type CommemoratifSigle,
+  type CommemoratifValueSigle,
+  type SachaCommemoratif,
   SachaCommemoratifTypeDonnee
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { describe, expect, test } from 'vitest';

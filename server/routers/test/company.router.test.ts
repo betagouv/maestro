@@ -1,8 +1,8 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import request from 'supertest';
+import { describe, test } from 'vitest';
 import { createServer } from '../../server';
 
-import { describe, test } from 'vitest';
 describe('Company Router', () => {
   const { app } = createServer();
 

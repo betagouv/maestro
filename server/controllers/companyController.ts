@@ -1,6 +1,6 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import companyRepository from '../repositories/companyRepository';
-import { ProtectedSubRouter } from '../routers/routes.type';
+import type { ProtectedSubRouter } from '../routers/routes.type';
 
 export const companiesRouter = {
   '/companies': {

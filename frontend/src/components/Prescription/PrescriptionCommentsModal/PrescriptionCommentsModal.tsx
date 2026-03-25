@@ -3,29 +3,29 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
-import { TagProps } from '@codegouvfr/react-dsfr/Tag';
+import type { TagProps } from '@codegouvfr/react-dsfr/Tag';
 import TagsGroup from '@codegouvfr/react-dsfr/TagsGroup';
 import clsx from 'clsx';
 import { isNil } from 'lodash-es';
 import {
-  Department,
+  type Department,
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
-import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
-import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
+import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region, Regions } from 'maestro-shared/referential/Region';
 import { LocalPrescriptionCommentToCreate } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
-import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import {
   getPrescriptionTitle,
-  Prescription
+  type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
 import {
-  PrescriptionComments,
-  PrescriptionCommentSort
+  PrescriptionCommentSort,
+  type PrescriptionComments
 } from 'maestro-shared/schema/Prescription/PrescriptionComments';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { UserRole } from 'maestro-shared/schema/User/UserRole';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { formatDateTime } from 'maestro-shared/utils/date';
 import { useEffect, useMemo, useState } from 'react';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -232,196 +232,185 @@ const PrescriptionCommentsModal = ({
   };
 
   return (
-    <>
-      <prescriptionCommentsModal.Component
-        title={
-          <>
-            {prescriptionCommentsData?.viewBy === 'Prescription' &&
-              getPrescriptionTitle(prescriptionCommentsData.prescription)}
-            {prescriptionCommentsData?.viewBy === 'Region' &&
-              `Région ${Regions[prescriptionCommentsData.region].name}`}
-            {hasRegionalView &&
-              prescriptionCommentsData?.viewBy === 'Prescription' &&
-              programmingPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
-              prescriptionCommentsData.regionalCommentsList.some(
-                (_) => !isNil(_.department)
-              ) && (
-                <SegmentedControl
-                  hideLegend
-                  legend="Destinataire"
-                  segments={[
-                    {
-                      label: `Administration centrale`,
-                      nativeInputProps: {
-                        checked: recipientsSegment === 'NationalCoordinator',
-                        onChange: () =>
-                          setRecipientsSegment('NationalCoordinator')
-                      }
-                    },
-                    {
-                      label: `Départements`,
-                      nativeInputProps: {
-                        checked:
-                          recipientsSegment === 'DepartmentalCoordinator',
-                        onChange: () =>
-                          setRecipientsSegment('DepartmentalCoordinator')
-                      }
+    <prescriptionCommentsModal.Component
+      title={
+        <>
+          {prescriptionCommentsData?.viewBy === 'Prescription' &&
+            getPrescriptionTitle(prescriptionCommentsData.prescription)}
+          {prescriptionCommentsData?.viewBy === 'Region' &&
+            `Région ${Regions[prescriptionCommentsData.region].name}`}
+          {hasRegionalView &&
+            prescriptionCommentsData?.viewBy === 'Prescription' &&
+            programmingPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
+            prescriptionCommentsData.regionalCommentsList.some(
+              (_) => !isNil(_.department)
+            ) && (
+              <SegmentedControl
+                hideLegend
+                legend="Destinataire"
+                segments={[
+                  {
+                    label: `Administration centrale`,
+                    nativeInputProps: {
+                      checked: recipientsSegment === 'NationalCoordinator',
+                      onChange: () =>
+                        setRecipientsSegment('NationalCoordinator')
                     }
-                  ]}
-                  className={clsx(cx('fr-mb-2w'), 'float-right')}
-                />
-              )}
-          </>
-        }
-        concealingBackdrop={false}
-        topAnchor
-        className="prescription-comments-modal"
-        size="large"
-      >
-        {prescriptionCommentsData && (
-          <div data-testid="prescription-comments-modal">
-            {(prescriptionCommentsData?.viewBy === 'Region' ||
-              prescriptionCommentsData.regionalCommentsList.length > 1) && (
-              <TagsGroup
-                smallTags
-                tags={
-                  (prescriptionCommentsData?.viewBy === 'Prescription'
-                    ? prescriptionCommentsData.regionalCommentsList
-                        .filter((regionalComment) =>
-                          hasRegionalView
-                            ? recipientsSegment === 'NationalCoordinator'
-                              ? false
-                              : !isNil(regionalComment.department)
-                            : true
-                        )
-                        .map((regionalComment) => ({
-                          children: `${
-                            isNil(regionalComment.department)
-                              ? Regions[regionalComment.region].name
-                              : DepartmentLabels[regionalComment.department]
-                          } (${regionalComment.comments.length})`,
-                          pressed:
-                            currentTag ===
-                            (isNil(regionalComment.department)
-                              ? regionalComment.region
-                              : regionalComment.department),
-                          nativeButtonProps: {
-                            onClick: () =>
-                              setCurrentTag(
-                                isNil(regionalComment.department)
-                                  ? regionalComment.region
-                                  : regionalComment.department
-                              )
-                          }
-                        }))
-                    : [...prescriptionCommentsData.prescriptionCommentsList]
-                        .sort(PrescriptionCommentSort)
-                        .map((prescriptionComment) => ({
-                          children: `${getPrescriptionTitle(prescriptionComment.prescription)} (${prescriptionComment.comments.length})`,
-                          pressed:
-                            currentTag ===
-                            getPrescriptionTag(
-                              prescriptionComment.prescription
-                            ),
-                          nativeButtonProps: {
-                            onClick: () =>
-                              setCurrentTag(
-                                getPrescriptionTag(
-                                  prescriptionComment.prescription
-                                )
-                              )
-                          }
-                        }))) as unknown as [TagProps, ...TagProps[]]
-                }
+                  },
+                  {
+                    label: `Départements`,
+                    nativeInputProps: {
+                      checked: recipientsSegment === 'DepartmentalCoordinator',
+                      onChange: () =>
+                        setRecipientsSegment('DepartmentalCoordinator')
+                    }
+                  }
+                ]}
+                className={clsx(cx('fr-mb-2w'), 'float-right')}
               />
             )}
-            {hasComments ? (
-              <div className="comments-container">
-                {hasMoreComments && (
-                  <div
-                    className={clsx('prescription-comment', 'more-comments')}
-                  >
-                    <Button
-                      priority="tertiary no outline"
-                      size="small"
-                      onClick={() =>
-                        setVisibleCommentsCount(
-                          (prev) => prev + DefaultVisibleCount
-                        )
-                      }
-                    >
-                      Messages précédents
-                    </Button>
-                  </div>
-                )}
-                {visibleComments.map((comment) => (
-                  <div
-                    key={`${comment.createdBy}-${comment.createdAt.getTime()}`}
-                    className="prescription-comment"
-                  >
-                    <PrescriptionCommentAuthor userId={comment.createdBy} />
-                    <div>
-                      <div className={cx('fr-text--md', 'fr-mb-1w')}>
-                        {quote(comment.comment)}
-                      </div>
-                      <div
-                        className={cx(
-                          'fr-text--xs',
-                          'fr-text--light',
-                          'fr-mb-0'
-                        )}
-                      >
-                        Posté le {formatDateTime(comment.createdAt)}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className={cx('fr-text--md', 'fr-mb-0')}>
-                Vous avez la possibilité d'échanger
-                {hasRegionalView && ' avec le coordinateur national'}
-                {hasDepartmentalView && ' avec le coordinateur régional'} à
-                propos de la programmation {programmingPlan?.year} des
-                prélèvements de cette matrice.
-              </div>
-            )}
-            {programmingPlan &&
-              hasUserLocalPrescriptionPermission(
-                programmingPlan,
-                getLocalPrescriptionPartialKey
-              )?.comment && (
-                <div className={clsx(cx('fr-mt-2w'), 'd-flex-justify-center')}>
-                  <form id="login_form">
-                    <AppTextAreaInput
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      inputForm={form}
-                      inputKey="comment"
-                      whenValid="Message correctement renseigné."
-                      label={
-                        recipientsSegment === 'NationalCoordinator'
-                          ? 'Message au coordinateur national'
-                          : recipientsSegment === 'RegionalCoordinator'
-                            ? 'Message au coordinateur régional'
-                            : 'Message au coordinateur départemental'
-                      }
-                      required
-                    />
-                  </form>
+        </>
+      }
+      concealingBackdrop={false}
+      topAnchor
+      className="prescription-comments-modal"
+      size="large"
+    >
+      {prescriptionCommentsData && (
+        <div data-testid="prescription-comments-modal">
+          {(prescriptionCommentsData?.viewBy === 'Region' ||
+            prescriptionCommentsData.regionalCommentsList.length > 1) && (
+            <TagsGroup
+              smallTags
+              tags={
+                (prescriptionCommentsData?.viewBy === 'Prescription'
+                  ? prescriptionCommentsData.regionalCommentsList
+                      .filter((regionalComment) =>
+                        hasRegionalView
+                          ? recipientsSegment === 'NationalCoordinator'
+                            ? false
+                            : !isNil(regionalComment.department)
+                          : true
+                      )
+                      .map((regionalComment) => ({
+                        children: `${
+                          isNil(regionalComment.department)
+                            ? Regions[regionalComment.region].name
+                            : DepartmentLabels[regionalComment.department]
+                        } (${regionalComment.comments.length})`,
+                        pressed:
+                          currentTag ===
+                          (isNil(regionalComment.department)
+                            ? regionalComment.region
+                            : regionalComment.department),
+                        nativeButtonProps: {
+                          onClick: () =>
+                            setCurrentTag(
+                              isNil(regionalComment.department)
+                                ? regionalComment.region
+                                : regionalComment.department
+                            )
+                        }
+                      }))
+                  : [...prescriptionCommentsData.prescriptionCommentsList]
+                      .sort(PrescriptionCommentSort)
+                      .map((prescriptionComment) => ({
+                        children: `${getPrescriptionTitle(prescriptionComment.prescription)} (${prescriptionComment.comments.length})`,
+                        pressed:
+                          currentTag ===
+                          getPrescriptionTag(prescriptionComment.prescription),
+                        nativeButtonProps: {
+                          onClick: () =>
+                            setCurrentTag(
+                              getPrescriptionTag(
+                                prescriptionComment.prescription
+                              )
+                            )
+                        }
+                      }))) as unknown as [TagProps, ...TagProps[]]
+              }
+            />
+          )}
+          {hasComments ? (
+            <div className="comments-container">
+              {hasMoreComments && (
+                <div className={clsx('prescription-comment', 'more-comments')}>
                   <Button
-                    priority="secondary"
-                    className="submit-button"
-                    onClick={submit}
+                    priority="tertiary no outline"
+                    size="small"
+                    onClick={() =>
+                      setVisibleCommentsCount(
+                        (prev) => prev + DefaultVisibleCount
+                      )
+                    }
                   >
-                    Envoyer
+                    Messages précédents
                   </Button>
                 </div>
               )}
-          </div>
-        )}
-      </prescriptionCommentsModal.Component>
-    </>
+              {visibleComments.map((comment) => (
+                <div
+                  key={`${comment.createdBy}-${comment.createdAt.getTime()}`}
+                  className="prescription-comment"
+                >
+                  <PrescriptionCommentAuthor userId={comment.createdBy} />
+                  <div>
+                    <div className={cx('fr-text--md', 'fr-mb-1w')}>
+                      {quote(comment.comment)}
+                    </div>
+                    <div
+                      className={cx('fr-text--xs', 'fr-text--light', 'fr-mb-0')}
+                    >
+                      Posté le {formatDateTime(comment.createdAt)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className={cx('fr-text--md', 'fr-mb-0')}>
+              Vous avez la possibilité d'échanger
+              {hasRegionalView && ' avec le coordinateur national'}
+              {hasDepartmentalView && ' avec le coordinateur régional'} à propos
+              de la programmation {programmingPlan?.year} des prélèvements de
+              cette matrice.
+            </div>
+          )}
+          {programmingPlan &&
+            hasUserLocalPrescriptionPermission(
+              programmingPlan,
+              getLocalPrescriptionPartialKey
+            )?.comment && (
+              <div className={clsx(cx('fr-mt-2w'), 'd-flex-justify-center')}>
+                <form id="login_form">
+                  <AppTextAreaInput
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    inputForm={form}
+                    inputKey="comment"
+                    whenValid="Message correctement renseigné."
+                    label={
+                      recipientsSegment === 'NationalCoordinator'
+                        ? 'Message au coordinateur national'
+                        : recipientsSegment === 'RegionalCoordinator'
+                          ? 'Message au coordinateur régional'
+                          : 'Message au coordinateur départemental'
+                    }
+                    required
+                  />
+                </form>
+                <Button
+                  priority="secondary"
+                  className="submit-button"
+                  onClick={submit}
+                >
+                  Envoyer
+                </Button>
+              </div>
+            )}
+        </div>
+      )}
+    </prescriptionCommentsModal.Component>
   );
 };
 

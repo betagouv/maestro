@@ -1,13 +1,13 @@
 import Select from '@codegouvfr/react-dsfr/Select';
 import { t } from 'i18next';
 import {
-  Department,
+  type Department,
   DepartmentLabels,
   DepartmentList
 } from 'maestro-shared/referential/Department';
-import { Region, Regions } from 'maestro-shared/referential/Region';
-import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
-import { FunctionComponent, useMemo } from 'react';
+import { type Region, Regions } from 'maestro-shared/referential/Region';
+import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import { type FunctionComponent, useMemo } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from '../../hooks/useAuthentication';
 

@@ -8,13 +8,13 @@ import { OptionalBooleanLabels } from 'maestro-shared/referential/OptionnalBoole
 import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { ResidueComplianceLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import {
-  ResidueKind,
+  type ResidueKind,
   ResidueKindLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
-import { FunctionComponent } from 'react';
+import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import ResidueResultAlert from '../../../../components/ResidueResultAlert/ResidueResultAlert';
 import { quote } from '../../../../utils/stringUtils';
@@ -125,14 +125,12 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
         </div>
         <div className={'result-with-comment'}>
           {residue.pollutionRisk && (
-            <>
-              <div className="d-flex-align-center">
-                Pollution environnementale probable
-                <b className={'fr-ml-auto'}>
-                  {OptionalBooleanLabels[residue.pollutionRisk]}
-                </b>
-              </div>
-            </>
+            <div className="d-flex-align-center">
+              Pollution environnementale probable
+              <b className={'fr-ml-auto'}>
+                {OptionalBooleanLabels[residue.pollutionRisk]}
+              </b>
+            </div>
           )}
           {residue.notesOnPollutionRisk && (
             <i>{quote(residue.notesOnPollutionRisk)}</i>
@@ -160,14 +158,12 @@ const ResidueValueLabel = ({ residue }: Pick<Props, 'residue'>) => {
         </>
       )}
       {residue.resultKind === 'NQ' && (
-        <>
-          <div className="d-flex-align-center">
-            Valeur du résultat
-            <b className={clsx('fr-ml-auto', 'align-right')}>
-              Détecté, non quantifié
-            </b>
-          </div>
-        </>
+        <div className="d-flex-align-center">
+          Valeur du résultat
+          <b className={clsx('fr-ml-auto', 'align-right')}>
+            Détecté, non quantifié
+          </b>
+        </div>
       )}
     </>
   );

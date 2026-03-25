@@ -1,8 +1,8 @@
 import { skipToken } from '@reduxjs/toolkit/query';
 import {
   isCreatedPartialSample,
-  PartialSample,
-  PartialSampleToCreate
+  type PartialSample,
+  type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { useCallback, useContext, useMemo } from 'react';
 import { useParams } from 'react-router';

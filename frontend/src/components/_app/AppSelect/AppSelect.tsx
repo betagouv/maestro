@@ -1,16 +1,16 @@
-import Select, { SelectProps } from '@codegouvfr/react-dsfr/Select';
+import Select, { type SelectProps } from '@codegouvfr/react-dsfr/Select';
 import {
-  ComponentPropsWithoutRef,
-  InputHTMLAttributes,
+  type ComponentPropsWithoutRef,
+  type InputHTMLAttributes,
   useEffect
 } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
-import {
+import type {
   AppSelectOption,
   AppSelectOptionsGroup
 } from 'src/components/_app/AppSelect/AppSelectOption';
-import { UseForm } from 'src/hooks/useForm';
-import { z, ZodObject } from 'zod';
+import type { UseForm } from 'src/hooks/useForm';
+import type { ZodObject, z } from 'zod';
 
 export type AppSelectProps<T extends ZodObject, U extends UseForm<T>> = Partial<
   Pick<ComponentPropsWithoutRef<typeof Select>, 'label' | 'hint'>

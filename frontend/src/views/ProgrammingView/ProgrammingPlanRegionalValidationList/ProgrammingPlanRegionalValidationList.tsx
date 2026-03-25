@@ -6,15 +6,19 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
-import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
+import {
+  type Region,
+  RegionList,
+  Regions
+} from 'maestro-shared/referential/Region';
 import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import {
-  ProgrammingPlanStatus,
+  type ProgrammingPlanStatus,
   ProgrammingPlanStatusLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useCallback, useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from '../../../hooks/useAuthentication';
@@ -127,219 +131,209 @@ const ProgrammingPlanRegionalValidationList = ({
   );
 
   if (!allPrescriptions || !regionalPrescriptions) {
-    return <></>;
+    return null;
   }
 
   return (
-    <>
-      <div
-        className={clsx(
-          cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-px-0', 'fr-container')
-        )}
-      >
-        <div className={clsx('d-flex-align-center')}>
-          <h4 className={clsx(cx('fr-mb-0', 'fr-mr-3w'), 'flex-grow-1')}>
-            {t(
-              programmingPlan.distributionKind === 'REGIONAL'
-                ? 'region_has_validated'
-                : 'region_has_sent',
-              {
-                count: validatedRegions.length
-              }
-            )}
-          </h4>
-          <div className={cx('fr-mr-2w')}>
-            <Select
-              label="Région"
-              nativeSelectProps={{
-                value: regionFilter ?? '',
-                onChange: (e) => setRegionFilter(e.target.value as Region)
-              }}
-            >
-              <option value="">Toutes les régions</option>
-              {RegionList.map((region) => (
-                <option key={`select-region-${region}`} value={region}>
-                  {Regions[region].name}
-                </option>
-              ))}
-            </Select>
-          </div>
-          <div>
-            <Select
-              label="Statut"
-              nativeSelectProps={{
-                value: statusFilter ?? '',
-                onChange: (e) =>
-                  setStatusFilter(e.target.value as ProgrammingPlanStatus)
-              }}
-            >
-              <option value="">Tous les statuts</option>
-              {(programmingPlan.distributionKind === 'REGIONAL'
-                ? [
-                    'InProgress',
-                    'SubmittedToRegion',
-                    'ApprovedByRegion',
-                    'Validated'
-                  ]
-                : [
-                    'InProgress',
-                    'SubmittedToRegion',
-                    'SubmittedToDepartments',
-                    'Validated'
-                  ]
-              ).map((status) => (
-                <option key={`select-status-${status}`} value={status}>
-                  {ProgrammingPlanStatusLabels[status as ProgrammingPlanStatus]}
-                </option>
-              ))}
-            </Select>
-          </div>
+    <div
+      className={clsx(cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-px-0', 'fr-container'))}
+    >
+      <div className={clsx('d-flex-align-center')}>
+        <h4 className={clsx(cx('fr-mb-0', 'fr-mr-3w'), 'flex-grow-1')}>
+          {t(
+            programmingPlan.distributionKind === 'REGIONAL'
+              ? 'region_has_validated'
+              : 'region_has_sent',
+            {
+              count: validatedRegions.length
+            }
+          )}
+        </h4>
+        <div className={cx('fr-mr-2w')}>
+          <Select
+            label="Région"
+            nativeSelectProps={{
+              value: regionFilter ?? '',
+              onChange: (e) => setRegionFilter(e.target.value as Region)
+            }}
+          >
+            <option value="">Toutes les régions</option>
+            {RegionList.map((region) => (
+              <option key={`select-region-${region}`} value={region}>
+                {Regions[region].name}
+              </option>
+            ))}
+          </Select>
         </div>
         <div>
-          {regionFilter && (
-            <Tag
-              dismissible
-              nativeButtonProps={{
-                onClick: () => setRegionFilter(undefined)
-              }}
-            >
-              {Regions[regionFilter].name}
-            </Tag>
-          )}
-          {statusFilter && (
-            <Tag
-              dismissible
-              nativeButtonProps={{
-                onClick: () => setStatusFilter(undefined)
-              }}
-            >
-              {ProgrammingPlanStatusLabels[statusFilter]}
-            </Tag>
-          )}
-        </div>
-        <div
-          className={clsx(
-            cx('fr-grid-row', 'fr-grid-row--gutters'),
-            'fr-mt-2w'
-          )}
-        >
-          {filteredRegions.map((region) => (
-            <div className={cx('fr-col-12', 'fr-col-md-6')} key={region}>
-              <div
-                className={clsx(cx('fr-card', 'fr-card--sm'), 'regional-card')}
-              >
-                <div className={cx('fr-card__body')}>
-                  <div className={cx('fr-card__content')}>
-                    <div className="d-flex-align-center">
-                      <h3
-                        className={clsx(
-                          cx('fr-card__title', 'fr-mb-0'),
-                          'flex-grow-1'
-                        )}
-                      >
-                        <div className="flex-grow-1">
-                          {Regions[region].name}
-                        </div>
-                      </h3>
-                    </div>
-                    <div className="fr-card__end">
-                      <div>
-                        {pluralize(
-                          regionalPrescriptions.filter(
-                            (rp) => rp.region === region && rp.sampleCount > 0
-                          ).length,
-                          { preserveCount: true }
-                        )('matrice')}
-                        {' • '}
-                        {pluralize(
-                          sumBy(
-                            regionalPrescriptions.filter(
-                              (rp) => rp.region === region
-                            ),
-                            'sampleCount'
-                          ),
-                          { preserveCount: true }
-                        )('prélèvement')}
-                      </div>
-
-                      <Badge
-                        noIcon
-                        severity={
-                          validatedRegions.some(
-                            (validatedRegion) =>
-                              validatedRegion.region === region
-                          )
-                            ? 'success'
-                            : 'warning'
-                        }
-                        className={'fr-my-1w'}
-                      >
-                        {
-                          ProgrammingPlanStatusLabels[
-                            programmingPlan.regionalStatus.find(
-                              (rs) => rs.region === region
-                            )?.status as ProgrammingPlanStatus
-                          ]
-                        }
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-                {programmingPlan?.distributionKind === 'REGIONAL' &&
-                  hasUserPermission('commentPrescription') && (
-                    <ButtonsGroup
-                      buttonsEquisized
-                      buttonsSize="small"
-                      alignment="center"
-                      inlineLayoutWhen="always"
-                      className={cx('fr-m-0')}
-                      buttons={[
-                        {
-                          children: (
-                            <span className="no-wrap">
-                              {t('comment', {
-                                count: sumBy(
-                                  regionalCommentedPrescriptions(region),
-                                  (rcp) => (rcp.comments ?? []).length
-                                )
-                              })}
-                            </span>
-                          ),
-                          disabled:
-                            sumBy(
-                              regionalCommentedPrescriptions(region),
-                              (rcp) => (rcp.comments ?? []).length
-                            ) === 0,
-                          priority: 'tertiary no outline',
-                          onClick: () =>
-                            dispatch(
-                              prescriptionsSlice.actions.setPrescriptionCommentsData(
-                                {
-                                  viewBy: 'Region',
-                                  region,
-                                  prescriptionCommentsList:
-                                    regionalCommentedPrescriptions(region).map(
-                                      (rcp) => ({
-                                        programmingPlan,
-                                        prescription: rcp.prescription,
-                                        comments: rcp.comments ?? []
-                                      })
-                                    )
-                                }
-                              )
-                            ),
-                          iconId: 'fr-icon-chat-3-line',
-                          className: cx('fr-m-0')
-                        }
-                      ]}
-                    />
-                  )}
-              </div>
-            </div>
-          ))}
+          <Select
+            label="Statut"
+            nativeSelectProps={{
+              value: statusFilter ?? '',
+              onChange: (e) =>
+                setStatusFilter(e.target.value as ProgrammingPlanStatus)
+            }}
+          >
+            <option value="">Tous les statuts</option>
+            {(programmingPlan.distributionKind === 'REGIONAL'
+              ? [
+                  'InProgress',
+                  'SubmittedToRegion',
+                  'ApprovedByRegion',
+                  'Validated'
+                ]
+              : [
+                  'InProgress',
+                  'SubmittedToRegion',
+                  'SubmittedToDepartments',
+                  'Validated'
+                ]
+            ).map((status) => (
+              <option key={`select-status-${status}`} value={status}>
+                {ProgrammingPlanStatusLabels[status as ProgrammingPlanStatus]}
+              </option>
+            ))}
+          </Select>
         </div>
       </div>
-    </>
+      <div>
+        {regionFilter && (
+          <Tag
+            dismissible
+            nativeButtonProps={{
+              onClick: () => setRegionFilter(undefined)
+            }}
+          >
+            {Regions[regionFilter].name}
+          </Tag>
+        )}
+        {statusFilter && (
+          <Tag
+            dismissible
+            nativeButtonProps={{
+              onClick: () => setStatusFilter(undefined)
+            }}
+          >
+            {ProgrammingPlanStatusLabels[statusFilter]}
+          </Tag>
+        )}
+      </div>
+      <div
+        className={clsx(cx('fr-grid-row', 'fr-grid-row--gutters'), 'fr-mt-2w')}
+      >
+        {filteredRegions.map((region) => (
+          <div className={cx('fr-col-12', 'fr-col-md-6')} key={region}>
+            <div
+              className={clsx(cx('fr-card', 'fr-card--sm'), 'regional-card')}
+            >
+              <div className={cx('fr-card__body')}>
+                <div className={cx('fr-card__content')}>
+                  <div className="d-flex-align-center">
+                    <h3
+                      className={clsx(
+                        cx('fr-card__title', 'fr-mb-0'),
+                        'flex-grow-1'
+                      )}
+                    >
+                      <div className="flex-grow-1">{Regions[region].name}</div>
+                    </h3>
+                  </div>
+                  <div className="fr-card__end">
+                    <div>
+                      {pluralize(
+                        regionalPrescriptions.filter(
+                          (rp) => rp.region === region && rp.sampleCount > 0
+                        ).length,
+                        { preserveCount: true }
+                      )('matrice')}
+                      {' • '}
+                      {pluralize(
+                        sumBy(
+                          regionalPrescriptions.filter(
+                            (rp) => rp.region === region
+                          ),
+                          'sampleCount'
+                        ),
+                        { preserveCount: true }
+                      )('prélèvement')}
+                    </div>
+
+                    <Badge
+                      noIcon
+                      severity={
+                        validatedRegions.some(
+                          (validatedRegion) => validatedRegion.region === region
+                        )
+                          ? 'success'
+                          : 'warning'
+                      }
+                      className={'fr-my-1w'}
+                    >
+                      {
+                        ProgrammingPlanStatusLabels[
+                          programmingPlan.regionalStatus.find(
+                            (rs) => rs.region === region
+                          )?.status as ProgrammingPlanStatus
+                        ]
+                      }
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              {programmingPlan?.distributionKind === 'REGIONAL' &&
+                hasUserPermission('commentPrescription') && (
+                  <ButtonsGroup
+                    buttonsEquisized
+                    buttonsSize="small"
+                    alignment="center"
+                    inlineLayoutWhen="always"
+                    className={cx('fr-m-0')}
+                    buttons={[
+                      {
+                        children: (
+                          <span className="no-wrap">
+                            {t('comment', {
+                              count: sumBy(
+                                regionalCommentedPrescriptions(region),
+                                (rcp) => (rcp.comments ?? []).length
+                              )
+                            })}
+                          </span>
+                        ),
+                        disabled:
+                          sumBy(
+                            regionalCommentedPrescriptions(region),
+                            (rcp) => (rcp.comments ?? []).length
+                          ) === 0,
+                        priority: 'tertiary no outline',
+                        onClick: () =>
+                          dispatch(
+                            prescriptionsSlice.actions.setPrescriptionCommentsData(
+                              {
+                                viewBy: 'Region',
+                                region,
+                                prescriptionCommentsList:
+                                  regionalCommentedPrescriptions(region).map(
+                                    (rcp) => ({
+                                      programmingPlan,
+                                      prescription: rcp.prescription,
+                                      comments: rcp.comments ?? []
+                                    })
+                                  )
+                              }
+                            )
+                          ),
+                        iconId: 'fr-icon-chat-3-line',
+                        className: cx('fr-m-0')
+                      }
+                    ]}
+                  />
+                )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 

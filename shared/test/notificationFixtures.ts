@@ -1,6 +1,6 @@
 import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
-import { Notification } from '../schema/Notification/Notification';
+import type { Notification } from '../schema/Notification/Notification';
 import { NotificationCategoryList } from '../schema/Notification/NotificationCategory';
 import { oneOf } from './testFixtures';
 

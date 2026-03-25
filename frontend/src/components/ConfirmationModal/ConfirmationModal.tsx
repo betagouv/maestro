@@ -1,5 +1,7 @@
-import { ModalProps } from '@codegouvfr/react-dsfr/Modal';
-import React, { type ReactNode } from 'react';
+import type { ModalProps } from '@codegouvfr/react-dsfr/Modal';
+import type React from 'react';
+import type { ReactNode } from 'react';
+
 interface Props {
   modal: {
     Component: (props: ModalProps) => React.JSX.Element;

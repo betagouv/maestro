@@ -1,9 +1,9 @@
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { describe, expect, test } from 'vitest';
-import { z } from 'zod';
+import type { z } from 'zod';
 import {
-  analyseXmlValidator,
+  type analyseXmlValidator,
   extractAnalyzes,
   girpaCodeEchantillonValidator
 } from './girpa';

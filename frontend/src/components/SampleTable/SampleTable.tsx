@@ -6,8 +6,8 @@ import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   getSampleMatrixLabel,
   isCreatedPartialSample,
-  PartialSample,
-  PartialSampleToCreate
+  type PartialSample,
+  type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { useMemo } from 'react';
@@ -56,11 +56,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
             {pendingSamples[sample.id] && (
               <span className="fr-icon-link-unlink fr-icon--sm fr-mr-1w"></span>
             )}
-            {isCreatedPartialSample(sample) ? (
-              <>{sample.sampler.name}</>
-            ) : (
-              <>{user?.name}</>
-            )}
+            {isCreatedPartialSample(sample) ? sample.sampler.name : user?.name}
           </div>,
           sample.sampledAt ? format(sample.sampledAt, 'dd/MM/yyyy') : '',
           sample.department,
@@ -99,7 +95,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
             )}
         </div>
       ]),
-    [samples] // eslint-disable-line react-hooks/exhaustive-deps
+    [samples]
   );
 
   return (

@@ -1,7 +1,7 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
-import { DocumentChecked } from 'maestro-shared/schema/Document/Document';
+import type { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import { DocumentKindLabels } from 'maestro-shared/schema/Document/DocumentKind';
 import { formatDate } from 'maestro-shared/utils/date';
 import { useDocument } from 'src/hooks/useDocument';
@@ -23,7 +23,7 @@ const DocumentTable = ({
   const { downloadDocument } = useDocument();
 
   if (!documents || documents.length === 0) {
-    return <></>;
+    return null;
   }
 
   return (

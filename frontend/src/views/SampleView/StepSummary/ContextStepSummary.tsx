@@ -6,15 +6,15 @@ import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   isCreatedPartialSample,
-  SampleChecked,
-  SampleOwnerData,
-  SampleToCreate
+  type SampleChecked,
+  type SampleOwnerData,
+  type SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { formatDate } from 'maestro-shared/utils/date';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { quote } from 'src/utils/stringUtils';
 import StepSummary, {
-  StepSummaryMode
+  type StepSummaryMode
 } from 'src/views/SampleView/StepSummary/StepSummary';
 import { SampleMap } from '../../../components/Sample/SampleMap/SampleMap';
 import { usePartialSample } from '../../../hooks/usePartialSample';

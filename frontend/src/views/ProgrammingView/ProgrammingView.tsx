@@ -5,13 +5,13 @@ import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { isEmpty, isNil, mapValues, max, omitBy } from 'lodash-es';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
-import { Region, Regions } from 'maestro-shared/referential/Region';
-import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
-import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { type Region, Regions } from 'maestro-shared/referential/Region';
+import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation-white.svg';
@@ -24,7 +24,7 @@ import { usePrescriptionFilters } from '../../hooks/usePrescriptionFilters';
 import { useAppDispatch, useAppSelector } from '../../hooks/useStore';
 import { ApiClientContext } from '../../services/apiClient';
 import prescriptionsSlice, {
-  PrescriptionFilters
+  type PrescriptionFilters
 } from '../../store/reducers/prescriptionsSlice';
 import ProgrammingCommentList from './ProgrammingCommentList/ProgrammingCommentList';
 import ProgrammingInstructions from './ProgrammingInstructions/ProgrammingInstructions';
@@ -87,7 +87,7 @@ const ProgrammingView = () => {
         })
       )
     );
-  }, [searchParams, programmingPlans]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchParams, programmingPlans]);
 
   const programmingPlan = useMemo(
     () =>

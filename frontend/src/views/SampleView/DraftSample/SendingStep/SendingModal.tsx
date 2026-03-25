@@ -1,19 +1,21 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { ModalProps } from '@codegouvfr/react-dsfr/Modal';
+import type { ModalProps } from '@codegouvfr/react-dsfr/Modal';
 import { Brand } from 'maestro-shared/constants';
 import { LaboratoryWithAutomation } from 'maestro-shared/referential/Laboratory';
 import {
   getLaboratoryFullName,
-  Laboratory
+  type Laboratory
 } from 'maestro-shared/schema/Laboratory/Laboratory';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
-  SubstanceKind,
+  type SubstanceKind,
   SubstanceKindLabels
 } from 'maestro-shared/schema/Substance/SubstanceKind';
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 import { pluralize } from '../../../../utils/stringUtils';
+
 interface Props {
   modal: {
     buttonProps: {

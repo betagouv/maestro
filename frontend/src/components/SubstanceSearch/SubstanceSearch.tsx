@@ -3,16 +3,19 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Autocomplete } from '@mui/material';
 import { capitalize } from 'lodash-es';
-import { SSD2Id, SSD2IdSort } from 'maestro-shared/referential/Residue/SSD2Id';
 import {
-  searchSSD2IdByLabel,
-  SSD2IdLabel
+  type SSD2Id,
+  SSD2IdSort
+} from 'maestro-shared/referential/Residue/SSD2Id';
+import {
+  SSD2IdLabel,
+  searchSSD2IdByLabel
 } from 'maestro-shared/referential/Residue/SSD2Referential';
 import {
-  AnalysisMethod,
+  type AnalysisMethod,
   AnalysisMethodLabels
 } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { SyntheticEvent, useState } from 'react';
+import { type SyntheticEvent, useState } from 'react';
 
 interface Props {
   analysisMethod: AnalysisMethod;
@@ -71,6 +74,7 @@ const SubstanceSearch = ({
 
   return (
     <div>
+      {/** biome-ignore lint/a11y/noLabelWithoutControl: TODO */}
       <label className={cx('fr-label', 'fr-mb-1w')}>
         {label ?? capitalize(AnalysisMethodLabels[analysisMethod])}
       </label>

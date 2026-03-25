@@ -1,5 +1,5 @@
 import z from 'zod';
-import { SubRoutes } from './routes';
+import type { SubRoutes } from './routes';
 
 export const mascaradeRoutes = {
   '/mascarade/:userId': {

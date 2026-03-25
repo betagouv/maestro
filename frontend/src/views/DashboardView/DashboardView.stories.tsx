@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Region, RegionList } from 'maestro-shared/referential/Region';
-import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
+import { type Region, RegionList } from 'maestro-shared/referential/Region';
+import type { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import {
   genLocalPrescription,
   genPrescription
@@ -85,7 +85,7 @@ export const DashboardViewForSampler: Story = {
     },
     apiClient: getMockApi({
       useFindProgrammingPlansQuery: ({ status }: FindProgrammingPlanOptions) =>
-        status && status.includes('Validated')
+        status?.includes('Validated')
           ? { data: [currentProgrammingPlan] }
           : { data: [] },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },
@@ -138,9 +138,9 @@ export const DashboardViewForRegionalCoordinator: Story = {
     },
     apiClient: getMockApi({
       useFindProgrammingPlansQuery: ({ status }: FindProgrammingPlanOptions) =>
-        status && status.includes('Validated')
+        status?.includes('Validated')
           ? { data: [currentProgrammingPlan] }
-          : status && status.includes('SubmittedToRegion')
+          : status?.includes('SubmittedToRegion')
             ? { data: [previousProgrammingPlan] }
             : { data: [] },
       useFindPrescriptionsQuery: { data: [prescription1, prescription2] },

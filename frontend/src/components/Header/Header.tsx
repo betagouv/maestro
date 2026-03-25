@@ -9,7 +9,10 @@ import { Brand } from 'maestro-shared/constants';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { isClosed } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { UserBase } from 'maestro-shared/schema/User/User';
-import { UserRole, UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
+import {
+  type UserRole,
+  UserRoleLabels
+} from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { useLocation, useParams } from 'react-router';
@@ -139,7 +142,7 @@ const Header = () => {
         window.location.reload();
       }
     },
-    [user] // eslint-disable-line react-hooks/exhaustive-deps
+    [user]
   );
 
   return (
@@ -342,8 +345,9 @@ const Header = () => {
                     className={cx('fr-btn--icon-left', 'fr-pr-0')}
                     priority="tertiary no outline"
                     title="Notifications"
-                    children={isMobile ? 'Notifications' : undefined}
-                  />
+                  >
+                    {isMobile ? 'Notifications' : undefined}
+                  </Button>
                 </Badge>,
                 prescriptionFilters?.domain && domainOptions.length > 1 ? (
                   <HeaderMenu

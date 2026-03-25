@@ -1,10 +1,11 @@
 import { isNil, omitBy } from 'lodash-es';
-import { FindNotificationOptions } from 'maestro-shared/schema/Notification/FindNotificationOptions';
+import type { FindNotificationOptions } from 'maestro-shared/schema/Notification/FindNotificationOptions';
 import { Notification } from 'maestro-shared/schema/Notification/Notification';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { z } from 'zod';
 import { knexInstance as db } from './db';
 import { usersTable } from './userRepository';
+
 const notificationTable = 'notifications';
 
 const NotificationDbo = Notification.omit({

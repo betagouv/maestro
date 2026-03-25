@@ -1,6 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import React from 'react';
+import type React from 'react';
 import useWindowSize from '../../hooks/useWindowSize';
 import './SectionHeader.scss';
 

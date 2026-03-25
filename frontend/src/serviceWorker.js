@@ -1,6 +1,3 @@
-/* eslint-env serviceworker */
-/* eslint-disable no-undef */
-
 // This service worker can be customized!
 // See https://developers.google.com/web/tools/workbox/modules
 // for the list of available Workbox modules, or add any other
@@ -27,7 +24,7 @@ precacheAndRoute(self.__WB_MANIFEST);
 // Set up App Shell-style routing, so that all navigation requests
 // are fulfilled with your index.html shell. Learn more at
 // https://developers.google.com/web/fundamentals/architecture/app-shell
-const fileExtensionRegexp = new RegExp('/[^/?]+\\.[^/]+$');
+const fileExtensionRegexp = /\/[^/?]+\.[^/]+$/;
 
 registerRoute(
   // Return false to exempt requests from being fulfilled by index.html.
@@ -58,7 +55,7 @@ registerRoute(
     // Return true to signal that we want to use the handler.
     return true;
   },
-  createHandlerBoundToURL(self.location.origin + '/index.html')
+  createHandlerBoundToURL(`${self.location.origin}/index.html`)
 );
 
 registerRoute(

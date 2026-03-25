@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 export const up = async (knex: Knex) => {
   await knex.raw(`alter table public.users
     alter column name drop not null;

@@ -5,7 +5,7 @@ import { NationalCoordinator } from 'maestro-shared/test/userFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { UserCompanies, Users } from '../../../repositories/userRepository';
 
-export const seed = async function () {
+export const seed = async () => {
   const samplerDaoaId = uuidv4();
 
   await Users().insert([

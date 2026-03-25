@@ -2,7 +2,8 @@ import Accordion from '@codegouvfr/react-dsfr/Accordion';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import React, { useMemo } from 'react';
+import type React from 'react';
+import { useMemo } from 'react';
 import useWindowSize from 'src/hooks/useWindowSize';
 
 export type StepSummaryMode = 'tab' | 'section';

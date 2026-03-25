@@ -1,5 +1,5 @@
-import { constants } from 'http2';
-import { UserRefined } from 'maestro-shared/schema/User/User';
+import { constants } from 'node:http2';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   AllFieldConfigs,
   SachaFieldConfigs

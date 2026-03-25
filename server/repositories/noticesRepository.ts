@@ -1,6 +1,6 @@
-import { Notice } from 'maestro-shared/schema/Notice/Notice';
+import type { Notice } from 'maestro-shared/schema/Notice/Notice';
 import { kysely } from './kysely';
-import { Notices } from './kysely.type';
+import type { Notices } from './kysely.type';
 
 const update = async (notice: Notices, trx = kysely): Promise<void> => {
   await trx

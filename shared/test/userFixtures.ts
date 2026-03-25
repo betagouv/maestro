@@ -11,12 +11,12 @@ import {
   departmentIsRequired,
   laboratoryIsRequired,
   programmingPlanKindsIsRequired,
-  UserRefined
+  type UserRefined
 } from '../schema/User/User';
 import {
   canHaveDepartment,
   isRegionalRole,
-  UserRole,
+  type UserRole,
   UserRoleList
 } from '../schema/User/UserRole';
 import { SlaughterhouseCompanyFixture1 } from './companyFixtures';

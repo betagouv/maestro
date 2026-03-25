@@ -3,9 +3,9 @@ import Stepper from '@codegouvfr/react-dsfr/Stepper';
 import clsx from 'clsx';
 import {
   isCreatedPartialSample,
-  PartialSample,
-  PartialSampleToCreate,
-  SampleChecked
+  type PartialSample,
+  type PartialSampleToCreate,
+  type SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleStatusSteps } from 'maestro-shared/schema/Sample/SampleStatus';
 import { useEffect, useState } from 'react';
@@ -41,10 +41,10 @@ const SampleView = ({ sample }: Props) => {
     } else {
       setStep(1);
     }
-  }, [sample, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sample, searchParams]);
 
   if (!programmingPlan) {
-    return <></>;
+    return null;
   }
 
   return (

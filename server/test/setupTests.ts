@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeAll, Mock, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, type Mock, vi } from 'vitest';
 import { dbManager } from './db-manager';
 import { dbSeed } from './seed';
 

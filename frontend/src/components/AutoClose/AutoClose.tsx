@@ -16,9 +16,9 @@ const AutoClose = ({ delay, children, onClose }: ToastProps) => {
     }, delay || 2000);
 
     return () => clearTimeout(timeoutId);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
-  return close ? <></> : <>{children}</>;
+  return !close && children;
 };
 
 export default AutoClose;

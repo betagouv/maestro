@@ -27,7 +27,7 @@ export const LogoutCallbackView = () => {
         navigate('/');
       }
     })();
-  }, [dispatch, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dispatch, navigate]);
 
   return (
     <HomeViewContainer>
@@ -52,9 +52,7 @@ export const LogoutCallbackView = () => {
             Générale de l’Alimentation.
             <br />
             Contactez{' '}
-            <a href={`mailto:${config.supportEmail}`}>
-              {config.supportEmail}
-            </a>{' '}
+            <a href={`mailto:${config.supportEmail}`}>{config.supportEmail}</a>{' '}
             en cas de besoin.
           </>
         )}

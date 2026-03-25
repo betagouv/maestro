@@ -1,17 +1,20 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import { isNil } from 'lodash-es';
 import { HttpError } from 'maestro-shared/errors/httpError';
 import NoRegionError from 'maestro-shared/errors/noRegionError';
 import SampleMissingError from 'maestro-shared/errors/sampleMissingError';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { Regions } from 'maestro-shared/referential/Region';
-import {
+import type {
   PartialSample,
   PartialSampleToCreate,
   SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
-import { UserBase, userRegionsForRole } from 'maestro-shared/schema/User/User';
-import { UserRole } from 'maestro-shared/schema/User/UserRole';
+import {
+  type UserBase,
+  userRegionsForRole
+} from 'maestro-shared/schema/User/User';
+import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { departmentRepository } from '../../repositories/departmentRepository';
 import { sampleRepository } from '../../repositories/sampleRepository';
 

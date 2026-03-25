@@ -10,23 +10,24 @@ import {
 } from 'maestro-shared/referential/QuantityUnit';
 import {
   getLaboratoryFullName,
-  Laboratory
+  type Laboratory
 } from 'maestro-shared/schema/Laboratory/Laboratory';
 import {
   isProgrammingPlanSample,
-  PartialSample,
-  PartialSampleToCreate
+  type PartialSample,
+  type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import type { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import {
-  SampleItemRecipientKind,
+  type SampleItemRecipientKind,
   SampleItemRecipientKindLabels
 } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import {
-  SubstanceKind,
+  type SubstanceKind,
   SubstanceKindLabels
 } from 'maestro-shared/schema/Substance/SubstanceKind';
-import React, { useContext, useMemo } from 'react';
+import type React from 'react';
+import { useContext, useMemo } from 'react';
 import { Link } from 'react-router';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppResponsiveButton from 'src/components/_app/AppResponsiveButton/AppResponsiveButton';
@@ -36,7 +37,7 @@ import {
   selectOptionsFromList
 } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
-import { UseForm, useForm } from 'src/hooks/useForm';
+import { type UseForm, useForm } from 'src/hooks/useForm';
 import { z } from 'zod';
 import { usePartialSample } from '../../../hooks/usePartialSample';
 import useWindowSize from '../../../hooks/useWindowSize';
@@ -196,48 +197,46 @@ const SampleItemContent = ({
         </div>
         <div className={cx('fr-col-12')}>
           {item.copyNumber === 1 ? (
-            <>
-              {isProgrammingPlanSample(partialSample) ? (
-                <>
-                  Laboratoire destinataire :{' '}
-                  {item.laboratoryId ? (
-                    <b>
-                      {getLaboratoryFullName(
-                        getSampleItemLaboratory(item.itemNumber)
-                      )}
-                    </b>
-                  ) : (
-                    <span className="missing-data">
-                      Information non disponible
-                    </span>
-                  )}
-                </>
-              ) : (
-                <AppSelect
-                  value={item.laboratoryId ?? ''}
-                  options={[
-                    defaultAppSelectOption('Sélectionner un laboratoire'),
-                    ...(laboratories ?? []).map((laboratory) => ({
-                      label: laboratory.shortName,
-                      value: laboratory.id
-                    }))
-                  ]}
-                  onChange={(e) =>
-                    onChangeItem?.({
-                      ...item,
-                      laboratoryId: e.target.value
-                    })
-                  }
-                  inputForm={form}
-                  inputKey="items"
-                  inputPathFromKey={[itemIndex, 'laboratoryId']}
-                  whenValid="Laboratoire valide"
-                  label="Laboratoire"
-                  disabled={readonly}
-                  required
-                />
-              )}
-            </>
+            isProgrammingPlanSample(partialSample) ? (
+              <>
+                Laboratoire destinataire :{' '}
+                {item.laboratoryId ? (
+                  <b>
+                    {getLaboratoryFullName(
+                      getSampleItemLaboratory(item.itemNumber)
+                    )}
+                  </b>
+                ) : (
+                  <span className="missing-data">
+                    Information non disponible
+                  </span>
+                )}
+              </>
+            ) : (
+              <AppSelect
+                value={item.laboratoryId ?? ''}
+                options={[
+                  defaultAppSelectOption('Sélectionner un laboratoire'),
+                  ...(laboratories ?? []).map((laboratory) => ({
+                    label: laboratory.shortName,
+                    value: laboratory.id
+                  }))
+                ]}
+                onChange={(e) =>
+                  onChangeItem?.({
+                    ...item,
+                    laboratoryId: e.target.value
+                  })
+                }
+                inputForm={form}
+                inputKey="items"
+                inputPathFromKey={[itemIndex, 'laboratoryId']}
+                whenValid="Laboratoire valide"
+                label="Laboratoire"
+                disabled={readonly}
+                required
+              />
+            )
           ) : (
             <AppRadioButtons
               legend="Destinataire de l’échantillon"

@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 export const up = async (knex: Knex) => {
   await knex.raw(
     `alter table public.laboratories add emails varchar(255)[] default '{}' not null;`

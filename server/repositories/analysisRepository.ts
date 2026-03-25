@@ -1,8 +1,8 @@
 import { isNil, omit, omitBy } from 'lodash-es';
 import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
-import { PartialAnalyte } from 'maestro-shared/schema/Analysis/Analyte';
+import type { PartialAnalyte } from 'maestro-shared/schema/Analysis/Analyte';
 import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
-import { SampleItemKey } from 'maestro-shared/schema/Sample/SampleItem';
+import type { SampleItemKey } from 'maestro-shared/schema/Sample/SampleItem';
 import { convertKeysToCamelCase } from 'maestro-shared/utils/utils';
 import z from 'zod';
 import { knexInstance as db } from './db';

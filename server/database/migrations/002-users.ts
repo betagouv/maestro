@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 import { RegionList } from 'maestro-shared/referential/Region';
 
 export const up = async (knex: Knex) => {

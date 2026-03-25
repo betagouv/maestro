@@ -1,18 +1,19 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.4.8/schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
-  "files": { "includes": ["**", "!!**/dist"] },
-  "formatter": { "enabled": true, "indentStyle": "tab" },
+  "files": { "includes": ["**", "!!**/dist", "!!**/data/*.json"] },
+  "formatter": { "enabled": true, "indentStyle": "space" },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": false,
+      "recommended": true,
       "complexity": {
         "noAdjacentSpacesInRegex": "error",
         "noExtraBooleanCast": "error",
         "noUselessCatch": "error",
         "noUselessEscapeInRegex": "error",
-        "noUselessTypeConstraint": "error"
+        "noUselessTypeConstraint": "error",
+        "useLiteralKeys": "off"
       },
       "correctness": {
         "noConstAssign": "error",
@@ -46,7 +47,8 @@
         "useArrayLiterals": "error",
         "useAsConstAssertion": "error",
         "useBlockStatements": "off",
-        "useConsistentArrowReturn": "off"
+        "useConsistentArrowReturn": "off",
+        "noNonNullAssertion": "off"
       },
       "suspicious": {
         "noAsyncPromiseExecutor": "error",
@@ -61,8 +63,8 @@
         "noDuplicateElseIf": "error",
         "noDuplicateObjectKeys": "error",
         "noDuplicateParameters": "error",
-        "noEmptyBlockStatements": "error",
-        "noExplicitAny": "error",
+        "noEmptyBlockStatements": "off",
+        "noExplicitAny": "off",
         "noExtraNonNullAssertion": "error",
         "noFallthroughSwitchClause": "error",
         "noFunctionAssign": "error",
@@ -86,7 +88,10 @@
       }
     }
   },
-  "javascript": { "formatter": { "quoteStyle": "double" }, "globals": [] },
+  "javascript": {
+    "formatter": { "quoteStyle": "single", "trailingCommas": "none" },
+    "globals": []
+  },
   "overrides": [
     {
       "includes": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
@@ -101,10 +106,16 @@
             "noSetterReturn": "off",
             "noUndeclaredVariables": "off",
             "noUnreachable": "off",
-            "noUnreachableSuper": "off"
+            "noUnreachableSuper": "off",
+            "useExhaustiveDependencies": "off"
           },
           "style": { "useConst": "error" },
+          "a11y": {
+            "noStaticElementInteractions": "off",
+            "useKeyWithClickEvents": "off"
+          },
           "suspicious": {
+            "noArrayIndexKey": "off",
             "noClassAssign": "off",
             "noDuplicateClassMembers": "off",
             "noDuplicateObjectKeys": "off",

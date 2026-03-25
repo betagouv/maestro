@@ -1,21 +1,20 @@
-import express, { NextFunction, Request, Response } from 'express';
+import { constants } from 'node:http2';
+import type express from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { expressjwt } from 'express-jwt';
-
-import { constants } from 'http2';
-import AuthenticationMissingError from 'maestro-shared/errors/authenticationMissingError';
-import UserMissingError from 'maestro-shared/errors/userMissingError';
-import { UserRefined } from 'maestro-shared/schema/User/User';
-import { userRepository } from '../../repositories/userRepository';
-import config from '../../utils/config';
-
 import {
   COOKIE_MAESTRO_ACCESS_TOKEN,
   COOKIE_MAESTRO_MASCARADE,
   COOKIE_MAESTRO_USER_ROLE
 } from 'maestro-shared/constants';
 import AuthenticationFailedError from 'maestro-shared/errors/authenticationFailedError';
+import AuthenticationMissingError from 'maestro-shared/errors/authenticationMissingError';
+import UserMissingError from 'maestro-shared/errors/userMissingError';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { AuthUserRefined } from 'maestro-shared/schema/User/AuthUser';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
+import { userRepository } from '../../repositories/userRepository';
+import config from '../../utils/config';
 
 export const jwtCheck = (credentialsRequired: boolean) =>
   expressjwt({
@@ -73,7 +72,7 @@ const getRequestUser = async (
     }
     return requestUser;
   } else {
-    if (request.auth && request.auth.userId) {
+    if (request.auth?.userId) {
       const user = await userRepository.findUnique(request.auth.userId);
       if (user) {
         return await getUser(request.cookies, user);
@@ -83,8 +82,9 @@ const getRequestUser = async (
   }
 };
 
-export const userCheck = (credentialsRequired: boolean) =>
-  async function (request: Request, _response: Response, next: NextFunction) {
+export const userCheck =
+  (credentialsRequired: boolean) =>
+  async (request: Request, _response: Response, next: NextFunction) => {
     const requestUser = await getRequestUser(request, credentialsRequired);
 
     if (requestUser) {

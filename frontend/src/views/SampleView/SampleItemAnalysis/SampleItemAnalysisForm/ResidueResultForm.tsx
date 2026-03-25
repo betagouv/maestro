@@ -4,33 +4,36 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Box } from '@mui/material';
 import clsx from 'clsx';
 import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
-import { SSD2Id, SSD2Ids } from 'maestro-shared/referential/Residue/SSD2Id';
+import {
+  type SSD2Id,
+  SSD2Ids
+} from 'maestro-shared/referential/Residue/SSD2Id';
 import {
   SSD2IdLabel,
   SSD2Referential
 } from 'maestro-shared/referential/Residue/SSD2Referential';
 import {
-  AnalysisMethod,
+  type AnalysisMethod,
   AnalysisMethodLabels,
   AnalysisMethodList
 } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import {
-  ResidueKind,
+  type ResidueKind,
   ResidueKindLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
-import { FunctionComponent } from 'react';
+import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
 import { selectOptionsFromList } from '../../../../components/_app/AppSelect/AppSelectOption';
-import { UseForm } from '../../../../hooks/useForm';
+import type { UseForm } from '../../../../hooks/useForm';
 import { ResidueHeader } from '../SampleItemAnalysisOverview/ResidueResultOverview';
 import '../SampleItemAnalysisOverview/ResidueResultOverview.scss';
 import ResidueComplexForm from './ResidueComplexForm';
 import { ResidueInterpretationForm } from './ResidueInterpretationForm';
 import ResidueSimpleForm from './ResidueSimpleForm';
-import { ResiduesLmrValidator } from './SampleAnalysisForm';
+import type { ResiduesLmrValidator } from './SampleAnalysisForm';
 
 type Props = {
   residue: PartialResidue | undefined;
@@ -149,7 +152,6 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
                 );
               }}
               renderOption={(props, option) => {
-                // eslint-disable-next-line react/prop-types
                 const { key, ...optionProps } = props;
                 return (
                   <Box

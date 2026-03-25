@@ -1,17 +1,17 @@
 import { XMLBuilder } from 'fast-xml-parser';
 import {
-  Department,
+  type Department,
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
-import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { formatWithTz } from 'maestro-shared/utils/date';
-import { RequiredNotNull } from 'maestro-shared/utils/typescript';
-import { z, ZodObject } from 'zod';
-import { Laboratories, SachaConf } from '../../repositories/kysely.type';
+import type { RequiredNotNull } from 'maestro-shared/utils/typescript';
+import { type ZodObject, z } from 'zod';
+import type { Laboratories, SachaConf } from '../../repositories/kysely.type';
 import config from '../../utils/config';
 import {
-  Acquittement,
+  type Acquittement,
   acquittementValidator,
   baseValidator,
   demandesAnalysesValidator
@@ -80,7 +80,7 @@ export const getNumeroDAP = (
     .substring(sample.reference.lastIndexOf('-') + 1)
     .padStart(6, '0');
   return Number(
-    `${2000 + Number.parseInt(sample.reference.substring(firstSeparatorIndex, firstSeparatorIndex + 2))}${sampleIndex}${sampleItem.itemNumber}${sampleItem.copyNumber}`
+    `${2000 + Number.parseInt(sample.reference.substring(firstSeparatorIndex, firstSeparatorIndex + 2), 10)}${sampleIndex}${sampleItem.itemNumber}${sampleItem.copyNumber}`
   );
 };
 

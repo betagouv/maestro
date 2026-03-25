@@ -21,10 +21,7 @@ export default {
       ]
     },
     frontend: {
-      ignoreDependencies: [
-        'geojson',
-        '@vitest/coverage-v8'
-      ],
+      ignoreDependencies: ['geojson', '@vitest/coverage-v8'],
       ignore: ['src/serviceWorker.js']
     },
     shared: {

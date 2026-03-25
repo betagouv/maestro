@@ -1,6 +1,6 @@
-import { Insertable } from 'kysely';
+import type { Insertable } from 'kysely';
 import { kysely } from './kysely';
-import { DB, KyselyMaestro } from './kysely.type';
+import type { DB, KyselyMaestro } from './kysely.type';
 
 const insert = async (
   residueAnalytes: Insertable<DB['residueAnalytes']>[],

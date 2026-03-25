@@ -6,10 +6,10 @@ import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { isNil, sumBy, uniq } from 'lodash-es';
-import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import React, { type ComponentProps, useMemo, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
@@ -217,10 +217,11 @@ const ProgrammingPrescriptionListHeader = ({
             iconId="fr-icon-list-ordered"
             priority="secondary"
             title="Action groupée"
-            children={isMobile ? undefined : 'Action groupée'}
             size={isMobile ? 'small' : 'medium'}
             onClick={() => setIsGroupedUpdate(true)}
-          />
+          >
+            {isMobile ? undefined : 'Action groupée'}
+          </Button>
         )}
       </div>
       {isGroupedUpdate && onGroupedUpdate && (

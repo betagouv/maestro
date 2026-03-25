@@ -1,13 +1,13 @@
-import { constants } from 'http2';
-import { UserRefined } from 'maestro-shared/schema/User/User';
+import { constants } from 'node:http2';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   genAnalysisToCreate,
   genPartialAnalysis
 } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import {
-  Sample11Fixture,
-  Sample2Fixture
+  Sample2Fixture,
+  Sample11Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import {
   AdminFixture,

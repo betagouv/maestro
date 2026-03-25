@@ -2,14 +2,14 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
   getPrescriptionTitle,
-  Prescription
+  type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
 import {
   hasProgrammingPlanStatusForAuthUser,
-  ProgrammingPlanChecked
+  type ProgrammingPlanChecked
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import { pluralize } from 'src/utils/stringUtils';
@@ -47,7 +47,7 @@ const LocalPrescriptionCard = ({
   } = useAuthentication();
 
   if (!programmingPlan || !localPrescription) {
-    return <></>;
+    return null;
   }
 
   return (

@@ -1,10 +1,11 @@
-import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
-import React, { FunctionComponent, useContext, useRef } from 'react';
+import type { createModal } from '@codegouvfr/react-dsfr/Modal';
+import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import type React from 'react';
+import { type FunctionComponent, useContext, useRef } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { ApiClientContext } from '../../../../services/apiClient';
 import {
-  FormRefinement,
+  type FormRefinement,
   SampleItemAdmissibilityForm
 } from './SampleItemAdmissibilityForm';
 

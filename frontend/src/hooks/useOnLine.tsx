@@ -80,7 +80,7 @@ export const useOnLine = () => {
         }
       })();
     }
-  }, [isOnline, isAuthenticated, pendingSamples]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOnline, isAuthenticated, pendingSamples]);
 
   return {
     isOnline

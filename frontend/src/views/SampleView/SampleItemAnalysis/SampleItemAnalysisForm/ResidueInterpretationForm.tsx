@@ -2,25 +2,25 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import {
-  OptionalBoolean,
+  type OptionalBoolean,
   OptionalBooleanLabels,
   OptionalBooleanList
 } from 'maestro-shared/referential/OptionnalBoolean';
-import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import {
-  ResidueCompliance,
+  type ResidueCompliance,
   ResidueComplianceLabels,
   ResidueComplianceList
 } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
-import { FunctionComponent } from 'react';
+import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
 import AppSelect from '../../../../components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from '../../../../components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
-import { UseForm } from '../../../../hooks/useForm';
-import { ResiduesLmrValidator } from './SampleAnalysisForm';
+import type { UseForm } from '../../../../hooks/useForm';
+import type { ResiduesLmrValidator } from './SampleAnalysisForm';
 
 type Props = {
   form: UseForm<ResiduesLmrValidator>;

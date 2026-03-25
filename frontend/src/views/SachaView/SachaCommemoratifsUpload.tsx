@@ -2,7 +2,12 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { ChangeEvent, FunctionComponent, useContext, useRef } from 'react';
+import {
+  type ChangeEvent,
+  type FunctionComponent,
+  useContext,
+  useRef
+} from 'react';
 import { ApiClientContext } from '../../services/apiClient';
 
 export const SachaCommemoratifsUpload: FunctionComponent = () => {

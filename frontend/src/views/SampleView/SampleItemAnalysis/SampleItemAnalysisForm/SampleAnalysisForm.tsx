@@ -4,14 +4,15 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import {
   Analysis,
-  PartialAnalysis
+  type PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
 import {
-  PartialResidue,
+  type PartialResidue,
   ResidueLmrChecked
 } from 'maestro-shared/schema/Analysis/Residue/Residue';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
-import React, { FunctionComponent, useContext, useMemo, useState } from 'react';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import type React from 'react';
+import { type FunctionComponent, useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { z } from 'zod';
 import { useForm } from '../../../../hooks/useForm';
@@ -106,7 +107,7 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
 
   const removeResidue = (i: number) => () =>
     setResidues((currentResidues) => {
-      return currentResidues.filter((_r, index) => i != index);
+      return currentResidues.filter((_r, index) => i !== index);
     });
 
   const onSubmit = async (e: React.MouseEvent<HTMLElement>) => {
@@ -167,13 +168,14 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
           )}
 
           <Button
-            children="Enregistrer"
             iconId="fr-icon-save-line"
             onClick={onSubmit}
             style={{
               alignSelf: 'center'
             }}
-          />
+          >
+            Enregistrer
+          </Button>
         </>
       )}
     </>

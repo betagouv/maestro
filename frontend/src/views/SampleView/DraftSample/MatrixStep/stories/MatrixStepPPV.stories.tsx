@@ -13,7 +13,10 @@ import {
 import { PPVFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
 import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
-import { getMockApi, MockApi } from '../../../../../services/mockApiClient';
+import {
+  getMockApi,
+  type MockApi
+} from '../../../../../services/mockApiClient';
 import MatrixStep from '../MatrixStep';
 
 const createOrUpdateMock = fn();

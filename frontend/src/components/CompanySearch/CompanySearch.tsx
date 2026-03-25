@@ -2,14 +2,15 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { Autocomplete, Box } from '@mui/material';
 import clsx from 'clsx';
-import { Department } from 'maestro-shared/referential/Department';
+import type { Department } from 'maestro-shared/referential/Department';
 import {
-  Company,
+  type Company,
   companyFromSearchResult
 } from 'maestro-shared/schema/Company/Company';
-import React, {
-  ReactNode,
-  SyntheticEvent,
+import type React from 'react';
+import {
+  type ReactNode,
+  type SyntheticEvent,
   useCallback,
   useContext,
   useEffect,
@@ -202,6 +203,7 @@ const CompanySearch = ({
         })()
       )}
     >
+      {/** biome-ignore lint/a11y/noLabelWithoutControl: TODO */}
       <label className={cx('fr-label')}>
         {label ?? (
           <>
@@ -260,7 +262,7 @@ const CompanySearch = ({
           }}
           onChange={(_, value) => {
             if (value) {
-              let newValue;
+              let newValue: Company[];
               if (multi) {
                 newValue = [...selectedCompanies, value];
                 setSearchQuery('');
@@ -319,13 +321,11 @@ const CompanySearch = ({
           {stateRelatedMessage}
         </p>
       )}
-      <>
-        {isError && !companies && (
-          <AppServiceErrorAlert
-            message={`L'API Recherche d'entreprises semble inaccessible. Veuillez réessayer ultérieurement.`}
-          />
-        )}
-      </>
+      {isError && !companies && (
+        <AppServiceErrorAlert
+          message={`L'API Recherche d'entreprises semble inaccessible. Veuillez réessayer ultérieurement.`}
+        />
+      )}
       {selectedCompanies.length > 0 && (
         <>
           <div className={cx('fr-hint-text', 'fr-my-1v')}>

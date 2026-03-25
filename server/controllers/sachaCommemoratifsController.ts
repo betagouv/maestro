@@ -1,6 +1,6 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import { sachaCommemoratifRepository } from '../repositories/sachaCommemoratifRepository';
-import { ProtectedSubRouter } from '../routers/routes.type';
+import type { ProtectedSubRouter } from '../routers/routes.type';
 import { updateSachaCommemoratifs } from '../services/ediSacha/sachaCommemoratifsService';
 
 export const sachaCommemoratifsProtectedRouter = {

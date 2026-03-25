@@ -59,11 +59,11 @@ const searchBadLMR = async () => {
 
           byReference[ref]
             .filter((s) => !!s.lmr)
-            .forEach((s) =>
+            .forEach((s) => {
               console.log(
                 `    - https://app.maestro.beta.gouv.fr/prelevements/${s.sampleId} | ${s.lmr} | ${formatWithTz(s.createdAt ?? new Date(), 'dd/MM/yyyy HH:mm')} | ${s.name}`
-              )
-            );
+              );
+            });
         }
       });
     }

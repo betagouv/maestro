@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { z } from 'zod';
+import type { z } from 'zod';
 import { extractAnalyzes, inovalysRefClientValidator } from './inovalys';
 
 test("Génère une erreur lisible si le format n'est pas respecté", () => {

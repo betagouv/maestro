@@ -1,4 +1,4 @@
-import { ButtonProps } from '@codegouvfr/react-dsfr/Button';
+import type { ButtonProps } from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import useWindowSize from 'src/hooks/useWindowSize';

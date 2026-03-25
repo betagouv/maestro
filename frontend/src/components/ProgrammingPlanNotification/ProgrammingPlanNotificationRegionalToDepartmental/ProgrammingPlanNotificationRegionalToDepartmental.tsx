@@ -7,11 +7,12 @@ import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import Select from '@codegouvfr/react-dsfr/Select';
 import { sumBy } from 'lodash-es';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
-import { Region, Regions } from 'maestro-shared/referential/Region';
-import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { type Region, Regions } from 'maestro-shared/referential/Region';
+import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { NextProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import React, { useContext, useState } from 'react';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type React from 'react';
+import { useContext, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from '../../../hooks/useStore';
 import { api } from '../../../services/api.service';
@@ -81,7 +82,7 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
   };
 
   if (!user?.region) {
-    return <></>;
+    return null;
   }
 
   return (

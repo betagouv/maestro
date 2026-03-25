@@ -1,6 +1,6 @@
 import z from 'zod';
 import { Notice } from '../schema/Notice/Notice';
-import { SubRoutes } from './routes';
+import type { SubRoutes } from './routes';
 
 export const noticesRoutes = {
   '/notices/:type': {

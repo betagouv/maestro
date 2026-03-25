@@ -9,8 +9,8 @@ import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   getSampleMatrixLabel,
   isCreatedPartialSample,
-  PartialSample,
-  PartialSampleToCreate
+  type PartialSample,
+  type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { useState } from 'react';
@@ -45,27 +45,24 @@ const SampleCard = ({ sample, horizontal }: Props) => {
             <div className="flex-grow-1">
               <SampleStatusBadge status={sample.status} sampleId={sample.id} />
             </div>
-            {isMobile && (
-              <>
-                {isExpanded ? (
-                  <Button
-                    title="Réduire"
-                    iconId="fr-icon-subtract-line"
-                    size="small"
-                    priority="tertiary"
-                    onClick={() => setIsExpanded(false)}
-                  />
-                ) : (
-                  <Button
-                    title="Voir plus"
-                    iconId="fr-icon-add-line"
-                    size="small"
-                    priority="tertiary"
-                    onClick={() => setIsExpanded(true)}
-                  />
-                )}
-              </>
-            )}
+            {isMobile &&
+              (isExpanded ? (
+                <Button
+                  title="Réduire"
+                  iconId="fr-icon-subtract-line"
+                  size="small"
+                  priority="tertiary"
+                  onClick={() => setIsExpanded(false)}
+                />
+              ) : (
+                <Button
+                  title="Voir plus"
+                  iconId="fr-icon-add-line"
+                  size="small"
+                  priority="tertiary"
+                  onClick={() => setIsExpanded(true)}
+                />
+              ))}
           </div>
         )
       }
@@ -260,9 +257,7 @@ const MatrixBlock = ({
       <span className={cx('fr-icon-restaurant-line', 'fr-icon--sm')}></span>
       {matrixFullLabel}
     </span>
-  ) : (
-    <></>
-  );
+  ) : null;
 };
 
 const SamplerBlock = ({

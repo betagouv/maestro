@@ -3,7 +3,7 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import { Brand } from 'maestro-shared/constants';
-import { DocumentChecked } from 'maestro-shared/schema/Document/Document';
+import type { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import {
   DocumentKindLabels,
   ResourceDocumentKindList

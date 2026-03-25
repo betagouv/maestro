@@ -4,15 +4,15 @@ import clsx from 'clsx';
 import { sumBy } from 'lodash-es';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
-  LocalPrescription,
+  type LocalPrescription,
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import {
   getPrescriptionTitle,
-  Prescription
+  type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useMemo } from 'react';
 import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
@@ -129,14 +129,13 @@ const ProgrammingRegionalPrescriptionTable = ({
             </div>
           ))
       ]),
-    [programmingPlan, prescriptions, regionalPrescriptions] // eslint-disable-line react-hooks/exhaustive-deps
+    [programmingPlan, prescriptions, regionalPrescriptions]
   );
 
   const totalData = useMemo(
     () => [
       <b key={'total'}>Total</b>,
-      // eslint-disable-next-line react/jsx-key
-      <div className="border-left fr-text--bold">
+      <div key={'total-div'} className="border-left fr-text--bold">
         <div>{sumBy(regionalPrescriptions, 'sampleCount')}</div>
 
         {programmingPlan.regionalStatus.some(
@@ -175,11 +174,11 @@ const ProgrammingRegionalPrescriptionTable = ({
         </div>
       ])
     ],
-    [regionalPrescriptions, prescriptions, programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
+    [regionalPrescriptions, prescriptions, programmingPlan]
   );
 
   if (!prescriptions) {
-    return <></>;
+    return null;
   }
 
   return (

@@ -1,14 +1,13 @@
-import {
-  FunctionComponent,
-  PropsWithChildren,
-  useContext,
-  useEffect
-} from 'react';
-
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { Brand } from 'maestro-shared/constants';
+import {
+  type FunctionComponent,
+  type PropsWithChildren,
+  useContext,
+  useEffect
+} from 'react';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import farmhand from '../../assets/farmland.webp';
 import foodGreen from '../../assets/illustrations/food-green.svg';

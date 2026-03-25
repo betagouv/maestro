@@ -1,5 +1,5 @@
 import { Matrix, MatrixDeprecated } from './Matrix';
-import { MatrixKind } from './MatrixKind';
+import type { MatrixKind } from './MatrixKind';
 
 const MatrixListByKindDeprecated: Record<MatrixDeprecated, Matrix[]> =
   Object.fromEntries(

@@ -9,17 +9,17 @@ import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
   filteredLocalPrescriptions,
   getCompletionRate,
-  LocalPrescription
+  type LocalPrescription
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
   getPrescriptionTitle,
-  Prescription,
+  type Prescription,
   PrescriptionSort
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
-  FunctionComponent,
+  type FunctionComponent,
   useContext,
   useEffect,
   useMemo,

@@ -1,7 +1,7 @@
 import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { RegionList } from '../referential/Region';
-import { LocalPrescriptionComment } from '../schema/LocalPrescription/LocalPrescriptionComment';
+import type { LocalPrescriptionComment } from '../schema/LocalPrescription/LocalPrescriptionComment';
 import { oneOf } from './testFixtures';
 
 export const genLocalPrescriptionComment = (

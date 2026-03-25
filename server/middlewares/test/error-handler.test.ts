@@ -1,5 +1,9 @@
-import express, { NextFunction, Request, Response } from 'express';
-import { constants } from 'http2';
+import { constants } from 'node:http2';
+import express, {
+  type NextFunction,
+  type Request,
+  type Response
+} from 'express';
 import request from 'supertest';
 import { describe, test } from 'vitest';
 import errorHandler from '../error-handler';

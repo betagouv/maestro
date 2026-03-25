@@ -1,7 +1,7 @@
-import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
-import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
-import { SachaResultats } from './sachaValidator';
+import type { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import type { SachaResultats } from './sachaValidator';
 
 export const processSachaRAI = (
   _rai: SachaResultats

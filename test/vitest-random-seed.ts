@@ -30,6 +30,6 @@ const getEnvSeed = (): number | undefined => {
   const env = process.env.TEST_SEED?.trim();
   if (!env) return;
   const num = Number(env);
-  if (isNaN(num)) return;
+  if (Number.isNaN(num)) return;
   return num;
 };

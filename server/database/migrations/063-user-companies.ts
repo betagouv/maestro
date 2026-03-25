@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 export const up = async (knex: Knex) => {
   await knex.schema.createTable('user_companies', (table) => {
     table.uuid('user_id').notNullable().references('id').inTable('users');

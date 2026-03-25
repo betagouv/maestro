@@ -1,14 +1,14 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import { isEqual } from 'lodash-es';
 import AnalysisMissingError from 'maestro-shared/errors/analysisMissingError';
 import SampleMissingError from 'maestro-shared/errors/sampleMissingError';
-import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
-import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
+import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { v4 as uuidv4 } from 'uuid';
 import { analysisErrorsRepository } from '../repositories/analysisErrorsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
-import { ProtectedSubRouter } from '../routers/routes.type';
+import type { ProtectedSubRouter } from '../routers/routes.type';
 import { mattermostService } from '../services/mattermostService';
 
 export const analysisRouter = {

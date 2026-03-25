@@ -1,10 +1,10 @@
 import {
   genSampleItem,
+  Sample1Item1Fixture,
+  Sample2Fixture,
   Sample11Fixture,
   Sample12Fixture,
   Sample13Fixture,
-  Sample1Item1Fixture,
-  Sample2Fixture,
   SampleDAOA1Fixture,
   SampleDAOA2Fixture
 } from 'maestro-shared/test/sampleFixtures';

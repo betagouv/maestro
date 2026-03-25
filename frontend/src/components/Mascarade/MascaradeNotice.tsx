@@ -1,5 +1,5 @@
 import Notice from '@codegouvfr/react-dsfr/Notice';
-import { FunctionComponent } from 'react';
+import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { useMascarade } from './useMascarade';

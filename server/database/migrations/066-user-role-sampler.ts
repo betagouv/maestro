@@ -1,8 +1,8 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 
 export const up = async (knex: Knex) => {
   await knex.raw(`update public.users
     set role = 'Sampler' where role = 'DepartmentalSampler';`);
 };
 
-export const down = async (knex: Knex) => {};
+export const down = async (_knex: Knex) => {};

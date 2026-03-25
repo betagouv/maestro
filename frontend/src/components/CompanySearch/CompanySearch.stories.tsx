@@ -62,7 +62,7 @@ export const Default: Story = {
   }
 };
 
-export const Error: Story = {
+export const InError: Story = {
   args: {
     onSelect: fn()
   },

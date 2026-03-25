@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 
 export const up = async (knex: Knex) => {
   // Table 1: field definitions
@@ -348,7 +348,7 @@ export const up = async (knex: Knex) => {
       {
         field_key: 'breedingMethod',
         value: 'PROD_3',
-        label: "Autre signe de qualité",
+        label: 'Autre signe de qualité',
         order: 3
       },
       // sex (DAOA_BOVIN options)
@@ -499,41 +499,41 @@ export const up = async (knex: Knex) => {
   );
 
   if (planKindFieldInserts.length > 0) {
-  const planKindFieldRows = (await knex('programming_plan_kind_fields')
-    .insert(planKindFieldInserts)
-    .returning(['id', 'programming_plan_id', 'kind', 'field_id'])) as {
-    id: string;
-    programmingPlanId: string;
-    kind: string;
-    fieldId: string;
-  }[];
+    const planKindFieldRows = (await knex('programming_plan_kind_fields')
+      .insert(planKindFieldInserts)
+      .returning(['id', 'programming_plan_id', 'kind', 'field_id'])) as {
+      id: string;
+      programmingPlanId: string;
+      kind: string;
+      fieldId: string;
+    }[];
 
-  // Build lookup: planKindFieldId[programmingPlanId][kind][fieldKey] = id
-  const planKindFieldId: Record<
-    string,
-    Record<string, Record<string, string>>
-  > = {};
-  for (const r of planKindFieldRows) {
-    const key = fieldRows.find((f) => f.id === r.fieldId)!.key;
-    if (!planKindFieldId[r.programmingPlanId])
-      planKindFieldId[r.programmingPlanId] = {};
-    if (!planKindFieldId[r.programmingPlanId][r.kind])
-      planKindFieldId[r.programmingPlanId][r.kind] = {};
-    planKindFieldId[r.programmingPlanId][r.kind][key] = r.id;
-  }
+    // Build lookup: planKindFieldId[programmingPlanId][kind][fieldKey] = id
+    const planKindFieldId: Record<
+      string,
+      Record<string, Record<string, string>>
+    > = {};
+    for (const r of planKindFieldRows) {
+      const key = fieldRows.find((f) => f.id === r.fieldId)!.key;
+      if (!planKindFieldId[r.programmingPlanId])
+        planKindFieldId[r.programmingPlanId] = {};
+      if (!planKindFieldId[r.programmingPlanId][r.kind])
+        planKindFieldId[r.programmingPlanId][r.kind] = {};
+      planKindFieldId[r.programmingPlanId][r.kind][key] = r.id;
+    }
 
-  // Insert plan-kind → field → option associations
-  const optionInserts = planKindFieldRows.flatMap((r) => {
-    const key = fieldRows.find((f) => f.id === r.fieldId)!.key;
-    const values = optionsByKindField[r.kind]?.[key] ?? [];
-    return values.map((v) => ({
-      programming_plan_kind_field_id:
-        planKindFieldId[r.programmingPlanId][r.kind][key],
-      specific_data_field_option_id: optionId[key][v]
-    }));
-  });
+    // Insert plan-kind → field → option associations
+    const optionInserts = planKindFieldRows.flatMap((r) => {
+      const key = fieldRows.find((f) => f.id === r.fieldId)!.key;
+      const values = optionsByKindField[r.kind]?.[key] ?? [];
+      return values.map((v) => ({
+        programming_plan_kind_field_id:
+          planKindFieldId[r.programmingPlanId][r.kind][key],
+        specific_data_field_option_id: optionId[key][v]
+      }));
+    });
 
-  if (optionInserts.length > 0) {
+    if (optionInserts.length > 0) {
       await knex('programming_plan_kind_field_options').insert(optionInserts);
     }
   }

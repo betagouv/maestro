@@ -1,6 +1,6 @@
 import Input from '@codegouvfr/react-dsfr/Input';
 import { isNil } from 'lodash-es';
-import { ReactNode, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import AppToast from '../_app/AppToast/AppToast';
 
 interface EditableCellProps {
@@ -37,7 +37,7 @@ const EditableNumberCell = ({
       return;
     }
 
-    if (!isNaN(newValue)) {
+    if (!Number.isNaN(newValue)) {
       submitEdition(newValue);
     }
   };
@@ -62,16 +62,12 @@ const EditableNumberCell = ({
             onBlur: () => setIsEditing(false)
           }}
         />
+      ) : isEditable ? (
+        <div className="editable-cell" onClick={() => setIsEditing(true)}>
+          {defaultContent}
+        </div>
       ) : (
-        <>
-          {isEditable ? (
-            <div className="editable-cell" onClick={() => setIsEditing(true)}>
-              {defaultContent}
-            </div>
-          ) : (
-            defaultContent
-          )}
-        </>
+        defaultContent
       )}
     </>
   );

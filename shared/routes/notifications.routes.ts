@@ -4,7 +4,7 @@ import {
   Notification,
   NotificationUpdate
 } from '../schema/Notification/Notification';
-import { SubRoutes } from './routes';
+import type { SubRoutes } from './routes';
 
 export const notificationsRoutes = {
   '/notifications': {

@@ -16,7 +16,7 @@ import {
 } from 'maestro-shared/schema/User/User';
 import { knexInstance as db } from '../../../repositories/db';
 
-export const seed = async function () {
+export const seed = async () => {
   const PPVClosedProgrammingPlanId = 'f5d510ef-ab78-449a-acd6-392895a1994f';
   const PPVValidatedProgrammingPlanId = 'd78fb3eb-1998-482b-9014-282d51ae30b8';
   const PPVInProgressProgrammingPlanId = 'bac693a5-9475-4e24-a775-5532b0117e5b';

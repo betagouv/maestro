@@ -1,8 +1,8 @@
 import { isNil, omitBy } from 'lodash-es';
-import { FindNotificationOptions } from 'maestro-shared/schema/Notification/FindNotificationOptions';
+import type { FindNotificationOptions } from 'maestro-shared/schema/Notification/FindNotificationOptions';
 import {
   Notification,
-  NotificationUpdate
+  type NotificationUpdate
 } from 'maestro-shared/schema/Notification/Notification';
 import { api } from 'src/services/api.service';
 

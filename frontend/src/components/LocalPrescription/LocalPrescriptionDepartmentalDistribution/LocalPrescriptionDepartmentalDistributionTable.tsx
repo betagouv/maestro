@@ -2,18 +2,18 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import { sumBy } from 'lodash-es';
 import {
-  Department,
+  type Department,
   DepartmentLabels,
   DepartmentList,
   DepartmentSort
 } from 'maestro-shared/referential/Department';
 import { Regions } from 'maestro-shared/referential/Region';
 import {
-  LocalPrescription,
+  type LocalPrescription,
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useMemo } from 'react';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
 import { assert, type Equals } from 'tsafe';
@@ -68,7 +68,7 @@ const LocalPrescriptionDepartmentalDistributionTable = ({
   );
 
   if (start >= end) {
-    return <></>;
+    return null;
   }
 
   return (
@@ -77,12 +77,14 @@ const LocalPrescriptionDepartmentalDistributionTable = ({
       noCaption
       noScroll
       fixed
-      headers={departmentList.slice(start, end).map((department) => (
-        <TableHeaderCell
-          key={`${Math.random()}_header_${department}`}
-          name={`${department} - ${DepartmentLabels[department]}`}
-        />
-      ))}
+      headers={departmentList
+        .slice(start, end)
+        .map((department) => (
+          <TableHeaderCell
+            key={`${Math.random()}_header_${department}`}
+            name={`${department} - ${DepartmentLabels[department]}`}
+          />
+        ))}
       data={[
         [...departmentalPrescriptions]
           .sort(LocalPrescriptionSort)

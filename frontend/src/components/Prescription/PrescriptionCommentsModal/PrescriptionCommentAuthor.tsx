@@ -13,7 +13,7 @@ const PrescriptionCommentAuthor = ({ userId }: Props) => {
   const { data: user } = apiClient.useGetUserQuery(userId);
 
   if (!user) {
-    return <></>;
+    return null;
   }
 
   return (

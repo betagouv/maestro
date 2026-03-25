@@ -2,9 +2,9 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import {
   getPrescriptionTitle,
-  Prescription
+  type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
-import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
+import type { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
 import { useEffect, useMemo, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import { pluralize } from 'src/utils/stringUtils';
@@ -76,7 +76,7 @@ const PrescriptionModal = ({ onUpdatePrescriptionSubstances }: Props) => {
     return () => {
       mo.disconnect();
     };
-  }, [dialogParentRef]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dialogParentRef]);
 
   return (
     <div className="prescription-substances-modal" ref={dialogParentRef}>
@@ -94,7 +94,7 @@ const PrescriptionModal = ({ onUpdatePrescriptionSubstances }: Props) => {
         <div className="prescription-edit-modal-content">
           {prescriptionModalData?.mode === 'analysis' && (
             <PrescriptionEditSubstances
-              programmingPlan={prescriptionModalData.programmingPlan!}
+              programmingPlan={prescriptionModalData.programmingPlan}
               prescription={prescriptionModalData.prescription}
               onUpdatePrescriptionSubstances={(prescriptionSubstances) =>
                 onUpdatePrescriptionSubstances(

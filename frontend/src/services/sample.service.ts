@@ -1,12 +1,12 @@
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { isNil, omitBy } from 'lodash-es';
-import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   isCreatedPartialSample,
   PartialSample,
-  PartialSampleToCreate
+  type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import {
+import type {
   SampleItemKey,
   SampleItemUpdate
 } from 'maestro-shared/schema/Sample/SampleItem';

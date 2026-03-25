@@ -1,20 +1,20 @@
 import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import {
+import type {
   CommemoratifSigle,
   CommemoratifValueSigle,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   getSampleItemReference,
-  SampleItem
+  type SampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
-import { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
-import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
+import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import type { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { toMaestroDate } from 'maestro-shared/utils/date';
-import { SachaConf } from '../../repositories/kysely.type';
+import type { SachaConf } from '../../repositories/kysely.type';
 import {
-  NotPPVMatrix,
+  type NotPPVMatrix,
   SigleContexteIntervention,
   SigleMatrix,
   SiglePlanAnalyse
@@ -22,8 +22,8 @@ import {
 import {
   generateXML,
   getNumeroDAP,
-  LaboratorySachaData,
-  XmlFile
+  type LaboratorySachaData,
+  type XmlFile
 } from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
 
@@ -198,7 +198,7 @@ export const getCommemoratifs = (
             });
           }
         } else {
-          let textValue;
+          let textValue: string;
           if (typeDonnee === 'date') {
             textValue = toSachaDateTime(new Date(specificDataValue));
           } else {

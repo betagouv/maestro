@@ -1,6 +1,6 @@
-import { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
+import type { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
 import { kysely } from './kysely';
-import { LaboratoryResidueMapping } from './kysely.type';
+import type { LaboratoryResidueMapping } from './kysely.type';
 
 const findByLaboratoryShortName = async (
   laboratoryShortName: LaboratoryShortName

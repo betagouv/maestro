@@ -6,12 +6,12 @@ import { skipToken } from '@reduxjs/toolkit/query';
 import clsx from 'clsx';
 import { isNil } from 'lodash-es';
 import {
-  documentChecks,
   DocumentToCreateChecked,
-  DocumentUpdateChecked
+  DocumentUpdateChecked,
+  documentChecks
 } from 'maestro-shared/schema/Document/Document';
 import {
-  DocumentKind,
+  type DocumentKind,
   DocumentKindLabels,
   SortedResourceDocumentKindList
 } from 'maestro-shared/schema/Document/DocumentKind';

@@ -1,9 +1,9 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import { HttpError } from 'maestro-shared/errors/httpError';
 import PrescriptionMissingError from 'maestro-shared/errors/prescriptionPlanMissingError';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import prescriptionRepository from '../../repositories/prescriptionRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 

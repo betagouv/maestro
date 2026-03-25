@@ -6,13 +6,14 @@ import { format } from 'date-fns';
 import './SampleItemAdmissibility.scss';
 
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
-import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
-import { FunctionComponent } from 'react';
+import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
 import { SampleItemAdmissibilityEditModal } from './SampleItemAdmissibilityEditModal';
+
 interface Props {
   sample: SampleChecked;
   sampleItem: SampleItem;
@@ -47,17 +48,13 @@ export const SampleItemAdmissibility: FunctionComponent<Props> = ({
         <div className={cx('fr-col-6')}>
           <div className={cx('fr-mb-1v')}>Destinataire</div>
           <div className={cx('fr-text--bold')}>
-            {sampleItem.copyNumber === 1 ? (
-              <>
-                {sampleItem?.laboratoryId
-                  ? getLaboratoryFullName(
-                      getSampleItemLaboratory(sampleItem.itemNumber)
-                    )
-                  : 'Information non disponible'}
-              </>
-            ) : (
-              SampleItemRecipientKindLabels[sampleItem.recipientKind]
-            )}
+            {sampleItem.copyNumber === 1
+              ? sampleItem?.laboratoryId
+                ? getLaboratoryFullName(
+                    getSampleItemLaboratory(sampleItem.itemNumber)
+                  )
+                : 'Information non disponible'
+              : SampleItemRecipientKindLabels[sampleItem.recipientKind]}
           </div>
         </div>
         <div className={cx('fr-col-6')}>

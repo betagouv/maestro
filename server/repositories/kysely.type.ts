@@ -29,15 +29,15 @@ import {
   CommemoratifValueSigle,
   SachaCommemoratifTypeDonnee
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
-import { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
+import type { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import {
   ProgrammingPlanKindFieldId,
   SpecificDataFieldId,
   SpecificDataFieldOptionId
 } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
-import { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { UserRole } from 'maestro-shared/schema/User/UserRole';
-import { MaestroDate } from 'maestro-shared/utils/date';
+import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
+import type { UserRole } from 'maestro-shared/schema/User/UserRole';
+import type { MaestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 
 export type Generated<T> =

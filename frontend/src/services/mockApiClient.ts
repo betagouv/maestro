@@ -1,9 +1,9 @@
-import {
+import type {
   TypedUseLazyQuery,
   TypedUseMutation,
   TypedUseQuery
 } from '@reduxjs/toolkit/query/react';
-import { UserRefined } from 'maestro-shared/schema/User/User';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import {
   SlaughterhouseCompanyFixture1,
@@ -27,7 +27,7 @@ import {
 } from 'maestro-shared/test/userFixtures';
 import { fn } from 'storybook/test';
 import regionsJson from '../../../server/data/regions.json';
-import { ApiClient } from './apiClient';
+import type { ApiClient } from './apiClient';
 
 type MockableApiKeys = Exclude<
   keyof ApiClient,

@@ -1,12 +1,12 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 import { isArray, isNil, omit, omitBy, uniq } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
-import {
+import type {
   FindLocalPrescriptionOptions,
   LocalPrescriptionOptionsInclude
 } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import {
   InProgressStatusList,
   RealizedStatusList
@@ -17,6 +17,7 @@ import { localPrescriptionCommentsTable } from './localPrescriptionCommentReposi
 import { localPrescriptionSubstanceKindsLaboratoriesTable } from './localPrescriptionSubstanceKindLaboratoryRepository';
 import { prescriptionsTable } from './prescriptionRepository';
 import { samplesTable } from './sampleRepository';
+
 const localPrescriptionsTable = 'local_prescriptions';
 
 const LocalPrescriptionsDbo = z.object({

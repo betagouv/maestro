@@ -1,6 +1,6 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { HttpError } from 'maestro-shared/errors/httpError';
+import type { HttpError } from 'maestro-shared/errors/httpError';
 import { z } from 'zod';
 
 type Props =
@@ -27,7 +27,7 @@ function isErrorWithMessage(error: unknown): error is { data: HttpError } {
 
 const AppServiceErrorAlert = ({ call, message }: Props) => {
   if (!call?.isError && !message) {
-    return <></>;
+    return null;
   }
 
   return (

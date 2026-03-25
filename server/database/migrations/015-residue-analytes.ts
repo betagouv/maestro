@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 import { ResultKindList } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 
 export const up = async (knex: Knex) => {

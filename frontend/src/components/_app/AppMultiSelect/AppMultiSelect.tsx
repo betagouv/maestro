@@ -1,9 +1,9 @@
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
-import { ZodObject } from 'zod';
-import { UseForm } from '../../../hooks/useForm';
+import type { ZodObject } from 'zod';
+import type { UseForm } from '../../../hooks/useForm';
 import { pluralize } from '../../../utils/stringUtils';
-import AppSelect, { AppSelectProps } from '../AppSelect/AppSelect';
+import AppSelect, { type AppSelectProps } from '../AppSelect/AppSelect';
 import { selectOptionsFromList } from '../AppSelect/AppSelectOption';
 
 type Props<T extends ZodObject, U> = Omit<

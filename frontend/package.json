@@ -12,7 +12,7 @@
     "scalingo-postbuild": "run-p build-vite build-storybook",
     "preview": "vite preview",
     "test": "vitest",
-    "lint": "eslint . --ext .ts,.tsx",
+    "lint": "biome check",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
@@ -44,9 +44,6 @@
     "@vitest/browser-playwright": "^4.0.18",
     "@vitest/coverage-v8": "^4.0.18",
     "clsx": "^2.1.0",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-storybook": "^10.2.14",
     "i18next": "^25.8.13",
     "maestro-shared": "^0.0.1",
     "maplibre-gl": "^5.19.0",

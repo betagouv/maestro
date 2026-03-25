@@ -289,7 +289,7 @@ const graineDeTournesol2 = genPrescription({
     'STADE9'
   ]
 });
-export const seed = async function () {
+export const seed = async () => {
   const validatedProgrammingPlan = await ProgrammingPlans()
     .where({ id: PPVValidatedProgrammingPlanFixture.id })
     .first();

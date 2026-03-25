@@ -1,21 +1,21 @@
 import { ImapFlow } from 'imapflow';
 import { isNil } from 'lodash-es';
-import { LaboratoryWithAutomation } from 'maestro-shared/referential/Laboratory';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import type { LaboratoryWithAutomation } from 'maestro-shared/referential/Laboratory';
+import { SandreToSSD2 } from 'maestro-shared/referential/Residue/SandreToSSD2';
+import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import {
   getSSD2Id,
   SSD2Referential
 } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { SandreToSSD2 } from 'maestro-shared/referential/Residue/SandreToSSD2';
-import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
-import { MaestroDate } from 'maestro-shared/utils/date';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import type { MaestroDate } from 'maestro-shared/utils/date';
 import {
   getRecordKeys,
-  OmitDistributive
+  type OmitDistributive
 } from 'maestro-shared/utils/typescript';
-import { Attachment, ParsedMail, simpleParser } from 'mailparser';
+import { type Attachment, type ParsedMail, simpleParser } from 'mailparser';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import { laboratoryResidueMappingRepository } from '../../repositories/laboratoryResidueMappingRepository';
 import config from '../../utils/config';
@@ -304,7 +304,7 @@ export const checkEmails = async () => {
                         r.casNumber
                       );
                       warnings.add(
-                        `Impossible d'identifier le résidu : ${r.label} ${potentialSSD2Id !== null ? 'ssd2Id potentiel:' + potentialSSD2Id : ''}`
+                        `Impossible d'identifier le résidu : ${r.label} ${potentialSSD2Id !== null ? `ssd2Id potentiel:${potentialSSD2Id}` : ''}`
                       );
                     }
                   }

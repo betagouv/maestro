@@ -1,7 +1,7 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { XMLParser } from 'fast-xml-parser';
 import { XmlDocument, XsdValidator } from 'libxml2-wasm';
-import fs from 'node:fs';
-import path from 'path';
 import { sachaValidator } from './sachaValidator';
 
 export const validateSachaXml = (xmlString: string): void => {

@@ -1,4 +1,4 @@
-import { z, ZodType } from 'zod';
+import { type ZodType, z } from 'zod';
 
 export const Templates = {
   SampleAnalysisRequestTemplate: {
