@@ -33,7 +33,6 @@ const findMany = async (
       'laboratoryAgreements.laboratoryId',
       'laboratories.id'
     )
-    .distinctOn('laboratories.id')
     .select([
       'laboratories.id',
       'laboratories.shortName',
@@ -47,6 +46,7 @@ const findMany = async (
       'laboratories.sachaGpgPublicKey',
       'laboratories.sachaSigle'
     ])
+    .distinct()
     .orderBy('laboratories.name', 'asc');
 
   for (const option of FindLaboratoryOptions.keyof().options) {
