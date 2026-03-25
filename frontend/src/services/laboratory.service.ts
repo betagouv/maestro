@@ -1,7 +1,7 @@
 import { isNil, omitBy } from 'lodash-es';
 import type { FindLaboratoryOptions } from 'maestro-shared/schema/Laboratory/FindLaboratoryOptions';
 import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
-import {
+import type {
   LaboratoryAnalyticalCompetence,
   LaboratoryAnalyticalCompetenceToSave
 } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';

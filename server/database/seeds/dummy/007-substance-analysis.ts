@@ -47,7 +47,6 @@ export const seed = async () => {
       analysisMethod
     }));
 
-  // prettier-ignore
   const substanceAnalysis = [
     genSubstanceAnalysis(abricotsEtSimilaires.id, 'Mono'),
     genSubstanceAnalysis(

@@ -8,7 +8,7 @@ import Tooltip from '@codegouvfr/react-dsfr/Tooltip';
 import clsx from 'clsx';
 import { format } from 'date-fns';
 import {
-  OptionalBoolean,
+  type OptionalBoolean,
   OptionalBooleanLabels,
   OptionalBooleanList
 } from 'maestro-shared/referential/OptionnalBoolean';
@@ -16,10 +16,10 @@ import {
   getAnalytes,
   getResidueKind
 } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import {
   SSD2IdLabel,
-  SSD2Referential
+  type SSD2Referential
 } from 'maestro-shared/referential/Residue/SSD2Referential';
 import {
   AnalysisMethodLabels,
@@ -27,7 +27,7 @@ import {
 } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import {
-  LaboratoryAnalyticalCompetence,
+  type LaboratoryAnalyticalCompetence,
   LaboratoryAnalyticalCompetenceToSave
 } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
 import {
@@ -35,11 +35,12 @@ import {
   LaboratoryAnalyticalMethodList
 } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalMethod';
 import {
-  LaboratoryValidationMethod,
+  type LaboratoryValidationMethod,
   LaboratoryValidationMethodLabels,
   LaboratoryValidationMethodList
 } from 'maestro-shared/schema/Laboratory/LaboratoryValidationMethod';
-import React, { useContext, useState } from 'react';
+import type React from 'react';
+import { useContext, useState } from 'react';
 import AppSelect from '../../components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from '../../components/_app/AppSelect/AppSelectOption';
 import AppTextInput from '../../components/_app/AppTextInput/AppTextInput';

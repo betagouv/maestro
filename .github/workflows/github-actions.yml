@@ -16,7 +16,7 @@ jobs:
         with:
           version: '2.4.8'
       - name: Run Biome
-        run: biome ci .
+        run: biome ci . --error-on-warnings
   knip:
     runs-on: ubuntu-latest
     steps:

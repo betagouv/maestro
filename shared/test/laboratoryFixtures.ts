@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { SSD2Ids } from '../referential/Residue/SSD2Id';
 import { AnalysisMethod } from '../schema/Analysis/AnalysisMethod';
 import type { Laboratory } from '../schema/Laboratory/Laboratory';
-import { LaboratoryAnalyticalCompetence } from '../schema/Laboratory/LaboratoryAnalyticalCompetence';
+import type { LaboratoryAnalyticalCompetence } from '../schema/Laboratory/LaboratoryAnalyticalCompetence';
 import { LaboratoryAnalyticalMethod } from '../schema/Laboratory/LaboratoryAnalyticalMethod';
 import { LaboratoryValidationMethod } from '../schema/Laboratory/LaboratoryValidationMethod';
 import { oneOf } from './testFixtures';

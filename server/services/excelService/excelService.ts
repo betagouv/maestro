@@ -3,8 +3,8 @@ import { format } from 'date-fns';
 import { isNil, sumBy, uniq } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
-import type {
-  OptionalBoolean,
+import {
+  type OptionalBoolean,
   OptionalBooleanLabels
 } from 'maestro-shared/referential/OptionnalBoolean';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
@@ -27,7 +27,7 @@ import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/Analysi
 import { ResidueComplianceLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { ResultKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
-import { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
+import type { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
 import {
   getCompletionRate,
   type LocalPrescription,
