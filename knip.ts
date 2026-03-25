@@ -24,14 +24,6 @@ export default {
       ignoreDependencies: ['geojson', '@vitest/coverage-v8'],
       ignore: ['src/serviceWorker.js']
     },
-    shared: {
-      entry: [
-        //Ces fichiers sont utilisés que par le front, donc d'après Knip ils ne sont pas utilisés dans shared
-        'referential/Matrix/MatrixListByKind.ts',
-        'schema/Address/AddressSearchResult.ts',
-        'schema/Prescription/PrescriptionComments.ts',
-        'test/regionalPrescriptionCommentFixture.ts'
-      ]
-    }
+    shared: {}
   }
 };
