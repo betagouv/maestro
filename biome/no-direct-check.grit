@@ -1,0 +1,7 @@
+`$obj.check($args)` where {
+	register_diagnostic(
+		span = $obj,
+		message = "Use checkSchema() from shared/utils/zod instead of calling .check() directly.",
+		severity = `error`
+	)
+}
