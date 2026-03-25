@@ -5,8 +5,7 @@ export default {
     '@faker-js/faker',
     '@swc-node/register',
     '@swc/core',
-    '@gouvfr/dsfr',
-    'lint-staged'
+    '@gouvfr/dsfr'
   ],
   ignoreBinaries: ['playwright', 'semantic-release'],
   workspaces: {
