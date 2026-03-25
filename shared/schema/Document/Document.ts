@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CheckFn } from 'zod/v4/core';
+import type { CheckFn } from 'zod/v4/core';
 import { checkSchema } from '../../utils/zod';
 import {
   DocumentKind,

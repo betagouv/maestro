@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import type { z } from 'zod';
 
 // Module augmentation: forbid calling .refine() and .superRefine() directly on
 // schemas. Use the wrapper functions below instead.
@@ -34,6 +34,5 @@ export function checkSchema<T extends z.ZodType>(
   schema: T,
   ...checks: (z.core.CheckFn<z.output<T>> | z.core.$ZodCheck<z.output<T>>)[]
 ): Refined<T> {
-  // eslint-disable-next-line no-restricted-syntax
   return (schema as any).check(...checks) as Refined<T>;
 }

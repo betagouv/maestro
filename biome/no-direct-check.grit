@@ -1,3 +1,4 @@
 `$obj.check($args)` where {
+  ! $filename <: r".*shared/utils/zod\.ts$",
   register_diagnostic(span=$obj, message="Use checkSchema() from shared/utils/zod instead of calling .check() directly.", severity=`error`)
 }

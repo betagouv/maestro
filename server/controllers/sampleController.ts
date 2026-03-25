@@ -46,8 +46,8 @@ import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buil
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { formatWithTz } from 'maestro-shared/utils/date';
-import { checkSchema } from 'maestro-shared/utils/zod';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
+import { checkSchema } from 'maestro-shared/utils/zod';
 import { PDFDocument } from 'pdf-lib';
 import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
