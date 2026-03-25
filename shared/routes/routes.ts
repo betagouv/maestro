@@ -171,15 +171,10 @@ type ZodUrlParams<url, Z = ZodParseUrlParams<url>> = keyof Z extends never
 
 export type RouteMethod = 'get' | 'post' | 'put' | 'delete';
 
-type FilterRoute<D extends string, R = typeof MaestroRoutes> =
-  R extends Readonly<[infer First, ...infer Rest]>
-    ? First extends `${D}${string}`
-      ? [First, ...FilterRoute<D, Rest>]
-      : FilterRoute<D, Rest>
-    : [];
-
 export type SubRoutes<T extends MaestroRoutes> = {
-  [path in FilterRoute<T>[number]]: { [method in RouteMethod]?: ToRoute } & {
+  [path in Extract<MaestroRoutes, `${T}${string}`>]: {
+    [method in RouteMethod]?: ToRoute;
+  } & {
     params?: ZodUrlParams<path>;
   };
 };
