@@ -17,6 +17,7 @@ export const AppRouteComponents = {
   DashboardRoute: DashboardView,
   NotificationsRoute: NotificationsView,
   ProgrammingRoute: ProgrammingView,
+  ProgrammingByYearRoute: ProgrammingView,
   SamplesByYearRoute: SampleListView,
   NewSampleRoute: SampleView,
   SampleRoute: SampleView,
