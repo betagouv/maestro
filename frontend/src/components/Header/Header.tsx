@@ -52,8 +52,13 @@ const Header = () => {
     (HTMLDivElement & { closeMenu: () => Promise<boolean> }) | null
   >(null);
 
-  const { isAuthenticated, hasUserPermission, user, userRole } =
-    useAuthentication();
+  const {
+    isAuthenticated,
+    hasUserPermission,
+    user,
+    userRole,
+    availableRoutes
+  } = useAuthentication();
   const userRefined = UserBase.optional().parse(user);
   const { mascaradeEnabled, disableMascarade } = useMascarade();
   const { prescriptionFilters } = useAppSelector(
@@ -286,6 +291,19 @@ const Header = () => {
                     },
                     text: 'Administration',
                     isActive: location.pathname.startsWith('/admin')
+                  }
+                : undefined,
+              availableRoutes.includes('LaboratoryAnalyticalCompetencesRoute')
+                ? {
+                    linkProps: {
+                      to: AuthenticatedAppRoutes
+                        .LaboratoryAnalyticalCompetencesRoute.link,
+                      target: '_self'
+                    },
+                    text: 'Compétences analytiques',
+                    isActive: location.pathname.startsWith(
+                      '/competences-analytiques'
+                    )
                   }
                 : undefined
             ]

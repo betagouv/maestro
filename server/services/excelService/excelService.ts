@@ -3,17 +3,27 @@ import { format } from 'date-fns';
 import { isNil, sumBy, uniq } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
-import { OptionalBoolean } from 'maestro-shared/referential/OptionnalBoolean';
+import {
+  OptionalBoolean,
+  OptionalBooleanLabels
+} from 'maestro-shared/referential/OptionnalBoolean';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
-import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
-import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
+import {
+  getAnalytes,
+  isComplex
+} from 'maestro-shared/referential/Residue/SSD2Hierarchy';
+import {
+  SSD2IdLabel,
+  SSD2Referential
+} from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 import { ResidueComplianceLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { ResultKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
 import {
   getCompletionRate,
   LocalPrescription,
@@ -648,6 +658,93 @@ const generatePrescriptionsExportExcel = async (
   );
 };
 
+const generateLaboratoryAnalyticCompetencesExportExcel = async (
+  laboratoryAnalyticalCompetences: LaboratoryAnalyticalCompetence[]
+): Promise<Buffer> => {
+  const columnTitles: string[] = [];
+
+  const getCompetence = (
+    residueReference: string,
+    analyteReference?: string
+  ) => {
+    return laboratoryAnalyticalCompetences.find(
+      (competence) =>
+        competence.residueReference === residueReference &&
+        (analyteReference
+          ? competence.analyteReference === analyteReference
+          : !competence.analyteReference)
+    );
+  };
+
+  return carboneRender(
+    'laboratoryAnalyticCompetencesExport',
+    {
+      columnTitles: columnTitles
+        .flat()
+        .filter(isDefined)
+        .map((v) => ({ value: v })),
+      competences: Object.entries(SSD2Referential)
+        .filter(([_, ssd2Referential]) => ssd2Referential.reportable)
+        .flatMap(([ssd2Code, ssd2Referential]) => [
+          {
+            residueReference: ssd2Code,
+            residueName: SSD2IdLabel[ssd2Code],
+            analyteReference: '',
+            analyteName: '',
+            isResidue: 1,
+            isComplexResidue: isComplex(ssd2Code) ? 1 : null,
+            isCompleteDefinitionAnalysis: !isNil(
+              getCompetence(ssd2Code)?.isCompleteDefinitionAnalysis
+            )
+              ? OptionalBooleanLabels[
+                  getCompetence(ssd2Code)
+                    ?.isCompleteDefinitionAnalysis as OptionalBoolean
+                ]
+              : undefined,
+            detectionLimit: getCompetence(ssd2Code)?.detectionLimit,
+            quantificationLimit: getCompetence(ssd2Code)?.quantificationLimit,
+            analyticalMethod: getCompetence(ssd2Code)?.analyticalMethod,
+            validationMethod: getCompetence(ssd2Code)?.validationMethod,
+            analysisMethodMono:
+              getCompetence(ssd2Code)?.analysisMethod === 'Mono' ? 1 : null,
+            analysisMethodMulti:
+              getCompetence(ssd2Code)?.analysisMethod === 'Multi' ? 1 : null
+          },
+          ...Array.from(getAnalytes(ssd2Referential.reference)).map(
+            (analyteReference) => ({
+              residueReference: ssd2Code,
+              residueName: SSD2IdLabel[ssd2Code],
+              analyteReference,
+              analyteName: SSD2IdLabel[analyteReference],
+              isAnalyte: 1,
+              isCompleteDefinitionAnalysis: 'Sans objet',
+              detectionLimit: getCompetence(ssd2Code, analyteReference)
+                ?.detectionLimit,
+              quantificationLimit: getCompetence(ssd2Code, analyteReference)
+                ?.quantificationLimit,
+              analyticalMethod: getCompetence(ssd2Code, analyteReference)
+                ?.analyticalMethod,
+              validationMethod: getCompetence(ssd2Code, analyteReference)
+                ?.validationMethod,
+              analysisMethodMono:
+                getCompetence(ssd2Code, analyteReference)?.analysisMethod ===
+                'Mono'
+                  ? 1
+                  : null,
+              analysisMethodMulti:
+                getCompetence(ssd2Code, analyteReference)?.analysisMethod ===
+                'Multi'
+                  ? 1
+                  : null
+            })
+          )
+        ])
+    },
+
+    {}
+  );
+};
+
 const carboneRender = (
   template: Template,
   data: object,
@@ -666,5 +763,6 @@ const carboneRender = (
 export const excelService = {
   generateAnalysisRequestExcel,
   generateSamplesExportExcel,
-  generatePrescriptionsExportExcel
+  generatePrescriptionsExportExcel,
+  generateLaboratoryAnalyticCompetencesExportExcel
 };

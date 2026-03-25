@@ -98,6 +98,7 @@ describe('User router', () => {
         region: Sampler1Fixture.region,
         department: Sampler1Fixture.department || null,
         companies: Sampler1Fixture.companies || null,
+        laboratoryId: null,
         disabled: false
       });
     });

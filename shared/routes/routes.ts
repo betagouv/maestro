@@ -31,6 +31,9 @@ export const MaestroRoutes = [
   '/documents/:documentId/download-signed-url',
   '/laboratories',
   '/laboratories/:laboratoryId',
+  '/laboratories/:laboratoryId/analytical-competences',
+  '/laboratories/:laboratoryId/analytical-competences/:analyticalCompetenceId',
+  '/laboratories/:laboratoryId/analytical-competences/export',
   '/mascarade/:userId',
   '/mascarade',
   '/notifications',
@@ -131,11 +134,13 @@ type MaestroRouteHasProtectedMethod<T> = T extends MaestroRoutes
   : false;
 
 export type MaestroRoutes = (typeof MaestroRoutes)[number];
+
 export type ProtectedRoutes = {
   [K in MaestroRoutes]: MaestroRouteHasProtectedMethod<K> extends true
     ? K
     : never;
 }[MaestroRoutes];
+
 export type UnprotectedRoutes = {
   [K in MaestroRoutes]: MaestroRouteHasUnprotectedMethod<K> extends true
     ? K
@@ -166,15 +171,10 @@ type ZodUrlParams<url, Z = ZodParseUrlParams<url>> = keyof Z extends never
 
 export type RouteMethod = 'get' | 'post' | 'put' | 'delete';
 
-type FilterRoute<D extends string, R = typeof MaestroRoutes> =
-  R extends Readonly<[infer First, ...infer Rest]>
-    ? First extends `${D}${string}`
-      ? [First, ...FilterRoute<D, Rest>]
-      : FilterRoute<D, Rest>
-    : [];
-
 export type SubRoutes<T extends MaestroRoutes> = {
-  [path in FilterRoute<T>[number]]: { [method in RouteMethod]?: ToRoute } & {
+  [path in Extract<MaestroRoutes, `${T}${string}`>]: {
+    [method in RouteMethod]?: ToRoute;
+  } & {
     params?: ZodUrlParams<path>;
   };
 };

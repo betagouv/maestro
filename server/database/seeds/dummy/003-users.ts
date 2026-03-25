@@ -1,5 +1,6 @@
 import { fakerFR } from '@faker-js/faker';
 import { ProgrammingPlanKindWithSachaList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { CER30Id } from 'maestro-shared/schema/User/User';
 import { NationalCoordinator } from 'maestro-shared/test/userFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { UserCompanies, Users } from '../../../repositories/userRepository';
@@ -19,8 +20,9 @@ export const seed = async function () {
       id: uuidv4(),
       email: 'laboratory@maestro.beta.gouv.fr',
       name: `Laboratoire - ${fakerFR.person.fullName()}`,
-      programmingPlanKinds: [],
-      roles: ['LaboratoryUser']
+      programmingPlanKinds: ['PPV'],
+      roles: ['LaboratoryUser'],
+      laboratoryId: CER30Id
     },
 
     //PPV
