@@ -32,7 +32,7 @@ export type UserRole = z.infer<typeof UserRole>;
 export const UserRoleList: UserRole[] = UserRole.options;
 
 const UserSamplerPermissionsList = [
-  'readProgrammingPlans',
+  'viewProgrammingPlans',
   'readProgrammingPlanValidated',
   'readProgrammingPlanClosed',
   'readPrescriptions',
@@ -54,7 +54,7 @@ const ObserverPermissionsList = [
   'readSamples',
   'downloadSupportDocument',
   'downloadAnalysisRequestDocument',
-  'readProgrammingPlans',
+  'viewProgrammingPlans',
   'readProgrammingPlansInProgress',
   'readProgrammingPlanSubmittedToRegion',
   'readProgrammingPlanApprovedByRegion',
@@ -71,7 +71,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   NationalCoordinator: [
     'manageProgrammingPlan',
     'closeProgrammingPlan',
-    'readProgrammingPlans',
+    'viewProgrammingPlans',
     'readProgrammingPlansInProgress',
     'readProgrammingPlanSubmittedToRegion',
     'readProgrammingPlanApprovedByRegion',
@@ -94,7 +94,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'exportSamplesWithCodes'
   ],
   RegionalCoordinator: [
-    'readProgrammingPlans',
+    'viewProgrammingPlans',
     'readProgrammingPlanValidated',
     'readProgrammingPlanClosed',
     'readProgrammingPlanSubmittedToRegion',
@@ -118,7 +118,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   RegionalObserver: ObserverPermissionsList,
   Sampler: UserSamplerPermissionsList,
   DepartmentalCoordinator: [
-    'readProgrammingPlans',
+    'viewProgrammingPlans',
     'readProgrammingPlanValidated',
     'readProgrammingPlanClosed',
     'readPrescriptions',
@@ -141,7 +141,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readSamples',
     'downloadSupportDocument',
     'downloadAnalysisRequestDocument',
-    'readProgrammingPlans',
+    'viewProgrammingPlans',
     'readProgrammingPlansInProgress',
     'readProgrammingPlanSubmittedToRegion',
     'readProgrammingPlanApprovedByRegion',
@@ -156,7 +156,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readAnalysis',
     'viewDashboard'
   ],
-  LaboratoryUser: ['readDocuments']
+  LaboratoryUser: ['readDocuments', 'readProgrammingPlanValidated']
 };
 
 export const UserRoleLabels: Record<UserRole, string> = {

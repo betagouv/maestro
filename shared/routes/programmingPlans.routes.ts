@@ -10,7 +10,14 @@ import type { SubRoutes } from './routes';
 export const programmingPlansRoutes = {
   '/programming-plans': {
     get: {
-      permissions: ['readProgrammingPlans'],
+      permissions: [
+        'readProgrammingPlansInProgress',
+        'readProgrammingPlanSubmittedToRegion',
+        'readProgrammingPlanApprovedByRegion',
+        'readProgrammingPlanSubmittedToDepartments',
+        'readProgrammingPlanValidated',
+        'readProgrammingPlanClosed'
+      ],
       query: FindProgrammingPlanOptions,
       response: z.array(ProgrammingPlanChecked)
     }
@@ -20,7 +27,14 @@ export const programmingPlansRoutes = {
       programmingPlanId: z.guid()
     },
     get: {
-      permissions: ['readProgrammingPlans'],
+      permissions: [
+        'readProgrammingPlansInProgress',
+        'readProgrammingPlanSubmittedToRegion',
+        'readProgrammingPlanApprovedByRegion',
+        'readProgrammingPlanSubmittedToDepartments',
+        'readProgrammingPlanValidated',
+        'readProgrammingPlanClosed'
+      ],
       response: ProgrammingPlanChecked
     },
     put: {

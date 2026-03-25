@@ -4,6 +4,7 @@ import {
   type PartialSample,
   type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import { toArray } from 'maestro-shared/utils/utils';
 import { useCallback, useContext, useMemo } from 'react';
 import { useParams } from 'react-router';
 import { ApiClientContext } from '../services/apiClient';
@@ -35,7 +36,7 @@ export const usePartialSample = (
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery(
     {
-      programmingPlanId: partialSample?.programmingPlanId
+      programmingPlanIds: toArray(partialSample?.programmingPlanId)
     },
     {
       skip: (partialSample?.items ?? []).length === 0

@@ -4,6 +4,7 @@ import {
   DocumentToCreateChecked,
   DocumentUpdateChecked
 } from '../schema/Document/Document';
+import { FindDocumentOptions } from '../schema/Document/FindDocumentOptions';
 import type { SubRoutes } from './routes';
 
 export const documentsRoutes = {
@@ -47,6 +48,7 @@ export const documentsRoutes = {
   '/documents/resources': {
     params: undefined,
     get: {
+      query: FindDocumentOptions,
       permissions: ['readDocuments'],
       response: z.array(DocumentChecked)
     }

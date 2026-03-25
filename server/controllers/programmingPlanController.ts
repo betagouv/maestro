@@ -10,11 +10,10 @@ import {
 } from 'maestro-shared/referential/Region';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { NotificationCategoryTitles } from 'maestro-shared/schema/Notification/NotificationCategory';
-import { ProgrammingPlanKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import {
   NextProgrammingPlanStatus,
   type ProgrammingPlanStatus,
-  ProgrammingPlanStatusList,
   ProgrammingPlanStatusPermissions
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
@@ -28,6 +27,7 @@ import {
 } from 'maestro-shared/schema/User/UserRole';
 import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
+import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
@@ -42,32 +42,19 @@ export const programmingPlanRouter = {
     get: async ({ query: findOptions, user, userRole }) => {
       console.info('Find programmingPlans for user', user.id, findOptions);
 
-      const userStatusAuthorized = Object.entries(
-        ProgrammingPlanStatusPermissions
-      )
-        .filter(([, permission]) => hasPermission(userRole, permission))
-        .map(([status]) => status);
+      const userLaboratory =
+        userRole === 'LaboratoryUser'
+          ? await laboratoryRepository.findUnique(user.laboratoryId as string)
+          : undefined;
 
-      const findOptionsStatus = findOptions.status
-        ? findOptions.status
-        : ProgrammingPlanStatusList;
-
-      const programmingPlans = await programmingPlanRepository.findMany({
-        ...findOptions,
-        status: intersection(
-          findOptionsStatus,
-          userStatusAuthorized
-        ) as ProgrammingPlanStatus[],
-        kinds:
-          userRole === 'Administrator'
-            ? ProgrammingPlanKindList
-            : user.programmingPlanKinds,
-        region: isNationalRole(userRole) ? findOptions.region : user.region,
-        department:
-          isNationalRole(userRole) || isRegionalRole(userRole)
-            ? findOptions.department
-            : user.department
-      });
+      const programmingPlans = await programmingPlanRepository.findMany(
+        buildFindProgrammingPlanOptions(
+          user,
+          userRole,
+          findOptions,
+          userLaboratory
+        )
+      );
 
       console.info('Found programmingPlans', programmingPlans);
 

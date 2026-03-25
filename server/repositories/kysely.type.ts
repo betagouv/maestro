@@ -124,6 +124,15 @@ export interface Documents {
   filename: string;
   id: Generated<string>;
   kind: DocumentKind;
+  name: string | null;
+  legend: string | null;
+  notes: string | null;
+  year: number | null;
+}
+
+export interface DocumentProgrammingPlans {
+  documentId: string;
+  programmingPlanId: string;
 }
 
 export interface KnexMigrations {
@@ -174,6 +183,7 @@ export interface Laboratories {
   sachaEmail: string | null;
   sachaGpgPublicKey: string | null;
   sachaSigle: string | null;
+  programmingPlanIds: string[] | null;
 }
 
 export interface LaboratoryResidueMapping {
@@ -415,6 +425,7 @@ export interface DB {
   analysisErrors: AnalysisErrors;
   companies: Companies;
   departments: Departments;
+  documentProgrammingPlans: DocumentProgrammingPlans;
   documents: Documents;
   programmingPlanKindFields: ProgrammingPlanKindFields;
   programmingPlanKindFieldOptions: ProgrammingPlanKindFieldOptions;

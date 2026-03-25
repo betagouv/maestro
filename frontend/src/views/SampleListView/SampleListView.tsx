@@ -79,7 +79,7 @@ const SampleListView = () => {
   );
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery({
-    programmingPlanId: programmingPlan?.id
+    programmingPlanIds: toArray(programmingPlan?.id)
   });
 
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);

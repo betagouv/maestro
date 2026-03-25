@@ -40,6 +40,8 @@ export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinator.id,
+  closedAt: new Date(),
+  closedBy: NationalCoordinator.id,
   regionalStatus: RegionList.map((region) => ({
     region,
     status: 'Closed'

@@ -4,7 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Stepper from '@codegouvfr/react-dsfr/Stepper';
 import { skipToken } from '@reduxjs/toolkit/query';
 import clsx from 'clsx';
-import { isNil } from 'lodash-es';
+import { isNil, uniq } from 'lodash-es';
 import {
   DocumentToCreateChecked,
   DocumentUpdateChecked,
@@ -18,9 +18,11 @@ import {
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { FileType } from 'maestro-shared/schema/File/FileType';
 import { checkSchema } from 'maestro-shared/utils/zod';
+import type React from 'react';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { z } from 'zod';
+import { AppMultiSelect } from '../../components/_app/AppMultiSelect/AppMultiSelect';
 import AppSelect from '../../components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from '../../components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from '../../components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -45,12 +47,19 @@ const DocumentView = () => {
   const { data: document } = apiClient.useGetDocumentQuery(
     documentId ?? skipToken
   );
+  const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery({});
 
   const [step, setStep] = useState<number>(1);
   const [file, setFile] = useState<File | undefined>(undefined);
   const [kind, setKind] = useState<DocumentKind | undefined>(document?.kind);
   const [name, setName] = useState<string>(document?.name ?? '');
   const [notes, setNotes] = useState<string>(document?.notes ?? '');
+  const [year, setYear] = useState<number | undefined>(
+    document?.year ?? new Date().getFullYear()
+  );
+  const [programmingPlanIds, setProgrammingPlanIds] = useState<string[]>(
+    document?.programmingPlanIds ?? []
+  );
   const [hasError, setHasError] = useState<boolean>(false);
   const [fileError, setFileError] = useState<string | undefined>(undefined);
 
@@ -75,6 +84,8 @@ const DocumentView = () => {
       setKind(document.kind);
       setName(document.name ?? '');
       setNotes(document.notes ?? '');
+      setYear(document.year ?? new Date().getFullYear());
+      setProgrammingPlanIds(document.programmingPlanIds ?? []);
     }
   }, [document]);
 
@@ -93,16 +104,55 @@ const DocumentView = () => {
     documentChecks
   );
 
+  const yearOptions = useMemo(
+    () =>
+      uniq((programmingPlans ?? []).map((p) => p.year))
+        .sort((a, b) => b - a)
+        .map(String),
+    [programmingPlans]
+  );
+
+  const plansForYear = useMemo(
+    () =>
+      year
+        ? (programmingPlans ?? []).filter((p) => p.year === year)
+        : (programmingPlans ?? []),
+    [programmingPlans, year]
+  );
+
+  const planLabels = useMemo(
+    () =>
+      (programmingPlans ?? []).reduce<Record<string, string>>((acc, plan) => {
+        acc[plan.id] = `${plan.title} ${plan.year}`;
+        return acc;
+      }, {}),
+    [programmingPlans]
+  );
+
+  const changeYear = (newYear: number | undefined) => {
+    setYear(newYear);
+    const validIds = new Set(
+      (programmingPlans ?? [])
+        .filter((p) => !newYear || p.year === newYear)
+        .map((p) => p.id)
+    );
+    setProgrammingPlanIds((prev) => prev.filter((id) => validIds.has(id)));
+  };
+
   const formData = {
     file,
     name,
     kind,
     notes,
-    legend: undefined
+    legend: undefined,
+    year,
+    programmingPlanIds: programmingPlanIds.length
+      ? programmingPlanIds
+      : undefined
   };
   const form = useForm(FormChecked, formData);
 
-  const selectFile = (event?: any) => {
+  const selectFile = (event?: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile: File | undefined = event?.target?.files?.[0];
     if (selectedFile) {
       const { success } = FileType.safeParse(selectedFile.type);
@@ -233,7 +283,7 @@ const DocumentView = () => {
                 label="Ajouter un fichier"
                 buttonLabel="Parcourir"
                 nativeInputProps={{
-                  onChange: (event: any) => selectFile(event)
+                  onChange: selectFile
                 }}
                 className={cx('fr-mb-2w')}
                 disabled={isLoading}
@@ -245,7 +295,6 @@ const DocumentView = () => {
               />
             )}
             <hr className={cx('fr-my-4w')} />
-
             <Button
               iconId="fr-icon-arrow-left-line"
               priority="secondary"
@@ -272,37 +321,74 @@ const DocumentView = () => {
         {step === 2 && (
           <div className={cx('fr-px-10w', 'fr-py-1w')}>
             <h3>Complétez les informations suivantes</h3>
-            <AppTextInput
-              value={name || ''}
-              onChange={(e) => setName(e.target.value ?? '')}
-              inputForm={form}
-              inputKey="name"
-              label="Nom de la ressource"
-              hintText="Formatage à définir avec Diane"
-              required
-            />
-            <AppSelect
-              value={kind || ''}
-              options={selectOptionsFromList(SortedResourceDocumentKindList, {
-                labels: DocumentKindLabels
-              })}
-              onChange={(e) => setKind(e.target.value as DocumentKind)}
-              inputForm={form}
-              inputKey="kind"
-              label="Catégorie de la ressource"
-              required
-            />
-            <AppTextAreaInput
-              defaultValue={notes ?? ''}
-              onChange={(e) => setNotes(e.target.value)}
-              inputForm={form}
-              inputKey="notes"
-              whenValid="Note correctement renseignée."
-              label="Notes"
-              hintText="Champs facultatif pour qualifier le contexte de la ressource"
-            />
+            <div className={clsx(cx('fr-grid-row', 'fr-grid-row--gutters'))}>
+              <div className={cx('fr-col-12', 'fr-col-md-6')}>
+                <AppTextInput
+                  value={name || ''}
+                  onChange={(e) => setName(e.target.value ?? '')}
+                  inputForm={form}
+                  inputKey="name"
+                  label="Nom de la ressource"
+                  required
+                />
+              </div>
+              <div className={cx('fr-col-12', 'fr-col-md-6')}>
+                <AppSelect
+                  value={kind || ''}
+                  options={selectOptionsFromList(
+                    SortedResourceDocumentKindList,
+                    {
+                      labels: DocumentKindLabels
+                    }
+                  )}
+                  onChange={(e) => setKind(e.target.value as DocumentKind)}
+                  inputForm={form}
+                  inputKey="kind"
+                  label="Catégorie de la ressource"
+                  required
+                />
+              </div>
+              <div className={cx('fr-col-12', 'fr-col-md-6')}>
+                <AppSelect
+                  label="Année"
+                  value={year ?? ''}
+                  options={selectOptionsFromList(yearOptions)}
+                  onChange={(e) =>
+                    changeYear(
+                      e.target.value ? Number(e.target.value) : undefined
+                    )
+                  }
+                  inputForm={form}
+                  inputKey="year"
+                  required
+                />
+              </div>
+              <div className={cx('fr-col-12', 'fr-col-md-6')}>
+                <AppMultiSelect
+                  values={programmingPlanIds}
+                  onChange={(v) => setProgrammingPlanIds(v as string[])}
+                  inputForm={form}
+                  inputKey="programmingPlanIds"
+                  items={plansForYear.map((p) => p.id as string)}
+                  keysWithLabels={planLabels}
+                  defaultLabel="plan sélectionné"
+                  defaultEmptyLabel="Tous les plans"
+                  label="Plans de programmation associés"
+                />
+              </div>
+              <div className={cx('fr-col-12')}>
+                <AppTextAreaInput
+                  defaultValue={notes ?? ''}
+                  onChange={(e) => setNotes(e.target.value)}
+                  inputForm={form}
+                  inputKey="notes"
+                  whenValid="Note correctement renseignée."
+                  label="Notes"
+                  hintText="Champs facultatif pour qualifier le contexte de la ressource"
+                />
+              </div>
+            </div>
             <hr className={cx('fr-my-4w')} />
-
             {hasError && (
               <Alert
                 className={cx('fr-mb-4w', 'fr-py-1w')}

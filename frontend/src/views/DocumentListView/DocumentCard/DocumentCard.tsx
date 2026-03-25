@@ -31,6 +31,7 @@ const DocumentCard = ({ document, onViewNotes, onRemove, isNew }: Props) => {
         <div className={clsx('d-flex-align-center')}>
           <div className={clsx('d-flex-align-center', 'flex-grow-1')}>
             <Tag>{DocumentKindLabels[document.kind]}</Tag>
+            <Tag>{document.year}</Tag>
           </div>
           {hasUserPermission('createResource') && (
             <Button
@@ -69,7 +70,7 @@ const DocumentCard = ({ document, onViewNotes, onRemove, isNew }: Props) => {
       border
       desc={
         <>
-          <span className={cx('fr-hint-text', 'fr-pb-2w', 'fr-pt-1w')}>
+          <span className={cx('fr-hint-text', 'fr-pb-2w')}>
             Version du {formatDate(document.createdAt)}
           </span>
           <span className={cx('fr-text--regular')}>
@@ -109,9 +110,9 @@ const DocumentCard = ({ document, onViewNotes, onRemove, isNew }: Props) => {
       }
       classes={{
         end: 'd-none',
-        footer: cx('fr-pb-2w', 'fr-mt-1v'),
+        footer: clsx(cx('fr-py-2w'), 'border-top'),
         content: cx('fr-pb-0'),
-        desc: clsx(cx('fr-pb-3v'), 'border-bottom')
+        desc: cx('fr-pb-3v')
       }}
     />
   );

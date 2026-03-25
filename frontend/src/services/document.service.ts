@@ -4,13 +4,14 @@ import {
   type DocumentToCreateChecked,
   type DocumentUpdateChecked
 } from 'maestro-shared/schema/Document/Document';
+import type { FindDocumentOptions } from 'maestro-shared/schema/Document/FindDocumentOptions';
 import { api } from 'src/services/api.service';
 
 const documentApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getDocument: builder.query<DocumentChecked, string>({
       query: (documentId) => `documents/${documentId}`,
-      transformResponse: (response: any) => DocumentChecked.parse(response),
+      transformResponse: (response: unknown) => DocumentChecked.parse(response),
       providesTags: (result, _error, documentId) =>
         result ? [{ type: 'Document', id: documentId }] : []
     }),
@@ -75,14 +76,17 @@ const documentApi = api.injectEndpoints({
         method: 'PUT',
         body: document
       }),
-      transformResponse: (response: any) => DocumentChecked.parse(response),
+      transformResponse: (response: unknown) => DocumentChecked.parse(response),
       invalidatesTags: (_result, _error, { documentId }) => [
         { type: 'Document', documentId }
       ]
     }),
-    findResources: builder.query<DocumentChecked[], void>({
-      query: () => 'documents/resources',
-      transformResponse: (response: any[]) =>
+    findResources: builder.query<DocumentChecked[], FindDocumentOptions>({
+      query: (findOptions) => ({
+        url: 'documents/resources',
+        params: findOptions
+      }),
+      transformResponse: (response: unknown[]) =>
         response.map((_) => DocumentChecked.parse(_)),
       providesTags: (result) => [
         { type: 'Document', id: 'LIST' },
@@ -94,7 +98,8 @@ const documentApi = api.injectEndpoints({
     }),
     getDocumentDownloadSignedUrl: builder.query<string, string>({
       query: (documentId) => `documents/${documentId}/download-signed-url`,
-      transformResponse: (response: any) => response.url
+      transformResponse: (response: unknown) =>
+        (response as { url: string }).url
     }),
     deleteDocument: builder.mutation<void, string>({
       query: (documentId) => ({

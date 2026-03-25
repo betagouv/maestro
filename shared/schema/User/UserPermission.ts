@@ -13,7 +13,7 @@ export const UserPermission = z.enum([
   'approveProgrammingPlan',
   'validateProgrammingPlan',
   'closeProgrammingPlan',
-  'readProgrammingPlans',
+  'viewProgrammingPlans',
   'readProgrammingPlansInProgress',
   'readProgrammingPlanSubmittedToRegion',
   'readProgrammingPlanApprovedByRegion',

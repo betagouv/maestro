@@ -222,7 +222,7 @@ const Header = () => {
                         })
                   }
                 : undefined,
-              hasUserPermission('readProgrammingPlans')
+              hasUserPermission('viewProgrammingPlans')
                 ? {
                     isActive: isActive(`/programmation`, true),
                     text: 'Programmation',
@@ -232,7 +232,7 @@ const Header = () => {
                     }
                   }
                 : undefined,
-              (hasUserPermission('readProgrammingPlans') ||
+              (hasUserPermission('viewProgrammingPlans') ||
                 hasUserPermission('readSamples')) &&
               closedYears?.length
                 ? {
