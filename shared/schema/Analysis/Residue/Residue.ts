@@ -6,7 +6,8 @@ import { isComplex } from '../../../referential/Residue/SSD2Hierarchy';
 import { SSD2Id, SSD2Ids } from '../../../referential/Residue/SSD2Id';
 import { SSD2Referential } from '../../../referential/Residue/SSD2Referential';
 import { maestroDateRefined } from '../../../utils/date';
-import { SampleBase, SampleChecked } from '../../Sample/Sample';
+import { checkSchema } from '../../../utils/zod';
+import { SampleBase } from '../../Sample/Sample';
 import { AnalysisMethod } from '../AnalysisMethod';
 import { Analyte, PartialAnalyte } from '../Analyte';
 import { ResidueCompliance } from './ResidueCompliance';
@@ -32,7 +33,7 @@ const ResidueBase = z.object({
   analytes: z.array(Analyte).nullish()
 });
 
-const sampleResidueCheck: CheckFn<ResidueChecked> = (ctx) => {
+const sampleResidueCheck: CheckFn<z.infer<typeof ResidueBase>> = (ctx) => {
   if (ctx.value.compliance === 'Other' && !ctx.value.otherCompliance) {
     ctx.issues.push({
       input: ctx.value,
@@ -66,10 +67,13 @@ const sampleResidueCheck: CheckFn<ResidueChecked> = (ctx) => {
   }
 };
 
-export const ResidueChecked = ResidueBase.check(sampleResidueCheck);
+export const ResidueChecked = checkSchema(ResidueBase, sampleResidueCheck);
 const sampleResidueLmrCheck: CheckFn<
-  Pick<SampleChecked, 'stage' | 'specificData' | 'programmingPlanKind'> &
-    Pick<ResidueChecked, 'resultKind' | 'lmr' | 'reference'>
+  Pick<
+    z.infer<typeof SampleBase>,
+    'stage' | 'specificData' | 'programmingPlanKind'
+  > &
+    Pick<z.infer<typeof ResidueBase>, 'resultKind' | 'lmr' | 'reference'>
 > = (ctx) => {
   if (
     !LmrIsValid({
@@ -86,8 +90,8 @@ const sampleResidueLmrCheck: CheckFn<
   }
 };
 
-const LmrCheckChecked = z
-  .object({
+const LmrCheckChecked = checkSchema(
+  z.object({
     ...SampleBase.pick({
       stage: true,
       specificData: true,
@@ -98,8 +102,9 @@ const LmrCheckChecked = z
       lmr: true,
       reference: true
     }).shape
-  })
-  .check(sampleResidueLmrCheck);
+  }),
+  sampleResidueLmrCheck
+);
 
 export const LmrIsValid = (
   sample: Pick<
@@ -144,13 +149,14 @@ export const PartialResidue = z.object({
   analytes: z.array(PartialAnalyte).nullish()
 });
 
-export const ResidueLmrChecked = z
-  .object({
+export const ResidueLmrChecked = checkSchema(
+  z.object({
     ...ResidueChecked.shape,
     ...LmrCheckChecked.shape
-  })
-  .check(sampleResidueCheck)
-  .check(sampleResidueLmrCheck);
+  }),
+  sampleResidueCheck,
+  sampleResidueLmrCheck
+);
 
 export type ResidueChecked = z.infer<typeof ResidueChecked>;
 export type PartialResidue = z.infer<typeof PartialResidue>;

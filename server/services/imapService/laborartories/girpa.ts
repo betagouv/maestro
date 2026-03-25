@@ -1,6 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { maestroDateRefined } from 'maestro-shared/utils/date';
+import { refineSchema } from 'maestro-shared/utils/zod';
 import { z } from 'zod';
 import { ExtractBadFormatError, ExtractError } from '../extractError';
 import {
@@ -45,10 +46,12 @@ export const analyseXmlValidator = z.object({
       return `${y}-${m}-${d}`;
     })
     .pipe(maestroDateRefined),
-  Code_méthode: z
-    .string()
-    .transform((s) => (s.endsWith('*') ? s.substring(0, s.length - 1) : s))
-    .refine((s) => isCodeMethod(s) || s === '-')
+  Code_méthode: refineSchema(
+    z
+      .string()
+      .transform((s) => (s.endsWith('*') ? s.substring(0, s.length - 1) : s)),
+    (s) => isCodeMethod(s) || s === '-'
+  )
 });
 
 export const girpaCodeEchantillonValidator = z.string().transform((l, ctx) => {

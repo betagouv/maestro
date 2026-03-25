@@ -33,20 +33,9 @@ export default tseslint.config([
         },
         {
           selector:
-            'MemberExpression[object.name=/(Checked|Refined)$/][property.name=/^(pick|omit|extend)$/]',
+            'CallExpression[callee.type="MemberExpression"][callee.property.name="check"]',
           message:
-            'Cannot use .pick(), .omit(), or .extend() on variables ending with "Checked" or "Refined".'
-        },
-        {
-          selector:
-            'VariableDeclarator[init.callee.property.name="check"][id.name!=/Checked$/]',
-          message: 'Variables constructed with .check() must end with "Checked".'
-        },
-        {
-          selector:
-            'VariableDeclarator[init.callee.property.name=/^(refine|superRefine)$/][id.name!=/Refined$/]',
-          message:
-            'Variables constructed with .refine() or .superRefine() must end with "Refined".'
+            'Use checkSchema() from shared/utils/zod instead of calling .check() directly.'
         }
       ]
     }

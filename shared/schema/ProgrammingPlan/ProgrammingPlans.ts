@@ -1,6 +1,7 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { LegalContext } from '../../referential/LegalContext';
+import { checkSchema } from '../../utils/zod';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 import { UserRefined } from '../User/User';
 import { isNationalRole, isRegionalRole, UserRole } from '../User/UserRole';
@@ -39,27 +40,30 @@ export const ProgrammingPlanBase = z.object({
   closedBy: z.guid().nullish()
 });
 
-export const ProgrammingPlanChecked = ProgrammingPlanBase.check((ctx) => {
-  if (ctx.value.closedAt && !ctx.value.closedBy) {
-    ctx.issues.push({
-      input: ctx.value,
-      code: 'custom',
-      message: 'Veuillez renseigner closedBy si closedAt est renseigné',
-      path: ['closedBy']
-    });
+export const ProgrammingPlanChecked = checkSchema(
+  ProgrammingPlanBase,
+  (ctx) => {
+    if (ctx.value.closedAt && !ctx.value.closedBy) {
+      ctx.issues.push({
+        input: ctx.value,
+        code: 'custom',
+        message: 'Veuillez renseigner closedBy si closedAt est renseigné',
+        path: ['closedBy']
+      });
+    }
+    if (
+      ctx.value.closedAt &&
+      ctx.value.regionalStatus.some((status) => status.status !== 'Closed')
+    ) {
+      ctx.issues.push({
+        input: ctx.value,
+        code: 'custom',
+        message: 'Status régional doit être "Closed" si closedAt est renseigné',
+        path: ['regionalStatus']
+      });
+    }
   }
-  if (
-    ctx.value.closedAt &&
-    ctx.value.regionalStatus.some((status) => status.status !== 'Closed')
-  ) {
-    ctx.issues.push({
-      input: ctx.value,
-      code: 'custom',
-      message: 'Status régional doit être "Closed" si closedAt est renseigné',
-      path: ['regionalStatus']
-    });
-  }
-});
+);
 
 export type ProgrammingPlanChecked = z.infer<typeof ProgrammingPlanChecked>;
 

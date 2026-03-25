@@ -1,10 +1,4 @@
-import {
-  ZodArray,
-  ZodDiscriminatedUnion,
-  ZodObject,
-  ZodType,
-  ZodUnion
-} from 'zod';
+import { ZodObject, ZodType } from 'zod';
 import { UserPermission } from '../schema/User/UserPermission';
 import { analysisRoutes } from './analysis.routes';
 import { authRoutes } from './auth.routes';
@@ -150,7 +144,7 @@ export type UnprotectedRoutes = {
 
 export type ToRoute = {
   query?: ZodObject;
-  body?: ZodObject | ZodDiscriminatedUnion | ZodArray | ZodUnion;
+  body?: ZodType;
   response: ZodType;
   skipSanitization?: true;
 } & (

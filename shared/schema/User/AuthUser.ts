@@ -1,4 +1,5 @@
 import { RefinementCtx, z } from 'zod';
+import { superRefineSchema } from '../../utils/zod';
 import { UserBase, userChecks } from './User';
 import { isNationalRole, isRegionalRole, UserRole } from './UserRole';
 
@@ -28,17 +29,20 @@ const authUserCheck = (
   }
 };
 
-export const AuthUserRefined = AuthUser.transform(({ user, userRole }) => {
-  return {
-    user: {
-      ...user,
-      region: isNationalRole(userRole) ? null : user.region,
-      department: isRegionalRole(userRole) ? null : user.department,
-      companies: userRole === 'Sampler' ? user.companies : []
-    },
-    userRole
-  };
-}).superRefine(authUserCheck);
+export const AuthUserRefined = superRefineSchema(
+  AuthUser.transform(({ user, userRole }) => {
+    return {
+      user: {
+        ...user,
+        region: isNationalRole(userRole) ? null : user.region,
+        department: isRegionalRole(userRole) ? null : user.department,
+        companies: userRole === 'Sampler' ? user.companies : []
+      },
+      userRole
+    };
+  }),
+  authUserCheck
+);
 
 export type AuthUserRefined = z.infer<typeof AuthUserRefined>;
 

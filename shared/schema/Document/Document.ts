@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { CheckFn } from 'zod/v4/core';
+import { checkSchema } from '../../utils/zod';
 import {
   DocumentKind,
   DocumentKindLabels,
@@ -7,7 +8,7 @@ import {
 } from './DocumentKind';
 
 export const documentChecks: CheckFn<
-  Pick<DocumentChecked, 'kind' | 'name'>
+  Pick<z.infer<typeof DocumentBase>, 'kind' | 'name'>
 > = ({ value, issues }) => {
   if (
     ResourceDocumentKindList.includes(value.kind) &&
@@ -33,23 +34,29 @@ const DocumentBase = z.object({
   notes: z.string().nullish()
 });
 
-export const DocumentChecked = DocumentBase.check(documentChecks);
+export const DocumentChecked = checkSchema(DocumentBase, documentChecks);
 
-export const DocumentToCreateChecked = DocumentBase.pick({
-  id: true,
-  filename: true,
-  name: true,
-  kind: true,
-  legend: true,
-  notes: true
-}).check(documentChecks);
+export const DocumentToCreateChecked = checkSchema(
+  DocumentBase.pick({
+    id: true,
+    filename: true,
+    name: true,
+    kind: true,
+    legend: true,
+    notes: true
+  }),
+  documentChecks
+);
 
-export const DocumentUpdateChecked = DocumentBase.pick({
-  name: true,
-  legend: true,
-  kind: true,
-  notes: true
-}).check(documentChecks);
+export const DocumentUpdateChecked = checkSchema(
+  DocumentBase.pick({
+    name: true,
+    legend: true,
+    kind: true,
+    notes: true
+  }),
+  documentChecks
+);
 
 export type DocumentChecked = z.infer<typeof DocumentChecked>;
 export type DocumentToCreateChecked = z.infer<typeof DocumentToCreateChecked>;
