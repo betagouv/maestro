@@ -1,18 +1,18 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
+import { checkSchema } from '../../utils/zod';
 import { SSD2IdLabel, SSD2Referential } from './SSD2Referential';
 
 export const SSD2Ids = Object.keys(SSD2Referential);
 
-// eslint-disable-next-line no-restricted-syntax
-export const SSD2Id = z
-  .string({
+export const SSD2Id = checkSchema(
+  z.string({
     error: (issue) =>
       isNil(issue.input)
         ? 'Veuillez renseigner le résidu.'
         : "N'est pas une chaîne de caractères"
-  })
-  .check((ctx) => {
+  }),
+  (ctx) => {
     if (!SSD2Ids.includes(ctx.value)) {
       ctx.issues.push({
         code: 'invalid_value',
@@ -21,7 +21,8 @@ export const SSD2Id = z
         message: 'Veuillez renseigner un identifiant valide.'
       });
     }
-  });
+  }
+);
 
 export type SSD2Id = z.infer<typeof SSD2Id>;
 

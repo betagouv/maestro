@@ -8,6 +8,7 @@ import clsx from 'clsx';
 import { isNil } from 'lodash-es';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { MaestroDate } from 'maestro-shared/utils/date';
+import { checkSchema } from 'maestro-shared/utils/zod';
 import { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import check from '../../../../assets/illustrations/check.svg';
@@ -16,8 +17,8 @@ import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadi
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
 
-const FormChecked = z
-  .object({
+const FormChecked = checkSchema(
+  z.object({
     ...SampleItem.pick({
       receiptDate: true,
       notesOnAdmissibility: true
@@ -27,8 +28,8 @@ const FormChecked = z
         'Veuillez renseigner la notification de réception par le laboratoire.'
     }),
     isAdmissible: z.boolean().nullish()
-  })
-  .check((ctx) => {
+  }),
+  (ctx) => {
     const val = ctx.value;
     if (val.isReceived && !val.receiptDate) {
       ctx.issues.push({
@@ -46,7 +47,8 @@ const FormChecked = z
         message: 'Veuillez renseigner la recevabilité du prélèvement.'
       });
     }
-  });
+  }
+);
 
 export type FormRefinement = ReturnType<typeof useForm<typeof FormChecked>>;
 type Props = {

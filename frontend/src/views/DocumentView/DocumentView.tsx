@@ -17,6 +17,7 @@ import {
 } from 'maestro-shared/schema/Document/DocumentKind';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { FileType } from 'maestro-shared/schema/File/FileType';
+import { checkSchema } from 'maestro-shared/utils/zod';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { z } from 'zod';
@@ -77,7 +78,7 @@ const DocumentView = () => {
     }
   }, [document]);
 
-  const FormChecked = (
+  const FormChecked = checkSchema(
     document
       ? z.object({
           ...DocumentUpdateChecked.shape,
@@ -88,8 +89,9 @@ const DocumentView = () => {
             .object(DocumentToCreateChecked.shape)
             .omit({ id: true, filename: true }).shape,
           file: FileInput()
-        })
-  ).check(documentChecks);
+        }),
+    documentChecks
+  );
 
   const formData = {
     file,

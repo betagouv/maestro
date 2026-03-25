@@ -14,6 +14,7 @@ import { Region } from '../../referential/Region';
 import { SSD2Id } from '../../referential/Residue/SSD2Id';
 import { Stage } from '../../referential/Stage';
 import { isDefined } from '../../utils/utils';
+import { checkSchema } from '../../utils/zod';
 import { Company } from '../Company/Company';
 import { Geolocation } from '../Geolocation/Geolocation';
 import {
@@ -165,8 +166,8 @@ export const sampleItemSealIdCheck: CheckFn<{
   }
 };
 
-export const SampleItemsDataChecked = z
-  .object({
+export const SampleItemsDataChecked = checkSchema(
+  z.object({
     sampledAt: z.union([z.string(), z.date()]).pipe(
       z.coerce.date({
         error: () => 'La date de prélèvement est invalide.'
@@ -176,8 +177,9 @@ export const SampleItemsDataChecked = z
       .array(SampleItem)
       .min(1, { message: 'Veuillez renseigner au moins un échantillon.' }),
     notesOnItems: z.string().nullish()
-  })
-  .check(sampleItemSealIdCheck);
+  }),
+  sampleItemSealIdCheck
+);
 
 export const SampleOwnerData = z.object({
   ownerFirstName: z.string().nullish(),
@@ -242,7 +244,8 @@ export const SampleBase = SampleToCreate.extend({
   sentAt: z.coerce.date().nullish()
 });
 
-export const SampleChecked = SampleBase.check(
+export const SampleChecked = checkSchema(
+  SampleBase,
   prescriptionSubstancesCheck,
   sampleMatrixCheck
 );

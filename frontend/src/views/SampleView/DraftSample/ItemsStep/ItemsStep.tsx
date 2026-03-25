@@ -18,6 +18,7 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleStatusSteps } from 'maestro-shared/schema/Sample/SampleStatus';
+import { checkSchema } from 'maestro-shared/utils/zod';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
@@ -128,7 +129,7 @@ const ItemsStep = ({ partialSample }: Props) => {
     items: true
   });
 
-  const FormChecked = Form.check(sampleItemSealIdCheck).check((ctx) => {
+  const FormChecked = checkSchema(Form, sampleItemSealIdCheck, (ctx) => {
     ctx.value.items.forEach((item, index) => {
       if (
         item.copyNumber === 1 &&

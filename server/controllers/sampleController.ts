@@ -57,6 +57,7 @@ import {
 import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { formatWithTz } from 'maestro-shared/utils/date';
+import { checkSchema } from 'maestro-shared/utils/zod';
 import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
 import { v4 as uuidv4 } from 'uuid';
@@ -516,16 +517,17 @@ export const sampleRouter = {
 
       if (
         mustBeSent &&
-        !SampleBase.pick({
-          sampledAt: true,
-          sentAt: true,
-          specificData: true
-        })
-          .check(sampleSendCheck)
-          .safeParse({
-            ...sampleUpdate,
-            sentAt: new Date()
-          }).success
+        !checkSchema(
+          SampleBase.pick({
+            sampledAt: true,
+            sentAt: true,
+            specificData: true
+          }),
+          sampleSendCheck
+        ).safeParse({
+          ...sampleUpdate,
+          sentAt: new Date()
+        }).success
       ) {
         return {
           status: constants.HTTP_STATUS_FORBIDDEN

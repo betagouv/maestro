@@ -16,6 +16,7 @@ import {
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { isDefined } from 'maestro-shared/utils/utils';
+import { checkSchema } from 'maestro-shared/utils/zod';
 import React, {
   FunctionComponent,
   useContext,
@@ -118,17 +119,20 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
     [sample.id]
   );
 
-  const FormChecked = SampleBase.pick({
-    resytalId: true,
-    ownerFirstName: true,
-    ownerLastName: true,
-    ownerEmail: true,
-    ownerAgreement: true,
-    notesOnOwnerAgreement: true,
-    sampledAt: true,
-    sentAt: true,
-    specificData: true
-  }).check(sampleSendCheck);
+  const FormChecked = checkSchema(
+    SampleBase.pick({
+      resytalId: true,
+      ownerFirstName: true,
+      ownerLastName: true,
+      ownerEmail: true,
+      ownerAgreement: true,
+      notesOnOwnerAgreement: true,
+      sampledAt: true,
+      sentAt: true,
+      specificData: true
+    }),
+    sampleSendCheck
+  );
 
   useEffect(
     () => {

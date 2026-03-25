@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { refineSchema, superRefineSchema } from '../../utils/zod';
 import { FileType, FileTypeList } from './FileType';
 
 export const MaxFileSize = 20 * 1000 * 1000;
@@ -7,25 +8,31 @@ export const FileInput = (
   acceptFileTypes: Readonly<[FileType, ...FileType[]]> = FileTypeList,
   multiple = false
 ) => {
-  const fileSchemaRefined = z
-    .any()
-    .refine((file) => file instanceof File, 'Veuillez sélectionner un fichier.')
-    .refine(
+  const fileSchemaRefined = refineSchema(
+    refineSchema(
+      refineSchema(
+        z.any(),
+        (file) => file instanceof File,
+        'Veuillez sélectionner un fichier.'
+      ),
       (file) => file?.size <= MaxFileSize,
       'Le fichier est trop volumineux.'
-    )
-    .refine((file) => {
+    ),
+    (file) => {
       const { success, data: fileType } = FileType.safeParse(file?.type);
       if (!success) {
         return false;
       }
       return acceptFileTypes.includes(fileType);
-    }, "Ce type de fichier n'est pas accepté.");
+    },
+    "Ce type de fichier n'est pas accepté."
+  );
   if (multiple) {
-    return z
-      .array(fileSchemaRefined)
-      .nonempty('Veuillez sélectionner au moins un fichier.')
-      .superRefine((files, ctx) => {
+    return superRefineSchema(
+      z
+        .array(fileSchemaRefined)
+        .nonempty('Veuillez sélectionner au moins un fichier.'),
+      (files, ctx) => {
         files.forEach((file) => {
           const { success: typeSuccess, data: fileType } = FileType.safeParse(
             file.type
@@ -44,7 +51,8 @@ export const FileInput = (
             });
           }
         });
-      });
+      }
+    );
   }
 
   return fileSchemaRefined;

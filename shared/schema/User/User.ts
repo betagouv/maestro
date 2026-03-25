@@ -10,6 +10,7 @@ import {
 import { UserPermission } from './UserPermission';
 
 import { Nullable } from '../../utils/typescript';
+import { superRefineSchema } from '../../utils/zod';
 import { Company } from '../Company/Company';
 import {
   canHaveDepartment,
@@ -34,7 +35,7 @@ export const UserBase = z.object({
 
 export const userChecks = <
   T extends Pick<
-    UserRefined,
+    UserBase,
     'region' | 'roles' | 'department' | 'companies' | 'programmingPlanKinds'
   >
 >(
@@ -88,27 +89,28 @@ export const userChecks = <
   }
 };
 
-export const UserRefined = z
-  .object({
+export const UserRefined = superRefineSchema(
+  z.object({
     ...UserBase.shape
-  })
-  .superRefine(userChecks);
+  }),
+  userChecks
+);
 
-export const UserToCreateRefined = z
-  .object(UserRefined.shape)
-  .omit({
+export const UserToCreateRefined = superRefineSchema(
+  z.object(UserRefined.shape).omit({
     id: true,
     name: true
-  })
-  .superRefine(userChecks);
+  }),
+  userChecks
+);
 export type UserToCreateRefined = z.infer<typeof UserToCreateRefined>;
 
-export const UserToUpdateRefined = z
-  .object(UserRefined.shape)
-  .omit({
+export const UserToUpdateRefined = superRefineSchema(
+  z.object(UserRefined.shape).omit({
     name: true
-  })
-  .superRefine(userChecks);
+  }),
+  userChecks
+);
 
 export type UserToUpdateRefined = z.infer<typeof UserToUpdateRefined>;
 
