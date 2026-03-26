@@ -253,7 +253,7 @@ const MatrixStep = ({ partialSample }: Props) => {
   );
 
   const removeDocument = async (documentId: string) => {
-    await deleteDocument(documentId);
+    await deleteDocument({ documentId });
     setDocumentIds((documentIds ?? []).filter((id) => id !== documentId));
   };
 

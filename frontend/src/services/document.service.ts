@@ -1,20 +1,18 @@
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import {
+import type {
   DocumentChecked,
-  type DocumentToCreateChecked,
-  type DocumentUpdateChecked
+  DocumentToCreateChecked
 } from 'maestro-shared/schema/Document/Document';
-import type { FindDocumentOptions } from 'maestro-shared/schema/Document/FindDocumentOptions';
+import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
 
 const documentApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getDocument: builder.query<DocumentChecked, string>({
-      query: (documentId) => `documents/${documentId}`,
-      transformResponse: (response: unknown) => DocumentChecked.parse(response),
-      providesTags: (result, _error, documentId) =>
+    getDocument: buildTypedQuery(builder, '/documents/:documentId', {
+      providesTags: (result, _error, { documentId }) =>
         result ? [{ type: 'Document', id: documentId }] : []
     }),
+    // biome-ignore lint: too complicated
     createDocument: builder.mutation<
       DocumentChecked,
       Omit<DocumentToCreateChecked, 'id' | 'filename'> & { file: File }
@@ -67,27 +65,17 @@ const documentApi = api.injectEndpoints({
       },
       invalidatesTags: () => [{ type: 'Document', id: 'LIST' }]
     }),
-    updateDocument: builder.mutation<
-      DocumentChecked,
-      DocumentUpdateChecked & { documentId: string }
-    >({
-      query: ({ documentId, ...document }) => ({
-        url: `documents/${documentId}`,
-        method: 'PUT',
-        body: document
-      }),
-      transformResponse: (response: unknown) => DocumentChecked.parse(response),
-      invalidatesTags: (_result, _error, { documentId }) => [
-        { type: 'Document', documentId }
-      ]
-    }),
-    findResources: builder.query<DocumentChecked[], FindDocumentOptions>({
-      query: (findOptions) => ({
-        url: 'documents/resources',
-        params: findOptions
-      }),
-      transformResponse: (response: unknown[]) =>
-        response.map((_) => DocumentChecked.parse(_)),
+    updateDocument: buildTypedMutation(
+      builder,
+      '/documents/:documentId',
+      'put',
+      {
+        invalidatesTags: (_result, _error, { documentId }) => [
+          { type: 'Document', id: documentId }
+        ]
+      }
+    ),
+    findResources: buildTypedQuery(builder, '/documents/resources', {
       providesTags: (result) => [
         { type: 'Document', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({
@@ -96,21 +84,21 @@ const documentApi = api.injectEndpoints({
         }))
       ]
     }),
-    getDocumentDownloadSignedUrl: builder.query<string, string>({
-      query: (documentId) => `documents/${documentId}/download-signed-url`,
-      transformResponse: (response: unknown) =>
-        (response as { url: string }).url
-    }),
-    deleteDocument: builder.mutation<void, string>({
-      query: (documentId) => ({
-        url: `documents/${documentId}`,
-        method: 'DELETE'
-      }),
-      invalidatesTags: (_result, _error, documentId) => [
-        { type: 'Document', id: 'LIST' },
-        { type: 'Document', id: documentId }
-      ]
-    })
+    getDocumentDownloadSignedUrl: buildTypedQuery(
+      builder,
+      '/documents/:documentId/download-signed-url'
+    ),
+    deleteDocument: buildTypedMutation(
+      builder,
+      '/documents/:documentId',
+      'delete',
+      {
+        invalidatesTags: (_result, _error, { documentId }) => [
+          { type: 'Document', id: 'LIST' },
+          { type: 'Document', id: documentId }
+        ]
+      }
+    )
   })
 });
 

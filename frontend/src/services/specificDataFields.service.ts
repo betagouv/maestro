@@ -1,3 +1,4 @@
+import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import type {
   SampleSpecificDataAttribute,
   SampleSpecificDataAttributeValue
@@ -85,32 +86,29 @@ const specificDataFieldsApi = api.injectEndpoints({
       }),
       invalidatesTags: ['SpecificDataField']
     }),
-    findSachaFieldConfigs: builder.query<SachaFieldConfig[], void>({
-      query: () => `/specific-data-fields/sacha`,
-      providesTags: ['SampleSpecificData']
-    }),
-    updateSampleSpecificDataAttribute: builder.mutation<
-      void,
-      SampleSpecificDataAttribute
-    >({
-      query: (body) => ({
-        url: '/specific-data-fields/attribute',
-        method: 'POST',
-        body
-      }),
-      invalidatesTags: ['SampleSpecificData']
-    }),
-    updateSampleSpecificDataAttributeValue: builder.mutation<
-      void,
-      SampleSpecificDataAttributeValue
-    >({
-      query: (body) => ({
-        url: '/specific-data-fields/attribute/value',
-        method: 'POST',
-        body
-      }),
-      invalidatesTags: ['SampleSpecificData']
-    })
+    findSachaFieldConfigs: buildTypedQuery(
+      builder,
+      '/specific-data-fields/sacha',
+      {
+        providesTags: ['SampleSpecificData']
+      }
+    ),
+    updateSampleSpecificDataAttribute: buildTypedMutation(
+      builder,
+      '/specific-data-fields/attribute',
+      'post',
+      {
+        invalidatesTags: ['SampleSpecificData']
+      }
+    ),
+    updateSampleSpecificDataAttributeValue: buildTypedMutation(
+      builder,
+      '/specific-data-fields/attribute/value',
+      'post',
+      {
+        invalidatesTags: ['SampleSpecificData']
+      }
+    )
   })
 });
 

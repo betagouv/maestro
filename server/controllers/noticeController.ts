@@ -1,5 +1,4 @@
 import { constants } from 'node:http2';
-import BadRequestError from 'maestro-shared/errors/badRequestError';
 import { noticesRepository } from '../repositories/noticesRepository';
 import type {
   ProtectedSubRouter,
@@ -18,11 +17,7 @@ export const noticesUnprotectedRouter = {
 export const noticesProtectedRouter = {
   '/notices/:type': {
     put: async ({ body: noticeToUpdate }, { type }) => {
-      if (noticeToUpdate.type !== type) {
-        throw new BadRequestError();
-      }
-
-      await noticesRepository.update(noticeToUpdate);
+      await noticesRepository.update({ ...noticeToUpdate, type });
 
       return {
         status: constants.HTTP_STATUS_CREATED

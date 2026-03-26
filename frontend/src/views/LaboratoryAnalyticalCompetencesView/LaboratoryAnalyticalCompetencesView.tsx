@@ -4,7 +4,6 @@ import Pagination from '@codegouvfr/react-dsfr/Pagination';
 import { SearchBar } from '@codegouvfr/react-dsfr/SearchBar';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import Select from '@codegouvfr/react-dsfr/Select';
-import { skipToken } from '@reduxjs/toolkit/query';
 import clsx from 'clsx';
 import { getResidueKind } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
@@ -44,7 +43,8 @@ const LaboratoryAnalyticalCompetencesView = () => {
 
   const { data: laboratoryAnalyticalCompetences } =
     apiClient.useGetLaboratoryAnalyticalCompetencesQuery(
-      laboratoryId ?? skipToken
+      { laboratoryId: laboratoryId ?? '' },
+      { skip: !laboratoryId }
     );
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery({

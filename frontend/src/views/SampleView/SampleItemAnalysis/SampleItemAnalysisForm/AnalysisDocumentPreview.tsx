@@ -1,7 +1,6 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import { skipToken } from '@reduxjs/toolkit/query';
 import clsx from 'clsx';
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { type FunctionComponent, useContext, useMemo, useRef } from 'react';
@@ -40,7 +39,8 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
   const { openDocument } = useDocument();
 
   const { data: reportDocumentIds } = useGetAnalysisReportDocumentIdsQuery(
-    partialAnalysis?.id ?? skipToken
+    { analysisId: partialAnalysis?.id ?? '' },
+    { skip: !partialAnalysis?.id }
   );
 
   return (
@@ -91,7 +91,6 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
             reportDocumentIds &&
             reportDocumentIds.length > 0 && (
               <ReportDocumentList
-                sampleId={sampleId}
                 readonly={readonly}
                 analysisId={partialAnalysis.id}
                 reportDocumentIds={reportDocumentIds}
@@ -111,11 +110,10 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
 };
 
 const ReportDocumentList = ({
-  sampleId,
   readonly,
   analysisId,
   reportDocumentIds
-}: Pick<Props, 'readonly' | 'sampleId'> & {
+}: Pick<Props, 'readonly'> & {
   analysisId: string;
   reportDocumentIds: string[];
 }) => {
@@ -130,7 +128,6 @@ const ReportDocumentList = ({
     if (documentIdToDelete.current) {
       await deleteDocument({
         analysisId,
-        sampleId,
         documentId: documentIdToDelete.current
       });
       documentIdToDelete.current = null;

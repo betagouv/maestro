@@ -3,11 +3,14 @@ import { AuthUserRefined } from 'maestro-shared/schema/User/AuthUser';
 import config from '../utils/config';
 
 export const tagTypes = [
+  'AnalysisReportDocuments',
   'AuthUser',
   'Company',
+  'DashboardNotice',
   'Document',
   'Laboratory',
   'LaboratoryAnalyticalCompetence',
+  'LocalPrescription',
   'Notification',
   'Prescription',
   'PrescriptionSubstance',
@@ -16,12 +19,16 @@ export const tagTypes = [
   'SpecificDataField',
   'LocalPrescription',
   'Regions',
+  'RootNotice',
   'SachaCommemoratif',
   'Sample',
-  'SampleItemAnalysis',
   'SampleCount',
+  'SampleItemAnalysis',
+  'SampleSpecificData',
   'User'
-];
+] as const;
+
+export type TagType = (typeof tagTypes)[number];
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({

@@ -15,10 +15,11 @@ interface Props {
 
 const SampleDocument = ({ documentId, readonly, onRemove }: Props) => {
   const apiClient = useContext(ApiClientContext);
-  const { data: document } = apiClient.useGetDocumentQuery(documentId);
+  const { data: document } = apiClient.useGetDocumentQuery({ documentId });
 
-  const { data: documentUrl } =
-    apiClient.useGetDocumentDownloadSignedUrlQuery(documentId);
+  const { data: documentUrlData } =
+    apiClient.useGetDocumentDownloadSignedUrlQuery({ documentId });
+  const documentUrl = documentUrlData?.url;
 
   const [updateDocument] = apiClient.useUpdateDocumentMutation();
 

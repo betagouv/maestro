@@ -2,7 +2,6 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Stepper from '@codegouvfr/react-dsfr/Stepper';
-import { skipToken } from '@reduxjs/toolkit/query';
 import clsx from 'clsx';
 import { isNil, uniq } from 'lodash-es';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
@@ -46,7 +45,8 @@ const DocumentView = () => {
   const { documentId } = useParams<{ documentId?: string }>();
 
   const { data: document } = apiClient.useGetDocumentQuery(
-    documentId ?? skipToken
+    { documentId: documentId ?? '' },
+    { skip: !documentId }
   );
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery({});
 
@@ -180,7 +180,7 @@ const DocumentView = () => {
             kind: kind as DocumentKind
           }).unwrap();
           if (file) {
-            await deleteDocument(document.id).unwrap();
+            await deleteDocument({ documentId: document.id }).unwrap();
           }
         }
         if (file) {

@@ -1,19 +1,10 @@
+import { buildTypedMutation } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
 
 const mascaradeApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    mascaradeStart: builder.mutation<void, { userId: string }>({
-      query: ({ userId }) => ({
-        url: `/mascarade/${userId}`,
-        method: 'POST'
-      })
-    }),
-    mascaradeStop: builder.mutation<{ userId: string }, void>({
-      query: () => ({
-        url: `/mascarade`,
-        method: 'POST'
-      })
-    })
+    mascaradeStart: buildTypedMutation(builder, '/mascarade/:userId', 'post'),
+    mascaradeStop: buildTypedMutation(builder, '/mascarade', 'post')
   })
 });
 

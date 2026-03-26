@@ -15,11 +15,11 @@ export const AdminViewDashboardNotice: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const { useGetDashboardNoticeQuery, useUpdateDashboardNoticeMutation } =
+  const { useGetNoticeQuery, useUpdateNoticeMutation } =
     useContext(ApiClientContext);
 
-  const { data } = useGetDashboardNoticeQuery();
-  const [updateDashboardNotice] = useUpdateDashboardNoticeMutation();
+  const { data } = useGetNoticeQuery({ type: 'dashboard' });
+  const [updateDashboardNotice] = useUpdateNoticeMutation();
 
   const [dashboardNotice, setDashboardNotice] = useState<Notice>(
     data ?? { type: 'dashboard', title: null, description: null }

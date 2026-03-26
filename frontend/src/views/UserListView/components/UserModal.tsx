@@ -169,7 +169,11 @@ export const UserModal = ({
     await form.validate(async (n) => {
       try {
         if (userToUpdate?.id) {
-          await updateUser({ ...n, id: userToUpdate.id }).unwrap();
+          await updateUser({
+            ...n,
+            id: userToUpdate.id,
+            userId: userToUpdate.id
+          }).unwrap();
           setAlertMessage(
             `L'utilisateur ${userToUpdate.name} a bien été modifié.`
           );

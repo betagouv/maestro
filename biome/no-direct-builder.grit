@@ -1,0 +1,10 @@
+or {
+  `$obj.query($args)`,
+  `$obj.query<$T>($args)`,
+  `$obj.mutation($args)`,
+  `$obj.mutation<$T>($args)`
+} where {
+  $filename <: r".*frontend/.*",
+  ! $filename <: r".*frontend/src/services/api\.builder\.ts$",
+  register_diagnostic(span=$obj, message="Use buildTypedQuery() / buildTypedMutation() from api.builder.ts instead of calling builder.query() or builder.mutation() directly.", severity=`error`)
+}

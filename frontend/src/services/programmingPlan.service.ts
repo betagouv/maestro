@@ -1,22 +1,9 @@
-import { isNil, omitBy } from 'lodash-es';
-import type { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
-import type { ProgrammingPlanLocalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
-import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
 
 const programmingPlanApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    findProgrammingPlans: builder.query<
-      ProgrammingPlanChecked[],
-      FindProgrammingPlanOptions
-    >({
-      query: (options) => ({
-        url: 'programming-plans',
-        params: options
-      }),
-      transformResponse: (response: any[]) =>
-        response.map((_) => ProgrammingPlanChecked.parse(omitBy(_, isNil))),
+    findProgrammingPlans: buildTypedQuery(builder, '/programming-plans', {
       providesTags: (result) => [
         { type: 'ProgrammingPlan', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({
@@ -25,59 +12,43 @@ const programmingPlanApi = api.injectEndpoints({
         }))
       ]
     }),
-    getProgrammingPlan: builder.query<ProgrammingPlanChecked, string>({
-      query: (programmingPlanId) => `programming-plans/${programmingPlanId}`,
-      transformResponse: (response: any) =>
-        ProgrammingPlanChecked.parse(omitBy(response, isNil)),
-      providesTags: (result) => [{ type: 'ProgrammingPlan', id: result?.id }]
-    }),
-    createProgrammingPlan: builder.mutation<ProgrammingPlanChecked, number>({
-      query: (year) => ({
-        url: `programming-plans/years/${year}`,
-        method: 'POST'
-      }),
-      transformResponse: (response: any) =>
-        ProgrammingPlanChecked.parse(omitBy(response, isNil)),
-      invalidatesTags: (_result, _error) => [{ type: 'ProgrammingPlan' }]
-    }),
-    updateProgrammingPlanStatus: builder.mutation<
-      ProgrammingPlanChecked,
+    getProgrammingPlan: buildTypedQuery(
+      builder,
+      '/programming-plans/:programmingPlanId',
       {
-        programmingPlanId: string;
-        status: ProgrammingPlanStatus;
+        providesTags: (result) => [{ type: 'ProgrammingPlan', id: result?.id }]
       }
-    >({
-      query: ({ programmingPlanId, status }) => ({
-        url: `programming-plans/${programmingPlanId}`,
-        method: 'PUT',
-        body: { status }
-      }),
-      transformResponse: (response: any) =>
-        ProgrammingPlanChecked.parse(omitBy(response, isNil)),
-      invalidatesTags: (_result, _error, { programmingPlanId }) => [
-        { type: 'ProgrammingPlan', id: programmingPlanId },
-        { type: 'ProgrammingPlan', id: 'LIST' }
-      ]
-    }),
-    updateProgrammingPlanLocalStatus: builder.mutation<
-      ProgrammingPlanChecked,
+    ),
+    createProgrammingPlan: buildTypedMutation(
+      builder,
+      '/programming-plans/years/:year',
+      'post',
       {
-        programmingPlanId: string;
-        programmingPlanLocalStatusList: ProgrammingPlanLocalStatus[];
+        invalidatesTags: [{ type: 'ProgrammingPlan' }]
       }
-    >({
-      query: ({ programmingPlanId, programmingPlanLocalStatusList }) => ({
-        url: `programming-plans/${programmingPlanId}/local-status`,
-        method: 'PUT',
-        body: programmingPlanLocalStatusList
-      }),
-      transformResponse: (response: any) =>
-        ProgrammingPlanChecked.parse(omitBy(response, isNil)),
-      invalidatesTags: (_result, _error, { programmingPlanId }) => [
-        { type: 'ProgrammingPlan', id: programmingPlanId },
-        { type: 'ProgrammingPlan', id: 'LIST' }
-      ]
-    })
+    ),
+    updateProgrammingPlanStatus: buildTypedMutation(
+      builder,
+      '/programming-plans/:programmingPlanId',
+      'put',
+      {
+        invalidatesTags: (_result, _error, { programmingPlanId }) => [
+          { type: 'ProgrammingPlan', id: programmingPlanId },
+          { type: 'ProgrammingPlan', id: 'LIST' }
+        ]
+      }
+    ),
+    updateProgrammingPlanLocalStatus: buildTypedMutation(
+      builder,
+      '/programming-plans/:programmingPlanId/local-status',
+      'put',
+      {
+        invalidatesTags: (_result, _error, { programmingPlanId }) => [
+          { type: 'ProgrammingPlan', id: programmingPlanId },
+          { type: 'ProgrammingPlan', id: 'LIST' }
+        ]
+      }
+    )
   })
 });
 

@@ -132,7 +132,7 @@ const Header = () => {
   const changeUserRole = useCallback(
     async (userRole: UserRole) => {
       if (user) {
-        const authUser = await changeRole(userRole).unwrap();
+        const authUser = await changeRole({ newRole: userRole }).unwrap();
         dispatch(api.util.resetApiState());
         dispatch(
           authSlice.actions.signinUser({

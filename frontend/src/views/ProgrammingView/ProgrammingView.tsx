@@ -126,11 +126,10 @@ const ProgrammingView = () => {
       comment: string
     ) => {
       await commentLocalPrescription({
-        ...regionalPrescriptionKey,
-        commentToCreate: {
-          programmingPlanId: programmingPlan.id,
-          comment
-        }
+        prescriptionId: regionalPrescriptionKey.prescriptionId,
+        region: regionalPrescriptionKey.region,
+        programmingPlanId: programmingPlan.id,
+        comment
       });
     },
     [commentLocalPrescription]

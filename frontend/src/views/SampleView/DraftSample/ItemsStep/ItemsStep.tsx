@@ -5,6 +5,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
 import { isNil, uniqBy } from 'lodash-es';
+import type { Department } from 'maestro-shared/referential/Department';
 import type { Region } from 'maestro-shared/referential/Region';
 import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -75,25 +76,33 @@ const ItemsStep = ({ partialSample }: Props) => {
   const [createOrUpdateSample, createOrUpdateSampleCall] =
     apiClient.useCreateOrUpdateSampleMutation();
 
-  const { data: localPrescription } = apiClient.useGetLocalPrescriptionQuery(
-    {
-      prescriptionId: partialSample.prescriptionId as string,
-      region: isCreatedPartialSample(partialSample)
-        ? partialSample.region
-        : (user?.region as Region),
-      includes: 'laboratories',
-      ...((programmingPlan as ProgrammingPlanChecked).distributionKind ===
-      'SLAUGHTERHOUSE'
-        ? {
-            department: partialSample.department,
-            companySiret: partialSample.company?.siret
-          }
-        : {})
-    },
-    {
-      skip: !partialSample.prescriptionId || !user?.region
-    }
-  );
+  const isSlaughterhouse =
+    (programmingPlan as ProgrammingPlanChecked).distributionKind ===
+    'SLAUGHTERHOUSE';
+  const skipQuery = !partialSample.prescriptionId || !user?.region;
+  const prescriptionQueryBase = {
+    prescriptionId: partialSample.prescriptionId as string,
+    region: isCreatedPartialSample(partialSample)
+      ? partialSample.region
+      : (user?.region as Region),
+    includes: 'laboratories' as const
+  };
+
+  const { data: localPrescriptionByRegion } =
+    apiClient.useGetLocalPrescriptionQuery(prescriptionQueryBase, {
+      skip: skipQuery || isSlaughterhouse
+    });
+  const { data: localPrescriptionByCompany } =
+    apiClient.useGetLocalPrescriptionByCompanyQuery(
+      {
+        ...prescriptionQueryBase,
+        department: partialSample.department as Department,
+        companySiret: partialSample.company?.siret ?? ''
+      },
+      { skip: skipQuery || !isSlaughterhouse }
+    );
+  const localPrescription =
+    localPrescriptionByRegion ?? localPrescriptionByCompany;
 
   useEffect(() => {
     if (

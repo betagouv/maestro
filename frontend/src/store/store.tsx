@@ -37,6 +37,6 @@ export type AppDispatch = typeof store.dispatch;
 export const appLogout = () => async (dispatch: AppDispatch) => {
   console.log('logout');
   dispatch(authSlice.actions.signoutUser());
-  dispatch(api.util.invalidateTags(tagTypes));
+  dispatch(api.util.invalidateTags([...tagTypes]));
   dispatch(prescriptionsSlice.actions.reset());
 };

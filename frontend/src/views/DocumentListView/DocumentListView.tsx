@@ -309,7 +309,7 @@ const DocumentListView = () => {
           title="Supprimer un document"
           onConfirm={async () => {
             if (currentDocument) {
-              await deleteDocument(currentDocument.id);
+              await deleteDocument({ documentId: currentDocument.id });
             }
           }}
           confirmLabel="Supprimer"

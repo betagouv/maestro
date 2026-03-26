@@ -88,10 +88,11 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
 
   const save = async () => {
     await updateSampleItem({
+      ...sampleItem,
+      ...localSampleItem,
       sampleId: sampleItem.sampleId,
       itemNumber: sampleItem.itemNumber,
-      copyNumber: sampleItem.copyNumber,
-      sampleItemUpdate: { ...sampleItem, ...localSampleItem }
+      copyNumber: sampleItem.copyNumber
     });
   };
 

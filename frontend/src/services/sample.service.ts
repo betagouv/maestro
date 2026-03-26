@@ -1,15 +1,11 @@
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { isNil, omitBy } from 'lodash-es';
-import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   isCreatedPartialSample,
   PartialSample,
   type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import type {
-  SampleItemKey,
-  SampleItemUpdate
-} from 'maestro-shared/schema/Sample/SampleItem';
+import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
 import samplesSlice from 'src/store/reducers/samplesSlice';
 import { store } from 'src/store/store';
@@ -18,35 +14,21 @@ import { getURLQuery } from 'src/utils/fetchUtils';
 
 const sampleApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getSample: builder.query<PartialSample, string>({
-      query: (sampleId) => `samples/${sampleId}`,
-      transformResponse: (response: any) =>
-        PartialSample.parse(omitBy(response, isNil)),
-      providesTags: (_result, _error, sampleId) => [
+    getSample: buildTypedQuery(builder, '/samples/:sampleId', {
+      providesTags: (_result, _error, { sampleId }) => [
         { type: 'Sample', id: sampleId }
       ]
     }),
-    findSamples: builder.query<PartialSample[], FindSampleOptions>({
-      query: (findOptions) => ({
-        url: 'samples',
-        params: findOptions
-      }),
-      transformResponse: (response: any[]) =>
-        response.map((_) => PartialSample.parse(omitBy(_, isNil))),
+    findSamples: buildTypedQuery(builder, '/samples', {
       providesTags: (result) => [
         { type: 'Sample', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({ type: 'Sample' as const, id }))
       ]
     }),
-    countSamples: builder.query<number, FindSampleOptions>({
-      query: (findOptions) => ({
-        url: 'samples/count',
-        params: findOptions
-      }),
-      transformResponse: (response: { count: number }) =>
-        Number(response.count),
+    countSamples: buildTypedQuery(builder, '/samples/count', {
       providesTags: ['SampleCount']
     }),
+    // biome-ignore lint: too complicated
     createOrUpdateSample: builder.mutation<
       PartialSample | PartialSampleToCreate,
       PartialSample | PartialSampleToCreate
@@ -86,44 +68,30 @@ const sampleApi = api.injectEndpoints({
         { type: 'Prescription', id: 'LIST' }
       ]
     }),
-    updateSample: builder.mutation<PartialSample, PartialSample>({
-      query: (partialSample) => ({
-        url: `samples/${partialSample.id}`,
-        method: 'PUT',
-        body: partialSample
-      }),
-      transformResponse: (response: any) =>
-        PartialSample.parse(omitBy(response, isNil)),
-      invalidatesTags: (_result, _error, { id }) => [
+    updateSample: buildTypedMutation(builder, '/samples/:sampleId', 'put', {
+      invalidatesTags: (_result, _error, { sampleId }) => [
         { type: 'Sample', id: 'LIST' },
-        { type: 'Sample', id },
+        { type: 'Sample', id: sampleId },
         'SampleCount',
         { type: 'LocalPrescription', id: 'LIST' },
         { type: 'Prescription', id: 'LIST' }
       ]
     }),
-    updateSampleItem: builder.mutation<
-      void,
-      SampleItemKey & { sampleItemUpdate: SampleItemUpdate }
-    >({
-      query: ({ sampleId, itemNumber, copyNumber, sampleItemUpdate }) => ({
-        url: `samples/${sampleId}/items/${itemNumber}/copy/${copyNumber}`,
-        method: 'PUT',
-        body: sampleItemUpdate
-      }),
+    updateSampleItem: buildTypedMutation(
+      builder,
+      '/samples/:sampleId/items/:itemNumber/copy/:copyNumber',
+      'put',
+      {
+        invalidatesTags: (_result, _error, { sampleId }) => [
+          { type: 'Sample', id: sampleId },
+          { type: 'SampleItemAnalysis', id: sampleId }
+        ]
+      }
+    ),
+    deleteSample: buildTypedMutation(builder, '/samples/:sampleId', 'delete', {
       invalidatesTags: (_result, _error, { sampleId }) => [
-        { type: 'Sample', id: sampleId },
-        { type: 'SampleItemAnalysis', id: sampleId }
-      ]
-    }),
-    deleteSample: builder.mutation<void, string>({
-      query: (id) => ({
-        url: `samples/${id}`,
-        method: 'DELETE'
-      }),
-      invalidatesTags: (_result, _error, id) => [
         { type: 'Sample', id: 'LIST' },
-        { type: 'Sample', id },
+        { type: 'Sample', id: sampleId },
         'SampleCount',
         { type: 'LocalPrescription', id: 'LIST' },
         { type: 'Prescription', id: 'LIST' }
@@ -144,7 +112,9 @@ const sampleEmptyFormURL = (sampleId: string) => {
   return `${config.apiEndpoint}/api/samples/${sampleId}/emptyForm`;
 };
 
-const sampleListExportURL = (findOptions: FindSampleOptions) => {
+const sampleListExportURL = (
+  findOptions: Parameters<typeof getURLQuery>[0]
+) => {
   const params = getURLQuery(findOptions);
   return `${config.apiEndpoint}/api/samples/export${params}`;
 };

@@ -10,7 +10,7 @@ interface Props {
 
 const PrescriptionCommentAuthor = ({ userId }: Props) => {
   const apiClient = useContext(ApiClientContext);
-  const { data: user } = apiClient.useGetUserQuery(userId);
+  const { data: user } = apiClient.useGetUserQuery({ userId });
 
   if (!user) {
     return null;

@@ -1,12 +1,12 @@
 import { isNil, omitBy } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
-import { Company } from 'maestro-shared/schema/Company/Company';
 import { CompanySearchResult } from 'maestro-shared/schema/Company/CompanySearchResult';
-import type { FindCompanyOptions } from 'maestro-shared/schema/Company/FindCompanyOptions';
 import { api } from 'src/services/api.service';
+import { buildTypedQuery } from './api.builder';
 
 const companyApi = api.injectEndpoints({
   endpoints: (builder) => ({
+    // biome-ignore lint: external API
     searchCompanies: builder.query<
       CompanySearchResult[],
       { query: string; department?: Department }
@@ -31,18 +31,12 @@ const companyApi = api.injectEndpoints({
         return [];
       }
     }),
-    findCompanies: builder.query<Company[], FindCompanyOptions>({
-      query: (findOptions) => ({
-        url: `companies`,
-        params: findOptions
-      }),
-      transformResponse: (response: any[]) =>
-        response.map((_) => Company.parse(omitBy(_, isNil))),
+    findCompanies: buildTypedQuery(builder, '/companies', {
       providesTags: (result) => [
         { type: 'Company', id: 'LIST' },
         ...(result ?? []).map(({ siret }) => ({
           type: 'Company' as const,
-          siret
+          id: siret
         }))
       ]
     })

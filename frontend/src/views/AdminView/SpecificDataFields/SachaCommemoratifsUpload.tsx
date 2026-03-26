@@ -21,7 +21,7 @@ export const SachaCommemoratifsUpload: FunctionComponent = () => {
     const file = e.target.files?.[0];
     if (file) {
       const xmlContent = await file.text();
-      await updateSachaCommemoratifs(xmlContent);
+      await updateSachaCommemoratifs({ xmlContent });
     }
     if (fileInputRef.current) {
       fileInputRef.current.value = '';

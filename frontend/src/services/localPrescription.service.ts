@@ -1,49 +1,9 @@
-import { isNil, omitBy } from 'lodash-es';
-import type { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
-import {
-  LocalPrescription,
-  type LocalPrescriptionUpdate
-} from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import {
-  LocalPrescriptionComment,
-  type LocalPrescriptionCommentToCreate
-} from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
-import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
 
 const prescriptionApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getLocalPrescription: builder.query<
-      LocalPrescription,
-      LocalPrescriptionKey & Pick<FindLocalPrescriptionOptions, 'includes'>
-    >({
-      query: ({
-        prescriptionId,
-        region,
-        department,
-        companySiret,
-        includes
-      }) => ({
-        url: `prescriptions/${prescriptionId}/regions/${region}${
-          department ? `/departments/${department}` : ''
-        }${companySiret ? `/companies/${companySiret}` : ''}`,
-        params: { includes }
-      }),
-      transformResponse: (response) => LocalPrescription.parse(response),
-      providesTags: (_result, _error, { prescriptionId }) => [
-        { type: 'LocalPrescription', id: prescriptionId }
-      ]
-    }),
-    findLocalPrescriptions: builder.query<
-      LocalPrescription[],
-      FindLocalPrescriptionOptions
-    >({
-      query: (findOptions) => ({
-        url: 'prescriptions/regions',
-        params: findOptions
-      }),
-      transformResponse: (response: any[]) =>
-        response.map((_) => LocalPrescription.parse(omitBy(_, isNil))),
+    findLocalPrescriptions: buildTypedQuery(builder, '/prescriptions/regions', {
       providesTags: (result) => [
         { type: 'LocalPrescription', id: 'LIST' },
         ...(result ?? []).map(({ prescriptionId }) => ({
@@ -52,51 +12,64 @@ const prescriptionApi = api.injectEndpoints({
         }))
       ]
     }),
-    updateLocalPrescription: builder.mutation<
-      LocalPrescription,
-      LocalPrescriptionKey & {
-        prescriptionUpdate: LocalPrescriptionUpdate;
+    getLocalPrescription: buildTypedQuery(
+      builder,
+      '/prescriptions/:prescriptionId/regions/:region',
+      {
+        providesTags: (_result, _error, { prescriptionId }) => [
+          { type: 'LocalPrescription', id: prescriptionId }
+        ]
       }
-    >({
-      query: ({ prescriptionId, region, department, prescriptionUpdate }) => ({
-        url: `prescriptions/${prescriptionId}/regions/${region}${
-          department ? `/departments/${department}` : ''
-        }`,
-        method: 'PUT',
-        body: prescriptionUpdate
-      }),
-      invalidatesTags: (_result, _error, { prescriptionId }) => [
-        { type: 'LocalPrescription', id: 'LIST' },
-        { type: 'LocalPrescription', id: prescriptionId }
-      ],
-      transformResponse: (response) => LocalPrescription.parse(response)
-    }),
-    commentLocalPrescription: builder.mutation<
-      LocalPrescriptionComment,
-      LocalPrescriptionKey & {
-        commentToCreate: LocalPrescriptionCommentToCreate;
+    ),
+    getLocalPrescriptionByCompany: buildTypedQuery(
+      builder,
+      '/prescriptions/:prescriptionId/regions/:region/departments/:department/companies/:companySiret',
+      {
+        providesTags: (_result, _error, { prescriptionId }) => [
+          { type: 'LocalPrescription', id: prescriptionId }
+        ]
       }
-    >({
-      query: ({ prescriptionId, region, department, commentToCreate }) => ({
-        url: `prescriptions/${prescriptionId}/regions/${region}${
-          department ? `/departments/${department}` : ''
-        }/comments`,
-        method: 'POST',
-        body: commentToCreate
-      }),
-      transformResponse: (response) => LocalPrescriptionComment.parse(response),
-      invalidatesTags: (_result, _error, { prescriptionId }) => [
-        { type: 'LocalPrescription', id: prescriptionId }
-      ]
-    })
+    ),
+    updateLocalPrescription: buildTypedMutation(
+      builder,
+      '/prescriptions/:prescriptionId/regions/:region',
+      'put',
+      {
+        invalidatesTags: (_result, _error, { prescriptionId }) => [
+          { type: 'LocalPrescription', id: 'LIST' },
+          { type: 'LocalPrescription', id: prescriptionId }
+        ]
+      }
+    ),
+    updateDepartmentalLocalPrescription: buildTypedMutation(
+      builder,
+      '/prescriptions/:prescriptionId/regions/:region/departments/:department',
+      'put',
+      {
+        invalidatesTags: (_result, _error, { prescriptionId }) => [
+          { type: 'LocalPrescription', id: 'LIST' },
+          { type: 'LocalPrescription', id: prescriptionId }
+        ]
+      }
+    ),
+    commentLocalPrescription: buildTypedMutation(
+      builder,
+      '/prescriptions/:prescriptionId/regions/:region/comments',
+      'post',
+      {
+        invalidatesTags: (_result, _error, { prescriptionId }) => [
+          { type: 'LocalPrescription', id: prescriptionId }
+        ]
+      }
+    )
   })
 });
 
 export const {
-  useGetLocalPrescriptionQuery,
   useFindLocalPrescriptionsQuery,
-  useCommentLocalPrescriptionMutation,
-  useUpdateLocalPrescriptionMutation
-} = {
-  ...prescriptionApi
-};
+  useGetLocalPrescriptionQuery,
+  useGetLocalPrescriptionByCompanyQuery,
+  useUpdateLocalPrescriptionMutation,
+  useUpdateDepartmentalLocalPrescriptionMutation,
+  useCommentLocalPrescriptionMutation
+} = { ...prescriptionApi };

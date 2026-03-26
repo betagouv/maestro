@@ -1,87 +1,61 @@
-import {
-  type Analysis,
-  type AnalysisToCreate,
-  type AnalysisToUpdate,
-  PartialAnalysis
-} from 'maestro-shared/schema/Analysis/Analysis';
-import type { SampleItemKey } from 'maestro-shared/schema/Sample/SampleItem';
+import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
 
 const analysisApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getSampleItemAnalysis: builder.query<PartialAnalysis, SampleItemKey>({
-      query: (sampleItemKey) => ({
-        url: 'analysis',
-        params: sampleItemKey
-      }),
-      transformResponse: (response: any) => PartialAnalysis.parse(response),
+    getSampleItemAnalysis: buildTypedQuery(builder, '/analysis', {
       providesTags: (_result, _error, { sampleId }) => [
         { type: 'SampleItemAnalysis', id: sampleId }
       ]
     }),
-    createAnalysis: builder.mutation<PartialAnalysis, AnalysisToCreate>({
-      query: (draft) => ({
-        url: 'analysis',
-        method: 'POST',
-        body: { ...draft }
-      }),
-      transformResponse: (response: any) => PartialAnalysis.parse(response),
+    createAnalysis: buildTypedMutation(builder, '/analysis', 'post', {
       invalidatesTags: (_result, _error, draft) => [
         { type: 'SampleItemAnalysis', id: draft.sampleId },
         { type: 'Sample' as const, id: draft.sampleId },
         { type: 'Sample', id: 'LIST' }
       ]
     }),
-    updateAnalysis: builder.mutation<
-      PartialAnalysis,
-      AnalysisToUpdate & Pick<Analysis, 'id' | 'sampleId'>
-    >({
-      query: (partialAnalysis) => ({
-        url: `analysis/${partialAnalysis.id}`,
-        method: 'PUT',
-        body: partialAnalysis
-      }),
-      transformResponse: (response: any) => PartialAnalysis.parse(response),
-      invalidatesTags: (_result, _error, draft) => [
-        { type: 'SampleItemAnalysis', id: draft.sampleId },
-        { type: 'Sample' as const, id: draft.sampleId },
-        { type: 'Sample', id: 'LIST' }
-      ]
-    }),
-    getAnalysisReportDocumentIds: builder.query<string[], string>({
-      query: (analysisId) => ({
-        url: `analysis/${analysisId}/reportDocuments`
-      }),
-      providesTags: (_result, _error, analysisId) => [
-        { type: 'AnalysisReportDocuments', id: analysisId }
-      ]
-    }),
-    createAnalysisReportDocument: builder.mutation<
-      void,
-      { documentId: string; analysisId: string; sampleId: string }
-    >({
-      query: ({ documentId, analysisId }) => ({
-        url: `analysis/${analysisId}/reportDocuments`,
-        method: 'POST',
-        body: { documentId }
-      }),
-      invalidatesTags: (_result, _error, { analysisId }) => [
-        { type: 'AnalysisReportDocuments', id: analysisId }
-      ]
-    }),
-    deleteAnalysisReportDocument: builder.mutation<
-      void,
-      { documentId: string; analysisId: string; sampleId: string }
-    >({
-      query: ({ documentId, analysisId }) => ({
-        url: `analysis/${analysisId}/reportDocuments`,
-        method: 'DELETE',
-        body: { documentId }
-      }),
-      invalidatesTags: (_result, _error, { analysisId }) => [
-        { type: 'AnalysisReportDocuments', id: analysisId }
-      ]
-    })
+    updateAnalysis: buildTypedMutation(
+      builder,
+      '/analysis/:analysisId',
+      'put',
+      {
+        invalidatesTags: (result, _error, _draft) => [
+          { type: 'SampleItemAnalysis', id: result?.sampleId },
+          { type: 'Sample' as const, id: result?.sampleId },
+          { type: 'Sample', id: 'LIST' }
+        ]
+      }
+    ),
+    getAnalysisReportDocumentIds: buildTypedQuery(
+      builder,
+      '/analysis/:analysisId/reportDocuments',
+      {
+        providesTags: (_result, _error, { analysisId }) => [
+          { type: 'AnalysisReportDocuments', id: analysisId }
+        ]
+      }
+    ),
+    createAnalysisReportDocument: buildTypedMutation(
+      builder,
+      '/analysis/:analysisId/reportDocuments',
+      'post',
+      {
+        invalidatesTags: (_result, _error, { analysisId }) => [
+          { type: 'AnalysisReportDocuments', id: analysisId }
+        ]
+      }
+    ),
+    deleteAnalysisReportDocument: buildTypedMutation(
+      builder,
+      '/analysis/:analysisId/reportDocuments',
+      'delete',
+      {
+        invalidatesTags: (_result, _error, { analysisId }) => [
+          { type: 'AnalysisReportDocuments', id: analysisId }
+        ]
+      }
+    )
   })
 });
 

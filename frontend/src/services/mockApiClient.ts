@@ -119,7 +119,7 @@ const defaultMockApiClientConf: MockApi = {
   useAuthenticateMutation: [fn(), {}],
   useCommentLocalPrescriptionMutation: [fn(), {}],
   useCountSamplesQuery: {
-    data: 0
+    data: { count: 0 }
   },
   useCreateAnalysisMutation: [fn(), {}],
   useCreateAnalysisReportDocumentMutation: [fn(), {}],
@@ -161,7 +161,7 @@ const defaultMockApiClientConf: MockApi = {
       url: ''
     }
   },
-  useGetDocumentDownloadSignedUrlQuery: { data: '' },
+  useGetDocumentDownloadSignedUrlQuery: { data: { url: '' } },
   useGetDocumentQuery: {
     data: genDocument({
       createdAt: new Date(12345),
@@ -173,6 +173,7 @@ const defaultMockApiClientConf: MockApi = {
   useGetLaboratoryQuery: {
     data: LaboratoryFixture
   },
+  useGetLocalPrescriptionByCompanyQuery: { data: genLocalPrescription() },
   useGetLocalPrescriptionQuery: { data: genLocalPrescription() },
   useGetLaboratoryAnalyticalCompetencesQuery: { data: [] },
   useGetPrescriptionSubstancesQuery: { data: [] },
@@ -192,7 +193,7 @@ const defaultMockApiClientConf: MockApi = {
   useGetSampleQuery: {
     data: genCreatedPartialSample()
   },
-  useGetUserQuery: (id: string) => ({
+  useGetUserQuery: ({ userId }: { userId: string }) => ({
     data: ([
       Sampler1Fixture,
       Sample11Fixture,
@@ -200,16 +201,16 @@ const defaultMockApiClientConf: MockApi = {
       NationalCoordinator,
       RegionalCoordinator,
       DepartmentalCoordinator
-    ].find((_) => _.id === id) ??
+    ].find((_) => _.id === userId) ??
       genUser({
-        id
+        id: userId
       })) as UserRefined
   }),
   useLazyFindPrescriptionsQuery: [[], {}],
   useLazyFindSamplesQuery: [[], {}],
   useLazyGetAnalysisReportDocumentIdsQuery: [[], {}],
   useLazyGetDocumentDownloadSignedUrlQuery: [
-    'https://maestro.beta.gouv.fr',
+    { url: 'https://maestro.beta.gouv.fr' },
     {}
   ],
   useLazyGetPrescriptionSubstancesQuery: [[], {}],
@@ -227,17 +228,14 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateProgrammingPlanLocalStatusMutation: [fn(), {}],
   useUpdateProgrammingPlanStatusMutation: [fn(), {}],
   useUpdateLaboratoryAnalyticalCompetenceMutation: [fn(), {}],
+  useUpdateDepartmentalLocalPrescriptionMutation: [fn(), {}],
   useUpdateLocalPrescriptionMutation: [fn(), {}],
   useUpdateSampleMutation: [fn(), {}],
   useUpdateSampleItemMutation: [fn(), {}],
-  useGetRootNoticeQuery: {
-    data: { type: 'root', title: 'titre', description: 'description' }
-  },
-  useUpdateRootNoticeMutation: [fn(), {}],
-  useGetDashboardNoticeQuery: {
-    data: { type: 'dashboard', title: 'titre', description: 'description' }
-  },
-  useUpdateDashboardNoticeMutation: [fn(), {}],
+  useGetNoticeQuery: (arg: { type: 'root' | 'dashboard' }) => ({
+    data: { type: arg.type, title: 'titre', description: 'description' }
+  }),
+  useUpdateNoticeMutation: [fn(), {}],
   useMascaradeStartMutation: [fn(), {}],
   useMascaradeStopMutation: [fn(), {}],
   useCreateUserMutation: [fn(), {}],
