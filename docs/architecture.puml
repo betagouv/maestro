@@ -1,4 +1,5 @@
 @startuml
+left to right direction
 !include <tupadr3/common>
 !include <office/Databases/database>
 !include <office/Servers/application_server>
@@ -13,8 +14,8 @@ OFF_DEVICE_LAPTOP(Utilisateurs, Utilisateurs)
 package Gouvernement {
   OFF_APPLICATION_SERVER(Sentry, Sentry)
   OFF_APPLICATION_SERVER(Matomo, Matomo)
+  OFF_APPLICATION_SERVER(Mattermost, Mattermost)
   OFF_APPLICATION_SERVER(Entreprise, API Entreprise)
-  OFF_APPLICATION_SERVER(Adresse, API Adresse)
   OFF_REVERSE_PROXY(EAP, EAP)
 }
 
@@ -31,6 +32,7 @@ package Externes {
   OFF_3RD_PARTY_MAIL_SERVER(OVH_EMAIL, OVH Email)
   OFF_FILE_SERVER(OVH_FTP, OVH FTP)
   OFF_FILE_SERVER(S3, S3 Scaleway)
+  OFF_APPLICATION_SERVER(OVH_BROWSERLESS, OVH Browserless)
 }
 
 package Laboratoires {
@@ -39,14 +41,15 @@ package Laboratoires {
 
 Utilisateurs --> UI
 API <--> EAP: authentification
-Utilisateurs --> Sentry: erreurs
+API --> Sentry: erreurs
+API --> Mattermost: notifications
 Utilisateurs --> Matomo: statistiques
 API --> Brevo: envoi mail
 API <-- OVH_EMAIL: reception analyses
 API <-- OVH_FTP: reception analyses
+API --> OVH_BROWSERLESS: generation des pdfs
 LIMS --> OVH_EMAIL: envoi analyses
 LIMS --> OVH_FTP: envoi analyses
 API <--> S3: stockage des documents
 API --> Entreprise
-API --> Adresse
 @enduml
