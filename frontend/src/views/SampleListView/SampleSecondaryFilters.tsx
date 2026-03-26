@@ -4,17 +4,17 @@ import Select from '@codegouvfr/react-dsfr/Select';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import { t } from 'i18next';
 import {
-  Context,
+  type Context,
   ContextLabels,
   ContextList
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   SampleCompliance,
   SampleComplianceLabels
 } from 'maestro-shared/schema/Sample/SampleCompliance';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { z } from 'zod';
+import type { z } from 'zod';
 import { DepartmentsSelect } from '../../components/DepartmentsSelect/DepartmentsSelect';
 import LaboratorySelect from '../../components/LaboratorySelect/LaboratorySelect';
 import { RegionsFilter } from '../../components/RegionsFilter/RegionsFilter';

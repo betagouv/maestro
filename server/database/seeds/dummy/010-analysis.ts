@@ -1,7 +1,7 @@
 import { Analysis } from '../../../repositories/analysisRepository';
 import { Samples } from '../../../repositories/sampleRepository';
 
-export const seed = async function () {
+export const seed = async () => {
   const sampleWithoutAnalysis = await Samples()
     .select('samples.id', 'sample_items.item_number')
     .join('sample_items', 'samples.id', 'sample_items.sample_id')

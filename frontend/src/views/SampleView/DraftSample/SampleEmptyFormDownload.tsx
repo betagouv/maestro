@@ -3,10 +3,11 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import {
   isCreatedPartialSample,
-  PartialSample,
-  PartialSampleToCreate
+  type PartialSample,
+  type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import type React from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import useWindowSize from 'src/hooks/useWindowSize';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
@@ -58,39 +59,37 @@ export const SampleEmptyFormDownload = ({ partialSample }: Props) => {
   );
 
   return (
-    <>
-      <div
-        className={clsx(
-          'd-flex-align-center',
-          'd-flex-justify-center',
-          'flex-grow-1'
-        )}
-      >
-        <span className={clsx(cx('fr-text--bold'))}>
-          Besoin d'un formulaire vierge ?
-        </span>
+    <div
+      className={clsx(
+        'd-flex-align-center',
+        'd-flex-justify-center',
+        'flex-grow-1'
+      )}
+    >
+      <span className={clsx(cx('fr-text--bold'))}>
+        Besoin d'un formulaire vierge ?
+      </span>
 
-        {!isMobile && <div className="border-middle"></div>}
-        <Button
-          onClick={async (e: React.MouseEvent) => {
-            e.preventDefault();
-            if (partialSample.status !== 'Draft') {
-              window.open(getSupportDocumentURL(partialSample.id), '_blank');
+      {!isMobile && <div className="border-middle"></div>}
+      <Button
+        onClick={async (e: React.MouseEvent) => {
+          e.preventDefault();
+          if (partialSample.status !== 'Draft') {
+            window.open(getSupportDocumentURL(partialSample.id), '_blank');
+          } else {
+            if (!isCreatedPartialSample(partialSample)) {
+              isSubmittingRef.current = true;
+              await createOrUpdateSample(partialSample);
             } else {
-              if (!isCreatedPartialSample(partialSample)) {
-                isSubmittingRef.current = true;
-                await createOrUpdateSample(partialSample);
-              } else {
-                setShouldProcessDownload(true);
-              }
+              setShouldProcessDownload(true);
             }
-          }}
-          priority="tertiary"
-          iconId="fr-icon-printer-fill"
-        >
-          Imprimer un formulaire vierge
-        </Button>
-      </div>
-    </>
+          }
+        }}
+        priority="tertiary"
+        iconId="fr-icon-printer-fill"
+      >
+        Imprimer un formulaire vierge
+      </Button>
+    </div>
   );
 };

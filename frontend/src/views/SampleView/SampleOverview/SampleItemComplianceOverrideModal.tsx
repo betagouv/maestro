@@ -1,6 +1,7 @@
-import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
-import React, { FunctionComponent, useContext, useState } from 'react';
+import type { createModal } from '@codegouvfr/react-dsfr/Modal';
+import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import type React from 'react';
+import { type FunctionComponent, useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import z from 'zod';
 import check from '../../../assets/illustrations/check.svg';

@@ -11,9 +11,9 @@ import {
   companiesIsRequired,
   departmentIsRequired,
   programmingPlanKindsIsRequired,
-  UserRefined
+  type UserRefined
 } from '../User/User';
-import { isNationalRole, UserRole } from '../User/UserRole';
+import { isNationalRole, type UserRole } from '../User/UserRole';
 import { SampleCompliance } from './SampleCompliance';
 import { SampleStatus } from './SampleStatus';
 

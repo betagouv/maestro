@@ -6,13 +6,13 @@ import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { isNil } from 'lodash-es';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   getItemStatus,
   getNonCompliantCopies,
   isItemAchieved,
   isItemCompliant,
-  SampleItem
+  type SampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { Link, useSearchParams } from 'react-router';

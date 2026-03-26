@@ -1,6 +1,6 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 
-import { SampleStep } from 'maestro-shared/schema/Sample/SampleStep';
+import type { SampleStep } from 'maestro-shared/schema/Sample/SampleStep';
 
 export const up = async (knex: Knex) => {
   const result: {
@@ -32,4 +32,4 @@ export const up = async (knex: Knex) => {
   }
 };
 
-export const down = async (knex: Knex) => {};
+export const down = async (_knex: Knex) => {};

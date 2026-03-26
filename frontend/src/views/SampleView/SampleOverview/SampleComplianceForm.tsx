@@ -1,7 +1,7 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import {
+import type {
   SampleChecked,
   SampleComplianceData
 } from 'maestro-shared/schema/Sample/Sample';

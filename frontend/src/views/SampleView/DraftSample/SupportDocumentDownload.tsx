@@ -1,13 +1,14 @@
-import Button, { ButtonProps } from '@codegouvfr/react-dsfr/Button';
+import Button, { type ButtonProps } from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { Brand } from 'maestro-shared/constants';
 import {
   isCreatedPartialSample,
-  PartialSample,
-  PartialSampleToCreate
+  type PartialSample,
+  type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import React, { useContext } from 'react';
+import type React from 'react';
+import { useContext } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import useWindowSize from 'src/hooks/useWindowSize';
 import { useAnalytics } from '../../../hooks/useAnalytics';
