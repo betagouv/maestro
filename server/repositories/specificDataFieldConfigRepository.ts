@@ -1,9 +1,9 @@
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { CommemoratifValueSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { CommemoratifValueSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import {
   FieldInputType,
-  PlanKindFieldConfig,
-  SachaFieldConfig
+  type PlanKindFieldConfig,
+  type SachaFieldConfig
 } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { kysely } from './kysely';
 

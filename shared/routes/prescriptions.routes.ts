@@ -16,7 +16,7 @@ import {
   PrescriptionUpdate
 } from '../schema/Prescription/Prescription';
 import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
-import { SubRoutes } from './routes';
+import type { SubRoutes } from './routes';
 
 export const prescriptionsRoutes = {
   '/prescriptions': {

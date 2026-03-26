@@ -1,8 +1,8 @@
-import { FrIconClassName } from '@codegouvfr/react-dsfr';
+import type { FrIconClassName } from '@codegouvfr/react-dsfr';
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { BadgeProps } from '@codegouvfr/react-dsfr/src/Badge';
+import type { BadgeProps } from '@codegouvfr/react-dsfr/src/Badge';
 import Tile from '@codegouvfr/react-dsfr/Tile';
 import { Badge as MuiBadge } from '@mui/material';
 import clsx from 'clsx';
@@ -11,9 +11,9 @@ import { fr } from 'date-fns/locale';
 import { capitalize } from 'lodash-es';
 import { Brand } from 'maestro-shared/constants';
 import { Regions } from 'maestro-shared/referential/Region';
-import { Notification } from 'maestro-shared/schema/Notification/Notification';
+import type { Notification } from 'maestro-shared/schema/Notification/Notification';
 import {
-  NotificationCategory,
+  type NotificationCategory,
   NotificationCategoryTitles
 } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { formatDate } from 'maestro-shared/utils/date';

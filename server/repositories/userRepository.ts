@@ -1,4 +1,4 @@
-import { Expression, ExpressionBuilder, sql } from 'kysely';
+import { type Expression, type ExpressionBuilder, sql } from 'kysely';
 import { jsonArrayFrom } from 'kysely/helpers/postgres';
 import { isNil } from 'lodash-es';
 import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
@@ -8,7 +8,7 @@ import { toArray } from 'maestro-shared/utils/utils';
 import z from 'zod';
 import { knexInstance as db } from './db';
 import { executeTransaction, kysely } from './kysely';
-import { DB, toSqlArray } from './kysely.type';
+import { type DB, toSqlArray } from './kysely.type';
 
 export const usersTable = 'users';
 

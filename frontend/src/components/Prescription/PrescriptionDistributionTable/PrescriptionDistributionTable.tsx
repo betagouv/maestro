@@ -1,12 +1,16 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
-import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
-  LocalPrescription,
+  type Region,
+  RegionList,
+  Regions
+} from 'maestro-shared/referential/Region';
+import {
+  type LocalPrescription,
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
 import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from '../../../hooks/useAuthentication';
@@ -34,7 +38,7 @@ const PrescriptionDistributionTable = ({
   const { hasUserLocalPrescriptionPermission } = useAuthentication();
 
   if (!regionalPrescriptions) {
-    return <></>;
+    return null;
   }
 
   return (

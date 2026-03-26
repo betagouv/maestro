@@ -1,10 +1,10 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Autocomplete } from '@mui/material';
 import clsx from 'clsx';
-import * as React from 'react';
-import { ReactNode, useEffect } from 'react';
+import type * as React from 'react';
+import { type ReactNode, useEffect } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
-import { AppSelectOption } from 'src/components/_app/AppSelect/AppSelectOption';
+import type { AppSelectOption } from 'src/components/_app/AppSelect/AppSelectOption';
 
 interface Props {
   options: AppSelectOption[];
@@ -69,6 +69,7 @@ const AppSearchInput = ({
         )
       )}
     >
+      {/** biome-ignore lint/a11y/noLabelWithoutControl: TODO */}
       <label className={cx('fr-label')}>
         {label && (
           <>

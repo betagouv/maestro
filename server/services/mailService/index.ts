@@ -1,7 +1,7 @@
-import config, { MailProvider } from '../../utils/config';
+import config, { type MailProvider } from '../../utils/config';
 import createBrevoService from './brevoService';
 import { createFakeMailService } from './fakeService';
-import { MailService } from './mailService';
+import type { MailService } from './mailService';
 import createNodemailerService from './nodemailerService';
 
 const serviceByProvider = {

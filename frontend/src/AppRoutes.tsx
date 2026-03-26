@@ -1,9 +1,9 @@
 import {
-  AppRouteKeys,
-  AppRouteLink,
+  type AppRouteKeys,
+  type AppRouteLink,
   AppRouteLinks
 } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import { FunctionComponent } from 'react';
+import type { FunctionComponent } from 'react';
 import { Navigate } from 'react-router';
 import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from './hooks/useAuthentication';

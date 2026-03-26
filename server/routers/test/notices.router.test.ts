@@ -1,6 +1,6 @@
-import { constants } from 'http2';
-import { Notice } from 'maestro-shared/schema/Notice/Notice';
-import { UserRefined } from 'maestro-shared/schema/User/User';
+import { constants } from 'node:http2';
+import type { Notice } from 'maestro-shared/schema/Notice/Notice';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   AdminFixture,
   NationalCoordinator,

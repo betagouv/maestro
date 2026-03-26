@@ -2,7 +2,7 @@ import express from 'express';
 import { authUnprotectedRouter } from '../controllers/authController';
 import { noticesUnprotectedRouter } from '../controllers/noticeController';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
-import { generateRoutes, UnprotectedSubRouter } from './routes.type';
+import { generateRoutes, type UnprotectedSubRouter } from './routes.type';
 
 const unprotectedRouter = express.Router();
 unprotectedRouter.use(jwtCheck(false));

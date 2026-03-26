@@ -1,5 +1,5 @@
-import { ResidueKind } from '../../schema/Analysis/Residue/ResidueKind';
-import { SSD2Id } from './SSD2Id';
+import type { ResidueKind } from '../../schema/Analysis/Residue/ResidueKind';
+import type { SSD2Id } from './SSD2Id';
 
 export const SSD2Hierarchy: { [reference in SSD2Id]?: SSD2Id[] } =
   // ----- ne pas supprimer cette ligne : début

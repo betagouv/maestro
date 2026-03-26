@@ -34,9 +34,7 @@ const SavedAlert = ({ isOpen, isDraft }: Props) => {
         </>
       }
     ></Alert>
-  ) : (
-    <></>
-  );
+  ) : null;
 };
 
 export default SavedAlert;

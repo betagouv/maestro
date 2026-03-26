@@ -4,7 +4,7 @@ import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
 import { ProgrammingPlanKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
-  ProgrammingPlanChecked,
+  type ProgrammingPlanChecked,
   ProgrammingPlanSort
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useEffect, useState } from 'react';
@@ -49,7 +49,7 @@ const DashboardView = () => {
   }, [validatedProgrammingPlans]);
 
   if (!user) {
-    return <></>;
+    return null;
   }
 
   return (

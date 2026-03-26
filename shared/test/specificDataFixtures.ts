@@ -1,4 +1,4 @@
-import { PlanKindFieldConfig } from '../schema/SpecificData/PlanKindFieldConfig';
+import type { PlanKindFieldConfig } from '../schema/SpecificData/PlanKindFieldConfig';
 
 export const PPVFieldConfigs: PlanKindFieldConfig[] = [
   {

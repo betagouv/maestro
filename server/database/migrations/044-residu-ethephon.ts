@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 
 export const up = async (knex: Knex) => {
   await knex.raw(`
@@ -8,4 +8,4 @@ export const up = async (knex: Knex) => {
   `);
 };
 
-export const down = async (knex: Knex) => {};
+export const down = async (_knex: Knex) => {};

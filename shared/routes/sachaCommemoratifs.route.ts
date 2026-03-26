@@ -1,6 +1,6 @@
 import z from 'zod';
 import { SachaCommemoratifRecord } from '../schema/SachaCommemoratif/SachaCommemoratif';
-import { SubRoutes } from './routes';
+import type { SubRoutes } from './routes';
 
 export const sachaCommemoratifsRoute = {
   '/sacha/commemoratifs': {

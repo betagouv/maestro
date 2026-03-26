@@ -1,4 +1,4 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import request from 'supertest';
 import { describe, expect, test, vi } from 'vitest';
 import { createServer } from './server';

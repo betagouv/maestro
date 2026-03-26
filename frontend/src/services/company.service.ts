@@ -1,8 +1,8 @@
 import { isNil, omitBy } from 'lodash-es';
-import { Department } from 'maestro-shared/referential/Department';
+import type { Department } from 'maestro-shared/referential/Department';
 import { Company } from 'maestro-shared/schema/Company/Company';
 import { CompanySearchResult } from 'maestro-shared/schema/Company/CompanySearchResult';
-import { FindCompanyOptions } from 'maestro-shared/schema/Company/FindCompanyOptions';
+import type { FindCompanyOptions } from 'maestro-shared/schema/Company/FindCompanyOptions';
 import { api } from 'src/services/api.service';
 
 const companyApi = api.injectEndpoints({

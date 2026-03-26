@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
-import { Region, Regions } from 'maestro-shared/referential/Region';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import { type Region, Regions } from 'maestro-shared/referential/Region';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import { genCreatedSample } from 'maestro-shared/test/sampleFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
@@ -20,7 +20,7 @@ import {
   oignons
 } from './005-prescriptions-ppv';
 
-export const seed = async function () {
+export const seed = async () => {
   const validatedProgrammingPlan = await ProgrammingPlans()
     .where({ id: PPVValidatedProgrammingPlanFixture.id })
     .first();
@@ -155,8 +155,7 @@ export const seed = async function () {
 
   const sampleItems = samples
     .flat()
-    .map((sample: SampleChecked) => sample.items)
-    .flat();
+    .flatMap((sample: SampleChecked) => sample.items);
 
   for (const sample of samples.flat()) {
     await sampleRepository.insert(sample);

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CreatedSampleData } from '../Sample/Sample';
+import type { CreatedSampleData } from '../Sample/Sample';
 import { getSampleItemReference } from '../Sample/SampleItem';
 
 export const DocumentKind = z.enum([

@@ -1,17 +1,16 @@
 import { intersection, isNil } from 'lodash-es';
 import { v4 as uuidv4 } from 'uuid';
-import { RefinementCtx, z } from 'zod';
+import { type RefinementCtx, z } from 'zod';
 import { Department } from '../../referential/Department';
 import { Region, RegionList, Regions } from '../../referential/Region';
+import type { Nullable } from '../../utils/typescript';
+import { superRefineSchema } from '../../utils/zod';
+import { Company } from '../Company/Company';
 import {
   ProgrammingPlanKind,
   ProgrammingPlanKindWithSachaList
 } from '../ProgrammingPlan/ProgrammingPlanKind';
-import { UserPermission } from './UserPermission';
-
-import { Nullable } from '../../utils/typescript';
-import { superRefineSchema } from '../../utils/zod';
-import { Company } from '../Company/Company';
+import type { UserPermission } from './UserPermission';
 import {
   canHaveDepartment,
   isDepartmentalRole,

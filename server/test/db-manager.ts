@@ -1,6 +1,6 @@
-import knex, { Knex } from 'knex';
-import { cloneDeep } from 'lodash-es';
 import { spawnSync } from 'node:child_process';
+import knex, { type Knex } from 'knex';
+import { cloneDeep } from 'lodash-es';
 import { Client } from 'pg';
 import defaultKnexConfig from '../knexfile';
 import { setKnexInstance } from '../repositories/db';

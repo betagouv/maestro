@@ -1,5 +1,5 @@
+import { constants } from 'node:http2';
 import express from 'express';
-import { constants } from 'http2';
 import request from 'supertest';
 import { describe, test } from 'vitest';
 import config from '../../utils/config';

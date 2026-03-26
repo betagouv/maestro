@@ -1,7 +1,7 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { FunctionComponent, useContext, useMemo } from 'react';
+import { type FunctionComponent, useContext, useMemo } from 'react';
 import { ApiClientContext } from '../../services/apiClient';
 import { CommemoratifSigleForm } from './CommemoratifSigleForm';
 import { SachaCommemoratifsUpload } from './SachaCommemoratifsUpload';

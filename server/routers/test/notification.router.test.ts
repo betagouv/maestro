@@ -1,4 +1,4 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import { UserBase } from 'maestro-shared/schema/User/User';
 import { genNotification } from 'maestro-shared/test/notificationFixtures';
 import {

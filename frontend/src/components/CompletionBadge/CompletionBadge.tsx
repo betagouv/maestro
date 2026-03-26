@@ -1,8 +1,8 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
-import { Region } from 'maestro-shared/referential/Region';
+import type { Region } from 'maestro-shared/referential/Region';
 import {
   getCompletionRate,
-  LocalPrescription
+  type LocalPrescription
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 
 interface Props {

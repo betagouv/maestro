@@ -5,9 +5,9 @@ import { sumBy } from 'lodash-es';
 import { getCompletionRate } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
   ContextLabels,
-  ProgrammingPlanContext
+  type ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext } from 'react';
 import { pluralize } from 'src/utils/stringUtils';
 import ProgrammingPlanMap from 'src/views/DashboardView/ProgrammingPlanMap';

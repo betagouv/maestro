@@ -1,8 +1,8 @@
-import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
+import type { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
 import {
   UserRefined,
-  UserToCreateRefined,
-  UserToUpdateRefined
+  type UserToCreateRefined,
+  type UserToUpdateRefined
 } from 'maestro-shared/schema/User/User';
 import { api } from 'src/services/api.service';
 

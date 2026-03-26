@@ -1,4 +1,4 @@
-import { FunctionComponent } from 'react';
+import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 
 type Props = {
@@ -44,14 +44,12 @@ export const CircleProgress: FunctionComponent<Props> = ({
       const length = Math.floor((step / total) * circumference);
       const offset =
         index === 0 ? 0 : acc[index - 1].offset - acc[index - 1].length;
-      return [
-        ...acc,
-        {
-          length: Math.abs(offset) >= circumference ? 0 : length,
-          offset,
-          color: _colors[index % _colors.length]
-        }
-      ];
+      acc[index] = {
+        length: Math.abs(offset) >= circumference ? 0 : length,
+        offset,
+        color: _colors[index % _colors.length]
+      };
+      return acc;
     }, [] as Segment[]);
   }
 
@@ -84,6 +82,7 @@ export const CircleProgress: FunctionComponent<Props> = ({
         height={sizePx}
         viewBox={`0 0 ${(radius + width) * 2} ${(radius + width) * 2}`}
         style={{ transform: 'rotate(-90deg)' }}
+        aria-hidden={'true'}
       >
         <circle
           r={radius}

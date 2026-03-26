@@ -2,7 +2,7 @@ import { groupBy } from 'lodash-es';
 import { maestroDateRefined } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 import { ExtractBadFormatError, ExtractError } from '../extractError';
-import {
+import type {
   ExportAnalysis,
   ExportDataFromEmail,
   ExportResultNonQuantifiable,
@@ -25,7 +25,7 @@ export const capinovCodeEchantillonValidator = z
     }
     return {
       reference: match[1],
-      copyNumber: match[2] ? Number.parseInt(match[2]) : 1
+      copyNumber: match[2] ? Number.parseInt(match[2], 10) : 1
     };
   });
 // Visible for testing

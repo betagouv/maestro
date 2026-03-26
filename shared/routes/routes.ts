@@ -1,5 +1,5 @@
-import { ZodObject, ZodType } from 'zod';
-import { UserPermission } from '../schema/User/UserPermission';
+import type { ZodObject, ZodType } from 'zod';
+import type { UserPermission } from '../schema/User/UserPermission';
 import { analysisRoutes } from './analysis.routes';
 import { authRoutes } from './auth.routes';
 import { companiesRoutes } from './companies.routes';

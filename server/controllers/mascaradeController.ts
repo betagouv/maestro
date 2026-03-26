@@ -1,11 +1,11 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import { isNil } from 'lodash-es';
 import {
   COOKIE_MAESTRO_MASCARADE,
   COOKIE_MAESTRO_USER_ROLE
 } from 'maestro-shared/constants';
 import { userRepository } from '../repositories/userRepository';
-import { ProtectedSubRouter } from '../routers/routes.type';
+import type { ProtectedSubRouter } from '../routers/routes.type';
 import config from '../utils/config';
 
 export const mascaradeRouter = {

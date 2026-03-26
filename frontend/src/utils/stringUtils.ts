@@ -27,7 +27,7 @@ export const cropFileName = (fileName: string, maxLength: number): string => {
 
   if (lastDotIndex === -1) {
     return fileName.length > maxLength
-      ? fileName.slice(0, maxLength - 3) + '...'
+      ? `${fileName.slice(0, maxLength - 3)}...`
       : fileName;
   }
 
@@ -39,9 +39,9 @@ export const cropFileName = (fileName: string, maxLength: number): string => {
   }
 
   if (extension.length >= maxLength) {
-    return '...' + extension.slice(extension.length - maxLength + 3);
+    return `...${extension.slice(extension.length - maxLength + 3)}`;
   }
 
   const nameMaxLength = maxLength - extension.length - 3;
-  return name.slice(0, nameMaxLength) + '...' + extension;
+  return `${name.slice(0, nameMaxLength)}...${extension}`;
 };

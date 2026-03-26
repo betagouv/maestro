@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { isDefined } from '../../utils/utils';
 import { Geolocation } from '../Geolocation/Geolocation';
 import { CompanyKind } from './CompanyKind';
-import { CompanySearchResult } from './CompanySearchResult';
+import type { CompanySearchResult } from './CompanySearchResult';
 export const Company = z.object(
   {
     siret: z.string(),

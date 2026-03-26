@@ -1,5 +1,5 @@
 import { kysely } from './kysely';
-import { SachaConf } from './kysely.type';
+import type { SachaConf } from './kysely.type';
 
 const get = async (trx = kysely): Promise<SachaConf> => {
   return await trx

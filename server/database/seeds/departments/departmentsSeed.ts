@@ -1,6 +1,6 @@
 import { sql } from 'kysely';
 import {
-  Department,
+  type Department,
   DepartmentList
 } from 'maestro-shared/referential/Department';
 import { z } from 'zod';

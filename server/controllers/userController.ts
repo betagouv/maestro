@@ -1,6 +1,6 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import { intersection } from 'lodash-es';
-import { Department } from 'maestro-shared/referential/Department';
+import type { Department } from 'maestro-shared/referential/Department';
 import {
   companiesIsRequired,
   departmentIsRequired,
@@ -9,7 +9,7 @@ import {
 } from 'maestro-shared/schema/User/User';
 import { isNationalRole } from 'maestro-shared/schema/User/UserRole';
 import { userRepository } from '../repositories/userRepository';
-import { ProtectedSubRouter } from '../routers/routes.type';
+import type { ProtectedSubRouter } from '../routers/routes.type';
 
 export const usersRouter = {
   '/users/:userId': {

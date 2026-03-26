@@ -22,7 +22,7 @@ import {
   UserRoleSorted
 } from 'maestro-shared/schema/User/UserRole';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
-import { FunctionComponent, useEffect, useMemo, useState } from 'react';
+import { type FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { z } from 'zod';
 import { RegionsFilter } from '../../../components/RegionsFilter/RegionsFilter';

@@ -6,19 +6,20 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { isNil } from 'lodash-es';
-import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import {
   isCreatedPartialSample,
   SampleBase,
-  SampleChecked,
+  type SampleChecked,
   SampleOwnerData,
-  sampleSendCheck,
-  SampleToCreate
+  SampleToCreate,
+  sampleSendCheck
 } from 'maestro-shared/schema/Sample/Sample';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { checkSchema } from 'maestro-shared/utils/zod';
-import React, {
-  FunctionComponent,
+import type React from 'react';
+import {
+  type FunctionComponent,
   useContext,
   useEffect,
   useMemo,
@@ -134,24 +135,20 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
     sampleSendCheck
   );
 
-  useEffect(
-    () => {
-      if (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading) {
-        isSubmittingRef.current = false;
+  useEffect(() => {
+    if (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading) {
+      isSubmittingRef.current = false;
 
-        if (createOrUpdateSampleCall.isSuccess) {
-          trackEvent('sample', 'submit_Sent', sample.id);
-          navigateToSample(sample.id);
-        }
+      if (createOrUpdateSampleCall.isSuccess) {
+        trackEvent('sample', 'submit_Sent', sample.id);
+        navigateToSample(sample.id);
       }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      createOrUpdateSampleCall.isSuccess,
-      createOrUpdateSampleCall.isLoading,
-      sample.id
-    ]
-  );
+    }
+  }, [
+    createOrUpdateSampleCall.isSuccess,
+    createOrUpdateSampleCall.isLoading,
+    sample.id
+  ]);
 
   const submit = async () => {
     await form.validate(async () => {

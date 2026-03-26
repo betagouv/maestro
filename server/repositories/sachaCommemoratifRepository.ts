@@ -1,9 +1,9 @@
-import {
+import type {
   SachaCommemoratif,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import { executeTransaction, kysely } from './kysely';
-import { KyselyMaestro } from './kysely.type';
+import type { KyselyMaestro } from './kysely.type';
 
 const findAll = async (): Promise<SachaCommemoratifRecord> => {
   const commemoratifs = await kysely

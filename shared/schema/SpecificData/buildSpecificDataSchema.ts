@@ -1,6 +1,6 @@
-import { z, ZodTypeAny } from 'zod';
+import { type ZodTypeAny, z } from 'zod';
 import { assertUnreachable } from '../../utils/typescript';
-import { PlanKindFieldConfig } from './PlanKindFieldConfig';
+import type { PlanKindFieldConfig } from './PlanKindFieldConfig';
 import { UnknownValue } from './SpecificData';
 
 export const buildSpecificDataSchema = (

@@ -1,6 +1,6 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 import { isArray, isNil, omit, omitBy, uniq } from 'lodash-es';
-import {
+import type {
   FindPrescriptionOptions,
   PrescriptionOptionsInclude
 } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';

@@ -7,15 +7,20 @@ import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
-import { Region, Regions, RegionSort } from 'maestro-shared/referential/Region';
-import { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  type Region,
+  RegionSort,
+  Regions
+} from 'maestro-shared/referential/Region';
+import type { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import {
   NextProgrammingPlanStatus,
-  ProgrammingPlanStatus
+  type ProgrammingPlanStatus
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { isDefined } from 'maestro-shared/utils/utils';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import type React from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch } from '../../../hooks/useStore';
 import { api } from '../../../services/api.service';
@@ -75,7 +80,7 @@ const ProgrammingPlanNotificationNationalToRegional = ({
   useEffect(() => {
     setStatus('InProgress');
     setRegionsToNotify(getRegionsByStatus('InProgress'));
-  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();

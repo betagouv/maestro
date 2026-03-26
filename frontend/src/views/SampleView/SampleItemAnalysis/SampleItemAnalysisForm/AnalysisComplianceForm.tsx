@@ -2,15 +2,15 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import {
   Analysis,
-  PartialAnalysis
+  type PartialAnalysis
 } from 'maestro-shared/schema/Analysis/Analysis';
-import { FunctionComponent } from 'react';
+import type { FunctionComponent } from 'react';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { assert, type Equals } from 'tsafe';
 import check from '../../../../assets/illustrations/check.svg';
 import close from '../../../../assets/illustrations/close.svg';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
-import { UseForm } from '../../../../hooks/useForm';
+import type { UseForm } from '../../../../hooks/useForm';
 
 type Props = {
   partialAnalysis: Pick<PartialAnalysis, 'compliance' | 'notesOnCompliance'>;
@@ -21,7 +21,6 @@ type Props = {
   }: Pick<PartialAnalysis, 'compliance' | 'notesOnCompliance'>) => void;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Form = Analysis.pick({
   compliance: true,
   notesOnCompliance: true

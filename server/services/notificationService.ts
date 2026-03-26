@@ -1,17 +1,17 @@
 import { Brand } from 'maestro-shared/constants';
-import { Notification } from 'maestro-shared/schema/Notification/Notification';
+import type { Notification } from 'maestro-shared/schema/Notification/Notification';
 import {
-  NotificationCategory,
+  type NotificationCategory,
   NotificationCategoryTitles
 } from 'maestro-shared/schema/Notification/NotificationCategory';
-import { UserRefined } from 'maestro-shared/schema/User/User';
-import { OmitDistributive } from 'maestro-shared/utils/typescript';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
+import type { OmitDistributive } from 'maestro-shared/utils/typescript';
 import { v4 as uuidv4 } from 'uuid';
-import { z } from 'zod';
+import type { z } from 'zod';
 import notificationRepository from '../repositories/notificationRepository';
 import config from '../utils/config';
 import { mailService } from './mailService';
-import { TemplateName, Templates } from './mailService/mailService';
+import type { TemplateName, Templates } from './mailService/mailService';
 import { mattermostService } from './mattermostService';
 
 const categoryToEmailTemplate = {

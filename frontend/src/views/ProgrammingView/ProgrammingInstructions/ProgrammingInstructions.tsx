@@ -3,8 +3,8 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
-import { Region } from 'maestro-shared/referential/Region';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { Region } from 'maestro-shared/referential/Region';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useMemo } from 'react';
 import alert from '../../../assets/illustrations/alert.svg';
 import check from '../../../assets/illustrations/check.svg';
@@ -182,7 +182,7 @@ const ProgrammingInstructions = ({ programmingPlan }: Props) => {
   }
 
   if (!instructionSteps) {
-    return <></>;
+    return null;
   }
 
   return (

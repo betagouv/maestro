@@ -1,9 +1,9 @@
+import { constants } from 'node:http2';
 import { fakerFR } from '@faker-js/faker';
-import { constants } from 'http2';
-import { Insertable, Selectable } from 'kysely';
+import type { Insertable, Selectable } from 'kysely';
 import { COOKIE_MAESTRO_ACCESS_TOKEN } from 'maestro-shared/constants';
-import { Region } from 'maestro-shared/referential/Region';
-import { UserRefined } from 'maestro-shared/schema/User/User';
+import type { Region } from 'maestro-shared/referential/Region';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   AdminFixture,
   genUser,
@@ -19,7 +19,7 @@ import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { describe, expect, test } from 'vitest';
-import { DB } from '../../repositories/kysely.type';
+import type { DB } from '../../repositories/kysely.type';
 import { createServer } from '../../server';
 import { accessTokenTest, tokenProvider } from '../../test/testUtils';
 

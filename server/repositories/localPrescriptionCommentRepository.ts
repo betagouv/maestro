@@ -1,4 +1,4 @@
-import { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
+import type { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { knexInstance as db } from './db';
 
 export const localPrescriptionCommentsTable = 'local_prescription_comments';

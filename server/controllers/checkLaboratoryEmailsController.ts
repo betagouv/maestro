@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { constants } from 'http2';
+import { constants } from 'node:http2';
+import type { Request, Response } from 'express';
 import { checkEmails } from '../services/imapService';
 import config from '../utils/config';
 

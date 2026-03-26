@@ -1,15 +1,16 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
+import type { createModal } from '@codegouvfr/react-dsfr/Modal';
+import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
-import { FileType } from 'maestro-shared/schema/File/FileType';
+import type { FileType } from 'maestro-shared/schema/File/FileType';
 import { useContext, useEffect, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { z } from 'zod';
 import AppUpload from '../../../../components/_app/AppUpload/AppUpload';
 import { useForm } from '../../../../hooks/useForm';
 import { ApiClientContext } from '../../../../services/apiClient';
+
 interface Props {
   modal: ReturnType<typeof createModal>;
   sampleId: string;
@@ -92,7 +93,7 @@ export const AnalysisDocumentModal = ({
         modal.close();
       });
     }
-  }, [fileInput]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [fileInput]);
 
   const Form = z.object({
     fileInput: FileInput(acceptFileTypes).nullish()
@@ -114,29 +115,27 @@ export const AnalysisDocumentModal = ({
         }
       ]}
     >
-      <>
-        <AppUpload
-          label="Ajouter le rapport d'analyse"
-          nativeInputProps={{
-            onChange: (event: any) => selectFile(event)
-          }}
-          disabled={isCreateLoading}
-          acceptFileTypes={acceptFileTypes}
-          inputForm={form}
-          inputKey="fileInput"
-          whenValid="fichier valide"
-          required
-        />
+      <AppUpload
+        label="Ajouter le rapport d'analyse"
+        nativeInputProps={{
+          onChange: (event: any) => selectFile(event)
+        }}
+        disabled={isCreateLoading}
+        acceptFileTypes={acceptFileTypes}
+        inputForm={form}
+        inputKey="fileInput"
+        whenValid="fichier valide"
+        required
+      />
 
-        {isCreateError && (
-          <Alert
-            className={cx('fr-my-2w')}
-            description={<>Le dépôt de fichier a échoué.</>}
-            severity="error"
-            small
-          />
-        )}
-      </>
+      {isCreateError && (
+        <Alert
+          className={cx('fr-my-2w')}
+          description={<>Le dépôt de fichier a échoué.</>}
+          severity="error"
+          small
+        />
+      )}
     </modal.Component>
   );
 };

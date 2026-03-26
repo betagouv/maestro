@@ -5,9 +5,9 @@ import clsx from 'clsx';
 import { t } from 'i18next';
 import { SSD2IdSort } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   AdditionalSubstanceKindList,
   SubstanceKindLabels

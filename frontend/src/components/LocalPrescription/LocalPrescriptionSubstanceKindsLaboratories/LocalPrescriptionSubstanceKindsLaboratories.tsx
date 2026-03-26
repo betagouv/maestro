@@ -1,6 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import {
-  SubstanceKindLaboratory,
+  type SubstanceKindLaboratory,
   SubstanceKindLaboratorySort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';

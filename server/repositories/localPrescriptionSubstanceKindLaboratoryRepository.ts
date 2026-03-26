@@ -1,8 +1,8 @@
 import { Department } from 'maestro-shared/referential/Department';
-import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import {
   LocalPrescriptionSubstanceKindLaboratory,
-  SubstanceKindLaboratory
+  type SubstanceKindLaboratory
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { z } from 'zod';
 import { knexInstance as db } from './db';

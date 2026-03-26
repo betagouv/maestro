@@ -1,9 +1,9 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
-import { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import type { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import {
-  SpecificData,
+  type SpecificData,
   UnknownValue,
   UnknownValueLabel
 } from 'maestro-shared/schema/SpecificData/SpecificData';
@@ -11,11 +11,11 @@ import { Fragment, useMemo } from 'react';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
-import { ZodObject } from 'zod';
+import type { ZodObject } from 'zod';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
-import { UseForm } from '../../../../hooks/useForm';
-import { SpecificDataFormInputProps } from './SpecificDataForm';
+import type { UseForm } from '../../../../hooks/useForm';
+import type { SpecificDataFormInputProps } from './SpecificDataForm';
 
 type Props<T extends ZodObject, U extends UseForm<T>> = {
   specificData: SpecificData;

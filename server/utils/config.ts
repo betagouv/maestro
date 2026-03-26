@@ -1,6 +1,6 @@
+import path from 'node:path';
 import dotenv from 'dotenv';
-import path from 'path';
-import { z, ZodType } from 'zod';
+import { type ZodType, z } from 'zod';
 import type { NoUndefined } from 'zod/v4/core/util';
 
 if (!process.env.API_PORT) {

@@ -3,10 +3,10 @@ import {
   COOKIE_MAESTRO_ACCESS_TOKEN,
   COOKIE_MAESTRO_USER_ROLE
 } from 'maestro-shared/constants';
-import { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
-import { UserRefined } from 'maestro-shared/schema/User/User';
-import { UserRole } from 'maestro-shared/schema/User/UserRole';
-import { Plugin } from 'superagent';
+import type { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
+import type { UserRole } from 'maestro-shared/schema/User/UserRole';
+import type { Plugin } from 'superagent';
 import config from '../utils/config';
 
 export const accessTokenTest = (payload: TokenPayload) =>

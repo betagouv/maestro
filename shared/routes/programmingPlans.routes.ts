@@ -2,10 +2,10 @@ import z from 'zod';
 import { FindProgrammingPlanOptions } from '../schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanLocalStatus } from '../schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
-import { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatus } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import { PlanKindFieldConfig } from '../schema/SpecificData/PlanKindFieldConfig';
-import { SubRoutes } from './routes';
+import type { SubRoutes } from './routes';
 
 export const programmingPlansRoutes = {
   '/programming-plans': {

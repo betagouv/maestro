@@ -1,4 +1,4 @@
-import { Matrix } from './Matrix';
+import type { Matrix } from './Matrix';
 
 export const MatrixLabels = {
   A00YZ: 'Houblon',

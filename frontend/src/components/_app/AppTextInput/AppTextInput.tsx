@@ -1,9 +1,9 @@
 import Input from '@codegouvfr/react-dsfr/Input';
 import { isNil } from 'lodash-es';
-import { ComponentPropsWithoutRef, InputHTMLAttributes } from 'react';
+import type { ComponentPropsWithoutRef, InputHTMLAttributes } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
-import { UseForm } from 'src/hooks/useForm';
-import { z, ZodObject } from 'zod';
+import type { UseForm } from 'src/hooks/useForm';
+import type { ZodObject, z } from 'zod';
 
 type AppTextInputProps<T extends ZodObject, U extends UseForm<T>> = Partial<
   Pick<

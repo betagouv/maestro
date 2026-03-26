@@ -9,7 +9,7 @@ import clsx from 'clsx';
 import { getResidueKind } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 import {
-  ResidueKind,
+  type ResidueKind,
   ResidueKindLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { useContext, useEffect, useMemo, useState } from 'react';

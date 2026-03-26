@@ -9,7 +9,7 @@ import { LocalPrescriptions } from '../../../repositories/localPrescriptionRepos
 import { Prescriptions } from '../../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
 
-export const seed = async function () {
+export const seed = async () => {
   const validatedProgrammingPlan = await ProgrammingPlans()
     .where({ id: DAOAInProgressProgrammingPlanFixture.id })
     .first();

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MatrixKind } from '../../referential/Matrix/MatrixKind';
+import type { MatrixKind } from '../../referential/Matrix/MatrixKind';
 
 export const CompanyKind = z.enum([
   'POULTRY_SLAUGHTERHOUSE',

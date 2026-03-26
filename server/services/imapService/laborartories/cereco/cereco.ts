@@ -1,9 +1,9 @@
-import XLSX, { WorkBook } from '@e965/xlsx';
+import XLSX, { type WorkBook } from '@e965/xlsx';
 import { format } from 'date-fns';
 import { maestroDateRefined } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 import { ExtractBadFormatError, ExtractError } from '../../extractError';
-import {
+import type {
   ExportAnalysis,
   ExportDataFromEmail,
   ExportDataSubstance,
@@ -23,7 +23,7 @@ export const cerecoRefValidator = z.string().transform((l, ctx) => {
   }
   return {
     reference: match[1],
-    copyNumber: Number.parseInt(match[2])
+    copyNumber: Number.parseInt(match[2], 10)
   };
 });
 const fileValidator = z.array(

@@ -1,8 +1,8 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { Geolocation } from 'maestro-shared/schema/Geolocation/Geolocation';
+import type { Geolocation } from 'maestro-shared/schema/Geolocation/Geolocation';
 import { useMemo, useState } from 'react';
-import { MapMouseEvent, MarkerDragEvent } from 'react-map-gl/maplibre';
+import type { MapMouseEvent, MarkerDragEvent } from 'react-map-gl/maplibre';
 import AddressSearch from 'src/components/AddressSearch/AddressSearch';
 import { SampleMap } from '../../../../components/Sample/SampleMap/SampleMap';
 

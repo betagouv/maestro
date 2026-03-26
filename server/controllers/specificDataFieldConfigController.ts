@@ -1,7 +1,7 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import { sampleSpecificDataRepository } from '../repositories/sampleSpecificDataRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
-import { ProtectedSubRouter } from '../routers/routes.type';
+import type { ProtectedSubRouter } from '../routers/routes.type';
 
 export const specificDataFieldConfigRouter = {
   '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields': {

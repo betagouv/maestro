@@ -5,7 +5,7 @@ import {
   LaboratoryAnalyticalCompetence,
   LaboratoryAnalyticalCompetenceToSave
 } from '../schema/Laboratory/LaboratoryAnalyticalCompetence';
-import { SubRoutes } from './routes';
+import type { SubRoutes } from './routes';
 
 export const laboratoriesRoutes = {
   '/laboratories': {

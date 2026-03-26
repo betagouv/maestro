@@ -1,9 +1,9 @@
 import { isNil, omit, omitBy } from 'lodash-es';
 import { DocumentChecked } from 'maestro-shared/schema/Document/Document';
-import { FindDocumentOptions } from 'maestro-shared/schema/Document/FindDocumentOptions';
+import type { FindDocumentOptions } from 'maestro-shared/schema/Document/FindDocumentOptions';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
-import { KyselyMaestro } from './kysely.type';
+import type { KyselyMaestro } from './kysely.type';
 import { sampleDocumentsTable } from './sampleRepository';
 
 const documentsTable = 'documents';

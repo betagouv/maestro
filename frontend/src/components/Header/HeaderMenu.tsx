@@ -3,7 +3,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import {
   forwardRef,
-  ReactNode,
+  type ReactNode,
   useEffect,
   useId,
   useImperativeHandle,

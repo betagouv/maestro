@@ -1,4 +1,4 @@
-import { SSD2Id } from './SSD2Id';
+import type { SSD2Id } from './SSD2Id';
 
 export const SandreToSSD2: Record<string, SSD2Id> = {
   '1083': 'RF-0087-001-PPP',

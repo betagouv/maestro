@@ -2,17 +2,17 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { minBy, uniqBy } from 'lodash-es';
-import {
+import type {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import type { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import {
-  SubstanceKind,
+  type SubstanceKind,
   SubstanceKindLabels
 } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useMemo, useState } from 'react';
-import { UseForm } from '../../../hooks/useForm';
+import type { UseForm } from '../../../hooks/useForm';
 import SampleItemsContent from './SampleItemsContent';
 
 interface Props {
@@ -58,7 +58,7 @@ const SampleItems = ({
   );
 
   if (!groupedItems?.length) {
-    return <></>;
+    return null;
   }
 
   return (

@@ -1,7 +1,7 @@
 import { fakerFR } from '@faker-js/faker';
 import { expect, test } from 'vitest';
 import { kysely } from './kysely';
-import { SachaResidueId, SachaResidueMappings } from './kysely.type';
+import type { SachaResidueId, SachaResidueMappings } from './kysely.type';
 import { sachaResidueMappingRepository } from './sachaResidueMappingRepository';
 
 test('findByLabel', async () => {

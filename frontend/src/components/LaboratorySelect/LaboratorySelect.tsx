@@ -1,7 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import { sortBy } from 'lodash-es';
-import { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
+import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useContext } from 'react';
 import { ApiClientContext } from '../../services/apiClient';
 

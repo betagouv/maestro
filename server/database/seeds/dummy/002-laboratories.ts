@@ -18,7 +18,7 @@ import {
 import { Laboratories } from '../../../repositories/laboratoryRepository';
 
 const EMAIL_SANBOX = 'preleveur@maestro.beta.gouv.fr';
-export const seed = async function () {
+export const seed = async () => {
   await Laboratories().insert([
     {
       id: ANS94ALnrEtmId,

@@ -1,5 +1,5 @@
 import Input from '@codegouvfr/react-dsfr/Input';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAutoSave } from 'src/hooks/useAutoSave';
@@ -45,7 +45,7 @@ const PrescriptionNotes = ({
           }}
         />
       ) : (
-        <>{value}</>
+        value
       )}
     </>
   );

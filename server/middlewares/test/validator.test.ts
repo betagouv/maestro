@@ -1,10 +1,14 @@
+import { constants } from 'node:http2';
 import bodyParser from 'body-parser';
-import express, { NextFunction, Request, Response } from 'express';
-import { constants } from 'http2';
+import express, {
+  type NextFunction,
+  type Request,
+  type Response
+} from 'express';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { describe, test } from 'vitest';
-import { z, ZodObject } from 'zod';
+import { type ZodObject, z } from 'zod';
 import { validateRequest } from '../validator';
 
 const validate =

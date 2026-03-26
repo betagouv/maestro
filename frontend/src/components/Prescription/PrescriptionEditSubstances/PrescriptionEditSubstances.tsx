@@ -1,9 +1,9 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { skipToken } from '@reduxjs/toolkit/query';
-import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import type { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useCallback, useContext } from 'react';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../services/apiClient';

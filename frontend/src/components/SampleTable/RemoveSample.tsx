@@ -2,12 +2,13 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import {
   isCreatedPartialSample,
-  PartialSample,
-  PartialSampleToCreate
+  type PartialSample,
+  type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { useContext, useMemo } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { ApiClientContext } from '../../services/apiClient';
+
 interface RemoveSampleProps {
   sample: PartialSample | PartialSampleToCreate;
 }

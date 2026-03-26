@@ -1,9 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import clsx from 'clsx';
-import { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import type { Analysis } from 'maestro-shared/schema/Analysis/Analysis';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   genPartialAnalysis,
   genPartialAnalyte,

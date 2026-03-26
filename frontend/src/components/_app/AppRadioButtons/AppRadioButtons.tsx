@@ -1,10 +1,10 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
 import clsx from 'clsx';
-import { ComponentPropsWithoutRef, useEffect } from 'react';
+import { type ComponentPropsWithoutRef, useEffect } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
-import { UseForm } from 'src/hooks/useForm';
-import { z, ZodObject } from 'zod';
+import type { UseForm } from 'src/hooks/useForm';
+import type { ZodObject, z } from 'zod';
 import './AppRadioButtons.scss';
 
 type AppRadioButtonsProps<T extends ZodObject, U extends UseForm<T>> = Pick<

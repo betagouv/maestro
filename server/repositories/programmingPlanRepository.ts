@@ -1,7 +1,7 @@
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
-import { Region } from 'maestro-shared/referential/Region';
-import { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
+import type { Region } from 'maestro-shared/referential/Region';
+import type { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanLocalStatus as ProgrammingPlanLocalStatusType } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import {

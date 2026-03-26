@@ -3,12 +3,12 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import {
-  Stage,
+  type Stage,
   StageLabels,
   StagesByProgrammingPlanKind
 } from 'maestro-shared/referential/Stage';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useState } from 'react';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -80,6 +80,7 @@ const PrescriptionStages = ({
           />
         </div>
       ) : (
+        // biome-ignore lint/a11y/noLabelWithoutControl: TODO
         <label className={cx('fr-label')}>{label}</label>
       )}
       {prescription.stages.map((stage) => (

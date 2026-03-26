@@ -1,7 +1,7 @@
 import { uniq } from 'lodash-es';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useCallback, useMemo } from 'react';
-import { PrescriptionFilters } from '../store/reducers/prescriptionsSlice';
+import type { PrescriptionFilters } from '../store/reducers/prescriptionsSlice';
 
 export const usePrescriptionFilters = (
   programmingPlans?: ProgrammingPlanChecked[]

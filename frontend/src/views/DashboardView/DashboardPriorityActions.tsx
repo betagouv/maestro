@@ -2,10 +2,10 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tile from '@codegouvfr/react-dsfr/Tile';
 import clsx from 'clsx';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { PartialSample } from 'maestro-shared/schema/Sample/Sample';
-import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
-import { FunctionComponent, useContext } from 'react';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { PartialSample } from 'maestro-shared/schema/Sample/Sample';
+import type { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
+import { type FunctionComponent, useContext } from 'react';
 import { Link } from 'react-router';
 import { assert, type Equals } from 'tsafe';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
@@ -36,7 +36,7 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
   const [createProgrammingPlan] = apiClient.useCreateProgrammingPlanMutation();
 
   if (!prioritySamples?.length && !priorityProgrammingPlans?.length) {
-    return <></>;
+    return null;
   }
 
   return (

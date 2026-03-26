@@ -1,6 +1,6 @@
 import { isNil } from 'lodash-es';
-import { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import type { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
+import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { kysely } from '../../repositories/kysely';
 import { laboratoryResidueMappingRepository } from '../../repositories/laboratoryResidueMappingRepository';
 import { laboratoriesConf } from './index';

@@ -1,4 +1,4 @@
-import { AuthService } from './authService';
+import type { AuthService } from './authService';
 import { createOpenIdClientService } from './openIdClientService';
 
 export const getAuthService: Promise<AuthService> = createOpenIdClientService();

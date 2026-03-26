@@ -9,7 +9,7 @@ import authSlice from '../../store/reducers/authSlice';
 const cookieExists = (cookieName: string): boolean =>
   document.cookie
     .split(';')
-    .some((item) => item.trim().startsWith(cookieName + '='));
+    .some((item) => item.trim().startsWith(`${cookieName}=`));
 
 export const useMascarade = () => {
   const apiClient = useContext(ApiClientContext);

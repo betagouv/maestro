@@ -1,10 +1,10 @@
 import type { Meta } from '@storybook/react-vite';
-import {
+import type {
   CommemoratifSigle,
   CommemoratifValueSigle,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
-import { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import {
   DAOABovinFieldConfigs,
   DAOAVolailleFieldConfigs

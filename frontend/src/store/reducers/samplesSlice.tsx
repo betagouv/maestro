@@ -1,14 +1,14 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { isNil, omitBy } from 'lodash-es';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
-import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import {
   getStoredListDisplay,
-  ListDisplay,
+  type ListDisplay,
   setStoredListDisplay
 } from 'src/store/localStorage';
 import { z } from 'zod';

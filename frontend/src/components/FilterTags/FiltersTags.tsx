@@ -7,30 +7,30 @@ import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { Regions } from 'maestro-shared/referential/Region';
-import { Pagination } from 'maestro-shared/schema/commons/Pagination';
-import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import type { Pagination } from 'maestro-shared/schema/commons/Pagination';
+import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import {
   ContextLabels,
-  ProgrammingPlanContext
+  type ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
-  FindSampleOptions,
+  type FindSampleOptions,
   SampleComplianceLabels
 } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   DraftStatusList,
   RealizedStatusList,
-  SampleStatus,
+  type SampleStatus,
   SampleStatusLabels
 } from 'maestro-shared/schema/Sample/SampleStatus';
-import { UserRefined } from 'maestro-shared/schema/User/User';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
-import { Fragment, ReactNode, useMemo } from 'react';
+import { Fragment, type ReactNode, useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { PrescriptionFilters } from '../../store/reducers/prescriptionsSlice';
+import type { PrescriptionFilters } from '../../store/reducers/prescriptionsSlice';
 
 type FilterableType = FindSampleOptions &
   Omit<
@@ -255,7 +255,7 @@ const FiltersTags = ({
   );
 
   if (!hasFilters) {
-    return <></>;
+    return null;
   }
 
   return (
@@ -301,6 +301,7 @@ const FiltersTags = ({
               }
             }
           }
+          return null;
         })}
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { Department } from 'maestro-shared/referential/Department';
 import { Region } from 'maestro-shared/referential/Region';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
@@ -11,7 +11,7 @@ import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/Progr
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getStoredListDisplay,
-  ListDisplay,
+  type ListDisplay,
   setStoredListDisplay
 } from 'src/store/localStorage';
 import { z } from 'zod';

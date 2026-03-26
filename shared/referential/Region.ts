@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Department } from './Department';
+import type { Department } from './Department';
 
 export const Region = z.enum(
   [

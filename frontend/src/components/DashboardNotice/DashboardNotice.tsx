@@ -2,7 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Quote from '@codegouvfr/react-dsfr/Quote';
 import clsx from 'clsx';
 import { Brand } from 'maestro-shared/constants';
-import { FunctionComponent } from 'react';
+import type { FunctionComponent } from 'react';
 import { Link } from 'react-router';
 import { assert, type Equals } from 'tsafe';
 import manon from '../../assets/manon.jpg';

@@ -11,8 +11,9 @@ const useMatomoTagManager = () => {
   useEffect(() => {
     const matomoUrl = import.meta.env.VITE_MATOMO_TAG_MANAGER_CONTAINER_URL;
     if (matomoUrl) {
-      const _mtm = (window._mtm = window._mtm || []);
-      _mtm.push({ 'mtm.startTime': new Date().getTime(), event: 'mtm.Start' });
+      window._mtm = window._mtm || [];
+      const _mtm = window._mtm;
+      _mtm.push({ 'mtm.startTime': Date.now(), event: 'mtm.Start' });
 
       const d = document;
       const g = d.createElement('script');

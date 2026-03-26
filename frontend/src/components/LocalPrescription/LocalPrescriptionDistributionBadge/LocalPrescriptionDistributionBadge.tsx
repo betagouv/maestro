@@ -1,6 +1,6 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import { sumBy } from 'lodash-es';
-import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { pluralize } from '../../../utils/stringUtils';
 
 interface Props {
@@ -15,7 +15,7 @@ const LocalPrescriptionDistributionBadge = ({
   small
 }: Props) => {
   if (!localPrescription) {
-    return <></>;
+    return null;
   }
 
   return (

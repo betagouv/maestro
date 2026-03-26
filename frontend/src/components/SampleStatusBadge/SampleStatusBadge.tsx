@@ -1,8 +1,8 @@
-import Badge, { BadgeProps } from '@codegouvfr/react-dsfr/Badge';
+import Badge, { type BadgeProps } from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import type { AlertProps } from '@codegouvfr/react-dsfr/src/Alert';
 import {
-  SampleStatus,
+  type SampleStatus,
   SampleStatusLabels
 } from 'maestro-shared/schema/Sample/SampleStatus';
 import { useContext, useEffect, useState } from 'react';
@@ -29,7 +29,7 @@ export const SampleStatusBadge = ({ status, sampleId, ...props }: Props) => {
         });
     }
     return setCompliance(null);
-  }, [sampleId, status]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sampleId, status]);
 
   return <StatusBadge status={status} compliance={compliance} {...props} />;
 };

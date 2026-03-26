@@ -3,15 +3,16 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { isNil, sumBy } from 'lodash-es';
-import { Department } from 'maestro-shared/referential/Department';
-import { Region } from 'maestro-shared/referential/Region';
-import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { Department } from 'maestro-shared/referential/Department';
+import type { Region } from 'maestro-shared/referential/Region';
+import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
   NextProgrammingPlanStatus,
-  ProgrammingPlanStatus
+  type ProgrammingPlanStatus
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import React, { useContext, useState } from 'react';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type React from 'react';
+import { useContext, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { ApiClientContext } from '../../../services/apiClient';
 import '../ProgrammingPlanNotification.scss';
@@ -74,7 +75,7 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
   };
 
   if (!user?.region) {
-    return <></>;
+    return null;
   }
 
   return (

@@ -1,8 +1,8 @@
 import { isNil, omitBy } from 'lodash-es';
-import { Department } from 'maestro-shared/referential/Department';
+import type { Department } from 'maestro-shared/referential/Department';
 import {
   AddressSearchResult,
-  AddressSearchResults
+  type AddressSearchResults
 } from 'maestro-shared/schema/Address/AddressSearchResult';
 import { api } from 'src/services/api.service';
 

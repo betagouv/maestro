@@ -1,10 +1,10 @@
+import { constants } from 'node:http2';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
-import { constants } from 'http2';
 import { isNil } from 'lodash-es';
 import DocumentMissingError from 'maestro-shared/errors/documentMissingError';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import { DocumentChecked } from 'maestro-shared/schema/Document/Document';
+import type { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import {
   ResourceDocumentKindList,
   UploadDocumentKindList
@@ -12,7 +12,7 @@ import {
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { documentRepository } from '../repositories/documentRepository';
 import { userRepository } from '../repositories/userRepository';
-import { ProtectedSubRouter } from '../routers/routes.type';
+import type { ProtectedSubRouter } from '../routers/routes.type';
 import { documentService } from '../services/documentService';
 import { notificationService } from '../services/notificationService';
 import { s3Service } from '../services/s3Service';

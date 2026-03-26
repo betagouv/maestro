@@ -1,9 +1,9 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
 import { v4 as uuidv4 } from 'uuid';
 import laboratoryAnalyticalCompetenceRepository from '../repositories/laboratoryAnalyticalCompetenceRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
-import { ProtectedSubRouter } from '../routers/routes.type';
+import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
 
 export const laboratoriesRouter = {

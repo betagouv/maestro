@@ -1,4 +1,4 @@
-import {
+import type {
   PartialSample,
   PartialSampleToCreate,
   SampleChecked
@@ -38,7 +38,7 @@ const SampleView = () => {
   }
 
   if (!sample) {
-    return <></>;
+    return null;
   }
 
   return (

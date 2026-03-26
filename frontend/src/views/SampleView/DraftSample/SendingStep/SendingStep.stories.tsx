@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';

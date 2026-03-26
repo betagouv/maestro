@@ -1,12 +1,12 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
-import { UserRole } from 'maestro-shared/schema/User/UserRole';
+import type { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
+import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
+import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { toArray } from 'maestro-shared/utils/utils';
-import { FunctionComponent, useContext, useMemo } from 'react';
+import { type FunctionComponent, useContext, useMemo } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { DashboardNotice } from '../../components/DashboardNotice/DashboardNotice';
 import { useAuthentication } from '../../hooks/useAuthentication';

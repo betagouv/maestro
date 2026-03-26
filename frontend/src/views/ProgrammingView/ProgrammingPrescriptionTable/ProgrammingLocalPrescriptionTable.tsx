@@ -8,19 +8,19 @@ import {
   DepartmentLabels,
   DepartmentSort
 } from 'maestro-shared/referential/Department';
-import { Region, Regions } from 'maestro-shared/referential/Region';
+import { type Region, Regions } from 'maestro-shared/referential/Region';
 import {
-  LocalPrescription,
+  type LocalPrescription,
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import {
   getPrescriptionTitle,
-  Prescription
+  type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
 import {
   hasProgrammingPlanStatusForAuthUser,
-  ProgrammingPlanChecked
+  type ProgrammingPlanChecked
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useMemo } from 'react';
@@ -215,24 +215,22 @@ const ProgrammingLocalPrescriptionTable = ({
                   </div>
                 </>
               ) : (
-                <>
-                  {(hasUserLocalPrescriptionPermission(
+                (hasUserLocalPrescriptionPermission(
+                  programmingPlan,
+                  getLocalPrescription(prescription.id)
+                )?.distributeToDepartments ||
+                  hasUserLocalPrescriptionPermission(
                     programmingPlan,
                     getLocalPrescription(prescription.id)
-                  )?.distributeToDepartments ||
-                    hasUserLocalPrescriptionPermission(
-                      programmingPlan,
-                      getLocalPrescription(prescription.id)
-                    )?.distributeToSlaughterhouses) && (
-                    <LocalPrescriptionDistributionBadge
-                      localPrescription={getLocalPrescription(prescription.id)}
-                      subLocalPrescriptions={getSubLocalPrescriptions(
-                        prescription.id
-                      )}
-                      small
-                    />
-                  )}
-                </>
+                  )?.distributeToSlaughterhouses) && (
+                  <LocalPrescriptionDistributionBadge
+                    localPrescription={getLocalPrescription(prescription.id)}
+                    subLocalPrescriptions={getSubLocalPrescriptions(
+                      prescription.id
+                    )}
+                    small
+                  />
+                )
               )}
             </div>,
             ...(hasRegionalView &&
@@ -311,7 +309,7 @@ const ProgrammingLocalPrescriptionTable = ({
               />
             </div>
           ].filter(isDefined)
-        ), // eslint-disable-next-line react-hooks/exhaustive-deps
+        ),
     [
       programmingPlan,
       prescriptions,
@@ -403,11 +401,11 @@ const ProgrammingLocalPrescriptionTable = ({
         ]),
         <div key="actions-total" className={clsx('border-left')}></div>
       ].filter(isDefined),
-    [subLocalPrescriptions, prescriptions, programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
+    [subLocalPrescriptions, prescriptions, programmingPlan]
   );
 
   if (!prescriptions) {
-    return <></>;
+    return null;
   }
 
   return (

@@ -1,14 +1,14 @@
 import { isNil, omitBy } from 'lodash-es';
-import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
+import type { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import {
   LocalPrescription,
-  LocalPrescriptionUpdate
+  type LocalPrescriptionUpdate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
   LocalPrescriptionComment,
-  LocalPrescriptionCommentToCreate
+  type LocalPrescriptionCommentToCreate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
-import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { api } from 'src/services/api.service';
 
 const prescriptionApi = api.injectEndpoints({

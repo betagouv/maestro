@@ -6,12 +6,16 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
-import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
+import {
+  type Region,
+  RegionList,
+  Regions
+} from 'maestro-shared/referential/Region';
 import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { ChangeEvent, useContext, useMemo, useState } from 'react';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { type ChangeEvent, useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from '../../../hooks/useStore';
@@ -103,156 +107,148 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
     );
 
   if (!allPrescriptions || !regionalPrescriptions) {
-    return <></>;
+    return null;
   }
 
   return (
-    <>
-      <div
-        className={clsx(
-          cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-px-0', 'fr-container')
-        )}
-      >
-        <div className={clsx('d-flex-align-center')}>
-          <h4 className={clsx(cx('fr-mb-0', 'fr-mr-3w'), 'flex-grow-1')}>
-            {t('matrix', {
-              count: filteredPrescriptions.length
-            })}{' '}
-            {t('has_been_commented', {
-              count: filteredPrescriptions.length
-            })}
-          </h4>
-          {hasNationalView && (
-            <Select
-              label="Région"
-              className={cx('fr-mr-2w')}
-              nativeSelectProps={{
-                value: regionFilter ?? '',
-                onChange: (e) => setRegionFilter(e.target.value as Region)
-              }}
-            >
-              <option value="">Toutes les régions</option>
-              {RegionList.map((region) => (
-                <option key={`select-region-${region}`} value={region}>
-                  {Regions[region].name}
-                </option>
-              ))}
-            </Select>
-          )}
-          <Input
-            iconId="fr-icon-search-line"
-            hideLabel
-            label="Matrice"
-            nativeInputProps={{
-              type: 'search',
-              placeholder: 'Matrice',
-              value: matrixQuery ?? '',
-              onChange: (e: ChangeEvent<HTMLInputElement>) =>
-                setMatrixQuery(e.target.value)
+    <div
+      className={clsx(cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-px-0', 'fr-container'))}
+    >
+      <div className={clsx('d-flex-align-center')}>
+        <h4 className={clsx(cx('fr-mb-0', 'fr-mr-3w'), 'flex-grow-1')}>
+          {t('matrix', {
+            count: filteredPrescriptions.length
+          })}{' '}
+          {t('has_been_commented', {
+            count: filteredPrescriptions.length
+          })}
+        </h4>
+        {hasNationalView && (
+          <Select
+            label="Région"
+            className={cx('fr-mr-2w')}
+            nativeSelectProps={{
+              value: regionFilter ?? '',
+              onChange: (e) => setRegionFilter(e.target.value as Region)
             }}
-          />
-        </div>
-        <div>
-          {regionFilter && (
-            <Tag
-              dismissible
-              nativeButtonProps={{
-                onClick: () => setRegionFilter(undefined)
-              }}
-            >
-              {Regions[regionFilter].name}
-            </Tag>
-          )}
-        </div>
-        {filteredPrescriptions.length > 0 && (
-          <div className={clsx(cx('fr-mt-2w'), 'border')}>
-            {filteredPrescriptions.map((prescription, prescriptionIndex) => (
-              <div key={`prescription-${prescriptionIndex}`}>
-                <div className={cx('fr-m-2w')}>
-                  <div className={clsx('d-flex-align-center')}>
-                    <h6 className="flex-grow-1">
-                      {getPrescriptionTitle(prescription)}
-                    </h6>
-                    <Button
-                      priority="secondary"
-                      onClick={() => {
-                        dispatch(
-                          prescriptionsSlice.actions.setPrescriptionCommentsData(
-                            {
-                              viewBy: 'Prescription',
-                              programmingPlan,
-                              prescription,
-                              regionalCommentsList:
-                                prescription.regionalCommentedPrescriptions.map(
-                                  (rcp) => ({
-                                    region: rcp.region,
-                                    department: rcp.department,
-                                    comments: rcp.comments ?? []
-                                  })
-                                )
-                            }
-                          )
-                        );
-                      }}
-                    >
-                      {sumBy(
-                        prescription.regionalCommentedPrescriptions,
-                        (rcp) => (rcp.comments ?? []).length
-                      )}{' '}
-                      {pluralize(
-                        sumBy(
-                          prescription.regionalCommentedPrescriptions,
-                          (rcp) => (rcp.comments ?? []).length
-                        )
-                      )('commentaire')}
-                    </Button>
-                  </div>
-                  {hasNationalView && (
-                    <div>
-                      Régions :
-                      {prescription.regionalCommentedPrescriptions.map(
-                        (regionalPrescription) => (
-                          <Button
-                            className={clsx('link-underline')}
-                            key={`${prescription.id}-region-${regionalPrescription.region}`}
-                            priority="tertiary no outline"
-                            onClick={() => {
-                              dispatch(
-                                prescriptionsSlice.actions.setPrescriptionCommentsData(
-                                  {
-                                    viewBy: 'Prescription',
-                                    programmingPlan,
-                                    prescription,
-                                    currentRegion: regionalPrescription.region,
-                                    regionalCommentsList:
-                                      prescription.regionalCommentedPrescriptions.map(
-                                        (rcp) => ({
-                                          region: rcp.region,
-                                          department: rcp.department,
-                                          comments: rcp.comments ?? []
-                                        })
-                                      )
-                                  }
-                                )
-                              );
-                            }}
-                          >
-                            {Regions[regionalPrescription.region].name}
-                          </Button>
-                        )
-                      )}
-                    </div>
-                  )}
-                </div>
-                {prescriptionIndex !== filteredPrescriptions.length - 1 && (
-                  <hr />
-                )}
-              </div>
+          >
+            <option value="">Toutes les régions</option>
+            {RegionList.map((region) => (
+              <option key={`select-region-${region}`} value={region}>
+                {Regions[region].name}
+              </option>
             ))}
-          </div>
+          </Select>
+        )}
+        <Input
+          iconId="fr-icon-search-line"
+          hideLabel
+          label="Matrice"
+          nativeInputProps={{
+            type: 'search',
+            placeholder: 'Matrice',
+            value: matrixQuery ?? '',
+            onChange: (e: ChangeEvent<HTMLInputElement>) =>
+              setMatrixQuery(e.target.value)
+          }}
+        />
+      </div>
+      <div>
+        {regionFilter && (
+          <Tag
+            dismissible
+            nativeButtonProps={{
+              onClick: () => setRegionFilter(undefined)
+            }}
+          >
+            {Regions[regionFilter].name}
+          </Tag>
         )}
       </div>
-    </>
+      {filteredPrescriptions.length > 0 && (
+        <div className={clsx(cx('fr-mt-2w'), 'border')}>
+          {filteredPrescriptions.map((prescription, prescriptionIndex) => (
+            <div key={`prescription-${prescriptionIndex}`}>
+              <div className={cx('fr-m-2w')}>
+                <div className={clsx('d-flex-align-center')}>
+                  <h6 className="flex-grow-1">
+                    {getPrescriptionTitle(prescription)}
+                  </h6>
+                  <Button
+                    priority="secondary"
+                    onClick={() => {
+                      dispatch(
+                        prescriptionsSlice.actions.setPrescriptionCommentsData({
+                          viewBy: 'Prescription',
+                          programmingPlan,
+                          prescription,
+                          regionalCommentsList:
+                            prescription.regionalCommentedPrescriptions.map(
+                              (rcp) => ({
+                                region: rcp.region,
+                                department: rcp.department,
+                                comments: rcp.comments ?? []
+                              })
+                            )
+                        })
+                      );
+                    }}
+                  >
+                    {sumBy(
+                      prescription.regionalCommentedPrescriptions,
+                      (rcp) => (rcp.comments ?? []).length
+                    )}{' '}
+                    {pluralize(
+                      sumBy(
+                        prescription.regionalCommentedPrescriptions,
+                        (rcp) => (rcp.comments ?? []).length
+                      )
+                    )('commentaire')}
+                  </Button>
+                </div>
+                {hasNationalView && (
+                  <div>
+                    Régions :
+                    {prescription.regionalCommentedPrescriptions.map(
+                      (regionalPrescription) => (
+                        <Button
+                          className={clsx('link-underline')}
+                          key={`${prescription.id}-region-${regionalPrescription.region}`}
+                          priority="tertiary no outline"
+                          onClick={() => {
+                            dispatch(
+                              prescriptionsSlice.actions.setPrescriptionCommentsData(
+                                {
+                                  viewBy: 'Prescription',
+                                  programmingPlan,
+                                  prescription,
+                                  currentRegion: regionalPrescription.region,
+                                  regionalCommentsList:
+                                    prescription.regionalCommentedPrescriptions.map(
+                                      (rcp) => ({
+                                        region: rcp.region,
+                                        department: rcp.department,
+                                        comments: rcp.comments ?? []
+                                      })
+                                    )
+                                }
+                              )
+                            );
+                          }}
+                        >
+                          {Regions[regionalPrescription.region].name}
+                        </Button>
+                      )
+                    )}
+                  </div>
+                )}
+              </div>
+              {prescriptionIndex !== filteredPrescriptions.length - 1 && <hr />}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 

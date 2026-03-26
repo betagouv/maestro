@@ -1,6 +1,10 @@
 import Select from '@codegouvfr/react-dsfr/Select';
-import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
-import { FunctionComponent } from 'react';
+import {
+  type Region,
+  RegionList,
+  Regions
+} from 'maestro-shared/referential/Region';
+import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 
 type Props = {

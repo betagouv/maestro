@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { RegionList } from '../referential/Region';
 import { ProgrammingPlanKindWithSachaList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingPlanStatusList } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
+import type { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import { oneOf } from './testFixtures';
 import { NationalCoordinator } from './userFixtures';
 

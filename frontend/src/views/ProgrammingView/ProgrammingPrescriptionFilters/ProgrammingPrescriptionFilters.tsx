@@ -4,16 +4,16 @@ import { t } from 'i18next';
 import { pick } from 'lodash-es';
 import {
   ContextLabels,
-  ProgrammingPlanContext
+  type ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
-  ProgrammingPlanKind,
+  type ProgrammingPlanKind,
   ProgrammingPlanKindLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useMemo } from 'react';
 import FiltersTags from '../../../components/FilterTags/FiltersTags';
-import { PrescriptionFilters } from '../../../store/reducers/prescriptionsSlice';
+import type { PrescriptionFilters } from '../../../store/reducers/prescriptionsSlice';
 
 interface Props {
   options: {

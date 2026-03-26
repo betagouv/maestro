@@ -1,12 +1,12 @@
 import { isNil, sumBy } from 'lodash-es';
 import { z } from 'zod';
-import { Department, DepartmentSort } from '../../referential/Department';
-import { Region, RegionSort } from '../../referential/Region';
-import { Company } from '../Company/Company';
+import { type Department, DepartmentSort } from '../../referential/Department';
+import { type Region, RegionSort } from '../../referential/Region';
+import type { Company } from '../Company/Company';
 import { Prescription } from '../Prescription/Prescription';
-import { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
-import { UserBase, hasPermission, userRegionsForRole } from '../User/User';
-import { UserRole } from '../User/UserRole';
+import type { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
+import { hasPermission, type UserBase, userRegionsForRole } from '../User/User';
+import type { UserRole } from '../User/UserRole';
 import { LocalPrescriptionComment } from './LocalPrescriptionComment';
 import { LocalPrescriptionKey } from './LocalPrescriptionKey';
 import {

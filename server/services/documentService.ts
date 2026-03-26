@@ -1,8 +1,8 @@
-import { Transaction } from 'kysely';
-import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
+import type { Transaction } from 'kysely';
+import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { documentRepository } from '../repositories/documentRepository';
 import { executeTransaction } from '../repositories/kysely';
-import { DB } from '../repositories/kysely.type';
+import type { DB } from '../repositories/kysely.type';
 import { ExtractError } from './imapService/extractError';
 import { s3Service } from './s3Service';
 

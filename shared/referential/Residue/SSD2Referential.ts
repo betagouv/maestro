@@ -1,5 +1,5 @@
-import { SSD2Id } from './SSD2Id';
 import { SandreToSSD2 } from './SandreToSSD2';
+import type { SSD2Id } from './SSD2Id';
 
 export const SSD2Referential =
   // ----- ne pas supprimer cette ligne : début

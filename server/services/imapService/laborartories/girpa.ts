@@ -1,10 +1,10 @@
 import { XMLParser } from 'fast-xml-parser';
-import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { maestroDateRefined } from 'maestro-shared/utils/date';
 import { refineSchema } from 'maestro-shared/utils/zod';
 import { z } from 'zod';
 import { ExtractBadFormatError, ExtractError } from '../extractError';
-import {
+import type {
   ExportAnalysis,
   ExportDataFromEmail,
   ExportDataSubstance,
@@ -66,7 +66,7 @@ export const girpaCodeEchantillonValidator = z.string().transform((l, ctx) => {
   }
   return {
     reference: match[1],
-    copyNumber: Number.parseInt(match[2])
+    copyNumber: Number.parseInt(match[2], 10)
   };
 });
 

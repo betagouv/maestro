@@ -1,6 +1,11 @@
-import { CamelCasePlugin, Kysely, PostgresDialect, Transaction } from 'kysely';
+import {
+  CamelCasePlugin,
+  Kysely,
+  PostgresDialect,
+  type Transaction
+} from 'kysely';
 import pg from 'pg';
-import { DB, KyselyMaestro } from './kysely.type';
+import type { DB, KyselyMaestro } from './kysely.type';
 
 export let kysely: KyselyMaestro;
 

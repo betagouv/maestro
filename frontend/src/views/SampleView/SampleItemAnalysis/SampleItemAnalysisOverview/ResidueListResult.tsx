@@ -1,22 +1,21 @@
+import Button from '@codegouvfr/react-dsfr/Button';
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
+import type { ClassValue } from 'clsx/lite';
+import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import {
-  FunctionComponent,
-  ReactNode,
+  type PartialResidue,
+  ResidueLmrChecked
+} from 'maestro-shared/schema/Analysis/Residue/Residue';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import {
+  type FunctionComponent,
+  type ReactNode,
   useEffect,
   useRef,
   useState
 } from 'react';
 import { assert, type Equals } from 'tsafe';
-
-import Button from '@codegouvfr/react-dsfr/Button';
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { ClassValue } from 'clsx/lite';
-import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
-import {
-  PartialResidue,
-  ResidueLmrChecked
-} from 'maestro-shared/schema/Analysis/Residue/Residue';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import useWindowSize from '../../../../hooks/useWindowSize';
 import { ResidueComplianceIcon } from './ResidueComplianceIcon';
 import './ResidueListResult.scss';
@@ -78,6 +77,7 @@ export const ResidueListResult: FunctionComponent<Props> = ({
               cx('fr-p-2w')
             )}
             onClick={onAddResidue}
+            type="button"
           >
             <span
               className={clsx(
@@ -166,6 +166,7 @@ const ResidueMenuItem: FunctionComponent<{
         ...className
       )}
       onClick={onClick}
+      type="button"
     >
       <div className={'residue-item-number'}>
         {residue.compliance && (

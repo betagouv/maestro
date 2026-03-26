@@ -1,13 +1,13 @@
-import { ButtonProps } from '@codegouvfr/react-dsfr/Button';
+import type { ButtonProps } from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup, {
-  ButtonsGroupProps
+  type ButtonsGroupProps
 } from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { isNil, sumBy } from 'lodash-es';
-import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useMemo } from 'react';
 import { useAuthentication } from '../../../hooks/useAuthentication';
@@ -169,12 +169,11 @@ const LocalPrescriptionButtons = ({
             }
           : undefined
       ].filter(isDefined) as ButtonProps[],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [programmingPlan, prescription, localPrescription, subLocalPrescriptions]
   );
 
   if (buttons.length === 0) {
-    return <></>;
+    return null;
   }
 
   return (

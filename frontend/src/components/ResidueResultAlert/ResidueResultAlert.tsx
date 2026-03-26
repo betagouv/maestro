@@ -8,7 +8,7 @@ interface Props {
 
 const ResidueResultAlert = ({ result, lmr }: Props) => {
   if (!isDefinedAndNotNull(result) || !isDefinedAndNotNull(lmr)) {
-    return <></>;
+    return null;
   }
 
   return (

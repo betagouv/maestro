@@ -1,13 +1,13 @@
-import { Geolocation } from 'maestro-shared/schema/Geolocation/Geolocation';
+import type { Geolocation } from 'maestro-shared/schema/Geolocation/Geolocation';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { FunctionComponent, useEffect, useState } from 'react';
+import { type FunctionComponent, useEffect, useState } from 'react';
 import {
   FullscreenControl,
-  Map,
-  MapMouseEvent,
+  Map as MapLibre,
+  type MapMouseEvent,
   Marker,
-  MarkerDragEvent,
+  type MarkerDragEvent,
   NavigationControl
 } from 'react-map-gl/maplibre';
 import { assert, type Equals } from 'tsafe';
@@ -70,7 +70,7 @@ export const SampleMap: FunctionComponent<Props> = ({
   }, [initialZoom]);
 
   return (
-    <Map
+    <MapLibre
       attributionControl={false}
       id="sampleLocationMap"
       latitude={mapLatitude}
@@ -99,7 +99,7 @@ export const SampleMap: FunctionComponent<Props> = ({
         onDragEnd={onMarkerLocationUpdate}
       />
       {ViewStyles['satellite'] && (
-        <Map
+        <MapLibre
           attributionControl={false}
           id="sampleLocationMapLayer"
           latitude={mapLatitude}
@@ -128,6 +128,6 @@ export const SampleMap: FunctionComponent<Props> = ({
           onMouseOut={() => setIsSecondaryMapHovered(false)}
         />
       )}
-    </Map>
+    </MapLibre>
   );
 };

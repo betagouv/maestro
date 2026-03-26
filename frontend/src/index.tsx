@@ -1,7 +1,7 @@
+import { registerSW } from 'virtual:pwa-register';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router';
-import { registerSW } from 'virtual:pwa-register';
 import App from './App';
 import './i18n';
 

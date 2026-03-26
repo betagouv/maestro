@@ -1,8 +1,8 @@
-import { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
+import type { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import { Companies } from '../../../repositories/companyRepository';
 import { knexInstance as db } from '../../../repositories/db';
 
-export const seed = async function () {
+export const seed = async () => {
   await Companies().insert(
     [
       {

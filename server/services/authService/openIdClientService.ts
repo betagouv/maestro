@@ -1,19 +1,19 @@
 import { decode } from 'jsonwebtoken';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import { AuthRedirectUrl } from 'maestro-shared/schema/Auth/AuthRedirectUrl';
+import type { AuthRedirectUrl } from 'maestro-shared/schema/Auth/AuthRedirectUrl';
 import {
   authorizationCodeGrant,
   buildAuthorizationUrl,
   buildEndSessionUrl,
   ClientSecretPost,
-  Configuration,
+  type Configuration,
   discovery,
   fetchUserInfo,
   randomNonce,
   randomState
 } from 'openid-client';
 import config from '../../utils/config';
-import { AuthService } from './authService';
+import type { AuthService } from './authService';
 
 const loginCallbackUrl = `${config.application.host}${AppRouteLinks.LoginCallbackRoute.link}`;
 const logoutCallbackUrl = `${config.application.host}${AppRouteLinks.LogoutCallbackRoute.link}`;

@@ -1,7 +1,7 @@
-import { readFileSync } from 'fs';
-import path from 'path';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { expect, test } from 'vitest';
-import z from 'zod';
+import type z from 'zod';
 import { cerecoConf, cerecoRefValidator } from './cereco';
 
 test('exportDataFromEmail', async () => {

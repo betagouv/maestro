@@ -1,4 +1,4 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import jwt from 'jsonwebtoken';
 import {
   COOKIE_MAESTRO_ACCESS_TOKEN,
@@ -6,14 +6,14 @@ import {
 } from 'maestro-shared/constants';
 import AuthenticationFailedError from 'maestro-shared/errors/authenticationFailedError';
 import {
-  AuthMaybeUnknownUser,
+  type AuthMaybeUnknownUser,
   AuthUserRefined
 } from 'maestro-shared/schema/User/AuthUser';
-import { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
+import type { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
 import { v4 as uuidv4 } from 'uuid';
 import { getUser } from '../middlewares/checks/authCheck';
 import { userRepository } from '../repositories/userRepository';
-import {
+import type {
   ProtectedSubRouter,
   UnprotectedSubRouter
 } from '../routers/routes.type';

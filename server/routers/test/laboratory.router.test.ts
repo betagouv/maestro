@@ -1,20 +1,16 @@
-import { constants } from 'http2';
-import {
-  genLaboratoryAnalyticalCompetence,
-  Laboratory1AnalyticalCompetenceFixture1,
-  LaboratoryFixture
-} from 'maestro-shared/test/laboratoryFixtures';
-import request from 'supertest';
-import { createServer } from '../../server';
-import { tokenProvider } from '../../test/testUtils';
-
+import { constants } from 'node:http2';
 import { fakerFR } from '@faker-js/faker';
 import {
   DummyLaboratoryIds,
   LDA31Id,
   PPVDummyLaboratoryIds,
-  UserRefined
+  type UserRefined
 } from 'maestro-shared/schema/User/User';
+import {
+  genLaboratoryAnalyticalCompetence,
+  Laboratory1AnalyticalCompetenceFixture1,
+  LaboratoryFixture
+} from 'maestro-shared/test/laboratoryFixtures';
 import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   DepartmentalCoordinator,
@@ -26,7 +22,11 @@ import {
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
+import request from 'supertest';
 import { describe, expect, test } from 'vitest';
+import { createServer } from '../../server';
+import { tokenProvider } from '../../test/testUtils';
+
 describe('Laboratory router', () => {
   const { app } = createServer();
 

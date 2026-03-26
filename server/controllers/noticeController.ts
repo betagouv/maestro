@@ -1,7 +1,7 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import BadRequestError from 'maestro-shared/errors/badRequestError';
 import { noticesRepository } from '../repositories/noticesRepository';
-import {
+import type {
   ProtectedSubRouter,
   UnprotectedSubRouter
 } from '../routers/routes.type';

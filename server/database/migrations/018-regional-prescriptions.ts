@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 import { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
 
 export const up = async (knex: Knex) => {

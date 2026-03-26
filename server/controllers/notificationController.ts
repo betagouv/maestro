@@ -1,6 +1,6 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import notificationRepository from '../repositories/notificationRepository';
-import { ProtectedSubRouter } from '../routers/routes.type';
+import type { ProtectedSubRouter } from '../routers/routes.type';
 
 export const notificationsRouter = {
   '/notifications': {

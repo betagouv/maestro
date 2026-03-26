@@ -1,4 +1,4 @@
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   DAOAInProgressProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture

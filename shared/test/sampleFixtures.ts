@@ -2,20 +2,20 @@ import { fakerFR } from '@faker-js/faker';
 import { pick } from 'lodash-es';
 import { v4 as uuidv4 } from 'uuid';
 import { LegalContextList } from '../referential/LegalContext';
-import { Matrix, MatrixEffective } from '../referential/Matrix/Matrix';
-import { MatrixKind } from '../referential/Matrix/MatrixKind';
+import { type Matrix, MatrixEffective } from '../referential/Matrix/Matrix';
+import type { MatrixKind } from '../referential/Matrix/MatrixKind';
 import { QuantityUnitList } from '../referential/QuantityUnit';
 import { Regions } from '../referential/Region';
-import { Company } from '../schema/Company/Company';
-import { Geolocation } from '../schema/Geolocation/Geolocation';
+import type { Company } from '../schema/Company/Company';
+import type { Geolocation } from '../schema/Geolocation/Geolocation';
 import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import {
-  CreatedSampleData,
-  PartialSample,
+  type CreatedSampleData,
+  type PartialSample,
   SampleChecked,
   SampleContextData
 } from '../schema/Sample/Sample';
-import { SampleItem } from '../schema/Sample/SampleItem';
+import type { SampleItem } from '../schema/Sample/SampleItem';
 import { DummyLaboratoryIds } from '../schema/User/User';
 import {
   CompanyFixture,
@@ -54,7 +54,7 @@ export const genSampleContextData = (
   programmingPlanKind: 'PPV',
   context: oneOf(ProgrammingPlanContextList),
   legalContext: oneOf(LegalContextList),
-  resytalId: '23-' + fakerFR.string.numeric(6),
+  resytalId: `23-${fakerFR.string.numeric(6)}`,
   company: genCompany(),
   notesOnCreation: fakerFR.string.alphanumeric(32),
   status: 'Draft',

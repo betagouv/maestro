@@ -4,23 +4,25 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import { Autocomplete } from '@mui/material';
-import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import {
-  MatrixKind,
+  type MatrixKind,
   MatrixKindLabels,
   MatrixKindList
 } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import { PrescriptionToCreate } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import React, { useContext, useMemo, useState } from 'react';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type React from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { useForm } from '../../../hooks/useForm';
 import { usePrescriptionFilters } from '../../../hooks/usePrescriptionFilters';
 import { useAppSelector } from '../../../hooks/useStore';
 import { ApiClientContext } from '../../../services/apiClient';
-import { PrescriptionFilters } from '../../../store/reducers/prescriptionsSlice';
+import type { PrescriptionFilters } from '../../../store/reducers/prescriptionsSlice';
 import ProgrammingPrescriptionFilters from '../../../views/ProgrammingView/ProgrammingPrescriptionFilters/ProgrammingPrescriptionFilters';
+
 interface AddMatrixProps {
   programmingPlan: ProgrammingPlanChecked;
   excludedMatrixKindList: MatrixKind[];
@@ -151,6 +153,7 @@ const AddPrescriptionModal = ({
               className={cx('fr-mt-3v', 'fr-grid-row', 'fr-grid-row--gutters')}
             >
               <div className={cx('fr-col-12', 'fr-col-md-6')}>
+                {/** biome-ignore lint/a11y/noLabelWithoutControl: TODO */}
                 <label className={cx('fr-label', 'fr-mb-1w')}>
                   Catégorie de matrice
                 </label>
@@ -174,11 +177,10 @@ const AddPrescriptionModal = ({
                     </div>
                   )}
                   getOptionKey={(option) => option.value}
-                  options={MatrixKindList.map((matrixKind) => ({
+                  options={MatrixKindList.flatMap((matrixKind) => ({
                     label: `${MatrixKindLabels[matrixKind]}`,
                     value: matrixKind
                   }))
-                    .flat()
                     .filter(
                       (option) => !excludedMatrixKindList.includes(option.value)
                     )
@@ -228,11 +230,10 @@ const AddPrescriptionModal = ({
                     )}
                     getOptionKey={(option) => option.value}
                     options={MatrixListByKind[matrixKindValue?.value]
-                      .map((matrix) => ({
+                      .flatMap((matrix) => ({
                         label: `${MatrixLabels[matrix]}`,
                         value: matrix
                       }))
-                      .flat()
                       .filter(
                         (option) => !excludedMatrixList.includes(option.value)
                       )

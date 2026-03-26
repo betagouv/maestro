@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'vitest';
-import { SachaConf } from '../../repositories/kysely.type';
+import type { SachaConf } from '../../repositories/kysely.type';
 import {
   generateXMLAcquitement,
   getNumeroDAP,
   getXmlFileName,
   getZipFileName,
-  LaboratorySachaData
+  type LaboratorySachaData
 } from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
 

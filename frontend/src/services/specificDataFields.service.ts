@@ -1,8 +1,8 @@
-import {
+import type {
   SampleSpecificDataAttribute,
   SampleSpecificDataAttributeValue
 } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
-import { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { api } from 'src/services/api.service';
 
 const specificDataFieldsApi = api.injectEndpoints({

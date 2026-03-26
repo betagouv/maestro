@@ -3,8 +3,8 @@ import {
   genPartialResidue
 } from 'maestro-shared/test/analysisFixtures';
 import {
-  Sample11Fixture,
-  Sample1Item1Fixture
+  Sample1Item1Fixture,
+  Sample11Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import { expect, test } from 'vitest';
 import {

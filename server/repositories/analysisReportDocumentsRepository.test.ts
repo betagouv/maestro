@@ -1,8 +1,7 @@
-import { describe, expect, test } from 'vitest';
-
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { Sample13Fixture } from 'maestro-shared/test/sampleFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import { describe, expect, test } from 'vitest';
 import { analysisReportDocumentsRepository } from './analysisReportDocumentsRepository';
 import { analysisRepository } from './analysisRepository';
 import { documentRepository } from './documentRepository';

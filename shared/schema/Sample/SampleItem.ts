@@ -5,7 +5,7 @@ import { maestroDateRefined } from '../../utils/date';
 import { isDefinedAndNotNull } from '../../utils/utils';
 import { AnalysisStatus } from '../Analysis/AnalysisStatus';
 import { SubstanceKind } from '../Substance/SubstanceKind';
-import { SampleChecked } from './Sample';
+import type { SampleChecked } from './Sample';
 import { SampleItemRecipientKind } from './SampleItemRecipientKind';
 
 export const SampleItemKey = z.object({

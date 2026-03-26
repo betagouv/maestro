@@ -3,9 +3,9 @@ import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
-import { FunctionComponent } from 'react';
+import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
-import { FindUserOptions } from './UsersFilters';
+import type { FindUserOptions } from './UsersFilters';
 
 type FilterableProp = keyof Omit<FindUserOptions, 'label'>;
 
@@ -70,6 +70,7 @@ export const UsersFilterTags: FunctionComponent<Props> = ({
             );
           }
         }
+        return null;
       })}
     </>
   );

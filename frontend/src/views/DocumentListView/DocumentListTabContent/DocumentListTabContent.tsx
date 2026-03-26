@@ -3,12 +3,12 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import clsx from 'clsx';
 import { isNil } from 'lodash-es';
-import { DocumentChecked } from 'maestro-shared/schema/Document/Document';
-import { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
+import type { DocumentChecked } from 'maestro-shared/schema/Document/Document';
+import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { useMemo, useState } from 'react';
 import {
   getStoredListDisplay,
-  ListDisplay,
+  type ListDisplay,
   setStoredListDisplay
 } from '../../../store/localStorage';
 import { pluralize } from '../../../utils/stringUtils';

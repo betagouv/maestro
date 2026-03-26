@@ -1,19 +1,18 @@
-import { constants } from 'http2';
-import { genUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
-import request from 'supertest';
-import {
-  UserCompanies,
-  userRepository,
-  Users
-} from '../../repositories/userRepository';
-import { createServer } from '../../server';
-
+import { constants } from 'node:http2';
 import { fakerFR } from '@faker-js/faker';
 import jwt from 'jsonwebtoken';
 import { COOKIE_MAESTRO_ACCESS_TOKEN } from 'maestro-shared/constants';
 import { genAuthRedirectUrl } from 'maestro-shared/test/authFixtures';
+import { genUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { kysely } from '../../repositories/kysely';
+import {
+  UserCompanies,
+  Users,
+  userRepository
+} from '../../repositories/userRepository';
+import { createServer } from '../../server';
 import {
   mockAuthenticate,
   mockGetAuthorizationUrl,

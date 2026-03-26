@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SSD2Id } from './SSD2Id';
+import type { SSD2Id } from './SSD2Id';
 
 export const Analyte = z.enum(
   [

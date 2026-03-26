@@ -7,22 +7,22 @@ import clsx from 'clsx';
 import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
 import {
-  Department,
+  type Department,
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
-import { Region, Regions } from 'maestro-shared/referential/Region';
+import { type Region, Regions } from 'maestro-shared/referential/Region';
 import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import {
-  ProgrammingPlanKind,
+  type ProgrammingPlanKind,
   ProgrammingPlanKindLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
-  ProgrammingPlanStatus,
+  type ProgrammingPlanStatus,
   ProgrammingPlanStatusLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import LocalPrescriptionModal from '../../../components/LocalPrescription/LocalPrescriptionModal/LocalPrescriptionModal';
@@ -119,7 +119,7 @@ const ProgrammingPlanDepartmentalValidationList = ({
   );
 
   if (!allPrescriptions || !departmentalPrescriptions) {
-    return <></>;
+    return null;
   }
 
   return (

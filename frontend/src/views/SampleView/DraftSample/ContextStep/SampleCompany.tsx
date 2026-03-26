@@ -1,15 +1,15 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { Company } from 'maestro-shared/schema/Company/Company';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
+import type { Company } from 'maestro-shared/schema/Company/Company';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { useEffect, useMemo } from 'react';
-import CompanySearch from 'src/components/CompanySearch/CompanySearch';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
+import CompanySearch from 'src/components/CompanySearch/CompanySearch';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { UseForm } from 'src/hooks/useForm';
+import type { UseForm } from 'src/hooks/useForm';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
 
 type Props = {
@@ -84,30 +84,27 @@ const SampleCompany = ({
     programmingPlanKind
   ]);
 
-  useEffect(
-    () => {
+  useEffect(() => {
+    if (
+      programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
+      filteredCompanies
+    ) {
       if (
-        programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
-        filteredCompanies
+        company &&
+        !filteredCompanies.some((c) => c.siret === company.siret)
       ) {
-        if (
-          company &&
-          !filteredCompanies.some((c) => c.siret === company.siret)
-        ) {
-          onCompanyChange(undefined);
-        } else if (filteredCompanies.length === 1 && !company) {
-          onCompanyChange(filteredCompanies[0]);
-          if (onGeolocationChange) {
-            onGeolocationChange(
-              filteredCompanies[0].geolocation?.x,
-              filteredCompanies[0].geolocation?.y
-            );
-          }
+        onCompanyChange(undefined);
+      } else if (filteredCompanies.length === 1 && !company) {
+        onCompanyChange(filteredCompanies[0]);
+        if (onGeolocationChange) {
+          onGeolocationChange(
+            filteredCompanies[0].geolocation?.x,
+            filteredCompanies[0].geolocation?.y
+          );
         }
       }
-    },
-    [filteredCompanies, company, programmingPlan.distributionKind] // eslint-disable-line react-hooks/exhaustive-deps
-  );
+    }
+  }, [filteredCompanies, company, programmingPlan.distributionKind]);
 
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>

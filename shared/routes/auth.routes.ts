@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { AuthRedirectUrl } from '../schema/Auth/AuthRedirectUrl';
 import { AuthMaybeUnknownUser, AuthUserRefined } from '../schema/User/AuthUser';
 import { UserRole } from '../schema/User/UserRole';
-import { SubRoutes } from './routes';
+import type { SubRoutes } from './routes';
 
 export const authRoutes = {
   '/auth': {

@@ -1,4 +1,4 @@
-import { FrIconClassName } from '@codegouvfr/react-dsfr';
+import type { FrIconClassName } from '@codegouvfr/react-dsfr';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useContext } from 'react';
@@ -20,7 +20,7 @@ const DocumentLink = ({ documentId, iconId }: Props) => {
   );
 
   if (!document) {
-    return <></>;
+    return null;
   }
 
   return (

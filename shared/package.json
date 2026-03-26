@@ -7,7 +7,7 @@
     "build": "tsc",
     "tsc": "tsc",
     "test": "vitest",
-    "lint": "eslint . --ext .js,.ts"
+    "lint": "biome check"
   },
   "dependencies": {
     "@faker-js/faker": "^9.8.0",

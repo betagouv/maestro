@@ -1,12 +1,13 @@
-import express, { Application } from 'express';
 // Allows to throw an error or reject a promise in controllers
 // instead of having to call the next(err) function.
+
+import path from 'node:path';
 import * as Sentry from '@sentry/node';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import express, { type Application } from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import path from 'path';
 import RouteNotFoundError from './errors/routeNotFoundError';
 import errorHandler from './middlewares/error-handler';
 import { m2mProtectedRouter } from './routers/m2mProtected';
@@ -121,14 +122,11 @@ export function createServer(): Server {
       );
     });
     app.use(express.static(path.join(import.meta.dirname, '../frontend/dist')));
-    app.get(
-      '/*splat',
-      function (_req: any, res: { sendFile: (arg0: any) => void }) {
-        res.sendFile(
-          path.join(import.meta.dirname, '../frontend/dist', 'index.html')
-        );
-      }
-    );
+    app.get('/*splat', (_req: any, res: { sendFile: (arg0: any) => void }) => {
+      res.sendFile(
+        path.join(import.meta.dirname, '../frontend/dist', 'index.html')
+      );
+    });
   }
 
   app.all('/*splat', () => {

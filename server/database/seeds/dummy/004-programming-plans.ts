@@ -1,4 +1,4 @@
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   DAOAInProgressProgrammingPlanFixture,
   PPVClosedProgrammingPlanFixture,
@@ -13,7 +13,7 @@ import {
 } from '../../../repositories/programmingPlanRepository';
 import { Users } from '../../../repositories/userRepository';
 
-export const seed = async function () {
+export const seed = async () => {
   const user = await Users()
     .where('email', 'coordinateur.national@maestro.beta.gouv.fr')
     .first();

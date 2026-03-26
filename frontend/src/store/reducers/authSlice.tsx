@@ -1,5 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import type {
   AuthMaybeUnknownUser,
   AuthUserRefined
 } from 'maestro-shared/schema/User/AuthUser';

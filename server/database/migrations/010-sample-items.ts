@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 import { SampleItemRecipientKindList } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 
 export const up = async (knex: Knex) => {

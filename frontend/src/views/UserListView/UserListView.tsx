@@ -4,7 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { Brand } from 'maestro-shared/constants';
-import { UserRefined } from 'maestro-shared/schema/User/User';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { useCallback, useContext, useState } from 'react';
 import usersSvg from 'src/assets/illustrations/users.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
@@ -13,7 +13,7 @@ import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
 import { UserCard } from './components/UserCard';
 import { UserModal } from './components/UserModal';
-import { FindUserOptions, UsersFilters } from './components/UsersFilters';
+import { type FindUserOptions, UsersFilters } from './components/UsersFilters';
 
 const userFormModal = createModal({
   id: `user-form-modale-id`,

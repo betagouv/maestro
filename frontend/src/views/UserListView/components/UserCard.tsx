@@ -5,14 +5,14 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { Regions } from 'maestro-shared/referential/Region';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { UserRefined } from 'maestro-shared/schema/User/User';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   canHaveDepartment,
   isRegionalRole,
   UserRoleLabels
 } from 'maestro-shared/schema/User/UserRole';
 import { isNotEmpty } from 'maestro-shared/utils/typescript';
-import { FunctionComponent } from 'react';
+import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import './UserCard.scss';
 

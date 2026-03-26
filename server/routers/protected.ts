@@ -1,5 +1,5 @@
+import fs from 'node:fs';
 import express from 'express';
-import fs from 'fs';
 import { analysisRouter } from '../controllers/analysisController';
 import { analysisReportDocumentsRouter } from '../controllers/analysisReportDocumentsController';
 import { authProtectedRouter } from '../controllers/authController';
@@ -19,7 +19,7 @@ import { usersRouter } from '../controllers/userController';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
 import addressRouter from './address.router';
 import companyRouter from './company.router';
-import { generateRoutes, ProtectedSubRouter } from './routes.type';
+import { generateRoutes, type ProtectedSubRouter } from './routes.type';
 
 export const protectedRouter = express.Router();
 
@@ -51,5 +51,5 @@ protectedRouter.use('/companies', companyRouter);
 
 protectedRouter.get('/regions.geojson', (_req, res) => {
   res.setHeader('Content-Type', 'application/json');
-  fs.createReadStream(import.meta.dirname + '/../data/regions.json').pipe(res);
+  fs.createReadStream(`${import.meta.dirname}/../data/regions.json`).pipe(res);
 });

@@ -1,4 +1,4 @@
-import { RefinementCtx, z } from 'zod';
+import { type RefinementCtx, z } from 'zod';
 import { superRefineSchema } from '../../utils/zod';
 import { UserBase, userChecks } from './User';
 import { isNationalRole, isRegionalRole, UserRole } from './UserRole';

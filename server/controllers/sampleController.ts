@@ -1,26 +1,37 @@
+import { constants } from 'node:http2';
+import type { Readable } from 'node:stream';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { constants } from 'http2';
-import { isNil } from 'lodash-es';
+import { isEqual, isNil } from 'lodash-es';
+import NoRegionError from 'maestro-shared/errors/noRegionError';
+import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
-import { Region, Regions } from 'maestro-shared/referential/Region';
-import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
+import { type Region, Regions } from 'maestro-shared/referential/Region';
+import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
+import { StageLabels } from 'maestro-shared/referential/Stage';
+import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
+import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 import {
   getAnalysisReportDocumentFilename,
   getSupportDocumentFilename
 } from 'maestro-shared/schema/Document/DocumentKind';
 import {
   ContextLabels,
-  ProgrammingPlanContext
+  type ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import {
+  type ProgrammingPlanKindWithSacha,
+  ProgrammingPlanKindWithSachaList
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { buildFindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   getSampleMatrixLabel,
   isProgrammingPlanSample,
-  PartialSample,
+  type PartialSample,
   SampleBase,
   SampleChecked,
   sampleSendCheck
@@ -31,34 +42,12 @@ import {
   SampleItemSort
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
-import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
-import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
-import companyRepository from '../repositories/companyRepository';
-import { laboratoryRepository } from '../repositories/laboratoryRepository';
-import sampleItemRepository from '../repositories/sampleItemRepository';
-import { sampleRepository } from '../repositories/sampleRepository';
-import { csvService } from '../services/csvService/csvService';
-import { documentService } from '../services/documentService';
-import { excelService } from '../services/excelService/excelService';
-import { mailService } from '../services/mailService';
-import { pdfService } from '../services/pdfService/pdfService';
-
-import { isEqual } from 'lodash-es';
-import NoRegionError from 'maestro-shared/errors/noRegionError';
-import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { StageLabels } from 'maestro-shared/referential/Stage';
-import { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
-import {
-  ProgrammingPlanKindWithSacha,
-  ProgrammingPlanKindWithSachaList
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
+import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { formatWithTz } from 'maestro-shared/utils/date';
+import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { checkSchema } from 'maestro-shared/utils/zod';
-import { Readable } from 'node:stream';
 import { PDFDocument } from 'pdf-lib';
 import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
@@ -67,18 +56,30 @@ import {
   getAndCheckSampleDepartement
 } from '../middlewares/checks/sampleCheck';
 import { analysisRepository } from '../repositories/analysisRepository';
-import { LaboratoryResidueMapping } from '../repositories/kysely.type';
+import companyRepository from '../repositories/companyRepository';
+import type { LaboratoryResidueMapping } from '../repositories/kysely.type';
+import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import { laboratoryResidueMappingRepository } from '../repositories/laboratoryResidueMappingRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import { sachaCommemoratifRepository } from '../repositories/sachaCommemoratifRepository';
 import { sachaConfRepository } from '../repositories/sachaConfRepository';
+import sampleItemRepository from '../repositories/sampleItemRepository';
+import { sampleRepository } from '../repositories/sampleRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
-import { ProtectedSubRouter } from '../routers/routes.type';
+import type { ProtectedSubRouter } from '../routers/routes.type';
+import { csvService } from '../services/csvService/csvService';
+import { documentService } from '../services/documentService';
 import { generateXMLDAI } from '../services/ediSacha/sachaDAI';
 import { sendSachaFile } from '../services/ediSacha/sachaSender';
-import { laboratoriesConf, LaboratoryWithConf } from '../services/imapService';
+import { excelService } from '../services/excelService/excelService';
+import {
+  type LaboratoryWithConf,
+  laboratoriesConf
+} from '../services/imapService';
+import { mailService } from '../services/mailService';
 import { mattermostService } from '../services/mattermostService';
+import { pdfService } from '../services/pdfService/pdfService';
 import config from '../utils/config';
 
 const streamToBase64 = async (stream: Readable): Promise<string> => {
@@ -366,7 +367,9 @@ export const sampleRouter = {
           pdf,
           pdf.getPageIndices()
         );
-        copiedPages.forEach((page) => mergedPdf.addPage(page));
+        copiedPages.forEach((page) => {
+          mergedPdf.addPage(page);
+        });
       }
 
       const mergedPdfBuffer = await mergedPdf.save();

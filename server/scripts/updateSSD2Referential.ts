@@ -1,11 +1,10 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
 import ExcelJS from 'exceljs';
-import { readFileSync } from 'fs';
 import { isNil, uniq } from 'lodash-es';
 import { SSD2Hierarchy } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { writeFileSync } from 'node:fs';
-import path from 'path';
 
 const updateSSD2Referential = async () => {
   console.log('Updating SSD2…');
@@ -91,7 +90,7 @@ const updateSSD2Referential = async () => {
     masterParentCode: string;
     reportable: boolean;
   }[] = [];
-  worksheet.eachRow(function (row, rowNumber) {
+  worksheet.eachRow((row, rowNumber) => {
     const isKnownId = Object.keys(SSD2Referential).includes(
       `${row.getCell(columnsIndex['termCode'])?.value}`
     );

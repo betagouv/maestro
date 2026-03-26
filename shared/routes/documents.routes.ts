@@ -4,7 +4,7 @@ import {
   DocumentToCreateChecked,
   DocumentUpdateChecked
 } from '../schema/Document/Document';
-import { SubRoutes } from './routes';
+import type { SubRoutes } from './routes';
 
 export const documentsRoutes = {
   '/documents': {

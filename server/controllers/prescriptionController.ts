@@ -1,4 +1,4 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { hasPrescriptionPermission } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
@@ -8,7 +8,7 @@ import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPla
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
-import { ProtectedSubRouter } from '../routers/routes.type';
+import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
 
 export const prescriptionsRouter = {

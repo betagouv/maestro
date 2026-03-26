@@ -5,21 +5,22 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
 import { isNil, uniqBy } from 'lodash-es';
-import { Region } from 'maestro-shared/referential/Region';
+import type { Region } from 'maestro-shared/referential/Region';
 import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isCreatedPartialSample,
   isProgrammingPlanSample,
-  PartialSample,
-  PartialSampleToCreate,
+  type PartialSample,
+  type PartialSampleToCreate,
   SampleItemsDataChecked,
   sampleItemSealIdCheck
 } from 'maestro-shared/schema/Sample/Sample';
-import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import type { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleStatusSteps } from 'maestro-shared/schema/Sample/SampleStatus';
 import { checkSchema } from 'maestro-shared/utils/zod';
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import type React from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
@@ -68,7 +69,7 @@ const ItemsStep = ({ partialSample }: Props) => {
             initialSampledAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
             isDefaultSampledAt: true
           },
-    [] // eslint-disable-line react-hooks/exhaustive-deps
+    []
   );
 
   const [createOrUpdateSample, createOrUpdateSampleCall] =
@@ -121,7 +122,7 @@ const ItemsStep = ({ partialSample }: Props) => {
           }))
       );
     }
-  }, [localPrescription, programmingPlan]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [localPrescription, programmingPlan]);
 
   const Form = z.object(SampleItemsDataChecked.shape).pick({
     sampledAt: true,
@@ -146,36 +147,33 @@ const ItemsStep = ({ partialSample }: Props) => {
     });
   });
 
-  useEffect(
-    () => {
-      if (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading) {
-        isSubmittingRef.current = false;
+  useEffect(() => {
+    if (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading) {
+      isSubmittingRef.current = false;
 
-        if (createOrUpdateSampleCall.isSuccess) {
+      if (createOrUpdateSampleCall.isSuccess) {
+        trackEvent(
+          'sample',
+          `submit_${partialSample.status}`,
+          partialSample.id
+        );
+        if (initialSampledAt !== sampledAt) {
           trackEvent(
             'sample',
-            `submit_${partialSample.status}`,
+            isDefaultSampledAt
+              ? 'change_default_sampled_at'
+              : 'change_sampled_at',
             partialSample.id
           );
-          if (initialSampledAt !== sampledAt) {
-            trackEvent(
-              'sample',
-              isDefaultSampledAt
-                ? 'change_default_sampled_at'
-                : 'change_sampled_at',
-              partialSample.id
-            );
-          }
-          navigateToSample(partialSample.id, 4);
         }
+        navigateToSample(partialSample.id, 4);
       }
-    }, // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      createOrUpdateSampleCall.isSuccess,
-      createOrUpdateSampleCall.isLoading,
-      partialSample.id
-    ]
-  );
+    }
+  }, [
+    createOrUpdateSampleCall.isSuccess,
+    createOrUpdateSampleCall.isLoading,
+    partialSample.id
+  ]);
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -389,12 +387,13 @@ const ItemsStep = ({ partialSample }: Props) => {
             <li>
               {!readonly ? (
                 <Button
-                  children="Récapitulatif"
                   onClick={submit}
                   iconId="fr-icon-arrow-right-line"
                   iconPosition="right"
                   data-testid="submit-button"
-                />
+                >
+                  Récapitulatif
+                </Button>
               ) : (
                 <NextButton partialSample={partialSample} currentStep={3} />
               )}

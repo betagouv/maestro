@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   FoieDeBovinPrescriptionFixture,
   genPrescription

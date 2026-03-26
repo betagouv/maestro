@@ -1,4 +1,4 @@
-import { Notice } from 'maestro-shared/schema/Notice/Notice';
+import type { Notice } from 'maestro-shared/schema/Notice/Notice';
 import { api } from 'src/services/api.service';
 
 const noticeApi = api.injectEndpoints({

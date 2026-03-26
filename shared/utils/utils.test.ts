@@ -18,8 +18,9 @@ test('convertKeysToCamelCase', () => {
         "fooFoo": "foo_foo",
       }
     `);
-  expect(convertKeysToCamelCase({ fooFii: 'fooFii', foo_foo: 'foo_foo' }))
-    .toMatchInlineSnapshot(`
+  expect(
+    convertKeysToCamelCase({ fooFii: 'fooFii', foo_foo: 'foo_foo' })
+  ).toMatchInlineSnapshot(`
       {
         "fooFii": "fooFii",
         "fooFoo": "foo_foo",

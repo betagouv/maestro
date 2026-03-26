@@ -1,24 +1,24 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { isNil, sumBy } from 'lodash-es';
-import { Department } from 'maestro-shared/referential/Department';
+import type { Department } from 'maestro-shared/referential/Department';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { Region } from 'maestro-shared/referential/Region';
-import { Company } from 'maestro-shared/schema/Company/Company';
+import type { Region } from 'maestro-shared/referential/Region';
+import type { Company } from 'maestro-shared/schema/Company/Company';
 import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import {
   filteredLocalPrescriptions,
-  LocalPrescriptionUpdate
+  type LocalPrescriptionUpdate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
-import { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import {
-  Prescription,
+  type Prescription,
   PrescriptionSort,
-  PrescriptionUpdate
+  type PrescriptionUpdate
 } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import AppToast from 'src/components/_app/AppToast/AppToast';
@@ -237,14 +237,11 @@ const ProgrammingPrescriptionList = ({
         setSearchParams(searchParams, { replace: true });
       }, 1000);
     }
-  }, [searchParams, localPrescriptions]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchParams, localPrescriptions]);
 
-  const removePrescription = useCallback(
-    async (prescriptionId: string) => {
-      await deletePrescription(prescriptionId);
-    },
-    [] // eslint-disable-line react-hooks/exhaustive-deps
-  );
+  const removePrescription = useCallback(async (prescriptionId: string) => {
+    await deletePrescription(prescriptionId);
+  }, []);
 
   const changePrescription = useCallback(
     async (
@@ -261,7 +258,7 @@ const ProgrammingPrescriptionList = ({
         });
       }
     },
-    [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
+    [programmingPlan]
   );
 
   const changeLocalPrescription = useCallback(
@@ -274,7 +271,7 @@ const ProgrammingPrescriptionList = ({
         prescriptionUpdate
       });
     },
-    [programmingPlan] // eslint-disable-line react-hooks/exhaustive-deps
+    [programmingPlan]
   );
 
   const changeLocalPrescriptionCount = useCallback(
@@ -361,121 +358,114 @@ const ProgrammingPrescriptionList = ({
               Aucun prélèvement programmé pour les filtres sélectionnés
             </div>
           )}
-          {prescriptionListDisplay === 'cards' && prescriptions.length > 0 && (
-            <>
-              {hasNationalView ? (
-                <div className="prescription-cards-container">
-                  {prescriptions?.map((prescription) => (
-                    <PrescriptionCard
-                      key={`prescription_cards_${prescription.id}`}
-                      programmingPlan={programmingPlan}
-                      prescription={prescription}
-                      regionalPrescriptions={localPrescriptions.filter(
-                        (rp) => rp.prescriptionId === prescription.id
-                      )}
-                      onChangeLocalPrescriptionCount={(region, value) =>
-                        changeLocalPrescriptionCount(
-                          {
-                            prescriptionId: prescription.id,
-                            region: region as Region
-                          },
-                          value
-                        )
-                      }
-                      onRemovePrescription={removePrescription}
-                      onChangePrescriptionStages={(stages) =>
-                        changePrescription(prescription, {
-                          stages
-                        })
-                      }
-                      onChangePrescriptionNotes={(notes) =>
-                        changePrescription(prescription, {
-                          notes
-                        })
-                      }
-                      onChangePrescriptionProgrammingInstruction={(
+          {prescriptionListDisplay === 'cards' &&
+            prescriptions.length > 0 &&
+            (hasNationalView ? (
+              <div className="prescription-cards-container">
+                {prescriptions?.map((prescription) => (
+                  <PrescriptionCard
+                    key={`prescription_cards_${prescription.id}`}
+                    programmingPlan={programmingPlan}
+                    prescription={prescription}
+                    regionalPrescriptions={localPrescriptions.filter(
+                      (rp) => rp.prescriptionId === prescription.id
+                    )}
+                    onChangeLocalPrescriptionCount={(region, value) =>
+                      changeLocalPrescriptionCount(
+                        {
+                          prescriptionId: prescription.id,
+                          region: region as Region
+                        },
+                        value
+                      )
+                    }
+                    onRemovePrescription={removePrescription}
+                    onChangePrescriptionStages={(stages) =>
+                      changePrescription(prescription, {
+                        stages
+                      })
+                    }
+                    onChangePrescriptionNotes={(notes) =>
+                      changePrescription(prescription, {
+                        notes
+                      })
+                    }
+                    onChangePrescriptionProgrammingInstruction={(
+                      programmingInstruction
+                    ) =>
+                      changePrescription(prescription, {
                         programmingInstruction
-                      ) =>
-                        changePrescription(prescription, {
-                          programmingInstruction
-                        })
+                      })
+                    }
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+                {prescriptions?.map((prescription) => (
+                  <LocalPrescriptionCard
+                    key={`prescription_cards_${prescription.id}`}
+                    programmingPlan={programmingPlan}
+                    prescription={prescription}
+                    localPrescription={localPrescriptions.find(
+                      (regionalPrescription) =>
+                        regionalPrescription.prescriptionId === prescription.id
+                    )}
+                    subLocalPrescriptions={subLocalPrescriptions?.filter(
+                      (departmentalPrescription) =>
+                        departmentalPrescription.prescriptionId ===
+                        prescription.id
+                    )}
+                    isSelected={selectedPrescriptions.some(
+                      (_) => _.id === prescription.id
+                    )}
+                    onToggleSelection={
+                      hasGroupedUpdatePermission
+                        ? () =>
+                            setSelectedPrescriptions((prevState) =>
+                              prevState.some((_) => _.id === prescription.id)
+                                ? prevState.filter(
+                                    (_) => _.id !== prescription.id
+                                  )
+                                : [...prevState, prescription]
+                            )
+                        : undefined
+                    }
+                  />
+                ))}
+              </div>
+            ))}
+          {prescriptionListDisplay === 'table' &&
+            prescriptions.length > 0 &&
+            (hasNationalView ? (
+              <ProgrammingRegionalPrescriptionTable
+                programmingPlan={programmingPlan}
+                prescriptions={prescriptions}
+                regionalPrescriptions={localPrescriptions}
+                onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
+              />
+            ) : (
+              <ProgrammingLocalPrescriptionTable
+                programmingPlan={programmingPlan}
+                prescriptions={prescriptions}
+                region={user?.region as Region}
+                localPrescriptions={localPrescriptions}
+                subLocalPrescriptions={subLocalPrescriptions ?? []}
+                onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
+                selectedPrescriptions={selectedPrescriptions}
+                onTogglePrescriptionSelection={
+                  hasGroupedUpdatePermission
+                    ? (prescription) => {
+                        setSelectedPrescriptions((prevState) =>
+                          prevState.some((_) => _.id === prescription.id)
+                            ? prevState.filter((_) => _.id !== prescription.id)
+                            : [...prevState, prescription]
+                        );
                       }
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                  {prescriptions?.map((prescription) => (
-                    <LocalPrescriptionCard
-                      key={`prescription_cards_${prescription.id}`}
-                      programmingPlan={programmingPlan}
-                      prescription={prescription}
-                      localPrescription={localPrescriptions.find(
-                        (regionalPrescription) =>
-                          regionalPrescription.prescriptionId ===
-                          prescription.id
-                      )}
-                      subLocalPrescriptions={subLocalPrescriptions?.filter(
-                        (departmentalPrescription) =>
-                          departmentalPrescription.prescriptionId ===
-                          prescription.id
-                      )}
-                      isSelected={selectedPrescriptions.some(
-                        (_) => _.id === prescription.id
-                      )}
-                      onToggleSelection={
-                        hasGroupedUpdatePermission
-                          ? () =>
-                              setSelectedPrescriptions((prevState) =>
-                                prevState.some((_) => _.id === prescription.id)
-                                  ? prevState.filter(
-                                      (_) => _.id !== prescription.id
-                                    )
-                                  : [...prevState, prescription]
-                              )
-                          : undefined
-                      }
-                    />
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-          {prescriptionListDisplay === 'table' && prescriptions.length > 0 && (
-            <>
-              {hasNationalView ? (
-                <ProgrammingRegionalPrescriptionTable
-                  programmingPlan={programmingPlan}
-                  prescriptions={prescriptions}
-                  regionalPrescriptions={localPrescriptions}
-                  onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
-                />
-              ) : (
-                <ProgrammingLocalPrescriptionTable
-                  programmingPlan={programmingPlan}
-                  prescriptions={prescriptions}
-                  region={user?.region as Region}
-                  localPrescriptions={localPrescriptions}
-                  subLocalPrescriptions={subLocalPrescriptions ?? []}
-                  onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
-                  selectedPrescriptions={selectedPrescriptions}
-                  onTogglePrescriptionSelection={
-                    hasGroupedUpdatePermission
-                      ? (prescription) => {
-                          setSelectedPrescriptions((prevState) =>
-                            prevState.some((_) => _.id === prescription.id)
-                              ? prevState.filter(
-                                  (_) => _.id !== prescription.id
-                                )
-                              : [...prevState, prescription]
-                          );
-                        }
-                      : undefined
-                  }
-                />
-              )}
-            </>
-          )}
+                    : undefined
+                }
+              />
+            ))}
         </>
       )}
       <PrescriptionModal

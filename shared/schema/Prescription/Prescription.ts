@@ -8,9 +8,9 @@ import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import { Stage, StageLabels } from '../../referential/Stage';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
 import { hasPermission } from '../User/User';
-import { UserRole } from '../User/UserRole';
+import type { UserRole } from '../User/UserRole';
 import { PrescriptionSubstance } from './PrescriptionSubstance';
 
 export const Prescription = z.object({

@@ -1,9 +1,9 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { t } from 'i18next';
-import { Department } from 'maestro-shared/referential/Department';
-import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { Department } from 'maestro-shared/referential/Department';
+import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import LocalPrescriptionDistributionBadge from '../LocalPrescriptionDistributionBadge/LocalPrescriptionDistributionBadge';
 import LocalPrescriptionDepartmentalDistributionTable from './LocalPrescriptionDepartmentalDistributionTable';

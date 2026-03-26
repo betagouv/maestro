@@ -2,11 +2,14 @@ import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { OptionalBooleanList } from '../referential/OptionnalBoolean';
 import { AnalyteList } from '../referential/Residue/Analyte';
-import { AnalysisToCreate, PartialAnalysis } from '../schema/Analysis/Analysis';
+import type {
+  AnalysisToCreate,
+  PartialAnalysis
+} from '../schema/Analysis/Analysis';
 import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
 import { AnalysisStatusList } from '../schema/Analysis/AnalysisStatus';
-import { Analyte, PartialAnalyte } from '../schema/Analysis/Analyte';
-import {
+import type { Analyte, PartialAnalyte } from '../schema/Analysis/Analyte';
+import type {
   PartialResidue,
   ResidueChecked
 } from '../schema/Analysis/Residue/Residue';

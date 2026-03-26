@@ -1,6 +1,6 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 
-import { Region } from '../referential/Region';
+import type { Region } from '../referential/Region';
 import { HttpError } from './httpError';
 
 export default class LocalPrescriptionMissingError

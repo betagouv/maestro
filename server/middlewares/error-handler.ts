@@ -1,6 +1,10 @@
-import { errors as compose, ErrorHandler, Next } from 'compose-middleware';
-import { Request, Response } from 'express';
-import { constants } from 'http2';
+import { constants } from 'node:http2';
+import {
+  errors as compose,
+  type ErrorHandler,
+  type Next
+} from 'compose-middleware';
+import type { Request, Response } from 'express';
 import { COOKIE_MAESTRO_ACCESS_TOKEN } from 'maestro-shared/constants';
 import AuthenticationFailedError from 'maestro-shared/errors/authenticationFailedError';
 import AuthenticationMissingError from 'maestro-shared/errors/authenticationMissingError';
