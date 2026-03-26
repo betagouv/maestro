@@ -1,7 +1,4 @@
-import {
-  getAnalytes,
-  isComplex
-} from 'maestro-shared/referential/Residue/SSD2Hierarchy';
+import { getAnalytes, isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
@@ -12,6 +9,7 @@ import { analysisRepository } from '../../repositories/analysisRepository';
 import { analysisResidueRepository } from '../../repositories/analysisResidueRepository';
 import { kysely } from '../../repositories/kysely';
 import { residueAnalyteRepository } from '../../repositories/residueAnalyteRepository';
+import { sampleRepository } from '../../repositories/sampleRepository';
 import { documentService } from '../documentService';
 import { ExtractError } from './extractError';
 import type { ExportAnalysis, ExportDataSubstanceWithSSD2Id } from './index';
@@ -216,6 +214,8 @@ export const analysisHandler = async (
       } else {
         analysisId = await analysisRepository.insert(newAnalysis, trx);
       }
+
+      await sampleRepository.evaluateSampleCompliance(sampleId);
 
       await analysisReportDocumentsRepository.insert(
         analysisId,

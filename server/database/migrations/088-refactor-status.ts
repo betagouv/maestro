@@ -99,23 +99,21 @@ export const up = async (knex: Knex) => {
           SELECT COUNT(*) FROM sample_item_status sis WHERE sis.sample_id = s.id AND sis.status != 'NotAdmissible'
         ) = 0
           THEN 'NotAdmissible'
-        ELSE 
+        ELSE
           (
             SELECT CASE MIN(
               CASE
                 WHEN sis.status = 'Sent' THEN 1
-                WHEN sis.status = 'NotAdmissible' THEN 2
-                WHEN sis.status = 'Analysis' THEN 3
-                WHEN sis.status = 'InReview' THEN 4
-                WHEN sis.status = 'Completed' THEN 5
-                ELSE NULL
+                WHEN sis.status = 'Analysis' THEN 2
+                WHEN sis.status = 'InReview' THEN 3
+                WHEN sis.status = 'Completed' THEN 4
+                ELSE 0
               END
             )
               WHEN 1 THEN 'Sent'
-              WHEN 2 THEN 'NotAdmissible'
-              WHEN 3 THEN 'Analysis'
-              WHEN 4 THEN 'InReview'
-              WHEN 5 THEN (
+              WHEN 2 THEN 'Analysis'
+              WHEN 3 THEN 'InReview'
+              WHEN 4 THEN (
                 CASE WHEN s.compliance IS NOT NULL
                   THEN 'Completed' ELSE 'InReview' END
               )
