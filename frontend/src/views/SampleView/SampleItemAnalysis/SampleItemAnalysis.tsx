@@ -4,11 +4,14 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { pick } from 'lodash-es';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
-import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
-import { MaestroDate, maestroDateRefined } from 'maestro-shared/utils/date';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import {
-  FunctionComponent,
+  type MaestroDate,
+  maestroDateRefined
+} from 'maestro-shared/utils/date';
+import {
+  type FunctionComponent,
   useContext,
   useEffect,
   useMemo,
@@ -324,24 +327,21 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
       </div>
       {analysis &&
         analysis.status !== 'Sent' &&
-        analysis.status !== 'NotAdmissible' && (
-          <>
-            {!isEditing ? (
-              <SampleAnalysisOverview
-                sample={sample}
-                analysis={analysis}
-                readonly={readonly}
-                onEdit={() => navigateToSampleEdit(sample.id)}
-              />
-            ) : (
-              <SampleAnalysisForm
-                sample={sample}
-                partialAnalysis={analysis}
-                onDone={() => navigateToSample(sample.id)}
-              />
-            )}
-          </>
-        )}
+        analysis.status !== 'NotAdmissible' &&
+        (!isEditing ? (
+          <SampleAnalysisOverview
+            sample={sample}
+            analysis={analysis}
+            readonly={readonly}
+            onEdit={() => navigateToSampleEdit(sample.id)}
+          />
+        ) : (
+          <SampleAnalysisForm
+            sample={sample}
+            partialAnalysis={analysis}
+            onDone={() => navigateToSample(sample.id)}
+          />
+        ))}
       {sample.status === 'InReview' && <UserFeedback />}
     </div>
   );

@@ -3,37 +3,37 @@
  * Please do not edit it manually.
  */
 
-import { ColumnType, Expression, type Kysely, sql } from 'kysely';
-import { Department } from 'maestro-shared/referential/Department';
-import { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
-import { type Region } from 'maestro-shared/referential/Region';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { Stage } from 'maestro-shared/referential/Stage';
-import { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
-import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
-import { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
-import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
-import { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
-import { type DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
-import { LocalPrescriptionSubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import {
+import { type ColumnType, type Expression, type Kysely, sql } from 'kysely';
+import type { Department } from 'maestro-shared/referential/Department';
+import type { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
+import type { Region } from 'maestro-shared/referential/Region';
+import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import type { Stage } from 'maestro-shared/referential/Stage';
+import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
+import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import type { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
+import type { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import type { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
+import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
+import type { LocalPrescriptionSubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type {
   CommemoratifSigle,
   CommemoratifValueSigle,
   SachaCommemoratifTypeDonnee
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
-import { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
-import { SampleStatus as SampleStatusType } from 'maestro-shared/schema/Sample/SampleStatus';
-import { SampleStep } from 'maestro-shared/schema/Sample/SampleStep';
+import type { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
+import type { SampleStatus as SampleStatusType } from 'maestro-shared/schema/Sample/SampleStatus';
+import type { SampleStep } from 'maestro-shared/schema/Sample/SampleStep';
 import {
   ProgrammingPlanKindFieldId,
   SpecificDataFieldId,
   SpecificDataFieldOptionId
 } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
-import { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { UserRole } from 'maestro-shared/schema/User/UserRole';
-import { MaestroDate } from 'maestro-shared/utils/date';
+import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
+import type { UserRole } from 'maestro-shared/schema/User/UserRole';
+import type { MaestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod';
 
 export type Generated<T> =
@@ -345,6 +345,7 @@ export interface Users {
   loggedSecrets: ColumnType<string[], string[] | null, string[]>;
   programmingPlanKinds: ProgrammingPlanKind[];
   disabled: boolean;
+  laboratoryId: string | null;
 }
 
 export interface UserCompanies {

@@ -1,7 +1,10 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import { omit } from 'lodash-es';
 import { AnalyteList } from 'maestro-shared/referential/Residue/Analyte';
-import { PartialAnalyte } from 'maestro-shared/schema/Analysis/Analyte';
+import { SSD2Ids } from 'maestro-shared/referential/Residue/SSD2Id';
+import type { PartialAnalyte } from 'maestro-shared/schema/Analysis/Analyte';
+import type { SampleItemKey } from 'maestro-shared/schema/Sample/SampleItem';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   genAnalysisToCreate,
   genPartialAnalysis,
@@ -9,27 +12,12 @@ import {
   genPartialResidue
 } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
-import { oneOf } from 'maestro-shared/test/testFixtures';
-import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
 import {
-  Analysis,
-  analysisRepository,
-  AnalysisResidues,
-  ResidueAnalytes
-} from '../../repositories/analysisRepository';
-import { Documents } from '../../repositories/documentRepository';
-import { createServer } from '../../server';
-import { tokenProvider } from '../../test/testUtils';
-
-import { SSD2Ids } from 'maestro-shared/referential/Residue/SSD2Id';
-import { SampleItemKey } from 'maestro-shared/schema/Sample/SampleItem';
-import { UserRefined } from 'maestro-shared/schema/User/User';
-import {
+  Sample2Fixture,
   Sample11Fixture,
-  Sample13Fixture,
-  Sample2Fixture
+  Sample13Fixture
 } from 'maestro-shared/test/sampleFixtures';
+import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
   NationalCoordinator,
@@ -39,8 +27,19 @@ import {
   Sampler1Fixture,
   Sampler2Fixture
 } from 'maestro-shared/test/userFixtures';
+import request from 'supertest';
+import { v4 as uuidv4 } from 'uuid';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import {
+  Analysis,
+  AnalysisResidues,
+  analysisRepository,
+  ResidueAnalytes
+} from '../../repositories/analysisRepository';
+import { Documents } from '../../repositories/documentRepository';
 import { kysely } from '../../repositories/kysely';
+import { createServer } from '../../server';
+import { tokenProvider } from '../../test/testUtils';
 
 const getSampleStatus = (sampleId: string) =>
   kysely

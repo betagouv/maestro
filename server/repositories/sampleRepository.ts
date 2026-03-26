@@ -1,12 +1,12 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
-import { Region } from 'maestro-shared/referential/Region';
+import type { Region } from 'maestro-shared/referential/Region';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
-import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   PartialSample,
-  SampleBase,
-  SampleChecked
+  type SampleBase,
+  type SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
 import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import z from 'zod';
@@ -14,7 +14,7 @@ import { analysisResiduesTable, analysisTable } from './analysisRepository';
 import { companiesTable } from './companyRepository';
 import { knexInstance as db, knexInstance } from './db';
 import { kysely } from './kysely';
-import { KyselyMaestro } from './kysely.type';
+import type { KyselyMaestro } from './kysely.type';
 import { sampleItemsTable } from './sampleItemRepository';
 import { usersTable } from './userRepository';
 

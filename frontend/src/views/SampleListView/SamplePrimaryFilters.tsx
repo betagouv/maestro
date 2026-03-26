@@ -1,34 +1,38 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import { t } from 'i18next';
-import { Matrix, MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
 import {
-  MatrixKind,
+  type Matrix,
+  MatrixList
+} from 'maestro-shared/referential/Matrix/Matrix';
+import {
+  type MatrixKind,
   MatrixKindLabels,
   MatrixKindList
 } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
-import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import {
-  ProgrammingPlanKind,
+  type ProgrammingPlanKind,
   ProgrammingPlanKindLabels,
   ProgrammingPlanKindList
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
-  SampleStatus,
+  type SampleStatus,
   SampleStatusLabels,
   SampleStatusList
 } from 'maestro-shared/schema/Sample/SampleStatus';
-import { UserRefined } from 'maestro-shared/schema/User/User';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
 import AppSearchInput from 'src/components/_app/AppSearchInput/AppSearchInput';
 import {
   samplersOptions,
   selectOptionsFromList
 } from 'src/components/_app/AppSelect/AppSelectOption';
 import { pluralize } from '../../utils/stringUtils';
+
 interface Props {
   filters: Partial<FindSampleOptions>;
   onChange: (filters: Partial<FindSampleOptions>) => void;

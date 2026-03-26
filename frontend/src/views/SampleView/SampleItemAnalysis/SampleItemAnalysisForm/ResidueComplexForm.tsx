@@ -2,25 +2,25 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { Analyte } from 'maestro-shared/referential/Residue/Analyte';
+import type { Analyte } from 'maestro-shared/referential/Residue/Analyte';
 import { getAnalytes } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
-import { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { PartialAnalyte } from 'maestro-shared/schema/Analysis/Analyte';
-import { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import type { PartialAnalyte } from 'maestro-shared/schema/Analysis/Analyte';
+import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import {
-  ResultKind,
+  type ResultKind,
   ResultKindLabels,
   ResultKindList
 } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import AppSearchInput from 'src/components/_app/AppSearchInput/AppSearchInput';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
-import { UseForm } from '../../../../hooks/useForm';
+import type { UseForm } from '../../../../hooks/useForm';
 import ResidueSimpleForm from './ResidueSimpleForm';
-import { ResiduesLmrValidator } from './SampleAnalysisForm';
+import type { ResiduesLmrValidator } from './SampleAnalysisForm';
 
 interface Props {
   form: UseForm<ResiduesLmrValidator>;
@@ -151,36 +151,34 @@ function ResidueComplexForm({
               />
             </div>
             {analyte.resultKind === 'Q' && (
-              <>
-                <div className={cx('fr-col-6')}>
-                  <AppTextInput
-                    value={analyte.result ?? ''}
-                    onChange={(e) =>
-                      changeAnalyte(
-                        {
-                          ...analyte,
-                          result: e.target.value ? Number(e.target.value) : null
-                        },
-                        analyteIndex
-                      )
-                    }
-                    type="number"
-                    inputForm={form}
-                    inputKey="residues"
-                    inputPathFromKey={[
-                      residueIndex,
-                      'analytes',
-                      analyteIndex,
-                      'result'
-                    ]}
-                    whenValid="Valeur correctement renseignée"
-                    label="Valeur du résultat"
-                    hintText="En mg/kg"
-                    min={0}
-                    required
-                  />
-                </div>
-              </>
+              <div className={cx('fr-col-6')}>
+                <AppTextInput
+                  value={analyte.result ?? ''}
+                  onChange={(e) =>
+                    changeAnalyte(
+                      {
+                        ...analyte,
+                        result: e.target.value ? Number(e.target.value) : null
+                      },
+                      analyteIndex
+                    )
+                  }
+                  type="number"
+                  inputForm={form}
+                  inputKey="residues"
+                  inputPathFromKey={[
+                    residueIndex,
+                    'analytes',
+                    analyteIndex,
+                    'result'
+                  ]}
+                  whenValid="Valeur correctement renseignée"
+                  label="Valeur du résultat"
+                  hintText="En mg/kg"
+                  min={0}
+                  required
+                />
+              </div>
             )}
           </div>
         </div>

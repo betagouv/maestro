@@ -4,9 +4,9 @@ import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { isNil } from 'lodash-es';
-import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import {
-  MatrixKind,
+  type MatrixKind,
   MatrixKindLabels,
   MatrixKindList,
   OtherMatrixKind
@@ -14,33 +14,34 @@ import {
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import {
-  Stage,
+  type Stage,
   StageLabels,
   StagesByProgrammingPlanKind
 } from 'maestro-shared/referential/Stage';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isCreatedPartialSample,
   isOutsideProgrammingPlanSample,
   isProgrammingPlanSample,
-  PartialSample,
-  PartialSampleToCreate,
+  type PartialSample,
+  type PartialSampleToCreate,
   prescriptionSubstancesCheck,
-  sampleMatrixCheck,
-  SampleMatrixData
+  SampleMatrixData,
+  sampleMatrixCheck
 } from 'maestro-shared/schema/Sample/Sample';
 import {
-  SampleStep,
+  type SampleStep,
   SampleSteps
 } from 'maestro-shared/schema/Sample/SampleStep';
 import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { toArray } from 'maestro-shared/utils/utils';
 import { checkSchema } from 'maestro-shared/utils/zod';
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import type React from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
@@ -661,12 +662,13 @@ const MatrixStep = ({ partialSample }: Props) => {
             <li>
               {!readonly ? (
                 <Button
-                  children="Continuer"
                   onClick={submit}
                   iconId="fr-icon-arrow-right-line"
                   iconPosition="right"
                   data-testid="submit-button"
-                />
+                >
+                  Continuer
+                </Button>
               ) : (
                 <NextButton partialSample={partialSample} currentStep={2} />
               )}

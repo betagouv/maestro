@@ -5,19 +5,19 @@ import Pagination from '@codegouvfr/react-dsfr/Pagination';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { isEmpty, mapValues, omit, omitBy } from 'lodash-es';
-import { Department } from 'maestro-shared/referential/Department';
-import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
-import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { Region } from 'maestro-shared/referential/Region';
+import type { Department } from 'maestro-shared/referential/Department';
+import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
+import type { Region } from 'maestro-shared/referential/Region';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
 import {
-  Context,
+  type Context,
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { SampleCompliance } from 'maestro-shared/schema/Sample/SampleCompliance';
-import { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
+import type { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import {
   UserRoleList,
   UserRolePermissions
@@ -169,7 +169,7 @@ const SampleListView = () => {
   const newPartialSampleId = useMemo(() => uuidv4(), []);
 
   if (!year || !user) {
-    return <></>;
+    return null;
   }
 
   return (
@@ -179,41 +179,40 @@ const SampleListView = () => {
       illustration={food}
       documentTitle="Liste des prélèvements"
       action={
-        <>
-          {programmingPlan && hasUserPermission('createSample') && (
-            <div
-              className={clsx('d-flex-row', 'd-flex-justify-center')}
-              style={{ gap: '1rem' }}
-            >
-              {canDownloadSupportDocument && (
-                <SupportDocumentDownload
-                  partialSample={{
-                    id: newPartialSampleId,
-                    sampler: user,
-                    step: 'Draft' as const,
-                    status: 'Draft' as const,
-                    programmingPlanId: programmingPlan.id as string,
-                    programmingPlanKind: programmingPlan.kinds[0],
-                    specificData: {}
-                  }}
-                  buttonPriority={'tertiary'}
-                  alignRight
-                />
-              )}
-              <Button
-                linkProps={{
-                  to: AuthenticatedAppRoutes.NewSampleRoute.link(
-                    programmingPlan.year
-                  ),
-                  target: '_self'
+        programmingPlan &&
+        hasUserPermission('createSample') && (
+          <div
+            className={clsx('d-flex-row', 'd-flex-justify-center')}
+            style={{ gap: '1rem' }}
+          >
+            {canDownloadSupportDocument && (
+              <SupportDocumentDownload
+                partialSample={{
+                  id: newPartialSampleId,
+                  sampler: user,
+                  step: 'Draft' as const,
+                  status: 'Draft' as const,
+                  programmingPlanId: programmingPlan.id as string,
+                  programmingPlanKind: programmingPlan.kinds[0],
+                  specificData: {}
                 }}
-                iconId="fr-icon-microscope-line"
-              >
-                Saisir un prélèvement
-              </Button>
-            </div>
-          )}
-        </>
+                buttonPriority={'tertiary'}
+                alignRight
+              />
+            )}
+            <Button
+              linkProps={{
+                to: AuthenticatedAppRoutes.NewSampleRoute.link(
+                  programmingPlan.year
+                ),
+                target: '_self'
+              }}
+              iconId="fr-icon-microscope-line"
+            >
+              Saisir un prélèvement
+            </Button>
+          </div>
+        )
       }
     >
       {isOnline ? (
@@ -316,18 +315,16 @@ const SampleListView = () => {
               }
             </div>
             {sampleListDisplay === 'cards' && (
-              <>
-                <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                  {samples?.map((sample) => (
-                    <div
-                      className={cx('fr-col-12', 'fr-col-md-3')}
-                      key={sample.id}
-                    >
-                      <SampleCard sample={sample} />
-                    </div>
-                  ))}
-                </div>
-              </>
+              <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+                {samples?.map((sample) => (
+                  <div
+                    className={cx('fr-col-12', 'fr-col-md-3')}
+                    key={sample.id}
+                  >
+                    <SampleCard sample={sample} />
+                  </div>
+                ))}
+              </div>
             )}
             {sampleListDisplay === 'table' && (
               <SampleTable samples={samples ?? []} />

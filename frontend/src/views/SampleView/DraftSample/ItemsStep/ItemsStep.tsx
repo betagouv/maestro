@@ -5,21 +5,22 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { format, parse } from 'date-fns';
 import { isNil, uniqBy } from 'lodash-es';
-import { Region } from 'maestro-shared/referential/Region';
+import type { Region } from 'maestro-shared/referential/Region';
 import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isCreatedPartialSample,
   isProgrammingPlanSample,
-  PartialSample,
-  PartialSampleToCreate,
+  type PartialSample,
+  type PartialSampleToCreate,
   SampleItemsDataChecked,
   sampleItemSealIdCheck
 } from 'maestro-shared/schema/Sample/Sample';
-import { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import type { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleSteps } from 'maestro-shared/schema/Sample/SampleStep';
 import { checkSchema } from 'maestro-shared/utils/zod';
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import type React from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
@@ -388,12 +389,13 @@ const ItemsStep = ({ partialSample }: Props) => {
             <li>
               {!readonly ? (
                 <Button
-                  children="Récapitulatif"
                   onClick={submit}
                   iconId="fr-icon-arrow-right-line"
                   iconPosition="right"
                   data-testid="submit-button"
-                />
+                >
+                  Récapitulatif
+                </Button>
               ) : (
                 <NextButton partialSample={partialSample} currentStep={3} />
               )}

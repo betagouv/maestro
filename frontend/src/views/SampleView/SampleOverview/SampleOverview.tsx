@@ -4,7 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import SideMenu from '@codegouvfr/react-dsfr/SideMenu';
 import clsx from 'clsx';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   isItemAchieved,
   isItemCompliant
@@ -186,42 +186,36 @@ const SampleOverview = ({ sample }: Props) => {
                             item.substanceKind
                           ].toLowerCase()}
                         </span>
-                        {isItemAchieved(sampleItemCopies(item.itemNumber)) && (
-                          <>
-                            {isItemCompliant(
-                              sampleItemCopies(item.itemNumber)
-                            ) ? (
-                              <div
+                        {isItemAchieved(sampleItemCopies(item.itemNumber)) &&
+                          (isItemCompliant(
+                            sampleItemCopies(item.itemNumber)
+                          ) ? (
+                            <div
+                              className={cx('fr-label--success', 'fr-text--xs')}
+                            >
+                              <span
                                 className={cx(
-                                  'fr-label--success',
-                                  'fr-text--xs'
+                                  'fr-icon-checkbox-circle-line',
+                                  'fr-mr-1w',
+                                  'fr-icon--sm'
                                 )}
-                              >
-                                <span
-                                  className={cx(
-                                    'fr-icon-checkbox-circle-line',
-                                    'fr-mr-1w',
-                                    'fr-icon--sm'
-                                  )}
-                                />
-                                Conforme
-                              </div>
-                            ) : (
-                              <div
-                                className={cx('fr-label--error', 'fr-text--xs')}
-                              >
-                                <span
-                                  className={cx(
-                                    'fr-icon-close-circle-line',
-                                    'fr-mr-1w',
-                                    'fr-icon--sm'
-                                  )}
-                                />
-                                Non-conforme
-                              </div>
-                            )}
-                          </>
-                        )}
+                              />
+                              Conforme
+                            </div>
+                          ) : (
+                            <div
+                              className={cx('fr-label--error', 'fr-text--xs')}
+                            >
+                              <span
+                                className={cx(
+                                  'fr-icon-close-circle-line',
+                                  'fr-mr-1w',
+                                  'fr-icon--sm'
+                                )}
+                              />
+                              Non-conforme
+                            </div>
+                          ))}
                       </div>
                     )
                   }))

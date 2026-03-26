@@ -1,14 +1,14 @@
-import { Department } from 'maestro-shared/referential/Department';
-import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
-import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import type { Department } from 'maestro-shared/referential/Department';
+import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
+import type { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import {
+  Sample2Fixture,
   Sample11Fixture,
-  Sample13Fixture,
-  Sample2Fixture
+  Sample13Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { toArray } from 'maestro-shared/utils/utils';

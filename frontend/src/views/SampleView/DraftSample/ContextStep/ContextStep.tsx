@@ -6,7 +6,7 @@ import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { intersection, isNil } from 'lodash-es';
 import {
-  LegalContext,
+  type LegalContext,
   LegalContextLabels
 } from 'maestro-shared/referential/LegalContext';
 import { Company } from 'maestro-shared/schema/Company/Company';
@@ -17,26 +17,27 @@ import {
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
-  ProgrammingPlanKind,
+  type ProgrammingPlanKind,
   ProgrammingPlanKindLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   isOutsideProgrammingPlanSample,
-  PartialSample,
-  PartialSampleToCreate,
+  type PartialSample,
+  type PartialSampleToCreate,
   SampleContextData
 } from 'maestro-shared/schema/Sample/Sample';
 import {
-  SampleStep,
+  type SampleStep,
   SampleSteps
 } from 'maestro-shared/schema/Sample/SampleStep';
-import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
-import { Sampler } from 'maestro-shared/schema/User/User';
+import type { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
+import type { Sampler } from 'maestro-shared/schema/User/User';
 import {
   UserRoleList,
   UserRolePermissions
 } from 'maestro-shared/schema/User/UserRole';
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import type React from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import balance from 'src/assets/illustrations/balance.svg';
 import check from 'src/assets/illustrations/check.svg';
 import controle from 'src/assets/illustrations/controle.svg';
@@ -410,7 +411,7 @@ const ContextStep = ({ partialSample }: Props) => {
   const form = useForm(Form, formInput, save);
 
   if (!programmingPlan) {
-    return <></>;
+    return null;
   }
   return (
     <form data-testid="draft_sample_creation_form" className="sample-form">

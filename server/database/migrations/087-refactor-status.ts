@@ -1,4 +1,4 @@
-import { Knex } from 'knex';
+import type { Knex } from 'knex';
 
 export const up = async (knex: Knex) => {
   await knex('analysis').update({ status: 'Sent' }).where({ status: 'Report' });
