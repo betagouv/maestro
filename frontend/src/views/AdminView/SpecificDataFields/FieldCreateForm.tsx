@@ -2,11 +2,12 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import {
-  AdminFieldConfig,
+  type AdminFieldConfig,
   CreateFieldInput
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import { FieldInputType } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
-import React, { useContext, useState } from 'react';
+import type { FieldInputType } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import type React from 'react';
+import { useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppSelect from '../../../components/_app/AppSelect/AppSelect';

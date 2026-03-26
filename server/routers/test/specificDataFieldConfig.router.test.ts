@@ -1,10 +1,10 @@
-import { constants } from 'http2';
-import {
+import { constants } from 'node:http2';
+import type {
   ProgrammingPlanKindFieldId,
   SpecificDataFieldId,
   SpecificDataFieldOptionId
 } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
-import { UserRefined } from 'maestro-shared/schema/User/User';
+import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { DAOAInProgressProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   AdminFixture,

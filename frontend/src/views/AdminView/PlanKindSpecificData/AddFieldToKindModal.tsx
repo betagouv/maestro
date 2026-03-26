@@ -1,13 +1,14 @@
-import { createModal } from '@codegouvfr/react-dsfr/Modal';
+import type { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
-  AdminFieldConfig,
+  type AdminFieldConfig,
   CreatePlanKindFieldInput
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
-import React, { useContext, useState } from 'react';
+import type { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import type React from 'react';
+import { useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppSelect from '../../../components/_app/AppSelect/AppSelect';

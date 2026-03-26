@@ -1,10 +1,10 @@
 import Button from '@codegouvfr/react-dsfr/Button';
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import Select from '@codegouvfr/react-dsfr/Select';
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import {
-  ProgrammingPlanKind,
+  type ProgrammingPlanKind,
   ProgrammingPlanKindLabels,
   ProgrammingPlanKindListSorted
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';

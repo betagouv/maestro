@@ -1,9 +1,9 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
-import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
-import { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
+import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import { fieldInputTypeHasOptions } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { useContext, useMemo, useState } from 'react';
 import { ApiClientContext } from '../../../services/apiClient';

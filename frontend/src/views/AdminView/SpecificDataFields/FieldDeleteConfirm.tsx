@@ -1,5 +1,5 @@
-import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
+import type { createModal } from '@codegouvfr/react-dsfr/Modal';
+import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import { useContext } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';

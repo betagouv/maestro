@@ -1,14 +1,15 @@
 import Button from '@codegouvfr/react-dsfr/Button';
-import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
-import { CommemoratifSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
-import { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
+import type { CommemoratifSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import {
   FieldInputType,
   fieldInputTypeHasOptions
 } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
-import React, { useContext, useEffect, useState } from 'react';
+import type React from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import z from 'zod';
 import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
@@ -162,7 +163,6 @@ export const FieldForm = ({ field, ..._rest }: Props) => {
       {sachaField && sachaCommemoratifs && (
         <fieldset
           className={cx('fr-fieldset', 'fr-mt-2w')}
-          role="group"
           aria-labelledby="sacha-fieldset-legend"
         >
           <legend

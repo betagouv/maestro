@@ -1,6 +1,6 @@
-import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import {
+import { createModal } from '@codegouvfr/react-dsfr/Modal';
+import type {
   AdminFieldConfig,
   AdminFieldOption
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';

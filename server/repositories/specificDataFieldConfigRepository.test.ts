@@ -1,4 +1,4 @@
-import {
+import type {
   SpecificDataFieldId,
   SpecificDataFieldOptionId
 } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';

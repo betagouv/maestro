@@ -1,8 +1,8 @@
-import {
+import type {
   SampleSpecificDataAttribute,
   SampleSpecificDataAttributeValue
 } from 'maestro-shared/schema/Sample/SampleSpecificDataAttribute';
-import {
+import type {
   AdminFieldConfig,
   AdminFieldOption,
   CreateFieldInput,
@@ -10,7 +10,7 @@ import {
   UpdateFieldInput,
   UpdateFieldOptionInput
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import {
+import type {
   SachaFieldConfig,
   SpecificDataFieldId,
   SpecificDataFieldOptionId

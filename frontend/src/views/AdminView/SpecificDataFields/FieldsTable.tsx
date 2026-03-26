@@ -2,8 +2,8 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
-import { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
+import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { assert, type Equals } from 'tsafe';
 import { FieldInputTypeLabels } from './fieldInputTypeLabels';
 

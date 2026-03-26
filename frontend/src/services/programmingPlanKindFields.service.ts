@@ -1,9 +1,9 @@
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import {
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type {
   CreatePlanKindFieldInput,
   UpdatePlanKindFieldInput
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import {
+import type {
   PlanKindFieldConfig,
   ProgrammingPlanKindFieldId,
   SpecificDataFieldOptionId

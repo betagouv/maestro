@@ -1,5 +1,5 @@
-import { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import {
+import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
+import type {
   SachaFieldConfig,
   SpecificDataFieldId,
   SpecificDataFieldOptionId

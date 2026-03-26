@@ -1,11 +1,12 @@
-import { createModal } from '@codegouvfr/react-dsfr/Modal';
+import type { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import {
-  AdminFieldConfig,
-  AdminFieldOption,
+  type AdminFieldConfig,
+  type AdminFieldOption,
   CreateFieldOptionInput
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import React, { useContext, useEffect, useState } from 'react';
+import type React from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppTextInput from '../../../components/_app/AppTextInput/AppTextInput';

@@ -1,41 +1,45 @@
-import carbone, { RenderOptions } from 'carbone';
+import carbone, { type RenderOptions } from 'carbone';
 import { format } from 'date-fns';
 import { isNil, sumBy, uniq } from 'lodash-es';
-import { Department } from 'maestro-shared/referential/Department';
+import type { Department } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
-import { OptionalBoolean } from 'maestro-shared/referential/OptionnalBoolean';
+import type { OptionalBoolean } from 'maestro-shared/referential/OptionnalBoolean';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
-import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
+import {
+  type Region,
+  RegionList,
+  Regions
+} from 'maestro-shared/referential/Region';
 import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
-import { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
+import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 import { ResidueComplianceLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { ResultKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import {
   getCompletionRate,
-  LocalPrescription,
+  type LocalPrescription,
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
   getPrescriptionTitle,
-  Prescription,
+  type Prescription,
   PrescriptionSort
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getSampleMatrixLabel,
-  PartialSample,
+  type PartialSample,
   SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
-import { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import type { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
@@ -44,7 +48,7 @@ import companyRepository from '../../repositories/companyRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
-import { Template, templatePath } from '../../templates/templates';
+import { type Template, templatePath } from '../../templates/templates';
 
 const generateAnalysisRequestExcel = async (data: AnalysisRequestData) => {
   return carboneRender('analysisRequest', data, { convertTo: 'xlsx' });
@@ -371,9 +375,14 @@ const generateSamplesExportExcel = async (
 
   const specificDataHeaders = samplesData
     .flatMap((sample) => sample.specificData ?? [])
-    .reduce<
-      { key: string; label: string }[]
-    >((acc, { key, label }) => (acc.some((h) => h.key === key) ? acc : [...acc, { key, label }]), []);
+    .reduce<{ key: string; label: string }[]>((acc, { key, label }) => {
+      if (acc.some((h) => h.key === key)) {
+        return acc;
+      } else {
+        acc.push({ key, label });
+        return acc;
+      }
+    }, []);
 
   const completedSamples = samplesData.map((sample) => ({
     ...sample,

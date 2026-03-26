@@ -3,12 +3,13 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
-import { CommemoratifValueSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
-import {
+import type { CommemoratifValueSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import type {
   AdminFieldConfig,
   AdminFieldOption
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import React, { useContext, useEffect, useState } from 'react';
+import type React from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppSearchInput from '../../../components/_app/AppSearchInput/AppSearchInput';
@@ -137,8 +138,7 @@ export const FieldOptionsTable = ({
     : [];
 
   const showSachaColumn =
-    sachaField !== null &&
-    sachaField.inDai &&
+    sachaField?.inDai &&
     selectedSigle !== null &&
     sachaCommemoratifs !== undefined;
 

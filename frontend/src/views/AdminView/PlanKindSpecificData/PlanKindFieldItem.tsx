@@ -2,11 +2,11 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import {
   fieldInputTypeHasOptions,
-  PlanKindFieldConfig
+  type PlanKindFieldConfig
 } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { useContext } from 'react';
 import { assert, type Equals } from 'tsafe';

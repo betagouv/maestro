@@ -1,4 +1,4 @@
-import { constants } from 'http2';
+import { constants } from 'node:http2';
 import {
   ProgrammingPlanKindFieldId,
   SpecificDataFieldId,
@@ -6,7 +6,7 @@ import {
 } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { sampleSpecificDataRepository } from '../repositories/sampleSpecificDataRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
-import { ProtectedSubRouter } from '../routers/routes.type';
+import type { ProtectedSubRouter } from '../routers/routes.type';
 
 export const specificDataFieldConfigRouter = {
   '/specific-data-fields': {

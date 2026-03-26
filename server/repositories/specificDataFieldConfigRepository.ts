@@ -1,6 +1,6 @@
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { CommemoratifValueSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
-import {
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { CommemoratifValueSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import type {
   AdminFieldConfig,
   AdminFieldOption,
   CreateFieldInput,
@@ -12,11 +12,11 @@ import {
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import {
   FieldInputType,
-  PlanKindFieldConfig,
-  ProgrammingPlanKindFieldId,
-  SachaFieldConfig,
-  SpecificDataFieldId,
-  SpecificDataFieldOptionId
+  type PlanKindFieldConfig,
+  type ProgrammingPlanKindFieldId,
+  type SachaFieldConfig,
+  type SpecificDataFieldId,
+  type SpecificDataFieldOptionId
 } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { kysely } from './kysely';
 
