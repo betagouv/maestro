@@ -3,11 +3,8 @@ import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import type { Region } from 'maestro-shared/referential/Region';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
-import {
-  PartialSample,
-  type SampleBase,
-  type SampleChecked
-} from 'maestro-shared/schema/Sample/Sample';
+import { PartialSample, type SampleBase, SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import { isItemAchieved, isItemCompliant } from 'maestro-shared/schema/Sample/SampleItem';
 import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import z from 'zod';
 import { analysisResiduesTable, analysisTable } from './analysisRepository';
@@ -468,6 +465,34 @@ const deleteDraftOnProgrammingPlan = async (
     .execute();
 };
 
+const evaluateSampleCompliance = async (sampleId: string) => {
+  const sample = await findUnique(sampleId);
+
+  if (!SampleChecked.safeParse(sample).success) {
+    return;
+  }
+
+  const sampleChecked = SampleChecked.parse(sample);
+
+  if (
+    sampleChecked.items
+      .filter((_) => _.copyNumber === 1)
+      .every((itemFirstCopy) => {
+        const itemCopies =
+          sampleChecked.items.filter(
+            (_) => _.itemNumber === itemFirstCopy.itemNumber
+          ) || [];
+
+        return isItemAchieved(itemCopies) && isItemCompliant(itemCopies);
+      })
+  ) {
+    await update({
+      ...sampleChecked,
+      compliance: 'Compliant'
+    });
+  }
+};
+
 export const formatPartialSample = (
   partialSample: PartialSample | SampleChecked
 ): PartialSampleDbo => ({
@@ -536,5 +561,6 @@ export const sampleRepository = {
   count,
   getNextSequence,
   deleteOne,
-  deleteDraftOnProgrammingPlan
+  deleteDraftOnProgrammingPlan,
+  evaluateSampleCompliance
 };
