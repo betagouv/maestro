@@ -206,9 +206,7 @@ describe('sample_status view', () => {
     );
 
     const result = await getSampleStatus(sampleId);
-    // priorité minimale entre NotAdmissible(2) et Analysis(3) => NotAdmissible
-    // mais tous les items ne sont pas NotAdmissible, donc la règle MIN s'applique
-    expect(result?.status).toBe('NotAdmissible');
+    expect(result?.status).toBe('Analysis');
 
     await cleanupSample(sampleId);
   });

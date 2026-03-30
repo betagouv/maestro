@@ -107,7 +107,7 @@ export const up = async (knex: Knex) => {
                 WHEN sis.status = 'Analysis' THEN 2
                 WHEN sis.status = 'InReview' THEN 3
                 WHEN sis.status = 'Completed' THEN 4
-                ELSE 0
+                ELSE 5
               END
             )
               WHEN 1 THEN 'Sent'
