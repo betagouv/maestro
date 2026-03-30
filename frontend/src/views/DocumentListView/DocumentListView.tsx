@@ -19,6 +19,7 @@ import ressources from 'src/assets/illustrations/ressources.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
 import { ApiClientContext } from '../../services/apiClient';
 import DocumentListTabContent from './DocumentListTabContent/DocumentListTabContent';
@@ -152,7 +153,7 @@ const DocumentListView = () => {
         action={
           hasUserPermission('createResource') && (
             <Button
-              linkProps={{ to: '/documents/nouveau' }}
+              linkProps={{ to: AuthenticatedAppRoutes.NewDocumentRoute.link }}
               priority="secondary"
               data-testid="add-document"
             >
