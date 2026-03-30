@@ -4,7 +4,10 @@ import type {
   AuthUserRefined
 } from 'maestro-shared/schema/User/AuthUser';
 
-const authUser = JSON.parse(localStorage.getItem('authUser') ?? '{}');
+const authUser = {
+  laboratoryId: null,
+  ...JSON.parse(localStorage.getItem('authUser') ?? '{}')
+};
 
 type AuthState = {
   authUser?: Omit<AuthUserRefined, 'user'> & {
@@ -24,8 +27,8 @@ const authSlice = createSlice({
               ...authUser.user
             }
           }
-        : (authUser as AuthState)
-  },
+        : authUser
+  } as AuthState,
   reducers: {
     signinUser: (
       state,
