@@ -1,4 +1,7 @@
-import { getAnalytes, isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
+import {
+  getAnalytes,
+  isComplex
+} from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';

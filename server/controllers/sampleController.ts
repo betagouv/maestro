@@ -20,7 +20,10 @@ import {
   getAnalysisReportDocumentFilename,
   getSupportDocumentFilename
 } from 'maestro-shared/schema/Document/DocumentKind';
-import { ContextLabels, type ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import {
+  ContextLabels,
+  type ProgrammingPlanContext
+} from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   type ProgrammingPlanKindWithSacha,
   ProgrammingPlanKindWithSachaList
@@ -34,7 +37,11 @@ import {
   SampleChecked,
   sampleSendCheck
 } from 'maestro-shared/schema/Sample/Sample';
-import { SampleItem, SampleItemMaxCopyCount, SampleItemSort } from 'maestro-shared/schema/Sample/SampleItem';
+import {
+  SampleItem,
+  SampleItemMaxCopyCount,
+  SampleItemSort
+} from 'maestro-shared/schema/Sample/SampleItem';
 import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import { hasPermission } from 'maestro-shared/schema/User/User';
@@ -44,7 +51,10 @@ import { checkSchema } from 'maestro-shared/utils/zod';
 import { PDFDocument } from 'pdf-lib';
 import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
-import { getAndCheckSample, getAndCheckSampleDepartement } from '../middlewares/checks/sampleCheck';
+import {
+  getAndCheckSample,
+  getAndCheckSampleDepartement
+} from '../middlewares/checks/sampleCheck';
 import { analysisReportDocumentsRepository } from '../repositories/analysisReportDocumentsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
 import companyRepository from '../repositories/companyRepository';
@@ -64,7 +74,10 @@ import { documentService } from '../services/documentService';
 import { generateXMLDAI } from '../services/ediSacha/sachaDAI';
 import { sendSachaFile } from '../services/ediSacha/sachaSender';
 import { excelService } from '../services/excelService/excelService';
-import { laboratoriesConf, type LaboratoryWithConf } from '../services/imapService';
+import {
+  type LaboratoryWithConf,
+  laboratoriesConf
+} from '../services/imapService';
 import { mailService } from '../services/mailService';
 import { mattermostService } from '../services/mattermostService';
 import { pdfService } from '../services/pdfService/pdfService';
