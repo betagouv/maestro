@@ -225,7 +225,7 @@ const generateSamplePDF = async (
   );
 
   const laboratories = await laboratoryRepository.findMany({
-    programmingPlanId: sample.programmingPlanId
+    programmingPlanIds: [sample.programmingPlanId]
   });
 
   const currentLaboratory = currentSampleItem?.laboratoryId

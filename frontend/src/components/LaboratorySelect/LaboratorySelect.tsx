@@ -2,6 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import { sortBy } from 'lodash-es';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
+import { toArray } from 'maestro-shared/utils/utils';
 import { useContext } from 'react';
 import { ApiClientContext } from '../../services/apiClient';
 
@@ -25,7 +26,7 @@ const LaboratorySelect = ({
   const apiClient = useContext(ApiClientContext);
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery({
-    programmingPlanId,
+    programmingPlanIds: toArray(programmingPlanId),
     substanceKind
   });
 

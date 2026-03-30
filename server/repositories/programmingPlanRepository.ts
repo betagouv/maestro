@@ -103,8 +103,11 @@ const findMany = async (
 ): Promise<ProgrammingPlanChecked[]> => {
   console.info('Find programming plans', omitBy(findOptions, isNil));
   return ProgrammingPlanQuery()
-    .where(omitBy(omit(findOptions, 'status', 'kinds'), isNil))
+    .where(omitBy(omit(findOptions, 'status', 'kinds', 'ids'), isNil))
     .modify((builder) => {
+      if (isArray(findOptions.ids)) {
+        builder.whereIn('id', findOptions.ids);
+      }
       if (isArray(findOptions.status)) {
         builder.whereIn('status', findOptions.status);
       }

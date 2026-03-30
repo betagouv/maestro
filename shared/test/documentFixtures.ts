@@ -23,6 +23,7 @@ export const genDocument = (
   createdBy: uuidv4(),
   name: fakerFR.string.alphanumeric(32),
   kind: oneOf(DocumentKindList),
+  year: new Date().getFullYear(),
   ...data
 });
 
@@ -31,5 +32,6 @@ export const Regulation201862DocumentFixture = genDocument({
   filename: 'reg 2018 62- annexe 1 du reg 396 2005',
   name: 'Règlement (UE) 2018/62 de la commission',
   kind: 'OtherResourceDocument',
-  createdBy: NationalCoordinator.id
+  createdBy: NationalCoordinator.id,
+  year: new Date().getFullYear()
 });

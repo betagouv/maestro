@@ -117,6 +117,14 @@ const findMany = async (
           );
         }
         break;
+      case 'laboratoryIds':
+        if (
+          !isNil(findOptions.laboratoryIds) &&
+          findOptions.laboratoryIds.length > 0
+        ) {
+          query = query.where('laboratoryId', 'in', findOptions.laboratoryIds);
+        }
+        break;
       case 'disabled':
         if (findOptions.disabled === false || findOptions.disabled === true) {
           query = query.where('disabled', 'is', findOptions.disabled);

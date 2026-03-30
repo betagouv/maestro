@@ -12,7 +12,8 @@ export const FindUserOptions = z.object({
     .union([ProgrammingPlanKind, coerceToArray(z.array(ProgrammingPlanKind))])
     .nullish(),
   companySirets: coerceToArray(z.array(z.string())).nullish(),
-  disabled: coerceToBooleanNullish()
+  disabled: coerceToBooleanNullish(),
+  laboratoryIds: coerceToArray(z.array(z.string())).nullish()
 });
 
 export type FindUserOptions = z.infer<typeof FindUserOptions>;

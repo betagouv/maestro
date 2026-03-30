@@ -19,7 +19,42 @@ const findUnique = async (id: string): Promise<KyselyLaboratories> => {
 
   return kysely
     .selectFrom('laboratories')
-    .selectAll()
+    .leftJoin(
+      'laboratoryAgreements',
+      'laboratoryAgreements.laboratoryId',
+      'laboratories.id'
+    )
+    .select([
+      'laboratories.id',
+      'laboratories.shortName',
+      'laboratories.name',
+      'laboratories.address',
+      'laboratories.postalCode',
+      'laboratories.city',
+      'laboratories.emails',
+      'laboratories.emailsAnalysisResult',
+      'laboratories.sachaEmail',
+      'laboratories.sachaGpgPublicKey',
+      'laboratories.sachaSigle',
+      sql<
+        string[]
+      >`array_remove(array_agg(DISTINCT "laboratory_agreements"."programming_plan_id"), NULL)`.as(
+        'programmingPlanIds'
+      )
+    ])
+    .groupBy([
+      'laboratories.id',
+      'laboratories.shortName',
+      'laboratories.name',
+      'laboratories.address',
+      'laboratories.postalCode',
+      'laboratories.city',
+      'laboratories.emails',
+      'laboratories.emailsAnalysisResult',
+      'laboratories.sachaEmail',
+      'laboratories.sachaGpgPublicKey',
+      'laboratories.sachaSigle'
+    ])
     .where('id', '=', id)
     .executeTakeFirstOrThrow();
 };
@@ -47,19 +82,39 @@ const findMany = async (
       'laboratories.emailsAnalysisResult',
       'laboratories.sachaEmail',
       'laboratories.sachaGpgPublicKey',
+      'laboratories.sachaSigle',
+      sql<
+        string[]
+      >`array_remove(array_agg(DISTINCT "laboratory_agreements"."programming_plan_id"), NULL)`.as(
+        'programmingPlanIds'
+      )
+    ])
+    .groupBy([
+      'laboratories.id',
+      'laboratories.shortName',
+      'laboratories.name',
+      'laboratories.address',
+      'laboratories.postalCode',
+      'laboratories.city',
+      'laboratories.emails',
+      'laboratories.emailsAnalysisResult',
+      'laboratories.sachaEmail',
+      'laboratories.sachaGpgPublicKey',
       'laboratories.sachaSigle'
     ])
-    .distinct()
     .orderBy('laboratories.name', 'asc');
 
   for (const option of FindLaboratoryOptions.keyof().options) {
     switch (option) {
-      case 'programmingPlanId':
-        if (!isNil(findOptions.programmingPlanId)) {
+      case 'programmingPlanIds':
+        if (
+          !isNil(findOptions.programmingPlanIds) &&
+          findOptions.programmingPlanIds.length > 0
+        ) {
           query = query.where(
             'laboratoryAgreements.programmingPlanId',
-            '=',
-            findOptions.programmingPlanId
+            'in',
+            findOptions.programmingPlanIds
           );
         }
         break;
@@ -74,17 +129,17 @@ const findMany = async (
         break;
       case 'programmingPlanKind':
         if (!isNil(findOptions.programmingPlanKind)) {
-          query = query
-            .innerJoin(
-              'programmingPlans',
-              'programmingPlans.id',
-              'laboratoryAgreements.programmingPlanId'
+          const planKind = findOptions.programmingPlanKind;
+          query = query.where((eb) =>
+            eb(
+              'laboratoryAgreements.programmingPlanId',
+              'in',
+              eb
+                .selectFrom('programmingPlans')
+                .select('id')
+                .where('programmingPlans.kinds', '@>', toSqlArray([planKind]))
             )
-            .where(
-              'programmingPlans.kinds',
-              '@>',
-              toSqlArray([findOptions.programmingPlanKind])
-            );
+          );
         }
         break;
       default:

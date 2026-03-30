@@ -1,21 +1,33 @@
 import { constants } from 'node:http2';
+import { omit } from 'lodash-es';
 import {
   genDocument,
   genDocumentToCreate
 } from 'maestro-shared/test/documentFixtures';
+import {
+  DAOAInProgressProgrammingPlanFixture,
+  PPVInProgressProgrammingPlanFixture,
+  PPVValidatedProgrammingPlanFixture
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import {
   AdminFixture,
+  LaboratoryUserFixture,
   NationalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
+import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { knexInstance as db } from '../../repositories/db';
-import { Documents } from '../../repositories/documentRepository';
+import {
+  Documents,
+  documentProgrammingPlansTable
+} from '../../repositories/documentRepository';
 import { sampleDocumentsTable } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
+import { mockSendNotification } from '../../test/setupTests';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('Document router', () => {
@@ -26,9 +38,29 @@ describe('Document router', () => {
     kind: 'AnalysisReportDocument' as const
   });
 
-  const resourceDocument = genDocument({
+  const noPlanResourceDocument = genDocument({
     createdBy: NationalCoordinator.id,
-    kind: 'TechnicalInstruction' as const
+    kind: 'TechnicalInstruction' as const,
+    year: PPVInProgressProgrammingPlanFixture.year
+  });
+
+  const ppvValidatedResourceDocument = genDocument({
+    createdBy: NationalCoordinator.id,
+    kind: 'TechnicalInstruction' as const,
+    programmingPlanIds: [PPVValidatedProgrammingPlanFixture.id],
+    year: PPVValidatedProgrammingPlanFixture.year
+  });
+  const ppvInProgressResourceDocument = genDocument({
+    createdBy: NationalCoordinator.id,
+    kind: 'TechnicalInstruction' as const,
+    programmingPlanIds: [PPVInProgressProgrammingPlanFixture.id],
+    year: PPVInProgressProgrammingPlanFixture.year
+  });
+  const daoaInProgressResourceDocument = genDocument({
+    createdBy: NationalCoordinator.id,
+    kind: 'TechnicalInstruction' as const,
+    programmingPlanIds: [DAOAInProgressProgrammingPlanFixture.id],
+    year: DAOAInProgressProgrammingPlanFixture.year
   });
 
   const sampleDocument = genDocument({
@@ -37,15 +69,34 @@ describe('Document router', () => {
   });
 
   beforeAll(async () => {
-    await Documents().insert([
-      analysisDocument,
-      resourceDocument,
-      sampleDocument
-    ]);
+    await Documents().insert(
+      [
+        analysisDocument,
+        noPlanResourceDocument,
+        ppvValidatedResourceDocument,
+        ppvInProgressResourceDocument,
+        daoaInProgressResourceDocument,
+        sampleDocument
+      ].map((_) => omit(_, 'programmingPlanIds'))
+    );
     await db(sampleDocumentsTable).insert({
       sampleId: Sample11Fixture.id,
       documentId: sampleDocument.id
     });
+    await db(documentProgrammingPlansTable).insert([
+      {
+        documentId: ppvValidatedResourceDocument.id,
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id
+      },
+      {
+        documentId: ppvInProgressResourceDocument.id,
+        programmingPlanId: PPVInProgressProgrammingPlanFixture.id
+      },
+      {
+        documentId: daoaInProgressResourceDocument.id,
+        programmingPlanId: DAOAInProgressProgrammingPlanFixture.id
+      }
+    ]);
   });
 
   afterAll(async () => {
@@ -53,31 +104,121 @@ describe('Document router', () => {
       .delete()
       .where('id', 'in', [
         analysisDocument.id,
-        resourceDocument.id,
+        noPlanResourceDocument.id,
+        ppvValidatedResourceDocument.id,
+        ppvInProgressResourceDocument.id,
+        daoaInProgressResourceDocument.id,
         sampleDocument.id
       ]);
   });
 
   describe('GET /documents/resources', () => {
-    const testRoute = '/api/documents/resources';
+    const testRoute = (params?: Record<string, string>) =>
+      `/api/documents/resources?${new URLSearchParams(params).toString()}`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
-        .get(testRoute)
+        .get(testRoute())
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    test('should return all resources', async () => {
+    test('should return all resources for admin', async () => {
       const res = await request(app)
-        .get(testRoute)
+        .get(testRoute())
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expectArrayToContainElements(res.body, [
+        {
+          ...noPlanResourceDocument,
+          programmingPlanIds: [],
+          createdAt: expect.any(String)
+        },
+        { ...ppvValidatedResourceDocument, createdAt: expect.any(String) },
+        { ...ppvInProgressResourceDocument, createdAt: expect.any(String) },
+        { ...daoaInProgressResourceDocument, createdAt: expect.any(String) }
+      ]);
+    });
+
+    test('should filter resources by query', async () => {
+      const resByYear = await request(app)
+        .get(
+          testRoute({
+            year: String(PPVInProgressProgrammingPlanFixture.year)
+          })
+        )
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expectArrayToContainElements(resByYear.body, [
+        {
+          ...noPlanResourceDocument,
+          programmingPlanIds: [],
+          createdAt: expect.any(String)
+        },
+        { ...ppvInProgressResourceDocument, createdAt: expect.any(String) }
+      ]);
+
+      const resByProgrammingPlan = await request(app)
+        .get(
+          testRoute({
+            programmingPlanId: PPVInProgressProgrammingPlanFixture.id
+          })
+        )
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expectArrayToContainElements(resByProgrammingPlan.body, [
+        { ...ppvInProgressResourceDocument, createdAt: expect.any(String) }
+      ]);
+    });
+
+    test('should filter ressources for national coordinator by authorized programming plans', async () => {
+      const res = await request(app)
+        .get(testRoute())
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expectArrayToContainElements(res.body, [
+        {
+          ...noPlanResourceDocument,
+          programmingPlanIds: [],
+          createdAt: expect.any(String)
+        },
+        { ...ppvValidatedResourceDocument, createdAt: expect.any(String) },
+        { ...ppvInProgressResourceDocument, createdAt: expect.any(String) }
+      ]);
+    });
+
+    test('should filter ressources for sampler by validated authorized programming plans', async () => {
+      const res = await request(app)
+        .get(testRoute())
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toEqual([
+      expectArrayToContainElements(res.body, [
         {
-          ...resourceDocument,
-          createdAt: resourceDocument.createdAt.toISOString()
-        }
+          ...noPlanResourceDocument,
+          programmingPlanIds: [],
+          createdAt: expect.any(String)
+        },
+        { ...ppvValidatedResourceDocument, createdAt: expect.any(String) }
+      ]);
+    });
+
+    test('should filter ressources for laboratory user by validated authorized programming plans or no plans', async () => {
+      const res = await request(app)
+        .get(testRoute())
+        .use(tokenProvider(LaboratoryUserFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expectArrayToContainElements(res.body, [
+        {
+          ...noPlanResourceDocument,
+          programmingPlanIds: [],
+          createdAt: expect.any(String)
+        },
+        { ...ppvValidatedResourceDocument, createdAt: expect.any(String) }
       ]);
     });
   });
@@ -87,7 +228,9 @@ describe('Document router', () => {
     const validResourceBody = {
       ...genDocumentToCreate(),
       kind: 'TechnicalInstruction',
-      name: 'Resource Document'
+      name: 'Resource Document',
+      programmingPlanIds: [PPVValidatedProgrammingPlanFixture.id],
+      year: PPVValidatedProgrammingPlanFixture.year
     };
 
     test('should fail if the user is not authenticated', async () => {
@@ -145,7 +288,9 @@ describe('Document router', () => {
       await badRequestTest({ ...validResourceBody, id: 'test' });
     });
 
-    test('should create a resource document', async () => {
+    test('should create a resource document and notify concerned Laboratory', async () => {
+      mockSendNotification.mockClear();
+
       const res = await request(app)
         .post(testRoute)
         .send(validResourceBody)
@@ -167,8 +312,53 @@ describe('Document router', () => {
         createdBy: NationalCoordinator.id,
         kind: 'TechnicalInstruction',
         legend: null,
-        notes: null
+        notes: null,
+        programmingPlanIds: undefined
       });
+
+      expect(mockSendNotification).toHaveBeenCalledTimes(1);
+
+      const [notificationData, recipients, params] =
+        mockSendNotification.mock.calls[0];
+
+      expect(recipients).toHaveLength(1);
+      expect(recipients[0]).toMatchObject({
+        id: LaboratoryUserFixture.id,
+        roles: ['LaboratoryUser']
+      });
+
+      expect(notificationData).toMatchObject({
+        category: 'ResourceDocumentUploaded',
+        author: NationalCoordinator,
+        link: expect.stringContaining(validResourceBody.id)
+      });
+
+      expect(params).toMatchObject({
+        object: 'Nouveau document disponible'
+      });
+    });
+
+    test('should not notify not concerned Laboratory', async () => {
+      mockSendNotification.mockClear();
+
+      await request(app)
+        .post(testRoute)
+        .send({
+          ...genDocumentToCreate(),
+          kind: 'TechnicalInstruction',
+          name: 'Resource Document',
+          programmingPlanIds: [DAOAInProgressProgrammingPlanFixture.id],
+          year: DAOAInProgressProgrammingPlanFixture.year
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_CREATED);
+
+      expect(mockSendNotification).toHaveBeenCalledTimes(1);
+
+      const [_notificationData, recipients, _params] =
+        mockSendNotification.mock.calls[0];
+
+      expect(recipients).toHaveLength(0);
     });
 
     test('should create an analysis document', async () => {
@@ -187,7 +377,8 @@ describe('Document router', () => {
         ...validAnalysisBody,
         createdAt: expect.any(String),
         createdBy: Sampler1Fixture.id,
-        kind: 'AnalysisReportDocument'
+        kind: 'AnalysisReportDocument',
+        programmingPlanIds: []
       });
 
       await expect(
@@ -199,7 +390,8 @@ describe('Document router', () => {
         kind: 'AnalysisReportDocument',
         legend: null,
         name: null,
-        notes: null
+        notes: null,
+        year: null
       });
     });
 
@@ -219,7 +411,8 @@ describe('Document router', () => {
         ...validSampleBody,
         createdAt: expect.any(String),
         createdBy: Sampler1Fixture.id,
-        kind: 'SampleDocument'
+        kind: 'SampleDocument',
+        programmingPlanIds: []
       });
 
       await expect(
@@ -231,7 +424,8 @@ describe('Document router', () => {
         kind: 'SampleDocument',
         legend: null,
         name: null,
-        notes: null
+        notes: null,
+        year: null
       });
     });
   });

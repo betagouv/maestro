@@ -8,7 +8,7 @@ import {
 } from './DocumentKind';
 
 export const documentChecks: CheckFn<
-  Pick<z.infer<typeof DocumentBase>, 'kind' | 'name'>
+  Pick<z.infer<typeof DocumentBase>, 'kind' | 'name' | 'year'>
 > = ({ value, issues }) => {
   if (
     ResourceDocumentKindList.includes(value.kind) &&
@@ -21,6 +21,14 @@ export const documentChecks: CheckFn<
       path: ['name']
     });
   }
+  if (ResourceDocumentKindList.includes(value.kind) && !value.year) {
+    issues.push({
+      input: value,
+      code: 'custom',
+      message: `L'année est obligatoire pour le type de document "${DocumentKindLabels[value.kind]}"`,
+      path: ['year']
+    });
+  }
 };
 
 const DocumentBase = z.object({
@@ -31,7 +39,9 @@ const DocumentBase = z.object({
   name: z.string().nullish(),
   kind: DocumentKind,
   legend: z.string().nullish(),
-  notes: z.string().nullish()
+  notes: z.string().nullish(),
+  year: z.number().int().nullish(),
+  programmingPlanIds: z.array(z.guid()).nullish()
 });
 
 export const DocumentChecked = checkSchema(DocumentBase, documentChecks);
@@ -43,7 +53,9 @@ export const DocumentToCreateChecked = checkSchema(
     name: true,
     kind: true,
     legend: true,
-    notes: true
+    notes: true,
+    year: true,
+    programmingPlanIds: true
   }),
   documentChecks
 );
@@ -53,7 +65,9 @@ export const DocumentUpdateChecked = checkSchema(
     name: true,
     legend: true,
     kind: true,
-    notes: true
+    notes: true,
+    year: true,
+    programmingPlanIds: true
   }),
   documentChecks
 );

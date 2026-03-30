@@ -26,6 +26,7 @@ import {
   type SubstanceKind,
   SubstanceKindLabels
 } from 'maestro-shared/schema/Substance/SubstanceKind';
+import { toArray } from 'maestro-shared/utils/utils';
 import type React from 'react';
 import { useContext, useMemo } from 'react';
 import { Link } from 'react-router';
@@ -85,7 +86,7 @@ const SampleItemContent = ({
   );
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery({
-    programmingPlanId: partialSample?.programmingPlanId,
+    programmingPlanIds: toArray(partialSample?.programmingPlanId),
     substanceKind: item.substanceKind
   });
 

@@ -8,7 +8,8 @@ export const Laboratory = z.object({
   address: z.string(),
   postalCode: z.string(),
   city: z.string(),
-  emails: z.array(z.email())
+  emails: z.array(z.email()),
+  programmingPlanIds: z.array(z.guid()).nullish()
 });
 
 export type Laboratory = z.infer<typeof Laboratory>;

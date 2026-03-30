@@ -1,7 +1,7 @@
 import { constants } from 'node:http2';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
-import { isNil } from 'lodash-es';
+import { intersection, isNil } from 'lodash-es';
 import DocumentMissingError from 'maestro-shared/errors/documentMissingError';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import type { DocumentChecked } from 'maestro-shared/schema/Document/Document';
@@ -9,8 +9,11 @@ import {
   ResourceDocumentKindList,
   UploadDocumentKindList
 } from 'maestro-shared/schema/Document/DocumentKind';
+import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { documentRepository } from '../repositories/documentRepository';
+import { laboratoryRepository } from '../repositories/laboratoryRepository';
+import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { documentService } from '../services/documentService';
@@ -22,33 +25,25 @@ export const documentsRouter = {
   '/documents': {
     post: async ({ body: documentToCreate, user, userRole }) => {
       if (!UploadDocumentKindList.includes(documentToCreate.kind)) {
-        return {
-          status: constants.HTTP_STATUS_FORBIDDEN
-        };
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
       if (
         ResourceDocumentKindList.includes(documentToCreate.kind) &&
         !hasPermission(userRole, 'createResource')
       ) {
-        return {
-          status: constants.HTTP_STATUS_FORBIDDEN
-        };
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
       if (
         documentToCreate.kind === 'AnalysisReportDocument' &&
         !hasPermission(userRole, 'createAnalysis')
       ) {
-        return {
-          status: constants.HTTP_STATUS_FORBIDDEN
-        };
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
       if (
         documentToCreate.kind === 'SampleDocument' &&
         !hasPermission(userRole, 'createSample')
       ) {
-        return {
-          status: constants.HTTP_STATUS_FORBIDDEN
-        };
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
       console.log('Create document', documentToCreate);
@@ -61,11 +56,20 @@ export const documentsRouter = {
 
       await documentRepository.insert(document);
 
-      const laboratoryUsers = await userRepository.findMany({
-        roles: ['LaboratoryUser']
-      });
+      const createdDocument = await documentRepository.findUnique(document.id);
 
       if (ResourceDocumentKindList.includes(documentToCreate.kind)) {
+        const laboratoriesForDocument = await laboratoryRepository.findMany({
+          programmingPlanIds: document.programmingPlanIds
+        });
+
+        const laboratoryUsers = laboratoriesForDocument.length
+          ? await userRepository.findMany({
+              roles: ['LaboratoryUser'],
+              laboratoryIds: laboratoriesForDocument.map((lab) => lab.id)
+            })
+          : [];
+
         await notificationService.sendNotification(
           {
             category: 'ResourceDocumentUploaded',
@@ -83,17 +87,38 @@ export const documentsRouter = {
 
       return {
         status: constants.HTTP_STATUS_CREATED,
-        response: document
+        response: createdDocument
       };
     }
   },
   '/documents/resources': {
-    get: async () => {
+    get: async ({ query, user, userRole }) => {
       console.info('Find documents');
 
+      const userLaboratory =
+        userRole === 'LaboratoryUser'
+          ? await laboratoryRepository.findUnique(user.laboratoryId as string)
+          : undefined;
+
+      const userProgrammingPlans = await programmingPlanRepository.findMany(
+        buildFindProgrammingPlanOptions(user, userRole, {}, userLaboratory)
+      );
+
+      const userProgrammingPlanIds = userLaboratory
+        ? userLaboratory.programmingPlanIds
+        : userProgrammingPlans.map((plan) => plan.id);
+
+      const filteredProgrammingPlanIds = query.programmingPlanIds?.length
+        ? intersection(query.programmingPlanIds, userProgrammingPlanIds)
+        : userProgrammingPlanIds;
+
       const documents = await documentRepository.findMany({
-        kinds: ResourceDocumentKindList
+        kinds: ResourceDocumentKindList,
+        programmingPlanIds: filteredProgrammingPlanIds,
+        includeNoProgrammingPlan: !query.programmingPlanIds?.length,
+        year: query.year ?? undefined
       });
+
       return {
         status: constants.HTTP_STATUS_OK,
         response: documents
@@ -138,16 +163,13 @@ export const documentsRouter = {
         (ResourceDocumentKindList.includes(document.kind) &&
           !hasPermission(userRole, 'createResource'))
       ) {
-        return {
-          status: constants.HTTP_STATUS_FORBIDDEN
-        };
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
-
-      console.log('Update document', documentId);
 
       const updatedDocument = {
         ...document,
-        ...documentUpdate
+        ...documentUpdate,
+        programmingPlanIds: documentUpdate.programmingPlanIds
       };
 
       await documentRepository.update(updatedDocument);
@@ -161,34 +183,26 @@ export const documentsRouter = {
       const document = await documentRepository.findUnique(documentId);
 
       if (!document?.kind || !UploadDocumentKindList.includes(document?.kind)) {
-        return {
-          status: constants.HTTP_STATUS_FORBIDDEN
-        };
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
       if (
         ResourceDocumentKindList.includes(document.kind) &&
         !hasPermission(userRole, 'deleteDocument')
       ) {
-        return {
-          status: constants.HTTP_STATUS_FORBIDDEN
-        };
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
       if (
         document?.kind === 'SampleDocument' &&
         !hasPermission(userRole, 'deleteSampleDocument')
       ) {
-        return {
-          status: constants.HTTP_STATUS_FORBIDDEN
-        };
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
       console.log('Delete document', documentId);
 
       await documentService.deleteDocument(documentId);
-      return {
-        status: constants.HTTP_STATUS_NO_CONTENT
-      };
+      return { status: constants.HTTP_STATUS_NO_CONTENT };
     },
     get: async (_, { documentId }) => {
       console.info('Find document', documentId);
