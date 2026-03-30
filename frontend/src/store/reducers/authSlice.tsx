@@ -14,7 +14,18 @@ type AuthState = {
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState: { authUser } as AuthState,
+  initialState: {
+    authUser:
+      'user' in authUser
+        ? {
+            ...authUser,
+            user: {
+              laboratoryId: null,
+              ...authUser.user
+            }
+          }
+        : (authUser as AuthState)
+  },
   reducers: {
     signinUser: (
       state,
