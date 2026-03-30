@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
+  getItemStatus,
   isItemAchieved,
   isItemCompliant
 } from 'maestro-shared/schema/Sample/SampleItem';
@@ -186,6 +187,12 @@ const SampleOverview = ({ sample }: Props) => {
                             item.substanceKind
                           ].toLowerCase()}
                         </span>
+                        {getItemStatus(sampleItemCopies(item.itemNumber)) ===
+                          'NotAdmissible' && (
+                          <div className={cx('fr-label--error', 'fr-text--xs')}>
+                            Non recevable
+                          </div>
+                        )}
                         {isItemAchieved(sampleItemCopies(item.itemNumber)) &&
                           (isItemCompliant(
                             sampleItemCopies(item.itemNumber)
