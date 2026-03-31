@@ -191,7 +191,7 @@ const findRequest = (findOptions: FindSampleOptions) =>
       if (findOptions.departments) {
         builder.whereIn(`${samplesTable}.department`, findOptions.departments);
       }
-      if (findOptions.companySirets) {
+      if (findOptions.companySirets?.length) {
         builder.whereIn(
           `${samplesTable}.companySiret`,
           findOptions.companySirets
