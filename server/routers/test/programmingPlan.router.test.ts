@@ -12,9 +12,13 @@ import {
   genPrescription,
   genPrescriptionSubstance
 } from 'maestro-shared/test/prescriptionFixtures';
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  DAOAInProgressProgrammingPlanFixture,
+  genProgrammingPlan
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
+  AdminFixture,
   NationalCoordinator,
   RegionalCoordinator,
   RegionalDromCoordinator,
@@ -204,6 +208,32 @@ describe('ProgrammingPlan router', () => {
         submittedProgrammingPlan,
         inProgressProgrammingPlan
       ]);
+    });
+
+    test('should find all the programmingPlans for the administrator', async () => {
+      const res = await request(app)
+        .get(testRoute())
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expectedBody(res.body, [
+        validatedDromProgrammingPlan,
+        validatedProgrammingPlan,
+        submittedProgrammingPlan,
+        inProgressProgrammingPlan
+      ]);
+    });
+
+    test('can filter the programmingPlans by kinds for the administrator', async () => {
+      const res = await request(app)
+        .get(testRoute({ kinds: 'DAOA_VOLAILLE' }))
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body[0]).toMatchObject({
+        id: DAOAInProgressProgrammingPlanFixture.id,
+        kinds: ['DAOA_VOLAILLE']
+      });
     });
 
     test('should find regional submitted and validated programming plans for a regional coordinator', async () => {
