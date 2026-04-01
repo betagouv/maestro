@@ -1,5 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Brand } from 'maestro-shared/constants';
+import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useAppDispatch } from 'src/hooks/useStore';
@@ -24,7 +25,7 @@ export const LogoutCallbackView = () => {
       if (sessionStorage.getItem(SESSION_STORAGE_UNKNOWN_USER_EMAIl) !== null) {
         sessionStorage.removeItem(SESSION_STORAGE_UNKNOWN_USER_EMAIl);
       } else if (unknownUserEmail === null) {
-        navigate('/');
+        navigate(AppRouteLinks.LoginRoute.link);
       }
     })();
   }, [dispatch, navigate]);

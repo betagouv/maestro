@@ -4,10 +4,10 @@ import clsx from 'clsx';
 import { Notice } from 'maestro-shared/schema/Notice/Notice';
 import { type FunctionComponent, useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
-import AppTextAreaInput from '../../components/_app/AppTextAreaInput/AppTextAreaInput';
-import { DashboardNotice } from '../../components/DashboardNotice/DashboardNotice';
-import { useForm } from '../../hooks/useForm';
-import { ApiClientContext } from '../../services/apiClient';
+import AppTextAreaInput from '../../../components/_app/AppTextAreaInput/AppTextAreaInput';
+import { DashboardNotice } from '../../../components/DashboardNotice/DashboardNotice';
+import { useForm } from '../../../hooks/useForm';
+import { ApiClientContext } from '../../../services/apiClient';
 
 type Props = Record<never, never>;
 export const AdminViewDashboardNotice: FunctionComponent<Props> = ({

@@ -5,6 +5,7 @@ import Stepper from '@codegouvfr/react-dsfr/Stepper';
 import { skipToken } from '@reduxjs/toolkit/query';
 import clsx from 'clsx';
 import { isNil, uniq } from 'lodash-es';
+import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import {
   DocumentToCreateChecked,
   DocumentUpdateChecked,
@@ -190,7 +191,7 @@ const DocumentView = () => {
           }).unwrap();
         }
 
-        navigate('/documents');
+        navigate(AppRouteLinks.DocumentsRoute.link);
       } catch (_error) {
         setHasError(true);
       }
