@@ -54,6 +54,7 @@ export const MaestroRoutes = [
   '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields/:planKindFieldId/options',
   '/programming-plans',
   '/programming-plans/:programmingPlanId',
+  '/programming-plans/:programmingPlanId/status',
   '/programming-plans/:programmingPlanId/local-status',
   '/programming-plans/:programmingPlanId/copy',
   '/sacha/commemoratifs',

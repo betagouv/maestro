@@ -5,13 +5,12 @@ import clsx from 'clsx';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { PartialSample } from 'maestro-shared/schema/Sample/Sample';
 import type { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
-import { type FunctionComponent, useContext } from 'react';
+import type { FunctionComponent } from 'react';
 import { Link } from 'react-router';
 import { assert, type Equals } from 'tsafe';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import SampleCard from '../../components/SampleCard/SampleCard';
 import { useAuthentication } from '../../hooks/useAuthentication';
-import { ApiClientContext } from '../../services/apiClient';
 import ProgrammingPlanClosing from './ProgrammingPlanClosing';
 
 type Props = {
@@ -29,11 +28,11 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
-  const apiClient = useContext(ApiClientContext);
+  // const apiClient = useContext(ApiClientContext);
 
   const { user, hasUserPermission } = useAuthentication();
 
-  const [createProgrammingPlan] = apiClient.useCreateProgrammingPlanMutation();
+  // const [createProgrammingPlan] = apiClient.useCreateProgrammingPlanMutation();
 
   if (!prioritySamples?.length && !priorityProgrammingPlans?.length) {
     return null;
@@ -88,23 +87,24 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
                   )}
                 </>
               ))}
-            {hasUserPermission('manageProgrammingPlan') &&
-              currentValidatedProgrammingPlan &&
-              priorityProgrammingPlans.every(
-                (programmingPlan) =>
-                  programmingPlan.year <= currentValidatedProgrammingPlan.year
-              ) && (
-                <PriorityActionCard
-                  title={`Créer la programmation ${currentValidatedProgrammingPlan?.year + 1}`}
-                  badgeLabel="Programmation"
-                  description="À réaliser"
-                  onClick={async () => {
-                    await createProgrammingPlan(
-                      currentValidatedProgrammingPlan?.year + 1
-                    ).unwrap();
-                  }}
-                />
-              )}
+            {/*TODO*/}
+            {/*{hasUserPermission('manageProgrammingPlan') &&*/}
+            {/*  currentValidatedProgrammingPlan &&*/}
+            {/*  priorityProgrammingPlans.every(*/}
+            {/*    (programmingPlan) =>*/}
+            {/*      programmingPlan.year <= currentValidatedProgrammingPlan.year*/}
+            {/*  ) && (*/}
+            {/*    <PriorityActionCard*/}
+            {/*      title={`Créer la programmation ${currentValidatedProgrammingPlan?.year + 1}`}*/}
+            {/*      badgeLabel="Programmation"*/}
+            {/*      description="À réaliser"*/}
+            {/*      onClick={async () => {*/}
+            {/*        await createProgrammingPlan(*/}
+            {/*          currentValidatedProgrammingPlan?.year + 1*/}
+            {/*        ).unwrap();*/}
+            {/*      }}*/}
+            {/*    />*/}
+            {/*  )}*/}
           </>
         )}
         {!priorityProgrammingPlans?.length &&

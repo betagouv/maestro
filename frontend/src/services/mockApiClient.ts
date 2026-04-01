@@ -226,6 +226,7 @@ const defaultMockApiClientConf: MockApi = {
   useUpdatePrescriptionMutation: [fn(), {}],
   useUpdateProgrammingPlanLocalStatusMutation: [fn(), {}],
   useUpdateProgrammingPlanStatusMutation: [fn(), {}],
+  useUpdateProgrammingPlanMutation: [fn(), {}],
   useUpdateLaboratoryAnalyticalCompetenceMutation: [fn(), {}],
   useUpdateLocalPrescriptionMutation: [fn(), {}],
   useUpdateSampleMutation: [fn(), {}],

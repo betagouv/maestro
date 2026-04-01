@@ -2,8 +2,6 @@ import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import warningImg from 'src/assets/illustrations/warning.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
-import { AdminViewDashboardNotice } from './AdminViewDashboardNotice';
-import { AdminViewRootNotice } from './AdminViewRootNotice';
 import { AdminViewDashboardNotice } from './Notice/AdminViewDashboardNotice';
 import { AdminViewRootNotice } from './Notice/AdminViewRootNotice';
 import { PlanKindSpecificDataView } from './PlanKindSpecificData/PlanKindSpecificDataView';

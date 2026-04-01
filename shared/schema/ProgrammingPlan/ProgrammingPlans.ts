@@ -4,12 +4,19 @@ import { LegalContext } from '../../referential/LegalContext';
 import { checkSchema } from '../../utils/zod';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 import type { UserRefined } from '../User/User';
-import { isNationalRole, isRegionalRole, type UserRole } from '../User/UserRole';
+import {
+  isNationalRole,
+  isRegionalRole,
+  type UserRole
+} from '../User/UserRole';
 import { ProgrammingPlanContext } from './Context';
 import { DistributionKind } from './DistributionKind';
 import { ProgrammingPlanDomain } from './ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from './ProgrammingPlanKind';
-import { ProgrammingPlanDepartmentalStatus, ProgrammingPlanRegionalStatus } from './ProgrammingPlanLocalStatus';
+import {
+  ProgrammingPlanDepartmentalStatus,
+  ProgrammingPlanRegionalStatus
+} from './ProgrammingPlanLocalStatus';
 import type { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
 
 export const ProgrammingPlanBase = z.object({

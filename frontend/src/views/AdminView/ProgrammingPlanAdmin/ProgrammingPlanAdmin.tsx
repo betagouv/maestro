@@ -1,6 +1,8 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import Badge from '@codegouvfr/react-dsfr/Badge';
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { Table } from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
@@ -8,6 +10,7 @@ import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { DistributionKindLabels } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { type FunctionComponent, useContext, useState } from 'react';
 import { ApiClientContext } from 'src/services/apiClient';
@@ -16,16 +19,28 @@ import ProgrammingPlanAdminModal from './ProgrammingPlanAdminModal';
 
 type Props = Record<never, never>;
 
+const modal = createModal({
+  id: 'programming-plan-modal',
+  isOpenedByDefault: false
+});
+
 export const ProgrammingPlanAdmin: FunctionComponent<Props> = ({
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
+  const [programmingPlanToUpdate, setProgrammingPlanToUpdate] =
+    useState<null | ProgrammingPlanChecked>(null);
   const [alertMessage, setAlertMessage] = useState<null | string>(null);
 
   const { useFindProgrammingPlansQuery } = useContext(ApiClientContext);
 
   const { data: programmingPlans } = useFindProgrammingPlansQuery({});
+
+  const onEdit = async (plan: ProgrammingPlanChecked) => {
+    setProgrammingPlanToUpdate(plan);
+    modal.open();
+  };
 
   return (
     <div className={clsx('bg-white', cx('fr-p-2w'))}>
@@ -42,7 +57,19 @@ export const ProgrammingPlanAdmin: FunctionComponent<Props> = ({
 
       <div className={cx('fr-mb-2w')}>
         <h3>Gestion des plans de programmation</h3>
-        <ProgrammingPlanAdminModal setAlertMessage={setAlertMessage} />
+
+        <Button
+          onClick={() => modal.open()}
+          iconId="fr-icon-add-line"
+          iconPosition="right"
+        >
+          Créer un nouveau plan
+        </Button>
+        <ProgrammingPlanAdminModal
+          modal={modal}
+          programmingPlanToUpdate={programmingPlanToUpdate}
+          setAlertMessage={setAlertMessage}
+        />
       </div>
 
       {programmingPlans && programmingPlans.length > 0 ? (
@@ -56,7 +83,8 @@ export const ProgrammingPlanAdmin: FunctionComponent<Props> = ({
             'Substances',
             'Répartition',
             'Hors prog.',
-            'Sous-plans'
+            'Sous-plans',
+            ''
           ]}
           data={[...programmingPlans]
             .sort((a, b) => b.year - a.year)
@@ -92,7 +120,19 @@ export const ProgrammingPlanAdmin: FunctionComponent<Props> = ({
                 <div key={`${plan.id}-kind-${_}`}>
                   {ProgrammingPlanKindLabels[_]}
                 </div>
-              ))
+              )),
+              <div
+                className={clsx('border-left', 'align-right')}
+                key={`actions-${plan.id}`}
+              >
+                <Button
+                  priority="tertiary"
+                  size="small"
+                  onClick={() => onEdit(plan)}
+                >
+                  Modifier
+                </Button>
+              </div>
             ])}
         />
       ) : (

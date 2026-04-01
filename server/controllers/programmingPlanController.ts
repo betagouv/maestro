@@ -3,7 +3,11 @@ import { intersection, isNil } from 'lodash-es';
 import { Brand } from 'maestro-shared/constants';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import type { Department } from 'maestro-shared/referential/Department';
-import { type Region, RegionList, Regions } from 'maestro-shared/referential/Region';
+import {
+  type Region,
+  RegionList,
+  Regions
+} from 'maestro-shared/referential/Region';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { NotificationCategoryTitles } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
@@ -12,8 +16,15 @@ import {
   type ProgrammingPlanStatus,
   ProgrammingPlanStatusPermissions
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { hasPermission, userDepartmentsForRole, userRegionsForRole } from 'maestro-shared/schema/User/User';
-import { isNationalRole, isRegionalRole } from 'maestro-shared/schema/User/UserRole';
+import {
+  hasPermission,
+  userDepartmentsForRole,
+  userRegionsForRole
+} from 'maestro-shared/schema/User/User';
+import {
+  isNationalRole,
+  isRegionalRole
+} from 'maestro-shared/schema/User/UserRole';
 import { v4 as uuidv4 } from 'uuid';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
@@ -120,6 +131,24 @@ export const programmingPlanRouter = {
         }
       };
     },
+    put: async ({ body }, { programmingPlanId }) => {
+      const programmingPlan =
+        await getAndCheckProgrammingPlan(programmingPlanId);
+
+      const updatedProgrammingPlan = {
+        ...programmingPlan,
+        ...body
+      };
+
+      await programmingPlanRepository.update(updatedProgrammingPlan);
+
+      return {
+        status: constants.HTTP_STATUS_OK,
+        response: programmingPlan
+      };
+    }
+  },
+  '/programming-plans/:programmingPlanId/status': {
     put: async ({ user, body }, { programmingPlanId }) => {
       const programmingPlan =
         await getAndCheckProgrammingPlan(programmingPlanId);

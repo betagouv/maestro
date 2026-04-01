@@ -74,7 +74,7 @@ const programmingPlanApi = api.injectEndpoints({
       }
     >({
       query: ({ programmingPlanId, status }) => ({
-        url: `programming-plans/${programmingPlanId}`,
+        url: `programming-plans/${programmingPlanId}/status`,
         method: 'PUT',
         body: { status }
       }),

@@ -3,14 +3,19 @@ import { FindProgrammingPlanOptions } from '../schema/ProgrammingPlan/FindProgra
 import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanLocalStatus } from '../schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import { ProgrammingPlanStatus } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { ProgrammingPlanChecked, ProgrammingPlanToCreate } from '../schema/ProgrammingPlan/ProgrammingPlans';
-import { CreatePlanKindFieldInput, UpdatePlanKindFieldInput } from '../schema/SpecificData/FieldConfigInput';
+import {
+  ProgrammingPlanChecked,
+  ProgrammingPlanToUpsert
+} from '../schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  CreatePlanKindFieldInput,
+  UpdatePlanKindFieldInput
+} from '../schema/SpecificData/FieldConfigInput';
 import {
   PlanKindFieldConfig,
   ProgrammingPlanKindFieldId,
   SpecificDataFieldOptionId
 } from '../schema/SpecificData/PlanKindFieldConfig';
-import type { SubRoutes } from './routes';
 import type { SubRoutes } from './routes';
 
 export const programmingPlansRoutes = {
@@ -28,8 +33,8 @@ export const programmingPlansRoutes = {
       response: z.array(ProgrammingPlanChecked)
     },
     post: {
-      permissions: ['manageProgrammingPlan'],
-      body: ProgrammingPlanToCreate,
+      permissions: ['administrationMaestro'],
+      body: ProgrammingPlanToUpsert,
       response: ProgrammingPlanChecked
     }
   },
@@ -47,6 +52,16 @@ export const programmingPlansRoutes = {
         'readProgrammingPlanClosed'
       ],
       response: ProgrammingPlanChecked
+    },
+    put: {
+      permissions: ['administrationMaestro'],
+      body: ProgrammingPlanToUpsert,
+      response: ProgrammingPlanChecked
+    }
+  },
+  '/programming-plans/:programmingPlanId/status': {
+    params: {
+      programmingPlanId: z.guid()
     },
     put: {
       permissions: ['manageProgrammingPlan', 'approveProgrammingPlan'],
