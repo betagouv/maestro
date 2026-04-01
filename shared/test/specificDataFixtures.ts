@@ -1,7 +1,12 @@
-import type { PlanKindFieldConfig } from '../schema/SpecificData/PlanKindFieldConfig';
+import { v4 as uuidv4 } from 'uuid';
+import {
+  type PlanKindFieldConfig,
+  ProgrammingPlanKindFieldId
+} from '../schema/SpecificData/PlanKindFieldConfig';
 
 export const PPVFieldConfigs: PlanKindFieldConfig[] = [
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'PPV',
     required: false,
     order: 1,
@@ -14,6 +19,7 @@ export const PPVFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'PPV',
     required: false,
     order: 2,
@@ -41,6 +47,7 @@ export const PPVFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'PPV',
     required: true,
     order: 3,
@@ -57,6 +64,7 @@ export const PPVFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'PPV',
     required: true,
     order: 4,
@@ -80,6 +88,7 @@ export const PPVFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'PPV',
     required: false,
     order: 5,
@@ -95,6 +104,7 @@ export const PPVFieldConfigs: PlanKindFieldConfig[] = [
 
 export const DAOAVolailleFieldConfigs: PlanKindFieldConfig[] = [
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'DAOA_VOLAILLE',
     required: true,
     order: 1,
@@ -107,6 +117,7 @@ export const DAOAVolailleFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'DAOA_VOLAILLE',
     required: true,
     order: 2,
@@ -119,6 +130,7 @@ export const DAOAVolailleFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'DAOA_VOLAILLE',
     required: true,
     order: 3,
@@ -131,6 +143,7 @@ export const DAOAVolailleFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'DAOA_VOLAILLE',
     required: true,
     order: 4,
@@ -148,6 +161,7 @@ export const DAOAVolailleFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'DAOA_VOLAILLE',
     required: true,
     order: 5,
@@ -164,6 +178,7 @@ export const DAOAVolailleFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'DAOA_VOLAILLE',
     required: true,
     order: 6,
@@ -183,6 +198,7 @@ export const DAOAVolailleFieldConfigs: PlanKindFieldConfig[] = [
 
 export const DAOABovinFieldConfigs: PlanKindFieldConfig[] = [
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 1,
@@ -195,6 +211,7 @@ export const DAOABovinFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 2,
@@ -207,6 +224,7 @@ export const DAOABovinFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 3,
@@ -219,6 +237,7 @@ export const DAOABovinFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 4,
@@ -244,6 +263,7 @@ export const DAOABovinFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 5,
@@ -262,6 +282,7 @@ export const DAOABovinFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 6,
@@ -274,6 +295,7 @@ export const DAOABovinFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 7,
@@ -291,6 +313,7 @@ export const DAOABovinFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 8,
@@ -307,6 +330,7 @@ export const DAOABovinFieldConfigs: PlanKindFieldConfig[] = [
     }
   },
   {
+    id: ProgrammingPlanKindFieldId.parse(uuidv4()),
     programmingPlanKind: 'DAOA_BOVIN',
     required: true,
     order: 9,

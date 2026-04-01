@@ -1,14 +1,13 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import clsx from 'clsx';
 import {
   type ChangeEvent,
   type FunctionComponent,
   useContext,
   useRef
 } from 'react';
-import { ApiClientContext } from '../../services/apiClient';
+import { ApiClientContext } from '../../../services/apiClient';
 
 export const SachaCommemoratifsUpload: FunctionComponent = () => {
   const { useUpdateSachaCommemoratifsMutation } = useContext(ApiClientContext);
@@ -31,20 +30,17 @@ export const SachaCommemoratifsUpload: FunctionComponent = () => {
 
   return (
     <>
-      <div
-        className={clsx('d-flex-row', 'd-flex-align-center', cx('fr-my-2w'))}
+      <Button
+        priority="secondary"
+        iconId="fr-icon-upload-line"
+        onClick={() => fileInputRef.current?.click()}
+        disabled={isLoading}
+        className={cx('fr-ml-auto')}
       >
-        <h3>Configuration Sacha</h3>
-        <Button
-          priority="secondary"
-          iconId="fr-icon-upload-line"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isLoading}
-          className={cx('fr-ml-auto')}
-        >
-          {isLoading ? 'Import en cours...' : 'Importer un référentiel'}
-        </Button>
-      </div>
+        {isLoading
+          ? 'Import en cours...'
+          : 'Mettre à jour le référentiel Sacha'}
+      </Button>
       <input
         ref={fileInputRef}
         type="file"

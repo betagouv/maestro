@@ -31,7 +31,7 @@ const updateSampleSpecificDataAttributeValue = async (
   sampleSpecificDataAttributeValue: {
     attribute: string;
     attributeValue: string;
-    sachaCommemoratifValueSigle: CommemoratifValueSigle;
+    sachaCommemoratifValueSigle: CommemoratifValueSigle | null;
   },
   trx: KyselyMaestro = kysely
 ) => {

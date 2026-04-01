@@ -18,7 +18,7 @@ export type SampleSpecificDataAttribute = z.infer<
 export const SampleSpecificDataAttributeValue = z.object({
   attribute: z.string(),
   attributeValue: z.string(),
-  sachaCommemoratifValueSigle: CommemoratifValueSigle
+  sachaCommemoratifValueSigle: CommemoratifValueSigle.nullable()
 });
 
 export type SampleSpecificDataAttributeValue = z.infer<

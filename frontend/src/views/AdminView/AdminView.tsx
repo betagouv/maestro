@@ -1,9 +1,10 @@
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import warningImg from 'src/assets/illustrations/warning.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
-import { SachaCommemoratifs } from '../SachaView/SachaCommemoratifs';
-import { AdminViewDashboardNotice } from './AdminViewDashboardNotice';
-import { AdminViewRootNotice } from './AdminViewRootNotice';
+import { AdminViewDashboardNotice } from './Notice/AdminViewDashboardNotice';
+import { AdminViewRootNotice } from './Notice/AdminViewRootNotice';
+import { PlanKindSpecificDataView } from './PlanKindSpecificData/PlanKindSpecificDataView';
+import { SpecificDataFieldsView } from './SpecificDataFields/SpecificDataFieldsView';
 
 export const AdminView = () => {
   return (
@@ -25,8 +26,12 @@ export const AdminView = () => {
             )
           },
           {
-            label: 'Configuration Sacha',
-            content: <SachaCommemoratifs />
+            label: 'Configuration des descripteurs',
+            content: <SpecificDataFieldsView />
+          },
+          {
+            label: 'Configuration des plans',
+            content: <PlanKindSpecificDataView />
           }
         ]}
       ></Tabs>
