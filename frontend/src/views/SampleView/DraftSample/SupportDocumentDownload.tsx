@@ -7,9 +7,8 @@ import {
   type PartialSample,
   type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import type React from 'react';
-import { useContext, useMemo } from 'react';
+import { useContext } from 'react';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import useWindowSize from 'src/hooks/useWindowSize';
 import { useAnalytics } from '../../../hooks/useAnalytics';
@@ -39,11 +38,6 @@ const SupportDocumentDownload = ({
 
   const { useCreateOrUpdateSampleMutation } = useContext(ApiClientContext);
 
-  const isCompleted = useMemo(
-    () => !DraftStatusList.includes(partialSample.status),
-    [partialSample]
-  );
-
   const [createOrUpdateSample] = useCreateOrUpdateSampleMutation();
 
   const openSupportDocument = (sample: PartialSample) => {
@@ -64,7 +58,7 @@ const SupportDocumentDownload = ({
         <Button
           onClick={async (e: React.MouseEvent) => {
             e.preventDefault();
-            if (isCompleted) {
+            if (partialSample.step !== 'Draft') {
               window.open(getSupportDocumentURL(partialSample.id), '_blank');
             } else {
               confirmationModal.open();

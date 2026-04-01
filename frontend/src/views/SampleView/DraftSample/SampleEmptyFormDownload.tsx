@@ -6,9 +6,8 @@ import {
   type PartialSample,
   type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import type React from 'react';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import useWindowSize from 'src/hooks/useWindowSize';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
@@ -30,36 +29,34 @@ export const SampleEmptyFormDownload = ({ partialSample }: Props) => {
 
   const { useCreateOrUpdateSampleMutation } = useContext(ApiClientContext);
 
-  const isCompleted = useMemo(
-    () => !DraftStatusList.includes(partialSample.status),
-    [partialSample]
-  );
-
   const [createOrUpdateSample, createOrUpdateSampleCall] =
     useCreateOrUpdateSampleMutation();
 
-  useEffect(() => {
-    if (
-      shouldProcessDownload ||
-      (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading)
-    ) {
-      isSubmittingRef.current = false;
-      setShouldProcessDownload(false);
-
+  useEffect(
+    () => {
       if (
-        isCreatedPartialSample(partialSample) ||
-        createOrUpdateSampleCall.isSuccess
+        shouldProcessDownload ||
+        (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading)
       ) {
-        navigateToSample(partialSample.id);
-        window.open(getSampleEmptyFormURL(partialSample.id), '_blank');
+        isSubmittingRef.current = false;
+        setShouldProcessDownload(false);
+
+        if (
+          isCreatedPartialSample(partialSample) ||
+          createOrUpdateSampleCall.isSuccess
+        ) {
+          navigateToSample(partialSample.id);
+          window.open(getSampleEmptyFormURL(partialSample.id), '_blank');
+        }
       }
-    }
-  }, [
-    shouldProcessDownload,
-    createOrUpdateSampleCall.isSuccess,
-    createOrUpdateSampleCall.isLoading,
-    partialSample
-  ]);
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      shouldProcessDownload,
+      createOrUpdateSampleCall.isSuccess,
+      createOrUpdateSampleCall.isLoading,
+      partialSample
+    ]
+  );
 
   return (
     <div
@@ -77,7 +74,7 @@ export const SampleEmptyFormDownload = ({ partialSample }: Props) => {
       <Button
         onClick={async (e: React.MouseEvent) => {
           e.preventDefault();
-          if (isCompleted) {
+          if (partialSample.status !== 'Draft') {
             window.open(getSupportDocumentURL(partialSample.id), '_blank');
           } else {
             if (!isCreatedPartialSample(partialSample)) {

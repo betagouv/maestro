@@ -3,7 +3,10 @@ import { z } from 'zod';
 import { QuantityUnit } from '../../referential/QuantityUnit';
 import { maestroDateRefined } from '../../utils/date';
 import { isDefinedAndNotNull } from '../../utils/utils';
-import { AnalysisStatus } from '../Analysis/AnalysisStatus';
+import {
+  AnalysisStatus,
+  AnalysisStatusPriority
+} from '../Analysis/AnalysisStatus';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 import type { SampleChecked } from './Sample';
 import { SampleItemRecipientKind } from './SampleItemRecipientKind';
@@ -58,6 +61,7 @@ export const SampleItem = z.object({
   paidDate: maestroDateRefined.nullish(),
   invoiceNumber: z.string().nullish(),
   budgetNotes: z.string().nullish(),
+  complianceOverride: z.boolean().nullish(),
   analysis: z
     .object({
       status: AnalysisStatus,
@@ -82,7 +86,8 @@ export const SampleItemUpdate = z.object({
     sampleId: true,
     itemNumber: true,
     copyNumber: true
-  }).shape
+  }).shape,
+  isAdmissible: z.boolean().nullish()
 });
 
 export type SampleItem = z.infer<typeof SampleItem>;
@@ -104,3 +109,52 @@ export const getSampleItemReference = (
   [sample.reference, String.fromCharCode(64 + itemNumber), copyNumber]
     .filter(isDefinedAndNotNull)
     .join('-');
+
+const getCompliantCopies = (sampleItemCopies: SampleItem[]) =>
+  sampleItemCopies.filter(
+    (copy) =>
+      copy.analysis?.status === 'Completed' &&
+      copy.analysis?.compliance === true
+  );
+
+export const getNonCompliantCopies = (sampleItemCopies: SampleItem[]) =>
+  sampleItemCopies.filter(
+    (copy) =>
+      copy.analysis?.status === 'Completed' &&
+      copy.analysis?.compliance === false
+  );
+
+export const isItemAchieved = (sampleItemCopies: SampleItem[]) =>
+  sampleItemCopies.every(
+    (copy) =>
+      isNil(copy.analysis) ||
+      ['Completed', 'Unused'].includes(copy.analysis.status)
+  );
+
+export const isItemCompliant = (sampleItemCopies: SampleItem[]) => {
+  const complianceOverride = sampleItemCopies.find(
+    (_) => _.copyNumber === 1
+  )?.complianceOverride;
+  if (!isItemAchieved(sampleItemCopies)) {
+    return null;
+  }
+  if (isNil(complianceOverride)) {
+    return (
+      getCompliantCopies(sampleItemCopies).length > 0 &&
+      getNonCompliantCopies(sampleItemCopies).length === 0
+    );
+  }
+  return complianceOverride;
+};
+
+export const getItemStatus = (sampleItemCopies: SampleItem[]): AnalysisStatus =>
+  sampleItemCopies
+    .map((copy) => copy.analysis?.status)
+    .filter((status): status is AnalysisStatus => status !== undefined)
+    .reduce(
+      (worst, status) =>
+        AnalysisStatusPriority[status] > AnalysisStatusPriority[worst]
+          ? status
+          : worst,
+      'Completed' as AnalysisStatus
+    );

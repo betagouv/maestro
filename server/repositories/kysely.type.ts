@@ -6,7 +6,6 @@
 import { type ColumnType, type Expression, type Kysely, sql } from 'kysely';
 import type { Department } from 'maestro-shared/referential/Department';
 import type { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
-import type { LegalContext } from 'maestro-shared/referential/LegalContext';
 import type { Region } from 'maestro-shared/referential/Region';
 import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import type { Stage } from 'maestro-shared/referential/Stage';
@@ -17,12 +16,7 @@ import type { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/R
 import type { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import type { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
-import type { LaboratoryAnalyticalMethod } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalMethod';
-import type { LaboratoryValidationMethod } from 'maestro-shared/schema/Laboratory/LaboratoryValidationMethod';
 import type { LocalPrescriptionSubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
-import type { Context } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import type { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
-import type { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type {
   CommemoratifSigle,
@@ -30,6 +24,8 @@ import type {
   SachaCommemoratifTypeDonnee
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import type { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
+import type { SampleStatus as SampleStatusType } from 'maestro-shared/schema/Sample/SampleStatus';
+import type { SampleStep } from 'maestro-shared/schema/Sample/SampleStep';
 import {
   ProgrammingPlanKindFieldId,
   SpecificDataFieldId,
@@ -198,19 +194,6 @@ export interface LaboratoryAgreements {
   substanceKind: SubstanceKind;
 }
 
-export interface LaboratoryAnalyticalCompetences {
-  id: Generated<string>;
-  laboratoryId: string;
-  residueReference: SSD2Id;
-  analyteReference: SSD2Id | null;
-  analyticalMethod: LaboratoryAnalyticalMethod | null;
-  validationMethod: LaboratoryValidationMethod | null;
-  analysisMethod: AnalysisMethod | null;
-  isCompleteDefinitionAnalysis: boolean | null;
-  detectionLimit: number | null;
-  quantificationLimit: number | null;
-}
-
 export interface Notices {
   type: 'root' | 'dashboard';
   title: string | null;
@@ -239,16 +222,6 @@ export interface ProgrammingPlans {
   status: string;
   statusDrom: string | null;
   year: number;
-  domain: ProgrammingPlanDomain;
-  kinds: ProgrammingPlanKind[];
-  contexts: Context[];
-  legalContexts: LegalContext[];
-  samplesOutsidePlanAllowed: boolean;
-  title: string;
-  substanceKinds: SubstanceKind[];
-  distributionKind: DistributionKind;
-  closedAt: Timestamp | null;
-  closedBy: string | null;
 }
 
 export interface LocalPrescriptionComments {
@@ -334,7 +307,7 @@ export interface Samples {
   sampledBy: string | null;
   sentAt: Timestamp | null;
   stage: Stage | null;
-  status: string;
+  step: SampleStep;
 }
 
 export interface SampleSpecificDataValues {
@@ -351,6 +324,17 @@ export interface SampleSequenceNumbers {
   region: string;
 }
 
+export interface SampleStatusView {
+  sampleId: string;
+  status: SampleStatusType;
+}
+
+export interface SampleItemStatusView {
+  sampleId: string;
+  itemNumber: number;
+  status: SampleStatusType | null;
+}
+
 export interface Users {
   email: string;
   name: string | null;
@@ -360,8 +344,8 @@ export interface Users {
   roles: UserRole[];
   loggedSecrets: ColumnType<string[], string[] | null, string[]>;
   programmingPlanKinds: ProgrammingPlanKind[];
-  laboratoryId: string | null;
   disabled: boolean;
+  laboratoryId: string | null;
 }
 
 export interface UserCompanies {
@@ -454,9 +438,10 @@ export interface DB {
   sampleSpecificDataValues: SampleSpecificDataValues;
   samples: Samples;
   sampleSequenceNumbers: SampleSequenceNumbers;
+  sampleStatus: SampleStatusView;
+  sampleItemStatus: SampleItemStatusView;
   users: Users;
   userCompanies: UserCompanies;
-  laboratoryAnalyticalCompetences: LaboratoryAnalyticalCompetences;
 }
 export type KyselyMaestro = Kysely<DB>;
 

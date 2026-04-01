@@ -59,6 +59,28 @@ export const programmingPlanRouter = {
       console.info('Found programmingPlans', programmingPlans);
 
       return { status: constants.HTTP_STATUS_OK, response: programmingPlans };
+    },
+    post: async ({ user, body }) => {
+      console.info('Create programming plan');
+
+      const newProgrammingPlan = {
+        ...body,
+        id: uuidv4(),
+        createdAt: new Date(),
+        createdBy: user.id,
+        regionalStatus: RegionList.map((region) => ({
+          region,
+          status: 'InProgress' as const
+        })),
+        departmentalStatus: []
+      };
+
+      await programmingPlanRepository.insert(newProgrammingPlan);
+
+      return {
+        status: constants.HTTP_STATUS_CREATED,
+        response: newProgrammingPlan
+      };
     }
   },
   '/programming-plans/:programmingPlanId': {
@@ -109,6 +131,24 @@ export const programmingPlanRouter = {
         }
       };
     },
+    put: async ({ body }, { programmingPlanId }) => {
+      const programmingPlan =
+        await getAndCheckProgrammingPlan(programmingPlanId);
+
+      const updatedProgrammingPlan = {
+        ...programmingPlan,
+        ...body
+      };
+
+      await programmingPlanRepository.update(updatedProgrammingPlan);
+
+      return {
+        status: constants.HTTP_STATUS_OK,
+        response: programmingPlan
+      };
+    }
+  },
+  '/programming-plans/:programmingPlanId/status': {
     put: async ({ user, body }, { programmingPlanId }) => {
       const programmingPlan =
         await getAndCheckProgrammingPlan(programmingPlanId);
@@ -393,21 +433,10 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
       };
     }
   },
-  '/programming-plans/years/:year': {
-    post: async ({ user }, { year }) => {
-      const previousProgrammingPlan = await programmingPlanRepository.findOne(
-        year - 1,
-        user.programmingPlanKinds
-      );
-
-      if (
-        !previousProgrammingPlan ||
-        previousProgrammingPlan.regionalStatus.some(
-          (_) => _.status !== 'Validated'
-        )
-      ) {
-        throw new ProgrammingPlanMissingError(String(year - 1));
-      }
+  '/programming-plans/:programmingPlanId/copy': {
+    post: async ({ user }, { programmingPlanId }) => {
+      const previousProgrammingPlan =
+        await getAndCheckProgrammingPlan(programmingPlanId);
 
       const newProgrammingPlan = {
         id: uuidv4(),
@@ -421,7 +450,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
         samplesOutsidePlanAllowed:
           previousProgrammingPlan.samplesOutsidePlanAllowed,
         distributionKind: previousProgrammingPlan.distributionKind,
-        year,
+        year: previousProgrammingPlan.year,
         regionalStatus: RegionList.map((region) => ({
           region,
           status: 'InProgress' as const

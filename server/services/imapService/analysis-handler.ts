@@ -201,7 +201,7 @@ export const analysisHandler = async (
         sampleId,
         itemNumber: analyse.itemNumber,
         copyNumber: analyse.copyNumber,
-        status: 'Compliance',
+        status: compliance ? 'Completed' : 'InReview',
         createdBy: null,
         createdAt: new Date(),
         emailReceivedAt: emailReceivedAt,
@@ -218,13 +218,13 @@ export const analysisHandler = async (
         analysisId = await analysisRepository.insert(newAnalysis, trx);
       }
 
+      await sampleRepository.evaluateSampleCompliance(sampleId);
+
       await analysisReportDocumentsRepository.insert(
         analysisId,
         documentId,
         trx
       );
-
-      await sampleRepository.updateStatus(sampleId, 'InReview', trx);
 
       for (let i = 0; i < residues.length; i++) {
         const residue = residues[i];
