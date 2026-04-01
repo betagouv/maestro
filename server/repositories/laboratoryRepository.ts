@@ -33,6 +33,7 @@ const findUnique = async (id: string): Promise<KyselyLaboratories> => {
       'laboratories.sachaEmail',
       'laboratories.sachaGpgPublicKey',
       'laboratories.sachaSigle',
+      'laboratories.sachaSftpLogin',
       sql<
         string[]
       >`array_remove(array_agg(DISTINCT "laboratory_agreements"."programming_plan_id"), NULL)`.as(
@@ -50,7 +51,8 @@ const findUnique = async (id: string): Promise<KyselyLaboratories> => {
       'laboratories.emailsAnalysisResult',
       'laboratories.sachaEmail',
       'laboratories.sachaGpgPublicKey',
-      'laboratories.sachaSigle'
+      'laboratories.sachaSigle',
+      'laboratories.sachaSftpLogin'
     ])
     .where('id', '=', id)
     .executeTakeFirstOrThrow();

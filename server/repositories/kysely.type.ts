@@ -179,6 +179,7 @@ export interface Laboratories {
   sachaEmail: string | null;
   sachaGpgPublicKey: string | null;
   sachaSigle: string | null;
+  sachaSftpLogin: string | null;
   programmingPlanIds: string[] | null;
 }
 
