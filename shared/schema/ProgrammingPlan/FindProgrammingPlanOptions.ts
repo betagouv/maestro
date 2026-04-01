@@ -46,6 +46,15 @@ export const buildFindProgrammingPlanOptions = (
     ? findOptions.status
     : ProgrammingPlanStatusList;
 
+  const kinds = intersection(
+    (findOptions.kinds?.length ?? 0) > 0
+      ? findOptions.kinds
+      : ProgrammingPlanKindList,
+    ['Administrator', 'LaboratoryUser'].includes(userRole)
+      ? ProgrammingPlanKindList
+      : user.programmingPlanKinds
+  );
+
   return {
     ...findOptions,
     ids: userLaboratory?.programmingPlanIds,
@@ -53,9 +62,7 @@ export const buildFindProgrammingPlanOptions = (
       findOptionsStatus,
       userStatusAuthorized
     ) as ProgrammingPlanStatus[],
-    kinds: ['Administrator', 'LaboratoryUser'].includes(userRole)
-      ? ProgrammingPlanKindList
-      : user.programmingPlanKinds,
+    kinds,
     region: isNationalRole(userRole) ? findOptions.region : user.region,
     department:
       isNationalRole(userRole) || isRegionalRole(userRole)
