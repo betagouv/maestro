@@ -2,7 +2,10 @@ import { isNil, omitBy } from 'lodash-es';
 import type { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import type { ProgrammingPlanLocalStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  ProgrammingPlanChecked,
+  type ProgrammingPlanToUpsert
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { api } from 'src/services/api.service';
 
 const programmingPlanApi = api.injectEndpoints({
@@ -31,14 +34,37 @@ const programmingPlanApi = api.injectEndpoints({
         ProgrammingPlanChecked.parse(omitBy(response, isNil)),
       providesTags: (result) => [{ type: 'ProgrammingPlan', id: result?.id }]
     }),
-    createProgrammingPlan: builder.mutation<ProgrammingPlanChecked, number>({
-      query: (year) => ({
-        url: `programming-plans/years/${year}`,
-        method: 'POST'
+    createProgrammingPlan: builder.mutation<
+      ProgrammingPlanChecked,
+      ProgrammingPlanToUpsert
+    >({
+      query: (plan) => ({
+        url: `programming-plans`,
+        method: 'POST',
+        body: plan
       }),
       transformResponse: (response: any) =>
         ProgrammingPlanChecked.parse(omitBy(response, isNil)),
       invalidatesTags: (_result, _error) => [{ type: 'ProgrammingPlan' }]
+    }),
+    updateProgrammingPlan: builder.mutation<
+      ProgrammingPlanChecked,
+      {
+        programmingPlanId: string;
+        programmingPlanUpdate: ProgrammingPlanToUpsert;
+      }
+    >({
+      query: ({ programmingPlanId, programmingPlanUpdate }) => ({
+        url: `programming-plans/${programmingPlanId}`,
+        method: 'PUT',
+        body: programmingPlanUpdate
+      }),
+      transformResponse: (response: any) =>
+        ProgrammingPlanChecked.parse(omitBy(response, isNil)),
+      invalidatesTags: (_result, _error, { programmingPlanId }) => [
+        { type: 'ProgrammingPlan', id: programmingPlanId },
+        { type: 'ProgrammingPlan', id: 'LIST' }
+      ]
     }),
     updateProgrammingPlanStatus: builder.mutation<
       ProgrammingPlanChecked,
@@ -85,6 +111,7 @@ export const {
   useFindProgrammingPlansQuery,
   useGetProgrammingPlanQuery,
   useCreateProgrammingPlanMutation,
+  useUpdateProgrammingPlanMutation,
   useUpdateProgrammingPlanStatusMutation,
   useUpdateProgrammingPlanLocalStatusMutation
 } = programmingPlanApi;

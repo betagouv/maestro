@@ -5,3 +5,8 @@ export const DistributionKind = z.enum(['REGIONAL', 'SLAUGHTERHOUSE'], {
 });
 
 export type DistributionKind = z.infer<typeof DistributionKind>;
+
+export const DistributionKindLabels = {
+  REGIONAL: 'Région',
+  SLAUGHTERHOUSE: 'Abattoir'
+};

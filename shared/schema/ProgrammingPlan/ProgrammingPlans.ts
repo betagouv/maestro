@@ -4,19 +4,12 @@ import { LegalContext } from '../../referential/LegalContext';
 import { checkSchema } from '../../utils/zod';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 import type { UserRefined } from '../User/User';
-import {
-  isNationalRole,
-  isRegionalRole,
-  type UserRole
-} from '../User/UserRole';
+import { isNationalRole, isRegionalRole, type UserRole } from '../User/UserRole';
 import { ProgrammingPlanContext } from './Context';
 import { DistributionKind } from './DistributionKind';
 import { ProgrammingPlanDomain } from './ProgrammingPlanDomain';
 import { ProgrammingPlanKind } from './ProgrammingPlanKind';
-import {
-  ProgrammingPlanDepartmentalStatus,
-  ProgrammingPlanRegionalStatus
-} from './ProgrammingPlanLocalStatus';
+import { ProgrammingPlanDepartmentalStatus, ProgrammingPlanRegionalStatus } from './ProgrammingPlanLocalStatus';
 import type { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
 
 export const ProgrammingPlanBase = z.object({
@@ -44,6 +37,18 @@ export const ProgrammingPlanBase = z.object({
   closedBy: z.guid().nullish()
 });
 
+export const ProgrammingPlanToUpsert = ProgrammingPlanBase.pick({
+  domain: true,
+  title: true,
+  kinds: true,
+  contexts: true,
+  legalContexts: true,
+  samplesOutsidePlanAllowed: true,
+  substanceKinds: true,
+  distributionKind: true,
+  year: true
+});
+
 export const ProgrammingPlanChecked = checkSchema(
   ProgrammingPlanBase,
   (ctx) => {
@@ -69,6 +74,7 @@ export const ProgrammingPlanChecked = checkSchema(
   }
 );
 
+export type ProgrammingPlanToUpsert = z.infer<typeof ProgrammingPlanToUpsert>;
 export type ProgrammingPlanChecked = z.infer<typeof ProgrammingPlanChecked>;
 
 export const isClosed = (plan: ProgrammingPlanChecked): boolean => {

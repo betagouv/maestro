@@ -3,16 +3,14 @@ import { FindProgrammingPlanOptions } from '../schema/ProgrammingPlan/FindProgra
 import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanLocalStatus } from '../schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import { ProgrammingPlanStatus } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  CreatePlanKindFieldInput,
-  UpdatePlanKindFieldInput
-} from '../schema/SpecificData/FieldConfigInput';
+import { ProgrammingPlanChecked, ProgrammingPlanToCreate } from '../schema/ProgrammingPlan/ProgrammingPlans';
+import { CreatePlanKindFieldInput, UpdatePlanKindFieldInput } from '../schema/SpecificData/FieldConfigInput';
 import {
   PlanKindFieldConfig,
   ProgrammingPlanKindFieldId,
   SpecificDataFieldOptionId
 } from '../schema/SpecificData/PlanKindFieldConfig';
+import type { SubRoutes } from './routes';
 import type { SubRoutes } from './routes';
 
 export const programmingPlansRoutes = {
@@ -28,6 +26,11 @@ export const programmingPlansRoutes = {
       ],
       query: FindProgrammingPlanOptions,
       response: z.array(ProgrammingPlanChecked)
+    },
+    post: {
+      permissions: ['manageProgrammingPlan'],
+      body: ProgrammingPlanToCreate,
+      response: ProgrammingPlanChecked
     }
   },
   '/programming-plans/:programmingPlanId': {
@@ -68,9 +71,9 @@ export const programmingPlansRoutes = {
       response: ProgrammingPlanChecked
     }
   },
-  '/programming-plans/years/:year': {
+  '/programming-plans/:programmingPlanId/copy': {
     params: {
-      year: z.coerce.number().int()
+      programmingPlanId: z.guid()
     },
     post: {
       permissions: ['manageProgrammingPlan'],
