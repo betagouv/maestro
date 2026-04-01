@@ -24,29 +24,28 @@ const DashboardView = () => {
     useAuthentication();
   const { isOnline } = useOnLine();
 
-  const { data: validatedProgrammingPlans } =
-    apiClient.useFindProgrammingPlansQuery(
-      {
-        kinds: hasRole('Administrator')
-          ? ProgrammingPlanKindList
-          : user?.programmingPlanKinds,
-        status: ['Validated']
-      },
-      {
-        skip: !user?.programmingPlanKinds.length && !hasRole('Administrator')
-      }
-    );
+  const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
+    {
+      kinds: hasRole('Administrator')
+        ? ProgrammingPlanKindList
+        : user?.programmingPlanKinds,
+      status: ['Validated', 'Closed']
+    },
+    {
+      skip: !user?.programmingPlanKinds.length && !hasRole('Administrator')
+    }
+  );
 
   const [currentValidatedProgrammingPlan, setCurrentValidatedProgrammingPlan] =
     useState<ProgrammingPlanChecked>();
 
   useEffect(() => {
     setCurrentValidatedProgrammingPlan(
-      [...(validatedProgrammingPlans ?? [])]
+      [...(programmingPlans ?? [])]
         .sort(ProgrammingPlanSort)
         .filter((pp) => pp.year <= new Date().getFullYear())[0]
     );
-  }, [validatedProgrammingPlans]);
+  }, [programmingPlans]);
 
   if (!user) {
     return null;
@@ -60,21 +59,19 @@ const DashboardView = () => {
       documentTitle="Tableau de bord"
       action={
         <>
-          {(validatedProgrammingPlans?.length ?? 0) > 1 && (
+          {(programmingPlans?.length ?? 0) > 1 && (
             <Select
               label=""
               nativeSelectProps={{
                 value: currentValidatedProgrammingPlan?.id ?? '',
                 onChange: (e) =>
                   setCurrentValidatedProgrammingPlan(
-                    validatedProgrammingPlans?.find(
-                      (plan) => plan.id === e.target.value
-                    )
+                    programmingPlans?.find((plan) => plan.id === e.target.value)
                   )
               }}
               className={clsx(cx('fr-pt-4w'))}
             >
-              {validatedProgrammingPlans?.map((plan) => (
+              {programmingPlans?.map((plan) => (
                 <option key={`plan-${plan.id}`} value={plan.id}>
                   {plan.title} {plan.year}
                 </option>
