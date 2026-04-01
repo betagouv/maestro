@@ -23,6 +23,7 @@ import {
   ProgrammingPlanKindList
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
+  ProgrammingPlanBase,
   type ProgrammingPlanChecked,
   ProgrammingPlanToUpsert
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
