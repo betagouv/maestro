@@ -6,7 +6,8 @@ import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/Progr
 import { ProgrammingPlanLocalStatus as ProgrammingPlanLocalStatusType } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import {
   ProgrammingPlanBase,
-  ProgrammingPlanChecked
+  ProgrammingPlanChecked,
+  ProgrammingPlanSort
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import z from 'zod';
 import { knexInstance as db } from './db';
@@ -116,9 +117,9 @@ const findMany = async (
       }
     })
     .then((programmingPlans) =>
-      programmingPlans.map((_: any) =>
-        ProgrammingPlanChecked.parse(omitBy(_, isNil))
-      )
+      [...programmingPlans]
+        .sort(ProgrammingPlanSort)
+        .map((_: any) => ProgrammingPlanChecked.parse(omitBy(_, isNil)))
     );
 };
 

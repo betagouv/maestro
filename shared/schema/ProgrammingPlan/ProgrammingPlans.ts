@@ -78,7 +78,7 @@ export const isClosed = (plan: ProgrammingPlanChecked): boolean => {
 export const ProgrammingPlanSort = (
   a: ProgrammingPlanChecked,
   b: ProgrammingPlanChecked
-) => b.year - a.year;
+) => b.year - a.year || a.title.localeCompare(b.title);
 
 export const hasProgrammingPlanStatusForAuthUser = (
   programmingPlan: ProgrammingPlanChecked,
