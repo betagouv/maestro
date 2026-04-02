@@ -22,20 +22,20 @@ export const FindSampleOptions = z
     programmingPlanIds: coerceToArray(z.array(z.guid())).nullish(),
     kinds: coerceToArray(z.array(ProgrammingPlanKind)).nullish(),
     contexts: coerceToArray(z.array(Context)).nullish(),
-    region: Region.nullish(),
+    regions: coerceToArray(z.array(Region)).nullish(),
     departments: coerceToArray(z.array(Department)).nullish(),
     companySirets: coerceToArray(z.array(z.string())).nullish(),
     status: z
       .union([SampleStatus, coerceToArray(z.array(SampleStatus))])
       .nullish(),
-    matrix: Matrix.nullish(),
-    matrixKind: MatrixKind.nullish(),
-    sampledBy: z.guid().nullish(),
+    matrices: coerceToArray(z.array(Matrix)).nullish(),
+    matrixKinds: coerceToArray(z.array(MatrixKind)).nullish(),
+    sampledBy: coerceToArray(z.array(z.guid())).nullish(),
     sampledDate: z.string().nullish(),
     reference: z.string().nullish(),
     compliance: SampleCompliance.nullish(),
     withAtLeastOneResidue: coerceToBooleanNullish(),
-    laboratoryId: z.guid().nullish()
+    laboratoryIds: coerceToArray(z.array(z.guid())).nullish()
   })
   .merge(Pagination.partial());
 
@@ -52,7 +52,11 @@ export const buildFindSampleOptions = (
 
   return {
     ...query,
-    region: isNationalRole(userRole) ? query.region : user.region,
+    regions: isNationalRole(userRole)
+      ? query.regions
+      : user.region
+        ? [user.region]
+        : undefined,
     departments: departmentIsRequired(user)
       ? [user.department as Department]
       : query.departments,

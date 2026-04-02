@@ -148,7 +148,10 @@ const findRequest = (findOptions: FindSampleOptions) =>
       omitBy(
         omit(
           findOptions,
-          'region',
+          'regions',
+          'matrixKinds',
+          'matrices',
+          'sampledBy',
           'sampledDate',
           'page',
           'perPage',
@@ -159,7 +162,7 @@ const findRequest = (findOptions: FindSampleOptions) =>
           'withAtLeastOneResidue',
           'programmingPlanIds',
           'kinds',
-          'laboratoryId'
+          'laboratoryIds'
         ),
         (_) => isNil(_) || isArray(_)
       )
@@ -177,8 +180,17 @@ const findRequest = (findOptions: FindSampleOptions) =>
           findOptions.kinds
         );
       }
-      if (findOptions.region) {
-        builder.where(`${samplesTable}.region`, findOptions.region);
+      if (findOptions.regions?.length) {
+        builder.whereIn(`${samplesTable}.region`, findOptions.regions);
+      }
+      if (findOptions.matrixKinds?.length) {
+        builder.whereIn(`${samplesTable}.matrixKind`, findOptions.matrixKinds);
+      }
+      if (findOptions.matrices?.length) {
+        builder.whereIn(`${samplesTable}.matrix`, findOptions.matrices);
+      }
+      if (findOptions.sampledBy?.length) {
+        builder.whereIn(`${samplesTable}.sampledBy`, findOptions.sampledBy);
       }
       if (findOptions.status) {
         if (isArray(findOptions.status)) {
@@ -226,7 +238,7 @@ const findRequest = (findOptions: FindSampleOptions) =>
             .limit(1)
         );
       }
-      if (findOptions.laboratoryId) {
+      if (findOptions.laboratoryIds?.length) {
         builder.whereExists((c) =>
           c
             .select(knexInstance.raw(1))
@@ -235,7 +247,10 @@ const findRequest = (findOptions: FindSampleOptions) =>
               `${sampleItemsTable}.sampleId`,
               knexInstance.raw(`${samplesTable}.id`)
             )
-            .where(`${sampleItemsTable}.laboratoryId`, findOptions.laboratoryId)
+            .whereIn(
+              `${sampleItemsTable}.laboratoryId`,
+              findOptions.laboratoryIds!
+            )
             .limit(1)
         );
       }
