@@ -14,10 +14,6 @@ const filtersConfig = {
     prop: 'role',
     getLabel: (value) => UserRoleLabels[value]
   },
-  region: {
-    prop: 'region',
-    getLabel: (value) => Regions[value].name
-  },
   department: {
     prop: 'department',
     getLabel: (value) => DepartmentLabels[value]
@@ -31,7 +27,7 @@ const filtersConfig = {
     getLabel: () => 'Seulement les désactivés'
   }
 } as const satisfies {
-  [key in FilterableProp]: {
+  [key in Exclude<FilterableProp, 'regions'>]: {
     prop: key;
   } & {
     getLabel: (value: NonNullable<FindUserOptions[key]>) => string | null;
@@ -50,6 +46,20 @@ export const UsersFilterTags: FunctionComponent<Props> = ({
 
   return (
     <>
+      {filters.regions?.map((region) => (
+        <Tag
+          key={`region-${region}`}
+          dismissible
+          nativeButtonProps={{
+            onClick: () =>
+              onChange({
+                regions: filters.regions!.filter((r) => r !== region)
+              })
+          }}
+        >
+          {Regions[region].name}
+        </Tag>
+      ))}
       {Object.values(filtersConfig).map((conf) => {
         const value = filters[conf.prop];
 
