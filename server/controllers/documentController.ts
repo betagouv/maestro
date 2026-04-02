@@ -35,7 +35,7 @@ export const documentsRouter = {
       }
       if (
         documentToCreate.kind === 'AnalysisReportDocument' &&
-        !hasPermission(userRole, 'performItemAnalysis')
+        !hasPermission(userRole, 'performAnalysis')
       ) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
@@ -135,7 +135,7 @@ export const documentsRouter = {
       }
       if (
         body.kind === 'AnalysisReportDocument' &&
-        !hasPermission(userRole, 'performItemAnalysis')
+        !hasPermission(userRole, 'performAnalysis')
       ) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }

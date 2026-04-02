@@ -13,7 +13,7 @@ export const documentsRoutes = {
     post: {
       response: DocumentChecked,
       body: DocumentToCreateChecked,
-      permissions: ['createResource', 'performItemAnalysis', 'createSample']
+      permissions: ['createResource', 'performAnalysis', 'createSample']
     }
   },
   '/documents/:documentId': {
@@ -57,7 +57,7 @@ export const documentsRoutes = {
     params: undefined,
     post: {
       body: z.object(DocumentToCreateChecked.shape).omit({ id: true }),
-      permissions: ['createResource', 'performItemAnalysis', 'createSample'],
+      permissions: ['createResource', 'performAnalysis', 'createSample'],
       response: z.object({
         url: z.string(),
         documentId: z.string()

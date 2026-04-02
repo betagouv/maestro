@@ -31,7 +31,7 @@ export const analysisRouter = {
         userRole
       );
 
-      if (!hasSamplePermission(user, userRole, sample)['performItemAnalysis']) {
+      if (!hasSamplePermission(user, userRole, sample)['performAnalysis']) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
@@ -66,7 +66,7 @@ export const analysisRouter = {
 
       const sample = await getAndCheckSample(analysis.sampleId, user, userRole);
 
-      if (!hasSamplePermission(user, userRole, sample)['performItemAnalysis']) {
+      if (!hasSamplePermission(user, userRole, sample)['performAnalysis']) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 

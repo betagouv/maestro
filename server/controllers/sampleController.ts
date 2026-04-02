@@ -429,7 +429,7 @@ export const sampleRouter = {
         throw new SampleItemMissingError(sampleId, itemNumber, copyNumber);
       }
 
-      if (!hasSamplePermission(user, userRole, sample)['performItemAnalysis']) {
+      if (!hasSamplePermission(user, userRole, sample)['performAnalysis']) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 

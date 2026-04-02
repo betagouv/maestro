@@ -64,7 +64,7 @@ const SampleOverview = ({ sample }: Props) => {
     () =>
       !user ||
       !userRole ||
-      !hasSamplePermission(user, userRole, sample)['performItemAnalysis'],
+      !hasSamplePermission(user, userRole, sample)['performAnalysis'],
     [sample, user, userRole, hasSamplePermission]
   );
 

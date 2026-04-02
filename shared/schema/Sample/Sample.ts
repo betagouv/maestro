@@ -314,7 +314,7 @@ export const getSampleMatrixLabel = (
       ? MatrixLabels[partialSample.matrix as Matrix]
       : '';
 
-const SamplePermission = z.enum(['performItemAnalysis']);
+const SamplePermission = z.enum(['performAnalysis']);
 
 export type SamplePermission = z.infer<typeof SamplePermission>;
 
@@ -324,7 +324,7 @@ export const hasSamplePermission = (
   sample: Pick<SampleBase, 'region' | 'programmingPlanKind'>
 ): Record<SamplePermission, boolean> => ({
   performItemAnalysis:
-    hasPermission(userRole, 'performItemAnalysis') &&
+    hasPermission(userRole, 'performAnalysis') &&
     sample.region === user.region &&
     ProgrammingPlanAnalysisPermissionRole[sample.programmingPlanKind] ===
       userRole
