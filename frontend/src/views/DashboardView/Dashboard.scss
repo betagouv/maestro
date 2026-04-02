@@ -1,23 +1,6 @@
 @use '../../constants' as constants;
 
-.dashboard-prescriptions-progress-header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
 
-  & > div {
-    flex-grow: 1;
-    justify-content: center;
-  }
-
-  .in-progress {
-    color: var(--orange-terre-battue-main-645);
-  }
-
-  .remaining {
-    color: var(--beige-gris-galet-950-100);
-  }
-}
 
 .dashboard-prescription-card.fr-card.fr-enlarge-link {
   height: auto;
