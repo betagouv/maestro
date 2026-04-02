@@ -81,12 +81,12 @@ export const FieldOptionsTable = ({
     await updateFieldOption({
       fieldId: field.id,
       optionId: option.id,
-      body: { order: adjacent.order }
+      order: adjacent.order
     }).unwrap();
     await updateFieldOption({
       fieldId: field.id,
       optionId: adjacent.id,
-      body: { order: option.order }
+      order: option.order
     }).unwrap();
   };
 

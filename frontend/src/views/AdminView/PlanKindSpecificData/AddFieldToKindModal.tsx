@@ -88,7 +88,7 @@ export const AddFieldToKindModal = ({
         await addPlanKindField({
           programmingPlanId,
           kind,
-          body: valid
+          ...valid
         }).unwrap();
         e.preventDefault();
         modal.close();

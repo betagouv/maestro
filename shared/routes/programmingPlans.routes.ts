@@ -120,7 +120,7 @@ export const programmingPlansRoutes = {
       },
       put: {
         permissions: ['administrationMaestro'],
-        body: z.array(SpecificDataFieldOptionId),
+        body: z.object({ optionIds: z.array(SpecificDataFieldOptionId) }),
         response: z.void()
       }
     }

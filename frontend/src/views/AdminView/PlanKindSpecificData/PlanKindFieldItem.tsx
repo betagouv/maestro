@@ -47,7 +47,8 @@ export const PlanKindFieldItem = ({
       programmingPlanId,
       kind,
       planKindFieldId: item.id,
-      body: { required: checked, order: item.order }
+      required: checked,
+      order: item.order
     });
   };
 

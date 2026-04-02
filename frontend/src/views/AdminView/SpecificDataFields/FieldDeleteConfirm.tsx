@@ -23,7 +23,7 @@ export const FieldDeleteConfirm = ({
   const confirm = async () => {
     if (!fieldToDelete) return;
     try {
-      await deleteField(fieldToDelete.id).unwrap();
+      await deleteField({ fieldId: fieldToDelete.id }).unwrap();
       modal.close();
     } catch (_e) {
       /* empty */
