@@ -2,7 +2,6 @@ import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
-import Tooltip from '@codegouvfr/react-dsfr/Tooltip';
 import clsx from 'clsx';
 import { sumBy } from 'lodash-es';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
