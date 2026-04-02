@@ -323,7 +323,7 @@ export const hasSamplePermission = (
   userRole: UserRole,
   sample: Pick<SampleBase, 'region' | 'programmingPlanKind'>
 ): Record<SamplePermission, boolean> => ({
-  performItemAnalysis:
+  performAnalysis:
     hasPermission(userRole, 'performAnalysis') &&
     sample.region === user.region &&
     ProgrammingPlanAnalysisPermissionRole[sample.programmingPlanKind] ===
