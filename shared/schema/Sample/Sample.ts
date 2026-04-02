@@ -316,7 +316,7 @@ export const getSampleMatrixLabel = (
 
 const SamplePermission = z.enum(['performAnalysis']);
 
-export type SamplePermission = z.infer<typeof SamplePermission>;
+type SamplePermission = z.infer<typeof SamplePermission>;
 
 export const hasSamplePermission = (
   user: Pick<UserBase, 'region'>,
