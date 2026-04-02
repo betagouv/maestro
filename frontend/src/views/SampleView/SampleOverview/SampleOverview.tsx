@@ -12,7 +12,7 @@ import {
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { isDefined } from 'maestro-shared/utils/utils';
-import { useCallback, useContext, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import food from 'src/assets/illustrations/food.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
@@ -74,9 +74,13 @@ const SampleOverview = ({ sample }: Props) => {
       },
       { replace: true }
     );
-  const needCompliance =
-    sample.programmingPlanKind !== 'PPV' && sample.status === 'InReview';
-  const [activeCompliance, setActiveCompliance] = useState(needCompliance);
+  const [activeCompliance, setActiveCompliance] = useState(false);
+
+  useEffect(() => {
+    setActiveCompliance(
+      sample.programmingPlanKind !== 'PPV' && sample.status === 'InReview'
+    );
+  }, [sample.programmingPlanKind, sample.status]);
 
   const sampleItemCopies = useCallback(
     (itemNumber: number) =>
@@ -137,7 +141,7 @@ const SampleOverview = ({ sample }: Props) => {
         />
       )}
 
-      {(needCompliance || activeCompliance) && (
+      {activeCompliance && (
         <div ref={complianceRef}>
           <SampleComplianceForm
             sample={sample}

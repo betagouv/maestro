@@ -5,6 +5,7 @@ import SampleMissingError from 'maestro-shared/errors/sampleMissingError';
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { v4 as uuidv4 } from 'uuid';
+import { getAndCheckSample } from '../middlewares/checks/sampleCheck';
 import { analysisErrorsRepository } from '../repositories/analysisErrorsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
@@ -52,7 +53,7 @@ export const analysisRouter = {
     }
   },
   '/analysis/:analysisId': {
-    put: async ({ user, body: analysisUpdate }, { analysisId }) => {
+    put: async ({ user, userRole, body: analysisUpdate }, { analysisId }) => {
       console.info('Update analysis', analysisUpdate);
 
       const analysis = await analysisRepository.findUnique(analysisId);
@@ -61,11 +62,7 @@ export const analysisRouter = {
         throw new AnalysisMissingError(analysisId);
       }
 
-      const sample = await sampleRepository.findUnique(analysis.sampleId);
-
-      if (!sample) {
-        throw new SampleMissingError(analysis.sampleId);
-      }
+      const sample = await getAndCheckSample(analysis.sampleId, user, userRole);
 
       if (sample.region !== user.region) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
@@ -124,6 +121,8 @@ export const analysisRouter = {
               ? ('Compliant' as const)
               : ('NonCompliant' as const)
         });
+      } else {
+        await sampleRepository.evaluateSampleCompliance(sample.id);
       }
 
       return { response: updatedAnalysis, status: constants.HTTP_STATUS_OK };

@@ -19,7 +19,7 @@ import { companiesTable } from './companyRepository';
 import { knexInstance as db, knexInstance } from './db';
 import { kysely } from './kysely';
 import type { KyselyMaestro } from './kysely.type';
-import { sampleItemsTable } from './sampleItemRepository';
+import sampleItemRepository, { sampleItemsTable } from './sampleItemRepository';
 import { usersTable } from './userRepository';
 
 export const samplesTable = 'samples';
@@ -473,13 +473,21 @@ const deleteDraftOnProgrammingPlan = async (
 };
 
 const evaluateSampleCompliance = async (sampleId: string) => {
-  const sample = await findUnique(sampleId);
+  console.info('Evaluate sample compliance', sampleId);
 
-  if (!SampleChecked.safeParse(sample).success) {
+  const sample = await findUnique(sampleId);
+  const sampleItems = await sampleItemRepository.findMany(sampleId);
+
+  const sampleCheckedParse = SampleChecked.safeParse({
+    ...sample,
+    items: sampleItems
+  });
+
+  if (!sampleCheckedParse.success) {
     return;
   }
 
-  const sampleChecked = SampleChecked.parse(sample);
+  const sampleChecked = sampleCheckedParse.data;
 
   if (
     sampleChecked.items
