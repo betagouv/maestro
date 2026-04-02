@@ -30,7 +30,8 @@ export const ReviewWithoutResidu: Story = {
       status: 'Analysis',
       receivedAt: new Date(12345)
     } as SampleChecked,
-    sampleItem: Sample1Item1Fixture
+    sampleItem: Sample1Item1Fixture,
+    readonly: false
   },
   parameters: {
     apiClient: getMockApi({

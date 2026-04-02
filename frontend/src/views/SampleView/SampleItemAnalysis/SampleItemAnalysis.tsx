@@ -10,20 +10,13 @@ import {
   type MaestroDate,
   maestroDateRefined
 } from 'maestro-shared/utils/date';
-import {
-  type FunctionComponent,
-  useContext,
-  useEffect,
-  useMemo,
-  useState
-} from 'react';
+import { type FunctionComponent, useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
 import { z } from 'zod';
 import AppSelect from '../../../components/_app/AppSelect/AppSelect';
 import { defaultAppSelectOption } from '../../../components/_app/AppSelect/AppSelectOption';
 import AppTextInput from '../../../components/_app/AppTextInput/AppTextInput';
 import UserFeedback from '../../../components/UserFeedback/UserFeedback';
-import { useAuthentication } from '../../../hooks/useAuthentication';
 import { useForm } from '../../../hooks/useForm';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
@@ -36,14 +29,15 @@ import { SampleAnalysisOverview } from './SampleItemAnalysisOverview/SampleAnaly
 type Props = {
   sample: SampleChecked;
   sampleItem: SampleItem;
+  readonly: boolean;
 };
 
 const SampleItemAnalysis: FunctionComponent<Props> = ({
   sample,
-  sampleItem
+  sampleItem,
+  readonly
 }) => {
   const apiClient = useContext(ApiClientContext);
-  const { hasUserPermission, user } = useAuthentication();
   const location = useLocation();
 
   const { navigateToSample, navigateToSampleEdit } = useSamplesLink();
@@ -103,12 +97,6 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
       'budgetNotes'
     ),
     save
-  );
-
-  const readonly = useMemo(
-    () =>
-      !hasUserPermission('createAnalysis') || sample.region !== user?.region,
-    [hasUserPermission, sample, user?.region]
   );
 
   const isEditing: boolean =

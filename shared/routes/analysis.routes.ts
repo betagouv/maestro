@@ -16,7 +16,7 @@ export const analysisRoutes = {
     },
     post: {
       body: AnalysisToCreate,
-      permissions: ['createAnalysis'],
+      permissions: ['performItemAnalysis'],
       response: PartialAnalysis
     }
   },
@@ -26,7 +26,7 @@ export const analysisRoutes = {
     },
     put: {
       body: AnalysisToUpdate,
-      permissions: ['createAnalysis'],
+      permissions: ['performItemAnalysis'],
       response: PartialAnalysis
     }
   },
@@ -40,12 +40,12 @@ export const analysisRoutes = {
     },
     post: {
       body: z.object({ documentId: z.guid() }),
-      permissions: ['createAnalysis'],
+      permissions: ['performItemAnalysis'],
       response: z.void()
     },
     delete: {
       body: z.object({ documentId: z.guid() }),
-      permissions: ['createAnalysis'],
+      permissions: ['performItemAnalysis'],
       response: z.void()
     }
   }

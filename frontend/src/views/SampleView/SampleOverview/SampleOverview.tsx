@@ -4,7 +4,10 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import SideMenu from '@codegouvfr/react-dsfr/SideMenu';
 import clsx from 'clsx';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
-import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import {
+  hasSamplePermission,
+  type SampleChecked
+} from 'maestro-shared/schema/Sample/Sample';
 import {
   getItemStatus,
   isItemAchieved,
@@ -12,7 +15,14 @@ import {
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { isDefined } from 'maestro-shared/utils/utils';
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { useSearchParams } from 'react-router';
 import food from 'src/assets/illustrations/food.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
@@ -28,6 +38,8 @@ import SampleComplianceForm from './SampleComplianceForm';
 import SampleContextOverview from './SampleContextOverview';
 import SampleItemCopiesOverview from './SampleItemCopiesOverview';
 import './SampleOverview.scss';
+import { useAuthentication } from '../../../hooks/useAuthentication';
+
 interface Props {
   sample: SampleChecked;
 }
@@ -35,6 +47,7 @@ interface Props {
 const SampleOverview = ({ sample }: Props) => {
   useDocumentTitle(`Prélèvement ${sample.reference}`);
   const apiClient = useContext(ApiClientContext);
+  const { user, userRole } = useAuthentication();
   const complianceRef = useRef<null | HTMLDivElement>(null);
 
   const { getSampleItemLaboratory } = usePartialSample(sample);
@@ -46,6 +59,14 @@ const SampleOverview = ({ sample }: Props) => {
     apiClient.useUpdateSampleMutation({
       fixedCacheKey: `sending-sample-${sample.id}`
     });
+
+  const readonly = useMemo(
+    () =>
+      !user ||
+      !userRole ||
+      !hasSamplePermission(user, userRole, sample)['performItemAnalysis'],
+    [sample, user, userRole, hasSamplePermission]
+  );
 
   const activeMenu = (searchParams.get('menu') ?? 'items') as
     | 'items'
@@ -255,7 +276,7 @@ const SampleOverview = ({ sample }: Props) => {
                   href: '#'
                 }
               },
-              sample.programmingPlanKind !== 'PPV'
+              sample.programmingPlanKind !== 'PPV' && !readonly
                 ? {
                     text: (
                       <div
@@ -299,6 +320,7 @@ const SampleOverview = ({ sample }: Props) => {
                 itemNumber={activeItemNumber}
                 sampleItemCopies={sampleItemCopies(activeItemNumber)}
                 sample={sample}
+                readonly={readonly}
               />
             )}
             {activeMenu === 'matrix' && (

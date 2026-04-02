@@ -27,6 +27,7 @@ interface Props {
   itemNumber: number;
   sampleItemCopies: SampleItem[];
   sample: SampleChecked;
+  readonly: boolean;
 }
 
 const complianceOverrideModal = createModal({
@@ -37,7 +38,8 @@ const complianceOverrideModal = createModal({
 const SampleItemCopiesOverview = ({
   itemNumber,
   sampleItemCopies,
-  sample
+  sample,
+  readonly
 }: Props) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -88,17 +90,18 @@ const SampleItemCopiesOverview = ({
               </div>
             </div>
           )}
-          {sampleItemCopies.filter((_) => !isNil(_.analysis)).length > 1 && (
-            <Button
-              priority="tertiary no outline"
-              iconId="fr-icon-edit-line"
-              size="small"
-              type="button"
-              onClick={() => complianceOverrideModal.open()}
-            >
-              Modifier la conformité
-            </Button>
-          )}
+          {!readonly &&
+            sampleItemCopies.filter((_) => !isNil(_.analysis)).length > 1 && (
+              <Button
+                priority="tertiary no outline"
+                iconId="fr-icon-edit-line"
+                size="small"
+                type="button"
+                onClick={() => complianceOverrideModal.open()}
+              >
+                Modifier la conformité
+              </Button>
+            )}
         </div>
       )}
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -195,15 +198,21 @@ const SampleItemCopiesOverview = ({
         </>
       )}
       {currentItemCopy && (
-        <SampleItemAnalysis sample={sample} sampleItem={currentItemCopy} />
+        <SampleItemAnalysis
+          sample={sample}
+          sampleItem={currentItemCopy}
+          readonly={readonly}
+        />
       )}
-      <SampleItemComplianceOverrideModal
-        key={itemNumber}
-        modal={complianceOverrideModal}
-        sampleItem={
-          sampleItemCopies.find((_) => _.copyNumber === 1) as SampleItem
-        }
-      />
+      {!readonly && (
+        <SampleItemComplianceOverrideModal
+          key={itemNumber}
+          modal={complianceOverrideModal}
+          sampleItem={
+            sampleItemCopies.find((_) => _.copyNumber === 1) as SampleItem
+          }
+        />
+      )}
     </>
   );
 };

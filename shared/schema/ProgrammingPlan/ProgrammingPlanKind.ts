@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { UserRole } from '../User/UserRole';
 
 export const ProgrammingPlanKindWithSacha = z.enum([
   'DAOA_VOLAILLE',
@@ -31,3 +32,12 @@ export const ProgrammingPlanKindListSorted: ProgrammingPlanKind[] = [
 ].sort((a, b) =>
   ProgrammingPlanKindLabels[a].localeCompare(ProgrammingPlanKindLabels[b])
 );
+
+export const ProgrammingPlanAnalysisPermissionRole: Record<
+  ProgrammingPlanKind,
+  UserRole
+> = {
+  PPV: 'Sampler',
+  DAOA_VOLAILLE: 'DepartmentalCoordinator',
+  DAOA_BOVIN: 'DepartmentalCoordinator'
+};

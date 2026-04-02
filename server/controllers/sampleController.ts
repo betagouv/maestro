@@ -31,6 +31,7 @@ import {
 import { buildFindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   getSampleMatrixLabel,
+  hasSamplePermission,
   isProgrammingPlanSample,
   type PartialSample,
   SampleBase,
@@ -426,6 +427,10 @@ export const sampleRouter = {
 
       if (!sampleItem) {
         throw new SampleItemMissingError(sampleId, itemNumber, copyNumber);
+      }
+
+      if (!hasSamplePermission(user, userRole, sample)['performItemAnalysis']) {
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
       console.info('Update sampleItem', sample.id, itemNumber, copyNumber);

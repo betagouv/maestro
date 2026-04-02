@@ -22,9 +22,13 @@ import {
   OutsideProgrammingPlanContext,
   ProgrammingPlanContext
 } from '../ProgrammingPlan/Context';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
+import {
+  ProgrammingPlanAnalysisPermissionRole,
+  ProgrammingPlanKind
+} from '../ProgrammingPlan/ProgrammingPlanKind';
 import { SpecificData, UnknownValue } from '../SpecificData/SpecificData';
-import { Sampler } from '../User/User';
+import { hasPermission, Sampler, type UserBase } from '../User/User';
+import type { UserRole } from '../User/UserRole';
 import { SampleCompliance } from './SampleCompliance';
 import { PartialSampleItem, SampleItem } from './SampleItem';
 import { SampleStatus } from './SampleStatus';
@@ -309,3 +313,19 @@ export const getSampleMatrixLabel = (
     : partialSample.matrix
       ? MatrixLabels[partialSample.matrix as Matrix]
       : '';
+
+const SamplePermission = z.enum(['performItemAnalysis']);
+
+export type SamplePermission = z.infer<typeof SamplePermission>;
+
+export const hasSamplePermission = (
+  user: Pick<UserBase, 'region'>,
+  userRole: UserRole,
+  sample: Pick<SampleBase, 'region' | 'programmingPlanKind'>
+): Record<SamplePermission, boolean> => ({
+  performItemAnalysis:
+    hasPermission(userRole, 'performItemAnalysis') &&
+    sample.region === user.region &&
+    ProgrammingPlanAnalysisPermissionRole[sample.programmingPlanKind] ===
+      userRole
+});

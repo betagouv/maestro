@@ -63,7 +63,7 @@ export const samplesRoutes = {
     },
     put: {
       body: SampleItemUpdate,
-      permissions: ['updateSample'],
+      permissions: ['performItemAnalysis'],
       response: z.void()
     }
   },
