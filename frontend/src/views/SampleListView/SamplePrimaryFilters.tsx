@@ -156,6 +156,7 @@ const SamplePrimaryFilters = ({
           }}
           label="Catégorie de matrice"
           disableAutoSelectSingleOption
+          resetOnSelect
           renderOption={(props, option) => (
             <li {...props} key={option.value}>
               {option.label}
@@ -194,6 +195,7 @@ const SamplePrimaryFilters = ({
           }}
           label="Matrice"
           disableAutoSelectSingleOption
+          resetOnSelect
           inputProps={{
             'data-testid': 'matrix-select'
           }}

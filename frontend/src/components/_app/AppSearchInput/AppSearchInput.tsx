@@ -2,7 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { Autocomplete } from '@mui/material';
 import clsx from 'clsx';
 import type * as React from 'react';
-import { type ReactNode, useEffect } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import AppRequiredInput from 'src/components/_app/AppRequired/AppRequiredInput';
 import type { AppSelectOption } from 'src/components/_app/AppSelect/AppSelectOption';
 
@@ -27,6 +27,7 @@ interface Props {
   disabled?: boolean;
   className?: string;
   disableAutoSelectSingleOption?: true;
+  resetOnSelect?: true;
 }
 
 const AppSearchInput = ({
@@ -44,8 +45,19 @@ const AppSearchInput = ({
   inputProps,
   disabled,
   className,
-  disableAutoSelectSingleOption
+  disableAutoSelectSingleOption,
+  resetOnSelect
 }: Props) => {
+  const selectedLabel =
+    options.find((option) => option.value === value)?.label ?? '';
+  const [inputValue, setInputValue] = useState(selectedLabel);
+
+  useEffect(() => {
+    if (!resetOnSelect) {
+      setInputValue(selectedLabel);
+    }
+  }, [selectedLabel, resetOnSelect]);
+
   useEffect(() => {
     if (
       !disableAutoSelectSingleOption &&
@@ -90,7 +102,14 @@ const AppSearchInput = ({
           autoComplete
           includeInputInList
           value={options.find((option) => option.value === value) ?? null}
-          onChange={(_, option) => onSelect(option?.value)}
+          inputValue={inputValue}
+          onInputChange={(_, newInputValue) => setInputValue(newInputValue)}
+          onChange={(_, option) => {
+            onSelect(option?.value);
+            if (resetOnSelect) {
+              setInputValue('');
+            }
+          }}
           isOptionEqualToValue={(option, value) =>
             option.value === value?.value
           }
