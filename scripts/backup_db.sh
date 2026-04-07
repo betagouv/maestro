@@ -10,7 +10,7 @@ if [ "${APP}" != "maestro-prod" ]; then
   return 0
 fi
 
-dbclient-fetcher pgsql 16
+dbclient-fetcher pgsql 17
 
 pg_dump ${SCALINGO_POSTGRESQL_URL} --clean --if-exists --format=d --no-owner --no-privileges --file=./backups/
 
