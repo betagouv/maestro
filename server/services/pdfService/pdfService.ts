@@ -1,8 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import bwipjs from 'bwip-js';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import handlebars from 'handlebars';
 import { isNil } from 'lodash-es';
 import PdfGenerationError from 'maestro-shared/errors/pdfGenerationError';
@@ -310,7 +308,7 @@ const generateSamplePDF = async (
             sample.sampledAt,
             "eeee dd MMMM yyyy à HH'h'mm"
           ),
-          sampledAtDate: format(sample.sampledAt, 'dd/MM/yyyy', { locale: fr }),
+          sampledAtDate: formatWithTz(sample.sampledAt, 'dd/MM/yyyy'),
           sampledAtTime: formatWithTz(sample.sampledAt, 'HH:mm')
         }
       : {}),

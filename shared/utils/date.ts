@@ -1,6 +1,6 @@
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { formatInTimeZone } from 'date-fns-tz';
+import { formatInTimeZone, fromZonedTime } from 'date-fns-tz';
 import { cloneDeepWith, isDate } from 'lodash-es';
 import { z } from 'zod';
 import { refineSchema } from './zod';
@@ -54,3 +54,9 @@ export const formatWithTz = (
   formatInTimeZone(date, timeZone, formatStr, {
     locale: fr
   });
+
+export const parseWithTz = (
+  value: string,
+  formatStr: string,
+  timeZone = 'Europe/Paris'
+) => fromZonedTime(parse(value, formatStr, new Date()), timeZone);

@@ -1,7 +1,6 @@
 import { constants } from 'node:http2';
 import type { Readable } from 'node:stream';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { isEqual, isNil } from 'lodash-es';
 import NoRegionError from 'maestro-shared/errors/noRegionError';
 import SampleItemMissingError from 'maestro-shared/errors/sampleItemMissingError';
@@ -828,19 +827,13 @@ export const sampleRouter = {
                     multiSubstanceLabels: (
                       updatedSample.multiSubstances ?? []
                     ).map((substance) => substanceToLaboratoryLabel(substance)),
-                    sampledAt: format(
+                    sampledAt: formatWithTz(
                       updatedSample.sampledAt,
-                      "eeee dd MMMM yyyy à HH'h'mm",
-                      {
-                        locale: fr
-                      }
+                      "eeee dd MMMM yyyy à HH'h'mm"
                     ),
-                    sampledAtDate: format(
+                    sampledAtDate: formatWithTz(
                       updatedSample.sampledAt,
-                      'dd/MM/yyyy',
-                      {
-                        locale: fr
-                      }
+                      'dd/MM/yyyy'
                     ),
                     sampledAtTime: formatWithTz(
                       updatedSample.sampledAt,
@@ -900,7 +893,10 @@ export const sampleRouter = {
                         ? Regions[user.region].name
                         : undefined,
                       userMail: user.email,
-                      sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
+                      sampledAt: formatWithTz(
+                        updatedSample.sampledAt,
+                        'dd/MM/yyyy'
+                      )
                     },
                     attachment: [
                       ...sampleAttachments,
@@ -932,7 +928,7 @@ export const sampleRouter = {
             recipients: [sample.ownerEmail],
             params: {
               region: user.region ? Regions[user.region].name : undefined,
-              sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
+              sampledAt: formatWithTz(updatedSample.sampledAt, 'dd/MM/yyyy')
             },
             attachment: attachments.filter((_) => !isNil(_))
           });

@@ -3,7 +3,6 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { format, parse } from 'date-fns';
 import { isNil, uniqBy } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import type { Region } from 'maestro-shared/referential/Region';
@@ -19,6 +18,7 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 import type { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleSteps } from 'maestro-shared/schema/Sample/SampleStep';
+import { formatWithTz, parseWithTz } from 'maestro-shared/utils/date';
 import { checkSchema } from 'maestro-shared/utils/zod';
 import type React from 'react';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -50,7 +50,7 @@ const ItemsStep = ({ partialSample }: Props) => {
   const isSubmittingRef = useRef<boolean>(false);
 
   const [sampledAt, setSampledAt] = useState(
-    format(partialSample.sampledAt ?? new Date(), 'yyyy-MM-dd HH:mm')
+    formatWithTz(partialSample.sampledAt ?? new Date(), 'yyyy-MM-dd HH:mm')
   );
   const [items, setItems] = useState(partialSample.items ?? []);
   const [notesOnItems, setNotesOnItems] = useState(partialSample.notesOnItems);
@@ -60,14 +60,14 @@ const ItemsStep = ({ partialSample }: Props) => {
     () =>
       partialSample.sampledAt
         ? {
-            initialSampledAt: format(
+            initialSampledAt: formatWithTz(
               partialSample.sampledAt,
               'yyyy-MM-dd HH:mm'
             ),
             isDefaultSampledAt: false
           }
         : {
-            initialSampledAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+            initialSampledAt: formatWithTz(new Date(), 'yyyy-MM-dd HH:mm'),
             isDefaultSampledAt: true
           },
     [] // eslint-disable-line react-hooks/exhaustive-deps
@@ -198,7 +198,7 @@ const ItemsStep = ({ partialSample }: Props) => {
   const save = async (step = partialSample.step) => {
     await createOrUpdateSample({
       ...partialSample,
-      sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
+      sampledAt: parseWithTz(sampledAt, 'yyyy-MM-dd HH:mm'),
       notesOnItems,
       items: items.map((item) => ({
         ...item,

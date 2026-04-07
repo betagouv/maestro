@@ -16,7 +16,7 @@ import {
   type NotificationCategory,
   NotificationCategoryTitles
 } from 'maestro-shared/schema/Notification/NotificationCategory';
-import { formatDate } from 'maestro-shared/utils/date';
+import { formatDate, formatWithTz } from 'maestro-shared/utils/date';
 import { useContext, useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate } from 'react-router';
@@ -218,9 +218,7 @@ const NotificationsView = () => {
                     }
                     detail={
                       <span className={clsx(cx('fr-text--sm'), 'text-grey')}>
-                        {format(notification.createdAt, "HH'h'mm", {
-                          locale: fr
-                        })}
+                        {formatWithTz(notification.createdAt, "HH'h'mm")}
                       </span>
                     }
                     title=""

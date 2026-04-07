@@ -20,6 +20,7 @@ import { useOnLine } from 'src/hooks/useOnLine';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import useWindowSize from 'src/hooks/useWindowSize';
 import './SampleCard.scss';
+import { formatWithTz } from 'maestro-shared/utils/date';
 
 type Props = {
   sample: PartialSample | PartialSampleToCreate;
@@ -183,7 +184,7 @@ const DateBlock = ({
     <span className="icon-text">
       <span className={cx('fr-icon-calendar-event-line', 'fr-icon--sm')}></span>
       {sample.sampledAt ? (
-        format(sample.sampledAt, 'dd/MM/yyyy')
+        formatWithTz(sample.sampledAt, 'dd/MM/yyyy')
       ) : (
         <span className="missing-data">Information à compléter</span>
       )}

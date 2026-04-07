@@ -1,11 +1,11 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { format } from 'date-fns';
 import { uniqBy } from 'lodash-es';
 import type {
   SampleChecked,
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import { formatDateTime } from 'maestro-shared/utils/date';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import StepSummary, {
   type StepSummaryMode
@@ -30,8 +30,7 @@ const ItemsStepSummary = ({ sample, mode = 'section', onEdit }: Props) => {
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-calendar-event-line')}></div>
         <div>
-          Prélèvement réalisé le <b>{format(sample.sampledAt, 'dd/MM/yyyy')}</b>{' '}
-          à <b>{format(sample.sampledAt, "HH'h'mm")}</b>
+          Prélèvement réalisé le <b>{formatDateTime(sample.sampledAt)}</b>
         </div>
       </div>
       <SampleItems partialSample={sample} items={sample.items} readonly />
