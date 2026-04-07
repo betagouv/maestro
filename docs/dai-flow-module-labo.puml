@@ -1,0 +1,20 @@
+@startuml
+title Envoi DAI via Module laboratoire
+
+actor Maestro
+actor "Module laboratoire" as ModuleLabo
+actor "SFTP" as SFTP
+actor Laboratoires order 10
+
+group Via email
+  Maestro -> ModuleLabo : DAI (API)
+  ModuleLabo -> Laboratoires : DAI (email)
+end
+
+group Via SFTP
+  Maestro -> ModuleLabo : DAI (API)
+  ModuleLabo -> SFTP : DAI (SFTP)
+  Laboratoires -> SFTP : récupération DAI
+end
+
+@enduml

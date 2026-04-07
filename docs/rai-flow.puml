@@ -1,0 +1,23 @@
+@startuml
+title Réception RAI sans Module laboratoires
+
+actor Laboratoires
+actor "Boîte mail Sigal" as MailSigal
+actor "SFTP" as SFTP
+actor "Module de redirection Sigal" as ModuleRedirection
+actor Maestro order 10
+
+group Via email
+  Laboratoires -> MailSigal : RAI (email)
+  ModuleRedirection -> MailSigal : lecture
+  ModuleRedirection -> SFTP : dépôt RAI
+  Maestro -> SFTP : récupération RAI
+end
+
+group Via SFTP
+  Laboratoires -> SFTP : dépôt RAI
+  ModuleRedirection -> SFTP : déplacement RAI (autre répertoire)
+  Maestro -> SFTP : récupération RAI
+end
+
+@enduml
