@@ -230,7 +230,8 @@ const generateSamplesExportExcel = async (
           (sample as SampleChecked).sentAt
             ? formatWithTz(
                 (sample as SampleChecked).sentAt as Date,
-                'dd/MM/yyyy HH:mm'
+                'dd/MM/yyyy HH:mm',
+                Regions[sample.region].timezone
               )
             : '',
         latitude: sample.geolocation?.x,

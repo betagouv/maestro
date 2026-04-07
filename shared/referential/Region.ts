@@ -38,6 +38,7 @@ export const Regions: Record<
       latitude: number;
       longitude: number;
     };
+    timezone?: string;
     departments: Department[];
     borderingDepartments: Department[];
     establishment: {
@@ -404,6 +405,7 @@ export const Regions: Record<
       latitude: 45.6,
       longitude: -2.8
     },
+    timezone: 'America/Guadeloupe',
     departments: ['971'],
     borderingDepartments: [],
     isDrom: true,
@@ -421,6 +423,7 @@ export const Regions: Record<
       latitude: 45.6,
       longitude: -5.8
     },
+    timezone: 'America/Martinique',
     departments: ['972'],
     borderingDepartments: [],
     isDrom: true,
@@ -439,6 +442,7 @@ export const Regions: Record<
       latitude: 47.1,
       longitude: -5.8
     },
+    timezone: 'America/Guyane',
     departments: ['973'],
     borderingDepartments: [],
     isDrom: true,
@@ -457,6 +461,7 @@ export const Regions: Record<
       latitude: 44.25,
       longitude: -2.45
     },
+    timezone: 'Indian/Reunion',
     departments: ['974'],
     borderingDepartments: [],
     isDrom: true,
@@ -474,6 +479,7 @@ export const Regions: Record<
       latitude: 44.3,
       longitude: -3.9
     },
+    timezone: 'Indian/Mayotte',
     departments: ['976'],
     borderingDepartments: [],
     isDrom: true,
