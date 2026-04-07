@@ -111,7 +111,7 @@ export function useForm<
   });
 
   useEffect(() => {
-    if (isInitialized) {
+    if (isInitialized && !hasIssue()) {
       triggerSave?.();
     }
     setIsInitialized(true);
