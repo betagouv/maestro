@@ -1,7 +1,7 @@
 import { constants } from 'node:http2';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
-import { intersection, isNil } from 'lodash-es';
+import { intersection, isNil, uniq } from 'lodash-es';
 import DocumentMissingError from 'maestro-shared/errors/documentMissingError';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import type { DocumentChecked } from 'maestro-shared/schema/Document/Document';
@@ -70,13 +70,24 @@ export const documentsRouter = {
             })
           : [];
 
+        const programmingPlans = await programmingPlanRepository.findMany({
+          ids: document.programmingPlanIds
+        });
+
+        const regionalCoordinators = await userRepository.findMany({
+          roles: ['RegionalCoordinator'],
+          programmingPlanKinds: uniq(
+            programmingPlans.flatMap((plan) => plan.kinds)
+          )
+        });
+
         await notificationService.sendNotification(
           {
             category: 'ResourceDocumentUploaded',
             author: user,
             link: `${AppRouteLinks.DocumentsRoute.link}?documentId=${document.id}`
           },
-          laboratoryUsers,
+          [...laboratoryUsers, ...regionalCoordinators],
           {
             object: 'Nouveau document disponible',
             content: `Une nouvelle ressource a été ajoutée ou mise à jour.  

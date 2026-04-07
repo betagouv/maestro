@@ -14,6 +14,8 @@ import {
   AdminFixture,
   LaboratoryUserFixture,
   NationalCoordinator,
+  RegionalCoordinator,
+  RegionalDromCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
@@ -321,11 +323,23 @@ describe('Document router', () => {
       const [notificationData, recipients, params] =
         mockSendNotification.mock.calls[0];
 
-      expect(recipients).toHaveLength(1);
-      expect(recipients[0]).toMatchObject({
-        id: LaboratoryUserFixture.id,
-        roles: ['LaboratoryUser']
-      });
+      expect(recipients).toHaveLength(3);
+      expect(recipients).toMatchObject(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: LaboratoryUserFixture.id,
+            roles: ['LaboratoryUser']
+          }),
+          expect.objectContaining({
+            id: RegionalCoordinator.id,
+            roles: ['RegionalCoordinator']
+          }),
+          expect.objectContaining({
+            id: RegionalDromCoordinator.id,
+            roles: ['RegionalCoordinator']
+          })
+        ])
+      );
 
       expect(notificationData).toMatchObject({
         category: 'ResourceDocumentUploaded',
