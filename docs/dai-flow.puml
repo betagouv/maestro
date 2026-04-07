@@ -1,0 +1,17 @@
+@startuml
+title Envoi DAI sans Module laboratoires
+
+actor Maestro
+actor "SFTP" as SFTP
+actor Laboratoires order 10
+
+group Via email
+  Maestro -> Laboratoires : DAI (email)
+end
+
+group Via SFTP
+  Maestro -> SFTP : DAI (SFTP)
+  Laboratoires -> SFTP : récupération DAI
+end
+
+@enduml

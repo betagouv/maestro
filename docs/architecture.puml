@@ -45,9 +45,9 @@ API --> Sentry: erreurs
 API --> Mattermost: notifications
 Utilisateurs --> Matomo: statistiques
 API --> Brevo: envoi mail
-API <-- OVH_EMAIL: reception analyses
-API <-- OVH_SFTP: reception analyses
-API --> OVH_BROWSERLESS: generation des pdfs
+API <-- OVH_EMAIL: réception analyses
+API <-- OVH_SFTP: réception analyses
+API --> OVH_BROWSERLESS: génération des pdfs
 LIMS --> OVH_EMAIL: envoi analyses
 LIMS --> OVH_SFTP: envoi analyses
 API <--> S3: stockage des documents

@@ -1,0 +1,12 @@
+@startuml
+title Envoi RAI via Module laboratoire
+
+actor Laboratoires
+actor "Module laboratoire" as ModuleLabo
+actor Maestro order 10
+
+Laboratoires -> ModuleLabo : RAI (email)
+Laboratoires -> ModuleLabo : RAI (SFTP)
+Maestro -> ModuleLabo : récupération RAI (API)
+
+@enduml
