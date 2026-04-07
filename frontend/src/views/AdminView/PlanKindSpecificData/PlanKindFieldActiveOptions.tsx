@@ -49,7 +49,7 @@ export const PlanKindFieldActiveOptions = ({
       programmingPlanId,
       kind,
       planKindFieldId: item.id,
-      body: newOptionIds
+      optionIds: newOptionIds
     });
   };
 

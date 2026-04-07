@@ -75,7 +75,7 @@ export const useOnLine = () => {
           }).unwrap();
 
           await Promise.all(
-            samples.map((sample) => getSample(sample.id).unwrap())
+            samples.map((sample) => getSample({ sampleId: sample.id }).unwrap())
           );
         }
       })();

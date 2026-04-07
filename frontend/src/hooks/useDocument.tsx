@@ -7,12 +7,12 @@ export const useDocument = () => {
   const [getDocumentUrl] = apiClient.useLazyGetDocumentDownloadSignedUrlQuery();
 
   const openDocument = async (documentId: string) => {
-    const url = await getDocumentUrl(documentId).unwrap();
+    const { url } = await getDocumentUrl({ documentId }).unwrap();
     window.open(url);
   };
 
   const downloadDocument = async (documentId: string, filename: string) => {
-    const url = await getDocumentUrl(documentId).unwrap();
+    const { url } = await getDocumentUrl({ documentId }).unwrap();
     const response = await fetch(url);
     const blob = await response.blob();
     const blobUrl = window.URL.createObjectURL(blob);

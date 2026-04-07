@@ -41,8 +41,8 @@ const LocalPrescriptionModal = () => {
   );
 
   const [isUpdateSuccess, setIsUpdateSuccess] = useState(false);
-  const [updateLocalPrescription] =
-    apiClient.useUpdateLocalPrescriptionMutation();
+  const [updateDepartmentalLocalPrescription] =
+    apiClient.useUpdateDepartmentalLocalPrescriptionMutation();
 
   useEffect(() => {
     if (localPrescriptionModalData) {
@@ -64,16 +64,14 @@ const LocalPrescriptionModal = () => {
     substanceKindsLaboratories: SubstanceKindLaboratory[]
   ) => {
     if (localPrescriptionModalData?.mode === 'laboratory') {
-      await updateLocalPrescription({
+      await updateDepartmentalLocalPrescription({
         prescriptionId: localPrescriptionModalData.prescription.id,
         region: localPrescriptionModalData.localPrescription.region,
         department: localPrescriptionModalData.localPrescription
           .department as Department,
-        prescriptionUpdate: {
-          key: 'laboratories',
-          substanceKindsLaboratories,
-          programmingPlanId: localPrescriptionModalData.programmingPlan.id
-        }
+        key: 'laboratories',
+        substanceKindsLaboratories,
+        programmingPlanId: localPrescriptionModalData.programmingPlan.id
       });
       setIsUpdateSuccess(true);
     }
@@ -85,31 +83,27 @@ const LocalPrescriptionModal = () => {
     if (localPrescriptionModalData?.mode === 'distributionToDepartments') {
       await Promise.all(
         (subLocalPrescriptions ?? []).map((departmentalPrescription) =>
-          updateLocalPrescription({
+          updateDepartmentalLocalPrescription({
             prescriptionId: localPrescriptionModalData.prescription.id,
             region: localPrescriptionModalData.localPrescription.region,
             department: departmentalPrescription.department as Department,
-            prescriptionUpdate: {
-              key: 'sampleCount',
-              sampleCount: departmentalPrescription.sampleCount,
-              programmingPlanId: localPrescriptionModalData.programmingPlan.id
-            }
+            key: 'sampleCount',
+            sampleCount: departmentalPrescription.sampleCount,
+            programmingPlanId: localPrescriptionModalData.programmingPlan.id
           })
         )
       );
       setIsUpdateSuccess(true);
     }
     if (localPrescriptionModalData?.mode === 'distributionToSlaughterhouses') {
-      await updateLocalPrescription({
+      await updateDepartmentalLocalPrescription({
         prescriptionId: localPrescriptionModalData.prescription.id,
         region: localPrescriptionModalData.localPrescription.region,
         department: localPrescriptionModalData.localPrescription
           .department as Department,
-        prescriptionUpdate: {
-          key: 'slaughterhouseSampleCounts',
-          slaughterhouseSampleCounts: subLocalPrescriptions,
-          programmingPlanId: localPrescriptionModalData.programmingPlan.id
-        }
+        key: 'slaughterhouseSampleCounts',
+        slaughterhouseSampleCounts: subLocalPrescriptions,
+        programmingPlanId: localPrescriptionModalData.programmingPlan.id
       });
       setIsUpdateSuccess(true);
     }

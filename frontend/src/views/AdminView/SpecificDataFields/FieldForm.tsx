@@ -88,11 +88,9 @@ export const FieldForm = ({ field, ..._rest }: Props) => {
       try {
         await updateField({
           fieldId: field.id,
-          body: {
-            inputType: valid.inputType,
-            label: valid.label,
-            hintText: valid.hintText ?? null
-          }
+          inputType: valid.inputType,
+          label: valid.label,
+          hintText: valid.hintText ?? null
         }).unwrap();
         if (sachaField) {
           await updateSampleSpecificDataAttribute({

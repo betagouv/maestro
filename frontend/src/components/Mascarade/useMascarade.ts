@@ -27,7 +27,7 @@ export const useMascarade = () => {
   const refreshCurrentUser = async (newUserId: string | undefined) => {
     if (newUserId) {
       dispatch(api.util.resetApiState());
-      const authUser = await getUser(newUserId).unwrap();
+      const authUser = await getUser({ userId: newUserId }).unwrap();
       dispatch(
         authSlice.actions.signinUser({
           authUser: AuthUserRefined.parse({
@@ -42,7 +42,7 @@ export const useMascarade = () => {
 
   const disableMascarade = async () => {
     const { data } = await mascaradeStop(undefined);
-    await refreshCurrentUser(data?.userId);
+    await refreshCurrentUser(data?.userId ?? undefined);
   };
 
   const setMascaradeUserId = async (userId: string) => {

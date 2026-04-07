@@ -113,7 +113,11 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
   const onSubmit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await form.validate(async (validInput) => {
-      await updateAnalysis({ ...validInput, status: 'Completed' });
+      await updateAnalysis({
+        ...validInput,
+        analysisId: validInput.id,
+        status: 'Completed'
+      });
       onDone();
     });
   };

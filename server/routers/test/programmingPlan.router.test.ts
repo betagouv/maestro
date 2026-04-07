@@ -709,7 +709,7 @@ describe('ProgrammingPlan router', () => {
     test('should fail if the user is not authorized', async () => {
       await request(app)
         .put(testRoute(validatedProgrammingPlan.id))
-        .send(programmingPlanLocalStatusList)
+        .send({ programmingPlanLocalStatusList })
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
@@ -717,7 +717,7 @@ describe('ProgrammingPlan router', () => {
     test('should fail if the programming plan does not exist', async () => {
       await request(app)
         .put(testRoute(uuidv4()))
-        .send(programmingPlanLocalStatusList)
+        .send({ programmingPlanLocalStatusList })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
@@ -726,7 +726,7 @@ describe('ProgrammingPlan router', () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
           .put(testRoute(validatedProgrammingPlan.id))
-          .send({ ...programmingPlanLocalStatusList, ...payload })
+          .send({ programmingPlanLocalStatusList: [payload] })
           .use(tokenProvider(NationalCoordinator))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
@@ -761,7 +761,7 @@ describe('ProgrammingPlan router', () => {
     test('should update a Submitted programming plan to Approved', async () => {
       const res = await request(app)
         .put(testRoute(submittedProgrammingPlan.id))
-        .send(programmingPlanLocalStatusList)
+        .send({ programmingPlanLocalStatusList })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -799,7 +799,7 @@ describe('ProgrammingPlan router', () => {
     test('should validate a programming plan', async () => {
       const res = await request(app)
         .put(testRoute(submittedProgrammingPlan.id))
-        .send(programmingPlanLocalStatusList)
+        .send({ programmingPlanLocalStatusList })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 

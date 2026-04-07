@@ -118,13 +118,13 @@ const LaboratoryAnalyticalCompetencesForm = ({
       if (!residueAnalyticalCompetence) {
         await createLaboratoryAnalyticalCompetence({
           laboratoryId,
-          laboratoryAnalyticalCompetence: laboratoryAnalyticalCompetenceFormData
+          ...laboratoryAnalyticalCompetenceFormData
         });
       } else {
         await updateLaboratoryAnalyticalCompetence({
           laboratoryId,
           analyticalCompetenceId: residueAnalyticalCompetence.id as string,
-          laboratoryAnalyticalCompetence: laboratoryAnalyticalCompetenceFormData
+          ...laboratoryAnalyticalCompetenceFormData
         });
       }
     });

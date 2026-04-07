@@ -315,7 +315,7 @@ const SampleListView = () => {
                 <SampleListHeader
                   findSampleOptions={findSampleOptions}
                   changeFilter={changeFilter}
-                  samplesCount={samplesCount}
+                  samplesCount={samplesCount?.count}
                 />
               }
             </div>
@@ -334,10 +334,10 @@ const SampleListView = () => {
             {sampleListDisplay === 'table' && (
               <SampleTable samples={samples ?? []} />
             )}
-            {isDefinedAndNotNull(samplesCount) &&
-              samplesCount > defaultPerPage && (
+            {isDefinedAndNotNull(samplesCount?.count) &&
+              samplesCount.count > defaultPerPage && (
                 <Pagination
-                  count={Math.floor(samplesCount / defaultPerPage) + 1}
+                  count={Math.floor(samplesCount.count / defaultPerPage) + 1}
                   defaultPage={Number(findSampleOptions.page) || 1}
                   getPageLinkProps={(page: number) => ({
                     to: getURLQuery({

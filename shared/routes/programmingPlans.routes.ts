@@ -64,7 +64,9 @@ export const programmingPlansRoutes = {
         'distributePrescriptionToDepartments',
         'distributePrescriptionToSlaughterhouses'
       ],
-      body: z.array(ProgrammingPlanLocalStatus),
+      body: z.object({
+        programmingPlanLocalStatusList: z.array(ProgrammingPlanLocalStatus)
+      }),
       response: ProgrammingPlanChecked
     }
   },
@@ -118,7 +120,7 @@ export const programmingPlansRoutes = {
       },
       put: {
         permissions: ['administrationMaestro'],
-        body: z.array(SpecificDataFieldOptionId),
+        body: z.object({ optionIds: z.array(SpecificDataFieldOptionId) }),
         response: z.void()
       }
     }

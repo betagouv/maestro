@@ -14,11 +14,11 @@ type Props = Record<never, never>;
 export const AdminViewRootNotice: FunctionComponent<Props> = ({ ..._rest }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const { useGetRootNoticeQuery, useUpdateRootNoticeMutation } =
+  const { useGetNoticeQuery, useUpdateNoticeMutation } =
     useContext(ApiClientContext);
 
-  const { data } = useGetRootNoticeQuery();
-  const [updateRootNotice] = useUpdateRootNoticeMutation();
+  const { data } = useGetNoticeQuery({ type: 'root' });
+  const [updateRootNotice] = useUpdateNoticeMutation();
 
   const [rootNotice, setRootNotice] = useState<Notice>(
     data ?? { type: 'root', title: null, description: null }

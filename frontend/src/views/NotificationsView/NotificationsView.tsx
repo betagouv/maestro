@@ -63,9 +63,7 @@ const NotificationsView = () => {
   const onNotificationClick = async (notification: Notification) => {
     await updateNotification({
       notificationId: notification.id,
-      notificationUpdate: {
-        read: true
-      }
+      read: true
     });
     if (notification.link) {
       navigate(notification.link);
@@ -101,9 +99,7 @@ const NotificationsView = () => {
           onClick={() =>
             updateNotifications({
               recipientId: user?.id as string,
-              notificationUpdate: {
-                read: true
-              }
+              read: true
             })
           }
         >

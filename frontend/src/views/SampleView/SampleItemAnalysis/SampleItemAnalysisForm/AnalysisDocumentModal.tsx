@@ -78,15 +78,14 @@ export const AnalysisDocumentModal = ({
         if (analysisId) {
           await createAnalysisReportDocument({
             analysisId,
-            documentId: reportDocumentId,
-            sampleId
+            documentId: reportDocumentId
           });
           await updateAnalysis({
-            compliance: null,
-            notesOnCompliance: null,
-            ...partialAnalysis,
-            id: analysisId,
-            sampleId,
+            compliance: partialAnalysis?.compliance ?? null,
+            notesOnCompliance: partialAnalysis?.notesOnCompliance ?? null,
+            emailReceivedAt: partialAnalysis?.emailReceivedAt,
+            residues: partialAnalysis?.residues,
+            analysisId,
             status: 'Residues'
           });
         }

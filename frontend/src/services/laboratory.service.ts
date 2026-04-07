@@ -1,30 +1,15 @@
-import { isNil, omitBy } from 'lodash-es';
-import type { FindLaboratoryOptions } from 'maestro-shared/schema/Laboratory/FindLaboratoryOptions';
-import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
-import type {
-  LaboratoryAnalyticalCompetence,
-  LaboratoryAnalyticalCompetenceToSave
-} from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
+import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
 import config from '../utils/config';
 
 const laboratoryApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getLaboratory: builder.query<Laboratory, string>({
-      query: (laboratoryId) => `laboratories/${laboratoryId}`,
-      transformResponse: (response: any) =>
-        Laboratory.parse(omitBy(response, isNil)),
-      providesTags: (_result, _error, laboratoryId) => [
+    getLaboratory: buildTypedQuery(builder, '/laboratories/:laboratoryId', {
+      providesTags: (_result, _error, { laboratoryId }) => [
         { type: 'Laboratory', id: laboratoryId }
       ]
     }),
-    findLaboratories: builder.query<Laboratory[], FindLaboratoryOptions>({
-      query: (findOptions) => ({
-        url: 'laboratories',
-        params: omitBy(findOptions, isNil)
-      }),
-      transformResponse: (response: any[]) =>
-        response.map((_) => Laboratory.parse(omitBy(_, isNil))),
+    findLaboratories: buildTypedQuery(builder, '/laboratories', {
       providesTags: (result) => [
         { type: 'Laboratory', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({
@@ -33,62 +18,35 @@ const laboratoryApi = api.injectEndpoints({
         }))
       ]
     }),
-    getLaboratoryAnalyticalCompetences: builder.query<
-      LaboratoryAnalyticalCompetence[],
-      string
-    >({
-      query: (laboratoryId) =>
-        `laboratories/${laboratoryId}/analytical-competences`,
-      providesTags: (_result, _error, laboratoryId) => [
-        {
-          type: 'LaboratoryAnalyticalCompetence',
-          id: laboratoryId
-        }
-      ]
-    }),
-    createLaboratoryAnalyticalCompetence: builder.mutation<
-      LaboratoryAnalyticalCompetence[],
+    getLaboratoryAnalyticalCompetences: buildTypedQuery(
+      builder,
+      '/laboratories/:laboratoryId/analytical-competences',
       {
-        laboratoryId: string;
-        laboratoryAnalyticalCompetence: LaboratoryAnalyticalCompetenceToSave;
+        providesTags: (_result, _error, { laboratoryId }) => [
+          { type: 'LaboratoryAnalyticalCompetence', id: laboratoryId }
+        ]
       }
-    >({
-      query: ({ laboratoryId, laboratoryAnalyticalCompetence }) => ({
-        url: `laboratories/${laboratoryId}/analytical-competences`,
-        method: 'POST',
-        body: laboratoryAnalyticalCompetence
-      }),
-      invalidatesTags: (_result, _error, { laboratoryId }) => [
-        {
-          type: 'LaboratoryAnalyticalCompetence',
-          id: laboratoryId
-        }
-      ]
-    }),
-    updateLaboratoryAnalyticalCompetence: builder.mutation<
-      LaboratoryAnalyticalCompetence,
+    ),
+    createLaboratoryAnalyticalCompetence: buildTypedMutation(
+      builder,
+      '/laboratories/:laboratoryId/analytical-competences',
+      'post',
       {
-        laboratoryId: string;
-        analyticalCompetenceId: string;
-        laboratoryAnalyticalCompetence: LaboratoryAnalyticalCompetenceToSave;
+        invalidatesTags: (_result, _error, { laboratoryId }) => [
+          { type: 'LaboratoryAnalyticalCompetence', id: laboratoryId }
+        ]
       }
-    >({
-      query: ({
-        laboratoryId,
-        analyticalCompetenceId,
-        laboratoryAnalyticalCompetence
-      }) => ({
-        url: `laboratories/${laboratoryId}/analytical-competences/${analyticalCompetenceId}`,
-        method: 'PUT',
-        body: laboratoryAnalyticalCompetence
-      }),
-      invalidatesTags: (_result, _error, { laboratoryId }) => [
-        {
-          type: 'LaboratoryAnalyticalCompetence',
-          id: laboratoryId
-        }
-      ]
-    })
+    ),
+    updateLaboratoryAnalyticalCompetence: buildTypedMutation(
+      builder,
+      '/laboratories/:laboratoryId/analytical-competences/:analyticalCompetenceId',
+      'put',
+      {
+        invalidatesTags: (_result, _error, { laboratoryId }) => [
+          { type: 'LaboratoryAnalyticalCompetence', id: laboratoryId }
+        ]
+      }
+    )
   })
 });
 

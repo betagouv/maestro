@@ -1,86 +1,47 @@
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import type {
-  CreatePlanKindFieldInput,
-  UpdatePlanKindFieldInput
-} from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import type {
-  PlanKindFieldConfig,
-  ProgrammingPlanKindFieldId,
-  SpecificDataFieldOptionId
-} from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
 
 const programmingPlanKindFieldsApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    findPlanKindFieldConfigs: builder.query<
-      PlanKindFieldConfig[],
-      { programmingPlanId: string; kind: ProgrammingPlanKind }
-    >({
-      query: ({ programmingPlanId, kind }) =>
-        `/programming-plans/${programmingPlanId}/kinds/${kind}/specific-data-fields`,
-      providesTags: ['SpecificDataField']
-    }),
-    addPlanKindField: builder.mutation<
-      PlanKindFieldConfig,
+    findPlanKindFieldConfigs: buildTypedQuery(
+      builder,
+      '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields',
       {
-        programmingPlanId: string;
-        kind: ProgrammingPlanKind;
-        body: CreatePlanKindFieldInput;
+        providesTags: ['SpecificDataField']
       }
-    >({
-      query: ({ programmingPlanId, kind, body }) => ({
-        url: `/programming-plans/${programmingPlanId}/kinds/${kind}/specific-data-fields`,
-        method: 'POST',
-        body
-      }),
-      invalidatesTags: ['SpecificDataField']
-    }),
-    updatePlanKindField: builder.mutation<
-      PlanKindFieldConfig,
+    ),
+    addPlanKindField: buildTypedMutation(
+      builder,
+      '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields',
+      'post',
       {
-        programmingPlanId: string;
-        kind: ProgrammingPlanKind;
-        planKindFieldId: ProgrammingPlanKindFieldId;
-        body: UpdatePlanKindFieldInput;
+        invalidatesTags: ['SpecificDataField']
       }
-    >({
-      query: ({ programmingPlanId, kind, planKindFieldId, body }) => ({
-        url: `/programming-plans/${programmingPlanId}/kinds/${kind}/specific-data-fields/${planKindFieldId}`,
-        method: 'PUT',
-        body
-      }),
-      invalidatesTags: ['SpecificDataField']
-    }),
-    deletePlanKindField: builder.mutation<
-      void,
+    ),
+    updatePlanKindField: buildTypedMutation(
+      builder,
+      '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields/:planKindFieldId',
+      'put',
       {
-        programmingPlanId: string;
-        kind: ProgrammingPlanKind;
-        planKindFieldId: ProgrammingPlanKindFieldId;
+        invalidatesTags: ['SpecificDataField']
       }
-    >({
-      query: ({ programmingPlanId, kind, planKindFieldId }) => ({
-        url: `/programming-plans/${programmingPlanId}/kinds/${kind}/specific-data-fields/${planKindFieldId}`,
-        method: 'DELETE'
-      }),
-      invalidatesTags: ['SpecificDataField']
-    }),
-    updatePlanKindFieldOptions: builder.mutation<
-      void,
+    ),
+    deletePlanKindField: buildTypedMutation(
+      builder,
+      '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields/:planKindFieldId',
+      'delete',
       {
-        programmingPlanId: string;
-        kind: ProgrammingPlanKind;
-        planKindFieldId: ProgrammingPlanKindFieldId;
-        body: SpecificDataFieldOptionId[];
+        invalidatesTags: ['SpecificDataField']
       }
-    >({
-      query: ({ programmingPlanId, kind, planKindFieldId, body }) => ({
-        url: `/programming-plans/${programmingPlanId}/kinds/${kind}/specific-data-fields/${planKindFieldId}/options`,
-        method: 'PUT',
-        body
-      }),
-      invalidatesTags: ['SpecificDataField']
-    })
+    ),
+    updatePlanKindFieldOptions: buildTypedMutation(
+      builder,
+      '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields/:planKindFieldId/options',
+      'put',
+      {
+        invalidatesTags: ['SpecificDataField']
+      }
+    )
   })
 });
 

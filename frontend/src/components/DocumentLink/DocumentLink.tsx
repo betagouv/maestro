@@ -1,6 +1,5 @@
 import type { FrIconClassName } from '@codegouvfr/react-dsfr';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { skipToken } from '@reduxjs/toolkit/query';
 import { useContext } from 'react';
 import { Link } from 'react-router';
 import { useDocument } from '../../hooks/useDocument';
@@ -16,7 +15,8 @@ const DocumentLink = ({ documentId, iconId }: Props) => {
   const { openDocument } = useDocument();
 
   const { data: document } = apiClient.useGetDocumentQuery(
-    documentId ?? skipToken
+    { documentId: documentId ?? '' },
+    { skip: !documentId }
   );
 
   if (!document) {

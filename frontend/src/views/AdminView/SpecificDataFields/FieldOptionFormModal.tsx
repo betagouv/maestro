@@ -85,10 +85,11 @@ export const FieldOptionFormModal = ({
           await updateFieldOption({
             fieldId: field.id,
             optionId: optionToEdit.id,
-            body: { label: valid.label, order: valid.order }
+            label: valid.label,
+            order: valid.order
           }).unwrap();
         } else {
-          await createFieldOption({ fieldId: field.id, body: valid }).unwrap();
+          await createFieldOption({ fieldId: field.id, ...valid }).unwrap();
         }
         e.preventDefault();
         modal.close();

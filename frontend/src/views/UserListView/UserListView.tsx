@@ -57,7 +57,11 @@ export const UserListView = () => {
 
   const onConfirmDisable = async () => {
     if (userToDisable) {
-      await updateUser({ ...userToDisable, disabled: true });
+      await updateUser({
+        ...userToDisable,
+        userId: userToDisable.id,
+        disabled: true
+      });
       setAlertMessage(
         `L'utilisateur ${userToDisable.name} a bien été désactivé.`
       );
@@ -66,7 +70,11 @@ export const UserListView = () => {
   };
 
   const onEnableUser = async (userToEnable: UserRefined) => {
-    await updateUser({ ...userToEnable, disabled: false });
+    await updateUser({
+      ...userToEnable,
+      userId: userToEnable.id,
+      disabled: false
+    });
     setAlertMessage(`L'utilisateur ${userToEnable.name} a bien été activé.`);
   };
 

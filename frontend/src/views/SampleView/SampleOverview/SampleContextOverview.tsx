@@ -14,6 +14,7 @@ const SampleContextOverview = ({ sample }: Props) => {
 
   const updateResytalId = (newResytalId: string) => {
     updateSample({
+      sampleId: sample.id,
       ...sample,
       resytalId: newResytalId
     });

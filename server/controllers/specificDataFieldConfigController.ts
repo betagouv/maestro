@@ -176,7 +176,7 @@ export const specificDataFieldConfigRouter = {
 
         await specificDataFieldConfigRepository.replacePlanKindFieldOptions(
           ProgrammingPlanKindFieldId.parse(planKindFieldId),
-          body.map((id) => SpecificDataFieldOptionId.parse(id))
+          body.optionIds.map((id) => SpecificDataFieldOptionId.parse(id))
         );
 
         return { status: constants.HTTP_STATUS_NO_CONTENT };

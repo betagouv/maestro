@@ -1,4 +1,3 @@
-import { skipToken } from '@reduxjs/toolkit/query';
 import {
   isCreatedPartialSample,
   type PartialSample,
@@ -18,7 +17,8 @@ export const usePartialSample = (
   const { year: yearParam } = useParams<{ year: string }>();
 
   const { data: sampleProgrammingPlan } = apiClient.useGetProgrammingPlanQuery(
-    (partialSample?.programmingPlanId as string) ?? skipToken
+    { programmingPlanId: partialSample?.programmingPlanId as string },
+    { skip: !partialSample?.programmingPlanId }
   );
   const { data: yearProgrammingPlans } = apiClient.useFindProgrammingPlansQuery(
     {

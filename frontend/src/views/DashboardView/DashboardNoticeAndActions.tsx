@@ -103,7 +103,7 @@ const DashboardNoticeAndActions: FunctionComponent<Props> = ({
     );
   }, [prioritySamples, priorityProgrammingPlans]);
 
-  const { data: notice } = apiClient.useGetDashboardNoticeQuery();
+  const { data: notice } = apiClient.useGetNoticeQuery({ type: 'dashboard' });
 
   return (
     <div className={clsx(cx('fr-grid-row', 'fr-grid-row--gutters'))}>

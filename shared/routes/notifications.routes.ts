@@ -16,7 +16,7 @@ export const notificationsRoutes = {
     },
     put: {
       body: NotificationUpdate,
-      query: FindNotificationOptions,
+      query: FindNotificationOptions.omit({ read: true }),
       permissions: 'NONE',
       response: z.array(Notification)
     }

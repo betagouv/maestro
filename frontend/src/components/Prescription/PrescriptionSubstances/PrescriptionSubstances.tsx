@@ -36,9 +36,10 @@ const PrescriptionSubstances = ({
   const { hasUserPrescriptionPermission } = useAuthentication();
 
   const { data: prescriptionSubstances } =
-    apiClient.useGetPrescriptionSubstancesQuery(prescription.id, {
-      skip: renderMode === 'modal'
-    });
+    apiClient.useGetPrescriptionSubstancesQuery(
+      { prescriptionId: prescription.id },
+      { skip: renderMode === 'modal' }
+    );
 
   const getSubstancesByAnalysisMethod = useCallback(
     (analysisMethod: AnalysisMethod) =>

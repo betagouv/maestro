@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { Department } from '../referential/Department';
+import { Region } from '../referential/Region';
 import { FindLocalPrescriptionOptions } from '../schema/LocalPrescription/FindLocalPrescriptionOptions';
 import {
   LocalPrescription,
@@ -8,7 +10,6 @@ import {
   LocalPrescriptionComment,
   LocalPrescriptionCommentToCreate
 } from '../schema/LocalPrescription/LocalPrescriptionComment';
-import { LocalPrescriptionKey } from '../schema/LocalPrescription/LocalPrescriptionKey';
 import { FindPrescriptionOptions } from '../schema/Prescription/FindPrescriptionOptions';
 import {
   Prescription,
@@ -49,7 +50,7 @@ export const prescriptionsRoutes = {
     }
   },
   '/prescriptions/:prescriptionId/regions/:region/comments': {
-    params: LocalPrescriptionKey.shape,
+    params: { prescriptionId: z.guid(), region: Region },
     post: {
       body: LocalPrescriptionCommentToCreate,
       permissions: ['commentPrescription'],
@@ -58,7 +59,11 @@ export const prescriptionsRoutes = {
   },
   '/prescriptions/:prescriptionId/regions/:region/departments/:department/comments':
     {
-      params: LocalPrescriptionKey.shape,
+      params: {
+        prescriptionId: z.guid(),
+        region: Region,
+        department: Department
+      },
       post: {
         body: LocalPrescriptionCommentToCreate,
         permissions: ['commentPrescription'],
@@ -66,7 +71,7 @@ export const prescriptionsRoutes = {
       }
     },
   '/prescriptions/:prescriptionId/regions/:region': {
-    params: LocalPrescriptionKey.shape,
+    params: { prescriptionId: z.guid(), region: Region },
     get: {
       query: FindLocalPrescriptionOptions.pick({ includes: true }),
       permissions: ['readPrescriptions'],
@@ -79,7 +84,11 @@ export const prescriptionsRoutes = {
     }
   },
   '/prescriptions/:prescriptionId/regions/:region/departments/:department': {
-    params: LocalPrescriptionKey.shape,
+    params: {
+      prescriptionId: z.guid(),
+      region: Region,
+      department: Department
+    },
     put: {
       body: LocalPrescriptionUpdate,
       permissions: [
@@ -92,7 +101,12 @@ export const prescriptionsRoutes = {
   },
   '/prescriptions/:prescriptionId/regions/:region/departments/:department/companies/:companySiret':
     {
-      params: LocalPrescriptionKey.shape,
+      params: {
+        prescriptionId: z.guid(),
+        region: Region,
+        department: Department,
+        companySiret: z.string()
+      },
       get: {
         query: FindLocalPrescriptionOptions.pick({ includes: true }),
         permissions: ['readPrescriptions'],

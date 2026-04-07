@@ -27,9 +27,10 @@ const SampleView = () => {
   const { sampleId } = useParams<{ sampleId?: string }>();
 
   const { pendingSamples } = useAppSelector((state) => state.samples);
-  const { data } = apiClient.useGetSampleQuery(sampleId as string, {
-    skip: !sampleId || sampleId in pendingSamples
-  });
+  const { data } = apiClient.useGetSampleQuery(
+    { sampleId: sampleId as string },
+    { skip: !sampleId || sampleId in pendingSamples }
+  );
 
   const sample = pendingSamples[sampleId ?? ''] ?? data;
 

@@ -77,6 +77,8 @@ const ProgrammingPrescriptionList = ({
     apiClient.useUpdatePrescriptionMutation();
   const [updateLocalPrescription, { isSuccess: isUpdateRegionalSuccess }] =
     apiClient.useUpdateLocalPrescriptionMutation();
+  const [updateDepartmentalLocalPrescription] =
+    apiClient.useUpdateDepartmentalLocalPrescriptionMutation();
   const [deletePrescription, { isSuccess: isDeleteSuccess }] =
     apiClient.useDeletePrescriptionMutation();
 
@@ -240,7 +242,7 @@ const ProgrammingPrescriptionList = ({
   }, [searchParams, localPrescriptions]);
 
   const removePrescription = useCallback(async (prescriptionId: string) => {
-    await deletePrescription(prescriptionId);
+    await deletePrescription({ prescriptionId });
   }, []);
 
   const changePrescription = useCallback(
@@ -251,10 +253,8 @@ const ProgrammingPrescriptionList = ({
       if (hasUserPrescriptionPermission(programmingPlan)?.update) {
         await updatePrescription({
           prescriptionId: prescription.id,
-          prescriptionUpdate: {
-            programmingPlanId: programmingPlan.id,
-            ...prescriptionUpdate
-          }
+          programmingPlanId: programmingPlan.id,
+          ...prescriptionUpdate
         });
       }
     },
@@ -266,12 +266,22 @@ const ProgrammingPrescriptionList = ({
       key: LocalPrescriptionKey,
       prescriptionUpdate: LocalPrescriptionUpdate
     ) => {
-      await updateLocalPrescription({
-        ...key,
-        prescriptionUpdate
-      });
+      if (key.department) {
+        await updateDepartmentalLocalPrescription({
+          prescriptionId: key.prescriptionId,
+          region: key.region,
+          department: key.department,
+          ...prescriptionUpdate
+        });
+      } else {
+        await updateLocalPrescription({
+          prescriptionId: key.prescriptionId,
+          region: key.region,
+          ...prescriptionUpdate
+        });
+      }
     },
-    [programmingPlan]
+    [updateLocalPrescription, updateDepartmentalLocalPrescription]
   );
 
   const changeLocalPrescriptionCount = useCallback(
@@ -289,15 +299,13 @@ const ProgrammingPrescriptionList = ({
   ) => {
     await Promise.all(
       selectedPrescriptions.map((prescription) =>
-        updateLocalPrescription({
+        updateDepartmentalLocalPrescription({
           prescriptionId: prescription.id,
           region: region as Region,
-          department: department,
-          prescriptionUpdate: {
-            key: 'laboratories',
-            substanceKindsLaboratories,
-            programmingPlanId: programmingPlan.id
-          }
+          department: department as Department,
+          key: 'laboratories',
+          substanceKindsLaboratories,
+          programmingPlanId: programmingPlan.id
         })
       )
     );

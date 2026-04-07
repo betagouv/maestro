@@ -1,38 +1,20 @@
-import type { Notice } from 'maestro-shared/schema/Notice/Notice';
+import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
 
 const noticeApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getRootNotice: builder.query<Notice, void>({
-      query: () => '/notices/root',
-      providesTags: ['RootNotice']
+    getNotice: buildTypedQuery(builder, '/notices/:type', {
+      providesTags: (result) =>
+        result
+          ? [result.type === 'root' ? 'RootNotice' : 'DashboardNotice']
+          : []
     }),
-    updateRootNotice: builder.mutation<void, Notice>({
-      query: (notice) => ({
-        url: `/notices/root`,
-        method: 'PUT',
-        body: notice
-      }),
-      invalidatesTags: (_result, _error) => ['RootNotice']
-    }),
-    getDashboardNotice: builder.query<Notice, void>({
-      query: () => '/notices/dashboard',
-      providesTags: ['DashboardNotice']
-    }),
-    updateDashboardNotice: builder.mutation<void, Notice>({
-      query: (notice) => ({
-        url: `/notices/dashboard`,
-        method: 'PUT',
-        body: notice
-      }),
-      invalidatesTags: (_result, _error) => ['DashboardNotice']
+    updateNotice: buildTypedMutation(builder, '/notices/:type', 'put', {
+      invalidatesTags: (_result, _error, arg) => [
+        arg.type === 'root' ? 'RootNotice' : 'DashboardNotice'
+      ]
     })
   })
 });
 
-export const {
-  useGetRootNoticeQuery,
-  useUpdateRootNoticeMutation,
-  useGetDashboardNoticeQuery,
-  useUpdateDashboardNoticeMutation
-} = noticeApi;
+export const { useGetNoticeQuery, useUpdateNoticeMutation } = noticeApi;

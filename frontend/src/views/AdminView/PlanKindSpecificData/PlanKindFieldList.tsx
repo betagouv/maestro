@@ -52,13 +52,15 @@ export const PlanKindFieldList = ({
       programmingPlanId,
       kind,
       planKindFieldId: item.id,
-      body: { required: item.required, order: adjacent.order }
+      required: item.required,
+      order: adjacent.order
     }).unwrap();
     await updatePlanKindField({
       programmingPlanId,
       kind,
       planKindFieldId: adjacent.id,
-      body: { required: adjacent.required, order: item.order }
+      required: adjacent.required,
+      order: item.order
     }).unwrap();
   };
 

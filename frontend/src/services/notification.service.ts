@@ -1,21 +1,9 @@
-import { isNil, omitBy } from 'lodash-es';
-import type { FindNotificationOptions } from 'maestro-shared/schema/Notification/FindNotificationOptions';
-import {
-  Notification,
-  type NotificationUpdate
-} from 'maestro-shared/schema/Notification/Notification';
+import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
 
 const notificationApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    findNotifications: builder.query<Notification[], FindNotificationOptions>({
-      query: (findOptions) => ({
-        url: '/notifications',
-        method: 'GET',
-        params: findOptions
-      }),
-      transformResponse: (response: any[]) =>
-        response.map((_) => Notification.parse(omitBy(_, isNil))),
+    findNotifications: buildTypedQuery(builder, '/notifications', {
       providesTags: (result) => [
         { type: 'Notification', id: 'LIST' },
         ...(result ?? []).map(({ id }) => ({
@@ -24,32 +12,15 @@ const notificationApi = api.injectEndpoints({
         }))
       ]
     }),
-    updateNotification: builder.mutation<
-      Notification,
-      { notificationId: string; notificationUpdate: NotificationUpdate }
-    >({
-      query: ({ notificationId, notificationUpdate }) => ({
-        url: `/notifications/${notificationId}`,
-        method: 'PUT',
-        body: notificationUpdate
-      }),
-      transformResponse: (response: any) => Notification.parse(response),
-      invalidatesTags: [{ type: 'Notification', id: 'LIST' }]
-    }),
-    updateNotifications: builder.mutation<
-      Notification[],
-      FindNotificationOptions & {
-        notificationUpdate: NotificationUpdate;
+    updateNotification: buildTypedMutation(
+      builder,
+      '/notifications/:notificationId',
+      'put',
+      {
+        invalidatesTags: [{ type: 'Notification', id: 'LIST' }]
       }
-    >({
-      query: ({ notificationUpdate, ...findNotificationOptions }) => ({
-        url: `/notifications`,
-        params: findNotificationOptions,
-        method: 'PUT',
-        body: notificationUpdate
-      }),
-      transformResponse: (response: any[]) =>
-        response.map((_) => Notification.parse(omitBy(_, isNil))),
+    ),
+    updateNotifications: buildTypedMutation(builder, '/notifications', 'put', {
       invalidatesTags: [{ type: 'Notification', id: 'LIST' }]
     })
   })

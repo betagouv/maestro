@@ -8,9 +8,9 @@ type Props = Record<never, never>;
 export const RootNotice: FunctionComponent<Props> = ({ ..._rest }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const { useGetRootNoticeQuery } = useContext(ApiClientContext);
+  const { useGetNoticeQuery } = useContext(ApiClientContext);
 
-  const { data } = useGetRootNoticeQuery();
+  const { data } = useGetNoticeQuery({ type: 'root' });
 
   return data && <RootNoticeComponent notice={data} />;
 };

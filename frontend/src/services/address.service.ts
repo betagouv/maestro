@@ -8,6 +8,7 @@ import { api } from 'src/services/api.service';
 
 const addressApi = api.injectEndpoints({
   endpoints: (builder) => ({
+    // biome-ignore lint: external API
     searchAddresses: builder.query<
       AddressSearchResult[],
       { query: string; department?: Department }

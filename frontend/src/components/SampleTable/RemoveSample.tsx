@@ -39,7 +39,7 @@ const RemoveSample = ({ sample }: RemoveSampleProps) => {
         modal={removeModal}
         title="Supprimer un prélèvement"
         onConfirm={async () => {
-          await deleteSample(sample.id);
+          await deleteSample({ sampleId: sample.id });
         }}
         confirmLabel="Supprimer"
         closeOnConfirm

@@ -161,7 +161,7 @@ export const programmingPlanRouter = {
   },
   '/programming-plans/:programmingPlanId/local-status': {
     put: async (
-      { user, userRole, body: programmingPlanLocalStatusList },
+      { user, userRole, body: { programmingPlanLocalStatusList } },
       { programmingPlanId }
     ) => {
       const programmingPlan =

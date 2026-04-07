@@ -12,29 +12,25 @@ import {
   type ToRoute,
   type UnprotectedRoutes
 } from 'maestro-shared/routes/routes';
+import type {
+  OrEmpty,
+  RouteBody,
+  RouteParams,
+  RouteQuery,
+  RouteResponse
+} from 'maestro-shared/routes/routes.infer';
 import type { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
 import { hasPermission, type UserBase } from 'maestro-shared/schema/User/User';
 import type { UserRole } from 'maestro-shared/schema/User/UserRole';
-import z, { type ZodObject, type ZodRawShape, type ZodType } from 'zod';
+import z, { type ZodObject } from 'zod';
 import { validateRequest } from '../middlewares/validator';
 
 type MaestroResponse<
   key extends MaestroRoutes,
-  method extends keyof (typeof routes)[key],
-  ResponseValidator = RouteValidator<key, method, 'response'>
-> = ResponseValidator extends undefined ? undefined : ResponseValidator;
-
-type RouteValidator<
-  key extends MaestroRoutes,
-  method extends keyof (typeof routes)[key],
-  Z extends keyof ToRoute
-> = (typeof routes)[key][method] extends {
-  [z in Z]: infer P;
-}
-  ? P extends ZodType
-    ? z.infer<P>
-    : undefined
-  : undefined;
+  method extends keyof (typeof routes)[key]
+> = [RouteResponse<key, method>] extends [never]
+  ? undefined
+  : RouteResponse<key, method>;
 
 type ResponseMethods = Pick<Response, 'setHeader' | 'clearCookie'> & {
   cookie: (name: string, val: string, options: CookieOptions) => Response;
@@ -45,8 +41,8 @@ type MaestroRouteMethod<
   IsProtected extends boolean
 > = (
   request: {
-    body: RouteValidator<key, method, 'body'>;
-    query: RouteValidator<key, method, 'query'>;
+    body: OrEmpty<RouteBody<key, method>>;
+    query: OrEmpty<RouteQuery<key, method>>;
     cookies: Record<string, string> | undefined;
   } & (IsProtected extends true
     ? {
@@ -55,13 +51,7 @@ type MaestroRouteMethod<
         auth: TokenPayload;
       }
     : Record<never, never>),
-  params: (typeof routes)[key] extends {
-    params: infer P;
-  }
-    ? P extends ZodRawShape
-      ? z.infer<ZodObject<P>>
-      : undefined
-    : undefined,
+  params: RouteParams<key>,
   responseMethods: ResponseMethods
 ) => Promise<
   { status: number } & (

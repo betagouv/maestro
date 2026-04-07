@@ -1,5 +1,4 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { skipToken } from '@reduxjs/toolkit/query';
 import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
@@ -27,7 +26,9 @@ const PrescriptionEditSubstances = ({
   const { hasUserPrescriptionPermission } = useAuthentication();
 
   const { data: prescriptionSubstances } =
-    apiClient.useGetPrescriptionSubstancesQuery(prescription.id ?? skipToken);
+    apiClient.useGetPrescriptionSubstancesQuery({
+      prescriptionId: prescription.id
+    });
 
   const getSubstancesByAnalysisMethod = useCallback(
     (analysisMethod: AnalysisMethod) =>

@@ -662,7 +662,7 @@ describe('SpecificDataFieldConfig router', () => {
           .put(
             `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/kinds/DAOA_VOLAILLE/specific-data-fields/${optionsPlanKindFieldId}/options`
           )
-          .send([optionId])
+          .send({ optionIds: [optionId] })
           .expect(constants.HTTP_STATUS_UNAUTHORIZED);
       });
 
@@ -671,13 +671,13 @@ describe('SpecificDataFieldConfig router', () => {
           Sampler1Fixture,
           'put',
           `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/kinds/DAOA_VOLAILLE/specific-data-fields/${optionsPlanKindFieldId}/options`,
-          []
+          { optionIds: [] }
         );
         await forbiddenRequestTest(
           NationalCoordinator,
           'put',
           `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/kinds/DAOA_VOLAILLE/specific-data-fields/${optionsPlanKindFieldId}/options`,
-          []
+          { optionIds: [] }
         );
       });
 
@@ -687,7 +687,7 @@ describe('SpecificDataFieldConfig router', () => {
             `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/kinds/DAOA_VOLAILLE/specific-data-fields/${optionsPlanKindFieldId}/options`
           )
           .use(tokenProvider(AdminFixture))
-          .send([optionId])
+          .send({ optionIds: [optionId] })
           .expect(constants.HTTP_STATUS_NO_CONTENT);
 
         const activeOptions = await kysely

@@ -165,15 +165,15 @@ const update = async (
 
 const insertManyLocalStatus = async (
   programmingPlanId: string,
-  localStatusList: ProgrammingPlanLocalStatusType[]
+  programmingPlanLocalStatusList: ProgrammingPlanLocalStatusType[]
 ): Promise<void> => {
   console.info(
     'Insert programming plan local status',
     programmingPlanId,
-    localStatusList
+    programmingPlanLocalStatusList
   );
   await ProgrammingPlanLocalStatus().insert(
-    localStatusList.map((localStatus) => ({
+    programmingPlanLocalStatusList.map((localStatus) => ({
       ...localStatus,
       programmingPlanId,
       department: localStatus.department ?? 'None'

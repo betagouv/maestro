@@ -99,9 +99,9 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
                   badgeLabel="Programmation"
                   description="À réaliser"
                   onClick={async () => {
-                    await createProgrammingPlan(
-                      currentValidatedProgrammingPlan?.year + 1
-                    ).unwrap();
+                    await createProgrammingPlan({
+                      year: currentValidatedProgrammingPlan?.year + 1
+                    }).unwrap();
                   }}
                 />
               )}

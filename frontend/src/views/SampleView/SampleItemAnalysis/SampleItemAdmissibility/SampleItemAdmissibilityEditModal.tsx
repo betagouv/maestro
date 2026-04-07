@@ -34,18 +34,16 @@ export const SampleItemAdmissibilityEditModal: FunctionComponent<Props> = ({
       await form.validate(
         async ({ receiptDate, isAdmissible, notesOnAdmissibility }) => {
           await updateSampleItem({
+            ...sampleItem,
+            receiptDate,
+            analysis: {
+              ...sampleItem.analysis,
+              status: isAdmissible === false ? 'NotAdmissible' : 'Report'
+            },
+            notesOnAdmissibility,
             sampleId: sampleItem.sampleId,
             itemNumber: sampleItem.itemNumber,
-            copyNumber: sampleItem.copyNumber,
-            sampleItemUpdate: {
-              ...sampleItem,
-              receiptDate,
-              analysis: {
-                ...sampleItem.analysis,
-                status: isAdmissible === false ? 'NotAdmissible' : 'Report'
-              },
-              notesOnAdmissibility
-            }
+            copyNumber: sampleItem.copyNumber
           });
           form.reset();
         }
