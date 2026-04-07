@@ -1,0 +1,26 @@
+@startuml
+title Flux DAI/RAI sans EDI Sacha
+
+actor Maestro
+actor "SFTP" as SFTP
+actor Laboratoires order 10
+
+group Envoi DAI via email
+  Maestro -> Laboratoires : DAI (email)
+end
+
+group Envoi DAI via SFTP
+  Maestro -> SFTP : DAI (SFTP)
+  Laboratoires -> SFTP : récupération DAI
+end
+
+group Réception RAI via email
+  Laboratoires -> Maestro : RAI (email)
+end
+
+group Réception RAI via SFTP
+  Laboratoires -> SFTP : dépôt RAI
+  Maestro -> SFTP : récupération RAI
+end
+
+@enduml
