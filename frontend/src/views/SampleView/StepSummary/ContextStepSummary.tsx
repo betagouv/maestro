@@ -10,7 +10,7 @@ import {
   type SampleOwnerData,
   type SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { formatDate, formatDateTime } from 'maestro-shared/utils/date';
+import { formatDateTime } from 'maestro-shared/utils/date';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { quote } from 'src/utils/stringUtils';
 import StepSummary, {
