@@ -150,15 +150,12 @@ const SamplePrimaryFilters = ({
               ...(filters.matrixKinds ?? []),
               value as MatrixKind
             ];
-            const remainingMatrices = filters.matrices?.filter((m) =>
-              newMatrixKinds.some((kind) => MatrixListByKind[kind].includes(m))
-            );
             onChange({
-              matrixKinds: newMatrixKinds,
-              matrices: remainingMatrices
+              matrixKinds: newMatrixKinds
             });
           }}
           label="Catégorie de matrice"
+          disableAutoSelectSingleOption
           renderOption={(props, option) => (
             <li {...props} key={option.value}>
               {option.label}
@@ -196,6 +193,7 @@ const SamplePrimaryFilters = ({
             });
           }}
           label="Matrice"
+          disableAutoSelectSingleOption
           inputProps={{
             'data-testid': 'matrix-select'
           }}

@@ -6,6 +6,7 @@ import { omit } from 'lodash-es';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import { Regions } from 'maestro-shared/referential/Region';
 import type { Pagination } from 'maestro-shared/schema/commons/Pagination';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
@@ -59,13 +60,51 @@ type FilterableProp = keyof Omit<
 >;
 
 const filtersConfig = {
-  matrixKind: {
-    prop: 'matrixKind',
-    getLabel: (value) => MatrixKindLabels[value]
+  matrixKinds: {
+    prop: 'matrixKinds',
+    getComponent: (value, onChange, { filters }) => (
+      <Fragment key="tag-matrixKinds">
+        {value.map((kind) => (
+          <Tag
+            {...tagProps}
+            key={`tag-matrixKind-${kind}`}
+            nativeButtonProps={{
+              onClick: () => {
+                const newMatrixKinds = value.filter((v) => v !== kind);
+                const remainingMatrices = filters?.matrices?.filter((m) =>
+                  newMatrixKinds.some((k) => MatrixListByKind[k].includes(m))
+                );
+                onChange({
+                  matrixKinds: newMatrixKinds,
+                  matrices: remainingMatrices
+                });
+              }
+            }}
+          >
+            {MatrixKindLabels[kind]}
+          </Tag>
+        ))}
+      </Fragment>
+    )
   },
-  matrix: {
-    prop: 'matrix',
-    getLabel: (value) => MatrixLabels[value]
+  matrices: {
+    prop: 'matrices',
+    getComponent: (value, onChange) => (
+      <Fragment key="tag-matrices">
+        {value.map((matrix) => (
+          <Tag
+            {...tagProps}
+            key={`tag-matrix-${matrix}`}
+            nativeButtonProps={{
+              onClick: () =>
+                onChange({ matrices: value.filter((v) => v !== matrix) })
+            }}
+          >
+            {MatrixLabels[matrix]}
+          </Tag>
+        ))}
+      </Fragment>
+    )
   },
   status: {
     prop: 'status',
@@ -73,24 +112,50 @@ const filtersConfig = {
   },
   sampledBy: {
     prop: 'sampledBy',
-    getLabel: (_value, { sampler }) => (sampler ? `${sampler.name}` : null)
+    getComponent: (value, onChange, { samplers }) => (
+      <Fragment key="tag-sampledBy">
+        {value.map((id) => {
+          const sampler = samplers?.find((u) => u.id === id);
+          return sampler ? (
+            <Tag
+              {...tagProps}
+              key={`tag-sampledBy-${id}`}
+              nativeButtonProps={{
+                onClick: () =>
+                  onChange({ sampledBy: value.filter((v) => v !== id) })
+              }}
+            >
+              {sampler.name}
+            </Tag>
+          ) : null;
+        })}
+      </Fragment>
+    )
   },
   sampledDate: {
     prop: 'sampledDate',
     getLabel: (value) => format(new Date(value), 'dd/MM/yyyy')
   },
-  region: {
-    prop: 'region',
+  regions: {
+    prop: 'regions',
     getComponent: (value, onChange) => (
-      <Tag
-        {...tagProps}
-        key={`tag-region`}
-        nativeButtonProps={{
-          onClick: () => onChange({ region: undefined, departments: undefined })
-        }}
-      >
-        {Regions[value].name}
-      </Tag>
+      <Fragment key="tag-regions">
+        {value.map((r) => (
+          <Tag
+            {...tagProps}
+            key={`tag-region-${r}`}
+            nativeButtonProps={{
+              onClick: () =>
+                onChange({
+                  regions: value.filter((v) => v !== r),
+                  departments: undefined
+                })
+            }}
+          >
+            {Regions[r].name}
+          </Tag>
+        ))}
+      </Fragment>
     )
   },
   departments: {
@@ -151,10 +216,27 @@ const filtersConfig = {
     prop: 'domain',
     getLabel: (value) => ProgrammingPlanDomainLabels[value]
   },
-  laboratoryId: {
-    prop: 'laboratoryId',
-    getLabel: (value, { laboratories }) =>
-      laboratories?.find(({ id }) => id === value)?.name ?? ''
+  laboratoryIds: {
+    prop: 'laboratoryIds',
+    getComponent: (value, onChange, { laboratories }) => (
+      <Fragment key="tag-laboratoryIds">
+        {value.map((id) => {
+          const lab = laboratories?.find((l) => l.id === id);
+          return lab ? (
+            <Tag
+              {...tagProps}
+              key={`tag-laboratory-${id}`}
+              nativeButtonProps={{
+                onClick: () =>
+                  onChange({ laboratoryIds: value.filter((v) => v !== id) })
+              }}
+            >
+              {lab.name}
+            </Tag>
+          ) : null;
+        })}
+      </Fragment>
+    )
   },
   programmingPlanIds: {
     prop: 'programmingPlanIds',
@@ -200,10 +282,7 @@ const filtersConfig = {
     | {
         getLabel: (
           value: NonNullable<FilterableType[key]>,
-          data: {
-            sampler?: UserRefined;
-            laboratories?: Props['laboratories'];
-          }
+          data: Record<string, never>
         ) => string | null;
         getComponent?: never;
       }
@@ -213,6 +292,9 @@ const filtersConfig = {
           onChange: (filters: Partial<FilterableType>) => void,
           data: {
             programmingPlans?: ProgrammingPlanChecked[];
+            samplers?: UserRefined[];
+            laboratories?: Props['laboratories'];
+            filters?: Partial<FilterableType>;
           }
         ) => ReactNode;
         getLabel?: never;
@@ -229,19 +311,15 @@ const FiltersTags = ({
   laboratories
 }: Props) => {
   const { hasNationalView } = useAuthentication();
-  const sampler = useMemo(
-    () => samplers?.find((user) => user.id === filters.sampledBy),
-    [samplers, filters.sampledBy]
-  );
 
   const hasFilters = useMemo(
     () =>
       Object.values(
-        omit(filters, 'region', 'page', 'perPage', 'programmingPlanIds')
+        omit(filters, 'regions', 'page', 'perPage', 'programmingPlanIds')
       ).some((value) => isDefinedAndNotNull(value) && value !== '') ||
       ((programmingPlans ?? []).length > 1 &&
         (filters.programmingPlanIds ?? []).length > 0) ||
-      (filters.region && hasNationalView),
+      ((filters.regions ?? []).length > 0 && hasNationalView),
     [filters, hasNationalView, programmingPlans]
   );
 
@@ -265,18 +343,18 @@ const FiltersTags = ({
         {Object.values(filtersConfig).map((conf) => {
           const value = filters[conf.prop];
 
-          if (value && (hasNationalView || conf.prop !== 'region')) {
+          if (value && (hasNationalView || conf.prop !== 'regions')) {
             if ('getComponent' in conf) {
               // @ts-expect-error TS2345 il est perdu
               return conf.getComponent(value, onChange, {
-                programmingPlans
+                programmingPlans,
+                samplers,
+                laboratories,
+                filters
               });
             } else {
               // @ts-expect-error TS2345 il est perdu
-              const label = conf.getLabel(value, {
-                sampler,
-                laboratories
-              });
+              const label = conf.getLabel(value, {});
               if (label) {
                 return (
                   <Tag

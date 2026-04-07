@@ -26,6 +26,7 @@ interface Props {
   inputProps?: any;
   disabled?: boolean;
   className?: string;
+  disableAutoSelectSingleOption?: true;
 }
 
 const AppSearchInput = ({
@@ -42,13 +43,18 @@ const AppSearchInput = ({
   whenValid,
   inputProps,
   disabled,
-  className
+  className,
+  disableAutoSelectSingleOption
 }: Props) => {
   useEffect(() => {
-    if (options.length === 1 && options[0].value !== value) {
+    if (
+      !disableAutoSelectSingleOption &&
+      options.length === 1 &&
+      options[0].value !== value
+    ) {
       onSelect(options[0].value);
     }
-  }, [options, onSelect, value]);
+  }, [options, onSelect, value, disableAutoSelectSingleOption]);
 
   return (
     <div

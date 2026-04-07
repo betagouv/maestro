@@ -131,10 +131,12 @@ const SampleSecondaryFilters = ({
       <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
         <LaboratorySelect
           programmingPlanId={programmingPlanId}
-          laboratoryIds={filters.laboratoryIds}
+          laboratoryIds={filters.laboratoryIds ?? undefined}
           onSelect={(laboratoryId) =>
             onChange({
-              laboratoryIds: [...(filters.laboratoryIds ?? []), laboratoryId]
+              laboratoryIds: laboratoryId
+                ? [...(filters.laboratoryIds ?? []), laboratoryId]
+                : undefined
             })
           }
           withAllOption={true}

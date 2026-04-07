@@ -66,7 +66,7 @@ const DashboardNoticeAndActions: FunctionComponent<Props> = ({
     {
       programmingPlanIds: toArray(currentValidatedProgrammingPlan?.id),
       status: prioritySamplesStatus,
-      sampledBy: user?.id
+      sampledBy: toArray(user?.id)
     },
     {
       skip:
