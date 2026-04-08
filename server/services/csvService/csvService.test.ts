@@ -64,7 +64,6 @@ const data: AnalysisRequestData = {
 };
 
 test('génère un CSV', async () => {
-  console.log('data', data);
   const csv = await csvService.generateAnalysisRequestCsv(data);
 
   expect(csv.toString()).toMatchInlineSnapshot(`
