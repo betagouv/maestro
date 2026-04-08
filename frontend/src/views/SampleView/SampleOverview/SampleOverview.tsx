@@ -47,8 +47,8 @@ interface Props {
 const SampleOverview = ({ sample }: Props) => {
   useDocumentTitle(`Prélèvement ${sample.reference}`);
   const apiClient = useContext(ApiClientContext);
-  const { user, userRole } = useAuthentication();
   const complianceRef = useRef<null | HTMLDivElement>(null);
+  const { user, userRole } = useAuthentication();
 
   const { getSampleItemLaboratory } = usePartialSample(sample);
 
@@ -162,7 +162,7 @@ const SampleOverview = ({ sample }: Props) => {
         />
       )}
 
-      {activeCompliance && (
+      {activeCompliance && !readonly && (
         <div ref={complianceRef}>
           <SampleComplianceForm
             sample={sample}
