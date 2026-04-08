@@ -22,7 +22,7 @@ export const formatDate = (date: Date) =>
   });
 
 export const formatMaestroDate = (date?: MaestroDate | null) =>
-  date ? format(new Date(date), 'dd/MM/yyyy') : '';
+  date ? formatWithTz(new Date(date), 'dd/MM/yyyy') : '';
 
 export const formatDateTime = (date: Date, timeZone = 'Europe/Paris') =>
   formatWithTz(date, 'dd MMMM yyyy à HH:mm', timeZone);

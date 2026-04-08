@@ -42,8 +42,7 @@ import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getSampleMatrixLabel,
-  type PartialSample,
-  SampleChecked
+  type PartialSample
 } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
@@ -224,15 +223,13 @@ const generateSamplesExportExcel = async (
           : '',
         status: SampleStatusLabels[sample.status],
         statusCode: sample.status,
-        sentAt:
-          SampleChecked.safeParse(sample).success &&
-          (sample as SampleChecked).sentAt
-            ? formatWithTz(
-                (sample as SampleChecked).sentAt as Date,
-                'dd/MM/yyyy HH:mm',
-                Regions[sample.region].timezone
-              )
-            : '',
+        sentAt: sample.sentAt
+          ? formatWithTz(
+              sample.sentAt,
+              'dd/MM/yyyy HH:mm',
+              Regions[sample.region].timezone
+            )
+          : '',
         latitude: sample.geolocation?.x,
         longitude: sample.geolocation?.y,
         parcel: sample.parcel,
