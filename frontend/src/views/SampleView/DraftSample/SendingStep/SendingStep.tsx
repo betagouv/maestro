@@ -61,7 +61,8 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
 
   const isSubmittingRef = useRef<boolean>(false);
 
-  const [sampledAt, _setSampledAt] = useState(sample.sampledAt);
+  const [sampledDate, _setSampledDate] = useState(sample.sampledDate);
+  const [sampledTime, _setSampledTime] = useState(sample.sampledTime);
   const [sentAt, _setSentAt] = useState(new Date());
   const [resytalId, setResytalId] = useState(sample.resytalId);
   const [ownerFirstName, setOwnerFirstName] = useState(sample.ownerFirstName);
@@ -128,7 +129,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
       ownerEmail: true,
       ownerAgreement: true,
       notesOnOwnerAgreement: true,
-      sampledAt: true,
+      sampledDate: true,
       sentAt: true,
       specificData: true
     }),
@@ -181,7 +182,8 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
       ownerEmail,
       ownerAgreement,
       notesOnOwnerAgreement,
-      sampledAt,
+      sampledDate,
+      sampledTime,
       sentAt,
       specificData
     },
@@ -434,10 +436,10 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
           />
         )}
         <AppServiceErrorAlert call={createOrUpdateSampleCall} />
-        {form.hasIssue('sampledAt') && (
+        {form.hasIssue('sampledDate') && (
           <Alert
             severity="error"
-            description={form.message('sampledAt') as string}
+            description={form.message('sampledDate') as string}
             small
             className={cx('fr-mb-4w')}
           />

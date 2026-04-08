@@ -2,13 +2,13 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
-import { format } from 'date-fns';
 import './SampleItemAdmissibility.scss';
 
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
+import { formatMaestroDate } from 'maestro-shared/utils/date';
 import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { usePartialSample } from '../../../../hooks/usePartialSample';
@@ -37,7 +37,7 @@ export const SampleItemAdmissibility: FunctionComponent<Props> = ({
   let message: string;
 
   if (sampleItem.receiptDate) {
-    message = `${sampleItem.analysis?.status !== 'NotAdmissible' ? 'Échantillon recevable' : 'Échantillon non recevable'} reçu par le laboratoire le ${format(sampleItem.receiptDate, 'dd/MM/yyyy')}`;
+    message = `${sampleItem.analysis?.status !== 'NotAdmissible' ? 'Échantillon recevable' : 'Échantillon non recevable'} reçu par le laboratoire le ${formatMaestroDate(sampleItem.receiptDate)}`;
   } else {
     message = 'Aucune information relative à la réception par le laboratoire.';
   }

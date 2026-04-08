@@ -67,10 +67,10 @@ const SampleSecondaryFilters = ({
           label="Date"
           nativeInputProps={{
             type: 'date',
-            value: filters.sampledAt ?? '',
+            value: filters.sampledDate ?? '',
             min: `${year}-01-01`,
             max: `${year}-12-31`,
-            onChange: (e) => onChange({ sampledAt: e.target.value })
+            onChange: (e) => onChange({ sampledDate: e.target.value })
           }}
         />
       </div>

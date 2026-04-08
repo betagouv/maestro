@@ -13,6 +13,7 @@ import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import { Region } from '../../referential/Region';
 import { SSD2Id } from '../../referential/Residue/SSD2Id';
 import { Stage } from '../../referential/Stage';
+import { maestroDateRefined } from '../../utils/date';
 import { isDefined } from '../../utils/utils';
 import { checkSchema } from '../../utils/zod';
 import { Company } from '../Company/Company';
@@ -109,19 +110,19 @@ const unknownValueCheck: CheckFn<{
 };
 
 export const sampleSendCheck: CheckFn<
-  Pick<SampleBase, 'sampledAt' | 'sentAt' | 'specificData'>
+  Pick<SampleBase, 'sampledDate' | 'sentAt' | 'specificData'>
 > = (ctx) => {
   if (
-    !isNil(ctx.value.sampledAt) &&
+    !isNil(ctx.value.sampledDate) &&
     !isNil(ctx.value.sentAt) &&
-    ctx.value.sentAt < ctx.value.sampledAt
+    ctx.value.sampledDate > ctx.value.sentAt.toISOString().slice(0, 10)
   ) {
     ctx.issues.push({
       input: ctx.value,
       code: 'custom',
       message:
         "La date de prélèvement ne peut pas être postérieure à la date d'envoi au laboratoire.",
-      path: ['sampledAt']
+      path: ['sampledDate']
     });
   }
 
@@ -175,11 +176,10 @@ export const sampleItemSealIdCheck: CheckFn<{
 
 export const SampleItemsDataChecked = checkSchema(
   z.object({
-    sampledAt: z.union([z.string(), z.date()]).pipe(
-      z.coerce.date({
-        error: () => 'La date de prélèvement est invalide.'
-      })
-    ),
+    sampledDate: maestroDateRefined,
+    sampledTime: z.string().regex(/^\d{2}:\d{2}$/, {
+      error: () => "L'heure de prélèvement est invalide."
+    }),
     items: z
       .array(SampleItem)
       .min(1, { message: 'Veuillez renseigner au moins un échantillon.' }),

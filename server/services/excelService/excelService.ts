@@ -1,5 +1,4 @@
 import carbone, { type RenderOptions } from 'carbone';
-import { format } from 'date-fns';
 import { isNil, sumBy, uniq } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
@@ -51,7 +50,7 @@ import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import type { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { formatWithTz } from 'maestro-shared/utils/date';
+import { formatMaestroDate, formatWithTz } from 'maestro-shared/utils/date';
 import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import companyRepository from '../../repositories/companyRepository';
@@ -220,8 +219,8 @@ const generateSamplesExportExcel = async (
         reference: sample.reference,
         department: sample.department,
         sampler: `${sample.sampler.name}`,
-        sampledAt: sample.sampledAt
-          ? formatWithTz(sample.sampledAt, 'dd/MM/yyyy HH:mm')
+        sampledAt: sample.sampledDate
+          ? `${formatMaestroDate(sample.sampledDate)} ${sample.sampledTime}`
           : '',
         status: SampleStatusLabels[sample.status],
         statusCode: sample.status,
@@ -300,22 +299,14 @@ const generateSamplesExportExcel = async (
               ? 'Oui'
               : 'Non'
             : '',
-          receiptDate: item.receiptDate
-            ? format(item.receiptDate, 'dd/MM/yyyy')
-            : '',
+          receiptDate: formatMaestroDate(item.receiptDate),
           notesOnAdmissibility: item.notesOnAdmissibility,
-          shippingDate: item.shippingDate
-            ? format(item.shippingDate, 'dd/MM/yyyy')
-            : '',
-          destructionDate: item.destructionDate
-            ? format(item.destructionDate, 'dd/MM/yyyy')
-            : '',
+          shippingDate: formatMaestroDate(item.shippingDate),
+          destructionDate: formatMaestroDate(item.destructionDate),
           carrier: item.carrier,
-          invoicingDate: item.invoicingDate
-            ? format(item.invoicingDate, 'dd/MM/yyyy')
-            : '',
+          invoicingDate: formatMaestroDate(item.invoicingDate),
           paid: item.paid ? 'Oui' : 'Non',
-          paidDate: item.paidDate ? format(item.paidDate, 'dd/MM/yyyy') : '',
+          paidDate: formatMaestroDate(item.paidDate),
           invoiceNumber: item.invoiceNumber,
           budgetNotes: item.budgetNotes,
           residues: (analysis?.residues ?? []).map((r) => ({

@@ -75,8 +75,8 @@ const filtersConfig = {
     prop: 'sampledBy',
     getLabel: (_value, { sampler }) => (sampler ? `${sampler.name}` : null)
   },
-  sampledAt: {
-    prop: 'sampledAt',
+  sampledDate: {
+    prop: 'sampledDate',
     getLabel: (value) => format(new Date(value), 'dd/MM/yyyy')
   },
   region: {

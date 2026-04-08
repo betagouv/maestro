@@ -31,7 +31,7 @@ import {
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { formatWithTz } from 'maestro-shared/utils/date';
+import { formatMaestroDate } from 'maestro-shared/utils/date';
 import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
@@ -302,16 +302,7 @@ const generateSamplePDF = async (
       (substance) => SSD2IdLabel[substance]
     ),
     reference,
-    ...(sample.sampledAt
-      ? {
-          sampledAt: formatWithTz(
-            sample.sampledAt,
-            "eeee dd MMMM yyyy à HH'h'mm"
-          ),
-          sampledAtDate: formatWithTz(sample.sampledAt, 'dd/MM/yyyy'),
-          sampledAtTime: formatWithTz(sample.sampledAt, 'HH:mm')
-        }
-      : {}),
+    sampledDate: formatMaestroDate(sample.sampledDate),
     context: sample.context ? ContextLabels[sample.context] : '',
     legalContext: sample.legalContext
       ? LegalContextLabels[sample.legalContext]

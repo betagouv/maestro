@@ -5,7 +5,7 @@ import type {
   SampleOwnerData,
   SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { formatDateTime } from 'maestro-shared/utils/date';
+import { formatDate } from 'maestro-shared/utils/date';
 import { pluralize, quote } from 'src/utils/stringUtils';
 import StepSummary, {
   type StepSummaryMode
@@ -30,7 +30,10 @@ const ItemsStepSummary = ({ sample, mode = 'section', onEdit }: Props) => {
       <div className="summary-item icon-text">
         <div className={cx('fr-icon-calendar-event-line')}></div>
         <div>
-          Prélèvement réalisé le <b>{formatDateTime(sample.sampledAt)}</b>
+          Prélèvement réalisé le{' '}
+          <b>
+            {formatDate(new Date(sample.sampledDate))} à {sample.sampledTime}
+          </b>
         </div>
       </div>
       <SampleItems partialSample={sample} items={sample.items} readonly />

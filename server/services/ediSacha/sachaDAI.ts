@@ -11,7 +11,7 @@ import {
 } from 'maestro-shared/schema/Sample/SampleItem';
 import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import type { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
-import { toMaestroDate } from 'maestro-shared/utils/date';
+
 import type { SachaConf } from '../../repositories/kysely.type';
 import {
   type NotPPVMatrix,
@@ -32,7 +32,7 @@ export const generateXMLDAI = (
     SampleChecked,
     | 'specificData'
     | 'programmingPlanKind'
-    | 'sampledAt'
+    | 'sampledDate'
     | 'lastUpdatedAt'
     | 'company'
     | 'ownerEmail'
@@ -83,7 +83,7 @@ export const generateXMLDAI = (
           NumeroDAP: getNumeroDAP(sample, sampleItem),
           SigleContexteIntervention:
             SigleContexteIntervention[programmingPlanKind],
-          DateIntervention: toMaestroDate(sample.sampledAt),
+          DateIntervention: sample.sampledDate,
           DateModification: toSachaDateTime(sample.lastUpdatedAt)
         },
         ReferenceEtablissementType: {

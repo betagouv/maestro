@@ -20,6 +20,10 @@ export const formatDate = (date: Date) =>
   format(date, 'dd MMMM yyyy', {
     locale: fr
   });
+
+export const formatMaestroDate = (date?: MaestroDate | null) =>
+  date ? format(new Date(date), 'dd/MM/yyyy') : '';
+
 export const formatDateTime = (date: Date, timeZone = 'Europe/Paris') =>
   formatWithTz(date, 'dd MMMM yyyy à HH:mm', timeZone);
 

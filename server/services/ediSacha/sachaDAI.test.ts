@@ -6,6 +6,7 @@ import type {
 import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import type { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import type { MaestroDate } from 'maestro-shared/utils/date';
 import { describe, expect, test } from 'vitest';
 import type { SachaConf } from '../../repositories/kysely.type';
 import { generateXMLDAI, getCommemoratifs } from './sachaDAI';
@@ -111,7 +112,7 @@ test(`génère un XML de DAI`, async () => {
     await generateXMLDAI(
       {
         reference: 'PEL-26-00073',
-        sampledAt: new Date(1765876056798),
+        sampledDate: '2025-12-16' as MaestroDate,
         lastUpdatedAt: new Date(1765876056798),
         department: '72',
         matrix: 'A01SN#F26.A07XE',

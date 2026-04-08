@@ -10,7 +10,7 @@ import {
   type SampleOwnerData,
   type SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { formatDateTime } from 'maestro-shared/utils/date';
+import { formatDate } from 'maestro-shared/utils/date';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { quote } from 'src/utils/stringUtils';
 import StepSummary, {
@@ -59,7 +59,9 @@ const ContextStepSummary = ({
           <div className={cx('fr-icon-calendar-event-line')}></div>
           <div>
             Date et heure du prélèvement :{' '}
-            <b>{formatDateTime(sample.sampledAt)}</b>
+            <b>
+              {formatDate(new Date(sample.sampledDate))} à {sample.sampledTime}
+            </b>
           </div>
         </div>
       )}

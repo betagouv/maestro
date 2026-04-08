@@ -31,7 +31,7 @@ export const FindSampleOptions = z
     matrix: Matrix.nullish(),
     matrixKind: MatrixKind.nullish(),
     sampledBy: z.guid().nullish(),
-    sampledAt: z.string().nullish(),
+    sampledDate: z.string().nullish(),
     reference: z.string().nullish(),
     compliance: SampleCompliance.nullish(),
     withAtLeastOneResidue: coerceToBooleanNullish(),

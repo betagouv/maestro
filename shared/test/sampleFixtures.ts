@@ -17,6 +17,7 @@ import {
 } from '../schema/Sample/Sample';
 import type { SampleItem } from '../schema/Sample/SampleItem';
 import { DummyLaboratoryIds } from '../schema/User/User';
+import { formatWithTz, type MaestroDate, toMaestroDate } from '../utils/date';
 import {
   CompanyFixture,
   genCompany,
@@ -99,7 +100,8 @@ export const genCreatedPartialSample = (
       ]),
       releaseControl: fakerFR.datatype.boolean()
     },
-    sampledAt: new Date(),
+    sampledDate: toMaestroDate(new Date()),
+    sampledTime: formatWithTz(new Date(), 'HH:mm'),
     items: [genSampleItem({ sampleId: contextData.id, copyNumber: 1 })],
     ownerAgreement: true,
     ...data
@@ -177,7 +179,8 @@ export const Sample11Fixture = genCreatedPartialSample({
     releaseControl: false
   },
   prescriptionId: PrescriptionFixture.id,
-  sampledAt: new Date('2025-05-06'),
+  sampledDate: '2025-05-06' as MaestroDate,
+  sampledTime: '00:00',
   items: [Sample1Item1Fixture]
 });
 export const Sample12Fixture = genCreatedPartialSample({

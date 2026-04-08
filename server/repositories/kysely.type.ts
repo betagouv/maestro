@@ -303,7 +303,8 @@ export interface Samples {
   reference: string;
   region: string;
   resytalId: string | null;
-  sampledAt: Timestamp;
+  sampledDate: MaestroDate;
+  sampledTime: string;
   sampledBy: string | null;
   sentAt: Timestamp | null;
   stage: Stage | null;

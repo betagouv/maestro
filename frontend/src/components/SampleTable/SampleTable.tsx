@@ -17,7 +17,7 @@ import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import './SampleTable.scss';
-import { formatWithTz } from 'maestro-shared/utils/date';
+import { formatMaestroDate } from 'maestro-shared/utils/date';
 
 interface Props {
   samples: (PartialSample | PartialSampleToCreate)[];
@@ -57,7 +57,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
             )}
             {isCreatedPartialSample(sample) ? sample.sampler.name : user?.name}
           </div>,
-          sample.sampledAt ? formatWithTz(sample.sampledAt, 'dd/MM/yyyy') : '',
+          formatMaestroDate(sample.sampledDate),
           sample.department,
           sample.company?.name ?? '',
           sample.context ? ContextLabels[sample.context] : '',
