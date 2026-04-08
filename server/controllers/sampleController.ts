@@ -46,7 +46,6 @@ import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buil
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { formatWithTz } from 'maestro-shared/utils/date';
-import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { checkSchema } from 'maestro-shared/utils/zod';
 import { PDFDocument } from 'pdf-lib';
 import { v4 as uuidv4 } from 'uuid';
@@ -188,16 +187,7 @@ const generateAndStoreAnalysisRequestDocuments = async (
   );
 
   await documentService.insertDocument(
-    new File(
-      [csvBuffer],
-      getAnalysisReportDocumentFilename(
-        analysisRequestData,
-        analysisRequestData.itemNumber,
-        analysisRequestData.copyNumber,
-        'xlsx'
-      ),
-      { type: 'text/csv' }
-    ),
+    new File([csvBuffer], csvFilename, { type: 'text/csv' }),
     'SupportDocument',
     analysisRequestData.sampler.id
   );
@@ -751,9 +741,6 @@ export const sampleRouter = {
                     multiSubstanceLabels: (
                       updatedSample.multiSubstances ?? []
                     ).map((substance) => substanceToLaboratoryLabel(substance)),
-                    reference: [updatedSample.reference, sampleItem?.copyNumber]
-                      .filter(isDefinedAndNotNull)
-                      .join('-'),
                     sampledAt: format(
                       updatedSample.sampledAt,
                       "eeee dd MMMM yyyy à HH'h'mm",
