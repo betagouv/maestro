@@ -8,3 +8,5 @@ rai-flow:
 	cat rai-flow.puml | docker run --rm -i -e JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8" agileek/plantuml:1.2022.3 > rai-flow.svg
 rai-flow-module-labo:
 	cat rai-flow-module-labo.puml | docker run --rm -i -e JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8" agileek/plantuml:1.2022.3 > rai-flow-module-labo.svg
+flow-sans-edi-sacha:
+	cat flow-sans-edi-sacha.puml | docker run --rm -i -e JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8" agileek/plantuml:1.2022.3 > flow-sans-edi-sacha.svg
