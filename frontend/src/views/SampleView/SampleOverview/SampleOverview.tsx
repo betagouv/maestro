@@ -12,7 +12,14 @@ import {
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { isDefined } from 'maestro-shared/utils/utils';
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { useSearchParams } from 'react-router';
 import food from 'src/assets/illustrations/food.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
@@ -28,6 +35,8 @@ import SampleComplianceForm from './SampleComplianceForm';
 import SampleContextOverview from './SampleContextOverview';
 import SampleItemCopiesOverview from './SampleItemCopiesOverview';
 import './SampleOverview.scss';
+import { useAuthentication } from '../../../hooks/useAuthentication';
+
 interface Props {
   sample: SampleChecked;
 }
@@ -36,6 +45,7 @@ const SampleOverview = ({ sample }: Props) => {
   useDocumentTitle(`Prélèvement ${sample.reference}`);
   const apiClient = useContext(ApiClientContext);
   const complianceRef = useRef<null | HTMLDivElement>(null);
+  const { hasUserPermission, user } = useAuthentication();
 
   const { getSampleItemLaboratory } = usePartialSample(sample);
 
@@ -91,6 +101,12 @@ const SampleOverview = ({ sample }: Props) => {
   const [updateSampleCompliance] =
     apiClient.useUpdateSampleComplianceMutation();
 
+  const readonly = useMemo(
+    () =>
+      !hasUserPermission('createAnalysis') || sample.region !== user?.region,
+    [hasUserPermission, sample, user?.region]
+  );
+
   return (
     <section
       className={clsx(cx('fr-container'), 'main-section', 'sample-overview')}
@@ -141,7 +157,7 @@ const SampleOverview = ({ sample }: Props) => {
         />
       )}
 
-      {activeCompliance && (
+      {activeCompliance && !readonly && (
         <div ref={complianceRef}>
           <SampleComplianceForm
             sample={sample}
@@ -299,6 +315,7 @@ const SampleOverview = ({ sample }: Props) => {
                 itemNumber={activeItemNumber}
                 sampleItemCopies={sampleItemCopies(activeItemNumber)}
                 sample={sample}
+                readonly={readonly}
               />
             )}
             {activeMenu === 'matrix' && (

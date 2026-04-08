@@ -27,6 +27,7 @@ interface Props {
   itemNumber: number;
   sampleItemCopies: SampleItem[];
   sample: SampleChecked;
+  readonly: boolean;
 }
 
 const complianceOverrideModal = createModal({
@@ -37,7 +38,8 @@ const complianceOverrideModal = createModal({
 const SampleItemCopiesOverview = ({
   itemNumber,
   sampleItemCopies,
-  sample
+  sample,
+  readonly
 }: Props) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -195,7 +197,11 @@ const SampleItemCopiesOverview = ({
         </>
       )}
       {currentItemCopy && (
-        <SampleItemAnalysis sample={sample} sampleItem={currentItemCopy} />
+        <SampleItemAnalysis
+          sample={sample}
+          sampleItem={currentItemCopy}
+          readonly={readonly}
+        />
       )}
       <SampleItemComplianceOverrideModal
         key={itemNumber}
