@@ -14,9 +14,13 @@ import {
   AdminFixture,
   LaboratoryUserFixture,
   NationalCoordinator,
+  NationalObserver,
   RegionalCoordinator,
   RegionalDromCoordinator,
-  Sampler1Fixture
+  RegionalObserver,
+  Sampler1Fixture,
+  Sampler2Fixture,
+  SamplerDromFixture
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { withISOStringDates } from 'maestro-shared/utils/date';
@@ -323,22 +327,24 @@ describe('Document router', () => {
       const [notificationData, recipients, params] =
         mockSendNotification.mock.calls[0];
 
-      expect(recipients).toHaveLength(3);
+      expect(recipients).toHaveLength(8);
       expect(recipients).toMatchObject(
-        expect.arrayContaining([
-          expect.objectContaining({
-            id: LaboratoryUserFixture.id,
-            roles: ['LaboratoryUser']
-          }),
-          expect.objectContaining({
-            id: RegionalCoordinator.id,
-            roles: ['RegionalCoordinator']
-          }),
-          expect.objectContaining({
-            id: RegionalDromCoordinator.id,
-            roles: ['RegionalCoordinator']
-          })
-        ])
+        expect.arrayContaining(
+          [
+            LaboratoryUserFixture,
+            Sampler1Fixture,
+            Sampler2Fixture,
+            SamplerDromFixture,
+            RegionalCoordinator,
+            RegionalDromCoordinator,
+            RegionalObserver,
+            NationalObserver
+          ].map((user) =>
+            expect.objectContaining({
+              id: user.id
+            })
+          )
+        )
       );
 
       expect(notificationData).toMatchObject({

@@ -11,6 +11,7 @@ import {
 } from 'maestro-shared/schema/Document/DocumentKind';
 import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { hasPermission } from 'maestro-shared/schema/User/User';
+import { UserRoleList } from 'maestro-shared/schema/User/UserRole';
 import { documentRepository } from '../repositories/documentRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
@@ -74,8 +75,10 @@ export const documentsRouter = {
           ids: document.programmingPlanIds
         });
 
-        const regionalCoordinators = await userRepository.findMany({
-          roles: ['RegionalCoordinator'],
+        const programmingPlansUsers = await userRepository.findMany({
+          roles: UserRoleList.filter((role) =>
+            hasPermission(role, 'readDocuments')
+          ),
           programmingPlanKinds: uniq(
             programmingPlans.flatMap((plan) => plan.kinds)
           )
@@ -87,7 +90,9 @@ export const documentsRouter = {
             author: user,
             link: `${AppRouteLinks.DocumentsRoute.link}?documentId=${document.id}`
           },
-          [...laboratoryUsers, ...regionalCoordinators],
+          [...laboratoryUsers, ...programmingPlansUsers].filter(
+            (_) => _.id !== user.id
+          ),
           {
             object: 'Nouveau document disponible',
             content: `Une nouvelle ressource a été ajoutée ou mise à jour.  
