@@ -9,6 +9,7 @@ import {
   CompanyFixture,
   SlaughterhouseCompanyFixture1
 } from 'maestro-shared/test/companyFixtures';
+import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import {
   DAOAInProgressProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
@@ -722,6 +723,12 @@ describe('Sample router', () => {
           ...SampleDAOA1Fixture,
           status: 'Sent',
           programmingPlanKind: 'DAOA_VOLAILLE',
+          items: [
+            {
+              ...SampleDAOA1Fixture.items![0],
+              laboratoryId: LaboratoryFixture.id
+            }
+          ],
           specificData: {
             ...SampleDAOA1Fixture.specificData,
             outdoorAccess: 'PAT1',
@@ -738,7 +745,11 @@ describe('Sample router', () => {
       expect(mockMattermostSend).toHaveBeenCalledWith(
         `ATTENTION, un prélèvement DAOA vient d'être réalisé https://app.maestro.beta.gouv.fr/prelevements/${SampleDAOA1Fixture.id}`
       );
-      expect(mockMailSend).not.toHaveBeenCalled();
+      expect(mockMailSend).toHaveBeenCalledExactlyOnceWith(
+        expect.objectContaining({
+          recipients: LaboratoryFixture.emails
+        })
+      );
     });
 
     test('should not send a mattermost notification when sending a non-DAOA sample', async () => {
