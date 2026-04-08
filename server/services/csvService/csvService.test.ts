@@ -33,12 +33,12 @@ const data: AnalysisRequestData = {
   quantityUnit: '',
   recipientKind: 'Sampler',
   sampleId: '',
-  sampledDate: '',
-  sampledTime: '',
   sealId: '',
   supportDocumentId: undefined,
   matrixKindLabel: '',
   ...Sample11Fixture,
+  sampledDate: '',
+  sampledTime: '',
   sampler: Sampler1Fixture,
   company: { ...CompanyFixture, fullAddress: '' },
   context: '',
@@ -64,6 +64,7 @@ const data: AnalysisRequestData = {
 };
 
 test('génère un CSV', async () => {
+  console.log('data', data);
   const csv = await csvService.generateAnalysisRequestCsv(data);
 
   expect(csv.toString()).toMatchInlineSnapshot(`
