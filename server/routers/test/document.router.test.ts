@@ -12,14 +12,17 @@ import {
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import {
   AdminFixture,
+  DepartmentalCoordinator,
   LaboratoryUserFixture,
   NationalCoordinator,
+  NationalCoordinatorDaoaFixture,
   NationalObserver,
   RegionalCoordinator,
   RegionalDromCoordinator,
   RegionalObserver,
   Sampler1Fixture,
   Sampler2Fixture,
+  SamplerDaoaFixture,
   SamplerDromFixture
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
@@ -370,7 +373,7 @@ describe('Document router', () => {
           programmingPlanIds: [DAOAInProgressProgrammingPlanFixture.id],
           year: DAOAInProgressProgrammingPlanFixture.year
         })
-        .use(tokenProvider(NationalCoordinator))
+        .use(tokenProvider(NationalCoordinatorDaoaFixture))
         .expect(constants.HTTP_STATUS_CREATED);
 
       expect(mockSendNotification).toHaveBeenCalledTimes(1);
@@ -378,7 +381,17 @@ describe('Document router', () => {
       const [_notificationData, recipients, _params] =
         mockSendNotification.mock.calls[0];
 
-      expect(recipients).toHaveLength(0);
+      expect(recipients).toHaveLength(2);
+
+      expect(recipients).toMatchObject(
+        expect.arrayContaining(
+          [SamplerDaoaFixture, DepartmentalCoordinator].map((user) =>
+            expect.objectContaining({
+              id: user.id
+            })
+          )
+        )
+      );
     });
 
     test('should create an analysis document', async () => {
