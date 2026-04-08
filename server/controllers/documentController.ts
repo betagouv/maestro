@@ -75,14 +75,17 @@ export const documentsRouter = {
           ids: document.programmingPlanIds
         });
 
-        const programmingPlansUsers = await userRepository.findMany({
-          roles: UserRoleList.filter((role) =>
-            hasPermission(role, 'readDocuments')
-          ),
-          programmingPlanKinds: uniq(
-            programmingPlans.flatMap((plan) => plan.kinds)
-          )
-        });
+        const otherUserConcernedByProgrammingPlans =
+          await userRepository.findMany({
+            roles: UserRoleList.filter(
+              (role) =>
+                hasPermission(role, 'readDocuments') &&
+                role !== 'LaboratoryUser'
+            ),
+            programmingPlanKinds: uniq(
+              programmingPlans.flatMap((plan) => plan.kinds)
+            )
+          });
 
         await notificationService.sendNotification(
           {
@@ -90,7 +93,7 @@ export const documentsRouter = {
             author: user,
             link: `${AppRouteLinks.DocumentsRoute.link}?documentId=${document.id}`
           },
-          [...laboratoryUsers, ...programmingPlansUsers].filter(
+          [...laboratoryUsers, ...otherUserConcernedByProgrammingPlans].filter(
             (_) => _.id !== user.id
           ),
           {
