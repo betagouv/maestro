@@ -58,9 +58,3 @@ export const formatWithTz = (
   formatInTimeZone(date, timeZone, formatStr, {
     locale: fr
   });
-
-export const parseWithTz = (
-  value: string,
-  formatStr: string,
-  timeZone = 'Europe/Paris'
-) => fromZonedTime(parse(value, formatStr, new Date()), timeZone);
