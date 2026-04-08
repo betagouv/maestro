@@ -23,6 +23,14 @@ const config: StorybookConfig = {
   core: {
     disableWhatsNewNotifications: true,
     enableCrashReports: false
+  },
+  viteFinal(config) {
+    return {
+      ...config,
+      plugins: (config.plugins ?? []).filter(
+        (p: any) => !Array.isArray(p) && !p?.name?.startsWith('vite-plugin-pwa')
+      )
+    };
   }
 };
 export default config;
