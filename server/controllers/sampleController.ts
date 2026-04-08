@@ -80,7 +80,6 @@ import {
 import { mailService } from '../services/mailService';
 import { mattermostService } from '../services/mattermostService';
 import { pdfService } from '../services/pdfService/pdfService';
-import config from '../utils/config';
 
 const streamToBase64 = async (stream: Readable): Promise<string> => {
   const chunks: any[] = [];
@@ -803,7 +802,7 @@ export const sampleRouter = {
                     department: DepartmentLabels[updatedSample.department]
                   });
 
-                if (!programmingPlanWithEdiSacha || config.sachaEnabled) {
+                if (laboratory.emails.length) {
                   const sampleDocuments = await Promise.all(
                     (updatedSample.documentIds ?? []).map((documentId) =>
                       documentService.getDocument(documentId)
@@ -821,7 +820,7 @@ export const sampleRouter = {
 
                   await mailService.send({
                     templateName: 'SampleAnalysisRequestTemplate',
-                    recipients: laboratory?.emails ?? [],
+                    recipients: laboratory.emails,
                     params: {
                       region: user.region
                         ? Regions[user.region].name
@@ -842,6 +841,10 @@ export const sampleRouter = {
                       sampleSupportAttachment
                     ].filter((_) => !isNil(_))
                   });
+                } else {
+                  await mattermostService.send(
+                    `Impossible d'envoyer la DAI au laboratoire ${laboratory.name} https://app.maestro.beta.gouv.fr/prelevements/${updatedPartialSample.id} car aucun email n'est renseigné`
+                  );
                 }
               }
             }
