@@ -41,13 +41,8 @@ export const SampleItemComplianceOverrideModal: FunctionComponent<Props> = ({
     e?.preventDefault();
     await form.validate(async (values) => {
       await updateSampleItem({
-        sampleId: sampleItem.sampleId,
-        itemNumber: sampleItem.itemNumber,
-        copyNumber: sampleItem.copyNumber,
-        sampleItemUpdate: {
-          ...sampleItem,
-          complianceOverride: values.complianceOverride
-        }
+        ...sampleItem,
+        complianceOverride: values.complianceOverride
       });
     });
   };
