@@ -91,7 +91,7 @@ export const samplesRoutes = {
     },
     put: {
       body: SampleComplianceData,
-      permissions: ['updateSample'],
+      permissions: ['performAnalysis'],
       response: SampleComplianceData
     }
   },
