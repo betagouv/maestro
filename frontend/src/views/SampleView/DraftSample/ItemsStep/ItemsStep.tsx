@@ -6,9 +6,7 @@ import clsx from 'clsx';
 import { isNil, uniqBy } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import type { Region } from 'maestro-shared/referential/Region';
-import {
-  SubstanceKindLaboratorySort
-} from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isCreatedPartialSample,
@@ -20,10 +18,8 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 import type { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 
-
 import { SampleSteps } from 'maestro-shared/schema/Sample/SampleStep';
 import { formatWithTz, type MaestroDate } from 'maestro-shared/utils/date';
-
 
 import { checkSchema } from 'maestro-shared/utils/zod';
 import type React from 'react';
@@ -152,15 +148,16 @@ const ItemsStep = ({ partialSample }: Props) => {
       if (isSubmittingRef.current && !createOrUpdateSampleCall.isLoading) {
         isSubmittingRef.current = false;
 
-      if (createOrUpdateSampleCall.isSuccess) {
-        trackEvent(
-          'sample',
-          `submit_${partialSample.status}`,
-          partialSample.id
-        );
-        navigateToSample(partialSample.id, 4);
+        if (createOrUpdateSampleCall.isSuccess) {
+          trackEvent(
+            'sample',
+            `submit_${partialSample.status}`,
+            partialSample.id
+          );
+          navigateToSample(partialSample.id, 4);
+        }
       }
-    }}, // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       createOrUpdateSampleCall.isSuccess,
       createOrUpdateSampleCall.isLoading,
@@ -181,15 +178,17 @@ const ItemsStep = ({ partialSample }: Props) => {
       string,
       string
     ];
-    await createOrUpdateSample(
+    await createOrUpdateSample({
       ...partialSample,
       sampledDate: sampledDate as MaestroDate,
       sampledTime,
       notesOnItems,
-      items: items.map((item) => (
+      items: items.map((item) => ({
         ...item,
-        laboratoryId: item.laboratoryId || undefined)),
-      step);
+        laboratoryId: item.laboratoryId || undefined
+      })),
+      step
+    });
   };
 
   const changeItem = (item: PartialSampleItem) =>
