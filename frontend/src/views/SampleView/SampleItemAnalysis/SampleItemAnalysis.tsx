@@ -22,6 +22,7 @@ import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
 import { SampleItemAdmissibility } from './SampleItemAdmissibility/SampleItemAdmissibility';
 import './SampleItemAnalysis.scss';
+import { useAuthentication } from '../../../hooks/useAuthentication';
 import { AnalysisDocumentPreview } from './SampleItemAnalysisForm/AnalysisDocumentPreview';
 import { SampleAnalysisForm } from './SampleItemAnalysisForm/SampleAnalysisForm';
 import { SampleAnalysisOverview } from './SampleItemAnalysisOverview/SampleAnalysisOverview';
@@ -29,16 +30,16 @@ import { SampleAnalysisOverview } from './SampleItemAnalysisOverview/SampleAnaly
 type Props = {
   sample: SampleChecked;
   sampleItem: SampleItem;
-  readonly: boolean;
 };
 
 const SampleItemAnalysis: FunctionComponent<Props> = ({
   sample,
-  sampleItem,
-  readonly
+  sampleItem
 }) => {
   const apiClient = useContext(ApiClientContext);
   const location = useLocation();
+
+  const { hasUserSamplePermission, hasUserPermission } = useAuthentication();
 
   const { navigateToSample, navigateToSampleEdit } = useSamplesLink();
   const [, { isSuccess: isCompletingAnalysisSuccess }] =
@@ -101,7 +102,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
   );
 
   const isEditing: boolean =
-    !readonly &&
+    hasUserSamplePermission(sample).performAnalysis &&
     (location.pathname.endsWith('/edit') ||
       sampleItem.analysis?.status !== 'Completed');
 
@@ -118,7 +119,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
       <div>
         <SampleItemAdmissibility
           sample={sample}
-          readonly={readonly}
+          readonly={!hasUserSamplePermission(sample).performAnalysis}
           sampleItem={sampleItem}
         />
         {analysis?.status !== 'NotAdmissible' && (
@@ -167,7 +168,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 state={form.messageType('shippingDate')}
                 stateRelatedMessage={form.message('shippingDate')}
                 whenValid="Date d'expédition correctement renseignée."
-                disabled={readonly}
+                disabled={!hasUserPermission('updateSample')}
               />
             </div>
             <div className={cx('fr-col-4')}>
@@ -186,7 +187,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 state={form.messageType('destructionDate')}
                 stateRelatedMessage={form.message('destructionDate')}
                 whenValid="Date de destruction correctement renseignée."
-                disabled={readonly}
+                disabled={!hasUserPermission('updateSample')}
               />
             </div>
             <div className={cx('fr-col-4')}>
@@ -205,7 +206,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 state={form.messageType('carrier')}
                 stateRelatedMessage={form.message('carrier')}
                 whenValid="Transporteur correctement renseigné."
-                disabled={readonly}
+                disabled={!hasUserPermission('updateSample')}
               />
             </div>
           </div>
@@ -228,7 +229,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 state={form.messageType('invoicingDate')}
                 stateRelatedMessage={form.message('invoicingDate')}
                 whenValid="Date de facturation correctement renseignée."
-                disabled={readonly}
+                disabled={!hasUserSamplePermission(sample).performAnalysis}
               />
             </div>
             <div className={cx('fr-col-4')}>
@@ -249,7 +250,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 inputForm={form}
                 inputKey="paid"
                 whenValid="Statut de paiement correctement renseigné."
-                disabled={readonly}
+                disabled={!hasUserSamplePermission(sample).performAnalysis}
               />
             </div>
             <div className={cx('fr-col-4')}>
@@ -268,7 +269,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 state={form.messageType('paidDate')}
                 stateRelatedMessage={form.message('paidDate')}
                 whenValid="Date de paiement correctement renseignée."
-                disabled={readonly}
+                disabled={!hasUserSamplePermission(sample).performAnalysis}
               />
             </div>
           </div>
@@ -289,7 +290,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 state={form.messageType('invoiceNumber')}
                 stateRelatedMessage={form.message('invoiceNumber')}
                 whenValid="Numéro de facture correctement renseigné."
-                disabled={readonly}
+                disabled={!hasUserSamplePermission(sample).performAnalysis}
               />
             </div>
             <div className={cx('fr-col-8')}>
@@ -308,7 +309,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 state={form.messageType('budgetNotes')}
                 stateRelatedMessage={form.message('budgetNotes')}
                 whenValid="Notes budgétaires correctement renseignées."
-                disabled={readonly}
+                disabled={!hasUserSamplePermission(sample).performAnalysis}
               />
             </div>
           </div>
@@ -321,7 +322,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
           <SampleAnalysisOverview
             sample={sample}
             analysis={analysis}
-            readonly={readonly}
+            readonly={!hasUserSamplePermission(sample).performAnalysis}
             onEdit={() => navigateToSampleEdit(sample.id)}
           />
         ) : (

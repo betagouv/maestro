@@ -22,12 +22,12 @@ import { quote } from '../../../utils/stringUtils';
 import SampleItemAnalysis from '../SampleItemAnalysis/SampleItemAnalysis';
 import { SampleItemComplianceOverrideModal } from './SampleItemComplianceOverrideModal';
 import './SampleOverview.scss';
+import { useAuthentication } from '../../../hooks/useAuthentication';
 
 interface Props {
   itemNumber: number;
   sampleItemCopies: SampleItem[];
   sample: SampleChecked;
-  readonly: boolean;
 }
 
 const complianceOverrideModal = createModal({
@@ -38,9 +38,9 @@ const complianceOverrideModal = createModal({
 const SampleItemCopiesOverview = ({
   itemNumber,
   sampleItemCopies,
-  sample,
-  readonly
+  sample
 }: Props) => {
+  const { hasUserSamplePermission } = useAuthentication();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const activeCopyNumber = Number(searchParams.get('copy') ?? 1);
@@ -90,7 +90,7 @@ const SampleItemCopiesOverview = ({
               </div>
             </div>
           )}
-          {!readonly &&
+          {hasUserSamplePermission(sample).performAnalysis &&
             sampleItemCopies.filter((_) => !isNil(_.analysis)).length > 1 && (
               <Button
                 priority="tertiary no outline"
@@ -198,13 +198,9 @@ const SampleItemCopiesOverview = ({
         </>
       )}
       {currentItemCopy && (
-        <SampleItemAnalysis
-          sample={sample}
-          sampleItem={currentItemCopy}
-          readonly={readonly}
-        />
+        <SampleItemAnalysis sample={sample} sampleItem={currentItemCopy} />
       )}
-      {!readonly && (
+      {hasUserSamplePermission(sample).performAnalysis && (
         <SampleItemComplianceOverrideModal
           key={itemNumber}
           modal={complianceOverrideModal}

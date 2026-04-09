@@ -314,9 +314,9 @@ export const getSampleMatrixLabel = (
       ? MatrixLabels[partialSample.matrix as Matrix]
       : '';
 
-const SamplePermission = z.enum(['performAnalysis']);
+export const SamplePermission = z.enum(['performAnalysis']);
 
-type SamplePermission = z.infer<typeof SamplePermission>;
+export type SamplePermission = z.infer<typeof SamplePermission>;
 
 export const hasSamplePermission = (
   user: Pick<UserBase, 'region'>,
