@@ -25,9 +25,7 @@ export const FindSampleOptions = z
     regions: coerceToArray(z.array(Region)).nullish(),
     departments: coerceToArray(z.array(Department)).nullish(),
     companySirets: coerceToArray(z.array(z.string())).nullish(),
-    status: z
-      .union([SampleStatus, coerceToArray(z.array(SampleStatus))])
-      .nullish(),
+    statuses: coerceToArray(z.array(SampleStatus)).nullish(),
     matrices: coerceToArray(z.array(Matrix)).nullish(),
     matrixKinds: coerceToArray(z.array(MatrixKind)).nullish(),
     sampledBy: coerceToArray(z.array(z.guid())).nullish(),

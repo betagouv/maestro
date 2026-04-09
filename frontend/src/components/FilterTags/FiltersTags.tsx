@@ -19,10 +19,7 @@ import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { SampleComplianceLabels } from 'maestro-shared/schema/Sample/SampleCompliance';
-import {
-  type SampleStatus,
-  SampleStatusLabels
-} from 'maestro-shared/schema/Sample/SampleStatus';
+import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { Fragment, type ReactNode, useMemo } from 'react';
@@ -106,9 +103,24 @@ const filtersConfig = {
       </Fragment>
     )
   },
-  status: {
-    prop: 'status',
-    getLabel: (value) => SampleStatusLabels[value as SampleStatus]
+  statuses: {
+    prop: 'statuses',
+    getComponent: (value, onChange) => (
+      <Fragment key="tag-statuses">
+        {value.map((s) => (
+          <Tag
+            {...tagProps}
+            key={`tag-status-${s}`}
+            nativeButtonProps={{
+              onClick: () =>
+                onChange({ statuses: value.filter((v) => v !== s) })
+            }}
+          >
+            {SampleStatusLabels[s]}
+          </Tag>
+        ))}
+      </Fragment>
+    )
   },
   sampledBy: {
     prop: 'sampledBy',

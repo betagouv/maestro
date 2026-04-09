@@ -98,7 +98,9 @@ const SampleListView = () => {
         departments:
           (searchParams.get('departments')?.split(',') as Department[]) ??
           undefined,
-        status: searchParams.get('status') as SampleStatus,
+        statuses:
+          (searchParams.get('statuses')?.split(',') as SampleStatus[]) ??
+          undefined,
         matrices:
           (searchParams.get('matrices')?.split(',') as Matrix[]) ?? undefined,
         matrixKinds:

@@ -210,15 +210,26 @@ const SamplePrimaryFilters = ({
         <Select
           label="Statut"
           nativeSelectProps={{
-            value: filters.status || '',
+            value: '',
             onChange: (e) =>
               onChange({
-                status: e.target.value as SampleStatus
+                statuses: [
+                  ...(filters.statuses ?? []),
+                  e.target.value as SampleStatus
+                ]
               })
           }}
         >
-          <option value="">Tous</option>
-          {SampleStatusList.map((status) => (
+          <option value="">
+            {filters.statuses?.length
+              ? pluralize(filters.statuses.length, { preserveCount: true })(
+                  'statut'
+                )
+              : 'Tous'}
+          </option>
+          {SampleStatusList.filter(
+            (s) => !(filters.statuses ?? []).includes(s)
+          ).map((status) => (
             <option key={`status-${status}`} value={status}>
               {SampleStatusLabels[status]}
             </option>

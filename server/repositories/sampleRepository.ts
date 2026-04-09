@@ -192,12 +192,8 @@ const findRequest = (findOptions: FindSampleOptions) =>
       if (findOptions.sampledBy?.length) {
         builder.whereIn(`${samplesTable}.sampledBy`, findOptions.sampledBy);
       }
-      if (findOptions.status) {
-        if (isArray(findOptions.status)) {
-          builder.whereIn(`${sampleStatusView}.status`, findOptions.status);
-        } else {
-          builder.where(`${sampleStatusView}.status`, findOptions.status);
-        }
+      if (findOptions.statuses?.length) {
+        builder.whereIn(`${sampleStatusView}.status`, findOptions.statuses);
       }
       if (findOptions.sampledDate) {
         builder.where(`${samplesTable}.sampled_date`, findOptions.sampledDate);

@@ -225,8 +225,8 @@ describe('buildFindSampleOptions', () => {
       const query = {
         ...baseQuery,
         contexts: ['Control' as const],
-        status: 'Submitted' as const,
-        matrix: 'A01BR' as const,
+        statuses: ['Submitted' as const],
+        matrices: ['A01BR' as const],
         sampledDate: '2024-01-01',
         reference: 'REF-123',
         compliance: 'Compliant' as const,
@@ -244,8 +244,8 @@ describe('buildFindSampleOptions', () => {
       expect(result).toMatchObject({
         programmingPlanIds: baseQuery.programmingPlanIds,
         contexts: query.contexts,
-        status: query.status,
-        matrix: query.matrix,
+        statuses: query.statuses,
+        matrices: query.matrices,
         sampledDate: query.sampledDate,
         reference: query.reference,
         compliance: query.compliance,
