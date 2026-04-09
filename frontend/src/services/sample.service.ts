@@ -77,6 +77,20 @@ const sampleApi = api.injectEndpoints({
         { type: 'Prescription', id: 'LIST' }
       ]
     }),
+    updateSampleCompliance: buildTypedMutation(
+      builder,
+      '/samples/:sampleId/compliance',
+      'put',
+      {
+        invalidatesTags: (_result, _error, { sampleId }) => [
+          { type: 'Sample', id: 'LIST' },
+          { type: 'Sample', sampleId },
+          'SampleCount',
+          { type: 'LocalPrescription', id: 'LIST' },
+          { type: 'Prescription', id: 'LIST' }
+        ]
+      }
+    ),
     updateSampleItem: buildTypedMutation(
       builder,
       '/samples/:sampleId/items/:itemNumber/copy/:copyNumber',
@@ -127,6 +141,7 @@ export const {
   useGetSampleQuery,
   useLazyGetSampleQuery,
   useUpdateSampleMutation,
+  useUpdateSampleComplianceMutation,
   useUpdateSampleItemMutation,
   useDeleteSampleMutation,
   getSupportDocumentURL,

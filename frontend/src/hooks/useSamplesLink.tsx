@@ -19,11 +19,15 @@ export const useSamplesLink = () => {
   );
 
   const navigateToSample = (sampleId: string, step?: number) => {
-    navigate(sampleLink(sampleId, step));
+    const search = !step ? location.search : undefined;
+    navigate(`${sampleLink(sampleId, step)}${search ?? ''}`);
   };
 
   const navigateToSampleEdit = (sampleId: string) => {
-    navigate(AuthenticatedAppRoutes.SampleAnalysisEditRoute.link(sampleId));
+    const search = location.search;
+    navigate(
+      `${AuthenticatedAppRoutes.SampleAnalysisEditRoute.link(sampleId)}${search}`
+    );
   };
 
   const navigateToSamples = () => {

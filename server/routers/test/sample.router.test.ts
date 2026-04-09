@@ -201,7 +201,7 @@ describe('Sample router', () => {
           .get(
             testRoute({
               programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-              status: 'DraftMatrix'
+              status: 'Sent'
             })
           )
           .use(tokenProvider(user))
@@ -209,10 +209,7 @@ describe('Sample router', () => {
 
         const expectedSamples = [
           expect.objectContaining({
-            ...omit(Sample11Fixture, ['items']),
-            createdAt: Sample11Fixture.createdAt,
-            lastUpdatedAt: Sample11Fixture.lastUpdatedAt,
-            sampledAt: Sample11Fixture.sampledAt
+            id: Sample13Fixture.id
           })
         ].map(withISOStringDates);
         expect(res.body).toHaveLength(expectedSamples.length);
@@ -270,7 +267,7 @@ describe('Sample router', () => {
           .get(
             testRoute({
               programmingPlanIds: PPVValidatedProgrammingPlanFixture.id,
-              status: 'DraftMatrix,Draft'
+              status: 'Sent,Draft'
             })
           )
           .use(tokenProvider(user))
@@ -289,6 +286,9 @@ describe('Sample router', () => {
           }),
           expect.objectContaining({
             id: Sample2Fixture.id
+          }),
+          expect.objectContaining({
+            id: Sample13Fixture.id
           })
         ].map(withISOStringDates);
         expect(res.body).toHaveLength(expectedSamples.length);
@@ -317,7 +317,7 @@ describe('Sample router', () => {
           .get(
             testRoute({
               programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-              status: 'DraftMatrix'
+              status: 'Sent'
             })
           )
           .use(tokenProvider(user))
@@ -337,13 +337,13 @@ describe('Sample router', () => {
           .get(
             testRoute({
               programmingPlanIds: PPVValidatedProgrammingPlanFixture.id,
-              status: 'DraftMatrix,Draft'
+              status: 'Sent,Draft'
             })
           )
           .use(tokenProvider(user))
           .expect(constants.HTTP_STATUS_OK);
 
-        expect(res.body).toMatchObject({ count: 3 });
+        expect(res.body).toMatchObject({ count: 4 });
       };
 
       await successRequestTest(NationalCoordinator);
@@ -611,7 +611,7 @@ describe('Sample router', () => {
           id: Sample11Fixture.id
         })
         .update({
-          status: 'Submitted',
+          step: 'Submitted',
           ownerAgreement: true,
           sentAt: null
         });
@@ -620,7 +620,7 @@ describe('Sample router', () => {
         .put(`${testRoute(Sample11Fixture.id)}`)
         .send({
           ...Sample11Fixture,
-          status: 'Sent',
+          step: 'Sent',
           sampledAt: addDays(new Date(), 1)
         })
         .use(tokenProvider(Sampler1Fixture))
@@ -636,7 +636,7 @@ describe('Sample router', () => {
         region: SamplerDaoaFixture.region,
         department: SamplerDaoaFixture.department,
         company: SlaughterhouseCompanyFixture1,
-        status: 'Submitted',
+        step: 'Submitted',
         ownerAgreement: true,
         matrixKind: 'A0C0Z',
         matrix: 'A0BAV',
@@ -658,7 +658,7 @@ describe('Sample router', () => {
         .put(`${testRoute(sampleId)}`)
         .send({
           ...sample,
-          status: 'Sent'
+          step: 'Sent'
         })
         .use(tokenProvider(SamplerDaoaFixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -671,7 +671,7 @@ describe('Sample router', () => {
             id: Sample11Fixture.id
           })
           .update({
-            status: 'Submitted',
+            step: 'Submitted',
             ownerAgreement: true,
             sentAt: null
           });
@@ -680,7 +680,7 @@ describe('Sample router', () => {
           .put(`${testRoute(Sample11Fixture.id)}`)
           .send({
             ...Sample11Fixture,
-            status: 'Sent'
+            step: 'Sent'
           })
           .use(tokenProvider(user))
           .expect(constants.HTTP_STATUS_OK);
@@ -692,7 +692,7 @@ describe('Sample router', () => {
             })
             .first()
         ).resolves.toMatchObject({
-          status: 'Sent',
+          step: 'Sent',
           sentAt: expect.any(Date)
         });
       };
@@ -709,7 +709,7 @@ describe('Sample router', () => {
           id: SampleDAOA1Fixture.id
         })
         .update({
-          status: 'Submitted',
+          step: 'Submitted',
           matrixKind: 'A0C0Z',
           matrix: 'A01GL',
           ownerAgreement: true,
@@ -721,7 +721,7 @@ describe('Sample router', () => {
         .put(`${testRoute(SampleDAOA1Fixture.id)}`)
         .send({
           ...SampleDAOA1Fixture,
-          status: 'Sent',
+          step: 'Sent',
           programmingPlanKind: 'DAOA_VOLAILLE',
           items: [
             {
@@ -761,7 +761,7 @@ describe('Sample router', () => {
           id: Sample11Fixture.id
         })
         .update({
-          status: 'Submitted',
+          step: 'Submitted',
           ownerAgreement: true,
           sentAt: null
         });
@@ -770,13 +770,94 @@ describe('Sample router', () => {
         .put(`${testRoute(Sample11Fixture.id)}`)
         .send({
           ...Sample11Fixture,
-          status: 'Sent'
+          step: 'Sent'
         })
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(mockMattermostSend).not.toHaveBeenCalled();
       expect(mockMailSend).toHaveBeenCalled();
+    });
+  });
+
+  describe('PUT /samples/{sampleId}/compliance', () => {
+    const testRoute = (sampleId: string) =>
+      `/api/samples/${sampleId}/compliance`;
+
+    const complianceData = {
+      compliance: 'Compliant' as const,
+      notesOnCompliance: 'RAS'
+    };
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(testRoute(SampleDAOA1Fixture.id))
+        .send(complianceData)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should get a valid sample id', async () => {
+      await request(app)
+        .put(testRoute(fakerFR.string.alphanumeric(32)))
+        .send(complianceData)
+        .use(tokenProvider(SamplerDaoaFixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should fail if the sample does not exist', async () => {
+      await request(app)
+        .put(testRoute(uuidv4()))
+        .send(complianceData)
+        .use(tokenProvider(SamplerDaoaFixture))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    test('should fail if the sample does not belong to the user region', async () => {
+      await request(app)
+        .put(testRoute(SampleDAOA1Fixture.id))
+        .send(complianceData)
+        .use(tokenProvider(Sampler2Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if the user does not have the permission to update samples', async () => {
+      const forbiddenRequestTest = async (user: UserRefined) =>
+        request(app)
+          .put(testRoute(SampleDAOA1Fixture.id))
+          .send(complianceData)
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(RegionalCoordinator);
+      await forbiddenRequestTest(NationalObserver);
+      await forbiddenRequestTest(NationalCoordinator);
+      await forbiddenRequestTest(AdminFixture);
+    });
+
+    test('should be forbidden for a PPV sample', async () => {
+      await request(app)
+        .put(testRoute(Sample13Fixture.id))
+        .send(complianceData)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should update the compliance of a non-PPV sample', async () => {
+      const res = await request(app)
+        .put(testRoute(SampleDAOA1Fixture.id))
+        .send(complianceData)
+        .use(tokenProvider(SamplerDaoaFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject(complianceData);
+
+      await expect(
+        Samples().where({ id: SampleDAOA1Fixture.id }).first()
+      ).resolves.toMatchObject({
+        compliance: complianceData.compliance,
+        notesOnCompliance: complianceData.notesOnCompliance
+      });
     });
   });
 

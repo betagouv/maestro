@@ -36,14 +36,8 @@ export const SampleItemAdmissibilityEditModal: FunctionComponent<Props> = ({
           await updateSampleItem({
             ...sampleItem,
             receiptDate,
-            analysis: {
-              ...sampleItem.analysis,
-              status: isAdmissible === false ? 'NotAdmissible' : 'Report'
-            },
-            notesOnAdmissibility,
-            sampleId: sampleItem.sampleId,
-            itemNumber: sampleItem.itemNumber,
-            copyNumber: sampleItem.copyNumber
+            isAdmissible,
+            notesOnAdmissibility
           });
           form.reset();
         }

@@ -14,7 +14,8 @@ import {
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import {
   Sample2Fixture,
-  Sample11Fixture
+  Sample11Fixture,
+  Sample13Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
@@ -37,9 +38,16 @@ import {
 } from '../../repositories/analysisRepository';
 import { Documents } from '../../repositories/documentRepository';
 import { kysely } from '../../repositories/kysely';
-import { Samples } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
+
+const getSampleStatus = (sampleId: string) =>
+  kysely
+    .selectFrom('sampleStatus')
+    .select('status')
+    .where('sampleId', '=', sampleId)
+    .executeTakeFirst()
+    .then((r) => r?.status);
 
 describe('Analysis router', () => {
   const { app } = createServer();
@@ -57,7 +65,10 @@ describe('Analysis router', () => {
     createdBy: Sampler1Fixture.id
   });
   const analysisWithResidues = genPartialAnalysis({
-    sampleId: Sample2Fixture.id,
+    sampleId: Sample13Fixture.id,
+    itemNumber: 1,
+    copyNumber: 1,
+    status: 'Analysis',
     createdBy: Sampler1Fixture.id,
     emailReceivedAt: null
   });
@@ -93,7 +104,11 @@ describe('Analysis router', () => {
   afterEach(async () => {
     await Analysis()
       .delete()
-      .where('sampleId', 'in', [Sample11Fixture.id, Sample2Fixture.id]);
+      .where('sampleId', 'in', [
+        Sample11Fixture.id,
+        Sample2Fixture.id,
+        Sample13Fixture.id
+      ]);
     await Documents().delete().where('id', 'in', [document1.id, document2.id]);
   });
 
@@ -243,7 +258,9 @@ describe('Analysis router', () => {
 
     test('should create an analysis and update the associated sample status', async () => {
       const analysis = genAnalysisToCreate({
-        sampleId: Sample11Fixture.id
+        sampleId: Sample13Fixture.id,
+        itemNumber: 1,
+        copyNumber: 1
       });
 
       const res = await request(app)
@@ -265,14 +282,13 @@ describe('Analysis router', () => {
         ...analysis,
         id: res.body.id,
         createdAt: expect.any(Date),
-        createdBy: Sampler1Fixture.id
-      });
-
-      await expect(
-        Samples().where({ id: analysis.sampleId }).first()
-      ).resolves.toMatchObject({
+        createdBy: Sampler1Fixture.id,
         status: 'Analysis'
       });
+
+      await expect(getSampleStatus(analysis.sampleId)).resolves.toBe(
+        'Analysis'
+      );
     });
   });
 
@@ -327,7 +343,7 @@ describe('Analysis router', () => {
           .use(tokenProvider(user))
           .expect(constants.HTTP_STATUS_FORBIDDEN);
 
-      await forbiddenRequestTest(Sampler1Fixture);
+      await forbiddenRequestTest(Sampler2Fixture);
       await forbiddenRequestTest(RegionalCoordinator);
     });
 
@@ -429,7 +445,7 @@ describe('Analysis router', () => {
       const res = await request(app)
         .put(testRoute(analysisWithResidues.id))
         .send(analysisUpdate)
-        .use(tokenProvider(Sampler2Fixture))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(
@@ -460,17 +476,18 @@ describe('Analysis router', () => {
       await request(app)
         .put(testRoute(analysisWithResidues.id))
         .send(analysisUpdate)
-        .use(tokenProvider(Sampler2Fixture))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
       await expect(
-        Samples().where({ id: analysisWithResidues.sampleId }).first()
-      ).resolves.toMatchObject({
-        status: 'Completed'
-      });
-      await Samples()
-        .where({ id: analysisWithResidues.sampleId })
-        .update({ status: Sample2Fixture.status });
+        getSampleStatus(analysisWithResidues.sampleId)
+      ).resolves.toBe('Completed');
+
+      await kysely
+        .updateTable('analysis')
+        .where('id', '=', analysisWithResidues.id)
+        .set('status', analysisWithResidues.status)
+        .execute();
     });
 
     test('should update the sample when the analysis is completed and not compliant', async () => {
@@ -483,29 +500,25 @@ describe('Analysis router', () => {
       await request(app)
         .put(testRoute(analysisWithResidues.id))
         .send(analysisUpdate)
-        .use(tokenProvider(Sampler2Fixture))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
       await expect(
-        Samples().where({ id: analysisWithResidues.sampleId }).first()
-      ).resolves.toMatchObject({
-        status: 'Completed'
-      });
-      await Samples()
-        .where({ id: analysisWithResidues.sampleId })
-        .update({ status: Sample2Fixture.status });
+        getSampleStatus(analysisWithResidues.sampleId)
+      ).resolves.toBe('Completed');
+
+      await kysely
+        .updateTable('analysis')
+        .where('id', '=', analysisWithResidues.id)
+        .set('status', analysisWithResidues.status)
+        .execute();
     });
 
     test('should update the sample when the reviewed analysis is completed and add diff in db', async () => {
       await kysely
         .updateTable('analysis')
         .where('id', '=', analysisWithResidues.id)
-        .set('status', 'Compliance')
-        .execute();
-      await kysely
-        .updateTable('samples')
-        .where('id', '=', analysisWithResidues.sampleId)
-        .set('status', 'InReview')
+        .set('status', 'Analysis')
         .execute();
       const analysis = await analysisRepository.findUnique(
         analysisWithResidues.id
@@ -519,7 +532,7 @@ describe('Analysis router', () => {
       await request(app)
         .put(testRoute(analysisWithResidues.id))
         .send(analysisUpdate)
-        .use(tokenProvider(Sampler2Fixture))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
       let analysisErrors = await kysely
         .selectFrom('analysisErrors')
@@ -530,17 +543,12 @@ describe('Analysis router', () => {
       await kysely
         .updateTable('analysis')
         .where('id', '=', analysisWithResidues.id)
-        .set('status', 'Compliance')
-        .execute();
-      await kysely
-        .updateTable('samples')
-        .where('id', '=', analysisWithResidues.sampleId)
         .set('status', 'InReview')
         .execute();
       await request(app)
         .put(testRoute(analysisWithResidues.id))
         .send({ ...analysisUpdate, residues: [] })
-        .use(tokenProvider(Sampler2Fixture))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
       analysisErrors = await kysely
         .selectFrom('analysisErrors')

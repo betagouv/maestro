@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { isEqual, isNil } from 'lodash-es';
 import NoRegionError from 'maestro-shared/errors/noRegionError';
+import SampleItemMissingError from 'maestro-shared/errors/sampleItemMissingError';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
@@ -30,6 +31,7 @@ import {
 import { buildFindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   getSampleMatrixLabel,
+  hasSamplePermission,
   isProgrammingPlanSample,
   type PartialSample,
   SampleBase,
@@ -41,7 +43,6 @@ import {
   SampleItemMaxCopyCount,
   SampleItemSort
 } from 'maestro-shared/schema/Sample/SampleItem';
-import { DraftStatusList } from 'maestro-shared/schema/Sample/SampleStatus';
 import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import { hasPermission } from 'maestro-shared/schema/User/User';
@@ -54,6 +55,7 @@ import {
   getAndCheckSample,
   getAndCheckSampleDepartement
 } from '../middlewares/checks/sampleCheck';
+import { analysisReportDocumentsRepository } from '../repositories/analysisReportDocumentsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
 import companyRepository from '../repositories/companyRepository';
 import type { LaboratoryResidueMapping } from '../repositories/kysely.type';
@@ -406,6 +408,20 @@ export const sampleRouter = {
       { sampleId, itemNumber, copyNumber }
     ) => {
       const sample = await getAndCheckSample(sampleId, user, userRole);
+      const sampleItem = await sampleItemRepository.findUnique(
+        sampleId,
+        itemNumber,
+        copyNumber
+      );
+
+      if (!sampleItem) {
+        throw new SampleItemMissingError(sampleId, itemNumber, copyNumber);
+      }
+
+      if (!hasSamplePermission(user, userRole, sample)['performAnalysis']) {
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
+      }
+
       console.info('Update sampleItem', sample.id, itemNumber, copyNumber);
 
       await sampleItemRepository.update(sample.id, itemNumber, copyNumber, {
@@ -421,6 +437,36 @@ export const sampleRouter = {
         copyNumber
       });
 
+      const computeStatus = () => {
+        //Pas de changement de recevabilité
+        if (
+          isNil(itemUpdate.isAdmissible) &&
+          itemUpdate.receiptDate === sampleItem.receiptDate
+        ) {
+          return analysis?.status ?? 'Sent';
+        }
+        //Passage à non recevable
+        if (itemUpdate.isAdmissible === false) {
+          return 'NotAdmissible';
+        }
+        //Pas encore d'analyse
+        if (!analysis) {
+          return 'Sent';
+        }
+        //Passage de non recevable à recevable
+        if (analysis.status === 'NotAdmissible' && itemUpdate.isAdmissible) {
+          const analysisReportDoc =
+            analysisReportDocumentsRepository.findByAnalysisId(analysis.id);
+          return !isNil(analysis?.compliance)
+            ? 'Completed'
+            : !isNil(analysisReportDoc)
+              ? 'InReview'
+              : 'Analysis';
+        }
+        return analysis.status ?? 'Sent';
+      };
+      const status = computeStatus();
+
       if (!analysis) {
         const analysis: PartialAnalysis = {
           id: uuidv4(),
@@ -429,7 +475,7 @@ export const sampleRouter = {
           copyNumber,
           createdAt: new Date(),
           createdBy: user.id,
-          status: itemUpdate.analysis?.status ?? 'Report',
+          status,
           compliance: null,
           notesOnCompliance: null
         };
@@ -437,11 +483,40 @@ export const sampleRouter = {
       } else {
         await analysisRepository.update({
           ...analysis,
-          status: itemUpdate.analysis?.status ?? analysis.status
+          ...itemUpdate.analysis,
+          status,
+          compliance:
+            itemUpdate.isAdmissible === false ? null : analysis.compliance,
+          notesOnCompliance:
+            itemUpdate.isAdmissible === false
+              ? null
+              : analysis.notesOnCompliance
         });
       }
 
+      await sampleRepository.evaluateSampleCompliance(sampleId);
+
       return { status: constants.HTTP_STATUS_OK };
+    }
+  },
+  '/samples/:sampleId/compliance': {
+    put: async ({ body: complianceData, user, userRole }, { sampleId }) => {
+      const sample = await getAndCheckSample(sampleId, user, userRole);
+
+      console.info('Update sample compliance', sample.id, complianceData);
+
+      if (sample.programmingPlanKind === 'PPV') {
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
+      }
+
+      const updatedSample = {
+        ...sample,
+        ...complianceData
+      } as SampleChecked;
+
+      await sampleRepository.update(updatedSample);
+
+      return { status: constants.HTTP_STATUS_OK, response: complianceData };
     }
   },
   '/samples/:sampleId/emptyForm': {
@@ -491,7 +566,7 @@ export const sampleRouter = {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
-      if (!DraftStatusList.includes(sampleUpdate.status)) {
+      if (['Sent', 'Submitted'].includes(sampleUpdate.step)) {
         const fieldConfigs =
           await specificDataFieldConfigRepository.findByPlanKind(
             sampleUpdate.programmingPlanId,
@@ -505,7 +580,7 @@ export const sampleRouter = {
       }
 
       const mustBeSent =
-        sample.status === 'Submitted' && sampleUpdate.status === 'Sent';
+        sample.step === 'Submitted' && sampleUpdate.step === 'Sent';
 
       if (
         mustBeSent &&
@@ -526,10 +601,7 @@ export const sampleRouter = {
         };
       }
 
-      if (
-        sample.context !== sampleUpdate.context &&
-        DraftStatusList.includes(sampleUpdate.status)
-      ) {
+      if (sample.context !== sampleUpdate.context) {
         //Les matrices sont différentes en fonction du contexte de prélèvement,
         // donc si le contexte change il faut réinitialiser la matrice qui est dans l'étape d'après.
         //Sinon l'utilisateur bloque tout le formulaire
@@ -654,6 +726,21 @@ export const sampleRouter = {
                   content: sampleSupportDoc.toString('base64')
                 }
               : null;
+
+            if (sampleItem.copyNumber === 1) {
+              const analysis: PartialAnalysis = {
+                id: uuidv4(),
+                sampleId,
+                itemNumber: sampleItem.itemNumber,
+                copyNumber: sampleItem.copyNumber,
+                createdAt: new Date(),
+                createdBy: user.id,
+                status: 'Sent',
+                compliance: null,
+                notesOnCompliance: null
+              };
+              await analysisRepository.insert(analysis);
+            }
 
             if (sampleItem.copyNumber === 1 && sampleItem.laboratoryId) {
               const laboratory = await laboratoryRepository.findUnique(
@@ -863,7 +950,7 @@ export const sampleRouter = {
       const sample = await getAndCheckSample(sampleId, user, userRole);
       console.info('Delete sample', sample.id);
 
-      if (!DraftStatusList.includes(sample.status)) {
+      if (sample.status !== 'Draft') {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 

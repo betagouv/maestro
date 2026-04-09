@@ -1,10 +1,11 @@
 import { constants } from 'node:http2';
-import { isEqual } from 'lodash-es';
+import { isEqual, isNil } from 'lodash-es';
 import AnalysisMissingError from 'maestro-shared/errors/analysisMissingError';
-import SampleMissingError from 'maestro-shared/errors/sampleMissingError';
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import { hasSamplePermission } from 'maestro-shared/schema/Sample/Sample';
 import { v4 as uuidv4 } from 'uuid';
+import { getAndCheckSample } from '../middlewares/checks/sampleCheck';
 import { analysisErrorsRepository } from '../repositories/analysisErrorsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
@@ -23,13 +24,15 @@ export const analysisRouter = {
 
       return { response: analysis, status: constants.HTTP_STATUS_OK };
     },
-    post: async ({ user, body: analysisToCreate }) => {
-      const sample = await sampleRepository.findUnique(
-        analysisToCreate.sampleId
+    post: async ({ user, userRole, body: analysisToCreate }) => {
+      const sample = await getAndCheckSample(
+        analysisToCreate.sampleId,
+        user,
+        userRole
       );
 
-      if (!sample) {
-        throw new SampleMissingError(analysisToCreate.sampleId);
+      if (!hasSamplePermission(user, userRole, sample)['performAnalysis']) {
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
       console.info('Create analysis for sampleId', sample.id, analysisToCreate);
@@ -38,17 +41,12 @@ export const analysisRouter = {
         id: uuidv4(),
         createdAt: new Date(),
         createdBy: user.id,
-        status: 'Residues',
+        status: 'Analysis',
         compliance: null,
         notesOnCompliance: null,
         ...analysisToCreate
       };
       await analysisRepository.insert(analysis);
-
-      await sampleRepository.update({
-        ...sample,
-        status: 'Analysis'
-      });
 
       return {
         status: constants.HTTP_STATUS_CREATED,
@@ -57,7 +55,7 @@ export const analysisRouter = {
     }
   },
   '/analysis/:analysisId': {
-    put: async ({ user, body: analysisUpdate }, { analysisId }) => {
+    put: async ({ user, userRole, body: analysisUpdate }, { analysisId }) => {
       console.info('Update analysis', analysisUpdate);
 
       const analysis = await analysisRepository.findUnique(analysisId);
@@ -66,13 +64,9 @@ export const analysisRouter = {
         throw new AnalysisMissingError(analysisId);
       }
 
-      const sample = await sampleRepository.findUnique(analysis.sampleId);
+      const sample = await getAndCheckSample(analysis.sampleId, user, userRole);
 
-      if (!sample) {
-        throw new SampleMissingError(analysis.sampleId);
-      }
-
-      if (sample.region !== user.region) {
+      if (!hasSamplePermission(user, userRole, sample)['performAnalysis']) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
@@ -120,19 +114,17 @@ export const analysisRouter = {
       };
       await analysisRepository.update(updatedAnalysis);
 
-      if (updatedAnalysis.status === 'Completed') {
-        const sample = await sampleRepository.findUnique(
-          updatedAnalysis.sampleId
-        );
-
-        if (!sample) {
-          throw new SampleMissingError(updatedAnalysis.sampleId);
-        }
-
+      if (sample.programmingPlanKind === 'PPV') {
         await sampleRepository.update({
           ...sample,
-          status: 'Completed'
+          compliance: isNil(updatedAnalysis.compliance)
+            ? undefined
+            : updatedAnalysis.compliance
+              ? ('Compliant' as const)
+              : ('NonCompliant' as const)
         });
+      } else {
+        await sampleRepository.evaluateSampleCompliance(sample.id);
       }
 
       return { response: updatedAnalysis, status: constants.HTTP_STATUS_OK };

@@ -3,7 +3,7 @@ import type {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import { SampleStatusSteps } from 'maestro-shared/schema/Sample/SampleStatus';
+import { SampleSteps } from 'maestro-shared/schema/Sample/SampleStep';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import useWindowSize from '../../../hooks/useWindowSize';
 
@@ -16,10 +16,7 @@ const NextButton = ({ partialSample, currentStep }: Props) => {
   const { navigateToSample } = useSamplesLink();
   const { isMobile } = useWindowSize();
 
-  if (
-    !partialSample ||
-    (SampleStatusSteps[partialSample.status] ?? currentStep) <= currentStep
-  ) {
+  if (!partialSample || SampleSteps[partialSample.step] <= currentStep) {
     return null;
   }
 

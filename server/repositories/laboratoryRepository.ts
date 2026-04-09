@@ -5,10 +5,7 @@ import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
-import {
-  type Laboratories as KyselyLaboratories,
-  toSqlArray
-} from './kysely.type';
+import type { Laboratories as KyselyLaboratories } from './kysely.type';
 
 const laboratoryTable = 'laboratories';
 
@@ -129,17 +126,22 @@ const findMany = async (
         break;
       case 'programmingPlanKind':
         if (!isNil(findOptions.programmingPlanKind)) {
-          const planKind = findOptions.programmingPlanKind;
-          query = query.where((eb) =>
-            eb(
-              'laboratoryAgreements.programmingPlanId',
-              'in',
-              eb
-                .selectFrom('programmingPlans')
-                .select('id')
-                .where('programmingPlans.kinds', '@>', toSqlArray([planKind]))
+          query = query
+            .innerJoin(
+              'programmingPlans',
+              'programmingPlans.id',
+              'laboratoryAgreements.programmingPlanId'
             )
-          );
+            .innerJoin(
+              'programmingPlanKinds',
+              'programmingPlans.id',
+              'programmingPlanKinds.programmingPlanId'
+            )
+            .where(
+              'programmingPlanKinds.kind',
+              '=',
+              findOptions.programmingPlanKind
+            );
         }
         break;
       default:

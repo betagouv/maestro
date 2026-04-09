@@ -1,30 +1,22 @@
 import Accordion from '@codegouvfr/react-dsfr/Accordion';
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import clsx from 'clsx';
 import { pick } from 'lodash-es';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
-import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import {
   type MaestroDate,
   maestroDateRefined
 } from 'maestro-shared/utils/date';
-import {
-  type FunctionComponent,
-  useContext,
-  useEffect,
-  useMemo,
-  useState
-} from 'react';
+import { type FunctionComponent, useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
-import { usePartialSample } from 'src/hooks/usePartialSample';
 import { z } from 'zod';
 import AppSelect from '../../../components/_app/AppSelect/AppSelect';
 import { defaultAppSelectOption } from '../../../components/_app/AppSelect/AppSelectOption';
 import AppTextInput from '../../../components/_app/AppTextInput/AppTextInput';
 import UserFeedback from '../../../components/UserFeedback/UserFeedback';
-import { useAuthentication } from '../../../hooks/useAuthentication';
 import { useForm } from '../../../hooks/useForm';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
@@ -37,27 +29,23 @@ import { SampleAnalysisOverview } from './SampleItemAnalysisOverview/SampleAnaly
 type Props = {
   sample: SampleChecked;
   sampleItem: SampleItem;
+  readonly: boolean;
 };
 
 const SampleItemAnalysis: FunctionComponent<Props> = ({
   sample,
-  sampleItem
+  sampleItem,
+  readonly
 }) => {
   const apiClient = useContext(ApiClientContext);
-  const { hasUserPermission, user } = useAuthentication();
   const location = useLocation();
 
-  const { getSampleItemLaboratory } = usePartialSample(sample);
   const { navigateToSample, navigateToSampleEdit } = useSamplesLink();
-  const [_updateSample, { isSuccess: isSendingSuccess }] =
-    apiClient.useUpdateSampleMutation({
-      fixedCacheKey: `sending-sample-${sample.id}`
-    });
   const [, { isSuccess: isCompletingAnalysisSuccess }] =
     apiClient.useUpdateAnalysisMutation({
       fixedCacheKey: `complete-analysis-${sample.id}`
     });
-  const { data: analysis } = apiClient.useGetSampleItemAnalysisQuery({
+  const { currentData: analysis } = apiClient.useGetSampleItemAnalysisQuery({
     sampleId: sample.id,
     itemNumber: sampleItem.itemNumber,
     copyNumber: sampleItem.copyNumber
@@ -112,12 +100,6 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
     save
   );
 
-  const readonly = useMemo(
-    () =>
-      !hasUserPermission('createAnalysis') || sample.region !== user?.region,
-    [hasUserPermission, sample, user?.region]
-  );
-
   const isEditing: boolean =
     !readonly &&
     (location.pathname.endsWith('/edit') ||
@@ -125,29 +107,6 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
 
   return (
     <div className={'analysis-container'}>
-      {isSendingSuccess && sample.status !== 'InReview' && (
-        <Alert
-          severity="info"
-          small
-          description={
-            <>
-              Votre demande d'analyse a bien été transmise par email{' '}
-              <ul>
-                {sample.items
-                  .filter((item) => item.copyNumber === 1)
-                  .map((item) => (
-                    <li key={item.itemNumber}>
-                      {getLaboratoryFullName(
-                        getSampleItemLaboratory(item.itemNumber)
-                      )}
-                    </li>
-                  ))}
-              </ul>
-            </>
-          }
-          className={cx('fr-mb-4w')}
-        />
-      )}
       {sample.status === 'Completed' && isCompletingAnalysisSuccess && (
         <Alert
           severity="info"
@@ -156,7 +115,6 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
           className={cx('fr-mb-4w')}
         />
       )}
-
       <div>
         <SampleItemAdmissibility
           sample={sample}
@@ -173,9 +131,8 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
           />
         )}
       </div>
-
-      <div className="border">
-        <Accordion label="Détails de l'échantillon" defaultExpanded>
+      <div className={clsx('border-right', 'border-left', 'border-bottom')}>
+        <Accordion label="Détails de l'échantillon">
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-4')}>
               <div className={cx('fr-mb-1v')}>Quantité prélevée</div>
@@ -357,8 +314,9 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
           </div>
         </Accordion>
       </div>
-
       {analysis &&
+        analysis.status !== 'Sent' &&
+        analysis.status !== 'NotAdmissible' &&
         (!isEditing ? (
           <SampleAnalysisOverview
             sample={sample}
@@ -368,8 +326,8 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
           />
         ) : (
           <SampleAnalysisForm
-            partialAnalysis={analysis}
             sample={sample}
+            partialAnalysis={analysis}
             onDone={() => navigateToSample(sample.id)}
           />
         ))}
