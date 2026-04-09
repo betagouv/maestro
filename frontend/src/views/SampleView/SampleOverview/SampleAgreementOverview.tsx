@@ -5,6 +5,7 @@ import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { formatDateTime } from 'maestro-shared/utils/date';
 import './SampleOverview.scss';
+import { Regions } from 'maestro-shared/referential/Region';
 
 interface Props {
   sample: SampleChecked;
@@ -65,7 +66,12 @@ const SampleAgreementOverview = ({ sample }: Props) => {
               {sample.ownerLastName} {sample.ownerFirstName}
             </b>{' '}
             à l'email <b>{sample.ownerEmail}</b> le{' '}
-            <b>{sample.sentAt ? formatDateTime(sample.sentAt) : ''}</b>.
+            <b>
+              {sample.sentAt
+                ? formatDateTime(sample.sentAt, Regions[sample.region].timezone)
+                : ''}
+            </b>
+            .
           </>
         }
       ></Alert>

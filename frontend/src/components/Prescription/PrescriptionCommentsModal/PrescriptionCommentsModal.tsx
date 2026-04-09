@@ -26,7 +26,6 @@ import {
 } from 'maestro-shared/schema/Prescription/PrescriptionComments';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { UserRole } from 'maestro-shared/schema/User/UserRole';
-import { formatDateTime } from 'maestro-shared/utils/date';
 import { useEffect, useMemo, useState } from 'react';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import PrescriptionCommentAuthor from 'src/components/Prescription/PrescriptionCommentsModal/PrescriptionCommentAuthor';
@@ -34,7 +33,6 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
-import { quote } from 'src/utils/stringUtils';
 import './PrescriptionCommentsModal.scss';
 
 const prescriptionCommentsModal = createModal({
@@ -353,17 +351,7 @@ const PrescriptionCommentsModal = ({
                   key={`${comment.createdBy}-${comment.createdAt.getTime()}`}
                   className="prescription-comment"
                 >
-                  <PrescriptionCommentAuthor userId={comment.createdBy} />
-                  <div>
-                    <div className={cx('fr-text--md', 'fr-mb-1w')}>
-                      {quote(comment.comment)}
-                    </div>
-                    <div
-                      className={cx('fr-text--xs', 'fr-text--light', 'fr-mb-0')}
-                    >
-                      Posté le {formatDateTime(comment.createdAt)}
-                    </div>
-                  </div>
+                  <PrescriptionCommentAuthor {...comment} />
                 </div>
               ))}
             </div>

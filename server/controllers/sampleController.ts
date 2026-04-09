@@ -1,7 +1,6 @@
 import { constants } from 'node:http2';
 import type { Readable } from 'node:stream';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { isEqual, isNil } from 'lodash-es';
 import NoRegionError from 'maestro-shared/errors/noRegionError';
 import SampleItemMissingError from 'maestro-shared/errors/sampleItemMissingError';
@@ -46,7 +45,8 @@ import {
 import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import { hasPermission } from 'maestro-shared/schema/User/User';
-import { formatWithTz } from 'maestro-shared/utils/date';
+import { formatMaestroDate } from 'maestro-shared/utils/date';
+
 import { checkSchema } from 'maestro-shared/utils/zod';
 import { PDFDocument } from 'pdf-lib';
 import { v4 as uuidv4 } from 'uuid';
@@ -586,7 +586,7 @@ export const sampleRouter = {
         mustBeSent &&
         !checkSchema(
           SampleBase.pick({
-            sampledAt: true,
+            sampledDate: true,
             sentAt: true,
             specificData: true
           }),
@@ -828,24 +828,8 @@ export const sampleRouter = {
                     multiSubstanceLabels: (
                       updatedSample.multiSubstances ?? []
                     ).map((substance) => substanceToLaboratoryLabel(substance)),
-                    sampledAt: format(
-                      updatedSample.sampledAt,
-                      "eeee dd MMMM yyyy à HH'h'mm",
-                      {
-                        locale: fr
-                      }
-                    ),
-                    sampledAtDate: format(
-                      updatedSample.sampledAt,
-                      'dd/MM/yyyy',
-                      {
-                        locale: fr
-                      }
-                    ),
-                    sampledAtTime: formatWithTz(
-                      updatedSample.sampledAt,
-                      'HH:mm'
-                    ),
+                    sampledDate: formatMaestroDate(updatedSample.sampledDate),
+                    sampledTime: updatedSample.sampledTime,
                     context: ContextLabels[updatedSample.context],
                     legalContext:
                       LegalContextLabels[updatedSample.legalContext],
@@ -900,7 +884,7 @@ export const sampleRouter = {
                         ? Regions[user.region].name
                         : undefined,
                       userMail: user.email,
-                      sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
+                      sampledAt: formatMaestroDate(updatedSample.sampledDate)
                     },
                     attachment: [
                       ...sampleAttachments,
@@ -932,7 +916,10 @@ export const sampleRouter = {
             recipients: [sample.ownerEmail],
             params: {
               region: user.region ? Regions[user.region].name : undefined,
-              sampledAt: format(updatedSample.sampledAt, 'dd/MM/yyyy')
+              sampledAt: updatedSample.sampledDate
+                .split('-')
+                .reverse()
+                .join('/')
             },
             attachment: attachments.filter((_) => !isNil(_))
           });

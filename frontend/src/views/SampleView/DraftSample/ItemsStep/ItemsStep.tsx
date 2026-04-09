@@ -3,7 +3,6 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { format, parse } from 'date-fns';
 import { isNil, uniqBy } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import type { Region } from 'maestro-shared/referential/Region';
@@ -18,10 +17,13 @@ import {
   sampleItemSealIdCheck
 } from 'maestro-shared/schema/Sample/Sample';
 import type { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+
 import { SampleSteps } from 'maestro-shared/schema/Sample/SampleStep';
+import { formatWithTz, type MaestroDate } from 'maestro-shared/utils/date';
+
 import { checkSchema } from 'maestro-shared/utils/zod';
 import type React from 'react';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import AppRequiredText from 'src/components/_app/AppRequired/AppRequiredText';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from 'src/hooks/useForm';
@@ -49,29 +51,12 @@ const ItemsStep = ({ partialSample }: Props) => {
 
   const isSubmittingRef = useRef<boolean>(false);
 
-  const [sampledAt, setSampledAt] = useState(
-    format(partialSample.sampledAt ?? new Date(), 'yyyy-MM-dd HH:mm')
+  const [sampledDateTime, setSampledDateTime] = useState(
+    `${partialSample.sampledDate ?? formatWithTz(new Date(), 'yyyy-MM-dd')}T${partialSample.sampledTime ?? formatWithTz(new Date(), 'HH:mm')}`
   );
   const [items, setItems] = useState(partialSample.items ?? []);
   const [notesOnItems, setNotesOnItems] = useState(partialSample.notesOnItems);
   const [isSaved, setIsSaved] = useState(false);
-
-  const { initialSampledAt, isDefaultSampledAt } = useMemo(
-    () =>
-      partialSample.sampledAt
-        ? {
-            initialSampledAt: format(
-              partialSample.sampledAt,
-              'yyyy-MM-dd HH:mm'
-            ),
-            isDefaultSampledAt: false
-          }
-        : {
-            initialSampledAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
-            isDefaultSampledAt: true
-          },
-    [] // eslint-disable-line react-hooks/exhaustive-deps
-  );
 
   const [createOrUpdateSample, createOrUpdateSampleCall] =
     apiClient.useCreateOrUpdateSampleMutation();
@@ -133,10 +118,12 @@ const ItemsStep = ({ partialSample }: Props) => {
     }
   }, [localPrescription, programmingPlan]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const Form = z.object(SampleItemsDataChecked.shape).pick({
-    sampledAt: true,
-    notesOnItems: true,
-    items: true
+  const Form = z.object({
+    sampledDateTime: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, {
+      error: () => 'La date et heure de prélèvement sont invalides.'
+    }),
+    notesOnItems: SampleItemsDataChecked.shape.notesOnItems,
+    items: SampleItemsDataChecked.shape.items
   });
 
   const FormChecked = checkSchema(Form, sampleItemSealIdCheck, (ctx) => {
@@ -167,15 +154,6 @@ const ItemsStep = ({ partialSample }: Props) => {
             `submit_${partialSample.status}`,
             partialSample.id
           );
-          if (initialSampledAt !== sampledAt) {
-            trackEvent(
-              'sample',
-              isDefaultSampledAt
-                ? 'change_default_sampled_at'
-                : 'change_sampled_at',
-              partialSample.id
-            );
-          }
           navigateToSample(partialSample.id, 4);
         }
       }
@@ -196,9 +174,14 @@ const ItemsStep = ({ partialSample }: Props) => {
   };
 
   const save = async (step = partialSample.step) => {
+    const [sampledDate, sampledTime] = sampledDateTime.split('T') as [
+      string,
+      string
+    ];
     await createOrUpdateSample({
       ...partialSample,
-      sampledAt: parse(sampledAt, 'yyyy-MM-dd HH:mm', new Date()),
+      sampledDate: sampledDate as MaestroDate,
+      sampledTime,
       notesOnItems,
       items: items.map((item) => ({
         ...item,
@@ -235,7 +218,7 @@ const ItemsStep = ({ partialSample }: Props) => {
   const form = useForm(
     FormChecked,
     {
-      sampledAt,
+      sampledDateTime,
       items,
       notesOnItems
     },
@@ -282,14 +265,13 @@ const ItemsStep = ({ partialSample }: Props) => {
         <div className={cx('fr-col-6')}>
           <AppTextInput
             type="datetime-local"
-            defaultValue={sampledAt}
-            onChange={(e) => setSampledAt(e.target.value.replace('T', ' '))}
+            defaultValue={sampledDateTime}
+            onChange={(e) => setSampledDateTime(e.target.value)}
             inputForm={form}
-            inputKey="sampledAt"
-            whenValid="Date et heure de prélèvement correctement renseignés."
-            data-testid="sampledAt-input"
+            inputKey="sampledDateTime"
+            whenValid="Date et heure de prélèvement correctement renseignées."
+            data-testid="sampledDateTime-input"
             label="Date et heure de prélèvement"
-            hintText="Format attendu › JJ/MM/AAAA HH:MM"
             required
             disabled={readonly}
           />

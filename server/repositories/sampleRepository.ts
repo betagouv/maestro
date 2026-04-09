@@ -149,7 +149,7 @@ const findRequest = (findOptions: FindSampleOptions) =>
         omit(
           findOptions,
           'region',
-          'sampledAt',
+          'sampledDate',
           'page',
           'perPage',
           'status',
@@ -187,11 +187,8 @@ const findRequest = (findOptions: FindSampleOptions) =>
           builder.where(`${sampleStatusView}.status`, findOptions.status);
         }
       }
-      if (findOptions.sampledAt) {
-        builder.whereRaw(
-          `to_char(${samplesTable}.sampled_at, 'YYYY-MM-DD') = ?`,
-          findOptions.sampledAt
-        );
+      if (findOptions.sampledDate) {
+        builder.where(`${samplesTable}.sampled_date`, findOptions.sampledDate);
       }
       if (findOptions.reference) {
         builder.whereILike(
@@ -313,7 +310,8 @@ const findMany = async (
           );
       }
     })
-    .orderBy('sampled_at', 'desc')
+    .orderBy('sampled_date', 'desc')
+    .orderBy('sampled_time', 'desc')
     .orderBy('created_at', 'desc')
     .orderBy(`${samplesTable}.id`)
     .then((samples) => samples.map(parsePartialSample));

@@ -2,7 +2,6 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { format } from 'date-fns';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
@@ -20,6 +19,7 @@ import { useOnLine } from 'src/hooks/useOnLine';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import useWindowSize from 'src/hooks/useWindowSize';
 import './SampleCard.scss';
+import { formatMaestroDate } from 'maestro-shared/utils/date';
 
 type Props = {
   sample: PartialSample | PartialSampleToCreate;
@@ -182,8 +182,8 @@ const DateBlock = ({
   return (
     <span className="icon-text">
       <span className={cx('fr-icon-calendar-event-line', 'fr-icon--sm')}></span>
-      {sample.sampledAt ? (
-        format(sample.sampledAt, 'dd/MM/yyyy')
+      {sample.sampledDate ? (
+        formatMaestroDate(sample.sampledDate)
       ) : (
         <span className="missing-data">Information à compléter</span>
       )}

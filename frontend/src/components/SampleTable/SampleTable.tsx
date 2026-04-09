@@ -1,7 +1,6 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
-import { format } from 'date-fns';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   getSampleMatrixLabel,
@@ -18,6 +17,7 @@ import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import './SampleTable.scss';
+import { formatMaestroDate } from 'maestro-shared/utils/date';
 
 interface Props {
   samples: (PartialSample | PartialSampleToCreate)[];
@@ -57,7 +57,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
             )}
             {isCreatedPartialSample(sample) ? sample.sampler.name : user?.name}
           </div>,
-          sample.sampledAt ? format(sample.sampledAt, 'dd/MM/yyyy') : '',
+          formatMaestroDate(sample.sampledDate),
           sample.department,
           sample.company?.name ?? '',
           sample.context ? ContextLabels[sample.context] : '',

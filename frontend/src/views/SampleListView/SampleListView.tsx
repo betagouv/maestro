@@ -100,7 +100,7 @@ const SampleListView = () => {
         matrix: searchParams.get('matrix') as Matrix,
         matrixKind: searchParams.get('matrixKind') as MatrixKind,
         sampledBy: searchParams.get('sampledBy'),
-        sampledAt: searchParams.get('sampledAt'),
+        sampledDate: searchParams.get('sampledDate'),
         reference: searchParams.get('reference'),
         compliance:
           SampleCompliance.safeParse(searchParams.get('compliance')).data ??

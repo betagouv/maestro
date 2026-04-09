@@ -36,7 +36,7 @@ import {
   SamplerDaoaFixture
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
-import { withISOStringDates } from 'maestro-shared/utils/date';
+import { toMaestroDate, withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { beforeAll, describe, expect, test } from 'vitest';
@@ -111,8 +111,7 @@ describe('Sample router', () => {
           withISOStringDates({
             ...Sample11Fixture,
             createdAt: Sample11Fixture.createdAt,
-            lastUpdatedAt: Sample11Fixture.lastUpdatedAt,
-            sampledAt: Sample11Fixture.sampledAt
+            lastUpdatedAt: Sample11Fixture.lastUpdatedAt
           })
         );
       };
@@ -278,7 +277,6 @@ describe('Sample router', () => {
             ...omit(Sample11Fixture, ['items']),
             createdAt: Sample11Fixture.createdAt,
             lastUpdatedAt: Sample11Fixture.lastUpdatedAt,
-            sampledAt: Sample11Fixture.sampledAt,
             documentIds: []
           },
           expect.objectContaining({
@@ -397,7 +395,7 @@ describe('Sample router', () => {
       await badRequestTest({ ...genSampleContextData(), legalContext: '123' });
       await badRequestTest({
         ...genSampleContextData(),
-        sampledAt: 'invalid date'
+        sampledDate: 'invalid-date'
       });
     });
 
@@ -579,7 +577,6 @@ describe('Sample router', () => {
             ...Sample11Fixture,
             createdAt: Sample11Fixture.createdAt,
             lastUpdatedAt: expect.any(String),
-            sampledAt: Sample11Fixture.sampledAt,
             matrix: validBody.matrix,
             stage: validBody.stage,
             items: validBody.items,
@@ -621,7 +618,7 @@ describe('Sample router', () => {
         .send({
           ...Sample11Fixture,
           step: 'Sent',
-          sampledAt: addDays(new Date(), 1)
+          sampledDate: toMaestroDate(addDays(new Date(), 1))
         })
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);

@@ -12,6 +12,7 @@ import {
   genSampleItem
 } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import { toMaestroDate } from 'maestro-shared/utils/date';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { getMockApi } from '../../../../services/mockApiClient';
 import ItemsStep from './ItemsStep';
@@ -43,8 +44,8 @@ const partialSample = {
   matrixKind: 'A0D9Y' as MatrixKind,
   prescriptionId: prescription1.id,
   programmingPlanId: programmingPlan.id,
-  step: 'DraftItems' as const,
-  sampledAt: new Date(),
+  sampledDate: toMaestroDate(new Date()),
+  sampledTime: '08:00',
   items: [genSampleItem()]
 };
 
@@ -63,7 +64,9 @@ export const OneItem: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getAllByTestId('sampledAt-input')).toHaveLength(2);
+    await expect(canvas.getAllByTestId('sampledDateTime-input')).toHaveLength(
+      2
+    );
     await expect(canvas.getAllByTestId('item-quantity-input-0')).toHaveLength(
       2
     );
@@ -217,10 +220,7 @@ export const SubmittingSuccess: Story = {
     },
     apiClient: getMockApi({
       useCreateOrUpdateSampleMutation: [
-        async (...args) => {
-          const result = await mockCreateOrUpdateSample(...args);
-          return result;
-        },
+        async (...args) => mockCreateOrUpdateSample(...args),
         { isSuccess: true }
       ]
     })
@@ -234,13 +234,8 @@ export const SubmittingSuccess: Story = {
 
     await expect(mockCreateOrUpdateSample).toHaveBeenCalledWith(
       expect.objectContaining({
-        sampledAt: new Date(
-          partialSample.sampledAt.getFullYear(),
-          partialSample.sampledAt.getMonth(),
-          partialSample.sampledAt.getDate(),
-          partialSample.sampledAt.getHours(),
-          partialSample.sampledAt.getMinutes()
-        ),
+        sampledDate: partialSample.sampledDate,
+        sampledTime: partialSample.sampledTime,
         items: expect.arrayContaining([
           expect.objectContaining({
             quantity: 1,
