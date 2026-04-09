@@ -81,17 +81,50 @@ export const PartialSampleItem = z.object({
   sealId: z.string().nullish()
 });
 
-export const SampleItemUpdate = z.object({
-  ...SampleItem.omit({
-    sampleId: true,
-    itemNumber: true,
-    copyNumber: true
+export const SampleAnalysisDataItemUpdate = z.object({
+  updateKey: z.literal('analysis'),
+  ...SampleItem.pick({
+    receiptDate: true,
+    notesOnAdmissibility: true,
+    complianceOverride: true,
+    analysis: true
   }).shape,
   isAdmissible: z.boolean().nullish()
 });
 
+export const SampleBillingDataItemUpdate = z.object({
+  updateKey: z.literal('billing'),
+  ...SampleItem.pick({
+    invoicingDate: true,
+    paid: true,
+    paidDate: true,
+    invoiceNumber: true,
+    budgetNotes: true
+  }).shape,
+  isAdmissible: z.boolean().nullish()
+});
+
+export const SampleShippingDataUpdate = z.object({
+  updateKey: z.literal('shipping'),
+  ...SampleItem.pick({
+    shippingDate: true,
+    destructionDate: true,
+    carrier: true
+  }).shape
+});
+
+export const SampleItemUpdate = z.discriminatedUnion('updateKey', [
+  SampleAnalysisDataItemUpdate,
+  SampleBillingDataItemUpdate,
+  SampleShippingDataUpdate
+]);
+
 export type SampleItem = z.infer<typeof SampleItem>;
 export type PartialSampleItem = z.infer<typeof PartialSampleItem>;
+export type SampleAnalysisDataItemUpdate = z.infer<
+  typeof SampleAnalysisDataItemUpdate
+>;
+export type SampleShippingDataUpdate = z.infer<typeof SampleShippingDataUpdate>;
 export type SampleItemUpdate = z.infer<typeof SampleItemUpdate>;
 
 export const SampleItemSort = (a: PartialSampleItem, b: PartialSampleItem) =>

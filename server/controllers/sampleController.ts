@@ -1,7 +1,7 @@
 import { constants } from 'node:http2';
 import type { Readable } from 'node:stream';
 import { format } from 'date-fns';
-import { isEqual, isNil } from 'lodash-es';
+import { isEqual, isNil, omit } from 'lodash-es';
 import NoRegionError from 'maestro-shared/errors/noRegionError';
 import SampleItemMissingError from 'maestro-shared/errors/sampleItemMissingError';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
@@ -418,7 +418,18 @@ export const sampleRouter = {
         throw new SampleItemMissingError(sampleId, itemNumber, copyNumber);
       }
 
-      if (!hasSamplePermission(user, userRole, sample)['performAnalysis']) {
+      if (
+        (itemUpdate.updateKey === 'analysis' ||
+          itemUpdate.updateKey === 'billing') &&
+        !hasSamplePermission(user, userRole, sample)['performAnalysis']
+      ) {
+        return { status: constants.HTTP_STATUS_FORBIDDEN };
+      }
+
+      if (
+        itemUpdate.updateKey === 'shipping' &&
+        !hasPermission(userRole, 'updateSample')
+      ) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
@@ -438,32 +449,34 @@ export const sampleRouter = {
       });
 
       const computeStatus = () => {
-        //Pas de changement de recevabilité
-        if (
-          isNil(itemUpdate.isAdmissible) &&
-          itemUpdate.receiptDate === sampleItem.receiptDate
-        ) {
-          return analysis?.status ?? 'Sent';
+        if (itemUpdate.updateKey === 'analysis') {
+          //Pas de changement de recevabilité
+          if (
+            isNil(itemUpdate.isAdmissible) &&
+            itemUpdate.receiptDate === sampleItem.receiptDate
+          ) {
+            return analysis?.status ?? 'Sent';
+          }
+          //Passage à non recevable
+          if (itemUpdate.isAdmissible === false) {
+            return 'NotAdmissible';
+          }
+          //Pas encore d'analyse
+          if (!analysis) {
+            return 'Sent';
+          }
+          //Passage de non recevable à recevable
+          if (analysis.status === 'NotAdmissible' && itemUpdate.isAdmissible) {
+            const analysisReportDoc =
+              analysisReportDocumentsRepository.findByAnalysisId(analysis.id);
+            return !isNil(analysis?.compliance)
+              ? 'Completed'
+              : !isNil(analysisReportDoc)
+                ? 'InReview'
+                : 'Analysis';
+          }
         }
-        //Passage à non recevable
-        if (itemUpdate.isAdmissible === false) {
-          return 'NotAdmissible';
-        }
-        //Pas encore d'analyse
-        if (!analysis) {
-          return 'Sent';
-        }
-        //Passage de non recevable à recevable
-        if (analysis.status === 'NotAdmissible' && itemUpdate.isAdmissible) {
-          const analysisReportDoc =
-            analysisReportDocumentsRepository.findByAnalysisId(analysis.id);
-          return !isNil(analysis?.compliance)
-            ? 'Completed'
-            : !isNil(analysisReportDoc)
-              ? 'InReview'
-              : 'Analysis';
-        }
-        return analysis.status ?? 'Sent';
+        return analysis?.status ?? 'Sent';
       };
       const status = computeStatus();
 
@@ -483,14 +496,23 @@ export const sampleRouter = {
       } else {
         await analysisRepository.update({
           ...analysis,
-          ...itemUpdate.analysis,
-          status,
-          compliance:
-            itemUpdate.isAdmissible === false ? null : analysis.compliance,
-          notesOnCompliance:
-            itemUpdate.isAdmissible === false
-              ? null
-              : analysis.notesOnCompliance
+          ...omit(
+            itemUpdate.updateKey === 'analysis'
+              ? {
+                  ...itemUpdate?.analysis,
+                  status,
+                  compliance:
+                    itemUpdate?.isAdmissible === false
+                      ? null
+                      : analysis.compliance,
+                  notesOnCompliance:
+                    itemUpdate?.isAdmissible === false
+                      ? null
+                      : analysis.notesOnCompliance
+                }
+              : {},
+            'updateKey'
+          )
         });
       }
 

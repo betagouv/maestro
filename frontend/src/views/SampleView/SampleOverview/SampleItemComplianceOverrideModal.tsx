@@ -41,6 +41,7 @@ export const SampleItemComplianceOverrideModal: FunctionComponent<Props> = ({
     e?.preventDefault();
     await form.validate(async (values) => {
       await updateSampleItem({
+        updateKey: 'analysis',
         ...sampleItem,
         complianceOverride: values.complianceOverride
       });
