@@ -1,7 +1,7 @@
 import { constants } from 'node:http2';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
-import { intersection, isNil } from 'lodash-es';
+import { intersection, isNil, uniq } from 'lodash-es';
 import DocumentMissingError from 'maestro-shared/errors/documentMissingError';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import type { DocumentChecked } from 'maestro-shared/schema/Document/Document';
@@ -11,6 +11,7 @@ import {
 } from 'maestro-shared/schema/Document/DocumentKind';
 import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { hasPermission } from 'maestro-shared/schema/User/User';
+import { UserRoleList } from 'maestro-shared/schema/User/UserRole';
 import { documentRepository } from '../repositories/documentRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
@@ -70,13 +71,31 @@ export const documentsRouter = {
             })
           : [];
 
+        const programmingPlans = await programmingPlanRepository.findMany({
+          ids: document.programmingPlanIds
+        });
+
+        const otherUserConcernedByProgrammingPlans =
+          await userRepository.findMany({
+            roles: UserRoleList.filter(
+              (role) =>
+                hasPermission(role, 'readDocuments') &&
+                role !== 'LaboratoryUser'
+            ),
+            programmingPlanKinds: uniq(
+              programmingPlans.flatMap((plan) => plan.kinds)
+            )
+          });
+
         await notificationService.sendNotification(
           {
             category: 'ResourceDocumentUploaded',
             author: user,
             link: `${AppRouteLinks.DocumentsRoute.link}?documentId=${document.id}`
           },
-          laboratoryUsers,
+          [...laboratoryUsers, ...otherUserConcernedByProgrammingPlans].filter(
+            (_) => _.id !== user.id
+          ),
           {
             object: 'Nouveau document disponible',
             content: `Une nouvelle ressource a été ajoutée ou mise à jour.  
