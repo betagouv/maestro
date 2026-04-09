@@ -81,7 +81,7 @@ export const PartialSampleItem = z.object({
   sealId: z.string().nullish()
 });
 
-export const SampleAnalysisDataItemUpdate = z.object({
+const SampleAnalysisDataItemUpdate = z.object({
   updateKey: z.literal('analysis'),
   ...SampleItem.pick({
     receiptDate: true,
@@ -92,7 +92,7 @@ export const SampleAnalysisDataItemUpdate = z.object({
   isAdmissible: z.boolean().nullish()
 });
 
-export const SampleBillingDataItemUpdate = z.object({
+const SampleBillingDataItemUpdate = z.object({
   updateKey: z.literal('billing'),
   ...SampleItem.pick({
     invoicingDate: true,
@@ -104,7 +104,7 @@ export const SampleBillingDataItemUpdate = z.object({
   isAdmissible: z.boolean().nullish()
 });
 
-export const SampleShippingDataUpdate = z.object({
+const SampleShippingDataUpdate = z.object({
   updateKey: z.literal('shipping'),
   ...SampleItem.pick({
     shippingDate: true,
