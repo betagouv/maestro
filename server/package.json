@@ -54,7 +54,7 @@
     "libxml2-wasm": "^0.6.0",
     "maestro-shared": "^0.0.1",
     "mailparser": "^3.9.6",
-    "nodemailer": "^8.0.4",
+    "nodemailer": "^8.0.5",
     "openid-client": "^6.8.2",
     "pdf-lib": "^1.17.1",
     "pg": "^8.16.3",
