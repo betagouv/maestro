@@ -26,12 +26,12 @@ describe('buildFindSampleOptions', () => {
         'NationalCoordinator',
         {
           ...baseQuery,
-          region: Region1Fixture,
+          regions: [Region1Fixture],
           departments: ['01', '02']
         }
       );
 
-      expect(result.region).toBe(Region1Fixture);
+      expect(result.regions).toEqual([Region1Fixture]);
       expect(result.departments).toEqual(['01', '02']);
       expect(result.companySirets).toBeUndefined();
     });
@@ -43,7 +43,7 @@ describe('buildFindSampleOptions', () => {
         baseQuery
       );
 
-      expect(result.region).toBeUndefined();
+      expect(result.regions).toBeUndefined();
       expect(result.departments).toBeUndefined();
       expect(result.companySirets).toBeUndefined();
     });
@@ -54,11 +54,11 @@ describe('buildFindSampleOptions', () => {
         'NationalCoordinator',
         {
           ...baseQuery,
-          region: '93'
+          regions: ['93']
         }
       );
 
-      expect(result.region).toBe('93');
+      expect(result.regions).toEqual(['93']);
     });
 
     test('NationalObserver can access all regions and departments', () => {
@@ -67,12 +67,12 @@ describe('buildFindSampleOptions', () => {
         'NationalObserver',
         {
           ...baseQuery,
-          region: Region1Fixture,
+          regions: [Region1Fixture],
           departments: ['01', '02']
         }
       );
 
-      expect(result.region).toBe(Region1Fixture);
+      expect(result.regions).toEqual([Region1Fixture]);
       expect(result.departments).toEqual(['01', '02']);
       expect(result.companySirets).toBeUndefined();
     });
@@ -80,11 +80,11 @@ describe('buildFindSampleOptions', () => {
     test('Administrator can access all regions and departments', () => {
       const result = buildFindSampleOptions(AdminFixture, 'Administrator', {
         ...baseQuery,
-        region: Region1Fixture,
+        regions: [Region1Fixture],
         departments: ['01', '02']
       });
 
-      expect(result.region).toBe(Region1Fixture);
+      expect(result.regions).toEqual([Region1Fixture]);
       expect(result.departments).toEqual(['01', '02']);
       expect(result.companySirets).toBeUndefined();
     });
@@ -97,12 +97,12 @@ describe('buildFindSampleOptions', () => {
         'RegionalCoordinator',
         {
           ...baseQuery,
-          region: '52',
+          regions: ['52'],
           departments: ['01', '02']
         }
       );
 
-      expect(result.region).toBe(RegionalCoordinator.region);
+      expect(result.regions).toEqual([RegionalCoordinator.region]);
       expect(result.departments).toEqual(['01', '02']);
       expect(result.companySirets).toBeUndefined();
     });
@@ -118,7 +118,7 @@ describe('buildFindSampleOptions', () => {
         }
       );
 
-      expect(result.region).toBe(RegionalCoordinator.region);
+      expect(result.regions).toEqual([RegionalCoordinator.region]);
       expect(result.departments).toEqual([
         regionDepartments[0],
         regionDepartments[1]
@@ -131,12 +131,12 @@ describe('buildFindSampleOptions', () => {
         'RegionalObserver',
         {
           ...baseQuery,
-          region: '52',
+          regions: ['52'],
           departments: ['01', '02']
         }
       );
 
-      expect(result.region).toBe(RegionalObserver.region);
+      expect(result.regions).toEqual([RegionalObserver.region]);
       expect(result.departments).toEqual(['01', '02']);
       expect(result.companySirets).toBeUndefined();
     });
@@ -149,12 +149,12 @@ describe('buildFindSampleOptions', () => {
         'DepartmentalCoordinator',
         {
           ...baseQuery,
-          region: '52',
+          regions: ['52'],
           departments: ['01', '02']
         }
       );
 
-      expect(result.region).toBe(DepartmentalCoordinator.region);
+      expect(result.regions).toEqual([DepartmentalCoordinator.region]);
       expect(result.departments).toEqual([DepartmentalCoordinator.department]);
       expect(result.companySirets).toBeUndefined();
     });
@@ -169,7 +169,7 @@ describe('buildFindSampleOptions', () => {
         }
       );
 
-      expect(result.region).toBe(DepartmentalCoordinator.region);
+      expect(result.regions).toEqual([DepartmentalCoordinator.region]);
       expect(result.departments).toEqual([DepartmentalCoordinator.department]);
       expect(result.companySirets).toEqual([
         '12345678901234',
@@ -182,11 +182,11 @@ describe('buildFindSampleOptions', () => {
     test('Sampler PPV is restricted to their region', () => {
       const result = buildFindSampleOptions(Sampler1Fixture, 'Sampler', {
         ...baseQuery,
-        region: '52',
+        regions: ['52'],
         departments: ['01', '02']
       });
 
-      expect(result.region).toBe(Sampler1Fixture.region);
+      expect(result.regions).toEqual([Sampler1Fixture.region]);
       expect(result.departments).toEqual(['01', '02']);
       expect(result.companySirets).toBeUndefined();
     });
@@ -194,12 +194,12 @@ describe('buildFindSampleOptions', () => {
     test('Sampler DAOA is restricted to their region, department and companies', () => {
       const result = buildFindSampleOptions(SamplerDaoaFixture, 'Sampler', {
         ...baseQuery,
-        region: '52',
+        regions: ['52'],
         departments: ['01', '02'],
         companySirets: ['11111111111111', '22222222222222']
       });
 
-      expect(result.region).toBe(SamplerDaoaFixture.region);
+      expect(result.regions).toEqual([SamplerDaoaFixture.region]);
       expect(result.departments).toEqual([SamplerDaoaFixture.department]);
       expect(result.companySirets).toEqual(
         SamplerDaoaFixture.companies.map((c) => c.siret)
