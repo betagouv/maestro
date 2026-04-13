@@ -241,7 +241,7 @@ const ProgrammingPlanMap = ({
     <div data-testid="prescription-map">
       <MapLibre
         ref={ref}
-        attributionControl
+        attributionControl={{}}
         id="prescriptionMap"
         initialViewState={{
           latitude: 46,
