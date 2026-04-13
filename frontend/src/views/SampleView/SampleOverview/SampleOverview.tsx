@@ -4,10 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import SideMenu from '@codegouvfr/react-dsfr/SideMenu';
 import clsx from 'clsx';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
-import {
-  hasSamplePermission,
-  type SampleChecked
-} from 'maestro-shared/schema/Sample/Sample';
+import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   getItemStatus,
   isItemAchieved,
@@ -15,14 +12,7 @@ import {
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { isDefined } from 'maestro-shared/utils/utils';
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import food from 'src/assets/illustrations/food.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
@@ -48,7 +38,7 @@ const SampleOverview = ({ sample }: Props) => {
   useDocumentTitle(`Prélèvement ${sample.reference}`);
   const apiClient = useContext(ApiClientContext);
   const complianceRef = useRef<null | HTMLDivElement>(null);
-  const { user, userRole } = useAuthentication();
+  const { hasUserSamplePermission } = useAuthentication();
 
   const { getSampleItemLaboratory } = usePartialSample(sample);
 
@@ -59,14 +49,6 @@ const SampleOverview = ({ sample }: Props) => {
     apiClient.useUpdateSampleMutation({
       fixedCacheKey: `sending-sample-${sample.id}`
     });
-
-  const readonly = useMemo(
-    () =>
-      !user ||
-      !userRole ||
-      !hasSamplePermission(user, userRole, sample)['performAnalysis'],
-    [sample, user, userRole, hasSamplePermission]
-  );
 
   const activeMenu = (searchParams.get('menu') ?? 'items') as
     | 'items'
@@ -162,7 +144,7 @@ const SampleOverview = ({ sample }: Props) => {
         />
       )}
 
-      {activeCompliance && !readonly && (
+      {activeCompliance && hasUserSamplePermission(sample).performAnalysis && (
         <div ref={complianceRef}>
           <SampleComplianceForm
             sample={sample}
@@ -276,7 +258,8 @@ const SampleOverview = ({ sample }: Props) => {
                   href: '#'
                 }
               },
-              sample.programmingPlanKind !== 'PPV' && !readonly
+              sample.programmingPlanKind !== 'PPV' &&
+              hasUserSamplePermission(sample).performAnalysis
                 ? {
                     text: (
                       <div
@@ -320,7 +303,6 @@ const SampleOverview = ({ sample }: Props) => {
                 itemNumber={activeItemNumber}
                 sampleItemCopies={sampleItemCopies(activeItemNumber)}
                 sample={sample}
-                readonly={readonly}
               />
             )}
             {activeMenu === 'matrix' && (

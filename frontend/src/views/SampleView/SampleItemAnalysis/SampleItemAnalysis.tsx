@@ -22,6 +22,7 @@ import { useSamplesLink } from '../../../hooks/useSamplesLink';
 import { ApiClientContext } from '../../../services/apiClient';
 import { SampleItemAdmissibility } from './SampleItemAdmissibility/SampleItemAdmissibility';
 import './SampleItemAnalysis.scss';
+import { useAuthentication } from '../../../hooks/useAuthentication';
 import { AnalysisDocumentPreview } from './SampleItemAnalysisForm/AnalysisDocumentPreview';
 import { SampleAnalysisForm } from './SampleItemAnalysisForm/SampleAnalysisForm';
 import { SampleAnalysisOverview } from './SampleItemAnalysisOverview/SampleAnalysisOverview';
@@ -29,16 +30,16 @@ import { SampleAnalysisOverview } from './SampleItemAnalysisOverview/SampleAnaly
 type Props = {
   sample: SampleChecked;
   sampleItem: SampleItem;
-  readonly: boolean;
 };
 
 const SampleItemAnalysis: FunctionComponent<Props> = ({
   sample,
-  sampleItem,
-  readonly
+  sampleItem
 }) => {
   const apiClient = useContext(ApiClientContext);
   const location = useLocation();
+
+  const { hasUserSamplePermission, hasUserPermission } = useAuthentication();
 
   const { navigateToSample, navigateToSampleEdit } = useSamplesLink();
   const [, { isSuccess: isCompletingAnalysisSuccess }] =
@@ -53,10 +54,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
 
   const [updateSampleItem] = apiClient.useUpdateSampleItemMutation();
 
-  const Form = z.object({
-    shippingDate: maestroDateRefined.nullable(),
-    destructionDate: maestroDateRefined.nullable(),
-    carrier: z.string().nullable(),
+  const BillingForm = z.object({
     invoicingDate: maestroDateRefined.nullable(),
     paid: z.boolean().nullable(),
     paidDate: maestroDateRefined.nullable(),
@@ -64,44 +62,81 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
     budgetNotes: z.string().nullable()
   });
 
-  type FormSchema = z.infer<typeof Form>;
+  const ShippingForm = z.object({
+    shippingDate: maestroDateRefined.nullable(),
+    destructionDate: maestroDateRefined.nullable(),
+    carrier: z.string().nullable()
+  });
 
-  const [localSampleItem, setLocalSampleItem] = useState(
-    sampleItem as FormSchema
+  type BillingFormSchema = z.infer<typeof BillingForm>;
+  type ShippingFormSchema = z.infer<typeof ShippingForm>;
+
+  const [billingSampleItem, setBillingSampleItem] = useState(
+    sampleItem as BillingFormSchema
+  );
+  const [shippingSampleItem, setShippingSampleItem] = useState(
+    sampleItem as ShippingFormSchema
   );
 
   useEffect(() => {
-    setLocalSampleItem(sampleItem as FormSchema);
+    setBillingSampleItem(
+      pick(
+        sampleItem,
+        'invoicingDate',
+        'paid',
+        'paidDate',
+        'invoiceNumber',
+        'budgetNotes'
+      ) as BillingFormSchema
+    );
+    setShippingSampleItem(
+      pick(
+        sampleItem,
+        'shippingDate',
+        'destructionDate',
+        'carrier'
+      ) as ShippingFormSchema
+    );
   }, [sampleItem]);
 
-  const save = async () => {
-    await updateSampleItem({
-      ...sampleItem,
-      ...localSampleItem,
-      sampleId: sampleItem.sampleId,
-      itemNumber: sampleItem.itemNumber,
-      copyNumber: sampleItem.copyNumber
-    });
-  };
-
-  const form = useForm(
-    Form,
+  const billingForm = useForm(
+    BillingForm,
     pick(
-      localSampleItem,
-      'shippingDate',
-      'destructionDate',
-      'carrier',
+      billingSampleItem,
       'invoicingDate',
       'paid',
       'paidDate',
       'invoiceNumber',
       'budgetNotes'
     ),
-    save
+    async () => {
+      await updateSampleItem({
+        updateKey: 'billing',
+        ...billingSampleItem,
+        sampleId: sampleItem.sampleId,
+        itemNumber: sampleItem.itemNumber,
+        copyNumber: sampleItem.copyNumber
+      });
+    }
+  );
+
+  const shippingForm = useForm(
+    ShippingForm,
+    pick(shippingSampleItem, 'shippingDate', 'destructionDate', 'carrier'),
+
+    async () => {
+      await updateSampleItem({
+        updateKey: 'shipping',
+        ...shippingSampleItem,
+        sampleId: sampleItem.sampleId,
+        itemNumber: sampleItem.itemNumber,
+        copyNumber: sampleItem.copyNumber
+      });
+    }
   );
 
   const isEditing: boolean =
-    !readonly &&
+    hasUserSamplePermission(sample).performAnalysis &&
     (location.pathname.endsWith('/edit') ||
       sampleItem.analysis?.status !== 'Completed');
 
@@ -118,7 +153,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
       <div>
         <SampleItemAdmissibility
           sample={sample}
-          readonly={readonly}
+          readonly={!hasUserSamplePermission(sample).performAnalysis}
           sampleItem={sampleItem}
         />
         {analysis?.status !== 'NotAdmissible' && (
@@ -155,57 +190,57 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
               <AppTextInput
                 type="date"
                 label="Date d'expédition"
-                value={localSampleItem.shippingDate ?? ''}
+                value={shippingSampleItem.shippingDate ?? ''}
                 onChange={(e) =>
-                  setLocalSampleItem({
-                    ...localSampleItem,
+                  setShippingSampleItem({
+                    ...shippingSampleItem,
                     shippingDate: e.target.value as MaestroDate | null
                   })
                 }
-                inputForm={form}
+                inputForm={shippingForm}
                 inputKey="shippingDate"
-                state={form.messageType('shippingDate')}
-                stateRelatedMessage={form.message('shippingDate')}
+                state={shippingForm.messageType('shippingDate')}
+                stateRelatedMessage={shippingForm.message('shippingDate')}
                 whenValid="Date d'expédition correctement renseignée."
-                disabled={readonly}
+                disabled={!hasUserPermission('updateSample')}
               />
             </div>
             <div className={cx('fr-col-4')}>
               <AppTextInput
                 type="date"
                 label="Date de destruction"
-                value={localSampleItem.destructionDate ?? ''}
+                value={shippingSampleItem.destructionDate ?? ''}
                 onChange={(e) =>
-                  setLocalSampleItem({
-                    ...localSampleItem,
+                  setShippingSampleItem({
+                    ...shippingSampleItem,
                     destructionDate: e.target.value as MaestroDate | null
                   })
                 }
-                inputForm={form}
+                inputForm={shippingForm}
                 inputKey="destructionDate"
-                state={form.messageType('destructionDate')}
-                stateRelatedMessage={form.message('destructionDate')}
+                state={shippingForm.messageType('destructionDate')}
+                stateRelatedMessage={shippingForm.message('destructionDate')}
                 whenValid="Date de destruction correctement renseignée."
-                disabled={readonly}
+                disabled={!hasUserPermission('updateSample')}
               />
             </div>
             <div className={cx('fr-col-4')}>
               <AppTextInput
                 type="text"
                 label="Transporteur"
-                value={localSampleItem.carrier ?? ''}
+                value={shippingSampleItem.carrier ?? ''}
                 onChange={(e) =>
-                  setLocalSampleItem({
-                    ...localSampleItem,
+                  setShippingSampleItem({
+                    ...shippingSampleItem,
                     carrier: e.target.value
                   })
                 }
-                inputForm={form}
+                inputForm={shippingForm}
                 inputKey="carrier"
-                state={form.messageType('carrier')}
-                stateRelatedMessage={form.message('carrier')}
+                state={shippingForm.messageType('carrier')}
+                stateRelatedMessage={shippingForm.message('carrier')}
                 whenValid="Transporteur correctement renseigné."
-                disabled={readonly}
+                disabled={!hasUserPermission('updateSample')}
               />
             </div>
           </div>
@@ -216,19 +251,19 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
               <AppTextInput
                 type="date"
                 label="Date de facturation"
-                value={localSampleItem.invoicingDate ?? ''}
+                value={billingSampleItem.invoicingDate ?? ''}
                 onChange={(e) =>
-                  setLocalSampleItem({
-                    ...localSampleItem,
+                  setBillingSampleItem({
+                    ...billingSampleItem,
                     invoicingDate: e.target.value as MaestroDate | null
                   })
                 }
-                inputForm={form}
+                inputForm={billingForm}
                 inputKey="invoicingDate"
-                state={form.messageType('invoicingDate')}
-                stateRelatedMessage={form.message('invoicingDate')}
+                state={billingForm.messageType('invoicingDate')}
+                stateRelatedMessage={billingForm.message('invoicingDate')}
                 whenValid="Date de facturation correctement renseignée."
-                disabled={readonly}
+                disabled={!hasUserSamplePermission(sample).performAnalysis}
               />
             </div>
             <div className={cx('fr-col-4')}>
@@ -239,36 +274,36 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                   { label: 'Payé', value: 'true' },
                   { label: 'Non payé', value: 'false' }
                 ]}
-                value={localSampleItem.paid === true ? 'true' : 'false'}
+                value={billingSampleItem.paid === true ? 'true' : 'false'}
                 onChange={(e) =>
-                  setLocalSampleItem({
-                    ...localSampleItem,
+                  setBillingSampleItem({
+                    ...billingSampleItem,
                     paid: e.target.value === 'true'
                   })
                 }
-                inputForm={form}
+                inputForm={billingForm}
                 inputKey="paid"
                 whenValid="Statut de paiement correctement renseigné."
-                disabled={readonly}
+                disabled={!hasUserSamplePermission(sample).performAnalysis}
               />
             </div>
             <div className={cx('fr-col-4')}>
               <AppTextInput
                 type="date"
                 label="Date de paiement"
-                value={localSampleItem.paidDate ?? ''}
+                value={billingSampleItem.paidDate ?? ''}
                 onChange={(e) =>
-                  setLocalSampleItem({
-                    ...localSampleItem,
+                  setBillingSampleItem({
+                    ...billingSampleItem,
                     paidDate: e.target.value as MaestroDate | null
                   })
                 }
-                inputForm={form}
+                inputForm={billingForm}
                 inputKey="paidDate"
-                state={form.messageType('paidDate')}
-                stateRelatedMessage={form.message('paidDate')}
+                state={billingForm.messageType('paidDate')}
+                stateRelatedMessage={billingForm.message('paidDate')}
                 whenValid="Date de paiement correctement renseignée."
-                disabled={readonly}
+                disabled={!hasUserSamplePermission(sample).performAnalysis}
               />
             </div>
           </div>
@@ -277,38 +312,38 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
               <AppTextInput
                 type="text"
                 label="Numéro de facture"
-                value={localSampleItem.invoiceNumber ?? ''}
+                value={billingSampleItem.invoiceNumber ?? ''}
                 onChange={(e) =>
-                  setLocalSampleItem({
-                    ...localSampleItem,
+                  setBillingSampleItem({
+                    ...billingSampleItem,
                     invoiceNumber: e.target.value
                   })
                 }
-                inputForm={form}
+                inputForm={billingForm}
                 inputKey="invoiceNumber"
-                state={form.messageType('invoiceNumber')}
-                stateRelatedMessage={form.message('invoiceNumber')}
+                state={billingForm.messageType('invoiceNumber')}
+                stateRelatedMessage={billingForm.message('invoiceNumber')}
                 whenValid="Numéro de facture correctement renseigné."
-                disabled={readonly}
+                disabled={!hasUserSamplePermission(sample).performAnalysis}
               />
             </div>
             <div className={cx('fr-col-8')}>
               <AppTextInput
                 type="text"
                 label="Notes budgétaires"
-                value={localSampleItem.budgetNotes ?? ''}
+                value={billingSampleItem.budgetNotes ?? ''}
                 onChange={(e) =>
-                  setLocalSampleItem({
-                    ...localSampleItem,
+                  setBillingSampleItem({
+                    ...billingSampleItem,
                     budgetNotes: e.target.value as MaestroDate | null
                   })
                 }
-                inputForm={form}
+                inputForm={billingForm}
                 inputKey="budgetNotes"
-                state={form.messageType('budgetNotes')}
-                stateRelatedMessage={form.message('budgetNotes')}
+                state={billingForm.messageType('budgetNotes')}
+                stateRelatedMessage={billingForm.message('budgetNotes')}
                 whenValid="Notes budgétaires correctement renseignées."
-                disabled={readonly}
+                disabled={!hasUserSamplePermission(sample).performAnalysis}
               />
             </div>
           </div>
@@ -321,7 +356,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
           <SampleAnalysisOverview
             sample={sample}
             analysis={analysis}
-            readonly={readonly}
+            readonly={!hasUserSamplePermission(sample).performAnalysis}
             onEdit={() => navigateToSampleEdit(sample.id)}
           />
         ) : (

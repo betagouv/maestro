@@ -10,6 +10,11 @@ import {
   type PrescriptionPermission
 } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  hasSamplePermission,
+  type SampleChecked,
+  type SamplePermission
+} from 'maestro-shared/schema/Sample/Sample';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import type { UserPermission } from 'maestro-shared/schema/User/UserPermission';
 import {
@@ -86,6 +91,16 @@ export const useAuthentication = () => {
     [authUser]
   );
 
+  const hasUserSamplePermission = useCallback(
+    (sample: SampleChecked): Record<SamplePermission, boolean> =>
+      !isNil(authUser?.user) && !isNil(authUser?.userRole)
+        ? hasSamplePermission(authUser.user, authUser.userRole, sample)
+        : {
+            performAnalysis: false
+          },
+    [authUser]
+  );
+
   const availableRoutes = useMemo(() => {
     return isAuthenticated
       ? [
@@ -126,6 +141,7 @@ export const useAuthentication = () => {
     hasUserPermission,
     hasUserPrescriptionPermission,
     hasUserLocalPrescriptionPermission,
+    hasUserSamplePermission,
     hasRole,
     hasNationalView,
     hasRegionalView,
