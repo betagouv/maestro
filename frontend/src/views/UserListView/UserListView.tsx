@@ -98,7 +98,11 @@ export const UserListView = () => {
             return false;
           }
 
-          if (filters.region && u.region !== filters.region) {
+          if (
+            filters.regions?.length &&
+            u.region &&
+            !filters.regions.includes(u.region)
+          ) {
             return false;
           }
 

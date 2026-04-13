@@ -28,25 +28,40 @@ export const DepartmentsSelect: FunctionComponent<Props> = ({
   const { hasNationalView, user } = useAuthentication();
 
   const departmentOptions = useMemo(() => {
-    const region = hasNationalView ? filters.region : user?.region;
-    const list = region
-      ? Regions[region as Region].departments
-      : DepartmentList;
+    const regions = hasNationalView
+      ? (filters.regions ?? [])
+      : user?.region
+        ? [user.region]
+        : [];
+    const list =
+      regions.length > 0
+        ? Array.from(
+            new Set(regions.flatMap((r) => Regions[r as Region].departments))
+          )
+        : DepartmentList;
 
     return list
       .filter((l) => !filters.departments?.includes(l))
       .sort((a, b) => a.localeCompare(b));
-  }, [hasNationalView, user?.region, filters.region, filters.departments]);
+  }, [hasNationalView, user?.region, filters.regions, filters.departments]);
 
   const borderingDepartments = useMemo(() => {
-    const region = hasNationalView ? filters.region : user?.region;
-    const list = region
-      ? (Regions[region as Region].borderingDepartments?.sort((a, b) =>
-          a.localeCompare(b)
-        ) ?? [])
-      : [];
+    const regions = hasNationalView
+      ? (filters.regions ?? [])
+      : user?.region
+        ? [user.region]
+        : [];
+    const list = Array.from(
+      new Set(
+        regions.flatMap((r) =>
+          Regions[r as Region].borderingDepartments.sort((a, b) =>
+            a.localeCompare(b)
+          )
+        )
+      )
+    );
     return list.filter((l) => !filters.departments?.includes(l));
-  }, [hasNationalView, user?.region, filters.region, filters.departments]);
+  }, [hasNationalView, user?.region, filters.regions, filters.departments]);
 
   return (
     <Select

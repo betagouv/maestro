@@ -5,29 +5,30 @@ import {
   Regions
 } from 'maestro-shared/referential/Region';
 import type { FunctionComponent } from 'react';
-import { assert, type Equals } from 'tsafe';
 
 type Props = {
-  defaultValue: Region | null;
+  values: Region[];
   onChange: (region: Region) => void;
 };
+
 export const RegionsFilter: FunctionComponent<Props> = ({
-  defaultValue,
-  onChange,
-  ..._rest
+  values,
+  onChange
 }) => {
-  assert<Equals<keyof typeof _rest, never>>();
   return (
     <Select
       label="Région"
       nativeSelectProps={{
-        value: defaultValue || '',
+        value: '',
         onChange: (e) => onChange(e.target.value as Region)
       }}
     >
-      <option value="">Toutes les régions</option>
+      <option value="">
+        {values.length ? `${values.length} région(s)` : 'Toutes les régions'}
+      </option>
       {[...RegionList]
         .sort((a, b) => Regions[a].name.localeCompare(Regions[b].name))
+        .filter((region) => !values.includes(region))
         .map((region) => (
           <option key={`region-${region}`} value={region}>
             {Regions[region].name}

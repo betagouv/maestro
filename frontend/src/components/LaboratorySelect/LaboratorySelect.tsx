@@ -10,6 +10,7 @@ interface Props {
   programmingPlanId: string | undefined;
   substanceKind?: SubstanceKind;
   laboratoryId?: string | null;
+  laboratoryIds?: string[];
   onSelect: (laboratoryId?: string) => void;
   readonly?: boolean;
   withAllOption?: boolean;
@@ -19,6 +20,7 @@ const LaboratorySelect = ({
   programmingPlanId,
   substanceKind,
   laboratoryId,
+  laboratoryIds,
   onSelect,
   readonly,
   withAllOption
@@ -30,11 +32,13 @@ const LaboratorySelect = ({
     substanceKind
   });
 
+  const isMulti = laboratoryIds !== undefined;
+
   return (
     <Select
       label="Laboratoire"
       nativeSelectProps={{
-        value: laboratoryId ?? '',
+        value: isMulti ? '' : (laboratoryId ?? ''),
         autoFocus: true,
         onChange: (e) => onSelect(e.target.value || undefined)
       }}
@@ -42,17 +46,23 @@ const LaboratorySelect = ({
       disabled={readonly}
     >
       {(withAllOption ?? false) ? (
-        <option value="">Tous</option>
+        <option value="">
+          {isMulti && laboratoryIds.length > 0
+            ? `${laboratoryIds.length} laboratoire(s)`
+            : 'Tous'}
+        </option>
       ) : (
         <option value="" disabled>
           Sélectionner un laboratoire
         </option>
       )}
-      {sortBy(laboratories ?? [], 'name').map((laboratory) => (
-        <option key={laboratory.id} value={laboratory.id}>
-          {laboratory.name}
-        </option>
-      ))}
+      {sortBy(laboratories ?? [], 'name')
+        .filter((lab) => !laboratoryIds?.includes(lab.id))
+        .map((laboratory) => (
+          <option key={laboratory.id} value={laboratory.id}>
+            {laboratory.name}
+          </option>
+        ))}
     </Select>
   );
 };

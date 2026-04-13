@@ -42,13 +42,13 @@ describe('count samples', async () => {
   test('count with region option', async () => {
     let count = await sampleRepository.count({
       programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
-      region: '01'
+      regions: ['01']
     });
     expect(count).toEqual(0);
 
     count = await sampleRepository.count({
       programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
-      region: Sample11Fixture.region
+      regions: [Sample11Fixture.region]
     });
     expect(count).toEqual(3);
   });
@@ -76,16 +76,16 @@ describe('findMany samples', async () => {
     expect(samples).toHaveLength(1);
   });
 
-  test('find with matrixKind option', async () => {
+  test('find with matrixKinds option', async () => {
     let samples = await sampleRepository.findMany({
       programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
-      matrixKind: 'A00PX'
+      matrixKinds: ['A00PX']
     });
     expect(samples).toEqual([]);
 
     samples = await sampleRepository.findMany({
       programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
-      matrixKind: Sample11Fixture.matrixKind as MatrixKind
+      matrixKinds: [Sample11Fixture.matrixKind as MatrixKind]
     });
     expect(samples).toHaveLength(1);
   });
@@ -114,7 +114,7 @@ describe('findMany samples', async () => {
     samples = await sampleRepository.findMany({
       programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
       compliance: 'NonCompliant',
-      status: 'Draft'
+      statuses: ['Draft']
     });
     expect(samples).toHaveLength(1);
     expect(samples[0].id).toBe(Sample11Fixture.id);
@@ -129,16 +129,16 @@ describe('findMany samples', async () => {
     });
   });
 
-  test('find with laboratoryId option', async () => {
+  test('find with laboratoryIds option', async () => {
     let samples = await sampleRepository.findMany({
       programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
-      laboratoryId: '00000000-0000-0000-0000-000000000000'
+      laboratoryIds: ['00000000-0000-0000-0000-000000000000']
     });
     expect(samples).toEqual([]);
 
     samples = await sampleRepository.findMany({
       programmingPlanIds: toArray(Sample11Fixture.programmingPlanId),
-      laboratoryId: LaboratoryFixture.id
+      laboratoryIds: [LaboratoryFixture.id]
     });
     expect(samples).toHaveLength(1);
     expect(samples[0].id).toBe(Sample11Fixture.id);

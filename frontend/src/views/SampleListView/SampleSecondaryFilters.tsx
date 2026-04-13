@@ -39,10 +39,10 @@ const SampleSecondaryFilters = ({
       {hasNationalView && (
         <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
           <RegionsFilter
-            defaultValue={filters.region ?? null}
+            values={filters.regions ?? []}
             onChange={(region) => {
               onChange({
-                region,
+                regions: [...(filters.regions ?? []), region],
                 departments: undefined
               });
             }}
@@ -85,10 +85,10 @@ const SampleSecondaryFilters = ({
                   ...(filters.contexts ?? []),
                   e.target.value as Context
                 ],
-                matrix: (filters.contexts ?? []).includes(
+                matrices: (filters.contexts ?? []).includes(
                   e.target.value as Context
                 )
-                  ? filters.matrix
+                  ? filters.matrices
                   : undefined
               })
           }}
@@ -131,10 +131,12 @@ const SampleSecondaryFilters = ({
       <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
         <LaboratorySelect
           programmingPlanId={programmingPlanId}
-          laboratoryId={filters.laboratoryId}
+          laboratoryIds={filters.laboratoryIds ?? undefined}
           onSelect={(laboratoryId) =>
             onChange({
-              laboratoryId
+              laboratoryIds: laboratoryId
+                ? [...(filters.laboratoryIds ?? []), laboratoryId]
+                : undefined
             })
           }
           withAllOption={true}

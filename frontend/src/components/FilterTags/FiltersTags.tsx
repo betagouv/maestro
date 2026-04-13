@@ -6,22 +6,17 @@ import { omit } from 'lodash-es';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import { Regions } from 'maestro-shared/referential/Region';
 import type { Pagination } from 'maestro-shared/schema/commons/Pagination';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
-import {
-  ContextLabels,
-  type ProgrammingPlanContext
-} from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { SampleComplianceLabels } from 'maestro-shared/schema/Sample/SampleCompliance';
-import {
-  type SampleStatus,
-  SampleStatusLabels
-} from 'maestro-shared/schema/Sample/SampleStatus';
+import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { Fragment, type ReactNode, useMemo } from 'react';
@@ -58,82 +53,117 @@ type FilterableProp = keyof Omit<
   keyof Pagination | 'reference' | 'companySirets'
 >;
 
+const renderArrayTags = <T extends string>(
+  filterKey: string,
+  value: T[],
+  getLabel: (item: T) => string,
+  onChange: (filters: Partial<FilterableType>) => void,
+  extraChanges?: Partial<FilterableType>
+): ReactNode => (
+  <Fragment key={`tag-${filterKey}`}>
+    {value.map((item) => (
+      <Tag
+        {...tagProps}
+        key={`tag-${filterKey}-${item}`}
+        nativeButtonProps={{
+          onClick: () =>
+            onChange({
+              [filterKey]: value.filter((v) => v !== item),
+              ...extraChanges
+            } as Partial<FilterableType>)
+        }}
+      >
+        {getLabel(item)}
+      </Tag>
+    ))}
+  </Fragment>
+);
+
 const filtersConfig = {
-  matrixKind: {
-    prop: 'matrixKind',
-    getLabel: (value) => MatrixKindLabels[value]
+  matrixKinds: {
+    prop: 'matrixKinds',
+    getComponent: (value, onChange, { filters }) => (
+      <Fragment key="tag-matrixKinds">
+        {value.map((kind) => (
+          <Tag
+            {...tagProps}
+            key={`tag-matrixKind-${kind}`}
+            nativeButtonProps={{
+              onClick: () => {
+                const newMatrixKinds = value.filter((v) => v !== kind);
+                const remainingMatrices = filters?.matrices?.filter((m) =>
+                  newMatrixKinds.some((k) => MatrixListByKind[k].includes(m))
+                );
+                onChange({
+                  matrixKinds: newMatrixKinds,
+                  matrices: remainingMatrices
+                });
+              }
+            }}
+          >
+            {MatrixKindLabels[kind]}
+          </Tag>
+        ))}
+      </Fragment>
+    )
   },
-  matrix: {
-    prop: 'matrix',
-    getLabel: (value) => MatrixLabels[value]
+  matrices: {
+    prop: 'matrices',
+    getComponent: (value, onChange) =>
+      renderArrayTags('matrices', value, (m) => MatrixLabels[m], onChange)
   },
-  status: {
-    prop: 'status',
-    getLabel: (value) => SampleStatusLabels[value as SampleStatus]
+  statuses: {
+    prop: 'statuses',
+    getComponent: (value, onChange) =>
+      renderArrayTags('statuses', value, (s) => SampleStatusLabels[s], onChange)
   },
   sampledBy: {
     prop: 'sampledBy',
-    getLabel: (_value, { sampler }) => (sampler ? `${sampler.name}` : null)
+    getComponent: (value, onChange, { samplers }) => (
+      <Fragment key="tag-sampledBy">
+        {value.map((id) => {
+          const sampler = samplers?.find((u) => u.id === id);
+          return sampler ? (
+            <Tag
+              {...tagProps}
+              key={`tag-sampledBy-${id}`}
+              nativeButtonProps={{
+                onClick: () =>
+                  onChange({ sampledBy: value.filter((v) => v !== id) })
+              }}
+            >
+              {sampler.name}
+            </Tag>
+          ) : null;
+        })}
+      </Fragment>
+    )
   },
   sampledDate: {
     prop: 'sampledDate',
     getLabel: (value) => format(new Date(value), 'dd/MM/yyyy')
   },
-  region: {
-    prop: 'region',
-    getComponent: (value, onChange) => (
-      <Tag
-        {...tagProps}
-        key={`tag-region`}
-        nativeButtonProps={{
-          onClick: () => onChange({ region: undefined, departments: undefined })
-        }}
-      >
-        {Regions[value].name}
-      </Tag>
-    )
+  regions: {
+    prop: 'regions',
+    getComponent: (value, onChange) =>
+      renderArrayTags('regions', value, (r) => Regions[r].name, onChange, {
+        departments: undefined
+      })
   },
   departments: {
     prop: 'departments',
-    getComponent: (value, onChange) => (
-      <>
-        {value.map((d) => (
-          <Tag
-            {...tagProps}
-            key={`tag-department-${d}`}
-            nativeButtonProps={{
-              onClick: () =>
-                onChange({ departments: value.filter((v) => v !== d) })
-            }}
-          >
-            {DepartmentLabels[d]}
-          </Tag>
-        ))}
-      </>
-    )
+    getComponent: (value, onChange) =>
+      renderArrayTags(
+        'departments',
+        value,
+        (d) => DepartmentLabels[d],
+        onChange
+      )
   },
   contexts: {
     prop: 'contexts',
-    getComponent: (value, onChange) => (
-      <Fragment key={`tag-contexts`}>
-        {value.map((d) => (
-          <Tag
-            {...tagProps}
-            key={`tag-context-${d}`}
-            nativeButtonProps={{
-              onClick: () =>
-                onChange({
-                  contexts: value.filter(
-                    (v) => v !== d
-                  ) as ProgrammingPlanContext[]
-                })
-            }}
-          >
-            {ContextLabels[d]}
-          </Tag>
-        ))}
-      </Fragment>
-    )
+    getComponent: (value, onChange) =>
+      renderArrayTags('contexts', value, (d) => ContextLabels[d], onChange)
   },
   context: {
     prop: 'context',
@@ -151,10 +181,27 @@ const filtersConfig = {
     prop: 'domain',
     getLabel: (value) => ProgrammingPlanDomainLabels[value]
   },
-  laboratoryId: {
-    prop: 'laboratoryId',
-    getLabel: (value, { laboratories }) =>
-      laboratories?.find(({ id }) => id === value)?.name ?? ''
+  laboratoryIds: {
+    prop: 'laboratoryIds',
+    getComponent: (value, onChange, { laboratories }) => (
+      <Fragment key="tag-laboratoryIds">
+        {value.map((id) => {
+          const lab = laboratories?.find((l) => l.id === id);
+          return lab ? (
+            <Tag
+              {...tagProps}
+              key={`tag-laboratory-${id}`}
+              nativeButtonProps={{
+                onClick: () =>
+                  onChange({ laboratoryIds: value.filter((v) => v !== id) })
+              }}
+            >
+              {lab.name}
+            </Tag>
+          ) : null;
+        })}
+      </Fragment>
+    )
   },
   programmingPlanIds: {
     prop: 'programmingPlanIds',
@@ -177,21 +224,13 @@ const filtersConfig = {
   },
   kinds: {
     prop: 'kinds',
-    getComponent: (value, onChange) => (
-      <Fragment key={`tag-kinds`}>
-        {value.map((d) => (
-          <Tag
-            {...tagProps}
-            key={`tag-kind-${d}`}
-            nativeButtonProps={{
-              onClick: () => onChange({ kinds: value.filter((v) => v !== d) })
-            }}
-          >
-            {ProgrammingPlanKindLabels[d]}
-          </Tag>
-        ))}
-      </Fragment>
-    )
+    getComponent: (value, onChange) =>
+      renderArrayTags(
+        'kinds',
+        value,
+        (d) => ProgrammingPlanKindLabels[d],
+        onChange
+      )
   }
 } as const satisfies {
   [key in FilterableProp]: {
@@ -200,10 +239,7 @@ const filtersConfig = {
     | {
         getLabel: (
           value: NonNullable<FilterableType[key]>,
-          data: {
-            sampler?: UserRefined;
-            laboratories?: Props['laboratories'];
-          }
+          data: Record<string, never>
         ) => string | null;
         getComponent?: never;
       }
@@ -213,6 +249,9 @@ const filtersConfig = {
           onChange: (filters: Partial<FilterableType>) => void,
           data: {
             programmingPlans?: ProgrammingPlanChecked[];
+            samplers?: UserRefined[];
+            laboratories?: Props['laboratories'];
+            filters?: Partial<FilterableType>;
           }
         ) => ReactNode;
         getLabel?: never;
@@ -229,19 +268,15 @@ const FiltersTags = ({
   laboratories
 }: Props) => {
   const { hasNationalView } = useAuthentication();
-  const sampler = useMemo(
-    () => samplers?.find((user) => user.id === filters.sampledBy),
-    [samplers, filters.sampledBy]
-  );
 
   const hasFilters = useMemo(
     () =>
       Object.values(
-        omit(filters, 'region', 'page', 'perPage', 'programmingPlanIds')
+        omit(filters, 'regions', 'page', 'perPage', 'programmingPlanIds')
       ).some((value) => isDefinedAndNotNull(value) && value !== '') ||
       ((programmingPlans ?? []).length > 1 &&
         (filters.programmingPlanIds ?? []).length > 0) ||
-      (filters.region && hasNationalView),
+      ((filters.regions ?? []).length > 0 && hasNationalView),
     [filters, hasNationalView, programmingPlans]
   );
 
@@ -265,18 +300,22 @@ const FiltersTags = ({
         {Object.values(filtersConfig).map((conf) => {
           const value = filters[conf.prop];
 
-          if (value && (hasNationalView || conf.prop !== 'region')) {
+          if (
+            isDefinedAndNotNull(value) &&
+            (!Array.isArray(value) || value.length > 0) &&
+            (hasNationalView || conf.prop !== 'regions')
+          ) {
             if ('getComponent' in conf) {
               // @ts-expect-error TS2345 il est perdu
               return conf.getComponent(value, onChange, {
-                programmingPlans
+                programmingPlans,
+                samplers,
+                laboratories,
+                filters
               });
             } else {
               // @ts-expect-error TS2345 il est perdu
-              const label = conf.getLabel(value, {
-                sampler,
-                laboratories
-              });
+              const label = conf.getLabel(value, {});
               if (label) {
                 return (
                   <Tag

@@ -65,8 +65,8 @@ const DashboardNoticeAndActions: FunctionComponent<Props> = ({
   const { data: prioritySamples } = apiClient.useFindSamplesQuery(
     {
       programmingPlanIds: toArray(currentValidatedProgrammingPlan?.id),
-      status: prioritySamplesStatus,
-      sampledBy: user?.id
+      statuses: prioritySamplesStatus,
+      sampledBy: toArray(user?.id)
     },
     {
       skip:

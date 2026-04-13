@@ -128,14 +128,15 @@ const SamplePrimaryFilters = ({
       )}
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
         <AppSearchInput
-          value={filters.matrixKind || ''}
+          value=""
           options={selectOptionsFromList(
             MatrixKindList.filter(
               (matrixKind) =>
-                (filters.programmingPlanIds ?? []).length === 0 ||
-                (filters.contexts ?? []).length === 0 ||
-                !prescriptions ||
-                prescriptions.find((p) => p.matrixKind === matrixKind)
+                !filters.matrixKinds?.includes(matrixKind) &&
+                ((filters.programmingPlanIds ?? []).length === 0 ||
+                  (filters.contexts ?? []).length === 0 ||
+                  !prescriptions ||
+                  prescriptions.find((p) => p.matrixKind === matrixKind))
             ),
             {
               labels: MatrixKindLabels,
@@ -145,9 +146,17 @@ const SamplePrimaryFilters = ({
           )}
           placeholder="Sélectionner une catégorie"
           onSelect={(value) => {
-            onChange({ matrixKind: value as MatrixKind });
+            const newMatrixKinds = [
+              ...(filters.matrixKinds ?? []),
+              value as MatrixKind
+            ];
+            onChange({
+              matrixKinds: newMatrixKinds
+            });
           }}
           label="Catégorie de matrice"
+          disableAutoSelectSingleOption
+          resetOnSelect
           renderOption={(props, option) => (
             <li {...props} key={option.value}>
               {option.label}
@@ -157,18 +166,21 @@ const SamplePrimaryFilters = ({
       </div>
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
         <AppSearchInput
-          value={filters.matrix ?? ''}
+          value=""
           options={selectOptionsFromList(
             MatrixList.filter(
               (matrix) =>
+                !filters.matrices?.includes(matrix) &&
                 ((filters.programmingPlanIds ?? []).length === 0 ||
                   (filters.contexts ?? []).length === 0 ||
                   !prescriptions ||
                   prescriptions.find((p) =>
                     MatrixListByKind[p.matrixKind].includes(matrix)
                   )) &&
-                (!filters.matrixKind ||
-                  MatrixListByKind[filters.matrixKind].includes(matrix))
+                ((filters.matrixKinds ?? []).length === 0 ||
+                  filters.matrixKinds!.some((kind) =>
+                    MatrixListByKind[kind].includes(matrix)
+                  ))
             ),
             {
               labels: MatrixLabels,
@@ -177,9 +189,13 @@ const SamplePrimaryFilters = ({
           )}
           placeholder="Sélectionner une matrice"
           onSelect={(value) => {
-            onChange({ matrix: value as Matrix });
+            onChange({
+              matrices: [...(filters.matrices ?? []), value as Matrix]
+            });
           }}
           label="Matrice"
+          disableAutoSelectSingleOption
+          resetOnSelect
           inputProps={{
             'data-testid': 'matrix-select'
           }}
@@ -194,15 +210,26 @@ const SamplePrimaryFilters = ({
         <Select
           label="Statut"
           nativeSelectProps={{
-            value: filters.status || '',
+            value: '',
             onChange: (e) =>
               onChange({
-                status: e.target.value as SampleStatus
+                statuses: [
+                  ...(filters.statuses ?? []),
+                  e.target.value as SampleStatus
+                ]
               })
           }}
         >
-          <option value="">Tous</option>
-          {SampleStatusList.map((status) => (
+          <option value="">
+            {filters.statuses?.length
+              ? pluralize(filters.statuses.length, { preserveCount: true })(
+                  'statut'
+                )
+              : 'Tous'}
+          </option>
+          {SampleStatusList.filter(
+            (s) => !(filters.statuses ?? []).includes(s)
+          ).map((status) => (
             <option key={`status-${status}`} value={status}>
               {SampleStatusLabels[status]}
             </option>
@@ -213,16 +240,27 @@ const SamplePrimaryFilters = ({
         <Select
           label="Préleveur"
           nativeSelectProps={{
-            value: filters.sampledBy || '',
-            onChange: (e) => onChange({ sampledBy: e.target.value })
+            value: '',
+            onChange: (e) =>
+              onChange({
+                sampledBy: [...(filters.sampledBy ?? []), e.target.value]
+              })
           }}
         >
-          <option value="">Tous</option>
-          {samplersOptions(samplers, currentUserId).map((option) => (
-            <option key={`sampler-${option.value}`} value={option.value}>
-              {option.label}
-            </option>
-          ))}
+          <option value="">
+            {filters.sampledBy?.length
+              ? pluralize(filters.sampledBy.length, { preserveCount: true })(
+                  'préleveur'
+                )
+              : 'Tous'}
+          </option>
+          {samplersOptions(samplers, currentUserId)
+            .filter((option) => !filters.sampledBy?.includes(option.value))
+            .map((option) => (
+              <option key={`sampler-${option.value}`} value={option.value}>
+                {option.label}
+              </option>
+            ))}
         </Select>
       </div>
     </>

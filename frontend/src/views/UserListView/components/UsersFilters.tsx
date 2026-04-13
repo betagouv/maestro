@@ -30,7 +30,7 @@ import useWindowSize from '../../../hooks/useWindowSize';
 import { UsersFilterTags } from './UsersFilterTags';
 
 const _findUserOptions = z.object({
-  region: Region.nullable(),
+  regions: z.array(Region).nullable(),
   department: Department.nullable(),
   role: UserRole.nullable(),
   programmingPlanKind: ProgrammingPlanKind.nullable(),
@@ -51,7 +51,7 @@ export const UsersFilters: FunctionComponent<Props> = ({
   const { isMobile } = useWindowSize();
 
   const [filters, setFilters] = useState<FindUserOptions>({
-    region: null,
+    regions: null,
     role: null,
     department: null,
     programmingPlanKind: null,
@@ -123,7 +123,7 @@ export const UsersFilters: FunctionComponent<Props> = ({
 const Filters: FunctionComponent<
   FindUserOptions & { onChange: (options: Partial<FindUserOptions>) => void }
 > = ({
-  region,
+  regions,
   department,
   role,
   programmingPlanKind,
@@ -135,12 +135,13 @@ const Filters: FunctionComponent<
   assert<Equals<keyof typeof _rest, never>>();
 
   const departmentOptions = useMemo(() => {
-    let departments = DepartmentList;
-    if (region) {
-      departments = Regions[region].departments;
+    if (regions?.length) {
+      return regions
+        .flatMap((r) => Regions[r].departments)
+        .sort(DepartmentSort);
     }
-    return departments.sort(DepartmentSort);
-  }, [region]);
+    return DepartmentList.sort(DepartmentSort);
+  }, [regions]);
 
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -181,8 +182,10 @@ const Filters: FunctionComponent<
       </div>
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
         <RegionsFilter
-          defaultValue={region}
-          onChange={(r) => onChange({ region: r, department: null })}
+          values={regions ?? []}
+          onChange={(r) =>
+            onChange({ regions: [...(regions ?? []), r], department: null })
+          }
         />
       </div>
       <div className={cx('fr-col-12', 'fr-col-md-3')}>

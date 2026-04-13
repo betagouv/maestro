@@ -90,22 +90,30 @@ const SampleListView = () => {
           undefined,
         contexts:
           (searchParams.get('contexts')?.split(',') as Context[]) ?? undefined,
-        region: hasNationalView
-          ? (searchParams.get('region') as Region)
-          : user?.region,
+        regions: hasNationalView
+          ? ((searchParams.get('regions')?.split(',') as Region[]) ?? undefined)
+          : user?.region
+            ? [user.region]
+            : undefined,
         departments:
           (searchParams.get('departments')?.split(',') as Department[]) ??
           undefined,
-        status: searchParams.get('status') as SampleStatus,
-        matrix: searchParams.get('matrix') as Matrix,
-        matrixKind: searchParams.get('matrixKind') as MatrixKind,
-        sampledBy: searchParams.get('sampledBy'),
+        statuses:
+          (searchParams.get('statuses')?.split(',') as SampleStatus[]) ??
+          undefined,
+        matrices:
+          (searchParams.get('matrices')?.split(',') as Matrix[]) ?? undefined,
+        matrixKinds:
+          (searchParams.get('matrixKinds')?.split(',') as MatrixKind[]) ??
+          undefined,
+        sampledBy: searchParams.get('sampledBy')?.split(',') ?? undefined,
         sampledDate: searchParams.get('sampledDate'),
         reference: searchParams.get('reference'),
         compliance:
           SampleCompliance.safeParse(searchParams.get('compliance')).data ??
           undefined,
-        laboratoryId: searchParams.get('laboratoryId'),
+        laboratoryIds:
+          searchParams.get('laboratoryIds')?.split(',') ?? undefined,
         withAtLeastOneResidue:
           coerceToBooleanNullish().safeParse(
             searchParams.get('withAtLeastOneResidue')
@@ -137,7 +145,6 @@ const SampleListView = () => {
     }
   );
   const { data: samplers } = apiClient.useFindUsersQuery({
-    region: findSampleOptions.region,
     roles: UserRoleList.filter((r) => {
       const permissions = UserRolePermissions[r];
       return (
