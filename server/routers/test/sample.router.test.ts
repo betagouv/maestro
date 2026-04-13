@@ -200,7 +200,7 @@ describe('Sample router', () => {
           .get(
             testRoute({
               programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-              status: 'Sent'
+              statuses: 'Sent'
             })
           )
           .use(tokenProvider(user))
@@ -315,7 +315,7 @@ describe('Sample router', () => {
           .get(
             testRoute({
               programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-              status: 'Sent'
+              statuses: 'Sent'
             })
           )
           .use(tokenProvider(user))
