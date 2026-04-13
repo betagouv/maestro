@@ -140,11 +140,11 @@ export const UserModal = ({
         kinds: ['MEAT_SLAUGHTERHOUSE', 'POULTRY_SLAUGHTERHOUSE'],
         region: user.region ?? undefined,
         department: user.department ?? undefined
-      }).then(({ data }) => {
-        if (data) {
+      })
+        .unwrap()
+        .then((data) => {
           setAbattoirs(data);
-        }
-      });
+        });
     }
   }, [
     user.region,

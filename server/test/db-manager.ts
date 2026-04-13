@@ -1,4 +1,3 @@
-import { spawnSync } from 'node:child_process';
 import knex, { type Knex } from 'knex';
 import { cloneDeep } from 'lodash-es';
 import { Client } from 'pg';
@@ -17,44 +16,18 @@ class DbManager {
     console.log(`Base de données de test: ${this.dbName}`);
   }
 
-  private async init(): Promise<void> {
-    const globalConnection = config.databaseUrl;
-    const globalClient = new Client(globalConnection);
+  private async init(templateDbName: string): Promise<void> {
+    const globalClient = new Client(config.databaseUrl);
     await globalClient.connect();
-    const queryResult = await globalClient.query(`SELECT 1
-                                                  FROM pg_database
-                                                  WHERE datname = '${this.dbName}'`);
-    if (queryResult.rowCount === 0) {
-      await globalClient.query(`CREATE DATABASE ${this.dbName}`);
-    }
+    await globalClient.query(
+      `CREATE DATABASE "${this.dbName}" TEMPLATE "${templateDbName}"`
+    );
     await globalClient.end();
 
     this.connectionUrl = `postgres://${globalClient.user}:${globalClient.password}@${globalClient.host}:${globalClient.port}/${this.dbName}`;
     this.knexInstance = this.getKnex(this.connectionUrl);
     initKysely(this.connectionUrl);
     setKnexInstance(this.knexInstance!);
-    const output = spawnSync(
-      'npx',
-      [
-        'knex',
-        'migrate:latest',
-        '--migrations-directory',
-        'database/migrations',
-        '--connection',
-        `${this.connectionUrl}`
-      ],
-      {
-        encoding: 'utf-8',
-        env: {
-          ...process.env,
-          PATH: process.env.PATH,
-          NODE_OPTIONS: '--import @swc-node/register/esm-register '
-        }
-      }
-    );
-
-    console.log(output.stdout);
-    console.log(output.stderr);
   }
 
   private getKnex(url: string): Knex {
@@ -72,8 +45,8 @@ class DbManager {
     }
   }
 
-  public async populateDb(): Promise<{ knex: Knex }> {
-    await this.init();
+  public async populateDb(templateDbName: string): Promise<{ knex: Knex }> {
+    await this.init(templateDbName);
 
     DbManager.checkKnexInstance(this.knexInstance);
 

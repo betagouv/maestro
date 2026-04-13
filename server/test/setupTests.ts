@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeAll, type Mock, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, inject, type Mock, vi } from 'vitest';
 import { dbManager } from './db-manager';
 import { dbSeed } from './seed';
 
@@ -39,7 +39,7 @@ vi.mock('../services/notificationService', () => ({
 }));
 
 beforeAll(async () => {
-  await dbManager.populateDb();
+  await dbManager.populateDb(inject('templateDbName'));
   await dbSeed();
 });
 
