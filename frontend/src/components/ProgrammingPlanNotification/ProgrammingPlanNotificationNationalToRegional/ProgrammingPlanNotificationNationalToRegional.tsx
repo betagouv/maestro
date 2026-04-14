@@ -39,7 +39,7 @@ const NotifiableStatusesByDistributionKind: Record<
   DistributionKind,
   ProgrammingPlanStatus[]
 > = {
-  REGIONAL: ['InProgress', 'SubmittedToRegion'],
+  REGIONAL: ['InProgress', 'SubmittedToRegion', 'ApprovedByRegion'],
   SLAUGHTERHOUSE: ['InProgress']
 };
 
