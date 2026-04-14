@@ -145,7 +145,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
                       ? [
                           {
                             analysisId: residue.analysisId,
-                            residueNumber: residueIndex,
+                            residueNumber: residue.residueNumber,
                             analyteNumber: 1
                           }
                         ]
