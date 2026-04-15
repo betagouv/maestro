@@ -68,6 +68,7 @@ import { sachaConfRepository } from '../repositories/sachaConfRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
+import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { csvService } from '../services/csvService/csvService';
 import { documentService } from '../services/documentService';
@@ -837,11 +838,15 @@ export const sampleRouter = {
                   (c) => c.field.key === 'cultureKind'
                 )?.field;
 
+                const sampler = await userRepository.findUnique(
+                  updatedSample.sampler.id
+                );
+
                 const analysisRequestDocs =
                   await generateAndStoreAnalysisRequestDocuments({
                     ...updatedSample,
                     ...(sampleItem as SampleItem),
-                    sampler: user,
+                    sampler: sampler ?? user,
                     company,
                     laboratory,
                     monoSubstanceLabels: (
