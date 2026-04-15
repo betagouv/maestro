@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { mkdirSync } from 'node:fs';
 import { Client } from 'pg';
 import type { ProvidedContext } from 'vitest';
 import config from '../utils/config';
@@ -19,6 +20,9 @@ export async function setup({
     value: ProvidedContext[T]
   ) => void;
 }): Promise<void> {
+  // Pre-create carbone's temp directory to avoid failed tests
+  mkdirSync('/tmp/carbone_render', { recursive: true });
+
   const globalClient = new Client(config.databaseUrl);
   await globalClient.connect();
 
