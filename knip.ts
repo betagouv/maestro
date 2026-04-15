@@ -2,7 +2,6 @@ export default {
   ignore: ['types/**/*.d.ts'],
   ignoreDependencies: [
     'vite',
-    '@faker-js/faker',
     '@swc-node/register',
     '@swc/core',
     '@gouvfr/dsfr'
