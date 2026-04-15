@@ -166,7 +166,7 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
     }
 
     const pdfFile: File = new File(
-      [pdfAttachment.content],
+      [new Uint8Array(pdfAttachment.content)],
       pdfAttachment.filename ?? ''
     );
     analyzesWithPdf.push({ ...analysis, pdfFile });
