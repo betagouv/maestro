@@ -13,5 +13,7 @@ test.each([
   const file = path.join(import.meta.dirname, `./${fileName}`);
   const content = readFileSync(file);
 
-  expect(validateAndDecodeSachaXml(content.toString())).toMatchSnapshot();
+  expect(
+    validateAndDecodeSachaXml(content.toString(), fileName).data
+  ).toMatchSnapshot();
 });
