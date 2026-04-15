@@ -2,11 +2,14 @@ import fs, { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
+import { err, ok, type Result } from 'maestro-shared/utils/result';
 import sftp from 'ssh2-sftp-client';
+import type { SachaConf } from '../../repositories/kysely.type';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import { sachaConfRepository } from '../../repositories/sachaConfRepository';
 import config from '../../utils/config';
 import { unzip } from '../zipService';
+import type { SachaError } from './sachaErrors';
 import { processSachaRAI } from './sachaRAI';
 import { sendSachaFile } from './sachaSender';
 import { generateXMLAcquitement } from './sachaToXML';
@@ -15,6 +18,73 @@ import { validateAndDecodeSachaXml } from './validateSachaXml';
 
 const readdir = promisify(fs.readdir);
 const unlink = promisify(fs.unlink);
+
+const processSachaFile = async (
+  sftpClient: sftp,
+  sachaConf: SachaConf,
+  dataDirectory: string,
+  zipFile: string
+): Promise<Result<void, SachaError>> => {
+  await unzip(dataDirectory, zipFile);
+
+  const unzipFile = path.join(
+    dataDirectory,
+    zipFile.substring(0, zipFile.length - 4)
+  );
+
+  const content = readFileSync(unzipFile);
+
+  const xmlResult = validateAndDecodeSachaXml(content.toString(), zipFile);
+  if (!xmlResult.ok) return xmlResult;
+
+  const json = xmlResult.data;
+
+  if (!json.Resultats) {
+    return err({ kind: 'no-results', fileName: zipFile });
+  }
+
+  const { sampleItem, sample } = processSachaRAI(json.Resultats);
+  if (!sampleItem.laboratoryId) {
+    return err({
+      kind: 'no-laboratory',
+      fileName: zipFile,
+      sampleId: sampleItem.sampleId,
+      itemNumber: sampleItem.itemNumber,
+      copyNumber: sampleItem.copyNumber
+    });
+  }
+
+  const dateNow = Date.now();
+  const laboratory = await laboratoryRepository.findUnique(
+    sampleItem.laboratoryId
+  );
+  const xml = await generateXMLAcquitement(
+    [
+      {
+        NomFichier: json.Resultats.MessageParametres.NomFichier,
+        DateAcquittement: toSachaDateTime(new Date(dateNow))
+      }
+    ],
+    undefined,
+    sample.department,
+    dateNow,
+    sachaConf,
+    laboratory
+  );
+
+  await sendSachaFile(xml, dateNow);
+
+  console.log('TODO Traitement de ', unzipFile, json);
+
+  // Suppression après succès complet
+  await sftpClient.delete(`uploads/RA01Maestro/data/${zipFile}`);
+  await sftpClient.delete(`uploads/RA01Maestro/data/Decl_${zipFile}`);
+  await unlink(unzipFile);
+  await unlink(path.join(dataDirectory, zipFile));
+  await unlink(path.join(dataDirectory, `Decl_${zipFile}`));
+
+  return ok(undefined);
+};
 
 const doSftp = async () => {
   if (
@@ -46,60 +116,21 @@ const doSftp = async () => {
     const zipFiles = await readdir(dataDirectory);
 
     for (const zipFile of zipFiles.filter((z) => !z.startsWith('Decl_'))) {
-      if (zipFile.endsWith('.zip')) {
-        await unzip(dataDirectory, zipFile);
-
-        const unzipFile = path.join(
-          dataDirectory,
-          zipFile.substring(0, zipFile.length - 4)
-        );
-
-        const content = readFileSync(unzipFile);
-
-        const json = validateAndDecodeSachaXml(content.toString());
-
-        if (!json.Resultats) {
-          throw new Error(`Aucun résultat trouvé dans ${zipFile}`);
-        }
-
-        //FIXME EDI gérer les erreurs et les non acquittements
-        const { sampleItem, sample } = processSachaRAI(json.Resultats);
-        if (!sampleItem.laboratoryId) {
-          throw new Error(
-            `Cet exemplaire n'est pas destiné à un laboratoire: ${sampleItem.sampleId} ${sampleItem.itemNumber} ${sampleItem.copyNumber}`
-          );
-        }
-
-        await sftpClient.delete(`uploads/RA01Maestro/data/Decl_${zipFile}`);
-        await sftpClient.delete(`uploads/RA01Maestro/data/${zipFile}`);
-
-        await unlink(unzipFile);
-        await unlink(path.join(dataDirectory, zipFile));
-        await unlink(path.join(dataDirectory, `Decl_${zipFile}`));
-
-        const dateNow = Date.now();
-        const laboratory = await laboratoryRepository.findUnique(
-          sampleItem.laboratoryId
-        );
-        const xml = await generateXMLAcquitement(
-          [
-            {
-              NomFichier: json.Resultats.MessageParametres.NomFichier,
-              DateAcquittement: toSachaDateTime(new Date(dateNow))
-            }
-          ],
-          undefined,
-          sample.department,
-          dateNow,
-          sachaConf,
-          laboratory
-        );
-
-        await sendSachaFile(xml, dateNow);
-
-        console.log('TODO Traitement de ', unzipFile, json);
-      } else {
+      if (!zipFile.endsWith('.zip')) {
         console.warn(`Le fichier ${zipFile} n'est pas une archive`);
+        continue;
+      }
+
+      const result = await processSachaFile(
+        sftpClient,
+        sachaConf,
+        dataDirectory,
+        zipFile
+      );
+      if (!result.ok) {
+        //FIXME EDI  les non acquittements
+        // Erreur métier : le fichier reste sur le SFTP pour la prochaine exécution
+        console.error(`[SFTP] Erreur sur ${zipFile}:`, result.error);
       }
     }
   } catch (e: any) {
