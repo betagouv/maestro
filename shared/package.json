@@ -10,7 +10,6 @@
     "lint": "biome check"
   },
   "dependencies": {
-    "@faker-js/faker": "^9.8.0",
     "@swc-node/register": "^1.11.1",
     "@swc/core": "^1.15.11"
   }
