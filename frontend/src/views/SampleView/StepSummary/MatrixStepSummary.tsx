@@ -83,7 +83,7 @@ const MatrixStepSummary = ({
               {field.inputType === 'checkbox' ? (
                 <b>{value}</b>
               ) : field.inputType === 'selectWithUnknown' &&
-                value === UnknownValue ? (
+                rawValue === UnknownValue ? (
                 <>
                   {field.label}
                   <AppRequiredInput />{' '}
