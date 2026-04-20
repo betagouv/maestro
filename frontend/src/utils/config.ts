@@ -5,6 +5,7 @@ const config = {
   satelliteStyle: import.meta.env.VITE_SATELLITE_STYLE,
   supportEmail: import.meta.env.VITE_SUPPORT_EMAIL,
   websiteUrl: import.meta.env.VITE_WEBSITE_URL,
+  sentryDns: import.meta.env.VITE_SENTRY_FRONTEND_DNS,
   documents: {
     regulation201862:
       import.meta.env.VITE_DOCUMENT_REGULATION_2018_62 ??
