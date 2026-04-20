@@ -167,10 +167,12 @@ const ItemsStep = ({ partialSample }: Props) => {
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    await form.validate(async () => {
-      isSubmittingRef.current = true;
-      await save('Submitted');
-    });
+    if (!isSubmittingRef.current) {
+      await form.validate(async () => {
+        isSubmittingRef.current = true;
+        await save('Submitted');
+      });
+    }
   };
 
   const save = async (step = partialSample.step) => {

@@ -152,10 +152,12 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
   ]);
 
   const submit = async () => {
-    await form.validate(async () => {
-      isSubmittingRef.current = true;
-      await save('Sent');
-    });
+    if (!isSubmittingRef.current) {
+      await form.validate(async () => {
+        isSubmittingRef.current = true;
+        await save('Sent');
+      });
+    }
   };
 
   const save = async (step = sample.step) => {

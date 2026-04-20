@@ -351,15 +351,17 @@ const ContextStep = ({ partialSample }: Props) => {
 
   const submit = async (e?: React.MouseEvent<HTMLElement>) => {
     e?.preventDefault();
-    await form.validate(async () => {
-      isSubmittingRef.current = true;
-      await createOrUpdateSample({
-        ...partialSample,
-        ...formData,
-        status: 'Draft',
-        step: 'DraftMatrix'
+    if (!isSubmittingRef.current) {
+      await form.validate(async () => {
+        isSubmittingRef.current = true;
+        await createOrUpdateSample({
+          ...partialSample,
+          ...formData,
+          status: 'Draft',
+          step: 'DraftMatrix'
+        });
       });
-    });
+    }
   };
 
   const save = async (step = partialSample?.step) => {
