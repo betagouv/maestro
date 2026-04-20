@@ -1,4 +1,5 @@
 import type { Knex } from 'knex';
+
 export const up = async (knex: Knex) => {
   await knex.schema.alterTable('programming_plans', (table) => {
     table.specificType('kinds', 'text[]');
@@ -78,12 +79,26 @@ export const down = async (knex: Knex) => {
     ['PPV']
   );
 
-  await knex('samples')
-    .whereIn(
-      'programming_plan_id',
-      deletedProgrammingPlans.map((pp) => pp.id)
-    )
-    .delete();
+  const deletedSamples = await knex('samples').whereIn(
+    'programming_plan_id',
+    deletedProgrammingPlans.map((pp) => pp.id)
+  );
+
+  if (deletedSamples.length > 0) {
+    await knex('analysis')
+      .whereIn(
+        'sample_id',
+        deletedSamples.map((sample) => sample.id)
+      )
+      .delete();
+
+    await knex('samples')
+      .whereIn(
+        'id',
+        deletedSamples.map((sample) => sample.id)
+      )
+      .delete();
+  }
 
   await knex('prescriptions')
     .whereIn(

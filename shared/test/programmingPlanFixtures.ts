@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { RegionList } from '../referential/Region';
+import { RegionList, Regions } from '../referential/Region';
 import { ProgrammingPlanKindWithSachaList } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanStatusList } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
@@ -85,6 +85,32 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
   year: new Date().getFullYear() + 1
 });
 
+export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
+  id: 'd2680960-a3b5-4091-a87b-e4c2467077fb',
+  domain: 'PESTICIDE_RESIDUE',
+  title: "Produit carné à l'abattoir",
+  kinds: ProgrammingPlanKindWithSachaList,
+  distributionKind: 'SLAUGHTERHOUSE',
+  contexts: ['Surveillance'],
+  legalContexts: ['A'],
+  substanceKinds: ['Mono', 'Multi', 'Copper'],
+  samplesOutsidePlanAllowed: false,
+  createdAt: new Date(),
+  createdBy: NationalCoordinator.id,
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: 'Validated'
+  })),
+  departmentalStatus: RegionList.flatMap((region) =>
+    Regions[region].departments.map((department) => ({
+      region,
+      department,
+      status: 'Validated'
+    }))
+  ),
+  year: new Date().getFullYear()
+});
+
 export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   id: 'fafc6f2e-aec5-4998-adeb-84090d971a90',
   domain: 'PESTICIDE_RESIDUE',
@@ -101,5 +127,5 @@ export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
     region,
     status: 'InProgress'
   })),
-  year: new Date().getFullYear()
+  year: new Date().getFullYear() + 1
 });

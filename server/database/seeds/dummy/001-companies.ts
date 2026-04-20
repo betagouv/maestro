@@ -2,6 +2,36 @@ import type { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import { Companies } from '../../../repositories/companyRepository';
 import { knexInstance as db } from '../../../repositories/db';
 
+export const CHARAL = {
+  siret: '54695037900216',
+  name: 'CHARAL',
+  tradeName: 'CHARAL',
+  address: 'ZA LE FIEF TARDY 56 RUE DU FIEF TARDY',
+  postalCode: '85120',
+  city: 'LA CHATAIGNERAIE',
+  nafCode: '85.059.002',
+  geolocation: {
+    y: -0.734475,
+    x: 46.642117
+  },
+  kinds: ['MEAT_SLAUGHTERHOUSE' as const]
+};
+
+export const AVIVOL = {
+  siret: '92495996800018',
+  name: "AVI' VOL",
+  tradeName: "AVI' VOL",
+  address: '3 LA FORET CHAUCHE',
+  postalCode: '85190',
+  city: 'AIZENAY',
+  nafCode: '85.003.003',
+  geolocation: {
+    y: -1.716831,
+    x: 46.740073
+  },
+  kinds: ['POULTRY_SLAUGHTERHOUSE' as const]
+};
+
 export const seed = async () => {
   await Companies().insert(
     [
@@ -46,20 +76,7 @@ export const seed = async () => {
         },
         kinds: ['MEAT_SLAUGHTERHOUSE', 'POULTRY_SLAUGHTERHOUSE']
       },
-      {
-        siret: '54695037900216',
-        name: 'CHARAL',
-        tradeName: 'CHARAL',
-        address: 'ZA LE FIEF TARDY 56 RUE DU FIEF TARDY',
-        postalCode: '85120',
-        city: 'LA CHATAIGNERAIE',
-        nafCode: '85.059.002',
-        geolocation: {
-          y: -0.734475,
-          x: 46.642117
-        },
-        kinds: ['MEAT_SLAUGHTERHOUSE']
-      },
+      CHARAL,
       {
         siret: '34447746800120',
         name: 'ELIVIA - SCABEV',
@@ -88,20 +105,7 @@ export const seed = async () => {
         },
         kinds: ['MEAT_SLAUGHTERHOUSE']
       },
-      {
-        siret: '92495996800018',
-        name: "AVI' VOL",
-        tradeName: "AVI' VOL",
-        address: '3 LA FORET CHAUCHE',
-        postalCode: '85190',
-        city: 'AIZENAY',
-        nafCode: '85.003.003',
-        geolocation: {
-          y: -1.716831,
-          x: 46.740073
-        },
-        kinds: ['POULTRY_SLAUGHTERHOUSE']
-      },
+      AVIVOL,
       {
         siret: '51747620600019',
         name: 'FERME DE LA COUARTIERE',

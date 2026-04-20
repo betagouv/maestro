@@ -14,7 +14,21 @@ import {
   SCL34Id,
   SCL91Id
 } from 'maestro-shared/schema/User/User';
+import { DAOAValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import { knexInstance as db } from '../../../repositories/db';
+
+export const DAOAMonoLaboratoryIds = [ANS94ALnrPestId];
+export const DAOAMultiLaboratoryIds = [
+  LDA17Id,
+  LDA21Id,
+  LDA22Id,
+  LDA31Id,
+  LDA72Id,
+  LDA85Id,
+  LDA87Id,
+  ANS94ALnrPestId
+];
+export const DAOACopperLaboratoryIds = [LDA85Id];
 
 export const seed = async () => {
   const PPVClosedProgrammingPlanId = 'f5d510ef-ab78-449a-acd6-392895a1994f';
@@ -29,7 +43,10 @@ export const seed = async () => {
     PPVInProgressProgrammingPlanId
   ];
 
-  const DAOAProgrammingPlanIds = [DAOAInProgressProgrammingPlanId];
+  const DAOAProgrammingPlanIds = [
+    DAOAInProgressProgrammingPlanId,
+    DAOAValidatedProgrammingPlanFixture.id
+  ];
 
   const PPVLaboratoryIds = [
     CAP29Id,
@@ -40,19 +57,6 @@ export const seed = async () => {
     SCL34Id,
     SCL91Id
   ];
-
-  const DAOAMonoLaboratoryIds = [ANS94ALnrPestId];
-  const DAOAMultiLaboratoryIds = [
-    LDA17Id,
-    LDA21Id,
-    LDA22Id,
-    LDA31Id,
-    LDA72Id,
-    LDA85Id,
-    LDA87Id,
-    ANS94ALnrPestId
-  ];
-  const DAOACopperLaboratoryIds = [LDA85Id];
 
   await db('laboratory_agreements').insert([
     ...PPVProgrammingPlanIds.flatMap((programmingPlanId) =>

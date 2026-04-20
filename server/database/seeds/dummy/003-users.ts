@@ -1,13 +1,15 @@
 import { fakerFR } from '@faker-js/faker';
 import { ProgrammingPlanKindWithSachaList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { CER30Id } from 'maestro-shared/schema/User/User';
-import { NationalCoordinator } from 'maestro-shared/test/userFixtures';
+import {
+  NationalCoordinator,
+  SamplerDaoaFixture
+} from 'maestro-shared/test/userFixtures';
 import { v4 as uuidv4 } from 'uuid';
 import { UserCompanies, Users } from '../../../repositories/userRepository';
+import { AVIVOL, CHARAL } from './001-companies';
 
 export const seed = async () => {
-  const samplerDaoaId = uuidv4();
-
   await Users().insert([
     {
       id: uuidv4(),
@@ -107,7 +109,7 @@ export const seed = async () => {
       department: '85'
     },
     {
-      id: samplerDaoaId,
+      id: SamplerDaoaFixture.id,
       email: 'preleveur.daoa@maestro.beta.gouv.fr',
       name: `DAOA - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: ProgrammingPlanKindWithSachaList,
@@ -119,12 +121,12 @@ export const seed = async () => {
 
   await UserCompanies().insert([
     {
-      userId: samplerDaoaId,
-      companySiret: '54695037900216'
+      userId: SamplerDaoaFixture.id,
+      companySiret: CHARAL.siret
     },
     {
-      userId: samplerDaoaId,
-      companySiret: '92495996800018'
+      userId: SamplerDaoaFixture.id,
+      companySiret: AVIVOL.siret
     }
   ]);
 };
