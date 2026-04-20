@@ -12,6 +12,7 @@ import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import { LaboratoryFixture } from './laboratoryFixtures';
 import {
   DAOAInProgressProgrammingPlanFixture,
+  DAOAValidatedProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
 } from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
@@ -87,6 +88,16 @@ export const VolaillePrescriptionFixture = genPrescription({
   matrixKind: 'A01SN',
   stages: ['STADE10']
 });
+export const FoieDeBovinValidatedPrescriptionFixture = {
+  ...FoieDeBovinPrescriptionFixture,
+  id: '5e7fe72f-cb52-4adf-a36a-93e553f73935',
+  programmingPlanId: DAOAValidatedProgrammingPlanFixture.id
+};
+export const VolailleValidatedPrescriptionFixture = {
+  ...VolaillePrescriptionFixture,
+  id: '17aee1c4-c8d0-4aad-9ed1-fb1f6d22bebb',
+  programmingPlanId: DAOAValidatedProgrammingPlanFixture.id
+};
 
 export const genLocalPrescriptions = (
   prescriptionId: string,
@@ -117,9 +128,20 @@ export const FoieDeBovinLocalPrescriptionFixture = genLocalPrescriptions(
   [3, 2, 5, 8, 10, 1, 2, 10, 3, 3, 2, 9, 4, 4, 2, 1, 5, 6],
   { withDepartment: true }
 );
+export const FoieDeBovinValidatedLocalPrescriptionFixture =
+  genLocalPrescriptions(
+    FoieDeBovinValidatedPrescriptionFixture.id,
+    [3, 2, 5, 8, 10, 1, 2, 10, 3, 3, 2, 9, 4, 4, 2, 1, 5, 6],
+    { withDepartment: true }
+  );
 
 export const VolailleLocalPrescriptionFixture = genLocalPrescriptions(
   VolaillePrescriptionFixture.id,
+  [2, 3, 8, 1, 9, 1, 11, 3, 2, 1, 1, 4, 6, 1, 5, 6, 3, 10],
+  { withDepartment: true }
+);
+export const VolailleValidatedLocalPrescriptionFixture = genLocalPrescriptions(
+  VolailleValidatedPrescriptionFixture.id,
   [2, 3, 8, 1, 9, 1, 11, 3, 2, 1, 1, 4, 6, 1, 5, 6, 3, 10],
   { withDepartment: true }
 );
