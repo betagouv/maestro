@@ -442,7 +442,7 @@ export const Regions: Record<
       latitude: 47.1,
       longitude: -5.8
     },
-    timezone: 'America/Guyane',
+    timezone: 'America/Cayenne',
     departments: ['973'],
     borderingDepartments: [],
     isDrom: true,
