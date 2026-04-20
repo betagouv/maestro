@@ -75,6 +75,6 @@ export const sendSachaFile = async (
       username: laboratorySachaSftpLogin
     });
 
-    await sftpClient.fastPut(zipFilePath, `/`);
+    await sftpClient.fastPut(zipFilePath, `/uploads/masa_labo/${zipFileName}`);
   }
 };
