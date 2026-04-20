@@ -17,22 +17,22 @@ export const sendSachaFile = async (
     return;
   }
 
+  // Create directory with xml file inside
+  const directoryPath = path.join(tmpdir(), xmlFile.fileName);
+  await mkdir(directoryPath);
+
+  const filePath = path.join(directoryPath, `${xmlFile.fileName}.xml`);
+  await writeFile(filePath, xmlFile.content);
+
+  // Zip directory
+  const zipFileName = getZipFileName(
+    xmlFile.fileType,
+    xmlFile.laboratory,
+    dateNow
+  );
+  const zipFilePath = await zip(directoryPath, zipFileName);
+
   if (laboratorySachaSftpLogin === null) {
-    // Create directory with xml file inside
-    const directoryPath = path.join(tmpdir(), xmlFile.fileName);
-    await mkdir(directoryPath);
-
-    const filePath = path.join(directoryPath, `${xmlFile.fileName}.xml`);
-    await writeFile(filePath, xmlFile.content);
-
-    // Zip directory
-    const zipFileName = getZipFileName(
-      xmlFile.fileType,
-      xmlFile.laboratory,
-      dateNow
-    );
-    const zipFilePath = await zip(directoryPath, zipFileName);
-
     // Encrypt
     const laboratoryGpgEmail = xmlFile.laboratory.sachaEmail;
     const encryptFileName = `${zipFileName}.gpg`;
@@ -68,15 +68,13 @@ export const sendSachaFile = async (
       return;
     }
     const sftpClient = new sftp();
-    try {
-      await sftpClient.connect({
-        privateKey: config.sigal.sftp.privateKey,
-        passphrase: config.sigal.sftp.passphrase,
-        host: config.sigal.sftp.host,
-        username: laboratorySachaSftpLogin
-      });
+    await sftpClient.connect({
+      privateKey: config.sigal.sftp.privateKey,
+      passphrase: config.sigal.sftp.passphrase,
+      host: config.sigal.sftp.host,
+      username: laboratorySachaSftpLogin
+    });
 
-      sftpClient.put(xmlFile.content, `/`);
-    } catch (e) {}
+    await sftpClient.fastPut(zipFilePath, `/`);
   }
 };
