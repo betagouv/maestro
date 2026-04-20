@@ -27,7 +27,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1030.0",
     "@e965/xlsx": "^0.20.3",
     "@gouvfr/dsfr": "^1.13.0",
-    "@sentry/node": "^10.41.0",
+    "@sentry/node": "^10.49.0",
     "@swc-node/register": "^1.11.1",
     "@swc/core": "^1.15.11",
     "bwip-js": "^4.9.2",
