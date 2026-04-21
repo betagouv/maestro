@@ -681,7 +681,7 @@ const MatrixStep = ({ partialSample }: Props) => {
           <SupportDocumentDownload partialSample={partialSample} />
         )}
       </div>
-      <SavedAlert isOpen={isSaved} isDraft />
+      <SavedAlert isOpen={isSaved} isDraft sample={partialSample} />
     </form>
   );
 };

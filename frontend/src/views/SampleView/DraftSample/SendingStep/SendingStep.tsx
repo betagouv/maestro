@@ -523,7 +523,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
             }
           />
         )}
-        <SavedAlert isOpen={isSaved} />
+        <SavedAlert isOpen={isSaved} sample={sample} />
       </div>
       {!readonly && isSendable && (
         <SendingModal
