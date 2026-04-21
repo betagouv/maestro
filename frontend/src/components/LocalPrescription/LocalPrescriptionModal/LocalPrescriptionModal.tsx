@@ -41,6 +41,8 @@ const LocalPrescriptionModal = () => {
   );
 
   const [isUpdateSuccess, setIsUpdateSuccess] = useState(false);
+  const [updateLocalPrescription] =
+    apiClient.useUpdateLocalPrescriptionMutation();
   const [updateDepartmentalLocalPrescription] =
     apiClient.useUpdateDepartmentalLocalPrescriptionMutation();
 
@@ -64,15 +66,24 @@ const LocalPrescriptionModal = () => {
     substanceKindsLaboratories: SubstanceKindLaboratory[]
   ) => {
     if (localPrescriptionModalData?.mode === 'laboratory') {
-      await updateDepartmentalLocalPrescription({
+      const localPrescriptionUpdate = {
         prescriptionId: localPrescriptionModalData.prescription.id,
         region: localPrescriptionModalData.localPrescription.region,
         department: localPrescriptionModalData.localPrescription
           .department as Department,
-        key: 'laboratories',
+        key: 'laboratories' as const,
         substanceKindsLaboratories,
         programmingPlanId: localPrescriptionModalData.programmingPlan.id
-      });
+      };
+
+      if (localPrescriptionModalData.localPrescription.department) {
+        await updateDepartmentalLocalPrescription({
+          ...localPrescriptionUpdate,
+          department: localPrescriptionModalData.localPrescription.department
+        });
+      } else {
+        await updateLocalPrescription(localPrescriptionUpdate);
+      }
       setIsUpdateSuccess(true);
     }
   };
