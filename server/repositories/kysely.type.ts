@@ -14,6 +14,9 @@ import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStat
 import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import type { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import type { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import type { AnalysisDaiId } from 'maestro-shared/schema/AnalysisDai/AnalysisDai';
+import type { AnalysisDaiSentMethod } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiSentMethod';
+import type { AnalysisDaiState } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiState';
 import type { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import type { LocalPrescriptionSubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
@@ -56,6 +59,22 @@ export {
   SpecificDataFieldId,
   SpecificDataFieldOptionId
 };
+
+export interface AnalysisDai {
+  id: Generated<AnalysisDaiId>;
+  analysisId: string;
+  state: AnalysisDaiState;
+  sentMethod: AnalysisDaiSentMethod | null;
+  sentAt: Timestamp | null;
+  message: string | null;
+  edi: boolean | null;
+  createdAt: Generated<Timestamp>;
+}
+
+export interface AnalysisDaiDocuments {
+  analysisDaiId: AnalysisDaiId;
+  documentId: string;
+}
 
 export interface Analysis {
   compliance: boolean | null;
@@ -405,6 +424,8 @@ export interface ProgrammingPlanKindFieldOptions {
 }
 
 export interface DB {
+  analysisDai: AnalysisDai;
+  analysisDaiDocuments: AnalysisDaiDocuments;
   analysis: Analysis;
   analysisReportDocuments: AnalysisReportDocuments;
   analysisResidues: AnalysisResidues;

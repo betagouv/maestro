@@ -12,13 +12,19 @@ import {
 import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import type { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 
-import type { SachaConf } from '../../repositories/kysely.type';
+import type { Laboratories, SachaConf } from '../../repositories/kysely.type';
+import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
+import { sachaConfRepository } from '../../repositories/sachaConfRepository';
+import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
+import type { DaiSentResult } from '../daiSendingService';
+import { documentService } from '../documentService';
 import {
   type NotPPVMatrix,
   SigleContexteIntervention,
   SigleMatrix,
   SiglePlanAnalyse
 } from './sachaReferential';
+import { sendSachaFile } from './sachaSender';
 import {
   generateXML,
   getNumeroDAP,
@@ -215,4 +221,48 @@ export const getCommemoratifs = (
     }
   }
   return commemoratifs;
+};
+
+export const sendDAIWithEDI = async (
+  sample: SampleChecked,
+  sampleItem: SampleItem,
+  laboratory: Laboratories
+): Promise<DaiSentResult> => {
+  const [sachaCommemoratifRecord, specificDataRecord, sachaConf] =
+    await Promise.all([
+      sachaCommemoratifRepository.findAll(),
+      specificDataFieldConfigRepository.findSachaFields(),
+      sachaConfRepository.get()
+    ]);
+
+  const dateNow = Date.now();
+  const xmlFile = await generateXMLDAI(
+    sample,
+    sampleItem,
+    dateNow,
+    specificDataRecord,
+    sachaCommemoratifRecord,
+    sachaConf,
+    laboratory
+  );
+
+  const xmlDocumentId = await documentService.createDocument(
+    new File([xmlFile.content], `${xmlFile.fileName}.xml`, {
+      type: 'application/xml'
+    }),
+    'AnalysisRequestDocument',
+    sample.sampler.id,
+    (documentId) => Promise.resolve(documentId)
+  );
+
+  const sentMethod = await sendSachaFile(
+    xmlFile,
+    dateNow,
+    laboratory.sachaSftpLogin
+  );
+
+  return {
+    sentMethod,
+    documentIds: [xmlDocumentId]
+  };
 };

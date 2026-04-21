@@ -41,6 +41,7 @@ import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { departmentsSeed } from '../../database/seeds/departments/departmentsSeed';
+import { kysely } from '../../repositories/kysely';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
   formatPartialSample,
@@ -49,8 +50,8 @@ import {
 import { createServer } from '../../server';
 import {
   mockGenerateSampleSupportPDF,
-  mockMailSend,
-  mockMattermostSend
+  mockMattermostSend,
+  mockTriggerProcessing
 } from '../../test/setupTests';
 import { tokenProvider } from '../../test/testUtils';
 
@@ -697,22 +698,17 @@ describe('Sample router', () => {
       await successRequestTest(Sampler1Fixture);
     });
 
-    test('should send a mattermost notification when sending a DAOA sample', async () => {
-      mockMattermostSend.mockClear();
-      mockMailSend.mockClear();
+    test('should trigger processor when sending a DAOA sample (Submitted → Sent)', async () => {
+      await Samples().where({ id: SampleDAOA1Fixture.id }).update({
+        step: 'Submitted',
+        matrixKind: 'A0C0Z',
+        matrix: 'A01GL',
+        ownerAgreement: true,
+        sentAt: null,
+        programmingPlanKind: 'DAOA_VOLAILLE'
+      });
 
-      await Samples()
-        .where({
-          id: SampleDAOA1Fixture.id
-        })
-        .update({
-          step: 'Submitted',
-          matrixKind: 'A0C0Z',
-          matrix: 'A01GL',
-          ownerAgreement: true,
-          sentAt: null,
-          programmingPlanKind: 'DAOA_VOLAILLE'
-        });
+      mockTriggerProcessing.mockClear();
 
       await request(app)
         .put(`${testRoute(SampleDAOA1Fixture.id)}`)
@@ -739,29 +735,26 @@ describe('Sample router', () => {
         .use(tokenProvider(SamplerDaoaFixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(mockMattermostSend).toHaveBeenCalledWith(
-        `ATTENTION, un prélèvement DAOA vient d'être réalisé https://app.maestro.beta.gouv.fr/prelevements/${SampleDAOA1Fixture.id}`
-      );
-      expect(mockMailSend).toHaveBeenCalledExactlyOnceWith(
-        expect.objectContaining({
-          recipients: LaboratoryFixture.emails
-        })
-      );
+      expect(mockTriggerProcessing).toHaveBeenCalledOnce();
+
+      const daiRows = await kysely
+        .selectFrom('analysisDai')
+        .innerJoin('analysis', 'analysisDai.analysisId', 'analysis.id')
+        .where('analysis.sampleId', '=', SampleDAOA1Fixture.id)
+        .selectAll('analysisDai')
+        .execute();
+
+      expect(daiRows.length).toBe(0);
     });
 
-    test('should not send a mattermost notification when sending a non-DAOA sample', async () => {
-      mockMattermostSend.mockClear();
-      mockMailSend.mockClear();
+    test('should trigger processor when sending a PPV sample (Submitted → Sent)', async () => {
+      await Samples().where({ id: Sample11Fixture.id }).update({
+        step: 'Submitted',
+        ownerAgreement: true,
+        sentAt: null
+      });
 
-      await Samples()
-        .where({
-          id: Sample11Fixture.id
-        })
-        .update({
-          step: 'Submitted',
-          ownerAgreement: true,
-          sentAt: null
-        });
+      mockTriggerProcessing.mockClear();
 
       await request(app)
         .put(`${testRoute(Sample11Fixture.id)}`)
@@ -772,8 +765,17 @@ describe('Sample router', () => {
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
+      expect(mockTriggerProcessing).toHaveBeenCalledOnce();
       expect(mockMattermostSend).not.toHaveBeenCalled();
-      expect(mockMailSend).toHaveBeenCalled();
+
+      const daiRows = await kysely
+        .selectFrom('analysisDai')
+        .innerJoin('analysis', 'analysisDai.analysisId', 'analysis.id')
+        .where('analysis.sampleId', '=', Sample11Fixture.id)
+        .selectAll('analysisDai')
+        .execute();
+
+      expect(daiRows.length).toBe(0);
     });
   });
 
