@@ -182,10 +182,12 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    await form.validate(async () => {
-      isSubmittingRef.current = true;
-      await save('DraftItems');
-    });
+    if (!isSubmittingRef.current) {
+      await form.validate(async () => {
+        isSubmittingRef.current = true;
+        await save('DraftItems');
+      });
+    }
   };
 
   const save = async (step: SampleStep = partialSample.step) => {
