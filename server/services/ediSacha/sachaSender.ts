@@ -68,13 +68,23 @@ export const sendSachaFile = async (
       return;
     }
     const sftpClient = new sftp();
-    await sftpClient.connect({
-      privateKey: config.sigal.sftp.privateKey,
-      passphrase: config.sigal.sftp.passphrase,
-      host: config.sigal.sftp.host,
-      username: laboratorySachaSftpLogin
-    });
+    try {
+      await sftpClient.connect({
+        privateKey: config.sigal.sftp.privateKey,
+        passphrase: config.sigal.sftp.passphrase,
+        host: config.sigal.sftp.host,
+        username: laboratorySachaSftpLogin
+      });
 
-    await sftpClient.fastPut(zipFilePath, `/uploads/masa_labo/${zipFileName}`);
+      await sftpClient.fastPut(
+        zipFilePath,
+        `/uploads/masa_labo/data/${zipFileName}`
+      );
+    } catch (e) {
+      console.log(e);
+      throw e;
+    } finally {
+      await sftpClient.end();
+    }
   }
 };
