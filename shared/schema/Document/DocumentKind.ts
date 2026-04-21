@@ -25,11 +25,8 @@ export const getSupportDocumentFilename = (
 
 export const getAnalysisReportDocumentFilename = (
   sample: Pick<CreatedSampleData, 'reference'>,
-  itemNumber: number,
-  copyNumber: number,
   extension: 'xlsx' | 'csv'
-) =>
-  `DAI-${getSampleItemReference(sample, itemNumber, copyNumber)}.${extension}`;
+) => `DAI-${sample.reference}.${extension}`;
 
 export const DocumentKindList: DocumentKind[] = DocumentKind.options;
 
