@@ -40,7 +40,7 @@ const SampleOverview = ({ sample }: Props) => {
   const complianceRef = useRef<null | HTMLDivElement>(null);
   const { hasUserSamplePermission } = useAuthentication();
 
-  const { getSampleItemLaboratory } = usePartialSample(sample);
+  const { getSampleItemLaboratory, programmingPlan } = usePartialSample(sample);
 
   const { navigateToSamples } = useSamplesLink();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -317,15 +317,17 @@ const SampleOverview = ({ sample }: Props) => {
           </div>
         </div>
       </div>
-      <div className="back">
-        <Button
-          priority="secondary"
-          onClick={navigateToSamples}
-          iconId="fr-icon-arrow-left-line"
-        >
-          Retour aux prélèvements
-        </Button>
-      </div>
+      {programmingPlan && (
+        <div className="back">
+          <Button
+            priority="secondary"
+            onClick={() => navigateToSamples(programmingPlan.year)}
+            iconId="fr-icon-arrow-left-line"
+          >
+            Retour aux prélèvements
+          </Button>
+        </div>
+      )}
     </section>
   );
 };

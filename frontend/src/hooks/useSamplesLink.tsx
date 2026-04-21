@@ -13,8 +13,7 @@ export const useSamplesLink = () => {
   );
 
   const samplesLink = useCallback(
-    (year?: number) =>
-      year ? AuthenticatedAppRoutes.SamplesByYearRoute.link(year) : undefined,
+    (year: number) => AuthenticatedAppRoutes.SamplesByYearRoute.link(year),
     []
   );
 
@@ -30,10 +29,8 @@ export const useSamplesLink = () => {
     );
   };
 
-  const navigateToSamples = () => {
-    if (samplesLink()) {
-      navigate(samplesLink() as string);
-    }
+  const navigateToSamples = (year: number) => {
+    navigate(samplesLink(year) as string);
   };
 
   const getSampleStepParam = useCallback(() => {
