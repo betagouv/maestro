@@ -122,7 +122,7 @@ export const MatrixStepPPV: Story = {
   }
 };
 
-export const MatrixStepPPVWithoutProg: Story = {
+export const MatrixStepPPVWithoutPrescriptions: Story = {
   ...story,
   parameters: {
     ...story.parameters,
@@ -139,6 +139,7 @@ export const MatrixStepPPVWithoutProg: Story = {
     ...story.args,
     partialSample: {
       ...story.args.partialSample,
+      context: 'Surveillance',
       matrixKind: undefined
     }
   },
