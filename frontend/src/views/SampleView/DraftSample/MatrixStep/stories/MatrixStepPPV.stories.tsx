@@ -122,6 +122,36 @@ export const MatrixStepPPV: Story = {
   }
 };
 
+export const MatrixStepPPVWithoutPrescriptions: Story = {
+  ...story,
+  parameters: {
+    ...story.parameters,
+    apiClient: {
+      ...getMockApi({
+        ...storyMockApi,
+        useFindPrescriptionsQuery: {
+          data: []
+        }
+      })
+    }
+  },
+  args: {
+    ...story.args,
+    partialSample: {
+      ...story.args.partialSample,
+      context: 'Surveillance',
+      matrixKind: undefined
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.getByText('Aucune matrice programmée pour le plan de surveillance')
+    ).toBeInTheDocument();
+  }
+};
+
 export const MatrixStepPPVSubmittingErrors: Story = {
   ...story,
   play: async ({ canvasElement }) => {
