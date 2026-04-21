@@ -4,10 +4,6 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { isNil, uniqBy } from 'lodash-es';
-import type { Department } from 'maestro-shared/referential/Department';
-import type { Region } from 'maestro-shared/referential/Region';
-import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isCreatedPartialSample,
   isProgrammingPlanSample,
@@ -35,7 +31,6 @@ import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput'
 import SampleItems from '../../../../components/Sample/SampleItems/SampleItems';
 import SampleProcedure from '../../../../components/Sample/SampleProcedure/SampleProcedure';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
-import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 import SupportDocumentDownload from '../SupportDocumentDownload';
@@ -43,9 +38,8 @@ import SupportDocumentDownload from '../SupportDocumentDownload';
 const ItemsStep = ({ partialSample }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
-  const { readonly, programmingPlan } = usePartialSample(partialSample);
+  const { readonly } = usePartialSample(partialSample);
   const { trackEvent } = useAnalytics();
-  const { user } = useAuthentication();
 
   const isSubmittingRef = useRef<boolean>(false);
 
@@ -58,63 +52,6 @@ const ItemsStep = ({ partialSample }: Props) => {
 
   const [createOrUpdateSample, createOrUpdateSampleCall] =
     apiClient.useCreateOrUpdateSampleMutation();
-
-  const isSlaughterhouse =
-    (programmingPlan as ProgrammingPlanChecked).distributionKind ===
-    'SLAUGHTERHOUSE';
-  const skipQuery = !partialSample.prescriptionId || !user?.region;
-  const prescriptionQueryBase = {
-    prescriptionId: partialSample.prescriptionId as string,
-    region: isCreatedPartialSample(partialSample)
-      ? partialSample.region
-      : (user?.region as Region),
-    includes: 'laboratories' as const
-  };
-
-  const { data: localPrescriptionByRegion } =
-    apiClient.useGetLocalPrescriptionQuery(prescriptionQueryBase, {
-      skip: skipQuery || isSlaughterhouse
-    });
-  const { data: localPrescriptionByCompany } =
-    apiClient.useGetLocalPrescriptionByCompanyQuery(
-      {
-        ...prescriptionQueryBase,
-        department: partialSample.department as Department,
-        companySiret: partialSample.company?.siret ?? ''
-      },
-      { skip: skipQuery || !isSlaughterhouse }
-    );
-  const localPrescription =
-    localPrescriptionByRegion ?? localPrescriptionByCompany;
-
-  useEffect(() => {
-    if (
-      programmingPlan &&
-      !items?.length &&
-      (localPrescription || !isProgrammingPlanSample(partialSample))
-    ) {
-      setItems(
-        [
-          ...(localPrescription?.substanceKindsLaboratories ??
-            programmingPlan.substanceKinds.map((substanceKind) => ({
-              substanceKind,
-              laboratoryId: undefined
-            })))
-        ]
-          .sort(SubstanceKindLaboratorySort)
-          .map((substanceKindLaboratory, index) => ({
-            sampleId: partialSample.id,
-            itemNumber: index + 1,
-            copyNumber: 1,
-            recipientKind: 'Laboratory',
-            laboratoryId: substanceKindLaboratory.laboratoryId,
-            substanceKind: substanceKindLaboratory.substanceKind,
-            compliance200263:
-              partialSample.programmingPlanKind === 'PPV' ? undefined : true
-          }))
-      );
-    }
-  }, [localPrescription, programmingPlan]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const Form = z.object({
     sampledDateTime: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, {
