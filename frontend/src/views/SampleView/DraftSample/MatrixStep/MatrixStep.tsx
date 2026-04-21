@@ -1,3 +1,4 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
@@ -20,7 +21,11 @@ import {
 } from 'maestro-shared/referential/Stage';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
-import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import {
+  type Context,
+  ContextLabels,
+  ProgrammingPlanContext
+} from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -303,22 +308,24 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const matrixKindOptions = useMemo(
     () =>
-      selectOptionsFromList(
-        isProgrammingPlanSample(partialSample)
-          ? MatrixKindList.filter((matrixKind) =>
-              prescriptions?.some(
-                (p) =>
-                  p.programmingPlanKind === programmingPlanKind &&
-                  p.matrixKind === matrixKind
-              )
-            )
-          : MatrixKindList,
-        {
-          labels: MatrixKindLabels,
-          withSort: true,
-          withDefault: false
-        }
-      ),
+      prescriptions
+        ? selectOptionsFromList(
+            isProgrammingPlanSample(partialSample)
+              ? MatrixKindList.filter((matrixKind) =>
+                  prescriptions?.some(
+                    (p) =>
+                      p.programmingPlanKind === programmingPlanKind &&
+                      p.matrixKind === matrixKind
+                  )
+                )
+              : MatrixKindList,
+            {
+              labels: MatrixKindLabels,
+              withSort: true,
+              withDefault: false
+            }
+          )
+        : undefined,
     [prescriptions, partialSample, programmingPlanKind]
   );
 
@@ -388,232 +395,242 @@ const MatrixStep = ({ partialSample }: Props) => {
               Étape précédente
             </Button>
           </div>
-          {(!readonly || SampleSteps[partialSample.step] > 2) && (
-            <Button
-              size="small"
-              priority="tertiary no outline"
-              className={cx('fr-pr-0')}
-              iconId="fr-icon-arrow-right-line"
-              iconPosition="right"
-              onClick={async (e) =>
-                readonly ? navigateToSample(partialSample.id, 3) : submit(e)
-              }
-            >
-              Étape suivante
-            </Button>
-          )}
+          {Boolean(matrixKindOptions?.length) &&
+            (!readonly || SampleSteps[partialSample.step] > 2) && (
+              <Button
+                size="small"
+                priority="tertiary no outline"
+                className={cx('fr-pr-0')}
+                iconId="fr-icon-arrow-right-line"
+                iconPosition="right"
+                onClick={async (e) =>
+                  readonly ? navigateToSample(partialSample.id, 3) : submit(e)
+                }
+              >
+                Étape suivante
+              </Button>
+            )}
         </div>
         <AppRequiredText />
       </div>
-
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12', 'fr-pb-0')}>
-          <span className={cx('fr-text--md', 'fr-text--bold')}>
-            La matrice à prélever
-          </span>
-        </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppSearchInput
-            value={matrixKind ?? ''}
-            options={matrixKindOptions}
-            placeholder="Sélectionner une catégorie"
-            onSelect={(value) => {
-              setMatrixKind(value as MatrixKind);
-              setMatrix(null);
-              setStage(null);
-            }}
-            state={form.messageType('matrixKind')}
-            stateRelatedMessage={form.message('matrixKind')}
-            whenValid="Type de matrice correctement renseignée."
-            label="Catégorie de matrice programmée"
-            required={matrixKind !== OtherMatrixKind.value}
-            inputProps={{
-              disabled: matrixKind === OtherMatrixKind.value,
-              'data-testid': 'matrix-kind-select'
-            }}
-            renderOption={(props, option) => (
-              <li {...props} key={option.value}>
-                {option.label}
-              </li>
-            )}
-          />
-          {isOutsideProgrammingPlanSample(partialSample) && (
-            <Checkbox
-              options={[
-                {
-                  label: 'Autre matrice non répertoriée',
-                  nativeInputProps: {
-                    checked: matrixKind === OtherMatrixKind.value,
-                    onChange: (e) => {
-                      if (e.target.checked) {
-                        setMatrixKind(OtherMatrixKind.value);
-                        setMatrix(null);
-                      } else {
-                        setMatrixKind(null);
-                        setMatrix(null);
-                      }
-                    }
-                  }
-                }
-              ]}
-            />
-          )}
-        </div>
-        <div
-          className={cx('fr-col-12', 'fr-col-sm-6', {
-            'fr-mt-12w': matrixKind === OtherMatrixKind.value
-          })}
-        >
-          {matrixKind === OtherMatrixKind.value ? (
-            <AppTextInput
-              defaultValue={matrix ?? ''}
-              onChange={(e) => setMatrix(e.target.value)}
-              inputForm={form}
-              inputKey="matrix"
-              whenValid="Matrice correctement renseignée."
-              required
-              label="Matrice"
-            />
-          ) : (
-            <AppSearchInput
-              value={matrix ?? ''}
-              options={matrixOptions}
-              placeholder="Sélectionner une matrice"
-              onSelect={(value) => {
-                setMatrix(value as Matrix);
-              }}
-              state={form.messageType('matrix')}
-              stateRelatedMessage={form.message('matrix')}
-              whenValid="Matrice correctement renseignée."
-              data-testid="matrix-select"
-              label="Matrice"
-              required
-              inputProps={{
-                'data-testid': 'matrix-select'
-              }}
-            />
-          )}
-        </div>
-        <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-          <AppSelect
-            value={stage ?? ''}
-            options={stageOptions}
-            onChange={(e) => setStage(e.target.value as Stage)}
-            inputForm={form}
-            inputKey="stage"
-            whenValid="Stade de prélèvement correctement renseigné."
-            data-testid="stage-select"
-            label="Stade de prélèvement"
-            required
-          />
-        </div>
-      </div>
-      <SampleProcedure partialSample={partialSample} />
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        {fieldConfigs.map((fc) => (
-          <MatrixSpecificDataFormInput
-            key={fc.field.key}
-            fieldConfig={fc}
-            inputProps={planLayout?.[fc.field.key] ?? {}}
-            inputForm={form}
-            specificData={specificData}
-            onChange={setSpecificData}
-          />
-        ))}
-
-        {!isProgrammingPlanSample(partialSample) && (
-          <>
-            <div className={cx('fr-col-12', 'fr-mt-2w', 'fr-pb-1v')}>
+      {matrixKindOptions?.length === 0 && (
+        <Alert
+          severity="info"
+          small={true}
+          description={`Aucune matrice programmée pour le ${ContextLabels[partialSample.context as Context].toLowerCase()}`}
+        />
+      )}
+      {matrixKindOptions && matrixKindOptions?.length > 0 && (
+        <>
+          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+            <div className={cx('fr-col-12', 'fr-pb-0')}>
               <span className={cx('fr-text--md', 'fr-text--bold')}>
-                Analyses mono-résidu et/ou multi-résidus
+                La matrice à prélever
               </span>
             </div>
-            <div className={cx('fr-col-12')}>
-              <Checkbox
-                options={[
-                  {
-                    label: 'Mono-résidu',
-                    nativeInputProps: {
-                      checked: !isNil(monoSubstances),
-                      onChange: (e) => {
-                        if (e.target.checked) {
-                          setMonoSubstances([]);
-                        } else {
-                          setMonoSubstances(null);
+            <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+              <AppSearchInput
+                value={matrixKind ?? ''}
+                options={matrixKindOptions}
+                placeholder="Sélectionner une catégorie"
+                onSelect={(value) => {
+                  setMatrixKind(value as MatrixKind);
+                  setMatrix(null);
+                  setStage(null);
+                }}
+                state={form.messageType('matrixKind')}
+                stateRelatedMessage={form.message('matrixKind')}
+                whenValid="Type de matrice correctement renseignée."
+                label="Catégorie de matrice programmée"
+                required={matrixKind !== OtherMatrixKind.value}
+                inputProps={{
+                  disabled: matrixKind === OtherMatrixKind.value,
+                  'data-testid': 'matrix-kind-select'
+                }}
+                renderOption={(props, option) => (
+                  <li {...props} key={option.value}>
+                    {option.label}
+                  </li>
+                )}
+              />
+              {isOutsideProgrammingPlanSample(partialSample) && (
+                <Checkbox
+                  options={[
+                    {
+                      label: 'Autre matrice non répertoriée',
+                      nativeInputProps: {
+                        checked: matrixKind === OtherMatrixKind.value,
+                        onChange: (e) => {
+                          if (e.target.checked) {
+                            setMatrixKind(OtherMatrixKind.value);
+                            setMatrix(null);
+                          } else {
+                            setMatrixKind(null);
+                            setMatrix(null);
+                          }
                         }
                       }
                     }
-                  }
-                ]}
-                className={cx('fr-mb-2w')}
-              />
-              {monoSubstances && (
-                <SubstanceSearch
-                  label="Sélectionner la liste des mono-résidu"
-                  analysisMethod="Mono"
-                  substances={monoSubstances}
-                  onChangeSubstances={setMonoSubstances}
-                  addButtonMode="none"
+                  ]}
                 />
               )}
-              {form.hasIssue('monoSubstances') && (
-                <div className={cx('fr-error-text')}>
-                  {form.message('monoSubstances')}
-                </div>
+            </div>
+            <div
+              className={cx('fr-col-12', 'fr-col-sm-6', {
+                'fr-mt-12w': matrixKind === OtherMatrixKind.value
+              })}
+            >
+              {matrixKind === OtherMatrixKind.value ? (
+                <AppTextInput
+                  defaultValue={matrix ?? ''}
+                  onChange={(e) => setMatrix(e.target.value)}
+                  inputForm={form}
+                  inputKey="matrix"
+                  whenValid="Matrice correctement renseignée."
+                  required
+                  label="Matrice"
+                />
+              ) : (
+                <AppSearchInput
+                  value={matrix ?? ''}
+                  options={matrixOptions}
+                  placeholder="Sélectionner une matrice"
+                  onSelect={(value) => {
+                    setMatrix(value as Matrix);
+                  }}
+                  state={form.messageType('matrix')}
+                  stateRelatedMessage={form.message('matrix')}
+                  whenValid="Matrice correctement renseignée."
+                  data-testid="matrix-select"
+                  label="Matrice"
+                  required
+                  inputProps={{
+                    'data-testid': 'matrix-select'
+                  }}
+                />
               )}
             </div>
-            <div className={cx('fr-col-12')}>
-              <Checkbox
-                options={[
-                  {
-                    label: 'Multi-résidus',
-                    nativeInputProps: {
-                      checked: !isNil(multiSubstances),
-                      onChange: (e) => {
-                        if (e.target.checked) {
-                          setMultiSubstances([]);
-                        } else {
-                          setMultiSubstances(null);
-                        }
-                      }
-                    }
-                  }
-                ]}
+            <div className={cx('fr-col-12', 'fr-col-sm-6')}>
+              <AppSelect
+                value={stage ?? ''}
+                options={stageOptions}
+                onChange={(e) => setStage(e.target.value as Stage)}
+                inputForm={form}
+                inputKey="stage"
+                whenValid="Stade de prélèvement correctement renseigné."
+                data-testid="stage-select"
+                label="Stade de prélèvement"
+                required
               />
             </div>
+          </div>
+          <SampleProcedure partialSample={partialSample} />
+          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+            {fieldConfigs.map((fc) => (
+              <MatrixSpecificDataFormInput
+                key={fc.field.key}
+                fieldConfig={fc}
+                inputProps={planLayout?.[fc.field.key] ?? {}}
+                inputForm={form}
+                specificData={specificData}
+                onChange={setSpecificData}
+              />
+            ))}
 
-            {form.hasIssue('substances') && (
-              <div className={cx('fr-error-text', 'fr-mt-0')}>
-                {form.message('substances')}
-              </div>
+            {!isProgrammingPlanSample(partialSample) && (
+              <>
+                <div className={cx('fr-col-12', 'fr-mt-2w', 'fr-pb-1v')}>
+                  <span className={cx('fr-text--md', 'fr-text--bold')}>
+                    Analyses mono-résidu et/ou multi-résidus
+                  </span>
+                </div>
+                <div className={cx('fr-col-12')}>
+                  <Checkbox
+                    options={[
+                      {
+                        label: 'Mono-résidu',
+                        nativeInputProps: {
+                          checked: !isNil(monoSubstances),
+                          onChange: (e) => {
+                            if (e.target.checked) {
+                              setMonoSubstances([]);
+                            } else {
+                              setMonoSubstances(null);
+                            }
+                          }
+                        }
+                      }
+                    ]}
+                    className={cx('fr-mb-2w')}
+                  />
+                  {monoSubstances && (
+                    <SubstanceSearch
+                      label="Sélectionner la liste des mono-résidu"
+                      analysisMethod="Mono"
+                      substances={monoSubstances}
+                      onChangeSubstances={setMonoSubstances}
+                      addButtonMode="none"
+                    />
+                  )}
+                  {form.hasIssue('monoSubstances') && (
+                    <div className={cx('fr-error-text')}>
+                      {form.message('monoSubstances')}
+                    </div>
+                  )}
+                </div>
+                <div className={cx('fr-col-12')}>
+                  <Checkbox
+                    options={[
+                      {
+                        label: 'Multi-résidus',
+                        nativeInputProps: {
+                          checked: !isNil(multiSubstances),
+                          onChange: (e) => {
+                            if (e.target.checked) {
+                              setMultiSubstances([]);
+                            } else {
+                              setMultiSubstances(null);
+                            }
+                          }
+                        }
+                      }
+                    ]}
+                  />
+                </div>
+
+                {form.hasIssue('substances') && (
+                  <div className={cx('fr-error-text', 'fr-mt-0')}>
+                    {form.message('substances')}
+                  </div>
+                )}
+              </>
             )}
-          </>
-        )}
-      </div>
-      <div className={cx('fr-col-12')}>
-        <hr />
-      </div>
-      {renderSampleAttachments?.()}
-      <hr />
-      <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-        <div className={cx('fr-col-12')}>
-          <AppTextAreaInput
-            defaultValue={notesOnMatrix ?? ''}
-            onChange={(e) => setNotesOnMatrix(e.target.value)}
-            inputForm={form}
-            inputKey="notesOnMatrix"
-            whenValid="Note correctement renseignée."
-            data-testid="notes-input"
-            label="Note additionnelle"
-            hintText={
-              partialSample?.programmingPlanKind === 'PPV'
-                ? 'Champ facultatif pour précisions supplémentaires (date de semis, précédent cultural, traitements faits, protocole de prélèvement et note inspecteur, etc.)'
-                : ''
-            }
-          />
-        </div>
-      </div>
-
+          </div>
+          <div className={cx('fr-col-12')}>
+            <hr />
+          </div>
+          {renderSampleAttachments?.()}
+          <hr />
+          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+            <div className={cx('fr-col-12')}>
+              <AppTextAreaInput
+                defaultValue={notesOnMatrix ?? ''}
+                onChange={(e) => setNotesOnMatrix(e.target.value)}
+                inputForm={form}
+                inputKey="notesOnMatrix"
+                whenValid="Note correctement renseignée."
+                data-testid="notes-input"
+                label="Note additionnelle"
+                hintText={
+                  partialSample?.programmingPlanKind === 'PPV'
+                    ? 'Champ facultatif pour précisions supplémentaires (date de semis, précédent cultural, traitements faits, protocole de prélèvement et note inspecteur, etc.)'
+                    : ''
+                }
+              />
+            </div>
+          </div>
+        </>
+      )}
       <hr className={cx('fr-mx-0')} />
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={clsx(cx('fr-col-12'), 'sample-actions')}>
@@ -662,7 +679,7 @@ const MatrixStep = ({ partialSample }: Props) => {
               />
             </li>
             <li>
-              {!readonly ? (
+              {matrixKindOptions?.length && !readonly ? (
                 <Button
                   onClick={submit}
                   iconId="fr-icon-arrow-right-line"
