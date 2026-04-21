@@ -791,7 +791,7 @@ const ContextStep = ({ partialSample }: Props) => {
                   {
                     children: 'Abandonner la saisie',
                     priority: 'tertiary',
-                    onClick: navigateToSamples,
+                    onClick: () => navigateToSamples(programmingPlan.year),
                     nativeButtonProps: {
                       'data-testid': 'cancel-button'
                     }
