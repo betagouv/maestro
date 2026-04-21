@@ -23,6 +23,7 @@ import { ApiClientContext } from '../../../services/apiClient';
 import { SampleItemAdmissibility } from './SampleItemAdmissibility/SampleItemAdmissibility';
 import './SampleItemAnalysis.scss';
 import { useAuthentication } from '../../../hooks/useAuthentication';
+import { quote } from '../../../utils/stringUtils';
 import { AnalysisDocumentPreview } from './SampleItemAnalysisForm/AnalysisDocumentPreview';
 import { SampleAnalysisForm } from './SampleItemAnalysisForm/SampleAnalysisForm';
 import { SampleAnalysisOverview } from './SampleItemAnalysisOverview/SampleAnalysisOverview';
@@ -349,6 +350,17 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
           </div>
         </Accordion>
       </div>
+      {sample.notesOnItems && (
+        <div className="summary-item icon-text">
+          <div className={cx('fr-icon-quote-line')}></div>
+          <div>
+            Note additionnelle{' '}
+            <div>
+              <b>{quote(sample.notesOnItems)}</b>
+            </div>
+          </div>
+        </div>
+      )}
       {analysis &&
         analysis.status !== 'Sent' &&
         analysis.status !== 'NotAdmissible' &&
