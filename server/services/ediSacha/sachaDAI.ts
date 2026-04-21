@@ -90,7 +90,7 @@ export const generateXMLDAI = (
           ReferenceEtablissement: {
             //FIXME EDI
             SigleIdentifiant: '',
-            Identifiant: sample.company.name,
+            Identifiant: sample.company.name.substring(0, 25),
             Nom: sample.company.name,
             CodePostal: `${sample.company.postalCode ?? ''} ${sample.company.city ?? ''}`,
             Adresse1: sample.company.address ?? undefined,

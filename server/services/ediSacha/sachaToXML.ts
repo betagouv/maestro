@@ -23,7 +23,12 @@ export type Xml = z.infer<typeof xml>;
 
 export type LaboratorySachaData = Pick<
   Laboratories,
-  'sachaSigle' | 'sachaEmail' | 'shortName' | 'name' | 'sachaGpgPublicKey'
+  | 'sachaSigle'
+  | 'sachaEmail'
+  | 'shortName'
+  | 'name'
+  | 'sachaGpgPublicKey'
+  | 'sachaSftpLogin'
 >;
 type SachaLaboratory = RequiredNotNull<LaboratorySachaData>;
 
@@ -40,7 +45,8 @@ const isSachaLaboratory = (
   if (
     laboratory.sachaEmail === null ||
     laboratory.sachaSigle === null ||
-    laboratory.sachaGpgPublicKey === null
+    (laboratory.sachaGpgPublicKey === null &&
+      laboratory.sachaSftpLogin === null)
   ) {
     throw new Error(
       `Le laboratoire ${laboratory.shortName} n'est pas configuré pour utiliser les EDI Sacha`

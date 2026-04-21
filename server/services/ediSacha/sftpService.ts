@@ -72,7 +72,7 @@ const processSachaFile = async (
     laboratory
   );
 
-  await sendSachaFile(xml, dateNow);
+  await sendSachaFile(xml, dateNow, laboratory.sachaSftpLogin);
 
   console.log('TODO Traitement de ', unzipFile, json);
 
@@ -140,4 +140,5 @@ const doSftp = async () => {
   }
 };
 
+//FIXME remove
 await doSftp();

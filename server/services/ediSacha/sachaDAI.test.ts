@@ -17,7 +17,8 @@ const laboratory = {
   sachaSigle: 'LDA72',
   name: 'Innovalys 72',
   sachaEmail: 'fake@email.fr',
-  sachaGpgPublicKey: 'gpg'
+  sachaGpgPublicKey: 'gpg',
+  sachaSftpLogin: null
 } as const satisfies LaboratorySachaData;
 
 const sachaConf = {
@@ -127,7 +128,7 @@ test(`génère un XML de DAI`, async () => {
         },
         company: {
           siret: 'siret',
-          name: 'companyName'
+          name: "nom d'entreprise très long qui doit être coupé"
         },
         sampler: Sampler1Fixture
       },
@@ -225,8 +226,8 @@ test(`génère un XML de DAI`, async () => {
         <ReferenceEtablissementType>
           <ReferenceEtablissement>
             <SigleIdentifiant></SigleIdentifiant>
-            <Identifiant>companyName</Identifiant>
-            <Nom>companyName</Nom>
+            <Identifiant>nom d&apos;entreprise très lon</Identifiant>
+            <Nom>nom d&apos;entreprise très long qui doit être coupé</Nom>
             <CodePostal> </CodePostal>
           </ReferenceEtablissement>
         </ReferenceEtablissementType>
@@ -275,6 +276,7 @@ test(`génère un XML de DAI`, async () => {
         "name": "Innovalys 72",
         "sachaEmail": "fake@email.fr",
         "sachaGpgPublicKey": "gpg",
+        "sachaSftpLogin": null,
         "sachaSigle": "LDA72",
         "shortName": "LDA 72",
       },

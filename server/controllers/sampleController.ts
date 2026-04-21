@@ -785,7 +785,11 @@ export const sampleRouter = {
                     laboratory
                   );
 
-                  await sendSachaFile(xmlFile, dateNow);
+                  await sendSachaFile(
+                    xmlFile,
+                    dateNow,
+                    laboratory.sachaSftpLogin
+                  );
                 } catch (e) {
                   await mattermostService.send(
                     `Impossible d'envoyer la DAI au laboratoire: ${laboratory.name}`

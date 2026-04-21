@@ -14,7 +14,8 @@ const laboratory = {
   sachaSigle: 'LDA72',
   name: 'Innovalys 72',
   sachaEmail: 'fake@email.fr',
-  sachaGpgPublicKey: 'gpg'
+  sachaGpgPublicKey: 'gpg',
+  sachaSftpLogin: null
 } as const satisfies LaboratorySachaData;
 
 const sachaConf = {
@@ -74,6 +75,7 @@ test(`génère un XML d'acquittement`, async () => {
         "name": "Innovalys 72",
         "sachaEmail": "fake@email.fr",
         "sachaGpgPublicKey": "gpg",
+        "sachaSftpLogin": null,
         "sachaSigle": "LDA72",
         "shortName": "LDA 72",
       },
