@@ -19,6 +19,7 @@ import {
   getAnalysisReportDocumentFilename,
   getSupportDocumentFilename
 } from 'maestro-shared/schema/Document/DocumentKind';
+import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import {
   ContextLabels,
   type ProgrammingPlanContext
@@ -38,13 +39,15 @@ import {
   sampleSendCheck
 } from 'maestro-shared/schema/Sample/Sample';
 import {
+  getSampleItemReference,
   SampleItem,
   SampleItemMaxCopyCount,
   SampleItemSort
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
-import { hasPermission } from 'maestro-shared/schema/User/User';
+import type { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import { hasPermission, type UserBase } from 'maestro-shared/schema/User/User';
 import { formatMaestroDate } from 'maestro-shared/utils/date';
 
 import { checkSchema } from 'maestro-shared/utils/zod';
@@ -158,6 +161,93 @@ const generateAndStoreSampleSupportDocument = async (
   return pdfBuffer;
 };
 
+export const buildAnalysisRequestData = (
+  updatedSample: SampleChecked,
+  sampleItem: SampleItem,
+  sampler: UserBase,
+  laboratory: Laboratory,
+  laboratoryResiduesMapping: LaboratoryResidueMapping[],
+  planKindFieldConfigs: PlanKindFieldConfig[]
+): AnalysisRequestData => {
+  const matrixPartField = planKindFieldConfigs.find(
+    (c) => c.field.key === 'matrixPart'
+  )?.field;
+  const cultureKindField = planKindFieldConfigs.find(
+    (c) => c.field.key === 'cultureKind'
+  )?.field;
+  const establishment = {
+    name: Regions[updatedSample.region].establishment.name,
+    fullAddress: [
+      Regions[updatedSample.region].establishment.additionalAddress,
+      Regions[updatedSample.region].establishment.street,
+      `${Regions[updatedSample.region].establishment.postalCode} ${Regions[updatedSample.region].establishment.city}`
+    ]
+      .filter(Boolean)
+      .join('\n')
+  };
+
+  const company = {
+    ...updatedSample.company,
+    fullAddress: [
+      updatedSample.company.address,
+      `${updatedSample.company.postalCode} ${updatedSample.company.city}`
+    ].join('\n')
+  };
+
+  const substanceToLaboratoryLabel = (substance: SSD2Id): string => {
+    const laboratoryLabel =
+      laboratoryResiduesMapping.find(({ ssd2Id }) => ssd2Id === substance)
+        ?.label ?? null;
+    return laboratoryLabel ?? SSD2IdLabel[substance];
+  };
+
+  return {
+    ...updatedSample,
+    ...sampleItem,
+    reference: getSampleItemReference(
+      updatedSample,
+      sampleItem.itemNumber,
+      sampleItem.copyNumber
+    ),
+    sampler,
+    company,
+    laboratory,
+    monoSubstanceLabels: (updatedSample.monoSubstances ?? []).map(
+      substanceToLaboratoryLabel
+    ),
+    multiSubstanceLabels: (updatedSample.multiSubstances ?? []).map(
+      substanceToLaboratoryLabel
+    ),
+    sampledDate: formatMaestroDate(updatedSample.sampledDate),
+    sampledTime: updatedSample.sampledTime,
+    context: ContextLabels[updatedSample.context],
+    legalContext: LegalContextLabels[updatedSample.legalContext],
+    stage: StageLabels[updatedSample.stage],
+    matrixKindLabel: MatrixKindLabels[updatedSample.matrixKind],
+    matrixLabel: getSampleMatrixLabel(updatedSample),
+    matrixPart: matrixPartField
+      ? (getFieldValueLabel(
+          matrixPartField,
+          updatedSample.specificData['matrixPart']
+        ) ?? '')
+      : '',
+    quantityUnit: sampleItem.quantityUnit
+      ? QuantityUnitLabels[sampleItem.quantityUnit]
+      : '',
+    cultureKind: cultureKindField
+      ? (getFieldValueLabel(
+          cultureKindField,
+          updatedSample.specificData['cultureKind']
+        ) ?? '')
+      : '',
+    compliance200263: sampleItem.compliance200263
+      ? 'Respectée'
+      : 'Non respectée',
+    establishment,
+    department: DepartmentLabels[updatedSample.department]
+  };
+};
+
 const generateAndStoreAnalysisRequestDocuments = async (
   analysisRequestData: AnalysisRequestData
 ) => {
@@ -166,8 +256,6 @@ const generateAndStoreAnalysisRequestDocuments = async (
 
   const excelFilename = getAnalysisReportDocumentFilename(
     analysisRequestData,
-    analysisRequestData.itemNumber,
-    analysisRequestData.copyNumber,
     'xlsx'
   );
 
@@ -184,8 +272,6 @@ const generateAndStoreAnalysisRequestDocuments = async (
 
   const csvFilename = getAnalysisReportDocumentFilename(
     analysisRequestData,
-    analysisRequestData.itemNumber,
-    analysisRequestData.copyNumber,
     'csv'
   );
 
@@ -797,26 +883,6 @@ export const sampleRouter = {
                   console.error(e);
                 }
               } else {
-                const establishment = {
-                  name: Regions[updatedSample.region].establishment.name,
-                  fullAddress: [
-                    Regions[updatedSample.region].establishment
-                      .additionalAddress,
-                    Regions[updatedSample.region].establishment.street,
-                    `${Regions[updatedSample.region].establishment.postalCode} ${Regions[updatedSample.region].establishment.city}`
-                  ]
-                    .filter(Boolean)
-                    .join('\n')
-                };
-
-                const company = {
-                  ...updatedSample.company,
-                  fullAddress: [
-                    updatedSample.company.address,
-                    `${updatedSample.company.postalCode} ${updatedSample.company.city}`
-                  ].join('\n')
-                };
-
                 let laboratoryResiduesMapping: LaboratoryResidueMapping[] = [];
                 if (laboratory.shortName in laboratoriesConf) {
                   laboratoryResiduesMapping =
@@ -825,71 +891,21 @@ export const sampleRouter = {
                     );
                 }
 
-                const substanceToLaboratoryLabel = (
-                  substance: SSD2Id
-                ): string => {
-                  const laboratoryLabel: string | null =
-                    laboratoryResiduesMapping.find(
-                      ({ ssd2Id }) => ssd2Id === substance
-                    )?.label ?? null;
-                  return laboratoryLabel ?? SSD2IdLabel[substance];
-                };
-
-                const matrixPartField = planKindFieldConfigs.find(
-                  (c) => c.field.key === 'matrixPart'
-                )?.field;
-                const cultureKindField = planKindFieldConfigs.find(
-                  (c) => c.field.key === 'cultureKind'
-                )?.field;
-
                 const sampler = await userRepository.findUnique(
                   updatedSample.sampler.id
                 );
 
                 const analysisRequestDocs =
-                  await generateAndStoreAnalysisRequestDocuments({
-                    ...updatedSample,
-                    ...(sampleItem as SampleItem),
-                    sampler: sampler ?? user,
-                    company,
-                    laboratory,
-                    monoSubstanceLabels: (
-                      updatedSample.monoSubstances ?? []
-                    ).map((substance) => substanceToLaboratoryLabel(substance)),
-                    multiSubstanceLabels: (
-                      updatedSample.multiSubstances ?? []
-                    ).map((substance) => substanceToLaboratoryLabel(substance)),
-                    sampledDate: formatMaestroDate(updatedSample.sampledDate),
-                    sampledTime: updatedSample.sampledTime,
-                    context: ContextLabels[updatedSample.context],
-                    legalContext:
-                      LegalContextLabels[updatedSample.legalContext],
-                    stage: StageLabels[updatedSample.stage],
-                    matrixKindLabel: MatrixKindLabels[updatedSample.matrixKind],
-                    matrixLabel: getSampleMatrixLabel(updatedSample),
-                    matrixPart: matrixPartField
-                      ? (getFieldValueLabel(
-                          matrixPartField,
-                          updatedSample.specificData['matrixPart']
-                        ) ?? '')
-                      : '',
-                    quantityUnit: sampleItem?.quantityUnit
-                      ? QuantityUnitLabels[sampleItem.quantityUnit]
-                      : '',
-                    cultureKind: cultureKindField
-                      ? (getFieldValueLabel(
-                          cultureKindField,
-                          updatedSample.specificData['cultureKind']
-                        ) ?? '')
-                      : '',
-                    compliance200263: sampleItem
-                      ? sampleItem.compliance200263
-                        ? 'Respectée'
-                        : 'Non respectée'
-                      : '',
-                    establishment,
-                    department: DepartmentLabels[updatedSample.department]
-                  });
+                  await generateAndStoreAnalysisRequestDocuments(
+                    buildAnalysisRequestData(
+                      updatedSample,
+                      sampleItem as SampleItem,
+                      sampler ?? user,
+                      laboratory,
+                      laboratoryResiduesMapping,
+                      planKindFieldConfigs
+                    )
+                  );
 
                 if (laboratory.emails.length) {
                   const sampleDocuments = await Promise.all(
