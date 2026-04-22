@@ -15,13 +15,19 @@ import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/Lo
 import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
-import { genLaboratory } from 'maestro-shared/test/laboratoryFixtures';
+import {
+  genLaboratory,
+  LaboratoryFixture
+} from 'maestro-shared/test/laboratoryFixtures';
 import {
   genLocalPrescription,
   genPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
-import { genCreatedPartialSample } from 'maestro-shared/test/sampleFixtures';
+import {
+  genCreatedPartialSample,
+  genSampleItem
+} from 'maestro-shared/test/sampleFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
@@ -37,7 +43,7 @@ import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest';
 import { Laboratories } from '../../repositories/laboratoryRepository';
 import { LocalPrescriptionComments } from '../../repositories/localPrescriptionCommentRepository';
 import {
@@ -52,6 +58,7 @@ import {
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
+import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
   formatPartialSample,
   Samples
@@ -665,6 +672,295 @@ describe('Local prescriptions router', () => {
           laboratoryId: laboratory.id
         }
       ]);
+    });
+
+    describe('should update the samples laboratories of the prescription for a regional coordinator', async () => {
+      const validatedLocalPrescription =
+        validatedControlLocalPrescriptions.find((localPrescription) =>
+          isEqual(
+            LocalPrescriptionKey.parse(localPrescription),
+            LocalPrescriptionKey.parse({
+              prescriptionId: validatedControlPrescription.id,
+              region: RegionalCoordinator.region as Region
+            })
+          )
+        ) as LocalPrescription;
+
+      const draftSample = genCreatedPartialSample({
+        programmingPlanId: programmingPlanValidated.id,
+        prescriptionId: validatedLocalPrescription.prescriptionId,
+        region: validatedLocalPrescription.region as Region,
+        company: SlaughterhouseCompanyFixture1,
+        sampler: RegionalCoordinator,
+        status: 'Draft',
+        step: 'DraftMatrix',
+        specificData: { programmingPlanKind: 'PPV' }
+      });
+
+      const laboratoryItem = genSampleItem({
+        sampleId: draftSample.id,
+        itemNumber: 1,
+        copyNumber: 1,
+        substanceKind: 'Any',
+        recipientKind: 'Laboratory',
+        laboratoryId: undefined
+      });
+
+      const nonLaboratoryItem = genSampleItem({
+        sampleId: draftSample.id,
+        itemNumber: 2,
+        copyNumber: 1,
+        substanceKind: 'Any',
+        recipientKind: 'Sampler',
+        laboratoryId: undefined
+      });
+
+      beforeAll(async () => {
+        await Samples().insert(formatPartialSample(draftSample));
+        await SampleItems().insert([laboratoryItem, nonLaboratoryItem]);
+      });
+
+      afterAll(async () => {
+        await SampleItems().where({ sampleId: draftSample.id }).delete();
+        await Samples().where({ id: draftSample.id }).delete();
+      });
+
+      afterEach(async () => {
+        await SampleItems()
+          .where({ sampleId: draftSample.id })
+          .update({ laboratoryId: null });
+      });
+
+      test('should update laboratoryId on sample items with recipientKind Laboratory', async () => {
+        await request(app)
+          .put(
+            testRoute(
+              validatedLocalPrescription.prescriptionId,
+              validatedLocalPrescription.region
+            )
+          )
+          .send({
+            programmingPlanId: programmingPlanValidated.id,
+            key: 'laboratories',
+            substanceKindsLaboratories
+          })
+          .use(tokenProvider(RegionalCoordinator))
+          .expect(constants.HTTP_STATUS_OK);
+
+        const updatedLaboratoryItem = await SampleItems()
+          .where({ sampleId: draftSample.id, itemNumber: 1, copyNumber: 1 })
+          .first();
+
+        expect(updatedLaboratoryItem?.laboratoryId).toBe(laboratory.id);
+      });
+
+      test('should not update laboratoryId on sample items with recipientKind !== Laboratory', async () => {
+        await request(app)
+          .put(
+            testRoute(
+              validatedLocalPrescription.prescriptionId,
+              validatedLocalPrescription.region
+            )
+          )
+          .send({
+            programmingPlanId: programmingPlanValidated.id,
+            key: 'laboratories',
+            substanceKindsLaboratories
+          })
+          .use(tokenProvider(RegionalCoordinator))
+          .expect(constants.HTTP_STATUS_OK);
+
+        const nonLabItem = await SampleItems()
+          .where({ sampleId: draftSample.id, itemNumber: 2, copyNumber: 1 })
+          .first();
+
+        expect(nonLabItem?.laboratoryId).toBeNull();
+      });
+
+      test('should set laboratoryId to null when substanceKind has no matching laboratory', async () => {
+        await SampleItems()
+          .where({ sampleId: draftSample.id, itemNumber: 1, copyNumber: 1 })
+          .update({ laboratoryId: laboratory.id });
+
+        await request(app)
+          .put(
+            testRoute(
+              validatedLocalPrescription.prescriptionId,
+              validatedLocalPrescription.region
+            )
+          )
+          .send({
+            programmingPlanId: programmingPlanValidated.id,
+            key: 'laboratories',
+            substanceKindsLaboratories: []
+          })
+          .use(tokenProvider(RegionalCoordinator))
+          .expect(constants.HTTP_STATUS_OK);
+
+        const updatedItem = await SampleItems()
+          .where({ sampleId: draftSample.id, itemNumber: 1, copyNumber: 1 })
+          .first();
+
+        expect(updatedItem?.laboratoryId).toBeNull();
+      });
+
+      test('should not update sample items from the same prescription but a different region', async () => {
+        const otherRegion = RegionList.find(
+          (r) => r !== (validatedLocalPrescription.region as Region)
+        ) as Region;
+
+        const sampleOtherRegion = genCreatedPartialSample({
+          programmingPlanId: programmingPlanValidated.id,
+          prescriptionId: validatedLocalPrescription.prescriptionId,
+          region: otherRegion,
+          company: SlaughterhouseCompanyFixture1,
+          sampler: RegionalCoordinator,
+          status: 'Draft',
+          step: 'DraftMatrix',
+          specificData: { programmingPlanKind: 'PPV' }
+        });
+        const itemOtherRegion = genSampleItem({
+          sampleId: sampleOtherRegion.id,
+          itemNumber: 1,
+          copyNumber: 1,
+          substanceKind: 'Any',
+          recipientKind: 'Laboratory',
+          laboratoryId: LaboratoryFixture.id
+        });
+
+        await Samples().insert(formatPartialSample(sampleOtherRegion));
+        await SampleItems().insert(itemOtherRegion);
+
+        await request(app)
+          .put(
+            testRoute(
+              validatedLocalPrescription.prescriptionId,
+              validatedLocalPrescription.region
+            )
+          )
+          .send({
+            programmingPlanId: programmingPlanValidated.id,
+            key: 'laboratories',
+            substanceKindsLaboratories
+          })
+          .use(tokenProvider(RegionalCoordinator))
+          .expect(constants.HTTP_STATUS_OK);
+
+        const untouchedItem = await SampleItems()
+          .where({
+            sampleId: sampleOtherRegion.id,
+            itemNumber: 1,
+            copyNumber: 1
+          })
+          .first();
+
+        expect(untouchedItem?.laboratoryId).toBe(LaboratoryFixture.id);
+
+        await SampleItems().where({ sampleId: sampleOtherRegion.id }).delete();
+        await Samples().where({ id: sampleOtherRegion.id }).delete();
+      });
+
+      test('should not update sample items from a different prescription in the same region', async () => {
+        const otherPrescriptionSample = genCreatedPartialSample({
+          programmingPlanId: programmingPlanValidated.id,
+          prescriptionId: closedControlPrescription.id,
+          region: validatedLocalPrescription.region as Region,
+          company: SlaughterhouseCompanyFixture1,
+          sampler: RegionalCoordinator,
+          status: 'Draft',
+          step: 'DraftMatrix',
+          specificData: { programmingPlanKind: 'PPV' }
+        });
+        const itemOtherPrescription = genSampleItem({
+          sampleId: otherPrescriptionSample.id,
+          itemNumber: 1,
+          copyNumber: 1,
+          substanceKind: 'Any',
+          recipientKind: 'Laboratory',
+          laboratoryId: LaboratoryFixture.id
+        });
+
+        await Samples().insert(formatPartialSample(otherPrescriptionSample));
+        await SampleItems().insert(itemOtherPrescription);
+
+        await request(app)
+          .put(
+            testRoute(
+              validatedLocalPrescription.prescriptionId,
+              validatedLocalPrescription.region
+            )
+          )
+          .send({
+            programmingPlanId: programmingPlanValidated.id,
+            key: 'laboratories',
+            substanceKindsLaboratories
+          })
+          .use(tokenProvider(RegionalCoordinator))
+          .expect(constants.HTTP_STATUS_OK);
+
+        const untouchedItem = await SampleItems()
+          .where({
+            sampleId: otherPrescriptionSample.id,
+            itemNumber: 1,
+            copyNumber: 1
+          })
+          .first();
+
+        expect(untouchedItem?.laboratoryId).toBe(LaboratoryFixture.id);
+
+        await SampleItems()
+          .where({ sampleId: otherPrescriptionSample.id })
+          .delete();
+        await Samples().where({ id: otherPrescriptionSample.id }).delete();
+      });
+
+      test('should not update sample items from samples with status other than Draft or Submitted', async () => {
+        const sentSample = genCreatedPartialSample({
+          programmingPlanId: programmingPlanValidated.id,
+          prescriptionId: validatedLocalPrescription.prescriptionId,
+          region: validatedLocalPrescription.region as Region,
+          company: SlaughterhouseCompanyFixture1,
+          sampler: RegionalCoordinator,
+          status: 'Sent',
+          step: 'Sent',
+          specificData: { programmingPlanKind: 'PPV' }
+        });
+        const itemSentSample = genSampleItem({
+          sampleId: sentSample.id,
+          itemNumber: 1,
+          copyNumber: 1,
+          substanceKind: 'Any',
+          recipientKind: 'Laboratory',
+          laboratoryId: LaboratoryFixture.id
+        });
+
+        await Samples().insert(formatPartialSample(sentSample));
+        await SampleItems().insert(itemSentSample);
+
+        await request(app)
+          .put(
+            testRoute(
+              validatedLocalPrescription.prescriptionId,
+              validatedLocalPrescription.region
+            )
+          )
+          .send({
+            programmingPlanId: programmingPlanValidated.id,
+            key: 'laboratories',
+            substanceKindsLaboratories
+          })
+          .use(tokenProvider(RegionalCoordinator))
+          .expect(constants.HTTP_STATUS_OK);
+
+        const untouchedItem = await SampleItems()
+          .where({ sampleId: sentSample.id, itemNumber: 1, copyNumber: 1 })
+          .first();
+
+        expect(untouchedItem?.laboratoryId).toBe(LaboratoryFixture.id);
+
+        await SampleItems().where({ sampleId: sentSample.id }).delete();
+        await Samples().where({ id: sentSample.id }).delete();
+      });
     });
   });
 

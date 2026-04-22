@@ -56,9 +56,9 @@ const updateLocalPrescriptionLaboratories = async (
           ...sampleItem,
           laboratoryId:
             sampleItem.recipientKind === 'Laboratory'
-              ? substanceKindsLaboratories?.find(
+              ? (substanceKindsLaboratories?.find(
                   (s) => s.substanceKind === sampleItem.substanceKind
-                )?.laboratoryId
+                )?.laboratoryId ?? null)
               : undefined
         }))
       );
