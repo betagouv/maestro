@@ -260,9 +260,10 @@ export const UserModal = ({
           <AppSelect
             onChange={(e) => {
               const { data, success } = Department.safeParse(e.target.value);
-              if (success) {
-                setUser((u) => ({ ...u, department: data }));
-              }
+              setUser((u) => ({
+                ...u,
+                department: success ? data : null
+              }));
             }}
             value={user.department ?? ''}
             inputForm={form}
