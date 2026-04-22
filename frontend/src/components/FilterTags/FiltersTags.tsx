@@ -50,7 +50,7 @@ const tagProps = {
 
 type FilterableProp = keyof Omit<
   FilterableType,
-  keyof Pagination | 'reference' | 'companySirets'
+  keyof Pagination | 'reference' | 'companySirets' | 'prescriptionId'
 >;
 
 const renderArrayTags = <T extends string>(
