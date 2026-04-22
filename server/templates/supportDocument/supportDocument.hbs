@@ -50,7 +50,7 @@
               <div class='fr-container'>
                 {{> contextSection isFullVersion=fullVersion}}
 
-                {{> matrixSection}}
+                {{> matrixSection isFullVersion=fullVersion}}
 
                 <section class='sample-section {{#if fullVersion}}full-version{{/if}}'>
                   <div>
@@ -71,14 +71,26 @@
                           <div class='sample-item-container {{#if ../fullVersion}}sample-item-card{{/if}}'>
                             <div class='fr-grid-row fr-grid-row--gutters'>
                               <div class='fr-col-12'>
-                                <div class='sample-item-title-container'>
-                                  <div class="sample-item-title" style="{{#if ../fullVersion}}flex-grow: 1;{{/if}}">
-                                    Échantillon n°{{itemNumber}}
+                                {{#if ../fullVersion}}
+                                  <div class='sample-item-title-container'>
+                                    <div class="sample-item-title" style="flex-grow: 1">
+                                      Échantillon n°{{itemNumber}}
+                                    </div>
+                                    <div class='fr-badge fr-badge--yellow-tournesol fr-badge--sm fr-badge--no-icon'>
+                                      exemplaire n°{{copyNumber}}
+                                    </div>
                                   </div>
-                                  <div class='fr-badge fr-badge--yellow-tournesol fr-badge--sm fr-badge--no-icon fr-ml-1w'>
-                                    exemplaire n°{{copyNumber}}
+                                  <div class="sample-item-title">{{substanceKind}}</div>
+                                {{else}}
+                                  <div class='sample-item-title-container'>
+                                    <div class="sample-item-title">
+                                      Échantillon n°{{itemNumber}} - {{substanceKind}}
+                                    </div>
+                                    <div class='fr-badge fr-badge--yellow-tournesol fr-badge--sm fr-badge--no-icon fr-ml-1w'>
+                                      exemplaire n°{{copyNumber}}
+                                    </div>
                                   </div>
-                                </div>
+                                {{/if}}
                               </div>
                               {{#if (or ../fullVersion quantity)}}
                                 <div class='{{#if ../fullVersion}}fr-col-12{{else}}fr-col-6{{/if}}'>
