@@ -1,9 +1,13 @@
 import { constants } from 'node:http2';
 import { isNil } from 'lodash-es';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import { hasLocalPrescriptionPermission } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import {
+  hasLocalPrescriptionPermission,
+  type LocalPrescription
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import type { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import { companiesIsRequired } from 'maestro-shared/schema/User/User';
 import {
@@ -17,9 +21,50 @@ import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPla
 import localPrescriptionCommentRepository from '../repositories/localPrescriptionCommentRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import localPrescriptionLaboratoryRepository from '../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
+import sampleItemRepository from '../repositories/sampleItemRepository';
+import { sampleRepository } from '../repositories/sampleRepository';
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
+
+const updateLocalPrescriptionLaboratories = async (
+  localPrescription: LocalPrescription,
+  substanceKindsLaboratories: SubstanceKindLaboratory[]
+) => {
+  await localPrescriptionLaboratoryRepository.updateMany(
+    localPrescription,
+    substanceKindsLaboratories
+  );
+
+  const prescriptionSamples = await sampleRepository.findMany({
+    statuses: ['Draft', 'Submitted'],
+    prescriptionId: localPrescription.prescriptionId,
+    regions: [localPrescription.region],
+    departments: localPrescription.department
+      ? [localPrescription.department]
+      : undefined
+  });
+
+  await Promise.all(
+    prescriptionSamples.map(async (samplePrescription) => {
+      const sampleItems = await sampleItemRepository.findMany(
+        samplePrescription.id
+      );
+      await sampleItemRepository.updateMany(
+        samplePrescription.id,
+        sampleItems.map((sampleItem) => ({
+          ...sampleItem,
+          laboratoryId:
+            sampleItem.recipientKind === 'Laboratory'
+              ? substanceKindsLaboratories?.find(
+                  (s) => s.substanceKind === sampleItem.substanceKind
+                )?.laboratoryId
+              : undefined
+        }))
+      );
+    })
+  );
+};
 
 export const localPrescriptionsRouter = {
   '/prescriptions/regions': {
@@ -143,7 +188,7 @@ export const localPrescriptionsRouter = {
       }
 
       if (canUpdateLaboratories) {
-        await localPrescriptionLaboratoryRepository.updateMany(
+        await updateLocalPrescriptionLaboratories(
           localPrescription,
           localPrescriptionUpdate.substanceKindsLaboratories
         );
@@ -218,7 +263,7 @@ export const localPrescriptionsRouter = {
       }
 
       if (canUpdateLaboratories) {
-        await localPrescriptionLaboratoryRepository.updateMany(
+        await updateLocalPrescriptionLaboratories(
           localPrescription,
           localPrescriptionUpdate.substanceKindsLaboratories
         );
