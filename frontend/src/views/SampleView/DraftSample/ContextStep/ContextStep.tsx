@@ -824,7 +824,7 @@ const ContextStep = ({ partialSample }: Props) => {
             </ul>
           )}
         </div>
-        {isOnline && !readonly && (
+        {isOnline && !readonly && programmingPlanKind && (
           <SupportDocumentDownload partialSample={partialSample ?? formData} />
         )}
       </div>
