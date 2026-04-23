@@ -41,9 +41,10 @@ const processAnalysisDai = async (
       null
     );
   }
-  const checkedSample = SampleChecked.parse(sample);
 
   const sampleItems = await sampleItemRepository.findMany(analysis.sampleId);
+  const checkedSample = SampleChecked.parse({ ...sample, items: sampleItems });
+
   const rawItem = sampleItems.find(
     (item) =>
       item.itemNumber === analysis.itemNumber &&
@@ -85,9 +86,12 @@ const processAnalysisDai = async (
 
 const triggerProcessing = () => {
   setImmediate(() => {
-    processPending().catch((err) =>
-      console.error('[analysisDaiProcessor] cycle failed:', err)
-    );
+    console.info('[analysisDaiProcessor] cycle started.');
+    processPending()
+      .then(() => console.info('[analysisDaiProcessor] cycle done.'))
+      .catch((err) =>
+        console.error('[analysisDaiProcessor] cycle failed:', err)
+      );
   });
 };
 
@@ -112,7 +116,12 @@ const processPending = async (): Promise<void> => {
           },
           trx
         );
-        await analysisDaiRepository.linkDocuments(dai.id, result.documentIds);
+        await analysisDaiRepository.linkDocuments(
+          dai.id,
+          result.documentIds,
+          trx
+        );
+        console.info(`[analysisDaiProcessor] DAI ${dai.id} sent.`);
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         const edi = err instanceof DaiProcessingError ? err.edi : null;
@@ -121,6 +130,8 @@ const processPending = async (): Promise<void> => {
         await mattermostService.send(
           `[Maestro] Erreur lors de l'envoi de la DAI ${dai.id}: ${message}`
         );
+
+        console.error(`[analysisDaiProcessor] DAI ${dai.id} error.`, message);
         await analysisDaiRepository.update(
           {
             id: dai.id,
@@ -140,7 +151,7 @@ const processPending = async (): Promise<void> => {
   }
 
   if (processedOne) {
-    triggerProcessing();
+    await processPending();
   }
 };
 

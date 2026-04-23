@@ -20,7 +20,8 @@
     "seed": "node --enable-source-maps --import @swc-node/register/esm-register database/seeds/dummy/index.ts",
     "seed:laboratories": "node --enable-source-maps --import @swc-node/register/esm-register database/seeds/laboratories/script.ts",
     "ssd2-generate": "node --enable-source-maps --import @swc-node/register/esm-register ./scripts/updateSSD2Referential.ts",
-    "check:emails": "node --enable-source-maps --import @swc-node/register/esm-register ./services/imapService/script.ts"
+    "check:emails": "node --enable-source-maps --import @swc-node/register/esm-register ./services/imapService/script.ts",
+    "sendDAI": "node --enable-source-maps --import @swc-node/register/esm-register ./scripts/sendDAI.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1030.0",
