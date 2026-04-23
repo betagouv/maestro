@@ -3,6 +3,7 @@ import { AuthUserRefined } from 'maestro-shared/schema/User/AuthUser';
 import config from '../utils/config';
 
 export const tagTypes = [
+  'AnalysisDai',
   'AnalysisReportDocuments',
   'AuthUser',
   'Company',

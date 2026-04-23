@@ -5,9 +5,11 @@ import {
   PartialAnalysis
 } from '../schema/Analysis/Analysis';
 import { SampleItemKey } from '../schema/Sample/SampleItem';
+import { analysisDaiRoutes } from './analysisDai.routes';
 import type { SubRoutes } from './routes';
 
 export const analysisRoutes = {
+  ...analysisDaiRoutes,
   '/analysis': {
     get: {
       query: SampleItemKey,

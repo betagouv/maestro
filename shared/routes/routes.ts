@@ -16,6 +16,7 @@ import { specificDataFieldsRoutes } from './specificDataFields.routes';
 import { usersRoutes } from './users.routes';
 
 export const MaestroRoutes = [
+  '/analysis-dai',
   '/analysis',
   '/analysis/:analysisId',
   '/analysis/:analysisId/reportDocuments',

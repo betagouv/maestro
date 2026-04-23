@@ -1,6 +1,7 @@
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import warningImg from 'src/assets/illustrations/warning.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
+import { AnalysisDaiAdminView } from './AnalysisDaiAdminView/AnalysisDaiAdminView';
 import { AdminViewDashboardNotice } from './Notice/AdminViewDashboardNotice';
 import { AdminViewRootNotice } from './Notice/AdminViewRootNotice';
 import { PlanKindSpecificDataView } from './PlanKindSpecificData/PlanKindSpecificDataView';
@@ -32,6 +33,10 @@ export const AdminView = () => {
           {
             label: 'Configuration des plans',
             content: <PlanKindSpecificDataView />
+          },
+          {
+            label: 'DAI',
+            content: <AnalysisDaiAdminView />
           }
         ]}
       ></Tabs>

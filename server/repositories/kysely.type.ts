@@ -277,6 +277,7 @@ export interface SampleItems {
   compliance200263: boolean | null;
   itemNumber: number;
   copyNumber: number;
+  substanceKind: SubstanceKind;
   ownerEmail: string | null;
   ownerFirstName: string | null;
   ownerLastName: string | null;
