@@ -7,7 +7,6 @@ import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { getSupportDocumentFilename } from 'maestro-shared/schema/Document/DocumentKind';
-import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { buildFindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
@@ -36,7 +35,6 @@ import {
 import { analysisReportDocumentsRepository } from '../repositories/analysisReportDocumentsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
 import companyRepository from '../repositories/companyRepository';
-import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
@@ -403,57 +401,7 @@ export const sampleRouter = {
       const sample = await getAndCheckSample(sampleId, user, userRole);
       console.info('Get sample', sample.id);
 
-      const existingSampleItems = await sampleItemRepository.findMany(
-        sample.id
-      );
-
-      const localPrescription = sample.prescriptionId
-        ? await localPrescriptionRepository.findUnique({
-            prescriptionId: sample.prescriptionId,
-            region: sample.region,
-            department: sample.department,
-            companySiret: sample.company?.siret,
-            includes: ['laboratories']
-          })
-        : undefined;
-
-      const programmingPlan = await getAndCheckProgrammingPlan(
-        sample.programmingPlanId
-      );
-
-      const sampleItems = (
-        existingSampleItems.length
-          ? existingSampleItems
-          : (
-              localPrescription?.substanceKindsLaboratories ??
-              programmingPlan.substanceKinds.map((substanceKind) => ({
-                substanceKind,
-                laboratoryId: undefined
-              }))
-            )
-              .sort(SubstanceKindLaboratorySort)
-              .map((substanceKindLaboratory, index) => ({
-                sampleId: sample.id,
-                itemNumber: index + 1,
-                copyNumber: 1,
-                recipientKind: 'Laboratory' as const,
-                laboratoryId: substanceKindLaboratory.laboratoryId,
-                substanceKind: substanceKindLaboratory.substanceKind,
-                compliance200263:
-                  sample.programmingPlanKind === 'PPV' ? undefined : true
-              }))
-      ).map((sampleItem) => ({
-        ...sampleItem,
-        laboratoryId:
-          sampleItem.recipientKind === 'Laboratory'
-            ? localPrescription &&
-              ['Draft', 'Submitted'].includes(sample.status)
-              ? localPrescription.substanceKindsLaboratories?.find(
-                  (s) => s.substanceKind === sampleItem.substanceKind
-                )?.laboratoryId
-              : sampleItem.laboratoryId
-            : undefined
-      }));
+      const sampleItems = await sampleItemRepository.findMany(sample.id);
 
       return {
         status: constants.HTTP_STATUS_OK,
