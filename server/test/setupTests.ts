@@ -10,6 +10,7 @@ export const mockGenerateSampleSupportPDF: Mock<Procedure> = vi.fn();
 export const mockSendNotification: Mock<Procedure> = vi.fn();
 export const mockMattermostSend: Mock<Procedure> = vi.fn();
 export const mockMailSend: Mock<Procedure> = vi.fn();
+export const mockTriggerProcessing: Mock<Procedure> = vi.fn();
 vi.mock('../services/authService', () => ({
   getAuthService: Promise.resolve({
     getAuthorizationUrl: () => mockGetAuthorizationUrl(),
@@ -35,6 +36,17 @@ vi.mock('../services/mailService', () => ({
 vi.mock('../services/notificationService', () => ({
   notificationService: {
     sendNotification: (...args: any[]) => mockSendNotification(...args)
+  }
+}));
+vi.mock('../services/analysisDaiProcessor', () => ({
+  analysisDaiProcessor: {
+    triggerProcessing: vi.fn(),
+    processPending: vi.fn()
+  }
+}));
+vi.mock('../services/supportDocumentProcessor', () => ({
+  supportDocumentProcessor: {
+    triggerProcessing: (...args: any[]) => mockTriggerProcessing(...args)
   }
 }));
 

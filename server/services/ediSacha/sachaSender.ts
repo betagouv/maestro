@@ -1,8 +1,10 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import type { AnalysisDaiSentMethod } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiSentMethod';
 import sftp from 'ssh2-sftp-client';
 import config from '../../utils/config';
+import { DaiProcessingError } from '../daiSendingService';
 import { encryptFile } from '../gpgService';
 import { mailService } from '../mailService';
 import { zip } from '../zipService';
@@ -12,9 +14,13 @@ export const sendSachaFile = async (
   xmlFile: XmlFile,
   dateNow: number,
   laboratorySachaSftpLogin: string | null
-) => {
+): Promise<AnalysisDaiSentMethod> => {
+  const sentMethod: AnalysisDaiSentMethod = laboratorySachaSftpLogin
+    ? 'SFTP'
+    : 'EMAIL';
+
   if (!config.sachaEnabled) {
-    return;
+    throw new DaiProcessingError('EDI Sacha désactivé', true, sentMethod);
   }
 
   // Create directory with xml file inside
@@ -32,7 +38,7 @@ export const sendSachaFile = async (
   );
   const zipFilePath = await zip(directoryPath, zipFileName);
 
-  if (laboratorySachaSftpLogin === null) {
+  if (sentMethod === 'EMAIL') {
     // Encrypt
     const laboratoryGpgEmail = xmlFile.laboratory.sachaEmail;
     const encryptFileName = `${zipFileName}.gpg`;
@@ -43,7 +49,6 @@ export const sendSachaFile = async (
     );
     const encryptFileBuffer = await readFile(encryptFilePath);
 
-    // Send by email
     await mailService.send({
       templateName: 'GenericTemplate',
       attachment: [
@@ -62,10 +67,14 @@ export const sendSachaFile = async (
     if (
       !config.sigal.sftp.privateKey ||
       !config.sigal.sftp.passphrase ||
-      !config.sigal.sftp.host
+      !config.sigal.sftp.host ||
+      !laboratorySachaSftpLogin
     ) {
-      console.warn('La configuration de SFTP est incomplète.');
-      return;
+      throw new DaiProcessingError(
+        'La configuration SFTP est incomplète',
+        true,
+        'SFTP'
+      );
     }
     const sftpClient = new sftp();
     try {
@@ -81,10 +90,15 @@ export const sendSachaFile = async (
         `/uploads/masa_labo/data/${zipFileName}`
       );
     } catch (e) {
-      console.log(e);
-      throw e;
+      throw new DaiProcessingError(
+        `Échec de l'envoi SFTP (${laboratorySachaSftpLogin}): ${e instanceof Error ? e.message : String(e)}`,
+        true,
+        sentMethod
+      );
     } finally {
       await sftpClient.end();
     }
   }
+
+  return sentMethod;
 };

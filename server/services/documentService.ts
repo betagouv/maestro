@@ -10,8 +10,10 @@ const insertDocument = async (
   file: File,
   documentKind: DocumentKind,
   userId: string | null
-) => {
-  await createDocument(file, documentKind, userId, () => Promise.resolve());
+): Promise<string> => {
+  return createDocument(file, documentKind, userId, (documentId) =>
+    Promise.resolve(documentId)
+  );
 };
 
 const getDocument = async (documentId: string) => {

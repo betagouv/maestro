@@ -9,7 +9,7 @@ import { PPVFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import type { MaestroDate } from 'maestro-shared/utils/date';
 import { describe, expect, test } from 'vitest';
-import { buildAnalysisRequestData } from './sampleController';
+import { buildAnalysisRequestData } from './daiSendingService';
 
 describe('buildAnalysisRequestData', () => {
   const sampleItem = genSampleItem({

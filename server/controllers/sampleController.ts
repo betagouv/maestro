@@ -1,37 +1,16 @@
 import { constants } from 'node:http2';
-import type { Readable } from 'node:stream';
 import { format } from 'date-fns';
 import { isEqual, isNil, omit } from 'lodash-es';
 import NoRegionError from 'maestro-shared/errors/noRegionError';
 import SampleItemMissingError from 'maestro-shared/errors/sampleItemMissingError';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
-import { DepartmentLabels } from 'maestro-shared/referential/Department';
-import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
-import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { StageLabels } from 'maestro-shared/referential/Stage';
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
-import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
-import {
-  getAnalysisReportDocumentFilename,
-  getSupportDocumentFilename
-} from 'maestro-shared/schema/Document/DocumentKind';
-import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import { getSupportDocumentFilename } from 'maestro-shared/schema/Document/DocumentKind';
 import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
-import {
-  ContextLabels,
-  type ProgrammingPlanContext
-} from 'maestro-shared/schema/ProgrammingPlan/Context';
-import {
-  type ProgrammingPlanKindWithSacha,
-  ProgrammingPlanKindWithSachaList
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { buildFindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
-  getSampleMatrixLabel,
   hasSamplePermission,
   isProgrammingPlanSample,
   type PartialSample,
@@ -40,16 +19,12 @@ import {
   sampleSendCheck
 } from 'maestro-shared/schema/Sample/Sample';
 import {
-  getSampleItemReference,
   SampleItem,
   SampleItemMaxCopyCount,
   SampleItemSort
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
-import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
-import type { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
-import { hasPermission, type UserBase } from 'maestro-shared/schema/User/User';
-import { formatMaestroDate } from 'maestro-shared/utils/date';
+import { hasPermission } from 'maestro-shared/schema/User/User';
 import { checkSchema } from 'maestro-shared/utils/zod';
 import { PDFDocument } from 'pdf-lib';
 import { v4 as uuidv4 } from 'uuid';
@@ -61,238 +36,16 @@ import {
 import { analysisReportDocumentsRepository } from '../repositories/analysisReportDocumentsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
 import companyRepository from '../repositories/companyRepository';
-import type { LaboratoryResidueMapping } from '../repositories/kysely.type';
-import { laboratoryRepository } from '../repositories/laboratoryRepository';
-import { laboratoryResidueMappingRepository } from '../repositories/laboratoryResidueMappingRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
-import { sachaCommemoratifRepository } from '../repositories/sachaCommemoratifRepository';
-import { sachaConfRepository } from '../repositories/sachaConfRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
-import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
-import { csvService } from '../services/csvService/csvService';
-import { documentService } from '../services/documentService';
-import { generateXMLDAI } from '../services/ediSacha/sachaDAI';
-import { sendSachaFile } from '../services/ediSacha/sachaSender';
 import { excelService } from '../services/excelService/excelService';
-import {
-  type LaboratoryWithConf,
-  laboratoriesConf
-} from '../services/imapService';
-import { mailService } from '../services/mailService';
-import { mattermostService } from '../services/mattermostService';
 import { pdfService } from '../services/pdfService/pdfService';
-
-const streamToBase64 = async (stream: Readable): Promise<string> => {
-  const chunks: any[] = [];
-  return new Promise((resolve, reject) => {
-    stream.on('data', (chunk) => chunks.push(chunk));
-    stream.on('end', () => resolve(Buffer.concat(chunks).toString('base64')));
-    stream.on('error', reject);
-  });
-};
-
-const generateAndStoreSampleSupportDocument = async (
-  sample: SampleChecked,
-  sampleItems: SampleItem[],
-  itemNumber: number,
-  copyNumber: number
-) => {
-  const pdfBuffer = await pdfService.generateSampleSupportPDF(
-    sample,
-    sampleItems,
-    itemNumber,
-    copyNumber,
-    true
-  );
-
-  const sampleItem = sampleItems.find(
-    (item) => item.itemNumber === itemNumber && item.copyNumber === copyNumber
-  );
-
-  if (!sampleItem) {
-    throw new Error(`Sample item ${copyNumber} not found`);
-  }
-
-  if (sampleItem.supportDocumentId) {
-    console.info('Delete previous document', sampleItem.supportDocumentId);
-    await sampleItemRepository.update(
-      sample.id,
-      sampleItem.itemNumber,
-      sampleItem.copyNumber,
-      {
-        ...sampleItem,
-        supportDocumentId: null
-      }
-    );
-    await documentService.deleteDocument(sampleItem.supportDocumentId);
-  }
-
-  const file = new File(
-    [pdfBuffer],
-    getSupportDocumentFilename(
-      sample,
-      sampleItem.itemNumber,
-      sampleItem.copyNumber
-    ),
-    { type: 'application/pdf' }
-  );
-
-  await documentService.createDocument<void>(
-    file,
-    'SupportDocument',
-    sample.sampler.id,
-    (documentId, trx) =>
-      sampleItemRepository.update(
-        sample.id,
-        sampleItem.itemNumber,
-        sampleItem.copyNumber,
-        {
-          ...sampleItem,
-          supportDocumentId: documentId
-        },
-        trx
-      )
-  );
-
-  return pdfBuffer;
-};
-
-export const buildAnalysisRequestData = (
-  updatedSample: SampleChecked,
-  sampleItem: SampleItem,
-  sampler: UserBase,
-  laboratory: Laboratory,
-  laboratoryResiduesMapping: LaboratoryResidueMapping[],
-  planKindFieldConfigs: PlanKindFieldConfig[]
-): AnalysisRequestData => {
-  const matrixPartField = planKindFieldConfigs.find(
-    (c) => c.field.key === 'matrixPart'
-  )?.field;
-  const cultureKindField = planKindFieldConfigs.find(
-    (c) => c.field.key === 'cultureKind'
-  )?.field;
-  const establishment = {
-    name: Regions[updatedSample.region].establishment.name,
-    fullAddress: [
-      Regions[updatedSample.region].establishment.additionalAddress,
-      Regions[updatedSample.region].establishment.street,
-      `${Regions[updatedSample.region].establishment.postalCode} ${Regions[updatedSample.region].establishment.city}`
-    ]
-      .filter(Boolean)
-      .join('\n')
-  };
-
-  const company = {
-    ...updatedSample.company,
-    fullAddress: [
-      updatedSample.company.address,
-      `${updatedSample.company.postalCode} ${updatedSample.company.city}`
-    ].join('\n')
-  };
-
-  const substanceToLaboratoryLabel = (substance: SSD2Id): string => {
-    const laboratoryLabel =
-      laboratoryResiduesMapping.find(({ ssd2Id }) => ssd2Id === substance)
-        ?.label ?? null;
-    return laboratoryLabel ?? SSD2IdLabel[substance];
-  };
-
-  return {
-    ...updatedSample,
-    ...sampleItem,
-    reference: getSampleItemReference(
-      updatedSample,
-      sampleItem.itemNumber,
-      sampleItem.copyNumber
-    ),
-    sampler,
-    company,
-    laboratory,
-    monoSubstanceLabels: (updatedSample.monoSubstances ?? []).map(
-      substanceToLaboratoryLabel
-    ),
-    multiSubstanceLabels: (updatedSample.multiSubstances ?? []).map(
-      substanceToLaboratoryLabel
-    ),
-    sampledDate: formatMaestroDate(updatedSample.sampledDate),
-    sampledTime: updatedSample.sampledTime,
-    context: ContextLabels[updatedSample.context],
-    legalContext: LegalContextLabels[updatedSample.legalContext],
-    stage: StageLabels[updatedSample.stage],
-    matrixKindLabel: MatrixKindLabels[updatedSample.matrixKind],
-    matrixLabel: getSampleMatrixLabel(updatedSample),
-    matrixPart: matrixPartField
-      ? (getFieldValueLabel(
-          matrixPartField,
-          updatedSample.specificData['matrixPart']
-        ) ?? '')
-      : '',
-    quantityUnit: sampleItem.quantityUnit
-      ? QuantityUnitLabels[sampleItem.quantityUnit]
-      : '',
-    cultureKind: cultureKindField
-      ? (getFieldValueLabel(
-          cultureKindField,
-          updatedSample.specificData['cultureKind']
-        ) ?? '')
-      : '',
-    compliance200263: sampleItem.compliance200263
-      ? 'Respectée'
-      : 'Non respectée',
-    establishment,
-    department: DepartmentLabels[updatedSample.department]
-  };
-};
-
-const generateAndStoreAnalysisRequestDocuments = async (
-  analysisRequestData: AnalysisRequestData
-) => {
-  const excelBuffer =
-    await excelService.generateAnalysisRequestExcel(analysisRequestData);
-
-  const excelFilename = getAnalysisReportDocumentFilename(
-    analysisRequestData,
-    'xlsx'
-  );
-
-  await documentService.insertDocument(
-    new File([new Uint8Array(excelBuffer as Buffer)], excelFilename, {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    }),
-    'SupportDocument',
-    analysisRequestData.sampler.id
-  );
-
-  const csvBuffer =
-    await csvService.generateAnalysisRequestCsv(analysisRequestData);
-
-  const csvFilename = getAnalysisReportDocumentFilename(
-    analysisRequestData,
-    'csv'
-  );
-
-  await documentService.insertDocument(
-    new File([csvBuffer], csvFilename, { type: 'text/csv' }),
-    'SupportDocument',
-    analysisRequestData.sampler.id
-  );
-
-  return [
-    {
-      buffer: excelBuffer,
-      filename: excelFilename
-    },
-    {
-      buffer: csvBuffer,
-      filename: csvFilename
-    }
-  ];
-};
+import { supportDocumentProcessor } from '../services/supportDocumentProcessor';
 
 /**
  * à partir de 2026 le numéro devient unique pour toute la France (alors qu'avant c'était par région)
@@ -837,194 +590,44 @@ export const sampleRouter = {
           : {})
       };
 
+      await sampleRepository.update(updatedPartialSample);
+
       if (mustBeSent) {
-        const programmingPlanWithEdiSacha: boolean =
-          ProgrammingPlanKindWithSachaList.includes(
-            updatedPartialSample.programmingPlanKind as ProgrammingPlanKindWithSacha
-          );
-
-        const updatedSample = SampleChecked.parse(updatedPartialSample);
         const sampleItems = await sampleItemRepository.findMany(sample.id);
-
-        const sachaCommemoratifRecord =
-          await sachaCommemoratifRepository.findAll();
-        const specificDataRecord =
-          await specificDataFieldConfigRepository.findSachaFields();
-        const planKindFieldConfigs =
-          await specificDataFieldConfigRepository.findByPlanKind(
-            updatedSample.programmingPlanId,
-            updatedSample.programmingPlanKind
-          );
-        const sachaConf = await sachaConfRepository.get();
-        if (programmingPlanWithEdiSacha) {
-          //FIXME EDI à supprimer à la fin des tests
-          await mattermostService.send(
-            `ATTENTION, un prélèvement DAOA vient d'être réalisé https://app.maestro.beta.gouv.fr/prelevements/${updatedPartialSample.id}`
-          );
-        }
-
-        const attachments: ({
-          content: string;
-          name: string;
-        } | null)[] = await Promise.all(
-          sampleItems.map(async (sampleItem) => {
-            const sampleSupportDoc =
-              await generateAndStoreSampleSupportDocument(
-                updatedSample,
-                sampleItems as SampleItem[],
-                sampleItem.itemNumber,
-                sampleItem.copyNumber
-              );
-
-            const sampleSupportAttachment = sampleSupportDoc
-              ? {
-                  name: `${getSupportDocumentFilename(
-                    updatedSample,
-                    sampleItem.itemNumber,
-                    sampleItem.copyNumber
-                  )}`,
-                  content: sampleSupportDoc.toString('base64')
-                }
-              : null;
-
-            if (sampleItem.copyNumber === 1) {
-              const analysis: PartialAnalysis = {
-                id: uuidv4(),
-                sampleId,
-                itemNumber: sampleItem.itemNumber,
-                copyNumber: sampleItem.copyNumber,
-                createdAt: new Date(),
-                createdBy: user.id,
-                status: 'Sent',
-                compliance: null,
-                notesOnCompliance: null
-              };
-              await analysisRepository.insert(analysis);
-            }
-
-            if (sampleItem.copyNumber === 1 && sampleItem.laboratoryId) {
-              const laboratory = await laboratoryRepository.findUnique(
-                sampleItem.laboratoryId
-              );
-
-              //Certains laboratoires n'utilisent pas les EDI Sacha
-              if (programmingPlanWithEdiSacha && laboratory.sachaSigle) {
-                try {
-                  const dateNow = Date.now();
-
-                  const xmlFile = await generateXMLDAI(
-                    updatedSample,
-                    SampleItem.parse(sampleItem),
-                    dateNow,
-                    specificDataRecord,
-                    sachaCommemoratifRecord,
-                    sachaConf,
-                    laboratory
-                  );
-
-                  await sendSachaFile(
-                    xmlFile,
-                    dateNow,
-                    laboratory.sachaSftpLogin
-                  );
-                } catch (e) {
-                  await mattermostService.send(
-                    `Impossible d'envoyer la DAI au laboratoire: ${laboratory.name}`
-                  );
-                  console.error(e);
-                }
-              } else {
-                let laboratoryResiduesMapping: LaboratoryResidueMapping[] = [];
-                if (laboratory.shortName in laboratoriesConf) {
-                  laboratoryResiduesMapping =
-                    await laboratoryResidueMappingRepository.findByLaboratoryShortName(
-                      laboratory.shortName as LaboratoryWithConf
-                    );
-                }
-
-                const sampler = await userRepository.findUnique(
-                  updatedSample.sampler.id
-                );
-
-                const analysisRequestDocs =
-                  await generateAndStoreAnalysisRequestDocuments(
-                    buildAnalysisRequestData(
-                      updatedSample,
-                      sampleItem as SampleItem,
-                      sampler ?? user,
-                      laboratory,
-                      laboratoryResiduesMapping,
-                      planKindFieldConfigs
-                    )
-                  );
-
-                if (laboratory.emails.length) {
-                  const sampleDocuments = await Promise.all(
-                    (updatedSample.documentIds ?? []).map((documentId) =>
-                      documentService.getDocument(documentId)
-                    )
-                  );
-
-                  const sampleAttachments = await Promise.all(
-                    sampleDocuments
-                      .filter((document) => document !== undefined)
-                      .map(async (document) => ({
-                        name: document.filename,
-                        content: await streamToBase64(document.file as Readable)
-                      }))
-                  );
-
-                  await mailService.send({
-                    templateName: 'SampleAnalysisRequestTemplate',
-                    recipients: laboratory.emails,
-                    params: {
-                      region: user.region
-                        ? Regions[user.region].name
-                        : undefined,
-                      userMail: user.email,
-                      sampledAt: formatMaestroDate(updatedSample.sampledDate)
-                    },
-                    attachment: [
-                      ...sampleAttachments,
-                      ...analysisRequestDocs
-                        .filter((doc) => !isNil(doc.buffer))
-                        .map((doc) => ({
-                          name: doc.filename,
-                          content: Buffer.from(doc.buffer as Buffer).toString(
-                            'base64'
-                          )
-                        })),
-                      sampleSupportAttachment
-                    ].filter((_) => !isNil(_))
-                  });
-                } else {
-                  await mattermostService.send(
-                    `Impossible d'envoyer la DAI au laboratoire ${laboratory.name} https://app.maestro.beta.gouv.fr/prelevements/${updatedPartialSample.id} car aucun email n'est renseigné`
-                  );
-                }
-              }
-            }
-            return sampleSupportAttachment;
-          })
+        const checkedSample = SampleChecked.parse(updatedPartialSample);
+        const allSampleItems = sampleItems.map((item) =>
+          SampleItem.parse(item)
         );
 
-        if (sample.ownerEmail) {
-          await mailService.send({
-            templateName: 'SupportDocumentCopyToOwnerTemplate',
-            recipients: [sample.ownerEmail],
-            params: {
-              region: user.region ? Regions[user.region].name : undefined,
-              sampledAt: updatedSample.sampledDate
-                .split('-')
-                .reverse()
-                .join('/')
-            },
-            attachment: attachments.filter((_) => !isNil(_))
-          });
-        }
-      }
+        const items: { analysisId: string; sampleItem: SampleItem }[] = [];
 
-      await sampleRepository.update(updatedPartialSample);
+        for (const sampleItem of sampleItems) {
+          if (sampleItem.copyNumber === 1) {
+            const analysis: PartialAnalysis = {
+              id: uuidv4(),
+              sampleId,
+              itemNumber: sampleItem.itemNumber,
+              copyNumber: sampleItem.copyNumber,
+              createdAt: new Date(),
+              createdBy: user.id,
+              status: 'Sent',
+              compliance: null,
+              notesOnCompliance: null
+            };
+            await analysisRepository.insert(analysis);
+            items.push({
+              analysisId: analysis.id,
+              sampleItem: SampleItem.parse(sampleItem)
+            });
+          }
+        }
+
+        supportDocumentProcessor.triggerProcessing(
+          checkedSample,
+          allSampleItems,
+          items
+        );
+      }
 
       return {
         status: constants.HTTP_STATUS_OK,
