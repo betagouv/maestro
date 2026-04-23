@@ -39,12 +39,8 @@ const LocalPrescriptionCard = ({
   onToggleSelection
 }: Props) => {
   const dispatch = useAppDispatch();
-  const {
-    hasUserPermission,
-    hasUserLocalPrescriptionPermission,
-    user,
-    userRole
-  } = useAuthentication();
+  const { hasUserLocalPrescriptionPermission, user, userRole } =
+    useAuthentication();
 
   if (!programmingPlan || !localPrescription) {
     return null;
@@ -167,17 +163,12 @@ const LocalPrescriptionCard = ({
                     )}
                   </>
                 )}
-                {(hasUserPermission('distributePrescriptionToDepartments') ||
-                  hasUserPermission(
-                    'distributePrescriptionToSlaughterhouses'
-                  )) && (
-                  <div className={cx('fr-mt-2w')}>
-                    <PrescriptionProgrammingInstruction
-                      programmingPlan={programmingPlan}
-                      value={prescription.programmingInstruction}
-                    />
-                  </div>
-                )}
+                <div className={cx('fr-mt-2w')}>
+                  <PrescriptionProgrammingInstruction
+                    programmingPlan={programmingPlan}
+                    value={prescription.programmingInstruction}
+                  />
+                </div>
               </div>
             </div>
           </div>
