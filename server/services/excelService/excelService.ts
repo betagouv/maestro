@@ -563,6 +563,8 @@ const generatePrescriptionsExportExcel = async (
         stages: prescription.stages
           .map((stage) => StageLabels[stage])
           .join(', '),
+        instructions: prescription.programmingInstruction,
+        notes: prescription.notes,
         columns: columns.map((v) => ({ value: v }))
       };
     });
