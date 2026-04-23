@@ -78,7 +78,9 @@ export const FoieDeBovinPrescriptionFixture = genPrescription({
   context: 'Surveillance',
   matrixKind: 'A01QX',
   matrix: 'A01XF#F28.A0C0S',
-  stages: ['STADE10']
+  stages: ['STADE10'],
+  notes: 'Prescription pour le foie de bovin',
+  programmingInstruction: 'Instructions pour le foie de bovin'
 });
 export const VolaillePrescriptionFixture = genPrescription({
   id: '608d0973-b472-4964-a8d7-246f91ad4d39',

@@ -60,7 +60,7 @@ describe('generatePrescriptionsExportExcel', async () => {
     const csv = XLSX.utils.sheet_to_csv(worksheet, { FS: ';' });
 
     expect(csv.toString()).toMatchInlineSnapshot(`
-      "Matrice;Stade(s) de prélèvement;Total national Programmés;Total national Réalisés;Total national Taux de réalisation;"Région ARA
+      "Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;Total national Programmés;Total national Réalisés;Total national Taux de réalisation;"Région ARA
       Programmés";"Région ARA
       Réalisés";"Région ARA
       Taux de réalisation";"Région BFC
@@ -112,12 +112,10 @@ describe('generatePrescriptionsExportExcel', async () => {
       Programmés";"Région PDL
       Réalisés";"Région PDL
       Taux de réalisation";"Région PAC
-      Programmés";"Région PAC
-      Réalisés";"Région PAC
-      Taux de réalisation"
-      Foie de bovin non transformé;Abattoir;80;0;0;3;0;0;2;0;0;5;0;0;8;0;0;10;0;0;1;0;0;2;0;0;10;0;0;3;0;0;3;0;0;2;0;0;9;0;0;4;0;0;4;0;0;2;0;0;1;0;0;5;0;0;6;0;0
-      Viande de volaille;Abattoir;77;0;0;2;0;0;3;0;0;8;0;0;1;0;0;9;0;0;1;0;0;11;0;0;3;0;0;2;0;0;1;0;0;1;0;0;4;0;0;6;0;0;1;0;0;5;0;0;6;0;0;3;0;0;10;0;0
-      Total;;157;;0;5;;0;5;;0;13;;0;9;;0;19;;0;2;;0;13;;0;13;;0;5;;0;4;;0;3;;0;13;;0;10;;0;5;;0;7;;0;7;;0;8;;0;16;;0"
+      Programmés"
+      Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;80;0;0;3;0;0;2;0;0;5;0;0;8;0;0;10;0;0;1;0;0;2;0;0;10;0;0;3;0;0;3;0;0;2;0;0;9;0;0;4;0;0;4;0;0;2;0;0;1;0;0;5;0;0;6
+      Viande de volaille;Abattoir;;;77;0;0;2;0;0;3;0;0;8;0;0;1;0;0;9;0;0;1;0;0;11;0;0;3;0;0;2;0;0;1;0;0;1;0;0;4;0;0;6;0;0;1;0;0;5;0;0;6;0;0;3;0;0;10
+      Total;;;;157;;0;5;;0;5;;0;13;;0;9;;0;19;;0;2;;0;13;;0;13;;0;5;;0;4;;0;3;;0;13;;0;10;;0;5;;0;7;;0;7;;0;8;;0;16"
     `);
   });
 
@@ -145,7 +143,7 @@ describe('generatePrescriptionsExportExcel', async () => {
     const csv = XLSX.utils.sheet_to_csv(worksheet, { FS: ';' });
 
     expect(csv.toString()).toMatchInlineSnapshot(`
-      "Matrice;Stade(s) de prélèvement;"Région PDL
+      "Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;"Région PDL
       Programmés";"Région PDL
       Réalisés";"Région PDL
       Taux de réalisation";"Département 44
@@ -161,12 +159,10 @@ describe('generatePrescriptionsExportExcel', async () => {
       Laboratoire mono-résidu";"Département 49
       Laboratoire multi-résidus";"Département 49
       Laboratoire cuivre";"Département 53
-      Programmés";"Département 53
-      Réalisés";"Département 53
-      Taux de réalisation"
-      Foie de bovin non transformé;Abattoir;5;0;0;8;0;0;;;;13;0;0;;;;8;0;0
-      Viande de volaille;Abattoir;3;0;0;8;0;0;;;;13;0;0;;;;8;0;0
-      Total;;8;;0;16;;0;;;;26;;0;;;;16;;0"
+      Programmés"
+      Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;5;0;0;8;0;0;;;;13;0;0;;;;8
+      Viande de volaille;Abattoir;;;3;0;0;8;0;0;;;;13;0;0;;;;8
+      Total;;;;8;;0;16;;0;;;;26;;0;;;;16"
     `);
   });
 
@@ -204,13 +200,11 @@ describe('generatePrescriptionsExportExcel', async () => {
     const csv = XLSX.utils.sheet_to_csv(worksheet, { FS: ';' });
 
     expect(csv.toString()).toMatchInlineSnapshot(`
-      "Matrice;Stade(s) de prélèvement;"Département 85
-      Programmés";"Département 85
-      Réalisés";"Département 85
-      Taux de réalisation"
-      Foie de bovin non transformé;Abattoir;13;0;0
-      Viande de volaille;Abattoir;13;0;0
-      Total;;40;;0"
+      "Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;"Département 85
+      Programmés"
+      Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;13
+      Viande de volaille;Abattoir;;;13
+      Total;;;;40"
     `);
   });
 });
