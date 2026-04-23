@@ -198,21 +198,20 @@ const generateSamplePDF = async (
     ? await userRepository.findUnique(sample.additionalSampler.id)
     : null;
 
-  const emptySampleItems: PartialSampleItem[] = new Array(
-    programmingPlan.substanceKinds.length * SampleItemMaxCopyCount
-  )
-    .fill(null)
-    .map((_, index) => {
-      const itemNumber = (index % programmingPlan.substanceKinds.length) + 1;
-      const copyNumber =
-        Math.floor(index / programmingPlan.substanceKinds.length) + 1;
-      return {
-        sampleId: sample.id,
-        itemNumber,
-        copyNumber,
-        recipientKind: copyNumber === 1 ? 'Laboratory' : undefined
-      };
-    });
+  const emptySampleItems: PartialSampleItem[] =
+    programmingPlan.substanceKinds.flatMap((substanceKind, substanceIndex) =>
+      new Array(SampleItemMaxCopyCount).fill(null).map((_, copyIndex) => {
+        const itemNumber = substanceIndex + 1;
+        const copyNumber = copyIndex + 1;
+        return {
+          sampleId: sample.id,
+          itemNumber,
+          copyNumber,
+          recipientKind: copyNumber === 1 ? 'Laboratory' : undefined,
+          substanceKind
+        };
+      })
+    );
 
   const sampleDocuments = await documentRepository.findMany({
     sampleId: sample.id

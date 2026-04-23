@@ -1,55 +1,55 @@
 <section class='sample-section border full-version' style="border-left: 2px solid #2A401A;">
   <div class='fr-container'>
-  <div class='fr-grid-row fr-grid-row--gutters'>
-    <div class='fr-col-12'>
-      <div class='sample-section-header'>
-        <span class="uppercase">Matrice contrôlée{{#if isFullVersion}} et analyses{{/if}}</span>
-      </div>
-    </div>
-    <div class='fr-col-4'>
-      <div class='sample-section-item'>
-        <div class='label'>
-          Catégorie de matrice
-        </div>
-        <div class='value {{#if (isEmpty matrixKind)}}empty{{/if}}'>
-          {{matrixKind}}
+    <div class='fr-grid-row fr-grid-row--gutters'>
+      <div class='fr-col-12'>
+        <div class='sample-section-header'>
+          <span class="uppercase">Matrice contrôlée{{#if isFullVersion}} et analyses{{/if}}</span>
         </div>
       </div>
-    </div>
-    <div class='fr-col-4'>
-      <div class='sample-section-item'>
-        <div class='label'>
-          Matrice
-        </div>
-        <div class='value {{#if (isEmpty matrix)}}empty{{/if}}'>
-          {{matrix}}
-        </div>
-      </div>
-    </div>
-    <div class='fr-col-4'>
-      <div class='sample-section-item'>
-        <div class='label'>
-          Stade
-        </div>
-        <div class='value {{#if (isEmpty stage)}}empty{{/if}}'>
-          {{stage}}
-        </div>
-      </div>
-    </div>
-    {{#each specificDataItems}}
       <div class='fr-col-4'>
         <div class='sample-section-item'>
           <div class='label'>
-            {{this.label}}
+            Catégorie de matrice
           </div>
-          <div class='value {{#if (isEmpty this.value)}}empty{{/if}}'>
-            {{this.value}}
+          <div class='value {{#if (isEmpty matrixKind)}}empty{{/if}}'>
+            {{matrixKind}}
           </div>
         </div>
       </div>
-    {{/each}}
-    {{#if isFullVersion}}
+      <div class='fr-col-4'>
+        <div class='sample-section-item'>
+          <div class='label'>
+            Matrice
+          </div>
+          <div class='value {{#if (isEmpty matrix)}}empty{{/if}}'>
+            {{matrix}}
+          </div>
+        </div>
+      </div>
+      <div class='fr-col-4'>
+        <div class='sample-section-item'>
+          <div class='label'>
+            Stade
+          </div>
+          <div class='value {{#if (isEmpty stage)}}empty{{/if}}'>
+            {{stage}}
+          </div>
+        </div>
+      </div>
+      {{#each specificDataItems}}
+        <div class='fr-col-4'>
+          <div class='sample-section-item'>
+            <div class='label'>
+              {{this.label}}
+            </div>
+            <div class='value {{#if (isEmpty this.value)}}empty{{/if}}'>
+              {{this.value}}
+            </div>
+          </div>
+        </div>
+      {{/each}}
     </div>
+    {{#if isFullVersion}}
       <div class='fr-grid-row fr-grid-row--gutters fr-mt-1w'>
         {{#if (or (eq substanceKind 'Any') (eq substanceKind 'Mono'))}}
           <div class='{{#if (eq substanceKind 'Any')}}fr-col-6{{else}}fr-col-12{{/if}}'>
