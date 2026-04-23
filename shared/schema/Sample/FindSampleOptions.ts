@@ -17,25 +17,25 @@ import { isNationalRole, type UserRole } from '../User/UserRole';
 import { SampleCompliance } from './SampleCompliance';
 import { SampleStatus } from './SampleStatus';
 
-export const FindSampleOptions = z
-  .object({
-    programmingPlanIds: coerceToArray(z.array(z.guid())).nullish(),
-    kinds: coerceToArray(z.array(ProgrammingPlanKind)).nullish(),
-    contexts: coerceToArray(z.array(Context)).nullish(),
-    regions: coerceToArray(z.array(Region)).nullish(),
-    departments: coerceToArray(z.array(Department)).nullish(),
-    companySirets: coerceToArray(z.array(z.string())).nullish(),
-    statuses: coerceToArray(z.array(SampleStatus)).nullish(),
-    matrices: coerceToArray(z.array(Matrix)).nullish(),
-    matrixKinds: coerceToArray(z.array(MatrixKind)).nullish(),
-    sampledBy: coerceToArray(z.array(z.guid())).nullish(),
-    sampledDate: z.string().nullish(),
-    reference: z.string().nullish(),
-    compliance: SampleCompliance.nullish(),
-    withAtLeastOneResidue: coerceToBooleanNullish(),
-    laboratoryIds: coerceToArray(z.array(z.guid())).nullish()
-  })
-  .merge(Pagination.partial());
+export const FindSampleOptions = z.object({
+  programmingPlanIds: coerceToArray(z.array(z.guid())).nullish(),
+  kinds: coerceToArray(z.array(ProgrammingPlanKind)).nullish(),
+  contexts: coerceToArray(z.array(Context)).nullish(),
+  regions: coerceToArray(z.array(Region)).nullish(),
+  departments: coerceToArray(z.array(Department)).nullish(),
+  companySirets: coerceToArray(z.array(z.string())).nullish(),
+  statuses: coerceToArray(z.array(SampleStatus)).nullish(),
+  matrices: coerceToArray(z.array(Matrix)).nullish(),
+  matrixKinds: coerceToArray(z.array(MatrixKind)).nullish(),
+  sampledBy: coerceToArray(z.array(z.guid())).nullish(),
+  sampledDate: z.string().nullish(),
+  reference: z.string().nullish(),
+  compliance: SampleCompliance.nullish(),
+  withAtLeastOneResidue: coerceToBooleanNullish(),
+  laboratoryIds: coerceToArray(z.array(z.guid())).nullish(),
+  prescriptionId: z.guid().nullish(),
+  ...Pagination.partial().shape
+});
 
 export type FindSampleOptions = z.infer<typeof FindSampleOptions>;
 

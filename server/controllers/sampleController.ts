@@ -20,6 +20,7 @@ import {
   getSupportDocumentFilename
 } from 'maestro-shared/schema/Document/DocumentKind';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import {
   ContextLabels,
   type ProgrammingPlanContext
@@ -49,7 +50,6 @@ import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldV
 import type { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { hasPermission, type UserBase } from 'maestro-shared/schema/User/User';
 import { formatMaestroDate } from 'maestro-shared/utils/date';
-
 import { checkSchema } from 'maestro-shared/utils/zod';
 import { PDFDocument } from 'pdf-lib';
 import { v4 as uuidv4 } from 'uuid';
@@ -64,6 +64,7 @@ import companyRepository from '../repositories/companyRepository';
 import type { LaboratoryResidueMapping } from '../repositories/kysely.type';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import { laboratoryResidueMappingRepository } from '../repositories/laboratoryResidueMappingRepository';
+import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import { sachaCommemoratifRepository } from '../repositories/sachaCommemoratifRepository';
@@ -639,7 +640,7 @@ export const sampleRouter = {
       setHeader('Content-Type', 'application/pdf');
       setHeader(
         'Content-Disposition',
-        `inline; filename="${`Formulaire-${sample.reference}.pdf`}"`
+        `inline; filename="Formulaire-${sample.reference}.pdf"`
       );
       return { status: constants.HTTP_STATUS_OK, response: pdfBuffer };
     }
@@ -649,7 +650,57 @@ export const sampleRouter = {
       const sample = await getAndCheckSample(sampleId, user, userRole);
       console.info('Get sample', sample.id);
 
-      const sampleItems = await sampleItemRepository.findMany(sample.id);
+      const existingSampleItems = await sampleItemRepository.findMany(
+        sample.id
+      );
+
+      const localPrescription = sample.prescriptionId
+        ? await localPrescriptionRepository.findUnique({
+            prescriptionId: sample.prescriptionId,
+            region: sample.region,
+            department: sample.department,
+            companySiret: sample.company?.siret,
+            includes: ['laboratories']
+          })
+        : undefined;
+
+      const programmingPlan = await getAndCheckProgrammingPlan(
+        sample.programmingPlanId
+      );
+
+      const sampleItems = (
+        existingSampleItems.length
+          ? existingSampleItems
+          : (
+              localPrescription?.substanceKindsLaboratories ??
+              programmingPlan.substanceKinds.map((substanceKind) => ({
+                substanceKind,
+                laboratoryId: undefined
+              }))
+            )
+              .sort(SubstanceKindLaboratorySort)
+              .map((substanceKindLaboratory, index) => ({
+                sampleId: sample.id,
+                itemNumber: index + 1,
+                copyNumber: 1,
+                recipientKind: 'Laboratory' as const,
+                laboratoryId: substanceKindLaboratory.laboratoryId,
+                substanceKind: substanceKindLaboratory.substanceKind,
+                compliance200263:
+                  sample.programmingPlanKind === 'PPV' ? undefined : true
+              }))
+      ).map((sampleItem) => ({
+        ...sampleItem,
+        laboratoryId:
+          sampleItem.recipientKind === 'Laboratory'
+            ? localPrescription &&
+              ['Draft', 'Submitted'].includes(sample.status)
+              ? localPrescription.substanceKindsLaboratories?.find(
+                  (s) => s.substanceKind === sampleItem.substanceKind
+                )?.laboratoryId
+              : sampleItem.laboratoryId
+            : undefined
+      }));
 
       return {
         status: constants.HTTP_STATUS_OK,

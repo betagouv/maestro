@@ -16,11 +16,10 @@ import {
   SampleItemsDataChecked,
   sampleItemSealIdCheck
 } from 'maestro-shared/schema/Sample/Sample';
-import type { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 
+import type { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleSteps } from 'maestro-shared/schema/Sample/SampleStep';
 import { formatWithTz, type MaestroDate } from 'maestro-shared/utils/date';
-
 import { checkSchema } from 'maestro-shared/utils/zod';
 import type React from 'react';
 import { useContext, useEffect, useRef, useState } from 'react';
@@ -280,18 +279,28 @@ const ItemsStep = ({ partialSample }: Props) => {
         </div>
       </div>
       <hr />
-      <div>
-        <h5>Échantillons</h5>
-        <SampleItems
-          partialSample={partialSample}
-          items={items}
-          onChangeItem={changeItem}
-          onAddItem={addItem}
-          onRemoveItem={removeItem}
-          readonly={readonly}
-          form={form}
-        />
-      </div>
+      {items && (
+        <div>
+          <h5>Échantillons</h5>
+          {items.length ? (
+            <SampleItems
+              partialSample={partialSample}
+              items={items}
+              onChangeItem={changeItem}
+              onAddItem={addItem}
+              onRemoveItem={removeItem}
+              readonly={readonly}
+              form={form}
+            />
+          ) : (
+            <Alert
+              severity="warning"
+              small={true}
+              description="Il n'y a pas de substance à analyser pour ce prélèvement ou le laboratoire n'a pas été affecté. Veuillez contacter votre coordinateur."
+            />
+          )}
+        </div>
+      )}
 
       {form.hasIssue('items') && (
         <Alert
