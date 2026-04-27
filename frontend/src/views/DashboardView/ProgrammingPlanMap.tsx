@@ -227,9 +227,9 @@ const ProgrammingPlanMap = ({
   const onClick = (e: maplibregl.MapLayerMouseEvent) => {
     if (e.features && e.features.length > 0) {
       const linkQuery = getURLQuery({
-        programmingPlanId: programmingPlan.id,
-        context,
-        region: hoveredRegion
+        programmingPlanIds: [programmingPlan.id],
+        contexts: [context],
+        regions: [hoveredRegion]
       });
       navigate(
         `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}${linkQuery}`

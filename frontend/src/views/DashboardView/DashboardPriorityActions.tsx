@@ -12,6 +12,7 @@ import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import SampleCard from '../../components/SampleCard/SampleCard';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
+import { getURLQuery } from '../../utils/fetchUtils';
 import ProgrammingPlanClosing from './ProgrammingPlanClosing';
 
 type Props = {
@@ -122,7 +123,12 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
                   {prioritySamplesStatus && (
                     <div className={clsx('more-actions-link')}>
                       <Link
-                        to={`${AuthenticatedAppRoutes.SamplesByYearRoute.link(currentValidatedProgrammingPlan.year)}?status=${prioritySamplesStatus}&sampledBy=${user?.id}`}
+                        to={`${AuthenticatedAppRoutes.SamplesByYearRoute.link(currentValidatedProgrammingPlan.year)}${getURLQuery(
+                          {
+                            statuses: prioritySamplesStatus,
+                            sampledBy: user?.id ? [user.id] : undefined
+                          }
+                        )}`}
                         className={cx('fr-link', 'fr-link--sm')}
                       >
                         Toutes les actions à terminer

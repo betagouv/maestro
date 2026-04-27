@@ -168,9 +168,9 @@ const DashboardPrescriptionCard: FunctionComponent<{
   region?: Region | null;
 }> = ({ programmingPlan, prescription, localPrescriptions, region }) => {
   const linkQuery = getURLQuery({
-    programmingPlanId: programmingPlan.id,
-    matrixKind: prescription.matrixKind,
-    region: region
+    programmingPlanIds: [programmingPlan.id],
+    matrixKinds: [prescription.matrixKind],
+    regions: region ? [region] : undefined
   });
 
   return (
