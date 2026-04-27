@@ -1,0 +1,26 @@
+.analysis-dai-history {
+
+  .dai-empty {
+    color: var(--text-mention-grey);
+  }
+
+  .fr-table tbody tr:has(.dai-group-header-analyse) > td {
+    background: var(--background-alt-grey);
+    border-top: 2px solid var(--border-default-grey);
+  }
+
+  .fr-table tbody tr:first-child:has(.dai-group-header-analyse) > td {
+    border-top: none;
+  }
+
+  .fr-tag {
+    white-space: nowrap;
+  }
+
+  .dai-group-toggle__meta {
+    color: var(--text-mention-grey);
+    font-size: 0.8125rem;
+    padding-left: 0.5rem;
+  }
+
+}

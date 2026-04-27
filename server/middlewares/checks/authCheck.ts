@@ -49,7 +49,7 @@ const getRequestUser = async (
   credentialsRequired: boolean
 ) => {
   if (credentialsRequired) {
-    if (!request.auth || !request.auth.userId || !request.auth.loggedSecret) {
+    if (!request.auth?.userId || !request.auth.loggedSecret) {
       throw new AuthenticationMissingError(request.auth);
     }
 

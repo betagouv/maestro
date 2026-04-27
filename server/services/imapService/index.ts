@@ -161,7 +161,7 @@ export const checkEmails = async () => {
           envelope: true,
           bodyStructure: true
         })) {
-          if (!message.envelope || !message.envelope.sender) {
+          if (!message.envelope?.sender) {
             throw new ExtractError("Impossible d'ouvrir l'email");
           }
           console.log(

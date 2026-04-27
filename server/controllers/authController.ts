@@ -103,7 +103,7 @@ export const authProtectedRouter = {
 
       const user = await userRepository.findUnique(authUser.id);
 
-      if (!user || !user.roles.includes(newRole)) {
+      if (!user?.roles.includes(newRole)) {
         throw new AuthenticationFailedError();
       }
 

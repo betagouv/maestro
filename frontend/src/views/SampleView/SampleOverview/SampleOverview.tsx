@@ -23,6 +23,7 @@ import { SampleStatusBadge } from '../../../components/SampleStatusBadge/SampleS
 import { usePartialSample } from '../../../hooks/usePartialSample';
 import { ApiClientContext } from '../../../services/apiClient';
 import SupportDocumentDownload from '../DraftSample/SupportDocumentDownload';
+import { AnalysisDaiHistory } from './AnalysisDaiHistory/AnalysisDaiHistory';
 import SampleAgreementOverview from './SampleAgreementOverview';
 import SampleComplianceForm from './SampleComplianceForm';
 import SampleContextOverview from './SampleContextOverview';
@@ -38,7 +39,7 @@ const SampleOverview = ({ sample }: Props) => {
   useDocumentTitle(`Prélèvement ${sample.reference}`);
   const apiClient = useContext(ApiClientContext);
   const complianceRef = useRef<null | HTMLDivElement>(null);
-  const { hasUserSamplePermission } = useAuthentication();
+  const { hasUserSamplePermission, hasUserPermission } = useAuthentication();
 
   const { getSampleItemLaboratory, programmingPlan } = usePartialSample(sample);
 
@@ -54,8 +55,14 @@ const SampleOverview = ({ sample }: Props) => {
     | 'items'
     | 'matrix'
     | 'context'
-    | 'agreement';
+    | 'agreement'
+    | 'dai';
   const activeItemNumber = Number(searchParams.get('item') ?? 1);
+
+  const { data: analysisDaiData } = apiClient.useGetAnalysisDaiQuery(
+    { sampleIds: [sample.id], perPage: 100 },
+    { skip: activeMenu !== 'dai' }
+  );
 
   const setActiveMenu = (menu: typeof activeMenu) =>
     setSearchParams(
@@ -258,6 +265,16 @@ const SampleOverview = ({ sample }: Props) => {
                   href: '#'
                 }
               },
+              hasUserPermission('administrationMaestro')
+                ? {
+                    text: 'Historique DAI',
+                    isActive: activeMenu === 'dai',
+                    linkProps: {
+                      onClick: () => setActiveMenu('dai'),
+                      href: '#'
+                    }
+                  }
+                : undefined,
               sample.programmingPlanKind !== 'PPV' &&
               hasUserSamplePermission(sample).performAnalysis
                 ? {
@@ -313,6 +330,9 @@ const SampleOverview = ({ sample }: Props) => {
             )}
             {activeMenu === 'agreement' && (
               <SampleAgreementOverview sample={sample} />
+            )}
+            {activeMenu === 'dai' && (
+              <AnalysisDaiHistory analyses={analysisDaiData?.analyses ?? []} />
             )}
           </div>
         </div>

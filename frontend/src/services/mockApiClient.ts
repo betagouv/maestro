@@ -246,7 +246,9 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateSampleSpecificDataAttributeMutation: [fn(), {}],
   useUpdateSampleSpecificDataAttributeValueMutation: [fn(), {}],
   useGetSachaCommemoratifsQuery: { data: {} },
-  useUpdateSachaCommemoratifsMutation: [fn(), {}]
+  useUpdateSachaCommemoratifsMutation: [fn(), {}],
+  useGetAnalysisDaiQuery: { data: { analyses: [], total: 0 } },
+  useCreateAnalysisDaiMutation: [fn(), {}]
 };
 
 export const mockApiClient = getMockApi({});
