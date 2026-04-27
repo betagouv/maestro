@@ -11,7 +11,6 @@ import {
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import maplibregl, {
   type CircleLayerSpecification,
   type FillLayerSpecification,

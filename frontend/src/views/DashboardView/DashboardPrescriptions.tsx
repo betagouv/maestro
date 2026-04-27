@@ -32,7 +32,6 @@ import { ApiClientContext } from '../../services/apiClient';
 import { getURLQuery } from '../../utils/fetchUtils';
 import { pluralize } from '../../utils/stringUtils';
 import './Dashboard.scss';
-import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 
 type Props = {
   programmingPlan: ProgrammingPlanChecked;
