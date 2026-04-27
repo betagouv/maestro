@@ -2,6 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
+import type { Company } from 'maestro-shared/schema/Company/Company';
 import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
   getPrescriptionTitle,
@@ -28,6 +29,7 @@ interface Props {
   subLocalPrescriptions?: LocalPrescription[];
   isSelected?: boolean;
   onToggleSelection?: () => void;
+  companies?: Company[];
 }
 
 const LocalPrescriptionCard = ({
@@ -36,7 +38,8 @@ const LocalPrescriptionCard = ({
   localPrescription,
   subLocalPrescriptions,
   isSelected,
-  onToggleSelection
+  onToggleSelection,
+  companies
 }: Props) => {
   const dispatch = useAppDispatch();
   const { hasUserLocalPrescriptionPermission, user, userRole } =
@@ -101,6 +104,9 @@ const LocalPrescriptionCard = ({
                 Info prélèvement
               </Button>
             </div>
+            {localPrescription.companySiret &&
+              companies?.find((c) => c.siret === localPrescription.companySiret)
+                ?.name}
             <div className="fr-card__end">
               <div>
                 {hasProgrammingPlanStatusForAuthUser(
