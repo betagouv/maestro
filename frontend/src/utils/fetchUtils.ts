@@ -1,6 +1,10 @@
 import { flow, isBoolean, isEmpty, isNil, isNumber, pickBy } from 'lodash-es';
+import type { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
+import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 
-export const getURLQuery = (params: object): string => {
+export const getURLQuery = (
+  params: FindSampleOptions | FindPrescriptionOptions | { page: string }
+): string => {
   if (isEmpty(params)) {
     return '';
   }

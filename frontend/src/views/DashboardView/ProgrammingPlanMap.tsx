@@ -11,6 +11,7 @@ import {
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import maplibregl, {
   type CircleLayerSpecification,
   type FillLayerSpecification,
@@ -227,9 +228,9 @@ const ProgrammingPlanMap = ({
   const onClick = (e: maplibregl.MapLayerMouseEvent) => {
     if (e.features && e.features.length > 0) {
       const linkQuery = getURLQuery({
-        programmingPlanId: programmingPlan.id,
-        context,
-        region: hoveredRegion
+        programmingPlanIds: [programmingPlan.id],
+        contexts: [context],
+        regions: [hoveredRegion]
       });
       navigate(
         `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}${linkQuery}`

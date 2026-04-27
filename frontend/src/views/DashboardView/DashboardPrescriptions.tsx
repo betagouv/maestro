@@ -32,6 +32,7 @@ import { ApiClientContext } from '../../services/apiClient';
 import { getURLQuery } from '../../utils/fetchUtils';
 import { pluralize } from '../../utils/stringUtils';
 import './Dashboard.scss';
+import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 
 type Props = {
   programmingPlan: ProgrammingPlanChecked;
@@ -170,7 +171,7 @@ const DashboardPrescriptionCard: FunctionComponent<{
   const linkQuery = getURLQuery({
     programmingPlanIds: [programmingPlan.id],
     matrixKinds: [prescription.matrixKind],
-    regions: [region]
+    regions: region ? [region] : undefined
   });
 
   return (
