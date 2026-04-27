@@ -9,6 +9,7 @@ import {
   DepartmentSort
 } from 'maestro-shared/referential/Department';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
+import type { Company } from 'maestro-shared/schema/Company/Company';
 import {
   type LocalPrescription,
   LocalPrescriptionSort
@@ -48,6 +49,7 @@ interface Props {
   ) => void;
   selectedPrescriptions: Prescription[];
   onTogglePrescriptionSelection?: (prescription: Prescription) => void;
+  companies?: Company[];
 }
 
 const ProgrammingLocalPrescriptionTable = ({
@@ -58,7 +60,8 @@ const ProgrammingLocalPrescriptionTable = ({
   region,
   onChangeLocalPrescriptionCount,
   selectedPrescriptions,
-  onTogglePrescriptionSelection
+  onTogglePrescriptionSelection,
+  companies
 }: Props) => {
   const dispatch = useAppDispatch();
   const {
@@ -182,56 +185,63 @@ const ProgrammingLocalPrescriptionTable = ({
               )}
               key={`total-${prescription.id}`}
             >
-              <div>
-                {pluralize(
-                  getLocalPrescription(prescription.id)?.sampleCount ?? 0,
-                  {
-                    preserveCount: true
-                  }
-                )('prélèvement programmé')}
-              </div>
-              {hasProgrammingPlanStatusForAuthUser(
-                programmingPlan,
-                ['Validated', 'Closed'],
-                user,
-                userRole
-              ) ? (
-                <>
-                  <div>
-                    {pluralize(
-                      getLocalPrescription(prescription.id)
-                        ?.realizedSampleCount ?? 0,
-                      {
-                        preserveCount: true
-                      }
-                    )('réalisé')}
-                  </div>
-                  <div>
-                    <CompletionBadge
-                      localPrescriptions={
-                        getLocalPrescription(prescription.id) ?? []
-                      }
-                    />
-                  </div>
-                </>
-              ) : (
-                (hasUserLocalPrescriptionPermission(
-                  programmingPlan,
-                  getLocalPrescription(prescription.id)
-                )?.distributeToDepartments ||
-                  hasUserLocalPrescriptionPermission(
-                    programmingPlan,
-                    getLocalPrescription(prescription.id)
-                  )?.distributeToSlaughterhouses) && (
-                  <LocalPrescriptionDistributionBadge
-                    localPrescription={getLocalPrescription(prescription.id)}
-                    subLocalPrescriptions={getSubLocalPrescriptions(
-                      prescription.id
-                    )}
-                    small
-                  />
+              {localPrescriptions
+                .filter(
+                  (r) =>
+                    r.prescriptionId === prescription.id && r.region === region
                 )
-              )}
+                .map((localPrescription) => (
+                  <>
+                    {localPrescription.companySiret &&
+                      companies?.find(
+                        (c) => c.siret === localPrescription.companySiret
+                      )?.name}
+                    <div>
+                      {pluralize(localPrescription.sampleCount, {
+                        preserveCount: true
+                      })('prélèvement programmé')}
+                    </div>
+                    {hasProgrammingPlanStatusForAuthUser(
+                      programmingPlan,
+                      ['Validated', 'Closed'],
+                      user,
+                      userRole
+                    ) ? (
+                      <>
+                        <div>
+                          {pluralize(
+                            localPrescription.realizedSampleCount ?? 0,
+                            {
+                              preserveCount: true
+                            }
+                          )('réalisé')}
+                        </div>
+                        <div>
+                          <CompletionBadge
+                            localPrescriptions={localPrescription}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      (hasUserLocalPrescriptionPermission(
+                        programmingPlan,
+                        localPrescription
+                      )?.distributeToDepartments ||
+                        hasUserLocalPrescriptionPermission(
+                          programmingPlan,
+                          getLocalPrescription(prescription.id)
+                        )?.distributeToSlaughterhouses) && (
+                        <LocalPrescriptionDistributionBadge
+                          localPrescription={localPrescription}
+                          subLocalPrescriptions={getSubLocalPrescriptions(
+                            prescription.id
+                          )}
+                          small
+                        />
+                      )
+                    )}
+                  </>
+                ))}
             </div>,
             ...(hasRegionalView &&
             programmingPlan.distributionKind !== 'REGIONAL'

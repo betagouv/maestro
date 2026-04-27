@@ -410,37 +410,44 @@ const ProgrammingPrescriptionList = ({
               </div>
             ) : (
               <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                {prescriptions?.map((prescription) => (
-                  <LocalPrescriptionCard
-                    key={`prescription_cards_${prescription.id}`}
-                    programmingPlan={programmingPlan}
-                    prescription={prescription}
-                    localPrescription={localPrescriptions.find(
+                {prescriptions?.flatMap((prescription) =>
+                  localPrescriptions
+                    .filter(
                       (regionalPrescription) =>
                         regionalPrescription.prescriptionId === prescription.id
-                    )}
-                    subLocalPrescriptions={subLocalPrescriptions?.filter(
-                      (departmentalPrescription) =>
-                        departmentalPrescription.prescriptionId ===
-                        prescription.id
-                    )}
-                    isSelected={selectedPrescriptions.some(
-                      (_) => _.id === prescription.id
-                    )}
-                    onToggleSelection={
-                      hasGroupedUpdatePermission
-                        ? () =>
-                            setSelectedPrescriptions((prevState) =>
-                              prevState.some((_) => _.id === prescription.id)
-                                ? prevState.filter(
-                                    (_) => _.id !== prescription.id
+                    )
+                    .map((localPrescription) => (
+                      <LocalPrescriptionCard
+                        key={`prescription_cards_${prescription.id}`}
+                        programmingPlan={programmingPlan}
+                        prescription={prescription}
+                        localPrescription={localPrescription}
+                        subLocalPrescriptions={subLocalPrescriptions?.filter(
+                          (departmentalPrescription) =>
+                            departmentalPrescription.prescriptionId ===
+                            prescription.id
+                        )}
+                        isSelected={selectedPrescriptions.some(
+                          (_) => _.id === prescription.id
+                        )}
+                        onToggleSelection={
+                          hasGroupedUpdatePermission
+                            ? () =>
+                                setSelectedPrescriptions((prevState) =>
+                                  prevState.some(
+                                    (_) => _.id === prescription.id
                                   )
-                                : [...prevState, prescription]
-                            )
-                        : undefined
-                    }
-                  />
-                ))}
+                                    ? prevState.filter(
+                                        (_) => _.id !== prescription.id
+                                      )
+                                    : [...prevState, prescription]
+                                )
+                            : undefined
+                        }
+                        companies={companies}
+                      />
+                    ))
+                )}
               </div>
             ))}
           {prescriptionListDisplay === 'table' &&
@@ -472,6 +479,7 @@ const ProgrammingPrescriptionList = ({
                       }
                     : undefined
                 }
+                companies={companies}
               />
             ))}
         </>
