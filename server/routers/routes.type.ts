@@ -14,10 +14,10 @@ import {
 } from 'maestro-shared/routes/routes';
 import type {
   OrEmpty,
-  RouteBody,
-  RouteParams,
-  RouteQuery,
-  RouteResponse
+  ServerRouteBody as RouteBody,
+  ServerRouteParams as RouteParams,
+  ServerRouteQuery as RouteQuery,
+  ServerRouteResponse as RouteResponse
 } from 'maestro-shared/routes/routes.infer';
 import type { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
 import { hasPermission, type UserBase } from 'maestro-shared/schema/User/User';
