@@ -2,7 +2,6 @@ import { intersection } from 'lodash-es';
 import { z } from 'zod';
 import { Department } from '../../referential/Department';
 import { Region } from '../../referential/Region';
-import { coerceToArray } from '../../utils/utils';
 import type { Laboratory } from '../Laboratory/Laboratory';
 import { hasPermission, type UserRefined } from '../User/User';
 import {
@@ -20,10 +19,10 @@ import {
   ProgrammingPlanStatusPermissions
 } from './ProgrammingPlanStatus';
 export const FindProgrammingPlanOptions = z.object({
-  ids: coerceToArray(z.array(z.string().guid())).nullish(),
-  kinds: coerceToArray(z.array(ProgrammingPlanKind)).nullish(),
-  year: z.coerce.number().int().nullish(),
-  status: coerceToArray(z.array(ProgrammingPlanStatus)).nullish(),
+  ids: z.array(z.string().guid()).nullish(),
+  kinds: z.array(ProgrammingPlanKind).nullish(),
+  year: z.number().int().nullish(),
+  status: z.array(ProgrammingPlanStatus).nullish(),
   region: Region.nullish(),
   department: Department.nullish()
 });

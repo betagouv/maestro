@@ -6,10 +6,10 @@ import type { MaestroRoutes } from 'maestro-shared/routes/routes';
 import { routes } from 'maestro-shared/routes/routes';
 import type {
   OrEmpty,
-  ClientRouteBody as RouteBody,
-  ClientRouteParams as RouteParams,
-  ClientRouteQuery as RouteQuery,
-  ClientRouteResponse as RouteResponse
+  RouteBody,
+  RouteParams,
+  RouteQuery,
+  RouteResponse
 } from 'maestro-shared/routes/routes.infer';
 import type { TagType } from './api.service';
 

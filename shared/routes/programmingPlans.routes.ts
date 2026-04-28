@@ -72,7 +72,7 @@ export const programmingPlansRoutes = {
   },
   '/programming-plans/years/:year': {
     params: {
-      year: z.coerce.number().int()
+      year: z.number().int()
     },
     post: {
       permissions: ['manageProgrammingPlan'],

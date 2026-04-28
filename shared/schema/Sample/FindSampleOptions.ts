@@ -3,7 +3,6 @@ import { Department } from '../../referential/Department';
 import { Matrix } from '../../referential/Matrix/Matrix';
 import { MatrixKind } from '../../referential/Matrix/MatrixKind';
 import { Region } from '../../referential/Region';
-import { coerceToArray, coerceToBooleanNullish } from '../../utils/utils';
 import { Pagination } from '../commons/Pagination';
 import { Context } from '../ProgrammingPlan/Context';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
@@ -18,21 +17,21 @@ import { SampleCompliance } from './SampleCompliance';
 import { SampleStatus } from './SampleStatus';
 
 export const FindSampleOptions = z.object({
-  programmingPlanIds: coerceToArray(z.array(z.guid())).nullish(),
-  kinds: coerceToArray(z.array(ProgrammingPlanKind)).nullish(),
-  contexts: coerceToArray(z.array(Context)).nullish(),
-  regions: coerceToArray(z.array(Region)).nullish(),
-  departments: coerceToArray(z.array(Department)).nullish(),
-  companySirets: coerceToArray(z.array(z.string())).nullish(),
-  statuses: coerceToArray(z.array(SampleStatus)).nullish(),
-  matrices: coerceToArray(z.array(Matrix)).nullish(),
-  matrixKinds: coerceToArray(z.array(MatrixKind)).nullish(),
-  sampledBy: coerceToArray(z.array(z.guid())).nullish(),
+  programmingPlanIds: z.array(z.guid()).nullish(),
+  kinds: z.array(ProgrammingPlanKind).nullish(),
+  contexts: z.array(Context).nullish(),
+  regions: z.array(Region).nullish(),
+  departments: z.array(Department).nullish(),
+  companySirets: z.array(z.string()).nullish(),
+  statuses: z.array(SampleStatus).nullish(),
+  matrices: z.array(Matrix).nullish(),
+  matrixKinds: z.array(MatrixKind).nullish(),
+  sampledBy: z.array(z.guid()).nullish(),
   sampledDate: z.string().nullish(),
   reference: z.string().nullish(),
   compliance: SampleCompliance.nullish(),
-  withAtLeastOneResidue: coerceToBooleanNullish(),
-  laboratoryIds: coerceToArray(z.array(z.guid())).nullish(),
+  withAtLeastOneResidue: z.boolean().nullish(),
+  laboratoryIds: z.array(z.guid()).nullish(),
   prescriptionId: z.guid().nullish(),
   ...Pagination.partial().shape
 });

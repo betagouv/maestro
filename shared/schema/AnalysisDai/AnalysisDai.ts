@@ -7,7 +7,7 @@ export type AnalysisDaiId = z.infer<typeof AnalysisDaiId>;
 const analysisDaiBase = {
   id: AnalysisDaiId,
   analysisId: z.guid(),
-  createdAt: z.coerce.date()
+  createdAt: z.date()
 };
 
 export const AnalysisDai = z.discriminatedUnion('state', [
