@@ -5,6 +5,7 @@ import { omit } from 'lodash-es';
 import { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
+import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import {
   CompanyFixture,
   SlaughterhouseCompanyFixture1
@@ -39,8 +40,9 @@ import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { toMaestroDate, withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { beforeAll, describe, expect, test } from 'vitest';
+import { afterEach, beforeAll, describe, expect, test } from 'vitest';
 import { departmentsSeed } from '../../database/seeds/departments/departmentsSeed';
+import { analysisRepository } from '../../repositories/analysisRepository';
 import { kysely } from '../../repositories/kysely';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
@@ -946,6 +948,87 @@ describe('Sample router', () => {
       };
 
       await successRequestTest(Sampler1Fixture);
+    });
+  });
+
+  describe('PUT /samples/{sampleId}/items/{itemNumber}/copy/{copyNumber}', () => {
+    const testRoute = (sampleId: string, itemNumber = 1, copyNumber = 1) =>
+      `/api/samples/${sampleId}/items/${itemNumber}/copy/${copyNumber}`;
+
+    const getAnalysis = () =>
+      kysely
+        .selectFrom('analysis')
+        .selectAll()
+        .where('sampleId', '=', Sample13Fixture.id)
+        .where('itemNumber', '=', 1)
+        .where('copyNumber', '=', 1)
+        .executeTakeFirst();
+
+    afterEach(async () => {
+      await kysely
+        .deleteFrom('analysis')
+        .where('sampleId', '=', Sample13Fixture.id)
+        .execute();
+      await kysely.deleteFrom('documents').execute();
+    });
+
+    test('should create an analysis record when no analysis exists', async () => {
+      await request(app)
+        .put(testRoute(Sample13Fixture.id))
+        .send({
+          updateKey: 'analysis',
+          isAdmissible: false,
+          receiptDate: '2026-01-15'
+        })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await expect(getAnalysis()).resolves.toBeDefined();
+    });
+
+    test('should update the analysis record when transitioning from Sent to admissible', async () => {
+      await analysisRepository.insert(
+        genPartialAnalysis({
+          sampleId: Sample13Fixture.id,
+          itemNumber: 1,
+          copyNumber: 1,
+          createdBy: Sampler1Fixture.id,
+          status: 'Sent'
+        })
+      );
+
+      await request(app)
+        .put(testRoute(Sample13Fixture.id))
+        .send({
+          updateKey: 'analysis',
+          isAdmissible: true,
+          receiptDate: '2026-01-15'
+        })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const updated = await getAnalysis();
+      expect(updated?.status).toBe('Analysis');
+    });
+
+    test('should not create an analysis when updateKey is billing', async () => {
+      await request(app)
+        .put(testRoute(Sample13Fixture.id))
+        .send({ updateKey: 'billing' })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await expect(getAnalysis()).resolves.toBeUndefined();
+    });
+
+    test('should not create an analysis when updateKey is shipping', async () => {
+      await request(app)
+        .put(testRoute(Sample13Fixture.id))
+        .send({ updateKey: 'shipping' })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await expect(getAnalysis()).resolves.toBeUndefined();
     });
   });
 });

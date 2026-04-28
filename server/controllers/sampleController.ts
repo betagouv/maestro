@@ -6,6 +6,7 @@ import SampleItemMissingError from 'maestro-shared/errors/sampleItemMissingError
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
+import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { getSupportDocumentFilename } from 'maestro-shared/schema/Document/DocumentKind';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { buildFindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
@@ -18,12 +19,14 @@ import {
   sampleSendCheck
 } from 'maestro-shared/schema/Sample/Sample';
 import {
+  type SampleAnalysisDataItemUpdate,
   SampleItem,
   SampleItemMaxCopyCount,
   SampleItemSort
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { hasPermission } from 'maestro-shared/schema/User/User';
+import type { MaestroDate } from 'maestro-shared/utils/date';
 import { checkSchema } from 'maestro-shared/utils/zod';
 import { PDFDocument } from 'pdf-lib';
 import { v4 as uuidv4 } from 'uuid';
@@ -44,6 +47,44 @@ import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
 import { pdfService } from '../services/pdfService/pdfService';
 import { supportDocumentProcessor } from '../services/supportDocumentProcessor';
+
+export const computeAnalysisStatus = (
+  itemUpdate: Pick<
+    SampleAnalysisDataItemUpdate,
+    'isAdmissible' | 'receiptDate'
+  >,
+  currentReceiptDate: MaestroDate | null | undefined,
+  analysis: Pick<PartialAnalysis, 'status' | 'compliance'> | null | undefined,
+  analysisReportDocumentIds: string[]
+): AnalysisStatus => {
+  //Pas de changement de recevabilité
+  if (
+    isNil(itemUpdate.isAdmissible) &&
+    itemUpdate.receiptDate === currentReceiptDate
+  ) {
+    return analysis?.status ?? 'Sent';
+  }
+  //Passage à non recevable
+  if (itemUpdate.isAdmissible === false) {
+    return 'NotAdmissible';
+  }
+  //Pas encore d'analyse
+  if (!analysis) {
+    return 'Sent';
+  }
+  //Passage de non recevable ou envoyé à recevable
+  if (
+    (analysis.status === 'NotAdmissible' || analysis.status === 'Sent') &&
+    itemUpdate.isAdmissible
+  ) {
+    return !isNil(analysis.compliance)
+      ? 'Completed'
+      : analysisReportDocumentIds.length > 0
+        ? 'InReview'
+        : 'Analysis';
+  }
+  return analysis.status;
+};
 
 /**
  * à partir de 2026 le numéro devient unique pour toute la France (alors qu'avant c'était par région)
@@ -281,81 +322,64 @@ export const sampleRouter = {
         copyNumber
       });
 
-      const analysis = await analysisRepository.findUnique({
-        sampleId,
-        itemNumber,
-        copyNumber
-      });
-
-      const computeStatus = () => {
-        if (itemUpdate.updateKey === 'analysis') {
-          //Pas de changement de recevabilité
-          if (
-            isNil(itemUpdate.isAdmissible) &&
-            itemUpdate.receiptDate === sampleItem.receiptDate
-          ) {
-            return analysis?.status ?? 'Sent';
-          }
-          //Passage à non recevable
-          if (itemUpdate.isAdmissible === false) {
-            return 'NotAdmissible';
-          }
-          //Pas encore d'analyse
-          if (!analysis) {
-            return 'Sent';
-          }
-          //Passage de non recevable à recevable
-          if (analysis.status === 'NotAdmissible' && itemUpdate.isAdmissible) {
-            const analysisReportDoc =
-              analysisReportDocumentsRepository.findByAnalysisId(analysis.id);
-            return !isNil(analysis?.compliance)
-              ? 'Completed'
-              : !isNil(analysisReportDoc)
-                ? 'InReview'
-                : 'Analysis';
-          }
-        }
-        return analysis?.status ?? 'Sent';
-      };
-      const status = computeStatus();
-
-      if (!analysis) {
-        const analysis: PartialAnalysis = {
-          id: uuidv4(),
+      if (itemUpdate.updateKey === 'analysis') {
+        const analysis = await analysisRepository.findUnique({
           sampleId,
           itemNumber,
-          copyNumber,
-          createdAt: new Date(),
-          createdBy: user.id,
-          status,
-          compliance: null,
-          notesOnCompliance: null
-        };
-        await analysisRepository.insert(analysis);
-      } else {
-        await analysisRepository.update({
-          ...analysis,
-          ...omit(
-            itemUpdate.updateKey === 'analysis'
-              ? {
-                  ...itemUpdate?.analysis,
-                  status,
-                  compliance:
-                    itemUpdate?.isAdmissible === false
-                      ? null
-                      : analysis.compliance,
-                  notesOnCompliance:
-                    itemUpdate?.isAdmissible === false
-                      ? null
-                      : analysis.notesOnCompliance
-                }
-              : {},
-            'updateKey'
-          )
+          copyNumber
         });
-      }
 
-      await sampleRepository.evaluateSampleCompliance(sampleId);
+        const analysisReportDocumentIds = analysis
+          ? await analysisReportDocumentsRepository.findByAnalysisId(
+              analysis.id
+            )
+          : [];
+
+        const status = computeAnalysisStatus(
+          itemUpdate,
+          sampleItem.receiptDate,
+          analysis,
+          analysisReportDocumentIds
+        );
+
+        if (!analysis) {
+          const analysis: PartialAnalysis = {
+            id: uuidv4(),
+            sampleId,
+            itemNumber,
+            copyNumber,
+            createdAt: new Date(),
+            createdBy: user.id,
+            status,
+            compliance: null,
+            notesOnCompliance: null
+          };
+          await analysisRepository.insert(analysis);
+        } else {
+          await analysisRepository.update({
+            ...analysis,
+            ...omit(
+              itemUpdate.updateKey === 'analysis'
+                ? {
+                    ...itemUpdate?.analysis,
+                    status,
+                    compliance:
+                      itemUpdate?.isAdmissible === false
+                        ? null
+                        : analysis.compliance,
+                    notesOnCompliance:
+                      itemUpdate?.isAdmissible === false
+                        ? null
+                        : analysis.notesOnCompliance
+                  }
+                : {},
+              'updateKey'
+            )
+          });
+        }
+
+        await sampleRepository.evaluateSampleCompliance(sampleId);
+      }
 
       return { status: constants.HTTP_STATUS_OK };
     }
