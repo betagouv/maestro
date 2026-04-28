@@ -287,7 +287,7 @@ export const sampleRouter = {
         copyNumber
       });
 
-      const computeStatus = () => {
+      const computeStatus = async () => {
         if (itemUpdate.updateKey === 'analysis') {
           //Pas de changement de recevabilité
           if (
@@ -304,20 +304,26 @@ export const sampleRouter = {
           if (!analysis) {
             return 'Sent';
           }
-          //Passage de non recevable à recevable
-          if (analysis.status === 'NotAdmissible' && itemUpdate.isAdmissible) {
+          //Passage de non recevable ou envoyé à recevable
+          if (
+            (analysis.status === 'NotAdmissible' ||
+              analysis.status === 'Sent') &&
+            itemUpdate.isAdmissible
+          ) {
             const analysisReportDoc =
-              analysisReportDocumentsRepository.findByAnalysisId(analysis.id);
+              await analysisReportDocumentsRepository.findByAnalysisId(
+                analysis.id
+              );
             return !isNil(analysis?.compliance)
               ? 'Completed'
-              : !isNil(analysisReportDoc)
+              : analysisReportDoc.length > 0
                 ? 'InReview'
                 : 'Analysis';
           }
         }
         return analysis?.status ?? 'Sent';
       };
-      const status = computeStatus();
+      const status = await computeStatus();
 
       if (!analysis) {
         const analysis: PartialAnalysis = {
