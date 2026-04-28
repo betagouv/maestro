@@ -13,7 +13,7 @@ import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import { Region } from '../../referential/Region';
 import { SSD2Id } from '../../referential/Residue/SSD2Id';
 import { Stage } from '../../referential/Stage';
-import { maestroDateRefined } from '../../utils/date';
+import { maestroDateRefined, toMaestroDate } from '../../utils/date';
 import { isDefined } from '../../utils/utils';
 import { checkSchema } from '../../utils/zod';
 import { Company } from '../Company/Company';
@@ -115,7 +115,7 @@ export const sampleSendCheck: CheckFn<
   if (
     !isNil(ctx.value.sampledDate) &&
     !isNil(ctx.value.sentAt) &&
-    ctx.value.sampledDate > ctx.value.sentAt.toISOString().slice(0, 10)
+    ctx.value.sampledDate > toMaestroDate(ctx.value.sentAt)
   ) {
     ctx.issues.push({
       input: ctx.value,
