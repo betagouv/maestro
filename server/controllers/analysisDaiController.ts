@@ -19,7 +19,7 @@ export const analysisDaiRouter = {
         return { status: HTTP_STATUS_NOT_FOUND };
       }
       await analysisDaiRepository.insert(analysisId);
-      analysisDaiProcessor.triggerProcessing();
+      await analysisDaiProcessor.processPending();
       return { status: HTTP_STATUS_CREATED };
     }
   }
