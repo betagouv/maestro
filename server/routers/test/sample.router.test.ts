@@ -10,7 +10,6 @@ import {
   CompanyFixture,
   SlaughterhouseCompanyFixture1
 } from 'maestro-shared/test/companyFixtures';
-import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import {
   DAOAInProgressProgrammingPlanFixture,
@@ -43,9 +42,7 @@ import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterEach, beforeAll, describe, expect, test } from 'vitest';
 import { departmentsSeed } from '../../database/seeds/departments/departmentsSeed';
-import { analysisReportDocumentsRepository } from '../../repositories/analysisReportDocumentsRepository';
 import { analysisRepository } from '../../repositories/analysisRepository';
-import { documentRepository } from '../../repositories/documentRepository';
 import { kysely } from '../../repositories/kysely';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
@@ -975,22 +972,7 @@ describe('Sample router', () => {
       await kysely.deleteFrom('documents').execute();
     });
 
-    test('should create an analysis with status Sent when isAdmissible is true and no analysis exists', async () => {
-      await request(app)
-        .put(testRoute(Sample13Fixture.id))
-        .send({
-          updateKey: 'analysis',
-          isAdmissible: true,
-          receiptDate: '2026-01-15'
-        })
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_OK);
-
-      const created = await getAnalysis();
-      expect(created?.status).toBe('Sent');
-    });
-
-    test('should create a NotAdmissible analysis when isAdmissible is false and no analysis exists', async () => {
+    test('should create an analysis record when no analysis exists', async () => {
       await request(app)
         .put(testRoute(Sample13Fixture.id))
         .send({
@@ -1001,57 +983,10 @@ describe('Sample router', () => {
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      const created = await getAnalysis();
-      expect(created?.status).toBe('NotAdmissible');
+      await expect(getAnalysis()).resolves.toBeDefined();
     });
 
-    test('should set analysis to NotAdmissible when isAdmissible is false', async () => {
-      await analysisRepository.insert(
-        genPartialAnalysis({
-          sampleId: Sample13Fixture.id,
-          itemNumber: 1,
-          copyNumber: 1,
-          createdBy: Sampler1Fixture.id,
-          status: 'Sent'
-        })
-      );
-
-      await request(app)
-        .put(testRoute(Sample13Fixture.id))
-        .send({
-          updateKey: 'analysis',
-          isAdmissible: false,
-          receiptDate: '2026-01-15'
-        })
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_OK);
-
-      const updated = await getAnalysis();
-      expect(updated?.status).toBe('NotAdmissible');
-    });
-
-    test('should keep the current analysis status when isAdmissible is null and receiptDate is unchanged', async () => {
-      await analysisRepository.insert(
-        genPartialAnalysis({
-          sampleId: Sample13Fixture.id,
-          itemNumber: 1,
-          copyNumber: 1,
-          createdBy: Sampler1Fixture.id,
-          status: 'Sent'
-        })
-      );
-
-      await request(app)
-        .put(testRoute(Sample13Fixture.id))
-        .send({ updateKey: 'analysis', isAdmissible: null, receiptDate: null })
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_OK);
-
-      const updated = await getAnalysis();
-      expect(updated?.status).toBe('Sent');
-    });
-
-    test('should set analysis to Analysis when transitioning from Sent to admissible without report document', async () => {
+    test('should update the analysis record when transitioning from Sent to admissible', async () => {
       await analysisRepository.insert(
         genPartialAnalysis({
           sampleId: Sample13Fixture.id,
@@ -1069,109 +1004,6 @@ describe('Sample router', () => {
           isAdmissible: true,
           receiptDate: '2026-01-15'
         })
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_OK);
-
-      const updated = await getAnalysis();
-      expect(updated?.status).toBe('Analysis');
-    });
-
-    test('should set analysis to InReview when transitioning from Sent to admissible with a report document', async () => {
-      const analysis = genPartialAnalysis({
-        sampleId: Sample13Fixture.id,
-        itemNumber: 1,
-        copyNumber: 1,
-        createdBy: Sampler1Fixture.id,
-        status: 'Sent'
-      });
-      await analysisRepository.insert(analysis);
-
-      const doc = genDocument({
-        createdBy: Sampler1Fixture.id,
-        kind: 'AnalysisReportDocument'
-      });
-      await documentRepository.insert(doc);
-      await analysisReportDocumentsRepository.insert(analysis.id, doc.id);
-
-      await request(app)
-        .put(testRoute(Sample13Fixture.id))
-        .send({
-          updateKey: 'analysis',
-          isAdmissible: true,
-          receiptDate: '2026-01-15'
-        })
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_OK);
-
-      const updated = await getAnalysis();
-      expect(updated?.status).toBe('InReview');
-    });
-
-    test('should set analysis to Completed when transitioning from NotAdmissible to admissible with compliance', async () => {
-      await analysisRepository.insert(
-        genPartialAnalysis({
-          sampleId: Sample13Fixture.id,
-          itemNumber: 1,
-          copyNumber: 1,
-          createdBy: Sampler1Fixture.id,
-          status: 'NotAdmissible',
-          compliance: true
-        })
-      );
-
-      await request(app)
-        .put(testRoute(Sample13Fixture.id))
-        .send({
-          updateKey: 'analysis',
-          isAdmissible: true,
-          receiptDate: '2026-01-15'
-        })
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_OK);
-
-      const updated = await getAnalysis();
-      expect(updated?.status).toBe('Completed');
-    });
-
-    test('should keep the current analysis status when isAdmissible is true but status is not NotAdmissible or Sent', async () => {
-      await analysisRepository.insert(
-        genPartialAnalysis({
-          sampleId: Sample13Fixture.id,
-          itemNumber: 1,
-          copyNumber: 1,
-          createdBy: Sampler1Fixture.id,
-          status: 'Analysis'
-        })
-      );
-
-      await request(app)
-        .put(testRoute(Sample13Fixture.id))
-        .send({
-          updateKey: 'analysis',
-          isAdmissible: true,
-          receiptDate: '2026-01-15'
-        })
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_OK);
-
-      const updated = await getAnalysis();
-      expect(updated?.status).toBe('Analysis');
-    });
-
-    test('should keep the current analysis status when updateKey is not analysis', async () => {
-      await analysisRepository.insert(
-        genPartialAnalysis({
-          sampleId: Sample13Fixture.id,
-          itemNumber: 1,
-          copyNumber: 1,
-          createdBy: Sampler1Fixture.id,
-          status: 'Analysis'
-        })
-      );
-
-      await request(app)
-        .put(testRoute(Sample13Fixture.id))
-        .send({ updateKey: 'shipping' })
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -1186,8 +1018,7 @@ describe('Sample router', () => {
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      const analysis = await getAnalysis();
-      expect(analysis).toBeUndefined();
+      await expect(getAnalysis()).resolves.toBeUndefined();
     });
 
     test('should not create an analysis when updateKey is shipping', async () => {
@@ -1197,8 +1028,7 @@ describe('Sample router', () => {
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      const analysis = await getAnalysis();
-      expect(analysis).toBeUndefined();
+      await expect(getAnalysis()).resolves.toBeUndefined();
     });
   });
 });

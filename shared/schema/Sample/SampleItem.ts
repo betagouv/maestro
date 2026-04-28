@@ -122,6 +122,9 @@ export const SampleItemUpdate = z.discriminatedUnion('updateKey', [
 export type SampleItem = z.infer<typeof SampleItem>;
 export type PartialSampleItem = z.infer<typeof PartialSampleItem>;
 export type SampleItemUpdate = z.infer<typeof SampleItemUpdate>;
+export type SampleAnalysisDataItemUpdate = z.infer<
+  typeof SampleAnalysisDataItemUpdate
+>;
 
 export const SampleItemSort = (a: PartialSampleItem, b: PartialSampleItem) =>
   a.itemNumber === b.itemNumber
