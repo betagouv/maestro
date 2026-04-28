@@ -1178,5 +1178,27 @@ describe('Sample router', () => {
       const updated = await getAnalysis();
       expect(updated?.status).toBe('Analysis');
     });
+
+    test('should not create an analysis when updateKey is billing', async () => {
+      await request(app)
+        .put(testRoute(Sample13Fixture.id))
+        .send({ updateKey: 'billing' })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const analysis = await getAnalysis();
+      expect(analysis).toBeUndefined();
+    });
+
+    test('should not create an analysis when updateKey is shipping', async () => {
+      await request(app)
+        .put(testRoute(Sample13Fixture.id))
+        .send({ updateKey: 'shipping' })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const analysis = await getAnalysis();
+      expect(analysis).toBeUndefined();
+    });
   });
 });

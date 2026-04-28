@@ -281,14 +281,14 @@ export const sampleRouter = {
         copyNumber
       });
 
-      const analysis = await analysisRepository.findUnique({
-        sampleId,
-        itemNumber,
-        copyNumber
-      });
+      if (itemUpdate.updateKey === 'analysis') {
+        const analysis = await analysisRepository.findUnique({
+          sampleId,
+          itemNumber,
+          copyNumber
+        });
 
-      const computeStatus = async () => {
-        if (itemUpdate.updateKey === 'analysis') {
+        const computeStatus = async () => {
           //Pas de changement de recevabilité
           if (
             isNil(itemUpdate.isAdmissible) &&
@@ -320,48 +320,48 @@ export const sampleRouter = {
                 ? 'InReview'
                 : 'Analysis';
           }
-        }
-        return analysis?.status ?? 'Sent';
-      };
-      const status = await computeStatus();
-
-      if (!analysis) {
-        const analysis: PartialAnalysis = {
-          id: uuidv4(),
-          sampleId,
-          itemNumber,
-          copyNumber,
-          createdAt: new Date(),
-          createdBy: user.id,
-          status,
-          compliance: null,
-          notesOnCompliance: null
+          return analysis?.status ?? 'Sent';
         };
-        await analysisRepository.insert(analysis);
-      } else {
-        await analysisRepository.update({
-          ...analysis,
-          ...omit(
-            itemUpdate.updateKey === 'analysis'
-              ? {
-                  ...itemUpdate?.analysis,
-                  status,
-                  compliance:
-                    itemUpdate?.isAdmissible === false
-                      ? null
-                      : analysis.compliance,
-                  notesOnCompliance:
-                    itemUpdate?.isAdmissible === false
-                      ? null
-                      : analysis.notesOnCompliance
-                }
-              : {},
-            'updateKey'
-          )
-        });
-      }
+        const status = await computeStatus();
 
-      await sampleRepository.evaluateSampleCompliance(sampleId);
+        if (!analysis) {
+          const analysis: PartialAnalysis = {
+            id: uuidv4(),
+            sampleId,
+            itemNumber,
+            copyNumber,
+            createdAt: new Date(),
+            createdBy: user.id,
+            status,
+            compliance: null,
+            notesOnCompliance: null
+          };
+          await analysisRepository.insert(analysis);
+        } else {
+          await analysisRepository.update({
+            ...analysis,
+            ...omit(
+              itemUpdate.updateKey === 'analysis'
+                ? {
+                    ...itemUpdate?.analysis,
+                    status,
+                    compliance:
+                      itemUpdate?.isAdmissible === false
+                        ? null
+                        : analysis.compliance,
+                    notesOnCompliance:
+                      itemUpdate?.isAdmissible === false
+                        ? null
+                        : analysis.notesOnCompliance
+                  }
+                : {},
+              'updateKey'
+            )
+          });
+        }
+
+        await sampleRepository.evaluateSampleCompliance(sampleId);
+      }
 
       return { status: constants.HTTP_STATUS_OK };
     }
