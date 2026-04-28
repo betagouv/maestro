@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { Stage } from '../../referential/Stage';
-import { coerceToArray } from '../../utils/utils';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 
@@ -12,16 +11,11 @@ export type PrescriptionOptionsInclude = z.infer<
 
 export const FindPrescriptionOptions = z.object({
   programmingPlanId: z.guid(),
-  programmingPlanKinds: coerceToArray(z.array(ProgrammingPlanKind)).nullish(),
-  contexts: coerceToArray(z.array(ProgrammingPlanContext)).nullish(),
+  programmingPlanKinds: z.array(ProgrammingPlanKind).nullish(),
+  contexts: z.array(ProgrammingPlanContext).nullish(),
   matrixKind: z.string().nullish(),
   stage: Stage.nullish(),
-  includes: z
-    .union([
-      PrescriptionOptionsInclude,
-      coerceToArray(z.array(PrescriptionOptionsInclude))
-    ])
-    .nullish()
+  includes: z.array(PrescriptionOptionsInclude).nullish()
 });
 
 export type FindPrescriptionOptions = z.infer<typeof FindPrescriptionOptions>;

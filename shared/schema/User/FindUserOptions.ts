@@ -1,19 +1,18 @@
 import { z } from 'zod';
 import { Department } from '../../referential/Department';
 import { Region } from '../../referential/Region';
-import { coerceToArray, coerceToBooleanNullish } from '../../utils/utils';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { UserRole } from './UserRole';
 export const FindUserOptions = z.object({
   region: Region.nullish(),
   department: Department.nullish(),
-  roles: coerceToArray(z.array(UserRole)).nullish(),
+  roles: z.array(UserRole).nullish(),
   programmingPlanKinds: z
-    .union([ProgrammingPlanKind, coerceToArray(z.array(ProgrammingPlanKind))])
+    .union([ProgrammingPlanKind, z.array(ProgrammingPlanKind)])
     .nullish(),
-  companySirets: coerceToArray(z.array(z.string())).nullish(),
-  disabled: coerceToBooleanNullish(),
-  laboratoryIds: coerceToArray(z.array(z.string())).nullish()
+  companySirets: z.array(z.string()).nullish(),
+  disabled: z.boolean().nullish(),
+  laboratoryIds: z.array(z.string()).nullish()
 });
 
 export type FindUserOptions = z.infer<typeof FindUserOptions>;

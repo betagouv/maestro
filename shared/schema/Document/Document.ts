@@ -34,7 +34,7 @@ export const documentChecks: CheckFn<
 const DocumentBase = z.object({
   id: z.guid(),
   filename: z.string(),
-  createdAt: z.coerce.date(),
+  createdAt: z.date(),
   createdBy: z.guid().nullish(),
   name: z.string().nullish(),
   kind: DocumentKind,

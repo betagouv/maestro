@@ -37,8 +37,10 @@ export const AnalysisDaiAdminView = () => {
     laboratoryIds: filters.laboratoryIds.length
       ? filters.laboratoryIds
       : undefined,
-    sentDateFrom: filters.sentDateFrom,
-    sentDateTo: filters.sentDateTo,
+    sentDateFrom: filters.sentDateFrom
+      ? new Date(filters.sentDateFrom)
+      : undefined,
+    sentDateTo: filters.sentDateTo ? new Date(filters.sentDateTo) : undefined,
     edi: filters.edi,
     page,
     perPage: defaultPerPage

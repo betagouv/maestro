@@ -22,11 +22,7 @@ import {
   UserRoleList,
   UserRolePermissions
 } from 'maestro-shared/schema/User/UserRole';
-import {
-  coerceToBooleanNullish,
-  isDefinedAndNotNull,
-  toArray
-} from 'maestro-shared/utils/utils';
+import { isDefinedAndNotNull, toArray } from 'maestro-shared/utils/utils';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
@@ -115,9 +111,11 @@ const SampleListView = () => {
         laboratoryIds:
           searchParams.get('laboratoryIds')?.split(',') ?? undefined,
         withAtLeastOneResidue:
-          coerceToBooleanNullish().safeParse(
-            searchParams.get('withAtLeastOneResidue')
-          ).data ?? undefined,
+          (['true', 'false'].includes(
+            searchParams.get('withAtLeastOneResidue') ?? ''
+          )
+            ? searchParams.get('withAtLeastOneResidue') === 'true'
+            : undefined) ?? undefined,
         page: Number(searchParams.get('page')) || 1,
         perPage: defaultPerPage
       })

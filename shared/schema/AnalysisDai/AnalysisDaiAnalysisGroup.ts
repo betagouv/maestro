@@ -8,7 +8,7 @@ import { AnalysisDaiSentMethod } from './AnalysisDaiSentMethod';
 const analysisDaiAttemptBase = {
   id: AnalysisDaiId,
   analysisId: z.guid(),
-  createdAt: z.coerce.date(),
+  createdAt: z.date(),
   documents: z.array(
     z.object({ id: z.guid(), filename: z.string(), kind: DocumentKind })
   )
@@ -22,14 +22,14 @@ export const AnalysisDaiAttempt = z.discriminatedUnion('state', [
     message: z.string(),
     sentMethod: AnalysisDaiSentMethod.nullable(),
     edi: z.boolean().nullable(),
-    sentAt: z.coerce.date()
+    sentAt: z.date()
   }),
   z.object({
     ...analysisDaiAttemptBase,
     state: z.literal('SENT'),
     sentMethod: AnalysisDaiSentMethod,
     edi: z.boolean(),
-    sentAt: z.coerce.date()
+    sentAt: z.date()
   })
 ]);
 
@@ -42,7 +42,7 @@ export const AnalysisDaiAnalysisGroup = z.object({
   sampleItem: z.object({ substanceKind: SubstanceKind }),
   laboratory: Laboratory.nullable(),
   attempts: z.array(AnalysisDaiAttempt),
-  latestAttemptAt: z.coerce.date()
+  latestAttemptAt: z.date()
 });
 
 export type AnalysisDaiAnalysisGroup = z.infer<typeof AnalysisDaiAnalysisGroup>;

@@ -47,8 +47,8 @@ export const samplesRoutes = {
   '/samples/:sampleId/items/:itemNumber/copy/:copyNumber/document': {
     params: {
       sampleId: z.guid(),
-      itemNumber: z.coerce.number().min(1),
-      copyNumber: z.coerce.number().min(1)
+      itemNumber: z.number().min(1),
+      copyNumber: z.number().min(1)
     },
     get: {
       permissions: ['downloadSupportDocument'],
@@ -58,8 +58,8 @@ export const samplesRoutes = {
   '/samples/:sampleId/items/:itemNumber/copy/:copyNumber': {
     params: {
       sampleId: z.guid(),
-      itemNumber: z.coerce.number().min(1),
-      copyNumber: z.coerce.number().min(1)
+      itemNumber: z.number().min(1),
+      copyNumber: z.number().min(1)
     },
     put: {
       body: SampleItemUpdate,
