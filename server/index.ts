@@ -1,3 +1,4 @@
+import 'maestro-shared/utils/zodConfig';
 import { departmentsSeed } from './database/seeds/departments/departmentsSeed';
 import { initKnex } from './repositories/db';
 import { initKysely } from './repositories/kysely';
