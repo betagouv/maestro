@@ -28,7 +28,7 @@ const ConfirmationModal = ({
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     await onConfirm();
-    if (closeOnConfirm) {
+    if (closeOnConfirm && document.getElementById(modal.id)) {
       modal.close();
     }
   };
