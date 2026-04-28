@@ -29,7 +29,6 @@ const sanitizeObject = (obj: unknown): any => {
 
 // Les valeurs de req.query / req.params arrivent toujours en string (ou string[]).
 // Plutôt que de polluer les schémas Zod partagés avec `z.coerce.*`, on coerce ici
-// en walkant la forme attendue par le schéma.
 const unwrap = (schema: ZodType): ZodType => {
   let s: ZodType = schema;
   while (
