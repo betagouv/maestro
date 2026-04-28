@@ -178,7 +178,7 @@ describe('AnalysisDai router', () => {
         state: 'PENDING'
       });
 
-      expect(analysisDaiProcessor.triggerProcessing).toHaveBeenCalled();
+      expect(analysisDaiProcessor.processPending).toHaveBeenCalled();
     });
   });
 });
