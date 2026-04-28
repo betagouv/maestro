@@ -206,13 +206,18 @@ const ItemsStep = ({ partialSample }: Props) => {
   };
 
   const removeItem = (item: PartialSampleItem) => {
+    const filtered = items.filter(
+      (_) =>
+        !(_.itemNumber === item.itemNumber && _.copyNumber === item.copyNumber)
+    );
     setItems(
-      items.filter(
-        (_) =>
-          !(
-            _.itemNumber === item.itemNumber && _.copyNumber === item.copyNumber
-          )
-      )
+      filtered.map((current) => ({
+        ...current,
+        copyNumber:
+          filtered
+            .filter((_) => _.itemNumber === current.itemNumber)
+            .indexOf(current) + 1
+      }))
     );
   };
 
