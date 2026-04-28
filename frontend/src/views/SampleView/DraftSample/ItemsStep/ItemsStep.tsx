@@ -69,7 +69,7 @@ const ItemsStep = ({ partialSample }: Props) => {
     region: isCreatedPartialSample(partialSample)
       ? partialSample.region
       : (user?.region as Region),
-    includes: 'laboratories' as const
+    includes: ['laboratories' as const]
   };
 
   const { data: localPrescriptionByRegion } =
