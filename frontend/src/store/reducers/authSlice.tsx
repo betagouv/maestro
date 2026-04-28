@@ -1,12 +1,14 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type {
+import {
   AuthMaybeUnknownUser,
-  AuthUserRefined
+  type AuthUserRefined
 } from 'maestro-shared/schema/User/AuthUser';
 
 const authUser = {
   laboratoryId: null,
-  ...JSON.parse(localStorage.getItem('authUser') ?? '{}')
+  ...AuthMaybeUnknownUser.safeParse(
+    JSON.parse(localStorage.getItem('authUser') ?? '{}')
+  ).data
 };
 
 type AuthState = {

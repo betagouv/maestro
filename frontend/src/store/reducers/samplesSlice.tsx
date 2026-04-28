@@ -19,8 +19,10 @@ const pendingSamples = JSON.parse(
   (acc: Record<string, PartialSample | PartialSampleToCreate>, _: any) => {
     const sample = z
       .union([PartialSampleToCreate, PartialSample])
-      .parse(omitBy(_, isNil));
-    acc[sample.id] = sample;
+      .safeParse(omitBy(_, isNil));
+    if (sample.success) {
+      acc[sample.data.id] = sample.data;
+    }
     return acc;
   },
   {} as Record<string, PartialSample | PartialSampleToCreate>
