@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import react from '@vitejs/plugin-react';
 import { playwright } from '@vitest/browser-playwright';
@@ -34,6 +35,9 @@ export default defineConfig(({ mode }) => {
       tsconfigPaths: true,
       alias: { src: path.resolve(dirname, 'src') }
     },
+    build: {
+      sourcemap: true
+    },
     plugins: [
       react(),
       VitePWA({
@@ -49,6 +53,12 @@ export default defineConfig(({ mode }) => {
         workbox: {
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024
         }
+      }),
+      sentryVitePlugin({
+        authToken: process.env.VITE_SENTRY_AUTH_TOKEN,
+        org: 'betagouv',
+        project: 'maestro-frontend',
+        url: 'https://sentry.incubateur.net/'
       })
     ],
     test: {
