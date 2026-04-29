@@ -1,3 +1,4 @@
+import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type {
   CommemoratifSigle,
@@ -11,8 +12,7 @@ import {
 } from 'maestro-shared/schema/Sample/SampleItem';
 import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import type { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
-
-import type { Laboratories, SachaConf } from '../../repositories/kysely.type';
+import type { SachaConf } from '../../repositories/kysely.type';
 import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
 import { sachaConfRepository } from '../../repositories/sachaConfRepository';
 import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
@@ -25,12 +25,7 @@ import {
   SiglePlanAnalyse
 } from './sachaReferential';
 import { sendSachaFile } from './sachaSender';
-import {
-  generateXML,
-  getNumeroDAP,
-  type LaboratorySachaData,
-  type XmlFile
-} from './sachaToXML';
+import { generateXML, getNumeroDAP, type XmlFile } from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
 
 export const generateXMLDAI = (
@@ -55,7 +50,7 @@ export const generateXMLDAI = (
   sachaFieldConfigs: SachaFieldConfig[],
   sachaCommemoratifRecord: SachaCommemoratifRecord,
   sachaConf: SachaConf,
-  laboratory: LaboratorySachaData
+  laboratory: LaboratoryWithSacha
 ): Promise<XmlFile> => {
   const programmingPlanKind =
     sample.programmingPlanKind as ProgrammingPlanKindWithSacha;
@@ -226,7 +221,7 @@ export const getCommemoratifs = (
 export const sendDAIWithEDI = async (
   sample: SampleChecked,
   sampleItem: SampleItem,
-  laboratory: Laboratories
+  laboratory: LaboratoryWithSacha
 ): Promise<DaiSentResult> => {
   const [sachaCommemoratifRecord, specificDataRecord, sachaConf] =
     await Promise.all([
@@ -255,11 +250,7 @@ export const sendDAIWithEDI = async (
     (documentId) => Promise.resolve(documentId)
   );
 
-  const sentMethod = await sendSachaFile(
-    xmlFile,
-    dateNow,
-    laboratory.sachaSftpLogin
-  );
+  const sentMethod = await sendSachaFile(xmlFile, dateNow, laboratory);
 
   return {
     sentMethod,

@@ -1,9 +1,9 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Pagination from '@codegouvfr/react-dsfr/Pagination';
-import type { AnalysisDaiSentMethod } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiSentMethod';
 import type { AnalysisDaiState } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiState';
 import type { FindAnalysisDaiOptions } from 'maestro-shared/schema/AnalysisDai/FindAnalysisDaiOptions';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
+import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import { useContext, useState } from 'react';
 import { ApiClientContext } from 'src/services/apiClient';
 import { AnalysisDaiHistory } from 'src/views/SampleView/SampleOverview/AnalysisDaiHistory/AnalysisDaiHistory';
@@ -23,7 +23,7 @@ export const AnalysisDaiAdminView = () => {
   const apiClient = useContext(ApiClientContext);
   const [filters, setFilters] = useState<Filters>({
     states: [] as AnalysisDaiState[],
-    sentMethods: [] as AnalysisDaiSentMethod[],
+    sentMethods: [] as SachaCommunicationMethod[],
     laboratoryIds: [],
     sentDateFrom: undefined,
     sentDateTo: undefined,

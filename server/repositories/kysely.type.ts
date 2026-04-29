@@ -15,10 +15,10 @@ import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Resi
 import type { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import type { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import type { AnalysisDaiId } from 'maestro-shared/schema/AnalysisDai/AnalysisDai';
-import type { AnalysisDaiSentMethod } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiSentMethod';
 import type { AnalysisDaiState } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiState';
 import type { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
+import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import type { LocalPrescriptionSubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type {
@@ -64,7 +64,7 @@ export interface AnalysisDai {
   id: Generated<AnalysisDaiId>;
   analysisId: string;
   state: AnalysisDaiState;
-  sentMethod: AnalysisDaiSentMethod | null;
+  sentMethod: SachaCommunicationMethod | null;
   sentAt: Timestamp | null;
   message: string | null;
   edi: boolean | null;
@@ -199,6 +199,9 @@ export interface Laboratories {
   sachaGpgPublicKey: string | null;
   sachaSigle: string | null;
   sachaSftpLogin: string | null;
+  legacyDai: boolean;
+  sachaActivated: boolean;
+  sachaCommunicationMethod: SachaCommunicationMethod | null;
   programmingPlanIds: string[] | null;
 }
 
