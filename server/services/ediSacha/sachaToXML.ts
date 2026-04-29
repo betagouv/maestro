@@ -3,12 +3,12 @@ import {
   type Department,
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
+import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { formatWithTz } from 'maestro-shared/utils/date';
-import type { RequiredNotNull } from 'maestro-shared/utils/typescript';
 import { type ZodObject, z } from 'zod';
-import type { Laboratories, SachaConf } from '../../repositories/kysely.type';
+import type { SachaConf } from '../../repositories/kysely.type';
 import config from '../../utils/config';
 import {
   type Acquittement,
@@ -21,39 +21,10 @@ import { validateSachaXml } from './validateSachaXml';
 const xml = z.string().brand('XML');
 export type Xml = z.infer<typeof xml>;
 
-export type LaboratorySachaData = Pick<
-  Laboratories,
-  | 'sachaSigle'
-  | 'sachaEmail'
-  | 'shortName'
-  | 'name'
-  | 'sachaGpgPublicKey'
-  | 'sachaSftpLogin'
->;
-type SachaLaboratory = RequiredNotNull<LaboratorySachaData>;
-
 export type XmlFile = {
   fileName: string;
   fileType: SachaFileType;
   content: Xml;
-  laboratory: SachaLaboratory;
-};
-
-const isSachaLaboratory = (
-  laboratory: LaboratorySachaData
-): laboratory is SachaLaboratory => {
-  if (
-    laboratory.sachaEmail === null ||
-    laboratory.sachaSigle === null ||
-    (laboratory.sachaGpgPublicKey === null &&
-      laboratory.sachaSftpLogin === null)
-  ) {
-    throw new Error(
-      `Le laboratoire ${laboratory.shortName} n'est pas configuré pour utiliser les EDI Sacha`
-    );
-  }
-
-  return true;
 };
 
 export const generateXMLAcquitement = async (
@@ -62,7 +33,7 @@ export const generateXMLAcquitement = async (
   department: Department,
   dateNow: number,
   sachaConf: SachaConf,
-  laboratory: LaboratorySachaData
+  laboratory: LaboratoryWithSacha
 ): Promise<XmlFile> => {
   return generateXML(
     'AN01',
@@ -122,25 +93,20 @@ export const generateXML = async <T extends SachaFileType>(
   dateNow: number,
   department: Department,
   sachaConf: SachaConf,
-  laboratory: LaboratorySachaData
+  laboratory: Pick<LaboratoryWithSacha, 'name' | 'sacha'>
 ): Promise<XmlFile> => {
   const builder = new XMLBuilder({
     ignoreAttributes: false,
     format: true
   });
 
-  if (!isSachaLaboratory(laboratory)) {
-    throw new Error();
-  }
+  const sacha = laboratory.sacha;
+  const communication = sacha?.communication;
+  const sigle = sacha?.sigle ?? '';
 
   const conf = fileTypeConf[fileType];
 
-  const fileName: string = getXmlFileName(
-    fileType,
-    department,
-    laboratory,
-    dateNow
-  );
+  const fileName: string = getXmlFileName(fileType, department, sigle, dateNow);
 
   const fullContent = z
     .object({
@@ -164,9 +130,10 @@ export const generateXML = async <T extends SachaFileType>(
         EmailPartenaire: config.sigal.email
       },
       Destinataire: {
-        Sigle: laboratory.sachaSigle,
+        Sigle: sigle,
         LibellePartenaire: laboratory.name,
-        EmailPartenaire: laboratory.sachaEmail
+        EmailPartenaire:
+          communication?.method === 'EMAIL' ? communication.email : ''
       },
       ...content
     });
@@ -186,26 +153,26 @@ export const generateXML = async <T extends SachaFileType>(
 
   validateSachaXml(xmlResult);
 
-  return { fileName, fileType, content: xmlResult, laboratory };
+  return { fileName, fileType, content: xmlResult };
 };
 
 export const getXmlFileName = (
   fileType: SachaFileType,
   department: Department,
-  laboratory: Pick<Laboratories, 'sachaSigle'>,
+  sigle: string,
   dateNow: number
 ): string => {
   const currentDate: string = formatWithTz(dateNow, 'yyMMddHHmmssSS');
-  return `${fileType}${getSenderSachaSigle(department)}${laboratory.sachaSigle}${currentDate}`;
+  return `${fileType}${getSenderSachaSigle(department)}${sigle}${currentDate}`;
 };
 
 export const getZipFileName = (
   fileType: SachaFileType,
-  laboratory: Pick<Laboratories, 'sachaSigle'>,
+  sigle: string,
   dateNow: number
 ): string => {
   const currentDate: string = formatWithTz(dateNow, 'yyMMddHHmm');
-  return `${fileType}${laboratory.sachaSigle}${currentDate}_1.zip`;
+  return `${fileType}${sigle}${currentDate}_1.zip`;
 };
 
 const getSenderSachaSigle = (department: Department) => `DDSV${department}`;

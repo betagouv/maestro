@@ -3,9 +3,9 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import Select from '@codegouvfr/react-dsfr/Select';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
-import { AnalysisDaiSentMethod } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiSentMethod';
 import { AnalysisDaiState } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiState';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import type { Filters } from './AnalysisDaiAdminView';
 
 const daiStateLabels: Record<AnalysisDaiState, string> = {
@@ -14,7 +14,7 @@ const daiStateLabels: Record<AnalysisDaiState, string> = {
   PENDING: 'En attente'
 };
 
-const daiSentMethodLabels: Record<AnalysisDaiSentMethod, string> = {
+const daiSentMethodLabels: Record<SachaCommunicationMethod, string> = {
   EMAIL: 'Email',
   SFTP: 'SFTP'
 };
@@ -103,7 +103,7 @@ export const AnalysisDaiFilters = ({
                 if (e.target.value)
                   addToArrayFilter(
                     'sentMethods',
-                    e.target.value as AnalysisDaiSentMethod
+                    e.target.value as SachaCommunicationMethod
                   );
               }
             }}
@@ -113,7 +113,7 @@ export const AnalysisDaiFilters = ({
                 ? `${filters.sentMethods.length} sélectionné(s)`
                 : 'Tous'}
             </option>
-            {AnalysisDaiSentMethod.options
+            {SachaCommunicationMethod.options
               .filter((m) => !filters.sentMethods.includes(m))
               .map((method) => (
                 <option key={method} value={method}>

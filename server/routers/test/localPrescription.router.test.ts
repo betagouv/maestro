@@ -69,6 +69,7 @@ import {
   Samples
 } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
+import { toDbRow } from '../../test/seed/002-laboratories';
 import { mockSendNotification } from '../../test/setupTests';
 import { tokenProvider } from '../../test/testUtils';
 
@@ -232,7 +233,7 @@ describe('Local prescriptions router', () => {
         }))
       )
     );
-    await Laboratories().insert(laboratory);
+    await Laboratories().insert(toDbRow(laboratory));
     await Prescriptions().insert([
       closedControlPrescription,
       validatedControlPrescription,

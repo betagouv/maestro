@@ -1,22 +1,33 @@
+import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { describe, expect, test } from 'vitest';
 import type { SachaConf } from '../../repositories/kysely.type';
 import {
   generateXMLAcquitement,
   getNumeroDAP,
   getXmlFileName,
-  getZipFileName,
-  type LaboratorySachaData
+  getZipFileName
 } from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
 
-const laboratory = {
+const laboratory: LaboratoryWithSacha = {
+  id: '11111111-1111-1111-1111-111111111111',
   shortName: 'LDA 72',
-  sachaSigle: 'LDA72',
   name: 'Innovalys 72',
-  sachaEmail: 'fake@email.fr',
-  sachaGpgPublicKey: 'gpg',
-  sachaSftpLogin: null
-} as const satisfies LaboratorySachaData;
+  address: '72 rue du test',
+  postalCode: '72000',
+  city: 'Le Mans',
+  emails: [],
+  legacyDai: false,
+  sacha: {
+    activated: true,
+    sigle: 'LDA72',
+    communication: {
+      method: 'EMAIL',
+      email: 'fake@email.fr',
+      gpgPublicKey: 'gpg'
+    }
+  }
+};
 
 const sachaConf = {
   versionReferenceStandardisees: 'v12341234',
@@ -71,14 +82,6 @@ test(`génère un XML d'acquittement`, async () => {
     ",
       "fileName": "AN01DDSV72LDA7225121610073679",
       "fileType": "AN01",
-      "laboratory": {
-        "name": "Innovalys 72",
-        "sachaEmail": "fake@email.fr",
-        "sachaGpgPublicKey": "gpg",
-        "sachaSftpLogin": null,
-        "sachaSigle": "LDA72",
-        "shortName": "LDA 72",
-      },
     }
   `
   );
@@ -89,14 +92,14 @@ test('getXmlFileName', () => {
     getXmlFileName(
       'AN01',
       '35',
-      { sachaSigle: 'LABERCA' },
+      'LABERCA',
       //16/12/2025 10:07:36
       1765876056798
     )
   ).toBe('AN01DDSV35LABERCA25121610073679');
 });
 test('getZipFileName', () => {
-  expect(getZipFileName('AN01', { sachaSigle: 'LDA72' }, 1765876056798)).toBe(
+  expect(getZipFileName('AN01', 'LDA72', 1765876056798)).toBe(
     'AN01LDA722512161007_1.zip'
   );
 });

@@ -9,9 +9,9 @@ import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
-import type { AnalysisDaiSentMethod } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiSentMethod';
 import { getAnalysisReportDocumentFilename } from 'maestro-shared/schema/Document/DocumentKind';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   getSampleMatrixLabel,
@@ -25,17 +25,14 @@ import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldV
 import type { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import type { UserBase } from 'maestro-shared/schema/User/User';
 import { formatMaestroDate } from 'maestro-shared/utils/date';
-import type {
-  Laboratories,
-  LaboratoryResidueMapping
-} from '../repositories/kysely.type';
+import type { LaboratoryResidueMapping } from '../repositories/kysely.type';
 import { laboratoryResidueMappingRepository } from '../repositories/laboratoryResidueMappingRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
 import { userRepository } from '../repositories/userRepository';
 import { csvService } from './csvService/csvService';
 import { documentService } from './documentService';
 export type DaiSentResult = {
-  sentMethod: AnalysisDaiSentMethod;
+  sentMethod: SachaCommunicationMethod;
   documentIds: string[];
 };
 
@@ -192,7 +189,7 @@ export class DaiProcessingError extends Error {
   constructor(
     message: string,
     public readonly edi: boolean | null,
-    public readonly sentMethod: AnalysisDaiSentMethod | null = null
+    public readonly sentMethod: SachaCommunicationMethod | null = null
   ) {
     super(message);
     this.name = 'DaiProcessingError';
@@ -202,7 +199,7 @@ export class DaiProcessingError extends Error {
 export const sendDAIWithoutEDI = async (
   sample: SampleChecked,
   sampleItem: SampleItem,
-  laboratory: Laboratories
+  laboratory: Laboratory
 ): Promise<DaiSentResult> => {
   if (!laboratory.emails.length) {
     throw new DaiProcessingError(
