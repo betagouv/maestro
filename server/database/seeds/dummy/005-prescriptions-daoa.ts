@@ -15,9 +15,10 @@ import { LocalPrescriptionSubstanceKindsLaboratories } from '../../../repositori
 import { Prescriptions } from '../../../repositories/prescriptionRepository';
 import { AVIVOL, CHARAL } from './001-companies';
 import {
+  DAOABovinMultiLaboratoryIds,
   DAOACopperLaboratoryIds,
   DAOAMonoLaboratoryIds,
-  DAOAMultiLaboratoryIds
+  DAOAVolailleMultiLaboratoryIds
 } from './008-laboratory-agreements';
 
 export const seed = async () => {
@@ -82,7 +83,11 @@ export const seed = async () => {
             region,
             department,
             substanceKind: 'Multi',
-            laboratoryId: oneOf(DAOAMultiLaboratoryIds)
+            laboratoryId: oneOf(
+              prescription.programmingPlanKind === 'DAOA_BOVIN'
+                ? DAOABovinMultiLaboratoryIds
+                : DAOAVolailleMultiLaboratoryIds
+            )
           },
           {
             prescriptionId: prescription.id,

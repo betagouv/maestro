@@ -7,6 +7,7 @@ export const seed = async (): Promise<void> => {
   await db('laboratory_agreements').insert(
     [...PPVDummyLaboratoryIds, LaboratoryFixture.id].map((laboratoryId) => ({
       programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+      programmingPlanKind: 'PPV',
       laboratoryId,
       substanceKind: 'Any'
     }))

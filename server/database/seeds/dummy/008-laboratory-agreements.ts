@@ -18,7 +18,8 @@ import { DAOAValidatedProgrammingPlanFixture } from 'maestro-shared/test/program
 import { knexInstance as db } from '../../../repositories/db';
 
 export const DAOAMonoLaboratoryIds = [ANS94ALnrPestId];
-export const DAOAMultiLaboratoryIds = [
+export const DAOABovinMultiLaboratoryIds = [ANS94ALnrPestId];
+export const DAOAVolailleMultiLaboratoryIds = [
   LDA17Id,
   LDA21Id,
   LDA22Id,
@@ -63,28 +64,63 @@ export const seed = async () => {
       PPVLaboratoryIds.map((laboratoryId) => ({
         laboratory_id: laboratoryId,
         programming_plan_id: programmingPlanId,
-        substance_kind: 'Any'
+        programming_plan_kind: 'PPV',
+        substance_kind: 'Any',
+        detection_analysis: true
       }))
     ),
     ...DAOAProgrammingPlanIds.flatMap((programmingPlanId) =>
       DAOAMonoLaboratoryIds.map((laboratoryId) => ({
         laboratory_id: laboratoryId,
         programming_plan_id: programmingPlanId,
-        substance_kind: 'Mono'
+        programming_plan_kind: 'DAOA_VOLAILLE',
+        substance_kind: 'Mono',
+        detection_analysis: true
       }))
     ),
     ...DAOAProgrammingPlanIds.flatMap((programmingPlanId) =>
-      DAOAMultiLaboratoryIds.map((laboratoryId) => ({
+      DAOAVolailleMultiLaboratoryIds.map((laboratoryId) => ({
         laboratory_id: laboratoryId,
         programming_plan_id: programmingPlanId,
-        substance_kind: 'Multi'
+        programming_plan_kind: 'DAOA_VOLAILLE',
+        substance_kind: 'Multi',
+        detection_analysis: true
       }))
     ),
     ...DAOAProgrammingPlanIds.flatMap((programmingPlanId) =>
       DAOACopperLaboratoryIds.map((laboratoryId) => ({
         laboratory_id: laboratoryId,
         programming_plan_id: programmingPlanId,
-        substance_kind: 'Copper'
+        programming_plan_kind: 'DAOA_VOLAILLE',
+        substance_kind: 'Copper',
+        detection_analysis: true
+      }))
+    ),
+    ...DAOAProgrammingPlanIds.flatMap((programmingPlanId) =>
+      DAOAMonoLaboratoryIds.map((laboratoryId) => ({
+        laboratory_id: laboratoryId,
+        programming_plan_id: programmingPlanId,
+        programming_plan_kind: 'DAOA_BOVIN',
+        substance_kind: 'Mono',
+        detection_analysis: true
+      }))
+    ),
+    ...DAOAProgrammingPlanIds.flatMap((programmingPlanId) =>
+      DAOABovinMultiLaboratoryIds.map((laboratoryId) => ({
+        laboratory_id: laboratoryId,
+        programming_plan_id: programmingPlanId,
+        programming_plan_kind: 'DAOA_BOVIN',
+        substance_kind: 'Multi',
+        detection_analysis: true
+      }))
+    ),
+    ...DAOAProgrammingPlanIds.flatMap((programmingPlanId) =>
+      DAOACopperLaboratoryIds.map((laboratoryId) => ({
+        laboratory_id: laboratoryId,
+        programming_plan_id: programmingPlanId,
+        programming_plan_kind: 'DAOA_BOVIN',
+        substance_kind: 'Copper',
+        detection_analysis: true
       }))
     )
   ]);

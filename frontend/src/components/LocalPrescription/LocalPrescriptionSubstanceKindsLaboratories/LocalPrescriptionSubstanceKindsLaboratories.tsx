@@ -3,12 +3,14 @@ import {
   type SubstanceKindLaboratory,
   SubstanceKindLaboratorySort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import LaboratorySelect from '../../LaboratorySelect/LaboratorySelect';
 
 interface Props {
   programmingPlanId: string;
+  programmingPlanKind: ProgrammingPlanKind;
   substanceKindsLaboratories: SubstanceKindLaboratory[];
   onSubmit: (
     substanceKindsLaboratories: SubstanceKindLaboratory[]
@@ -23,6 +25,7 @@ const LocalPrescriptionSubstanceKindsLaboratories = forwardRef<
   (
     {
       programmingPlanId,
+      programmingPlanKind,
       substanceKindsLaboratories: defaultSubstanceKindsLaboratories,
       onSubmit,
       readonly
@@ -55,6 +58,7 @@ const LocalPrescriptionSubstanceKindsLaboratories = forwardRef<
               </div>
               <LaboratorySelect
                 programmingPlanId={programmingPlanId}
+                programmingPlanKind={programmingPlanKind}
                 substanceKind={substanceKindLaboratory.substanceKind}
                 laboratoryId={substanceKindLaboratory.laboratoryId}
                 onSelect={(laboratoryId) =>
