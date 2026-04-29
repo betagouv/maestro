@@ -1,10 +1,9 @@
-export type SachaError =
-  | { kind: 'xml-invalid'; fileName: string; detail: string }
-  | { kind: 'no-results'; fileName: string }
-  | {
-      kind: 'no-laboratory';
-      fileName: string;
-      sampleId: string;
-      itemNumber: number;
-      copyNumber: number;
-    };
+export class RaiProcessingError extends Error {
+  constructor(
+    message: string,
+    public readonly xmlDocumentId: string | null = null
+  ) {
+    super(message);
+    this.name = 'RaiProcessingError';
+  }
+}

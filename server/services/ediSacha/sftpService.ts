@@ -2,14 +2,16 @@ import fs, { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
-import { err, ok, type Result } from 'maestro-shared/utils/result';
 import sftp from 'ssh2-sftp-client';
+import { analysisRaiRepository } from '../../repositories/analysisRaiRepository';
 import type { SachaConf } from '../../repositories/kysely.type';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import { sachaConfRepository } from '../../repositories/sachaConfRepository';
 import config from '../../utils/config';
+import { documentService } from '../documentService';
+import { mattermostService } from '../mattermostService';
 import { unzip } from '../zipService';
-import type { SachaError } from './sachaErrors';
+import { RaiProcessingError } from './sachaErrors';
 import { processSachaRAI } from './sachaRAI';
 import { sendSachaFile } from './sachaSender';
 import { generateXMLAcquitement } from './sachaToXML';
@@ -19,39 +21,46 @@ import { validateAndDecodeSachaXml } from './validateSachaXml';
 const readdir = promisify(fs.readdir);
 const unlink = promisify(fs.unlink);
 
+type SachaSuccess = {
+  laboratoryId: string;
+  xmlDocumentId: string;
+};
+
 const processSachaFile = async (
   sftpClient: sftp,
   sachaConf: SachaConf,
   dataDirectory: string,
   zipFile: string
-): Promise<Result<void, SachaError>> => {
+): Promise<SachaSuccess> => {
   await unzip(dataDirectory, zipFile);
 
-  const unzipFile = path.join(
-    dataDirectory,
-    zipFile.substring(0, zipFile.length - 4)
-  );
+  const filename = zipFile.substring(0, zipFile.length - 4);
+
+  const unzipFile = path.join(dataDirectory, filename);
 
   const content = readFileSync(unzipFile);
 
-  const xmlResult = validateAndDecodeSachaXml(content.toString(), zipFile);
-  if (!xmlResult.ok) return xmlResult;
+  const xmlFile = new File([new Uint8Array(content)], filename, {
+    type: 'application/xml'
+  });
+  const xmlDocumentId = await documentService.insertDocument(
+    xmlFile,
+    'RaiSourceFile',
+    null
+  );
 
-  const json = xmlResult.data;
+  const json = validateAndDecodeSachaXml(content.toString(), xmlDocumentId);
 
   if (!json.Resultats) {
-    return err({ kind: 'no-results', fileName: zipFile });
+    throw new RaiProcessingError(`Aucun résultat (${zipFile})`, xmlDocumentId);
   }
 
   const { sampleItem, sample } = processSachaRAI(json.Resultats);
   if (!sampleItem.laboratoryId) {
-    return err({
-      kind: 'no-laboratory',
-      fileName: zipFile,
-      sampleId: sampleItem.sampleId,
-      itemNumber: sampleItem.itemNumber,
-      copyNumber: sampleItem.copyNumber
-    });
+    throw new RaiProcessingError(
+      `Aucun laboratoire (${zipFile})`,
+      xmlDocumentId
+    );
   }
 
   const dateNow = Date.now();
@@ -74,8 +83,6 @@ const processSachaFile = async (
 
   await sendSachaFile(xml, dateNow, laboratory);
 
-  console.log('TODO Traitement de ', unzipFile, json);
-
   // Suppression après succès complet
   await sftpClient.delete(`uploads/RA01Maestro/data/${zipFile}`);
   await sftpClient.delete(`uploads/RA01Maestro/data/Decl_${zipFile}`);
@@ -83,7 +90,10 @@ const processSachaFile = async (
   await unlink(path.join(dataDirectory, zipFile));
   await unlink(path.join(dataDirectory, `Decl_${zipFile}`));
 
-  return ok(undefined);
+  return {
+    laboratoryId: sampleItem.laboratoryId,
+    xmlDocumentId
+  };
 };
 
 const doSftp = async () => {
@@ -121,20 +131,63 @@ const doSftp = async () => {
         continue;
       }
 
-      const result = await processSachaFile(
-        sftpClient,
-        sachaConf,
-        dataDirectory,
-        zipFile
-      );
-      if (!result.ok) {
+      const receivedAt = new Date();
+      const insertRai = async (
+        state: 'PROCESSED' | 'ERROR',
+        laboratoryId: string | null,
+        message: string | null,
+        xmlDocumentId: string | null
+      ) => {
+        const raiId = await analysisRaiRepository.insert({
+          source: 'SFTP',
+          edi: true,
+          analysisId: null,
+          laboratoryId,
+          receivedAt,
+          state,
+          payload: null,
+          message
+        });
+        if (xmlDocumentId !== null) {
+          await analysisRaiRepository.linkDocuments(raiId, [xmlDocumentId]);
+        }
+      };
+
+      const recordFailure = async (
+        message: string,
+        xmlDocumentId: string | null
+      ) => {
         //FIXME EDI  les non acquittements
         // Erreur métier : le fichier reste sur le SFTP pour la prochaine exécution
-        console.error(`[SFTP] Erreur sur ${zipFile}:`, result.error);
+        console.error(`[SFTP] Erreur sur ${zipFile}:`, message);
+        await insertRai('ERROR', null, message, xmlDocumentId);
+        await mattermostService.send(
+          `[Maestro] Erreur RAI EDI (file=${zipFile}) : ${message}`
+        );
+      };
+
+      try {
+        const { xmlDocumentId, laboratoryId } = await processSachaFile(
+          sftpClient,
+          sachaConf,
+          dataDirectory,
+          zipFile
+        );
+        await insertRai('PROCESSED', laboratoryId, null, xmlDocumentId);
+      } catch (e: any) {
+        if (e instanceof RaiProcessingError) {
+          await recordFailure(e.message, e.xmlDocumentId);
+        } else {
+          await recordFailure(e.message, null);
+        }
       }
     }
   } catch (e: any) {
     console.error(e.message);
+
+    await mattermostService.send(
+      `[Maestro] Erreur RAI, impossible de se connecter au SFTP`
+    );
   } finally {
     await sftpClient.end();
   }

@@ -27,6 +27,7 @@ export const analysisHandler = async (
   samplerId: string;
   sampleId: string;
   analysisId: string;
+  documentId: string;
   samplerEmail: string;
   compliance: null | true;
 }> => {
@@ -156,7 +157,7 @@ export const analysisHandler = async (
   residues.forEach((r) => {
     if (
       r.result_kind !== 'ND' &&
-      !!r.ssd2Id &&
+      r.ssd2Id &&
       !LmrIsValid({
         stage: sampleStage,
         programmingPlanKind: sampleProgrammingPlanKind,
@@ -271,6 +272,7 @@ export const analysisHandler = async (
         samplerId,
         sampleId,
         analysisId,
+        documentId,
         samplerEmail,
         compliance
       };

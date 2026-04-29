@@ -10,7 +10,8 @@ export const DocumentKind = z.enum(
     'SampleDocument',
     'ProgrammingPlanNotice',
     'TechnicalInstruction',
-    'OtherResourceDocument'
+    'OtherResourceDocument',
+    'RaiSourceFile'
   ],
   {
     error: () => 'Veuillez renseigner le type de document.'
@@ -43,7 +44,8 @@ export type DocumentKind = z.infer<typeof DocumentKind>;
 export const DocumentKindLabels: Partial<Record<DocumentKind, string>> = {
   ProgrammingPlanNotice: 'Fiche de plan',
   TechnicalInstruction: 'Instruction technique',
-  OtherResourceDocument: 'Autre'
+  OtherResourceDocument: 'Autre',
+  RaiSourceFile: 'Fichier source RAI'
 };
 
 export const ResourceDocumentKindList: DocumentKind[] = [
