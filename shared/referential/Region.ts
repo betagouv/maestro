@@ -29,6 +29,17 @@ export const Region = z.enum(
 
 export type Region = z.infer<typeof Region>;
 
+export const Establishment = z.object({
+  name: z.string(),
+  service: z.string().optional(),
+  locality: z.string().optional(),
+  street: z.string(),
+  postalCode: z.string(),
+  city: z.string(),
+  additionalAddress: z.string().optional()
+});
+export type Establishment = z.infer<typeof Establishment>;
+
 export const Regions: Record<
   Region,
   {
@@ -41,15 +52,7 @@ export const Regions: Record<
     timezone?: string;
     departments: Department[];
     borderingDepartments: Department[];
-    establishment: {
-      name: string;
-      service?: string;
-      locality?: string;
-      street: string;
-      postalCode: string;
-      city: string;
-      additionalAddress?: string;
-    };
+    establishment: Establishment;
     isDrom?: boolean;
   }
 > = {
