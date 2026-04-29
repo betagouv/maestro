@@ -1,7 +1,12 @@
 import { sql } from 'kysely';
 import { isNil, omitBy } from 'lodash-es';
 import { FindLaboratoryOptions } from 'maestro-shared/schema/Laboratory/FindLaboratoryOptions';
-import { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import {
+  Laboratory,
+  LaboratoryWithSacha,
+  type SachaConfig
+} from 'maestro-shared/schema/Laboratory/Laboratory';
+import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
@@ -11,10 +16,68 @@ const laboratoryTable = 'laboratories';
 
 export const Laboratories = () => db<Laboratory>(laboratoryTable);
 
-const findUnique = async (id: string): Promise<KyselyLaboratories> => {
-  console.info('Find laboratory by id', id);
+const buildCommunication = (
+  row: KyselyLaboratories
+): SachaConfig['communication'] => {
+  if (row.sachaCommunicationMethod === null) return null;
+  const method: SachaCommunicationMethod = row.sachaCommunicationMethod;
+  switch (method) {
+    case 'EMAIL':
+      return {
+        method: 'EMAIL',
+        email: row.sachaEmail!,
+        gpgPublicKey: row.sachaGpgPublicKey!
+      };
+    case 'SFTP':
+      return { method: 'SFTP', sftpLogin: row.sachaSftpLogin! };
+    default:
+      return assertUnreachable(method);
+  }
+};
 
-  return kysely
+const toLaboratory = (row: KyselyLaboratories): LaboratoryWithSacha => {
+  const sacha = row.legacyDai
+    ? null
+    : {
+        activated: row.sachaActivated,
+        sigle: row.sachaSigle,
+        communication: buildCommunication(row)
+      };
+  return LaboratoryWithSacha.parse({
+    id: row.id,
+    shortName: row.shortName,
+    name: row.name,
+    address: row.address,
+    postalCode: row.postalCode,
+    city: row.city,
+    emails: row.emails,
+    programmingPlanIds: row.programmingPlanIds,
+    legacyDai: row.legacyDai,
+    sacha
+  });
+};
+
+const findUnique = async (id: string): Promise<LaboratoryWithSacha> => {
+  console.info('Find laboratory by id', id);
+  const selectColumns = [
+    'laboratories.id',
+    'laboratories.shortName',
+    'laboratories.name',
+    'laboratories.address',
+    'laboratories.postalCode',
+    'laboratories.city',
+    'laboratories.emails',
+    'laboratories.emailsAnalysisResult',
+    'laboratories.sachaEmail',
+    'laboratories.sachaGpgPublicKey',
+    'laboratories.sachaSigle',
+    'laboratories.sachaSftpLogin',
+    'laboratories.legacyDai',
+    'laboratories.sachaActivated',
+    'laboratories.sachaCommunicationMethod'
+  ] as const;
+
+  const row = await kysely
     .selectFrom('laboratories')
     .leftJoin(
       'laboratoryAgreements',
@@ -22,46 +85,34 @@ const findUnique = async (id: string): Promise<KyselyLaboratories> => {
       'laboratories.id'
     )
     .select([
-      'laboratories.id',
-      'laboratories.shortName',
-      'laboratories.name',
-      'laboratories.address',
-      'laboratories.postalCode',
-      'laboratories.city',
-      'laboratories.emails',
-      'laboratories.emailsAnalysisResult',
-      'laboratories.sachaEmail',
-      'laboratories.sachaGpgPublicKey',
-      'laboratories.sachaSigle',
-      'laboratories.sachaSftpLogin',
+      ...selectColumns,
       sql<
         string[]
       >`array_remove(array_agg(DISTINCT "laboratory_agreements"."programming_plan_id"), NULL)`.as(
         'programmingPlanIds'
       )
     ])
-    .groupBy([
-      'laboratories.id',
-      'laboratories.shortName',
-      'laboratories.name',
-      'laboratories.address',
-      'laboratories.postalCode',
-      'laboratories.city',
-      'laboratories.emails',
-      'laboratories.emailsAnalysisResult',
-      'laboratories.sachaEmail',
-      'laboratories.sachaGpgPublicKey',
-      'laboratories.sachaSigle',
-      'laboratories.sachaSftpLogin'
-    ])
+    .groupBy([...selectColumns])
     .where('id', '=', id)
     .executeTakeFirstOrThrow();
+  return toLaboratory(row);
 };
 
 const findMany = async (
   findOptions: FindLaboratoryOptions = {}
 ): Promise<Laboratory[]> => {
   console.info('Find laboratories', findOptions);
+
+  const selectColumns = [
+    'laboratories.id',
+    'laboratories.shortName',
+    'laboratories.name',
+    'laboratories.address',
+    'laboratories.postalCode',
+    'laboratories.city',
+    'laboratories.emails',
+    'laboratories.emailsAnalysisResult'
+  ] as const;
 
   let query = kysely
     .selectFrom('laboratories')
@@ -71,36 +122,14 @@ const findMany = async (
       'laboratories.id'
     )
     .select([
-      'laboratories.id',
-      'laboratories.shortName',
-      'laboratories.name',
-      'laboratories.address',
-      'laboratories.postalCode',
-      'laboratories.city',
-      'laboratories.emails',
-      'laboratories.emailsAnalysisResult',
-      'laboratories.sachaEmail',
-      'laboratories.sachaGpgPublicKey',
-      'laboratories.sachaSigle',
+      ...selectColumns,
       sql<
         string[]
       >`array_remove(array_agg(DISTINCT "laboratory_agreements"."programming_plan_id"), NULL)`.as(
         'programmingPlanIds'
       )
     ])
-    .groupBy([
-      'laboratories.id',
-      'laboratories.shortName',
-      'laboratories.name',
-      'laboratories.address',
-      'laboratories.postalCode',
-      'laboratories.city',
-      'laboratories.emails',
-      'laboratories.emailsAnalysisResult',
-      'laboratories.sachaEmail',
-      'laboratories.sachaGpgPublicKey',
-      'laboratories.sachaSigle'
-    ])
+    .groupBy([...selectColumns])
     .orderBy('laboratories.name', 'asc');
 
   for (const option of FindLaboratoryOptions.keyof().options) {
@@ -165,6 +194,7 @@ const findByEmailSender = async (email_result_analysis: string) => {
     )
     .executeTakeFirst();
 };
+
 export const laboratoryRepository = {
   findUnique,
   findMany,

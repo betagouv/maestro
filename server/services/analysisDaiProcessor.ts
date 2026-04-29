@@ -72,7 +72,7 @@ const processAnalysisDai = async (
     checkedSample.programmingPlanKind as ProgrammingPlanKindWithSacha
   );
 
-  if (programmingPlanWithEdiSacha && laboratory.sachaSigle) {
+  if (programmingPlanWithEdiSacha && !laboratory.legacyDai) {
     return {
       ...(await sendDAIWithEDI(checkedSample, sampleItem, laboratory)),
       edi: true

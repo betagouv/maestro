@@ -2,13 +2,18 @@ import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { SSD2Ids } from '../referential/Residue/SSD2Id';
 import { AnalysisMethod } from '../schema/Analysis/AnalysisMethod';
-import type { Laboratory } from '../schema/Laboratory/Laboratory';
+import type {
+  Laboratory,
+  LaboratoryWithSacha
+} from '../schema/Laboratory/Laboratory';
 import type { LaboratoryAnalyticalCompetence } from '../schema/Laboratory/LaboratoryAnalyticalCompetence';
 import { LaboratoryAnalyticalMethod } from '../schema/Laboratory/LaboratoryAnalyticalMethod';
 import { LaboratoryValidationMethod } from '../schema/Laboratory/LaboratoryValidationMethod';
 import { oneOf } from './testFixtures';
 
-export const genLaboratory = (data?: Partial<Laboratory>): Laboratory => ({
+export const genLaboratory = (
+  data?: Partial<Laboratory>
+): LaboratoryWithSacha => ({
   id: uuidv4(),
   shortName: 'GIR 49',
   name: fakerFR.company.name(),
@@ -16,6 +21,8 @@ export const genLaboratory = (data?: Partial<Laboratory>): Laboratory => ({
   postalCode: fakerFR.location.zipCode('#####'),
   city: fakerFR.location.city(),
   emails: [fakerFR.internet.email()],
+  legacyDai: false,
+  sacha: { activated: false, sigle: null, communication: null },
   ...data
 });
 

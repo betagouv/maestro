@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AnalysisDaiSentMethod } from './AnalysisDaiSentMethod';
+import { SachaCommunicationMethod } from '../Laboratory/SachaCommunicationMethod';
 
 export const AnalysisDaiId = z.guid().brand<'AnalysisDaiId'>();
 export type AnalysisDaiId = z.infer<typeof AnalysisDaiId>;
@@ -19,14 +19,14 @@ export const AnalysisDai = z.discriminatedUnion('state', [
     ...analysisDaiBase,
     state: z.literal('ERROR'),
     message: z.string(),
-    sentMethod: AnalysisDaiSentMethod.nullable(),
+    sentMethod: SachaCommunicationMethod.nullable(),
     edi: z.boolean().nullable(),
     sentAt: z.coerce.date()
   }),
   z.object({
     ...analysisDaiBase,
     state: z.literal('SENT'),
-    sentMethod: AnalysisDaiSentMethod,
+    sentMethod: SachaCommunicationMethod,
     edi: z.boolean(),
     sentAt: z.coerce.date()
   })

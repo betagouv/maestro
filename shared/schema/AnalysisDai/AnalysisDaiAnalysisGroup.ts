@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { DocumentKind } from '../Document/DocumentKind';
 import { Laboratory } from '../Laboratory/Laboratory';
+import { SachaCommunicationMethod } from '../Laboratory/SachaCommunicationMethod';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 import { AnalysisDaiId } from './AnalysisDai';
-import { AnalysisDaiSentMethod } from './AnalysisDaiSentMethod';
 
 const analysisDaiAttemptBase = {
   id: AnalysisDaiId,
@@ -20,14 +20,14 @@ export const AnalysisDaiAttempt = z.discriminatedUnion('state', [
     ...analysisDaiAttemptBase,
     state: z.literal('ERROR'),
     message: z.string(),
-    sentMethod: AnalysisDaiSentMethod.nullable(),
+    sentMethod: SachaCommunicationMethod.nullable(),
     edi: z.boolean().nullable(),
     sentAt: z.date()
   }),
   z.object({
     ...analysisDaiAttemptBase,
     state: z.literal('SENT'),
-    sentMethod: AnalysisDaiSentMethod,
+    sentMethod: SachaCommunicationMethod,
     edi: z.boolean(),
     sentAt: z.date()
   })
@@ -40,7 +40,7 @@ export const AnalysisDaiAnalysisGroup = z.object({
   sample: z.object({ id: z.guid(), reference: z.string() }),
   analysis: z.object({ itemNumber: z.number(), copyNumber: z.number() }),
   sampleItem: z.object({ substanceKind: SubstanceKind }),
-  laboratory: Laboratory.nullable(),
+  laboratory: Laboratory.pick({ shortName: true, name: true }).nullable(),
   attempts: z.array(AnalysisDaiAttempt),
   latestAttemptAt: z.date()
 });
