@@ -17,6 +17,39 @@ test("impossible d'avoir 2 utilisateurs avec le même email", async () => {
   );
 });
 
+test("déduplique les entreprises identiques lors de la création d'un utilisateur", async () => {
+  const user = genUser({
+    companies: [SlaughterhouseCompanyFixture1, SlaughterhouseCompanyFixture1]
+  });
+
+  await userRepository.insert(user);
+
+  const userInDb = await userRepository.findOne(user.email);
+  expect(userInDb?.companies).toHaveLength(1);
+  expect(userInDb?.companies?.[0]?.siret).toEqual(
+    SlaughterhouseCompanyFixture1.siret
+  );
+});
+
+test('déduplique les entreprises identiques lors de la mise à jour', async () => {
+  const user = genUser({ companies: [] });
+
+  await userRepository.insert(user);
+
+  await userRepository.update(
+    {
+      companies: [SlaughterhouseCompanyFixture1, SlaughterhouseCompanyFixture1]
+    },
+    user.id
+  );
+
+  const userInDb = await userRepository.findOne(user.email);
+  expect(userInDb?.companies).toHaveLength(1);
+  expect(userInDb?.companies?.[0]?.siret).toEqual(
+    SlaughterhouseCompanyFixture1.siret
+  );
+});
+
 test("peut modifier le nom et le prénom d'un utilisateur", async () => {
   const user1 = genUser({});
   const user2 = genUser({});

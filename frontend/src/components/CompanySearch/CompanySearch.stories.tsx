@@ -4,6 +4,7 @@ import {
   genCompany
 } from 'maestro-shared/test/companyFixtures';
 import { expect, fireEvent, fn, userEvent, within } from 'storybook/test';
+import type { Mock } from 'vitest';
 import { getMockApi } from '../../services/mockApiClient';
 import CompanySearch from './CompanySearch';
 
@@ -85,5 +86,29 @@ export const Multi: Story = {
     onSelect: fn(),
     multi: true,
     companies: [CompanyFixture, genCompany(), genCompany(), genCompany()]
+  }
+};
+
+export const MultiCannotSelectSameCompanyTwice: Story = {
+  args: {
+    onSelect: fn(),
+    multi: true,
+    initialValue: [{ ...CompanyFixture }],
+    companies: [CompanyFixture, genCompany(), genCompany()]
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const select = canvas.getByTestId('companySearch-input');
+
+    await userEvent.click(select);
+    await userEvent.type(select, CompanyFixture.name);
+    await fireEvent.keyDown(select, { key: 'ArrowDown' });
+    await fireEvent.keyDown(select, { key: 'Enter' });
+
+    const onSelectMock = args.onSelect as Mock;
+    for (const call of onSelectMock.mock.calls) {
+      const [selected] = call;
+      await expect(selected.length).toBeLessThanOrEqual(1);
+    }
   }
 };

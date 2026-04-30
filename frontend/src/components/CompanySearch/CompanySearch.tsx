@@ -292,7 +292,9 @@ const CompanySearch = ({
           loadingText={`Recherche en cours...`}
           filterOptions={(x) => x}
           options={[...companyResults]
-            .filter((c) => !selectedCompanies.includes(c))
+            .filter(
+              (c) => !selectedCompanies.some((sc) => sc.siret === c.siret)
+            )
             .sort((a, b) => a.name.localeCompare(b.name))}
           getOptionLabel={(option) => [option.name, option.siret].join(' • ')}
           noOptionsText={
