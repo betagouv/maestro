@@ -214,7 +214,11 @@ export interface LaboratoryResidueMapping {
 export interface LaboratoryAgreements {
   laboratoryId: string;
   programmingPlanId: string;
+  programmingPlanKind: ProgrammingPlanKind;
   substanceKind: SubstanceKind;
+  referenceLaboratory: boolean;
+  detectionAnalysis: boolean;
+  confirmationAnalysis: boolean;
 }
 
 export interface Notices {

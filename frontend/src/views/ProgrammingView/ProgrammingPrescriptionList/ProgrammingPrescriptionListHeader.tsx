@@ -5,7 +5,7 @@ import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import { isNil, sumBy, uniq } from 'lodash-es';
+import { isNil, sumBy, uniq, uniqBy } from 'lodash-es';
 import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
@@ -219,6 +219,12 @@ const ProgrammingPrescriptionListHeader = ({
             title="Action groupée"
             size={isMobile ? 'small' : 'medium'}
             onClick={() => setIsGroupedUpdate(true)}
+            disabled={
+              uniqBy(
+                prescriptions,
+                (prescription) => prescription.programmingPlanKind
+              ).length !== 1
+            }
           >
             {isMobile ? undefined : 'Action groupée'}
           </Button>
@@ -227,6 +233,7 @@ const ProgrammingPrescriptionListHeader = ({
       {isGroupedUpdate && onGroupedUpdate && (
         <ProgrammingPrescriptionListGroupedUpdate
           programmingPlan={programmingPlan}
+          programmingPlanKind={prescriptions[0].programmingPlanKind}
           selectedCount={selectedCount ?? 0}
           totalCount={prescriptions.length}
           onSubmit={async (laboratoryId) => {

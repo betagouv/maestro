@@ -157,22 +157,11 @@ const findMany = async (
         break;
       case 'programmingPlanKind':
         if (!isNil(findOptions.programmingPlanKind)) {
-          query = query
-            .innerJoin(
-              'programmingPlans',
-              'programmingPlans.id',
-              'laboratoryAgreements.programmingPlanId'
-            )
-            .innerJoin(
-              'programmingPlanKinds',
-              'programmingPlans.id',
-              'programmingPlanKinds.programmingPlanId'
-            )
-            .where(
-              'programmingPlanKinds.kind',
-              '=',
-              findOptions.programmingPlanKind
-            );
+          query = query.where(
+            'laboratoryAgreements.programmingPlanKind',
+            '=',
+            findOptions.programmingPlanKind
+          );
         }
         break;
       default:
