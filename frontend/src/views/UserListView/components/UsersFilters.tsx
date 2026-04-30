@@ -64,9 +64,9 @@ export const UsersFilters: FunctionComponent<Props> = ({
     const { label, ...rest } = filters;
 
     return Object.values(rest).some(
-      // @ts-expect-error TS2367
       (value) =>
         isDefinedAndNotNull(value) &&
+        // @ts-expect-error TS2367
         value !== '' &&
         (Array.isArray(value) ? value.length > 0 : true)
     );
