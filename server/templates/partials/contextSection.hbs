@@ -18,10 +18,10 @@
                 {{establishment.name}}
               </div>
               <div class='sub-value'>
-                {{#if establishment.additionalLine}}
-                  {{establishment.additionalLine}},
-                {{/if}}
                 {{establishment.street}},
+                {{#if establishment.additionalAddress}}
+                  {{establishment.additionalAddress}},
+                {{/if}}
                 {{establishment.postalCode}} {{establishment.city}}
               </div>
             </div>
