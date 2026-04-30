@@ -156,10 +156,14 @@ const insert = async (
       .executeTakeFirst();
 
     if (result && companies && companies.length > 0) {
+      const uniqueSirets = [...new Set(companies.map((c) => c.siret))];
       await trx
         .insertInto('userCompanies')
         .values(
-          companies.map((c) => ({ userId: result.id, companySiret: c.siret }))
+          uniqueSirets.map((siret) => ({
+            userId: result.id,
+            companySiret: siret
+          }))
         )
         .execute();
     }
@@ -176,9 +180,12 @@ const update = async (
     if (companies !== undefined) {
       await trx.deleteFrom('userCompanies').where('userId', '=', id).execute();
       if (companies && companies.length > 0) {
+        const uniqueSirets = [...new Set(companies.map((c) => c.siret))];
         await trx
           .insertInto('userCompanies')
-          .values(companies.map((c) => ({ userId: id, companySiret: c.siret })))
+          .values(
+            uniqueSirets.map((siret) => ({ userId: id, companySiret: siret }))
+          )
           .execute();
       }
     }
