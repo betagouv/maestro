@@ -99,17 +99,25 @@ export const UserListView = () => {
             return false;
           }
 
-          if (filters.department && u.department !== filters.department) {
-            return false;
-          }
-
-          if (filters.role && !u.roles.includes(filters.role)) {
+          if (
+            filters.departments?.length &&
+            (!u.department || !filters.departments.includes(u.department))
+          ) {
             return false;
           }
 
           if (
-            filters.programmingPlanKind &&
-            !u.programmingPlanKinds.includes(filters.programmingPlanKind)
+            filters.roles?.length &&
+            !filters.roles.some((role) => u.roles.includes(role))
+          ) {
+            return false;
+          }
+
+          if (
+            filters.programmingPlanKinds?.length &&
+            !filters.programmingPlanKinds.some((kind) =>
+              u.programmingPlanKinds.includes(kind)
+            )
           ) {
             return false;
           }

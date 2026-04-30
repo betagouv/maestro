@@ -27,13 +27,14 @@ import { assert, type Equals } from 'tsafe';
 import { z } from 'zod';
 import { RegionsFilter } from '../../../components/RegionsFilter/RegionsFilter';
 import useWindowSize from '../../../hooks/useWindowSize';
+import { pluralize } from '../../../utils/stringUtils';
 import { UsersFilterTags } from './UsersFilterTags';
 
 const _findUserOptions = z.object({
   regions: z.array(Region).nullable(),
-  department: Department.nullable(),
-  role: UserRole.nullable(),
-  programmingPlanKind: ProgrammingPlanKind.nullable(),
+  departments: z.array(Department).nullable(),
+  roles: z.array(UserRole).nullable(),
+  programmingPlanKinds: z.array(ProgrammingPlanKind).nullable(),
   label: z.string().nullable(),
   onlyDisabled: z.boolean().nullable()
 });
@@ -52,9 +53,9 @@ export const UsersFilters: FunctionComponent<Props> = ({
 
   const [filters, setFilters] = useState<FindUserOptions>({
     regions: null,
-    role: null,
-    department: null,
-    programmingPlanKind: null,
+    roles: null,
+    departments: null,
+    programmingPlanKinds: null,
     label: null,
     onlyDisabled: null
   });
@@ -64,7 +65,10 @@ export const UsersFilters: FunctionComponent<Props> = ({
 
     return Object.values(rest).some(
       // @ts-expect-error TS2367
-      (value) => isDefinedAndNotNull(value) && value !== ''
+      (value) =>
+        isDefinedAndNotNull(value) &&
+        value !== '' &&
+        (Array.isArray(value) ? value.length > 0 : true)
     );
   }, [filters]);
 
@@ -124,9 +128,9 @@ const Filters: FunctionComponent<
   FindUserOptions & { onChange: (options: Partial<FindUserOptions>) => void }
 > = ({
   regions,
-  department,
-  role,
-  programmingPlanKind,
+  departments,
+  roles,
+  programmingPlanKinds,
   label,
   onlyDisabled,
   onChange,
@@ -165,17 +169,21 @@ const Filters: FunctionComponent<
         <Select
           label="Rôle"
           nativeSelectProps={{
-            value: role || '',
+            value: '',
             onChange: (e) =>
               onChange({
-                role: e.target.value as UserRole
+                roles: [...(roles ?? []), e.target.value as UserRole]
               })
           }}
         >
-          <option value="">Tous</option>
-          {UserRoleSorted.map((role) => (
-            <option key={`role-${role}`} value={role}>
-              {UserRoleLabels[role]}
+          <option value="">
+            {roles?.length
+              ? pluralize(roles.length, { preserveCount: true })('rôle')
+              : 'Tous'}
+          </option>
+          {UserRoleSorted.filter((r) => !(roles ?? []).includes(r)).map((r) => (
+            <option key={`role-${r}`} value={r}>
+              {UserRoleLabels[r]}
             </option>
           ))}
         </Select>
@@ -184,7 +192,7 @@ const Filters: FunctionComponent<
         <RegionsFilter
           values={regions ?? []}
           onChange={(r) =>
-            onChange({ regions: [...(regions ?? []), r], department: null })
+            onChange({ regions: [...(regions ?? []), r], departments: null })
           }
         />
       </div>
@@ -192,34 +200,58 @@ const Filters: FunctionComponent<
         <Select
           label="Département"
           nativeSelectProps={{
-            value: department || '',
+            value: '',
             onChange: (e) =>
-              onChange({ department: e.target.value as Department })
+              onChange({
+                departments: [
+                  ...(departments ?? []),
+                  e.target.value as Department
+                ]
+              })
           }}
         >
-          <option value="">Tous</option>
-          {departmentOptions.map((department) => (
-            <option key={`department-${department}`} value={department}>
-              {`${department} - ${DepartmentLabels[department]}`}
-            </option>
-          ))}
+          <option value="">
+            {departments?.length
+              ? pluralize(departments.length, { preserveCount: true })(
+                  'département'
+                )
+              : 'Tous'}
+          </option>
+          {departmentOptions
+            .filter((d) => !(departments ?? []).includes(d))
+            .map((d) => (
+              <option key={`department-${d}`} value={d}>
+                {`${d} - ${DepartmentLabels[d]}`}
+              </option>
+            ))}
         </Select>
       </div>
       <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
         <Select
           label="Plan"
           nativeSelectProps={{
-            value: programmingPlanKind || '',
+            value: '',
             onChange: (e) =>
               onChange({
-                programmingPlanKind: e.target.value as ProgrammingPlanKind
+                programmingPlanKinds: [
+                  ...(programmingPlanKinds ?? []),
+                  e.target.value as ProgrammingPlanKind
+                ]
               })
           }}
         >
-          <option value="">Tous</option>
-          {ProgrammingPlanKindListSorted.map((plan) => (
-            <option key={`plan-${plan}`} value={plan}>
-              {ProgrammingPlanKindLabels[plan]}
+          <option value="">
+            {programmingPlanKinds?.length
+              ? pluralize(programmingPlanKinds.length, { preserveCount: true })(
+                  'plan'
+                )
+              : 'Tous'}
+          </option>
+          {ProgrammingPlanKindListSorted.filter(
+            (k) => !(programmingPlanKinds ?? []).includes(k)
+          ).map((k) => (
+            <option key={`plan-${k}`} value={k}>
+              {ProgrammingPlanKindLabels[k]}
             </option>
           ))}
         </Select>
