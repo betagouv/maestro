@@ -27,15 +27,9 @@ const confirmDisablingUserModal = createModal({
 
 export const UserListView = () => {
   const apiClient = useContext(ApiClientContext);
-  const { user } = useAuthentication();
 
   const { data: users } = apiClient.useFindUsersQuery({});
   const [updateUser] = apiClient.useUpdateUserMutation();
-  const { data: companies } = apiClient.useFindCompaniesQuery({
-    kinds: ['MEAT_SLAUGHTERHOUSE', 'POULTRY_SLAUGHTERHOUSE'],
-    region: user?.region ?? undefined,
-    department: user?.department ?? undefined
-  });
 
   const [userToUpdate, setUserToUpdate] = useState<null | UserRefined>(null);
   const [userToDisable, setUserToDisable] = useState<null | UserRefined>(null);
@@ -182,7 +176,6 @@ export const UserListView = () => {
       <UserModal
         modal={userFormModal}
         userToUpdate={userToUpdate}
-        companies={companies ?? []}
         setAlertMessage={setAlertMessage}
       />
       <ConfirmationModal

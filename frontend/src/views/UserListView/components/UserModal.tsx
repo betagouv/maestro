@@ -1,3 +1,4 @@
+import Button from '@codegouvfr/react-dsfr/Button';
 import type { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import {
@@ -41,7 +42,6 @@ import { ApiClientContext } from '../../../services/apiClient';
 interface Props {
   userToUpdate: null | UserRefined;
   modal: ReturnType<typeof createModal>;
-  companies: Company[];
   setAlertMessage: (message: string) => void;
 }
 
@@ -70,7 +70,6 @@ const userDefaultValue: Nullable<UserToCreateRefined> = {
 export const UserModal = ({
   userToUpdate,
   modal,
-  companies,
   setAlertMessage,
   ..._rest
 }: Props) => {
@@ -127,7 +126,7 @@ export const UserModal = ({
     }
   }, [user.roles, user.region]);
 
-  const [abattoirs, setAbattoirs] = useState<Company[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
   useEffect(() => {
     if (
       companiesIsRequired({
@@ -143,7 +142,7 @@ export const UserModal = ({
       })
         .unwrap()
         .then((data) => {
-          setAbattoirs(data);
+          setCompanies(data);
         });
     }
   }, [
@@ -296,6 +295,38 @@ export const UserModal = ({
               <>
                 Abattoirs
                 <AppRequiredInput />
+                {companies.length > 0 &&
+                  companies.some(
+                    (c) => !user.companies?.some((uc) => uc.siret === c.siret)
+                  ) && (
+                    <Button
+                      priority="tertiary no outline"
+                      size="small"
+                      onClick={() =>
+                        setUser((u) => ({
+                          ...u,
+                          companies: [
+                            ...(u.companies ?? []),
+                            ...companies.filter(
+                              (c) =>
+                                !u.companies?.some((uc) => uc.siret === c.siret)
+                            )
+                          ]
+                        }))
+                      }
+                    >
+                      Tout sélectionner
+                    </Button>
+                  )}
+                {(user.companies?.length ?? 0) > 0 && (
+                  <Button
+                    priority="tertiary no outline"
+                    size="small"
+                    onClick={() => setUser((u) => ({ ...u, companies: [] }))}
+                  >
+                    Tout désélectionner
+                  </Button>
+                )}
               </>
             }
             multi={true}
@@ -310,7 +341,9 @@ export const UserModal = ({
             stateRelatedMessage={
               form.message('companies') ?? 'Abattoirs correctement renseignés'
             }
-            companies={abattoirs}
+            companies={companies.filter(
+              (c) => !user.companies?.some((uc) => uc.siret === c.siret)
+            )}
           />
         )}
         {laboratoryIsRequired(user) && (
