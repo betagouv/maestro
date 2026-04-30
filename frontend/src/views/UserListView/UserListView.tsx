@@ -9,7 +9,6 @@ import { useCallback, useContext, useState } from 'react';
 import usersSvg from 'src/assets/illustrations/users.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
-import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
 import { UserCard } from './components/UserCard';
 import { UserModal } from './components/UserModal';
