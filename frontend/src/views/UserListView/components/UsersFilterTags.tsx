@@ -7,32 +7,6 @@ import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import type { FindUserOptions } from './UsersFilters';
 
-type FilterableProp = keyof Omit<FindUserOptions, 'label'>;
-
-const filtersConfig = {
-  role: {
-    prop: 'role',
-    getLabel: (value) => UserRoleLabels[value]
-  },
-  department: {
-    prop: 'department',
-    getLabel: (value) => DepartmentLabels[value]
-  },
-  programmingPlanKind: {
-    prop: 'programmingPlanKind',
-    getLabel: (value) => ProgrammingPlanKindLabels[value]
-  },
-  onlyDisabled: {
-    prop: 'onlyDisabled',
-    getLabel: () => 'Seulement les désactivés'
-  }
-} as const satisfies {
-  [key in Exclude<FilterableProp, 'regions'>]: {
-    prop: key;
-  } & {
-    getLabel: (value: NonNullable<FindUserOptions[key]>) => string | null;
-  };
-};
 type Props = {
   filters: FindUserOptions;
   onChange: (filters: Partial<FindUserOptions>) => void;
@@ -60,28 +34,63 @@ export const UsersFilterTags: FunctionComponent<Props> = ({
           {Regions[region].name}
         </Tag>
       ))}
-      {Object.values(filtersConfig).map((conf) => {
-        const value = filters[conf.prop];
-
-        if (value) {
-          //@ts-expect-error TS2345
-          const label = conf.getLabel(value);
-          if (label) {
-            return (
-              <Tag
-                key={conf.prop}
-                dismissible
-                nativeButtonProps={{
-                  onClick: () => onChange({ [conf.prop]: null })
-                }}
-              >
-                {label}
-              </Tag>
-            );
-          }
-        }
-        return null;
-      })}
+      {filters.departments?.map((department) => (
+        <Tag
+          key={`department-${department}`}
+          dismissible
+          nativeButtonProps={{
+            onClick: () =>
+              onChange({
+                departments: filters.departments!.filter(
+                  (d) => d !== department
+                )
+              })
+          }}
+        >
+          {DepartmentLabels[department]}
+        </Tag>
+      ))}
+      {filters.roles?.map((role) => (
+        <Tag
+          key={`role-${role}`}
+          dismissible
+          nativeButtonProps={{
+            onClick: () =>
+              onChange({
+                roles: filters.roles!.filter((r) => r !== role)
+              })
+          }}
+        >
+          {UserRoleLabels[role]}
+        </Tag>
+      ))}
+      {filters.programmingPlanKinds?.map((kind) => (
+        <Tag
+          key={`programmingPlanKind-${kind}`}
+          dismissible
+          nativeButtonProps={{
+            onClick: () =>
+              onChange({
+                programmingPlanKinds: filters.programmingPlanKinds!.filter(
+                  (k) => k !== kind
+                )
+              })
+          }}
+        >
+          {ProgrammingPlanKindLabels[kind]}
+        </Tag>
+      ))}
+      {filters.onlyDisabled && (
+        <Tag
+          key="onlyDisabled"
+          dismissible
+          nativeButtonProps={{
+            onClick: () => onChange({ onlyDisabled: null })
+          }}
+        >
+          Seulement les désactivés
+        </Tag>
+      )}
     </>
   );
 };

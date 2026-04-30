@@ -9,7 +9,6 @@ import { useCallback, useContext, useState } from 'react';
 import usersSvg from 'src/assets/illustrations/users.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
-import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
 import { UserCard } from './components/UserCard';
 import { UserModal } from './components/UserModal';
@@ -27,15 +26,9 @@ const confirmDisablingUserModal = createModal({
 
 export const UserListView = () => {
   const apiClient = useContext(ApiClientContext);
-  const { user } = useAuthentication();
 
   const { data: users } = apiClient.useFindUsersQuery({});
   const [updateUser] = apiClient.useUpdateUserMutation();
-  const { data: companies } = apiClient.useFindCompaniesQuery({
-    kinds: ['MEAT_SLAUGHTERHOUSE', 'POULTRY_SLAUGHTERHOUSE'],
-    region: user?.region ?? undefined,
-    department: user?.department ?? undefined
-  });
 
   const [userToUpdate, setUserToUpdate] = useState<null | UserRefined>(null);
   const [userToDisable, setUserToDisable] = useState<null | UserRefined>(null);
@@ -106,17 +99,25 @@ export const UserListView = () => {
             return false;
           }
 
-          if (filters.department && u.department !== filters.department) {
-            return false;
-          }
-
-          if (filters.role && !u.roles.includes(filters.role)) {
+          if (
+            filters.departments?.length &&
+            (!u.department || !filters.departments.includes(u.department))
+          ) {
             return false;
           }
 
           if (
-            filters.programmingPlanKind &&
-            !u.programmingPlanKinds.includes(filters.programmingPlanKind)
+            filters.roles?.length &&
+            !filters.roles.some((role) => u.roles.includes(role))
+          ) {
+            return false;
+          }
+
+          if (
+            filters.programmingPlanKinds?.length &&
+            !filters.programmingPlanKinds.some((kind) =>
+              u.programmingPlanKinds.includes(kind)
+            )
           ) {
             return false;
           }
@@ -182,7 +183,6 @@ export const UserListView = () => {
       <UserModal
         modal={userFormModal}
         userToUpdate={userToUpdate}
-        companies={companies ?? []}
         setAlertMessage={setAlertMessage}
       />
       <ConfirmationModal
