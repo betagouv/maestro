@@ -6,7 +6,10 @@ import { isNil } from 'lodash-es';
 import PdfGenerationError from 'maestro-shared/errors/pdfGenerationError';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import UserMissingError from 'maestro-shared/errors/userMissingError';
-import { DepartmentLabels } from 'maestro-shared/referential/Department';
+import {
+  DepartmentEstablishments,
+  DepartmentLabels
+} from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
@@ -325,7 +328,12 @@ const generateSamplePDF = async (
       sample.programmingPlanKind === 'PPV'
         ? sample.specificData.releaseControl
         : undefined,
-    establishment: Regions[sample.region].establishment,
+    establishment:
+      programmingPlan.distributionKind === 'REGIONAL'
+        ? Regions[sample.region].establishment
+        : sample.department
+          ? DepartmentEstablishments[sample.department]
+          : undefined,
     department: sample.department ? DepartmentLabels[sample.department] : '',
     hasNoteToSampler:
       sampleItems.some(
