@@ -82,7 +82,7 @@ export const usersRouter = {
     post: async ({ body }) => {
       console.info('Create user', body);
 
-      await userService.insert(body);
+      await userService.insert({ ...body, name: null });
       return { status: constants.HTTP_STATUS_CREATED };
     }
   }
