@@ -10,7 +10,8 @@
     "**/*.ts",
     "**/*.js",
     "**/*.json",
-    "../test/vitest-random-seed.ts"
+    "../test/vitest-random-seed.ts",
+    "../types/**/*.d.ts"
   ],
-  "exclude": ["**/*.d.ts", "dist", "node_modules"]
+  "exclude": ["dist", "node_modules"]
 }
