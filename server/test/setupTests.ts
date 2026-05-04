@@ -10,6 +10,9 @@ export const mockGenerateSampleSupportPDF: Mock<Procedure> = vi.fn();
 export const mockSendNotification: Mock<Procedure> = vi.fn();
 export const mockMattermostSend: Mock<Procedure> = vi.fn();
 export const mockMailSend: Mock<Procedure> = vi.fn();
+export const mockMailCreateContact: Mock<Procedure> = vi.fn();
+export const mockMailUpdateContact: Mock<Procedure> = vi.fn();
+export const mockMailDeleteContact: Mock<Procedure> = vi.fn();
 export const mockTriggerProcessing: Mock<Procedure> = vi.fn();
 vi.mock('../services/authService', () => ({
   getAuthService: Promise.resolve({
@@ -30,7 +33,10 @@ vi.mock('../services/mattermostService', () => ({
 }));
 vi.mock('../services/mailService', () => ({
   mailService: {
-    send: (...args: any[]) => mockMailSend(...args)
+    send: (...args: any[]) => mockMailSend(...args),
+    createContact: (...args: any[]) => mockMailCreateContact(...args),
+    updateContact: (...args: any[]) => mockMailUpdateContact(...args),
+    deleteContact: (...args: any[]) => mockMailDeleteContact(...args)
   }
 }));
 vi.mock('../services/notificationService', () => ({
