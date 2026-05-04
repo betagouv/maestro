@@ -86,17 +86,7 @@ const SendingModal = ({
             substanceKindLaboratory.substanceKind
           ].toLowerCase()}{' '}
           va être envoyée au laboratoire{' '}
-          <b>{getLaboratoryFullName(substanceKindLaboratory.laboratory)}</b> par
-          e-mail à{' '}
-          {substanceKindLaboratory.laboratory.emails.map((email, index) => (
-            <span key={`email-${index}`}>
-              <b>{email}</b>
-              {index < substanceKindLaboratory.laboratory.emails.length - 1
-                ? ', '
-                : ''}
-            </span>
-          ))}
-          .
+          <b>{getLaboratoryFullName(substanceKindLaboratory.laboratory)}</b>.
           {programmingPlanKind === 'PPV' &&
             !(LaboratoryWithAutomation as string[]).includes(
               substanceKindLaboratory.laboratory.shortName
