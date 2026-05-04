@@ -1,3 +1,4 @@
+import { constants } from 'node:http2';
 import SendEmailError from 'maestro-shared/errors/sendEmailError';
 import SyncContactError from 'maestro-shared/errors/syncContactError';
 import { ProgrammingPlanKindBrevoListId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
@@ -38,6 +39,11 @@ class BrevoService implements MailService {
   }
 
   async send<T extends TemplateName>(options: SendOptions<T>): Promise<void> {
+    console.debug(
+      '[brevoService] send',
+      options.templateName,
+      options.recipients
+    );
     if (options.recipients.length > 0) {
       const brevoUrl = `${this.baseUrl}/smtp/email`;
       const body = {
@@ -62,6 +68,7 @@ class BrevoService implements MailService {
   async createContact(
     user: Pick<UserRefined, 'email' | 'name' | 'programmingPlanKinds'>
   ): Promise<void> {
+    console.debug('[brevoService] createContact', user.email);
     const listIds = toListIds(user.programmingPlanKinds);
     const response = await fetch(`${this.baseUrl}/contacts`, {
       method: 'POST',
@@ -74,9 +81,6 @@ class BrevoService implements MailService {
     });
 
     if (!response.ok) {
-      console.error(
-        `[brevoService] Failed to create contact ${user.email}: ${response.statusText}`
-      );
       throw new SyncContactError(user.email);
     }
   }
@@ -84,6 +88,7 @@ class BrevoService implements MailService {
   async updateContact(
     user: Pick<UserRefined, 'email' | 'name' | 'programmingPlanKinds'>
   ): Promise<void> {
+    console.debug('[brevoService] updateContact', user.email);
     const listIds = toListIds(user.programmingPlanKinds);
     const unlinkListIds = allListIds().filter((id) => !listIds.includes(id));
 
@@ -98,15 +103,18 @@ class BrevoService implements MailService {
       })
     });
 
+    if (response.status === constants.HTTP_STATUS_NOT_FOUND) {
+      await this.createContact(user);
+      return;
+    }
+
     if (!response.ok) {
-      console.error(
-        `[brevoService] Failed to update contact ${user.email}: ${response.statusText}`
-      );
       throw new SyncContactError(user.email);
     }
   }
 
   async deleteContact(email: string): Promise<void> {
+    console.debug('[brevoService] deleteContact', email);
     const url = `${this.baseUrl}/contacts/${encodeURIComponent(email)}`;
     const response = await fetch(url, {
       method: 'DELETE',
@@ -114,9 +122,6 @@ class BrevoService implements MailService {
     });
 
     if (!response.ok) {
-      console.error(
-        `[brevoService] Failed to delete contact ${email}: ${response.statusText}`
-      );
       throw new SyncContactError(email);
     }
   }
