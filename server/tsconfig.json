@@ -3,6 +3,7 @@
   "compilerOptions": {
     "target": "esnext",
     "lib": ["esnext", "ESNext.Array"],
+    "customConditions": ["node"],
     "typeRoots": ["node_modules/@types", "../types"]
   },
   "include": [
