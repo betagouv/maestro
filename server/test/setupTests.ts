@@ -9,10 +9,18 @@ export const mockGetLogoutUrl: Mock<Procedure> = vi.fn();
 export const mockGenerateSampleSupportPDF: Mock<Procedure> = vi.fn();
 export const mockSendNotification: Mock<Procedure> = vi.fn();
 export const mockMattermostSend: Mock<Procedure> = vi.fn();
-export const mockMailSend: Mock<Procedure> = vi.fn();
-export const mockMailCreateContact: Mock<Procedure> = vi.fn();
-export const mockMailUpdateContact: Mock<Procedure> = vi.fn();
-export const mockMailDeleteContact: Mock<Procedure> = vi.fn();
+export const mockMailSend: Mock<Procedure> = vi
+  .fn()
+  .mockResolvedValue(undefined);
+export const mockMailCreateContact: Mock<Procedure> = vi
+  .fn()
+  .mockResolvedValue(undefined);
+export const mockMailUpdateContact: Mock<Procedure> = vi
+  .fn()
+  .mockResolvedValue(undefined);
+export const mockMailDeleteContact: Mock<Procedure> = vi
+  .fn()
+  .mockResolvedValue(undefined);
 export const mockTriggerProcessing: Mock<Procedure> = vi.fn();
 vi.mock('../services/authService', () => ({
   getAuthService: Promise.resolve({
