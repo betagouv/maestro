@@ -53,6 +53,12 @@ class NodemailerService implements MailService {
     });
   }
 
+  async createContact(): Promise<void> {}
+
+  async updateContact(): Promise<void> {}
+
+  async deleteContact(): Promise<void> {}
+
   async send<T extends TemplateName>(options: SendOptions<T>): Promise<void> {
     return this.transport.sendMail({
       from: config.mail.from,
