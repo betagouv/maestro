@@ -130,7 +130,7 @@ const SampleOverview = ({ sample }: Props) => {
           small
           description={
             <>
-              Votre demande d'analyse a bien été transmise par email à{' '}
+              Votre demande d'analyse a bien été transmise à{' '}
               <ul>
                 {sample.items
                   .filter((item) => item.copyNumber === 1)
