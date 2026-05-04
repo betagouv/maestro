@@ -6,6 +6,7 @@ const config = {
   supportEmail: import.meta.env.VITE_SUPPORT_EMAIL,
   websiteUrl: import.meta.env.VITE_WEBSITE_URL,
   sentryDns: import.meta.env.VITE_SENTRY_FRONTEND_DNS,
+  isReviewApp: import.meta.env.VITE_REVIEW_APP === 'true',
   documents: {
     regulation201862:
       import.meta.env.VITE_DOCUMENT_REGULATION_2018_62 ??
