@@ -12,12 +12,10 @@ const catchSyncError = (err: unknown) => {
 };
 
 const insert = async (
-  user: Omit<UserRefined, 'id' | 'loggedSecrets' | 'name'>
+  user: Omit<UserRefined, 'id' | 'loggedSecrets'>
 ): Promise<void> => {
   await userRepository.insert(user);
-  await mailService
-    .createContact({ ...user, name: null })
-    .catch(catchSyncError);
+  await mailService.createContact(user).catch(catchSyncError);
 };
 
 const update = async (

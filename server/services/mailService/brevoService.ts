@@ -75,7 +75,9 @@ class BrevoService implements MailService {
       headers: this.headers,
       body: JSON.stringify({
         email: user.email,
-        attributes: { PRENOM: user.name ?? undefined },
+        attributes: {
+          NOM: user.name ?? undefined
+        },
         ...(listIds.length > 0 ? { listIds } : {})
       })
     });
