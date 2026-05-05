@@ -3,13 +3,15 @@
   "compilerOptions": {
     "target": "esnext",
     "lib": ["esnext", "ESNext.Array"],
+    "customConditions": ["node"],
     "typeRoots": ["node_modules/@types", "../types"]
   },
   "include": [
     "**/*.ts",
     "**/*.js",
     "**/*.json",
-    "../test/vitest-random-seed.ts"
+    "../test/vitest-random-seed.ts",
+    "../types/**/*.d.ts"
   ],
-  "exclude": ["**/*.d.ts", "dist", "node_modules"]
+  "exclude": ["dist", "node_modules"]
 }
