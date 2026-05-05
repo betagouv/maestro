@@ -65,7 +65,7 @@
   },
   "devDependencies": {
     "@types/carbone": "^3.2.5",
-    "@types/cookie-parser": "^1.4.8",
+    "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.12",
     "@types/exceljs": "^0.5.3",
     "@types/express": "^5.0.6",
