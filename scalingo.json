@@ -12,7 +12,7 @@
       "generator": "url",
       "template": "%URL%"
     },
-    "REVIEW_APP": {
+    "VITE_REVIEW_APP": {
       "value": "true"
     }
   },
