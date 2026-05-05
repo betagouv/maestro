@@ -27,7 +27,7 @@ const coerceBoolean = () =>
 const configValidator = z
   .object({
     APPLICATION_HOST: z.url().default('http://localhost:3000'),
-    REVIEW_APP: coerceBoolean().default(false),
+    VITE_REVIEW_APP: coerceBoolean().default(false),
     NODE_ENV: z
       .enum(['development', 'production', 'test'])
       .default('development'),
@@ -85,7 +85,7 @@ const configValidator = z
     return {
       application: {
         host: c.APPLICATION_HOST,
-        isReviewApp: c.REVIEW_APP
+        isReviewApp: c.VITE_REVIEW_APP
       },
       environment: c.NODE_ENV,
       serverUrl: c.VITE_API_URL,

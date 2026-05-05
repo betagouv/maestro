@@ -4,7 +4,10 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import SideMenu from '@codegouvfr/react-dsfr/SideMenu';
 import clsx from 'clsx';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
-import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import type {
+  PartialSampleToCreate,
+  SampleChecked
+} from 'maestro-shared/schema/Sample/Sample';
 import {
   getItemStatus,
   isItemAchieved,
@@ -18,8 +21,11 @@ import food from 'src/assets/illustrations/food.svg';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
+import config from 'src/utils/config';
 import MatrixStepSummary from 'src/views/SampleView/StepSummary/MatrixStepSummary';
+import { v4 as uuidv4 } from 'uuid';
 import { SampleStatusBadge } from '../../../components/SampleStatusBadge/SampleStatusBadge';
+import { useAuthentication } from '../../../hooks/useAuthentication';
 import { usePartialSample } from '../../../hooks/usePartialSample';
 import { ApiClientContext } from '../../../services/apiClient';
 import SupportDocumentDownload from '../DraftSample/SupportDocumentDownload';
@@ -29,7 +35,7 @@ import SampleComplianceForm from './SampleComplianceForm';
 import SampleContextOverview from './SampleContextOverview';
 import SampleItemCopiesOverview from './SampleItemCopiesOverview';
 import './SampleOverview.scss';
-import { useAuthentication } from '../../../hooks/useAuthentication';
+import { SampleSteps } from 'maestro-shared/schema/Sample/SampleStep';
 
 interface Props {
   sample: SampleChecked;
@@ -43,7 +49,7 @@ const SampleOverview = ({ sample }: Props) => {
 
   const { getSampleItemLaboratory, programmingPlan } = usePartialSample(sample);
 
-  const { navigateToSamples } = useSamplesLink();
+  const { navigateToSamples, navigateToSample } = useSamplesLink();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [_updateSample, { isSuccess: isSendingSuccess }] =
@@ -100,6 +106,39 @@ const SampleOverview = ({ sample }: Props) => {
 
   const [updateSampleCompliance] =
     apiClient.useUpdateSampleComplianceMutation();
+
+  const [createOrUpdateSample] = apiClient.useCreateOrUpdateSampleMutation();
+
+  const duplicateSample = async () => {
+    if (!config.isReviewApp || !hasUserPermission('createSample')) {
+      return;
+    }
+    const {
+      reference,
+      region,
+      createdAt,
+      lastUpdatedAt,
+      compliance,
+      notesOnCompliance,
+      sentAt,
+      ...rest
+    } = sample;
+    const newSampleId = uuidv4();
+    const items = rest.items.map((item) => ({
+      ...item,
+      sampleId: newSampleId,
+      analysis: undefined
+    }));
+    const step = sample.status === 'Draft' ? sample.step : 'Submitted';
+    await createOrUpdateSample({
+      ...rest,
+      id: newSampleId,
+      status: 'Draft',
+      step,
+      items
+    } as PartialSampleToCreate);
+    navigateToSample(newSampleId, SampleSteps[step]);
+  };
 
   return (
     <section
@@ -347,6 +386,16 @@ const SampleOverview = ({ sample }: Props) => {
             Retour aux prélèvements
           </Button>
         </div>
+      )}
+      {config.isReviewApp && hasUserPermission('createSample') && (
+        <Button
+          size="small"
+          priority="tertiary no outline"
+          iconId="fr-icon-file-add-line"
+          onClick={duplicateSample}
+        >
+          Dupliquer le prélèvement pour test
+        </Button>
       )}
     </section>
   );
