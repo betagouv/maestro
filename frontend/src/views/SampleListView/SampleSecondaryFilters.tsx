@@ -153,6 +153,17 @@ const SampleSecondaryFilters = ({
           }
         ></ToggleSwitch>
       </div>
+      <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
+        <ToggleSwitch
+          label="Avec plusieurs exemplaires"
+          labelPosition="left"
+          inputTitle="filtre les prélèvements qui ont au moins un échantillon avec plusieurs exemplaires"
+          defaultChecked={filters.withAtLeastOneCopiedItem ?? false}
+          onChange={(checked) =>
+            onChange({ withAtLeastOneCopiedItem: checked || undefined })
+          }
+        ></ToggleSwitch>
+      </div>
     </>
   );
 };

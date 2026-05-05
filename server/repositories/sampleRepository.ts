@@ -160,6 +160,7 @@ const findRequest = (findOptions: FindSampleOptions) =>
           'contexts',
           'departments',
           'withAtLeastOneResidue',
+          'withAtLeastOneCopiedItem',
           'programmingPlanIds',
           'kinds',
           'laboratoryIds'
@@ -231,6 +232,19 @@ const findRequest = (findOptions: FindSampleOptions) =>
               knexInstance.raw(`${samplesTable}.id`)
             )
             .whereNot(`${analysisResiduesTable}.resultKind`, 'ND')
+            .limit(1)
+        );
+      }
+      if (findOptions.withAtLeastOneCopiedItem === true) {
+        builder.whereExists((c) =>
+          c
+            .select(knexInstance.raw(1))
+            .from(sampleItemsTable)
+            .where(
+              `${sampleItemsTable}.sampleId`,
+              knexInstance.raw(`${samplesTable}.id`)
+            )
+            .where(`${sampleItemsTable}.copyNumber`, '>', 1)
             .limit(1)
         );
       }
