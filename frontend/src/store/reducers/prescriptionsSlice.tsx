@@ -65,7 +65,7 @@ const PrescriptionModalData = z.object({
   prescription: Prescription
 });
 
-const LocalPrescriptionModalData = z.discriminatedUnion('viewBy', [
+const LocalPrescriptionModalData = z.discriminatedUnion('mode', [
   z.object({
     mode: z.literal('laboratory'),
     programmingPlan: ProgrammingPlanChecked,
