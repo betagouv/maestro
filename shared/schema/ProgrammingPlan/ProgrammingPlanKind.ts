@@ -41,3 +41,12 @@ export const ProgrammingPlanAnalysisPermissionRole: Record<
   DAOA_VOLAILLE: 'DepartmentalCoordinator',
   DAOA_BOVIN: 'DepartmentalCoordinator'
 };
+
+export const ProgrammingPlanKindBrevoListId: Record<
+  ProgrammingPlanKind,
+  number
+> = {
+  PPV: 9,
+  DAOA_VOLAILLE: 7,
+  DAOA_BOVIN: 7
+};
