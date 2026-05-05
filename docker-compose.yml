@@ -26,6 +26,14 @@ services:
     ports:
       - 1025:1025
       - 1080:1080
+  oidc:
+    image: ghcr.io/dexidp/dex:latest
+    container_name: maestro_oidc
+    command: dex serve /etc/dex/config.yaml
+    ports:
+      - 5556:5556
+    volumes:
+      - ./dex/config.yaml:/etc/dex/config.yaml:ro
   db:
     image: postgis/postgis:17-3.5
     container_name: maestro_db

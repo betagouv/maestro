@@ -1,0 +1,30 @@
+issuer: https://login-maestro.vcmb.dev
+
+storage:
+  type: memory
+
+web:
+  http: 0.0.0.0:5556
+
+oauth2:
+  skipApprovalScreen: true
+
+
+enablePasswordDB: true
+
+staticPasswords:
+  - email: admin@maestro.beta.gouv.fr
+  - # TODO bcrypt hash of the string "mypassword": $(echo mypassword | htpasswd -BinC 10 admin | cut -d: -f2)
+    hash: "TODO"
+    username: Admin Maestro
+    userID: maestro-dev-user
+
+
+staticClients:
+  - id: maestro-staging
+    name: Maestro Staging
+  - # TODO generate a new random secret
+    secret: newSecret
+    redirectURIs:
+      - http://localhost:3000/login-callback
+      - https://maestro-staging-pr830.osc-fr1.scalingo.io/login-callback

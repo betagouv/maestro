@@ -1,0 +1,25 @@
+issuer: http://localhost:5556/dex
+
+storage:
+  type: memory
+
+web:
+  http: 0.0.0.0:5556
+
+oauth2:
+  skipApprovalScreen: true
+
+staticClients:
+  - id: maestro-local
+    name: Maestro Local
+    secret: maestro-local-secret
+    redirectURIs:
+      - http://localhost:3000/login-callback
+
+enablePasswordDB: true
+
+staticPasswords:
+  - email: "admin@example.com"
+  - # bcrypt hash of the string "password": $(echo password | htpasswd -BinC 10 admin | cut -d: -f2)
+  - hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+    userID: maestro-dev-user
