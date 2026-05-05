@@ -1,13 +1,15 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "target": "es5",
+    "target": "es6",
     "lib": ["dom", "dom.iterable", "esnext"],
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "noUnusedLocals": false,
-    "types": ["vite/client", "node"]
+    "types": ["vite/client", "node"],
+    "paths": {
+      "*": ["./*"]
+    }
   },
   "include": [
     "src",
