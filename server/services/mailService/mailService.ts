@@ -1,3 +1,4 @@
+import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { type ZodType, z } from 'zod';
 
 export const Templates = {
@@ -71,4 +72,11 @@ export interface SendOptions<T extends TemplateName> {
 
 export interface MailService {
   send<T extends TemplateName>(options: SendOptions<T>): Promise<void>;
+  createContact(
+    user: Pick<UserRefined, 'email' | 'name' | 'programmingPlanKinds'>
+  ): Promise<void>;
+  updateContact(
+    user: Pick<UserRefined, 'email' | 'name' | 'programmingPlanKinds'>
+  ): Promise<void>;
+  deleteContact(email: string): Promise<void>;
 }

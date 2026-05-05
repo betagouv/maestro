@@ -21,6 +21,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { describe, expect, test } from 'vitest';
 import type { DB } from '../../repositories/kysely.type';
 import { createServer } from '../../server';
+import {
+  mockMailCreateContact,
+  mockMailDeleteContact,
+  mockMailUpdateContact
+} from '../../test/setupTests';
 import { accessTokenTest, tokenProvider } from '../../test/testUtils';
 
 // Vérifie que le type généré par kysely correspond bien à notre type
@@ -177,11 +182,16 @@ describe('User router', () => {
     });
 
     test('should create an user', async () => {
+      const newUser = genUser({});
       await request(app)
         .post(testRoute())
-        .send(genUser({}))
+        .send(newUser)
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_CREATED);
+
+      expect(mockMailCreateContact).toHaveBeenCalledWith(
+        expect.objectContaining({ email: newUser.email })
+      );
     });
   });
 
@@ -218,6 +228,22 @@ describe('User router', () => {
         .send({ ...NationalCoordinator, role: 'Sampler', region: '01' })
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_OK);
+
+      expect(mockMailUpdateContact).toHaveBeenCalledWith(
+        expect.objectContaining({ id: NationalCoordinator.id })
+      );
+    });
+
+    test('should sync contact deletion when user is disabled', async () => {
+      await request(app)
+        .put(testRoute(NationalCoordinator.id))
+        .send({ ...NationalCoordinator, disabled: true })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(mockMailDeleteContact).toHaveBeenCalledWith(
+        NationalCoordinator.email
+      );
     });
   });
 });

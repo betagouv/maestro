@@ -10,6 +10,7 @@ import {
 import { isNationalRole } from 'maestro-shared/schema/User/UserRole';
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
+import { userService } from '../services/userService';
 
 export const usersRouter = {
   '/users/:userId': {
@@ -41,7 +42,7 @@ export const usersRouter = {
         return { status: constants.HTTP_STATUS_NOT_FOUND };
       }
 
-      await userRepository.update(body, userId);
+      await userService.update(body, userId);
       return { status: constants.HTTP_STATUS_OK };
     }
   },
@@ -81,7 +82,7 @@ export const usersRouter = {
     post: async ({ body }) => {
       console.info('Create user', body);
 
-      await userRepository.insert(body);
+      await userService.insert({ ...body, name: null });
       return { status: constants.HTTP_STATUS_CREATED };
     }
   }
