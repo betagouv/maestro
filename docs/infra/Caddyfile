@@ -1,0 +1,7 @@
+{
+	email contact@maestro.beta.gouv.fr
+}
+
+login-maestro.vcmb.dev {
+	reverse_proxy dex:5556
+}

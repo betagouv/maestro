@@ -2,6 +2,7 @@ import { decode } from 'jsonwebtoken';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import type { AuthRedirectUrl } from 'maestro-shared/schema/Auth/AuthRedirectUrl';
 import {
+  allowInsecureRequests,
   authorizationCodeGrant,
   buildAuthorizationUrl,
   buildEndSessionUrl,
@@ -36,8 +37,9 @@ class OpenIdClientService implements AuthService {
       );
     }
 
+    const providerUrl = new URL(config.auth.providerUrl);
     const client = await discovery(
-      new URL(config.auth.providerUrl),
+      providerUrl,
       config.auth.clientId,
       {
         redirect_uris: [loginCallbackUrl],
@@ -45,7 +47,10 @@ class OpenIdClientService implements AuthService {
         id_token_signed_response_alg: config.auth.tokenAlgorithm,
         userinfo_signed_response_alg: config.auth.userInfoAlgorithm ?? undefined
       },
-      ClientSecretPost(config.auth.clientSecret)
+      ClientSecretPost(config.auth.clientSecret),
+      config.environment !== 'production' && providerUrl.protocol === 'http:'
+        ? { execute: [allowInsecureRequests] }
+        : undefined
     );
 
     return new OpenIdClientService(client);
@@ -121,9 +126,7 @@ class OpenIdClientService implements AuthService {
       throw new Error('No email found in user info');
     }
 
-    const name: string =
-      userInfo.name ??
-      `${userInfo.given_name ?? ''} ${userInfo.usual_name ?? ''}`;
+    const name: string = userInfo.name ?? '';
 
     return {
       idToken,
@@ -134,6 +137,10 @@ class OpenIdClientService implements AuthService {
 
   getLogoutUrl = (idToken: string) => {
     const state = randomState();
+
+    if (!this.client.serverMetadata().end_session_endpoint) {
+      return { url: logoutCallbackUrl, state };
+    }
 
     const logoutUrl = buildEndSessionUrl(this.client, {
       id_token_hint: idToken,

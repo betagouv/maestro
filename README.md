@@ -41,6 +41,11 @@ Accessible directement via http://localhost:3002/docs
 
 Ce service permet de générer les pdfs.
 
+### Dex
+
+Ce service est un serveur OIDC sans base de données. Permet de se connecter hors ligne.
+Copiez/collez/renommez le fichier dex/config.example.yaml et modifiez votre utilisateur.
+
 ### Installation de l'application
 
 ```bash

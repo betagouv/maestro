@@ -24,9 +24,8 @@ export const authUnprotectedRouter = {
   '/auth/redirect-url': {
     get: async () => {
       const authService = await getAuthService;
-      // given_name et usual_name sont que pour ProConnect
       const authRedirectUrl = authService.getAuthorizationUrl(
-        'openid profile email given_name usual_name'
+        'openid profile email'
       );
 
       return { status: constants.HTTP_STATUS_OK, response: authRedirectUrl };
