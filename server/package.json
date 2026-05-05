@@ -30,7 +30,7 @@
     "@gouvfr/dsfr": "^1.14.4",
     "@sentry/node": "^10.49.0",
     "@swc-node/register": "^1.11.1",
-    "@swc/core": "^1.15.11",
+    "@swc/core": "^1.15.32",
     "bwip-js": "^4.9.2",
     "carbone": "^3.8.2",
     "compose-middleware": "^5.0.1",
