@@ -177,6 +177,10 @@ const filtersConfig = {
     prop: 'withAtLeastOneResidue',
     getLabel: () => 'Avec au moins un résidu'
   },
+  withAtLeastOneCopiedItem: {
+    prop: 'withAtLeastOneCopiedItem',
+    getLabel: () => 'Avec plusieurs exemplaires'
+  },
   domain: {
     prop: 'domain',
     getLabel: (value) => ProgrammingPlanDomainLabels[value]
