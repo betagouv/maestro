@@ -2,8 +2,7 @@
   display: flex;
 
   &-list {
-    flex: 1;
-    overflow-y: auto;
+    min-width: 60%;
   }
 
   &-selection {

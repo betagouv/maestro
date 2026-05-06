@@ -16,12 +16,6 @@ const programmingPlanId = uuidv4();
 
 const laboratories = LaboratoryListFixture;
 
-const selectedGroup = {
-  programmingPlanId,
-  programmingPlanKind: 'PPV',
-  substanceKind: 'Any'
-};
-
 const agreements = [
   {
     laboratoryId: laboratories[0].id,
@@ -54,7 +48,13 @@ const meta = {
   component: LaboratoryAgreementsModal,
   args: {
     modal: storyModal,
-    selectedGroup,
+    selectedGroups: [
+      {
+        programmingPlanId,
+        programmingPlanKind: 'PPV' as const,
+        substanceKind: 'Any' as const
+      }
+    ],
     agreements,
     laboratories,
     onSave: fn()
