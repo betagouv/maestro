@@ -6,46 +6,57 @@ import { useContext } from 'react';
 import LaboratoryAgreementButtons from '../LaboratoryAgreementButtons/LaboratoryAgreementButtons';
 import { LaboratoryAgreementDetailContext } from '../LaboratoryAgreementDetailModal/LaboratoryAgreementDetailContext';
 import './LaboratoryAgreementTag.scss';
+import type { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
+import LaboratoryAgreementButton, {
+  type AgreementField
+} from '../LaboratoryAgreementButton/LaboratoryAgreementButton';
+import './LaboratoryAgreementTag.scss';
 
 interface Props {
-  laboratoryAgreement: LaboratoryAgreement;
-  laboratory: Laboratory;
-  afterClose?: () => void;
+  shortName: LaboratoryShortName;
+  referenceLaboratory: boolean;
+  detectionAnalysis: boolean;
+  confirmationAnalysis: boolean;
+  onToggle: (field: AgreementField) => void;
 }
 
 const LaboratoryAgreementTag = ({
-  laboratoryAgreement,
-  laboratory,
-  afterClose
-}: Props) => {
-  const openLaboratoryAgreementDetail = useContext(
-    LaboratoryAgreementDetailContext
-  );
-
-  const handleOpen = () =>
-    openLaboratoryAgreementDetail?.(
-      laboratoryAgreement,
-      laboratory,
-      afterClose
-    );
-
-  return (
-    <div
-      className={clsx(
-        cx('fr-px-1w', 'fr-py-2v'),
-        'laboratory-agreement-tag',
-        'border',
-        'bg-white',
-        'laboratory-agreement-tag--clickable'
-      )}
-      onClick={handleOpen}
-    >
-      <span className={clsx(cx('fr-text--xs', 'fr-text--bold', 'fr-mb-0'))}>
-        {laboratory.shortName}
-      </span>
-      <LaboratoryAgreementButtons values={laboratoryAgreement} size="sm" />
-    </div>
-  );
-};
+  shortName,
+  referenceLaboratory,
+  detectionAnalysis,
+  confirmationAnalysis,
+  onToggle
+}: Props) => (
+  <div
+    className={clsx(
+      cx('fr-px-1w', 'fr-py-2v'),
+      'laboratory-agreement-tag',
+      'border',
+      'bg-white'
+    )}
+  >
+    <span className={clsx(cx('fr-text--xs', 'fr-text--bold', 'fr-mb-0'))}>
+      {shortName}
+    </span>
+    <LaboratoryAgreementButton
+      field="referenceLaboratory"
+      active={referenceLaboratory}
+      size="sm"
+      onToggle={() => onToggle('referenceLaboratory')}
+    />
+    <LaboratoryAgreementButton
+      field="detectionAnalysis"
+      active={detectionAnalysis}
+      size="sm"
+      onToggle={() => onToggle('detectionAnalysis')}
+    />
+    <LaboratoryAgreementButton
+      field="confirmationAnalysis"
+      active={confirmationAnalysis}
+      size="sm"
+      onToggle={() => onToggle('confirmationAnalysis')}
+    />
+  </div>
+);
 
 export default LaboratoryAgreementTag;

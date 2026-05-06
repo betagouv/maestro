@@ -1,25 +1,30 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import clsx from 'clsx';
-import {
-  agreementLabels,
-  type LaboratoryAgreementField
-} from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
+import type { LaboratoryAgreementField } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import './LaboratoryAgreementButton.scss';
 
+export type AgreementField =
+  | 'referenceLaboratory'
+  | 'detectionAnalysis'
+  | 'confirmationAnalysis';
+
 const fieldConfig: Record<
-  LaboratoryAgreementField,
-  { label: string; activeClassname: string }
+  AgreementField,
+  { label: string; title: string; activeClassname: string }
 > = {
   referenceLaboratory: {
     label: 'R',
+    title: 'Laboratoire référent',
     activeClassname: 'lab-agreement-btn--reference'
   },
   detectionAnalysis: {
     label: 'D',
+    title: 'Analyses de détection',
     activeClassname: 'lab-agreement-btn--detection'
   },
   confirmationAnalysis: {
     label: 'C',
+    title: 'Analyses de confirmation',
     activeClassname: 'lab-agreement-btn--confirmation'
   }
 };
@@ -28,7 +33,7 @@ interface Props {
   field: LaboratoryAgreementField;
   active: boolean;
   size?: 'md' | 'sm';
-  onToggle?: () => void;
+  onToggle: () => void;
 }
 
 const LaboratoryAgreementButton = ({
@@ -37,8 +42,7 @@ const LaboratoryAgreementButton = ({
   size = 'md',
   onToggle
 }: Props) => {
-  const { label, activeClassname } = fieldConfig[field];
-  const title = agreementLabels[field];
+  const { label, title, activeClassname } = fieldConfig[field];
   const className = clsx('lab-agreement-btn', {
     'lab-agreement-btn--sm': size === 'sm',
     [activeClassname]: active
@@ -60,7 +64,10 @@ const LaboratoryAgreementButton = ({
       priority="tertiary no outline"
       size="small"
       title={title}
-      className={className}
+      className={clsx('lab-agreement-btn', {
+        'lab-agreement-btn--sm': size === 'sm',
+        [activeClassname]: active
+      })}
       onClick={(e) => {
         e.preventDefault();
         onToggle();
