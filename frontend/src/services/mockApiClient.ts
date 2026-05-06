@@ -43,7 +43,19 @@ export type MockApi = {
     any,
     any
   >
-    ? { data: D } | ((arg: any) => { data: D })
+    ?
+        | {
+            data: D | undefined;
+            isSuccess?: boolean;
+            isLoading?: boolean;
+            isError?: boolean;
+          }
+        | ((arg: any) => {
+            data: D | undefined;
+            isSuccess?: boolean;
+            isLoading?: boolean;
+            isError?: boolean;
+          })
     : ApiClient[Key] extends TypedUseLazyQuery<infer E, any, any>
       ? [E, { isSuccess?: boolean; isLoading?: boolean; isError?: boolean }]
       : ApiClient[Key] extends TypedUseMutation<any, any, any>
@@ -70,7 +82,13 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
       acc[key] = (arg?: any) => {
         // @ts-expect-error TS7053
         const value = mockApi[key];
-        return typeof value === 'function' ? value(arg) : value;
+        const resolved = typeof value === 'function' ? value(arg) : value;
+        return {
+          isSuccess: resolved.data !== undefined && !resolved.isError,
+          isLoading: resolved.data === undefined && !resolved.isError,
+          isError: false,
+          ...resolved
+        };
       };
     } else if (
       key.startsWith('useLazyGet') ||
