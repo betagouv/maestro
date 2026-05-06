@@ -31,6 +31,7 @@ export const FindSampleOptions = z.object({
   reference: z.string().nullish(),
   compliance: SampleCompliance.nullish(),
   withAtLeastOneResidue: z.boolean().nullish(),
+  withAtLeastOneCopiedItem: z.boolean().nullish(),
   laboratoryIds: z.array(z.guid()).nullish(),
   prescriptionId: z.guid().nullish(),
   ...Pagination.partial().shape
