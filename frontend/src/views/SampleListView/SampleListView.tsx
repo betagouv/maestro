@@ -116,6 +116,12 @@ const SampleListView = () => {
           )
             ? searchParams.get('withAtLeastOneResidue') === 'true'
             : undefined) ?? undefined,
+        withAtLeastOneCopiedItem:
+          (['true', 'false'].includes(
+            searchParams.get('withAtLeastOneCopiedItem') ?? ''
+          )
+            ? searchParams.get('withAtLeastOneCopiedItem') === 'true'
+            : undefined) ?? undefined,
         page: Number(searchParams.get('page')) || 1,
         perPage: defaultPerPage
       })

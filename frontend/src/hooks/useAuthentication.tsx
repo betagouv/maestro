@@ -39,8 +39,11 @@ export const useAuthentication = () => {
   );
 
   const hasRole = useCallback(
-    (role: UserRole) => {
-      return isAuthenticated && authUser?.userRole === role;
+    (role: UserRole, ...roles: UserRole[]) => {
+      return (
+        isAuthenticated &&
+        [role, ...roles].includes(authUser?.userRole as UserRole)
+      );
     },
     [authUser, isAuthenticated]
   );
