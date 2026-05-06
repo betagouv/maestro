@@ -55,10 +55,10 @@ const AddressSearch = ({ onSelectAddress }: Props) => {
         isOptionEqualToValue={(option, value) =>
           option.properties.id === value?.properties.id
         }
-        renderInput={(params) => (
-          <div ref={params.InputProps.ref}>
+        renderInput={({ slotProps }) => (
+          <div ref={slotProps.input.ref}>
             <input
-              {...params.inputProps}
+              {...slotProps.htmlInput}
               className="fr-input"
               type="text"
               placeholder={'Adresse, code postal ou commune'}
