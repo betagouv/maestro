@@ -98,10 +98,10 @@ const SubstanceSearch = ({
             isOptionEqualToValue={(option, value) =>
               option.code === value?.code
             }
-            renderInput={(params) => (
-              <div ref={params.InputProps.ref}>
+            renderInput={({ slotProps }) => (
+              <div ref={slotProps.input.ref}>
                 <input
-                  {...params.inputProps}
+                  {...slotProps.htmlInput}
                   className="fr-input"
                   type="text"
                   placeholder={'Rechercher par libellé'}
