@@ -7,7 +7,7 @@ import './SectionHeader.scss';
 interface Props {
   title: string | React.ReactNode;
   subtitle?: string;
-  illustration: string;
+  illustration?: string;
   action?: React.ReactNode;
 }
 
@@ -15,7 +15,9 @@ const SectionHeader = ({ title, subtitle, illustration, action }: Props) => {
   const { isDesktop } = useWindowSize();
   return (
     <div className="section-header">
-      {isDesktop && <img src={illustration} height="100%" aria-hidden alt="" />}
+      {isDesktop && illustration && (
+        <img src={illustration} height="100%" aria-hidden alt="" />
+      )}
       <div style={{ flex: 1 }}>
         <h1 className={clsx('fr-mb-0')}>{title}</h1>
         {subtitle && (
