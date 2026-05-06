@@ -7,6 +7,23 @@ import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
 
 export const laboratoriesRouter = {
+  '/laboratories/agreements': {
+    get: async () => {
+      console.info('Find all laboratory agreements');
+
+      const agreements = await laboratoryRepository.findAllAgreements();
+
+      return { status: constants.HTTP_STATUS_OK, response: agreements };
+    },
+    put: async ({ body }) => {
+      console.info('Upsert laboratory agreements for group');
+
+      const agreements =
+        await laboratoryRepository.upsertAgreementsForGroup(body);
+
+      return { status: constants.HTTP_STATUS_OK, response: agreements };
+    }
+  },
   '/laboratories/:laboratoryId': {
     get: async (_, { laboratoryId }) => {
       console.info('Get laboratory');

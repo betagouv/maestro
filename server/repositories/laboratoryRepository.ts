@@ -6,6 +6,10 @@ import {
   LaboratoryWithSacha,
   type SachaConfig
 } from 'maestro-shared/schema/Laboratory/Laboratory';
+import {
+  LaboratoryAgreement,
+  type UpdateAgreementsInput
+} from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { knexInstance as db } from './db';
@@ -184,8 +188,73 @@ const findByEmailSender = async (email_result_analysis: string) => {
     .executeTakeFirst();
 };
 
+const findAllAgreements = async (): Promise<LaboratoryAgreement[]> => {
+  console.info('Find all laboratory agreements');
+
+  const rows = await kysely
+    .selectFrom('laboratoryAgreements')
+    .innerJoin(
+      'laboratories',
+      'laboratories.id',
+      'laboratoryAgreements.laboratoryId'
+    )
+    .innerJoin(
+      'programmingPlans',
+      'programmingPlans.id',
+      'laboratoryAgreements.programmingPlanId'
+    )
+    .select([
+      'laboratoryAgreements.laboratoryId',
+      'laboratories.name as laboratoryName',
+      'laboratories.shortName as laboratoryShortName',
+      'laboratoryAgreements.programmingPlanId',
+      'laboratoryAgreements.programmingPlanKind',
+      'programmingPlans.year as programmingPlanYear',
+      'laboratoryAgreements.substanceKind',
+      'laboratoryAgreements.referenceLaboratory',
+      'laboratoryAgreements.detectionAnalysis',
+      'laboratoryAgreements.confirmationAnalysis'
+    ])
+    .orderBy('programmingPlans.year', 'desc')
+    .orderBy('laboratories.name', 'asc')
+    .execute();
+
+  return rows.map((row) => LaboratoryAgreement.parse(row));
+};
+
+const upsertAgreementsForGroup = async (
+  input: UpdateAgreementsInput
+): Promise<LaboratoryAgreement[]> => {
+  const { programmingPlanId, programmingPlanKind, substanceKind, agreements } =
+    input;
+
+  await db.transaction(async (trx) => {
+    await trx('laboratory_agreements')
+      .where({ programmingPlanId, substanceKind })
+      .delete();
+
+    if (agreements.length > 0) {
+      await trx('laboratory_agreements').insert(
+        agreements.map((a) => ({
+          laboratoryId: a.laboratoryId,
+          programmingPlanId,
+          programmingPlanKind,
+          substanceKind,
+          referenceLaboratory: a.referenceLaboratory,
+          detectionAnalysis: a.detectionAnalysis,
+          confirmationAnalysis: a.confirmationAnalysis
+        }))
+      );
+    }
+  });
+
+  return findAllAgreements();
+};
+
 export const laboratoryRepository = {
   findUnique,
   findMany,
-  findByEmailSender
+  findByEmailSender,
+  findAllAgreements,
+  upsertAgreementsForGroup
 };

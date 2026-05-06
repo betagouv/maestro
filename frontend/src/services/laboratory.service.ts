@@ -18,6 +18,21 @@ const laboratoryApi = api.injectEndpoints({
         }))
       ]
     }),
+    findLaboratoryAgreements: buildTypedQuery(
+      builder,
+      '/laboratories/agreements',
+      {
+        providesTags: [{ type: 'LaboratoryAgreement', id: 'LIST' }]
+      }
+    ),
+    updateLaboratoryAgreements: buildTypedMutation(
+      builder,
+      '/laboratories/agreements',
+      'put',
+      {
+        invalidatesTags: [{ type: 'LaboratoryAgreement', id: 'LIST' }]
+      }
+    ),
     getLaboratoryAnalyticalCompetences: buildTypedQuery(
       builder,
       '/laboratories/:laboratoryId/analytical-competences',
@@ -56,6 +71,8 @@ const laboratoryAnalyticCompetencesExportURL = (laboratoryId: string) =>
 export const {
   useGetLaboratoryQuery,
   useFindLaboratoriesQuery,
+  useFindLaboratoryAgreementsQuery,
+  useUpdateLaboratoryAgreementsMutation,
   useGetLaboratoryAnalyticalCompetencesQuery,
   useCreateLaboratoryAnalyticalCompetenceMutation,
   useUpdateLaboratoryAnalyticalCompetenceMutation,

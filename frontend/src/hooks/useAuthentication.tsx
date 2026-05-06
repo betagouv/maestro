@@ -130,6 +130,9 @@ export const useAuthentication = () => {
             hasUserPermission('manageLaboratoryCompetences')) &&
           authUser?.user.programmingPlanKinds.includes('PPV')
             ? 'LaboratoryAnalyticalCompetencesRoute'
+            : undefined,
+          hasUserPermission('manageLaboratoryAgreements')
+            ? 'LaboratoryAgreementsRoute'
             : undefined
         ]
           .flat()

@@ -31,6 +31,7 @@ export const MaestroRoutes = [
   '/documents/:documentId',
   '/documents/:documentId/download-signed-url',
   '/laboratories',
+  '/laboratories/agreements',
   '/laboratories/:laboratoryId',
   '/laboratories/:laboratoryId/analytical-competences',
   '/laboratories/:laboratoryId/analytical-competences/:analyticalCompetenceId',
