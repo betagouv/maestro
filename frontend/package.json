@@ -48,7 +48,7 @@
     "i18next": "^25.8.13",
     "maestro-shared": "^0.0.1",
     "maplibre-gl": "^5.24.0",
-    "playwright": "^1.56.1",
+    "playwright": "^1.59.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-i18next": "^16.5.4",
