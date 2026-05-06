@@ -113,10 +113,10 @@ const AppSearchInput = ({
           isOptionEqualToValue={(option, value) =>
             option.value === value?.value
           }
-          renderInput={(params) => (
-            <div ref={params.InputProps.ref}>
+          renderInput={({ slotProps }) => (
+            <div ref={slotProps.input.ref}>
               <input
-                {...params.inputProps}
+                {...slotProps.htmlInput}
                 {...inputProps}
                 className="fr-input"
                 type="text"

@@ -273,10 +273,10 @@ const CompanySearch = ({
               onSelectCompanies(newValue);
             }
           }}
-          renderInput={(params) => (
-            <div ref={params.InputProps.ref}>
+          renderInput={({ slotProps }) => (
+            <div ref={slotProps.input.ref}>
               <input
-                {...params.inputProps}
+                {...slotProps.htmlInput}
                 value={
                   !multi && selectedCompanies.length === 1
                     ? `${selectedCompanies[0].name} • ${selectedCompanies[0].siret}`
