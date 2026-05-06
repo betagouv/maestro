@@ -664,6 +664,35 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
+    test('should be forbidden to move a DAOA_BOVIN sample to DraftItems with incomplete specificData', async () => {
+      const sampleId = uuidv4();
+      const sample = genCreatedPartialSample({
+        id: sampleId,
+        sampler: SamplerDaoaFixture,
+        programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
+        region: SamplerDaoaFixture.region,
+        department: SamplerDaoaFixture.department,
+        company: SlaughterhouseCompanyFixture1,
+        step: 'Draft',
+        matrixKind: 'A0C0Z',
+        matrix: 'A0BAV',
+        programmingPlanKind: 'DAOA_BOVIN',
+        specificData: {
+          programmingPlanKind: 'DAOA_BOVIN'
+        }
+      });
+      await Samples().insert(formatPartialSample(sample));
+
+      await request(app)
+        .put(`${testRoute(sampleId)}`)
+        .send({
+          ...sample,
+          step: 'DraftItems'
+        })
+        .use(tokenProvider(SamplerDaoaFixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
     test('should update the sample send date when sending the sample', async () => {
       const successRequestTest = async (user: UserRefined) => {
         await Samples()

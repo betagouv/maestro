@@ -110,7 +110,7 @@ const MatrixStep = ({ partialSample }: Props) => {
   const programmingPlanKind =
     partialSample.programmingPlanKind as ProgrammingPlanKind;
 
-  const { data: fieldConfigs = [] } =
+  const { data: fieldConfigs = [], isSuccess: isFieldConfigsLoaded } =
     apiClient.useFindPlanKindFieldConfigsQuery({
       programmingPlanId: partialSample.programmingPlanId,
       kind: programmingPlanKind
@@ -403,6 +403,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                 className={cx('fr-pr-0')}
                 iconId="fr-icon-arrow-right-line"
                 iconPosition="right"
+                disabled={!readonly && !isFieldConfigsLoaded}
                 onClick={async (e) =>
                   readonly ? navigateToSample(partialSample.id, 3) : submit(e)
                 }
@@ -685,6 +686,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                   iconId="fr-icon-arrow-right-line"
                   iconPosition="right"
                   data-testid="submit-button"
+                  disabled={!isFieldConfigsLoaded}
                 >
                   Continuer
                 </Button>
