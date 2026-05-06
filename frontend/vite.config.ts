@@ -66,8 +66,7 @@ export default defineConfig(({ mode }) => {
         {
           name: 'unit',
           include: ['test/**/*.test.ts?(x)', 'src/**/*.test.ts?(x)'],
-          environment: 'jsdom',
-          setupFiles: ['./vitest.setup.ts']
+          environment: 'jsdom'
         },
         {
           name: 'storybook',
@@ -87,8 +86,7 @@ export default defineConfig(({ mode }) => {
               headless: true,
               provider: playwright(),
               instances: [{ browser: 'chromium' }]
-            },
-            setupFiles: ['.storybook/vitest.setup.ts']
+            }
           }
         }
       ]
