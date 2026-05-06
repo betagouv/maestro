@@ -1,62 +1,40 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import ExcelJS from 'exceljs';
+import { fileURLToPath } from 'node:url';
+import XLSX from '@e965/xlsx';
 import { isNil, uniq } from 'lodash-es';
 import { SSD2Hierarchy } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 
-const updateSSD2Referential = async () => {
-  console.log('Updating SSD2…');
+export type SSD2ParsedRow = {
+  reference: string;
+  name: string;
+  casNumber: string | null;
+  otherNames: string[];
+  reportable: boolean;
+};
 
-  let workbook = new ExcelJS.Workbook();
-  const filePath = '../PARAM.xlsx';
-
+export const parseSSD2Workbook = async (
+  filePath: string
+): Promise<{
+  newRows: Record<string, SSD2ParsedRow>;
+  rowsWithAnalytes: Record<SSD2Id, SSD2Id[]>;
+}> => {
+  let workbook: XLSX.WorkBook;
   try {
-    workbook = await workbook.xlsx.readFile(filePath, {
-      ignoreNodes: [
-        'sheetPr',
-        'dimension',
-        'sheetViews',
-        'sheetFormatPr',
-        'cols',
-        // "sheetData",
-        'autoFilter',
-        'mergeCells',
-        'rowBreaks',
-        'hyperlinks',
-        'pageMargins',
-        'dataValidations',
-        'pageSetup',
-        'headerFooter',
-        'printOptions',
-        'picture',
-        'drawing',
-        'sheetProtection',
-        'tableParts',
-        'conditionalFormatting',
-        'extLst'
-      ]
-    });
+    workbook = XLSX.read(readFileSync(filePath), { type: 'buffer' });
   } catch (_e) {
     throw new Error(
       `Fichier introuvable, veuillez télécharger la dernière version du SSD2 et mettre le fichier PARAM.xlsx à la racine du projet. Lien du catalogue SSD2 : https://zenodo.org/records/14778056`
     );
   }
 
-  const worksheet = workbook.getWorksheet('term');
+  const worksheet = workbook.Sheets['term'];
 
   if (worksheet === undefined) {
     throw new Error('impossible de trouver une page term');
   }
-
-  const allColumnsIndex: Record<string, number> = {};
-  const firstLine = worksheet.getRow(1);
-  firstLine.eachCell((cell, index) => {
-    if (typeof cell.value === 'string') {
-      allColumnsIndex[cell.value] = index;
-    }
-  });
 
   const columnNames = [
     'termCode',
@@ -67,20 +45,21 @@ const updateSSD2Referential = async () => {
     'CAS',
     'masterParentCode'
   ] as const;
-  columnNames.forEach((name) => {
-    if (!Object.keys(allColumnsIndex).includes(name)) {
-      throw new Error(`impossible de trouver la colonne ${name}`);
-    }
-  });
 
-  const columnsIndex: Record<(typeof columnNames)[number], number> =
-    columnNames.reduce(
-      (acc, name) => {
-        acc[name] = allColumnsIndex[name];
-        return acc;
-      },
-      {} as Record<(typeof columnNames)[number], number>
-    );
+  const sheetRows = XLSX.utils.sheet_to_json<
+    Record<(typeof columnNames)[number], string | null>
+  >(worksheet, { defval: null, raw: false });
+
+  if (sheetRows.length > 0) {
+    columnNames.forEach((name) => {
+      if (!(name in sheetRows[0])) {
+        throw new Error(`impossible de trouver la colonne ${name}`);
+      }
+    });
+  }
+
+  const getStringValueOrNull = (value: string | null): string | null =>
+    !isNil(value) && value !== '' ? `${value}` : null;
 
   const rows: {
     reference: string;
@@ -90,40 +69,28 @@ const updateSSD2Referential = async () => {
     masterParentCode: string;
     reportable: boolean;
   }[] = [];
-  worksheet.eachRow((row, rowNumber) => {
-    const isKnownId = Object.keys(SSD2Referential).includes(
-      `${row.getCell(columnsIndex['termCode'])?.value}`
-    );
-    if (
-      (rowNumber !== 1 &&
-        row.getCell(columnsIndex['pestParamReportable']).value === '1') ||
-      isKnownId
-    ) {
-      const getStringValueOrNull = (
-        value: ExcelJS.CellValue
-      ): string | null => {
-        return !isNil(value) && value !== '' ? `${value}` : null;
-      };
 
-      const name = `${row.getCell(columnsIndex['termExtendedName']).value}`;
+  for (const sheetRow of sheetRows) {
+    const isKnownId = Object.keys(SSD2Referential).includes(
+      `${sheetRow.termCode}`
+    );
+    if (sheetRow.pestParamReportable === '1' || isKnownId) {
+      const name = `${sheetRow.termExtendedName}`;
       rows.push({
-        reference: `${row.getCell(columnsIndex['termCode']).value}`,
+        reference: `${sheetRow.termCode}`,
         name,
-        casNumber: getStringValueOrNull(row.getCell(columnsIndex['CAS']).value),
+        casNumber: getStringValueOrNull(sheetRow.CAS),
         otherNames: [
-          getStringValueOrNull(row.getCell(columnsIndex['zooLabel']).value),
-          ...(getStringValueOrNull(
-            row.getCell(columnsIndex['otherNames']).value
-          )?.split('$') ?? [])
+          getStringValueOrNull(sheetRow.zooLabel),
+          ...(getStringValueOrNull(sheetRow.otherNames)?.split('$') ?? [])
         ]
           .filter((s) => s !== name)
           .filter((s) => s !== null),
-        masterParentCode: `${row.getCell(columnsIndex['masterParentCode']).value}`,
-        reportable:
-          row.getCell(columnsIndex['pestParamReportable']).value === '1'
+        masterParentCode: `${sheetRow.masterParentCode}`,
+        reportable: sheetRow.pestParamReportable === '1'
       });
     }
-  });
+  }
 
   const newRows = rows.reduce(
     (acc, r) => {
@@ -131,10 +98,8 @@ const updateSSD2Referential = async () => {
       acc[r.reference] = rest;
       return acc;
     },
-    {} as Record<string, unknown>
+    {} as Record<string, SSD2ParsedRow>
   );
-
-  updateReferentialFile(newRows);
 
   const rowsWithAnalytes: Record<SSD2Id, SSD2Id[]> = rows.reduce(
     (acc, row) => {
@@ -151,6 +116,14 @@ const updateSSD2Referential = async () => {
     {} as Record<SSD2Id, SSD2Id[]>
   );
 
+  return { newRows, rowsWithAnalytes };
+};
+
+const updateSSD2Referential = async () => {
+  console.log('Updating SSD2…');
+  const { newRows, rowsWithAnalytes } =
+    await parseSSD2Workbook('../PARAM.xlsx');
+  updateReferentialFile(newRows);
   updateHierarchyFile(rowsWithAnalytes);
 };
 
@@ -216,11 +189,14 @@ const updateHierarchyFile = (ssd2WithAnalytes: Record<string, any>) => {
   writeFileSync(ssd2HierarchyFile, preCode + code + postCode);
 };
 
-export default updateSSD2Referential()
-  .then(() => {
-    process.exit();
-  })
-  .catch((e) => {
-    console.error('Erreur', e);
-    process.exit(1);
-  });
+const isMainModule = process.argv[1] === fileURLToPath(import.meta.url);
+if (isMainModule) {
+  updateSSD2Referential()
+    .then(() => {
+      process.exit();
+    })
+    .catch((e) => {
+      console.error('Erreur', e);
+      process.exit(1);
+    });
+}
