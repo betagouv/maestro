@@ -157,7 +157,8 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'deleteDocument',
     'readCompanies',
     'readAnalysis',
-    'viewDashboard'
+    'viewDashboard',
+    'manageLaboratoryAgreements'
   ],
   LaboratoryUser: ['readDocuments', 'readProgrammingPlanValidated']
 };

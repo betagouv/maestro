@@ -148,6 +148,8 @@ const defaultMockApiClientConf: MockApi = {
   useUpdatePlanKindFieldOptionsMutation: [fn(), {}],
   useFindSachaFieldConfigsQuery: { data: [] },
   useFindLaboratoriesQuery: { data: [] },
+  useFindLaboratoryAgreementsQuery: { data: [] },
+  useUpdateLaboratoryAgreementsMutation: [fn(), {}],
   useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },
   useFindProgrammingPlansQuery: { data: [] },

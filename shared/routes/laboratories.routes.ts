@@ -2,12 +2,28 @@ import z from 'zod';
 import { FindLaboratoryOptions } from '../schema/Laboratory/FindLaboratoryOptions';
 import { Laboratory } from '../schema/Laboratory/Laboratory';
 import {
+  LaboratoryAgreement,
+  UpdateAgreementsInput
+} from '../schema/Laboratory/LaboratoryAgreement';
+import {
   LaboratoryAnalyticalCompetence,
   LaboratoryAnalyticalCompetenceToSave
 } from '../schema/Laboratory/LaboratoryAnalyticalCompetence';
 import type { SubRoutes } from './routes';
 
 export const laboratoriesRoutes = {
+  '/laboratories/agreements': {
+    params: undefined,
+    get: {
+      response: z.array(LaboratoryAgreement),
+      permissions: ['manageLaboratoryAgreements'] as const
+    },
+    put: {
+      body: UpdateAgreementsInput,
+      response: z.array(LaboratoryAgreement),
+      permissions: ['manageLaboratoryAgreements'] as const
+    }
+  },
   '/laboratories': {
     params: undefined,
     get: {
