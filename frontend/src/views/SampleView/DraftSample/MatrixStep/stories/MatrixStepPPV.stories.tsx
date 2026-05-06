@@ -152,6 +152,24 @@ export const MatrixStepPPVWithoutPrescriptions: Story = {
   }
 };
 
+export const MatrixStepPPVFieldConfigsLoading: Story = {
+  ...story,
+  parameters: {
+    ...story.parameters,
+    apiClient: {
+      ...getMockApi({
+        ...storyMockApi,
+        useFindPlanKindFieldConfigsQuery: { data: undefined }
+      })
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByTestId('submit-button')).toBeDisabled();
+  }
+};
+
 export const MatrixStepPPVSubmittingErrors: Story = {
   ...story,
   play: async ({ canvasElement }) => {
