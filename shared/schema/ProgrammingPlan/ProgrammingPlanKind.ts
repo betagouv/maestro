@@ -50,3 +50,11 @@ export const ProgrammingPlanKindBrevoListId: Record<
   DAOA_VOLAILLE: 7,
   DAOA_BOVIN: 7
 };
+
+//TODO à mettre en BDD
+export const ProgrammingPlanKindReference: Record<ProgrammingPlanKind, string> =
+  {
+    PPV: '1000',
+    DAOA_VOLAILLE: '1001',
+    DAOA_BOVIN: '1002'
+  };

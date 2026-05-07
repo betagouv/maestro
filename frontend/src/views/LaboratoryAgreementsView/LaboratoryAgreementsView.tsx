@@ -11,7 +11,7 @@ import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/
 import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import microscope from 'src/assets/illustrations/microscope.svg';
 import LaboratoryAgreementTag from 'src/components/LaboratoryAgreement/LaboratoryAgreementTag/LaboratoryAgreementTag';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
@@ -19,6 +19,7 @@ import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { ApiClientContext } from '../../services/apiClient';
 import { pluralize } from '../../utils/stringUtils';
 import LaboratoryAgreementsModal from './LaboratoryAgreementsModal';
+import './LaboratoryAgreementsView.scss';
 
 const agreementsModal = createModal({
   id: 'laboratory-agreements-modal',
@@ -41,6 +42,11 @@ const LaboratoryAgreementsView = () => {
 
   const { data: agreements = [] } =
     apiClient.useFindLaboratoryAgreementsQuery();
+  const { data: programmingPlans = [] } =
+    apiClient.useFindProgrammingPlansQuery(
+      { year: year ? Number(year) : undefined },
+      { skip: !year }
+    );
   const { data: laboratories = [] } = apiClient.useFindLaboratoriesQuery({});
   const [updateAgreements] = apiClient.useUpdateLaboratoryAgreementsMutation();
 
@@ -52,62 +58,37 @@ const LaboratoryAgreementsView = () => {
     [agreements]
   );
 
-  const grouped = useMemo(() => {
-    const filtered = agreements.filter(
-      (a) => !year || String(a.programmingPlanYear) === year
-    );
+  const rows = useMemo(
+    () =>
+      programmingPlans
+        .flatMap((plan) =>
+          plan.kinds.flatMap((kind) =>
+            plan.substanceKinds.map((substanceKind) => ({
+              programmingPlanId: plan.id,
+              programmingPlanKind: kind,
+              programmingPlanYear: plan.year,
+              substanceKind,
+              laboratories: agreements.filter(
+                (a) =>
+                  a.programmingPlanId === plan.id &&
+                  a.programmingPlanKind === kind &&
+                  a.substanceKind === substanceKind
+              )
+            }))
+          )
+        )
+        .sort(
+          (a, b) =>
+            a.substanceKind.localeCompare(b.substanceKind) ||
+            a.programmingPlanKind.localeCompare(b.programmingPlanKind)
+        ),
+    [agreements, programmingPlans, year]
+  );
 
-    const map = new Map<
-      string,
-      {
-        programmingPlanId: string;
-        programmingPlanKind: ProgrammingPlanKind;
-        programmingPlanYear: number;
-        substanceKind: SubstanceKind;
-        laboratories: Array<{
-          shortName: string;
-          referenceLaboratory: boolean;
-          detectionAnalysis: boolean;
-          confirmationAnalysis: boolean;
-        }>;
-      }
-    >();
+  const rowKey = (row: (typeof rows)[number]) =>
+    `${row.programmingPlanId}_${row.programmingPlanKind}_${row.substanceKind}`;
 
-    for (const a of filtered) {
-      const key = `${a.programmingPlanId}__${a.substanceKind}`;
-      const existing = map.get(key);
-      const labEntry = {
-        shortName: a.laboratoryShortName,
-        referenceLaboratory: a.referenceLaboratory,
-        detectionAnalysis: a.detectionAnalysis,
-        confirmationAnalysis: a.confirmationAnalysis
-      };
-      if (existing) {
-        existing.laboratories.push(labEntry);
-      } else {
-        map.set(key, {
-          programmingPlanId: a.programmingPlanId,
-          programmingPlanKind: a.programmingPlanKind,
-          programmingPlanYear: a.programmingPlanYear,
-          substanceKind: a.substanceKind,
-          laboratories: [labEntry]
-        });
-      }
-    }
-
-    return [...map.values()].sort(
-      (a, b) =>
-        b.programmingPlanYear - a.programmingPlanYear ||
-        a.programmingPlanKind.localeCompare(b.programmingPlanKind) ||
-        a.substanceKind.localeCompare(b.substanceKind)
-    );
-  }, [agreements, year]);
-
-  const rowKey = (g: (typeof grouped)[number]) =>
-    `${g.programmingPlanId}__${g.substanceKind}`;
-
-  const allSelected =
-    grouped.length > 0 && selectedRowKeys.length === grouped.length;
+  const allSelected = rows.length > 0 && selectedRowKeys.length === rows.length;
 
   const toggleRow = (key: string) =>
     setSelectedRowKeys((prev) =>
@@ -115,11 +96,11 @@ const LaboratoryAgreementsView = () => {
     );
 
   const toggleAll = () =>
-    setSelectedRowKeys(allSelected ? [] : grouped.map(rowKey));
+    setSelectedRowKeys(allSelected ? [] : rows.map(rowKey));
 
   const handleOpenModal = () => {
     setModalGroups(
-      grouped
+      rows
         .filter((g) => selectedRowKeys.includes(rowKey(g)))
         .map((g) => ({
           programmingPlanId: g.programmingPlanId,
@@ -130,7 +111,7 @@ const LaboratoryAgreementsView = () => {
     agreementsModal.open();
   };
 
-  const handleOpenModalForRow = (g: (typeof grouped)[number]) => {
+  const handleOpenModalForRow = (g: (typeof rows)[number]) => {
     setModalGroups([
       {
         programmingPlanId: g.programmingPlanId,
@@ -140,6 +121,22 @@ const LaboratoryAgreementsView = () => {
     ]);
     agreementsModal.open();
   };
+
+  const noticeRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const el = noticeRef.current;
+    if (!el) {
+      return;
+    }
+    const observer = new ResizeObserver(() => {
+      el.parentElement
+        ?.querySelector('.laboratory-agreements-table-wrapper')
+        ?.setAttribute('style', `--notice-height: ${el.offsetHeight}px`);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [selectedRowKeys]);
 
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
@@ -163,115 +160,141 @@ const LaboratoryAgreementsView = () => {
         }
       />
       <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
-        {selectedRowKeys.length > 0 && (
-          <Notice
-            className={cx('fr-mb-2w')}
-            title={pluralize(selectedRowKeys.length, { preserveCount: true })(
-              'plan sélectionné'
-            )}
-            description={
-              <Button
-                iconId="fr-icon-microscope-line"
-                priority="secondary"
-                size="small"
-                onClick={handleOpenModal}
-              >
-                Affecter les laboratoires
-              </Button>
-            }
-            severity="info"
-            iconDisplayed={true}
-            isClosable={false}
-          />
-        )}
-        <Table
-          noCaption
-          bordered
-          headers={[
-            <div
-              key="select-all"
-              className={clsx(cx('fr-checkbox-group'), 'selectable-cell')}
-            >
-              <Checkbox
-                options={[
-                  {
-                    label: '',
-                    nativeInputProps: {
-                      checked: allSelected,
-                      onChange: toggleAll
-                    }
-                  }
-                ]}
-                small
-              />
-            </div>,
-            'Type de plan',
-            'Substance',
-            'Laboratoires agréés',
-            ''
-          ]}
-          data={grouped.map((g) => [
-            <div key={`select-${rowKey(g)}`} className="selectable-cell">
-              <Checkbox
-                options={[
-                  {
-                    label: '',
-                    nativeInputProps: {
-                      checked: selectedRowKeys.includes(rowKey(g)),
-                      onChange: () => toggleRow(rowKey(g))
-                    }
-                  }
-                ]}
-                small
-              />
-            </div>,
-            ProgrammingPlanKindLabels[
-              g.programmingPlanKind as keyof typeof ProgrammingPlanKindLabels
-            ],
-            SubstanceKindLabels[
-              g.substanceKind as keyof typeof SubstanceKindLabels
-            ],
-            <div
-              key={`labs-${rowKey(g)}`}
-              style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}
-            >
-              {g.laboratories
-                .filter(
-                  (lab) =>
-                    lab.referenceLaboratory ||
-                    lab.detectionAnalysis ||
-                    lab.confirmationAnalysis
-                )
-                .toSorted((a, b) => a.shortName.localeCompare(b.shortName))
-                .map((lab) => (
-                  <LaboratoryAgreementTag
-                    key={lab.shortName}
-                    shortName={lab.shortName as LaboratoryShortName}
-                    referenceLaboratory={lab.referenceLaboratory}
-                    detectionAnalysis={lab.detectionAnalysis}
-                    confirmationAnalysis={lab.confirmationAnalysis}
-                    onToggle={() => {}}
-                  />
-                ))}
-            </div>,
-            <Button
-              key={`action-${rowKey(g)}`}
-              iconId={
-                g.laboratories.length === 0
-                  ? 'fr-icon-add-line'
-                  : 'fr-icon-edit-line'
+        <div ref={noticeRef} className="laboratory-agreements-notice">
+          {selectedRowKeys.length > 0 && (
+            <Notice
+              className={cx('fr-mb-2w')}
+              title={pluralize(selectedRowKeys.length, { preserveCount: true })(
+                'plan sélectionné'
+              )}
+              description={
+                <Button
+                  iconId="fr-icon-microscope-line"
+                  priority="secondary"
+                  size="small"
+                  onClick={handleOpenModal}
+                >
+                  Affecter les laboratoires
+                </Button>
               }
-              priority="tertiary"
-              size="medium"
-              title={
-                g.laboratories.length === 0
-                  ? 'Affecter des laboratoires'
-                  : 'Modifier les laboratoires'
-              }
-              onClick={() => handleOpenModalForRow(g)}
+              severity="info"
+              iconDisplayed={true}
+              isClosable={false}
             />
-          ])}
-        />
+          )}
+        </div>
+        <div className="laboratory-agreements-table-wrapper laboratory-agreements-table">
+          <Table
+            noCaption
+            bordered
+            headers={[
+              <div
+                key="select-all"
+                className={clsx(cx('fr-checkbox-group'), 'selectable-cell')}
+              >
+                <Checkbox
+                  options={[
+                    {
+                      label: '',
+                      nativeInputProps: {
+                        checked: allSelected,
+                        onChange: toggleAll
+                      }
+                    }
+                  ]}
+                  small
+                />
+              </div>,
+              <div key="header-kind" className="border-left">
+                Type de plan
+              </div>,
+              <div key="header-substance" className="border-left">
+                Substance
+              </div>,
+              <div key="header-labs" className="border-left">
+                Laboratoires agréés
+              </div>,
+              <div key="header-action" />
+            ]}
+            data={rows.map((row) => [
+              <div key={`select-${rowKey(row)}`} className="selectable-cell">
+                <Checkbox
+                  options={[
+                    {
+                      label: '',
+                      nativeInputProps: {
+                        checked: selectedRowKeys.includes(rowKey(row)),
+                        onChange: () => toggleRow(rowKey(row))
+                      }
+                    }
+                  ]}
+                  small
+                />
+              </div>,
+              <div key={`kind-${rowKey(row)}`} className="border-left">
+                {
+                  ProgrammingPlanKindLabels[
+                    row.programmingPlanKind as keyof typeof ProgrammingPlanKindLabels
+                  ]
+                }
+              </div>,
+              <div key={`substance-${rowKey(row)}`} className="border-left">
+                {
+                  SubstanceKindLabels[
+                    row.substanceKind as keyof typeof SubstanceKindLabels
+                  ]
+                }
+              </div>,
+              <div
+                key={`labs-${rowKey(row)}`}
+                className="border-left"
+                style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}
+              >
+                {row.laboratories
+                  .filter(
+                    (lab) =>
+                      lab.referenceLaboratory ||
+                      lab.detectionAnalysis ||
+                      lab.confirmationAnalysis
+                  )
+                  .toSorted((laboratory, b) =>
+                    laboratory.laboratoryShortName.localeCompare(
+                      b.laboratoryShortName
+                    )
+                  )
+                  .map((laboratory) => (
+                    <LaboratoryAgreementTag
+                      key={laboratory.laboratoryShortName}
+                      shortName={
+                        laboratory.laboratoryShortName as LaboratoryShortName
+                      }
+                      referenceLaboratory={laboratory.referenceLaboratory}
+                      detectionAnalysis={laboratory.detectionAnalysis}
+                      confirmationAnalysis={laboratory.confirmationAnalysis}
+                      onToggle={() => {}}
+                    />
+                  ))}
+              </div>,
+              <div key={`action-${rowKey(row)}`}>
+                <Button
+                  iconId={
+                    row.laboratories.length === 0
+                      ? 'fr-icon-add-line'
+                      : 'fr-icon-edit-line'
+                  }
+                  priority="tertiary"
+                  size="medium"
+                  title={
+                    row.laboratories.length === 0
+                      ? 'Affecter des laboratoires'
+                      : 'Modifier les laboratoires'
+                  }
+                  onClick={() => handleOpenModalForRow(row)}
+                />
+              </div>
+            ])}
+          />
+        </div>
       </div>
       <LaboratoryAgreementsModal
         modal={agreementsModal}
