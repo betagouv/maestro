@@ -7,7 +7,7 @@ import {
 } from '../schema/Laboratory/Laboratory';
 import {
   LaboratoryAgreement,
-  UpdateAgreementsInput
+  LaboratoryAgreementUpdate
 } from '../schema/Laboratory/LaboratoryAgreement';
 import {
   LaboratoryAnalyticalCompetence,
@@ -23,11 +23,6 @@ export const laboratoriesRoutes = {
   '/laboratories/agreements': {
     params: undefined,
     get: {
-      response: z.array(LaboratoryAgreement),
-      permissions: ['manageLaboratoryAgreements'] as const
-    },
-    put: {
-      body: UpdateAgreementsInput,
       response: z.array(LaboratoryAgreement),
       permissions: ['manageLaboratoryAgreements'] as const
     }
@@ -61,6 +56,16 @@ export const laboratoriesRoutes = {
       body: LaboratoryConfigUpdate,
       response: z.undefined(),
       permissions: ['administrationMaestro']
+    }
+  },
+  '/laboratories/:laboratoryId/agreements': {
+    params: {
+      laboratoryId: z.guid()
+    },
+    put: {
+      body: LaboratoryAgreementUpdate,
+      response: z.array(LaboratoryAgreement),
+      permissions: ['manageLaboratoryAgreements']
     }
   },
   '/laboratories/:laboratoryId/analytical-competences': {
