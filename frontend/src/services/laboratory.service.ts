@@ -27,7 +27,7 @@ const laboratoryApi = api.injectEndpoints({
     ),
     updateLaboratoryAgreements: buildTypedMutation(
       builder,
-      '/laboratories/agreements',
+      '/laboratories/:laboratoryId/agreements',
       'put',
       {
         invalidatesTags: [{ type: 'LaboratoryAgreement', id: 'LIST' }]

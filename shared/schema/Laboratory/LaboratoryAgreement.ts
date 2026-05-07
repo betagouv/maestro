@@ -2,35 +2,31 @@ import { z } from 'zod';
 import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 
+export const LaboratoryAgreementRowKey = z.object({
+  programmingPlanId: z.guid(),
+  programmingPlanKind: ProgrammingPlanKind,
+  substanceKind: SubstanceKind
+});
+
 export const LaboratoryAgreement = z.object({
+  ...LaboratoryAgreementRowKey.shape,
   laboratoryId: z.guid(),
-  laboratoryName: z.string(),
-  laboratoryShortName: z.string(),
-  programmingPlanId: z.guid(),
-  programmingPlanKind: ProgrammingPlanKind,
-  programmingPlanYear: z.number().int(),
-  substanceKind: SubstanceKind,
   referenceLaboratory: z.boolean(),
   detectionAnalysis: z.boolean(),
   confirmationAnalysis: z.boolean()
 });
 
+export const LaboratoryAgreementUpdate = z.object({
+  laboratoryAgreementRowKey: LaboratoryAgreementRowKey,
+  referenceLaboratory: z.boolean(),
+  detectionAnalysis: z.boolean(),
+  confirmationAnalysis: z.boolean()
+});
+
+export type LaboratoryAgreementRowKey = z.infer<
+  typeof LaboratoryAgreementRowKey
+>;
 export type LaboratoryAgreement = z.infer<typeof LaboratoryAgreement>;
-
-export const AgreementUpdate = z.object({
-  laboratoryId: z.guid(),
-  referenceLaboratory: z.boolean(),
-  detectionAnalysis: z.boolean(),
-  confirmationAnalysis: z.boolean()
-});
-
-export type AgreementUpdate = z.infer<typeof AgreementUpdate>;
-
-export const UpdateAgreementsInput = z.object({
-  programmingPlanId: z.guid(),
-  programmingPlanKind: ProgrammingPlanKind,
-  substanceKind: SubstanceKind,
-  agreements: z.array(AgreementUpdate)
-});
-
-export type UpdateAgreementsInput = z.infer<typeof UpdateAgreementsInput>;
+export type LaboratoryAgreementUpdate = z.infer<
+  typeof LaboratoryAgreementUpdate
+>;

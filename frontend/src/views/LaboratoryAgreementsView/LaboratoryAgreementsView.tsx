@@ -2,17 +2,26 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
+import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import Notice from '@codegouvfr/react-dsfr/Notice';
 import Select from '@codegouvfr/react-dsfr/Select';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
 import type { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type {
+  LaboratoryAgreement,
+  LaboratoryAgreementRowKey
+} from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
+import {
+  type ProgrammingPlanKind,
+  ProgrammingPlanKindLabels,
+  ProgrammingPlanKindReference
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import microscope from 'src/assets/illustrations/microscope.svg';
+import ColumnFilterHeader from 'src/components/ColumnFilterHeader/ColumnFilterHeader';
 import LaboratoryAgreementTag from 'src/components/LaboratoryAgreement/LaboratoryAgreementTag/LaboratoryAgreementTag';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
@@ -31,14 +40,23 @@ const LaboratoryAgreementsView = () => {
   const apiClient = useContext(ApiClientContext);
 
   const [year, setYear] = useState(String(new Date().getFullYear()));
-  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-  const [modalGroups, setModalGroups] = useState<
-    Array<{
-      programmingPlanId: string;
-      programmingPlanKind: ProgrammingPlanKind;
-      substanceKind: SubstanceKind;
-    }>
+  const [selectedStringRowKeys, setSelectedStringRowKeys] = useState<string[]>(
+    []
+  );
+  const [modalRowKeys, setModalRowKeys] = useState<LaboratoryAgreementRowKey[]>(
+    []
+  );
+  const [modalAgreements, setModalAgreements] = useState<
+    Pick<
+      LaboratoryAgreement,
+      | 'laboratoryId'
+      | 'referenceLaboratory'
+      | 'detectionAnalysis'
+      | 'confirmationAnalysis'
+    >[]
   >([]);
+  const [kindFilter, setKindFilter] = useState<ProgrammingPlanKind[]>([]);
+  const [substanceFilter, setSubstanceFilter] = useState<SubstanceKind[]>([]);
 
   const { data: agreements = [] } =
     apiClient.useFindLaboratoryAgreementsQuery();
@@ -52,10 +70,8 @@ const LaboratoryAgreementsView = () => {
 
   const years = useMemo(
     () =>
-      [...new Set(agreements.map((a) => a.programmingPlanYear))].sort(
-        (a, b) => b - a
-      ),
-    [agreements]
+      [...new Set(programmingPlans.map((p) => p.year))].sort((a, b) => b - a),
+    [programmingPlans]
   );
 
   const rows = useMemo(
@@ -85,42 +101,91 @@ const LaboratoryAgreementsView = () => {
     [agreements, programmingPlans, year]
   );
 
-  const rowKey = (row: (typeof rows)[number]) =>
+  const kindOptions = useMemo(
+    () =>
+      [...new Set(rows.map((r) => r.programmingPlanKind))].map((value) => ({
+        value,
+        label: ProgrammingPlanKindLabels[value]
+      })),
+    [rows]
+  );
+
+  const substanceOptions = useMemo(
+    () =>
+      [...new Set(rows.map((r) => r.substanceKind))].map((value) => ({
+        value,
+        label: SubstanceKindLabels[value]
+      })),
+    [rows]
+  );
+
+  const filteredRows = useMemo(
+    () =>
+      rows.filter(
+        (r) =>
+          (kindFilter.length === 0 ||
+            kindFilter.includes(r.programmingPlanKind)) &&
+          (substanceFilter.length === 0 ||
+            substanceFilter.includes(r.substanceKind))
+      ),
+    [rows, kindFilter, substanceFilter]
+  );
+
+  const stringRowKey = (row: (typeof rows)[number]) =>
     `${row.programmingPlanId}_${row.programmingPlanKind}_${row.substanceKind}`;
 
-  const allSelected = rows.length > 0 && selectedRowKeys.length === rows.length;
+  const allSelected =
+    filteredRows.length > 0 &&
+    selectedStringRowKeys.length === filteredRows.length;
 
   const toggleRow = (key: string) =>
-    setSelectedRowKeys((prev) =>
+    setSelectedStringRowKeys((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     );
 
   const toggleAll = () =>
-    setSelectedRowKeys(allSelected ? [] : rows.map(rowKey));
+    setSelectedStringRowKeys(allSelected ? [] : filteredRows.map(stringRowKey));
+
+  const rowAgreementsSignature = (labs: LaboratoryAgreement[]) =>
+    labs
+      .map(
+        (l) =>
+          `${l.laboratoryId}:${l.referenceLaboratory ? 1 : 0}${l.detectionAnalysis ? 1 : 0}${l.confirmationAnalysis ? 1 : 0}`
+      )
+      .sort()
+      .join(',');
+
+  const selectedRows = filteredRows.filter((r) =>
+    selectedStringRowKeys.includes(stringRowKey(r))
+  );
+
+  const selectedRowsConsistent =
+    selectedRows.length <= 1 ||
+    selectedRows.every(
+      (r) =>
+        rowAgreementsSignature(r.laboratories) ===
+        rowAgreementsSignature(selectedRows[0].laboratories)
+    );
 
   const handleOpenModal = () => {
-    setModalGroups(
-      rows
-        .filter((g) => selectedRowKeys.includes(rowKey(g)))
-        .map((g) => ({
-          programmingPlanId: g.programmingPlanId,
-          programmingPlanKind: g.programmingPlanKind,
-          substanceKind: g.substanceKind
-        }))
-    );
+    const firstRow = selectedRows[0];
+    setModalAgreements(firstRow?.laboratories ?? []);
+    setModalRowKeys(selectedRows);
     agreementsModal.open();
   };
 
-  const handleOpenModalForRow = (g: (typeof rows)[number]) => {
-    setModalGroups([
-      {
-        programmingPlanId: g.programmingPlanId,
-        programmingPlanKind: g.programmingPlanKind,
-        substanceKind: g.substanceKind
-      }
-    ]);
+  const handleOpenModalForRow = (row: (typeof filteredRows)[number]) => {
+    setModalAgreements(row.laboratories);
+    setModalRowKeys([row]);
     agreementsModal.open();
   };
+
+  useIsModalOpen(agreementsModal, {
+    onConceal: () => {
+      setSelectedStringRowKeys([]);
+      setModalRowKeys([]);
+    }
+  });
 
   const noticeRef = useRef<HTMLDivElement>(null);
 
@@ -136,7 +201,7 @@ const LaboratoryAgreementsView = () => {
     });
     observer.observe(el);
     return () => observer.disconnect();
-  }, [selectedRowKeys]);
+  }, [selectedStringRowKeys]);
 
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
@@ -161,23 +226,30 @@ const LaboratoryAgreementsView = () => {
       />
       <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
         <div ref={noticeRef} className="laboratory-agreements-notice">
-          {selectedRowKeys.length > 0 && (
+          {selectedStringRowKeys.length > 0 && (
             <Notice
               className={cx('fr-mb-2w')}
-              title={pluralize(selectedRowKeys.length, { preserveCount: true })(
-                'plan sélectionné'
-              )}
+              title={pluralize(selectedStringRowKeys.length, {
+                preserveCount: true
+              })('plan sélectionné')}
               description={
-                <Button
-                  iconId="fr-icon-microscope-line"
-                  priority="secondary"
-                  size="small"
-                  onClick={handleOpenModal}
-                >
-                  Affecter les laboratoires
-                </Button>
+                selectedRowsConsistent ? (
+                  <Button
+                    iconId="fr-icon-microscope-line"
+                    priority="secondary"
+                    size="small"
+                    onClick={handleOpenModal}
+                  >
+                    Affecter les laboratoires
+                  </Button>
+                ) : (
+                  <span>
+                    Les plans sélectionnés ont des agréments différents.
+                    Veuillez les modifier individuellement.
+                  </span>
+                )
               }
-              severity="info"
+              severity={selectedRowsConsistent ? 'info' : 'warning'}
               iconDisplayed={true}
               isClosable={false}
             />
@@ -205,48 +277,67 @@ const LaboratoryAgreementsView = () => {
                   small
                 />
               </div>,
+              <div key="header-reference" className="border-left">
+                ID
+              </div>,
               <div key="header-kind" className="border-left">
-                Type de plan
+                <ColumnFilterHeader
+                  label="Type de plan"
+                  options={kindOptions}
+                  selectedValues={kindFilter}
+                  onChange={setKindFilter}
+                />
               </div>,
               <div key="header-substance" className="border-left">
-                Substance
+                <ColumnFilterHeader
+                  label="Substance"
+                  options={substanceOptions}
+                  selectedValues={substanceFilter}
+                  onChange={setSubstanceFilter}
+                />
               </div>,
               <div key="header-labs" className="border-left">
                 Laboratoires agréés
               </div>,
               <div key="header-action" />
             ]}
-            data={rows.map((row) => [
-              <div key={`select-${rowKey(row)}`} className="selectable-cell">
+            data={filteredRows.map((row) => [
+              <div
+                key={`select-${stringRowKey(row)}`}
+                className="selectable-cell"
+              >
                 <Checkbox
                   options={[
                     {
                       label: '',
                       nativeInputProps: {
-                        checked: selectedRowKeys.includes(rowKey(row)),
-                        onChange: () => toggleRow(rowKey(row))
+                        checked: selectedStringRowKeys.includes(
+                          stringRowKey(row)
+                        ),
+                        onChange: () => toggleRow(stringRowKey(row))
                       }
                     }
                   ]}
                   small
                 />
               </div>,
-              <div key={`kind-${rowKey(row)}`} className="border-left">
-                {
-                  ProgrammingPlanKindLabels[
-                    row.programmingPlanKind as keyof typeof ProgrammingPlanKindLabels
-                  ]
-                }
+              <div
+                key={`reference-${stringRowKey(row)}`}
+                className="border-left"
+              >
+                {ProgrammingPlanKindReference[row.programmingPlanKind]}
               </div>,
-              <div key={`substance-${rowKey(row)}`} className="border-left">
-                {
-                  SubstanceKindLabels[
-                    row.substanceKind as keyof typeof SubstanceKindLabels
-                  ]
-                }
+              <div key={`kind-${stringRowKey(row)}`} className="border-left">
+                {ProgrammingPlanKindLabels[row.programmingPlanKind]}
               </div>,
               <div
-                key={`labs-${rowKey(row)}`}
+                key={`substance-${stringRowKey(row)}`}
+                className="border-left"
+              >
+                {SubstanceKindLabels[row.substanceKind]}
+              </div>,
+              <div
+                key={`labs-${stringRowKey(row)}`}
                 className="border-left"
                 style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}
               >
@@ -257,25 +348,26 @@ const LaboratoryAgreementsView = () => {
                       lab.detectionAnalysis ||
                       lab.confirmationAnalysis
                   )
-                  .toSorted((laboratory, b) =>
-                    laboratory.laboratoryShortName.localeCompare(
-                      b.laboratoryShortName
-                    )
-                  )
-                  .map((laboratory) => (
+                  .map((lab) => ({
+                    ...lab,
+                    shortName: laboratories.find(
+                      (l) => l.id === lab.laboratoryId
+                    )?.shortName
+                  }))
+                  .filter((lab) => lab.shortName != null)
+                  .toSorted((a, b) => a.shortName!.localeCompare(b.shortName!))
+                  .map((lab) => (
                     <LaboratoryAgreementTag
-                      key={laboratory.laboratoryShortName}
-                      shortName={
-                        laboratory.laboratoryShortName as LaboratoryShortName
-                      }
-                      referenceLaboratory={laboratory.referenceLaboratory}
-                      detectionAnalysis={laboratory.detectionAnalysis}
-                      confirmationAnalysis={laboratory.confirmationAnalysis}
+                      key={lab.laboratoryId}
+                      shortName={lab.shortName as LaboratoryShortName}
+                      referenceLaboratory={lab.referenceLaboratory}
+                      detectionAnalysis={lab.detectionAnalysis}
+                      confirmationAnalysis={lab.confirmationAnalysis}
                       onToggle={() => {}}
                     />
                   ))}
               </div>,
-              <div key={`action-${rowKey(row)}`}>
+              <div key={`action-${stringRowKey(row)}`}>
                 <Button
                   iconId={
                     row.laboratories.length === 0
@@ -298,11 +390,11 @@ const LaboratoryAgreementsView = () => {
       </div>
       <LaboratoryAgreementsModal
         modal={agreementsModal}
-        selectedGroups={modalGroups}
-        agreements={agreements}
+        laboratoryAgreementRowKeys={modalRowKeys}
+        agreements={modalAgreements}
         laboratories={laboratories}
-        onSave={async (input) => {
-          await updateAgreements(input).unwrap();
+        onSave={async (laboratoryId, input) => {
+          await updateAgreements({ laboratoryId, ...input }).unwrap();
         }}
       />
     </section>

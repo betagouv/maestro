@@ -1,6 +1,7 @@
 import { constants } from 'node:http2';
 import { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
 import { v4 as uuidv4 } from 'uuid';
+import { laboratoryAgreementRepository } from '../repositories/laboratoryAgreementRepository';
 import laboratoryAnalyticalCompetenceRepository from '../repositories/laboratoryAnalyticalCompetenceRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
@@ -11,15 +12,19 @@ export const laboratoriesRouter = {
     get: async () => {
       console.info('Find all laboratory agreements');
 
-      const agreements = await laboratoryRepository.findAllAgreements();
+      const agreements = await laboratoryAgreementRepository.findMany();
 
       return { status: constants.HTTP_STATUS_OK, response: agreements };
-    },
-    put: async ({ body }) => {
-      console.info('Upsert laboratory agreements for group');
+    }
+  },
+  '/laboratories/:laboratoryId/agreements': {
+    put: async ({ body }, { laboratoryId }) => {
+      console.info('Upsert laboratory agreements', laboratoryId);
 
-      const agreements =
-        await laboratoryRepository.upsertAgreementsForGroup(body);
+      const agreements = await laboratoryAgreementRepository.upsertMany(
+        laboratoryId,
+        body
+      );
 
       return { status: constants.HTTP_STATUS_OK, response: agreements };
     }
