@@ -31,7 +31,7 @@
     "@sentry/node": "^10.51.0",
     "@swc-node/register": "^1.11.1",
     "@swc/core": "^1.15.33",
-    "bwip-js": "^4.9.2",
+    "bwip-js": "^4.10.1",
     "carbone": "^3.8.2",
     "compose-middleware": "^5.0.1",
     "cookie-parser": "^1.4.7",
