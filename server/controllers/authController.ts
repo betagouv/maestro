@@ -53,7 +53,7 @@ export const authUnprotectedRouter = {
           idToken
         };
         const accessToken = jwt.sign(tokenPayload, config.auth.secret, {
-          expiresIn: config.auth.expiresIn
+          expiresIn: config.auth.expiresIn as jwt.SignOptions['expiresIn']
         });
         if (user) {
           await userRepository.addLoggedSecret(loggedSecret, user.id);
