@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import './ColumnFilterHeader.scss';
 
 interface Props<T extends string> {
-  label: string;
+  label?: string;
   options: { label: string; value: T }[];
   selectedValues: T[];
   onChange: (values: T[]) => void;
@@ -65,7 +65,7 @@ const ColumnFilterHeader = <T extends string>({
           iconId="fr-icon-filter-line"
           priority={isActive ? 'primary' : 'tertiary no outline'}
           size="small"
-          title={`Filtrer par ${label}`}
+          title={`Filtrer ${label ? `par ${label}` : ''}`}
           className="column-filter-button"
           onClick={() => setIsOpen((prev) => !prev)}
           aria-expanded={isOpen}
@@ -82,22 +82,24 @@ const ColumnFilterHeader = <T extends string>({
               }}
               className={cx('fr-mb-1w')}
             />
-            {filteredOptions.map((option) => (
-              <Checkbox
-                key={option.value}
-                className={cx('fr-my-2w', 'fr-text--regular')}
-                options={[
-                  {
-                    label: option.label,
-                    nativeInputProps: {
-                      checked: selectedValues.includes(option.value),
-                      onChange: () => toggle(option.value)
+            <div className="column-filter-options">
+              {filteredOptions.map((option) => (
+                <Checkbox
+                  key={option.value}
+                  className={cx('fr-my-2w', 'fr-text--regular')}
+                  options={[
+                    {
+                      label: option.label,
+                      nativeInputProps: {
+                        checked: selectedValues.includes(option.value),
+                        onChange: () => toggle(option.value)
+                      }
                     }
-                  }
-                ]}
-                small
-              />
-            ))}
+                  ]}
+                  small
+                />
+              ))}
+            </div>
             <hr className={cx('fr-my-2w')} />
             <div className="column-filter-menu-actions">
               <Button

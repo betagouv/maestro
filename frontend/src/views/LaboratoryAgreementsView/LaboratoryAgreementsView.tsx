@@ -57,6 +57,7 @@ const LaboratoryAgreementsView = () => {
   >([]);
   const [kindFilter, setKindFilter] = useState<ProgrammingPlanKind[]>([]);
   const [substanceFilter, setSubstanceFilter] = useState<SubstanceKind[]>([]);
+  const [labFilter, setLabFilter] = useState<string[]>([]);
 
   const { data: agreements = [] } =
     apiClient.useFindLaboratoryAgreementsQuery();
@@ -119,6 +120,14 @@ const LaboratoryAgreementsView = () => {
     [rows]
   );
 
+  const labOptions = useMemo(
+    () =>
+      laboratories
+        .toSorted((a, b) => a.shortName.localeCompare(b.shortName))
+        .map((l) => ({ value: l.id, label: l.shortName })),
+    [laboratories]
+  );
+
   const filteredRows = useMemo(
     () =>
       rows.filter(
@@ -126,9 +135,11 @@ const LaboratoryAgreementsView = () => {
           (kindFilter.length === 0 ||
             kindFilter.includes(r.programmingPlanKind)) &&
           (substanceFilter.length === 0 ||
-            substanceFilter.includes(r.substanceKind))
+            substanceFilter.includes(r.substanceKind)) &&
+          (labFilter.length === 0 ||
+            r.laboratories.some((l) => labFilter.includes(l.laboratoryId)))
       ),
-    [rows, kindFilter, substanceFilter]
+    [rows, kindFilter, substanceFilter, labFilter]
   );
 
   const stringRowKey = (row: (typeof rows)[number]) =>
@@ -299,7 +310,13 @@ const LaboratoryAgreementsView = () => {
               <div key="header-labs" className="border-left">
                 Laboratoires agréés
               </div>,
-              <div key="header-action" />
+              <div key="header-action">
+                <ColumnFilterHeader
+                  options={labOptions}
+                  selectedValues={labFilter}
+                  onChange={setLabFilter}
+                />
+              </div>
             ]}
             data={filteredRows.map((row) => [
               <div
