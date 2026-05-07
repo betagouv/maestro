@@ -6,8 +6,8 @@ import { PartialResidue, ResidueChecked } from './Residue/Residue';
 export const PartialAnalysis = z.object({
   id: z.guid(),
   ...SampleItemKey.shape,
-  createdAt: z.date(),
-  emailReceivedAt: z.date().nullish(),
+  createdAt: z.coerce.date(),
+  emailReceivedAt: z.coerce.date().nullish(),
   createdBy: z.guid().nullish(),
   status: AnalysisStatus,
   residues: z.array(PartialResidue).nullish(),
