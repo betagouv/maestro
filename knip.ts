@@ -9,7 +9,7 @@ export default {
   ignoreBinaries: ['playwright', 'semantic-release'],
   workspaces: {
     server: {
-      ignoreDependencies: ['body-parser', 'superagent', '@types/exceljs'],
+      ignoreDependencies: ['body-parser', 'superagent'],
       knex: false,
       entry: [
         'database/migrations/*.ts',
