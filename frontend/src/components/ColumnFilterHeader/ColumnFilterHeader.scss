@@ -39,6 +39,11 @@
       overflow-y: auto;
     }
 
+    .column-filter-options {
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
     .column-filter-menu-actions {
       display: flex;
       justify-content: space-between;

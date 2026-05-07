@@ -46,12 +46,8 @@ const LaboratoryAgreementsView = () => {
   const apiClient = useContext(ApiClientContext);
 
   const [year, setYear] = useState<number>();
-  const [selectedStringRowKeys, setSelectedStringRowKeys] = useState<string[]>(
-    []
-  );
-  const [modalRowKeys, setModalRowKeys] = useState<LaboratoryAgreementRowKey[]>(
-    []
-  );
+  const [selectedStringRowKeys, setSelectedStringRowKeys] = useState<string[]>([]);
+  const [modalRowKeys, setModalRowKeys] = useState<LaboratoryAgreementRowKey[]>([]);
   const [modalAgreements, setModalAgreements] = useState<
     Pick<
       LaboratoryAgreement,
@@ -63,9 +59,7 @@ const LaboratoryAgreementsView = () => {
   >([]);
   const [substanceFilter, setSubstanceFilter] = useState<SubstanceKind[]>([]);
   const [labFilter, setLabFilter] = useState<string[]>([]);
-  const [labAgreementTypeFilter, setLabAgreementTypeFilter] = useState<
-    LaboratoryAgreementField[]
-  >([]);
+  const [labAgreementTypeFilter, setLabAgreementTypeFilter] = useState<LaboratoryAgreementField[]>([]);
   const [matrixFilter, setMatrixFilter] = useState<MatrixKind[]>([]);
   const [kindFilter, setKindFilter] = useState<ProgrammingPlanKind[]>([]);
   const [showWithoutLab, setShowWithoutLab] = useState(false);
@@ -78,8 +72,7 @@ const LaboratoryAgreementsView = () => {
     { year },
     { skip: !year }
   );
-  const { data: allProgrammingPlans = [] } =
-    apiClient.useFindProgrammingPlansQuery({});
+  const { data: allProgrammingPlans = [] } = apiClient.useFindProgrammingPlansQuery({});
   const programmingPlans = useMemo(
     () => allProgrammingPlans.filter((p) => p.year === year),
     [allProgrammingPlans, year]
@@ -99,10 +92,7 @@ const LaboratoryAgreementsView = () => {
   );
 
   useEffect(() => {
-    if (
-      availableYears.length > 0 &&
-      (isNil(year) || !availableYears.includes(year))
-    ) {
+    if (availableYears.length > 0 && (isNil(year) || !availableYears.includes(year))) {
       setYear(availableYears[0]);
     }
   }, [availableYears, year]);
@@ -147,8 +137,7 @@ const LaboratoryAgreementsView = () => {
   );
 
   const labsInRows = useMemo(
-    () =>
-      new Set(rows.flatMap((r) => r.laboratories.map((l) => l.laboratoryId))),
+    () => new Set(rows.flatMap((r) => r.laboratories.map((l) => l.laboratoryId))),
     [rows]
   );
 
@@ -167,19 +156,13 @@ const LaboratoryAgreementsView = () => {
   const matrixOptions = useMemo(
     () =>
       [...new Set(allPrescriptions.map((p) => p.matrixKind))]
-        .map((value) => ({
-          value,
-          label: MatrixKindLabels[value]
-        }))
+        .map((value) => ({ value, label: MatrixKindLabels[value] }))
         .toSorted((a, b) => a.label.localeCompare(b.label)),
     [allPrescriptions]
   );
 
   const filteredRows = useMemo(() => {
-    const getFirstMatrixTitle = (
-      programmingPlanId: string,
-      programmingPlanKind: string
-    ) => {
+    const getFirstMatrixTitle = (programmingPlanId: string, programmingPlanKind: string) => {
       const titles = allPrescriptions
         .filter(
           (p) =>
@@ -194,10 +177,8 @@ const LaboratoryAgreementsView = () => {
     return rows
       .filter(
         (r) =>
-          (kindFilter.length === 0 ||
-            kindFilter.includes(r.programmingPlanKind)) &&
-          (substanceFilter.length === 0 ||
-            substanceFilter.includes(r.substanceKind)) &&
+          (kindFilter.length === 0 || kindFilter.includes(r.programmingPlanKind)) &&
+          (substanceFilter.length === 0 || substanceFilter.includes(r.substanceKind)) &&
           (matrixFilter.length === 0 ||
             allPrescriptions.some(
               (p) =>
@@ -208,17 +189,13 @@ const LaboratoryAgreementsView = () => {
           ((labFilter.length === 0 && labAgreementTypeFilter.length === 0) ||
             r.laboratories.some(
               (l) =>
-                (labFilter.length === 0 ||
-                  labFilter.includes(l.laboratoryId)) &&
+                (labFilter.length === 0 || labFilter.includes(l.laboratoryId)) &&
                 (labAgreementTypeFilter.length === 0 ||
                   labAgreementTypeFilter.some((field) => l[field]))
             )) &&
           (!showWithoutLab ||
             !r.laboratories.some(
-              (l) =>
-                l.referenceLaboratory ||
-                l.detectionAnalysis ||
-                l.confirmationAnalysis
+              (l) => l.referenceLaboratory || l.detectionAnalysis || l.confirmationAnalysis
             ))
       )
       .sort((a, b) => {
@@ -234,19 +211,12 @@ const LaboratoryAgreementsView = () => {
             c.programmingPlanKind === b.programmingPlanKind &&
             c.substanceKind === b.substanceKind
         );
-        if (aChecked !== bChecked) {
-          return aChecked ? 1 : -1;
-        }
+        if (aChecked !== bChecked) return aChecked ? 1 : -1;
         const substanceCmp = SubstanceKindLabels[a.substanceKind].localeCompare(
           SubstanceKindLabels[b.substanceKind]
         );
-        if (substanceCmp !== 0) {
-          return substanceCmp;
-        }
-        return getFirstMatrixTitle(
-          a.programmingPlanId,
-          a.programmingPlanKind
-        ).localeCompare(
+        if (substanceCmp !== 0) return substanceCmp;
+        return getFirstMatrixTitle(a.programmingPlanId, a.programmingPlanKind).localeCompare(
           getFirstMatrixTitle(b.programmingPlanId, b.programmingPlanKind)
         );
       });
@@ -263,8 +233,7 @@ const LaboratoryAgreementsView = () => {
   ]);
 
   const allSelected =
-    filteredRows.length > 0 &&
-    selectedStringRowKeys.length === filteredRows.length;
+    filteredRows.length > 0 && selectedStringRowKeys.length === filteredRows.length;
 
   const rowAgreementsSignature = (labs: LaboratoryAgreement[]) =>
     labs
@@ -304,20 +273,11 @@ const LaboratoryAgreementsView = () => {
 
   useEffect(() => {
     setSelectedStringRowKeys([]);
-  }, [
-    kindFilter,
-    substanceFilter,
-    matrixFilter,
-    labFilter,
-    labAgreementTypeFilter,
-    showWithoutLab
-  ]);
+  }, [kindFilter, substanceFilter, matrixFilter, labFilter, labAgreementTypeFilter, showWithoutLab]);
 
   useIsModalOpen(agreementsModal, {
     onConceal: () => {
-      if (isDetailModalOpen.current) {
-        return;
-      }
+      if (isDetailModalOpen.current) return;
       setSelectedStringRowKeys([]);
       setModalRowKeys([]);
     }
@@ -325,26 +285,17 @@ const LaboratoryAgreementsView = () => {
 
   const rowsWithLab = rows.filter((r) =>
     r.laboratories.some(
-      (lab) =>
-        lab.referenceLaboratory ||
-        lab.detectionAnalysis ||
-        lab.confirmationAnalysis
+      (lab) => lab.referenceLaboratory || lab.detectionAnalysis || lab.confirmationAnalysis
     )
   ).length;
   const rowsWithoutLab = rows.length - rowsWithLab;
 
-  if (!year) {
-    return null;
-  }
+  if (!year) return null;
 
   return (
     <LaboratoryAgreementDetailProvider
-      onOpen={() => {
-        isDetailModalOpen.current = true;
-      }}
-      onConceal={() => {
-        isDetailModalOpen.current = false;
-      }}
+      onOpen={() => { isDetailModalOpen.current = true; }}
+      onConceal={() => { isDetailModalOpen.current = false; }}
       onSave={async (updated) => {
         await updateAgreements({
           laboratoryId: updated.laboratoryId,
@@ -389,59 +340,31 @@ const LaboratoryAgreementsView = () => {
               {availableYears.length <= 1 ? (
                 year
               ) : (
-                <YearSelector
-                  year={Number(year)}
-                  years={availableYears}
-                  onChange={setYear}
-                />
+                <YearSelector year={Number(year)} years={availableYears} onChange={setYear} />
               )}
             </div>
           }
           subtitle={
             <div
-              className={clsx(
-                cx('fr-text--regular', 'fr-pt-1w'),
-                'd-flex-align-center'
-              )}
+              className={clsx(cx('fr-text--regular', 'fr-pt-1w'), 'd-flex-align-center')}
             >
-              <span>
-                {pluralize(rows.length, { preserveCount: true })('ligne')}
-              </span>
+              <span>{pluralize(rows.length, { preserveCount: true })('ligne')}</span>
               <span
-                className={cx(
-                  'fr-icon-checkbox-circle-line',
-                  'fr-label--success',
-                  'fr-icon--sm',
-                  'fr-ml-2w'
-                )}
+                className={cx('fr-icon-checkbox-circle-line', 'fr-label--success', 'fr-icon--sm', 'fr-ml-2w')}
                 aria-hidden="true"
               />
-              <span className={cx('fr-ml-2v')}>
-                {rowsWithLab} avec laboratoire
-              </span>
+              <span className={cx('fr-ml-2v')}>{rowsWithLab} avec laboratoire</span>
               <span
-                className={cx(
-                  'fr-icon-time-line',
-                  'fr-label--error',
-                  'fr-icon--sm',
-                  'fr-ml-2w'
-                )}
+                className={cx('fr-icon-time-line', 'fr-label--error', 'fr-icon--sm', 'fr-ml-2w')}
                 aria-hidden="true"
               />
-              <span className={cx('fr-ml-2v')}>
-                {rowsWithoutLab} sans laboratoire
-              </span>
+              <span className={cx('fr-ml-2v')}>{rowsWithoutLab} sans laboratoire</span>
             </div>
           }
         />
         <div className={clsx('white-container', cx('fr-p-4w'))}>
           <div
-            className={clsx(
-              cx('fr-mb-3w'),
-              'd-flex-align-center',
-              'd-flex-justify-end',
-              'no-wrap'
-            )}
+            className={clsx(cx('fr-mb-3w'), 'd-flex-align-center', 'd-flex-justify-end', 'no-wrap')}
           >
             <ToggleSwitch
               label="Lignes sans laboratoires"
@@ -457,12 +380,8 @@ const LaboratoryAgreementsView = () => {
                 window.open(
                   getLaboratoryAgreementsExportURL({
                     year: Number(year),
-                    programmingPlanKinds: kindFilter.length
-                      ? kindFilter
-                      : undefined,
-                    substanceKinds: substanceFilter.length
-                      ? substanceFilter
-                      : undefined,
+                    programmingPlanKinds: kindFilter.length ? kindFilter : undefined,
+                    substanceKinds: substanceFilter.length ? substanceFilter : undefined,
                     laboratoryIds: labFilter.length ? labFilter : undefined,
                     matrixKinds: matrixFilter.length ? matrixFilter : undefined,
                     withoutLab: showWithoutLab || undefined
@@ -498,15 +417,11 @@ const LaboratoryAgreementsView = () => {
             onLabAgreementTypeFilterChange={setLabAgreementTypeFilter}
             onToggleRow={(key) =>
               setSelectedStringRowKeys((prev) =>
-                prev.includes(key)
-                  ? prev.filter((k) => k !== key)
-                  : [...prev, key]
+                prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
               )
             }
             onToggleAll={() =>
-              setSelectedStringRowKeys(
-                allSelected ? [] : filteredRows.map(toRowKey)
-              )
+              setSelectedStringRowKeys(allSelected ? [] : filteredRows.map(toRowKey))
             }
             onDeselect={() => setSelectedStringRowKeys([])}
             onOpenModal={handleOpenModal}
