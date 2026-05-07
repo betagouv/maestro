@@ -9,13 +9,8 @@ export const LaboratoryAgreementRowKey = z.object({
 });
 
 export const LaboratoryAgreement = z.object({
+  ...LaboratoryAgreementRowKey.shape,
   laboratoryId: z.guid(),
-  laboratoryName: z.string(),
-  laboratoryShortName: z.string(),
-  programmingPlanId: z.guid(),
-  programmingPlanKind: ProgrammingPlanKind,
-  programmingPlanYear: z.number().int(),
-  substanceKind: SubstanceKind,
   referenceLaboratory: z.boolean(),
   detectionAnalysis: z.boolean(),
   confirmationAnalysis: z.boolean()
