@@ -59,7 +59,14 @@ class BrevoService implements MailService {
       });
 
       if (!response.ok) {
-        console.error(response.statusText);
+        const errorBody = await response.text();
+        console.error('[brevoService] send failed', {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorBody,
+          templateName: options.templateName,
+          recipients: options.recipients
+        });
         throw new SendEmailError();
       }
     }
