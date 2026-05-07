@@ -89,9 +89,8 @@ export const generateXMLDAI = (
         },
         ReferenceEtablissementType: {
           ReferenceEtablissement: {
-            //FIXME EDI
-            SigleIdentifiant: '',
-            Identifiant: sample.company.name.substring(0, 25),
+            SigleIdentifiant: 'SIRET',
+            Identifiant: sample.company.siret,
             Nom: sample.company.name,
             CodePostal: `${sample.company.postalCode ?? ''} ${sample.company.city ?? ''}`,
             Adresse1: sample.company.address ?? undefined,
@@ -101,7 +100,7 @@ export const generateXMLDAI = (
         DialogueActeurType: {
           DialogueActeur: {
             //FIXME EDI
-            SigleIdentifiant: '',
+            SigleIdentifiant: 'DEPADM',
             Identifiant: '',
             Nom: sample.sampler.name ?? ''
             //FIXME EDI email

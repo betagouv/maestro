@@ -236,15 +236,15 @@ test(`génère un XML de DAI`, async () => {
         </DialogueDemandeIntervention>
         <ReferenceEtablissementType>
           <ReferenceEtablissement>
-            <SigleIdentifiant></SigleIdentifiant>
-            <Identifiant>nom d&apos;entreprise très lon</Identifiant>
+            <SigleIdentifiant>SIRET</SigleIdentifiant>
+            <Identifiant>siret</Identifiant>
             <Nom>nom d&apos;entreprise très long qui doit être coupé</Nom>
             <CodePostal> </CodePostal>
           </ReferenceEtablissement>
         </ReferenceEtablissementType>
         <DialogueActeurType>
           <DialogueActeur>
-            <SigleIdentifiant></SigleIdentifiant>
+            <SigleIdentifiant>DEPADM</SigleIdentifiant>
             <Identifiant></Identifiant>
             <Nom>John Doe</Nom>
           </DialogueActeur>
