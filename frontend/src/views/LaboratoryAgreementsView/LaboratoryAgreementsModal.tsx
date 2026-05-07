@@ -4,11 +4,10 @@ import { SearchBar } from '@codegouvfr/react-dsfr/SearchBar';
 import clsx from 'clsx';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type {
-  AgreementUpdate,
-  LaboratoryAgreement
+  LaboratoryAgreement,
+  LaboratoryAgreementRowKey,
+  LaboratoryAgreementUpdate
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import LaboratoryAgreementButton from '../../components/LaboratoryAgreement/LaboratoryAgreementButton/LaboratoryAgreementButton';
@@ -30,21 +29,23 @@ type LocalAgreement = {
   confirmationAnalysis: boolean;
 };
 
-export interface Props {
+type LabAgreementFlags = Pick<
+  LaboratoryAgreement,
+  | 'laboratoryId'
+  | 'referenceLaboratory'
+  | 'detectionAnalysis'
+  | 'confirmationAnalysis'
+>;
+
+interface Props {
   modal: ModalInstance;
-  selectedGroups: Array<{
-    programmingPlanId: string;
-    programmingPlanKind: ProgrammingPlanKind;
-    substanceKind: SubstanceKind;
-  }>;
-  agreements: LaboratoryAgreement[];
+  laboratoryAgreementRowKeys: LaboratoryAgreementRowKey[];
+  agreements: LabAgreementFlags[];
   laboratories: Laboratory[];
-  onSave: (input: {
-    programmingPlanId: string;
-    programmingPlanKind: ProgrammingPlanKind;
-    substanceKind: SubstanceKind;
-    agreements: AgreementUpdate[];
-  }) => Promise<void>;
+  onSave: (
+    laboratoryId: string,
+    input: LaboratoryAgreementUpdate
+  ) => Promise<void>;
 }
 
 const defaultLocalAgreement: LocalAgreement = {
@@ -55,7 +56,7 @@ const defaultLocalAgreement: LocalAgreement = {
 
 const LaboratoryAgreementsModal = ({
   modal,
-  selectedGroups,
+  laboratoryAgreementRowKeys,
   agreements,
   laboratories,
   onSave
@@ -66,30 +67,18 @@ const LaboratoryAgreementsModal = ({
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    if (selectedGroups.length === 0) {
-      setLocalAgreements({});
-      return;
-    }
     const initial = Object.fromEntries(
-      agreements
-        .filter((a) =>
-          selectedGroups.some(
-            (g) =>
-              g.programmingPlanId === a.programmingPlanId &&
-              g.substanceKind === a.substanceKind
-          )
-        )
-        .map((a) => [
-          a.laboratoryId,
-          {
-            referenceLaboratory: a.referenceLaboratory,
-            detectionAnalysis: a.detectionAnalysis,
-            confirmationAnalysis: a.confirmationAnalysis
-          }
-        ])
+      agreements.map((a) => [
+        a.laboratoryId,
+        {
+          referenceLaboratory: a.referenceLaboratory,
+          detectionAnalysis: a.detectionAnalysis,
+          confirmationAnalysis: a.confirmationAnalysis
+        }
+      ])
     );
     setLocalAgreements(initial);
-  }, [selectedGroups, agreements]);
+  }, [agreements]);
 
   const toggle = (labId: string, field: keyof LocalAgreement) => {
     setLocalAgreements((prev) => ({
@@ -104,20 +93,23 @@ const LaboratoryAgreementsModal = ({
 
   const handleSave = async (e: React.MouseEvent) => {
     e.preventDefault();
-    if (selectedGroups.length === 0) {
+    if (laboratoryAgreementRowKeys.length === 0) {
       return;
     }
-    const agreementsToSave = Object.entries(localAgreements)
-      .filter(
-        ([, v]) =>
-          v.referenceLaboratory || v.detectionAnalysis || v.confirmationAnalysis
-      )
-      .map(([laboratoryId, v]) => ({ laboratoryId, ...v }));
+
+    const previousLabIds = agreements.map((a) => a.laboratoryId);
+
+    const allLabIds = [
+      ...new Set([...Object.keys(localAgreements), ...previousLabIds])
+    ];
 
     await Promise.all(
-      selectedGroups.map((group) =>
-        onSave({ ...group, agreements: agreementsToSave })
-      )
+      allLabIds.flatMap((laboratoryId) => {
+        const flags = localAgreements[laboratoryId] ?? defaultLocalAgreement;
+        return laboratoryAgreementRowKeys.map((laboratoryAgreementRowKey) =>
+          onSave(laboratoryId, { laboratoryAgreementRowKey, ...flags })
+        );
+      })
     );
     modal.close();
   };
@@ -157,7 +149,7 @@ const LaboratoryAgreementsModal = ({
         <div className={clsx(cx('fr-pr-3w'), 'agreement-modal-list')}>
           <div className={cx('fr-mb-2w')}>
             <p className={cx('fr-text--md')}>
-              {pluralize(selectedGroups.length, {
+              {pluralize(laboratoryAgreementRowKeys.length, {
                 preserveCount: true
               })('plan sélectionné')}
             </p>
