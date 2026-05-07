@@ -1,0 +1,31 @@
+.laboratory-agreements-table-wrapper {
+  --notice-height: 0px;
+}
+
+.laboratory-agreements-notice {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background-color: #fff;
+  padding-bottom: 0.5rem;
+}
+
+.laboratory-agreements-table {
+  .fr-table:not(.fr-table--layout-fixed) table {
+    max-height: unset;
+    overflow: visible;
+    width: 100% !important;
+  }
+
+  td:has(.selectable-cell) {
+    border-bottom: 1px solid var(--border-default-grey) !important;
+  }
+
+  thead th {
+    position: sticky;
+    top: calc(var(--notice-height, 0px));
+    z-index: 2;
+    background-color: var(--background-contrast-grey);
+    border-top: 1px solid var(--border-default-grey);
+  }
+}
