@@ -16,9 +16,11 @@ import {
   type OmitDistributive
 } from 'maestro-shared/utils/typescript';
 import { type Attachment, type ParsedMail, simpleParser } from 'mailparser';
+import { analysisRaiRepository } from '../../repositories/analysisRaiRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import { laboratoryResidueMappingRepository } from '../../repositories/laboratoryResidueMappingRepository';
 import config from '../../utils/config';
+import { documentService } from '../documentService';
 import { mattermostService } from '../mattermostService';
 import { notificationService } from '../notificationService';
 import { analysisHandler } from './analysis-handler';
@@ -74,20 +76,18 @@ export const laboratoriesConf = {
   [name in LaboratoryWithConf]: LaboratoryConf;
 };
 
-const getLaboratoryNameBySender = async (
+const getLaboratoryBySender = async (
   senderAddress: string
-): Promise<null | LaboratoryWithConf> => {
+): Promise<{ id: string; shortName: LaboratoryWithConf } | null> => {
   const laboratory = await laboratoryRepository.findByEmailSender(
     senderAddress.toLowerCase()
   );
 
-  const laboratoryShortName = laboratory?.shortName;
-
-  if (
-    laboratoryShortName !== undefined &&
-    laboratoryShortName in laboratoriesConf
-  ) {
-    return laboratoryShortName as LaboratoryWithConf;
+  if (laboratory && laboratory.shortName in laboratoriesConf) {
+    return {
+      id: laboratory.id,
+      shortName: laboratory.shortName as LaboratoryWithConf
+    };
   }
 
   return null;
@@ -149,6 +149,8 @@ export const checkEmails = async () => {
       } else {
         const messagesByLaboratory: Record<LaboratoryWithConf, number[]> =
           {} as Record<LaboratoryWithConf, number[]>;
+        const laboratoryIdByName: Partial<Record<LaboratoryWithConf, string>> =
+          {};
 
         const messagesInError: {
           messageUid: string;
@@ -170,16 +172,17 @@ export const checkEmails = async () => {
             message.envelope.subject
           );
 
-          const laboratoryName: LaboratoryWithConf | null =
-            await getLaboratoryNameBySender(
-              message.envelope.sender[0].address ?? ''
-            );
+          const laboratory = await getLaboratoryBySender(
+            message.envelope.sender[0].address ?? ''
+          );
 
-          if (laboratoryName !== null) {
+          if (laboratory !== null) {
+            const laboratoryName = laboratory.shortName;
             if (!messagesByLaboratory[laboratoryName]) {
               messagesByLaboratory[laboratoryName] = [];
             }
             messagesByLaboratory[laboratoryName].push(message.uid);
+            laboratoryIdByName[laboratoryName] = laboratory.id;
             console.log('   =====>  ', laboratoryName);
           } else {
             messagesInError.push({
@@ -228,7 +231,10 @@ export const checkEmails = async () => {
               }
             );
             const parsed = await simpleParser(downloadObject.content);
-            parsedEmails.push({ ...parsed, messageUid: `${messageUid}` });
+            parsedEmails.push({
+              ...parsed,
+              messageUid: `${messageUid}`
+            });
           }
 
           //certains laboratoires émettent plusieurs emails pour une analyse
@@ -260,6 +266,47 @@ export const checkEmails = async () => {
           }
 
           for (const emails of Object.values(emailsByAnalysisFull)) {
+            const receivedAt = new Date(
+              Math.max(...emails.map((e) => (e.date ?? new Date()).getTime()))
+            );
+            const payload = {
+              emails: emails.map((e) => ({
+                messageUid: e.messageUid,
+                subject: e.subject,
+                from: e.from?.value[0]?.address,
+                date: e.date
+              }))
+            };
+            const laboratoryId = laboratoryIdByName[laboratoryName] ?? null;
+
+            const uploadAttachmentsAsRaiSourceFiles = async (
+              attachments: Attachment[]
+            ): Promise<string[]> => {
+              const ids: string[] = [];
+              for (const att of attachments) {
+                try {
+                  const file = new File(
+                    [new Uint8Array(att.content)],
+                    att.filename ?? 'unknown',
+                    { type: att.contentType }
+                  );
+                  ids.push(
+                    await documentService.insertDocument(
+                      file,
+                      'RaiSourceFile',
+                      null
+                    )
+                  );
+                } catch (uploadError) {
+                  console.error(
+                    `Échec upload PJ ${att.filename ?? 'unknown'}`,
+                    uploadError
+                  );
+                }
+              }
+              return ids;
+            };
+
             try {
               const analyzes = await laboratoriesConf[
                 laboratoryName
@@ -344,25 +391,47 @@ export const checkEmails = async () => {
                   }
                 });
 
-                const emailReceivedAt = new Date(
-                  Math.max(
-                    ...emails.map((e) => (e.date ?? new Date()).getTime())
-                  )
+                const {
+                  sampleId,
+                  samplerId,
+                  samplerEmail,
+                  compliance,
+                  analysisId,
+                  documentId: pdfDocumentId
+                } = await analysisHandler(
+                  {
+                    ...analysis,
+                    residues: residues.map(
+                      ({ casNumber, codeSandre, label, ...rest }) => {
+                        const unknownLabel =
+                          rest.ssd2Id === null ? label : null;
+                        return { ...rest, unknownLabel };
+                      }
+                    )
+                  },
+                  receivedAt
                 );
-                const { sampleId, samplerId, samplerEmail, compliance } =
-                  await analysisHandler(
-                    {
-                      ...analysis,
-                      residues: residues.map(
-                        ({ casNumber, codeSandre, label, ...rest }) => {
-                          const unknownLabel =
-                            rest.ssd2Id === null ? label : null;
-                          return { ...rest, unknownLabel };
-                        }
-                      )
-                    },
-                    emailReceivedAt
-                  );
+
+                const otherAttachments = emails
+                  .flatMap((e) => e.attachments)
+                  .filter((a) => !a.filename?.toLowerCase().endsWith('.pdf'));
+                const otherDocumentIds =
+                  await uploadAttachmentsAsRaiSourceFiles(otherAttachments);
+
+                const raiId = await analysisRaiRepository.insert({
+                  source: 'EMAIL',
+                  edi: false,
+                  state: 'PROCESSED',
+                  analysisId,
+                  laboratoryId,
+                  payload,
+                  message: null,
+                  receivedAt
+                });
+                await analysisRaiRepository.linkDocuments(raiId, [
+                  pdfDocumentId,
+                  ...otherDocumentIds
+                ]);
 
                 //si exemplaire 2 ou plus, alors il faut envoyer dans tous les cas
                 if (compliance === null || analysis.copyNumber !== 1) {
@@ -376,6 +445,7 @@ export const checkEmails = async () => {
                   );
                 }
               }
+
               for (const message of emails) {
                 await client.messageMove(
                   `${message.messageUid}`,
@@ -387,6 +457,23 @@ export const checkEmails = async () => {
               }
             } catch (e: any) {
               console.error(e);
+              const errorDocumentIds = await uploadAttachmentsAsRaiSourceFiles(
+                emails.flatMap((email) => email.attachments)
+              );
+              const raiId = await analysisRaiRepository.insert({
+                source: 'EMAIL',
+                edi: false,
+                state: 'ERROR',
+                analysisId: null,
+                laboratoryId,
+                payload,
+                message: e.message,
+                receivedAt
+              });
+              await analysisRaiRepository.linkDocuments(
+                raiId,
+                errorDocumentIds
+              );
               const parsed = emails[0];
               await moveMessageToErrorbox(
                 parsed.subject ?? '',

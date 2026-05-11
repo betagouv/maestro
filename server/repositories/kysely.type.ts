@@ -16,6 +16,11 @@ import type { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/R
 import type { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import type { AnalysisDaiId } from 'maestro-shared/schema/AnalysisDai/AnalysisDai';
 import type { AnalysisDaiState } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiState';
+import type {
+  AnalysisRaiId,
+  AnalysisRaiSource,
+  AnalysisRaiState
+} from 'maestro-shared/schema/AnalysisRai/AnalysisRai';
 import type { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
@@ -60,6 +65,19 @@ export {
   SpecificDataFieldOptionId
 };
 
+export interface AnalysisRai {
+  id: Generated<AnalysisRaiId>;
+  analysisId: string | null;
+  laboratoryId: string | null;
+  state: AnalysisRaiState;
+  source: AnalysisRaiSource;
+  edi: boolean;
+  payload: Record<string, unknown> | null;
+  message: string | null;
+  receivedAt: Timestamp;
+  createdAt: Generated<Timestamp>;
+}
+
 export interface AnalysisDai {
   id: Generated<AnalysisDaiId>;
   analysisId: string;
@@ -73,6 +91,11 @@ export interface AnalysisDai {
 
 export interface AnalysisDaiDocuments {
   analysisDaiId: AnalysisDaiId;
+  documentId: string;
+}
+
+export interface AnalysisRaiDocuments {
+  analysisRaiId: AnalysisRaiId;
   documentId: string;
 }
 
@@ -432,6 +455,8 @@ export interface ProgrammingPlanKindFieldOptions {
 }
 
 export interface DB {
+  analysisRai: AnalysisRai;
+  analysisRaiDocuments: AnalysisRaiDocuments;
   analysisDai: AnalysisDai;
   analysisDaiDocuments: AnalysisDaiDocuments;
   analysis: Analysis;

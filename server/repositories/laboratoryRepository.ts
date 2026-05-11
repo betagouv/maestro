@@ -177,7 +177,7 @@ const findMany = async (
 const findByEmailSender = async (email_result_analysis: string) => {
   return kysely
     .selectFrom('laboratories')
-    .select('shortName')
+    .select(['id', 'shortName'])
     .where(({ eb, fn }) =>
       eb(sql.lit(email_result_analysis), '=', fn.any('emailsAnalysisResult'))
     )
