@@ -7,9 +7,9 @@ const router = express.Router();
 router.use(
   '/search',
   createProxyMiddleware({
-    target: `${config.apis.address.url}/search`,
+    target: config.apis.address.url,
     changeOrigin: true,
-    pathRewrite: { '/?': '' },
+    pathRewrite: (path) => `/search${path.replace(/^\//, '')}`,
     on: {
       proxyRes: (proxyRes) => {
         proxyRes.headers['access-control-allow-origin'] =
