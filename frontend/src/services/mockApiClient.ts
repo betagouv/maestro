@@ -113,7 +113,8 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
       key.startsWith('useComment') ||
       key.startsWith('useUpdate') ||
       key.startsWith('useDelete') ||
-      key.startsWith('useMascarade')
+      key.startsWith('useMascarade') ||
+      key.startsWith('useReplay')
     ) {
       // @ts-expect-error TS7053
       acc[key] = () => [
@@ -266,7 +267,9 @@ const defaultMockApiClientConf: MockApi = {
   useGetSachaCommemoratifsQuery: { data: {} },
   useUpdateSachaCommemoratifsMutation: [fn(), {}],
   useGetAnalysisDaiQuery: { data: { analyses: [], total: 0 } },
-  useCreateAnalysisDaiMutation: [fn(), {}]
+  useCreateAnalysisDaiMutation: [fn(), {}],
+  useGetAnalysisRaiQuery: { data: { rais: [], total: 0 } },
+  useReplayAnalysisRaiMutation: [fn(), {}]
 };
 
 export const mockApiClient = getMockApi({});

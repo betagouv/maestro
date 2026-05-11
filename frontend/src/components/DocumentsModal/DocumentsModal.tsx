@@ -1,21 +1,27 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import type { AnalysisDaiAttempt } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiAnalysisGroup';
+import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import DocumentLink from 'src/components/DocumentLink/DocumentLink';
 
 export const documentsModal = createModal({
-  id: 'analysis-dai-documents-modal',
+  id: 'documents-modal',
   isOpenedByDefault: false
 });
 
+type Document = { id: string; filename: string; kind: DocumentKind };
+
 interface Props {
-  selectedDai: AnalysisDaiAttempt | null;
+  title?: string;
+  documents: Document[];
 }
 
-export const DocumentsModal = ({ selectedDai }: Props) => {
+export const DocumentsModal = ({
+  title = 'Documents liés',
+  documents
+}: Props) => {
   return (
     <documentsModal.Component
-      title="Documents liés"
+      title={title}
       concealingBackdrop={false}
       topAnchor
       buttons={[
@@ -26,9 +32,9 @@ export const DocumentsModal = ({ selectedDai }: Props) => {
         }
       ]}
     >
-      {selectedDai && selectedDai.documents.length > 0 ? (
+      {documents.length > 0 ? (
         <ul className={cx('fr-raw-list')}>
-          {selectedDai.documents.map((doc) => (
+          {documents.map((doc) => (
             <li key={doc.id}>
               <DocumentLink documentId={doc.id} />
             </li>

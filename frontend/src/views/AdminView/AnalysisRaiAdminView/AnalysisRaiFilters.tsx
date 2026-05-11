@@ -3,18 +3,19 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import Select from '@codegouvfr/react-dsfr/Select';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
-import { AnalysisDaiState } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiState';
+import {
+  AnalysisRaiSource,
+  AnalysisRaiState
+} from 'maestro-shared/schema/AnalysisRai/AnalysisRai';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
-import { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
-import type { Filters } from './AnalysisDaiAdminView';
+import type { Filters } from './AnalysisRaiAdminView';
 
-const daiStateLabels: Record<AnalysisDaiState, string> = {
-  SENT: 'Envoyée',
-  ERROR: 'Erreur',
-  PENDING: 'En attente'
+const raiStateLabels: Record<AnalysisRaiState, string> = {
+  PROCESSED: 'Traitée',
+  ERROR: 'Erreur'
 };
 
-const daiSentMethodLabels: Record<SachaCommunicationMethod, string> = {
+const raiSourceLabels: Record<AnalysisRaiSource, string> = {
   EMAIL: 'Email',
   SFTP: 'SFTP'
 };
@@ -25,35 +26,29 @@ type Props = {
   onChange: (updates: Partial<Filters>) => void;
 };
 
-export const AnalysisDaiFilters = ({
+export const AnalysisRaiFilters = ({
   filters,
   laboratories,
   onChange
 }: Props) => {
-  const addToArrayFilter = <K extends 'states' | 'laboratoryIds'>(
-    key: K,
-    value: Filters[K][number]
-  ) => {
-    const current = filters[key] as string[];
-    if (!current.includes(value as string)) {
-      onChange({ [key]: [...current, value] } as Partial<Filters>);
+  const addToLaboratoryIds = (value: string) => {
+    if (!filters.laboratoryIds.includes(value)) {
+      onChange({ laboratoryIds: [...filters.laboratoryIds, value] });
     }
   };
 
-  const removeFromArrayFilter = <K extends 'states' | 'laboratoryIds'>(
-    key: K,
-    value: Filters[K][number]
-  ) => {
-    const current = filters[key] as string[];
-    onChange({ [key]: current.filter((v) => v !== value) } as Partial<Filters>);
+  const removeLaboratoryId = (value: string) => {
+    onChange({
+      laboratoryIds: filters.laboratoryIds.filter((v) => v !== value)
+    });
   };
 
   const hasFilters =
-    filters.states.length > 0 ||
-    filters.sentMethod !== undefined ||
+    filters.state !== undefined ||
+    filters.source !== undefined ||
     filters.laboratoryIds.length > 0 ||
-    filters.sentDateFrom !== undefined ||
-    filters.sentDateTo !== undefined ||
+    filters.receivedAtFrom !== undefined ||
+    filters.receivedAtTo !== undefined ||
     filters.edi !== undefined;
 
   return (
@@ -65,48 +60,41 @@ export const AnalysisDaiFilters = ({
           <Select
             label="État"
             nativeSelectProps={{
-              value: '',
-              onChange: (e) => {
-                if (e.target.value)
-                  addToArrayFilter(
-                    'states',
-                    e.target.value as AnalysisDaiState
-                  );
-              }
-            }}
-          >
-            <option value="">
-              {filters.states.length > 0
-                ? `${filters.states.length} sélectionné(s)`
-                : 'Tous'}
-            </option>
-            {AnalysisDaiState.options
-              .filter((s) => !filters.states.includes(s))
-              .map((state) => (
-                <option key={state} value={state}>
-                  {daiStateLabels[state]}
-                </option>
-              ))}
-          </Select>
-        </div>
-
-        <div className={cx('fr-col-12', 'fr-col-md-3')}>
-          <Select
-            label="Moyen d'envoi"
-            nativeSelectProps={{
-              value: filters.sentMethod ?? '',
+              value: filters.state ?? '',
               onChange: (e) =>
                 onChange({
-                  sentMethod: (e.target.value || undefined) as
-                    | SachaCommunicationMethod
+                  state: (e.target.value || undefined) as
+                    | AnalysisRaiState
                     | undefined
                 })
             }}
           >
             <option value="">Tous</option>
-            {SachaCommunicationMethod.options.map((method) => (
-              <option key={method} value={method}>
-                {daiSentMethodLabels[method]}
+            {AnalysisRaiState.options.map((state) => (
+              <option key={state} value={state}>
+                {raiStateLabels[state]}
+              </option>
+            ))}
+          </Select>
+        </div>
+
+        <div className={cx('fr-col-12', 'fr-col-md-3')}>
+          <Select
+            label="Source"
+            nativeSelectProps={{
+              value: filters.source ?? '',
+              onChange: (e) =>
+                onChange({
+                  source: (e.target.value || undefined) as
+                    | AnalysisRaiSource
+                    | undefined
+                })
+            }}
+          >
+            <option value="">Toutes</option>
+            {AnalysisRaiSource.options.map((source) => (
+              <option key={source} value={source}>
+                {raiSourceLabels[source]}
               </option>
             ))}
           </Select>
@@ -118,8 +106,7 @@ export const AnalysisDaiFilters = ({
             nativeSelectProps={{
               value: '',
               onChange: (e) => {
-                if (e.target.value)
-                  addToArrayFilter('laboratoryIds', e.target.value);
+                if (e.target.value) addToLaboratoryIds(e.target.value);
               }
             }}
           >
@@ -167,24 +154,24 @@ export const AnalysisDaiFilters = ({
 
         <div className={cx('fr-col-12', 'fr-col-md-3')}>
           <Input
-            label="Date d'envoi (depuis)"
+            label="Date de réception (depuis)"
             nativeInputProps={{
               type: 'date',
-              value: filters.sentDateFrom ?? '',
+              value: filters.receivedAtFrom ?? '',
               onChange: (e) =>
-                onChange({ sentDateFrom: e.target.value || undefined })
+                onChange({ receivedAtFrom: e.target.value || undefined })
             }}
           />
         </div>
 
         <div className={cx('fr-col-12', 'fr-col-md-3')}>
           <Input
-            label="Date d'envoi (jusqu'au)"
+            label="Date de réception (jusqu'au)"
             nativeInputProps={{
               type: 'date',
-              value: filters.sentDateTo ?? '',
+              value: filters.receivedAtTo ?? '',
               onChange: (e) =>
-                onChange({ sentDateTo: e.target.value || undefined })
+                onChange({ receivedAtTo: e.target.value || undefined })
             }}
           />
         </div>
@@ -195,65 +182,28 @@ export const AnalysisDaiFilters = ({
           className={clsx(cx('fr-mb-2w'), 'd-flex-row')}
           style={{ gap: '0.5rem', flexWrap: 'wrap' }}
         >
-          {filters.states.map((state) => (
+          {filters.state !== undefined && (
             <Tag
-              key={`tag-state-${state}`}
+              key={`tag-state-${filters.state}`}
               dismissible
               small
               nativeButtonProps={{
-                onClick: () => removeFromArrayFilter('states', state)
+                onClick: () => onChange({ state: undefined })
               }}
             >
-              {daiStateLabels[state]}
-            </Tag>
-          ))}
-          {filters.sentMethod !== undefined && (
-            <Tag
-              key={`tag-method-${filters.sentMethod}`}
-              dismissible
-              small
-              nativeButtonProps={{
-                onClick: () => onChange({ sentMethod: undefined })
-              }}
-            >
-              {daiSentMethodLabels[filters.sentMethod]}
+              {raiStateLabels[filters.state]}
             </Tag>
           )}
-          {filters.laboratoryIds.map((id) => {
-            const lab = laboratories.find((l) => l.id === id);
-            return lab ? (
-              <Tag
-                key={`tag-lab-${id}`}
-                dismissible
-                small
-                nativeButtonProps={{
-                  onClick: () => removeFromArrayFilter('laboratoryIds', id)
-                }}
-              >
-                {lab.name}
-              </Tag>
-            ) : null;
-          })}
-          {filters.sentDateFrom && (
+          {filters.source !== undefined && (
             <Tag
+              key={`tag-source-${filters.source}`}
               dismissible
               small
               nativeButtonProps={{
-                onClick: () => onChange({ sentDateFrom: undefined })
+                onClick: () => onChange({ source: undefined })
               }}
             >
-              Depuis {filters.sentDateFrom}
-            </Tag>
-          )}
-          {filters.sentDateTo && (
-            <Tag
-              dismissible
-              small
-              nativeButtonProps={{
-                onClick: () => onChange({ sentDateTo: undefined })
-              }}
-            >
-              Jusqu'au {filters.sentDateTo}
+              {raiSourceLabels[filters.source]}
             </Tag>
           )}
           {filters.edi !== undefined && (
@@ -265,6 +215,43 @@ export const AnalysisDaiFilters = ({
               }}
             >
               EDI : {filters.edi ? 'Oui' : 'Non'}
+            </Tag>
+          )}
+          {filters.laboratoryIds.map((id) => {
+            const lab = laboratories.find((l) => l.id === id);
+            return lab ? (
+              <Tag
+                key={`tag-lab-${id}`}
+                dismissible
+                small
+                nativeButtonProps={{
+                  onClick: () => removeLaboratoryId(id)
+                }}
+              >
+                {lab.name}
+              </Tag>
+            ) : null;
+          })}
+          {filters.receivedAtFrom && (
+            <Tag
+              dismissible
+              small
+              nativeButtonProps={{
+                onClick: () => onChange({ receivedAtFrom: undefined })
+              }}
+            >
+              Depuis {filters.receivedAtFrom}
+            </Tag>
+          )}
+          {filters.receivedAtTo && (
+            <Tag
+              dismissible
+              small
+              nativeButtonProps={{
+                onClick: () => onChange({ receivedAtTo: undefined })
+              }}
+            >
+              Jusqu'au {filters.receivedAtTo}
             </Tag>
           )}
         </div>

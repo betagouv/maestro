@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import express from 'express';
 import { analysisRouter } from '../controllers/analysisController';
 import { analysisDaiRouter } from '../controllers/analysisDaiController';
+import { analysisRaiRouter } from '../controllers/analysisRaiController';
 import { analysisReportDocumentsRouter } from '../controllers/analysisReportDocumentsController';
 import { authProtectedRouter } from '../controllers/authController';
 import { companiesRouter } from '../controllers/companyController';
@@ -29,6 +30,7 @@ protectedRouter.use(userCheck(true));
 
 const router = {
   ...analysisDaiRouter,
+  ...analysisRaiRouter,
   ...analysisRouter,
   ...analysisReportDocumentsRouter,
   ...authProtectedRouter,

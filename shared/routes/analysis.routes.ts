@@ -6,10 +6,12 @@ import {
 } from '../schema/Analysis/Analysis';
 import { SampleItemKey } from '../schema/Sample/SampleItem';
 import { analysisDaiRoutes } from './analysisDai.routes';
+import { analysisRaiRoutes } from './analysisRai.routes';
 import type { SubRoutes } from './routes';
 
 export const analysisRoutes = {
   ...analysisDaiRoutes,
+  ...analysisRaiRoutes,
   '/analysis': {
     get: {
       query: SampleItemKey,

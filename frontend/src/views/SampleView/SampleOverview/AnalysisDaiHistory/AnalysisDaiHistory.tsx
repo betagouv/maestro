@@ -17,8 +17,11 @@ import AppToast from 'src/components/_app/AppToast/AppToast';
 import { ApiClientContext } from 'src/services/apiClient';
 import { pluralize } from 'src/utils/stringUtils';
 import './AnalysisDaiHistory.scss';
+import {
+  DocumentsModal,
+  documentsModal
+} from 'src/components/DocumentsModal/DocumentsModal';
 import { assert, type Equals } from 'tsafe';
-import { DocumentsModal, documentsModal } from './DocumentsModal';
 import { RetryModal, retryModal } from './RetryModal';
 
 type Props = {
@@ -277,7 +280,7 @@ export const AnalysisDaiHistory = ({
       )}
 
       <RetryModal selectedDai={selectedDai} onRetry={handleRetry} />
-      <DocumentsModal selectedDai={selectedDai} />
+      <DocumentsModal documents={selectedDai?.documents ?? []} />
     </div>
   );
 };

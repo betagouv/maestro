@@ -8,6 +8,7 @@ import {
   SSD2Referential
 } from 'maestro-shared/referential/Residue/SSD2Referential';
 import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import type { AnalysisRai } from 'maestro-shared/schema/AnalysisRai/AnalysisRai';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import type { MaestroDate } from 'maestro-shared/utils/date';
@@ -117,6 +118,219 @@ type EmailWithMessageUid = { messageUid: string } & Pick<
   'subject' | 'attachments' | 'from' | 'date'
 >;
 
+type EmailRaiResult = {
+  analysisId: string;
+  sampleId: string;
+  samplerId: string;
+  samplerEmail: string;
+  compliance: null | true;
+  pdfDocumentId: string;
+  copyNumber: number;
+};
+
+const processEmailRaiAttachments = async (
+  laboratoryName: LaboratoryWithConf,
+  attachments: Pick<Attachment, 'content' | 'filename' | 'contentType'>[],
+  receivedAt: Date
+): Promise<{ results: EmailRaiResult[]; warnings: Set<string> }> => {
+  const warnings = new Set<string>();
+  const dbMappingsList =
+    await laboratoryResidueMappingRepository.findByLaboratoryShortName(
+      laboratoryName
+    );
+  const ssd2IdByLabel = dbMappingsList.reduce(
+    (acc, mapping) => {
+      acc[mapping.label] = mapping.ssd2Id;
+      return acc;
+    },
+    {} as Record<string, SSD2Id | null>
+  );
+
+  const analyzes =
+    await laboratoriesConf[laboratoryName].exportDataFromEmail(attachments);
+
+  if (analyzes.length === 0) {
+    throw new ExtractError("Aucun résultat d'analyses trouvé dans cet email.");
+  }
+
+  const results: EmailRaiResult[] = [];
+  for (const analysis of analyzes) {
+    const residues: (ExportDataSubstance & {
+      ssd2Id: SSD2Id | null;
+    })[] = analysis.residues.map((r) => ({
+      ...r,
+      ssd2Id: ssd2IdByLabel[r.label] ?? null
+    }));
+
+    residues.forEach((r) => {
+      if (!Object.keys(ssd2IdByLabel).includes(r.label)) {
+        if (r.codeSandre !== null) {
+          if (SandreToSSD2[r.codeSandre] === undefined) {
+            if (r.ssd2Id !== null) {
+              warnings.add(
+                `Nouveau code Sandre détecté : ${r.label} ${r.codeSandre} => ${r.ssd2Id}`
+              );
+            } else {
+              warnings.add(
+                `Nouveau code Sandre détecté : ${r.label} ${r.codeSandre}`
+              );
+            }
+          }
+        }
+        if (r.ssd2Id === null) {
+          const potentialSSD2Id = getSSD2Id(r.label, r.codeSandre, r.casNumber);
+          warnings.add(
+            `Impossible d'identifier le résidu : ${r.label} ${potentialSSD2Id !== null ? `ssd2Id potentiel:${potentialSSD2Id}` : ''}`
+          );
+        }
+      }
+    });
+
+    const interestingResidues = residues
+      .filter((r) => r.result_kind !== 'ND')
+      .filter((r) => {
+        const ssd2Id = r.ssd2Id;
+        if (ssd2Id === null) {
+          return true;
+        }
+        const reference =
+          SSD2Referential[ssd2Id as keyof typeof SSD2Referential];
+        return !('deprecated' in reference) || !reference.deprecated;
+      });
+
+    interestingResidues.forEach((r) => {
+      if (r.ssd2Id === null) {
+        if (ssd2IdByLabel[r.label] === null && r.result_kind === 'ND') {
+          warnings.add(
+            `Attention un résidu inconnu a été détecté, il a été ignoré : ${r.label}`
+          );
+        } else {
+          throw new ExtractError(`Résidu non identifiable : ${r.label}`);
+        }
+      }
+    });
+
+    const {
+      sampleId,
+      samplerId,
+      samplerEmail,
+      compliance,
+      analysisId,
+      documentId: pdfDocumentId
+    } = await analysisHandler(
+      {
+        ...analysis,
+        residues: residues.map(({ casNumber, codeSandre, label, ...rest }) => {
+          const unknownLabel = rest.ssd2Id === null ? label : null;
+          return { ...rest, unknownLabel };
+        })
+      },
+      receivedAt
+    );
+
+    results.push({
+      analysisId,
+      sampleId,
+      samplerId,
+      samplerEmail,
+      compliance,
+      pdfDocumentId,
+      copyNumber: analysis.copyNumber
+    });
+  }
+
+  return { results, warnings };
+};
+
+export const replayRai = async (
+  rai: Extract<AnalysisRai, { source: 'EMAIL' }>
+): Promise<void> => {
+  const messageUids = rai.payload.emails.map((e) => e.messageUid);
+  if (messageUids.length === 0) {
+    throw new Error('Aucun messageUid dans le payload de la RAI.');
+  }
+
+  if (
+    isNil(config.inbox.host) ||
+    isNil(config.inbox.user) ||
+    isNil(config.inbox.password)
+  ) {
+    throw new Error('Configuration IMAP manquante.');
+  }
+
+  const client = new ImapFlow({
+    host: config.inbox.host,
+    auth: { user: config.inbox.user, pass: config.inbox.password },
+    port: config.inbox.port,
+    secure: true,
+    logger: false
+  });
+  await client.connect();
+  const lock = await client.getMailboxLock(config.inbox.errorboxName);
+
+  try {
+    const emails: EmailWithMessageUid[] = [];
+    for (const messageUid of messageUids) {
+      const downloadObject = await client.download(messageUid, undefined, {
+        uid: true
+      });
+      const parsed = await simpleParser(downloadObject.content);
+      emails.push({ ...parsed, messageUid });
+    }
+
+    const senderAddress = emails[0].from?.value[0]?.address ?? '';
+    const laboratory = await getLaboratoryBySender(senderAddress);
+    if (!laboratory) {
+      throw new Error(
+        `Laboratoire non identifié pour l'expéditeur ${senderAddress}.`
+      );
+    }
+
+    const { results } = await processEmailRaiAttachments(
+      laboratory.shortName,
+      emails.flatMap((e) => e.attachments),
+      rai.receivedAt
+    );
+
+    if (results.length === 0) {
+      throw new Error("Le retraitement n'a produit aucune analyse.");
+    }
+
+    const [first, ...extras] = results;
+    await analysisRaiRepository.update(rai.id, {
+      state: 'PROCESSED',
+      analysisId: first.analysisId,
+      laboratoryId: laboratory.id,
+      message: null
+    });
+
+    for (const extra of extras) {
+      const newRaiId = await analysisRaiRepository.insert({
+        source: 'EMAIL',
+        edi: false,
+        state: 'PROCESSED',
+        analysisId: extra.analysisId,
+        laboratoryId: laboratory.id,
+        payload: rai.payload,
+        message: null,
+        receivedAt: rai.receivedAt
+      });
+      await analysisRaiRepository.linkDocuments(newRaiId, [
+        extra.pdfDocumentId
+      ]);
+    }
+
+    for (const messageUid of messageUids) {
+      await client.messageMove(messageUid, config.inbox.successboxName, {
+        uid: true
+      });
+    }
+  } finally {
+    lock.release();
+    await client.logout();
+  }
+};
+
 export const checkEmails = async () => {
   if (
     isNil(config.inbox.user) ||
@@ -206,20 +420,6 @@ export const checkEmails = async () => {
         const warnings = new Set<string>();
 
         for (const laboratoryName of getRecordKeys(messagesByLaboratory)) {
-          const dbMappingsList =
-            await laboratoryResidueMappingRepository.findByLaboratoryShortName(
-              laboratoryName
-            );
-
-          const ssd2IdByLabel = dbMappingsList.reduce(
-            (acc, mapping) => {
-              acc[mapping.label] = mapping.ssd2Id;
-
-              return acc;
-            },
-            {} as Record<string, SSD2Id | null>
-          );
-
           const parsedEmails: EmailWithMessageUid[] = [];
           for (const messageUid of messagesByLaboratory[laboratoryName]) {
             //undefined permet de récupérer tout l'email
@@ -308,139 +508,46 @@ export const checkEmails = async () => {
             };
 
             try {
-              const analyzes = await laboratoriesConf[
-                laboratoryName
-              ].exportDataFromEmail(emails.flatMap((p) => p.attachments));
-
-              if (analyzes.length === 0) {
-                throw new ExtractError(
-                  "Aucun résultat d'analyses trouvé dans cet email."
-                );
-              }
-
-              for (const analysis of analyzes) {
-                const residues: (ExportDataSubstance & {
-                  ssd2Id: SSD2Id | null;
-                })[] = analysis.residues.map((r) => {
-                  return {
-                    ...r,
-                    ssd2Id: ssd2IdByLabel[r.label] ?? null
-                  };
-                });
-
-                //On créer une liste de warnings avec les résidus introuvables dans SSD2
-                residues.forEach((r) => {
-                  if (!Object.keys(ssd2IdByLabel).includes(r.label)) {
-                    if (r.codeSandre !== null) {
-                      if (SandreToSSD2[r.codeSandre] === undefined) {
-                        if (r.ssd2Id !== null) {
-                          warnings.add(
-                            `Nouveau code Sandre détecté : ${r.label} ${r.codeSandre} => ${r.ssd2Id}`
-                          );
-                        } else {
-                          warnings.add(
-                            `Nouveau code Sandre détecté : ${r.label} ${r.codeSandre}`
-                          );
-                        }
-                      }
-                    }
-                    if (r.ssd2Id === null) {
-                      const potentialSSD2Id = getSSD2Id(
-                        r.label,
-                        r.codeSandre,
-                        r.casNumber
-                      );
-                      warnings.add(
-                        `Impossible d'identifier le résidu : ${r.label} ${potentialSSD2Id !== null ? `ssd2Id potentiel:${potentialSSD2Id}` : ''}`
-                      );
-                    }
-                  }
-                });
-
-                //On garde que les résidus intéressants
-                const interestingResidues = residues
-                  .filter((r) => r.result_kind !== 'ND')
-                  .filter((r) => {
-                    const ssd2Id = r.ssd2Id;
-
-                    if (ssd2Id === null) {
-                      return true;
-                    }
-                    const reference =
-                      SSD2Referential[ssd2Id as keyof typeof SSD2Referential];
-                    return (
-                      !('deprecated' in reference) || !reference.deprecated
-                    );
-                  });
-
-                //Erreur si un résidu intéressant n'a pas de SSD2Id
-                interestingResidues.forEach((r) => {
-                  if (r.ssd2Id === null) {
-                    if (
-                      ssd2IdByLabel[r.label] === null &&
-                      r.result_kind === 'ND'
-                    ) {
-                      warnings.add(
-                        `Attention un résidu inconnu a été détecté, il a été ignoré : ${r.label}`
-                      );
-                    } else {
-                      throw new ExtractError(
-                        `Résidu non identifiable : ${r.label}`
-                      );
-                    }
-                  }
-                });
-
-                const {
-                  sampleId,
-                  samplerId,
-                  samplerEmail,
-                  compliance,
-                  analysisId,
-                  documentId: pdfDocumentId
-                } = await analysisHandler(
-                  {
-                    ...analysis,
-                    residues: residues.map(
-                      ({ casNumber, codeSandre, label, ...rest }) => {
-                        const unknownLabel =
-                          rest.ssd2Id === null ? label : null;
-                        return { ...rest, unknownLabel };
-                      }
-                    )
-                  },
+              const { results, warnings: extractionWarnings } =
+                await processEmailRaiAttachments(
+                  laboratoryName,
+                  emails.flatMap((p) => p.attachments),
                   receivedAt
                 );
+              for (const w of extractionWarnings) {
+                warnings.add(w);
+              }
 
-                const otherAttachments = emails
-                  .flatMap((e) => e.attachments)
-                  .filter((a) => !a.filename?.toLowerCase().endsWith('.pdf'));
-                const otherDocumentIds =
-                  await uploadAttachmentsAsRaiSourceFiles(otherAttachments);
+              const otherAttachments = emails
+                .flatMap((e) => e.attachments)
+                .filter((a) => !a.filename?.toLowerCase().endsWith('.pdf'));
+              const otherDocumentIds =
+                await uploadAttachmentsAsRaiSourceFiles(otherAttachments);
 
+              for (const result of results) {
                 const raiId = await analysisRaiRepository.insert({
                   source: 'EMAIL',
                   edi: false,
                   state: 'PROCESSED',
-                  analysisId,
+                  analysisId: result.analysisId,
                   laboratoryId,
                   payload,
                   message: null,
                   receivedAt
                 });
                 await analysisRaiRepository.linkDocuments(raiId, [
-                  pdfDocumentId,
+                  result.pdfDocumentId,
                   ...otherDocumentIds
                 ]);
 
                 //si exemplaire 2 ou plus, alors il faut envoyer dans tous les cas
-                if (compliance === null || analysis.copyNumber !== 1) {
+                if (result.compliance === null || result.copyNumber !== 1) {
                   await notificationService.sendNotification(
                     {
                       category: 'AnalysisReviewTodo',
-                      link: AppRouteLinks.SampleRoute.link(sampleId)
+                      link: AppRouteLinks.SampleRoute.link(result.sampleId)
                     },
-                    [{ id: samplerId, email: samplerEmail }],
+                    [{ id: result.samplerId, email: result.samplerEmail }],
                     undefined
                   );
                 }
