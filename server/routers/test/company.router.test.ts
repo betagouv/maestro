@@ -1,7 +1,8 @@
 import { constants } from 'node:http2';
 import request from 'supertest';
-import { describe, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { createServer } from '../../server';
+import { rewriteCompanySearchPath } from '../company.router';
 
 describe('Company Router', () => {
   const { app } = createServer();
@@ -14,6 +15,20 @@ describe('Company Router', () => {
       await request(app)
         .get(testRoute({}))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+  });
+
+  describe('rewriteCompanySearchPath', () => {
+    // Non-régression http-proxy-middleware v4 : l'URL proxifiée ne doit pas
+    // contenir « /? » entre « /search » et la query string
+    test('rewrites "/" to "/search"', () => {
+      expect(rewriteCompanySearchPath('/')).toBe('/search');
+    });
+
+    test('keeps the query string attached directly to "/search"', () => {
+      expect(rewriteCompanySearchPath('/?q=asen&etat_administratif=A')).toBe(
+        '/search?q=asen&etat_administratif=A'
+      );
     });
   });
 });
