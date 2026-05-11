@@ -35,26 +35,14 @@
     overflow: visible;
     width: 100% !important;
     table-layout: fixed;
-<<<<<<< HEAD
     display: table !important;
-=======
-  }
-
-  td:has(.selectable-cell) {
-    border-bottom: 1px solid var(--border-default-grey) !important;
->>>>>>> 600ae537 (feat(labcam): gère les agrééments des laboratoires)
   }
 
   thead th {
     position: sticky;
     top: calc(var(--notice-height, 0px));
     z-index: 2;
-<<<<<<< HEAD
     border-top: 1px solid var(--border-contrast-grey);
-=======
-    background-color: var(--background-contrast-grey);
-    border-top: 1px solid rgb(128,128,128);
->>>>>>> 600ae537 (feat(labcam): gère les agrééments des laboratoires)
     overflow: visible;
     background-color: var(--background-alt-grey) !important;
 
@@ -63,7 +51,6 @@
     }
   }
 
-<<<<<<< HEAD
   td, th {
     vertical-align: middle !important;
   }
@@ -158,12 +145,4 @@
     display: flex;
     align-items: center;
   }
-=======
-  th:nth-child(1), td:nth-child(1) { width: 3rem; }
-  th:nth-child(2), td:nth-child(2) { width: 5rem; }
-  th:nth-child(3), td:nth-child(3) { width: 14rem; }
-  th:nth-child(4), td:nth-child(4) { width: 12rem; }
-  th:nth-child(5), td:nth-child(5) { width: auto; min-width: 10rem; }
-  th:nth-child(6), td:nth-child(6) { width: 4rem; }
->>>>>>> 600ae537 (feat(labcam): gère les agrééments des laboratoires)
 }
