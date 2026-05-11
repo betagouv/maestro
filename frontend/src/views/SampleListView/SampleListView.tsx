@@ -80,7 +80,7 @@ const SampleListView = () => {
       samplesSlice.actions.changeFindOptions({
         programmingPlanIds:
           (searchParams.get('programmingPlanIds')?.split(',') as string[]) ??
-          toArray(programmingPlan?.id),
+          undefined,
         kinds:
           (searchParams.get('kinds')?.split(',') as ProgrammingPlanKind[]) ??
           undefined,
@@ -126,14 +126,28 @@ const SampleListView = () => {
         perPage: defaultPerPage
       })
     );
-  }, [searchParams, user?.region, sampleListDisplay, programmingPlan?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchParams, user?.region, sampleListDisplay]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const canDownloadSupportDocument: boolean =
     programmingPlan?.kinds.includes('PPV') ?? false;
 
-  const { data: samples } = apiClient.useFindSamplesQuery(findSampleOptions);
+  const findSampleOptionsWithYear = useMemo(
+    () => ({
+      ...findSampleOptions,
+      programmingPlanIds: findSampleOptions.programmingPlanIds?.length
+        ? findSampleOptions.programmingPlanIds
+        : programmingPlans?.map((p) => p.id)
+    }),
+    [findSampleOptions, programmingPlans]
+  );
+
+  const { data: samples } = apiClient.useFindSamplesQuery(
+    findSampleOptionsWithYear,
+    { skip: !programmingPlans }
+  );
   const { data: samplesCount } = apiClient.useCountSamplesQuery(
-    omit(findSampleOptions, 'page', 'perPage')
+    omit(findSampleOptionsWithYear, 'page', 'perPage'),
+    { skip: !programmingPlans }
   );
   const { data: prescriptions } = apiClient.useFindPrescriptionsQuery(
     {
