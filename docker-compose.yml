@@ -12,6 +12,20 @@ services:
       - 9090:9090
     volumes:
       - ./locals3root:/containers3root
+  s3manager:
+    image: cloudlena/s3manager
+    container_name: maestro_s3manager
+    ports:
+      - 8081:8080
+    environment:
+      - ENDPOINT=s3mock:9090
+      - ACCESS_KEY_ID=foo
+      - SECRET_ACCESS_KEY=bar
+      - USE_SSL=false
+      - SKIP_SSL_VERIFICATION=true
+      - REGION=us-east-1
+    depends_on:
+      - s3mock
   browserless:
     image: ghcr.io/browserless/chromium
     container_name: maestro_browserless
