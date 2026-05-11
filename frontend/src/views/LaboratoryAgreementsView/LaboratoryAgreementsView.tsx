@@ -55,9 +55,10 @@ const LaboratoryAgreementsView = () => {
       | 'confirmationAnalysis'
     >[]
   >([]);
-  const [kindFilter, setKindFilter] = useState<ProgrammingPlanKind[]>([]);
   const [substanceFilter, setSubstanceFilter] = useState<SubstanceKind[]>([]);
   const [labFilter, setLabFilter] = useState<string[]>([]);
+  const [kindFilter, setKindFilter] = useState<ProgrammingPlanKind[]>([]);
+  const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
 
   const { data: agreements = [] } =
     apiClient.useFindLaboratoryAgreementsQuery();
@@ -106,7 +107,7 @@ const LaboratoryAgreementsView = () => {
     () =>
       [...new Set(rows.map((r) => r.programmingPlanKind))].map((value) => ({
         value,
-        label: ProgrammingPlanKindLabels[value]
+        label: ProgrammingPlanKindReference[value]
       })),
     [rows]
   );
@@ -157,6 +158,11 @@ const LaboratoryAgreementsView = () => {
   const toggleAll = () =>
     setSelectedStringRowKeys(allSelected ? [] : filteredRows.map(stringRowKey));
 
+  const toggleExpand = (key: string) =>
+    setExpandedRowKeys((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+
   const rowAgreementsSignature = (labs: LaboratoryAgreement[]) =>
     labs
       .map(
@@ -199,6 +205,7 @@ const LaboratoryAgreementsView = () => {
   });
 
   const noticeRef = useRef<HTMLDivElement>(null);
+  const tableContainerRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const el = noticeRef.current;
@@ -213,6 +220,43 @@ const LaboratoryAgreementsView = () => {
     observer.observe(el);
     return () => observer.disconnect();
   }, [selectedStringRowKeys]);
+
+  // Gestion des lignes pliées / dépliées du tableau.
+  // Le composant Table ne gère pas nativement les cellules avec rowspan ou colspan, on doit donc manipuler le DOM après coup pour faire le rendu souhaité.
+  // On utilise useLayoutEffect pour s'assurer que les modifications sont appliquées avant le rendu à l'écran, évitant ainsi les clignotements ou les rendus intermédiaires incorrects.
+  useLayoutEffect(() => {
+    const table = tableContainerRef.current?.querySelector('table');
+    if (!table) {
+      return;
+    }
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    rows.forEach((tr) => {
+      const tds = Array.from(tr.querySelectorAll('td')) as HTMLElement[];
+      tds.forEach((td) => {
+        td.removeAttribute('rowspan');
+        td.removeAttribute('colspan');
+        td.style.display = '';
+      });
+    });
+
+    rows.forEach((tr, i) => {
+      const firstTd = tr.querySelector('td:first-child') as HTMLElement | null;
+      if (!firstTd?.querySelector('.row-expanded')) {
+        return;
+      }
+      firstTd.setAttribute('rowspan', '2');
+      const nextRow = rows[i + 1];
+      if (!nextRow) {
+        return;
+      }
+      const nextTds = Array.from(
+        nextRow.querySelectorAll('td')
+      ) as HTMLElement[];
+      nextTds[0].style.display = 'none';
+      nextTds[1].setAttribute('colspan', '4');
+    });
+  }, [expandedRowKeys, filteredRows]);
 
   return (
     <section className={clsx(cx('fr-container'), 'main-section')}>
@@ -240,19 +284,23 @@ const LaboratoryAgreementsView = () => {
           {selectedStringRowKeys.length > 0 && (
             <Notice
               className={cx('fr-mb-2w')}
-              title={pluralize(selectedStringRowKeys.length, {
-                preserveCount: true
-              })('plan sélectionné')}
-              description={
+              title={
                 selectedRowsConsistent ? (
-                  <Button
-                    iconId="fr-icon-microscope-line"
-                    priority="secondary"
-                    size="small"
-                    onClick={handleOpenModal}
-                  >
-                    Affecter les laboratoires
-                  </Button>
+                  <>
+                    <span>
+                      {pluralize(selectedStringRowKeys.length, {
+                        preserveCount: true
+                      })('plan sélectionné')}
+                    </span>
+                    <Button
+                      iconId="fr-icon-microscope-line"
+                      priority="secondary"
+                      size="small"
+                      onClick={handleOpenModal}
+                    >
+                      Affecter les laboratoires
+                    </Button>
+                  </>
                 ) : (
                   <span>
                     Les plans sélectionnés ont des agréments différents.
@@ -261,12 +309,15 @@ const LaboratoryAgreementsView = () => {
                 )
               }
               severity={selectedRowsConsistent ? 'info' : 'warning'}
-              iconDisplayed={true}
+              iconDisplayed={false}
               isClosable={false}
             />
           )}
         </div>
-        <div className="laboratory-agreements-table-wrapper laboratory-agreements-table">
+        <div
+          ref={tableContainerRef}
+          className="laboratory-agreements-table-wrapper laboratory-agreements-table"
+        >
           <Table
             noCaption
             bordered
@@ -286,14 +337,12 @@ const LaboratoryAgreementsView = () => {
                     }
                   ]}
                   small
+                  className={cx('fr-pb-3w')}
                 />
               </div>,
               <div key="header-reference" className="border-left">
-                ID
-              </div>,
-              <div key="header-kind" className="border-left">
                 <ColumnFilterHeader
-                  label="Type de plan"
+                  label="ID"
                   options={kindOptions}
                   selectedValues={kindFilter}
                   onChange={setKindFilter}
@@ -318,90 +367,122 @@ const LaboratoryAgreementsView = () => {
                 />
               </div>
             ]}
-            data={filteredRows.map((row) => [
-              <div
-                key={`select-${stringRowKey(row)}`}
-                className="selectable-cell"
-              >
-                <Checkbox
-                  options={[
-                    {
-                      label: '',
-                      nativeInputProps: {
-                        checked: selectedStringRowKeys.includes(
-                          stringRowKey(row)
-                        ),
-                        onChange: () => toggleRow(stringRowKey(row))
+            data={filteredRows.flatMap((row) => {
+              const rowKey = stringRowKey(row);
+              const isExpanded = expandedRowKeys.includes(rowKey);
+
+              const mainRow = [
+                <div
+                  key={`select-${rowKey}`}
+                  className={clsx('selectable-cell', {
+                    'row-expanded': isExpanded
+                  })}
+                >
+                  <Checkbox
+                    options={[
+                      {
+                        label: '',
+                        nativeInputProps: {
+                          checked: selectedStringRowKeys.includes(rowKey),
+                          onChange: () => toggleRow(rowKey)
+                        }
                       }
+                    ]}
+                    small
+                    className={cx('fr-pb-3w')}
+                  />
+                </div>,
+                <div
+                  key={`reference-${rowKey}`}
+                  className={clsx('border-left', 'row-reference')}
+                >
+                  {ProgrammingPlanKindReference[row.programmingPlanKind]}
+                  <Button
+                    iconId={
+                      isExpanded
+                        ? 'fr-icon-arrow-up-s-line'
+                        : 'fr-icon-arrow-down-s-line'
                     }
-                  ]}
-                  small
-                />
-              </div>,
-              <div
-                key={`reference-${stringRowKey(row)}`}
-                className="border-left"
-              >
-                {ProgrammingPlanKindReference[row.programmingPlanKind]}
-              </div>,
-              <div key={`kind-${stringRowKey(row)}`} className="border-left">
-                {ProgrammingPlanKindLabels[row.programmingPlanKind]}
-              </div>,
-              <div
-                key={`substance-${stringRowKey(row)}`}
-                className="border-left"
-              >
-                {SubstanceKindLabels[row.substanceKind]}
-              </div>,
-              <div
-                key={`labs-${stringRowKey(row)}`}
-                className="border-left"
-                style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}
-              >
-                {row.laboratories
-                  .filter(
-                    (lab) =>
-                      lab.referenceLaboratory ||
-                      lab.detectionAnalysis ||
-                      lab.confirmationAnalysis
-                  )
-                  .map((lab) => ({
-                    ...lab,
-                    shortName: laboratories.find(
-                      (l) => l.id === lab.laboratoryId
-                    )?.shortName
-                  }))
-                  .filter((lab) => lab.shortName != null)
-                  .toSorted((a, b) => a.shortName!.localeCompare(b.shortName!))
-                  .map((lab) => (
-                    <LaboratoryAgreementTag
-                      key={lab.laboratoryId}
-                      shortName={lab.shortName as LaboratoryShortName}
-                      referenceLaboratory={lab.referenceLaboratory}
-                      detectionAnalysis={lab.detectionAnalysis}
-                      confirmationAnalysis={lab.confirmationAnalysis}
-                      onToggle={() => {}}
-                    />
-                  ))}
-              </div>,
-              <div key={`action-${stringRowKey(row)}`}>
-                <Button
-                  iconId={
-                    row.laboratories.length === 0
-                      ? 'fr-icon-add-line'
-                      : 'fr-icon-edit-line'
-                  }
-                  priority="tertiary"
-                  size="medium"
-                  title={
-                    row.laboratories.length === 0
-                      ? 'Affecter des laboratoires'
-                      : 'Modifier les laboratoires'
-                  }
-                  onClick={() => handleOpenModalForRow(row)}
-                />
-              </div>
-            ])}
+                    priority="tertiary no outline"
+                    size="small"
+                    title="Voir le type de plan"
+                    onClick={() => toggleExpand(rowKey)}
+                  />
+                </div>,
+                <div key={`substance-${rowKey}`} className="border-left">
+                  {SubstanceKindLabels[row.substanceKind]}
+                </div>,
+                <div
+                  key={`labs-${rowKey}`}
+                  className="border-left"
+                  style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}
+                >
+                  {row.laboratories
+                    .filter(
+                      (lab) =>
+                        lab.referenceLaboratory ||
+                        lab.detectionAnalysis ||
+                        lab.confirmationAnalysis
+                    )
+                    .map((lab) => ({
+                      ...lab,
+                      shortName: laboratories.find(
+                        (l) => l.id === lab.laboratoryId
+                      )?.shortName
+                    }))
+                    .filter((lab) => lab.shortName != null)
+                    .toSorted((a, b) =>
+                      a.shortName!.localeCompare(b.shortName!)
+                    )
+                    .map((lab) => (
+                      <LaboratoryAgreementTag
+                        key={lab.laboratoryId}
+                        shortName={lab.shortName as LaboratoryShortName}
+                        referenceLaboratory={lab.referenceLaboratory}
+                        detectionAnalysis={lab.detectionAnalysis}
+                        confirmationAnalysis={lab.confirmationAnalysis}
+                        onToggle={() => {}}
+                      />
+                    ))}
+                </div>,
+                <div key={`action-${rowKey}`}>
+                  <Button
+                    iconId={
+                      row.laboratories.length === 0
+                        ? 'fr-icon-add-line'
+                        : 'fr-icon-edit-line'
+                    }
+                    priority="tertiary"
+                    size="medium"
+                    title={
+                      row.laboratories.length === 0
+                        ? 'Affecter des laboratoires'
+                        : 'Modifier les laboratoires'
+                    }
+                    onClick={() => handleOpenModalForRow(row)}
+                  />
+                </div>
+              ];
+
+              if (!isExpanded) {
+                return [mainRow];
+              }
+
+              const subRow = [
+                <span key={`sub-start-${rowKey}`} />,
+                <span
+                  key={`sub-kind-${rowKey}`}
+                  className="sub-row-content border-left"
+                >
+                  Type de plan :{' '}
+                  <strong>
+                    {ProgrammingPlanKindLabels[row.programmingPlanKind]}
+                  </strong>
+                </span>
+              ];
+
+              return [mainRow, subRow];
+            })}
           />
         </div>
       </div>
