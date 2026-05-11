@@ -235,6 +235,11 @@ const LaboratoryAgreementsView = () => {
   const allSelected =
     filteredRows.length > 0 && selectedStringRowKeys.length === filteredRows.length;
 
+  const toggleExpand = (key: string) =>
+    setExpandedRowKeys((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+
   const rowAgreementsSignature = (labs: LaboratoryAgreement[]) =>
     labs
       .map(
