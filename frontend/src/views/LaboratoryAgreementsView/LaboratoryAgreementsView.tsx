@@ -237,16 +237,6 @@ const LaboratoryAgreementsView = () => {
   const allSelected =
     filteredRows.length > 0 && selectedStringRowKeys.length === filteredRows.length;
 
-  const toggleExpand = (key: string) =>
-    setExpandedRowKeys((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    );
-
-  const toggleLabsExpand = (key: string) =>
-    setExpandedLabRowKeys((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    );
-
   const rowAgreementsSignature = (labs: LaboratoryAgreement[]) =>
     labs
       .map(
@@ -357,9 +347,7 @@ const LaboratoryAgreementsView = () => {
             </div>
           }
           subtitle={
-            <div
-              className={clsx(cx('fr-text--regular', 'fr-pt-1w'), 'd-flex-align-center')}
-            >
+            <div className={clsx(cx('fr-text--regular', 'fr-pt-1w'), 'd-flex-align-center')}>
               <span>{pluralize(rows.length, { preserveCount: true })('ligne')}</span>
               <span
                 className={cx('fr-icon-checkbox-circle-line', 'fr-label--success', 'fr-icon--sm', 'fr-ml-2w')}
