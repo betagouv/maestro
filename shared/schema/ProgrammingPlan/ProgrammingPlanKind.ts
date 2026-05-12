@@ -46,7 +46,7 @@ export const ProgrammingPlanKindBrevoListId: Record<
   ProgrammingPlanKind,
   number
 > = {
-  PPV: 9,
-  DAOA_VOLAILLE: 7,
-  DAOA_BOVIN: 7
+  PPV: 7,
+  DAOA_VOLAILLE: 9,
+  DAOA_BOVIN: 9
 };
