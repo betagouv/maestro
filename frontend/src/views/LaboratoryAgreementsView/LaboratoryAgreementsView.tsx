@@ -237,6 +237,7 @@ const LaboratoryAgreementsView = () => {
   const allSelected =
     filteredRows.length > 0 && selectedStringRowKeys.length === filteredRows.length;
 
+
   const rowAgreementsSignature = (labs: LaboratoryAgreement[]) =>
     labs
       .map(
