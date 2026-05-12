@@ -31,13 +31,12 @@ export type LaboratoryAgreementUpdate = z.infer<
   typeof LaboratoryAgreementUpdate
 >;
 
-export const agreementLabels: Record<
-  keyof Pick<
-    LaboratoryAgreement,
-    'referenceLaboratory' | 'detectionAnalysis' | 'confirmationAnalysis'
-  >,
-  string
-> = {
+export type LaboratoryAgreementField = keyof Pick<
+  LaboratoryAgreement,
+  'referenceLaboratory' | 'detectionAnalysis' | 'confirmationAnalysis'
+>;
+
+export const agreementLabels: Record<LaboratoryAgreementField, string> = {
   referenceLaboratory: 'Laboratoire national de référence',
   detectionAnalysis: 'Réalise les analyses de première intention',
   confirmationAnalysis: 'Réalise les analyses de confirmation'

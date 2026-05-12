@@ -1,15 +1,13 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import clsx from 'clsx';
-import { agreementLabels } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
+import {
+  agreementLabels,
+  type LaboratoryAgreementField
+} from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import './LaboratoryAgreementButton.scss';
 
-export type AgreementField =
-  | 'referenceLaboratory'
-  | 'detectionAnalysis'
-  | 'confirmationAnalysis';
-
 const fieldConfig: Record<
-  AgreementField,
+  LaboratoryAgreementField,
   { label: string; activeClassname: string }
 > = {
   referenceLaboratory: {
@@ -27,7 +25,7 @@ const fieldConfig: Record<
 };
 
 interface Props {
-  field: AgreementField;
+  field: LaboratoryAgreementField;
   active: boolean;
   size?: 'md' | 'sm';
   onToggle?: () => void;

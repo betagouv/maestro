@@ -2,7 +2,7 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { LaboratoryAgreement } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import type React from 'react';
-import { createContext, useContext, useState } from 'react';
+import { createContext, useState } from 'react';
 import LaboratoryAgreementDetailModal from './LaboratoryAgreementDetailModal';
 
 const modal = createModal({
@@ -10,7 +10,7 @@ const modal = createModal({
   isOpenedByDefault: false
 });
 
-export type OpenLaboratoryAgreementDetail = (
+type OpenLaboratoryAgreementDetail = (
   laboratoryAgreement: LaboratoryAgreement,
   laboratory: Laboratory
 ) => void;

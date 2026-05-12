@@ -6,7 +6,8 @@ import clsx from 'clsx';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import {
   agreementLabels,
-  type LaboratoryAgreement
+  type LaboratoryAgreement,
+  type LaboratoryAgreementField
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import { ProgrammingPlanKindReference } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
@@ -14,10 +15,7 @@ import type React from 'react';
 import { useEffect, useState } from 'react';
 import LaboratoryAgreementButton from '../LaboratoryAgreementButton/LaboratoryAgreementButton';
 
-type AgreementFlags = Pick<
-  LaboratoryAgreement,
-  'referenceLaboratory' | 'detectionAnalysis' | 'confirmationAnalysis'
->;
+type AgreementFlags = Pick<LaboratoryAgreement, LaboratoryAgreementField>;
 
 interface Props {
   modal: {
@@ -92,9 +90,7 @@ const LaboratoryAgreementDetailModal = ({
           </p>
           <div className={clsx(cx('fr-p-3w'), 'border')}>
             {(
-              Object.entries(agreementLabels) as Array<
-                [keyof AgreementFlags, string]
-              >
+              Object.entries(agreementLabels) as Array<[AgreementField, string]>
             ).map(([field, legend], index) => (
               <div
                 key={field}

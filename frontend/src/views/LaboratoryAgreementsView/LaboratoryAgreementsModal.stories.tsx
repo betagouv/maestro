@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { LaboratoryListFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { fn } from 'storybook/test';
 import { v4 as uuidv4 } from 'uuid';
+import { LaboratoryAgreementDetailProvider } from '../../components/LaboratoryAgreement/LaboratoryAgreementDetailModal/LaboratoryAgreementDetailContext';
 import LaboratoryAgreementsModal, {
   type ModalInstance
 } from './LaboratoryAgreementsModal';
@@ -19,11 +20,8 @@ const laboratories = LaboratoryListFixture;
 const agreements = [
   {
     laboratoryId: laboratories[0].id,
-    laboratoryName: laboratories[0].name,
-    laboratoryShortName: laboratories[0].shortName,
     programmingPlanId,
     programmingPlanKind: 'PPV' as const,
-    programmingPlanYear: 2026,
     substanceKind: 'Any' as const,
     referenceLaboratory: true,
     detectionAnalysis: true,
@@ -31,11 +29,8 @@ const agreements = [
   },
   {
     laboratoryId: laboratories[1].id,
-    laboratoryName: laboratories[1].name,
-    laboratoryShortName: laboratories[1].shortName,
     programmingPlanId,
     programmingPlanKind: 'PPV' as const,
-    programmingPlanYear: 2026,
     substanceKind: 'Any' as const,
     referenceLaboratory: false,
     detectionAnalysis: true,
@@ -46,9 +41,16 @@ const agreements = [
 const meta = {
   title: 'Views/LaboratoryAgreementsView/LaboratoryAgreementsModal',
   component: LaboratoryAgreementsModal,
+  decorators: [
+    (Story) => (
+      <LaboratoryAgreementDetailProvider>
+        <Story />
+      </LaboratoryAgreementDetailProvider>
+    )
+  ],
   args: {
     modal: storyModal,
-    selectedGroups: [
+    laboratoryAgreementRowKeys: [
       {
         programmingPlanId,
         programmingPlanKind: 'PPV' as const,
