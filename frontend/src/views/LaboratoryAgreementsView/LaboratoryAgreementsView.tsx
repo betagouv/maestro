@@ -11,6 +11,7 @@ import {
   type MatrixKind,
   MatrixKindLabels
 } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { StageLabels } from 'maestro-shared/referential/Stage';
 import type {
   LaboratoryAgreement,
   LaboratoryAgreementRowKey
@@ -72,6 +73,9 @@ const LaboratoryAgreementsView = () => {
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
   const [expandedLabRowKeys, setExpandedLabRowKeys] = useState<string[]>([]);
   const [expandedMatrixRowKeys, setExpandedMatrixRowKeys] = useState<string[]>(
+    []
+  );
+  const [expandedStageRowKeys, setExpandedStageRowKeys] = useState<string[]>(
     []
   );
   const [showWithoutLab, setShowWithoutLab] = useState(false);
@@ -230,6 +234,11 @@ const LaboratoryAgreementsView = () => {
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     );
 
+  const toggleStageExpand = (key: string) =>
+    setExpandedStageRowKeys((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+
   const rowAgreementsSignature = (labs: LaboratoryAgreement[]) =>
     labs
       .map(
@@ -351,7 +360,7 @@ const LaboratoryAgreementsView = () => {
         }).unwrap();
       }}
     >
-      <section className={clsx(cx('fr-container'), 'main-section')}>
+      <section id="top" className={clsx(cx('fr-container'), 'main-section')}>
         <SectionHeader
           title={<>Agréments laboratoires {year}</>}
           subtitle={
@@ -671,17 +680,77 @@ const LaboratoryAgreementsView = () => {
                   return [mainRow];
                 }
 
+                const planStages = [
+                  ...new Set(
+                    allPrescriptions
+                      .filter(
+                        (p) =>
+                          p.programmingPlanId === row.programmingPlanId &&
+                          p.programmingPlanKind === row.programmingPlanKind
+                      )
+                      .flatMap((p) => p.stages)
+                  )
+                ];
+                const isStageExpanded = expandedStageRowKeys.includes(rowKey);
+                const visibleStages = isStageExpanded
+                  ? planStages
+                  : planStages.slice(0, 1);
+                const remainingStages = planStages.length - 1;
+
                 const subRow = [
                   <span key={`sub-start-${rowKey}`} />,
-                  <span
+                  <div
                     key={`sub-kind-${rowKey}`}
                     className="sub-row-content border-left"
                   >
-                    Type de plan :{' '}
-                    <strong>
-                      {ProgrammingPlanKindLabels[row.programmingPlanKind]}
-                    </strong>
-                  </span>
+                    <div
+                      style={{
+                        display: 'flex',
+                        gap: '2rem',
+                        flexWrap: 'wrap',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <div>
+                        Type de plan :{' '}
+                        <strong>
+                          {ProgrammingPlanKindLabels[row.programmingPlanKind]}
+                        </strong>
+                      </div>
+                      {planStages.length > 0 && (
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            flexWrap: 'wrap'
+                          }}
+                        >
+                          <span>
+                            Stade de prélèvement :{' '}
+                            <strong>
+                              {visibleStages
+                                .map((s) => StageLabels[s])
+                                .join(', ')}
+                            </strong>
+                          </span>
+                          {!isStageExpanded && remainingStages > 0 && (
+                            <Button
+                              priority="tertiary"
+                              onClick={() => toggleStageExpand(rowKey)}
+                              size="small"
+                              iconId="fr-icon-add-line"
+                            >
+                              Voir{' '}
+                              {pluralize(remainingStages, {
+                                preserveCount: true
+                              })('supplémentaire')}
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 ];
 
                 return [mainRow, subRow];
@@ -698,6 +767,15 @@ const LaboratoryAgreementsView = () => {
             await updateAgreements({ laboratoryId, ...input }).unwrap();
           }}
         />
+        <div className={cx('fr-mt-2w')}>
+          <Button
+            iconId="fr-icon-arrow-up-fill"
+            priority="tertiary no outline"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
+            Haut de page
+          </Button>
+        </div>
       </section>
     </LaboratoryAgreementDetailProvider>
   );

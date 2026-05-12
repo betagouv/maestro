@@ -48,6 +48,24 @@ const ColumnFilterHeader = <T extends string>({
       )
     : options;
 
+  const highlightLabel = (label: string) => {
+    const trimmed = search.trim();
+    if (!trimmed) {
+      return label;
+    }
+    const index = label.toLowerCase().indexOf(trimmed.toLowerCase());
+    if (index === -1) {
+      return label;
+    }
+    return (
+      <>
+        {label.slice(0, index)}
+        <strong>{label.slice(index, index + trimmed.length)}</strong>
+        {label.slice(index + trimmed.length)}
+      </>
+    );
+  };
+
   const handleValidate = () => {
     setIsOpen(false);
     setSearch('');
@@ -89,7 +107,7 @@ const ColumnFilterHeader = <T extends string>({
                   className={cx('fr-my-2w', 'fr-text--regular')}
                   options={[
                     {
-                      label: option.label,
+                      label: highlightLabel(option.label),
                       nativeInputProps: {
                         checked: selectedValues.includes(option.value),
                         onChange: () => toggle(option.value)

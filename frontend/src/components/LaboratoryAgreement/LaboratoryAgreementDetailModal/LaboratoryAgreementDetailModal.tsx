@@ -129,15 +129,13 @@ const LaboratoryAgreementDetailModal = ({
               iconId="fr-icon-delete-line"
               priority="tertiary no outline"
               size="small"
-              onClick={async () => {
-                await onSave({
-                  ...laboratoryAgreement,
+              onClick={() =>
+                setValues({
                   referenceLaboratory: false,
                   detectionAnalysis: false,
                   confirmationAnalysis: false
-                });
-                modal.close();
-              }}
+                })
+              }
             >
               Supprimer le laboratoire
             </Button>
