@@ -41,6 +41,8 @@ const agreementsModal = createModal({
   isOpenedByDefault: false
 });
 
+const LABS_DISPLAY_LIMIT = 7;
+
 const LaboratoryAgreementsView = () => {
   useDocumentTitle('Agréments laboratoires');
   const apiClient = useContext(ApiClientContext);
@@ -237,6 +239,11 @@ const LaboratoryAgreementsView = () => {
 
   const toggleExpand = (key: string) =>
     setExpandedRowKeys((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+
+  const toggleLabsExpand = (key: string) =>
+    setExpandedLabRowKeys((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     );
 
