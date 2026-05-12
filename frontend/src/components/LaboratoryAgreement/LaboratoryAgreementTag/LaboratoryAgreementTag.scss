@@ -1,6 +1,14 @@
 .laboratory-agreement-tag {
   width: fit-content;
   display: flex;
-  alignItems: center;
+  align-items: center;
   gap: 0.25rem;
+
+  &--clickable {
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--background-alt-grey) !important;
+    }
+  }
 }

@@ -2,6 +2,13 @@
   --notice-height: 0px;
 }
 
+.year-selector-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .laboratory-agreements-notice {
   position: sticky;
   top: 0;

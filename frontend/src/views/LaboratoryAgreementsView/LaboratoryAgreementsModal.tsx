@@ -222,14 +222,24 @@ const LaboratoryAgreementsModal = ({
             })
             .map((laboratory) => {
               const local = localAgreements[laboratory.id];
+              const rowKey = laboratoryAgreementRowKeys[0];
+              if (!rowKey) {
+                return null;
+              }
+              const laboratoryAgreement = {
+                laboratoryId: laboratory.id,
+                programmingPlanId: rowKey.programmingPlanId,
+                programmingPlanKind: rowKey.programmingPlanKind,
+                substanceKind: rowKey.substanceKind,
+                referenceLaboratory: local.referenceLaboratory,
+                detectionAnalysis: local.detectionAnalysis,
+                confirmationAnalysis: local.confirmationAnalysis
+              };
               return (
                 <LaboratoryAgreementTag
                   key={laboratory.id}
-                  shortName={laboratory.shortName}
-                  referenceLaboratory={local.referenceLaboratory}
-                  detectionAnalysis={local.detectionAnalysis}
-                  confirmationAnalysis={local.confirmationAnalysis}
-                  onToggle={(field) => toggle(laboratory.id, field)}
+                  laboratoryAgreement={laboratoryAgreement}
+                  laboratory={laboratory}
                 />
               );
             })}
