@@ -448,13 +448,6 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
         )}
         {!createOrUpdateSampleCall.isError && <hr className={cx('fr-mx-0')} />}
 
-        {!readonly && isSendable && (
-          <Alert
-            severity="warning"
-            small
-            description="Merci de bien vérifier l’exactitude des informations saisies. Aucune modification ne sera possible après l’envoi de la demande d’analyse."
-          />
-        )}
         <div className="sample-actions">
           <ul
             className={cx(
