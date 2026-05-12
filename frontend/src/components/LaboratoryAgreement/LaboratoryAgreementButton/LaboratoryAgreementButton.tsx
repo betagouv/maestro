@@ -1,16 +1,23 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import clsx from 'clsx';
+
+<<<<<<< HEAD
+
 import type { LaboratoryAgreementField } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import { agreementLabels } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
+
+=======
+
+import {
+  agreementLabels,
+  type LaboratoryAgreementField
+} from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
+
+>>>>>>> 61a2841f (fix CI)
 import './LaboratoryAgreementButton.scss';
 
-export type AgreementField =
-  | 'referenceLaboratory'
-  | 'detectionAnalysis'
-  | 'confirmationAnalysis';
-
 const fieldConfig: Record<
-  AgreementField,
+  LaboratoryAgreementField,
   { label: string; activeClassname: string }
 > = {
   referenceLaboratory: {
