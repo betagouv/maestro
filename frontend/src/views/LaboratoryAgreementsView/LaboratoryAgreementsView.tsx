@@ -5,13 +5,20 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import Notice from '@codegouvfr/react-dsfr/Notice';
 import Table from '@codegouvfr/react-dsfr/Table';
+import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
-import type { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
-
+import {
+  type MatrixKind,
+  MatrixKindLabels
+} from 'maestro-shared/referential/Matrix/MatrixKind';
 import type {
   LaboratoryAgreement,
   LaboratoryAgreementRowKey
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
+import {
+  getPrescriptionTitle,
+  type Prescription
+} from 'maestro-shared/schema/Prescription/Prescription';
 import {
   type ProgrammingPlanKind,
   ProgrammingPlanKindLabels,
@@ -20,7 +27,6 @@ import {
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import microscope from 'src/assets/illustrations/microscope.svg';
 import ColumnFilterHeader from 'src/components/ColumnFilterHeader/ColumnFilterHeader';
 import { LaboratoryAgreementDetailProvider } from 'src/components/LaboratoryAgreement/LaboratoryAgreementDetailModal/LaboratoryAgreementDetailContext';
 import LaboratoryAgreementTag from 'src/components/LaboratoryAgreement/LaboratoryAgreementTag/LaboratoryAgreementTag';
@@ -37,6 +43,7 @@ const agreementsModal = createModal({
 });
 
 const LABS_DISPLAY_LIMIT = 7;
+const MATRIX_DISPLAY_LIMIT = 3;
 
 const LaboratoryAgreementsView = () => {
   useDocumentTitle('Agréments laboratoires');
@@ -60,9 +67,14 @@ const LaboratoryAgreementsView = () => {
   >([]);
   const [substanceFilter, setSubstanceFilter] = useState<SubstanceKind[]>([]);
   const [labFilter, setLabFilter] = useState<string[]>([]);
+  const [matrixFilter, setMatrixFilter] = useState<MatrixKind[]>([]);
   const [kindFilter, setKindFilter] = useState<ProgrammingPlanKind[]>([]);
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
   const [expandedLabRowKeys, setExpandedLabRowKeys] = useState<string[]>([]);
+  const [expandedMatrixRowKeys, setExpandedMatrixRowKeys] = useState<string[]>(
+    []
+  );
+  const [showWithoutLab, setShowWithoutLab] = useState(false);
 
   const { data: agreements = [] } =
     apiClient.useFindLaboratoryAgreementsQuery();
@@ -73,6 +85,20 @@ const LaboratoryAgreementsView = () => {
     );
   const { data: laboratories = [] } = apiClient.useFindLaboratoriesQuery({});
   const [updateAgreements] = apiClient.useUpdateLaboratoryAgreementsMutation();
+
+  // Prescriptions — une requête par plan (typiquement 1-2 par an)
+  const { data: prescriptions0 = [] } = apiClient.useFindPrescriptionsQuery(
+    { programmingPlanId: programmingPlans[0]?.id ?? '' },
+    { skip: programmingPlans.length < 1 }
+  );
+  const { data: prescriptions1 = [] } = apiClient.useFindPrescriptionsQuery(
+    { programmingPlanId: programmingPlans[1]?.id ?? '' },
+    { skip: programmingPlans.length < 2 }
+  );
+  const allPrescriptions = useMemo<Prescription[]>(
+    () => [...prescriptions0, ...prescriptions1],
+    [prescriptions0, prescriptions1]
+  );
 
   const rows = useMemo(
     () =>
@@ -127,6 +153,17 @@ const LaboratoryAgreementsView = () => {
     [laboratories]
   );
 
+  const matrixOptions = useMemo(
+    () =>
+      [...new Set(allPrescriptions.map((p) => p.matrixKind))]
+        .map((value) => ({
+          value,
+          label: MatrixKindLabels[value]
+        }))
+        .toSorted((a, b) => a.label.localeCompare(b.label)),
+    [allPrescriptions]
+  );
+
   const filteredRows = useMemo(
     () =>
       rows.filter(
@@ -135,10 +172,32 @@ const LaboratoryAgreementsView = () => {
             kindFilter.includes(r.programmingPlanKind)) &&
           (substanceFilter.length === 0 ||
             substanceFilter.includes(r.substanceKind)) &&
+          (matrixFilter.length === 0 ||
+            allPrescriptions.some(
+              (p) =>
+                p.programmingPlanId === r.programmingPlanId &&
+                p.programmingPlanKind === r.programmingPlanKind &&
+                matrixFilter.includes(p.matrixKind)
+            )) &&
           (labFilter.length === 0 ||
-            r.laboratories.some((l) => labFilter.includes(l.laboratoryId)))
+            r.laboratories.some((l) => labFilter.includes(l.laboratoryId))) &&
+          (!showWithoutLab ||
+            !r.laboratories.some(
+              (l) =>
+                l.referenceLaboratory ||
+                l.detectionAnalysis ||
+                l.confirmationAnalysis
+            ))
       ),
-    [rows, kindFilter, substanceFilter, labFilter]
+    [
+      rows,
+      kindFilter,
+      substanceFilter,
+      matrixFilter,
+      labFilter,
+      showWithoutLab,
+      allPrescriptions
+    ]
   );
 
   const stringRowKey = (row: (typeof rows)[number]) =>
@@ -163,6 +222,11 @@ const LaboratoryAgreementsView = () => {
 
   const toggleLabsExpand = (key: string) =>
     setExpandedLabRowKeys((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+
+  const toggleMatrixExpand = (key: string) =>
+    setExpandedMatrixRowKeys((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     );
 
@@ -257,9 +321,19 @@ const LaboratoryAgreementsView = () => {
         nextRow.querySelectorAll('td')
       ) as HTMLElement[];
       nextTds[0].style.display = 'none';
-      nextTds[1].setAttribute('colspan', '4');
+      nextTds[1].setAttribute('colspan', '5');
     });
   }, [expandedRowKeys, filteredRows]);
+
+  const rowsWithLab = filteredRows.filter((r) =>
+    r.laboratories.some(
+      (lab) =>
+        lab.referenceLaboratory ||
+        lab.detectionAnalysis ||
+        lab.confirmationAnalysis
+    )
+  ).length;
+  const rowsWithoutLab = filteredRows.length - rowsWithLab;
 
   return (
     <LaboratoryAgreementDetailProvider
@@ -280,9 +354,55 @@ const LaboratoryAgreementsView = () => {
       <section className={clsx(cx('fr-container'), 'main-section')}>
         <SectionHeader
           title={<>Agréments laboratoires {year}</>}
-          illustration={microscope}
+          subtitle={
+            <div
+              className={clsx(
+                cx('fr-text--regular', 'fr-pt-1w'),
+                'd-flex-align-center'
+              )}
+            >
+              <span>
+                {pluralize(filteredRows.length, { preserveCount: true })(
+                  "ligne d'agrément"
+                )}
+              </span>
+              <span
+                className={cx(
+                  'fr-icon-checkbox-circle-line',
+                  'fr-label--success',
+                  'fr-icon--sm',
+                  'fr-ml-2w'
+                )}
+                aria-hidden="true"
+              />
+              <span className={cx('fr-ml-2v')}>
+                {rowsWithLab} avec laboratoire
+              </span>
+              <span
+                className={cx(
+                  'fr-icon-time-line',
+                  'fr-label--error',
+                  'fr-icon--sm',
+                  'fr-ml-2w'
+                )}
+                aria-hidden="true"
+              />
+              <span className={cx('fr-ml-2v')}>
+                {rowsWithoutLab} sans laboratoire
+              </span>
+            </div>
+          }
         />
-        <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
+
+        <div className={clsx('white-container', cx('fr-p-4w'))}>
+          <div className="laboratory-agreements-topbar">
+            <ToggleSwitch
+              label="Sous-plans sans laboratoires"
+              checked={showWithoutLab}
+              onChange={setShowWithoutLab}
+              showCheckedHint={false}
+            />
+          </div>
           <div ref={noticeRef} className="laboratory-agreements-notice">
             {selectedStringRowKeys.length > 0 && (
               <Notice
@@ -353,10 +473,18 @@ const LaboratoryAgreementsView = () => {
                 </div>,
                 <div key="header-substance" className="border-left">
                   <ColumnFilterHeader
-                    label="Substance"
+                    label="Substances"
                     options={substanceOptions}
                     selectedValues={substanceFilter}
                     onChange={setSubstanceFilter}
+                  />
+                </div>,
+                <div key="header-matrix" className="border-left">
+                  <ColumnFilterHeader
+                    label="Matrices"
+                    options={matrixOptions}
+                    selectedValues={matrixFilter}
+                    onChange={setMatrixFilter}
                   />
                 </div>,
                 <div key="header-labs" className="border-left">
@@ -414,6 +542,44 @@ const LaboratoryAgreementsView = () => {
                   </div>,
                   <div key={`substance-${rowKey}`} className="border-left">
                     {SubstanceKindLabels[row.substanceKind]}
+                  </div>,
+                  <div key={`matrix-${rowKey}`} className="border-left">
+                    {(() => {
+                      const allMatrices = allPrescriptions
+                        .filter(
+                          (p) =>
+                            p.programmingPlanId === row.programmingPlanId &&
+                            p.programmingPlanKind === row.programmingPlanKind
+                        )
+                        .map(getPrescriptionTitle);
+                      const isMatrixExpanded =
+                        expandedMatrixRowKeys.includes(rowKey);
+                      const visibleMatrices = isMatrixExpanded
+                        ? allMatrices
+                        : allMatrices.slice(0, MATRIX_DISPLAY_LIMIT);
+                      const remaining =
+                        allMatrices.length - MATRIX_DISPLAY_LIMIT;
+                      return (
+                        <>
+                          {visibleMatrices.map((title, i) => (
+                            <div key={i}>{title}</div>
+                          ))}
+                          {!isMatrixExpanded && remaining > 0 && (
+                            <Button
+                              priority="tertiary"
+                              onClick={() => toggleMatrixExpand(rowKey)}
+                              iconId="fr-icon-add-line"
+                              size="small"
+                            >
+                              Voir{' '}
+                              {pluralize(remaining, { preserveCount: true })(
+                                'supplémentaire'
+                              )}
+                            </Button>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>,
                   <div
                     key={`labs-${rowKey}`}

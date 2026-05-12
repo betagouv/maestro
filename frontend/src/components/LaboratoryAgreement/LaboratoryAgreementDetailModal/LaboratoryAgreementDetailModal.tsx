@@ -90,7 +90,9 @@ const LaboratoryAgreementDetailModal = ({
           </p>
           <div className={clsx(cx('fr-p-3w'), 'border')}>
             {(
-              Object.entries(agreementLabels) as Array<[AgreementField, string]>
+              Object.entries(agreementLabels) as Array<
+                [LaboratoryAgreementField, string]
+              >
             ).map(([field, legend], index) => (
               <div
                 key={field}

@@ -6,7 +6,7 @@ import './SectionHeader.scss';
 
 interface Props {
   title: string | React.ReactNode;
-  subtitle?: string;
+  subtitle?: string | React.ReactNode;
   illustration?: string;
   action?: React.ReactNode;
 }
