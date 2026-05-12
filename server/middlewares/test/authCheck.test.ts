@@ -2,21 +2,20 @@ import { constants } from 'node:http2';
 import express from 'express';
 import request from 'supertest';
 import { describe, test } from 'vitest';
-import config from '../../utils/config';
 import { basicAuthCheck } from '../checks/authCheck';
 
 describe('basicAuth', () => {
   const app = express();
 
   const myM2MRoute = '/basic-auth-route';
-  app.use(myM2MRoute, basicAuthCheck, (_request, response) =>
+  app.use(myM2MRoute, basicAuthCheck('foofoo'), (_request, response) =>
     response.sendStatus(constants.HTTP_STATUS_OK)
   );
 
   test('should respond with the status 200 with good basic token', async () => {
     await request(app)
       .get(myM2MRoute)
-      .set('authorization', config.m2mBasicToken)
+      .set('authorization', 'foofoo')
       .expect(constants.HTTP_STATUS_OK);
   });
 
