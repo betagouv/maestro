@@ -482,7 +482,7 @@ const LaboratoryAgreementsView = () => {
                 </div>,
                 <div key="header-substance" className="border-left">
                   <ColumnFilterHeader
-                    label="Substances"
+                    label="Analytes"
                     options={substanceOptions}
                     selectedValues={substanceFilter}
                     onChange={setSubstanceFilter}
