@@ -1,6 +1,8 @@
+import type { FindLaboratoryAgreementsOptions } from 'maestro-shared/schema/Laboratory/FindLaboratoryAgreementsOptions';
 import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
-import { getApiUrl } from '../utils/fetchUtils';
+import config from '../utils/config';
+import { getApiUrl, getURLQuery } from '../utils/fetchUtils';
 
 const laboratoryApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -91,6 +93,13 @@ const laboratoryAnalyticCompetencesExportURL = (laboratoryId: string) =>
     laboratoryId
   });
 
+const laboratoryAgreementsExportURL = (
+  opts?: FindLaboratoryAgreementsOptions
+) => {
+  const params = opts ? getURLQuery(opts) : '';
+  return `${config.apiEndpoint}/api/laboratories/agreements/export${params}`;
+};
+
 export const {
   useGetLaboratoryQuery,
   useFindLaboratoriesQuery,
@@ -101,9 +110,11 @@ export const {
   useGetLaboratoryAnalyticalCompetencesQuery,
   useCreateLaboratoryAnalyticalCompetenceMutation,
   useUpdateLaboratoryAnalyticalCompetenceMutation,
-  getLaboratoryAnalyticCompetencesExportURL
+  getLaboratoryAnalyticCompetencesExportURL,
+  getLaboratoryAgreementsExportURL
 } = {
   ...laboratoryApi,
   getLaboratoryAnalyticCompetencesExportURL:
-    laboratoryAnalyticCompetencesExportURL
+    laboratoryAnalyticCompetencesExportURL,
+  getLaboratoryAgreementsExportURL: laboratoryAgreementsExportURL
 };

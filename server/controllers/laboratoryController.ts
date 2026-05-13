@@ -9,12 +9,39 @@ import { excelService } from '../services/excelService/excelService';
 
 export const laboratoriesRouter = {
   '/laboratories/agreements': {
-    get: async () => {
+    get: async ({ query }) => {
       console.info('Find all laboratory agreements');
 
-      const agreements = await laboratoryAgreementRepository.findMany();
+      const agreements = await laboratoryAgreementRepository.findMany(query);
 
       return { status: HttpStatus.OK, response: agreements };
+    }
+  },
+  '/laboratories/agreements/export': {
+    get: async ({ query }, _params, response) => {
+      console.info('Export laboratory agreements');
+
+      const agreements = await laboratoryAgreementRepository.findMany(query);
+      const laboratories = await laboratoryRepository.findMany();
+
+      const buffer = await excelService.generateLaboratoryAgreementsExportExcel(
+        agreements,
+        laboratories
+      );
+
+      const fileName = 'agrements-laboratoires.xlsx';
+
+      response.setHeader(
+        'Content-disposition',
+        `inline; filename=${encodeURIComponent(fileName)}`
+      );
+      response.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+      response.setHeader('Content-Length', `${buffer.length}`);
+
+      return { status: HttpStatus.OK, response: buffer };
     }
   },
   '/laboratories/:laboratoryId/agreements': {

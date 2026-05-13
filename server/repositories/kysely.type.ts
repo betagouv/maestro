@@ -255,8 +255,11 @@ export interface Prescriptions {
   context: string | null;
   id: Generated<string>;
   matrix: string | null;
+  matrixKind: string | null;
   notes: string | null;
+  programmingInstruction: string | null;
   programmingPlanId: string | null;
+  programmingPlanKind: string | null;
   stages: string[] | null;
 }
 

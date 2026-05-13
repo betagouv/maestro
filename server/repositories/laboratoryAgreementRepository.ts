@@ -1,3 +1,4 @@
+import type { FindLaboratoryAgreementsOptions } from 'maestro-shared/schema/Laboratory/FindLaboratoryAgreementsOptions';
 import {
   LaboratoryAgreement,
   type LaboratoryAgreementUpdate
@@ -5,10 +6,12 @@ import {
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
 
-const findMany = async (): Promise<LaboratoryAgreement[]> => {
+const findMany = async (
+  opts?: FindLaboratoryAgreementsOptions
+): Promise<LaboratoryAgreement[]> => {
   console.info('Find all laboratory agreements');
 
-  const rows = await kysely
+  let query = kysely
     .selectFrom('laboratoryAgreements')
     .innerJoin(
       'laboratories',
@@ -24,9 +27,58 @@ const findMany = async (): Promise<LaboratoryAgreement[]> => {
       'laboratoryAgreements.detectionAnalysis',
       'laboratoryAgreements.confirmationAnalysis'
     ])
-    .orderBy('laboratories.name', 'asc')
-    .execute();
+    .orderBy('laboratories.name', 'asc');
 
+  if (opts?.programmingPlanKinds?.length) {
+    query = query.where(
+      'laboratoryAgreements.programmingPlanKind',
+      'in',
+      opts.programmingPlanKinds
+    );
+  }
+
+  if (opts?.substanceKinds?.length) {
+    query = query.where(
+      'laboratoryAgreements.substanceKind',
+      'in',
+      opts.substanceKinds
+    );
+  }
+
+  if (opts?.laboratoryIds?.length) {
+    query = query.where(
+      'laboratoryAgreements.laboratoryId',
+      'in',
+      opts.laboratoryIds
+    );
+  }
+
+  if (opts?.matrixKinds?.length) {
+    const matrixKinds = opts.matrixKinds;
+    query = query.where(({ exists, selectFrom }) =>
+      exists(
+        selectFrom('prescriptions')
+          .select('prescriptions.programmingPlanId')
+          .whereRef(
+            'prescriptions.programmingPlanId',
+            '=',
+            'laboratoryAgreements.programmingPlanId'
+          )
+          .whereRef(
+            'prescriptions.programmingPlanKind',
+            '=',
+            'laboratoryAgreements.programmingPlanKind'
+          )
+          .where('prescriptions.matrixKind', 'in', matrixKinds)
+      )
+    );
+  }
+
+  if (opts?.withoutLab) {
+    return [];
+  }
+
+  const rows = await query.execute();
   return rows.map((row) => LaboratoryAgreement.parse(row));
 };
 

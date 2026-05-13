@@ -26,6 +26,8 @@ import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/Analysi
 import { ResidueComplianceLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { ResultKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import type { LaboratoryAgreement } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import type { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
 import {
   getCompletionRate,
@@ -39,6 +41,10 @@ import {
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import {
+  ProgrammingPlanKindLabels,
+  ProgrammingPlanKindReference
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getSampleMatrixLabel,
@@ -745,6 +751,36 @@ const generateLaboratoryAnalyticCompetencesExportExcel = async (
   );
 };
 
+const generateLaboratoryAgreementsExportExcel = (
+  agreements: LaboratoryAgreement[],
+  laboratories: Laboratory[]
+): Promise<Buffer> => {
+  const rows = agreements
+    .toSorted(
+      (a, b) =>
+        a.substanceKind.localeCompare(b.substanceKind) ||
+        a.programmingPlanKind.localeCompare(b.programmingPlanKind)
+    )
+    .map((agreement) => {
+      const laboratory = laboratories.find(
+        (l) => l.id === agreement.laboratoryId
+      );
+      return {
+        id: ProgrammingPlanKindReference[agreement.programmingPlanKind],
+        type: ProgrammingPlanKindLabels[agreement.programmingPlanKind],
+        substanceKind: SubstanceKindLabels[agreement.substanceKind],
+        laboratory: laboratory
+          ? `${laboratory.shortName} - ${laboratory.name}`
+          : agreement.laboratoryId,
+        referenceLaboratory: agreement.referenceLaboratory ? 'Oui' : 'Non',
+        detectionAnalysis: agreement.detectionAnalysis ? 'Oui' : 'Non',
+        confirmationAnalysis: agreement.confirmationAnalysis ? 'Oui' : 'Non'
+      };
+    });
+
+  return carboneRender('laboratoryAgreementsExport', { agreements: rows }, {});
+};
+
 const carboneRender = (
   template: Template,
   data: object,
@@ -764,5 +800,6 @@ export const excelService = {
   generateAnalysisRequestExcel,
   generateSamplesExportExcel,
   generatePrescriptionsExportExcel,
-  generateLaboratoryAnalyticCompetencesExportExcel
+  generateLaboratoryAnalyticCompetencesExportExcel,
+  generateLaboratoryAgreementsExportExcel
 };

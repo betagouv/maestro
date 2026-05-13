@@ -1,4 +1,5 @@
 import z from 'zod';
+import { FindLaboratoryAgreementsOptions } from '../schema/Laboratory/FindLaboratoryAgreementsOptions';
 import { FindLaboratoryOptions } from '../schema/Laboratory/FindLaboratoryOptions';
 import {
   Laboratory,
@@ -23,8 +24,17 @@ export const laboratoriesRoutes = {
   '/laboratories/agreements': {
     params: undefined,
     get: {
+      query: FindLaboratoryAgreementsOptions,
       response: z.array(LaboratoryAgreement),
       permissions: ['manageLaboratoryAgreements'] as const
+    }
+  },
+  '/laboratories/agreements/export': {
+    params: undefined,
+    get: {
+      query: FindLaboratoryAgreementsOptions,
+      permissions: ['manageLaboratoryAgreements'] as const,
+      response: z.custom<Buffer>()
     }
   },
   '/laboratories': {

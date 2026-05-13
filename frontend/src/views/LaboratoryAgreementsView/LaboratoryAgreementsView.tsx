@@ -34,6 +34,7 @@ import LaboratoryAgreementTag from 'src/components/LaboratoryAgreement/Laborator
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { ApiClientContext } from '../../services/apiClient';
+import { getLaboratoryAgreementsExportURL } from '../../services/laboratory.service';
 import { pluralize } from '../../utils/stringUtils';
 import LaboratoryAgreementsModal from './LaboratoryAgreementsModal/LaboratoryAgreementsModal';
 import './LaboratoryAgreementsView.scss';
@@ -80,8 +81,9 @@ const LaboratoryAgreementsView = () => {
   );
   const [showWithoutLab, setShowWithoutLab] = useState(false);
 
-  const { data: agreements = [] } =
-    apiClient.useFindLaboratoryAgreementsQuery();
+  const { data: agreements = [] } = apiClient.useFindLaboratoryAgreementsQuery(
+    {}
+  );
   const { data: programmingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery(
       { year: year ? Number(year) : undefined },
@@ -405,7 +407,12 @@ const LaboratoryAgreementsView = () => {
 
         <div className={clsx('white-container', cx('fr-p-4w'))}>
           <div
-            className={clsx(cx('fr-mb-3w'), 'd-flex-justify-end', 'no-wrap')}
+            className={clsx(
+              cx('fr-mb-3w'),
+              'd-flex-align-center',
+              'd-flex-justify-end',
+              'no-wrap'
+            )}
           >
             <ToggleSwitch
               label="Sous-plans sans laboratoires"
@@ -413,6 +420,28 @@ const LaboratoryAgreementsView = () => {
               onChange={setShowWithoutLab}
               showCheckedHint={false}
             />
+            <Button
+              iconId="fr-icon-file-download-line"
+              priority="secondary"
+              onClick={() =>
+                window.open(
+                  getLaboratoryAgreementsExportURL({
+                    programmingPlanKinds: kindFilter.length
+                      ? kindFilter
+                      : undefined,
+                    substanceKinds: substanceFilter.length
+                      ? substanceFilter
+                      : undefined,
+                    laboratoryIds: labFilter.length ? labFilter : undefined,
+                    matrixKinds: matrixFilter.length ? matrixFilter : undefined,
+                    withoutLab: showWithoutLab || undefined
+                  })
+                )
+              }
+              className={cx('fr-ml-3w')}
+            >
+              Exporter
+            </Button>
           </div>
           <div
             ref={noticeRef}
