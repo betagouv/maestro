@@ -36,7 +36,10 @@ export const prescriptionsRoutes = {
   '/prescriptions/export': {
     params: undefined,
     get: {
-      query: FindPrescriptionOptions.omit({ includes: true }),
+      query: z.object({
+        ...FindPrescriptionOptions.omit({ includes: true }).shape,
+        programmingPlanId: z.guid()
+      }),
       permissions: ['readPrescriptions'],
       response: z.custom<Buffer>()
     }
