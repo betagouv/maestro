@@ -2,6 +2,7 @@ import carbone, { type RenderOptions } from 'carbone';
 import { isNil, sumBy, uniq } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import {
   type OptionalBoolean,
   OptionalBooleanLabels
@@ -54,12 +55,16 @@ import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/Samp
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import type { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
-import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
+import {
+  type SubstanceKind,
+  SubstanceKindLabels
+} from 'maestro-shared/schema/Substance/SubstanceKind';
 import { formatMaestroDate, formatWithTz } from 'maestro-shared/utils/date';
 import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import companyRepository from '../../repositories/companyRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
+import prescriptionRepository from '../../repositories/prescriptionRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 import { type Template, templatePath } from '../../templates/templates';
@@ -751,34 +756,109 @@ const generateLaboratoryAnalyticCompetencesExportExcel = async (
   );
 };
 
-const generateLaboratoryAgreementsExportExcel = (
+const generateLaboratoryAgreementsExportExcel = async (
   agreements: LaboratoryAgreement[],
-  laboratories: Laboratory[]
+  laboratories: Laboratory[],
+  prescriptions: Prescription[]
 ): Promise<Buffer> => {
-  const rows = agreements
+  const labsList = laboratories.toSorted((a, b) =>
+    a.shortName.localeCompare(b.shortName)
+  );
+
+  const uniqueRows = agreements.reduce<
+    {
+      programmingPlanId: string;
+      programmingPlanKind: ProgrammingPlanKind;
+      substanceKind: SubstanceKind;
+    }[]
+  >((acc, a) => {
+    if (
+      !acc.some(
+        (r) =>
+          r.programmingPlanId === a.programmingPlanId &&
+          r.programmingPlanKind === a.programmingPlanKind &&
+          r.substanceKind === a.substanceKind
+      )
+    ) {
+      acc.push({
+        programmingPlanId: a.programmingPlanId,
+        programmingPlanKind: a.programmingPlanKind,
+        substanceKind: a.substanceKind
+      });
+    }
+    return acc;
+  }, []);
+
+  const rows = uniqueRows
     .toSorted(
       (a, b) =>
         a.substanceKind.localeCompare(b.substanceKind) ||
         a.programmingPlanKind.localeCompare(b.programmingPlanKind)
     )
-    .map((agreement) => {
-      const laboratory = laboratories.find(
-        (l) => l.id === agreement.laboratoryId
+    .map(({ programmingPlanId, programmingPlanKind, substanceKind }) => {
+      const rowAgreements = agreements.filter(
+        (a) =>
+          a.programmingPlanId === programmingPlanId &&
+          a.programmingPlanKind === programmingPlanKind &&
+          a.substanceKind === substanceKind
       );
+
+      const rowPrescriptions = prescriptions.filter(
+        (p) =>
+          p.programmingPlanId === programmingPlanId &&
+          p.programmingPlanKind === programmingPlanKind
+      );
+
+      const matrices = [...new Set(rowPrescriptions.map((p) => p.matrixKind))]
+        .filter(isDefined)
+        .map((mk) => MatrixKindLabels[mk])
+        .join(', ');
+
+      const stages = [...new Set(rowPrescriptions.flatMap((p) => p.stages))]
+        .map((s) => StageLabels[s])
+        .join(', ');
+
+      const labCount = rowAgreements.filter(
+        (a) =>
+          a.referenceLaboratory || a.detectionAnalysis || a.confirmationAnalysis
+      ).length;
+
+      const labCells = [
+        ...labsList.map((lab) => {
+          const agreement = rowAgreements.find(
+            (a) => a.laboratoryId === lab.id
+          );
+          if (!agreement) {
+            return { value: '' };
+          }
+          const letters = [
+            agreement.referenceLaboratory ? 'R' : undefined,
+            agreement.detectionAnalysis ? 'D' : undefined,
+            agreement.confirmationAnalysis ? 'C' : undefined
+          ]
+            .filter(isDefined)
+            .join(', ');
+          return { value: letters };
+        }),
+        { value: labCount }
+      ];
+
       return {
-        id: ProgrammingPlanKindReference[agreement.programmingPlanKind],
-        type: ProgrammingPlanKindLabels[agreement.programmingPlanKind],
-        substanceKind: SubstanceKindLabels[agreement.substanceKind],
-        laboratory: laboratory
-          ? `${laboratory.shortName} - ${laboratory.name}`
-          : agreement.laboratoryId,
-        referenceLaboratory: agreement.referenceLaboratory ? 'Oui' : 'Non',
-        detectionAnalysis: agreement.detectionAnalysis ? 'Oui' : 'Non',
-        confirmationAnalysis: agreement.confirmationAnalysis ? 'Oui' : 'Non'
+        num: ProgrammingPlanKindReference[programmingPlanKind],
+        analytes: SubstanceKindLabels[substanceKind],
+        matrices,
+        domain: ProgrammingPlanKindLabels[programmingPlanKind],
+        stages,
+        labCells
       };
     });
 
-  return carboneRender('laboratoryAgreementsExport', { agreements: rows }, {});
+  const labHeaders = [
+    ...labsList.map((lab) => ({ value: lab.shortName })),
+    { value: 'Nb laboratoires affectés' }
+  ];
+
+  return carboneRender('laboratoryAgreementsExport', { labHeaders, rows }, {});
 };
 
 const carboneRender = (

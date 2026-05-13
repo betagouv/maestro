@@ -4,6 +4,7 @@ import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 
 export const FindLaboratoryAgreementsOptions = z.object({
+  year: z.coerce.number().int().nullish(),
   programmingPlanKinds: z.array(ProgrammingPlanKind).nullish(),
   substanceKinds: z.array(SubstanceKind).nullish(),
   laboratoryIds: z.array(z.guid()).nullish(),

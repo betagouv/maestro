@@ -16,10 +16,7 @@ import type {
   LaboratoryAgreement,
   LaboratoryAgreementRowKey
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
-import {
-  getPrescriptionTitle,
-  type Prescription
-} from 'maestro-shared/schema/Prescription/Prescription';
+import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import {
   type ProgrammingPlanKind,
   ProgrammingPlanKindLabels,
@@ -92,18 +89,9 @@ const LaboratoryAgreementsView = () => {
   const { data: laboratories = [] } = apiClient.useFindLaboratoriesQuery({});
   const [updateAgreements] = apiClient.useUpdateLaboratoryAgreementsMutation();
 
-  // Prescriptions — une requête par plan (typiquement 1-2 par an)
-  const { data: prescriptions0 = [] } = apiClient.useFindPrescriptionsQuery(
-    { programmingPlanId: programmingPlans[0]?.id ?? '' },
-    { skip: programmingPlans.length < 1 }
-  );
-  const { data: prescriptions1 = [] } = apiClient.useFindPrescriptionsQuery(
-    { programmingPlanId: programmingPlans[1]?.id ?? '' },
-    { skip: programmingPlans.length < 2 }
-  );
-  const allPrescriptions = useMemo<Prescription[]>(
-    () => [...prescriptions0, ...prescriptions1],
-    [prescriptions0, prescriptions1]
+  const { data: allPrescriptions = [] } = apiClient.useFindPrescriptionsQuery(
+    { year: Number(year) },
+    { skip: !year }
   );
 
   const rows = useMemo(
@@ -426,6 +414,7 @@ const LaboratoryAgreementsView = () => {
               onClick={() =>
                 window.open(
                   getLaboratoryAgreementsExportURL({
+                    year: Number(year),
                     programmingPlanKinds: kindFilter.length
                       ? kindFilter
                       : undefined,
