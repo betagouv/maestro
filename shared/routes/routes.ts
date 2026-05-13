@@ -17,6 +17,8 @@ import { usersRoutes } from './users.routes';
 
 export const MaestroRoutes = [
   '/analysis-dai',
+  '/analysis-rai',
+  '/analysis-rai/:analysisRaiId/replay',
   '/analysis',
   '/analysis/:analysisId',
   '/analysis/:analysisId/reportDocuments',

@@ -1,7 +1,9 @@
 import fs, { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import type { Readable } from 'node:stream';
 import { promisify } from 'node:util';
+import type { AnalysisRai } from 'maestro-shared/schema/AnalysisRai/AnalysisRai';
 import sftp from 'ssh2-sftp-client';
 import { analysisRaiRepository } from '../../repositories/analysisRaiRepository';
 import type { SachaConf } from '../../repositories/kysely.type';
@@ -24,6 +26,45 @@ const unlink = promisify(fs.unlink);
 type SachaSuccess = {
   laboratoryId: string;
   xmlDocumentId: string;
+};
+
+export const processSachaContent = async (
+  content: Buffer,
+  xmlDocumentId: string,
+  sachaConf: SachaConf
+): Promise<{ laboratoryId: string }> => {
+  const json = validateAndDecodeSachaXml(content.toString(), xmlDocumentId);
+
+  if (!json.Resultats) {
+    throw new RaiProcessingError(`Aucun résultat`, xmlDocumentId);
+  }
+
+  const { sampleItem, sample } = processSachaRAI(json.Resultats);
+  if (!sampleItem.laboratoryId) {
+    throw new RaiProcessingError(`Aucun laboratoire`, xmlDocumentId);
+  }
+
+  const dateNow = Date.now();
+  const laboratory = await laboratoryRepository.findUnique(
+    sampleItem.laboratoryId
+  );
+  const xml = await generateXMLAcquitement(
+    [
+      {
+        NomFichier: json.Resultats.MessageParametres.NomFichier,
+        DateAcquittement: toSachaDateTime(new Date(dateNow))
+      }
+    ],
+    undefined,
+    sample.department,
+    dateNow,
+    sachaConf,
+    laboratory
+  );
+
+  await sendSachaFile(xml, dateNow, laboratory);
+
+  return { laboratoryId: sampleItem.laboratoryId };
 };
 
 const processSachaFile = async (
@@ -49,39 +90,11 @@ const processSachaFile = async (
     null
   );
 
-  const json = validateAndDecodeSachaXml(content.toString(), xmlDocumentId);
-
-  if (!json.Resultats) {
-    throw new RaiProcessingError(`Aucun résultat (${zipFile})`, xmlDocumentId);
-  }
-
-  const { sampleItem, sample } = processSachaRAI(json.Resultats);
-  if (!sampleItem.laboratoryId) {
-    throw new RaiProcessingError(
-      `Aucun laboratoire (${zipFile})`,
-      xmlDocumentId
-    );
-  }
-
-  const dateNow = Date.now();
-  const laboratory = await laboratoryRepository.findUnique(
-    sampleItem.laboratoryId
+  const { laboratoryId } = await processSachaContent(
+    content,
+    xmlDocumentId,
+    sachaConf
   );
-  const xml = await generateXMLAcquitement(
-    [
-      {
-        NomFichier: json.Resultats.MessageParametres.NomFichier,
-        DateAcquittement: toSachaDateTime(new Date(dateNow))
-      }
-    ],
-    undefined,
-    sample.department,
-    dateNow,
-    sachaConf,
-    laboratory
-  );
-
-  await sendSachaFile(xml, dateNow, laboratory);
 
   // Suppression après succès complet
   await sftpClient.delete(`uploads/RA01Maestro/data/${zipFile}`);
@@ -91,12 +104,51 @@ const processSachaFile = async (
   await unlink(path.join(dataDirectory, `Decl_${zipFile}`));
 
   return {
-    laboratoryId: sampleItem.laboratoryId,
+    laboratoryId,
     xmlDocumentId
   };
 };
 
-const doSftp = async () => {
+const streamToBuffer = async (stream: Readable): Promise<Buffer> => {
+  const chunks: Buffer[] = [];
+  return new Promise((resolve, reject) => {
+    stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+    stream.on('end', () => resolve(Buffer.concat(chunks)));
+    stream.on('error', reject);
+  });
+};
+
+export const replayRai = async (
+  rai: Extract<AnalysisRai, { source: 'SFTP' }>
+): Promise<void> => {
+  const raiDocuments = await analysisRaiRepository.findLinkedDocuments(rai.id);
+
+  const xmlDocument = raiDocuments.find((r) =>
+    r.filename.toLowerCase().endsWith('.xml')
+  );
+  if (!xmlDocument) {
+    throw new Error('Aucun document XML lié à cette RAI SFTP.');
+  }
+  const doc = await documentService.getDocument(xmlDocument.id);
+  if (!doc) {
+    throw new Error(`Document XML ${xmlDocument.id} introuvable.`);
+  }
+  const content = await streamToBuffer(doc.file as Readable);
+
+  const sachaConf = await sachaConfRepository.get();
+  const { laboratoryId } = await processSachaContent(
+    content,
+    xmlDocument.id,
+    sachaConf
+  );
+  await analysisRaiRepository.update(rai.id, {
+    state: 'PROCESSED',
+    laboratoryId,
+    message: null
+  });
+};
+
+export const doSftp = async () => {
   if (
     !config.sigal.sftp.privateKey ||
     !config.sigal.sftp.passphrase ||
@@ -192,6 +244,3 @@ const doSftp = async () => {
     await sftpClient.end();
   }
 };
-
-//FIXME remove
-await doSftp();

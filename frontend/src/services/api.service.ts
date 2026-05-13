@@ -4,6 +4,7 @@ import config from '../utils/config';
 
 export const tagTypes = [
   'AnalysisDai',
+  'AnalysisRai',
   'AnalysisReportDocuments',
   'AuthUser',
   'Company',

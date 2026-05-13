@@ -30,6 +30,7 @@ import { usePartialSample } from '../../../hooks/usePartialSample';
 import { ApiClientContext } from '../../../services/apiClient';
 import SupportDocumentDownload from '../DraftSample/SupportDocumentDownload';
 import { AnalysisDaiHistory } from './AnalysisDaiHistory/AnalysisDaiHistory';
+import { AnalysisRaiHistory } from './AnalysisRaiHistory/AnalysisRaiHistory';
 import SampleAgreementOverview from './SampleAgreementOverview';
 import SampleComplianceForm from './SampleComplianceForm';
 import SampleContextOverview from './SampleContextOverview';
@@ -62,12 +63,18 @@ const SampleOverview = ({ sample }: Props) => {
     | 'matrix'
     | 'context'
     | 'agreement'
-    | 'dai';
+    | 'dai'
+    | 'rai';
   const activeItemNumber = Number(searchParams.get('item') ?? 1);
 
   const { data: analysisDaiData } = apiClient.useGetAnalysisDaiQuery(
     { sampleIds: [sample.id], perPage: 100 },
     { skip: activeMenu !== 'dai' }
+  );
+
+  const { data: analysisRaiData } = apiClient.useGetAnalysisRaiQuery(
+    { sampleIds: [sample.id], perPage: 100 },
+    { skip: activeMenu !== 'rai' }
   );
 
   const setActiveMenu = (menu: typeof activeMenu) =>
@@ -314,6 +321,16 @@ const SampleOverview = ({ sample }: Props) => {
                     }
                   }
                 : undefined,
+              hasUserPermission('administrationMaestro')
+                ? {
+                    text: 'Historique RAI',
+                    isActive: activeMenu === 'rai',
+                    linkProps: {
+                      onClick: () => setActiveMenu('rai'),
+                      href: '#'
+                    }
+                  }
+                : undefined,
               sample.programmingPlanKind !== 'PPV' &&
               hasUserSamplePermission(sample).performAnalysis
                 ? {
@@ -372,6 +389,9 @@ const SampleOverview = ({ sample }: Props) => {
             )}
             {activeMenu === 'dai' && (
               <AnalysisDaiHistory analyses={analysisDaiData?.analyses ?? []} />
+            )}
+            {activeMenu === 'rai' && (
+              <AnalysisRaiHistory rais={analysisRaiData?.rais ?? []} />
             )}
           </div>
         </div>

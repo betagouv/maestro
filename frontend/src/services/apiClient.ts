@@ -2,6 +2,7 @@ import { createContext } from 'react';
 import * as addressApi from './address.service';
 import * as analysisApi from './analysis.service';
 import * as analysisDaiApi from './analysisDai.service';
+import * as analysisRaiApi from './analysisRai.service';
 import * as authApi from './auth.service';
 import * as companyApi from './company.service';
 import * as documentApi from './document.service';
@@ -21,6 +22,7 @@ import * as userApi from './user.service';
 
 export type ApiClient = typeof analysisApi &
   typeof analysisDaiApi &
+  typeof analysisRaiApi &
   typeof addressApi &
   typeof authApi &
   typeof companyApi &
@@ -44,6 +46,7 @@ export const apiClient: ApiClient = {
   ...authApi,
   ...analysisApi,
   ...analysisDaiApi,
+  ...analysisRaiApi,
   ...companyApi,
   ...documentApi,
   ...laboratoryApi,

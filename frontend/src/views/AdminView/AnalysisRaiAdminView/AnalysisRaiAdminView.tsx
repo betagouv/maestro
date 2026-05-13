@@ -1,44 +1,49 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Pagination from '@codegouvfr/react-dsfr/Pagination';
-import type { FindAnalysisDaiOptions } from 'maestro-shared/schema/AnalysisDai/FindAnalysisDaiOptions';
+import type {
+  AnalysisRaiSource,
+  AnalysisRaiState
+} from 'maestro-shared/schema/AnalysisRai/AnalysisRai';
+import type { FindAnalysisRaiOptions } from 'maestro-shared/schema/AnalysisRai/FindAnalysisRaiOptions';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
-import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import { useContext, useState } from 'react';
 import { ApiClientContext } from 'src/services/apiClient';
-import { AnalysisDaiHistory } from 'src/views/SampleView/SampleOverview/AnalysisDaiHistory/AnalysisDaiHistory';
-import { AnalysisDaiFilters } from './AnalysisDaiFilters';
+import { AnalysisRaiHistory } from 'src/views/SampleView/SampleOverview/AnalysisRaiHistory/AnalysisRaiHistory';
+import { AnalysisRaiFilters } from './AnalysisRaiFilters';
 
 export type Filters = {
-  [K in 'states' | 'laboratoryIds']: NonNullable<FindAnalysisDaiOptions[K]>;
-} & {
-  sentMethod: SachaCommunicationMethod | undefined;
-  edi: Exclude<FindAnalysisDaiOptions['edi'], null>;
-  sentDateFrom: string | undefined;
-  sentDateTo: string | undefined;
+  state: AnalysisRaiState | undefined;
+  source: AnalysisRaiSource | undefined;
+  laboratoryIds: NonNullable<FindAnalysisRaiOptions['laboratoryIds']>;
+  edi: Exclude<FindAnalysisRaiOptions['edi'], null>;
+  receivedAtFrom: string | undefined;
+  receivedAtTo: string | undefined;
 };
 
-export const AnalysisDaiAdminView = () => {
+export const AnalysisRaiAdminView = () => {
   const apiClient = useContext(ApiClientContext);
   const [filters, setFilters] = useState<Filters>({
-    states: [],
-    sentMethod: undefined,
+    state: undefined,
+    source: undefined,
     laboratoryIds: [],
-    sentDateFrom: undefined,
-    sentDateTo: undefined,
+    receivedAtFrom: undefined,
+    receivedAtTo: undefined,
     edi: undefined
   });
   const [page, setPage] = useState(1);
 
-  const { data } = apiClient.useGetAnalysisDaiQuery({
-    states: filters.states.length ? filters.states : undefined,
-    sentMethods: filters.sentMethod ? [filters.sentMethod] : undefined,
+  const { data } = apiClient.useGetAnalysisRaiQuery({
+    states: filters.state ? [filters.state] : undefined,
+    sources: filters.source ? [filters.source] : undefined,
     laboratoryIds: filters.laboratoryIds.length
       ? filters.laboratoryIds
       : undefined,
-    sentDateFrom: filters.sentDateFrom
-      ? new Date(filters.sentDateFrom)
+    receivedAtFrom: filters.receivedAtFrom
+      ? new Date(filters.receivedAtFrom)
       : undefined,
-    sentDateTo: filters.sentDateTo ? new Date(filters.sentDateTo) : undefined,
+    receivedAtTo: filters.receivedAtTo
+      ? new Date(filters.receivedAtTo)
+      : undefined,
     edi: filters.edi,
     page,
     perPage: defaultPerPage
@@ -46,7 +51,7 @@ export const AnalysisDaiAdminView = () => {
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery({});
 
-  const analyses = data?.analyses ?? [];
+  const rais = data?.rais ?? [];
   const total = data?.total ?? 0;
   const pageCount = Math.ceil(total / defaultPerPage);
 
@@ -57,13 +62,13 @@ export const AnalysisDaiAdminView = () => {
 
   return (
     <div>
-      <AnalysisDaiFilters
+      <AnalysisRaiFilters
         filters={filters}
         laboratories={laboratories ?? []}
         onChange={updateFilter}
       />
 
-      <AnalysisDaiHistory analyses={analyses} showSampleReference={true} />
+      <AnalysisRaiHistory rais={rais} showSampleReference={true} />
 
       {pageCount > 1 && (
         <Pagination
