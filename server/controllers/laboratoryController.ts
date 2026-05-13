@@ -71,6 +71,33 @@ export const laboratoriesRouter = {
       return { status: HttpStatus.OK, response: buffer };
     }
   },
+  '/laboratories/agreements/export': {
+    get: async ({ query }, _params, response) => {
+      console.info('Export laboratory agreements');
+
+      const agreements = await laboratoryAgreementRepository.findMany(query);
+      const laboratories = await laboratoryRepository.findMany();
+
+      const buffer = await excelService.generateLaboratoryAgreementsExportExcel(
+        agreements,
+        laboratories
+      );
+
+      const fileName = 'agrements-laboratoires.xlsx';
+
+      response.setHeader(
+        'Content-disposition',
+        `inline; filename=${encodeURIComponent(fileName)}`
+      );
+      response.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+      response.setHeader('Content-Length', `${buffer.length}`);
+
+      return { status: constants.HTTP_STATUS_OK, response: buffer };
+    }
+  },
   '/laboratories/:laboratoryId/agreements': {
     put: async ({ body }, { laboratoryId }) => {
       console.info('Upsert laboratory agreements', laboratoryId);

@@ -1,14 +1,8 @@
-<<<<<<< HEAD
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import type { ModalProps } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
-=======
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import type { ModalProps } from '@codegouvfr/react-dsfr/Modal';
-import { SearchBar } from '@codegouvfr/react-dsfr/SearchBar';
->>>>>>> 8c039e20 (Fix design)
 import clsx from 'clsx';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type {
@@ -20,11 +14,7 @@ import { ProgrammingPlanKindReference } from 'maestro-shared/schema/ProgrammingP
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
-<<<<<<< HEAD
 import LaboratoryAgreementButtons from '../../../components/LaboratoryAgreement/LaboratoryAgreementButtons/LaboratoryAgreementButtons';
-=======
-import LaboratoryAgreementButton from '../../../components/LaboratoryAgreement/LaboratoryAgreementButton/LaboratoryAgreementButton';
->>>>>>> 8c039e20 (Fix design)
 import LaboratoryAgreementTag from '../../../components/LaboratoryAgreement/LaboratoryAgreementTag/LaboratoryAgreementTag';
 import './LaboratoryAgreementsModal.scss';
 import { pluralize } from '../../../utils/stringUtils';
@@ -80,26 +70,9 @@ const LaboratoryAgreementsModal = ({
   >({});
   const [search, setSearch] = useState('');
 
-<<<<<<< HEAD
   useIsModalOpen(modal, {
     onConceal: () => setSearch('')
   });
-
-=======
->>>>>>> 8c039e20 (Fix design)
-  useEffect(() => {
-    const initial = Object.fromEntries(
-      agreements.map((a) => [
-        a.laboratoryId,
-        {
-          referenceLaboratory: a.referenceLaboratory,
-          detectionAnalysis: a.detectionAnalysis,
-          confirmationAnalysis: a.confirmationAnalysis
-        }
-      ])
-    );
-    setLocalAgreements(initial);
-  }, [agreements]);
 
   const toggle = (labId: string, field: keyof LocalAgreement) => {
     setLocalAgreements((prev) => ({
@@ -132,10 +105,7 @@ const LaboratoryAgreementsModal = ({
         );
       })
     );
-<<<<<<< HEAD
     setSearch('');
-=======
->>>>>>> 8c039e20 (Fix design)
     modal.close();
   };
 
@@ -171,13 +141,8 @@ const LaboratoryAgreementsModal = ({
       ]}
     >
       <div className="agreement-modal">
-<<<<<<< HEAD
         <div className="agreement-modal-list">
           <div className={clsx(cx('fr-mb-2w'), 'agreement-modal-list-search')}>
-=======
-        <div className={clsx(cx('fr-pr-3w'), 'agreement-modal-list')}>
-          <div className={cx('fr-mb-2w')}>
->>>>>>> 8c039e20 (Fix design)
             <p className={cx('fr-text--md')}>
               {laboratoryAgreementRowKeys.length === 1 ? (
                 <>
@@ -200,7 +165,6 @@ const LaboratoryAgreementsModal = ({
                 })('plan sélectionné')
               )}
             </p>
-<<<<<<< HEAD
             <div className="search-input-wrapper">
               <Input
                 label="Rechercher un laboratoire"
@@ -260,65 +224,6 @@ const LaboratoryAgreementsModal = ({
         </div>
 
         <div className="agreement-modal-selection">
-=======
-            <SearchBar
-              label="Rechercher un laboratoire"
-              defaultValue={search}
-              onButtonClick={(value) => setSearch(value)}
-            />
-          </div>
-          {filteredLaboratories.map((laboratory, index) => {
-            const localAgreement =
-              localAgreements[laboratory.id] ?? defaultLocalAgreement;
-            return (
-              <div key={laboratory.id}>
-                {index > 0 && <hr className={cx('fr-my-1w')} />}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '1rem'
-                  }}
-                >
-                  <div>
-                    <span className={cx('fr-text--bold')}>
-                      {laboratory.shortName}
-                    </span>
-                    <br />
-                    <span className={cx('fr-text--sm')}>{laboratory.name}</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <LaboratoryAgreementButton
-                      field="referenceLaboratory"
-                      active={localAgreement.referenceLaboratory}
-                      onToggle={() =>
-                        toggle(laboratory.id, 'referenceLaboratory')
-                      }
-                    />
-                    <LaboratoryAgreementButton
-                      field="detectionAnalysis"
-                      active={localAgreement.detectionAnalysis}
-                      onToggle={() =>
-                        toggle(laboratory.id, 'detectionAnalysis')
-                      }
-                    />
-                    <LaboratoryAgreementButton
-                      field="confirmationAnalysis"
-                      active={localAgreement.confirmationAnalysis}
-                      onToggle={() =>
-                        toggle(laboratory.id, 'confirmationAnalysis')
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className={clsx(cx('fr-p-3w'), 'agreement-modal-selection')}>
->>>>>>> 8c039e20 (Fix design)
           {filteredLaboratories
             .filter((laboratory) => {
               const local = localAgreements[laboratory.id];
@@ -349,10 +254,7 @@ const LaboratoryAgreementsModal = ({
                   key={laboratory.id}
                   laboratoryAgreement={laboratoryAgreement}
                   laboratory={laboratory}
-<<<<<<< HEAD
                   afterClose={modal.open}
-=======
->>>>>>> 8c039e20 (Fix design)
                 />
               );
             })}
