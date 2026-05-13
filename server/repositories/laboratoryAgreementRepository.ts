@@ -79,7 +79,6 @@ const findMany = async (
   }
 
   const rows = await query.execute();
-
   return rows.map((row) => LaboratoryAgreement.parse(row));
 };
 

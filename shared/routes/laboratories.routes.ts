@@ -52,6 +52,14 @@ export const laboratoriesRoutes = {
       response: z.custom<Buffer>()
     }
   },
+  '/laboratories/agreements/export': {
+    params: undefined,
+    get: {
+      query: FindLaboratoryAgreementsOptions,
+      permissions: ['manageLaboratoryAgreements'] as const,
+      response: z.custom<Buffer>()
+    }
+  },
   '/laboratories': {
     params: undefined,
     get: {
