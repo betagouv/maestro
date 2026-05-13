@@ -75,12 +75,16 @@ export const laboratoriesRouter = {
     get: async ({ query }, _params, response) => {
       console.info('Export laboratory agreements');
 
-      const agreements = await laboratoryAgreementRepository.findMany(query);
-      const laboratories = await laboratoryRepository.findMany();
+      const [agreements, laboratories, prescriptions] = await Promise.all([
+        laboratoryAgreementRepository.findMany(query),
+        laboratoryRepository.findMany(),
+        prescriptionRepository.findMany({ year: query.year })
+      ]);
 
       const buffer = await excelService.generateLaboratoryAgreementsExportExcel(
         agreements,
-        laboratories
+        laboratories,
+        prescriptions
       );
 
       const fileName = 'agrements-laboratoires.xlsx';
