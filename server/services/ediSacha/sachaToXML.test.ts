@@ -17,6 +17,7 @@ const laboratory: LaboratoryWithSacha = {
   postalCode: '72000',
   city: 'Le Mans',
   emails: [],
+  emailsAnalysisResult: [],
   legacyDai: false,
   sacha: {
     activated: true,

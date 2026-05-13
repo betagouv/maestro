@@ -18,6 +18,27 @@ const laboratoryApi = api.injectEndpoints({
         }))
       ]
     }),
+    getLaboratoryConfig: buildTypedQuery(
+      builder,
+      '/laboratories/:laboratoryId/config',
+      {
+        providesTags: (_result, _error, { laboratoryId }) => [
+          { type: 'Laboratory', id: `config-${laboratoryId}` }
+        ]
+      }
+    ),
+    updateLaboratoryConfig: buildTypedMutation(
+      builder,
+      '/laboratories/:laboratoryId/config',
+      'put',
+      {
+        invalidatesTags: (_result, _error, { laboratoryId }) => [
+          { type: 'Laboratory', id: `config-${laboratoryId}` },
+          { type: 'Laboratory', id: laboratoryId },
+          { type: 'Laboratory', id: 'LIST' }
+        ]
+      }
+    ),
     getLaboratoryAnalyticalCompetences: buildTypedQuery(
       builder,
       '/laboratories/:laboratoryId/analytical-competences',
@@ -56,6 +77,8 @@ const laboratoryAnalyticCompetencesExportURL = (laboratoryId: string) =>
 export const {
   useGetLaboratoryQuery,
   useFindLaboratoriesQuery,
+  useGetLaboratoryConfigQuery,
+  useUpdateLaboratoryConfigMutation,
   useGetLaboratoryAnalyticalCompetencesQuery,
   useCreateLaboratoryAnalyticalCompetenceMutation,
   useUpdateLaboratoryAnalyticalCompetenceMutation,

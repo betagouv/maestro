@@ -36,11 +36,31 @@ export type SachaConfig = z.infer<typeof SachaConfig>;
 
 export const LaboratoryWithSacha = z.object({
   ...Laboratory.shape,
+  emailsAnalysisResult: z.array(z.email()),
   legacyDai: z.boolean(),
   sacha: SachaConfig.nullable()
 });
 
 export type LaboratoryWithSacha = z.infer<typeof LaboratoryWithSacha>;
+
+const LaboratoryConfigUpdateBase = z.object({
+  emails: z.array(z.email()),
+  emailsAnalysisResult: z.array(z.email())
+});
+
+export const LaboratoryConfigUpdate = z.discriminatedUnion('legacyDai', [
+  z.object({
+    ...LaboratoryConfigUpdateBase.shape,
+    legacyDai: z.literal(true),
+    sacha: z.null()
+  }),
+  z.object({
+    ...LaboratoryConfigUpdateBase.shape,
+    legacyDai: z.literal(false),
+    sacha: SachaConfig.nullable()
+  })
+]);
+export type LaboratoryConfigUpdate = z.infer<typeof LaboratoryConfigUpdate>;
 
 export const getLaboratoryFullName = (laboratory?: Laboratory): string =>
   laboratory

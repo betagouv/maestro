@@ -13,6 +13,7 @@ import {
 } from 'maestro-shared/test/laboratoryFixtures';
 import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import {
+  AdminFixture,
   DepartmentalCoordinator,
   LaboratoryUserFixture,
   NationalCoordinator,
@@ -60,6 +61,167 @@ describe('Laboratory router', () => {
         })
       );
     });
+
+    test('should not expose admin fields', async () => {
+      const res = await request(app)
+        .get(testRoute(LaboratoryFixture.id))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).not.toHaveProperty('emailsAnalysisResult');
+      expect(res.body).not.toHaveProperty('legacyDai');
+      expect(res.body).not.toHaveProperty('sacha');
+    });
+  });
+
+  describe('GET /laboratories/:laboratoryId/config', () => {
+    const testRoute = (laboratoryId: string) =>
+      `/api/laboratories/${laboratoryId}/config`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute(LaboratoryFixture.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user does not have administrationMaestro permission', async () => {
+      const forbiddenRequestTest = async (user: UserRefined) =>
+        request(app)
+          .get(testRoute(LaboratoryFixture.id))
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await forbiddenRequestTest(Sampler1Fixture);
+      await forbiddenRequestTest(NationalCoordinator);
+      await forbiddenRequestTest(RegionalCoordinator);
+    });
+
+    test('should return the full laboratory config for an admin', async () => {
+      const res = await request(app)
+        .get(testRoute(LaboratoryFixture.id))
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toEqual(
+        expect.objectContaining({
+          id: LaboratoryFixture.id,
+          shortName: LaboratoryFixture.shortName,
+          emailsAnalysisResult: expect.any(Array),
+          legacyDai: expect.any(Boolean)
+        })
+      );
+      expect(res.body).toHaveProperty('sacha');
+    });
+  });
+
+  describe('PUT /laboratories/:laboratoryId/config', () => {
+    const testRoute = (laboratoryId: string) =>
+      `/api/laboratories/${laboratoryId}/config`;
+
+    const baseBody = {
+      emails: ['contact@lab.fr'],
+      emailsAnalysisResult: ['results@lab.fr']
+    };
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(testRoute(LaboratoryFixture.id))
+        .send({
+          ...baseBody,
+          legacyDai: false,
+          sacha: { activated: false, sigle: null, communication: null }
+        })
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user does not have administrationMaestro permission', async () => {
+      const forbiddenRequestTest = async (user: UserRefined) =>
+        request(app)
+          .put(testRoute(LaboratoryFixture.id))
+          .use(tokenProvider(user))
+          .send({
+            ...baseBody,
+            legacyDai: false,
+            sacha: { activated: false, sigle: null, communication: null }
+          })
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await forbiddenRequestTest(Sampler1Fixture);
+      await forbiddenRequestTest(NationalCoordinator);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+    });
+
+    test('should accept a valid SACHA EMAIL config', async () => {
+      await request(app)
+        .put(testRoute(LaboratoryFixture.id))
+        .use(tokenProvider(AdminFixture))
+        .send({
+          ...baseBody,
+          legacyDai: false,
+          sacha: {
+            activated: true,
+            sigle: 'LAB1',
+            communication: {
+              method: 'EMAIL',
+              email: 'sacha@lab.fr',
+              gpgPublicKey: 'PUBKEY'
+            }
+          }
+        })
+        .expect(constants.HTTP_STATUS_OK);
+    });
+
+    test('should accept a valid SACHA SFTP config', async () => {
+      await request(app)
+        .put(testRoute(LaboratoryFixture.id))
+        .use(tokenProvider(AdminFixture))
+        .send({
+          ...baseBody,
+          legacyDai: false,
+          sacha: {
+            activated: true,
+            sigle: 'LAB1',
+            communication: { method: 'SFTP', sftpLogin: 'sftp-user' }
+          }
+        })
+        .expect(constants.HTTP_STATUS_OK);
+    });
+
+    test('should accept a legacyDai=true config', async () => {
+      await request(app)
+        .put(testRoute(LaboratoryFixture.id))
+        .use(tokenProvider(AdminFixture))
+        .send({ ...baseBody, legacyDai: true, sacha: null })
+        .expect(constants.HTTP_STATUS_OK);
+    });
+
+    test('should reject an incoherent config (legacyDai=true with sacha)', async () => {
+      await request(app)
+        .put(testRoute(LaboratoryFixture.id))
+        .use(tokenProvider(AdminFixture))
+        .send({
+          ...baseBody,
+          legacyDai: true,
+          sacha: { activated: true, sigle: null, communication: null }
+        })
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should reject an EMAIL communication without email', async () => {
+      await request(app)
+        .put(testRoute(LaboratoryFixture.id))
+        .use(tokenProvider(AdminFixture))
+        .send({
+          ...baseBody,
+          legacyDai: false,
+          sacha: {
+            activated: true,
+            sigle: 'LAB1',
+            communication: { method: 'EMAIL', gpgPublicKey: 'PUBKEY' }
+          }
+        })
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
   });
 
   describe('GET /laboratories', () => {
@@ -86,6 +248,19 @@ describe('Laboratory router', () => {
           })
         )
       );
+    });
+
+    test('should not expose admin fields in the list', async () => {
+      const res = await request(app)
+        .get(testRoute())
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      for (const laboratory of res.body) {
+        expect(laboratory).not.toHaveProperty('emailsAnalysisResult');
+        expect(laboratory).not.toHaveProperty('legacyDai');
+        expect(laboratory).not.toHaveProperty('sacha');
+      }
     });
 
     test('should filter aggregated laboratories by programmingPlanId and substanceKind', async () => {

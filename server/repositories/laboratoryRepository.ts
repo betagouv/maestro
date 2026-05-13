@@ -3,6 +3,7 @@ import { isNil, omitBy } from 'lodash-es';
 import { FindLaboratoryOptions } from 'maestro-shared/schema/Laboratory/FindLaboratoryOptions';
 import {
   Laboratory,
+  type LaboratoryConfigUpdate,
   LaboratoryWithSacha,
   type SachaConfig
 } from 'maestro-shared/schema/Laboratory/Laboratory';
@@ -35,7 +36,27 @@ const buildCommunication = (
   }
 };
 
-const toLaboratory = (row: KyselyLaboratories): LaboratoryWithSacha => {
+const findUnique = async (id: string): Promise<LaboratoryWithSacha> => {
+  console.info('Find laboratory by id', id);
+  const row = await kysely
+    .selectFrom('laboratories')
+    .leftJoin(
+      'laboratoryAgreements',
+      'laboratoryAgreements.laboratoryId',
+      'laboratories.id'
+    )
+    .selectAll('laboratories')
+    .select(
+      sql<
+        string[]
+      >`array_remove(array_agg(DISTINCT "laboratory_agreements"."programming_plan_id"), NULL)`.as(
+        'programmingPlanIds'
+      )
+    )
+    .groupBy('laboratories.id')
+    .where('laboratories.id', '=', id)
+    .executeTakeFirstOrThrow();
+
   const sacha = row.legacyDai
     ? null
     : {
@@ -44,58 +65,13 @@ const toLaboratory = (row: KyselyLaboratories): LaboratoryWithSacha => {
         communication: buildCommunication(row)
       };
   return LaboratoryWithSacha.parse({
-    id: row.id,
-    shortName: row.shortName,
-    name: row.name,
-    address: row.address,
-    postalCode: row.postalCode,
-    city: row.city,
-    emails: row.emails,
-    programmingPlanIds: row.programmingPlanIds,
-    legacyDai: row.legacyDai,
+    ...row,
+    emails: (row.emails ?? []).filter((e): e is string => e !== null),
+    emailsAnalysisResult: (row.emailsAnalysisResult ?? []).filter(
+      (e): e is string => e !== null
+    ),
     sacha
   });
-};
-
-const findUnique = async (id: string): Promise<LaboratoryWithSacha> => {
-  console.info('Find laboratory by id', id);
-  const selectColumns = [
-    'laboratories.id',
-    'laboratories.shortName',
-    'laboratories.name',
-    'laboratories.address',
-    'laboratories.postalCode',
-    'laboratories.city',
-    'laboratories.emails',
-    'laboratories.emailsAnalysisResult',
-    'laboratories.sachaEmail',
-    'laboratories.sachaGpgPublicKey',
-    'laboratories.sachaSigle',
-    'laboratories.sachaSftpLogin',
-    'laboratories.legacyDai',
-    'laboratories.sachaActivated',
-    'laboratories.sachaCommunicationMethod'
-  ] as const;
-
-  const row = await kysely
-    .selectFrom('laboratories')
-    .leftJoin(
-      'laboratoryAgreements',
-      'laboratoryAgreements.laboratoryId',
-      'laboratories.id'
-    )
-    .select([
-      ...selectColumns,
-      sql<
-        string[]
-      >`array_remove(array_agg(DISTINCT "laboratory_agreements"."programming_plan_id"), NULL)`.as(
-        'programmingPlanIds'
-      )
-    ])
-    .groupBy([...selectColumns])
-    .where('id', '=', id)
-    .executeTakeFirstOrThrow();
-  return toLaboratory(row);
 };
 
 const findMany = async (
@@ -174,6 +150,72 @@ const findMany = async (
   return laboratories.map((l) => Laboratory.parse(omitBy(l, isNil)));
 };
 
+const buildSachaFields = (sacha: SachaConfig | null) => {
+  if (sacha === null) {
+    return {
+      sachaActivated: false,
+      sachaSigle: null,
+      sachaCommunicationMethod: null,
+      sachaEmail: null,
+      sachaGpgPublicKey: null,
+      sachaSftpLogin: null
+    } as const;
+  }
+
+  const communication = sacha.communication;
+  if (communication === null) {
+    return {
+      sachaActivated: sacha.activated,
+      sachaSigle: sacha.sigle,
+      sachaCommunicationMethod: null,
+      sachaEmail: null,
+      sachaGpgPublicKey: null,
+      sachaSftpLogin: null
+    } as const;
+  }
+
+  switch (communication.method) {
+    case 'EMAIL':
+      return {
+        sachaActivated: sacha.activated,
+        sachaSigle: sacha.sigle,
+        sachaCommunicationMethod: 'EMAIL' as const,
+        sachaEmail: communication.email,
+        sachaGpgPublicKey: communication.gpgPublicKey,
+        sachaSftpLogin: null
+      };
+    case 'SFTP':
+      return {
+        sachaActivated: sacha.activated,
+        sachaSigle: sacha.sigle,
+        sachaCommunicationMethod: 'SFTP' as const,
+        sachaEmail: null,
+        sachaGpgPublicKey: null,
+        sachaSftpLogin: communication.sftpLogin
+      };
+    default:
+      return assertUnreachable(communication);
+  }
+};
+
+const updateConfig = async (
+  id: string,
+  payload: LaboratoryConfigUpdate
+): Promise<void> => {
+  console.info('Update laboratory config', id);
+
+  await kysely
+    .updateTable('laboratories')
+    .set({
+      emails: payload.emails,
+      emailsAnalysisResult: payload.emailsAnalysisResult,
+      legacyDai: payload.legacyDai,
+      ...buildSachaFields(payload.sacha)
+    })
+    .where('id', '=', id)
+    .execute();
+};
+
 const findByEmailSender = async (email_result_analysis: string) => {
   return kysely
     .selectFrom('laboratories')
@@ -187,5 +229,6 @@ const findByEmailSender = async (email_result_analysis: string) => {
 export const laboratoryRepository = {
   findUnique,
   findMany,
+  updateConfig,
   findByEmailSender
 };
