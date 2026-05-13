@@ -65,6 +65,7 @@ import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import companyRepository from '../../repositories/companyRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
+import prescriptionRepository from '../../repositories/prescriptionRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 import { type Template, templatePath } from '../../templates/templates';
@@ -764,7 +765,6 @@ const generateLaboratoryAnalyticCompetencesExportExcel = async (
   );
 };
 
-<<<<<<< HEAD
 const generateLaboratoryAgreementsExportExcel = async (
   agreements: LaboratoryAgreement[],
   laboratories: Laboratory[],
@@ -799,19 +799,11 @@ const generateLaboratoryAgreementsExportExcel = async (
   }, []);
 
   const rows = uniqueRows
-=======
-const generateLaboratoryAgreementsExportExcel = (
-  agreements: LaboratoryAgreement[],
-  laboratories: Laboratory[]
-): Promise<Buffer> => {
-  const rows = agreements
->>>>>>> c6abf1a9 (Ajout export)
     .toSorted(
       (a, b) =>
         a.substanceKind.localeCompare(b.substanceKind) ||
         a.programmingPlanKind.localeCompare(b.programmingPlanKind)
     )
-<<<<<<< HEAD
     .map(({ programmingPlanId, programmingPlanKind, substanceKind }) => {
       const rowAgreements = agreements.filter(
         (a) =>
@@ -876,26 +868,6 @@ const generateLaboratoryAgreementsExportExcel = (
   ];
 
   return carboneRender('laboratoryAgreementsExport', { labHeaders, rows }, {});
-=======
-    .map((agreement) => {
-      const laboratory = laboratories.find(
-        (l) => l.id === agreement.laboratoryId
-      );
-      return {
-        id: ProgrammingPlanKindReference[agreement.programmingPlanKind],
-        type: ProgrammingPlanKindLabels[agreement.programmingPlanKind],
-        substanceKind: SubstanceKindLabels[agreement.substanceKind],
-        laboratory: laboratory
-          ? `${laboratory.shortName} - ${laboratory.name}`
-          : agreement.laboratoryId,
-        referenceLaboratory: agreement.referenceLaboratory ? 'Oui' : 'Non',
-        detectionAnalysis: agreement.detectionAnalysis ? 'Oui' : 'Non',
-        confirmationAnalysis: agreement.confirmationAnalysis ? 'Oui' : 'Non'
-      };
-    });
-
-  return carboneRender('laboratoryAgreementsExport', { agreements: rows }, {});
->>>>>>> c6abf1a9 (Ajout export)
 };
 
 const carboneRender = (
