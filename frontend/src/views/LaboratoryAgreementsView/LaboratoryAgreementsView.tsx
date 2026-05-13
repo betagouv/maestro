@@ -35,7 +35,7 @@ import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { ApiClientContext } from '../../services/apiClient';
 import { pluralize } from '../../utils/stringUtils';
-import LaboratoryAgreementsModal from './LaboratoryAgreementsModal';
+import LaboratoryAgreementsModal from './LaboratoryAgreementsModal/LaboratoryAgreementsModal';
 import './LaboratoryAgreementsView.scss';
 
 const agreementsModal = createModal({
@@ -404,7 +404,9 @@ const LaboratoryAgreementsView = () => {
         />
 
         <div className={clsx('white-container', cx('fr-p-4w'))}>
-          <div className="laboratory-agreements-topbar">
+          <div
+            className={clsx(cx('fr-mb-3w'), 'd-flex-justify-end', 'no-wrap')}
+          >
             <ToggleSwitch
               label="Sous-plans sans laboratoires"
               checked={showWithoutLab}
@@ -412,38 +414,54 @@ const LaboratoryAgreementsView = () => {
               showCheckedHint={false}
             />
           </div>
-          <div ref={noticeRef} className="laboratory-agreements-notice">
+          <div
+            ref={noticeRef}
+            className="laboratory-agreements-notice-container"
+          >
             {selectedStringRowKeys.length > 0 && (
-              <Notice
-                className={cx('fr-mb-2w')}
-                title={
-                  selectedRowsConsistent ? (
-                    <>
-                      <span>
-                        {pluralize(selectedStringRowKeys.length, {
-                          preserveCount: true
-                        })('plan sélectionné')}
-                      </span>
-                      <Button
-                        iconId="fr-icon-microscope-line"
-                        priority="secondary"
-                        size="small"
-                        onClick={handleOpenModal}
-                      >
-                        Affecter les laboratoires
-                      </Button>
-                    </>
-                  ) : (
-                    <span>
-                      Les plans sélectionnés ont des agréments différents.
-                      Veuillez les modifier individuellement.
-                    </span>
-                  )
-                }
-                severity={selectedRowsConsistent ? 'info' : 'warning'}
-                iconDisplayed={false}
-                isClosable={false}
-              />
+              <div
+                className={clsx(
+                  cx('fr-px-3w', 'fr-py-2w'),
+                  'laboratory-agreements-notice'
+                )}
+              >
+                <div className="d-flex-justify-between d-flex-align-center">
+                  <span className={clsx(cx('fr-text--bold'), 'no-wrap')}>
+                    {pluralize(selectedStringRowKeys.length, {
+                      preserveCount: true
+                    })('plan sélectionné')}
+                  </span>
+                  {!selectedRowsConsistent && (
+                    <Notice
+                      className={cx('fr-m-0', 'fr-p-0')}
+                      title=""
+                      description="Les sous-plans sélectionnés ont des laboratoires affectés différents. L'action groupée n'est pas possible."
+                      severity="info"
+                      isClosable={false}
+                    />
+                  )}
+                  <span className="d-flex-align-center no-wrap">
+                    <Button
+                      priority="tertiary no outline"
+                      size="small"
+                      onClick={() => setSelectedStringRowKeys([])}
+                      className="link-underline"
+                    >
+                      Déselectionner tout
+                    </Button>
+                    <Button
+                      iconId="fr-icon-microscope-line"
+                      priority="secondary"
+                      size="small"
+                      onClick={handleOpenModal}
+                      disabled={!selectedRowsConsistent}
+                      className={cx('fr-ml-3w')}
+                    >
+                      Affecter les laboratoires
+                    </Button>
+                  </span>
+                </div>
+              </div>
             )}
           </div>
           <div
@@ -453,6 +471,7 @@ const LaboratoryAgreementsView = () => {
             <Table
               noCaption
               bordered
+              className={cx('fr-pt-0')}
               headers={[
                 <div
                   key="select-all"

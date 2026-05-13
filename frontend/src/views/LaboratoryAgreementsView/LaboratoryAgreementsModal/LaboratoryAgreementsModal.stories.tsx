@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { LaboratoryListFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { fn } from 'storybook/test';
 import { v4 as uuidv4 } from 'uuid';
-import { LaboratoryAgreementDetailProvider } from '../../components/LaboratoryAgreement/LaboratoryAgreementDetailModal/LaboratoryAgreementDetailContext';
+import { LaboratoryAgreementDetailProvider } from '../../../components/LaboratoryAgreement/LaboratoryAgreementDetailModal/LaboratoryAgreementDetailContext';
 import LaboratoryAgreementsModal, {
   type ModalInstance
 } from './LaboratoryAgreementsModal';

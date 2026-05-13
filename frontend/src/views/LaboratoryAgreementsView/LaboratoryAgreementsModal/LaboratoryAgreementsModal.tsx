@@ -8,12 +8,14 @@ import type {
   LaboratoryAgreementRowKey,
   LaboratoryAgreementUpdate
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
+import { ProgrammingPlanKindReference } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import LaboratoryAgreementButton from '../../components/LaboratoryAgreement/LaboratoryAgreementButton/LaboratoryAgreementButton';
-import LaboratoryAgreementTag from '../../components/LaboratoryAgreement/LaboratoryAgreementTag/LaboratoryAgreementTag';
+import LaboratoryAgreementButton from '../../../components/LaboratoryAgreement/LaboratoryAgreementButton/LaboratoryAgreementButton';
+import LaboratoryAgreementTag from '../../../components/LaboratoryAgreement/LaboratoryAgreementTag/LaboratoryAgreementTag';
 import './LaboratoryAgreementsModal.scss';
-import { pluralize } from '../../utils/stringUtils';
+import { pluralize } from '../../../utils/stringUtils';
 
 export type ModalInstance = {
   Component: (props: ModalProps) => React.JSX.Element;
@@ -149,9 +151,26 @@ const LaboratoryAgreementsModal = ({
         <div className={clsx(cx('fr-pr-3w'), 'agreement-modal-list')}>
           <div className={cx('fr-mb-2w')}>
             <p className={cx('fr-text--md')}>
-              {pluralize(laboratoryAgreementRowKeys.length, {
-                preserveCount: true
-              })('plan sélectionné')}
+              {laboratoryAgreementRowKeys.length === 1 ? (
+                <>
+                  N°
+                  {
+                    ProgrammingPlanKindReference[
+                      laboratoryAgreementRowKeys[0].programmingPlanKind
+                    ]
+                  }
+                  {' | '}
+                  {
+                    SubstanceKindLabels[
+                      laboratoryAgreementRowKeys[0].substanceKind
+                    ]
+                  }
+                </>
+              ) : (
+                pluralize(laboratoryAgreementRowKeys.length, {
+                  preserveCount: true
+                })('plan sélectionné')
+              )}
             </p>
             <SearchBar
               label="Rechercher un laboratoire"

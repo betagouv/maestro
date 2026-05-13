@@ -9,38 +9,17 @@
   flex-wrap: wrap;
 }
 
-.laboratory-agreements-topbar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 0.75rem;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.laboratory-agreements-notice {
+.laboratory-agreements-notice-container {
   position: sticky;
   top: 0;
   z-index: 3;
   background-color: #fff;
   padding-bottom: 0.5rem;
 
-  .fr-notice__body > p {
-    width: 100%;
 
-    .fr-notice__title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      font-weight: normal;
-
-    }
-  }
-
-  .fr-notice--info {
-    .fr-notice__title {
-      color: var(--blue-france-sun-113-625);
-    }
+  .laboratory-agreements-notice {
+    background-color: var(--background-contrast-info);
+    color: var(--blue-france-sun-113-625);
   }
 }
 
