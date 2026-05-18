@@ -50,13 +50,7 @@ export const LaboratoryAgreementFields = [
   'confirmationAnalysis'
 ] as LaboratoryAgreementField[];
 
-export const agreementLabels: Record<
-  keyof Pick<
-    LaboratoryAgreement,
-    'referenceLaboratory' | 'detectionAnalysis' | 'confirmationAnalysis'
-  >,
-  string
-> = {
+export const agreementLabels: Record<LaboratoryAgreementField, string> = {
   referenceLaboratory: 'Laboratoire national de référence',
   detectionAnalysis: 'Réalise les analyses de première intention',
   confirmationAnalysis: 'Réalise les analyses de confirmation'
