@@ -406,7 +406,7 @@ const LaboratoryAgreementsView = () => {
             >
               <span>
                 {pluralize(filteredRows.length, { preserveCount: true })(
-                  "ligne d'agrément"
+                  'ligne'
                 )}
               </span>
               <span
