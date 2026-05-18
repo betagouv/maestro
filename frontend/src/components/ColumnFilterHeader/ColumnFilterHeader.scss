@@ -19,15 +19,20 @@
     position: relative;
   }
 
-  .column-filter-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    z-index: 100;
-    background: var(--background-default-grey);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    min-width: 220px;
-    width: max-content;
+    .column-filter-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 100;
+      background: var(--background-default-grey);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      min-width: 220px;
+      width: max-content;
+
+      &--right {
+        left: auto;
+        right: 0;
+      }
 
     &--right {
       left: auto;
