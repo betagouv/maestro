@@ -12,7 +12,7 @@ import { ProgrammingPlanKindReference } from 'maestro-shared/schema/ProgrammingP
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import LaboratoryAgreementButton from '../../../components/LaboratoryAgreement/LaboratoryAgreementButton/LaboratoryAgreementButton';
+import LaboratoryAgreementButtons from '../../../components/LaboratoryAgreement/LaboratoryAgreementButtons/LaboratoryAgreementButtons';
 import LaboratoryAgreementTag from '../../../components/LaboratoryAgreement/LaboratoryAgreementTag/LaboratoryAgreementTag';
 import './LaboratoryAgreementsModal.scss';
 import { pluralize } from '../../../utils/stringUtils';
@@ -199,29 +199,10 @@ const LaboratoryAgreementsModal = ({
                     <br />
                     <span className={cx('fr-text--sm')}>{laboratory.name}</span>
                   </div>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <LaboratoryAgreementButton
-                      field="referenceLaboratory"
-                      active={localAgreement.referenceLaboratory}
-                      onToggle={() =>
-                        toggle(laboratory.id, 'referenceLaboratory')
-                      }
-                    />
-                    <LaboratoryAgreementButton
-                      field="detectionAnalysis"
-                      active={localAgreement.detectionAnalysis}
-                      onToggle={() =>
-                        toggle(laboratory.id, 'detectionAnalysis')
-                      }
-                    />
-                    <LaboratoryAgreementButton
-                      field="confirmationAnalysis"
-                      active={localAgreement.confirmationAnalysis}
-                      onToggle={() =>
-                        toggle(laboratory.id, 'confirmationAnalysis')
-                      }
-                    />
-                  </div>
+                  <LaboratoryAgreementButtons
+                    values={localAgreement}
+                    onToggle={(field) => toggle(laboratory.id, field)}
+                  />
                 </div>
               </div>
             );

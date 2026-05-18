@@ -3,26 +3,33 @@ import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import clsx from 'clsx';
+import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import './ColumnFilterHeader.scss';
 
 interface Props<T extends string> {
   label?: string;
-  options: { label: string; value: T }[];
+  options: { label: string; value: T; disabled?: boolean }[];
   selectedValues: T[];
   onChange: (values: T[]) => void;
+  extraContent?: React.ReactNode;
+  extraActive?: boolean;
+  menuAlign?: 'left' | 'right';
 }
 
 const ColumnFilterHeader = <T extends string>({
   label,
   options,
   selectedValues,
-  onChange
+  onChange,
+  extraContent,
+  extraActive = false,
+  menuAlign = 'left'
 }: Props<T>) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const menuRef = useRef<HTMLDivElement>(null);
-  const isActive = selectedValues.length > 0;
+  const isActive = selectedValues.length > 0 || extraActive;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -89,7 +96,11 @@ const ColumnFilterHeader = <T extends string>({
           aria-expanded={isOpen}
         />
         {isOpen && (
-          <div className={clsx(cx('fr-p-2w'), 'column-filter-menu')}>
+          <div
+            className={clsx(cx('fr-p-2w'), 'column-filter-menu', {
+              'column-filter-menu--right': menuAlign === 'right'
+            })}
+          >
             <Input
               label=""
               hideLabel
@@ -104,13 +115,17 @@ const ColumnFilterHeader = <T extends string>({
               {filteredOptions.map((option) => (
                 <Checkbox
                   key={option.value}
-                  className={cx('fr-my-2w', 'fr-text--regular')}
+                  className={clsx(cx('fr-my-2w', 'fr-text--regular'), {
+                    'column-filter-option--disabled': option.disabled
+                  })}
                   options={[
                     {
                       label: highlightLabel(option.label),
                       nativeInputProps: {
                         checked: selectedValues.includes(option.value),
-                        onChange: () => toggle(option.value)
+                        onChange: () =>
+                          !option.disabled && toggle(option.value),
+                        disabled: option.disabled
                       }
                     }
                   ]}
@@ -118,12 +133,19 @@ const ColumnFilterHeader = <T extends string>({
                 />
               ))}
             </div>
+            {extraContent && (
+              <>
+                <hr className={cx('fr-my-2w')} />
+                {extraContent}
+              </>
+            )}
             <hr className={cx('fr-my-2w')} />
             <div className="column-filter-menu-actions">
               <Button
                 priority="tertiary no outline"
                 size="small"
                 onClick={handleReset}
+                className={cx('fr-pl-0')}
               >
                 Réinitialiser
               </Button>

@@ -19,18 +19,22 @@
     font-size: 0.625rem;
   }
 
-  &--reference {
-    background-color: var(--background-contrast-success);
+  &:hover {
+    filter: brightness(0.93);
+  }
+
+  &--reference, &--reference:hover {
+    background-color: var(--background-contrast-success) !important;
     color: var(--text-default-success);
   }
 
-  &--detection {
-    background-color: var(--yellow-tournesol-950-100);
+  &--detection, &--detection:hover {
+    background-color: var(--yellow-tournesol-950-100) !important;
     color: var(--yellow-tournesol-sun-407-moon-922);
   }
 
-  &--confirmation {
-    background-color: var(--purple-glycine-950-100);
+  &--confirmation, &--confirmation:hover {
+    background-color: var(--purple-glycine-950-100) !important;
     color: var(--purple-glycine-sun-319-moon-630);
   }
 }

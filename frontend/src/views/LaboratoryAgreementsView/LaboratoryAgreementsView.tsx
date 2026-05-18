@@ -14,6 +14,7 @@ import {
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import type {
   LaboratoryAgreement,
+  LaboratoryAgreementField,
   LaboratoryAgreementRowKey
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
@@ -26,6 +27,7 @@ import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKin
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import ColumnFilterHeader from 'src/components/ColumnFilterHeader/ColumnFilterHeader';
+import LaboratoryAgreementButtons from 'src/components/LaboratoryAgreement/LaboratoryAgreementButtons/LaboratoryAgreementButtons';
 import { LaboratoryAgreementDetailProvider } from 'src/components/LaboratoryAgreement/LaboratoryAgreementDetailModal/LaboratoryAgreementDetailContext';
 import LaboratoryAgreementTag from 'src/components/LaboratoryAgreement/LaboratoryAgreementTag/LaboratoryAgreementTag';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
@@ -66,6 +68,9 @@ const LaboratoryAgreementsView = () => {
   >([]);
   const [substanceFilter, setSubstanceFilter] = useState<SubstanceKind[]>([]);
   const [labFilter, setLabFilter] = useState<string[]>([]);
+  const [labAgreementTypeFilter, setLabAgreementTypeFilter] = useState<
+    LaboratoryAgreementField[]
+  >([]);
   const [matrixFilter, setMatrixFilter] = useState<MatrixKind[]>([]);
   const [kindFilter, setKindFilter] = useState<ProgrammingPlanKind[]>([]);
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
@@ -94,32 +99,54 @@ const LaboratoryAgreementsView = () => {
     { skip: !year }
   );
 
-  const rows = useMemo(
-    () =>
-      programmingPlans
-        .flatMap((plan) =>
-          plan.kinds.flatMap((kind) =>
-            plan.substanceKinds.map((substanceKind) => ({
-              programmingPlanId: plan.id,
-              programmingPlanKind: kind,
-              programmingPlanYear: plan.year,
-              substanceKind,
-              laboratories: agreements.filter(
-                (a) =>
-                  a.programmingPlanId === plan.id &&
-                  a.programmingPlanKind === kind &&
-                  a.substanceKind === substanceKind
-              )
-            }))
-          )
+  const rows = useMemo(() => {
+    const getFirstMatrixTitle = (
+      programmingPlanId: string,
+      programmingPlanKind: string
+    ) => {
+      const titles = allPrescriptions
+        .filter(
+          (p) =>
+            p.programmingPlanId === programmingPlanId &&
+            p.programmingPlanKind === programmingPlanKind
         )
-        .sort(
-          (a, b) =>
-            a.substanceKind.localeCompare(b.substanceKind) ||
-            a.programmingPlanKind.localeCompare(b.programmingPlanKind)
-        ),
-    [agreements, programmingPlans, year]
-  );
+        .map(getPrescriptionTitle)
+        .sort((a, b) => a.localeCompare(b));
+      return titles[0] ?? '';
+    };
+
+    return programmingPlans
+      .flatMap((plan) =>
+        plan.kinds.flatMap((kind) =>
+          plan.substanceKinds.map((substanceKind) => ({
+            programmingPlanId: plan.id,
+            programmingPlanKind: kind,
+            programmingPlanYear: plan.year,
+            substanceKind,
+            laboratories: agreements.filter(
+              (a) =>
+                a.programmingPlanId === plan.id &&
+                a.programmingPlanKind === kind &&
+                a.substanceKind === substanceKind
+            )
+          }))
+        )
+      )
+      .sort((a, b) => {
+        const substanceCmp = SubstanceKindLabels[a.substanceKind].localeCompare(
+          SubstanceKindLabels[b.substanceKind]
+        );
+        if (substanceCmp !== 0) {
+          return substanceCmp;
+        }
+        return getFirstMatrixTitle(
+          a.programmingPlanId,
+          a.programmingPlanKind
+        ).localeCompare(
+          getFirstMatrixTitle(b.programmingPlanId, b.programmingPlanKind)
+        );
+      });
+  }, [agreements, programmingPlans, allPrescriptions]);
 
   const kindOptions = useMemo(
     () =>
@@ -139,12 +166,22 @@ const LaboratoryAgreementsView = () => {
     [rows]
   );
 
+  const labsInRows = useMemo(
+    () =>
+      new Set(rows.flatMap((r) => r.laboratories.map((l) => l.laboratoryId))),
+    [rows]
+  );
+
   const labOptions = useMemo(
     () =>
       laboratories
         .toSorted((a, b) => a.shortName.localeCompare(b.shortName))
-        .map((l) => ({ value: l.id, label: l.shortName })),
-    [laboratories]
+        .map((l) => ({
+          value: l.id,
+          label: l.shortName,
+          disabled: !labsInRows.has(l.id)
+        })),
+    [laboratories, labsInRows]
   );
 
   const matrixOptions = useMemo(
@@ -173,8 +210,14 @@ const LaboratoryAgreementsView = () => {
                 p.programmingPlanKind === r.programmingPlanKind &&
                 matrixFilter.includes(p.matrixKind)
             )) &&
-          (labFilter.length === 0 ||
-            r.laboratories.some((l) => labFilter.includes(l.laboratoryId))) &&
+          ((labFilter.length === 0 && labAgreementTypeFilter.length === 0) ||
+            r.laboratories.some(
+              (l) =>
+                (labFilter.length === 0 ||
+                  labFilter.includes(l.laboratoryId)) &&
+                (labAgreementTypeFilter.length === 0 ||
+                  labAgreementTypeFilter.some((field) => l[field]))
+            )) &&
           (!showWithoutLab ||
             !r.laboratories.some(
               (l) =>
@@ -189,6 +232,7 @@ const LaboratoryAgreementsView = () => {
       substanceFilter,
       matrixFilter,
       labFilter,
+      labAgreementTypeFilter,
       showWithoutLab,
       allPrescriptions
     ]
@@ -541,6 +585,38 @@ const LaboratoryAgreementsView = () => {
                     options={labOptions}
                     selectedValues={labFilter}
                     onChange={setLabFilter}
+                    menuAlign="right"
+                    extraActive={labAgreementTypeFilter.length > 0}
+                    extraContent={
+                      <div className={clsx('d-flex-align-center')}>
+                        <span className={cx('fr-mr-16w')}>
+                          Filtrer par type d'agrément
+                        </span>
+                        <LaboratoryAgreementButtons
+                          values={{
+                            referenceLaboratory:
+                              labAgreementTypeFilter.includes(
+                                'referenceLaboratory'
+                              ),
+                            detectionAnalysis:
+                              labAgreementTypeFilter.includes(
+                                'detectionAnalysis'
+                              ),
+                            confirmationAnalysis:
+                              labAgreementTypeFilter.includes(
+                                'confirmationAnalysis'
+                              )
+                          }}
+                          onToggle={(field) =>
+                            setLabAgreementTypeFilter((prev) =>
+                              prev.includes(field)
+                                ? prev.filter((f) => f !== field)
+                                : [...prev, field]
+                            )
+                          }
+                        />
+                      </div>
+                    }
                   />
                 </div>
               ]}

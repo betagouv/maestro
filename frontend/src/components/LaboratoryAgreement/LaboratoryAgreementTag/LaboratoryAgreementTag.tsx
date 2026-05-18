@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { LaboratoryAgreement } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import { useContext } from 'react';
-import LaboratoryAgreementButton from '../LaboratoryAgreementButton/LaboratoryAgreementButton';
+import LaboratoryAgreementButtons from '../LaboratoryAgreementButtons/LaboratoryAgreementButtons';
 import { LaboratoryAgreementDetailContext } from '../LaboratoryAgreementDetailModal/LaboratoryAgreementDetailContext';
 import './LaboratoryAgreementTag.scss';
 
@@ -34,21 +34,7 @@ const LaboratoryAgreementTag = ({ laboratoryAgreement, laboratory }: Props) => {
       <span className={clsx(cx('fr-text--xs', 'fr-text--bold', 'fr-mb-0'))}>
         {laboratory.shortName}
       </span>
-      <LaboratoryAgreementButton
-        field="referenceLaboratory"
-        active={laboratoryAgreement.referenceLaboratory}
-        size="sm"
-      />
-      <LaboratoryAgreementButton
-        field="detectionAnalysis"
-        active={laboratoryAgreement.detectionAnalysis}
-        size="sm"
-      />
-      <LaboratoryAgreementButton
-        field="confirmationAnalysis"
-        active={laboratoryAgreement.confirmationAnalysis}
-        size="sm"
-      />
+      <LaboratoryAgreementButtons values={laboratoryAgreement} size="sm" />
     </div>
   );
 };
