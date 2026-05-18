@@ -52,6 +52,18 @@ export const laboratoriesRoutes = {
       response: z.custom<Buffer>()
     }
   },
+  '/laboratories/agreements/checks': {
+    params: undefined,
+    get: {
+      response: z.array(LaboratoryAgreementRowKey),
+      permissions: ['manageLaboratoryAgreements'] as const
+    },
+    put: {
+      body: LaboratoryAgreementCheckUpdate,
+      response: z.array(LaboratoryAgreementRowKey),
+      permissions: ['manageLaboratoryAgreements'] as const
+    }
+  },
   '/laboratories/agreements/export': {
     params: undefined,
     get: {

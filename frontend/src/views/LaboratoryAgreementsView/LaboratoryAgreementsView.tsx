@@ -255,6 +255,14 @@ const LaboratoryAgreementsView = () => {
     checks
   ]);
 
+  const isRowChecked = (row: (typeof rows)[number]) =>
+    checks.some(
+      (c) =>
+        c.programmingPlanId === row.programmingPlanId &&
+        c.programmingPlanKind === row.programmingPlanKind &&
+        c.substanceKind === row.substanceKind
+    );
+
   const allSelected =
     filteredRows.length > 0 &&
     selectedStringRowKeys.length === filteredRows.length;
