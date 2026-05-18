@@ -14,7 +14,10 @@
   top: 0;
   z-index: 3;
   background-color: #fff;
-  padding-bottom: 0.5rem;
+
+  &:has(.laboratory-agreements-notice) {
+    padding-bottom: 0.5rem;
+  }
 
 
   .laboratory-agreements-notice {
@@ -24,6 +27,10 @@
 }
 
 .laboratory-agreements-table {
+  .fr-table {
+    margin-top: 0;
+  }
+
   .fr-table:not(.fr-table--layout-fixed) table {
     max-height: unset;
     overflow: visible;
