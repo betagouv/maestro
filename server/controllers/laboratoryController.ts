@@ -1,6 +1,9 @@
 import { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
 import { v4 as uuidv4 } from 'uuid';
+<<<<<<< HEAD
 import { HttpStatus } from '../constants/httpStatus';
+=======
+>>>>>>> 191bac42 (Gestion des lignes à vérifier)
 import { laboratoryAgreementCheckRepository } from '../repositories/laboratoryAgreementCheckRepository';
 import { laboratoryAgreementRepository } from '../repositories/laboratoryAgreementRepository';
 import laboratoryAnalyticalCompetenceRepository from '../repositories/laboratoryAnalyticalCompetenceRepository';
@@ -69,6 +72,25 @@ export const laboratoriesRouter = {
       response.setHeader('Content-Length', `${buffer.length}`);
 
       return { status: HttpStatus.OK, response: buffer };
+    }
+  },
+  '/laboratories/agreements/checks': {
+    get: async () => {
+      console.info('Find all laboratory agreement checks');
+
+      const checks = await laboratoryAgreementCheckRepository.findMany();
+
+      return { status: constants.HTTP_STATUS_OK, response: checks };
+    },
+    put: async ({ body, user }) => {
+      console.info('Update laboratory agreement check');
+
+      const checks = await laboratoryAgreementCheckRepository.upsert(
+        body,
+        user.id
+      );
+
+      return { status: constants.HTTP_STATUS_OK, response: checks };
     }
   },
   '/laboratories/agreements/export': {

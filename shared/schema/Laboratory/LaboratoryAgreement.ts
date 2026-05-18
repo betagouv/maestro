@@ -34,7 +34,6 @@ export type LaboratoryAgreement = z.infer<typeof LaboratoryAgreement>;
 export type LaboratoryAgreementUpdate = z.infer<
   typeof LaboratoryAgreementUpdate
 >;
-
 export type LaboratoryAgreementCheckUpdate = z.infer<
   typeof LaboratoryAgreementCheckUpdate
 >;
