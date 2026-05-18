@@ -21,6 +21,7 @@ export const genLaboratory = (
   postalCode: fakerFR.location.zipCode('#####'),
   city: fakerFR.location.city(),
   emails: [fakerFR.internet.email()],
+  emailsAnalysisResult: [],
   legacyDai: false,
   sacha: { activated: false, sigle: null, communication: null },
   ...data

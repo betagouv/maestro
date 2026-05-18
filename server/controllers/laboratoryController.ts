@@ -20,6 +20,22 @@ export const laboratoriesRouter = {
       return { status: constants.HTTP_STATUS_OK, response: laboratory };
     }
   },
+  '/laboratories/:laboratoryId/config': {
+    get: async (_, { laboratoryId }) => {
+      console.info('Get laboratory config', laboratoryId);
+
+      const config = await laboratoryRepository.findUnique(laboratoryId);
+
+      return { status: constants.HTTP_STATUS_OK, response: config };
+    },
+    put: async ({ body }, { laboratoryId }) => {
+      console.info('Update laboratory config', laboratoryId);
+
+      await laboratoryRepository.updateConfig(laboratoryId, body);
+
+      return { status: constants.HTTP_STATUS_OK };
+    }
+  },
   '/laboratories': {
     get: async ({ query }) => {
       console.info('Find laboratories');

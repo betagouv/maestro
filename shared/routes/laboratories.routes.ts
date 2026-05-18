@@ -1,6 +1,10 @@
 import z from 'zod';
 import { FindLaboratoryOptions } from '../schema/Laboratory/FindLaboratoryOptions';
-import { Laboratory } from '../schema/Laboratory/Laboratory';
+import {
+  Laboratory,
+  LaboratoryConfigUpdate,
+  LaboratoryWithSacha
+} from '../schema/Laboratory/Laboratory';
 import {
   LaboratoryAnalyticalCompetence,
   LaboratoryAnalyticalCompetenceToSave
@@ -23,6 +27,20 @@ export const laboratoriesRoutes = {
     get: {
       response: Laboratory,
       permissions: 'NONE'
+    }
+  },
+  '/laboratories/:laboratoryId/config': {
+    params: {
+      laboratoryId: z.guid()
+    },
+    get: {
+      response: LaboratoryWithSacha,
+      permissions: ['administrationMaestro']
+    },
+    put: {
+      body: LaboratoryConfigUpdate,
+      response: z.void(),
+      permissions: ['administrationMaestro']
     }
   },
   '/laboratories/:laboratoryId/analytical-competences': {

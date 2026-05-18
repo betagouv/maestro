@@ -3,6 +3,7 @@ import warningImg from 'src/assets/illustrations/warning.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import { AnalysisDaiAdminView } from './AnalysisDaiAdminView/AnalysisDaiAdminView';
 import { AnalysisRaiAdminView } from './AnalysisRaiAdminView/AnalysisRaiAdminView';
+import { LaboratoriesAdminView } from './LaboratoriesAdminView/LaboratoriesAdminView';
 import { AdminViewDashboardNotice } from './Notice/AdminViewDashboardNotice';
 import { AdminViewRootNotice } from './Notice/AdminViewRootNotice';
 import { PlanKindSpecificDataView } from './PlanKindSpecificData/PlanKindSpecificDataView';
@@ -42,6 +43,10 @@ export const AdminView = () => {
           {
             label: 'RAI',
             content: <AnalysisRaiAdminView />
+          },
+          {
+            label: 'Laboratoires',
+            content: <LaboratoriesAdminView />
           }
         ]}
       ></Tabs>

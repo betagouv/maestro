@@ -192,6 +192,10 @@ const defaultMockApiClientConf: MockApi = {
   useGetLaboratoryQuery: {
     data: LaboratoryFixture
   },
+  useGetLaboratoryConfigQuery: {
+    data: LaboratoryFixture
+  },
+  useUpdateLaboratoryConfigMutation: [fn(), {}],
   useGetLocalPrescriptionByCompanyQuery: { data: genLocalPrescription() },
   useGetLocalPrescriptionQuery: { data: genLocalPrescription() },
   useGetLaboratoryAnalyticalCompetencesQuery: { data: [] },
