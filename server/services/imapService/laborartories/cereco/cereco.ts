@@ -48,6 +48,7 @@ const fileValidator = z.array(
           .pipe(maestroDateRefined),
         Méthode: methodValidator,
         "Méthode d'analyse": methodValidator,
+        'Numéro (MS)': methodValidator,
         Paramètre: z.string(),
         Résultat: z.coerce.string(),
         LMR: z.coerce.number().optional(),
@@ -82,7 +83,8 @@ const extractAnalyzes = async (
       itemNumber: 1,
       notes: data[0].Conclusion,
       residues: data.map((d) => {
-        const analysisMethod = d['Méthode'] || d["Méthode d'analyse"];
+        const analysisMethod =
+          d['Méthode'] || d["Méthode d'analyse"] || d['Numéro (MS)'];
 
         if (!analysisMethod) {
           throw new ExtractError("Méthode d'analyse introuvable");
