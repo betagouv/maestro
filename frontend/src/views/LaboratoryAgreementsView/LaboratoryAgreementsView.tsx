@@ -623,6 +623,16 @@ const LaboratoryAgreementsView = () => {
                               )}
                             </Button>
                           )}
+                          {isMatrixExpanded && (
+                            <Button
+                              priority="tertiary"
+                              onClick={() => toggleMatrixExpand(rowKey)}
+                              iconId="fr-icon-subtract-line"
+                              size="small"
+                            >
+                              Voir moins
+                            </Button>
+                          )}
                         </>
                       );
                     })()}
@@ -688,6 +698,16 @@ const LaboratoryAgreementsView = () => {
                               {pluralize(remaining, {
                                 preserveCount: true
                               })('supplémentaire')}
+                            </Button>
+                          )}
+                          {isLabsExpanded && (
+                            <Button
+                              priority="tertiary"
+                              onClick={() => toggleLabsExpand(rowKey)}
+                              iconId="fr-icon-subtract-line"
+                              size="small"
+                            >
+                              Voir moins
                             </Button>
                           )}
                         </>
@@ -782,6 +802,16 @@ const LaboratoryAgreementsView = () => {
                               {pluralize(remainingStages, {
                                 preserveCount: true
                               })('supplémentaire')}
+                            </Button>
+                          )}
+                          {isStageExpanded && (
+                            <Button
+                              priority="tertiary"
+                              onClick={() => toggleStageExpand(rowKey)}
+                              size="small"
+                              iconId="fr-icon-subtract-line"
+                            >
+                              Voir moins
                             </Button>
                           )}
                         </div>
