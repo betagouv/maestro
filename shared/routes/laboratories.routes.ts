@@ -9,6 +9,10 @@ import {
   LaboratoryAnalyticalCompetence,
   LaboratoryAnalyticalCompetenceToSave
 } from '../schema/Laboratory/LaboratoryAnalyticalCompetence';
+import {
+  LaboratoryResidueMapping,
+  LaboratoryResidueMappingToUpdate
+} from '../schema/Laboratory/LaboratoryResidueMapping';
 import type { SubRoutes } from './routes';
 
 export const laboratoriesRoutes = {
@@ -76,6 +80,29 @@ export const laboratoriesRoutes = {
     get: {
       permissions: ['readLaboratoryCompetences'],
       response: z.custom<Buffer>()
+    }
+  },
+  '/laboratories/:laboratoryId/residue-mappings': {
+    params: {
+      laboratoryId: z.guid()
+    },
+    get: {
+      response: z.array(LaboratoryResidueMapping),
+      permissions: ['administrationMaestro']
+    },
+    put: {
+      body: LaboratoryResidueMappingToUpdate,
+      response: LaboratoryResidueMapping,
+      permissions: ['administrationMaestro']
+    }
+  },
+  '/laboratories/:laboratoryId/residue-mappings/orphan-labels': {
+    params: {
+      laboratoryId: z.guid()
+    },
+    get: {
+      response: z.array(z.string()),
+      permissions: ['administrationMaestro']
     }
   }
 } as const satisfies SubRoutes<'/laboratories'>;
