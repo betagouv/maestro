@@ -4,6 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import Notice from '@codegouvfr/react-dsfr/Notice';
+import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
 import Table from '@codegouvfr/react-dsfr/Table';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
@@ -43,7 +44,7 @@ const agreementsModal = createModal({
   isOpenedByDefault: false
 });
 
-const LABS_DISPLAY_LIMIT = 7;
+const LABS_DISPLAY_LIMIT = 6;
 const MATRIX_DISPLAY_LIMIT = 3;
 
 const LaboratoryAgreementsView = () => {
@@ -86,6 +87,8 @@ const LaboratoryAgreementsView = () => {
   const { data: agreements = [] } = apiClient.useFindLaboratoryAgreementsQuery(
     {}
   );
+  const { data: checks = [] } =
+    apiClient.useFindLaboratoryAgreementChecksQuery();
   const { data: programmingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery(
       { year: year ? Number(year) : undefined },
@@ -93,6 +96,7 @@ const LaboratoryAgreementsView = () => {
     );
   const { data: laboratories = [] } = apiClient.useFindLaboratoriesQuery({});
   const [updateAgreements] = apiClient.useUpdateLaboratoryAgreementsMutation();
+  const [updateCheck] = apiClient.useUpdateLaboratoryAgreementCheckMutation();
 
   const { data: allPrescriptions = [] } = apiClient.useFindPrescriptionsQuery(
     { year: Number(year) },
@@ -100,53 +104,23 @@ const LaboratoryAgreementsView = () => {
   );
 
   const rows = useMemo(() => {
-    const getFirstMatrixTitle = (
-      programmingPlanId: string,
-      programmingPlanKind: string
-    ) => {
-      const titles = allPrescriptions
-        .filter(
-          (p) =>
-            p.programmingPlanId === programmingPlanId &&
-            p.programmingPlanKind === programmingPlanKind
-        )
-        .map(getPrescriptionTitle)
-        .sort((a, b) => a.localeCompare(b));
-      return titles[0] ?? '';
-    };
-
-    return programmingPlans
-      .flatMap((plan) =>
-        plan.kinds.flatMap((kind) =>
-          plan.substanceKinds.map((substanceKind) => ({
-            programmingPlanId: plan.id,
-            programmingPlanKind: kind,
-            programmingPlanYear: plan.year,
-            substanceKind,
-            laboratories: agreements.filter(
-              (a) =>
-                a.programmingPlanId === plan.id &&
-                a.programmingPlanKind === kind &&
-                a.substanceKind === substanceKind
-            )
-          }))
-        )
+    return programmingPlans.flatMap((plan) =>
+      plan.kinds.flatMap((kind) =>
+        plan.substanceKinds.map((substanceKind) => ({
+          programmingPlanId: plan.id,
+          programmingPlanKind: kind,
+          programmingPlanYear: plan.year,
+          substanceKind,
+          laboratories: agreements.filter(
+            (a) =>
+              a.programmingPlanId === plan.id &&
+              a.programmingPlanKind === kind &&
+              a.substanceKind === substanceKind
+          )
+        }))
       )
-      .sort((a, b) => {
-        const substanceCmp = SubstanceKindLabels[a.substanceKind].localeCompare(
-          SubstanceKindLabels[b.substanceKind]
-        );
-        if (substanceCmp !== 0) {
-          return substanceCmp;
-        }
-        return getFirstMatrixTitle(
-          a.programmingPlanId,
-          a.programmingPlanKind
-        ).localeCompare(
-          getFirstMatrixTitle(b.programmingPlanId, b.programmingPlanKind)
-        );
-      });
-  }, [agreements, programmingPlans, allPrescriptions]);
+    );
+  }, [agreements, programmingPlans]);
 
   const kindOptions = useMemo(
     () =>
@@ -195,9 +169,24 @@ const LaboratoryAgreementsView = () => {
     [allPrescriptions]
   );
 
-  const filteredRows = useMemo(
-    () =>
-      rows.filter(
+  const filteredRows = useMemo(() => {
+    const getFirstMatrixTitle = (
+      programmingPlanId: string,
+      programmingPlanKind: string
+    ) => {
+      const titles = allPrescriptions
+        .filter(
+          (p) =>
+            p.programmingPlanId === programmingPlanId &&
+            p.programmingPlanKind === programmingPlanKind
+        )
+        .map(getPrescriptionTitle)
+        .sort((a, b) => a.localeCompare(b));
+      return titles[0] ?? '';
+    };
+
+    return rows
+      .filter(
         (r) =>
           (kindFilter.length === 0 ||
             kindFilter.includes(r.programmingPlanKind)) &&
@@ -225,21 +214,58 @@ const LaboratoryAgreementsView = () => {
                 l.detectionAnalysis ||
                 l.confirmationAnalysis
             ))
-      ),
-    [
-      rows,
-      kindFilter,
-      substanceFilter,
-      matrixFilter,
-      labFilter,
-      labAgreementTypeFilter,
-      showWithoutLab,
-      allPrescriptions
-    ]
-  );
+      )
+      .sort((a, b) => {
+        const aChecked = checks.some(
+          (c) =>
+            c.programmingPlanId === a.programmingPlanId &&
+            c.programmingPlanKind === a.programmingPlanKind &&
+            c.substanceKind === a.substanceKind
+        );
+        const bChecked = checks.some(
+          (c) =>
+            c.programmingPlanId === b.programmingPlanId &&
+            c.programmingPlanKind === b.programmingPlanKind &&
+            c.substanceKind === b.substanceKind
+        );
+        if (aChecked !== bChecked) {
+          return aChecked ? 1 : -1;
+        }
+        const substanceCmp = SubstanceKindLabels[a.substanceKind].localeCompare(
+          SubstanceKindLabels[b.substanceKind]
+        );
+        if (substanceCmp !== 0) {
+          return substanceCmp;
+        }
+        return getFirstMatrixTitle(
+          a.programmingPlanId,
+          a.programmingPlanKind
+        ).localeCompare(
+          getFirstMatrixTitle(b.programmingPlanId, b.programmingPlanKind)
+        );
+      });
+  }, [
+    rows,
+    kindFilter,
+    substanceFilter,
+    matrixFilter,
+    labFilter,
+    labAgreementTypeFilter,
+    showWithoutLab,
+    allPrescriptions,
+    checks
+  ]);
 
   const stringRowKey = (row: (typeof rows)[number]) =>
     `${row.programmingPlanId}_${row.programmingPlanKind}_${row.substanceKind}`;
+
+  const isRowChecked = (row: (typeof rows)[number]) =>
+    checks.some(
+      (c) =>
+        c.programmingPlanId === row.programmingPlanId &&
+        c.programmingPlanKind === row.programmingPlanKind &&
+        c.substanceKind === row.substanceKind
+    );
 
   const allSelected =
     filteredRows.length > 0 &&
@@ -339,7 +365,21 @@ const LaboratoryAgreementsView = () => {
     if (!table) {
       return;
     }
+
     const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    const colgroup =
+      table.querySelector('colgroup') ??
+      table.insertBefore(document.createElement('colgroup'), table.firstChild);
+    colgroup.innerHTML = [
+      '<col style="width:3rem">',
+      '<col style="width:6rem">',
+      '<col style="width:12rem">',
+      '<col style="width:16rem">',
+      '<col>',
+      '<col style="width:4rem">',
+      '<col style="width:4rem">'
+    ].join('');
 
     rows.forEach((tr) => {
       const tds = Array.from(tr.querySelectorAll('td')) as HTMLElement[];
@@ -348,6 +388,22 @@ const LaboratoryAgreementsView = () => {
         td.removeAttribute('colspan');
         td.style.display = '';
       });
+    });
+
+    const ths = Array.from(table.querySelectorAll('thead th')) as HTMLElement[];
+    ths.forEach((th, i) => {
+      th.setAttribute('colspan', i === 4 ? '3' : '1');
+    });
+
+    rows.forEach((tr) => {
+      const tds = Array.from(tr.querySelectorAll('td')) as HTMLElement[];
+      const checkTd = tds[6];
+      if (checkTd?.querySelector('.row-checked')) {
+        if (tds[5]) {
+          tds[5].setAttribute('colspan', '2');
+        }
+        checkTd.style.display = 'none';
+      }
     });
 
     rows.forEach((tr, i) => {
@@ -366,7 +422,7 @@ const LaboratoryAgreementsView = () => {
       nextTds[0].style.display = 'none';
       nextTds[1].setAttribute('colspan', '5');
     });
-  }, [expandedRowKeys, filteredRows]);
+  }, [expandedRowKeys, filteredRows, checks]);
 
   const rowsWithLab = filteredRows.filter((r) =>
     r.laboratories.some(
@@ -578,10 +634,8 @@ const LaboratoryAgreementsView = () => {
                   />
                 </div>,
                 <div key="header-labs" className="border-left">
-                  Laboratoires agréés
-                </div>,
-                <div key="header-action">
                   <ColumnFilterHeader
+                    label="Laboratoires agréés"
                     options={labOptions}
                     selectedValues={labFilter}
                     onChange={setLabFilter}
@@ -790,7 +844,7 @@ const LaboratoryAgreementsView = () => {
                       );
                     })()}
                   </div>,
-                  <div key={`action-${rowKey}`}>
+                  <div key={`action-${rowKey}`} className="float-right">
                     <Button
                       iconId={
                         row.laboratories.length === 0
@@ -805,6 +859,36 @@ const LaboratoryAgreementsView = () => {
                           : 'Modifier les laboratoires'
                       }
                       onClick={() => handleOpenModalForRow(row)}
+                    />
+                  </div>,
+                  <div
+                    key={`check-${rowKey}`}
+                    className={clsx('check-cell', {
+                      'row-unchecked': !isRowChecked(row),
+                      'row-checked': isRowChecked(row)
+                    })}
+                  >
+                    <RadioButtons
+                      legend="Ligne vérifiée"
+                      classes={{ legend: 'fr-sr-only' }}
+                      options={[
+                        {
+                          label: '',
+                          nativeInputProps: {
+                            checked: isRowChecked(row),
+                            title: isRowChecked(row)
+                              ? 'Marquer comme non vérifié'
+                              : 'Marquer comme vérifié',
+                            onChange: () =>
+                              updateCheck({
+                                programmingPlanId: row.programmingPlanId,
+                                programmingPlanKind: row.programmingPlanKind,
+                                substanceKind: row.substanceKind,
+                                checked: !isRowChecked(row)
+                              })
+                          }
+                        }
+                      ]}
                     />
                   </div>
                 ];
@@ -893,7 +977,8 @@ const LaboratoryAgreementsView = () => {
                         </div>
                       )}
                     </div>
-                  </div>
+                  </div>,
+                  <span key={`sub-check-${rowKey}`} />
                 ];
 
                 return [mainRow, subRow];

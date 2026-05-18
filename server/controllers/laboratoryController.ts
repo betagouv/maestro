@@ -1,6 +1,7 @@
 import { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
 import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
+import { laboratoryAgreementCheckRepository } from '../repositories/laboratoryAgreementCheckRepository';
 import { laboratoryAgreementRepository } from '../repositories/laboratoryAgreementRepository';
 import laboratoryAnalyticalCompetenceRepository from '../repositories/laboratoryAnalyticalCompetenceRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
@@ -16,6 +17,25 @@ export const laboratoriesRouter = {
       const agreements = await laboratoryAgreementRepository.findMany(query);
 
       return { status: HttpStatus.OK, response: agreements };
+    }
+  },
+  '/laboratories/agreements/checks': {
+    get: async () => {
+      console.info('Find all laboratory agreement checks');
+
+      const checks = await laboratoryAgreementCheckRepository.findMany();
+
+      return { status: HttpStatus.OK, response: checks };
+    },
+    put: async ({ body, user }) => {
+      console.info('Update laboratory agreement check');
+
+      const checks = await laboratoryAgreementCheckRepository.upsert(
+        body,
+        user.id
+      );
+
+      return { status: HttpStatus.OK, response: checks };
     }
   },
   '/laboratories/agreements/export': {

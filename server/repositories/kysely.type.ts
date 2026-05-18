@@ -245,6 +245,14 @@ export interface LaboratoryAgreements {
   confirmationAnalysis: boolean;
 }
 
+export interface LaboratoryAgreementChecks {
+  programmingPlanId: string;
+  programmingPlanKind: ProgrammingPlanKind;
+  substanceKind: SubstanceKind;
+  checkedAt: Generated<Timestamp>;
+  checkedBy: string;
+}
+
 export interface Notices {
   type: 'root' | 'dashboard';
   title: string | null;
@@ -479,6 +487,7 @@ export interface DB {
   laboratories: Laboratories;
   laboratoryResidueMappings: LaboratoryResidueMapping;
   laboratoryAgreements: LaboratoryAgreements;
+  laboratoryAgreementChecks: LaboratoryAgreementChecks;
   localPrescriptionSubstanceKindsLaboratories: LocalPrescriptionSubstanceKindLaboratory;
   notices: Notices;
   prescriptions: Prescriptions;

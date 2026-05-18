@@ -48,6 +48,21 @@ const laboratoryApi = api.injectEndpoints({
         providesTags: [{ type: 'LaboratoryAgreement', id: 'LIST' }]
       }
     ),
+    findLaboratoryAgreementChecks: buildTypedQuery(
+      builder,
+      '/laboratories/agreements/checks',
+      {
+        providesTags: [{ type: 'LaboratoryAgreementCheck', id: 'LIST' }]
+      }
+    ),
+    updateLaboratoryAgreementCheck: buildTypedMutation(
+      builder,
+      '/laboratories/agreements/checks',
+      'put',
+      {
+        invalidatesTags: [{ type: 'LaboratoryAgreementCheck', id: 'LIST' }]
+      }
+    ),
     updateLaboratoryAgreements: buildTypedMutation(
       builder,
       '/laboratories/:laboratoryId/agreements',
@@ -106,6 +121,8 @@ export const {
   useGetLaboratoryConfigQuery,
   useUpdateLaboratoryConfigMutation,
   useFindLaboratoryAgreementsQuery,
+  useFindLaboratoryAgreementChecksQuery,
+  useUpdateLaboratoryAgreementCheckMutation,
   useUpdateLaboratoryAgreementsMutation,
   useGetLaboratoryAnalyticalCompetencesQuery,
   useCreateLaboratoryAnalyticalCompetenceMutation,

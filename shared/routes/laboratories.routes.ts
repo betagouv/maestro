@@ -8,6 +8,8 @@ import {
 } from '../schema/Laboratory/Laboratory';
 import {
   LaboratoryAgreement,
+  LaboratoryAgreementCheckUpdate,
+  LaboratoryAgreementRowKey,
   LaboratoryAgreementUpdate
 } from '../schema/Laboratory/LaboratoryAgreement';
 import {
@@ -26,6 +28,18 @@ export const laboratoriesRoutes = {
     get: {
       query: FindLaboratoryAgreementsOptions,
       response: z.array(LaboratoryAgreement),
+      permissions: ['manageLaboratoryAgreements'] as const
+    }
+  },
+  '/laboratories/agreements/checks': {
+    params: undefined,
+    get: {
+      response: z.array(LaboratoryAgreementRowKey),
+      permissions: ['manageLaboratoryAgreements'] as const
+    },
+    put: {
+      body: LaboratoryAgreementCheckUpdate,
+      response: z.array(LaboratoryAgreementRowKey),
       permissions: ['manageLaboratoryAgreements'] as const
     }
   },
