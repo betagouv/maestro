@@ -124,8 +124,7 @@ const LaboratoryAgreementsView = () => {
   useEffect(() => {
     if (
       availableYears.length > 0 &&
-      isNil(year) &&
-      !availableYears.includes(year)
+      (isNil(year) || !availableYears.includes(year))
     ) {
       setYear(availableYears[0]);
     }
