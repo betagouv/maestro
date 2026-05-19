@@ -334,6 +334,9 @@ const LaboratoryAgreementsView = () => {
 
   if (!year) return null;
 
+  if (!year) {
+    return null;
+  }
 
   return (
     <LaboratoryAgreementDetailProvider
