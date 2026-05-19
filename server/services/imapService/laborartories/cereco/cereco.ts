@@ -9,22 +9,22 @@ import type {
   ExportDataSubstance,
   LaboratoryConf
 } from '../../index';
+import { parseSampleReference } from '../../utils';
 
 const methodValidator = z.literal(['Multi-résidus', 'Mono résidus']).nullish();
 
 export const cerecoRefValidator = z.string().transform((l, ctx) => {
-  const match = l.match(/^([A-Z]+-\d+-\d+)(?:-[A-Z])?-(\d+)\s*[:-]/);
-  if (!match) {
+  // Strip matrix suffix (e.g. " : Olives" or " - Olives")
+  const withoutMatrix = l.split(/\s+[:-]\s+/)[0].trim();
+  const parsed = parseSampleReference(withoutMatrix);
+  if (!parsed) {
     ctx.addIssue({
       code: 'custom',
       message: `Référence cereco invalide: ${l}`
     });
     return z.NEVER;
   }
-  return {
-    reference: match[1],
-    copyNumber: Number.parseInt(match[2], 10)
-  };
+  return parsed;
 });
 const fileValidator = z.array(
   z
@@ -80,7 +80,7 @@ const extractAnalyzes = async (
     {
       sampleReference: data[0]['Sample Name'].reference,
       copyNumber: data[0]['Sample Name'].copyNumber,
-      itemNumber: 1,
+      itemNumber: data[0]['Sample Name'].itemNumber,
       notes: data[0].Conclusion,
       residues: data.map((d) => {
         const analysisMethod =

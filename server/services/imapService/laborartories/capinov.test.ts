@@ -209,12 +209,22 @@ test('getAnalysisKeyByFileName', () => {
 });
 
 test.each<[string, z.infer<typeof capinovCodeEchantillonValidator>]>([
-  ['OCC-25-0007-01', { reference: 'OCC-25-0007', copyNumber: 1 }],
-  ['OCC-25-0007', { reference: 'OCC-25-0007', copyNumber: 1 }],
-  ['OCC-25-00007', { reference: 'OCC-25-00007', copyNumber: 1 }],
-  ['OCC-25-0007-2', { reference: 'OCC-25-0007', copyNumber: 2 }],
-  ['OCC-25-0007-A-2', { reference: 'OCC-25-0007', copyNumber: 2 }],
-  ['OCC - 25-0007', { reference: 'OCC-25-0007', copyNumber: 1 }]
+  [
+    'OCC-25-0007-01',
+    { reference: 'OCC-25-0007', copyNumber: 1, itemNumber: 1 }
+  ],
+  ['OCC-25-0007', { reference: 'OCC-25-0007', copyNumber: 1, itemNumber: 1 }],
+  ['OCC-25-00007', { reference: 'OCC-25-00007', copyNumber: 1, itemNumber: 1 }],
+  ['OCC-25-0007-2', { reference: 'OCC-25-0007', copyNumber: 2, itemNumber: 1 }],
+  [
+    'OCC-25-0007-A-2',
+    { reference: 'OCC-25-0007', copyNumber: 2, itemNumber: 1 }
+  ],
+  [
+    'OCC-25-0007-B-1',
+    { reference: 'OCC-25-0007', copyNumber: 1, itemNumber: 2 }
+  ],
+  ['OCC - 25-0007', { reference: 'OCC-25-0007', copyNumber: 1, itemNumber: 1 }]
 ])('capinovCodeEchantillonValidator', (value, expected) => {
   expect(capinovCodeEchantillonValidator.parse(value)).toStrictEqual(expected);
 });

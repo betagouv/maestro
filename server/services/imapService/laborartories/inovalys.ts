@@ -10,7 +10,11 @@ import type {
   ExportResultQuantifiable,
   LaboratoryConf
 } from '../index';
-import { csvToJson, frenchNumberStringValidator } from '../utils';
+import {
+  csvToJson,
+  frenchNumberStringValidator,
+  parseSampleReference
+} from '../utils';
 
 const codeMethods = [
   'M-ARCO/M/021',
@@ -48,18 +52,15 @@ const codeMethodsAnalyseMethod = {
 } as const satisfies Record<(typeof codeMethods)[number], AnalysisMethod>;
 
 export const inovalysRefClientValidator = z.string().transform((l, ctx) => {
-  const match = l.match(/^([A-Z]+-\d{2}-\d+)(?:-[A-Z])?-(\d+)$/);
-  if (!match) {
+  const parsed = parseSampleReference(l);
+  if (!parsed) {
     ctx.addIssue({
       code: 'custom',
       message: `Référence inovalys invalide: ${l}`
     });
     return z.NEVER;
   }
-  return {
-    reference: match[1],
-    copyNumber: Number.parseInt(match[2], 10)
-  };
+  return parsed;
 });
 
 // Visible for testing
@@ -205,7 +206,7 @@ export const extractAnalyzes = (
     result.push({
       sampleReference: sampleWithResultat.sample['Réf Client'].reference,
       copyNumber: sampleWithResultat.sample['Réf Client'].copyNumber,
-      itemNumber: 1,
+      itemNumber: sampleWithResultat.sample['Réf Client'].itemNumber,
       notes: sampleWithResultat.sample.Commentaire,
       residues
     });

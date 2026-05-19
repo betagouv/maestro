@@ -10,7 +10,7 @@ import type {
   ExportDataSubstance,
   LaboratoryConf
 } from '../index';
-import { frenchNumberStringValidator } from '../utils';
+import { frenchNumberStringValidator, parseSampleReference } from '../utils';
 
 const codeMethods = ['M1', 'M26', 'M3', 'M18', 'M21', 'M23', 'M27'] as const;
 const codeMethodsAnalyseMethod = {
@@ -55,19 +55,15 @@ export const analyseXmlValidator = z.object({
 });
 
 export const girpaCodeEchantillonValidator = z.string().transform((l, ctx) => {
-  const cleaned = l.replace(/\s/g, '');
-  const match = cleaned.match(/^([A-Z]+-\d+-\d+)(?:-[A-Z])?-(\d+)$/);
-  if (!match) {
+  const parsed = parseSampleReference(l.replace(/\s/g, ''));
+  if (!parsed) {
     ctx.addIssue({
       code: 'custom',
       message: `Code échantillon invalide: ${l}`
     });
     return z.NEVER;
   }
-  return {
-    reference: match[1],
-    copyNumber: Number.parseInt(match[2], 10)
-  };
+  return parsed;
 });
 
 type GirpaAnaysis = Omit<ExportAnalysis, 'pdfFile'> & {
@@ -130,7 +126,7 @@ export const extractAnalyzes = (obj: unknown): GirpaAnaysis[] => {
     return {
       sampleReference: girpaRef.reference,
       copyNumber: girpaRef.copyNumber,
-      itemNumber: 1,
+      itemNumber: girpaRef.itemNumber,
       girpaReference: echantillon['Code_échantillon'],
       notes: echantillon.Commentaire,
       residues

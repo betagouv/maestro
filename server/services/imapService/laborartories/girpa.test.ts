@@ -186,11 +186,30 @@ describe('getResidue', () => {
 });
 
 test.each<[string, z.infer<typeof girpaCodeEchantillonValidator>]>([
-  ['OCC-25-0007-01', { reference: 'OCC-25-0007', copyNumber: 1 }],
-  ['OCC-25-00007-01', { reference: 'OCC-25-00007', copyNumber: 1 }],
-  ['OCC-25-0007-02', { reference: 'OCC-25-0007', copyNumber: 2 }],
-  ['OCC-25-0007-A-2', { reference: 'OCC-25-0007', copyNumber: 2 }],
-  ['OCC-25 -0007-01', { reference: 'OCC-25-0007', copyNumber: 1 }]
+  [
+    'OCC-25-0007-01',
+    { reference: 'OCC-25-0007', copyNumber: 1, itemNumber: 1 }
+  ],
+  [
+    'OCC-25-00007-01',
+    { reference: 'OCC-25-00007', copyNumber: 1, itemNumber: 1 }
+  ],
+  [
+    'OCC-25-0007-02',
+    { reference: 'OCC-25-0007', copyNumber: 2, itemNumber: 1 }
+  ],
+  [
+    'OCC-25-0007-A-2',
+    { reference: 'OCC-25-0007', copyNumber: 2, itemNumber: 1 }
+  ],
+  [
+    'OCC-25-0007-B-1',
+    { reference: 'OCC-25-0007', copyNumber: 1, itemNumber: 2 }
+  ],
+  [
+    'OCC-25 -0007-01',
+    { reference: 'OCC-25-0007', copyNumber: 1, itemNumber: 1 }
+  ]
 ])('girpaCodeEchantillonValidator', (value, expected) => {
   expect(girpaCodeEchantillonValidator.parse(value)).toStrictEqual(expected);
 });
