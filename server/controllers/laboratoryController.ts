@@ -1,9 +1,6 @@
 import { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
 import { v4 as uuidv4 } from 'uuid';
-<<<<<<< HEAD
 import { HttpStatus } from '../constants/httpStatus';
-=======
->>>>>>> 191bac42 (Gestion des lignes à vérifier)
 import { laboratoryAgreementCheckRepository } from '../repositories/laboratoryAgreementCheckRepository';
 import { laboratoryAgreementRepository } from '../repositories/laboratoryAgreementRepository';
 import laboratoryAnalyticalCompetenceRepository from '../repositories/laboratoryAnalyticalCompetenceRepository';
