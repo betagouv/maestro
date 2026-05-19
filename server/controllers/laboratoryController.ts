@@ -20,10 +20,12 @@ export const laboratoriesRouter = {
     }
   },
   '/laboratories/agreements/checks': {
-    get: async () => {
+    get: async ({ query }) => {
       console.info('Find all laboratory agreement checks');
 
-      const checks = await laboratoryAgreementCheckRepository.findMany();
+      const checks = await laboratoryAgreementCheckRepository.findMany(
+        query.year
+      );
 
       return { status: HttpStatus.OK, response: checks };
     },

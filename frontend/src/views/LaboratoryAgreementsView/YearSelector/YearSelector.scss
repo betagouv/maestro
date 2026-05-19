@@ -1,0 +1,43 @@
+.year-selector {
+  position: relative;
+  display: inline-block;
+
+  .year-selector-button[aria-expanded='true'] {
+    color: var(--text-active-blue-france);
+    background-color: var(--background-open-blue-france);
+    --idle: transparent;
+    --hover: var(--background-open-blue-france-hover);
+    --active: var(--background-open-blue-france-active);
+  }
+
+  .year-selector-button {
+    font-size: inherit !important;
+    line-height: inherit !important;
+    font-weight: inherit !important;
+    vertical-align: middle;
+
+    &::after {
+      --icon-size: 2rem !important;
+    }
+  }
+
+  .fr-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 200;
+    margin: 0;
+  }
+
+  .fr-menu__list {
+    width: auto;
+    padding: 0;
+    list-style: none !important;
+
+    button {
+      width: 100% !important;
+      margin: 0 !important;
+    }
+  }
+}
+

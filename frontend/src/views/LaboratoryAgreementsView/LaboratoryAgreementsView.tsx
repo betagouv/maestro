@@ -26,7 +26,14 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import ColumnFilterHeader from 'src/components/ColumnFilterHeader/ColumnFilterHeader';
 import LaboratoryAgreementButtons from 'src/components/LaboratoryAgreement/LaboratoryAgreementButtons/LaboratoryAgreementButtons';
 import { LaboratoryAgreementDetailProvider } from 'src/components/LaboratoryAgreement/LaboratoryAgreementDetailModal/LaboratoryAgreementDetailContext';
@@ -38,6 +45,8 @@ import { getLaboratoryAgreementsExportURL } from '../../services/laboratory.serv
 import { pluralize } from '../../utils/stringUtils';
 import LaboratoryAgreementsModal from './LaboratoryAgreementsModal/LaboratoryAgreementsModal';
 import './LaboratoryAgreementsView.scss';
+import { uniq } from 'lodash-es';
+import YearSelector from './YearSelector/YearSelector';
 
 const agreementsModal = createModal({
   id: 'laboratory-agreements-modal',
@@ -51,7 +60,7 @@ const LaboratoryAgreementsView = () => {
   useDocumentTitle('Agréments laboratoires');
   const apiClient = useContext(ApiClientContext);
 
-  const [year, _setYear] = useState(String(new Date().getFullYear()));
+  const [year, setYear] = useState(new Date().getFullYear());
   const [selectedStringRowKeys, setSelectedStringRowKeys] = useState<string[]>(
     []
   );
@@ -85,23 +94,38 @@ const LaboratoryAgreementsView = () => {
   const [showWithoutLab, setShowWithoutLab] = useState(false);
 
   const { data: agreements = [] } = apiClient.useFindLaboratoryAgreementsQuery(
-    {}
+    { year },
+    { skip: !year }
   );
-  const { data: checks = [] } =
-    apiClient.useFindLaboratoryAgreementChecksQuery();
-  const { data: programmingPlans = [] } =
-    apiClient.useFindProgrammingPlansQuery(
-      { year: year ? Number(year) : undefined },
-      { skip: !year }
-    );
+  const { data: checks = [] } = apiClient.useFindLaboratoryAgreementChecksQuery(
+    { year },
+    { skip: !year }
+  );
+  const { data: allProgrammingPlans = [] } =
+    apiClient.useFindProgrammingPlansQuery({});
+  const programmingPlans = useMemo(
+    () => allProgrammingPlans.filter((p) => p.year === year),
+    [allProgrammingPlans, year]
+  );
   const { data: laboratories = [] } = apiClient.useFindLaboratoriesQuery({});
   const [updateAgreements] = apiClient.useUpdateLaboratoryAgreementsMutation();
   const [updateCheck] = apiClient.useUpdateLaboratoryAgreementCheckMutation();
 
   const { data: allPrescriptions = [] } = apiClient.useFindPrescriptionsQuery(
-    { year: Number(year) },
+    { year },
     { skip: !year }
   );
+
+  const availableYears = useMemo(
+    () => uniq(allProgrammingPlans.map((p) => p.year)).sort((a, b) => b - a),
+    [allProgrammingPlans]
+  );
+
+  useEffect(() => {
+    if (availableYears.length > 0 && !availableYears.includes(year)) {
+      setYear(availableYears[0]);
+    }
+  }, [availableYears]);
 
   const rows = useMemo(() => {
     return programmingPlans.flatMap((plan) =>
@@ -452,7 +476,20 @@ const LaboratoryAgreementsView = () => {
     >
       <section id="top" className={clsx(cx('fr-container'), 'main-section')}>
         <SectionHeader
-          title={<>Agréments laboratoires {year}</>}
+          title={
+            <div className="d-flex-align-center">
+              Agréments laboratoires{' '}
+              {availableYears.length <= 1 ? (
+                year
+              ) : (
+                <YearSelector
+                  year={Number(year)}
+                  years={availableYears}
+                  onChange={setYear}
+                />
+              )}
+            </div>
+          }
           subtitle={
             <div
               className={clsx(

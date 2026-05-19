@@ -5,12 +5,27 @@ import type {
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
 
-const findMany = async (): Promise<LaboratoryAgreementRowKey[]> => {
-  const rows = await kysely
+const findMany = async (
+  year?: number | null
+): Promise<LaboratoryAgreementRowKey[]> => {
+  let query = kysely
     .selectFrom('laboratoryAgreementChecks')
-    .select(['programmingPlanId', 'programmingPlanKind', 'substanceKind'])
-    .execute();
-  return rows;
+    .innerJoin(
+      'programmingPlans',
+      'programmingPlans.id',
+      'laboratoryAgreementChecks.programmingPlanId'
+    )
+    .select([
+      'laboratoryAgreementChecks.programmingPlanId',
+      'laboratoryAgreementChecks.programmingPlanKind',
+      'laboratoryAgreementChecks.substanceKind'
+    ]);
+
+  if (year != null) {
+    query = query.where('programmingPlans.year', '=', year);
+  }
+
+  return query.execute();
 };
 
 const upsert = async (

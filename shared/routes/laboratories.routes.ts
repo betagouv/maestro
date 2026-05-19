@@ -34,6 +34,7 @@ export const laboratoriesRoutes = {
   '/laboratories/agreements/checks': {
     params: undefined,
     get: {
+      query: FindLaboratoryAgreementsOptions,
       response: z.array(LaboratoryAgreementRowKey),
       permissions: ['manageLaboratoryAgreements'] as const
     },
