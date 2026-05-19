@@ -97,10 +97,8 @@
     min-width: 10rem;
   }
 
-<<<<<<< HEAD
-=======
+  }
 
->>>>>>> 191bac42 (Gestion des lignes à vérifier)
   tr:has(.row-unchecked) td {
     background-color: var(--background-alt-yellow-tournesol) !important;
     border-bottom: 1px solid var(--border-contrast-grey) !important;
@@ -123,7 +121,6 @@
     label {
       background-position: center !important;
     }
-<<<<<<< HEAD
   }
 
   @keyframes row-poof {
@@ -144,8 +141,6 @@
     pointer-events: none;
     transform-origin: top;
     overflow: hidden;
-=======
->>>>>>> 191bac42 (Gestion des lignes à vérifier)
   }
 
   .row-reference {

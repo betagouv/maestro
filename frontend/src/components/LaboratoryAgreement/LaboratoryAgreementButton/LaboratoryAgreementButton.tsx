@@ -1,19 +1,10 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import clsx from 'clsx';
 
-<<<<<<< HEAD
 
 import type { LaboratoryAgreementField } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import { agreementLabels } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 
-=======
-
-import {
-  agreementLabels,
-  type LaboratoryAgreementField
-} from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
-
->>>>>>> 61a2841f (fix CI)
 import './LaboratoryAgreementButton.scss';
 
 const fieldConfig: Record<
@@ -48,7 +39,6 @@ const LaboratoryAgreementButton = ({
   onToggle
 }: Props) => {
   const { label, title, activeClassname } = fieldConfig[field];
-  const { label, activeClassname } = fieldConfig[field];
   const className = clsx('lab-agreement-btn', {
     'lab-agreement-btn--sm': size === 'sm',
     [activeClassname]: active
