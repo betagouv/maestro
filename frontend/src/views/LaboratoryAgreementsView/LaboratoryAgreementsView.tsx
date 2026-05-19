@@ -45,7 +45,7 @@ import { getLaboratoryAgreementsExportURL } from '../../services/laboratory.serv
 import { pluralize } from '../../utils/stringUtils';
 import LaboratoryAgreementsModal from './LaboratoryAgreementsModal/LaboratoryAgreementsModal';
 import './LaboratoryAgreementsView.scss';
-import { uniq } from 'lodash-es';
+import { isNil, uniq } from 'lodash-es';
 import YearSelector from './YearSelector/YearSelector';
 
 const agreementsModal = createModal({
@@ -60,7 +60,7 @@ const LaboratoryAgreementsView = () => {
   useDocumentTitle('Agréments laboratoires');
   const apiClient = useContext(ApiClientContext);
 
-  const [year, setYear] = useState(new Date().getFullYear());
+  const [year, setYear] = useState<number>();
   const [selectedStringRowKeys, setSelectedStringRowKeys] = useState<string[]>(
     []
   );
@@ -122,10 +122,14 @@ const LaboratoryAgreementsView = () => {
   );
 
   useEffect(() => {
-    if (availableYears.length > 0 && !availableYears.includes(year)) {
+    if (
+      availableYears.length > 0 &&
+      isNil(year) &&
+      !availableYears.includes(year)
+    ) {
       setYear(availableYears[0]);
     }
-  }, [availableYears]);
+  }, [availableYears, year]);
 
   const rows = useMemo(() => {
     return programmingPlans.flatMap((plan) =>
@@ -457,6 +461,10 @@ const LaboratoryAgreementsView = () => {
     )
   ).length;
   const rowsWithoutLab = filteredRows.length - rowsWithLab;
+
+  if (!year) {
+    return <></>;
+  }
 
   return (
     <LaboratoryAgreementDetailProvider
