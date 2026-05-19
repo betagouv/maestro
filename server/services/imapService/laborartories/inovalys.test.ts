@@ -395,10 +395,23 @@ test(`un résidu issue d'un calcul avec comme résultat <LQ est redéfini en ND`
 //   ).toMatchSnapshot();
 // });
 test.each<[string, z.infer<typeof inovalysRefClientValidator>]>([
-  ['OCC-25-0007-01', { reference: 'OCC-25-0007', copyNumber: 1 }],
-  ['OCC-25-0007-2', { reference: 'OCC-25-0007', copyNumber: 2 }],
-  ['REU-25-0015-A-01', { reference: 'REU-25-0015', copyNumber: 1 }],
-  ['REU-25-00015-A-02', { reference: 'REU-25-00015', copyNumber: 2 }]
+  [
+    'OCC-25-0007-01',
+    { reference: 'OCC-25-0007', copyNumber: 1, itemNumber: 1 }
+  ],
+  ['OCC-25-0007-2', { reference: 'OCC-25-0007', copyNumber: 2, itemNumber: 1 }],
+  [
+    'REU-25-0015-A-01',
+    { reference: 'REU-25-0015', copyNumber: 1, itemNumber: 1 }
+  ],
+  [
+    'REU-25-00015-A-02',
+    { reference: 'REU-25-00015', copyNumber: 2, itemNumber: 1 }
+  ],
+  [
+    'REU-25-0015-B-01',
+    { reference: 'REU-25-0015', copyNumber: 1, itemNumber: 2 }
+  ]
 ])('inovalysRefClientValidator', (value, expected) => {
   expect(inovalysRefClientValidator.parse(value)).toEqual(expected);
 });

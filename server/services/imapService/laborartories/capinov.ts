@@ -9,24 +9,24 @@ import type {
   ExportResultQuantifiable,
   LaboratoryConf
 } from '../index';
-import { csvToJson, frenchNumberStringValidator } from '../utils';
+import {
+  csvToJson,
+  frenchNumberStringValidator,
+  parseSampleReference
+} from '../utils';
 
 export const capinovCodeEchantillonValidator = z
   .string()
   .transform((l, ctx) => {
-    const normalized = l.trim().replaceAll(' ', '');
-    const match = normalized.match(/^([A-Z]+-\d+-\d+)(?:-[A-Z])?(?:-(\d+))?$/);
-    if (!match) {
+    const parsed = parseSampleReference(l.trim().replaceAll(' ', ''));
+    if (!parsed) {
       ctx.addIssue({
         code: 'custom',
         message: `Référence capinov invalide: ${l}`
       });
       return z.NEVER;
     }
-    return {
-      reference: match[1],
-      copyNumber: match[2] ? Number.parseInt(match[2], 10) : 1
-    };
+    return parsed;
   });
 // Visible for testing
 export const extractAnalyzes = (
@@ -87,7 +87,7 @@ export const extractAnalyzes = (
     const analysis: (typeof result)[number] = {
       sampleReference,
       copyNumber: firstLine.LOT.copyNumber,
-      itemNumber: 1,
+      itemNumber: firstLine.LOT.itemNumber,
       capinovRef: `${firstLine.PREFIXE_NOM} ${firstLine.DEMANDE_NUMERO} ${firstLine.ECHANT_NUMERO}`,
       notes: firstLine.COMMENTAIRE ?? '',
       residues: []

@@ -117,10 +117,30 @@ test('exportDataFromEmail', async () => {
 
 type CerecoRef = z.infer<typeof cerecoRefValidator>;
 test.each<[string, CerecoRef]>([
-  ['ARA-25-0094-1 : Olives', { reference: 'ARA-25-0094', copyNumber: 1 }],
-  ['ARA-25-0094-2 : Olives', { reference: 'ARA-25-0094', copyNumber: 2 }],
-  ['ARA-25-0094-A-2 : Olives', { reference: 'ARA-25-0094', copyNumber: 2 }],
-  ['ARA-25-00094-1 - Olives', { reference: 'ARA-25-00094', copyNumber: 1 }]
+  [
+    'ARA-25-0094-1 : Olives',
+    { reference: 'ARA-25-0094', copyNumber: 1, itemNumber: 1 }
+  ],
+  [
+    'ARA-25-0094-2 : Olives',
+    { reference: 'ARA-25-0094', copyNumber: 2, itemNumber: 1 }
+  ],
+  [
+    'ARA-25-0094-A-2 : Olives',
+    { reference: 'ARA-25-0094', copyNumber: 2, itemNumber: 1 }
+  ],
+  [
+    'ARA-25-0094-B-1 : Olives',
+    { reference: 'ARA-25-0094', copyNumber: 1, itemNumber: 2 }
+  ],
+  [
+    'ARA-25-00094-1 - Olives',
+    { reference: 'ARA-25-00094', copyNumber: 1, itemNumber: 1 }
+  ],
+  [
+    'ARA-26-00138-A1 : Olives',
+    { reference: 'ARA-26-00138', copyNumber: 1, itemNumber: 1 }
+  ]
 ])('cerecoRefValidator', (value, expected) => {
   expect(cerecoRefValidator.parse(value)).toStrictEqual(expected);
 });
