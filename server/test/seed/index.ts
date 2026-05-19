@@ -6,6 +6,7 @@ import { seed as seedPrescriptions } from './005-prescriptions';
 import { seed as seedSpecificDataFields } from './006-specific-data-fields';
 import { seed as seedSamples } from './007-samples';
 import { seed as seedLaboratoryAgreements } from './008-laboratory-agreements';
+import { seed as seedLaboratoryAgreementChecks } from './009-laboratory-agreement-checks';
 
 export const dbSeed = async (): Promise<void> => {
   await seedCompanies();
@@ -16,4 +17,5 @@ export const dbSeed = async (): Promise<void> => {
   await seedSpecificDataFields();
   await seedSamples();
   await seedLaboratoryAgreements();
+  await seedLaboratoryAgreementChecks();
 };

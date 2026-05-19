@@ -7,6 +7,10 @@ import {
   type UserRefined
 } from 'maestro-shared/schema/User/User';
 import {
+  DAOALaboratoryAgreementFixture,
+  LaboratoryAgreementCheckFixture
+} from 'maestro-shared/test/laboratoryAgreementFixtures';
+import {
   genLaboratoryAnalyticalCompetence,
   Laboratory1AnalyticalCompetenceFixture1,
   LaboratoryFixture
@@ -357,6 +361,277 @@ describe('Laboratory router', () => {
     //
     //   await Laboratories().delete().where('id', otherLaboratory.id);
     // });
+  });
+
+  describe('GET /laboratories/agreements', () => {
+    const testRoute = '/api/laboratories/agreements';
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user does not have the permission to manage laboratory agreements', async () => {
+      const forbiddenRequestTest = async (user: UserRefined) =>
+        request(app)
+          .get(testRoute)
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await forbiddenRequestTest(Sampler1Fixture);
+      await forbiddenRequestTest(DepartmentalCoordinator);
+      await forbiddenRequestTest(RegionalCoordinator);
+      await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(NationalObserver);
+      await forbiddenRequestTest(NationalCoordinator);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+    });
+
+    test('should return all agreements', async () => {
+      const res = await request(app)
+        .get(testRoute)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toBeInstanceOf(Array);
+      expectArrayToContainElements(res.body, [
+        ...PPVDummyLaboratoryIds.map((laboratoryId) =>
+          expect.objectContaining({
+            laboratoryId,
+            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+            programmingPlanKind: 'PPV',
+            substanceKind: 'Any'
+          })
+        ),
+        expect.objectContaining({
+          laboratoryId: DAOALaboratoryAgreementFixture.laboratoryId,
+          programmingPlanKind:
+            DAOALaboratoryAgreementFixture.programmingPlanKind,
+          substanceKind: DAOALaboratoryAgreementFixture.substanceKind
+        })
+      ]);
+    });
+
+    test('should filter agreements by programmingPlanKinds and exclude non-matching ones', async () => {
+      const res = await request(app)
+        .get(testRoute)
+        .query({ programmingPlanKinds: ['PPV'] })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toBeInstanceOf(Array);
+      res.body.forEach((agreement: { programmingPlanKind: string }) => {
+        expect(agreement.programmingPlanKind).toBe('PPV');
+      });
+      expect(res.body).not.toMatchObject(
+        expect.arrayContaining([
+          expect.objectContaining({
+            programmingPlanKind:
+              DAOALaboratoryAgreementFixture.programmingPlanKind
+          })
+        ])
+      );
+    });
+  });
+
+  describe('GET /laboratories/agreements/checks', () => {
+    const testRoute = '/api/laboratories/agreements/checks';
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user does not have the permission to manage laboratory agreements', async () => {
+      const forbiddenRequestTest = async (user: UserRefined) =>
+        request(app)
+          .get(testRoute)
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await forbiddenRequestTest(Sampler1Fixture);
+      await forbiddenRequestTest(DepartmentalCoordinator);
+      await forbiddenRequestTest(RegionalCoordinator);
+      await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(NationalObserver);
+      await forbiddenRequestTest(NationalCoordinator);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+    });
+
+    test('should return all agreement checks including the seeded one', async () => {
+      const res = await request(app)
+        .get(testRoute)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toBeInstanceOf(Array);
+      expectArrayToContainElements(res.body, [
+        expect.objectContaining(LaboratoryAgreementCheckFixture)
+      ]);
+    });
+
+    test('should return seeded check when filtering by matching year', async () => {
+      const res = await request(app)
+        .get(testRoute)
+        .query({ year: PPVValidatedProgrammingPlanFixture.year })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toBeInstanceOf(Array);
+      expectArrayToContainElements(res.body, [
+        expect.objectContaining(LaboratoryAgreementCheckFixture)
+      ]);
+    });
+
+    test('should return empty array when filtering by non-matching year', async () => {
+      const res = await request(app)
+        .get(testRoute)
+        .query({ year: 1900 })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toEqual([]);
+    });
+  });
+
+  describe('PUT /laboratories/agreements/checks', () => {
+    const testRoute = '/api/laboratories/agreements/checks';
+
+    const validBody = {
+      ...LaboratoryAgreementCheckFixture,
+      checked: true
+    };
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(testRoute)
+        .send(validBody)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user does not have the permission to manage laboratory agreements', async () => {
+      const forbiddenRequestTest = async (user: UserRefined) =>
+        request(app)
+          .put(testRoute)
+          .use(tokenProvider(user))
+          .send(validBody)
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await forbiddenRequestTest(Sampler1Fixture);
+      await forbiddenRequestTest(DepartmentalCoordinator);
+      await forbiddenRequestTest(RegionalCoordinator);
+      await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(NationalObserver);
+      await forbiddenRequestTest(NationalCoordinator);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+    });
+
+    test('should require a valid body', async () => {
+      await request(app)
+        .put(testRoute)
+        .send({ programmingPlanId: 'not-a-uuid' })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should uncheck the seeded agreement and return the updated list without it', async () => {
+      const res = await request(app)
+        .put(testRoute)
+        .send({ ...LaboratoryAgreementCheckFixture, checked: false })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toBeInstanceOf(Array);
+      expect(res.body).not.toMatchObject(
+        expect.arrayContaining([
+          expect.objectContaining(LaboratoryAgreementCheckFixture)
+        ])
+      );
+    });
+
+    test('should re-check an agreement and return the updated list with it', async () => {
+      const res = await request(app)
+        .put(testRoute)
+        .send({ ...LaboratoryAgreementCheckFixture, checked: true })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toBeInstanceOf(Array);
+      expectArrayToContainElements(res.body, [
+        expect.objectContaining(LaboratoryAgreementCheckFixture)
+      ]);
+    });
+  });
+
+  describe('PUT /laboratories/:laboratoryId/agreements', () => {
+    const testRoute = (laboratoryId: string) =>
+      `/api/laboratories/${laboratoryId}/agreements`;
+
+    const validBody = {
+      laboratoryAgreementRowKey: {
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+        programmingPlanKind: 'PPV',
+        substanceKind: 'Any'
+      },
+      referenceLaboratory: true,
+      detectionAnalysis: true,
+      confirmationAnalysis: false
+    };
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(testRoute(LaboratoryFixture.id))
+        .send(validBody)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user does not have the permission to manage laboratory agreements', async () => {
+      const forbiddenRequestTest = async (user: UserRefined) =>
+        request(app)
+          .put(testRoute(LaboratoryFixture.id))
+          .use(tokenProvider(user))
+          .send(validBody)
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+      await forbiddenRequestTest(Sampler1Fixture);
+      await forbiddenRequestTest(DepartmentalCoordinator);
+      await forbiddenRequestTest(RegionalCoordinator);
+      await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(NationalObserver);
+      await forbiddenRequestTest(NationalCoordinator);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+    });
+
+    test('should require a valid laboratoryId', async () => {
+      await request(app)
+        .put(testRoute(fakerFR.string.alphanumeric(32)))
+        .use(tokenProvider(AdminFixture))
+        .send(validBody)
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should update the laboratory agreement and return the updated list', async () => {
+      const res = await request(app)
+        .put(testRoute(LaboratoryFixture.id))
+        .use(tokenProvider(AdminFixture))
+        .send(validBody)
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toBeInstanceOf(Array);
+      expectArrayToContainElements(res.body, [
+        expect.objectContaining({
+          laboratoryId: LaboratoryFixture.id,
+          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+          programmingPlanKind: 'PPV',
+          substanceKind: 'Any',
+          referenceLaboratory: true,
+          detectionAnalysis: true,
+          confirmationAnalysis: false
+        })
+      ]);
+    });
   });
 
   describe('PUT /laboratories/:laboratoryId/analytical-competences/:analyticalCompetenceId', () => {
