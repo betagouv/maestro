@@ -86,7 +86,7 @@ const findUnique = async (id: string): Promise<PartialSample | undefined> => {
       db.raw(`additional_sampler.id as additional_sampler_id`),
       db.raw(`additional_sampler.name as additional_sampler_name`),
       db.raw(
-        `coalesce(array_agg(${sampleDocumentsTable}.document_id) filter (where ${sampleDocumentsTable}.document_id is not null), '{}') as document_ids`
+        `coalesce(array_agg(distinct ${sampleDocumentsTable}.document_id) filter (where ${sampleDocumentsTable}.document_id is not null), '{}') as document_ids`
       ),
       db.raw(
         `coalesce(jsonb_object_agg(sdf_sd.key, case sdf_sd.input_type when 'checkbox' then to_jsonb(sdv_sd.value = 'true') when 'number' then to_jsonb(sdv_sd.value::numeric) else coalesce(to_jsonb(sdv_sd.value), to_jsonb(sdfo_sd.value)) end) filter (where sdv_sd.field_id is not null), '{}'::jsonb) as specific_data`
@@ -285,7 +285,7 @@ const findMany = async (
       db.raw(`additional_sampler.id as additional_sampler_id`),
       db.raw(`additional_sampler.name as additional_sampler_name`),
       db.raw(
-        `coalesce(array_agg(${sampleDocumentsTable}.document_id) filter (where ${sampleDocumentsTable}.document_id is not null), '{}') as document_ids`
+        `coalesce(array_agg(distinct ${sampleDocumentsTable}.document_id) filter (where ${sampleDocumentsTable}.document_id is not null), '{}') as document_ids`
       ),
       db.raw(
         `coalesce(jsonb_object_agg(sdf_sd.key, case sdf_sd.input_type when 'checkbox' then to_jsonb(sdv_sd.value = 'true') when 'number' then to_jsonb(sdv_sd.value::numeric) else coalesce(to_jsonb(sdv_sd.value), to_jsonb(sdfo_sd.value)) end) filter (where sdv_sd.field_id is not null), '{}'::jsonb) as specific_data`

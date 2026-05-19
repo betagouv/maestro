@@ -45,11 +45,12 @@ const linkDocuments = async (
   documentIdsToLink: string[],
   trx: KyselyMaestro = kysely
 ): Promise<void> => {
-  if (documentIdsToLink.length > 0) {
+  const uniqueDocumentIds = [...new Set(documentIdsToLink)];
+  if (uniqueDocumentIds.length > 0) {
     await trx
       .insertInto('analysisDaiDocuments')
       .values(
-        documentIdsToLink.map((documentId) => ({
+        uniqueDocumentIds.map((documentId) => ({
           analysisDaiId: id,
           documentId
         }))

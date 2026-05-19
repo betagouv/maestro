@@ -346,6 +346,23 @@ describe('analysisDaiRepository', () => {
       expect(linked.map((r) => r.documentId)).toContain(doc.id);
     });
 
+    test('linkDocuments deduplicates input documentIds', async () => {
+      const analysisId = await insertAnalysis();
+      const id = await analysisDaiRepository.insert(analysisId);
+
+      const doc = genDocument({ createdBy: Sampler1Fixture.id });
+      await documentRepository.insert(doc);
+
+      await analysisDaiRepository.linkDocuments(id, [doc.id, doc.id, doc.id]);
+
+      const linked = await kysely
+        .selectFrom('analysisDaiDocuments')
+        .select('documentId')
+        .where('analysisDaiId', '=', id)
+        .execute();
+      expect(linked).toEqual([{ documentId: doc.id }]);
+    });
+
     test('updates state to ERROR with a message', async () => {
       const analysisId = await insertAnalysis();
       const id = await analysisDaiRepository.insert(analysisId);

@@ -206,6 +206,24 @@ describe('findMany samples', async () => {
   });
 });
 
+describe('findUnique', async () => {
+  test('does not duplicate documentIds when sample has multiple specificData values', async () => {
+    const document = genDocument({
+      createdBy: Sampler1Fixture.id,
+      kind: 'SampleDocument' as const
+    });
+    await documentRepository.insert(document);
+
+    await sampleRepository.updateDocumentIds(Sample11Fixture.id, [document.id]);
+
+    const sample = await sampleRepository.findUnique(Sample11Fixture.id);
+
+    expect(sample?.documentIds).toEqual([document.id]);
+
+    await sampleRepository.updateDocumentIds(Sample11Fixture.id, []);
+  });
+});
+
 describe('deleteDraftOnProgrammingPlan', async () => {
   test('deletes only draft samples for the given programmingPlanId', async () => {
     const before = await sampleRepository.findMany({
