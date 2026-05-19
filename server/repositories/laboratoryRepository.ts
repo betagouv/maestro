@@ -235,8 +235,5 @@ export const laboratoryRepository = {
   findUnique,
   findMany,
   updateConfig,
-  findByEmailSender,
-  findAllAgreements,
-  upsertAgreementsForGroup,
   findByEmailSender
 };
