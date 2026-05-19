@@ -462,7 +462,7 @@ const LaboratoryAgreementsView = () => {
   const rowsWithoutLab = filteredRows.length - rowsWithLab;
 
   if (!year) {
-    return <></>;
+    return null;
   }
 
   return (
