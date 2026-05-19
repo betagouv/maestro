@@ -14,7 +14,13 @@ import {
   SCL34Id,
   SCL91Id
 } from 'maestro-shared/schema/User/User';
-import { DAOAValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  DAOAInProgressProgrammingPlanId,
+  DAOAValidatedProgrammingPlanId,
+  PPVClosedProgrammingPlanId,
+  PPVInProgressProgrammingPlanId,
+  PPVValidatedProgrammingPlanId
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { knexInstance as db } from '../../../repositories/db';
 
 export const DAOAMonoLaboratoryIds = [ANS94ALnrPestId];
@@ -32,12 +38,6 @@ export const DAOAVolailleMultiLaboratoryIds = [
 export const DAOACopperLaboratoryIds = [LDA85Id];
 
 export const seed = async () => {
-  const PPVClosedProgrammingPlanId = 'f5d510ef-ab78-449a-acd6-392895a1994f';
-  const PPVValidatedProgrammingPlanId = 'd78fb3eb-1998-482b-9014-282d51ae30b8';
-  const PPVInProgressProgrammingPlanId = 'bac693a5-9475-4e24-a775-5532b0117e5b';
-  const DAOAInProgressProgrammingPlanId =
-    'fafc6f2e-aec5-4998-adeb-84090d971a90';
-
   const PPVProgrammingPlanIds = [
     PPVClosedProgrammingPlanId,
     PPVValidatedProgrammingPlanId,
@@ -46,7 +46,7 @@ export const seed = async () => {
 
   const DAOAProgrammingPlanIds = [
     DAOAInProgressProgrammingPlanId,
-    DAOAValidatedProgrammingPlanFixture.id
+    DAOAValidatedProgrammingPlanId
   ];
 
   const PPVLaboratoryIds = [

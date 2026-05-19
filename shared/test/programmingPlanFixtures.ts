@@ -6,6 +6,17 @@ import type { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/Programmi
 import { oneOf } from './testFixtures';
 import { NationalCoordinator } from './userFixtures';
 
+export const PPVClosedProgrammingPlanId =
+  'f5d510ef-ab78-449a-acd6-392895a1994f';
+export const PPVValidatedProgrammingPlanId =
+  'd78fb3eb-1998-482b-9014-282d51ae30b8';
+export const PPVInProgressProgrammingPlanId =
+  'bac693a5-9475-4e24-a775-5532b0117e5b';
+export const DAOAValidatedProgrammingPlanId =
+  'd2680960-a3b5-4091-a87b-e4c2467077fb';
+export const DAOAInProgressProgrammingPlanId =
+  'fafc6f2e-aec5-4998-adeb-84090d971a90';
+
 export const genProgrammingPlan = (
   data?: Partial<ProgrammingPlanChecked>
 ): ProgrammingPlanChecked => ({
@@ -30,7 +41,7 @@ export const genProgrammingPlan = (
 });
 
 export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
-  id: 'f5d510ef-ab78-449a-acd6-392895a1994f',
+  id: PPVClosedProgrammingPlanId,
   domain: 'PESTICIDE_RESIDUE',
   title: 'Production primaire végétale',
   kinds: ['PPV'],
@@ -50,7 +61,7 @@ export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
 });
 
 export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
-  id: 'd78fb3eb-1998-482b-9014-282d51ae30b8',
+  id: PPVValidatedProgrammingPlanId,
   domain: 'PESTICIDE_RESIDUE',
   title: 'Production primaire végétale',
   kinds: ['PPV'],
@@ -68,7 +79,7 @@ export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
 });
 
 export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
-  id: 'bac693a5-9475-4e24-a775-5532b0117e5b',
+  id: PPVInProgressProgrammingPlanId,
   domain: 'PESTICIDE_RESIDUE',
   title: 'Production primaire végétale',
   kinds: ['PPV'],
@@ -86,7 +97,7 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
 });
 
 export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
-  id: 'd2680960-a3b5-4091-a87b-e4c2467077fb',
+  id: DAOAValidatedProgrammingPlanId,
   domain: 'PESTICIDE_RESIDUE',
   title: "Produit carné à l'abattoir",
   kinds: ProgrammingPlanKindWithSachaList,
@@ -112,7 +123,7 @@ export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
 });
 
 export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
-  id: 'fafc6f2e-aec5-4998-adeb-84090d971a90',
+  id: DAOAInProgressProgrammingPlanId,
   domain: 'PESTICIDE_RESIDUE',
   title: "Produit carné à l'abattoir",
   kinds: ProgrammingPlanKindWithSachaList,

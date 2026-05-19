@@ -1,4 +1,4 @@
-import { LaboratoryFixture } from './laboratoryFixtures';
+import { CAP29Id } from '../schema/User/User';
 import {
   DAOAInProgressProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
@@ -8,7 +8,7 @@ import { AdminFixture } from './userFixtures';
 export const DAOALaboratoryAgreementFixture = {
   programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
   programmingPlanKind: 'DAOA_VOLAILLE' as const,
-  laboratoryId: LaboratoryFixture.id,
+  laboratoryId: CAP29Id,
   substanceKind: 'Multi' as const
 };
 

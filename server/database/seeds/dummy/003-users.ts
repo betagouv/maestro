@@ -2,6 +2,7 @@ import { fakerFR } from '@faker-js/faker';
 import { ProgrammingPlanKindWithSachaList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { CER30Id } from 'maestro-shared/schema/User/User';
 import {
+  AdminFixture,
   NationalCoordinator,
   SamplerDaoaFixture
 } from 'maestro-shared/test/userFixtures';
@@ -12,7 +13,7 @@ import { AVIVOL, CHARAL } from './001-companies';
 export const seed = async () => {
   await Users().insert([
     {
-      id: uuidv4(),
+      id: AdminFixture.id,
       email: 'admin@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       programmingPlanKinds: [],
