@@ -106,17 +106,26 @@ const extractAnalyzes = async (
 
         const result = z.coerce.number().safeParse(d.Résultat);
 
-        return result.error
-          ? {
-              result_kind: 'ND',
-              ...commonData
-            }
-          : {
-              result_kind: 'Q',
-              result: result.data,
-              lmr: d.LMR ?? null,
-              ...commonData
-            };
+        if (!result.error) {
+          return {
+            result_kind: 'Q',
+            result: result.data,
+            lmr: d.LMR ?? null,
+            ...commonData
+          };
+        }
+
+        if (d.Résultat.trim().toLowerCase().startsWith('détecté')) {
+          return {
+            result_kind: 'NQ',
+            ...commonData
+          };
+        }
+
+        return {
+          result_kind: 'ND',
+          ...commonData
+        };
       })
     }
   ];
