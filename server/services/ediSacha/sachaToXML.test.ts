@@ -1,9 +1,8 @@
 import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
-import { describe, expect, test } from 'vitest';
+import { expect, test } from 'vitest';
 import type { SachaConf } from '../../repositories/kysely.type';
 import {
   generateXMLAcquitement,
-  getNumeroDAP,
   getXmlFileName,
   getZipFileName
 } from './sachaToXML';
@@ -103,24 +102,4 @@ test('getZipFileName', () => {
   expect(getZipFileName('AN01', 'LDA72', 1765876056798)).toBe(
     'AN01LDA722512161007_1.zip'
   );
-});
-
-describe('getNumeroDAP', () => {
-  test('calcule le numéro DAP à partir de la référence', () => {
-    expect(
-      getNumeroDAP(
-        { reference: 'PEL-26-00073' },
-        { itemNumber: 1, copyNumber: 2 }
-      )
-    ).toBe(202600007312);
-  });
-
-  test('calcule le numéro DAP avec des valeurs différentes', () => {
-    expect(
-      getNumeroDAP(
-        { reference: 'ABC-24-12345' },
-        { itemNumber: 3, copyNumber: 1 }
-      )
-    ).toBe(202401234531);
-  });
 });

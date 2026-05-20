@@ -49,7 +49,10 @@ import {
   templateStylePath
 } from '../../templates/templates';
 import config from '../../utils/config';
-import { getNumeroDAP } from '../ediSacha/sachaToXML';
+import {
+  referencesFromSample,
+  SampleReference
+} from '../ediSacha/sachaReferences';
 
 const generatePDF = async (template: Template, data: unknown) => {
   handlebars.registerHelper(
@@ -242,7 +245,11 @@ const generateSamplePDF = async (
     ProgrammingPlanKindWithSachaList.includes(
       sample.programmingPlanKind as ProgrammingPlanKindWithSacha
     )
-      ? `${getNumeroDAP(sample, { itemNumber, copyNumber })}`
+      ? referencesFromSample(
+          SampleReference.parse(sample.reference),
+          Date.now(),
+          itemNumber
+        ).numeroEtiquette
       : reference;
 
   const barcodeSvg = bwipjs.toSVG({

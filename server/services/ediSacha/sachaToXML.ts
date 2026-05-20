@@ -4,8 +4,6 @@ import {
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
 import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
-import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
-import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { type ZodObject, z } from 'zod';
 import type { SachaConf } from '../../repositories/kysely.type';
@@ -45,19 +43,6 @@ export const generateXMLAcquitement = async (
     department,
     sachaConf,
     laboratory
-  );
-};
-
-export const getNumeroDAP = (
-  sample: Pick<SampleChecked, 'reference'>,
-  sampleItem: Pick<SampleItem, 'itemNumber' | 'copyNumber'>
-) => {
-  const firstSeparatorIndex = sample.reference.indexOf('-') + 1;
-  const sampleIndex = sample.reference
-    .substring(sample.reference.lastIndexOf('-') + 1)
-    .padStart(6, '0');
-  return Number(
-    `${2000 + Number.parseInt(sample.reference.substring(firstSeparatorIndex, firstSeparatorIndex + 2), 10)}${sampleIndex}${sampleItem.itemNumber}${sampleItem.copyNumber}`
   );
 };
 
