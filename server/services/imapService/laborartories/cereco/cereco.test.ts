@@ -30,7 +30,7 @@ test('exportDataFromEmail', async () => {
         casNumber: null,
         codeSandre: null,
         label: 'captane + THPI (en captane)',
-        result_kind: 'ND'
+        result_kind: 'NQ'
       },
       {
         analysisDate: '2025-07-16',
