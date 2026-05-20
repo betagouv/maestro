@@ -264,7 +264,7 @@ export const SamplerView: Story = {
       },
       useFindLocalPrescriptionsQuery: {
         data: regionalPrescriptions
-          .filter((_) => _.department === DepartmentalCoordinator.department)
+          .filter((_) => _.department === SamplerDaoaFixture.department)
           .map((_, index) => ({
             ..._,
             companySiret: SamplerDaoaFixture.companies[0].siret,
