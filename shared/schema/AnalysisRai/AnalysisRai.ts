@@ -28,8 +28,8 @@ const AnalysisRaiBase = z.object({
   state: AnalysisRaiState,
   edi: z.boolean(),
   message: z.string().nullable(),
-  receivedAt: z.date(),
-  createdAt: z.date()
+  receivedAt: z.coerce.date(),
+  createdAt: z.coerce.date()
 });
 
 export const AnalysisRai = z.discriminatedUnion('source', [
