@@ -102,13 +102,15 @@ const ProgrammingPlanCard = ({
         </div>
       </div>
 
-      <div className={clsx('border', cx('fr-p-2w'))}>
-        <ProgrammingPlanMap
-          programmingPlan={programmingPlan}
-          context={context}
-          localPrescriptions={regionalPrescriptions ?? []}
-        />
-      </div>
+      {!programmingPlan.kinds.includes('PPV') && (
+        <div className={clsx('border', cx('fr-p-2w'))}>
+          <ProgrammingPlanMap
+            programmingPlan={programmingPlan}
+            context={context}
+            localPrescriptions={regionalPrescriptions ?? []}
+          />
+        </div>
+      )}
     </>
   );
 };
