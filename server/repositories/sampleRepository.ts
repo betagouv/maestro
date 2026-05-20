@@ -9,6 +9,7 @@ import {
   SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
 import {
+  getItemStatus,
   isItemAchieved,
   isItemCompliant
 } from 'maestro-shared/schema/Sample/SampleItem';
@@ -512,7 +513,19 @@ const evaluateSampleCompliance = async (sampleId: string) => {
 
   const sampleChecked = sampleCheckedParse.data;
 
+  const hasDetectedResidue = await db(analysisTable)
+    .join(
+      analysisResiduesTable,
+      `${analysisResiduesTable}.analysisId`,
+      `${analysisTable}.id`
+    )
+    .where(`${analysisTable}.sampleId`, sampleId)
+    .whereNot(`${analysisResiduesTable}.resultKind`, 'ND')
+    .limit(1)
+    .first();
+
   if (
+    !hasDetectedResidue &&
     sampleChecked.items
       .filter((_) => _.copyNumber === 1)
       .every((itemFirstCopy) => {
@@ -521,7 +534,10 @@ const evaluateSampleCompliance = async (sampleId: string) => {
             (_) => _.itemNumber === itemFirstCopy.itemNumber
           ) || [];
 
-        return isItemAchieved(itemCopies) && isItemCompliant(itemCopies);
+        return (
+          (isItemAchieved(itemCopies) && isItemCompliant(itemCopies)) ||
+          getItemStatus(itemCopies) === 'NotAdmissible'
+        );
       })
   ) {
     await update({
