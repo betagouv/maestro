@@ -2,6 +2,10 @@ import type { Knex } from 'knex';
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import type { Region } from 'maestro-shared/referential/Region';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
+import {
+  ComplianceStat,
+  type FindComplianceStatsOptions
+} from 'maestro-shared/schema/Sample/ComplianceStat';
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   PartialSample,
@@ -620,6 +624,28 @@ const parsePartialSample = (sample: PartialSampleJoinedDbo): PartialSample =>
     specificData: omitBy(sample.specificData, isNil)
   });
 
+const findComplianceStats = async (
+  options: FindComplianceStatsOptions
+): Promise<ComplianceStat[]> => {
+  const rows = await Samples()
+    .select(
+      `${samplesTable}.region`,
+      `${samplesTable}.matrix`,
+      db.raw(`count(distinct ${samplesTable}.id) as total_count`),
+      db.raw(
+        `count(distinct ${samplesTable}.id) filter(where ${samplesTable}.compliance = 'Compliant') as compliant_count`
+      ),
+      db.raw(
+        `count(distinct ${samplesTable}.id) filter(where ${samplesTable}.compliance in ('NonCompliant', 'NonCompliantAndHarmful')) as non_compliant_count`
+      )
+    )
+    .whereIn(`${samplesTable}.programmingPlanId`, [options.programmingPlanId])
+    .whereNotNull(`${samplesTable}.matrix`)
+    .groupBy(`${samplesTable}.region`, `${samplesTable}.matrix`);
+
+  return rows.map((r: any) => ComplianceStat.parse(r));
+};
+
 export const sampleRepository = {
   insert,
   update,
@@ -628,6 +654,7 @@ export const sampleRepository = {
   findUnique,
   findMany,
   count,
+  findComplianceStats,
   getNextSequence,
   deleteOne,
   deleteDraftOnProgrammingPlan,

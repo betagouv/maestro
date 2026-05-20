@@ -15,6 +15,7 @@ import { useOnLine } from 'src/hooks/useOnLine';
 import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { ApiClientContext } from '../../services/apiClient';
+import DashboardComplianceStats from './DashboardComplianceStats';
 import DashboardNoticeAndActions from './DashboardNoticeAndActions';
 import DashboardPrescriptions from './DashboardPrescriptions';
 import DashboardResidueStats from './DashboardResidueStats';
@@ -128,6 +129,12 @@ const DashboardView = () => {
                 programmingPlan={currentValidatedProgrammingPlan}
               />
             )}
+            {hasNationalView &&
+              currentValidatedProgrammingPlan?.kinds.includes('PPV') && (
+                <DashboardComplianceStats
+                  programmingPlan={currentValidatedProgrammingPlan}
+                />
+              )}
           </div>
         </>
       )}

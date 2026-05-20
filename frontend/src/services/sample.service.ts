@@ -17,6 +17,9 @@ const sampleApi = api.injectEndpoints({
     getResidueStats: buildTypedQuery(builder, '/samples/residue-stats', {
       providesTags: ['SampleCount']
     }),
+    getComplianceStats: buildTypedQuery(builder, '/samples/compliance-stats', {
+      providesTags: ['SampleCount']
+    }),
     getSample: buildTypedQuery(builder, '/samples/:sampleId', {
       providesTags: (_result, _error, { sampleId }) => [
         { type: 'Sample', id: sampleId }
@@ -137,6 +140,7 @@ const sampleListExportURL = (findOptions: FindSampleOptions) =>
 
 export const {
   useGetResidueStatsQuery,
+  useGetComplianceStatsQuery,
   useCreateOrUpdateSampleMutation,
   useFindSamplesQuery,
   useLazyFindSamplesQuery,

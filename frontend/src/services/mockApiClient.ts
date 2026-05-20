@@ -282,7 +282,8 @@ const defaultMockApiClientConf: MockApi = {
   useCreateAnalysisDaiMutation: [fn(), {}],
   useGetAnalysisRaiQuery: { data: { rais: [], total: 0 } },
   useReplayAnalysisRaiMutation: [fn(), {}],
-  useGetResidueStatsQuery: { data: [] }
+  useGetResidueStatsQuery: { data: [] },
+  useGetComplianceStatsQuery: { data: [] }
 };
 
 export const mockApiClient = getMockApi({});

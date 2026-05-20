@@ -107,6 +107,12 @@ export const getNewReference = async (
 };
 
 export const sampleRouter = {
+  '/samples/compliance-stats': {
+    get: async ({ query }) => {
+      const stats = await sampleRepository.findComplianceStats(query);
+      return { status: constants.HTTP_STATUS_OK, response: stats };
+    }
+  },
   '/samples/residue-stats': {
     get: async ({ query }) => {
       const stats = await analysisResidueRepository.findTopResiduesDetected(
