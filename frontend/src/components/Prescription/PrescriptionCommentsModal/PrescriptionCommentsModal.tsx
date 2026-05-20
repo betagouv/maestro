@@ -174,7 +174,8 @@ const PrescriptionCommentsModal = ({
 
   const { visibleComments, hasComments, hasMoreComments } = useMemo(() => {
     const commentsArray = [...(currentComments?.comments ?? [])].sort(
-      (c1, c2) => c1.createdAt.getTime() - c2.createdAt.getTime()
+      (c1, c2) =>
+        new Date(c1.createdAt).getTime() - new Date(c2.createdAt).getTime()
     );
     const hasComments = commentsArray.length > 0;
     const totalComments = commentsArray.length;
@@ -348,7 +349,7 @@ const PrescriptionCommentsModal = ({
               )}
               {visibleComments.map((comment) => (
                 <div
-                  key={`${comment.createdBy}-${comment.createdAt.getTime()}`}
+                  key={`${comment.createdBy}-${new Date(comment.createdAt).getTime()}`}
                   className="prescription-comment"
                 >
                   <PrescriptionCommentAuthor {...comment} />
