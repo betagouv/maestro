@@ -17,6 +17,7 @@ import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { ApiClientContext } from '../../services/apiClient';
 import DashboardNoticeAndActions from './DashboardNoticeAndActions';
 import DashboardPrescriptions from './DashboardPrescriptions';
+import DashboardResidueStats from './DashboardResidueStats';
 
 const DashboardView = () => {
   const apiClient = useContext(ApiClientContext);
@@ -119,6 +120,12 @@ const DashboardView = () => {
               <DashboardPrescriptions
                 programmingPlan={currentValidatedProgrammingPlan}
                 className={clsx(cx('fr-col-12'))}
+              />
+            )}
+
+            {hasNationalView && currentValidatedProgrammingPlan && (
+              <DashboardResidueStats
+                programmingPlan={currentValidatedProgrammingPlan}
               />
             )}
           </div>
