@@ -30,13 +30,14 @@ const DashboardResidueStats: FunctionComponent<Props> = ({
       <div className={clsx(cx('fr-px-4w', 'fr-py-3w'), 'white-container')}>
         <h5>Top 10 des résidus détectés</h5>
         <Table
-          headers={['#', 'Résidu', 'Matrice', 'Région', 'Détections']}
+          headers={['#', 'Résidu', 'Matrice', 'Région', 'Détections', '> ARFD']}
           data={stats.map((stat, index) => [
             index + 1,
             SSD2IdLabel[stat.residueReference] ?? stat.residueReference,
             MatrixLabels[stat.matrix],
             Regions[stat.region]?.name ?? stat.region,
-            stat.sampleCount
+            stat.sampleCount,
+            stat.higherThanArfdCount
           ])}
           noCaption
         />

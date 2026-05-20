@@ -7,7 +7,8 @@ export const ResidueDetectionStat = z.object({
   residueReference: SSD2Id,
   matrix: Matrix,
   region: Region,
-  sampleCount: z.coerce.number()
+  sampleCount: z.coerce.number(),
+  higherThanArfdCount: z.coerce.number().default(0)
 });
 
 export const FindResidueStatsOptions = z.object({

@@ -31,7 +31,12 @@ const findTopResiduesDetected = async (
       'ar.reference as residueReference',
       's.matrix',
       's.region',
-      fn.count<number>('s.id').$castTo<number>().as('sampleCount')
+      fn.count<number>('s.id').$castTo<number>().as('sampleCount'),
+      fn
+        .count<number>('s.id')
+        .filterWhere('ar.resultHigherThanArfd', '=', true as never)
+        .$castTo<number>()
+        .as('higherThanArfdCount')
     ])
     .where('ar.resultKind', '!=', 'ND' as never)
     .where('ar.reference', 'is not', null)
