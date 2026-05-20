@@ -53,7 +53,6 @@ type QueryOptions<Response, Arg> = {
   providesTags?:
     | Tags[]
     | ((result: Response | undefined, error: unknown, arg: Arg) => Tags[]);
-  transformResponse?: (response: Response) => unknown;
   [k: string]: unknown;
 };
 
@@ -66,6 +65,14 @@ type MutationOptions<Response, Arg> = {
 
 function buildUrl(path: string, arg: Record<string, unknown>): string {
   return path.replace(/:([^/]+)/g, (_, param) => String(arg[param] ?? ''));
+}
+
+function buildTransformResponse(path: string, method: string) {
+  const responseSchema = (routes as any)[path]?.[method]?.response;
+  if (!responseSchema || typeof responseSchema.parse !== 'function') {
+    return (raw: unknown) => raw;
+  }
+  return (raw: unknown) => responseSchema.parse(raw);
 }
 
 // --- Typed wrappers ---
@@ -102,7 +109,8 @@ export function buildTypedQuery<P extends RouteWithGet>(
         ...(Object.keys(queryParams).length > 0 ? { params: queryParams } : {})
       };
     },
-    ...(options ?? {})
+    ...(options ?? {}),
+    transformResponse: buildTransformResponse(path, 'get')
   });
 }
 
@@ -165,6 +173,7 @@ export function buildTypedMutation<
         ...(Object.keys(bodyFields).length > 0 ? { body: bodyFields } : {})
       };
     },
-    ...(options ?? {})
+    ...(options ?? {}),
+    transformResponse: buildTransformResponse(path, method as string)
   });
 }
