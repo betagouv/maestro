@@ -85,6 +85,22 @@ const ProgrammingPlanCard = ({
           </span>
           <span style={{ width: 110, textAlign: 'center' }}>de l'objectif</span>
         </div>
+        {(sumBy(regionalPrescriptions, 'nonCompliantSampleCount') ?? 0) > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <span>
+              {sumBy(regionalPrescriptions, 'nonCompliantSampleCount')}{' '}
+              {pluralize(
+                sumBy(regionalPrescriptions, 'nonCompliantSampleCount')
+              )('prélèvement non conforme')}
+            </span>
+          </div>
+        )}
         <hr className={cx('fr-mt-4w', 'fr-mb-2w')} />
         <div className={clsx('d-flex-justify-center', cx('fr-col-12'))}>
           <Button
