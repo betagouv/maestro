@@ -37,6 +37,7 @@ import {
 } from '../middlewares/checks/sampleCheck';
 import { analysisReportDocumentsRepository } from '../repositories/analysisReportDocumentsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
+import { analysisResidueRepository } from '../repositories/analysisResidueRepository';
 import companyRepository from '../repositories/companyRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
@@ -108,6 +109,14 @@ export const getNewReference = async (
 };
 
 export const sampleRouter = {
+  '/samples/residue-stats': {
+    get: async ({ query }) => {
+      const stats = await analysisResidueRepository.findTopResiduesDetected(
+        query.programmingPlanId
+      );
+      return { status: constants.HTTP_STATUS_OK, response: stats };
+    }
+  },
   '/samples': {
     get: async ({ user, userRole, query }) => {
       const findOptions = buildFindSampleOptions(user, userRole, query);

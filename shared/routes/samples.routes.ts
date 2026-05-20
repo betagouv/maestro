@@ -1,5 +1,9 @@
 import z from 'zod';
 import {
+  FindResidueStatsOptions,
+  ResidueDetectionStat
+} from '../schema/Analysis/ResidueDetectionStat';
+import {
   DocumentChecked,
   SampleDocumentToCreate,
   SampleDocumentUpdate
@@ -14,6 +18,13 @@ import { SampleItemUpdate } from '../schema/Sample/SampleItem';
 import type { SubRoutes } from './routes';
 
 export const samplesRoutes = {
+  '/samples/residue-stats': {
+    get: {
+      query: FindResidueStatsOptions,
+      permissions: ['readSamples'],
+      response: z.array(ResidueDetectionStat)
+    }
+  },
   '/samples': {
     get: {
       query: FindSampleOptions,
