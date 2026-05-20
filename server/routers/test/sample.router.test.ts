@@ -641,6 +641,7 @@ describe('Sample router', () => {
         matrixKind: 'A0C0Z',
         matrix: 'A0BAV',
         programmingPlanKind: 'DAOA_BOVIN',
+        geolocation: { x: 46.642117, y: -0.734475 },
         specificData: {
           killingCode: '1234',
           sampling: 'Aléatoire',
@@ -677,6 +678,7 @@ describe('Sample router', () => {
         matrixKind: 'A0C0Z',
         matrix: 'A0BAV',
         programmingPlanKind: 'DAOA_BOVIN',
+        geolocation: { x: 46.642117, y: -0.734475 },
         specificData: {
           programmingPlanKind: 'DAOA_BOVIN'
         }
@@ -846,7 +848,7 @@ describe('Sample router', () => {
       await request(app)
         .put(testRoute(SampleDAOA1Fixture.id))
         .send(complianceData)
-        .use(tokenProvider(Sampler2Fixture))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
