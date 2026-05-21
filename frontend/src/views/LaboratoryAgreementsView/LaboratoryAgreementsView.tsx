@@ -362,6 +362,17 @@ const LaboratoryAgreementsView = () => {
 
   const isDetailModalOpen = useRef(false);
 
+  useEffect(() => {
+    setSelectedStringRowKeys([]);
+  }, [
+    kindFilter,
+    substanceFilter,
+    matrixFilter,
+    labFilter,
+    labAgreementTypeFilter,
+    showWithoutLab
+  ]);
+
   useIsModalOpen(agreementsModal, {
     onConceal: () => {
       if (isDetailModalOpen.current) {
