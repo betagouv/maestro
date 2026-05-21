@@ -45,6 +45,9 @@ const LaboratoryAgreementButton = ({
   });
 
   if (!onToggle) {
+    if (!active) {
+      return <></>;
+    }
     return (
       <span className={className} title={title}>
         {label}

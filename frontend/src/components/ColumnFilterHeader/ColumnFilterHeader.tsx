@@ -12,6 +12,7 @@ interface Props<T extends string> {
   options: { label: string; value: T; disabled?: boolean }[];
   selectedValues: T[];
   onChange: (values: T[]) => void;
+  onReset?: () => void;
   extraContent?: React.ReactNode;
   extraActive?: boolean;
   menuAlign?: 'left' | 'right';
@@ -22,6 +23,7 @@ const ColumnFilterHeader = <T extends string>({
   options,
   selectedValues,
   onChange,
+  onReset,
   extraContent,
   extraActive = false,
   menuAlign = 'left'
@@ -80,6 +82,7 @@ const ColumnFilterHeader = <T extends string>({
 
   const handleReset = () => {
     onChange([]);
+    onReset?.();
   };
 
   return (
@@ -88,7 +91,7 @@ const ColumnFilterHeader = <T extends string>({
       <div className="column-filter-button-wrapper">
         <Button
           iconId="fr-icon-filter-line"
-          priority={isActive ? 'primary' : 'tertiary no outline'}
+          priority={isActive ? 'primary' : 'tertiary'}
           size="small"
           title={`Filtrer ${label ? `par ${label}` : ''}`}
           className="column-filter-button"

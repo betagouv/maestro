@@ -451,7 +451,7 @@ const LaboratoryAgreementsView = () => {
     });
   }, [expandedRowKeys, filteredRows, checks]);
 
-  const rowsWithLab = filteredRows.filter((r) =>
+  const rowsWithLab = rows.filter((r) =>
     r.laboratories.some(
       (lab) =>
         lab.referenceLaboratory ||
@@ -459,7 +459,7 @@ const LaboratoryAgreementsView = () => {
         lab.confirmationAnalysis
     )
   ).length;
-  const rowsWithoutLab = filteredRows.length - rowsWithLab;
+  const rowsWithoutLab = rows.length - rowsWithLab;
 
   if (!year) {
     return null;
@@ -505,9 +505,7 @@ const LaboratoryAgreementsView = () => {
               )}
             >
               <span>
-                {pluralize(filteredRows.length, { preserveCount: true })(
-                  'ligne'
-                )}
+                {pluralize(rows.length, { preserveCount: true })('ligne')}
               </span>
               <span
                 className={cx(
@@ -547,7 +545,7 @@ const LaboratoryAgreementsView = () => {
             )}
           >
             <ToggleSwitch
-              label="Sous-plans sans laboratoires"
+              label="Lignes sans laboratoires"
               checked={showWithoutLab}
               onChange={setShowWithoutLab}
               showCheckedHint={false}
@@ -683,6 +681,7 @@ const LaboratoryAgreementsView = () => {
                     options={labOptions}
                     selectedValues={labFilter}
                     onChange={setLabFilter}
+                    onReset={() => setLabAgreementTypeFilter([])}
                     menuAlign="right"
                     extraActive={labAgreementTypeFilter.length > 0}
                     extraContent={

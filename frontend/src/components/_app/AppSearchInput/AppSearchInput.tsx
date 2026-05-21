@@ -128,6 +128,9 @@ const AppSearchInput = ({
           options={options}
           noOptionsText={'Aucun résultat'}
           disabled={disabled}
+          slotProps={{
+            paper: { style: { minWidth: '100%', boxSizing: 'border-box' } }
+          }}
         />
       </div>
       {state && state !== 'default' && (
