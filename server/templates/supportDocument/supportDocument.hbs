@@ -92,52 +92,25 @@
                                   </div>
                                 {{/if}}
                               </div>
-                              {{#if (or ../fullVersion quantity)}}
-                                <div class='{{#if ../fullVersion}}fr-col-12{{else}}fr-col-6{{/if}}'>
-                                  <div class='sample-section-item'>
-                                    <div class='label'>
-                                      Quantité
-                                    </div>
-                                    <div class='value {{#if (isEmpty quantity)}}empty{{/if}}'>
-                                      {{quantity}}
-                                    </div>
-                                  </div>
-                                </div>
-                              {{else}}
-                                <div class='fr-col-4'>
-                                  <div class='sample-section-item'>
-                                    <div class='label'>
-                                      Nombre
-                                    </div>
-                                    <div class='value empty'>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class='fr-col-4'>
-                                  <div class='sample-section-item'>
-                                    <div class='label'>
-                                      Unité de mesure
-                                    </div>
-                                    <div class='value empty'>
-                                    </div>
-                                  </div>
-                                </div>
-                              {{/if}}
-                              <div class="{{#if ../fullVersion}}fr-col-12{{else}}fr-col-4{{/if}}">
+                              {{#*inline "quantityField"}}
                                 <div class='sample-section-item'>
-                                  <div class='label'>
-                                    Numéro de scellé
+                                  <div class='label'>Quantité</div>
+                                  <div class='value {{#if (isEmpty quantity)}}empty{{/if}}'>
+                                    {{quantity}}
                                   </div>
+                                </div>
+                              {{/inline}}
+                              {{#*inline "sealField"}}
+                                <div class='sample-section-item'>
+                                  <div class='label'>Numéro de scellé</div>
                                   <div class='value {{#if (isEmpty sealId)}}empty{{/if}}'>
                                     {{sealId}}
                                   </div>
                                 </div>
-                              </div>
-                              <div class="{{#if ../fullVersion}}fr-col-12{{else}}fr-col-6{{/if}}">
+                              {{/inline}}
+                              {{#*inline "recipientField"}}
                                 <div class='sample-section-item'>
-                                  <div class='label'>
-                                    Destinataire
-                                  </div>
+                                  <div class='label'>Destinataire</div>
                                   {{#if (eq copyNumber 1)}}
                                     <div class='value {{#if (isEmpty laboratory)}}empty{{/if}}'>
                                       {{#if laboratory}}
@@ -151,28 +124,84 @@
                                     </div>
                                   {{/if}}
                                 </div>
-                              </div>
-                              {{#if (eq ../programmingPlanKind 'PPV')}}
-                                <div class="{{#if ../fullVersion}}fr-col-12{{else}}fr-col-6{{/if}}">
-                                  <div class='sample-section-item'>
-                                    <div class='label'>
-                                      Directive 2002/63
-                                    </div>
-                                    {{#if ../fullVersion}}
+                              {{/inline}}
+                              {{#if ../fullVersion}}
+                                {{#if quantity}}
+                                  <div class='fr-col-12'>{{> quantityField}}</div>
+                                {{/if}}
+                                <div class='fr-col-12'>{{> sealField}}</div>
+                                <div class='fr-col-12'>{{> recipientField}}</div>
+                                {{#if (eq ../programmingPlanKind 'PPV')}}
+                                  <div class='fr-col-12'>
+                                    <div class='sample-section-item'>
+                                      <div class='label'>Directive 2002/63</div>
                                       <div class='value {{#if (isEmpty compliance200263)}}empty{{/if}} {{#if (eq compliance200263 true)}}fr-label--success{{/if}} {{#if (eq compliance200263 false)}}fr-label--error{{/if}}'>
                                         {{#if (eq compliance200263 true)}}Respectée{{/if}}
                                         {{#if (eq compliance200263 false)}}Non Respectée{{/if}}
                                       </div>
-                                    {{else}}
+                                    </div>
+                                  </div>
+                                {{/if}}
+                              {{else}}
+                                {{#if (eq ../programmingPlanKind 'PPV')}}
+                                  {{#if quantity}}
+                                    <div class='fr-col-4'>{{> quantityField}}</div>
+                                  {{else}}
+                                    <div class='fr-col-4'>
+                                      <div class='sample-section-item'>
+                                        <div class='label'>Nombre</div>
+                                        <div class='value empty'></div>
+                                      </div>
+                                    </div>
+                                    <div class='fr-col-4'>
+                                      <div class='sample-section-item'>
+                                        <div class='label'>Unité de mesure</div>
+                                        <div class='value empty'></div>
+                                      </div>
+                                    </div>
+                                  {{/if}}
+                                  <div class='fr-col-4'>{{> sealField}}</div>
+                                  <div class='fr-col-6'>{{> recipientField}}</div>
+                                  <div class='fr-col-6'>
+                                    <div class='sample-section-item'>
+                                      <div class='label'>Directive 2002/63</div>
                                       <div class="fr-radio-group">
                                         <input type="radio" {{#if (eq compliance200263 true)}}checked{{/if}}>
                                         <label class="fr-label">Respectée</label>
                                         <input type="radio"{{#if (eq compliance200263 false)}}checked{{/if}}>
                                         <label class="fr-label">Non Respectée</label>
                                       </div>
-                                    {{/if}}
+                                    </div>
                                   </div>
-                                </div>
+                                {{else}}
+                                  <div class='fr-col-8'>
+                                    <div class='fr-grid-row fr-grid-row--gutters'>
+                                      {{#if quantity}}
+                                        <div class='fr-col-6'>{{> quantityField}}</div>
+                                      {{else}}
+                                        <div class='fr-col-3'>
+                                          <div class='sample-section-item'>
+                                            <div class='label'>Nombre</div>
+                                            <div class='value empty'></div>
+                                          </div>
+                                        </div>
+                                        <div class='fr-col-3'>
+                                          <div class='sample-section-item'>
+                                            <div class='label'>Unité de mesure</div>
+                                            <div class='value empty'></div>
+                                          </div>
+                                        </div>
+                                      {{/if}}
+                                      <div class='fr-col-6'>{{> sealField}}</div>
+                                      <div class='fr-col-12'>{{> recipientField}}</div>
+                                    </div>
+                                  </div>
+                                  <div class='fr-col-4'>
+                                    <div class='sample-section-item'>
+                                      <div class='barcode'>{{{barcode}}}</div>
+                                    </div>
+                                  </div>
+                                {{/if}}
                               {{/if}}
                             </div>
                           </div>

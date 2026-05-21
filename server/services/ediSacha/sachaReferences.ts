@@ -28,7 +28,9 @@ const regionByShortName: Record<string, Region> = Object.fromEntries(
   ])
 );
 
-const numeroDAPFromReference = (reference: SampleReference): NumeroDAP => {
+export const numeroDAPFromReference = (
+  reference: SampleReference
+): NumeroDAP => {
   const [shortName, yy, serial] = reference.split('-');
   const region = regionByShortName[shortName];
   if (!region) {

@@ -124,7 +124,7 @@ test(`génère un XML de DAI`, async () => {
   expect(
     await generateXMLDAI(
       {
-        reference: 'ARA-26-00073',
+        reference: 'ARA-25-00073',
         sampledDate: '2025-12-16' as MaestroDate,
         lastUpdatedAt: new Date(1765876056798),
         department: '72',
@@ -230,7 +230,7 @@ test(`génère un XML de DAI`, async () => {
       </Destinataire>
       <DemandeType>
         <DialogueDemandeIntervention>
-          <NumeroDAP>202684000073</NumeroDAP>
+          <NumeroDAP>202584000073</NumeroDAP>
           <SigleContexteIntervention>PR17_2026_RPDA_PVOL</SigleContexteIntervention>
           <DateIntervention>2025-12-16</DateIntervention>
           <DateModification>2025-12-16T10:07:36</DateModification>
@@ -254,7 +254,7 @@ test(`génère un XML de DAI`, async () => {
           <DialogueEchantillonComplet>
             <NumeroEchantillon>1</NumeroEchantillon>
             <SigleMatriceSpecifique>MSCL_VOL</SigleMatriceSpecifique>
-            <NumeroEtiquette>022026840000732025350001</NumeroEtiquette>
+            <NumeroEtiquette>022025840000732025350001</NumeroEtiquette>
             <Commentaire>sealId</Commentaire>
           </DialogueEchantillonComplet>
           <DialogueCommemoratif>

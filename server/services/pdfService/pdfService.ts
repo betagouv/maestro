@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import bwipjs from 'bwip-js';
 import handlebars from 'handlebars';
-import { isNil } from 'lodash-es';
+import { isNil, now } from 'lodash-es';
 import PdfGenerationError from 'maestro-shared/errors/pdfGenerationError';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import UserMissingError from 'maestro-shared/errors/userMissingError';
@@ -50,6 +50,7 @@ import {
 } from '../../templates/templates';
 import config from '../../utils/config';
 import {
+  numeroDAPFromReference,
   referencesFromSample,
   SampleReference
 } from '../ediSacha/sachaReferences';
@@ -174,6 +175,19 @@ const generatePDF = async (template: Template, data: unknown) => {
   }
 };
 
+const getBarcodeSvg = (barcodeReference: string) => {
+  return bwipjs.toSVG({
+    bcid: 'code128',
+    text: barcodeReference,
+    scale: 3,
+    width: 60,
+    height: 15,
+    includetext: true,
+    textxalign: 'center',
+    textsize: 15,
+    textyoffset: -5
+  });
+};
 const generateSamplePDF = async (
   sample: PartialSample,
   sampleItems: PartialSampleItem[],
@@ -240,29 +254,17 @@ const generateSamplePDF = async (
       ? sample.reference
       : getSampleItemReference(sample, itemNumber, copyNumber);
 
+  const sampleReference = SampleReference.parse(sample.reference);
+
   const barcodeReference =
     itemNumber !== undefined &&
     ProgrammingPlanKindWithSachaList.includes(
       sample.programmingPlanKind as ProgrammingPlanKindWithSacha
     )
-      ? referencesFromSample(
-          SampleReference.parse(sample.reference),
-          Date.now(),
-          itemNumber
-        ).numeroEtiquette
+      ? numeroDAPFromReference(sampleReference)
       : reference;
 
-  const barcodeSvg = bwipjs.toSVG({
-    bcid: 'code128',
-    text: barcodeReference,
-    scale: 3,
-    width: 60,
-    height: 15,
-    includetext: true,
-    textxalign: 'center',
-    textsize: 15,
-    textyoffset: -5
-  });
+  const barcodeSvg = getBarcodeSvg(barcodeReference);
 
   const matrixPartField = fieldConfigs.find(
     (c) => c.field.key === 'matrixPart'
@@ -290,7 +292,11 @@ const generateSamplePDF = async (
           : null,
         substanceKind: sampleItem.substanceKind
           ? SubstanceKindLabels[sampleItem.substanceKind]
-          : null
+          : null,
+        barcode: getBarcodeSvg(
+          referencesFromSample(sampleReference, now(), itemNumber ?? 1)
+            .numeroEtiquette
+        )
       })
     ),
     itemNumber,
