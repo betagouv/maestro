@@ -1,4 +1,5 @@
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
+import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { LaboratoryAgreement } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import type React from 'react';
@@ -21,15 +22,23 @@ export const LaboratoryAgreementDetailContext =
 interface Props {
   children: React.ReactNode;
   onSave?: (updated: LaboratoryAgreement) => Promise<void>;
+  onOpen?: () => void;
+  onConceal?: () => void;
 }
 
 export const LaboratoryAgreementDetailProvider = ({
   children,
-  onSave
+  onSave,
+  onOpen,
+  onConceal
 }: Props) => {
   const [laboratoryAgreement, setLaboratoryAgreement] =
     useState<LaboratoryAgreement | null>(null);
   const [laboratory, setLaboratory] = useState<Laboratory | null>(null);
+
+  useIsModalOpen(modal, {
+    onConceal
+  });
 
   const openLaboratoryAgreementDetail: OpenLaboratoryAgreementDetail = (
     agreement,
@@ -37,6 +46,7 @@ export const LaboratoryAgreementDetailProvider = ({
   ) => {
     setLaboratoryAgreement(agreement);
     setLaboratory(lab);
+    onOpen?.();
     modal.open();
   };
 

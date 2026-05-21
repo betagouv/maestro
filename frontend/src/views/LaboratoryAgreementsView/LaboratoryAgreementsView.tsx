@@ -360,8 +360,13 @@ const LaboratoryAgreementsView = () => {
     agreementsModal.open();
   };
 
+  const isDetailModalOpen = useRef(false);
+
   useIsModalOpen(agreementsModal, {
     onConceal: () => {
+      if (isDetailModalOpen.current) {
+        return;
+      }
       setSelectedStringRowKeys([]);
       setModalRowKeys([]);
     }
@@ -467,6 +472,13 @@ const LaboratoryAgreementsView = () => {
 
   return (
     <LaboratoryAgreementDetailProvider
+      onOpen={() => {
+        isDetailModalOpen.current = true;
+      }}
+      onConceal={() => {
+        isDetailModalOpen.current = false;
+        agreementsModal.open();
+      }}
       onSave={async (updated) => {
         await updateAgreements({
           laboratoryId: updated.laboratoryId,
@@ -479,6 +491,28 @@ const LaboratoryAgreementsView = () => {
           detectionAnalysis: updated.detectionAnalysis,
           confirmationAnalysis: updated.confirmationAnalysis
         }).unwrap();
+        setModalAgreements((prev) =>
+          prev.some((a) => a.laboratoryId === updated.laboratoryId)
+            ? prev.map((a) =>
+                a.laboratoryId === updated.laboratoryId
+                  ? {
+                      laboratoryId: updated.laboratoryId,
+                      referenceLaboratory: updated.referenceLaboratory,
+                      detectionAnalysis: updated.detectionAnalysis,
+                      confirmationAnalysis: updated.confirmationAnalysis
+                    }
+                  : a
+              )
+            : [
+                ...prev,
+                {
+                  laboratoryId: updated.laboratoryId,
+                  referenceLaboratory: updated.referenceLaboratory,
+                  detectionAnalysis: updated.detectionAnalysis,
+                  confirmationAnalysis: updated.confirmationAnalysis
+                }
+              ]
+        );
       }}
     >
       <section id="top" className={clsx(cx('fr-container'), 'main-section')}>

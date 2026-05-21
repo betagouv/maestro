@@ -1,6 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Input from '@codegouvfr/react-dsfr/Input';
 import type { ModalProps } from '@codegouvfr/react-dsfr/Modal';
-import { SearchBar } from '@codegouvfr/react-dsfr/SearchBar';
+import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import clsx from 'clsx';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type {
@@ -68,6 +69,10 @@ const LaboratoryAgreementsModal = ({
   >({});
   const [search, setSearch] = useState('');
 
+  useIsModalOpen(modal, {
+    onConceal: () => setSearch('')
+  });
+
   useEffect(() => {
     const initial = Object.fromEntries(
       agreements.map((a) => [
@@ -113,6 +118,7 @@ const LaboratoryAgreementsModal = ({
         );
       })
     );
+    setSearch('');
     modal.close();
   };
 
@@ -172,10 +178,15 @@ const LaboratoryAgreementsModal = ({
                 })('plan sélectionné')
               )}
             </p>
-            <SearchBar
+            <Input
               label="Rechercher un laboratoire"
-              defaultValue={search}
-              onButtonClick={(value) => setSearch(value)}
+              hideLabel
+              iconId="fr-icon-search-line"
+              nativeInputProps={{
+                placeholder: 'Rechercher un laboratoire',
+                value: search,
+                onChange: (e) => setSearch(e.target.value)
+              }}
             />
           </div>
           {filteredLaboratories.map((laboratory, index) => {

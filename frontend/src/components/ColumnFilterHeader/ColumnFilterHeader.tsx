@@ -107,6 +107,7 @@ const ColumnFilterHeader = <T extends string>({
             <Input
               label=""
               hideLabel
+              iconId="fr-icon-search-line"
               nativeInputProps={{
                 placeholder: 'Rechercher...',
                 value: search,
