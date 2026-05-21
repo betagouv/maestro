@@ -47,6 +47,10 @@ export const LaboratoryAgreementDetailProvider = ({
     }
   });
 
+  useIsModalOpen(modal, {
+    onConceal
+  });
+
   const openLaboratoryAgreementDetail: OpenLaboratoryAgreementDetail = (
     agreement,
     lab,
