@@ -18,7 +18,9 @@ import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential'
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import {
+  ProgrammingPlanKindLabels,
   type ProgrammingPlanKindWithSacha,
   ProgrammingPlanKindWithSachaList
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
@@ -353,7 +355,8 @@ const generateSamplePDF = async (
         (sampleItem) => sampleItem.recipientKind === 'Sampler'
       ) || sampleItems.length === 0,
     sampleDocuments,
-    barcodeSvg
+    barcodeSvg,
+    plan: `${ProgrammingPlanDomainLabels[programmingPlan.domain]} / ${ProgrammingPlanKindLabels[sample.programmingPlanKind]}`
   });
 };
 

@@ -101,6 +101,18 @@
           {{#if (eq fullVersion false)}}
           </div>
           </div>
+          {{#unless (eq programmingPlanKind 'PPV')}}
+            <div class='fr-col-6'>
+              <div class='sample-section-item'>
+                <div class='label'>
+                  Plan
+                </div>
+                <div class='value'>
+                  {{plan}}
+                </div>
+              </div>
+            </div>
+          {{/unless}}
           {{/if}}
           {{#if fullVersion}}
             <div class='fr-col-12'>
