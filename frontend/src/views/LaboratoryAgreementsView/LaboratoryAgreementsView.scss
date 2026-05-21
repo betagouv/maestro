@@ -123,6 +123,26 @@
     }
   }
 
+  @keyframes row-poof {
+    0% {
+      opacity: 1;
+      transform: scaleY(1);
+      max-height: 200px;
+    }
+    100% {
+      opacity: 0;
+      transform: scaleY(0);
+      max-height: 0;
+    }
+  }
+
+  tr.row-animating-out {
+    animation: row-poof 0.3s ease-in forwards;
+    pointer-events: none;
+    transform-origin: top;
+    overflow: hidden;
+  }
+
   .row-reference {
     display: flex;
     align-items: center;

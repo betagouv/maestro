@@ -92,6 +92,8 @@ const LaboratoryAgreementsView = () => {
     []
   );
   const [showWithoutLab, setShowWithoutLab] = useState(false);
+  const [animatingRowKeys, setAnimatingRowKeys] = useState<string[]>([]);
+  const [pendingCheckRowKeys, setPendingCheckRowKeys] = useState<string[]>([]);
 
   const { data: agreements = [] } = apiClient.useFindLaboratoryAgreementsQuery(
     { year },
@@ -467,6 +469,21 @@ const LaboratoryAgreementsView = () => {
     });
   }, [expandedRowKeys, filteredRows, checks]);
 
+  useLayoutEffect(() => {
+    const table = tableContainerRef.current?.querySelector('table');
+    if (!table) {
+      return;
+    }
+    Array.from(table.querySelectorAll('tbody tr')).forEach((tr) => {
+      const keyEl = tr.querySelector<HTMLElement>('[data-row-key]');
+      const rowKey = keyEl?.dataset.rowKey;
+      tr.classList.toggle(
+        'row-animating-out',
+        !!rowKey && animatingRowKeys.includes(rowKey)
+      );
+    });
+  }, [animatingRowKeys, pendingCheckRowKeys]);
+
   const rowsWithLab = rows.filter((r) =>
     r.laboratories.some(
       (lab) =>
@@ -769,6 +786,7 @@ const LaboratoryAgreementsView = () => {
                 const mainRow = [
                   <div
                     key={`select-${rowKey}`}
+                    data-row-key={rowKey}
                     className={clsx('selectable-cell', {
                       'row-expanded': isExpanded
                     })}
@@ -963,17 +981,52 @@ const LaboratoryAgreementsView = () => {
                         {
                           label: '',
                           nativeInputProps: {
-                            checked: isRowChecked(row),
+                            checked:
+                              isRowChecked(row) ||
+                              pendingCheckRowKeys.includes(rowKey),
                             title: isRowChecked(row)
                               ? 'Marquer comme non vérifié'
                               : 'Marquer comme vérifié',
-                            onChange: () =>
-                              updateCheck({
-                                programmingPlanId: row.programmingPlanId,
-                                programmingPlanKind: row.programmingPlanKind,
-                                substanceKind: row.substanceKind,
-                                checked: !isRowChecked(row)
-                              })
+                            onChange: () => {
+                              if (pendingCheckRowKeys.includes(rowKey)) {
+                                return;
+                              }
+                              const willCheck = !isRowChecked(row);
+                              if (willCheck) {
+                                setPendingCheckRowKeys((prev) => [
+                                  ...prev,
+                                  rowKey
+                                ]);
+                                setTimeout(() => {
+                                  setAnimatingRowKeys((prev) => [
+                                    ...prev,
+                                    rowKey
+                                  ]);
+                                }, 700);
+                                setTimeout(() => {
+                                  updateCheck({
+                                    programmingPlanId: row.programmingPlanId,
+                                    programmingPlanKind:
+                                      row.programmingPlanKind,
+                                    substanceKind: row.substanceKind,
+                                    checked: true
+                                  });
+                                  setPendingCheckRowKeys((prev) =>
+                                    prev.filter((k) => k !== rowKey)
+                                  );
+                                  setAnimatingRowKeys((prev) =>
+                                    prev.filter((k) => k !== rowKey)
+                                  );
+                                }, 1000);
+                              } else {
+                                updateCheck({
+                                  programmingPlanId: row.programmingPlanId,
+                                  programmingPlanKind: row.programmingPlanKind,
+                                  substanceKind: row.substanceKind,
+                                  checked: false
+                                });
+                              }
+                            }
                           }
                         }
                       ]}
