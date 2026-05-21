@@ -3,6 +3,8 @@ import type { Notice } from 'maestro-shared/schema/Notice/Notice';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   AdminFixture,
+  LaboratoryOfficeUserFixture,
+  LaboratoryUserFixture,
   NationalCoordinator,
   NationalObserver,
   RegionalObserver
@@ -87,6 +89,8 @@ describe('Notices router', () => {
       await forbiddenRequestTest(RegionalObserver);
       await forbiddenRequestTest(NationalObserver);
       await forbiddenRequestTest(NationalCoordinator);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should update the notice', async () => {

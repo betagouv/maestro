@@ -27,6 +27,13 @@ export const seed = async () => {
       roles: ['LaboratoryUser'],
       laboratoryId: CER30Id
     },
+    {
+      id: uuidv4(),
+      email: 'bureau.laboratoires@maestro.beta.gouv.fr',
+      name: `Bureau des laboratoires - ${fakerFR.person.fullName()}`,
+      programmingPlanKinds: [],
+      roles: ['LaboratoryOffice']
+    },
 
     //PPV
     {

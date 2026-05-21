@@ -37,6 +37,8 @@ import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
   DepartmentalCoordinator,
+  LaboratoryOfficeUserFixture,
+  LaboratoryUserFixture,
   NationalCoordinator,
   NationalObserver,
   Region2Fixture,
@@ -532,6 +534,8 @@ describe('Local prescriptions router', () => {
       await forbiddenRequestTest(RegionalCoordinator);
       await forbiddenRequestTest(NationalObserver);
       await forbiddenRequestTest(AdminFixture);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should fail if the programming plan is closed', async () => {
@@ -1216,6 +1220,8 @@ describe('Local prescriptions router', () => {
       await forbiddenRequestTest(NationalObserver);
       await forbiddenRequestTest(NationalCoordinator);
       await forbiddenRequestTest(AdminFixture);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should fail if the programming plan is closed', async () => {
@@ -1650,6 +1656,8 @@ describe('Local prescriptions router', () => {
       await forbiddenRequestTest(RegionalObserver);
       await forbiddenRequestTest(NationalObserver);
       await forbiddenRequestTest(AdminFixture);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should fail if the prescription does not belong to the user region', async () => {

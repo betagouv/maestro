@@ -19,6 +19,7 @@ import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programm
 import {
   AdminFixture,
   DepartmentalCoordinator,
+  LaboratoryOfficeUserFixture,
   LaboratoryUserFixture,
   NationalCoordinator,
   NationalObserver,
@@ -98,6 +99,8 @@ describe('Laboratory router', () => {
       await forbiddenRequestTest(Sampler1Fixture);
       await forbiddenRequestTest(NationalCoordinator);
       await forbiddenRequestTest(RegionalCoordinator);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should return the full laboratory config for an admin', async () => {
@@ -153,6 +156,7 @@ describe('Laboratory router', () => {
       await forbiddenRequestTest(Sampler1Fixture);
       await forbiddenRequestTest(NationalCoordinator);
       await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should accept a valid SACHA EMAIL config', async () => {
@@ -316,6 +320,8 @@ describe('Laboratory router', () => {
       await forbiddenRequestTest(RegionalCoordinator);
       await forbiddenRequestTest(RegionalObserver);
       await forbiddenRequestTest(NationalObserver);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should get a valid laboratory id', async () => {

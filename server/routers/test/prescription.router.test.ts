@@ -13,6 +13,8 @@ import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures'
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
+  LaboratoryOfficeUserFixture,
+  LaboratoryUserFixture,
   NationalCoordinator,
   NationalObserver,
   RegionalCoordinator,
@@ -301,6 +303,8 @@ describe('Prescriptions router', () => {
       await forbiddenRequestTest(RegionalCoordinator);
       await forbiddenRequestTest(NationalObserver);
       await forbiddenRequestTest(AdminFixture);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should fail if the programming plan is closed', async () => {
@@ -412,6 +416,8 @@ describe('Prescriptions router', () => {
       await forbiddenRequestTest(RegionalCoordinator);
       await forbiddenRequestTest(NationalObserver);
       await forbiddenRequestTest(AdminFixture);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should fail if the programming plan is closed', async () => {
@@ -506,6 +512,8 @@ describe('Prescriptions router', () => {
       await forbiddenRequestTest(RegionalCoordinator);
       await forbiddenRequestTest(NationalObserver);
       await forbiddenRequestTest(AdminFixture);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should fail if the programming plan is closed', async () => {
