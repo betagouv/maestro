@@ -331,12 +331,7 @@ const LaboratoryAgreementsView = () => {
     )
   ).length;
   const rowsWithoutLab = rows.length - rowsWithLab;
-
   if (!year) return null;
-
-  if (!year) {
-    return null;
-  }
 
   return (
     <LaboratoryAgreementDetailProvider
