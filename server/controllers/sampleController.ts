@@ -498,13 +498,13 @@ export const sampleRouter = {
         isProgrammingPlanSample(sampleUpdate) &&
         !isNil(sampleUpdate.context) &&
         !isNil(sampleUpdate.matrixKind) &&
-        !isNil(sampleUpdate.stage)
+        !isNil(sampleUpdate.matrix)
           ? await prescriptionRepository
               .findMany({
                 programmingPlanId: sampleUpdate.programmingPlanId,
                 contexts: [sampleUpdate.context as ProgrammingPlanContext],
                 matrixKind: sampleUpdate.matrixKind,
-                stage: sampleUpdate.stage
+                matrix: sampleUpdate.matrix
               })
               .then((_) => _?.[0])
           : undefined;

@@ -15,6 +15,7 @@ export const FindPrescriptionOptions = z.object({
   contexts: z.array(ProgrammingPlanContext).nullish(),
   matrixKind: z.string().nullish(),
   stage: Stage.nullish(),
+  matrix: z.string().nullish(),
   includes: z.array(PrescriptionOptionsInclude).nullish()
 });
 
