@@ -43,7 +43,7 @@ export const laboratoriesRoutes = {
     },
     put: {
       body: LaboratoryConfigUpdate,
-      response: z.null(),
+      response: z.void(),
       permissions: ['administrationMaestro']
     }
   },
