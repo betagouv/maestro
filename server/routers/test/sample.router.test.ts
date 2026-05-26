@@ -12,6 +12,10 @@ import {
 } from 'maestro-shared/test/companyFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import {
+  genPrescription,
+  PrescriptionFixture
+} from 'maestro-shared/test/prescriptionFixtures';
+import {
   DAOAInProgressProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
@@ -44,6 +48,7 @@ import { afterEach, beforeAll, describe, expect, test } from 'vitest';
 import { departmentsSeed } from '../../database/seeds/departments/departmentsSeed';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import { kysely } from '../../repositories/kysely';
+import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
   formatPartialSample,
@@ -583,9 +588,9 @@ describe('Sample router', () => {
             matrix: validBody.matrix,
             stage: validBody.stage,
             items: validBody.items,
-            prescriptionId: null,
-            monoSubstances: null,
-            multiSubstances: null
+            prescriptionId: PrescriptionFixture.id,
+            monoSubstances: [],
+            multiSubstances: []
           })
         );
 
@@ -603,6 +608,73 @@ describe('Sample router', () => {
       };
 
       await successRequestTest(Sampler1Fixture);
+    });
+
+    test('should derive prescriptionId when a prescription has a matching specific matrix value', async () => {
+      const specificMatrix = 'A00GZ';
+      const prescription = genPrescription({
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+        programmingPlanKind: 'PPV',
+        context: PrescriptionFixture.context,
+        matrixKind: PrescriptionFixture.matrixKind,
+        matrix: specificMatrix
+      });
+      await Prescriptions().insert(prescription);
+
+      const sampleId = uuidv4();
+      const sample = genCreatedPartialSample({
+        id: sampleId,
+        sampler: Sampler1Fixture,
+        region: Sample11Fixture.region,
+        department: Sample11Fixture.department,
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+        context: PrescriptionFixture.context,
+        matrixKind: PrescriptionFixture.matrixKind,
+        matrix: specificMatrix,
+        company: CompanyFixture
+      });
+      await Samples().insert(formatPartialSample(sample));
+
+      const res = await request(app)
+        .put(testRoute(sampleId))
+        .send(sample)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject({
+        prescriptionId: prescription.id
+      });
+
+      await Samples().where({ id: sampleId }).delete();
+      await Prescriptions().where({ id: prescription.id }).delete();
+    });
+
+    test('should derive prescriptionId from a catch-all prescription (matrix=null) when sample has a specific matrix', async () => {
+      const sampleId = uuidv4();
+      const sample = genCreatedPartialSample({
+        id: sampleId,
+        sampler: Sampler1Fixture,
+        region: Sample11Fixture.region,
+        department: Sample11Fixture.department,
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+        context: PrescriptionFixture.context,
+        matrixKind: PrescriptionFixture.matrixKind,
+        matrix: 'A00GZ',
+        company: CompanyFixture
+      });
+      await Samples().insert(formatPartialSample(sample));
+
+      const res = await request(app)
+        .put(testRoute(sampleId))
+        .send(sample)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject({
+        prescriptionId: PrescriptionFixture.id,
+        monoSubstances: [],
+        multiSubstances: []
+      });
     });
 
     test('should be forbidden to send a sample with sampleAt in the future', async () => {

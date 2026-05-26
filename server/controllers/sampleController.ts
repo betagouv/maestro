@@ -497,16 +497,18 @@ export const sampleRouter = {
       const prescription =
         isProgrammingPlanSample(sampleUpdate) &&
         !isNil(sampleUpdate.context) &&
-        !isNil(sampleUpdate.matrixKind) &&
-        !isNil(sampleUpdate.matrix)
+        !isNil(sampleUpdate.matrixKind)
           ? await prescriptionRepository
               .findMany({
                 programmingPlanId: sampleUpdate.programmingPlanId,
                 contexts: [sampleUpdate.context as ProgrammingPlanContext],
-                matrixKind: sampleUpdate.matrixKind,
-                matrix: sampleUpdate.matrix
+                matrixKind: sampleUpdate.matrixKind
               })
-              .then((_) => _?.[0])
+              .then(
+                (prescriptions) =>
+                  prescriptions.find((p) => p.matrix === sampleUpdate.matrix) ??
+                  prescriptions.find((p) => isNil(p.matrix))
+              )
           : undefined;
 
       const prescriptionSubstances = prescription
