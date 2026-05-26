@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1053.0",
-    "@aws-sdk/s3-request-presigner": "^3.1045.0",
+    "@aws-sdk/s3-request-presigner": "^3.1053.0",
     "@e965/xlsx": "^0.20.3",
     "@gouvfr/dsfr": "^1.14.4",
     "@sentry/node": "^10.53.1",
