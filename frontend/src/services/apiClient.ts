@@ -7,6 +7,7 @@ import * as authApi from './auth.service';
 import * as companyApi from './company.service';
 import * as documentApi from './document.service';
 import * as laboratoryApi from './laboratory.service';
+import * as laboratoryResidueMappingApi from './laboratoryResidueMapping.service';
 import * as localPrescriptionApi from './localPrescription.service';
 import * as mascaradeApi from './mascarade.service';
 import * as noticeApi from './notice.service';
@@ -28,6 +29,7 @@ export type ApiClient = typeof analysisApi &
   typeof companyApi &
   typeof documentApi &
   typeof laboratoryApi &
+  typeof laboratoryResidueMappingApi &
   typeof mascaradeApi &
   typeof notificationApi &
   typeof prescriptionApi &
@@ -50,6 +52,7 @@ export const apiClient: ApiClient = {
   ...companyApi,
   ...documentApi,
   ...laboratoryApi,
+  ...laboratoryResidueMappingApi,
   ...mascaradeApi,
   ...notificationApi,
   ...prescriptionApi,

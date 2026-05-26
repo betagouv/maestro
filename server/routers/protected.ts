@@ -8,6 +8,7 @@ import { authProtectedRouter } from '../controllers/authController';
 import { companiesRouter } from '../controllers/companyController';
 import { documentsRouter } from '../controllers/documentController';
 import { laboratoriesRouter } from '../controllers/laboratoryController';
+import { laboratoryResidueMappingRouter } from '../controllers/laboratoryResidueMappingController';
 import { localPrescriptionsRouter } from '../controllers/localPrescriptionController';
 import { mascaradeRouter } from '../controllers/mascaradeController';
 import { noticesProtectedRouter } from '../controllers/noticeController';
@@ -37,6 +38,7 @@ const router = {
   ...companiesRouter,
   ...documentsRouter,
   ...laboratoriesRouter,
+  ...laboratoryResidueMappingRouter,
   ...mascaradeRouter,
   ...noticesProtectedRouter,
   ...notificationsRouter,
