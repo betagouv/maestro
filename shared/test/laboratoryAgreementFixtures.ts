@@ -7,15 +7,15 @@ import { AdminFixture } from './userFixtures';
 
 export const DAOALaboratoryAgreementFixture = {
   programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
-  programmingPlanKind: 'DAOA_VOLAILLE' as const,
+  programmingPlanKind: 'DAOA_VOLAILLE',
   laboratoryId: CAP29Id,
-  substanceKind: 'Multi' as const
+  substanceKind: 'Multi'
 };
 
 export const LaboratoryAgreementCheckFixture = {
   programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-  programmingPlanKind: 'PPV' as const,
-  substanceKind: 'Any' as const
+  programmingPlanKind: 'PPV',
+  substanceKind: 'Any'
 };
 
 export const LaboratoryAgreementCheckSeedFixture = {

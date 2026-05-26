@@ -28,7 +28,7 @@ export const laboratoriesRoutes = {
     get: {
       query: FindLaboratoryAgreementsOptions,
       response: z.array(LaboratoryAgreement),
-      permissions: ['manageLaboratoryAgreements'] as const
+      permissions: ['manageLaboratoryAgreements']
     }
   },
   '/laboratories/agreements/checks': {
@@ -36,19 +36,19 @@ export const laboratoriesRoutes = {
     get: {
       query: FindLaboratoryAgreementsOptions,
       response: z.array(LaboratoryAgreementRowKey),
-      permissions: ['manageLaboratoryAgreements'] as const
+      permissions: ['manageLaboratoryAgreements']
     },
     put: {
       body: LaboratoryAgreementCheckUpdate,
       response: z.array(LaboratoryAgreementRowKey),
-      permissions: ['manageLaboratoryAgreements'] as const
+      permissions: ['manageLaboratoryAgreements']
     }
   },
   '/laboratories/agreements/export': {
     params: undefined,
     get: {
       query: FindLaboratoryAgreementsOptions,
-      permissions: ['manageLaboratoryAgreements'] as const,
+      permissions: ['manageLaboratoryAgreements'],
       response: z.custom<Buffer>()
     }
   },
