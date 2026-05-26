@@ -224,6 +224,9 @@ const include = (opts?: Pick<FindLocalPrescriptionOptions, 'includes'>) => {
             ['NotAdmissible']
           ),
           db.raw(
+            `count(distinct(${samplesTable}.id)) filter(where ${samplesTable}.compliance = 'Compliant') as compliant_sample_count`
+          ),
+          db.raw(
             `count(distinct(${samplesTable}.id)) filter(where ${samplesTable}.compliance in ('NonCompliant', 'NonCompliantAndHarmful')) as non_compliant_sample_count`
           )
         )

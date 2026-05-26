@@ -1,3 +1,4 @@
+import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
@@ -93,12 +94,30 @@ const ProgrammingPlanCard = ({
               alignItems: 'center'
             }}
           >
-            <span>
-              {sumBy(regionalPrescriptions, 'nonCompliantSampleCount')}{' '}
+            <Badge severity="success" className={'fr-mt-2w'}>
+              {pluralize(sumBy(regionalPrescriptions, 'compliantSampleCount'), {
+                preserveCount: true
+              })('prélèvement conforme')}
+            </Badge>
+          </div>
+        )}
+        {(sumBy(regionalPrescriptions, 'nonCompliantSampleCount') ?? 0) > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <Badge severity="error" className={'fr-mt-2w'}>
               {pluralize(
-                sumBy(regionalPrescriptions, 'nonCompliantSampleCount')
+                sumBy(regionalPrescriptions, 'nonCompliantSampleCount'),
+                {
+                  preserveCount: true,
+                  ignores: ['non']
+                }
               )('prélèvement non conforme')}
-            </span>
+            </Badge>
           </div>
         )}
         <hr className={cx('fr-mt-4w', 'fr-mb-2w')} />
