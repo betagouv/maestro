@@ -333,7 +333,7 @@ const SampleListView = () => {
             >
               {
                 <SampleListHeader
-                  findSampleOptions={findSampleOptions}
+                  findSampleOptionsWithYear={findSampleOptionsWithYear}
                   changeFilter={changeFilter}
                   samplesCount={samplesCount?.count}
                 />
