@@ -353,16 +353,20 @@ const LaboratoryAgreementsView = () => {
     const firstRow = selectedRows[0];
     setModalAgreements(firstRow?.laboratories ?? []);
     setModalRowKeys(selectedRows);
+    isAgreementsModalOpen.current = true;
     agreementsModal.open();
   };
 
   const handleOpenModalForRow = (row: (typeof filteredRows)[number]) => {
     setModalAgreements(row.laboratories);
     setModalRowKeys([row]);
+    isAgreementsModalOpen.current = true;
     agreementsModal.open();
   };
 
   const isDetailModalOpen = useRef(false);
+  const detailOpenedFromAgreementsModal = useRef(false);
+  const isAgreementsModalOpen = useRef(false);
 
   useEffect(() => {
     setSelectedStringRowKeys([]);
@@ -377,6 +381,7 @@ const LaboratoryAgreementsView = () => {
 
   useIsModalOpen(agreementsModal, {
     onConceal: () => {
+      isAgreementsModalOpen.current = false;
       if (isDetailModalOpen.current) {
         return;
       }
@@ -502,10 +507,14 @@ const LaboratoryAgreementsView = () => {
     <LaboratoryAgreementDetailProvider
       onOpen={() => {
         isDetailModalOpen.current = true;
+        detailOpenedFromAgreementsModal.current = isAgreementsModalOpen.current;
       }}
       onConceal={() => {
         isDetailModalOpen.current = false;
-        agreementsModal.open();
+        if (detailOpenedFromAgreementsModal.current) {
+          isAgreementsModalOpen.current = true;
+          agreementsModal.open();
+        }
       }}
       onSave={async (updated) => {
         await updateAgreements({
