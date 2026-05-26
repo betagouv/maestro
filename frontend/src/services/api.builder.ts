@@ -72,7 +72,7 @@ function buildTransformResponse(path: string, method: string) {
   if (!responseSchema || typeof responseSchema.parse !== 'function') {
     return (raw: unknown) => raw;
   }
-  return (raw: unknown) => responseSchema.parse(raw);
+  return (raw: unknown) => responseSchema.parse(raw ?? undefined);
 }
 
 // --- Typed wrappers ---
