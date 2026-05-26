@@ -11,13 +11,13 @@ import { getSampleListExportURL } from 'src/services/sample.service';
 import samplesSlice from 'src/store/reducers/samplesSlice';
 
 interface Props {
-  findSampleOptions: Partial<FindSampleOptions>;
+  findSampleOptionsWithYear: Partial<FindSampleOptions>;
   changeFilter: (filters: Partial<FindSampleOptions>) => void;
   samplesCount?: number;
 }
 
 const SampleListHeader = ({
-  findSampleOptions,
+  findSampleOptionsWithYear,
   changeFilter,
   samplesCount
 }: Props) => {
@@ -45,7 +45,7 @@ const SampleListHeader = ({
           nativeInputProps={{
             type: 'search',
             placeholder: 'N° de prélèvement',
-            value: findSampleOptions.reference ?? '',
+            value: findSampleOptionsWithYear.reference ?? '',
             autoFocus: true,
             onChange: changeReference
           }}
@@ -85,7 +85,7 @@ const SampleListHeader = ({
             onClick={() =>
               window.open(
                 getSampleListExportURL({
-                  ...findSampleOptions,
+                  ...findSampleOptionsWithYear,
                   perPage: undefined,
                   page: undefined
                 })
@@ -106,7 +106,7 @@ const SampleListHeader = ({
           nativeInputProps={{
             type: 'search',
             placeholder: 'N° de prélèvement',
-            value: findSampleOptions.reference ?? '',
+            value: findSampleOptionsWithYear.reference ?? '',
             onChange: changeReference
           }}
         />
