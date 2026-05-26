@@ -52,27 +52,6 @@ export const laboratoriesRoutes = {
       response: z.custom<Buffer>()
     }
   },
-  '/laboratories/agreements/checks': {
-    params: undefined,
-    get: {
-      query: FindLaboratoryAgreementsOptions,
-      response: z.array(LaboratoryAgreementRowKey),
-      permissions: ['manageLaboratoryAgreements'] as const
-    },
-    put: {
-      body: LaboratoryAgreementCheckUpdate,
-      response: z.array(LaboratoryAgreementRowKey),
-      permissions: ['manageLaboratoryAgreements'] as const
-    }
-  },
-  '/laboratories/agreements/export': {
-    params: undefined,
-    get: {
-      query: FindLaboratoryAgreementsOptions,
-      permissions: ['manageLaboratoryAgreements'] as const,
-      response: z.custom<Buffer>()
-    }
-  },
   '/laboratories': {
     params: undefined,
     get: {
