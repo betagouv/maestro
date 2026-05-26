@@ -9,11 +9,11 @@ export const SampleReference = z
   .brand('SampleReference');
 export type SampleReference = z.infer<typeof SampleReference>;
 
-export const NumeroDAP = z
+const NumeroDAP = z
   .string()
   .regex(/^\d{12}$/)
   .brand('NumeroDAP');
-export type NumeroDAP = z.infer<typeof NumeroDAP>;
+type NumeroDAP = z.infer<typeof NumeroDAP>;
 
 export const NumeroEtiquette = z
   .string()
