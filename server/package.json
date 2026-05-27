@@ -57,7 +57,7 @@
     "nodemailer": "^8.0.7",
     "openid-client": "^6.8.4",
     "pdf-lib": "^1.17.1",
-    "pg": "^8.20.0",
+    "pg": "^8.21.0",
     "puppeteer-core": "^25.0.4",
     "sanitize-html": "^2.17.4",
     "ssh2-sftp-client": "^12.1.1"
