@@ -13,6 +13,6 @@ export const ProgrammingPlanDomainLabels: Record<
   ProgrammingPlanDomain,
   string
 > = {
-  PESTICIDE_RESIDUE: 'Résidus de pesticides',
+  PESTICIDE_RESIDUE: 'Résidus de pesticides DAOA',
   CHEMICAL_CONTAMINANT: 'Contaminants chimiques'
 };

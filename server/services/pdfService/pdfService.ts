@@ -21,6 +21,7 @@ import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import {
   ProgrammingPlanKindLabels,
+  ProgrammingPlanKindReference,
   type ProgrammingPlanKindWithSacha,
   ProgrammingPlanKindWithSachaList
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
@@ -272,6 +273,8 @@ const generateSamplePDF = async (
     (c) => c.field.key === 'matrixPart'
   )?.field;
 
+  const planLabel = `${ProgrammingPlanKindReference[sample.programmingPlanKind]} / ${ProgrammingPlanDomainLabels[programmingPlan.domain]} / ${programmingPlan.substanceKinds.map((s) => SubstanceKindLabels[s]).join(' ')} / ${ProgrammingPlanKindLabels[sample.programmingPlanKind]}`;
+
   return generatePDF(template, {
     fullVersion,
     ...sample,
@@ -356,7 +359,7 @@ const generateSamplePDF = async (
       ) || sampleItems.length === 0,
     sampleDocuments,
     barcodeSvg,
-    plan: `${ProgrammingPlanDomainLabels[programmingPlan.domain]} / ${ProgrammingPlanKindLabels[sample.programmingPlanKind]}`
+    plan: planLabel
   });
 };
 
