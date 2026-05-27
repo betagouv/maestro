@@ -54,7 +54,7 @@ const ContextStepSummary = ({
           )}
         </div>
       </div>
-      {isCreatedPartialSample(sample) && (
+      {mode === 'tab' && isCreatedPartialSample(sample) && (
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-calendar-event-line')}></div>
           <div>
