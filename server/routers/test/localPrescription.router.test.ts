@@ -378,7 +378,8 @@ describe('Local prescriptions router', () => {
             : 0,
           inProgressSampleCount: 0,
           notAdmissibleSampleCount: 0,
-          nonCompliantSampleCount: 0
+          nonCompliantSampleCount: 0,
+          compliantSampleCount: 0
         }))
       );
     });
