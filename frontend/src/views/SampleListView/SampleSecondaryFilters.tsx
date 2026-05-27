@@ -49,7 +49,7 @@ const SampleSecondaryFilters = ({
           />
         </div>
       )}
-      {hasRegionalView && (
+      {(hasRegionalView || hasNationalView) && (
         <div className={cx('fr-col-12', 'fr-col-md-3')}>
           <DepartmentsSelect
             filters={filters}
