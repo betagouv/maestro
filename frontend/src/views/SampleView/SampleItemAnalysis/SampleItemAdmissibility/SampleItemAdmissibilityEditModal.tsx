@@ -1,4 +1,5 @@
 import type { createModal } from '@codegouvfr/react-dsfr/Modal';
+import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import type React from 'react';
 import { type FunctionComponent, useContext, useRef } from 'react';
@@ -21,6 +22,8 @@ export const SampleItemAdmissibilityEditModal: FunctionComponent<Props> = ({
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
+
+  const isOpen = useIsModalOpen(modal);
 
   const admissibilityForm = useRef<FormRefinement>(null);
 
@@ -67,10 +70,12 @@ export const SampleItemAdmissibilityEditModal: FunctionComponent<Props> = ({
         }
       ]}
     >
-      <SampleItemAdmissibilityForm
-        sampleItem={sampleItem}
-        setForm={(f) => (admissibilityForm.current = f)}
-      />
+      {isOpen && (
+        <SampleItemAdmissibilityForm
+          sampleItem={sampleItem}
+          setForm={(f) => (admissibilityForm.current = f)}
+        />
+      )}
     </modal.Component>
   );
 };
