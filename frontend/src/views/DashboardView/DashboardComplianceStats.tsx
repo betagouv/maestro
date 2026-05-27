@@ -169,7 +169,6 @@ const DashboardComplianceStats: FunctionComponent<Props> = ({
                           ? 'fr-icon-arrow-up-s-line'
                           : 'fr-icon-arrow-down-s-line'
                       }
-                      iconPosition="right"
                       onClick={() =>
                         setExpandedMatrixKinds((prev) =>
                           prev.includes(matrixKindKey)
