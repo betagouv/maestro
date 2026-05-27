@@ -6,10 +6,7 @@ import type {
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
-import {
-  getSampleItemReference,
-  type SampleItem
-} from 'maestro-shared/schema/Sample/SampleItem';
+import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import type { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import type { SachaConf } from '../../repositories/kysely.type';
@@ -18,6 +15,7 @@ import { sachaConfRepository } from '../../repositories/sachaConfRepository';
 import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 import type { DaiSentResult } from '../daiSendingService';
 import { documentService } from '../documentService';
+import { referencesFromSample, SampleReference } from './sachaReferences';
 import {
   type NotPPVMatrix,
   SigleContexteIntervention,
@@ -25,7 +23,7 @@ import {
   SiglePlanAnalyse
 } from './sachaReferential';
 import { sendSachaFile } from './sachaSender';
-import { generateXML, getNumeroDAP, type XmlFile } from './sachaToXML';
+import { generateXML, type XmlFile } from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
 
 export const generateXMLDAI = (
@@ -76,12 +74,18 @@ export const generateXMLDAI = (
     sachaCommemoratifRecord
   );
 
+  const { numeroDAP, numeroEtiquette } = referencesFromSample(
+    SampleReference.parse(sample.reference),
+    dateNow,
+    sampleItem.itemNumber
+  );
+
   return generateXML(
     'DA01',
     {
       DemandeType: {
         DialogueDemandeIntervention: {
-          NumeroDAP: getNumeroDAP(sample, sampleItem),
+          NumeroDAP: Number(numeroDAP),
           SigleContexteIntervention:
             SigleContexteIntervention[programmingPlanKind],
           DateIntervention: sample.sampledDate,
@@ -111,11 +115,7 @@ export const generateXMLDAI = (
             DialogueEchantillonComplet: {
               NumeroEchantillon: sampleItem.itemNumber,
               SigleMatriceSpecifique: SigleMatrix[matrix as NotPPVMatrix],
-              NumeroEtiquette: getSampleItemReference(
-                sample,
-                sampleItem.itemNumber,
-                sampleItem.copyNumber
-              ),
+              NumeroEtiquette: numeroEtiquette,
               Commentaire: sampleItem.sealId ?? ''
             },
             DialogueCommemoratif: commemoratifs.map((c) => {
