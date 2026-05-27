@@ -38,9 +38,9 @@ import SampleItemCopiesOverview from './SampleItemCopiesOverview';
 import './SampleOverview.scss';
 import { SampleSteps } from 'maestro-shared/schema/Sample/SampleStep';
 
-interface Props {
+type Props = {
   sample: SampleChecked;
-}
+};
 
 const SampleOverview = ({ sample }: Props) => {
   useDocumentTitle(`Prélèvement ${sample.reference}`);
@@ -101,7 +101,16 @@ const SampleOverview = ({ sample }: Props) => {
 
   useEffect(() => {
     setActiveCompliance(
-      sample.programmingPlanKind !== 'PPV' && sample.status === 'InReview'
+      sample.programmingPlanKind !== 'PPV' &&
+        sample.status === 'InReview' &&
+        sample.items
+          .filter((item) => item.copyNumber === 1)
+          .every(
+            (item) =>
+              isItemAchieved(sampleItemCopies(item.itemNumber)) ||
+              getItemStatus(sampleItemCopies(item.itemNumber)) ===
+                'NotAdmissible'
+          )
     );
   }, [sample.programmingPlanKind, sample.status]);
 
