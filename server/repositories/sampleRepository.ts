@@ -738,11 +738,19 @@ const parsePartialSample = (sample: PartialSampleJoinedDbo): PartialSample =>
 const findComplianceStats = async (
   options: FindComplianceStatsOptions
 ): Promise<ComplianceStat[]> => {
-  const rows = await Samples()
+  const groupByDepartment = options.byDepartment === true;
+
+  const groupByFields = groupByDepartment
+    ? [`${samplesTable}.region`, `${samplesTable}.department`]
+    : [
+        `${samplesTable}.region`,
+        `${samplesTable}.matrixKind`,
+        `${samplesTable}.matrix`
+      ];
+
+  const query = Samples()
     .select(
-      `${samplesTable}.region`,
-      `${samplesTable}.matrixKind`,
-      `${samplesTable}.matrix`,
+      ...groupByFields,
       db.raw(`count(distinct ${samplesTable}.id) as total_count`),
       db.raw(
         `count(distinct ${samplesTable}.id) filter(where ${samplesTable}.compliance = 'Compliant') as compliant_count`
@@ -752,13 +760,13 @@ const findComplianceStats = async (
       )
     )
     .whereIn(`${samplesTable}.programmingPlanId`, [options.programmingPlanId])
-    .whereNotNull(`${samplesTable}.matrix`)
-    .groupBy(
-      `${samplesTable}.region`,
-      `${samplesTable}.matrixKind`,
-      `${samplesTable}.matrix`
-    );
+    .groupBy(...groupByFields);
 
+  if (!groupByDepartment) {
+    query.whereNotNull(`${samplesTable}.matrix`);
+  }
+
+  const rows = await query;
   return rows.map((r: any) => ComplianceStat.parse(r));
 };
 

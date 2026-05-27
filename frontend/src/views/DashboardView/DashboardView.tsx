@@ -132,12 +132,11 @@ const DashboardView = () => {
                 programmingPlan={currentValidatedProgrammingPlan}
               />
             )}
-            {hasNationalView &&
-              currentValidatedProgrammingPlan?.kinds.includes('PPV') && (
-                <DashboardComplianceStats
-                  programmingPlan={currentValidatedProgrammingPlan}
-                />
-              )}
+            {hasNationalView && currentValidatedProgrammingPlan && (
+              <DashboardComplianceStats
+                programmingPlan={currentValidatedProgrammingPlan}
+              />
+            )}
           </div>
         </>
       )}
