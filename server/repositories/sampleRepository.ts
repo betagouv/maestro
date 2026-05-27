@@ -630,6 +630,7 @@ const findComplianceStats = async (
   const rows = await Samples()
     .select(
       `${samplesTable}.region`,
+      `${samplesTable}.matrixKind`,
       `${samplesTable}.matrix`,
       db.raw(`count(distinct ${samplesTable}.id) as total_count`),
       db.raw(
@@ -641,7 +642,11 @@ const findComplianceStats = async (
     )
     .whereIn(`${samplesTable}.programmingPlanId`, [options.programmingPlanId])
     .whereNotNull(`${samplesTable}.matrix`)
-    .groupBy(`${samplesTable}.region`, `${samplesTable}.matrix`);
+    .groupBy(
+      `${samplesTable}.region`,
+      `${samplesTable}.matrixKind`,
+      `${samplesTable}.matrix`
+    );
 
   return rows.map((r: any) => ComplianceStat.parse(r));
 };

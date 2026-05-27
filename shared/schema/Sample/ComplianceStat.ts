@@ -1,9 +1,11 @@
 import z from 'zod';
 import { Matrix } from '../../referential/Matrix/Matrix';
+import { MatrixKind } from '../../referential/Matrix/MatrixKind';
 import { Region } from '../../referential/Region';
 
 export const ComplianceStat = z.object({
   region: Region,
+  matrixKind: MatrixKind,
   matrix: Matrix,
   totalCount: z.coerce.number(),
   compliantCount: z.coerce.number().default(0),
