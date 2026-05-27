@@ -38,9 +38,9 @@ import SampleItemCopiesOverview from './SampleItemCopiesOverview';
 import './SampleOverview.scss';
 import { SampleSteps } from 'maestro-shared/schema/Sample/SampleStep';
 
-interface Props {
+type Props = {
   sample: SampleChecked;
-}
+};
 
 const SampleOverview = ({ sample }: Props) => {
   useDocumentTitle(`Prélèvement ${sample.reference}`);
