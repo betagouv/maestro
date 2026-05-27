@@ -101,7 +101,16 @@ const SampleOverview = ({ sample }: Props) => {
 
   useEffect(() => {
     setActiveCompliance(
-      sample.programmingPlanKind !== 'PPV' && sample.status === 'InReview'
+      sample.programmingPlanKind !== 'PPV' &&
+        sample.status === 'InReview' &&
+        sample.items
+          .filter((item) => item.copyNumber === 1)
+          .every(
+            (item) =>
+              isItemAchieved(sampleItemCopies(item.itemNumber)) ||
+              getItemStatus(sampleItemCopies(item.itemNumber)) ===
+                'NotAdmissible'
+          )
     );
   }, [sample.programmingPlanKind, sample.status]);
 
