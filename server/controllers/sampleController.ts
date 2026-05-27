@@ -72,16 +72,18 @@ export const computeAnalysisStatus = (
   if (!analysis) {
     return 'Sent';
   }
-  //Passage de non recevable ou envoyé à recevable
+  //Passage de non recevable ou envoyé à recevable ou aucune info
   if (
     (analysis.status === 'NotAdmissible' || analysis.status === 'Sent') &&
-    itemUpdate.isAdmissible
+    (itemUpdate.isAdmissible || itemUpdate.isAdmissible === null)
   ) {
-    return !isNil(analysis.compliance)
-      ? 'Completed'
-      : analysisReportDocumentIds.length > 0
-        ? 'InReview'
-        : 'Analysis';
+    return isNil(itemUpdate.receiptDate)
+      ? 'Sent'
+      : !isNil(analysis.compliance)
+        ? 'Completed'
+        : analysisReportDocumentIds.length > 0
+          ? 'InReview'
+          : 'Analysis';
   }
   return analysis.status;
 };

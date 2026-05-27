@@ -29,6 +29,61 @@ describe('computeAnalysisStatus', () => {
     ).toBe('Sent');
   });
 
+  test('should return NotAdmissible when isAdmissible is undefined and analysis is NotAdmissible (no change)', () => {
+    expect(
+      computeAnalysisStatus(
+        { isAdmissible: undefined, receiptDate: undefined },
+        null,
+        { status: 'NotAdmissible', compliance: null },
+        noReportDocs
+      )
+    ).toBe('NotAdmissible');
+  });
+
+  test('should return Sent when resetting admissibility (null) from NotAdmissible without receiptDate', () => {
+    expect(
+      computeAnalysisStatus(
+        { isAdmissible: null, receiptDate: undefined },
+        null,
+        { status: 'NotAdmissible', compliance: null },
+        noReportDocs
+      )
+    ).toBe('Sent');
+  });
+
+  test('should return Analysis when resetting admissibility (null) from NotAdmissible with receiptDate and no report document', () => {
+    expect(
+      computeAnalysisStatus(
+        { isAdmissible: null, receiptDate: '2026-01-15' as MaestroDate },
+        null,
+        { status: 'NotAdmissible', compliance: null },
+        noReportDocs
+      )
+    ).toBe('Analysis');
+  });
+
+  test('should return InReview when resetting admissibility (null) from NotAdmissible with receiptDate and a report document', () => {
+    expect(
+      computeAnalysisStatus(
+        { isAdmissible: null, receiptDate: '2026-01-15' as MaestroDate },
+        null,
+        { status: 'NotAdmissible', compliance: null },
+        oneReportDoc
+      )
+    ).toBe('InReview');
+  });
+
+  test('should return Completed when resetting admissibility (null) from NotAdmissible with receiptDate and compliance', () => {
+    expect(
+      computeAnalysisStatus(
+        { isAdmissible: null, receiptDate: '2026-01-15' as MaestroDate },
+        null,
+        { status: 'NotAdmissible', compliance: true },
+        noReportDocs
+      )
+    ).toBe('Completed');
+  });
+
   test('should return NotAdmissible when isAdmissible is false', () => {
     expect(
       computeAnalysisStatus(
