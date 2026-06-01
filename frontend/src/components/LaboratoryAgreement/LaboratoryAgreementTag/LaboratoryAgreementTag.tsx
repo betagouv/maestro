@@ -10,15 +10,24 @@ import './LaboratoryAgreementTag.scss';
 interface Props {
   laboratoryAgreement: LaboratoryAgreement;
   laboratory: Laboratory;
+  afterClose?: () => void;
 }
 
-const LaboratoryAgreementTag = ({ laboratoryAgreement, laboratory }: Props) => {
+const LaboratoryAgreementTag = ({
+  laboratoryAgreement,
+  laboratory,
+  afterClose
+}: Props) => {
   const openLaboratoryAgreementDetail = useContext(
     LaboratoryAgreementDetailContext
   );
 
   const handleOpen = () =>
-    openLaboratoryAgreementDetail?.(laboratoryAgreement, laboratory);
+    openLaboratoryAgreementDetail?.(
+      laboratoryAgreement,
+      laboratory,
+      afterClose
+    );
 
   return (
     <div
