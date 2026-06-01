@@ -89,7 +89,7 @@ export const AuthenticatedAppRoutes = {
   },
   AdminRoute: {
     ...AppRouteLinks.AdminRoute,
-    path: '/admin',
+    path: '/admin/:section/:itemId?',
     key: 'admin_route'
   },
   UsersRoute: {

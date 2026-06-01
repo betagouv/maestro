@@ -46,7 +46,8 @@ export const AppRouteLinks = {
     link: '/logout-callback'
   },
   AdminRoute: {
-    link: '/admin'
+    link: (section: string, itemId?: string) =>
+      itemId ? `/admin/${section}/${itemId}` : `/admin/${section}`
   },
   UsersRoute: {
     link: '/utilisateurs'

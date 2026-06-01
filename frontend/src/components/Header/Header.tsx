@@ -31,6 +31,7 @@ import { ApiClientContext } from '../../services/apiClient';
 import authSlice from '../../store/reducers/authSlice';
 import prescriptionsSlice from '../../store/reducers/prescriptionsSlice';
 import config from '../../utils/config';
+import { adminSections } from '../../views/AdminView/adminSections';
 import { MascaradeButton } from '../Mascarade/MascaradeButton';
 import { MascaradeModal } from '../Mascarade/MascaradeModal';
 import { useMascarade } from '../Mascarade/useMascarade';
@@ -288,12 +289,18 @@ const Header = () => {
                 : undefined,
               hasUserPermission('administrationMaestro')
                 ? {
-                    linkProps: {
-                      to: AuthenticatedAppRoutes.AdminRoute.link,
-                      target: '_self'
-                    },
                     text: 'Administration',
-                    isActive: location.pathname.startsWith('/admin')
+                    isActive: location.pathname.startsWith('/admin'),
+                    menuLinks: adminSections.map((s) => ({
+                      linkProps: {
+                        to: AuthenticatedAppRoutes.AdminRoute.link(s.slug),
+                        target: '_self'
+                      },
+                      text: s.label,
+                      isActive:
+                        location.pathname ===
+                        AuthenticatedAppRoutes.AdminRoute.link(s.slug)
+                    }))
                   }
                 : undefined,
               availableRoutes.includes('LaboratoryAnalyticalCompetencesRoute')
