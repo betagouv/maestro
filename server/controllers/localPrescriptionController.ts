@@ -386,12 +386,12 @@ export const localPrescriptionsRouter = {
         {
           category: prescription.context,
           author: user,
-          link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams({
-            year: programmingPlan.year.toString(),
+          link: AppRouteLinks.ProgrammingRoute.link({
+            year: programmingPlan.year,
             context: prescription.context,
             prescriptionId: prescription.id,
             commentsRegion: localPrescription.region
-          }).toString()}`
+          })
         },
         recipients,
         {
@@ -466,14 +466,12 @@ export const localPrescriptionsRouter = {
           {
             category: prescription.context,
             author: user,
-            link: `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
-              {
-                year: programmingPlan.year.toString(),
-                context: prescription.context,
-                prescriptionId: prescription.id,
-                commentsRegion: localPrescription.region
-              }
-            ).toString()}`
+            link: AppRouteLinks.ProgrammingRoute.link({
+              year: programmingPlan.year,
+              context: prescription.context,
+              prescriptionId: prescription.id,
+              commentsRegion: localPrescription.region
+            })
           },
           recipients,
           {

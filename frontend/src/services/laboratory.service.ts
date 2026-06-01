@@ -1,6 +1,6 @@
 import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
-import config from '../utils/config';
+import { getApiUrl } from '../utils/fetchUtils';
 
 const laboratoryApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -72,7 +72,9 @@ const laboratoryApi = api.injectEndpoints({
 });
 
 const laboratoryAnalyticCompetencesExportURL = (laboratoryId: string) =>
-  `${config.apiEndpoint}/api/laboratories/${laboratoryId}/analytical-competences/export`;
+  getApiUrl('/laboratories/:laboratoryId/analytical-competences/export', {
+    laboratoryId
+  });
 
 export const {
   useGetLaboratoryQuery,

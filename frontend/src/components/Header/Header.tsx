@@ -161,8 +161,8 @@ const Header = () => {
         }
         homeLinkProps={{
           to: hasUserPermission('viewDashboard')
-            ? AuthenticatedAppRoutes.DashboardRoute.link
-            : AuthenticatedAppRoutes.DocumentsRoute.link,
+            ? AuthenticatedAppRoutes.DashboardRoute.link()
+            : AuthenticatedAppRoutes.DocumentsRoute.link(),
           title: 'Accueil'
         }}
         id="header"
@@ -176,7 +176,7 @@ const Header = () => {
               hasUserPermission('viewDashboard')
                 ? {
                     linkProps: {
-                      to: AuthenticatedAppRoutes.DashboardRoute.link,
+                      to: AuthenticatedAppRoutes.DashboardRoute.link(),
                       target: '_self'
                     },
                     text: 'Tableau de bord',
@@ -236,7 +236,7 @@ const Header = () => {
                     ),
                     text: 'Programmation',
                     linkProps: {
-                      to: AuthenticatedAppRoutes.ProgrammingRoute.link,
+                      to: AuthenticatedAppRoutes.ProgrammingRoute.link(),
                       target: '_self'
                     }
                   }
@@ -292,7 +292,7 @@ const Header = () => {
                 : undefined,
               {
                 linkProps: {
-                  to: AuthenticatedAppRoutes.DocumentsRoute.link,
+                  to: AuthenticatedAppRoutes.DocumentsRoute.link(),
                   target: '_self'
                 },
                 text: 'Documents ressources',
@@ -303,7 +303,7 @@ const Header = () => {
               hasUserPermission('administrationMaestro')
                 ? {
                     linkProps: {
-                      to: AuthenticatedAppRoutes.UsersRoute.link,
+                      to: AuthenticatedAppRoutes.UsersRoute.link(),
                       target: '_self'
                     },
                     text: 'Utilisateurs',
@@ -333,8 +333,7 @@ const Header = () => {
               availableRoutes.includes('LaboratoryAnalyticalCompetencesRoute')
                 ? {
                     linkProps: {
-                      to: AuthenticatedAppRoutes
-                        .LaboratoryAnalyticalCompetencesRoute.link,
+                      to: AuthenticatedAppRoutes.LaboratoryAnalyticalCompetencesRoute.link(),
                       target: '_self'
                     },
                     text: 'Compétences analytiques',
@@ -375,7 +374,7 @@ const Header = () => {
                   <Button
                     iconId="fr-icon-notification-3-line"
                     linkProps={{
-                      to: AuthenticatedAppRoutes.NotificationsRoute.link
+                      to: AuthenticatedAppRoutes.NotificationsRoute.link()
                     }}
                     className={cx('fr-btn--icon-left', 'fr-pr-0')}
                     priority="tertiary no outline"

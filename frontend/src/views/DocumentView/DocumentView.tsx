@@ -191,7 +191,7 @@ const DocumentView = () => {
           }).unwrap();
         }
 
-        navigate(AppRouteLinks.DocumentsRoute.link);
+        navigate(AppRouteLinks.DocumentsRoute.link());
       } catch (_error) {
         setHasError(true);
       }

@@ -1,8 +1,5 @@
-import type { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
-import config from 'src/utils/config';
-import { getURLQuery } from 'src/utils/fetchUtils';
 
 const prescriptionApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -56,21 +53,12 @@ const prescriptionApi = api.injectEndpoints({
   })
 });
 
-const prescriptionsExportURL = (findOptions: FindPrescriptionOptions) => {
-  const params = getURLQuery(findOptions);
-  return `${config.apiEndpoint}/api/prescriptions/export${params}`;
-};
-
 export const {
   useFindPrescriptionsQuery,
   useLazyFindPrescriptionsQuery,
   useUpdatePrescriptionMutation,
   useAddPrescriptionMutation,
   useDeletePrescriptionMutation,
-  getPrescriptionsExportURL,
   useGetPrescriptionSubstancesQuery,
   useLazyGetPrescriptionSubstancesQuery
-} = {
-  ...prescriptionApi,
-  getPrescriptionsExportURL: prescriptionsExportURL
-};
+} = prescriptionApi;

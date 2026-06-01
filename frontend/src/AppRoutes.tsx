@@ -1,6 +1,5 @@
 import {
   type AppRouteKeys,
-  type AppRouteLink,
   AppRouteLinks
 } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import type { FunctionComponent } from 'react';
@@ -9,8 +8,7 @@ import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from './hooks/useAuthentication';
 import { SESSION_STORAGE_REDIRECT_URL } from './views/LoginCallbackView/LoginCallbackView';
 
-type AppRoute = AppRouteLink & {
-  path: string;
+type AppRoute = {
   label?: string;
   key: string;
 };
@@ -18,88 +16,73 @@ type AppRoute = AppRouteLink & {
 export const AuthenticatedAppRoutes = {
   DashboardRoute: {
     ...AppRouteLinks.DashboardRoute,
-    path: '/',
     label: 'Tableau de bord',
     key: 'dashboard_route'
   },
   NotificationsRoute: {
     ...AppRouteLinks.NotificationsRoute,
-    path: '/notifications',
     label: 'Notifications',
     key: 'notifications_route'
   },
   ProgrammingRoute: {
     ...AppRouteLinks.ProgrammingRoute,
-    path: '/programmation',
     label: 'Programmation',
     key: 'programmation_route'
   },
   ProgrammingByYearRoute: {
     ...AppRouteLinks.ProgrammingByYearRoute,
-    path: '/programmation/:year',
     label: 'Programmation',
     key: 'programmation_route'
   },
   SamplesByYearRoute: {
     ...AppRouteLinks.SamplesByYearRoute,
-    path: '/programmation/:year/prelevements',
     label: 'Prélèvements',
     key: 'samples_route'
   },
   NewSampleRoute: {
     ...AppRouteLinks.NewSampleRoute,
-    path: '/programmation/:year/prelevements/nouveau',
     label: 'Prélèvement',
     key: 'new_sample_route'
   },
   SampleRoute: {
     ...AppRouteLinks.SampleRoute,
-    path: '/prelevements/:sampleId',
     label: 'Prélèvement',
     key: 'sample_route'
   },
   SampleAnalysisEditRoute: {
     ...AppRouteLinks.SampleAnalysisEditRoute,
-    path: '/prelevements/:sampleId/edit',
     label: 'Prélèvement',
     key: 'sample_analysis_edit_route'
   },
   DocumentsRoute: {
     ...AppRouteLinks.DocumentsRoute,
-    path: '/documents',
     label: 'Documents ressources',
     key: 'documents_route'
   },
   NewDocumentRoute: {
     ...AppRouteLinks.NewDocumentRoute,
-    path: '/documents/nouveau',
     label: 'Nouveau document ressource',
     key: 'new_document_route'
   },
   DocumentRoute: {
     ...AppRouteLinks.DocumentRoute,
-    path: '/documents/:documentId',
     label: 'Document ressource',
     key: 'document_route'
   },
   LogoutCallbackRoute: {
     ...AppRouteLinks.LogoutCallbackRoute,
-    path: '/logout-callback',
     key: 'logout_callback_route'
   },
   AdminRoute: {
     ...AppRouteLinks.AdminRoute,
-    path: '/admin/:section/:itemId?',
     key: 'admin_route'
   },
   UsersRoute: {
     ...AppRouteLinks.UsersRoute,
-    path: '/utilisateurs',
     key: 'users_route'
   },
   LaboratoryAnalyticalCompetencesRoute: {
     ...AppRouteLinks.LaboratoryAnalyticalCompetencesRoute,
-    path: '/competences-analytiques',
     label: 'Compétences analytiques',
     key: 'laboratory_analytical_competences_route'
   }
@@ -108,13 +91,11 @@ export const AuthenticatedAppRoutes = {
 const NotAuthenticatedAppRoutes = {
   LoginRoute: {
     ...AppRouteLinks.LoginRoute,
-    path: '/',
     label: 'Connexion',
     key: 'connexion_route'
   },
   LoginCallbackRoute: {
     ...AppRouteLinks.LoginCallbackRoute,
-    path: '/login-callback',
     key: 'login_callback_route'
   }
 } as const satisfies Partial<Record<AppRouteKeys, AppRoute>>;
@@ -122,7 +103,7 @@ const NotAuthenticatedAppRoutes = {
 export const AppRoutes = {
   ...AuthenticatedAppRoutes,
   ...NotAuthenticatedAppRoutes
-};
+} as const satisfies Record<AppRouteKeys, AppRoute>;
 
 export type AuthenticatedAppRoutes = keyof typeof AuthenticatedAppRoutes;
 
