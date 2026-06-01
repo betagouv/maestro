@@ -61,6 +61,7 @@ const LaboratoryAgreementDetailModal = ({
       }
       size="medium"
       iconId="fr-icon-microscope-line"
+      concealingBackdrop={false}
       buttons={
         onSave
           ? [

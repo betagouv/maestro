@@ -450,3 +450,18 @@ h6,
     flex: 1;
   }
 }
+
+.search-input-wrapper {
+  position: relative;
+
+  &:has(.search-input-clear) .fr-input-wrap::before,
+  &:has(.search-input-clear) .fr-input-wrap::after {
+    display: none;
+  }
+
+  .search-input-clear {
+    position: absolute;
+    right: 0;
+    top: 0.25rem;
+  }
+}

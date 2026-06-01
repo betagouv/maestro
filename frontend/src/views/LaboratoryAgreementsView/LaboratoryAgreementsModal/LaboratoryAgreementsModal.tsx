@@ -1,3 +1,4 @@
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import type { ModalProps } from '@codegouvfr/react-dsfr/Modal';
@@ -154,8 +155,8 @@ const LaboratoryAgreementsModal = ({
       ]}
     >
       <div className="agreement-modal">
-        <div className={clsx(cx('fr-pr-3w'), 'agreement-modal-list')}>
-          <div className={cx('fr-mb-2w')}>
+        <div className="agreement-modal-list">
+          <div className={clsx(cx('fr-mb-2w'), 'agreement-modal-list-search')}>
             <p className={cx('fr-text--md')}>
               {laboratoryAgreementRowKeys.length === 1 ? (
                 <>
@@ -178,49 +179,65 @@ const LaboratoryAgreementsModal = ({
                 })('plan sélectionné')
               )}
             </p>
-            <Input
-              label="Rechercher un laboratoire"
-              hideLabel
-              iconId="fr-icon-search-line"
-              nativeInputProps={{
-                placeholder: 'Rechercher un laboratoire',
-                value: search,
-                onChange: (e) => setSearch(e.target.value)
-              }}
-            />
+            <div className="search-input-wrapper">
+              <Input
+                label="Rechercher un laboratoire"
+                hideLabel
+                iconId="fr-icon-search-line"
+                nativeInputProps={{
+                  placeholder: 'Rechercher un laboratoire',
+                  value: search,
+                  onChange: (e) => setSearch(e.target.value)
+                }}
+              />
+              {search && (
+                <Button
+                  iconId="fr-icon-close-line"
+                  priority="tertiary no outline"
+                  size="small"
+                  title="Effacer la recherche"
+                  className="search-input-clear"
+                  onClick={() => setSearch('')}
+                />
+              )}
+            </div>
           </div>
-          {filteredLaboratories.map((laboratory, index) => {
-            const localAgreement =
-              localAgreements[laboratory.id] ?? defaultLocalAgreement;
-            return (
-              <div key={laboratory.id}>
-                {index > 0 && <hr className={cx('fr-my-1w')} />}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '1rem'
-                  }}
-                >
-                  <div>
-                    <span className={cx('fr-text--bold')}>
-                      {laboratory.shortName}
-                    </span>
-                    <br />
-                    <span className={cx('fr-text--sm')}>{laboratory.name}</span>
+          <div className="agreement-modal-list-body">
+            {filteredLaboratories.map((laboratory, index) => {
+              const localAgreement =
+                localAgreements[laboratory.id] ?? defaultLocalAgreement;
+              return (
+                <div key={laboratory.id}>
+                  {index > 0 && <hr className={cx('fr-my-1w')} />}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '1rem'
+                    }}
+                  >
+                    <div>
+                      <span className={cx('fr-text--bold')}>
+                        {laboratory.shortName}
+                      </span>
+                      <br />
+                      <span className={cx('fr-text--sm')}>
+                        {laboratory.name}
+                      </span>
+                    </div>
+                    <LaboratoryAgreementButtons
+                      values={localAgreement}
+                      onToggle={(field) => toggle(laboratory.id, field)}
+                    />
                   </div>
-                  <LaboratoryAgreementButtons
-                    values={localAgreement}
-                    onToggle={(field) => toggle(laboratory.id, field)}
-                  />
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
-        <div className={clsx(cx('fr-p-3w'), 'agreement-modal-selection')}>
+        <div className="agreement-modal-selection">
           {filteredLaboratories
             .filter((laboratory) => {
               const local = localAgreements[laboratory.id];
@@ -251,6 +268,7 @@ const LaboratoryAgreementsModal = ({
                   key={laboratory.id}
                   laboratoryAgreement={laboratoryAgreement}
                   laboratory={laboratory}
+                  afterClose={modal.open}
                 />
               );
             })}

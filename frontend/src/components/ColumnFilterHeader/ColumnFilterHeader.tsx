@@ -104,17 +104,29 @@ const ColumnFilterHeader = <T extends string>({
               'column-filter-menu--right': menuAlign === 'right'
             })}
           >
-            <Input
-              label=""
-              hideLabel
-              iconId="fr-icon-search-line"
-              nativeInputProps={{
-                placeholder: 'Rechercher...',
-                value: search,
-                onChange: (e) => setSearch(e.target.value)
-              }}
-              className={cx('fr-mb-1w')}
-            />
+            <div className="search-input-wrapper">
+              <Input
+                label=""
+                hideLabel
+                iconId="fr-icon-search-line"
+                nativeInputProps={{
+                  placeholder: 'Rechercher...',
+                  value: search,
+                  onChange: (e) => setSearch(e.target.value)
+                }}
+                className={cx('fr-mb-1w')}
+              />
+              {search && (
+                <Button
+                  iconId="fr-icon-close-line"
+                  priority="tertiary no outline"
+                  size="small"
+                  title="Effacer la recherche"
+                  className="search-input-clear"
+                  onClick={() => setSearch('')}
+                />
+              )}
+            </div>
             <div className="column-filter-options">
               {filteredOptions.map((option) => (
                 <Checkbox
