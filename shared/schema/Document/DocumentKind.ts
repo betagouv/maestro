@@ -11,7 +11,9 @@ export const DocumentKind = z.enum(
     'ProgrammingPlanNotice',
     'TechnicalInstruction',
     'OtherResourceDocument',
-    'RaiSourceFile'
+    'RaiSourceFile',
+    'RegulationResourceDocument',
+    'TemplateResourceDocument'
   ],
   {
     error: () => 'Veuillez renseigner le type de document.'
@@ -36,6 +38,8 @@ export const UploadDocumentKindList: DocumentKind[] = [
   'SampleDocument',
   'ProgrammingPlanNotice',
   'TechnicalInstruction',
+  'RegulationResourceDocument',
+  'TemplateResourceDocument',
   'OtherResourceDocument'
 ];
 
@@ -45,12 +49,16 @@ export const DocumentKindLabels: Partial<Record<DocumentKind, string>> = {
   ProgrammingPlanNotice: 'Fiche de plan',
   TechnicalInstruction: 'Instruction technique',
   OtherResourceDocument: 'Autre',
-  RaiSourceFile: 'Fichier source RAI'
+  RaiSourceFile: 'Fichier source RAI',
+  RegulationResourceDocument: 'Règlementation',
+  TemplateResourceDocument: 'Modèle'
 };
 
 export const ResourceDocumentKindList: DocumentKind[] = [
   'ProgrammingPlanNotice',
   'TechnicalInstruction',
+  'RegulationResourceDocument',
+  'TemplateResourceDocument',
   'OtherResourceDocument'
 ];
 
@@ -58,6 +66,8 @@ export const SortedResourceDocumentKindList: DocumentKind[] = (
   [
     'ProgrammingPlanNotice',
     'TechnicalInstruction',
+    'RegulationResourceDocument',
+    'TemplateResourceDocument',
     'OtherResourceDocument'
   ] as DocumentKind[]
 ).sort((a, b) => {
