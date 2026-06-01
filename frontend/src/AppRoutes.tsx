@@ -126,6 +126,9 @@ export const AppRoutes = {
 
 export type AuthenticatedAppRoutes = keyof typeof AuthenticatedAppRoutes;
 
+export type AppRoutePath =
+  (typeof AuthenticatedAppRoutes)[AuthenticatedAppRoutes]['path'];
+
 export const RedirectRoute: FunctionComponent = ({ ..._rest }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
