@@ -34,15 +34,6 @@
         right: 0;
       }
 
-    &--right {
-      left: auto;
-      right: 0;
-    }
-
-    .column-filter-options {
-      max-height: 240px;
-      overflow-y: auto;
-    }
 
     .column-filter-options {
       max-height: 240px;
@@ -55,3 +46,4 @@
     }
   }
 }
+
