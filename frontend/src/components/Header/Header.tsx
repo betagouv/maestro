@@ -4,7 +4,7 @@ import { Header as DSFRHeader } from '@codegouvfr/react-dsfr/Header';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { Badge } from '@mui/material';
 import clsx from 'clsx';
-import { isNil, uniq } from 'lodash-es';
+import { uniq } from 'lodash-es';
 import { Brand } from 'maestro-shared/constants';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { isClosed } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -15,14 +15,14 @@ import {
 } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
-import { useLocation, useParams } from 'react-router';
+import { matchPath, useLocation } from 'react-router';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import {
   useChangeRoleMutation,
   useLogoutMutation
 } from 'src/services/auth.service';
-import { AuthenticatedAppRoutes } from '../../AppRoutes';
+import { type AppRoutePath, AuthenticatedAppRoutes } from '../../AppRoutes';
 import logo from '../../assets/logo.svg';
 import { usePrescriptionFilters } from '../../hooks/usePrescriptionFilters';
 import useWindowSize from '../../hooks/useWindowSize';
@@ -47,7 +47,6 @@ const Header = () => {
   const { isMobile } = useWindowSize();
   const dispatch = useAppDispatch();
   const apiClient = useContext(ApiClientContext);
-  const { year: yearParam } = useParams<{ year: string }>();
 
   const domainMenuRef = useRef<
     (HTMLDivElement & { closeMenu: () => Promise<boolean> }) | null
@@ -125,10 +124,8 @@ const Header = () => {
     [programmingPlans, prescriptionFilters.domain]
   );
 
-  const isActive = (path: string, strictPath = false) =>
-    strictPath
-      ? location.pathname === path
-      : location.pathname.startsWith(path);
+  const routeMatch = <Path extends AppRoutePath>(path: Path, exact = false) =>
+    matchPath({ path, end: exact }, location.pathname);
 
   const changeUserRole = useCallback(
     async (userRole: UserRole) => {
@@ -183,18 +180,26 @@ const Header = () => {
                       target: '_self'
                     },
                     text: 'Tableau de bord',
-                    isActive:
-                      location.pathname ===
-                        AuthenticatedAppRoutes.DashboardRoute.link ||
-                      location.pathname.startsWith('/plans')
+                    isActive: !!routeMatch(
+                      AuthenticatedAppRoutes.DashboardRoute.path,
+                      true
+                    )
                   }
                 : undefined,
               hasUserPermission('readSamples') && inProgressYears?.length
                 ? {
-                    isActive:
-                      inProgressYears?.some((year) =>
-                        isActive(`/programmation/${year}/prelevements`)
-                      ) || isActive('/prelevements'),
+                    isActive: (() => {
+                      const samplesByYear = routeMatch(
+                        AuthenticatedAppRoutes.SamplesByYearRoute.path
+                      );
+                      return (
+                        (!!samplesByYear &&
+                          inProgressYears?.includes(
+                            Number(samplesByYear.params.year)
+                          )) ||
+                        !!routeMatch(AuthenticatedAppRoutes.SampleRoute.path)
+                      );
+                    })(),
                     ...(inProgressYears?.length === 1
                       ? {
                           text: 'Prélèvements',
@@ -216,16 +221,19 @@ const Header = () => {
                             },
                             text: year,
                             isActive:
-                              isActive('/prelevements') &&
-                              !isNil(yearParam) &&
-                              year === Number(yearParam)
+                              routeMatch(
+                                AuthenticatedAppRoutes.SamplesByYearRoute.path
+                              )?.params.year === String(year)
                           }))
                         })
                   }
                 : undefined,
               hasUserPermission('viewProgrammingPlans')
                 ? {
-                    isActive: isActive(`/programmation`, true),
+                    isActive: !!routeMatch(
+                      AuthenticatedAppRoutes.ProgrammingRoute.path,
+                      true
+                    ),
                     text: 'Programmation',
                     linkProps: {
                       to: AuthenticatedAppRoutes.ProgrammingRoute.link,
@@ -237,11 +245,19 @@ const Header = () => {
                 hasUserPermission('readSamples')) &&
               closedYears?.length
                 ? {
-                    isActive: closedYears?.some(
-                      (year) =>
-                        isActive(`/programmation/${year}`, true) ||
-                        isActive(`/programmation/${year}/prelevements`)
-                    ),
+                    isActive: closedYears?.some((year) => {
+                      const programmingByYear = routeMatch(
+                        AuthenticatedAppRoutes.ProgrammingByYearRoute.path,
+                        true
+                      );
+                      const samplesByYear = routeMatch(
+                        AuthenticatedAppRoutes.SamplesByYearRoute.path
+                      );
+                      return (
+                        programmingByYear?.params.year === String(year) ||
+                        samplesByYear?.params.year === String(year)
+                      );
+                    }),
                     text: 'Historique',
                     menuLinks: (closedYears ?? []).flatMap((year) => [
                       {
@@ -252,9 +268,10 @@ const Header = () => {
                           target: '_self'
                         },
                         text: `Prélèvements ${year}`,
-                        isActive: isActive(
-                          `/programmation/${year}/prelevements`
-                        )
+                        isActive:
+                          routeMatch(
+                            AuthenticatedAppRoutes.SamplesByYearRoute.path
+                          )?.params.year === String(year)
                       },
                       {
                         linkProps: {
@@ -264,7 +281,11 @@ const Header = () => {
                           target: '_self'
                         },
                         text: `Programmation ${year}`,
-                        isActive: isActive(`/programmation/${year}`, true)
+                        isActive:
+                          routeMatch(
+                            AuthenticatedAppRoutes.ProgrammingByYearRoute.path,
+                            true
+                          )?.params.year === String(year)
                       }
                     ])
                   }
@@ -275,7 +296,9 @@ const Header = () => {
                   target: '_self'
                 },
                 text: 'Documents ressources',
-                isActive: location.pathname.startsWith('/documents')
+                isActive: !!routeMatch(
+                  AuthenticatedAppRoutes.DocumentsRoute.path
+                )
               },
               hasUserPermission('administrationMaestro')
                 ? {
@@ -284,13 +307,17 @@ const Header = () => {
                       target: '_self'
                     },
                     text: 'Utilisateurs',
-                    isActive: location.pathname.startsWith('/utilisateurs')
+                    isActive: !!routeMatch(
+                      AuthenticatedAppRoutes.UsersRoute.path
+                    )
                   }
                 : undefined,
               hasUserPermission('administrationMaestro')
                 ? {
                     text: 'Administration',
-                    isActive: location.pathname.startsWith('/admin'),
+                    isActive: !!routeMatch(
+                      AuthenticatedAppRoutes.AdminRoute.path
+                    ),
                     menuLinks: adminSections.map((s) => ({
                       linkProps: {
                         to: AuthenticatedAppRoutes.AdminRoute.link(s.slug),
@@ -311,8 +338,9 @@ const Header = () => {
                       target: '_self'
                     },
                     text: 'Compétences analytiques',
-                    isActive: location.pathname.startsWith(
-                      '/competences-analytiques'
+                    isActive: !!routeMatch(
+                      AuthenticatedAppRoutes
+                        .LaboratoryAnalyticalCompetencesRoute.path
                     )
                   }
                 : undefined
