@@ -61,7 +61,7 @@ export const samplersOptions = (
   currentUserId?: string
 ): AppSelectOption[] =>
   (samplers ?? [])
-    .filter(({ name }) => name !== null)
+    .filter(({ name, disabled }) => name !== null && !disabled)
     .sort((a, b) => {
       if (a.id === currentUserId) {
         return -1;
