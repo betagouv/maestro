@@ -50,7 +50,7 @@ export const encryptFile = async (
   outputFilename: string
 ): Promise<string> => {
   await exec(
-    `gpg --output ${outputFilename} --encrypt --recipient ${recipientEmail} ${filePath}`,
+    `gpg --batch --yes --trust-model always --output ${outputFilename} --encrypt --recipient ${recipientEmail} ${filePath}`,
     {
       cwd: tmpdir()
     }
