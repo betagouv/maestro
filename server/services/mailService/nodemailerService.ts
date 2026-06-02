@@ -38,7 +38,20 @@ const TemplateData = {
     content: string;
   }
 >;
-class NodemailerService implements MailService {
+
+interface RawOptions {
+  subject: string;
+  from: string;
+  to: string;
+  attachment?: {
+    content: string;
+    name: string;
+  }[];
+}
+interface NodeMailService extends MailService {
+  sendRaw(options: RawOptions): Promise<void>;
+}
+class NodemailerService implements NodeMailService {
   private transport: nodemailer.Transporter<nodemailer.SentMessageInfo>;
 
   constructor() {
@@ -72,8 +85,21 @@ class NodemailerService implements MailService {
       }))
     });
   }
+
+  async sendRaw(option: RawOptions): Promise<void> {
+    return this.transport.sendMail({
+      from: option.from,
+      to: option.to,
+      subject: option.subject,
+      attachments: option.attachment?.map((a) => ({
+        filename: a.name,
+        content: a.content,
+        encoding: 'base64'
+      }))
+    });
+  }
 }
 
-export default function createNodemailerService(): MailService {
+export default function createNodemailerService(): NodeMailService {
   return new NodemailerService();
 }

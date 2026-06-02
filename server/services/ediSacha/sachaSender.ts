@@ -8,7 +8,7 @@ import sftp from 'ssh2-sftp-client';
 import config from '../../utils/config';
 import { DaiProcessingError } from '../daiSendingService';
 import { encryptFile } from '../gpgService';
-import { mailService } from '../mailService';
+import createNodemailerService from '../mailService/nodemailerService';
 import { zip } from '../zipService';
 import { getZipFileName, type XmlFile } from './sachaToXML';
 
@@ -66,6 +66,13 @@ export const sendSachaFile = async (
 
   switch (laboratory.sacha.communication.method) {
     case 'EMAIL': {
+      if (!config.inbox.user) {
+        throw new DaiProcessingError(
+          'La variable INBOX_USER est manquante',
+          true,
+          'EMAIL'
+        );
+      }
       const laboratoryGpgEmail = laboratory.sacha.communication.email;
       const encryptFileName = `${zipFileName}.gpg`;
       const encryptFilePath = await encryptFile(
@@ -75,19 +82,18 @@ export const sendSachaFile = async (
       );
       const encryptFileBuffer = await readFile(encryptFilePath);
 
-      await mailService.send({
-        templateName: 'GenericTemplate',
+      // Brevo REST API rejects ("Unsupported file format: gpg")
+      // So we need to use directly the Brevo SMTP Relay
+      await createNodemailerService().sendRaw({
+        from: config.inbox.user,
         attachment: [
           {
             name: encryptFileName,
             content: Buffer.from(encryptFileBuffer).toString('base64')
           }
         ],
-        recipients: [laboratoryGpgEmail],
-        params: {
-          object: zipFileName,
-          content: zipFileName
-        }
+        to: laboratoryGpgEmail,
+        subject: zipFileName
       });
       break;
     }
