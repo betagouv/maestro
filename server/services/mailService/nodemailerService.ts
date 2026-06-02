@@ -43,10 +43,7 @@ interface RawOptions {
   subject: string;
   from: string;
   to: string;
-  attachment?: {
-    content: string;
-    name: string;
-  }[];
+  attachmentPath: string;
 }
 interface NodeMailService extends MailService {
   sendRaw(options: RawOptions): Promise<void>;
@@ -91,11 +88,12 @@ class NodemailerService implements NodeMailService {
       from: option.from,
       to: option.to,
       subject: option.subject,
-      attachments: option.attachment?.map((a) => ({
-        filename: a.name,
-        content: a.content,
-        encoding: 'base64'
-      }))
+      text: '',
+      attachments: [
+        {
+          path: option.attachmentPath
+        }
+      ]
     });
   }
 }

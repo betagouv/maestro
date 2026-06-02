@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
@@ -80,18 +80,12 @@ export const sendSachaFile = async (
         laboratoryGpgEmail,
         encryptFileName
       );
-      const encryptFileBuffer = await readFile(encryptFilePath);
 
       // Brevo REST API rejects ("Unsupported file format: gpg")
       // So we need to use directly the Brevo SMTP Relay
       await createNodemailerService().sendRaw({
         from: config.inbox.user,
-        attachment: [
-          {
-            name: encryptFileName,
-            content: Buffer.from(encryptFileBuffer).toString('base64')
-          }
-        ],
+        attachmentPath: encryptFilePath,
         to: laboratoryGpgEmail,
         subject: zipFileName
       });
