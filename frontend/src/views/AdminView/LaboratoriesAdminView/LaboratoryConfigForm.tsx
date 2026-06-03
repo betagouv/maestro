@@ -25,7 +25,8 @@ type FormState = {
   sachaActivated: boolean;
   sachaSigle: string;
   sachaMethod: 'EMAIL' | 'SFTP' | 'NONE';
-  sachaEmail: string;
+  sachaRecipientEmail: string;
+  sachaGpgEmail: string;
   sachaGpgPublicKey: string;
   sachaSftpLogin: string;
 };
@@ -44,7 +45,8 @@ const buildSacha = (state: FormState): SachaConfig | null => {
     state.sachaMethod === 'EMAIL'
       ? {
           method: 'EMAIL' as const,
-          email: state.sachaEmail,
+          recipientEmail: state.sachaRecipientEmail,
+          gpgEmail: state.sachaGpgEmail,
           gpgPublicKey: state.sachaGpgPublicKey
         }
       : state.sachaMethod === 'SFTP'
@@ -76,9 +78,13 @@ const initialState = (lab: LaboratoryWithSacha): FormState => ({
       : lab.sacha?.communication?.method === 'SFTP'
         ? 'SFTP'
         : 'NONE',
-  sachaEmail:
+  sachaRecipientEmail:
     lab.sacha?.communication?.method === 'EMAIL'
-      ? lab.sacha.communication.email
+      ? lab.sacha.communication.recipientEmail
+      : '',
+  sachaGpgEmail:
+    lab.sacha?.communication?.method === 'EMAIL'
+      ? lab.sacha.communication.gpgEmail
       : '',
   sachaGpgPublicKey:
     lab.sacha?.communication?.method === 'EMAIL'
@@ -230,12 +236,30 @@ export const LaboratoryConfigForm = ({ laboratory }: Props) => {
                 style={{ width: '100%' }}
               >
                 <AppTextInput
-                  label="Email SACHA"
-                  value={state.sachaEmail}
-                  onChange={(e) => setField('sachaEmail', e.target.value)}
+                  label="Email destinataire"
+                  hintText="Adresse à laquelle la DAI chiffrée est envoyée"
+                  value={state.sachaRecipientEmail}
+                  onChange={(e) =>
+                    setField('sachaRecipientEmail', e.target.value)
+                  }
                   inputForm={form}
                   inputKey="sacha"
-                  inputPathFromKey={['communication', 'email']}
+                  inputPathFromKey={['communication', 'recipientEmail']}
+                  required
+                />
+              </div>
+              <div
+                className={cx('fr-fieldset__element')}
+                style={{ width: '100%' }}
+              >
+                <AppTextInput
+                  label="Email de la clé GPG"
+                  hintText="Identité de la clé publique GPG"
+                  value={state.sachaGpgEmail}
+                  onChange={(e) => setField('sachaGpgEmail', e.target.value)}
+                  inputForm={form}
+                  inputKey="sacha"
+                  inputPathFromKey={['communication', 'gpgEmail']}
                   required
                 />
               </div>

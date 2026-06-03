@@ -73,11 +73,10 @@ export const sendSachaFile = async (
           'EMAIL'
         );
       }
-      const laboratoryGpgEmail = laboratory.sacha.communication.email;
       const encryptFileName = `${zipFileName}.gpg`;
       const encryptFilePath = await encryptFile(
         zipFilePath,
-        laboratoryGpgEmail,
+        laboratory.sacha.communication.gpgEmail,
         encryptFileName
       );
 
@@ -86,7 +85,7 @@ export const sendSachaFile = async (
       await createNodemailerService().sendRaw({
         from: config.inbox.user,
         attachmentPath: encryptFilePath,
-        to: laboratoryGpgEmail,
+        to: laboratory.sacha.communication.recipientEmail,
         subject: zipFileName
       });
       break;

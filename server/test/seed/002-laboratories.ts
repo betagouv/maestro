@@ -21,9 +21,13 @@ export const toDbRow = (lab: LaboratoryWithSacha) => ({
   sachaActivated: lab.sacha?.activated ?? false,
   sachaSigle: lab.sacha?.sigle ?? null,
   sachaCommunicationMethod: lab.sacha?.communication?.method ?? null,
-  sachaEmail:
+  sachaRecipientEmail:
     lab.sacha?.communication?.method === 'EMAIL'
-      ? lab.sacha.communication.email
+      ? lab.sacha.communication.recipientEmail
+      : null,
+  sachaGpgEmail:
+    lab.sacha?.communication?.method === 'EMAIL'
+      ? lab.sacha.communication.gpgEmail
       : null,
   sachaGpgPublicKey:
     lab.sacha?.communication?.method === 'EMAIL'

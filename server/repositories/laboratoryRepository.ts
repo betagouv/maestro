@@ -26,7 +26,8 @@ const buildCommunication = (
     case 'EMAIL':
       return {
         method: 'EMAIL',
-        email: row.sachaEmail!,
+        recipientEmail: row.sachaRecipientEmail!,
+        gpgEmail: row.sachaGpgEmail!,
         gpgPublicKey: row.sachaGpgPublicKey!
       };
     case 'SFTP':
@@ -156,7 +157,8 @@ const buildSachaFields = (sacha: SachaConfig | null) => {
       sachaActivated: false,
       sachaSigle: null,
       sachaCommunicationMethod: null,
-      sachaEmail: null,
+      sachaRecipientEmail: null,
+      sachaGpgEmail: null,
       sachaGpgPublicKey: null,
       sachaSftpLogin: null
     } as const;
@@ -168,7 +170,8 @@ const buildSachaFields = (sacha: SachaConfig | null) => {
       sachaActivated: sacha.activated,
       sachaSigle: sacha.sigle,
       sachaCommunicationMethod: null,
-      sachaEmail: null,
+      sachaRecipientEmail: null,
+      sachaGpgEmail: null,
       sachaGpgPublicKey: null,
       sachaSftpLogin: null
     } as const;
@@ -180,7 +183,8 @@ const buildSachaFields = (sacha: SachaConfig | null) => {
         sachaActivated: sacha.activated,
         sachaSigle: sacha.sigle,
         sachaCommunicationMethod: 'EMAIL' as const,
-        sachaEmail: communication.email,
+        sachaRecipientEmail: communication.recipientEmail,
+        sachaGpgEmail: communication.gpgEmail,
         sachaGpgPublicKey: communication.gpgPublicKey,
         sachaSftpLogin: null
       };
@@ -189,7 +193,8 @@ const buildSachaFields = (sacha: SachaConfig | null) => {
         sachaActivated: sacha.activated,
         sachaSigle: sacha.sigle,
         sachaCommunicationMethod: 'SFTP' as const,
-        sachaEmail: null,
+        sachaRecipientEmail: null,
+        sachaGpgEmail: null,
         sachaGpgPublicKey: null,
         sachaSftpLogin: communication.sftpLogin
       };

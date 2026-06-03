@@ -18,7 +18,8 @@ export type Laboratory = z.infer<typeof Laboratory>;
 const SachaCommunication = z.discriminatedUnion('method', [
   z.object({
     method: z.literal(SachaCommunicationMethod.enum.EMAIL),
-    email: z.email(),
+    recipientEmail: z.email(),
+    gpgEmail: z.email(),
     gpgPublicKey: z.string()
   }),
   z.object({

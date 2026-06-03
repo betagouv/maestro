@@ -118,7 +118,7 @@ export const generateXML = async <T extends SachaFileType>(
         Sigle: sigle,
         LibellePartenaire: laboratory.name,
         EmailPartenaire:
-          communication?.method === 'EMAIL' ? communication.email : ''
+          communication?.method === 'EMAIL' ? communication.recipientEmail : ''
       },
       ...content
     });
