@@ -7,16 +7,11 @@ import { ProgrammingSubPlanId } from '../schema/ProgrammingPlan/ProgrammingSubPl
 import { oneOf } from './testFixtures';
 import { NationalCoordinator } from './userFixtures';
 
-export const PPVClosedProgrammingPlanId =
-  'f5d510ef-ab78-449a-acd6-392895a1994f';
-export const PPVValidatedProgrammingPlanId =
-  'd78fb3eb-1998-482b-9014-282d51ae30b8';
-export const PPVInProgressProgrammingPlanId =
-  'bac693a5-9475-4e24-a775-5532b0117e5b';
-export const DAOAValidatedProgrammingPlanId =
-  'd2680960-a3b5-4091-a87b-e4c2467077fb';
-export const DAOAInProgressProgrammingPlanId =
-  'fafc6f2e-aec5-4998-adeb-84090d971a90';
+const PPVClosedProgrammingPlanId = 'f5d510ef-ab78-449a-acd6-392895a1994f';
+const PPVValidatedProgrammingPlanId = 'd78fb3eb-1998-482b-9014-282d51ae30b8';
+const PPVInProgressProgrammingPlanId = 'bac693a5-9475-4e24-a775-5532b0117e5b';
+const DAOAValidatedProgrammingPlanId = 'd2680960-a3b5-4091-a87b-e4c2467077fb';
+const DAOAInProgressProgrammingPlanId = 'fafc6f2e-aec5-4998-adeb-84090d971a90';
 
 export const PPVSubPlanId = ProgrammingSubPlanId.parse(
   'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1'
@@ -61,7 +56,7 @@ export const PPVSubPlanFixture: ProgrammingSubPlan = {
   withSacha: false
 };
 
-export const DAOAVolailleSubPlanFixture: ProgrammingSubPlan = {
+const DAOAVolailleSubPlanFixture: ProgrammingSubPlan = {
   id: DAOAVolailleSubPlanId,
   programmingPlanId: DAOAValidatedProgrammingPlanId,
   codeNat: 'M01',
