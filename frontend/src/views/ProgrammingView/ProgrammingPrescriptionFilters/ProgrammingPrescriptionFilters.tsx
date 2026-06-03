@@ -40,11 +40,11 @@ const ProgrammingPrescriptionFilters = ({
 
   const subPlanLabelById = useMemo(() => {
     const map: Record<string, string> = {};
-    options.plans.forEach((plan) =>
+    options.plans.forEach((plan) => {
       plan.subPlans.forEach((sp) => {
         map[sp.id] = sp.label ?? sp.codeNat;
-      })
-    );
+      });
+    });
     return map;
   }, [options.plans]);
 
