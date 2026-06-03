@@ -124,7 +124,7 @@ export const prescriptionsRoutes = {
     },
     delete: {
       permissions: ['deletePrescription'],
-      response: z.void()
+      response: z.undefined()
     }
   },
   '/prescriptions/:prescriptionId/substances': {

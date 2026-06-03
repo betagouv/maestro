@@ -1,8 +1,8 @@
-import { constants } from 'node:http2';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { hasPrescriptionPermission } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { v4 as uuidv4 } from 'uuid';
+import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
@@ -18,7 +18,7 @@ export const prescriptionsRouter = {
 
       const prescriptions = await prescriptionRepository.findMany(findOptions);
 
-      return { status: constants.HTTP_STATUS_OK, response: prescriptions };
+      return { status: HttpStatus.OK, response: prescriptions };
     },
     post: async ({ userRole, body }) => {
       const programmingPlan = await getAndCheckProgrammingPlan(
@@ -26,7 +26,7 @@ export const prescriptionsRouter = {
       );
 
       if (!hasPrescriptionPermission(userRole, programmingPlan).create) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       console.info(
@@ -64,7 +64,7 @@ export const prescriptionsRouter = {
       }
 
       return {
-        status: constants.HTTP_STATUS_CREATED,
+        status: HttpStatus.CREATED,
         response: createdPrescription
       };
     }
@@ -118,7 +118,7 @@ export const prescriptionsRouter = {
       );
       response.setHeader('Content-Length', `${buffer.length}`);
 
-      return { status: constants.HTTP_STATUS_OK, response: buffer };
+      return { status: HttpStatus.OK, response: buffer };
     }
   },
   '/prescriptions/:prescriptionId': {
@@ -128,7 +128,7 @@ export const prescriptionsRouter = {
       );
 
       if (!hasPrescriptionPermission(userRole, programmingPlan).update) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       const { prescription } = await getAndCheckPrescription(
@@ -160,7 +160,7 @@ export const prescriptionsRouter = {
       }
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: updatedPrescription
       };
     },
@@ -173,12 +173,12 @@ export const prescriptionsRouter = {
       );
 
       if (!hasPrescriptionPermission(userRole, programmingPlan).delete) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       await prescriptionRepository.deleteOne(prescription.id);
 
-      return { status: constants.HTTP_STATUS_NO_CONTENT };
+      return { status: HttpStatus.NO_CONTENT };
     }
   },
   '/prescriptions/:prescriptionId/substances': {
@@ -194,7 +194,7 @@ export const prescriptionsRouter = {
         prescription.id
       );
 
-      return { status: constants.HTTP_STATUS_OK, response: substances };
+      return { status: HttpStatus.OK, response: substances };
     }
   }
 } as const satisfies ProtectedSubRouter;

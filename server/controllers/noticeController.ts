@@ -1,4 +1,4 @@
-import { constants } from 'node:http2';
+import { HttpStatus } from '../constants/httpStatus';
 import { noticesRepository } from '../repositories/noticesRepository';
 import type {
   ProtectedSubRouter,
@@ -9,7 +9,7 @@ export const noticesUnprotectedRouter = {
   '/notices/:type': {
     get: async (_request, { type }) => {
       const notice = await noticesRepository.findByType(type);
-      return { response: notice, status: constants.HTTP_STATUS_OK };
+      return { response: notice, status: HttpStatus.OK };
     }
   }
 } as const satisfies UnprotectedSubRouter;
@@ -20,7 +20,7 @@ export const noticesProtectedRouter = {
       await noticesRepository.update({ ...noticeToUpdate, type });
 
       return {
-        status: constants.HTTP_STATUS_CREATED
+        status: HttpStatus.CREATED
       };
     }
   }

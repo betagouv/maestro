@@ -1,5 +1,5 @@
-import { constants } from 'node:http2';
 import type { Request, Response } from 'express';
+import { HttpStatus } from '../constants/httpStatus';
 import { checkEmails } from '../services/imapService';
 import config from '../utils/config';
 
@@ -19,5 +19,5 @@ export const checkLaboratoryEmails = async (
     }
   }
 
-  response.status(constants.HTTP_STATUS_OK).send('OK');
+  response.status(HttpStatus.OK).send('OK');
 };

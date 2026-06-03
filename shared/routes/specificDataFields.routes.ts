@@ -41,7 +41,7 @@ export const specificDataFieldsRoutes = {
     },
     delete: {
       permissions: ['administrationMaestro'],
-      response: z.void()
+      response: z.undefined()
     }
   },
   '/specific-data-fields/:fieldId/options': {
@@ -66,7 +66,7 @@ export const specificDataFieldsRoutes = {
     },
     delete: {
       permissions: ['administrationMaestro'],
-      response: z.void()
+      response: z.undefined()
     }
   },
   '/specific-data-fields/sacha': {
@@ -78,7 +78,7 @@ export const specificDataFieldsRoutes = {
   '/specific-data-fields/attribute': {
     params: undefined,
     post: {
-      response: z.void(),
+      response: z.undefined(),
       body: SampleSpecificDataAttribute,
       permissions: ['administrationMaestro']
     }
@@ -86,7 +86,7 @@ export const specificDataFieldsRoutes = {
   '/specific-data-fields/attribute/value': {
     params: undefined,
     post: {
-      response: z.void(),
+      response: z.undefined(),
       body: SampleSpecificDataAttributeValue,
       permissions: ['administrationMaestro']
     }

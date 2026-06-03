@@ -1,6 +1,6 @@
-import { constants } from 'node:http2';
 import { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
 import { v4 as uuidv4 } from 'uuid';
+import { HttpStatus } from '../constants/httpStatus';
 import laboratoryAnalyticalCompetenceRepository from '../repositories/laboratoryAnalyticalCompetenceRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
@@ -14,10 +14,10 @@ export const laboratoriesRouter = {
       const laboratory = await laboratoryRepository.findUnique(laboratoryId);
 
       if (!laboratory) {
-        return { status: constants.HTTP_STATUS_NOT_FOUND };
+        return { status: HttpStatus.NOT_FOUND };
       }
 
-      return { status: constants.HTTP_STATUS_OK, response: laboratory };
+      return { status: HttpStatus.OK, response: laboratory };
     }
   },
   '/laboratories/:laboratoryId/config': {
@@ -26,14 +26,14 @@ export const laboratoriesRouter = {
 
       const config = await laboratoryRepository.findUnique(laboratoryId);
 
-      return { status: constants.HTTP_STATUS_OK, response: config };
+      return { status: HttpStatus.OK, response: config };
     },
     put: async ({ body }, { laboratoryId }) => {
       console.info('Update laboratory config', laboratoryId);
 
       await laboratoryRepository.updateConfig(laboratoryId, body);
 
-      return { status: constants.HTTP_STATUS_OK };
+      return { status: HttpStatus.OK };
     }
   },
   '/laboratories': {
@@ -42,7 +42,7 @@ export const laboratoriesRouter = {
 
       const laboratories = await laboratoryRepository.findMany(query);
 
-      return { status: constants.HTTP_STATUS_OK, response: laboratories };
+      return { status: HttpStatus.OK, response: laboratories };
     }
   },
   '/laboratories/:laboratoryId/analytical-competences': {
@@ -55,7 +55,7 @@ export const laboratoriesRouter = {
         );
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: analyticalCompetences
       };
     },
@@ -84,7 +84,7 @@ export const laboratoriesRouter = {
       );
 
       return {
-        status: constants.HTTP_STATUS_CREATED,
+        status: HttpStatus.CREATED,
         response: competencesToCreate
       };
     }
@@ -126,7 +126,7 @@ export const laboratoriesRouter = {
         );
 
         return {
-          status: constants.HTTP_STATUS_OK,
+          status: HttpStatus.OK,
           response: competencesToUpdate
         };
       }
@@ -138,7 +138,7 @@ export const laboratoriesRouter = {
       const laboratory = await laboratoryRepository.findUnique(laboratoryId);
 
       if (!laboratory) {
-        return { status: constants.HTTP_STATUS_NOT_FOUND };
+        return { status: HttpStatus.NOT_FOUND };
       }
 
       const analyticalCompetences =
@@ -163,7 +163,7 @@ export const laboratoriesRouter = {
       );
       response.setHeader('Content-Length', `${buffer.length}`);
 
-      return { status: constants.HTTP_STATUS_OK, response: buffer };
+      return { status: HttpStatus.OK, response: buffer };
     }
   }
 } as const satisfies ProtectedSubRouter;

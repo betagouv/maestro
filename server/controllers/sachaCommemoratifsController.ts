@@ -1,4 +1,4 @@
-import { constants } from 'node:http2';
+import { HttpStatus } from '../constants/httpStatus';
 import { sachaCommemoratifRepository } from '../repositories/sachaCommemoratifRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { updateSachaCommemoratifs } from '../services/ediSacha/sachaCommemoratifsService';
@@ -9,13 +9,13 @@ export const sachaCommemoratifsProtectedRouter = {
       const commemoratifs = await sachaCommemoratifRepository.findAll();
       return {
         response: commemoratifs,
-        status: constants.HTTP_STATUS_OK
+        status: HttpStatus.OK
       };
     },
     post: async ({ body: { xmlContent } }) => {
       await updateSachaCommemoratifs(xmlContent);
       return {
-        status: constants.HTTP_STATUS_OK
+        status: HttpStatus.OK
       };
     }
   }

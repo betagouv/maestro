@@ -16,7 +16,7 @@ export const usersRoutes = {
       permissions: 'NONE'
     },
     post: {
-      response: z.void(),
+      response: z.undefined(),
       permissions: ['administrationMaestro'],
       body: UserToCreateRefined
     }
@@ -30,7 +30,7 @@ export const usersRoutes = {
       permissions: 'NONE'
     },
     put: {
-      response: z.void(),
+      response: z.undefined(),
       permissions: ['administrationMaestro'],
       body: UserToUpdateRefined
     }

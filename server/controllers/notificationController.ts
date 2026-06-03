@@ -1,4 +1,4 @@
-import { constants } from 'node:http2';
+import { HttpStatus } from '../constants/httpStatus';
 import notificationRepository from '../repositories/notificationRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 
@@ -12,7 +12,7 @@ export const notificationsRouter = {
         recipientId: user.id
       });
 
-      return { status: constants.HTTP_STATUS_OK, response: notifications };
+      return { status: HttpStatus.OK, response: notifications };
     },
     put: async ({ user, query, body }) => {
       console.info('Update notifications');
@@ -30,7 +30,7 @@ export const notificationsRouter = {
       await notificationRepository.updateMany(updatedNotifications);
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: updatedNotifications
       };
     }
@@ -43,11 +43,11 @@ export const notificationsRouter = {
         await notificationRepository.findUnique(notificationId);
 
       if (!notification) {
-        return { status: constants.HTTP_STATUS_NOT_FOUND };
+        return { status: HttpStatus.NOT_FOUND };
       }
 
       if (notification.recipientId !== user.id) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       const updatedNotification = {
@@ -58,7 +58,7 @@ export const notificationsRouter = {
       await notificationRepository.update(updatedNotification);
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: updatedNotification
       };
     }

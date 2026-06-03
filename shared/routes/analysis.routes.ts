@@ -45,12 +45,12 @@ export const analysisRoutes = {
     post: {
       body: z.object({ documentId: z.guid() }),
       permissions: ['performAnalysis'],
-      response: z.void()
+      response: z.undefined()
     },
     delete: {
       body: z.object({ documentId: z.guid() }),
       permissions: ['performAnalysis'],
-      response: z.void()
+      response: z.undefined()
     }
   }
 } as const satisfies SubRoutes<'/analysis'>;

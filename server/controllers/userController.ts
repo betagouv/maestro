@@ -1,4 +1,3 @@
-import { constants } from 'node:http2';
 import { intersection } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import {
@@ -8,6 +7,7 @@ import {
   userRegionsForRole
 } from 'maestro-shared/schema/User/User';
 import { isNationalRole } from 'maestro-shared/schema/User/UserRole';
+import { HttpStatus } from '../constants/httpStatus';
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { userService } from '../services/userService';
@@ -20,7 +20,7 @@ export const usersRouter = {
       const user = await userRepository.findUnique(userId);
 
       if (!user) {
-        return { status: constants.HTTP_STATUS_NOT_FOUND };
+        return { status: HttpStatus.NOT_FOUND };
       }
 
       if (
@@ -29,21 +29,21 @@ export const usersRouter = {
           userRegionsForRole(authUser, userRole)
         ).length === 0
       ) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
-      return { status: constants.HTTP_STATUS_OK, response: user };
+      return { status: HttpStatus.OK, response: user };
     },
     put: async ({ body }, { userId }) => {
       console.info('Update user', body);
 
       const userToUpdate = await userRepository.findUnique(userId);
       if (!userToUpdate) {
-        return { status: constants.HTTP_STATUS_NOT_FOUND };
+        return { status: HttpStatus.NOT_FOUND };
       }
 
       await userService.update(body, userId);
-      return { status: constants.HTTP_STATUS_OK };
+      return { status: HttpStatus.OK };
     }
   },
   '/users': {
@@ -77,13 +77,13 @@ export const usersRouter = {
 
       const users = await userRepository.findMany(findOptions);
 
-      return { status: constants.HTTP_STATUS_OK, response: users };
+      return { status: HttpStatus.OK, response: users };
     },
     post: async ({ body }) => {
       console.info('Create user', body);
 
       await userService.insert({ ...body, name: null });
-      return { status: constants.HTTP_STATUS_CREATED };
+      return { status: HttpStatus.CREATED };
     }
   }
 } as const satisfies ProtectedSubRouter;

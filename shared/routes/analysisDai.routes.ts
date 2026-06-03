@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { AnalysisDai } from '../schema/AnalysisDai/AnalysisDai';
 import { PaginatedAnalysisDaiAnalyses } from '../schema/AnalysisDai/AnalysisDaiAnalysisGroup';
 import { FindAnalysisDaiOptions } from '../schema/AnalysisDai/FindAnalysisDaiOptions';
 import type { SubRoutes } from './routes';
@@ -14,7 +13,7 @@ export const analysisDaiRoutes = {
     post: {
       body: z.object({ analysisId: z.guid() }),
       permissions: ['administrationMaestro'],
-      response: AnalysisDai
+      response: z.undefined()
     }
   }
 } as const satisfies SubRoutes<'/analysis-dai'>;

@@ -1,4 +1,4 @@
-import { constants } from 'node:http2';
+import { HttpStatus } from '../constants/httpStatus';
 import { analysisReportDocumentsRepository } from '../repositories/analysisReportDocumentsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
@@ -8,13 +8,13 @@ export const analysisReportDocumentsRouter = {
     get: async (_request, { analysisId }) => {
       const analysis = await analysisRepository.findUnique(analysisId);
       if (!analysis) {
-        return { status: constants.HTTP_STATUS_NOT_FOUND };
+        return { status: HttpStatus.NOT_FOUND };
       }
 
       const result =
         await analysisReportDocumentsRepository.findByAnalysisId(analysisId);
 
-      return { response: result.reverse(), status: constants.HTTP_STATUS_OK };
+      return { response: result.reverse(), status: HttpStatus.OK };
     },
     post: async (request, { analysisId }) => {
       const { documentId } = request.body;
@@ -22,7 +22,7 @@ export const analysisReportDocumentsRouter = {
       await analysisReportDocumentsRepository.insert(analysisId, documentId);
 
       return {
-        status: constants.HTTP_STATUS_CREATED
+        status: HttpStatus.CREATED
       };
     },
     delete: async (request, { analysisId }) => {
@@ -31,7 +31,7 @@ export const analysisReportDocumentsRouter = {
       await analysisReportDocumentsRepository.deleteOne(analysisId, documentId);
 
       return {
-        status: constants.HTTP_STATUS_OK
+        status: HttpStatus.OK
       };
     }
   }

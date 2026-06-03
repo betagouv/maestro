@@ -1,4 +1,3 @@
-import { constants } from 'node:http2';
 import { isNil } from 'lodash-es';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import {
@@ -15,6 +14,7 @@ import {
   isRegionalRole
 } from 'maestro-shared/schema/User/UserRole';
 import { v4 as uuidv4 } from 'uuid';
+import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckLocalPrescription } from '../middlewares/checks/localPrescriptionCheck';
 import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
@@ -124,7 +124,7 @@ export const localPrescriptionsRouter = {
       );
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: filterEmptyLocalPrescriptions
       };
     }
@@ -143,7 +143,7 @@ export const localPrescriptionsRouter = {
       });
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: localPrescription
       };
     },
@@ -177,7 +177,7 @@ export const localPrescriptionsRouter = {
         ).updateLaboratories && localPrescriptionUpdate.key === 'laboratories';
 
       if (!canUpdateSampleCount && !canUpdateLaboratories) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       if (canUpdateSampleCount) {
@@ -197,8 +197,11 @@ export const localPrescriptionsRouter = {
       const updatedLocalPrescription =
         await localPrescriptionRepository.findUnique(params);
 
+      if (!updatedLocalPrescription) {
+        throw new Error('Local prescription not found after update');
+      }
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: updatedLocalPrescription
       };
     }
@@ -252,7 +255,7 @@ export const localPrescriptionsRouter = {
         !canUpdateLaboratories &&
         !canDistributePrescriptionToSlaughterhouses
       ) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       if (canDistributeToDepartments) {
@@ -298,8 +301,11 @@ export const localPrescriptionsRouter = {
       const updatedLocalPrescription =
         await localPrescriptionRepository.findUnique(params);
 
+      if (!updatedLocalPrescription) {
+        throw new Error('Local prescription not found after update');
+      }
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: updatedLocalPrescription
       };
     }
@@ -321,7 +327,7 @@ export const localPrescriptionsRouter = {
         });
 
         return {
-          status: constants.HTTP_STATUS_OK,
+          status: HttpStatus.OK,
           response: localPrescription
         };
       }
@@ -350,7 +356,7 @@ export const localPrescriptionsRouter = {
       ).comment;
 
       if (!canComment) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       const prescriptionComment: LocalPrescriptionComment = {
@@ -397,7 +403,7 @@ export const localPrescriptionsRouter = {
       );
 
       return {
-        status: constants.HTTP_STATUS_CREATED,
+        status: HttpStatus.CREATED,
         response: prescriptionComment
       };
     }
@@ -427,7 +433,7 @@ export const localPrescriptionsRouter = {
         ).comment;
 
         if (!canComment) {
-          return { status: constants.HTTP_STATUS_FORBIDDEN };
+          return { status: HttpStatus.FORBIDDEN };
         }
 
         const prescriptionComment: LocalPrescriptionComment = {
@@ -479,7 +485,7 @@ export const localPrescriptionsRouter = {
         );
 
         return {
-          status: constants.HTTP_STATUS_CREATED,
+          status: HttpStatus.CREATED,
           response: prescriptionComment
         };
       }

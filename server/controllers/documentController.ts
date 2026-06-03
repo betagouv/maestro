@@ -1,4 +1,3 @@
-import { constants } from 'node:http2';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
 import { intersection, isNil, uniq } from 'lodash-es';
@@ -12,6 +11,7 @@ import {
 import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { UserRoleList } from 'maestro-shared/schema/User/UserRole';
+import { HttpStatus } from '../constants/httpStatus';
 import { documentRepository } from '../repositories/documentRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
@@ -26,25 +26,25 @@ export const documentsRouter = {
   '/documents': {
     post: async ({ body: documentToCreate, user, userRole }) => {
       if (!UploadDocumentKindList.includes(documentToCreate.kind)) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
       if (
         ResourceDocumentKindList.includes(documentToCreate.kind) &&
         !hasPermission(userRole, 'createResource')
       ) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
       if (
         documentToCreate.kind === 'AnalysisReportDocument' &&
         !hasPermission(userRole, 'performAnalysis')
       ) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
       if (
         documentToCreate.kind === 'SampleDocument' &&
         !hasPermission(userRole, 'createSample')
       ) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       console.log('Create document', documentToCreate);
@@ -58,6 +58,10 @@ export const documentsRouter = {
       await documentRepository.insert(document);
 
       const createdDocument = await documentRepository.findUnique(document.id);
+
+      if (!createdDocument) {
+        throw new Error('Document not found after insert');
+      }
 
       if (ResourceDocumentKindList.includes(documentToCreate.kind)) {
         const laboratoriesForDocument = await laboratoryRepository.findMany({
@@ -105,7 +109,7 @@ export const documentsRouter = {
       }
 
       return {
-        status: constants.HTTP_STATUS_CREATED,
+        status: HttpStatus.CREATED,
         response: createdDocument
       };
     }
@@ -139,7 +143,7 @@ export const documentsRouter = {
       });
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: documents
       };
     }
@@ -150,20 +154,20 @@ export const documentsRouter = {
         ResourceDocumentKindList.includes(body.kind) &&
         !hasPermission(userRole, 'createResource')
       ) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
       if (
         body.kind === 'AnalysisReportDocument' &&
         !hasPermission(userRole, 'performAnalysis')
       ) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       const result: { url: string; documentId: string } =
         await s3Service.getUploadSignedUrl(body.filename);
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: result
       };
     }
@@ -182,7 +186,7 @@ export const documentsRouter = {
         (ResourceDocumentKindList.includes(document.kind) &&
           !hasPermission(userRole, 'createResource'))
       ) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       const updatedDocument = {
@@ -194,7 +198,7 @@ export const documentsRouter = {
       await documentRepository.update(updatedDocument);
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: updatedDocument
       };
     },
@@ -202,26 +206,26 @@ export const documentsRouter = {
       const document = await documentRepository.findUnique(documentId);
 
       if (!document?.kind || !UploadDocumentKindList.includes(document?.kind)) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       if (
         ResourceDocumentKindList.includes(document.kind) &&
         !hasPermission(userRole, 'deleteDocument')
       ) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
       if (
         document?.kind === 'SampleDocument' &&
         !hasPermission(userRole, 'deleteSampleDocument')
       ) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       console.log('Delete document', documentId);
 
       await documentService.deleteDocument(documentId);
-      return { status: constants.HTTP_STATUS_NO_CONTENT };
+      return { status: HttpStatus.NO_CONTENT };
     },
     get: async (_, { documentId }) => {
       console.info('Find document', documentId);
@@ -232,7 +236,7 @@ export const documentsRouter = {
         throw new DocumentMissingError(documentId);
       }
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: document
       };
     }
@@ -257,7 +261,7 @@ export const documentsRouter = {
 
       const url = await getS3SignedUrl(client, command, { expiresIn: 3600 });
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: { url }
       };
     }
