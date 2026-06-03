@@ -13,12 +13,8 @@ import {
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import {
-  type ProgrammingPlanKind,
-  ProgrammingPlanKindLabels,
-  ProgrammingPlanKindList
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   type SampleStatus,
@@ -93,33 +89,31 @@ const SamplePrimaryFilters = ({
                 value: '',
                 onChange: (e) =>
                   onChange({
-                    kinds: [
-                      ...(filters.kinds ?? []),
-                      e.target.value as ProgrammingPlanKind
+                    programmingSubPlanIds: [
+                      ...(filters.programmingSubPlanIds ?? []),
+                      e.target.value as ProgrammingSubPlanId
                     ]
                   })
               }}
             >
               <option value="">
-                {filters.kinds?.length
-                  ? pluralize(filters.kinds.length, {
+                {filters.programmingSubPlanIds?.length
+                  ? pluralize(filters.programmingSubPlanIds.length, {
                       preserveCount: true
                     })('sous-plan')
                   : 'Tous'}
               </option>
-              {ProgrammingPlanKindList.filter(
-                (kind) =>
-                  (filters.programmingPlanIds ?? []).length === 0 ||
-                  (filters.programmingPlanIds ?? []).some((id) =>
-                    programmingPlans
-                      ?.find((plan) => plan.id === id)
-                      ?.kinds.includes(kind)
+              {(filters.programmingPlanIds?.length
+                ? programmingPlans?.filter((p) =>
+                    filters.programmingPlanIds?.includes(p.id)
                   )
+                : programmingPlans
               )
-                .filter((kind) => !filters.kinds?.includes(kind))
-                .map((kind) => (
-                  <option key={`programmingPlanKind-${kind}`} value={kind}>
-                    {ProgrammingPlanKindLabels[kind]}
+                ?.flatMap((plan) => plan.subPlans)
+                .filter((sp) => !filters.programmingSubPlanIds?.includes(sp.id))
+                .map((sp) => (
+                  <option key={`subPlan-${sp.id}`} value={sp.id}>
+                    {sp.label ?? sp.codeNat}
                   </option>
                 ))}
             </Select>

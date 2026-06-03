@@ -36,9 +36,8 @@ const submissionModal = createModal({
   isOpenedByDefault: false
 });
 
-const NotifiableStatusesByDistributionKind: Record<
-  DistributionKind,
-  ProgrammingPlanStatus[]
+const NotifiableStatusesByDistributionKind: Partial<
+  Record<DistributionKind, ProgrammingPlanStatus[]>
 > = {
   REGIONAL: ['InProgress', 'SubmittedToRegion', 'ApprovedByRegion'],
   SLAUGHTERHOUSE: ['InProgress']
@@ -113,9 +112,11 @@ const ProgrammingPlanNotificationNationalToRegional = ({
   return (
     <>
       {programmingPlan.regionalStatus.some((regionalStatus) =>
-        NotifiableStatusesByDistributionKind[
-          programmingPlan.distributionKind
-        ].includes(regionalStatus.status as ProgrammingPlanStatus)
+        (
+          NotifiableStatusesByDistributionKind[
+            programmingPlan.distributionKind
+          ] ?? []
+        ).includes(regionalStatus.status as ProgrammingPlanStatus)
       ) && (
         <div className="notify-regions-menu">
           <Button

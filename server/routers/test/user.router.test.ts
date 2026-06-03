@@ -96,7 +96,7 @@ describe('User router', () => {
 
       expect(res.body).toEqual({
         id: Sampler1Fixture.id,
-        programmingPlanKinds: Sampler1Fixture.programmingPlanKinds,
+        programmingSubPlanIds: Sampler1Fixture.programmingSubPlanIds,
         email: Sampler1Fixture.email,
         name: Sampler1Fixture.name,
         roles: Sampler1Fixture.roles,

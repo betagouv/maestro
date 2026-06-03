@@ -3,7 +3,6 @@ import { fakerFR } from '@faker-js/faker';
 import { MatrixKindEffective } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { RegionList } from 'maestro-shared/referential/Region';
 import type { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Prescription';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   genPrescription,
@@ -29,9 +28,9 @@ import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
 import {
   formatProgrammingPlan,
-  ProgrammingPlanKinds,
   ProgrammingPlanLocalStatus,
-  ProgrammingPlans
+  ProgrammingPlans,
+  ProgrammingSubPlans
 } from '../../repositories/programmingPlanRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
@@ -112,15 +111,17 @@ describe('Prescriptions router', () => {
         }))
       )
     );
-    await ProgrammingPlanKinds().insert(
+    await ProgrammingSubPlans().insert(
       [
         programmingPlanSubmitted,
         programmingPlanInProgress,
         programmingPlanClosed
       ].flatMap((plan) =>
-        plan.kinds.map((kind: ProgrammingPlanKind) => ({
+        plan.subPlans.map((sp) => ({
+          id: sp.id,
           programmingPlanId: plan.id,
-          kind
+          codeNat: sp.codeNat,
+          stages: sp.stages
         }))
       )
     );

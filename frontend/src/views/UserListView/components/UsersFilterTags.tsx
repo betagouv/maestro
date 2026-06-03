@@ -1,7 +1,6 @@
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { Regions } from 'maestro-shared/referential/Region';
-import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
@@ -10,10 +9,12 @@ import type { FindUserOptions } from './UsersFilters';
 type Props = {
   filters: FindUserOptions;
   onChange: (filters: Partial<FindUserOptions>) => void;
+  subPlanLabelById: Record<string, string>;
 };
 export const UsersFilterTags: FunctionComponent<Props> = ({
   filters,
   onChange,
+  subPlanLabelById,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -64,20 +65,20 @@ export const UsersFilterTags: FunctionComponent<Props> = ({
           {UserRoleLabels[role]}
         </Tag>
       ))}
-      {filters.programmingPlanKinds?.map((kind) => (
+      {filters.programmingSubPlanIds?.map((id) => (
         <Tag
-          key={`programmingPlanKind-${kind}`}
+          key={`programmingSubPlanId-${id}`}
           dismissible
           nativeButtonProps={{
             onClick: () =>
               onChange({
-                programmingPlanKinds: filters.programmingPlanKinds!.filter(
-                  (k) => k !== kind
+                programmingSubPlanIds: filters.programmingSubPlanIds!.filter(
+                  (k) => k !== id
                 )
               })
           }}
         >
-          {ProgrammingPlanKindLabels[kind]}
+          {subPlanLabelById[id] ?? id}
         </Tag>
       ))}
       {filters.onlyDisabled && (

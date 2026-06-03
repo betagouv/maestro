@@ -13,7 +13,7 @@ type Props<T extends ZodObject, U> = Omit<
   onChange: (values: NoInfer<U>[]) => void;
   values: U[];
   items: U[];
-  keysWithLabels: Record<string, string>;
+  keysWithLabels: Record<string, string | undefined>;
   defaultLabel: string;
   defaultEmptyLabel?: string;
   idKey?: keyof NoInfer<U>;

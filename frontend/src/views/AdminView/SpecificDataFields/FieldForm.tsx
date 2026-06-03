@@ -4,14 +4,14 @@ import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import type { CommemoratifSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import {
-  FieldInputType,
-  fieldInputTypeHasOptions
-} from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import type React from 'react';
 import { useContext, useEffect, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import z from 'zod';
+import {
+  FieldInputType,
+  fieldInputTypeHasOptions
+} from '../../../../../shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppSearchInput from '../../../components/_app/AppSearchInput/AppSearchInput';
 import AppSelect from '../../../components/_app/AppSelect/AppSelect';

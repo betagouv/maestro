@@ -82,8 +82,8 @@ const UsersSearchInput: FunctionComponent<{
               labels: users.reduce(
                 (acc, u) => {
                   let label = `${u.name ?? u.email} - ${u.roles.map((role) => UserRoleLabels[role]).join(',')}`;
-                  if (u.programmingPlanKinds) {
-                    label += ` - ${u.programmingPlanKinds.join(',')}`;
+                  if (u.programmingSubPlanIds?.length) {
+                    label += ` - ${u.programmingSubPlanIds.length} plans`;
                   }
                   if (u.region) {
                     label += ` - ${Regions[u.region].name}`;

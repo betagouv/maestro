@@ -1,15 +1,15 @@
 import type { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   type AdminFieldConfig,
-  CreatePlanKindFieldInput
+  CreateProgrammingSubPlanFieldInput
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import type { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import type React from 'react';
 import { useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
+import type { ProgrammingSubPlanFieldConfig } from '../../../../../shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppSelect from '../../../components/_app/AppSelect/AppSelect';
 import { useForm } from '../../../hooks/useForm';
@@ -23,15 +23,15 @@ type FormData = {
 interface Props {
   modal: ReturnType<typeof createModal>;
   programmingPlanId: string;
-  kind: ProgrammingPlanKind;
+  programmingSubPlanId: ProgrammingSubPlanId;
   allFields: AdminFieldConfig[];
-  activeFields: PlanKindFieldConfig[];
+  activeFields: ProgrammingSubPlanFieldConfig[];
 }
 
-export const AddFieldToKindModal = ({
+export const AddFieldToProgrammingSubPlanModal = ({
   modal,
   programmingPlanId,
-  kind,
+  programmingSubPlanId,
   allFields,
   activeFields,
   ..._rest
@@ -39,8 +39,8 @@ export const AddFieldToKindModal = ({
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
-  const [addPlanKindField, addPlanKindFieldResult] =
-    apiClient.useAddPlanKindFieldMutation();
+  const [addProgrammingSubPlanField, addProgrammingSubPlanFieldResult] =
+    apiClient.useAddProgrammingSubPlanFieldMutation();
 
   const nextOrder = activeFields.length + 1;
   const [formData, setFormData] = useState<FormData>({
@@ -48,7 +48,7 @@ export const AddFieldToKindModal = ({
     required: false
   });
 
-  const form = useForm(CreatePlanKindFieldInput, {
+  const form = useForm(CreateProgrammingSubPlanFieldInput, {
     fieldId: formData.fieldId,
     required: formData.required,
     order: nextOrder
@@ -70,7 +70,7 @@ export const AddFieldToKindModal = ({
   useIsModalOpen(modal, {
     onConceal: () => {
       form.reset();
-      addPlanKindFieldResult.reset();
+      addProgrammingSubPlanFieldResult.reset();
       setTimeout(
         () =>
           setFormData({
@@ -85,9 +85,9 @@ export const AddFieldToKindModal = ({
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     await form.validate(async (valid) => {
       try {
-        await addPlanKindField({
+        await addProgrammingSubPlanField({
           programmingPlanId,
-          kind,
+          programmingSubPlanId,
           ...valid
         }).unwrap();
         e.preventDefault();
@@ -137,7 +137,7 @@ export const AddFieldToKindModal = ({
           }
           showCheckedHint={false}
         />
-        <AppServiceErrorAlert call={addPlanKindFieldResult} />
+        <AppServiceErrorAlert call={addProgrammingSubPlanFieldResult} />
       </form>
     </modal.Component>
   );

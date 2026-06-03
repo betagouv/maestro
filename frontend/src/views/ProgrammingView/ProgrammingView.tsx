@@ -9,9 +9,9 @@ import { type Region, Regions } from 'maestro-shared/referential/Region';
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation-white.svg';
@@ -79,9 +79,10 @@ const ProgrammingView = () => {
               max(programmingPlans?.map((plan) => plan.year))
           ),
           programmingPlanId: searchParams.get('programmingPlanId'),
-          kinds:
-            (searchParams.get('kinds')?.split(',') as ProgrammingPlanKind[]) ??
-            undefined,
+          programmingSubPlanIds:
+            (searchParams
+              .get('programmingSubPlanIds')
+              ?.split(',') as ProgrammingSubPlanId[]) ?? undefined,
           context:
             (searchParams.get('context') as ProgrammingPlanContext) ?? undefined
         })
@@ -183,7 +184,8 @@ const ProgrammingView = () => {
                   <ProgrammingPrescriptionFilters
                     options={{
                       plans: programmingPlanOptions(prescriptionFilters),
-                      kinds: programmingPlanKindOptions(prescriptionFilters),
+                      programmingSubPlanIds:
+                        programmingPlanKindOptions(prescriptionFilters),
                       contexts: contextOptions(prescriptionFilters)
                     }}
                     filters={prescriptionFilters}

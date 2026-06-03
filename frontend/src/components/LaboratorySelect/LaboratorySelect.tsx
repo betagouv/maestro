@@ -1,7 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import { sortBy } from 'lodash-es';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { toArray } from 'maestro-shared/utils/utils';
 import { useContext } from 'react';
@@ -9,7 +9,7 @@ import { ApiClientContext } from '../../services/apiClient';
 
 interface Props {
   programmingPlanId: string | undefined;
-  programmingPlanKind?: ProgrammingPlanKind;
+  programmingSubPlanId?: ProgrammingSubPlanId;
   substanceKind?: SubstanceKind;
   laboratoryId?: string | null;
   laboratoryIds?: string[];
@@ -20,7 +20,7 @@ interface Props {
 
 const LaboratorySelect = ({
   programmingPlanId,
-  programmingPlanKind,
+  programmingSubPlanId,
   substanceKind,
   laboratoryId,
   laboratoryIds,
@@ -32,7 +32,7 @@ const LaboratorySelect = ({
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery({
     programmingPlanIds: toArray(programmingPlanId),
-    programmingPlanKind,
+    programmingSubPlanId,
     substanceKind
   });
 

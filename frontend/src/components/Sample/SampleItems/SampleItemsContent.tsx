@@ -20,6 +20,7 @@ interface Props {
   onAddItem?: (item: PartialSampleItem) => void;
   readonly: boolean;
   form?: UseForm<any>;
+  programmingSubPlanCodeNat?: string;
 }
 
 const SampleItemsContent = ({
@@ -29,7 +30,8 @@ const SampleItemsContent = ({
   onRemoveItem,
   onAddItem,
   readonly,
-  form
+  form,
+  programmingSubPlanCodeNat
 }: Props) => {
   return (
     <div className="d-flex-column">
@@ -43,6 +45,7 @@ const SampleItemsContent = ({
             onChangeItem={onChangeItem}
             itemsForm={form}
             readonly={readonly}
+            programmingSubPlanCodeNat={programmingSubPlanCodeNat}
           />
           {index < items.length - 1 && <hr className={cx('fr-mx-0')} />}
         </Fragment>
@@ -65,9 +68,7 @@ const SampleItemsContent = ({
                   quantityUnit: lastItem.quantityUnit,
                   substanceKind: lastItem.substanceKind,
                   compliance200263:
-                    partialSample.programmingPlanKind === 'PPV'
-                      ? undefined
-                      : true
+                    programmingSubPlanCodeNat === 'PPV' ? undefined : true
                 });
               }}
               className={cx('fr-my-1w')}

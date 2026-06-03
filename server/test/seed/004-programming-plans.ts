@@ -1,14 +1,14 @@
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   DAOAInProgressProgrammingPlanFixture,
+  DAOAValidatedProgrammingPlanFixture,
   PPVInProgressProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   formatProgrammingPlan,
-  ProgrammingPlanKinds,
   ProgrammingPlanLocalStatus,
-  ProgrammingPlans
+  ProgrammingPlans,
+  ProgrammingSubPlans
 } from '../../repositories/programmingPlanRepository';
 
 export const seed = async (): Promise<void> => {
@@ -16,6 +16,7 @@ export const seed = async (): Promise<void> => {
     [
       PPVValidatedProgrammingPlanFixture,
       PPVInProgressProgrammingPlanFixture,
+      DAOAValidatedProgrammingPlanFixture,
       DAOAInProgressProgrammingPlanFixture
     ].map(formatProgrammingPlan)
   );
@@ -24,6 +25,7 @@ export const seed = async (): Promise<void> => {
     [
       PPVValidatedProgrammingPlanFixture,
       PPVInProgressProgrammingPlanFixture,
+      DAOAValidatedProgrammingPlanFixture,
       DAOAInProgressProgrammingPlanFixture
     ].flatMap((plan) =>
       plan.regionalStatus.map((regionalStatus) =>
@@ -35,15 +37,22 @@ export const seed = async (): Promise<void> => {
     )
   );
 
-  await ProgrammingPlanKinds().insert(
+  await ProgrammingSubPlans().insert(
     [
       PPVValidatedProgrammingPlanFixture,
       PPVInProgressProgrammingPlanFixture,
+      DAOAValidatedProgrammingPlanFixture,
       DAOAInProgressProgrammingPlanFixture
     ].flatMap((plan) =>
-      plan.kinds.map((kind: ProgrammingPlanKind) => ({
+      plan.subPlans.map((subPlan) => ({
+        id: subPlan.id,
         programmingPlanId: plan.id,
-        kind
+        codeNat: subPlan.codeNat,
+        stages: subPlan.stages,
+        label: subPlan.label,
+        analysisPermissionRole: subPlan.analysisPermissionRole,
+        contactListId: subPlan.contactListId,
+        withSacha: subPlan.withSacha
       }))
     )
   );

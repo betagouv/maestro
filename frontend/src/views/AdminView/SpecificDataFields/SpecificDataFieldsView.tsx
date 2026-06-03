@@ -6,8 +6,6 @@ import clsx from 'clsx';
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import { fieldInputTypeHasOptions } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { useContext, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
-import { AuthenticatedAppRoutes } from 'src/AppRoutes';
 import { ApiClientContext } from '../../../services/apiClient';
 import { FieldCreateForm } from './FieldCreateForm';
 import { FieldDeleteConfirm } from './FieldDeleteConfirm';
@@ -21,20 +19,18 @@ const fieldDeleteModal = createModal({
   isOpenedByDefault: false
 });
 
+type View = 'list' | 'create' | AdminFieldConfig;
+
 export const SpecificDataFieldsView = () => {
   const apiClient = useContext(ApiClientContext);
-  const navigate = useNavigate();
-  const { section, itemId } = useParams();
 
   const { data: fields = [] } = apiClient.useFindAllFieldConfigsQuery();
   const { data: sachaFields = [] } = apiClient.useFindSachaFieldConfigsQuery();
 
+  const [view, setView] = useState<View>('list');
   const [fieldToDelete, setFieldToDelete] = useState<AdminFieldConfig | null>(
     null
   );
-
-  const goToList = () =>
-    navigate(AuthenticatedAppRoutes.AdminRoute.link(section as string));
 
   const isComplete = useMemo(() => {
     for (const fc of sachaFields) {
@@ -60,22 +56,20 @@ export const SpecificDataFieldsView = () => {
 
   const onCreated = (field: AdminFieldConfig) => {
     if (fieldInputTypeHasOptions(field.inputType)) {
-      navigate(
-        AuthenticatedAppRoutes.AdminRoute.link(section as string, field.id)
-      );
+      setView(field);
     } else {
-      goToList();
+      setView('list');
     }
   };
 
-  if (itemId === 'create') {
+  if (view === 'create') {
     return (
       <div className={cx('fr-p-2w')}>
         <h3 className={clsx('d-flex-align-center', cx('fr-mt-2w'))}>
           <Button
             priority="tertiary no outline"
             iconId="fr-icon-arrow-left-line"
-            onClick={goToList}
+            onClick={() => setView('list')}
             title="Retour à la liste"
           ></Button>
           Nouveau descripteur
@@ -85,18 +79,15 @@ export const SpecificDataFieldsView = () => {
     );
   }
 
-  if (itemId) {
-    const field = fields.find((f) => f.id === itemId);
-    if (!field) {
-      return null;
-    }
+  if (view !== 'list') {
+    const field = fields.find((f) => f.id === view.id) ?? view;
     return (
       <div className={cx('fr-p-2w')}>
         <h3 className={clsx('d-flex-align-center', cx('fr-mt-2w'))}>
           <Button
             priority="tertiary no outline"
             iconId="fr-icon-arrow-left-line"
-            onClick={goToList}
+            onClick={() => setView('list')}
             title="Retour à la liste"
           />
           Descripteur : <code>{field.key}</code>
@@ -130,16 +121,8 @@ export const SpecificDataFieldsView = () => {
       <FieldsTable
         fields={fields}
         sachaFields={sachaFields}
-        onAdd={() =>
-          navigate(
-            AuthenticatedAppRoutes.AdminRoute.link(section as string, 'create')
-          )
-        }
-        onEdit={(field) =>
-          navigate(
-            AuthenticatedAppRoutes.AdminRoute.link(section as string, field.id)
-          )
-        }
+        onAdd={() => setView('create')}
+        onEdit={(field) => setView(field)}
         onDelete={onDelete}
       />
 

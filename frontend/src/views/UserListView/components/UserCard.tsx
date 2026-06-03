@@ -4,7 +4,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { Regions } from 'maestro-shared/referential/Region';
-import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   canHaveDepartment,
@@ -21,12 +20,14 @@ import { useMascarade } from '../../../components/Mascarade/useMascarade';
 
 type Props = {
   user: UserRefined;
+  subPlanLabelById: Record<string, string>;
   onEdit: () => void;
   onDisable: () => void;
   onEnable: () => void;
 };
 export const UserCard: FunctionComponent<Props> = ({
   user,
+  subPlanLabelById,
   onEdit,
   onDisable,
   onEnable,
@@ -106,16 +107,16 @@ export const UserCard: FunctionComponent<Props> = ({
                 ? Regions[user.region].name
                 : 'France'}
           </span>
-          {isNotEmpty(user.programmingPlanKinds) && (
+          {isNotEmpty(user.programmingSubPlanIds) && (
             <span>
-              {user.programmingPlanKinds.map((p) => (
+              {user.programmingSubPlanIds.map((p) => (
                 <Tag
                   key={p}
                   as={'span'}
                   small={true}
                   className={clsx('fr-mb-1w')}
                 >
-                  {ProgrammingPlanKindLabels[p]}
+                  {subPlanLabelById[p] ?? p}
                 </Tag>
               ))}
             </span>

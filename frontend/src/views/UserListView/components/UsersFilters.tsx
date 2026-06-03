@@ -11,11 +11,7 @@ import {
   DepartmentSort
 } from 'maestro-shared/referential/Department';
 import { Region, Regions } from 'maestro-shared/referential/Region';
-import {
-  ProgrammingPlanKind,
-  ProgrammingPlanKindLabels,
-  ProgrammingPlanKindListSorted
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   UserRole,
   UserRoleLabels,
@@ -34,7 +30,7 @@ const _findUserOptions = z.object({
   regions: z.array(Region).nullable(),
   departments: z.array(Department).nullable(),
   roles: z.array(UserRole).nullable(),
-  programmingPlanKinds: z.array(ProgrammingPlanKind).nullable(),
+  programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullable(),
   label: z.string().nullable(),
   onlyDisabled: z.boolean().nullable()
 });
@@ -43,9 +39,11 @@ export type FindUserOptions = z.infer<typeof _findUserOptions>;
 
 type Props = {
   onChange: (options: FindUserOptions) => void;
+  subPlanLabelById: Record<string, string>;
 };
 export const UsersFilters: FunctionComponent<Props> = ({
   onChange,
+  subPlanLabelById,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -55,7 +53,7 @@ export const UsersFilters: FunctionComponent<Props> = ({
     regions: null,
     roles: null,
     departments: null,
-    programmingPlanKinds: null,
+    programmingSubPlanIds: null,
     label: null,
     onlyDisabled: null
   });
@@ -94,7 +92,11 @@ export const UsersFilters: FunctionComponent<Props> = ({
           </Accordion>
           {hasFilter && (
             <div className="d-flex-align-center">
-              <UsersFilterTags filters={filters} onChange={updateFilters} />
+              <UsersFilterTags
+                filters={filters}
+                onChange={updateFilters}
+                subPlanLabelById={subPlanLabelById}
+              />
             </div>
           )}
         </>
@@ -113,7 +115,11 @@ export const UsersFilters: FunctionComponent<Props> = ({
                   Filtres actifs
                 </span>
                 <div className={cx('fr-mt-3v')}>
-                  <UsersFilterTags filters={filters} onChange={updateFilters} />
+                  <UsersFilterTags
+                    filters={filters}
+                    onChange={updateFilters}
+                    subPlanLabelById={subPlanLabelById}
+                  />
                 </div>
               </div>
             )}
@@ -130,7 +136,7 @@ const Filters: FunctionComponent<
   regions,
   departments,
   roles,
-  programmingPlanKinds,
+  programmingSubPlanIds,
   label,
   onlyDisabled,
   onChange,
@@ -231,29 +237,16 @@ const Filters: FunctionComponent<
           label="Plan"
           nativeSelectProps={{
             value: '',
-            onChange: (e) =>
-              onChange({
-                programmingPlanKinds: [
-                  ...(programmingPlanKinds ?? []),
-                  e.target.value as ProgrammingPlanKind
-                ]
-              })
+            disabled: true
           }}
         >
           <option value="">
-            {programmingPlanKinds?.length
-              ? pluralize(programmingPlanKinds.length, { preserveCount: true })(
-                  'plan'
-                )
+            {programmingSubPlanIds?.length
+              ? pluralize(programmingSubPlanIds.length, {
+                  preserveCount: true
+                })('plan')
               : 'Tous'}
           </option>
-          {ProgrammingPlanKindListSorted.filter(
-            (k) => !(programmingPlanKinds ?? []).includes(k)
-          ).map((k) => (
-            <option key={`plan-${k}`} value={k}>
-              {ProgrammingPlanKindLabels[k]}
-            </option>
-          ))}
         </Select>
       </div>
 

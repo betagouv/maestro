@@ -7,8 +7,8 @@ import {
 import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import { Stage, StageLabels } from '../../referential/Stage';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 import type { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 import { hasPermission } from '../User/User';
 import type { UserRole } from '../User/UserRole';
 import { PrescriptionSubstance } from './PrescriptionSubstance';
@@ -16,7 +16,7 @@ import { PrescriptionSubstance } from './PrescriptionSubstance';
 export const Prescription = z.object({
   id: z.guid(),
   programmingPlanId: z.guid(),
-  programmingPlanKind: ProgrammingPlanKind,
+  programmingSubPlanId: ProgrammingSubPlanId,
   context: ProgrammingPlanContext,
   matrixKind: MatrixKind,
   matrix: Matrix.nullish(),

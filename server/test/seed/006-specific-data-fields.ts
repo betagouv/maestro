@@ -2,7 +2,7 @@
 import { AllFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
 import { kysely } from '../../repositories/kysely';
 import type {
-  ProgrammingPlanKindFieldId,
+  ProgrammingSubPlanFieldId,
   SpecificDataFieldOptionId
 } from '../../repositories/kysely.type';
 
@@ -67,63 +67,62 @@ export const seed = async (): Promise<void> => {
     }
   }
 
-  // Fetch existing (programmingPlanId, kind) pairs from the DB
-  const programmingPlanKinds = await kysely
-    .selectFrom('programmingPlanKinds')
-    .select(['programmingPlanId', 'kind'])
+  const programmingSubPlans = await kysely
+    .selectFrom('programmingSubPlans')
+    .select(['id', 'codeNat'])
     .execute();
 
-  if (programmingPlanKinds.length === 0) {
+  if (programmingSubPlans.length === 0) {
     return;
   }
 
-  const planKindFieldRows = await kysely
-    .insertInto('programmingPlanKindFields')
+  const programmingSubPlanFieldRows = await kysely
+    .insertInto('programmingProgrammingSubPlanFields')
     .values(
-      programmingPlanKinds.flatMap(({ programmingPlanId, kind }) =>
-        AllFieldConfigs.filter((c) => c.programmingPlanKind === kind).map(
-          (c) => ({
-            programmingPlanId,
-            kind,
-            fieldId: fieldIdByKey[c.field.key],
-            required: c.required,
-            order: c.order
-          })
-        )
+      programmingSubPlans.flatMap(({ id: programmingSubPlanId, codeNat }) =>
+        AllFieldConfigs.filter(
+          (c) => c.programmingSubPlanId === programmingSubPlanId
+        ).map((c) => ({
+          programmingSubPlanId,
+          fieldId: fieldIdByKey[c.field.key],
+          required: c.required,
+          order: c.order
+        }))
       )
     )
-    .returning(['id', 'programmingPlanId', 'kind', 'fieldId'])
+    .returning(['id', 'programmingSubPlanId', 'fieldId'])
     .execute();
 
   const fieldKeyById = Object.fromEntries(fieldRows.map((r) => [r.id, r.key]));
-  const planKindFieldId: Record<
+  const programmingSubPlanFieldId: Record<
     string,
-    Record<string, Record<string, ProgrammingPlanKindFieldId>>
+    Record<string, ProgrammingSubPlanFieldId>
   > = {};
-  for (const r of planKindFieldRows) {
-    planKindFieldId[r.programmingPlanId] ??= {};
-    (planKindFieldId[r.programmingPlanId][r.kind] ??= {})[
+  for (const r of programmingSubPlanFieldRows) {
+    (programmingSubPlanFieldId[r.programmingSubPlanId] ??= {})[
       fieldKeyById[r.fieldId]
     ] = r.id;
   }
 
-  // Insert plan-kind-field-option rows (only options enabled per plan kind)
-  const planKindFieldOptionInserts = planKindFieldRows.flatMap((r) => {
-    const key = fieldKeyById[r.fieldId];
-    const config = AllFieldConfigs.find(
-      (c) => c.programmingPlanKind === r.kind && c.field.key === key
-    );
-    return (config?.field.options ?? []).map((o) => ({
-      programmingPlanKindFieldId:
-        planKindFieldId[r.programmingPlanId][r.kind][key],
-      specificDataFieldOptionId: optionIdByFieldAndValue[key]?.[o.value]
-    }));
-  });
+  const programmingSubPlanFieldOptionInserts =
+    programmingSubPlanFieldRows.flatMap((r) => {
+      const key = fieldKeyById[r.fieldId];
+      const config = AllFieldConfigs.find(
+        (c) =>
+          c.programmingSubPlanId === r.programmingSubPlanId &&
+          c.field.key === key
+      );
+      return (config?.field.options ?? []).map((o) => ({
+        programmingProgrammingSubPlanFieldId:
+          programmingSubPlanFieldId[r.programmingSubPlanId][key],
+        specificDataFieldOptionId: optionIdByFieldAndValue[key]?.[o.value]
+      }));
+    });
 
-  if (planKindFieldOptionInserts.length > 0) {
+  if (programmingSubPlanFieldOptionInserts.length > 0) {
     await kysely
-      .insertInto('programmingPlanKindFieldOptions')
-      .values(planKindFieldOptionInserts)
+      .insertInto('programmingProgrammingSubPlanFieldOptions')
+      .values(programmingSubPlanFieldOptionInserts)
       .execute();
   }
 };

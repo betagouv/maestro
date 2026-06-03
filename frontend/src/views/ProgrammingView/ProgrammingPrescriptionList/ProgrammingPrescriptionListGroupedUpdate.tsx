@@ -7,11 +7,11 @@ import { useRef } from 'react';
 import { pluralize } from 'src/utils/stringUtils';
 import LocalPrescriptionSubstanceKindsLaboratories from '../../../components/LocalPrescription/LocalPrescriptionSubstanceKindsLaboratories/LocalPrescriptionSubstanceKindsLaboratories';
 import './ProgrammingPrescriptionList.scss';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 
 interface Props {
   programmingPlan: ProgrammingPlanChecked;
-  programmingPlanKind: ProgrammingPlanKind;
+  programmingSubPlanId: ProgrammingSubPlanId;
   selectedCount: number;
   totalCount: number;
   onSubmit: (
@@ -23,7 +23,7 @@ interface Props {
 
 const ProgrammingPrescriptionListGroupedUpdate = ({
   programmingPlan,
-  programmingPlanKind,
+  programmingSubPlanId,
   selectedCount,
   totalCount,
   onSubmit,
@@ -60,7 +60,7 @@ const ProgrammingPrescriptionListGroupedUpdate = ({
           <LocalPrescriptionSubstanceKindsLaboratories
             ref={laboratoriesUpdateContentRef}
             programmingPlanId={programmingPlan.id}
-            programmingPlanKind={programmingPlanKind}
+            programmingSubPlanId={programmingSubPlanId}
             substanceKindsLaboratories={programmingPlan.substanceKinds.map(
               (substanceKind) => ({
                 substanceKind,

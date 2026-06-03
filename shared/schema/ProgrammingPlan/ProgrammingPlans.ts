@@ -12,20 +12,20 @@ import {
 import { ProgrammingPlanContext } from './Context';
 import { DistributionKind } from './DistributionKind';
 import { ProgrammingPlanDomain } from './ProgrammingPlanDomain';
-import { ProgrammingPlanKind } from './ProgrammingPlanKind';
 import {
   ProgrammingPlanDepartmentalStatus,
   ProgrammingPlanRegionalStatus
 } from './ProgrammingPlanLocalStatus';
 import type { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
+import { ProgrammingSubPlan } from './ProgrammingSubPlan';
 
 export const ProgrammingPlanBase = z.object({
   id: z.guid(),
   domain: ProgrammingPlanDomain,
   title: z.string().min(1, 'Veuillez renseigner le titre.'),
-  kinds: z
-    .array(ProgrammingPlanKind)
-    .min(1, 'Veuillez renseigner au moins un type de plan.'),
+  subPlans: z
+    .array(ProgrammingSubPlan)
+    .min(1, 'Veuillez renseigner au moins un sous-plan.'),
   contexts: z
     .array(ProgrammingPlanContext)
     .min(1, 'Veuillez renseigner au moins un contexte.'),

@@ -8,14 +8,10 @@ import {
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import type { Company } from 'maestro-shared/schema/Company/Company';
 import {
-  ProgrammingPlanKindLabels,
-  ProgrammingPlanKindList
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import {
   companiesIsRequired,
   departmentIsRequired,
   laboratoryIsRequired,
-  programmingPlanKindsIsRequired,
+  programmingSubPlanIdsIsRequired,
   type UserRefined,
   UserToCreateRefined
 } from 'maestro-shared/schema/User/User';
@@ -59,7 +55,7 @@ const regionOptions = selectOptionsFromList(RegionList, {
 const userDefaultValue: Nullable<UserToCreateRefined> = {
   email: null,
   roles: [],
-  programmingPlanKinds: [],
+  programmingSubPlanIds: [],
   region: null,
   department: null,
   companies: [],
@@ -128,13 +124,7 @@ export const UserModal = ({
 
   const [companies, setCompanies] = useState<Company[]>([]);
   useEffect(() => {
-    if (
-      companiesIsRequired({
-        programmingPlanKinds: user.programmingPlanKinds,
-        roles: user.roles
-      }) &&
-      !user.programmingPlanKinds?.includes('PPV')
-    ) {
+    if (companiesIsRequired({ roles: user.roles })) {
       findCompanies({
         kinds: ['MEAT_SLAUGHTERHOUSE', 'POULTRY_SLAUGHTERHOUSE'],
         region: user.region ?? undefined,
@@ -148,7 +138,7 @@ export const UserModal = ({
   }, [
     user.region,
     user.department,
-    user.programmingPlanKinds,
+    user.programmingSubPlanIds,
     user.roles,
     findCompanies
   ]);
@@ -274,22 +264,22 @@ export const UserModal = ({
         )}
         <AppMultiSelect
           inputForm={form}
-          inputKey={'programmingPlanKinds'}
-          items={ProgrammingPlanKindList}
+          inputKey={'programmingSubPlanIds'}
+          items={[]}
           onChange={(v) =>
             setUser((u) => ({
               ...u,
-              programmingPlanKinds: v
+              programmingSubPlanIds: v
             }))
           }
-          values={user.programmingPlanKinds ?? []}
-          keysWithLabels={ProgrammingPlanKindLabels}
+          values={user.programmingSubPlanIds ?? []}
+          keysWithLabels={{}}
           defaultLabel={'plan sélectionné'}
           label={'Plans'}
-          required={programmingPlanKindsIsRequired(user)}
+          required={programmingSubPlanIdsIsRequired(user)}
         />
 
-        {companiesIsRequired(user) && (
+        {companiesIsRequired({ roles: user.roles }) && (
           <CompanySearch
             label={
               <>

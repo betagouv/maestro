@@ -44,7 +44,8 @@ import SupportDocumentDownload from '../SupportDocumentDownload';
 const ItemsStep = ({ partialSample }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
-  const { readonly, programmingPlan } = usePartialSample(partialSample);
+  const { readonly, programmingPlan, programmingSubPlan } =
+    usePartialSample(partialSample);
   const { trackEvent } = useAnalytics();
   const { user } = useAuthentication();
 
@@ -111,7 +112,7 @@ const ItemsStep = ({ partialSample }: Props) => {
             laboratoryId: substanceKindLaboratory.laboratoryId,
             substanceKind: substanceKindLaboratory.substanceKind,
             compliance200263:
-              partialSample.programmingPlanKind === 'PPV' ? undefined : true
+              programmingSubPlan?.codeNat === 'PPV' ? undefined : true
           }))
       );
     }

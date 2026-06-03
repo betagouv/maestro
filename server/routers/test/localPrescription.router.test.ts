@@ -17,7 +17,6 @@ import type {
   LocalPrescriptionCommentToCreate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
 import {
@@ -61,9 +60,9 @@ import { LocalPrescriptionSubstanceKindsLaboratories } from '../../repositories/
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatProgrammingPlan,
-  ProgrammingPlanKinds,
   ProgrammingPlanLocalStatus,
-  ProgrammingPlans
+  ProgrammingPlans,
+  ProgrammingSubPlans
 } from '../../repositories/programmingPlanRepository';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
@@ -223,15 +222,17 @@ describe('Local prescriptions router', () => {
       )
     );
 
-    await ProgrammingPlanKinds().insert(
+    await ProgrammingSubPlans().insert(
       [
         programmingPlanClosed,
         programmingPlanValidated,
         programmingPlanSubmitted
       ].flatMap((plan) =>
-        plan.kinds.map((kind: ProgrammingPlanKind) => ({
+        plan.subPlans.map((sp) => ({
+          id: sp.id,
           programmingPlanId: plan.id,
-          kind
+          codeNat: sp.codeNat,
+          stages: sp.stages
         }))
       )
     );
@@ -1067,10 +1068,12 @@ describe('Local prescriptions router', () => {
           programmingPlanId: plan.id
         }))
       ]);
-      await ProgrammingPlanKinds().insert(
-        plan.kinds.map((kind: ProgrammingPlanKind) => ({
+      await ProgrammingSubPlans().insert(
+        plan.subPlans.map((sp) => ({
+          id: sp.id,
           programmingPlanId: plan.id,
-          kind
+          codeNat: sp.codeNat,
+          stages: sp.stages
         }))
       );
     };

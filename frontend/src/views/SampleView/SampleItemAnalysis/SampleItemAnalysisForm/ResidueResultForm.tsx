@@ -22,7 +22,6 @@ import {
   type ResidueKind,
   ResidueKindLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
@@ -37,7 +36,7 @@ import ResidueSimpleForm from './ResidueSimpleForm';
 import type { ResiduesLmrValidator } from './SampleAnalysisForm';
 
 type Props = {
-  programmingPlanKind: ProgrammingPlanKind;
+  programmingSubPlanCodeNat: string;
   residue: PartialResidue | undefined;
   residueIndex: number;
   form: UseForm<ResiduesLmrValidator>;
@@ -45,7 +44,7 @@ type Props = {
   onChange: (residue: PartialResidue, index: number) => void;
 };
 export const ResidueResultForm: FunctionComponent<Props> = ({
-  programmingPlanKind,
+  programmingSubPlanCodeNat,
   residue,
   residueIndex,
   form,
@@ -192,7 +191,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
           {kind === 'Simple' && (
             <ResidueSimpleForm
               form={form}
-              programmingPlanKind={programmingPlanKind}
+              programmingSubPlanCodeNat={programmingSubPlanCodeNat}
               residue={residue}
               residueIndex={residueIndex}
               changeResidue={onChange}
@@ -201,7 +200,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
           {kind === 'Complex' && (
             <ResidueComplexForm
               form={form}
-              programmingPlanKind={programmingPlanKind}
+              programmingSubPlanCodeNat={programmingSubPlanCodeNat}
               residue={residue}
               residueReference={residue.reference}
               residueIndex={residueIndex}
@@ -212,7 +211,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
             <ResidueInterpretationForm
               form={form}
               onChangeResidue={onChange}
-              programmingPlanKind={programmingPlanKind}
+              programmingSubPlanCodeNat={programmingSubPlanCodeNat}
               residue={residue}
               residueIndex={residueIndex}
             />

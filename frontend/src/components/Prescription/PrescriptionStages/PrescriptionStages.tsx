@@ -2,11 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import Tag from '@codegouvfr/react-dsfr/Tag';
-import {
-  type Stage,
-  StageLabels,
-  StagesByProgrammingPlanKind
-} from 'maestro-shared/referential/Stage';
+import { type Stage, StageLabels } from 'maestro-shared/referential/Stage';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useState } from 'react';
@@ -50,9 +46,11 @@ const PrescriptionStages = ({
             className={cx('fr-mb-1w')}
           >
             {selectOptionsFromList(
-              StagesByProgrammingPlanKind[
-                prescription.programmingPlanKind
-              ].filter((s) => !prescription.stages.includes(s)),
+              (
+                programmingPlan.subPlans.find(
+                  (sp) => sp.id === prescription.programmingSubPlanId
+                )?.stages ?? []
+              ).filter((s) => !prescription.stages.includes(s)),
               {
                 defaultLabel: 'Sélectionner',
                 labels: StageLabels,

@@ -6,11 +6,8 @@ import {
   ContextLabels,
   type ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import {
-  type ProgrammingPlanKind,
-  ProgrammingPlanKindLabels
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useMemo } from 'react';
 import FiltersTags from '../../../components/FilterTags/FiltersTags';
 import type { PrescriptionFilters } from '../../../store/reducers/prescriptionsSlice';
@@ -18,7 +15,7 @@ import type { PrescriptionFilters } from '../../../store/reducers/prescriptionsS
 interface Props {
   options: {
     plans: ProgrammingPlanChecked[];
-    kinds: ProgrammingPlanKind[];
+    programmingSubPlanIds: string[];
     contexts: ProgrammingPlanContext[];
   };
   programmingPlans?: ProgrammingPlanChecked[];
@@ -40,6 +37,16 @@ const ProgrammingPrescriptionFilters = ({
       cx('fr-col-12', renderMode === 'inline' ? 'fr-col-md-4' : 'fr-col-md-6'),
     [renderMode]
   );
+
+  const subPlanLabelById = useMemo(() => {
+    const map: Record<string, string> = {};
+    options.plans.forEach((plan) =>
+      plan.subPlans.forEach((sp) => {
+        map[sp.id] = sp.label ?? sp.codeNat;
+      })
+    );
+    return map;
+  }, [options.plans]);
 
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -70,48 +77,52 @@ const ProgrammingPrescriptionFilters = ({
         <Select
           label="Sous-plan"
           nativeSelectProps={{
-            value: filters.kinds?.[0] ?? '',
+            value: filters.programmingSubPlanIds?.[0] ?? '',
             onChange: (e) =>
               onChange({
-                kinds: multiSelect
+                programmingSubPlanIds: multiSelect
                   ? [
-                      ...(filters.kinds ?? []),
-                      e.target.value as ProgrammingPlanKind
+                      ...(filters.programmingSubPlanIds ?? []),
+                      e.target.value as ProgrammingSubPlanId
                     ]
-                  : [e.target.value as ProgrammingPlanKind]
+                  : [e.target.value as ProgrammingSubPlanId]
               })
           }}
           className={cx('fr-mb-1v')}
-          disabled={options.kinds.length <= 1}
+          disabled={options.programmingSubPlanIds.length <= 1}
         >
-          {options.kinds.length > 1 && (
+          {options.programmingSubPlanIds.length > 1 && (
             <option value="">
-              {multiSelect && filters.kinds?.length
+              {multiSelect && filters.programmingSubPlanIds?.length
                 ? t('select', {
-                    count: filters.kinds?.length
+                    count: filters.programmingSubPlanIds?.length
                   })
                 : multiSelect
                   ? 'Tous'
                   : 'Sélectionner une valeur'}
             </option>
           )}
-          {options.kinds
+          {options.programmingSubPlanIds
             .filter(
               (kind) =>
-                options.kinds.length === 1 ||
+                options.programmingSubPlanIds.length === 1 ||
                 !multiSelect ||
-                !filters.kinds?.includes(kind)
+                !filters.programmingSubPlanIds?.includes(
+                  kind as ProgrammingSubPlanId
+                )
             )
             .map((kind) => (
               <option key={`kind-${kind}`} value={kind}>
-                {ProgrammingPlanKindLabels[kind]}
+                {subPlanLabelById[kind] ?? kind}
               </option>
             ))}
         </Select>
-        {multiSelect && options.kinds.length > 1 && (
+        {multiSelect && options.programmingSubPlanIds.length > 1 && (
           <FiltersTags
-            filters={pick(filters, ['kinds'])}
-            onChange={({ kinds }) => onChange({ kinds })}
+            filters={pick(filters, ['programmingSubPlanIds'])}
+            onChange={({ programmingSubPlanIds }) =>
+              onChange({ programmingSubPlanIds })
+            }
           />
         )}
       </div>

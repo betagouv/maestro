@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { Department } from '../../referential/Department';
 import { Region } from '../../referential/Region';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 
 export const LocalPrescriptionOptionsInclude = z.enum([
   'comments',
@@ -17,7 +17,7 @@ export type LocalPrescriptionOptionsInclude = z.infer<
 export const FindLocalPrescriptionOptions = z.object({
   programmingPlanId: z.guid(),
   prescriptionId: z.guid().nullish(),
-  programmingPlanKinds: z.array(ProgrammingPlanKind).nullish(),
+  programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullish(),
   contexts: z.array(ProgrammingPlanContext).nullish(),
   region: Region.nullish(),
   department: Department.nullish(),

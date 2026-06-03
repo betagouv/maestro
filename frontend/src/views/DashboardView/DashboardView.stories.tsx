@@ -5,7 +5,10 @@ import {
   genLocalPrescription,
   genPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  genProgrammingPlan,
+  PPVSubPlanId
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { genCreatedPartialSample } from 'maestro-shared/test/sampleFixtures';
 import {
   genAuthUser,
@@ -79,7 +82,7 @@ export const DashboardViewForSampler: Story = {
           userRole: 'Sampler',
           region: Region1Fixture,
           id: Sampler1Fixture.id,
-          programmingPlanKinds: ['PPV']
+          programmingSubPlanIds: [PPVSubPlanId]
         })
       }
     },

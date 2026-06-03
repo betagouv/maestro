@@ -16,11 +16,7 @@ import type {
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
-import {
-  type ProgrammingPlanKind,
-  ProgrammingPlanKindLabels,
-  ProgrammingPlanKindReference
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useLayoutEffect, useRef, useState } from 'react';
@@ -33,19 +29,17 @@ const LABS_DISPLAY_LIMIT = 6;
 const MATRIX_DISPLAY_LIMIT = 3;
 
 export type AgreementRow = {
-  programmingPlanId: string;
-  programmingPlanKind: ProgrammingPlanKind;
+  programmingSubPlanId: ProgrammingSubPlanId;
+  subPlanCodeNat: string;
+  subPlanLabel: string;
   programmingPlanYear: number;
   substanceKind: SubstanceKind;
   laboratories: LaboratoryAgreement[];
 };
 
 export const toRowKey = (
-  row: Pick<
-    AgreementRow,
-    'programmingPlanId' | 'programmingPlanKind' | 'substanceKind'
-  >
-) => `${row.programmingPlanId}_${row.programmingPlanKind}_${row.substanceKind}`;
+  row: Pick<AgreementRow, 'programmingSubPlanId' | 'substanceKind'>
+) => `${row.programmingSubPlanId}_${row.substanceKind}`;
 
 interface Props {
   rows: AgreementRow[];
@@ -55,9 +49,9 @@ interface Props {
   checks: LaboratoryAgreementRowKey[];
   laboratories: Laboratory[];
   allPrescriptions: Prescription[];
-  kindFilter: ProgrammingPlanKind[];
-  kindOptions: { value: ProgrammingPlanKind; label: string }[];
-  onKindFilterChange: (values: ProgrammingPlanKind[]) => void;
+  kindFilter: ProgrammingSubPlanId[];
+  kindOptions: { value: ProgrammingSubPlanId; label: string }[];
+  onKindFilterChange: (values: ProgrammingSubPlanId[]) => void;
   substanceFilter: SubstanceKind[];
   substanceOptions: { value: SubstanceKind; label: string }[];
   onSubstanceFilterChange: (values: SubstanceKind[]) => void;
@@ -123,8 +117,7 @@ const LaboratoryAgreementsTable = ({
   const isRowChecked = (row: AgreementRow) =>
     checks.some(
       (c) =>
-        c.programmingPlanId === row.programmingPlanId &&
-        c.programmingPlanKind === row.programmingPlanKind &&
+        c.programmingSubPlanId === row.programmingSubPlanId &&
         c.substanceKind === row.substanceKind
     );
 
@@ -412,7 +405,7 @@ const LaboratoryAgreementsTable = ({
                 key={`reference-${rowKey}`}
                 className={clsx('border-left', 'row-reference')}
               >
-                {ProgrammingPlanKindReference[row.programmingPlanKind]}
+                {row.subPlanCodeNat}
                 <Button
                   iconId={
                     isExpanded
@@ -432,9 +425,7 @@ const LaboratoryAgreementsTable = ({
                 {(() => {
                   const allMatrices = allPrescriptions
                     .filter(
-                      (p) =>
-                        p.programmingPlanId === row.programmingPlanId &&
-                        p.programmingPlanKind === row.programmingPlanKind
+                      (p) => p.programmingSubPlanId === row.programmingSubPlanId
                     )
                     .map(getPrescriptionTitle);
                   const isMatrixExpanded =
@@ -600,8 +591,7 @@ const LaboratoryAgreementsTable = ({
                             }, 700);
                             setTimeout(() => {
                               onUpdateCheck({
-                                programmingPlanId: row.programmingPlanId,
-                                programmingPlanKind: row.programmingPlanKind,
+                                programmingSubPlanId: row.programmingSubPlanId,
                                 substanceKind: row.substanceKind,
                                 checked: true
                               });
@@ -614,8 +604,7 @@ const LaboratoryAgreementsTable = ({
                             }, 1000);
                           } else {
                             onUpdateCheck({
-                              programmingPlanId: row.programmingPlanId,
-                              programmingPlanKind: row.programmingPlanKind,
+                              programmingSubPlanId: row.programmingSubPlanId,
                               substanceKind: row.substanceKind,
                               checked: false
                             });
@@ -636,9 +625,7 @@ const LaboratoryAgreementsTable = ({
               ...new Set(
                 allPrescriptions
                   .filter(
-                    (p) =>
-                      p.programmingPlanId === row.programmingPlanId &&
-                      p.programmingPlanKind === row.programmingPlanKind
+                    (p) => p.programmingSubPlanId === row.programmingSubPlanId
                   )
                   .flatMap((p) => p.stages)
               )
@@ -665,9 +652,7 @@ const LaboratoryAgreementsTable = ({
                 >
                   <div>
                     Type de plan :{' '}
-                    <strong>
-                      {ProgrammingPlanKindLabels[row.programmingPlanKind]}
-                    </strong>
+                    <strong>{row.subPlanLabel ?? row.subPlanCodeNat}</strong>
                   </div>
                   {planStages.length > 0 && (
                     <div

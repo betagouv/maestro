@@ -1,32 +1,34 @@
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import type { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { useContext } from 'react';
 import { assert, type Equals } from 'tsafe';
+import type { ProgrammingSubPlanFieldConfig } from '../../../../../shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import { ApiClientContext } from '../../../services/apiClient';
 
 interface Props {
-  item: PlanKindFieldConfig;
+  item: ProgrammingSubPlanFieldConfig;
   programmingPlanId: string;
-  kind: ProgrammingPlanKind;
+  programmingSubPlanId: ProgrammingSubPlanId;
   globalField: AdminFieldConfig;
 }
 
-export const PlanKindFieldActiveOptions = ({
+export const ProgrammingSubPlanFieldActiveOptions = ({
   item,
   programmingPlanId,
-  kind,
+  programmingSubPlanId,
   globalField,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
-  const [updatePlanKindFieldOptions, updatePlanKindFieldOptionsResult] =
-    apiClient.useUpdatePlanKindFieldOptionsMutation();
+  const [
+    updateProgrammingSubPlanFieldOptions,
+    updateProgrammingSubPlanFieldOptionsResult
+  ] = apiClient.useUpdateProgrammingSubPlanFieldOptionsMutation();
 
   const activeOptionValues = new Set(item.field.options.map((o) => o.value));
   const sortedOptions = [...globalField.options].sort(
@@ -45,10 +47,10 @@ export const PlanKindFieldActiveOptions = ({
       .filter((o) => newActiveValues.has(o.value))
       .map((o) => o.id);
 
-    await updatePlanKindFieldOptions({
+    await updateProgrammingSubPlanFieldOptions({
       programmingPlanId,
-      kind,
-      planKindFieldId: item.id,
+      programmingSubPlanId,
+      programmingSubPlanFieldId: item.id,
       optionIds: newOptionIds
     });
   };
@@ -71,7 +73,7 @@ export const PlanKindFieldActiveOptions = ({
           }
         }))}
       />
-      <AppServiceErrorAlert call={updatePlanKindFieldOptionsResult} />
+      <AppServiceErrorAlert call={updateProgrammingSubPlanFieldOptionsResult} />
     </div>
   );
 };

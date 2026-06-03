@@ -3,43 +3,28 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
-import {
-  type ProgrammingPlanKind,
-  ProgrammingPlanKindLabels,
-  ProgrammingPlanKindListSorted
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useContext, useEffect, useState } from 'react';
 import { ApiClientContext } from '../../../services/apiClient';
-import { AddFieldToKindModal } from './AddFieldToKindModal';
-import { PlanKindFieldList } from './PlanKindFieldList';
+import { AddFieldToProgrammingSubPlanModal } from './AddFieldToProgrammingSubPlanModal';
+import { ProgrammingSubPlanFieldList } from './ProgrammingSubPlanFieldList';
 
 const addFieldModal = createModal({
   id: 'plan-kind-add-field-modal',
   isOpenedByDefault: false
 });
 
-interface Props {
-  defaultKind?: ProgrammingPlanKind;
-}
-
-export const PlanKindSpecificDataView = ({ defaultKind }: Props = {}) => {
+export const ProgrammingSubPlanSpecificDataView = () => {
   const apiClient = useContext(ApiClientContext);
 
-  const [kind, setKind] = useState<ProgrammingPlanKind>(
-    defaultKind ?? ProgrammingPlanKindListSorted[0]
-  );
-
   const { data: programmingPlans = [] } =
-    apiClient.useFindProgrammingPlansQuery({
-      kinds: [kind]
-    });
+    apiClient.useFindProgrammingPlansQuery({});
   const sortedPlans = [...programmingPlans].sort((a, b) => b.year - a.year);
 
   const [selectedPlanId, setSelectedPlanId] = useState<string>('');
+  const [selectedSubPlanId, setSelectedSubPlanId] = useState<string>('');
 
-  useEffect(() => {
-    setSelectedPlanId('');
-  }, [kind]);
+  const selectedPlan = sortedPlans.find((p) => p.id === selectedPlanId);
 
   useEffect(() => {
     if (
@@ -47,13 +32,26 @@ export const PlanKindSpecificDataView = ({ defaultKind }: Props = {}) => {
       !sortedPlans.some((p) => p.id === selectedPlanId)
     ) {
       setSelectedPlanId(sortedPlans[0].id);
+      setSelectedSubPlanId('');
     }
   }, [sortedPlans, selectedPlanId]);
 
-  const { data: planKindFields = [], isLoading: isLoadingFields } =
-    apiClient.useFindPlanKindFieldConfigsQuery(
-      { programmingPlanId: selectedPlanId, kind },
-      { skip: !selectedPlanId }
+  useEffect(() => {
+    if (
+      selectedPlan?.subPlans.length &&
+      !selectedPlan.subPlans.some((sp) => sp.id === selectedSubPlanId)
+    ) {
+      setSelectedSubPlanId(selectedPlan.subPlans[0]?.id ?? '');
+    }
+  }, [selectedPlan, selectedSubPlanId]);
+
+  const { data: programmingSubPlanFields = [], isLoading: isLoadingFields } =
+    apiClient.useFindProgrammingSubPlanFieldConfigsQuery(
+      {
+        programmingPlanId: selectedPlanId,
+        programmingSubPlanId: selectedSubPlanId as ProgrammingSubPlanId
+      },
+      { skip: !selectedPlanId || !selectedSubPlanId }
     );
 
   const { data: allFields = [] } = apiClient.useFindAllFieldConfigsQuery();
@@ -62,39 +60,42 @@ export const PlanKindSpecificDataView = ({ defaultKind }: Props = {}) => {
     <div className={cx('fr-p-2w')}>
       <div className={clsx(cx('fr-grid-row', 'fr-grid-row--gutters'))}>
         <Select
-          label="Type de plan"
+          label="Plan de programmation"
           nativeSelectProps={{
-            value: kind,
-            onChange: (e) => setKind(e.target.value as ProgrammingPlanKind)
+            value: selectedPlanId,
+            onChange: (e) => {
+              setSelectedPlanId(e.target.value);
+              setSelectedSubPlanId('');
+            }
           }}
           className="fr-col-6"
         >
-          {ProgrammingPlanKindListSorted.map((k) => (
-            <option key={k} value={k}>
-              {ProgrammingPlanKindLabels[k]}
+          {sortedPlans.map((plan) => (
+            <option key={plan.id} value={plan.id}>
+              {plan.title} ({plan.year})
             </option>
           ))}
         </Select>
 
-        {sortedPlans.length > 0 && (
+        {selectedPlan && selectedPlan.subPlans.length > 0 && (
           <Select
-            label="Plan de programmation"
+            label="Sous-plan"
             nativeSelectProps={{
-              value: selectedPlanId,
-              onChange: (e) => setSelectedPlanId(e.target.value)
+              value: selectedSubPlanId,
+              onChange: (e) => setSelectedSubPlanId(e.target.value)
             }}
             className="fr-col-6"
           >
-            {sortedPlans.map((plan) => (
-              <option key={plan.id} value={plan.id}>
-                {plan.title} ({plan.year})
+            {selectedPlan.subPlans.map((sp) => (
+              <option key={sp.id} value={sp.id}>
+                {sp.label ?? sp.codeNat}
               </option>
             ))}
           </Select>
         )}
       </div>
 
-      {selectedPlanId && (
+      {selectedPlanId && selectedSubPlanId && (
         <>
           <div
             style={{
@@ -110,7 +111,10 @@ export const PlanKindSpecificDataView = ({ defaultKind }: Props = {}) => {
               onClick={() => addFieldModal.open()}
               disabled={
                 allFields.filter(
-                  (f) => !planKindFields.some((pkf) => pkf.field.key === f.key)
+                  (f) =>
+                    !programmingSubPlanFields.some(
+                      (pkf) => pkf.field.key === f.key
+                    )
                 ).length === 0
               }
             >
@@ -121,20 +125,20 @@ export const PlanKindSpecificDataView = ({ defaultKind }: Props = {}) => {
           {isLoadingFields ? (
             <p>Chargement…</p>
           ) : (
-            <PlanKindFieldList
+            <ProgrammingSubPlanFieldList
               programmingPlanId={selectedPlanId}
-              kind={kind}
-              planKindFields={planKindFields}
+              programmingSubPlanId={selectedSubPlanId as ProgrammingSubPlanId}
+              programmingSubPlanFields={programmingSubPlanFields}
               allFields={allFields}
             />
           )}
 
-          <AddFieldToKindModal
+          <AddFieldToProgrammingSubPlanModal
             modal={addFieldModal}
             programmingPlanId={selectedPlanId}
-            kind={kind}
+            programmingSubPlanId={selectedSubPlanId as ProgrammingSubPlanId}
             allFields={allFields}
-            activeFields={planKindFields}
+            activeFields={programmingSubPlanFields}
           />
         </>
       )}

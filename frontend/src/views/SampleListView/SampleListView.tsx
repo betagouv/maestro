@@ -14,7 +14,7 @@ import {
   type Context,
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { SampleCompliance } from 'maestro-shared/schema/Sample/SampleCompliance';
 import type { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
@@ -81,9 +81,10 @@ const SampleListView = () => {
         programmingPlanIds:
           (searchParams.get('programmingPlanIds')?.split(',') as string[]) ??
           undefined,
-        kinds:
-          (searchParams.get('kinds')?.split(',') as ProgrammingPlanKind[]) ??
-          undefined,
+        programmingSubPlanIds:
+          (searchParams.get('programmingSubPlanIds')?.split(',') as
+            | ProgrammingSubPlanId[]
+            | undefined) ?? undefined,
         contexts:
           (searchParams.get('contexts')?.split(',') as Context[]) ?? undefined,
         regions: hasNationalView
@@ -129,7 +130,7 @@ const SampleListView = () => {
   }, [searchParams, user?.region, sampleListDisplay]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const canDownloadSupportDocument: boolean =
-    programmingPlan?.kinds.includes('PPV') ?? false;
+    programmingPlan?.subPlans.some((sp) => sp.codeNat === 'PPV') ?? false;
 
   const findSampleOptionsWithYear = useMemo(
     () => ({
@@ -218,7 +219,8 @@ const SampleListView = () => {
                   step: 'Draft' as const,
                   status: 'Draft' as const,
                   programmingPlanId: programmingPlan.id as string,
-                  programmingPlanKind: programmingPlan.kinds[0],
+                  programmingSubPlanId: programmingPlan.subPlans[0]
+                    ?.id as ProgrammingSubPlanId,
                   specificData: {}
                 }}
                 buttonPriority={'tertiary'}

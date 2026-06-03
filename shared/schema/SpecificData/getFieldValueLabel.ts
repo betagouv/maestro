@@ -1,5 +1,5 @@
 import { isNil } from 'lodash-es';
-import type { FieldConfig } from './PlanKindFieldConfig';
+import type { FieldConfig } from './ProgrammingSubPlanFieldConfig';
 import { UnknownValue, UnknownValueLabel } from './SpecificData';
 
 export const getFieldValueLabel = (

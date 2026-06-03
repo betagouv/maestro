@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  genProgrammingPlan,
+  PPVSubPlanFixture,
+  PPVSubPlanId
+} from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
   genSampleContextData
@@ -33,10 +37,10 @@ type Story = StoryObj<typeof meta>;
 const sampler = genUser({
   roles: ['Sampler'],
   region: '44',
-  programmingPlanKinds: ['PPV']
+  programmingSubPlanIds: [PPVSubPlanId]
 });
 const programmingPlan = genProgrammingPlan({
-  kinds: ['PPV']
+  subPlans: [PPVSubPlanFixture]
 });
 
 const story: Pick<Story, 'args' | 'parameters'> = {
@@ -58,7 +62,7 @@ const story: Pick<Story, 'args' | 'parameters'> = {
       }
     },
     apiClient: getMockApi({
-      useFindPlanKindFieldConfigsQuery: {
+      useFindProgrammingSubPlanFieldConfigsQuery: {
         data: PPVFieldConfigs
       }
     })

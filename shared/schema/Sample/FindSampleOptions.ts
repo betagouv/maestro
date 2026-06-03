@@ -5,11 +5,11 @@ import { MatrixKind } from '../../referential/Matrix/MatrixKind';
 import { Region } from '../../referential/Region';
 import { Pagination } from '../commons/Pagination';
 import { Context } from '../ProgrammingPlan/Context';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 import {
   companiesIsRequired,
   departmentIsRequired,
-  programmingPlanKindsIsRequired,
+  programmingSubPlanIdsIsRequired,
   type UserRefined
 } from '../User/User';
 import { isNationalRole, type UserRole } from '../User/UserRole';
@@ -18,7 +18,7 @@ import { SampleStatus } from './SampleStatus';
 
 export const FindSampleOptions = z.object({
   programmingPlanIds: z.array(z.guid()).nullish(),
-  kinds: z.array(ProgrammingPlanKind).nullish(),
+  programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullish(),
   contexts: z.array(Context).nullish(),
   regions: z.array(Region).nullish(),
   departments: z.array(Department).nullish(),
@@ -42,9 +42,10 @@ export type FindSampleOptions = z.infer<typeof FindSampleOptions>;
 export const buildFindSampleOptions = (
   user: UserRefined,
   userRole: UserRole,
-  query: Partial<FindSampleOptions>
+  query: Partial<FindSampleOptions>,
+  hasSachaSubPlan = false
 ): FindSampleOptions => {
-  const companySirets = companiesIsRequired(user)
+  const companySirets = companiesIsRequired(user, hasSachaSubPlan)
     ? user.companies.map((company) => company.siret)
     : query.companySirets;
 
@@ -55,12 +56,12 @@ export const buildFindSampleOptions = (
       : user.region
         ? [user.region]
         : undefined,
-    departments: departmentIsRequired(user)
+    departments: departmentIsRequired(user, hasSachaSubPlan)
       ? [user.department as Department]
       : query.departments,
     companySirets,
-    kinds: programmingPlanKindsIsRequired(user)
-      ? user.programmingPlanKinds
-      : query.kinds
+    programmingSubPlanIds: programmingSubPlanIdsIsRequired(user)
+      ? user.programmingSubPlanIds
+      : query.programmingSubPlanIds
   } as FindSampleOptions;
 };

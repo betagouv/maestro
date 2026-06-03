@@ -2,21 +2,21 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import {
-  fieldInputTypeHasOptions,
-  type PlanKindFieldConfig
-} from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { useContext } from 'react';
 import { assert, type Equals } from 'tsafe';
+import {
+  fieldInputTypeHasOptions,
+  type ProgrammingSubPlanFieldConfig
+} from '../../../../../shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { ApiClientContext } from '../../../services/apiClient';
-import { PlanKindFieldActiveOptions } from './PlanKindFieldActiveOptions';
+import { ProgrammingSubPlanFieldActiveOptions } from './ProgrammingSubPlanFieldActiveOptions';
 
 interface Props {
-  item: PlanKindFieldConfig;
+  item: ProgrammingSubPlanFieldConfig;
   programmingPlanId: string;
-  kind: ProgrammingPlanKind;
+  programmingSubPlanId: ProgrammingSubPlanId;
   globalField: AdminFieldConfig | undefined;
   isFirst: boolean;
   isLast: boolean;
@@ -25,10 +25,10 @@ interface Props {
   onDelete: () => void;
 }
 
-export const PlanKindFieldItem = ({
+export const ProgrammingSubPlanFieldItem = ({
   item,
   programmingPlanId,
-  kind,
+  programmingSubPlanId,
   globalField,
   isFirst,
   isLast,
@@ -40,13 +40,14 @@ export const PlanKindFieldItem = ({
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
-  const [updatePlanKindField] = apiClient.useUpdatePlanKindFieldMutation();
+  const [updateProgrammingSubPlanField] =
+    apiClient.useUpdateProgrammingSubPlanFieldMutation();
 
   const handleRequiredToggle = async (checked: boolean) => {
-    await updatePlanKindField({
+    await updateProgrammingSubPlanField({
       programmingPlanId,
-      kind,
-      planKindFieldId: item.id,
+      programmingSubPlanId,
+      programmingSubPlanFieldId: item.id,
       required: checked,
       order: item.order
     });
@@ -110,10 +111,10 @@ export const PlanKindFieldItem = ({
       </div>
 
       {globalField && fieldInputTypeHasOptions(item.field.inputType) && (
-        <PlanKindFieldActiveOptions
+        <ProgrammingSubPlanFieldActiveOptions
           item={item}
           programmingPlanId={programmingPlanId}
-          kind={kind}
+          programmingSubPlanId={programmingSubPlanId}
           globalField={globalField}
         />
       )}

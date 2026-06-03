@@ -28,7 +28,7 @@ const DefaultSelectOptionsFromListConfig = {
 export const selectOptionsFromList = (
   list: string[],
   config: {
-    labels?: Record<string, string>;
+    labels?: Record<string, string | undefined>;
     withDefault?: boolean | 'auto';
     withSort?: boolean;
     defaultLabel?: string;
@@ -47,11 +47,12 @@ export const selectOptionsFromList = (
       ? [defaultAppSelectOption(selectConfig.defaultLabel)]
       : []),
     ...list
-      .map((item) => ({
-        label: selectConfig.labels ? selectConfig.labels[item] : item,
-        value: item
-      }))
-      .filter((item) => isDefinedAndNotNull(item.label) && item.label !== '')
+      .flatMap((item): AppSelectOption[] => {
+        const label = selectConfig.labels ? selectConfig.labels[item] : item;
+        return isDefinedAndNotNull(label) && label !== ''
+          ? [{ label, value: item }]
+          : [];
+      })
       .sort((a, b) => (config.withSort ? a.label.localeCompare(b.label) : 0))
   ];
 };

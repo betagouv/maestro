@@ -34,6 +34,14 @@ export const usePartialSample = (
     [sampleProgrammingPlan, yearProgrammingPlans]
   );
 
+  const programmingSubPlan = useMemo(
+    () =>
+      programmingPlan?.subPlans?.find(
+        (sp) => sp.id === partialSample?.programmingSubPlanId
+      ),
+    [programmingPlan, partialSample]
+  );
+
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery(
     {
       programmingPlanIds: toArray(partialSample?.programmingPlanId)
@@ -121,6 +129,7 @@ export const usePartialSample = (
   return {
     readonly,
     programmingPlan,
+    programmingSubPlan,
     programmingPlanPrescriptions,
     programmingPlanLocalPrescriptions,
     getSampleItemLaboratory

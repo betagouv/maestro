@@ -20,12 +20,6 @@ import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laborato
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import {
-  ProgrammingPlanKindLabels,
-  ProgrammingPlanKindReference,
-  type ProgrammingPlanKindWithSacha,
-  ProgrammingPlanKindWithSachaList
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import {
   getSampleMatrixLabel,
   type PartialSample
 } from 'maestro-shared/schema/Sample/Sample';
@@ -42,6 +36,7 @@ import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
+import { programmingSubPlanRepository } from '../../repositories/programmingSubPlanRepository';
 import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 import { userRepository } from '../../repositories/userRepository';
 import {
@@ -212,10 +207,15 @@ const generateSamplePDF = async (
     throw new UserMissingError(sample.sampler.id);
   }
 
-  const fieldConfigs = await specificDataFieldConfigRepository.findByPlanKind(
-    sample.programmingPlanId,
-    sample.programmingPlanKind
+  const subPlan = await programmingSubPlanRepository.findById(
+    sample.programmingSubPlanId
   );
+  const codeNat = subPlan?.codeNat ?? '';
+
+  const fieldConfigs =
+    await specificDataFieldConfigRepository.findByPlanSubPlan(
+      sample.programmingSubPlanId
+    );
 
   const additionalSampler = sample.additionalSampler
     ? await userRepository.findUnique(sample.additionalSampler.id)
@@ -262,11 +262,7 @@ const generateSamplePDF = async (
     SampleReference.safeParse(sample.reference).data ?? null;
 
   const barcodeReference =
-    itemNumber !== undefined &&
-    sampleReference &&
-    ProgrammingPlanKindWithSachaList.includes(
-      sample.programmingPlanKind as ProgrammingPlanKindWithSacha
-    )
+    itemNumber !== undefined && sampleReference && (subPlan?.withSacha ?? false)
       ? numeroDAPFromReference(sampleReference)
       : reference;
 
@@ -276,7 +272,7 @@ const generateSamplePDF = async (
     (c) => c.field.key === 'matrixPart'
   )?.field;
 
-  const planLabel = `${ProgrammingPlanKindReference[sample.programmingPlanKind]} / ${ProgrammingPlanDomainLabels[programmingPlan.domain]} / ${programmingPlan.substanceKinds.map((s) => SubstanceKindLabels[s]).join(' ')} / ${ProgrammingPlanKindLabels[sample.programmingPlanKind]}`;
+  const planLabel = `${codeNat} / ${ProgrammingPlanDomainLabels[programmingPlan.domain]} / ${programmingPlan.substanceKinds.map((s) => SubstanceKindLabels[s]).join(' ')} / ${subPlan?.label ?? codeNat}`;
 
   return generatePDF(template, {
     fullVersion,
@@ -351,9 +347,7 @@ const generateSamplePDF = async (
         value: getFieldValueLabel(fc.field, sample.specificData[fc.field.key])
       })),
     releaseControl:
-      sample.programmingPlanKind === 'PPV'
-        ? sample.specificData.releaseControl
-        : undefined,
+      codeNat === 'PPV' ? sample.specificData.releaseControl : undefined,
     establishment:
       programmingPlan.distributionKind === 'REGIONAL'
         ? Regions[sample.region].establishment

@@ -5,10 +5,10 @@ import {
   type AdminFieldConfig,
   CreateFieldInput
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import type { FieldInputType } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import type React from 'react';
 import { useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
+import type { FieldInputType } from '../../../../../shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppSelect from '../../../components/_app/AppSelect/AppSelect';
 import AppTextInput from '../../../components/_app/AppTextInput/AppTextInput';

@@ -15,7 +15,7 @@ import { usePartialSample } from '../../../../hooks/usePartialSample';
 type Props = {
   programmingPlan: ProgrammingPlanChecked;
   partialSample?: PartialSample | PartialSampleToCreate;
-  programmingPlanKind: string;
+  programmingSubPlanId: string;
   company: Company | undefined;
   companyOffline: string | undefined;
   isOnline: boolean;
@@ -29,7 +29,7 @@ type Props = {
 const SampleCompany = ({
   programmingPlan,
   partialSample,
-  programmingPlanKind,
+  programmingSubPlanId,
   company,
   companyOffline,
   isOnline,
@@ -49,13 +49,13 @@ const SampleCompany = ({
         programmingPlanPrescriptions?.some(
           (prescription) =>
             prescription.id === localPrescription.prescriptionId &&
-            prescription.programmingPlanKind === programmingPlanKind
+            prescription.programmingSubPlanId === programmingSubPlanId
         )
       ),
     [
       programmingPlanLocalPrescriptions,
       programmingPlanPrescriptions,
-      programmingPlanKind
+      programmingSubPlanId
     ]
   );
 
@@ -65,13 +65,13 @@ const SampleCompany = ({
     }
 
     if (
-      programmingPlanKind &&
+      programmingSubPlanId &&
       programmingKindLocalPrescriptions === undefined
     ) {
       return undefined;
     }
     return user?.companies?.filter(({ siret }) =>
-      programmingPlanKind
+      programmingSubPlanId
         ? programmingKindLocalPrescriptions?.some(
             (_) => _.companySiret === siret
           )
@@ -81,7 +81,7 @@ const SampleCompany = ({
     programmingPlan.distributionKind,
     user?.companies,
     programmingKindLocalPrescriptions,
-    programmingPlanKind
+    programmingSubPlanId
   ]);
 
   useEffect(() => {

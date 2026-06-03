@@ -7,7 +7,6 @@ import {
   getLaboratoryFullName,
   type Laboratory
 } from 'maestro-shared/schema/Laboratory/Laboratory';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   type SubstanceKind,
   SubstanceKindLabels
@@ -30,7 +29,7 @@ interface Props {
     isOpenedByDefault: boolean;
     id: string;
   };
-  programmingPlanKind: ProgrammingPlanKind;
+  programmingSubPlanCodeNat?: string;
   substanceKindsLaboratories: {
     substanceKind: SubstanceKind;
     laboratory: Laboratory;
@@ -41,7 +40,7 @@ interface Props {
 const SendingModal = ({
   modal,
   substanceKindsLaboratories,
-  programmingPlanKind,
+  programmingSubPlanCodeNat,
   onConfirm
 }: Props) => {
   const [isConfirmationPending, setIsConfirmationPending] = useState(false);
@@ -87,7 +86,7 @@ const SendingModal = ({
           ].toLowerCase()}{' '}
           va être envoyée au laboratoire{' '}
           <b>{getLaboratoryFullName(substanceKindLaboratory.laboratory)}</b>.
-          {programmingPlanKind === 'PPV' &&
+          {programmingSubPlanCodeNat === 'PPV' &&
             !(LaboratoryWithAutomation as string[]).includes(
               substanceKindLaboratory.laboratory.shortName
             ) && (

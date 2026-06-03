@@ -7,7 +7,7 @@ import type {
 } from 'maestro-shared/schema/Sample/Sample';
 import {
   SampleCompliance,
-  SampleComplianceByProgrammingPlanKind,
+  SampleComplianceByCodeNat,
   SampleComplianceLabels
 } from 'maestro-shared/schema/Sample/SampleCompliance';
 import { useState } from 'react';
@@ -19,6 +19,7 @@ import AppRadioButtons from '../../../components/_app/AppRadioButtons/AppRadioBu
 import { selectOptionsFromList } from '../../../components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from '../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import { useForm } from '../../../hooks/useForm';
+import { usePartialSample } from '../../../hooks/usePartialSample';
 
 interface Props {
   sample: SampleChecked;
@@ -26,6 +27,10 @@ interface Props {
 }
 
 const SampleComplianceForm = ({ sample, onChangeCompliance }: Props) => {
+  const { programmingPlan } = usePartialSample(sample);
+  const codeNat = programmingPlan?.subPlans.find(
+    (sp) => sp.id === sample.programmingSubPlanId
+  )?.codeNat;
   const [compliance, setCompliance] = useState(sample.compliance);
   const [notesOnCompliance, setNotesOnCompliance] = useState(
     sample.notesOnCompliance
@@ -51,7 +56,7 @@ const SampleComplianceForm = ({ sample, onChangeCompliance }: Props) => {
   });
 
   const sampleComplianceOptions = selectOptionsFromList(
-    SampleComplianceByProgrammingPlanKind[sample.programmingPlanKind],
+    codeNat ? (SampleComplianceByCodeNat[codeNat] ?? []) : [],
     {
       labels: SampleComplianceLabels,
       withDefault: false
