@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import type { z } from 'zod';
-import { extractAnalyzes, inovalysRefClientValidator } from './inovalys';
+import {
+  extractAnalyzes,
+  getAnalysisKeyBySubject,
+  inovalysRefClientValidator
+} from './inovalys';
 
 test("Génère une erreur lisible si le format n'est pas respecté", () => {
   expect(() =>
@@ -394,6 +398,20 @@ test(`un résidu issue d'un calcul avec comme résultat <LQ est redéfini en ND`
 //     ])
 //   ).toMatchSnapshot();
 // });
+describe('getAnalysisKeyBySubject', () => {
+  test('utilise l objet de l email comme clé', () => {
+    expect(getAnalysisKeyBySubject('Résultats OCC-25-0007')).toBe(
+      'Résultats OCC-25-0007'
+    );
+  });
+
+  test('regroupe un email « (Edition Ponctuelle) » avec l email initial', () => {
+    expect(
+      getAnalysisKeyBySubject('Résultats OCC-25-0007 (Edition Ponctuelle)')
+    ).toBe(getAnalysisKeyBySubject('Résultats OCC-25-0007'));
+  });
+});
+
 test.each<[string, z.infer<typeof inovalysRefClientValidator>]>([
   [
     'OCC-25-0007-01',

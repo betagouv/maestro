@@ -260,8 +260,12 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
   return analyzesWithPdf;
 };
 
+// Visible for testing
+export const getAnalysisKeyBySubject = (subject: string): string =>
+  subject.replace(/\s*\(Edition Ponctuelle\)\s*$/, '').trim();
+
 export const inovalysConf: LaboratoryConf = {
   exportDataFromEmail,
-  getAnalysisKey: (email) => email.subject ?? '',
+  getAnalysisKey: (email) => getAnalysisKeyBySubject(email.subject ?? ''),
   emailCountByAnalysis: 2
 };
