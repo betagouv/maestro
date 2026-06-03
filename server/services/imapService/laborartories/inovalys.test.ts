@@ -187,7 +187,7 @@ describe('Parse correctement les fichiers CSV', () => {
               'Résultat 1': '0,011',
               'Unité 1': 'mg/kg',
               'Limite Quant. 1': '>= 0.005',
-              'Spécification 1': '0,150',
+              'Spécification 1': '< 0,150',
               'Résultat 2': '',
               'Unité 2': '',
               'Limite Quant. 2': '',

@@ -120,9 +120,10 @@ export const extractAnalyzes = (
       Incertitude: z.string().optional(),
       //LMR
       'Spécification 1': z
-        .union([frenchNumberStringValidator, z.string().startsWith('<')])
+        .string()
         .optional()
-        .transform((v) => (typeof v === 'number' ? v : null)),
+        .transform((v) => v?.replace(/^<\s*/, '') ?? null)
+        .pipe(frenchNumberStringValidator.nullable()),
       'Numéro CAS': z
         .string()
         .optional()
