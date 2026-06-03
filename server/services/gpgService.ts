@@ -46,11 +46,11 @@ ${publicKey}
 
 export const encryptFile = async (
   filePath: string,
-  recipientEmail: string,
+  gpgEmail: string,
   outputFilename: string
 ): Promise<string> => {
   await exec(
-    `gpg --batch --yes --trust-model always --output ${outputFilename} --encrypt --recipient ${recipientEmail} ${filePath}`,
+    `gpg --batch --yes --trust-model always --output ${outputFilename} --encrypt --recipient ${gpgEmail} ${filePath}`,
     {
       cwd: tmpdir()
     }

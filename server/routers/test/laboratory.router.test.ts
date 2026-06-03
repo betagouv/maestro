@@ -163,7 +163,8 @@ describe('Laboratory router', () => {
             sigle: 'LAB1',
             communication: {
               method: 'EMAIL',
-              email: 'sacha@lab.fr',
+              recipientEmail: 'sacha@lab.fr',
+              gpgEmail: 'sacha-gpg@lab.fr',
               gpgPublicKey: 'PUBKEY'
             }
           }

@@ -218,7 +218,8 @@ export interface Laboratories {
   postalCode: string;
   city: string;
   emailsAnalysisResult: string[];
-  sachaEmail: string | null;
+  sachaRecipientEmail: string | null;
+  sachaGpgEmail: string | null;
   sachaGpgPublicKey: string | null;
   sachaSigle: string | null;
   sachaSftpLogin: string | null;

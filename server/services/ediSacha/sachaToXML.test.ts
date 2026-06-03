@@ -23,7 +23,8 @@ const laboratory: LaboratoryWithSacha = {
     sigle: 'LDA72',
     communication: {
       method: 'EMAIL',
-      email: 'fake@email.fr',
+      recipientEmail: 'fake@email.fr',
+      gpgEmail: 'fake-gpg@email.fr',
       gpgPublicKey: 'gpg'
     }
   }

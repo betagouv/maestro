@@ -66,7 +66,8 @@ describe('updateConfig', () => {
         sachaActivated: false,
         sachaSigle: null,
         sachaCommunicationMethod: null,
-        sachaEmail: null,
+        sachaRecipientEmail: null,
+        sachaGpgEmail: null,
         sachaGpgPublicKey: null,
         sachaSftpLogin: null
       })
@@ -103,7 +104,8 @@ describe('updateConfig', () => {
         sigle: 'LAB1',
         communication: {
           method: 'EMAIL',
-          email: 'sacha@labo.fr',
+          recipientEmail: 'sacha@labo.fr',
+          gpgEmail: 'sacha-gpg@labo.fr',
           gpgPublicKey: 'PUBLIC_KEY'
         }
       }
@@ -115,7 +117,8 @@ describe('updateConfig', () => {
       sigle: 'LAB1',
       communication: {
         method: 'EMAIL',
-        email: 'sacha@labo.fr',
+        recipientEmail: 'sacha@labo.fr',
+        gpgEmail: 'sacha-gpg@labo.fr',
         gpgPublicKey: 'PUBLIC_KEY'
       }
     });
@@ -151,7 +154,8 @@ describe('updateConfig', () => {
         sigle: null,
         communication: {
           method: 'EMAIL',
-          email: 'sacha@labo.fr',
+          recipientEmail: 'sacha@labo.fr',
+          gpgEmail: 'sacha-gpg@labo.fr',
           gpgPublicKey: 'PUBLIC_KEY'
         }
       }
@@ -173,7 +177,8 @@ describe('updateConfig', () => {
       .selectAll()
       .where('id', '=', LaboratoryFixture.id)
       .executeTakeFirstOrThrow();
-    expect(row.sachaEmail).toBeNull();
+    expect(row.sachaRecipientEmail).toBeNull();
+    expect(row.sachaGpgEmail).toBeNull();
     expect(row.sachaGpgPublicKey).toBeNull();
     expect(row.sachaSftpLogin).toEqual('sftp-user');
     expect(row.sachaCommunicationMethod).toEqual('SFTP');
@@ -210,7 +215,8 @@ describe('updateConfig', () => {
     expect(row.sachaActivated).toBe(false);
     expect(row.sachaSigle).toBeNull();
     expect(row.sachaCommunicationMethod).toBeNull();
-    expect(row.sachaEmail).toBeNull();
+    expect(row.sachaRecipientEmail).toBeNull();
+    expect(row.sachaGpgEmail).toBeNull();
     expect(row.sachaGpgPublicKey).toBeNull();
     expect(row.sachaSftpLogin).toBeNull();
   });
