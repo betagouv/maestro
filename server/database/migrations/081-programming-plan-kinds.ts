@@ -41,9 +41,9 @@ export const up = async (knex: Knex) => {
 };
 
 export const down = async (knex: Knex) => {
-  await knex.schema.alterTable('prescriptions', (table) => {
-    table.dropForeign(['programming_plan_id', 'programming_plan_kind']);
-  });
+  await knex.raw(
+    'ALTER TABLE prescriptions DROP CONSTRAINT IF EXISTS "prescriptions_programming_plan_id_programming_plan_kind_foreign"'
+  );
 
   await knex.schema.alterTable('programming_plans', (table) => {
     table.specificType('kinds', 'text[]');

@@ -6,10 +6,7 @@ import { Region, RegionList, Regions } from '../../referential/Region';
 import type { Nullable } from '../../utils/typescript';
 import { superRefineSchema } from '../../utils/zod';
 import { Company } from '../Company/Company';
-import {
-  ProgrammingPlanKind,
-  ProgrammingPlanKindWithSachaList
-} from '../ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 import type { UserPermission } from './UserPermission';
 import {
   canHaveDepartment,
@@ -24,7 +21,7 @@ export const UserBase = z.object({
   id: z.guid(),
   email: z.email({ error: 'Veuillez renseigner un email valide.' }),
   name: z.string().nullable(),
-  programmingPlanKinds: z.array(ProgrammingPlanKind),
+  programmingSubPlanIds: z.array(ProgrammingSubPlanId),
   roles: z.array(UserRole).min(1, 'Veuillez renseigner au moins un rôle.'),
   region: Region.nullable(),
   department: Department.nullable(),
@@ -40,7 +37,7 @@ export const userChecks = <
     | 'roles'
     | 'department'
     | 'companies'
-    | 'programmingPlanKinds'
+    | 'programmingSubPlanIds'
     | 'laboratoryId'
   >
 >(
@@ -48,12 +45,12 @@ export const userChecks = <
   ctx: RefinementCtx<T>
 ) => {
   if (
-    user.programmingPlanKinds.length === 0 &&
-    programmingPlanKindsIsRequired(user)
+    user.programmingSubPlanIds.length === 0 &&
+    programmingSubPlanIdsIsRequired(user)
   ) {
     ctx.addIssue({
       code: 'custom',
-      path: ['programmingPlanKinds'],
+      path: ['programmingSubPlanIds'],
       message: 'Au moins un plan est obligatoire pour ce rôle.'
     });
   }
@@ -208,27 +205,24 @@ export const PPVDummyLaboratoryIds = [
 ];
 
 export const companiesIsRequired = (
-  user: Pick<Nullable<UserRefined>, 'programmingPlanKinds' | 'roles'>
-): boolean =>
-  (user.roles?.includes('Sampler') &&
-    intersection(user.programmingPlanKinds, ProgrammingPlanKindWithSachaList)
-      .length > 0) ??
-  false;
+  user: Pick<Nullable<UserRefined>, 'roles'>,
+  hasSachaSubPlan = false
+): boolean => (user.roles?.includes('Sampler') && hasSachaSubPlan) ?? false;
 
 export const departmentIsRequired = (
-  user: Pick<Nullable<UserRefined>, 'programmingPlanKinds' | 'roles'>
+  user: Pick<Nullable<UserRefined>, 'roles'>,
+  hasSachaSubPlan = false
 ): boolean =>
   (user.roles?.some((role) => isDepartmentalRole(role)) ||
-    (user.roles?.includes('Sampler') &&
-      intersection(user.programmingPlanKinds, ProgrammingPlanKindWithSachaList)
-        .length > 0)) ??
+    (user.roles?.includes('Sampler') && hasSachaSubPlan)) ??
   false;
 
-export const programmingPlanKindsIsRequired = (
+export const programmingSubPlanIdsIsRequired = (
   user: Pick<Nullable<UserRefined>, 'roles'>
 ): boolean =>
   !user.roles?.includes('Administrator') &&
-  !user.roles?.includes('LaboratoryUser');
+  !user.roles?.includes('LaboratoryUser') &&
+  !user.roles?.includes('LaboratoryOffice');
 
 export const laboratoryIsRequired = (
   user: Pick<Nullable<UserRefined>, 'roles'>

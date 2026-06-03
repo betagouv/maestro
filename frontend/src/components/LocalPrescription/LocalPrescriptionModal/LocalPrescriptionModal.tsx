@@ -197,8 +197,8 @@ const LocalPrescriptionModal = () => {
                 programmingPlanId={
                   localPrescriptionModalData.programmingPlan.id
                 }
-                programmingPlanKind={
-                  localPrescriptionModalData.prescription.programmingPlanKind
+                programmingSubPlanId={
+                  localPrescriptionModalData.prescription.programmingSubPlanId
                 }
                 substanceKindsLaboratories={
                   (

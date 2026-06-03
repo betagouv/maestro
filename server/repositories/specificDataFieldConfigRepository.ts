@@ -1,37 +1,39 @@
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { CommemoratifValueSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import type {
   AdminFieldConfig,
   AdminFieldOption,
   CreateFieldInput,
   CreateFieldOptionInput,
-  CreatePlanKindFieldInput,
+  CreateProgrammingSubPlanFieldInput,
   UpdateFieldInput,
   UpdateFieldOptionInput,
-  UpdatePlanKindFieldInput
+  UpdateProgrammingSubPlanFieldInput
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import {
   FieldInputType,
-  type PlanKindFieldConfig,
-  type ProgrammingPlanKindFieldId,
+  type ProgrammingSubPlanFieldConfig,
+  type ProgrammingSubPlanFieldId,
   type SachaFieldConfig,
   type SpecificDataFieldId,
   type SpecificDataFieldOptionId
-} from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+} from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { kysely } from './kysely';
 
-const findByPlanKind = async (
-  programmingPlanId: string,
-  kind: ProgrammingPlanKind
-): Promise<PlanKindFieldConfig[]> => {
-  console.info('Find specific data field configs for plan kind', kind);
+const findByPlanSubPlan = async (
+  programmingSubPlanId: ProgrammingSubPlanId
+): Promise<ProgrammingSubPlanFieldConfig[]> => {
+  console.info(
+    'Find specific data field configs for sub-plan',
+    programmingSubPlanId
+  );
 
-  const planKindFields = await kysely
-    .selectFrom('programmingPlanKindFields as ppkf')
+  const programmingSubPlanFields = await kysely
+    .selectFrom('programmingProgrammingSubPlanFields as ppkf')
     .innerJoin('specificDataFields as sdf', 'sdf.id', 'ppkf.fieldId')
     .select([
       'ppkf.id',
-      'ppkf.kind',
+      'ppkf.programmingSubPlanId',
       'ppkf.required',
       'ppkf.order',
       'sdf.key',
@@ -39,46 +41,49 @@ const findByPlanKind = async (
       'sdf.label',
       'sdf.hintText'
     ])
-    .where('ppkf.programmingPlanId', '=', programmingPlanId)
-    .where('ppkf.kind', '=', kind)
+    .where('ppkf.programmingSubPlanId', '=', programmingSubPlanId)
     .orderBy('ppkf.order')
     .execute();
 
-  if (planKindFields.length === 0) {
+  if (programmingSubPlanFields.length === 0) {
     return [];
   }
 
-  const planKindFieldIds = planKindFields.map((f) => f.id);
+  const programmingSubPlanFieldIds = programmingSubPlanFields.map((f) => f.id);
 
   const options = await kysely
-    .selectFrom('programmingPlanKindFieldOptions as ppkfo')
+    .selectFrom('programmingProgrammingSubPlanFieldOptions as ppkfo')
     .innerJoin(
       'specificDataFieldOptions as sdfo',
       'sdfo.id',
       'ppkfo.specificDataFieldOptionId'
     )
     .select([
-      'ppkfo.programmingPlanKindFieldId',
+      'ppkfo.programmingProgrammingSubPlanFieldId',
       'sdfo.value',
       'sdfo.label',
       'sdfo.order'
     ])
-    .where('ppkfo.programmingPlanKindFieldId', 'in', planKindFieldIds)
+    .where(
+      'ppkfo.programmingProgrammingSubPlanFieldId',
+      'in',
+      programmingSubPlanFieldIds
+    )
     .orderBy('sdfo.order')
     .execute();
 
   const optionsByFieldId = options.reduce<
     Record<string, { value: string; label: string; order: number }[]>
   >((acc, opt) => {
-    const id = opt.programmingPlanKindFieldId;
+    const id = opt.programmingProgrammingSubPlanFieldId;
     if (!acc[id]) acc[id] = [];
     acc[id].push({ value: opt.value, label: opt.label, order: opt.order });
     return acc;
   }, {});
 
-  return planKindFields.map((f) => ({
+  return programmingSubPlanFields.map((f) => ({
     id: f.id,
-    programmingPlanKind: f.kind,
+    programmingSubPlanId: f.programmingSubPlanId,
     required: f.required,
     order: f.order,
     field: {
@@ -92,13 +97,20 @@ const findByPlanKind = async (
 };
 
 const findSachaFields = async (): Promise<SachaFieldConfig[]> => {
-  console.info(
-    'Find specific data field configs for Sacha (non-PPV plan kinds)'
-  );
+  console.info('Find specific data field configs for Sacha sub-plans');
 
   const fields = await kysely
     .selectFrom('specificDataFields as sdf')
-    .innerJoin('programmingPlanKindFields as ppkf', 'ppkf.fieldId', 'sdf.id')
+    .innerJoin(
+      'programmingProgrammingSubPlanFields as ppkf',
+      'ppkf.fieldId',
+      'sdf.id'
+    )
+    .innerJoin(
+      'programmingSubPlans as psp',
+      'psp.id',
+      'ppkf.programmingSubPlanId'
+    )
     .select([
       'sdf.id',
       'sdf.key',
@@ -109,7 +121,7 @@ const findSachaFields = async (): Promise<SachaFieldConfig[]> => {
       'sdf.sachaInDai',
       'sdf.sachaOptional'
     ])
-    .where('ppkf.kind', '!=', 'PPV')
+    .where('psp.codeNat', '!=', 'PPV')
     .distinctOn('sdf.id')
     .execute();
 
@@ -327,20 +339,18 @@ const deleteFieldOption = async (
 };
 
 const addFieldToPlanKind = async (
-  programmingPlanId: string,
-  kind: ProgrammingPlanKind,
-  input: CreatePlanKindFieldInput
-): Promise<PlanKindFieldConfig | null> => {
+  programmingSubPlanId: ProgrammingSubPlanId,
+  input: CreateProgrammingSubPlanFieldInput
+): Promise<ProgrammingSubPlanFieldConfig | null> => {
   const inserted = await kysely
-    .insertInto('programmingPlanKindFields')
+    .insertInto('programmingProgrammingSubPlanFields')
     .values({
-      programmingPlanId,
-      kind,
+      programmingSubPlanId,
       fieldId: input.fieldId,
       required: input.required,
       order: input.order
     })
-    .returning(['id', 'kind', 'required', 'order', 'fieldId'])
+    .returning(['id', 'programmingSubPlanId', 'required', 'order', 'fieldId'])
     .executeTakeFirst();
 
   if (!inserted) return null;
@@ -355,7 +365,7 @@ const addFieldToPlanKind = async (
 
   return {
     id: inserted.id,
-    programmingPlanKind: inserted.kind,
+    programmingSubPlanId: inserted.programmingSubPlanId,
     required: inserted.required,
     order: inserted.order,
     field: {
@@ -368,15 +378,15 @@ const addFieldToPlanKind = async (
   };
 };
 
-const updatePlanKindField = async (
-  planKindFieldId: ProgrammingPlanKindFieldId,
-  input: UpdatePlanKindFieldInput
-): Promise<PlanKindFieldConfig | null> => {
+const updateProgrammingSubPlanField = async (
+  programmingSubPlanFieldId: ProgrammingSubPlanFieldId,
+  input: UpdateProgrammingSubPlanFieldInput
+): Promise<ProgrammingSubPlanFieldConfig | null> => {
   const updated = await kysely
-    .updateTable('programmingPlanKindFields')
+    .updateTable('programmingProgrammingSubPlanFields')
     .set({ required: input.required, order: input.order })
-    .where('id', '=', planKindFieldId)
-    .returning(['id', 'kind', 'required', 'order', 'fieldId'])
+    .where('id', '=', programmingSubPlanFieldId)
+    .returning(['id', 'programmingSubPlanId', 'required', 'order', 'fieldId'])
     .executeTakeFirst();
 
   if (!updated) return null;
@@ -390,20 +400,24 @@ const updatePlanKindField = async (
   if (!field) return null;
 
   const options = await kysely
-    .selectFrom('programmingPlanKindFieldOptions as ppkfo')
+    .selectFrom('programmingProgrammingSubPlanFieldOptions as ppkfo')
     .innerJoin(
       'specificDataFieldOptions as sdfo',
       'sdfo.id',
       'ppkfo.specificDataFieldOptionId'
     )
     .select(['sdfo.value', 'sdfo.label', 'sdfo.order'])
-    .where('ppkfo.programmingPlanKindFieldId', '=', planKindFieldId)
+    .where(
+      'ppkfo.programmingProgrammingSubPlanFieldId',
+      '=',
+      programmingSubPlanFieldId
+    )
     .orderBy('sdfo.order')
     .execute();
 
   return {
     id: updated.id,
-    programmingPlanKind: updated.kind,
+    programmingSubPlanId: updated.programmingSubPlanId,
     required: updated.required,
     order: updated.order,
     field: {
@@ -416,30 +430,34 @@ const updatePlanKindField = async (
   };
 };
 
-const removePlanKindField = async (
-  planKindFieldId: ProgrammingPlanKindFieldId
+const removeProgrammingSubPlanField = async (
+  programmingSubPlanFieldId: ProgrammingSubPlanFieldId
 ): Promise<void> => {
   await kysely
-    .deleteFrom('programmingPlanKindFields')
-    .where('id', '=', planKindFieldId)
+    .deleteFrom('programmingProgrammingSubPlanFields')
+    .where('id', '=', programmingSubPlanFieldId)
     .execute();
 };
 
-const replacePlanKindFieldOptions = async (
-  planKindFieldId: ProgrammingPlanKindFieldId,
+const replaceProgrammingSubPlanFieldOptions = async (
+  programmingSubPlanFieldId: ProgrammingSubPlanFieldId,
   optionIds: SpecificDataFieldOptionId[]
 ): Promise<void> => {
   await kysely
-    .deleteFrom('programmingPlanKindFieldOptions')
-    .where('programmingPlanKindFieldId', '=', planKindFieldId)
+    .deleteFrom('programmingProgrammingSubPlanFieldOptions')
+    .where(
+      'programmingProgrammingSubPlanFieldId',
+      '=',
+      programmingSubPlanFieldId
+    )
     .execute();
 
   if (optionIds.length > 0) {
     await kysely
-      .insertInto('programmingPlanKindFieldOptions')
+      .insertInto('programmingProgrammingSubPlanFieldOptions')
       .values(
         optionIds.map((optionId) => ({
-          programmingPlanKindFieldId: planKindFieldId,
+          programmingProgrammingSubPlanFieldId: programmingSubPlanFieldId,
           specificDataFieldOptionId: optionId
         }))
       )
@@ -448,7 +466,7 @@ const replacePlanKindFieldOptions = async (
 };
 
 export const specificDataFieldConfigRepository = {
-  findByPlanKind,
+  findByPlanSubPlan,
   findSachaFields,
   findAllFields,
   createField,
@@ -458,7 +476,7 @@ export const specificDataFieldConfigRepository = {
   updateFieldOption,
   deleteFieldOption,
   addFieldToPlanKind,
-  updatePlanKindField,
-  removePlanKindField,
-  replacePlanKindFieldOptions
+  updateProgrammingSubPlanField,
+  removeProgrammingSubPlanField,
+  replaceProgrammingSubPlanFieldOptions
 };

@@ -12,7 +12,6 @@ import type { Pagination } from 'maestro-shared/schema/commons/Pagination';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
-import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { SampleComplianceLabels } from 'maestro-shared/schema/Sample/SampleCompliance';
@@ -226,15 +225,32 @@ const filtersConfig = {
       </Fragment>
     )
   },
-  kinds: {
-    prop: 'kinds',
-    getComponent: (value, onChange) =>
-      renderArrayTags(
-        'kinds',
-        value,
-        (d) => ProgrammingPlanKindLabels[d],
-        onChange
-      )
+  programmingSubPlanIds: {
+    prop: 'programmingSubPlanIds',
+    getComponent: (value, onChange, { programmingPlans }) => (
+      <Fragment key="tag-programmingSubPlanIds">
+        {value.map((id) => {
+          const subPlan = programmingPlans
+            ?.flatMap((p) => p.subPlans)
+            .find((sp) => sp.id === id);
+          const label = subPlan ? (subPlan.label ?? subPlan.codeNat) : id;
+          return (
+            <Tag
+              {...tagProps}
+              key={`tag-subPlan-${id}`}
+              nativeButtonProps={{
+                onClick: () =>
+                  onChange({
+                    programmingSubPlanIds: value.filter((v) => v !== id)
+                  })
+              }}
+            >
+              {label}
+            </Tag>
+          );
+        })}
+      </Fragment>
+    )
   }
 } as const satisfies {
   [key in FilterableProp]: {

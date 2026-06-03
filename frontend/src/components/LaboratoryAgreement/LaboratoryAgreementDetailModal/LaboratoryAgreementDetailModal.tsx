@@ -9,7 +9,6 @@ import {
   type LaboratoryAgreement,
   type LaboratoryAgreementField
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
-import { ProgrammingPlanKindReference } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import type React from 'react';
 import { useEffect, useState } from 'react';
@@ -23,6 +22,7 @@ interface Props {
     close: () => void;
   };
   laboratoryAgreement: LaboratoryAgreement | null;
+  programmingSubPlanCodeNat?: string;
   laboratory: Laboratory | null;
   onSave?: (updated: LaboratoryAgreement) => Promise<void>;
 }
@@ -30,6 +30,7 @@ interface Props {
 const LaboratoryAgreementDetailModal = ({
   modal,
   laboratoryAgreement,
+  programmingSubPlanCodeNat,
   laboratory,
   onSave
 }: Props) => {
@@ -82,12 +83,8 @@ const LaboratoryAgreementDetailModal = ({
         <div>
           <p className={cx('fr-text--md', 'fr-mb-2w')}>
             N°
-            {
-              ProgrammingPlanKindReference[
-                laboratoryAgreement.programmingPlanKind
-              ]
-            }{' '}
-            | {SubstanceKindLabels[laboratoryAgreement.substanceKind]}
+            {programmingSubPlanCodeNat ?? ''} |{' '}
+            {SubstanceKindLabels[laboratoryAgreement.substanceKind]}
           </p>
           <div className={clsx(cx('fr-p-3w'), 'border')}>
             {(

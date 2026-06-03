@@ -1,5 +1,4 @@
 import type { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
-import type { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import z from 'zod';
 
@@ -8,11 +7,11 @@ export const sigleContexteInterventionValidator = z.enum([
   'PR17_2026_RPDA_PBOV'
 ]);
 export const SigleContexteIntervention: Record<
-  ProgrammingPlanKindWithSacha,
+  string,
   z.infer<typeof sigleContexteInterventionValidator>
 > = {
-  DAOA_VOLAILLE: 'PR17_2026_RPDA_PVOL',
-  DAOA_BOVIN: 'PR17_2026_RPDA_PBOV'
+  M01: 'PR17_2026_RPDA_PVOL',
+  M02: 'PR17_2026_RPDA_PBOV'
 };
 
 export const siglePlanAnalyseValidator = z.enum(['RPDA', 'RPDA_CU']);
@@ -372,9 +371,8 @@ export const sigleMatrixValidator = z.enum([
   'VDE_FRA_POUL'
 ]);
 
-export const SigleMatrix: Record<
-  NotPPVMatrix,
-  z.infer<typeof sigleMatrixValidator>
+export const SigleMatrix: Partial<
+  Record<NotPPVMatrix, z.infer<typeof sigleMatrixValidator>>
 > = {
   //   'A01SN#F26.A07XE': "Viande d'autres volailles non transformée",
   'A01SN#F26.A07XE': 'MSCL_VOL',

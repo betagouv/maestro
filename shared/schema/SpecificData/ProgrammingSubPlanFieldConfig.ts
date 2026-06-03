@@ -1,5 +1,5 @@
 import z from 'zod';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 import {
   CommemoratifSigle,
   CommemoratifValueSigle
@@ -15,11 +15,11 @@ export type SpecificDataFieldOptionId = z.infer<
   typeof SpecificDataFieldOptionId
 >;
 
-export const ProgrammingPlanKindFieldId = z
+export const ProgrammingSubPlanFieldId = z
   .string()
-  .brand<'ProgrammingPlanKindFieldId'>();
-export type ProgrammingPlanKindFieldId = z.infer<
-  typeof ProgrammingPlanKindFieldId
+  .brand<'ProgrammingSubPlanFieldId'>();
+export type ProgrammingSubPlanFieldId = z.infer<
+  typeof ProgrammingSubPlanFieldId
 >;
 
 const FieldOption = z.object({
@@ -63,14 +63,16 @@ export const SachaFieldConfig = FieldConfig.extend({
   options: z.array(SachaFieldOption)
 });
 
-export const PlanKindFieldConfig = z.object({
-  programmingPlanKind: ProgrammingPlanKind,
+export const ProgrammingSubPlanFieldConfig = z.object({
+  programmingSubPlanId: ProgrammingSubPlanId,
   required: z.boolean(),
   order: z.number(),
   field: FieldConfig,
-  id: ProgrammingPlanKindFieldId
+  id: ProgrammingSubPlanFieldId
 });
 
 export type FieldConfig = z.infer<typeof FieldConfig>;
 export type SachaFieldConfig = z.infer<typeof SachaFieldConfig>;
-export type PlanKindFieldConfig = z.infer<typeof PlanKindFieldConfig>;
+export type ProgrammingSubPlanFieldConfig = z.infer<
+  typeof ProgrammingSubPlanFieldConfig
+>;

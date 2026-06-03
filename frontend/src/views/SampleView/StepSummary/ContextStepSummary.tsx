@@ -3,7 +3,6 @@ import Input from '@codegouvfr/react-dsfr/Input';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   isCreatedPartialSample,
   type SampleChecked,
@@ -34,6 +33,9 @@ const ContextStepSummary = ({
 }: Props) => {
   const { user } = useAuthentication();
   const { readonly, programmingPlan } = usePartialSample(sample);
+  const subPlan = programmingPlan?.subPlans.find(
+    (sp) => sp.id === sample.programmingSubPlanId
+  );
 
   return (
     <StepSummary title="Contexte du prélèvement" onEdit={onEdit} mode={mode}>
@@ -110,12 +112,11 @@ const ContextStepSummary = ({
           </div>
         </div>
       )}
-      {(programmingPlan?.kinds ?? []).length > 1 && (
+      {(programmingPlan?.subPlans ?? []).length > 1 && (
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-microscope-line')}></div>
           <div>
-            Type de plan :{' '}
-            <b>{ProgrammingPlanKindLabels[sample.programmingPlanKind]}</b>
+            Type de plan : <b>{subPlan?.label}</b>
           </div>
         </div>
       )}
@@ -144,7 +145,7 @@ const ContextStepSummary = ({
           )}
         </div>
       </div>
-      {sample.programmingPlanKind === 'PPV' && (
+      {subPlan?.codeNat === 'PPV' && (
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-map-pin-user-line')}></div>
           <div>

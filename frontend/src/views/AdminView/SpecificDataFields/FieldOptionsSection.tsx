@@ -4,9 +4,9 @@ import type {
   AdminFieldConfig,
   AdminFieldOption
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import { fieldInputTypeHasOptions } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { useState } from 'react';
 import { assert, type Equals } from 'tsafe';
+import { fieldInputTypeHasOptions } from '../../../../../shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { FieldOptionFormModal } from './FieldOptionFormModal';
 import { FieldOptionsTable } from './FieldOptionsTable';
 

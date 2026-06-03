@@ -3,7 +3,7 @@ import {
   FieldInputType,
   SpecificDataFieldId,
   SpecificDataFieldOptionId
-} from './PlanKindFieldConfig';
+} from './ProgrammingSubPlanFieldConfig';
 
 export const AdminFieldOption = z.object({
   id: SpecificDataFieldOptionId,
@@ -50,15 +50,20 @@ export type CreateFieldOptionInput = z.infer<typeof CreateFieldOptionInput>;
 export const UpdateFieldOptionInput = CreateFieldOptionInput.partial();
 export type UpdateFieldOptionInput = z.infer<typeof UpdateFieldOptionInput>;
 
-export const CreatePlanKindFieldInput = z.object({
+export const CreateProgrammingSubPlanFieldInput = z.object({
   fieldId: SpecificDataFieldId,
   required: z.boolean(),
   order: z.number().int().nonnegative()
 });
-export type CreatePlanKindFieldInput = z.infer<typeof CreatePlanKindFieldInput>;
+export type CreateProgrammingSubPlanFieldInput = z.infer<
+  typeof CreateProgrammingSubPlanFieldInput
+>;
 
-export const UpdatePlanKindFieldInput = CreatePlanKindFieldInput.pick({
-  required: true,
-  order: true
-});
-export type UpdatePlanKindFieldInput = z.infer<typeof UpdatePlanKindFieldInput>;
+export const UpdateProgrammingSubPlanFieldInput =
+  CreateProgrammingSubPlanFieldInput.pick({
+    required: true,
+    order: true
+  });
+export type UpdateProgrammingSubPlanFieldInput = z.infer<
+  typeof UpdateProgrammingSubPlanFieldInput
+>;

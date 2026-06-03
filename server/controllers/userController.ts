@@ -3,7 +3,7 @@ import type { Department } from 'maestro-shared/referential/Department';
 import {
   companiesIsRequired,
   departmentIsRequired,
-  programmingPlanKindsIsRequired,
+  programmingSubPlanIdsIsRequired,
   userRegionsForRole
 } from 'maestro-shared/schema/User/User';
 import { isNationalRole } from 'maestro-shared/schema/User/UserRole';
@@ -65,12 +65,12 @@ export const usersRouter = {
           ? (user.department as Department)
           : query.department,
         companySirets,
-        programmingPlanKinds: programmingPlanKindsIsRequired({
+        programmingSubPlanIds: programmingSubPlanIdsIsRequired({
           ...user,
           roles: [userRole]
         })
-          ? user.programmingPlanKinds
-          : query.programmingPlanKinds
+          ? user.programmingSubPlanIds
+          : query.programmingSubPlanIds
       };
 
       console.info('Find users', findOptions);

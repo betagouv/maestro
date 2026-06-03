@@ -92,15 +92,15 @@ const findMany = async (
           query = query.where('roles', '&&', toSqlArray(findOptions.roles));
         }
         break;
-      case 'programmingPlanKinds':
+      case 'programmingSubPlanIds':
         if (
-          !isNil(findOptions.programmingPlanKinds) &&
-          findOptions.programmingPlanKinds.length > 0
+          !isNil(findOptions.programmingSubPlanIds) &&
+          findOptions.programmingSubPlanIds.length > 0
         ) {
           query = query.where(
-            'programmingPlanKinds',
+            'programmingSubPlanIds',
             '&&',
-            toSqlArray(toArray(findOptions.programmingPlanKinds) ?? [])
+            toSqlArray(toArray(findOptions.programmingSubPlanIds) ?? [])
           );
         }
         break;

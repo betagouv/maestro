@@ -69,11 +69,9 @@ const sampleResidueCheck: CheckFn<z.infer<typeof ResidueBase>> = (ctx) => {
 
 export const ResidueChecked = checkSchema(ResidueBase, sampleResidueCheck);
 const sampleResidueLmrCheck: CheckFn<
-  Pick<
-    z.infer<typeof SampleBase>,
-    'stage' | 'specificData' | 'programmingPlanKind'
-  > &
-    Pick<z.infer<typeof ResidueBase>, 'resultKind' | 'lmr' | 'reference'>
+  Pick<z.infer<typeof SampleBase>, 'stage' | 'specificData'> & {
+    programmingSubPlanCodeNat: string;
+  } & Pick<z.infer<typeof ResidueBase>, 'resultKind' | 'lmr' | 'reference'>
 > = (ctx) => {
   if (
     !LmrIsValid({
@@ -94,9 +92,9 @@ const LmrCheckChecked = checkSchema(
   z.object({
     ...SampleBase.pick({
       stage: true,
-      specificData: true,
-      programmingPlanKind: true
+      specificData: true
     }).shape,
+    programmingSubPlanCodeNat: z.string(),
     ...ResidueBase.pick({
       resultKind: true,
       lmr: true,
@@ -109,7 +107,7 @@ const LmrCheckChecked = checkSchema(
 export const LmrIsValid = (
   sample: Pick<
     z.infer<typeof LmrCheckChecked>,
-    'reference' | 'resultKind' | 'programmingPlanKind' | 'stage' | 'lmr'
+    'reference' | 'resultKind' | 'programmingSubPlanCodeNat' | 'stage' | 'lmr'
   > & {
     matrixPart: string | undefined;
   }
@@ -120,13 +118,9 @@ export const LmrIsValid = (
       'lmrCanBeOptional' in
       SSD2Referential[sample.reference as keyof typeof SSD2Referential];
   }
-  // La LMR est obligatoire lorsque les inspecteurs ont saisi dans la description du prélèvement:
-  // - Le résultat est quantifiable
-  // - Stade de prélèvement -> n'est pas « en cours de culture » (uniquement pour la PPV donc)
-  // - Et LMR / Partie du végétal concernée -> n'est pas « Partie non LMR »
   if (
     sample.resultKind === 'Q' &&
-    sample.programmingPlanKind === 'PPV' &&
+    sample.programmingSubPlanCodeNat === 'PPV' &&
     sample.matrixPart === 'PART1' &&
     sample.stage !== 'STADE2' &&
     !lmrCanBeOptional

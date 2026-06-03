@@ -22,7 +22,8 @@ const categoryToEmailTemplate = {
   ProgrammingPlanValidated: 'GenericTemplate',
   ResourceDocumentUploaded: 'GenericTemplate',
   Control: 'NewLocalPrescriptionCommentTemplate',
-  Surveillance: 'NewLocalPrescriptionCommentTemplate'
+  Surveillance: 'NewLocalPrescriptionCommentTemplate',
+  Exploratory: 'NewLocalPrescriptionCommentTemplate'
 } as const satisfies Record<NotificationCategory, TemplateName | null>;
 
 const NotificationCategoryMessages = {
@@ -48,7 +49,9 @@ Merci de prendre connaissance de ces nouveaux éléments.`,
   ProgrammingPlanValidated: ({ content }) => content,
   AnalysisReviewTodo: () =>
     `Un rapport d'analyse de l'un de vos prélèvements vient d'être reçu par ${Brand}. Veuillez-vous connecter, faire la vérification des données issues de celui-ci et réaliser l'interprétation globale pour finaliser vos actions sur ce prélèvement.`,
-  ResourceDocumentUploaded: ({ content }) => content
+  ResourceDocumentUploaded: ({ content }) => content,
+  Exploratory: ({ matrix }) =>
+    `Nouveau commentaire sur la matrice **${matrix.toLowerCase()}**`
 } as const satisfies {
   [category in NotificationCategory]: (
     params: TemplateParams<category>

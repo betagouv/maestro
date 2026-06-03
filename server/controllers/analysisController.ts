@@ -8,6 +8,7 @@ import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckSample } from '../middlewares/checks/sampleCheck';
 import { analysisErrorsRepository } from '../repositories/analysisErrorsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
+import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { mattermostService } from '../services/mattermostService';
@@ -114,7 +115,10 @@ export const analysisRouter = {
       };
       await analysisRepository.update(updatedAnalysis);
 
-      if (sample.programmingPlanKind === 'PPV') {
+      const subPlan = await programmingSubPlanRepository.findById(
+        sample.programmingSubPlanId
+      );
+      if (subPlan?.codeNat === 'PPV') {
         await sampleRepository.update({
           ...sample,
           compliance: isNil(updatedAnalysis.compliance)

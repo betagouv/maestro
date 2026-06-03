@@ -73,10 +73,15 @@ export interface SendOptions<T extends TemplateName> {
 export interface MailService {
   send<T extends TemplateName>(options: SendOptions<T>): Promise<void>;
   createContact(
-    user: Pick<UserRefined, 'email' | 'name' | 'programmingPlanKinds'>
+    user: Pick<UserRefined, 'email' | 'name'> & {
+      contactListIds: (number | null | undefined)[];
+    }
   ): Promise<void>;
   updateContact(
-    user: Pick<UserRefined, 'email' | 'name' | 'programmingPlanKinds'>
+    user: Pick<UserRefined, 'email' | 'name'> & {
+      contactListIds: (number | null | undefined)[];
+      allContactlistids: number[];
+    }
   ): Promise<void>;
   deleteContact(email: string): Promise<void>;
 }

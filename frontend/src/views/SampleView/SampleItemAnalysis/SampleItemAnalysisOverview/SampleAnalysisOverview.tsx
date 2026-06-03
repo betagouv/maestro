@@ -15,12 +15,14 @@ type Props = {
   analysis: PartialAnalysis;
   readonly: boolean;
   onEdit: () => void;
+  programmingSubPlanCodeNat: string;
 };
 export const SampleAnalysisOverview: FunctionComponent<Props> = ({
   sample,
   analysis,
   readonly,
   onEdit,
+  programmingSubPlanCodeNat,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -56,7 +58,7 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
               residuePanel={(i) => (
                 <ResidueResultOverview
                   residue={residues[i]}
-                  programmingPlanKind={sample.programmingPlanKind}
+                  programmingSubPlanCodeNat={programmingSubPlanCodeNat}
                 />
               )}
             />

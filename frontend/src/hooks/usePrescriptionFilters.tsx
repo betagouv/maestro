@@ -37,7 +37,7 @@ export const usePrescriptionFilters = (
               !filters.programmingPlanId ||
               plan.id === filters.programmingPlanId
           )
-          .flatMap((plan) => plan.kinds)
+          .flatMap((plan) => plan.subPlans.map((sp) => sp.id))
       ),
     [programmingPlanOptions]
   );
@@ -88,8 +88,8 @@ export const usePrescriptionFilters = (
       )
         ? aggregatedFilters?.programmingPlanId
         : getUniqOrUndefined(programmingPlanOptions({ year, domain }))?.[0]?.id;
-      const kinds =
-        aggregatedFilters?.kinds?.filter((kind) =>
+      const programmingSubPlanIds =
+        aggregatedFilters?.programmingSubPlanIds?.filter((kind) =>
           programmingPlanKindOptions({
             year,
             domain,
@@ -107,7 +107,7 @@ export const usePrescriptionFilters = (
         year,
         domain,
         programmingPlanId,
-        kinds
+        programmingSubPlanIds
       }).some((contextOption) => aggregatedFilters?.context === contextOption)
         ? aggregatedFilters?.context
         : getUniqOrUndefined(
@@ -115,7 +115,7 @@ export const usePrescriptionFilters = (
               year,
               domain,
               programmingPlanId,
-              kinds
+              programmingSubPlanIds
             })
           )?.[0];
 
@@ -124,7 +124,7 @@ export const usePrescriptionFilters = (
         domain,
         year,
         programmingPlanId,
-        kinds,
+        programmingSubPlanIds,
         context
       };
     },

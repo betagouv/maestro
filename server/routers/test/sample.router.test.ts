@@ -16,7 +16,10 @@ import {
   PrescriptionFixture
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
+  DAOAInProgressBovinSubPlanId,
   DAOAInProgressProgrammingPlanFixture,
+  DAOAInProgressVolailleSubPlanId,
+  PPVSubPlanId,
   PPVValidatedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -622,7 +625,7 @@ describe('Sample router', () => {
       const specificMatrix = 'A00GZ';
       const prescription = genPrescription({
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-        programmingPlanKind: 'PPV',
+        programmingSubPlanId: PPVSubPlanId,
         context: PrescriptionFixture.context,
         matrixKind: PrescriptionFixture.matrixKind,
         matrix: specificMatrix
@@ -707,7 +710,7 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    test('should be forbidden to send a DAOA_BOVIN sample without seizure', async () => {
+    test('should be forbidden to send a M02 sample without seizure', async () => {
       const sampleId = uuidv4();
       const sample = genCreatedPartialSample({
         id: sampleId,
@@ -720,7 +723,7 @@ describe('Sample router', () => {
         ownerAgreement: true,
         matrixKind: 'A0C0Z',
         matrix: 'A0BAV',
-        programmingPlanKind: 'DAOA_BOVIN',
+        programmingSubPlanId: DAOAInProgressBovinSubPlanId,
         geolocation: { x: 46.642117, y: -0.734475 },
         specificData: {
           killingCode: '1234',
@@ -745,7 +748,7 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    test('should be forbidden to move a DAOA_BOVIN sample to DraftItems with incomplete specificData', async () => {
+    test('should be forbidden to move a M02 sample to DraftItems with incomplete specificData', async () => {
       const sampleId = uuidv4();
       const sample = genCreatedPartialSample({
         id: sampleId,
@@ -757,10 +760,10 @@ describe('Sample router', () => {
         step: 'Draft',
         matrixKind: 'A0C0Z',
         matrix: 'A0BAV',
-        programmingPlanKind: 'DAOA_BOVIN',
+        programmingSubPlanId: DAOAInProgressBovinSubPlanId,
         geolocation: { x: 46.642117, y: -0.734475 },
         specificData: {
-          programmingPlanKind: 'DAOA_BOVIN'
+          programmingPlanKind: 'M02'
         }
       });
       await Samples().insert(formatPartialSample(sample));
@@ -818,7 +821,7 @@ describe('Sample router', () => {
         matrix: 'A01GL',
         ownerAgreement: true,
         sentAt: null,
-        programmingPlanKind: 'DAOA_VOLAILLE'
+        programmingSubPlanId: DAOAInProgressVolailleSubPlanId
       });
 
       mockTriggerProcessing.mockClear();
@@ -828,7 +831,7 @@ describe('Sample router', () => {
         .send({
           ...SampleDAOA1Fixture,
           step: 'Sent',
-          programmingPlanKind: 'DAOA_VOLAILLE',
+          programmingPlanKind: 'M01',
           items: [
             {
               ...SampleDAOA1Fixture.items![0],

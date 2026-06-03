@@ -1,5 +1,5 @@
-import { FieldInputType } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
 import { UnknownValueLabel } from 'maestro-shared/schema/SpecificData/SpecificData';
+import { FieldInputType } from '../../../../../shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { selectOptionsFromList } from '../../../components/_app/AppSelect/AppSelectOption';
 
 export const FieldInputTypeLabels: Record<FieldInputType, string> = {

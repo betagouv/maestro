@@ -4,7 +4,7 @@ import type {
   CommemoratifValueSigle,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
-import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import type { MaestroDate } from 'maestro-shared/utils/date';
@@ -130,7 +130,6 @@ test(`génère un XML de DAI`, async () => {
         lastUpdatedAt: new Date(1765876056798),
         department: '72',
         matrix: 'A01SN#F26.A07XE',
-        programmingPlanKind: 'DAOA_VOLAILLE',
         specificData: {
           sampling: 'Aléatoire',
           animalBatchIdentifier: '',
@@ -145,6 +144,7 @@ test(`génère un XML de DAI`, async () => {
         },
         sampler: Sampler1Fixture
       },
+      'M01',
       {
         sealId: 'sealId',
         itemNumber: 1,

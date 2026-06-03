@@ -412,8 +412,8 @@ describe('Laboratory router', () => {
         ),
         expect.objectContaining({
           laboratoryId: DAOALaboratoryAgreementFixture.laboratoryId,
-          programmingPlanKind:
-            DAOALaboratoryAgreementFixture.programmingPlanKind,
+          programmingSubPlanId:
+            DAOALaboratoryAgreementFixture.programmingSubPlanId,
           substanceKind: DAOALaboratoryAgreementFixture.substanceKind
         })
       ]);
@@ -427,14 +427,14 @@ describe('Laboratory router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toBeInstanceOf(Array);
-      res.body.forEach((agreement: { programmingPlanKind: string }) => {
-        expect(agreement.programmingPlanKind).toBe('PPV');
+      res.body.forEach((agreement: { programmingSubPlanId: string }) => {
+        expect(agreement.programmingSubPlanId).toBeDefined();
       });
       expect(res.body).not.toMatchObject(
         expect.arrayContaining([
           expect.objectContaining({
-            programmingPlanKind:
-              DAOALaboratoryAgreementFixture.programmingPlanKind
+            programmingSubPlanId:
+              DAOALaboratoryAgreementFixture.programmingSubPlanId
           })
         ])
       );

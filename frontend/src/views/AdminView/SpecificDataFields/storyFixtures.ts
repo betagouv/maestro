@@ -3,7 +3,7 @@ import type {
   SachaFieldConfig,
   SpecificDataFieldId,
   SpecificDataFieldOptionId
-} from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+} from '../../../../../shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 
 export const storyFields: AdminFieldConfig[] = [
   {

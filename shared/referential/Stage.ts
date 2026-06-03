@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 
 export const Stage = z.enum(
   [
@@ -39,20 +38,3 @@ export const StageLabels: Record<Stage, string> = {
   STADE11: 'Elevage pondeuse',
   STADE12: "Centre d'emballage"
 };
-
-export const StagesByProgrammingPlanKind: Record<ProgrammingPlanKind, Stage[]> =
-  {
-    [ProgrammingPlanKind.enum.PPV]: [
-      'STADE1',
-      'STADE2',
-      'STADE3',
-      'STADE4',
-      'STADE5',
-      'STADE6',
-      'STADE7',
-      'STADE8',
-      'STADE9'
-    ],
-    [ProgrammingPlanKind.enum.DAOA_VOLAILLE]: ['STADE10'],
-    [ProgrammingPlanKind.enum.DAOA_BOVIN]: ['STADE10']
-  };

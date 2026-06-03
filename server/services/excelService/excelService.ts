@@ -41,12 +41,8 @@ import {
   PrescriptionSort
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import {
-  ProgrammingPlanKindLabels,
-  ProgrammingPlanKindReference
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   getSampleMatrixLabel,
   type PartialSample
@@ -54,7 +50,7 @@ import {
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
-import type { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import type { ProgrammingSubPlanFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import {
   type SubstanceKind,
   SubstanceKindLabels
@@ -64,6 +60,7 @@ import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import companyRepository from '../../repositories/companyRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
+import { programmingSubPlanRepository } from '../../repositories/programmingSubPlanRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 import { type Template, templatePath } from '../../templates/templates';
@@ -184,30 +181,24 @@ const generateSamplesExportExcel = async (
 ): Promise<Buffer> => {
   const laboratories = await laboratoryRepository.findMany();
 
-  const fieldConfigsCache = new Map<string, PlanKindFieldConfig[]>();
+  const fieldConfigsCache = new Map<string, ProgrammingSubPlanFieldConfig[]>();
   const getFieldConfigs = async (
-    programmingPlanId: string,
-    kind: ProgrammingPlanKind
-  ): Promise<PlanKindFieldConfig[]> => {
-    const cacheKey = `${programmingPlanId}:${kind}`;
-    if (!fieldConfigsCache.has(cacheKey)) {
+    programmingSubPlanId: ProgrammingSubPlanId
+  ): Promise<ProgrammingSubPlanFieldConfig[]> => {
+    if (!fieldConfigsCache.has(programmingSubPlanId)) {
       fieldConfigsCache.set(
-        cacheKey,
-        await specificDataFieldConfigRepository.findByPlanKind(
-          programmingPlanId,
-          kind
+        programmingSubPlanId,
+        await specificDataFieldConfigRepository.findByPlanSubPlan(
+          programmingSubPlanId
         )
       );
     }
-    return fieldConfigsCache.get(cacheKey)!;
+    return fieldConfigsCache.get(programmingSubPlanId)!;
   };
 
   const samplesData: SamplesExportExcelData[] = await Promise.all(
     samples.map(async (sample) => {
-      const fieldConfigs = await getFieldConfigs(
-        sample.programmingPlanId,
-        sample.programmingPlanKind
-      );
+      const fieldConfigs = await getFieldConfigs(sample.programmingSubPlanId);
 
       const items = await sampleItemRepository.findMany(sample.id);
       const itemsWithAnalysis = await Promise.all(
@@ -764,24 +755,28 @@ const generateLaboratoryAgreementsExportExcel = async (
     a.shortName.localeCompare(b.shortName)
   );
 
+  const allSubPlanIds = [
+    ...new Set(agreements.map((a) => a.programmingSubPlanId))
+  ];
+  const subPlans =
+    await programmingSubPlanRepository.findManyByIds(allSubPlanIds);
+  const subPlanById = Object.fromEntries(subPlans.map((sp) => [sp.id, sp]));
+
   const uniqueRows = agreements.reduce<
     {
-      programmingPlanId: string;
-      programmingPlanKind: ProgrammingPlanKind;
+      programmingSubPlanId: ProgrammingSubPlanId;
       substanceKind: SubstanceKind;
     }[]
   >((acc, a) => {
     if (
       !acc.some(
         (r) =>
-          r.programmingPlanId === a.programmingPlanId &&
-          r.programmingPlanKind === a.programmingPlanKind &&
+          r.programmingSubPlanId === a.programmingSubPlanId &&
           r.substanceKind === a.substanceKind
       )
     ) {
       acc.push({
-        programmingPlanId: a.programmingPlanId,
-        programmingPlanKind: a.programmingPlanKind,
+        programmingSubPlanId: a.programmingSubPlanId,
         substanceKind: a.substanceKind
       });
     }
@@ -792,20 +787,21 @@ const generateLaboratoryAgreementsExportExcel = async (
     .toSorted(
       (a, b) =>
         a.substanceKind.localeCompare(b.substanceKind) ||
-        a.programmingPlanKind.localeCompare(b.programmingPlanKind)
+        (subPlanById[a.programmingSubPlanId]?.codeNat ?? '').localeCompare(
+          subPlanById[b.programmingSubPlanId]?.codeNat ?? ''
+        )
     )
-    .map(({ programmingPlanId, programmingPlanKind, substanceKind }) => {
+    .map(({ programmingSubPlanId, substanceKind }) => {
+      const subPlan = subPlanById[programmingSubPlanId];
+
       const rowAgreements = agreements.filter(
         (a) =>
-          a.programmingPlanId === programmingPlanId &&
-          a.programmingPlanKind === programmingPlanKind &&
+          a.programmingSubPlanId === programmingSubPlanId &&
           a.substanceKind === substanceKind
       );
 
       const rowPrescriptions = prescriptions.filter(
-        (p) =>
-          p.programmingPlanId === programmingPlanId &&
-          p.programmingPlanKind === programmingPlanKind
+        (p) => p.programmingSubPlanId === programmingSubPlanId
       );
 
       const matrices = [...new Set(rowPrescriptions.map((p) => p.matrixKind))]
@@ -843,10 +839,10 @@ const generateLaboratoryAgreementsExportExcel = async (
       ];
 
       return {
-        num: ProgrammingPlanKindReference[programmingPlanKind],
+        num: subPlan?.codeNat ?? programmingSubPlanId,
         analytes: SubstanceKindLabels[substanceKind],
         matrices,
-        domain: ProgrammingPlanKindLabels[programmingPlanKind],
+        domain: subPlan?.label ?? subPlan?.codeNat ?? programmingSubPlanId,
         stages,
         labCells
       };

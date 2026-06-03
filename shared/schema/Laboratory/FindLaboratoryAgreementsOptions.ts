@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import { MatrixKind } from '../../referential/Matrix/MatrixKind';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 
 export const FindLaboratoryAgreementsOptions = z.object({
   year: z.coerce.number().int().nullish(),
-  programmingPlanKinds: z.array(ProgrammingPlanKind).nullish(),
+  programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullish(),
   substanceKinds: z.array(SubstanceKind).nullish(),
   laboratoryIds: z.array(z.guid()).nullish(),
   matrixKinds: z.array(MatrixKind).nullish(),

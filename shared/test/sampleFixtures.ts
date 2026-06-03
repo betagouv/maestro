@@ -27,7 +27,9 @@ import {
 import { LaboratoryFixture } from './laboratoryFixtures';
 import { PrescriptionFixture } from './prescriptionFixtures';
 import {
+  DAOAInProgressBovinSubPlanId,
   DAOAInProgressProgrammingPlanFixture,
+  PPVSubPlanId,
   PPVValidatedProgrammingPlanFixture
 } from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
@@ -52,7 +54,7 @@ export const genSampleContextData = (
     y: 4.731044
   },
   programmingPlanId: uuidv4(),
-  programmingPlanKind: 'PPV',
+  programmingSubPlanId: PPVSubPlanId,
   context: oneOf(ProgrammingPlanContextList),
   legalContext: oneOf(LegalContextList),
   resytalId: `23-${fakerFR.string.numeric(6)}`,
@@ -86,7 +88,7 @@ export const genCreatedPartialSample = (
     monoSubstances: [],
     multiSubstances: [],
     stage: 'STADE1',
-    programmingPlanKind: 'PPV',
+    programmingSubPlanId: PPVSubPlanId,
     specificData: {
       matrixPart: oneOf(['PART1', 'PART2']),
       productionKind: oneOf(['PD07A', 'Z0216', 'PD09A']),
@@ -171,7 +173,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   matrixKind: PrescriptionFixture.matrixKind,
   matrix: 'A00GZ',
   stage: PrescriptionFixture.stages[0],
-  programmingPlanKind: 'PPV',
+  programmingSubPlanId: PPVSubPlanId,
   specificData: {
     matrixPart: 'PART1',
     productionKind: 'PD07A',
@@ -222,7 +224,7 @@ export const Sample2Fixture = genCreatedPartialSample({
 export const SampleDAOA1Fixture = genCreatedPartialSample({
   sampler: SamplerDaoaFixture,
   programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
-  programmingPlanKind: 'DAOA_BOVIN',
+  programmingSubPlanId: DAOAInProgressBovinSubPlanId,
   context: 'Surveillance',
   company: SlaughterhouseCompanyFixture1,
   department: SamplerDaoaFixture.department,
@@ -231,14 +233,12 @@ export const SampleDAOA1Fixture = genCreatedPartialSample({
     x: 46.642117,
     y: -0.734475
   },
-  specificData: {
-    programmingPlanKind: 'DAOA_BOVIN'
-  }
+  specificData: {}
 });
 export const SampleDAOA2Fixture = genCreatedPartialSample({
   sampler: SamplerDaoaFixture,
   programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
-  programmingPlanKind: 'DAOA_BOVIN',
+  programmingSubPlanId: DAOAInProgressBovinSubPlanId,
   context: 'Surveillance',
   company: SlaughterhouseCompanyFixture2,
   department: SamplerDaoaFixture.department,

@@ -30,6 +30,7 @@ import { ResidueResultForm } from './ResidueResultForm';
 
 type Props = {
   sample: Omit<SampleChecked, 'reference' | 'compliance'>;
+  programmingSubPlanCodeNat: string;
   partialAnalysis: PartialAnalysis;
   onDone: () => void;
 };
@@ -46,6 +47,7 @@ export type ResiduesLmrValidator = typeof residuesValidator;
 
 export const SampleAnalysisForm: FunctionComponent<Props> = ({
   sample,
+  programmingSubPlanCodeNat,
   partialAnalysis,
   onDone,
   ..._rest
@@ -103,7 +105,7 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
           resultKind: 'Q',
           result: null,
           reference: undefined,
-          ...(sample.programmingPlanKind === 'PPV'
+          ...(programmingSubPlanCodeNat === 'PPV'
             ? {}
             : {
                 substanceApproved: 'NA',
@@ -164,7 +166,7 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
               residues={residues}
               residuePanel={(i) => (
                 <ResidueResultForm
-                  programmingPlanKind={sample.programmingPlanKind}
+                  programmingSubPlanCodeNat={programmingSubPlanCodeNat}
                   residue={residues[i]}
                   residueIndex={i}
                   form={form}

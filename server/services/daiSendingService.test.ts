@@ -39,6 +39,7 @@ describe('buildAnalysisRequestData', () => {
     expect(
       buildAnalysisRequestData(
         sample,
+        'PPV',
         sampleItem,
         Sampler1Fixture,
         LaboratoryFixture,

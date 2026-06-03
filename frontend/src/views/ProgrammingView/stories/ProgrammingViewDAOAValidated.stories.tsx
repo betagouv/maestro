@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
-import { ProgrammingPlanKindWithSachaList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   SlaughterhouseCompanyFixture1,
   SlaughterhouseCompanyFixture2
@@ -12,7 +11,11 @@ import {
   VolailleLocalPrescriptionFixture,
   VolaillePrescriptionFixture
 } from 'maestro-shared/test/prescriptionFixtures';
-import { DAOAInProgressProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  DAOABovinSubPlanId,
+  DAOAInProgressProgrammingPlanFixture,
+  DAOAVolailleSubPlanId
+} from 'maestro-shared/test/programmingPlanFixtures';
 import {
   DepartmentalCoordinator,
   genAuthUser,
@@ -124,7 +127,7 @@ export const RegionalCoordinatorView: Story = {
       auth: {
         authUser: genAuthUser({
           ...RegionalCoordinator,
-          programmingPlanKinds: ProgrammingPlanKindWithSachaList
+          programmingSubPlanIds: [DAOAVolailleSubPlanId, DAOABovinSubPlanId]
         })
       }
     },

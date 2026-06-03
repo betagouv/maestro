@@ -41,9 +41,9 @@ const MatrixStepSummary = ({
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { data: fieldConfigs = [] } =
-    apiClient.useFindPlanKindFieldConfigsQuery({
+    apiClient.useFindProgrammingSubPlanFieldConfigsQuery({
       programmingPlanId: sample.programmingPlanId,
-      kind: sample.programmingPlanKind
+      programmingSubPlanId: sample.programmingSubPlanId
     });
 
   return (

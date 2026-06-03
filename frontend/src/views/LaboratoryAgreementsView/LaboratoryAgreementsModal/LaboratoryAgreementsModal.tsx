@@ -10,7 +10,6 @@ import type {
   LaboratoryAgreementRowKey,
   LaboratoryAgreementUpdate
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
-import { ProgrammingPlanKindReference } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
@@ -147,11 +146,7 @@ const LaboratoryAgreementsModal = ({
               {laboratoryAgreementRowKeys.length === 1 ? (
                 <>
                   N°
-                  {
-                    ProgrammingPlanKindReference[
-                      laboratoryAgreementRowKeys[0].programmingPlanKind
-                    ]
-                  }
+                  {laboratoryAgreementRowKeys[0].programmingSubPlanId}
                   {' | '}
                   {
                     SubstanceKindLabels[
@@ -242,8 +237,7 @@ const LaboratoryAgreementsModal = ({
               }
               const laboratoryAgreement = {
                 laboratoryId: laboratory.id,
-                programmingPlanId: rowKey.programmingPlanId,
-                programmingPlanKind: rowKey.programmingPlanKind,
+                programmingSubPlanId: rowKey.programmingSubPlanId,
                 substanceKind: rowKey.substanceKind,
                 referenceLaboratory: local.referenceLaboratory,
                 detectionAnalysis: local.detectionAnalysis,

@@ -6,7 +6,10 @@ import {
   FoieDeBovinPrescriptionFixture,
   genPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
-import { PPVInProgressProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  PPVInProgressProgrammingPlanFixture,
+  PPVSubPlanId
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { genLocalPrescriptionComment } from 'maestro-shared/test/regionalPrescriptionCommentFixture';
 import {
   genAuthUser,
@@ -168,7 +171,7 @@ export const NationalCoordinatorViewByRegion: Story = {
           prescription: genPrescription({
             id: '22222222-2222-2222-2222-222222222222',
             programmingPlanId: PPVInProgressProgrammingPlanFixture.id,
-            programmingPlanKind: 'PPV',
+            programmingSubPlanId: PPVSubPlanId,
             context: 'Surveillance',
             matrixKind: 'A01SN',
             stages: ['STADE10']

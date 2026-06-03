@@ -64,7 +64,7 @@ const findMany = async (
           findOptions,
           'prescriptionId',
           'programmingPlanId',
-          'programmingPlanKinds',
+          'programmingSubPlanIds',
           'context',
           'includes',
           'region',
@@ -115,10 +115,10 @@ const findMany = async (
           findOptions.companySirets
         );
       }
-      if (findOptions.programmingPlanKinds) {
+      if (findOptions.programmingSubPlanIds) {
         builder.whereIn(
-          `${prescriptionsTable}.programming_plan_kind`,
-          findOptions.programmingPlanKinds
+          `${prescriptionsTable}.programming_sub_plan_id`,
+          findOptions.programmingSubPlanIds
         );
       }
     })

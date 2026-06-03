@@ -4,7 +4,6 @@ import {
   type Region,
   RegionList
 } from 'maestro-shared/referential/Region';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -37,9 +36,9 @@ import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
 import {
   formatProgrammingPlan,
-  ProgrammingPlanKinds,
   ProgrammingPlanLocalStatus,
-  ProgrammingPlans
+  ProgrammingPlans,
+  ProgrammingSubPlans
 } from '../../repositories/programmingPlanRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
@@ -106,16 +105,18 @@ describe('ProgrammingPlan router', () => {
       )
     );
 
-    await ProgrammingPlanKinds().insert(
+    await ProgrammingSubPlans().insert(
       [
         validatedDromProgrammingPlan,
         validatedProgrammingPlan,
         submittedProgrammingPlan,
         inProgressProgrammingPlan
       ].flatMap((plan) =>
-        plan.kinds.map((kind: ProgrammingPlanKind) => ({
+        plan.subPlans.map((sp) => ({
+          id: sp.id,
           programmingPlanId: plan.id,
-          kind
+          codeNat: sp.codeNat,
+          stages: sp.stages
         }))
       )
     );
@@ -226,13 +227,13 @@ describe('ProgrammingPlan router', () => {
 
     test('can filter the programmingPlans by kinds for the administrator', async () => {
       const res = await request(app)
-        .get(testRoute({ kinds: 'DAOA_VOLAILLE' }))
+        .get(testRoute({ kinds: 'M01' }))
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body[0]).toMatchObject({
         id: DAOAInProgressProgrammingPlanFixture.id,
-        kinds: ['DAOA_VOLAILLE']
+        kinds: ['M01']
       });
     });
 
@@ -492,7 +493,7 @@ describe('ProgrammingPlan router', () => {
         matrixKind: controlPrescription.matrixKind,
         matrix: null,
         stages: controlPrescription.stages,
-        programmingPlanKind: controlPrescription.programmingPlanKind,
+        programmingSubPlanId: controlPrescription.programmingSubPlanId,
         programmingInstruction:
           controlPrescription.programmingInstruction ?? null,
         notes: controlPrescription.notes ?? null
@@ -510,7 +511,7 @@ describe('ProgrammingPlan router', () => {
         matrixKind: surveillancePrescription.matrixKind,
         matrix: null,
         stages: surveillancePrescription.stages,
-        programmingPlanKind: controlPrescription.programmingPlanKind,
+        programmingSubPlanId: controlPrescription.programmingSubPlanId,
         programmingInstruction:
           controlPrescription.programmingInstruction ?? null,
         notes: controlPrescription.notes ?? null
