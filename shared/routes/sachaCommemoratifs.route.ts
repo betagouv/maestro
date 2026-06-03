@@ -10,7 +10,7 @@ export const sachaCommemoratifsRoute = {
       permissions: ['administrationMaestro']
     },
     post: {
-      response: z.void(),
+      response: z.undefined(),
       body: z.object({ xmlContent: z.string() }),
       permissions: ['administrationMaestro'],
       skipSanitization: true

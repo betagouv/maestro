@@ -1,9 +1,9 @@
-import { constants } from 'node:http2';
 import { isNil } from 'lodash-es';
 import {
   COOKIE_MAESTRO_MASCARADE,
   COOKIE_MAESTRO_USER_ROLE
 } from 'maestro-shared/constants';
+import { HttpStatus } from '../constants/httpStatus';
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import config from '../utils/config';
@@ -25,7 +25,7 @@ export const mascaradeRouter = {
       }
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: { userId: req.auth.userId }
       };
     }
@@ -44,7 +44,7 @@ export const mascaradeRouter = {
         });
       }
       return {
-        status: constants.HTTP_STATUS_OK
+        status: HttpStatus.OK
       };
     }
   }

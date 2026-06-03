@@ -23,6 +23,11 @@ import type { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
 import { hasPermission, type UserBase } from 'maestro-shared/schema/User/User';
 import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import z, { type ZodObject } from 'zod';
+import type {
+  EmptyStatus,
+  HttpStatus,
+  ResponseStatus
+} from '../constants/httpStatus';
 import { validateRequest } from '../middlewares/validator';
 
 type MaestroResponse<
@@ -31,6 +36,15 @@ type MaestroResponse<
 > = [RouteResponse<key, method>] extends [never]
   ? undefined
   : RouteResponse<key, method>;
+
+type MaestroHandlerResult<
+  key extends MaestroRoutes,
+  method extends keyof (typeof routes)[key]
+> = [MaestroResponse<key, method>] extends [undefined]
+  ? { status: HttpStatus; response?: never }
+  :
+      | { status: ResponseStatus; response: MaestroResponse<key, method> }
+      | { status: EmptyStatus; response?: never };
 
 type ResponseMethods = Pick<Response, 'setHeader' | 'clearCookie'> & {
   cookie: (name: string, val: string, options: CookieOptions) => Response;
@@ -53,12 +67,7 @@ type MaestroRouteMethod<
     : Record<never, never>),
   params: RouteParams<key>,
   responseMethods: ResponseMethods
-) => Promise<
-  { status: number } & (
-    | { response: MaestroResponse<key, method> }
-    | { response?: never }
-  )
->;
+) => Promise<MaestroHandlerResult<key, method>>;
 
 export type ProtectedSubRouter = {
   [key in ProtectedRoutes]?: {

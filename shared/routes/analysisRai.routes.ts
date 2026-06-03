@@ -18,7 +18,7 @@ export const analysisRaiRoutes = {
     },
     post: {
       permissions: ['administrationMaestro'],
-      response: z.void()
+      response: z.undefined()
     }
   }
 } as const satisfies SubRoutes<'/analysis-rai'>;

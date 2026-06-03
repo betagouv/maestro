@@ -1,4 +1,3 @@
-import { constants } from 'node:http2';
 import { intersection, isNil } from 'lodash-es';
 import { Brand } from 'maestro-shared/constants';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
@@ -26,6 +25,7 @@ import {
   isRegionalRole
 } from 'maestro-shared/schema/User/UserRole';
 import { v4 as uuidv4 } from 'uuid';
+import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
@@ -58,7 +58,7 @@ export const programmingPlanRouter = {
 
       console.info('Found programmingPlans', programmingPlans);
 
-      return { status: constants.HTTP_STATUS_OK, response: programmingPlans };
+      return { status: HttpStatus.OK, response: programmingPlans };
     }
   },
   '/programming-plans/:programmingPlanId': {
@@ -73,7 +73,7 @@ export const programmingPlanRouter = {
       }
 
       if (!intersection(user.programmingPlanKinds, programmingPlan.kinds)) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       const userStatusAuthorized = Object.entries(
@@ -98,11 +98,11 @@ export const programmingPlanRouter = {
                 userDepartmentsForRole(user, userRole).includes(_.department)
             );
       if (filterProgrammingPlanStatus.length === 0) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: {
           ...programmingPlan,
           regionalStatus: filterProgrammingPlanStatus
@@ -129,7 +129,7 @@ export const programmingPlanRouter = {
             ] !== newProgrammingPlanStatus
         )
       ) {
-        return { status: constants.HTTP_STATUS_BAD_REQUEST };
+        return { status: HttpStatus.BAD_REQUEST };
       }
 
       await Promise.all(
@@ -153,8 +153,11 @@ export const programmingPlanRouter = {
         programmingPlan.id
       );
 
+      if (!updatedProgrammingPlan) {
+        throw new Error('Programming plan not found after update');
+      }
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: updatedProgrammingPlan
       };
     }
@@ -203,7 +206,7 @@ export const programmingPlanRouter = {
                 ))
           )
         ) {
-          return { status: constants.HTTP_STATUS_FORBIDDEN };
+          return { status: HttpStatus.FORBIDDEN };
         }
 
       await Promise.all(
@@ -340,7 +343,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
                   }
                 );
               } else {
-                return { status: constants.HTTP_STATUS_BAD_REQUEST };
+                return { status: HttpStatus.BAD_REQUEST };
               }
             }
 
@@ -387,8 +390,11 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
       const updatedProgrammingPlan =
         await programmingPlanRepository.findUnique(programmingPlanId);
 
+      if (!updatedProgrammingPlan) {
+        throw new Error('Programming plan not found after update');
+      }
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: updatedProgrammingPlan
       };
     }
@@ -475,7 +481,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
       );
 
       return {
-        status: constants.HTTP_STATUS_CREATED,
+        status: HttpStatus.CREATED,
         response: newProgrammingPlan
       };
     }

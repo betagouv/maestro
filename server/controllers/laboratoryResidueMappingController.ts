@@ -1,4 +1,4 @@
-import { constants } from 'node:http2';
+import { HttpStatus } from '../constants/httpStatus';
 import { laboratoryResidueMappingRepository } from '../repositories/laboratoryResidueMappingRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 
@@ -12,7 +12,7 @@ export const laboratoryResidueMappingRouter = {
           laboratoryId
         );
 
-      return { status: constants.HTTP_STATUS_OK, response: mappings };
+      return { status: HttpStatus.OK, response: mappings };
     },
     put: async ({ body }, { laboratoryId }) => {
       console.info(
@@ -35,7 +35,7 @@ export const laboratoryResidueMappingRouter = {
         );
       }
 
-      return { status: constants.HTTP_STATUS_OK, response: mapping };
+      return { status: HttpStatus.OK, response: mapping };
     }
   },
   '/laboratories/:laboratoryId/residue-mappings/orphan-labels': {
@@ -47,7 +47,7 @@ export const laboratoryResidueMappingRouter = {
           laboratoryId
         );
 
-      return { status: constants.HTTP_STATUS_OK, response: labels };
+      return { status: HttpStatus.OK, response: labels };
     }
   }
 } as const satisfies ProtectedSubRouter;

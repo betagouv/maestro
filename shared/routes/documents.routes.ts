@@ -31,7 +31,7 @@ export const documentsRoutes = {
     },
     delete: {
       permissions: ['deleteDocument', 'deleteSampleDocument'],
-      response: z.void()
+      response: z.undefined()
     }
   },
   '/documents/:documentId/download-signed-url': {

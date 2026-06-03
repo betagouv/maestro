@@ -108,7 +108,7 @@ export const programmingPlansRoutes = {
       },
       delete: {
         permissions: ['administrationMaestro'],
-        response: z.void()
+        response: z.undefined()
       }
     },
   '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields/:planKindFieldId/options':
@@ -121,7 +121,7 @@ export const programmingPlansRoutes = {
       put: {
         permissions: ['administrationMaestro'],
         body: z.object({ optionIds: z.array(SpecificDataFieldOptionId) }),
-        response: z.void()
+        response: z.undefined()
       }
     }
 } as const satisfies SubRoutes<'/programming-plans'>;

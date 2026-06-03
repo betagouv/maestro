@@ -14,7 +14,7 @@ export const noticesRoutes = {
     put: {
       body: Notice.omit({ type: true }),
       permissions: ['administrationMaestro'],
-      response: z.void()
+      response: z.undefined()
     }
   }
 } as const satisfies SubRoutes<'/notices/:type'>;

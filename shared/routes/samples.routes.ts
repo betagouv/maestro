@@ -64,7 +64,7 @@ export const samplesRoutes = {
     put: {
       body: SampleItemUpdate,
       permissions: ['performAnalysis', 'updateSample'],
-      response: z.void()
+      response: z.undefined()
     }
   },
   '/samples/:sampleId': {
@@ -82,7 +82,7 @@ export const samplesRoutes = {
     },
     delete: {
       permissions: ['deleteSample'],
-      response: z.void()
+      response: z.undefined()
     }
   },
   '/samples/:sampleId/compliance': {

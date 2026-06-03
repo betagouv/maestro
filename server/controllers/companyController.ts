@@ -1,4 +1,4 @@
-import { constants } from 'node:http2';
+import { HttpStatus } from '../constants/httpStatus';
 import companyRepository from '../repositories/companyRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 
@@ -9,7 +9,7 @@ export const companiesRouter = {
 
       const companies = await companyRepository.findMany(findOptions);
 
-      return { status: constants.HTTP_STATUS_OK, response: companies };
+      return { status: HttpStatus.OK, response: companies };
     }
   }
 } as const satisfies ProtectedSubRouter;

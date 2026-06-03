@@ -7,7 +7,7 @@ export const mascaradeRoutes = {
       userId: z.guid()
     },
     post: {
-      response: z.void(),
+      response: z.undefined(),
       permissions: ['administrationMaestro']
     }
   },

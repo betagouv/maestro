@@ -1,10 +1,10 @@
-import { constants } from 'node:http2';
 import { isEqual, isNil } from 'lodash-es';
 import AnalysisMissingError from 'maestro-shared/errors/analysisMissingError';
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { hasSamplePermission } from 'maestro-shared/schema/Sample/Sample';
 import { v4 as uuidv4 } from 'uuid';
+import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckSample } from '../middlewares/checks/sampleCheck';
 import { analysisErrorsRepository } from '../repositories/analysisErrorsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
@@ -19,10 +19,10 @@ export const analysisRouter = {
       const analysis = await analysisRepository.findUnique(sampleItemKey);
 
       if (!analysis) {
-        return { status: constants.HTTP_STATUS_NOT_FOUND };
+        return { status: HttpStatus.NOT_FOUND };
       }
 
-      return { response: analysis, status: constants.HTTP_STATUS_OK };
+      return { response: analysis, status: HttpStatus.OK };
     },
     post: async ({ user, userRole, body: analysisToCreate }) => {
       const sample = await getAndCheckSample(
@@ -32,7 +32,7 @@ export const analysisRouter = {
       );
 
       if (!hasSamplePermission(user, userRole, sample)['performAnalysis']) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       console.info('Create analysis for sampleId', sample.id, analysisToCreate);
@@ -49,7 +49,7 @@ export const analysisRouter = {
       await analysisRepository.insert(analysis);
 
       return {
-        status: constants.HTTP_STATUS_CREATED,
+        status: HttpStatus.CREATED,
         response: analysis
       };
     }
@@ -67,7 +67,7 @@ export const analysisRouter = {
       const sample = await getAndCheckSample(analysis.sampleId, user, userRole);
 
       if (!hasSamplePermission(user, userRole, sample)['performAnalysis']) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       if (
@@ -127,7 +127,7 @@ export const analysisRouter = {
         await sampleRepository.evaluateSampleCompliance(sample.id);
       }
 
-      return { response: updatedAnalysis, status: constants.HTTP_STATUS_OK };
+      return { response: updatedAnalysis, status: HttpStatus.OK };
     }
   }
 } as const satisfies ProtectedSubRouter;

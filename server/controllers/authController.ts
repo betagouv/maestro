@@ -1,4 +1,3 @@
-import { constants } from 'node:http2';
 import jwt from 'jsonwebtoken';
 import {
   COOKIE_MAESTRO_ACCESS_TOKEN,
@@ -11,6 +10,7 @@ import {
 } from 'maestro-shared/schema/User/AuthUser';
 import type { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
 import { v4 as uuidv4 } from 'uuid';
+import { HttpStatus } from '../constants/httpStatus';
 import { getUser } from '../middlewares/checks/authCheck';
 import { userRepository } from '../repositories/userRepository';
 import type {
@@ -28,7 +28,7 @@ export const authUnprotectedRouter = {
         'openid profile email'
       );
 
-      return { status: constants.HTTP_STATUS_OK, response: authRedirectUrl };
+      return { status: HttpStatus.OK, response: authRedirectUrl };
     }
   },
   '/auth': {
@@ -82,7 +82,7 @@ export const authUnprotectedRouter = {
           });
         }
 
-        return { status: constants.HTTP_STATUS_OK, response: result };
+        return { status: HttpStatus.OK, response: result };
       } catch (error) {
         console.error('Error while authenticating', error);
         throw new AuthenticationFailedError();
@@ -112,7 +112,7 @@ export const authProtectedRouter = {
       });
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: AuthUserRefined.parse({
           user,
           userRole: newRole
@@ -133,7 +133,7 @@ export const authProtectedRouter = {
         await userRepository.deleteLoggedSecret(loggedSecret, userId);
       }
 
-      return { status: constants.HTTP_STATUS_OK, response: logoutUrl };
+      return { status: HttpStatus.OK, response: logoutUrl };
     }
   }
 } as const satisfies ProtectedSubRouter;
