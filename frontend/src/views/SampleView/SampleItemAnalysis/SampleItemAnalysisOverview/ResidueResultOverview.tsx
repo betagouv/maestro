@@ -123,7 +123,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
           </div>
         )}
 
-        {programmingSubPlan.codeNat === 'PPV' && (
+        {programmingSubPlan?.codeNat === 'PPV' && (
           <>
             <div className="d-flex-align-center">
               Substance approuvée dans l'UE
