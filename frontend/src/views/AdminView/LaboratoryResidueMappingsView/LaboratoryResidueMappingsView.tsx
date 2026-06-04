@@ -207,7 +207,12 @@ export const LaboratoryResidueMappingsView = () => {
         normalized === '' ? true : m.label.toLowerCase().includes(normalized)
       )
       .filter((m) => (ssd2IdFilter === null ? true : m.ssd2Id === ssd2IdFilter))
-      .sort((a, b) => a.label.localeCompare(b.label));
+      .sort((a, b) => {
+        if ((a.ssd2Id === null) !== (b.ssd2Id === null)) {
+          return a.ssd2Id === null ? -1 : 1;
+        }
+        return a.label.localeCompare(b.label);
+      });
   }, [mappings, labelFilter, ssd2IdFilter]);
 
   const filteredOrphanLabels = useMemo(() => {
