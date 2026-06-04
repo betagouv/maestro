@@ -16,6 +16,7 @@ import { useEffect, useMemo, useState } from 'react';
 import LaboratoryAgreementButtons from '../../../components/LaboratoryAgreement/LaboratoryAgreementButtons/LaboratoryAgreementButtons';
 import LaboratoryAgreementTag from '../../../components/LaboratoryAgreement/LaboratoryAgreementTag/LaboratoryAgreementTag';
 import './LaboratoryAgreementsModal.scss';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { pluralize } from '../../../utils/stringUtils';
 
 export type ModalInstance = {
@@ -45,6 +46,7 @@ interface Props {
   laboratoryAgreementRowKeys: LaboratoryAgreementRowKey[];
   agreements: LabAgreementFlags[];
   laboratories: Laboratory[];
+  programmingSubPlan: ProgrammingSubPlan;
   onSave: (
     laboratoryId: string,
     input: LaboratoryAgreementUpdate
@@ -62,6 +64,7 @@ const LaboratoryAgreementsModal = ({
   laboratoryAgreementRowKeys,
   agreements,
   laboratories,
+  programmingSubPlan,
   onSave
 }: Props) => {
   const [localAgreements, setLocalAgreements] = useState<
@@ -248,6 +251,7 @@ const LaboratoryAgreementsModal = ({
                   key={laboratory.id}
                   laboratoryAgreement={laboratoryAgreement}
                   laboratory={laboratory}
+                  programmingSubPlan={programmingSubPlan}
                   afterClose={modal.open}
                 />
               );

@@ -14,10 +14,7 @@ import type {
   LaboratoryAgreementRowKey
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
-import {
-  type ProgrammingPlanKind,
-  ProgrammingPlanKindReference
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -67,7 +64,7 @@ const LaboratoryAgreementsView = () => {
     LaboratoryAgreementField[]
   >([]);
   const [matrixFilter, setMatrixFilter] = useState<MatrixKind[]>([]);
-  const [kindFilter, setKindFilter] = useState<ProgrammingPlanKind[]>([]);
+  const [kindFilter, setKindFilter] = useState<ProgrammingSubPlanId[]>([]);
   const [showWithoutLab, setShowWithoutLab] = useState(false);
 
   const { data: agreements = [] } = apiClient.useFindLaboratoryAgreementsQuery(
@@ -110,16 +107,16 @@ const LaboratoryAgreementsView = () => {
   const rows = useMemo(
     () =>
       programmingPlans.flatMap((plan) =>
-        plan.kinds.flatMap((kind) =>
+        plan.subPlans.flatMap((subPlan) =>
           plan.substanceKinds.map((substanceKind) => ({
-            programmingPlanId: plan.id,
-            programmingPlanKind: kind,
+            programmingSubPlanId: subPlan.id,
+            subPlanCodeNat: subPlan.codeNat,
+            subPlanLabel: subPlan.label ?? subPlan.codeNat,
             programmingPlanYear: plan.year,
             substanceKind,
             laboratories: agreements.filter(
               (a) =>
-                a.programmingPlanId === plan.id &&
-                a.programmingPlanKind === kind &&
+                a.programmingSubPlanId === subPlan.id &&
                 a.substanceKind === substanceKind
             )
           }))
@@ -130,10 +127,13 @@ const LaboratoryAgreementsView = () => {
 
   const kindOptions = useMemo(
     () =>
-      [...new Set(rows.map((r) => r.programmingPlanKind))].map((value) => ({
-        value,
-        label: ProgrammingPlanKindReference[value]
-      })),
+      [...new Set(rows.map((r) => r.programmingSubPlanId))].map((value) => {
+        const row = rows.find((r) => r.programmingSubPlanId === value);
+        return {
+          value,
+          label: row?.subPlanCodeNat ?? value
+        };
+      }),
     [rows]
   );
 
@@ -176,16 +176,9 @@ const LaboratoryAgreementsView = () => {
   );
 
   const filteredRows = useMemo(() => {
-    const getFirstMatrixTitle = (
-      programmingPlanId: string,
-      programmingPlanKind: string
-    ) => {
+    const getFirstMatrixTitle = (programmingSubPlanId: string) => {
       const titles = allPrescriptions
-        .filter(
-          (p) =>
-            p.programmingPlanId === programmingPlanId &&
-            p.programmingPlanKind === programmingPlanKind
-        )
+        .filter((p) => p.programmingSubPlanId === programmingSubPlanId)
         .map(getPrescriptionTitle)
         .sort((a, b) => a.localeCompare(b));
       return titles[0] ?? '';
@@ -195,14 +188,13 @@ const LaboratoryAgreementsView = () => {
       .filter(
         (r) =>
           (kindFilter.length === 0 ||
-            kindFilter.includes(r.programmingPlanKind)) &&
+            kindFilter.includes(r.programmingSubPlanId)) &&
           (substanceFilter.length === 0 ||
             substanceFilter.includes(r.substanceKind)) &&
           (matrixFilter.length === 0 ||
             allPrescriptions.some(
               (p) =>
-                p.programmingPlanId === r.programmingPlanId &&
-                p.programmingPlanKind === r.programmingPlanKind &&
+                p.programmingSubPlanId === r.programmingSubPlanId &&
                 matrixFilter.includes(p.matrixKind)
             )) &&
           ((labFilter.length === 0 && labAgreementTypeFilter.length === 0) ||
@@ -224,14 +216,12 @@ const LaboratoryAgreementsView = () => {
       .sort((a, b) => {
         const aChecked = checks.some(
           (c) =>
-            c.programmingPlanId === a.programmingPlanId &&
-            c.programmingPlanKind === a.programmingPlanKind &&
+            c.programmingSubPlanId === a.programmingSubPlanId &&
             c.substanceKind === a.substanceKind
         );
         const bChecked = checks.some(
           (c) =>
-            c.programmingPlanId === b.programmingPlanId &&
-            c.programmingPlanKind === b.programmingPlanKind &&
+            c.programmingSubPlanId === b.programmingSubPlanId &&
             c.substanceKind === b.substanceKind
         );
         if (aChecked !== bChecked) {
@@ -243,11 +233,8 @@ const LaboratoryAgreementsView = () => {
         if (substanceCmp !== 0) {
           return substanceCmp;
         }
-        return getFirstMatrixTitle(
-          a.programmingPlanId,
-          a.programmingPlanKind
-        ).localeCompare(
-          getFirstMatrixTitle(b.programmingPlanId, b.programmingPlanKind)
+        return getFirstMatrixTitle(a.programmingSubPlanId).localeCompare(
+          getFirstMatrixTitle(b.programmingSubPlanId)
         );
       });
   }, [
@@ -349,8 +336,7 @@ const LaboratoryAgreementsView = () => {
         await updateAgreements({
           laboratoryId: updated.laboratoryId,
           laboratoryAgreementRowKey: {
-            programmingPlanId: updated.programmingPlanId,
-            programmingPlanKind: updated.programmingPlanKind,
+            programmingSubPlanId: updated.programmingSubPlanId,
             substanceKind: updated.substanceKind
           },
           referenceLaboratory: updated.referenceLaboratory,
@@ -457,7 +443,7 @@ const LaboratoryAgreementsView = () => {
                 window.open(
                   getLaboratoryAgreementsExportURL({
                     year: Number(year),
-                    programmingPlanKinds: kindFilter.length
+                    programmingSubPlanIds: kindFilter.length
                       ? kindFilter
                       : undefined,
                     substanceKinds: substanceFilter.length
