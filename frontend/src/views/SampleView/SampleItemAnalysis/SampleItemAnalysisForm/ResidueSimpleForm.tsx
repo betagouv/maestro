@@ -9,6 +9,7 @@ import {
   ResultKindLabels,
   ResultKindList
 } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
@@ -19,7 +20,7 @@ import type { ResiduesLmrValidator } from './SampleAnalysisForm';
 
 interface Props {
   form: UseForm<ResiduesLmrValidator>;
-  programmingSubPlanCodeNat: string;
+  programmingSubPlan: ProgrammingSubPlan;
   residue: PartialResidue;
   residueIndex: number;
   changeResidue: (residue: PartialResidue, residueIndex: number) => void;
@@ -27,7 +28,7 @@ interface Props {
 
 function ResidueSimpleForm({
   form,
-  programmingSubPlanCodeNat,
+  programmingSubPlan,
   residue,
   residueIndex,
   changeResidue
@@ -119,7 +120,7 @@ function ResidueSimpleForm({
             isDefinedAndNotNull(residue.lmr) && (
               <div className={cx('fr-col-12')}>
                 <ResidueResultAlert
-                  programmingSubPlanCodeNat={programmingSubPlanCodeNat}
+                  programmingSubPlan={programmingSubPlan}
                   result={residue.result}
                   lmr={residue.lmr}
                   lmrIsOptional={lmrIsOptional}

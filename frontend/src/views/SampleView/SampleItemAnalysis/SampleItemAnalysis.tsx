@@ -51,10 +51,9 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
     { programmingPlanId: sample.programmingPlanId },
     { skip: !sample.programmingPlanId }
   );
-  const programmingSubPlanCodeNat =
-    programmingPlan?.subPlans.find(
-      (sp) => sp.id === sample.programmingSubPlanId
-    )?.codeNat ?? '';
+  const programmingSubPlan = programmingPlan?.subPlans.find(
+    (sp) => sp.id === sample.programmingSubPlanId
+  );
 
   const { currentData: analysis } = apiClient.useGetSampleItemAnalysisQuery({
     sampleId: sample.id,
@@ -371,6 +370,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
         </div>
       )}
       {analysis &&
+        programmingSubPlan &&
         analysis.status !== 'Sent' &&
         analysis.status !== 'NotAdmissible' &&
         (!isEditing ? (
@@ -379,12 +379,12 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
             analysis={analysis}
             readonly={!hasUserSamplePermission(sample).performAnalysis}
             onEdit={() => navigateToSampleEdit(sample.id)}
-            programmingSubPlanCodeNat={programmingSubPlanCodeNat}
+            programmingSubPlan={programmingSubPlan}
           />
         ) : (
           <SampleAnalysisForm
             sample={sample}
-            programmingSubPlanCodeNat={programmingSubPlanCodeNat}
+            programmingSubPlan={programmingSubPlan}
             partialAnalysis={analysis}
             onDone={() => navigateToSample(sample.id)}
           />

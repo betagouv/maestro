@@ -3,6 +3,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { omit } from 'lodash-es';
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
@@ -15,14 +16,14 @@ type Props = {
   analysis: PartialAnalysis;
   readonly: boolean;
   onEdit: () => void;
-  programmingSubPlanCodeNat: string;
+  programmingSubPlan: ProgrammingSubPlan;
 };
 export const SampleAnalysisOverview: FunctionComponent<Props> = ({
   sample,
   analysis,
   readonly,
   onEdit,
-  programmingSubPlanCodeNat,
+  programmingSubPlan,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -58,7 +59,7 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
               residuePanel={(i) => (
                 <ResidueResultOverview
                   residue={residues[i]}
-                  programmingSubPlanCodeNat={programmingSubPlanCodeNat}
+                  programmingSubPlan={programmingSubPlan}
                 />
               )}
             />
