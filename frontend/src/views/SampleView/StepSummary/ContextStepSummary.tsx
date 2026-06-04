@@ -32,10 +32,8 @@ const ContextStepSummary = ({
   onEdit
 }: Props) => {
   const { user } = useAuthentication();
-  const { readonly, programmingPlan } = usePartialSample(sample);
-  const subPlan = programmingPlan?.subPlans.find(
-    (sp) => sp.id === sample.programmingSubPlanId
-  );
+  const { readonly, programmingPlan, programmingSubPlan } =
+    usePartialSample(sample);
 
   return (
     <StepSummary title="Contexte du prélèvement" onEdit={onEdit} mode={mode}>
@@ -116,7 +114,7 @@ const ContextStepSummary = ({
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-microscope-line')}></div>
           <div>
-            Type de plan : <b>{subPlan?.label}</b>
+            Type de plan : <b>{programmingSubPlan?.label}</b>
           </div>
         </div>
       )}
@@ -145,7 +143,7 @@ const ContextStepSummary = ({
           )}
         </div>
       </div>
-      {subPlan?.codeNat === 'PPV' && (
+      {programmingSubPlan?.codeNat === 'PPV' && (
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-map-pin-user-line')}></div>
           <div>
