@@ -18,6 +18,7 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   hasPermission,
+  programmingSubPlanIdsIsRequired,
   userDepartmentsForRole,
   userRegionsForRole
 } from 'maestro-shared/schema/User/User';
@@ -73,6 +74,7 @@ export const programmingPlanRouter = {
       }
 
       if (
+        programmingSubPlanIdsIsRequired(user) &&
         !intersection(
           user.programmingSubPlanIds,
           programmingPlan.subPlans.map((sp) => sp.id)
