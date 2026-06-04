@@ -49,10 +49,8 @@ const SampleOverview = ({ sample }: Props) => {
   const complianceRef = useRef<null | HTMLDivElement>(null);
   const { hasUserSamplePermission, hasUserPermission } = useAuthentication();
 
-  const { getSampleItemLaboratory, programmingPlan } = usePartialSample(sample);
-  const codeNat = programmingPlan?.subPlans.find(
-    (sp) => sp.id === sample.programmingSubPlanId
-  )?.codeNat;
+  const { getSampleItemLaboratory, programmingPlan, programmingSubPlan } =
+    usePartialSample(sample);
 
   const { navigateToSamples, navigateToSample } = useSamplesLink();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -105,8 +103,7 @@ const SampleOverview = ({ sample }: Props) => {
 
   useEffect(() => {
     setActiveCompliance(
-      !!codeNat &&
-        codeNat !== 'PPV' &&
+      programmingSubPlan.codeNat !== 'PPV' &&
         sample.status === 'InReview' &&
         sample.items
           .filter((item) => item.copyNumber === 1)
@@ -117,7 +114,7 @@ const SampleOverview = ({ sample }: Props) => {
                 'NotAdmissible'
           )
     );
-  }, [codeNat, sample.status]);
+  }, [programmingSubPlan, sample.status]);
 
   const sampleItemCopies = useCallback(
     (itemNumber: number) =>
@@ -350,7 +347,7 @@ const SampleOverview = ({ sample }: Props) => {
                     }
                   }
                 : undefined,
-              codeNat !== 'PPV' &&
+              programmingSubPlan.codeNat !== 'PPV' &&
               hasUserSamplePermission(sample).performAnalysis
                 ? {
                     text: (
