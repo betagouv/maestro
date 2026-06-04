@@ -23,13 +23,14 @@ import {
   ResidueComplianceIcon
 } from './ResidueComplianceIcon';
 import './ResidueResultOverview.scss';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 
 type Props = {
-  programmingSubPlanCodeNat: string;
+  programmingSubPlan: ProgrammingSubPlan;
   residue: Omit<PartialResidue, 'kind'>;
 };
 export const ResidueResultOverview: FunctionComponent<Props> = ({
-  programmingSubPlanCodeNat,
+  programmingSubPlan,
   residue,
   ..._rest
 }) => {
@@ -52,7 +53,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
         </div>
 
         <ResidueValueLabel
-          programmingSubPlanCodeNat={programmingSubPlanCodeNat}
+          programmingSubPlan={programmingSubPlan}
           residue={residue}
         />
         {residue.analytes?.length && (
@@ -113,7 +114,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
           )}
         </div>
 
-        {programmingSubPlanCodeNat === 'PPV' && (
+        {programmingSubPlan.codeNat === 'PPV' && (
           <>
             <div className="d-flex-align-center">
               Substance approuvée dans l'UE
@@ -152,9 +153,9 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
 };
 
 const ResidueValueLabel = ({
-  programmingSubPlanCodeNat,
+  programmingSubPlan,
   residue
-}: Pick<Props, 'residue' | 'programmingSubPlanCodeNat'>) => {
+}: Pick<Props, 'residue' | 'programmingSubPlan'>) => {
   return (
     <>
       {residue.resultKind === 'Q' && (
@@ -168,7 +169,7 @@ const ResidueValueLabel = ({
             <b className={'fr-ml-auto'}>{residue.lmr} mg/kg</b>
           </div>
           <ResidueResultAlert
-            programmingSubPlanCodeNat={programmingSubPlanCodeNat}
+            programmingSubPlan={programmingSubPlan}
             result={residue.result}
             lmr={residue.lmr}
           />

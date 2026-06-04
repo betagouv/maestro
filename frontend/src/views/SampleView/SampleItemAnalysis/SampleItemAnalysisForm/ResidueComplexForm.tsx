@@ -13,6 +13,7 @@ import {
   ResultKindLabels,
   ResultKindList
 } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import AppSearchInput from 'src/components/_app/AppSearchInput/AppSearchInput';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
@@ -23,7 +24,7 @@ import type { ResiduesLmrValidator } from './SampleAnalysisForm';
 
 interface Props {
   form: UseForm<ResiduesLmrValidator>;
-  programmingSubPlanCodeNat: string;
+  programmingSubPlan: ProgrammingSubPlan;
   residue: Omit<PartialResidue, 'reference'>;
   residueIndex: number;
   residueReference: SSD2Id;
@@ -32,7 +33,7 @@ interface Props {
 
 function ResidueComplexForm({
   form,
-  programmingSubPlanCodeNat,
+  programmingSubPlan,
   residue,
   residueIndex,
   changeResidue,
@@ -204,7 +205,7 @@ function ResidueComplexForm({
       </h6>
       <ResidueSimpleForm
         form={form}
-        programmingSubPlanCodeNat={programmingSubPlanCodeNat}
+        programmingSubPlan={programmingSubPlan}
         residue={residue}
         residueIndex={residueIndex}
         changeResidue={changeResidue}
