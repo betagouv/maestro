@@ -32,9 +32,7 @@ export const UserListView = () => {
   const subPlanLabelById = useMemo(
     () =>
       Object.fromEntries(
-        allPlans
-          .flatMap((p) => p.subPlans)
-          .map((sp) => [sp.id, sp.label ?? sp.codeNat])
+        allPlans.flatMap((p) => p.subPlans).map((sp) => [sp.id, sp.label])
       ),
     [allPlans]
   );
