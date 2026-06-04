@@ -109,13 +109,7 @@ export const getNewReference = async (
 export const sampleRouter = {
   '/samples': {
     get: async ({ user, userRole, query }) => {
-      const hasSachaSubPlan = (user.companies?.length ?? 0) > 0;
-      const findOptions = buildFindSampleOptions(
-        user,
-        userRole,
-        query,
-        hasSachaSubPlan
-      );
+      const findOptions = buildFindSampleOptions(user, userRole, query);
 
       console.info('Find samples for user', user.id, findOptions);
 
@@ -166,13 +160,7 @@ export const sampleRouter = {
   },
   '/samples/count': {
     get: async ({ user, userRole, query }) => {
-      const hasSachaSubPlan = (user.companies?.length ?? 0) > 0;
-      const findOptions = buildFindSampleOptions(
-        user,
-        userRole,
-        query,
-        hasSachaSubPlan
-      );
+      const findOptions = buildFindSampleOptions(user, userRole, query);
 
       console.info('Count samples for user', user.id, findOptions);
 
@@ -183,13 +171,7 @@ export const sampleRouter = {
   },
   '/samples/export': {
     get: async ({ user, userRole, query }, _params, { setHeader }) => {
-      const hasSachaSubPlan = (user.companies?.length ?? 0) > 0;
-      const findOptions = buildFindSampleOptions(
-        user,
-        userRole,
-        query,
-        hasSachaSubPlan
-      );
+      const findOptions = buildFindSampleOptions(user, userRole, query);
 
       console.info('Export samples for user', user.id, findOptions);
 
