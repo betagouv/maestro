@@ -1,5 +1,6 @@
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { isNil, omitBy } from 'lodash-es';
+import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   isCreatedPartialSample,
   PartialSample,
@@ -9,8 +10,7 @@ import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
 import samplesSlice from 'src/store/reducers/samplesSlice';
 import { store } from 'src/store/store';
-import config from 'src/utils/config';
-import { getURLQuery } from 'src/utils/fetchUtils';
+import { getApiUrl } from 'src/utils/fetchUtils';
 
 const sampleApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -118,20 +118,19 @@ const supportDocumentURL = (
   sampleId: string,
   itemNumber?: number,
   copyNumber?: number
-) => {
-  return `${config.apiEndpoint}/api/samples/${sampleId}${itemNumber ? `/items/${itemNumber}` : ''}${copyNumber ? `/copy/${copyNumber}` : ''}/document`;
-};
+) =>
+  itemNumber && copyNumber
+    ? getApiUrl(
+        '/samples/:sampleId/items/:itemNumber/copy/:copyNumber/document',
+        { sampleId, itemNumber, copyNumber }
+      )
+    : getApiUrl('/samples/:sampleId/document', { sampleId });
 
-const sampleEmptyFormURL = (sampleId: string) => {
-  return `${config.apiEndpoint}/api/samples/${sampleId}/emptyForm`;
-};
+const sampleEmptyFormURL = (sampleId: string) =>
+  getApiUrl('/samples/:sampleId/emptyForm', { sampleId });
 
-const sampleListExportURL = (
-  findOptions: Parameters<typeof getURLQuery>[0]
-) => {
-  const params = getURLQuery(findOptions);
-  return `${config.apiEndpoint}/api/samples/export${params}`;
-};
+const sampleListExportURL = (findOptions: FindSampleOptions) =>
+  getApiUrl('/samples/export', findOptions);
 
 export const {
   useCreateOrUpdateSampleMutation,

@@ -95,7 +95,7 @@ export const documentsRouter = {
           {
             category: 'ResourceDocumentUploaded',
             author: user,
-            link: `${AppRouteLinks.DocumentsRoute.link}?documentId=${document.id}`
+            link: AppRouteLinks.DocumentsRoute.link({ documentId: document.id })
           },
           [...laboratoryUsers, ...otherUserConcernedByProgrammingPlans].filter(
             (_) => _.id !== user.id

@@ -25,7 +25,6 @@ import { Layer, Map as MapLibre, Source } from 'react-map-gl/maplibre';
 import { useNavigate } from 'react-router';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { ApiClientContext } from '../../services/apiClient';
-import { getURLQuery } from '../../utils/fetchUtils';
 
 interface Props {
   programmingPlan: ProgrammingPlanChecked;
@@ -226,13 +225,12 @@ const ProgrammingPlanMap = ({
 
   const onClick = (e: maplibregl.MapLayerMouseEvent) => {
     if (e.features && e.features.length > 0) {
-      const linkQuery = getURLQuery({
-        programmingPlanIds: [programmingPlan.id],
-        contexts: [context],
-        regions: [hoveredRegion]
-      });
       navigate(
-        `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}${linkQuery}`
+        AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year, {
+          programmingPlanIds: [programmingPlan.id],
+          contexts: [context],
+          regions: [hoveredRegion]
+        })
       );
     }
   };

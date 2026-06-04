@@ -16,8 +16,8 @@ import {
 import config from '../../utils/config';
 import type { AuthService } from './authService';
 
-const loginCallbackUrl = `${config.application.host}${AppRouteLinks.LoginCallbackRoute.link}`;
-const logoutCallbackUrl = `${config.application.host}${AppRouteLinks.LogoutCallbackRoute.link}`;
+const loginCallbackUrl = `${config.application.host}${AppRouteLinks.LoginCallbackRoute.link()}`;
+const logoutCallbackUrl = `${config.application.host}${AppRouteLinks.LogoutCallbackRoute.link()}`;
 
 class OpenIdClientService implements AuthService {
   private readonly client: Configuration;

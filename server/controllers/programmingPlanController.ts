@@ -212,12 +212,10 @@ export const programmingPlanRouter = {
       await Promise.all(
         programmingPlanLocalStatusList.map(
           async (programmingPlanLocalStatus) => {
-            const link = `${AppRouteLinks.ProgrammingRoute.link}?${new URLSearchParams(
-              {
-                year: programmingPlan.year.toString(),
-                planIds: programmingPlan.id
-              }
-            ).toString()}`;
+            const link = AppRouteLinks.ProgrammingRoute.link({
+              year: programmingPlan.year,
+              planIds: programmingPlan.id
+            });
 
             if (
               programmingPlanLocalStatus.department &&

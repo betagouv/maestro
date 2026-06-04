@@ -153,7 +153,7 @@ const DocumentListView = () => {
         action={
           hasUserPermission('createResource') && (
             <Button
-              linkProps={{ to: AuthenticatedAppRoutes.NewDocumentRoute.link }}
+              linkProps={{ to: AuthenticatedAppRoutes.NewDocumentRoute.link() }}
               priority="secondary"
               data-testid="add-document"
             >

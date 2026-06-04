@@ -11,6 +11,7 @@ import type {
   RouteQuery,
   RouteResponse
 } from 'maestro-shared/routes/routes.infer';
+import { generatePath } from 'react-router';
 import type { TagType } from './api.service';
 
 // Combined arg = URL params merged with body fields and query string params
@@ -63,10 +64,6 @@ type MutationOptions<Response, Arg> = {
   [k: string]: unknown;
 };
 
-function buildUrl(path: string, arg: Record<string, unknown>): string {
-  return path.replace(/:([^/]+)/g, (_, param) => String(arg[param] ?? ''));
-}
-
 function buildTransformResponse(path: string, method: string) {
   const responseSchema = (routes as any)[path]?.[method]?.response;
   if (!responseSchema || typeof responseSchema.parse !== 'function') {
@@ -97,7 +94,8 @@ export function buildTypedQuery<P extends RouteWithGet>(
     FinalArg<P, 'get'>
   >({
     query: (arg: FinalArg<P, 'get'>) => {
-      const argRecord = (arg as unknown as Record<string, unknown>) ?? {};
+      const argRecord =
+        (arg as unknown as Record<string, string | null | undefined>) ?? {};
       const paramKeys = new Set(
         Array.from(path.matchAll(/:([^/]+)/g), (m) => m[1])
       );
@@ -105,7 +103,7 @@ export function buildTypedQuery<P extends RouteWithGet>(
         Object.entries(argRecord).filter(([k]) => !paramKeys.has(k))
       );
       return {
-        url: buildUrl(path, argRecord),
+        url: generatePath<string>(path, argRecord),
         ...(Object.keys(queryParams).length > 0 ? { params: queryParams } : {})
       };
     },
@@ -147,7 +145,8 @@ export function buildTypedMutation<
     FinalArg<P, M>
   >({
     query: (arg: FinalArg<P, M>) => {
-      const argRecord = (arg as unknown as Record<string, unknown>) ?? {};
+      const argRecord =
+        (arg as unknown as Record<string, string | null | undefined>) ?? {};
       const paramKeys = new Set(
         Array.from(path.matchAll(/:([^/]+)/g), (m) => m[1])
       );
@@ -167,7 +166,7 @@ export function buildTypedMutation<
         )
       );
       return {
-        url: buildUrl(path, argRecord),
+        url: generatePath<string>(path, argRecord),
         method: method.toUpperCase(),
         ...(Object.keys(queryParams).length > 0 ? { params: queryParams } : {}),
         ...(Object.keys(bodyFields).length > 0 ? { body: bodyFields } : {})

@@ -12,7 +12,6 @@ import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import SampleCard from '../../components/SampleCard/SampleCard';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
-import { getURLQuery } from '../../utils/fetchUtils';
 import ProgrammingPlanClosing from './ProgrammingPlanClosing';
 
 type Props = {
@@ -80,11 +79,9 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
                       title={`Éditer la programmation ${programmingPlan.year}`}
                       badgeLabel="Programmation"
                       description="À compléter"
-                      to={`${AuthenticatedAppRoutes.ProgrammingRoute.link}?${new URLSearchParams(
-                        {
-                          year: String(programmingPlan.year)
-                        }
-                      ).toString()}`}
+                      to={AuthenticatedAppRoutes.ProgrammingRoute.link({
+                        year: programmingPlan.year
+                      })}
                     />
                   )}
                 </>
@@ -123,12 +120,13 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
                   {prioritySamplesStatus && (
                     <div className={clsx('more-actions-link')}>
                       <Link
-                        to={`${AuthenticatedAppRoutes.SamplesByYearRoute.link(currentValidatedProgrammingPlan.year)}${getURLQuery(
+                        to={AuthenticatedAppRoutes.SamplesByYearRoute.link(
+                          currentValidatedProgrammingPlan.year,
                           {
                             statuses: prioritySamplesStatus,
                             sampledBy: user?.id ? [user.id] : undefined
                           }
-                        )}`}
+                        )}
                         className={cx('fr-link', 'fr-link--sm')}
                       >
                         Toutes les actions à terminer

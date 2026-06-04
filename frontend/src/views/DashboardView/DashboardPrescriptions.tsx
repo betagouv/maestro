@@ -29,7 +29,6 @@ import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { CircleProgress } from '../../components/CircleProgress/CircleProgress';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
-import { getURLQuery } from '../../utils/fetchUtils';
 import { pluralize } from '../../utils/stringUtils';
 import './Dashboard.scss';
 
@@ -167,11 +166,14 @@ const DashboardPrescriptionCard: FunctionComponent<{
   localPrescriptions: LocalPrescription[];
   region?: Region | null;
 }> = ({ programmingPlan, prescription, localPrescriptions, region }) => {
-  const linkQuery = getURLQuery({
-    programmingPlanIds: [programmingPlan.id],
-    matrixKinds: [prescription.matrixKind],
-    regions: region ? [region] : undefined
-  });
+  const linkTo = AuthenticatedAppRoutes.SamplesByYearRoute.link(
+    programmingPlan.year,
+    {
+      programmingPlanIds: [programmingPlan.id],
+      matrixKinds: [prescription.matrixKind],
+      regions: region ? [region] : undefined
+    }
+  );
 
   return (
     <Card
@@ -180,7 +182,7 @@ const DashboardPrescriptionCard: FunctionComponent<{
         cx('fr-col-12', 'fr-col-sm-3')
       )}
       linkProps={{
-        to: `${AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year)}${linkQuery}`
+        to: linkTo
       }}
       background
       border

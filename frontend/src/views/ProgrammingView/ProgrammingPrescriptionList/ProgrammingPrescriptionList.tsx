@@ -32,7 +32,7 @@ import LocalPrescriptionCard from '../../../components/LocalPrescription/LocalPr
 import LocalPrescriptionModal from '../../../components/LocalPrescription/LocalPrescriptionModal/LocalPrescriptionModal';
 import PrescriptionModal from '../../../components/Prescription/PrescriptionModal/PrescriptionModal';
 import { ApiClientContext } from '../../../services/apiClient';
-import { getPrescriptionsExportURL } from '../../../services/prescription.service';
+import { getApiUrl } from '../../../utils/fetchUtils';
 import ProgrammingLocalPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingLocalPrescriptionTable';
 import ProgrammingRegionalPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingRegionalPrescriptionTable';
 
@@ -340,7 +340,10 @@ const ProgrammingPrescriptionList = ({
               prescriptions={prescriptions}
               localPrescriptions={localPrescriptions}
               subLocalPrescriptions={subLocalPrescriptions ?? []}
-              exportURL={getPrescriptionsExportURL(findPrescriptionOptions)}
+              exportURL={getApiUrl(
+                '/prescriptions/export',
+                findPrescriptionOptions
+              )}
               hasGroupedUpdatePermission={hasGroupedUpdatePermission}
               selectedCount={selectedPrescriptions.length}
               onGroupedUpdate={changeSubstanceKindsLaboratories}

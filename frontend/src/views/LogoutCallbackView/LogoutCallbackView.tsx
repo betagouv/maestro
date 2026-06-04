@@ -25,7 +25,7 @@ export const LogoutCallbackView = () => {
       if (sessionStorage.getItem(SESSION_STORAGE_UNKNOWN_USER_EMAIl) !== null) {
         sessionStorage.removeItem(SESSION_STORAGE_UNKNOWN_USER_EMAIl);
       } else if (unknownUserEmail === null) {
-        navigate(AppRouteLinks.LoginRoute.link);
+        navigate(AppRouteLinks.LoginRoute.link());
       }
     })();
   }, [dispatch, navigate]);
