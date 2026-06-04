@@ -233,7 +233,6 @@ const filtersConfig = {
           const subPlan = programmingPlans
             ?.flatMap((p) => p.subPlans)
             .find((sp) => sp.id === id);
-          const label = subPlan ? (subPlan.label ?? subPlan.codeNat) : id;
           return (
             <Tag
               {...tagProps}
@@ -245,7 +244,7 @@ const filtersConfig = {
                   })
               }}
             >
-              {label}
+              {subPlan?.label}
             </Tag>
           );
         })}
