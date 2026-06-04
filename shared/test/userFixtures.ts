@@ -92,7 +92,7 @@ const SachaSubPlanIdSet = new Set([
   DAOAInProgressBovinSubPlanIdLocal as string
 ]);
 
-export const SachaSubPlanIds = [
+const SachaSubPlanIds = [
   DAOAVolailleSubPlanIdLocal,
   DAOABovinSubPlanIdLocal,
   DAOAInProgressVolailleSubPlanIdLocal,

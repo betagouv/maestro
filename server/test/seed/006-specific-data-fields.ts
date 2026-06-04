@@ -79,7 +79,7 @@ export const seed = async (): Promise<void> => {
   const programmingSubPlanFieldRows = await kysely
     .insertInto('programmingSubPlanFields')
     .values(
-      programmingSubPlans.flatMap(({ id: programmingSubPlanId, codeNat }) =>
+      programmingSubPlans.flatMap(({ id: programmingSubPlanId }) =>
         AllFieldConfigs.filter(
           (c) => c.programmingSubPlanId === programmingSubPlanId
         ).map((c) => ({
