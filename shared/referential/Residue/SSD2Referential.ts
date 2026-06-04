@@ -1129,7 +1129,9 @@ export const SSD2Referential =
       name: 'TFNA-AM (4-(trifluoromethyl)pyridine-3-carboxamide)',
       casNumber: '158062-71-6',
       otherNames: ['Desethylterbumeton(e)'],
-      reportable: true
+      reportable: true,
+      //une LMR existe mais uniquement sur les produits animaux
+      lmrCanBeOptional: true
     },
     'RF-00003348-PAR': {
       reference: 'RF-00003348-PAR',
@@ -8815,7 +8817,9 @@ export const SSD2Referential =
       name: 'Dichlorobenzamide, 2,6-',
       casNumber: '2008-58-4',
       otherNames: [],
-      reportable: true
+      reportable: true,
+      // produit de dégradation du diclobénil et du chlorothalonil
+      lmrCanBeOptional: true
     },
     'RF-0603-001-PPP': {
       reference: 'RF-0603-001-PPP',

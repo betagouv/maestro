@@ -51,7 +51,9 @@ const fileValidator = z.array(
         'Numéro (MS)': methodValidator,
         Paramètre: z.string(),
         Résultat: z.coerce.string(),
-        LMR: z.coerce.number().optional(),
+        LMR: z
+          .union([z.coerce.number(), z.literal('NA').transform(() => null)])
+          .optional(),
         Conclusion: z.string()
       })
     )
