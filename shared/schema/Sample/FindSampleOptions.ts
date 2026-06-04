@@ -42,9 +42,9 @@ export type FindSampleOptions = z.infer<typeof FindSampleOptions>;
 export const buildFindSampleOptions = (
   user: UserRefined,
   userRole: UserRole,
-  query: Partial<FindSampleOptions>,
-  hasSachaSubPlan = false
+  query: Partial<FindSampleOptions>
 ): FindSampleOptions => {
+  const hasSachaSubPlan = (user.companies?.length ?? 0) > 0;
   const companySirets = companiesIsRequired(user, hasSachaSubPlan)
     ? user.companies.map((company) => company.siret)
     : query.companySirets;
