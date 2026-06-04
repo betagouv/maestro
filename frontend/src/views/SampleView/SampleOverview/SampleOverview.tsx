@@ -105,7 +105,8 @@ const SampleOverview = ({ sample }: Props) => {
 
   useEffect(() => {
     setActiveCompliance(
-      codeNat !== 'PPV' &&
+      !!codeNat &&
+        codeNat !== 'PPV' &&
         sample.status === 'InReview' &&
         sample.items
           .filter((item) => item.copyNumber === 1)

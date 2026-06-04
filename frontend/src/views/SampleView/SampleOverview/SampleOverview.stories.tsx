@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
+  DAOAInProgressProgrammingPlanFixture,
+  PPVValidatedProgrammingPlanFixture
+} from 'maestro-shared/test/programmingPlanFixtures';
+import {
   genSampleItem,
   Sample11Fixture,
   SampleDAOA1Fixture
@@ -142,7 +146,14 @@ export const DAOAItemsAchievedStatusInReview: Story = {
   parameters: {
     preloadedState: {
       auth: { authUser: genAuthUser(DepartmentalCoordinator) }
-    }
+    },
+    apiClient: getMockApi({
+      useUpdateSampleMutation: [fn(), { isSuccess: false }],
+      useUpdateSampleComplianceMutation: [fn(), {}],
+      useGetProgrammingPlanQuery: () => ({
+        data: DAOAInProgressProgrammingPlanFixture
+      })
+    })
   },
   play: async ({ canvasElement }) => {
     await expectComplianceFormVisible(canvasElement);
@@ -224,7 +235,14 @@ export const PPV: Story = {
   parameters: {
     preloadedState: {
       auth: { authUser: genAuthUser(Sampler1Fixture) }
-    }
+    },
+    apiClient: getMockApi({
+      useUpdateSampleMutation: [fn(), { isSuccess: false }],
+      useUpdateSampleComplianceMutation: [fn(), {}],
+      useGetProgrammingPlanQuery: () => ({
+        data: PPVValidatedProgrammingPlanFixture
+      })
+    })
   },
   play: async ({ canvasElement }) => {
     await expectComplianceFormHidden(canvasElement);
