@@ -7,9 +7,9 @@ import {
 import {
   formatProgrammingPlan,
   ProgrammingPlanLocalStatus,
-  ProgrammingPlans,
-  ProgrammingSubPlans
+  ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
+import { ProgrammingSubPlans } from '../../repositories/programmingSubPlanRepository';
 
 export const seed = async (): Promise<void> => {
   await ProgrammingPlans().insert(

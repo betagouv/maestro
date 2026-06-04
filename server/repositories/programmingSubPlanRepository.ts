@@ -1,70 +1,58 @@
-import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { isNil } from 'lodash-es';
+import { FindProgrammingSubPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingSubPlanOptions';
+import type {
+  ProgrammingSubPlan,
+  ProgrammingSubPlanId
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { assertUnreachable } from 'maestro-shared/utils/typescript';
+import { knexInstance as db } from './db';
 import { kysely } from './kysely';
-import type { ProgrammingSubPlans as ProgrammingSubPlansRow } from './kysely.type';
 
-const toSubPlan = (row: ProgrammingSubPlansRow): ProgrammingSubPlan => ({
-  id: ProgrammingSubPlanId.parse(row.id),
-  programmingPlanId: row.programmingPlanId,
-  codeNat: row.codeNat,
-  stages: row.stages,
-  label: row.label,
-  analysisPermissionRole: row.analysisPermissionRole,
-  contactListId: row.contactListId,
-  withSacha: row.withSacha
-});
+export const programmingSubPlansTable = 'programming_sub_plans';
+export const ProgrammingSubPlans = (transaction = db) =>
+  transaction<ProgrammingSubPlan>(programmingSubPlansTable);
 
-const findById = async (
+const findUnique = async (
   id: ProgrammingSubPlanId
 ): Promise<ProgrammingSubPlan | undefined> => {
-  const row = await kysely
+  return kysely
     .selectFrom('programmingSubPlans')
     .selectAll()
     .where('id', '=', id)
     .executeTakeFirst();
-
-  if (!row) return undefined;
-  return toSubPlan(row);
 };
 
-const findByProgrammingPlanId = async (
-  programmingPlanId: string
+const findMany = async (
+  findOptions?: FindProgrammingSubPlanOptions
 ): Promise<ProgrammingSubPlan[]> => {
-  const rows = await kysely
-    .selectFrom('programmingSubPlans')
-    .selectAll()
-    .where('programmingPlanId', '=', programmingPlanId)
-    .orderBy('codeNat')
-    .execute();
+  console.info('Find programming sub-plans', findOptions);
 
-  return rows.map(toSubPlan);
-};
+  let query = kysely.selectFrom('programmingSubPlans').selectAll();
 
-const findManyByIds = async (
-  ids: ProgrammingSubPlanId[]
-): Promise<ProgrammingSubPlan[]> => {
-  if (ids.length === 0) return [];
-  const rows = await kysely
-    .selectFrom('programmingSubPlans')
-    .selectAll()
-    .where('id', 'in', ids)
-    .execute();
+  for (const option of FindProgrammingSubPlanOptions.keyof().options) {
+    switch (option) {
+      case 'programmingPlanId':
+        if (!isNil(findOptions?.programmingPlanId)) {
+          query = query
+            .where('programmingPlanId', '=', findOptions.programmingPlanId)
+            .orderBy('codeNat');
+        }
+        break;
+      case 'ids':
+        if (!isNil(findOptions?.ids)) {
+          if (findOptions.ids.length === 0) return [];
+          query = query.where('id', 'in', findOptions.ids);
+        }
+        break;
+      default:
+        assertUnreachable(option);
+    }
+  }
 
-  return rows.map(toSubPlan);
-};
-
-const findAll = async (): Promise<ProgrammingSubPlan[]> => {
-  const rows = await kysely
-    .selectFrom('programmingSubPlans')
-    .selectAll()
-    .execute();
-
-  return rows.map(toSubPlan);
+  return query.execute();
 };
 
 export const programmingSubPlanRepository = {
-  findById,
-  findByProgrammingPlanId,
-  findManyByIds,
-  findAll
+  findUnique,
+  findMany
 };

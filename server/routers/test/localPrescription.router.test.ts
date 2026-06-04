@@ -67,9 +67,9 @@ import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatProgrammingPlan,
   ProgrammingPlanLocalStatus,
-  ProgrammingPlans,
-  ProgrammingSubPlans
+  ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
+import { ProgrammingSubPlans } from '../../repositories/programmingSubPlanRepository';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
   formatPartialSample,

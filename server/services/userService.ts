@@ -16,14 +16,14 @@ const resolveContactListIds = async (
   user: UserRefined
 ): Promise<(number | null | undefined)[]> => {
   if (!user.programmingSubPlanIds.length) return [];
-  const subPlans = await programmingSubPlanRepository.findManyByIds(
-    user.programmingSubPlanIds
-  );
+  const subPlans = await programmingSubPlanRepository.findMany({
+    ids: user.programmingSubPlanIds
+  });
   return subPlans.map((sp) => sp.contactListId);
 };
 
 const resolveAllContactListIds = async (): Promise<number[]> => {
-  const subPlans = await programmingSubPlanRepository.findAll();
+  const subPlans = await programmingSubPlanRepository.findMany();
   return [
     ...new Set(
       subPlans

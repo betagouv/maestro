@@ -207,7 +207,7 @@ const generateSamplePDF = async (
     throw new UserMissingError(sample.sampler.id);
   }
 
-  const subPlan = await programmingSubPlanRepository.findById(
+  const subPlan = await programmingSubPlanRepository.findUnique(
     sample.programmingSubPlanId
   );
   const codeNat = subPlan?.codeNat ?? '';
