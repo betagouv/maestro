@@ -219,7 +219,7 @@ const CompanySearch = ({
           autoComplete
           includeInputInList
           filterSelectedOptions
-          value={!multi ? selectedCompanies[0] : undefined}
+          value={!multi ? (selectedCompanies[0] ?? null) : undefined}
           onInputChange={handleInputChange}
           renderOption={(props, option) => {
             const { key, className, ...otherProps } = props;
@@ -280,7 +280,7 @@ const CompanySearch = ({
                 value={
                   !multi && selectedCompanies.length === 1
                     ? `${selectedCompanies[0].name} • ${selectedCompanies[0].siret}`
-                    : undefined
+                    : searchQuery
                 }
                 className="fr-input"
                 type="text"
@@ -347,6 +347,7 @@ const CompanySearch = ({
                     onSelectCompanies(newValue);
 
                     setSearchQuery('');
+                    setCompanyResults(companies ?? []);
                   }
                 }}
               >
