@@ -56,11 +56,8 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
   const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
   const { isOnline } = useOnLine();
-  const { readonly, getSampleItemLaboratory, programmingPlan } =
+  const { readonly, getSampleItemLaboratory, programmingSubPlan } =
     usePartialSample(sample);
-  const programmingSubPlanCodeNat = programmingPlan?.subPlans.find(
-    (sp) => sp.id === sample.programmingSubPlanId
-  )?.codeNat;
   const { trackEvent } = useAnalytics();
 
   const isSubmittingRef = useRef<boolean>(false);
@@ -540,7 +537,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
         <SendingModal
           modal={sendingSampleModal}
           substanceKindsLaboratories={substanceKindsLaboratories}
-          programmingSubPlanCodeNat={programmingSubPlanCodeNat}
+          programmingSubPlanCodeNat={programmingSubPlan?.codeNat}
           onConfirm={submit}
         />
       )}

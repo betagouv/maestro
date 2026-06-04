@@ -79,7 +79,11 @@ const SampleItemContent = ({
     items: []
   });
 
-  const { getSampleItemLaboratory } = usePartialSample(partialSample);
+  const { getSampleItemLaboratory, programmingSubPlan } =
+    usePartialSample(partialSample);
+
+  const resolvedProgrammingSubPlanCodeNat =
+    programmingSubPlanCodeNat ?? programmingSubPlan?.codeNat;
 
   const form = itemsForm ?? fakeForm;
   const readonly = useMemo(
@@ -270,7 +274,7 @@ const SampleItemContent = ({
             />
           )}
         </div>
-        {programmingSubPlanCodeNat === 'PPV' && (
+        {resolvedProgrammingSubPlanCodeNat === 'PPV' && (
           <>
             <div className={cx('fr-col-12', 'fr-col-sm-6')}>
               {itemsForm ? (

@@ -89,7 +89,8 @@ export const SubmittingErrors: Story = {
 const mockCreateOrUpdateSample = fn().mockResolvedValue({});
 const sampleContextData = genSampleContextData({
   sampler: Sampler1Fixture,
-  programmingPlanId: programmingPlan.id
+  programmingPlanId: programmingPlan.id,
+  programmingSubPlanId: programmingPlan.subPlans[0].id
 });
 
 export const SubmittingSuccess: Story = {
