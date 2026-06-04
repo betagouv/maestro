@@ -103,7 +103,7 @@ const SampleOverview = ({ sample }: Props) => {
 
   useEffect(() => {
     setActiveCompliance(
-      programmingSubPlan.codeNat !== 'PPV' &&
+      programmingSubPlan?.codeNat !== 'PPV' &&
         sample.status === 'InReview' &&
         sample.items
           .filter((item) => item.copyNumber === 1)
@@ -347,7 +347,7 @@ const SampleOverview = ({ sample }: Props) => {
                     }
                   }
                 : undefined,
-              programmingSubPlan.codeNat !== 'PPV' &&
+              programmingSubPlan?.codeNat !== 'PPV' &&
               hasUserSamplePermission(sample).performAnalysis
                 ? {
                     text: (
