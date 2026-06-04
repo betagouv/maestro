@@ -739,13 +739,6 @@ const ContextStep = ({ partialSample }: Props) => {
         </div>
       )}
 
-      {!!programmingPlanKind &&
-        programmingPlanKind !== 'PPV' &&
-        isOnline &&
-        !readonly && (
-          <SampleEmptyFormDownload partialSample={partialSample ?? formData} />
-        )}
-
       <SampleCompany
         programmingPlan={programmingPlan}
         partialSample={partialSample}
@@ -763,6 +756,13 @@ const ContextStep = ({ partialSample }: Props) => {
         }}
       />
 
+      {!!programmingPlanKind &&
+        programmingPlanKind !== 'PPV' &&
+        !!company &&
+        isOnline &&
+        !readonly && (
+          <SampleEmptyFormDownload partialSample={partialSample ?? formData} />
+        )}
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
           <AppTextAreaInput
