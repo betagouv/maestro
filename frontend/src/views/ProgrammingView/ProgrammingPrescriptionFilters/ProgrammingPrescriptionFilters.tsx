@@ -15,7 +15,7 @@ import type { PrescriptionFilters } from '../../../store/reducers/prescriptionsS
 interface Props {
   options: {
     plans: ProgrammingPlanChecked[];
-    programmingSubPlanIds: string[];
+    programmingSubPlanIds: ProgrammingSubPlanId[];
     contexts: ProgrammingPlanContext[];
   };
   programmingPlans?: ProgrammingPlanChecked[];
