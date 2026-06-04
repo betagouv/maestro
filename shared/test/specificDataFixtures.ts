@@ -5,6 +5,8 @@ import {
 } from '../schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import {
   DAOABovinSubPlanId,
+  DAOAInProgressBovinSubPlanId,
+  DAOAInProgressVolailleSubPlanId,
   DAOAVolailleSubPlanId,
   PPVSubPlanId
 } from './programmingPlanFixtures';
@@ -356,7 +358,17 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
 export const AllFieldConfigs = [
   ...PPVFieldConfigs,
   ...DAOAVolailleFieldConfigs,
-  ...DAOABovinFieldConfigs
+  ...DAOABovinFieldConfigs,
+  ...DAOAVolailleFieldConfigs.map((c) => ({
+    ...c,
+    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    programmingSubPlanId: DAOAInProgressVolailleSubPlanId
+  })),
+  ...DAOABovinFieldConfigs.map((c) => ({
+    ...c,
+    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    programmingSubPlanId: DAOAInProgressBovinSubPlanId
+  }))
 ];
 
 export const SachaFieldConfigs = [

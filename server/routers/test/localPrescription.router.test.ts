@@ -27,7 +27,10 @@ import {
   genLocalPrescription,
   genPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  genProgrammingPlan,
+  PPVSubPlanFixture
+} from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedPartialSample,
   genSampleItem
@@ -38,6 +41,9 @@ import {
   DepartmentalCoordinator,
   LaboratoryOfficeUserFixture,
   LaboratoryUserFixture,
+  LocalPrescriptionTestSubPlanId1,
+  LocalPrescriptionTestSubPlanId2,
+  LocalPrescriptionTestSubPlanId3,
   NationalCoordinator,
   NationalObserver,
   Region2Fixture,
@@ -83,7 +89,15 @@ describe('Local prescriptions router', () => {
       region,
       status: 'Closed'
     })),
-    year: 1919
+    year: 1919,
+    subPlans: [
+      {
+        ...PPVSubPlanFixture,
+        id: LocalPrescriptionTestSubPlanId1,
+        programmingPlanId: 'f1f1f1f1-f1f1-f1f1-f1f1-f1f1f1f1f1f1'
+      }
+    ],
+    id: 'f1f1f1f1-f1f1-f1f1-f1f1-f1f1f1f1f1f1'
   });
   const programmingPlanValidated = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
@@ -91,7 +105,15 @@ describe('Local prescriptions router', () => {
       region,
       status: 'Validated'
     })),
-    year: 1920
+    year: 1920,
+    subPlans: [
+      {
+        ...PPVSubPlanFixture,
+        id: LocalPrescriptionTestSubPlanId2,
+        programmingPlanId: 'f2f2f2f2-f2f2-f2f2-f2f2-f2f2f2f2f2f2'
+      }
+    ],
+    id: 'f2f2f2f2-f2f2-f2f2-f2f2-f2f2f2f2f2f2'
   });
   const programmingPlanSubmitted = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
@@ -99,7 +121,15 @@ describe('Local prescriptions router', () => {
       region,
       status: 'SubmittedToRegion'
     })),
-    year: 1921
+    year: 1921,
+    subPlans: [
+      {
+        ...PPVSubPlanFixture,
+        id: LocalPrescriptionTestSubPlanId3,
+        programmingPlanId: 'f3f3f3f3-f3f3-f3f3-f3f3-f3f3f3f3f3f3'
+      }
+    ],
+    id: 'f3f3f3f3-f3f3-f3f3-f3f3-f3f3f3f3f3f3'
   });
   const laboratory = genLaboratory();
   const substanceKindsLaboratories = [
@@ -232,7 +262,11 @@ describe('Local prescriptions router', () => {
           id: sp.id,
           programmingPlanId: plan.id,
           codeNat: sp.codeNat,
-          stages: sp.stages
+          stages: sp.stages,
+          label: sp.label,
+          analysisPermissionRole: sp.analysisPermissionRole ?? null,
+          contactListId: sp.contactListId ?? null,
+          withSacha: sp.withSacha
         }))
       )
     );
@@ -1073,7 +1107,11 @@ describe('Local prescriptions router', () => {
           id: sp.id,
           programmingPlanId: plan.id,
           codeNat: sp.codeNat,
-          stages: sp.stages
+          stages: sp.stages,
+          label: sp.label,
+          analysisPermissionRole: sp.analysisPermissionRole ?? null,
+          contactListId: sp.contactListId ?? null,
+          withSacha: sp.withSacha
         }))
       );
     };

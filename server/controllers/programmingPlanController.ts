@@ -72,7 +72,12 @@ export const programmingPlanRouter = {
         throw new ProgrammingPlanMissingError(programmingPlanId);
       }
 
-      if (!intersection(user.programmingPlanKinds, programmingPlan.kinds)) {
+      if (
+        !intersection(
+          user.programmingSubPlanIds,
+          programmingPlan.subPlans.map((sp) => sp.id)
+        ).length
+      ) {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
@@ -231,7 +236,9 @@ export const programmingPlanRouter = {
                 roles: ['Sampler'],
                 region: programmingPlanLocalStatus.region,
                 department: programmingPlanLocalStatus.department as Department,
-                programmingPlanKinds: programmingPlan.kinds,
+                programmingSubPlanIds: programmingPlan.subPlans.map(
+                  (sp) => sp.id
+                ),
                 companySirets: localPrescriptions
                   .map((localPrescription) => localPrescription.companySiret)
                   .filter((_) => !isNil(_))
@@ -260,7 +267,9 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
                 const regionalCoordinators = await userRepository.findMany({
                   roles: ['RegionalCoordinator'],
                   region: programmingPlanLocalStatus.region,
-                  programmingPlanKinds: programmingPlan.kinds
+                  programmingSubPlanIds: programmingPlan.subPlans.map(
+                    (sp) => sp.id
+                  )
                 });
 
                 await (programmingPlanLocalStatus.status === 'SubmittedToRegion'
@@ -296,7 +305,9 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
               ) {
                 const nationalCoordinators = await userRepository.findMany({
                   roles: ['NationalCoordinator'],
-                  programmingPlanKinds: programmingPlan.kinds
+                  programmingSubPlanIds: programmingPlan.subPlans.map(
+                    (sp) => sp.id
+                  )
                 });
 
                 await notificationService.sendNotification(
@@ -326,7 +337,9 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
                 const departmentalCoordinators = await userRepository.findMany({
                   roles: ['DepartmentalCoordinator'],
                   region: programmingPlanLocalStatus.region,
-                  programmingPlanKinds: programmingPlan.kinds
+                  programmingSubPlanIds: programmingPlan.subPlans.map(
+                    (sp) => sp.id
+                  )
                 });
 
                 await notificationService.sendNotification(
@@ -397,7 +410,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
     post: async ({ user }, { year }) => {
       const previousProgrammingPlan = await programmingPlanRepository.findOne(
         year - 1,
-        user.programmingPlanKinds
+        user.programmingSubPlanIds
       );
 
       if (
@@ -415,7 +428,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
         createdBy: user.id,
         title: previousProgrammingPlan.title,
         domain: previousProgrammingPlan.domain,
-        kinds: previousProgrammingPlan.kinds,
+        subPlans: [],
         contexts: previousProgrammingPlan.contexts,
         legalContexts: previousProgrammingPlan.legalContexts,
         samplesOutsidePlanAllowed:

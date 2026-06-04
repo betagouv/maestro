@@ -121,7 +121,11 @@ describe('Prescriptions router', () => {
           id: sp.id,
           programmingPlanId: plan.id,
           codeNat: sp.codeNat,
-          stages: sp.stages
+          stages: sp.stages,
+          label: sp.label,
+          analysisPermissionRole: sp.analysisPermissionRole ?? null,
+          contactListId: sp.contactListId ?? null,
+          withSacha: sp.withSacha
         }))
       )
     );

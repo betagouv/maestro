@@ -100,7 +100,7 @@ const findMany = async (
           query = query.where(
             'programmingSubPlanIds',
             '&&',
-            toSqlArray(toArray(findOptions.programmingSubPlanIds) ?? [])
+            toSqlArray(toArray(findOptions.programmingSubPlanIds) ?? [], 'uuid')
           );
         }
         break;

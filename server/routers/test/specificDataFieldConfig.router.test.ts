@@ -521,7 +521,7 @@ describe('SpecificDataFieldConfig router', () => {
 
     afterAll(async () => {
       await kysely
-        .deleteFrom('programmingProgrammingSubPlanFields')
+        .deleteFrom('programmingSubPlanFields')
         .where('fieldId', '=', fieldId)
         .execute();
       await kysely
@@ -642,7 +642,7 @@ describe('SpecificDataFieldConfig router', () => {
         deleteFieldId = field.id;
 
         const pkf = await kysely
-          .insertInto('programmingProgrammingSubPlanFields')
+          .insertInto('programmingSubPlanFields')
           .values({
             programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
             fieldId: deleteFieldId,
@@ -684,7 +684,7 @@ describe('SpecificDataFieldConfig router', () => {
           .expect(constants.HTTP_STATUS_NO_CONTENT);
 
         const remaining = await kysely
-          .selectFrom('programmingProgrammingSubPlanFields')
+          .selectFrom('programmingSubPlanFields')
           .select('id')
           .where('id', '=', deleteProgrammingSubPlanFieldId)
           .executeTakeFirst();
@@ -724,7 +724,7 @@ describe('SpecificDataFieldConfig router', () => {
         optionId = opt.id;
 
         const pkf = await kysely
-          .insertInto('programmingProgrammingSubPlanFields')
+          .insertInto('programmingSubPlanFields')
           .values({
             programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
             fieldId: optionsFieldId,
@@ -738,7 +738,7 @@ describe('SpecificDataFieldConfig router', () => {
 
       afterAll(async () => {
         await kysely
-          .deleteFrom('programmingProgrammingSubPlanFields')
+          .deleteFrom('programmingSubPlanFields')
           .where('id', '=', optionsProgrammingSubPlanFieldId)
           .execute();
         await kysely
@@ -781,10 +781,10 @@ describe('SpecificDataFieldConfig router', () => {
           .expect(constants.HTTP_STATUS_NO_CONTENT);
 
         const activeOptions = await kysely
-          .selectFrom('programmingProgrammingSubPlanFieldOptions')
+          .selectFrom('programmingSubPlanFieldOptions')
           .select('specificDataFieldOptionId')
           .where(
-            'programmingProgrammingSubPlanFieldId',
+            'programmingSubPlanFieldId',
             '=',
             optionsProgrammingSubPlanFieldId
           )

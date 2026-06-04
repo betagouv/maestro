@@ -35,6 +35,19 @@ export const DAOAInProgressBovinSubPlanId = ProgrammingSubPlanId.parse(
   'c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c4'
 );
 
+export const TestPPVSubPlanId1 = ProgrammingSubPlanId.parse(
+  'd4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d1'
+);
+export const TestPPVSubPlanId2 = ProgrammingSubPlanId.parse(
+  'd4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d2'
+);
+export const TestPPVSubPlanId3 = ProgrammingSubPlanId.parse(
+  'd4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d3'
+);
+export const TestPPVSubPlanId4 = ProgrammingSubPlanId.parse(
+  'd4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4'
+);
+
 export const PPVSubPlanFixture: ProgrammingSubPlan = {
   id: PPVSubPlanId,
   programmingPlanId: PPVValidatedProgrammingPlanId,
@@ -80,26 +93,35 @@ export const DAOABovinSubPlanFixture: ProgrammingSubPlan = {
 
 export const genProgrammingPlan = (
   data?: Partial<ProgrammingPlanChecked>
-): ProgrammingPlanChecked => ({
-  id: uuidv4(),
-  domain: 'PESTICIDE_RESIDUE',
-  title: 'Production primaire végétale',
-  subPlans: [PPVSubPlanFixture],
-  distributionKind: 'REGIONAL',
-  contexts: ['Control', 'Surveillance'],
-  legalContexts: ['A', 'B'],
-  substanceKinds: ['Any'],
-  samplesOutsidePlanAllowed: true,
-  createdAt: new Date(),
-  createdBy: uuidv4(),
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: oneOf(ProgrammingPlanStatusList)
-  })),
-  departmentalStatus: [],
-  year: new Date().getFullYear(),
-  ...data
-});
+): ProgrammingPlanChecked => {
+  const planId = data?.id ?? uuidv4();
+  return {
+    id: planId,
+    domain: 'PESTICIDE_RESIDUE',
+    title: 'Production primaire végétale',
+    subPlans: [
+      {
+        ...PPVSubPlanFixture,
+        id: ProgrammingSubPlanId.parse(uuidv4()),
+        programmingPlanId: planId
+      }
+    ],
+    distributionKind: 'REGIONAL',
+    contexts: ['Control', 'Surveillance'],
+    legalContexts: ['A', 'B'],
+    substanceKinds: ['Any'],
+    samplesOutsidePlanAllowed: true,
+    createdAt: new Date(),
+    createdBy: uuidv4(),
+    regionalStatus: RegionList.map((region) => ({
+      region,
+      status: oneOf(ProgrammingPlanStatusList)
+    })),
+    departmentalStatus: [],
+    year: new Date().getFullYear(),
+    ...data
+  };
+};
 
 export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
   id: PPVClosedProgrammingPlanId,

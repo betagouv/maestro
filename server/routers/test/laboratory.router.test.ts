@@ -15,7 +15,10 @@ import {
   Laboratory1AnalyticalCompetenceFixture1,
   LaboratoryFixture
 } from 'maestro-shared/test/laboratoryFixtures';
-import { PPVValidatedProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  PPVSubPlanId,
+  PPVValidatedProgrammingPlanFixture
+} from 'maestro-shared/test/programmingPlanFixtures';
 import {
   AdminFixture,
   DepartmentalCoordinator,
@@ -405,8 +408,7 @@ describe('Laboratory router', () => {
         ...PPVDummyLaboratoryIds.map((laboratoryId) =>
           expect.objectContaining({
             laboratoryId,
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-            programmingPlanKind: 'PPV',
+            programmingSubPlanId: PPVSubPlanId,
             substanceKind: 'Any'
           })
         ),
@@ -419,10 +421,10 @@ describe('Laboratory router', () => {
       ]);
     });
 
-    test('should filter agreements by programmingPlanKinds and exclude non-matching ones', async () => {
+    test('should filter agreements by programmingSubPlanIds and exclude non-matching ones', async () => {
       const res = await request(app)
         .get(testRoute)
-        .query({ programmingPlanKinds: ['PPV'] })
+        .query({ programmingSubPlanIds: [PPVSubPlanId] })
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -578,7 +580,7 @@ describe('Laboratory router', () => {
     const validBody = {
       laboratoryAgreementRowKey: {
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-        programmingPlanKind: 'PPV',
+        programmingSubPlanId: PPVSubPlanId,
         substanceKind: 'Any'
       },
       referenceLaboratory: true,
@@ -629,8 +631,7 @@ describe('Laboratory router', () => {
       expectArrayToContainElements(res.body, [
         expect.objectContaining({
           laboratoryId: LaboratoryFixture.id,
-          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-          programmingPlanKind: 'PPV',
+          programmingSubPlanId: PPVSubPlanId,
           substanceKind: 'Any',
           referenceLaboratory: true,
           detectionAnalysis: true,

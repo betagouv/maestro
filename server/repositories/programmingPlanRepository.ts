@@ -155,7 +155,11 @@ const insert = async (
           id: subPlan.id,
           programmingPlanId: programmingPlan.id,
           codeNat: subPlan.codeNat,
-          stages: subPlan.stages
+          stages: subPlan.stages,
+          label: subPlan.label,
+          analysisPermissionRole: subPlan.analysisPermissionRole ?? null,
+          contactListId: subPlan.contactListId ?? null,
+          withSacha: subPlan.withSacha
         }))
       );
     }
