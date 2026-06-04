@@ -115,7 +115,7 @@ export const analysisRouter = {
       };
       await analysisRepository.update(updatedAnalysis);
 
-      const subPlan = await programmingSubPlanRepository.findById(
+      const subPlan = await programmingSubPlanRepository.findUnique(
         sample.programmingSubPlanId
       );
       if (subPlan?.codeNat === 'PPV') {

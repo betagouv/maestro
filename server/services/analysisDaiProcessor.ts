@@ -65,7 +65,7 @@ const processAnalysisDai = async (
   const laboratory = await laboratoryRepository.findUnique(
     rawItem.laboratoryId
   );
-  const subPlan = await programmingSubPlanRepository.findById(
+  const subPlan = await programmingSubPlanRepository.findUnique(
     checkedSample.programmingSubPlanId
   );
   const codeNat = subPlan?.codeNat ?? '';

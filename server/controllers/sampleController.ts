@@ -40,6 +40,7 @@ import { analysisRepository } from '../repositories/analysisRepository';
 import companyRepository from '../repositories/companyRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
+import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
@@ -392,7 +393,10 @@ export const sampleRouter = {
 
       console.info('Update sample compliance', sample.id, complianceData);
 
-      if (sample.programmingPlanKind === 'PPV') {
+      const subPlan = await programmingSubPlanRepository.findById(
+        sample.programmingSubPlanId
+      );
+      if (subPlan?.codeNat === 'PPV') {
         return { status: constants.HTTP_STATUS_FORBIDDEN };
       }
 
@@ -455,9 +459,8 @@ export const sampleRouter = {
 
       if (['DraftItems', 'Sent', 'Submitted'].includes(sampleUpdate.step)) {
         const fieldConfigs =
-          await specificDataFieldConfigRepository.findByPlanKind(
-            sampleUpdate.programmingPlanId,
-            sampleUpdate.programmingPlanKind
+          await specificDataFieldConfigRepository.findByPlanSubPlan(
+            sampleUpdate.programmingSubPlanId
           );
         const specificDataSchema = buildSpecificDataSchema(fieldConfigs);
         const result = specificDataSchema.safeParse(sampleUpdate.specificData);

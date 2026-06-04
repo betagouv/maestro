@@ -758,8 +758,9 @@ const generateLaboratoryAgreementsExportExcel = async (
   const allSubPlanIds = [
     ...new Set(agreements.map((a) => a.programmingSubPlanId))
   ];
-  const subPlans =
-    await programmingSubPlanRepository.findManyByIds(allSubPlanIds);
+  const subPlans = await programmingSubPlanRepository.findMany({
+    ids: allSubPlanIds
+  });
   const subPlanById = Object.fromEntries(subPlans.map((sp) => [sp.id, sp]));
 
   const uniqueRows = agreements.reduce<

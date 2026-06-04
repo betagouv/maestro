@@ -8,9 +8,9 @@ import {
 import {
   formatProgrammingPlan,
   ProgrammingPlanLocalStatus,
-  ProgrammingPlans,
-  ProgrammingSubPlans
+  ProgrammingPlans
 } from '../../../repositories/programmingPlanRepository';
+import { ProgrammingSubPlans } from '../../../repositories/programmingSubPlanRepository';
 import { Users } from '../../../repositories/userRepository';
 
 export const seed = async () => {

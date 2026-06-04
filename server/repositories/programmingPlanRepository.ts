@@ -8,16 +8,16 @@ import {
   ProgrammingPlanChecked,
   ProgrammingPlanSort
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import type {
-  ProgrammingSubPlan,
-  ProgrammingSubPlanId
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import z from 'zod';
 import { knexInstance as db } from './db';
+import {
+  ProgrammingSubPlans,
+  programmingSubPlansTable
+} from './programmingSubPlanRepository';
 
 export const programmingPlansTable = 'programming_plans';
 const programmingPlanLocalStatusTable = 'programming_plan_local_status';
-const programmingSubPlansTable = 'programming_sub_plans';
 
 const ProgrammingPlanDbo = ProgrammingPlanBase.omit({
   subPlans: true,
@@ -41,8 +41,6 @@ export const ProgrammingPlans = (transaction = db) =>
   transaction<ProgrammingPlanDbo>(programmingPlansTable);
 export const ProgrammingPlanLocalStatus = (transaction = db) =>
   transaction<ProgrammingPlanLocalStatusDbo>(programmingPlanLocalStatusTable);
-export const ProgrammingSubPlans = (transaction = db) =>
-  transaction<ProgrammingSubPlan>(programmingSubPlansTable);
 
 const ProgrammingPlanQuery = () =>
   ProgrammingPlans()

@@ -29,9 +29,9 @@ import { PrescriptionSubstances } from '../../repositories/prescriptionSubstance
 import {
   formatProgrammingPlan,
   ProgrammingPlanLocalStatus,
-  ProgrammingPlans,
-  ProgrammingSubPlans
+  ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
+import { ProgrammingSubPlans } from '../../repositories/programmingSubPlanRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
