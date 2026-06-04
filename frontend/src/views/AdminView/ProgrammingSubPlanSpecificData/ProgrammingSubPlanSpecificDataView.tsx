@@ -88,7 +88,7 @@ export const ProgrammingSubPlanSpecificDataView = () => {
           >
             {selectedPlan.subPlans.map((sp) => (
               <option key={sp.id} value={sp.id}>
-                {sp.label ?? sp.codeNat}
+                {sp.label}
               </option>
             ))}
           </Select>

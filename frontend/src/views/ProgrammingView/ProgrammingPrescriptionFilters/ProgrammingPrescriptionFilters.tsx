@@ -42,7 +42,7 @@ const ProgrammingPrescriptionFilters = ({
     const map: Record<string, string> = {};
     options.plans.forEach((plan) => {
       plan.subPlans.forEach((sp) => {
-        map[sp.id] = sp.label ?? sp.codeNat;
+        map[sp.id] = sp.label;
       });
     });
     return map;

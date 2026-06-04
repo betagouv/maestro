@@ -113,7 +113,7 @@ const SamplePrimaryFilters = ({
                 .filter((sp) => !filters.programmingSubPlanIds?.includes(sp.id))
                 .map((sp) => (
                   <option key={`subPlan-${sp.id}`} value={sp.id}>
-                    {sp.label ?? sp.codeNat}
+                    {sp.label}
                   </option>
                 ))}
             </Select>
