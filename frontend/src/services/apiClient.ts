@@ -14,7 +14,7 @@ import * as noticeApi from './notice.service';
 import * as notificationApi from './notification.service';
 import * as prescriptionApi from './prescription.service';
 import * as programmingPlanApi from './programmingPlan.service';
-import * as programmingProgrammingSubPlanFieldsApi from './programmingProgrammingSubPlanFields.service';
+import * as programmingProgrammingSubPlanFieldsApi from './programmingSubPlanFields.service';
 import * as regionApi from './region.service';
 import * as sachaCommemoratifsApi from './sachaCommemoratifs.service';
 import * as sampleApi from './sample.service';

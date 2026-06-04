@@ -3,7 +3,7 @@ import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { LaboratoryAgreement } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import type React from 'react';
-import { createContext, useState } from 'react';
+import { createContext, useRef, useState } from 'react';
 import LaboratoryAgreementDetailModal from './LaboratoryAgreementDetailModal';
 
 const modal = createModal({
@@ -13,7 +13,8 @@ const modal = createModal({
 
 type OpenLaboratoryAgreementDetail = (
   laboratoryAgreement: LaboratoryAgreement,
-  laboratory: Laboratory
+  laboratory: Laboratory,
+  afterClose?: () => void
 ) => void;
 
 export const LaboratoryAgreementDetailContext =
@@ -35,17 +36,25 @@ export const LaboratoryAgreementDetailProvider = ({
   const [laboratoryAgreement, setLaboratoryAgreement] =
     useState<LaboratoryAgreement | null>(null);
   const [laboratory, setLaboratory] = useState<Laboratory | null>(null);
+  const afterCloseCallback = useRef<(() => void) | undefined>(undefined);
 
   useIsModalOpen(modal, {
-    onConceal
+    onConceal: () => {
+      const cb = afterCloseCallback.current;
+      afterCloseCallback.current = undefined;
+      onConceal?.();
+      cb?.();
+    }
   });
 
   const openLaboratoryAgreementDetail: OpenLaboratoryAgreementDetail = (
     agreement,
-    lab
+    lab,
+    afterClose
   ) => {
     setLaboratoryAgreement(agreement);
     setLaboratory(lab);
+    afterCloseCallback.current = afterClose;
     onOpen?.();
     modal.open();
   };
