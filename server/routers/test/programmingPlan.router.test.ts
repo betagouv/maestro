@@ -13,7 +13,12 @@ import {
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
   DAOAInProgressProgrammingPlanFixture,
-  genProgrammingPlan
+  genProgrammingPlan,
+  PPVSubPlanFixture,
+  TestPPVSubPlanId1,
+  TestPPVSubPlanId2,
+  TestPPVSubPlanId3,
+  TestPPVSubPlanId4
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
@@ -48,6 +53,13 @@ describe('ProgrammingPlan router', () => {
 
   const validatedDromProgrammingPlan = genProgrammingPlan({
     id: 'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1',
+    subPlans: [
+      {
+        ...PPVSubPlanFixture,
+        id: TestPPVSubPlanId1,
+        programmingPlanId: 'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1'
+      }
+    ],
     createdBy: NationalCoordinator.id,
     year: 2018,
     regionalStatus: RegionList.map((region) => ({
@@ -57,6 +69,13 @@ describe('ProgrammingPlan router', () => {
   });
   const validatedProgrammingPlan = genProgrammingPlan({
     id: 'b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1',
+    subPlans: [
+      {
+        ...PPVSubPlanFixture,
+        id: TestPPVSubPlanId2,
+        programmingPlanId: 'b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1'
+      }
+    ],
     createdBy: NationalCoordinator.id,
     year: 2019,
     regionalStatus: RegionList.toSorted().map((region) => ({
@@ -66,6 +85,13 @@ describe('ProgrammingPlan router', () => {
   });
   const submittedProgrammingPlan = genProgrammingPlan({
     id: 'b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2',
+    subPlans: [
+      {
+        ...PPVSubPlanFixture,
+        id: TestPPVSubPlanId3,
+        programmingPlanId: 'b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2'
+      }
+    ],
     createdBy: NationalCoordinator.id,
     year: 2021,
     regionalStatus: RegionList.map((region) => ({
@@ -75,6 +101,13 @@ describe('ProgrammingPlan router', () => {
   });
   const inProgressProgrammingPlan = genProgrammingPlan({
     id: 'b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3',
+    subPlans: [
+      {
+        ...PPVSubPlanFixture,
+        id: TestPPVSubPlanId4,
+        programmingPlanId: 'b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3'
+      }
+    ],
     createdBy: NationalCoordinator.id,
     year: 2022,
     regionalStatus: RegionList.map((region) => ({
@@ -116,7 +149,11 @@ describe('ProgrammingPlan router', () => {
           id: sp.id,
           programmingPlanId: plan.id,
           codeNat: sp.codeNat,
-          stages: sp.stages
+          stages: sp.stages,
+          label: sp.label,
+          analysisPermissionRole: sp.analysisPermissionRole ?? null,
+          contactListId: sp.contactListId ?? null,
+          withSacha: sp.withSacha
         }))
       )
     );
@@ -225,15 +262,23 @@ describe('ProgrammingPlan router', () => {
       ]);
     });
 
-    test('can filter the programmingPlans by kinds for the administrator', async () => {
+    test('can filter the programmingPlans by subPlanIds for the administrator', async () => {
       const res = await request(app)
-        .get(testRoute({ kinds: 'M01' }))
+        .get(
+          testRoute({
+            subPlanIds: DAOAInProgressProgrammingPlanFixture.subPlans[0].id
+          })
+        )
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body[0]).toMatchObject({
         id: DAOAInProgressProgrammingPlanFixture.id,
-        kinds: ['M01']
+        subPlans: expect.arrayContaining([
+          expect.objectContaining({
+            id: DAOAInProgressProgrammingPlanFixture.subPlans[0].id
+          })
+        ])
       });
     });
 

@@ -832,6 +832,7 @@ describe('Sample router', () => {
           ...SampleDAOA1Fixture,
           step: 'Sent',
           programmingPlanKind: 'M01',
+          programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
           items: [
             {
               ...SampleDAOA1Fixture.items![0],

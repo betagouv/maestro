@@ -204,7 +204,26 @@ export const up = async (knex: Knex) => {
     table.dropColumn('kind');
   });
 
-  // 9. Supprimer l'ancienne table
+  // 9. Renommer programming_plan_kind_fields → programming_sub_plan_fields
+  await knex.schema.alterTable(
+    'programming_plan_kind_field_options',
+    (table) => {
+      table.renameColumn(
+        'programming_plan_kind_field_id',
+        'programming_sub_plan_field_id'
+      );
+    }
+  );
+  await knex.schema.renameTable(
+    'programming_plan_kind_field_options',
+    'programming_sub_plan_field_options'
+  );
+  await knex.schema.renameTable(
+    'programming_plan_kind_fields',
+    'programming_sub_plan_fields'
+  );
+
+  // 10. Supprimer l'ancienne table
   await knex.schema.dropTable('programming_plan_kinds');
 };
 
@@ -322,6 +341,25 @@ export const down = async (knex: Knex) => {
       'substance_kind'
     ]);
   });
+
+  // Restaurer les noms de tables programming_sub_plan_fields → programming_plan_kind_fields
+  await knex.schema.renameTable(
+    'programming_sub_plan_fields',
+    'programming_plan_kind_fields'
+  );
+  await knex.schema.renameTable(
+    'programming_sub_plan_field_options',
+    'programming_plan_kind_field_options'
+  );
+  await knex.schema.alterTable(
+    'programming_plan_kind_field_options',
+    (table) => {
+      table.renameColumn(
+        'programming_sub_plan_field_id',
+        'programming_plan_kind_field_id'
+      );
+    }
+  );
 
   // Restaurer programming_plan_kind_fields
   await knex.schema.alterTable('programming_plan_kind_fields', (table) => {

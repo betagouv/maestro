@@ -461,7 +461,7 @@ export interface SpecificDataFieldOptions {
   sachaCommemoratifValueSigle: CommemoratifValueSigle | null;
 }
 
-export interface ProgrammingProgrammingSubPlanFields {
+export interface ProgrammingSubPlanFields {
   id: Generated<ProgrammingSubPlanFieldId>;
   programmingSubPlanId: ProgrammingSubPlanId;
   fieldId: SpecificDataFieldId;
@@ -469,8 +469,8 @@ export interface ProgrammingProgrammingSubPlanFields {
   order: number;
 }
 
-export interface ProgrammingProgrammingSubPlanFieldOptions {
-  programmingProgrammingSubPlanFieldId: ProgrammingSubPlanFieldId;
+export interface ProgrammingSubPlanFieldOptions {
+  programmingSubPlanFieldId: ProgrammingSubPlanFieldId;
   specificDataFieldOptionId: SpecificDataFieldOptionId;
 }
 
@@ -487,8 +487,8 @@ export interface DB {
   departments: Departments;
   documentProgrammingPlans: DocumentProgrammingPlans;
   documents: Documents;
-  programmingProgrammingSubPlanFields: ProgrammingProgrammingSubPlanFields;
-  programmingProgrammingSubPlanFieldOptions: ProgrammingProgrammingSubPlanFieldOptions;
+  programmingSubPlanFields: ProgrammingSubPlanFields;
+  programmingSubPlanFieldOptions: ProgrammingSubPlanFieldOptions;
   specificDataFields: SpecificDataFields;
   specificDataFieldOptions: SpecificDataFieldOptions;
   knexMigrations: KnexMigrations;
@@ -522,6 +522,8 @@ export interface DB {
 }
 export type KyselyMaestro = Kysely<DB>;
 
-export const toSqlArray = <T extends string>(args: T[]) => {
-  return sql<string[]>`ARRAY[${sql.join(args)}]` as Expression<T[]>;
+export const toSqlArray = <T extends string>(args: T[], pgType = 'text') => {
+  return sql<
+    string[]
+  >`ARRAY[${sql.join(args)}]::${sql.raw(pgType)}[]` as Expression<T[]>;
 };

@@ -77,7 +77,7 @@ export const seed = async (): Promise<void> => {
   }
 
   const programmingSubPlanFieldRows = await kysely
-    .insertInto('programmingProgrammingSubPlanFields')
+    .insertInto('programmingSubPlanFields')
     .values(
       programmingSubPlans.flatMap(({ id: programmingSubPlanId, codeNat }) =>
         AllFieldConfigs.filter(
@@ -113,7 +113,7 @@ export const seed = async (): Promise<void> => {
           c.field.key === key
       );
       return (config?.field.options ?? []).map((o) => ({
-        programmingProgrammingSubPlanFieldId:
+        programmingSubPlanFieldId:
           programmingSubPlanFieldId[r.programmingSubPlanId][key],
         specificDataFieldOptionId: optionIdByFieldAndValue[key]?.[o.value]
       }));
@@ -121,7 +121,7 @@ export const seed = async (): Promise<void> => {
 
   if (programmingSubPlanFieldOptionInserts.length > 0) {
     await kysely
-      .insertInto('programmingProgrammingSubPlanFieldOptions')
+      .insertInto('programmingSubPlanFieldOptions')
       .values(programmingSubPlanFieldOptionInserts)
       .execute();
   }
