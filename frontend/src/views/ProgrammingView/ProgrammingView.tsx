@@ -65,7 +65,7 @@ const ProgrammingView = () => {
   const {
     yearOptions,
     programmingPlanOptions,
-    programmingPlanKindOptions,
+    programmingSubPlanOptions,
     contextOptions,
     reduceFilters
   } = usePrescriptionFilters(programmingPlans);
@@ -185,7 +185,7 @@ const ProgrammingView = () => {
                     options={{
                       plans: programmingPlanOptions(prescriptionFilters),
                       programmingSubPlanIds:
-                        programmingPlanKindOptions(prescriptionFilters),
+                        programmingSubPlanOptions(prescriptionFilters),
                       contexts: contextOptions(prescriptionFilters)
                     }}
                     filters={prescriptionFilters}

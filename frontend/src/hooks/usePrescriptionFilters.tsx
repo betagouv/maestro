@@ -28,7 +28,7 @@ export const usePrescriptionFilters = (
       ),
     [programmingPlans]
   );
-  const programmingPlanKindOptions = useCallback(
+  const programmingSubPlanOptions = useCallback(
     (filters: PrescriptionFilters) =>
       uniq(
         programmingPlanOptions(filters)
@@ -90,14 +90,14 @@ export const usePrescriptionFilters = (
         : getUniqOrUndefined(programmingPlanOptions({ year, domain }))?.[0]?.id;
       const programmingSubPlanIds =
         aggregatedFilters?.programmingSubPlanIds?.filter((kind) =>
-          programmingPlanKindOptions({
+          programmingSubPlanOptions({
             year,
             domain,
             programmingPlanId
           }).some((kindOption) => kind === kindOption)
         ) ??
         getUniqOrUndefined(
-          programmingPlanKindOptions({
+          programmingSubPlanOptions({
             year,
             domain,
             programmingPlanId
@@ -132,7 +132,7 @@ export const usePrescriptionFilters = (
       domainOptions,
       yearOptions,
       programmingPlanOptions,
-      programmingPlanKindOptions,
+      programmingSubPlanOptions,
       contextOptions
     ]
   );
@@ -141,7 +141,7 @@ export const usePrescriptionFilters = (
     domainOptions,
     yearOptions,
     programmingPlanOptions,
-    programmingPlanKindOptions,
+    programmingSubPlanOptions,
     contextOptions,
     reduceFilters
   };

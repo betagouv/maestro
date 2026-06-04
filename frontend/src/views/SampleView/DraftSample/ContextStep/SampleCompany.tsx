@@ -43,7 +43,7 @@ const SampleCompany = ({
   const { programmingPlanPrescriptions, programmingPlanLocalPrescriptions } =
     usePartialSample(partialSample);
 
-  const programmingKindLocalPrescriptions = useMemo(
+  const programmingSubPlanLocalPrescriptions = useMemo(
     () =>
       programmingPlanLocalPrescriptions?.filter((localPrescription) =>
         programmingPlanPrescriptions?.some(
@@ -66,13 +66,13 @@ const SampleCompany = ({
 
     if (
       programmingSubPlanId &&
-      programmingKindLocalPrescriptions === undefined
+      programmingSubPlanLocalPrescriptions === undefined
     ) {
       return undefined;
     }
     return user?.companies?.filter(({ siret }) =>
       programmingSubPlanId
-        ? programmingKindLocalPrescriptions?.some(
+        ? programmingSubPlanLocalPrescriptions?.some(
             (_) => _.companySiret === siret
           )
         : true
@@ -80,7 +80,7 @@ const SampleCompany = ({
   }, [
     programmingPlan.distributionKind,
     user?.companies,
-    programmingKindLocalPrescriptions,
+    programmingSubPlanLocalPrescriptions,
     programmingSubPlanId
   ]);
 

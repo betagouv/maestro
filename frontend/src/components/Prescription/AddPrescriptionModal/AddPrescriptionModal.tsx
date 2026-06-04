@@ -43,7 +43,7 @@ const AddPrescriptionModal = ({
 
   const {
     programmingPlanOptions,
-    programmingPlanKindOptions,
+    programmingSubPlanOptions,
     contextOptions,
     reduceFilters
   } = usePrescriptionFilters([programmingPlan]);
@@ -137,7 +137,7 @@ const AddPrescriptionModal = ({
               options={{
                 plans: programmingPlanOptions(prescriptionFilters),
                 programmingSubPlanIds:
-                  programmingPlanKindOptions(prescriptionFilters),
+                  programmingSubPlanOptions(prescriptionFilters),
                 contexts: contextOptions(prescriptionFilters)
               }}
               programmingPlans={[programmingPlan]}
