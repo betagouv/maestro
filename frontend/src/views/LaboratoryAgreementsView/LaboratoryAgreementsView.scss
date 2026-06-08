@@ -19,6 +19,7 @@
     padding-bottom: 0.5rem;
   }
 
+
   .laboratory-agreements-notice {
     background-color: var(--background-contrast-info);
     color: var(--blue-france-sun-113-625);
@@ -97,7 +98,6 @@
     min-width: 10rem;
   }
 
-  }
 
   tr:has(.row-unchecked) td {
     background-color: var(--background-alt-yellow-tournesol) !important;

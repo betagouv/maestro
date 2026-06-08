@@ -287,12 +287,9 @@ const ProgrammingPlanDepartmentalValidationList = ({
                               const subPlanId = allPrescriptions.find(
                                 (p) => p.id === localPrescription.prescriptionId
                               )?.programmingSubPlanId;
-                              const subPlan = programmingPlan.subPlans.find(
+                              return programmingPlan.subPlans.find(
                                 (sp) => sp.id === subPlanId
-                              );
-                              return subPlan
-                                ? (subPlan.label ?? subPlan.codeNat)
-                                : '';
+                              )?.label;
                             })()}
                           </Button>
                         ))}
