@@ -1,9 +1,10 @@
-import { constants } from 'node:http2';
+import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
-  ProgrammingPlanKindFieldId,
+  ProgrammingSubPlanFieldId,
   SpecificDataFieldId,
   SpecificDataFieldOptionId
-} from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+} from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
+import { HttpStatus } from '../constants/httpStatus';
 import { sampleSpecificDataRepository } from '../repositories/sampleSpecificDataRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
@@ -16,7 +17,7 @@ export const specificDataFieldConfigRouter = {
       const fields = await specificDataFieldConfigRepository.findAllFields();
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: fields
       };
     },
@@ -26,7 +27,7 @@ export const specificDataFieldConfigRouter = {
       const field = await specificDataFieldConfigRepository.createField(body);
 
       return {
-        status: constants.HTTP_STATUS_CREATED,
+        status: HttpStatus.CREATED,
         response: field
       };
     }
@@ -41,11 +42,11 @@ export const specificDataFieldConfigRouter = {
       );
 
       if (!field) {
-        return { status: constants.HTTP_STATUS_NOT_FOUND };
+        return { status: HttpStatus.NOT_FOUND };
       }
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: field
       };
     },
@@ -56,7 +57,7 @@ export const specificDataFieldConfigRouter = {
         SpecificDataFieldId.parse(fieldId)
       );
 
-      return { status: constants.HTTP_STATUS_NO_CONTENT };
+      return { status: HttpStatus.NO_CONTENT };
     }
   },
   '/specific-data-fields/:fieldId/options': {
@@ -69,11 +70,11 @@ export const specificDataFieldConfigRouter = {
       );
 
       if (!option) {
-        return { status: constants.HTTP_STATUS_NOT_FOUND };
+        return { status: HttpStatus.NOT_FOUND };
       }
 
       return {
-        status: constants.HTTP_STATUS_CREATED,
+        status: HttpStatus.CREATED,
         response: option
       };
     }
@@ -88,11 +89,11 @@ export const specificDataFieldConfigRouter = {
       );
 
       if (!option) {
-        return { status: constants.HTTP_STATUS_NOT_FOUND };
+        return { status: HttpStatus.NOT_FOUND };
       }
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: option
       };
     },
@@ -103,83 +104,90 @@ export const specificDataFieldConfigRouter = {
         SpecificDataFieldOptionId.parse(optionId)
       );
 
-      return { status: constants.HTTP_STATUS_NO_CONTENT };
+      return { status: HttpStatus.NO_CONTENT };
     }
   },
-  '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields': {
-    get: async (_, { programmingPlanId, kind }) => {
-      console.info('Get specific data field configs for plan kind', kind);
-
-      const configs = await specificDataFieldConfigRepository.findByPlanKind(
-        programmingPlanId,
-        kind
-      );
-
-      return {
-        status: constants.HTTP_STATUS_OK,
-        response: configs
-      };
-    },
-    post: async ({ body }, { programmingPlanId, kind }) => {
-      console.info('Add field to plan kind', kind);
-
-      const config = await specificDataFieldConfigRepository.addFieldToPlanKind(
-        programmingPlanId,
-        kind,
-        body
-      );
-
-      if (!config) {
-        return { status: constants.HTTP_STATUS_NOT_FOUND };
-      }
-
-      return {
-        status: constants.HTTP_STATUS_CREATED,
-        response: config
-      };
-    }
-  },
-  '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields/:planKindFieldId':
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields':
     {
-      put: async ({ body }, { planKindFieldId }) => {
-        console.info('Update plan kind field', planKindFieldId);
+      get: async (_, { programmingSubPlanId }) => {
+        console.info(
+          'Get specific data field configs for sub-plan',
+          programmingSubPlanId
+        );
+
+        const configs =
+          await specificDataFieldConfigRepository.findByPlanSubPlan(
+            ProgrammingSubPlanId.parse(programmingSubPlanId)
+          );
+
+        return {
+          status: HttpStatus.OK,
+          response: configs
+        };
+      },
+      post: async ({ body }, { programmingSubPlanId }) => {
+        console.info('Add field to sub-plan', programmingSubPlanId);
 
         const config =
-          await specificDataFieldConfigRepository.updatePlanKindField(
-            ProgrammingPlanKindFieldId.parse(planKindFieldId),
+          await specificDataFieldConfigRepository.addFieldToPlanKind(
+            ProgrammingSubPlanId.parse(programmingSubPlanId),
             body
           );
 
         if (!config) {
-          return { status: constants.HTTP_STATUS_NOT_FOUND };
+          return { status: HttpStatus.NOT_FOUND };
         }
 
         return {
-          status: constants.HTTP_STATUS_OK,
+          status: HttpStatus.CREATED,
+          response: config
+        };
+      }
+    },
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId':
+    {
+      put: async ({ body }, { programmingSubPlanFieldId }) => {
+        console.info('Update plan kind field', programmingSubPlanFieldId);
+
+        const config =
+          await specificDataFieldConfigRepository.updateProgrammingSubPlanField(
+            ProgrammingSubPlanFieldId.parse(programmingSubPlanFieldId),
+            body
+          );
+
+        if (!config) {
+          return { status: HttpStatus.NOT_FOUND };
+        }
+
+        return {
+          status: HttpStatus.OK,
           response: config
         };
       },
-      delete: async (_, { planKindFieldId }) => {
-        console.info('Remove plan kind field', planKindFieldId);
+      delete: async (_, { programmingSubPlanFieldId }) => {
+        console.info('Remove plan kind field', programmingSubPlanFieldId);
 
-        await specificDataFieldConfigRepository.removePlanKindField(
-          ProgrammingPlanKindFieldId.parse(planKindFieldId)
+        await specificDataFieldConfigRepository.removeProgrammingSubPlanField(
+          ProgrammingSubPlanFieldId.parse(programmingSubPlanFieldId)
         );
 
-        return { status: constants.HTTP_STATUS_NO_CONTENT };
+        return { status: HttpStatus.NO_CONTENT };
       }
     },
-  '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields/:planKindFieldId/options':
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId/options':
     {
-      put: async ({ body }, { planKindFieldId }) => {
-        console.info('Replace plan kind field options', planKindFieldId);
+      put: async ({ body }, { programmingSubPlanFieldId }) => {
+        console.info(
+          'Replace plan kind field options',
+          programmingSubPlanFieldId
+        );
 
-        await specificDataFieldConfigRepository.replacePlanKindFieldOptions(
-          ProgrammingPlanKindFieldId.parse(planKindFieldId),
+        await specificDataFieldConfigRepository.replaceProgrammingSubPlanFieldOptions(
+          ProgrammingSubPlanFieldId.parse(programmingSubPlanFieldId),
           body.optionIds.map((id) => SpecificDataFieldOptionId.parse(id))
         );
 
-        return { status: constants.HTTP_STATUS_NO_CONTENT };
+        return { status: HttpStatus.NO_CONTENT };
       }
     },
   '/specific-data-fields/sacha': {
@@ -189,7 +197,7 @@ export const specificDataFieldConfigRouter = {
       const fields = await specificDataFieldConfigRepository.findSachaFields();
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: fields
       };
     }
@@ -200,7 +208,7 @@ export const specificDataFieldConfigRouter = {
         body
       );
       return {
-        status: constants.HTTP_STATUS_OK
+        status: HttpStatus.OK
       };
     }
   },
@@ -210,7 +218,7 @@ export const specificDataFieldConfigRouter = {
         body
       );
       return {
-        status: constants.HTTP_STATUS_OK
+        status: HttpStatus.OK
       };
     }
   }

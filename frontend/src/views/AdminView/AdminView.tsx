@@ -1,60 +1,31 @@
-import Tabs from '@codegouvfr/react-dsfr/Tabs';
-import warningImg from 'src/assets/illustrations/warning.svg';
-import { AppPage } from 'src/components/_app/AppPage/AppPage';
-import { AnalysisDaiAdminView } from './AnalysisDaiAdminView/AnalysisDaiAdminView';
-import { AnalysisRaiAdminView } from './AnalysisRaiAdminView/AnalysisRaiAdminView';
-import { LaboratoriesAdminView } from './LaboratoriesAdminView/LaboratoriesAdminView';
-import { LaboratoryResidueMappingsView } from './LaboratoryResidueMappingsView/LaboratoryResidueMappingsView';
-import { AdminViewDashboardNotice } from './Notice/AdminViewDashboardNotice';
-import { AdminViewRootNotice } from './Notice/AdminViewRootNotice';
-import { PlanKindSpecificDataView } from './PlanKindSpecificData/PlanKindSpecificDataView';
-import { SpecificDataFieldsView } from './SpecificDataFields/SpecificDataFieldsView';
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import clsx from 'clsx';
+import { Navigate, useParams } from 'react-router';
+import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
+import { AuthenticatedAppRoutes } from '../../AppRoutes';
+import { adminSections } from './adminSections';
 
 export const AdminView = () => {
+  const { section: sectionSlug } = useParams();
+
+  const section = adminSections.find((s) => s.slug === sectionSlug);
+
+  useDocumentTitle(section?.label ?? 'Administration');
+
+  if (!section) {
+    return (
+      <Navigate
+        replace
+        to={AuthenticatedAppRoutes.AdminRoute.link(adminSections[0].slug)}
+      />
+    );
+  }
+
   return (
-    <AppPage
-      title="Administrations"
-      subtitle={`Réservé aux administrateurs Maestro`}
-      illustration={warningImg}
-      documentTitle="Administration"
-    >
-      <Tabs
-        tabs={[
-          {
-            label: 'Alerte et message',
-            content: (
-              <>
-                <AdminViewRootNotice />
-                <AdminViewDashboardNotice />
-              </>
-            )
-          },
-          {
-            label: 'Configuration des descripteurs',
-            content: <SpecificDataFieldsView />
-          },
-          {
-            label: 'Configuration des plans',
-            content: <PlanKindSpecificDataView />
-          },
-          {
-            label: 'DAI',
-            content: <AnalysisDaiAdminView />
-          },
-          {
-            label: 'RAI',
-            content: <AnalysisRaiAdminView />
-          },
-          {
-            label: 'Laboratoires',
-            content: <LaboratoriesAdminView />
-          },
-          {
-            label: "Dictionnaire d'analytes",
-            content: <LaboratoryResidueMappingsView />
-          }
-        ]}
-      ></Tabs>
-    </AppPage>
+    <section className={clsx(cx('fr-container'), 'main-section')}>
+      <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
+        {section.content}
+      </div>
+    </section>
   );
 };
