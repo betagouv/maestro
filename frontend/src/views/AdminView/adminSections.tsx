@@ -5,7 +5,7 @@ import { LaboratoriesAdminView } from './LaboratoriesAdminView/LaboratoriesAdmin
 import { LaboratoryResidueMappingsView } from './LaboratoryResidueMappingsView/LaboratoryResidueMappingsView';
 import { AdminViewDashboardNotice } from './Notice/AdminViewDashboardNotice';
 import { AdminViewRootNotice } from './Notice/AdminViewRootNotice';
-import { PlanKindSpecificDataView } from './PlanKindSpecificData/PlanKindSpecificDataView';
+import { ProgrammingSubPlanSpecificDataView } from './ProgrammingSubPlanSpecificData/ProgrammingSubPlanSpecificDataView';
 import { SpecificDataFieldsView } from './SpecificDataFields/SpecificDataFieldsView';
 
 export const adminSections = [
@@ -27,7 +27,7 @@ export const adminSections = [
   {
     slug: 'plans',
     label: 'Configuration des plans',
-    content: <PlanKindSpecificDataView />
+    content: <ProgrammingSubPlanSpecificDataView />
   },
   {
     slug: 'dai',

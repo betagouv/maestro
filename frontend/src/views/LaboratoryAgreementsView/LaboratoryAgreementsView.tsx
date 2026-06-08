@@ -14,7 +14,6 @@ import type {
   LaboratoryAgreementRowKey
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -31,6 +30,10 @@ import LaboratoryAgreementsTable, {
 } from './LaboratoryAgreementsTable/LaboratoryAgreementsTable';
 import './LaboratoryAgreementsView.scss';
 import { isNil, uniq } from 'lodash-es';
+import type {
+  ProgrammingSubPlan,
+  ProgrammingSubPlanId
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import YearSelector from './YearSelector/YearSelector';
 
 const agreementsModal = createModal({
@@ -58,13 +61,17 @@ const LaboratoryAgreementsView = () => {
       | 'confirmationAnalysis'
     >[]
   >([]);
+  const [modalProgrammingSubPlan, setModalProgrammingSubPlan] =
+    useState<ProgrammingSubPlan>();
   const [substanceFilter, setSubstanceFilter] = useState<SubstanceKind[]>([]);
   const [labFilter, setLabFilter] = useState<string[]>([]);
   const [labAgreementTypeFilter, setLabAgreementTypeFilter] = useState<
     LaboratoryAgreementField[]
   >([]);
   const [matrixFilter, setMatrixFilter] = useState<MatrixKind[]>([]);
-  const [kindFilter, setKindFilter] = useState<ProgrammingSubPlanId[]>([]);
+  const [subPlanFilter, setSubPlanFilter] = useState<ProgrammingSubPlanId[]>(
+    []
+  );
   const [showWithoutLab, setShowWithoutLab] = useState(false);
 
   const { data: agreements = [] } = apiClient.useFindLaboratoryAgreementsQuery(
@@ -109,9 +116,7 @@ const LaboratoryAgreementsView = () => {
       programmingPlans.flatMap((plan) =>
         plan.subPlans.flatMap((subPlan) =>
           plan.substanceKinds.map((substanceKind) => ({
-            programmingSubPlanId: subPlan.id,
-            subPlanCodeNat: subPlan.codeNat,
-            subPlanLabel: subPlan.label ?? subPlan.codeNat,
+            programmingSubPlan: subPlan,
             programmingPlanYear: plan.year,
             substanceKind,
             laboratories: agreements.filter(
@@ -125,13 +130,13 @@ const LaboratoryAgreementsView = () => {
     [agreements, programmingPlans]
   );
 
-  const kindOptions = useMemo(
+  const subPlanOptions = useMemo(
     () =>
-      [...new Set(rows.map((r) => r.programmingSubPlanId))].map((value) => {
-        const row = rows.find((r) => r.programmingSubPlanId === value);
+      [...new Set(rows.map((r) => r.programmingSubPlan.id))].map((value) => {
+        const row = rows.find((r) => r.programmingSubPlan.id === value);
         return {
           value,
-          label: row?.subPlanCodeNat ?? value
+          label: row?.programmingSubPlan.codeNat ?? value
         };
       }),
     [rows]
@@ -187,14 +192,14 @@ const LaboratoryAgreementsView = () => {
     return rows
       .filter(
         (r) =>
-          (kindFilter.length === 0 ||
-            kindFilter.includes(r.programmingSubPlanId)) &&
+          (subPlanFilter.length === 0 ||
+            subPlanFilter.includes(r.programmingSubPlan.id)) &&
           (substanceFilter.length === 0 ||
             substanceFilter.includes(r.substanceKind)) &&
           (matrixFilter.length === 0 ||
             allPrescriptions.some(
               (p) =>
-                p.programmingSubPlanId === r.programmingSubPlanId &&
+                p.programmingSubPlanId === r.programmingSubPlan.id &&
                 matrixFilter.includes(p.matrixKind)
             )) &&
           ((labFilter.length === 0 && labAgreementTypeFilter.length === 0) ||
@@ -216,12 +221,12 @@ const LaboratoryAgreementsView = () => {
       .sort((a, b) => {
         const aChecked = checks.some(
           (c) =>
-            c.programmingSubPlanId === a.programmingSubPlanId &&
+            c.programmingSubPlanId === a.programmingSubPlan.id &&
             c.substanceKind === a.substanceKind
         );
         const bChecked = checks.some(
           (c) =>
-            c.programmingSubPlanId === b.programmingSubPlanId &&
+            c.programmingSubPlanId === b.programmingSubPlan.id &&
             c.substanceKind === b.substanceKind
         );
         if (aChecked !== bChecked) {
@@ -233,13 +238,13 @@ const LaboratoryAgreementsView = () => {
         if (substanceCmp !== 0) {
           return substanceCmp;
         }
-        return getFirstMatrixTitle(a.programmingSubPlanId).localeCompare(
-          getFirstMatrixTitle(b.programmingSubPlanId)
+        return getFirstMatrixTitle(a.programmingSubPlan.id).localeCompare(
+          getFirstMatrixTitle(b.programmingSubPlan.id)
         );
       });
   }, [
     rows,
-    kindFilter,
+    subPlanFilter,
     substanceFilter,
     matrixFilter,
     labFilter,
@@ -277,13 +282,27 @@ const LaboratoryAgreementsView = () => {
   const handleOpenModal = () => {
     const firstRow = selectedRows[0];
     setModalAgreements(firstRow?.laboratories ?? []);
-    setModalRowKeys(selectedRows);
+    setModalRowKeys(
+      selectedRows.map((row) => ({
+        programmingSubPlanId: row.programmingSubPlan.id,
+        substanceKind: row.substanceKind
+      }))
+    );
+    setModalProgrammingSubPlan(firstRow.programmingSubPlan);
     agreementsModal.open();
   };
 
   const handleOpenModalForRow = (row: AgreementRow) => {
     setModalAgreements(row.laboratories);
-    setModalRowKeys([row]);
+    setModalRowKeys([
+      {
+        programmingSubPlanId: row.programmingSubPlan.id,
+        substanceKind: row.substanceKind
+      }
+    ]);
+    setModalProgrammingSubPlan(row.programmingSubPlan);
+    agreementsModal.open();
+    setModalProgrammingSubPlan(row.programmingSubPlan);
     agreementsModal.open();
   };
 
@@ -292,7 +311,7 @@ const LaboratoryAgreementsView = () => {
   useEffect(() => {
     setSelectedStringRowKeys([]);
   }, [
-    kindFilter,
+    subPlanFilter,
     substanceFilter,
     matrixFilter,
     labFilter,
@@ -443,8 +462,8 @@ const LaboratoryAgreementsView = () => {
                 window.open(
                   getLaboratoryAgreementsExportURL({
                     year: Number(year),
-                    programmingSubPlanIds: kindFilter.length
-                      ? kindFilter
+                    programmingSubPlanIds: subPlanFilter.length
+                      ? subPlanFilter
                       : undefined,
                     substanceKinds: substanceFilter.length
                       ? substanceFilter
@@ -468,9 +487,9 @@ const LaboratoryAgreementsView = () => {
             checks={checks}
             laboratories={laboratories}
             allPrescriptions={allPrescriptions}
-            kindFilter={kindFilter}
-            kindOptions={kindOptions}
-            onKindFilterChange={setKindFilter}
+            kindFilter={subPlanFilter}
+            kindOptions={subPlanOptions}
+            onKindFilterChange={setSubPlanFilter}
             substanceFilter={substanceFilter}
             substanceOptions={substanceOptions}
             onSubstanceFilterChange={setSubstanceFilter}
@@ -500,15 +519,18 @@ const LaboratoryAgreementsView = () => {
             onUpdateCheck={updateCheck}
           />
         </div>
-        <LaboratoryAgreementsModal
-          modal={agreementsModal}
-          laboratoryAgreementRowKeys={modalRowKeys}
-          agreements={modalAgreements}
-          laboratories={laboratories}
-          onSave={async (laboratoryId, input) => {
-            await updateAgreements({ laboratoryId, ...input }).unwrap();
-          }}
-        />
+        {modalProgrammingSubPlan && (
+          <LaboratoryAgreementsModal
+            modal={agreementsModal}
+            laboratoryAgreementRowKeys={modalRowKeys}
+            agreements={modalAgreements}
+            laboratories={laboratories}
+            programmingSubPlan={modalProgrammingSubPlan}
+            onSave={async (laboratoryId, input) => {
+              await updateAgreements({ laboratoryId, ...input }).unwrap();
+            }}
+          />
+        )}
         <div className={cx('fr-mt-2w')}>
           <Button
             iconId="fr-icon-arrow-up-fill"

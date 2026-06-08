@@ -71,58 +71,6 @@ export const laboratoriesRouter = {
       return { status: HttpStatus.OK, response: buffer };
     }
   },
-  '/laboratories/agreements/checks': {
-    get: async ({ query }) => {
-      console.info('Find all laboratory agreement checks');
-
-      const checks = await laboratoryAgreementCheckRepository.findMany(
-        query.year
-      );
-
-      return { status: constants.HTTP_STATUS_OK, response: checks };
-    },
-    put: async ({ body, user }) => {
-      console.info('Update laboratory agreement check');
-
-      const checks = await laboratoryAgreementCheckRepository.upsert(
-        body,
-        user.id
-      );
-
-      return { status: constants.HTTP_STATUS_OK, response: checks };
-    }
-  },
-  '/laboratories/agreements/export': {
-    get: async ({ query }, _params, response) => {
-      console.info('Export laboratory agreements');
-
-      const [agreements, laboratories, prescriptions] = await Promise.all([
-        laboratoryAgreementRepository.findMany(query),
-        laboratoryRepository.findMany(),
-        prescriptionRepository.findMany({ year: query.year })
-      ]);
-
-      const buffer = await excelService.generateLaboratoryAgreementsExportExcel(
-        agreements,
-        laboratories,
-        prescriptions
-      );
-
-      const fileName = 'agrements-laboratoires.xlsx';
-
-      response.setHeader(
-        'Content-disposition',
-        `inline; filename=${encodeURIComponent(fileName)}`
-      );
-      response.setHeader(
-        'Content-Type',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      );
-      response.setHeader('Content-Length', `${buffer.length}`);
-
-      return { status: constants.HTTP_STATUS_OK, response: buffer };
-    }
-  },
   '/laboratories/:laboratoryId/agreements': {
     put: async ({ body }, { laboratoryId }) => {
       console.info('Upsert laboratory agreements', laboratoryId);

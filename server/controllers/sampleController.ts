@@ -1,4 +1,3 @@
-import { constants } from 'node:http2';
 import { format } from 'date-fns';
 import { isEqual, isNil, omit } from 'lodash-es';
 import NoRegionError from 'maestro-shared/errors/noRegionError';
@@ -30,6 +29,7 @@ import type { MaestroDate } from 'maestro-shared/utils/date';
 import { checkSchema } from 'maestro-shared/utils/zod';
 import { PDFDocument } from 'pdf-lib';
 import { v4 as uuidv4 } from 'uuid';
+import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
 import {
   getAndCheckSample,
@@ -116,7 +116,7 @@ export const sampleRouter = {
 
       const samples = await sampleRepository.findMany(findOptions);
 
-      return { status: constants.HTTP_STATUS_OK, response: samples };
+      return { status: HttpStatus.OK, response: samples };
     },
     post: async ({ user, userRole, body: sampleToCreate }) => {
       console.info('Create sample', sampleToCreate);
@@ -156,7 +156,7 @@ export const sampleRouter = {
         await sampleItemRepository.insertMany(sampleToCreate.items);
       }
 
-      return { status: constants.HTTP_STATUS_CREATED, response: sample };
+      return { status: HttpStatus.CREATED, response: sample };
     }
   },
   '/samples/count': {
@@ -167,7 +167,7 @@ export const sampleRouter = {
 
       const count = await sampleRepository.count(findOptions);
 
-      return { status: constants.HTTP_STATUS_OK, response: { count } };
+      return { status: HttpStatus.OK, response: { count } };
     }
   },
   '/samples/export': {
@@ -197,7 +197,7 @@ export const sampleRouter = {
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       );
       setHeader('Content-Length', `${buffer.length}`);
-      return { status: constants.HTTP_STATUS_OK, response: buffer };
+      return { status: HttpStatus.OK, response: buffer };
     }
   },
   '/samples/:sampleId/document': {
@@ -255,7 +255,7 @@ export const sampleRouter = {
         'Content-Disposition',
         `inline; filename="Etiquettes-${sample.reference}.pdf"`
       );
-      return { status: constants.HTTP_STATUS_OK, response: pdfBuffer };
+      return { status: HttpStatus.OK, response: pdfBuffer };
     }
   },
   '/samples/:sampleId/items/:itemNumber/copy/:copyNumber/document': {
@@ -283,7 +283,7 @@ export const sampleRouter = {
         'Content-Disposition',
         `inline; filename="${getSupportDocumentFilename(sample, itemNumber, copyNumber)}"`
       );
-      return { status: constants.HTTP_STATUS_OK, response: pdfBuffer };
+      return { status: HttpStatus.OK, response: pdfBuffer };
     }
   },
   '/samples/:sampleId/items/:itemNumber/copy/:copyNumber': {
@@ -307,14 +307,14 @@ export const sampleRouter = {
           itemUpdate.updateKey === 'billing') &&
         !hasSamplePermission(user, userRole, sample)['performAnalysis']
       ) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       if (
         itemUpdate.updateKey === 'shipping' &&
         !hasPermission(userRole, 'updateSample')
       ) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       console.info('Update sampleItem', sample.id, itemNumber, copyNumber);
@@ -385,7 +385,7 @@ export const sampleRouter = {
         await sampleRepository.evaluateSampleCompliance(sampleId);
       }
 
-      return { status: constants.HTTP_STATUS_OK };
+      return { status: HttpStatus.OK };
     }
   },
   '/samples/:sampleId/compliance': {
@@ -394,11 +394,11 @@ export const sampleRouter = {
 
       console.info('Update sample compliance', sample.id, complianceData);
 
-      const subPlan = await programmingSubPlanRepository.findById(
+      const subPlan = await programmingSubPlanRepository.findUnique(
         sample.programmingSubPlanId
       );
       if (subPlan?.codeNat === 'PPV') {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       const updatedSample = {
@@ -408,7 +408,7 @@ export const sampleRouter = {
 
       await sampleRepository.update(updatedSample);
 
-      return { status: constants.HTTP_STATUS_OK, response: complianceData };
+      return { status: HttpStatus.OK, response: complianceData };
     }
   },
   '/samples/:sampleId/emptyForm': {
@@ -424,7 +424,7 @@ export const sampleRouter = {
         'Content-Disposition',
         `inline; filename="Formulaire-${sample.reference}.pdf"`
       );
-      return { status: constants.HTTP_STATUS_OK, response: pdfBuffer };
+      return { status: HttpStatus.OK, response: pdfBuffer };
     }
   },
   '/samples/:sampleId': {
@@ -437,7 +437,7 @@ export const sampleRouter = {
         await sampleRepository.hasDetectedResidueWithInterpretation(sample.id);
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: {
           ...sample,
           items: sampleItems,
@@ -458,7 +458,7 @@ export const sampleRouter = {
       if (!hasPermission(userRole, 'updateSample')) {
         throw new UserRoleMissingError();
       } else if (sample.region !== user.region) {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       if (['DraftItems', 'Sent', 'Submitted'].includes(sampleUpdate.step)) {
@@ -469,7 +469,7 @@ export const sampleRouter = {
         const specificDataSchema = buildSpecificDataSchema(fieldConfigs);
         const result = specificDataSchema.safeParse(sampleUpdate.specificData);
         if (!result.success) {
-          return { status: constants.HTTP_STATUS_BAD_REQUEST };
+          return { status: HttpStatus.BAD_REQUEST };
         }
       }
 
@@ -491,7 +491,7 @@ export const sampleRouter = {
         }).success
       ) {
         return {
-          status: constants.HTTP_STATUS_FORBIDDEN
+          status: HttpStatus.FORBIDDEN
         };
       }
 
@@ -613,7 +613,7 @@ export const sampleRouter = {
       }
 
       return {
-        status: constants.HTTP_STATUS_OK,
+        status: HttpStatus.OK,
         response: updatedPartialSample
       };
     },
@@ -622,12 +622,12 @@ export const sampleRouter = {
       console.info('Delete sample', sample.id);
 
       if (sample.status !== 'Draft') {
-        return { status: constants.HTTP_STATUS_FORBIDDEN };
+        return { status: HttpStatus.FORBIDDEN };
       }
 
       await sampleRepository.deleteOne(sample.id);
 
-      return { status: constants.HTTP_STATUS_NO_CONTENT };
+      return { status: HttpStatus.NO_CONTENT };
     }
   }
 } as const satisfies ProtectedSubRouter;
