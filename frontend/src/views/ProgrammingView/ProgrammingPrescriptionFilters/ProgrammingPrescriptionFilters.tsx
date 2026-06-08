@@ -119,7 +119,8 @@ const ProgrammingPrescriptionFilters = ({
         </Select>
         {multiSelect && options.programmingSubPlanIds.length > 1 && (
           <FiltersTags
-            filters={pick(filters, ['programmingSubPlanIds'])}
+            filters={pick(filters, 'programmingSubPlanIds')}
+            programmingPlans={options.plans}
             onChange={({ programmingSubPlanIds }) =>
               onChange({ programmingSubPlanIds })
             }
