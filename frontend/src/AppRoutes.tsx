@@ -88,7 +88,6 @@ export const AuthenticatedAppRoutes = {
   },
   LaboratoryAgreementsRoute: {
     ...AppRouteLinks.LaboratoryAgreementsRoute,
-    path: '/laboratoires/agrements',
     label: 'Agréments laboratoires',
     key: 'laboratory_agreements_route'
   }

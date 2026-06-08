@@ -20,7 +20,8 @@ const appRoutePaths = {
   LogoutCallbackRoute: '/logout-callback',
   AdminRoute: '/admin/:section/:itemId?',
   UsersRoute: '/utilisateurs',
-  LaboratoryAnalyticalCompetencesRoute: '/competences-analytiques'
+  LaboratoryAnalyticalCompetencesRoute: '/competences-analytiques',
+  LaboratoryAgreementsRoute: '/laboratoires/agreements'
 } as const;
 
 export type AppRouteKeys = keyof typeof appRoutePaths;
