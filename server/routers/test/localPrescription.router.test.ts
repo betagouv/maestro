@@ -217,10 +217,7 @@ describe('Local prescriptions router', () => {
     region: Sampler1Fixture.region as Region,
     company: SlaughterhouseCompanyFixture1,
     sampler: Sampler1Fixture,
-    step: 'Sent',
-    specificData: {
-      programmingPlanKind: 'PPV'
-    }
+    step: 'Sent'
   });
   const submittedControlLocalPrescriptionWithCompany: LocalPrescription =
     genLocalPrescription({
@@ -738,8 +735,7 @@ describe('Local prescriptions router', () => {
         company: SlaughterhouseCompanyFixture1,
         sampler: RegionalCoordinator,
         status: 'Draft',
-        step: 'DraftMatrix',
-        specificData: { programmingPlanKind: 'PPV' }
+        step: 'DraftMatrix'
       });
 
       const laboratoryItem = genSampleItem({
@@ -861,8 +857,7 @@ describe('Local prescriptions router', () => {
           company: SlaughterhouseCompanyFixture1,
           sampler: RegionalCoordinator,
           status: 'Draft',
-          step: 'DraftMatrix',
-          specificData: { programmingPlanKind: 'PPV' }
+          step: 'DraftMatrix'
         });
         const itemOtherRegion = genSampleItem({
           sampleId: sampleOtherRegion.id,
@@ -913,8 +908,7 @@ describe('Local prescriptions router', () => {
           company: SlaughterhouseCompanyFixture1,
           sampler: RegionalCoordinator,
           status: 'Draft',
-          step: 'DraftMatrix',
-          specificData: { programmingPlanKind: 'PPV' }
+          step: 'DraftMatrix'
         });
         const itemOtherPrescription = genSampleItem({
           sampleId: otherPrescriptionSample.id,
@@ -967,8 +961,7 @@ describe('Local prescriptions router', () => {
           company: SlaughterhouseCompanyFixture1,
           sampler: RegionalCoordinator,
           status: 'Sent',
-          step: 'Sent',
-          specificData: { programmingPlanKind: 'PPV' }
+          step: 'Sent'
         });
         const itemSentSample = genSampleItem({
           sampleId: sentSample.id,
@@ -1376,8 +1369,7 @@ describe('Local prescriptions router', () => {
         company: SlaughterhouseCompanyFixture1,
         sampler: DepartmentalCoordinator,
         status: 'Draft',
-        step: 'DraftMatrix',
-        specificData: { programmingPlanKind: 'PPV' }
+        step: 'DraftMatrix'
       });
 
       const laboratoryItem = genSampleItem({
@@ -1487,8 +1479,7 @@ describe('Local prescriptions router', () => {
           company: SlaughterhouseCompanyFixture1,
           sampler: DepartmentalCoordinator,
           status: 'Draft',
-          step: 'DraftMatrix',
-          specificData: { programmingPlanKind: 'PPV' }
+          step: 'DraftMatrix'
         });
         const itemOtherDepartment = genSampleItem({
           sampleId: sampleOtherDepartment.id,
@@ -1536,8 +1527,7 @@ describe('Local prescriptions router', () => {
           company: SlaughterhouseCompanyFixture1,
           sampler: DepartmentalCoordinator,
           status: 'Sent',
-          step: 'Sent',
-          specificData: { programmingPlanKind: 'PPV' }
+          step: 'Sent'
         });
         const itemSentSample = genSampleItem({
           sampleId: sentSample.id,

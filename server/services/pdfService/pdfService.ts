@@ -270,11 +270,12 @@ const generateSamplePDF = async (
     (c) => c.field.key === 'matrixPart'
   )?.field;
 
-  const planLabel = `${codeNat} / ${ProgrammingPlanDomainLabels[programmingPlan.domain]} / ${programmingPlan.substanceKinds.map((s) => SubstanceKindLabels[s]).join(' ')} / ${subPlan?.label ?? codeNat}`;
+  const planLabel = `${codeNat} / ${ProgrammingPlanDomainLabels[programmingPlan.domain]} / ${programmingPlan.substanceKinds.map((s) => SubstanceKindLabels[s]).join(' ')} / ${subPlan?.label}`;
 
   return generatePDF(template, {
     fullVersion,
     ...sample,
+    codeNat,
     sampleItems: (sampleItems.length > 0 ? sampleItems : emptySampleItems).map(
       (sampleItem) => ({
         ...sampleItem,
