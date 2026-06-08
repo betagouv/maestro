@@ -12,12 +12,11 @@ const PrescriptionBreadcrumb = ({ programmingPlan, prescription }: Props) => {
   const subPlan = programmingPlan.subPlans.find(
     (sp) => sp.id === prescription.programmingSubPlanId
   );
-  const subPlanLabel = subPlan ? (subPlan.label ?? subPlan.codeNat) : undefined;
 
   return (
     <div className={cx('fr-breadcrumb', 'fr-mt-0', 'fr-mb-1w')}>
       <ol className={cx('fr-breadcrumb__list')}>
-        {uniq([programmingPlan.title, subPlanLabel]).map((part, idx) => (
+        {uniq([programmingPlan.title, subPlan?.label]).map((part, idx) => (
           <li key={idx}>
             <span
               className={cx('fr-text--xs', 'fr-text--regular')}
