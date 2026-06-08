@@ -12,7 +12,7 @@ import type {
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import type React from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import LaboratoryAgreementButtons from '../../../components/LaboratoryAgreement/LaboratoryAgreementButtons/LaboratoryAgreementButtons';
 import LaboratoryAgreementTag from '../../../components/LaboratoryAgreement/LaboratoryAgreementTag/LaboratoryAgreementTag';
 import './LaboratoryAgreementsModal.scss';
@@ -46,7 +46,7 @@ interface Props {
   laboratoryAgreementRowKeys: LaboratoryAgreementRowKey[];
   agreements: LabAgreementFlags[];
   laboratories: Laboratory[];
-  programmingSubPlan: ProgrammingSubPlan;
+  programmingSubPlan?: ProgrammingSubPlan;
   onSave: (
     laboratoryId: string,
     input: LaboratoryAgreementUpdate
@@ -71,6 +71,18 @@ const LaboratoryAgreementsModal = ({
     Record<string, LocalAgreement>
   >({});
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    const init: Record<string, LocalAgreement> = {};
+    for (const a of agreements) {
+      init[a.laboratoryId] = {
+        referenceLaboratory: a.referenceLaboratory,
+        detectionAnalysis: a.detectionAnalysis,
+        confirmationAnalysis: a.confirmationAnalysis
+      };
+    }
+    setLocalAgreements(init);
+  }, [agreements]);
 
   useIsModalOpen(modal, {
     onConceal: () => setSearch('')

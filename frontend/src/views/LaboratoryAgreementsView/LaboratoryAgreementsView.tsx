@@ -279,6 +279,8 @@ const LaboratoryAgreementsView = () => {
         rowAgreementsSignature(selectedRows[0].laboratories)
     );
 
+  const isDetailModalOpen = useRef(false);
+
   const handleOpenModal = () => {
     const firstRow = selectedRows[0];
     setModalAgreements(firstRow?.laboratories ?? []);
@@ -302,11 +304,7 @@ const LaboratoryAgreementsView = () => {
     ]);
     setModalProgrammingSubPlan(row.programmingSubPlan);
     agreementsModal.open();
-    setModalProgrammingSubPlan(row.programmingSubPlan);
-    agreementsModal.open();
   };
-
-  const isDetailModalOpen = useRef(false);
 
   useEffect(() => {
     setSelectedStringRowKeys([]);
@@ -519,18 +517,16 @@ const LaboratoryAgreementsView = () => {
             onUpdateCheck={updateCheck}
           />
         </div>
-        {modalProgrammingSubPlan && (
-          <LaboratoryAgreementsModal
-            modal={agreementsModal}
-            laboratoryAgreementRowKeys={modalRowKeys}
-            agreements={modalAgreements}
-            laboratories={laboratories}
-            programmingSubPlan={modalProgrammingSubPlan}
-            onSave={async (laboratoryId, input) => {
-              await updateAgreements({ laboratoryId, ...input }).unwrap();
-            }}
-          />
-        )}
+        <LaboratoryAgreementsModal
+          modal={agreementsModal}
+          laboratoryAgreementRowKeys={modalRowKeys}
+          agreements={modalAgreements}
+          laboratories={laboratories}
+          programmingSubPlan={modalProgrammingSubPlan}
+          onSave={async (laboratoryId, input) => {
+            await updateAgreements({ laboratoryId, ...input }).unwrap();
+          }}
+        />
         <div className={cx('fr-mt-2w')}>
           <Button
             iconId="fr-icon-arrow-up-fill"
