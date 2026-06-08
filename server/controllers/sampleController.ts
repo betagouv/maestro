@@ -110,7 +110,7 @@ export const sampleRouter = {
   '/samples/compliance-stats': {
     get: async ({ query }) => {
       const stats = await sampleRepository.findComplianceStats(query);
-      return { status: constants.HTTP_STATUS_OK, response: stats };
+      return { status: HttpStatus.OK, response: stats };
     }
   },
   '/samples/residue-stats': {
@@ -118,7 +118,7 @@ export const sampleRouter = {
       const stats = await analysisResidueRepository.findTopResiduesDetected(
         query.programmingPlanId
       );
-      return { status: constants.HTTP_STATUS_OK, response: stats };
+      return { status: HttpStatus.OK, response: stats };
     }
   },
   '/samples': {
