@@ -1,8 +1,5 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
-import {
-  type ProgrammingSubPlan,
-  ProgrammingSubPlanId
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 
 interface Props {
