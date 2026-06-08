@@ -59,7 +59,6 @@ interface Props {
   laboratory?: Laboratory | null;
   children?: React.ReactNode;
   readonly?: boolean;
-  programmingSubPlanCodeNat?: string;
 }
 
 const SampleItemContent = ({
@@ -69,8 +68,7 @@ const SampleItemContent = ({
   onRemoveItem,
   onChangeItem,
   itemsForm,
-  readonly: forceReadonly,
-  programmingSubPlanCodeNat
+  readonly: forceReadonly
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { isMobile } = useWindowSize();
@@ -81,9 +79,6 @@ const SampleItemContent = ({
 
   const { getSampleItemLaboratory, programmingSubPlan } =
     usePartialSample(partialSample);
-
-  const resolvedProgrammingSubPlanCodeNat =
-    programmingSubPlanCodeNat ?? programmingSubPlan?.codeNat;
 
   const form = itemsForm ?? fakeForm;
   const readonly = useMemo(
@@ -274,7 +269,7 @@ const SampleItemContent = ({
             />
           )}
         </div>
-        {resolvedProgrammingSubPlanCodeNat === 'PPV' && (
+        {programmingSubPlan?.codeNat === 'PPV' && (
           <>
             <div className={cx('fr-col-12', 'fr-col-sm-6')}>
               {itemsForm ? (
