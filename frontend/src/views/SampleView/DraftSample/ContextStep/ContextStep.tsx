@@ -287,7 +287,7 @@ const ContextStep = ({ partialSample }: Props) => {
     ])
   );
 
-  const programmingPlanKindOptions = selectOptionsFromList(
+  const programmingSubPlanOptions = selectOptionsFromList(
     intersection(
       programmingPlan?.subPlans
         .filter((subPlan) =>
@@ -624,13 +624,13 @@ const ContextStep = ({ partialSample }: Props) => {
       {programmingPlan.subPlans.length > 1 && (
         <AppSelect
           value={programmingSubPlanId}
-          options={programmingPlanKindOptions}
+          options={programmingSubPlanOptions}
           onChange={(e) => setProgrammingSubPlanId(e.target.value)}
           inputForm={form}
           inputKey="specificData"
           inputPathFromKey={['programmingSubPlanId']}
           whenValid="Type de plan correctement renseigné."
-          data-testid="programmingPlanKind-select"
+          data-testid="programmingSubPlan-select"
           label="Type de plan"
           disabled={readonly}
           required

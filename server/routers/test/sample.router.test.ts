@@ -761,10 +761,7 @@ describe('Sample router', () => {
         matrixKind: 'A0C0Z',
         matrix: 'A0BAV',
         programmingSubPlanId: DAOAInProgressBovinSubPlanId,
-        geolocation: { x: 46.642117, y: -0.734475 },
-        specificData: {
-          programmingPlanKind: 'M02'
-        }
+        geolocation: { x: 46.642117, y: -0.734475 }
       });
       await Samples().insert(formatPartialSample(sample));
 
@@ -831,7 +828,6 @@ describe('Sample router', () => {
         .send({
           ...SampleDAOA1Fixture,
           step: 'Sent',
-          programmingPlanKind: 'M01',
           programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
           items: [
             {
