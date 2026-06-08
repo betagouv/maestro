@@ -77,11 +77,15 @@ const UsersSearchInput: FunctionComponent<{
 
   const { data: users } = apiClient.useFindUsersQuery({ disabled: false });
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery({});
-  const getSubPlan = useCallback(
-    (subPlanId: ProgrammingSubPlanId) =>
-      programmingPlans
-        ?.flatMap((p) => p.subPlans)
-        .find((subPlan) => subPlan.id === subPlanId),
+  const getSubPlanLabel = useCallback(
+    (subPlanId: ProgrammingSubPlanId) => {
+      const plan = programmingPlans?.find((p) =>
+        p.subPlans.some((sp) => sp.id === subPlanId)
+      );
+      const subPlan = plan?.subPlans.find((sp) => sp.id === subPlanId);
+      if (!subPlan) return subPlanId;
+      return `${subPlan.codeNat} (${plan?.year})`;
+    },
     [programmingPlans]
   );
 
@@ -99,7 +103,7 @@ const UsersSearchInput: FunctionComponent<{
                     label += ` - ${Regions[u.region].name}`;
                   }
                   if (u.programmingSubPlanIds.length > 0) {
-                    label += ` - [${u.programmingSubPlanIds.map((_) => getSubPlan(_)?.codeNat).join(',')}]`;
+                    label += ` - ${u.programmingSubPlanIds.map((_) => getSubPlanLabel(_)).join(', ')}`;
                   }
                   acc[u.id] = label;
                   return acc;
