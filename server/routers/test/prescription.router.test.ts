@@ -118,14 +118,8 @@ describe('Prescriptions router', () => {
         programmingPlanClosed
       ].flatMap((plan) =>
         plan.subPlans.map((sp) => ({
-          id: sp.id,
-          programmingPlanId: plan.id,
-          codeNat: sp.codeNat,
-          stages: sp.stages,
-          label: sp.label,
-          analysisPermissionRole: sp.analysisPermissionRole ?? null,
-          contactListId: sp.contactListId ?? null,
-          withSacha: sp.withSacha
+          ...sp,
+          programmingPlanId: plan.id
         }))
       )
     );

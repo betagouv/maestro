@@ -32,7 +32,9 @@ export const UserListView = () => {
   const subPlanLabelById = useMemo(
     () =>
       Object.fromEntries(
-        allPlans.flatMap((p) => p.subPlans).map((sp) => [sp.id, sp.label])
+        allPlans.flatMap((p) =>
+          p.subPlans.map((sp) => [sp.id, `${sp.label} (${p.year})`])
+        )
       ),
     [allPlans]
   );
@@ -196,6 +198,7 @@ export const UserListView = () => {
         modal={userFormModal}
         userToUpdate={userToUpdate}
         setAlertMessage={setAlertMessage}
+        subPlanLabelById={subPlanLabelById}
       />
       <ConfirmationModal
         modal={confirmDisablingUserModal}

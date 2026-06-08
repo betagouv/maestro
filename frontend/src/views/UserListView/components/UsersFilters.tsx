@@ -87,7 +87,11 @@ export const UsersFilters: FunctionComponent<Props> = ({
             className="sample-filters-accordion"
           >
             <div className={cx('fr-container')}>
-              <Filters {...filters} onChange={updateFilters} />
+              <Filters
+                {...filters}
+                onChange={updateFilters}
+                subPlanLabelById={subPlanLabelById}
+              />
             </div>
           </Accordion>
           {hasFilter && (
@@ -103,7 +107,11 @@ export const UsersFilters: FunctionComponent<Props> = ({
       ) : (
         <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
           <div>
-            <Filters {...filters} onChange={updateFilters} />
+            <Filters
+              {...filters}
+              onChange={updateFilters}
+              subPlanLabelById={subPlanLabelById}
+            />
             {hasFilter && (
               <div
                 className={clsx('d-flex-align-start', cx('fr-mt-3w'))}
@@ -131,7 +139,10 @@ export const UsersFilters: FunctionComponent<Props> = ({
 };
 
 const Filters: FunctionComponent<
-  FindUserOptions & { onChange: (options: Partial<FindUserOptions>) => void }
+  FindUserOptions & {
+    onChange: (options: Partial<FindUserOptions>) => void;
+    subPlanLabelById: Record<string, string>;
+  }
 > = ({
   regions,
   departments,
@@ -140,6 +151,7 @@ const Filters: FunctionComponent<
   label,
   onlyDisabled,
   onChange,
+  subPlanLabelById,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -234,19 +246,38 @@ const Filters: FunctionComponent<
       </div>
       <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
         <Select
-          label="Plan"
+          label="Sous-plans"
           nativeSelectProps={{
             value: '',
-            disabled: true
+            onChange: (e) =>
+              onChange({
+                programmingSubPlanIds: [
+                  ...(programmingSubPlanIds ?? []),
+                  e.target.value as ProgrammingSubPlanId
+                ]
+              }),
+            disabled: Object.keys(subPlanLabelById).length === 0
           }}
         >
           <option value="">
             {programmingSubPlanIds?.length
               ? pluralize(programmingSubPlanIds.length, {
                   preserveCount: true
-                })('plan')
+                })('sous-plan')
               : 'Tous'}
           </option>
+          {Object.entries(subPlanLabelById)
+            .filter(
+              ([id]) =>
+                !(programmingSubPlanIds ?? []).includes(
+                  id as ProgrammingSubPlanId
+                )
+            )
+            .map(([id, label]) => (
+              <option key={`subplan-${id}`} value={id}>
+                {label}
+              </option>
+            ))}
         </Select>
       </div>
 

@@ -7,6 +7,7 @@ import {
 } from 'maestro-shared/referential/Department';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import type { Company } from 'maestro-shared/schema/Company/Company';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   companiesIsRequired,
   departmentIsRequired,
@@ -39,6 +40,7 @@ interface Props {
   userToUpdate: null | UserRefined;
   modal: ReturnType<typeof createModal>;
   setAlertMessage: (message: string) => void;
+  subPlanLabelById: Record<string, string>;
 }
 
 const regionOptions = selectOptionsFromList(RegionList, {
@@ -67,6 +69,7 @@ export const UserModal = ({
   userToUpdate,
   modal,
   setAlertMessage,
+  subPlanLabelById,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -265,17 +268,17 @@ export const UserModal = ({
         <AppMultiSelect
           inputForm={form}
           inputKey={'programmingSubPlanIds'}
-          items={[]}
+          items={Object.keys(subPlanLabelById)}
           onChange={(v) =>
             setUser((u) => ({
               ...u,
-              programmingSubPlanIds: v
+              programmingSubPlanIds: v as ProgrammingSubPlanId[]
             }))
           }
           values={user.programmingSubPlanIds ?? []}
-          keysWithLabels={{}}
-          defaultLabel={'plan sélectionné'}
-          label={'Plans'}
+          keysWithLabels={subPlanLabelById}
+          defaultLabel={'sous plan sélectionné'}
+          label={'Sous-plans'}
           required={programmingSubPlanIdsIsRequired(user)}
         />
 
