@@ -36,6 +36,7 @@ type MockableApiKeys = Exclude<
   | 'getSampleListExportURL'
   | 'getSampleEmptyFormURL'
   | 'getLaboratoryAnalyticCompetencesExportURL'
+  | 'getLaboratoryAgreementsExportURL'
 >;
 export type MockApi = {
   [Key in MockableApiKeys]: ApiClient[Key] extends TypedUseQuery<
@@ -167,6 +168,10 @@ const defaultMockApiClientConf: MockApi = {
   useUpdatePlanKindFieldOptionsMutation: [fn(), {}],
   useFindSachaFieldConfigsQuery: { data: [] },
   useFindLaboratoriesQuery: { data: [] },
+  useFindLaboratoryAgreementsQuery: { data: [] },
+  useFindLaboratoryAgreementChecksQuery: { data: [] },
+  useUpdateLaboratoryAgreementCheckMutation: [fn(), {}],
+  useUpdateLaboratoryAgreementsMutation: [fn(), {}],
   useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },
   useFindProgrammingPlansQuery: { data: [] },

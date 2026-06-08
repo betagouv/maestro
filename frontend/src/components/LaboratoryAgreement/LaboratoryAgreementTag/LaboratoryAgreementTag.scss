@@ -1,0 +1,15 @@
+.laboratory-agreement-tag {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  text-wrap: nowrap;
+
+  &--clickable {
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--background-alt-grey) !important;
+    }
+  }
+}

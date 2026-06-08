@@ -1,12 +1,88 @@
 import { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
 import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
+import { laboratoryAgreementCheckRepository } from '../repositories/laboratoryAgreementCheckRepository';
+import { laboratoryAgreementRepository } from '../repositories/laboratoryAgreementRepository';
 import laboratoryAnalyticalCompetenceRepository from '../repositories/laboratoryAnalyticalCompetenceRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
+import prescriptionRepository from '../repositories/prescriptionRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
 
 export const laboratoriesRouter = {
+  '/laboratories/agreements': {
+    get: async ({ query }) => {
+      console.info('Find all laboratory agreements');
+
+      const agreements = await laboratoryAgreementRepository.findMany(query);
+
+      return { status: HttpStatus.OK, response: agreements };
+    }
+  },
+  '/laboratories/agreements/checks': {
+    get: async ({ query }) => {
+      console.info('Find all laboratory agreement checks');
+
+      const checks = await laboratoryAgreementCheckRepository.findMany(
+        query.year
+      );
+
+      return { status: HttpStatus.OK, response: checks };
+    },
+    put: async ({ body, user }) => {
+      console.info('Update laboratory agreement check');
+
+      const checks = await laboratoryAgreementCheckRepository.upsert(
+        body,
+        user.id
+      );
+
+      return { status: HttpStatus.OK, response: checks };
+    }
+  },
+  '/laboratories/agreements/export': {
+    get: async ({ query }, _params, response) => {
+      console.info('Export laboratory agreements');
+
+      const [agreements, laboratories, prescriptions] = await Promise.all([
+        laboratoryAgreementRepository.findMany(query),
+        laboratoryRepository.findMany(),
+        prescriptionRepository.findMany({ year: query.year })
+      ]);
+
+      const buffer = await excelService.generateLaboratoryAgreementsExportExcel(
+        agreements,
+        laboratories,
+        prescriptions
+      );
+
+      const fileName = 'agrements-laboratoires.xlsx';
+
+      response.setHeader(
+        'Content-disposition',
+        `inline; filename=${encodeURIComponent(fileName)}`
+      );
+      response.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+      response.setHeader('Content-Length', `${buffer.length}`);
+
+      return { status: HttpStatus.OK, response: buffer };
+    }
+  },
+  '/laboratories/:laboratoryId/agreements': {
+    put: async ({ body }, { laboratoryId }) => {
+      console.info('Upsert laboratory agreements', laboratoryId);
+
+      const agreements = await laboratoryAgreementRepository.upsertMany(
+        laboratoryId,
+        body
+      );
+
+      return { status: HttpStatus.OK, response: agreements };
+    }
+  },
   '/laboratories/:laboratoryId': {
     get: async (_, { laboratoryId }) => {
       console.info('Get laboratory');

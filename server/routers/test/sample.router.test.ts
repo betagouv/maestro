@@ -32,6 +32,8 @@ import {
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
+  LaboratoryOfficeUserFixture,
+  LaboratoryUserFixture,
   NationalCoordinator,
   NationalObserver,
   RegionalCoordinator,
@@ -106,6 +108,8 @@ describe('Sample router', () => {
       await forbiddenRequestTest(Sampler1Fixture);
       await forbiddenRequestTest(RegionalCoordinator);
       await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should get the sample', async () => {
@@ -171,6 +175,8 @@ describe('Sample router', () => {
       await forbiddenRequestTest(Sampler1Fixture);
       await forbiddenRequestTest(RegionalCoordinator);
       await forbiddenRequestTest(RegionalObserver);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should successfully get the document', async () => {
@@ -420,6 +426,8 @@ describe('Sample router', () => {
       await forbiddenRequestTest(NationalCoordinator);
       await forbiddenRequestTest(NationalObserver);
       await forbiddenRequestTest(AdminFixture);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
       const forbiddenRequest = await forbiddenRequestTest(Sampler2Fixture);
       expect(forbiddenRequest.text).toMatchInlineSnapshot(
         `"{"name":"BadDepartmentError","message":"Vous n'avez pas les droits dans le département Ardennes"}"`

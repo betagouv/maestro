@@ -247,6 +247,11 @@ h6,
   justify-content: center;
 }
 
+.d-flex-justify-end {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .d-flex-justify-between {
   display: flex;
   justify-content: space-between;
@@ -422,6 +427,10 @@ h6,
   margin-left: 4rem;
 }
 
+.fr-toggle label::before {
+  margin-right: 0.5rem;
+}
+
 .app-stepper {
   display: flex;
   border-bottom: 1px solid var(--border-default-grey);
@@ -439,5 +448,20 @@ h6,
 
   .fr-stepper {
     flex: 1;
+  }
+}
+
+.search-input-wrapper {
+  position: relative;
+
+  &:has(.search-input-clear) .fr-input-wrap::before,
+  &:has(.search-input-clear) .fr-input-wrap::after {
+    display: none;
+  }
+
+  .search-input-clear {
+    position: absolute;
+    right: 0;
+    top: 0.25rem;
   }
 }

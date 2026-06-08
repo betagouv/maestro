@@ -6,6 +6,8 @@ import {
 } from 'maestro-shared/test/specificDataFixtures';
 import {
   AdminFixture,
+  LaboratoryOfficeUserFixture,
+  LaboratoryUserFixture,
   NationalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
@@ -50,6 +52,8 @@ describe('SpecificDataFields router', () => {
 
       await forbiddenRequestTest(Sampler1Fixture);
       await forbiddenRequestTest(NationalCoordinator);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should return distinct sacha field configs', async () => {

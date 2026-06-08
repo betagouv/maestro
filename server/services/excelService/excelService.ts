@@ -2,6 +2,7 @@ import carbone, { type RenderOptions } from 'carbone';
 import { isNil, sumBy, uniq } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import {
   type OptionalBoolean,
   OptionalBooleanLabels
@@ -26,6 +27,8 @@ import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/Analysi
 import { ResidueComplianceLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { ResultKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import type { LaboratoryAgreement } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import type { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
 import {
   getCompletionRate,
@@ -39,6 +42,10 @@ import {
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import {
+  ProgrammingPlanKindLabels,
+  ProgrammingPlanKindReference
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   getSampleMatrixLabel,
@@ -48,7 +55,10 @@ import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/Samp
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
 import type { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
-import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
+import {
+  type SubstanceKind,
+  SubstanceKindLabels
+} from 'maestro-shared/schema/Substance/SubstanceKind';
 import { formatMaestroDate, formatWithTz } from 'maestro-shared/utils/date';
 import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
@@ -745,6 +755,111 @@ const generateLaboratoryAnalyticCompetencesExportExcel = async (
   );
 };
 
+const generateLaboratoryAgreementsExportExcel = async (
+  agreements: LaboratoryAgreement[],
+  laboratories: Laboratory[],
+  prescriptions: Prescription[]
+): Promise<Buffer> => {
+  const labsList = laboratories.toSorted((a, b) =>
+    a.shortName.localeCompare(b.shortName)
+  );
+
+  const uniqueRows = agreements.reduce<
+    {
+      programmingPlanId: string;
+      programmingPlanKind: ProgrammingPlanKind;
+      substanceKind: SubstanceKind;
+    }[]
+  >((acc, a) => {
+    if (
+      !acc.some(
+        (r) =>
+          r.programmingPlanId === a.programmingPlanId &&
+          r.programmingPlanKind === a.programmingPlanKind &&
+          r.substanceKind === a.substanceKind
+      )
+    ) {
+      acc.push({
+        programmingPlanId: a.programmingPlanId,
+        programmingPlanKind: a.programmingPlanKind,
+        substanceKind: a.substanceKind
+      });
+    }
+    return acc;
+  }, []);
+
+  const rows = uniqueRows
+    .toSorted(
+      (a, b) =>
+        a.substanceKind.localeCompare(b.substanceKind) ||
+        a.programmingPlanKind.localeCompare(b.programmingPlanKind)
+    )
+    .map(({ programmingPlanId, programmingPlanKind, substanceKind }) => {
+      const rowAgreements = agreements.filter(
+        (a) =>
+          a.programmingPlanId === programmingPlanId &&
+          a.programmingPlanKind === programmingPlanKind &&
+          a.substanceKind === substanceKind
+      );
+
+      const rowPrescriptions = prescriptions.filter(
+        (p) =>
+          p.programmingPlanId === programmingPlanId &&
+          p.programmingPlanKind === programmingPlanKind
+      );
+
+      const matrices = [...new Set(rowPrescriptions.map((p) => p.matrixKind))]
+        .filter(isDefined)
+        .map((mk) => MatrixKindLabels[mk])
+        .join(', ');
+
+      const stages = [...new Set(rowPrescriptions.flatMap((p) => p.stages))]
+        .map((s) => StageLabels[s])
+        .join(', ');
+
+      const labCount = rowAgreements.filter(
+        (a) =>
+          a.referenceLaboratory || a.detectionAnalysis || a.confirmationAnalysis
+      ).length;
+
+      const labCells = [
+        ...labsList.map((lab) => {
+          const agreement = rowAgreements.find(
+            (a) => a.laboratoryId === lab.id
+          );
+          if (!agreement) {
+            return { value: '' };
+          }
+          const letters = [
+            agreement.referenceLaboratory ? 'R' : undefined,
+            agreement.detectionAnalysis ? 'D' : undefined,
+            agreement.confirmationAnalysis ? 'C' : undefined
+          ]
+            .filter(isDefined)
+            .join(', ');
+          return { value: letters };
+        }),
+        { value: labCount }
+      ];
+
+      return {
+        num: ProgrammingPlanKindReference[programmingPlanKind],
+        analytes: SubstanceKindLabels[substanceKind],
+        matrices,
+        domain: ProgrammingPlanKindLabels[programmingPlanKind],
+        stages,
+        labCells
+      };
+    });
+
+  const labHeaders = [
+    ...labsList.map((lab) => ({ value: lab.shortName })),
+    { value: 'Nb laboratoires affectés' }
+  ];
+
+  return carboneRender('laboratoryAgreementsExport', { labHeaders, rows }, {});
+};
+
 const carboneRender = (
   template: Template,
   data: object,
@@ -764,5 +879,6 @@ export const excelService = {
   generateAnalysisRequestExcel,
   generateSamplesExportExcel,
   generatePrescriptionsExportExcel,
-  generateLaboratoryAnalyticCompetencesExportExcel
+  generateLaboratoryAnalyticCompetencesExportExcel,
+  generateLaboratoryAgreementsExportExcel
 };

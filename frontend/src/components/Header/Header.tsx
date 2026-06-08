@@ -343,6 +343,18 @@ const Header = () => {
                     )
                   }
                 : undefined
+              // availableRoutes.includes('LaboratoryAgreementsRoute')
+              //   ? {
+              //       linkProps: {
+              //         to: AuthenticatedAppRoutes.LaboratoryAgreementsRoute.link,
+              //         target: '_self'
+              //       },
+              //       text: 'Agréments laboratoires',
+              //       isActive: location.pathname.startsWith(
+              //         '/laboratoires/agrements'
+              //       )
+              //     }
+              //   : undefined
             ]
           : []
         ).filter(isDefined)}

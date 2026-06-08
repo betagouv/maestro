@@ -1,6 +1,8 @@
+import type { FindLaboratoryAgreementsOptions } from 'maestro-shared/schema/Laboratory/FindLaboratoryAgreementsOptions';
 import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
-import { getApiUrl } from '../utils/fetchUtils';
+import config from '../utils/config';
+import { getApiUrl, getURLQuery } from '../utils/fetchUtils';
 
 const laboratoryApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -37,6 +39,36 @@ const laboratoryApi = api.injectEndpoints({
           { type: 'Laboratory', id: laboratoryId },
           { type: 'Laboratory', id: 'LIST' }
         ]
+      }
+    ),
+    findLaboratoryAgreements: buildTypedQuery(
+      builder,
+      '/laboratories/agreements',
+      {
+        providesTags: [{ type: 'LaboratoryAgreement', id: 'LIST' }]
+      }
+    ),
+    findLaboratoryAgreementChecks: buildTypedQuery(
+      builder,
+      '/laboratories/agreements/checks',
+      {
+        providesTags: [{ type: 'LaboratoryAgreementCheck', id: 'LIST' }]
+      }
+    ),
+    updateLaboratoryAgreementCheck: buildTypedMutation(
+      builder,
+      '/laboratories/agreements/checks',
+      'put',
+      {
+        invalidatesTags: [{ type: 'LaboratoryAgreementCheck', id: 'LIST' }]
+      }
+    ),
+    updateLaboratoryAgreements: buildTypedMutation(
+      builder,
+      '/laboratories/:laboratoryId/agreements',
+      'put',
+      {
+        invalidatesTags: [{ type: 'LaboratoryAgreement', id: 'LIST' }]
       }
     ),
     getLaboratoryAnalyticalCompetences: buildTypedQuery(
@@ -76,17 +108,30 @@ const laboratoryAnalyticCompetencesExportURL = (laboratoryId: string) =>
     laboratoryId
   });
 
+const laboratoryAgreementsExportURL = (
+  opts?: FindLaboratoryAgreementsOptions
+) => {
+  const params = opts ? getURLQuery(opts) : '';
+  return `${config.apiEndpoint}/api/laboratories/agreements/export${params}`;
+};
+
 export const {
   useGetLaboratoryQuery,
   useFindLaboratoriesQuery,
   useGetLaboratoryConfigQuery,
   useUpdateLaboratoryConfigMutation,
+  useFindLaboratoryAgreementsQuery,
+  useFindLaboratoryAgreementChecksQuery,
+  useUpdateLaboratoryAgreementCheckMutation,
+  useUpdateLaboratoryAgreementsMutation,
   useGetLaboratoryAnalyticalCompetencesQuery,
   useCreateLaboratoryAnalyticalCompetenceMutation,
   useUpdateLaboratoryAnalyticalCompetenceMutation,
-  getLaboratoryAnalyticCompetencesExportURL
+  getLaboratoryAnalyticCompetencesExportURL,
+  getLaboratoryAgreementsExportURL
 } = {
   ...laboratoryApi,
   getLaboratoryAnalyticCompetencesExportURL:
-    laboratoryAnalyticCompetencesExportURL
+    laboratoryAnalyticCompetencesExportURL,
+  getLaboratoryAgreementsExportURL: laboratoryAgreementsExportURL
 };

@@ -245,6 +245,14 @@ export interface LaboratoryAgreements {
   confirmationAnalysis: boolean;
 }
 
+export interface LaboratoryAgreementChecks {
+  programmingPlanId: string;
+  programmingPlanKind: ProgrammingPlanKind;
+  substanceKind: SubstanceKind;
+  checkedAt: Generated<Timestamp>;
+  checkedBy: string;
+}
+
 export interface Notices {
   type: 'root' | 'dashboard';
   title: string | null;
@@ -255,8 +263,11 @@ export interface Prescriptions {
   context: string | null;
   id: Generated<string>;
   matrix: string | null;
+  matrixKind: string | null;
   notes: string | null;
+  programmingInstruction: string | null;
   programmingPlanId: string | null;
+  programmingPlanKind: string | null;
   stages: string[] | null;
 }
 
@@ -476,6 +487,7 @@ export interface DB {
   laboratories: Laboratories;
   laboratoryResidueMappings: LaboratoryResidueMapping;
   laboratoryAgreements: LaboratoryAgreements;
+  laboratoryAgreementChecks: LaboratoryAgreementChecks;
   localPrescriptionSubstanceKindsLaboratories: LocalPrescriptionSubstanceKindLaboratory;
   notices: Notices;
   prescriptions: Prescriptions;

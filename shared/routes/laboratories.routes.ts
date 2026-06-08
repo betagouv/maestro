@@ -1,10 +1,17 @@
 import z from 'zod';
+import { FindLaboratoryAgreementsOptions } from '../schema/Laboratory/FindLaboratoryAgreementsOptions';
 import { FindLaboratoryOptions } from '../schema/Laboratory/FindLaboratoryOptions';
 import {
   Laboratory,
   LaboratoryConfigUpdate,
   LaboratoryWithSacha
 } from '../schema/Laboratory/Laboratory';
+import {
+  LaboratoryAgreement,
+  LaboratoryAgreementCheckUpdate,
+  LaboratoryAgreementRowKey,
+  LaboratoryAgreementUpdate
+} from '../schema/Laboratory/LaboratoryAgreement';
 import {
   LaboratoryAnalyticalCompetence,
   LaboratoryAnalyticalCompetenceToSave
@@ -16,6 +23,35 @@ import {
 import type { SubRoutes } from './routes';
 
 export const laboratoriesRoutes = {
+  '/laboratories/agreements': {
+    params: undefined,
+    get: {
+      query: FindLaboratoryAgreementsOptions,
+      response: z.array(LaboratoryAgreement),
+      permissions: ['manageLaboratoryAgreements']
+    }
+  },
+  '/laboratories/agreements/checks': {
+    params: undefined,
+    get: {
+      query: FindLaboratoryAgreementsOptions,
+      response: z.array(LaboratoryAgreementRowKey),
+      permissions: ['manageLaboratoryAgreements']
+    },
+    put: {
+      body: LaboratoryAgreementCheckUpdate,
+      response: z.array(LaboratoryAgreementRowKey),
+      permissions: ['manageLaboratoryAgreements']
+    }
+  },
+  '/laboratories/agreements/export': {
+    params: undefined,
+    get: {
+      query: FindLaboratoryAgreementsOptions,
+      permissions: ['manageLaboratoryAgreements'],
+      response: z.custom<Buffer>()
+    }
+  },
   '/laboratories': {
     params: undefined,
     get: {
@@ -45,6 +81,16 @@ export const laboratoriesRoutes = {
       body: LaboratoryConfigUpdate,
       response: z.undefined(),
       permissions: ['administrationMaestro']
+    }
+  },
+  '/laboratories/:laboratoryId/agreements': {
+    params: {
+      laboratoryId: z.guid()
+    },
+    put: {
+      body: LaboratoryAgreementUpdate,
+      response: z.array(LaboratoryAgreement),
+      permissions: ['manageLaboratoryAgreements']
     }
   },
   '/laboratories/:laboratoryId/analytical-competences': {

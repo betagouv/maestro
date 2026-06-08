@@ -156,6 +156,10 @@ export const LaboratoryUserFixture = genUser({
   id: '15151515-1515-1515-1515-151515151515',
   laboratoryId: LaboratoryFixture.id
 });
+export const LaboratoryOfficeUserFixture = genUser({
+  roles: ['LaboratoryOffice'],
+  id: '16161616-1616-1616-1616-161616161616'
+});
 
 export const genAuthUser = (
   data?: Partial<UserRefined & { userRole: UserRole }>

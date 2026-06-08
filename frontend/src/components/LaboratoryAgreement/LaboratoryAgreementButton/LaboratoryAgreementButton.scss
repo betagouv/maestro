@@ -1,0 +1,42 @@
+.lab-agreement-btn {
+  background-color: var(--background-disabled-grey);
+  color: var(--text-disabled-grey);
+  border-radius: 4px;
+  font-weight: 700;
+  height: 30px;
+  min-height: 30px;
+  width: 30px;
+  min-width: 30px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &--sm {
+    height: 20px;
+    min-height: 20px;
+    width: 20px;
+    min-width: 20px;
+    font-size: 0.625rem;
+  }
+
+  &:hover {
+    filter: brightness(0.93);
+  }
+
+  &--reference, &--reference:hover {
+    background-color: var(--background-contrast-success) !important;
+    color: var(--text-default-success);
+  }
+
+  &--detection, &--detection:hover {
+    background-color: var(--yellow-tournesol-950-100) !important;
+    color: var(--yellow-tournesol-sun-407-moon-922);
+  }
+
+  &--confirmation, &--confirmation:hover {
+    background-color: var(--purple-glycine-950-100) !important;
+    color: var(--purple-glycine-sun-319-moon-630);
+  }
+}
+

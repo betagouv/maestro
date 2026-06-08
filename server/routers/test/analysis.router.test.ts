@@ -20,6 +20,8 @@ import {
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
+  LaboratoryOfficeUserFixture,
+  LaboratoryUserFixture,
   NationalCoordinator,
   NationalObserver,
   RegionalCoordinator,
@@ -254,6 +256,8 @@ describe('Analysis router', () => {
       await forbiddenRequestTest(NationalObserver);
       await forbiddenRequestTest(NationalCoordinator);
       await forbiddenRequestTest(AdminFixture);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should create an analysis and update the associated sample status', async () => {
@@ -333,6 +337,8 @@ describe('Analysis router', () => {
       await forbiddenRequestTest(NationalObserver);
       await forbiddenRequestTest(NationalCoordinator);
       await forbiddenRequestTest(AdminFixture);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should fail if the analysis does not belong to the user region', async () => {
@@ -345,6 +351,8 @@ describe('Analysis router', () => {
 
       await forbiddenRequestTest(Sampler2Fixture);
       await forbiddenRequestTest(RegionalCoordinator);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should get a valid body', async () => {

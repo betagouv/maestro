@@ -7,6 +7,7 @@ import type {
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { knexInstance as db } from './db';
 import { prescriptionSubstanceTable } from './prescriptionSubstanceRepository';
+import { programmingPlansTable } from './programmingPlanRepository';
 export const prescriptionsTable = 'prescriptions';
 
 export const Prescriptions = () => db<Prescription>(prescriptionsTable);
@@ -32,12 +33,22 @@ const findMany = async (
           'stage',
           'includes',
           'contexts',
-          'programmingPlanKinds'
+          'programmingPlanKinds',
+          'year'
         ),
         isNil
       )
     )
     .modify((builder) => {
+      if (findOptions.year) {
+        builder
+          .join(
+            programmingPlansTable,
+            `${prescriptionsTable}.programming_plan_id`,
+            `${programmingPlansTable}.id`
+          )
+          .where(`${programmingPlansTable}.year`, findOptions.year);
+      }
       if (findOptions.stage) {
         builder.where('stages', '@>', [findOptions.stage]);
       }

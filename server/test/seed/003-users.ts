@@ -1,6 +1,7 @@
 import {
   AdminFixture,
   DepartmentalCoordinator,
+  LaboratoryOfficeUserFixture,
   LaboratoryUserFixture,
   NationalCoordinator,
   NationalCoordinatorDaoaFixture,
@@ -30,7 +31,8 @@ export const seed = async (): Promise<void> => {
     RegionalObserver,
     NationalObserver,
     NationalCoordinatorDaoaFixture,
-    LaboratoryUserFixture
+    LaboratoryUserFixture,
+    LaboratoryOfficeUserFixture
   ].map((u) => ({
     ...u,
     loggedSecrets: [TEST_LOGGED_SECRET]

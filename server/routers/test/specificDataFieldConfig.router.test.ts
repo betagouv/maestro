@@ -8,6 +8,8 @@ import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { DAOAInProgressProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   AdminFixture,
+  LaboratoryOfficeUserFixture,
+  LaboratoryUserFixture,
   NationalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
@@ -44,6 +46,8 @@ describe('SpecificDataFieldConfig router', () => {
     test('should fail if the user does not have the permission', async () => {
       await forbiddenRequestTest(Sampler1Fixture, 'get', testRoute);
       await forbiddenRequestTest(NationalCoordinator, 'get', testRoute);
+      await forbiddenRequestTest(LaboratoryUserFixture, 'get', testRoute);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture, 'get', testRoute);
     });
 
     test('should return all fields', async () => {
@@ -95,6 +99,21 @@ describe('SpecificDataFieldConfig router', () => {
         inputType: 'text',
         label: 'Test'
       });
+      await forbiddenRequestTest(LaboratoryUserFixture, 'post', testRoute, {
+        key: testKey,
+        inputType: 'text',
+        label: 'Test'
+      });
+      await forbiddenRequestTest(
+        LaboratoryOfficeUserFixture,
+        'post',
+        testRoute,
+        {
+          key: testKey,
+          inputType: 'text',
+          label: 'Test'
+        }
+      );
     });
 
     test('should create a field', async () => {
@@ -155,6 +174,18 @@ describe('SpecificDataFieldConfig router', () => {
         `/api/specific-data-fields/${fieldId}`,
         { label: 'Updated' }
       );
+      await forbiddenRequestTest(
+        LaboratoryUserFixture,
+        'put',
+        `/api/specific-data-fields/${fieldId}`,
+        { label: 'Updated' }
+      );
+      await forbiddenRequestTest(
+        LaboratoryOfficeUserFixture,
+        'put',
+        `/api/specific-data-fields/${fieldId}`,
+        { label: 'Updated' }
+      );
     });
 
     test('should update a field', async () => {
@@ -200,6 +231,16 @@ describe('SpecificDataFieldConfig router', () => {
       );
       await forbiddenRequestTest(
         NationalCoordinator,
+        'delete',
+        `/api/specific-data-fields/${fieldId}`
+      );
+      await forbiddenRequestTest(
+        LaboratoryUserFixture,
+        'delete',
+        `/api/specific-data-fields/${fieldId}`
+      );
+      await forbiddenRequestTest(
+        LaboratoryOfficeUserFixture,
         'delete',
         `/api/specific-data-fields/${fieldId}`
       );
@@ -260,6 +301,18 @@ describe('SpecificDataFieldConfig router', () => {
       );
       await forbiddenRequestTest(
         NationalCoordinator,
+        'post',
+        `/api/specific-data-fields/${fieldId}/options`,
+        { value: 'v1', label: 'Option 1', order: 1 }
+      );
+      await forbiddenRequestTest(
+        LaboratoryUserFixture,
+        'post',
+        `/api/specific-data-fields/${fieldId}/options`,
+        { value: 'v1', label: 'Option 1', order: 1 }
+      );
+      await forbiddenRequestTest(
+        LaboratoryOfficeUserFixture,
         'post',
         `/api/specific-data-fields/${fieldId}/options`,
         { value: 'v1', label: 'Option 1', order: 1 }
@@ -332,6 +385,18 @@ describe('SpecificDataFieldConfig router', () => {
       );
       await forbiddenRequestTest(
         NationalCoordinator,
+        'put',
+        `/api/specific-data-fields/${fieldId}/options/${optionId}`,
+        { label: 'Updated Option' }
+      );
+      await forbiddenRequestTest(
+        LaboratoryUserFixture,
+        'put',
+        `/api/specific-data-fields/${fieldId}/options/${optionId}`,
+        { label: 'Updated Option' }
+      );
+      await forbiddenRequestTest(
+        LaboratoryOfficeUserFixture,
         'put',
         `/api/specific-data-fields/${fieldId}/options/${optionId}`,
         { label: 'Updated Option' }
@@ -409,6 +474,16 @@ describe('SpecificDataFieldConfig router', () => {
         'delete',
         `/api/specific-data-fields/${fieldId}/options/${optionId}`
       );
+      await forbiddenRequestTest(
+        LaboratoryUserFixture,
+        'delete',
+        `/api/specific-data-fields/${fieldId}/options/${optionId}`
+      );
+      await forbiddenRequestTest(
+        LaboratoryOfficeUserFixture,
+        'delete',
+        `/api/specific-data-fields/${fieldId}/options/${optionId}`
+      );
     });
 
     test('should delete an option', async () => {
@@ -473,6 +548,21 @@ describe('SpecificDataFieldConfig router', () => {
         required: false,
         order: 99
       });
+      await forbiddenRequestTest(LaboratoryUserFixture, 'post', testRoute, {
+        fieldId,
+        required: false,
+        order: 99
+      });
+      await forbiddenRequestTest(
+        LaboratoryOfficeUserFixture,
+        'post',
+        testRoute,
+        {
+          fieldId,
+          required: false,
+          order: 99
+        }
+      );
     });
 
     test('should add a field to a plan kind', async () => {

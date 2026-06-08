@@ -8,7 +8,8 @@ const NationalUserRole = z.enum([
   'Administrator',
   'NationalCoordinator',
   'NationalObserver',
-  'LaboratoryUser'
+  'LaboratoryUser',
+  'LaboratoryOffice'
 ]);
 
 const RegionalUserRole = z.enum(['RegionalCoordinator', 'RegionalObserver']);
@@ -157,9 +158,11 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'deleteDocument',
     'readCompanies',
     'readAnalysis',
-    'viewDashboard'
+    'viewDashboard',
+    'manageLaboratoryAgreements'
   ],
-  LaboratoryUser: ['readDocuments', 'readProgrammingPlanValidated']
+  LaboratoryUser: ['readDocuments', 'readProgrammingPlanValidated'],
+  LaboratoryOffice: ['manageLaboratoryAgreements']
 };
 
 export const UserRoleLabels: Record<UserRole, string> = {
@@ -171,7 +174,8 @@ export const UserRoleLabels: Record<UserRole, string> = {
   DepartmentalObserver: 'Suivi départemental',
   Sampler: 'Préleveur',
   Administrator: 'Administrateur',
-  LaboratoryUser: 'Laboratoire'
+  LaboratoryUser: 'Laboratoire',
+  LaboratoryOffice: 'Bureau des laboratoires'
 };
 
 export const UserRoleSorted = [...UserRoleList].sort((a, b) =>

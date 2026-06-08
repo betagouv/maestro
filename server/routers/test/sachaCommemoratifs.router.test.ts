@@ -2,6 +2,8 @@ import { constants } from 'node:http2';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   AdminFixture,
+  LaboratoryOfficeUserFixture,
+  LaboratoryUserFixture,
   NationalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
@@ -31,6 +33,8 @@ describe('Sacha Commemoratifs router', () => {
 
       await forbiddenRequestTest(Sampler1Fixture);
       await forbiddenRequestTest(NationalCoordinator);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should get commemoratifs', async () => {
@@ -74,6 +78,8 @@ describe('Sacha Commemoratifs router', () => {
 
       await forbiddenRequestTest(Sampler1Fixture);
       await forbiddenRequestTest(NationalCoordinator);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should create commemoratifs from XML and retrieve them', async () => {

@@ -11,6 +11,8 @@ import {
 } from 'maestro-shared/test/sampleFixtures';
 import {
   AdminFixture,
+  LaboratoryOfficeUserFixture,
+  LaboratoryUserFixture,
   NationalCoordinator,
   NationalObserver,
   RegionalObserver,
@@ -145,6 +147,8 @@ describe('Analysis Report Documents router', () => {
       await forbiddenRequestTest(NationalObserver);
       await forbiddenRequestTest(NationalCoordinator);
       await forbiddenRequestTest(AdminFixture);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should link a document with an analysis', async () => {
@@ -202,6 +206,8 @@ describe('Analysis Report Documents router', () => {
       await forbiddenRequestTest(NationalObserver);
       await forbiddenRequestTest(NationalCoordinator);
       await forbiddenRequestTest(AdminFixture);
+      await forbiddenRequestTest(LaboratoryUserFixture);
+      await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
     test('should unlink a document with an analysis', async () => {
