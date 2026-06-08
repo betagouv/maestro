@@ -9,6 +9,7 @@ interface ImportMetaEnv {
   readonly VITE_MATOMO_TAG_MANAGER_CONTAINER_URL: string;
   readonly VITE_SENTRY_FRONTEND_DNS: string;
   readonly VITE_REVIEW_APP: string;
+  readonly VITE_SEVES_URL: string;
 }
 
 interface ImportMeta {

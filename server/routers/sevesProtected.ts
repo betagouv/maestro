@@ -5,5 +5,5 @@ import config from '../utils/config';
 
 export const sevesProtectedRouter = express.Router();
 
-sevesProtectedRouter.use(basicAuthCheck(config.seves.basicToken));
+sevesProtectedRouter.use(basicAuthCheck(config.sevesBasicToken));
 sevesProtectedRouter.put('/update', updateSevesReference);

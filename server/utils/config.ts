@@ -72,10 +72,6 @@ const configValidator = z
     INBOX_PORT: z.coerce.number().default(993),
     M2M_BASIC_TOKEN: devDefaultValue(z.string(), 'basicToken'),
     SEVES_BASIC_TOKEN: devDefaultValue(z.string(), 'basicTokenSeves'),
-    SEVES_URL: devDefaultValue(
-      z.httpUrl(),
-      'https://seves.incubateur.net/ssa/'
-    ),
     MATTERMOST_INCOMING_WEBHOOK: z.url().nullish(),
     BROWSERLESS_URL: devDefaultValue(
       z.string(),
@@ -155,10 +151,7 @@ const configValidator = z
       browserlessUrl: c.BROWSERLESS_URL,
       mattermostIncomingWebhook: c.MATTERMOST_INCOMING_WEBHOOK,
       m2mBasicToken: c.M2M_BASIC_TOKEN,
-      seves: {
-        basicToken: c.SEVES_BASIC_TOKEN,
-        url: c.SEVES_URL
-      },
+      sevesBasicToken: c.SEVES_BASIC_TOKEN,
       sigal: {
         email: c.SIGAL_EMAIL,
         sftp: {
