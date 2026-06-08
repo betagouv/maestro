@@ -11,7 +11,7 @@ import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/P
 interface Props {
   laboratoryAgreement: LaboratoryAgreement;
   laboratory: Laboratory;
-  programmingSubPlan: ProgrammingSubPlan;
+  programmingSubPlan?: ProgrammingSubPlan;
   afterClose?: () => void;
 }
 
@@ -24,6 +24,10 @@ const LaboratoryAgreementTag = ({
   const openLaboratoryAgreementDetail = useContext(
     LaboratoryAgreementDetailContext
   );
+
+  if (!programmingSubPlan) {
+    return null;
+  }
 
   const handleOpen = () =>
     openLaboratoryAgreementDetail?.(
