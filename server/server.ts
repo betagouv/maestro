@@ -12,6 +12,7 @@ import RouteNotFoundError from './errors/routeNotFoundError';
 import errorHandler from './middlewares/error-handler';
 import { m2mProtectedRouter } from './routers/m2mProtected';
 import { protectedRouter } from './routers/protected';
+import { sevesProtectedRouter } from './routers/sevesProtected';
 import unprotectedRouter from './routers/unprotected';
 import config from './utils/config';
 
@@ -95,6 +96,8 @@ export function createServer(): Server {
   app.set('trust proxy', 1);
 
   app.use('/api/m2m', m2mProtectedRouter);
+  app.use('/api/seves', sevesProtectedRouter);
+
   app.use('/api', unprotectedRouter);
   app.use('/api', protectedRouter);
 

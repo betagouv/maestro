@@ -19,7 +19,7 @@ import { analysisResiduesTable, analysisTable } from './analysisRepository';
 import { companiesTable } from './companyRepository';
 import { knexInstance as db, knexInstance } from './db';
 import { kysely } from './kysely';
-import type { KyselyMaestro } from './kysely.type';
+import type { KyselyMaestro, Samples as SamplesRow } from './kysely.type';
 import sampleItemRepository, { sampleItemsTable } from './sampleItemRepository';
 import { usersTable } from './userRepository';
 
@@ -458,6 +458,19 @@ const update = async (
   }
 };
 
+const updateSeves = async (
+  reference: string,
+  seves: SamplesRow['seves']
+): Promise<number> => {
+  console.info('Update sample SEVES reference', reference);
+  const result = await kysely
+    .updateTable('samples')
+    .set({ seves })
+    .where('reference', '=', reference)
+    .executeTakeFirst();
+  return Number(result.numUpdatedRows);
+};
+
 const updateDocumentIds = async (
   sampleId: string,
   documentIds: string[],
@@ -557,7 +570,8 @@ export const formatPartialSample = (
     'additionalSampler',
     'documentIds',
     'specificData',
-    'status'
+    'status',
+    'seves'
   ]),
   geolocation: partialSample.geolocation
     ? db.raw('Point(?, ?)', [
@@ -609,6 +623,7 @@ const parsePartialSample = (sample: PartialSampleJoinedDbo): PartialSample =>
 export const sampleRepository = {
   insert,
   update,
+  updateSeves,
   updateDocumentIds,
   findUnique,
   findMany,

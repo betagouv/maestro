@@ -104,26 +104,23 @@ export const userCheck =
     next();
   };
 
-export const basicAuthCheck = async (
-  req: Request,
-  res: express.Response,
-  next: express.NextFunction
-) => {
-  try {
-    const token = req.headers.authorization;
-    if (token !== config.m2mBasicToken) {
-      res.status(constants.HTTP_STATUS_UNAUTHORIZED);
-      res.send('Authentication Required');
+export const basicAuthCheck =
+  (token: string) =>
+  async (req: Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      if (token !== req.headers.authorization) {
+        res.status(constants.HTTP_STATUS_UNAUTHORIZED);
+        res.send('Authentication Required');
+
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+      res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
+      res.send('Internal error');
 
       return;
     }
-  } catch (e) {
-    console.error(e);
-    res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR);
-    res.send('Internal error');
 
-    return;
-  }
-
-  next();
-};
+    next();
+  };
