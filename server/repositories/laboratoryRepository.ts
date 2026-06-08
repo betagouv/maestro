@@ -151,6 +151,15 @@ const findMany = async (
           );
         }
         break;
+      case 'codeNat':
+        if (!isNil(findOptions.codeNat)) {
+          query = query.where(
+            'programmingSubPlans.codeNat',
+            '=',
+            findOptions.codeNat
+          );
+        }
+        break;
       default:
         assertUnreachable(option);
     }
