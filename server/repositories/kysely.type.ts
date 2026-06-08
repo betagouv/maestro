@@ -34,6 +34,7 @@ import type {
 import type { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import type { SampleStatus as SampleStatusType } from 'maestro-shared/schema/Sample/SampleStatus';
 import type { SampleStep } from 'maestro-shared/schema/Sample/SampleStep';
+import type { Seves } from 'maestro-shared/schema/Sample/Seves';
 import {
   ProgrammingPlanKindFieldId,
   SpecificDataFieldId,
@@ -370,6 +371,7 @@ export interface Samples {
   sampledTime: string;
   sampledBy: string | null;
   sentAt: Timestamp | null;
+  seves: Seves | null;
   stage: Stage | null;
   step: SampleStep;
 }

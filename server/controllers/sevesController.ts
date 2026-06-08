@@ -1,11 +1,13 @@
 import { constants } from 'node:http2';
 import type { Request, Response } from 'express';
-import z from 'zod';
+import { Seves } from 'maestro-shared/schema/Sample/Seves';
+import { z } from 'zod';
+import { sampleRepository } from '../repositories/sampleRepository';
 
 const sevesBody = z.object({
   maestro_reference: z.string(),
-  seves_id: z.string(),
-  seves_numero: z.string()
+  seves_id: Seves.shape.id,
+  seves_numero: Seves.shape.numero
 });
 
 export const updateSevesReference = async (
@@ -20,11 +22,15 @@ export const updateSevesReference = async (
     return;
   }
 
-  console.log(data);
-  //TODO récupérer l'analyse / prélèvement
-  //TODO à voir ce qu'on doit mettre à jour, le prélèvement, l'échantillon ou l'analyse ?
+  const updatedCount = await sampleRepository.updateSeves(
+    data.maestro_reference,
+    { id: data.seves_id, numero: data.seves_numero }
+  );
 
-  //TODO ajouter un test
+  if (updatedCount === 0) {
+    response.status(constants.HTTP_STATUS_NOT_FOUND).send(undefined);
+    return;
+  }
 
   response.status(constants.HTTP_STATUS_OK).send(undefined);
 };
