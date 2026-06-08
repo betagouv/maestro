@@ -6,10 +6,10 @@ import {
   type AdminFieldConfig,
   CreateProgrammingSubPlanFieldInput
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
+import type { ProgrammingSubPlanFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type React from 'react';
 import { useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
-import type { ProgrammingSubPlanFieldConfig } from '../../../../../shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppSelect from '../../../components/_app/AppSelect/AppSelect';
 import { useForm } from '../../../hooks/useForm';
