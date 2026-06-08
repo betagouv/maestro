@@ -15,6 +15,7 @@ import {
   type ProgrammingPlanStatus,
   ProgrammingPlanStatusPermissions
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   hasPermission,
   programmingSubPlanIdsIsRequired,
@@ -428,13 +429,18 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
         throw new ProgrammingPlanMissingError(String(year - 1));
       }
 
+      const newPlanId = uuidv4();
       const newProgrammingPlan = {
-        id: uuidv4(),
+        id: newPlanId,
         createdAt: new Date(),
         createdBy: user.id,
         title: previousProgrammingPlan.title,
         domain: previousProgrammingPlan.domain,
-        subPlans: [],
+        subPlans: previousProgrammingPlan.subPlans.map((subPlan) => ({
+          ...subPlan,
+          id: ProgrammingSubPlanId.parse(uuidv4()),
+          programmingPlanId: newPlanId
+        })),
         contexts: previousProgrammingPlan.contexts,
         legalContexts: previousProgrammingPlan.legalContexts,
         samplesOutsidePlanAllowed:

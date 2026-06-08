@@ -22,8 +22,7 @@ const categoryToEmailTemplate = {
   ProgrammingPlanValidated: 'GenericTemplate',
   ResourceDocumentUploaded: 'GenericTemplate',
   Control: 'NewLocalPrescriptionCommentTemplate',
-  Surveillance: 'NewLocalPrescriptionCommentTemplate',
-  Exploratory: 'NewLocalPrescriptionCommentTemplate'
+  Surveillance: 'NewLocalPrescriptionCommentTemplate'
 } as const satisfies Record<NotificationCategory, TemplateName | null>;
 
 const NotificationCategoryMessages = {
