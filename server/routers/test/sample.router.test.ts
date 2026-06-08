@@ -710,7 +710,7 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    test('should be forbidden to send a M02 sample without seizure', async () => {
+    test('should be forbidden to send a DAOA_BOVIN sample without seizure', async () => {
       const sampleId = uuidv4();
       const sample = genCreatedPartialSample({
         id: sampleId,
@@ -748,7 +748,7 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    test('should be forbidden to move a M02 sample to DraftItems with incomplete specificData', async () => {
+    test('should be forbidden to move a DAOA_BOVIN sample to DraftItems with incomplete specificData', async () => {
       const sampleId = uuidv4();
       const sample = genCreatedPartialSample({
         id: sampleId,
