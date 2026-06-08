@@ -4,12 +4,12 @@ import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import { useContext } from 'react';
-import { assert, type Equals } from 'tsafe';
 import {
   fieldInputTypeHasOptions,
   type ProgrammingSubPlanFieldConfig
-} from '../../../../../shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
+} from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
+import { useContext } from 'react';
+import { assert, type Equals } from 'tsafe';
 import { ApiClientContext } from '../../../services/apiClient';
 import { ProgrammingSubPlanFieldActiveOptions } from './ProgrammingSubPlanFieldActiveOptions';
 

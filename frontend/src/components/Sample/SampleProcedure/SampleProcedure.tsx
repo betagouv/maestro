@@ -5,18 +5,16 @@ import type {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
+import { usePartialSample } from '../../../hooks/usePartialSample';
 import config from '../../../utils/config';
 import DocumentLink from '../../DocumentLink/DocumentLink';
 
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
-  programmingSubPlanCodeNat?: string;
 }
 
-const SampleProcedure = ({
-  partialSample,
-  programmingSubPlanCodeNat
-}: Props) => {
+const SampleProcedure = ({ partialSample }: Props) => {
+  const { programmingSubPlan } = usePartialSample(partialSample);
   return (
     <div
       className={clsx(
@@ -36,7 +34,7 @@ const SampleProcedure = ({
         ></span>
         Modalités d'échantillonnage
       </h6>
-      {programmingSubPlanCodeNat !== 'PPV' && (
+      {programmingSubPlan?.codeNat !== 'PPV' && (
         <>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12', 'fr-col-md-6')}>
@@ -56,7 +54,7 @@ const SampleProcedure = ({
               <div className={cx('fr-my-1v')}>
                 Matière prélevée :{' '}
                 <b>
-                  {programmingSubPlanCodeNat === 'M02'
+                  {programmingSubPlan?.codeNat === 'M02'
                     ? 'Foie de bovin'
                     : 'Muscle de volaille'}
                 </b>
@@ -82,7 +80,7 @@ const SampleProcedure = ({
           iconId="fr-icon-external-link-line"
         />
       </div>
-      {programmingSubPlanCodeNat === 'PPV' && (
+      {programmingSubPlan?.codeNat === 'PPV' && (
         <div>
           <hr className={cx('fr-my-3w')} />
           <span className={cx('fr-mr-1w')}>Analyses prévues</span>
