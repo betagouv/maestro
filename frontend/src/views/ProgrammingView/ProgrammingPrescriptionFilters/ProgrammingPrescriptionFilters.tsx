@@ -38,16 +38,6 @@ const ProgrammingPrescriptionFilters = ({
     [renderMode]
   );
 
-  const subPlanLabelById = useMemo(() => {
-    const map: Record<string, string> = {};
-    options.plans.forEach((plan) => {
-      plan.subPlans.forEach((sp) => {
-        map[sp.id] = sp.label;
-      });
-    });
-    return map;
-  }, [options.plans]);
-
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
       <div className={filterClassName}>
@@ -104,16 +94,18 @@ const ProgrammingPrescriptionFilters = ({
           )}
           {options.programmingSubPlanIds
             .filter(
-              (kind) =>
+              (subPlanId) =>
                 options.programmingSubPlanIds.length === 1 ||
                 !multiSelect ||
-                !filters.programmingSubPlanIds?.includes(
-                  kind as ProgrammingSubPlanId
-                )
+                !filters.programmingSubPlanIds?.includes(subPlanId)
             )
-            .map((kind) => (
-              <option key={`kind-${kind}`} value={kind}>
-                {subPlanLabelById[kind] ?? kind}
+            .map((subPlanId) => (
+              <option key={`subPlanId-${subPlanId}`} value={subPlanId}>
+                {
+                  options.plans
+                    .flatMap((p) => p.subPlans)
+                    .find((sp) => sp.id === subPlanId)?.label
+                }
               </option>
             ))}
         </Select>
