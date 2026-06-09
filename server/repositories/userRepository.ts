@@ -13,7 +13,11 @@ import { type DB, toSqlArray } from './kysely.type';
 export const usersTable = 'users';
 const userCompaniesTable = 'user_companies';
 
-export const Users = () => db<UserRefined>(usersTable);
+// Type interne pour l'accès knex direct (seeds) — colonne DB brute
+type UserRow = Omit<UserRefined, 'programmingSubPlans' | 'companies'> & {
+  programmingSubPlanIds?: string[];
+};
+export const Users = () => db<UserRow>(usersTable);
 
 const UserCompany = z.object({
   userId: z.guid(),

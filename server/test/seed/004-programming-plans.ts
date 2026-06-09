@@ -1,6 +1,7 @@
 import {
   DAOAInProgressProgrammingPlanFixture,
   DAOAValidatedProgrammingPlanFixture,
+  PPVClosedProgrammingPlanFixture,
   PPVInProgressProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
@@ -14,6 +15,7 @@ import { ProgrammingSubPlans } from '../../repositories/programmingSubPlanReposi
 export const seed = async (): Promise<void> => {
   await ProgrammingPlans().insert(
     [
+      PPVClosedProgrammingPlanFixture,
       PPVValidatedProgrammingPlanFixture,
       PPVInProgressProgrammingPlanFixture,
       DAOAValidatedProgrammingPlanFixture,
@@ -23,6 +25,7 @@ export const seed = async (): Promise<void> => {
 
   await Promise.all(
     [
+      PPVClosedProgrammingPlanFixture,
       PPVValidatedProgrammingPlanFixture,
       PPVInProgressProgrammingPlanFixture,
       DAOAValidatedProgrammingPlanFixture,
@@ -39,6 +42,7 @@ export const seed = async (): Promise<void> => {
 
   await ProgrammingSubPlans().insert(
     [
+      PPVClosedProgrammingPlanFixture,
       PPVValidatedProgrammingPlanFixture,
       PPVInProgressProgrammingPlanFixture,
       DAOAValidatedProgrammingPlanFixture,

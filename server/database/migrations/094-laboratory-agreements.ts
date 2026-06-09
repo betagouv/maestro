@@ -86,12 +86,33 @@ export const up = async (knex: Knex) => {
 };
 
 export const down = async (knex: Knex) => {
+  // 1. Supprimer les lignes ajoutées par up (DAOA_BOVIN)
   await knex('laboratory_agreements')
     .where({
       programming_plan_kind: 'DAOA_BOVIN'
     })
     .delete();
 
+  // 2. Dédoublonner AVANT de modifier la table pour éviter les problèmes
+  //    de protocole PostgreSQL lors du mélange DDL/DML dans la même transaction
+  await knex.raw(`
+    WITH duplicates AS (
+      SELECT ctid
+      FROM (
+        SELECT ctid,
+               ROW_NUMBER() OVER (
+                 PARTITION BY laboratory_id, programming_plan_id, substance_kind
+                 ORDER BY ctid
+               ) AS rn
+        FROM laboratory_agreements
+      ) t
+      WHERE rn > 1
+    )
+    DELETE FROM laboratory_agreements
+    WHERE ctid IN (SELECT ctid FROM duplicates)
+  `);
+
+  // 3. Supprimer la clé primaire et les colonnes ajoutées par up
   await knex.schema.alterTable('laboratory_agreements', (table) => {
     table.dropPrimary();
     table.dropColumn('programming_plan_kind');
@@ -100,6 +121,7 @@ export const down = async (knex: Knex) => {
     table.dropColumn('confirmation_analysis');
   });
 
+  // 4. Restaurer la clé primaire d'origine
   await knex.schema.alterTable('laboratory_agreements', (table) => {
     table.primary(['laboratory_id', 'programming_plan_id', 'substance_kind']);
   });

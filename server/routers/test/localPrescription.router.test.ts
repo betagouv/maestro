@@ -17,6 +17,7 @@ import type {
   LocalPrescriptionCommentToCreate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
 import {
@@ -41,9 +42,6 @@ import {
   DepartmentalCoordinator,
   LaboratoryOfficeUserFixture,
   LaboratoryUserFixture,
-  LocalPrescriptionTestSubPlanId1,
-  LocalPrescriptionTestSubPlanId2,
-  LocalPrescriptionTestSubPlanId3,
   NationalCoordinator,
   NationalObserver,
   Region2Fixture,
@@ -51,6 +49,14 @@ import {
   RegionalObserver,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
+
+const LocalPrescriptionTestSubPlanId1 =
+  'e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e1' as ProgrammingSubPlanId;
+const LocalPrescriptionTestSubPlanId2 =
+  'e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e2' as ProgrammingSubPlanId;
+const LocalPrescriptionTestSubPlanId3 =
+  'e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e3' as ProgrammingSubPlanId;
+
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';

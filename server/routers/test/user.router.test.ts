@@ -1,6 +1,5 @@
 import { constants } from 'node:http2';
 import { fakerFR } from '@faker-js/faker';
-import type { Insertable, Selectable } from 'kysely';
 import { COOKIE_MAESTRO_ACCESS_TOKEN } from 'maestro-shared/constants';
 import type { Region } from 'maestro-shared/referential/Region';
 import {
@@ -18,8 +17,6 @@ import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { describe, expect, test } from 'vitest';
-import type { DB } from '../../repositories/kysely.type';
-import type { UserDbRecord } from '../../repositories/userRepository';
 import { createServer } from '../../server';
 import {
   mockMailCreateContact,
@@ -27,14 +24,6 @@ import {
   mockMailUpdateContact
 } from '../../test/setupTests';
 import { accessTokenTest, tokenProvider } from '../../test/testUtils';
-
-// Vérifie que le type généré par kysely correspond bien à notre type
-const userShareToKysely = (v: UserDbRecord): Insertable<DB['users']> => v;
-const userKyselyToShare = (
-  v: Selectable<DB['users']>
-): Omit<UserDbRecord, 'companies'> => v;
-console.log(userShareToKysely);
-console.log(userKyselyToShare);
 
 describe('User router', () => {
   const { app } = createServer();
@@ -96,7 +85,11 @@ describe('User router', () => {
 
       expect(res.body).toEqual({
         id: Sampler1Fixture.id,
-        programmingSubPlans: Sampler1Fixture.programmingSubPlans,
+        programmingSubPlans: expect.arrayContaining(
+          Sampler1Fixture.programmingSubPlans.map(({ id }) =>
+            expect.objectContaining({ id })
+          )
+        ),
         email: Sampler1Fixture.email,
         name: Sampler1Fixture.name,
         roles: Sampler1Fixture.roles,

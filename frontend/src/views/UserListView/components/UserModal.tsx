@@ -290,7 +290,6 @@ export const UserModal = ({
               programmingSubPlans: v
                 .map((id) => allSubPlans.find((sp) => sp.id === id))
                 .filter((sp) => sp != null)
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 .map(({ year: _year, ...sp }): ProgrammingSubPlan => sp)
             }))
           }

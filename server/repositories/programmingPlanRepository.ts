@@ -121,9 +121,13 @@ const findMany = async (
       }
     })
     .then((programmingPlans) =>
-      [...programmingPlans]
-        .sort(ProgrammingPlanSort)
-        .map((_: any) => ProgrammingPlanChecked.parse(omitBy(_, isNil)))
+      [...programmingPlans].sort(ProgrammingPlanSort).map((_: any) => {
+        console.log(
+          'ProgrammingPlanChecked.parse(omitBy(_, isNil))',
+          _.id + _.substanceKinds
+        );
+        return ProgrammingPlanChecked.parse(omitBy(_, isNil));
+      })
     );
 };
 
