@@ -303,7 +303,7 @@ export const UserModal = ({
           required={programmingSubPlanIdsIsRequired(user)}
         />
 
-        {companiesIsRequired({ user }) && (
+        {companiesIsRequired(user) && (
           <CompanySearch
             label={
               <>

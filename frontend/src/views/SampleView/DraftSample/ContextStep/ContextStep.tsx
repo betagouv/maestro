@@ -280,13 +280,6 @@ const ContextStep = ({ partialSample }: Props) => {
     }
   );
 
-  const subPlanLabels = Object.fromEntries(
-    (programmingPlan?.subPlans ?? []).map((sp) => [
-      sp.id,
-      sp.label ?? sp.codeNat
-    ])
-  );
-
   const programmingSubPlanOptions = selectOptionsFromList(
     intersection(
       programmingPlan?.subPlans
@@ -309,7 +302,9 @@ const ContextStep = ({ partialSample }: Props) => {
       user?.programmingSubPlans?.map((sp) => sp.id) ?? []
     ),
     {
-      labels: subPlanLabels,
+      labels: Object.fromEntries(
+        (programmingPlan?.subPlans ?? []).map((sp) => [sp.id, sp.label])
+      ),
       withDefault: 'auto',
       withSort: true
     }

@@ -22,7 +22,7 @@ export const UsersFilterTags: FunctionComponent<Props> = ({
 
   const subPlanLabelById = Object.fromEntries(
     programmingPlans.flatMap((p) =>
-      p.subPlans.map((sp) => [sp.id, `${sp.codeNat} (${p.year})`])
+      p.subPlans.map((sp) => [sp.id, `${sp.label} (${p.year})`])
     )
   );
 

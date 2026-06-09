@@ -35,7 +35,7 @@ const findUnique = async (
     .where('id', '=', userId)
     .select((eb) => [
       companies(eb.ref('users.id'), eb).as('companies'),
-      programmingSubPlansList(eb.ref('users.id'), eb).as('programmingSubPlans')
+      programmingSubPlansList(eb).as('programmingSubPlans')
     ])
     .executeTakeFirst();
 };
@@ -48,7 +48,7 @@ const findOne = async (email: string): Promise<UserRefined | undefined> => {
     .where('email', '=', email.toLowerCase())
     .select((eb) => [
       companies(eb.ref('users.id'), eb).as('companies'),
-      programmingSubPlansList(eb.ref('users.id'), eb).as('programmingSubPlans')
+      programmingSubPlansList(eb).as('programmingSubPlans')
     ])
     .executeTakeFirst();
 };
@@ -70,18 +70,13 @@ const companies = (
   );
 };
 
-const programmingSubPlansList = (
-  userId: Expression<string>,
-  db: ExpressionBuilder<DB, 'users'>
-) => {
+const programmingSubPlansList = (db: ExpressionBuilder<DB, 'users'>) => {
   return jsonArrayFrom(
     db
       .selectFrom('programmingSubPlans')
       .selectAll('programmingSubPlans')
       .where(
-        sql<boolean>`programming_sub_plans.id = ANY(
-          SELECT unnest(programming_sub_plan_ids) FROM users WHERE id = ${userId}
-        )`
+        sql<boolean>`programming_sub_plans.id = ANY("users"."programming_sub_plan_ids")`
       )
   );
 };
@@ -95,7 +90,7 @@ const findMany = async (
     .selectAll()
     .select((eb) => [
       companies(eb.ref('users.id'), eb).as('companies'),
-      programmingSubPlansList(eb.ref('users.id'), eb).as('programmingSubPlans')
+      programmingSubPlansList(eb).as('programmingSubPlans')
     ])
     .orderBy('name');
 
