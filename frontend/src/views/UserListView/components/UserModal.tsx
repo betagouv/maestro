@@ -140,7 +140,8 @@ export const UserModal = ({
       companiesIsRequired({
         programmingSubPlans: user.programmingSubPlans,
         roles: user.roles
-      })
+      }) &&
+      !user.programmingSubPlans?.some((_) => _.codeNat === 'PPV')
     ) {
       findCompanies({
         kinds: ['MEAT_SLAUGHTERHOUSE', 'POULTRY_SLAUGHTERHOUSE'],
@@ -302,10 +303,7 @@ export const UserModal = ({
           required={programmingSubPlanIdsIsRequired(user)}
         />
 
-        {companiesIsRequired({
-          programmingSubPlans: user.programmingSubPlans,
-          roles: user.roles
-        }) && (
+        {companiesIsRequired({ user }) && (
           <CompanySearch
             label={
               <>

@@ -80,7 +80,7 @@ const programmingSubPlansList = (
       .selectAll('programmingSubPlans')
       .where(
         sql<boolean>`programming_sub_plans.id = ANY(
-          (SELECT programming_sub_plan_ids FROM users WHERE id = ${userId})
+          SELECT unnest(programming_sub_plan_ids) FROM users WHERE id = ${userId}
         )`
       )
   );
