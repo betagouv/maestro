@@ -19,7 +19,7 @@ import {
   UserRoleSorted
 } from 'maestro-shared/schema/User/UserRole';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
-import { type FunctionComponent, useEffect, useState } from 'react';
+import { type FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { z } from 'zod';
 import { RegionsFilter } from '../../../components/RegionsFilter/RegionsFilter';
@@ -159,7 +159,7 @@ const Filters: FunctionComponent<
 
   const subPlanLabelById = Object.fromEntries(
     programmingPlans.flatMap((p) =>
-      p.subPlans.map((sp) => [sp.id, `${sp.codeNat} (${p.year})`])
+      p.subPlans.map((sp) => [sp.id, `${sp.label} (${p.year})`])
     )
   );
 
