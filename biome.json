@@ -44,6 +44,7 @@
       "style": {
         "noCommonJs": "error",
         "noNamespace": "error",
+        "noParameterProperties": "error",
         "useArrayLiterals": "error",
         "useAsConstAssertion": "error",
         "useBlockStatements": "off",
