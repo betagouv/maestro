@@ -99,13 +99,6 @@ const DAOAInProgressBovinSubPlanIdLocal = ProgrammingSubPlanId.parse(
   'c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c4'
 );
 
-const SachaSubPlanIdSet = new Set([
-  DAOAVolailleSubPlanIdLocal as string,
-  DAOABovinSubPlanIdLocal as string,
-  DAOAInProgressVolailleSubPlanIdLocal as string,
-  DAOAInProgressBovinSubPlanIdLocal as string
-]);
-
 const SachaSubPlanIds = [
   DAOAVolailleSubPlanIdLocal,
   DAOABovinSubPlanIdLocal,
@@ -131,10 +124,6 @@ export const genUser = <T extends Partial<UserRefined>>(
           : [genProgrammingSubPlan(PPVSubPlanIdLocal)]))
       : [];
 
-  const hasSachaSubPlan = programmingSubPlans.some((sp) =>
-    SachaSubPlanIdSet.has(sp.id)
-  );
-
   return {
     id: uuidv4(),
     email: fakerFR.internet.email().toLowerCase(),
@@ -143,10 +132,10 @@ export const genUser = <T extends Partial<UserRefined>>(
     roles,
     region,
     department:
-      region && departmentIsRequired({ roles }, hasSachaSubPlan)
+      region && departmentIsRequired({ roles, programmingSubPlans })
         ? oneOf(Regions[region].departments)
         : null,
-    companies: companiesIsRequired({ roles }, hasSachaSubPlan)
+    companies: companiesIsRequired({ roles, programmingSubPlans })
       ? [SlaughterhouseCompanyFixture1]
       : [],
     laboratoryId: laboratoryIsRequired({ roles })

@@ -205,16 +205,18 @@ export const PPVDummyLaboratoryIds = [
 ];
 
 export const companiesIsRequired = (
-  user: Pick<Nullable<UserRefined>, 'roles'>,
-  hasSachaSubPlan = false
-): boolean => (user.roles?.includes('Sampler') && hasSachaSubPlan) ?? false;
+  user: Pick<Nullable<UserRefined>, 'programmingSubPlans' | 'roles'>
+): boolean =>
+  (user.roles?.includes('Sampler') &&
+    user.programmingSubPlans?.some((_) => _.withSacha)) ??
+  false;
 
 export const departmentIsRequired = (
-  user: Pick<Nullable<UserRefined>, 'roles'>,
-  hasSachaSubPlan = false
+  user: Pick<Nullable<UserRefined>, 'programmingSubPlans' | 'roles'>
 ): boolean =>
   (user.roles?.some((role) => isDepartmentalRole(role)) ||
-    (user.roles?.includes('Sampler') && hasSachaSubPlan)) ??
+    (user.roles?.includes('Sampler') &&
+      user.programmingSubPlans?.some((_) => _.withSacha))) ??
   false;
 
 export const programmingSubPlanIdsIsRequired = (
