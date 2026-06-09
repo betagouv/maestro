@@ -34,7 +34,6 @@ export const genProgrammingSubPlan = (
   withSacha: false
 });
 
-// Local sub-plan IDs — must match programmingPlanFixtures constants
 const PPVSubPlanIdLocal = ProgrammingSubPlanId.parse(
   'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1'
 );
@@ -45,47 +44,12 @@ const PPVClosedSubPlanIdLocal = ProgrammingSubPlanId.parse(
   'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a2'
 );
 
-// Extra PPV sub-plan IDs for router test plans (must match TestPPVSubPlanId* in programmingPlanFixtures)
-const TestPPVSubPlanIdLocal1 = ProgrammingSubPlanId.parse(
-  'd4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d1'
-);
-const TestPPVSubPlanIdLocal2 = ProgrammingSubPlanId.parse(
-  'd4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d2'
-);
-const TestPPVSubPlanIdLocal3 = ProgrammingSubPlanId.parse(
-  'd4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d3'
-);
-const TestPPVSubPlanIdLocal4 = ProgrammingSubPlanId.parse(
-  'd4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4'
-);
-const PPVRouterTestSubPlanIds = [
-  TestPPVSubPlanIdLocal1,
-  TestPPVSubPlanIdLocal2,
-  TestPPVSubPlanIdLocal3,
-  TestPPVSubPlanIdLocal4
-];
-
-// Stable sub-plan IDs for localPrescription.router.test.ts plans
-export const LocalPrescriptionTestSubPlanId1 = ProgrammingSubPlanId.parse(
-  'e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e1'
-);
-export const LocalPrescriptionTestSubPlanId2 = ProgrammingSubPlanId.parse(
-  'e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e2'
-);
-export const LocalPrescriptionTestSubPlanId3 = ProgrammingSubPlanId.parse(
-  'e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e3'
-);
-
-// All PPV sub-plan IDs (all years) for PPV users
 const AllPPVSubPlanIds = [
   PPVSubPlanIdLocal,
   PPVInProgressSubPlanIdLocal,
-  PPVClosedSubPlanIdLocal,
-  ...PPVRouterTestSubPlanIds,
-  LocalPrescriptionTestSubPlanId1,
-  LocalPrescriptionTestSubPlanId2,
-  LocalPrescriptionTestSubPlanId3
+  PPVClosedSubPlanIdLocal
 ];
+
 const DAOAVolailleSubPlanIdLocal = ProgrammingSubPlanId.parse(
   'b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2'
 );

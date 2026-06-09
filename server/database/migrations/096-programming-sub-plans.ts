@@ -39,13 +39,16 @@ export const up = async (knex: Knex) => {
   // 2. Migrer depuis programming_plan_kinds (stages calculés en JS)
   const existingKinds = await knex('programming_plan_kinds').select('*');
   if (existingKinds.length > 0) {
-    await knex('programming_sub_plans').insert(
-      existingKinds.map((row) => ({
-        programming_plan_id: row.programmingPlanId,
-        code_nat: codeNatByKind[row.kind] ?? row.kind,
-        stages: StagesByCodeNat[codeNatByKind[row.kind] ?? row.kind] ?? []
-      }))
-    );
+    const rows = existingKinds.map((row) => ({
+      programming_plan_id: row.programmingPlanId,
+      code_nat: codeNatByKind[row.kind] ?? row.kind,
+      stages: StagesByCodeNat[codeNatByKind[row.kind] ?? row.kind] ?? []
+    }));
+    // Insérer par chunks de 500 pour éviter le dépassement de paramètres PostgreSQL
+    const chunkSize = 500;
+    for (let i = 0; i < rows.length; i += chunkSize) {
+      await knex('programming_sub_plans').insert(rows.slice(i, i + chunkSize));
+    }
   }
 
   // 3. samples
@@ -246,8 +249,12 @@ export const down = async (knex: Knex) => {
       ])
     ).values()
   ];
-  if (uniqueKinds.length > 0) {
-    await knex('programming_plan_kinds').insert(uniqueKinds);
+  // Insérer par chunks de 500 pour éviter le dépassement de paramètres PostgreSQL
+  const chunkSize = 500;
+  for (let i = 0; i < uniqueKinds.length; i += chunkSize) {
+    await knex('programming_plan_kinds').insert(
+      uniqueKinds.slice(i, i + chunkSize)
+    );
   }
 
   // Restaurer les colonnes (opération partielle — sans garantie de cohérence)

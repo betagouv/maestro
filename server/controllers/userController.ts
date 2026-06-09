@@ -4,6 +4,7 @@ import {
   companiesIsRequired,
   departmentIsRequired,
   programmingSubPlanIdsIsRequired,
+  UserRefined,
   userRegionsForRole
 } from 'maestro-shared/schema/User/User';
 import { isNationalRole } from 'maestro-shared/schema/User/UserRole';
@@ -32,7 +33,7 @@ export const usersRouter = {
         return { status: HttpStatus.FORBIDDEN };
       }
 
-      return { status: HttpStatus.OK, response: user };
+      return { status: HttpStatus.OK, response: UserRefined.parse(user) };
     },
     put: async ({ body }, { userId }) => {
       console.info('Update user', body);
