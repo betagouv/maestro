@@ -186,13 +186,18 @@ const generateAndStoreAnalysisRequestDocuments = async (
 };
 
 export class DaiProcessingError extends Error {
+  readonly edi: boolean | null;
+  readonly sentMethod: SachaCommunicationMethod | null;
+
   constructor(
     message: string,
-    public readonly edi: boolean | null,
-    public readonly sentMethod: SachaCommunicationMethod | null = null
+    edi: boolean | null,
+    sentMethod: SachaCommunicationMethod | null = null
   ) {
     super(message);
     this.name = 'DaiProcessingError';
+    this.edi = edi;
+    this.sentMethod = sentMethod;
   }
 }
 

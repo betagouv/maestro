@@ -1,7 +1,7 @@
 import { initKnex } from '../../repositories/db';
-import { initKysely } from '../../repositories/kysely.js';
-import config from '../../utils/config.js';
-import { checkEmails } from './index.js';
+import { initKysely } from '../../repositories/kysely';
+import config from '../../utils/config';
+import { checkEmails } from './index';
 
 const launchExtractEmail = async () => {
   initKnex();
