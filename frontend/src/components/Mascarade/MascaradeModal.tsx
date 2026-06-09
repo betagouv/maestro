@@ -102,8 +102,8 @@ const UsersSearchInput: FunctionComponent<{
                   if (u.region) {
                     label += ` - ${Regions[u.region].name}`;
                   }
-                  if (u.programmingSubPlanIds.length > 0) {
-                    label += ` - ${u.programmingSubPlanIds.map((_) => getSubPlanLabel(_)).join(', ')}`;
+                  if (u.programmingSubPlans.length > 0) {
+                    label += ` - [${u.programmingSubPlans.map((sp) => getSubPlanLabel(sp.id as ProgrammingSubPlanId)).join(',')}]`;
                   }
                   acc[u.id] = label;
                   return acc;

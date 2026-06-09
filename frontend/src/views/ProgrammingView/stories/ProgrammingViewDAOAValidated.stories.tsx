@@ -19,6 +19,7 @@ import {
 import {
   DepartmentalCoordinator,
   genAuthUser,
+  genProgrammingSubPlan,
   NationalCoordinator,
   RegionalCoordinator,
   SamplerDaoaFixture
@@ -127,7 +128,10 @@ export const RegionalCoordinatorView: Story = {
       auth: {
         authUser: genAuthUser({
           ...RegionalCoordinator,
-          programmingSubPlanIds: [DAOAVolailleSubPlanId, DAOABovinSubPlanId]
+          programmingSubPlans: [
+            genProgrammingSubPlan(DAOAVolailleSubPlanId),
+            genProgrammingSubPlan(DAOABovinSubPlanId)
+          ]
         })
       }
     },

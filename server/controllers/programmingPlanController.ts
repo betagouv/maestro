@@ -77,7 +77,7 @@ export const programmingPlanRouter = {
       if (
         programmingSubPlanIdsIsRequired(user) &&
         !intersection(
-          user.programmingSubPlanIds,
+          user.programmingSubPlans.map((sp) => sp.id),
           programmingPlan.subPlans.map((sp) => sp.id)
         ).length
       ) {
@@ -417,7 +417,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
     post: async ({ user }, { year }) => {
       const previousProgrammingPlan = await programmingPlanRepository.findOne(
         year - 1,
-        user.programmingSubPlanIds
+        user.programmingSubPlans.map((sp) => sp.id)
       );
 
       if (

@@ -12,6 +12,7 @@ import {
 import { genCreatedPartialSample } from 'maestro-shared/test/sampleFixtures';
 import {
   genAuthUser,
+  genProgrammingSubPlan,
   NationalCoordinator,
   Region1Fixture,
   RegionalCoordinator,
@@ -82,7 +83,7 @@ export const DashboardViewForSampler: Story = {
           userRole: 'Sampler',
           region: Region1Fixture,
           id: Sampler1Fixture.id,
-          programmingSubPlanIds: [PPVSubPlanId]
+          programmingSubPlans: [genProgrammingSubPlan(PPVSubPlanId)]
         })
       }
     },

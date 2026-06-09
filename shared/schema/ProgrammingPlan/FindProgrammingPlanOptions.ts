@@ -48,8 +48,11 @@ export const buildFindProgrammingPlanOptions = (
   const subPlanIds = isUnrestricted
     ? (findOptions.subPlanIds ?? null)
     : findOptions.subPlanIds
-      ? intersection(findOptions.subPlanIds, user.programmingSubPlanIds)
-      : user.programmingSubPlanIds;
+      ? intersection(
+          findOptions.subPlanIds,
+          user.programmingSubPlans.map((sp) => sp.id)
+        )
+      : user.programmingSubPlans.map((sp) => sp.id);
 
   return {
     ...findOptions,
