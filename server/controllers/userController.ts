@@ -69,7 +69,7 @@ export const usersRouter = {
           ...user,
           roles: [userRole]
         })
-          ? user.programmingSubPlanIds
+          ? user.programmingSubPlans.map((sp) => sp.id)
           : query.programmingSubPlanIds
       };
 

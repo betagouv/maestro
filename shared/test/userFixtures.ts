@@ -1,7 +1,10 @@
 import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { RegionList, Regions } from '../referential/Region';
-import { ProgrammingSubPlanId } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  type ProgrammingSubPlan,
+  ProgrammingSubPlanId
+} from '../schema/ProgrammingPlan/ProgrammingSubPlan';
 import { AuthUserRefined } from '../schema/User/AuthUser';
 import {
   companiesIsRequired,
@@ -19,6 +22,17 @@ import {
 import { SlaughterhouseCompanyFixture1 } from './companyFixtures';
 import { LaboratoryFixture } from './laboratoryFixtures';
 import { oneOf } from './testFixtures';
+
+export const genProgrammingSubPlan = (
+  id: ProgrammingSubPlanId
+): ProgrammingSubPlan => ({
+  id,
+  programmingPlanId: uuidv4(),
+  codeNat: 'TEST',
+  stages: [],
+  label: 'Test SubPlan',
+  withSacha: false
+});
 
 // Local sub-plan IDs — must match programmingPlanFixtures constants
 const PPVSubPlanIdLocal = ProgrammingSubPlanId.parse(
@@ -109,23 +123,23 @@ export const genUser = <T extends Partial<UserRefined>>(
       ? (data?.region ?? oneOf(RegionList))
       : null;
 
-  const programmingSubPlanIds: ProgrammingSubPlanId[] =
+  const programmingSubPlans: ProgrammingSubPlan[] =
     programmingSubPlanIdsIsRequired({ roles })
-      ? (data?.programmingSubPlanIds ??
+      ? (data?.programmingSubPlans ??
         (roles?.includes('DepartmentalCoordinator')
-          ? [oneOf(SachaSubPlanIds)]
-          : [PPVSubPlanIdLocal]))
+          ? [genProgrammingSubPlan(oneOf(SachaSubPlanIds))]
+          : [genProgrammingSubPlan(PPVSubPlanIdLocal)]))
       : [];
 
-  const hasSachaSubPlan = programmingSubPlanIds.some((id) =>
-    SachaSubPlanIdSet.has(id)
+  const hasSachaSubPlan = programmingSubPlans.some((sp) =>
+    SachaSubPlanIdSet.has(sp.id)
   );
 
   return {
     id: uuidv4(),
     email: fakerFR.internet.email().toLowerCase(),
     name: fakerFR.person.fullName(),
-    programmingSubPlanIds,
+    programmingSubPlans,
     roles,
     region,
     department:
@@ -150,7 +164,7 @@ export const RegionDromFixture = '01' as const;
 export const Sampler1Fixture = genUser({
   roles: ['Sampler'],
   id: '11111111-1111-1111-1111-111111111111',
-  programmingSubPlanIds: AllPPVSubPlanIds,
+  programmingSubPlans: AllPPVSubPlanIds.map(genProgrammingSubPlan),
   region: Region1Fixture,
   department: null,
   name: 'John Doe',
@@ -159,7 +173,7 @@ export const Sampler1Fixture = genUser({
 export const Sampler2Fixture = genUser({
   roles: ['Sampler'],
   id: '22222222-2222-2222-2222-222222222222',
-  programmingSubPlanIds: AllPPVSubPlanIds,
+  programmingSubPlans: AllPPVSubPlanIds.map(genProgrammingSubPlan),
   region: Region2Fixture,
   department: null,
   name: 'Jane Austen',
@@ -168,7 +182,7 @@ export const Sampler2Fixture = genUser({
 export const SamplerDromFixture = genUser({
   roles: ['Sampler'],
   id: '66666666-6666-6666-6666-666666666666',
-  programmingSubPlanIds: AllPPVSubPlanIds,
+  programmingSubPlans: AllPPVSubPlanIds.map(genProgrammingSubPlan),
   region: RegionDromFixture,
   department: null,
   name: 'Jack Sparrow',
@@ -177,7 +191,7 @@ export const SamplerDromFixture = genUser({
 export const RegionalCoordinator = genUser({
   roles: ['RegionalCoordinator'],
   id: '33333333-3333-3333-3333-333333333333',
-  programmingSubPlanIds: AllPPVSubPlanIds,
+  programmingSubPlans: AllPPVSubPlanIds.map(genProgrammingSubPlan),
   region: Region1Fixture,
   name: 'Alice Wonderland',
   email: 'alice.wonderland@example.net'
@@ -185,14 +199,14 @@ export const RegionalCoordinator = genUser({
 export const RegionalDromCoordinator = genUser({
   roles: ['RegionalCoordinator'],
   id: '44444444-4444-4444-4444-444444444444',
-  programmingSubPlanIds: AllPPVSubPlanIds,
+  programmingSubPlans: AllPPVSubPlanIds.map(genProgrammingSubPlan),
   region: RegionDromFixture,
   name: 'Bob Marley',
   email: 'bob.marley@example.net'
 });
 export const NationalCoordinator = genUser({
   roles: ['NationalCoordinator'],
-  programmingSubPlanIds: AllPPVSubPlanIds,
+  programmingSubPlans: AllPPVSubPlanIds.map(genProgrammingSubPlan),
   id: '55555555-5555-5555-5555-555555555555'
 });
 export const AdminFixture = genUser({
@@ -202,32 +216,35 @@ export const AdminFixture = genUser({
 export const RegionalObserver = genUser({
   roles: ['RegionalObserver'],
   id: '88888888-8888-8888-8888-888888888888',
-  programmingSubPlanIds: AllPPVSubPlanIds,
+  programmingSubPlans: AllPPVSubPlanIds.map(genProgrammingSubPlan),
   region: Region1Fixture
 });
 export const NationalObserver = genUser({
   roles: ['NationalObserver'],
-  programmingSubPlanIds: AllPPVSubPlanIds,
+  programmingSubPlans: AllPPVSubPlanIds.map(genProgrammingSubPlan),
   id: '99999999-9999-9999-9999-999999999999'
 });
 export const DepartmentalCoordinator = genUser({
   roles: ['DepartmentalCoordinator'],
   id: '12121212-1212-1212-1212-121212121212',
-  programmingSubPlanIds: SachaSubPlanIds,
+  programmingSubPlans: SachaSubPlanIds.map(genProgrammingSubPlan),
   region: Region1Fixture,
   department: Regions[Region1Fixture].departments[0]
 });
 export const SamplerDaoaFixture = genUser({
   roles: ['Sampler'],
   id: '13131313-1313-1313-1313-131313131313',
-  programmingSubPlanIds: SachaSubPlanIds,
+  programmingSubPlans: SachaSubPlanIds.map(genProgrammingSubPlan),
   region: Region2Fixture,
   department: '85',
   companies: [SlaughterhouseCompanyFixture1]
 });
 export const NationalCoordinatorDaoaFixture = genUser({
   roles: ['NationalCoordinator'],
-  programmingSubPlanIds: [DAOAVolailleSubPlanIdLocal, DAOABovinSubPlanIdLocal],
+  programmingSubPlans: [
+    DAOAVolailleSubPlanIdLocal,
+    DAOABovinSubPlanIdLocal
+  ].map(genProgrammingSubPlan),
   id: '14141414-1414-1414-1414-141414141414'
 });
 export const LaboratoryUserFixture = genUser({

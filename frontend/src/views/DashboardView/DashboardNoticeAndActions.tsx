@@ -92,13 +92,12 @@ const DashboardNoticeAndActions: FunctionComponent<Props> = ({
   const { data: priorityProgrammingPlans } =
     apiClient.useFindProgrammingPlansQuery(
       {
-        subPlanIds: user?.programmingSubPlanIds,
+        subPlanIds: user?.programmingSubPlans?.map((sp) => sp.id),
         status: priorityProgrammingPlansStatus
       },
       {
         skip:
-          !user?.programmingSubPlanIds?.length ||
-          !priorityProgrammingPlansStatus
+          !user?.programmingSubPlans?.length || !priorityProgrammingPlansStatus
       }
     );
 

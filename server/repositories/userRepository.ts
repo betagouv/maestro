@@ -11,7 +11,6 @@ import { executeTransaction, kysely } from './kysely';
 import { type DB, toSqlArray } from './kysely.type';
 
 export const usersTable = 'users';
-
 const userCompaniesTable = 'user_companies';
 
 export const Users = () => db<UserRefined>(usersTable);
@@ -34,7 +33,10 @@ const findUnique = async (
     .selectFrom('users')
     .selectAll()
     .where('id', '=', userId)
-    .select((eb) => [companies(eb.ref('users.id'), eb).as('companies')])
+    .select((eb) => [
+      companies(eb.ref('users.id'), eb).as('companies'),
+      programmingSubPlansList(eb.ref('users.id'), eb).as('programmingSubPlans')
+    ])
     .executeTakeFirst();
 };
 
@@ -44,7 +46,10 @@ const findOne = async (email: string): Promise<UserRefined | undefined> => {
     .selectFrom('users')
     .selectAll()
     .where('email', '=', email.toLowerCase())
-    .select((eb) => [companies(eb.ref('users.id'), eb).as('companies')])
+    .select((eb) => [
+      companies(eb.ref('users.id'), eb).as('companies'),
+      programmingSubPlansList(eb.ref('users.id'), eb).as('programmingSubPlans')
+    ])
     .executeTakeFirst();
 };
 
@@ -65,6 +70,22 @@ const companies = (
   );
 };
 
+const programmingSubPlansList = (
+  userId: Expression<string>,
+  db: ExpressionBuilder<DB, 'users'>
+) => {
+  return jsonArrayFrom(
+    db
+      .selectFrom('programmingSubPlans')
+      .selectAll('programmingSubPlans')
+      .where(
+        sql<boolean>`programming_sub_plans.id = ANY(
+          (SELECT programming_sub_plan_ids FROM users WHERE id = ${userId})
+        )`
+      )
+  );
+};
+
 const findMany = async (
   findOptions: FindUserOptions
 ): Promise<UserRefined[]> => {
@@ -72,7 +93,10 @@ const findMany = async (
   let query = kysely
     .selectFrom('users')
     .selectAll()
-    .select((eb) => [companies(eb.ref('users.id'), eb).as('companies')])
+    .select((eb) => [
+      companies(eb.ref('users.id'), eb).as('companies'),
+      programmingSubPlansList(eb.ref('users.id'), eb).as('programmingSubPlans')
+    ])
     .orderBy('name');
 
   for (const option of FindUserOptions.keyof().options) {
@@ -137,16 +161,19 @@ const findMany = async (
 
   console.log('Executing user findMany query:', query.compile().sql);
 
-  const users: UserRefined[] = await query.execute();
-
+  const users = (await query.execute()) as unknown as UserRefined[];
   return users.map((u) => UserRefined.parse(u));
 };
 
 const insert = async (
   user: Omit<UserRefined, 'id' | 'loggedSecrets' | 'name'>
 ): Promise<void> => {
-  const { companies, ...rest } = user;
-  const newUser = { ...rest, email: rest.email.toLowerCase() };
+  const { companies, programmingSubPlans, ...rest } = user;
+  const newUser = {
+    ...rest,
+    programmingSubPlanIds: programmingSubPlans.map((sp) => sp.id),
+    email: rest.email.toLowerCase()
+  };
 
   await executeTransaction(async (trx) => {
     const result = await trx
@@ -174,7 +201,13 @@ const update = async (
   partialUser: Partial<Omit<UserRefined, 'id' | 'loggedSecrets'>>,
   id: UserRefined['id']
 ): Promise<void> => {
-  const { companies, ...rest } = partialUser;
+  const { companies, programmingSubPlans, ...rest } = partialUser;
+  const toUpdate = {
+    ...rest,
+    ...(programmingSubPlans !== undefined
+      ? { programmingSubPlanIds: programmingSubPlans.map((sp) => sp.id) }
+      : {})
+  };
 
   await executeTransaction(async (trx) => {
     if (companies !== undefined) {
@@ -189,10 +222,10 @@ const update = async (
           .execute();
       }
     }
-    if (Object.keys(rest).length) {
+    if (Object.keys(toUpdate).length) {
       await trx
         .updateTable('users')
-        .set({ ...rest, email: rest.email?.toLowerCase() })
+        .set({ ...toUpdate, email: toUpdate.email?.toLowerCase() })
         .where('id', '=', id)
         .execute();
     }

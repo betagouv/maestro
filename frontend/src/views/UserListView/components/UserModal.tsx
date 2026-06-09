@@ -7,7 +7,8 @@ import {
 } from 'maestro-shared/referential/Department';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import type { Company } from 'maestro-shared/schema/Company/Company';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   companiesIsRequired,
   departmentIsRequired,
@@ -40,7 +41,7 @@ interface Props {
   userToUpdate: null | UserRefined;
   modal: ReturnType<typeof createModal>;
   setAlertMessage: (message: string) => void;
-  subPlanLabelById: Record<string, string>;
+  programmingPlans: ProgrammingPlanChecked[];
 }
 
 const regionOptions = selectOptionsFromList(RegionList, {
@@ -57,7 +58,7 @@ const regionOptions = selectOptionsFromList(RegionList, {
 const userDefaultValue: Nullable<UserToCreateRefined> = {
   email: null,
   roles: [],
-  programmingSubPlanIds: [],
+  programmingSubPlans: [],
   region: null,
   department: null,
   companies: [],
@@ -69,12 +70,20 @@ export const UserModal = ({
   userToUpdate,
   modal,
   setAlertMessage,
-  subPlanLabelById,
+  programmingPlans,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
+
+  const allSubPlans = useMemo(
+    () =>
+      programmingPlans.flatMap((p) =>
+        p.subPlans.map((sp) => ({ ...sp, year: p.year }))
+      ),
+    [programmingPlans]
+  );
 
   const [findCompanies] = apiClient.useLazyFindCompaniesQuery();
 
@@ -141,7 +150,7 @@ export const UserModal = ({
   }, [
     user.region,
     user.department,
-    user.programmingSubPlanIds,
+    user.programmingSubPlans,
     user.roles,
     findCompanies
   ]);
@@ -267,16 +276,22 @@ export const UserModal = ({
         )}
         <AppMultiSelect
           inputForm={form}
-          inputKey={'programmingSubPlanIds'}
-          items={Object.keys(subPlanLabelById)}
+          inputKey={'programmingSubPlans'}
+          items={allSubPlans.map((sp) => sp.id)}
           onChange={(v) =>
             setUser((u) => ({
               ...u,
-              programmingSubPlanIds: v as ProgrammingSubPlanId[]
+              programmingSubPlans: v
+                .map((id) => allSubPlans.find((sp) => sp.id === id))
+                .filter((sp) => sp != null)
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                .map(({ year: _year, ...sp }): ProgrammingSubPlan => sp)
             }))
           }
-          values={user.programmingSubPlanIds ?? []}
-          keysWithLabels={subPlanLabelById}
+          values={user.programmingSubPlans?.map((sp) => sp.id) ?? []}
+          keysWithLabels={Object.fromEntries(
+            allSubPlans.map((sp) => [sp.id, `${sp.codeNat} (${sp.year})`])
+          )}
           defaultLabel={'sous plan sélectionné'}
           label={'Sous-plans'}
           required={programmingSubPlanIdsIsRequired(user)}

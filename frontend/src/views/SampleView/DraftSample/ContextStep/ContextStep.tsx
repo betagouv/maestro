@@ -306,7 +306,7 @@ const ContextStep = ({ partialSample }: Props) => {
           )
         )
         .map((sp) => sp.id),
-      user?.programmingSubPlanIds ?? []
+      user?.programmingSubPlans?.map((sp) => sp.id) ?? []
     ),
     {
       labels: subPlanLabels,

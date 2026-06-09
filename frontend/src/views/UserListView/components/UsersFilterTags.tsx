@@ -1,6 +1,7 @@
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { Regions } from 'maestro-shared/referential/Region';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
@@ -9,15 +10,21 @@ import type { FindUserOptions } from './UsersFilters';
 type Props = {
   filters: FindUserOptions;
   onChange: (filters: Partial<FindUserOptions>) => void;
-  subPlanLabelById: Record<string, string>;
+  programmingPlans: ProgrammingPlanChecked[];
 };
 export const UsersFilterTags: FunctionComponent<Props> = ({
   filters,
   onChange,
-  subPlanLabelById,
+  programmingPlans,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
+
+  const subPlanLabelById = Object.fromEntries(
+    programmingPlans.flatMap((p) =>
+      p.subPlans.map((sp) => [sp.id, `${sp.codeNat} (${p.year})`])
+    )
+  );
 
   return (
     <>
@@ -78,7 +85,7 @@ export const UsersFilterTags: FunctionComponent<Props> = ({
               })
           }}
         >
-          {subPlanLabelById[id] ?? id}
+          {subPlanLabelById[id]}
         </Tag>
       ))}
       {filters.onlyDisabled && (

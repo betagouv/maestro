@@ -12,14 +12,10 @@ const catchSyncError = (err: unknown) => {
   throw err;
 };
 
-const resolveContactListIds = async (
+const resolveContactListIds = (
   user: UserRefined
-): Promise<(number | null | undefined)[]> => {
-  if (!user.programmingSubPlanIds.length) return [];
-  const subPlans = await programmingSubPlanRepository.findMany({
-    ids: user.programmingSubPlanIds
-  });
-  return subPlans.map((sp) => sp.contactListId);
+): (number | null | undefined)[] => {
+  return user.programmingSubPlans.map((sp) => sp.contactListId);
 };
 
 const resolveAllContactListIds = async (): Promise<number[]> => {
@@ -37,7 +33,7 @@ const insert = async (
   user: Omit<UserRefined, 'id' | 'loggedSecrets'>
 ): Promise<void> => {
   await userRepository.insert(user);
-  const contactListIds = await resolveContactListIds(user as UserRefined);
+  const contactListIds = resolveContactListIds(user as UserRefined);
   await mailService
     .createContact({ ...user, contactListIds })
     .catch(catchSyncError);
@@ -63,7 +59,7 @@ const update = async (
 
   if (partialUser.email && partialUser.email !== existing.email) {
     await mailService.deleteContact(existing.email).catch(catchSyncError);
-    const contactListIds = await resolveContactListIds(updated);
+    const contactListIds = resolveContactListIds(updated as UserRefined);
     await mailService
       .createContact({ ...updated, contactListIds })
       .catch(catchSyncError);
@@ -72,16 +68,14 @@ const update = async (
 
   if (
     !partialUser.email &&
-    !partialUser.programmingSubPlanIds &&
+    !partialUser.programmingSubPlans &&
     !partialUser.name
   ) {
     return;
   }
 
-  const [contactListIds, allContactlistids] = await Promise.all([
-    resolveContactListIds(updated),
-    resolveAllContactListIds()
-  ]);
+  const [allContactlistids] = await Promise.all([resolveAllContactListIds()]);
+  const contactListIds = resolveContactListIds(updated as UserRefined);
   await mailService
     .updateContact({ ...updated, contactListIds, allContactlistids })
     .catch(catchSyncError);

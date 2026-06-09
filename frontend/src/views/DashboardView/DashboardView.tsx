@@ -27,11 +27,11 @@ const DashboardView = () => {
     {
       subPlanIds: hasRole('Administrator')
         ? undefined
-        : user?.programmingSubPlanIds,
+        : user?.programmingSubPlans?.map((sp) => sp.id),
       status: ['Validated', 'Closed']
     },
     {
-      skip: !user?.programmingSubPlanIds?.length && !hasRole('Administrator')
+      skip: !user?.programmingSubPlans?.length && !hasRole('Administrator')
     }
   );
 

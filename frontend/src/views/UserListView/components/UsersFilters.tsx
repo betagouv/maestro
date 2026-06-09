@@ -11,6 +11,7 @@ import {
   DepartmentSort
 } from 'maestro-shared/referential/Department';
 import { Region, Regions } from 'maestro-shared/referential/Region';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   UserRole,
@@ -18,7 +19,7 @@ import {
   UserRoleSorted
 } from 'maestro-shared/schema/User/UserRole';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
-import { type FunctionComponent, useEffect, useMemo, useState } from 'react';
+import { type FunctionComponent, useEffect, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { z } from 'zod';
 import { RegionsFilter } from '../../../components/RegionsFilter/RegionsFilter';
@@ -39,11 +40,11 @@ export type FindUserOptions = z.infer<typeof _findUserOptions>;
 
 type Props = {
   onChange: (options: FindUserOptions) => void;
-  subPlanLabelById: Record<string, string>;
+  programmingPlans: ProgrammingPlanChecked[];
 };
 export const UsersFilters: FunctionComponent<Props> = ({
   onChange,
-  subPlanLabelById,
+  programmingPlans,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -90,7 +91,7 @@ export const UsersFilters: FunctionComponent<Props> = ({
               <Filters
                 {...filters}
                 onChange={updateFilters}
-                subPlanLabelById={subPlanLabelById}
+                programmingPlans={programmingPlans}
               />
             </div>
           </Accordion>
@@ -99,7 +100,7 @@ export const UsersFilters: FunctionComponent<Props> = ({
               <UsersFilterTags
                 filters={filters}
                 onChange={updateFilters}
-                subPlanLabelById={subPlanLabelById}
+                programmingPlans={programmingPlans}
               />
             </div>
           )}
@@ -110,7 +111,7 @@ export const UsersFilters: FunctionComponent<Props> = ({
             <Filters
               {...filters}
               onChange={updateFilters}
-              subPlanLabelById={subPlanLabelById}
+              programmingPlans={programmingPlans}
             />
             {hasFilter && (
               <div
@@ -126,7 +127,7 @@ export const UsersFilters: FunctionComponent<Props> = ({
                   <UsersFilterTags
                     filters={filters}
                     onChange={updateFilters}
-                    subPlanLabelById={subPlanLabelById}
+                    programmingPlans={programmingPlans}
                   />
                 </div>
               </div>
@@ -141,7 +142,7 @@ export const UsersFilters: FunctionComponent<Props> = ({
 const Filters: FunctionComponent<
   FindUserOptions & {
     onChange: (options: Partial<FindUserOptions>) => void;
-    subPlanLabelById: Record<string, string>;
+    programmingPlans: ProgrammingPlanChecked[];
   }
 > = ({
   regions,
@@ -151,10 +152,16 @@ const Filters: FunctionComponent<
   label,
   onlyDisabled,
   onChange,
-  subPlanLabelById,
+  programmingPlans,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
+
+  const subPlanLabelById = Object.fromEntries(
+    programmingPlans.flatMap((p) =>
+      p.subPlans.map((sp) => [sp.id, `${sp.codeNat} (${p.year})`])
+    )
+  );
 
   const departmentOptions = useMemo(() => {
     if (regions?.length) {

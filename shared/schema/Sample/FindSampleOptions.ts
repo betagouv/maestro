@@ -61,7 +61,7 @@ export const buildFindSampleOptions = (
       : query.departments,
     companySirets,
     programmingSubPlanIds: programmingSubPlanIdsIsRequired(user)
-      ? user.programmingSubPlanIds
+      ? user.programmingSubPlans.map((sp) => sp.id)
       : query.programmingSubPlanIds
   } as FindSampleOptions;
 };

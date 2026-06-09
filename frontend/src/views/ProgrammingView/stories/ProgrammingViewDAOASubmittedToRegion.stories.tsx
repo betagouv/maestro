@@ -13,6 +13,7 @@ import {
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genAuthUser,
+  genProgrammingSubPlan,
   NationalCoordinator,
   RegionalCoordinator
 } from 'maestro-shared/test/userFixtures';
@@ -103,9 +104,9 @@ export const RegionalCoordinatorView: Story = {
       auth: {
         authUser: genAuthUser({
           ...RegionalCoordinator,
-          programmingSubPlanIds: [
-            DAOAInProgressVolailleSubPlanId,
-            DAOAInProgressBovinSubPlanId
+          programmingSubPlans: [
+            genProgrammingSubPlan(DAOAInProgressVolailleSubPlanId),
+            genProgrammingSubPlan(DAOAInProgressBovinSubPlanId)
           ]
         })
       }
