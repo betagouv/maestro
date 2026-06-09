@@ -136,7 +136,12 @@ export const UserModal = ({
 
   const [companies, setCompanies] = useState<Company[]>([]);
   useEffect(() => {
-    if (companiesIsRequired({ roles: user.roles })) {
+    if (
+      companiesIsRequired({
+        programmingSubPlans: user.programmingSubPlans,
+        roles: user.roles
+      })
+    ) {
       findCompanies({
         kinds: ['MEAT_SLAUGHTERHOUSE', 'POULTRY_SLAUGHTERHOUSE'],
         region: user.region ?? undefined,
@@ -297,7 +302,10 @@ export const UserModal = ({
           required={programmingSubPlanIdsIsRequired(user)}
         />
 
-        {companiesIsRequired({ roles: user.roles }) && (
+        {companiesIsRequired({
+          programmingSubPlans: user.programmingSubPlans,
+          roles: user.roles
+        }) && (
           <CompanySearch
             label={
               <>

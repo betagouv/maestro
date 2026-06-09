@@ -44,8 +44,7 @@ export const buildFindSampleOptions = (
   userRole: UserRole,
   query: Partial<FindSampleOptions>
 ): FindSampleOptions => {
-  const hasSachaSubPlan = (user.companies?.length ?? 0) > 0;
-  const companySirets = companiesIsRequired(user, hasSachaSubPlan)
+  const companySirets = companiesIsRequired(user)
     ? user.companies.map((company) => company.siret)
     : query.companySirets;
 
@@ -56,7 +55,7 @@ export const buildFindSampleOptions = (
       : user.region
         ? [user.region]
         : undefined,
-    departments: departmentIsRequired(user, hasSachaSubPlan)
+    departments: departmentIsRequired(user)
       ? [user.department as Department]
       : query.departments,
     companySirets,
