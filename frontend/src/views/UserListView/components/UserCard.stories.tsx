@@ -17,8 +17,4 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  args: {
-    subPlanLabelById: {}
-  }
-};
+export const Default: Story = {};
