@@ -46,10 +46,10 @@ const updateMany = async (notifications: Notification[]): Promise<void> => {
 const selectNotifications = () =>
   Notifications()
     .select(
-      `${notificationTable}.*`,
-      `${notificationTable}.id as notification_id`,
       `${usersTable}.*`,
-      `${usersTable}.id as author_id`
+      `${usersTable}.id as author_id`,
+      `${notificationTable}.*`,
+      `${notificationTable}.id as notification_id`
     )
     .leftJoin(usersTable, `${notificationTable}.author_id`, `${usersTable}.id`);
 
@@ -69,7 +69,7 @@ const findMany = async (
   console.info('Find notifications');
   return selectNotifications()
     .where(omitBy(findOptions, isNil))
-    .orderBy('created_at', 'desc')
+    .orderBy(`${notificationTable}.created_at`, 'desc')
     .then((notifications) => notifications.map(parseNotification));
 };
 
