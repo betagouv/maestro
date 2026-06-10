@@ -2,10 +2,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { RegionList, Regions } from '../referential/Region';
 import { ProgrammingPlanStatusList } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
-import type { ProgrammingSubPlan } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
-import { ProgrammingSubPlanId } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  type ProgrammingSubPlan,
+  ProgrammingSubPlanId
+} from '../schema/ProgrammingPlan/ProgrammingSubPlan';
 import { oneOf } from './testFixtures';
-import { NationalCoordinator } from './userFixtures';
+
+const NationalCoordinatorId = '55555555-5555-5555-5555-555555555555';
 
 const PPVClosedProgrammingPlanId = 'f5d510ef-ab78-449a-acd6-392895a1994f';
 const PPVValidatedProgrammingPlanId = 'd78fb3eb-1998-482b-9014-282d51ae30b8';
@@ -35,20 +38,32 @@ export const DAOAInProgressBovinSubPlanId = ProgrammingSubPlanId.parse(
   'c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c4'
 );
 
-export const TestPPVSubPlanId1 = ProgrammingSubPlanId.parse(
-  'd4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d1'
-);
-export const TestPPVSubPlanId2 = ProgrammingSubPlanId.parse(
-  'd4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d2'
-);
-export const TestPPVSubPlanId3 = ProgrammingSubPlanId.parse(
-  'd4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d3'
-);
-export const TestPPVSubPlanId4 = ProgrammingSubPlanId.parse(
-  'd4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4'
-);
+export const AllPPVSubPlanIds = [
+  PPVSubPlanId,
+  PPVClosedSubPlanId,
+  PPVInProgressSubPlanId
+];
+export const SachaSubPlanIds = [
+  DAOAVolailleSubPlanId,
+  DAOABovinSubPlanId,
+  DAOAInProgressVolailleSubPlanId,
+  DAOAInProgressBovinSubPlanId
+];
 
-export const PPVSubPlanFixture: ProgrammingSubPlan = {
+export const genProgrammingSubPlan = (
+  data?: Partial<ProgrammingSubPlan>
+): ProgrammingSubPlan => ({
+  id: ProgrammingSubPlanId.parse(uuidv4()),
+  programmingPlanId: uuidv4(),
+  codeNat: 'TEST',
+  stages: [],
+  label: 'Test SubPlan',
+  withSacha: (data?.id && SachaSubPlanIds.includes(data.id)) ?? false,
+  substanceKinds: ['Any'],
+  ...data
+});
+
+export const PPVSubPlanFixture = genProgrammingSubPlan({
   id: PPVSubPlanId,
   programmingPlanId: PPVValidatedProgrammingPlanId,
   codeNat: 'PPV',
@@ -68,9 +83,9 @@ export const PPVSubPlanFixture: ProgrammingSubPlan = {
   contactListId: 7,
   withSacha: false,
   substanceKinds: ['Any']
-};
+});
 
-const DAOAVolailleSubPlanFixture: ProgrammingSubPlan = {
+export const DAOAVolailleSubPlanFixture = genProgrammingSubPlan({
   id: DAOAVolailleSubPlanId,
   programmingPlanId: DAOAValidatedProgrammingPlanId,
   codeNat: 'M01',
@@ -80,9 +95,9 @@ const DAOAVolailleSubPlanFixture: ProgrammingSubPlan = {
   contactListId: 9,
   withSacha: true,
   substanceKinds: ['Mono', 'Multi', 'Copper']
-};
+});
 
-export const DAOABovinSubPlanFixture: ProgrammingSubPlan = {
+export const DAOABovinSubPlanFixture = genProgrammingSubPlan({
   id: DAOABovinSubPlanId,
   programmingPlanId: DAOAValidatedProgrammingPlanId,
   codeNat: 'M02',
@@ -92,7 +107,7 @@ export const DAOABovinSubPlanFixture: ProgrammingSubPlan = {
   contactListId: 9,
   withSacha: true,
   substanceKinds: ['Mono', 'Multi', 'Copper']
-};
+});
 
 export const genProgrammingPlan = (
   data?: Partial<ProgrammingPlanChecked>
@@ -140,9 +155,9 @@ export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
   contexts: ['Control', 'Surveillance'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
-  createdBy: NationalCoordinator.id,
+  createdBy: NationalCoordinatorId,
   closedAt: new Date(),
-  closedBy: NationalCoordinator.id,
+  closedBy: NationalCoordinatorId,
   regionalStatus: RegionList.map((region) => ({
     region,
     status: 'Closed'
@@ -159,7 +174,7 @@ export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
   contexts: ['Control', 'Surveillance'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
-  createdBy: NationalCoordinator.id,
+  createdBy: NationalCoordinatorId,
   regionalStatus: RegionList.map((region) => ({
     region,
     status: 'Validated'
@@ -182,7 +197,7 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
   contexts: ['Control', 'Surveillance'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
-  createdBy: NationalCoordinator.id,
+  createdBy: NationalCoordinatorId,
   regionalStatus: RegionList.map((region) => ({
     region,
     status: 'InProgress'
@@ -200,7 +215,7 @@ export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
   legalContexts: ['A'],
   samplesOutsidePlanAllowed: false,
   createdAt: new Date(),
-  createdBy: NationalCoordinator.id,
+  createdBy: NationalCoordinatorId,
   regionalStatus: RegionList.map((region) => ({
     region,
     status: 'Validated'
@@ -236,7 +251,7 @@ export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   legalContexts: ['A'],
   samplesOutsidePlanAllowed: false,
   createdAt: new Date(),
-  createdBy: NationalCoordinator.id,
+  createdBy: NationalCoordinatorId,
   regionalStatus: RegionList.map((region) => ({
     region,
     status: 'InProgress'
