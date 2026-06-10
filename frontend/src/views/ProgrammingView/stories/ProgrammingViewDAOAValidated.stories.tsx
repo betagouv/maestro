@@ -14,12 +14,12 @@ import {
 import {
   DAOABovinSubPlanId,
   DAOAInProgressProgrammingPlanFixture,
-  DAOAVolailleSubPlanId
+  DAOAVolailleSubPlanId,
+  genProgrammingSubPlan
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   DepartmentalCoordinator,
   genAuthUser,
-  genProgrammingSubPlan,
   NationalCoordinator,
   RegionalCoordinator,
   SamplerDaoaFixture
@@ -129,8 +129,8 @@ export const RegionalCoordinatorView: Story = {
         authUser: genAuthUser({
           ...RegionalCoordinator,
           programmingSubPlans: [
-            genProgrammingSubPlan(DAOAVolailleSubPlanId),
-            genProgrammingSubPlan(DAOABovinSubPlanId)
+            genProgrammingSubPlan({ id: DAOAVolailleSubPlanId }),
+            genProgrammingSubPlan({ id: DAOABovinSubPlanId })
           ]
         })
       }

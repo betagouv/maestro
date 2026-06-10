@@ -14,11 +14,7 @@ import {
 import {
   DAOAInProgressProgrammingPlanFixture,
   genProgrammingPlan,
-  PPVSubPlanFixture,
-  TestPPVSubPlanId1,
-  TestPPVSubPlanId2,
-  TestPPVSubPlanId3,
-  TestPPVSubPlanId4
+  PPVSubPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
@@ -56,7 +52,7 @@ describe('ProgrammingPlan router', () => {
     subPlans: [
       {
         ...PPVSubPlanFixture,
-        id: TestPPVSubPlanId1,
+        id: 'd0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0' as typeof PPVSubPlanFixture.id,
         programmingPlanId: 'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1'
       }
     ],
@@ -72,7 +68,7 @@ describe('ProgrammingPlan router', () => {
     subPlans: [
       {
         ...PPVSubPlanFixture,
-        id: TestPPVSubPlanId2,
+        id: 'd1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1' as typeof PPVSubPlanFixture.id,
         programmingPlanId: 'b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1'
       }
     ],
@@ -88,7 +84,7 @@ describe('ProgrammingPlan router', () => {
     subPlans: [
       {
         ...PPVSubPlanFixture,
-        id: TestPPVSubPlanId3,
+        id: 'd2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2' as typeof PPVSubPlanFixture.id,
         programmingPlanId: 'b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2'
       }
     ],
@@ -104,7 +100,7 @@ describe('ProgrammingPlan router', () => {
     subPlans: [
       {
         ...PPVSubPlanFixture,
-        id: TestPPVSubPlanId4,
+        id: 'd3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3' as typeof PPVSubPlanFixture.id,
         programmingPlanId: 'b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3'
       }
     ],
@@ -115,6 +111,13 @@ describe('ProgrammingPlan router', () => {
       status: 'InProgress'
     }))
   });
+  const testSubPlanIds = [
+    validatedDromProgrammingPlan,
+    validatedProgrammingPlan,
+    submittedProgrammingPlan,
+    inProgressProgrammingPlan
+  ].flatMap((plan) => plan.subPlans.map((sp) => sp.id));
+
   beforeAll(async () => {
     await ProgrammingPlans().insert(
       [
@@ -145,18 +148,22 @@ describe('ProgrammingPlan router', () => {
         submittedProgrammingPlan,
         inProgressProgrammingPlan
       ].flatMap((plan) =>
-        plan.subPlans.map((sp) => ({
-          id: sp.id,
-          programmingPlanId: plan.id,
-          codeNat: sp.codeNat,
-          stages: sp.stages,
-          label: sp.label,
-          analysisPermissionRole: sp.analysisPermissionRole ?? null,
-          contactListId: sp.contactListId ?? null,
-          withSacha: sp.withSacha
+        plan.subPlans.map((subPlan) => ({
+          ...subPlan,
+          programmingPlanId: plan.id
         }))
       )
     );
+
+    // Allow NationalCoordinator to see the test plans by including their subplan IDs
+    await Users()
+      .where('id', NationalCoordinator.id)
+      .update({
+        programmingSubPlanIds: [
+          ...NationalCoordinator.programmingSubPlans.map((sp) => sp.id),
+          ...testSubPlanIds
+        ]
+      });
   });
 
   afterAll(async () => {
@@ -176,6 +183,15 @@ describe('ProgrammingPlan router', () => {
         submittedProgrammingPlan.id,
         inProgressProgrammingPlan.id
       ]);
+
+    // Restore NationalCoordinator's original programmingSubPlanIds
+    await Users()
+      .where('id', NationalCoordinator.id)
+      .update({
+        programmingSubPlanIds: NationalCoordinator.programmingSubPlans.map(
+          (sp) => sp.id
+        )
+      });
   });
 
   const programmingPlansMatch = (programmingPlans: ProgrammingPlanChecked[]) =>

@@ -1,10 +1,7 @@
 import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { RegionList, Regions } from '../referential/Region';
-import {
-  type ProgrammingSubPlan,
-  ProgrammingSubPlanId
-} from '../schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { ProgrammingSubPlan } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
 import { AuthUserRefined } from '../schema/User/AuthUser';
 import {
   companiesIsRequired,
@@ -21,55 +18,15 @@ import {
 } from '../schema/User/UserRole';
 import { SlaughterhouseCompanyFixture1 } from './companyFixtures';
 import { LaboratoryFixture } from './laboratoryFixtures';
+import {
+  DAOABovinSubPlanFixture,
+  DAOAVolailleSubPlanFixture,
+  genProgrammingSubPlan,
+  PPVSubPlanFixture,
+  PPVSubPlanId,
+  SachaSubPlanIds
+} from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
-
-export const genProgrammingSubPlan = (
-  id: ProgrammingSubPlanId
-): ProgrammingSubPlan => ({
-  id,
-  programmingPlanId: uuidv4(),
-  codeNat: 'TEST',
-  stages: [],
-  label: 'Test SubPlan',
-  withSacha: false,
-  substanceKinds: ['Any']
-});
-
-const PPVSubPlanIdLocal = ProgrammingSubPlanId.parse(
-  'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1'
-);
-const PPVInProgressSubPlanIdLocal = ProgrammingSubPlanId.parse(
-  'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a3'
-);
-const PPVClosedSubPlanIdLocal = ProgrammingSubPlanId.parse(
-  'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a2'
-);
-
-const AllPPVSubPlanIds = [
-  PPVSubPlanIdLocal,
-  PPVInProgressSubPlanIdLocal,
-  PPVClosedSubPlanIdLocal
-];
-
-const DAOAVolailleSubPlanIdLocal = ProgrammingSubPlanId.parse(
-  'b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2'
-);
-const DAOABovinSubPlanIdLocal = ProgrammingSubPlanId.parse(
-  'c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3'
-);
-const DAOAInProgressVolailleSubPlanIdLocal = ProgrammingSubPlanId.parse(
-  'b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b4'
-);
-const DAOAInProgressBovinSubPlanIdLocal = ProgrammingSubPlanId.parse(
-  'c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c4'
-);
-
-const SachaSubPlanIds = [
-  DAOAVolailleSubPlanIdLocal,
-  DAOABovinSubPlanIdLocal,
-  DAOAInProgressVolailleSubPlanIdLocal,
-  DAOAInProgressBovinSubPlanIdLocal
-];
 
 export const genUser = <T extends Partial<UserRefined>>(
   data: T
@@ -85,8 +42,8 @@ export const genUser = <T extends Partial<UserRefined>>(
     programmingSubPlanIdsIsRequired({ roles })
       ? (data?.programmingSubPlans ??
         (roles?.includes('DepartmentalCoordinator')
-          ? [genProgrammingSubPlan(oneOf(SachaSubPlanIds))]
-          : [genProgrammingSubPlan(PPVSubPlanIdLocal)]))
+          ? [genProgrammingSubPlan({ id: oneOf(SachaSubPlanIds) })]
+          : [genProgrammingSubPlan({ id: PPVSubPlanId })]))
       : [];
 
   return {
@@ -118,7 +75,7 @@ export const RegionDromFixture = '01' as const;
 export const Sampler1Fixture = genUser({
   roles: ['Sampler'],
   id: '11111111-1111-1111-1111-111111111111',
-  programmingSubPlans: AllPPVSubPlanIds.map(genProgrammingSubPlan),
+  programmingSubPlans: [PPVSubPlanFixture],
   region: Region1Fixture,
   department: null,
   name: 'John Doe',
@@ -127,7 +84,7 @@ export const Sampler1Fixture = genUser({
 export const Sampler2Fixture = genUser({
   roles: ['Sampler'],
   id: '22222222-2222-2222-2222-222222222222',
-  programmingSubPlans: AllPPVSubPlanIds.map(genProgrammingSubPlan),
+  programmingSubPlans: [PPVSubPlanFixture],
   region: Region2Fixture,
   department: null,
   name: 'Jane Austen',
@@ -136,7 +93,7 @@ export const Sampler2Fixture = genUser({
 export const SamplerDromFixture = genUser({
   roles: ['Sampler'],
   id: '66666666-6666-6666-6666-666666666666',
-  programmingSubPlans: AllPPVSubPlanIds.map(genProgrammingSubPlan),
+  programmingSubPlans: [PPVSubPlanFixture],
   region: RegionDromFixture,
   department: null,
   name: 'Jack Sparrow',
@@ -145,7 +102,7 @@ export const SamplerDromFixture = genUser({
 export const RegionalCoordinator = genUser({
   roles: ['RegionalCoordinator'],
   id: '33333333-3333-3333-3333-333333333333',
-  programmingSubPlans: AllPPVSubPlanIds.map(genProgrammingSubPlan),
+  programmingSubPlans: [PPVSubPlanFixture],
   region: Region1Fixture,
   name: 'Alice Wonderland',
   email: 'alice.wonderland@example.net'
@@ -153,14 +110,14 @@ export const RegionalCoordinator = genUser({
 export const RegionalDromCoordinator = genUser({
   roles: ['RegionalCoordinator'],
   id: '44444444-4444-4444-4444-444444444444',
-  programmingSubPlans: AllPPVSubPlanIds.map(genProgrammingSubPlan),
+  programmingSubPlans: [PPVSubPlanFixture],
   region: RegionDromFixture,
   name: 'Bob Marley',
   email: 'bob.marley@example.net'
 });
 export const NationalCoordinator = genUser({
   roles: ['NationalCoordinator'],
-  programmingSubPlans: AllPPVSubPlanIds.map(genProgrammingSubPlan),
+  programmingSubPlans: [PPVSubPlanFixture],
   id: '55555555-5555-5555-5555-555555555555'
 });
 export const AdminFixture = genUser({
@@ -170,35 +127,32 @@ export const AdminFixture = genUser({
 export const RegionalObserver = genUser({
   roles: ['RegionalObserver'],
   id: '88888888-8888-8888-8888-888888888888',
-  programmingSubPlans: AllPPVSubPlanIds.map(genProgrammingSubPlan),
+  programmingSubPlans: [],
   region: Region1Fixture
 });
 export const NationalObserver = genUser({
   roles: ['NationalObserver'],
-  programmingSubPlans: AllPPVSubPlanIds.map(genProgrammingSubPlan),
+  programmingSubPlans: [PPVSubPlanFixture],
   id: '99999999-9999-9999-9999-999999999999'
 });
 export const DepartmentalCoordinator = genUser({
   roles: ['DepartmentalCoordinator'],
   id: '12121212-1212-1212-1212-121212121212',
-  programmingSubPlans: SachaSubPlanIds.map(genProgrammingSubPlan),
+  programmingSubPlans: [DAOAVolailleSubPlanFixture, DAOABovinSubPlanFixture],
   region: Region1Fixture,
   department: Regions[Region1Fixture].departments[0]
 });
 export const SamplerDaoaFixture = genUser({
   roles: ['Sampler'],
   id: '13131313-1313-1313-1313-131313131313',
-  programmingSubPlans: SachaSubPlanIds.map(genProgrammingSubPlan),
+  programmingSubPlans: [DAOAVolailleSubPlanFixture, DAOABovinSubPlanFixture],
   region: Region2Fixture,
   department: '85',
   companies: [SlaughterhouseCompanyFixture1]
 });
 export const NationalCoordinatorDaoaFixture = genUser({
   roles: ['NationalCoordinator'],
-  programmingSubPlans: [
-    DAOAVolailleSubPlanIdLocal,
-    DAOABovinSubPlanIdLocal
-  ].map(genProgrammingSubPlan),
+  programmingSubPlans: [DAOAVolailleSubPlanFixture, DAOABovinSubPlanFixture],
   id: '14141414-1414-1414-1414-141414141414'
 });
 export const LaboratoryUserFixture = genUser({

@@ -49,14 +49,8 @@ export const seed = async (): Promise<void> => {
       DAOAInProgressProgrammingPlanFixture
     ].flatMap((plan) =>
       plan.subPlans.map((subPlan) => ({
-        id: subPlan.id,
-        programmingPlanId: plan.id,
-        codeNat: subPlan.codeNat,
-        stages: subPlan.stages,
-        label: subPlan.label,
-        analysisPermissionRole: subPlan.analysisPermissionRole,
-        contactListId: subPlan.contactListId,
-        withSacha: subPlan.withSacha
+        ...subPlan,
+        programmingPlanId: plan.id
       }))
     )
   );
