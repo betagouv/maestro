@@ -161,4 +161,4 @@ export const getZipFileName = (
   return `${fileType}${sigle}${currentDate}_1.zip`;
 };
 
-const getSenderSachaSigle = (department: Department) => `DDSV${department}`;
+const getSenderSachaSigle = (department: Department) => `MDDSV${department}`;
