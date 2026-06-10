@@ -9,6 +9,8 @@ import {
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
   DAOAInProgressProgrammingPlanFixture,
+  DAOAValidatedProgrammingPlanFixture,
+  PPVClosedProgrammingPlanFixture,
   PPVInProgressProgrammingPlanFixture,
   PPVSubmittedProgrammingPlanFixture,
   PPVValidatedDromProgrammingPlanFixture,
@@ -63,7 +65,8 @@ describe('ProgrammingPlan router', () => {
         ...programmingPlan,
         regionalStatus: programmingPlan.regionalStatus.filter(
           (regionalStatus) => (region ? regionalStatus.region === region : true)
-        )
+        ),
+        departmentalStatus: []
       })
     );
     expect(withISOStringDates(body)).toMatchObject(
@@ -106,10 +109,11 @@ describe('ProgrammingPlan router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expectedBody(res.body, [
-        PPVValidatedDromProgrammingPlanFixture,
         PPVValidatedProgrammingPlanFixture,
+        PPVValidatedDromProgrammingPlanFixture,
         PPVSubmittedProgrammingPlanFixture,
-        PPVInProgressProgrammingPlanFixture
+        PPVInProgressProgrammingPlanFixture,
+        PPVClosedProgrammingPlanFixture
       ]);
     });
 
@@ -120,10 +124,13 @@ describe('ProgrammingPlan router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expectedBody(res.body, [
-        PPVValidatedDromProgrammingPlanFixture,
         PPVValidatedProgrammingPlanFixture,
+        PPVValidatedDromProgrammingPlanFixture,
         PPVSubmittedProgrammingPlanFixture,
-        PPVInProgressProgrammingPlanFixture
+        PPVInProgressProgrammingPlanFixture,
+        PPVClosedProgrammingPlanFixture,
+        DAOAInProgressProgrammingPlanFixture,
+        DAOAValidatedProgrammingPlanFixture
       ]);
     });
 
@@ -157,7 +164,6 @@ describe('ProgrammingPlan router', () => {
         res1.body,
         [
           PPVValidatedDromProgrammingPlanFixture,
-          PPVValidatedProgrammingPlanFixture,
           PPVSubmittedProgrammingPlanFixture
         ],
         RegionalDromCoordinator.region
@@ -365,13 +371,14 @@ describe('ProgrammingPlan router', () => {
       );
       await PrescriptionSubstances().insert(prescriptionSubstance);
 
+      const year = PPVValidatedProgrammingPlanFixture.year + 1;
       const res = await request(app)
-        .post(testRoute('2020'))
+        .post(testRoute(year.toString()))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_CREATED);
 
       expect(res.body).toMatchObject({
-        year: 2020,
+        year,
         regionalStatus: RegionList.map((region) => ({
           region,
           status: 'InProgress' as const
@@ -379,9 +386,9 @@ describe('ProgrammingPlan router', () => {
       });
 
       await expect(
-        ProgrammingPlans().where('year', 2020).first()
+        ProgrammingPlans().where('year', year).first()
       ).resolves.toMatchObject({
-        year: 2020
+        year
       });
 
       await expect(
@@ -400,6 +407,7 @@ describe('ProgrammingPlan router', () => {
       const newControlPrescription = await Prescriptions()
         .where('programmingPlanId', res.body.id)
         .andWhere('context', 'Control')
+        .andWhere('matrixKind', controlPrescription.matrixKind)
         .first();
 
       expect(newControlPrescription).toMatchObject({
@@ -482,7 +490,6 @@ describe('ProgrammingPlan router', () => {
           newSurveillancePrescription?.id
         ] as string[])
         .delete();
-      await ProgrammingPlans().where('id', res.body.id).delete();
     });
   });
 
