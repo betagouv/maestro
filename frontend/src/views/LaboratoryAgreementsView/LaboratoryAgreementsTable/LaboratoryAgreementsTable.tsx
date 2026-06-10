@@ -101,9 +101,6 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
   const [expandedMatrixRowKeys, setExpandedMatrixRowKeys] = useState<string[]>(
     []
   );
-  const [expandedStageRowKeys, setExpandedStageRowKeys] = useState<string[]>(
-    []
-  );
   const [animatingRowKeys, setAnimatingRowKeys] = useState<string[]>([]);
   const [pendingCheckRowKeys, setPendingCheckRowKeys] = useState<string[]>([]);
 
@@ -190,13 +187,6 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
   const handleToggleMatrix = useCallback(
     (key: string) =>
       setExpandedMatrixRowKeys((prev) =>
-        prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-      ),
-    []
-  );
-  const handleToggleStage = useCallback(
-    (key: string) =>
-      setExpandedStageRowKeys((prev) =>
         prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
       ),
     []
@@ -431,7 +421,6 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                     isAnimating={animatingRowKeys.includes(rowKey)}
                     isLabsExpanded={expandedLabRowKeys.includes(rowKey)}
                     isMatrixExpanded={expandedMatrixRowKeys.includes(rowKey)}
-                    isStageExpanded={expandedStageRowKeys.includes(rowKey)}
                     prescriptions={
                       prescriptionsBySubPlanId.get(row.programmingSubPlan.id) ??
                       []
@@ -441,7 +430,6 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                     onToggleExpand={handleToggleExpand}
                     onToggleLabs={handleToggleLabs}
                     onToggleMatrix={handleToggleMatrix}
-                    onToggleStage={handleToggleStage}
                     onOpenModalForRow={onOpenModalForRow}
                     onUpdateCheck={onUpdateCheck}
                     onPendingStart={handlePendingStart}
