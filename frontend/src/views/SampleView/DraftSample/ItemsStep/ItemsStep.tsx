@@ -98,7 +98,7 @@ const ItemsStep = ({ partialSample }: Props) => {
       setItems(
         [
           ...(localPrescription?.substanceKindsLaboratories ??
-            programmingPlan.substanceKinds.map((substanceKind) => ({
+            (programmingSubPlan?.substanceKinds ?? []).map((substanceKind) => ({
               substanceKind,
               laboratoryId: undefined
             })))

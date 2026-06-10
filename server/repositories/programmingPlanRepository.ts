@@ -53,7 +53,7 @@ const ProgrammingPlanQuery = () =>
         `coalesce(array_agg(to_json(${programmingPlanLocalStatusTable}.*)) filter (where ${programmingPlanLocalStatusTable}.department != 'None'), '{}') as "departmental_status"`
       ),
       db.raw(
-        `(SELECT coalesce(json_agg(json_build_object('id', sp.id, 'programmingPlanId', sp.programming_plan_id, 'codeNat', sp.code_nat, 'stages', sp.stages, 'label', sp.label, 'analysisPermissionRole', sp.analysis_permission_role, 'contactListId', sp.contact_list_id, 'withSacha', sp.with_sacha) ORDER BY sp.code_nat), '[]'::json) FROM ${programmingSubPlansTable} sp WHERE sp.programming_plan_id = ${programmingPlansTable}.id) as "sub_plans"`
+        `(SELECT coalesce(json_agg(json_build_object('id', sp.id, 'programmingPlanId', sp.programming_plan_id, 'codeNat', sp.code_nat, 'stages', sp.stages, 'label', sp.label, 'analysisPermissionRole', sp.analysis_permission_role, 'contactListId', sp.contact_list_id, 'withSacha', sp.with_sacha, 'substanceKinds', sp.substance_kinds) ORDER BY sp.code_nat), '[]'::json) FROM ${programmingSubPlansTable} sp WHERE sp.programming_plan_id = ${programmingPlansTable}.id) as "sub_plans"`
       )
     )
     .join(
@@ -161,7 +161,8 @@ const insert = async (
           label: subPlan.label,
           analysisPermissionRole: subPlan.analysisPermissionRole ?? null,
           contactListId: subPlan.contactListId ?? null,
-          withSacha: subPlan.withSacha
+          withSacha: subPlan.withSacha,
+          substanceKinds: subPlan.substanceKinds
         }))
       );
     }

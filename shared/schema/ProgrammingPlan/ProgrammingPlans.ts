@@ -2,7 +2,6 @@ import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { LegalContext } from '../../referential/LegalContext';
 import { checkSchema } from '../../utils/zod';
-import { SubstanceKind } from '../Substance/SubstanceKind';
 import type { UserRefined } from '../User/User';
 import {
   isNationalRole,
@@ -33,7 +32,6 @@ export const ProgrammingPlanBase = z.object({
     .array(LegalContext)
     .min(1, 'Veuillez renseigner au moins un cadre juridique.'),
   samplesOutsidePlanAllowed: z.boolean(),
-  substanceKinds: z.array(SubstanceKind),
   distributionKind: DistributionKind,
   createdAt: z.coerce.date(),
   createdBy: z.guid(),

@@ -426,6 +426,7 @@ export interface ProgrammingSubPlans {
   analysisPermissionRole: string | null;
   contactListId: number | null;
   withSacha: boolean;
+  substanceKinds: SubstanceKind[];
 }
 
 export interface SampleDocuments {

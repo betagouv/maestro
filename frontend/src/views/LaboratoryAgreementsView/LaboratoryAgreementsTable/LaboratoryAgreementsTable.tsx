@@ -316,7 +316,7 @@ const LaboratoryAgreementsTable = ({
             </div>,
             <div key="header-reference" className="border-left">
               <ColumnFilterHeader
-                label="NAT"
+                label="ID"
                 options={kindOptions}
                 selectedValues={kindFilter}
                 onChange={onKindFilterChange}

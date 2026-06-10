@@ -31,7 +31,8 @@ export const genProgrammingSubPlan = (
   codeNat: 'TEST',
   stages: [],
   label: 'Test SubPlan',
-  withSacha: false
+  withSacha: false,
+  substanceKinds: ['Any']
 });
 
 const PPVSubPlanIdLocal = ProgrammingSubPlanId.parse(
