@@ -451,8 +451,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
           region,
           status: 'InProgress' as const
         })),
-        departmentalStatus: [],
-        substanceKinds: previousProgrammingPlan.substanceKinds
+        departmentalStatus: []
       };
 
       await programmingPlanRepository.insert(newProgrammingPlan);

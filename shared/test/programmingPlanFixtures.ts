@@ -66,7 +66,8 @@ export const PPVSubPlanFixture: ProgrammingSubPlan = {
   label: 'Production primaire végétale',
   analysisPermissionRole: 'Sampler',
   contactListId: 7,
-  withSacha: false
+  withSacha: false,
+  substanceKinds: ['Any']
 };
 
 const DAOAVolailleSubPlanFixture: ProgrammingSubPlan = {
@@ -77,7 +78,8 @@ const DAOAVolailleSubPlanFixture: ProgrammingSubPlan = {
   label: 'Abattoir / Viande de volaille',
   analysisPermissionRole: 'DepartmentalCoordinator',
   contactListId: 9,
-  withSacha: true
+  withSacha: true,
+  substanceKinds: ['Mono', 'Multi', 'Copper']
 };
 
 export const DAOABovinSubPlanFixture: ProgrammingSubPlan = {
@@ -88,7 +90,8 @@ export const DAOABovinSubPlanFixture: ProgrammingSubPlan = {
   label: 'Abattoir / Foie de bovin',
   analysisPermissionRole: 'DepartmentalCoordinator',
   contactListId: 9,
-  withSacha: true
+  withSacha: true,
+  substanceKinds: ['Mono', 'Multi', 'Copper']
 };
 
 export const genProgrammingPlan = (
@@ -109,7 +112,6 @@ export const genProgrammingPlan = (
     distributionKind: 'REGIONAL',
     contexts: ['Control', 'Surveillance'],
     legalContexts: ['A', 'B'],
-    substanceKinds: ['Any'],
     samplesOutsidePlanAllowed: true,
     createdAt: new Date(),
     createdBy: uuidv4(),
@@ -136,7 +138,6 @@ export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
   ],
   distributionKind: 'REGIONAL',
   contexts: ['Control', 'Surveillance'],
-  substanceKinds: ['Any'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinator.id,
@@ -156,7 +157,6 @@ export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
   subPlans: [PPVSubPlanFixture],
   distributionKind: 'REGIONAL',
   contexts: ['Control', 'Surveillance'],
-  substanceKinds: ['Any'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinator.id,
@@ -180,7 +180,6 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
   ],
   distributionKind: 'REGIONAL',
   contexts: ['Control', 'Surveillance'],
-  substanceKinds: ['Any'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinator.id,
@@ -199,7 +198,6 @@ export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
   distributionKind: 'SLAUGHTERHOUSE',
   contexts: ['Surveillance'],
   legalContexts: ['A'],
-  substanceKinds: ['Mono', 'Multi', 'Copper'],
   samplesOutsidePlanAllowed: false,
   createdAt: new Date(),
   createdBy: NationalCoordinator.id,
@@ -236,7 +234,6 @@ export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   distributionKind: 'SLAUGHTERHOUSE',
   contexts: ['Surveillance'],
   legalContexts: ['A'],
-  substanceKinds: ['Mono', 'Multi', 'Copper'],
   samplesOutsidePlanAllowed: false,
   createdAt: new Date(),
   createdBy: NationalCoordinator.id,

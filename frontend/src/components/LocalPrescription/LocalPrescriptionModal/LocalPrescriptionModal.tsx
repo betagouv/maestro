@@ -141,7 +141,13 @@ const LocalPrescriptionModal = () => {
       return 'La répartition de la programmation a bien été enregistrée pour ces abattoirs.';
     }
     return pluralize(
-      (localPrescriptionModalData?.programmingPlan.substanceKinds ?? []).length,
+      (
+        localPrescriptionModalData?.programmingPlan.subPlans.find(
+          (sp) =>
+            sp.id ===
+            localPrescriptionModalData.prescription.programmingSubPlanId
+        )?.substanceKinds ?? []
+      ).length,
       {
         ignores: ['bien', 'été'],
         replacements: [
@@ -207,12 +213,17 @@ const LocalPrescriptionModal = () => {
                   ).length > 0
                     ? (localPrescriptionModalData.localPrescription
                         .substanceKindsLaboratories as SubstanceKindLaboratory[])
-                    : localPrescriptionModalData.programmingPlan.substanceKinds.map(
-                        (substanceKind) => ({
-                          substanceKind,
-                          laboratoryId: undefined
-                        })
-                      )
+                    : (
+                        localPrescriptionModalData.programmingPlan.subPlans.find(
+                          (sp) =>
+                            sp.id ===
+                            localPrescriptionModalData.prescription
+                              .programmingSubPlanId
+                        )?.substanceKinds ?? []
+                      ).map((substanceKind) => ({
+                        substanceKind,
+                        laboratoryId: undefined
+                      }))
                 }
                 onSubmit={submitSubstanceKindsLaboratories}
                 readonly={readonly}

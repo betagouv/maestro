@@ -214,7 +214,11 @@ export const sampleRouter = {
         (sampleItems?.length
           ? [...sampleItems].sort(SampleItemSort)
           : Array.from(
-              Array(programmingPlan.substanceKinds.length).keys()
+              Array(
+                programmingPlan.subPlans.find(
+                  (sp) => sp.id === sample.programmingSubPlanId
+                )?.substanceKinds.length ?? 1
+              ).keys()
             ).flatMap((itemNumber) =>
               Array.from(Array(SampleItemMaxCopyCount).keys()).map(
                 (copyNumber) => ({

@@ -56,14 +56,8 @@ export const seed = async () => {
   await ProgrammingSubPlans().insert(
     plans.flatMap((plan) =>
       plan.subPlans.map((subPlan) => ({
-        id: subPlan.id,
-        programmingPlanId: plan.id,
-        codeNat: subPlan.codeNat,
-        stages: subPlan.stages,
-        label: subPlan.label,
-        analysisPermissionRole: subPlan.analysisPermissionRole,
-        contactListId: subPlan.contactListId,
-        withSacha: subPlan.withSacha
+        ...subPlan,
+        programmingPlanId: plan.id
       }))
     )
   );

@@ -444,6 +444,10 @@ const generatePrescriptionsExportExcel = async (
       .map((_) => _.companySiret)
   );
 
+  const effectiveSubstanceKinds = [
+    ...new Set(programmingPlan.subPlans.flatMap((sp) => sp.substanceKinds))
+  ];
+
   const columnTitles: string[] = [];
 
   if (!exportedRegion) {
@@ -458,7 +462,7 @@ const generatePrescriptionsExportExcel = async (
         `Région ${Regions[region].shortName}\nRéalisés`,
         `Région ${Regions[region].shortName}\nTaux de réalisation`,
         ...(programmingPlan.distributionKind === 'REGIONAL'
-          ? programmingPlan.substanceKinds.flatMap(
+          ? effectiveSubstanceKinds.flatMap(
               (substanceKind) =>
                 `Région ${Regions[region].shortName}\nLaboratoire ${SubstanceKindLabels[substanceKind].toLowerCase()}`
             )
@@ -472,7 +476,7 @@ const generatePrescriptionsExportExcel = async (
         `Département ${department}\nProgrammés`,
         `Département ${department}\nRéalisés`,
         `Département ${department}\nTaux de réalisation`,
-        ...programmingPlan.substanceKinds.flatMap(
+        ...effectiveSubstanceKinds.flatMap(
           (substanceKind) =>
             `Département ${department}\nLaboratoire ${SubstanceKindLabels[substanceKind].toLowerCase()}`
         )
@@ -532,7 +536,11 @@ const generatePrescriptionsExportExcel = async (
             ...((programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
               !isNil(department)) ||
             (programmingPlan.distributionKind === 'REGIONAL' && !isNil(region))
-              ? programmingPlan.substanceKinds.flatMap(
+              ? (
+                  programmingPlan.subPlans.find(
+                    (sp) => sp.id === prescription.programmingSubPlanId
+                  )?.substanceKinds ?? effectiveSubstanceKinds
+                ).flatMap(
                   (substanceKind) =>
                     laboratories.find((laboratory) =>
                       substanceKindsLaboratories?.some(

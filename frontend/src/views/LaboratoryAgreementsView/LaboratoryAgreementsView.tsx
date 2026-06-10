@@ -115,7 +115,7 @@ const LaboratoryAgreementsView = () => {
     () =>
       programmingPlans.flatMap((plan) =>
         plan.subPlans.flatMap((subPlan) =>
-          plan.substanceKinds.map((substanceKind) => ({
+          subPlan.substanceKinds.map((substanceKind) => ({
             programmingSubPlan: subPlan,
             programmingPlanYear: plan.year,
             substanceKind,

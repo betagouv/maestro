@@ -221,20 +221,21 @@ const generateSamplePDF = async (
     ? await userRepository.findUnique(sample.additionalSampler.id)
     : null;
 
-  const emptySampleItems: PartialSampleItem[] =
-    programmingPlan.substanceKinds.flatMap((substanceKind, substanceIndex) =>
-      new Array(SampleItemMaxCopyCount).fill(null).map((_, copyIndex) => {
-        const itemNumber = substanceIndex + 1;
-        const copyNumber = copyIndex + 1;
-        return {
-          sampleId: sample.id,
-          itemNumber,
-          copyNumber,
-          recipientKind: copyNumber === 1 ? 'Laboratory' : undefined,
-          substanceKind
-        };
-      })
-    );
+  const emptySampleItems: PartialSampleItem[] = (
+    subPlan?.substanceKinds ?? []
+  ).flatMap((substanceKind, substanceIndex) =>
+    new Array(SampleItemMaxCopyCount).fill(null).map((_, copyIndex) => {
+      const itemNumber = substanceIndex + 1;
+      const copyNumber = copyIndex + 1;
+      return {
+        sampleId: sample.id,
+        itemNumber,
+        copyNumber,
+        recipientKind: copyNumber === 1 ? 'Laboratory' : undefined,
+        substanceKind
+      };
+    })
+  );
 
   const sampleDocuments = await documentRepository.findMany({
     sampleId: sample.id
@@ -272,7 +273,7 @@ const generateSamplePDF = async (
     (c) => c.field.key === 'matrixPart'
   )?.field;
 
-  const planLabel = `${codeNat} / ${ProgrammingPlanDomainLabels[programmingPlan.domain]} / ${programmingPlan.substanceKinds.map((s) => SubstanceKindLabels[s]).join(' ')} / ${subPlan?.label}`;
+  const planLabel = `${codeNat} / ${ProgrammingPlanDomainLabels[programmingPlan.domain]} / ${(subPlan?.substanceKinds ?? []).map((s) => SubstanceKindLabels[s]).join(' ')} / ${subPlan?.label}`;
 
   return generatePDF(template, {
     fullVersion,

@@ -107,9 +107,11 @@ const LocalPrescriptionButtons = ({
           ? {
               children: (
                 <span className="no-wrap">
-                  {pluralize(programmingPlan.substanceKinds.length ?? 0)(
-                    'Laboratoire'
-                  )}
+                  {pluralize(
+                    programmingPlan.subPlans.find(
+                      (sp) => sp.id === prescription.programmingSubPlanId
+                    )?.substanceKinds.length ?? 0
+                  )('Laboratoire')}
                 </span>
               ),
               priority: 'tertiary no outline',

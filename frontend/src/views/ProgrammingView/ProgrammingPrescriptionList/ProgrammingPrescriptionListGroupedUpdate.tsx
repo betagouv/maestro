@@ -61,12 +61,14 @@ const ProgrammingPrescriptionListGroupedUpdate = ({
             ref={laboratoriesUpdateContentRef}
             programmingPlanId={programmingPlan.id}
             programmingSubPlanId={programmingSubPlanId}
-            substanceKindsLaboratories={programmingPlan.substanceKinds.map(
-              (substanceKind) => ({
-                substanceKind,
-                laboratoryId: undefined
-              })
-            )}
+            substanceKindsLaboratories={(
+              programmingPlan.subPlans.find(
+                (sp) => sp.id === programmingSubPlanId
+              )?.substanceKinds ?? []
+            ).map((substanceKind) => ({
+              substanceKind,
+              laboratoryId: undefined
+            }))}
             onSubmit={onSubmit}
           />
           <div className={clsx(cx('fr-mt-3w'), 'float-right')}>
