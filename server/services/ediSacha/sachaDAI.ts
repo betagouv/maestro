@@ -1,3 +1,4 @@
+import { isNil } from 'lodash-es';
 import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type {
   CommemoratifSigle,
@@ -62,7 +63,8 @@ export const generateXMLDAI = (
     );
   }
 
-  if (sampleItem.substanceKind === 'Any') {
+  const siglePlanAnalyse = SiglePlanAnalyse[sampleItem.substanceKind];
+  if (isNil(siglePlanAnalyse)) {
     throw new Error("Pas de plan d'analyse de configuré.");
   }
 
@@ -129,7 +131,7 @@ export const generateXMLDAI = (
         ],
         ReferencePlanAnalyseType: {
           ReferencePlanAnalyseEffectuer: {
-            SiglePlanAnalyse: SiglePlanAnalyse[sampleItem.substanceKind]
+            SiglePlanAnalyse: siglePlanAnalyse
           },
           ReferencePlanAnalyseContenu: {
             LibelleMatrice: 'Matrice prescrite',
