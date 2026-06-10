@@ -5,7 +5,7 @@ import type {
 import {
   DAOAInProgressBovinSubPlanId,
   DAOAInProgressVolailleSubPlanId,
-  PPVSubPlanId
+  PPVValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   AllFieldConfigs,
@@ -42,8 +42,9 @@ const allOptionValuesByFieldKey = new Map(
 describe('findByPlanKind', () => {
   describe('PPV', () => {
     test('returns fields in order', async () => {
-      const configs =
-        await specificDataFieldConfigRepository.findByPlanSubPlan(PPVSubPlanId);
+      const configs = await specificDataFieldConfigRepository.findByPlanSubPlan(
+        PPVValidatedSubPlanId
+      );
 
       expect(configs).toHaveLength(PPVFieldConfigs.length);
       expect(configs.map((c) => c.field.key)).toEqual(
@@ -52,8 +53,9 @@ describe('findByPlanKind', () => {
     });
 
     test('sets required flag correctly', async () => {
-      const configs =
-        await specificDataFieldConfigRepository.findByPlanSubPlan(PPVSubPlanId);
+      const configs = await specificDataFieldConfigRepository.findByPlanSubPlan(
+        PPVValidatedSubPlanId
+      );
 
       const byKey = Object.fromEntries(configs.map((c) => [c.field.key, c]));
       for (const fixture of PPVFieldConfigs) {
@@ -62,8 +64,9 @@ describe('findByPlanKind', () => {
     });
 
     test('returns correct options per field', async () => {
-      const configs =
-        await specificDataFieldConfigRepository.findByPlanSubPlan(PPVSubPlanId);
+      const configs = await specificDataFieldConfigRepository.findByPlanSubPlan(
+        PPVValidatedSubPlanId
+      );
 
       const byKey = Object.fromEntries(configs.map((c) => [c.field.key, c]));
       for (const fixture of PPVFieldConfigs) {

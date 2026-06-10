@@ -3,6 +3,8 @@ import {
   DAOAValidatedProgrammingPlanFixture,
   PPVClosedProgrammingPlanFixture,
   PPVInProgressProgrammingPlanFixture,
+  PPVSubmittedProgrammingPlanFixture,
+  PPVValidatedDromProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -17,7 +19,9 @@ export const seed = async (): Promise<void> => {
     [
       PPVClosedProgrammingPlanFixture,
       PPVValidatedProgrammingPlanFixture,
+      PPVValidatedDromProgrammingPlanFixture,
       PPVInProgressProgrammingPlanFixture,
+      PPVSubmittedProgrammingPlanFixture,
       DAOAValidatedProgrammingPlanFixture,
       DAOAInProgressProgrammingPlanFixture
     ].map(formatProgrammingPlan)
@@ -27,7 +31,9 @@ export const seed = async (): Promise<void> => {
     [
       PPVClosedProgrammingPlanFixture,
       PPVValidatedProgrammingPlanFixture,
+      PPVValidatedDromProgrammingPlanFixture,
       PPVInProgressProgrammingPlanFixture,
+      PPVSubmittedProgrammingPlanFixture,
       DAOAValidatedProgrammingPlanFixture,
       DAOAInProgressProgrammingPlanFixture
     ].flatMap((plan) =>
@@ -44,7 +50,9 @@ export const seed = async (): Promise<void> => {
     [
       PPVClosedProgrammingPlanFixture,
       PPVValidatedProgrammingPlanFixture,
+      PPVValidatedDromProgrammingPlanFixture,
       PPVInProgressProgrammingPlanFixture,
+      PPVSubmittedProgrammingPlanFixture,
       DAOAValidatedProgrammingPlanFixture,
       DAOAInProgressProgrammingPlanFixture
     ].flatMap((plan) =>

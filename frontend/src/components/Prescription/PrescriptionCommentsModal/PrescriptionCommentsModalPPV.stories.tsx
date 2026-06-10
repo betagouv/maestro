@@ -8,7 +8,7 @@ import {
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
   PPVInProgressProgrammingPlanFixture,
-  PPVSubPlanId
+  PPVValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { genLocalPrescriptionComment } from 'maestro-shared/test/regionalPrescriptionCommentFixture';
 import {
@@ -171,7 +171,7 @@ export const NationalCoordinatorViewByRegion: Story = {
           prescription: genPrescription({
             id: '22222222-2222-2222-2222-222222222222',
             programmingPlanId: PPVInProgressProgrammingPlanFixture.id,
-            programmingSubPlanId: PPVSubPlanId,
+            programmingSubPlanId: PPVValidatedSubPlanId,
             context: 'Surveillance',
             matrixKind: 'A01SN',
             stages: ['STADE10']

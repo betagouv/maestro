@@ -1,9 +1,9 @@
 import { fakerFR } from '@faker-js/faker';
 import { CER30Id } from 'maestro-shared/schema/User/User';
 import {
-  DAOABovinSubPlanId,
-  DAOAVolailleSubPlanId,
-  PPVSubPlanId
+  DAOABovinValidatedSubPlanId,
+  DAOAVolailleValidatedSubPlanId,
+  PPVValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   AdminFixture,
@@ -14,7 +14,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { UserCompanies, Users } from '../../../repositories/userRepository';
 import { AVIVOL, CHARAL } from './001-companies';
 
-const sachaSubPlanIds = [DAOAVolailleSubPlanId, DAOABovinSubPlanId];
+const sachaSubPlanIds = [
+  DAOAVolailleValidatedSubPlanId,
+  DAOABovinValidatedSubPlanId
+];
 
 export const seed = async () => {
   await Users().insert([
@@ -29,7 +32,7 @@ export const seed = async () => {
       id: uuidv4(),
       email: 'laboratory@maestro.beta.gouv.fr',
       name: `Laboratoire - ${fakerFR.person.fullName()}`,
-      programmingSubPlanIds: [PPVSubPlanId],
+      programmingSubPlanIds: [PPVValidatedSubPlanId],
       roles: ['LaboratoryUser'],
       laboratoryId: CER30Id
     },
@@ -46,14 +49,14 @@ export const seed = async () => {
       id: NationalCoordinator.id,
       email: 'coordinateur.national@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
-      programmingSubPlanIds: [PPVSubPlanId],
+      programmingSubPlanIds: [PPVValidatedSubPlanId],
       roles: ['NationalCoordinator']
     },
     {
       id: uuidv4(),
       email: 'coordinateur.regional@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
-      programmingSubPlanIds: [PPVSubPlanId],
+      programmingSubPlanIds: [PPVValidatedSubPlanId],
       roles: ['RegionalCoordinator'],
       region: '44'
     },
@@ -61,7 +64,7 @@ export const seed = async () => {
       id: uuidv4(),
       email: 'coordinateur.regional.drom@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
-      programmingSubPlanIds: [PPVSubPlanId],
+      programmingSubPlanIds: [PPVValidatedSubPlanId],
       roles: ['RegionalCoordinator'],
       region: '01'
     },
@@ -69,7 +72,7 @@ export const seed = async () => {
       id: uuidv4(),
       email: 'preleveur@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
-      programmingSubPlanIds: [PPVSubPlanId],
+      programmingSubPlanIds: [PPVValidatedSubPlanId],
       roles: ['Sampler'],
       region: '44'
     },
@@ -77,7 +80,7 @@ export const seed = async () => {
       id: uuidv4(),
       email: 'preleveur.drom@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
-      programmingSubPlanIds: [PPVSubPlanId],
+      programmingSubPlanIds: [PPVValidatedSubPlanId],
       roles: ['Sampler'],
       region: '01'
     },
@@ -85,14 +88,14 @@ export const seed = async () => {
       id: uuidv4(),
       email: 'suivi.national@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
-      programmingSubPlanIds: [PPVSubPlanId],
+      programmingSubPlanIds: [PPVValidatedSubPlanId],
       roles: ['NationalObserver']
     },
     {
       id: uuidv4(),
       email: 'suivi.regional@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
-      programmingSubPlanIds: [PPVSubPlanId],
+      programmingSubPlanIds: [PPVValidatedSubPlanId],
       roles: ['RegionalObserver'],
       region: '44'
     },

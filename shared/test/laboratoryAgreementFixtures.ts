@@ -1,15 +1,18 @@
 import { CAP29Id } from '../schema/User/User';
-import { DAOAVolailleSubPlanId, PPVSubPlanId } from './programmingPlanFixtures';
+import {
+  DAOAVolailleValidatedSubPlanId,
+  PPVValidatedSubPlanId
+} from './programmingPlanFixtures';
 import { AdminFixture } from './userFixtures';
 
 export const DAOALaboratoryAgreementFixture = {
-  programmingSubPlanId: DAOAVolailleSubPlanId,
+  programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
   laboratoryId: CAP29Id,
   substanceKind: 'Multi'
 };
 
 export const LaboratoryAgreementCheckFixture = {
-  programmingSubPlanId: PPVSubPlanId,
+  programmingSubPlanId: PPVValidatedSubPlanId,
   substanceKind: 'Any'
 };
 

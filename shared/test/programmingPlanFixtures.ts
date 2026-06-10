@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { RegionList, Regions } from '../referential/Region';
+import { isDromRegion, RegionList, Regions } from '../referential/Region';
 import { ProgrammingPlanStatusList } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -12,12 +12,18 @@ const NationalCoordinatorId = '55555555-5555-5555-5555-555555555555';
 
 const PPVClosedProgrammingPlanId = 'f5d510ef-ab78-449a-acd6-392895a1994f';
 const PPVValidatedProgrammingPlanId = 'd78fb3eb-1998-482b-9014-282d51ae30b8';
+const PPVValidatedDromProgrammingPlanId =
+  'c9e8a1b2-9c3d-4f0e-9c5a-1a2b3c4d5e6f';
 const PPVInProgressProgrammingPlanId = 'bac693a5-9475-4e24-a775-5532b0117e5b';
+const PPVSubmittedProgrammingPlanId = 'e7c8a1b2-9c3d-4f0e-9c5a-1a2b3c4d5e6f';
 const DAOAValidatedProgrammingPlanId = 'd2680960-a3b5-4091-a87b-e4c2467077fb';
 const DAOAInProgressProgrammingPlanId = 'fafc6f2e-aec5-4998-adeb-84090d971a90';
 
-export const PPVSubPlanId = ProgrammingSubPlanId.parse(
+export const PPVValidatedSubPlanId = ProgrammingSubPlanId.parse(
   'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1'
+);
+export const PPVValidatedDromSubPlanId = ProgrammingSubPlanId.parse(
+  'a1a1a1a-a1a1-a1a1-a1a1-a1a1a1a1a1a5'
 );
 export const PPVClosedSubPlanId = ProgrammingSubPlanId.parse(
   'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a2'
@@ -25,10 +31,13 @@ export const PPVClosedSubPlanId = ProgrammingSubPlanId.parse(
 export const PPVInProgressSubPlanId = ProgrammingSubPlanId.parse(
   'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a3'
 );
-export const DAOAVolailleSubPlanId = ProgrammingSubPlanId.parse(
+export const PPVSubmittedSubPlanId = ProgrammingSubPlanId.parse(
+  'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a4'
+);
+export const DAOAVolailleValidatedSubPlanId = ProgrammingSubPlanId.parse(
   'b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2'
 );
-export const DAOABovinSubPlanId = ProgrammingSubPlanId.parse(
+export const DAOABovinValidatedSubPlanId = ProgrammingSubPlanId.parse(
   'c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3'
 );
 export const DAOAInProgressVolailleSubPlanId = ProgrammingSubPlanId.parse(
@@ -38,14 +47,9 @@ export const DAOAInProgressBovinSubPlanId = ProgrammingSubPlanId.parse(
   'c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c4'
 );
 
-export const AllPPVSubPlanIds = [
-  PPVSubPlanId,
-  PPVClosedSubPlanId,
-  PPVInProgressSubPlanId
-];
 export const SachaSubPlanIds = [
-  DAOAVolailleSubPlanId,
-  DAOABovinSubPlanId,
+  DAOAVolailleValidatedSubPlanId,
+  DAOABovinValidatedSubPlanId,
   DAOAInProgressVolailleSubPlanId,
   DAOAInProgressBovinSubPlanId
 ];
@@ -63,8 +67,8 @@ export const genProgrammingSubPlan = (
   ...data
 });
 
-export const PPVSubPlanFixture = genProgrammingSubPlan({
-  id: PPVSubPlanId,
+export const PPVValidatedSubPlanFixture = genProgrammingSubPlan({
+  id: PPVValidatedSubPlanId,
   programmingPlanId: PPVValidatedProgrammingPlanId,
   codeNat: 'PPV',
   stages: [
@@ -84,9 +88,33 @@ export const PPVSubPlanFixture = genProgrammingSubPlan({
   withSacha: false,
   substanceKinds: ['Any']
 });
+export const PPVValidatedDromSubPlanFixture = genProgrammingSubPlan({
+  ...PPVValidatedSubPlanFixture,
+  id: PPVValidatedDromSubPlanId,
+  programmingPlanId: PPVValidatedDromProgrammingPlanId,
+  label: 'Production primaire végétale - DROM'
+});
 
-export const DAOAVolailleSubPlanFixture = genProgrammingSubPlan({
-  id: DAOAVolailleSubPlanId,
+export const PPVClosedSubPlanFixture = genProgrammingSubPlan({
+  ...PPVValidatedSubPlanFixture,
+  id: PPVClosedSubPlanId,
+  programmingPlanId: PPVClosedProgrammingPlanId
+});
+
+export const PPVInProgressSubPlanFixture = genProgrammingSubPlan({
+  ...PPVValidatedSubPlanFixture,
+  id: PPVInProgressSubPlanId,
+  programmingPlanId: PPVInProgressProgrammingPlanId
+});
+
+export const PPVSubmittedSubPlanFixture = genProgrammingSubPlan({
+  ...PPVValidatedSubPlanFixture,
+  id: PPVSubmittedSubPlanId,
+  programmingPlanId: PPVSubmittedProgrammingPlanId
+});
+
+export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
+  id: DAOAVolailleValidatedSubPlanId,
   programmingPlanId: DAOAValidatedProgrammingPlanId,
   codeNat: 'M01',
   stages: ['STADE10'],
@@ -97,8 +125,14 @@ export const DAOAVolailleSubPlanFixture = genProgrammingSubPlan({
   substanceKinds: ['Mono', 'Multi', 'Copper']
 });
 
-export const DAOABovinSubPlanFixture = genProgrammingSubPlan({
-  id: DAOABovinSubPlanId,
+export const DAOAVolailleInProgressSubPlanFixture = genProgrammingSubPlan({
+  ...DAOAVolailleValidatedSubPlanFixture,
+  id: DAOAInProgressVolailleSubPlanId,
+  programmingPlanId: DAOAInProgressProgrammingPlanId
+});
+
+export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
+  id: DAOABovinValidatedSubPlanId,
   programmingPlanId: DAOAValidatedProgrammingPlanId,
   codeNat: 'M02',
   stages: ['STADE10'],
@@ -107,6 +141,12 @@ export const DAOABovinSubPlanFixture = genProgrammingSubPlan({
   contactListId: 9,
   withSacha: true,
   substanceKinds: ['Mono', 'Multi', 'Copper']
+});
+
+export const DAOABovinInProgressSubPlanFixture = genProgrammingSubPlan({
+  ...DAOABovinValidatedSubPlanFixture,
+  id: DAOAInProgressBovinSubPlanId,
+  programmingPlanId: DAOAInProgressProgrammingPlanId
 });
 
 export const genProgrammingPlan = (
@@ -119,7 +159,7 @@ export const genProgrammingPlan = (
     title: 'Production primaire végétale',
     subPlans: [
       {
-        ...PPVSubPlanFixture,
+        ...PPVValidatedSubPlanFixture,
         id: ProgrammingSubPlanId.parse(uuidv4()),
         programmingPlanId: planId
       }
@@ -144,13 +184,7 @@ export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
   id: PPVClosedProgrammingPlanId,
   domain: 'PESTICIDE_RESIDUE',
   title: 'Production primaire végétale',
-  subPlans: [
-    {
-      ...PPVSubPlanFixture,
-      id: PPVClosedSubPlanId,
-      programmingPlanId: PPVClosedProgrammingPlanId
-    }
-  ],
+  subPlans: [PPVClosedSubPlanFixture],
   distributionKind: 'REGIONAL',
   contexts: ['Control', 'Surveillance'],
   samplesOutsidePlanAllowed: true,
@@ -169,7 +203,24 @@ export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
   id: PPVValidatedProgrammingPlanId,
   domain: 'PESTICIDE_RESIDUE',
   title: 'Production primaire végétale',
-  subPlans: [PPVSubPlanFixture],
+  subPlans: [PPVValidatedSubPlanFixture],
+  distributionKind: 'REGIONAL',
+  contexts: ['Control', 'Surveillance'],
+  samplesOutsidePlanAllowed: true,
+  createdAt: new Date(),
+  createdBy: NationalCoordinatorId,
+  regionalStatus: RegionList.toSorted().map((region) => ({
+    region,
+    status: 'Validated'
+  })),
+  year: new Date().getFullYear()
+});
+
+export const PPVValidatedDromProgrammingPlanFixture = genProgrammingPlan({
+  id: PPVValidatedDromProgrammingPlanId,
+  domain: 'PESTICIDE_RESIDUE',
+  title: 'Production primaire végétale - DROM',
+  subPlans: [PPVValidatedDromSubPlanFixture],
   distributionKind: 'REGIONAL',
   contexts: ['Control', 'Surveillance'],
   samplesOutsidePlanAllowed: true,
@@ -177,7 +228,7 @@ export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
   createdBy: NationalCoordinatorId,
   regionalStatus: RegionList.map((region) => ({
     region,
-    status: 'Validated'
+    status: isDromRegion(region) ? 'Validated' : 'SubmittedToRegion'
   })),
   year: new Date().getFullYear()
 });
@@ -186,13 +237,7 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
   id: PPVInProgressProgrammingPlanId,
   domain: 'PESTICIDE_RESIDUE',
   title: 'Production primaire végétale',
-  subPlans: [
-    {
-      ...PPVSubPlanFixture,
-      id: PPVInProgressSubPlanId,
-      programmingPlanId: PPVInProgressProgrammingPlanId
-    }
-  ],
+  subPlans: [PPVInProgressSubPlanFixture],
   distributionKind: 'REGIONAL',
   contexts: ['Control', 'Surveillance'],
   samplesOutsidePlanAllowed: true,
@@ -205,11 +250,31 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
   year: new Date().getFullYear() + 1
 });
 
+export const PPVSubmittedProgrammingPlanFixture = genProgrammingPlan({
+  id: PPVSubmittedProgrammingPlanId,
+  domain: 'PESTICIDE_RESIDUE',
+  title: 'Production primaire végétale',
+  subPlans: [PPVSubmittedSubPlanFixture],
+  distributionKind: 'REGIONAL',
+  contexts: ['Control', 'Surveillance'],
+  samplesOutsidePlanAllowed: true,
+  createdAt: new Date(),
+  createdBy: NationalCoordinatorId,
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: 'SubmittedToRegion'
+  })),
+  year: new Date().getFullYear() + 1
+});
+
 export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
   id: DAOAValidatedProgrammingPlanId,
   domain: 'PESTICIDE_RESIDUE',
   title: "Produit carné à l'abattoir",
-  subPlans: [DAOAVolailleSubPlanFixture, DAOABovinSubPlanFixture],
+  subPlans: [
+    DAOAVolailleValidatedSubPlanFixture,
+    DAOABovinValidatedSubPlanFixture
+  ],
   distributionKind: 'SLAUGHTERHOUSE',
   contexts: ['Surveillance'],
   legalContexts: ['A'],
@@ -235,16 +300,8 @@ export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   domain: 'PESTICIDE_RESIDUE',
   title: "Produit carné à l'abattoir",
   subPlans: [
-    {
-      ...DAOAVolailleSubPlanFixture,
-      id: DAOAInProgressVolailleSubPlanId,
-      programmingPlanId: DAOAInProgressProgrammingPlanId
-    },
-    {
-      ...DAOABovinSubPlanFixture,
-      id: DAOAInProgressBovinSubPlanId,
-      programmingPlanId: DAOAInProgressProgrammingPlanId
-    }
+    DAOAVolailleInProgressSubPlanFixture,
+    DAOABovinInProgressSubPlanFixture
   ],
   distributionKind: 'SLAUGHTERHOUSE',
   contexts: ['Surveillance'],

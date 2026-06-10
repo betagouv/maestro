@@ -8,7 +8,7 @@ import {
   genPartialAnalyte,
   genPartialResidue
 } from 'maestro-shared/test/analysisFixtures';
-import { PPVSubPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
+import { PPVValidatedSubPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { SampleAnalysisOverview } from './/SampleAnalysisOverview';
@@ -92,6 +92,6 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    programmingSubPlan: PPVSubPlanFixture
+    programmingSubPlan: PPVValidatedSubPlanFixture
   }
 };

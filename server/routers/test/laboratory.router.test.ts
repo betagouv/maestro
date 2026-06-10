@@ -16,8 +16,8 @@ import {
   LaboratoryFixture
 } from 'maestro-shared/test/laboratoryFixtures';
 import {
-  PPVSubPlanId,
-  PPVValidatedProgrammingPlanFixture
+  PPVValidatedProgrammingPlanFixture,
+  PPVValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   AdminFixture,
@@ -408,7 +408,7 @@ describe('Laboratory router', () => {
         ...PPVDummyLaboratoryIds.map((laboratoryId) =>
           expect.objectContaining({
             laboratoryId,
-            programmingSubPlanId: PPVSubPlanId,
+            programmingSubPlanId: PPVValidatedSubPlanId,
             substanceKind: 'Any'
           })
         ),
@@ -424,7 +424,7 @@ describe('Laboratory router', () => {
     test('should filter agreements by programmingSubPlanIds and exclude non-matching ones', async () => {
       const res = await request(app)
         .get(testRoute)
-        .query({ programmingSubPlanIds: [PPVSubPlanId] })
+        .query({ programmingSubPlanIds: [PPVValidatedSubPlanId] })
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_OK);
 
@@ -580,7 +580,7 @@ describe('Laboratory router', () => {
     const validBody = {
       laboratoryAgreementRowKey: {
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-        programmingSubPlanId: PPVSubPlanId,
+        programmingSubPlanId: PPVValidatedSubPlanId,
         substanceKind: 'Any'
       },
       referenceLaboratory: true,
@@ -631,7 +631,7 @@ describe('Laboratory router', () => {
       expectArrayToContainElements(res.body, [
         expect.objectContaining({
           laboratoryId: LaboratoryFixture.id,
-          programmingSubPlanId: PPVSubPlanId,
+          programmingSubPlanId: PPVValidatedSubPlanId,
           substanceKind: 'Any',
           referenceLaboratory: true,
           detectionAnalysis: true,

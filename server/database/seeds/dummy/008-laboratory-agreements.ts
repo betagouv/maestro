@@ -15,13 +15,13 @@ import {
   SCL91Id
 } from 'maestro-shared/schema/User/User';
 import {
-  DAOABovinSubPlanId,
+  DAOABovinValidatedSubPlanId,
   DAOAInProgressBovinSubPlanId,
   DAOAInProgressVolailleSubPlanId,
-  DAOAVolailleSubPlanId,
+  DAOAVolailleValidatedSubPlanId,
   PPVClosedSubPlanId,
   PPVInProgressSubPlanId,
-  PPVSubPlanId
+  PPVValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { knexInstance as db } from '../../../repositories/db';
 
@@ -51,18 +51,19 @@ const PPVLaboratoryIds = [
 
 export const seed = async () => {
   await db('laboratory_agreements').insert([
-    // PPV — un sub-plan par plan
-    ...[PPVClosedSubPlanId, PPVSubPlanId, PPVInProgressSubPlanId].flatMap(
-      (programmingSubPlanId) =>
-        PPVLaboratoryIds.map((laboratoryId) => ({
-          laboratory_id: laboratoryId,
-          programming_sub_plan_id: programmingSubPlanId,
-          substance_kind: 'Any',
-          detection_analysis: true
-        }))
+    ...[
+      PPVClosedSubPlanId,
+      PPVValidatedSubPlanId,
+      PPVInProgressSubPlanId
+    ].flatMap((programmingSubPlanId) =>
+      PPVLaboratoryIds.map((laboratoryId) => ({
+        laboratory_id: laboratoryId,
+        programming_sub_plan_id: programmingSubPlanId,
+        substance_kind: 'Any',
+        detection_analysis: true
+      }))
     ),
-    // DAOA Validated — Volaille
-    ...[DAOAVolailleSubPlanId].flatMap((programmingSubPlanId) => [
+    ...[DAOAVolailleValidatedSubPlanId].flatMap((programmingSubPlanId) => [
       ...DAOAMonoLaboratoryIds.map((laboratoryId) => ({
         laboratory_id: laboratoryId,
         programming_sub_plan_id: programmingSubPlanId,
@@ -82,8 +83,7 @@ export const seed = async () => {
         detection_analysis: true
       }))
     ]),
-    // DAOA Validated — Bovin
-    ...[DAOABovinSubPlanId].flatMap((programmingSubPlanId) => [
+    ...[DAOABovinValidatedSubPlanId].flatMap((programmingSubPlanId) => [
       ...DAOAMonoLaboratoryIds.map((laboratoryId) => ({
         laboratory_id: laboratoryId,
         programming_sub_plan_id: programmingSubPlanId,
@@ -103,7 +103,6 @@ export const seed = async () => {
         detection_analysis: true
       }))
     ]),
-    // DAOA InProgress — Volaille
     ...[DAOAInProgressVolailleSubPlanId].flatMap((programmingSubPlanId) => [
       ...DAOAMonoLaboratoryIds.map((laboratoryId) => ({
         laboratory_id: laboratoryId,
@@ -124,7 +123,6 @@ export const seed = async () => {
         detection_analysis: true
       }))
     ]),
-    // DAOA InProgress — Bovin
     ...[DAOAInProgressBovinSubPlanId].flatMap((programmingSubPlanId) => [
       ...DAOAMonoLaboratoryIds.map((laboratoryId) => ({
         laboratory_id: laboratoryId,

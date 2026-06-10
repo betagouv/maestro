@@ -1,5 +1,6 @@
 import { constants } from 'node:http2';
 import { omit } from 'lodash-es';
+import { UserBase } from 'maestro-shared/schema/User/User';
 import {
   genDocument,
   genDocumentToCreate
@@ -352,7 +353,9 @@ describe('Document router', () => {
 
       expect(notificationData).toMatchObject({
         category: 'ResourceDocumentUploaded',
-        author: NationalCoordinator,
+        author: UserBase.omit({
+          programmingSubPlans: true
+        }).parse(NationalCoordinator),
         link: expect.stringContaining(validResourceBody.id)
       });
 

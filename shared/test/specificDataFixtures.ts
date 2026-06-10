@@ -4,17 +4,17 @@ import {
   ProgrammingSubPlanFieldId
 } from '../schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import {
-  DAOABovinSubPlanId,
+  DAOABovinValidatedSubPlanId,
   DAOAInProgressBovinSubPlanId,
   DAOAInProgressVolailleSubPlanId,
-  DAOAVolailleSubPlanId,
-  PPVSubPlanId
+  DAOAVolailleValidatedSubPlanId,
+  PPVValidatedSubPlanId
 } from './programmingPlanFixtures';
 
 export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: PPVSubPlanId,
+    programmingSubPlanId: PPVValidatedSubPlanId,
     required: false,
     order: 1,
     field: {
@@ -27,7 +27,7 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: PPVSubPlanId,
+    programmingSubPlanId: PPVValidatedSubPlanId,
     required: false,
     order: 2,
     field: {
@@ -55,7 +55,7 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: PPVSubPlanId,
+    programmingSubPlanId: PPVValidatedSubPlanId,
     required: true,
     order: 3,
     field: {
@@ -72,7 +72,7 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: PPVSubPlanId,
+    programmingSubPlanId: PPVValidatedSubPlanId,
     required: true,
     order: 4,
     field: {
@@ -96,7 +96,7 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: PPVSubPlanId,
+    programmingSubPlanId: PPVValidatedSubPlanId,
     required: false,
     order: 5,
     field: {
@@ -112,7 +112,7 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
 export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: DAOAVolailleSubPlanId,
+    programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
     required: true,
     order: 1,
     field: {
@@ -125,7 +125,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: DAOAVolailleSubPlanId,
+    programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
     required: true,
     order: 2,
     field: {
@@ -138,7 +138,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: DAOAVolailleSubPlanId,
+    programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
     required: true,
     order: 3,
     field: {
@@ -151,7 +151,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: DAOAVolailleSubPlanId,
+    programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
     required: true,
     order: 4,
     field: {
@@ -169,7 +169,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: DAOAVolailleSubPlanId,
+    programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
     required: true,
     order: 5,
     field: {
@@ -186,7 +186,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: DAOAVolailleSubPlanId,
+    programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
     required: true,
     order: 6,
     field: {
@@ -206,7 +206,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
 export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: DAOABovinSubPlanId,
+    programmingSubPlanId: DAOABovinValidatedSubPlanId,
     required: true,
     order: 1,
     field: {
@@ -219,7 +219,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: DAOABovinSubPlanId,
+    programmingSubPlanId: DAOABovinValidatedSubPlanId,
     required: true,
     order: 2,
     field: {
@@ -232,7 +232,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: DAOABovinSubPlanId,
+    programmingSubPlanId: DAOABovinValidatedSubPlanId,
     required: true,
     order: 3,
     field: {
@@ -245,7 +245,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: DAOABovinSubPlanId,
+    programmingSubPlanId: DAOABovinValidatedSubPlanId,
     required: true,
     order: 4,
     field: {
@@ -271,7 +271,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: DAOABovinSubPlanId,
+    programmingSubPlanId: DAOABovinValidatedSubPlanId,
     required: true,
     order: 5,
     field: {
@@ -290,7 +290,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: DAOABovinSubPlanId,
+    programmingSubPlanId: DAOABovinValidatedSubPlanId,
     required: true,
     order: 6,
     field: {
@@ -303,7 +303,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: DAOABovinSubPlanId,
+    programmingSubPlanId: DAOABovinValidatedSubPlanId,
     required: true,
     order: 7,
     field: {
@@ -321,7 +321,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: DAOABovinSubPlanId,
+    programmingSubPlanId: DAOABovinValidatedSubPlanId,
     required: true,
     order: 8,
     field: {
@@ -338,7 +338,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
-    programmingSubPlanId: DAOABovinSubPlanId,
+    programmingSubPlanId: DAOABovinValidatedSubPlanId,
     required: true,
     order: 9,
     field: {

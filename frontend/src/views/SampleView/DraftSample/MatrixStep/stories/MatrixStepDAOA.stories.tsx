@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import {
-  DAOABovinSubPlanFixture,
-  DAOABovinSubPlanId,
+  DAOABovinValidatedSubPlanFixture,
+  DAOABovinValidatedSubPlanId,
   genProgrammingPlan
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -30,10 +30,10 @@ type Story = StoryObj<typeof meta>;
 const sampler = genUser({
   roles: ['Sampler'],
   region: '44',
-  programmingSubPlanIds: [DAOABovinSubPlanId]
+  programmingSubPlanIds: [DAOABovinValidatedSubPlanId]
 });
 const programmingPlan = genProgrammingPlan({
-  subPlans: [DAOABovinSubPlanFixture],
+  subPlans: [DAOABovinValidatedSubPlanFixture],
   distributionKind: 'SLAUGHTERHOUSE'
 });
 
@@ -44,7 +44,7 @@ export const MatrixStepDAOA: Story = {
         programmingPlanId: programmingPlan.id,
         sampler,
         specificData: {},
-        programmingSubPlanId: DAOABovinSubPlanId
+        programmingSubPlanId: DAOABovinValidatedSubPlanId
       }),
       ...genCreatedSampleData()
     }

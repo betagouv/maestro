@@ -9,7 +9,7 @@ import {
   VolailleValidatedLocalPrescriptionFixture,
   VolailleValidatedPrescriptionFixture
 } from 'maestro-shared/test/prescriptionFixtures';
-import { DAOABovinSubPlanId } from 'maestro-shared/test/programmingPlanFixtures';
+import { DAOABovinValidatedSubPlanId } from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import { LocalPrescriptions } from '../../../repositories/localPrescriptionRepository';
 import { LocalPrescriptionSubstanceKindsLaboratories } from '../../../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
@@ -85,7 +85,7 @@ export const seed = async () => {
             department,
             substanceKind: 'Multi',
             laboratoryId: oneOf(
-              prescription.programmingSubPlanId === DAOABovinSubPlanId
+              prescription.programmingSubPlanId === DAOABovinValidatedSubPlanId
                 ? DAOABovinMultiLaboratoryIds
                 : DAOAVolailleMultiLaboratoryIds
             )

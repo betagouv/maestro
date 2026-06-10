@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import {
   genProgrammingPlan,
-  PPVSubPlanFixture,
-  PPVSubPlanId
+  PPVValidatedSubPlanFixture,
+  PPVValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
@@ -37,10 +37,10 @@ type Story = StoryObj<typeof meta>;
 const sampler = genUser({
   roles: ['Sampler'],
   region: '44',
-  programmingSubPlanIds: [PPVSubPlanId]
+  programmingSubPlanIds: [PPVValidatedSubPlanId]
 });
 const programmingPlan = genProgrammingPlan({
-  subPlans: [PPVSubPlanFixture]
+  subPlans: [PPVValidatedSubPlanFixture]
 });
 
 const story: Pick<Story, 'args' | 'parameters'> = {

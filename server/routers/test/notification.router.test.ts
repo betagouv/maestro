@@ -23,12 +23,16 @@ describe('Notification router', () => {
 
   const notification1 = genNotification({
     recipientId: Sampler1Fixture.id,
-    author: UserBase.parse(RegionalCoordinator),
+    author: UserBase.omit({
+      programmingSubPlans: true
+    }).parse(RegionalCoordinator),
     read: false
   });
   const notification2 = genNotification({
     recipientId: Sampler1Fixture.id,
-    author: UserBase.parse(RegionalCoordinator),
+    author: UserBase.omit({
+      programmingSubPlans: true
+    }).parse(RegionalCoordinator),
     read: false
   });
   const notification3 = genNotification({
