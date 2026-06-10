@@ -17,7 +17,6 @@ import type {
   LocalPrescriptionCommentToCreate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
 import {
@@ -30,7 +29,9 @@ import {
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
   genProgrammingPlan,
-  PPVSubPlanFixture
+  PPVClosedProgrammingPlanFixture,
+  PPVSubmittedProgrammingPlanFixture,
+  PPVValidatedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedPartialSample,
@@ -49,13 +50,6 @@ import {
   RegionalObserver,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
-
-const LocalPrescriptionTestSubPlanId1 =
-  'e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e1' as ProgrammingSubPlanId;
-const LocalPrescriptionTestSubPlanId2 =
-  'e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e2' as ProgrammingSubPlanId;
-const LocalPrescriptionTestSubPlanId3 =
-  'e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e3' as ProgrammingSubPlanId;
 
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { withISOStringDates } from 'maestro-shared/utils/date';
@@ -89,54 +83,6 @@ import { tokenProvider } from '../../test/testUtils';
 describe('Local prescriptions router', () => {
   const { app } = createServer();
 
-  const programmingPlanClosed = genProgrammingPlan({
-    createdBy: NationalCoordinator.id,
-    regionalStatus: RegionList.map((region) => ({
-      region,
-      status: 'Closed'
-    })),
-    year: 1919,
-    subPlans: [
-      {
-        ...PPVSubPlanFixture,
-        id: LocalPrescriptionTestSubPlanId1,
-        programmingPlanId: 'f1f1f1f1-f1f1-f1f1-f1f1-f1f1f1f1f1f1'
-      }
-    ],
-    id: 'f1f1f1f1-f1f1-f1f1-f1f1-f1f1f1f1f1f1'
-  });
-  const programmingPlanValidated = genProgrammingPlan({
-    createdBy: NationalCoordinator.id,
-    regionalStatus: RegionList.map((region) => ({
-      region,
-      status: 'Validated'
-    })),
-    year: 1920,
-    subPlans: [
-      {
-        ...PPVSubPlanFixture,
-        id: LocalPrescriptionTestSubPlanId2,
-        programmingPlanId: 'f2f2f2f2-f2f2-f2f2-f2f2-f2f2f2f2f2f2'
-      }
-    ],
-    id: 'f2f2f2f2-f2f2-f2f2-f2f2-f2f2f2f2f2f2'
-  });
-  const programmingPlanSubmitted = genProgrammingPlan({
-    createdBy: NationalCoordinator.id,
-    regionalStatus: RegionList.map((region) => ({
-      region,
-      status: 'SubmittedToRegion'
-    })),
-    year: 1921,
-    subPlans: [
-      {
-        ...PPVSubPlanFixture,
-        id: LocalPrescriptionTestSubPlanId3,
-        programmingPlanId: 'f3f3f3f3-f3f3-f3f3-f3f3-f3f3f3f3f3f3'
-      }
-    ],
-    id: 'f3f3f3f3-f3f3-f3f3-f3f3-f3f3f3f3f3f3'
-  });
   const laboratory = genLaboratory();
   const substanceKindsLaboratories = [
     {
@@ -145,25 +91,25 @@ describe('Local prescriptions router', () => {
     }
   ];
   const closedControlPrescription = genPrescription({
-    programmingPlanId: programmingPlanClosed.id,
+    programmingPlanId: PPVClosedProgrammingPlanFixture.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options),
     stages: ['STADE1']
   });
   const validatedControlPrescription = genPrescription({
-    programmingPlanId: programmingPlanValidated.id,
+    programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options),
     stages: ['STADE2']
   });
   const submittedControlPrescription1 = genPrescription({
-    programmingPlanId: programmingPlanSubmitted.id,
+    programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options),
     stages: ['STADE3', 'STADE4']
   });
   const submittedControlPrescription2 = genPrescription({
-    programmingPlanId: programmingPlanSubmitted.id,
+    programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options),
     stages: ['STADE5', 'STADE6', 'STADE8']
@@ -218,7 +164,7 @@ describe('Local prescriptions router', () => {
     createdAt: new Date()
   };
   const sample = genCreatedPartialSample({
-    programmingPlanId: programmingPlanClosed.id,
+    programmingPlanId: PPVClosedProgrammingPlanFixture.id,
     prescriptionId: closedControlPrescription.id,
     region: Sampler1Fixture.region as Region,
     company: SlaughterhouseCompanyFixture1,
@@ -235,44 +181,6 @@ describe('Local prescriptions router', () => {
     });
 
   beforeAll(async () => {
-    await ProgrammingPlans().insert(
-      [
-        programmingPlanClosed,
-        programmingPlanValidated,
-        programmingPlanSubmitted
-      ].map(formatProgrammingPlan)
-    );
-    await ProgrammingPlanLocalStatus().insert(
-      [
-        programmingPlanClosed,
-        programmingPlanValidated,
-        programmingPlanSubmitted
-      ].flatMap((programmingPlan) =>
-        programmingPlan.regionalStatus.map((regionalStatus) => ({
-          ...regionalStatus,
-          programmingPlanId: programmingPlan.id
-        }))
-      )
-    );
-
-    await ProgrammingSubPlans().insert(
-      [
-        programmingPlanClosed,
-        programmingPlanValidated,
-        programmingPlanSubmitted
-      ].flatMap((plan) =>
-        plan.subPlans.map((sp) => ({
-          id: sp.id,
-          programmingPlanId: plan.id,
-          codeNat: sp.codeNat,
-          stages: sp.stages,
-          label: sp.label,
-          analysisPermissionRole: sp.analysisPermissionRole ?? null,
-          contactListId: sp.contactListId ?? null,
-          withSacha: sp.withSacha
-        }))
-      )
-    );
     await Laboratories().insert(toDbRow(laboratory));
     await Prescriptions().insert([
       closedControlPrescription,
@@ -326,17 +234,11 @@ describe('Local prescriptions router', () => {
     await Prescriptions()
       .delete()
       .where('programmingPlanId', 'in', [
-        programmingPlanClosed.id,
-        programmingPlanValidated.id,
-        programmingPlanSubmitted.id
+        PPVSubmittedProgrammingPlanFixture.id
       ]);
-    await Laboratories().delete().where('id', laboratory.id);
     await ProgrammingPlans()
       .delete()
-      .where('id', 'in', [
-        programmingPlanClosed.id,
-        programmingPlanSubmitted.id
-      ]);
+      .where('id', 'in', [PPVSubmittedProgrammingPlanFixture.id]);
     await Samples().delete().where('id', sample.id);
   });
 
@@ -347,7 +249,7 @@ describe('Local prescriptions router', () => {
       await request(app)
         .get(testRoute)
         .query({
-          programmingPlanId: programmingPlanSubmitted.id,
+          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
           contexts: 'Control'
         })
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
@@ -368,7 +270,7 @@ describe('Local prescriptions router', () => {
       await request(app)
         .get(testRoute)
         .query({
-          programmingPlanId: programmingPlanSubmitted.id,
+          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
           contexts: 'invalid'
         })
         .use(tokenProvider(NationalCoordinator))
@@ -380,7 +282,7 @@ describe('Local prescriptions router', () => {
         const res = await request(app)
           .get(testRoute)
           .query({
-            programmingPlanId: programmingPlanSubmitted.id,
+            programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
             contexts: 'Control'
           })
           .use(tokenProvider(user))
@@ -411,7 +313,7 @@ describe('Local prescriptions router', () => {
         const res = await request(app)
           .get(testRoute)
           .query({
-            programmingPlanId: programmingPlanSubmitted.id,
+            programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
             contexts: 'Control',
             includes: 'laboratories'
           })
@@ -436,7 +338,7 @@ describe('Local prescriptions router', () => {
       const res = await request(app)
         .get(testRoute)
         .query({
-          programmingPlanId: programmingPlanClosed.id,
+          programmingPlanId: PPVClosedProgrammingPlanFixture.id,
           contexts: 'Control',
           includes: 'comments,sampleCounts'
         })
@@ -483,7 +385,7 @@ describe('Local prescriptions router', () => {
 
   describe('PUT /{prescriptionId}/regions/{region}', () => {
     const submittedLocalPrescriptionUpdate: LocalPrescriptionUpdate = {
-      programmingPlanId: programmingPlanSubmitted.id,
+      programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
       key: 'sampleCount',
       sampleCount: 10
     };
@@ -553,7 +455,7 @@ describe('Local prescriptions router', () => {
         .put(testRoute())
         .send({
           ...submittedLocalPrescriptionUpdate,
-          programmingPlanId: programmingPlanClosed.id
+          programmingPlanId: PPVClosedProgrammingPlanFixture.id
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -586,7 +488,7 @@ describe('Local prescriptions router', () => {
         )
         .send({
           ...submittedLocalPrescriptionUpdate,
-          programmingPlanId: programmingPlanClosed.id
+          programmingPlanId: PPVClosedProgrammingPlanFixture.id
         })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -679,7 +581,7 @@ describe('Local prescriptions router', () => {
           )
         )
         .send({
-          programmingPlanId: programmingPlanValidated.id,
+          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
           key: 'laboratories',
           substanceKindsLaboratories: []
         })
@@ -700,7 +602,7 @@ describe('Local prescriptions router', () => {
           )
         )
         .send({
-          programmingPlanId: programmingPlanValidated.id,
+          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
           key: 'laboratories',
           substanceKindsLaboratories
         })
@@ -735,7 +637,7 @@ describe('Local prescriptions router', () => {
         ) as LocalPrescription;
 
       const draftSample = genCreatedPartialSample({
-        programmingPlanId: programmingPlanValidated.id,
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
         prescriptionId: validatedLocalPrescription.prescriptionId,
         region: validatedLocalPrescription.region as Region,
         company: SlaughterhouseCompanyFixture1,
@@ -787,7 +689,7 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: programmingPlanValidated.id,
+            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -810,7 +712,7 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: programmingPlanValidated.id,
+            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -837,7 +739,7 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: programmingPlanValidated.id,
+            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories: []
           })
@@ -857,7 +759,7 @@ describe('Local prescriptions router', () => {
         ) as Region;
 
         const sampleOtherRegion = genCreatedPartialSample({
-          programmingPlanId: programmingPlanValidated.id,
+          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
           prescriptionId: validatedLocalPrescription.prescriptionId,
           region: otherRegion,
           company: SlaughterhouseCompanyFixture1,
@@ -885,7 +787,7 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: programmingPlanValidated.id,
+            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -908,7 +810,7 @@ describe('Local prescriptions router', () => {
 
       test('should not update sample items from a different prescription in the same region', async () => {
         const otherPrescriptionSample = genCreatedPartialSample({
-          programmingPlanId: programmingPlanValidated.id,
+          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
           prescriptionId: closedControlPrescription.id,
           region: validatedLocalPrescription.region as Region,
           company: SlaughterhouseCompanyFixture1,
@@ -936,7 +838,7 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: programmingPlanValidated.id,
+            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -961,7 +863,7 @@ describe('Local prescriptions router', () => {
 
       test('should not update sample items from samples with status other than Draft or Submitted', async () => {
         const sentSample = genCreatedPartialSample({
-          programmingPlanId: programmingPlanValidated.id,
+          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
           prescriptionId: validatedLocalPrescription.prescriptionId,
           region: validatedLocalPrescription.region as Region,
           company: SlaughterhouseCompanyFixture1,
@@ -989,7 +891,7 @@ describe('Local prescriptions router', () => {
             )
           )
           .send({
-            programmingPlanId: programmingPlanValidated.id,
+            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             key: 'laboratories',
             substanceKindsLaboratories
           })
@@ -1241,7 +1143,7 @@ describe('Local prescriptions router', () => {
         .put(testRoute())
         .send({
           ...sampleCountUpdate,
-          programmingPlanId: programmingPlanClosed.id
+          programmingPlanId: PPVClosedProgrammingPlanFixture.id
         })
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -1618,7 +1520,7 @@ describe('Local prescriptions router', () => {
 
   describe('POST /{prescriptionId}/regions/{region}/comments', () => {
     const validComment: LocalPrescriptionCommentToCreate = {
-      programmingPlanId: programmingPlanSubmitted.id,
+      programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
       comment: fakerFR.string.alphanumeric(32)
     };
 
@@ -1727,7 +1629,7 @@ describe('Local prescriptions router', () => {
         )
         .send({
           ...validComment,
-          programmingPlanId: programmingPlanValidated.id
+          programmingPlanId: PPVValidatedProgrammingPlanFixture.id
         })
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -1784,7 +1686,9 @@ describe('Local prescriptions router', () => {
 
       expect(notificationData).toMatchObject({
         category: submittedControlPrescription1.context,
-        author: RegionalCoordinator,
+        author: expect.objectContaining({
+          id: RegionalCoordinator.id
+        }),
         link: expect.stringContaining(submittedControlPrescription1.id)
       });
 
@@ -1797,7 +1701,7 @@ describe('Local prescriptions router', () => {
 
   describe('POST /{prescriptionId}/regions/{region}/departments/{department}/comments', () => {
     const validComment: LocalPrescriptionCommentToCreate = {
-      programmingPlanId: programmingPlanSubmitted.id,
+      programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
       comment: fakerFR.string.alphanumeric(32)
     };
 
@@ -1845,7 +1749,9 @@ describe('Local prescriptions router', () => {
 
       expect(notificationData).toMatchObject({
         category: submittedControlPrescription1.context,
-        author: DepartmentalCoordinator,
+        author: expect.objectContaining({
+          id: DepartmentalCoordinator.id
+        }),
         link: expect.stringContaining(submittedControlPrescription1.id)
       });
 

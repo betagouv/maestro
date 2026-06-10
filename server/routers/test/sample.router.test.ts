@@ -19,8 +19,8 @@ import {
   DAOAInProgressBovinSubPlanId,
   DAOAInProgressProgrammingPlanFixture,
   DAOAInProgressVolailleSubPlanId,
-  PPVSubPlanId,
-  PPVValidatedProgrammingPlanFixture
+  PPVValidatedProgrammingPlanFixture,
+  PPVValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedPartialSample,
@@ -625,7 +625,7 @@ describe('Sample router', () => {
       const specificMatrix = 'A00GZ';
       const prescription = genPrescription({
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-        programmingSubPlanId: PPVSubPlanId,
+        programmingSubPlanId: PPVValidatedSubPlanId,
         context: PrescriptionFixture.context,
         matrixKind: PrescriptionFixture.matrixKind,
         matrix: specificMatrix

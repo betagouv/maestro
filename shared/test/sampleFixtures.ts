@@ -29,8 +29,8 @@ import { PrescriptionFixture } from './prescriptionFixtures';
 import {
   DAOAInProgressBovinSubPlanId,
   DAOAInProgressProgrammingPlanFixture,
-  PPVSubPlanId,
-  PPVValidatedProgrammingPlanFixture
+  PPVValidatedProgrammingPlanFixture,
+  PPVValidatedSubPlanId
 } from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
 import {
@@ -54,7 +54,7 @@ export const genSampleContextData = (
     y: 4.731044
   },
   programmingPlanId: uuidv4(),
-  programmingSubPlanId: PPVSubPlanId,
+  programmingSubPlanId: PPVValidatedSubPlanId,
   context: oneOf(ProgrammingPlanContextList),
   legalContext: oneOf(LegalContextList),
   resytalId: `23-${fakerFR.string.numeric(6)}`,
@@ -88,7 +88,7 @@ export const genCreatedPartialSample = (
     monoSubstances: [],
     multiSubstances: [],
     stage: 'STADE1',
-    programmingSubPlanId: PPVSubPlanId,
+    programmingSubPlanId: PPVValidatedSubPlanId,
     specificData: {
       matrixPart: oneOf(['PART1', 'PART2']),
       productionKind: oneOf(['PD07A', 'Z0216', 'PD09A']),
@@ -173,7 +173,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   matrixKind: PrescriptionFixture.matrixKind,
   matrix: 'A00GZ',
   stage: PrescriptionFixture.stages[0],
-  programmingSubPlanId: PPVSubPlanId,
+  programmingSubPlanId: PPVValidatedSubPlanId,
   specificData: {
     matrixPart: 'PART1',
     productionKind: 'PD07A',

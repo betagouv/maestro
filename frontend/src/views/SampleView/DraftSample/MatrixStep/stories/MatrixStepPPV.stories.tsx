@@ -7,8 +7,8 @@ import {
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
   genProgrammingPlan,
-  PPVSubPlanFixture,
-  PPVSubPlanId
+  PPVValidatedSubPlanFixture,
+  PPVValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
@@ -45,10 +45,10 @@ type Story = StoryObj<typeof meta>;
 const sampler = genUser({
   roles: ['Sampler'],
   region: '44',
-  programmingSubPlanIds: [PPVSubPlanId]
+  programmingSubPlanIds: [PPVValidatedSubPlanId]
 });
 const programmingPlan = genProgrammingPlan({
-  subPlans: [PPVSubPlanFixture],
+  subPlans: [PPVValidatedSubPlanFixture],
   distributionKind: 'REGIONAL'
 });
 const prescription1 = genPrescription({

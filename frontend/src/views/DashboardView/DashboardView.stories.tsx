@@ -8,7 +8,7 @@ import {
 import {
   genProgrammingPlan,
   genProgrammingSubPlan,
-  PPVSubPlanId
+  PPVValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { genCreatedPartialSample } from 'maestro-shared/test/sampleFixtures';
 import {
@@ -83,7 +83,9 @@ export const DashboardViewForSampler: Story = {
           userRole: 'Sampler',
           region: Region1Fixture,
           id: Sampler1Fixture.id,
-          programmingSubPlans: [genProgrammingSubPlan({ id: PPVSubPlanId })]
+          programmingSubPlans: [
+            genProgrammingSubPlan({ id: PPVValidatedSubPlanId })
+          ]
         })
       }
     },

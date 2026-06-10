@@ -4,7 +4,7 @@ import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import {
   genProgrammingPlan,
-  PPVSubPlanFixture
+  PPVValidatedSubPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
@@ -26,7 +26,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const programmingPlan = genProgrammingPlan({
-  subPlans: [PPVSubPlanFixture]
+  subPlans: [PPVValidatedSubPlanFixture]
 });
 const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,

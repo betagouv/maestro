@@ -3,7 +3,7 @@ import { type Region, Regions } from 'maestro-shared/referential/Region';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { FoieDeBovinValidatedPrescriptionFixture } from 'maestro-shared/test/prescriptionFixtures';
 import {
-  DAOABovinSubPlanId,
+  DAOABovinValidatedSubPlanId,
   DAOAValidatedProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
@@ -171,7 +171,7 @@ export const seed = async () => {
           id: sampleId,
           sampler: SamplerDaoaFixture,
           programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
-          programmingSubPlanId: DAOABovinSubPlanId,
+          programmingSubPlanId: DAOABovinValidatedSubPlanId,
           context: 'Surveillance',
           matrixKind: 'A01QX',
           matrix: 'A01XF#F28.A0C0S',

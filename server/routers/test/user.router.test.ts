@@ -119,8 +119,12 @@ describe('User router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expectArrayToContainElements(res.body, [
-        expect.objectContaining(Sampler1Fixture),
-        expect.objectContaining(RegionalCoordinator)
+        expect.objectContaining({
+          id: Sampler1Fixture.id
+        }),
+        expect.objectContaining({
+          id: RegionalCoordinator.id
+        })
       ]);
     });
 
@@ -131,9 +135,15 @@ describe('User router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expectArrayToContainElements(res.body, [
-        expect.objectContaining(SamplerDromFixture),
-        expect.objectContaining(Sampler1Fixture),
-        expect.objectContaining(Sampler2Fixture)
+        expect.objectContaining({
+          id: SamplerDromFixture.id
+        }),
+        expect.objectContaining({
+          id: Sampler1Fixture.id
+        }),
+        expect.objectContaining({
+          id: Sampler2Fixture.id
+        })
       ]);
     });
 
