@@ -16,9 +16,8 @@ export const SigleContexteIntervention: Record<
 
 export const siglePlanAnalyseValidator = z.enum(['RPDA', 'RPDA_CU']);
 
-export const SiglePlanAnalyse: Record<
-  Exclude<SubstanceKind, 'Any'>,
-  z.infer<typeof siglePlanAnalyseValidator>
+export const SiglePlanAnalyse: Partial<
+  Record<SubstanceKind, z.infer<typeof siglePlanAnalyseValidator>>
 > = {
   Copper: 'RPDA_CU',
   Mono: 'RPDA',
