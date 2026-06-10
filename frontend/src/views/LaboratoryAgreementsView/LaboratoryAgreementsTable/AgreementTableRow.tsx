@@ -38,14 +38,12 @@ interface Props {
   isAnimating: boolean;
   isLabsExpanded: boolean;
   isMatrixExpanded: boolean;
-  isStageExpanded: boolean;
   prescriptions: Prescription[];
   laboratoriesById: Map<string, Laboratory>;
   onToggleSelect: (key: string) => void;
   onToggleExpand: (key: string) => void;
   onToggleLabs: (key: string) => void;
   onToggleMatrix: (key: string) => void;
-  onToggleStage: (key: string) => void;
   onOpenModalForRow: (row: AgreementRow) => void;
   onUpdateCheck: (params: LaboratoryAgreementCheckUpdate) => void;
   onPendingStart: (key: string) => void;
@@ -64,14 +62,12 @@ const AgreementTableRow = memo(function AgreementTableRow({
   isAnimating,
   isLabsExpanded,
   isMatrixExpanded,
-  isStageExpanded,
   prescriptions,
   laboratoriesById,
   onToggleSelect,
   onToggleExpand,
   onToggleLabs,
   onToggleMatrix,
-  onToggleStage,
   onOpenModalForRow,
   onUpdateCheck,
   onPendingStart,
