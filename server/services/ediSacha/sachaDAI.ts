@@ -137,13 +137,12 @@ export const generateXMLDAI = (
             SiglePlanAnalyse: SiglePlanAnalyse[sampleItem.substanceKind]
           },
           ReferencePlanAnalyseContenu: {
-            LibelleMatrice: '',
-            SigleAnalyte: '',
-            SigleMethodeSpecifique: '',
-            //FIXME EDI ??
-            Depistage: false,
+            LibelleMatrice: 'Matrice prescrite',
+            SigleAnalyte: 'ANAPRS',
+            SigleMethodeSpecifique: 'METPRS',
+            Depistage: true,
             Confirmation: false,
-            Statut: 'G'
+            Statut: 'V'
           }
         }
       }

@@ -59,11 +59,12 @@ test(`génère un XML d'acquittement`, async () => {
         <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
         <VersionScenario>1.0.1</VersionScenario>
         <TypeFichier>AN01</TypeFichier>
-        <NomFichier>AN01DDSV72LDA7225121610073679</NomFichier>
+        <NomFichier>AN01DDSV72LDA72251216100736798</NomFichier>
         <VersionReferenceStandardisees>v12341234</VersionReferenceStandardisees>
         <VersionReferencePrescripteur>v234</VersionReferencePrescripteur>
         <NomLogicielCreation>SIGAL</NomLogicielCreation>
         <VersionLogicielCreation>4.0</VersionLogicielCreation>
+        <CodeReferentielPrescripteur>SIGAL</CodeReferentielPrescripteur>
       </MessageParametres>
       <Emetteur>
         <Sigle>DDSV72</Sigle>
@@ -81,7 +82,7 @@ test(`génère un XML d'acquittement`, async () => {
       </MessageAcquittement>
     </AcquittementNonAcquittement>
     ",
-      "fileName": "AN01DDSV72LDA7225121610073679",
+      "fileName": "AN01DDSV72LDA72251216100736798",
       "fileType": "AN01",
     }
   `
@@ -97,7 +98,7 @@ test('getXmlFileName', () => {
       //16/12/2025 10:07:36
       1765876056798
     )
-  ).toBe('AN01DDSV35LABERCA25121610073679');
+  ).toBe('AN01DDSV35LABERCA251216100736798');
 });
 test('getZipFileName', () => {
   expect(getZipFileName('AN01', 'LDA72', 1765876056798)).toBe(
