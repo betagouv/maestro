@@ -213,7 +213,7 @@ test(`génère un XML de DAI`, async () => {
         <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
         <VersionScenario>1.0.1</VersionScenario>
         <TypeFichier>DA01</TypeFichier>
-        <NomFichier>DA01DDSV72LDA72251216100736798</NomFichier>
+        <NomFichier>DA01MDDSV72LDA72251216100736798</NomFichier>
         <VersionReferenceStandardisees>v12341234</VersionReferenceStandardisees>
         <VersionReferencePrescripteur>v234</VersionReferencePrescripteur>
         <NomLogicielCreation>SIGAL</NomLogicielCreation>
@@ -221,7 +221,7 @@ test(`génère un XML de DAI`, async () => {
         <CodeReferentielPrescripteur>SIGAL</CodeReferentielPrescripteur>
       </MessageParametres>
       <Emetteur>
-        <Sigle>DDSV72</Sigle>
+        <Sigle>MDDSV72</Sigle>
         <LibellePartenaire>DDPP Sarthe</LibellePartenaire>
         <EmailPartenaire>contact@maestro.beta.gouv.fr</EmailPartenaire>
       </Emetteur>
@@ -284,7 +284,7 @@ test(`génère un XML de DAI`, async () => {
       </DemandeType>
     </DemandesAnalyses>
     ",
-      "fileName": "DA01DDSV72LDA72251216100736798",
+      "fileName": "DA01MDDSV72LDA72251216100736798",
       "fileType": "DA01",
     }
   `);
