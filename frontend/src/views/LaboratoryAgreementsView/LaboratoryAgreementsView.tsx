@@ -16,7 +16,15 @@ import type {
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { LaboratoryAgreementDetailProvider } from 'src/components/LaboratoryAgreement/LaboratoryAgreementDetailModal/LaboratoryAgreementDetailContext';
 import SectionHeader from 'src/components/SectionHeader/SectionHeader';
 import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
@@ -181,9 +189,23 @@ const LaboratoryAgreementsView = () => {
   );
 
   const filteredRows = useMemo(() => {
+    const prescriptionsBySubPlanId = new Map<string, typeof allPrescriptions>();
+    for (const p of allPrescriptions) {
+      const arr = prescriptionsBySubPlanId.get(p.programmingSubPlanId) ?? [];
+      arr.push(p);
+      prescriptionsBySubPlanId.set(p.programmingSubPlanId, arr);
+    }
+
+    const matrixFilterSet = new Set(matrixFilter);
+
+    const checksSet = new Set(
+      checks.map((c) => `${c.programmingSubPlanId}_${c.substanceKind}`)
+    );
+
     const getFirstMatrixTitle = (programmingSubPlanId: string) => {
-      const titles = allPrescriptions
-        .filter((p) => p.programmingSubPlanId === programmingSubPlanId)
+      const prescriptions =
+        prescriptionsBySubPlanId.get(programmingSubPlanId) ?? [];
+      const titles = prescriptions
         .map(getPrescriptionTitle)
         .sort((a, b) => a.localeCompare(b));
       return titles[0] ?? '';
@@ -196,11 +218,9 @@ const LaboratoryAgreementsView = () => {
             subPlanFilter.includes(r.programmingSubPlan.id)) &&
           (substanceFilter.length === 0 ||
             substanceFilter.includes(r.substanceKind)) &&
-          (matrixFilter.length === 0 ||
-            allPrescriptions.some(
-              (p) =>
-                p.programmingSubPlanId === r.programmingSubPlan.id &&
-                matrixFilter.includes(p.matrixKind)
+          (matrixFilterSet.size === 0 ||
+            (prescriptionsBySubPlanId.get(r.programmingSubPlan.id) ?? []).some(
+              (p) => matrixFilterSet.has(p.matrixKind)
             )) &&
           ((labFilter.length === 0 && labAgreementTypeFilter.length === 0) ||
             r.laboratories.some(
@@ -219,16 +239,10 @@ const LaboratoryAgreementsView = () => {
             ))
       )
       .sort((a, b) => {
-        const aChecked = checks.some(
-          (c) =>
-            c.programmingSubPlanId === a.programmingSubPlan.id &&
-            c.substanceKind === a.substanceKind
-        );
-        const bChecked = checks.some(
-          (c) =>
-            c.programmingSubPlanId === b.programmingSubPlan.id &&
-            c.substanceKind === b.substanceKind
-        );
+        const aKey = `${a.programmingSubPlan.id}_${a.substanceKind}`;
+        const bKey = `${b.programmingSubPlan.id}_${b.substanceKind}`;
+        const aChecked = checksSet.has(aKey);
+        const bChecked = checksSet.has(bKey);
         if (aChecked !== bChecked) {
           return aChecked ? 1 : -1;
         }
@@ -254,6 +268,8 @@ const LaboratoryAgreementsView = () => {
     checks
   ]);
 
+  const deferredFilteredRows = useDeferredValue(filteredRows);
+
   const allSelected =
     filteredRows.length > 0 &&
     selectedStringRowKeys.length === filteredRows.length;
@@ -267,8 +283,10 @@ const LaboratoryAgreementsView = () => {
       .sort()
       .join(',');
 
-  const selectedRows = filteredRows.filter((r) =>
-    selectedStringRowKeys.includes(toRowKey(r))
+  const selectedRows = useMemo(
+    () =>
+      filteredRows.filter((r) => selectedStringRowKeys.includes(toRowKey(r))),
+    [filteredRows, selectedStringRowKeys]
   );
 
   const selectedRowsConsistent =
@@ -279,9 +297,23 @@ const LaboratoryAgreementsView = () => {
         rowAgreementsSignature(selectedRows[0].laboratories)
     );
 
+  const rowsWithLab = useMemo(
+    () =>
+      rows.filter((r) =>
+        r.laboratories.some(
+          (lab) =>
+            lab.referenceLaboratory ||
+            lab.detectionAnalysis ||
+            lab.confirmationAnalysis
+        )
+      ).length,
+    [rows]
+  );
+  const rowsWithoutLab = rows.length - rowsWithLab;
+
   const isDetailModalOpen = useRef(false);
 
-  const handleOpenModal = () => {
+  const handleOpenModal = useCallback(() => {
     const firstRow = selectedRows[0];
     setModalAgreements(firstRow?.laboratories ?? []);
     setModalRowKeys(
@@ -292,9 +324,9 @@ const LaboratoryAgreementsView = () => {
     );
     setModalProgrammingSubPlan(firstRow.programmingSubPlan);
     agreementsModal.open();
-  };
+  }, [selectedRows]);
 
-  const handleOpenModalForRow = (row: AgreementRow) => {
+  const handleOpenModalForRow = useCallback((row: AgreementRow) => {
     setModalAgreements(row.laboratories);
     setModalRowKeys([
       {
@@ -304,7 +336,25 @@ const LaboratoryAgreementsView = () => {
     ]);
     setModalProgrammingSubPlan(row.programmingSubPlan);
     agreementsModal.open();
-  };
+  }, []);
+
+  const handleToggleRow = useCallback(
+    (key: string) =>
+      setSelectedStringRowKeys((prev) =>
+        prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+      ),
+    []
+  );
+
+  const handleToggleAll = useCallback(
+    () =>
+      setSelectedStringRowKeys((prev) =>
+        prev.length === filteredRows.length ? [] : filteredRows.map(toRowKey)
+      ),
+    [filteredRows]
+  );
+
+  const handleDeselect = useCallback(() => setSelectedStringRowKeys([]), []);
 
   useEffect(() => {
     setSelectedStringRowKeys([]);
@@ -326,16 +376,6 @@ const LaboratoryAgreementsView = () => {
       setModalRowKeys([]);
     }
   });
-
-  const rowsWithLab = rows.filter((r) =>
-    r.laboratories.some(
-      (lab) =>
-        lab.referenceLaboratory ||
-        lab.detectionAnalysis ||
-        lab.confirmationAnalysis
-    )
-  ).length;
-  const rowsWithoutLab = rows.length - rowsWithLab;
 
   if (!year) {
     return null;
@@ -478,7 +518,7 @@ const LaboratoryAgreementsView = () => {
             </Button>
           </div>
           <LaboratoryAgreementsTable
-            rows={filteredRows}
+            rows={deferredFilteredRows}
             selectedStringRowKeys={selectedStringRowKeys}
             allSelected={allSelected}
             selectedRowsConsistent={selectedRowsConsistent}
@@ -499,19 +539,9 @@ const LaboratoryAgreementsView = () => {
             onLabFilterChange={setLabFilter}
             labAgreementTypeFilter={labAgreementTypeFilter}
             onLabAgreementTypeFilterChange={setLabAgreementTypeFilter}
-            onToggleRow={(key) =>
-              setSelectedStringRowKeys((prev) =>
-                prev.includes(key)
-                  ? prev.filter((k) => k !== key)
-                  : [...prev, key]
-              )
-            }
-            onToggleAll={() =>
-              setSelectedStringRowKeys(
-                allSelected ? [] : filteredRows.map(toRowKey)
-              )
-            }
-            onDeselect={() => setSelectedStringRowKeys([])}
+            onToggleRow={handleToggleRow}
+            onToggleAll={handleToggleAll}
+            onDeselect={handleDeselect}
             onOpenModal={handleOpenModal}
             onOpenModalForRow={handleOpenModalForRow}
             onUpdateCheck={updateCheck}
