@@ -23,7 +23,7 @@ export const PPVValidatedSubPlanId = ProgrammingSubPlanId.parse(
   'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1'
 );
 export const PPVValidatedDromSubPlanId = ProgrammingSubPlanId.parse(
-  'a1a1a1a-a1a1-a1a1-a1a1-a1a1a1a1a1a5'
+  'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a5'
 );
 export const PPVClosedSubPlanId = ProgrammingSubPlanId.parse(
   'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a2'
@@ -230,7 +230,7 @@ export const PPVValidatedDromProgrammingPlanFixture = genProgrammingPlan({
     region,
     status: isDromRegion(region) ? 'Validated' : 'SubmittedToRegion'
   })),
-  year: new Date().getFullYear()
+  year: new Date().getFullYear() + 10
 });
 
 export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
@@ -264,7 +264,7 @@ export const PPVSubmittedProgrammingPlanFixture = genProgrammingPlan({
     region,
     status: 'SubmittedToRegion'
   })),
-  year: new Date().getFullYear() + 1
+  year: new Date().getFullYear() + 2
 });
 
 export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({

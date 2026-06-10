@@ -150,6 +150,7 @@ export const NationalCoordinator = genUser({
   roles: ['NationalCoordinator'],
   programmingSubPlans: [
     PPVValidatedSubPlanFixture,
+    PPVValidatedDromSubPlanFixture,
     PPVInProgressSubPlanFixture,
     PPVClosedSubPlanFixture,
     PPVSubmittedSubPlanFixture
