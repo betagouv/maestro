@@ -213,11 +213,12 @@ test(`génère un XML de DAI`, async () => {
         <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
         <VersionScenario>1.0.1</VersionScenario>
         <TypeFichier>DA01</TypeFichier>
-        <NomFichier>DA01DDSV72LDA7225121610073679</NomFichier>
+        <NomFichier>DA01DDSV72LDA72251216100736798</NomFichier>
         <VersionReferenceStandardisees>v12341234</VersionReferenceStandardisees>
         <VersionReferencePrescripteur>v234</VersionReferencePrescripteur>
         <NomLogicielCreation>SIGAL</NomLogicielCreation>
         <VersionLogicielCreation>4.0</VersionLogicielCreation>
+        <CodeReferentielPrescripteur>SIGAL</CodeReferentielPrescripteur>
       </MessageParametres>
       <Emetteur>
         <Sigle>DDSV72</Sigle>
@@ -272,18 +273,18 @@ test(`génère un XML de DAI`, async () => {
             <SiglePlanAnalyse>RPDA_CU</SiglePlanAnalyse>
           </ReferencePlanAnalyseEffectuer>
           <ReferencePlanAnalyseContenu>
-            <LibelleMatrice></LibelleMatrice>
-            <SigleAnalyte></SigleAnalyte>
-            <SigleMethodeSpecifique></SigleMethodeSpecifique>
-            <Depistage>N</Depistage>
+            <LibelleMatrice>Matrice prescrite</LibelleMatrice>
+            <SigleAnalyte>ANAPRS</SigleAnalyte>
+            <SigleMethodeSpecifique>METPRS</SigleMethodeSpecifique>
+            <Depistage>O</Depistage>
             <Confirmation>N</Confirmation>
-            <Statut>G</Statut>
+            <Statut>V</Statut>
           </ReferencePlanAnalyseContenu>
         </ReferencePlanAnalyseType>
       </DemandeType>
     </DemandesAnalyses>
     ",
-      "fileName": "DA01DDSV72LDA7225121610073679",
+      "fileName": "DA01DDSV72LDA72251216100736798",
       "fileType": "DA01",
     }
   `);

@@ -107,7 +107,8 @@ export const generateXML = async <T extends SachaFileType>(
         VersionReferenceStandardisees: sachaConf.versionReferenceStandardisees,
         VersionReferencePrescripteur: sachaConf.versionReferencePrescripteur,
         NomLogicielCreation: 'SIGAL',
-        VersionLogicielCreation: '4.0'
+        VersionLogicielCreation: '4.0',
+        CodeReferentielPrescripteur: 'SIGAL'
       },
       Emetteur: {
         Sigle: getSenderSachaSigle(department),
@@ -147,7 +148,7 @@ export const getXmlFileName = (
   sigle: string,
   dateNow: number
 ): string => {
-  const currentDate: string = formatWithTz(dateNow, 'yyMMddHHmmssSS');
+  const currentDate: string = formatWithTz(dateNow, 'yyMMddHHmmssSSS');
   return `${fileType}${getSenderSachaSigle(department)}${sigle}${currentDate}`;
 };
 
