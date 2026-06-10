@@ -52,7 +52,9 @@ test('déduplique les entreprises identiques lors de la mise à jour', async () 
 
 test("peut modifier le nom et le prénom d'un utilisateur", async () => {
   const user1 = genUser({});
-  const user2 = genUser({});
+  const user2 = genUser({
+    programmingSubPlans: []
+  });
 
   await userRepository.insert(user1);
   await userRepository.insert(user2);
