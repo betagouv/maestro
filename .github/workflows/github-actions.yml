@@ -10,7 +10,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6.0.3
       - name: Setup Biome
         uses: biomejs/setup-biome@v2
         with:
@@ -20,7 +20,7 @@ jobs:
   knip:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6.0.3
       - name: Use Node.js
         uses: actions/setup-node@v6.4.0
         with:
@@ -33,7 +33,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6.0.3
       - name: Use Node.js
         uses: actions/setup-node@v6.4.0
         with:
@@ -65,7 +65,7 @@ jobs:
         env:
           initialBuckets: 'maestro'
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6.0.3
       - name: Use Node.js
         uses: actions/setup-node@v6.4.0
         with:
@@ -82,7 +82,7 @@ jobs:
   frontend_test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6.0.3
       - name: Use Node.js
         uses: actions/setup-node@v6.4.0
         with:
@@ -107,7 +107,7 @@ jobs:
   shared_test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6.0.3
       - name: Use Node.js
         uses: actions/setup-node@v6.4.0
         with:
@@ -123,7 +123,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v6.0.3
         with:
           fetch-depth: 0
       - name: Setup Node.js
