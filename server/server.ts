@@ -10,6 +10,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import RouteNotFoundError from './errors/routeNotFoundError';
 import errorHandler from './middlewares/error-handler';
+import { brevoProtectedRouter } from './routers/brevoProtected';
 import { m2mProtectedRouter } from './routers/m2mProtected';
 import { protectedRouter } from './routers/protected';
 import { sevesProtectedRouter } from './routers/sevesProtected';
@@ -95,6 +96,7 @@ export function createServer(): Server {
   app.use(rateLimiter);
   app.set('trust proxy', 1);
 
+  app.use('/api/brevo', brevoProtectedRouter);
   app.use('/api/m2m', m2mProtectedRouter);
   app.use('/api/seves', sevesProtectedRouter);
 
