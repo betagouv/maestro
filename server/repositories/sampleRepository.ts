@@ -509,6 +509,39 @@ const deleteDraftOnProgrammingPlan = async (
     .execute();
 };
 
+const hasDetectedResidue = async (sampleId: string): Promise<boolean> => {
+  const detectedResidue = await db(analysisTable)
+    .join(
+      analysisResiduesTable,
+      `${analysisResiduesTable}.analysisId`,
+      `${analysisTable}.id`
+    )
+    .where(`${analysisTable}.sampleId`, sampleId)
+    .whereNot(`${analysisResiduesTable}.resultKind`, 'ND')
+    .limit(1)
+    .first();
+
+  return !!detectedResidue;
+};
+
+const hasDetectedResidueWithInterpretation = async (
+  sampleId: string
+): Promise<boolean> => {
+  const detectedResidue = await db(analysisTable)
+    .join(
+      analysisResiduesTable,
+      `${analysisResiduesTable}.analysisId`,
+      `${analysisTable}.id`
+    )
+    .where(`${analysisTable}.sampleId`, sampleId)
+    .whereNotNull(`${analysisTable}.compliance`)
+    .whereNot(`${analysisResiduesTable}.resultKind`, 'ND')
+    .limit(1)
+    .first();
+
+  return !!detectedResidue;
+};
+
 const evaluateSampleCompliance = async (sampleId: string) => {
   console.info('Evaluate sample compliance', sampleId);
 
@@ -526,19 +559,8 @@ const evaluateSampleCompliance = async (sampleId: string) => {
 
   const sampleChecked = sampleCheckedParse.data;
 
-  const hasDetectedResidue = await db(analysisTable)
-    .join(
-      analysisResiduesTable,
-      `${analysisResiduesTable}.analysisId`,
-      `${analysisTable}.id`
-    )
-    .where(`${analysisTable}.sampleId`, sampleId)
-    .whereNot(`${analysisResiduesTable}.resultKind`, 'ND')
-    .limit(1)
-    .first();
-
   if (
-    !hasDetectedResidue &&
+    !(await hasDetectedResidue(sampleId)) &&
     sampleChecked.items
       .filter((_) => _.copyNumber === 1)
       .every((itemFirstCopy) => {
@@ -631,5 +653,7 @@ export const sampleRepository = {
   getNextSequence,
   deleteOne,
   deleteDraftOnProgrammingPlan,
-  evaluateSampleCompliance
+  evaluateSampleCompliance,
+  hasDetectedResidue,
+  hasDetectedResidueWithInterpretation
 };

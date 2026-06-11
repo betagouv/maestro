@@ -237,7 +237,8 @@ export const CreatedSampleData = z.object({
   region: Region,
   createdAt: z.coerce.date(),
   lastUpdatedAt: z.coerce.date(),
-  seves: Seves.nullish()
+  seves: Seves.nullish(),
+  hasResidueWithInterpretation: z.boolean().nullish()
 });
 
 export const SampleComplianceData = z.object({

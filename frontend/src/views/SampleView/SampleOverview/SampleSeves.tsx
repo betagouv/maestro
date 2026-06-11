@@ -1,10 +1,14 @@
-import Button from '@codegouvfr/react-dsfr/Button';
+import Notice from '@codegouvfr/react-dsfr/Notice';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import type { SevesId } from 'maestro-shared/schema/Sample/Seves';
 import config from 'src/utils/config';
+import { assert, type Equals } from 'tsafe';
 
 type Props = {
-  sample: SampleChecked;
+  sample: Pick<
+    SampleChecked,
+    'seves' | 'hasResidueWithInterpretation' | 'reference'
+  >;
 };
 
 const getSevesUrl = (sevesId: SevesId) =>
@@ -15,36 +19,42 @@ const getSevesCreationUrl = (maestroReference: string) =>
     maestroReference
   )}`;
 
-const SampleSeves = ({ sample }: Props) => {
+export const SampleSeves = ({ sample, ..._rest }: Props) => {
+  assert<Equals<keyof typeof _rest, never>>();
   if (sample.seves) {
     return (
-      <Button
-        priority="secondary"
-        iconId="fr-icon-external-link-line"
-        linkProps={{
-          href: getSevesUrl(sample.seves.id),
-          target: '_blank',
-          rel: 'noopener noreferrer'
+      <Notice
+        severity="info"
+        title={`Fiche Sèves créée (n° ${sample.seves.numero}).`}
+        link={{
+          text: 'Voir la fiche',
+          linkProps: {
+            href: getSevesUrl(sample.seves.id),
+            target: '_blank',
+            rel: 'noopener noreferrer'
+          }
         }}
-      >
-        Accéder à la fiche Sèves {sample.seves.numero}
-      </Button>
+      />
     );
   }
 
-  return (
-    <Button
-      priority="secondary"
-      iconId="fr-icon-add-line"
-      linkProps={{
-        href: getSevesCreationUrl(sample.reference),
-        target: '_blank',
-        rel: 'noopener noreferrer'
-      }}
-    >
-      Créer une fiche Sèves
-    </Button>
-  );
-};
+  if (sample.hasResidueWithInterpretation) {
+    return (
+      <Notice
+        severity="info"
+        title="Création d'une fiche Sèves conseillée."
+        description="Au moins un résidu a été détecté sur ce prélèvement, vous pouvez créer une fiche Sèves pour avertir les services concernés."
+        link={{
+          text: 'Créer une fiche Sèves.',
+          linkProps: {
+            href: getSevesCreationUrl(sample.reference),
+            target: '_blank',
+            rel: 'noopener noreferrer'
+          }
+        }}
+      />
+    );
+  }
 
-export default SampleSeves;
+  return null;
+};

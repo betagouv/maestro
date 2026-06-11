@@ -6,15 +6,19 @@ import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import {
+  genSampleItem,
   Sample2Fixture,
   Sample11Fixture,
-  Sample13Fixture
+  Sample13Fixture,
+  SampleDAOA1Fixture,
+  SampleDAOA2Fixture
 } from 'maestro-shared/test/sampleFixtures';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { toArray } from 'maestro-shared/utils/utils';
 import { describe, expect, test } from 'vitest';
 import { analysisRepository } from './analysisRepository';
 import { documentRepository } from './documentRepository';
+import { SampleItems } from './sampleItemRepository';
 import { sampleRepository } from './sampleRepository';
 
 describe('count samples', async () => {
@@ -203,6 +207,80 @@ describe('findMany samples', async () => {
     });
     expect(samples).toHaveLength(1);
     expect(samples[0].id).toBe(analysisWithResidues.sampleId);
+  });
+});
+
+describe('hasDetectedResidueWithInterpretation', async () => {
+  const insertAnalysisWithResidue = async (
+    sampleId: string,
+    copyNumber: number,
+    compliance: boolean | null,
+    resultKind: ResultKind
+  ) => {
+    const analysis = genPartialAnalysis({
+      sampleId,
+      copyNumber,
+      createdBy: Sampler1Fixture.id,
+      status: 'Completed',
+      compliance
+    });
+    await analysisRepository.insert(analysis);
+    await analysisRepository.update({
+      ...analysis,
+      residues: [
+        {
+          resultKind,
+          analysisMethod: 'Mono',
+          reference: 'RF-00000010-CHE',
+          analysisId: analysis.id,
+          residueNumber: 0
+        }
+      ]
+    });
+  };
+
+  test('true when a single analysis has both a detected residue and an interpretation', async () => {
+    await insertAnalysisWithResidue(Sample13Fixture.id, 1, true, 'NQ');
+
+    expect(
+      await sampleRepository.hasDetectedResidueWithInterpretation(
+        Sample13Fixture.id
+      )
+    ).toBe(true);
+  });
+
+  test('false when a detected residue has no interpretation', async () => {
+    await insertAnalysisWithResidue(SampleDAOA1Fixture.id, 1, null, 'NQ');
+
+    expect(
+      await sampleRepository.hasDetectedResidueWithInterpretation(
+        SampleDAOA1Fixture.id
+      )
+    ).toBe(false);
+  });
+
+  test('false when the detected residue and the interpretation are on two different copies', async () => {
+    await SampleItems().insert(
+      genSampleItem({
+        sampleId: SampleDAOA2Fixture.id,
+        itemNumber: 1,
+        copyNumber: 2
+      })
+    );
+
+    await insertAnalysisWithResidue(SampleDAOA2Fixture.id, 1, null, 'NQ');
+    await insertAnalysisWithResidue(
+      SampleDAOA2Fixture.id,
+      2,
+      true,
+      'ND' as ResultKind
+    );
+
+    expect(
+      await sampleRepository.hasDetectedResidueWithInterpretation(
+        SampleDAOA2Fixture.id
+      )
+    ).toBe(false);
   });
 });
 
