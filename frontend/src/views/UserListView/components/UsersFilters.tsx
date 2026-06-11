@@ -159,7 +159,7 @@ const Filters: FunctionComponent<
 
   const subPlanLabelById = Object.fromEntries(
     programmingPlans.flatMap((p) =>
-      p.subPlans.map((sp) => [sp.id, `${sp.label} (${p.year})`])
+      p.subPlans.map((sp) => [sp.id, `${sp.codeNat} (${p.year})`])
     )
   );
 
