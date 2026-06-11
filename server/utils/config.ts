@@ -49,7 +49,7 @@ const configValidator = z
     MAILER_USER: z.string().nullish(),
     MAILER_PASSWORD: z.string().nullish(),
     MAILER_API_KEY: z.string().nullish(),
-    MAILER_EVENT_API_KEY: z.string().nullish(),
+    MAILER_EVENT_API_KEY: devDefaultValue(z.string(), 'eventApiKey'),
     MAILER_SECURE: coerceBoolean().default(false),
     MAX_RATE: z.coerce.number().default(10000),
     S3_ENDPOINT: devDefaultValue(z.url(), 'http://localhost:9090'),
