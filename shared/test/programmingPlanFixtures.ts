@@ -22,7 +22,7 @@ const DAOAInProgressProgrammingPlanId = 'fafc6f2e-aec5-4998-adeb-84090d971a90';
 export const PPVValidatedSubPlanId = ProgrammingSubPlanId.parse(
   'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1'
 );
-export const PPVValidatedDromSubPlanId = ProgrammingSubPlanId.parse(
+const PPVValidatedDromSubPlanId = ProgrammingSubPlanId.parse(
   'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a5'
 );
 export const PPVClosedSubPlanId = ProgrammingSubPlanId.parse(
@@ -31,7 +31,7 @@ export const PPVClosedSubPlanId = ProgrammingSubPlanId.parse(
 export const PPVInProgressSubPlanId = ProgrammingSubPlanId.parse(
   'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a3'
 );
-export const PPVSubmittedSubPlanId = ProgrammingSubPlanId.parse(
+const PPVSubmittedSubPlanId = ProgrammingSubPlanId.parse(
   'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a4'
 );
 export const DAOAVolailleValidatedSubPlanId = ProgrammingSubPlanId.parse(
