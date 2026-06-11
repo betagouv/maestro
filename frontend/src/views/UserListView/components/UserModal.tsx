@@ -297,8 +297,42 @@ export const UserModal = ({
           keysWithLabels={Object.fromEntries(
             allSubPlans.map((sp) => [sp.id, `${sp.codeNat} (${sp.year})`])
           )}
-          defaultLabel={'sous plan sélectionné'}
-          label={'Sous-plans'}
+          defaultLabel={'sous-plan sélectionné'}
+          label={
+            <>
+              Sous-plans
+              {allSubPlans.some(
+                (sp) =>
+                  !user.programmingSubPlans?.some((usp) => usp.id === sp.id)
+              ) && (
+                <Button
+                  priority="tertiary no outline"
+                  size="small"
+                  onClick={() =>
+                    setUser((u) => ({
+                      ...u,
+                      programmingSubPlans: allSubPlans.map(
+                        ({ year: _year, ...sp }): ProgrammingSubPlan => sp
+                      )
+                    }))
+                  }
+                >
+                  Tout sélectionner
+                </Button>
+              )}
+              {(user.programmingSubPlans?.length ?? 0) > 0 && (
+                <Button
+                  priority="tertiary no outline"
+                  size="small"
+                  onClick={() =>
+                    setUser((u) => ({ ...u, programmingSubPlans: [] }))
+                  }
+                >
+                  Tout désélectionner
+                </Button>
+              )}
+            </>
+          }
           required={programmingSubPlanIdsIsRequired(user)}
         />
 
