@@ -6,7 +6,7 @@ import {
   type ProgrammingPlanChecked,
   ProgrammingPlanSort
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import dashboard from 'src/assets/illustrations/dashboard.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -23,7 +23,7 @@ const DashboardView = () => {
     useAuthentication();
   const { isOnline } = useOnLine();
 
-  const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
+  const { data: programmingPlansData } = apiClient.useFindProgrammingPlansQuery(
     {
       subPlanIds: hasRole('Administrator')
         ? undefined
@@ -33,6 +33,10 @@ const DashboardView = () => {
     {
       skip: !user?.programmingSubPlans?.length && !hasRole('Administrator')
     }
+  );
+  const programmingPlans = useMemo(
+    () => programmingPlansData?.filter((p) => p.domain !== 'TO_BE_DEFINED'),
+    [programmingPlansData]
   );
 
   const [currentValidatedProgrammingPlan, setCurrentValidatedProgrammingPlan] =
