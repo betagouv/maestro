@@ -161,7 +161,7 @@ const LaboratoryAgreementsModal = ({
               {laboratoryAgreementRowKeys.length === 1 ? (
                 <>
                   N°
-                  {laboratoryAgreementRowKeys[0].programmingSubPlanId}
+                  {programmingSubPlan?.codeNat}
                   {' | '}
                   {
                     SubstanceKindLabels[
