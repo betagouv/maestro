@@ -24,7 +24,10 @@ export const DashboardNotice: FunctionComponent<Props> = ({
 
   return (
     <div
-      className={clsx(className, fullWidth && 'dashboard-notice-full-width')}
+      className={clsx(
+        className,
+        fullWidth ? 'dashboard-notice-full-width' : 'd-flex-column'
+      )}
     >
       <div
         className={clsx(
