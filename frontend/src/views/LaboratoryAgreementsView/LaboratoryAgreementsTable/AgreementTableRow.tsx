@@ -18,7 +18,7 @@ import { memo, useMemo } from 'react';
 import LaboratoryAgreementTag from 'src/components/LaboratoryAgreement/LaboratoryAgreementTag/LaboratoryAgreementTag';
 import { pluralize } from 'src/utils/stringUtils';
 
-const LABS_DISPLAY_LIMIT = 6;
+const LABS_DISPLAY_LIMIT = 10;
 const MATRIX_DISPLAY_LIMIT = 3;
 
 export type AgreementRow = {
