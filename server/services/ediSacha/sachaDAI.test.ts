@@ -248,7 +248,7 @@ test(`génère un XML de DAI`, async () => {
         <DialogueActeurType>
           <DialogueActeur>
             <SigleIdentifiant>DEPADM</SigleIdentifiant>
-            <Identifiant></Identifiant>
+            <Identifiant>DDSV72</Identifiant>
             <Nom>John Doe</Nom>
           </DialogueActeur>
         </DialogueActeurType>
