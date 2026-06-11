@@ -116,7 +116,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'distributePrescriptionToDepartments',
     'deleteDocument'
   ],
-  NationalObserver: ObserverPermissionsList,
+  NationalObserver: [...ObserverPermissionsList, 'createResource'],
   RegionalObserver: ObserverPermissionsList,
   Sampler: UserSamplerPermissionsList,
   DepartmentalCoordinator: [
