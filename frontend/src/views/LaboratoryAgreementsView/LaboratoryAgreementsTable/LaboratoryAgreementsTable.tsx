@@ -3,7 +3,6 @@ import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Notice from '@codegouvfr/react-dsfr/Notice';
 import clsx from 'clsx';
-import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type {
   LaboratoryAgreementCheckUpdate,
@@ -34,7 +33,7 @@ export const toRowKey = (
   row: Pick<AgreementRow, 'programmingSubPlan' | 'substanceKind'>
 ) => `${row.programmingSubPlan.id}_${row.substanceKind}`;
 
-const ROW_HEIGHT = 57;
+const ROW_HEIGHT = 100;
 const OVERSCAN = 10;
 
 interface Props {
@@ -51,9 +50,9 @@ interface Props {
   substanceFilter: SubstanceKind[];
   substanceOptions: { value: SubstanceKind; label: string }[];
   onSubstanceFilterChange: (values: SubstanceKind[]) => void;
-  matrixFilter: MatrixKind[];
-  matrixOptions: { value: MatrixKind; label: string }[];
-  onMatrixFilterChange: (values: MatrixKind[]) => void;
+  matrixCombinedFilter: string[];
+  matrixCombinedOptions: { value: string; label: string }[];
+  onMatrixCombinedFilterChange: (values: string[]) => void;
   labFilter: string[];
   labOptions: { value: string; label: string; disabled: boolean }[];
   onLabFilterChange: (values: string[]) => void;
@@ -81,9 +80,9 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
   substanceFilter,
   substanceOptions,
   onSubstanceFilterChange,
-  matrixFilter,
-  matrixOptions,
-  onMatrixFilterChange,
+  matrixCombinedFilter,
+  matrixCombinedOptions,
+  onMatrixCombinedFilterChange,
   labFilter,
   labOptions,
   onLabFilterChange,
@@ -342,10 +341,10 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                 <th scope="col">
                   <div className="border-left">
                     <ColumnFilterHeader
-                      label="Matrices"
-                      options={matrixOptions}
-                      selectedValues={matrixFilter}
-                      onChange={onMatrixFilterChange}
+                      label="Matrice"
+                      options={matrixCombinedOptions}
+                      selectedValues={matrixCombinedFilter}
+                      onChange={onMatrixCombinedFilterChange}
                     />
                   </div>
                 </th>

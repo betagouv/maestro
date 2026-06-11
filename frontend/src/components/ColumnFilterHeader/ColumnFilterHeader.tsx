@@ -136,7 +136,7 @@ const ColumnFilterHeader = <T extends string>({
                   })}
                   options={[
                     {
-                      label: highlightLabel(option.label),
+                      label: <span>{highlightLabel(option.label)}</span>,
                       nativeInputProps: {
                         checked: selectedValues.includes(option.value),
                         onChange: () =>

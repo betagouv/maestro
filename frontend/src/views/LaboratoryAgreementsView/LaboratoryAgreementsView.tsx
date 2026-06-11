@@ -4,15 +4,12 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
+import { MatrixList } from 'maestro-shared/referential/Matrix/Matrix';
 import {
   type MatrixKind,
   MatrixKindLabels
 } from 'maestro-shared/referential/Matrix/MatrixKind';
-import type {
-  LaboratoryAgreement,
-  LaboratoryAgreementField,
-  LaboratoryAgreementRowKey
-} from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
@@ -38,6 +35,11 @@ import LaboratoryAgreementsTable, {
 } from './LaboratoryAgreementsTable/LaboratoryAgreementsTable';
 import './LaboratoryAgreementsView.scss';
 import { isNil, uniq } from 'lodash-es';
+import type {
+  LaboratoryAgreement,
+  LaboratoryAgreementField,
+  LaboratoryAgreementRowKey
+} from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import type {
   ProgrammingSubPlan,
   ProgrammingSubPlanId
@@ -76,7 +78,9 @@ const LaboratoryAgreementsView = () => {
   const [labAgreementTypeFilter, setLabAgreementTypeFilter] = useState<
     LaboratoryAgreementField[]
   >([]);
-  const [matrixFilter, setMatrixFilter] = useState<MatrixKind[]>([]);
+  const [matrixCombinedFilter, setMatrixCombinedFilter] = useState<string[]>(
+    []
+  );
   const [subPlanFilter, setSubPlanFilter] = useState<ProgrammingSubPlanId[]>(
     []
   );
@@ -152,10 +156,12 @@ const LaboratoryAgreementsView = () => {
 
   const substanceOptions = useMemo(
     () =>
-      [...new Set(rows.map((r) => r.substanceKind))].map((value) => ({
-        value,
-        label: SubstanceKindLabels[value]
-      })),
+      [...new Set(rows.map((r) => r.substanceKind))]
+        .map((value) => ({
+          value,
+          label: SubstanceKindLabels[value]
+        }))
+        .toSorted((a, b) => a.label.localeCompare(b.label)),
     [rows]
   );
 
@@ -177,16 +183,38 @@ const LaboratoryAgreementsView = () => {
     [laboratories, labsInRows]
   );
 
-  const matrixOptions = useMemo(
-    () =>
-      [...new Set(allPrescriptions.map((p) => p.matrixKind))]
-        .map((value) => ({
-          value,
-          label: MatrixKindLabels[value]
-        }))
-        .toSorted((a, b) => a.label.localeCompare(b.label)),
-    [allPrescriptions]
-  );
+  const matrixCombinedOptions = useMemo(() => {
+    const kindOptions = [...new Set(allPrescriptions.map((p) => p.matrixKind))]
+      .map((kind) => ({
+        value: `kind:${kind}`,
+        label: MatrixKindLabels[kind]
+      }))
+      .toSorted((a, b) => a.label.localeCompare(b.label));
+
+    const matrixToKind = new Map<string, MatrixKind>();
+    for (const p of allPrescriptions) {
+      if (p.matrix) {
+        matrixToKind.set(p.matrix, p.matrixKind);
+      }
+    }
+
+    const specificMatrixOptions = MatrixList.filter((m) =>
+      allPrescriptions.some((p) => p.matrix === m)
+    )
+      .map((m) => {
+        const kind = matrixToKind.get(m);
+        const kindLabel = kind ? MatrixKindLabels[kind] : '';
+        return {
+          value: `matrix:${m}`,
+          label: kindLabel
+            ? `${kindLabel} > ${MatrixLabels[m]}`
+            : MatrixLabels[m]
+        };
+      })
+      .toSorted((a, b) => a.label.localeCompare(b.label));
+
+    return [...kindOptions, ...specificMatrixOptions];
+  }, [allPrescriptions]);
 
   const filteredRows = useMemo(() => {
     const prescriptionsBySubPlanId = new Map<string, typeof allPrescriptions>();
@@ -195,8 +223,6 @@ const LaboratoryAgreementsView = () => {
       arr.push(p);
       prescriptionsBySubPlanId.set(p.programmingSubPlanId, arr);
     }
-
-    const matrixFilterSet = new Set(matrixFilter);
 
     const checksSet = new Set(
       checks.map((c) => `${c.programmingSubPlanId}_${c.substanceKind}`)
@@ -218,9 +244,16 @@ const LaboratoryAgreementsView = () => {
             subPlanFilter.includes(r.programmingSubPlan.id)) &&
           (substanceFilter.length === 0 ||
             substanceFilter.includes(r.substanceKind)) &&
-          (matrixFilterSet.size === 0 ||
+          (matrixCombinedFilter.length === 0 ||
             (prescriptionsBySubPlanId.get(r.programmingSubPlan.id) ?? []).some(
-              (p) => matrixFilterSet.has(p.matrixKind)
+              (p) =>
+                matrixCombinedFilter.some(
+                  (v) =>
+                    (v.startsWith('kind:') && p.matrixKind === v.slice(5)) ||
+                    (v.startsWith('matrix:') &&
+                      p.matrix != null &&
+                      p.matrix === v.slice(7))
+                )
             )) &&
           ((labFilter.length === 0 && labAgreementTypeFilter.length === 0) ||
             r.laboratories.some(
@@ -260,7 +293,7 @@ const LaboratoryAgreementsView = () => {
     rows,
     subPlanFilter,
     substanceFilter,
-    matrixFilter,
+    matrixCombinedFilter,
     labFilter,
     labAgreementTypeFilter,
     showWithoutLab,
@@ -361,7 +394,7 @@ const LaboratoryAgreementsView = () => {
   }, [
     subPlanFilter,
     substanceFilter,
-    matrixFilter,
+    matrixCombinedFilter,
     labFilter,
     labAgreementTypeFilter,
     showWithoutLab
@@ -507,7 +540,13 @@ const LaboratoryAgreementsView = () => {
                       ? substanceFilter
                       : undefined,
                     laboratoryIds: labFilter.length ? labFilter : undefined,
-                    matrixKinds: matrixFilter.length ? matrixFilter : undefined,
+                    matrixKinds: matrixCombinedFilter
+                      .filter((v) => v.startsWith('kind:'))
+                      .map((v) => v.slice(5) as MatrixKind).length
+                      ? matrixCombinedFilter
+                          .filter((v) => v.startsWith('kind:'))
+                          .map((v) => v.slice(5) as MatrixKind)
+                      : undefined,
                     withoutLab: showWithoutLab || undefined
                   })
                 )
@@ -531,9 +570,9 @@ const LaboratoryAgreementsView = () => {
             substanceFilter={substanceFilter}
             substanceOptions={substanceOptions}
             onSubstanceFilterChange={setSubstanceFilter}
-            matrixFilter={matrixFilter}
-            matrixOptions={matrixOptions}
-            onMatrixFilterChange={setMatrixFilter}
+            matrixCombinedFilter={matrixCombinedFilter}
+            matrixCombinedOptions={matrixCombinedOptions}
+            onMatrixCombinedFilterChange={setMatrixCombinedFilter}
             labFilter={labFilter}
             labOptions={labOptions}
             onLabFilterChange={setLabFilter}

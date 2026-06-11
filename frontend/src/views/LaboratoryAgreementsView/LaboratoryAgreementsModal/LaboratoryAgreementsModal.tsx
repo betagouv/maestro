@@ -234,7 +234,8 @@ const LaboratoryAgreementsModal = ({
         </div>
 
         <div className="agreement-modal-selection">
-          {filteredLaboratories
+          {laboratories
+            .toSorted((a, b) => a.shortName.localeCompare(b.shortName))
             .filter((laboratory) => {
               const local = localAgreements[laboratory.id];
               return (
