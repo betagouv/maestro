@@ -1,5 +1,5 @@
+import { isNil } from 'lodash-es';
 import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
-import { ProgrammingPlanKindWithSacha } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type {
   CommemoratifSigle,
   CommemoratifValueSigle,
@@ -7,7 +7,7 @@ import type {
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
-import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import type { SachaConf } from '../../repositories/kysely.type';
 import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
@@ -30,7 +30,6 @@ export const generateXMLDAI = (
   sample: Pick<
     SampleChecked,
     | 'specificData'
-    | 'programmingPlanKind'
     | 'sampledDate'
     | 'lastUpdatedAt'
     | 'company'
@@ -40,6 +39,7 @@ export const generateXMLDAI = (
     | 'matrix'
     | 'reference'
   >,
+  codeNat: string,
   sampleItem: Pick<
     SampleItem,
     'sealId' | 'itemNumber' | 'copyNumber' | 'substanceKind'
@@ -48,13 +48,11 @@ export const generateXMLDAI = (
   sachaFieldConfigs: SachaFieldConfig[],
   sachaCommemoratifRecord: SachaCommemoratifRecord,
   sachaConf: SachaConf,
-  laboratory: LaboratoryWithSacha
+  laboratory: LaboratoryWithSacha,
+  withSacha = true
 ): Promise<XmlFile> => {
-  const programmingPlanKind =
-    sample.programmingPlanKind as ProgrammingPlanKindWithSacha;
-
-  if (!ProgrammingPlanKindWithSacha.options.includes(programmingPlanKind)) {
-    throw new Error(`Pas d'EDI Sacha pour ${programmingPlanKind}`);
+  if (!withSacha) {
+    throw new Error(`Pas d'EDI Sacha pour ${codeNat}`);
   }
 
   const matrix = sample.matrix;
@@ -64,7 +62,8 @@ export const generateXMLDAI = (
     );
   }
 
-  if (sampleItem.substanceKind === 'Any') {
+  const siglePlanAnalyse = SiglePlanAnalyse[sampleItem.substanceKind];
+  if (isNil(siglePlanAnalyse)) {
     throw new Error("Pas de plan d'analyse de configuré.");
   }
 
@@ -86,8 +85,7 @@ export const generateXMLDAI = (
       DemandeType: {
         DialogueDemandeIntervention: {
           NumeroDAP: Number(numeroDAP),
-          SigleContexteIntervention:
-            SigleContexteIntervention[programmingPlanKind],
+          SigleContexteIntervention: SigleContexteIntervention[codeNat],
           DateIntervention: sample.sampledDate,
           DateModification: toSachaDateTime(sample.lastUpdatedAt)
         },
@@ -114,7 +112,7 @@ export const generateXMLDAI = (
           {
             DialogueEchantillonComplet: {
               NumeroEchantillon: sampleItem.itemNumber,
-              SigleMatriceSpecifique: SigleMatrix[matrix as NotPPVMatrix],
+              SigleMatriceSpecifique: SigleMatrix[matrix as NotPPVMatrix]!,
               NumeroEtiquette: numeroEtiquette,
               Commentaire: sampleItem.sealId ?? ''
             },
@@ -134,7 +132,7 @@ export const generateXMLDAI = (
         ],
         ReferencePlanAnalyseType: {
           ReferencePlanAnalyseEffectuer: {
-            SiglePlanAnalyse: SiglePlanAnalyse[sampleItem.substanceKind]
+            SiglePlanAnalyse: siglePlanAnalyse
           },
           ReferencePlanAnalyseContenu: {
             LibelleMatrice: 'Matrice prescrite',
@@ -218,6 +216,7 @@ export const getCommemoratifs = (
 
 export const sendDAIWithEDI = async (
   sample: SampleChecked,
+  codeNat: string,
   sampleItem: SampleItem,
   laboratory: LaboratoryWithSacha
 ): Promise<DaiSentResult> => {
@@ -231,6 +230,7 @@ export const sendDAIWithEDI = async (
   const dateNow = Date.now();
   const xmlFile = await generateXMLDAI(
     sample,
+    codeNat,
     sampleItem,
     dateNow,
     specificDataRecord,

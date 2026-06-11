@@ -20,12 +20,6 @@ import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laborato
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import {
-  ProgrammingPlanKindLabels,
-  ProgrammingPlanKindReference,
-  type ProgrammingPlanKindWithSacha,
-  ProgrammingPlanKindWithSachaList
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import {
   getSampleMatrixLabel,
   type PartialSample
 } from 'maestro-shared/schema/Sample/Sample';
@@ -42,6 +36,7 @@ import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
+import { programmingSubPlanRepository } from '../../repositories/programmingSubPlanRepository';
 import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 import { userRepository } from '../../repositories/userRepository';
 import {
@@ -212,29 +207,35 @@ const generateSamplePDF = async (
     throw new UserMissingError(sample.sampler.id);
   }
 
-  const fieldConfigs = await specificDataFieldConfigRepository.findByPlanKind(
-    sample.programmingPlanId,
-    sample.programmingPlanKind
+  const subPlan = await programmingSubPlanRepository.findUnique(
+    sample.programmingSubPlanId
   );
+  const codeNat = subPlan?.codeNat ?? '';
+
+  const fieldConfigs =
+    await specificDataFieldConfigRepository.findByPlanSubPlan(
+      sample.programmingSubPlanId
+    );
 
   const additionalSampler = sample.additionalSampler
     ? await userRepository.findUnique(sample.additionalSampler.id)
     : null;
 
-  const emptySampleItems: PartialSampleItem[] =
-    programmingPlan.substanceKinds.flatMap((substanceKind, substanceIndex) =>
-      new Array(SampleItemMaxCopyCount).fill(null).map((_, copyIndex) => {
-        const itemNumber = substanceIndex + 1;
-        const copyNumber = copyIndex + 1;
-        return {
-          sampleId: sample.id,
-          itemNumber,
-          copyNumber,
-          recipientKind: copyNumber === 1 ? 'Laboratory' : undefined,
-          substanceKind
-        };
-      })
-    );
+  const emptySampleItems: PartialSampleItem[] = (
+    subPlan?.substanceKinds ?? []
+  ).flatMap((substanceKind, substanceIndex) =>
+    new Array(SampleItemMaxCopyCount).fill(null).map((_, copyIndex) => {
+      const itemNumber = substanceIndex + 1;
+      const copyNumber = copyIndex + 1;
+      return {
+        sampleId: sample.id,
+        itemNumber,
+        copyNumber,
+        recipientKind: copyNumber === 1 ? 'Laboratory' : undefined,
+        substanceKind
+      };
+    })
+  );
 
   const sampleDocuments = await documentRepository.findMany({
     sampleId: sample.id
@@ -260,10 +261,7 @@ const generateSamplePDF = async (
   const sampleReference = SampleReference.parse(sample.reference);
 
   const barcodeReference =
-    itemNumber !== undefined &&
-    ProgrammingPlanKindWithSachaList.includes(
-      sample.programmingPlanKind as ProgrammingPlanKindWithSacha
-    )
+    itemNumber !== undefined && (subPlan?.withSacha ?? false)
       ? numeroDAPFromReference(sampleReference)
       : reference;
 
@@ -273,11 +271,12 @@ const generateSamplePDF = async (
     (c) => c.field.key === 'matrixPart'
   )?.field;
 
-  const planLabel = `${ProgrammingPlanKindReference[sample.programmingPlanKind]} / ${ProgrammingPlanDomainLabels[programmingPlan.domain]} / ${programmingPlan.substanceKinds.map((s) => SubstanceKindLabels[s]).join(' ')} / ${ProgrammingPlanKindLabels[sample.programmingPlanKind]}`;
+  const planLabel = `${codeNat} / ${ProgrammingPlanDomainLabels[programmingPlan.domain]} / ${(subPlan?.substanceKinds ?? []).map((s) => SubstanceKindLabels[s]).join(' ')} / ${subPlan?.label}`;
 
   return generatePDF(template, {
     fullVersion,
     ...sample,
+    codeNat,
     sampleItems: (sampleItems.length > 0 ? sampleItems : emptySampleItems).map(
       (sampleItem) => ({
         ...sampleItem,
@@ -343,9 +342,7 @@ const generateSamplePDF = async (
         value: getFieldValueLabel(fc.field, sample.specificData[fc.field.key])
       })),
     releaseControl:
-      sample.programmingPlanKind === 'PPV'
-        ? sample.specificData.releaseControl
-        : undefined,
+      codeNat === 'PPV' ? sample.specificData.releaseControl : undefined,
     establishment:
       programmingPlan.distributionKind === 'REGIONAL'
         ? Regions[sample.region].establishment

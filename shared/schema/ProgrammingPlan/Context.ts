@@ -1,7 +1,14 @@
 import { z } from 'zod';
 
 export const Context = z.enum(
-  ['Control', 'Surveillance', 'LocalPlan', 'Investigation', 'ControlSupport'],
+  [
+    'Control',
+    'Surveillance',
+    'LocalPlan',
+    'Investigation',
+    'ControlSupport',
+    'Exploratory'
+  ],
   {
     error: () => 'Veuillez renseigner le contexte.'
   }
@@ -9,7 +16,8 @@ export const Context = z.enum(
 
 export const ProgrammingPlanContext = Context.extract([
   'Control',
-  'Surveillance'
+  'Surveillance',
+  'Exploratory'
 ]);
 
 export const OutsideProgrammingPlanContext = Context.extract([
@@ -32,5 +40,6 @@ export const ContextLabels: Record<Context, string> = {
   Control: 'Plan de contrôle',
   LocalPlan: 'Plan local',
   Investigation: 'Enquête',
-  ControlSupport: 'Appui au contrôle'
+  ControlSupport: 'Appui au contrôle',
+  Exploratory: 'Exploratoire'
 };

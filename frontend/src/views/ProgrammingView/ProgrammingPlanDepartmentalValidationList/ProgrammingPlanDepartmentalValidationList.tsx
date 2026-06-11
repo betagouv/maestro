@@ -15,10 +15,6 @@ import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescri
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import {
-  type ProgrammingPlanKind,
-  ProgrammingPlanKindLabels
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import {
   type ProgrammingPlanStatus,
   ProgrammingPlanStatusLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
@@ -287,15 +283,14 @@ const ProgrammingPlanDepartmentalValidationList = ({
                               );
                             }}
                           >
-                            Laboratoires{' '}
-                            {
-                              ProgrammingPlanKindLabels[
-                                allPrescriptions.find(
-                                  (p) =>
-                                    p.id === localPrescription.prescriptionId
-                                )?.programmingPlanKind as ProgrammingPlanKind
-                              ]
-                            }
+                            Laboratoires {(() => {
+                              const subPlanId = allPrescriptions.find(
+                                (p) => p.id === localPrescription.prescriptionId
+                              )?.programmingSubPlanId;
+                              return programmingPlan.subPlans.find(
+                                (sp) => sp.id === subPlanId
+                              )?.label;
+                            })()}
                           </Button>
                         ))}
                     </div>

@@ -1,10 +1,11 @@
 import type {
   SpecificDataFieldId,
   SpecificDataFieldOptionId
-} from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+} from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import {
-  DAOAInProgressProgrammingPlanFixture,
-  PPVValidatedProgrammingPlanFixture
+  DAOAInProgressBovinSubPlanId,
+  DAOAInProgressVolailleSubPlanId,
+  PPVValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   AllFieldConfigs,
@@ -41,9 +42,8 @@ const allOptionValuesByFieldKey = new Map(
 describe('findByPlanKind', () => {
   describe('PPV', () => {
     test('returns fields in order', async () => {
-      const configs = await specificDataFieldConfigRepository.findByPlanKind(
-        PPVValidatedProgrammingPlanFixture.id,
-        'PPV'
+      const configs = await specificDataFieldConfigRepository.findByPlanSubPlan(
+        PPVValidatedSubPlanId
       );
 
       expect(configs).toHaveLength(PPVFieldConfigs.length);
@@ -53,9 +53,8 @@ describe('findByPlanKind', () => {
     });
 
     test('sets required flag correctly', async () => {
-      const configs = await specificDataFieldConfigRepository.findByPlanKind(
-        PPVValidatedProgrammingPlanFixture.id,
-        'PPV'
+      const configs = await specificDataFieldConfigRepository.findByPlanSubPlan(
+        PPVValidatedSubPlanId
       );
 
       const byKey = Object.fromEntries(configs.map((c) => [c.field.key, c]));
@@ -65,9 +64,8 @@ describe('findByPlanKind', () => {
     });
 
     test('returns correct options per field', async () => {
-      const configs = await specificDataFieldConfigRepository.findByPlanKind(
-        PPVValidatedProgrammingPlanFixture.id,
-        'PPV'
+      const configs = await specificDataFieldConfigRepository.findByPlanSubPlan(
+        PPVValidatedSubPlanId
       );
 
       const byKey = Object.fromEntries(configs.map((c) => [c.field.key, c]));
@@ -81,9 +79,8 @@ describe('findByPlanKind', () => {
 
   describe('DAOA_VOLAILLE', () => {
     test('returns fields in order', async () => {
-      const configs = await specificDataFieldConfigRepository.findByPlanKind(
-        DAOAInProgressProgrammingPlanFixture.id,
-        'DAOA_VOLAILLE'
+      const configs = await specificDataFieldConfigRepository.findByPlanSubPlan(
+        DAOAInProgressVolailleSubPlanId
       );
 
       expect(configs).toHaveLength(DAOAVolailleFieldConfigs.length);
@@ -93,9 +90,8 @@ describe('findByPlanKind', () => {
     });
 
     test('returns correct options per field', async () => {
-      const configs = await specificDataFieldConfigRepository.findByPlanKind(
-        DAOAInProgressProgrammingPlanFixture.id,
-        'DAOA_VOLAILLE'
+      const configs = await specificDataFieldConfigRepository.findByPlanSubPlan(
+        DAOAInProgressVolailleSubPlanId
       );
 
       const byKey = Object.fromEntries(configs.map((c) => [c.field.key, c]));
@@ -109,9 +105,8 @@ describe('findByPlanKind', () => {
 
   describe('DAOA_BOVIN', () => {
     test('returns fields in order', async () => {
-      const configs = await specificDataFieldConfigRepository.findByPlanKind(
-        DAOAInProgressProgrammingPlanFixture.id,
-        'DAOA_BOVIN'
+      const configs = await specificDataFieldConfigRepository.findByPlanSubPlan(
+        DAOAInProgressBovinSubPlanId
       );
 
       expect(configs).toHaveLength(DAOABovinFieldConfigs.length);
@@ -121,9 +116,8 @@ describe('findByPlanKind', () => {
     });
 
     test('returns correct options per field', async () => {
-      const configs = await specificDataFieldConfigRepository.findByPlanKind(
-        DAOAInProgressProgrammingPlanFixture.id,
-        'DAOA_BOVIN'
+      const configs = await specificDataFieldConfigRepository.findByPlanSubPlan(
+        DAOAInProgressBovinSubPlanId
       );
 
       const byKey = Object.fromEntries(configs.map((c) => [c.field.key, c]));
@@ -243,9 +237,7 @@ describe('field option CRUD', () => {
 });
 
 describe('plan kind field CRUD', () => {
-  const testKey = 'testRepoPlanKindFieldCRUD';
-  const programmingPlanId = DAOAInProgressProgrammingPlanFixture.id;
-  const kind = 'DAOA_VOLAILLE' as const;
+  const testKey = 'testRepoProgrammingSubPlanFieldCRUD';
   let fieldId: SpecificDataFieldId;
   let optionId: SpecificDataFieldOptionId;
 
@@ -281,66 +273,67 @@ describe('plan kind field CRUD', () => {
   test('adds, updates, replaces options on, and removes a plan kind field', async () => {
     // add
     const added = await specificDataFieldConfigRepository.addFieldToPlanKind(
-      programmingPlanId,
-      kind,
+      DAOAInProgressVolailleSubPlanId,
       { fieldId, required: false, order: 99 }
     );
     expect(added).toMatchObject({
       id: expect.any(String),
-      programmingPlanKind: kind,
+      programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
       required: false,
       order: 99,
       field: { key: testKey }
     });
-    const planKindFieldId = added!.id;
+    const programmingSubPlanFieldId = added!.id;
 
     // update
-    const updated = await specificDataFieldConfigRepository.updatePlanKindField(
-      planKindFieldId,
-      { required: true, order: 50 }
-    );
+    const updated =
+      await specificDataFieldConfigRepository.updateProgrammingSubPlanField(
+        programmingSubPlanFieldId,
+        { required: true, order: 50 }
+      );
     expect(updated).toMatchObject({
-      id: planKindFieldId,
-      programmingPlanKind: kind,
+      id: programmingSubPlanFieldId,
+      programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
       required: true,
       order: 50
     });
 
     // replace options (add one)
-    await specificDataFieldConfigRepository.replacePlanKindFieldOptions(
-      planKindFieldId,
+    await specificDataFieldConfigRepository.replaceProgrammingSubPlanFieldOptions(
+      programmingSubPlanFieldId,
       [optionId]
     );
-    const withOptions = await specificDataFieldConfigRepository.findByPlanKind(
-      programmingPlanId,
-      kind
-    );
-    const entry = withOptions.find((c) => c.id === planKindFieldId);
+    const withOptions =
+      await specificDataFieldConfigRepository.findByPlanSubPlan(
+        DAOAInProgressVolailleSubPlanId
+      );
+    const entry = withOptions.find((c) => c.id === programmingSubPlanFieldId);
     expect(entry!.field.options).toHaveLength(1);
     expect(entry!.field.options[0].value).toBe('OPT1');
 
     // replace options (clear)
-    await specificDataFieldConfigRepository.replacePlanKindFieldOptions(
-      planKindFieldId,
+    await specificDataFieldConfigRepository.replaceProgrammingSubPlanFieldOptions(
+      programmingSubPlanFieldId,
       []
     );
-    const cleared = await specificDataFieldConfigRepository.findByPlanKind(
-      programmingPlanId,
-      kind
+    const cleared = await specificDataFieldConfigRepository.findByPlanSubPlan(
+      DAOAInProgressVolailleSubPlanId
     );
     expect(
-      cleared.find((c) => c.id === planKindFieldId)!.field.options
+      cleared.find((c) => c.id === programmingSubPlanFieldId)!.field.options
     ).toHaveLength(0);
 
     // remove
-    await specificDataFieldConfigRepository.removePlanKindField(
-      planKindFieldId
+    await specificDataFieldConfigRepository.removeProgrammingSubPlanField(
+      programmingSubPlanFieldId
     );
-    const afterRemove = await specificDataFieldConfigRepository.findByPlanKind(
-      programmingPlanId,
-      kind
-    );
-    expect(afterRemove.find((c) => c.id === planKindFieldId)).toBeUndefined();
+    const afterRemove =
+      await specificDataFieldConfigRepository.findByPlanSubPlan(
+        DAOAInProgressVolailleSubPlanId
+      );
+    expect(
+      afterRemove.find((c) => c.id === programmingSubPlanFieldId)
+    ).toBeUndefined();
   });
 });
 

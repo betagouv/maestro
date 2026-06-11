@@ -1,7 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
-import type { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import type { ProgrammingSubPlanFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import {
   type SpecificData,
   UnknownValue,
@@ -20,7 +20,7 @@ import type { SpecificDataFormInputProps } from './SpecificDataForm';
 type Props<T extends ZodObject, U extends UseForm<T>> = {
   specificData: SpecificData;
   onChange: (specificData: SpecificData) => void;
-  fieldConfig: PlanKindFieldConfig;
+  fieldConfig: ProgrammingSubPlanFieldConfig;
   inputProps: SpecificDataFormInputProps;
   inputForm: U;
 };

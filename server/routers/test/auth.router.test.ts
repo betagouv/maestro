@@ -125,7 +125,12 @@ describe('Auth routes', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
-        user: Sampler1Fixture
+        user: {
+          ...Sampler1Fixture,
+          programmingSubPlans: expect.arrayContaining(
+            Sampler1Fixture.programmingSubPlans
+          )
+        }
       });
 
       const userInDb = await kysely

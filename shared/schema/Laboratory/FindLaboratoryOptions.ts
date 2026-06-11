@@ -1,11 +1,12 @@
 import { z } from 'zod';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 
 export const FindLaboratoryOptions = z.object({
   programmingPlanIds: z.array(z.guid()).nullish(),
   substanceKind: SubstanceKind.nullish(),
-  programmingPlanKind: ProgrammingPlanKind.nullish()
+  programmingSubPlanId: ProgrammingSubPlanId.nullish(),
+  codeNat: z.string().nullish()
 });
 
 export type FindLaboratoryOptions = z.infer<typeof FindLaboratoryOptions>;

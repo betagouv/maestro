@@ -10,6 +10,7 @@ import {
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { Fragment } from 'react';
 import type { UseForm } from '../../../hooks/useForm';
+import { usePartialSample } from '../../../hooks/usePartialSample';
 import SampleItemContent from './SampleItemContent';
 
 interface Props {
@@ -31,6 +32,8 @@ const SampleItemsContent = ({
   readonly,
   form
 }: Props) => {
+  const { programmingSubPlan } = usePartialSample(partialSample);
+
   return (
     <div className="d-flex-column">
       {items.map((item, index) => (
@@ -65,9 +68,7 @@ const SampleItemsContent = ({
                   quantityUnit: lastItem.quantityUnit,
                   substanceKind: lastItem.substanceKind,
                   compliance200263:
-                    partialSample.programmingPlanKind === 'PPV'
-                      ? undefined
-                      : true
+                    programmingSubPlan?.codeNat === 'PPV' ? undefined : true
                 });
               }}
               className={cx('fr-my-1w')}

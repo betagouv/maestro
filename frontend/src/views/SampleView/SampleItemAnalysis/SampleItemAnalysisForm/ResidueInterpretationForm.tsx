@@ -12,7 +12,7 @@ import {
   ResidueComplianceLabels,
   ResidueComplianceList
 } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
@@ -25,7 +25,7 @@ import type { ResiduesLmrValidator } from './SampleAnalysisForm';
 
 type Props = {
   form: UseForm<ResiduesLmrValidator>;
-  programmingPlanKind: ProgrammingPlanKind;
+  programmingSubPlan: ProgrammingSubPlan;
   residue: PartialResidue;
   residueIndex: number;
   onChangeResidue: (residue: PartialResidue, index: number) => void;
@@ -33,7 +33,7 @@ type Props = {
 
 export const ResidueInterpretationForm: FunctionComponent<Props> = ({
   form,
-  programmingPlanKind,
+  programmingSubPlan,
   residue,
   residueIndex,
   onChangeResidue,
@@ -91,7 +91,7 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
               description="Alerte risque consommateur"
             />
           )}
-          {programmingPlanKind === 'PPV' && (
+          {programmingSubPlan.codeNat === 'PPV' && (
             <>
               <hr />
               <AppSelect

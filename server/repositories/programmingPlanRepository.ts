@@ -2,21 +2,25 @@ import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import type { Region } from 'maestro-shared/referential/Region';
 import type { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanLocalStatus as ProgrammingPlanLocalStatusType } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import {
   ProgrammingPlanBase,
   ProgrammingPlanChecked,
   ProgrammingPlanSort
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import z from 'zod';
 import { knexInstance as db } from './db';
+import {
+  ProgrammingSubPlans,
+  programmingSubPlansTable
+} from './programmingSubPlanRepository';
+
 export const programmingPlansTable = 'programming_plans';
 const programmingPlanLocalStatusTable = 'programming_plan_local_status';
-const programmingPlanKindsTable = 'programming_plan_kinds';
 
 const ProgrammingPlanDbo = ProgrammingPlanBase.omit({
-  kinds: true,
+  subPlans: true,
   regionalStatus: true,
   departmentalStatus: true
 });
@@ -33,19 +37,10 @@ type ProgrammingPlanLocalStatusDbo = z.infer<
   typeof ProgrammingPlanLocalStatusDbo
 >;
 
-const ProgrammingPlanKindDbo = z.object({
-  programmingPlanId: z.guid(),
-  kind: ProgrammingPlanKind
-});
-
-type ProgrammingPlanKindDbo = z.infer<typeof ProgrammingPlanKindDbo>;
-
 export const ProgrammingPlans = (transaction = db) =>
   transaction<ProgrammingPlanDbo>(programmingPlansTable);
 export const ProgrammingPlanLocalStatus = (transaction = db) =>
   transaction<ProgrammingPlanLocalStatusDbo>(programmingPlanLocalStatusTable);
-export const ProgrammingPlanKinds = (transaction = db) =>
-  transaction<ProgrammingPlanKindDbo>(programmingPlanKindsTable);
 
 const ProgrammingPlanQuery = () =>
   ProgrammingPlans()
@@ -57,17 +52,14 @@ const ProgrammingPlanQuery = () =>
       db.raw(
         `coalesce(array_agg(to_json(${programmingPlanLocalStatusTable}.*)) filter (where ${programmingPlanLocalStatusTable}.department != 'None'), '{}') as "departmental_status"`
       ),
-      db.raw(`array_agg(distinct(${programmingPlanKindsTable}.kind)) as kinds`)
+      db.raw(
+        `(SELECT coalesce(json_agg(json_build_object('id', sp.id, 'programmingPlanId', sp.programming_plan_id, 'codeNat', sp.code_nat, 'stages', sp.stages, 'label', sp.label, 'analysisPermissionRole', sp.analysis_permission_role, 'contactListId', sp.contact_list_id, 'withSacha', sp.with_sacha, 'substanceKinds', sp.substance_kinds) ORDER BY sp.code_nat), '[]'::json) FROM ${programmingSubPlansTable} sp WHERE sp.programming_plan_id = ${programmingPlansTable}.id) as "sub_plans"`
+      )
     )
     .join(
       programmingPlanLocalStatusTable,
       `${programmingPlansTable}.id`,
       `${programmingPlanLocalStatusTable}.programming_plan_id`
-    )
-    .join(
-      programmingPlanKindsTable,
-      `${programmingPlansTable}.id`,
-      `${programmingPlanKindsTable}.programming_plan_id`
     )
     .groupBy(`${programmingPlansTable}.id`);
 
@@ -83,13 +75,19 @@ const findUnique = async (
 
 const findOne = async (
   year: number,
-  kinds: ProgrammingPlanKind[],
+  subPlanIds: ProgrammingSubPlanId[],
   region?: Region | null
 ): Promise<ProgrammingPlanChecked | undefined> => {
-  console.info('Find programming plan', year, kinds, region);
+  console.info('Find programming plan', year, subPlanIds, region);
   return ProgrammingPlanQuery()
     .where({ year })
-    .whereIn(`${programmingPlanKindsTable}.kind`, kinds)
+    .whereExists(
+      db(programmingSubPlansTable)
+        .whereIn(`${programmingSubPlansTable}.id`, subPlanIds)
+        .whereRaw(
+          `${programmingSubPlansTable}.programming_plan_id = ${programmingPlansTable}.id`
+        )
+    )
     .modify((builder) => {
       if (region) {
         builder.where('region', region);
@@ -104,7 +102,7 @@ const findMany = async (
 ): Promise<ProgrammingPlanChecked[]> => {
   console.info('Find programming plans', omitBy(findOptions, isNil));
   return ProgrammingPlanQuery()
-    .where(omitBy(omit(findOptions, 'status', 'kinds', 'ids'), isNil))
+    .where(omitBy(omit(findOptions, 'status', 'subPlanIds', 'ids'), isNil))
     .modify((builder) => {
       if (isArray(findOptions.ids)) {
         builder.whereIn('id', findOptions.ids);
@@ -112,14 +110,24 @@ const findMany = async (
       if (isArray(findOptions.status)) {
         builder.whereIn('status', findOptions.status);
       }
-      if (isArray(findOptions.kinds)) {
-        builder.whereIn(`${programmingPlanKindsTable}.kind`, findOptions.kinds);
+      if (isArray(findOptions.subPlanIds)) {
+        builder.whereExists(
+          db(programmingSubPlansTable)
+            .whereIn(`${programmingSubPlansTable}.id`, findOptions.subPlanIds)
+            .whereRaw(
+              `${programmingSubPlansTable}.programming_plan_id = ${programmingPlansTable}.id`
+            )
+        );
       }
     })
     .then((programmingPlans) =>
-      [...programmingPlans]
-        .sort(ProgrammingPlanSort)
-        .map((_: any) => ProgrammingPlanChecked.parse(omitBy(_, isNil)))
+      [...programmingPlans].sort(ProgrammingPlanSort).map((_: any) => {
+        console.log(
+          'ProgrammingPlanChecked.parse(omitBy(_, isNil))',
+          _.id + _.substanceKinds
+        );
+        return ProgrammingPlanChecked.parse(omitBy(_, isNil));
+      })
     );
 };
 
@@ -143,11 +151,18 @@ const insert = async (
       );
     }
 
-    if (programmingPlan.kinds.length > 0) {
-      await ProgrammingPlanKinds(transaction).insert(
-        programmingPlan.kinds.map((kind) => ({
+    if (programmingPlan.subPlans.length > 0) {
+      await ProgrammingSubPlans(transaction).insert(
+        programmingPlan.subPlans.map((subPlan) => ({
+          id: subPlan.id,
           programmingPlanId: programmingPlan.id,
-          kind
+          codeNat: subPlan.codeNat,
+          stages: subPlan.stages,
+          label: subPlan.label,
+          analysisPermissionRole: subPlan.analysisPermissionRole ?? null,
+          contactListId: subPlan.contactListId ?? null,
+          withSacha: subPlan.withSacha,
+          substanceKinds: subPlan.substanceKinds
         }))
       );
     }

@@ -5,7 +5,11 @@ import {
   genLocalPrescription,
   genPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  genProgrammingPlan,
+  PPVValidatedSubPlanFixture,
+  PPVValidatedSubPlanId
+} from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
   genSampleContextData
@@ -41,10 +45,10 @@ type Story = StoryObj<typeof meta>;
 const sampler = genUser({
   roles: ['Sampler'],
   region: '44',
-  programmingPlanKinds: ['PPV']
+  programmingSubPlanIds: [PPVValidatedSubPlanId]
 });
 const programmingPlan = genProgrammingPlan({
-  kinds: ['PPV'],
+  subPlans: [PPVValidatedSubPlanFixture],
   distributionKind: 'REGIONAL'
 });
 const prescription1 = genPrescription({
@@ -74,7 +78,7 @@ const storyMockApi: Partial<MockApi> = {
   useFindLocalPrescriptionsQuery: {
     data: [regionalPrescription1, regionalPrescription2]
   },
-  useFindPlanKindFieldConfigsQuery: {
+  useFindProgrammingSubPlanFieldConfigsQuery: {
     data: PPVFieldConfigs
   }
 };
@@ -159,7 +163,7 @@ export const MatrixStepPPVFieldConfigsLoading: Story = {
     apiClient: {
       ...getMockApi({
         ...storyMockApi,
-        useFindPlanKindFieldConfigsQuery: { data: undefined }
+        useFindProgrammingSubPlanFieldConfigsQuery: { data: undefined }
       })
     }
   },

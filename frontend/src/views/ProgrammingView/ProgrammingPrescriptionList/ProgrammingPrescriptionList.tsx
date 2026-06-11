@@ -85,7 +85,7 @@ const ProgrammingPrescriptionList = ({
   const findPrescriptionOptions = useMemo(
     () => ({
       programmingPlanId: programmingPlan.id,
-      programmingPlanKinds: prescriptionFilters.kinds,
+      programmingSubPlanIds: prescriptionFilters.programmingSubPlanIds,
       contexts: prescriptionFilters.context
         ? [prescriptionFilters.context]
         : undefined,

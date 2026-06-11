@@ -10,17 +10,15 @@ import {
   type UserRole
 } from '../User/UserRole';
 import {
-  ProgrammingPlanKind,
-  ProgrammingPlanKindList
-} from './ProgrammingPlanKind';
-import {
   ProgrammingPlanStatus,
   ProgrammingPlanStatusList,
   ProgrammingPlanStatusPermissions
 } from './ProgrammingPlanStatus';
+import { ProgrammingSubPlanId } from './ProgrammingSubPlan';
+
 export const FindProgrammingPlanOptions = z.object({
   ids: z.array(z.string().guid()).nullish(),
-  kinds: z.array(ProgrammingPlanKind).nullish(),
+  subPlanIds: z.array(ProgrammingSubPlanId).nullish(),
   year: z.number().int().nullish(),
   status: z.array(ProgrammingPlanStatus).nullish(),
   region: Region.nullish(),
@@ -45,14 +43,16 @@ export const buildFindProgrammingPlanOptions = (
     ? findOptions.status
     : ProgrammingPlanStatusList;
 
-  const kinds = intersection(
-    (findOptions.kinds?.length ?? 0) > 0
-      ? findOptions.kinds
-      : ProgrammingPlanKindList,
-    ['Administrator', 'LaboratoryUser'].includes(userRole)
-      ? ProgrammingPlanKindList
-      : user.programmingPlanKinds
-  );
+  const isUnrestricted = ['Administrator', 'LaboratoryUser'].includes(userRole);
+
+  const subPlanIds = isUnrestricted
+    ? (findOptions.subPlanIds ?? null)
+    : findOptions.subPlanIds
+      ? intersection(
+          findOptions.subPlanIds,
+          user.programmingSubPlans.map((sp) => sp.id)
+        )
+      : user.programmingSubPlans.map((sp) => sp.id);
 
   return {
     ...findOptions,
@@ -61,7 +61,7 @@ export const buildFindProgrammingPlanOptions = (
       findOptionsStatus,
       userStatusAuthorized
     ) as ProgrammingPlanStatus[],
-    kinds,
+    subPlanIds: subPlanIds ?? undefined,
     region: isNationalRole(userRole) ? findOptions.region : user.region,
     department:
       isNationalRole(userRole) || isRegionalRole(userRole)

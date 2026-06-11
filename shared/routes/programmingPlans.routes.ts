@@ -1,18 +1,18 @@
 import z from 'zod';
 import { FindProgrammingPlanOptions } from '../schema/ProgrammingPlan/FindProgrammingPlanOptions';
-import { ProgrammingPlanKind } from '../schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanLocalStatus } from '../schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import { ProgrammingPlanStatus } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingSubPlanId } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
-  CreatePlanKindFieldInput,
-  UpdatePlanKindFieldInput
+  CreateProgrammingSubPlanFieldInput,
+  UpdateProgrammingSubPlanFieldInput
 } from '../schema/SpecificData/FieldConfigInput';
 import {
-  PlanKindFieldConfig,
-  ProgrammingPlanKindFieldId,
+  ProgrammingSubPlanFieldConfig,
+  ProgrammingSubPlanFieldId,
   SpecificDataFieldOptionId
-} from '../schema/SpecificData/PlanKindFieldConfig';
+} from '../schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type { SubRoutes } from './routes';
 
 export const programmingPlansRoutes = {
@@ -79,44 +79,45 @@ export const programmingPlansRoutes = {
       response: ProgrammingPlanChecked
     }
   },
-  '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields': {
-    params: {
-      programmingPlanId: z.string(),
-      kind: ProgrammingPlanKind
-    },
-    get: {
-      response: z.array(PlanKindFieldConfig),
-      permissions: 'NONE'
-    },
-    post: {
-      permissions: ['administrationMaestro'],
-      body: CreatePlanKindFieldInput,
-      response: PlanKindFieldConfig
-    }
-  },
-  '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields/:planKindFieldId':
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields':
     {
       params: {
         programmingPlanId: z.string(),
-        kind: ProgrammingPlanKind,
-        planKindFieldId: ProgrammingPlanKindFieldId
+        programmingSubPlanId: ProgrammingSubPlanId
+      },
+      get: {
+        response: z.array(ProgrammingSubPlanFieldConfig),
+        permissions: 'NONE'
+      },
+      post: {
+        permissions: ['administrationMaestro'],
+        body: CreateProgrammingSubPlanFieldInput,
+        response: ProgrammingSubPlanFieldConfig
+      }
+    },
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId':
+    {
+      params: {
+        programmingPlanId: z.string(),
+        programmingSubPlanId: ProgrammingSubPlanId,
+        programmingSubPlanFieldId: ProgrammingSubPlanFieldId
       },
       put: {
         permissions: ['administrationMaestro'],
-        body: UpdatePlanKindFieldInput,
-        response: PlanKindFieldConfig
+        body: UpdateProgrammingSubPlanFieldInput,
+        response: ProgrammingSubPlanFieldConfig
       },
       delete: {
         permissions: ['administrationMaestro'],
         response: z.undefined()
       }
     },
-  '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields/:planKindFieldId/options':
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId/options':
     {
       params: {
         programmingPlanId: z.string(),
-        kind: ProgrammingPlanKind,
-        planKindFieldId: ProgrammingPlanKindFieldId
+        programmingSubPlanId: ProgrammingSubPlanId,
+        programmingSubPlanFieldId: ProgrammingSubPlanFieldId
       },
       put: {
         permissions: ['administrationMaestro'],

@@ -1,4 +1,4 @@
-import { FieldInputType } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import { FieldInputType } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { UnknownValueLabel } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { selectOptionsFromList } from '../../../components/_app/AppSelect/AppSelectOption';
 

@@ -3,7 +3,8 @@ import type { Department } from 'maestro-shared/referential/Department';
 import {
   companiesIsRequired,
   departmentIsRequired,
-  programmingPlanKindsIsRequired,
+  programmingSubPlanIdsIsRequired,
+  UserRefined,
   userRegionsForRole
 } from 'maestro-shared/schema/User/User';
 import { isNationalRole } from 'maestro-shared/schema/User/UserRole';
@@ -32,7 +33,7 @@ export const usersRouter = {
         return { status: HttpStatus.FORBIDDEN };
       }
 
-      return { status: HttpStatus.OK, response: user };
+      return { status: HttpStatus.OK, response: UserRefined.parse(user) };
     },
     put: async ({ body }, { userId }) => {
       console.info('Update user', body);
@@ -65,12 +66,12 @@ export const usersRouter = {
           ? (user.department as Department)
           : query.department,
         companySirets,
-        programmingPlanKinds: programmingPlanKindsIsRequired({
+        programmingSubPlanIds: programmingSubPlanIdsIsRequired({
           ...user,
           roles: [userRole]
         })
-          ? user.programmingPlanKinds
-          : query.programmingPlanKinds
+          ? user.programmingSubPlans.map((sp) => sp.id)
+          : query.programmingSubPlanIds
       };
 
       console.info('Find users', findOptions);

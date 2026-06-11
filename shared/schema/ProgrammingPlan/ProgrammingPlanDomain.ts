@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const ProgrammingPlanDomain = z.enum(
-  ['PESTICIDE_RESIDUE', 'CHEMICAL_CONTAMINANT'],
+  ['PESTICIDE_RESIDUE', 'CHEMICAL_CONTAMINANT', 'TO_BE_DEFINED'],
   {
     error: () => 'Veuillez renseigner le domaine.'
   }
@@ -14,5 +14,6 @@ export const ProgrammingPlanDomainLabels: Record<
   string
 > = {
   PESTICIDE_RESIDUE: 'Résidus de pesticides',
-  CHEMICAL_CONTAMINANT: 'Contaminants chimiques'
+  CHEMICAL_CONTAMINANT: 'Contaminants chimiques',
+  TO_BE_DEFINED: 'A définir'
 };

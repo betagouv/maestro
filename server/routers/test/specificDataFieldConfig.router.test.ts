@@ -1,11 +1,14 @@
 import { constants } from 'node:http2';
 import type {
-  ProgrammingPlanKindFieldId,
+  ProgrammingSubPlanFieldId,
   SpecificDataFieldId,
   SpecificDataFieldOptionId
-} from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+} from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
-import { DAOAInProgressProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  DAOAInProgressProgrammingPlanFixture,
+  DAOAInProgressVolailleSubPlanId
+} from 'maestro-shared/test/programmingPlanFixtures';
 import {
   AdminFixture,
   LaboratoryOfficeUserFixture,
@@ -501,12 +504,11 @@ describe('SpecificDataFieldConfig router', () => {
     });
   });
 
-  describe('POST /programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields', () => {
+  describe('POST /programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields', () => {
     const programmingPlanId = DAOAInProgressProgrammingPlanFixture.id;
-    const kind = 'DAOA_VOLAILLE';
-    const testKey = 'testPlanKindFieldPost';
+    const testKey = 'testProgrammingSubPlanFieldPost';
     let fieldId: SpecificDataFieldId;
-    let createdPlanKindFieldId: string;
+    let createdProgrammingSubPlanFieldId: string;
 
     beforeAll(async () => {
       const field = await kysely
@@ -519,7 +521,7 @@ describe('SpecificDataFieldConfig router', () => {
 
     afterAll(async () => {
       await kysely
-        .deleteFrom('programmingPlanKindFields')
+        .deleteFrom('programmingSubPlanFields')
         .where('fieldId', '=', fieldId)
         .execute();
       await kysely
@@ -528,7 +530,7 @@ describe('SpecificDataFieldConfig router', () => {
         .execute();
     });
 
-    const testRoute = `/api/programming-plans/${programmingPlanId}/kinds/${kind}/specific-data-fields`;
+    const testRoute = `/api/programming-plans/${programmingPlanId}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
@@ -574,26 +576,26 @@ describe('SpecificDataFieldConfig router', () => {
 
       expect(res.body).toMatchObject({
         id: expect.any(String),
-        programmingPlanKind: kind,
+        programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
         required: false,
         order: 99,
         field: { key: testKey }
       });
-      createdPlanKindFieldId = res.body.id;
+      createdProgrammingSubPlanFieldId = res.body.id;
     });
 
-    describe('PUT /programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields/:planKindFieldId', () => {
+    describe('PUT /programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId', () => {
       test('should fail if the user is not authenticated', async () => {
         await request(app)
           .put(
-            `/api/programming-plans/${programmingPlanId}/kinds/${kind}/specific-data-fields/${createdPlanKindFieldId}`
+            `/api/programming-plans/${programmingPlanId}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${createdProgrammingSubPlanFieldId}`
           )
           .send({ required: true, order: 50 })
           .expect(constants.HTTP_STATUS_UNAUTHORIZED);
       });
 
       test('should fail if the user does not have the permission', async () => {
-        const route = `/api/programming-plans/${programmingPlanId}/kinds/${kind}/specific-data-fields/${createdPlanKindFieldId}`;
+        const route = `/api/programming-plans/${programmingPlanId}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${createdProgrammingSubPlanFieldId}`;
         await forbiddenRequestTest(Sampler1Fixture, 'put', route, {
           required: true,
           order: 50
@@ -607,25 +609,25 @@ describe('SpecificDataFieldConfig router', () => {
       test('should update the plan kind field', async () => {
         const res = await request(app)
           .put(
-            `/api/programming-plans/${programmingPlanId}/kinds/${kind}/specific-data-fields/${createdPlanKindFieldId}`
+            `/api/programming-plans/${programmingPlanId}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${createdProgrammingSubPlanFieldId}`
           )
           .use(tokenProvider(AdminFixture))
           .send({ required: true, order: 50 })
           .expect(constants.HTTP_STATUS_OK);
 
         expect(res.body).toMatchObject({
-          id: createdPlanKindFieldId,
-          programmingPlanKind: kind,
+          id: createdProgrammingSubPlanFieldId,
+          programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
           required: true,
           order: 50
         });
       });
     });
 
-    describe('DELETE /programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields/:planKindFieldId', () => {
-      const deleteKey = 'testPlanKindFieldDelete';
+    describe('DELETE /programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId', () => {
+      const deleteKey = 'testProgrammingSubPlanFieldDelete';
       let deleteFieldId: SpecificDataFieldId;
-      let deletePlanKindFieldId: ProgrammingPlanKindFieldId;
+      let deleteProgrammingSubPlanFieldId: ProgrammingSubPlanFieldId;
 
       beforeAll(async () => {
         const field = await kysely
@@ -640,17 +642,16 @@ describe('SpecificDataFieldConfig router', () => {
         deleteFieldId = field.id;
 
         const pkf = await kysely
-          .insertInto('programmingPlanKindFields')
+          .insertInto('programmingSubPlanFields')
           .values({
-            programmingPlanId,
-            kind,
+            programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
             fieldId: deleteFieldId,
             required: false,
             order: 98
           })
           .returning('id')
           .executeTakeFirstOrThrow();
-        deletePlanKindFieldId = pkf.id;
+        deleteProgrammingSubPlanFieldId = pkf.id;
       });
 
       afterAll(async () => {
@@ -663,13 +664,13 @@ describe('SpecificDataFieldConfig router', () => {
       test('should fail if the user is not authenticated', async () => {
         await request(app)
           .delete(
-            `/api/programming-plans/${programmingPlanId}/kinds/${kind}/specific-data-fields/${deletePlanKindFieldId}`
+            `/api/programming-plans/${programmingPlanId}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${deleteProgrammingSubPlanFieldId}`
           )
           .expect(constants.HTTP_STATUS_UNAUTHORIZED);
       });
 
       test('should fail if the user does not have the permission', async () => {
-        const route = `/api/programming-plans/${programmingPlanId}/kinds/${kind}/specific-data-fields/${deletePlanKindFieldId}`;
+        const route = `/api/programming-plans/${programmingPlanId}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${deleteProgrammingSubPlanFieldId}`;
         await forbiddenRequestTest(Sampler1Fixture, 'delete', route);
         await forbiddenRequestTest(NationalCoordinator, 'delete', route);
       });
@@ -677,24 +678,24 @@ describe('SpecificDataFieldConfig router', () => {
       test('should remove the plan kind field', async () => {
         await request(app)
           .delete(
-            `/api/programming-plans/${programmingPlanId}/kinds/${kind}/specific-data-fields/${deletePlanKindFieldId}`
+            `/api/programming-plans/${programmingPlanId}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${deleteProgrammingSubPlanFieldId}`
           )
           .use(tokenProvider(AdminFixture))
           .expect(constants.HTTP_STATUS_NO_CONTENT);
 
         const remaining = await kysely
-          .selectFrom('programmingPlanKindFields')
+          .selectFrom('programmingSubPlanFields')
           .select('id')
-          .where('id', '=', deletePlanKindFieldId)
+          .where('id', '=', deleteProgrammingSubPlanFieldId)
           .executeTakeFirst();
         expect(remaining).toBeUndefined();
       });
     });
 
-    describe('PUT /programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields/:planKindFieldId/options', () => {
-      const optionsKey = 'testPlanKindFieldOptions';
+    describe('PUT /programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId/options', () => {
+      const optionsKey = 'testProgrammingSubPlanFieldOptions';
       let optionsFieldId: SpecificDataFieldId;
-      let optionsPlanKindFieldId: ProgrammingPlanKindFieldId;
+      let optionsProgrammingSubPlanFieldId: ProgrammingSubPlanFieldId;
       let optionId: string;
 
       beforeAll(async () => {
@@ -723,23 +724,22 @@ describe('SpecificDataFieldConfig router', () => {
         optionId = opt.id;
 
         const pkf = await kysely
-          .insertInto('programmingPlanKindFields')
+          .insertInto('programmingSubPlanFields')
           .values({
-            programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
-            kind: 'DAOA_VOLAILLE',
+            programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
             fieldId: optionsFieldId,
             required: false,
             order: 97
           })
           .returning('id')
           .executeTakeFirstOrThrow();
-        optionsPlanKindFieldId = pkf.id;
+        optionsProgrammingSubPlanFieldId = pkf.id;
       });
 
       afterAll(async () => {
         await kysely
-          .deleteFrom('programmingPlanKindFields')
-          .where('id', '=', optionsPlanKindFieldId)
+          .deleteFrom('programmingSubPlanFields')
+          .where('id', '=', optionsProgrammingSubPlanFieldId)
           .execute();
         await kysely
           .deleteFrom('specificDataFields')
@@ -750,7 +750,7 @@ describe('SpecificDataFieldConfig router', () => {
       test('should fail if the user is not authenticated', async () => {
         await request(app)
           .put(
-            `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/kinds/DAOA_VOLAILLE/specific-data-fields/${optionsPlanKindFieldId}/options`
+            `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${optionsProgrammingSubPlanFieldId}/options`
           )
           .send({ optionIds: [optionId] })
           .expect(constants.HTTP_STATUS_UNAUTHORIZED);
@@ -760,13 +760,13 @@ describe('SpecificDataFieldConfig router', () => {
         await forbiddenRequestTest(
           Sampler1Fixture,
           'put',
-          `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/kinds/DAOA_VOLAILLE/specific-data-fields/${optionsPlanKindFieldId}/options`,
+          `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${optionsProgrammingSubPlanFieldId}/options`,
           { optionIds: [] }
         );
         await forbiddenRequestTest(
           NationalCoordinator,
           'put',
-          `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/kinds/DAOA_VOLAILLE/specific-data-fields/${optionsPlanKindFieldId}/options`,
+          `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${optionsProgrammingSubPlanFieldId}/options`,
           { optionIds: [] }
         );
       });
@@ -774,16 +774,20 @@ describe('SpecificDataFieldConfig router', () => {
       test('should replace plan kind field options', async () => {
         await request(app)
           .put(
-            `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/kinds/DAOA_VOLAILLE/specific-data-fields/${optionsPlanKindFieldId}/options`
+            `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${optionsProgrammingSubPlanFieldId}/options`
           )
           .use(tokenProvider(AdminFixture))
           .send({ optionIds: [optionId] })
           .expect(constants.HTTP_STATUS_NO_CONTENT);
 
         const activeOptions = await kysely
-          .selectFrom('programmingPlanKindFieldOptions')
+          .selectFrom('programmingSubPlanFieldOptions')
           .select('specificDataFieldOptionId')
-          .where('programmingPlanKindFieldId', '=', optionsPlanKindFieldId)
+          .where(
+            'programmingSubPlanFieldId',
+            '=',
+            optionsProgrammingSubPlanFieldId
+          )
           .execute();
         expect(activeOptions).toHaveLength(1);
         expect(activeOptions[0].specificDataFieldOptionId).toBe(optionId);

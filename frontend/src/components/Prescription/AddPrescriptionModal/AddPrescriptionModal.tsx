@@ -43,7 +43,7 @@ const AddPrescriptionModal = ({
 
   const {
     programmingPlanOptions,
-    programmingPlanKindOptions,
+    programmingSubPlanOptions,
     contextOptions,
     reduceFilters
   } = usePrescriptionFilters([programmingPlan]);
@@ -81,7 +81,7 @@ const AddPrescriptionModal = ({
   const formInput = useMemo(
     () => ({
       programmingPlanId: prescriptionFilters.programmingPlanId,
-      programmingPlanKind: prescriptionFilters.kinds?.[0],
+      programmingSubPlanId: prescriptionFilters.programmingSubPlanIds?.[0],
       context: prescriptionFilters.context,
       matrixKind: matrixKindValue?.value,
       matrix: withMatrix ? matrixValue?.value : undefined,
@@ -136,7 +136,8 @@ const AddPrescriptionModal = ({
             <ProgrammingPrescriptionFilters
               options={{
                 plans: programmingPlanOptions(prescriptionFilters),
-                kinds: programmingPlanKindOptions(prescriptionFilters),
+                programmingSubPlanIds:
+                  programmingSubPlanOptions(prescriptionFilters),
                 contexts: contextOptions(prescriptionFilters)
               }}
               programmingPlans={[programmingPlan]}

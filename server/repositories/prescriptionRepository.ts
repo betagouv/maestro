@@ -33,7 +33,7 @@ const findMany = async (
           'stage',
           'includes',
           'contexts',
-          'programmingPlanKinds',
+          'programmingSubPlanIds',
           'year'
         ),
         isNil
@@ -55,10 +55,10 @@ const findMany = async (
       if (findOptions.contexts) {
         builder.whereIn('context', findOptions.contexts);
       }
-      if (findOptions.programmingPlanKinds) {
+      if (findOptions.programmingSubPlanIds) {
         builder.whereIn(
-          'programming_plan_kind',
-          findOptions.programmingPlanKinds
+          'programming_sub_plan_id',
+          findOptions.programmingSubPlanIds
         );
       }
     })

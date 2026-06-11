@@ -5,7 +5,7 @@ import {
   type AdminFieldConfig,
   CreateFieldInput
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import type { FieldInputType } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import type { FieldInputType } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type React from 'react';
 import { useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';

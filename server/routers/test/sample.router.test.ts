@@ -16,8 +16,11 @@ import {
   PrescriptionFixture
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
+  DAOAInProgressBovinSubPlanId,
   DAOAInProgressProgrammingPlanFixture,
-  PPVValidatedProgrammingPlanFixture
+  DAOAInProgressVolailleSubPlanId,
+  PPVValidatedProgrammingPlanFixture,
+  PPVValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedPartialSample,
@@ -622,7 +625,7 @@ describe('Sample router', () => {
       const specificMatrix = 'A00GZ';
       const prescription = genPrescription({
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-        programmingPlanKind: 'PPV',
+        programmingSubPlanId: PPVValidatedSubPlanId,
         context: PrescriptionFixture.context,
         matrixKind: PrescriptionFixture.matrixKind,
         matrix: specificMatrix
@@ -720,7 +723,7 @@ describe('Sample router', () => {
         ownerAgreement: true,
         matrixKind: 'A0C0Z',
         matrix: 'A0BAV',
-        programmingPlanKind: 'DAOA_BOVIN',
+        programmingSubPlanId: DAOAInProgressBovinSubPlanId,
         geolocation: { x: 46.642117, y: -0.734475 },
         specificData: {
           killingCode: '1234',
@@ -757,11 +760,8 @@ describe('Sample router', () => {
         step: 'Draft',
         matrixKind: 'A0C0Z',
         matrix: 'A0BAV',
-        programmingPlanKind: 'DAOA_BOVIN',
-        geolocation: { x: 46.642117, y: -0.734475 },
-        specificData: {
-          programmingPlanKind: 'DAOA_BOVIN'
-        }
+        programmingSubPlanId: DAOAInProgressBovinSubPlanId,
+        geolocation: { x: 46.642117, y: -0.734475 }
       });
       await Samples().insert(formatPartialSample(sample));
 
@@ -818,7 +818,7 @@ describe('Sample router', () => {
         matrix: 'A01GL',
         ownerAgreement: true,
         sentAt: null,
-        programmingPlanKind: 'DAOA_VOLAILLE'
+        programmingSubPlanId: DAOAInProgressVolailleSubPlanId
       });
 
       mockTriggerProcessing.mockClear();
@@ -828,7 +828,7 @@ describe('Sample router', () => {
         .send({
           ...SampleDAOA1Fixture,
           step: 'Sent',
-          programmingPlanKind: 'DAOA_VOLAILLE',
+          programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
           items: [
             {
               ...SampleDAOA1Fixture.items![0],

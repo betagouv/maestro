@@ -28,6 +28,7 @@ export const UserListView = () => {
   const apiClient = useContext(ApiClientContext);
 
   const { data: users } = apiClient.useFindUsersQuery({});
+  const { data: allPlans = [] } = apiClient.useFindProgrammingPlansQuery({});
   const [updateUser] = apiClient.useUpdateUserMutation();
 
   const [userToUpdate, setUserToUpdate] = useState<null | UserRefined>(null);
@@ -114,9 +115,9 @@ export const UserListView = () => {
           }
 
           if (
-            filters.programmingPlanKinds?.length &&
-            !filters.programmingPlanKinds.some((kind) =>
-              u.programmingPlanKinds.includes(kind)
+            filters.programmingSubPlanIds?.length &&
+            !filters.programmingSubPlanIds.some((id) =>
+              u.programmingSubPlans.some((sp) => sp.id === id)
             )
           ) {
             return false;
@@ -148,7 +149,10 @@ export const UserListView = () => {
           </Button>
         }
       >
-        <UsersFilters onChange={updateUsersFiltered} />
+        <UsersFilters
+          onChange={updateUsersFiltered}
+          programmingPlans={allPlans}
+        />
 
         <div
           className={clsx(
@@ -171,6 +175,7 @@ export const UserListView = () => {
               <div className={cx('fr-col-12', 'fr-col-md-4')} key={user.id}>
                 <UserCard
                   user={user}
+                  programmingPlans={allPlans}
                   onEdit={() => onEdit(user)}
                   onDisable={() => onDisable(user)}
                   onEnable={() => onEnableUser(user)}
@@ -184,6 +189,7 @@ export const UserListView = () => {
         modal={userFormModal}
         userToUpdate={userToUpdate}
         setAlertMessage={setAlertMessage}
+        programmingPlans={allPlans}
       />
       <ConfirmationModal
         modal={confirmDisablingUserModal}

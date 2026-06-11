@@ -13,15 +13,14 @@ const storyModal = createModal({
   isOpenedByDefault: false
 }) as ModalInstance;
 
-const programmingPlanId = uuidv4();
+const programmingSubPlanId = uuidv4();
 
 const laboratories = LaboratoryListFixture;
 
 const agreements = [
   {
     laboratoryId: laboratories[0].id,
-    programmingPlanId,
-    programmingPlanKind: 'PPV' as const,
+    programmingSubPlanId,
     substanceKind: 'Any' as const,
     referenceLaboratory: true,
     detectionAnalysis: true,
@@ -29,8 +28,7 @@ const agreements = [
   },
   {
     laboratoryId: laboratories[1].id,
-    programmingPlanId,
-    programmingPlanKind: 'PPV' as const,
+    programmingSubPlanId,
     substanceKind: 'Any' as const,
     referenceLaboratory: false,
     detectionAnalysis: true,
@@ -52,8 +50,7 @@ const meta = {
     modal: storyModal,
     laboratoryAgreementRowKeys: [
       {
-        programmingPlanId,
-        programmingPlanKind: 'PPV' as const,
+        programmingSubPlanId,
         substanceKind: 'Any' as const
       }
     ],

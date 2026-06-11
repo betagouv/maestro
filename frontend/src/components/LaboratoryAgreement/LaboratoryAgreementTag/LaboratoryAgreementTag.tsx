@@ -6,26 +6,34 @@ import { useContext } from 'react';
 import LaboratoryAgreementButtons from '../LaboratoryAgreementButtons/LaboratoryAgreementButtons';
 import { LaboratoryAgreementDetailContext } from '../LaboratoryAgreementDetailModal/LaboratoryAgreementDetailContext';
 import './LaboratoryAgreementTag.scss';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 
 interface Props {
   laboratoryAgreement: LaboratoryAgreement;
   laboratory: Laboratory;
+  programmingSubPlan?: ProgrammingSubPlan;
   afterClose?: () => void;
 }
 
 const LaboratoryAgreementTag = ({
   laboratoryAgreement,
   laboratory,
+  programmingSubPlan,
   afterClose
 }: Props) => {
   const openLaboratoryAgreementDetail = useContext(
     LaboratoryAgreementDetailContext
   );
 
+  if (!programmingSubPlan) {
+    return null;
+  }
+
   const handleOpen = () =>
     openLaboratoryAgreementDetail?.(
       laboratoryAgreement,
       laboratory,
+      programmingSubPlan,
       afterClose
     );
 

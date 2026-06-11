@@ -10,6 +10,7 @@ import {
   type PartialResidue,
   ResidueLmrChecked
 } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import type React from 'react';
 import {
@@ -30,6 +31,7 @@ import { ResidueResultForm } from './ResidueResultForm';
 
 type Props = {
   sample: Omit<SampleChecked, 'reference' | 'compliance'>;
+  programmingSubPlan: ProgrammingSubPlan;
   partialAnalysis: PartialAnalysis;
   onDone: () => void;
 };
@@ -46,6 +48,7 @@ export type ResiduesLmrValidator = typeof residuesValidator;
 
 export const SampleAnalysisForm: FunctionComponent<Props> = ({
   sample,
+  programmingSubPlan,
   partialAnalysis,
   onDone,
   ..._rest
@@ -103,7 +106,7 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
           resultKind: 'Q',
           result: null,
           reference: undefined,
-          ...(sample.programmingPlanKind === 'PPV'
+          ...(programmingSubPlan.codeNat === 'PPV'
             ? {}
             : {
                 substanceApproved: 'NA',
@@ -164,7 +167,7 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
               residues={residues}
               residuePanel={(i) => (
                 <ResidueResultForm
-                  programmingPlanKind={sample.programmingPlanKind}
+                  programmingSubPlan={programmingSubPlan}
                   residue={residues[i]}
                   residueIndex={i}
                   form={form}

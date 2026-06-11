@@ -47,6 +47,14 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
     apiClient.useUpdateAnalysisMutation({
       fixedCacheKey: `complete-analysis-${sample.id}`
     });
+  const { data: programmingPlan } = apiClient.useGetProgrammingPlanQuery(
+    { programmingPlanId: sample.programmingPlanId },
+    { skip: !sample.programmingPlanId }
+  );
+  const programmingSubPlan = programmingPlan?.subPlans.find(
+    (sp) => sp.id === sample.programmingSubPlanId
+  );
+
   const { currentData: analysis } = apiClient.useGetSampleItemAnalysisQuery({
     sampleId: sample.id,
     itemNumber: sampleItem.itemNumber,
@@ -362,6 +370,7 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
         </div>
       )}
       {analysis &&
+        programmingSubPlan &&
         analysis.status !== 'Sent' &&
         analysis.status !== 'NotAdmissible' &&
         (!isEditing ? (
@@ -370,10 +379,12 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
             analysis={analysis}
             readonly={!hasUserSamplePermission(sample).performAnalysis}
             onEdit={() => navigateToSampleEdit(sample.id)}
+            programmingSubPlan={programmingSubPlan}
           />
         ) : (
           <SampleAnalysisForm
             sample={sample}
+            programmingSubPlan={programmingSubPlan}
             partialAnalysis={analysis}
             onDone={() => navigateToSample(sample.id)}
           />

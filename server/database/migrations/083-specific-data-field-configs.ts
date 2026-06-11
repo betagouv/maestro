@@ -487,7 +487,7 @@ export const up = async (knex: Knex) => {
     kind: string;
   }[];
 
-  const planKindFieldInserts = programmingPlanKinds.flatMap(
+  const programmingSubPlanFieldInserts = programmingPlanKinds.flatMap(
     ({ programmingPlanId, kind }) =>
       (fieldsByKind[kind] ?? []).map((f) => ({
         programming_plan_id: programmingPlanId,
@@ -498,9 +498,11 @@ export const up = async (knex: Knex) => {
       }))
   );
 
-  if (planKindFieldInserts.length > 0) {
-    const planKindFieldRows = (await knex('programming_plan_kind_fields')
-      .insert(planKindFieldInserts)
+  if (programmingSubPlanFieldInserts.length > 0) {
+    const programmingSubPlanFieldRows = (await knex(
+      'programming_plan_kind_fields'
+    )
+      .insert(programmingSubPlanFieldInserts)
       .returning(['id', 'programming_plan_id', 'kind', 'field_id'])) as {
       id: string;
       programmingPlanId: string;
@@ -508,27 +510,27 @@ export const up = async (knex: Knex) => {
       fieldId: string;
     }[];
 
-    // Build lookup: planKindFieldId[programmingPlanId][kind][fieldKey] = id
-    const planKindFieldId: Record<
+    // Build lookup: programmingSubPlanFieldId[programmingPlanId][kind][fieldKey] = id
+    const programmingSubPlanFieldId: Record<
       string,
       Record<string, Record<string, string>>
     > = {};
-    for (const r of planKindFieldRows) {
+    for (const r of programmingSubPlanFieldRows) {
       const key = fieldRows.find((f) => f.id === r.fieldId)!.key;
-      if (!planKindFieldId[r.programmingPlanId])
-        planKindFieldId[r.programmingPlanId] = {};
-      if (!planKindFieldId[r.programmingPlanId][r.kind])
-        planKindFieldId[r.programmingPlanId][r.kind] = {};
-      planKindFieldId[r.programmingPlanId][r.kind][key] = r.id;
+      if (!programmingSubPlanFieldId[r.programmingPlanId])
+        programmingSubPlanFieldId[r.programmingPlanId] = {};
+      if (!programmingSubPlanFieldId[r.programmingPlanId][r.kind])
+        programmingSubPlanFieldId[r.programmingPlanId][r.kind] = {};
+      programmingSubPlanFieldId[r.programmingPlanId][r.kind][key] = r.id;
     }
 
     // Insert plan-kind → field → option associations
-    const optionInserts = planKindFieldRows.flatMap((r) => {
+    const optionInserts = programmingSubPlanFieldRows.flatMap((r) => {
       const key = fieldRows.find((f) => f.id === r.fieldId)!.key;
       const values = optionsByKindField[r.kind]?.[key] ?? [];
       return values.map((v) => ({
         programming_plan_kind_field_id:
-          planKindFieldId[r.programmingPlanId][r.kind][key],
+          programmingSubPlanFieldId[r.programmingPlanId][r.kind][key],
         specific_data_field_option_id: optionId[key][v]
       }));
     });

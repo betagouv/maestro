@@ -1,10 +1,10 @@
 import { type ZodTypeAny, z } from 'zod';
 import { assertUnreachable } from '../../utils/typescript';
-import type { PlanKindFieldConfig } from './PlanKindFieldConfig';
+import type { ProgrammingSubPlanFieldConfig } from './ProgrammingSubPlanFieldConfig';
 import { UnknownValue } from './SpecificData';
 
 export const buildSpecificDataSchema = (
-  fieldConfigs: PlanKindFieldConfig[]
+  fieldConfigs: ProgrammingSubPlanFieldConfig[]
 ): z.ZodObject<Record<string, ZodTypeAny>> => {
   const shape: Record<string, ZodTypeAny> = {};
 

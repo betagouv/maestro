@@ -2,7 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  genProgrammingPlan,
+  PPVValidatedSubPlanFixture
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { genAuthUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import { fn, userEvent, within } from 'storybook/test';
@@ -23,7 +26,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const programmingPlan = genProgrammingPlan({
-  kinds: ['PPV']
+  subPlans: [PPVValidatedSubPlanFixture]
 });
 const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,

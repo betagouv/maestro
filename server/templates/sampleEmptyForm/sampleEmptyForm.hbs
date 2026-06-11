@@ -33,7 +33,7 @@
             <td>
               <div class='fr-container'>
                 {{> contextSection isFullVersion=false}}
-                {{#unless (eq programmingPlanKind 'PPV')}}
+                {{#unless (eq codeNat 'PPV')}}
                   {{> sampleProcedureSection}}
                 {{/unless}}
                 {{> matrixSection isFullVersion=false}}

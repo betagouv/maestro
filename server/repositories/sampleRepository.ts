@@ -176,10 +176,10 @@ const findRequest = (findOptions: FindSampleOptions) =>
           findOptions.programmingPlanIds
         );
       }
-      if (findOptions.kinds) {
+      if (findOptions.programmingSubPlanIds) {
         builder.whereIn(
-          `${samplesTable}.programmingPlanKind`,
-          findOptions.kinds
+          `${samplesTable}.programmingSubPlanId`,
+          findOptions.programmingSubPlanIds
         );
       }
       if (findOptions.regions?.length) {

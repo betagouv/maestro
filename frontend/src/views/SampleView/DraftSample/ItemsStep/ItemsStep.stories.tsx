@@ -39,7 +39,10 @@ const prescription1 = genPrescription({
 });
 
 const partialSample = {
-  ...genSampleContextData(),
+  ...genSampleContextData({
+    programmingPlanId: programmingPlan.id,
+    programmingSubPlanId: programmingPlan.subPlans[0].id
+  }),
   ...genCreatedSampleData(),
   matrixKind: 'A0D9Y' as MatrixKind,
   prescriptionId: prescription1.id,
@@ -55,11 +58,11 @@ export const OneItem: Story = {
   },
   parameters: {
     preloadedState: {
-      auth: { authUser: genAuthUser(Sampler1Fixture) },
-      programmingPlan: {
-        programmingPlan
-      }
-    }
+      auth: { authUser: genAuthUser(Sampler1Fixture) }
+    },
+    apiClient: getMockApi({
+      useGetProgrammingPlanQuery: () => ({ data: programmingPlan })
+    })
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -90,11 +93,11 @@ export const AddItem: Story = {
   },
   parameters: {
     preloadedState: {
-      auth: { authUser: genAuthUser(Sampler1Fixture) },
-      programmingPlan: {
-        programmingPlan
-      }
-    }
+      auth: { authUser: genAuthUser(Sampler1Fixture) }
+    },
+    apiClient: getMockApi({
+      useGetProgrammingPlanQuery: () => ({ data: programmingPlan })
+    })
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -123,11 +126,11 @@ export const RemoveItem: Story = {
   },
   parameters: {
     preloadedState: {
-      auth: { authUser: genAuthUser(Sampler1Fixture) },
-      programmingPlan: {
-        programmingPlan
-      }
-    }
+      auth: { authUser: genAuthUser(Sampler1Fixture) }
+    },
+    apiClient: getMockApi({
+      useGetProgrammingPlanQuery: () => ({ data: programmingPlan })
+    })
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -160,11 +163,11 @@ export const SubmittingErrors: Story = {
   },
   parameters: {
     preloadedState: {
-      auth: { authUser: genAuthUser(Sampler1Fixture) },
-      programmingPlan: {
-        programmingPlan
-      }
-    }
+      auth: { authUser: genAuthUser(Sampler1Fixture) }
+    },
+    apiClient: getMockApi({
+      useGetProgrammingPlanQuery: () => ({ data: programmingPlan })
+    })
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -213,16 +216,14 @@ export const SubmittingSuccess: Story = {
   },
   parameters: {
     preloadedState: {
-      auth: { authUser: genAuthUser(Sampler1Fixture) },
-      programmingPlan: {
-        programmingPlan
-      }
+      auth: { authUser: genAuthUser(Sampler1Fixture) }
     },
     apiClient: getMockApi({
       useCreateOrUpdateSampleMutation: [
         async (...args) => mockCreateOrUpdateSample(...args),
         { isSuccess: true }
-      ]
+      ],
+      useGetProgrammingPlanQuery: () => ({ data: programmingPlan })
     })
   },
   play: async ({ canvasElement }) => {

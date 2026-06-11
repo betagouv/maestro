@@ -10,13 +10,13 @@ import type {
   LaboratoryAgreementRowKey,
   LaboratoryAgreementUpdate
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
-import { ProgrammingPlanKindReference } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import LaboratoryAgreementButtons from '../../../components/LaboratoryAgreement/LaboratoryAgreementButtons/LaboratoryAgreementButtons';
 import LaboratoryAgreementTag from '../../../components/LaboratoryAgreement/LaboratoryAgreementTag/LaboratoryAgreementTag';
 import './LaboratoryAgreementsModal.scss';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { pluralize } from '../../../utils/stringUtils';
 
 export type ModalInstance = {
@@ -46,6 +46,7 @@ interface Props {
   laboratoryAgreementRowKeys: LaboratoryAgreementRowKey[];
   agreements: LabAgreementFlags[];
   laboratories: Laboratory[];
+  programmingSubPlan?: ProgrammingSubPlan;
   onSave: (
     laboratoryId: string,
     input: LaboratoryAgreementUpdate
@@ -63,6 +64,7 @@ const LaboratoryAgreementsModal = ({
   laboratoryAgreementRowKeys,
   agreements,
   laboratories,
+  programmingSubPlan,
   onSave
 }: Props) => {
   const [localAgreements, setLocalAgreements] = useState<
@@ -70,23 +72,21 @@ const LaboratoryAgreementsModal = ({
   >({});
   const [search, setSearch] = useState('');
 
+  useEffect(() => {
+    const init: Record<string, LocalAgreement> = {};
+    for (const a of agreements) {
+      init[a.laboratoryId] = {
+        referenceLaboratory: a.referenceLaboratory,
+        detectionAnalysis: a.detectionAnalysis,
+        confirmationAnalysis: a.confirmationAnalysis
+      };
+    }
+    setLocalAgreements(init);
+  }, [agreements]);
+
   useIsModalOpen(modal, {
     onConceal: () => setSearch('')
   });
-
-  useEffect(() => {
-    const initial = Object.fromEntries(
-      agreements.map((a) => [
-        a.laboratoryId,
-        {
-          referenceLaboratory: a.referenceLaboratory,
-          detectionAnalysis: a.detectionAnalysis,
-          confirmationAnalysis: a.confirmationAnalysis
-        }
-      ])
-    );
-    setLocalAgreements(initial);
-  }, [agreements]);
 
   const toggle = (labId: string, field: keyof LocalAgreement) => {
     setLocalAgreements((prev) => ({
@@ -161,11 +161,7 @@ const LaboratoryAgreementsModal = ({
               {laboratoryAgreementRowKeys.length === 1 ? (
                 <>
                   N°
-                  {
-                    ProgrammingPlanKindReference[
-                      laboratoryAgreementRowKeys[0].programmingPlanKind
-                    ]
-                  }
+                  {laboratoryAgreementRowKeys[0].programmingSubPlanId}
                   {' | '}
                   {
                     SubstanceKindLabels[
@@ -256,8 +252,7 @@ const LaboratoryAgreementsModal = ({
               }
               const laboratoryAgreement = {
                 laboratoryId: laboratory.id,
-                programmingPlanId: rowKey.programmingPlanId,
-                programmingPlanKind: rowKey.programmingPlanKind,
+                programmingSubPlanId: rowKey.programmingSubPlanId,
                 substanceKind: rowKey.substanceKind,
                 referenceLaboratory: local.referenceLaboratory,
                 detectionAnalysis: local.detectionAnalysis,
@@ -268,6 +263,7 @@ const LaboratoryAgreementsModal = ({
                   key={laboratory.id}
                   laboratoryAgreement={laboratoryAgreement}
                   laboratory={laboratory}
+                  programmingSubPlan={programmingSubPlan}
                   afterClose={modal.open}
                 />
               );

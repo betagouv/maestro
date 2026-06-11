@@ -1,13 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RegionList } from 'maestro-shared/referential/Region';
-import { ProgrammingPlanKindWithSachaList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   FoieDeBovinLocalPrescriptionFixture,
   FoieDeBovinPrescriptionFixture,
   VolailleLocalPrescriptionFixture,
   VolaillePrescriptionFixture
 } from 'maestro-shared/test/prescriptionFixtures';
-import { DAOAInProgressProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  DAOAInProgressBovinSubPlanId,
+  DAOAInProgressProgrammingPlanFixture,
+  DAOAInProgressVolailleSubPlanId,
+  genProgrammingSubPlan
+} from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genAuthUser,
   NationalCoordinator,
@@ -100,7 +104,10 @@ export const RegionalCoordinatorView: Story = {
       auth: {
         authUser: genAuthUser({
           ...RegionalCoordinator,
-          programmingPlanKinds: ProgrammingPlanKindWithSachaList
+          programmingSubPlans: [
+            genProgrammingSubPlan({ id: DAOAInProgressVolailleSubPlanId }),
+            genProgrammingSubPlan({ id: DAOAInProgressBovinSubPlanId })
+          ]
         })
       }
     },

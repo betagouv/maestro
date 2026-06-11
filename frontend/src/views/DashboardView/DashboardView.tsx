@@ -2,7 +2,6 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
-import { ProgrammingPlanKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   type ProgrammingPlanChecked,
   ProgrammingPlanSort
@@ -26,13 +25,13 @@ const DashboardView = () => {
 
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
     {
-      kinds: hasRole('Administrator')
-        ? ProgrammingPlanKindList
-        : user?.programmingPlanKinds,
+      subPlanIds: hasRole('Administrator')
+        ? undefined
+        : user?.programmingSubPlans?.map((sp) => sp.id),
       status: ['Validated', 'Closed']
     },
     {
-      skip: !user?.programmingPlanKinds.length && !hasRole('Administrator')
+      skip: !user?.programmingSubPlans?.length && !hasRole('Administrator')
     }
   );
 

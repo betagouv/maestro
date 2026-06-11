@@ -16,10 +16,7 @@ import {
   OutsideProgrammingPlanContext,
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import {
-  type ProgrammingPlanKind,
-  ProgrammingPlanKindLabels
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   isOutsideProgrammingPlanSample,
   type PartialSample,
@@ -103,8 +100,8 @@ const ContextStep = ({ partialSample }: Props) => {
         ? OutsideProgrammingPlanContext.safeParse(partialSample?.context).data
         : undefined
     );
-  const [programmingPlanKind, setProgrammingPlanKind] = useState(
-    partialSample?.programmingPlanKind ?? ''
+  const [programmingSubPlanId, setProgrammingSubPlanId] = useState(
+    partialSample?.programmingSubPlanId ?? ''
   );
   const [legalContext, setLegalContext] = useState(
     programmingPlan?.legalContexts.length === 1
@@ -152,21 +149,28 @@ const ContextStep = ({ partialSample }: Props) => {
     apiClient.useCreateOrUpdateSampleMutation();
 
   useEffect(() => {
-    if (programmingPlan?.kinds.length === 1) {
-      setProgrammingPlanKind(programmingPlan?.kinds[0]);
+    if (programmingPlan?.subPlans.length === 1) {
+      setProgrammingSubPlanId(programmingPlan?.subPlans[0]?.id ?? '');
     }
   }, [programmingPlan]);
 
+  const codeNat = useMemo(
+    () =>
+      programmingPlan?.subPlans.find((sp) => sp.id === programmingSubPlanId)
+        ?.codeNat,
+    [programmingPlan, programmingSubPlanId]
+  );
+
   const specificData = useMemo(() => {
-    const kind = partialSample?.programmingPlanKind;
-    if (programmingPlanKind !== kind) {
+    const subPlanId = partialSample?.programmingSubPlanId;
+    if (programmingSubPlanId !== subPlanId) {
       return {};
     } else {
       return partialSample?.specificData;
     }
   }, [
-    programmingPlanKind,
-    partialSample?.programmingPlanKind,
+    programmingSubPlanId,
+    partialSample?.programmingSubPlanId,
     partialSample?.specificData
   ]);
 
@@ -179,7 +183,7 @@ const ContextStep = ({ partialSample }: Props) => {
         permissions.includes('updateSample')
       );
     }),
-    programmingPlanKinds: programmingPlan?.kinds
+    programmingSubPlanIds: programmingPlan?.subPlans.map((sp) => sp.id)
   });
 
   const Form = SampleContextData.omit({
@@ -264,6 +268,7 @@ const ContextStep = ({ partialSample }: Props) => {
   > = {
     Control: check,
     Surveillance: leaf,
+    Exploratory: controle,
     OutsideProgrammingPlan: warning
   };
 
@@ -275,27 +280,31 @@ const ContextStep = ({ partialSample }: Props) => {
     }
   );
 
-  const programmingPlanKindOptions = selectOptionsFromList(
+  const programmingSubPlanOptions = selectOptionsFromList(
     intersection(
-      programmingPlan?.kinds.filter((kind) =>
-        programmingPlanPrescriptions?.some(
-          (prescription) =>
-            prescription.programmingPlanKind === kind &&
-            programmingPlanLocalPrescriptions?.some(
-              (localPrescription) =>
-                localPrescription.prescriptionId === prescription.id &&
-                !isNil(localPrescription.companySiret) &&
-                user?.companies
-                  ?.map((_) => _.siret)
-                  .includes(localPrescription.companySiret) &&
-                localPrescription.sampleCount > 0
-            )
+      programmingPlan?.subPlans
+        .filter((subPlan) =>
+          programmingPlanPrescriptions?.some(
+            (prescription) =>
+              prescription.programmingSubPlanId === subPlan.id &&
+              programmingPlanLocalPrescriptions?.some(
+                (localPrescription) =>
+                  localPrescription.prescriptionId === prescription.id &&
+                  !isNil(localPrescription.companySiret) &&
+                  user?.companies
+                    ?.map((_) => _.siret)
+                    .includes(localPrescription.companySiret) &&
+                  localPrescription.sampleCount > 0
+              )
+          )
         )
-      ),
-      user?.programmingPlanKinds ?? []
+        .map((sp) => sp.id),
+      user?.programmingSubPlans?.map((sp) => sp.id) ?? []
     ),
     {
-      labels: ProgrammingPlanKindLabels,
+      labels: Object.fromEntries(
+        (programmingPlan?.subPlans ?? []).map((sp) => [sp.id, sp.label])
+      ),
       withDefault: 'auto',
       withSort: true
     }
@@ -316,7 +325,7 @@ const ContextStep = ({ partialSample }: Props) => {
         : undefined,
     parcel,
     programmingPlanId: programmingPlan?.id as string,
-    programmingPlanKind: programmingPlanKind as ProgrammingPlanKind,
+    programmingSubPlanId: programmingSubPlanId as ProgrammingSubPlanId,
     context:
       context === 'OutsideProgrammingPlan'
         ? outsideProgrammingPlanContext
@@ -397,7 +406,7 @@ const ContextStep = ({ partialSample }: Props) => {
     geolocationX,
     geolocationY,
     parcel,
-    programmingPlanKind,
+    programmingSubPlanId: programmingSubPlanId as ProgrammingSubPlanId,
     context,
     outsideProgrammingPlanContext,
     legalContext,
@@ -417,14 +426,14 @@ const ContextStep = ({ partialSample }: Props) => {
   }
   return (
     <form data-testid="draft_sample_creation_form" className="sample-form">
-      {programmingPlanKind === 'PPV' && !isBrowserGeolocation && !readonly && (
+      {codeNat === 'PPV' && !isBrowserGeolocation && !readonly && (
         <Alert
           severity="info"
           title=""
           small
           closable
           description={`Autorisez le partage de votre position pour faciliter la localisation 
-            ${programmingPlanKind === 'PPV' ? ' de la parcelle' : ' du contrôle'}.`}
+            ${codeNat === 'PPV' ? ' de la parcelle' : ' du contrôle'}.`}
         />
       )}
       <div>
@@ -448,7 +457,7 @@ const ContextStep = ({ partialSample }: Props) => {
           )}
         <AppRequiredText />
       </div>
-      {programmingPlanKind === 'PPV' && (
+      {codeNat === 'PPV' && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <div className={clsx('d-flex-align-start')}>
@@ -522,14 +531,12 @@ const ContextStep = ({ partialSample }: Props) => {
           )}
         </div>
       )}
-      {programmingPlanKind === 'PPV' && (
+      {codeNat === 'PPV' && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12', 'fr-pb-0')}>
             <div className={cx('fr-text--bold')}>
               Emplacement{' '}
-              {programmingPlanKind === 'PPV'
-                ? 'de la parcelle contrôlée'
-                : 'du contrôle'}
+              {codeNat === 'PPV' ? 'de la parcelle contrôlée' : 'du contrôle'}
             </div>
             <div className={cx('fr-text--light')}>
               Placez votre repère sur la zone correspondante ou renseignez
@@ -590,7 +597,7 @@ const ContextStep = ({ partialSample }: Props) => {
                   disabled={readonly}
                 />
               </div>
-              {programmingPlanKind === 'PPV' && (
+              {codeNat === 'PPV' && (
                 <div className={cx('fr-col-12')}>
                   <AppTextInput
                     defaultValue={parcel ?? ''}
@@ -609,18 +616,16 @@ const ContextStep = ({ partialSample }: Props) => {
           </div>
         </div>
       )}
-      {programmingPlan.kinds.length > 1 && (
+      {programmingPlan.subPlans.length > 1 && (
         <AppSelect
-          value={programmingPlanKind}
-          options={programmingPlanKindOptions}
-          onChange={(e) =>
-            setProgrammingPlanKind(e.target.value as ProgrammingPlanKind)
-          }
+          value={programmingSubPlanId}
+          options={programmingSubPlanOptions}
+          onChange={(e) => setProgrammingSubPlanId(e.target.value)}
           inputForm={form}
           inputKey="specificData"
-          inputPathFromKey={['programmingPlanKind']}
+          inputPathFromKey={['programmingSubPlanId']}
           whenValid="Type de plan correctement renseigné."
-          data-testid="programmingPlanKind-select"
+          data-testid="programmingSubPlan-select"
           label="Type de plan"
           disabled={readonly}
           required
@@ -720,7 +725,7 @@ const ContextStep = ({ partialSample }: Props) => {
           </div>
         </div>
       )}
-      {programmingPlanKind === 'PPV' && (
+      {codeNat === 'PPV' && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppTextInput
@@ -739,10 +744,14 @@ const ContextStep = ({ partialSample }: Props) => {
         </div>
       )}
 
+      {!!programmingSubPlanId && codeNat !== 'PPV' && isOnline && !readonly && (
+        <SampleEmptyFormDownload partialSample={partialSample ?? formData} />
+      )}
+
       <SampleCompany
         programmingPlan={programmingPlan}
         partialSample={partialSample}
-        programmingPlanKind={programmingPlanKind}
+        programmingSubPlanId={programmingSubPlanId as ProgrammingSubPlanId}
         company={company}
         companyOffline={companyOffline ?? undefined}
         isOnline={isOnline}
@@ -756,13 +765,6 @@ const ContextStep = ({ partialSample }: Props) => {
         }}
       />
 
-      {!!programmingPlanKind &&
-        programmingPlanKind !== 'PPV' &&
-        !!company &&
-        isOnline &&
-        !readonly && (
-          <SampleEmptyFormDownload partialSample={partialSample ?? formData} />
-        )}
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
           <AppTextAreaInput
@@ -824,7 +826,7 @@ const ContextStep = ({ partialSample }: Props) => {
             </ul>
           )}
         </div>
-        {isOnline && !readonly && programmingPlanKind && (
+        {isOnline && !readonly && programmingSubPlanId && (
           <SupportDocumentDownload partialSample={partialSample ?? formData} />
         )}
       </div>

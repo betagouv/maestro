@@ -4,7 +4,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { Regions } from 'maestro-shared/referential/Region';
-import { ProgrammingPlanKindLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   canHaveDepartment,
@@ -17,16 +16,19 @@ import { assert, type Equals } from 'tsafe';
 import './UserCard.scss';
 
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useMascarade } from '../../../components/Mascarade/useMascarade';
 
 type Props = {
   user: UserRefined;
+  programmingPlans: ProgrammingPlanChecked[];
   onEdit: () => void;
   onDisable: () => void;
   onEnable: () => void;
 };
 export const UserCard: FunctionComponent<Props> = ({
   user,
+  programmingPlans,
   onEdit,
   onDisable,
   onEnable,
@@ -35,6 +37,12 @@ export const UserCard: FunctionComponent<Props> = ({
   assert<Equals<keyof typeof _rest, never>>();
 
   const { setMascaradeUserId } = useMascarade();
+
+  const subPlanLabelById = Object.fromEntries(
+    programmingPlans.flatMap((p) =>
+      p.subPlans.map((sp) => [sp.id, `${sp.codeNat} (${p.year})`])
+    )
+  );
 
   return (
     <Card
@@ -106,16 +114,16 @@ export const UserCard: FunctionComponent<Props> = ({
                 ? Regions[user.region].name
                 : 'France'}
           </span>
-          {isNotEmpty(user.programmingPlanKinds) && (
+          {isNotEmpty(user.programmingSubPlans) && (
             <span>
-              {user.programmingPlanKinds.map((p) => (
+              {user.programmingSubPlans.map((sp) => (
                 <Tag
-                  key={p}
+                  key={sp.id}
                   as={'span'}
                   small={true}
                   className={clsx('fr-mb-1w')}
                 >
-                  {ProgrammingPlanKindLabels[p]}
+                  {subPlanLabelById[sp.id] ?? sp.codeNat}
                 </Tag>
               ))}
             </span>

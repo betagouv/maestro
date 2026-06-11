@@ -39,6 +39,7 @@ describe('buildAnalysisRequestData', () => {
     expect(
       buildAnalysisRequestData(
         sample,
+        'PPV',
         sampleItem,
         Sampler1Fixture,
         LaboratoryFixture,
@@ -61,7 +62,7 @@ describe('buildAnalysisRequestData', () => {
       monoSubstances: [],
       multiSubstanceLabels: [],
       multiSubstances: [],
-      programmingPlanKind: 'PPV',
+      programmingSubPlanCodeNat: 'PPV',
       quantityUnit: 'kJ/Daily portion',
       recipientKind: 'Laboratory',
       reference: 'GES-44-00003-A-1',
@@ -76,7 +77,6 @@ describe('buildAnalysisRequestData', () => {
         id: '11111111-1111-1111-1111-111111111111',
         laboratoryId: null,
         name: 'John Doe',
-        programmingPlanKinds: ['PPV'],
         region: '44',
         roles: ['Sampler']
       },

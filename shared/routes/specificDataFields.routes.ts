@@ -15,7 +15,7 @@ import {
   SachaFieldConfig,
   SpecificDataFieldId,
   SpecificDataFieldOptionId
-} from '../schema/SpecificData/PlanKindFieldConfig';
+} from '../schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type { SubRoutes } from './routes';
 
 export const specificDataFieldsRoutes = {

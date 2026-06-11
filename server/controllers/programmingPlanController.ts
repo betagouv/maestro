@@ -15,8 +15,10 @@ import {
   type ProgrammingPlanStatus,
   ProgrammingPlanStatusPermissions
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   hasPermission,
+  programmingSubPlanIdsIsRequired,
   userDepartmentsForRole,
   userRegionsForRole
 } from 'maestro-shared/schema/User/User';
@@ -47,6 +49,16 @@ export const programmingPlanRouter = {
           ? await laboratoryRepository.findUnique(user.laboratoryId as string)
           : undefined;
 
+      console.log(
+        'buildFindProgrammingPlanOptions',
+        buildFindProgrammingPlanOptions(
+          user,
+          userRole,
+          findOptions,
+          userLaboratory
+        )
+      );
+
       const programmingPlans = await programmingPlanRepository.findMany(
         buildFindProgrammingPlanOptions(
           user,
@@ -72,7 +84,13 @@ export const programmingPlanRouter = {
         throw new ProgrammingPlanMissingError(programmingPlanId);
       }
 
-      if (!intersection(user.programmingPlanKinds, programmingPlan.kinds)) {
+      if (
+        programmingSubPlanIdsIsRequired(user) &&
+        !intersection(
+          user.programmingSubPlans.map((sp) => sp.id),
+          programmingPlan.subPlans.map((sp) => sp.id)
+        ).length
+      ) {
         return { status: HttpStatus.FORBIDDEN };
       }
 
@@ -232,7 +250,9 @@ export const programmingPlanRouter = {
                 roles: ['Sampler'],
                 region: programmingPlanLocalStatus.region,
                 department: programmingPlanLocalStatus.department as Department,
-                programmingPlanKinds: programmingPlan.kinds,
+                programmingSubPlanIds: programmingPlan.subPlans.map(
+                  (sp) => sp.id
+                ),
                 companySirets: localPrescriptions
                   .map((localPrescription) => localPrescription.companySiret)
                   .filter((_) => !isNil(_))
@@ -261,7 +281,9 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
                 const regionalCoordinators = await userRepository.findMany({
                   roles: ['RegionalCoordinator'],
                   region: programmingPlanLocalStatus.region,
-                  programmingPlanKinds: programmingPlan.kinds
+                  programmingSubPlanIds: programmingPlan.subPlans.map(
+                    (sp) => sp.id
+                  )
                 });
 
                 await (programmingPlanLocalStatus.status === 'SubmittedToRegion'
@@ -297,7 +319,9 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
               ) {
                 const nationalCoordinators = await userRepository.findMany({
                   roles: ['NationalCoordinator'],
-                  programmingPlanKinds: programmingPlan.kinds
+                  programmingSubPlanIds: programmingPlan.subPlans.map(
+                    (sp) => sp.id
+                  )
                 });
 
                 await notificationService.sendNotification(
@@ -327,7 +351,9 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
                 const departmentalCoordinators = await userRepository.findMany({
                   roles: ['DepartmentalCoordinator'],
                   region: programmingPlanLocalStatus.region,
-                  programmingPlanKinds: programmingPlan.kinds
+                  programmingSubPlanIds: programmingPlan.subPlans.map(
+                    (sp) => sp.id
+                  )
                 });
 
                 await notificationService.sendNotification(
@@ -401,7 +427,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
     post: async ({ user }, { year }) => {
       const previousProgrammingPlan = await programmingPlanRepository.findOne(
         year - 1,
-        user.programmingPlanKinds
+        user.programmingSubPlans.map((sp) => sp.id)
       );
 
       if (
@@ -413,13 +439,18 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
         throw new ProgrammingPlanMissingError(String(year - 1));
       }
 
+      const newPlanId = uuidv4();
       const newProgrammingPlan = {
-        id: uuidv4(),
+        id: newPlanId,
         createdAt: new Date(),
         createdBy: user.id,
         title: previousProgrammingPlan.title,
         domain: previousProgrammingPlan.domain,
-        kinds: previousProgrammingPlan.kinds,
+        subPlans: previousProgrammingPlan.subPlans.map((subPlan) => ({
+          ...subPlan,
+          id: ProgrammingSubPlanId.parse(uuidv4()),
+          programmingPlanId: newPlanId
+        })),
         contexts: previousProgrammingPlan.contexts,
         legalContexts: previousProgrammingPlan.legalContexts,
         samplesOutsidePlanAllowed:
@@ -430,8 +461,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
           region,
           status: 'InProgress' as const
         })),
-        departmentalStatus: [],
-        substanceKinds: previousProgrammingPlan.substanceKinds
+        departmentalStatus: []
       };
 
       await programmingPlanRepository.insert(newProgrammingPlan);
