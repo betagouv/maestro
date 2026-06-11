@@ -110,7 +110,7 @@ const DashboardNoticeAndActions: FunctionComponent<Props> = ({
       {notice?.description && (
         <DashboardNotice
           description={notice.description}
-          className={clsx(cx('fr-col'), 'd-flex-column')}
+          className={cx('fr-col')}
           fullWidth={!hasPriorityActions}
         />
       )}
