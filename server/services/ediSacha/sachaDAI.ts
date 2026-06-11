@@ -23,7 +23,7 @@ import {
   SiglePlanAnalyse
 } from './sachaReferential';
 import { sendSachaFile } from './sachaSender';
-import { generateXML, type XmlFile } from './sachaToXML';
+import { generateXML, getSenderSachaSigle, type XmlFile } from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
 
 export const generateXMLDAI = (
@@ -103,11 +103,9 @@ export const generateXMLDAI = (
         },
         DialogueActeurType: {
           DialogueActeur: {
-            //FIXME EDI
             SigleIdentifiant: 'DEPADM',
-            Identifiant: '',
+            Identifiant: getSenderSachaSigle(sample.department, false),
             Nom: sample.sampler.name ?? ''
-            //FIXME EDI email
           }
         },
         DialogueEchantillonCommemoratifType: [
