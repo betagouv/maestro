@@ -58,11 +58,15 @@ const SampleListView = () => {
     (state) => state.samples
   );
 
-  const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
+  const { data: programmingPlansData } = apiClient.useFindProgrammingPlansQuery(
     {
       year: year ? Number(year) : undefined
     },
     { skip: !year }
+  );
+  const programmingPlans = useMemo(
+    () => programmingPlansData?.filter((p) => p.domain !== 'TO_BE_DEFINED'),
+    [programmingPlansData]
   );
   const programmingPlan = useMemo(
     () => (programmingPlans?.length === 1 ? programmingPlans[0] : undefined),
