@@ -228,7 +228,8 @@ export const programmingPlanKindsIsRequired = (
   user: Pick<Nullable<UserRefined>, 'roles'>
 ): boolean =>
   !user.roles?.includes('Administrator') &&
-  !user.roles?.includes('LaboratoryUser');
+  !user.roles?.includes('LaboratoryUser') &&
+  !user.roles?.includes('LaboratoryOffice');
 
 export const laboratoryIsRequired = (
   user: Pick<Nullable<UserRefined>, 'roles'>

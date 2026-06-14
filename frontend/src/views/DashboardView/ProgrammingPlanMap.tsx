@@ -136,6 +136,7 @@ const ProgrammingPlanMap = ({
     id: 'center-circle',
     type: 'circle',
     source: 'centers',
+    filter: ['>', ['get', 'sampleCount'], 0],
     paint: {
       'circle-radius': [
         'interpolate',
@@ -154,6 +155,7 @@ const ProgrammingPlanMap = ({
     id: 'center-count',
     type: 'symbol',
     source: 'centers',
+    filter: ['>', ['get', 'sampleCount'], 0],
     layout: {
       'text-field': ['get', 'sampleCount'],
       'text-size': 12
@@ -173,10 +175,14 @@ const ProgrammingPlanMap = ({
         'case',
         ['boolean', ['feature-state', 'hover'], false],
         '#000091',
+        ['==', ['get', 'sampleCount'], 0],
+        '#f9f6f2',
         '#6a6af4'
       ],
       'fill-opacity': [
         'case',
+        ['==', ['get', 'sampleCount'], 0],
+        0.4,
         ['boolean', ['feature-state', 'hover'], false],
         1,
         ['interpolate', ['linear'], ['get', 'completionRate'], 5, 0.1, 95, 1]
