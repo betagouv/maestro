@@ -650,7 +650,5 @@ export const MatrixListByKind: Record<MatrixKind, Matrix[]> = {
   TODO_396: Matrix.extract(['TODO_396']).options,
   TODO_397: Matrix.extract(['TODO_397']).options,
   TODO_398: Matrix.extract(['TODO_398']).options,
-  TODO_399: Matrix.extract(['TODO_399']).options,
-  TODO_400: Matrix.extract(['TODO_400']).options,
-  TODO_401: Matrix.extract(['TODO_401']).options
+  TODO_399: Matrix.extract(['TODO_399']).options
 };
