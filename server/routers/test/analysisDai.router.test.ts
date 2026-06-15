@@ -181,4 +181,95 @@ describe('AnalysisDai router', () => {
       expect(analysisDaiProcessor.processPending).toHaveBeenCalled();
     });
   });
+
+  describe('POST /analysis-dai/:analysisDaiId/mark-error', () => {
+    const insertSentDai = async () =>
+      kysely
+        .insertInto('analysisDai')
+        .values({
+          analysisId: analysis.id,
+          state: 'SENT',
+          sentMethod: 'EMAIL',
+          edi: false,
+          sentAt: new Date()
+        })
+        .returning('id')
+        .executeTakeFirstOrThrow()
+        .then((r) => r.id);
+
+    const testRoute = (analysisDaiId: string) =>
+      `/api/analysis-dai/${analysisDaiId}/mark-error`;
+
+    test('should fail if the user is not authenticated', async () => {
+      const id = await insertSentDai();
+      await request(app)
+        .post(testRoute(id))
+        .send({ message: 'Erreur manuelle' })
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user is not admin', async () => {
+      const id = await insertSentDai();
+      await request(app)
+        .post(testRoute(id))
+        .send({ message: 'Erreur manuelle' })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if the message is empty', async () => {
+      const id = await insertSentDai();
+      await request(app)
+        .post(testRoute(id))
+        .send({ message: '   ' })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should return 404 if the DAI does not exist', async () => {
+      await request(app)
+        .post(testRoute(uuidv4()))
+        .send({ message: 'Erreur manuelle' })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    test('should return 404 if the DAI is not in SENT state', async () => {
+      const id = await kysely
+        .insertInto('analysisDai')
+        .values({ analysisId: analysis.id, state: 'PENDING' })
+        .returning('id')
+        .executeTakeFirstOrThrow()
+        .then((r) => r.id);
+
+      await request(app)
+        .post(testRoute(id))
+        .send({ message: 'Erreur manuelle' })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    test('should mark a SENT DAI as ERROR with the given message', async () => {
+      const id = await insertSentDai();
+
+      await request(app)
+        .post(testRoute(id))
+        .send({ message: 'Erreur manuelle' })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
+
+      const updated = await kysely
+        .selectFrom('analysisDai')
+        .selectAll()
+        .where('id', '=', id)
+        .executeTakeFirstOrThrow();
+
+      expect(updated).toMatchObject({
+        state: 'ERROR',
+        message: 'Erreur manuelle',
+        sentMethod: 'EMAIL',
+        edi: false
+      });
+    });
+  });
 });

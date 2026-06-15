@@ -22,6 +22,7 @@ import {
   documentsModal
 } from 'src/components/DocumentsModal/DocumentsModal';
 import { assert, type Equals } from 'tsafe';
+import { MarkErrorModal, markErrorModal } from './MarkErrorModal';
 import { RetryModal, retryModal } from './RetryModal';
 
 type Props = {
@@ -68,6 +69,7 @@ const renderAttemptRow = (
   firstCol: React.ReactNode,
   onDocuments: (a: AnalysisDaiAttempt) => void,
   onRetry: (a: AnalysisDaiAttempt) => void,
+  onMarkError: (a: AnalysisDaiAttempt) => void,
   isParent = false
 ): React.ReactNode[] => [
   firstCol,
@@ -158,6 +160,15 @@ const renderAttemptRow = (
     >
       Relancer
     </Button>
+  ) : isParent && attempt.state === 'SENT' ? (
+    <Button
+      key={`${attempt.id}-action`}
+      size="small"
+      priority="tertiary"
+      onClick={() => onMarkError(attempt)}
+    >
+      Passer en erreur
+    </Button>
   ) : (
     <span key={`${attempt.id}-action`} />
   )
@@ -175,13 +186,25 @@ export const AnalysisDaiHistory = ({
   const [createAnalysisDai, { isSuccess: isRetrySuccess }] =
     apiClient.useCreateAnalysisDaiMutation();
 
+  const [updateAnalysisDaiError, { isSuccess: isMarkErrorSuccess }] =
+    apiClient.useUpdateAnalysisDaiErrorMutation();
+
   const [selectedDai, setSelectedDai] = useState<AnalysisDaiAttempt | null>(
     null
   );
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleRetry = async () => {
     if (!selectedDai) return;
     await createAnalysisDai({ analysisId: selectedDai.analysisId });
+  };
+
+  const handleMarkError = async () => {
+    if (!selectedDai) return;
+    await updateAnalysisDaiError({
+      analysisDaiId: selectedDai.id,
+      message: errorMessage
+    });
   };
 
   const handleDocuments = (attempt: AnalysisDaiAttempt) => {
@@ -192,6 +215,12 @@ export const AnalysisDaiHistory = ({
   const handleRetryOpen = (attempt: AnalysisDaiAttempt) => {
     setSelectedDai(attempt);
     retryModal.open();
+  };
+
+  const handleMarkErrorOpen = (attempt: AnalysisDaiAttempt) => {
+    setSelectedDai(attempt);
+    setErrorMessage('');
+    markErrorModal.open();
   };
 
   const tableData = (() => {
@@ -227,6 +256,7 @@ export const AnalysisDaiHistory = ({
           analysisCell,
           handleDocuments,
           handleRetryOpen,
+          handleMarkErrorOpen,
           true
         )
       );
@@ -240,7 +270,8 @@ export const AnalysisDaiHistory = ({
               showSampleReference,
               <span key={`${attempt.id}-analysis`} />,
               handleDocuments,
-              handleRetryOpen
+              handleRetryOpen,
+              handleMarkErrorOpen
             )
           );
         }
@@ -255,6 +286,7 @@ export const AnalysisDaiHistory = ({
       <h2 className={cx('fr-h4')}>Historique des DAI</h2>
 
       <AppToast open={isRetrySuccess} description="Nouvelle DAI créée" />
+      <AppToast open={isMarkErrorSuccess} description="DAI passée en erreur" />
 
       {analyses.length === 0 ? (
         <p className={cx('fr-text--sm')}>Aucune DAI.</p>
@@ -280,6 +312,11 @@ export const AnalysisDaiHistory = ({
       )}
 
       <RetryModal selectedDai={selectedDai} onRetry={handleRetry} />
+      <MarkErrorModal
+        message={errorMessage}
+        onMessageChange={setErrorMessage}
+        onConfirm={handleMarkError}
+      />
       <DocumentsModal documents={selectedDai?.documents ?? []} />
     </div>
   );

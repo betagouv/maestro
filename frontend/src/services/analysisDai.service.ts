@@ -8,9 +8,18 @@ const analysisDaiApi = api.injectEndpoints({
     }),
     createAnalysisDai: buildTypedMutation(builder, '/analysis-dai', 'post', {
       invalidatesTags: ['AnalysisDai']
-    })
+    }),
+    updateAnalysisDaiError: buildTypedMutation(
+      builder,
+      '/analysis-dai/:analysisDaiId/mark-error',
+      'post',
+      { invalidatesTags: ['AnalysisDai'] }
+    )
   })
 });
 
-export const { useGetAnalysisDaiQuery, useCreateAnalysisDaiMutation } =
-  analysisDaiApi;
+export const {
+  useGetAnalysisDaiQuery,
+  useCreateAnalysisDaiMutation,
+  useUpdateAnalysisDaiErrorMutation
+} = analysisDaiApi;
