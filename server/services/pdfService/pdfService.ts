@@ -257,10 +257,13 @@ const generateSamplePDF = async (
       ? sample.reference
       : getSampleItemReference(sample, itemNumber, copyNumber);
 
-  const sampleReference = SampleReference.parse(sample.reference);
+  //Rétro compatible avec les anciens formats
+  const sampleReference =
+    SampleReference.safeParse(sample.reference).data ?? null;
 
   const barcodeReference =
     itemNumber !== undefined &&
+    sampleReference &&
     ProgrammingPlanKindWithSachaList.includes(
       sample.programmingPlanKind as ProgrammingPlanKindWithSacha
     )
@@ -298,13 +301,15 @@ const generateSamplePDF = async (
         substanceKind: sampleItem.substanceKind
           ? SubstanceKindLabels[sampleItem.substanceKind]
           : null,
-        barcode: getBarcodeSvg(
-          referencesFromSample(
-            sampleReference,
-            sample.sentAt ? new Date(sample.sentAt).getTime() : now(),
-            itemNumber ?? 1
-          ).numeroEtiquette
-        )
+        barcode: sampleReference
+          ? getBarcodeSvg(
+              referencesFromSample(
+                sampleReference,
+                sample.sentAt ? new Date(sample.sentAt).getTime() : now(),
+                itemNumber ?? 1
+              ).numeroEtiquette
+            )
+          : undefined
       })
     ),
     itemNumber,
