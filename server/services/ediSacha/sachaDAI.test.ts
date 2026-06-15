@@ -121,87 +121,96 @@ const sachaCommemoratifRecord: SachaCommemoratifRecord = {
   }
 };
 
+const daiSample = {
+  reference: 'ARA-25-00073',
+  sampledDate: '2025-12-16' as MaestroDate,
+  lastUpdatedAt: new Date(1765876056798),
+  sentAt: new Date(1765876056798),
+  department: '72',
+  matrix: 'A01SN#F26.A07XE',
+  programmingPlanKind: 'DAOA_VOLAILLE',
+  specificData: {
+    sampling: 'Aléatoire',
+    animalBatchIdentifier: '',
+    ageInDays: 12,
+    species: 'ESP7',
+    breedingMethod: 'PROD_1',
+    outdoorAccess: 'PAT1'
+  },
+  company: {
+    siret: 'siret',
+    name: "nom d'entreprise très long qui doit être coupé"
+  },
+  sampler: Sampler1Fixture
+} as const;
+
+const daiSampleItem = {
+  sealId: 'sealId',
+  itemNumber: 1,
+  copyNumber: 2,
+  substanceKind: 'Copper'
+} as const;
+
+const daiFieldConfigs: SachaFieldConfig[] = [
+  ...sachaFieldConfigs.filter(
+    (fc) => fc.key !== 'species' && fc.key !== 'ageInDays'
+  ),
+  {
+    key: 'species',
+    inputType: 'select' as const,
+    label: 'species',
+    hintText: null,
+    inDai: true,
+    optional: false,
+    sachaCommemoratifSigle: 'SIGLE_SACHA' as CommemoratifSigle,
+    options: [
+      {
+        value: 'ESP7',
+        label: 'ESP7',
+        order: 0,
+        sachaCommemoratifValueSigle:
+          'SIGLE_VALUE_SACHA' as CommemoratifValueSigle
+      }
+    ]
+  },
+  {
+    key: 'ageInDays',
+    inputType: 'text' as const,
+    label: 'ageInDays',
+    hintText: null,
+    inDai: true,
+    optional: false,
+    sachaCommemoratifSigle: 'AGED' as CommemoratifSigle,
+    options: []
+  }
+];
+
+const daiCommemoratifRecord: SachaCommemoratifRecord = {
+  ...sachaCommemoratifRecord,
+  ['SIGLE_SACHA' as CommemoratifSigle]: {
+    sigle: 'SIGLE_SACHA' as CommemoratifSigle,
+    libelle: 'nouveau sigle',
+    typeDonnee: 'list',
+    unite: null,
+    values: {}
+  },
+  ['AGED' as CommemoratifSigle]: {
+    sigle: 'AGED' as CommemoratifSigle,
+    libelle: 'age en jours',
+    typeDonnee: 'numeric',
+    unite: 'jours',
+    values: {}
+  }
+};
+
 test(`génère un XML de DAI`, async () => {
   expect(
     await generateXMLDAI(
-      {
-        reference: 'ARA-25-00073',
-        sampledDate: '2025-12-16' as MaestroDate,
-        lastUpdatedAt: new Date(1765876056798),
-        department: '72',
-        matrix: 'A01SN#F26.A07XE',
-        programmingPlanKind: 'DAOA_VOLAILLE',
-        specificData: {
-          sampling: 'Aléatoire',
-          animalBatchIdentifier: '',
-          ageInDays: 12,
-          species: 'ESP7',
-          breedingMethod: 'PROD_1',
-          outdoorAccess: 'PAT1'
-        },
-        company: {
-          siret: 'siret',
-          name: "nom d'entreprise très long qui doit être coupé"
-        },
-        sampler: Sampler1Fixture
-      },
-      {
-        sealId: 'sealId',
-        itemNumber: 1,
-        copyNumber: 2,
-        substanceKind: 'Copper'
-      },
+      daiSample,
+      daiSampleItem,
       1765876056798,
-      [
-        ...sachaFieldConfigs.filter(
-          (fc) => fc.key !== 'species' && fc.key !== 'ageInDays'
-        ),
-        {
-          key: 'species',
-          inputType: 'select' as const,
-          label: 'species',
-          hintText: null,
-          inDai: true,
-          optional: false,
-          sachaCommemoratifSigle: 'SIGLE_SACHA' as CommemoratifSigle,
-          options: [
-            {
-              value: 'ESP7',
-              label: 'ESP7',
-              order: 0,
-              sachaCommemoratifValueSigle:
-                'SIGLE_VALUE_SACHA' as CommemoratifValueSigle
-            }
-          ]
-        },
-        {
-          key: 'ageInDays',
-          inputType: 'text' as const,
-          label: 'ageInDays',
-          hintText: null,
-          inDai: true,
-          optional: false,
-          sachaCommemoratifSigle: 'AGED' as CommemoratifSigle,
-          options: []
-        }
-      ],
-      {
-        ...sachaCommemoratifRecord,
-        ['SIGLE_SACHA' as CommemoratifSigle]: {
-          sigle: 'SIGLE_SACHA' as CommemoratifSigle,
-          libelle: 'nouveau sigle',
-          typeDonnee: 'list',
-          unite: null,
-          values: {}
-        },
-        ['AGED' as CommemoratifSigle]: {
-          sigle: 'AGED' as CommemoratifSigle,
-          libelle: 'age en jours',
-          typeDonnee: 'numeric',
-          unite: 'jours',
-          values: {}
-        }
-      },
+      daiFieldConfigs,
+      daiCommemoratifRecord,
       sachaConf,
       laboratory
     )
@@ -289,6 +298,27 @@ test(`génère un XML de DAI`, async () => {
     }
   `);
 });
+
+test(`fige le NumeroEtiquette sur sentAt (date d'envoi), tout en datant le fichier sur dateNow`, async () => {
+  const dateNow = new Date('2026-01-05T09:00:00').getTime();
+
+  const xmlFile = await generateXMLDAI(
+    { ...daiSample, sentAt: new Date('2025-12-16T09:00:00') },
+    daiSampleItem,
+    dateNow,
+    daiFieldConfigs,
+    daiCommemoratifRecord,
+    sachaConf,
+    laboratory
+  );
+
+  expect(xmlFile.content).toContain(
+    '<NumeroEtiquette>022025840000732025350001</NumeroEtiquette>'
+  );
+  expect(xmlFile.fileName).toContain('260105');
+  expect(xmlFile.fileName).not.toContain('251216');
+});
+
 describe('getCommemoratifs', () => {
   const specificData: SpecificData = {
     sampling: 'Aléatoire',

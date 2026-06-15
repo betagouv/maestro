@@ -39,6 +39,7 @@ export const generateXMLDAI = (
     | 'department'
     | 'matrix'
     | 'reference'
+    | 'sentAt'
   >,
   sampleItem: Pick<
     SampleItem,
@@ -76,7 +77,7 @@ export const generateXMLDAI = (
 
   const { numeroDAP, numeroEtiquette } = referencesFromSample(
     SampleReference.parse(sample.reference),
-    dateNow,
+    sample.sentAt ? sample.sentAt.getTime() : dateNow,
     sampleItem.itemNumber
   );
 
