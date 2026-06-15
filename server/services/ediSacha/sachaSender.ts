@@ -83,7 +83,7 @@ export const sendSachaFile = async (
       // Brevo REST API rejects ("Unsupported file format: gpg")
       // So we need to use directly the Brevo SMTP Relay
       await createNodemailerService().sendRaw({
-        from: config.inbox.user,
+        from: config.sigal.email,
         attachmentPath: encryptFilePath,
         to: laboratory.sacha.communication.recipientEmail,
         subject: zipFileName
