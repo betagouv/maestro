@@ -299,8 +299,11 @@ const generateSamplePDF = async (
           ? SubstanceKindLabels[sampleItem.substanceKind]
           : null,
         barcode: getBarcodeSvg(
-          referencesFromSample(sampleReference, now(), itemNumber ?? 1)
-            .numeroEtiquette
+          referencesFromSample(
+            sampleReference,
+            sample.sentAt ? new Date(sample.sentAt).getTime() : now(),
+            itemNumber ?? 1
+          ).numeroEtiquette
         )
       })
     ),
