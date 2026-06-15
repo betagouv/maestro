@@ -52,6 +52,10 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
     setRegionFilter(user?.region);
   }, [user?.region]);
 
+  useEffect(() => {
+    setContext(programmingPlan.contexts[0]);
+  }, [programmingPlan.id]);
+
   const findPrescriptionOptions = useMemo(
     () => ({
       programmingPlanId: programmingPlan.id,
