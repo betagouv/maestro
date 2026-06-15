@@ -26,6 +26,20 @@ const insert = async (
   return result.id;
 };
 
+const markAsError = async (
+  id: AnalysisDaiId,
+  message: string,
+  trx: KyselyMaestro = kysely
+): Promise<number> => {
+  const result = await trx
+    .updateTable('analysisDai')
+    .set({ state: 'ERROR', message })
+    .where('id', '=', id)
+    .where('state', '=', 'SENT')
+    .executeTakeFirst();
+  return Number(result.numUpdatedRows);
+};
+
 const claimPending = async (
   limit: number,
   trx: KyselyMaestro
@@ -262,6 +276,7 @@ const findManyGrouped = async (
 
 export const analysisDaiRepository = {
   insert,
+  markAsError,
   claimPending,
   linkDocuments,
   update,

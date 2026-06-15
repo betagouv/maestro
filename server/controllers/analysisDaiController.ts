@@ -19,5 +19,17 @@ export const analysisDaiRouter = {
       await analysisDaiProcessor.processPending();
       return { status: HttpStatus.CREATED };
     }
+  },
+  '/analysis-dai/:analysisDaiId/mark-error': {
+    post: async ({ body: { message } }, { analysisDaiId }) => {
+      const updatedCount = await analysisDaiRepository.markAsError(
+        analysisDaiId,
+        message
+      );
+      if (updatedCount === 0) {
+        return { status: HttpStatus.NOT_FOUND };
+      }
+      return { status: HttpStatus.NO_CONTENT };
+    }
   }
 } as const satisfies ProtectedSubRouter;

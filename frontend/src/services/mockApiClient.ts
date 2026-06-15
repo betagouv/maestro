@@ -280,6 +280,7 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateSachaCommemoratifsMutation: [fn(), {}],
   useGetAnalysisDaiQuery: { data: { analyses: [], total: 0 } },
   useCreateAnalysisDaiMutation: [fn(), {}],
+  useUpdateAnalysisDaiErrorMutation: [fn(), {}],
   useGetAnalysisRaiQuery: { data: { rais: [], total: 0 } },
   useReplayAnalysisRaiMutation: [fn(), {}]
 };
