@@ -67,9 +67,13 @@ const Header = () => {
   const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
   );
-  const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
+  const { data: programmingPlansData } = apiClient.useFindProgrammingPlansQuery(
     {},
     { skip: !isAuthenticated }
+  );
+  const programmingPlans = useMemo(
+    () => programmingPlansData?.filter((p) => p.domain !== 'TO_BE_DEFINED'),
+    [programmingPlansData]
   );
   const { data: unReadNotifications } = apiClient.useFindNotificationsQuery(
     {
