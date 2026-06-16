@@ -426,7 +426,7 @@ export interface ProgrammingSubPlans {
   codeNat: string;
   stages: Stage[];
   label: string;
-  analysisPermissionRole: string | null;
+  analysisPermissionRole: UserRole | null;
   contactListId: number | null;
   withSacha: boolean;
   substanceKinds: SubstanceKind[];

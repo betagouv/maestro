@@ -1,8 +1,8 @@
 import { isNil } from 'lodash-es';
 import { FindProgrammingSubPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingSubPlanOptions';
-import type {
+import {
   ProgrammingSubPlan,
-  ProgrammingSubPlanId
+  type ProgrammingSubPlanId
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { knexInstance as db } from './db';
@@ -15,11 +15,12 @@ export const ProgrammingSubPlans = (transaction = db) =>
 const findUnique = async (
   id: ProgrammingSubPlanId
 ): Promise<ProgrammingSubPlan | undefined> => {
-  return kysely
+  const result = await kysely
     .selectFrom('programmingSubPlans')
     .selectAll()
     .where('id', '=', id)
     .executeTakeFirst();
+  return result ? ProgrammingSubPlan.parse(result) : undefined;
 };
 
 const findMany = async (
@@ -49,7 +50,7 @@ const findMany = async (
     }
   }
 
-  return query.execute();
+  return (await query.execute()).map((row) => ProgrammingSubPlan.parse(row));
 };
 
 export const programmingSubPlanRepository = {
