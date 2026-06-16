@@ -95,13 +95,32 @@ test('getXmlFileName', () => {
       'AN01',
       '35',
       'LABERCA',
-      //16/12/2025 10:07:36
-      1765876056798
+      new Date('2025-12-16T10:07:36.798+01:00').getTime()
     )
   ).toBe('AN01MDDSV35LABERCA251216100736798');
 });
 test('getZipFileName', () => {
-  expect(getZipFileName('AN01', 'LDA72', 1765876056798)).toBe(
-    'AN01LDA722512161007_1.zip'
+  expect(
+    getZipFileName(
+      'AN01',
+      'LDA72',
+      new Date('2025-12-16T10:07:36.798+01:00').getTime()
+    )
+  ).toBe('AN01LDA722512161007_36798.zip');
+});
+
+test('getZipFileName : deux envois dans la même minute ne collisionnent pas', () => {
+  const first = getZipFileName(
+    'DA01',
+    'LDA72',
+    new Date('2025-12-16T10:07:36.798+01:00').getTime()
   );
+  const second = getZipFileName(
+    'DA01',
+    'LDA72',
+    new Date('2025-12-16T10:07:41.012+01:00').getTime()
+  );
+  expect(first).toBe('DA01LDA722512161007_36798.zip');
+  expect(second).toBe('DA01LDA722512161007_41012.zip');
+  expect(first).not.toBe(second);
 });
