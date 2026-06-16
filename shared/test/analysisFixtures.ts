@@ -55,6 +55,7 @@ export const genPartialResidue = (
   substanceAuthorised: oneOf(OptionalBooleanList),
   pollutionRisk: oneOf(OptionalBooleanList),
   compliance: oneOf(ResidueComplianceList),
+  contaminationSources: [],
   ...data
 });
 
