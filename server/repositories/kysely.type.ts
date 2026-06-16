@@ -11,6 +11,7 @@ import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import type { Stage } from 'maestro-shared/referential/Stage';
 import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
+import type { ContaminationSource } from 'maestro-shared/schema/Analysis/Residue/ContaminationSource';
 import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import type { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import type { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
@@ -122,6 +123,8 @@ export interface AnalysisResidues {
   analysisId: string;
   analysisMethod: AnalysisMethod;
   compliance: ResidueCompliance | null;
+  contaminationSources: ContaminationSource[] | null;
+  notesOnContaminationSources: string | null;
   lmr: number | null;
   notesOnPollutionRisk: string | null;
   notesOnResult: string | null;

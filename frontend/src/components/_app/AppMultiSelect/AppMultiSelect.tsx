@@ -17,6 +17,7 @@ type Props<T extends ZodObject, U> = Omit<
   defaultLabel: string;
   defaultEmptyLabel?: string;
   idKey?: keyof NoInfer<U>;
+  withSort?: boolean;
 };
 
 export const AppMultiSelect = <T extends ZodObject, U>({
@@ -28,6 +29,7 @@ export const AppMultiSelect = <T extends ZodObject, U>({
   defaultLabel,
   defaultEmptyLabel,
   idKey,
+  withSort = true,
   ...props
 }: Props<T, U>) => {
   const keysSelected = values.map((v) => (idKey ? v[idKey] : v));
@@ -37,7 +39,7 @@ export const AppMultiSelect = <T extends ZodObject, U>({
       .map((i) => (idKey ? i[idKey] : i)) as string[],
     {
       labels: keysWithLabels,
-      withSort: true,
+      withSort,
       defaultLabel: values.length
         ? pluralize(values.length, { preserveCount: true })(defaultLabel)
         : defaultEmptyLabel
