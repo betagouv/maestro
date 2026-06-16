@@ -81,6 +81,12 @@ export const up = async (knex: Knex) => {
       .limit(1)
   });
   await knex.schema.alterTable('samples', (table) => {
+    table
+      .uuid('programming_sub_plan_id')
+      .notNullable()
+      .references('id')
+      .inTable('programming_sub_plans')
+      .alter();
     table.dropColumn('programming_plan_kind');
   });
 

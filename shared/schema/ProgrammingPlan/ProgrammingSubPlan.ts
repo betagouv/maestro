@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { Stage } from '../../referential/Stage';
 import { SubstanceKind } from '../Substance/SubstanceKind';
+import { UserRole } from '../User/UserRole';
 
 export const ProgrammingSubPlanId = z.string().brand<'ProgrammingSubPlanId'>();
 export type ProgrammingSubPlanId = z.infer<typeof ProgrammingSubPlanId>;
@@ -11,7 +12,7 @@ export const ProgrammingSubPlan = z.object({
   codeNat: z.string(),
   stages: z.array(Stage),
   label: z.string(),
-  analysisPermissionRole: z.string().nullish(),
+  analysisPermissionRole: UserRole.nullish(),
   contactListId: z.number().int().nullish(),
   withSacha: z.boolean(),
   substanceKinds: z.array(SubstanceKind)
