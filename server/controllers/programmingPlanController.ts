@@ -49,16 +49,6 @@ export const programmingPlanRouter = {
           ? await laboratoryRepository.findUnique(user.laboratoryId as string)
           : undefined;
 
-      console.log(
-        'buildFindProgrammingPlanOptions',
-        buildFindProgrammingPlanOptions(
-          user,
-          userRole,
-          findOptions,
-          userLaboratory
-        )
-      );
-
       const programmingPlans = await programmingPlanRepository.findMany(
         buildFindProgrammingPlanOptions(
           user,

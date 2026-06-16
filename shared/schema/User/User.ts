@@ -83,7 +83,6 @@ export const userChecks = <
     (!user.companies || user.companies.length === 0) &&
     companiesIsRequired(user)
   ) {
-    console.log('userChecks - companiesIsRequired', user);
     ctx.addIssue({
       code: 'custom',
       path: ['companies'],
