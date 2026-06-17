@@ -426,6 +426,8 @@ test.each<[string, z.infer<typeof inovalysRefClientValidator>]>([
     'REU-25-00015-A-02',
     { reference: 'REU-25-00015', copyNumber: 2, itemNumber: 1 }
   ],
+  ['REU-25-150', { reference: 'REU-25-0150', copyNumber: 1, itemNumber: 1 }],
+  ['REU-26-150', { reference: 'REU-26-00150', copyNumber: 1, itemNumber: 1 }],
   [
     'REU-25-0015-B-01',
     { reference: 'REU-25-0015', copyNumber: 1, itemNumber: 2 }

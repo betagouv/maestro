@@ -102,7 +102,7 @@ test('<LQ et "d, NQ" sont équivalent', () => {
             "result_kind": "NQ",
           },
         ],
-        "sampleReference": "ARA-1234-333",
+        "sampleReference": "ARA-1234-00333",
       },
     ]
   `);
@@ -147,7 +147,7 @@ test('récupère la LMR dans l autre colonne si besoin', () => {
             "result_kind": "Q",
           },
         ],
-        "sampleReference": "ARA-1234-333",
+        "sampleReference": "ARA-1234-00333",
       },
     ]
   `);
@@ -189,7 +189,7 @@ test('considère <LQ pour les calculs en ND', () => {
             "result_kind": "ND",
           },
         ],
-        "sampleReference": "ARA-1234-333",
+        "sampleReference": "ARA-1234-00333",
       },
     ]
   `);
