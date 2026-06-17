@@ -149,7 +149,7 @@ const getCompliantCopies = (sampleItemCopies: SampleItem[]) =>
       copy.analysis?.compliance === true
   );
 
-export const getNonCompliantCopies = (sampleItemCopies: SampleItem[]) =>
+const getNonCompliantCopies = (sampleItemCopies: SampleItem[]) =>
   sampleItemCopies.filter(
     (copy) =>
       copy.analysis?.status === 'Completed' &&
