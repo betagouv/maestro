@@ -66,7 +66,7 @@ export const inovalysRefClientValidator = z.string().transform((l, ctx) => {
 // Visible for testing
 export const extractAnalyzes = (
   files: InovalysCSVFile[]
-): Omit<ExportAnalysis, 'pdfFile'>[] => {
+): Omit<ExportAnalysis, 'pdfFile'> => {
   const resultatsFile = files.find((f) => f.fileName.endsWith('CO2.csv'));
   if (resultatsFile === undefined) {
     throw new ExtractError('Aucun fichier CSV pour les résultats de trouvé.');
@@ -100,6 +100,11 @@ export const extractAnalyzes = (
   if (samplesData.length === 0) {
     throw new ExtractError(
       `Aucune donnée trouvée dans le fichier d'échantillon`
+    );
+  }
+  if (samplesData.length > 1) {
+    throw new ExtractError(
+      `Un seul échantillon doit être présent dans le fichier d'échantillon, ${samplesData.length} trouvés`
     );
   }
 
@@ -159,61 +164,44 @@ export const extractAnalyzes = (
     );
   }
 
-  const samplesWithResultats = samplesData.reduce<
-    {
-      sample: z.infer<typeof sampleFileValidator>[number];
-      resultats: z.infer<typeof resultatsFileValidator>;
-    }[]
-  >((acc, sample) => {
-    acc.push({
-      sample,
-      resultats: resultatsData.filter(
-        ({ Dossier, Echantillon }) =>
-          Dossier === sample.Dossier && Echantillon === sample.Echant
-      )
-    });
-    return acc;
-  }, []);
+  const sample = samplesData[0];
+  const resultats = resultatsData.filter(
+    ({ Dossier, Echantillon }) =>
+      Dossier === sample.Dossier && Echantillon === sample.Echant
+  );
 
-  const result: Omit<ExportAnalysis, 'pdfFile'>[] = [];
-  for (const sampleWithResultat of samplesWithResultats) {
-    const residues: ExportDataSubstance[] = sampleWithResultat.resultats.map(
-      (r) => {
-        let result: ExportResultQuantifiable | ExportResultNonQuantifiable;
-        if (r['Résultat 1'] === 'ND') {
-          result = { result_kind: 'ND' };
-        } else if (r['Résultat 1'] === '<LQ' || r['Résultat 1'] === 'd<LQ') {
-          const resultKind = r['Code Méth'] === 'CALCUL' ? 'ND' : 'NQ';
-          result = { result_kind: resultKind };
-        } else {
-          result = {
-            result: r['Résultat 1'],
-            result_kind: 'Q',
-            lmr: r['Spécification 1']
-          };
-        }
+  const residues: ExportDataSubstance[] = resultats.map((r) => {
+    let result: ExportResultQuantifiable | ExportResultNonQuantifiable;
+    if (r['Résultat 1'] === 'ND') {
+      result = { result_kind: 'ND' };
+    } else if (r['Résultat 1'] === '<LQ' || r['Résultat 1'] === 'd<LQ') {
+      const resultKind = r['Code Méth'] === 'CALCUL' ? 'ND' : 'NQ';
+      result = { result_kind: resultKind };
+    } else {
+      result = {
+        result: r['Résultat 1'],
+        result_kind: 'Q',
+        lmr: r['Spécification 1']
+      };
+    }
 
-        return {
-          ...result,
-          label: r['Détermination'],
-          casNumber: r['Numéro CAS'] ?? null,
-          codeSandre: r['Code Sandre'] ?? null,
-          analysisMethod: codeMethodsAnalyseMethod[r['Réf Méthode']],
-          analysisDate: r['Date Analyse']
-        };
-      }
-    );
+    return {
+      ...result,
+      label: r['Détermination'],
+      casNumber: r['Numéro CAS'] ?? null,
+      codeSandre: r['Code Sandre'] ?? null,
+      analysisMethod: codeMethodsAnalyseMethod[r['Réf Méthode']],
+      analysisDate: r['Date Analyse']
+    };
+  });
 
-    result.push({
-      sampleReference: sampleWithResultat.sample['Réf Client'].reference,
-      copyNumber: sampleWithResultat.sample['Réf Client'].copyNumber,
-      itemNumber: sampleWithResultat.sample['Réf Client'].itemNumber,
-      notes: sampleWithResultat.sample.Commentaire,
-      residues
-    });
-  }
-
-  return result;
+  return {
+    sampleReference: sample['Réf Client'].reference,
+    copyNumber: sample['Réf Client'].copyNumber,
+    itemNumber: sample['Réf Client'].itemNumber,
+    notes: sample.Commentaire,
+    residues
+  };
 };
 
 type InovalysCSVFile = { fileName: string; content: Record<string, string>[] };
@@ -234,31 +222,23 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
       content: csvToJson(file.content.toString('latin1'), ';')
     };
   });
-  const analyzes = extractAnalyzes(inovalysCSVFiles);
+  const analysis = extractAnalyzes(inovalysCSVFiles);
 
-  const analyzesWithPdf: ExportAnalysis[] = [];
-
-  for (const analysis of analyzes) {
-    const pdfAttachment = attachments.find(
-      ({ contentType, filename }) =>
-        contentType === 'application/pdf' &&
-        filename?.includes(analysis.sampleReference)
+  const pdfAttachments = attachments.filter(
+    ({ contentType }) => contentType === 'application/pdf'
+  );
+  if (pdfAttachments.length !== 1) {
+    throw new ExtractError(
+      `Un seul fichier pdf doit être présent, ${pdfAttachments.length} en PJ`
     );
-
-    if (pdfAttachment === undefined) {
-      throw new ExtractError(
-        `Aucun fichier pdf pour ${analysis.sampleReference}`
-      );
-    }
-
-    const pdfFile: File = new File(
-      [new Uint8Array(pdfAttachment.content)],
-      pdfAttachment.filename ?? ''
-    );
-    analyzesWithPdf.push({ ...analysis, pdfFile });
   }
 
-  return analyzesWithPdf;
+  const pdfFile: File = new File(
+    [new Uint8Array(pdfAttachments[0].content)],
+    pdfAttachments[0].filename ?? ''
+  );
+
+  return [{ ...analysis, pdfFile }];
 };
 
 // Visible for testing

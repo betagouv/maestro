@@ -75,6 +75,30 @@ describe('Parse correctement les fichiers CSV', () => {
     );
   });
 
+  test('Refuse plusieurs échantillons dans le fichier', () => {
+    const sampleRow = {
+      Dossier: 'Dossier1',
+      Echant: 'Echant1',
+      'Réf Client': 'OCC-25-0007-01',
+      Commentaire: '',
+      Conclusion: ''
+    };
+    expect(() =>
+      extractAnalyzes([
+        { fileName: 'FILE_CO2.csv', content: [] },
+        {
+          fileName: 'FILE_CO1.csv',
+          content: [
+            sampleRow,
+            { ...sampleRow, Dossier: 'Dossier2', Echant: 'Echant2' }
+          ]
+        }
+      ])
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Un seul échantillon doit être présent dans le fichier d'échantillon, 2 trouvés]`
+    );
+  });
+
   test('Extrait correctement un rapport d analyses', () => {
     expect(
       extractAnalyzes([
@@ -201,44 +225,42 @@ describe('Parse correctement les fichiers CSV', () => {
         }
       ])
     ).toMatchInlineSnapshot(`
-      [
-        {
-          "copyNumber": 1,
-          "itemNumber": 1,
-          "notes": "Respect de la Directive 2002/63 CE sur les quantités nécessaires ",
-          "residues": [
-            {
-              "analysisDate": "2024-10-23",
-              "analysisMethod": "Multi",
-              "casNumber": "107534-96-3",
-              "codeSandre": "1694",
-              "label": "Tébuconazole",
-              "lmr": 0.2,
-              "result": 0.025,
-              "result_kind": "Q",
-            },
-            {
-              "analysisDate": "2024-10-23",
-              "analysisMethod": "Multi",
-              "casNumber": null,
-              "codeSandre": null,
-              "label": "Prothioconazole : prothioconazole-desthio (somme des isomères)",
-              "result_kind": "NQ",
-            },
-            {
-              "analysisDate": null,
-              "analysisMethod": "Mono",
-              "casNumber": null,
-              "codeSandre": "1951",
-              "label": "Azoxystrobine",
-              "lmr": 0.15,
-              "result": 0.011,
-              "result_kind": "Q",
-            },
-          ],
-          "sampleReference": "OCC-25-0007",
-        },
-      ]
+      {
+        "copyNumber": 1,
+        "itemNumber": 1,
+        "notes": "Respect de la Directive 2002/63 CE sur les quantités nécessaires ",
+        "residues": [
+          {
+            "analysisDate": "2024-10-23",
+            "analysisMethod": "Multi",
+            "casNumber": "107534-96-3",
+            "codeSandre": "1694",
+            "label": "Tébuconazole",
+            "lmr": 0.2,
+            "result": 0.025,
+            "result_kind": "Q",
+          },
+          {
+            "analysisDate": "2024-10-23",
+            "analysisMethod": "Multi",
+            "casNumber": null,
+            "codeSandre": null,
+            "label": "Prothioconazole : prothioconazole-desthio (somme des isomères)",
+            "result_kind": "NQ",
+          },
+          {
+            "analysisDate": null,
+            "analysisMethod": "Mono",
+            "casNumber": null,
+            "codeSandre": "1951",
+            "label": "Azoxystrobine",
+            "lmr": 0.15,
+            "result": 0.011,
+            "result_kind": "Q",
+          },
+        ],
+        "sampleReference": "OCC-25-0007",
+      }
     `);
   });
 });
@@ -338,34 +360,32 @@ test(`un résidu issue d'un calcul avec comme résultat <LQ est redéfini en ND`
       }
     ])
   ).toMatchInlineSnapshot(`
-    [
-      {
-        "copyNumber": 2,
-        "itemNumber": 1,
-        "notes": "Respect de la Directive 2002/63 CE sur les quantités nécessaires ",
-        "residues": [
-          {
-            "analysisDate": "2024-10-23",
-            "analysisMethod": "Multi",
-            "casNumber": "107534-96-3",
-            "codeSandre": "1694",
-            "label": "Tébuconazole",
-            "result_kind": "ND",
-          },
-          {
-            "analysisDate": "2024-10-23",
-            "analysisMethod": "Multi",
-            "casNumber": null,
-            "codeSandre": null,
-            "label": "Prothioconazole : prothioconazole-desthio (somme des isomères)",
-            "lmr": 1,
-            "result": 2,
-            "result_kind": "Q",
-          },
-        ],
-        "sampleReference": "REU-25-00015",
-      },
-    ]
+    {
+      "copyNumber": 2,
+      "itemNumber": 1,
+      "notes": "Respect de la Directive 2002/63 CE sur les quantités nécessaires ",
+      "residues": [
+        {
+          "analysisDate": "2024-10-23",
+          "analysisMethod": "Multi",
+          "casNumber": "107534-96-3",
+          "codeSandre": "1694",
+          "label": "Tébuconazole",
+          "result_kind": "ND",
+        },
+        {
+          "analysisDate": "2024-10-23",
+          "analysisMethod": "Multi",
+          "casNumber": null,
+          "codeSandre": null,
+          "label": "Prothioconazole : prothioconazole-desthio (somme des isomères)",
+          "lmr": 1,
+          "result": 2,
+          "result_kind": "Q",
+        },
+      ],
+      "sampleReference": "REU-25-00015",
+    }
   `);
 });
 // test('Extrait avec des fichiers', () => {
