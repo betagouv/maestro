@@ -761,9 +761,13 @@ const ContextStep = ({ partialSample }: Props) => {
         }}
       />
 
-      {!!programmingSubPlanId && codeNat !== 'PPV' && isOnline && !readonly && (
-        <SampleEmptyFormDownload partialSample={partialSample ?? formData} />
-      )}
+      {!!programmingSubPlanId &&
+        codeNat !== 'PPV' &&
+        !!company &&
+        isOnline &&
+        !readonly && (
+          <SampleEmptyFormDownload partialSample={partialSample ?? formData} />
+        )}
 
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
