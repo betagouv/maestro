@@ -1,7 +1,10 @@
 import type { Department } from 'maestro-shared/referential/Department';
 import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import type { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
-import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
+import {
+  PartialSample,
+  type SampleChecked
+} from 'maestro-shared/schema/Sample/Sample';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
@@ -299,6 +302,25 @@ describe('findUnique', async () => {
     expect(sample?.documentIds).toEqual([document.id]);
 
     await sampleRepository.updateDocumentIds(Sample11Fixture.id, []);
+  });
+});
+
+describe('update', async () => {
+  test('every PartialSample field is either a real column or omitted', async () => {
+    const sample = (await sampleRepository.findUnique(
+      Sample11Fixture.id
+    )) as SampleChecked;
+
+    const completeSample = Object.fromEntries(
+      Object.keys(PartialSample.shape).map((key) => [
+        key,
+        (sample as Record<string, unknown>)[key] ?? null
+      ])
+    ) as unknown as PartialSample;
+
+    await expect(
+      sampleRepository.update(completeSample)
+    ).resolves.toBeUndefined();
   });
 });
 
