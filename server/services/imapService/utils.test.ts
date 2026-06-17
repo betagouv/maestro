@@ -50,4 +50,6 @@ test('frenchNumberStringValidator', () => {
   expect(frenchNumberStringValidator.parse('0,2')).toEqual(0.2);
   expect(frenchNumberStringValidator.parse('4,2')).toEqual(4.2);
   expect(frenchNumberStringValidator.parse('4.2')).toEqual(4.2);
+  expect(frenchNumberStringValidator.parse('')).toBeNull();
+  expect(frenchNumberStringValidator.parse('   ')).toBeNull();
 });

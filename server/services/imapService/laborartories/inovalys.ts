@@ -119,7 +119,7 @@ export const extractAnalyzes = (
         z.literal('ND'),
         z.literal('<LQ'),
         z.literal('d<LQ'),
-        frenchNumberStringValidator
+        frenchNumberStringValidator.transform((v) => v ?? 0)
       ]),
       'Code Sandre': z.string().transform((v) => (v === '' ? null : v)),
       Incertitude: z.string().optional(),

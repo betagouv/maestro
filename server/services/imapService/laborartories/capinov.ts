@@ -40,7 +40,7 @@ export const extractAnalyzes = (
       LOT: capinovCodeEchantillonValidator,
       PARAMETRE_NOM: z.string(),
       RESULTAT_VALTEXTE: z.string(),
-      RESULTAT_VALNUM: frenchNumberStringValidator,
+      RESULTAT_VALNUM: frenchNumberStringValidator.transform((v) => v ?? 0),
       PARAMETRE_LIBELLE: z.string(),
       LIMITE_LQ: z.string(),
       CAS_NUMBER: z.string().transform((r) => (r === '' ? null : r)),
