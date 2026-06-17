@@ -31,6 +31,7 @@ const DocumentTable = ({
       <Table
         noCaption
         headers={['Catégorie', 'Nom', 'Document', 'Actions']}
+        fixed={true}
         data={documents.map((document) => [
           DocumentKindLabels[document.kind],
           <div key={`${document.id}-name`}>
