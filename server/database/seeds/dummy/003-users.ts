@@ -3,6 +3,7 @@ import { CER30Id } from 'maestro-shared/schema/User/User';
 import {
   DAOABovinValidatedSubPlanId,
   DAOAVolailleValidatedSubPlanId,
+  PPVInProgressSubPlanId,
   PPVValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -49,7 +50,7 @@ export const seed = async () => {
       id: NationalCoordinator.id,
       email: 'coordinateur.national@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
-      programmingSubPlanIds: [PPVValidatedSubPlanId],
+      programmingSubPlanIds: [PPVValidatedSubPlanId, PPVInProgressSubPlanId],
       roles: ['NationalCoordinator']
     },
     {

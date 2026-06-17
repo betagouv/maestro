@@ -68,6 +68,7 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
   const [residues, setResidues] = useState(
     (partialAnalysis.residues ?? []).map((residue) => ({
       ...sample,
+      programmingSubPlanCodeNat: programmingSubPlan.codeNat,
       ...residue
     }))
   );
@@ -81,7 +82,11 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
   const changeResidue = (residue: PartialResidue, index: number) => {
     setResidues((r) => {
       const newResidues = [...r];
-      newResidues[index] = { ...sample, ...residue };
+      newResidues[index] = {
+        ...sample,
+        programmingSubPlanCodeNat: programmingSubPlan.codeNat,
+        ...residue
+      };
 
       return newResidues;
     });
@@ -101,6 +106,7 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
         ...r,
         {
           ...sample,
+          programmingSubPlanCodeNat: programmingSubPlan.codeNat,
           analysisId: partialAnalysis.id,
           residueNumber: newResidueNumber,
           resultKind: 'Q',
