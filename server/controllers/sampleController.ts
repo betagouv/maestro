@@ -428,12 +428,15 @@ export const sampleRouter = {
       console.info('Get sample', sample.id);
 
       const sampleItems = await sampleItemRepository.findMany(sample.id);
+      const hasResidueWithInterpretation =
+        await sampleRepository.hasDetectedResidueWithInterpretation(sample.id);
 
       return {
         status: HttpStatus.OK,
         response: {
           ...sample,
-          items: sampleItems
+          items: sampleItems,
+          hasResidueWithInterpretation
         }
       };
     },

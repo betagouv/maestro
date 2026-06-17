@@ -35,7 +35,7 @@ import SampleAgreementOverview from './SampleAgreementOverview';
 import SampleComplianceForm from './SampleComplianceForm';
 import SampleContextOverview from './SampleContextOverview';
 import SampleItemCopiesOverview from './SampleItemCopiesOverview';
-import SampleSeves from './SampleSeves';
+import { SampleSeves } from './SampleSeves';
 import './SampleOverview.scss';
 import { SampleSteps } from 'maestro-shared/schema/Sample/SampleStep';
 
@@ -180,7 +180,7 @@ const SampleOverview = ({ sample }: Props) => {
         subtitle="Consultez le récapitulatif du prélèvement réalisé"
         illustration={food}
       />
-      {hasUserPermission('administrationMaestro') && (
+      {!!config.sevesUrl && hasUserSamplePermission(sample).performAnalysis && (
         <div className={cx('fr-mb-2w')}>
           <SampleSeves sample={sample} />
         </div>
@@ -211,7 +211,6 @@ const SampleOverview = ({ sample }: Props) => {
           }}
         />
       )}
-
       {activeCompliance && hasUserSamplePermission(sample).performAnalysis && (
         <div ref={complianceRef}>
           <SampleComplianceForm
