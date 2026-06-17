@@ -15,7 +15,6 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { useAppSelector } from 'src/hooks/useStore';
-import useWindowSize from 'src/hooks/useWindowSize';
 import './SampleTable.scss';
 import { formatMaestroDate } from 'maestro-shared/utils/date';
 
@@ -29,7 +28,6 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
   const { isOnline } = useOnLine();
 
   const { hasUserPermission, user } = useAuthentication();
-  const { isMobile } = useWindowSize();
 
   const { pendingSamples } = useAppSelector((state) => state.samples);
 
@@ -67,7 +65,8 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
             key={`${sample.id}-cell-${index}`}
             onClick={() => navigateToSample(sample.id)}
             style={{
-              cursor: 'pointer'
+              cursor: 'pointer',
+              ...(index === 0 ? { whiteSpace: 'nowrap' } : {})
             }}
           >
             {cell}
@@ -95,7 +94,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
     <>
       <Table
         noCaption
-        fixed={!isMobile}
+        fixed={false}
         headers={tableHeaders}
         data={tableData}
         className={cx('fr-mb-2w')}

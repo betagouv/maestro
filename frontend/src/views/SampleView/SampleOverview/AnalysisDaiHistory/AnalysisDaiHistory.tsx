@@ -146,6 +146,7 @@ const renderAttemptRow = (
           href={`/prelevements/${group.sample.id}`}
           target="_blank"
           rel="noreferrer"
+          style={{ whiteSpace: 'nowrap' }}
         >
           {group.sample.reference}
         </a>
@@ -295,7 +296,7 @@ export const AnalysisDaiHistory = ({
           noCaption
           bordered
           noScroll
-          fixed={showSampleReference}
+          fixed={false}
           headers={[
             'Analyse',
             'Date',

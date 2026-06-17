@@ -89,9 +89,7 @@ export const AnalysisRaiHistory = ({
 
   const tableData: React.ReactNode[][] = rais.map((rai) => [
     <span key={`${rai.id}-date`}>
-      {format(rai.receivedAt, 'dd/MM/yyyy')}
-      <br />
-      {format(rai.receivedAt, 'HH:mm')}
+      {format(rai.receivedAt, 'dd/MM/yyyy')} {format(rai.receivedAt, 'HH:mm')}
     </span>,
     <span key={`${rai.id}-source`}>
       {rai.source}
@@ -154,6 +152,7 @@ export const AnalysisRaiHistory = ({
               href={`/prelevements/${rai.sample.id}`}
               target="_blank"
               rel="noreferrer"
+              style={{ whiteSpace: 'nowrap' }}
             >
               {rai.sample.reference}
             </a>
@@ -191,7 +190,7 @@ export const AnalysisRaiHistory = ({
           noCaption
           bordered
           noScroll
-          fixed={showSampleReference}
+          fixed={false}
           headers={[
             'Date',
             'Source',
