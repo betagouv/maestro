@@ -59,9 +59,9 @@ const fileValidator = z.array(
     )
 );
 
-const extractAnalyzes = async (
+const extractAnalysis = async (
   fileContent: Buffer
-): Promise<Omit<ExportAnalysis, 'pdfFile'>[]> => {
+): Promise<Omit<ExportAnalysis, 'pdfFile'>> => {
   const workbook: WorkBook = XLSX.read(fileContent, {
     type: 'buffer',
     cellDates: true
@@ -78,59 +78,61 @@ const extractAnalyzes = async (
 
   const data = result.filter((d) => !d.Paramètre.startsWith('Analyse'));
 
-  return [
-    {
-      sampleReference: data[0]['Sample Name'].reference,
-      copyNumber: data[0]['Sample Name'].copyNumber,
-      itemNumber: data[0]['Sample Name'].itemNumber,
-      notes: data[0].Conclusion,
-      residues: data.map((d) => {
-        const analysisMethod =
-          d['Méthode'] || d["Méthode d'analyse"] || d['Numéro (MS)'];
+  return {
+    sampleReference: data[0]['Sample Name'].reference,
+    copyNumber: data[0]['Sample Name'].copyNumber,
+    itemNumber: data[0]['Sample Name'].itemNumber,
+    notes: data[0].Conclusion,
+    residues: data.map((d) => {
+      const analysisMethod =
+        d['Méthode'] || d["Méthode d'analyse"] || d['Numéro (MS)'];
 
-        if (!analysisMethod) {
-          throw new ExtractError("Méthode d'analyse introuvable");
-        }
-        const commonData: Pick<
-          ExportDataSubstance,
-          | 'analysisMethod'
-          | 'codeSandre'
-          | 'casNumber'
-          | 'label'
-          | 'analysisDate'
-        > = {
-          analysisMethod: analysisMethod === 'Mono résidus' ? 'Mono' : 'Multi',
-          codeSandre: null,
-          casNumber: null,
-          label: d.Paramètre,
-          analysisDate: d["Date d'analyse"]
-        };
+      if (!analysisMethod) {
+        throw new ExtractError("Méthode d'analyse introuvable");
+      }
+      const commonData: Pick<
+        ExportDataSubstance,
+        'analysisMethod' | 'codeSandre' | 'casNumber' | 'label' | 'analysisDate'
+      > = {
+        analysisMethod: analysisMethod === 'Mono résidus' ? 'Mono' : 'Multi',
+        codeSandre: null,
+        casNumber: null,
+        label: d.Paramètre,
+        analysisDate: d["Date d'analyse"]
+      };
 
-        const result = z.coerce.number().safeParse(d.Résultat);
+      const result = z.coerce.number().safeParse(d.Résultat);
 
-        if (!result.error) {
-          return {
-            result_kind: 'Q',
-            result: result.data,
-            lmr: d.LMR ?? null,
-            ...commonData
-          };
-        }
-
-        if (d.Résultat.trim().toLowerCase().startsWith('détecté')) {
-          return {
-            result_kind: 'NQ',
-            ...commonData
-          };
-        }
-
+      if (!result.error) {
         return {
-          result_kind: 'ND',
+          result_kind: 'Q',
+          result: result.data,
+          lmr: d.LMR ?? null,
           ...commonData
         };
-      })
-    }
-  ];
+      }
+
+      if (d.Résultat.trim().toLowerCase().startsWith('détecté')) {
+        return {
+          result_kind: 'NQ',
+          ...commonData
+        };
+      }
+
+      return {
+        result_kind: 'ND',
+        ...commonData
+      };
+    })
+  };
+};
+
+// Le seul jeton commun entre le XLS et son PDF est le dernier groupe de
+// chiffres du nom de fichier (ex: "rapport 3266.xls" <-> "B26-R9047-3266.pdf")
+const getFilePairingKey = (filename: string | undefined): string | null => {
+  const basename = (filename ?? '').replace(/\.[^.]+$/, '');
+  const digitGroups = basename.match(/\d+/g);
+  return digitGroups ? digitGroups[digitGroups.length - 1] : null;
 };
 const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
   const xlsFiles = attachments.filter(
@@ -138,26 +140,37 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
       (filename ?? '').endsWith('.xls') || (filename ?? '').endsWith('.xlt')
   );
 
-  if (xlsFiles?.length !== 1) {
-    throw new ExtractError(`1 fichiers XLS doit être présent en PJ`);
+  if (xlsFiles.length === 0) {
+    throw new ExtractError(`Au moins un fichier XLS doit être présent en PJ`);
   }
 
-  const analyzes = await extractAnalyzes(xlsFiles[0].content);
+  const pdfFiles = attachments.filter(
+    ({ contentType, filename }) =>
+      contentType === 'application/pdf' && (filename ?? '').endsWith('.pdf')
+  );
 
+  // un email peut contenir plusieurs analyses : une paire XLS + PDF par analyse
   const analyzesWithPdf: ExportAnalysis[] = [];
 
-  for (const analysis of analyzes) {
-    const pdfAttachment = attachments.find(
-      ({ contentType, filename }) =>
-        contentType === 'application/pdf' && filename?.endsWith('.pdf')
-    );
+  for (const xlsFile of xlsFiles) {
+    const analysis = await extractAnalysis(xlsFile.content);
 
-    if (pdfAttachment === undefined) {
+    const matchingPdfs =
+      xlsFiles.length === 1 && pdfFiles.length === 1
+        ? pdfFiles
+        : pdfFiles.filter(
+            ({ filename }) =>
+              getFilePairingKey(filename) ===
+              getFilePairingKey(xlsFile.filename)
+          );
+
+    if (matchingPdfs.length !== 1) {
       throw new ExtractError(
-        `Aucun fichier pdf pour ${analysis.sampleReference}`
+        `Impossible d'associer un unique fichier PDF à l'analyse ${analysis.sampleReference} (${xlsFile.filename ?? ''})`
       );
     }
 
+    const pdfAttachment = matchingPdfs[0];
     const pdfFile: File = new File(
       [new Uint8Array(pdfAttachment.content)],
       pdfAttachment.filename ?? ''
