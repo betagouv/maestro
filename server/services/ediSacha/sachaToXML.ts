@@ -158,7 +158,8 @@ export const getZipFileName = (
   dateNow: number
 ): string => {
   const currentDate: string = formatWithTz(dateNow, 'yyMMddHHmm');
-  return `${fileType}${sigle}${currentDate}_1.zip`;
+  const orderNumber: string = formatWithTz(dateNow, 'ssSSS');
+  return `${fileType}${sigle}${currentDate}_${orderNumber}.zip`;
 };
 
 export const getSenderSachaSigle = (
