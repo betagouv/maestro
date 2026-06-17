@@ -30,6 +30,7 @@ export const SampleAnalysisOverview: FunctionComponent<Props> = ({
 
   const residues = analysis.residues?.map((r) => ({
     ...omit(sample, 'compliance'),
+    programmingSubPlanCodeNat: programmingSubPlan.codeNat,
     ...r
   }));
 
