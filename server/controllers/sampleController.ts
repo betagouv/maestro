@@ -45,6 +45,7 @@ import { sampleRepository } from '../repositories/sampleRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
+import { padReferenceSerial } from '../services/imapService/utils';
 import { pdfService } from '../services/pdfService/pdfService';
 import { supportDocumentProcessor } from '../services/supportDocumentProcessor';
 
@@ -102,7 +103,7 @@ export const getNewReference = async (
     currentYear
   );
 
-  return `${Regions[region].shortName}-${currentYear - 2000}-${String(serial).padStart(currentYear < 2026 ? 4 : 5, '0')}`;
+  return `${Regions[region].shortName}-${currentYear - 2000}-${padReferenceSerial(currentYear, serial)}`;
 };
 
 export const sampleRouter = {

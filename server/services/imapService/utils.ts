@@ -19,13 +19,20 @@ export const frenchNumberStringValidator = z
   .transform((val) => Number(`${val}`.replace(',', '.')))
   .pipe(z.number());
 
+export const padReferenceSerial = (
+  year: number,
+  serial: number | string
+): string => String(serial).padStart(year < 2026 ? 4 : 5, '0');
+
 export const parseSampleReference = (
   input: string
 ): { reference: string; copyNumber: number; itemNumber: number } | null => {
   const parts = input.split('-');
   if (parts.length < 3) return null;
 
-  const reference = parts.slice(0, 3).join('-');
+  const [shortName, yearPart, serialPart] = parts;
+  const year = 2000 + Number.parseInt(yearPart, 10);
+  const reference = `${shortName}-${yearPart}-${padReferenceSerial(year, serialPart)}`;
   const tail = parts.slice(3).join(''); // "", "2", "A2", "A" (letter+copy collapsed)
 
   const match = tail.match(/^([A-Z])?(\d*)$/);
