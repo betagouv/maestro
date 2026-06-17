@@ -115,6 +115,45 @@ test('exportDataFromEmail', async () => {
   });
 });
 
+test('exportDataFromEmail avec plusieurs analyses', async () => {
+  const xls3266 = readFileSync(
+    path.join(import.meta.dirname, './rapport-3266.xls')
+  );
+  const xls3267 = readFileSync(
+    path.join(import.meta.dirname, './rapport-3267.xls')
+  );
+  const result = await cerecoConf.exportDataFromEmail([
+    { filename: 'rapport 3266.xls', content: xls3266, contentType: '' },
+    { filename: 'rapport 3267.xls', content: xls3267, contentType: '' },
+    {
+      filename: 'B26-R9047-3266.pdf',
+      content: Buffer.from('pdf-3266'),
+      contentType: 'application/pdf'
+    },
+    {
+      filename: 'B26-R9047-3267.pdf',
+      content: Buffer.from('pdf-3267'),
+      contentType: 'application/pdf'
+    },
+    {
+      filename: 'image001.png',
+      content: Buffer.from('signature'),
+      contentType: 'image/png'
+    }
+  ]);
+
+  expect(result).toHaveLength(2);
+  expect(
+    result.map((a) => ({
+      sampleReference: a.sampleReference,
+      pdf: a.pdfFile.name
+    }))
+  ).toStrictEqual([
+    { sampleReference: 'LAB-99-00001', pdf: 'B26-R9047-3266.pdf' },
+    { sampleReference: 'LAB-99-00002', pdf: 'B26-R9047-3267.pdf' }
+  ]);
+});
+
 type CerecoRef = z.infer<typeof cerecoRefValidator>;
 test.each<[string, CerecoRef]>([
   [
