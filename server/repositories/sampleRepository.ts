@@ -593,7 +593,8 @@ export const formatPartialSample = (
     'documentIds',
     'specificData',
     'status',
-    'seves'
+    'seves',
+    'hasResidueWithInterpretation'
   ]),
   geolocation: partialSample.geolocation
     ? db.raw('Point(?, ?)', [
