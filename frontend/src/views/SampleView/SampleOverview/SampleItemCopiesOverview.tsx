@@ -9,7 +9,6 @@ import { isNil } from 'lodash-es';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import {
   getItemStatus,
-  getNonCompliantCopies,
   isItemAchieved,
   isItemCompliant,
   type SampleItem
