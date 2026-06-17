@@ -114,7 +114,7 @@ const SampleOverview = ({ sample }: Props) => {
                 'NotAdmissible'
           )
     );
-  }, [programmingSubPlan, sample.status]);
+  }, [programmingSubPlan, sample]);
 
   const sampleItemCopies = useCallback(
     (itemNumber: number) =>
