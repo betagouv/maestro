@@ -24,10 +24,10 @@ import {
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
+import { ContaminationSourceLabels } from 'maestro-shared/schema/Analysis/Residue/ContaminationSource';
 import { ResidueComplianceLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { ResultKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
-import { ContaminationSourceLabels } from 'maestro-shared/schema/analysis/Residue/ContaminationSource';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { LaboratoryAgreement } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import type { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
