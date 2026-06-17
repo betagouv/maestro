@@ -6,6 +6,11 @@ import {
   OptionalBooleanLabels,
   OptionalBooleanList
 } from 'maestro-shared/referential/OptionnalBoolean';
+import {
+  type ContaminationSource,
+  ContaminationSourceLabels,
+  ContaminationSourceList
+} from 'maestro-shared/schema/Analysis/Residue/ContaminationSource';
 import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import {
   type ResidueCompliance,
@@ -15,6 +20,7 @@ import {
 import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
+import { AppMultiSelect } from '../../../../components/_app/AppMultiSelect/AppMultiSelect';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
 import AppSelect from '../../../../components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from '../../../../components/_app/AppSelect/AppSelectOption';
@@ -140,45 +146,56 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
                 required
               />
               <hr />
-              <AppSelect
-                className={cx('fr-mb-0')}
-                value={residue.pollutionRisk ?? ''}
-                options={selectOptionsFromList(OptionalBooleanList, {
-                  labels: OptionalBooleanLabels
-                })}
-                onChange={(e) =>
-                  onChangeResidue(
-                    {
-                      ...residue,
-                      pollutionRisk: e.target.value as OptionalBoolean
-                    },
-                    residueIndex
-                  )
-                }
-                inputForm={form}
-                inputKey="residues"
-                inputPathFromKey={[residueIndex, 'pollutionRisk']}
-                whenValid="Valeur correctement renseignée"
-                label="Pollution environnementale probable"
-              />
-              <AppTextInput
-                className={cx('fr-mb-0')}
-                value={residue.notesOnPollutionRisk ?? ''}
-                onChange={(e) =>
-                  onChangeResidue(
-                    {
-                      ...residue,
-                      notesOnPollutionRisk: e.target.value
-                    },
-                    residueIndex
-                  )
-                }
-                inputForm={form}
-                inputKey="residues"
-                inputPathFromKey={[residueIndex, 'notesOnPollutionRisk']}
-                whenValid="Note interne correctement renseignée"
-                label="Note interne"
-              />
+              <div>
+                <AppMultiSelect
+                  values={residue.contaminationSources ?? []}
+                  onChange={(values) =>
+                    onChangeResidue(
+                      {
+                        ...residue,
+                        contaminationSources: values as ContaminationSource[]
+                      },
+                      residueIndex
+                    )
+                  }
+                  items={ContaminationSourceList}
+                  keysWithLabels={ContaminationSourceLabels}
+                  defaultLabel="source sélectionnée"
+                  defaultEmptyLabel="Sélectionner une source"
+                  withSort={false}
+                  inputForm={form}
+                  inputKey="residues"
+                  inputPathFromKey={[residueIndex, 'contaminationSources']}
+                  whenValid="Sources correctement renseignées"
+                  label="Source(s) de contamination"
+                />
+                {residue.contaminationSources &&
+                  residue.contaminationSources.length > 0 && (
+                    <AppTextAreaInput
+                      defaultValue={residue.notesOnContaminationSources ?? ''}
+                      onChange={(e) =>
+                        onChangeResidue(
+                          {
+                            ...residue,
+                            notesOnContaminationSources: e.target.value
+                          },
+                          residueIndex
+                        )
+                      }
+                      rows={1}
+                      inputForm={form}
+                      inputKey="residues"
+                      inputPathFromKey={[
+                        residueIndex,
+                        'notesOnContaminationSources'
+                      ]}
+                      whenValid="Informations correctement renseignées"
+                      label="Informations / Compléments"
+                      hintText="Champ obligatoire en cas de sélection d'une ou plusieurs sources de contamination"
+                      required
+                    />
+                  )}
+              </div>
             </>
           )}
         </div>

@@ -10,6 +10,7 @@ import { checkSchema } from '../../../utils/zod';
 import { SampleBase } from '../../Sample/Sample';
 import { AnalysisMethod } from '../AnalysisMethod';
 import { Analyte, PartialAnalyte } from '../Analyte';
+import { ContaminationSource } from './ContaminationSource';
 import { ResidueCompliance } from './ResidueCompliance';
 import { ResultKind } from './ResultKind';
 
@@ -30,7 +31,9 @@ const ResidueBase = z.object({
   notesOnPollutionRisk: z.string().nullish(),
   compliance: ResidueCompliance,
   otherCompliance: z.string().nullish(),
-  analytes: z.array(Analyte).nullish()
+  analytes: z.array(Analyte).nullish(),
+  contaminationSources: z.array(ContaminationSource).nullish(),
+  notesOnContaminationSources: z.string().nullish()
 });
 
 const sampleResidueCheck: CheckFn<z.infer<typeof ResidueBase>> = (ctx) => {
@@ -63,6 +66,20 @@ const sampleResidueCheck: CheckFn<z.infer<typeof ResidueBase>> = (ctx) => {
       code: 'custom',
       message: 'Veuillez préciser au moins une analyte pour ce résidu complexe',
       path: ['analytes']
+    });
+  }
+
+  if (
+    ctx.value.contaminationSources &&
+    ctx.value.contaminationSources.length > 0 &&
+    !ctx.value.notesOnContaminationSources
+  ) {
+    ctx.issues.push({
+      input: ctx.value,
+      code: 'custom',
+      message:
+        'Veuillez renseigner les informations / compléments relatifs aux sources de contamination.',
+      path: ['notesOnContaminationSources']
     });
   }
 };

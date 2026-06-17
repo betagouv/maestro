@@ -8,6 +8,7 @@ import { OptionalBooleanLabels } from 'maestro-shared/referential/OptionnalBoole
 import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
+import { ContaminationSourceLabels } from 'maestro-shared/schema/Analysis/Residue/ContaminationSource';
 import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { ResidueComplianceLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import {
@@ -18,7 +19,7 @@ import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/
 import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import ResidueResultAlert from '../../../../components/ResidueResultAlert/ResidueResultAlert';
-import { quote } from '../../../../utils/stringUtils';
+import { pluralize, quote } from '../../../../utils/stringUtils';
 import {
   ResidueComplianceColor,
   ResidueComplianceIcon
@@ -132,19 +133,42 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
                   : 'Non renseigné'}
               </b>
             </div>
-            <div className={'result-with-comment'}>
-              {residue.pollutionRisk && (
+            {residue.pollutionRisk && (
+              <div className={'result-with-comment'}>
                 <div className="d-flex-align-center">
                   Pollution environnementale probable
                   <b className={'fr-ml-auto'}>
                     {OptionalBooleanLabels[residue.pollutionRisk]}
                   </b>
                 </div>
+                {residue.notesOnPollutionRisk && (
+                  <i>{quote(residue.notesOnPollutionRisk)}</i>
+                )}
+              </div>
+            )}
+            {residue.contaminationSources &&
+              residue.contaminationSources.length > 0 && (
+                <div>
+                  <div className={cx('fr-mb-1w')}>
+                    {pluralize(residue.contaminationSources.length)('Source')}{' '}
+                    de contamination
+                  </div>
+                  <div>
+                    {residue.contaminationSources.map((source) => (
+                      <Tag
+                        key={source}
+                        small={true}
+                        className={cx('fr-mr-1w', 'fr-mb-1w')}
+                      >
+                        {ContaminationSourceLabels[source]}
+                      </Tag>
+                    ))}
+                  </div>
+                  {residue.notesOnContaminationSources && (
+                    <i>{quote(residue.notesOnContaminationSources)}</i>
+                  )}
+                </div>
               )}
-              {residue.notesOnPollutionRisk && (
-                <i>{quote(residue.notesOnPollutionRisk)}</i>
-              )}
-            </div>
           </>
         )}
       </div>

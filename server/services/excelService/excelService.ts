@@ -24,6 +24,7 @@ import {
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
+import { ContaminationSourceLabels } from 'maestro-shared/schema/Analysis/Residue/ContaminationSource';
 import { ResidueComplianceLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import { ResidueKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
 import { ResultKindLabels } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
@@ -151,6 +152,8 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
       substanceAuthorised: string;
       pollutionRisk: string;
       notesOnPollutionRisk: string;
+      contaminationSources: string;
+      notesOnContaminationSources: string;
       compliance: string;
       complianceCode: string;
       otherCompliance: string;
@@ -348,6 +351,10 @@ const generateSamplesExportExcel = async (
             substanceAuthorised: optionalBooleanToString(r.substanceAuthorised),
             pollutionRisk: optionalBooleanToString(r.pollutionRisk),
             notesOnPollutionRisk: r.notesOnPollutionRisk,
+            contaminationSources: r.contaminationSources
+              ?.map((cs) => ContaminationSourceLabels[cs])
+              .join(', '),
+            notesOnContaminationSources: r.notesOnContaminationSources,
             compliance: r.compliance
               ? ResidueComplianceLabels[r.compliance]
               : undefined,
