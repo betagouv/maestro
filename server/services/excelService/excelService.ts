@@ -122,6 +122,7 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
     laboratoryCode: string | null;
     compliance200263: string;
     compliance: string;
+    notesOnCompliance: string;
     receiptDate: string | null;
     notesOnAdmissibility: string | null;
     shippingDate: string | null;
@@ -309,6 +310,7 @@ const generateSamplesExportExcel = async (
               ? 'Oui'
               : 'Non'
             : '',
+          notesOnCompliance: analysis?.notesOnCompliance,
           receiptDate: formatMaestroDate(item.receiptDate),
           notesOnAdmissibility: item.notesOnAdmissibility,
           shippingDate: formatMaestroDate(item.shippingDate),

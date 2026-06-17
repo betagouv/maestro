@@ -74,22 +74,22 @@ const SampleItemCopiesOverview = ({
       </div>
       {isItemAchieved(sampleItemCopies) && (
         <div className="d-flex-align-center">
-          {isItemCompliant(sampleItemCopies) ? (
-            <Badge severity="success" className={'fr-px-1w'}>
-              Échantillon conforme
-            </Badge>
-          ) : (
-            <div>
+          <div>
+            {isItemCompliant(sampleItemCopies) ? (
+              <Badge severity="success" className={'fr-px-1w'}>
+                Échantillon conforme
+              </Badge>
+            ) : (
               <Badge severity="error" className={'fr-px-1w'}>
                 Échantillon non conforme
               </Badge>
-              <div className={cx('fr-text--sm', 'fr-mb-0')}>
-                {getNonCompliantCopies(sampleItemCopies)
-                  .filter((_) => !isNil(_.analysis?.notesOnCompliance))
-                  .map((_) => quote(_.analysis?.notesOnCompliance as string))}
-              </div>
+            )}
+            <div className={cx('fr-text--sm', 'fr-mb-0')}>
+              {sampleItemCopies
+                .filter((_) => !isNil(_.analysis?.notesOnCompliance))
+                .map((_) => quote(_.analysis?.notesOnCompliance as string))}
             </div>
-          )}
+          </div>
           {hasUserSamplePermission(sample).performAnalysis &&
             sampleItemCopies.filter((_) => !isNil(_.analysis)).length > 1 && (
               <Button
