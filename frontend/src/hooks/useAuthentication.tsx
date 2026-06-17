@@ -95,9 +95,17 @@ export const useAuthentication = () => {
   );
 
   const hasUserSamplePermission = useCallback(
-    (sample: SampleChecked): Record<SamplePermission, boolean> =>
+    (
+      sample: SampleChecked,
+      analysisPermissionRole?: UserRole | null
+    ): Record<SamplePermission, boolean> =>
       !isNil(authUser?.user) && !isNil(authUser?.userRole)
-        ? hasSamplePermission(authUser.user, authUser.userRole, sample)
+        ? hasSamplePermission(
+            authUser.user,
+            authUser.userRole,
+            sample,
+            analysisPermissionRole
+          )
         : {
             performAnalysis: false
           },

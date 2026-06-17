@@ -32,7 +32,18 @@ export const analysisRouter = {
         userRole
       );
 
-      if (!hasSamplePermission(user, userRole, sample)['performAnalysis']) {
+      const subPlan = await programmingSubPlanRepository.findUnique(
+        sample.programmingSubPlanId
+      );
+
+      if (
+        !hasSamplePermission(
+          user,
+          userRole,
+          sample,
+          subPlan?.analysisPermissionRole
+        )['performAnalysis']
+      ) {
         return { status: HttpStatus.FORBIDDEN };
       }
 
@@ -67,7 +78,18 @@ export const analysisRouter = {
 
       const sample = await getAndCheckSample(analysis.sampleId, user, userRole);
 
-      if (!hasSamplePermission(user, userRole, sample)['performAnalysis']) {
+      const subPlan = await programmingSubPlanRepository.findUnique(
+        sample.programmingSubPlanId
+      );
+
+      if (
+        !hasSamplePermission(
+          user,
+          userRole,
+          sample,
+          subPlan?.analysisPermissionRole
+        )['performAnalysis']
+      ) {
         return { status: HttpStatus.FORBIDDEN };
       }
 
@@ -115,9 +137,6 @@ export const analysisRouter = {
       };
       await analysisRepository.update(updatedAnalysis);
 
-      const subPlan = await programmingSubPlanRepository.findUnique(
-        sample.programmingSubPlanId
-      );
       if (subPlan?.codeNat === 'PPV') {
         await sampleRepository.update({
           ...sample,

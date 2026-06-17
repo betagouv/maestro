@@ -181,11 +181,15 @@ const SampleOverview = ({ sample }: Props) => {
         subtitle="Consultez le récapitulatif du prélèvement réalisé"
         illustration={food}
       />
-      {!!config.sevesUrl && hasUserSamplePermission(sample).performAnalysis && (
-        <div className={cx('fr-mb-2w')}>
-          <SampleSeves sample={sample} />
-        </div>
-      )}
+      {!!config.sevesUrl &&
+        hasUserSamplePermission(
+          sample,
+          programmingSubPlan?.analysisPermissionRole
+        ).performAnalysis && (
+          <div className={cx('fr-mb-2w')}>
+            <SampleSeves sample={sample} />
+          </div>
+        )}
       {isSendingSuccess && sample.status !== 'InReview' && (
         <Alert
           severity="info"
@@ -212,20 +216,24 @@ const SampleOverview = ({ sample }: Props) => {
           }}
         />
       )}
-      {activeCompliance && hasUserSamplePermission(sample).performAnalysis && (
-        <div ref={complianceRef}>
-          <SampleComplianceForm
-            sample={sample}
-            onChangeCompliance={async (complianceData) => {
-              await updateSampleCompliance({
-                sampleId: sample.id,
-                ...complianceData
-              });
-              setActiveCompliance(false);
-            }}
-          />
-        </div>
-      )}
+      {activeCompliance &&
+        hasUserSamplePermission(
+          sample,
+          programmingSubPlan?.analysisPermissionRole
+        ).performAnalysis && (
+          <div ref={complianceRef}>
+            <SampleComplianceForm
+              sample={sample}
+              onChangeCompliance={async (complianceData) => {
+                await updateSampleCompliance({
+                  sampleId: sample.id,
+                  ...complianceData
+                });
+                setActiveCompliance(false);
+              }}
+            />
+          </div>
+        )}
       <div className="white-container">
         <div className={clsx('d-flex-align-start', cx('fr-m-3w'))}>
           <SideMenu
@@ -347,7 +355,10 @@ const SampleOverview = ({ sample }: Props) => {
                   }
                 : undefined,
               programmingSubPlan?.codeNat !== 'PPV' &&
-              hasUserSamplePermission(sample).performAnalysis
+              hasUserSamplePermission(
+                sample,
+                programmingSubPlan?.analysisPermissionRole
+              ).performAnalysis
                 ? {
                     text: (
                       <div
@@ -391,6 +402,9 @@ const SampleOverview = ({ sample }: Props) => {
                 itemNumber={activeItemNumber}
                 sampleItemCopies={sampleItemCopies(activeItemNumber)}
                 sample={sample}
+                analysisPermissionRole={
+                  programmingSubPlan?.analysisPermissionRole
+                }
               />
             )}
             {activeMenu === 'matrix' && (

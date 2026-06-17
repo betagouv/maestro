@@ -306,10 +306,19 @@ export const sampleRouter = {
         throw new SampleItemMissingError(sampleId, itemNumber, copyNumber);
       }
 
+      const subPlan = await programmingSubPlanRepository.findUnique(
+        sample.programmingSubPlanId
+      );
+
       if (
         (itemUpdate.updateKey === 'analysis' ||
           itemUpdate.updateKey === 'billing') &&
-        !hasSamplePermission(user, userRole, sample)['performAnalysis']
+        !hasSamplePermission(
+          user,
+          userRole,
+          sample,
+          subPlan?.analysisPermissionRole
+        )['performAnalysis']
       ) {
         return { status: HttpStatus.FORBIDDEN };
       }

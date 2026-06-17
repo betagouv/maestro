@@ -322,10 +322,10 @@ export const hasSamplePermission = (
   user: Pick<UserBase, 'region'>,
   userRole: UserRole,
   sample: Pick<SampleBase, 'region'>,
-  analysisPermissionRole?: string | null
+  analysisPermissionRole?: UserRole | null
 ): Record<SamplePermission, boolean> => ({
   performAnalysis:
     hasPermission(userRole, 'performAnalysis') &&
     sample.region === user.region &&
-    (!analysisPermissionRole || analysisPermissionRole === userRole)
+    analysisPermissionRole === userRole
 });

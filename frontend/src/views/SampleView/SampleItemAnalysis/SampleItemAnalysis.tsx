@@ -145,7 +145,8 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
   );
 
   const isEditing: boolean =
-    hasUserSamplePermission(sample).performAnalysis &&
+    hasUserSamplePermission(sample, programmingSubPlan?.analysisPermissionRole)
+      .performAnalysis &&
     (location.pathname.endsWith('/edit') ||
       sampleItem.analysis?.status !== 'Completed');
 
@@ -162,7 +163,12 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
       <div>
         <SampleItemAdmissibility
           sample={sample}
-          readonly={!hasUserSamplePermission(sample).performAnalysis}
+          readonly={
+            !hasUserSamplePermission(
+              sample,
+              programmingSubPlan?.analysisPermissionRole
+            ).performAnalysis
+          }
           sampleItem={sampleItem}
         />
         {analysis?.status !== 'NotAdmissible' && (
@@ -272,7 +278,12 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 state={billingForm.messageType('invoicingDate')}
                 stateRelatedMessage={billingForm.message('invoicingDate')}
                 whenValid="Date de facturation correctement renseignée."
-                disabled={!hasUserSamplePermission(sample).performAnalysis}
+                disabled={
+                  !hasUserSamplePermission(
+                    sample,
+                    programmingSubPlan?.analysisPermissionRole
+                  ).performAnalysis
+                }
               />
             </div>
             <div className={cx('fr-col-4')}>
@@ -293,7 +304,12 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 inputForm={billingForm}
                 inputKey="paid"
                 whenValid="Statut de paiement correctement renseigné."
-                disabled={!hasUserSamplePermission(sample).performAnalysis}
+                disabled={
+                  !hasUserSamplePermission(
+                    sample,
+                    programmingSubPlan?.analysisPermissionRole
+                  ).performAnalysis
+                }
               />
             </div>
             <div className={cx('fr-col-4')}>
@@ -312,7 +328,12 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 state={billingForm.messageType('paidDate')}
                 stateRelatedMessage={billingForm.message('paidDate')}
                 whenValid="Date de paiement correctement renseignée."
-                disabled={!hasUserSamplePermission(sample).performAnalysis}
+                disabled={
+                  !hasUserSamplePermission(
+                    sample,
+                    programmingSubPlan?.analysisPermissionRole
+                  ).performAnalysis
+                }
               />
             </div>
           </div>
@@ -333,7 +354,12 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 state={billingForm.messageType('invoiceNumber')}
                 stateRelatedMessage={billingForm.message('invoiceNumber')}
                 whenValid="Numéro de facture correctement renseigné."
-                disabled={!hasUserSamplePermission(sample).performAnalysis}
+                disabled={
+                  !hasUserSamplePermission(
+                    sample,
+                    programmingSubPlan?.analysisPermissionRole
+                  ).performAnalysis
+                }
               />
             </div>
             <div className={cx('fr-col-8')}>
@@ -352,7 +378,12 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
                 state={billingForm.messageType('budgetNotes')}
                 stateRelatedMessage={billingForm.message('budgetNotes')}
                 whenValid="Notes budgétaires correctement renseignées."
-                disabled={!hasUserSamplePermission(sample).performAnalysis}
+                disabled={
+                  !hasUserSamplePermission(
+                    sample,
+                    programmingSubPlan?.analysisPermissionRole
+                  ).performAnalysis
+                }
               />
             </div>
           </div>
@@ -377,7 +408,12 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
           <SampleAnalysisOverview
             sample={sample}
             analysis={analysis}
-            readonly={!hasUserSamplePermission(sample).performAnalysis}
+            readonly={
+              !hasUserSamplePermission(
+                sample,
+                programmingSubPlan?.analysisPermissionRole
+              ).performAnalysis
+            }
             onEdit={() => navigateToSampleEdit(sample.id)}
             programmingSubPlan={programmingSubPlan}
           />
