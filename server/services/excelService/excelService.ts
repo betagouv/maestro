@@ -200,187 +200,179 @@ const generateSamplesExportExcel = async (
     return fieldConfigsCache.get(programmingSubPlanId)!;
   };
 
-  const samplesData: SamplesExportExcelData[] = await Promise.all(
-    samples.map(async (sample) => {
-      const fieldConfigs = await getFieldConfigs(sample.programmingSubPlanId);
+  const samplesData: SamplesExportExcelData[] = [];
+  for (const sample of samples) {
+    const fieldConfigs = await getFieldConfigs(sample.programmingSubPlanId);
 
-      const items = await sampleItemRepository.findMany(sample.id);
-      const itemsWithAnalysis = await Promise.all(
-        items.map(async (item) => {
-          const analysis = await analysisRepository.findUnique({
-            sampleId: sample.id,
-            itemNumber: item.itemNumber,
-            copyNumber: item.copyNumber
-          });
-          return { ...item, analysis };
-        })
-      );
+    const items = await sampleItemRepository.findMany(sample.id);
+    const itemsWithAnalysis = [];
+    for (const item of items) {
+      const analysis = await analysisRepository.findUnique({
+        sampleId: sample.id,
+        itemNumber: item.itemNumber,
+        copyNumber: item.copyNumber
+      });
+      itemsWithAnalysis.push({ ...item, analysis });
+    }
 
-      const matrixPartField = fieldConfigs.find(
-        (c) => c.field.key === 'matrixPart'
-      )?.field;
-      const data: SamplesExportExcelData = {
-        reference: sample.reference,
-        department: sample.department,
-        sampler: `${sample.sampler.name}`,
-        sampledAt: sample.sampledDate
-          ? `${formatMaestroDate(sample.sampledDate)} ${sample.sampledTime}`
-          : '',
-        status: SampleStatusLabels[sample.status],
-        statusCode: sample.status,
-        sentAt: sample.sentAt
-          ? formatWithTz(
-              sample.sentAt,
-              'dd/MM/yyyy HH:mm',
-              Regions[sample.region].timezone
-            )
-          : '',
-        latitude: sample.geolocation?.x,
-        longitude: sample.geolocation?.y,
-        parcel: sample.parcel,
-        context: sample.context ? ContextLabels[sample.context] : undefined,
-        contextCode: sample.context,
-        legalContext: sample.legalContext
-          ? LegalContextLabels[sample.legalContext]
+    const matrixPartField = fieldConfigs.find(
+      (c) => c.field.key === 'matrixPart'
+    )?.field;
+    const data: SamplesExportExcelData = {
+      reference: sample.reference,
+      department: sample.department,
+      sampler: `${sample.sampler.name}`,
+      sampledAt: sample.sampledDate
+        ? `${formatMaestroDate(sample.sampledDate)} ${sample.sampledTime}`
+        : '',
+      status: SampleStatusLabels[sample.status],
+      statusCode: sample.status,
+      sentAt: sample.sentAt
+        ? formatWithTz(
+            sample.sentAt,
+            'dd/MM/yyyy HH:mm',
+            Regions[sample.region].timezone
+          )
+        : '',
+      latitude: sample.geolocation?.x,
+      longitude: sample.geolocation?.y,
+      parcel: sample.parcel,
+      context: sample.context ? ContextLabels[sample.context] : undefined,
+      contextCode: sample.context,
+      legalContext: sample.legalContext
+        ? LegalContextLabels[sample.legalContext]
+        : undefined,
+      legalContextCode: sample.legalContext,
+      company: sample.company?.name,
+      companyAddress: [
+        sample.company?.address,
+        [sample.company?.postalCode, sample.company?.city].join(' ')
+      ].join('\n'),
+      companySiret: sample.company?.siret,
+      resytalId: sample.resytalId,
+      notesOnCreation: sample.notesOnCreation,
+      matrix: sample.matrix ? getSampleMatrixLabel(sample) : undefined,
+      matrixCode: sample.matrix,
+      matrixPart: matrixPartField
+        ? (getFieldValueLabel(
+            matrixPartField,
+            sample.specificData['matrixPart']
+          ) ?? '')
+        : '',
+      stage: sample.stage ? StageLabels[sample.stage] : undefined,
+      stageCode: sample.stage,
+      specificData: fieldConfigs.map((fc) => {
+        const rawValue = sample.specificData[fc.field.key];
+        const value = getFieldValueLabel(fc.field, rawValue);
+        return {
+          key: fc.field.key,
+          label: fc.field.label,
+          value,
+          code: rawValue !== value ? (rawValue as string) : undefined
+        };
+      }),
+      notesOnMatrix: sample.notesOnMatrix,
+      notesOnItems: sample.notesOnItems,
+      items: itemsWithAnalysis.map(({ analysis, ...item }) => ({
+        sampleReference: sample.reference,
+        itemNumber: item.itemNumber,
+        copyNumber: item.copyNumber,
+        quantity: item.quantity,
+        quantityUnit: item.quantityUnit
+          ? QuantityUnitLabels[item.quantityUnit]
           : undefined,
-        legalContextCode: sample.legalContext,
-        company: sample.company?.name,
-        companyAddress: [
-          sample.company?.address,
-          [sample.company?.postalCode, sample.company?.city].join(' ')
-        ].join('\n'),
-        companySiret: sample.company?.siret,
-        resytalId: sample.resytalId,
-        notesOnCreation: sample.notesOnCreation,
-        matrix: sample.matrix ? getSampleMatrixLabel(sample) : undefined,
-        matrixCode: sample.matrix,
-        matrixPart: matrixPartField
-          ? (getFieldValueLabel(
-              matrixPartField,
-              sample.specificData['matrixPart']
-            ) ?? '')
+        quantityUnitCode: item.quantityUnit,
+        sealId: item.sealId,
+        recipient:
+          item.recipientKind &&
+          (item.recipientKind === 'Laboratory'
+            ? 'Laboratoire ' +
+              laboratories.find((lab) => lab.id === item.laboratoryId)?.name
+            : SampleItemRecipientKindLabels[item.recipientKind]),
+        laboratoryCode:
+          item.recipientKind === 'Laboratory'
+            ? laboratories.find((lab) => lab.id === item.laboratoryId)
+                ?.shortName
+            : null,
+        compliance200263: item.compliance200263 ? 'Oui' : 'Non',
+        compliance: isDefinedAndNotNull(analysis?.compliance)
+          ? analysis?.compliance
+            ? 'Oui'
+            : 'Non'
           : '',
-        stage: sample.stage ? StageLabels[sample.stage] : undefined,
-        stageCode: sample.stage,
-        specificData: fieldConfigs.map((fc) => {
-          const rawValue = sample.specificData[fc.field.key];
-          const value = getFieldValueLabel(fc.field, rawValue);
-          return {
-            key: fc.field.key,
-            label: fc.field.label,
-            value,
-            code: rawValue !== value ? (rawValue as string) : undefined
-          };
-        }),
-        notesOnMatrix: sample.notesOnMatrix,
-        notesOnItems: sample.notesOnItems,
-        items: itemsWithAnalysis.map(({ analysis, ...item }) => ({
+        notesOnCompliance: analysis?.notesOnCompliance,
+        receiptDate: formatMaestroDate(item.receiptDate),
+        notesOnAdmissibility: item.notesOnAdmissibility,
+        shippingDate: formatMaestroDate(item.shippingDate),
+        destructionDate: formatMaestroDate(item.destructionDate),
+        carrier: item.carrier,
+        invoicingDate: formatMaestroDate(item.invoicingDate),
+        paid: item.paid ? 'Oui' : 'Non',
+        paidDate: formatMaestroDate(item.paidDate),
+        invoiceNumber: item.invoiceNumber,
+        budgetNotes: item.budgetNotes,
+        residues: (analysis?.residues ?? []).map((r) => ({
           sampleReference: sample.reference,
           itemNumber: item.itemNumber,
           copyNumber: item.copyNumber,
-          quantity: item.quantity,
-          quantityUnit: item.quantityUnit
-            ? QuantityUnitLabels[item.quantityUnit]
+          referenceLabel: r.reference ? SSD2IdLabel[r.reference] : undefined,
+          kind: r.reference
+            ? isComplex(r.reference)
+              ? ResidueKindLabels['Complex']
+              : ResidueKindLabels['Simple']
             : undefined,
-          quantityUnitCode: item.quantityUnit,
-          sealId: item.sealId,
-          recipient:
-            item.recipientKind &&
-            (item.recipientKind === 'Laboratory'
-              ? 'Laboratoire ' +
-                laboratories.find((lab) => lab.id === item.laboratoryId)?.name
-              : SampleItemRecipientKindLabels[item.recipientKind]),
-          laboratoryCode:
-            item.recipientKind === 'Laboratory'
-              ? laboratories.find((lab) => lab.id === item.laboratoryId)
-                  ?.shortName
-              : null,
-          compliance200263: item.compliance200263 ? 'Oui' : 'Non',
-          compliance: isDefinedAndNotNull(analysis?.compliance)
+          reference: r.reference,
+          residueNumber: r.residueNumber,
+          analysisMethod: r.analysisMethod
+            ? AnalysisMethodLabels[r.analysisMethod]
+            : undefined,
+          analysisMethodCode: r.analysisMethod,
+          analysisDate: r.analysisDate,
+          resultKind: r.resultKind ? ResultKindLabels[r.resultKind] : undefined,
+          resultKindCode: r.resultKind,
+          result: r.result,
+          resultUnit: 'mg/kg',
+          lmr: r.lmr,
+          resultHigherThanArfd: optionalBooleanToString(r.resultHigherThanArfd),
+          notesOnResult: r.notesOnResult,
+          substanceApproved: optionalBooleanToString(r.substanceApproved),
+          substanceAuthorised: optionalBooleanToString(r.substanceAuthorised),
+          pollutionRisk: optionalBooleanToString(r.pollutionRisk),
+          notesOnPollutionRisk: r.notesOnPollutionRisk,
+          contaminationSources: r.contaminationSources
+            ?.map((cs) => ContaminationSourceLabels[cs])
+            .join(', '),
+          notesOnContaminationSources: r.notesOnContaminationSources,
+          compliance: r.compliance
+            ? ResidueComplianceLabels[r.compliance]
+            : undefined,
+          complianceCode: r.compliance,
+          otherCompliance: r.otherCompliance,
+          sampleCompliance: isDefinedAndNotNull(analysis?.compliance)
             ? analysis?.compliance
               ? 'Oui'
               : 'Non'
             : '',
-          notesOnCompliance: analysis?.notesOnCompliance,
-          receiptDate: formatMaestroDate(item.receiptDate),
-          notesOnAdmissibility: item.notesOnAdmissibility,
-          shippingDate: formatMaestroDate(item.shippingDate),
-          destructionDate: formatMaestroDate(item.destructionDate),
-          carrier: item.carrier,
-          invoicingDate: formatMaestroDate(item.invoicingDate),
-          paid: item.paid ? 'Oui' : 'Non',
-          paidDate: formatMaestroDate(item.paidDate),
-          invoiceNumber: item.invoiceNumber,
-          budgetNotes: item.budgetNotes,
-          residues: (analysis?.residues ?? []).map((r) => ({
+          analytes: (r.analytes ?? []).map((a) => ({
             sampleReference: sample.reference,
             itemNumber: item.itemNumber,
             copyNumber: item.copyNumber,
-            referenceLabel: r.reference ? SSD2IdLabel[r.reference] : undefined,
-            kind: r.reference
-              ? isComplex(r.reference)
-                ? ResidueKindLabels['Complex']
-                : ResidueKindLabels['Simple']
+            residueNumber: a.residueNumber,
+            analyteNumber: a.analyteNumber,
+            reference: a.reference,
+            referenceLabel: a.reference ? SSD2IdLabel[a.reference] : undefined,
+            resultKind: a.resultKind
+              ? ResultKindLabels[a.resultKind]
               : undefined,
-            reference: r.reference,
-            residueNumber: r.residueNumber,
-            analysisMethod: r.analysisMethod
-              ? AnalysisMethodLabels[r.analysisMethod]
-              : undefined,
-            analysisMethodCode: r.analysisMethod,
-            analysisDate: r.analysisDate,
-            resultKind: r.resultKind
-              ? ResultKindLabels[r.resultKind]
-              : undefined,
-            resultKindCode: r.resultKind,
-            result: r.result,
-            resultUnit: 'mg/kg',
-            lmr: r.lmr,
-            resultHigherThanArfd: optionalBooleanToString(
-              r.resultHigherThanArfd
-            ),
-            notesOnResult: r.notesOnResult,
-            substanceApproved: optionalBooleanToString(r.substanceApproved),
-            substanceAuthorised: optionalBooleanToString(r.substanceAuthorised),
-            pollutionRisk: optionalBooleanToString(r.pollutionRisk),
-            notesOnPollutionRisk: r.notesOnPollutionRisk,
-            contaminationSources: r.contaminationSources
-              ?.map((cs) => ContaminationSourceLabels[cs])
-              .join(', '),
-            notesOnContaminationSources: r.notesOnContaminationSources,
-            compliance: r.compliance
-              ? ResidueComplianceLabels[r.compliance]
-              : undefined,
-            complianceCode: r.compliance,
-            otherCompliance: r.otherCompliance,
-            sampleCompliance: isDefinedAndNotNull(analysis?.compliance)
-              ? analysis?.compliance
-                ? 'Oui'
-                : 'Non'
-              : '',
-            analytes: (r.analytes ?? []).map((a) => ({
-              sampleReference: sample.reference,
-              itemNumber: item.itemNumber,
-              copyNumber: item.copyNumber,
-              residueNumber: a.residueNumber,
-              analyteNumber: a.analyteNumber,
-              reference: a.reference,
-              referenceLabel: a.reference
-                ? SSD2IdLabel[a.reference]
-                : undefined,
-              resultKind: a.resultKind
-                ? ResultKindLabels[a.resultKind]
-                : undefined,
-              resultKindCode: a.resultKind,
-              result: a.result
-            }))
+            resultKindCode: a.resultKind,
+            result: a.result
           }))
         }))
-      };
+      }))
+    };
 
-      return data;
-    })
-  );
+    samplesData.push(data);
+  }
 
   const specificDataHeaders = samplesData
     .flatMap((sample) => sample.specificData ?? [])
