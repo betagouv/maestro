@@ -131,28 +131,37 @@ export const LmrIsValid = (
     matrixPart: string | undefined;
   }
 ): boolean => {
+  // La LMR n'est jamais requise lorsque le résultat n'est pas quantifiable.
+  if (sample.resultKind !== 'Q') {
+    return true;
+  }
+
+  // Une LMR renseignée est toujours valide.
+  const lmrIsMissing = isNil(sample.lmr) || sample.lmr === 0;
+  if (!lmrIsMissing) {
+    return true;
+  }
+
+  // Hors PPV, la LMR est obligatoire.
+  if (sample.programmingPlanKind !== 'PPV') {
+    return false;
+  }
+
   let lmrCanBeOptional: boolean = false;
   if (sample.reference && SSD2Ids.includes(sample.reference)) {
     lmrCanBeOptional =
       'lmrCanBeOptional' in
       SSD2Referential[sample.reference as keyof typeof SSD2Referential];
   }
-  // La LMR est obligatoire lorsque les inspecteurs ont saisi dans la description du prélèvement:
-  // - Le résultat est quantifiable
-  // - Stade de prélèvement -> n'est pas « en cours de culture » (uniquement pour la PPV donc)
+
+  // En PPV, la LMR est obligatoire lorsque les inspecteurs ont saisi dans la description du prélèvement:
+  // - Stade de prélèvement -> n'est pas « en cours de culture »
   // - Et LMR / Partie du végétal concernée -> n'est pas « Partie non LMR »
-  if (
-    sample.resultKind === 'Q' &&
-    sample.programmingPlanKind === 'PPV' &&
+  return !(
     sample.matrixPart === 'PART1' &&
     sample.stage !== 'STADE2' &&
     !lmrCanBeOptional
-  ) {
-    if (isNil(sample.lmr) || sample.lmr === 0) {
-      return false;
-    }
-  }
-  return true;
+  );
 };
 
 export const PartialResidue = z.object({
