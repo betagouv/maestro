@@ -9,6 +9,9 @@ export const Laboratory = z.object({
   address: z.string(),
   postalCode: z.string(),
   city: z.string(),
+  billingAddress: z.string().nullish(),
+  billingPostalCode: z.string().nullish(),
+  billingCity: z.string().nullish(),
   emails: z.array(z.email()),
   programmingPlanIds: z.array(z.guid()).nullish()
 });
