@@ -134,6 +134,59 @@ test('sampleResidueLmrIsValid', () => {
   ).toEqual(true);
 });
 
+test('lmr is required for any quantifiable result outside PPV', () => {
+  expect(
+    LmrIsValid({
+      stage: 'STADE1',
+      reference: 'RF-0847-001-PPP',
+      programmingPlanKind: 'DAOA_VOLAILLE',
+      matrixPart: 'PART1',
+      resultKind: 'Q',
+      lmr: null
+    })
+  ).toEqual(false);
+  expect(
+    LmrIsValid({
+      stage: 'STADE1',
+      reference: 'RF-0847-001-PPP',
+      programmingPlanKind: 'DAOA_VOLAILLE',
+      matrixPart: 'PART1',
+      resultKind: 'Q',
+      lmr: 0
+    })
+  ).toEqual(false);
+  expect(
+    LmrIsValid({
+      stage: 'STADE1',
+      reference: 'RF-0847-001-PPP',
+      programmingPlanKind: 'DAOA_VOLAILLE',
+      matrixPart: 'PART1',
+      resultKind: 'Q',
+      lmr: 0.5
+    })
+  ).toEqual(true);
+  expect(
+    LmrIsValid({
+      stage: 'STADE1',
+      reference: 'RF-0847-001-PPP',
+      programmingPlanKind: 'DAOA_VOLAILLE',
+      matrixPart: 'PART1',
+      resultKind: 'NQ',
+      lmr: null
+    })
+  ).toEqual(true);
+  expect(
+    LmrIsValid({
+      stage: 'STADE2',
+      reference: 'RF-0848-001-PPP',
+      programmingPlanKind: 'DAOA_BOVIN',
+      matrixPart: 'PART2',
+      resultKind: 'Q',
+      lmr: null
+    })
+  ).toEqual(false);
+});
+
 test('lmr can be optional for some reference', () => {
   const sampleWithRequiredLmr = {
     stage: 'STADE1',
