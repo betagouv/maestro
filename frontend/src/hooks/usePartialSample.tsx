@@ -132,6 +132,9 @@ export const usePartialSample = (
     ) {
       return true;
     }
+    if (!isCreatedPartialSample(partialSample)) {
+      return false;
+    }
     if (isCreatedPartialSample(partialSample)) {
       const isSamplerOrAdditionalSampler =
         user?.id === partialSample.sampler.id ||

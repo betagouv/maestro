@@ -3,6 +3,7 @@ import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { QuantityUnitList } from 'maestro-shared/referential/QuantityUnit';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import type { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import type { Sampler } from 'maestro-shared/schema/User/User';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
@@ -44,6 +45,7 @@ const partialSample = {
     programmingSubPlanId: programmingPlan.subPlans[0].id
   }),
   ...genCreatedSampleData(),
+  sampler: Sampler1Fixture as Sampler,
   matrixKind: 'A0D9Y' as MatrixKind,
   prescriptionId: prescription1.id,
   programmingPlanId: programmingPlan.id,
