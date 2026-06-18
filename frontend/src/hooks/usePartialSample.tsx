@@ -146,8 +146,6 @@ export const usePartialSample = (
     return !isEditing;
   }, [hasUserPermission, partialSample, user?.region, user?.id, isEditing]);
 
-  console.log('readonly', readonly);
-
   const getSampleItemLaboratory = useCallback(
     (itemNumber: number) => {
       const item = partialSample?.items?.find(
