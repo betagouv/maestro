@@ -49,9 +49,10 @@ class BrevoService implements MailService {
       const body = {
         ...options,
         templateId: Templates[options.templateName].id,
-        to: options.recipients.map((recipient) => ({ email: recipient }))
+        messageVersions: options.recipients.map((recipient) => ({
+          to: [{ email: recipient }]
+        }))
       };
-
       const response = await fetch(brevoUrl, {
         method: 'POST',
         headers: this.headers,
