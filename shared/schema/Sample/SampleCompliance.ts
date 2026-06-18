@@ -15,7 +15,7 @@ export const SampleComplianceLabels: Record<SampleCompliance, string> = {
   NonCompliantAndHarmful: 'Non conforme et préjudiciable à la santé'
 };
 
-export const SampleComplianceByCodeNat: Partial<
+export const SampleComplianceByProgrammingSubPlanNumber: Partial<
   Record<string, SampleCompliance[]>
 > = {
   PPV: ['Compliant', 'NonCompliant'],

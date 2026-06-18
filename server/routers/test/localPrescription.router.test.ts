@@ -1007,7 +1007,7 @@ describe('Local prescriptions router', () => {
         plan.subPlans.map((sp) => ({
           id: sp.id,
           programmingPlanId: plan.id,
-          codeNat: sp.codeNat,
+          subPlanNumber: sp.subPlanNumber,
           stages: sp.stages,
           label: sp.label,
           analysisPermissionRole: sp.analysisPermissionRole ?? null,

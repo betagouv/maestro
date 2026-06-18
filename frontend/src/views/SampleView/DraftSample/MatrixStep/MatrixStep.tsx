@@ -103,10 +103,10 @@ const MatrixStep = ({ partialSample }: Props) => {
   const [deleteDocument] = apiClient.useDeleteDocumentMutation();
 
   const programmingSubPlanId = partialSample.programmingSubPlanId;
-  const codeNat =
+  const subPlanNumber =
     (programmingPlan as ProgrammingPlanChecked)?.subPlans?.find(
       (sp) => sp.id === programmingSubPlanId
-    )?.codeNat ?? '';
+    )?.subPlanNumber ?? '';
   const subPlanStages =
     (programmingPlan as ProgrammingPlanChecked)?.subPlans?.find(
       (sp) => sp.id === programmingSubPlanId
@@ -118,7 +118,7 @@ const MatrixStep = ({ partialSample }: Props) => {
       programmingSubPlanId
     });
 
-  const planLayout = SpecificDataForm[codeNat];
+  const planLayout = SpecificDataForm[subPlanNumber];
 
   const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
     {
@@ -625,7 +625,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                 data-testid="notes-input"
                 label="Note additionnelle"
                 hintText={
-                  codeNat === 'PPV'
+                  subPlanNumber === 'PPV'
                     ? 'Champ facultatif pour précisions supplémentaires (date de semis, précédent cultural, traitements faits, protocole de prélèvement et note inspecteur, etc.)'
                     : ''
                 }

@@ -9,7 +9,7 @@ export type ProgrammingSubPlanId = z.infer<typeof ProgrammingSubPlanId>;
 export const ProgrammingSubPlan = z.object({
   id: ProgrammingSubPlanId,
   programmingPlanId: z.guid(),
-  codeNat: z.string(),
+  subPlanNumber: z.string(),
   stages: z.array(Stage),
   label: z.string(),
   analysisPermissionRole: UserRole.nullish(),

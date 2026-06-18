@@ -1,26 +1,29 @@
 import type { Knex } from 'knex';
 
-const codeNatByKind: Record<string, string> = {
+const subPlanNumberByKind: Record<string, string> = {
   PPV: 'PPV',
   DAOA_VOLAILLE: 'M01',
   DAOA_BOVIN: 'M02'
 };
 
-const kindByCodeNat: Record<string, string> = Object.fromEntries(
-  Object.entries(codeNatByKind).map(([kind, codeNat]) => [codeNat, kind])
+const kindBySubPlanNumber: Record<string, string> = Object.fromEntries(
+  Object.entries(subPlanNumberByKind).map(([kind, subPlanNumber]) => [
+    subPlanNumber,
+    kind
+  ])
 );
 
 const buildCaseExpr = (tableColumn: string): string =>
-  `CASE ${tableColumn} ${Object.entries(codeNatByKind)
-    .map(([kind, codeNat]) => `WHEN '${kind}' THEN '${codeNat}'`)
+  `CASE ${tableColumn} ${Object.entries(subPlanNumberByKind)
+    .map(([kind, subPlanNumber]) => `WHEN '${kind}' THEN '${subPlanNumber}'`)
     .join(' ')} ELSE ${tableColumn} END`;
 
 const buildReverseCaseExpr = (tableColumn: string): string =>
-  `CASE ${tableColumn} ${Object.entries(kindByCodeNat)
-    .map(([codeNat, kind]) => `WHEN '${codeNat}' THEN '${kind}'`)
+  `CASE ${tableColumn} ${Object.entries(kindBySubPlanNumber)
+    .map(([subPlanNumber, kind]) => `WHEN '${subPlanNumber}' THEN '${kind}'`)
     .join(' ')} ELSE ${tableColumn} END`;
 
-const StagesByCodeNat: Record<string, string[]> = {
+const StagesBySubPlanNumber: Record<string, string[]> = {
   PPV: [
     'STADE1',
     'STADE2',
@@ -46,7 +49,7 @@ export const up = async (knex: Knex) => {
       .references('id')
       .inTable('programming_plans')
       .onDelete('CASCADE');
-    table.string('code_nat').notNullable();
+    table.string('sub_plan_number').notNullable();
     table.specificType('stages', 'text[]').notNullable().defaultTo('{}');
   });
 
@@ -55,8 +58,9 @@ export const up = async (knex: Knex) => {
   if (existingKinds.length > 0) {
     const rows = existingKinds.map((row) => ({
       programming_plan_id: row.programmingPlanId,
-      code_nat: codeNatByKind[row.kind] ?? row.kind,
-      stages: StagesByCodeNat[codeNatByKind[row.kind] ?? row.kind] ?? []
+      sub_plan_number: subPlanNumberByKind[row.kind] ?? row.kind,
+      stages:
+        StagesBySubPlanNumber[subPlanNumberByKind[row.kind] ?? row.kind] ?? []
     }));
     await knex('programming_sub_plans').insert(rows);
   }
@@ -76,7 +80,7 @@ export const up = async (knex: Knex) => {
         'programming_sub_plans.programming_plan_id = samples.programming_plan_id'
       )
       .whereRaw(
-        `programming_sub_plans.code_nat = ${buildCaseExpr('samples.programming_plan_kind')}`
+        `programming_sub_plans.sub_plan_number = ${buildCaseExpr('samples.programming_plan_kind')}`
       )
       .limit(1)
   });
@@ -96,7 +100,7 @@ export const up = async (knex: Knex) => {
         'programming_sub_plans.programming_plan_id = prescriptions.programming_plan_id'
       )
       .whereRaw(
-        `programming_sub_plans.code_nat = ${buildCaseExpr('prescriptions.programming_plan_kind')}`
+        `programming_sub_plans.sub_plan_number = ${buildCaseExpr('prescriptions.programming_plan_kind')}`
       )
       .limit(1)
   });
@@ -122,7 +126,7 @@ export const up = async (knex: Knex) => {
         'programming_sub_plans.programming_plan_id = laboratory_agreements.programming_plan_id'
       )
       .whereRaw(
-        `programming_sub_plans.code_nat = ${buildCaseExpr('laboratory_agreements.programming_plan_kind')}`
+        `programming_sub_plans.sub_plan_number = ${buildCaseExpr('laboratory_agreements.programming_plan_kind')}`
       )
       .limit(1)
   });
@@ -156,7 +160,7 @@ export const up = async (knex: Knex) => {
         'programming_sub_plans.programming_plan_id = laboratory_agreement_checks.programming_plan_id'
       )
       .whereRaw(
-        `programming_sub_plans.code_nat = ${buildCaseExpr('laboratory_agreement_checks.programming_plan_kind')}`
+        `programming_sub_plans.sub_plan_number = ${buildCaseExpr('laboratory_agreement_checks.programming_plan_kind')}`
       )
       .limit(1)
   });
@@ -181,13 +185,13 @@ export const up = async (knex: Knex) => {
       .notNullable()
       .defaultTo('{}');
   });
-  const kindToCodeNatCaseElem = buildCaseExpr('elem');
+  const kindToSubPlanNumberCaseElem = buildCaseExpr('elem');
   await knex.raw(`
       UPDATE users
       SET programming_sub_plan_ids = (SELECT COALESCE(array_agg(sp.id), '{}')
                                       FROM programming_sub_plans sp
-                                      WHERE sp.code_nat = ANY (
-                                        SELECT ${kindToCodeNatCaseElem}
+                                      WHERE sp.sub_plan_number = ANY (
+                                        SELECT ${kindToSubPlanNumberCaseElem}
                                         FROM unnest(users.programming_plan_kinds) elem
                                       ))
   `);
@@ -210,7 +214,7 @@ export const up = async (knex: Knex) => {
         'programming_sub_plans.programming_plan_id = programming_plan_kind_fields.programming_plan_id'
       )
       .whereRaw(
-        `programming_sub_plans.code_nat = ${buildCaseExpr('programming_plan_kind_fields.kind')}`
+        `programming_sub_plans.sub_plan_number = ${buildCaseExpr('programming_plan_kind_fields.kind')}`
       )
       .limit(1)
   });
@@ -252,15 +256,15 @@ export const down = async (knex: Knex) => {
 
   const subPlans = await knex('programming_sub_plans').select(
     'programming_plan_id',
-    'code_nat'
+    'sub_plan_number'
   );
   const uniqueKinds = [
     ...new Map(
       subPlans.map((row) => [
-        `${row.programmingPlanId}:${row.codeNat}`,
+        `${row.programmingPlanId}:${row.subPlanNumber}`,
         {
           programming_plan_id: row.programmingPlanId,
-          kind: kindByCodeNat[row.codeNat] ?? row.codeNat
+          kind: kindBySubPlanNumber[row.subPlanNumber] ?? row.subPlanNumber
         }
       ])
     ).values()
@@ -279,7 +283,7 @@ export const down = async (knex: Knex) => {
   });
   await knex('samples').update({
     programming_plan_kind: knex('programming_sub_plans')
-      .select(knex.raw(buildReverseCaseExpr('code_nat')))
+      .select(knex.raw(buildReverseCaseExpr('sub_plan_number')))
       .whereRaw('programming_sub_plans.id = samples.programming_sub_plan_id')
       .limit(1)
   });
@@ -292,7 +296,7 @@ export const down = async (knex: Knex) => {
   });
   await knex('prescriptions').update({
     programming_plan_kind: knex('programming_sub_plans')
-      .select(knex.raw(buildReverseCaseExpr('code_nat')))
+      .select(knex.raw(buildReverseCaseExpr('sub_plan_number')))
       .whereRaw(
         'programming_sub_plans.id = prescriptions.programming_sub_plan_id'
       )
@@ -310,7 +314,7 @@ export const down = async (knex: Knex) => {
   });
   await knex('laboratory_agreements').update({
     programming_plan_kind: knex('programming_sub_plans')
-      .select(knex.raw(buildReverseCaseExpr('code_nat')))
+      .select(knex.raw(buildReverseCaseExpr('sub_plan_number')))
       .whereRaw(
         'programming_sub_plans.id = laboratory_agreements.programming_sub_plan_id'
       )
@@ -342,7 +346,7 @@ export const down = async (knex: Knex) => {
   });
   await knex('laboratory_agreement_checks').update({
     programming_plan_kind: knex('programming_sub_plans')
-      .select(knex.raw(buildReverseCaseExpr('code_nat')))
+      .select(knex.raw(buildReverseCaseExpr('sub_plan_number')))
       .whereRaw(
         'programming_sub_plans.id = laboratory_agreement_checks.programming_sub_plan_id'
       )
@@ -391,7 +395,7 @@ export const down = async (knex: Knex) => {
   });
   await knex('programming_plan_kind_fields').update({
     kind: knex('programming_sub_plans')
-      .select(knex.raw(buildReverseCaseExpr('code_nat')))
+      .select(knex.raw(buildReverseCaseExpr('sub_plan_number')))
       .whereRaw(
         'programming_sub_plans.id = programming_plan_kind_fields.programming_sub_plan_id'
       )
@@ -414,10 +418,10 @@ export const down = async (knex: Knex) => {
       .nullable()
       .defaultTo('{}');
   });
-  const codeNatToKindCaseCol = buildReverseCaseExpr('sp.code_nat');
+  const subPlanNumberToKindCaseCol = buildReverseCaseExpr('sp.sub_plan_number');
   await knex.raw(`
       UPDATE users
-      SET programming_plan_kinds = (SELECT COALESCE(array_agg(${codeNatToKindCaseCol}), '{}')
+      SET programming_plan_kinds = (SELECT COALESCE(array_agg(${subPlanNumberToKindCaseCol}), '{}')
                                     FROM programming_sub_plans sp
                                     WHERE sp.id = ANY (users.programming_sub_plan_ids))
   `);

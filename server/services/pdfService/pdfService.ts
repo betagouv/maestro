@@ -210,7 +210,7 @@ const generateSamplePDF = async (
   const subPlan = await programmingSubPlanRepository.findUnique(
     sample.programmingSubPlanId
   );
-  const codeNat = subPlan?.codeNat ?? '';
+  const subPlanNumber = subPlan?.subPlanNumber ?? '';
 
   const fieldConfigs =
     await specificDataFieldConfigRepository.findByPlanSubPlan(
@@ -273,12 +273,12 @@ const generateSamplePDF = async (
     (c) => c.field.key === 'matrixPart'
   )?.field;
 
-  const planLabel = `${codeNat} / ${ProgrammingPlanDomainLabels[programmingPlan.domain]} / ${(subPlan?.substanceKinds ?? []).map((s) => SubstanceKindLabels[s]).join(' ')} / ${subPlan?.label}`;
+  const planLabel = `${subPlanNumber} / ${ProgrammingPlanDomainLabels[programmingPlan.domain]} / ${(subPlan?.substanceKinds ?? []).map((s) => SubstanceKindLabels[s]).join(' ')} / ${subPlan?.label}`;
 
   return generatePDF(template, {
     fullVersion,
     ...sample,
-    codeNat,
+    subPlanNumber,
     sampleItems: (sampleItems.length > 0 ? sampleItems : emptySampleItems).map(
       (sampleItem) => ({
         ...sampleItem,
@@ -349,7 +349,7 @@ const generateSamplePDF = async (
         value: getFieldValueLabel(fc.field, sample.specificData[fc.field.key])
       })),
     releaseControl:
-      codeNat === 'PPV' ? sample.specificData.releaseControl : undefined,
+      subPlanNumber === 'PPV' ? sample.specificData.releaseControl : undefined,
     establishment:
       programmingPlan.distributionKind === 'REGIONAL'
         ? Regions[sample.region].establishment

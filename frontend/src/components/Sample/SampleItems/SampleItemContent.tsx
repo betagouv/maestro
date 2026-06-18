@@ -269,7 +269,7 @@ const SampleItemContent = ({
             />
           )}
         </div>
-        {programmingSubPlan?.codeNat === 'PPV' && (
+        {programmingSubPlan?.subPlanNumber === 'PPV' && (
           <>
             <div className={cx('fr-col-12', 'fr-col-sm-6')}>
               {itemsForm ? (

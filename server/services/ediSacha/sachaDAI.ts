@@ -40,7 +40,7 @@ export const generateXMLDAI = (
     | 'reference'
     | 'sentAt'
   >,
-  codeNat: string,
+  subPlanNumber: string,
   sampleItem: Pick<
     SampleItem,
     'sealId' | 'itemNumber' | 'copyNumber' | 'substanceKind'
@@ -53,7 +53,7 @@ export const generateXMLDAI = (
   withSacha = true
 ): Promise<XmlFile> => {
   if (!withSacha) {
-    throw new Error(`Pas d'EDI Sacha pour ${codeNat}`);
+    throw new Error(`Pas d'EDI Sacha pour ${subPlanNumber}`);
   }
 
   const matrix = sample.matrix;
@@ -86,7 +86,7 @@ export const generateXMLDAI = (
       DemandeType: {
         DialogueDemandeIntervention: {
           NumeroDAP: Number(numeroDAP),
-          SigleContexteIntervention: SigleContexteIntervention[codeNat],
+          SigleContexteIntervention: SigleContexteIntervention[subPlanNumber],
           DateIntervention: sample.sampledDate,
           DateModification: toSachaDateTime(sample.lastUpdatedAt)
         },
@@ -215,7 +215,7 @@ export const getCommemoratifs = (
 
 export const sendDAIWithEDI = async (
   sample: SampleChecked,
-  codeNat: string,
+  subPlanNumber: string,
   sampleItem: SampleItem,
   laboratory: LaboratoryWithSacha
 ): Promise<DaiSentResult> => {
@@ -229,7 +229,7 @@ export const sendDAIWithEDI = async (
   const dateNow = Date.now();
   const xmlFile = await generateXMLDAI(
     sample,
-    codeNat,
+    subPlanNumber,
     sampleItem,
     dateNow,
     specificDataRecord,

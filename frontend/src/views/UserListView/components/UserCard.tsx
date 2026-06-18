@@ -40,7 +40,7 @@ export const UserCard: FunctionComponent<Props> = ({
 
   const subPlanLabelById = Object.fromEntries(
     programmingPlans.flatMap((p) =>
-      p.subPlans.map((sp) => [sp.id, `${sp.codeNat} (${p.year})`])
+      p.subPlans.map((sp) => [sp.id, `${sp.subPlanNumber} (${p.year})`])
     )
   );
 
@@ -123,7 +123,7 @@ export const UserCard: FunctionComponent<Props> = ({
                   small={true}
                   className={clsx('fr-mb-1w')}
                 >
-                  {subPlanLabelById[sp.id] ?? sp.codeNat}
+                  {subPlanLabelById[sp.id] ?? sp.subPlanNumber}
                 </Tag>
               ))}
             </span>

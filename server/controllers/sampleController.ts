@@ -410,7 +410,7 @@ export const sampleRouter = {
       const subPlan = await programmingSubPlanRepository.findUnique(
         sample.programmingSubPlanId
       );
-      if (subPlan?.codeNat === 'PPV') {
+      if (subPlan?.subPlanNumber === 'PPV') {
         return { status: HttpStatus.FORBIDDEN };
       }
 

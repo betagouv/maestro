@@ -136,7 +136,9 @@ export const useAuthentication = () => {
           hasUserPermission('administrationMaestro') ? 'AdminRoute' : undefined,
           (hasUserPermission('readLaboratoryCompetences') ||
             hasUserPermission('manageLaboratoryCompetences')) &&
-          authUser?.user.programmingSubPlans?.some((_) => _.codeNat === 'PPV')
+          authUser?.user.programmingSubPlans?.some(
+            (_) => _.subPlanNumber === 'PPV'
+          )
             ? 'LaboratoryAnalyticalCompetencesRoute'
             : undefined,
           hasUserPermission('manageLaboratoryAgreements')

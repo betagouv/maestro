@@ -131,7 +131,7 @@
                                 {{/if}}
                                 <div class='fr-col-12'>{{> sealField}}</div>
                                 <div class='fr-col-12'>{{> recipientField}}</div>
-                                {{#if (eq ../codeNat 'PPV')}}
+                                {{#if (eq ../subPlanNumber 'PPV')}}
                                   <div class='fr-col-12'>
                                     <div class='sample-section-item'>
                                       <div class='label'>Directive 2002/63</div>
@@ -143,7 +143,7 @@
                                   </div>
                                 {{/if}}
                               {{else}}
-                                {{#if (eq ../codeNat 'PPV')}}
+                                {{#if (eq ../subPlanNumber 'PPV')}}
                                   {{#if quantity}}
                                     <div class='fr-col-4'>{{> quantityField}}</div>
                                   {{else}}

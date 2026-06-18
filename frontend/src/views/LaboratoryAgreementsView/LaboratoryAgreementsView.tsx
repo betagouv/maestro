@@ -148,7 +148,7 @@ const LaboratoryAgreementsView = () => {
         const row = rows.find((r) => r.programmingSubPlan.id === value);
         return {
           value,
-          label: row?.programmingSubPlan.codeNat ?? value
+          label: row?.programmingSubPlan.subPlanNumber ?? value
         };
       }),
     [rows]

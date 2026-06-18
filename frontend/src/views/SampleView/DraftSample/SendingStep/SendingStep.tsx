@@ -537,7 +537,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
         <SendingModal
           modal={sendingSampleModal}
           substanceKindsLaboratories={substanceKindsLaboratories}
-          programmingSubPlanCodeNat={programmingSubPlan?.codeNat}
+          programmingSubPlanNumber={programmingSubPlan?.subPlanNumber}
           onConfirm={submit}
         />
       )}

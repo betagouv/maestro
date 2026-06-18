@@ -797,8 +797,10 @@ const generateLaboratoryAgreementsExportExcel = async (
     .toSorted(
       (a, b) =>
         a.substanceKind.localeCompare(b.substanceKind) ||
-        (subPlanById[a.programmingSubPlanId]?.codeNat ?? '').localeCompare(
-          subPlanById[b.programmingSubPlanId]?.codeNat ?? ''
+        (
+          subPlanById[a.programmingSubPlanId]?.subPlanNumber ?? ''
+        ).localeCompare(
+          subPlanById[b.programmingSubPlanId]?.subPlanNumber ?? ''
         )
     )
     .map(({ programmingSubPlanId, substanceKind }) => {
@@ -849,10 +851,11 @@ const generateLaboratoryAgreementsExportExcel = async (
       ];
 
       return {
-        num: subPlan?.codeNat ?? programmingSubPlanId,
+        num: subPlan?.subPlanNumber ?? programmingSubPlanId,
         analytes: SubstanceKindLabels[substanceKind],
         matrices,
-        domain: subPlan?.label ?? subPlan?.codeNat ?? programmingSubPlanId,
+        domain:
+          subPlan?.label ?? subPlan?.subPlanNumber ?? programmingSubPlanId,
         stages,
         labCells
       };

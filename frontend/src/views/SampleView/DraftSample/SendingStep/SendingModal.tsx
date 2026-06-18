@@ -29,7 +29,7 @@ interface Props {
     isOpenedByDefault: boolean;
     id: string;
   };
-  programmingSubPlanCodeNat?: string;
+  programmingSubPlanNumber?: string;
   substanceKindsLaboratories: {
     substanceKind: SubstanceKind;
     laboratory: Laboratory;
@@ -40,7 +40,7 @@ interface Props {
 const SendingModal = ({
   modal,
   substanceKindsLaboratories,
-  programmingSubPlanCodeNat,
+  programmingSubPlanNumber,
   onConfirm
 }: Props) => {
   const [isConfirmationPending, setIsConfirmationPending] = useState(false);
@@ -86,7 +86,7 @@ const SendingModal = ({
           ].toLowerCase()}{' '}
           va être envoyée au laboratoire{' '}
           <b>{getLaboratoryFullName(substanceKindLaboratory.laboratory)}</b>.
-          {programmingSubPlanCodeNat === 'PPV' &&
+          {programmingSubPlanNumber === 'PPV' &&
             !(LaboratoryWithAutomation as string[]).includes(
               substanceKindLaboratory.laboratory.shortName
             ) && (

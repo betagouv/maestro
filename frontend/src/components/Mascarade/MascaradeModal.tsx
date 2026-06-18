@@ -84,7 +84,7 @@ const UsersSearchInput: FunctionComponent<{
       );
       const subPlan = plan?.subPlans.find((sp) => sp.id === subPlanId);
       if (!subPlan) return subPlanId;
-      return `${subPlan.codeNat} (${plan?.year})`;
+      return `${subPlan.subPlanNumber} (${plan?.year})`;
     },
     [programmingPlans]
   );

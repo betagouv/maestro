@@ -7,7 +7,7 @@ import type {
 } from 'maestro-shared/schema/Sample/Sample';
 import {
   SampleCompliance,
-  SampleComplianceByCodeNat,
+  SampleComplianceByProgrammingSubPlanNumber,
   SampleComplianceLabels
 } from 'maestro-shared/schema/Sample/SampleCompliance';
 import { useState } from 'react';
@@ -28,9 +28,9 @@ interface Props {
 
 const SampleComplianceForm = ({ sample, onChangeCompliance }: Props) => {
   const { programmingPlan } = usePartialSample(sample);
-  const codeNat = programmingPlan?.subPlans.find(
+  const subPlanNumber = programmingPlan?.subPlans.find(
     (sp) => sp.id === sample.programmingSubPlanId
-  )?.codeNat;
+  )?.subPlanNumber;
   const [compliance, setCompliance] = useState(sample.compliance);
   const [notesOnCompliance, setNotesOnCompliance] = useState(
     sample.notesOnCompliance
@@ -56,7 +56,9 @@ const SampleComplianceForm = ({ sample, onChangeCompliance }: Props) => {
   });
 
   const sampleComplianceOptions = selectOptionsFromList(
-    codeNat ? (SampleComplianceByCodeNat[codeNat] ?? []) : [],
+    subPlanNumber
+      ? (SampleComplianceByProgrammingSubPlanNumber[subPlanNumber] ?? [])
+      : [],
     {
       labels: SampleComplianceLabels,
       withDefault: false

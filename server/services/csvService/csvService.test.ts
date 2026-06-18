@@ -48,7 +48,7 @@ const data: AnalysisRequestData = {
   ownerAgreement: true,
   matrixKind: 'A0D9Y',
   matrix: 'A031K',
-  programmingSubPlanCodeNat: 'PPV',
+  programmingSubPlanNumber: 'PPV',
   specificData: {
     matrixPart: 'PART1',
     productionKind: 'PD07A',

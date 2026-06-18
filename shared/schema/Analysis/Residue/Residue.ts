@@ -87,7 +87,7 @@ const sampleResidueCheck: CheckFn<z.infer<typeof ResidueBase>> = (ctx) => {
 export const ResidueChecked = checkSchema(ResidueBase, sampleResidueCheck);
 const sampleResidueLmrCheck: CheckFn<
   Pick<z.infer<typeof SampleBase>, 'stage' | 'specificData'> & {
-    programmingSubPlanCodeNat: string;
+    programmingSubPlanNumber: string;
   } & Pick<z.infer<typeof ResidueBase>, 'resultKind' | 'lmr' | 'reference'>
 > = (ctx) => {
   if (
@@ -111,7 +111,7 @@ const LmrCheckChecked = checkSchema(
       stage: true,
       specificData: true
     }).shape,
-    programmingSubPlanCodeNat: z.string(),
+    programmingSubPlanNumber: z.string(),
     ...ResidueBase.pick({
       resultKind: true,
       lmr: true,
@@ -124,7 +124,7 @@ const LmrCheckChecked = checkSchema(
 export const LmrIsValid = (
   sample: Pick<
     z.infer<typeof LmrCheckChecked>,
-    'reference' | 'resultKind' | 'programmingSubPlanCodeNat' | 'stage' | 'lmr'
+    'reference' | 'resultKind' | 'programmingSubPlanNumber' | 'stage' | 'lmr'
   > & {
     matrixPart: string | undefined;
   }
@@ -141,7 +141,7 @@ export const LmrIsValid = (
   }
 
   // Hors PPV, la LMR est obligatoire.
-  if (sample.programmingSubPlanCodeNat !== 'PPV') {
+  if (sample.programmingSubPlanNumber !== 'PPV') {
     return false;
   }
 

@@ -68,19 +68,24 @@ const processAnalysisDai = async (
   const subPlan = await programmingSubPlanRepository.findUnique(
     checkedSample.programmingSubPlanId
   );
-  const codeNat = subPlan?.codeNat ?? '';
+  const subPlanNumber = subPlan?.subPlanNumber ?? '';
   const programmingPlanWithEdiSacha = subPlan?.withSacha ?? false;
 
   if (programmingPlanWithEdiSacha && !laboratory.legacyDai) {
     return {
-      ...(await sendDAIWithEDI(checkedSample, codeNat, sampleItem, laboratory)),
+      ...(await sendDAIWithEDI(
+        checkedSample,
+        subPlanNumber,
+        sampleItem,
+        laboratory
+      )),
       edi: true
     };
   }
   return {
     ...(await sendDAIWithoutEDI(
       checkedSample,
-      codeNat,
+      subPlanNumber,
       sampleItem,
       laboratory
     )),

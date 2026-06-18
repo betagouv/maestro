@@ -36,7 +36,7 @@ const findMany = async (
         if (!isNil(findOptions?.programmingPlanId)) {
           query = query
             .where('programmingPlanId', '=', findOptions.programmingPlanId)
-            .orderBy('codeNat');
+            .orderBy('subPlanNumber');
         }
         break;
       case 'ids':

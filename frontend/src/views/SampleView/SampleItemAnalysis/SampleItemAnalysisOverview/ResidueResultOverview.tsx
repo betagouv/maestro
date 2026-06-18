@@ -123,7 +123,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
           </div>
         )}
 
-        {programmingSubPlan?.codeNat === 'PPV' && (
+        {programmingSubPlan?.subPlanNumber === 'PPV' && (
           <>
             <div className="d-flex-align-center">
               Substance approuvée dans l'UE
@@ -190,6 +190,7 @@ const ResidueValueLabel = ({
 }: Pick<Props, 'residue' | 'programmingSubPlan'>) => {
   const lmrIsOptional = LmrIsValid({
     ...(residue as ResidueLmrChecked),
+    programmingSubPlanNumber: programmingSubPlan.subPlanNumber,
     matrixPart: (residue as ResidueLmrChecked).specificData?.matrixPart as
       | string
       | undefined,

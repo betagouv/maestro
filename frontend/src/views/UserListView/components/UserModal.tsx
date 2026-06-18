@@ -141,7 +141,7 @@ export const UserModal = ({
         programmingSubPlans: user.programmingSubPlans,
         roles: user.roles
       }) &&
-      !user.programmingSubPlans?.some((_) => _.codeNat === 'PPV')
+      !user.programmingSubPlans?.some((_) => _.subPlanNumber === 'PPV')
     ) {
       findCompanies({
         kinds: ['MEAT_SLAUGHTERHOUSE', 'POULTRY_SLAUGHTERHOUSE'],
@@ -295,7 +295,7 @@ export const UserModal = ({
           }
           values={user.programmingSubPlans?.map((sp) => sp.id) ?? []}
           keysWithLabels={Object.fromEntries(
-            allSubPlans.map((sp) => [sp.id, `${sp.codeNat} (${sp.year})`])
+            allSubPlans.map((sp) => [sp.id, `${sp.subPlanNumber} (${sp.year})`])
           )}
           defaultLabel={'sous-plan sélectionné'}
           label={

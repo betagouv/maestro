@@ -143,7 +143,7 @@ const ContextStepSummary = ({
           )}
         </div>
       </div>
-      {programmingSubPlan?.codeNat === 'PPV' && (
+      {programmingSubPlan?.subPlanNumber === 'PPV' && (
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-map-pin-user-line')}></div>
           <div>

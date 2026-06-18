@@ -134,7 +134,7 @@ const SampleListView = () => {
   }, [searchParams, user?.region, sampleListDisplay]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const canDownloadSupportDocument: boolean =
-    programmingPlan?.subPlans.some((sp) => sp.codeNat === 'PPV') ?? false;
+    programmingPlan?.subPlans.some((sp) => sp.subPlanNumber === 'PPV') ?? false;
 
   const findSampleOptionsWithYear = useMemo(
     () => ({

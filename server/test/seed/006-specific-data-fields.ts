@@ -69,7 +69,7 @@ export const seed = async (): Promise<void> => {
 
   const programmingSubPlans = await kysely
     .selectFrom('programmingSubPlans')
-    .select(['id', 'codeNat'])
+    .select(['id', 'subPlanNumber'])
     .execute();
 
   if (programmingSubPlans.length === 0) {

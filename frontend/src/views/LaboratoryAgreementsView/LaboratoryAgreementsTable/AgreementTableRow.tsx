@@ -155,7 +155,7 @@ const AgreementTableRow = memo(function AgreementTableRow({
 
         <td>
           <div className={clsx('border-left', 'row-reference')}>
-            {row.programmingSubPlan.codeNat}
+            {row.programmingSubPlan.subPlanNumber}
             <Button
               iconId={
                 isExpanded

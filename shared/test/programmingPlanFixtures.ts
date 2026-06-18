@@ -59,7 +59,7 @@ export const genProgrammingSubPlan = (
 ): ProgrammingSubPlan => ({
   id: ProgrammingSubPlanId.parse(uuidv4()),
   programmingPlanId: uuidv4(),
-  codeNat: 'TEST',
+  subPlanNumber: 'TEST',
   stages: [],
   label: 'Test SubPlan',
   withSacha: (data?.id && SachaSubPlanIds.includes(data.id)) ?? false,
@@ -70,7 +70,7 @@ export const genProgrammingSubPlan = (
 export const PPVValidatedSubPlanFixture = genProgrammingSubPlan({
   id: PPVValidatedSubPlanId,
   programmingPlanId: PPVValidatedProgrammingPlanId,
-  codeNat: 'PPV',
+  subPlanNumber: 'PPV',
   stages: [
     'STADE1',
     'STADE2',
@@ -116,7 +116,7 @@ export const PPVSubmittedSubPlanFixture = genProgrammingSubPlan({
 export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
   id: DAOAVolailleValidatedSubPlanId,
   programmingPlanId: DAOAValidatedProgrammingPlanId,
-  codeNat: 'M01',
+  subPlanNumber: 'M01',
   stages: ['STADE10'],
   label: 'Abattoir / Viande de volaille',
   analysisPermissionRole: 'DepartmentalCoordinator',
@@ -134,7 +134,7 @@ export const DAOAVolailleInProgressSubPlanFixture = genProgrammingSubPlan({
 export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
   id: DAOABovinValidatedSubPlanId,
   programmingPlanId: DAOAValidatedProgrammingPlanId,
-  codeNat: 'M02',
+  subPlanNumber: 'M02',
   stages: ['STADE10'],
   label: 'Abattoir / Foie de bovin',
   analysisPermissionRole: 'DepartmentalCoordinator',

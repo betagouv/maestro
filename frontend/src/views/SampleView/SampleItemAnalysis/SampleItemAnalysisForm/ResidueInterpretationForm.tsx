@@ -103,7 +103,7 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
               )}
             </>
           )}
-          {programmingSubPlan.codeNat === 'PPV' && (
+          {programmingSubPlan.subPlanNumber === 'PPV' && (
             <>
               <hr />
               <AppSelect

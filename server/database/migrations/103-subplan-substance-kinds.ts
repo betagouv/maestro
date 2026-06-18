@@ -36,7 +36,7 @@ export const down = async (knex: Knex) => {
     FROM (
       SELECT DISTINCT ON (programming_plan_id) programming_plan_id, substance_kinds
       FROM programming_sub_plans
-      ORDER BY programming_plan_id, code_nat
+      ORDER BY programming_plan_id, sub_plan_number
     ) sp
     WHERE pp.id = sp.programming_plan_id
   `);

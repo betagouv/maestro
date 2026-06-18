@@ -113,7 +113,7 @@ const findSachaFields = async (): Promise<SachaFieldConfig[]> => {
       'sdf.sachaInDai',
       'sdf.sachaOptional'
     ])
-    .where('psp.codeNat', '!=', 'PPV')
+    .where('psp.subPlanNumber', '!=', 'PPV')
     .distinctOn('sdf.id')
     .execute();
 

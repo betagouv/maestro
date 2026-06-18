@@ -137,7 +137,7 @@ export const analysisRouter = {
       };
       await analysisRepository.update(updatedAnalysis);
 
-      if (subPlan?.codeNat === 'PPV') {
+      if (subPlan?.subPlanNumber === 'PPV') {
         await sampleRepository.update({
           ...sample,
           compliance: isNil(updatedAnalysis.compliance)

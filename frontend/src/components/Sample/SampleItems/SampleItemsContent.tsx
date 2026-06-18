@@ -68,7 +68,9 @@ const SampleItemsContent = ({
                   quantityUnit: lastItem.quantityUnit,
                   substanceKind: lastItem.substanceKind,
                   compliance200263:
-                    programmingSubPlan?.codeNat === 'PPV' ? undefined : true
+                    programmingSubPlan?.subPlanNumber === 'PPV'
+                      ? undefined
+                      : true
                 });
               }}
               className={cx('fr-my-1w')}

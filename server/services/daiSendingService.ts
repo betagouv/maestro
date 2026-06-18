@@ -51,7 +51,7 @@ const streamToBase64 = async (stream: Readable): Promise<string> => {
 
 export const buildAnalysisRequestData = (
   updatedSample: SampleChecked,
-  codeNat: string,
+  subPlanNumber: string,
   sampleItem: SampleItem,
   sampler: UserBase,
   laboratory: Laboratory,
@@ -134,7 +134,7 @@ export const buildAnalysisRequestData = (
       : 'Non respectée',
     establishment,
     department: DepartmentLabels[updatedSample.department],
-    programmingSubPlanCodeNat: codeNat
+    programmingSubPlanNumber: subPlanNumber
   };
 };
 
@@ -205,7 +205,7 @@ export class DaiProcessingError extends Error {
 
 export const sendDAIWithoutEDI = async (
   sample: SampleChecked,
-  codeNat: string,
+  subPlanNumber: string,
   sampleItem: SampleItem,
   laboratory: Laboratory
 ): Promise<DaiSentResult> => {
@@ -253,7 +253,7 @@ export const sendDAIWithoutEDI = async (
   const analysisRequestDocs = await generateAndStoreAnalysisRequestDocuments(
     buildAnalysisRequestData(
       sample,
-      codeNat,
+      subPlanNumber,
       sampleItem,
       sampler,
       laboratory,

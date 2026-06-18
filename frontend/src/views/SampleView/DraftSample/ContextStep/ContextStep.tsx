@@ -154,10 +154,10 @@ const ContextStep = ({ partialSample }: Props) => {
     }
   }, [programmingPlan]);
 
-  const codeNat = useMemo(
+  const subPlanNumber = useMemo(
     () =>
       programmingPlan?.subPlans.find((sp) => sp.id === programmingSubPlanId)
-        ?.codeNat,
+        ?.subPlanNumber,
     [programmingPlan, programmingSubPlanId]
   );
 
@@ -426,14 +426,14 @@ const ContextStep = ({ partialSample }: Props) => {
   }
   return (
     <form data-testid="draft_sample_creation_form" className="sample-form">
-      {codeNat === 'PPV' && !isBrowserGeolocation && !readonly && (
+      {subPlanNumber === 'PPV' && !isBrowserGeolocation && !readonly && (
         <Alert
           severity="info"
           title=""
           small
           closable
           description={`Autorisez le partage de votre position pour faciliter la localisation 
-            ${codeNat === 'PPV' ? ' de la parcelle' : ' du contrôle'}.`}
+            ${subPlanNumber === 'PPV' ? ' de la parcelle' : ' du contrôle'}.`}
         />
       )}
       <div>
@@ -457,7 +457,7 @@ const ContextStep = ({ partialSample }: Props) => {
           )}
         <AppRequiredText />
       </div>
-      {codeNat === 'PPV' && (
+      {subPlanNumber === 'PPV' && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <div className={clsx('d-flex-align-start')}>
@@ -531,12 +531,14 @@ const ContextStep = ({ partialSample }: Props) => {
           )}
         </div>
       )}
-      {codeNat === 'PPV' && (
+      {subPlanNumber === 'PPV' && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12', 'fr-pb-0')}>
             <div className={cx('fr-text--bold')}>
               Emplacement{' '}
-              {codeNat === 'PPV' ? 'de la parcelle contrôlée' : 'du contrôle'}
+              {subPlanNumber === 'PPV'
+                ? 'de la parcelle contrôlée'
+                : 'du contrôle'}
             </div>
             <div className={cx('fr-text--light')}>
               Placez votre repère sur la zone correspondante ou renseignez
@@ -597,7 +599,7 @@ const ContextStep = ({ partialSample }: Props) => {
                   disabled={readonly}
                 />
               </div>
-              {codeNat === 'PPV' && (
+              {subPlanNumber === 'PPV' && (
                 <div className={cx('fr-col-12')}>
                   <AppTextInput
                     defaultValue={parcel ?? ''}
@@ -725,7 +727,7 @@ const ContextStep = ({ partialSample }: Props) => {
           </div>
         </div>
       )}
-      {codeNat === 'PPV' && (
+      {subPlanNumber === 'PPV' && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppTextInput
@@ -762,7 +764,7 @@ const ContextStep = ({ partialSample }: Props) => {
       />
 
       {!!programmingSubPlanId &&
-        codeNat !== 'PPV' &&
+        subPlanNumber !== 'PPV' &&
         !!company &&
         isOnline &&
         !readonly && (

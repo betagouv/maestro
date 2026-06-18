@@ -84,7 +84,7 @@ const LaboratoryAgreementDetailModal = ({
         <div>
           <p className={cx('fr-text--md', 'fr-mb-2w')}>
             N°
-            {programmingSubPlan?.codeNat} |{' '}
+            {programmingSubPlan?.subPlanNumber} |{' '}
             {SubstanceKindLabels[laboratoryAgreement.substanceKind]}
           </p>
           <div className={clsx(cx('fr-p-3w'), 'border')}>

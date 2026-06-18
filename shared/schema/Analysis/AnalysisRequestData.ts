@@ -34,7 +34,7 @@ export const AnalysisRequestData = z.object({
     fullAddress: z.string()
   }),
   department: z.string(),
-  programmingSubPlanCodeNat: z.string()
+  programmingSubPlanNumber: z.string()
 });
 
 export type AnalysisRequestData = z.infer<typeof AnalysisRequestData>;

@@ -3,7 +3,7 @@ import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/P
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 
 interface Props {
-  programmingSubPlan?: ProgrammingSubPlan | null;
+  programmingSubPlan?: ProgrammingSubPlan;
   result?: number | null;
   lmr?: number | null;
   lmrIsOptional?: boolean;
@@ -40,7 +40,7 @@ const ResidueResultAlert = ({
         small
         title={'Résultat brut supérieur à la LMR.'}
         description={
-          programmingSubPlan?.codeNat === 'PPV' ? (
+          programmingSubPlan?.subPlanNumber === 'PPV' ? (
             <>
               Merci de contacter la référente nationale résidus de pesticides
               pour pouvoir finaliser l'interprétation :{' '}

@@ -423,7 +423,7 @@ export interface UserCompanies {
 export interface ProgrammingSubPlans {
   id: ProgrammingSubPlanId;
   programmingPlanId: string;
-  codeNat: string;
+  subPlanNumber: string;
   stages: Stage[];
   label: string;
   analysisPermissionRole: UserRole | null;

@@ -1,6 +1,6 @@
 import type { Knex } from 'knex';
 
-const dataByCodeNat: Record<
+const dataBySubPlanNumber: Record<
   string,
   {
     label: string;
@@ -37,8 +37,8 @@ export const up = async (knex: Knex) => {
     table.boolean('with_sacha').nullable();
   });
 
-  for (const [codeNat, data] of Object.entries(dataByCodeNat)) {
-    await knex('programming_sub_plans').where({ codeNat }).update({
+  for (const [subPlanNumber, data] of Object.entries(dataBySubPlanNumber)) {
+    await knex('programming_sub_plans').where({ subPlanNumber }).update({
       label: data.label,
       analysisPermissionRole: data.analysisPermissionRole,
       contactListId: data.contactListId,

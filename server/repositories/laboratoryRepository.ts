@@ -151,12 +151,12 @@ const findMany = async (
           );
         }
         break;
-      case 'codeNat':
-        if (!isNil(findOptions.codeNat)) {
+      case 'subPlanNumber':
+        if (!isNil(findOptions.subPlanNumber)) {
           query = query.where(
-            'programmingSubPlans.codeNat',
+            'programmingSubPlans.subPlanNumber',
             '=',
-            findOptions.codeNat
+            findOptions.subPlanNumber
           );
         }
         break;

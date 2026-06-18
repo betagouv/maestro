@@ -62,7 +62,7 @@ describe('buildAnalysisRequestData', () => {
       monoSubstances: [],
       multiSubstanceLabels: [],
       multiSubstances: [],
-      programmingSubPlanCodeNat: 'PPV',
+      programmingSubPlanNumber: 'PPV',
       quantityUnit: 'kJ/Daily portion',
       recipientKind: 'Laboratory',
       reference: 'GES-44-00003-A-1',
