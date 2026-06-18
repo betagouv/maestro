@@ -113,8 +113,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'viewDashboard',
     'updatePrescriptionLaboratories',
     'commentPrescription',
-    'distributePrescriptionToDepartments',
-    'deleteDocument'
+    'distributePrescriptionToDepartments'
   ],
   NationalObserver: [...ObserverPermissionsList, 'createResource'],
   RegionalObserver: ObserverPermissionsList,
