@@ -321,7 +321,7 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                 <th scope="col">
                   <div className="border-left">
                     <ColumnFilterHeader
-                      label="ID"
+                      label="N°"
                       options={kindOptions}
                       selectedValues={kindFilter}
                       onChange={onKindFilterChange}
