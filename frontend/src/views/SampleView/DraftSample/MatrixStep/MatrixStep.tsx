@@ -271,41 +271,44 @@ const MatrixStep = ({ partialSample }: Props) => {
   };
 
   const renderSampleAttachments = useMemo(
-    () => () => (
-      <>
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12')}>
-            <span className={cx('fr-text--md', 'fr-text--bold')}>
-              Compléments
-            </span>
-            <AppUpload
-              label="Pièces jointes"
-              hint="Ajoutez si besoin un document ou une photo pour accompagner votre prélèvement JPG, PNG, PDF (10Mo maximum)"
-              nativeInputProps={{
-                onChange: (event: any) =>
-                  setFiles(Array.from(event.target.files))
-              }}
-              className={cx('fr-mb-2w')}
-              inputForm={filesForm}
-              inputKey="files"
-              acceptFileTypes={[...SampleDocumentTypeList]}
-              whenValid="fichiers valides"
-              multiple
-              withPhoto={true}
-            />
+    () => () =>
+      (!readonly || (documentIds ?? []).length > 0) && (
+        <>
+          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+            <div className={cx('fr-col-12')}>
+              <span className={cx('fr-text--md', 'fr-text--bold')}>
+                Compléments
+              </span>
+              {!readonly && (
+                <AppUpload
+                  label="Pièces jointes"
+                  hint="Ajoutez si besoin un document ou une photo pour accompagner votre prélèvement JPG, PNG, PDF (10Mo maximum)"
+                  nativeInputProps={{
+                    onChange: (event: any) =>
+                      setFiles(Array.from(event.target.files))
+                  }}
+                  className={cx('fr-mb-2w')}
+                  inputForm={filesForm}
+                  inputKey="files"
+                  acceptFileTypes={[...SampleDocumentTypeList]}
+                  whenValid="fichiers valides"
+                  multiple
+                  withPhoto={true}
+                />
+              )}
+            </div>
           </div>
-        </div>
 
-        {documentIds?.map((documentId) => (
-          <SampleDocument
-            key={`document-${documentId}`}
-            sampleId={partialSample.id}
-            documentId={documentId}
-            onRemove={removeDocument}
-          />
-        ))}
-      </>
-    ),
+          {documentIds?.map((documentId) => (
+            <SampleDocument
+              key={`document-${documentId}`}
+              sampleId={partialSample.id}
+              documentId={documentId}
+              onRemove={readonly ? undefined : () => removeDocument(documentId)}
+            />
+          ))}
+        </>
+      ),
     [documentIds, filesForm] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
@@ -448,7 +451,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                 label="Catégorie de matrice programmée"
                 required={matrixKind !== OtherMatrixKind.value}
                 inputProps={{
-                  disabled: matrixKind === OtherMatrixKind.value,
+                  disabled: readonly || matrixKind === OtherMatrixKind.value,
                   'data-testid': 'matrix-kind-select'
                 }}
                 renderOption={(props, option) => (
@@ -476,6 +479,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                       }
                     }
                   ]}
+                  disabled={readonly}
                 />
               )}
             </div>
@@ -493,6 +497,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                   whenValid="Matrice correctement renseignée."
                   required
                   label="Matrice"
+                  disabled={readonly}
                 />
               ) : (
                 <AppSearchInput
@@ -509,6 +514,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                   label="Matrice"
                   required
                   inputProps={{
+                    disabled: readonly,
                     'data-testid': 'matrix-select'
                   }}
                 />
@@ -525,6 +531,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                 data-testid="stage-select"
                 label="Stade de prélèvement"
                 required
+                disabled={readonly}
               />
             </div>
           </div>
@@ -537,6 +544,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                 inputForm={form}
                 specificData={specificData}
                 onChange={setSpecificData}
+                disabled={readonly}
               />
             ))}
 
@@ -560,7 +568,8 @@ const MatrixStep = ({ partialSample }: Props) => {
                             } else {
                               setMonoSubstances(null);
                             }
-                          }
+                          },
+                          disabled: readonly
                         }
                       }
                     ]}
@@ -594,7 +603,8 @@ const MatrixStep = ({ partialSample }: Props) => {
                             } else {
                               setMultiSubstances(null);
                             }
-                          }
+                          },
+                          disabled: readonly
                         }
                       }
                     ]}
@@ -611,7 +621,6 @@ const MatrixStep = ({ partialSample }: Props) => {
           </div>
           <SampleProcedure partialSample={partialSample} />
           {renderSampleAttachments?.()}
-          <hr />
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12')}>
               <AppTextAreaInput
@@ -627,6 +636,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                     ? 'Champ facultatif pour précisions supplémentaires (date de semis, précédent cultural, traitements faits, protocole de prélèvement et note inspecteur, etc.)'
                     : ''
                 }
+                disabled={readonly}
               />
             </div>
           </div>

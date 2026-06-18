@@ -5,7 +5,7 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 import { toArray } from 'maestro-shared/utils/utils';
 import { useCallback, useContext, useMemo } from 'react';
-import { useParams } from 'react-router';
+import { useParams, useSearchParams } from 'react-router';
 import { ApiClientContext } from '../services/apiClient';
 import { useAuthentication } from './useAuthentication';
 
@@ -15,6 +15,8 @@ export const usePartialSample = (
   const apiClient = useContext(ApiClientContext);
   const { hasUserPermission, user } = useAuthentication();
   const { year: yearParam } = useParams<{ year: string }>();
+  const [searchParams] = useSearchParams();
+  const isEditing = searchParams.get('isEditing') === 'true';
 
   const { data: sampleProgrammingPlan } = apiClient.useGetProgrammingPlanQuery(
     { programmingPlanId: partialSample?.programmingPlanId as string },
@@ -104,13 +106,44 @@ export const usePartialSample = (
     ]
   );
 
-  const readonly = useMemo(
-    () =>
-      !hasUserPermission('updateSample') ||
-      (isCreatedPartialSample(partialSample) &&
-        partialSample.region !== user?.region),
-    [hasUserPermission, partialSample, user?.region]
-  );
+  const canEdit = useMemo(() => {
+    if (!isCreatedPartialSample(partialSample)) {
+      return false;
+    }
+    if (!hasUserPermission('updateSample')) {
+      return false;
+    }
+    if (partialSample.region !== user?.region) {
+      return false;
+    }
+    const isSamplerOrAdditionalSampler =
+      user?.id === partialSample.sampler.id ||
+      user?.id === partialSample.additionalSampler?.id;
+    return !isSamplerOrAdditionalSampler;
+  }, [hasUserPermission, partialSample, user?.region, user?.id]);
+
+  const readonly = useMemo(() => {
+    if (!hasUserPermission('updateSample')) {
+      return true;
+    }
+    if (
+      isCreatedPartialSample(partialSample) &&
+      partialSample.region !== user?.region
+    ) {
+      return true;
+    }
+    if (isCreatedPartialSample(partialSample)) {
+      const isSamplerOrAdditionalSampler =
+        user?.id === partialSample.sampler.id ||
+        user?.id === partialSample.additionalSampler?.id;
+      if (isSamplerOrAdditionalSampler) {
+        return false;
+      }
+    }
+    return !isEditing;
+  }, [hasUserPermission, partialSample, user?.region, user?.id, isEditing]);
+
+  console.log('readonly', readonly);
 
   const getSampleItemLaboratory = useCallback(
     (itemNumber: number) => {
@@ -127,6 +160,7 @@ export const usePartialSample = (
   );
 
   return {
+    canEdit,
     readonly,
     programmingPlan,
     programmingSubPlan,

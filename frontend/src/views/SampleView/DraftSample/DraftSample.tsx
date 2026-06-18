@@ -1,4 +1,6 @@
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import Stepper from '@codegouvfr/react-dsfr/Stepper';
 import clsx from 'clsx';
 import {
@@ -19,7 +21,13 @@ import { SampleStepTitles } from 'src/views/SampleView/SampleView';
 import audit from '../../../assets/illustrations/audit.svg';
 import { usePartialSample } from '../../../hooks/usePartialSample';
 import { useSamplesLink } from '../../../hooks/useSamplesLink';
+
 import '../SampleView.scss';
+
+const editConfirmModal = createModal({
+  id: 'sample-edit-confirm-modal',
+  isOpenedByDefault: false
+});
 
 interface Props {
   sample?: PartialSample | PartialSampleToCreate;
@@ -28,12 +36,12 @@ interface Props {
 const SampleView = ({ sample }: Props) => {
   useDocumentTitle("Saisie d'un prélèvement");
 
-  const { programmingPlan } = usePartialSample(sample);
+  const { programmingPlan, canEdit, readonly } = usePartialSample(sample);
   const { getSampleStepParam } = useSamplesLink();
-  const { readonly } = usePartialSample(sample);
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [step, setStep] = useState<number>();
+  const isEditing = searchParams.get('isEditing') === 'true';
 
   useEffect(() => {
     if (sample) {
@@ -48,48 +56,85 @@ const SampleView = ({ sample }: Props) => {
   }
 
   return (
-    <section className={clsx(cx('fr-container'), 'main-section')}>
-      <div
-        className={clsx(
-          cx('fr-pt-3w', 'fr-pt-md-4w', 'fr-pb-6w'),
-          'white-container'
-        )}
-      >
-        {!readonly && step && (
-          <div className="app-stepper">
-            <img
-              src={audit}
-              height="100%"
-              aria-hidden
-              className={cx('fr-hidden', 'fr-unhidden-md')}
-              alt=""
-            />
-            <Stepper
-              currentStep={step}
-              nextTitle={SampleStepTitles(sample)[step]}
-              stepCount={4}
-              title={
-                <div>
-                  {SampleStepTitles(sample)[step - 1]}
-                  {sample && isCreatedPartialSample(sample) && (
-                    <span className={cx('fr-text--regular')}>
-                      {' '}
-                      • Prélèvement {sample.reference}
-                    </span>
-                  )}
-                </div>
-              }
-            />
+    <>
+      <section className={clsx(cx('fr-container'), 'main-section')}>
+        <div
+          className={clsx(
+            cx('fr-pt-3w', 'fr-pt-md-4w', 'fr-pb-6w'),
+            'white-container'
+          )}
+        >
+          {!readonly && step && (
+            <div className="app-stepper">
+              <img
+                src={audit}
+                height="100%"
+                aria-hidden
+                className={cx('fr-hidden', 'fr-unhidden-md')}
+                alt=""
+              />
+              <Stepper
+                currentStep={step}
+                nextTitle={SampleStepTitles(sample)[step]}
+                stepCount={4}
+                title={
+                  <div>
+                    {SampleStepTitles(sample)[step - 1]}
+                    {sample && isCreatedPartialSample(sample) && (
+                      <span className={cx('fr-text--regular')}>
+                        {' '}
+                        • Prélèvement {sample.reference}
+                      </span>
+                    )}
+                  </div>
+                }
+              />
+            </div>
+          )}
+          {step === 1 && <ContextStep partialSample={sample} />}
+          {step === 2 && sample && <MatrixStep partialSample={sample} />}
+          {step === 3 && sample && <ItemsStep partialSample={sample} />}
+          {step === 4 && sample && (
+            <SendingStep sample={sample as SampleChecked} />
+          )}
+        </div>
+        {canEdit && !isEditing && (
+          <div className={clsx(cx('fr-mb-2w'))}>
+            <Button
+              iconId="fr-icon-edit-line"
+              priority="secondary"
+              onClick={editConfirmModal.open}
+            >
+              Modifier le prélèvement
+            </Button>
           </div>
         )}
-        {step === 1 && <ContextStep partialSample={sample} />}
-        {step === 2 && sample && <MatrixStep partialSample={sample} />}
-        {step === 3 && sample && <ItemsStep partialSample={sample} />}
-        {step === 4 && sample && (
-          <SendingStep sample={sample as SampleChecked} />
-        )}
-      </div>
-    </section>
+      </section>
+      <editConfirmModal.Component
+        title="Modifier le prélèvement"
+        buttons={[
+          {
+            children: 'Annuler',
+            priority: 'secondary'
+          },
+          {
+            children: 'Confirmer',
+            onClick: () =>
+              setSearchParams(
+                (prev) => {
+                  prev.set('isEditing', 'true');
+                  return prev;
+                },
+                { replace: true }
+              ),
+            doClosesModal: true
+          }
+        ]}
+      >
+        Vous êtes sur le point de modifier un prélèvement dont vous n'êtes pas
+        le préleveur. Souhaitez-vous continuer ?
+      </editConfirmModal.Component>
+    </>
   );
 };
 

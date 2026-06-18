@@ -23,12 +23,20 @@ type Props<T extends ZodObject, U extends UseForm<T>> = {
   fieldConfig: ProgrammingSubPlanFieldConfig;
   inputProps: SpecificDataFormInputProps;
   inputForm: U;
+  disabled?: boolean;
 };
 
 function MatrixSpecificDataFormInput<T extends ZodObject>(
   props: Props<T, UseForm<T>>
 ) {
-  const { specificData, onChange, fieldConfig, inputProps, inputForm } = props;
+  const {
+    specificData,
+    onChange,
+    fieldConfig,
+    inputProps,
+    inputForm,
+    disabled
+  } = props;
   const { field, required } = fieldConfig;
   const inputKey = field.key;
 
@@ -89,6 +97,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   hintText={field.hintText ?? undefined}
                   whenValid={whenValid}
                   required={required}
+                  disabled={disabled}
                   data-testid={testId}
                 />
               </div>
@@ -113,6 +122,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   hintText={field.hintText ?? undefined}
                   whenValid={whenValid}
                   required={required}
+                  disabled={disabled}
                   min={0}
                   data-testid={testId}
                 />
@@ -142,6 +152,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   hintText={field.hintText ?? undefined}
                   whenValid={whenValid}
                   required={required}
+                  disabled={disabled}
                   rows={3}
                   data-testid={testId}
                 />
@@ -189,6 +200,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   label={label}
                   whenValid={whenValid}
                   required={required}
+                  disabled={disabled}
                   data-testid={testId}
                 />
               </div>
@@ -212,6 +224,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                     })
                   }
                   showCheckedHint={false}
+                  disabled={disabled}
                   data-testid={testId}
                 />
               </div>
@@ -249,6 +262,7 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
                   inputKey="specificData"
                   inputPathFromKey={[inputKey]}
                   required={required}
+                  disabled={disabled}
                   data-testid={testId}
                 />
               </div>

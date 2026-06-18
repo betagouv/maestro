@@ -475,6 +475,7 @@ const ContextStep = ({ partialSample }: Props) => {
                 label="Le préleveur"
                 hint="La personne qui réalise le prélevement"
                 required
+                disabled={readonly}
                 className={clsx('flex-grow-1')}
               />
               {!showAdditionalSampler && !readonly && (
