@@ -1,6 +1,7 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
+import { isNil } from 'lodash-es';
 import {
   type OptionalBoolean,
   OptionalBooleanLabels,
@@ -46,6 +47,7 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
+  const hasLmr = !isNil(residue.lmr) && residue.lmr !== 0;
   return (
     <>
       <hr />
@@ -53,49 +55,53 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
         <h6 className={cx('fr-mb-0')}>Interprétation du résultat</h6>
 
         <div className={clsx('result-detail-bloc')}>
-          <AppSelect
-            className={cx('fr-mb-0')}
-            value={residue.resultHigherThanArfd ?? ''}
-            options={selectOptionsFromList(OptionalBooleanList, {
-              labels: OptionalBooleanLabels
-            })}
-            onChange={(e) =>
-              onChangeResidue(
-                {
-                  ...residue,
-                  resultHigherThanArfd: e.target.value as OptionalBoolean
-                },
-                residueIndex
-              )
-            }
-            inputForm={form}
-            inputKey="residues"
-            inputPathFromKey={[residueIndex, 'resultHigherThanArfd']}
-            whenValid="Valeur correctement renseignée"
-            label="Résultat brut entrainant un dépassement de l'Arfd ?"
-          />
-          <AppTextInput
-            className={cx('fr-mb-0')}
-            value={residue.notesOnResult ?? ''}
-            onChange={(e) =>
-              onChangeResidue(
-                { ...residue, notesOnResult: e.target.value },
-                residueIndex
-              )
-            }
-            inputForm={form}
-            inputKey="residues"
-            inputPathFromKey={[residueIndex, 'notesOnResult']}
-            whenValid="Note interne correctement renseignée"
-            label="Note interne"
-          />
+          {hasLmr && (
+            <>
+              <AppSelect
+                className={cx('fr-mb-0')}
+                value={residue.resultHigherThanArfd ?? ''}
+                options={selectOptionsFromList(OptionalBooleanList, {
+                  labels: OptionalBooleanLabels
+                })}
+                onChange={(e) =>
+                  onChangeResidue(
+                    {
+                      ...residue,
+                      resultHigherThanArfd: e.target.value as OptionalBoolean
+                    },
+                    residueIndex
+                  )
+                }
+                inputForm={form}
+                inputKey="residues"
+                inputPathFromKey={[residueIndex, 'resultHigherThanArfd']}
+                whenValid="Valeur correctement renseignée"
+                label="Résultat brut entrainant un dépassement de l'Arfd ?"
+              />
+              <AppTextInput
+                className={cx('fr-mb-0')}
+                value={residue.notesOnResult ?? ''}
+                onChange={(e) =>
+                  onChangeResidue(
+                    { ...residue, notesOnResult: e.target.value },
+                    residueIndex
+                  )
+                }
+                inputForm={form}
+                inputKey="residues"
+                inputPathFromKey={[residueIndex, 'notesOnResult']}
+                whenValid="Note interne correctement renseignée"
+                label="Note interne"
+              />
 
-          {residue.resultHigherThanArfd === 'true' && (
-            <Alert
-              severity="warning"
-              small
-              description="Alerte risque consommateur"
-            />
+              {residue.resultHigherThanArfd === 'true' && (
+                <Alert
+                  severity="warning"
+                  small
+                  description="Alerte risque consommateur"
+                />
+              )}
+            </>
           )}
           {programmingPlanKind === 'PPV' && (
             <>

@@ -3,7 +3,7 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
-import { capitalize } from 'lodash-es';
+import { capitalize, isNil } from 'lodash-es';
 import { OptionalBooleanLabels } from 'maestro-shared/referential/OptionnalBoolean';
 import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
@@ -40,6 +40,8 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
+
+  const hasLmr = !isNil(residue.lmr) && residue.lmr !== 0;
 
   return (
     <div className={clsx('residue-detail-container')}>
@@ -98,26 +100,28 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
 
       <div className="result-detail-bloc">
         <h6 className={cx('fr-m-0')}>Interprétation du résultat</h6>
-        <div className={'result-with-comment'}>
-          <div className="d-flex-align-center">
-            Résultat brut entrainant un dépassement de l'Arfd ?
-            <b className={'fr-ml-auto'}>
-              {residue.resultHigherThanArfd
-                ? OptionalBooleanLabels[residue.resultHigherThanArfd]
-                : 'Non renseigné'}
-            </b>
-          </div>
-          {residue.notesOnResult && <i>{quote(residue.notesOnResult)}</i>}
+        {hasLmr && (
+          <div className={'result-with-comment'}>
+            <div className="d-flex-align-center">
+              Résultat brut entrainant un dépassement de l'Arfd ?
+              <b className={'fr-ml-auto'}>
+                {residue.resultHigherThanArfd
+                  ? OptionalBooleanLabels[residue.resultHigherThanArfd]
+                  : 'Non renseigné'}
+              </b>
+            </div>
+            {residue.notesOnResult && <i>{quote(residue.notesOnResult)}</i>}
 
-          {residue.resultHigherThanArfd === 'true' && (
-            <Alert
-              severity="warning"
-              className={cx('fr-mt-2w')}
-              small
-              description="Alerte risque consommateur"
-            />
-          )}
-        </div>
+            {residue.resultHigherThanArfd === 'true' && (
+              <Alert
+                severity="warning"
+                className={cx('fr-mt-2w')}
+                small
+                description="Alerte risque consommateur"
+              />
+            )}
+          </div>
+        )}
 
         {programmingPlanKind === 'PPV' && (
           <>
