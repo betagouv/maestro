@@ -16,8 +16,9 @@ export const csvToJson = (
 
 export const frenchNumberStringValidator = z
   .string()
-  .transform((val) => Number(`${val}`.replace(',', '.')))
-  .pipe(z.number());
+  .transform((val) => `${val}`.replace(',', '.').trim())
+  .transform((val) => (val === '' ? null : Number(val)))
+  .pipe(z.number().nullable());
 
 export const padReferenceSerial = (
   year: number,

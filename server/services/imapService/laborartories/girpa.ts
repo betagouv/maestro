@@ -30,8 +30,10 @@ const residueCasNumberValidator = z.string().brand('CAS number');
 const residueEnglishNameValidator = z.string().brand('ResidueEnglishName');
 
 export const analyseXmlValidator = z.object({
-  Résultat: frenchNumberStringValidator.or(z.number()),
-  Limite_de_quantification: frenchNumberStringValidator.or(z.number()),
+  Résultat: frenchNumberStringValidator.or(z.number()).transform((v) => v ?? 0),
+  Limite_de_quantification: frenchNumberStringValidator
+    .or(z.number())
+    .transform((v) => v ?? 0),
   LMR: z
     .union([z.literal('-'), z.number(), frenchNumberStringValidator])
     .transform((a) => (a === '-' ? null : a)),

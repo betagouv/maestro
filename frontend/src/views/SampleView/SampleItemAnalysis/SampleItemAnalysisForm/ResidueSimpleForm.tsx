@@ -33,6 +33,14 @@ function ResidueSimpleForm({
   residueIndex,
   changeResidue
 }: Props) {
+  const lmrIsOptional = LmrIsValid({
+    ...(residue as ResidueLmrChecked),
+    matrixPart: (residue as ResidueLmrChecked).specificData?.matrixPart as
+      | string
+      | undefined,
+    lmr: null
+  });
+
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
       <div className={cx('fr-col-12')}>
@@ -105,14 +113,7 @@ function ResidueSimpleForm({
               label="Valeur de la LMR"
               hintText="En mg/kg"
               min={0}
-              required={
-                !LmrIsValid({
-                  ...(residue as ResidueLmrChecked),
-                  matrixPart: (residue as ResidueLmrChecked).specificData
-                    ?.matrixPart as string | undefined,
-                  lmr: null
-                })
-              }
+              required={!lmrIsOptional}
             />
           </div>
           {isDefinedAndNotNull(residue.result) &&
@@ -122,6 +123,7 @@ function ResidueSimpleForm({
                   programmingPlanKind={programmingPlanKind}
                   result={residue.result}
                   lmr={residue.lmr}
+                  lmrIsOptional={lmrIsOptional}
                 />
               </div>
             )}

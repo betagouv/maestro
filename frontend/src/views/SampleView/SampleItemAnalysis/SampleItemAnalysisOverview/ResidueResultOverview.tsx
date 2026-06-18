@@ -9,7 +9,11 @@ import { isComplex } from 'maestro-shared/referential/Residue/SSD2Hierarchy';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import { ContaminationSourceLabels } from 'maestro-shared/schema/Analysis/Residue/ContaminationSource';
-import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import {
+  LmrIsValid,
+  type PartialResidue,
+  type ResidueLmrChecked
+} from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { ResidueComplianceLabels } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import {
   type ResidueKind,
@@ -180,6 +184,16 @@ const ResidueValueLabel = ({
   programmingPlanKind,
   residue
 }: Pick<Props, 'residue' | 'programmingPlanKind'>) => {
+  const lmrIsOptional = LmrIsValid({
+    ...(residue as ResidueLmrChecked),
+    matrixPart: (residue as ResidueLmrChecked).specificData?.matrixPart as
+      | string
+      | undefined,
+    lmr: null
+  });
+
+  const hideLmr = lmrIsOptional && !residue.lmr;
+
   return (
     <>
       {residue.resultKind === 'Q' && (
@@ -188,14 +202,17 @@ const ResidueValueLabel = ({
             Valeur du résultat
             <b className={'fr-ml-auto'}>{residue.result} mg/kg</b>
           </div>
-          <div className="d-flex-align-center">
-            Valeur de la LMR
-            <b className={'fr-ml-auto'}>{residue.lmr} mg/kg</b>
-          </div>
+          {!hideLmr && (
+            <div className="d-flex-align-center">
+              Valeur de la LMR
+              <b className={'fr-ml-auto'}>{residue.lmr} mg/kg</b>
+            </div>
+          )}
           <ResidueResultAlert
             programmingPlanKind={programmingPlanKind}
             result={residue.result}
             lmr={residue.lmr}
+            lmrIsOptional={lmrIsOptional}
           />
         </>
       )}
