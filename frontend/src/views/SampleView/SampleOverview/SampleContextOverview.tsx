@@ -3,6 +3,7 @@ import { useContext } from 'react';
 import ContextStepSummary from 'src/views/SampleView/StepSummary/ContextStepSummary';
 import { ApiClientContext } from '../../../services/apiClient';
 import './SampleOverview.scss';
+
 interface Props {
   sample: SampleChecked;
 }
