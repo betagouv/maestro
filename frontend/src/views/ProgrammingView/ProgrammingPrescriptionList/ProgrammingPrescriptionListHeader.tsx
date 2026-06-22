@@ -1,7 +1,6 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
-import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import { t } from 'i18next';
@@ -10,7 +9,8 @@ import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import React, { type ComponentProps, useMemo, useState } from 'react';
+import type React from 'react';
+import { useMemo, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
@@ -56,7 +56,7 @@ const ProgrammingPrescriptionListHeader = ({
     hasUserPermission
   } = useAuthentication();
 
-  const { prescriptionListDisplay, prescriptionFilters } = useAppSelector(
+  const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
   );
 
@@ -67,14 +67,7 @@ const ProgrammingPrescriptionListHeader = ({
     [localPrescriptions]
   );
   return (
-    <div
-      className={cx(
-        'fr-mb-2w',
-        'fr-mb-md-5w',
-        'fr-container',
-        prescriptionListDisplay === 'table' ? 'fr-px-7w' : 'fr-px-0'
-      )}
-    >
+    <div className={cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-container', 'fr-px-7w')}>
       <div className="d-flex-align-center" style={{ gap: '1rem' }}>
         <h4 className={clsx(cx('fr-mb-0'), 'flex-grow-1')}>
           {t('plannedSample', { count: sampleCount ?? 0 })}
@@ -101,40 +94,6 @@ const ProgrammingPrescriptionListHeader = ({
             wrap: cx('fr-mt-0')
           }}
         />
-        {!isMobile && (
-          <SegmentedControl
-            hideLegend
-            legend="Légende"
-            segments={[
-              {
-                label: 'Grille',
-                iconId: 'fr-icon-layout-grid-line',
-                nativeInputProps: {
-                  checked: prescriptionListDisplay === 'cards',
-                  onChange: () => {
-                    dispatch(
-                      prescriptionsSlice.actions.changeListDisplay('cards')
-                    );
-                  },
-                  'data-testid': 'prescriptions-cards-segment'
-                } as ComponentProps<'input'>
-              },
-              {
-                label: 'Tableau',
-                iconId: 'fr-icon-table-line',
-                nativeInputProps: {
-                  checked: prescriptionListDisplay === 'table',
-                  onChange: () => {
-                    dispatch(
-                      prescriptionsSlice.actions.changeListDisplay('table')
-                    );
-                  },
-                  'data-testid': 'prescriptions-table-segment'
-                } as ComponentProps<'input'>
-              }
-            ]}
-          />
-        )}
         <Button
           iconId="fr-icon-file-download-line"
           priority="secondary"

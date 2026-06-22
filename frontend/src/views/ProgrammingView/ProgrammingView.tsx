@@ -1,6 +1,5 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { isEmpty, isNil, mapValues, max, omitBy } from 'lodash-es';
@@ -8,7 +7,6 @@ import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
@@ -18,6 +16,7 @@ import programmation from '../../assets/illustrations/programmation-white.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
 import PrescriptionCommentsModal from '../../components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
+import YearSelector from '../../components/YearSelector/YearSelector';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { usePrescriptionFilters } from '../../hooks/usePrescriptionFilters';
@@ -49,7 +48,7 @@ const ProgrammingView = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, hasNationalView, hasRegionalView, hasUserPermission } =
     useAuthentication();
-  const { prescriptionFilters, prescriptionListDisplay } = useAppSelector(
+  const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
   );
 
@@ -144,34 +143,21 @@ const ProgrammingView = () => {
           <div className={cx('fr-container')}>
             <SectionHeader
               title={
-                <>
+                <div className="d-flex-align-center">
                   Programmation{' '}
-                  {prescriptionFilters.domain &&
-                    ProgrammingPlanDomainLabels[
-                      prescriptionFilters.domain
-                    ].toLowerCase()}
-                </>
+                  {yearOptions(prescriptionFilters).length <= 1 ? (
+                    prescriptionFilters.year
+                  ) : (
+                    <YearSelector
+                      year={prescriptionFilters.year ?? 0}
+                      years={yearOptions(prescriptionFilters)}
+                      onChange={(year) => changeFilter({ year })}
+                    />
+                  )}
+                </div>
               }
               subtitle={`${region ? Regions[region]?.name : ''}${user?.department ? ` - ${DepartmentLabels[user?.department]}` : ''}`}
               illustration={programmation}
-              action={
-                <SegmentedControl
-                  hideLegend
-                  legend="Année"
-                  segments={
-                    yearOptions(prescriptionFilters).map((year) => ({
-                      label: year,
-                      nativeInputProps: {
-                        checked: year === prescriptionFilters.year,
-                        onChange: () =>
-                          changeFilter({
-                            year
-                          })
-                      }
-                    })) as any
-                  }
-                />
-              }
             />
             {programmingPlan && (
               <ProgrammingInstructions programmingPlan={programmingPlan} />
@@ -220,9 +206,7 @@ const ProgrammingView = () => {
                       setSelectedTabId(tabId as ProgrammingViewTab)
                     }
                     className={clsx({
-                      'full-width':
-                        (hasNationalView || hasRegionalView) &&
-                        prescriptionListDisplay === 'table'
+                      'full-width': hasNationalView || hasRegionalView
                     })}
                     classes={{
                       panel: clsx('white-container')
