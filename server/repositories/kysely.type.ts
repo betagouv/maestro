@@ -221,6 +221,9 @@ export interface Laboratories {
   address: string;
   postalCode: string;
   city: string;
+  billingAddress: string | null;
+  billingPostalCode: string | null;
+  billingCity: string | null;
   emailsAnalysisResult: string[];
   sachaRecipientEmail: string | null;
   sachaGpgEmail: string | null;

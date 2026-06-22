@@ -92,6 +92,9 @@ const findMany = async (
     'laboratories.address',
     'laboratories.postalCode',
     'laboratories.city',
+    'laboratories.billingAddress',
+    'laboratories.billingPostalCode',
+    'laboratories.billingCity',
     'laboratories.emails',
     'laboratories.emailsAnalysisResult'
   ] as const;
