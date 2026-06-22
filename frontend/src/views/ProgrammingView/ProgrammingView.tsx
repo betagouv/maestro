@@ -48,7 +48,7 @@ const ProgrammingView = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, hasNationalView, hasRegionalView, hasUserPermission } =
     useAuthentication();
-  const { prescriptionFilters, prescriptionListDisplay } = useAppSelector(
+  const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
   );
 
@@ -202,9 +202,7 @@ const ProgrammingView = () => {
                       setSelectedTabId(tabId as ProgrammingViewTab)
                     }
                     className={clsx({
-                      'full-width':
-                        (hasNationalView || hasRegionalView) &&
-                        prescriptionListDisplay === 'table'
+                      'full-width': hasNationalView || hasRegionalView
                     })}
                     classes={{
                       panel: clsx('white-container')
