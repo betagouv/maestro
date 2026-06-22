@@ -16,6 +16,7 @@ import { useContext, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { ApiClientContext } from '../../../services/apiClient';
 import '../ProgrammingPlanNotification.scss';
+
 interface Props {
   programmingPlan: ProgrammingPlanChecked;
   departmentalPrescriptions: LocalPrescription[];

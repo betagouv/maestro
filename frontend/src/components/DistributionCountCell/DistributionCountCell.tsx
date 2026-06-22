@@ -8,6 +8,7 @@ import { useAppDispatch } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import { assert, type Equals } from 'tsafe';
 import './DistributionCountCell.scss';
+
 interface Props {
   programmingPlan: ProgrammingPlanChecked;
   prescription: Prescription;

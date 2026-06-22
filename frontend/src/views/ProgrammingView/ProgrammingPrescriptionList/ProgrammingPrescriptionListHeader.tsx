@@ -21,6 +21,7 @@ import ProgrammingPlanNotificationDepartmentalToSampler from '../../../component
 import ProgrammingPlanNotificationNationalToRegional from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationNationalToRegional/ProgrammingPlanNotificationNationalToRegional';
 import ProgrammingPlanNotificationRegionalToDepartmental from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationRegionalToDepartmental/ProgrammingPlanNotificationRegionalToDepartmental';
 import './ProgrammingPrescriptionList.scss';
+
 interface Props {
   programmingPlan: ProgrammingPlanChecked;
   prescriptions: Prescription[];

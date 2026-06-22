@@ -27,6 +27,7 @@ import { api } from '../../../services/api.service';
 import { ApiClientContext } from '../../../services/apiClient';
 import { pluralize } from '../../../utils/stringUtils';
 import '../ProgrammingPlanNotification.scss';
+
 interface Props {
   programmingPlan: ProgrammingPlanChecked;
 }
