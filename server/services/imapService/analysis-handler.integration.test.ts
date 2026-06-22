@@ -182,33 +182,42 @@ test("Impossible d'enregistrer l'analyse si on trouve un résidu complexe sans a
   expect(spyDeleteDocument).toHaveBeenCalledTimes(0);
 });
 
-test('On peut enregistrer un résidu complexe sans analyte si il est Non Quantifié', async () => {
-  expect(
-    await analysisHandler(
-      {
-        notes: '',
-        pdfFile: new File([], 'fileName'),
-        sampleReference: Sample13Fixture.reference,
-        copyNumber: 1,
-        itemNumber: 1,
-        residues: [
-          {
-            ssd2Id: 'RF-0008-001-PPP',
-            result_kind: 'NQ',
-            analysisMethod: 'Multi',
-            unknownLabel: null,
-            analysisDate: null
-          }
-        ]
-      },
-      new Date(9999999)
-    )
-  ).toMatchObject({
+test('Un résidu complexe NQ sans analyte est requalifié en Non détecté', async () => {
+  const { analysisId, ...result } = await analysisHandler(
+    {
+      notes: '',
+      pdfFile: new File([], 'fileName'),
+      sampleReference: Sample13Fixture.reference,
+      copyNumber: 1,
+      itemNumber: 1,
+      residues: [
+        {
+          ssd2Id: 'RF-0008-001-PPP',
+          result_kind: 'NQ',
+          analysisMethod: 'Multi',
+          unknownLabel: null,
+          analysisDate: null
+        }
+      ]
+    },
+    new Date(9999999)
+  );
+
+  expect(result).toMatchObject({
     sampleId: '11111111-3333-3333-3333-333333333333',
     samplerEmail: 'john.doe@example.net',
     samplerId: '11111111-1111-1111-1111-111111111111',
     compliance: true
   });
+
+  const analysisResidue = await kysely
+    .selectFrom('analysisResidues')
+    .where('analysisId', '=', analysisId)
+    .selectAll()
+    .execute();
+  expect(analysisResidue).toHaveLength(1);
+  expect(analysisResidue[0].reference).toBe('RF-0008-001-PPP');
+  expect(analysisResidue[0].resultKind).toBe('ND');
 
   expect(spyUploadDocument).toHaveBeenCalledTimes(1);
   expect(spyDeleteDocument).toHaveBeenCalledTimes(0);
@@ -251,8 +260,6 @@ test('Peut enregistrer une analyse avec un résidu complexe et ses analytes asso
     new Date(9999999)
   );
 
-  expect(compliance).toEqual(true);
-
   const analysisResidue = await kysely
     .selectFrom('analysisResidues')
     .where('analysisId', '=', analysisId)
@@ -260,6 +267,9 @@ test('Peut enregistrer une analyse avec un résidu complexe et ses analytes asso
     .execute();
   expect(analysisResidue).toHaveLength(1);
   expect(analysisResidue[0].reference).toBe(analysisToSave.residues[1].ssd2Id);
+  // Un résidu complexe NQ avec des analytes NQ n'est pas requalifié en ND
+  expect(compliance).toEqual(null);
+  expect(analysisResidue[0].resultKind).toBe('NQ');
 
   const analysisResidueAnalytes = await kysely
     .selectFrom('residueAnalytes')

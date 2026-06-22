@@ -91,13 +91,6 @@ export const analysisHandler = async (
     } => r.ssd2Id !== null && isComplex(r.ssd2Id)
   );
 
-  //D'après le métier: il n'existe pas de limite de détection sur les résidus dont la définition est une somme.
-  for (const complexResidue of complexResidues) {
-    if (complexResidue.result_kind === 'NQ') {
-      complexResidue.result_kind = 'ND';
-    }
-  }
-
   const simpleResidues = analyse.residues.filter(
     ({ ssd2Id }) => ssd2Id === null || !isComplex(ssd2Id)
   );
@@ -144,9 +137,15 @@ export const analysisHandler = async (
     }
   }
 
-  Object.values(complexeResiduesIndex).forEach(
-    ({ analytes, ssd2Id, result_kind }) => {
-      if (analytes.length === 0 && ssd2Id && result_kind !== 'ND') {
+  Object.values(complexeResiduesIndex).forEach((complexResidue) => {
+    const { analytes, ssd2Id, result_kind } = complexResidue;
+    if (analytes.length === 0 && ssd2Id && result_kind !== 'ND') {
+      if (result_kind === 'NQ') {
+        // D'après le métier: il n'existe pas de limite de détection sur les résidus
+        // dont la définition est une somme. Un résidu complexe NQ sans analyte est
+        // donc requalifié en Non Détecté.
+        complexResidue.result_kind = 'ND';
+      } else {
         //@ts-expect-error TS7053
         const name: string = SSD2Referential[ssd2Id].name;
         throw new ExtractError(
@@ -154,7 +153,7 @@ export const analysisHandler = async (
         );
       }
     }
-  );
+  });
 
   residues.push(...Object.values(complexeResiduesIndex));
 
