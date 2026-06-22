@@ -111,6 +111,8 @@ export const analysisRouter = {
               pollutionRisk,
               notesOnPollutionRisk,
               otherCompliance,
+              contaminationSources,
+              notesOnContaminationSources,
               ...rest
             }) => rest
           ) ?? [];
