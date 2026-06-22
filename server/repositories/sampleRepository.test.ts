@@ -5,6 +5,7 @@ import {
   PartialSample,
   type SampleChecked
 } from 'maestro-shared/schema/Sample/Sample';
+import type { SevesId } from 'maestro-shared/schema/Sample/Seves';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
@@ -12,6 +13,7 @@ import {
   genSampleItem,
   Sample2Fixture,
   Sample11Fixture,
+  Sample12Fixture,
   Sample13Fixture,
   SampleDAOA1Fixture,
   SampleDAOA2Fixture
@@ -213,12 +215,13 @@ describe('findMany samples', async () => {
   });
 });
 
-describe('hasDetectedResidueWithInterpretation', async () => {
+describe('getSevesNotice', async () => {
   const insertAnalysisWithResidue = async (
     sampleId: string,
     copyNumber: number,
     compliance: boolean | null,
-    resultKind: ResultKind
+    resultKind: ResultKind,
+    residue?: { result?: number; lmr?: number }
   ) => {
     const analysis = genPartialAnalysis({
       sampleId,
@@ -236,33 +239,65 @@ describe('hasDetectedResidueWithInterpretation', async () => {
           analysisMethod: 'Mono',
           reference: 'RF-00000010-CHE',
           analysisId: analysis.id,
-          residueNumber: 0
+          residueNumber: 0,
+          ...residue
         }
       ]
     });
   };
 
-  test('true when a single analysis has both a detected residue and an interpretation', async () => {
+  test("'recommended' when a single analysis has both a detected residue and an interpretation", async () => {
     await insertAnalysisWithResidue(Sample13Fixture.id, 1, true, 'NQ');
 
-    expect(
-      await sampleRepository.hasDetectedResidueWithInterpretation(
-        Sample13Fixture.id
-      )
-    ).toBe(true);
+    expect(await sampleRepository.getSevesNotice(Sample13Fixture.id)).toBe(
+      'recommended'
+    );
   });
 
-  test('false when a detected residue has no interpretation', async () => {
+  test("'recommended' within LMR, then 'lmrExceeded' once a residue exceeds it", async () => {
+    await insertAnalysisWithResidue(Sample12Fixture.id, 1, true, 'Q', {
+      result: 1,
+      lmr: 2
+    });
+
+    expect(await sampleRepository.getSevesNotice(Sample12Fixture.id)).toBe(
+      'recommended'
+    );
+
+    await insertAnalysisWithResidue(Sample12Fixture.id, 1, true, 'Q', {
+      result: 2,
+      lmr: 1
+    });
+
+    expect(await sampleRepository.getSevesNotice(Sample12Fixture.id)).toBe(
+      'lmrExceeded'
+    );
+  });
+
+  test('null when a fiche Sèves already exists, even with a residue exceeding its LMR', async () => {
+    await insertAnalysisWithResidue(Sample13Fixture.id, 1, true, 'Q', {
+      result: 2,
+      lmr: 1
+    });
+    await sampleRepository.updateSeves(Sample13Fixture.reference, {
+      id: 1 as SevesId,
+      numero: '1'
+    });
+
+    expect(await sampleRepository.getSevesNotice(Sample13Fixture.id)).toBe(
+      null
+    );
+  });
+
+  test('null when a detected residue has no interpretation', async () => {
     await insertAnalysisWithResidue(SampleDAOA1Fixture.id, 1, null, 'NQ');
 
-    expect(
-      await sampleRepository.hasDetectedResidueWithInterpretation(
-        SampleDAOA1Fixture.id
-      )
-    ).toBe(false);
+    expect(await sampleRepository.getSevesNotice(SampleDAOA1Fixture.id)).toBe(
+      null
+    );
   });
 
-  test('false when the detected residue and the interpretation are on two different copies', async () => {
+  test('null when the detected residue and the interpretation are on two different copies', async () => {
     await SampleItems().insert(
       genSampleItem({
         sampleId: SampleDAOA2Fixture.id,
@@ -279,11 +314,9 @@ describe('hasDetectedResidueWithInterpretation', async () => {
       'ND' as ResultKind
     );
 
-    expect(
-      await sampleRepository.hasDetectedResidueWithInterpretation(
-        SampleDAOA2Fixture.id
-      )
-    ).toBe(false);
+    expect(await sampleRepository.getSevesNotice(SampleDAOA2Fixture.id)).toBe(
+      null
+    );
   });
 });
 

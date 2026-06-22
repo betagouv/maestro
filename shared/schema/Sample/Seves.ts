@@ -7,3 +7,7 @@ export const Seves = z.object({
 
 export type Seves = z.infer<typeof Seves>;
 export type SevesId = Seves['id'];
+
+export const SevesNotice = z.enum(['recommended', 'lmrExceeded']);
+
+export type SevesNotice = z.infer<typeof SevesNotice>;
