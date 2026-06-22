@@ -572,16 +572,14 @@ describe('Analysis router', () => {
             result,
             analytes,
             resultKind,
-            reference,
-            contaminationSources
+            reference
           }) => ({
             analysisMethod,
             residueNumber,
             result,
             analytes,
             resultKind,
-            reference,
-            contaminationSources
+            reference
           })
         )
       );
