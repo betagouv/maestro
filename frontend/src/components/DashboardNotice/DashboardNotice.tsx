@@ -96,7 +96,7 @@ export const DashboardNotice: FunctionComponent<Props> = ({
         <div>
           <div className={cx('fr-text--bold')}>Quoi de neuf ?</div>
           <Link
-            to={`${config.websiteUrl}/nouveautes`}
+            to={`${config.websiteUrl}/actualites`}
             target="_blank"
             className={cx('fr-link', 'fr-link--sm')}
           >
