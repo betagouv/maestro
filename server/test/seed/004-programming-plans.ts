@@ -1,29 +1,40 @@
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   DAOAInProgressProgrammingPlanFixture,
+  DAOAValidatedProgrammingPlanFixture,
+  PPVClosedProgrammingPlanFixture,
   PPVInProgressProgrammingPlanFixture,
+  PPVSubmittedProgrammingPlanFixture,
+  PPVValidatedDromProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   formatProgrammingPlan,
-  ProgrammingPlanKinds,
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
+import { ProgrammingSubPlans } from '../../repositories/programmingSubPlanRepository';
 
 export const seed = async (): Promise<void> => {
   await ProgrammingPlans().insert(
     [
+      PPVClosedProgrammingPlanFixture,
       PPVValidatedProgrammingPlanFixture,
+      PPVValidatedDromProgrammingPlanFixture,
       PPVInProgressProgrammingPlanFixture,
+      PPVSubmittedProgrammingPlanFixture,
+      DAOAValidatedProgrammingPlanFixture,
       DAOAInProgressProgrammingPlanFixture
     ].map(formatProgrammingPlan)
   );
 
   await Promise.all(
     [
+      PPVClosedProgrammingPlanFixture,
       PPVValidatedProgrammingPlanFixture,
+      PPVValidatedDromProgrammingPlanFixture,
       PPVInProgressProgrammingPlanFixture,
+      PPVSubmittedProgrammingPlanFixture,
+      DAOAValidatedProgrammingPlanFixture,
       DAOAInProgressProgrammingPlanFixture
     ].flatMap((plan) =>
       plan.regionalStatus.map((regionalStatus) =>
@@ -35,15 +46,19 @@ export const seed = async (): Promise<void> => {
     )
   );
 
-  await ProgrammingPlanKinds().insert(
+  await ProgrammingSubPlans().insert(
     [
+      PPVClosedProgrammingPlanFixture,
       PPVValidatedProgrammingPlanFixture,
+      PPVValidatedDromProgrammingPlanFixture,
       PPVInProgressProgrammingPlanFixture,
+      PPVSubmittedProgrammingPlanFixture,
+      DAOAValidatedProgrammingPlanFixture,
       DAOAInProgressProgrammingPlanFixture
     ].flatMap((plan) =>
-      plan.kinds.map((kind: ProgrammingPlanKind) => ({
-        programmingPlanId: plan.id,
-        kind
+      plan.subPlans.map((subPlan) => ({
+        ...subPlan,
+        programmingPlanId: plan.id
       }))
     )
   );

@@ -4,7 +4,7 @@ import type {
   CommemoratifValueSigle,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
-import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
 import type { MaestroDate } from 'maestro-shared/utils/date';
@@ -128,7 +128,6 @@ const daiSample = {
   sentAt: new Date(1765876056798),
   department: '72',
   matrix: 'A01SN#F26.A07XE',
-  programmingPlanKind: 'DAOA_VOLAILLE',
   specificData: {
     sampling: 'Aléatoire',
     animalBatchIdentifier: '',
@@ -207,6 +206,7 @@ test(`génère un XML de DAI`, async () => {
   expect(
     await generateXMLDAI(
       daiSample,
+      'M01',
       daiSampleItem,
       1765876056798,
       daiFieldConfigs,
@@ -304,6 +304,7 @@ test(`fige le NumeroEtiquette sur sentAt (date d'envoi), tout en datant le fichi
 
   const xmlFile = await generateXMLDAI(
     { ...daiSample, sentAt: new Date('2025-12-16T09:00:00') },
+    'M01',
     daiSampleItem,
     dateNow,
     daiFieldConfigs,

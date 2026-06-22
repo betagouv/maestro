@@ -29,6 +29,5 @@ export const down = async (knex: Knex) => {
   await knex.schema.alterTable('laboratories', (table) => {
     table.dropColumn('emails');
     table.dropColumn('emails_analysis_result');
-    table.string('email').notNullable().alter();
   });
 };

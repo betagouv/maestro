@@ -2,7 +2,6 @@ import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { LegalContext } from '../../referential/LegalContext';
 import { checkSchema } from '../../utils/zod';
-import { SubstanceKind } from '../Substance/SubstanceKind';
 import type { UserRefined } from '../User/User';
 import {
   isNationalRole,
@@ -12,20 +11,20 @@ import {
 import { ProgrammingPlanContext } from './Context';
 import { DistributionKind } from './DistributionKind';
 import { ProgrammingPlanDomain } from './ProgrammingPlanDomain';
-import { ProgrammingPlanKind } from './ProgrammingPlanKind';
 import {
   ProgrammingPlanDepartmentalStatus,
   ProgrammingPlanRegionalStatus
 } from './ProgrammingPlanLocalStatus';
 import type { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
+import { ProgrammingSubPlan } from './ProgrammingSubPlan';
 
 export const ProgrammingPlanBase = z.object({
   id: z.guid(),
   domain: ProgrammingPlanDomain,
   title: z.string().min(1, 'Veuillez renseigner le titre.'),
-  kinds: z
-    .array(ProgrammingPlanKind)
-    .min(1, 'Veuillez renseigner au moins un type de plan.'),
+  subPlans: z
+    .array(ProgrammingSubPlan)
+    .min(1, 'Veuillez renseigner au moins un sous-plan.'),
   contexts: z
     .array(ProgrammingPlanContext)
     .min(1, 'Veuillez renseigner au moins un contexte.'),
@@ -33,7 +32,6 @@ export const ProgrammingPlanBase = z.object({
     .array(LegalContext)
     .min(1, 'Veuillez renseigner au moins un cadre juridique.'),
   samplesOutsidePlanAllowed: z.boolean(),
-  substanceKinds: z.array(SubstanceKind),
   distributionKind: DistributionKind,
   createdAt: z.coerce.date(),
   createdBy: z.guid(),

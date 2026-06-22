@@ -2,12 +2,11 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
-import { ProgrammingPlanKindList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   type ProgrammingPlanChecked,
   ProgrammingPlanSort
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import dashboard from 'src/assets/illustrations/dashboard.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -24,16 +23,20 @@ const DashboardView = () => {
     useAuthentication();
   const { isOnline } = useOnLine();
 
-  const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
+  const { data: programmingPlansData } = apiClient.useFindProgrammingPlansQuery(
     {
-      kinds: hasRole('Administrator')
-        ? ProgrammingPlanKindList
-        : user?.programmingPlanKinds,
+      subPlanIds: hasRole('Administrator')
+        ? undefined
+        : user?.programmingSubPlans?.map((sp) => sp.id),
       status: ['Validated', 'Closed']
     },
     {
-      skip: !user?.programmingPlanKinds.length && !hasRole('Administrator')
+      skip: !user?.programmingSubPlans?.length && !hasRole('Administrator')
     }
+  );
+  const programmingPlans = useMemo(
+    () => programmingPlansData?.filter((p) => p.domain !== 'TO_BE_DEFINED'),
+    [programmingPlansData]
   );
 
   const [currentValidatedProgrammingPlan, setCurrentValidatedProgrammingPlan] =

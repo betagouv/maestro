@@ -10,19 +10,24 @@ const findMany = async (
 ): Promise<LaboratoryAgreementRowKey[]> => {
   let query = kysely
     .selectFrom('laboratoryAgreementChecks')
-    .innerJoin(
-      'programmingPlans',
-      'programmingPlans.id',
-      'laboratoryAgreementChecks.programmingPlanId'
-    )
     .select([
-      'laboratoryAgreementChecks.programmingPlanId',
-      'laboratoryAgreementChecks.programmingPlanKind',
+      'laboratoryAgreementChecks.programmingSubPlanId',
       'laboratoryAgreementChecks.substanceKind'
     ]);
 
   if (year != null) {
-    query = query.where('programmingPlans.year', '=', year);
+    query = query
+      .innerJoin(
+        'programmingSubPlans',
+        'programmingSubPlans.id',
+        'laboratoryAgreementChecks.programmingSubPlanId'
+      )
+      .innerJoin(
+        'programmingPlans',
+        'programmingPlans.id',
+        'programmingSubPlans.programmingPlanId'
+      )
+      .where('programmingPlans.year', '=', year);
   }
 
   return query.execute();
@@ -32,27 +37,21 @@ const upsert = async (
   update: LaboratoryAgreementCheckUpdate,
   userId: string
 ): Promise<LaboratoryAgreementRowKey[]> => {
-  const { programmingPlanId, programmingPlanKind, substanceKind, checked } =
-    update;
+  const { programmingSubPlanId, substanceKind, checked } = update;
 
   if (checked) {
     await db('laboratory_agreement_checks')
       .insert({
-        programmingPlanId,
-        programmingPlanKind,
+        programmingSubPlanId,
         substanceKind,
         checkedBy: userId,
         checkedAt: new Date()
       })
-      .onConflict([
-        'programming_plan_id',
-        'programming_plan_kind',
-        'substance_kind'
-      ])
+      .onConflict(['programming_sub_plan_id', 'substance_kind'])
       .ignore();
   } else {
     await db('laboratory_agreement_checks')
-      .where({ programmingPlanId, programmingPlanKind, substanceKind })
+      .where({ programmingSubPlanId, substanceKind })
       .delete();
   }
 

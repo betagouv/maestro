@@ -7,8 +7,8 @@ import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { PrescriptionComments } from 'maestro-shared/schema/Prescription/PrescriptionComments';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
-import { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   getStoredListDisplay,
   type ListDisplay,
@@ -20,7 +20,7 @@ export const PrescriptionFilters = z.object({
   year: z.coerce.number().int().nullish(),
   domain: ProgrammingPlanDomain.nullish(),
   programmingPlanId: z.guid().nullish(),
-  kinds: z.array(ProgrammingPlanKind).nullish(),
+  programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullish(),
   context: ProgrammingPlanContext.nullish(),
   matrixQuery: z.string().nullish(),
   missingSlaughterhouse: z.boolean().nullish(),

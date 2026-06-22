@@ -10,6 +10,7 @@ import {
   type PartialResidue,
   ResidueLmrChecked
 } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import type React from 'react';
 import {
@@ -30,6 +31,7 @@ import { ResidueResultForm } from './ResidueResultForm';
 
 type Props = {
   sample: Omit<SampleChecked, 'reference' | 'compliance'>;
+  programmingSubPlan: ProgrammingSubPlan;
   partialAnalysis: PartialAnalysis;
   onDone: () => void;
 };
@@ -46,6 +48,7 @@ export type ResiduesLmrValidator = typeof residuesValidator;
 
 export const SampleAnalysisForm: FunctionComponent<Props> = ({
   sample,
+  programmingSubPlan,
   partialAnalysis,
   onDone,
   ..._rest
@@ -65,6 +68,7 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
   const [residues, setResidues] = useState(
     (partialAnalysis.residues ?? []).map((residue) => ({
       ...sample,
+      programmingSubPlanNumber: programmingSubPlan.subPlanNumber,
       ...residue
     }))
   );
@@ -78,7 +82,11 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
   const changeResidue = (residue: PartialResidue, index: number) => {
     setResidues((r) => {
       const newResidues = [...r];
-      newResidues[index] = { ...sample, ...residue };
+      newResidues[index] = {
+        ...sample,
+        programmingSubPlanNumber: programmingSubPlan.subPlanNumber,
+        ...residue
+      };
 
       return newResidues;
     });
@@ -98,12 +106,13 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
         ...r,
         {
           ...sample,
+          programmingSubPlanNumber: programmingSubPlan.subPlanNumber,
           analysisId: partialAnalysis.id,
           residueNumber: newResidueNumber,
           resultKind: 'Q',
           result: null,
           reference: undefined,
-          ...(sample.programmingPlanKind === 'PPV'
+          ...(programmingSubPlan.subPlanNumber === 'PPV'
             ? {}
             : {
                 substanceApproved: 'NA',
@@ -164,7 +173,7 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
               residues={residues}
               residuePanel={(i) => (
                 <ResidueResultForm
-                  programmingPlanKind={sample.programmingPlanKind}
+                  programmingSubPlan={programmingSubPlan}
                   residue={residues[i]}
                   residueIndex={i}
                   form={form}

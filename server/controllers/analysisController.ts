@@ -8,6 +8,7 @@ import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckSample } from '../middlewares/checks/sampleCheck';
 import { analysisErrorsRepository } from '../repositories/analysisErrorsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
+import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { mattermostService } from '../services/mattermostService';
@@ -31,7 +32,18 @@ export const analysisRouter = {
         userRole
       );
 
-      if (!hasSamplePermission(user, userRole, sample)['performAnalysis']) {
+      const subPlan = await programmingSubPlanRepository.findUnique(
+        sample.programmingSubPlanId
+      );
+
+      if (
+        !hasSamplePermission(
+          user,
+          userRole,
+          sample,
+          subPlan?.analysisPermissionRole
+        )['performAnalysis']
+      ) {
         return { status: HttpStatus.FORBIDDEN };
       }
 
@@ -66,7 +78,18 @@ export const analysisRouter = {
 
       const sample = await getAndCheckSample(analysis.sampleId, user, userRole);
 
-      if (!hasSamplePermission(user, userRole, sample)['performAnalysis']) {
+      const subPlan = await programmingSubPlanRepository.findUnique(
+        sample.programmingSubPlanId
+      );
+
+      if (
+        !hasSamplePermission(
+          user,
+          userRole,
+          sample,
+          subPlan?.analysisPermissionRole
+        )['performAnalysis']
+      ) {
         return { status: HttpStatus.FORBIDDEN };
       }
 
@@ -114,7 +137,7 @@ export const analysisRouter = {
       };
       await analysisRepository.update(updatedAnalysis);
 
-      if (sample.programmingPlanKind === 'PPV') {
+      if (subPlan?.subPlanNumber === 'PPV') {
         await sampleRepository.update({
           ...sample,
           compliance: isNil(updatedAnalysis.compliance)

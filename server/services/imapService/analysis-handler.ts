@@ -34,7 +34,7 @@ export const analysisHandler = async (
   const {
     sampleId,
     sampleStage,
-    sampleProgrammingPlanKind,
+    programmingSubPlanNumber,
     analyseId: oldAnalyseId,
     samplerId,
     samplerEmail
@@ -42,11 +42,16 @@ export const analysisHandler = async (
     .selectFrom('samples')
     .innerJoin('users', 'samples.sampledBy', 'users.id')
     .leftJoin('analysis', 'samples.id', 'analysis.sampleId')
+    .innerJoin(
+      'programmingSubPlans',
+      'programmingSubPlans.id',
+      'samples.programmingSubPlanId'
+    )
     .where('reference', '=', analyse.sampleReference)
     .select([
       'samples.id as sampleId',
       'samples.stage as sampleStage',
-      'samples.programmingPlanKind as sampleProgrammingPlanKind',
+      'programmingSubPlans.subPlanNumber as programmingSubPlanNumber',
       'analysis.id as analyseId',
       'users.email as samplerEmail',
       'users.id as samplerId'
@@ -63,7 +68,7 @@ export const analysisHandler = async (
   }
 
   const matrixPart =
-    sampleProgrammingPlanKind === 'PPV'
+    programmingSubPlanNumber === 'PPV'
       ? await kysely
           .selectFrom('sampleSpecificDataValues')
           .innerJoin(
@@ -160,7 +165,7 @@ export const analysisHandler = async (
       r.ssd2Id &&
       !LmrIsValid({
         stage: sampleStage,
-        programmingPlanKind: sampleProgrammingPlanKind,
+        programmingSubPlanNumber,
         matrixPart,
         resultKind: r.result_kind,
         reference: r.ssd2Id ?? '',

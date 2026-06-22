@@ -46,11 +46,16 @@ const findUnique = async (id: string): Promise<LaboratoryWithSacha> => {
       'laboratoryAgreements.laboratoryId',
       'laboratories.id'
     )
+    .leftJoin(
+      'programmingSubPlans',
+      'programmingSubPlans.id',
+      'laboratoryAgreements.programmingSubPlanId'
+    )
     .selectAll('laboratories')
     .select(
       sql<
         string[]
-      >`array_remove(array_agg(DISTINCT "laboratory_agreements"."programming_plan_id"), NULL)`.as(
+      >`array_remove(array_agg(DISTINCT "programming_sub_plans"."programming_plan_id"), NULL)`.as(
         'programmingPlanIds'
       )
     )
@@ -98,11 +103,16 @@ const findMany = async (
       'laboratoryAgreements.laboratoryId',
       'laboratories.id'
     )
+    .leftJoin(
+      'programmingSubPlans',
+      'programmingSubPlans.id',
+      'laboratoryAgreements.programmingSubPlanId'
+    )
     .select([
       ...selectColumns,
       sql<
         string[]
-      >`array_remove(array_agg(DISTINCT "laboratory_agreements"."programming_plan_id"), NULL)`.as(
+      >`array_remove(array_agg(DISTINCT "programming_sub_plans"."programming_plan_id"), NULL)`.as(
         'programmingPlanIds'
       )
     ])
@@ -117,7 +127,7 @@ const findMany = async (
           findOptions.programmingPlanIds.length > 0
         ) {
           query = query.where(
-            'laboratoryAgreements.programmingPlanId',
+            'programmingSubPlans.programmingPlanId',
             'in',
             findOptions.programmingPlanIds
           );
@@ -132,12 +142,21 @@ const findMany = async (
           );
         }
         break;
-      case 'programmingPlanKind':
-        if (!isNil(findOptions.programmingPlanKind)) {
+      case 'programmingSubPlanId':
+        if (!isNil(findOptions.programmingSubPlanId)) {
           query = query.where(
-            'laboratoryAgreements.programmingPlanKind',
+            'laboratoryAgreements.programmingSubPlanId',
             '=',
-            findOptions.programmingPlanKind
+            findOptions.programmingSubPlanId
+          );
+        }
+        break;
+      case 'subPlanNumber':
+        if (!isNil(findOptions.subPlanNumber)) {
+          query = query.where(
+            'programmingSubPlans.subPlanNumber',
+            '=',
+            findOptions.subPlanNumber
           );
         }
         break;

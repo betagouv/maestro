@@ -7,7 +7,7 @@ import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldC
 import {
   FieldInputType,
   fieldInputTypeHasOptions
-} from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+} from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type React from 'react';
 import { useContext, useEffect, useState } from 'react';
 import { assert, type Equals } from 'tsafe';

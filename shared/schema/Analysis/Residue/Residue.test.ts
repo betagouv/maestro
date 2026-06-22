@@ -6,7 +6,7 @@ test('sampleResidueLmrIsValid', () => {
     LmrIsValid({
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
-      programmingPlanKind: 'PPV',
+      programmingSubPlanNumber: 'PPV',
       matrixPart: 'PART1',
       resultKind: 'NQ',
       lmr: null
@@ -16,7 +16,7 @@ test('sampleResidueLmrIsValid', () => {
     LmrIsValid({
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
-      programmingPlanKind: 'PPV',
+      programmingSubPlanNumber: 'PPV',
       matrixPart: 'PART1',
       resultKind: 'Q',
       lmr: null
@@ -26,7 +26,7 @@ test('sampleResidueLmrIsValid', () => {
     LmrIsValid({
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
-      programmingPlanKind: 'PPV',
+      programmingSubPlanNumber: 'PPV',
       matrixPart: 'PART1',
       resultKind: 'Q',
       lmr: 0
@@ -36,7 +36,7 @@ test('sampleResidueLmrIsValid', () => {
     LmrIsValid({
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
-      programmingPlanKind: 'PPV',
+      programmingSubPlanNumber: 'PPV',
       matrixPart: 'PART1',
       resultKind: 'Q',
       lmr: 0.5
@@ -46,7 +46,7 @@ test('sampleResidueLmrIsValid', () => {
     LmrIsValid({
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
-      programmingPlanKind: 'PPV',
+      programmingSubPlanNumber: 'PPV',
       matrixPart: 'PART1',
       resultKind: 'Q',
       lmr: null
@@ -56,7 +56,7 @@ test('sampleResidueLmrIsValid', () => {
     LmrIsValid({
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
-      programmingPlanKind: 'PPV',
+      programmingSubPlanNumber: 'PPV',
       matrixPart: 'PART1',
       resultKind: 'Q',
       lmr: 0
@@ -66,7 +66,7 @@ test('sampleResidueLmrIsValid', () => {
     LmrIsValid({
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
-      programmingPlanKind: 'PPV',
+      programmingSubPlanNumber: 'PPV',
       matrixPart: 'PART1',
       resultKind: 'Q',
       lmr: 0.5
@@ -76,7 +76,7 @@ test('sampleResidueLmrIsValid', () => {
     LmrIsValid({
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
-      programmingPlanKind: 'PPV',
+      programmingSubPlanNumber: 'PPV',
       matrixPart: 'PART2',
       resultKind: 'Q',
       lmr: null
@@ -86,7 +86,7 @@ test('sampleResidueLmrIsValid', () => {
     LmrIsValid({
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
-      programmingPlanKind: 'PPV',
+      programmingSubPlanNumber: 'PPV',
       matrixPart: 'PART2',
       resultKind: 'Q',
       lmr: 0
@@ -96,7 +96,7 @@ test('sampleResidueLmrIsValid', () => {
     LmrIsValid({
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
-      programmingPlanKind: 'PPV',
+      programmingSubPlanNumber: 'PPV',
       matrixPart: 'PART2',
       resultKind: 'Q',
       lmr: 0.5
@@ -106,7 +106,7 @@ test('sampleResidueLmrIsValid', () => {
     LmrIsValid({
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
-      programmingPlanKind: 'PPV',
+      programmingSubPlanNumber: 'PPV',
       matrixPart: 'PART2',
       resultKind: 'Q',
       lmr: null
@@ -116,7 +116,7 @@ test('sampleResidueLmrIsValid', () => {
     LmrIsValid({
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
-      programmingPlanKind: 'PPV',
+      programmingSubPlanNumber: 'PPV',
       matrixPart: 'PART2',
       resultKind: 'Q',
       lmr: 0
@@ -126,7 +126,7 @@ test('sampleResidueLmrIsValid', () => {
     LmrIsValid({
       stage: 'STADE2',
       reference: 'RF-0847-001-PPP',
-      programmingPlanKind: 'PPV',
+      programmingSubPlanNumber: 'PPV',
       matrixPart: 'PART2',
       resultKind: 'Q',
       lmr: 0.5
@@ -139,7 +139,7 @@ test('lmr is required for any quantifiable result outside PPV', () => {
     LmrIsValid({
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
-      programmingPlanKind: 'DAOA_VOLAILLE',
+      programmingSubPlanNumber: 'M01',
       matrixPart: 'PART1',
       resultKind: 'Q',
       lmr: null
@@ -149,7 +149,7 @@ test('lmr is required for any quantifiable result outside PPV', () => {
     LmrIsValid({
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
-      programmingPlanKind: 'DAOA_VOLAILLE',
+      programmingSubPlanNumber: 'M01',
       matrixPart: 'PART1',
       resultKind: 'Q',
       lmr: 0
@@ -159,7 +159,7 @@ test('lmr is required for any quantifiable result outside PPV', () => {
     LmrIsValid({
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
-      programmingPlanKind: 'DAOA_VOLAILLE',
+      programmingSubPlanNumber: 'M01',
       matrixPart: 'PART1',
       resultKind: 'Q',
       lmr: 0.5
@@ -169,7 +169,7 @@ test('lmr is required for any quantifiable result outside PPV', () => {
     LmrIsValid({
       stage: 'STADE1',
       reference: 'RF-0847-001-PPP',
-      programmingPlanKind: 'DAOA_VOLAILLE',
+      programmingSubPlanNumber: 'M01',
       matrixPart: 'PART1',
       resultKind: 'NQ',
       lmr: null
@@ -179,7 +179,7 @@ test('lmr is required for any quantifiable result outside PPV', () => {
     LmrIsValid({
       stage: 'STADE2',
       reference: 'RF-0848-001-PPP',
-      programmingPlanKind: 'DAOA_BOVIN',
+      programmingSubPlanNumber: 'DAOA_BOVIN',
       matrixPart: 'PART2',
       resultKind: 'Q',
       lmr: null
@@ -190,7 +190,7 @@ test('lmr is required for any quantifiable result outside PPV', () => {
 test('lmr can be optional for some reference', () => {
   const sampleWithRequiredLmr = {
     stage: 'STADE1',
-    programmingPlanKind: 'PPV',
+    programmingSubPlanNumber: 'PPV',
     matrixPart: 'PART1',
     resultKind: 'Q',
     lmr: null

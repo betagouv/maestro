@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
 
 export const SampleCompliance = z.enum(
   ['Compliant', 'NonCompliant', 'NonCompliantAndHarmful'],
@@ -16,19 +15,10 @@ export const SampleComplianceLabels: Record<SampleCompliance, string> = {
   NonCompliantAndHarmful: 'Non conforme et préjudiciable à la santé'
 };
 
-export const SampleComplianceByProgrammingPlanKind: Record<
-  ProgrammingPlanKind,
-  SampleCompliance[]
+export const SampleComplianceByProgrammingSubPlanNumber: Partial<
+  Record<string, SampleCompliance[]>
 > = {
-  [ProgrammingPlanKind.enum.PPV]: ['Compliant', 'NonCompliant'],
-  [ProgrammingPlanKind.enum.DAOA_VOLAILLE]: [
-    'Compliant',
-    'NonCompliant',
-    'NonCompliantAndHarmful'
-  ],
-  [ProgrammingPlanKind.enum.DAOA_BOVIN]: [
-    'Compliant',
-    'NonCompliant',
-    'NonCompliantAndHarmful'
-  ]
+  PPV: ['Compliant', 'NonCompliant'],
+  M01: ['Compliant', 'NonCompliant', 'NonCompliantAndHarmful'],
+  M02: ['Compliant', 'NonCompliant', 'NonCompliantAndHarmful']
 };

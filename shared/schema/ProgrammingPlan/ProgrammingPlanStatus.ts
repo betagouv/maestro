@@ -61,6 +61,14 @@ export const NextProgrammingPlanStatus = {
     SubmittedToDepartments: 'Validated',
     Validated: 'Closed',
     Closed: null
+  },
+  TO_BE_DEFINED: {
+    InProgress: 'SubmittedToRegion',
+    SubmittedToRegion: 'SubmittedToDepartments',
+    ApprovedByRegion: null,
+    SubmittedToDepartments: 'Validated',
+    Validated: 'Closed',
+    Closed: null
   }
 } satisfies Record<
   DistributionKind,

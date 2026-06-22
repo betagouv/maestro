@@ -42,12 +42,8 @@ import {
   PrescriptionSort
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
-import {
-  ProgrammingPlanKindLabels,
-  ProgrammingPlanKindReference
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   getSampleMatrixLabel,
   type PartialSample
@@ -55,7 +51,7 @@ import {
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
-import type { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import type { ProgrammingSubPlanFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import {
   type SubstanceKind,
   SubstanceKindLabels
@@ -65,6 +61,7 @@ import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import companyRepository from '../../repositories/companyRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
+import { programmingSubPlanRepository } from '../../repositories/programmingSubPlanRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 import { type Template, templatePath } from '../../templates/templates';
@@ -188,208 +185,194 @@ const generateSamplesExportExcel = async (
 ): Promise<Buffer> => {
   const laboratories = await laboratoryRepository.findMany();
 
-  const fieldConfigsCache = new Map<string, PlanKindFieldConfig[]>();
+  const fieldConfigsCache = new Map<string, ProgrammingSubPlanFieldConfig[]>();
   const getFieldConfigs = async (
-    programmingPlanId: string,
-    kind: ProgrammingPlanKind
-  ): Promise<PlanKindFieldConfig[]> => {
-    const cacheKey = `${programmingPlanId}:${kind}`;
-    if (!fieldConfigsCache.has(cacheKey)) {
+    programmingSubPlanId: ProgrammingSubPlanId
+  ): Promise<ProgrammingSubPlanFieldConfig[]> => {
+    if (!fieldConfigsCache.has(programmingSubPlanId)) {
       fieldConfigsCache.set(
-        cacheKey,
-        await specificDataFieldConfigRepository.findByPlanKind(
-          programmingPlanId,
-          kind
+        programmingSubPlanId,
+        await specificDataFieldConfigRepository.findByPlanSubPlan(
+          programmingSubPlanId
         )
       );
     }
-    return fieldConfigsCache.get(cacheKey)!;
+    return fieldConfigsCache.get(programmingSubPlanId)!;
   };
 
-  const samplesData: SamplesExportExcelData[] = await Promise.all(
-    samples.map(async (sample) => {
-      const fieldConfigs = await getFieldConfigs(
-        sample.programmingPlanId,
-        sample.programmingPlanKind
-      );
+  const samplesData: SamplesExportExcelData[] = [];
+  for (const sample of samples) {
+    const fieldConfigs = await getFieldConfigs(sample.programmingSubPlanId);
 
-      const items = await sampleItemRepository.findMany(sample.id);
-      const itemsWithAnalysis = await Promise.all(
-        items.map(async (item) => {
-          const analysis = await analysisRepository.findUnique({
-            sampleId: sample.id,
-            itemNumber: item.itemNumber,
-            copyNumber: item.copyNumber
-          });
-          return { ...item, analysis };
-        })
-      );
+    const items = await sampleItemRepository.findMany(sample.id);
+    const itemsWithAnalysis = [];
+    for (const item of items) {
+      const analysis = await analysisRepository.findUnique({
+        sampleId: sample.id,
+        itemNumber: item.itemNumber,
+        copyNumber: item.copyNumber
+      });
+      itemsWithAnalysis.push({ ...item, analysis });
+    }
 
-      const matrixPartField = fieldConfigs.find(
-        (c) => c.field.key === 'matrixPart'
-      )?.field;
-      const data: SamplesExportExcelData = {
-        reference: sample.reference,
-        department: sample.department,
-        sampler: `${sample.sampler.name}`,
-        sampledAt: sample.sampledDate
-          ? `${formatMaestroDate(sample.sampledDate)} ${sample.sampledTime}`
-          : '',
-        status: SampleStatusLabels[sample.status],
-        statusCode: sample.status,
-        sentAt: sample.sentAt
-          ? formatWithTz(
-              sample.sentAt,
-              'dd/MM/yyyy HH:mm',
-              Regions[sample.region].timezone
-            )
-          : '',
-        latitude: sample.geolocation?.x,
-        longitude: sample.geolocation?.y,
-        parcel: sample.parcel,
-        context: sample.context ? ContextLabels[sample.context] : undefined,
-        contextCode: sample.context,
-        legalContext: sample.legalContext
-          ? LegalContextLabels[sample.legalContext]
+    const matrixPartField = fieldConfigs.find(
+      (c) => c.field.key === 'matrixPart'
+    )?.field;
+    const data: SamplesExportExcelData = {
+      reference: sample.reference,
+      department: sample.department,
+      sampler: `${sample.sampler.name}`,
+      sampledAt: sample.sampledDate
+        ? `${formatMaestroDate(sample.sampledDate)} ${sample.sampledTime}`
+        : '',
+      status: SampleStatusLabels[sample.status],
+      statusCode: sample.status,
+      sentAt: sample.sentAt
+        ? formatWithTz(
+            sample.sentAt,
+            'dd/MM/yyyy HH:mm',
+            Regions[sample.region].timezone
+          )
+        : '',
+      latitude: sample.geolocation?.x,
+      longitude: sample.geolocation?.y,
+      parcel: sample.parcel,
+      context: sample.context ? ContextLabels[sample.context] : undefined,
+      contextCode: sample.context,
+      legalContext: sample.legalContext
+        ? LegalContextLabels[sample.legalContext]
+        : undefined,
+      legalContextCode: sample.legalContext,
+      company: sample.company?.name,
+      companyAddress: [
+        sample.company?.address,
+        [sample.company?.postalCode, sample.company?.city].join(' ')
+      ].join('\n'),
+      companySiret: sample.company?.siret,
+      resytalId: sample.resytalId,
+      notesOnCreation: sample.notesOnCreation,
+      matrix: sample.matrix ? getSampleMatrixLabel(sample) : undefined,
+      matrixCode: sample.matrix,
+      matrixPart: matrixPartField
+        ? (getFieldValueLabel(
+            matrixPartField,
+            sample.specificData['matrixPart']
+          ) ?? '')
+        : '',
+      stage: sample.stage ? StageLabels[sample.stage] : undefined,
+      stageCode: sample.stage,
+      specificData: fieldConfigs.map((fc) => {
+        const rawValue = sample.specificData[fc.field.key];
+        const value = getFieldValueLabel(fc.field, rawValue);
+        return {
+          key: fc.field.key,
+          label: fc.field.label,
+          value,
+          code: rawValue !== value ? (rawValue as string) : undefined
+        };
+      }),
+      notesOnMatrix: sample.notesOnMatrix,
+      notesOnItems: sample.notesOnItems,
+      items: itemsWithAnalysis.map(({ analysis, ...item }) => ({
+        sampleReference: sample.reference,
+        itemNumber: item.itemNumber,
+        copyNumber: item.copyNumber,
+        quantity: item.quantity,
+        quantityUnit: item.quantityUnit
+          ? QuantityUnitLabels[item.quantityUnit]
           : undefined,
-        legalContextCode: sample.legalContext,
-        company: sample.company?.name,
-        companyAddress: [
-          sample.company?.address,
-          [sample.company?.postalCode, sample.company?.city].join(' ')
-        ].join('\n'),
-        companySiret: sample.company?.siret,
-        resytalId: sample.resytalId,
-        notesOnCreation: sample.notesOnCreation,
-        matrix: sample.matrix ? getSampleMatrixLabel(sample) : undefined,
-        matrixCode: sample.matrix,
-        matrixPart: matrixPartField
-          ? (getFieldValueLabel(
-              matrixPartField,
-              sample.specificData['matrixPart']
-            ) ?? '')
+        quantityUnitCode: item.quantityUnit,
+        sealId: item.sealId,
+        recipient:
+          item.recipientKind &&
+          (item.recipientKind === 'Laboratory'
+            ? 'Laboratoire ' +
+              laboratories.find((lab) => lab.id === item.laboratoryId)?.name
+            : SampleItemRecipientKindLabels[item.recipientKind]),
+        laboratoryCode:
+          item.recipientKind === 'Laboratory'
+            ? laboratories.find((lab) => lab.id === item.laboratoryId)
+                ?.shortName
+            : null,
+        compliance200263: item.compliance200263 ? 'Oui' : 'Non',
+        compliance: isDefinedAndNotNull(analysis?.compliance)
+          ? analysis?.compliance
+            ? 'Oui'
+            : 'Non'
           : '',
-        stage: sample.stage ? StageLabels[sample.stage] : undefined,
-        stageCode: sample.stage,
-        specificData: fieldConfigs.map((fc) => {
-          const rawValue = sample.specificData[fc.field.key];
-          const value = getFieldValueLabel(fc.field, rawValue);
-          return {
-            key: fc.field.key,
-            label: fc.field.label,
-            value,
-            code: rawValue !== value ? (rawValue as string) : undefined
-          };
-        }),
-        notesOnMatrix: sample.notesOnMatrix,
-        notesOnItems: sample.notesOnItems,
-        items: itemsWithAnalysis.map(({ analysis, ...item }) => ({
+        notesOnCompliance: analysis?.notesOnCompliance,
+        receiptDate: formatMaestroDate(item.receiptDate),
+        notesOnAdmissibility: item.notesOnAdmissibility,
+        shippingDate: formatMaestroDate(item.shippingDate),
+        destructionDate: formatMaestroDate(item.destructionDate),
+        carrier: item.carrier,
+        invoicingDate: formatMaestroDate(item.invoicingDate),
+        paid: item.paid ? 'Oui' : 'Non',
+        paidDate: formatMaestroDate(item.paidDate),
+        invoiceNumber: item.invoiceNumber,
+        budgetNotes: item.budgetNotes,
+        residues: (analysis?.residues ?? []).map((r) => ({
           sampleReference: sample.reference,
           itemNumber: item.itemNumber,
           copyNumber: item.copyNumber,
-          quantity: item.quantity,
-          quantityUnit: item.quantityUnit
-            ? QuantityUnitLabels[item.quantityUnit]
+          referenceLabel: r.reference ? SSD2IdLabel[r.reference] : undefined,
+          kind: r.reference
+            ? isComplex(r.reference)
+              ? ResidueKindLabels['Complex']
+              : ResidueKindLabels['Simple']
             : undefined,
-          quantityUnitCode: item.quantityUnit,
-          sealId: item.sealId,
-          recipient:
-            item.recipientKind &&
-            (item.recipientKind === 'Laboratory'
-              ? 'Laboratoire ' +
-                laboratories.find((lab) => lab.id === item.laboratoryId)?.name
-              : SampleItemRecipientKindLabels[item.recipientKind]),
-          laboratoryCode:
-            item.recipientKind === 'Laboratory'
-              ? laboratories.find((lab) => lab.id === item.laboratoryId)
-                  ?.shortName
-              : null,
-          compliance200263: item.compliance200263 ? 'Oui' : 'Non',
-          compliance: isDefinedAndNotNull(analysis?.compliance)
+          reference: r.reference,
+          residueNumber: r.residueNumber,
+          analysisMethod: r.analysisMethod
+            ? AnalysisMethodLabels[r.analysisMethod]
+            : undefined,
+          analysisMethodCode: r.analysisMethod,
+          analysisDate: r.analysisDate,
+          resultKind: r.resultKind ? ResultKindLabels[r.resultKind] : undefined,
+          resultKindCode: r.resultKind,
+          result: r.result,
+          resultUnit: 'mg/kg',
+          lmr: r.lmr,
+          resultHigherThanArfd: optionalBooleanToString(r.resultHigherThanArfd),
+          notesOnResult: r.notesOnResult,
+          substanceApproved: optionalBooleanToString(r.substanceApproved),
+          substanceAuthorised: optionalBooleanToString(r.substanceAuthorised),
+          pollutionRisk: optionalBooleanToString(r.pollutionRisk),
+          notesOnPollutionRisk: r.notesOnPollutionRisk,
+          contaminationSources: r.contaminationSources
+            ?.map((cs) => ContaminationSourceLabels[cs])
+            .join(', '),
+          notesOnContaminationSources: r.notesOnContaminationSources,
+          compliance: r.compliance
+            ? ResidueComplianceLabels[r.compliance]
+            : undefined,
+          complianceCode: r.compliance,
+          otherCompliance: r.otherCompliance,
+          sampleCompliance: isDefinedAndNotNull(analysis?.compliance)
             ? analysis?.compliance
               ? 'Oui'
               : 'Non'
             : '',
-          notesOnCompliance: analysis?.notesOnCompliance,
-          receiptDate: formatMaestroDate(item.receiptDate),
-          notesOnAdmissibility: item.notesOnAdmissibility,
-          shippingDate: formatMaestroDate(item.shippingDate),
-          destructionDate: formatMaestroDate(item.destructionDate),
-          carrier: item.carrier,
-          invoicingDate: formatMaestroDate(item.invoicingDate),
-          paid: item.paid ? 'Oui' : 'Non',
-          paidDate: formatMaestroDate(item.paidDate),
-          invoiceNumber: item.invoiceNumber,
-          budgetNotes: item.budgetNotes,
-          residues: (analysis?.residues ?? []).map((r) => ({
+          analytes: (r.analytes ?? []).map((a) => ({
             sampleReference: sample.reference,
             itemNumber: item.itemNumber,
             copyNumber: item.copyNumber,
-            referenceLabel: r.reference ? SSD2IdLabel[r.reference] : undefined,
-            kind: r.reference
-              ? isComplex(r.reference)
-                ? ResidueKindLabels['Complex']
-                : ResidueKindLabels['Simple']
+            residueNumber: a.residueNumber,
+            analyteNumber: a.analyteNumber,
+            reference: a.reference,
+            referenceLabel: a.reference ? SSD2IdLabel[a.reference] : undefined,
+            resultKind: a.resultKind
+              ? ResultKindLabels[a.resultKind]
               : undefined,
-            reference: r.reference,
-            residueNumber: r.residueNumber,
-            analysisMethod: r.analysisMethod
-              ? AnalysisMethodLabels[r.analysisMethod]
-              : undefined,
-            analysisMethodCode: r.analysisMethod,
-            analysisDate: r.analysisDate,
-            resultKind: r.resultKind
-              ? ResultKindLabels[r.resultKind]
-              : undefined,
-            resultKindCode: r.resultKind,
-            result: r.result,
-            resultUnit: 'mg/kg',
-            lmr: r.lmr,
-            resultHigherThanArfd: optionalBooleanToString(
-              r.resultHigherThanArfd
-            ),
-            notesOnResult: r.notesOnResult,
-            substanceApproved: optionalBooleanToString(r.substanceApproved),
-            substanceAuthorised: optionalBooleanToString(r.substanceAuthorised),
-            pollutionRisk: optionalBooleanToString(r.pollutionRisk),
-            notesOnPollutionRisk: r.notesOnPollutionRisk,
-            contaminationSources: r.contaminationSources
-              ?.map((cs) => ContaminationSourceLabels[cs])
-              .join(', '),
-            notesOnContaminationSources: r.notesOnContaminationSources,
-            compliance: r.compliance
-              ? ResidueComplianceLabels[r.compliance]
-              : undefined,
-            complianceCode: r.compliance,
-            otherCompliance: r.otherCompliance,
-            sampleCompliance: isDefinedAndNotNull(analysis?.compliance)
-              ? analysis?.compliance
-                ? 'Oui'
-                : 'Non'
-              : '',
-            analytes: (r.analytes ?? []).map((a) => ({
-              sampleReference: sample.reference,
-              itemNumber: item.itemNumber,
-              copyNumber: item.copyNumber,
-              residueNumber: a.residueNumber,
-              analyteNumber: a.analyteNumber,
-              reference: a.reference,
-              referenceLabel: a.reference
-                ? SSD2IdLabel[a.reference]
-                : undefined,
-              resultKind: a.resultKind
-                ? ResultKindLabels[a.resultKind]
-                : undefined,
-              resultKindCode: a.resultKind,
-              result: a.result
-            }))
+            resultKindCode: a.resultKind,
+            result: a.result
           }))
         }))
-      };
+      }))
+    };
 
-      return data;
-    })
-  );
+    samplesData.push(data);
+  }
 
   const specificDataHeaders = samplesData
     .flatMap((sample) => sample.specificData ?? [])
@@ -453,6 +436,10 @@ const generatePrescriptionsExportExcel = async (
       .map((_) => _.companySiret)
   );
 
+  const effectiveSubstanceKinds = [
+    ...new Set(programmingPlan.subPlans.flatMap((sp) => sp.substanceKinds))
+  ];
+
   const columnTitles: string[] = [];
 
   if (!exportedRegion) {
@@ -467,7 +454,7 @@ const generatePrescriptionsExportExcel = async (
         `Région ${Regions[region].shortName}\nRéalisés`,
         `Région ${Regions[region].shortName}\nTaux de réalisation`,
         ...(programmingPlan.distributionKind === 'REGIONAL'
-          ? programmingPlan.substanceKinds.flatMap(
+          ? effectiveSubstanceKinds.flatMap(
               (substanceKind) =>
                 `Région ${Regions[region].shortName}\nLaboratoire ${SubstanceKindLabels[substanceKind].toLowerCase()}`
             )
@@ -481,7 +468,7 @@ const generatePrescriptionsExportExcel = async (
         `Département ${department}\nProgrammés`,
         `Département ${department}\nRéalisés`,
         `Département ${department}\nTaux de réalisation`,
-        ...programmingPlan.substanceKinds.flatMap(
+        ...effectiveSubstanceKinds.flatMap(
           (substanceKind) =>
             `Département ${department}\nLaboratoire ${SubstanceKindLabels[substanceKind].toLowerCase()}`
         )
@@ -541,7 +528,11 @@ const generatePrescriptionsExportExcel = async (
             ...((programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
               !isNil(department)) ||
             (programmingPlan.distributionKind === 'REGIONAL' && !isNil(region))
-              ? programmingPlan.substanceKinds.flatMap(
+              ? (
+                  programmingPlan.subPlans.find(
+                    (sp) => sp.id === prescription.programmingSubPlanId
+                  )?.substanceKinds ?? effectiveSubstanceKinds
+                ).flatMap(
                   (substanceKind) =>
                     laboratories.find((laboratory) =>
                       substanceKindsLaboratories?.some(
@@ -773,24 +764,29 @@ const generateLaboratoryAgreementsExportExcel = async (
     a.shortName.localeCompare(b.shortName)
   );
 
+  const allSubPlanIds = [
+    ...new Set(agreements.map((a) => a.programmingSubPlanId))
+  ];
+  const subPlans = await programmingSubPlanRepository.findMany({
+    ids: allSubPlanIds
+  });
+  const subPlanById = Object.fromEntries(subPlans.map((sp) => [sp.id, sp]));
+
   const uniqueRows = agreements.reduce<
     {
-      programmingPlanId: string;
-      programmingPlanKind: ProgrammingPlanKind;
+      programmingSubPlanId: ProgrammingSubPlanId;
       substanceKind: SubstanceKind;
     }[]
   >((acc, a) => {
     if (
       !acc.some(
         (r) =>
-          r.programmingPlanId === a.programmingPlanId &&
-          r.programmingPlanKind === a.programmingPlanKind &&
+          r.programmingSubPlanId === a.programmingSubPlanId &&
           r.substanceKind === a.substanceKind
       )
     ) {
       acc.push({
-        programmingPlanId: a.programmingPlanId,
-        programmingPlanKind: a.programmingPlanKind,
+        programmingSubPlanId: a.programmingSubPlanId,
         substanceKind: a.substanceKind
       });
     }
@@ -801,20 +797,23 @@ const generateLaboratoryAgreementsExportExcel = async (
     .toSorted(
       (a, b) =>
         a.substanceKind.localeCompare(b.substanceKind) ||
-        a.programmingPlanKind.localeCompare(b.programmingPlanKind)
+        (
+          subPlanById[a.programmingSubPlanId]?.subPlanNumber ?? ''
+        ).localeCompare(
+          subPlanById[b.programmingSubPlanId]?.subPlanNumber ?? ''
+        )
     )
-    .map(({ programmingPlanId, programmingPlanKind, substanceKind }) => {
+    .map(({ programmingSubPlanId, substanceKind }) => {
+      const subPlan = subPlanById[programmingSubPlanId];
+
       const rowAgreements = agreements.filter(
         (a) =>
-          a.programmingPlanId === programmingPlanId &&
-          a.programmingPlanKind === programmingPlanKind &&
+          a.programmingSubPlanId === programmingSubPlanId &&
           a.substanceKind === substanceKind
       );
 
       const rowPrescriptions = prescriptions.filter(
-        (p) =>
-          p.programmingPlanId === programmingPlanId &&
-          p.programmingPlanKind === programmingPlanKind
+        (p) => p.programmingSubPlanId === programmingSubPlanId
       );
 
       const matrices = [...new Set(rowPrescriptions.map((p) => p.matrixKind))]
@@ -852,10 +851,11 @@ const generateLaboratoryAgreementsExportExcel = async (
       ];
 
       return {
-        num: ProgrammingPlanKindReference[programmingPlanKind],
+        num: subPlan?.subPlanNumber ?? programmingSubPlanId,
         analytes: SubstanceKindLabels[substanceKind],
         matrices,
-        domain: ProgrammingPlanKindLabels[programmingPlanKind],
+        domain:
+          subPlan?.label ?? subPlan?.subPlanNumber ?? programmingSubPlanId,
         stages,
         labCells
       };

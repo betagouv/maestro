@@ -26,7 +26,7 @@ import type { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import type { LocalPrescriptionSubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type {
   CommemoratifSigle,
   CommemoratifValueSigle,
@@ -37,10 +37,10 @@ import type { SampleStatus as SampleStatusType } from 'maestro-shared/schema/Sam
 import type { SampleStep } from 'maestro-shared/schema/Sample/SampleStep';
 import type { Seves } from 'maestro-shared/schema/Sample/Seves';
 import {
-  ProgrammingPlanKindFieldId,
+  ProgrammingSubPlanFieldId,
   SpecificDataFieldId,
   SpecificDataFieldOptionId
-} from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+} from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import type { MaestroDate } from 'maestro-shared/utils/date';
@@ -62,7 +62,7 @@ export const SachaResidueId = z.string().brand<'SachaResidueId'>();
 export type SachaResidueId = z.infer<typeof SachaResidueId>;
 
 export {
-  ProgrammingPlanKindFieldId,
+  ProgrammingSubPlanFieldId,
   SpecificDataFieldId,
   SpecificDataFieldOptionId
 };
@@ -241,8 +241,7 @@ export interface LaboratoryResidueMapping {
 
 export interface LaboratoryAgreements {
   laboratoryId: string;
-  programmingPlanId: string;
-  programmingPlanKind: ProgrammingPlanKind;
+  programmingSubPlanId: ProgrammingSubPlanId;
   substanceKind: SubstanceKind;
   referenceLaboratory: boolean;
   detectionAnalysis: boolean;
@@ -250,8 +249,7 @@ export interface LaboratoryAgreements {
 }
 
 export interface LaboratoryAgreementChecks {
-  programmingPlanId: string;
-  programmingPlanKind: ProgrammingPlanKind;
+  programmingSubPlanId: ProgrammingSubPlanId;
   substanceKind: SubstanceKind;
   checkedAt: Generated<Timestamp>;
   checkedBy: string;
@@ -271,7 +269,7 @@ export interface Prescriptions {
   notes: string | null;
   programmingInstruction: string | null;
   programmingPlanId: string | null;
-  programmingPlanKind: string | null;
+  programmingSubPlanId: ProgrammingSubPlanId | null;
   stages: string[] | null;
 }
 
@@ -365,7 +363,7 @@ export interface Samples {
   parcel: string | null;
   prescriptionId: string | null;
   programmingPlanId: string | null;
-  programmingPlanKind: ProgrammingPlanKind;
+  programmingSubPlanId: ProgrammingSubPlanId;
   receivedAt: Timestamp | null;
   reference: string;
   region: string;
@@ -412,7 +410,7 @@ export interface Users {
   department: Department | null;
   roles: UserRole[];
   loggedSecrets: ColumnType<string[], string[] | null, string[]>;
-  programmingPlanKinds: ProgrammingPlanKind[];
+  programmingSubPlanIds: ProgrammingSubPlanId[];
   disabled: boolean;
   laboratoryId: string | null;
 }
@@ -422,9 +420,16 @@ export interface UserCompanies {
   userId: string;
 }
 
-export interface ProgrammingPlanKinds {
+export interface ProgrammingSubPlans {
+  id: ProgrammingSubPlanId;
   programmingPlanId: string;
-  kind: ProgrammingPlanKind;
+  subPlanNumber: string;
+  stages: Stage[];
+  label: string;
+  analysisPermissionRole: UserRole | null;
+  contactListId: number | null;
+  withSacha: boolean;
+  substanceKinds: SubstanceKind[];
 }
 
 export interface SampleDocuments {
@@ -457,17 +462,16 @@ export interface SpecificDataFieldOptions {
   sachaCommemoratifValueSigle: CommemoratifValueSigle | null;
 }
 
-export interface ProgrammingPlanKindFields {
-  id: Generated<ProgrammingPlanKindFieldId>;
-  programmingPlanId: string;
-  kind: ProgrammingPlanKind;
+export interface ProgrammingSubPlanFields {
+  id: Generated<ProgrammingSubPlanFieldId>;
+  programmingSubPlanId: ProgrammingSubPlanId;
   fieldId: SpecificDataFieldId;
   required: Generated<boolean>;
   order: number;
 }
 
-export interface ProgrammingPlanKindFieldOptions {
-  programmingPlanKindFieldId: ProgrammingPlanKindFieldId;
+export interface ProgrammingSubPlanFieldOptions {
+  programmingSubPlanFieldId: ProgrammingSubPlanFieldId;
   specificDataFieldOptionId: SpecificDataFieldOptionId;
 }
 
@@ -484,8 +488,8 @@ export interface DB {
   departments: Departments;
   documentProgrammingPlans: DocumentProgrammingPlans;
   documents: Documents;
-  programmingPlanKindFields: ProgrammingPlanKindFields;
-  programmingPlanKindFieldOptions: ProgrammingPlanKindFieldOptions;
+  programmingSubPlanFields: ProgrammingSubPlanFields;
+  programmingSubPlanFieldOptions: ProgrammingSubPlanFieldOptions;
   specificDataFields: SpecificDataFields;
   specificDataFieldOptions: SpecificDataFieldOptions;
   knexMigrations: KnexMigrations;
@@ -497,7 +501,7 @@ export interface DB {
   notices: Notices;
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;
-  programmingPlanKinds: ProgrammingPlanKinds;
+  programmingSubPlans: ProgrammingSubPlans;
   programmingPlans: ProgrammingPlans;
   localPrescriptionComments: LocalPrescriptionComments;
   localPrescriptions: LocalPrescriptions;
@@ -519,6 +523,8 @@ export interface DB {
 }
 export type KyselyMaestro = Kysely<DB>;
 
-export const toSqlArray = <T extends string>(args: T[]) => {
-  return sql<string[]>`ARRAY[${sql.join(args)}]` as Expression<T[]>;
+export const toSqlArray = <T extends string>(args: T[], pgType = 'text') => {
+  return sql<
+    string[]
+  >`ARRAY[${sql.join(args)}]::${sql.raw(pgType)}[]` as Expression<T[]>;
 };

@@ -1,10 +1,5 @@
 import { constants } from 'node:http2';
-import {
-  isDromRegion,
-  type Region,
-  RegionList
-} from 'maestro-shared/referential/Region';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import { type Region, RegionList } from 'maestro-shared/referential/Region';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -14,7 +9,12 @@ import {
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
   DAOAInProgressProgrammingPlanFixture,
-  genProgrammingPlan
+  DAOAValidatedProgrammingPlanFixture,
+  PPVClosedProgrammingPlanFixture,
+  PPVInProgressProgrammingPlanFixture,
+  PPVSubmittedProgrammingPlanFixture,
+  PPVValidatedDromProgrammingPlanFixture,
+  PPVValidatedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
@@ -28,7 +28,7 @@ import {
 import { withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import {
   formatLocalPrescription,
   LocalPrescriptions
@@ -36,8 +36,6 @@ import {
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
 import {
-  formatProgrammingPlan,
-  ProgrammingPlanKinds,
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
@@ -46,99 +44,6 @@ import { tokenProvider } from '../../test/testUtils';
 
 describe('ProgrammingPlan router', () => {
   const { app } = createServer();
-
-  const validatedDromProgrammingPlan = genProgrammingPlan({
-    id: 'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1',
-    createdBy: NationalCoordinator.id,
-    year: 2018,
-    regionalStatus: RegionList.map((region) => ({
-      region,
-      status: isDromRegion(region) ? 'Validated' : 'SubmittedToRegion'
-    }))
-  });
-  const validatedProgrammingPlan = genProgrammingPlan({
-    id: 'b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1',
-    createdBy: NationalCoordinator.id,
-    year: 2019,
-    regionalStatus: RegionList.toSorted().map((region) => ({
-      region,
-      status: 'Validated'
-    }))
-  });
-  const submittedProgrammingPlan = genProgrammingPlan({
-    id: 'b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2',
-    createdBy: NationalCoordinator.id,
-    year: 2021,
-    regionalStatus: RegionList.map((region) => ({
-      region,
-      status: 'SubmittedToRegion'
-    }))
-  });
-  const inProgressProgrammingPlan = genProgrammingPlan({
-    id: 'b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3',
-    createdBy: NationalCoordinator.id,
-    year: 2022,
-    regionalStatus: RegionList.map((region) => ({
-      region,
-      status: 'InProgress'
-    }))
-  });
-  beforeAll(async () => {
-    await ProgrammingPlans().insert(
-      [
-        validatedDromProgrammingPlan,
-        validatedProgrammingPlan,
-        submittedProgrammingPlan,
-        inProgressProgrammingPlan
-      ].map(formatProgrammingPlan)
-    );
-    await ProgrammingPlanLocalStatus().insert(
-      [
-        validatedDromProgrammingPlan,
-        validatedProgrammingPlan,
-        submittedProgrammingPlan,
-        inProgressProgrammingPlan
-      ].flatMap((programmingPlan) =>
-        programmingPlan.regionalStatus.map((regionalStatus) => ({
-          ...regionalStatus,
-          programmingPlanId: programmingPlan.id
-        }))
-      )
-    );
-
-    await ProgrammingPlanKinds().insert(
-      [
-        validatedDromProgrammingPlan,
-        validatedProgrammingPlan,
-        submittedProgrammingPlan,
-        inProgressProgrammingPlan
-      ].flatMap((plan) =>
-        plan.kinds.map((kind: ProgrammingPlanKind) => ({
-          programmingPlanId: plan.id,
-          kind
-        }))
-      )
-    );
-  });
-
-  afterAll(async () => {
-    await Prescriptions()
-      .whereIn('programmingPlanId', [
-        validatedDromProgrammingPlan.id,
-        validatedProgrammingPlan.id,
-        submittedProgrammingPlan.id,
-        inProgressProgrammingPlan.id
-      ])
-      .delete();
-    await ProgrammingPlans()
-      .delete()
-      .where('id', 'in', [
-        validatedDromProgrammingPlan.id,
-        validatedProgrammingPlan.id,
-        submittedProgrammingPlan.id,
-        inProgressProgrammingPlan.id
-      ]);
-  });
 
   const programmingPlansMatch = (programmingPlans: ProgrammingPlanChecked[]) =>
     expect.arrayContaining(
@@ -160,7 +65,8 @@ describe('ProgrammingPlan router', () => {
         ...programmingPlan,
         regionalStatus: programmingPlan.regionalStatus.filter(
           (regionalStatus) => (region ? regionalStatus.region === region : true)
-        )
+        ),
+        departmentalStatus: []
       })
     );
     expect(withISOStringDates(body)).toMatchObject(
@@ -203,10 +109,11 @@ describe('ProgrammingPlan router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expectedBody(res.body, [
-        validatedDromProgrammingPlan,
-        validatedProgrammingPlan,
-        submittedProgrammingPlan,
-        inProgressProgrammingPlan
+        PPVValidatedProgrammingPlanFixture,
+        PPVValidatedDromProgrammingPlanFixture,
+        PPVSubmittedProgrammingPlanFixture,
+        PPVInProgressProgrammingPlanFixture,
+        PPVClosedProgrammingPlanFixture
       ]);
     });
 
@@ -217,22 +124,33 @@ describe('ProgrammingPlan router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expectedBody(res.body, [
-        validatedDromProgrammingPlan,
-        validatedProgrammingPlan,
-        submittedProgrammingPlan,
-        inProgressProgrammingPlan
+        PPVValidatedProgrammingPlanFixture,
+        PPVValidatedDromProgrammingPlanFixture,
+        PPVSubmittedProgrammingPlanFixture,
+        PPVInProgressProgrammingPlanFixture,
+        PPVClosedProgrammingPlanFixture,
+        DAOAInProgressProgrammingPlanFixture,
+        DAOAValidatedProgrammingPlanFixture
       ]);
     });
 
-    test('can filter the programmingPlans by kinds for the administrator', async () => {
+    test('can filter the programmingPlans by subPlanIds for the administrator', async () => {
       const res = await request(app)
-        .get(testRoute({ kinds: 'DAOA_VOLAILLE' }))
+        .get(
+          testRoute({
+            subPlanIds: DAOAInProgressProgrammingPlanFixture.subPlans[0].id
+          })
+        )
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body[0]).toMatchObject({
         id: DAOAInProgressProgrammingPlanFixture.id,
-        kinds: ['DAOA_VOLAILLE']
+        subPlans: expect.arrayContaining([
+          expect.objectContaining({
+            id: DAOAInProgressProgrammingPlanFixture.subPlans[0].id
+          })
+        ])
       });
     });
 
@@ -245,15 +163,14 @@ describe('ProgrammingPlan router', () => {
       expectedBody(
         res1.body,
         [
-          validatedDromProgrammingPlan,
-          validatedProgrammingPlan,
-          submittedProgrammingPlan
+          PPVValidatedDromProgrammingPlanFixture,
+          PPVSubmittedProgrammingPlanFixture
         ],
         RegionalDromCoordinator.region
       );
       notExpectedBody(
         res1.body,
-        [inProgressProgrammingPlan],
+        [PPVInProgressProgrammingPlanFixture],
         RegionalDromCoordinator.region
       );
 
@@ -264,12 +181,18 @@ describe('ProgrammingPlan router', () => {
 
       expectedBody(
         res2.body,
-        [validatedProgrammingPlan, submittedProgrammingPlan],
+        [
+          PPVValidatedProgrammingPlanFixture,
+          PPVSubmittedProgrammingPlanFixture
+        ],
         RegionalCoordinator.region
       );
       notExpectedBody(
         res2.body,
-        [validatedDromProgrammingPlan, inProgressProgrammingPlan],
+        [
+          PPVValidatedDromProgrammingPlanFixture,
+          PPVInProgressProgrammingPlanFixture
+        ],
         RegionalCoordinator.region
       );
     });
@@ -282,15 +205,15 @@ describe('ProgrammingPlan router', () => {
 
       expectedBody(
         res1.body,
-        [validatedDromProgrammingPlan],
+        [PPVValidatedDromProgrammingPlanFixture],
         SamplerDromFixture.region
       );
       notExpectedBody(
         res1.body,
         [
-          validatedProgrammingPlan,
-          submittedProgrammingPlan,
-          inProgressProgrammingPlan
+          PPVValidatedProgrammingPlanFixture,
+          PPVSubmittedProgrammingPlanFixture,
+          PPVInProgressProgrammingPlanFixture
         ],
         SamplerDromFixture.region
       );
@@ -302,15 +225,15 @@ describe('ProgrammingPlan router', () => {
 
       expectedBody(
         res2.body,
-        [validatedProgrammingPlan],
+        [PPVValidatedProgrammingPlanFixture],
         Sampler1Fixture.region
       );
       notExpectedBody(
         res2.body,
         [
-          validatedDromProgrammingPlan,
-          inProgressProgrammingPlan,
-          submittedProgrammingPlan
+          PPVValidatedDromProgrammingPlanFixture,
+          PPVInProgressProgrammingPlanFixture,
+          PPVSubmittedProgrammingPlanFixture
         ],
         Sampler1Fixture.region
       );
@@ -324,15 +247,15 @@ describe('ProgrammingPlan router', () => {
 
       expectedBody(
         res.body,
-        [submittedProgrammingPlan],
+        [PPVSubmittedProgrammingPlanFixture],
         RegionalDromCoordinator.region
       );
       notExpectedBody(
         res.body,
         [
-          validatedDromProgrammingPlan,
-          validatedProgrammingPlan,
-          inProgressProgrammingPlan
+          PPVValidatedDromProgrammingPlanFixture,
+          PPVValidatedProgrammingPlanFixture,
+          PPVInProgressProgrammingPlanFixture
         ],
         RegionalDromCoordinator.region
       );
@@ -365,30 +288,30 @@ describe('ProgrammingPlan router', () => {
 
     test('should fail if the user is not authorized to access the programming plan regarding the regional status', async () => {
       await request(app)
-        .get(testRoute(inProgressProgrammingPlan.id))
+        .get(testRoute(PPVInProgressProgrammingPlanFixture.id))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
 
       await request(app)
-        .get(testRoute(validatedDromProgrammingPlan.id))
+        .get(testRoute(PPVValidatedDromProgrammingPlanFixture.id))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
 
       await request(app)
-        .get(testRoute(validatedDromProgrammingPlan.id))
+        .get(testRoute(PPVValidatedDromProgrammingPlanFixture.id))
         .use(tokenProvider(SamplerDromFixture))
         .expect(constants.HTTP_STATUS_OK);
     });
 
     test('should find the programmingPlan', async () => {
       const res = await request(app)
-        .get(testRoute(validatedProgrammingPlan.id))
+        .get(testRoute(PPVValidatedProgrammingPlanFixture.id))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject({
-        ...validatedProgrammingPlan,
-        createdAt: validatedProgrammingPlan.createdAt.toISOString()
+        ...PPVValidatedProgrammingPlanFixture,
+        createdAt: PPVValidatedProgrammingPlanFixture.createdAt.toISOString()
       });
     });
   });
@@ -425,11 +348,11 @@ describe('ProgrammingPlan router', () => {
 
     test('should create a new programming plan for the given year', async () => {
       const controlPrescription = genPrescription({
-        programmingPlanId: validatedProgrammingPlan.id,
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
         context: 'Control'
       });
       const surveillancePrescription = genPrescription({
-        programmingPlanId: validatedProgrammingPlan.id,
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
         context: 'Surveillance'
       });
       const localPrescription = genLocalPrescription({
@@ -448,13 +371,14 @@ describe('ProgrammingPlan router', () => {
       );
       await PrescriptionSubstances().insert(prescriptionSubstance);
 
+      const year = PPVValidatedProgrammingPlanFixture.year + 1;
       const res = await request(app)
-        .post(testRoute('2020'))
+        .post(testRoute(year.toString()))
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_CREATED);
 
       expect(res.body).toMatchObject({
-        year: 2020,
+        year,
         regionalStatus: RegionList.map((region) => ({
           region,
           status: 'InProgress' as const
@@ -462,9 +386,9 @@ describe('ProgrammingPlan router', () => {
       });
 
       await expect(
-        ProgrammingPlans().where('year', 2020).first()
+        ProgrammingPlans().where('year', year).first()
       ).resolves.toMatchObject({
-        year: 2020
+        year
       });
 
       await expect(
@@ -483,6 +407,7 @@ describe('ProgrammingPlan router', () => {
       const newControlPrescription = await Prescriptions()
         .where('programmingPlanId', res.body.id)
         .andWhere('context', 'Control')
+        .andWhere('matrixKind', controlPrescription.matrixKind)
         .first();
 
       expect(newControlPrescription).toMatchObject({
@@ -492,7 +417,7 @@ describe('ProgrammingPlan router', () => {
         matrixKind: controlPrescription.matrixKind,
         matrix: null,
         stages: controlPrescription.stages,
-        programmingPlanKind: controlPrescription.programmingPlanKind,
+        programmingSubPlanId: controlPrescription.programmingSubPlanId,
         programmingInstruction:
           controlPrescription.programmingInstruction ?? null,
         notes: controlPrescription.notes ?? null
@@ -510,7 +435,7 @@ describe('ProgrammingPlan router', () => {
         matrixKind: surveillancePrescription.matrixKind,
         matrix: null,
         stages: surveillancePrescription.stages,
-        programmingPlanKind: controlPrescription.programmingPlanKind,
+        programmingSubPlanId: controlPrescription.programmingSubPlanId,
         programmingInstruction:
           controlPrescription.programmingInstruction ?? null,
         notes: controlPrescription.notes ?? null
@@ -565,7 +490,6 @@ describe('ProgrammingPlan router', () => {
           newSurveillancePrescription?.id
         ] as string[])
         .delete();
-      await ProgrammingPlans().where('id', res.body.id).delete();
     });
   });
 
@@ -579,14 +503,14 @@ describe('ProgrammingPlan router', () => {
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
-        .put(testRoute(validatedProgrammingPlan.id))
+        .put(testRoute(PPVValidatedProgrammingPlanFixture.id))
         .send(validBody)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     test('should fail if the user is not authorized', async () => {
       await request(app)
-        .put(testRoute(validatedProgrammingPlan.id))
+        .put(testRoute(PPVValidatedProgrammingPlanFixture.id))
         .send(validBody)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -603,7 +527,7 @@ describe('ProgrammingPlan router', () => {
     test('should get a valid body', async () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
-          .put(testRoute(validatedProgrammingPlan.id))
+          .put(testRoute(PPVValidatedProgrammingPlanFixture.id))
           .send({ ...validBody, ...payload })
           .use(tokenProvider(NationalCoordinator))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -624,30 +548,42 @@ describe('ProgrammingPlan router', () => {
           .use(tokenProvider(NationalCoordinator))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
-      await badRequestTest(inProgressProgrammingPlan, 'InProgress');
-      await badRequestTest(inProgressProgrammingPlan, 'ApprovedByRegion');
-      await badRequestTest(inProgressProgrammingPlan, 'Validated');
-      await badRequestTest(inProgressProgrammingPlan, 'Closed');
-      await badRequestTest(submittedProgrammingPlan, 'SubmittedToRegion');
-      await badRequestTest(submittedProgrammingPlan, 'InProgress');
-      await badRequestTest(submittedProgrammingPlan, 'Validated');
-      await badRequestTest(submittedProgrammingPlan, 'Closed');
-      await badRequestTest(validatedProgrammingPlan, 'InProgress');
-      await badRequestTest(validatedProgrammingPlan, 'SubmittedToRegion');
-      await badRequestTest(validatedProgrammingPlan, 'Validated');
-      await badRequestTest(validatedProgrammingPlan, 'ApprovedByRegion');
+      await badRequestTest(PPVInProgressProgrammingPlanFixture, 'InProgress');
+      await badRequestTest(
+        PPVInProgressProgrammingPlanFixture,
+        'ApprovedByRegion'
+      );
+      await badRequestTest(PPVInProgressProgrammingPlanFixture, 'Validated');
+      await badRequestTest(PPVInProgressProgrammingPlanFixture, 'Closed');
+      await badRequestTest(
+        PPVSubmittedProgrammingPlanFixture,
+        'SubmittedToRegion'
+      );
+      await badRequestTest(PPVSubmittedProgrammingPlanFixture, 'InProgress');
+      await badRequestTest(PPVSubmittedProgrammingPlanFixture, 'Validated');
+      await badRequestTest(PPVSubmittedProgrammingPlanFixture, 'Closed');
+      await badRequestTest(PPVValidatedProgrammingPlanFixture, 'InProgress');
+      await badRequestTest(
+        PPVValidatedProgrammingPlanFixture,
+        'SubmittedToRegion'
+      );
+      await badRequestTest(PPVValidatedProgrammingPlanFixture, 'Validated');
+      await badRequestTest(
+        PPVValidatedProgrammingPlanFixture,
+        'ApprovedByRegion'
+      );
     });
 
     test('should update a validated programming plan to closed', async () => {
       const res = await request(app)
-        .put(testRoute(validatedProgrammingPlan.id))
+        .put(testRoute(PPVValidatedProgrammingPlanFixture.id))
         .send(validBody)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(
         withISOStringDates({
-          ...validatedProgrammingPlan,
+          ...PPVValidatedProgrammingPlanFixture,
           closedAt: expect.any(String),
           closedBy: NationalCoordinator.id,
           regionalStatus: expect.arrayContaining(
@@ -661,12 +597,12 @@ describe('ProgrammingPlan router', () => {
 
       await expect(
         ProgrammingPlanLocalStatus().where({
-          programmingPlanId: validatedProgrammingPlan.id
+          programmingPlanId: PPVValidatedProgrammingPlanFixture.id
         })
       ).resolves.toMatchObject(
         expect.arrayContaining(
           RegionList.map((region) => ({
-            programmingPlanId: validatedProgrammingPlan.id,
+            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
             region,
             status: 'Closed',
             department: 'None'
@@ -674,16 +610,18 @@ describe('ProgrammingPlan router', () => {
         )
       );
       await expect(
-        ProgrammingPlans().where('id', validatedProgrammingPlan.id).first()
+        ProgrammingPlans()
+          .where('id', PPVValidatedProgrammingPlanFixture.id)
+          .first()
       ).resolves.toMatchObject({
-        id: validatedProgrammingPlan.id,
+        id: PPVValidatedProgrammingPlanFixture.id,
         closedAt: expect.any(Date),
         closedBy: NationalCoordinator.id
       });
 
       //Cleanup
       await ProgrammingPlanLocalStatus()
-        .where('programmingPlanId', submittedProgrammingPlan.id)
+        .where('programmingPlanId', PPVSubmittedProgrammingPlanFixture.id)
         .update({ status: 'SubmittedToRegion' });
     });
   });
@@ -701,14 +639,14 @@ describe('ProgrammingPlan router', () => {
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
-        .put(testRoute(validatedProgrammingPlan.id))
+        .put(testRoute(PPVValidatedProgrammingPlanFixture.id))
         .send(programmingPlanLocalStatusList)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     test('should fail if the user is not authorized', async () => {
       await request(app)
-        .put(testRoute(validatedProgrammingPlan.id))
+        .put(testRoute(PPVValidatedProgrammingPlanFixture.id))
         .send({ programmingPlanLocalStatusList })
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -725,7 +663,7 @@ describe('ProgrammingPlan router', () => {
     test('should get a valid body', async () => {
       const badRequestTest = async (payload?: Record<string, unknown>) =>
         request(app)
-          .put(testRoute(validatedProgrammingPlan.id))
+          .put(testRoute(PPVValidatedProgrammingPlanFixture.id))
           .send({ programmingPlanLocalStatusList: [payload] })
           .use(tokenProvider(NationalCoordinator))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
@@ -746,33 +684,47 @@ describe('ProgrammingPlan router', () => {
           .use(tokenProvider(NationalCoordinator))
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
-      await badRequestTest(inProgressProgrammingPlan, 'InProgress');
-      await badRequestTest(inProgressProgrammingPlan, 'ApprovedByRegion');
-      await badRequestTest(inProgressProgrammingPlan, 'Validated');
-      await badRequestTest(submittedProgrammingPlan, 'SubmittedToRegion');
-      await badRequestTest(submittedProgrammingPlan, 'InProgress');
-      await badRequestTest(submittedProgrammingPlan, 'Validated');
-      await badRequestTest(validatedProgrammingPlan, 'InProgress');
-      await badRequestTest(validatedProgrammingPlan, 'SubmittedToRegion');
-      await badRequestTest(validatedProgrammingPlan, 'Validated');
-      await badRequestTest(validatedProgrammingPlan, 'ApprovedByRegion');
+      await badRequestTest(PPVInProgressProgrammingPlanFixture, 'InProgress');
+      await badRequestTest(
+        PPVInProgressProgrammingPlanFixture,
+        'ApprovedByRegion'
+      );
+      await badRequestTest(PPVInProgressProgrammingPlanFixture, 'Validated');
+      await badRequestTest(
+        PPVSubmittedProgrammingPlanFixture,
+        'SubmittedToRegion'
+      );
+      await badRequestTest(PPVSubmittedProgrammingPlanFixture, 'InProgress');
+      await badRequestTest(PPVSubmittedProgrammingPlanFixture, 'Validated');
+      await badRequestTest(PPVValidatedProgrammingPlanFixture, 'InProgress');
+      await badRequestTest(
+        PPVValidatedProgrammingPlanFixture,
+        'SubmittedToRegion'
+      );
+      await badRequestTest(PPVValidatedProgrammingPlanFixture, 'Validated');
+      await badRequestTest(
+        PPVValidatedProgrammingPlanFixture,
+        'ApprovedByRegion'
+      );
     });
 
     test('should update a Submitted programming plan to Approved', async () => {
       const res = await request(app)
-        .put(testRoute(submittedProgrammingPlan.id))
+        .put(testRoute(PPVSubmittedProgrammingPlanFixture.id))
         .send({ programmingPlanLocalStatusList })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(
         withISOStringDates({
-          ...submittedProgrammingPlan,
+          ...PPVSubmittedProgrammingPlanFixture,
           regionalStatus: expect.arrayContaining(
-            submittedProgrammingPlan.regionalStatus.map((regionalStatus) =>
-              regionalStatus.region === programmingPlanLocalStatusList[0].region
-                ? programmingPlanLocalStatusList[0]
-                : regionalStatus
+            PPVSubmittedProgrammingPlanFixture.regionalStatus.map(
+              (regionalStatus) =>
+                regionalStatus.region ===
+                programmingPlanLocalStatusList[0].region
+                  ? programmingPlanLocalStatusList[0]
+                  : regionalStatus
             )
           )
         })
@@ -781,7 +733,7 @@ describe('ProgrammingPlan router', () => {
       await expect(
         ProgrammingPlanLocalStatus()
           .where({
-            programmingPlanId: submittedProgrammingPlan.id,
+            programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
             region: programmingPlanLocalStatusList[0].region
           })
           .first()
@@ -792,25 +744,27 @@ describe('ProgrammingPlan router', () => {
 
       //Cleanup
       await ProgrammingPlanLocalStatus()
-        .where('programmingPlanId', submittedProgrammingPlan.id)
+        .where('programmingPlanId', PPVSubmittedProgrammingPlanFixture.id)
         .update({ status: 'SubmittedToRegion' });
     });
 
     test('should validate a programming plan', async () => {
       const res = await request(app)
-        .put(testRoute(submittedProgrammingPlan.id))
+        .put(testRoute(PPVSubmittedProgrammingPlanFixture.id))
         .send({ programmingPlanLocalStatusList })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(
         withISOStringDates({
-          ...submittedProgrammingPlan,
+          ...PPVSubmittedProgrammingPlanFixture,
           regionalStatus: expect.arrayContaining(
-            submittedProgrammingPlan.regionalStatus.map((regionalStatus) =>
-              regionalStatus.region === programmingPlanLocalStatusList[0].region
-                ? programmingPlanLocalStatusList[0]
-                : regionalStatus
+            PPVSubmittedProgrammingPlanFixture.regionalStatus.map(
+              (regionalStatus) =>
+                regionalStatus.region ===
+                programmingPlanLocalStatusList[0].region
+                  ? programmingPlanLocalStatusList[0]
+                  : regionalStatus
             )
           )
         })
@@ -819,7 +773,7 @@ describe('ProgrammingPlan router', () => {
       await expect(
         ProgrammingPlanLocalStatus()
           .where({
-            programmingPlanId: submittedProgrammingPlan.id,
+            programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
             region: programmingPlanLocalStatusList[0].region
           })
           .first()
@@ -830,7 +784,7 @@ describe('ProgrammingPlan router', () => {
 
       //Cleanup
       await ProgrammingPlanLocalStatus()
-        .where('programmingPlanId', submittedProgrammingPlan.id)
+        .where('programmingPlanId', PPVSubmittedProgrammingPlanFixture.id)
         .update({ status: 'SubmittedToRegion' });
     });
   });

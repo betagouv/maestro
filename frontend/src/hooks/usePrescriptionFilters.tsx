@@ -28,7 +28,7 @@ export const usePrescriptionFilters = (
       ),
     [programmingPlans]
   );
-  const programmingPlanKindOptions = useCallback(
+  const programmingSubPlanOptions = useCallback(
     (filters: PrescriptionFilters) =>
       uniq(
         programmingPlanOptions(filters)
@@ -37,7 +37,7 @@ export const usePrescriptionFilters = (
               !filters.programmingPlanId ||
               plan.id === filters.programmingPlanId
           )
-          .flatMap((plan) => plan.kinds)
+          .flatMap((plan) => plan.subPlans.map((sp) => sp.id))
       ),
     [programmingPlanOptions]
   );
@@ -88,16 +88,16 @@ export const usePrescriptionFilters = (
       )
         ? aggregatedFilters?.programmingPlanId
         : getUniqOrUndefined(programmingPlanOptions({ year, domain }))?.[0]?.id;
-      const kinds =
-        aggregatedFilters?.kinds?.filter((kind) =>
-          programmingPlanKindOptions({
+      const programmingSubPlanIds =
+        aggregatedFilters?.programmingSubPlanIds?.filter((kind) =>
+          programmingSubPlanOptions({
             year,
             domain,
             programmingPlanId
           }).some((kindOption) => kind === kindOption)
         ) ??
         getUniqOrUndefined(
-          programmingPlanKindOptions({
+          programmingSubPlanOptions({
             year,
             domain,
             programmingPlanId
@@ -107,7 +107,7 @@ export const usePrescriptionFilters = (
         year,
         domain,
         programmingPlanId,
-        kinds
+        programmingSubPlanIds
       }).some((contextOption) => aggregatedFilters?.context === contextOption)
         ? aggregatedFilters?.context
         : getUniqOrUndefined(
@@ -115,7 +115,7 @@ export const usePrescriptionFilters = (
               year,
               domain,
               programmingPlanId,
-              kinds
+              programmingSubPlanIds
             })
           )?.[0];
 
@@ -124,7 +124,7 @@ export const usePrescriptionFilters = (
         domain,
         year,
         programmingPlanId,
-        kinds,
+        programmingSubPlanIds,
         context
       };
     },
@@ -132,7 +132,7 @@ export const usePrescriptionFilters = (
       domainOptions,
       yearOptions,
       programmingPlanOptions,
-      programmingPlanKindOptions,
+      programmingSubPlanOptions,
       contextOptions
     ]
   );
@@ -141,7 +141,7 @@ export const usePrescriptionFilters = (
     domainOptions,
     yearOptions,
     programmingPlanOptions,
-    programmingPlanKindOptions,
+    programmingSubPlanOptions,
     contextOptions,
     reduceFilters
   };

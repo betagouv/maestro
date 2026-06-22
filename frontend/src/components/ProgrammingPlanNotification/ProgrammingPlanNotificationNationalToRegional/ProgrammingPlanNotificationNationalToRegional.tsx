@@ -41,7 +41,8 @@ const NotifiableStatusesByDistributionKind: Record<
   ProgrammingPlanStatus[]
 > = {
   REGIONAL: ['InProgress', 'SubmittedToRegion', 'ApprovedByRegion'],
-  SLAUGHTERHOUSE: ['InProgress']
+  SLAUGHTERHOUSE: ['InProgress'],
+  TO_BE_DEFINED: []
 };
 
 const ProgrammingPlanNotificationNationalToRegional = ({

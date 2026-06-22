@@ -49,7 +49,8 @@ const SampleOverview = ({ sample }: Props) => {
   const complianceRef = useRef<null | HTMLDivElement>(null);
   const { hasUserSamplePermission, hasUserPermission } = useAuthentication();
 
-  const { getSampleItemLaboratory, programmingPlan } = usePartialSample(sample);
+  const { getSampleItemLaboratory, programmingPlan, programmingSubPlan } =
+    usePartialSample(sample);
 
   const { navigateToSamples, navigateToSample } = useSamplesLink();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -102,7 +103,7 @@ const SampleOverview = ({ sample }: Props) => {
 
   useEffect(() => {
     setActiveCompliance(
-      sample.programmingPlanKind !== 'PPV' &&
+      programmingSubPlan?.subPlanNumber !== 'PPV' &&
         sample.status === 'InReview' &&
         sample.items
           .filter((item) => item.copyNumber === 1)
@@ -113,7 +114,7 @@ const SampleOverview = ({ sample }: Props) => {
                 'NotAdmissible'
           )
     );
-  }, [sample.programmingPlanKind, sample.status]);
+  }, [programmingSubPlan, sample]);
 
   const sampleItemCopies = useCallback(
     (itemNumber: number) =>
@@ -180,11 +181,15 @@ const SampleOverview = ({ sample }: Props) => {
         subtitle="Consultez le récapitulatif du prélèvement réalisé"
         illustration={food}
       />
-      {!!config.sevesUrl && hasUserSamplePermission(sample).performAnalysis && (
-        <div className={cx('fr-mb-2w')}>
-          <SampleSeves sample={sample} />
-        </div>
-      )}
+      {!!config.sevesUrl &&
+        hasUserSamplePermission(
+          sample,
+          programmingSubPlan?.analysisPermissionRole
+        ).performAnalysis && (
+          <div className={cx('fr-mb-2w')}>
+            <SampleSeves sample={sample} />
+          </div>
+        )}
       {isSendingSuccess && sample.status !== 'InReview' && (
         <Alert
           severity="info"
@@ -211,20 +216,24 @@ const SampleOverview = ({ sample }: Props) => {
           }}
         />
       )}
-      {activeCompliance && hasUserSamplePermission(sample).performAnalysis && (
-        <div ref={complianceRef}>
-          <SampleComplianceForm
-            sample={sample}
-            onChangeCompliance={async (complianceData) => {
-              await updateSampleCompliance({
-                sampleId: sample.id,
-                ...complianceData
-              });
-              setActiveCompliance(false);
-            }}
-          />
-        </div>
-      )}
+      {activeCompliance &&
+        hasUserSamplePermission(
+          sample,
+          programmingSubPlan?.analysisPermissionRole
+        ).performAnalysis && (
+          <div ref={complianceRef}>
+            <SampleComplianceForm
+              sample={sample}
+              onChangeCompliance={async (complianceData) => {
+                await updateSampleCompliance({
+                  sampleId: sample.id,
+                  ...complianceData
+                });
+                setActiveCompliance(false);
+              }}
+            />
+          </div>
+        )}
       <div className="white-container">
         <div className={clsx('d-flex-align-start', cx('fr-m-3w'))}>
           <SideMenu
@@ -345,8 +354,11 @@ const SampleOverview = ({ sample }: Props) => {
                     }
                   }
                 : undefined,
-              sample.programmingPlanKind !== 'PPV' &&
-              hasUserSamplePermission(sample).performAnalysis
+              programmingSubPlan?.subPlanNumber !== 'PPV' &&
+              hasUserSamplePermission(
+                sample,
+                programmingSubPlan?.analysisPermissionRole
+              ).performAnalysis
                 ? {
                     text: (
                       <div
@@ -390,6 +402,9 @@ const SampleOverview = ({ sample }: Props) => {
                 itemNumber={activeItemNumber}
                 sampleItemCopies={sampleItemCopies(activeItemNumber)}
                 sample={sample}
+                analysisPermissionRole={
+                  programmingSubPlan?.analysisPermissionRole
+                }
               />
             )}
             {activeMenu === 'matrix' && (

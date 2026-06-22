@@ -22,7 +22,6 @@ import {
   type ResidueKind,
   ResidueKindLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppRadioButtons from '../../../../components/_app/AppRadioButtons/AppRadioButtons';
@@ -31,13 +30,14 @@ import { selectOptionsFromList } from '../../../../components/_app/AppSelect/App
 import type { UseForm } from '../../../../hooks/useForm';
 import { ResidueHeader } from '../SampleItemAnalysisOverview/ResidueResultOverview';
 import '../SampleItemAnalysisOverview/ResidueResultOverview.scss';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import ResidueComplexForm from './ResidueComplexForm';
 import { ResidueInterpretationForm } from './ResidueInterpretationForm';
 import ResidueSimpleForm from './ResidueSimpleForm';
 import type { ResiduesLmrValidator } from './SampleAnalysisForm';
 
 type Props = {
-  programmingPlanKind: ProgrammingPlanKind;
+  programmingSubPlan: ProgrammingSubPlan;
   residue: PartialResidue | undefined;
   residueIndex: number;
   form: UseForm<ResiduesLmrValidator>;
@@ -45,7 +45,7 @@ type Props = {
   onChange: (residue: PartialResidue, index: number) => void;
 };
 export const ResidueResultForm: FunctionComponent<Props> = ({
-  programmingPlanKind,
+  programmingSubPlan,
   residue,
   residueIndex,
   form,
@@ -192,7 +192,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
           {kind === 'Simple' && (
             <ResidueSimpleForm
               form={form}
-              programmingPlanKind={programmingPlanKind}
+              programmingSubPlan={programmingSubPlan}
               residue={residue}
               residueIndex={residueIndex}
               changeResidue={onChange}
@@ -201,7 +201,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
           {kind === 'Complex' && (
             <ResidueComplexForm
               form={form}
-              programmingPlanKind={programmingPlanKind}
+              programmingSubPlan={programmingSubPlan}
               residue={residue}
               residueReference={residue.reference}
               residueIndex={residueIndex}
@@ -212,7 +212,7 @@ export const ResidueResultForm: FunctionComponent<Props> = ({
             <ResidueInterpretationForm
               form={form}
               onChangeResidue={onChange}
-              programmingPlanKind={programmingPlanKind}
+              programmingSubPlan={programmingSubPlan}
               residue={residue}
               residueIndex={residueIndex}
             />

@@ -157,8 +157,11 @@ const PrescriptionSubstances = ({
           </Button>
         )}
       </div>
-      {programmingPlan.substanceKinds
-        ?.filter((substance) => AdditionalSubstanceKindList.includes(substance))
+      {programmingPlan.subPlans
+        .find((sp) => sp.id === prescription.programmingSubPlanId)
+        ?.substanceKinds?.filter((substance) =>
+          AdditionalSubstanceKindList.includes(substance)
+        )
         .map((substance, index) => (
           <div
             key={`substanceKind-${index}`}

@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { omit } from 'lodash-es';
 import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { genPartialResidue } from 'maestro-shared/test/analysisFixtures';
+import { PPVValidatedSubPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
 import { Sample11Fixture } from 'maestro-shared/test/sampleFixtures';
 import { expect, within } from 'storybook/test';
 import { ResidueResultOverview } from './ResidueResultOverview';
@@ -39,7 +40,7 @@ const meta = {
   title: 'Views/ResidueResultOverview',
   component: ResidueResultOverview,
   args: {
-    programmingPlanKind: 'PPV',
+    programmingSubPlan: PPVValidatedSubPlanFixture,
     residue: residueWithOptionalLmr(5)
   },
   decorators: [
@@ -60,6 +61,7 @@ export const Default: Story = {};
 
 export const LmrDepasseeAvecAlerte: Story = {
   args: {
+    programmingSubPlan: PPVValidatedSubPlanFixture,
     residue: residueWithRequiredLmr(5, 3)
   },
   play: async ({ canvasElement }) => {
@@ -74,6 +76,7 @@ export const LmrDepasseeAvecAlerte: Story = {
 
 export const LmrDepasseeAvecAlerteCorrigee: Story = {
   args: {
+    programmingSubPlan: PPVValidatedSubPlanFixture,
     residue: residueWithRequiredLmr(10, 3)
   },
   play: async ({ canvasElement }) => {
@@ -91,6 +94,7 @@ export const LmrDepasseeAvecAlerteCorrigee: Story = {
 // LMR optionnelle mais renseignée (non nulle) -> le champ LMR reste visible.
 export const LmrOptionnelleAvecValeur: Story = {
   args: {
+    programmingSubPlan: PPVValidatedSubPlanFixture,
     residue: residueWithOptionalLmr(5)
   },
   play: async ({ canvasElement }) => {
@@ -102,6 +106,7 @@ export const LmrOptionnelleAvecValeur: Story = {
 
 export const LmrOptionnelleEtZero: Story = {
   args: {
+    programmingSubPlan: PPVValidatedSubPlanFixture,
     residue: residueWithOptionalLmr(0)
   },
   play: async ({ canvasElement }) => {

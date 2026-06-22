@@ -1,7 +1,6 @@
 import { constants } from 'node:http2';
 import SendEmailError from 'maestro-shared/errors/sendEmailError';
 import SyncContactError from 'maestro-shared/errors/syncContactError';
-import { ProgrammingPlanKindBrevoListId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import config from '../../utils/config';
 import {
@@ -11,12 +10,8 @@ import {
   Templates
 } from './mailService';
 
-const toListIds = (kinds: UserRefined['programmingPlanKinds']): number[] => [
-  ...new Set(kinds.map((k) => ProgrammingPlanKindBrevoListId[k]))
-];
-
-const allListIds = (): number[] => [
-  ...new Set(Object.values(ProgrammingPlanKindBrevoListId))
+const toListIds = (contactListIds: (number | null | undefined)[]): number[] => [
+  ...new Set(contactListIds.filter((id): id is number => id != null))
 ];
 
 class BrevoService implements MailService {
@@ -74,10 +69,12 @@ class BrevoService implements MailService {
   }
 
   async createContact(
-    user: Pick<UserRefined, 'email' | 'name' | 'programmingPlanKinds'>
+    user: Pick<UserRefined, 'email' | 'name'> & {
+      contactListIds: (number | null | undefined)[];
+    }
   ): Promise<void> {
     console.debug('[brevoService] createContact', user.email);
-    const listIds = toListIds(user.programmingPlanKinds);
+    const listIds = toListIds(user.contactListIds);
     const response = await fetch(`${this.baseUrl}/contacts`, {
       method: 'POST',
       headers: this.headers,
@@ -96,11 +93,16 @@ class BrevoService implements MailService {
   }
 
   async updateContact(
-    user: Pick<UserRefined, 'email' | 'name' | 'programmingPlanKinds'>
+    user: Pick<UserRefined, 'email' | 'name'> & {
+      contactListIds: (number | null | undefined)[];
+      allContactlistids: number[];
+    }
   ): Promise<void> {
     console.debug('[brevoService] updateContact', user.email);
-    const listIds = toListIds(user.programmingPlanKinds);
-    const unlinkListIds = allListIds().filter((id) => !listIds.includes(id));
+    const listIds = toListIds(user.contactListIds);
+    const unlinkListIds = user.allContactlistids.filter(
+      (id) => !listIds.includes(id)
+    );
 
     const url = `${this.baseUrl}/contacts/${encodeURIComponent(user.email)}`;
     const response = await fetch(url, {

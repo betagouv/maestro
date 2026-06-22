@@ -21,12 +21,14 @@ import { quote } from '../../../utils/stringUtils';
 import SampleItemAnalysis from '../SampleItemAnalysis/SampleItemAnalysis';
 import { SampleItemComplianceOverrideModal } from './SampleItemComplianceOverrideModal';
 import './SampleOverview.scss';
+import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 
 interface Props {
   itemNumber: number;
   sampleItemCopies: SampleItem[];
   sample: SampleChecked;
+  analysisPermissionRole?: UserRole | null;
 }
 
 const complianceOverrideModal = createModal({
@@ -37,7 +39,8 @@ const complianceOverrideModal = createModal({
 const SampleItemCopiesOverview = ({
   itemNumber,
   sampleItemCopies,
-  sample
+  sample,
+  analysisPermissionRole
 }: Props) => {
   const { hasUserSamplePermission } = useAuthentication();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -89,7 +92,8 @@ const SampleItemCopiesOverview = ({
                 .map((_) => quote(_.analysis?.notesOnCompliance as string))}
             </div>
           </div>
-          {hasUserSamplePermission(sample).performAnalysis &&
+          {hasUserSamplePermission(sample, analysisPermissionRole)
+            .performAnalysis &&
             sampleItemCopies.filter((_) => !isNil(_.analysis)).length > 1 && (
               <Button
                 priority="tertiary no outline"
@@ -199,7 +203,8 @@ const SampleItemCopiesOverview = ({
       {currentItemCopy && (
         <SampleItemAnalysis sample={sample} sampleItem={currentItemCopy} />
       )}
-      {hasUserSamplePermission(sample).performAnalysis && (
+      {hasUserSamplePermission(sample, analysisPermissionRole)
+        .performAnalysis && (
         <SampleItemComplianceOverrideModal
           key={itemNumber}
           modal={complianceOverrideModal}

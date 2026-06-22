@@ -23,10 +23,7 @@ import {
   OutsideProgrammingPlanContext,
   ProgrammingPlanContext
 } from '../ProgrammingPlan/Context';
-import {
-  ProgrammingPlanAnalysisPermissionRole,
-  ProgrammingPlanKind
-} from '../ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 import { SpecificData, UnknownValue } from '../SpecificData/SpecificData';
 import { hasPermission, Sampler, type UserBase } from '../User/User';
 import type { UserRole } from '../User/UserRole';
@@ -44,7 +41,7 @@ export const SampleContextData = z.object({
   department: Department.nullish(),
   parcel: z.string().nullish(),
   programmingPlanId: z.guid(),
-  programmingPlanKind: ProgrammingPlanKind,
+  programmingSubPlanId: ProgrammingSubPlanId,
   context: Context,
   legalContext: LegalContext,
   company: Company.nullish(),
@@ -214,7 +211,7 @@ export const PartialSampleToCreate = z.object({
   ...SampleContextData.partial().required({
     id: true,
     programmingPlanId: true,
-    programmingPlanKind: true,
+    programmingSubPlanId: true,
     step: true,
     status: true,
     sampler: true
@@ -324,11 +321,11 @@ export type SamplePermission = z.infer<typeof SamplePermission>;
 export const hasSamplePermission = (
   user: Pick<UserBase, 'region'>,
   userRole: UserRole,
-  sample: Pick<SampleBase, 'region' | 'programmingPlanKind'>
+  sample: Pick<SampleBase, 'region'>,
+  analysisPermissionRole?: UserRole | null
 ): Record<SamplePermission, boolean> => ({
   performAnalysis:
     hasPermission(userRole, 'performAnalysis') &&
     sample.region === user.region &&
-    ProgrammingPlanAnalysisPermissionRole[sample.programmingPlanKind] ===
-      userRole
+    analysisPermissionRole === userRole
 });

@@ -18,10 +18,19 @@ const findMany = async (
       'laboratories.id',
       'laboratoryAgreements.laboratoryId'
     )
+    .innerJoin(
+      'programmingSubPlans',
+      'programmingSubPlans.id',
+      'laboratoryAgreements.programmingSubPlanId'
+    )
+    .innerJoin(
+      'programmingPlans',
+      'programmingPlans.id',
+      'programmingSubPlans.programmingPlanId'
+    )
     .select([
       'laboratoryAgreements.laboratoryId',
-      'laboratoryAgreements.programmingPlanId',
-      'laboratoryAgreements.programmingPlanKind',
+      'laboratoryAgreements.programmingSubPlanId',
       'laboratoryAgreements.substanceKind',
       'laboratoryAgreements.referenceLaboratory',
       'laboratoryAgreements.detectionAnalysis',
@@ -29,11 +38,15 @@ const findMany = async (
     ])
     .orderBy('laboratories.name', 'asc');
 
-  if (opts?.programmingPlanKinds?.length) {
+  if (opts?.year) {
+    query = query.where('programmingPlans.year', '=', opts.year);
+  }
+
+  if (opts?.programmingSubPlanIds?.length) {
     query = query.where(
-      'laboratoryAgreements.programmingPlanKind',
+      'laboratoryAgreements.programmingSubPlanId',
       'in',
-      opts.programmingPlanKinds
+      opts.programmingSubPlanIds
     );
   }
 
@@ -58,16 +71,11 @@ const findMany = async (
     query = query.where(({ exists, selectFrom }) =>
       exists(
         selectFrom('prescriptions')
-          .select('prescriptions.programmingPlanId')
+          .select('prescriptions.programmingSubPlanId')
           .whereRef(
-            'prescriptions.programmingPlanId',
+            'prescriptions.programmingSubPlanId',
             '=',
-            'laboratoryAgreements.programmingPlanId'
-          )
-          .whereRef(
-            'prescriptions.programmingPlanKind',
-            '=',
-            'laboratoryAgreements.programmingPlanKind'
+            'laboratoryAgreements.programmingSubPlanId'
           )
           .where('prescriptions.matrixKind', 'in', matrixKinds)
       )

@@ -1,8 +1,9 @@
+import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
-  ProgrammingPlanKindFieldId,
+  ProgrammingSubPlanFieldId,
   SpecificDataFieldId,
   SpecificDataFieldOptionId
-} from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+} from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { HttpStatus } from '../constants/httpStatus';
 import { sampleSpecificDataRepository } from '../repositories/sampleSpecificDataRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
@@ -106,47 +107,51 @@ export const specificDataFieldConfigRouter = {
       return { status: HttpStatus.NO_CONTENT };
     }
   },
-  '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields': {
-    get: async (_, { programmingPlanId, kind }) => {
-      console.info('Get specific data field configs for plan kind', kind);
-
-      const configs = await specificDataFieldConfigRepository.findByPlanKind(
-        programmingPlanId,
-        kind
-      );
-
-      return {
-        status: HttpStatus.OK,
-        response: configs
-      };
-    },
-    post: async ({ body }, { programmingPlanId, kind }) => {
-      console.info('Add field to plan kind', kind);
-
-      const config = await specificDataFieldConfigRepository.addFieldToPlanKind(
-        programmingPlanId,
-        kind,
-        body
-      );
-
-      if (!config) {
-        return { status: HttpStatus.NOT_FOUND };
-      }
-
-      return {
-        status: HttpStatus.CREATED,
-        response: config
-      };
-    }
-  },
-  '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields/:planKindFieldId':
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields':
     {
-      put: async ({ body }, { planKindFieldId }) => {
-        console.info('Update plan kind field', planKindFieldId);
+      get: async (_, { programmingSubPlanId }) => {
+        console.info(
+          'Get specific data field configs for sub-plan',
+          programmingSubPlanId
+        );
+
+        const configs =
+          await specificDataFieldConfigRepository.findByPlanSubPlan(
+            ProgrammingSubPlanId.parse(programmingSubPlanId)
+          );
+
+        return {
+          status: HttpStatus.OK,
+          response: configs
+        };
+      },
+      post: async ({ body }, { programmingSubPlanId }) => {
+        console.info('Add field to sub-plan', programmingSubPlanId);
 
         const config =
-          await specificDataFieldConfigRepository.updatePlanKindField(
-            ProgrammingPlanKindFieldId.parse(planKindFieldId),
+          await specificDataFieldConfigRepository.addFieldToPlanKind(
+            ProgrammingSubPlanId.parse(programmingSubPlanId),
+            body
+          );
+
+        if (!config) {
+          return { status: HttpStatus.NOT_FOUND };
+        }
+
+        return {
+          status: HttpStatus.CREATED,
+          response: config
+        };
+      }
+    },
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId':
+    {
+      put: async ({ body }, { programmingSubPlanFieldId }) => {
+        console.info('Update plan kind field', programmingSubPlanFieldId);
+
+        const config =
+          await specificDataFieldConfigRepository.updateProgrammingSubPlanField(
+            ProgrammingSubPlanFieldId.parse(programmingSubPlanFieldId),
             body
           );
 
@@ -159,23 +164,26 @@ export const specificDataFieldConfigRouter = {
           response: config
         };
       },
-      delete: async (_, { planKindFieldId }) => {
-        console.info('Remove plan kind field', planKindFieldId);
+      delete: async (_, { programmingSubPlanFieldId }) => {
+        console.info('Remove plan kind field', programmingSubPlanFieldId);
 
-        await specificDataFieldConfigRepository.removePlanKindField(
-          ProgrammingPlanKindFieldId.parse(planKindFieldId)
+        await specificDataFieldConfigRepository.removeProgrammingSubPlanField(
+          ProgrammingSubPlanFieldId.parse(programmingSubPlanFieldId)
         );
 
         return { status: HttpStatus.NO_CONTENT };
       }
     },
-  '/programming-plans/:programmingPlanId/kinds/:kind/specific-data-fields/:planKindFieldId/options':
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId/options':
     {
-      put: async ({ body }, { planKindFieldId }) => {
-        console.info('Replace plan kind field options', planKindFieldId);
+      put: async ({ body }, { programmingSubPlanFieldId }) => {
+        console.info(
+          'Replace plan kind field options',
+          programmingSubPlanFieldId
+        );
 
-        await specificDataFieldConfigRepository.replacePlanKindFieldOptions(
-          ProgrammingPlanKindFieldId.parse(planKindFieldId),
+        await specificDataFieldConfigRepository.replaceProgrammingSubPlanFieldOptions(
+          ProgrammingSubPlanFieldId.parse(programmingSubPlanFieldId),
           body.optionIds.map((id) => SpecificDataFieldOptionId.parse(id))
         );
 

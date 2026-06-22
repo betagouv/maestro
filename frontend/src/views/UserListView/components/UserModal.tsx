@@ -7,15 +7,13 @@ import {
 } from 'maestro-shared/referential/Department';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import type { Company } from 'maestro-shared/schema/Company/Company';
-import {
-  ProgrammingPlanKindLabels,
-  ProgrammingPlanKindList
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   companiesIsRequired,
   departmentIsRequired,
   laboratoryIsRequired,
-  programmingPlanKindsIsRequired,
+  programmingSubPlanIdsIsRequired,
   type UserRefined,
   UserToCreateRefined
 } from 'maestro-shared/schema/User/User';
@@ -43,6 +41,7 @@ interface Props {
   userToUpdate: null | UserRefined;
   modal: ReturnType<typeof createModal>;
   setAlertMessage: (message: string) => void;
+  programmingPlans: ProgrammingPlanChecked[];
 }
 
 const regionOptions = selectOptionsFromList(RegionList, {
@@ -59,7 +58,7 @@ const regionOptions = selectOptionsFromList(RegionList, {
 const userDefaultValue: Nullable<UserToCreateRefined> = {
   email: null,
   roles: [],
-  programmingPlanKinds: [],
+  programmingSubPlans: [],
   region: null,
   department: null,
   companies: [],
@@ -71,11 +70,20 @@ export const UserModal = ({
   userToUpdate,
   modal,
   setAlertMessage,
+  programmingPlans,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
+
+  const allSubPlans = useMemo(
+    () =>
+      programmingPlans.flatMap((p) =>
+        p.subPlans.map((sp) => ({ ...sp, year: p.year }))
+      ),
+    [programmingPlans]
+  );
 
   const [findCompanies] = apiClient.useLazyFindCompaniesQuery();
 
@@ -130,10 +138,10 @@ export const UserModal = ({
   useEffect(() => {
     if (
       companiesIsRequired({
-        programmingPlanKinds: user.programmingPlanKinds,
+        programmingSubPlans: user.programmingSubPlans,
         roles: user.roles
       }) &&
-      !user.programmingPlanKinds?.includes('PPV')
+      !user.programmingSubPlans?.some((_) => _.subPlanNumber === 'PPV')
     ) {
       findCompanies({
         kinds: ['MEAT_SLAUGHTERHOUSE', 'POULTRY_SLAUGHTERHOUSE'],
@@ -148,7 +156,7 @@ export const UserModal = ({
   }, [
     user.region,
     user.department,
-    user.programmingPlanKinds,
+    user.programmingSubPlans,
     user.roles,
     findCompanies
   ]);
@@ -274,19 +282,58 @@ export const UserModal = ({
         )}
         <AppMultiSelect
           inputForm={form}
-          inputKey={'programmingPlanKinds'}
-          items={ProgrammingPlanKindList}
+          inputKey={'programmingSubPlans'}
+          items={allSubPlans.map((sp) => sp.id)}
           onChange={(v) =>
             setUser((u) => ({
               ...u,
-              programmingPlanKinds: v
+              programmingSubPlans: v
+                .map((id) => allSubPlans.find((sp) => sp.id === id))
+                .filter((sp) => sp != null)
+                .map(({ year: _year, ...sp }): ProgrammingSubPlan => sp)
             }))
           }
-          values={user.programmingPlanKinds ?? []}
-          keysWithLabels={ProgrammingPlanKindLabels}
-          defaultLabel={'plan sélectionné'}
-          label={'Plans'}
-          required={programmingPlanKindsIsRequired(user)}
+          values={user.programmingSubPlans?.map((sp) => sp.id) ?? []}
+          keysWithLabels={Object.fromEntries(
+            allSubPlans.map((sp) => [sp.id, `${sp.subPlanNumber} (${sp.year})`])
+          )}
+          defaultLabel={'sous-plan sélectionné'}
+          label={
+            <>
+              Sous-plans
+              {allSubPlans.some(
+                (sp) =>
+                  !user.programmingSubPlans?.some((usp) => usp.id === sp.id)
+              ) && (
+                <Button
+                  priority="tertiary no outline"
+                  size="small"
+                  onClick={() =>
+                    setUser((u) => ({
+                      ...u,
+                      programmingSubPlans: allSubPlans.map(
+                        ({ year: _year, ...sp }): ProgrammingSubPlan => sp
+                      )
+                    }))
+                  }
+                >
+                  Tout sélectionner
+                </Button>
+              )}
+              {(user.programmingSubPlans?.length ?? 0) > 0 && (
+                <Button
+                  priority="tertiary no outline"
+                  size="small"
+                  onClick={() =>
+                    setUser((u) => ({ ...u, programmingSubPlans: [] }))
+                  }
+                >
+                  Tout désélectionner
+                </Button>
+              )}
+            </>
+          }
+          required={programmingSubPlanIdsIsRequired(user)}
         />
 
         {companiesIsRequired(user) && (

@@ -22,7 +22,7 @@ import {
   type SampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
-import type { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import type { ProgrammingSubPlanFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type { UserBase } from 'maestro-shared/schema/User/User';
 import { formatMaestroDate } from 'maestro-shared/utils/date';
 import type { LaboratoryResidueMapping } from '../repositories/kysely.type';
@@ -31,14 +31,14 @@ import { specificDataFieldConfigRepository } from '../repositories/specificDataF
 import { userRepository } from '../repositories/userRepository';
 import { csvService } from './csvService/csvService';
 import { documentService } from './documentService';
+import { excelService } from './excelService/excelService';
+import { type LaboratoryWithConf, laboratoriesConf } from './imapService';
+import { mailService } from './mailService';
+
 export type DaiSentResult = {
   sentMethod: SachaCommunicationMethod;
   documentIds: string[];
 };
-
-import { excelService } from './excelService/excelService';
-import { type LaboratoryWithConf, laboratoriesConf } from './imapService';
-import { mailService } from './mailService';
 
 const streamToBase64 = async (stream: Readable): Promise<string> => {
   const chunks: Buffer[] = [];
@@ -51,16 +51,17 @@ const streamToBase64 = async (stream: Readable): Promise<string> => {
 
 export const buildAnalysisRequestData = (
   updatedSample: SampleChecked,
+  subPlanNumber: string,
   sampleItem: SampleItem,
   sampler: UserBase,
   laboratory: Laboratory,
   laboratoryResiduesMapping: LaboratoryResidueMapping[],
-  planKindFieldConfigs: PlanKindFieldConfig[]
+  programmingSubPlanFieldConfigs: ProgrammingSubPlanFieldConfig[]
 ): AnalysisRequestData => {
-  const matrixPartField = planKindFieldConfigs.find(
+  const matrixPartField = programmingSubPlanFieldConfigs.find(
     (c) => c.field.key === 'matrixPart'
   )?.field;
-  const cultureKindField = planKindFieldConfigs.find(
+  const cultureKindField = programmingSubPlanFieldConfigs.find(
     (c) => c.field.key === 'cultureKind'
   )?.field;
   const establishment = {
@@ -132,7 +133,8 @@ export const buildAnalysisRequestData = (
       ? 'Respectée'
       : 'Non respectée',
     establishment,
-    department: DepartmentLabels[updatedSample.department]
+    department: DepartmentLabels[updatedSample.department],
+    programmingSubPlanNumber: subPlanNumber
   };
 };
 
@@ -203,6 +205,7 @@ export class DaiProcessingError extends Error {
 
 export const sendDAIWithoutEDI = async (
   sample: SampleChecked,
+  subPlanNumber: string,
   sampleItem: SampleItem,
   laboratory: Laboratory
 ): Promise<DaiSentResult> => {
@@ -222,10 +225,9 @@ export const sendDAIWithoutEDI = async (
       );
   }
 
-  const planKindFieldConfigs =
-    await specificDataFieldConfigRepository.findByPlanKind(
-      sample.programmingPlanId,
-      sample.programmingPlanKind
+  const programmingSubPlanFieldConfigs =
+    await specificDataFieldConfigRepository.findByPlanSubPlan(
+      sample.programmingSubPlanId
     );
 
   const sampler = await userRepository.findUnique(sample.sampler.id);
@@ -251,11 +253,12 @@ export const sendDAIWithoutEDI = async (
   const analysisRequestDocs = await generateAndStoreAnalysisRequestDocuments(
     buildAnalysisRequestData(
       sample,
+      subPlanNumber,
       sampleItem,
       sampler,
       laboratory,
       laboratoryResiduesMappings,
-      planKindFieldConfigs
+      programmingSubPlanFieldConfigs
     )
   );
 

@@ -48,7 +48,7 @@ const LaboratoryAnalyticalCompetencesView = () => {
     );
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery({
-    programmingPlanKind: 'PPV'
+    subPlanNumber: 'PPV'
   });
   const filteredResidues = useMemo(
     () =>

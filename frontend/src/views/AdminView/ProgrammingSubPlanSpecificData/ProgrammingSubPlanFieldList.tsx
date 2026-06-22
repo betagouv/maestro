@@ -1,13 +1,13 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import type { PlanKindFieldConfig } from 'maestro-shared/schema/SpecificData/PlanKindFieldConfig';
+import type { ProgrammingSubPlanFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import { ApiClientContext } from '../../../services/apiClient';
-import { PlanKindFieldItem } from './PlanKindFieldItem';
+import { ProgrammingSubPlanFieldItem } from './ProgrammingSubPlanFieldItem';
 
 const deleteFieldModal = createModal({
   id: 'plan-kind-field-delete-modal',
@@ -16,55 +16,58 @@ const deleteFieldModal = createModal({
 
 interface Props {
   programmingPlanId: string;
-  kind: ProgrammingPlanKind;
-  planKindFields: PlanKindFieldConfig[];
+  programmingSubPlanId: ProgrammingSubPlanId;
+  programmingSubPlanFields: ProgrammingSubPlanFieldConfig[];
   allFields: AdminFieldConfig[];
 }
 
-export const PlanKindFieldList = ({
+export const ProgrammingSubPlanFieldList = ({
   programmingPlanId,
-  kind,
-  planKindFields,
+  programmingSubPlanId,
+  programmingSubPlanFields,
   allFields,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
-  const [updatePlanKindField] = apiClient.useUpdatePlanKindFieldMutation();
-  const [deletePlanKindField, deletePlanKindFieldResult] =
-    apiClient.useDeletePlanKindFieldMutation();
+  const [updateProgrammingSubPlanField] =
+    apiClient.useUpdateProgrammingSubPlanFieldMutation();
+  const [deleteProgrammingSubPlanField, deleteProgrammingSubPlanFieldResult] =
+    apiClient.useDeleteProgrammingSubPlanFieldMutation();
 
   const [fieldToDelete, setFieldToDelete] =
-    useState<PlanKindFieldConfig | null>(null);
+    useState<ProgrammingSubPlanFieldConfig | null>(null);
 
-  const sortedFields = [...planKindFields].sort((a, b) => a.order - b.order);
+  const sortedFields = [...programmingSubPlanFields].sort(
+    (a, b) => a.order - b.order
+  );
 
   const moveField = async (
-    item: PlanKindFieldConfig,
+    item: ProgrammingSubPlanFieldConfig,
     direction: 'up' | 'down'
   ) => {
     const idx = sortedFields.findIndex((f) => f.id === item.id);
     const adjacentIdx = direction === 'up' ? idx - 1 : idx + 1;
     const adjacent = sortedFields[adjacentIdx];
     if (!adjacent) return;
-    await updatePlanKindField({
+    await updateProgrammingSubPlanField({
       programmingPlanId,
-      kind,
-      planKindFieldId: item.id,
+      programmingSubPlanId,
+      programmingSubPlanFieldId: item.id,
       required: item.required,
       order: adjacent.order
     }).unwrap();
-    await updatePlanKindField({
+    await updateProgrammingSubPlanField({
       programmingPlanId,
-      kind,
-      planKindFieldId: adjacent.id,
+      programmingSubPlanId,
+      programmingSubPlanFieldId: adjacent.id,
       required: adjacent.required,
       order: item.order
     }).unwrap();
   };
 
-  const onDeleteClick = (item: PlanKindFieldConfig) => {
+  const onDeleteClick = (item: ProgrammingSubPlanFieldConfig) => {
     setFieldToDelete(item);
     deleteFieldModal.open();
   };
@@ -72,10 +75,10 @@ export const PlanKindFieldList = ({
   const confirmDelete = async () => {
     if (!fieldToDelete) return;
     try {
-      await deletePlanKindField({
+      await deleteProgrammingSubPlanField({
         programmingPlanId,
-        kind,
-        planKindFieldId: fieldToDelete.id
+        programmingSubPlanId,
+        programmingSubPlanFieldId: fieldToDelete.id
       }).unwrap();
       deleteFieldModal.close();
     } catch (_e) {
@@ -97,11 +100,11 @@ export const PlanKindFieldList = ({
         {sortedFields.map((item, idx) => {
           const globalField = allFields.find((f) => f.key === item.field.key);
           return (
-            <PlanKindFieldItem
+            <ProgrammingSubPlanFieldItem
               key={item.id}
               item={item}
               programmingPlanId={programmingPlanId}
-              kind={kind}
+              programmingSubPlanId={programmingSubPlanId}
               globalField={globalField}
               isFirst={idx === 0}
               isLast={idx === sortedFields.length - 1}
@@ -137,7 +140,7 @@ export const PlanKindFieldList = ({
             <strong>{fieldToDelete.field.label}</strong> de ce type de plan ?
           </p>
         )}
-        <AppServiceErrorAlert call={deletePlanKindFieldResult} />
+        <AppServiceErrorAlert call={deleteProgrammingSubPlanFieldResult} />
       </deleteFieldModal.Component>
     </>
   );

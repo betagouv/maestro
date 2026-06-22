@@ -1,10 +1,9 @@
 import { z } from 'zod';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 
 export const LaboratoryAgreementRowKey = z.object({
-  programmingPlanId: z.guid(),
-  programmingPlanKind: ProgrammingPlanKind,
+  programmingSubPlanId: ProgrammingSubPlanId,
   substanceKind: SubstanceKind
 });
 

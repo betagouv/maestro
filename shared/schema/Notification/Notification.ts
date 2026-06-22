@@ -9,7 +9,9 @@ export const Notification = z.object({
   read: z.boolean(),
   message: z.string(),
   link: z.string(),
-  author: UserBase.nullish(),
+  author: UserBase.omit({
+    programmingSubPlans: true
+  }).nullish(),
   category: NotificationCategory
 });
 

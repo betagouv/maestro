@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  DAOABovinValidatedSubPlanFixture,
+  DAOABovinValidatedSubPlanId,
+  genProgrammingPlan
+} from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
   genSampleContextData
@@ -26,10 +30,10 @@ type Story = StoryObj<typeof meta>;
 const sampler = genUser({
   roles: ['Sampler'],
   region: '44',
-  programmingPlanKinds: ['DAOA_BOVIN']
+  programmingSubPlanIds: [DAOABovinValidatedSubPlanId]
 });
 const programmingPlan = genProgrammingPlan({
-  kinds: ['DAOA_BOVIN'],
+  subPlans: [DAOABovinValidatedSubPlanFixture],
   distributionKind: 'SLAUGHTERHOUSE'
 });
 
@@ -39,9 +43,8 @@ export const MatrixStepDAOA: Story = {
       ...genSampleContextData({
         programmingPlanId: programmingPlan.id,
         sampler,
-        specificData: {
-          programmingPlanKind: 'DAOA_BOVIN'
-        }
+        specificData: {},
+        programmingSubPlanId: DAOABovinValidatedSubPlanId
       }),
       ...genCreatedSampleData()
     }
@@ -54,7 +57,7 @@ export const MatrixStepDAOA: Story = {
       }
     },
     apiClient: getMockApi({
-      useFindPlanKindFieldConfigsQuery: {
+      useFindProgrammingSubPlanFieldConfigsQuery: {
         data: DAOABovinFieldConfigs
       }
     })

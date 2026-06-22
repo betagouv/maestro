@@ -19,7 +19,6 @@ import {
   type ResidueKind,
   ResidueKindLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import ResidueResultAlert from '../../../../components/ResidueResultAlert/ResidueResultAlert';
@@ -29,13 +28,14 @@ import {
   ResidueComplianceIcon
 } from './ResidueComplianceIcon';
 import './ResidueResultOverview.scss';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 
 type Props = {
-  programmingPlanKind: ProgrammingPlanKind;
+  programmingSubPlan: ProgrammingSubPlan;
   residue: Omit<PartialResidue, 'kind'>;
 };
 export const ResidueResultOverview: FunctionComponent<Props> = ({
-  programmingPlanKind,
+  programmingSubPlan,
   residue,
   ..._rest
 }) => {
@@ -60,7 +60,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
         </div>
 
         <ResidueValueLabel
-          programmingPlanKind={programmingPlanKind}
+          programmingSubPlan={programmingSubPlan}
           residue={residue}
         />
         {residue.analytes?.length && (
@@ -123,7 +123,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
           </div>
         )}
 
-        {programmingPlanKind === 'PPV' && (
+        {programmingSubPlan?.subPlanNumber === 'PPV' && (
           <>
             <div className="d-flex-align-center">
               Substance approuvée dans l'UE
@@ -185,11 +185,12 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
 };
 
 const ResidueValueLabel = ({
-  programmingPlanKind,
+  programmingSubPlan,
   residue
-}: Pick<Props, 'residue' | 'programmingPlanKind'>) => {
+}: Pick<Props, 'residue' | 'programmingSubPlan'>) => {
   const lmrIsOptional = LmrIsValid({
     ...(residue as ResidueLmrChecked),
+    programmingSubPlanNumber: programmingSubPlan.subPlanNumber,
     matrixPart: (residue as ResidueLmrChecked).specificData?.matrixPart as
       | string
       | undefined,
@@ -197,7 +198,6 @@ const ResidueValueLabel = ({
   });
 
   const hideLmr = lmrIsOptional && !residue.lmr;
-
   return (
     <>
       {residue.resultKind === 'Q' && (
@@ -213,7 +213,7 @@ const ResidueValueLabel = ({
             </div>
           )}
           <ResidueResultAlert
-            programmingPlanKind={programmingPlanKind}
+            programmingSubPlan={programmingSubPlan}
             result={residue.result}
             lmr={residue.lmr}
             lmrIsOptional={lmrIsOptional}

@@ -11,11 +11,8 @@ import {
   DepartmentSort
 } from 'maestro-shared/referential/Department';
 import { Region, Regions } from 'maestro-shared/referential/Region';
-import {
-  ProgrammingPlanKind,
-  ProgrammingPlanKindLabels,
-  ProgrammingPlanKindListSorted
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   UserRole,
   UserRoleLabels,
@@ -34,7 +31,7 @@ const _findUserOptions = z.object({
   regions: z.array(Region).nullable(),
   departments: z.array(Department).nullable(),
   roles: z.array(UserRole).nullable(),
-  programmingPlanKinds: z.array(ProgrammingPlanKind).nullable(),
+  programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullable(),
   label: z.string().nullable(),
   onlyDisabled: z.boolean().nullable()
 });
@@ -43,9 +40,11 @@ export type FindUserOptions = z.infer<typeof _findUserOptions>;
 
 type Props = {
   onChange: (options: FindUserOptions) => void;
+  programmingPlans: ProgrammingPlanChecked[];
 };
 export const UsersFilters: FunctionComponent<Props> = ({
   onChange,
+  programmingPlans,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -55,7 +54,7 @@ export const UsersFilters: FunctionComponent<Props> = ({
     regions: null,
     roles: null,
     departments: null,
-    programmingPlanKinds: null,
+    programmingSubPlanIds: null,
     label: null,
     onlyDisabled: null
   });
@@ -89,19 +88,31 @@ export const UsersFilters: FunctionComponent<Props> = ({
             className="sample-filters-accordion"
           >
             <div className={cx('fr-container')}>
-              <Filters {...filters} onChange={updateFilters} />
+              <Filters
+                {...filters}
+                onChange={updateFilters}
+                programmingPlans={programmingPlans}
+              />
             </div>
           </Accordion>
           {hasFilter && (
             <div className="d-flex-align-center">
-              <UsersFilterTags filters={filters} onChange={updateFilters} />
+              <UsersFilterTags
+                filters={filters}
+                onChange={updateFilters}
+                programmingPlans={programmingPlans}
+              />
             </div>
           )}
         </>
       ) : (
         <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
           <div>
-            <Filters {...filters} onChange={updateFilters} />
+            <Filters
+              {...filters}
+              onChange={updateFilters}
+              programmingPlans={programmingPlans}
+            />
             {hasFilter && (
               <div
                 className={clsx('d-flex-align-start', cx('fr-mt-3w'))}
@@ -113,7 +124,11 @@ export const UsersFilters: FunctionComponent<Props> = ({
                   Filtres actifs
                 </span>
                 <div className={cx('fr-mt-3v')}>
-                  <UsersFilterTags filters={filters} onChange={updateFilters} />
+                  <UsersFilterTags
+                    filters={filters}
+                    onChange={updateFilters}
+                    programmingPlans={programmingPlans}
+                  />
                 </div>
               </div>
             )}
@@ -125,18 +140,28 @@ export const UsersFilters: FunctionComponent<Props> = ({
 };
 
 const Filters: FunctionComponent<
-  FindUserOptions & { onChange: (options: Partial<FindUserOptions>) => void }
+  FindUserOptions & {
+    onChange: (options: Partial<FindUserOptions>) => void;
+    programmingPlans: ProgrammingPlanChecked[];
+  }
 > = ({
   regions,
   departments,
   roles,
-  programmingPlanKinds,
+  programmingSubPlanIds,
   label,
   onlyDisabled,
   onChange,
+  programmingPlans,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
+
+  const subPlanLabelById = Object.fromEntries(
+    programmingPlans.flatMap((p) =>
+      p.subPlans.map((sp) => [sp.id, `${sp.subPlanNumber} (${p.year})`])
+    )
+  );
 
   const departmentOptions = useMemo(() => {
     if (regions?.length) {
@@ -228,32 +253,38 @@ const Filters: FunctionComponent<
       </div>
       <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
         <Select
-          label="Plan"
+          label="Sous-plans"
           nativeSelectProps={{
             value: '',
             onChange: (e) =>
               onChange({
-                programmingPlanKinds: [
-                  ...(programmingPlanKinds ?? []),
-                  e.target.value as ProgrammingPlanKind
+                programmingSubPlanIds: [
+                  ...(programmingSubPlanIds ?? []),
+                  e.target.value as ProgrammingSubPlanId
                 ]
-              })
+              }),
+            disabled: Object.keys(subPlanLabelById).length === 0
           }}
         >
           <option value="">
-            {programmingPlanKinds?.length
-              ? pluralize(programmingPlanKinds.length, { preserveCount: true })(
-                  'plan'
-                )
+            {programmingSubPlanIds?.length
+              ? pluralize(programmingSubPlanIds.length, {
+                  preserveCount: true
+                })('sous-plan')
               : 'Tous'}
           </option>
-          {ProgrammingPlanKindListSorted.filter(
-            (k) => !(programmingPlanKinds ?? []).includes(k)
-          ).map((k) => (
-            <option key={`plan-${k}`} value={k}>
-              {ProgrammingPlanKindLabels[k]}
-            </option>
-          ))}
+          {Object.entries(subPlanLabelById)
+            .filter(
+              ([id]) =>
+                !(programmingSubPlanIds ?? []).includes(
+                  id as ProgrammingSubPlanId
+                )
+            )
+            .map(([id, label]) => (
+              <option key={`subplan-${id}`} value={id}>
+                {label}
+              </option>
+            ))}
         </Select>
       </div>
 

@@ -371,7 +371,7 @@ export const localPrescriptionsRouter = {
       await localPrescriptionCommentRepository.insert(prescriptionComment);
 
       const recipients = await userRepository.findMany({
-        programmingPlanKinds: programmingPlan.kinds,
+        programmingSubPlanIds: programmingPlan.subPlans.map((sp) => sp.id),
         ...(userRole === 'NationalCoordinator'
           ? {
               region: localPrescription.region,
@@ -449,7 +449,7 @@ export const localPrescriptionsRouter = {
         await localPrescriptionCommentRepository.insert(prescriptionComment);
 
         const recipients = await userRepository.findMany({
-          programmingPlanKinds: programmingPlan.kinds,
+          programmingSubPlanIds: programmingPlan.subPlans.map((sp) => sp.id),
           ...(userRole === 'RegionalCoordinator'
             ? {
                 region: localPrescription.region,

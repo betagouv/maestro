@@ -223,7 +223,7 @@ const ProgrammingPrescriptionListHeader = ({
             disabled={
               uniqBy(
                 prescriptions,
-                (prescription) => prescription.programmingPlanKind
+                (prescription) => prescription.programmingSubPlanId
               ).length !== 1
             }
           >
@@ -234,7 +234,7 @@ const ProgrammingPrescriptionListHeader = ({
       {isGroupedUpdate && onGroupedUpdate && (
         <ProgrammingPrescriptionListGroupedUpdate
           programmingPlan={programmingPlan}
-          programmingPlanKind={prescriptions[0].programmingPlanKind}
+          programmingSubPlanId={prescriptions[0].programmingSubPlanId}
           selectedCount={selectedCount ?? 0}
           totalCount={prescriptions.length}
           onSubmit={async (laboratoryId) => {

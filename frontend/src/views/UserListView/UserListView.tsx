@@ -5,7 +5,7 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { Brand } from 'maestro-shared/constants';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import usersSvg from 'src/assets/illustrations/users.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
@@ -28,6 +28,13 @@ export const UserListView = () => {
   const apiClient = useContext(ApiClientContext);
 
   const { data: users } = apiClient.useFindUsersQuery({});
+  const { data: programmingPlansData = [] } =
+    apiClient.useFindProgrammingPlansQuery({});
+  const programmingPlans = useMemo(
+    () => programmingPlansData.filter((p) => p.domain !== 'TO_BE_DEFINED'),
+    [programmingPlansData]
+  );
+
   const [updateUser] = apiClient.useUpdateUserMutation();
 
   const [userToUpdate, setUserToUpdate] = useState<null | UserRefined>(null);
@@ -114,9 +121,9 @@ export const UserListView = () => {
           }
 
           if (
-            filters.programmingPlanKinds?.length &&
-            !filters.programmingPlanKinds.some((kind) =>
-              u.programmingPlanKinds.includes(kind)
+            filters.programmingSubPlanIds?.length &&
+            !filters.programmingSubPlanIds.some((id) =>
+              u.programmingSubPlans.some((sp) => sp.id === id)
             )
           ) {
             return false;
@@ -148,7 +155,10 @@ export const UserListView = () => {
           </Button>
         }
       >
-        <UsersFilters onChange={updateUsersFiltered} />
+        <UsersFilters
+          onChange={updateUsersFiltered}
+          programmingPlans={programmingPlans}
+        />
 
         <div
           className={clsx(
@@ -171,6 +181,7 @@ export const UserListView = () => {
               <div className={cx('fr-col-12', 'fr-col-md-4')} key={user.id}>
                 <UserCard
                   user={user}
+                  programmingPlans={programmingPlans}
                   onEdit={() => onEdit(user)}
                   onDisable={() => onDisable(user)}
                   onEnable={() => onEnableUser(user)}
@@ -184,6 +195,7 @@ export const UserListView = () => {
         modal={userFormModal}
         userToUpdate={userToUpdate}
         setAlertMessage={setAlertMessage}
+        programmingPlans={programmingPlans}
       />
       <ConfirmationModal
         modal={confirmDisablingUserModal}

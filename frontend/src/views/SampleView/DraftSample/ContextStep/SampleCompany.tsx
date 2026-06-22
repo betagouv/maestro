@@ -15,7 +15,7 @@ import { usePartialSample } from '../../../../hooks/usePartialSample';
 type Props = {
   programmingPlan: ProgrammingPlanChecked;
   partialSample?: PartialSample | PartialSampleToCreate;
-  programmingPlanKind: string;
+  programmingSubPlanId: string;
   company: Company | undefined;
   companyOffline: string | undefined;
   isOnline: boolean;
@@ -29,7 +29,7 @@ type Props = {
 const SampleCompany = ({
   programmingPlan,
   partialSample,
-  programmingPlanKind,
+  programmingSubPlanId,
   company,
   companyOffline,
   isOnline,
@@ -43,19 +43,19 @@ const SampleCompany = ({
   const { programmingPlanPrescriptions, programmingPlanLocalPrescriptions } =
     usePartialSample(partialSample);
 
-  const programmingKindLocalPrescriptions = useMemo(
+  const programmingSubPlanLocalPrescriptions = useMemo(
     () =>
       programmingPlanLocalPrescriptions?.filter((localPrescription) =>
         programmingPlanPrescriptions?.some(
           (prescription) =>
             prescription.id === localPrescription.prescriptionId &&
-            prescription.programmingPlanKind === programmingPlanKind
+            prescription.programmingSubPlanId === programmingSubPlanId
         )
       ),
     [
       programmingPlanLocalPrescriptions,
       programmingPlanPrescriptions,
-      programmingPlanKind
+      programmingSubPlanId
     ]
   );
 
@@ -65,14 +65,14 @@ const SampleCompany = ({
     }
 
     if (
-      programmingPlanKind &&
-      programmingKindLocalPrescriptions === undefined
+      programmingSubPlanId &&
+      programmingSubPlanLocalPrescriptions === undefined
     ) {
       return undefined;
     }
     return user?.companies?.filter(({ siret }) =>
-      programmingPlanKind
-        ? programmingKindLocalPrescriptions?.some(
+      programmingSubPlanId
+        ? programmingSubPlanLocalPrescriptions?.some(
             (_) => _.companySiret === siret
           )
         : true
@@ -80,8 +80,8 @@ const SampleCompany = ({
   }, [
     programmingPlan.distributionKind,
     user?.companies,
-    programmingKindLocalPrescriptions,
-    programmingPlanKind
+    programmingSubPlanLocalPrescriptions,
+    programmingSubPlanId
   ]);
 
   useEffect(() => {

@@ -40,6 +40,7 @@ import { analysisRepository } from '../repositories/analysisRepository';
 import companyRepository from '../repositories/companyRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
+import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
@@ -213,7 +214,11 @@ export const sampleRouter = {
         (sampleItems?.length
           ? [...sampleItems].sort(SampleItemSort)
           : Array.from(
-              Array(programmingPlan.substanceKinds.length).keys()
+              Array(
+                programmingPlan.subPlans.find(
+                  (sp) => sp.id === sample.programmingSubPlanId
+                )?.substanceKinds.length ?? 1
+              ).keys()
             ).flatMap((itemNumber) =>
               Array.from(Array(SampleItemMaxCopyCount).keys()).map(
                 (copyNumber) => ({
@@ -301,10 +306,19 @@ export const sampleRouter = {
         throw new SampleItemMissingError(sampleId, itemNumber, copyNumber);
       }
 
+      const subPlan = await programmingSubPlanRepository.findUnique(
+        sample.programmingSubPlanId
+      );
+
       if (
         (itemUpdate.updateKey === 'analysis' ||
           itemUpdate.updateKey === 'billing') &&
-        !hasSamplePermission(user, userRole, sample)['performAnalysis']
+        !hasSamplePermission(
+          user,
+          userRole,
+          sample,
+          subPlan?.analysisPermissionRole
+        )['performAnalysis']
       ) {
         return { status: HttpStatus.FORBIDDEN };
       }
@@ -393,7 +407,10 @@ export const sampleRouter = {
 
       console.info('Update sample compliance', sample.id, complianceData);
 
-      if (sample.programmingPlanKind === 'PPV') {
+      const subPlan = await programmingSubPlanRepository.findUnique(
+        sample.programmingSubPlanId
+      );
+      if (subPlan?.subPlanNumber === 'PPV') {
         return { status: HttpStatus.FORBIDDEN };
       }
 
@@ -459,9 +476,8 @@ export const sampleRouter = {
 
       if (['DraftItems', 'Sent', 'Submitted'].includes(sampleUpdate.step)) {
         const fieldConfigs =
-          await specificDataFieldConfigRepository.findByPlanKind(
-            sampleUpdate.programmingPlanId,
-            sampleUpdate.programmingPlanKind
+          await specificDataFieldConfigRepository.findByPlanSubPlan(
+            sampleUpdate.programmingSubPlanId
           );
         const specificDataSchema = buildSpecificDataSchema(fieldConfigs);
         const result = specificDataSchema.safeParse(sampleUpdate.specificData);

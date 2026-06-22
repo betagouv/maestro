@@ -1,4 +1,3 @@
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import {
   DAOAInProgressProgrammingPlanFixture,
   DAOAValidatedProgrammingPlanFixture,
@@ -8,10 +7,10 @@ import {
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   formatProgrammingPlan,
-  ProgrammingPlanKinds,
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../../repositories/programmingPlanRepository';
+import { ProgrammingSubPlans } from '../../../repositories/programmingSubPlanRepository';
 import { Users } from '../../../repositories/userRepository';
 
 export const seed = async () => {
@@ -54,11 +53,11 @@ export const seed = async () => {
     )
   );
 
-  await ProgrammingPlanKinds().insert(
+  await ProgrammingSubPlans().insert(
     plans.flatMap((plan) =>
-      plan.kinds.map((kind: ProgrammingPlanKind) => ({
-        programmingPlanId: plan.id,
-        kind
+      plan.subPlans.map((subPlan) => ({
+        ...subPlan,
+        programmingPlanId: plan.id
       }))
     )
   );

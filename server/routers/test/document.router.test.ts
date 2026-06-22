@@ -1,5 +1,6 @@
 import { constants } from 'node:http2';
 import { omit } from 'lodash-es';
+import { UserBase } from 'maestro-shared/schema/User/User';
 import {
   genDocument,
   genDocumentToCreate
@@ -18,12 +19,10 @@ import {
   NationalCoordinatorDaoaFixture,
   NationalObserver,
   RegionalCoordinator,
-  RegionalDromCoordinator,
   RegionalObserver,
   Sampler1Fixture,
   Sampler2Fixture,
-  SamplerDaoaFixture,
-  SamplerDromFixture
+  SamplerDaoaFixture
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { withISOStringDates } from 'maestro-shared/utils/date';
@@ -330,16 +329,14 @@ describe('Document router', () => {
       const [notificationData, recipients, params] =
         mockSendNotification.mock.calls[0];
 
-      expect(recipients).toHaveLength(8);
+      expect(recipients).toHaveLength(6);
       expect(recipients).toMatchObject(
         expect.arrayContaining(
           [
             LaboratoryUserFixture,
             Sampler1Fixture,
             Sampler2Fixture,
-            SamplerDromFixture,
             RegionalCoordinator,
-            RegionalDromCoordinator,
             RegionalObserver,
             NationalObserver
           ].map((user) =>
@@ -352,7 +349,9 @@ describe('Document router', () => {
 
       expect(notificationData).toMatchObject({
         category: 'ResourceDocumentUploaded',
-        author: NationalCoordinator,
+        author: UserBase.omit({
+          programmingSubPlans: true
+        }).parse(NationalCoordinator),
         link: expect.stringContaining(validResourceBody.id)
       });
 

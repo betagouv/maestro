@@ -2,50 +2,39 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Notice from '@codegouvfr/react-dsfr/Notice';
-import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
-import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
-import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { StageLabels } from 'maestro-shared/referential/Stage';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type {
-  LaboratoryAgreement,
   LaboratoryAgreementCheckUpdate,
   LaboratoryAgreementField,
   LaboratoryAgreementRowKey
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
-import {
-  type ProgrammingPlanKind,
-  ProgrammingPlanKindLabels,
-  ProgrammingPlanKindReference
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { useLayoutEffect, useRef, useState } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import ColumnFilterHeader from 'src/components/ColumnFilterHeader/ColumnFilterHeader';
 import LaboratoryAgreementButtons from 'src/components/LaboratoryAgreement/LaboratoryAgreementButtons/LaboratoryAgreementButtons';
-import LaboratoryAgreementTag from 'src/components/LaboratoryAgreement/LaboratoryAgreementTag/LaboratoryAgreementTag';
 import { pluralize } from 'src/utils/stringUtils';
+import type { AgreementRow } from './AgreementTableRow';
+import AgreementTableRow from './AgreementTableRow';
 
-const LABS_DISPLAY_LIMIT = 6;
-const MATRIX_DISPLAY_LIMIT = 3;
-
-export type AgreementRow = {
-  programmingPlanId: string;
-  programmingPlanKind: ProgrammingPlanKind;
-  programmingPlanYear: number;
-  substanceKind: SubstanceKind;
-  laboratories: LaboratoryAgreement[];
-};
+export type { AgreementRow };
 
 export const toRowKey = (
-  row: Pick<
-    AgreementRow,
-    'programmingPlanId' | 'programmingPlanKind' | 'substanceKind'
-  >
-) => `${row.programmingPlanId}_${row.programmingPlanKind}_${row.substanceKind}`;
+  row: Pick<AgreementRow, 'programmingSubPlan' | 'substanceKind'>
+) => `${row.programmingSubPlan.id}_${row.substanceKind}`;
+
+const ROW_HEIGHT = 100;
+const OVERSCAN = 10;
 
 interface Props {
   rows: AgreementRow[];
@@ -55,15 +44,15 @@ interface Props {
   checks: LaboratoryAgreementRowKey[];
   laboratories: Laboratory[];
   allPrescriptions: Prescription[];
-  kindFilter: ProgrammingPlanKind[];
-  kindOptions: { value: ProgrammingPlanKind; label: string }[];
-  onKindFilterChange: (values: ProgrammingPlanKind[]) => void;
+  kindFilter: ProgrammingSubPlanId[];
+  kindOptions: { value: ProgrammingSubPlanId; label: string }[];
+  onKindFilterChange: (values: ProgrammingSubPlanId[]) => void;
   substanceFilter: SubstanceKind[];
   substanceOptions: { value: SubstanceKind; label: string }[];
   onSubstanceFilterChange: (values: SubstanceKind[]) => void;
-  matrixFilter: MatrixKind[];
-  matrixOptions: { value: MatrixKind; label: string }[];
-  onMatrixFilterChange: (values: MatrixKind[]) => void;
+  matrixCombinedFilter: string[];
+  matrixCombinedOptions: { value: string; label: string }[];
+  onMatrixCombinedFilterChange: (values: string[]) => void;
   labFilter: string[];
   labOptions: { value: string; label: string; disabled: boolean }[];
   onLabFilterChange: (values: string[]) => void;
@@ -77,7 +66,7 @@ interface Props {
   onUpdateCheck: (params: LaboratoryAgreementCheckUpdate) => void;
 }
 
-const LaboratoryAgreementsTable = ({
+const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
   rows,
   selectedStringRowKeys,
   allSelected,
@@ -91,9 +80,9 @@ const LaboratoryAgreementsTable = ({
   substanceFilter,
   substanceOptions,
   onSubstanceFilterChange,
-  matrixFilter,
-  matrixOptions,
-  onMatrixFilterChange,
+  matrixCombinedFilter,
+  matrixCombinedOptions,
+  onMatrixCombinedFilterChange,
   labFilter,
   labOptions,
   onLabFilterChange,
@@ -105,13 +94,10 @@ const LaboratoryAgreementsTable = ({
   onOpenModal,
   onOpenModalForRow,
   onUpdateCheck
-}: Props) => {
+}: Props) {
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
   const [expandedLabRowKeys, setExpandedLabRowKeys] = useState<string[]>([]);
   const [expandedMatrixRowKeys, setExpandedMatrixRowKeys] = useState<string[]>(
-    []
-  );
-  const [expandedStageRowKeys, setExpandedStageRowKeys] = useState<string[]>(
     []
   );
   const [animatingRowKeys, setAnimatingRowKeys] = useState<string[]>([]);
@@ -119,40 +105,11 @@ const LaboratoryAgreementsTable = ({
 
   const noticeRef = useRef<HTMLDivElement>(null);
   const tableContainerRef = useRef<HTMLDivElement>(null);
-
-  const isRowChecked = (row: AgreementRow) =>
-    checks.some(
-      (c) =>
-        c.programmingPlanId === row.programmingPlanId &&
-        c.programmingPlanKind === row.programmingPlanKind &&
-        c.substanceKind === row.substanceKind
-    );
-
-  const toggleExpand = (key: string) =>
-    setExpandedRowKeys((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    );
-
-  const toggleLabsExpand = (key: string) =>
-    setExpandedLabRowKeys((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    );
-
-  const toggleMatrixExpand = (key: string) =>
-    setExpandedMatrixRowKeys((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    );
-
-  const toggleStageExpand = (key: string) =>
-    setExpandedStageRowKeys((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    );
+  const tableTopRef = useRef(0);
 
   useLayoutEffect(() => {
     const el = noticeRef.current;
-    if (!el) {
-      return;
-    }
+    if (!el) return;
     const observer = new ResizeObserver(() => {
       el.parentElement
         ?.querySelector('.laboratory-agreements-table-wrapper')
@@ -162,87 +119,110 @@ const LaboratoryAgreementsTable = ({
     return () => observer.disconnect();
   }, [selectedStringRowKeys]);
 
-  // Gestion des lignes pliées / dépliées du tableau.
-  // Le composant Table ne gère pas nativement les cellules avec rowspan ou colspan, on doit donc manipuler le DOM après coup.
-  // On utilise useLayoutEffect pour éviter les clignotements ou les rendus intermédiaires incorrects.
-  useLayoutEffect(() => {
-    const table = tableContainerRef.current?.querySelector('table');
-    if (!table) {
-      return;
-    }
+  const [scrollTop, setScrollTop] = useState(
+    typeof window !== 'undefined' ? window.scrollY : 0
+  );
 
-    const domRows = Array.from(table.querySelectorAll('tbody tr'));
-
-    const colgroup =
-      table.querySelector('colgroup') ??
-      table.insertBefore(document.createElement('colgroup'), table.firstChild);
-    colgroup.innerHTML = [
-      '<col style="width:3rem">',
-      '<col style="width:6rem">',
-      '<col style="width:12rem">',
-      '<col style="width:16rem">',
-      '<col>',
-      '<col style="width:4rem">',
-      '<col style="width:4rem">'
-    ].join('');
-
-    domRows.forEach((tr) => {
-      const tds = Array.from(tr.querySelectorAll('td')) as HTMLElement[];
-      tds.forEach((td) => {
-        td.removeAttribute('rowspan');
-        td.removeAttribute('colspan');
-        td.style.display = '';
-      });
-    });
-
-    const ths = Array.from(table.querySelectorAll('thead th')) as HTMLElement[];
-    ths.forEach((th, i) => {
-      th.setAttribute('colspan', i === 4 ? '3' : '1');
-    });
-
-    domRows.forEach((tr) => {
-      const tds = Array.from(tr.querySelectorAll('td')) as HTMLElement[];
-      const checkTd = tds[6];
-      if (checkTd?.querySelector('.row-checked')) {
-        if (tds[5]) {
-          tds[5].setAttribute('colspan', '2');
+  useEffect(() => {
+    let rafId: number;
+    const update = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        if (tableContainerRef.current) {
+          tableTopRef.current =
+            tableContainerRef.current.getBoundingClientRect().top +
+            window.scrollY;
         }
-        checkTd.style.display = 'none';
-      }
-    });
+        setScrollTop(window.scrollY);
+      });
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, []);
 
-    domRows.forEach((tr, i) => {
-      const firstTd = tr.querySelector('td:first-child') as HTMLElement | null;
-      if (!firstTd?.querySelector('.row-expanded')) {
-        return;
-      }
-      firstTd.setAttribute('rowspan', '2');
-      const nextRow = domRows[i + 1];
-      if (!nextRow) {
-        return;
-      }
-      const nextTds = Array.from(
-        nextRow.querySelectorAll('td')
-      ) as HTMLElement[];
-      nextTds[0].style.display = 'none';
-      nextTds[1].setAttribute('colspan', '5');
-    });
-  }, [expandedRowKeys, rows, checks]);
+  const checksSet = useMemo(
+    () =>
+      new Set(
+        checks.map((c) => `${c.programmingSubPlanId}_${c.substanceKind}`)
+      ),
+    [checks]
+  );
 
-  useLayoutEffect(() => {
-    const table = tableContainerRef.current?.querySelector('table');
-    if (!table) {
-      return;
+  const prescriptionsBySubPlanId = useMemo(() => {
+    const map = new Map<string, Prescription[]>();
+    for (const p of allPrescriptions) {
+      const arr = map.get(p.programmingSubPlanId) ?? [];
+      arr.push(p);
+      map.set(p.programmingSubPlanId, arr);
     }
-    Array.from(table.querySelectorAll('tbody tr')).forEach((tr) => {
-      const keyEl = tr.querySelector<HTMLElement>('[data-row-key]');
-      const rowKey = keyEl?.dataset.rowKey;
-      tr.classList.toggle(
-        'row-animating-out',
-        !!rowKey && animatingRowKeys.includes(rowKey)
-      );
-    });
-  }, [animatingRowKeys, pendingCheckRowKeys]);
+    return map;
+  }, [allPrescriptions]);
+
+  const laboratoriesById = useMemo(
+    () => new Map(laboratories.map((l) => [l.id, l])),
+    [laboratories]
+  );
+
+  const handleToggleExpand = useCallback(
+    (key: string) =>
+      setExpandedRowKeys((prev) =>
+        prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+      ),
+    []
+  );
+  const handleToggleLabs = useCallback(
+    (key: string) =>
+      setExpandedLabRowKeys((prev) =>
+        prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+      ),
+    []
+  );
+  const handleToggleMatrix = useCallback(
+    (key: string) =>
+      setExpandedMatrixRowKeys((prev) =>
+        prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+      ),
+    []
+  );
+  const handlePendingStart = useCallback(
+    (key: string) => setPendingCheckRowKeys((prev) => [...prev, key]),
+    []
+  );
+  const handlePendingEnd = useCallback(
+    (key: string) =>
+      setPendingCheckRowKeys((prev) => prev.filter((k) => k !== key)),
+    []
+  );
+  const handleAnimatingStart = useCallback(
+    (key: string) => setAnimatingRowKeys((prev) => [...prev, key]),
+    []
+  );
+  const handleAnimatingEnd = useCallback(
+    (key: string) =>
+      setAnimatingRowKeys((prev) => prev.filter((k) => k !== key)),
+    []
+  );
+
+  const viewportHeight =
+    typeof window !== 'undefined' ? window.innerHeight : 600;
+  const relativeTop = scrollTop - tableTopRef.current;
+  const startIndex = Math.max(
+    0,
+    Math.floor(relativeTop / ROW_HEIGHT) - OVERSCAN
+  );
+  const endIndex = Math.min(
+    rows.length,
+    Math.ceil((relativeTop + viewportHeight) / ROW_HEIGHT) + OVERSCAN
+  );
+  const paddingTop = startIndex * ROW_HEIGHT;
+  const paddingBottom = Math.max(0, (rows.length - endIndex) * ROW_HEIGHT);
+  const visibleRows = rows.slice(startIndex, endIndex);
 
   return (
     <>
@@ -293,433 +273,190 @@ const LaboratoryAgreementsTable = ({
           </div>
         )}
       </div>
+
       <div
         ref={tableContainerRef}
         className="laboratory-agreements-table-wrapper laboratory-agreements-table"
       >
-        <Table
-          noCaption
-          bordered
-          className={cx('fr-pt-0')}
-          headers={[
-            <div
-              key="select-all"
-              className={clsx(cx('fr-checkbox-group'), 'selectable-cell')}
-            >
-              <Checkbox
-                options={[
-                  {
-                    label: '',
-                    nativeInputProps: {
-                      checked: allSelected,
-                      onChange: onToggleAll
-                    }
-                  }
-                ]}
-                small
-                className={cx('fr-pb-3w')}
-              />
-            </div>,
-            <div key="header-reference" className="border-left">
-              <ColumnFilterHeader
-                label="ID"
-                options={kindOptions}
-                selectedValues={kindFilter}
-                onChange={onKindFilterChange}
-              />
-            </div>,
-            <div key="header-substance" className="border-left">
-              <ColumnFilterHeader
-                label="Analytes"
-                options={substanceOptions}
-                selectedValues={substanceFilter}
-                onChange={onSubstanceFilterChange}
-              />
-            </div>,
-            <div key="header-matrix" className="border-left">
-              <ColumnFilterHeader
-                label="Matrices"
-                options={matrixOptions}
-                selectedValues={matrixFilter}
-                onChange={onMatrixFilterChange}
-              />
-            </div>,
-            <div key="header-labs" className="border-left">
-              <ColumnFilterHeader
-                label="Laboratoires agréés"
-                options={labOptions}
-                selectedValues={labFilter}
-                onChange={onLabFilterChange}
-                onReset={() => onLabAgreementTypeFilterChange([])}
-                menuAlign="right"
-                extraActive={labAgreementTypeFilter.length > 0}
-                extraContent={
-                  <div className={clsx('d-flex-align-center')}>
-                    <span className={cx('fr-mr-16w')}>
-                      Filtrer par type d'agrément
-                    </span>
-                    <LaboratoryAgreementButtons
-                      values={{
-                        referenceLaboratory: labAgreementTypeFilter.includes(
-                          'referenceLaboratory'
-                        ),
-                        detectionAnalysis:
-                          labAgreementTypeFilter.includes('detectionAnalysis'),
-                        confirmationAnalysis: labAgreementTypeFilter.includes(
-                          'confirmationAnalysis'
-                        )
-                      }}
-                      onToggle={(field) =>
-                        onLabAgreementTypeFilterChange(
-                          labAgreementTypeFilter.includes(field)
-                            ? labAgreementTypeFilter.filter((f) => f !== field)
-                            : [...labAgreementTypeFilter, field]
-                        )
+        <div
+          className={clsx(
+            'fr-table',
+            'fr-table--bordered',
+            'fr-table--no-caption',
+            cx('fr-pt-0')
+          )}
+        >
+          <table>
+            <colgroup>
+              <col style={{ width: '3rem' }} />
+              <col style={{ width: '6rem' }} />
+              <col style={{ width: '12rem' }} />
+              <col style={{ width: '16rem' }} />
+              <col />
+              <col style={{ width: '4rem' }} />
+              <col style={{ width: '4rem' }} />
+            </colgroup>
+
+            <thead>
+              <tr>
+                <th scope="col">
+                  <div
+                    className={clsx(cx('fr-checkbox-group'), 'selectable-cell')}
+                  >
+                    <Checkbox
+                      options={[
+                        {
+                          label: '',
+                          nativeInputProps: {
+                            checked: allSelected,
+                            onChange: onToggleAll
+                          }
+                        }
+                      ]}
+                      small
+                      className={cx('fr-pb-3w')}
+                    />
+                  </div>
+                </th>
+                <th scope="col">
+                  <div className="border-left">
+                    <ColumnFilterHeader
+                      label="N°"
+                      options={kindOptions}
+                      selectedValues={kindFilter}
+                      onChange={onKindFilterChange}
+                    />
+                  </div>
+                </th>
+                <th scope="col">
+                  <div className="border-left">
+                    <ColumnFilterHeader
+                      label="Analytes"
+                      options={substanceOptions}
+                      selectedValues={substanceFilter}
+                      onChange={onSubstanceFilterChange}
+                    />
+                  </div>
+                </th>
+                <th scope="col">
+                  <div className="border-left">
+                    <ColumnFilterHeader
+                      label="Matrice"
+                      options={matrixCombinedOptions}
+                      selectedValues={matrixCombinedFilter}
+                      onChange={onMatrixCombinedFilterChange}
+                    />
+                  </div>
+                </th>
+                <th scope="col" colSpan={3}>
+                  <div className="border-left">
+                    <ColumnFilterHeader
+                      label="Laboratoires agréés"
+                      options={labOptions}
+                      selectedValues={labFilter}
+                      onChange={onLabFilterChange}
+                      onReset={() => onLabAgreementTypeFilterChange([])}
+                      menuAlign="right"
+                      extraActive={labAgreementTypeFilter.length > 0}
+                      extraContent={
+                        <div className={clsx('d-flex-align-center')}>
+                          <span className={cx('fr-mr-16w')}>
+                            Filtrer par type d'agrément
+                          </span>
+                          <LaboratoryAgreementButtons
+                            values={{
+                              referenceLaboratory:
+                                labAgreementTypeFilter.includes(
+                                  'referenceLaboratory'
+                                ),
+                              detectionAnalysis:
+                                labAgreementTypeFilter.includes(
+                                  'detectionAnalysis'
+                                ),
+                              confirmationAnalysis:
+                                labAgreementTypeFilter.includes(
+                                  'confirmationAnalysis'
+                                )
+                            }}
+                            onToggle={(field) =>
+                              onLabAgreementTypeFilterChange(
+                                labAgreementTypeFilter.includes(field)
+                                  ? labAgreementTypeFilter.filter(
+                                      (f) => f !== field
+                                    )
+                                  : [...labAgreementTypeFilter, field]
+                              )
+                            }
+                          />
+                        </div>
                       }
                     />
                   </div>
-                }
-              />
-            </div>
-          ]}
-          data={rows.flatMap((row) => {
-            const rowKey = toRowKey(row);
-            const isExpanded = expandedRowKeys.includes(rowKey);
+                </th>
+              </tr>
+            </thead>
 
-            const mainRow = [
-              <div
-                key={`select-${rowKey}`}
-                data-row-key={rowKey}
-                className={clsx('selectable-cell', {
-                  'row-expanded': isExpanded
-                })}
-              >
-                <Checkbox
-                  options={[
-                    {
-                      label: '',
-                      nativeInputProps: {
-                        checked: selectedStringRowKeys.includes(rowKey),
-                        onChange: () => onToggleRow(rowKey)
-                      }
+            <tbody>
+              {paddingTop > 0 && (
+                <tr>
+                  <td
+                    colSpan={7}
+                    style={{ height: paddingTop, padding: 0, border: 'none' }}
+                  />
+                </tr>
+              )}
+
+              {visibleRows.map((row) => {
+                const rowKey = toRowKey(row);
+                return (
+                  <AgreementTableRow
+                    key={rowKey}
+                    row={row}
+                    rowKey={rowKey}
+                    isSelected={selectedStringRowKeys.includes(rowKey)}
+                    isExpanded={expandedRowKeys.includes(rowKey)}
+                    isChecked={checksSet.has(rowKey)}
+                    isPending={pendingCheckRowKeys.includes(rowKey)}
+                    isAnimating={animatingRowKeys.includes(rowKey)}
+                    isLabsExpanded={expandedLabRowKeys.includes(rowKey)}
+                    isMatrixExpanded={expandedMatrixRowKeys.includes(rowKey)}
+                    prescriptions={
+                      prescriptionsBySubPlanId.get(row.programmingSubPlan.id) ??
+                      []
                     }
-                  ]}
-                  small
-                  className={cx('fr-pb-3w')}
-                />
-              </div>,
-              <div
-                key={`reference-${rowKey}`}
-                className={clsx('border-left', 'row-reference')}
-              >
-                {ProgrammingPlanKindReference[row.programmingPlanKind]}
-                <Button
-                  iconId={
-                    isExpanded
-                      ? 'fr-icon-arrow-up-s-line'
-                      : 'fr-icon-arrow-down-s-line'
-                  }
-                  priority="tertiary no outline"
-                  size="small"
-                  title="Voir le type de plan"
-                  onClick={() => toggleExpand(rowKey)}
-                />
-              </div>,
-              <div key={`substance-${rowKey}`} className="border-left">
-                {SubstanceKindLabels[row.substanceKind]}
-              </div>,
-              <div key={`matrix-${rowKey}`} className="border-left">
-                {(() => {
-                  const allMatrices = allPrescriptions
-                    .filter(
-                      (p) =>
-                        p.programmingPlanId === row.programmingPlanId &&
-                        p.programmingPlanKind === row.programmingPlanKind
-                    )
-                    .map(getPrescriptionTitle);
-                  const isMatrixExpanded =
-                    expandedMatrixRowKeys.includes(rowKey);
-                  const visibleMatrices = isMatrixExpanded
-                    ? allMatrices
-                    : allMatrices.slice(0, MATRIX_DISPLAY_LIMIT);
-                  const remaining = allMatrices.length - MATRIX_DISPLAY_LIMIT;
-                  return (
-                    <>
-                      {visibleMatrices.map((title, i) => (
-                        <div key={i}>{title}</div>
-                      ))}
-                      {!isMatrixExpanded && remaining > 0 && (
-                        <Button
-                          priority="tertiary"
-                          onClick={() => toggleMatrixExpand(rowKey)}
-                          iconId="fr-icon-add-line"
-                          size="small"
-                        >
-                          Voir{' '}
-                          {pluralize(remaining, { preserveCount: true })(
-                            'supplémentaire'
-                          )}
-                        </Button>
-                      )}
-                      {isMatrixExpanded && (
-                        <Button
-                          priority="tertiary"
-                          onClick={() => toggleMatrixExpand(rowKey)}
-                          iconId="fr-icon-subtract-line"
-                          size="small"
-                        >
-                          Voir moins
-                        </Button>
-                      )}
-                    </>
-                  );
-                })()}
-              </div>,
-              <div
-                key={`labs-${rowKey}`}
-                className="border-left"
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '0.25rem',
-                  alignItems: 'center'
-                }}
-              >
-                {(() => {
-                  const allLabs = row.laboratories
-                    .filter(
-                      (lab) =>
-                        lab.referenceLaboratory ||
-                        lab.detectionAnalysis ||
-                        lab.confirmationAnalysis
-                    )
-                    .toSorted((a, b) => {
-                      const shortNameA =
-                        laboratories.find((l) => l.id === a.laboratoryId)
-                          ?.shortName ?? '';
-                      const shortNameB =
-                        laboratories.find((l) => l.id === b.laboratoryId)
-                          ?.shortName ?? '';
-                      return shortNameA.localeCompare(shortNameB);
-                    });
-                  const isLabsExpanded = expandedLabRowKeys.includes(rowKey);
-                  const visibleLabs = isLabsExpanded
-                    ? allLabs
-                    : allLabs.slice(0, LABS_DISPLAY_LIMIT);
-                  const remaining = allLabs.length - LABS_DISPLAY_LIMIT;
-                  return (
-                    <>
-                      {visibleLabs.map((lab) => {
-                        const laboratory = laboratories.find(
-                          (l) => l.id === lab.laboratoryId
-                        );
-                        if (!laboratory) {
-                          return null;
-                        }
-                        return (
-                          <LaboratoryAgreementTag
-                            key={lab.laboratoryId}
-                            laboratoryAgreement={lab}
-                            laboratory={laboratory}
-                          />
-                        );
-                      })}
-                      {!isLabsExpanded && remaining > 0 && (
-                        <Button
-                          priority="tertiary"
-                          onClick={() => toggleLabsExpand(rowKey)}
-                          iconId="fr-icon-add-line"
-                          size="small"
-                        >
-                          Voir{' '}
-                          {pluralize(remaining, {
-                            preserveCount: true
-                          })('supplémentaire')}
-                        </Button>
-                      )}
-                      {isLabsExpanded && (
-                        <Button
-                          priority="tertiary"
-                          onClick={() => toggleLabsExpand(rowKey)}
-                          iconId="fr-icon-subtract-line"
-                          size="small"
-                        >
-                          Voir moins
-                        </Button>
-                      )}
-                    </>
-                  );
-                })()}
-              </div>,
-              <div key={`action-${rowKey}`} className="float-right">
-                <Button
-                  iconId={
-                    row.laboratories.length === 0
-                      ? 'fr-icon-add-line'
-                      : 'fr-icon-edit-line'
-                  }
-                  priority="tertiary"
-                  size="medium"
-                  title={
-                    row.laboratories.length === 0
-                      ? 'Affecter des laboratoires'
-                      : 'Modifier les laboratoires'
-                  }
-                  onClick={() => onOpenModalForRow(row)}
-                />
-              </div>,
-              <div
-                key={`check-${rowKey}`}
-                className={clsx('check-cell', {
-                  'row-unchecked': !isRowChecked(row),
-                  'row-checked': isRowChecked(row)
-                })}
-              >
-                <RadioButtons
-                  legend="Ligne vérifiée"
-                  classes={{ legend: 'fr-sr-only' }}
-                  options={[
-                    {
-                      label: '',
-                      nativeInputProps: {
-                        checked:
-                          isRowChecked(row) ||
-                          pendingCheckRowKeys.includes(rowKey),
-                        title: isRowChecked(row)
-                          ? 'Marquer comme non vérifié'
-                          : 'Marquer comme vérifié',
-                        onChange: () => {
-                          if (pendingCheckRowKeys.includes(rowKey)) {
-                            return;
-                          }
-                          const willCheck = !isRowChecked(row);
-                          if (willCheck) {
-                            setPendingCheckRowKeys((prev) => [...prev, rowKey]);
-                            setTimeout(() => {
-                              setAnimatingRowKeys((prev) => [...prev, rowKey]);
-                            }, 700);
-                            setTimeout(() => {
-                              onUpdateCheck({
-                                programmingPlanId: row.programmingPlanId,
-                                programmingPlanKind: row.programmingPlanKind,
-                                substanceKind: row.substanceKind,
-                                checked: true
-                              });
-                              setPendingCheckRowKeys((prev) =>
-                                prev.filter((k) => k !== rowKey)
-                              );
-                              setAnimatingRowKeys((prev) =>
-                                prev.filter((k) => k !== rowKey)
-                              );
-                            }, 1000);
-                          } else {
-                            onUpdateCheck({
-                              programmingPlanId: row.programmingPlanId,
-                              programmingPlanKind: row.programmingPlanKind,
-                              substanceKind: row.substanceKind,
-                              checked: false
-                            });
-                          }
-                        }
-                      }
-                    }
-                  ]}
-                />
-              </div>
-            ];
+                    laboratoriesById={laboratoriesById}
+                    onToggleSelect={onToggleRow}
+                    onToggleExpand={handleToggleExpand}
+                    onToggleLabs={handleToggleLabs}
+                    onToggleMatrix={handleToggleMatrix}
+                    onOpenModalForRow={onOpenModalForRow}
+                    onUpdateCheck={onUpdateCheck}
+                    onPendingStart={handlePendingStart}
+                    onPendingEnd={handlePendingEnd}
+                    onAnimatingStart={handleAnimatingStart}
+                    onAnimatingEnd={handleAnimatingEnd}
+                  />
+                );
+              })}
 
-            if (!isExpanded) {
-              return [mainRow];
-            }
-
-            const planStages = [
-              ...new Set(
-                allPrescriptions
-                  .filter(
-                    (p) =>
-                      p.programmingPlanId === row.programmingPlanId &&
-                      p.programmingPlanKind === row.programmingPlanKind
-                  )
-                  .flatMap((p) => p.stages)
-              )
-            ];
-            const isStageExpanded = expandedStageRowKeys.includes(rowKey);
-            const visibleStages = isStageExpanded
-              ? planStages
-              : planStages.slice(0, 1);
-            const remainingStages = planStages.length - 1;
-
-            const subRow = [
-              <span key={`sub-start-${rowKey}`} />,
-              <div
-                key={`sub-kind-${rowKey}`}
-                className="sub-row-content border-left"
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: '2rem',
-                    flexWrap: 'wrap',
-                    alignItems: 'center'
-                  }}
-                >
-                  <div>
-                    Type de plan :{' '}
-                    <strong>
-                      {ProgrammingPlanKindLabels[row.programmingPlanKind]}
-                    </strong>
-                  </div>
-                  {planStages.length > 0 && (
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.25rem',
-                        flexWrap: 'wrap'
-                      }}
-                    >
-                      <span>
-                        Stade de prélèvement :{' '}
-                        <strong>
-                          {visibleStages.map((s) => StageLabels[s]).join(', ')}
-                        </strong>
-                      </span>
-                      {!isStageExpanded && remainingStages > 0 && (
-                        <Button
-                          priority="tertiary"
-                          onClick={() => toggleStageExpand(rowKey)}
-                          size="small"
-                          iconId="fr-icon-add-line"
-                        >
-                          Voir{' '}
-                          {pluralize(remainingStages, {
-                            preserveCount: true
-                          })('supplémentaire')}
-                        </Button>
-                      )}
-                      {isStageExpanded && (
-                        <Button
-                          priority="tertiary"
-                          onClick={() => toggleStageExpand(rowKey)}
-                          size="small"
-                          iconId="fr-icon-subtract-line"
-                        >
-                          Voir moins
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>,
-              <span key={`sub-check-${rowKey}`} />
-            ];
-
-            return [mainRow, subRow];
-          })}
-        />
+              {paddingBottom > 0 && (
+                <tr>
+                  <td
+                    colSpan={7}
+                    style={{
+                      height: paddingBottom,
+                      padding: 0,
+                      border: 'none'
+                    }}
+                  />
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>
   );
-};
+});
 
 export default LaboratoryAgreementsTable;

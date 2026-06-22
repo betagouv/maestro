@@ -1,16 +1,16 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
-import type { ProgrammingPlanKind } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 
 interface Props {
-  programmingPlanKind?: ProgrammingPlanKind;
+  programmingSubPlan?: ProgrammingSubPlan;
   result?: number | null;
   lmr?: number | null;
   lmrIsOptional?: boolean;
 }
 
 const ResidueResultAlert = ({
-  programmingPlanKind,
+  programmingSubPlan,
   result,
   lmr,
   lmrIsOptional
@@ -40,7 +40,7 @@ const ResidueResultAlert = ({
         small
         title={'Résultat brut supérieur à la LMR.'}
         description={
-          programmingPlanKind === 'PPV' ? (
+          programmingSubPlan?.subPlanNumber === 'PPV' ? (
             <>
               Merci de contacter la référente nationale résidus de pesticides
               pour pouvoir finaliser l'interprétation :{' '}

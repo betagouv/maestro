@@ -1,14 +1,11 @@
 import type { AnalysisDai } from 'maestro-shared/schema/AnalysisDai/AnalysisDai';
-import {
-  type ProgrammingPlanKindWithSacha,
-  ProgrammingPlanKindWithSachaList
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanKind';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { analysisDaiRepository } from '../repositories/analysisDaiRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
 import { executeTransaction } from '../repositories/kysely';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
+import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import {
@@ -68,18 +65,30 @@ const processAnalysisDai = async (
   const laboratory = await laboratoryRepository.findUnique(
     rawItem.laboratoryId
   );
-  const programmingPlanWithEdiSacha = ProgrammingPlanKindWithSachaList.includes(
-    checkedSample.programmingPlanKind as ProgrammingPlanKindWithSacha
+  const subPlan = await programmingSubPlanRepository.findUnique(
+    checkedSample.programmingSubPlanId
   );
+  const subPlanNumber = subPlan?.subPlanNumber ?? '';
+  const programmingPlanWithEdiSacha = subPlan?.withSacha ?? false;
 
   if (programmingPlanWithEdiSacha && !laboratory.legacyDai) {
     return {
-      ...(await sendDAIWithEDI(checkedSample, sampleItem, laboratory)),
+      ...(await sendDAIWithEDI(
+        checkedSample,
+        subPlanNumber,
+        sampleItem,
+        laboratory
+      )),
       edi: true
     };
   }
   return {
-    ...(await sendDAIWithoutEDI(checkedSample, sampleItem, laboratory)),
+    ...(await sendDAIWithoutEDI(
+      checkedSample,
+      subPlanNumber,
+      sampleItem,
+      laboratory
+    )),
     edi: false
   };
 };

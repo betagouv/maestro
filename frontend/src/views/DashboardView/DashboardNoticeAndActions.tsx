@@ -21,6 +21,10 @@ const prioritySamplesStatusList = {
   SLAUGHTERHOUSE: {
     Sampler: ['Submitted'],
     DepartmentalCoordinator: ['Submitted', 'InReview']
+  },
+  TO_BE_DEFINED: {
+    Sampler: ['Submitted'],
+    DepartmentalCoordinator: ['Submitted', 'InReview']
   }
 } satisfies Record<DistributionKind, Partial<Record<UserRole, SampleStatus[]>>>;
 
@@ -88,11 +92,12 @@ const DashboardNoticeAndActions: FunctionComponent<Props> = ({
   const { data: priorityProgrammingPlans } =
     apiClient.useFindProgrammingPlansQuery(
       {
-        kinds: user?.programmingPlanKinds,
+        subPlanIds: user?.programmingSubPlans?.map((sp) => sp.id),
         status: priorityProgrammingPlansStatus
       },
       {
-        skip: !user?.programmingPlanKinds || !priorityProgrammingPlansStatus
+        skip:
+          !user?.programmingSubPlans?.length || !priorityProgrammingPlansStatus
       }
     );
 

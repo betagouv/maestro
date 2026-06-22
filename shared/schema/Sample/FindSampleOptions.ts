@@ -5,11 +5,11 @@ import { MatrixKind } from '../../referential/Matrix/MatrixKind';
 import { Region } from '../../referential/Region';
 import { Pagination } from '../commons/Pagination';
 import { Context } from '../ProgrammingPlan/Context';
-import { ProgrammingPlanKind } from '../ProgrammingPlan/ProgrammingPlanKind';
+import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 import {
   companiesIsRequired,
   departmentIsRequired,
-  programmingPlanKindsIsRequired,
+  programmingSubPlanIdsIsRequired,
   type UserRefined
 } from '../User/User';
 import { isNationalRole, type UserRole } from '../User/UserRole';
@@ -18,7 +18,7 @@ import { SampleStatus } from './SampleStatus';
 
 export const FindSampleOptions = z.object({
   programmingPlanIds: z.array(z.guid()).nullish(),
-  kinds: z.array(ProgrammingPlanKind).nullish(),
+  programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullish(),
   contexts: z.array(Context).nullish(),
   regions: z.array(Region).nullish(),
   departments: z.array(Department).nullish(),
@@ -59,8 +59,8 @@ export const buildFindSampleOptions = (
       ? [user.department as Department]
       : query.departments,
     companySirets,
-    kinds: programmingPlanKindsIsRequired(user)
-      ? user.programmingPlanKinds
-      : query.kinds
+    programmingSubPlanIds: programmingSubPlanIdsIsRequired(user)
+      ? user.programmingSubPlans.map((sp) => sp.id)
+      : query.programmingSubPlanIds
   } as FindSampleOptions;
 };
