@@ -527,7 +527,6 @@ const MatrixStep = ({ partialSample }: Props) => {
               />
             </div>
           </div>
-          <SampleProcedure partialSample={partialSample} />
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             {fieldConfigs.map((fc) => (
               <MatrixSpecificDataFormInput
@@ -609,9 +608,7 @@ const MatrixStep = ({ partialSample }: Props) => {
               </>
             )}
           </div>
-          <div className={cx('fr-col-12')}>
-            <hr />
-          </div>
+          <SampleProcedure partialSample={partialSample} />
           {renderSampleAttachments?.()}
           <hr />
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
