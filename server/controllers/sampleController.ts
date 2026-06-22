@@ -446,15 +446,14 @@ export const sampleRouter = {
       console.info('Get sample', sample.id);
 
       const sampleItems = await sampleItemRepository.findMany(sample.id);
-      const hasResidueWithInterpretation =
-        await sampleRepository.hasDetectedResidueWithInterpretation(sample.id);
+      const sevesNotice = await sampleRepository.getSevesNotice(sample.id);
 
       return {
         status: HttpStatus.OK,
         response: {
           ...sample,
           items: sampleItems,
-          hasResidueWithInterpretation
+          sevesNotice
         }
       };
     },

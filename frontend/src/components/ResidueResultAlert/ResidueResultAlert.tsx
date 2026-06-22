@@ -1,4 +1,5 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
+import { residueResultExceedsLmr } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 
@@ -23,7 +24,7 @@ const ResidueResultAlert = ({
     return null;
   }
 
-  if (result < lmr) {
+  if (!residueResultExceedsLmr(result, lmr)) {
     return (
       <Alert
         severity="success"

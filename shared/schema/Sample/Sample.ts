@@ -31,7 +31,7 @@ import { SampleCompliance } from './SampleCompliance';
 import { PartialSampleItem, SampleItem } from './SampleItem';
 import { SampleStatus } from './SampleStatus';
 import { SampleStep } from './SampleStep';
-import { Seves } from './Seves';
+import { Seves, SevesNotice } from './Seves';
 
 export const SampleContextData = z.object({
   id: z.guid(),
@@ -235,7 +235,7 @@ export const CreatedSampleData = z.object({
   createdAt: z.coerce.date(),
   lastUpdatedAt: z.coerce.date(),
   seves: Seves.nullish(),
-  hasResidueWithInterpretation: z.boolean().nullish()
+  sevesNotice: SevesNotice.nullish()
 });
 
 export const SampleComplianceData = z.object({

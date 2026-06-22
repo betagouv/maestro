@@ -15,7 +15,7 @@ export const FicheCreee: Story = {
   args: {
     sample: {
       seves: { id: 123456 as SevesId, numero: '123456' },
-      hasResidueWithInterpretation: false,
+      sevesNotice: null,
       reference: 'GS-08-24-313-A'
     }
   },
@@ -30,7 +30,7 @@ export const CreationConseillee: Story = {
   args: {
     sample: {
       seves: null,
-      hasResidueWithInterpretation: true,
+      sevesNotice: 'recommended',
       reference: 'GS-08-24-313-A'
     }
   },
@@ -42,11 +42,27 @@ export const CreationConseillee: Story = {
   }
 };
 
+export const DepassementLmr: Story = {
+  args: {
+    sample: {
+      seves: null,
+      sevesNotice: 'lmrExceeded',
+      reference: 'GS-08-24-313-A'
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByText('Dépassement de LMR détecté.')
+    ).toBeInTheDocument();
+  }
+};
+
 export const AucunResidu: Story = {
   args: {
     sample: {
       seves: null,
-      hasResidueWithInterpretation: false,
+      sevesNotice: null,
       reference: 'GS-08-24-313-A'
     }
   },

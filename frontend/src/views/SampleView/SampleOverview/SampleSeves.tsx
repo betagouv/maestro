@@ -5,10 +5,7 @@ import config from 'src/utils/config';
 import { assert, type Equals } from 'tsafe';
 
 type Props = {
-  sample: Pick<
-    SampleChecked,
-    'seves' | 'hasResidueWithInterpretation' | 'reference'
-  >;
+  sample: Pick<SampleChecked, 'seves' | 'sevesNotice' | 'reference'>;
 };
 
 const getSevesUrl = (sevesId: SevesId) =>
@@ -38,7 +35,25 @@ export const SampleSeves = ({ sample, ..._rest }: Props) => {
     );
   }
 
-  if (sample.hasResidueWithInterpretation) {
+  if (sample.sevesNotice === 'lmrExceeded') {
+    return (
+      <Notice
+        severity="alert"
+        title="Dépassement de LMR détecté."
+        description="Au moins un résidu détecté dépasse sa LMR sur ce prélèvement, créez une fiche Sèves pour avertir les services concernés."
+        link={{
+          text: 'Créer une fiche Sèves.',
+          linkProps: {
+            href: getSevesCreationUrl(sample.reference),
+            target: '_blank',
+            rel: 'noopener noreferrer'
+          }
+        }}
+      />
+    );
+  }
+
+  if (sample.sevesNotice === 'recommended') {
     return (
       <Notice
         severity="info"

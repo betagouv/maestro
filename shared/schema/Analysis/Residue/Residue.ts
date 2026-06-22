@@ -162,6 +162,11 @@ export const LmrIsValid = (
   );
 };
 
+export const residueResultExceedsLmr = (
+  result: number | null | undefined,
+  lmr: number | null | undefined
+): boolean => !isNil(result) && !isNil(lmr) && result >= lmr;
+
 export const PartialResidue = z.object({
   ...ResidueBase.partial().shape,
   ...ResidueBase.pick({

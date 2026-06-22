@@ -1,6 +1,7 @@
 import type { Knex } from 'knex';
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import type { Region } from 'maestro-shared/referential/Region';
+import { residueResultExceedsLmr } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { defaultPerPage } from 'maestro-shared/schema/commons/Pagination';
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
@@ -13,6 +14,7 @@ import {
   isItemAchieved,
   isItemCompliant
 } from 'maestro-shared/schema/Sample/SampleItem';
+import type { SevesNotice } from 'maestro-shared/schema/Sample/Seves';
 import { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import z from 'zod';
 import { analysisResiduesTable, analysisTable } from './analysisRepository';
@@ -524,22 +526,31 @@ const hasDetectedResidue = async (sampleId: string): Promise<boolean> => {
   return !!detectedResidue;
 };
 
-const hasDetectedResidueWithInterpretation = async (
+const getSevesNotice = async (
   sampleId: string
-): Promise<boolean> => {
-  const detectedResidue = await db(analysisTable)
+): Promise<SevesNotice | null> => {
+  const detectedResidues = await db(analysisTable)
     .join(
       analysisResiduesTable,
       `${analysisResiduesTable}.analysisId`,
       `${analysisTable}.id`
     )
+    .join(samplesTable, `${samplesTable}.id`, `${analysisTable}.sampleId`)
     .where(`${analysisTable}.sampleId`, sampleId)
+    .whereNull(`${samplesTable}.seves`)
     .whereNotNull(`${analysisTable}.compliance`)
     .whereNot(`${analysisResiduesTable}.resultKind`, 'ND')
-    .limit(1)
-    .first();
+    .select(`${analysisResiduesTable}.result`, `${analysisResiduesTable}.lmr`);
 
-  return !!detectedResidue;
+  if (detectedResidues.length === 0) {
+    return null;
+  }
+
+  const hasResidueExceedingLmr = detectedResidues.some(({ result, lmr }) =>
+    residueResultExceedsLmr(result, lmr)
+  );
+
+  return hasResidueExceedingLmr ? 'lmrExceeded' : 'recommended';
 };
 
 const evaluateSampleCompliance = async (sampleId: string) => {
@@ -594,7 +605,7 @@ export const formatPartialSample = (
     'specificData',
     'status',
     'seves',
-    'hasResidueWithInterpretation'
+    'sevesNotice'
   ]),
   geolocation: partialSample.geolocation
     ? db.raw('Point(?, ?)', [
@@ -656,5 +667,5 @@ export const sampleRepository = {
   deleteDraftOnProgrammingPlan,
   evaluateSampleCompliance,
   hasDetectedResidue,
-  hasDetectedResidueWithInterpretation
+  getSevesNotice
 };
