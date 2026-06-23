@@ -1,0 +1,236 @@
+.programming-regional-table {
+  $col-n-width: 5rem;
+  $col-matrice-width: 12.5rem;
+  $col-analyte-width: 18.75rem;
+  $col-prelevements-width: 12.5rem;
+  $col-region-width: 4.375rem;
+
+  border-left: 1px solid var(--border-contrast-grey);
+  border-right: 1px solid var(--border-contrast-grey);
+
+  .header-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    overflow: hidden;
+
+    .fr-table {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    // Supprime la bordure basse — body-table démarre juste en dessous
+    table {
+      border-bottom: none !important;
+    }
+  }
+
+  .table-scroll-wrapper {
+    overflow-x: auto;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    .fr-table {
+      margin-top: 0;
+      margin-bottom: 0;
+
+      tbody::after {
+        background-image: none !important;
+      }
+    }
+
+    // Supprime la bordure haute — header-table se termine juste au-dessus
+    table {
+      border-top: none !important;
+    }
+  }
+
+  .header-wrapper {
+    .fr-table {
+      // Même raison : supprimer les bordures gauche/droite du gradient DSFR
+      .fr-table__wrapper::after {
+        background-image: none !important;
+      }
+    }
+  }
+
+  .sticky-scrollbar {
+    position: sticky;
+    bottom: 0;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    height: 16px;
+    z-index: 10;
+
+    > div {
+      height: 1px;
+    }
+  }
+
+  // table-layout: fixed garantit que les colonnes ont EXACTEMENT les largeurs
+  // définies dans <colgroup>. Sans cela, table-layout: auto ignore max-width et
+  // peut élargir les colonnes (ex: textes longs dans "Matrice"), ce qui décale
+  // les valeurs left des colonnes sticky et cache les premières colonnes régions.
+  // justify-self: start override App.scss qui met justify-self: center — ce centrage
+  // fait déborder le tableau des deux côtés (gauche et droite) et rend les colonnes
+  // sticky inaccessibles à gauche.
+  .fr-table:not(.fr-table--layout-fixed) table {
+    max-height: unset;
+    overflow: visible;
+    width: fit-content !important;
+    min-width: 100%;
+    display: table !important;
+    table-layout: fixed !important;
+    justify-self: start;
+    margin-left: 0;
+  }
+
+  // Largeurs fixes sur cellules — indépendant du table-layout et display mode
+  // S'applique aux lignes normales (tbody tr) et au header row
+  thead tr:nth-child(1) {
+    th:nth-child(1) { min-width: $col-n-width; max-width: $col-n-width; }
+    th:nth-child(2) { min-width: $col-matrice-width; max-width: $col-matrice-width; }
+    th:nth-child(3) { min-width: $col-analyte-width; max-width: $col-analyte-width; }
+    th:nth-child(4) { min-width: $col-prelevements-width; max-width: $col-prelevements-width; }
+    th:nth-child(n+5) { min-width: $col-region-width; max-width: $col-region-width; }
+  }
+  // total-row : td:nth-child(1) = colSpan=3, td:nth-child(2) = Prélèvements, td:nth-child(3+) = régions
+  thead tr.total-row {
+    td:nth-child(2) { min-width: $col-prelevements-width; max-width: $col-prelevements-width; }
+    td:nth-child(n+3) { min-width: $col-region-width; max-width: $col-region-width; }
+  }
+  // body rows normaux
+  tbody tr:not(:has(.sub-row-content)) {
+    td:nth-child(1) { min-width: $col-n-width; max-width: $col-n-width; }
+    td:nth-child(2) { min-width: $col-matrice-width; max-width: $col-matrice-width; }
+    td:nth-child(3) { min-width: $col-analyte-width; max-width: $col-analyte-width; }
+    td:nth-child(4) { min-width: $col-prelevements-width; max-width: $col-prelevements-width; }
+    td:nth-child(n+5) { min-width: $col-region-width; max-width: $col-region-width; }
+  }
+
+  thead tr:nth-child(1) th {
+    border-top: 1px solid var(--border-contrast-grey);
+    background-color: var(--background-alt-grey) !important;
+    // override App.scss ellipsis on th:has(.no-wrap)
+    overflow: visible;
+    text-overflow: unset;
+    white-space: nowrap;
+  }
+
+  thead tr.total-row {
+    height: 32px;
+
+    td {
+      background-color: var(--background-alt-grey) !important;
+      border-bottom: 1px solid var(--border-contrast-grey);
+    }
+
+    // colSpan 3 cell — sticky left at 0
+    td:nth-child(1) {
+      left: 0;
+    }
+  }
+
+  td, th {
+    vertical-align: middle !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  thead, tr {
+    background-image: linear-gradient(0deg, var(--border-contrast-grey), var(--border-contrast-grey)) !important;
+  }
+
+  thead::after, tbody::after {
+    background-image: linear-gradient(0deg, var(--border-contrast-grey), var(--border-contrast-grey)),
+    linear-gradient(0deg, var(--border-contrast-grey), var(--border-contrast-grey)),
+    linear-gradient(0deg, var(--border-contrast-grey), var(--border-contrast-grey));
+  }
+
+  .fr-table th.border-left, .fr-table td.border-left {
+    border-left: 1px solid var(--border-contrast-grey);
+  }
+
+  tr td {
+    border-bottom: 1px solid var(--border-contrast-grey);
+  }
+
+  // 4 sticky left columns — left = cumul des largeurs précédentes (correspondent aux inline styles du Colgroup)
+  th:nth-child(1), td:nth-child(1) {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background-color: var(--background-default-grey) !important;
+  }
+
+  th:nth-child(2), td:nth-child(2) {
+    position: sticky;
+    left: $col-n-width;
+    z-index: 1;
+    background-color: var(--background-default-grey) !important;
+  }
+
+  th:nth-child(3), td:nth-child(3) {
+    position: sticky;
+    left: calc(#{$col-n-width} + #{$col-matrice-width});
+    z-index: 1;
+    background-color: var(--background-default-grey) !important;
+  }
+
+  th:nth-child(4), td:nth-child(4) {
+    position: sticky;
+    left: calc(#{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width});
+    z-index: 1;
+    background-color: var(--background-default-grey) !important;
+  }
+
+  thead th:nth-child(1),
+  thead th:nth-child(2),
+  thead th:nth-child(3),
+  thead th:nth-child(4) {
+    z-index: 2;
+    background-color: var(--background-alt-grey) !important;
+  }
+
+  thead tr.total-row td:nth-child(1) {
+    z-index: 2;
+  }
+
+  // total-row td:nth-child(2) = "Prélèvements programmés" (colSpan=3 sur td:nth-child(1))
+  thead tr.total-row td:nth-child(2) {
+    left: calc(#{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width});
+    z-index: 2;
+  }
+
+  // total-row td:nth-child(3+) = régions — annuler sticky hérité
+  thead tr.total-row td:nth-child(n+3) {
+    left: auto;
+    position: static;
+  }
+
+  // Sub-row spans all columns — sticky left: 0 pour rester alignée avec la
+  // bordure gauche visible même quand le tableau scrolle horizontalement.
+  // Sans sticky, la cellule (position: static) scrollerait avec le contenu
+  // et disparaîtrait hors de la zone visible à gauche.
+  tr:has(.sub-row-content) td:nth-child(1) {
+    position: sticky;
+    left: 0;
+    background-color: var(--background-alt-grey) !important;
+  }
+
+  .prescription-expanded-content {
+    padding: 0.75rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: var(--text-mention-grey);
+    font-size: 0.875rem;
+  }
+
+  .row-reference {
+    display: flex;
+    align-items: center;
+  }
+}
