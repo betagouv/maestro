@@ -1,19 +1,17 @@
 import { constants } from 'node:http2';
-import { intersection, isNil } from 'lodash-es';
+import { intersection } from 'lodash-es';
 import DocumentMissingError from 'maestro-shared/errors/documentMissingError';
 import { HttpError } from 'maestro-shared/errors/httpError';
 import type { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import { ResourceDocumentKindList } from 'maestro-shared/schema/Document/DocumentKind';
 import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
-import {
-  type UserBase,
-  userRegionsForRole
-} from 'maestro-shared/schema/User/User';
+import type { UserBase } from 'maestro-shared/schema/User/User';
 import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { documentRepository } from '../../repositories/documentRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import { sampleRepository } from '../../repositories/sampleRepository';
+import { getAndCheckSample } from './sampleCheck';
 
 const denyAccess = (
   user: UserBase,
@@ -21,7 +19,7 @@ const denyAccess = (
   document: DocumentChecked,
   reason: string
 ): never => {
-  console.warn('Document access denied', {
+  console.warn('Resource document access denied', {
     who: user.id,
     role: userRole,
     documentId: document.id,
@@ -36,11 +34,7 @@ const denyAccess = (
   });
 };
 
-// Resolve the document and make sure it belongs to the user's business scope.
-// Resource documents are scoped by programmingPlanIds; every other kind is
-// attached to a sample and scoped by its region. Deny by default: any document
-// whose scope cannot be resolved is rejected.
-export const getAndCheckDocument = async (
+export const getAndCheckResourceDocument = async (
   documentId: string,
   user: UserBase,
   userRole: UserRole
@@ -51,44 +45,70 @@ export const getAndCheckDocument = async (
     throw new DocumentMissingError(documentId);
   }
 
-  if (ResourceDocumentKindList.includes(document.kind)) {
-    // Resource without programming plan is a global resource, readable by any
-    // user holding the role permission.
-    if (!document.programmingPlanIds?.length) {
-      return document;
-    }
+  if (!ResourceDocumentKindList.includes(document.kind)) {
+    return denyAccess(user, userRole, document, 'not a resource document');
+  }
 
-    const userLaboratory =
-      userRole === 'LaboratoryUser'
-        ? await laboratoryRepository.findUnique(user.laboratoryId as string)
-        : undefined;
-
-    const userProgrammingPlans = await programmingPlanRepository.findMany(
-      buildFindProgrammingPlanOptions(user, userRole, {}, userLaboratory)
-    );
-
-    const userProgrammingPlanIds = userLaboratory
-      ? userLaboratory.programmingPlanIds
-      : userProgrammingPlans.map((plan) => plan.id);
-
-    if (
-      intersection(document.programmingPlanIds, userProgrammingPlanIds)
-        .length === 0
-    ) {
-      return denyAccess(user, userRole, document, 'out of programming scope');
-    }
-
+  if (!document.programmingPlanIds?.length) {
     return document;
   }
 
-  const sample = await sampleRepository.findOneByDocumentId(documentId);
+  const userLaboratory =
+    userRole === 'LaboratoryUser'
+      ? await laboratoryRepository.findUnique(user.laboratoryId as string)
+      : undefined;
 
-  if (isNil(sample)) {
-    return denyAccess(user, userRole, document, 'no owning sample');
+  const userProgrammingPlans = await programmingPlanRepository.findMany(
+    buildFindProgrammingPlanOptions(user, userRole, {}, userLaboratory)
+  );
+
+  const userProgrammingPlanIds = userLaboratory
+    ? userLaboratory.programmingPlanIds
+    : userProgrammingPlans.map((plan) => plan.id);
+
+  if (
+    intersection(document.programmingPlanIds, userProgrammingPlanIds).length ===
+    0
+  ) {
+    return denyAccess(user, userRole, document, 'out of programming scope');
   }
 
-  if (!userRegionsForRole(user, userRole).includes(sample.region)) {
-    return denyAccess(user, userRole, document, 'out of region scope');
+  return document;
+};
+
+export const getAndCheckSampleDocument = async (
+  sampleId: string,
+  documentId: string,
+  user: UserBase,
+  userRole: UserRole
+): Promise<DocumentChecked> => {
+  await getAndCheckSample(sampleId, user, userRole);
+
+  const belongsToSample = await sampleRepository.documentBelongsToSample(
+    documentId,
+    sampleId
+  );
+
+  if (!belongsToSample) {
+    console.warn('Sample document access denied', {
+      who: user.id,
+      role: userRole,
+      sampleId,
+      documentId,
+      result: 'forbidden',
+      reason: 'document not attached to sample'
+    });
+    throw new HttpError({
+      status: constants.HTTP_STATUS_FORBIDDEN,
+      name: 'DocumentOutOfScopeError',
+      message: `Vous n'avez pas les droits sur ce document`
+    });
+  }
+
+  const document = await documentRepository.findUnique(documentId);
+
+  if (!document) {
+    throw new DocumentMissingError(documentId);
   }
 
   return document;

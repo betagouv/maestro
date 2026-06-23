@@ -99,8 +99,8 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const [createOrUpdateSample, createOrUpdateSampleCall] =
     apiClient.useCreateOrUpdateSampleMutation();
-  const [createDocument] = apiClient.useCreateDocumentMutation();
-  const [deleteDocument] = apiClient.useDeleteDocumentMutation();
+  const [createDocument] = apiClient.useCreateSampleDocumentMutation();
+  const [deleteDocument] = apiClient.useDeleteSampleDocumentMutation();
 
   const programmingSubPlanId = partialSample.programmingSubPlanId;
   const subPlanNumber =
@@ -244,8 +244,8 @@ const MatrixStep = ({ partialSample }: Props) => {
       const newDocumentIds = await Promise.all(
         files.map(async (file) => {
           const document = await createDocument({
-            file,
-            kind: 'SampleDocument'
+            sampleId: partialSample.id,
+            file
           }).unwrap();
 
           return document.id;
@@ -266,7 +266,7 @@ const MatrixStep = ({ partialSample }: Props) => {
   );
 
   const removeDocument = async (documentId: string) => {
-    await deleteDocument({ documentId });
+    await deleteDocument({ sampleId: partialSample.id, documentId });
     setDocumentIds((documentIds ?? []).filter((id) => id !== documentId));
   };
 
@@ -299,6 +299,7 @@ const MatrixStep = ({ partialSample }: Props) => {
         {documentIds?.map((documentId) => (
           <SampleDocument
             key={`document-${documentId}`}
+            sampleId={partialSample.id}
             documentId={documentId}
             onRemove={removeDocument}
           />

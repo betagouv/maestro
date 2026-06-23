@@ -90,15 +90,15 @@ const DocumentListView = () => {
   });
 
   const [, { isSuccess: isCreateSuccess }] =
-    apiClient.useCreateDocumentMutation({
+    apiClient.useCreateResourceDocumentMutation({
       fixedCacheKey: 'createDocument'
     });
   const [, { isSuccess: isUpdateSuccess }] =
-    apiClient.useUpdateDocumentMutation({
+    apiClient.useUpdateResourceDocumentMutation({
       fixedCacheKey: 'updateDocument'
     });
   const [deleteDocument, { isSuccess: isDeleteSuccess }] =
-    apiClient.useDeleteDocumentMutation({
+    apiClient.useDeleteResourceDocumentMutation({
       fixedCacheKey: 'deleteDocument'
     });
 

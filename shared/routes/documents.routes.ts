@@ -1,48 +1,22 @@
 import { z } from 'zod';
 import {
+  AnalysisReportDocumentToCreate,
   DocumentChecked,
   DocumentToCreateChecked,
-  DocumentUpdateChecked
+  ResourceDocumentToCreate,
+  ResourceDocumentUpdate
 } from '../schema/Document/Document';
 import { FindDocumentOptions } from '../schema/Document/FindDocumentOptions';
 import type { SubRoutes } from './routes';
 
 export const documentsRoutes = {
+  // TODO(V2) : route générique conservée uniquement pour AnalysisReportDocument.
   '/documents': {
     params: undefined,
     post: {
       response: DocumentChecked,
-      body: DocumentToCreateChecked,
-      permissions: ['createResource', 'performAnalysis', 'createSample']
-    }
-  },
-  '/documents/:documentId': {
-    params: {
-      documentId: z.guid()
-    },
-    get: {
-      permissions: ['readDocuments'],
-      response: DocumentChecked
-    },
-    put: {
-      body: DocumentUpdateChecked,
-      permissions: ['createSample', 'createResource'],
-      response: DocumentChecked
-    },
-    delete: {
-      permissions: ['deleteDocument', 'deleteSampleDocument'],
-      response: z.undefined()
-    }
-  },
-  '/documents/:documentId/download-signed-url': {
-    params: {
-      documentId: z.guid()
-    },
-    get: {
-      permissions: ['readDocuments'],
-      response: z.object({
-        url: z.string()
-      })
+      body: AnalysisReportDocumentToCreate,
+      permissions: ['performAnalysis']
     }
   },
   '/documents/resources': {
@@ -51,6 +25,40 @@ export const documentsRoutes = {
       query: FindDocumentOptions,
       permissions: ['readDocuments'],
       response: z.array(DocumentChecked)
+    },
+    post: {
+      response: DocumentChecked,
+      body: ResourceDocumentToCreate,
+      permissions: ['createResource']
+    }
+  },
+  '/documents/resources/:documentId': {
+    params: {
+      documentId: z.guid()
+    },
+    get: {
+      permissions: ['readDocuments'],
+      response: DocumentChecked
+    },
+    put: {
+      body: ResourceDocumentUpdate,
+      permissions: ['createResource'],
+      response: DocumentChecked
+    },
+    delete: {
+      permissions: ['deleteDocument'],
+      response: z.undefined()
+    }
+  },
+  '/documents/resources/:documentId/download-signed-url': {
+    params: {
+      documentId: z.guid()
+    },
+    get: {
+      permissions: ['readDocuments'],
+      response: z.object({
+        url: z.string()
+      })
     }
   },
   '/documents/upload-signed-url': {

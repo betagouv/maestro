@@ -144,11 +144,14 @@ const defaultMockApiClientConf: MockApi = {
   useCreateAnalysisMutation: [fn(), {}],
   useCreateAnalysisReportDocumentMutation: [fn(), {}],
   useCreateDocumentMutation: [fn(), {}],
+  useCreateResourceDocumentMutation: [fn(), {}],
+  useCreateSampleDocumentMutation: [fn(), {}],
   useCreateLaboratoryAnalyticalCompetenceMutation: [fn(), {}],
   useCreateOrUpdateSampleMutation: [fn(), { isLoading: false }],
   useCreateProgrammingPlanMutation: [fn(), {}],
   useDeleteAnalysisReportDocumentMutation: [fn(), {}],
-  useDeleteDocumentMutation: [fn(), {}],
+  useDeleteResourceDocumentMutation: [fn(), {}],
+  useDeleteSampleDocumentMutation: [fn(), {}],
   useDeletePrescriptionMutation: [fn(), {}],
   useDeleteSampleMutation: [fn(), {}],
   useFindCompaniesQuery: {
@@ -185,12 +188,21 @@ const defaultMockApiClientConf: MockApi = {
       url: ''
     }
   },
-  useGetDocumentDownloadSignedUrlQuery: { data: { url: '' } },
-  useGetDocumentQuery: {
+  useGetResourceDocumentDownloadSignedUrlQuery: { data: { url: '' } },
+  useGetSampleDocumentDownloadSignedUrlQuery: { data: { url: '' } },
+  useGetResourceDocumentQuery: {
     data: genDocument({
       createdAt: new Date(12345),
       createdBy: 'Storybook',
-      kind: 'AnalysisRequestDocument',
+      kind: 'TechnicalInstruction',
+      filename: 'instruction.pdf'
+    })
+  },
+  useGetSampleDocumentQuery: {
+    data: genDocument({
+      createdAt: new Date(12345),
+      createdBy: 'Storybook',
+      kind: 'SampleDocument',
       filename: 'analyses.pdf'
     })
   },
@@ -237,7 +249,11 @@ const defaultMockApiClientConf: MockApi = {
   useLazyFindPrescriptionsQuery: [[], {}],
   useLazyFindSamplesQuery: [[], {}],
   useLazyGetAnalysisReportDocumentIdsQuery: [[], {}],
-  useLazyGetDocumentDownloadSignedUrlQuery: [
+  useLazyGetResourceDocumentDownloadSignedUrlQuery: [
+    { url: 'https://maestro.beta.gouv.fr' },
+    {}
+  ],
+  useLazyGetSampleDocumentDownloadSignedUrlQuery: [
     { url: 'https://maestro.beta.gouv.fr' },
     {}
   ],
@@ -249,7 +265,8 @@ const defaultMockApiClientConf: MockApi = {
   useLazySearchCompaniesQuery: [[], {}],
   useLogoutMutation: [fn(), {}],
   useUpdateAnalysisMutation: [fn(), {}],
-  useUpdateDocumentMutation: [fn(), {}],
+  useUpdateResourceDocumentMutation: [fn(), {}],
+  useUpdateSampleDocumentMutation: [fn(), {}],
   useUpdateNotificationMutation: [fn(), {}],
   useUpdateNotificationsMutation: [fn(), {}],
   useUpdatePrescriptionMutation: [fn(), {}],

@@ -74,7 +74,11 @@ const DocumentCard = ({ document, onViewNotes, onRemove, isNew }: Props) => {
             Version du {formatDate(document.createdAt)}
           </span>
           <span className={cx('fr-text--regular')}>
-            <DocumentLink documentId={document.id} iconId="fr-icon-eye-line" />
+            <DocumentLink
+              documentId={document.id}
+              scope={{ type: 'resource' }}
+              iconId="fr-icon-eye-line"
+            />
           </span>
         </>
       }
@@ -102,7 +106,9 @@ const DocumentCard = ({ document, onViewNotes, onRemove, isNew }: Props) => {
               priority: 'tertiary no outline',
               className: cx('fr-m-0'),
               onClick: async () => {
-                await downloadDocument(document.id, document.filename);
+                await downloadDocument(document.id, document.filename, {
+                  type: 'resource'
+                });
               }
             }
           ]}

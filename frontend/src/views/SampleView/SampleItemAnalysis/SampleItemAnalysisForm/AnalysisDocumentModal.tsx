@@ -61,8 +61,7 @@ export const AnalysisDocumentModal = ({
         form.reset();
 
         const reportDocumentId = await createDocument({
-          file: result.fileInput as File,
-          kind: 'AnalysisReportDocument'
+          file: result.fileInput as File
         })
           .unwrap()
           .then((document) => document.id);

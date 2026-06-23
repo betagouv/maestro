@@ -8,20 +8,32 @@ import { ApiClientContext } from '../../../services/apiClient';
 import { cropFileName, quote } from '../../../utils/stringUtils';
 
 interface Props {
+  sampleId: string;
   documentId: string;
   readonly?: boolean;
   onRemove?: (documentId: string) => Promise<void>;
 }
 
-const SampleDocument = ({ documentId, readonly, onRemove }: Props) => {
+const SampleDocument = ({
+  sampleId,
+  documentId,
+  readonly,
+  onRemove
+}: Props) => {
   const apiClient = useContext(ApiClientContext);
-  const { data: document } = apiClient.useGetDocumentQuery({ documentId });
+  const { data: document } = apiClient.useGetSampleDocumentQuery({
+    sampleId,
+    documentId
+  });
 
   const { data: documentUrlData } =
-    apiClient.useGetDocumentDownloadSignedUrlQuery({ documentId });
+    apiClient.useGetSampleDocumentDownloadSignedUrlQuery({
+      sampleId,
+      documentId
+    });
   const documentUrl = documentUrlData?.url;
 
-  const [updateDocument] = apiClient.useUpdateDocumentMutation();
+  const [updateDocument] = apiClient.useUpdateSampleDocumentMutation();
 
   if (!document) {
     return null;
@@ -75,8 +87,8 @@ const SampleDocument = ({ documentId, readonly, onRemove }: Props) => {
               onChange: (e) => {
                 e.preventDefault();
                 updateDocument({
+                  sampleId,
                   documentId,
-                  kind: document.kind,
                   legend: e.target.value
                 });
               },

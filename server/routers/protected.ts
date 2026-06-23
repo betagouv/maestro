@@ -17,6 +17,7 @@ import { prescriptionsRouter } from '../controllers/prescriptionController';
 import { programmingPlanRouter } from '../controllers/programmingPlanController';
 import { sachaCommemoratifsProtectedRouter } from '../controllers/sachaCommemoratifsController';
 import { sampleRouter } from '../controllers/sampleController';
+import { sampleDocumentsRouter } from '../controllers/sampleDocumentController';
 import { specificDataFieldConfigRouter } from '../controllers/specificDataFieldConfigController';
 import { usersRouter } from '../controllers/userController';
 import { jwtCheck, userCheck } from '../middlewares/checks/authCheck';
@@ -48,6 +49,7 @@ const router = {
   ...programmingPlanRouter,
   ...sachaCommemoratifsProtectedRouter,
   ...sampleRouter,
+  ...sampleDocumentsRouter,
   ...usersRouter
 } as const satisfies Required<ProtectedSubRouter>;
 

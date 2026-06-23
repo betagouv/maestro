@@ -44,7 +44,11 @@ const DocumentTable = ({
             key={`${document.id}-createdAt`}
             className={cx('fr-text--regular')}
           >
-            <DocumentLink documentId={document.id} iconId="fr-icon-eye-line" />
+            <DocumentLink
+              documentId={document.id}
+              scope={{ type: 'resource' }}
+              iconId="fr-icon-eye-line"
+            />
           </div>,
           <div key={`${document.id}-actions`}>
             {hasUserPermission('createResource') && (
@@ -84,7 +88,9 @@ const DocumentTable = ({
               size="small"
               className={cx('fr-ml-1w')}
               onClick={async () => {
-                await downloadDocument(document.id, document.filename);
+                await downloadDocument(document.id, document.filename, {
+                  type: 'resource'
+                });
               }}
             />
           </div>

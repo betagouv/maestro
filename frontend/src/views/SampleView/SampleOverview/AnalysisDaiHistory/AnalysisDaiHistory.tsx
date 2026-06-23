@@ -67,7 +67,7 @@ const renderAttemptRow = (
   group: AnalysisDaiAnalysisGroup,
   showSampleReference: boolean,
   firstCol: React.ReactNode,
-  onDocuments: (a: AnalysisDaiAttempt) => void,
+  onDocuments: (a: AnalysisDaiAttempt, sampleId: string) => void,
   onRetry: (a: AnalysisDaiAttempt) => void,
   onMarkError: (a: AnalysisDaiAttempt) => void,
   isParent = false
@@ -130,7 +130,7 @@ const renderAttemptRow = (
       size="small"
       priority="tertiary no outline"
       iconId="fr-icon-file-line"
-      onClick={() => onDocuments(attempt)}
+      onClick={() => onDocuments(attempt, group.sample.id)}
     >
       {pluralize(attempt.documents.length)('doc')}
     </Button>
@@ -193,6 +193,7 @@ export const AnalysisDaiHistory = ({
   const [selectedDai, setSelectedDai] = useState<AnalysisDaiAttempt | null>(
     null
   );
+  const [selectedSampleId, setSelectedSampleId] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleRetry = async () => {
@@ -208,8 +209,9 @@ export const AnalysisDaiHistory = ({
     });
   };
 
-  const handleDocuments = (attempt: AnalysisDaiAttempt) => {
+  const handleDocuments = (attempt: AnalysisDaiAttempt, sampleId: string) => {
     setSelectedDai(attempt);
+    setSelectedSampleId(sampleId);
     documentsModal.open();
   };
 
@@ -318,7 +320,10 @@ export const AnalysisDaiHistory = ({
         onMessageChange={setErrorMessage}
         onConfirm={handleMarkError}
       />
-      <DocumentsModal documents={selectedDai?.documents ?? []} />
+      <DocumentsModal
+        documents={selectedDai?.documents ?? []}
+        sampleId={selectedSampleId}
+      />
     </div>
   );
 };

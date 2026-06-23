@@ -6,9 +6,8 @@ import clsx from 'clsx';
 import { isNil, uniq } from 'lodash-es';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import {
-  DocumentToCreateChecked,
-  DocumentUpdateChecked,
-  documentChecks
+  ResourceDocumentToCreate,
+  ResourceDocumentUpdate
 } from 'maestro-shared/schema/Document/Document';
 import {
   type DocumentKind,
@@ -16,7 +15,6 @@ import {
   SortedResourceDocumentKindList
 } from 'maestro-shared/schema/Document/DocumentKind';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
-import { checkSchema } from 'maestro-shared/utils/zod';
 import type React from 'react';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
@@ -43,7 +41,7 @@ const DocumentView = () => {
   const navigate = useNavigate();
   const { documentId } = useParams<{ documentId?: string }>();
 
-  const { data: document } = apiClient.useGetDocumentQuery(
+  const { data: document } = apiClient.useGetResourceDocumentQuery(
     { documentId: documentId ?? '' },
     { skip: !documentId }
   );
@@ -64,15 +62,15 @@ const DocumentView = () => {
   const [fileError, setFileError] = useState<string | undefined>(undefined);
 
   const [createDocument, { isLoading: isCreateLoading }] =
-    apiClient.useCreateDocumentMutation({
+    apiClient.useCreateResourceDocumentMutation({
       fixedCacheKey: 'createDocument'
     });
   const [updateDocument, { isLoading: isUpdateLoading }] =
-    apiClient.useUpdateDocumentMutation({
+    apiClient.useUpdateResourceDocumentMutation({
       fixedCacheKey: 'updateDocument'
     });
   const [deleteDocument, { isLoading: isDeleteLoading }] =
-    apiClient.useDeleteDocumentMutation();
+    apiClient.useDeleteResourceDocumentMutation();
 
   const isLoading = useMemo(
     () => isCreateLoading || isUpdateLoading || isDeleteLoading,
@@ -89,20 +87,15 @@ const DocumentView = () => {
     }
   }, [document]);
 
-  const FormChecked = checkSchema(
-    document
-      ? z.object({
-          ...DocumentUpdateChecked.shape,
-          file: FileInput().nullish()
-        })
-      : z.object({
-          ...z
-            .object(DocumentToCreateChecked.shape)
-            .omit({ id: true, filename: true }).shape,
-          file: FileInput()
-        }),
-    documentChecks
-  );
+  const FormChecked = document
+    ? z.object({
+        ...ResourceDocumentUpdate.shape,
+        file: FileInput().nullish()
+      })
+    : z.object({
+        ...ResourceDocumentToCreate.omit({ id: true, filename: true }).shape,
+        file: FileInput()
+      });
 
   const yearOptions = useMemo(
     () =>
@@ -165,26 +158,24 @@ const DocumentView = () => {
   };
 
   const submit = async () => {
-    await form.validate(async () => {
+    await form.validate(async (formResult) => {
       form.reset();
       setHasError(false);
 
       try {
         if (document) {
           await updateDocument({
-            ...formData,
-            documentId: document.id,
-            kind: kind as DocumentKind
+            ...formResult,
+            documentId: document.id
           }).unwrap();
-          if (file) {
+          if (formResult.file) {
             await deleteDocument({ documentId: document.id }).unwrap();
           }
         }
-        if (file) {
+        if (formResult.file) {
           await createDocument({
-            ...formData,
-            kind: kind as DocumentKind,
-            file: file as File
+            ...formResult,
+            file: formResult.file
           }).unwrap();
         }
 
@@ -231,6 +222,7 @@ const DocumentView = () => {
                 </div>
                 <DocumentLink
                   documentId={document.id}
+                  scope={{ type: 'resource' }}
                   iconId="fr-icon-eye-line"
                 />
                 <div

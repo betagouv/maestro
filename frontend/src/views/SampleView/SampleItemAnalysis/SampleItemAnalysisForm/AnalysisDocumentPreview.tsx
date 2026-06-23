@@ -63,7 +63,10 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
             className={cx('fr-link', 'fr-link--sm')}
             onClick={async (e) => {
               e.preventDefault();
-              await openDocument(reportDocumentIds[0]);
+              await openDocument(reportDocumentIds[0], {
+                type: 'sample',
+                sampleId
+              });
             }}
           >
             Consulter le dernier rapport
@@ -93,6 +96,7 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
             reportDocumentIds.length > 0 && (
               <ReportDocumentList
                 readonly={readonly}
+                sampleId={sampleId}
                 analysisId={partialAnalysis.id}
                 reportDocumentIds={reportDocumentIds}
               />
@@ -112,9 +116,10 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
 
 const ReportDocumentList = ({
   readonly,
+  sampleId,
   analysisId,
   reportDocumentIds
-}: Pick<Props, 'readonly'> & {
+}: Pick<Props, 'readonly' | 'sampleId'> & {
   analysisId: string;
   reportDocumentIds: string[];
 }) => {
@@ -187,7 +192,10 @@ const ReportDocumentList = ({
                   key={id}
                 >
                   <span>
-                    <DocumentLink documentId={id} />
+                    <DocumentLink
+                      documentId={id}
+                      scope={{ type: 'sample', sampleId }}
+                    />
                   </span>
                   {!readonly && (
                     <Button

@@ -4,6 +4,7 @@ import { checkSchema } from '../../utils/zod';
 import {
   DocumentKind,
   DocumentKindLabels,
+  ResourceDocumentKind,
   ResourceDocumentKindList
 } from './DocumentKind';
 
@@ -75,3 +76,45 @@ export const DocumentUpdateChecked = checkSchema(
 export type DocumentChecked = z.infer<typeof DocumentChecked>;
 export type DocumentToCreateChecked = z.infer<typeof DocumentToCreateChecked>;
 export type DocumentUpdateChecked = z.infer<typeof DocumentUpdateChecked>;
+
+const DocumentCreateBase = DocumentBase.pick({
+  id: true,
+  filename: true,
+  legend: true,
+  notes: true
+});
+
+export const ResourceDocumentToCreate = DocumentCreateBase.extend({
+  kind: ResourceDocumentKind,
+  name: z.string().min(1),
+  year: z.number().int(),
+  programmingPlanIds: z.array(z.guid()).nullish()
+});
+
+export const ResourceDocumentUpdate = ResourceDocumentToCreate.omit({
+  id: true,
+  filename: true
+});
+
+export const SampleDocumentToCreate = DocumentCreateBase.extend({
+  kind: z.literal('SampleDocument')
+});
+
+export const SampleDocumentUpdate = z.object({
+  legend: z.string().nullish()
+});
+
+export const AnalysisReportDocumentToCreate = DocumentCreateBase.pick({
+  id: true,
+  filename: true
+}).extend({
+  kind: z.literal('AnalysisReportDocument')
+});
+
+export type ResourceDocumentToCreate = z.infer<typeof ResourceDocumentToCreate>;
+export type ResourceDocumentUpdate = z.infer<typeof ResourceDocumentUpdate>;
+export type SampleDocumentToCreate = z.infer<typeof SampleDocumentToCreate>;
+export type SampleDocumentUpdate = z.infer<typeof SampleDocumentUpdate>;
+export type AnalysisReportDocumentToCreate = z.infer<
+  typeof AnalysisReportDocumentToCreate
+>;
