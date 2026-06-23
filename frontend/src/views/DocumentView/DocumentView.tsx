@@ -16,7 +16,6 @@ import {
   SortedResourceDocumentKindList
 } from 'maestro-shared/schema/Document/DocumentKind';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
-import { FileType } from 'maestro-shared/schema/File/FileType';
 import { checkSchema } from 'maestro-shared/utils/zod';
 import type React from 'react';
 import { useContext, useEffect, useMemo, useState } from 'react';
@@ -155,13 +154,11 @@ const DocumentView = () => {
 
   const selectFile = (event?: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile: File | undefined = event?.target?.files?.[0];
-    if (selectedFile) {
-      const { success } = FileType.safeParse(selectedFile.type);
-      if (!success) {
-        setFileError("Ce type de fichier n'est pas accepté.");
-        setFile(undefined);
-        return;
-      }
+    const result = form.schema.shape.file.safeParse(selectedFile ?? null);
+    if (!result.success) {
+      setFileError(result.error.issues[0].message);
+      setFile(undefined);
+      return;
     }
     setFileError(undefined);
     setFile(selectedFile);
