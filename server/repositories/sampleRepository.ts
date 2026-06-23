@@ -490,6 +490,54 @@ const updateDocumentIds = async (
   }
 };
 
+// Resolve the sample owning a document, whatever the link used:
+// sample_documents, sample_items.support_document_id, or
+// analysis_report_documents -> analysis.sample_id.
+const findOneByDocumentId = async (
+  documentId: string,
+  trx: KyselyMaestro = kysely
+): Promise<{ id: string; region: Region } | undefined> => {
+  const result = await trx
+    .selectFrom('samples')
+    .select(['samples.id', 'samples.region'])
+    .where((eb) =>
+      eb.or([
+        eb(
+          'samples.id',
+          'in',
+          eb
+            .selectFrom('sampleDocuments')
+            .select('sampleDocuments.sampleId')
+            .where('sampleDocuments.documentId', '=', documentId)
+        ),
+        eb(
+          'samples.id',
+          'in',
+          eb
+            .selectFrom('sampleItems')
+            .select('sampleItems.sampleId')
+            .where('sampleItems.supportDocumentId', '=', documentId)
+        ),
+        eb(
+          'samples.id',
+          'in',
+          eb
+            .selectFrom('analysisReportDocuments')
+            .innerJoin(
+              'analysis',
+              'analysis.id',
+              'analysisReportDocuments.analysisId'
+            )
+            .select('analysis.sampleId')
+            .where('analysisReportDocuments.documentId', '=', documentId)
+        )
+      ])
+    )
+    .executeTakeFirst();
+
+  return result as { id: string; region: Region } | undefined;
+};
+
 const deleteOne = async (id: string): Promise<void> => {
   console.info('Delete sample', id);
   await Samples().where({ id }).delete();
@@ -660,6 +708,7 @@ export const sampleRepository = {
   updateSeves,
   updateDocumentIds,
   findUnique,
+  findOneByDocumentId,
   findMany,
   count,
   getNextSequence,

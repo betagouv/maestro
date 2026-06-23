@@ -1,7 +1,6 @@
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
-import { intersection, isNil, uniq } from 'lodash-es';
-import DocumentMissingError from 'maestro-shared/errors/documentMissingError';
+import { intersection, uniq } from 'lodash-es';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import type { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import {
@@ -12,6 +11,7 @@ import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/Programmi
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { UserRoleList } from 'maestro-shared/schema/User/UserRole';
 import { HttpStatus } from '../constants/httpStatus';
+import { getAndCheckDocument } from '../middlewares/checks/documentCheck';
 import { documentRepository } from '../repositories/documentRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
@@ -175,11 +175,10 @@ export const documentsRouter = {
     }
   },
   '/documents/:documentId': {
-    put: async ({ body: documentUpdate, userRole }, { documentId }) => {
-      const document = await documentRepository.findUnique(documentId);
+    put: async ({ body: documentUpdate, user, userRole }, { documentId }) => {
+      const document = await getAndCheckDocument(documentId, user, userRole);
 
       if (
-        isNil(document) ||
         ![...ResourceDocumentKindList, 'SampleDocument'].includes(
           document.kind
         ) ||
@@ -204,8 +203,8 @@ export const documentsRouter = {
         response: updatedDocument
       };
     },
-    delete: async ({ userRole }, { documentId }) => {
-      const document = await documentRepository.findUnique(documentId);
+    delete: async ({ user, userRole }, { documentId }) => {
+      const document = await getAndCheckDocument(documentId, user, userRole);
 
       if (!document?.kind || !UploadDocumentKindList.includes(document?.kind)) {
         return { status: HttpStatus.FORBIDDEN };
@@ -229,14 +228,11 @@ export const documentsRouter = {
       await documentService.deleteDocument(documentId);
       return { status: HttpStatus.NO_CONTENT };
     },
-    get: async (_, { documentId }) => {
+    get: async ({ user, userRole }, { documentId }) => {
       console.info('Find document', documentId);
 
-      const document = await documentRepository.findUnique(documentId);
+      const document = await getAndCheckDocument(documentId, user, userRole);
 
-      if (!document) {
-        throw new DocumentMissingError(documentId);
-      }
       return {
         status: HttpStatus.OK,
         response: document
@@ -244,14 +240,10 @@ export const documentsRouter = {
     }
   },
   '/documents/:documentId/download-signed-url': {
-    get: async (_, { documentId }) => {
+    get: async ({ user, userRole }, { documentId }) => {
       console.log('Get signed url for download document', documentId);
 
-      const document = await documentRepository.findUnique(documentId);
-
-      if (!document) {
-        throw new DocumentMissingError(documentId);
-      }
+      const document = await getAndCheckDocument(documentId, user, userRole);
 
       const client = s3Service.getClient();
       const key = `${documentId}_${document.filename}`;

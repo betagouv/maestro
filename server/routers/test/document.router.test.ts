@@ -503,6 +503,14 @@ describe('Document router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
+    test('should fail if the sample document is out of the user region scope', async () => {
+      await request(app)
+        .put(testRoute(sampleDocument.id))
+        .send({ kind: 'SampleDocument', legend: 'legend' })
+        .use(tokenProvider(Sampler2Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
     test('should update the document', async () => {
       const updatedLegend = 'test';
       const res = await request(app)
@@ -544,6 +552,69 @@ describe('Document router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(withISOStringDates(sampleDocument));
+    });
+
+    test('should fail if the sample document is out of the user region scope', async () => {
+      await request(app)
+        .get(testRoute(sampleDocument.id))
+        .use(tokenProvider(Sampler2Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should get an in-scope resource document', async () => {
+      await request(app)
+        .get(testRoute(ppvValidatedResourceDocument.id))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+    });
+
+    test('should get a global resource document with no programming plan', async () => {
+      await request(app)
+        .get(testRoute(noPlanResourceDocument.id))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+    });
+
+    test('should fail if the resource document is out of the user programming scope', async () => {
+      await request(app)
+        .get(testRoute(daoaInProgressResourceDocument.id))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+  });
+
+  describe('GET /documents/:documentId/download-signed-url', () => {
+    const testRoute = (id: string) =>
+      `/api/documents/${id}/download-signed-url`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute(sampleDocument.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the sample document is out of the user region scope', async () => {
+      await request(app)
+        .get(testRoute(sampleDocument.id))
+        .use(tokenProvider(Sampler2Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+  });
+
+  describe('DELETE /documents/:documentId', () => {
+    const testRoute = (id: string) => `/api/documents/${id}`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .delete(testRoute(sampleDocument.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the sample document is out of the user region scope', async () => {
+      await request(app)
+        .delete(testRoute(sampleDocument.id))
+        .use(tokenProvider(Sampler2Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
   });
 });
