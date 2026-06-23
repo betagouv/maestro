@@ -196,7 +196,6 @@ const documentApi = api.injectEndpoints({
 export const {
   useFindResourcesQuery,
   useGetResourceDocumentQuery,
-  useGetResourceDocumentDownloadSignedUrlQuery,
   useLazyGetResourceDocumentDownloadSignedUrlQuery,
   useCreateResourceDocumentMutation,
   useUpdateResourceDocumentMutation,

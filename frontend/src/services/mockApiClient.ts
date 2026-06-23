@@ -188,7 +188,6 @@ const defaultMockApiClientConf: MockApi = {
       url: ''
     }
   },
-  useGetResourceDocumentDownloadSignedUrlQuery: { data: { url: '' } },
   useGetSampleDocumentDownloadSignedUrlQuery: { data: { url: '' } },
   useGetResourceDocumentQuery: {
     data: genDocument({

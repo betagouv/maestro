@@ -48,16 +48,6 @@ export type ResourceDocumentKind = z.infer<typeof ResourceDocumentKind>;
 export const ResourceDocumentKindList: DocumentKind[] =
   ResourceDocumentKind.options;
 
-export const UploadDocumentKindList: DocumentKind[] = DocumentKind.extract([
-  'AnalysisReportDocument',
-  'SampleDocument',
-  'ProgrammingPlanNotice',
-  'TechnicalInstruction',
-  'RegulationResourceDocument',
-  'TemplateResourceDocument',
-  'OtherResourceDocument'
-]).options;
-
 export const DocumentKindLabels: Partial<Record<DocumentKind, string>> = {
   ProgrammingPlanNotice: 'Fiche de plan',
   TechnicalInstruction: 'Instruction technique',
