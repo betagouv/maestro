@@ -135,7 +135,11 @@
       }
     }
   ],
-  "plugins": ["./biome/no-direct-check.grit", "./biome/no-direct-builder.grit"],
+  "plugins": [
+    "./biome/no-direct-check.grit",
+    "./biome/no-direct-builder.grit",
+    "./biome/no-direct-api-endpoint.grit"
+  ],
   "assist": {
     "enabled": true,
     "actions": { "source": { "organizeImports": "on" } }
