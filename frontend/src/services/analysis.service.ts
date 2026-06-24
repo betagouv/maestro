@@ -37,16 +37,15 @@ const analysisApi = api.injectEndpoints({
         ]
       }
     ),
-    createAnalysisReportDocument: buildDocumentUploadMutation<
-      void,
-      { analysisId: string; file: File }
-    >(builder, {
-      kind: 'AnalysisReportDocument',
-      url: ({ analysisId }) => `analysis/${analysisId}/reportDocuments`,
-      invalidatesTags: (_result, _error, { analysisId }) => [
-        { type: 'AnalysisReportDocuments', id: analysisId }
-      ]
-    }),
+    createAnalysisReportDocument: buildDocumentUploadMutation(
+      builder,
+      '/analysis/:analysisId/reportDocuments',
+      {
+        invalidatesTags: (_result, _error, { analysisId }) => [
+          { type: 'AnalysisReportDocuments', id: analysisId }
+        ]
+      }
+    ),
     deleteAnalysisReportDocument: buildTypedMutation(
       builder,
       '/analysis/:analysisId/reportDocuments',

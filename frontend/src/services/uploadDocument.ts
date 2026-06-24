@@ -2,17 +2,22 @@ import type {
   FetchBaseQueryError,
   MutationDefinition
 } from '@reduxjs/toolkit/query';
-import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
+import type { MaestroRoutes, routes } from 'maestro-shared/routes/routes';
+import type {
+  OrEmpty,
+  RouteParams,
+  RouteResponse
+} from 'maestro-shared/routes/routes.infer';
+import { generatePath } from 'react-router';
 
 const uploadDocument = async (
   fetchWithBQ: any,
-  file: File,
-  kind: DocumentKind
+  file: File
 ): Promise<{ documentId: string } | { error: FetchBaseQueryError }> => {
   const signedUrlResult = await fetchWithBQ({
     url: 'documents/upload-signed-url',
     method: 'POST',
-    body: { filename: file.name, kind }
+    body: { filename: file.name }
   });
   if (signedUrlResult.error) {
     return { error: signedUrlResult.error as FetchBaseQueryError };
@@ -39,11 +44,10 @@ const uploadDocument = async (
 const uploadAndCreateDocument = async <T>(
   fetchWithBQ: any,
   file: File,
-  kind: DocumentKind,
   url: string,
   extraBody: Record<string, unknown>
 ): Promise<{ data: T } | { error: FetchBaseQueryError }> => {
-  const upload = await uploadDocument(fetchWithBQ, file, kind);
+  const upload = await uploadDocument(fetchWithBQ, file);
   if ('error' in upload) {
     return { error: upload.error };
   }
@@ -51,7 +55,7 @@ const uploadAndCreateDocument = async <T>(
   const result = await fetchWithBQ({
     url,
     method: 'POST',
-    body: { ...extraBody, id: upload.documentId, filename: file.name, kind }
+    body: { ...extraBody, id: upload.documentId, filename: file.name }
   });
 
   return result.error
@@ -59,30 +63,47 @@ const uploadAndCreateDocument = async <T>(
     : { data: result.data as T };
 };
 
-type DocumentUploadConfig<Response, Arg extends { file: File }> = {
-  kind: DocumentKind | ((arg: Arg) => DocumentKind);
-  url: (arg: Arg) => string;
-  extraBody?: (arg: Arg) => Record<string, unknown>;
+type PostRoute = {
+  [P in MaestroRoutes]: 'post' extends keyof (typeof routes)[P] ? P : never;
+}[MaestroRoutes];
+
+type DocumentUploadConfig<Response, Arg> = {
   invalidatesTags?:
     | unknown[]
     | ((result: Response | undefined, error: unknown, arg: Arg) => unknown[]);
 };
 
 export const buildDocumentUploadMutation = <
-  Response,
-  Arg extends { file: File }
+  P extends PostRoute,
+  Arg extends OrEmpty<RouteParams<P>> & { file: File } = OrEmpty<
+    RouteParams<P>
+  > & { file: File }
 >(
   builder: any,
-  config: DocumentUploadConfig<Response, Arg>
-): MutationDefinition<Arg, any, string, Response> =>
+  path: P,
+  config: DocumentUploadConfig<RouteResponse<P, 'post'>, Arg> = {}
+): MutationDefinition<Arg, any, string, RouteResponse<P, 'post'>> =>
   builder.mutation({
-    queryFn: (arg: Arg, _api: unknown, _extra: unknown, fetchWithBQ: any) =>
-      uploadAndCreateDocument<Response>(
+    queryFn: (arg: Arg, _api: unknown, _extra: unknown, fetchWithBQ: any) => {
+      const { file, ...rest } = arg as Arg & { file: File } & Record<
+          string,
+          unknown
+        >;
+      const paramKeys = new Set(
+        Array.from(path.matchAll(/:([^/]+)/g), (m) => m[1])
+      );
+      const extraBody = Object.fromEntries(
+        Object.entries(rest).filter(([k]) => !paramKeys.has(k))
+      );
+      return uploadAndCreateDocument<RouteResponse<P, 'post'>>(
         fetchWithBQ,
-        arg.file,
-        typeof config.kind === 'function' ? config.kind(arg) : config.kind,
-        config.url(arg),
-        config.extraBody?.(arg) ?? {}
-      ),
+        file,
+        generatePath<string>(
+          path,
+          arg as unknown as Record<string, string | null | undefined>
+        ),
+        extraBody
+      );
+    },
     invalidatesTags: config.invalidatesTags
   });

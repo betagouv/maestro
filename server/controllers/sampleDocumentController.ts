@@ -18,6 +18,7 @@ export const sampleDocumentsRouter = {
 
       const document: DocumentChecked = {
         ...documentToCreate,
+        kind: 'SampleDocument',
         createdAt: new Date(),
         createdBy: user.id
       };

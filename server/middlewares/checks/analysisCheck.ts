@@ -13,8 +13,6 @@ import { analysisRepository } from '../../repositories/analysisRepository';
 import { programmingSubPlanRepository } from '../../repositories/programmingSubPlanRepository';
 import { getAndCheckSample } from './sampleCheck';
 
-// Resolve an analysis and make sure its sample is in the user's region scope.
-// With requirePerformAnalysis, also enforce performAnalysis on that sample.
 export const getAndCheckAnalysisSample = async (
   analysisId: string,
   user: UserBase,

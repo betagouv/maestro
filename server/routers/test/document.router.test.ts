@@ -400,14 +400,6 @@ describe('Document router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    test('should reject a non sample document kind', async () => {
-      await request(app)
-        .post(testRoute(Sample11Fixture.id))
-        .send({ ...genDocumentToCreate(), kind: 'AnalysisReportDocument' })
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_BAD_REQUEST);
-    });
-
     test('should create and link a sample document', async () => {
       const validSampleBody = {
         ...genDocumentToCreate(),

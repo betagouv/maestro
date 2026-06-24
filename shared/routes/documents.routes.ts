@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import {
+  DocumentBase,
   DocumentChecked,
-  DocumentToCreateChecked,
   ResourceDocumentToCreate,
   ResourceDocumentUpdate
 } from '../schema/Document/Document';
@@ -54,7 +54,7 @@ export const documentsRoutes = {
   '/documents/upload-signed-url': {
     params: undefined,
     post: {
-      body: z.object(DocumentToCreateChecked.shape).omit({ id: true }),
+      body: DocumentBase.pick({ filename: true }),
       permissions: ['createResource', 'performAnalysis', 'createSample'],
       response: z.object({
         url: z.string(),

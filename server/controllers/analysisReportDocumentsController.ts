@@ -30,6 +30,7 @@ export const analysisReportDocumentsRouter = {
 
       const document: DocumentChecked = {
         ...documentToCreate,
+        kind: 'AnalysisReportDocument',
         createdAt: new Date(),
         createdBy: user.id
       };

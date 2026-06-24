@@ -32,7 +32,7 @@ const documentChecks: CheckFn<
   }
 };
 
-const DocumentBase = z.object({
+export const DocumentBase = z.object({
   id: z.guid(),
   filename: z.string(),
   createdAt: z.coerce.date(),
@@ -83,9 +83,7 @@ export const ResourceDocumentUpdate = ResourceDocumentToCreate.omit({
   filename: true
 });
 
-export const SampleDocumentToCreate = DocumentCreateBase.extend({
-  kind: z.literal('SampleDocument')
-});
+export const SampleDocumentToCreate = DocumentCreateBase;
 
 export const SampleDocumentUpdate = z.object({
   legend: z.string().nullish()
@@ -94,8 +92,6 @@ export const SampleDocumentUpdate = z.object({
 export const AnalysisReportDocumentToCreate = DocumentCreateBase.pick({
   id: true,
   filename: true
-}).extend({
-  kind: z.literal('AnalysisReportDocument')
 });
 
 export type ResourceDocumentToCreate = z.infer<typeof ResourceDocumentToCreate>;

@@ -39,7 +39,6 @@ describe('Analysis Report Documents router', () => {
     createdBy: Sampler1Fixture.id,
     kind: 'AnalysisReportDocument'
   });
-  // In region (44) of Sampler1, who holds performAnalysis on these samples.
   const analysisNoDocuments = genPartialAnalysis({
     sampleId: Sample11Fixture.id,
     createdBy: Sampler1Fixture.id
@@ -48,7 +47,6 @@ describe('Analysis Report Documents router', () => {
     sampleId: Sample13Fixture.id,
     createdBy: Sampler1Fixture.id
   });
-  // Out of Sampler1 region (52).
   const analysisOutOfRegion = genPartialAnalysis({
     sampleId: Sample2Fixture.id,
     createdBy: Sampler1Fixture.id
@@ -133,10 +131,7 @@ describe('Analysis Report Documents router', () => {
   });
 
   describe('POST /analysis/:analysisId/reportDocuments', () => {
-    const validBody = () => ({
-      ...genDocumentToCreate(),
-      kind: 'AnalysisReportDocument'
-    });
+    const validBody = () => genDocumentToCreate();
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
@@ -155,7 +150,6 @@ describe('Analysis Report Documents router', () => {
 
       await badRequestTest();
       await badRequestTest({});
-      await badRequestTest({ ...validBody(), kind: 'SampleDocument' });
     });
 
     test('should fail if the user does not have the performAnalysis permission', async () => {

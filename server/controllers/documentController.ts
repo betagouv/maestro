@@ -180,26 +180,7 @@ export const documentsRouter = {
     }
   },
   '/documents/upload-signed-url': {
-    post: async ({ userRole, body }) => {
-      if (
-        ResourceDocumentKindList.includes(body.kind) &&
-        !hasPermission(userRole, 'createResource')
-      ) {
-        return { status: HttpStatus.FORBIDDEN };
-      }
-      if (
-        body.kind === 'AnalysisReportDocument' &&
-        !hasPermission(userRole, 'performAnalysis')
-      ) {
-        return { status: HttpStatus.FORBIDDEN };
-      }
-      if (
-        body.kind === 'SampleDocument' &&
-        !hasPermission(userRole, 'createSample')
-      ) {
-        return { status: HttpStatus.FORBIDDEN };
-      }
-
+    post: async ({ body }) => {
       const result: { url: string; documentId: string } =
         await s3Service.getUploadSignedUrl(body.filename);
 

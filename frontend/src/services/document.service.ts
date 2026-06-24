@@ -1,7 +1,4 @@
-import type {
-  DocumentChecked,
-  ResourceDocumentToCreate
-} from 'maestro-shared/schema/Document/Document';
+import type { ResourceDocumentToCreate } from 'maestro-shared/schema/Document/Document';
 import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
 import { buildDocumentUploadMutation } from 'src/services/uploadDocument';
@@ -27,12 +24,9 @@ const documentApi = api.injectEndpoints({
       '/documents/resources/:documentId/download-signed-url'
     ),
     createResourceDocument: buildDocumentUploadMutation<
-      DocumentChecked,
+      '/documents/resources',
       Omit<ResourceDocumentToCreate, 'id' | 'filename'> & { file: File }
-    >(builder, {
-      kind: ({ kind }) => kind,
-      url: () => 'documents/resources',
-      extraBody: ({ file: _file, ...document }) => document,
+    >(builder, '/documents/resources', {
       invalidatesTags: () => [{ type: 'Document', id: 'LIST' }]
     }),
     updateResourceDocument: buildTypedMutation(
@@ -68,14 +62,13 @@ const documentApi = api.injectEndpoints({
       builder,
       '/samples/:sampleId/documents/:documentId/download-signed-url'
     ),
-    createSampleDocument: buildDocumentUploadMutation<
-      DocumentChecked,
-      { sampleId: string; file: File }
-    >(builder, {
-      kind: 'SampleDocument',
-      url: ({ sampleId }) => `samples/${sampleId}/documents`,
-      invalidatesTags: () => [{ type: 'Document', id: 'LIST' }]
-    }),
+    createSampleDocument: buildDocumentUploadMutation(
+      builder,
+      '/samples/:sampleId/documents',
+      {
+        invalidatesTags: () => [{ type: 'Document', id: 'LIST' }]
+      }
+    ),
     updateSampleDocument: buildTypedMutation(
       builder,
       '/samples/:sampleId/documents/:documentId',
