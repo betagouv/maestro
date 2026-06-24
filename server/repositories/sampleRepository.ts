@@ -490,6 +490,83 @@ const updateDocumentIds = async (
   }
 };
 
+// Sample rattaché à un document, il faudrait peut-être créer une autre table sample_documents pour gérer tous les documents liés à un sample
+// (sample_documents, sample_items, analysis_(report|dai|rai)_documents).
+const findSampleIdsByDocumentId = async (
+  documentId: string,
+  trx: KyselyMaestro = kysely
+): Promise<string[]> => {
+  const [sampleDocs, supportDocs, reportDocs, daiDocs, raiDocs] =
+    await Promise.all([
+      trx
+        .selectFrom('sampleDocuments')
+        .select('sampleId')
+        .where('documentId', '=', documentId)
+        .execute(),
+      trx
+        .selectFrom('sampleItems')
+        .select('sampleId')
+        .where('supportDocumentId', '=', documentId)
+        .execute(),
+      trx
+        .selectFrom('analysisReportDocuments')
+        .innerJoin(
+          'analysis',
+          'analysis.id',
+          'analysisReportDocuments.analysisId'
+        )
+        .select('analysis.sampleId as sampleId')
+        .where('analysisReportDocuments.documentId', '=', documentId)
+        .execute(),
+      trx
+        .selectFrom('analysisDaiDocuments')
+        .innerJoin(
+          'analysisDai',
+          'analysisDai.id',
+          'analysisDaiDocuments.analysisDaiId'
+        )
+        .innerJoin('analysis', 'analysis.id', 'analysisDai.analysisId')
+        .select('analysis.sampleId as sampleId')
+        .where('analysisDaiDocuments.documentId', '=', documentId)
+        .execute(),
+      trx
+        .selectFrom('analysisRaiDocuments')
+        .innerJoin(
+          'analysisRai',
+          'analysisRai.id',
+          'analysisRaiDocuments.analysisRaiId'
+        )
+        .innerJoin('analysis', 'analysis.id', 'analysisRai.analysisId')
+        .select('analysis.sampleId as sampleId')
+        .where('analysisRaiDocuments.documentId', '=', documentId)
+        .execute()
+    ]);
+
+  return [...sampleDocs, ...supportDocs, ...reportDocs, ...daiDocs, ...raiDocs]
+    .map((row) => row.sampleId)
+    .filter((sampleId): sampleId is string => !isNil(sampleId));
+};
+
+const documentBelongsToSample = async (
+  documentId: string,
+  sampleId: string,
+  trx: KyselyMaestro = kysely
+): Promise<boolean> => {
+  const sampleIds = await findSampleIdsByDocumentId(documentId, trx);
+  return sampleIds.includes(sampleId);
+};
+
+const linkDocument = async (
+  sampleId: string,
+  documentId: string,
+  trx: KyselyMaestro = kysely
+) => {
+  await trx
+    .insertInto('sampleDocuments')
+    .values({ sampleId, documentId })
+    .execute();
+};
+
 const deleteOne = async (id: string): Promise<void> => {
   console.info('Delete sample', id);
   await Samples().where({ id }).delete();
@@ -660,6 +737,9 @@ export const sampleRepository = {
   updateSeves,
   updateDocumentIds,
   findUnique,
+  findSampleIdsByDocumentId,
+  documentBelongsToSample,
+  linkDocument,
   findMany,
   count,
   getNextSequence,

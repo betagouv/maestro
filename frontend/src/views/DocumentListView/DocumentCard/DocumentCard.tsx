@@ -10,7 +10,6 @@ import { DocumentKindLabels } from 'maestro-shared/schema/Document/DocumentKind'
 import { NotificationCategoryTitles } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { formatDate } from 'maestro-shared/utils/date';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useDocument } from 'src/hooks/useDocument';
 import DocumentLink from '../../../components/DocumentLink/DocumentLink';
 import './DocumentCard.scss';
 
@@ -23,7 +22,6 @@ type Props = {
 
 const DocumentCard = ({ document, onViewNotes, onRemove, isNew }: Props) => {
   const { hasUserPermission } = useAuthentication();
-  const { downloadDocument } = useDocument();
 
   return (
     <Card
@@ -74,7 +72,10 @@ const DocumentCard = ({ document, onViewNotes, onRemove, isNew }: Props) => {
             Version du {formatDate(document.createdAt)}
           </span>
           <span className={cx('fr-text--regular')}>
-            <DocumentLink documentId={document.id} iconId="fr-icon-eye-line" />
+            <DocumentLink
+              documentId={document.id}
+              scope={{ type: 'resource' }}
+            />
           </span>
         </>
       }
@@ -95,15 +96,6 @@ const DocumentCard = ({ document, onViewNotes, onRemove, isNew }: Props) => {
               className: cx('fr-m-0'),
               disabled: !document.notes,
               onClick: () => onViewNotes(document)
-            },
-            {
-              children: 'Télécharger',
-              iconId: 'fr-icon-download-line',
-              priority: 'tertiary no outline',
-              className: cx('fr-m-0'),
-              onClick: async () => {
-                await downloadDocument(document.id, document.filename);
-              }
             }
           ]}
         />

@@ -1,5 +1,6 @@
 import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
+import { buildDocumentUploadMutation } from 'src/services/uploadDocument';
 
 const analysisApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -36,10 +37,9 @@ const analysisApi = api.injectEndpoints({
         ]
       }
     ),
-    createAnalysisReportDocument: buildTypedMutation(
+    createAnalysisReportDocument: buildDocumentUploadMutation(
       builder,
       '/analysis/:analysisId/reportDocuments',
-      'post',
       {
         invalidatesTags: (_result, _error, { analysisId }) => [
           { type: 'AnalysisReportDocuments', id: analysisId }
@@ -63,9 +63,7 @@ export const {
   useCreateAnalysisMutation,
   useUpdateAnalysisMutation,
   useGetSampleItemAnalysisQuery,
-  useLazyGetSampleItemAnalysisQuery,
   useCreateAnalysisReportDocumentMutation,
   useGetAnalysisReportDocumentIdsQuery,
-  useLazyGetAnalysisReportDocumentIdsQuery,
   useDeleteAnalysisReportDocumentMutation
 } = analysisApi;

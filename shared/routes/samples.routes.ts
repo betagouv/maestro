@@ -1,4 +1,9 @@
 import z from 'zod';
+import {
+  DocumentChecked,
+  SampleDocumentToCreate,
+  SampleDocumentUpdate
+} from '../schema/Document/Document';
 import { FindSampleOptions } from '../schema/Sample/FindSampleOptions';
 import {
   PartialSample,
@@ -42,6 +47,45 @@ export const samplesRoutes = {
     get: {
       permissions: ['downloadSupportDocument'],
       response: z.custom<Buffer>()
+    }
+  },
+  '/samples/:sampleId/documents': {
+    params: {
+      sampleId: z.guid()
+    },
+    post: {
+      body: SampleDocumentToCreate,
+      permissions: ['createSample'],
+      response: DocumentChecked
+    }
+  },
+  '/samples/:sampleId/documents/:documentId': {
+    params: {
+      sampleId: z.guid(),
+      documentId: z.guid()
+    },
+    get: {
+      permissions: ['readDocuments'],
+      response: DocumentChecked
+    },
+    put: {
+      body: SampleDocumentUpdate,
+      permissions: ['updateSample'],
+      response: DocumentChecked
+    },
+    delete: {
+      permissions: ['deleteSampleDocument'],
+      response: z.undefined()
+    }
+  },
+  '/samples/:sampleId/documents/:documentId/download': {
+    params: {
+      sampleId: z.guid(),
+      documentId: z.guid()
+    },
+    get: {
+      permissions: ['readDocuments'],
+      response: z.undefined()
     }
   },
   '/samples/:sampleId/items/:itemNumber/copy/:copyNumber/document': {

@@ -77,7 +77,7 @@ const SampleProcedure = ({ partialSample }: Props) => {
         <span className={cx('fr-mr-1w')}>Réglementation</span>
         <DocumentLink
           documentId={config.documents.regulation201862}
-          iconId="fr-icon-external-link-line"
+          scope={{ type: 'resource' }}
         />
       </div>
       {programmingSubPlan?.subPlanNumber === 'PPV' && (

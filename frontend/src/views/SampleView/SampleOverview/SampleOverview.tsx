@@ -185,7 +185,8 @@ const SampleOverview = ({ sample }: Props) => {
         hasUserSamplePermission(
           sample,
           programmingSubPlan?.analysisPermissionRole
-        ).performAnalysis && (
+        ).performAnalysis &&
+        (sample.seves || sample.sevesNotice) && (
           <div className={cx('fr-mb-2w')}>
             <SampleSeves sample={sample} />
           </div>

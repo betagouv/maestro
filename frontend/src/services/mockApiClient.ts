@@ -29,15 +29,7 @@ import { fn } from 'storybook/test';
 import regionsJson from '../../../server/data/regions.json';
 import type { ApiClient } from './apiClient';
 
-type MockableApiKeys = Exclude<
-  keyof ApiClient,
-  | 'getPrescriptionsExportURL'
-  | 'getSupportDocumentURL'
-  | 'getSampleListExportURL'
-  | 'getSampleEmptyFormURL'
-  | 'getLaboratoryAnalyticCompetencesExportURL'
-  | 'getLaboratoryAgreementsExportURL'
->;
+type MockableApiKeys = Exclude<keyof ApiClient, `get${string}URL`>;
 export type MockApi = {
   [Key in MockableApiKeys]: ApiClient[Key] extends TypedUseQuery<
     infer D,
@@ -143,12 +135,14 @@ const defaultMockApiClientConf: MockApi = {
   },
   useCreateAnalysisMutation: [fn(), {}],
   useCreateAnalysisReportDocumentMutation: [fn(), {}],
-  useCreateDocumentMutation: [fn(), {}],
+  useCreateResourceDocumentMutation: [fn(), {}],
+  useCreateSampleDocumentMutation: [fn(), {}],
   useCreateLaboratoryAnalyticalCompetenceMutation: [fn(), {}],
   useCreateOrUpdateSampleMutation: [fn(), { isLoading: false }],
   useCreateProgrammingPlanMutation: [fn(), {}],
   useDeleteAnalysisReportDocumentMutation: [fn(), {}],
-  useDeleteDocumentMutation: [fn(), {}],
+  useDeleteResourceDocumentMutation: [fn(), {}],
+  useDeleteSampleDocumentMutation: [fn(), {}],
   useDeletePrescriptionMutation: [fn(), {}],
   useDeleteSampleMutation: [fn(), {}],
   useFindCompaniesQuery: {
@@ -185,12 +179,19 @@ const defaultMockApiClientConf: MockApi = {
       url: ''
     }
   },
-  useGetDocumentDownloadSignedUrlQuery: { data: { url: '' } },
-  useGetDocumentQuery: {
+  useGetResourceDocumentQuery: {
     data: genDocument({
       createdAt: new Date(12345),
       createdBy: 'Storybook',
-      kind: 'AnalysisRequestDocument',
+      kind: 'TechnicalInstruction',
+      filename: 'instruction.pdf'
+    })
+  },
+  useGetSampleDocumentQuery: {
+    data: genDocument({
+      createdAt: new Date(12345),
+      createdBy: 'Storybook',
+      kind: 'SampleDocument',
       filename: 'analyses.pdf'
     })
   },
@@ -236,20 +237,15 @@ const defaultMockApiClientConf: MockApi = {
   }),
   useLazyFindPrescriptionsQuery: [[], {}],
   useLazyFindSamplesQuery: [[], {}],
-  useLazyGetAnalysisReportDocumentIdsQuery: [[], {}],
-  useLazyGetDocumentDownloadSignedUrlQuery: [
-    { url: 'https://maestro.beta.gouv.fr' },
-    {}
-  ],
   useLazyGetPrescriptionSubstancesQuery: [[], {}],
-  useLazyGetSampleItemAnalysisQuery: [genPartialAnalysis(), {}],
   useLazyGetSampleQuery: [genCreatedPartialSample(), {}],
   useLazyGetUserQuery: [genUser({}), {}],
   useLazySearchAddressesQuery: [[], {}],
   useLazySearchCompaniesQuery: [[], {}],
   useLogoutMutation: [fn(), {}],
   useUpdateAnalysisMutation: [fn(), {}],
-  useUpdateDocumentMutation: [fn(), {}],
+  useUpdateResourceDocumentMutation: [fn(), {}],
+  useUpdateSampleDocumentMutation: [fn(), {}],
   useUpdateNotificationMutation: [fn(), {}],
   useUpdateNotificationsMutation: [fn(), {}],
   useUpdatePrescriptionMutation: [fn(), {}],

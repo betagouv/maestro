@@ -231,8 +231,8 @@ describe('Document router', () => {
     });
   });
 
-  describe('POST /documents', () => {
-    const testRoute = '/api/documents';
+  describe('POST /documents/resources', () => {
+    const testRoute = '/api/documents/resources';
     const validResourceBody = {
       ...genDocumentToCreate(),
       kind: 'TechnicalInstruction',
@@ -251,36 +251,17 @@ describe('Document router', () => {
     test('should fail if the user has not the right permissions', async () => {
       await request(app)
         .post(testRoute)
-        .send({
-          ...validResourceBody,
-          kind: 'SupportDocument'
-        })
-        .use(tokenProvider(AdminFixture))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
-
-      await request(app)
-        .post(testRoute)
         .send(validResourceBody)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
 
+    test('should reject a non resource document kind', async () => {
       await request(app)
         .post(testRoute)
-        .send({
-          ...validResourceBody,
-          kind: 'AnalysisReportDocument'
-        })
+        .send({ ...validResourceBody, kind: 'AnalysisReportDocument' })
         .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
-
-      await request(app)
-        .post(testRoute)
-        .send({
-          ...validResourceBody,
-          kind: 'SampleDocument'
-        })
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
     test('should get a valid body', async () => {
@@ -358,20 +339,24 @@ describe('Document router', () => {
       expect(params).toMatchObject({
         object: 'Nouveau document disponible'
       });
+
+      await Documents().where({ id: validResourceBody.id }).delete();
     });
 
     test('should not notify not concerned Laboratory', async () => {
       mockSendNotification.mockClear();
 
+      const daoaResourceBody = {
+        ...genDocumentToCreate(),
+        kind: 'TechnicalInstruction',
+        name: 'Resource Document',
+        programmingPlanIds: [DAOAInProgressProgrammingPlanFixture.id],
+        year: DAOAInProgressProgrammingPlanFixture.year
+      };
+
       await request(app)
         .post(testRoute)
-        .send({
-          ...genDocumentToCreate(),
-          kind: 'TechnicalInstruction',
-          name: 'Resource Document',
-          programmingPlanIds: [DAOAInProgressProgrammingPlanFixture.id],
-          year: DAOAInProgressProgrammingPlanFixture.year
-        })
+        .send(daoaResourceBody)
         .use(tokenProvider(NationalCoordinatorDaoaFixture))
         .expect(constants.HTTP_STATUS_CREATED);
 
@@ -391,159 +376,321 @@ describe('Document router', () => {
           )
         )
       );
+
+      await Documents().where({ id: daoaResourceBody.id }).delete();
+    });
+  });
+
+  describe('POST /samples/:sampleId/documents', () => {
+    const testRoute = (sampleId: string) =>
+      `/api/samples/${sampleId}/documents`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .post(testRoute(Sample11Fixture.id))
+        .send({ ...genDocumentToCreate(), kind: 'SampleDocument' })
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    test('should create an analysis document', async () => {
-      const validAnalysisBody = {
-        ...genDocumentToCreate(),
-        kind: 'AnalysisReportDocument'
-      };
-
-      const res = await request(app)
-        .post(testRoute)
-        .send(validAnalysisBody)
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_CREATED);
-
-      expect(res.body).toEqual({
-        ...validAnalysisBody,
-        createdAt: expect.any(String),
-        createdBy: Sampler1Fixture.id,
-        kind: 'AnalysisReportDocument',
-        programmingPlanIds: []
-      });
-
-      await expect(
-        Documents().where({ id: validAnalysisBody.id }).first()
-      ).resolves.toEqual({
-        ...validAnalysisBody,
-        createdAt: expect.any(Date),
-        createdBy: Sampler1Fixture.id,
-        kind: 'AnalysisReportDocument',
-        legend: null,
-        name: null,
-        notes: null,
-        year: null
-      });
+    test('should fail if the sample is out of the user region scope', async () => {
+      await request(app)
+        .post(testRoute(Sample11Fixture.id))
+        .send({ ...genDocumentToCreate(), kind: 'SampleDocument' })
+        .use(tokenProvider(Sampler2Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    test('should create a sample document', async () => {
+    test('should create and link a sample document', async () => {
       const validSampleBody = {
         ...genDocumentToCreate(),
         kind: 'SampleDocument'
       };
 
       const res = await request(app)
-        .post(testRoute)
+        .post(testRoute(Sample11Fixture.id))
         .send(validSampleBody)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_CREATED);
 
-      expect(res.body).toEqual({
+      expect(res.body).toMatchObject({
         ...validSampleBody,
-        createdAt: expect.any(String),
         createdBy: Sampler1Fixture.id,
         kind: 'SampleDocument',
         programmingPlanIds: []
       });
 
       await expect(
-        Documents().where({ id: validSampleBody.id }).first()
-      ).resolves.toEqual({
-        ...validSampleBody,
-        createdAt: expect.any(Date),
-        createdBy: Sampler1Fixture.id,
-        kind: 'SampleDocument',
-        legend: null,
-        name: null,
-        notes: null,
-        year: null
-      });
+        db(sampleDocumentsTable)
+          .where({
+            sampleId: Sample11Fixture.id,
+            documentId: validSampleBody.id
+          })
+          .first()
+      ).resolves.toMatchObject({ documentId: validSampleBody.id });
+
+      await Documents().where({ id: validSampleBody.id }).delete();
     });
   });
 
-  describe('PUT /documents/:documentId', () => {
-    const testRoute = (id: string) => `/api/documents/${id}`;
+  describe('GET /documents/resources/:documentId', () => {
+    const testRoute = (id: string) => `/api/documents/resources/${id}`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
-        .put(testRoute(analysisDocument.id))
-        .send({ legend: 'legend' })
+        .get(testRoute(ppvValidatedResourceDocument.id))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    test('should fail if the user has not the right permissions', async () => {
+    test('should get an in-scope resource document', async () => {
+      const res = await request(app)
+        .get(testRoute(ppvValidatedResourceDocument.id))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject(
+        withISOStringDates(ppvValidatedResourceDocument)
+      );
+    });
+
+    test('should get a global resource document with no programming plan', async () => {
       await request(app)
-        .put(testRoute(analysisDocument.id))
-        .send({ kind: 'SampleDocument', legend: 'legend' })
-        .use(tokenProvider(NationalCoordinator))
+        .get(testRoute(noPlanResourceDocument.id))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+    });
+
+    test('should fail if the resource document is out of the user programming scope', async () => {
+      await request(app)
+        .get(testRoute(daoaInProgressResourceDocument.id))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if the document is not a resource document', async () => {
+      await request(app)
+        .get(testRoute(sampleDocument.id))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+  });
+
+  describe('GET /documents/resources/:documentId/download', () => {
+    const testRoute = (id: string) => `/api/documents/resources/${id}/download`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute(ppvValidatedResourceDocument.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the resource document is out of the user programming scope', async () => {
+      await request(app)
+        .get(testRoute(daoaInProgressResourceDocument.id))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+  });
+
+  describe('PUT /documents/resources/:documentId', () => {
+    const testRoute = (id: string) => `/api/documents/resources/${id}`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(testRoute(ppvInProgressResourceDocument.id))
+        .send({ kind: 'TechnicalInstruction', legend: 'legend' })
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     test('should get a valid document id', async () => {
       await request(app)
         .put(testRoute('invalid-id'))
-        .send({ legend: 'legend' })
-        .use(tokenProvider(Sampler1Fixture))
+        .send({ kind: 'TechnicalInstruction', legend: 'legend' })
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    test('should fail if the document is not an updatable document', async () => {
+    test('should fail if the document is not a resource document', async () => {
       await request(app)
-        .put(testRoute(analysisDocument.id))
-        .send({ kind: 'SampleDocument', legend: 'legend' })
+        .put(testRoute(sampleDocument.id))
+        .send({
+          kind: 'TechnicalInstruction',
+          name: 'updated',
+          year: PPVValidatedProgrammingPlanFixture.year
+        })
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    test('should fail if no body', async () => {
+    test('should fail if the resource document is out of the user programming scope', async () => {
       await request(app)
-        .put(testRoute(sampleDocument.id))
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+        .put(testRoute(daoaInProgressResourceDocument.id))
+        .send({
+          kind: 'TechnicalInstruction',
+          name: 'updated',
+          year: DAOAInProgressProgrammingPlanFixture.year,
+          programmingPlanIds: [DAOAInProgressProgrammingPlanFixture.id]
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    test('should update the document', async () => {
-      const updatedLegend = 'test';
-      const res = await request(app)
-        .put(testRoute(sampleDocument.id))
-        .send({ kind: 'SampleDocument', legend: updatedLegend })
-        .use(tokenProvider(Sampler1Fixture))
+    test('should update the resource document', async () => {
+      await request(app)
+        .put(testRoute(ppvInProgressResourceDocument.id))
+        .send({
+          kind: 'TechnicalInstruction',
+          name: 'updated',
+          legend: 'updated legend',
+          year: PPVInProgressProgrammingPlanFixture.year,
+          programmingPlanIds: [PPVInProgressProgrammingPlanFixture.id]
+        })
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toEqual(
-        withISOStringDates({
-          ...sampleDocument,
-          legend: updatedLegend
-        })
-      );
-
       await expect(
-        Documents().where({ id: sampleDocument.id }).first()
-      ).resolves.toEqual({
-        ...sampleDocument,
-        legend: updatedLegend,
-        notes: null
-      });
+        Documents().where({ id: ppvInProgressResourceDocument.id }).first()
+      ).resolves.toMatchObject({ legend: 'updated legend' });
     });
   });
 
-  describe('GET /documents/:documentId', () => {
-    const testRoute = (id: string) => `/api/documents/${id}`;
+  describe('DELETE /documents/resources/:documentId', () => {
+    const testRoute = (id: string) => `/api/documents/resources/${id}`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
-        .get(testRoute(analysisDocument.id))
+        .delete(testRoute(ppvValidatedResourceDocument.id))
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    test('should get the document', async () => {
+    test('should fail if the document is not a resource document', async () => {
+      await request(app)
+        .delete(testRoute(sampleDocument.id))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if the resource document is out of the user programming scope', async () => {
+      await request(app)
+        .delete(testRoute(daoaInProgressResourceDocument.id))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+  });
+
+  describe('GET /samples/:sampleId/documents/:documentId', () => {
+    const testRoute = (sampleId: string, documentId: string) =>
+      `/api/samples/${sampleId}/documents/${documentId}`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute(Sample11Fixture.id, sampleDocument.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should get the sample document', async () => {
       const res = await request(app)
-        .get(testRoute(sampleDocument.id))
+        .get(testRoute(Sample11Fixture.id, sampleDocument.id))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toMatchObject(withISOStringDates(sampleDocument));
+    });
+
+    test('should fail if the sample is out of the user region scope', async () => {
+      await request(app)
+        .get(testRoute(Sample11Fixture.id, sampleDocument.id))
+        .use(tokenProvider(Sampler2Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if the document is not attached to the sample', async () => {
+      await request(app)
+        .get(testRoute(Sample11Fixture.id, ppvValidatedResourceDocument.id))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+  });
+
+  describe('GET /samples/:sampleId/documents/:documentId/download', () => {
+    const testRoute = (sampleId: string, documentId: string) =>
+      `/api/samples/${sampleId}/documents/${documentId}/download`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(testRoute(Sample11Fixture.id, sampleDocument.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the sample is out of the user region scope', async () => {
+      await request(app)
+        .get(testRoute(Sample11Fixture.id, sampleDocument.id))
+        .use(tokenProvider(Sampler2Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+  });
+
+  describe('PUT /samples/:sampleId/documents/:documentId', () => {
+    const testRoute = (sampleId: string, documentId: string) =>
+      `/api/samples/${sampleId}/documents/${documentId}`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(testRoute(Sample11Fixture.id, sampleDocument.id))
+        .send({ legend: 'legend' })
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the sample is out of the user region scope', async () => {
+      await request(app)
+        .put(testRoute(Sample11Fixture.id, sampleDocument.id))
+        .send({ legend: 'legend' })
+        .use(tokenProvider(Sampler2Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if the document is not attached to the sample', async () => {
+      await request(app)
+        .put(testRoute(Sample11Fixture.id, ppvValidatedResourceDocument.id))
+        .send({ legend: 'legend' })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should update the sample document legend', async () => {
+      await request(app)
+        .put(testRoute(Sample11Fixture.id, sampleDocument.id))
+        .send({ legend: 'updated legend' })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await expect(
+        Documents().where({ id: sampleDocument.id }).first()
+      ).resolves.toMatchObject({ legend: 'updated legend' });
+    });
+  });
+
+  describe('DELETE /samples/:sampleId/documents/:documentId', () => {
+    const testRoute = (sampleId: string, documentId: string) =>
+      `/api/samples/${sampleId}/documents/${documentId}`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .delete(testRoute(Sample11Fixture.id, sampleDocument.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the sample is out of the user region scope', async () => {
+      await request(app)
+        .delete(testRoute(Sample11Fixture.id, sampleDocument.id))
+        .use(tokenProvider(Sampler2Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if the document is not attached to the sample', async () => {
+      await request(app)
+        .delete(testRoute(Sample11Fixture.id, ppvValidatedResourceDocument.id))
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
   });
 });

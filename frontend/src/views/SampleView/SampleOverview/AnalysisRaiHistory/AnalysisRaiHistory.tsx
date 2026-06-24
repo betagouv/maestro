@@ -206,7 +206,10 @@ export const AnalysisRaiHistory = ({
       )}
 
       <RetryModal selectedRai={selectedRai} onRetry={handleRetry} />
-      <DocumentsModal documents={selectedRai?.documents ?? []} />
+      <DocumentsModal
+        documents={selectedRai?.documents ?? []}
+        sampleId={selectedRai?.sample?.id ?? ''}
+      />
     </div>
   );
 };

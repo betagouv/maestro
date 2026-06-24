@@ -1,11 +1,6 @@
 export default {
   ignore: ['types/**/*.d.ts'],
-  ignoreDependencies: [
-    'vite',
-    '@swc-node/register',
-    '@swc/core',
-    '@gouvfr/dsfr'
-  ],
+  ignoreDependencies: ['vite', '@gouvfr/dsfr'],
   ignoreBinaries: ['playwright', 'semantic-release'],
   workspaces: {
     server: {

@@ -31,19 +31,22 @@ export const getAnalysisReportDocumentFilename = (
   extension: 'xlsx' | 'csv'
 ) => `DAI-${sample.reference}.${extension}`;
 
+export type DocumentKind = z.infer<typeof DocumentKind>;
+
 export const DocumentKindList: DocumentKind[] = DocumentKind.options;
 
-export const UploadDocumentKindList: DocumentKind[] = [
-  'AnalysisReportDocument',
-  'SampleDocument',
+export const ResourceDocumentKind = DocumentKind.extract([
   'ProgrammingPlanNotice',
   'TechnicalInstruction',
   'RegulationResourceDocument',
   'TemplateResourceDocument',
   'OtherResourceDocument'
-];
+]);
 
-export type DocumentKind = z.infer<typeof DocumentKind>;
+export type ResourceDocumentKind = z.infer<typeof ResourceDocumentKind>;
+
+export const ResourceDocumentKindList: DocumentKind[] =
+  ResourceDocumentKind.options;
 
 export const DocumentKindLabels: Partial<Record<DocumentKind, string>> = {
   ProgrammingPlanNotice: 'Fiche de plan',
@@ -54,24 +57,8 @@ export const DocumentKindLabels: Partial<Record<DocumentKind, string>> = {
   TemplateResourceDocument: 'Modèle'
 };
 
-export const ResourceDocumentKindList: DocumentKind[] = [
-  'ProgrammingPlanNotice',
-  'TechnicalInstruction',
-  'RegulationResourceDocument',
-  'TemplateResourceDocument',
-  'OtherResourceDocument'
-];
-
-export const SortedResourceDocumentKindList: DocumentKind[] = (
-  [
-    'ProgrammingPlanNotice',
-    'TechnicalInstruction',
-    'RegulationResourceDocument',
-    'TemplateResourceDocument',
-    'OtherResourceDocument'
-  ] as DocumentKind[]
-).sort((a, b) => {
-  return (DocumentKindLabels[a as DocumentKind] || a).localeCompare(
-    DocumentKindLabels[b as DocumentKind] || b
-  );
-});
+export const SortedResourceDocumentKindList: DocumentKind[] = [
+  ...ResourceDocumentKindList
+].sort((a, b) =>
+  (DocumentKindLabels[a] || a).localeCompare(DocumentKindLabels[b] || b)
+);

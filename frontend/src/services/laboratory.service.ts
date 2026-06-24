@@ -103,12 +103,14 @@ const laboratoryApi = api.injectEndpoints({
   })
 });
 
-const laboratoryAnalyticCompetencesExportURL = (laboratoryId: string) =>
+export const getLaboratoryAnalyticCompetencesExportURL = (
+  laboratoryId: string
+) =>
   getApiUrl('/laboratories/:laboratoryId/analytical-competences/export', {
     laboratoryId
   });
 
-const laboratoryAgreementsExportURL = (
+export const getLaboratoryAgreementsExportURL = (
   opts?: FindLaboratoryAgreementsOptions
 ) => {
   const params = opts ? getURLQuery(opts) : '';
@@ -126,12 +128,5 @@ export const {
   useUpdateLaboratoryAgreementsMutation,
   useGetLaboratoryAnalyticalCompetencesQuery,
   useCreateLaboratoryAnalyticalCompetenceMutation,
-  useUpdateLaboratoryAnalyticalCompetenceMutation,
-  getLaboratoryAnalyticCompetencesExportURL,
-  getLaboratoryAgreementsExportURL
-} = {
-  ...laboratoryApi,
-  getLaboratoryAnalyticCompetencesExportURL:
-    laboratoryAnalyticCompetencesExportURL,
-  getLaboratoryAgreementsExportURL: laboratoryAgreementsExportURL
-};
+  useUpdateLaboratoryAnalyticalCompetenceMutation
+} = laboratoryApi;

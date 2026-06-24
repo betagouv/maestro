@@ -8,8 +8,8 @@ import { Link } from 'react-router';
 import { assert, type Equals } from 'tsafe';
 import ConfirmationModal from '../../../../components/ConfirmationModal/ConfirmationModal';
 import DocumentLink from '../../../../components/DocumentLink/DocumentLink';
-import { useDocument } from '../../../../hooks/useDocument';
 import { ApiClientContext } from '../../../../services/apiClient';
+import { getDocumentDownloadURL } from '../../../../services/document.service';
 import { pluralize } from '../../../../utils/stringUtils';
 import { AnalysisDocumentModal } from './AnalysisDocumentModal';
 
@@ -36,7 +36,6 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
   const { useGetAnalysisReportDocumentIdsQuery } = useContext(ApiClientContext);
-  const { openDocument } = useDocument();
 
   const { currentData: reportDocumentIds } =
     useGetAnalysisReportDocumentIdsQuery(
@@ -59,15 +58,15 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
         </div>
         {reportDocumentIds?.length ? (
           <Link
-            to="#"
+            to={getDocumentDownloadURL(reportDocumentIds[0], {
+              type: 'sample',
+              sampleId
+            })}
+            target="_blank"
+            rel="noreferrer"
             className={cx('fr-link', 'fr-link--sm')}
-            onClick={async (e) => {
-              e.preventDefault();
-              await openDocument(reportDocumentIds[0]);
-            }}
           >
             Consulter le dernier rapport
-            <span className={cx('fr-icon-eye-line', 'fr-link--icon-right')} />
           </Link>
         ) : (
           <span className={cx('fr-text--bold')}>Aucun rapport disponible</span>
@@ -93,6 +92,7 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
             reportDocumentIds.length > 0 && (
               <ReportDocumentList
                 readonly={readonly}
+                sampleId={sampleId}
                 analysisId={partialAnalysis.id}
                 reportDocumentIds={reportDocumentIds}
               />
@@ -112,9 +112,10 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
 
 const ReportDocumentList = ({
   readonly,
+  sampleId,
   analysisId,
   reportDocumentIds
-}: Pick<Props, 'readonly'> & {
+}: Pick<Props, 'readonly' | 'sampleId'> & {
   analysisId: string;
   reportDocumentIds: string[];
 }) => {
@@ -187,7 +188,10 @@ const ReportDocumentList = ({
                   key={id}
                 >
                   <span>
-                    <DocumentLink documentId={id} />
+                    <DocumentLink
+                      documentId={id}
+                      scope={{ type: 'sample', sampleId }}
+                    />
                   </span>
                   {!readonly && (
                     <Button

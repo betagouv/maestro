@@ -13,11 +13,13 @@ type Document = { id: string; filename: string; kind: DocumentKind };
 interface Props {
   title?: string;
   documents: Document[];
+  sampleId: string;
 }
 
 export const DocumentsModal = ({
   title = 'Documents liés',
-  documents
+  documents,
+  sampleId
 }: Props) => {
   return (
     <documentsModal.Component
@@ -36,7 +38,10 @@ export const DocumentsModal = ({
         <ul className={cx('fr-raw-list')}>
           {documents.map((doc) => (
             <li key={doc.id}>
-              <DocumentLink documentId={doc.id} />
+              <DocumentLink
+                documentId={doc.id}
+                scope={{ type: 'sample', sampleId }}
+              />
             </li>
           ))}
         </ul>

@@ -10,7 +10,7 @@ import {
   SampleItemSort
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { useState } from 'react';
-import { useDocument } from 'src/hooks/useDocument';
+import { getDocumentDownloadURL } from 'src/services/document.service';
 import { getSupportDocumentURL } from 'src/services/sample.service';
 import './SupportDocumentSelect.scss';
 
@@ -21,8 +21,6 @@ type Props = {
 };
 
 const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
-  const { openDocument } = useDocument();
-
   const [selectedItem, setSelectedItem] = useState(0);
 
   if (sample.items.length === 0) {
@@ -31,9 +29,14 @@ const SupportDocumentSelect = ({ label, sample, renderButtons }: Props) => {
 
   const sortedItems = [...sample.items].sort(SampleItemSort);
 
-  const getDocument = async (sampleItem: SampleItem) => {
+  const getDocument = (sampleItem: SampleItem) => {
     if (sampleItem.supportDocumentId) {
-      await openDocument(sampleItem.supportDocumentId);
+      window.open(
+        getDocumentDownloadURL(sampleItem.supportDocumentId, {
+          type: 'sample',
+          sampleId: sample.id
+        })
+      );
     } else {
       window.open(
         getSupportDocumentURL(

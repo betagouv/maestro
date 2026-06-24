@@ -31,16 +31,12 @@ export const AnalysisDocumentModal = ({
 
   const apiClient = useContext(ApiClientContext);
 
-  const [
-    createDocument,
-    { isLoading: isCreateLoading, isError: isCreateError }
-  ] = apiClient.useCreateDocumentMutation({
-    fixedCacheKey: 'createDocument'
-  });
   const [createAnalysis] = apiClient.useCreateAnalysisMutation();
   const [updateAnalysis] = apiClient.useUpdateAnalysisMutation();
-  const [createAnalysisReportDocument] =
-    apiClient.useCreateAnalysisReportDocumentMutation();
+  const [
+    createAnalysisReportDocument,
+    { isLoading: isCreateLoading, isError: isCreateError }
+  ] = apiClient.useCreateAnalysisReportDocumentMutation();
 
   const acceptFileTypes = [
     'application/pdf',
@@ -60,12 +56,6 @@ export const AnalysisDocumentModal = ({
       form.validate(async (result) => {
         form.reset();
 
-        const reportDocumentId = await createDocument({
-          file: result.fileInput as File,
-          kind: 'AnalysisReportDocument'
-        })
-          .unwrap()
-          .then((document) => document.id);
         let analysisId = partialAnalysis?.id;
         if (!analysisId) {
           const { data: analysis } = await createAnalysis({
@@ -78,7 +68,7 @@ export const AnalysisDocumentModal = ({
         if (analysisId) {
           await createAnalysisReportDocument({
             analysisId,
-            documentId: reportDocumentId
+            file: result.fileInput as File
           });
           await updateAnalysis({
             compliance: partialAnalysis?.compliance ?? null,

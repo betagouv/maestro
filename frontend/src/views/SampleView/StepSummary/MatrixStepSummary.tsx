@@ -179,6 +179,7 @@ const MatrixStepSummary = ({
             <div className={cx('fr-mt-2w')}>
               <SampleDocument
                 key={documentId}
+                sampleId={sample.id}
                 documentId={documentId}
                 readonly
               />

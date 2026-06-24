@@ -4,6 +4,7 @@ import {
   AnalysisToUpdate,
   PartialAnalysis
 } from '../schema/Analysis/Analysis';
+import { AnalysisReportDocumentToCreate } from '../schema/Document/Document';
 import { SampleItemKey } from '../schema/Sample/SampleItem';
 import { analysisDaiRoutes } from './analysisDai.routes';
 import { analysisRaiRoutes } from './analysisRai.routes';
@@ -43,7 +44,7 @@ export const analysisRoutes = {
       response: z.array(z.guid())
     },
     post: {
-      body: z.object({ documentId: z.guid() }),
+      body: AnalysisReportDocumentToCreate,
       permissions: ['performAnalysis'],
       response: z.undefined()
     },

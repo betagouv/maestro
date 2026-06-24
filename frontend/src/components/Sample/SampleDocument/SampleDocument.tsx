@@ -5,27 +5,38 @@ import clsx from 'clsx';
 import { useContext } from 'react';
 import { Link } from 'react-router';
 import { ApiClientContext } from '../../../services/apiClient';
+import { getDocumentDownloadURL } from '../../../services/document.service';
 import { cropFileName, quote } from '../../../utils/stringUtils';
 
 interface Props {
+  sampleId: string;
   documentId: string;
   readonly?: boolean;
   onRemove?: (documentId: string) => Promise<void>;
 }
 
-const SampleDocument = ({ documentId, readonly, onRemove }: Props) => {
+const SampleDocument = ({
+  sampleId,
+  documentId,
+  readonly,
+  onRemove
+}: Props) => {
   const apiClient = useContext(ApiClientContext);
-  const { data: document } = apiClient.useGetDocumentQuery({ documentId });
+  const { data: document } = apiClient.useGetSampleDocumentQuery({
+    sampleId,
+    documentId
+  });
 
-  const { data: documentUrlData } =
-    apiClient.useGetDocumentDownloadSignedUrlQuery({ documentId });
-  const documentUrl = documentUrlData?.url;
-
-  const [updateDocument] = apiClient.useUpdateDocumentMutation();
+  const [updateDocument] = apiClient.useUpdateSampleDocumentMutation();
 
   if (!document) {
     return null;
   }
+
+  const documentUrl = getDocumentDownloadURL(documentId, {
+    type: 'sample',
+    sampleId
+  });
 
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -75,8 +86,8 @@ const SampleDocument = ({ documentId, readonly, onRemove }: Props) => {
               onChange: (e) => {
                 e.preventDefault();
                 updateDocument({
+                  sampleId,
                   documentId,
-                  kind: document.kind,
                   legend: e.target.value
                 });
               },

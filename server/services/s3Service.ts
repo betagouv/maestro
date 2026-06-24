@@ -68,6 +68,20 @@ const uploadDocument = async (
   return { valid: false, error: uploadResult.statusText };
 };
 
+const getDownloadSignedUrl = async (
+  documentId: string,
+  filename: string
+): Promise<string> => {
+  const client = getS3Client();
+  const command = new GetObjectCommand({
+    Bucket: config.s3.bucket,
+    Key: getKey(documentId, filename),
+    ResponseContentDisposition: `inline; filename="${filename}"`
+  });
+
+  return getS3SignedUrl(client, command, { expiresIn: 3600 });
+};
+
 const downloadDocument = async (documentId: string, filename: string) => {
   const client = getS3Client();
   const command = new GetObjectCommand({
@@ -85,5 +99,6 @@ export const s3Service = {
   deleteDocument,
   getClient: getS3Client,
   getUploadSignedUrl: getUploadSignedUrlS3,
+  getDownloadSignedUrl,
   downloadDocument
 };
