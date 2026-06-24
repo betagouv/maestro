@@ -1,4 +1,7 @@
-type LocalStorageKey = 'sampleListDisplay' | 'documentListDisplay';
+type LocalStorageKey =
+  | 'prescriptionListDisplay'
+  | 'sampleListDisplay'
+  | 'documentListDisplay';
 
 export type ListDisplay = 'table' | 'cards';
 

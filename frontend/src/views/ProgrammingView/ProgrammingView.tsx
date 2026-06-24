@@ -12,7 +12,7 @@ import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPl
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router';
-import programmation from '../../assets/illustrations/programmation-white.svg';
+import programmation from '../../assets/illustrations/programmation.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
 import PrescriptionCommentsModal from '../../components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
@@ -48,7 +48,7 @@ const ProgrammingView = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, hasNationalView, hasRegionalView, hasUserPermission } =
     useAuthentication();
-  const { prescriptionFilters } = useAppSelector(
+  const { prescriptionFilters, prescriptionListDisplay } = useAppSelector(
     (state) => state.prescriptions
   );
 
@@ -139,47 +139,43 @@ const ProgrammingView = () => {
     <>
       <AppToast open={isCommentSuccess} description="Commentaire ajouté" />
       <section className={clsx('main-section')}>
-        <div className={clsx('green-container')}>
-          <div className={cx('fr-container')}>
-            <SectionHeader
-              title={
-                <div className="d-flex-align-center">
-                  Programmation{' '}
-                  {yearOptions(prescriptionFilters).length <= 1 ? (
-                    prescriptionFilters.year
-                  ) : (
-                    <YearSelector
-                      year={prescriptionFilters.year ?? 0}
-                      years={yearOptions(prescriptionFilters)}
-                      onChange={(year) => changeFilter({ year })}
-                    />
-                  )}
-                </div>
-              }
-              subtitle={`${region ? Regions[region]?.name : ''}${user?.department ? ` - ${DepartmentLabels[user?.department]}` : ''}`}
-              illustration={programmation}
-            />
-            {programmingPlan && (
-              <ProgrammingInstructions programmingPlan={programmingPlan} />
-            )}
-            <div
-              className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}
-            >
-              <div className="d-flex-align-start">
-                <div className={clsx('flex-grow-1')}>
-                  <ProgrammingPrescriptionFilters
-                    options={{
-                      plans: programmingPlanOptions(prescriptionFilters),
-                      programmingSubPlanIds:
-                        programmingSubPlanOptions(prescriptionFilters),
-                      contexts: contextOptions(prescriptionFilters)
-                    }}
-                    filters={prescriptionFilters}
-                    onChange={changeFilter}
-                    renderMode="inline"
-                    multiSelect
+        <div className={cx('fr-container')}>
+          <SectionHeader
+            title={
+              <div className="d-flex-align-center">
+                Programmation{' '}
+                {yearOptions(prescriptionFilters).length <= 1 ? (
+                  prescriptionFilters.year
+                ) : (
+                  <YearSelector
+                    year={prescriptionFilters.year ?? 0}
+                    years={yearOptions(prescriptionFilters)}
+                    onChange={(year) => changeFilter({ year })}
                   />
-                </div>
+                )}
+              </div>
+            }
+            subtitle={`${region ? Regions[region]?.name : ''}${user?.department ? ` - ${DepartmentLabels[user?.department]}` : ''}`}
+            illustration={programmation}
+          />
+          {programmingPlan && (
+            <ProgrammingInstructions programmingPlan={programmingPlan} />
+          )}
+          <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
+            <div className="d-flex-align-start">
+              <div className={clsx('flex-grow-1')}>
+                <ProgrammingPrescriptionFilters
+                  options={{
+                    plans: programmingPlanOptions(prescriptionFilters),
+                    programmingSubPlanIds:
+                      programmingSubPlanOptions(prescriptionFilters),
+                    contexts: contextOptions(prescriptionFilters)
+                  }}
+                  filters={prescriptionFilters}
+                  onChange={changeFilter}
+                  renderMode="inline"
+                  multiSelect
+                />
               </div>
             </div>
           </div>
@@ -206,7 +202,9 @@ const ProgrammingView = () => {
                       setSelectedTabId(tabId as ProgrammingViewTab)
                     }
                     className={clsx({
-                      'full-width': hasNationalView || hasRegionalView
+                      'full-width':
+                        (hasNationalView || hasRegionalView) &&
+                        prescriptionListDisplay === 'table'
                     })}
                     classes={{
                       panel: clsx('white-container')
