@@ -51,12 +51,15 @@ const PrescriptionSubstances = ({
 
   return (
     <div className="prescription-substance-button">
-      <div className={cx('fr-text--bold', 'fr-mb-1w', 'fr-ml-2w')}>
-        Au programme :
-      </div>
+      {renderMode === 'inline' && (
+        <div className="d-flex-align-center">
+          <span className={cx('fr-icon-test-tube-line', 'fr-pr-1v')} />
+          <b>Analyses</b>
+        </div>
+      )}
       <div>
         {renderMode === 'inline' ? (
-          <div className={cx('fr-px-2w', 'fr-py-1w')}>
+          <div className={cx('fr-py-1v')}>
             <span
               className={cx('fr-icon-check-line', 'fr-icon--sm', 'fr-mr-1w')}
             />
@@ -64,7 +67,7 @@ const PrescriptionSubstances = ({
               count: prescription.monoAnalysisCount || 0
             })}{' '}
             mono résidu
-            <div className={cx('fr-ml-2w', 'fr-mt-1w')}>
+            <div className={cx('fr-ml-2w')}>
               {getSubstancesByAnalysisMethod('Mono')
                 .sort(SSD2IdSort)
                 .map((substance) => (
@@ -108,14 +111,14 @@ const PrescriptionSubstances = ({
       </div>
       <div>
         {renderMode === 'inline' ? (
-          <div className={cx('fr-px-2w', 'fr-py-1w')}>
+          <div className={cx('fr-py-1v')}>
             <span
               className={cx('fr-icon-check-line', 'fr-icon--sm', 'fr-mr-1w')}
             />
             {`Analyse multi-résidu (${
               prescription.multiAnalysisCount || 0
             } ${pluralize(prescription.multiAnalysisCount || 0)('spécifiée')})`}
-            <div className={cx('fr-ml-2w', 'fr-mt-1w')}>
+            <div className={cx('fr-ml-2w')}>
               {getSubstancesByAnalysisMethod('Multi')
                 .sort(SSD2IdSort)
                 .map((substance) => (
@@ -165,7 +168,7 @@ const PrescriptionSubstances = ({
         .map((substance, index) => (
           <div
             key={`substanceKind-${index}`}
-            className={clsx(cx('fr-py-1w', 'fr-px-2w'), 'flex-align-center')}
+            className={clsx(cx('fr-py-1v'), 'flex-align-center')}
           >
             <span
               className={cx('fr-icon-check-line', 'fr-icon--sm', 'fr-mr-1w')}

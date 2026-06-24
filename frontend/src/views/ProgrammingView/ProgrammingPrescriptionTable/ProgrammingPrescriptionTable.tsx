@@ -19,6 +19,9 @@ import DistributionCountCell from 'src/components/DistributionCountCell/Distribu
 import TableHeaderCell from 'src/components/TableHeaderCell/TableHeaderCell';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import './ProgrammingPrescriptionTable.scss';
+import Badge from '@codegouvfr/react-dsfr/Badge';
+import PrescriptionSubstances from '../../../components/Prescription/PrescriptionSubstances/PrescriptionSubstances';
+import { pluralize } from '../../../utils/stringUtils';
 
 interface Props {
   programmingPlans: ProgrammingPlanChecked[];
@@ -30,11 +33,6 @@ interface Props {
   ) => void;
 }
 
-const COL_COUNT = 4 + RegionList.length;
-
-// Les largeurs doivent correspondre exactement aux variables SCSS $col-*-width.
-// table-layout: fixed est utilisé pour garantir ces largeurs quelles que soient
-// les contraintes de contenu (max-width est ignoré par les navigateurs en auto).
 const Colgroup = () => (
   <colgroup>
     <col style={{ width: '5rem' }} />
@@ -55,46 +53,49 @@ const ProgrammingPrescriptionTable = ({
 }: Props) => {
   const { hasUserLocalPrescriptionPermission } = useAuthentication();
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const syncingRef = useRef(false);
   const headerWrapperRef = useRef<HTMLDivElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const rowWrapperRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const stickyScrollRef = useRef<HTMLDivElement>(null);
   const stickyInnerRef = useRef<HTMLDivElement>(null);
 
+  const sync = (source: HTMLDivElement) => {
+    if (syncingRef.current) return;
+    syncingRef.current = true;
+    [
+      headerWrapperRef.current,
+      ...Array.from(rowWrapperRefs.current.values()),
+      stickyScrollRef.current
+    ]
+      .filter((el): el is HTMLDivElement => !!el && el !== source)
+      .forEach((el) => {
+        el.scrollLeft = source.scrollLeft;
+      });
+    syncingRef.current = false;
+  };
+
   useEffect(() => {
     const header = headerWrapperRef.current;
-    const wrapper = wrapperRef.current;
     const sticky = stickyScrollRef.current;
     const inner = stickyInnerRef.current;
-    if (!header || !wrapper || !sticky || !inner) return;
+    if (!header || !sticky || !inner) return;
 
     const updateWidth = () => {
-      inner.style.width = `${wrapper.scrollWidth}px`;
+      inner.style.width = `${header.scrollWidth}px`;
     };
     const ro = new ResizeObserver(updateWidth);
-    ro.observe(wrapper);
-    const tableEl = wrapper.querySelector('table');
+    ro.observe(header);
+    const tableEl = header.querySelector('table');
     if (tableEl) ro.observe(tableEl);
 
-    let syncing = false;
-    const sync = (source: HTMLElement, targets: HTMLElement[]) => {
-      if (syncing) return;
-      syncing = true;
-      for (const t of targets) t.scrollLeft = source.scrollLeft;
-      syncing = false;
-    };
-
-    const onHeaderScroll = () => sync(header, [wrapper, sticky]);
-    const onWrapperScroll = () => sync(wrapper, [header, sticky]);
-    const onStickyScroll = () => sync(sticky, [header, wrapper]);
-
+    const onHeaderScroll = () => sync(header);
+    const onStickyScroll = () => sync(sticky);
     header.addEventListener('scroll', onHeaderScroll, { passive: true });
-    wrapper.addEventListener('scroll', onWrapperScroll, { passive: true });
     sticky.addEventListener('scroll', onStickyScroll);
 
     return () => {
       ro.disconnect();
       header.removeEventListener('scroll', onHeaderScroll);
-      wrapper.removeEventListener('scroll', onWrapperScroll);
       sticky.removeEventListener('scroll', onStickyScroll);
     };
   }, []);
@@ -171,7 +172,9 @@ const ProgrammingPrescriptionTable = ({
                   Total prélèvements
                 </td>
                 <td className="border-left border-right fr-text--bold">
-                  {sumBy(regionalPrescriptions, 'sampleCount')}
+                  {pluralize(sumBy(regionalPrescriptions, 'sampleCount'), {
+                    preserveCount: true
+                  })('prélèvement')}
                 </td>
                 {RegionList.map((region, regionIdx) => (
                   <td
@@ -193,27 +196,37 @@ const ProgrammingPrescriptionTable = ({
         </div>
       </div>
 
-      {/* Body scrollable horizontalement */}
-      <div className="table-scroll-wrapper" ref={wrapperRef}>
-        <div
-          className={clsx(
-            'fr-table',
-            'fr-table--bordered',
-            'fr-table--no-caption'
-          )}
-        >
-          <table>
-            <Colgroup />
-            <tbody>
-              {prescriptions.map((prescription) => {
-                const subPlan = getSubPlan(prescription);
-                const plan = getPlan(prescription);
-                const localPs = getLocalPrescriptions(prescription.id);
-                const total = sumBy(localPs, 'sampleCount');
-                const isExpanded = expandedIds.has(prescription.id);
+      {prescriptions.map((prescription) => {
+        const subPlan = getSubPlan(prescription);
+        const plan = getPlan(prescription);
+        const localPrescriptions = getLocalPrescriptions(prescription.id);
+        const totalSampleCount = sumBy(localPrescriptions, 'sampleCount');
+        const totalRealizedSampleCount = sumBy(
+          localPrescriptions,
+          'realizedSampleCount'
+        );
+        const isExpanded = expandedIds.has(prescription.id);
 
-                return (
-                  <Fragment key={prescription.id}>
+        return (
+          <Fragment key={prescription.id}>
+            <div
+              className="table-scroll-wrapper"
+              ref={(el) => {
+                if (el) rowWrapperRefs.current.set(prescription.id, el);
+                else rowWrapperRefs.current.delete(prescription.id);
+              }}
+              onScroll={(e) => sync(e.currentTarget)}
+            >
+              <div
+                className={clsx(
+                  'fr-table',
+                  'fr-table--bordered',
+                  'fr-table--no-caption'
+                )}
+              >
+                <table>
+                  <Colgroup />
+                  <tbody>
                     <tr>
                       <td>
                         <div className="row-reference">
@@ -242,17 +255,45 @@ const ProgrammingPrescriptionTable = ({
                           .map((sk) => SubstanceKindLabels[sk])
                           .join(', ')}
                       </td>
-                      <td
-                        className={clsx(
-                          cx('fr-text--bold'),
-                          'border-left',
-                          'border-right',
-                          'sample-count'
-                        )}
-                      >
-                        {total}
+                      <td className={clsx('border-left', 'border-right')}>
+                        <div>
+                          {pluralize(totalSampleCount, {
+                            preserveCount: true
+                          })('prélèvement')}
+                        </div>
+                        <Badge
+                          small={true}
+                          noIcon
+                          severity={
+                            totalSampleCount === totalRealizedSampleCount
+                              ? 'success'
+                              : 'warning'
+                          }
+                          className={'fr-px-1v'}
+                        >
+                          {totalSampleCount < totalRealizedSampleCount && (
+                            <span
+                              className={cx(
+                                'fr-icon-arrow-right-up-line',
+                                'fr-pr-1v'
+                              )}
+                            />
+                          )}
+                          {totalSampleCount > totalRealizedSampleCount && (
+                            <span
+                              className={cx(
+                                'fr-icon--sm',
+                                'fr-icon-arrow-right-down-line',
+                                'fr-pr-1v'
+                              )}
+                            />
+                          )}
+                          {pluralize(totalRealizedSampleCount, {
+                            preserveCount: true
+                          })('attribué')}
+                        </Badge>
                       </td>
-                      {localPs.map(
+                      {localPrescriptions.map(
                         (localPrescription, localPrescriptionIdx) => (
                           <td
                             className={clsx({
@@ -286,49 +327,50 @@ const ProgrammingPrescriptionTable = ({
                         )
                       )}
                     </tr>
-                    {isExpanded && (
-                      <tr>
-                        <td colSpan={COL_COUNT} className="sub-row-content">
-                          <div className="prescription-expanded-content">
-                            {prescription.notes && (
-                              <div>
-                                <div className="d-flex-align-center">
-                                  <span
-                                    className={cx(
-                                      'fr-icon-chat-quote-line',
-                                      'fr-pr-1v'
-                                    )}
-                                  />
-                                  <b>Notes</b>
-                                </div>
-                                {prescription.notes}
-                              </div>
-                            )}
-                            {prescription.programmingInstruction && (
-                              <div>
-                                <div className="d-flex-align-center">
-                                  <span
-                                    className={cx(
-                                      'fr-icon-chat-quote-line',
-                                      'fr-pr-1v'
-                                    )}
-                                  />
-                                  <b>Consignes</b>
-                                </div>
-                                {prescription.programmingInstruction}
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            {isExpanded && (
+              <div className="prescription-expanded-content">
+                <div className={cx('fr-grid-row')}>
+                  <div className={cx('fr-col-3')}>
+                    <div className={cx('fr-mb-3w')}>
+                      <div className="d-flex-align-center">
+                        <span
+                          className={cx('fr-icon-chat-quote-line', 'fr-pr-1v')}
+                        />
+                        <b>Notes</b>
+                      </div>
+                      {prescription.notes ?? 'Aucune note'}
+                    </div>
+                    <div>
+                      <div className="d-flex-align-center">
+                        <span
+                          className={cx('fr-icon-chat-quote-line', 'fr-pr-1v')}
+                        />
+                        <b>Consignes</b>
+                      </div>
+                      {prescription.programmingInstruction ?? 'Aucune consigne'}
+                    </div>
+                  </div>
+                  <div className={cx('fr-col-3')}>
+                    <PrescriptionSubstances
+                      programmingPlan={
+                        programmingPlans.find(
+                          (p) => p.id === prescription.programmingPlanId
+                        ) ?? programmingPlans[0]
+                      }
+                      prescription={prescription}
+                      renderMode="inline"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </Fragment>
+        );
+      })}
 
       <div className="sticky-scrollbar" ref={stickyScrollRef}>
         <div ref={stickyInnerRef} />

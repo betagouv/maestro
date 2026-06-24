@@ -9,15 +9,6 @@
     th {
       padding: 0.5rem 1rem !important;
     }
-
-    .editable-cell {
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-    }
-
-    td:has(.fr-input-group) {
-      padding-top: 0;
-    }
   }
 
   .fr-tabs__list {
