@@ -231,48 +231,6 @@ describe('Document router', () => {
     });
   });
 
-  describe('POST /documents', () => {
-    const testRoute = '/api/documents';
-
-    test('should fail if the user is not authenticated', async () => {
-      await request(app)
-        .post(testRoute)
-        .send({ ...genDocumentToCreate(), kind: 'AnalysisReportDocument' })
-        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-    });
-
-    test('should reject a non analysis report document kind', async () => {
-      await request(app)
-        .post(testRoute)
-        .send({ ...genDocumentToCreate(), kind: 'SampleDocument' })
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_BAD_REQUEST);
-    });
-
-    test('should create an analysis report document', async () => {
-      const validAnalysisBody = {
-        ...genDocumentToCreate(),
-        kind: 'AnalysisReportDocument'
-      };
-
-      const res = await request(app)
-        .post(testRoute)
-        .send(validAnalysisBody)
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_CREATED);
-
-      expect(res.body).toEqual({
-        ...validAnalysisBody,
-        createdAt: expect.any(String),
-        createdBy: Sampler1Fixture.id,
-        kind: 'AnalysisReportDocument',
-        programmingPlanIds: []
-      });
-
-      await Documents().where({ id: validAnalysisBody.id }).delete();
-    });
-  });
-
   describe('POST /documents/resources', () => {
     const testRoute = '/api/documents/resources';
     const validResourceBody = {

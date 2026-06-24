@@ -3,41 +3,9 @@ import type {
   DocumentChecked,
   ResourceDocumentToCreate
 } from 'maestro-shared/schema/Document/Document';
-import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
-
-const uploadDocument = async (
-  fetchWithBQ: any,
-  file: File,
-  kind: DocumentKind
-): Promise<{ documentId: string } | { error: FetchBaseQueryError }> => {
-  const signedUrlResult = await fetchWithBQ({
-    url: 'documents/upload-signed-url',
-    method: 'POST',
-    body: { filename: file.name, kind }
-  });
-  if (signedUrlResult.error) {
-    return { error: signedUrlResult.error as FetchBaseQueryError };
-  }
-
-  const { url, documentId } = signedUrlResult.data as {
-    url: string;
-    documentId: string;
-  };
-
-  const uploadResult = await fetch(url, { method: 'PUT', body: file });
-  if (!uploadResult.ok) {
-    return {
-      error: {
-        status: uploadResult.status,
-        data: await uploadResult.json()
-      } as FetchBaseQueryError
-    };
-  }
-
-  return { documentId };
-};
+import { uploadDocument } from 'src/services/uploadDocument';
 
 const documentApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -162,34 +130,7 @@ const documentApi = api.injectEndpoints({
           { type: 'Document', id: documentId }
         ]
       }
-    ),
-    // TODO(V2) : déplacer sous une route scopée par analyse.
-    // biome-ignore lint: too complicated
-    createDocument: builder.mutation<DocumentChecked, { file: File }>({
-      queryFn: async ({ file }, _api, _extra, fetchWithBQ) => {
-        const upload = await uploadDocument(
-          fetchWithBQ,
-          file,
-          'AnalysisReportDocument'
-        );
-        if ('error' in upload) {
-          return { error: upload.error };
-        }
-        const result = await fetchWithBQ({
-          url: 'documents',
-          method: 'POST',
-          body: {
-            id: upload.documentId,
-            filename: file.name,
-            kind: 'AnalysisReportDocument'
-          }
-        });
-        return result.data
-          ? { data: result.data as DocumentChecked }
-          : { error: result.error as FetchBaseQueryError };
-      },
-      invalidatesTags: () => [{ type: 'Document', id: 'LIST' }]
-    })
+    )
   })
 });
 
@@ -205,6 +146,5 @@ export const {
   useLazyGetSampleDocumentDownloadSignedUrlQuery,
   useCreateSampleDocumentMutation,
   useUpdateSampleDocumentMutation,
-  useDeleteSampleDocumentMutation,
-  useCreateDocumentMutation
+  useDeleteSampleDocumentMutation
 } = documentApi;

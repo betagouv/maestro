@@ -1,34 +1,59 @@
+import type { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import { HttpStatus } from '../constants/httpStatus';
+import { getAndCheckAnalysisSample } from '../middlewares/checks/analysisCheck';
 import { analysisReportDocumentsRepository } from '../repositories/analysisReportDocumentsRepository';
-import { analysisRepository } from '../repositories/analysisRepository';
+import { documentRepository } from '../repositories/documentRepository';
+import { executeTransaction } from '../repositories/kysely';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 
 export const analysisReportDocumentsRouter = {
   '/analysis/:analysisId/reportDocuments': {
-    get: async (_request, { analysisId }) => {
-      const analysis = await analysisRepository.findUnique(analysisId);
-      if (!analysis) {
-        return { status: HttpStatus.NOT_FOUND };
-      }
+    get: async ({ user, userRole }, { analysisId }) => {
+      await getAndCheckAnalysisSample(analysisId, user, userRole, false);
 
       const result =
         await analysisReportDocumentsRepository.findByAnalysisId(analysisId);
 
       return { response: result.reverse(), status: HttpStatus.OK };
     },
-    post: async (request, { analysisId }) => {
-      const { documentId } = request.body;
+    post: async (
+      { body: documentToCreate, user, userRole },
+      { analysisId }
+    ) => {
+      await getAndCheckAnalysisSample(analysisId, user, userRole, true);
 
-      await analysisReportDocumentsRepository.insert(analysisId, documentId);
+      console.log(
+        'Create analysis report document',
+        analysisId,
+        documentToCreate.id
+      );
+
+      const document: DocumentChecked = {
+        ...documentToCreate,
+        createdAt: new Date(),
+        createdBy: user.id
+      };
+
+      await executeTransaction(async (trx) => {
+        await documentRepository.insert(document, trx);
+        await analysisReportDocumentsRepository.insert(
+          analysisId,
+          document.id,
+          trx
+        );
+      });
 
       return {
         status: HttpStatus.CREATED
       };
     },
-    delete: async (request, { analysisId }) => {
-      const { documentId } = request.body;
+    delete: async ({ body, user, userRole }, { analysisId }) => {
+      await getAndCheckAnalysisSample(analysisId, user, userRole, true);
 
-      await analysisReportDocumentsRepository.deleteOne(analysisId, documentId);
+      await analysisReportDocumentsRepository.deleteOne(
+        analysisId,
+        body.documentId
+      );
 
       return {
         status: HttpStatus.OK

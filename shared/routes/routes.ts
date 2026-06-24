@@ -28,7 +28,6 @@ export const MaestroRoutes = [
   '/auth/logout',
   '/auth/redirect-url',
   '/companies',
-  '/documents',
   '/documents/resources',
   '/documents/resources/:documentId',
   '/documents/resources/:documentId/download-signed-url',

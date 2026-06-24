@@ -15,9 +15,21 @@ import { mattermostService } from '../services/mattermostService';
 
 export const analysisRouter = {
   '/analysis': {
-    get: async (request) => {
-      const sampleItemKey = request.query;
-      const analysis = await analysisRepository.findUnique(sampleItemKey);
+    get: async ({ query, user, userRole }) => {
+      try {
+        await getAndCheckSample(query.sampleId, user, userRole);
+      } catch (error) {
+        console.warn('Analysis access denied', {
+          who: user.id,
+          role: userRole,
+          sampleId: query.sampleId,
+          result: 'forbidden',
+          reason: 'out of region scope'
+        });
+        throw error;
+      }
+
+      const analysis = await analysisRepository.findUnique(query);
 
       if (!analysis) {
         return { status: HttpStatus.NOT_FOUND };

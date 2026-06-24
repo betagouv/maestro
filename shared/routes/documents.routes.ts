@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import {
-  AnalysisReportDocumentToCreate,
   DocumentChecked,
   DocumentToCreateChecked,
   ResourceDocumentToCreate,
@@ -10,15 +9,6 @@ import { FindDocumentOptions } from '../schema/Document/FindDocumentOptions';
 import type { SubRoutes } from './routes';
 
 export const documentsRoutes = {
-  // TODO(V2) : route générique conservée uniquement pour AnalysisReportDocument.
-  '/documents': {
-    params: undefined,
-    post: {
-      response: DocumentChecked,
-      body: AnalysisReportDocumentToCreate,
-      permissions: ['performAnalysis']
-    }
-  },
   '/documents/resources': {
     params: undefined,
     get: {

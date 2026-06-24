@@ -17,31 +17,6 @@ import { notificationService } from '../services/notificationService';
 import { s3Service } from '../services/s3Service';
 
 export const documentsRouter = {
-  '/documents': {
-    // TODO(V2) : déplacer sous une route scopée par analyse.
-    post: async ({ body: documentToCreate, user }) => {
-      console.log('Create analysis report document', documentToCreate.id);
-
-      const document: DocumentChecked = {
-        ...documentToCreate,
-        createdAt: new Date(),
-        createdBy: user.id
-      };
-
-      await documentRepository.insert(document);
-
-      const createdDocument = await documentRepository.findUnique(document.id);
-
-      if (!createdDocument) {
-        throw new Error('Document not found after insert');
-      }
-
-      return {
-        status: HttpStatus.CREATED,
-        response: createdDocument
-      };
-    }
-  },
   '/documents/resources': {
     get: async ({ query, user, userRole }) => {
       console.info('Find documents');
