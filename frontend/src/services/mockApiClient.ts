@@ -29,16 +29,7 @@ import { fn } from 'storybook/test';
 import regionsJson from '../../../server/data/regions.json';
 import type { ApiClient } from './apiClient';
 
-type MockableApiKeys = Exclude<
-  keyof ApiClient,
-  | 'getPrescriptionsExportURL'
-  | 'getDocumentDownloadURL'
-  | 'getSupportDocumentURL'
-  | 'getSampleListExportURL'
-  | 'getSampleEmptyFormURL'
-  | 'getLaboratoryAnalyticCompetencesExportURL'
-  | 'getLaboratoryAgreementsExportURL'
->;
+type MockableApiKeys = Exclude<keyof ApiClient, `get${string}URL`>;
 export type MockApi = {
   [Key in MockableApiKeys]: ApiClient[Key] extends TypedUseQuery<
     infer D,

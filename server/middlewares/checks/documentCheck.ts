@@ -13,27 +13,6 @@ import programmingPlanRepository from '../../repositories/programmingPlanReposit
 import { sampleRepository } from '../../repositories/sampleRepository';
 import { getAndCheckSample } from './sampleCheck';
 
-const denyAccess = (
-  user: UserBase,
-  userRole: UserRole,
-  document: DocumentChecked,
-  reason: string
-): never => {
-  console.warn('Resource document access denied', {
-    who: user.id,
-    role: userRole,
-    documentId: document.id,
-    kind: document.kind,
-    result: 'forbidden',
-    reason
-  });
-  throw new HttpError({
-    status: constants.HTTP_STATUS_FORBIDDEN,
-    name: 'DocumentOutOfScopeError',
-    message: `Vous n'avez pas les droits sur ce document`
-  });
-};
-
 export const getAndCheckResourceDocument = async (
   documentId: string,
   user: UserBase,
@@ -46,7 +25,11 @@ export const getAndCheckResourceDocument = async (
   }
 
   if (!ResourceDocumentKindList.includes(document.kind)) {
-    return denyAccess(user, userRole, document, 'not a resource document');
+    throw new HttpError({
+      status: constants.HTTP_STATUS_FORBIDDEN,
+      name: 'DocumentOutOfScopeError',
+      message: `Vous n'avez pas les droits sur ce document`
+    });
   }
 
   if (!document.programmingPlanIds?.length) {
@@ -70,7 +53,11 @@ export const getAndCheckResourceDocument = async (
     intersection(document.programmingPlanIds, userProgrammingPlanIds).length ===
     0
   ) {
-    return denyAccess(user, userRole, document, 'out of programming scope');
+    throw new HttpError({
+      status: constants.HTTP_STATUS_FORBIDDEN,
+      name: 'DocumentOutOfScopeError',
+      message: `Vous n'avez pas les droits sur ce document`
+    });
   }
 
   return document;
@@ -90,14 +77,6 @@ export const getAndCheckSampleDocument = async (
   );
 
   if (!belongsToSample) {
-    console.warn('Sample document access denied', {
-      who: user.id,
-      role: userRole,
-      sampleId,
-      documentId,
-      result: 'forbidden',
-      reason: 'document not attached to sample'
-    });
     throw new HttpError({
       status: constants.HTTP_STATUS_FORBIDDEN,
       name: 'DocumentOutOfScopeError',

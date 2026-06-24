@@ -28,19 +28,11 @@ export const getAndCheckAnalysisSample = async (
     throw new AnalysisMissingError(analysisId);
   }
 
-  let sample: PartialSample | SampleChecked;
-  try {
-    sample = await getAndCheckSample(analysis.sampleId, user, userRole);
-  } catch (error) {
-    console.warn('Analysis access denied', {
-      who: user.id,
-      role: userRole,
-      analysisId,
-      result: 'forbidden',
-      reason: 'out of region scope'
-    });
-    throw error;
-  }
+  const sample: PartialSample | SampleChecked = await getAndCheckSample(
+    analysis.sampleId,
+    user,
+    userRole
+  );
 
   if (requirePerformAnalysis) {
     const subPlan = await programmingSubPlanRepository.findUnique(
@@ -54,14 +46,6 @@ export const getAndCheckAnalysisSample = async (
         subPlan?.analysisPermissionRole
       )['performAnalysis']
     ) {
-      console.warn('Analysis report document tampering denied', {
-        who: user.id,
-        role: userRole,
-        analysisId,
-        sampleId: sample.id,
-        result: 'forbidden',
-        reason: 'missing performAnalysis on sample'
-      });
       throw new HttpError({
         status: constants.HTTP_STATUS_FORBIDDEN,
         name: 'AnalysisPermissionError',

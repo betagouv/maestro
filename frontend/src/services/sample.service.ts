@@ -114,7 +114,7 @@ const sampleApi = api.injectEndpoints({
   })
 });
 
-const supportDocumentURL = (
+export const getSupportDocumentURL = (
   sampleId: string,
   itemNumber?: number,
   copyNumber?: number
@@ -126,10 +126,10 @@ const supportDocumentURL = (
       )
     : getApiUrl('/samples/:sampleId/document', { sampleId });
 
-const sampleEmptyFormURL = (sampleId: string) =>
+export const getSampleEmptyFormURL = (sampleId: string) =>
   getApiUrl('/samples/:sampleId/emptyForm', { sampleId });
 
-const sampleListExportURL = (findOptions: FindSampleOptions) =>
+export const getSampleListExportURL = (findOptions: FindSampleOptions) =>
   getApiUrl('/samples/export', findOptions);
 
 export const {
@@ -142,13 +142,5 @@ export const {
   useUpdateSampleMutation,
   useUpdateSampleComplianceMutation,
   useUpdateSampleItemMutation,
-  useDeleteSampleMutation,
-  getSupportDocumentURL,
-  getSampleListExportURL,
-  getSampleEmptyFormURL
-} = {
-  ...sampleApi,
-  getSupportDocumentURL: supportDocumentURL,
-  getSampleListExportURL: sampleListExportURL,
-  getSampleEmptyFormURL: sampleEmptyFormURL
-};
+  useDeleteSampleMutation
+} = sampleApi;

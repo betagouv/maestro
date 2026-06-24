@@ -160,7 +160,7 @@ export const documentsRouter = {
     }
   },
   '/documents/resources/:documentId/download': {
-    get: async ({ user, userRole, query }, { documentId }, { setHeader }) => {
+    get: async ({ user, userRole }, { documentId }, { setHeader }) => {
       console.log('Redirect to download resource document', documentId);
 
       const document = await getAndCheckResourceDocument(
@@ -171,8 +171,7 @@ export const documentsRouter = {
 
       const url = await s3Service.getDownloadSignedUrl(
         documentId,
-        document.filename,
-        { asAttachment: query.download ?? false }
+        document.filename
       );
       setHeader('Location', url);
       return {

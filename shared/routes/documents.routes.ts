@@ -5,7 +5,6 @@ import {
   ResourceDocumentToCreate,
   ResourceDocumentUpdate
 } from '../schema/Document/Document';
-import { DocumentDownloadOptions } from '../schema/Document/DocumentDownloadOptions';
 import { FindDocumentOptions } from '../schema/Document/FindDocumentOptions';
 import type { SubRoutes } from './routes';
 
@@ -46,7 +45,6 @@ export const documentsRoutes = {
       documentId: z.guid()
     },
     get: {
-      query: DocumentDownloadOptions,
       permissions: ['readDocuments'],
       response: z.undefined()
     }

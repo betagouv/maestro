@@ -8,20 +8,17 @@ export type DocumentScope =
   | { type: 'resource' }
   | { type: 'sample'; sampleId: string };
 
-const documentDownloadURL = (
+export const getDocumentDownloadURL = (
   documentId: string,
-  scope: DocumentScope,
-  { download }: { download?: boolean } = {}
+  scope: DocumentScope
 ): string =>
   scope.type === 'sample'
     ? getApiUrl('/samples/:sampleId/documents/:documentId/download', {
         sampleId: scope.sampleId,
-        documentId,
-        download: download || undefined
+        documentId
       })
     : getApiUrl('/documents/resources/:documentId/download', {
-        documentId,
-        download: download || undefined
+        documentId
       });
 
 const documentApi = api.injectEndpoints({
@@ -115,9 +112,5 @@ export const {
   useGetSampleDocumentQuery,
   useCreateSampleDocumentMutation,
   useUpdateSampleDocumentMutation,
-  useDeleteSampleDocumentMutation,
-  getDocumentDownloadURL
-} = {
-  ...documentApi,
-  getDocumentDownloadURL: documentDownloadURL
-};
+  useDeleteSampleDocumentMutation
+} = documentApi;

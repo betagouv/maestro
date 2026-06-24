@@ -4,7 +4,6 @@ import {
   SampleDocumentToCreate,
   SampleDocumentUpdate
 } from '../schema/Document/Document';
-import { DocumentDownloadOptions } from '../schema/Document/DocumentDownloadOptions';
 import { FindSampleOptions } from '../schema/Sample/FindSampleOptions';
 import {
   PartialSample,
@@ -85,7 +84,6 @@ export const samplesRoutes = {
       documentId: z.guid()
     },
     get: {
-      query: DocumentDownloadOptions,
       permissions: ['readDocuments'],
       response: z.undefined()
     }

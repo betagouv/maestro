@@ -83,7 +83,7 @@ export const sampleDocumentsRouter = {
   },
   '/samples/:sampleId/documents/:documentId/download': {
     get: async (
-      { user, userRole, query },
+      { user, userRole },
       { sampleId, documentId },
       { setHeader }
     ) => {
@@ -98,8 +98,7 @@ export const sampleDocumentsRouter = {
 
       const url = await s3Service.getDownloadSignedUrl(
         documentId,
-        document.filename,
-        { asAttachment: query.download ?? false }
+        document.filename
       );
       setHeader('Location', url);
       return {
