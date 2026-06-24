@@ -34,7 +34,7 @@ import PrescriptionModal from '../../../components/Prescription/PrescriptionModa
 import { ApiClientContext } from '../../../services/apiClient';
 import { getApiUrl } from '../../../utils/fetchUtils';
 import ProgrammingLocalPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingLocalPrescriptionTable';
-import ProgrammingPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingPrescriptionTable';
+import ProgrammingRegionalPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingRegionalPrescriptionTable';
 
 interface Props {
   programmingPlan: ProgrammingPlanChecked;
