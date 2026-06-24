@@ -22,8 +22,8 @@ const SachaCommunication = z.discriminatedUnion('method', [
   z.object({
     method: z.literal(SachaCommunicationMethod.enum.EMAIL),
     recipientEmail: z.email(),
-    gpgEmail: z.email(),
-    gpgPublicKey: z.string()
+    gpgEmail: z.email().nullish(),
+    gpgPublicKey: z.string().nullish()
   }),
   z.object({
     method: z.literal(SachaCommunicationMethod.enum.SFTP),

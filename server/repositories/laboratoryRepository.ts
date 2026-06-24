@@ -27,8 +27,8 @@ const buildCommunication = (
       return {
         method: 'EMAIL',
         recipientEmail: row.sachaRecipientEmail!,
-        gpgEmail: row.sachaGpgEmail!,
-        gpgPublicKey: row.sachaGpgPublicKey!
+        gpgEmail: row.sachaGpgEmail,
+        gpgPublicKey: row.sachaGpgPublicKey
       };
     case 'SFTP':
       return { method: 'SFTP', sftpLogin: row.sachaSftpLogin! };
@@ -206,8 +206,8 @@ const buildSachaFields = (sacha: SachaConfig | null) => {
         sachaSigle: sacha.sigle,
         sachaCommunicationMethod: 'EMAIL' as const,
         sachaRecipientEmail: communication.recipientEmail,
-        sachaGpgEmail: communication.gpgEmail,
-        sachaGpgPublicKey: communication.gpgPublicKey,
+        sachaGpgEmail: communication.gpgEmail ?? null,
+        sachaGpgPublicKey: communication.gpgPublicKey ?? null,
         sachaSftpLogin: null
       };
     case 'SFTP':
