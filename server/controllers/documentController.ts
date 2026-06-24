@@ -159,9 +159,9 @@ export const documentsRouter = {
       return { status: HttpStatus.NO_CONTENT };
     }
   },
-  '/documents/resources/:documentId/download-signed-url': {
-    get: async ({ user, userRole }, { documentId }) => {
-      console.log('Get signed url for download resource document', documentId);
+  '/documents/resources/:documentId/download': {
+    get: async ({ user, userRole, query }, { documentId }, { setHeader }) => {
+      console.log('Redirect to download resource document', documentId);
 
       const document = await getAndCheckResourceDocument(
         documentId,
@@ -171,11 +171,12 @@ export const documentsRouter = {
 
       const url = await s3Service.getDownloadSignedUrl(
         documentId,
-        document.filename
+        document.filename,
+        { asAttachment: query.download ?? false }
       );
+      setHeader('Location', url);
       return {
-        status: HttpStatus.OK,
-        response: { url }
+        status: HttpStatus.FOUND
       };
     }
   },

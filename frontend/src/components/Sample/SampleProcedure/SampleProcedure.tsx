@@ -78,7 +78,6 @@ const SampleProcedure = ({ partialSample }: Props) => {
         <DocumentLink
           documentId={config.documents.regulation201862}
           scope={{ type: 'resource' }}
-          iconId="fr-icon-external-link-line"
         />
       </div>
       {programmingSubPlan?.subPlanNumber === 'PPV' && (

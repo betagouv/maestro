@@ -70,12 +70,14 @@ const uploadDocument = async (
 
 const getDownloadSignedUrl = async (
   documentId: string,
-  filename: string
+  filename: string,
+  { asAttachment }: { asAttachment?: boolean } = {}
 ): Promise<string> => {
   const client = getS3Client();
   const command = new GetObjectCommand({
     Bucket: config.s3.bucket,
-    Key: getKey(documentId, filename)
+    Key: getKey(documentId, filename),
+    ResponseContentDisposition: `${asAttachment ? 'attachment' : 'inline'}; filename="${filename}"`
   });
 
   return getS3SignedUrl(client, command, { expiresIn: 3600 });

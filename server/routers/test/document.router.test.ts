@@ -474,9 +474,8 @@ describe('Document router', () => {
     });
   });
 
-  describe('GET /documents/resources/:documentId/download-signed-url', () => {
-    const testRoute = (id: string) =>
-      `/api/documents/resources/${id}/download-signed-url`;
+  describe('GET /documents/resources/:documentId/download', () => {
+    const testRoute = (id: string) => `/api/documents/resources/${id}/download`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
@@ -612,9 +611,9 @@ describe('Document router', () => {
     });
   });
 
-  describe('GET /samples/:sampleId/documents/:documentId/download-signed-url', () => {
+  describe('GET /samples/:sampleId/documents/:documentId/download', () => {
     const testRoute = (sampleId: string, documentId: string) =>
-      `/api/samples/${sampleId}/documents/${documentId}/download-signed-url`;
+      `/api/samples/${sampleId}/documents/${documentId}/download`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)

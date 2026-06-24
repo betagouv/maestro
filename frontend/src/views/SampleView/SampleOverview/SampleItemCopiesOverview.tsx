@@ -111,22 +111,16 @@ const SampleItemCopiesOverview = ({
         <div className={cx('fr-col-6')}>
           <div>Compte-rendu / Procès-verbal</div>
           <Link
-            to="#"
+            to={getSupportDocumentURL(
+              sample.id,
+              itemNumber,
+              currentItemCopy.copyNumber
+            )}
+            target="_blank"
+            rel="noreferrer"
             className={cx('fr-link', 'fr-link--sm')}
-            onClick={() => {
-              window.open(
-                getSupportDocumentURL(
-                  sample.id,
-                  itemNumber,
-                  currentItemCopy.copyNumber
-                )
-              );
-            }}
           >
             Télécharger le document
-            <span
-              className={cx('fr-icon-download-line', 'fr-link--icon-right')}
-            />
           </Link>
         </div>
       </div>

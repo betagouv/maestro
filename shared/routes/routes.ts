@@ -30,7 +30,7 @@ export const MaestroRoutes = [
   '/companies',
   '/documents/resources',
   '/documents/resources/:documentId',
-  '/documents/resources/:documentId/download-signed-url',
+  '/documents/resources/:documentId/download',
   '/documents/upload-signed-url',
   '/laboratories',
   '/laboratories/agreements',
@@ -74,7 +74,7 @@ export const MaestroRoutes = [
   '/samples/:sampleId/document',
   '/samples/:sampleId/documents',
   '/samples/:sampleId/documents/:documentId',
-  '/samples/:sampleId/documents/:documentId/download-signed-url',
+  '/samples/:sampleId/documents/:documentId/download',
   '/samples/:sampleId/emptyForm',
   '/samples/:sampleId/items/:itemNumber/copy/:copyNumber/document',
   '/samples/:sampleId/items/:itemNumber/copy/:copyNumber',
@@ -191,7 +191,7 @@ type ZodUrlParams<url, Z = ZodParseUrlParams<url>> = keyof Z extends never
 
 export type RouteMethod = 'get' | 'post' | 'put' | 'delete';
 
-export type SubRoutes<T extends string> = {
+export type SubRoutes<T extends MaestroRoutes> = {
   [path in Extract<MaestroRoutes, `${T}${string}`>]: {
     [method in RouteMethod]?: ToRoute;
   } & {

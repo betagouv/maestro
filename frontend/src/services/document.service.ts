@@ -2,6 +2,27 @@ import type { ResourceDocumentToCreate } from 'maestro-shared/schema/Document/Do
 import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
 import { buildDocumentUploadMutation } from 'src/services/uploadDocument';
+import { getApiUrl } from 'src/utils/fetchUtils';
+
+export type DocumentScope =
+  | { type: 'resource' }
+  | { type: 'sample'; sampleId: string };
+
+const documentDownloadURL = (
+  documentId: string,
+  scope: DocumentScope,
+  { download }: { download?: boolean } = {}
+): string =>
+  scope.type === 'sample'
+    ? getApiUrl('/samples/:sampleId/documents/:documentId/download', {
+        sampleId: scope.sampleId,
+        documentId,
+        download: download || undefined
+      })
+    : getApiUrl('/documents/resources/:documentId/download', {
+        documentId,
+        download: download || undefined
+      });
 
 const documentApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -18,10 +39,6 @@ const documentApi = api.injectEndpoints({
         providesTags: (result, _error, { documentId }) =>
           result ? [{ type: 'Document', id: documentId }] : []
       }
-    ),
-    getResourceDocumentDownloadSignedUrl: buildTypedQuery(
-      builder,
-      '/documents/resources/:documentId/download-signed-url'
     ),
     createResourceDocument: buildDocumentUploadMutation<
       '/documents/resources',
@@ -58,10 +75,6 @@ const documentApi = api.injectEndpoints({
           result ? [{ type: 'Document', id: documentId }] : []
       }
     ),
-    getSampleDocumentDownloadSignedUrl: buildTypedQuery(
-      builder,
-      '/samples/:sampleId/documents/:documentId/download-signed-url'
-    ),
     createSampleDocument: buildDocumentUploadMutation(
       builder,
       '/samples/:sampleId/documents',
@@ -96,14 +109,15 @@ const documentApi = api.injectEndpoints({
 export const {
   useFindResourcesQuery,
   useGetResourceDocumentQuery,
-  useLazyGetResourceDocumentDownloadSignedUrlQuery,
   useCreateResourceDocumentMutation,
   useUpdateResourceDocumentMutation,
   useDeleteResourceDocumentMutation,
   useGetSampleDocumentQuery,
-  useGetSampleDocumentDownloadSignedUrlQuery,
-  useLazyGetSampleDocumentDownloadSignedUrlQuery,
   useCreateSampleDocumentMutation,
   useUpdateSampleDocumentMutation,
-  useDeleteSampleDocumentMutation
-} = documentApi;
+  useDeleteSampleDocumentMutation,
+  getDocumentDownloadURL
+} = {
+  ...documentApi,
+  getDocumentDownloadURL: documentDownloadURL
+};

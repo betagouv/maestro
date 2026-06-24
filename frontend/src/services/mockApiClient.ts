@@ -32,6 +32,7 @@ import type { ApiClient } from './apiClient';
 type MockableApiKeys = Exclude<
   keyof ApiClient,
   | 'getPrescriptionsExportURL'
+  | 'getDocumentDownloadURL'
   | 'getSupportDocumentURL'
   | 'getSampleListExportURL'
   | 'getSampleEmptyFormURL'
@@ -187,7 +188,6 @@ const defaultMockApiClientConf: MockApi = {
       url: ''
     }
   },
-  useGetSampleDocumentDownloadSignedUrlQuery: { data: { url: '' } },
   useGetResourceDocumentQuery: {
     data: genDocument({
       createdAt: new Date(12345),
@@ -246,14 +246,6 @@ const defaultMockApiClientConf: MockApi = {
   }),
   useLazyFindPrescriptionsQuery: [[], {}],
   useLazyFindSamplesQuery: [[], {}],
-  useLazyGetResourceDocumentDownloadSignedUrlQuery: [
-    { url: 'https://maestro.beta.gouv.fr' },
-    {}
-  ],
-  useLazyGetSampleDocumentDownloadSignedUrlQuery: [
-    { url: 'https://maestro.beta.gouv.fr' },
-    {}
-  ],
   useLazyGetPrescriptionSubstancesQuery: [[], {}],
   useLazyGetSampleQuery: [genCreatedPartialSample(), {}],
   useLazyGetUserQuery: [genUser({}), {}],

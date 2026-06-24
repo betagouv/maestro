@@ -223,7 +223,6 @@ const DocumentView = () => {
                 <DocumentLink
                   documentId={document.id}
                   scope={{ type: 'resource' }}
-                  iconId="fr-icon-eye-line"
                 />
                 <div
                   className={clsx(

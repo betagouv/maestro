@@ -81,9 +81,13 @@ export const sampleDocumentsRouter = {
       return { status: HttpStatus.NO_CONTENT };
     }
   },
-  '/samples/:sampleId/documents/:documentId/download-signed-url': {
-    get: async ({ user, userRole }, { sampleId, documentId }) => {
-      console.log('Get signed url for download sample document', documentId);
+  '/samples/:sampleId/documents/:documentId/download': {
+    get: async (
+      { user, userRole, query },
+      { sampleId, documentId },
+      { setHeader }
+    ) => {
+      console.log('Redirect to download sample document', documentId);
 
       const document = await getAndCheckSampleDocument(
         sampleId,
@@ -94,11 +98,12 @@ export const sampleDocumentsRouter = {
 
       const url = await s3Service.getDownloadSignedUrl(
         documentId,
-        document.filename
+        document.filename,
+        { asAttachment: query.download ?? false }
       );
+      setHeader('Location', url);
       return {
-        status: HttpStatus.OK,
-        response: { url }
+        status: HttpStatus.FOUND
       };
     }
   }

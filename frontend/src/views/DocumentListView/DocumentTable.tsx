@@ -4,7 +4,6 @@ import Table from '@codegouvfr/react-dsfr/Table';
 import type { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import { DocumentKindLabels } from 'maestro-shared/schema/Document/DocumentKind';
 import { formatDate } from 'maestro-shared/utils/date';
-import { useDocument } from 'src/hooks/useDocument';
 import DocumentLink from '../../components/DocumentLink/DocumentLink';
 import { useAuthentication } from '../../hooks/useAuthentication';
 
@@ -20,7 +19,6 @@ const DocumentTable = ({
   onRemoveDocument
 }: Props) => {
   const { hasUserPermission } = useAuthentication();
-  const { downloadDocument } = useDocument();
 
   if (!documents || documents.length === 0) {
     return null;
@@ -47,7 +45,6 @@ const DocumentTable = ({
             <DocumentLink
               documentId={document.id}
               scope={{ type: 'resource' }}
-              iconId="fr-icon-eye-line"
             />
           </div>,
           <div key={`${document.id}-actions`}>
@@ -80,18 +77,6 @@ const DocumentTable = ({
               className={cx('fr-ml-1w')}
               onClick={() => onViewDocumentNotes(document)}
               disabled={!document.notes}
-            />
-            <Button
-              title="Télécharger"
-              iconId="fr-icon-download-line"
-              priority="tertiary"
-              size="small"
-              className={cx('fr-ml-1w')}
-              onClick={async () => {
-                await downloadDocument(document.id, document.filename, {
-                  type: 'resource'
-                });
-              }}
             />
           </div>
         ])}

@@ -5,6 +5,7 @@ import {
   ResourceDocumentToCreate,
   ResourceDocumentUpdate
 } from '../schema/Document/Document';
+import { DocumentDownloadOptions } from '../schema/Document/DocumentDownloadOptions';
 import { FindDocumentOptions } from '../schema/Document/FindDocumentOptions';
 import type { SubRoutes } from './routes';
 
@@ -40,15 +41,14 @@ export const documentsRoutes = {
       response: z.undefined()
     }
   },
-  '/documents/resources/:documentId/download-signed-url': {
+  '/documents/resources/:documentId/download': {
     params: {
       documentId: z.guid()
     },
     get: {
+      query: DocumentDownloadOptions,
       permissions: ['readDocuments'],
-      response: z.object({
-        url: z.string()
-      })
+      response: z.undefined()
     }
   },
   '/documents/upload-signed-url': {
@@ -62,4 +62,6 @@ export const documentsRoutes = {
       })
     }
   }
-} as const satisfies SubRoutes<'/documents'>;
+} as const satisfies SubRoutes<
+  '/documents/resources' | '/documents/upload-signed-url'
+>;

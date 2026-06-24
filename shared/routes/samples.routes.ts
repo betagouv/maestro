@@ -4,6 +4,7 @@ import {
   SampleDocumentToCreate,
   SampleDocumentUpdate
 } from '../schema/Document/Document';
+import { DocumentDownloadOptions } from '../schema/Document/DocumentDownloadOptions';
 import { FindSampleOptions } from '../schema/Sample/FindSampleOptions';
 import {
   PartialSample,
@@ -78,16 +79,15 @@ export const samplesRoutes = {
       response: z.undefined()
     }
   },
-  '/samples/:sampleId/documents/:documentId/download-signed-url': {
+  '/samples/:sampleId/documents/:documentId/download': {
     params: {
       sampleId: z.guid(),
       documentId: z.guid()
     },
     get: {
+      query: DocumentDownloadOptions,
       permissions: ['readDocuments'],
-      response: z.object({
-        url: z.string()
-      })
+      response: z.undefined()
     }
   },
   '/samples/:sampleId/items/:itemNumber/copy/:copyNumber/document': {

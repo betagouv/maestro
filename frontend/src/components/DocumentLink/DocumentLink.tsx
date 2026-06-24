@@ -1,19 +1,19 @@
-import type { FrIconClassName } from '@codegouvfr/react-dsfr';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { useContext } from 'react';
 import { Link } from 'react-router';
-import { type DocumentScope, useDocument } from '../../hooks/useDocument';
 import { ApiClientContext } from '../../services/apiClient';
+import {
+  type DocumentScope,
+  getDocumentDownloadURL
+} from '../../services/document.service';
 
 interface Props {
   documentId?: string;
   scope: DocumentScope;
-  iconId?: FrIconClassName;
 }
 
-const DocumentLink = ({ documentId, scope, iconId }: Props) => {
+const DocumentLink = ({ documentId, scope }: Props) => {
   const apiClient = useContext(ApiClientContext);
-  const { openDocument } = useDocument();
 
   const { data: resourceDocument } = apiClient.useGetResourceDocumentQuery(
     { documentId: documentId ?? '' },
@@ -34,17 +34,12 @@ const DocumentLink = ({ documentId, scope, iconId }: Props) => {
 
   return (
     <Link
-      onClick={async (e) => {
-        e.preventDefault();
-        await openDocument(document.id, scope);
-      }}
-      to="#"
+      to={getDocumentDownloadURL(document.id, scope)}
+      target="_blank"
+      rel="noreferrer"
       className={cx('fr-link')}
     >
       {document.filename}
-      <span
-        className={cx(iconId ?? 'fr-link--download', 'fr-ml-1w', 'fr-icon--sm')}
-      ></span>
     </Link>
   );
 };
