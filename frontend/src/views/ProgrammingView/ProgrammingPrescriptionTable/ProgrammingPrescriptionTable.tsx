@@ -18,6 +18,7 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
 import TableHeaderCell from 'src/components/TableHeaderCell/TableHeaderCell';
 import { useAuthentication } from '../../../hooks/useAuthentication';
+import './ProgrammingRegionalPrescriptionTable.scss';
 
 interface Props {
   programmingPlans: ProgrammingPlanChecked[];
@@ -29,9 +30,19 @@ interface Props {
   ) => void;
 }
 
+const COL_COUNT = 4 + RegionList.length;
+
+// Les largeurs doivent correspondre exactement aux variables SCSS $col-*-width.
+// table-layout: fixed est utilisé pour garantir ces largeurs quelles que soient
+// les contraintes de contenu (max-width est ignoré par les navigateurs en auto).
 const Colgroup = () => (
   <colgroup>
+    <col style={{ width: '5rem' }} />
+    <col style={{ width: '12.5rem' }} />
+    <col style={{ width: '18.75rem' }} />
+    <col style={{ width: '13rem' }} />
     {RegionList.map((region) => (
+      <col key={`col-${region}`} style={{ width: '4.375rem' }} />
     ))}
   </colgroup>
 );
@@ -45,24 +56,45 @@ const ProgrammingPrescriptionTable = ({
   const { hasUserLocalPrescriptionPermission } = useAuthentication();
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const headerWrapperRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const stickyScrollRef = useRef<HTMLDivElement>(null);
   const stickyInnerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const header = headerWrapperRef.current;
+    const wrapper = wrapperRef.current;
     const sticky = stickyScrollRef.current;
     const inner = stickyInnerRef.current;
+    if (!header || !wrapper || !sticky || !inner) return;
 
     const updateWidth = () => {
+      inner.style.width = `${wrapper.scrollWidth}px`;
     };
     const ro = new ResizeObserver(updateWidth);
+    ro.observe(wrapper);
+    const tableEl = wrapper.querySelector('table');
+    if (tableEl) ro.observe(tableEl);
+
+    let syncing = false;
+    const sync = (source: HTMLElement, targets: HTMLElement[]) => {
+      if (syncing) return;
+      syncing = true;
+      for (const t of targets) t.scrollLeft = source.scrollLeft;
+      syncing = false;
+    };
+
+    const onHeaderScroll = () => sync(header, [wrapper, sticky]);
+    const onWrapperScroll = () => sync(wrapper, [header, sticky]);
+    const onStickyScroll = () => sync(sticky, [header, wrapper]);
 
     header.addEventListener('scroll', onHeaderScroll, { passive: true });
+    wrapper.addEventListener('scroll', onWrapperScroll, { passive: true });
     sticky.addEventListener('scroll', onStickyScroll);
 
     return () => {
       ro.disconnect();
       header.removeEventListener('scroll', onHeaderScroll);
+      wrapper.removeEventListener('scroll', onWrapperScroll);
       sticky.removeEventListener('scroll', onStickyScroll);
     };
   }, []);
@@ -96,12 +128,15 @@ const ProgrammingPrescriptionTable = ({
   return (
     <div
       data-testid="prescription-table"
+      className="programming-regional-table"
     >
+      {/* Header sticky — hors du wrapper scroll */}
       <div className="header-wrapper" ref={headerWrapperRef}>
         <div
           className={clsx(
             'fr-table',
             'fr-table--bordered',
+            'fr-table--no-caption'
           )}
         >
           <table>
@@ -116,10 +151,12 @@ const ProgrammingPrescriptionTable = ({
                   Analyte
                 </th>
                 <th scope="col" className="border-left border-right">
+                  Prélèvements programmés
                 </th>
                 {RegionList.map((region, regionIdx) => (
                   <th
                     scope="col"
+                    className={clsx({ 'border-left': regionIdx !== 0 })}
                     key={`header-${region}`}
                   >
                     <TableHeaderCell
@@ -133,6 +170,7 @@ const ProgrammingPrescriptionTable = ({
                 <td colSpan={3} className={cx('fr-text--bold')}>
                   Total prélèvements
                 </td>
+                <td className="border-left border-right fr-text--bold">
                   {sumBy(regionalPrescriptions, 'sampleCount')}
                 </td>
                 {RegionList.map((region, regionIdx) => (
@@ -140,6 +178,7 @@ const ProgrammingPrescriptionTable = ({
                     key={`total-${region}`}
                     className={clsx(
                       { 'border-left': regionIdx !== 0 },
+                      'fr-text--bold'
                     )}
                   >
                     {sumBy(
@@ -154,15 +193,27 @@ const ProgrammingPrescriptionTable = ({
         </div>
       </div>
 
+      {/* Body scrollable horizontalement */}
+      <div className="table-scroll-wrapper" ref={wrapperRef}>
         <div
           className={clsx(
             'fr-table',
             'fr-table--bordered',
+            'fr-table--no-caption'
           )}
         >
           <table>
             <Colgroup />
             <tbody>
+              {prescriptions.map((prescription) => {
+                const subPlan = getSubPlan(prescription);
+                const plan = getPlan(prescription);
+                const localPs = getLocalPrescriptions(prescription.id);
+                const total = sumBy(localPs, 'sampleCount');
+                const isExpanded = expandedIds.has(prescription.id);
+
+                return (
+                  <Fragment key={prescription.id}>
                     <tr>
                       <td>
                         <div className="row-reference">
@@ -191,7 +242,17 @@ const ProgrammingPrescriptionTable = ({
                           .map((sk) => SubstanceKindLabels[sk])
                           .join(', ')}
                       </td>
+                      <td
+                        className={clsx(
+                          cx('fr-text--bold'),
+                          'border-left',
+                          'border-right',
+                          'sample-count'
+                        )}
+                      >
+                        {total}
                       </td>
+                      {localPs.map(
                         (localPrescription, localPrescriptionIdx) => (
                           <td
                             className={clsx({
@@ -226,21 +287,46 @@ const ProgrammingPrescriptionTable = ({
                       )}
                     </tr>
                     {isExpanded && (
+                      <tr>
+                        <td colSpan={COL_COUNT} className="sub-row-content">
                           <div className="prescription-expanded-content">
-                                <div className="d-flex-align-center">
-                                  <span
-                                  />
-                                  <b>Notes</b>
-                                </div>
-                              </div>
+                            {prescription.notes && (
                               <div>
                                 <div className="d-flex-align-center">
                                   <span
+                                    className={cx(
+                                      'fr-icon-chat-quote-line',
+                                      'fr-pr-1v'
+                                    )}
+                                  />
+                                  <b>Notes</b>
+                                </div>
+                                {prescription.notes}
+                              </div>
+                            )}
+                            {prescription.programmingInstruction && (
+                              <div>
+                                <div className="d-flex-align-center">
+                                  <span
+                                    className={cx(
+                                      'fr-icon-chat-quote-line',
+                                      'fr-pr-1v'
+                                    )}
                                   />
                                   <b>Consignes</b>
                                 </div>
+                                {prescription.programmingInstruction}
                               </div>
+                            )}
                           </div>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
 
