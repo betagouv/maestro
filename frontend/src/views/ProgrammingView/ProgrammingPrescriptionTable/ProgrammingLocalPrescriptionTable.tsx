@@ -19,9 +19,13 @@ import {
   getPrescriptionTitle,
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  hasProgrammingPlanStatusForAuthUser,
+  type ProgrammingPlanChecked
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useMemo } from 'react';
+import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
 import TableHeaderCell from 'src/components/TableHeaderCell/TableHeaderCell';
 import { useAppDispatch } from 'src/hooks/useStore';
@@ -197,21 +201,44 @@ const ProgrammingLocalPrescriptionTable = ({
                         preserveCount: true
                       })('prélèvement programmé')}
                     </div>
-                    {(hasUserLocalPrescriptionPermission(
+                    {hasProgrammingPlanStatusForAuthUser(
                       programmingPlan,
-                      localPrescription
-                    )?.distributeToDepartments ||
-                      hasUserLocalPrescriptionPermission(
+                      ['Validated', 'Closed'],
+                      user,
+                      userRole
+                    ) ? (
+                      <>
+                        <div>
+                          {pluralize(
+                            localPrescription.realizedSampleCount ?? 0,
+                            {
+                              preserveCount: true
+                            }
+                          )('réalisé')}
+                        </div>
+                        <div>
+                          <CompletionBadge
+                            localPrescriptions={localPrescription}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      (hasUserLocalPrescriptionPermission(
                         programmingPlan,
-                        getLocalPrescription(prescription.id)
-                      )?.distributeToSlaughterhouses) && (
-                      <LocalPrescriptionDistributionBadge
-                        localPrescription={localPrescription}
-                        subLocalPrescriptions={getSubLocalPrescriptions(
-                          prescription.id
-                        )}
-                        small
-                      />
+                        localPrescription
+                      )?.distributeToDepartments ||
+                        hasUserLocalPrescriptionPermission(
+                          programmingPlan,
+                          getLocalPrescription(prescription.id)
+                        )?.distributeToSlaughterhouses) && (
+                        <LocalPrescriptionDistributionBadge
+                          localPrescription={localPrescription}
+                          subLocalPrescriptions={getSubLocalPrescriptions(
+                            prescription.id
+                          )}
+                          small
+                        />
+                      )
                     )}
                   </>
                 ))}
@@ -317,20 +344,68 @@ const ProgrammingLocalPrescriptionTable = ({
           Total
         </div>,
         <div className="border-left fr-text--bold" key="total-total">
-          <div className="no-wrap">
-            {pluralize(sumBy(localPrescriptions, 'sampleCount'), {
-              preserveCount: true
-            })('prélèvement programmé')}
+          <div>
+            <div className="no-wrap">
+              {pluralize(sumBy(localPrescriptions, 'sampleCount'), {
+                preserveCount: true
+              })('prélèvement programmé')}
+            </div>
           </div>
+
+          {hasProgrammingPlanStatusForAuthUser(
+            programmingPlan,
+            ['Validated', 'Closed'],
+            user,
+            userRole
+          ) && (
+            <>
+              <div>
+                {pluralize(
+                  sumBy(localPrescriptions, 'realizedSampleCount') ?? 0,
+                  {
+                    preserveCount: true
+                  }
+                )('réalisé')}
+              </div>
+              <CompletionBadge localPrescriptions={localPrescriptions} />
+            </>
+          )}
         </div>,
         ...departmentList.map((department) => [
           <div
             key={`total-${department}`}
             className="border-left fr-text--bold"
           >
-            {sumBy(
-              subLocalPrescriptions.filter((r) => r.department === department),
-              'sampleCount'
+            <div>
+              {sumBy(
+                subLocalPrescriptions.filter(
+                  (r) => r.department === department
+                ),
+                'sampleCount'
+              )}
+            </div>
+            {hasProgrammingPlanStatusForAuthUser(
+              programmingPlan,
+              ['Validated', 'Closed'],
+              user,
+              userRole
+            ) && (
+              <>
+                <div>
+                  {sumBy(
+                    subLocalPrescriptions.filter(
+                      (r) => r.department === department
+                    ),
+                    'realizedSampleCount'
+                  )}
+                </div>
+                <CompletionBadge
+                  localPrescriptions={subLocalPrescriptions.filter(
+                    (r) => r.department === department
+                  )}
+                  region={region}
+                />
+              </>
             )}
           </div>
         ]),
