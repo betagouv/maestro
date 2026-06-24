@@ -1,7 +1,6 @@
-import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
-import { uploadDocument } from 'src/services/uploadDocument';
+import { buildDocumentUploadMutation } from 'src/services/uploadDocument';
 
 const analysisApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -38,33 +37,12 @@ const analysisApi = api.injectEndpoints({
         ]
       }
     ),
-    // biome-ignore lint: too complicated
-    createAnalysisReportDocument: builder.mutation<
+    createAnalysisReportDocument: buildDocumentUploadMutation<
       void,
       { analysisId: string; file: File }
-    >({
-      queryFn: async ({ analysisId, file }, _api, _extra, fetchWithBQ) => {
-        const upload = await uploadDocument(
-          fetchWithBQ,
-          file,
-          'AnalysisReportDocument'
-        );
-        if ('error' in upload) {
-          return { error: upload.error };
-        }
-        const result = await fetchWithBQ({
-          url: `analysis/${analysisId}/reportDocuments`,
-          method: 'POST',
-          body: {
-            id: upload.documentId,
-            filename: file.name,
-            kind: 'AnalysisReportDocument'
-          }
-        });
-        return result.error
-          ? { error: result.error as FetchBaseQueryError }
-          : { data: undefined };
-      },
+    >(builder, {
+      kind: 'AnalysisReportDocument',
+      url: ({ analysisId }) => `analysis/${analysisId}/reportDocuments`,
       invalidatesTags: (_result, _error, { analysisId }) => [
         { type: 'AnalysisReportDocuments', id: analysisId }
       ]
@@ -86,9 +64,7 @@ export const {
   useCreateAnalysisMutation,
   useUpdateAnalysisMutation,
   useGetSampleItemAnalysisQuery,
-  useLazyGetSampleItemAnalysisQuery,
   useCreateAnalysisReportDocumentMutation,
   useGetAnalysisReportDocumentIdsQuery,
-  useLazyGetAnalysisReportDocumentIdsQuery,
   useDeleteAnalysisReportDocumentMutation
 } = analysisApi;

@@ -1,11 +1,10 @@
-import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import type {
   DocumentChecked,
   ResourceDocumentToCreate
 } from 'maestro-shared/schema/Document/Document';
 import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
-import { uploadDocument } from 'src/services/uploadDocument';
+import { buildDocumentUploadMutation } from 'src/services/uploadDocument';
 
 const documentApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -27,25 +26,13 @@ const documentApi = api.injectEndpoints({
       builder,
       '/documents/resources/:documentId/download-signed-url'
     ),
-    // biome-ignore lint: too complicated
-    createResourceDocument: builder.mutation<
+    createResourceDocument: buildDocumentUploadMutation<
       DocumentChecked,
       Omit<ResourceDocumentToCreate, 'id' | 'filename'> & { file: File }
-    >({
-      queryFn: async ({ file, ...document }, _api, _extra, fetchWithBQ) => {
-        const upload = await uploadDocument(fetchWithBQ, file, document.kind);
-        if ('error' in upload) {
-          return { error: upload.error };
-        }
-        const result = await fetchWithBQ({
-          url: 'documents/resources',
-          method: 'POST',
-          body: { ...document, id: upload.documentId, filename: file.name }
-        });
-        return result.data
-          ? { data: result.data as DocumentChecked }
-          : { error: result.error as FetchBaseQueryError };
-      },
+    >(builder, {
+      kind: ({ kind }) => kind,
+      url: () => 'documents/resources',
+      extraBody: ({ file: _file, ...document }) => document,
       invalidatesTags: () => [{ type: 'Document', id: 'LIST' }]
     }),
     updateResourceDocument: buildTypedMutation(
@@ -81,33 +68,12 @@ const documentApi = api.injectEndpoints({
       builder,
       '/samples/:sampleId/documents/:documentId/download-signed-url'
     ),
-    // biome-ignore lint: too complicated
-    createSampleDocument: builder.mutation<
+    createSampleDocument: buildDocumentUploadMutation<
       DocumentChecked,
       { sampleId: string; file: File }
-    >({
-      queryFn: async ({ sampleId, file }, _api, _extra, fetchWithBQ) => {
-        const upload = await uploadDocument(
-          fetchWithBQ,
-          file,
-          'SampleDocument'
-        );
-        if ('error' in upload) {
-          return { error: upload.error };
-        }
-        const result = await fetchWithBQ({
-          url: `samples/${sampleId}/documents`,
-          method: 'POST',
-          body: {
-            id: upload.documentId,
-            filename: file.name,
-            kind: 'SampleDocument'
-          }
-        });
-        return result.data
-          ? { data: result.data as DocumentChecked }
-          : { error: result.error as FetchBaseQueryError };
-      },
+    >(builder, {
+      kind: 'SampleDocument',
+      url: ({ sampleId }) => `samples/${sampleId}/documents`,
       invalidatesTags: () => [{ type: 'Document', id: 'LIST' }]
     }),
     updateSampleDocument: buildTypedMutation(

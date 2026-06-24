@@ -246,7 +246,6 @@ const defaultMockApiClientConf: MockApi = {
   }),
   useLazyFindPrescriptionsQuery: [[], {}],
   useLazyFindSamplesQuery: [[], {}],
-  useLazyGetAnalysisReportDocumentIdsQuery: [[], {}],
   useLazyGetResourceDocumentDownloadSignedUrlQuery: [
     { url: 'https://maestro.beta.gouv.fr' },
     {}
@@ -256,7 +255,6 @@ const defaultMockApiClientConf: MockApi = {
     {}
   ],
   useLazyGetPrescriptionSubstancesQuery: [[], {}],
-  useLazyGetSampleItemAnalysisQuery: [genPartialAnalysis(), {}],
   useLazyGetSampleQuery: [genCreatedPartialSample(), {}],
   useLazyGetUserQuery: [genUser({}), {}],
   useLazySearchAddressesQuery: [[], {}],

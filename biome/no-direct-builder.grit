@@ -6,5 +6,6 @@ or {
 } where {
   $filename <: r".*frontend/.*",
   ! $filename <: r".*frontend/src/services/api\.builder\.ts$",
+  ! $filename <: r".*frontend/src/services/uploadDocument\.ts$",
   register_diagnostic(span=$obj, message="Use buildTypedQuery() / buildTypedMutation() from api.builder.ts instead of calling builder.query() or builder.mutation() directly.", severity=`error`)
 }
