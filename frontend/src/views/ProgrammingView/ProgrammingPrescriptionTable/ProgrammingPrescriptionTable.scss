@@ -2,7 +2,7 @@
   $col-n-width: 5rem;
   $col-matrice-width: 12.5rem;
   $col-analyte-width: 18.75rem;
-  $col-prelevements-width: 12.5rem;
+  $col-prelevements-width: 13rem;
   $col-region-width: 4.375rem;
 
   border-left: 1px solid var(--border-contrast-grey);
@@ -152,6 +152,9 @@
   .fr-table th.border-left, .fr-table td.border-left {
     border-left: 1px solid var(--border-contrast-grey);
   }
+  .fr-table th.border-right, .fr-table td.border-right {
+    border-right: 1px solid var(--border-contrast-grey);
+  }
 
   tr td {
     border-bottom: 1px solid var(--border-contrast-grey);
@@ -224,7 +227,7 @@
     padding: 0.75rem 0.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 2rem;
     color: var(--text-mention-grey);
     font-size: 0.875rem;
   }

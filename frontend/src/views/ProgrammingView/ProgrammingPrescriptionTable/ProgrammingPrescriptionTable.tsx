@@ -40,14 +40,14 @@ const Colgroup = () => (
     <col style={{ width: '5rem' }} />
     <col style={{ width: '12.5rem' }} />
     <col style={{ width: '18.75rem' }} />
-    <col style={{ width: '12.5rem' }} />
+    <col style={{ width: '13rem' }} />
     {RegionList.map((region) => (
       <col key={`col-${region}`} style={{ width: '4.375rem' }} />
     ))}
   </colgroup>
 );
 
-const ProgrammingRegionalPrescriptionTable = ({
+const ProgrammingPrescriptionTable = ({
   programmingPlans,
   prescriptions,
   regionalPrescriptions,
@@ -150,13 +150,13 @@ const ProgrammingRegionalPrescriptionTable = ({
                 <th scope="col" className="border-left">
                   Analyte
                 </th>
-                <th scope="col" className="border-left">
+                <th scope="col" className="border-left border-right">
                   Prélèvements programmés
                 </th>
-                {RegionList.map((region) => (
+                {RegionList.map((region, regionIdx) => (
                   <th
                     scope="col"
-                    className="border-left"
+                    className={clsx({ 'border-left': regionIdx !== 0 })}
                     key={`header-${region}`}
                   >
                     <TableHeaderCell
@@ -170,13 +170,16 @@ const ProgrammingRegionalPrescriptionTable = ({
                 <td colSpan={3} className={cx('fr-text--bold')}>
                   Total prélèvements
                 </td>
-                <td className="border-left fr-text--bold">
+                <td className="border-left border-right fr-text--bold">
                   {sumBy(regionalPrescriptions, 'sampleCount')}
                 </td>
-                {RegionList.map((region) => (
+                {RegionList.map((region, regionIdx) => (
                   <td
                     key={`total-${region}`}
-                    className="border-left fr-text--bold"
+                    className={clsx(
+                      { 'border-left': regionIdx !== 0 },
+                      'fr-text--bold'
+                    )}
                   >
                     {sumBy(
                       regionalPrescriptions.filter((r) => r.region === region),
@@ -243,40 +246,45 @@ const ProgrammingRegionalPrescriptionTable = ({
                         className={clsx(
                           cx('fr-text--bold'),
                           'border-left',
+                          'border-right',
                           'sample-count'
                         )}
                       >
                         {total}
                       </td>
-                      {localPs.map((localPrescription) => (
-                        <td
-                          className="border-left"
-                          data-testid={`cell-${prescription.id}`}
-                          key={`cell-${prescription.id}-${localPrescription.region}`}
-                        >
-                          <DistributionCountCell
-                            programmingPlan={plan}
-                            prescription={prescription}
-                            localPrescription={localPrescription}
-                            isEditable={
-                              hasUserLocalPrescriptionPermission(
-                                plan,
-                                localPrescription
-                              )?.updateSampleCount
-                            }
-                            onChange={async (value) =>
-                              onChangeLocalPrescriptionCount(
-                                {
-                                  prescriptionId:
-                                    localPrescription.prescriptionId,
-                                  region: localPrescription.region
-                                },
-                                value
-                              )
-                            }
-                          />
-                        </td>
-                      ))}
+                      {localPs.map(
+                        (localPrescription, localPrescriptionIdx) => (
+                          <td
+                            className={clsx({
+                              'border-left': localPrescriptionIdx !== 0
+                            })}
+                            data-testid={`cell-${prescription.id}`}
+                            key={`cell-${prescription.id}-${localPrescription.region}`}
+                          >
+                            <DistributionCountCell
+                              programmingPlan={plan}
+                              prescription={prescription}
+                              localPrescription={localPrescription}
+                              isEditable={
+                                hasUserLocalPrescriptionPermission(
+                                  plan,
+                                  localPrescription
+                                )?.updateSampleCount
+                              }
+                              onChange={async (value) =>
+                                onChangeLocalPrescriptionCount(
+                                  {
+                                    prescriptionId:
+                                      localPrescription.prescriptionId,
+                                    region: localPrescription.region
+                                  },
+                                  value
+                                )
+                              }
+                            />
+                          </td>
+                        )
+                      )}
                     </tr>
                     {isExpanded && (
                       <tr>
@@ -284,27 +292,30 @@ const ProgrammingRegionalPrescriptionTable = ({
                           <div className="prescription-expanded-content">
                             {prescription.notes && (
                               <div>
-                                <span
-                                  className={cx(
-                                    'fr-icon-chat-quote-line',
-                                    'fr-pr-1w'
-                                  )}
-                                />
+                                <div className="d-flex-align-center">
+                                  <span
+                                    className={cx(
+                                      'fr-icon-chat-quote-line',
+                                      'fr-pr-1v'
+                                    )}
+                                  />
+                                  <b>Notes</b>
+                                </div>
                                 {prescription.notes}
                               </div>
                             )}
                             {prescription.programmingInstruction && (
                               <div>
-                                <span
-                                  className={cx(
-                                    'fr-icon-draft-line',
-                                    'fr-pr-1w'
-                                  )}
-                                />
-                                <em>
-                                  Consignes :{' '}
-                                  {prescription.programmingInstruction}
-                                </em>
+                                <div className="d-flex-align-center">
+                                  <span
+                                    className={cx(
+                                      'fr-icon-chat-quote-line',
+                                      'fr-pr-1v'
+                                    )}
+                                  />
+                                  <b>Consignes</b>
+                                </div>
+                                {prescription.programmingInstruction}
                               </div>
                             )}
                           </div>
@@ -326,4 +337,4 @@ const ProgrammingRegionalPrescriptionTable = ({
   );
 };
 
-export default ProgrammingRegionalPrescriptionTable;
+export default ProgrammingPrescriptionTable;
