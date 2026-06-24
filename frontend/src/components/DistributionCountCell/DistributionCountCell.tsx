@@ -1,11 +1,7 @@
-import Button from '@codegouvfr/react-dsfr/Button';
 import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import EditableNumberCell from 'src/components/EditableNumberCell/EditableNumberCell';
-import { useAppDispatch } from 'src/hooks/useStore';
-import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import { assert, type Equals } from 'tsafe';
 import './DistributionCountCell.scss';
 
