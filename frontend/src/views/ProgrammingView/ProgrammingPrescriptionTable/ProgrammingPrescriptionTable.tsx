@@ -18,7 +18,7 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
 import TableHeaderCell from 'src/components/TableHeaderCell/TableHeaderCell';
 import { useAuthentication } from '../../../hooks/useAuthentication';
-import './ProgrammingRegionalPrescriptionTable.scss';
+import './ProgrammingPrescriptionTable.scss';
 
 interface Props {
   programmingPlans: ProgrammingPlanChecked[];

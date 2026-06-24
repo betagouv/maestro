@@ -28,7 +28,6 @@ const DistributionCountCell = ({
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
-  const dispatch = useAppDispatch();
 
   return (
     <EditableNumberCell
@@ -39,45 +38,7 @@ const DistributionCountCell = ({
       defaultContent={
         <div className="sample-count-container">
           <div className="sample-count">
-            <div>
-              {localPrescription.sampleCount}
-              {(localPrescription.comments ?? []).length > 0 && (
-                <Button
-                  title="Consulter les commentaires"
-                  iconId="fr-icon-question-answer-fill"
-                  size="small"
-                  priority="tertiary no outline"
-                  className="comments-button"
-                  onClick={() =>
-                    dispatch(
-                      prescriptionsSlice.actions.setPrescriptionCommentsData({
-                        viewBy: 'Prescription',
-                        programmingPlan,
-                        prescription,
-                        currentRegion: localPrescription.region,
-                        regionalCommentsList: [localPrescription].map(
-                          (rcp) => ({
-                            region: rcp.region,
-                            department: rcp.department,
-                            comments: rcp.comments ?? []
-                          })
-                        )
-                      })
-                    )
-                  }
-                ></Button>
-              )}
-            </div>
-            {programmingPlan.regionalStatus.some(
-              (_) =>
-                _.region === localPrescription.region &&
-                _.status === 'Validated'
-            ) && (
-              <>
-                <div>{localPrescription.realizedSampleCount}</div>
-                <CompletionBadge localPrescriptions={localPrescription} />
-              </>
-            )}
+            <div>{localPrescription.sampleCount}</div>
           </div>
         </div>
       }
