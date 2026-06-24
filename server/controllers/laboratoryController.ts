@@ -8,6 +8,7 @@ import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
+import { importPublicKey } from '../services/gpgService';
 
 export const laboratoriesRouter = {
   '/laboratories/agreements': {
@@ -107,7 +108,23 @@ export const laboratoriesRouter = {
     put: async ({ body }, { laboratoryId }) => {
       console.info('Update laboratory config', laboratoryId);
 
+      const previousConfig =
+        await laboratoryRepository.findUnique(laboratoryId);
+
       await laboratoryRepository.updateConfig(laboratoryId, body);
+
+      const previousCommunication = previousConfig?.sacha?.communication;
+      const previousGpgPublicKey =
+        previousCommunication?.method === 'EMAIL'
+          ? previousCommunication.gpgPublicKey
+          : null;
+
+      if (
+        body.sacha?.communication?.method === 'EMAIL' &&
+        body.sacha.communication.gpgPublicKey !== previousGpgPublicKey
+      ) {
+        await importPublicKey(body.sacha.communication.gpgPublicKey);
+      }
 
       return { status: HttpStatus.OK };
     }
