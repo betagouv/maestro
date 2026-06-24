@@ -44,7 +44,7 @@ import type {
   ProgrammingSubPlan,
   ProgrammingSubPlanId
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import YearSelector from './YearSelector/YearSelector';
+import YearSelector from '../../components/YearSelector/YearSelector';
 
 const agreementsModal = createModal({
   id: 'laboratory-agreements-modal',

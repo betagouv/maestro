@@ -1,6 +1,5 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { isEmpty, isNil, mapValues, max, omitBy } from 'lodash-es';
@@ -8,16 +7,16 @@ import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router';
-import programmation from '../../assets/illustrations/programmation-white.svg';
+import programmation from '../../assets/illustrations/programmation.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
 import PrescriptionCommentsModal from '../../components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
+import YearSelector from '../../components/YearSelector/YearSelector';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { usePrescriptionFilters } from '../../hooks/usePrescriptionFilters';
@@ -140,60 +139,43 @@ const ProgrammingView = () => {
     <>
       <AppToast open={isCommentSuccess} description="Commentaire ajouté" />
       <section className={clsx('main-section')}>
-        <div className={clsx('green-container')}>
-          <div className={cx('fr-container')}>
-            <SectionHeader
-              title={
-                <>
-                  Programmation{' '}
-                  {prescriptionFilters.domain &&
-                    ProgrammingPlanDomainLabels[
-                      prescriptionFilters.domain
-                    ].toLowerCase()}
-                </>
-              }
-              subtitle={`${region ? Regions[region]?.name : ''}${user?.department ? ` - ${DepartmentLabels[user?.department]}` : ''}`}
-              illustration={programmation}
-              action={
-                <SegmentedControl
-                  hideLegend
-                  legend="Année"
-                  segments={
-                    yearOptions(prescriptionFilters).map((year) => ({
-                      label: year,
-                      nativeInputProps: {
-                        checked: year === prescriptionFilters.year,
-                        onChange: () =>
-                          changeFilter({
-                            year
-                          })
-                      }
-                    })) as any
-                  }
-                />
-              }
-            />
-            {programmingPlan && (
-              <ProgrammingInstructions programmingPlan={programmingPlan} />
-            )}
-            <div
-              className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}
-            >
-              <div className="d-flex-align-start">
-                <div className={clsx('flex-grow-1')}>
-                  <ProgrammingPrescriptionFilters
-                    options={{
-                      plans: programmingPlanOptions(prescriptionFilters),
-                      programmingSubPlanIds:
-                        programmingSubPlanOptions(prescriptionFilters),
-                      contexts: contextOptions(prescriptionFilters)
-                    }}
-                    filters={prescriptionFilters}
-                    onChange={changeFilter}
-                    renderMode="inline"
-                    multiSelect
+        <div className={cx('fr-container')}>
+          <SectionHeader
+            title={
+              <div className="d-flex-align-center">
+                Programmation{' '}
+                {yearOptions(prescriptionFilters).length <= 1 ? (
+                  prescriptionFilters.year
+                ) : (
+                  <YearSelector
+                    year={prescriptionFilters.year ?? 0}
+                    years={yearOptions(prescriptionFilters)}
+                    onChange={(year) => changeFilter({ year })}
                   />
-                </div>
+                )}
+              </div>
+            }
+            subtitle={`${region ? Regions[region]?.name : ''}${user?.department ? ` - ${DepartmentLabels[user?.department]}` : ''}`}
+            illustration={programmation}
+          />
+          {programmingPlan && (
+            <ProgrammingInstructions programmingPlan={programmingPlan} />
+          )}
+          <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
+            <div className="d-flex-align-start">
+              <div className={clsx('flex-grow-1')}>
+                <ProgrammingPrescriptionFilters
+                  options={{
+                    plans: programmingPlanOptions(prescriptionFilters),
+                    programmingSubPlanIds:
+                      programmingSubPlanOptions(prescriptionFilters),
+                    contexts: contextOptions(prescriptionFilters)
+                  }}
+                  filters={prescriptionFilters}
+                  onChange={changeFilter}
+                  renderMode="inline"
+                  multiSelect
+                />
               </div>
             </div>
           </div>
