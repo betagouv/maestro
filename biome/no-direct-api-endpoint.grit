@@ -1,0 +1,7 @@
+`$obj.apiEndpoint` where {
+  $filename <: r".*frontend/.*",
+  ! $filename <: r".*frontend/src/utils/fetchUtils\.ts$",
+  ! $filename <: r".*frontend/src/services/api\.service\.ts$",
+  ! $filename <: r".*\.test\.tsx?$",
+  register_diagnostic(span=$obj, message="Use getApiUrl() from utils/fetchUtils instead of building URLs from config.apiEndpoint directly.", severity=`error`)
+}
