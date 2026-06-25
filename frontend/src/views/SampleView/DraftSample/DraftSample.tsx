@@ -58,6 +58,17 @@ const SampleView = ({ sample }: Props) => {
   return (
     <>
       <section className={clsx(cx('fr-container'), 'main-section')}>
+        {canEdit && !isEditing && (
+          <div className={clsx('align-right')}>
+            <Button
+              iconId="fr-icon-edit-line"
+              priority="secondary"
+              onClick={editConfirmModal.open}
+            >
+              Modifier le prélèvement
+            </Button>
+          </div>
+        )}
         <div
           className={clsx(
             cx('fr-pt-3w', 'fr-pt-md-4w', 'fr-pb-6w'),
@@ -98,17 +109,6 @@ const SampleView = ({ sample }: Props) => {
             <SendingStep sample={sample as SampleChecked} />
           )}
         </div>
-        {canEdit && !isEditing && (
-          <div className={clsx(cx('fr-mb-2w'))}>
-            <Button
-              iconId="fr-icon-edit-line"
-              priority="secondary"
-              onClick={editConfirmModal.open}
-            >
-              Modifier le prélèvement
-            </Button>
-          </div>
-        )}
       </section>
       <editConfirmModal.Component
         title="Modifier le prélèvement"
