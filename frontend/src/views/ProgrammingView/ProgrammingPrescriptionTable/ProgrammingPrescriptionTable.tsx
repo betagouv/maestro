@@ -19,7 +19,6 @@ import DistributionCountCell from 'src/components/DistributionCountCell/Distribu
 import TableHeaderCell from 'src/components/TableHeaderCell/TableHeaderCell';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import './ProgrammingPrescriptionTable.scss';
-import Badge from '@codegouvfr/react-dsfr/Badge';
 import PrescriptionSubstances from '../../../components/Prescription/PrescriptionSubstances/PrescriptionSubstances';
 import { pluralize } from '../../../utils/stringUtils';
 
