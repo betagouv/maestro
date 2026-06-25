@@ -61,6 +61,12 @@
       height: 1px;
     }
   }
+  col.col-n            { width: $col-n-width; }
+  col.col-matrice      { width: $col-matrice-width; }
+  col.col-analyte      { width: $col-analyte-width; }
+  col.col-prelevements { width: $col-prelevements-width; }
+  col.col-region       { width: $col-region-width; }
+
   .fr-table table {
     max-height: unset;
     overflow: visible;

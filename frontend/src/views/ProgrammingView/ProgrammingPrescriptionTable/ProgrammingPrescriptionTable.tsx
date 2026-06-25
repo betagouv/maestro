@@ -34,12 +34,12 @@ interface Props {
 
 const Colgroup = () => (
   <colgroup>
-    <col style={{ width: '5rem' }} />
-    <col style={{ width: '12.5rem' }} />
-    <col style={{ width: '18.75rem' }} />
-    <col style={{ width: '13rem' }} />
+    <col className="col-n" />
+    <col className="col-matrice" />
+    <col className="col-analyte" />
+    <col className="col-prelevements" />
     {RegionList.map((region) => (
-      <col key={`col-${region}`} style={{ width: '4.375rem' }} />
+      <col key={`col-${region}`} className="col-region" />
     ))}
   </colgroup>
 );
