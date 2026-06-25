@@ -157,7 +157,10 @@ const ProgrammingPrescriptionTable = ({
                 {RegionList.map((region, regionIdx) => (
                   <th
                     scope="col"
-                    className={clsx({ 'border-left': regionIdx !== 0 })}
+                    className={clsx(
+                      { 'border-left': regionIdx !== 0 },
+                      cx('fr-p-1w')
+                    )}
                     key={`header-${region}`}
                   >
                     <TableHeaderCell
@@ -171,7 +174,13 @@ const ProgrammingPrescriptionTable = ({
                 <td colSpan={3} className={cx('fr-text--bold')}>
                   Total prélèvements
                 </td>
-                <td className="border-left border-right fr-text--bold">
+                <td
+                  className={clsx(
+                    cx('fr-text--bold'),
+                    'border-left',
+                    'border-right'
+                  )}
+                >
                   {pluralize(sumBy(regionalPrescriptions, 'sampleCount'), {
                     preserveCount: true
                   })('prélèvement')}
@@ -180,8 +189,9 @@ const ProgrammingPrescriptionTable = ({
                   <td
                     key={`total-${region}`}
                     className={clsx(
+                      cx('fr-text--bold'),
                       { 'border-left': regionIdx !== 0 },
-                      'fr-text--bold'
+                      'align-center'
                     )}
                   >
                     {sumBy(
@@ -201,10 +211,7 @@ const ProgrammingPrescriptionTable = ({
         const plan = getPlan(prescription);
         const localPrescriptions = getLocalPrescriptions(prescription.id);
         const totalSampleCount = sumBy(localPrescriptions, 'sampleCount');
-        const totalRealizedSampleCount = sumBy(
-          localPrescriptions,
-          'realizedSampleCount'
-        );
+
         const isExpanded = expandedIds.has(prescription.id);
 
         return (
@@ -261,37 +268,37 @@ const ProgrammingPrescriptionTable = ({
                             preserveCount: true
                           })('prélèvement')}
                         </div>
-                        <Badge
-                          small={true}
-                          noIcon
-                          severity={
-                            totalSampleCount === totalRealizedSampleCount
-                              ? 'success'
-                              : 'warning'
-                          }
-                          className={'fr-px-1v'}
-                        >
-                          {totalSampleCount < totalRealizedSampleCount && (
-                            <span
-                              className={cx(
-                                'fr-icon-arrow-right-up-line',
-                                'fr-pr-1v'
-                              )}
-                            />
-                          )}
-                          {totalSampleCount > totalRealizedSampleCount && (
-                            <span
-                              className={cx(
-                                'fr-icon--sm',
-                                'fr-icon-arrow-right-down-line',
-                                'fr-pr-1v'
-                              )}
-                            />
-                          )}
-                          {pluralize(totalRealizedSampleCount, {
-                            preserveCount: true
-                          })('attribué')}
-                        </Badge>
+                        {/*<Badge*/}
+                        {/*  small={true}*/}
+                        {/*  noIcon*/}
+                        {/*  severity={*/}
+                        {/*    totalSampleCount === totalRealizedSampleCount*/}
+                        {/*      ? 'success'*/}
+                        {/*      : 'warning'*/}
+                        {/*  }*/}
+                        {/*  className={'fr-px-1v'}*/}
+                        {/*>*/}
+                        {/*  {totalSampleCount < totalRealizedSampleCount && (*/}
+                        {/*    <span*/}
+                        {/*      className={cx(*/}
+                        {/*        'fr-icon-arrow-right-up-line',*/}
+                        {/*        'fr-pr-1v'*/}
+                        {/*      )}*/}
+                        {/*    />*/}
+                        {/*  )}*/}
+                        {/*  {totalSampleCount > totalRealizedSampleCount && (*/}
+                        {/*    <span*/}
+                        {/*      className={cx(*/}
+                        {/*        'fr-icon--sm',*/}
+                        {/*        'fr-icon-arrow-right-down-line',*/}
+                        {/*        'fr-pr-1v'*/}
+                        {/*      )}*/}
+                        {/*    />*/}
+                        {/*  )}*/}
+                        {/*  {pluralize(totalRealizedSampleCount, {*/}
+                        {/*    preserveCount: true*/}
+                        {/*  })('attribué')}*/}
+                        {/*</Badge>*/}
                       </td>
                       {localPrescriptions.map(
                         (localPrescription, localPrescriptionIdx) => (

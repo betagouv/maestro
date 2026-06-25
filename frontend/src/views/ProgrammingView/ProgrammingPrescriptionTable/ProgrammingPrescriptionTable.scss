@@ -132,6 +132,9 @@
   .fr-table th.border-right, .fr-table td.border-right {
     border-right: 1px solid var(--border-contrast-grey);
   }
+  .fr-table th.align-center, .fr-table td.align-center {
+    text-align: center;
+  }
 
   tr td {
     border-bottom: 1px solid var(--border-contrast-grey);
