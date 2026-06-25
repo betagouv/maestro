@@ -79,6 +79,11 @@ const ProgrammingPrescriptionTable = ({
     const inner = stickyInnerRef.current;
     if (!header || !sticky || !inner) return;
 
+    // Maintient la largeur du div intérieur de la barre de scroll sticky égale
+    // à la largeur réelle de la table, pour que la scrollbar soit proportionnelle.
+    // On observe à la fois le wrapper header et la table elle-même car l'un peut
+    // changer sans que l'autre déclenche un événement (ex: resize viewport vs
+    // ajout de colonnes).
     const updateWidth = () => {
       inner.style.width = `${header.scrollWidth}px`;
     };
@@ -87,6 +92,7 @@ const ProgrammingPrescriptionTable = ({
     const tableEl = header.querySelector('table');
     if (tableEl) ro.observe(tableEl);
 
+    // Synchronise le scroll horizontal entre le header, les lignes et la barre sticky.
     const onHeaderScroll = () => sync(header);
     const onStickyScroll = () => sync(sticky);
     header.addEventListener('scroll', onHeaderScroll, { passive: true });
