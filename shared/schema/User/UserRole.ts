@@ -165,7 +165,16 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'manageLaboratoryAgreements'
   ],
   LaboratoryUser: ['readDocuments', 'readProgrammingPlanValidated'],
-  LaboratoryOffice: ['manageLaboratoryAgreements']
+  LaboratoryOffice: [
+    'readPrescriptions',
+    'readProgrammingPlansInProgress',
+    'readProgrammingPlanSubmittedToRegion',
+    'readProgrammingPlanApprovedByRegion',
+    'readProgrammingPlanSubmittedToDepartments',
+    'readProgrammingPlanValidated',
+    'readProgrammingPlanClosed',
+    'manageLaboratoryAgreements'
+  ]
 };
 
 export const UserRoleLabels: Record<UserRole, string> = {

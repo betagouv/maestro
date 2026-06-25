@@ -43,7 +43,11 @@ export const buildFindProgrammingPlanOptions = (
     ? findOptions.status
     : ProgrammingPlanStatusList;
 
-  const isUnrestricted = ['Administrator', 'LaboratoryUser'].includes(userRole);
+  const isUnrestricted = [
+    'Administrator',
+    'LaboratoryUser',
+    'LaboratoryOffice'
+  ].includes(userRole);
 
   const subPlanIds = isUnrestricted
     ? (findOptions.subPlanIds ?? null)
