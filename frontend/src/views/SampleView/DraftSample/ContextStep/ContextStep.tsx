@@ -462,7 +462,7 @@ const ContextStep = ({ partialSample }: Props) => {
           <div className={cx('fr-col-12')}>
             <div className={clsx('d-flex-align-start')}>
               <AppSelect
-                defaultValue={partialSample?.sampler?.id || ''}
+                value={sampler?.id || ''}
                 options={samplersOptions(samplers, user?.id)}
                 onChange={(e) =>
                   setSampler(
@@ -475,6 +475,7 @@ const ContextStep = ({ partialSample }: Props) => {
                 label="Le préleveur"
                 hint="La personne qui réalise le prélevement"
                 required
+                disabled={readonly}
                 className={clsx('flex-grow-1')}
               />
               {!showAdditionalSampler && !readonly && (

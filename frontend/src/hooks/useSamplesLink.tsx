@@ -18,8 +18,19 @@ export const useSamplesLink = () => {
   );
 
   const navigateToSample = (sampleId: string, step?: number) => {
-    const search = !step ? location.search : undefined;
-    navigate(`${sampleLink(sampleId, step)}${search ?? ''}`);
+    const currentParams = new URLSearchParams(location.search);
+    const isEditing = currentParams.get('isEditing');
+    const newParams = new URLSearchParams();
+    if (step) {
+      newParams.set('etape', String(step));
+    }
+    if (isEditing) {
+      newParams.set('isEditing', isEditing);
+    }
+    const queryString = newParams.toString();
+    navigate(
+      `${AuthenticatedAppRoutes.SampleRoute.link(sampleId)}${queryString ? `?${queryString}` : ''}`
+    );
   };
 
   const navigateToSampleEdit = (sampleId: string) => {
