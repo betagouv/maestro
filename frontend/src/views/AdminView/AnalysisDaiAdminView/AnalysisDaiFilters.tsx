@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { AnalysisDaiState } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiState';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
+import LaboratorySelect from 'src/components/LaboratorySelect/LaboratorySelect';
 import type { Filters } from './AnalysisDaiAdminView';
 
 const daiStateLabels: Record<AnalysisDaiState, string> = {
@@ -113,29 +114,13 @@ export const AnalysisDaiFilters = ({
         </div>
 
         <div className={cx('fr-col-12', 'fr-col-md-3')}>
-          <Select
-            label="Laboratoire"
-            nativeSelectProps={{
-              value: '',
-              onChange: (e) => {
-                if (e.target.value)
-                  addToArrayFilter('laboratoryIds', e.target.value);
-              }
+          <LaboratorySelect
+            programmingPlanId={undefined}
+            laboratoryIds={filters.laboratoryIds}
+            onSelect={(laboratoryId) => {
+              if (laboratoryId) addToArrayFilter('laboratoryIds', laboratoryId);
             }}
-          >
-            <option value="">
-              {filters.laboratoryIds.length > 0
-                ? `${filters.laboratoryIds.length} sélectionné(s)`
-                : 'Tous'}
-            </option>
-            {laboratories
-              .filter((lab) => !filters.laboratoryIds.includes(lab.id))
-              .map((lab) => (
-                <option key={lab.id} value={lab.id}>
-                  {lab.name}
-                </option>
-              ))}
-          </Select>
+          />
         </div>
 
         <div className={cx('fr-col-12', 'fr-col-md-3')}>

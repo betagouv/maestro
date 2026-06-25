@@ -8,6 +8,7 @@ import {
   AnalysisRaiState
 } from 'maestro-shared/schema/AnalysisRai/AnalysisRai';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import LaboratorySelect from 'src/components/LaboratorySelect/LaboratorySelect';
 import type { Filters } from './AnalysisRaiAdminView';
 
 const raiStateLabels: Record<AnalysisRaiState, string> = {
@@ -101,28 +102,13 @@ export const AnalysisRaiFilters = ({
         </div>
 
         <div className={cx('fr-col-12', 'fr-col-md-3')}>
-          <Select
-            label="Laboratoire"
-            nativeSelectProps={{
-              value: '',
-              onChange: (e) => {
-                if (e.target.value) addToLaboratoryIds(e.target.value);
-              }
+          <LaboratorySelect
+            programmingPlanId={undefined}
+            laboratoryIds={filters.laboratoryIds}
+            onSelect={(laboratoryId) => {
+              if (laboratoryId) addToLaboratoryIds(laboratoryId);
             }}
-          >
-            <option value="">
-              {filters.laboratoryIds.length > 0
-                ? `${filters.laboratoryIds.length} sélectionné(s)`
-                : 'Tous'}
-            </option>
-            {laboratories
-              .filter((lab) => !filters.laboratoryIds.includes(lab.id))
-              .map((lab) => (
-                <option key={lab.id} value={lab.id}>
-                  {lab.name}
-                </option>
-              ))}
-          </Select>
+          />
         </div>
 
         <div className={cx('fr-col-12', 'fr-col-md-3')}>

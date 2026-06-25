@@ -1,13 +1,21 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Select from '@codegouvfr/react-dsfr/Select';
+import {
+  Autocomplete,
+  type AutocompleteRenderInputParams,
+  Box
+} from '@mui/material';
 import { sortBy } from 'lodash-es';
+import {
+  getLaboratoryFullName,
+  type Laboratory
+} from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { toArray } from 'maestro-shared/utils/utils';
-import { useContext } from 'react';
+import { type HTMLAttributes, type Key, useContext } from 'react';
 import { ApiClientContext } from '../../services/apiClient';
 
-interface Props {
+type Props = {
   programmingPlanId: string | undefined;
   programmingSubPlanId?: ProgrammingSubPlanId;
   substanceKind?: SubstanceKind;
@@ -15,8 +23,41 @@ interface Props {
   laboratoryIds?: string[];
   onSelect: (laboratoryId?: string) => void;
   readonly?: boolean;
-  withAllOption?: boolean;
-}
+};
+
+const renderLaboratoryOption = (
+  optionProps: HTMLAttributes<HTMLLIElement> & { key?: Key },
+  option: Laboratory
+) => {
+  const { key, ...otherProps } = optionProps;
+  return (
+    <Box key={key} {...otherProps} component="li">
+      <div>
+        <div>
+          <span className={cx('fr-text--bold')}>{option.shortName}</span> •{' '}
+          {option.name}
+        </div>
+        <div className={cx('fr-text--sm', 'fr-m-0')}>
+          {option.postalCode} {option.city}
+        </div>
+      </div>
+    </Box>
+  );
+};
+
+const renderLaboratoryInput = ({
+  slotProps
+}: AutocompleteRenderInputParams) => (
+  <div ref={slotProps.input.ref}>
+    <input
+      {...slotProps.htmlInput}
+      className="fr-input"
+      type="text"
+      placeholder="Rechercher un laboratoire"
+      data-testid="laboratorySelect-input"
+    />
+  </div>
+);
 
 const LaboratorySelect = ({
   programmingPlanId,
@@ -25,8 +66,7 @@ const LaboratorySelect = ({
   laboratoryId,
   laboratoryIds,
   onSelect,
-  readonly,
-  withAllOption
+  readonly
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
 
@@ -36,38 +76,34 @@ const LaboratorySelect = ({
     substanceKind
   });
 
-  const isMulti = laboratoryIds !== undefined;
+  const options = sortBy(laboratories ?? [], 'name').filter(
+    (lab) => !laboratoryIds?.includes(lab.id)
+  );
+
+  const selectedLaboratory =
+    laboratories?.find((lab) => lab.id === laboratoryId) ?? null;
 
   return (
-    <Select
-      label="Laboratoire"
-      nativeSelectProps={{
-        value: isMulti ? '' : (laboratoryId ?? ''),
-        autoFocus: true,
-        onChange: (e) => onSelect(e.target.value || undefined)
-      }}
-      className={cx('fr-mb-0')}
-      disabled={readonly}
-    >
-      {(withAllOption ?? false) ? (
-        <option value="">
-          {isMulti && laboratoryIds.length > 0
-            ? `${laboratoryIds.length} laboratoire(s)`
-            : 'Tous'}
-        </option>
-      ) : (
-        <option value="" disabled>
-          Sélectionner un laboratoire
-        </option>
-      )}
-      {sortBy(laboratories ?? [], 'name')
-        .filter((lab) => !laboratoryIds?.includes(lab.id))
-        .map((laboratory) => (
-          <option key={laboratory.id} value={laboratory.id}>
-            {laboratory.name}
-          </option>
-        ))}
-    </Select>
+    <div className={cx('fr-input-group', 'fr-mb-0')}>
+      {/** biome-ignore lint/a11y/noLabelWithoutControl: libellé associé à l'input rendu par renderInput */}
+      <label className={cx('fr-label')}>Laboratoire</label>
+      <div className="fr-input-wrap fr-icon-search-line">
+        <Autocomplete
+          autoComplete
+          includeInputInList
+          blurOnSelect
+          options={options}
+          value={selectedLaboratory}
+          getOptionLabel={getLaboratoryFullName}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          disabled={readonly}
+          renderOption={renderLaboratoryOption}
+          onChange={(_, value) => onSelect(value?.id ?? undefined)}
+          renderInput={renderLaboratoryInput}
+          noOptionsText="Aucun laboratoire"
+        />
+      </div>
+    </div>
   );
 };
 
