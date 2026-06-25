@@ -186,8 +186,9 @@ export const RegionalCoordinatorView: Story = {
         el.textContent?.toLowerCase().includes('%')
       )
     ).toHaveLength(
-      (Regions[RegionalCoordinator.region].departments.length + 1) *
-        (prescriptions.length + 1)
+      Regions[RegionalCoordinator.region].departments.length +
+        1 +
+        prescriptions.length
     );
     await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
   }
