@@ -301,8 +301,8 @@ const Header = () => {
                       target: '_self'
                     },
                     text: 'Agréments laboratoires',
-                    isActive: location.pathname.startsWith(
-                      '/laboratoires/agrements'
+                    isActive: !!routeMatch(
+                      AuthenticatedAppRoutes.LaboratoryAgreementsRoute.path
                     )
                   }
                 : undefined,
