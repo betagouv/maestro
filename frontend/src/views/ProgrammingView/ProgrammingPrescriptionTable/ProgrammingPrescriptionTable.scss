@@ -1,4 +1,4 @@
-.programming-regional-table {
+.programming-table {
   $col-n-width: 5.25rem;
   $col-matrice-width: 12.5rem;
   $col-analyte-width: 18.75rem;
@@ -87,7 +87,7 @@
   }
 
   thead tr:nth-child(1) {
-    th:nth-child(1) { min-width: $col-n-width; max-width: $col-n-width; }
+    th:nth-child(1) { min-width: $col-n-width; max-width: $col-n-width; padding-right: 0; }
     th:nth-child(2) { min-width: $col-matrice-width; max-width: $col-matrice-width; }
     th:nth-child(3) { min-width: $col-analyte-width; max-width: $col-analyte-width; }
     th:nth-child(4) { min-width: $col-prelevements-width; max-width: $col-prelevements-width; }
@@ -109,7 +109,7 @@
     }
   }
   tbody tr {
-    td:nth-child(1) { min-width: $col-n-width; max-width: $col-n-width; }
+    td:nth-child(1) { min-width: $col-n-width; max-width: $col-n-width; padding-right: 0; }
     td:nth-child(2) { min-width: $col-matrice-width; max-width: $col-matrice-width; }
     td:nth-child(3) { min-width: $col-analyte-width; max-width: $col-analyte-width; }
     td:nth-child(4) { min-width: $col-prelevements-width; max-width: $col-prelevements-width; }
