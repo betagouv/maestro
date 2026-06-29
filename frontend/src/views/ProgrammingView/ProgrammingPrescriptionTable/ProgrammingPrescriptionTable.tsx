@@ -126,10 +126,7 @@ const ProgrammingPrescriptionTable = ({
   }
 
   return (
-    <div
-      data-testid="prescription-table"
-      className="programming-regional-table"
-    >
+    <div data-testid="prescription-table" className="programming-table">
       {/* Header sticky — hors du wrapper scroll */}
       <div className="header-wrapper" ref={headerWrapperRef}>
         <div
