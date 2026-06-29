@@ -294,6 +294,18 @@ const Header = () => {
                     ])
                   }
                 : undefined,
+              availableRoutes.includes('LaboratoryAgreementsRoute')
+                ? {
+                    linkProps: {
+                      to: AuthenticatedAppRoutes.LaboratoryAgreementsRoute.link(),
+                      target: '_self'
+                    },
+                    text: 'Agréments laboratoires',
+                    isActive: !!routeMatch(
+                      AuthenticatedAppRoutes.LaboratoryAgreementsRoute.path
+                    )
+                  }
+                : undefined,
               {
                 linkProps: {
                   to: AuthenticatedAppRoutes.DocumentsRoute.link(),
@@ -344,18 +356,6 @@ const Header = () => {
                     isActive: !!routeMatch(
                       AuthenticatedAppRoutes
                         .LaboratoryAnalyticalCompetencesRoute.path
-                    )
-                  }
-                : undefined,
-              availableRoutes.includes('LaboratoryAgreementsRoute')
-                ? {
-                    linkProps: {
-                      to: AuthenticatedAppRoutes.LaboratoryAgreementsRoute.link(),
-                      target: '_self'
-                    },
-                    text: 'Agréments laboratoires',
-                    isActive: location.pathname.startsWith(
-                      '/laboratoires/agrements'
                     )
                   }
                 : undefined
