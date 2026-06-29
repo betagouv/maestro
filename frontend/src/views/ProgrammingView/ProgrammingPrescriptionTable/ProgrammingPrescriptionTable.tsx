@@ -220,7 +220,8 @@ const ProgrammingPrescriptionTable = ({
           className={clsx(
             'fr-table',
             'fr-table--bordered',
-            'fr-table--no-caption'
+            'fr-table--no-caption',
+            'fr-table--no-scroll'
           )}
         >
           <table>

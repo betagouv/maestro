@@ -40,6 +40,10 @@
       margin-top: 0;
       margin-bottom: 0;
 
+      .fr-table__wrapper::after {
+        background-image: none !important;
+      }
+
       tbody::after {
         background-image: none !important;
       }
