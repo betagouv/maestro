@@ -158,7 +158,9 @@ const ProgrammingPrescriptionTable = ({
                   Analyte
                 </th>
                 <th scope="col" className="border-left border-right">
-                  Prélèvements programmés
+                  Prélèvements
+                  <br />
+                  programmés
                 </th>
                 {RegionList.map((region, regionIdx) => (
                   <th
@@ -187,9 +189,7 @@ const ProgrammingPrescriptionTable = ({
                     'border-right'
                   )}
                 >
-                  {pluralize(sumBy(regionalPrescriptions, 'sampleCount'), {
-                    preserveCount: true
-                  })('prélèvement')}
+                  {sumBy(regionalPrescriptions, 'sampleCount')}
                 </td>
                 {RegionList.map((region, regionIdx) => (
                   <td
@@ -269,11 +269,7 @@ const ProgrammingPrescriptionTable = ({
                           .join(', ')}
                       </td>
                       <td className={clsx('border-left', 'border-right')}>
-                        <div>
-                          {pluralize(totalSampleCount, {
-                            preserveCount: true
-                          })('prélèvement')}
-                        </div>
+                        <div>{totalSampleCount}</div>
                         {/*<Badge*/}
                         {/*  small={true}*/}
                         {/*  noIcon*/}
