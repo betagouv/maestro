@@ -51,9 +51,11 @@ test('déduplique les entreprises identiques lors de la mise à jour', async () 
 });
 
 test("peut modifier le nom et le prénom d'un utilisateur", async () => {
-  const user1 = genUser({});
+  const user1 = genUser({
+    roles: ['Administrator']
+  });
   const user2 = genUser({
-    programmingSubPlans: []
+    roles: ['Administrator']
   });
 
   await userRepository.insert(user1);
@@ -99,6 +101,25 @@ test('peut ajouter une entreprise à un utilisateur', async () => {
   expect(user1InDb?.companies?.[0]?.siret).toEqual(
     SlaughterhouseCompanyFixture1.siret
   );
+});
+
+test('ne retourne par défaut que les utilisateurs non désactivés', async () => {
+  const enabledUser = genUser({ disabled: false });
+  const disabledUser = genUser({ disabled: true });
+
+  await userRepository.insert(enabledUser);
+  await userRepository.insert(disabledUser);
+
+  const users = await userRepository.findMany({});
+
+  const emails = users.map((u) => u.email);
+  expect(emails).toContain(enabledUser.email);
+  expect(emails).not.toContain(disabledUser.email);
+
+  const disabledUsers = await userRepository.findMany({ disabled: true });
+  const disabledEmails = disabledUsers.map((u) => u.email);
+  expect(disabledEmails).toContain(disabledUser.email);
+  expect(disabledEmails).not.toContain(enabledUser.email);
 });
 
 test('peut ajouter et supprimer un logged secret', async () => {

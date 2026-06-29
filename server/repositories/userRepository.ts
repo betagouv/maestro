@@ -149,9 +149,7 @@ const findMany = async (
         }
         break;
       case 'disabled':
-        if (findOptions.disabled === false || findOptions.disabled === true) {
-          query = query.where('disabled', 'is', findOptions.disabled);
-        }
+        query = query.where('disabled', 'is', findOptions.disabled === true);
         break;
       default:
         assertUnreachable(option);
