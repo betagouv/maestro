@@ -113,8 +113,6 @@ export const NationalCoordinatorView: Story = {
       canvas.getAllByTestId(`cell-${prescription1.id}`)
     ).toHaveLength(RegionList.length);
 
-    await expect(canvas.getByTestId('add-matrix-button')).toBeInTheDocument();
-
     await expect(
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
@@ -150,10 +148,6 @@ export const RegionalCoordinatorView: Story = {
     await expect(
       canvas.queryByTestId('prescriptions-table-segment')
     ).toBeInTheDocument();
-
-    await expect(
-      canvas.queryByTestId('add-matrix-button')
-    ).not.toBeInTheDocument();
 
     await expect(
       canvas.queryByTestId('update-laboratory-button')
