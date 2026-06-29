@@ -56,6 +56,9 @@
     overflow-y: hidden;
     height: 16px;
     z-index: 10;
+    background-color: var(--background-default-grey);
+    margin-left: -1px;
+    margin-right: -1px;
 
     > div {
       height: 1px;
