@@ -73,6 +73,13 @@ export const sendSachaFile = async (
           'EMAIL'
         );
       }
+      if (!laboratory.sacha.communication.gpgEmail) {
+        throw new DaiProcessingError(
+          "La configuration EMAIL du laboratoire n'a pas de clé GPG",
+          true,
+          'EMAIL'
+        );
+      }
       const encryptFileName = `${zipFileName}.gpg`;
       const encryptFilePath = await encryptFile(
         zipFilePath,

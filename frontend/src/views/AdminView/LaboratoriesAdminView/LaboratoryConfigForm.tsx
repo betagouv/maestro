@@ -46,8 +46,12 @@ const buildSacha = (state: FormState): SachaConfig | null => {
       ? {
           method: 'EMAIL' as const,
           recipientEmail: state.sachaRecipientEmail,
-          gpgEmail: state.sachaGpgEmail,
-          gpgPublicKey: state.sachaGpgPublicKey
+          gpgEmail:
+            state.sachaGpgEmail.trim() === '' ? null : state.sachaGpgEmail,
+          gpgPublicKey:
+            state.sachaGpgPublicKey.trim() === ''
+              ? null
+              : state.sachaGpgPublicKey
         }
       : state.sachaMethod === 'SFTP'
         ? { method: 'SFTP' as const, sftpLogin: state.sachaSftpLogin }
@@ -84,11 +88,11 @@ const initialState = (lab: LaboratoryWithSacha): FormState => ({
       : '',
   sachaGpgEmail:
     lab.sacha?.communication?.method === 'EMAIL'
-      ? lab.sacha.communication.gpgEmail
+      ? (lab.sacha.communication.gpgEmail ?? '')
       : '',
   sachaGpgPublicKey:
     lab.sacha?.communication?.method === 'EMAIL'
-      ? lab.sacha.communication.gpgPublicKey
+      ? (lab.sacha.communication.gpgPublicKey ?? '')
       : '',
   sachaSftpLogin:
     lab.sacha?.communication?.method === 'SFTP'
@@ -260,7 +264,7 @@ export const LaboratoryConfigForm = ({ laboratory }: Props) => {
                   inputForm={form}
                   inputKey="sacha"
                   inputPathFromKey={['communication', 'gpgEmail']}
-                  required
+                  required={state.sachaActivated}
                 />
               </div>
               <div
@@ -276,7 +280,7 @@ export const LaboratoryConfigForm = ({ laboratory }: Props) => {
                   inputForm={form}
                   inputKey="sacha"
                   inputPathFromKey={['communication', 'gpgPublicKey']}
-                  required
+                  required={state.sachaActivated}
                 />
               </div>
             </>

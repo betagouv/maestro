@@ -121,6 +121,7 @@ export const laboratoriesRouter = {
 
       if (
         body.sacha?.communication?.method === 'EMAIL' &&
+        body.sacha.communication.gpgPublicKey &&
         body.sacha.communication.gpgPublicKey !== previousGpgPublicKey
       ) {
         await importPublicKey(body.sacha.communication.gpgPublicKey);

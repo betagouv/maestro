@@ -220,6 +220,25 @@ f2LgSfYvHNZbocMsQoVBhv3yF1i9/Hw=
         .expect(constants.HTTP_STATUS_OK);
     });
 
+    test('should accept a SACHA EMAIL config without GPG', async () => {
+      await request(app)
+        .put(testRoute(LaboratoryFixture.id))
+        .use(tokenProvider(AdminFixture))
+        .send({
+          ...baseBody,
+          legacyDai: false,
+          sacha: {
+            activated: true,
+            sigle: 'LAB1',
+            communication: {
+              method: 'EMAIL',
+              recipientEmail: 'sacha@lab.fr'
+            }
+          }
+        })
+        .expect(constants.HTTP_STATUS_OK);
+    });
+
     test('should accept a valid SACHA SFTP config', async () => {
       await request(app)
         .put(testRoute(LaboratoryFixture.id))

@@ -233,6 +233,7 @@ export const SampleDAOA1Fixture = genCreatedPartialSample({
     x: 46.642117,
     y: -0.734475
   },
+  reference: 'DAOA-85-24-001-A',
   specificData: {}
 });
 export const SampleDAOA2Fixture = genCreatedPartialSample({
@@ -246,5 +247,6 @@ export const SampleDAOA2Fixture = genCreatedPartialSample({
   geolocation: {
     x: 46.642117,
     y: -0.734475
-  }
+  },
+  reference: 'DAOA-85-24-002-A'
 });
