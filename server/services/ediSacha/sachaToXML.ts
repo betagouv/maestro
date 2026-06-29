@@ -3,6 +3,7 @@ import {
   type Department,
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
+import type { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
 import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { type ZodObject, z } from 'zod';
@@ -78,7 +79,7 @@ export const generateXML = async <T extends SachaFileType>(
   dateNow: number,
   department: Department,
   sachaConf: SachaConf,
-  laboratory: Pick<LaboratoryWithSacha, 'name' | 'sacha'>
+  laboratory: Pick<LaboratoryWithSacha, 'name' | 'shortName' | 'sacha'>
 ): Promise<XmlFile> => {
   const builder = new XMLBuilder({
     ignoreAttributes: false,
@@ -91,7 +92,18 @@ export const generateXML = async <T extends SachaFileType>(
 
   const conf = fileTypeConf[fileType];
 
-  const fileName: string = getXmlFileName(fileType, department, sigle, dateNow);
+  const withPrefix = hasSenderPrefix(laboratory.shortName);
+  const senderEmail = withPrefix
+    ? config.sigal.emailDdsvPrefix
+    : config.sigal.email;
+
+  const fileName: string = getXmlFileName(
+    fileType,
+    department,
+    sigle,
+    dateNow,
+    withPrefix
+  );
 
   const fullContent = z
     .object({
@@ -111,9 +123,9 @@ export const generateXML = async <T extends SachaFileType>(
         CodeReferentielPrescripteur: 'SIGAL'
       },
       Emetteur: {
-        Sigle: getSenderSachaSigle(department),
+        Sigle: getSenderSachaSigle(department, withPrefix),
         LibellePartenaire: `DDPP ${DepartmentLabels[department]}`,
-        EmailPartenaire: config.sigal.email
+        EmailPartenaire: senderEmail
       },
       Destinataire: {
         Sigle: sigle,
@@ -146,10 +158,11 @@ export const getXmlFileName = (
   fileType: SachaFileType,
   department: Department,
   sigle: string,
-  dateNow: number
+  dateNow: number,
+  withPrefix: boolean = true
 ): string => {
   const currentDate: string = formatWithTz(dateNow, 'yyMMddHHmmssSSS');
-  return `${fileType}${getSenderSachaSigle(department)}${sigle}${currentDate}`;
+  return `${fileType}${getSenderSachaSigle(department, withPrefix)}${sigle}${currentDate}`;
 };
 
 export const getZipFileName = (
@@ -166,3 +179,8 @@ export const getSenderSachaSigle = (
   department: Department,
   withPrefix: boolean = true
 ) => `${withPrefix ? 'M' : ''}DDSV${department}`;
+
+const SACHA_PREFIXED_LABORATORY_SHORT_NAMES: LaboratoryShortName[] = ['LDA 72'];
+
+const hasSenderPrefix = (shortName: LaboratoryShortName): boolean =>
+  SACHA_PREFIXED_LABORATORY_SHORT_NAMES.includes(shortName);

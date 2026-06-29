@@ -232,7 +232,7 @@ test(`génère un XML de DAI`, async () => {
       <Emetteur>
         <Sigle>MDDSV72</Sigle>
         <LibellePartenaire>DDPP Sarthe</LibellePartenaire>
-        <EmailPartenaire>contact@maestro.beta.gouv.fr</EmailPartenaire>
+        <EmailPartenaire>contact-ddsv@maestro.beta.gouv.fr</EmailPartenaire>
       </Emetteur>
       <Destinataire>
         <Sigle>LDA72</Sigle>
