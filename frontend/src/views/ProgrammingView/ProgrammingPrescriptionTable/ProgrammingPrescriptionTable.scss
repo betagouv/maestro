@@ -1,5 +1,5 @@
 .programming-regional-table {
-  $col-n-width: 5rem;
+  $col-n-width: 5.25rem;
   $col-matrice-width: 12.5rem;
   $col-analyte-width: 18.75rem;
   $col-prelevements-width: 8.75rem;
@@ -31,6 +31,7 @@
   .table-scroll-wrapper {
     overflow-x: auto;
     scrollbar-width: none;
+    container-type: inline-size;
     &::-webkit-scrollbar {
       display: none;
     }
@@ -199,7 +200,18 @@
     position: static;
   }
 
+  td.expanded-row-cell {
+    padding: 0 !important;
+    position: static !important;
+    background-color: transparent !important;
+    min-width: unset !important;
+    max-width: unset !important;
+    overflow: hidden;
+  }
+
   .prescription-expanded-content {
+    width: 100cqi;
+    transform: translateX(var(--scroll-left, 0px));
     padding: 1rem 2rem;
     display: flex;
     flex-direction: column;

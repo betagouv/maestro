@@ -20,7 +20,6 @@ import TableHeaderCell from 'src/components/TableHeaderCell/TableHeaderCell';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import './ProgrammingPrescriptionTable.scss';
 import PrescriptionSubstances from '../../../components/Prescription/PrescriptionSubstances/PrescriptionSubstances';
-import { pluralize } from '../../../utils/stringUtils';
 
 interface Props {
   programmingPlans: ProgrammingPlanChecked[];
@@ -54,18 +53,14 @@ const ProgrammingPrescriptionTable = ({
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const syncingRef = useRef(false);
   const headerWrapperRef = useRef<HTMLDivElement>(null);
-  const rowWrapperRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const bodyWrapperRef = useRef<HTMLDivElement>(null);
   const stickyScrollRef = useRef<HTMLDivElement>(null);
   const stickyInnerRef = useRef<HTMLDivElement>(null);
 
   const sync = (source: HTMLDivElement) => {
     if (syncingRef.current) return;
     syncingRef.current = true;
-    [
-      headerWrapperRef.current,
-      ...Array.from(rowWrapperRefs.current.values()),
-      stickyScrollRef.current
-    ]
+    [headerWrapperRef.current, bodyWrapperRef.current, stickyScrollRef.current]
       .filter((el): el is HTMLDivElement => !!el && el !== source)
       .forEach((el) => {
         el.scrollLeft = source.scrollLeft;
@@ -212,33 +207,33 @@ const ProgrammingPrescriptionTable = ({
         </div>
       </div>
 
-      {prescriptions.map((prescription) => {
-        const subPlan = getSubPlan(prescription);
-        const plan = getPlan(prescription);
-        const localPrescriptions = getLocalPrescriptions(prescription.id);
-        const totalSampleCount = sumBy(localPrescriptions, 'sampleCount');
+      <div
+        className="table-scroll-wrapper"
+        ref={bodyWrapperRef}
+        onScroll={(e) => {
+          const el = e.currentTarget;
+          el.style.setProperty('--scroll-left', `${el.scrollLeft}px`);
+          sync(el);
+        }}
+      >
+        <div
+          className={clsx(
+            'fr-table',
+            'fr-table--bordered',
+            'fr-table--no-caption'
+          )}
+        >
+          <table>
+            <Colgroup />
+            {prescriptions.map((prescription) => {
+              const subPlan = getSubPlan(prescription);
+              const plan = getPlan(prescription);
+              const localPrescriptions = getLocalPrescriptions(prescription.id);
+              const totalSampleCount = sumBy(localPrescriptions, 'sampleCount');
+              const isExpanded = expandedIds.has(prescription.id);
 
-        const isExpanded = expandedIds.has(prescription.id);
-
-        return (
-          <Fragment key={prescription.id}>
-            <div
-              className="table-scroll-wrapper"
-              ref={(el) => {
-                if (el) rowWrapperRefs.current.set(prescription.id, el);
-                else rowWrapperRefs.current.delete(prescription.id);
-              }}
-              onScroll={(e) => sync(e.currentTarget)}
-            >
-              <div
-                className={clsx(
-                  'fr-table',
-                  'fr-table--bordered',
-                  'fr-table--no-caption'
-                )}
-              >
-                <table>
-                  <Colgroup />
+              return (
+                <Fragment key={prescription.id}>
                   <tbody>
                     <tr>
                       <td>
@@ -337,49 +332,66 @@ const ProgrammingPrescriptionTable = ({
                       )}
                     </tr>
                   </tbody>
-                </table>
-              </div>
-            </div>
-            {isExpanded && (
-              <div className="prescription-expanded-content">
-                <div className={cx('fr-grid-row')}>
-                  <div className={cx('fr-col-3')}>
-                    <div className={cx('fr-mb-3w')}>
-                      <div className="d-flex-align-center">
-                        <span
-                          className={cx('fr-icon-chat-quote-line', 'fr-pr-1v')}
-                        />
-                        <b>Notes</b>
-                      </div>
-                      {prescription.notes ?? 'Aucune note'}
-                    </div>
-                    <div>
-                      <div className="d-flex-align-center">
-                        <span
-                          className={cx('fr-icon-chat-quote-line', 'fr-pr-1v')}
-                        />
-                        <b>Consignes</b>
-                      </div>
-                      {prescription.programmingInstruction ?? 'Aucune consigne'}
-                    </div>
-                  </div>
-                  <div className={cx('fr-col-3')}>
-                    <PrescriptionSubstances
-                      programmingPlan={
-                        programmingPlans.find(
-                          (p) => p.id === prescription.programmingPlanId
-                        ) ?? programmingPlans[0]
-                      }
-                      prescription={prescription}
-                      renderMode="inline"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-          </Fragment>
-        );
-      })}
+                  {isExpanded && (
+                    <tbody>
+                      <tr>
+                        <td
+                          colSpan={4 + RegionList.length}
+                          className="expanded-row-cell"
+                        >
+                          <div className="prescription-expanded-content">
+                            <div className={cx('fr-grid-row')}>
+                              <div className={cx('fr-col-3')}>
+                                <div className={cx('fr-mb-3w')}>
+                                  <div className="d-flex-align-center">
+                                    <span
+                                      className={cx(
+                                        'fr-icon-chat-quote-line',
+                                        'fr-pr-1v'
+                                      )}
+                                    />
+                                    <b>Notes</b>
+                                  </div>
+                                  {prescription.notes ?? 'Aucune note'}
+                                </div>
+                                <div>
+                                  <div className="d-flex-align-center">
+                                    <span
+                                      className={cx(
+                                        'fr-icon-chat-quote-line',
+                                        'fr-pr-1v'
+                                      )}
+                                    />
+                                    <b>Consignes</b>
+                                  </div>
+                                  {prescription.programmingInstruction ??
+                                    'Aucune consigne'}
+                                </div>
+                              </div>
+                              <div className={cx('fr-col-3')}>
+                                <PrescriptionSubstances
+                                  programmingPlan={
+                                    programmingPlans.find(
+                                      (p) =>
+                                        p.id === prescription.programmingPlanId
+                                    ) ?? programmingPlans[0]
+                                  }
+                                  prescription={prescription}
+                                  renderMode="inline"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  )}
+                </Fragment>
+              );
+            })}
+          </table>
+        </div>
+      </div>
 
       <div className="sticky-scrollbar" ref={stickyScrollRef}>
         <div ref={stickyInnerRef} />
