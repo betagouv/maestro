@@ -45,7 +45,7 @@
                 <SigleMatriceSpecifique>FOIE_BV</SigleMatriceSpecifique>
                 <NumeroIdentificationExterne>ECHANTILLON 1</NumeroIdentificationExterne>
                 <IdentifiantLabo>E1234</IdentifiantLabo>
-                <NumeroEtiquette>1234</NumeroEtiquette>
+                <NumeroEtiquette>000000000000000000001234</NumeroEtiquette>
                 <DateRealisationPrelevement>2025-01-01</DateRealisationPrelevement>
             </DialogueEchantillonComplet>
         </DialogueEchantillonCommemoratifType>
