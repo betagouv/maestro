@@ -1,4 +1,4 @@
-import { RaiProcessingError } from './sachaErrors';
+import { RaiLabError } from './sachaErrors';
 import type { SachaResultats } from './sachaValidator';
 
 // Commémoratifs analyse obligatoires d'après la fiche de plan DAOA.
@@ -18,16 +18,15 @@ const EXPECTED_INCERTITUDE = 50;
  * le validateur Zod (où tout est `.optional()`). Vérifie, par analyse, la présence
  * des commémoratifs et champs imposés par la fiche de plan.
  *
- * Les manquements sont imputables au laboratoire (famille `RaiLabError`).
- * TODO étape 4 : remplacer `RaiProcessingError` par `RaiLabError` et émettre le
- * non-acquittement automatique porteur du motif.
+ * Les manquements sont imputables au laboratoire (famille `RaiLabError`), donc
+ * éligibles au non-acquittement automatique (émission à implémenter).
  */
 export const validateRaiDaoaFields = (
   rai: SachaResultats,
   xmlDocumentId: string | null = null
 ): void => {
   const fail = (message: string): never => {
-    throw new RaiProcessingError(message, xmlDocumentId);
+    throw new RaiLabError(message, xmlDocumentId);
   };
 
   for (const planAnalyse of rai.DialogueResultatType.DialoguePlanAnalyseType ??
