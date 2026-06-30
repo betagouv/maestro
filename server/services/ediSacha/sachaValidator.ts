@@ -1,5 +1,6 @@
 import { maestroDateRefined } from 'maestro-shared/utils/date';
 import { z } from 'zod';
+import { NumeroEtiquette } from './sachaReferences';
 import {
   sigleContexteInterventionValidator,
   sigleMatrixValidator,
@@ -82,7 +83,7 @@ const dialogueEchantillonCommemoratifType = coerceToArray(
       NumeroIdentificationExterne: z.string().optional(),
       IdentifiantLabo: z.string().optional(),
       NumeroLot: z.coerce.number().int().optional(),
-      NumeroEtiquette: z.string().optional(),
+      NumeroEtiquette: NumeroEtiquette.optional(),
       DateRealisationPrelevement: sachaDate.optional(),
       SigleMotifNonAnalysabilite: z.string().optional(),
       Commentaire: z.string().optional()

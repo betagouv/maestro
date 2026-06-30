@@ -17,3 +17,32 @@ export const ResidueComplianceLabels: Record<ResidueCompliance, string> = {
   NonCompliant: 'Non conforme',
   Other: 'Autre'
 };
+
+export const ResidueComplianceDAOA = z.enum(
+  [
+    'Compliant',
+    'CompliantWithoutThreshold',
+    'ToMonitor',
+    'NonCompliant',
+    'Uninterpretable'
+  ],
+  {
+    error: () => 'Veuillez renseigner la conformité.'
+  }
+);
+
+export type ResidueComplianceDAOA = z.infer<typeof ResidueComplianceDAOA>;
+
+export const ResidueComplianceDAOAList: ResidueComplianceDAOA[] =
+  ResidueComplianceDAOA.options;
+
+export const ResidueComplianceDAOALabels: Record<
+  ResidueComplianceDAOA,
+  string
+> = {
+  Compliant: 'Conforme',
+  CompliantWithoutThreshold: 'Conforme sans seuil',
+  ToMonitor: 'À surveiller',
+  NonCompliant: 'Non conforme',
+  Uninterpretable: 'Ininterprétable'
+};

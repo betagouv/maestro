@@ -11,9 +11,13 @@ import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import type { Stage } from 'maestro-shared/referential/Stage';
 import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
+import type { AnalysisKind } from 'maestro-shared/schema/Analysis/Residue/AnalysisKind';
 import type { ContaminationSource } from 'maestro-shared/schema/Analysis/Residue/ContaminationSource';
 import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
-import type { ResidueCompliance } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
+import type {
+  ResidueCompliance,
+  ResidueComplianceDAOA
+} from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import type { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
 import type { AnalysisDaiId } from 'maestro-shared/schema/AnalysisDai/AnalysisDai';
 import type { AnalysisDaiState } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiState';
@@ -122,7 +126,7 @@ export interface AnalysisReportDocuments {
 export interface AnalysisResidues {
   analysisId: string;
   analysisMethod: AnalysisMethod;
-  compliance: ResidueCompliance | null;
+  compliance: ResidueCompliance | ResidueComplianceDAOA | null;
   contaminationSources: ContaminationSource[] | null;
   notesOnContaminationSources: string | null;
   lmr: number | null;
@@ -133,11 +137,16 @@ export interface AnalysisResidues {
   residueNumber: number;
   result: number | null;
   resultHigherThanArfd: string | null;
-  resultKind: ColumnType<ResultKind, ResultKind | 'ND', ResultKind | 'ND'>;
+  resultKind: ResultKind;
   substanceApproved: string | null;
   substanceAuthorised: string | null;
   unknownLabel: string | null;
   analysisDate: MaestroDate | null;
+  analysisKind: AnalysisKind | null;
+  ld: number | null;
+  lq: number | null;
+  accredited: boolean | null;
+  preciseMethod: string | null;
 }
 
 export interface AnalysisErrors {
@@ -313,11 +322,7 @@ export interface ResidueAnalytes {
   reference: SSD2Id | null;
   residueNumber: number;
   result: number | null;
-  resultKind: ColumnType<
-    ResultKind,
-    ResultKind | 'ND',
-    ResultKind | 'ND'
-  > | null;
+  resultKind: ResultKind | null;
 }
 
 export interface SampleItems {
