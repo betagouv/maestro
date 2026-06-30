@@ -65,7 +65,6 @@ interface Props {
   onOpenModalForRow: (row: AgreementRow) => void;
   onUpdateCheck: (params: LaboratoryAgreementCheckUpdate) => void;
 }
-
 const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
   rows,
   selectedStringRowKeys,
@@ -356,13 +355,11 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                       selectedValues={labFilter}
                       onChange={onLabFilterChange}
                       onReset={() => onLabAgreementTypeFilterChange([])}
-                      menuAlign="right"
+                      menuAlign="left"
                       extraActive={labAgreementTypeFilter.length > 0}
                       extraContent={
-                        <div className={clsx('d-flex-align-center')}>
-                          <span className={cx('fr-mr-16w')}>
-                            Filtrer par type d'agrément
-                          </span>
+                        <div className="d-flex-column">
+                          <span>Filtrer par type d'agrément</span>
                           <LaboratoryAgreementButtons
                             values={{
                               referenceLaboratory:
