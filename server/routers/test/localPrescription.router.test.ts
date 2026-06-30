@@ -249,7 +249,7 @@ describe('Local prescriptions router', () => {
       await request(app)
         .get(testRoute)
         .query({
-          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+          programmingPlanIds: PPVSubmittedProgrammingPlanFixture.id,
           contexts: 'Control'
         })
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
@@ -259,7 +259,7 @@ describe('Local prescriptions router', () => {
       await request(app)
         .get(testRoute)
         .query({
-          programmingPlanId: fakerFR.string.alphanumeric(32),
+          programmingPlanIds: fakerFR.string.alphanumeric(32),
           contexts: 'Control'
         })
         .use(tokenProvider(NationalCoordinator))
@@ -270,7 +270,7 @@ describe('Local prescriptions router', () => {
       await request(app)
         .get(testRoute)
         .query({
-          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+          programmingPlanIds: PPVSubmittedProgrammingPlanFixture.id,
           contexts: 'invalid'
         })
         .use(tokenProvider(NationalCoordinator))
@@ -282,7 +282,7 @@ describe('Local prescriptions router', () => {
         const res = await request(app)
           .get(testRoute)
           .query({
-            programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+            programmingPlanIds: PPVSubmittedProgrammingPlanFixture.id,
             contexts: 'Control'
           })
           .use(tokenProvider(user))
@@ -313,7 +313,7 @@ describe('Local prescriptions router', () => {
         const res = await request(app)
           .get(testRoute)
           .query({
-            programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+            programmingPlanIds: PPVSubmittedProgrammingPlanFixture.id,
             contexts: 'Control',
             includes: 'laboratories'
           })
@@ -338,7 +338,7 @@ describe('Local prescriptions router', () => {
       const res = await request(app)
         .get(testRoute)
         .query({
-          programmingPlanId: PPVClosedProgrammingPlanFixture.id,
+          programmingPlanIds: PPVClosedProgrammingPlanFixture.id,
           contexts: 'Control',
           includes: 'comments,sampleCounts'
         })

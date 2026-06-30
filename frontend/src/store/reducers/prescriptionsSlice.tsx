@@ -6,7 +6,6 @@ import { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescriptio
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { PrescriptionComments } from 'maestro-shared/schema/Prescription/PrescriptionComments';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
@@ -18,10 +17,9 @@ import { z } from 'zod';
 
 export const PrescriptionFilters = z.object({
   year: z.coerce.number().int().nullish(),
-  domain: ProgrammingPlanDomain.nullish(),
-  programmingPlanId: z.guid().nullish(),
+  programmingPlanIds: z.array(z.guid()).nullish(),
   programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullish(),
-  context: ProgrammingPlanContext.nullish(),
+  contexts: z.array(ProgrammingPlanContext).nullish(),
   matrixQuery: z.string().nullish(),
   missingSlaughterhouse: z.boolean().nullish(),
   missingLaboratory: z.boolean().nullish()

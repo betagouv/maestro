@@ -5,7 +5,6 @@ import type { Department } from 'maestro-shared/referential/Department';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import type { Region } from 'maestro-shared/referential/Region';
 import type { Company } from 'maestro-shared/schema/Company/Company';
-import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import {
   filteredLocalPrescriptions,
   type LocalPrescriptionUpdate
@@ -37,14 +36,14 @@ import ProgrammingLocalPrescriptionTable from '../ProgrammingPrescriptionTable/P
 import ProgrammingPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingPrescriptionTable';
 
 interface Props {
-  programmingPlan: ProgrammingPlanChecked;
+  programmingPlans: ProgrammingPlanChecked[];
   region?: Region;
   department?: Department;
   companies?: Company[];
 }
 
 const ProgrammingPrescriptionList = ({
-  programmingPlan,
+  programmingPlans,
   region,
   department,
   companies,
@@ -82,17 +81,53 @@ const ProgrammingPrescriptionList = ({
   const [deletePrescription, { isSuccess: isDeleteSuccess }] =
     apiClient.useDeletePrescriptionMutation();
 
+  const planIds = useMemo(
+    () => programmingPlans.map((p) => p.id),
+    [programmingPlans]
+  );
+
+  const getPrescriptionPlan = useCallback(
+    (prescription: Prescription): ProgrammingPlanChecked =>
+      programmingPlans.find(
+        (p) => p.id === prescription.programmingPlanId
+      ) as ProgrammingPlanChecked,
+    [programmingPlans]
+  );
+
+  const getPlanForPrescriptionId = useCallback(
+    (prescriptionId: string): ProgrammingPlanChecked => {
+      const plan = programmingPlans.find(
+        (p) =>
+          p.id ===
+          allPrescriptions?.find((r) => r.id === prescriptionId)
+            ?.programmingPlanId
+      );
+      return plan ?? programmingPlans[0];
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [programmingPlans]
+  );
+
   const findPrescriptionOptions = useMemo(
     () => ({
-      programmingPlanId: programmingPlan.id,
+      programmingPlanId:
+        programmingPlans.length === 1 ? programmingPlans[0].id : undefined,
+      year:
+        programmingPlans.length !== 1 ? prescriptionFilters.year : undefined,
       programmingSubPlanIds: prescriptionFilters.programmingSubPlanIds,
-      contexts: prescriptionFilters.context
-        ? [prescriptionFilters.context]
-        : undefined,
+      contexts: prescriptionFilters.contexts,
       region,
       includes: ['substanceCount' as const]
     }),
-    [programmingPlan, prescriptionFilters, region]
+    [programmingPlans, prescriptionFilters, region]
+  );
+
+  const exportPrescriptionOptions = useMemo(
+    () => ({
+      ...findPrescriptionOptions,
+      programmingPlanId: programmingPlans[0].id
+    }),
+    [findPrescriptionOptions, programmingPlans]
   );
 
   const { data: allPrescriptions } = apiClient.useFindPrescriptionsQuery(
@@ -104,7 +139,9 @@ const ProgrammingPrescriptionList = ({
 
   const findLocalPrescriptionOptions = useMemo(
     () => ({
-      ...findPrescriptionOptions,
+      programmingPlanIds: planIds,
+      programmingSubPlanIds: prescriptionFilters.programmingSubPlanIds,
+      contexts: prescriptionFilters.contexts,
       region,
       department,
       includes: [
@@ -117,19 +154,18 @@ const ProgrammingPrescriptionList = ({
           : [])
       ]
     }),
-    [findPrescriptionOptions, region, department, hasUserPermission]
+    [planIds, prescriptionFilters, region, department, hasUserPermission]
   );
 
   const { data: allLocalPrescriptions } =
     apiClient.useFindLocalPrescriptionsQuery(findLocalPrescriptionOptions, {
-      skip: !FindLocalPrescriptionOptions.safeParse(
-        findLocalPrescriptionOptions
-      ).success
+      skip: !findLocalPrescriptionOptions.programmingPlanIds?.length
     });
 
   const prescriptions = useMemo(() => {
     return allPrescriptions
-      ?.filter((p) =>
+      ?.filter((p) => planIds.includes(p.programmingPlanId))
+      .filter((p) =>
         prescriptionFilters.matrixQuery
           ? MatrixKindLabels[p.matrixKind]
               .toLowerCase()
@@ -173,6 +209,7 @@ const ProgrammingPrescriptionList = ({
       .sort(PrescriptionSort);
   }, [
     allPrescriptions,
+    planIds,
     prescriptionFilters,
     allLocalPrescriptions,
     hasNationalView
@@ -223,7 +260,7 @@ const ProgrammingPrescriptionList = ({
         dispatch(
           prescriptionsSlice.actions.setPrescriptionCommentsData({
             viewBy: 'Prescription',
-            programmingPlan,
+            programmingPlan: getPrescriptionPlan(prescription),
             prescription,
             regionalCommentsList: [regionalPrescription].map((rcp) => ({
               region: rcp.region,
@@ -250,15 +287,16 @@ const ProgrammingPrescriptionList = ({
       prescription: Prescription,
       prescriptionUpdate: Omit<PrescriptionUpdate, 'programmingPlanId'>
     ) => {
-      if (hasUserPrescriptionPermission(programmingPlan)?.update) {
+      const plan = getPrescriptionPlan(prescription);
+      if (hasUserPrescriptionPermission(plan)?.update) {
         await updatePrescription({
           prescriptionId: prescription.id,
-          programmingPlanId: programmingPlan.id,
+          programmingPlanId: plan.id,
           ...prescriptionUpdate
         });
       }
     },
-    [programmingPlan]
+    [getPrescriptionPlan, hasUserPrescriptionPermission, updatePrescription]
   );
 
   const changeLocalPrescription = useCallback(
@@ -289,9 +327,9 @@ const ProgrammingPrescriptionList = ({
       changeLocalPrescription(key, {
         key: 'sampleCount',
         sampleCount: count,
-        programmingPlanId: programmingPlan.id
+        programmingPlanId: getPlanForPrescriptionId(key.prescriptionId).id
       }),
-    [changeLocalPrescription, programmingPlan]
+    [changeLocalPrescription, getPlanForPrescriptionId]
   );
 
   const changeSubstanceKindsLaboratories = async (
@@ -305,7 +343,7 @@ const ProgrammingPrescriptionList = ({
           department: department as Department,
           key: 'laboratories',
           substanceKindsLaboratories,
-          programmingPlanId: programmingPlan.id
+          programmingPlanId: getPrescriptionPlan(prescription).id
         })
       )
     );
@@ -313,15 +351,26 @@ const ProgrammingPrescriptionList = ({
 
   const hasGroupedUpdatePermission = useMemo(
     () =>
-      localPrescriptions?.some(
-        (regionalPrescription) =>
-          hasUserLocalPrescriptionPermission(
-            programmingPlan,
-            regionalPrescription
-          )?.updateLaboratories
-      ),
-    [programmingPlan, localPrescriptions, hasUserLocalPrescriptionPermission]
+      localPrescriptions?.some((regionalPrescription) => {
+        const prescription = allPrescriptions?.find(
+          (p) => p.id === regionalPrescription.prescriptionId
+        );
+        const plan = prescription
+          ? getPrescriptionPlan(prescription)
+          : programmingPlans[0];
+        return hasUserLocalPrescriptionPermission(plan, regionalPrescription)
+          ?.updateLaboratories;
+      }),
+    [
+      programmingPlans,
+      localPrescriptions,
+      allPrescriptions,
+      getPrescriptionPlan,
+      hasUserLocalPrescriptionPermission
+    ]
   );
+
+  const headerPlan = programmingPlans[0];
 
   return (
     <>
@@ -336,13 +385,13 @@ const ProgrammingPrescriptionList = ({
         <>
           {
             <ProgrammingPrescriptionListHeader
-              programmingPlan={programmingPlan}
+              programmingPlan={headerPlan}
               prescriptions={prescriptions}
               localPrescriptions={localPrescriptions}
               subLocalPrescriptions={subLocalPrescriptions ?? []}
               exportURL={getApiUrl(
                 '/prescriptions/export',
-                findPrescriptionOptions
+                exportPrescriptionOptions
               )}
               hasGroupedUpdatePermission={hasGroupedUpdatePermission}
               selectedCount={selectedPrescriptions.length}
@@ -376,7 +425,7 @@ const ProgrammingPrescriptionList = ({
                 {prescriptions?.map((prescription) => (
                   <PrescriptionCard
                     key={`prescription_cards_${prescription.id}`}
-                    programmingPlan={programmingPlan}
+                    programmingPlan={getPrescriptionPlan(prescription)}
                     prescription={prescription}
                     regionalPrescriptions={localPrescriptions.filter(
                       (rp) => rp.prescriptionId === prescription.id
@@ -422,7 +471,7 @@ const ProgrammingPrescriptionList = ({
                     .map((localPrescription) => (
                       <LocalPrescriptionCard
                         key={`prescription_cards_${prescription.id}`}
-                        programmingPlan={programmingPlan}
+                        programmingPlan={getPrescriptionPlan(prescription)}
                         prescription={prescription}
                         localPrescription={localPrescription}
                         subLocalPrescriptions={subLocalPrescriptions?.filter(
@@ -457,14 +506,14 @@ const ProgrammingPrescriptionList = ({
             prescriptions.length > 0 &&
             (hasNationalView ? (
               <ProgrammingPrescriptionTable
-                programmingPlans={[programmingPlan]}
+                programmingPlans={programmingPlans}
                 prescriptions={prescriptions}
                 regionalPrescriptions={localPrescriptions}
                 onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
               />
             ) : (
               <ProgrammingLocalPrescriptionTable
-                programmingPlan={programmingPlan}
+                programmingPlans={programmingPlans}
                 prescriptions={prescriptions}
                 region={user?.region as Region}
                 localPrescriptions={localPrescriptions}

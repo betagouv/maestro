@@ -11,7 +11,6 @@ import { Regions } from 'maestro-shared/referential/Region';
 import type { Pagination } from 'maestro-shared/schema/commons/Pagination';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { SampleComplianceLabels } from 'maestro-shared/schema/Sample/SampleCompliance';
@@ -29,7 +28,7 @@ type FilterableType = FindSampleOptions &
     | 'missingSlaughterhouse'
     | 'missingLaboratory'
     | 'matrixQuery'
-    | 'programmingPlanId'
+    | 'contexts'
   >;
 
 interface Props {
@@ -164,10 +163,6 @@ const filtersConfig = {
     getComponent: (value, onChange) =>
       renderArrayTags('contexts', value, (d) => ContextLabels[d], onChange)
   },
-  context: {
-    prop: 'context',
-    getLabel: (value) => ContextLabels[value]
-  },
   compliance: {
     prop: 'compliance',
     getLabel: (value) => SampleComplianceLabels[value]
@@ -179,10 +174,6 @@ const filtersConfig = {
   withAtLeastOneCopiedItem: {
     prop: 'withAtLeastOneCopiedItem',
     getLabel: () => 'Avec plusieurs exemplaires'
-  },
-  domain: {
-    prop: 'domain',
-    getLabel: (value) => ProgrammingPlanDomainLabels[value]
   },
   laboratoryIds: {
     prop: 'laboratoryIds',

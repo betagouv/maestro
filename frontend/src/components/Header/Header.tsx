@@ -6,7 +6,6 @@ import { Badge } from '@mui/material';
 import clsx from 'clsx';
 import { uniq } from 'lodash-es';
 import { Brand } from 'maestro-shared/constants';
-import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { isClosed } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { UserBase } from 'maestro-shared/schema/User/User';
 import {
@@ -14,22 +13,20 @@ import {
   UserRoleLabels
 } from 'maestro-shared/schema/User/UserRole';
 import { isDefined } from 'maestro-shared/utils/utils';
-import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useContext, useMemo, useRef } from 'react';
 import { matchPath, useLocation } from 'react-router';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
+import { useAppDispatch } from 'src/hooks/useStore';
 import {
   useChangeRoleMutation,
   useLogoutMutation
 } from 'src/services/auth.service';
 import { type AppRoutePath, AuthenticatedAppRoutes } from '../../AppRoutes';
 import logo from '../../assets/logo.svg';
-import { usePrescriptionFilters } from '../../hooks/usePrescriptionFilters';
 import useWindowSize from '../../hooks/useWindowSize';
 import { api } from '../../services/api.service';
 import { ApiClientContext } from '../../services/apiClient';
 import authSlice from '../../store/reducers/authSlice';
-import prescriptionsSlice from '../../store/reducers/prescriptionsSlice';
 import config from '../../utils/config';
 import { adminSections } from '../../views/AdminView/adminSections';
 import { MascaradeButton } from '../Mascarade/MascaradeButton';
@@ -48,9 +45,6 @@ const Header = () => {
   const dispatch = useAppDispatch();
   const apiClient = useContext(ApiClientContext);
 
-  const domainMenuRef = useRef<
-    (HTMLDivElement & { closeMenu: () => Promise<boolean> }) | null
-  >(null);
   const roleMenuRef = useRef<
     (HTMLDivElement & { closeMenu: () => Promise<boolean> }) | null
   >(null);
@@ -64,9 +58,6 @@ const Header = () => {
   } = useAuthentication();
   const userRefined = UserBase.optional().parse(user);
   const { mascaradeEnabled, disableMascarade } = useMascarade();
-  const { prescriptionFilters } = useAppSelector(
-    (state) => state.prescriptions
-  );
   const { data: programmingPlansData } = apiClient.useFindProgrammingPlansQuery(
     {},
     { skip: !isAuthenticated }
@@ -87,45 +78,23 @@ const Header = () => {
   const [logout] = useLogoutMutation();
   const [changeRole] = useChangeRoleMutation();
 
-  const { domainOptions, reduceFilters } =
-    usePrescriptionFilters(programmingPlans);
-
-  useEffect(() => {
-    if (!prescriptionFilters.domain && domainOptions.length > 0) {
-      dispatch(
-        prescriptionsSlice.actions.changePrescriptionFilters(
-          reduceFilters(prescriptionFilters, {
-            domain: domainOptions[0]
-          })
-        )
-      );
-    }
-  });
-
   const inProgressYears = useMemo(
     () =>
       uniq(
         programmingPlans
-          ?.filter(
-            (pp) =>
-              pp.domain === prescriptionFilters.domain &&
-              [...pp.regionalStatus, ...pp.departmentalStatus].some(
-                (rs) => rs.status === 'Validated'
-              )
+          ?.filter((pp) =>
+            [...pp.regionalStatus, ...pp.departmentalStatus].some(
+              (rs) => rs.status === 'Validated'
+            )
           )
           .map((pp) => pp.year)
       ),
-    [programmingPlans, prescriptionFilters.domain]
+    [programmingPlans]
   );
 
   const closedYears = useMemo(
-    () =>
-      programmingPlans
-        ?.filter(
-          (pp) => pp.domain === prescriptionFilters.domain && isClosed(pp)
-        )
-        .map((pp) => pp.year),
-    [programmingPlans, prescriptionFilters.domain]
+    () => programmingPlans?.filter((pp) => isClosed(pp)).map((pp) => pp.year),
+    [programmingPlans]
   );
 
   const routeMatch = <Path extends AppRoutePath>(path: Path, exact = false) =>
@@ -399,33 +368,6 @@ const Header = () => {
                     {isMobile ? 'Notifications' : undefined}
                   </Button>
                 </Badge>,
-                prescriptionFilters?.domain && domainOptions.length > 1 ? (
-                  <HeaderMenu
-                    key="domainMenu"
-                    ref={domainMenuRef}
-                    value={
-                      ProgrammingPlanDomainLabels[prescriptionFilters.domain]
-                    }
-                    menuItems={domainOptions.map((domain) => (
-                      <Button
-                        key={`domain-menu-${domain}`}
-                        onClick={() => {
-                          dispatch(
-                            prescriptionsSlice.actions.changePrescriptionFilters(
-                              reduceFilters(prescriptionFilters, {
-                                domain
-                              })
-                            )
-                          );
-                          domainMenuRef.current?.closeMenu();
-                        }}
-                        className={clsx(cx('fr-m-0'), 'no-wrap')}
-                      >
-                        {ProgrammingPlanDomainLabels[domain]}
-                      </Button>
-                    ))}
-                  />
-                ) : undefined,
                 userRole &&
                 userRefined?.roles &&
                 userRefined.roles.length > 1 ? (
