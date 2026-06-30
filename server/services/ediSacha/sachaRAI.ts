@@ -1,6 +1,5 @@
 import type { Insertable } from 'kysely';
 import { Department } from 'maestro-shared/referential/Department';
-import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import type { AnalysisKind } from 'maestro-shared/schema/Analysis/Residue/AnalysisKind';
@@ -14,9 +13,9 @@ import { analysisRepository } from '../../repositories/analysisRepository';
 import { analysisResidueRepository } from '../../repositories/analysisResidueRepository';
 import { kysely } from '../../repositories/kysely';
 import type { DB } from '../../repositories/kysely.type';
-import { laboratoryResidueMappingRepository } from '../../repositories/laboratoryResidueMappingRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { sampleRepository } from '../../repositories/sampleRepository';
+import { DAOA_RESIDUE_MAPPING } from './sachaDaoaResidueMapping';
 import { RaiLabError, RaiMaestroError } from './sachaErrors';
 import { validateRaiDaoaFields } from './sachaRAIValidation';
 import {
@@ -62,7 +61,6 @@ const frenchDateToMaestroDate = (
 
 export const buildDaoaAnalysis = (
   rai: SachaResultats,
-  ssd2IdByLabel: Map<string, SSD2Id>,
   analysisMethod: AnalysisMethod,
   xmlDocumentId: string | null = null
 ): {
@@ -84,9 +82,9 @@ export const buildDaoaAnalysis = (
     for (const analyse of planAnalyse.DialogueAnalyseType ?? []) {
       const { SigleAnalyte } = analyse.DialogueAnalyse;
 
-      const reference = ssd2IdByLabel.get(SigleAnalyte);
+      const reference = DAOA_RESIDUE_MAPPING[SigleAnalyte];
       if (!reference) {
-        throw new RaiLabError(
+        throw new RaiMaestroError(
           `Analyte non mappé vers un SSD2Id (${SigleAnalyte})`,
           xmlDocumentId
         );
@@ -242,22 +240,11 @@ export const processSachaRAI = async (
     );
   }
 
-  //FIXME on va utiliser une liste en dur
-  const mappings =
-    await laboratoryResidueMappingRepository.findByLaboratoryId(laboratoryId);
-  const ssd2IdByLabel = new Map<string, SSD2Id>();
-  for (const mapping of mappings) {
-    if (mapping.ssd2Id) {
-      ssd2IdByLabel.set(mapping.label, mapping.ssd2Id);
-    }
-  }
-
   const analysisMethod: AnalysisMethod =
     sampleItem.substanceKind === 'Mono' ? 'Mono' : 'Multi';
 
   const { residues, compliance, status, receiptDate } = buildDaoaAnalysis(
     rai,
-    ssd2IdByLabel,
     analysisMethod,
     xmlDocumentId
   );

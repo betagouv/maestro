@@ -1,9 +1,5 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import {
-  type SSD2Id,
-  SSD2Ids
-} from 'maestro-shared/referential/Residue/SSD2Id';
 import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import {
@@ -40,38 +36,12 @@ const etiquetteFromRai = (rai: SachaResultats): NumeroEtiquette =>
       ?.DialogueEchantillonComplet?.NumeroEtiquette
   );
 
-const analyteLabels = (rai: SachaResultats): string[] => {
-  const labels = new Set<string>();
-  for (const planAnalyse of rai.DialogueResultatType.DialoguePlanAnalyseType ??
-    []) {
-    for (const analyse of planAnalyse.DialogueAnalyseType ?? []) {
-      labels.add(analyse.DialogueAnalyse.SigleAnalyte);
-    }
-  }
-  return [...labels];
-};
-
-const seedResidueMappings = async (
-  laboratoryId: string,
-  labels: string[],
-  ssd2Id: SSD2Id
-): Promise<void> => {
-  await kysely
-    .insertInto('laboratoryResidueMappings')
-    .values(labels.map((label) => ({ laboratoryId, label, ssd2Id })))
-    .onConflict((oc) =>
-      oc.columns(['laboratoryId', 'label']).doUpdateSet({ ssd2Id })
-    )
-    .execute();
-};
-
 describe('processSachaRAI', () => {
   const rai = decodeValidRai();
   const { reference, itemNumber } = referencesFromEtiquette(
     etiquetteFromRai(rai)
   );
   const sampleId = 'aaaaaaaa-bbbb-cccc-dddd-000000000099';
-  const ssd2Id = SSD2Ids[0] as SSD2Id;
 
   beforeAll(async () => {
     const sample = genCreatedPartialSample({
@@ -99,8 +69,6 @@ describe('processSachaRAI', () => {
         substanceKind: 'Any'
       })
     ]);
-
-    await seedResidueMappings(LaboratoryFixture.id, analyteLabels(rai), ssd2Id);
   });
 
   test('persiste l’analyse, les résidus et la date de réception', async () => {
@@ -134,7 +102,7 @@ describe('processSachaRAI', () => {
     expect(residues).toHaveLength(64);
     expect(residues[0]).toMatchObject({
       residueNumber: 1,
-      reference: ssd2Id,
+      reference: 'RF-0021-002-PPP', // ALD (1er analyte) via DAOA_RESIDUE_MAPPING
       resultKind: 'ND',
       result: null,
       analysisMethod: 'Multi',

@@ -1,0 +1,71 @@
+import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
+
+// Source: the `<Commentaire>` of the
+// `ReferenceAnalytesSpecifiques` in the Sacha referential
+export const DAOA_RESIDUE_MAPPING: Record<string, SSD2Id> = {
+  ALD: 'RF-0021-002-PPP',
+  ALDR_DLDR: 'RF-0021-001-PPP',
+  AZNPHSTHL: 'RF-0032-001-PPP',
+  BFNTH: 'RF-0046-001-PPP',
+  CHLBNZ: 'RF-0082-001-PPP',
+  CHLDCN: 'RF-0076-001-PPP',
+  CHLORPY_ETHY: 'RF-0087-001-PPP', // FIXME Chlorpyriphos éthyl ; Sacha RF-1013-001-PPP absent du référentiel → Chlorpyrifos
+  CHLORPY_MET: 'RF-0088-001-PPP',
+  CHLRDN_CS: 'RF-0075-004-PPP',
+  CHLRDN_OX: 'RF-0827-001-PPP',
+  CHLRDN_TR: 'RF-0075-003-PPP',
+  CLRDN_AGOX: 'RF-0075-005-PPP',
+  CYFLU: 'RF-0108-001-PPP', // FIXME Cyfluthrine ; Sacha RF-0108-003-PPP absent du référentiel → Cyfluthrin (sum of isomers)
+  CYH_LAM: 'RF-1004-001-PPP', // FIXME Cyhalothrine lambda ; Sacha RF-0261-001-PPP absent du référentiel → Lambda-cyhalothrin
+  CYPERM: 'RF-0112-004-PPP',
+  DDE_PP: 'RF-0119-002-PPP',
+  DDT_ISOM: 'RF-0119-001-PPP',
+  DDT_OP: 'RF-0119-003-PPP',
+  DDT_PP: 'RF-0119-006-PPP',
+  DELT: 'RF-0120-001-PPP',
+  DIAZ: 'RF-0123-001-PPP',
+  DIELDR: 'RF-0021-003-PPP',
+  DISULF: 'RF-0149-002-PPP',
+  DSFT_SFX: 'RF-0149-003-PPP',
+  DSFT_SFX_SF: 'RF-0149-001-PPP',
+  DSLFTNSLFON: 'RF-0149-004-PPP',
+  ENDRN: 'RF-0156-001-PPP',
+  ENDSLFN_ABSF: 'RF-0155-001-PPP',
+  ENDSLF_ALP: 'RF-0155-004-PPP',
+  ENDSLF_BT: 'RF-0155-003-PPP',
+  ENDSLF_SLF: 'RF-0155-002-PPP',
+  FNT: 'RF-0187-006-PPP',
+  FNTOX: 'RF-0187-004-PPP',
+  FNTOX_SF: 'RF-0187-007-PPP',
+  FNTOX_SFX: 'RF-0187-005-PPP',
+  FNTO_SFX_SF: 'RF-0187-001-PPP',
+  FNT_SF: 'RF-0187-003-PPP',
+  FNVES_RD: 'RF-0690-006-PPP',
+  HCB: 'RF-0237-001-PPP',
+  HCHALPHA: 'RF-0238-001-PPP',
+  HCHBETA: 'RF-0239-002-PPP',
+  HCHGAMMA: 'RF-0263-001-PPP',
+  HPTCL: 'RF-0236-004-PPP',
+  HPTCL_EPX: 'RF-0236-005-PPP',
+  HPTCL_HEPX: 'RF-0236-001-PPP',
+  METHCRFS: 'RF-0288-001-PPP',
+  METHID: 'RF-0290-001-PPP',
+  MTHXCL: 'RF-0295-001-PPP',
+  PARTHN: 'RF-0327-001-PPP', // FIXME Parathion ; Sacha RF-00002595-PAR absent du référentiel → Parathion
+  PERME: 'RF-0842-001-PPP', // FIXME Perméthrine ; Sacha RF-00012330-PAR absent du référentiel → Permethrin (sum of isomers)
+  PHOR: 'RF-0336-003-PPP',
+  PHOXSULN: 'RF-0336-001-PPP',
+  PHRTOX: 'RF-0336-005-PPP',
+  PHRTSLF: 'RF-0336-002-PPP',
+  PIR_MET: 'RF-0348-001-PPP',
+  PNDMTH: 'RF-0331-001-PPP',
+  PRMTH_CIS: 'RF-0842-002-PPP',
+  PRMTH_TRS: 'RF-0975-001-PPP',
+  PROFNFS: 'RF-0351-001-PPP',
+  PROXMT: 'RF-0328-002-PPP',
+  PRTHMT: 'RF-0328-003-PPP',
+  PRTHPROXMT: 'RF-0328-001-PPP',
+  PYRZPHS: 'RF-0373-001-PPP',
+  TDE_PP: 'RF-0119-004-PPP', // FIXME TDE (pp' DDD) ; aucun SSD2Id dans le référentiel Sacha → DDD, p,p- (synonyme de TDE)
+  TRIAZ: 'RF-0432-001-PPP'
+};
