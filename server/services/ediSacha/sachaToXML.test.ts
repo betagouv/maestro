@@ -56,7 +56,7 @@ test(`génère un XML d'acquittement`, async () => {
       "content": "<?xml version="1.0" encoding="UTF-8"?>
     <AcquittementNonAcquittement schemavalidation="AcquittementNonAcquittement.xsd">
       <MessageParametres>
-        <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
+        <CodeScenario>MAESTRO</CodeScenario>
         <VersionScenario>1.0.1</VersionScenario>
         <TypeFichier>AN01</TypeFichier>
         <NomFichier>AN01MDDSV72LDA72251216100736798</NomFichier>
