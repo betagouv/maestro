@@ -1,3 +1,4 @@
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 
 interface Props {
@@ -6,24 +7,21 @@ interface Props {
 }
 
 const TableHeaderCell = ({ name, shortName }: Props) => {
-  const tooltipId = name.toLowerCase().replace(/\s+/g, '-');
-
   return (
     <>
-      <span
-        className={clsx('pointer', 'no-wrap')}
-        aria-describedby={`tooltip-${tooltipId}`}
-      >
-        {shortName || name}
-      </span>
-      <span
-        className="fr-tooltip fr-placement"
-        id={`tooltip-${tooltipId}`}
-        role="tooltip"
-        aria-hidden="true"
+      <div>
+        <span className={clsx('no-wrap')}>{shortName || name}</span>
+      </div>
+      <div
+        className={cx('fr-text--xs', 'fr-text--light')}
+        style={{
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden'
+        }}
       >
         {name}
-      </span>
+      </div>
     </>
   );
 };

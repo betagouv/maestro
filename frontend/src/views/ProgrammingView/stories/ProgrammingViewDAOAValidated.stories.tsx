@@ -109,8 +109,6 @@ export const NationalCoordinatorView: Story = {
 
     await userEvent.click(canvas.getByTestId('prescriptions-cards-segment'));
 
-    await expect(canvas.getByTestId('add-matrix-button')).toBeInTheDocument();
-
     await expect(
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
@@ -158,10 +156,6 @@ export const RegionalCoordinatorView: Story = {
     ).toBeInTheDocument();
 
     await expect(
-      canvas.queryByTestId('add-matrix-button')
-    ).not.toBeInTheDocument();
-
-    await expect(
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
 
@@ -186,8 +180,9 @@ export const RegionalCoordinatorView: Story = {
         el.textContent?.toLowerCase().includes('%')
       )
     ).toHaveLength(
-      (Regions[RegionalCoordinator.region].departments.length + 1) *
-        (prescriptions.length + 1)
+      Regions[RegionalCoordinator.region].departments.length +
+        1 +
+        prescriptions.length
     );
     await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
   }
@@ -223,10 +218,6 @@ export const DepartmentalCoordinatorView: Story = {
     await expect(
       canvas.queryByTestId('prescriptions-table-segment')
     ).toBeInTheDocument();
-
-    await expect(
-      canvas.queryByTestId('add-matrix-button')
-    ).not.toBeInTheDocument();
 
     await expect(canvas.getAllByTestId('update-laboratory-button').length).toBe(
       regionalPrescriptions.filter(
@@ -291,10 +282,6 @@ export const SamplerView: Story = {
     await expect(
       canvas.queryByTestId('prescriptions-table-segment')
     ).toBeInTheDocument();
-
-    await expect(
-      canvas.queryByTestId('add-matrix-button')
-    ).not.toBeInTheDocument();
 
     await expect(
       canvas.queryByTestId('update-laboratory-button')

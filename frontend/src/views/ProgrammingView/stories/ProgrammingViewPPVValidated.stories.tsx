@@ -121,8 +121,6 @@ export const NationalCoordinatorView: Story = {
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
 
-    await expect(canvas.getByTestId('add-matrix-button')).toBeInTheDocument();
-
     await expect(canvas.getByText('Phase de consultation')).toBeInTheDocument();
     await expect(canvas.getByText('Commentaires')).toBeInTheDocument();
 
@@ -158,10 +156,6 @@ export const RegionalCoordinatorView: Story = {
     await expect(
       canvas.queryByTestId('prescriptions-table-segment')
     ).toBeInTheDocument();
-
-    await expect(
-      canvas.queryByTestId('add-matrix-button')
-    ).not.toBeInTheDocument();
 
     await expect(canvas.getAllByTestId('update-laboratory-button').length).toBe(
       regionalPrescriptions.filter((_) => _.region === Sampler1Fixture.region)
@@ -204,10 +198,6 @@ export const SamplerView: Story = {
     await expect(
       canvas.queryByTestId('prescriptions-table-segment')
     ).toBeInTheDocument();
-
-    await expect(
-      canvas.queryByTestId('add-matrix-button')
-    ).not.toBeInTheDocument();
 
     await expect(
       canvas.queryByTestId('update-laboratory-button')

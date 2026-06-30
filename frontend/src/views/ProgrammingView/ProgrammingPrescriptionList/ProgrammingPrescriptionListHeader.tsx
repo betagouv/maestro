@@ -5,7 +5,7 @@ import { SegmentedControl } from '@codegouvfr/react-dsfr/SegmentedControl';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import { isNil, sumBy, uniq, uniqBy } from 'lodash-es';
+import { sumBy, uniqBy } from 'lodash-es';
 import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
@@ -16,7 +16,6 @@ import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import ProgrammingPrescriptionListGroupedUpdate from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListGroupedUpdate';
-import AddPrescriptionModal from '../../../components/Prescription/AddPrescriptionModal/AddPrescriptionModal';
 import ProgrammingPlanNotificationDepartmentalToSampler from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationDepartmentalToSampler/ProgrammingPlanNotificationDepartmentalToSampler';
 import ProgrammingPlanNotificationNationalToRegional from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationNationalToRegional/ProgrammingPlanNotificationNationalToRegional';
 import ProgrammingPlanNotificationRegionalToDepartmental from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationRegionalToDepartmental/ProgrammingPlanNotificationRegionalToDepartmental';
@@ -49,12 +48,8 @@ const ProgrammingPrescriptionListHeader = ({
 }: Props) => {
   const dispatch = useAppDispatch();
   const { isMobile } = useWindowSize();
-  const {
-    hasUserPrescriptionPermission,
-    hasRegionalView,
-    hasDepartmentalView,
-    hasUserPermission
-  } = useAuthentication();
+  const { hasRegionalView, hasDepartmentalView, hasUserPermission } =
+    useAuthentication();
 
   const { prescriptionListDisplay, prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
@@ -163,19 +158,6 @@ const ProgrammingPrescriptionListHeader = ({
       <hr className={cx('fr-my-3w')} />
       <div className="d-flex-align-center">
         <div className={clsx('flex-grow-1', 'd-flex-align-center')}>
-          {hasUserPrescriptionPermission(programmingPlan)?.create && (
-            <AddPrescriptionModal
-              programmingPlan={programmingPlan}
-              excludedMatrixKindList={uniq(
-                prescriptions
-                  .filter((p) => isNil(p.matrix))
-                  .map((p) => p.matrixKind)
-              )}
-              excludedMatrixList={uniq(
-                prescriptions.map((p) => p.matrix).filter((_) => !isNil(_))
-              )}
-            />
-          )}
           {hasUserPermission('distributePrescriptionToSlaughterhouses') && (
             <ToggleSwitch
               label={<span className="no-wrap">Répartition à réaliser</span>}
