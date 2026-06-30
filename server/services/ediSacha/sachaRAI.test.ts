@@ -1,7 +1,5 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import { SSD2Ids } from 'maestro-shared/referential/Residue/SSD2Id';
 import { describe, expect, test } from 'vitest';
 import { RaiLabError } from './sachaErrors';
 import { buildDaoaAnalysis } from './sachaRAI';
@@ -17,21 +15,10 @@ const decodeValidRai = (): SachaResultats => {
   return json.Resultats;
 };
 
-const buildMappingFromRai = (rai: SachaResultats): Map<string, SSD2Id> => {
-  const labels = new Set<string>();
-  for (const planAnalyse of rai.DialogueResultatType.DialoguePlanAnalyseType ??
-    []) {
-    for (const analyse of planAnalyse.DialogueAnalyseType ?? []) {
-      labels.add(analyse.DialogueAnalyse.SigleAnalyte);
-    }
-  }
-  return new Map([...labels].map((label) => [label, SSD2Ids[0] as SSD2Id]));
-};
-
 describe('buildDaoaAnalysis', () => {
   test('construit l’analyse et les résidus depuis un fichier conforme', () => {
     const rai = decodeValidRai();
-    const result = buildDaoaAnalysis(rai, buildMappingFromRai(rai), 'Multi');
+    const result = buildDaoaAnalysis(rai, 'Multi');
 
     expect(result.compliance).toBe(true);
     expect(result.status).toBe('Completed');
@@ -41,7 +28,7 @@ describe('buildDaoaAnalysis', () => {
     const first = result.residues[0];
     expect(first).toMatchObject({
       residueNumber: 1,
-      reference: SSD2Ids[0],
+      reference: 'RF-0021-002-PPP', // ALD (1er analyte) via DAOA_RESIDUE_MAPPING
       resultKind: 'ND',
       result: null,
       analysisMethod: 'Multi',
@@ -57,7 +44,7 @@ describe('buildDaoaAnalysis', () => {
 
   test('reflète la non-accréditation (ACCRDTTN = N)', () => {
     const rai = decodeValidRai();
-    const result = buildDaoaAnalysis(rai, buildMappingFromRai(rai), 'Multi');
+    const result = buildDaoaAnalysis(rai, 'Multi');
 
     // 8e analyte du fichier : MTHXCL, non accrédité.
     expect(result.residues[7].accredited).toBe(false);
@@ -65,10 +52,12 @@ describe('buildDaoaAnalysis', () => {
 
   test('lève une RaiLabError si un analyte n’est pas mappé', () => {
     const rai = decodeValidRai();
-    expect(() => buildDaoaAnalysis(rai, new Map(), 'Multi')).toThrow(
-      RaiLabError
-    );
-    expect(() => buildDaoaAnalysis(rai, new Map(), 'Multi')).toThrow(
+    const unmappedRai: SachaResultats = structuredClone(rai);
+    unmappedRai.DialogueResultatType.DialoguePlanAnalyseType![0]
+      .DialogueAnalyseType![0].DialogueAnalyse.SigleAnalyte = 'ANALYTE_INCONNU';
+
+    expect(() => buildDaoaAnalysis(unmappedRai, 'Multi')).toThrow(RaiLabError);
+    expect(() => buildDaoaAnalysis(unmappedRai, 'Multi')).toThrow(
       /Analyte non mappé/
     );
   });
