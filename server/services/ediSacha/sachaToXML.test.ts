@@ -69,7 +69,7 @@ test(`génère un XML d'acquittement`, async () => {
       <Emetteur>
         <Sigle>MDDSV72</Sigle>
         <LibellePartenaire>DDPP Sarthe</LibellePartenaire>
-        <EmailPartenaire>contact@maestro.beta.gouv.fr</EmailPartenaire>
+        <EmailPartenaire>contact-ddsv@maestro.beta.gouv.fr</EmailPartenaire>
       </Emetteur>
       <Destinataire>
         <Sigle>LDA72</Sigle>
@@ -89,6 +89,27 @@ test(`génère un XML d'acquittement`, async () => {
   );
 });
 
+test(`émetteur sans préfixe pour un labo hors liste`, async () => {
+  const result = await generateXMLAcquitement(
+    [
+      {
+        DateAcquittement: toSachaDateTime(new Date(1765876056798)),
+        NomFichier: 'RA01123123123123'
+      }
+    ],
+    undefined,
+    '72',
+    1765876056798,
+    sachaConf,
+    { ...laboratory, shortName: 'LDA 35a' }
+  );
+  expect(result.fileName).toBe('AN01DDSV72LDA72251216100736798');
+  expect(result.content).toContain('<Sigle>DDSV72</Sigle>');
+  expect(result.content).toContain(
+    '<EmailPartenaire>contact@maestro.beta.gouv.fr</EmailPartenaire>'
+  );
+});
+
 test('getXmlFileName', () => {
   expect(
     getXmlFileName(
@@ -98,6 +119,15 @@ test('getXmlFileName', () => {
       new Date('2025-12-16T10:07:36.798+01:00').getTime()
     )
   ).toBe('AN01MDDSV35LABERCA251216100736798');
+  expect(
+    getXmlFileName(
+      'AN01',
+      '35',
+      'LABERCA',
+      new Date('2025-12-16T10:07:36.798+01:00').getTime(),
+      false
+    )
+  ).toBe('AN01DDSV35LABERCA251216100736798');
 });
 test('getZipFileName', () => {
   expect(

@@ -78,6 +78,10 @@ const configValidator = z
       'ws://localhost:3002?token=1234512345'
     ),
     SIGAL_EMAIL: devDefaultValue(z.email(), 'contact@maestro.beta.gouv.fr'),
+    SIGAL_EMAIL_DDSV_PREFIX: devDefaultValue(
+      z.email(),
+      'contact-ddsv@maestro.beta.gouv.fr'
+    ),
     SIGAL_SFTP_HOST: z.string().nullish(),
     SIGAL_SFTP_PASSPHRASE: z.string().nullish(),
     SIGAL_SFTP_PRIVATE_KEY: z.string().nullish(),
@@ -154,6 +158,7 @@ const configValidator = z
       sevesBasicToken: c.SEVES_BASIC_TOKEN,
       sigal: {
         email: c.SIGAL_EMAIL,
+        emailDdsvPrefix: c.SIGAL_EMAIL_DDSV_PREFIX,
         sftp: {
           privateKey: c.SIGAL_SFTP_PRIVATE_KEY,
           passphrase: c.SIGAL_SFTP_PASSPHRASE,
