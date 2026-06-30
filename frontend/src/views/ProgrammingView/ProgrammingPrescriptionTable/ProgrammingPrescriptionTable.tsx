@@ -71,9 +71,7 @@ const ProgrammingPrescriptionTable = ({
       .forEach((el) => {
         el.scrollLeft = source.scrollLeft;
       });
-    requestAnimationFrame(() => {
-      syncingRef.current = false;
-    });
+    syncingRef.current = false;
   };
 
   useEffect(() => {
