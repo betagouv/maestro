@@ -48,6 +48,7 @@ import {
   getSampleMatrixLabel,
   type PartialSample
 } from 'maestro-shared/schema/Sample/Sample';
+import { SampleComplianceLabels } from 'maestro-shared/schema/Sample/SampleCompliance';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
@@ -107,6 +108,8 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
   }[];
   notesOnMatrix: string;
   notesOnItems: string;
+  sampleCompliance: string;
+  notesOnSampleCompliance: string;
   items: SetAttributesNullOrUndefined<{
     sampleReference: string;
     itemNumber: number;
@@ -155,7 +158,6 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
       compliance: string;
       complianceCode: string;
       otherCompliance: string;
-      sampleCompliance: string;
       analytes: SetAttributesNullOrUndefined<{
         sampleReference: string;
         residueNumber: number;
@@ -273,6 +275,10 @@ const generateSamplesExportExcel = async (
       }),
       notesOnMatrix: sample.notesOnMatrix,
       notesOnItems: sample.notesOnItems,
+      sampleCompliance: sample.compliance
+        ? SampleComplianceLabels[sample.compliance]
+        : '',
+      notesOnSampleCompliance: sample.notesOnCompliance,
       items: itemsWithAnalysis.map(({ analysis, ...item }) => ({
         sampleReference: sample.reference,
         itemNumber: item.itemNumber,
@@ -297,8 +303,8 @@ const generateSamplesExportExcel = async (
         compliance200263: item.compliance200263 ? 'Oui' : 'Non',
         compliance: isDefinedAndNotNull(analysis?.compliance)
           ? analysis?.compliance
-            ? 'Oui'
-            : 'Non'
+            ? 'Conforme'
+            : 'Non conforme'
           : '',
         notesOnCompliance: analysis?.notesOnCompliance,
         receiptDate: formatMaestroDate(item.receiptDate),
@@ -348,11 +354,6 @@ const generateSamplesExportExcel = async (
             : undefined,
           complianceCode: r.compliance,
           otherCompliance: r.otherCompliance,
-          sampleCompliance: isDefinedAndNotNull(analysis?.compliance)
-            ? analysis?.compliance
-              ? 'Oui'
-              : 'Non'
-            : '',
           analytes: (r.analytes ?? []).map((a) => ({
             sampleReference: sample.reference,
             itemNumber: item.itemNumber,
