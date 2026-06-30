@@ -13,7 +13,7 @@ import config from '../../utils/config';
 import { documentService } from '../documentService';
 import { mattermostService } from '../mattermostService';
 import { unzip } from '../zipService';
-import { RaiProcessingError } from './sachaErrors';
+import { RaiMaestroError, RaiProcessingError } from './sachaErrors';
 import { processSachaRAI } from './sachaRAI';
 import { sendSachaFile } from './sachaSender';
 import { generateXMLAcquitement } from './sachaToXML';
@@ -39,15 +39,13 @@ export const processSachaContent = async (
     throw new RaiProcessingError(`Aucun résultat`, xmlDocumentId);
   }
 
-  const { sampleItem, sample } = processSachaRAI(json.Resultats);
-  if (!sampleItem.laboratoryId) {
-    throw new RaiProcessingError(`Aucun laboratoire`, xmlDocumentId);
-  }
+  const { laboratoryId, department } = await processSachaRAI(
+    json.Resultats,
+    xmlDocumentId
+  );
 
   const dateNow = Date.now();
-  const laboratory = await laboratoryRepository.findUnique(
-    sampleItem.laboratoryId
-  );
+  const laboratory = await laboratoryRepository.findUnique(laboratoryId);
   const xml = await generateXMLAcquitement(
     [
       {
@@ -56,7 +54,7 @@ export const processSachaContent = async (
       }
     ],
     undefined,
-    sample.department,
+    department,
     dateNow,
     sachaConf,
     laboratory
@@ -64,7 +62,7 @@ export const processSachaContent = async (
 
   await sendSachaFile(xml, dateNow, laboratory);
 
-  return { laboratoryId: sampleItem.laboratoryId };
+  return { laboratoryId };
 };
 
 const processSachaFile = async (
@@ -205,19 +203,6 @@ export const doSftp = async () => {
         }
       };
 
-      const recordFailure = async (
-        message: string,
-        xmlDocumentId: string | null
-      ) => {
-        //FIXME EDI  les non acquittements
-        // Erreur métier : le fichier reste sur le SFTP pour la prochaine exécution
-        console.error(`[SFTP] Erreur sur ${zipFile}:`, message);
-        await insertRai('ERROR', null, message, xmlDocumentId);
-        await mattermostService.send(
-          `[Maestro] Erreur RAI EDI (file=${zipFile}) : ${message}`
-        );
-      };
-
       try {
         const { xmlDocumentId, laboratoryId } = await processSachaFile(
           sftpClient,
@@ -227,11 +212,21 @@ export const doSftp = async () => {
         );
         await insertRai('PROCESSED', laboratoryId, null, xmlDocumentId);
       } catch (e: any) {
-        if (e instanceof RaiProcessingError) {
-          await recordFailure(e.message, e.xmlDocumentId);
-        } else {
-          await recordFailure(e.message, null);
-        }
+        // Erreur labo (RaiLabError + décodage XML) : éligible au non-acquittement
+        // automatique ; erreur Maestro : alerte interne et rejeu du fichier.
+        const isLabError =
+          e instanceof RaiProcessingError && !(e instanceof RaiMaestroError);
+        //FIXME EDI les non acquittements pour les erreurs labo
+        console.error(`[SFTP] Erreur sur ${zipFile} :`, e.message);
+        await insertRai(
+          'ERROR',
+          null,
+          e.message,
+          e instanceof RaiProcessingError ? e.xmlDocumentId : null
+        );
+        await mattermostService.send(
+          `[Maestro] Erreur RAI EDI${isLabError ? '' : ' interne'} (file=${zipFile}) : ${e.message}`
+        );
       }
     }
   } catch (e: any) {
