@@ -21,6 +21,7 @@
     "seed:laboratories": "node --enable-source-maps --import ./loaders/register.mjs database/seeds/laboratories/script.ts",
     "ssd2-generate": "node --enable-source-maps --import ./loaders/register.mjs ./scripts/updateSSD2Referential.ts",
     "check:emails": "node --enable-source-maps --import ./loaders/register.mjs ./services/imapService/script.ts",
+    "check:sftp": "node --enable-source-maps --import ./loaders/register.mjs ./services/ediSacha/script.ts",
     "sendDAI": "node --enable-source-maps --import ./loaders/register.mjs ./scripts/sendDAI.ts"
   },
   "dependencies": {
