@@ -6,26 +6,13 @@ import type { PrescriptionFilters } from '../store/reducers/prescriptionsSlice';
 export const usePrescriptionFilters = (
   programmingPlans?: ProgrammingPlanChecked[]
 ) => {
-  const domainOptions = useMemo(
-    () => uniq((programmingPlans ?? [])?.map((_) => _.domain)),
-    [programmingPlans]
-  );
-  const yearOptions = useCallback(
-    (filters: PrescriptionFilters) =>
-      uniq(
-        (programmingPlans ?? [])
-          .filter((plan) => plan.domain === filters.domain)
-          .map((plan) => plan.year)
-      ),
+  const yearOptions = useMemo(
+    () => uniq((programmingPlans ?? []).map((plan) => plan.year)),
     [programmingPlans]
   );
   const programmingPlanOptions = useCallback(
     (filters: PrescriptionFilters) =>
-      (programmingPlans ?? []).filter(
-        (plan) =>
-          plan.year === filters.year &&
-          (filters.domain ? plan.domain === filters.domain : true)
-      ),
+      (programmingPlans ?? []).filter((plan) => plan.year === filters.year),
     [programmingPlans]
   );
   const programmingSubPlanOptions = useCallback(
@@ -34,8 +21,8 @@ export const usePrescriptionFilters = (
         programmingPlanOptions(filters)
           .filter(
             (plan) =>
-              !filters.programmingPlanId ||
-              plan.id === filters.programmingPlanId
+              !filters.programmingPlanIds?.length ||
+              filters.programmingPlanIds.includes(plan.id)
           )
           .flatMap((plan) => plan.subPlans.map((sp) => sp.id))
       ),
@@ -47,8 +34,8 @@ export const usePrescriptionFilters = (
         programmingPlanOptions(filters)
           .filter(
             (plan) =>
-              !filters.programmingPlanId ||
-              plan.id === filters.programmingPlanId
+              !filters.programmingPlanIds?.length ||
+              filters.programmingPlanIds.includes(plan.id)
           )
           .flatMap((plan) => plan.contexts)
       ),
@@ -70,66 +57,48 @@ export const usePrescriptionFilters = (
         return uniqArr.length === 1 ? uniqArr : undefined;
       };
 
-      const domain = domainOptions.some(
-        (domainOption) => domainOption === aggregatedFilters?.domain
+      const year = yearOptions.some(
+        (yearOption) => yearOption === aggregatedFilters?.year
       )
-        ? aggregatedFilters?.domain
-        : getUniqOrUndefined(domainOptions)?.[0];
-      const year = domain
-        ? yearOptions({ domain }).some(
-            (yearOption) => yearOption === aggregatedFilters?.year
-          )
-          ? aggregatedFilters?.year
-          : getUniqOrUndefined(yearOptions({ domain }))?.[0]
-        : undefined;
+        ? aggregatedFilters?.year
+        : getUniqOrUndefined(yearOptions)?.[0];
 
-      const programmingPlanId = programmingPlanOptions({ year, domain }).some(
-        (planOption) => planOption.id === aggregatedFilters?.programmingPlanId
-      )
-        ? aggregatedFilters?.programmingPlanId
-        : getUniqOrUndefined(programmingPlanOptions({ year, domain }))?.[0]?.id;
+      const availableProgrammingPlanIds = programmingPlanOptions({ year }).map(
+        (plan) => plan.id
+      );
+      const programmingPlanIds =
+        aggregatedFilters?.programmingPlanIds?.filter((programmingPlanId) =>
+          availableProgrammingPlanIds.includes(programmingPlanId)
+        ) ?? getUniqOrUndefined(availableProgrammingPlanIds);
+      const availableProgrammingSubPlanIds = programmingSubPlanOptions({
+        year,
+        programmingPlanIds
+      });
       const programmingSubPlanIds =
         aggregatedFilters?.programmingSubPlanIds?.filter((kind) =>
-          programmingSubPlanOptions({
-            year,
-            domain,
-            programmingPlanId
-          }).some((kindOption) => kind === kindOption)
-        ) ??
-        getUniqOrUndefined(
-          programmingSubPlanOptions({
-            year,
-            domain,
-            programmingPlanId
-          })
-        );
-      const context = contextOptions({
+          availableProgrammingSubPlanIds.some(
+            (kindOption) => kind === kindOption
+          )
+        ) ?? getUniqOrUndefined(availableProgrammingSubPlanIds);
+      const availableContexts = contextOptions({
         year,
-        domain,
-        programmingPlanId,
+        programmingPlanIds,
         programmingSubPlanIds
-      }).some((contextOption) => aggregatedFilters?.context === contextOption)
-        ? aggregatedFilters?.context
-        : getUniqOrUndefined(
-            contextOptions({
-              year,
-              domain,
-              programmingPlanId,
-              programmingSubPlanIds
-            })
-          )?.[0];
+      });
+      const contexts =
+        aggregatedFilters?.contexts?.filter((context) =>
+          availableContexts.some((contextOption) => context === contextOption)
+        ) ?? getUniqOrUndefined(availableContexts);
 
       return {
         ...aggregatedFilters,
-        domain,
         year,
-        programmingPlanId,
+        programmingPlanIds,
         programmingSubPlanIds,
-        context
+        contexts
       };
     },
     [
-      domainOptions,
       yearOptions,
       programmingPlanOptions,
       programmingSubPlanOptions,
@@ -138,7 +107,6 @@ export const usePrescriptionFilters = (
   );
 
   return {
-    domainOptions,
     yearOptions,
     programmingPlanOptions,
     programmingSubPlanOptions,
