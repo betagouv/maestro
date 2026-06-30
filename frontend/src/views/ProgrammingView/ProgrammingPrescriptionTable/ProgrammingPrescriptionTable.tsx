@@ -52,6 +52,7 @@ const ProgrammingPrescriptionTable = ({
   const { hasUserLocalPrescriptionPermission } = useAuthentication();
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const syncingRef = useRef(false);
+  const tableContainerRef = useRef<HTMLDivElement>(null);
   const headerWrapperRef = useRef<HTMLDivElement>(null);
   const rowWrapperRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const stickyScrollRef = useRef<HTMLDivElement>(null);
@@ -109,10 +110,27 @@ const ProgrammingPrescriptionTable = ({
     header.addEventListener('scroll', onHeaderScroll, { passive: true });
     sticky.addEventListener('scroll', onStickyScroll);
 
+    const tableContainer = tableContainerRef.current;
+    const onWheel = (e: WheelEvent) => {
+      if (sticky.contains(e.target as Node)) {
+        return;
+      }
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) {
+        return;
+      }
+      e.preventDefault();
+      let delta = e.deltaX;
+      if (e.deltaMode === 1) delta *= 24;
+      if (e.deltaMode === 2) delta *= sticky.clientWidth;
+      sticky.scrollLeft += delta;
+    };
+    tableContainer?.addEventListener('wheel', onWheel, { passive: false });
+
     return () => {
       ro.disconnect();
       header.removeEventListener('scroll', onHeaderScroll);
       sticky.removeEventListener('scroll', onStickyScroll);
+      tableContainer?.removeEventListener('wheel', onWheel);
     };
   }, []);
 
@@ -143,8 +161,11 @@ const ProgrammingPrescriptionTable = ({
   }
 
   return (
-    <div data-testid="prescription-table" className="programming-table">
-      {/* Header sticky — hors du wrapper scroll */}
+    <div
+      data-testid="prescription-table"
+      className="programming-table"
+      ref={tableContainerRef}
+    >
       <div className="header-wrapper" ref={headerWrapperRef}>
         <div
           className={clsx(
