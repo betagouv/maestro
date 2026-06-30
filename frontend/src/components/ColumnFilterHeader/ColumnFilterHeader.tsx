@@ -30,8 +30,20 @@ const ColumnFilterHeader = <T extends string>({
 }: Props<T>) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [effectiveAlign, setEffectiveAlign] = useState<'left' | 'right'>(
+    menuAlign
+  );
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonWrapperRef = useRef<HTMLDivElement>(null);
   const isActive = selectedValues.length > 0 || extraActive;
+
+  const handleToggle = () => {
+    if (!isOpen && menuAlign === 'left' && buttonWrapperRef.current) {
+      const rect = buttonWrapperRef.current.getBoundingClientRect();
+      setEffectiveAlign(rect.left + 300 > window.innerWidth ? 'right' : 'left');
+    }
+    setIsOpen((prev) => !prev);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -88,20 +100,20 @@ const ColumnFilterHeader = <T extends string>({
   return (
     <div className="column-filter-header" ref={menuRef}>
       <span className="column-filter-label">{label}</span>
-      <div className="column-filter-button-wrapper">
+      <div className="column-filter-button-wrapper" ref={buttonWrapperRef}>
         <Button
           iconId="fr-icon-filter-line"
           priority={isActive ? 'primary' : 'tertiary'}
           size="small"
           title={`Filtrer ${label ? `par ${label}` : ''}`}
           className="column-filter-button"
-          onClick={() => setIsOpen((prev) => !prev)}
+          onClick={handleToggle}
           aria-expanded={isOpen}
         />
         {isOpen && (
           <div
             className={clsx(cx('fr-p-2w'), 'column-filter-menu', {
-              'column-filter-menu--right': menuAlign === 'right'
+              'column-filter-menu--right': effectiveAlign === 'right'
             })}
           >
             <div className="search-input-wrapper">
