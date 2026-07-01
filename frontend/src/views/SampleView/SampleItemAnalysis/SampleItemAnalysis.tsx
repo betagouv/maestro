@@ -422,7 +422,10 @@ const SampleItemAnalysis: FunctionComponent<Props> = ({
             sample={sample}
             programmingSubPlan={programmingSubPlan}
             partialAnalysis={analysis}
-            onDone={() => navigateToSample(sample.id)}
+            onDone={() => {
+              navigateToSample(sample.id);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
           />
         ))}
       {sample.status === 'InReview' && <UserFeedback />}
