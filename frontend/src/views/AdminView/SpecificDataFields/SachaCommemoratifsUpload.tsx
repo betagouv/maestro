@@ -39,7 +39,7 @@ export const SachaCommemoratifsUpload: FunctionComponent = () => {
       >
         {isLoading
           ? 'Import en cours...'
-          : 'Mettre à jour le référentiel Sacha'}
+          : 'Importer le nouveau référentiel Sacha'}
       </Button>
       <input
         ref={fileInputRef}

@@ -114,7 +114,7 @@ export const SpecificDataFieldsView = () => {
       <div
         className={clsx('d-flex-row', 'd-flex-align-center', cx('fr-mb-2w'))}
       >
-        <h3 className={cx('fr-mb-0')}>Configuration des descripteurs</h3>
+        <h3 className={cx('fr-mb-0')}>Dictionnaire des descripteurs</h3>
         <SachaCommemoratifsUpload />
       </div>
 
