@@ -21,7 +21,7 @@ export const adminSections = [
   },
   {
     slug: 'descripteurs',
-    label: 'Configuration des descripteurs',
+    label: 'Dictionnaire des descripteurs',
     content: <SpecificDataFieldsView />
   },
   {
