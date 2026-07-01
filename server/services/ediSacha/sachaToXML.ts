@@ -112,7 +112,7 @@ export const generateXML = async <T extends SachaFileType>(
     })
     .encode({
       MessageParametres: {
-        CodeScenario: 'MAESTRO',
+        CodeScenario: 'E.D.I. SIGAL/LABOS',
         VersionScenario: '1.0.1',
         TypeFichier: fileType,
         NomFichier: fileName,

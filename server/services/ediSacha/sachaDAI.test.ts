@@ -219,7 +219,7 @@ test(`génère un XML de DAI`, async () => {
       "content": "<?xml version="1.0" encoding="UTF-8"?>
     <DemandesAnalyses schemavalidation="DemandesAnalyses.xsd">
       <MessageParametres>
-        <CodeScenario>MAESTRO</CodeScenario>
+        <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
         <VersionScenario>1.0.1</VersionScenario>
         <TypeFichier>DA01</TypeFichier>
         <NomFichier>DA01MDDSV72LDA72251216100736798</NomFichier>
