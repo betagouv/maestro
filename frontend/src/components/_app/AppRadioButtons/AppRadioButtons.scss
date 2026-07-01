@@ -1,4 +1,4 @@
-@use '../../../constants' as constants;
+@use "../../../constants" as constants;
 
 @media (max-width: constants.$breakpoint-md) {
   .fr-fieldset__content.fr-grid-row--gutters {
@@ -16,7 +16,7 @@
     margin-top: 0 !important;
   }
 
-    > .fr-messages-group{
-      margin-top: 1rem ;
-    }
+  > .fr-messages-group {
+    margin-top: 1rem;
   }
+}

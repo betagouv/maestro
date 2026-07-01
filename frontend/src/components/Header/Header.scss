@@ -1,7 +1,7 @@
 .header-menu {
   position: relative;
 
-  .header-menu-button[aria-expanded='true'] {
+  .header-menu-button[aria-expanded="true"] {
     color: var(--text-active-blue-france);
     background-color: var(--background-open-blue-france);
     --idle: transparent;

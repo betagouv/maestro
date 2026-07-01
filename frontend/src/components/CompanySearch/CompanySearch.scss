@@ -6,7 +6,7 @@
   padding: 0 !important;
 }
 
-.naf-container{
+.naf-container {
   color: var(--text-mention-grey);
   background-color: var(--background-alt-beige-gris-galet);
   width: 100%;
@@ -15,17 +15,17 @@
   display: flex;
 }
 
-.naf-label{
+.naf-label {
   overflow: hidden;
   text-overflow: ellipsis;
   text-wrap: nowrap;
   width: 100%;
 }
 
-.name-container{
+.name-container {
   padding-bottom: 1rem;
 }
 
-.address-container{
+.address-container {
   text-transform: capitalize;
 }

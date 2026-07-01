@@ -19,7 +19,6 @@
     padding-bottom: 0.5rem;
   }
 
-
   .laboratory-agreements-notice {
     background-color: var(--background-contrast-info);
     color: var(--blue-france-sun-113-625);
@@ -52,12 +51,18 @@
     }
   }
 
-  td, th {
+  td,
+  th {
     vertical-align: middle !important;
   }
 
-  thead, tr {
-    background-image: linear-gradient(0deg, var(--border-contrast-grey), var(--border-contrast-grey)) !important;
+  thead,
+  tr {
+    background-image: linear-gradient(
+      0deg,
+      var(--border-contrast-grey),
+      var(--border-contrast-grey)
+    ) !important;
   }
 
   tr:has(.sub-row-content) td {
@@ -65,13 +70,28 @@
     background-color: var(--background-alt-grey);
   }
 
-  thead::after, tbody::after {
-    background-image: linear-gradient(0deg, var(--border-contrast-grey), var(--border-contrast-grey)),
-    linear-gradient(0deg, var(--border-contrast-grey), var(--border-contrast-grey)),
-    linear-gradient(0deg, var(--border-contrast-grey), var(--border-contrast-grey)) !important;
+  thead::after,
+  tbody::after {
+    background-image:
+      linear-gradient(
+        0deg,
+        var(--border-contrast-grey),
+        var(--border-contrast-grey)
+      ),
+      linear-gradient(
+        0deg,
+        var(--border-contrast-grey),
+        var(--border-contrast-grey)
+      ),
+      linear-gradient(
+        0deg,
+        var(--border-contrast-grey),
+        var(--border-contrast-grey)
+      ) !important;
   }
 
-  .fr-table th:has(.border-left), .fr-table td:has(.border-left) {
+  .fr-table th:has(.border-left),
+  .fr-table td:has(.border-left) {
     border-left: 1px solid var(--border-contrast-grey);
   }
 
@@ -81,23 +101,26 @@
     border-bottom: 1px solid var(--border-contrast-grey) !important;
   }
 
-  th:nth-child(2), td:nth-child(2) {
+  th:nth-child(2),
+  td:nth-child(2) {
     width: 6rem;
   }
 
-  th:nth-child(3), td:nth-child(3) {
+  th:nth-child(3),
+  td:nth-child(3) {
     width: 12rem;
   }
 
-  th:nth-child(4), td:nth-child(4) {
+  th:nth-child(4),
+  td:nth-child(4) {
     width: 16rem;
   }
 
-  th:nth-child(5), td:nth-child(5) {
+  th:nth-child(5),
+  td:nth-child(5) {
     width: auto;
     min-width: 10rem;
   }
-
 
   tr:has(.row-unchecked) td {
     background-color: var(--background-alt-yellow-tournesol) !important;
@@ -113,7 +136,9 @@
     justify-content: center;
     align-items: center;
 
-    .fr-fieldset, .fr-fieldset__content, .fr-radio-group {
+    .fr-fieldset,
+    .fr-fieldset__content,
+    .fr-radio-group {
       margin: 0 !important;
       padding: 0 !important;
     }
@@ -148,5 +173,3 @@
     align-items: center;
   }
 }
-
-
