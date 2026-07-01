@@ -15,7 +15,8 @@
         "noUselessCatch": "error",
         "noUselessEscapeInRegex": "error",
         "noUselessTypeConstraint": "error",
-        "useLiteralKeys": "off"
+        "useLiteralKeys": "off",
+        "noImportantStyles": "off"
       },
       "correctness": {
         "noConstAssign": "error",
@@ -51,7 +52,8 @@
         "useAsConstAssertion": "error",
         "useBlockStatements": "off",
         "useConsistentArrowReturn": "off",
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "noDescendingSpecificity": "off"
       },
       "suspicious": {
         "noAsyncPromiseExecutor": "error",

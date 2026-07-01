@@ -1,60 +1,54 @@
-.residue-list-container{
-
+.residue-list-container {
   display: flex;
   flex-direction: row;
-  position:relative;
+  position: relative;
 
-  .residues-side-menu{
-
-    position:sticky;
+  .residues-side-menu {
+    position: sticky;
     top: 0;
     align-self: self-start;
     width: 200px;
 
-    .residues-side-menu-item-container{
-      position:relative;
+    .residues-side-menu-item-container {
+      position: relative;
       width: 100%;
       background-color: var(--background-default-grey);
 
       --hover: var(--background-alt-blue-france-hover);
-
-
     }
 
-    .current-residue{
+    .current-residue {
       background-color: var(--background-alt-blue-france);
 
       &:before {
-        background-color:var(--border-active-blue-france);
-        bottom:.75rem;
-        content:"";
-        left:0;
-        position:absolute;
-        top:.75rem;
-        width:2px
+        background-color: var(--border-active-blue-france);
+        bottom: 0.75rem;
+        content: "";
+        left: 0;
+        position: absolute;
+        top: 0.75rem;
+        width: 2px;
       }
 
-      .residue-item-number{
-        color: var(--text-active-blue-france)
+      .residue-item-number {
+        color: var(--text-active-blue-france);
       }
     }
 
-    .residue-item-number{
+    .residue-item-number {
       display: flex;
       align-items: center;
       flex-direction: row;
     }
 
-    .residue-item-reference{
+    .residue-item-reference {
       text-align: start;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
     }
   }
-  .residue-detail{
+  .residue-detail {
     flex: 1;
-
-
   }
 }

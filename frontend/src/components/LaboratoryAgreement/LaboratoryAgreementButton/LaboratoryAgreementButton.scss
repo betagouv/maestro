@@ -24,19 +24,21 @@
     filter: brightness(0.93);
   }
 
-  &--reference, &--reference:hover {
+  &--reference,
+  &--reference:hover {
     background-color: var(--background-contrast-success) !important;
     color: var(--text-default-success);
   }
 
-  &--detection, &--detection:hover {
+  &--detection,
+  &--detection:hover {
     background-color: var(--yellow-tournesol-950-100) !important;
     color: var(--yellow-tournesol-sun-407-moon-922);
   }
 
-  &--confirmation, &--confirmation:hover {
+  &--confirmation,
+  &--confirmation:hover {
     background-color: var(--purple-glycine-950-100) !important;
     color: var(--purple-glycine-sun-319-moon-630);
   }
 }
-

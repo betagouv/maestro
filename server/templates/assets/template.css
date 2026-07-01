@@ -188,7 +188,6 @@ table {
     left: -1rem;
   }
 
-  /* biome-ignore lint/style/noDescendingSpecificity: ? */
   .label {
     margin-bottom: 0;
     color: var(--text-mention-grey);
@@ -205,7 +204,6 @@ table {
     line-height: 11px;
   }
 
-  /* biome-ignore lint/style/noDescendingSpecificity: ? */
   .value {
     font-size: 10px;
     line-height: 15px;
