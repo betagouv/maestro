@@ -181,30 +181,30 @@
   thead,
   tr {
     background-image: linear-gradient(
-            0deg,
-            var(--border-contrast-grey),
-            var(--border-contrast-grey)
+      0deg,
+      var(--border-contrast-grey),
+      var(--border-contrast-grey)
     ) !important;
   }
 
   thead::after,
   tbody::after {
     background-image:
-            linear-gradient(
-                    0deg,
-                    var(--border-contrast-grey),
-                    var(--border-contrast-grey)
-            ),
-            linear-gradient(
-                    0deg,
-                    var(--border-contrast-grey),
-                    var(--border-contrast-grey)
-            ),
-            linear-gradient(
-                    0deg,
-                    var(--border-contrast-grey),
-                    var(--border-contrast-grey)
-            );
+      linear-gradient(
+        0deg,
+        var(--border-contrast-grey),
+        var(--border-contrast-grey)
+      ),
+      linear-gradient(
+        0deg,
+        var(--border-contrast-grey),
+        var(--border-contrast-grey)
+      ),
+      linear-gradient(
+        0deg,
+        var(--border-contrast-grey),
+        var(--border-contrast-grey)
+      );
   }
 
   .fr-table th.border-left,
