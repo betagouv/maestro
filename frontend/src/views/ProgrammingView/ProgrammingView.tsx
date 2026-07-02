@@ -26,7 +26,6 @@ import prescriptionsSlice, {
   type PrescriptionFilters
 } from '../../store/reducers/prescriptionsSlice';
 import ProgrammingCommentList from './ProgrammingCommentList/ProgrammingCommentList';
-import ProgrammingInstructions from './ProgrammingInstructions/ProgrammingInstructions';
 import ProgrammingPlanDepartmentalValidationList from './ProgrammingPlanDepartmentalValidationList/ProgrammingPlanDepartmentalValidationList';
 import ProgrammingPlanRegionalValidationList from './ProgrammingPlanRegionalValidationList/ProgrammingPlanRegionalValidationList';
 import ProgrammingPrescriptionFilters from './ProgrammingPrescriptionFilters/ProgrammingPrescriptionFilters';
