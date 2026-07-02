@@ -1,5 +1,8 @@
+.programming-table {
+  $col-n-width: 5.25rem;
   $col-matrice-width: 12.5rem;
   $col-analyte-width: 18.75rem;
+  $col-prelevements-width: 8.75rem;
   $col-region-width: 4.375rem;
 
   border-left: 1px solid var(--border-contrast-grey);
@@ -14,6 +17,10 @@
     .fr-table {
       margin-top: 0;
       margin-bottom: 0;
+
+      .fr-table__wrapper::after {
+        background-image: none !important;
+      }
     }
 
     table {
@@ -61,7 +68,23 @@
       height: 1px;
     }
   }
+  col.col-n {
+    width: $col-n-width;
+  }
+  col.col-matrice {
+    width: $col-matrice-width;
+  }
+  col.col-analyte {
+    width: $col-analyte-width;
+  }
+  col.col-prelevements {
+    width: $col-prelevements-width;
+  }
+  col.col-region {
+    width: $col-region-width;
+  }
 
+  .fr-table table {
     max-height: unset;
     overflow: visible;
     width: fit-content !important;
@@ -73,9 +96,71 @@
   }
 
   thead tr:nth-child(1) {
+    th:nth-child(1) {
+      min-width: $col-n-width;
+      max-width: $col-n-width;
+      padding-right: 0;
+    }
+    th:nth-child(2) {
+      min-width: $col-matrice-width;
+      max-width: $col-matrice-width;
+    }
+    th:nth-child(3) {
+      min-width: $col-analyte-width;
+      max-width: $col-analyte-width;
+    }
+    th:nth-child(4) {
+      min-width: $col-prelevements-width;
+      max-width: $col-prelevements-width;
+    }
+    th:nth-child(n + 5) {
+      min-width: $col-region-width;
+      max-width: $col-region-width;
+    }
   }
   thead tr.total-row {
+    height: 32px;
+
+    td {
+      background-color: var(--background-alt-grey) !important;
+      border-bottom: 1px solid var(--border-contrast-grey);
+    }
+
+    td:nth-child(2) {
+      min-width: $col-prelevements-width;
+      max-width: $col-prelevements-width;
+    }
+    td:nth-child(n + 3) {
+      min-width: $col-region-width;
+      max-width: $col-region-width;
+    }
+
+    td:nth-child(1) {
+      left: 0;
+    }
   }
+  tbody tr {
+    td:nth-child(1) {
+      min-width: $col-n-width;
+      max-width: $col-n-width;
+      padding-right: 0;
+    }
+    td:nth-child(2) {
+      min-width: $col-matrice-width;
+      max-width: $col-matrice-width;
+    }
+    td:nth-child(3) {
+      min-width: $col-analyte-width;
+      max-width: $col-analyte-width;
+    }
+    td:nth-child(4) {
+      min-width: $col-prelevements-width;
+      max-width: $col-prelevements-width;
+    }
+    td:nth-child(n + 5) {
+      min-width: $col-region-width;
+      max-width: $col-region-width;
+    }
   }
 
   thead tr:nth-child(1) th {
@@ -86,20 +171,52 @@
     white-space: nowrap;
   }
 
+  td,
+  th {
     vertical-align: middle !important;
     padding-top: 8px !important;
     padding-bottom: 8px !important;
   }
 
+  thead,
+  tr {
+    background-image: linear-gradient(
+            0deg,
+            var(--border-contrast-grey),
+            var(--border-contrast-grey)
+    ) !important;
   }
 
+  thead::after,
+  tbody::after {
+    background-image:
+            linear-gradient(
+                    0deg,
+                    var(--border-contrast-grey),
+                    var(--border-contrast-grey)
+            ),
+            linear-gradient(
+                    0deg,
+                    var(--border-contrast-grey),
+                    var(--border-contrast-grey)
+            ),
+            linear-gradient(
+                    0deg,
+                    var(--border-contrast-grey),
+                    var(--border-contrast-grey)
+            );
   }
 
+  .fr-table th.border-left,
+  .fr-table td.border-left {
     border-left: 1px solid var(--border-contrast-grey);
   }
+  .fr-table th.border-right,
+  .fr-table td.border-right {
     border-right: 1px solid var(--border-contrast-grey);
   }
-  .fr-table th.align-center, .fr-table td.align-center {
+  .fr-table th.align-center,
+  .fr-table td.align-center {
     text-align: center;
   }
 
@@ -107,24 +224,32 @@
     border-bottom: 1px solid var(--border-contrast-grey);
   }
 
+  th:nth-child(1),
+  td:nth-child(1) {
     position: sticky;
     left: 0;
     z-index: 1;
     background-color: var(--background-default-grey) !important;
   }
 
+  th:nth-child(2),
+  td:nth-child(2) {
     position: sticky;
     left: $col-n-width;
     z-index: 1;
     background-color: var(--background-default-grey) !important;
   }
 
+  th:nth-child(3),
+  td:nth-child(3) {
     position: sticky;
     left: calc(#{$col-n-width} + #{$col-matrice-width});
     z-index: 1;
     background-color: var(--background-default-grey) !important;
   }
 
+  th:nth-child(4),
+  td:nth-child(4) {
     position: sticky;
     left: calc(#{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width});
     z-index: 1;
@@ -148,16 +273,19 @@
     z-index: 2;
   }
 
-  thead tr.total-row td:nth-child(n+3) {
+  thead tr.total-row td:nth-child(n + 3) {
     left: auto;
     position: static;
   }
 
   .prescription-expanded-content {
+    padding: 1rem 2rem;
     display: flex;
     flex-direction: column;
     gap: 2rem;
     color: var(--text-mention-grey);
+    background-color: var(--background-alt-grey);
+    border-bottom: 1px solid var(--border-contrast-grey);
   }
 
   .row-reference {
