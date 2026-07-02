@@ -43,7 +43,6 @@ export const MaestroRoutes = [
   '/laboratories/:laboratoryId/analytical-competences/:analyticalCompetenceId',
   '/laboratories/:laboratoryId/analytical-competences/export',
   '/laboratories/:laboratoryId/residue-mappings',
-  '/laboratories/:laboratoryId/residue-mappings/orphan-labels',
   '/mascarade/:userId',
   '/mascarade',
   '/notifications',

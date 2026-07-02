@@ -141,14 +141,5 @@ export const laboratoriesRoutes = {
       response: LaboratoryResidueMapping,
       permissions: ['administrationMaestro']
     }
-  },
-  '/laboratories/:laboratoryId/residue-mappings/orphan-labels': {
-    params: {
-      laboratoryId: z.guid()
-    },
-    get: {
-      response: z.array(z.string()),
-      permissions: ['administrationMaestro']
-    }
   }
 } as const satisfies SubRoutes<'/laboratories'>;
