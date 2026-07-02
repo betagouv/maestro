@@ -29,40 +29,6 @@ const findByLaboratoryId = async (
     .execute();
 };
 
-const findOrphanLabelsByLaboratoryId = async (
-  laboratoryId: string
-): Promise<string[]> => {
-  const rows = await kysely
-    .selectFrom('analysisResidues')
-    .innerJoin('analysis', 'analysis.id', 'analysisResidues.analysisId')
-    .innerJoin('sampleItems', 'sampleItems.sampleId', 'analysis.sampleId')
-    .select('analysisResidues.unknownLabel')
-    .distinct()
-    .where('sampleItems.laboratoryId', '=', laboratoryId)
-    .where('sampleItems.recipientKind', '=', 'Laboratory')
-    .where('analysisResidues.unknownLabel', 'is not', null)
-    .where(({ not, exists, selectFrom }) =>
-      not(
-        exists(
-          selectFrom('laboratoryResidueMappings')
-            .select('label')
-            .whereRef(
-              'laboratoryResidueMappings.label',
-              '=',
-              'analysisResidues.unknownLabel'
-            )
-            .where('laboratoryResidueMappings.laboratoryId', '=', laboratoryId)
-        )
-      )
-    )
-    .orderBy('analysisResidues.unknownLabel')
-    .execute();
-
-  return rows
-    .map((row) => row.unknownLabel)
-    .filter((label): label is string => label !== null);
-};
-
 const applyResidueMapping = async (
   laboratoryId: string,
   label: string,
@@ -106,7 +72,6 @@ const update = async ({
 export const laboratoryResidueMappingRepository = {
   findByLaboratoryShortName,
   findByLaboratoryId,
-  findOrphanLabelsByLaboratoryId,
   applyResidueMapping,
   update
 };

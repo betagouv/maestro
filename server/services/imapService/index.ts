@@ -3,10 +3,7 @@ import { isNil } from 'lodash-es';
 import type { LaboratoryWithAutomation } from 'maestro-shared/referential/Laboratory';
 import { SandreToSSD2 } from 'maestro-shared/referential/Residue/SandreToSSD2';
 import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
-import {
-  getSSD2Id,
-  SSD2Referential
-} from 'maestro-shared/referential/Residue/SSD2Referential';
+import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
 import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { AnalysisRai } from 'maestro-shared/schema/AnalysisRai/AnalysisRai';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
@@ -130,6 +127,7 @@ type EmailRaiResult = {
 
 const processEmailRaiAttachments = async (
   laboratoryName: LaboratoryWithConf,
+  laboratoryId: string | null,
   attachments: Pick<Attachment, 'content' | 'filename' | 'contentType'>[],
   receivedAt: Date
 ): Promise<{ results: EmailRaiResult[]; warnings: Set<string> }> => {
@@ -186,29 +184,38 @@ const processEmailRaiAttachments = async (
       }
     });
 
-    const interestingResidues = residues
-      .filter((r) => r.result_kind !== 'ND')
-      .filter((r) => {
-        const ssd2Id = r.ssd2Id;
-        if (ssd2Id === null) {
-          return true;
-        }
-        const reference =
-          SSD2Referential[ssd2Id as keyof typeof SSD2Referential];
-        return !('deprecated' in reference) || !reference.deprecated;
-      });
-
-    interestingResidues.forEach((r) => {
-      if (r.ssd2Id === null) {
-        if (ssd2IdByLabel[r.label] === null && r.result_kind === 'ND') {
-          warnings.add(
-            `Attention un résidu inconnu a été détecté, il a été ignoré : ${r.label}`
-          );
-        } else {
-          throw new ExtractError(`Résidu non identifiable : ${r.label}`);
-        }
+    const blockingLabels = new Set<string>();
+    const registeredLabels = new Set<string>();
+    for (const r of residues) {
+      if (r.ssd2Id !== null) {
+        continue;
       }
-    });
+      if (
+        laboratoryId !== null &&
+        !Object.keys(ssd2IdByLabel).includes(r.label) &&
+        !registeredLabels.has(r.label)
+      ) {
+        await laboratoryResidueMappingRepository.update({
+          laboratoryId,
+          label: r.label,
+          ssd2Id: null
+        });
+        registeredLabels.add(r.label);
+      }
+      if (r.result_kind === 'ND') {
+        warnings.add(
+          `Attention un résidu inconnu a été détecté, il a été ignoré : ${r.label}`
+        );
+      } else {
+        blockingLabels.add(r.label);
+      }
+    }
+
+    if (blockingLabels.size > 0) {
+      throw new ExtractError(
+        `Résidu non identifiable : ${[...blockingLabels].join(', ')}`
+      );
+    }
 
     const {
       sampleId,
@@ -288,6 +295,7 @@ export const replayRai = async (
 
     const { results } = await processEmailRaiAttachments(
       laboratory.shortName,
+      laboratory.id,
       emails.flatMap((e) => e.attachments),
       rai.receivedAt
     );
@@ -511,6 +519,7 @@ export const checkEmails = async () => {
               const { results, warnings: extractionWarnings } =
                 await processEmailRaiAttachments(
                   laboratoryName,
+                  laboratoryId,
                   emails.flatMap((p) => p.attachments),
                   receivedAt
                 );

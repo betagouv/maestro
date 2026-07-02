@@ -12,23 +12,13 @@ const laboratoryResidueMappingApi = api.injectEndpoints({
         ]
       }
     ),
-    findLaboratoryOrphanResidueLabels: buildTypedQuery(
-      builder,
-      '/laboratories/:laboratoryId/residue-mappings/orphan-labels',
-      {
-        providesTags: (_result, _error, { laboratoryId }) => [
-          { type: 'LaboratoryResidueMapping', id: `orphans-${laboratoryId}` }
-        ]
-      }
-    ),
     updateLaboratoryResidueMapping: buildTypedMutation(
       builder,
       '/laboratories/:laboratoryId/residue-mappings',
       'put',
       {
         invalidatesTags: (_result, _error, { laboratoryId }) => [
-          { type: 'LaboratoryResidueMapping', id: laboratoryId },
-          { type: 'LaboratoryResidueMapping', id: `orphans-${laboratoryId}` }
+          { type: 'LaboratoryResidueMapping', id: laboratoryId }
         ]
       }
     )
@@ -37,6 +27,5 @@ const laboratoryResidueMappingApi = api.injectEndpoints({
 
 export const {
   useFindLaboratoryResidueMappingsQuery,
-  useFindLaboratoryOrphanResidueLabelsQuery,
   useUpdateLaboratoryResidueMappingMutation
 } = laboratoryResidueMappingApi;

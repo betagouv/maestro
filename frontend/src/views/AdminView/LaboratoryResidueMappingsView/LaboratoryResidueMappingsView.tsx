@@ -189,12 +189,6 @@ export const LaboratoryResidueMappingsView = () => {
       { skip: selectedLaboratoryId === '' }
     );
 
-  const { data: orphanLabels = [] } =
-    apiClient.useFindLaboratoryOrphanResidueLabelsQuery(
-      { laboratoryId: selectedLaboratoryId },
-      { skip: selectedLaboratoryId === '' }
-    );
-
   const [update] = apiClient.useUpdateLaboratoryResidueMappingMutation();
 
   const [labelFilter, setLabelFilter] = useState('');
@@ -214,16 +208,6 @@ export const LaboratoryResidueMappingsView = () => {
         return a.label.localeCompare(b.label);
       });
   }, [mappings, labelFilter, ssd2IdFilter]);
-
-  const filteredOrphanLabels = useMemo(() => {
-    const normalized = labelFilter.trim().toLowerCase();
-    return [...orphanLabels]
-      .filter((label) =>
-        normalized === '' ? true : label.toLowerCase().includes(normalized)
-      )
-      .filter(() => ssd2IdFilter === null)
-      .sort((a, b) => a.localeCompare(b));
-  }, [orphanLabels, labelFilter, ssd2IdFilter]);
 
   const existingLabels = useMemo(
     () => mappings.map((m) => m.label),
@@ -298,69 +282,60 @@ export const LaboratoryResidueMappingsView = () => {
                 />
               </div>
             ]}
-            data={[
-              ...filteredOrphanLabels.map((label) => {
-                const suggestions = searchSSD2IdByLabel(label).slice(0, 3);
-                return [
+            data={filteredMappings.map((mapping) => {
+              const isUnmapped = mapping.ssd2Id === null;
+              const suggestions = isUnmapped
+                ? searchSSD2IdByLabel(mapping.label).slice(0, 3)
+                : [];
+              return [
+                isUnmapped ? (
                   <span
-                    key={`orphan-label-${label}`}
+                    key={`label-${mapping.label}`}
                     className={clsx('d-flex-align-center')}
                   >
                     <Badge severity="new" small className={cx('fr-mr-1w')}>
                       Nouveau
                     </Badge>
-                    {label}
-                  </span>,
-                  <div key={`orphan-${selectedLaboratoryId}-${label}`}>
-                    <SSD2Autocomplete
-                      value={null}
-                      onChange={(ssd2Id) =>
-                        update({
-                          laboratoryId: selectedLaboratoryId,
-                          label,
-                          ssd2Id
-                        })
-                      }
-                    />
-                    {suggestions.length > 0 && (
-                      <div className={cx('fr-mt-1w')}>
-                        {suggestions.map((suggestion) => (
-                          <Tag
-                            key={`${label}-suggestion-${suggestion}`}
-                            small
-                            nativeButtonProps={{
-                              onClick: () =>
-                                update({
-                                  laboratoryId: selectedLaboratoryId,
-                                  label,
-                                  ssd2Id: suggestion
-                                })
-                            }}
-                            className={cx('fr-mr-1v', 'fr-mb-1v')}
-                          >
-                            {SSD2IdLabel[suggestion]} ({suggestion})
-                          </Tag>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ];
-              }),
-              ...filteredMappings.map((mapping) => [
-                mapping.label,
-                <SSD2Autocomplete
-                  key={`${selectedLaboratoryId}-${mapping.label}`}
-                  value={mapping.ssd2Id}
-                  onChange={(ssd2Id) =>
-                    update({
-                      laboratoryId: selectedLaboratoryId,
-                      label: mapping.label,
-                      ssd2Id
-                    })
-                  }
-                />
-              ])
-            ]}
+                    {mapping.label}
+                  </span>
+                ) : (
+                  mapping.label
+                ),
+                <div key={`${selectedLaboratoryId}-${mapping.label}`}>
+                  <SSD2Autocomplete
+                    value={mapping.ssd2Id}
+                    onChange={(ssd2Id) =>
+                      update({
+                        laboratoryId: selectedLaboratoryId,
+                        label: mapping.label,
+                        ssd2Id
+                      })
+                    }
+                  />
+                  {suggestions.length > 0 && (
+                    <div className={cx('fr-mt-1w')}>
+                      {suggestions.map((suggestion) => (
+                        <Tag
+                          key={`${mapping.label}-suggestion-${suggestion}`}
+                          small
+                          nativeButtonProps={{
+                            onClick: () =>
+                              update({
+                                laboratoryId: selectedLaboratoryId,
+                                label: mapping.label,
+                                ssd2Id: suggestion
+                              })
+                          }}
+                          className={cx('fr-mr-1v', 'fr-mb-1v')}
+                        >
+                          {SSD2IdLabel[suggestion]} ({suggestion})
+                        </Tag>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ];
+            })}
           />
           <AddMappingModal
             laboratoryId={selectedLaboratoryId}

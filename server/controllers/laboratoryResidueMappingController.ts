@@ -37,17 +37,5 @@ export const laboratoryResidueMappingRouter = {
 
       return { status: HttpStatus.OK, response: mapping };
     }
-  },
-  '/laboratories/:laboratoryId/residue-mappings/orphan-labels': {
-    get: async (_, { laboratoryId }) => {
-      console.info('Get orphan residue labels', laboratoryId);
-
-      const labels =
-        await laboratoryResidueMappingRepository.findOrphanLabelsByLaboratoryId(
-          laboratoryId
-        );
-
-      return { status: HttpStatus.OK, response: labels };
-    }
   }
 } as const satisfies ProtectedSubRouter;
