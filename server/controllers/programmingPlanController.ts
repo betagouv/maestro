@@ -231,7 +231,7 @@ export const programmingPlanRouter = {
             ) {
               const localPrescriptions =
                 await localPrescriptionRepository.findMany({
-                  programmingPlanId,
+                  programmingPlanIds: [programmingPlanId],
                   region: programmingPlanLocalStatus.region,
                   department: programmingPlanLocalStatus.department
                 });
@@ -461,7 +461,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
       });
       const previousLocalPrescriptions =
         await localPrescriptionRepository.findMany({
-          programmingPlanId: previousProgrammingPlan.id
+          programmingPlanIds: [previousProgrammingPlan.id]
         });
 
       await Promise.all(
