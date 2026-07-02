@@ -1011,7 +1011,8 @@ export const SSD2Referential =
       name: 'BYI08330 enol-glucoside (cis-3-(2,5-Dimethylphenyl)-8-methoxy-2-oxo-1-azaspiro [4.5]dec-3-en-4-yl ß-D-glucopyranoside)',
       casNumber: null,
       otherNames: ['BYI08330 enol-glucoside'],
-      reportable: true
+      reportable: true,
+      lmrCanBeOptional: true
     },
     'RF-00003331-PAR': {
       reference: 'RF-00003331-PAR',
@@ -2638,14 +2639,16 @@ export const SSD2Referential =
       name: 'Spirotetramat-ketohydroxy',
       casNumber: null,
       otherNames: [],
-      reportable: false
+      reportable: false,
+      lmrCanBeOptional: true
     },
     'RF-00009261-PAR': {
       reference: 'RF-00009261-PAR',
       name: 'Spirotetramat-monohydroxy',
       casNumber: null,
       otherNames: [],
-      reportable: false
+      reportable: false,
+      lmrCanBeOptional: true
     },
     'RF-00009274-PAR': {
       reference: 'RF-00009274-PAR',
