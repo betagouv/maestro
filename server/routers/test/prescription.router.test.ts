@@ -245,7 +245,7 @@ describe('Prescriptions router', () => {
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    test('should export the prescriptions of the programmingPlan with Control context', async () => {
+    test('hould export the prescriptions of the programmingPlan with Control context', async () => {
       await request(app)
         .get(testRoute(programmingPlanInProgress.id, 'Control'))
         .use(tokenProvider(NationalCoordinator))
