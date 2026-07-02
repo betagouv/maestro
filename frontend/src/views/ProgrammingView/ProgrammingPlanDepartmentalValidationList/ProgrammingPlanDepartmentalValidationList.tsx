@@ -11,7 +11,6 @@ import {
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
-import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import {
@@ -52,9 +51,7 @@ const ProgrammingPlanDepartmentalValidationList = ({
   const findPrescriptionOptions = useMemo(
     () => ({
       programmingPlanId: programmingPlan.id,
-      contexts: prescriptionFilters.context
-        ? [prescriptionFilters.context]
-        : undefined
+      contexts: prescriptionFilters.contexts
     }),
     [programmingPlan, prescriptionFilters]
   );
@@ -68,7 +65,8 @@ const ProgrammingPlanDepartmentalValidationList = ({
 
   const findLocalPrescriptionOptions = useMemo(
     () => ({
-      ...findPrescriptionOptions,
+      programmingPlanIds: [programmingPlan.id],
+      contexts: prescriptionFilters.contexts,
       includes: [
         'comments' as const,
         'sampleCounts' as const,
@@ -81,9 +79,7 @@ const ProgrammingPlanDepartmentalValidationList = ({
 
   const { data: departmentalPrescriptions } =
     apiClient.useFindLocalPrescriptionsQuery(findLocalPrescriptionOptions, {
-      skip: !FindLocalPrescriptionOptions.safeParse(
-        findLocalPrescriptionOptions
-      ).success
+      skip: !findLocalPrescriptionOptions.programmingPlanIds?.length
     });
 
   const validatedDepartments = useMemo(

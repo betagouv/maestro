@@ -11,6 +11,7 @@ import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan
 import { useMemo } from 'react';
 import FiltersTags from '../../../components/FilterTags/FiltersTags';
 import type { PrescriptionFilters } from '../../../store/reducers/prescriptionsSlice';
+import { pluralize } from '../../../utils/stringUtils';
 
 interface Props {
   options: {
@@ -18,19 +19,16 @@ interface Props {
     programmingSubPlanIds: ProgrammingSubPlanId[];
     contexts: ProgrammingPlanContext[];
   };
-  programmingPlans?: ProgrammingPlanChecked[];
   filters: PrescriptionFilters;
   onChange: (filters: Partial<PrescriptionFilters>) => void;
   renderMode: 'inline' | 'modal';
-  multiSelect?: boolean;
 }
 
 const ProgrammingPrescriptionFilters = ({
   options,
   filters,
   onChange,
-  renderMode,
-  multiSelect
+  renderMode
 }: Props) => {
   const filterClassName = useMemo(
     () =>
@@ -44,60 +42,67 @@ const ProgrammingPrescriptionFilters = ({
         <Select
           label="Plan"
           nativeSelectProps={{
-            value: filters.programmingPlanId ?? '',
+            value: '',
             onChange: (e) =>
               onChange({
-                programmingPlanId: e.target.value as string
+                programmingPlanIds: [
+                  ...(filters.programmingPlanIds ?? []),
+                  e.target.value as string
+                ]
               })
           }}
           className={cx('fr-mb-1v')}
           disabled={options.plans.length <= 1}
         >
-          {options.plans.length > 1 && (
-            <option value="">Sélectionner une valeur</option>
-          )}
-          {options.plans.map((plan) => (
-            <option key={`plan-${plan.id}`} value={plan.id}>
-              {plan.title}
-            </option>
-          ))}
+          <option value="">
+            {filters.programmingPlanIds?.length
+              ? t('programmingPlan', {
+                  count: filters.programmingPlanIds.length
+                })
+              : 'Tous'}
+          </option>
+          {options.plans
+            .filter((plan) => !filters.programmingPlanIds?.includes(plan.id))
+            .map((plan) => (
+              <option key={`plan-${plan.id}`} value={plan.id}>
+                {plan.title}
+              </option>
+            ))}
         </Select>
+        <FiltersTags
+          filters={pick(filters, 'programmingPlanIds')}
+          programmingPlans={options.plans}
+          onChange={({ programmingPlanIds }) =>
+            onChange({ programmingPlanIds })
+          }
+        />
       </div>
       <div className={filterClassName}>
         <Select
           label="Sous-plan"
           nativeSelectProps={{
-            value: filters.programmingSubPlanIds?.[0] ?? '',
+            value: '',
             onChange: (e) =>
               onChange({
-                programmingSubPlanIds: multiSelect
-                  ? [
-                      ...(filters.programmingSubPlanIds ?? []),
-                      e.target.value as ProgrammingSubPlanId
-                    ]
-                  : [e.target.value as ProgrammingSubPlanId]
+                programmingSubPlanIds: [
+                  ...(filters.programmingSubPlanIds ?? []),
+                  e.target.value as ProgrammingSubPlanId
+                ]
               })
           }}
           className={cx('fr-mb-1v')}
           disabled={options.programmingSubPlanIds.length <= 1}
         >
-          {options.programmingSubPlanIds.length > 1 && (
-            <option value="">
-              {multiSelect && filters.programmingSubPlanIds?.length
-                ? t('select', {
-                    count: filters.programmingSubPlanIds?.length
-                  })
-                : multiSelect
-                  ? 'Tous'
-                  : 'Sélectionner une valeur'}
-            </option>
-          )}
+          <option value="">
+            {filters.programmingSubPlanIds?.length
+              ? pluralize(filters.programmingSubPlanIds.length, {
+                  preserveCount: true
+                })('sous-plan')
+              : 'Tous'}
+          </option>
           {options.programmingSubPlanIds
             .filter(
-              (subPlanId) =>
-                options.programmingSubPlanIds.length === 1 ||
-                !multiSelect ||
-                !filters.programmingSubPlanIds?.includes(subPlanId)
+              (subPlanId) => !filters.programmingSubPlanIds?.includes(subPlanId)
             )
             .map((subPlanId) => (
               <option key={`subPlanId-${subPlanId}`} value={subPlanId}>
@@ -109,36 +114,53 @@ const ProgrammingPrescriptionFilters = ({
               </option>
             ))}
         </Select>
-        {multiSelect && options.programmingSubPlanIds.length > 1 && (
-          <FiltersTags
-            filters={pick(filters, 'programmingSubPlanIds')}
-            programmingPlans={options.plans}
-            onChange={({ programmingSubPlanIds }) =>
-              onChange({ programmingSubPlanIds })
-            }
-          />
-        )}
+        <FiltersTags
+          filters={pick(filters, 'programmingSubPlanIds')}
+          programmingPlans={options.plans}
+          onChange={({ programmingSubPlanIds }) =>
+            onChange({ programmingSubPlanIds })
+          }
+        />
       </div>
       <div className={filterClassName}>
         <Select
           label="Contexte"
           nativeSelectProps={{
-            value: filters.context ?? '',
+            value: '',
             onChange: (e) =>
               onChange({
-                context: e.target.value as ProgrammingPlanContext
+                contexts: [
+                  ...(filters.contexts ?? []),
+                  e.target.value as ProgrammingPlanContext
+                ]
               })
           }}
           className={cx('fr-mb-1v')}
           disabled={options.contexts.length <= 1}
         >
-          {options.contexts.length > 1 && <option value="">Tous</option>}
-          {options.contexts.map((context) => (
-            <option key={`context-${context}`} value={context}>
-              {ContextLabels[context]}
-            </option>
-          ))}
+          <option value="">
+            {filters.contexts?.length
+              ? t('context', {
+                  count: filters.contexts.length
+                })
+              : 'Tous'}
+          </option>
+          {options.contexts
+            .filter((context) => !filters.contexts?.includes(context))
+            .map((context) => (
+              <option key={`context-${context}`} value={context}>
+                {ContextLabels[context]}
+              </option>
+            ))}
         </Select>
+        <FiltersTags
+          filters={pick(filters, 'contexts')}
+          onChange={({ contexts }) =>
+            onChange({
+              contexts: contexts as ProgrammingPlanContext[] | undefined
+            })
+          }
+        />
       </div>
     </div>
   );

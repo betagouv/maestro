@@ -15,7 +15,7 @@ export type LocalPrescriptionOptionsInclude = z.infer<
 >;
 
 export const FindLocalPrescriptionOptions = z.object({
-  programmingPlanId: z.guid(),
+  programmingPlanIds: z.array(z.guid()).min(1).nullish(),
   prescriptionId: z.guid().nullish(),
   programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullish(),
   contexts: z.array(ProgrammingPlanContext).nullish(),

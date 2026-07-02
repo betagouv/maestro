@@ -11,7 +11,6 @@ import {
   RegionList,
   Regions
 } from 'maestro-shared/referential/Region';
-import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -43,9 +42,7 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
     () => ({
       programmingPlanId: programmingPlan.id,
       programmingSubPlanIds: prescriptionFilters.programmingSubPlanIds,
-      contexts: prescriptionFilters.context
-        ? [prescriptionFilters.context]
-        : undefined,
+      contexts: prescriptionFilters.contexts,
       includes: ['substanceCount' as const]
     }),
     [programmingPlan, prescriptionFilters]
@@ -60,17 +57,17 @@ const ProgrammingCommentList = ({ programmingPlan, ..._rest }: Props) => {
 
   const findLocalPrescriptionOptions = useMemo(
     () => ({
-      ...findPrescriptionOptions,
+      programmingPlanIds: [programmingPlan.id],
+      programmingSubPlanIds: prescriptionFilters.programmingSubPlanIds,
+      contexts: prescriptionFilters.contexts,
       includes: ['comments' as const, 'sampleCounts' as const]
     }),
-    [findPrescriptionOptions]
+    [programmingPlan, prescriptionFilters]
   );
 
   const { data: regionalPrescriptions } =
     apiClient.useFindLocalPrescriptionsQuery(findLocalPrescriptionOptions, {
-      skip: !FindLocalPrescriptionOptions.safeParse(
-        findLocalPrescriptionOptions
-      ).success
+      skip: !findLocalPrescriptionOptions.programmingPlanIds?.length
     });
 
   const commentedPrescriptions = useMemo(

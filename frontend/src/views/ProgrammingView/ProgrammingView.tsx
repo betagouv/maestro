@@ -26,7 +26,6 @@ import prescriptionsSlice, {
   type PrescriptionFilters
 } from '../../store/reducers/prescriptionsSlice';
 import ProgrammingCommentList from './ProgrammingCommentList/ProgrammingCommentList';
-import ProgrammingInstructions from './ProgrammingInstructions/ProgrammingInstructions';
 import ProgrammingPlanDepartmentalValidationList from './ProgrammingPlanDepartmentalValidationList/ProgrammingPlanDepartmentalValidationList';
 import ProgrammingPlanRegionalValidationList from './ProgrammingPlanRegionalValidationList/ProgrammingPlanRegionalValidationList';
 import ProgrammingPrescriptionFilters from './ProgrammingPrescriptionFilters/ProgrammingPrescriptionFilters';
@@ -77,24 +76,29 @@ const ProgrammingView = () => {
             searchParams.get('year') ??
               max(programmingPlans?.map((plan) => plan.year))
           ),
-          programmingPlanId: searchParams.get('programmingPlanId'),
+          programmingPlanIds:
+            (searchParams.get('programmingPlanIds')?.split(',') as string[]) ??
+            undefined,
           programmingSubPlanIds:
             (searchParams
               .get('programmingSubPlanIds')
               ?.split(',') as ProgrammingSubPlanId[]) ?? undefined,
-          context:
-            (searchParams.get('context') as ProgrammingPlanContext) ?? undefined
+          contexts:
+            (searchParams
+              .get('contexts')
+              ?.split(',') as ProgrammingPlanContext[]) ?? undefined
         })
       )
     );
   }, [searchParams, programmingPlans]);
 
-  const programmingPlan = useMemo(
+  const filteredProgrammingPlans = useMemo(
     () =>
-      (programmingPlans ?? []).find(
-        (plan) => prescriptionFilters.programmingPlanId === plan.id
+      (programmingPlans ?? []).filter(
+        (plan) =>
+          !prescriptionFilters.programmingPlanIds?.length ||
+          prescriptionFilters.programmingPlanIds.includes(plan.id)
       ),
-
     [prescriptionFilters, programmingPlans]
   );
 
@@ -144,12 +148,12 @@ const ProgrammingView = () => {
             title={
               <div className="d-flex-align-center">
                 Programmation{' '}
-                {yearOptions(prescriptionFilters).length <= 1 ? (
+                {yearOptions.length <= 1 ? (
                   prescriptionFilters.year
                 ) : (
                   <YearSelector
                     year={prescriptionFilters.year ?? 0}
-                    years={yearOptions(prescriptionFilters)}
+                    years={yearOptions}
                     onChange={(year) => changeFilter({ year })}
                   />
                 )}
@@ -158,9 +162,6 @@ const ProgrammingView = () => {
             subtitle={`${region ? Regions[region]?.name : ''}${user?.department ? ` - ${DepartmentLabels[user?.department]}` : ''}`}
             illustration={programmation}
           />
-          {programmingPlan && (
-            <ProgrammingInstructions programmingPlan={programmingPlan} />
-          )}
           <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
             <div className="d-flex-align-start">
               <div className={clsx('flex-grow-1')}>
@@ -174,7 +175,6 @@ const ProgrammingView = () => {
                   filters={prescriptionFilters}
                   onChange={changeFilter}
                   renderMode="inline"
-                  multiSelect
                 />
               </div>
             </div>
@@ -215,15 +215,18 @@ const ProgrammingView = () => {
                         tabId: 'ProgrammationTab',
                         iconId: 'fr-icon-survey-line' as const
                       },
-                      programmingPlan?.distributionKind === 'REGIONAL' &&
-                      hasUserPermission('manageProgrammingPlan')
+                      filteredProgrammingPlans.some(
+                        (p) => p.distributionKind === 'REGIONAL'
+                      ) && hasUserPermission('manageProgrammingPlan')
                         ? {
                             label: 'Phase de consultation',
                             tabId: 'ConsultationTab',
                             iconId: 'fr-icon-chat-check-line' as const
                           }
                         : undefined,
-                      programmingPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
+                      filteredProgrammingPlans.some(
+                        (p) => p.distributionKind === 'SLAUGHTERHOUSE'
+                      ) &&
                       (hasUserPermission('manageProgrammingPlan') ||
                         hasUserPermission(
                           'distributePrescriptionToDepartments'
@@ -236,8 +239,9 @@ const ProgrammingView = () => {
                             iconId: 'fr-icon-chat-check-line' as const
                           }
                         : undefined,
-                      programmingPlan?.distributionKind === 'REGIONAL' &&
-                      hasUserPermission('commentPrescription')
+                      filteredProgrammingPlans.some(
+                        (p) => p.distributionKind === 'REGIONAL'
+                      ) && hasUserPermission('commentPrescription')
                         ? {
                             label: 'Commentaires',
                             tabId: 'CommentsTab',
@@ -246,34 +250,41 @@ const ProgrammingView = () => {
                         : undefined
                     ].filter((tab) => !isNil(tab))}
                   >
-                    {programmingPlan ? (
+                    {filteredProgrammingPlans.length ? (
                       <>
-                        {selectedTabId === 'ProgrammationTab' && (
-                          <ProgrammingPrescriptionList
-                            programmingPlan={programmingPlan}
-                            region={region ?? undefined}
-                            department={user?.department ?? undefined}
-                            companies={user?.companies ?? undefined}
-                          />
-                        )}
-                        {selectedTabId === 'ConsultationTab' &&
-                          hasNationalView && (
-                            <ProgrammingPlanRegionalValidationList
-                              programmingPlan={programmingPlan}
+                        {selectedTabId === 'ProgrammationTab' &&
+                          filteredProgrammingPlans.length > 0 && (
+                            <ProgrammingPrescriptionList
+                              programmingPlans={filteredProgrammingPlans}
+                              region={region ?? undefined}
+                              department={user?.department ?? undefined}
+                              companies={user?.companies ?? undefined}
                             />
                           )}
                         {selectedTabId === 'ConsultationTab' &&
-                          hasRegionalView && (
+                          hasNationalView &&
+                          filteredProgrammingPlans.map((plan) => (
+                            <ProgrammingPlanRegionalValidationList
+                              key={plan.id}
+                              programmingPlan={plan}
+                            />
+                          ))}
+                        {selectedTabId === 'ConsultationTab' &&
+                          hasRegionalView &&
+                          filteredProgrammingPlans.map((plan) => (
                             <ProgrammingPlanDepartmentalValidationList
-                              programmingPlan={programmingPlan}
+                              key={plan.id}
+                              programmingPlan={plan}
                               region={region as Region}
                             />
-                          )}
-                        {selectedTabId === 'CommentsTab' && (
-                          <ProgrammingCommentList
-                            programmingPlan={programmingPlan}
-                          />
-                        )}
+                          ))}
+                        {selectedTabId === 'CommentsTab' &&
+                          filteredProgrammingPlans.map((plan) => (
+                            <ProgrammingCommentList
+                              key={plan.id}
+                              programmingPlan={plan}
+                            />
+                          ))}
                       </>
                     ) : (
                       'Veuillez sélectionner un plan de programmation'

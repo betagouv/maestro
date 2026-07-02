@@ -18,8 +18,7 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
 import TableHeaderCell from 'src/components/TableHeaderCell/TableHeaderCell';
 import { useAuthentication } from '../../../hooks/useAuthentication';
-import './ProgrammingPrescriptionTable.scss';
-import PrescriptionSubstances from '../../../components/Prescription/PrescriptionSubstances/PrescriptionSubstances';
+import './ProgrammingRegionalPrescriptionTable.scss';
 
 interface Props {
   programmingPlans: ProgrammingPlanChecked[];
@@ -31,6 +30,11 @@ interface Props {
   ) => void;
 }
 
+const COL_COUNT = 4 + RegionList.length;
+
+// Les largeurs doivent correspondre exactement aux variables SCSS $col-*-width.
+// table-layout: fixed est utilisé pour garantir ces largeurs quelles que soient
+// les contraintes de contenu (max-width est ignoré par les navigateurs en auto).
 const Colgroup = () => (
   <colgroup>
     <col className="col-n" />
@@ -51,86 +55,47 @@ const ProgrammingPrescriptionTable = ({
 }: Props) => {
   const { hasUserLocalPrescriptionPermission } = useAuthentication();
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
-  const syncingRef = useRef(false);
-  const tableContainerRef = useRef<HTMLDivElement>(null);
   const headerWrapperRef = useRef<HTMLDivElement>(null);
-  const rowWrapperRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const stickyScrollRef = useRef<HTMLDivElement>(null);
   const stickyInnerRef = useRef<HTMLDivElement>(null);
 
-  const sync = (source: HTMLDivElement) => {
-    if (syncingRef.current) {
-      return;
-    }
-    syncingRef.current = true;
-    [
-      headerWrapperRef.current,
-      ...Array.from(rowWrapperRefs.current.values()),
-      stickyScrollRef.current
-    ]
-      .filter((el): el is HTMLDivElement => !!el && el !== source)
-      .forEach((el) => {
-        el.scrollLeft = source.scrollLeft;
-      });
-    syncingRef.current = false;
-  };
-
-  useEffect(() => {
-    if (headerWrapperRef.current) {
-      headerWrapperRef.current.scrollLeft = 0;
-    }
-    if (stickyScrollRef.current) {
-      stickyScrollRef.current.scrollLeft = 0;
-    }
-    rowWrapperRefs.current.forEach((el) => {
-      el.scrollLeft = 0;
-    });
-  }, [prescriptions]);
-
   useEffect(() => {
     const header = headerWrapperRef.current;
+    const wrapper = wrapperRef.current;
     const sticky = stickyScrollRef.current;
     const inner = stickyInnerRef.current;
-    if (!header || !sticky || !inner) {
-      return;
-    }
+    if (!header || !wrapper || !sticky || !inner) return;
 
     const updateWidth = () => {
-      inner.style.width = `${header.scrollWidth}px`;
+      inner.style.width = `${wrapper.scrollWidth}px`;
     };
     const ro = new ResizeObserver(updateWidth);
-    ro.observe(header);
-    const tableEl = header.querySelector('table');
-    if (tableEl) {
-      ro.observe(tableEl);
-    }
+    ro.observe(wrapper);
+    const tableEl = wrapper.querySelector('table');
+    if (tableEl) ro.observe(tableEl);
 
-    const onHeaderScroll = () => sync(header);
-    const onStickyScroll = () => sync(sticky);
-    header.addEventListener('scroll', onHeaderScroll, { passive: true });
-    sticky.addEventListener('scroll', onStickyScroll);
-
-    const tableContainer = tableContainerRef.current;
-    const onWheel = (e: WheelEvent) => {
-      if (sticky.contains(e.target as Node)) {
-        return;
-      }
-      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) {
-        return;
-      }
-      e.preventDefault();
-      let delta = e.deltaX;
-      if (e.deltaMode === 1) delta *= 24;
-      if (e.deltaMode === 2) delta *= sticky.clientWidth;
-      sticky.scrollLeft += delta;
+    let syncing = false;
+    const sync = (source: HTMLElement, targets: HTMLElement[]) => {
+      if (syncing) return;
+      syncing = true;
+      for (const t of targets) t.scrollLeft = source.scrollLeft;
+      syncing = false;
     };
-    tableContainer?.addEventListener('wheel', onWheel, { passive: false });
+
+    const onHeaderScroll = () => sync(header, [wrapper, sticky]);
+    const onWrapperScroll = () => sync(wrapper, [header, sticky]);
+    const onStickyScroll = () => sync(sticky, [header, wrapper]);
+
+    header.addEventListener('scroll', onHeaderScroll, { passive: true });
+    wrapper.addEventListener('scroll', onWrapperScroll, { passive: true });
+    sticky.addEventListener('scroll', onStickyScroll);
 
     return () => {
       ro.disconnect();
       header.removeEventListener('scroll', onHeaderScroll);
+      wrapper.removeEventListener('scroll', onWrapperScroll);
       sticky.removeEventListener('scroll', onStickyScroll);
-      tableContainer?.removeEventListener('wheel', onWheel);
     };
   }, []);
 
@@ -161,11 +126,8 @@ const ProgrammingPrescriptionTable = ({
   }
 
   return (
-    <div
-      data-testid="prescription-table"
-      className="programming-table"
-      ref={tableContainerRef}
-    >
+    <div data-testid="prescription-table" className="programming-table">
+      {/* Header sticky — hors du wrapper scroll */}
       <div className="header-wrapper" ref={headerWrapperRef}>
         <div
           className={clsx(
@@ -187,17 +149,12 @@ const ProgrammingPrescriptionTable = ({
                   Analyte
                 </th>
                 <th scope="col" className="border-left border-right">
-                  Prélèvements
-                  <br />
-                  programmés
+                  Prélèvements programmés
                 </th>
                 {RegionList.map((region, regionIdx) => (
                   <th
                     scope="col"
-                    className={clsx(
-                      { 'border-left': regionIdx !== 0 },
-                      cx('fr-p-1w')
-                    )}
+                    className={clsx({ 'border-left': regionIdx !== 0 })}
                     key={`header-${region}`}
                   >
                     <TableHeaderCell
@@ -211,22 +168,15 @@ const ProgrammingPrescriptionTable = ({
                 <td colSpan={3} className={cx('fr-text--bold')}>
                   Total prélèvements
                 </td>
-                <td
-                  className={clsx(
-                    cx('fr-text--bold'),
-                    'border-left',
-                    'border-right'
-                  )}
-                >
+                <td className="border-left border-right fr-text--bold">
                   {sumBy(regionalPrescriptions, 'sampleCount')}
                 </td>
                 {RegionList.map((region, regionIdx) => (
                   <td
                     key={`total-${region}`}
                     className={clsx(
-                      cx('fr-text--bold'),
                       { 'border-left': regionIdx !== 0 },
-                      'align-center'
+                      'fr-text--bold'
                     )}
                   >
                     {sumBy(
@@ -241,37 +191,28 @@ const ProgrammingPrescriptionTable = ({
         </div>
       </div>
 
-      {prescriptions.map((prescription) => {
-        const subPlan = getSubPlan(prescription);
-        const plan = getPlan(prescription);
-        const localPrescriptions = getLocalPrescriptions(prescription.id);
-        const totalSampleCount = sumBy(localPrescriptions, 'sampleCount');
-        const isExpanded = expandedIds.has(prescription.id);
+      {/* Body scrollable horizontalement */}
+      <div className="table-scroll-wrapper" ref={wrapperRef}>
+        <div
+          className={clsx(
+            'fr-table',
+            'fr-table--bordered',
+            'fr-table--no-caption',
+            'fr-table--no-scroll'
+          )}
+        >
+          <table>
+            <Colgroup />
+            <tbody>
+              {prescriptions.map((prescription) => {
+                const subPlan = getSubPlan(prescription);
+                const plan = getPlan(prescription);
+                const localPs = getLocalPrescriptions(prescription.id);
+                const total = sumBy(localPs, 'sampleCount');
+                const isExpanded = expandedIds.has(prescription.id);
 
-        return (
-          <Fragment key={prescription.id}>
-            <div
-              className="table-scroll-wrapper"
-              ref={(el) => {
-                if (el) {
-                  rowWrapperRefs.current.set(prescription.id, el);
-                } else {
-                  rowWrapperRefs.current.delete(prescription.id);
-                }
-              }}
-              onScroll={(e) => sync(e.currentTarget)}
-            >
-              <div
-                className={clsx(
-                  'fr-table',
-                  'fr-table--bordered',
-                  'fr-table--no-caption',
-                  'fr-table--no-scroll'
-                )}
-              >
-                <table>
-                  <Colgroup />
-                  <tbody>
+                return (
+                  <Fragment key={prescription.id}>
                     <tr>
                       <td>
                         <div className="row-reference">
@@ -300,10 +241,17 @@ const ProgrammingPrescriptionTable = ({
                           .map((sk) => SubstanceKindLabels[sk])
                           .join(', ')}
                       </td>
-                      <td className={clsx('border-left', 'border-right')}>
-                        <div>{totalSampleCount}</div>
+                      <td
+                        className={clsx(
+                          cx('fr-text--bold'),
+                          'border-left',
+                          'border-right',
+                          'sample-count'
+                        )}
+                      >
+                        {total}
                       </td>
-                      {localPrescriptions.map(
+                      {localPs.map(
                         (localPrescription, localPrescriptionIdx) => (
                           <td
                             className={clsx({
@@ -337,50 +285,49 @@ const ProgrammingPrescriptionTable = ({
                         )
                       )}
                     </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            {isExpanded && (
-              <div className="prescription-expanded-content">
-                <div className={cx('fr-grid-row')}>
-                  <div className={cx('fr-col-3')}>
-                    <div className={cx('fr-mb-3w')}>
-                      <div className="d-flex-align-center">
-                        <span
-                          className={cx('fr-icon-chat-quote-line', 'fr-pr-1v')}
-                        />
-                        <b>Notes</b>
-                      </div>
-                      {prescription.notes ?? 'Aucune note'}
-                    </div>
-                    <div>
-                      <div className="d-flex-align-center">
-                        <span
-                          className={cx('fr-icon-chat-quote-line', 'fr-pr-1v')}
-                        />
-                        <b>Consignes</b>
-                      </div>
-                      {prescription.programmingInstruction ?? 'Aucune consigne'}
-                    </div>
-                  </div>
-                  <div className={cx('fr-col-3')}>
-                    <PrescriptionSubstances
-                      programmingPlan={
-                        programmingPlans.find(
-                          (p) => p.id === prescription.programmingPlanId
-                        ) ?? programmingPlans[0]
-                      }
-                      prescription={prescription}
-                      renderMode="inline"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-          </Fragment>
-        );
-      })}
+                    {isExpanded && (
+                      <tr>
+                        <td colSpan={COL_COUNT} className="sub-row-content">
+                          <div className="prescription-expanded-content">
+                            {prescription.notes && (
+                              <div>
+                                <div className="d-flex-align-center">
+                                  <span
+                                    className={cx(
+                                      'fr-icon-chat-quote-line',
+                                      'fr-pr-1v'
+                                    )}
+                                  />
+                                  <b>Notes</b>
+                                </div>
+                                {prescription.notes}
+                              </div>
+                            )}
+                            {prescription.programmingInstruction && (
+                              <div>
+                                <div className="d-flex-align-center">
+                                  <span
+                                    className={cx(
+                                      'fr-icon-chat-quote-line',
+                                      'fr-pr-1v'
+                                    )}
+                                  />
+                                  <b>Consignes</b>
+                                </div>
+                                {prescription.programmingInstruction}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <div className="sticky-scrollbar" ref={stickyScrollRef}>
         <div ref={stickyInnerRef} />
