@@ -1,5 +1,4 @@
 import type { Geolocation } from 'maestro-shared/schema/Geolocation/Geolocation';
-import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { type FunctionComponent, useEffect, useState } from 'react';
 import {
@@ -12,6 +11,7 @@ import {
 } from 'react-map-gl/maplibre';
 import { assert, type Equals } from 'tsafe';
 import config from '../../../utils/config';
+import { maplibregl } from '../../../utils/maplibre';
 
 type ViewStyle = 'map' | 'satellite';
 

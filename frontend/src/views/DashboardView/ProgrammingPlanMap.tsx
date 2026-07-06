@@ -11,20 +11,22 @@ import {
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import maplibregl, {
-  type CircleLayerSpecification,
-  type FillLayerSpecification,
-  type LineLayerSpecification,
-  type MapGeoJSONFeature,
-  type Point,
-  type StyleSpecification,
-  type SymbolLayerSpecification
+import type {
+  CircleLayerSpecification,
+  FillLayerSpecification,
+  LineLayerSpecification,
+  MapGeoJSONFeature,
+  MapLayerMouseEvent,
+  Point,
+  StyleSpecification,
+  SymbolLayerSpecification
 } from 'maplibre-gl';
 import { useContext, useMemo, useRef, useState } from 'react';
 import { Layer, Map as MapLibre, Source } from 'react-map-gl/maplibre';
 import { useNavigate } from 'react-router';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { ApiClientContext } from '../../services/apiClient';
+import { maplibregl } from '../../utils/maplibre';
 
 interface Props {
   programmingPlan: ProgrammingPlanChecked;
@@ -194,7 +196,7 @@ const ProgrammingPlanMap = ({
     }
   };
 
-  const onHover = (e: maplibregl.MapLayerMouseEvent) => {
+  const onHover = (e: MapLayerMouseEvent) => {
     if (hoverInfo?.feature) {
       ref.current.setFeatureState(
         { source: 'regions', id: hoverInfo.feature.id },
@@ -223,7 +225,7 @@ const ProgrammingPlanMap = ({
     }
   };
 
-  const onClick = (e: maplibregl.MapLayerMouseEvent) => {
+  const onClick = (e: MapLayerMouseEvent) => {
     if (e.features && e.features.length > 0) {
       navigate(
         AuthenticatedAppRoutes.SamplesByYearRoute.link(programmingPlan.year, {
