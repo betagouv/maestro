@@ -349,7 +349,8 @@ describe('ProgrammingPlan router', () => {
     test('should create a new programming plan for the given year', async () => {
       const controlPrescription = genPrescription({
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-        context: 'Control'
+        context: 'Control',
+        matrixKind: 'A00RT'
       });
       const surveillancePrescription = genPrescription({
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
