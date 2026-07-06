@@ -43,8 +43,6 @@ export const FieldOptionsTable = ({
 
   const { data: sachaCommemoratifs } =
     apiClient.useGetSachaCommemoratifsQuery();
-  const { data: sachaFields = [] } = apiClient.useFindSachaFieldConfigsQuery();
-  const sachaField = sachaFields.find((f) => f.key === field.key) ?? null;
 
   const [optionToDelete, setOptionToDelete] = useState<AdminFieldOption | null>(
     null
@@ -55,10 +53,9 @@ export const FieldOptionsTable = ({
   >({});
 
   useEffect(() => {
-    if (!sachaField) return;
     setSelectedValues(
       Object.fromEntries(
-        sachaField.options
+        field.options
           .filter((o) => o.sachaCommemoratifValueSigle !== null)
           .map((o) => [
             o.value,
@@ -66,7 +63,7 @@ export const FieldOptionsTable = ({
           ])
       )
     );
-  }, [sachaField?.key, sachaField?.sachaCommemoratifSigle]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [field.key, field.sachaCommemoratifSigle]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const sortedOptions = [...field.options].sort((a, b) => a.order - b.order);
 
@@ -126,7 +123,7 @@ export const FieldOptionsTable = ({
     });
   };
 
-  const selectedSigle = sachaField?.sachaCommemoratifSigle ?? null;
+  const selectedSigle = field.sachaCommemoratifSigle;
   const selectedCommemoratif =
     selectedSigle && sachaCommemoratifs
       ? (sachaCommemoratifs[selectedSigle] ?? null)
@@ -138,7 +135,7 @@ export const FieldOptionsTable = ({
     : [];
 
   const showSachaColumn =
-    sachaField?.inDai &&
+    field.sachaInDai &&
     selectedSigle !== null &&
     sachaCommemoratifs !== undefined;
 
@@ -182,9 +179,9 @@ export const FieldOptionsTable = ({
                   onSelectValue(option.value, v as CommemoratifValueSigle)
                 }
                 placeholder="Rechercher une valeur"
-                required={!sachaField?.optional}
+                required={!field.sachaOptional}
                 state={
-                  selectedValues[option.value] || sachaField?.optional
+                  selectedValues[option.value] || field.sachaOptional
                     ? 'default'
                     : 'error'
                 }
