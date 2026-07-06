@@ -56,6 +56,7 @@ export function createServer(): Server {
             connectSrc: [
               "'self'",
               'https://stats.beta.gouv.fr',
+              'https://sentry.incubateur.net',
               'https://openmaptiles.data.gouv.fr',
               'https://openmaptiles.geo.data.gouv.fr',
               'https://openmaptiles.github.io',
