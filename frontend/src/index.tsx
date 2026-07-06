@@ -1,3 +1,4 @@
+import './utils/zodJitless';
 import 'maestro-shared/utils/zodConfig';
 import { registerSW } from 'virtual:pwa-register';
 import React from 'react';
