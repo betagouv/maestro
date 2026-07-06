@@ -142,10 +142,6 @@ export const FieldOptionsTable = ({
     selectedSigle !== null &&
     sachaCommemoratifs !== undefined;
 
-  if (sortedOptions.length === 0) {
-    return <p>Aucune option configurée.</p>;
-  }
-
   const actionsHeader = (
     <div
       key="actions-header"
