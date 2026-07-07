@@ -18,6 +18,7 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 
 import type { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import type { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleSteps } from 'maestro-shared/schema/Sample/SampleStep';
 import { formatWithTz, type MaestroDate } from 'maestro-shared/utils/date';
 import { checkSchema } from 'maestro-shared/utils/zod';
@@ -40,6 +41,19 @@ import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 import SupportDocumentDownload from '../SupportDocumentDownload';
+
+const oppositeSampleItemRecipientKind = (
+  recipientKind: SampleItemRecipientKind | undefined
+): SampleItemRecipientKind | undefined => {
+  switch (recipientKind) {
+    case 'Sampler':
+      return 'Operator';
+    case 'Operator':
+      return 'Sampler';
+    default:
+      return undefined;
+  }
+};
 
 const ItemsStep = ({ partialSample }: Props) => {
   const apiClient = useContext(ApiClientContext);
@@ -195,15 +209,38 @@ const ItemsStep = ({ partialSample }: Props) => {
 
   const changeItem = (item: PartialSampleItem) =>
     setItems(
-      items.map((_) =>
-        _.itemNumber === item.itemNumber && _.copyNumber === item.copyNumber
-          ? item
-          : _
-      )
+      items.map((_) => {
+        if (
+          _.itemNumber === item.itemNumber &&
+          _.copyNumber === item.copyNumber
+        ) {
+          return item;
+        }
+        //Le destinataire de l'exemplaire 3 est déduit de celui de l'exemplaire 2
+        if (
+          item.copyNumber === 2 &&
+          _.itemNumber === item.itemNumber &&
+          _.copyNumber === 3
+        ) {
+          return {
+            ..._,
+            recipientKind: oppositeSampleItemRecipientKind(item.recipientKind)
+          };
+        }
+        return _;
+      })
     );
 
   const addItem = (item: PartialSampleItem) => {
-    setItems([...items, item]);
+    const recipientKind =
+      item.copyNumber >= 3
+        ? oppositeSampleItemRecipientKind(
+            items.find(
+              (_) => _.itemNumber === item.itemNumber && _.copyNumber === 2
+            )?.recipientKind
+          )
+        : item.recipientKind;
+    setItems([...items, { ...item, recipientKind }]);
   };
 
   const removeItem = (item: PartialSampleItem) => {
