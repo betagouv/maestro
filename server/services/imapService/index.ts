@@ -190,9 +190,10 @@ const processEmailRaiAttachments = async (
       if (r.ssd2Id !== null) {
         continue;
       }
+      const isNewUnknownResidue = !Object.keys(ssd2IdByLabel).includes(r.label);
       if (
         laboratoryId !== null &&
-        !Object.keys(ssd2IdByLabel).includes(r.label) &&
+        isNewUnknownResidue &&
         !registeredLabels.has(r.label)
       ) {
         await laboratoryResidueMappingRepository.update({
@@ -203,9 +204,11 @@ const processEmailRaiAttachments = async (
         registeredLabels.add(r.label);
       }
       if (r.result_kind === 'ND') {
-        warnings.add(
-          `Attention un résidu inconnu a été détecté, il a été ignoré : ${r.label}`
-        );
+        if (isNewUnknownResidue) {
+          warnings.add(
+            `Attention un résidu inconnu a été détecté, il a été ignoré : ${r.label}`
+          );
+        }
       } else {
         blockingLabels.add(r.label);
       }
