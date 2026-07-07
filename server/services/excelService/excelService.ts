@@ -608,7 +608,10 @@ const generatePrescriptionsExportExcel = async (
             (_) => _.region === region && isNil(_.department)
           ),
           region
-        )
+        ),
+        ...(programmingPlan.distributionKind === 'REGIONAL'
+          ? effectiveSubstanceKinds.map(() => '')
+          : [])
       ])
     );
   }
@@ -623,9 +626,7 @@ const generatePrescriptionsExportExcel = async (
           sumBy(filteredLocalPrescriptions, 'sampleCount'),
           sumBy(filteredLocalPrescriptions, 'realizedSampleCount'),
           getCompletionRate(filteredLocalPrescriptions, undefined, true),
-          '',
-          '',
-          ''
+          ...effectiveSubstanceKinds.map(() => '')
         ];
       })
     );
