@@ -99,11 +99,19 @@ export const DashboardViewForSampler: Story = {
         data: [
           genLocalPrescription({
             prescriptionId: prescription1.id,
-            region: RegionalCoordinator.region as Region
+            region: RegionalCoordinator.region as Region,
+            sampleCount: 10,
+            realizedSampleCount: 5,
+            notAdmissibleSampleCount: 2,
+            inProgressSampleCount: 1
           }),
           genLocalPrescription({
             prescriptionId: prescription2.id,
-            region: RegionalCoordinator.region as Region
+            region: RegionalCoordinator.region as Region,
+            sampleCount: 10,
+            realizedSampleCount: 5,
+            notAdmissibleSampleCount: 0,
+            inProgressSampleCount: 1
           })
         ]
       },
@@ -125,6 +133,13 @@ export const DashboardViewForSampler: Story = {
     await expect(canvas.getByText('Actions à terminer')).toBeInTheDocument();
     await expect(canvas.getByText(sample1.reference)).toBeInTheDocument();
     await expect(canvas.getByText(sample2.reference)).toBeInTheDocument();
+
+    // (5 réalisés - 2 non recevables) / (10 - 2 non recevables) = 3/8 = 37%
+    await expect(canvas.getAllByText('37%')[0]).toBeInTheDocument();
+    await expect(canvas.getAllByText('3 recevables')[0]).toBeInTheDocument();
+    await expect(
+      canvas.getAllByText('2 non recevables')[0]
+    ).toBeInTheDocument();
   }
 };
 

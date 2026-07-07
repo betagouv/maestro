@@ -196,12 +196,26 @@ const DashboardPrescriptionCard: FunctionComponent<{
       end={
         <>
           <CircleProgress
-            progress={getCompletionRate(localPrescriptions)}
+            progress={getCompletionRate(
+              localPrescriptions.map((localPrescription) => ({
+                ...localPrescription,
+                sampleCount:
+                  localPrescription.sampleCount -
+                  (localPrescription.notAdmissibleSampleCount ?? 0),
+                realizedSampleCount:
+                  (localPrescription.realizedSampleCount ?? 0) -
+                  (localPrescription.notAdmissibleSampleCount ?? 0)
+              }))
+            )}
             sizePx={80}
             type="total"
-            total={sumBy(localPrescriptions, 'sampleCount')}
+            total={
+              sumBy(localPrescriptions, 'sampleCount') -
+              sumBy(localPrescriptions, 'notAdmissibleSampleCount')
+            }
             values={[
-              sumBy(localPrescriptions, 'realizedSampleCount'),
+              sumBy(localPrescriptions, 'realizedSampleCount') -
+                sumBy(localPrescriptions, 'notAdmissibleSampleCount'),
               sumBy(localPrescriptions, 'inProgressSampleCount')
             ]}
           />
@@ -216,17 +230,32 @@ const DashboardPrescriptionCard: FunctionComponent<{
               </span>
             </div>
             {sumBy(localPrescriptions, 'notAdmissibleSampleCount') > 0 && (
-              <div className={cx('fr-hint-text', 'fr-text--sm', 'fr-mb-0')}>
-                (
-                {pluralize(
-                  sumBy(localPrescriptions, 'notAdmissibleSampleCount'),
-                  {
-                    preserveCount: true,
-                    ignores: ['non']
-                  }
-                )('non recevable')}
-                )
-              </div>
+              <ul
+                className={cx(
+                  'fr-hint-text',
+                  'fr-text--xs',
+                  'fr-mb-0',
+                  'fr-pl-3w'
+                )}
+              >
+                <li>
+                  {sumBy(localPrescriptions, 'realizedSampleCount') -
+                    sumBy(localPrescriptions, 'notAdmissibleSampleCount')}{' '}
+                  {pluralize(
+                    sumBy(localPrescriptions, 'realizedSampleCount') -
+                      sumBy(localPrescriptions, 'notAdmissibleSampleCount')
+                  )('recevable')}
+                </li>
+                <li>
+                  {sumBy(localPrescriptions, 'notAdmissibleSampleCount')}{' '}
+                  {pluralize(
+                    sumBy(localPrescriptions, 'notAdmissibleSampleCount'),
+                    {
+                      ignores: ['non']
+                    }
+                  )('non recevable')}
+                </li>
+              </ul>
             )}
             <div className={clsx('d-flex-align-center')}>
               <div className={clsx('bullet', 'in-progress')}></div>
