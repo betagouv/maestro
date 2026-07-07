@@ -54,7 +54,7 @@ const fileValidator = z.array(
         LMR: z
           .union([z.coerce.number(), z.literal('NA').transform(() => null)])
           .optional(),
-        Conclusion: z.string()
+        Conclusion: z.string().default('')
       })
     )
 );
