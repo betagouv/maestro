@@ -199,9 +199,6 @@ const DashboardPrescriptionCard: FunctionComponent<{
             progress={getCompletionRate(
               localPrescriptions.map((localPrescription) => ({
                 ...localPrescription,
-                sampleCount:
-                  localPrescription.sampleCount -
-                  (localPrescription.notAdmissibleSampleCount ?? 0),
                 realizedSampleCount:
                   (localPrescription.realizedSampleCount ?? 0) -
                   (localPrescription.notAdmissibleSampleCount ?? 0)
@@ -209,10 +206,7 @@ const DashboardPrescriptionCard: FunctionComponent<{
             )}
             sizePx={80}
             type="total"
-            total={
-              sumBy(localPrescriptions, 'sampleCount') -
-              sumBy(localPrescriptions, 'notAdmissibleSampleCount')
-            }
+            total={sumBy(localPrescriptions, 'sampleCount')}
             values={[
               sumBy(localPrescriptions, 'realizedSampleCount') -
                 sumBy(localPrescriptions, 'notAdmissibleSampleCount'),
