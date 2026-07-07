@@ -99,7 +99,11 @@ export const DashboardViewForSampler: Story = {
         data: [
           genLocalPrescription({
             prescriptionId: prescription1.id,
-            region: RegionalCoordinator.region as Region
+            region: RegionalCoordinator.region as Region,
+            sampleCount: 10,
+            realizedSampleCount: 5,
+            notAdmissibleSampleCount: 2,
+            inProgressSampleCount: 1
           }),
           genLocalPrescription({
             prescriptionId: prescription2.id,
@@ -125,6 +129,12 @@ export const DashboardViewForSampler: Story = {
     await expect(canvas.getByText('Actions à terminer')).toBeInTheDocument();
     await expect(canvas.getByText(sample1.reference)).toBeInTheDocument();
     await expect(canvas.getByText(sample2.reference)).toBeInTheDocument();
+
+    // Le taux de réalisation exclut les prélèvements non recevables du
+    // numérateur comme du dénominateur :
+    // (5 réalisés - 2 non recevables) / (10 - 2 non recevables) = 3/8 = 37%
+    await expect(canvas.getByText('37%')).toBeInTheDocument();
+    await expect(canvas.getByText('(2 non recevables)')).toBeInTheDocument();
   }
 };
 

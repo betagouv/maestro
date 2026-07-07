@@ -196,12 +196,26 @@ const DashboardPrescriptionCard: FunctionComponent<{
       end={
         <>
           <CircleProgress
-            progress={getCompletionRate(localPrescriptions)}
+            progress={getCompletionRate(
+              localPrescriptions.map((localPrescription) => ({
+                ...localPrescription,
+                sampleCount:
+                  localPrescription.sampleCount -
+                  (localPrescription.notAdmissibleSampleCount ?? 0),
+                realizedSampleCount:
+                  (localPrescription.realizedSampleCount ?? 0) -
+                  (localPrescription.notAdmissibleSampleCount ?? 0)
+              }))
+            )}
             sizePx={80}
             type="total"
-            total={sumBy(localPrescriptions, 'sampleCount')}
+            total={
+              sumBy(localPrescriptions, 'sampleCount') -
+              sumBy(localPrescriptions, 'notAdmissibleSampleCount')
+            }
             values={[
-              sumBy(localPrescriptions, 'realizedSampleCount'),
+              sumBy(localPrescriptions, 'realizedSampleCount') -
+                sumBy(localPrescriptions, 'notAdmissibleSampleCount'),
               sumBy(localPrescriptions, 'inProgressSampleCount')
             ]}
           />
