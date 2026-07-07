@@ -12,7 +12,11 @@ import {
   programmingSubPlanIdsIsRequired,
   type UserRefined
 } from '../User/User';
-import { isNationalRole, type UserRole } from '../User/UserRole';
+import {
+  isNationalRole,
+  isRegionalRole,
+  type UserRole
+} from '../User/UserRole';
 import { SampleCompliance } from './SampleCompliance';
 import { SampleStatus } from './SampleStatus';
 
@@ -55,9 +59,12 @@ export const buildFindSampleOptions = (
       : user.region
         ? [user.region]
         : undefined,
-    departments: departmentIsRequired(user)
-      ? [user.department as Department]
-      : query.departments,
+    departments:
+      !isNationalRole(userRole) &&
+      !isRegionalRole(userRole) &&
+      departmentIsRequired(user)
+        ? [user.department as Department]
+        : query.departments,
     companySirets,
     programmingSubPlanIds: programmingSubPlanIdsIsRequired(user)
       ? user.programmingSubPlans.map((sp) => sp.id)
