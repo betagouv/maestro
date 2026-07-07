@@ -1,8 +1,13 @@
 import { describe, expect, test } from 'vitest';
 import { Regions } from '../../referential/Region';
 import {
+  DAOABovinValidatedSubPlanFixture,
+  DAOAVolailleValidatedSubPlanFixture
+} from '../../test/programmingPlanFixtures';
+import {
   AdminFixture,
   DepartmentalCoordinator,
+  genUser,
   NationalCoordinator,
   NationalObserver,
   Region1Fixture,
@@ -12,6 +17,7 @@ import {
   SamplerDaoaFixture
 } from '../../test/userFixtures';
 import { toArray } from '../../utils/utils';
+import { departmentIsRequired } from '../User/User';
 import { buildFindSampleOptions } from './FindSampleOptions';
 
 describe('buildFindSampleOptions', () => {
@@ -139,6 +145,31 @@ describe('buildFindSampleOptions', () => {
       expect(result.regions).toEqual([RegionalObserver.region]);
       expect(result.departments).toEqual(['01', '02']);
       expect(result.companySirets).toBeUndefined();
+    });
+
+    test('RegionalCoordinator who is also a DAOA sampler is not forced to their own department', () => {
+      const regionalSampler = genUser({
+        roles: ['RegionalCoordinator', 'Sampler'],
+        region: Region1Fixture,
+        programmingSubPlans: [
+          DAOAVolailleValidatedSubPlanFixture,
+          DAOABovinValidatedSubPlanFixture
+        ]
+      });
+      expect(departmentIsRequired(regionalSampler)).toBe(true);
+      expect(regionalSampler.department).not.toBeNull();
+
+      const result = buildFindSampleOptions(
+        regionalSampler,
+        'RegionalCoordinator',
+        {
+          ...baseQuery,
+          departments: ['01', '02']
+        }
+      );
+
+      expect(result.regions).toEqual([regionalSampler.region]);
+      expect(result.departments).toEqual(['01', '02']);
     });
   });
 
