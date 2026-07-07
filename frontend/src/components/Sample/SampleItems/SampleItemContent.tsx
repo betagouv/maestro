@@ -239,7 +239,7 @@ const SampleItemContent = ({
                 required
               />
             )
-          ) : (
+          ) : item.copyNumber === 2 ? (
             <AppRadioButtons
               legend="Destinataire de l’échantillon"
               options={
@@ -267,6 +267,15 @@ const SampleItemContent = ({
               required
               data-testid={`recipientKind-radio-${itemIndex}`}
             />
+          ) : (
+            <>
+              Destinataire de l’échantillon :{' '}
+              {item.recipientKind ? (
+                <b>{SampleItemRecipientKindLabels[item.recipientKind]}</b>
+              ) : (
+                <span className="missing-data">Information non disponible</span>
+              )}
+            </>
           )}
         </div>
         {programmingSubPlan?.subPlanNumber === 'PPV' && (

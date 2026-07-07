@@ -149,6 +149,39 @@ export const RemoveItem: Story = {
   }
 };
 
+export const AddThirdItem: Story = {
+  args: {
+    partialSample
+  },
+  parameters: {
+    preloadedState: {
+      auth: { authUser: genAuthUser(Sampler1Fixture) }
+    },
+    apiClient: getMockApi({
+      useGetProgrammingPlanQuery: () => ({ data: programmingPlan })
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    //Ajout de l'exemplaire n°2 et choix de son destinataire
+    await userEvent.click(canvas.getByTestId('add-item-button'));
+    const secondCopyRecipient = within(
+      canvas.getByTestId('recipientKind-radio-1')
+    );
+    await userEvent.click(secondCopyRecipient.getByLabelText('Détenteur'));
+
+    //Ajout de l'exemplaire n°3 : le destinataire est déduit, sans radio à choisir
+    await userEvent.click(canvas.getByTestId('add-item-button'));
+    await expect(
+      canvas.queryByTestId('recipientKind-radio-2')
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.getByText('Préleveur', { selector: 'b' })
+    ).toBeInTheDocument();
+  }
+};
+
 export const SubmittingErrors: Story = {
   args: {
     partialSample: {
