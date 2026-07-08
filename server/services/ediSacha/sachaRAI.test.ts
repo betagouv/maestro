@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, test } from 'vitest';
-import { RaiLabError, RaiMaestroError } from './sachaErrors';
+import { RaiMaestroError } from './sachaErrors';
 import { buildDaoaAnalysis } from './sachaRAI';
 import type { SachaResultats } from './sachaValidator';
 import { validateAndDecodeSachaXml } from './validateSachaXml';
