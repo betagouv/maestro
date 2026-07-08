@@ -1,5 +1,9 @@
 import z from 'zod';
 import {
+  CommemoratifSigle,
+  CommemoratifValueSigle
+} from '../SachaCommemoratif/SachaCommemoratif';
+import {
   FieldInputType,
   SpecificDataFieldId,
   SpecificDataFieldOptionId
@@ -9,7 +13,8 @@ export const AdminFieldOption = z.object({
   id: SpecificDataFieldOptionId,
   value: z.string(),
   label: z.string(),
-  order: z.number()
+  order: z.number(),
+  sachaCommemoratifValueSigle: CommemoratifValueSigle.nullable()
 });
 export type AdminFieldOption = z.infer<typeof AdminFieldOption>;
 
@@ -19,6 +24,9 @@ export const AdminFieldConfig = z.object({
   inputType: FieldInputType,
   label: z.string(),
   hintText: z.string().nullable(),
+  sachaCommemoratifSigle: CommemoratifSigle.nullable(),
+  sachaInDai: z.boolean(),
+  sachaOptional: z.boolean(),
   options: z.array(AdminFieldOption)
 });
 export type AdminFieldConfig = z.infer<typeof AdminFieldConfig>;

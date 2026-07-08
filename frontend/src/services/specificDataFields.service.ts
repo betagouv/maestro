@@ -61,7 +61,7 @@ const specificDataFieldsApi = api.injectEndpoints({
       '/specific-data-fields/attribute',
       'post',
       {
-        invalidatesTags: ['SampleSpecificData']
+        invalidatesTags: ['SampleSpecificData', 'SpecificDataField']
       }
     ),
     updateSampleSpecificDataAttributeValue: buildTypedMutation(
@@ -69,7 +69,7 @@ const specificDataFieldsApi = api.injectEndpoints({
       '/specific-data-fields/attribute/value',
       'post',
       {
-        invalidatesTags: ['SampleSpecificData']
+        invalidatesTags: ['SampleSpecificData', 'SpecificDataField']
       }
     )
   })

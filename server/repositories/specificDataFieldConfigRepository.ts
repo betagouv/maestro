@@ -175,7 +175,16 @@ const findAllFields = async (): Promise<AdminFieldConfig[]> => {
 
   const fields = await kysely
     .selectFrom('specificDataFields')
-    .select(['id', 'key', 'inputType', 'label', 'hintText'])
+    .select([
+      'id',
+      'key',
+      'inputType',
+      'label',
+      'hintText',
+      'sachaCommemoratifSigle',
+      'sachaInDai',
+      'sachaOptional'
+    ])
     .orderBy('key')
     .execute();
 
@@ -185,7 +194,14 @@ const findAllFields = async (): Promise<AdminFieldConfig[]> => {
 
   const options = await kysely
     .selectFrom('specificDataFieldOptions')
-    .select(['id', 'fieldKey', 'value', 'label', 'order'])
+    .select([
+      'id',
+      'fieldKey',
+      'value',
+      'label',
+      'order',
+      'sachaCommemoratifValueSigle'
+    ])
     .where('fieldKey', 'in', fieldKeys)
     .orderBy('order')
     .execute();
@@ -197,7 +213,8 @@ const findAllFields = async (): Promise<AdminFieldConfig[]> => {
         id: opt.id,
         value: opt.value,
         label: opt.label,
-        order: opt.order
+        order: opt.order,
+        sachaCommemoratifValueSigle: opt.sachaCommemoratifValueSigle
       });
       return acc;
     },
@@ -210,6 +227,9 @@ const findAllFields = async (): Promise<AdminFieldConfig[]> => {
     inputType: FieldInputType.parse(f.inputType),
     label: f.label,
     hintText: f.hintText,
+    sachaCommemoratifSigle: f.sachaCommemoratifSigle,
+    sachaInDai: f.sachaInDai,
+    sachaOptional: f.sachaOptional,
     options: optionsByFieldKey[f.key] ?? []
   }));
 };
@@ -231,6 +251,9 @@ const createField = async (
   return {
     ...field,
     inputType: FieldInputType.parse(field.inputType),
+    sachaCommemoratifSigle: null,
+    sachaInDai: false,
+    sachaOptional: false,
     options: []
   };
 };
@@ -247,14 +270,23 @@ const updateField = async (
       ...(input.hintText !== undefined && { hintText: input.hintText })
     })
     .where('id', '=', fieldId)
-    .returning(['id', 'key', 'inputType', 'label', 'hintText'])
+    .returning([
+      'id',
+      'key',
+      'inputType',
+      'label',
+      'hintText',
+      'sachaCommemoratifSigle',
+      'sachaInDai',
+      'sachaOptional'
+    ])
     .executeTakeFirst();
 
   if (!field) return null;
 
   const options = await kysely
     .selectFrom('specificDataFieldOptions')
-    .select(['id', 'value', 'label', 'order'])
+    .select(['id', 'value', 'label', 'order', 'sachaCommemoratifValueSigle'])
     .where('fieldKey', '=', field.key)
     .orderBy('order')
     .execute();
@@ -266,7 +298,8 @@ const updateField = async (
       id: o.id,
       value: o.value,
       label: o.label,
-      order: o.order
+      order: o.order,
+      sachaCommemoratifValueSigle: o.sachaCommemoratifValueSigle
     }))
   };
 };
@@ -299,7 +332,7 @@ const createFieldOption = async (
       order: input.order,
       sachaCommemoratifValueSigle: null
     })
-    .returning(['id', 'value', 'label', 'order'])
+    .returning(['id', 'value', 'label', 'order', 'sachaCommemoratifValueSigle'])
     .executeTakeFirstOrThrow();
 };
 
@@ -315,7 +348,7 @@ const updateFieldOption = async (
       ...(input.order !== undefined && { order: input.order })
     })
     .where('id', '=', optionId)
-    .returning(['id', 'value', 'label', 'order'])
+    .returning(['id', 'value', 'label', 'order', 'sachaCommemoratifValueSigle'])
     .executeTakeFirst();
 
   return option ?? null;

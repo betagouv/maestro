@@ -46,8 +46,6 @@ export const FieldForm = ({ field, ..._rest }: Props) => {
 
   const { data: sachaCommemoratifs } =
     apiClient.useGetSachaCommemoratifsQuery();
-  const { data: sachaFields = [] } = apiClient.useFindSachaFieldConfigsQuery();
-  const sachaField = sachaFields.find((f) => f.key === field.key) ?? null;
 
   const [formData, setFormData] = useState<FormData>({
     inputType: field.inputType,
@@ -55,12 +53,10 @@ export const FieldForm = ({ field, ..._rest }: Props) => {
     hintText: field.hintText ?? ''
   });
 
-  const [inDai, setInDai] = useState<boolean>(sachaField?.inDai ?? false);
-  const [optional, setOptional] = useState<boolean>(
-    sachaField?.optional ?? false
-  );
+  const [inDai, setInDai] = useState<boolean>(field.sachaInDai);
+  const [optional, setOptional] = useState<boolean>(field.sachaOptional);
   const [selectedSigle, setSelectedSigle] = useState<CommemoratifSigle | null>(
-    sachaField?.sachaCommemoratifSigle ?? null
+    field.sachaCommemoratifSigle
   );
 
   useEffect(() => {
@@ -69,13 +65,10 @@ export const FieldForm = ({ field, ..._rest }: Props) => {
       label: field.label,
       hintText: field.hintText ?? ''
     });
+    setInDai(field.sachaInDai);
+    setOptional(field.sachaOptional);
+    setSelectedSigle(field.sachaCommemoratifSigle);
   }, [field.id]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    setInDai(sachaField?.inDai ?? false);
-    setOptional(sachaField?.optional ?? false);
-    setSelectedSigle(sachaField?.sachaCommemoratifSigle ?? null);
-  }, [sachaField?.key]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const form = useForm(FieldFormSchema, {
     inputType: formData.inputType as FieldInputType,
@@ -92,14 +85,12 @@ export const FieldForm = ({ field, ..._rest }: Props) => {
           label: valid.label,
           hintText: valid.hintText ?? null
         }).unwrap();
-        if (sachaField) {
-          await updateSampleSpecificDataAttribute({
-            attribute: field.key,
-            sachaCommemoratifSigle: selectedSigle,
-            inDai,
-            optional
-          });
-        }
+        await updateSampleSpecificDataAttribute({
+          attribute: field.key,
+          sachaCommemoratifSigle: selectedSigle,
+          inDai,
+          optional
+        });
       } catch (_err) {
         /* empty */
       }
@@ -158,7 +149,7 @@ export const FieldForm = ({ field, ..._rest }: Props) => {
           setFormData((d) => ({ ...d, hintText: e.target.value }))
         }
       />
-      {sachaField && sachaCommemoratifs && (
+      {sachaCommemoratifs && (
         <fieldset
           className={cx('fr-fieldset', 'fr-mt-2w')}
           aria-labelledby="sacha-fieldset-legend"

@@ -3,16 +3,14 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import Table from '@codegouvfr/react-dsfr/Table';
 import clsx from 'clsx';
-import type { CommemoratifValueSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import type {
   AdminFieldConfig,
   AdminFieldOption
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import type React from 'react';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
-import AppSearchInput from '../../../components/_app/AppSearchInput/AppSearchInput';
 import { ApiClientContext } from '../../../services/apiClient';
 
 const deleteOptionModal = createModal({
@@ -38,35 +36,13 @@ export const FieldOptionsTable = ({
   const [updateFieldOption] = apiClient.useUpdateFieldOptionMutation();
   const [deleteFieldOption, deleteFieldOptionResult] =
     apiClient.useDeleteFieldOptionMutation();
-  const [updateSampleSpecificDataAttributeValue] =
-    apiClient.useUpdateSampleSpecificDataAttributeValueMutation();
 
   const { data: sachaCommemoratifs } =
     apiClient.useGetSachaCommemoratifsQuery();
-  const { data: sachaFields = [] } = apiClient.useFindSachaFieldConfigsQuery();
-  const sachaField = sachaFields.find((f) => f.key === field.key) ?? null;
 
   const [optionToDelete, setOptionToDelete] = useState<AdminFieldOption | null>(
     null
   );
-
-  const [selectedValues, setSelectedValues] = useState<
-    Record<string, CommemoratifValueSigle>
-  >({});
-
-  useEffect(() => {
-    if (!sachaField) return;
-    setSelectedValues(
-      Object.fromEntries(
-        sachaField.options
-          .filter((o) => o.sachaCommemoratifValueSigle !== null)
-          .map((o) => [
-            o.value,
-            o.sachaCommemoratifValueSigle as CommemoratifValueSigle
-          ])
-      )
-    );
-  }, [sachaField?.key, sachaField?.sachaCommemoratifSigle]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const sortedOptions = [...field.options].sort((a, b) => a.order - b.order);
 
@@ -108,43 +84,23 @@ export const FieldOptionsTable = ({
     }
   };
 
-  const onSelectValue = (
-    attributeValue: string,
-    sachaCommemoratifValueSigle?: CommemoratifValueSigle
-  ) => {
-    updateSampleSpecificDataAttributeValue({
-      attribute: field.key,
-      attributeValue,
-      sachaCommemoratifValueSigle: sachaCommemoratifValueSigle ?? null
-    });
-    setSelectedValues((prev) => {
-      if (!sachaCommemoratifValueSigle) {
-        const { [attributeValue]: _, ...rest } = prev;
-        return rest;
-      }
-      return { ...prev, [attributeValue]: sachaCommemoratifValueSigle };
-    });
-  };
-
-  const selectedSigle = sachaField?.sachaCommemoratifSigle ?? null;
+  const selectedSigle = field.sachaCommemoratifSigle;
   const selectedCommemoratif =
     selectedSigle && sachaCommemoratifs
       ? (sachaCommemoratifs[selectedSigle] ?? null)
       : null;
-  const valueOptions = selectedCommemoratif
-    ? Object.values(selectedCommemoratif.values)
-        .map((v) => ({ label: `${v.libelle} (${v.sigle})`, value: v.sigle }))
-        .sort((a, b) => a.label.localeCompare(b.label))
-    : [];
+
+  const sachaValueLabel = (option: AdminFieldOption): string => {
+    const sigle = option.sachaCommemoratifValueSigle;
+    if (!sigle) return '';
+    const value = selectedCommemoratif?.values[sigle];
+    return value ? `${value.libelle} (${value.sigle})` : sigle;
+  };
 
   const showSachaColumn =
-    sachaField?.inDai &&
+    field.sachaInDai &&
     selectedSigle !== null &&
     sachaCommemoratifs !== undefined;
-
-  if (sortedOptions.length === 0) {
-    return <p>Aucune option configurée.</p>;
-  }
 
   const actionsHeader = (
     <div
@@ -176,24 +132,7 @@ export const FieldOptionsTable = ({
             option.label
           ];
           if (showSachaColumn) {
-            row.push(
-              <AppSearchInput
-                key={option.id}
-                label=""
-                options={valueOptions}
-                value={selectedValues[option.value] ?? ''}
-                onSelect={(v) =>
-                  onSelectValue(option.value, v as CommemoratifValueSigle)
-                }
-                placeholder="Rechercher une valeur"
-                required={!sachaField?.optional}
-                state={
-                  selectedValues[option.value] || sachaField?.optional
-                    ? 'default'
-                    : 'error'
-                }
-              />
-            );
+            row.push(sachaValueLabel(option));
           }
           row.push(
             <div
