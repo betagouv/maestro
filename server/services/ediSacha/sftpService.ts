@@ -212,8 +212,6 @@ export const doSftp = async () => {
         );
         await insertRai('PROCESSED', laboratoryId, null, xmlDocumentId);
       } catch (e: any) {
-        // Erreur labo (RaiLabError + décodage XML) : éligible au non-acquittement
-        // automatique ; erreur Maestro : alerte interne et rejeu du fichier.
         const isLabError =
           e instanceof RaiProcessingError && !(e instanceof RaiMaestroError);
         //FIXME EDI les non acquittements pour les erreurs labo

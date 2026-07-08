@@ -10,8 +10,7 @@ export class RaiProcessingError extends Error {
 
 /**
  * Erreur imputable au laboratoire (champ obligatoire manquant, unité invalide,
- * analyte non mappé, échantillon introuvable…). Éligible au non-acquittement
- * automatique : le motif est porté par le message.
+ * analyte non mappé, échantillon introuvable...). Génère un non-acquittement
  */
 export class RaiLabError extends RaiProcessingError {
   constructor(message: string, xmlDocumentId: string | null = null) {
@@ -21,9 +20,7 @@ export class RaiLabError extends RaiProcessingError {
 }
 
 /**
- * Erreur interne Maestro (cas non implémenté, bug, incohérence en base, DB
- * indisponible). Ne déclenche JAMAIS de non-acquittement : on alerte en interne
- * et le fichier est rejoué.
+ * Erreur interne Maestro (cas non implémenté, bug, analyte inconnue...). Ne déclenche JAMAIS de non-acquittement : on alerte en interne
  */
 export class RaiMaestroError extends RaiProcessingError {
   constructor(message: string, xmlDocumentId: string | null = null) {

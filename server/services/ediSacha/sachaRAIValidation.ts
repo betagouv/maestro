@@ -13,14 +13,7 @@ const REQUIRED_COMMEMORATIFS = [
 const EXPECTED_UNITE = 'MG_KG_PR';
 const EXPECTED_INCERTITUDE = 50;
 
-/**
- * Validation métier des résultats DAOA, au-delà de la conformité XSD vérifiée par
- * le validateur Zod (où tout est `.optional()`). Vérifie, par analyse, la présence
- * des commémoratifs et champs imposés par la fiche de plan.
- *
- * Les manquements sont imputables au laboratoire (famille `RaiLabError`), donc
- * éligibles au non-acquittement automatique (émission à implémenter).
- */
+// TODO Que pour DAOA, à industrialiser pour les futurs plans
 export const validateRaiDaoaFields = (
   rai: SachaResultats,
   xmlDocumentId: string | null = null
