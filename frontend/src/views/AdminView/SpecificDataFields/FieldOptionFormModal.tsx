@@ -1,5 +1,6 @@
 import type { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
+import type { CommemoratifValueSigle } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
 import {
   type AdminFieldConfig,
   type AdminFieldOption,
@@ -9,6 +10,7 @@ import type React from 'react';
 import { useContext, useEffect, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
+import AppSearchInput from '../../../components/_app/AppSearchInput/AppSearchInput';
 import AppTextInput from '../../../components/_app/AppTextInput/AppTextInput';
 import { useForm } from '../../../hooks/useForm';
 import { ApiClientContext } from '../../../services/apiClient';
@@ -44,12 +46,35 @@ export const FieldOptionFormModal = ({
     apiClient.useCreateFieldOptionMutation();
   const [updateFieldOption, updateFieldOptionResult] =
     apiClient.useUpdateFieldOptionMutation();
+  const [updateSampleSpecificDataAttributeValue] =
+    apiClient.useUpdateSampleSpecificDataAttributeValueMutation();
+
+  const { data: sachaCommemoratifs } =
+    apiClient.useGetSachaCommemoratifsQuery();
 
   const nextOrder = Math.max(0, ...field.options.map((o) => o.order)) + 1;
 
   const [formData, setFormData] = useState<FormData>(
     defaultFormData(nextOrder)
   );
+
+  const [sachaValueSigle, setSachaValueSigle] =
+    useState<CommemoratifValueSigle | null>(null);
+
+  const selectedSigle = field.sachaCommemoratifSigle;
+  const selectedCommemoratif =
+    selectedSigle && sachaCommemoratifs
+      ? (sachaCommemoratifs[selectedSigle] ?? null)
+      : null;
+  const valueOptions = selectedCommemoratif
+    ? Object.values(selectedCommemoratif.values)
+        .map((v) => ({ label: `${v.libelle} (${v.sigle})`, value: v.sigle }))
+        .sort((a, b) => a.label.localeCompare(b.label))
+    : [];
+  const showSachaField =
+    field.sachaInDai &&
+    selectedSigle !== null &&
+    sachaCommemoratifs !== undefined;
 
   const form = useForm(CreateFieldOptionInput, {
     value: formData.value,
@@ -64,8 +89,10 @@ export const FieldOptionFormModal = ({
         label: optionToEdit.label,
         order: String(optionToEdit.order)
       });
+      setSachaValueSigle(optionToEdit.sachaCommemoratifValueSigle);
     } else {
       setFormData(defaultFormData(nextOrder));
+      setSachaValueSigle(null);
     }
   }, [optionToEdit]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -74,7 +101,10 @@ export const FieldOptionFormModal = ({
       form.reset();
       createFieldOptionResult.reset();
       updateFieldOptionResult.reset();
-      setTimeout(() => setFormData(defaultFormData(nextOrder)), 2);
+      setTimeout(() => {
+        setFormData(defaultFormData(nextOrder));
+        setSachaValueSigle(null);
+      }, 2);
     }
   });
 
@@ -90,6 +120,13 @@ export const FieldOptionFormModal = ({
           }).unwrap();
         } else {
           await createFieldOption({ fieldId: field.id, ...valid }).unwrap();
+        }
+        if (showSachaField) {
+          await updateSampleSpecificDataAttributeValue({
+            attribute: field.key,
+            attributeValue: valid.value,
+            sachaCommemoratifValueSigle: sachaValueSigle
+          }).unwrap();
         }
         e.preventDefault();
         modal.close();
@@ -152,6 +189,19 @@ export const FieldOptionFormModal = ({
           }
           required
         />
+        {showSachaField && (
+          <AppSearchInput
+            label="Sigle Sacha"
+            options={valueOptions}
+            value={sachaValueSigle ?? ''}
+            onSelect={(v) =>
+              setSachaValueSigle((v as CommemoratifValueSigle) || null)
+            }
+            placeholder="Rechercher une valeur"
+            required={!field.sachaOptional}
+            state={sachaValueSigle || field.sachaOptional ? 'default' : 'error'}
+          />
+        )}
         <AppServiceErrorAlert call={createFieldOptionResult} />
         <AppServiceErrorAlert call={updateFieldOptionResult} />
       </form>
