@@ -14,6 +14,7 @@ import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKin
 import { toArray } from 'maestro-shared/utils/utils';
 import { type HTMLAttributes, type Key, useContext } from 'react';
 import { ApiClientContext } from '../../services/apiClient';
+import AppRequiredInput from '../_app/AppRequired/AppRequiredInput';
 
 type Props = {
   programmingPlanId: string | undefined;
@@ -23,6 +24,7 @@ type Props = {
   laboratoryIds?: string[];
   onSelect: (laboratoryId?: string) => void;
   readonly?: boolean;
+  required?: boolean;
 };
 
 const renderLaboratoryOption = (
@@ -45,19 +47,20 @@ const renderLaboratoryOption = (
   );
 };
 
-const renderLaboratoryInput = ({
-  slotProps
-}: AutocompleteRenderInputParams) => (
-  <div ref={slotProps.input.ref}>
-    <input
-      {...slotProps.htmlInput}
-      className="fr-input"
-      type="text"
-      placeholder="Rechercher un laboratoire"
-      data-testid="laboratorySelect-input"
-    />
-  </div>
-);
+const renderLaboratoryInput =
+  (required?: boolean) =>
+  ({ slotProps }: AutocompleteRenderInputParams) => (
+    <div ref={slotProps.input.ref}>
+      <input
+        {...slotProps.htmlInput}
+        className="fr-input"
+        type="text"
+        placeholder="Rechercher un laboratoire"
+        data-testid="laboratorySelect-input"
+        required={required}
+      />
+    </div>
+  );
 
 const LaboratorySelect = ({
   programmingPlanId,
@@ -66,7 +69,8 @@ const LaboratorySelect = ({
   laboratoryId,
   laboratoryIds,
   onSelect,
-  readonly
+  readonly,
+  required
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
 
@@ -86,7 +90,10 @@ const LaboratorySelect = ({
   return (
     <div className={cx('fr-input-group', 'fr-mb-0')}>
       {/** biome-ignore lint/a11y/noLabelWithoutControl: libellé associé à l'input rendu par renderInput */}
-      <label className={cx('fr-label')}>Laboratoire</label>
+      <label className={cx('fr-label')}>
+        Laboratoire
+        {required && <AppRequiredInput />}
+      </label>
       <div className="fr-input-wrap fr-icon-search-line">
         <Autocomplete
           autoComplete
@@ -99,7 +106,7 @@ const LaboratorySelect = ({
           disabled={readonly}
           renderOption={renderLaboratoryOption}
           onChange={(_, value) => onSelect(value?.id ?? undefined)}
-          renderInput={renderLaboratoryInput}
+          renderInput={renderLaboratoryInput(required)}
           noOptionsText="Aucun laboratoire"
         />
       </div>

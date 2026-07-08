@@ -50,6 +50,20 @@ export const Preselected: Story = {
   }
 };
 
+export const Required: Story = {
+  args: {
+    programmingPlanId: undefined,
+    required: true,
+    onSelect: fn()
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByText('*')).toBeInTheDocument();
+    await expect(canvas.getByTestId('laboratorySelect-input')).toBeRequired();
+  }
+};
+
 export const Readonly: Story = {
   args: {
     programmingPlanId: undefined,

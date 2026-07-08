@@ -26,23 +26,19 @@ import {
   type SubstanceKind,
   SubstanceKindLabels
 } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { toArray } from 'maestro-shared/utils/utils';
 import type React from 'react';
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router';
 import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
 import AppResponsiveButton from 'src/components/_app/AppResponsiveButton/AppResponsiveButton';
 import AppSelect from 'src/components/_app/AppSelect/AppSelect';
-import {
-  defaultAppSelectOption,
-  selectOptionsFromList
-} from 'src/components/_app/AppSelect/AppSelectOption';
+import { selectOptionsFromList } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
+import LaboratorySelect from 'src/components/LaboratorySelect/LaboratorySelect';
 import { type UseForm, useForm } from 'src/hooks/useForm';
 import { z } from 'zod';
 import { usePartialSample } from '../../../hooks/usePartialSample';
 import useWindowSize from '../../../hooks/useWindowSize';
-import { ApiClientContext } from '../../../services/apiClient';
 
 const Form = z.object({
   items: z.array(z.looseObject({}))
@@ -70,7 +66,6 @@ const SampleItemContent = ({
   itemsForm,
   readonly: forceReadonly
 }: Props) => {
-  const apiClient = useContext(ApiClientContext);
   const { isMobile } = useWindowSize();
 
   const fakeForm = useForm(Form, {
@@ -85,11 +80,6 @@ const SampleItemContent = ({
     () => !itemsForm || forceReadonly,
     [itemsForm, forceReadonly]
   );
-
-  const { data: laboratories } = apiClient.useFindLaboratoriesQuery({
-    programmingPlanIds: toArray(partialSample?.programmingPlanId),
-    substanceKind: item.substanceKind
-  });
 
   return (
     <div className={cx('fr-py-4w', 'fr-px-5w')}>
@@ -215,27 +205,17 @@ const SampleItemContent = ({
                 )}
               </>
             ) : (
-              <AppSelect
-                value={item.laboratoryId ?? ''}
-                options={[
-                  defaultAppSelectOption('Sélectionner un laboratoire'),
-                  ...(laboratories ?? []).map((laboratory) => ({
-                    label: laboratory.shortName,
-                    value: laboratory.id
-                  }))
-                ]}
-                onChange={(e) =>
+              <LaboratorySelect
+                programmingPlanId={partialSample?.programmingPlanId}
+                substanceKind={item.substanceKind}
+                laboratoryId={item.laboratoryId}
+                onSelect={(laboratoryId) =>
                   onChangeItem?.({
                     ...item,
-                    laboratoryId: e.target.value
+                    laboratoryId
                   })
                 }
-                inputForm={form}
-                inputKey="items"
-                inputPathFromKey={[itemIndex, 'laboratoryId']}
-                whenValid="Laboratoire valide"
-                label="Laboratoire"
-                disabled={readonly}
+                readonly={readonly}
                 required
               />
             )
