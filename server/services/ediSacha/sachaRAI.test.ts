@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, test } from 'vitest';
-import { RaiLabError } from './sachaErrors';
+import { RaiLabError, RaiMaestroError } from './sachaErrors';
 import { buildDaoaAnalysis } from './sachaRAI';
 import type { SachaResultats } from './sachaValidator';
 import { validateAndDecodeSachaXml } from './validateSachaXml';
@@ -50,13 +50,15 @@ describe('buildDaoaAnalysis', () => {
     expect(result.residues[7].accredited).toBe(false);
   });
 
-  test('lève une RaiLabError si un analyte n’est pas mappé', () => {
+  test('lève une RaiMaestroError si un analyte n’est pas mappé', () => {
     const rai = decodeValidRai();
     const unmappedRai: SachaResultats = structuredClone(rai);
     unmappedRai.DialogueResultatType.DialoguePlanAnalyseType![0]
       .DialogueAnalyseType![0].DialogueAnalyse.SigleAnalyte = 'ANALYTE_INCONNU';
 
-    expect(() => buildDaoaAnalysis(unmappedRai, 'Multi')).toThrow(RaiLabError);
+    expect(() => buildDaoaAnalysis(unmappedRai, 'Multi')).toThrow(
+      RaiMaestroError
+    );
     expect(() => buildDaoaAnalysis(unmappedRai, 'Multi')).toThrow(
       /Analyte non mappé/
     );

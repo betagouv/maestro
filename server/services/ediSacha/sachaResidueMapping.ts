@@ -2,21 +2,21 @@ import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 
 // Source: the `<Commentaire>` of the
 // `ReferenceAnalytesSpecifiques` in the Sacha referential
-export const DAOA_RESIDUE_MAPPING: Record<string, SSD2Id> = {
+export const RESIDUE_MAPPING: Record<string, SSD2Id> = {
   ALD: 'RF-0021-002-PPP',
   ALDR_DLDR: 'RF-0021-001-PPP',
   AZNPHSTHL: 'RF-0032-001-PPP',
   BFNTH: 'RF-0046-001-PPP',
   CHLBNZ: 'RF-0082-001-PPP',
   CHLDCN: 'RF-0076-001-PPP',
-  CHLORPY_ETHY: 'RF-0087-001-PPP', // FIXME Chlorpyriphos éthyl ; Sacha RF-1013-001-PPP absent du référentiel → Chlorpyrifos
+  CHLORPY_ETHY: 'RF-0087-001-PPP',
   CHLORPY_MET: 'RF-0088-001-PPP',
   CHLRDN_CS: 'RF-0075-004-PPP',
   CHLRDN_OX: 'RF-0827-001-PPP',
   CHLRDN_TR: 'RF-0075-003-PPP',
   CLRDN_AGOX: 'RF-0075-005-PPP',
-  CYFLU: 'RF-0108-001-PPP', // FIXME Cyfluthrine ; Sacha RF-0108-003-PPP absent du référentiel → Cyfluthrin (sum of isomers)
-  CYH_LAM: 'RF-1004-001-PPP', // FIXME Cyhalothrine lambda ; Sacha RF-0261-001-PPP absent du référentiel → Lambda-cyhalothrin
+  CYFLU: 'RF-0108-001-PPP',
+  CYH_LAM: 'RF-1004-001-PPP',
   CYPERM: 'RF-0112-004-PPP',
   DDE_PP: 'RF-0119-002-PPP',
   DDT_ISOM: 'RF-0119-001-PPP',
@@ -51,8 +51,8 @@ export const DAOA_RESIDUE_MAPPING: Record<string, SSD2Id> = {
   METHCRFS: 'RF-0288-001-PPP',
   METHID: 'RF-0290-001-PPP',
   MTHXCL: 'RF-0295-001-PPP',
-  PARTHN: 'RF-0327-001-PPP', // FIXME Parathion ; Sacha RF-00002595-PAR absent du référentiel → Parathion
-  PERME: 'RF-0842-001-PPP', // FIXME Perméthrine ; Sacha RF-00012330-PAR absent du référentiel → Permethrin (sum of isomers)
+  PARTHN: 'RF-0327-001-PPP',
+  PERME: 'RF-0842-001-PPP',
   PHOR: 'RF-0336-003-PPP',
   PHOXSULN: 'RF-0336-001-PPP',
   PHRTOX: 'RF-0336-005-PPP',
@@ -66,6 +66,6 @@ export const DAOA_RESIDUE_MAPPING: Record<string, SSD2Id> = {
   PRTHMT: 'RF-0328-003-PPP',
   PRTHPROXMT: 'RF-0328-001-PPP',
   PYRZPHS: 'RF-0373-001-PPP',
-  TDE_PP: 'RF-0119-004-PPP', // FIXME TDE (pp' DDD) ; aucun SSD2Id dans le référentiel Sacha → DDD, p,p- (synonyme de TDE)
+  TDE_PP: 'RF-0119-004-PPP',
   TRIAZ: 'RF-0432-001-PPP'
 };

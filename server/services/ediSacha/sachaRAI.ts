@@ -15,13 +15,13 @@ import { kysely } from '../../repositories/kysely';
 import type { DB } from '../../repositories/kysely.type';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { sampleRepository } from '../../repositories/sampleRepository';
-import { DAOA_RESIDUE_MAPPING } from './sachaDaoaResidueMapping';
 import { RaiLabError, RaiMaestroError } from './sachaErrors';
 import { validateRaiDaoaFields } from './sachaRAIValidation';
 import {
   referencesFromEtiquette,
   type SampleReference
 } from './sachaReferences';
+import { RESIDUE_MAPPING } from './sachaResidueMapping';
 import type { SachaResultats } from './sachaValidator';
 
 type DaoaResidue = Omit<Insertable<DB['analysisResidues']>, 'analysisId'>;
@@ -82,7 +82,7 @@ export const buildDaoaAnalysis = (
     for (const analyse of planAnalyse.DialogueAnalyseType ?? []) {
       const { SigleAnalyte } = analyse.DialogueAnalyse;
 
-      const reference = DAOA_RESIDUE_MAPPING[SigleAnalyte];
+      const reference = RESIDUE_MAPPING[SigleAnalyte];
       if (!reference) {
         throw new RaiMaestroError(
           `Analyte non mappé vers un SSD2Id (${SigleAnalyte})`,
