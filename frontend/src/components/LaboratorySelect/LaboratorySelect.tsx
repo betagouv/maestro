@@ -12,7 +12,12 @@ import {
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { toArray } from 'maestro-shared/utils/utils';
-import { type HTMLAttributes, type Key, useContext } from 'react';
+import {
+  type HTMLAttributes,
+  type Key,
+  type ReactNode,
+  useContext
+} from 'react';
 import { ApiClientContext } from '../../services/apiClient';
 import AppRequiredInput from '../_app/AppRequired/AppRequiredInput';
 
@@ -25,6 +30,8 @@ type Props = {
   onSelect: (laboratoryId?: string) => void;
   readonly?: boolean;
   required?: boolean;
+  state?: 'success' | 'error' | 'default';
+  stateRelatedMessage?: ReactNode;
 };
 
 const renderLaboratoryOption = (
@@ -70,7 +77,9 @@ const LaboratorySelect = ({
   laboratoryIds,
   onSelect,
   readonly,
-  required
+  required,
+  state,
+  stateRelatedMessage
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
 
@@ -88,7 +97,22 @@ const LaboratorySelect = ({
     laboratories?.find((lab) => lab.id === laboratoryId) ?? null;
 
   return (
-    <div className={cx('fr-input-group', 'fr-mb-0')}>
+    <div
+      className={cx(
+        'fr-input-group',
+        'fr-mb-0',
+        (() => {
+          switch (state) {
+            case 'error':
+              return 'fr-input-group--error';
+            case 'success':
+              return 'fr-input-group--valid';
+            default:
+              return undefined;
+          }
+        })()
+      )}
+    >
       {/** biome-ignore lint/a11y/noLabelWithoutControl: libellé associé à l'input rendu par renderInput */}
       <label className={cx('fr-label')}>
         Laboratoire
@@ -110,6 +134,13 @@ const LaboratorySelect = ({
           noOptionsText="Aucun laboratoire"
         />
       </div>
+      {state && state !== 'default' && (
+        <p
+          className={cx(state === 'error' ? 'fr-error-text' : 'fr-valid-text')}
+        >
+          {stateRelatedMessage}
+        </p>
+      )}
     </div>
   );
 };

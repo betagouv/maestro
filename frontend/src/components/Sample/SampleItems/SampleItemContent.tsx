@@ -217,6 +217,11 @@ const SampleItemContent = ({
                 }
                 readonly={readonly}
                 required
+                state={form.messageType('items', [itemIndex, 'laboratoryId'])}
+                stateRelatedMessage={form.message('items', [
+                  itemIndex,
+                  'laboratoryId'
+                ])}
               />
             )
           ) : item.copyNumber === 2 ? (
