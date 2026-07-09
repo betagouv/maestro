@@ -63,16 +63,17 @@ describe('processSachaRAI', () => {
   test('persiste l’analyse, les résidus et la date de réception', async () => {
     const result = await processSachaRAI(rai);
 
-    expect(result).toEqual({
-      laboratoryId: LaboratoryFixture.id,
-      department: '08'
-    });
-
     const analysis = await kysely
       .selectFrom('analysis')
       .selectAll()
       .where('sampleId', '=', sampleId)
       .executeTakeFirstOrThrow();
+
+    expect(result).toEqual({
+      laboratoryId: LaboratoryFixture.id,
+      department: '08',
+      analysisId: analysis.id
+    });
 
     expect(analysis).toMatchObject({
       status: 'Completed',

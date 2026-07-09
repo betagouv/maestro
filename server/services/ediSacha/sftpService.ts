@@ -40,12 +40,18 @@ type DecodedContent =
   | { kind: 'internalError'; message: string };
 
 type RaiOutcome =
-  | { kind: 'ACK'; laboratoryId: string; department: Department }
+  | {
+      kind: 'ACK';
+      analysisId: string;
+      laboratoryId: string;
+      department: Department;
+    }
   | { kind: 'NACK'; motif: string }
   | { kind: 'INTERNAL_ERROR'; laboratoryId: string | null; message: string };
 
 type RaiResponse = {
   state: AnalysisRaiState;
+  analysisId: string | null;
   laboratoryId: string | null;
   message: string | null;
 };
@@ -102,11 +108,11 @@ const processResultats = async (
   xmlDocumentId: string | null
 ): Promise<RaiOutcome> => {
   try {
-    const { laboratoryId, department } = await processSachaRAI(
+    const { analysisId, laboratoryId, department } = await processSachaRAI(
       resultats,
       xmlDocumentId
     );
-    return { kind: 'ACK', laboratoryId, department };
+    return { kind: 'ACK', analysisId, laboratoryId, department };
   } catch (e) {
     if (e instanceof RaiLabError) {
       return { kind: 'NACK', motif: e.message };
@@ -152,12 +158,14 @@ const respond = async (
         await sendSachaFile(xml, dateNow, laboratory);
         return {
           state: 'PROCESSED',
+          analysisId: outcome.analysisId,
           laboratoryId: outcome.laboratoryId,
           message: null
         };
       } catch (e) {
         return {
           state: 'INTERNAL_ERROR',
+          analysisId: outcome.analysisId,
           laboratoryId: outcome.laboratoryId,
           message: errorMessage(e)
         };
@@ -171,6 +179,7 @@ const respond = async (
       if (!laboratory || !department) {
         return {
           state: 'INTERNAL_ERROR',
+          analysisId: null,
           laboratoryId: laboratory?.id ?? null,
           message: `Non-acquittement non adressable (émetteur=${envelope.senderSigle}, destinataire=${envelope.recipientSigle}) : ${outcome.motif}`
         };
@@ -194,12 +203,14 @@ const respond = async (
         await sendSachaFile(xml, dateNow, laboratory);
         return {
           state: 'REJECTED',
+          analysisId: null,
           laboratoryId: laboratory.id,
           message: outcome.motif
         };
       } catch (e) {
         return {
           state: 'INTERNAL_ERROR',
+          analysisId: null,
           laboratoryId: laboratory.id,
           message: errorMessage(e)
         };
@@ -208,6 +219,7 @@ const respond = async (
     case 'INTERNAL_ERROR':
       return {
         state: 'INTERNAL_ERROR',
+        analysisId: null,
         laboratoryId: outcome.laboratoryId,
         message: outcome.message
       };
@@ -226,6 +238,7 @@ export const processSachaContent = async (
   if (decoded.kind === 'internalError') {
     return {
       state: 'INTERNAL_ERROR',
+      analysisId: null,
       laboratoryId: null,
       message: decoded.message
     };
@@ -272,6 +285,7 @@ export const replayRai = async (
   );
   await analysisRaiRepository.update(rai.id, {
     state: response.state,
+    analysisId: response.analysisId,
     laboratoryId: response.laboratoryId,
     message: response.message
   });
@@ -375,7 +389,7 @@ export const doSftp = async () => {
         const raiId = await analysisRaiRepository.insert({
           source: 'SFTP',
           edi: true,
-          analysisId: null,
+          analysisId: response.analysisId,
           laboratoryId: response.laboratoryId,
           receivedAt,
           state: response.state,

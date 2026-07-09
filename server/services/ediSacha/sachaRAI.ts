@@ -174,7 +174,11 @@ export const buildDaoaAnalysis = (
 export const processSachaRAI = async (
   rai: SachaResultats,
   xmlDocumentId: string | null = null
-): Promise<{ laboratoryId: string; department: Department }> => {
+): Promise<{
+  laboratoryId: string;
+  department: Department;
+  analysisId: string;
+}> => {
   validateRaiDaoaFields(rai, xmlDocumentId);
 
   const etiquette =
@@ -249,7 +253,7 @@ export const processSachaRAI = async (
     xmlDocumentId
   );
 
-  await kysely.transaction().execute(async (trx) => {
+  const analysisId = await kysely.transaction().execute(async (trx) => {
     const analysisValues = {
       sampleId: sampleItem.sampleId,
       itemNumber: sampleItem.itemNumber,
@@ -302,9 +306,11 @@ export const processSachaRAI = async (
         trx
       );
     }
+
+    return analysisId;
   });
 
   await sampleRepository.evaluateSampleCompliance(sampleItem.sampleId);
 
-  return { laboratoryId, department: department.data };
+  return { laboratoryId, department: department.data, analysisId };
 };

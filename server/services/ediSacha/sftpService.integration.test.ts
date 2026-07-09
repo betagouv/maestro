@@ -128,6 +128,7 @@ describe('sftpService pipeline (decode, process, respond)', () => {
       .where('sampleId', '=', SAMPLE_ID)
       .executeTakeFirstOrThrow();
     expect(analysis.status).toBe('Completed');
+    expect(response.analysisId).toBe(analysis.id);
   });
 
   test('faute labo (conclusion inconnue) : REJECTED + AN01 MessageNonAcquittement adressé au bon labo', async () => {
@@ -139,6 +140,7 @@ describe('sftpService pipeline (decode, process, respond)', () => {
     const response = await run(xml);
 
     expect(response.state).toBe('REJECTED');
+    expect(response.analysisId).toBeNull();
     expect(response.laboratoryId).toBe(LaboratoryFixture.id);
     expect(response.message).toMatch(
       /Conclusion d’échantillon inconnue|Conclusion d'échantillon inconnue/
@@ -235,6 +237,7 @@ describe('sftpService pipeline (decode, process, respond)', () => {
       .selectAll()
       .where('sampleId', '=', SAMPLE_ID)
       .executeTakeFirstOrThrow();
+    expect(first.analysisId).toBe(analysis.id);
     const residuesBefore = await kysely
       .selectFrom('analysisResidues')
       .select((eb) => eb.fn.countAll().as('count'))
@@ -305,6 +308,7 @@ describe('replayRai (SFTP)', () => {
   test('INTERNAL_ERROR réparable : PROCESSED', async () => {
     const rai = await replayWithContent('INTERNAL_ERROR', validXml);
     expect(rai?.state).toBe('PROCESSED');
+    expect(rai?.analysisId).not.toBeNull();
   });
 
   test('INTERNAL_ERROR dont la cause est une faute labo : REJECTED', async () => {
