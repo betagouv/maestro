@@ -1,5 +1,6 @@
 import { maestroDateRefined } from 'maestro-shared/utils/date';
 import { z } from 'zod';
+import { NumeroEtiquette } from './sachaReferences';
 import {
   sigleContexteInterventionValidator,
   sigleMatrixValidator,
@@ -50,7 +51,6 @@ const booleanLabel = z.codec(z.literal(['O', 'N']), z.boolean(), {
 });
 
 const statusValidator = z.literal(['G', 'V']);
-const typeValidator = z.literal(['G', 'S']);
 const indicateurPrelevementPartielValidator = z.literal(['C', 'P', 'F']);
 
 const referenceEtablissement = z.object({
@@ -82,7 +82,7 @@ const dialogueEchantillonCommemoratifType = coerceToArray(
       NumeroIdentificationExterne: z.string().optional(),
       IdentifiantLabo: z.string().optional(),
       NumeroLot: z.coerce.number().int().optional(),
-      NumeroEtiquette: z.string().optional(),
+      NumeroEtiquette: NumeroEtiquette.optional(),
       DateRealisationPrelevement: sachaDate.optional(),
       SigleMotifNonAnalysabilite: z.string().optional(),
       Commentaire: z.string().optional()
@@ -126,39 +126,6 @@ const dialogueAnalyseType = coerceToArray(
     DialogueEchantillonSimple: dialogueEchantillonSimple
   })
 ).optional();
-const referenceMatricesGeneriques = z.object({
-  Cle: z.string(),
-  Sigle: z.string(),
-  Libelle: z.string(),
-  Statut: statusValidator,
-  Type: typeValidator,
-  LibelleFamille: z.string(),
-  LibelleEspece: z.string().optional(),
-  CleRemplacement: z.string().optional(),
-  Commentaire: z.string().optional()
-});
-const referenceAnalytes = z.object({
-  Cle: z.string(),
-  Sigle: z.string(),
-  Libelle: z.string(),
-  Statut: statusValidator,
-  Type: typeValidator,
-  LibelleFamille: z.string(),
-  LibelleMaladie: z.string().optional(),
-  CleRemplacement: z.string().optional(),
-  Commentaire: z.string().optional()
-});
-const referenceUnites = coerceToArray(
-  z.object({
-    Cle: z.string(),
-    Sigle: z.string(),
-    Libelle: z.string(),
-    Statut: statusValidator,
-    CleRemplacement: z.string().optional(),
-    Commentaire: z.string().optional()
-  })
-).optional();
-
 const referencePlanAnalyseContenu = z.object({
   LibelleMatrice: z.string(),
   SigleAnalyte: z.string(),
@@ -169,16 +136,6 @@ const referencePlanAnalyseContenu = z.object({
   Commentaire: z.string().optional()
 });
 
-const referenceMethodes = z.object({
-  Cle: z.string(),
-  Sigle: z.string(),
-  Libelle: z.string(),
-  Statut: statusValidator,
-  Type: typeValidator,
-  LibelleFamille: z.string(),
-  CleRemplacement: z.string().optional(),
-  Commentaire: z.string().optional()
-});
 const partenaire = z.object({
   Sigle: z.string(),
   Nom: z.string().optional(),
@@ -192,13 +149,6 @@ const dialogueResultatLot = coerceToArray(
     SigleConclusion: z.string()
   })
 ).optional();
-const referenceCommemoratifs = coerceToArray(
-  z.object({
-    SigleCommemoratif: z.string(),
-    Commentaire: z.string().optional()
-  })
-).optional();
-
 export const baseValidator = z.object({
   MessageParametres: messageParametres,
   Emetteur: partenaire,
@@ -304,6 +254,10 @@ const resultatsValidator = z.object({
 
 export type SachaResultats = z.infer<typeof resultatsValidator>;
 
+export const resultatsMessageValidator = z.object({
+  Resultats: resultatsValidator
+});
+
 export const demandesAnalysesValidator = z.object({
   ...baseValidator.shape,
   DemandeType: z.object({
@@ -367,136 +321,6 @@ export const acquittementValidator = z.object({
 });
 export type Acquittement = z.infer<typeof acquittementValidator>;
 
-export const sachaValidator = z.object({
-  DemandesAnalyses: demandesAnalysesValidator.optional(),
-  DonneesStandardisees: z
-    .object({
-      MessageParametres: messageParametres,
-      ReferenceMatricesType: coerceToArray(
-        z.object({
-          ReferenceMatricesGeneriques: referenceMatricesGeneriques,
-          ReferenceMatricesSpecifiques: coerceToArray(
-            referenceMatricesGeneriques
-          ).optional()
-        })
-      ).optional(),
-      ReferenceAnalytesType: coerceToArray(
-        z.object({
-          ReferenceAnalytesGeneriques: referenceAnalytes,
-          ReferenceAnalytesSpecifiques:
-            coerceToArray(referenceAnalytes).optional()
-        })
-      ).optional(),
-      ReferenceMethodesType: coerceToArray(
-        z.object({
-          ReferenceMethodesGeneriques: referenceMethodes,
-          ReferenceMethodesSpecifiques:
-            coerceToArray(referenceMethodes).optional()
-        })
-      ).optional(),
-      ReferenceUnites: referenceUnites,
-      ReferenceValeursInterpretation: referenceUnites,
-      ReferenceValeursPossiblesResultat: referenceUnites,
-      ReferenceCausesNonAnalysibilite: referenceUnites,
-      ReferenceCommemoratifType: coerceToArray(
-        z.object({
-          ReferenceCommemoratif: z.object({
-            Cle: z.string(),
-            Sigle: z.string(),
-            Libelle: z.string(),
-            Statut: statusValidator,
-            CleRemplacement: z.string().optional(),
-            Commentaire: z.string().optional(),
-            Unite: z.string().optional(),
-            TypeDonnee: z.literal(['V', 'N', 'A', 'D'])
-          }),
-          ReferenceCommemoratifsValeurs: referenceUnites
-        })
-      ).optional()
-    })
-    .optional(),
-  ReferentielPrescripteur: z
-    .object({
-      MessageParametres: messageParametres,
-      Emetteur: partenaire,
-      ReferencePlanAnalyseType: coerceToArray(
-        z.object({
-          ReferencePlanAnalyse: z.object({
-            Cle: z.string(),
-            Sigle: z.string(),
-            Libelle: z.string(),
-            Statut: statusValidator,
-            Contact: z.string().optional(),
-            TexteReference: z.string().optional(),
-            NiveauInterpretation: z
-              .literal(['AE', 'AL', 'PE', 'PL'])
-              .optional(),
-            DateModification: sachaDateTime
-          }),
-          ReferenceCommemoratifsAnalyse: referenceCommemoratifs,
-          ReferencePlanAnalyseContenu: referencePlanAnalyseContenu,
-          ReferencePlanAnalyseInterpretation: coerceToArray(
-            z.object({
-              LibelleMatrice: z.string().optional(),
-              SigleAnalyte: z.string(),
-              SigleMethodeSpecifique: z.string().optional(),
-              Depistage: booleanLabel,
-              Confirmation: booleanLabel,
-              Statut: statusValidator,
-              NombreEchantillonParLot: z.coerce.number().int(),
-              SigleUnite: z.string().optional(),
-              SeuilConfirmationQuantitatif: z.coerce.number().optional(),
-              SigleSeuilConfirmationQualitatif: z.string().optional(),
-              LibelleSeuil2: z.string().optional(),
-              Seuil2Qualitatif: z.string().optional(),
-              Seuil2Quantitatif: z.coerce.number().optional(),
-              LibelleSeuil1: z.string().optional(),
-              Seuil1Quantitatif: z.coerce.number().optional(),
-              SigleInterpretationInferieurSeuil1: z.string().optional(),
-              SigleInterpretationEntreSeuils: z.string().optional(),
-              SigleInterpretationSuperieurSeuil2: z.string().optional(),
-              NombreToleresSeuil2: z.coerce.number().int().optional(),
-              NombreToleresSuperieursSeuil2: z.coerce.number().int().optional(),
-              Commentaire: z.string().optional()
-            })
-          ).optional()
-        })
-      ).optional(),
-      ReferenceContextesType: coerceToArray(
-        z.object({
-          ReferenceContextesIntervention: z.object({
-            Cle: z.string(),
-            Sigle: z.string(),
-            Libelle: z.string(),
-            Statut: statusValidator,
-            DateModification: sachaDateTime
-          }),
-          ReferenceCommemoratifsInterventionContexte: referenceCommemoratifs,
-          ReferenceCommemoratifsEchantillonContexte: referenceCommemoratifs,
-          ReferencePlansAnalyseContexte: coerceToArray(
-            z.object({ SiglePlanAnalyse: z.string() })
-          ).optional()
-        })
-      ).optional(),
-      ReferenceTypesIdentifiants: coerceToArray(
-        z.object({
-          Cle: z.string(),
-          Sigle: z.string(),
-          Libelle: z.string(),
-          Statut: statusValidator
-        })
-      ).optional()
-    })
-    .optional(),
-  Resultats: resultatsValidator.optional(),
-  AcquittementNonAcquittement: acquittementValidator.optional(),
-  DemandesDeDemande: z
-    .object({
-      ...baseValidator.shape,
-      DialogueDemandeDeDemande: z.tuple(
-        [z.object({ NumeroDAP: z.coerce.number().int() })],
-        z.object({ NumeroDAP: z.coerce.number().int() })
-      )
-    })
-    .optional()
+export const acquittementMessageValidator = z.object({
+  AcquittementNonAcquittement: acquittementValidator
 });

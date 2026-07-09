@@ -36,7 +36,7 @@ export const RetryModal = ({ selectedRai, onRetry }: Props) => (
       retraitement réussit, l'état passera à <strong>Traitée</strong>. En cas de
       nouvelle erreur, le message ci-dessous sera mis à jour.
     </p>
-    {selectedRai?.state === 'ERROR' && selectedRai.message && (
+    {selectedRai?.state === 'INTERNAL_ERROR' && selectedRai.message && (
       <CallOut title="Message d'erreur actuel">{selectedRai.message}</CallOut>
     )}
   </retryModal.Component>

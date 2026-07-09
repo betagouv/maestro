@@ -55,6 +55,53 @@ describe('findUnique', () => {
   });
 });
 
+describe('findBySachaSigle', () => {
+  beforeAll(async () => {
+    await kysely
+      .updateTable('laboratories')
+      .set({ sachaSigle: 'SIG49', legacyDai: false })
+      .where('id', '=', LaboratoryFixture.id)
+      .execute();
+  });
+
+  test('renvoie le laboratoire pour un sigle connu', async () => {
+    const laboratory = await laboratoryRepository.findBySachaSigle('SIG49');
+    expect(laboratory?.id).toEqual(LaboratoryFixture.id);
+    expect(laboratory?.sacha?.sigle).toEqual('SIG49');
+  });
+
+  test('renvoie null pour un sigle inconnu', async () => {
+    const laboratory =
+      await laboratoryRepository.findBySachaSigle('SIGLE_INCONNU');
+    expect(laboratory).toBeNull();
+  });
+
+  test('sigle en doublon, renvoie un labo activé', async () => {
+    const [labA, labB] = await kysely
+      .selectFrom('laboratories')
+      .select('id')
+      .where('id', '!=', LaboratoryFixture.id)
+      .orderBy('id')
+      .limit(2)
+      .execute();
+
+    await kysely
+      .updateTable('laboratories')
+      .set({ sachaSigle: 'SIGDUP', legacyDai: false, sachaActivated: false })
+      .where('id', '=', labA.id)
+      .execute();
+    await kysely
+      .updateTable('laboratories')
+      .set({ sachaSigle: 'SIGDUP', legacyDai: false, sachaActivated: true })
+      .where('id', '=', labB.id)
+      .execute();
+
+    const laboratory = await laboratoryRepository.findBySachaSigle('SIGDUP');
+    expect(laboratory?.id).toEqual(labB.id);
+    expect(laboratory?.sacha?.activated).toBe(true);
+  });
+});
+
 describe('updateConfig', () => {
   beforeEach(async () => {
     await kysely

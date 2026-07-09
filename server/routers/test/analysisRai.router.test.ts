@@ -63,7 +63,7 @@ describe('AnalysisRai router', () => {
   const insertRai = async (
     overrides: Partial<{
       analysisId: string | null;
-      state: 'PROCESSED' | 'ERROR';
+      state: 'PROCESSED' | 'INTERNAL_ERROR' | 'REJECTED';
       source: 'EMAIL' | 'SFTP';
       edi: boolean;
       message: string | null;
@@ -125,19 +125,19 @@ describe('AnalysisRai router', () => {
       await insertRai({ state: 'PROCESSED', source: 'EMAIL' });
       await insertRai({
         analysisId: null,
-        state: 'ERROR',
+        state: 'INTERNAL_ERROR',
         source: 'SFTP',
         edi: true
       });
 
       const errorOnly = await request(app)
-        .get(testRoute({ states: 'ERROR' }))
+        .get(testRoute({ states: 'INTERNAL_ERROR' }))
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(errorOnly.body.total).toBe(1);
       expect(errorOnly.body.rais[0]).toMatchObject({
-        state: 'ERROR',
+        state: 'INTERNAL_ERROR',
         source: 'SFTP',
         edi: true
       });
@@ -158,7 +158,7 @@ describe('AnalysisRai router', () => {
       await insertRai({ state: 'PROCESSED', source: 'EMAIL' });
       await insertRai({
         analysisId: null,
-        state: 'ERROR',
+        state: 'INTERNAL_ERROR',
         source: 'EMAIL',
         message: 'orphan'
       });
@@ -180,7 +180,7 @@ describe('AnalysisRai router', () => {
     const replayRoute = (id: string) => `/api/analysis-rai/${id}/replay`;
 
     test('should fail if the user is not authenticated', async () => {
-      const id = await insertRai({ state: 'ERROR' });
+      const id = await insertRai({ state: 'INTERNAL_ERROR' });
       await request(app)
         .post(replayRoute(id))
         .send({})
@@ -188,7 +188,7 @@ describe('AnalysisRai router', () => {
     });
 
     test('should fail if the user is not admin', async () => {
-      const id = await insertRai({ state: 'ERROR' });
+      const id = await insertRai({ state: 'INTERNAL_ERROR' });
       await request(app)
         .post(replayRoute(id))
         .send({})
@@ -206,7 +206,7 @@ describe('AnalysisRai router', () => {
 
     test('should call the EMAIL replay for an EMAIL RAI', async () => {
       const id = await insertRai({
-        state: 'ERROR',
+        state: 'INTERNAL_ERROR',
         source: 'EMAIL',
         message: 'boom'
       });
@@ -227,7 +227,7 @@ describe('AnalysisRai router', () => {
 
     test('should call the SFTP replay for a SFTP RAI', async () => {
       const id = await insertRai({
-        state: 'ERROR',
+        state: 'INTERNAL_ERROR',
         source: 'SFTP',
         edi: true,
         message: 'boom'
@@ -247,9 +247,35 @@ describe('AnalysisRai router', () => {
       expect(replayEmailRai).not.toHaveBeenCalled();
     });
 
+    test('should refuse (409) to replay a PROCESSED RAI', async () => {
+      const id = await insertRai({ state: 'PROCESSED', source: 'SFTP' });
+
+      await request(app)
+        .post(replayRoute(id))
+        .send({})
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_CONFLICT);
+
+      expect(replaySftpRai).not.toHaveBeenCalled();
+      expect(replayEmailRai).not.toHaveBeenCalled();
+    });
+
+    test('should refuse (409) to replay a REJECTED RAI', async () => {
+      const id = await insertRai({ state: 'REJECTED', source: 'SFTP' });
+
+      await request(app)
+        .post(replayRoute(id))
+        .send({})
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_CONFLICT);
+
+      expect(replaySftpRai).not.toHaveBeenCalled();
+      expect(replayEmailRai).not.toHaveBeenCalled();
+    });
+
     test('should mark RAI as ERROR with the new message when replay throws', async () => {
       const id = await insertRai({
-        state: 'ERROR',
+        state: 'INTERNAL_ERROR',
         source: 'EMAIL',
         message: 'old'
       });
@@ -267,7 +293,7 @@ describe('AnalysisRai router', () => {
         .selectAll()
         .where('id', '=', id)
         .executeTakeFirstOrThrow();
-      expect(row.state).toBe('ERROR');
+      expect(row.state).toBe('INTERNAL_ERROR');
       expect(row.message).toBe('replay failed');
     });
   });

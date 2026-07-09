@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { XMLParser } from 'fast-xml-parser';
 import { XmlDocument, XsdValidator } from 'libxml2-wasm';
-import { RaiProcessingError } from './sachaErrors';
-import { sachaValidator } from './sachaValidator';
+import type { z } from 'zod';
+import { RaiLabError, RaiMaestroError } from './sachaErrors';
 
 export const validateSachaXml = (xmlString: string): void => {
   const xsd = path.join(import.meta.dirname, './schema.xsd');
@@ -15,12 +15,20 @@ export const validateSachaXml = (xmlString: string): void => {
   xmlDocument.dispose();
 };
 
-export const validateAndDecodeSachaXml = (
+export const validateAndDecodeSachaXml = <S extends z.ZodType>(
   xmlString: string,
+  schema: S,
   xmlDocumentId: string | null = null
-): ReturnType<typeof sachaValidator.decode> => {
+): z.output<S> => {
   try {
     validateSachaXml(xmlString);
+  } catch (e) {
+    throw new RaiLabError(
+      `XML invalide : ${(e as Error).message}`,
+      xmlDocumentId
+    );
+  }
+  try {
     const parser = new XMLParser({
       parseTagValue: false,
       isArray: (_tagName, path): boolean => {
@@ -32,10 +40,10 @@ export const validateAndDecodeSachaXml = (
       }
     });
     const xmlToJson = parser.parse(xmlString);
-    return sachaValidator.decode(xmlToJson);
+    return schema.decode(xmlToJson);
   } catch (e) {
-    throw new RaiProcessingError(
-      `XML invalide : ${(e as Error).message}`,
+    throw new RaiMaestroError(
+      `XML conforme à la XSD mais décodage impossible : ${(e as Error).message}`,
       xmlDocumentId
     );
   }

@@ -89,6 +89,56 @@ test(`génère un XML d'acquittement`, async () => {
   );
 });
 
+test(`génère un XML de non-acquittement`, async () => {
+  const result = await generateXMLAcquitement(
+    undefined,
+    [
+      {
+        NomFichier: 'RA01123123123123',
+        LibelleMotif: 'fichier invalide : unité inconnue',
+        DateNonAcquittement: toSachaDateTime(new Date(1765876056798))
+      }
+    ],
+    '72',
+    1765876056798,
+    sachaConf,
+    laboratory
+  );
+  expect(result.fileType).toBe('AN01');
+  expect(result.content).toMatchInlineSnapshot(`
+    "<?xml version="1.0" encoding="UTF-8"?>
+    <AcquittementNonAcquittement schemavalidation="AcquittementNonAcquittement.xsd">
+      <MessageParametres>
+        <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
+        <VersionScenario>1.0.1</VersionScenario>
+        <TypeFichier>AN01</TypeFichier>
+        <NomFichier>AN01MDDSV72LDA72251216100736798</NomFichier>
+        <VersionReferenceStandardisees>v12341234</VersionReferenceStandardisees>
+        <VersionReferencePrescripteur>v234</VersionReferencePrescripteur>
+        <NomLogicielCreation>SIGAL</NomLogicielCreation>
+        <VersionLogicielCreation>4.0</VersionLogicielCreation>
+        <CodeReferentielPrescripteur>SIGAL</CodeReferentielPrescripteur>
+      </MessageParametres>
+      <Emetteur>
+        <Sigle>MDDSV72</Sigle>
+        <LibellePartenaire>DDPP Sarthe</LibellePartenaire>
+        <EmailPartenaire>contact-ddsv@maestro.beta.gouv.fr</EmailPartenaire>
+      </Emetteur>
+      <Destinataire>
+        <Sigle>LDA72</Sigle>
+        <LibellePartenaire>Innovalys 72</LibellePartenaire>
+        <EmailPartenaire>fake@email.fr</EmailPartenaire>
+      </Destinataire>
+      <MessageNonAcquittement>
+        <NomFichier>RA01123123123123</NomFichier>
+        <LibelleMotif>fichier invalide : unité inconnue</LibelleMotif>
+        <DateNonAcquittement>2025-12-16T10:07:36</DateNonAcquittement>
+      </MessageNonAcquittement>
+    </AcquittementNonAcquittement>
+    "
+  `);
+});
+
 test(`émetteur sans préfixe pour un labo hors liste`, async () => {
   const result = await generateXMLAcquitement(
     [
