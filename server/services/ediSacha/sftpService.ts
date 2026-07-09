@@ -22,7 +22,7 @@ import { processSachaRAI } from './sachaRAI';
 import { sendSachaFile } from './sachaSender';
 import { generateXMLAcquitement } from './sachaToXML';
 import type { SachaResultats } from './sachaValidator';
-import { toSachaDateTime } from './sachaValidator';
+import { resultatsMessageValidator, toSachaDateTime } from './sachaValidator';
 import { validateAndDecodeSachaXml } from './validateSachaXml';
 
 const readdir = promisify(fs.readdir);
@@ -37,7 +37,7 @@ type Envelope = {
 type DecodedContent =
   | { kind: 'valid'; envelope: Envelope; resultats: SachaResultats }
   | { kind: 'invalid'; envelope: Envelope; detail: string }
-  | { kind: 'unaddressable'; message: string };
+  | { kind: 'internalError'; message: string };
 
 type RaiOutcome =
   | { kind: 'ACK'; laboratoryId: string; department: Department }
@@ -67,34 +67,34 @@ const decodeEnvelope = (
   xmlDocumentId: string | null,
   fileName: string
 ): DecodedContent => {
-  let json: ReturnType<typeof validateAndDecodeSachaXml>;
   try {
-    json = validateAndDecodeSachaXml(content, xmlDocumentId);
-  } catch (e) {
-    const envelope = envelopeFromFileName(fileName);
-    if (envelope) {
-      return { kind: 'invalid', envelope, detail: errorMessage(e) };
-    }
+    const { Resultats } = validateAndDecodeSachaXml(
+      content,
+      resultatsMessageValidator,
+      xmlDocumentId
+    );
     return {
-      kind: 'unaddressable',
-      message: `XML invalide et nom de fichier non adressable (${fileName}) : ${errorMessage(e)}`
+      kind: 'valid',
+      envelope: {
+        senderSigle: Resultats.Emetteur.Sigle,
+        recipientSigle: Resultats.Destinataire.Sigle,
+        nomFichier: Resultats.MessageParametres.NomFichier
+      },
+      resultats: Resultats
     };
+  } catch (e) {
+    if (e instanceof RaiLabError) {
+      const envelope = envelopeFromFileName(fileName);
+      if (envelope) {
+        return { kind: 'invalid', envelope, detail: errorMessage(e) };
+      }
+      return {
+        kind: 'internalError',
+        message: `XML invalide et nom de fichier non adressable (${fileName}) : ${errorMessage(e)}`
+      };
+    }
+    return { kind: 'internalError', message: errorMessage(e) };
   }
-
-  if (!json.Resultats) {
-    // The envelope lives inside Resultats: without it, no AN01 can be sent.
-    return { kind: 'unaddressable', message: 'Aucun résultat' };
-  }
-
-  return {
-    kind: 'valid',
-    envelope: {
-      senderSigle: json.Resultats.Emetteur.Sigle,
-      recipientSigle: json.Resultats.Destinataire.Sigle,
-      nomFichier: json.Resultats.MessageParametres.NomFichier
-    },
-    resultats: json.Resultats
-  };
 };
 
 const processResultats = async (
@@ -223,7 +223,7 @@ export const processSachaContent = async (
   fileName: string
 ): Promise<RaiResponse> => {
   const decoded = decodeEnvelope(content.toString(), xmlDocumentId, fileName);
-  if (decoded.kind === 'unaddressable') {
+  if (decoded.kind === 'internalError') {
     return {
       state: 'INTERNAL_ERROR',
       laboratoryId: null,
@@ -285,11 +285,6 @@ const safeUnlink = async (filePath: string): Promise<void> => {
   }
 };
 
-/**
- * Deletes the file from the SFTP and locally. Never throws: the RAI is already
- * persisted, losing the delete only means the file will be re-downloaded (and
- * re-processed idempotently) at the next run.
- */
 const deleteSftpFile = async (
   sftpClient: sftp,
   dataDirectory: string,

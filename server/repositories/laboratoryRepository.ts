@@ -113,8 +113,6 @@ const findBySachaSigle = async (
     .groupBy('laboratories.id')
     .where('laboratories.sachaSigle', '=', sigle)
     .where('laboratories.legacyDai', '=', false)
-    // Duplicated sigles exist in production but always share the same sacha
-    // recipient email, so any row routes identically: prefer an activated one.
     .orderBy('laboratories.sachaActivated', 'desc')
     .orderBy('laboratories.id')
     .executeTakeFirst();

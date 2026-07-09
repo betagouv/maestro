@@ -76,7 +76,7 @@ describe('findBySachaSigle', () => {
     expect(laboratory).toBeNull();
   });
 
-  test('sisigle en doublon, renvoie un labo activé', async () => {
+  test('sigle en doublon, renvoie un labo activé', async () => {
     const [labA, labB] = await kysely
       .selectFrom('laboratories')
       .select('id')

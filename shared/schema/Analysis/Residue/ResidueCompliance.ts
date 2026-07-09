@@ -32,10 +32,7 @@ export const ResidueComplianceDAOA = z.enum(
 );
 
 export type ResidueComplianceDAOA = z.infer<typeof ResidueComplianceDAOA>;
-
-export const ResidueComplianceDAOAList: ResidueComplianceDAOA[] =
-  ResidueComplianceDAOA.options;
-
+/* TODO en attente du front
 export const ResidueComplianceDAOALabels: Record<
   ResidueComplianceDAOA,
   string
@@ -45,4 +42,4 @@ export const ResidueComplianceDAOALabels: Record<
   ToMonitor: 'À surveiller',
   NonCompliant: 'Non conforme',
   Uninterpretable: 'Ininterprétable'
-};
+};*/

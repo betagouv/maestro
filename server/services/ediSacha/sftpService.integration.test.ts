@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
 import { Readable } from 'node:stream';
 import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
@@ -19,6 +17,7 @@ import { SampleItems } from '../../repositories/sampleItemRepository';
 import { sampleRepository } from '../../repositories/sampleRepository';
 import { documentService } from '../documentService';
 import { NumeroEtiquette, referencesFromEtiquette } from './sachaReferences';
+import { readSachaExample } from './testUtils';
 
 const { mockSendSachaFile } = vi.hoisted(() => ({
   mockSendSachaFile: vi.fn()
@@ -32,9 +31,7 @@ const SAMPLE_ID = 'aaaaaaaa-bbbb-cccc-dddd-000000000098';
 const KNOWN_ETIQUETTE = '022026440009992026113002';
 const UNKNOWN_ETIQUETTE = '022026440008882026113002';
 
-const baseXml = readFileSync(
-  path.join(import.meta.dirname, './example-rai-daoa-valid.xml')
-).toString();
+const baseXml = readSachaExample('example-rai-daoa-valid.xml');
 
 const validXml = baseXml.replace(
   '<Sigle>MDPPTST</Sigle>',
@@ -211,6 +208,16 @@ describe('sftpService pipeline (decode, process, respond)', () => {
 
     expect(response.state).toBe('INTERNAL_ERROR');
     expect(response.message).toMatch(/non adressable/);
+    expect(mockSendSachaFile).not.toHaveBeenCalled();
+  });
+
+  test('XSD valide mais sans Resultats (AN01) : INTERNAL_ERROR, aucun AN01', async () => {
+    const xml = readSachaExample('example-an-1.xml');
+
+    const response = await run(xml);
+
+    expect(response.state).toBe('INTERNAL_ERROR');
+    expect(response.message).toContain('XML conforme à la XSD');
     expect(mockSendSachaFile).not.toHaveBeenCalled();
   });
 

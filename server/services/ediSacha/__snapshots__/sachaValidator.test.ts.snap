@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`import un fichier de l'EDI Sacha RAI example-an-1.xml 1`] = `
+exports[`import un fichier AN de l'EDI Sacha example-an-1.xml 1`] = `
 {
   "AcquittementNonAcquittement": {
     "Destinataire": {
@@ -38,7 +38,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-an-1.xml 1`] = `
 }
 `;
 
-exports[`import un fichier de l'EDI Sacha RAI example-an-2.xml 1`] = `
+exports[`import un fichier AN de l'EDI Sacha example-an-2.xml 1`] = `
 {
   "AcquittementNonAcquittement": {
     "Destinataire": {
@@ -80,7 +80,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-an-2.xml 1`] = `
 }
 `;
 
-exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
+exports[`import un fichier RAI de l'EDI Sacha example-rai-1.xml 1`] = `
 {
   "Resultats": {
     "Destinataire": {
@@ -2546,7 +2546,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-1.xml 1`] = `
 }
 `;
 
-exports[`import un fichier de l'EDI Sacha RAI example-rai-RestPest_DAOA.xml 1`] = `
+exports[`import un fichier RAI de l'EDI Sacha example-rai-RestPest_DAOA.xml 1`] = `
 {
   "Resultats": {
     "Destinataire": {
@@ -2711,7 +2711,7 @@ exports[`import un fichier de l'EDI Sacha RAI example-rai-RestPest_DAOA.xml 1`] 
 }
 `;
 
-exports[`import un fichier de l'EDI Sacha RAI example-rai-RestPest_DAOA_CU.xml 1`] = `
+exports[`import un fichier RAI de l'EDI Sacha example-rai-RestPest_DAOA_CU.xml 1`] = `
 {
   "Resultats": {
     "Destinataire": {

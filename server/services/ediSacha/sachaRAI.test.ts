@@ -1,19 +1,8 @@
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { RaiMaestroError } from './sachaErrors';
 import { buildDaoaAnalysis } from './sachaRAI';
 import type { SachaResultats } from './sachaValidator';
-import { validateAndDecodeSachaXml } from './validateSachaXml';
-
-const decodeValidRai = (): SachaResultats => {
-  const file = path.join(import.meta.dirname, './example-rai-daoa-valid.xml');
-  const json = validateAndDecodeSachaXml(readFileSync(file).toString());
-  if (!json.Resultats) {
-    throw new Error('Le fichier de test ne contient pas de Resultats');
-  }
-  return json.Resultats;
-};
+import { decodeValidRai } from './testUtils';
 
 describe('buildDaoaAnalysis', () => {
   test('construit l’analyse et les résidus depuis un fichier conforme', () => {

@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
 import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import {
@@ -19,16 +17,7 @@ import { RaiLabError } from './sachaErrors';
 import { processSachaRAI } from './sachaRAI';
 import { NumeroEtiquette, referencesFromEtiquette } from './sachaReferences';
 import type { SachaResultats } from './sachaValidator';
-import { validateAndDecodeSachaXml } from './validateSachaXml';
-
-const decodeValidRai = (): SachaResultats => {
-  const file = path.join(import.meta.dirname, './example-rai-daoa-valid.xml');
-  const json = validateAndDecodeSachaXml(readFileSync(file).toString());
-  if (!json.Resultats) {
-    throw new Error('Le fichier de test ne contient pas de Resultats');
-  }
-  return json.Resultats;
-};
+import { decodeValidRai } from './testUtils';
 
 const etiquetteFromRai = (rai: SachaResultats): NumeroEtiquette =>
   NumeroEtiquette.parse(

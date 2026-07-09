@@ -5,10 +5,9 @@ export const AnalysisKind = z.enum(['SCREENING', 'CONFIRMATION'], {
 });
 
 export type AnalysisKind = z.infer<typeof AnalysisKind>;
-
-export const AnalysisKindList: AnalysisKind[] = AnalysisKind.options;
-
+/* TOTO en attente du front
 export const AnalysisKindLabels: Record<AnalysisKind, string> = {
   SCREENING: 'Dépistage',
   CONFIRMATION: 'Confirmation'
 };
+*/
