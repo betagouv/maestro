@@ -17,6 +17,9 @@ export const analysisRaiRouter = {
       if (!rai) {
         return { status: HttpStatus.NOT_FOUND };
       }
+      if (rai.state !== 'INTERNAL_ERROR') {
+        return { status: HttpStatus.CONFLICT };
+      }
       try {
         if (rai.source === 'EMAIL') {
           await replayEmailRai(rai);
@@ -25,7 +28,7 @@ export const analysisRaiRouter = {
         }
       } catch (e: any) {
         await analysisRaiRepository.update(rai.id, {
-          state: 'ERROR',
+          state: 'INTERNAL_ERROR',
           message: e?.message ?? 'Erreur inconnue'
         });
       }

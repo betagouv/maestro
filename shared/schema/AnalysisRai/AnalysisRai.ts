@@ -3,7 +3,11 @@ import { z } from 'zod';
 export const AnalysisRaiId = z.guid().brand<'AnalysisRaiId'>();
 export type AnalysisRaiId = z.infer<typeof AnalysisRaiId>;
 
-export const AnalysisRaiState = z.enum(['PROCESSED', 'ERROR']);
+export const AnalysisRaiState = z.enum([
+  'PROCESSED',
+  'INTERNAL_ERROR',
+  'REJECTED'
+]);
 export type AnalysisRaiState = z.infer<typeof AnalysisRaiState>;
 
 export const AnalysisRaiSource = z.enum(['EMAIL', 'SFTP']);

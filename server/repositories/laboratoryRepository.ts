@@ -37,6 +37,26 @@ const buildCommunication = (
   }
 };
 
+const mapRowToLaboratoryWithSacha = (
+  row: KyselyLaboratories & { emails: (string | null)[] | null }
+): LaboratoryWithSacha => {
+  const sacha = row.legacyDai
+    ? null
+    : {
+        activated: row.sachaActivated,
+        sigle: row.sachaSigle,
+        communication: buildCommunication(row)
+      };
+  return LaboratoryWithSacha.parse({
+    ...row,
+    emails: (row.emails ?? []).filter((e): e is string => e !== null),
+    emailsAnalysisResult: (row.emailsAnalysisResult ?? []).filter(
+      (e): e is string => e !== null
+    ),
+    sacha
+  });
+};
+
 const findUnique = async (id: string): Promise<LaboratoryWithSacha> => {
   console.info('Find laboratory by id', id);
   const row = await kysely
@@ -63,21 +83,43 @@ const findUnique = async (id: string): Promise<LaboratoryWithSacha> => {
     .where('laboratories.id', '=', id)
     .executeTakeFirstOrThrow();
 
-  const sacha = row.legacyDai
-    ? null
-    : {
-        activated: row.sachaActivated,
-        sigle: row.sachaSigle,
-        communication: buildCommunication(row)
-      };
-  return LaboratoryWithSacha.parse({
-    ...row,
-    emails: (row.emails ?? []).filter((e): e is string => e !== null),
-    emailsAnalysisResult: (row.emailsAnalysisResult ?? []).filter(
-      (e): e is string => e !== null
-    ),
-    sacha
-  });
+  return mapRowToLaboratoryWithSacha(row);
+};
+
+const findBySachaSigle = async (
+  sigle: string
+): Promise<LaboratoryWithSacha | null> => {
+  console.info('Find laboratory by sacha sigle', sigle);
+  const row = await kysely
+    .selectFrom('laboratories')
+    .leftJoin(
+      'laboratoryAgreements',
+      'laboratoryAgreements.laboratoryId',
+      'laboratories.id'
+    )
+    .leftJoin(
+      'programmingSubPlans',
+      'programmingSubPlans.id',
+      'laboratoryAgreements.programmingSubPlanId'
+    )
+    .selectAll('laboratories')
+    .select(
+      sql<
+        string[]
+      >`array_remove(array_agg(DISTINCT "programming_sub_plans"."programming_plan_id"), NULL)`.as(
+        'programmingPlanIds'
+      )
+    )
+    .groupBy('laboratories.id')
+    .where('laboratories.sachaSigle', '=', sigle)
+    .where('laboratories.legacyDai', '=', false)
+    // Duplicated sigles exist in production but always share the same sacha
+    // recipient email, so any row routes identically: prefer an activated one.
+    .orderBy('laboratories.sachaActivated', 'desc')
+    .orderBy('laboratories.id')
+    .executeTakeFirst();
+
+  return row ? mapRowToLaboratoryWithSacha(row) : null;
 };
 
 const findMany = async (
@@ -255,6 +297,7 @@ const findByEmailSender = async (email_result_analysis: string) => {
 
 export const laboratoryRepository = {
   findUnique,
+  findBySachaSigle,
   findMany,
   updateConfig,
   findByEmailSender

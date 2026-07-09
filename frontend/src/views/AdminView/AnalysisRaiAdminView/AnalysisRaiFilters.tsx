@@ -13,7 +13,8 @@ import type { Filters } from './AnalysisRaiAdminView';
 
 const raiStateLabels: Record<AnalysisRaiState, string> = {
   PROCESSED: 'Traitée',
-  ERROR: 'Erreur'
+  INTERNAL_ERROR: 'Erreur',
+  REJECTED: 'Rejetée'
 };
 
 const raiSourceLabels: Record<AnalysisRaiSource, string> = {

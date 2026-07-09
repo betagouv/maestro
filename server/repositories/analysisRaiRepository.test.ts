@@ -59,7 +59,7 @@ describe('analysisRaiRepository', () => {
       const id = await analysisRaiRepository.insert({
         source: 'SFTP',
         edi: true,
-        state: 'ERROR',
+        state: 'INTERNAL_ERROR',
         analysisId: null,
         laboratoryId: null,
         payload: null,
@@ -72,7 +72,7 @@ describe('analysisRaiRepository', () => {
       expect(found).not.toBeNull();
       expect(found!.source).toBe('SFTP');
       expect(found!.edi).toBe(true);
-      expect(found!.state).toBe('ERROR');
+      expect(found!.state).toBe('INTERNAL_ERROR');
       expect(found!.message).toBe('xml-invalid (fichier corrompu)');
       expect(found!.payload).toBeNull();
     });
@@ -135,7 +135,7 @@ describe('analysisRaiRepository', () => {
       const raiId = await analysisRaiRepository.insert({
         source: 'SFTP',
         edi: true,
-        state: 'ERROR',
+        state: 'INTERNAL_ERROR',
         analysisId: null,
         laboratoryId: null,
         payload: null,
@@ -144,7 +144,7 @@ describe('analysisRaiRepository', () => {
       });
 
       const { rais, total } = await analysisRaiRepository.findManyWithRelations(
-        { states: ['ERROR'], sources: ['SFTP'] }
+        { states: ['INTERNAL_ERROR'], sources: ['SFTP'] }
       );
 
       expect(total).toBe(1);
@@ -160,7 +160,7 @@ describe('analysisRaiRepository', () => {
       const id = await analysisRaiRepository.insert({
         source: 'SFTP',
         edi: true,
-        state: 'ERROR',
+        state: 'INTERNAL_ERROR',
         analysisId: null,
         laboratoryId: null,
         payload: null,

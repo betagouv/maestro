@@ -582,7 +582,7 @@ export const checkEmails = async () => {
               const raiId = await analysisRaiRepository.insert({
                 source: 'EMAIL',
                 edi: false,
-                state: 'ERROR',
+                state: 'INTERNAL_ERROR',
                 analysisId: null,
                 laboratoryId,
                 payload,

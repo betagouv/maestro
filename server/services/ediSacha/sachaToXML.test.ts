@@ -89,6 +89,25 @@ test(`génère un XML d'acquittement`, async () => {
   );
 });
 
+test(`génère un XML de non-acquittement`, async () => {
+  const result = await generateXMLAcquitement(
+    undefined,
+    [
+      {
+        NomFichier: 'RA01123123123123',
+        LibelleMotif: 'fichier invalide : unité inconnue',
+        DateNonAcquittement: toSachaDateTime(new Date(1765876056798))
+      }
+    ],
+    '72',
+    1765876056798,
+    sachaConf,
+    laboratory
+  );
+  expect(result.fileType).toBe('AN01');
+  expect(result.content).toMatchInlineSnapshot();
+});
+
 test(`émetteur sans préfixe pour un labo hors liste`, async () => {
   const result = await generateXMLAcquitement(
     [

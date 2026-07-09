@@ -31,7 +31,8 @@ const raiStateConfig: Record<
   { severity: BadgeProps['severity']; label: string }
 > = {
   PROCESSED: { severity: 'success', label: 'Traitée' },
-  ERROR: { severity: 'error', label: 'Erreur' }
+  INTERNAL_ERROR: { severity: 'error', label: 'Erreur' },
+  REJECTED: { severity: 'warning', label: 'Rejetée' }
 };
 
 const RaiStateBadge = ({
@@ -47,7 +48,7 @@ const RaiStateBadge = ({
       {label}
     </Badge>
   );
-  if (state === 'ERROR' && message) {
+  if ((state === 'INTERNAL_ERROR' || state === 'REJECTED') && message) {
     return (
       <Tooltip kind="hover" title={<span>{message}</span>}>
         {badge}
@@ -163,7 +164,7 @@ export const AnalysisRaiHistory = ({
           )
         ]
       : []),
-    rai.state === 'ERROR' ? (
+    rai.state === 'INTERNAL_ERROR' ? (
       <Button
         key={`${rai.id}-action`}
         size="small"
