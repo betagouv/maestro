@@ -28,7 +28,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1078.0",
     "@e965/xlsx": "^0.20.3",
     "@gouvfr/dsfr": "^1.14.4",
-    "@sentry/node": "^10.62.0",
+    "@sentry/node": "^10.63.0",
     "bwip-js": "^4.11.1",
     "carbone": "^3.8.2",
     "compose-middleware": "^5.0.1",
