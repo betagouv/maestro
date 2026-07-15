@@ -1,6 +1,6 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { isNil, sumBy } from 'lodash-es';
+import { isEmpty, isNil, mapValues, omitBy, sumBy } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import type { Region } from 'maestro-shared/referential/Region';
@@ -23,6 +23,7 @@ import { useSearchParams } from 'react-router';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import PrescriptionCard from 'src/components/Prescription/PrescriptionCard/PrescriptionCard';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import { usePrescriptionFilters } from 'src/hooks/usePrescriptionFilters';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import ProgrammingPrescriptionListHeader from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListHeader';
@@ -32,6 +33,7 @@ import LocalPrescriptionModal from '../../../components/LocalPrescription/LocalP
 import PrescriptionModal from '../../../components/Prescription/PrescriptionModal/PrescriptionModal';
 import { ApiClientContext } from '../../../services/apiClient';
 import { getApiUrl } from '../../../utils/fetchUtils';
+import ProgrammingPrescriptionFilters from '../ProgrammingPrescriptionFilters/ProgrammingPrescriptionFilters';
 import ProgrammingLocalPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingLocalPrescriptionTable';
 import ProgrammingPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingPrescriptionTable';
 
@@ -80,6 +82,27 @@ const ProgrammingPrescriptionList = ({
     apiClient.useUpdateDepartmentalLocalPrescriptionMutation();
   const [deletePrescription, { isSuccess: isDeleteSuccess }] =
     apiClient.useDeletePrescriptionMutation();
+
+  const {
+    programmingPlanOptions,
+    programmingSubPlanOptions,
+    contextOptions,
+    reduceFilters
+  } = usePrescriptionFilters(programmingPlans);
+
+  const changeFilter = useCallback(
+    (findFilter: Partial<typeof prescriptionFilters>) => {
+      const filteredParams = reduceFilters(prescriptionFilters, findFilter);
+      const urlSearchParams = new URLSearchParams(
+        omitBy(
+          mapValues(filteredParams, (value) => value?.toString()),
+          isEmpty
+        ) as Record<string, string>
+      );
+      setSearchParams(urlSearchParams, { replace: true });
+    },
+    [reduceFilters, prescriptionFilters, setSearchParams]
+  );
 
   const planIds = useMemo(
     () => programmingPlans.map((p) => p.id),
@@ -405,6 +428,17 @@ const ProgrammingPrescriptionList = ({
               }}
             />
           }
+          <ProgrammingPrescriptionFilters
+            options={{
+              plans: programmingPlanOptions(prescriptionFilters),
+              programmingSubPlanIds:
+                programmingSubPlanOptions(prescriptionFilters),
+              contexts: contextOptions(prescriptionFilters)
+            }}
+            filters={prescriptionFilters}
+            onChange={changeFilter}
+            renderMode="inline"
+          />
           {prescriptions.length === 0 && (
             <div
               className={clsx(

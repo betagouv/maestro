@@ -292,4 +292,43 @@
     display: flex;
     align-items: center;
   }
+
+  .plan-group-title {
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    background-color: var(--background-open-blue-france);
+    color: var(--text-active-grey);
+    border-bottom: 1px solid var(--border-contrast-grey);
+  }
+
+  tr.plan-group-header-row {
+    td {
+      background-color: var(--background-open-blue-france) !important;
+      color: var(--text-default-grey) !important;
+    }
+  }
+
+  tr.plan-group-total-row {
+    td:nth-child(2) {
+      position: sticky !important;
+      left: calc(
+        #{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width}
+      ) !important;
+      z-index: 2 !important;
+      min-width: $col-prelevements-width;
+      max-width: $col-prelevements-width;
+    }
+
+    td:nth-child(3),
+    td:nth-child(4) {
+      position: static !important;
+      left: auto !important;
+      z-index: auto !important;
+    }
+
+    td:nth-child(n + 3) {
+      min-width: $col-region-width;
+      max-width: $col-region-width;
+    }
+  }
 }

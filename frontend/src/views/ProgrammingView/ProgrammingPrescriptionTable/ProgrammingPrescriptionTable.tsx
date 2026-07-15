@@ -1,7 +1,7 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { sumBy } from 'lodash-es';
+import { groupBy, sumBy } from 'lodash-es';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import {
   type LocalPrescription,
@@ -12,9 +12,11 @@ import {
   getPrescriptionTitle,
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
+import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
 import TableHeaderCell from 'src/components/TableHeaderCell/TableHeaderCell';
 import { useAuthentication } from '../../../hooks/useAuthentication';
@@ -160,6 +162,9 @@ const ProgrammingPrescriptionTable = ({
     return null;
   }
 
+  const planOrder = [...new Set(prescriptions.map((p) => p.programmingPlanId))];
+  const prescriptionsByPlan = groupBy(prescriptions, 'programmingPlanId');
+
   return (
     <div
       data-testid="prescription-table"
@@ -241,22 +246,30 @@ const ProgrammingPrescriptionTable = ({
         </div>
       </div>
 
-      {prescriptions.map((prescription) => {
-        const subPlan = getSubPlan(prescription);
-        const plan = getPlan(prescription);
-        const localPrescriptions = getLocalPrescriptions(prescription.id);
-        const totalSampleCount = sumBy(localPrescriptions, 'sampleCount');
-        const isExpanded = expandedIds.has(prescription.id);
+      {planOrder.map((planId) => {
+        const plan =
+          programmingPlans.find((p) => p.id === planId) ?? programmingPlans[0];
+        const planPrescriptions = prescriptionsByPlan[planId] ?? [];
+        const planPrescriptionIds = planPrescriptions.map((p) => p.id);
+        const planRegionalPrescriptions = regionalPrescriptions.filter((r) =>
+          planPrescriptionIds.includes(r.prescriptionId)
+        );
 
         return (
-          <Fragment key={prescription.id}>
+          <Fragment key={`plan-group-${planId}`}>
+            <div className="plan-group-title">
+              <strong>{ProgrammingPlanDomainLabels[plan.domain]}</strong>
+              {' — '}
+              {plan.contexts.map((c) => ContextLabels[c]).join(', ')}
+            </div>
+
             <div
               className="table-scroll-wrapper"
               ref={(el) => {
                 if (el) {
-                  rowWrapperRefs.current.set(prescription.id, el);
+                  rowWrapperRefs.current.set(`plan-header-${planId}`, el);
                 } else {
-                  rowWrapperRefs.current.delete(prescription.id);
+                  rowWrapperRefs.current.delete(`plan-header-${planId}`);
                 }
               }}
               onScroll={(e) => sync(e.currentTarget)}
@@ -272,112 +285,184 @@ const ProgrammingPrescriptionTable = ({
                 <table>
                   <Colgroup />
                   <tbody>
-                    <tr>
-                      <td>
-                        <div className="row-reference">
-                          {subPlan?.subPlanNumber}
-                          <Button
-                            iconId={
-                              isExpanded
-                                ? 'fr-icon-arrow-up-s-line'
-                                : 'fr-icon-arrow-down-s-line'
-                            }
-                            priority="tertiary no outline"
-                            size="small"
-                            title={isExpanded ? 'Réduire' : 'Voir les détails'}
-                            onClick={() => toggleExpand(prescription.id)}
-                          />
-                        </div>
-                      </td>
-                      <td
-                        className={clsx(cx('fr-text--bold'), 'border-left')}
-                        data-testid={`matrix-${prescription.id}`}
-                      >
-                        {getPrescriptionTitle(prescription)}
-                      </td>
-                      <td className="border-left">
-                        {subPlan?.substanceKinds
-                          .map((sk) => SubstanceKindLabels[sk])
-                          .join(', ')}
-                      </td>
+                    <tr className="plan-group-header-row plan-group-total-row">
+                      <td colSpan={3}>Total prélèvements</td>
                       <td className={clsx('border-left', 'border-right')}>
-                        <div>{totalSampleCount}</div>
+                        {sumBy(planRegionalPrescriptions, 'sampleCount')}
                       </td>
-                      {localPrescriptions.map(
-                        (localPrescription, localPrescriptionIdx) => (
-                          <td
-                            className={clsx({
-                              'border-left': localPrescriptionIdx !== 0
-                            })}
-                            data-testid={`cell-${prescription.id}`}
-                            key={`cell-${prescription.id}-${localPrescription.region}`}
-                          >
-                            <DistributionCountCell
-                              programmingPlan={plan}
-                              prescription={prescription}
-                              localPrescription={localPrescription}
-                              isEditable={
-                                hasUserLocalPrescriptionPermission(
-                                  plan,
-                                  localPrescription
-                                )?.updateSampleCount
-                              }
-                              onChange={async (value) =>
-                                onChangeLocalPrescriptionCount(
-                                  {
-                                    prescriptionId:
-                                      localPrescription.prescriptionId,
-                                    region: localPrescription.region
-                                  },
-                                  value
-                                )
-                              }
-                            />
-                          </td>
-                        )
-                      )}
+                      {RegionList.map((region, regionIdx) => (
+                        <td
+                          key={region}
+                          className={clsx('align-center', {
+                            'border-left': regionIdx !== 0
+                          })}
+                        >
+                          {sumBy(
+                            planRegionalPrescriptions.filter(
+                              (r) => r.region === region
+                            ),
+                            'sampleCount'
+                          ) || ''}
+                        </td>
+                      ))}
                     </tr>
                   </tbody>
                 </table>
               </div>
             </div>
-            {isExpanded && (
-              <div className="prescription-expanded-content">
-                <div className={cx('fr-grid-row')}>
-                  <div className={cx('fr-col-3')}>
-                    <div className={cx('fr-mb-3w')}>
-                      <div className="d-flex-align-center">
-                        <span
-                          className={cx('fr-icon-chat-quote-line', 'fr-pr-1v')}
-                        />
-                        <b>Notes</b>
-                      </div>
-                      {prescription.notes ?? 'Aucune note'}
-                    </div>
-                    <div>
-                      <div className="d-flex-align-center">
-                        <span
-                          className={cx('fr-icon-chat-quote-line', 'fr-pr-1v')}
-                        />
-                        <b>Consignes</b>
-                      </div>
-                      {prescription.programmingInstruction ?? 'Aucune consigne'}
-                    </div>
-                  </div>
-                  <div className={cx('fr-col-3')}>
-                    <PrescriptionSubstances
-                      programmingPlan={
-                        programmingPlans.find(
-                          (p) => p.id === prescription.programmingPlanId
-                        ) ?? programmingPlans[0]
+
+            {planPrescriptions.map((prescription) => {
+              const subPlan = getSubPlan(prescription);
+              const plan = getPlan(prescription);
+              const localPrescriptions = getLocalPrescriptions(prescription.id);
+              const totalSampleCount = sumBy(localPrescriptions, 'sampleCount');
+              const isExpanded = expandedIds.has(prescription.id);
+
+              return (
+                <Fragment key={prescription.id}>
+                  <div
+                    className="table-scroll-wrapper"
+                    ref={(el) => {
+                      if (el) {
+                        rowWrapperRefs.current.set(prescription.id, el);
+                      } else {
+                        rowWrapperRefs.current.delete(prescription.id);
                       }
-                      prescription={prescription}
-                      renderMode="inline"
-                    />
+                    }}
+                    onScroll={(e) => sync(e.currentTarget)}
+                  >
+                    <div
+                      className={clsx(
+                        'fr-table',
+                        'fr-table--bordered',
+                        'fr-table--no-caption',
+                        'fr-table--no-scroll'
+                      )}
+                    >
+                      <table>
+                        <Colgroup />
+                        <tbody>
+                          <tr>
+                            <td>
+                              <div className="row-reference">
+                                {subPlan?.subPlanNumber}
+                                <Button
+                                  iconId={
+                                    isExpanded
+                                      ? 'fr-icon-arrow-up-s-line'
+                                      : 'fr-icon-arrow-down-s-line'
+                                  }
+                                  priority="tertiary no outline"
+                                  size="small"
+                                  title={
+                                    isExpanded ? 'Réduire' : 'Voir les détails'
+                                  }
+                                  onClick={() => toggleExpand(prescription.id)}
+                                />
+                              </div>
+                            </td>
+                            <td
+                              className={clsx(
+                                cx('fr-text--bold'),
+                                'border-left'
+                              )}
+                              data-testid={`matrix-${prescription.id}`}
+                            >
+                              {getPrescriptionTitle(prescription)}
+                            </td>
+                            <td className="border-left">
+                              {subPlan?.substanceKinds
+                                .map((sk) => SubstanceKindLabels[sk])
+                                .join(', ')}
+                            </td>
+                            <td className={clsx('border-left', 'border-right')}>
+                              <div>{totalSampleCount}</div>
+                            </td>
+                            {localPrescriptions.map(
+                              (localPrescription, localPrescriptionIdx) => (
+                                <td
+                                  className={clsx({
+                                    'border-left': localPrescriptionIdx !== 0
+                                  })}
+                                  data-testid={`cell-${prescription.id}`}
+                                  key={`cell-${prescription.id}-${localPrescription.region}`}
+                                >
+                                  <DistributionCountCell
+                                    programmingPlan={plan}
+                                    prescription={prescription}
+                                    localPrescription={localPrescription}
+                                    isEditable={
+                                      hasUserLocalPrescriptionPermission(
+                                        plan,
+                                        localPrescription
+                                      )?.updateSampleCount
+                                    }
+                                    onChange={async (value) =>
+                                      onChangeLocalPrescriptionCount(
+                                        {
+                                          prescriptionId:
+                                            localPrescription.prescriptionId,
+                                          region: localPrescription.region
+                                        },
+                                        value
+                                      )
+                                    }
+                                  />
+                                </td>
+                              )
+                            )}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </div>
-              </div>
-            )}
+                  {isExpanded && (
+                    <div className="prescription-expanded-content">
+                      <div className={cx('fr-grid-row')}>
+                        <div className={cx('fr-col-3')}>
+                          <div className={cx('fr-mb-3w')}>
+                            <div className="d-flex-align-center">
+                              <span
+                                className={cx(
+                                  'fr-icon-chat-quote-line',
+                                  'fr-pr-1v'
+                                )}
+                              />
+                              <b>Notes</b>
+                            </div>
+                            {prescription.notes ?? 'Aucune note'}
+                          </div>
+                          <div>
+                            <div className="d-flex-align-center">
+                              <span
+                                className={cx(
+                                  'fr-icon-chat-quote-line',
+                                  'fr-pr-1v'
+                                )}
+                              />
+                              <b>Consignes</b>
+                            </div>
+                            {prescription.programmingInstruction ??
+                              'Aucune consigne'}
+                          </div>
+                        </div>
+                        <div className={cx('fr-col-3')}>
+                          <PrescriptionSubstances
+                            programmingPlan={
+                              programmingPlans.find(
+                                (p) => p.id === prescription.programmingPlanId
+                              ) ?? programmingPlans[0]
+                            }
+                            prescription={prescription}
+                            renderMode="inline"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </Fragment>
+              );
+            })}
           </Fragment>
         );
       })}

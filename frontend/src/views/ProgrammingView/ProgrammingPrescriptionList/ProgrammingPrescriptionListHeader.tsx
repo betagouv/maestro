@@ -67,7 +67,7 @@ const ProgrammingPrescriptionListHeader = ({
         'fr-mb-2w',
         'fr-mb-md-5w',
         'fr-container',
-        prescriptionListDisplay === 'table' ? 'fr-px-7w' : 'fr-px-0'
+        prescriptionListDisplay === 'table' ? 'fr-px-5w' : 'fr-px-0'
       )}
     >
       <div className="d-flex-align-center" style={{ gap: '1rem' }}>
@@ -155,7 +155,6 @@ const ProgrammingPrescriptionListHeader = ({
           />
         )}
       </div>
-      <hr className={cx('fr-my-3w')} />
       <div className="d-flex-align-center">
         <div className={clsx('flex-grow-1', 'd-flex-align-center')}>
           {hasUserPermission('distributePrescriptionToSlaughterhouses') && (

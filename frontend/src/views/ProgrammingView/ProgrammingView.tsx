@@ -28,7 +28,6 @@ import prescriptionsSlice, {
 import ProgrammingCommentList from './ProgrammingCommentList/ProgrammingCommentList';
 import ProgrammingPlanDepartmentalValidationList from './ProgrammingPlanDepartmentalValidationList/ProgrammingPlanDepartmentalValidationList';
 import ProgrammingPlanRegionalValidationList from './ProgrammingPlanRegionalValidationList/ProgrammingPlanRegionalValidationList';
-import ProgrammingPrescriptionFilters from './ProgrammingPrescriptionFilters/ProgrammingPrescriptionFilters';
 import ProgrammingPrescriptionList from './ProgrammingPrescriptionList/ProgrammingPrescriptionList';
 
 type ProgrammingViewTab =
@@ -60,13 +59,8 @@ const ProgrammingView = () => {
   const [commentLocalPrescription, { isSuccess: isCommentSuccess }] =
     apiClient.useCommentLocalPrescriptionMutation();
 
-  const {
-    yearOptions,
-    programmingPlanOptions,
-    programmingSubPlanOptions,
-    contextOptions,
-    reduceFilters
-  } = usePrescriptionFilters(programmingPlans);
+  const { yearOptions, reduceFilters } =
+    usePrescriptionFilters(programmingPlans);
 
   useEffect(() => {
     dispatch(
@@ -162,23 +156,6 @@ const ProgrammingView = () => {
             subtitle={`${region ? Regions[region]?.name : ''}${user?.department ? ` - ${DepartmentLabels[user?.department]}` : ''}`}
             illustration={programmation}
           />
-          <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
-            <div className="d-flex-align-start">
-              <div className={clsx('flex-grow-1')}>
-                <ProgrammingPrescriptionFilters
-                  options={{
-                    plans: programmingPlanOptions(prescriptionFilters),
-                    programmingSubPlanIds:
-                      programmingSubPlanOptions(prescriptionFilters),
-                    contexts: contextOptions(prescriptionFilters)
-                  }}
-                  filters={prescriptionFilters}
-                  onChange={changeFilter}
-                  renderMode="inline"
-                />
-              </div>
-            </div>
-          </div>
         </div>
         {programmingPlans && (
           <div className={cx('fr-container')}>
@@ -211,7 +188,7 @@ const ProgrammingView = () => {
                     }}
                     tabs={[
                       {
-                        label: 'Programmation',
+                        label: 'Tous les sous-plans',
                         tabId: 'ProgrammationTab',
                         iconId: 'fr-icon-survey-line' as const
                       },
