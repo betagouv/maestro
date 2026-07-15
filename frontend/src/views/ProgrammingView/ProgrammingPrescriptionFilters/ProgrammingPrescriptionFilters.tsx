@@ -3,10 +3,6 @@ import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { pick } from 'lodash-es';
-import {
-  ContextLabels,
-  type ProgrammingPlanContext
-} from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useMemo } from 'react';
@@ -18,7 +14,6 @@ interface Props {
   options: {
     plans: ProgrammingPlanChecked[];
     programmingSubPlanIds: ProgrammingSubPlanId[];
-    contexts: ProgrammingPlanContext[];
   };
   filters: PrescriptionFilters;
   onChange: (filters: Partial<PrescriptionFilters>) => void;
@@ -125,46 +120,6 @@ const ProgrammingPrescriptionFilters = ({
               programmingPlans={options.plans}
               onChange={({ programmingSubPlanIds }) =>
                 onChange({ programmingSubPlanIds })
-              }
-            />
-          </div>
-          <div className={filterClassName}>
-            <Select
-              label="Contexte"
-              nativeSelectProps={{
-                value: '',
-                onChange: (e) =>
-                  onChange({
-                    contexts: [
-                      ...(filters.contexts ?? []),
-                      e.target.value as ProgrammingPlanContext
-                    ]
-                  })
-              }}
-              className={cx('fr-mb-1v')}
-              disabled={options.contexts.length <= 1}
-            >
-              <option value="">
-                {filters.contexts?.length
-                  ? t('context', {
-                      count: filters.contexts.length
-                    })
-                  : 'Tous'}
-              </option>
-              {options.contexts
-                .filter((context) => !filters.contexts?.includes(context))
-                .map((context) => (
-                  <option key={`context-${context}`} value={context}>
-                    {ContextLabels[context]}
-                  </option>
-                ))}
-            </Select>
-            <FiltersTags
-              filters={pick(filters, 'contexts')}
-              onChange={({ contexts }) =>
-                onChange({
-                  contexts: contexts as ProgrammingPlanContext[] | undefined
-                })
               }
             />
           </div>

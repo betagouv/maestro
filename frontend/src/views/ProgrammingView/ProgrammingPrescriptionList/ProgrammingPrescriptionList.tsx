@@ -83,12 +83,8 @@ const ProgrammingPrescriptionList = ({
   const [deletePrescription, { isSuccess: isDeleteSuccess }] =
     apiClient.useDeletePrescriptionMutation();
 
-  const {
-    programmingPlanOptions,
-    programmingSubPlanOptions,
-    contextOptions,
-    reduceFilters
-  } = usePrescriptionFilters(programmingPlans);
+  const { programmingPlanOptions, programmingSubPlanOptions, reduceFilters } =
+    usePrescriptionFilters(programmingPlans);
 
   const changeFilter = useCallback(
     (findFilter: Partial<typeof prescriptionFilters>) => {
@@ -432,8 +428,7 @@ const ProgrammingPrescriptionList = ({
             options={{
               plans: programmingPlanOptions(prescriptionFilters),
               programmingSubPlanIds:
-                programmingSubPlanOptions(prescriptionFilters),
-              contexts: contextOptions(prescriptionFilters)
+                programmingSubPlanOptions(prescriptionFilters)
             }}
             filters={prescriptionFilters}
             onChange={changeFilter}
