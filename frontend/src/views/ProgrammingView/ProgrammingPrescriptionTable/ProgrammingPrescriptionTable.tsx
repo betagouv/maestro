@@ -53,6 +53,7 @@ const ProgrammingPrescriptionTable = ({
 }: Props) => {
   const { hasUserLocalPrescriptionPermission } = useAuthentication();
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [headerHeight, setHeaderHeight] = useState(0);
   const syncingRef = useRef(false);
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const headerWrapperRef = useRef<HTMLDivElement>(null);
@@ -99,6 +100,7 @@ const ProgrammingPrescriptionTable = ({
 
     const updateWidth = () => {
       inner.style.width = `${header.scrollWidth}px`;
+      setHeaderHeight(header.offsetHeight);
     };
     const ro = new ResizeObserver(updateWidth);
     ro.observe(header);
@@ -106,6 +108,7 @@ const ProgrammingPrescriptionTable = ({
     if (tableEl) {
       ro.observe(tableEl);
     }
+    updateWidth();
 
     const onHeaderScroll = () => sync(header);
     const onStickyScroll = () => sync(sticky);
@@ -165,6 +168,13 @@ const ProgrammingPrescriptionTable = ({
   const planOrder = [...new Set(prescriptions.map((p) => p.programmingPlanId))];
   const prescriptionsByPlan = groupBy(prescriptions, 'programmingPlanId');
 
+  // Only count regional prescriptions for currently visible prescriptions
+  // (prescriptions may be filtered by matrixQuery / missing filters)
+  const visiblePrescriptionIds = new Set(prescriptions.map((p) => p.id));
+  const visibleRegionalPrescriptions = regionalPrescriptions.filter((r) =>
+    visiblePrescriptionIds.has(r.prescriptionId)
+  );
+
   return (
     <div
       data-testid="prescription-table"
@@ -223,7 +233,7 @@ const ProgrammingPrescriptionTable = ({
                     'border-right'
                   )}
                 >
-                  {sumBy(regionalPrescriptions, 'sampleCount')}
+                  {sumBy(visibleRegionalPrescriptions, 'sampleCount')}
                 </td>
                 {RegionList.map((region, regionIdx) => (
                   <td
@@ -235,7 +245,9 @@ const ProgrammingPrescriptionTable = ({
                     )}
                   >
                     {sumBy(
-                      regionalPrescriptions.filter((r) => r.region === region),
+                      visibleRegionalPrescriptions.filter(
+                        (r) => r.region === region
+                      ),
                       'sampleCount'
                     )}
                   </td>
@@ -257,57 +269,70 @@ const ProgrammingPrescriptionTable = ({
 
         return (
           <Fragment key={`plan-group-${planId}`}>
-            <div className="plan-group-title">
-              <strong>{ProgrammingPlanDomainLabels[plan.domain]}</strong>
-              {' — '}
-              {plan.contexts.map((c) => ContextLabels[c]).join(', ')}
-            </div>
-
+            {/* Single sticky container — both blue rows move as one block */}
             <div
-              className="table-scroll-wrapper"
-              ref={(el) => {
-                if (el) {
-                  rowWrapperRefs.current.set(`plan-header-${planId}`, el);
-                } else {
-                  rowWrapperRefs.current.delete(`plan-header-${planId}`);
-                }
-              }}
-              onScroll={(e) => sync(e.currentTarget)}
+              className="plan-group-sticky-container"
+              style={{ top: headerHeight }}
             >
               <div
                 className={clsx(
-                  'fr-table',
-                  'fr-table--bordered',
-                  'fr-table--no-caption',
-                  'fr-table--no-scroll'
+                  cx('fr-text--sm', 'fr-mb-0'),
+                  'plan-group-title'
                 )}
               >
-                <table>
-                  <Colgroup />
-                  <tbody>
-                    <tr className="plan-group-header-row plan-group-total-row">
-                      <td colSpan={3}>Total prélèvements</td>
-                      <td className={clsx('border-left', 'border-right')}>
-                        {sumBy(planRegionalPrescriptions, 'sampleCount')}
-                      </td>
-                      {RegionList.map((region, regionIdx) => (
-                        <td
-                          key={region}
-                          className={clsx('align-center', {
-                            'border-left': regionIdx !== 0
-                          })}
-                        >
-                          {sumBy(
-                            planRegionalPrescriptions.filter(
-                              (r) => r.region === region
-                            ),
-                            'sampleCount'
-                          ) || ''}
+                {[
+                  ProgrammingPlanDomainLabels[plan.domain],
+                  plan.title,
+                  plan.contexts.map((c) => ContextLabels[c]).join(', ')
+                ].join(' | ')}
+              </div>
+
+              <div
+                className="table-scroll-wrapper"
+                ref={(el) => {
+                  if (el) {
+                    rowWrapperRefs.current.set(`plan-header-${planId}`, el);
+                  } else {
+                    rowWrapperRefs.current.delete(`plan-header-${planId}`);
+                  }
+                }}
+                onScroll={(e) => sync(e.currentTarget)}
+              >
+                <div
+                  className={clsx(
+                    'fr-table',
+                    'fr-table--bordered',
+                    'fr-table--no-caption',
+                    'fr-table--no-scroll'
+                  )}
+                >
+                  <table>
+                    <Colgroup />
+                    <tbody>
+                      <tr className="plan-group-header-row plan-group-total-row">
+                        <td colSpan={3}>Total prélèvements</td>
+                        <td className={clsx('border-left', 'border-right')}>
+                          {sumBy(planRegionalPrescriptions, 'sampleCount')}
                         </td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
+                        {RegionList.map((region, regionIdx) => (
+                          <td
+                            key={region}
+                            className={clsx('align-center', {
+                              'border-left': regionIdx !== 0
+                            })}
+                          >
+                            {sumBy(
+                              planRegionalPrescriptions.filter(
+                                (r) => r.region === region
+                              ),
+                              'sampleCount'
+                            ) || ''}
+                          </td>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
 

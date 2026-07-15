@@ -4,6 +4,7 @@
   $col-analyte-width: 18.75rem;
   $col-prelevements-width: 8.75rem;
   $col-region-width: 4.375rem;
+  $plan-group-title-height: 3rem;
 
   border-left: 1px solid var(--border-contrast-grey);
   border-right: 1px solid var(--border-contrast-grey);
@@ -293,8 +294,16 @@
     align-items: center;
   }
 
+  .plan-group-sticky-container {
+    position: sticky;
+    z-index: 2;
+  }
+
   .plan-group-title {
-    padding: 0.5rem 1rem;
+    height: $plan-group-title-height;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
     font-weight: 500;
     background-color: var(--background-open-blue-france);
     color: var(--text-active-grey);
