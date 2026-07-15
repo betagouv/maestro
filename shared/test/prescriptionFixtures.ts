@@ -85,6 +85,7 @@ export const FoieDeBovinPrescriptionFixture = genPrescription({
   matrixKind: 'A01QX',
   matrix: 'A01XF#F28.A0C0S',
   stages: ['STADE10'],
+  sampleCount: 80,
   notes: 'Prescription pour le foie de bovin',
   programmingInstruction: 'Instructions pour le foie de bovin'
 });
@@ -94,7 +95,8 @@ export const VolaillePrescriptionFixture = genPrescription({
   programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
   context: 'Surveillance',
   matrixKind: 'A01SN',
-  stages: ['STADE10']
+  stages: ['STADE10'],
+  sampleCount: 77
 });
 export const FoieDeBovinValidatedPrescriptionFixture = {
   ...FoieDeBovinPrescriptionFixture,
