@@ -18,9 +18,15 @@ import {
   type PrescriptionUpdate
 } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  isDepartmentalRole,
+  isNationalRole,
+  isRegionalRole
+} from 'maestro-shared/schema/User/UserRole';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import AppToast from 'src/components/_app/AppToast/AppToast';
+import PrescriptionActionBar from 'src/components/Prescription/PrescriptionActionBar/PrescriptionActionBar';
 import PrescriptionCard from 'src/components/Prescription/PrescriptionCard/PrescriptionCard';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { usePrescriptionFilters } from 'src/hooks/usePrescriptionFilters';
@@ -65,6 +71,7 @@ const ProgrammingPrescriptionList = ({
     hasUserPermission,
     hasUserPrescriptionPermission,
     hasUserLocalPrescriptionPermission,
+    userRole,
     user
   } = useAuthentication();
 
@@ -72,11 +79,21 @@ const ProgrammingPrescriptionList = ({
     Prescription[]
   >([]);
 
+  const [pendingLocalChanges, setPendingLocalChanges] = useState<
+    Map<string, { key: LocalPrescriptionKey; sampleCount: number }>
+  >(new Map());
+  const [pendingPrescriptionSampleCounts, setPendingPrescriptionSampleCounts] =
+    useState<Map<string, number>>(new Map());
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  const isDirty =
+    pendingLocalChanges.size > 0 || pendingPrescriptionSampleCounts.size > 0;
+
   const [_, { isSuccess: isAddSuccess }] =
     apiClient.useAddPrescriptionMutation();
-  const [updatePrescription, { isSuccess: isUpdateSuccess }] =
-    apiClient.useUpdatePrescriptionMutation();
-  const [updateLocalPrescription, { isSuccess: isUpdateRegionalSuccess }] =
+  const [updatePrescription] = apiClient.useUpdatePrescriptionMutation();
+  const [updateLocalPrescription] =
     apiClient.useUpdateLocalPrescriptionMutation();
   const [updateDepartmentalLocalPrescription] =
     apiClient.useUpdateDepartmentalLocalPrescriptionMutation();
@@ -181,8 +198,40 @@ const ProgrammingPrescriptionList = ({
       skip: !findLocalPrescriptionOptions.programmingPlanIds?.length
     });
 
+  const localPrescriptionChangeKey = (key: LocalPrescriptionKey) =>
+    [
+      key.prescriptionId,
+      key.region,
+      key.department ?? '',
+      key.companySiret ?? ''
+    ].join('|');
+
+  const allPrescriptionsWithPending = useMemo(
+    () =>
+      allPrescriptions?.map((p) => {
+        const pending = pendingPrescriptionSampleCounts.get(p.id);
+        return pending !== undefined ? { ...p, sampleCount: pending } : p;
+      }),
+    [allPrescriptions, pendingPrescriptionSampleCounts]
+  );
+
+  const allLocalPrescriptionsWithPending = useMemo(
+    () =>
+      allLocalPrescriptions?.map((lp) => {
+        const key = localPrescriptionChangeKey({
+          prescriptionId: lp.prescriptionId,
+          region: lp.region,
+          department: lp.department ?? undefined,
+          companySiret: lp.companySiret ?? undefined
+        });
+        const pending = pendingLocalChanges.get(key);
+        return pending ? { ...lp, sampleCount: pending.sampleCount } : lp;
+      }),
+    [allLocalPrescriptions, pendingLocalChanges]
+  );
+
   const prescriptions = useMemo(() => {
-    return allPrescriptions
+    return allPrescriptionsWithPending
       ?.filter((p) => planIds.includes(p.programmingPlanId))
       .filter((p) =>
         prescriptionFilters.matrixQuery
@@ -193,11 +242,11 @@ const ProgrammingPrescriptionList = ({
       )
       .filter((p) =>
         prescriptionFilters.missingSlaughterhouse
-          ? (allLocalPrescriptions?.find(
+          ? (allLocalPrescriptionsWithPending?.find(
               (_) => _.prescriptionId === p.id && isNil(_.companySiret)
             )?.sampleCount ?? 0) >
             sumBy(
-              allLocalPrescriptions?.filter(
+              allLocalPrescriptionsWithPending?.filter(
                 (_) => _.prescriptionId === p.id && !isNil(_.companySiret)
               ),
               'sampleCount'
@@ -206,7 +255,7 @@ const ProgrammingPrescriptionList = ({
       )
       .filter((p) =>
         prescriptionFilters.missingLaboratory
-          ? (allLocalPrescriptions ?? []).some(
+          ? (allLocalPrescriptionsWithPending ?? []).some(
               (_) =>
                 _.prescriptionId === p.id &&
                 isNil(_.companySiret) &&
@@ -221,32 +270,32 @@ const ProgrammingPrescriptionList = ({
       .filter(
         (p) =>
           hasNationalView ||
-          allLocalPrescriptions?.some(
+          allLocalPrescriptionsWithPending?.some(
             (_) => _.prescriptionId === p.id && _.sampleCount > 0
           )
       )
       .sort(PrescriptionSort);
   }, [
-    allPrescriptions,
+    allPrescriptionsWithPending,
     planIds,
     prescriptionFilters,
-    allLocalPrescriptions,
+    allLocalPrescriptionsWithPending,
     hasNationalView
   ]);
 
   const localPrescriptions = useMemo(
     () =>
-      filteredLocalPrescriptions(allLocalPrescriptions ?? [], {
+      filteredLocalPrescriptions(allLocalPrescriptionsWithPending ?? [], {
         region,
         department,
         companies
       }),
-    [allLocalPrescriptions, department, region, companies]
+    [allLocalPrescriptionsWithPending, department, region, companies]
   );
 
   const subLocalPrescriptions = useMemo(
     () =>
-      allLocalPrescriptions
+      allLocalPrescriptionsWithPending
         ?.filter((_) => prescriptions?.some((p) => p.id === _.prescriptionId))
         .filter((_) => {
           if (department) {
@@ -258,7 +307,7 @@ const ProgrammingPrescriptionList = ({
           }
           return _.region === region && !isNil(_.department);
         }),
-    [prescriptions, allLocalPrescriptions, department, region]
+    [prescriptions, allLocalPrescriptionsWithPending, department, region]
   );
 
   useEffect(() => {
@@ -342,13 +391,14 @@ const ProgrammingPrescriptionList = ({
   );
 
   const changeLocalPrescriptionCount = useCallback(
-    async (key: LocalPrescriptionKey, count: number) =>
-      changeLocalPrescription(key, {
-        key: 'sampleCount',
-        sampleCount: count,
-        programmingPlanId: getPlanForPrescriptionId(key.prescriptionId).id
-      }),
-    [changeLocalPrescription, getPlanForPrescriptionId]
+    (key: LocalPrescriptionKey, count: number) => {
+      setPendingLocalChanges((prev) => {
+        const next = new Map(prev);
+        next.set(localPrescriptionChangeKey(key), { key, sampleCount: count });
+        return next;
+      });
+    },
+    []
   );
 
   const changeSubstanceKindsLaboratories = async (
@@ -367,6 +417,61 @@ const ProgrammingPrescriptionList = ({
       )
     );
   };
+
+  const handleReset = useCallback(() => {
+    setPendingLocalChanges(new Map());
+    setPendingPrescriptionSampleCounts(new Map());
+  }, []);
+
+  const handleSave = useCallback(async () => {
+    setIsSaving(true);
+    try {
+      await Promise.all([
+        ...Array.from(pendingLocalChanges.values()).map(
+          ({ key, sampleCount }) =>
+            changeLocalPrescription(key, {
+              key: 'sampleCount',
+              sampleCount,
+              programmingPlanId: getPlanForPrescriptionId(key.prescriptionId).id
+            })
+        ),
+        ...Array.from(pendingPrescriptionSampleCounts.entries()).map(
+          ([prescriptionId, sampleCount]) => {
+            const prescription = allPrescriptions?.find(
+              (p) => p.id === prescriptionId
+            );
+            if (!prescription) return Promise.resolve();
+            return changePrescription(prescription, { sampleCount });
+          }
+        )
+      ]);
+      setPendingLocalChanges(new Map());
+      setPendingPrescriptionSampleCounts(new Map());
+      setSaveSuccess(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } finally {
+      setIsSaving(false);
+    }
+  }, [
+    pendingLocalChanges,
+    pendingPrescriptionSampleCounts,
+    changeLocalPrescription,
+    changePrescription,
+    getPlanForPrescriptionId,
+    allPrescriptions
+  ]);
+
+  const saveSuccessMessage = useMemo(() => {
+    if (userRole === 'Administrator')
+      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux régions dans "Suivi des plans".';
+    if (isNationalRole(userRole))
+      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser à l\'administrateur et/ou aux régions dans "Suivi des plans".';
+    if (isRegionalRole(userRole))
+      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux départements dans "Suivi des plans".';
+    if (isDepartmentalRole(userRole))
+      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux préleveurs dans "Suivi des plans".';
+    return 'Vos modifications ont été enregistrées avec succès.';
+  }, [userRole]);
 
   const hasGroupedUpdatePermission = useMemo(
     () =>
@@ -394,11 +499,12 @@ const ProgrammingPrescriptionList = ({
   return (
     <>
       <AppToast open={isAddSuccess} description="Matrice ajoutée" />
-      <AppToast
-        open={isUpdateSuccess || isUpdateRegionalSuccess}
-        description="Modification enregistrée"
-      />
       <AppToast open={isDeleteSuccess} description="Matrice supprimée" />
+      <AppToast
+        open={saveSuccess}
+        description={saveSuccessMessage}
+        onClose={() => setSaveSuccess(false)}
+      />
 
       {prescriptions && localPrescriptions && (
         <>
@@ -539,9 +645,16 @@ const ProgrammingPrescriptionList = ({
                 prescriptions={prescriptions}
                 regionalPrescriptions={localPrescriptions}
                 onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
-                onChangePrescriptionSampleCount={(prescription, sampleCount) =>
-                  changePrescription(prescription, { sampleCount })
-                }
+                onChangePrescriptionSampleCount={(
+                  prescription,
+                  sampleCount
+                ) => {
+                  setPendingPrescriptionSampleCounts((prev) => {
+                    const next = new Map(prev);
+                    next.set(prescription.id, sampleCount);
+                    return next;
+                  });
+                }}
               />
             ) : (
               <ProgrammingLocalPrescriptionTable
@@ -576,6 +689,13 @@ const ProgrammingPrescriptionList = ({
         }
       />
       <LocalPrescriptionModal />
+      {isDirty && (
+        <PrescriptionActionBar
+          onReset={handleReset}
+          onSave={handleSave}
+          isSaving={isSaving}
+        />
+      )}
     </>
   );
 };
