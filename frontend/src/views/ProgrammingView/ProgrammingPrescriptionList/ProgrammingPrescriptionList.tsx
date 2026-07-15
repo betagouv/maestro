@@ -463,13 +463,13 @@ const ProgrammingPrescriptionList = ({
 
   const saveSuccessMessage = useMemo(() => {
     if (userRole === 'Administrator')
-      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux régions dans "Suivi des plans".';
+      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux régions.';
     if (isNationalRole(userRole))
-      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser à l\'administrateur et/ou aux régions dans "Suivi des plans".';
+      return "Vos modifications ont été enregistrées avec succès. Pensez à les diffuser à l'administrateur et/ou aux régions.";
     if (isRegionalRole(userRole))
-      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux départements dans "Suivi des plans".';
+      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux départements.';
     if (isDepartmentalRole(userRole))
-      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux préleveurs dans "Suivi des plans".';
+      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux préleveurs.';
     return 'Vos modifications ont été enregistrées avec succès.';
   }, [userRole]);
 
