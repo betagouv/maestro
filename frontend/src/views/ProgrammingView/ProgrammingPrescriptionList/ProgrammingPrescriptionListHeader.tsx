@@ -58,8 +58,8 @@ const ProgrammingPrescriptionListHeader = ({
   const [isGroupedUpdate, setIsGroupedUpdate] = useState(false);
 
   const sampleCount = useMemo(
-    () => sumBy(localPrescriptions, 'sampleCount'),
-    [localPrescriptions]
+    () => sumBy(prescriptions, 'sampleCount'),
+    [prescriptions]
   );
   return (
     <div
