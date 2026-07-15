@@ -31,6 +31,7 @@ export const genPrescription = (
   context: oneOf(ProgrammingPlanContextList),
   matrixKind: oneOf(MatrixKindEffective.options),
   stages: ['STADE1'],
+  sampleCount: 0,
   ...data
 });
 

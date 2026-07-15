@@ -544,6 +544,9 @@ const ProgrammingPrescriptionList = ({
                 prescriptions={prescriptions}
                 regionalPrescriptions={localPrescriptions}
                 onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
+                onChangePrescriptionSampleCount={(prescription, sampleCount) =>
+                  changePrescription(prescription, { sampleCount })
+                }
               />
             ) : (
               <ProgrammingLocalPrescriptionTable

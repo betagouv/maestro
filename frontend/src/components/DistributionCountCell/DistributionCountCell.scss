@@ -29,4 +29,8 @@
     border-color: var(--background-contrast-grey);
     cursor: text;
   }
+
+  &--wide {
+    width: 100px;
+  }
 }

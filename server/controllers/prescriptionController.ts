@@ -149,7 +149,8 @@ export const prescriptionsRouter = {
         notes: prescriptionUpdate.notes ?? prescription.notes,
         programmingInstruction:
           prescriptionUpdate.programmingInstruction ??
-          prescription.programmingInstruction
+          prescription.programmingInstruction,
+        sampleCount: prescriptionUpdate.sampleCount ?? prescription.sampleCount
       };
 
       await prescriptionRepository.update(updatedPrescription);

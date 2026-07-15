@@ -10,6 +10,7 @@ import {
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import {
   getPrescriptionTitle,
+  hasPrescriptionPermission,
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
@@ -18,6 +19,7 @@ import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPl
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
+import PrescriptionDistributionBadge from 'src/components/Prescription/PrescriptionDistributionBadge/PrescriptionDistributionBadge';
 import TableHeaderCell from 'src/components/TableHeaderCell/TableHeaderCell';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import './ProgrammingPrescriptionTable.scss';
@@ -30,6 +32,10 @@ interface Props {
   onChangeLocalPrescriptionCount: (
     key: LocalPrescriptionKey,
     count: number
+  ) => void;
+  onChangePrescriptionSampleCount?: (
+    prescription: Prescription,
+    sampleCount: number
   ) => void;
 }
 
@@ -49,9 +55,10 @@ const ProgrammingPrescriptionTable = ({
   programmingPlans,
   prescriptions,
   regionalPrescriptions,
-  onChangeLocalPrescriptionCount
+  onChangeLocalPrescriptionCount,
+  onChangePrescriptionSampleCount
 }: Props) => {
-  const { hasUserLocalPrescriptionPermission } = useAuthentication();
+  const { hasUserLocalPrescriptionPermission, userRole } = useAuthentication();
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [headerHeight, setHeaderHeight] = useState(0);
   const syncingRef = useRef(false);
@@ -230,10 +237,11 @@ const ProgrammingPrescriptionTable = ({
                   className={clsx(
                     cx('fr-text--bold'),
                     'border-left',
-                    'border-right'
+                    'border-right',
+                    'align-center'
                   )}
                 >
-                  {sumBy(visibleRegionalPrescriptions, 'sampleCount')}
+                  {sumBy(prescriptions, 'sampleCount')}
                 </td>
                 {RegionList.map((region, regionIdx) => (
                   <td
@@ -311,8 +319,14 @@ const ProgrammingPrescriptionTable = ({
                     <tbody>
                       <tr className="plan-group-header-row plan-group-total-row">
                         <td colSpan={3}>Total prélèvements</td>
-                        <td className={clsx('border-left', 'border-right')}>
-                          {sumBy(planRegionalPrescriptions, 'sampleCount')}
+                        <td
+                          className={clsx(
+                            'border-left',
+                            'border-right',
+                            'align-center'
+                          )}
+                        >
+                          {sumBy(planPrescriptions, 'sampleCount')}
                         </td>
                         {RegionList.map((region, regionIdx) => (
                           <td
@@ -342,6 +356,8 @@ const ProgrammingPrescriptionTable = ({
               const localPrescriptions = getLocalPrescriptions(prescription.id);
               const totalSampleCount = sumBy(localPrescriptions, 'sampleCount');
               const isExpanded = expandedIds.has(prescription.id);
+              const showDistributionBadge =
+                prescription.sampleCount !== 0 || totalSampleCount !== 0;
 
               return (
                 <Fragment key={prescription.id}>
@@ -401,7 +417,37 @@ const ProgrammingPrescriptionTable = ({
                                 .join(', ')}
                             </td>
                             <td className={clsx('border-left', 'border-right')}>
-                              <div>{totalSampleCount}</div>
+                              <div className="prescription-sample-count-cell">
+                                {userRole &&
+                                hasPrescriptionPermission(userRole, plan)
+                                  .update &&
+                                onChangePrescriptionSampleCount ? (
+                                  <input
+                                    className="distribution-count-input distribution-count-input--wide"
+                                    type="number"
+                                    min={0}
+                                    value={prescription.sampleCount}
+                                    onChange={(e) => {
+                                      const v = Number(e.target.value);
+                                      if (!Number.isNaN(v)) {
+                                        onChangePrescriptionSampleCount(
+                                          prescription,
+                                          v
+                                        );
+                                      }
+                                    }}
+                                  />
+                                ) : (
+                                  <div>{prescription.sampleCount}</div>
+                                )}
+                                {showDistributionBadge && (
+                                  <PrescriptionDistributionBadge
+                                    sampleCount={prescription.sampleCount}
+                                    distributedCount={totalSampleCount}
+                                    small
+                                  />
+                                )}
+                              </div>
                             </td>
                             {localPrescriptions.map(
                               (localPrescription, localPrescriptionIdx) => (

@@ -294,6 +294,13 @@
     align-items: center;
   }
 
+  .prescription-sample-count-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
   .plan-group-sticky-container {
     position: sticky;
     z-index: 2;
