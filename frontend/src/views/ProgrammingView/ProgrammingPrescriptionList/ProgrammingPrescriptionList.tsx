@@ -48,6 +48,7 @@ interface Props {
   region?: Region;
   department?: Department;
   companies?: Company[];
+  onDirtyChange?: (isDirty: boolean, reset: () => void) => void;
 }
 
 const ProgrammingPrescriptionList = ({
@@ -55,6 +56,7 @@ const ProgrammingPrescriptionList = ({
   region,
   department,
   companies,
+  onDirtyChange,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -422,6 +424,10 @@ const ProgrammingPrescriptionList = ({
     setPendingLocalChanges(new Map());
     setPendingPrescriptionSampleCounts(new Map());
   }, []);
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty, handleReset);
+  }, [isDirty]);
 
   const handleSave = useCallback(async () => {
     setIsSaving(true);

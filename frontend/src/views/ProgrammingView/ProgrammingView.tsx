@@ -10,12 +10,22 @@ import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPl
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { useParams, useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
 import PrescriptionCommentsModal from '../../components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
+import UnsavedChangesModal, {
+  openUnsavedChangesModal
+} from '../../components/UnsavedChangesModal/UnsavedChangesModal';
 import YearSelector from '../../components/YearSelector/YearSelector';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
@@ -48,6 +58,45 @@ const ProgrammingView = () => {
     useAuthentication();
   const { prescriptionFilters, prescriptionListDisplay } = useAppSelector(
     (state) => state.prescriptions
+  );
+
+  const [listIsDirty, setListIsDirty] = useState(false);
+  const listResetFnRef = useRef<() => void>(() => {});
+  const pendingTabIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (listIsDirty) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [listIsDirty]);
+
+  const handleUnsavedConfirm = useCallback(() => {
+    listResetFnRef.current();
+    setListIsDirty(false); // reset immediately — list may be unmounting so its useEffect won't fire
+    if (pendingTabIdRef.current) {
+      setSelectedTabId(pendingTabIdRef.current as ProgrammingViewTab);
+      pendingTabIdRef.current = null;
+    }
+  }, []);
+
+  const handleUnsavedCancel = useCallback(() => {
+    pendingTabIdRef.current = null;
+  }, []);
+
+  const handleTabChange = useCallback(
+    (tabId: string) => {
+      if (listIsDirty) {
+        pendingTabIdRef.current = tabId;
+        openUnsavedChangesModal();
+      } else {
+        setSelectedTabId(tabId as ProgrammingViewTab);
+      }
+    },
+    [listIsDirty]
   );
 
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery({
@@ -175,9 +224,7 @@ const ProgrammingView = () => {
                 ) : (
                   <Tabs
                     selectedTabId={selectedTabId}
-                    onTabChange={(tabId) =>
-                      setSelectedTabId(tabId as ProgrammingViewTab)
-                    }
+                    onTabChange={handleTabChange}
                     className={clsx({
                       'full-width':
                         (hasNationalView || hasRegionalView) &&
@@ -236,6 +283,10 @@ const ProgrammingView = () => {
                               region={region ?? undefined}
                               department={user?.department ?? undefined}
                               companies={user?.companies ?? undefined}
+                              onDirtyChange={(dirty, reset) => {
+                                setListIsDirty(dirty);
+                                listResetFnRef.current = reset;
+                              }}
                             />
                           )}
                         {selectedTabId === 'ConsultationTab' &&
@@ -273,6 +324,10 @@ const ProgrammingView = () => {
           </div>
         )}
       </section>
+      <UnsavedChangesModal
+        onConfirm={handleUnsavedConfirm}
+        onCancel={handleUnsavedCancel}
+      />
       <PrescriptionCommentsModal
         onSubmitLocalPrescriptionComment={submitLocalPrescriptionComment}
       />
