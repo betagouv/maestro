@@ -23,7 +23,8 @@ export const abricotsEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A0DVX',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 40
 });
 export const avocats = genPrescription({
   id: 'b312ebb6-11cc-4fb3-a7e2-19e74fe73e8f',
@@ -31,7 +32,8 @@ export const avocats = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A01LB',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 14
 });
 export const avoineEtSimilaires = genPrescription({
   id: 'c2476ab6-53f2-4909-a68f-de3bbbce0bab',
@@ -39,7 +41,8 @@ export const avoineEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A000F',
-  stages: ['STADE1', 'STADE3']
+  stages: ['STADE1', 'STADE3'],
+  sampleCount: 53
 });
 export const legumesFeuilles = genPrescription({
   id: 'd98ca4ed-1404-4f24-8d41-6a027f4e78c5',
@@ -47,7 +50,8 @@ export const legumesFeuilles = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00KR',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 9
 });
 export const carottes = genPrescription({
   id: 'a9818827-9b11-40d5-a095-3674d71ae9fa',
@@ -55,7 +59,8 @@ export const carottes = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00QH',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 56
 });
 export const celeris = genPrescription({
   id: '940c3185-c61a-49b5-a355-ce41ffee7b8f',
@@ -63,7 +68,8 @@ export const celeris = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00RY',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 33
 });
 export const cerisesEtSimilaires = genPrescription({
   id: 'a31e2e9c-067e-4cd2-8952-56f5316634ee',
@@ -71,7 +77,8 @@ export const cerisesEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A01GG',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 24
 });
 export const chouxVertsEtSimilaires = genPrescription({
   id: '19f098d7-2873-4ebb-96b7-df13e1084b4e',
@@ -79,7 +86,8 @@ export const chouxVertsEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00GL',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 40
 });
 export const chouxFleurs = genPrescription({
   id: 'f97c3ffa-23ca-4205-a55d-01f1ca76e270',
@@ -87,7 +95,8 @@ export const chouxFleurs = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00FR',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 36
 });
 export const endives = genPrescription({
   id: '57d5289b-ca8f-4017-9794-a621f496b72a',
@@ -95,7 +104,8 @@ export const endives = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00NE',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 20
 });
 export const fenouils = genPrescription({
   id: '8839818d-1820-4f6b-a298-a12cc2f0980e',
@@ -103,7 +113,8 @@ export const fenouils = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00SA',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 16
 });
 export const fevesNonEcossees = genPrescription({
   id: 'a9b33e14-56ec-4156-ad32-a06df9dd3d96',
@@ -111,7 +122,8 @@ export const fevesNonEcossees = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00PH',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 43
 });
 export const figues = genPrescription({
   id: '25117f79-6bde-4f66-b4df-631af6495eaf',
@@ -119,7 +131,8 @@ export const figues = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A01HG',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 19
 });
 export const jeunesPousses = genPrescription({
   id: '7f5a4f46-9fbb-4c6f-b6de-ee933707fc40',
@@ -127,7 +140,8 @@ export const jeunesPousses = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00MA',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 40
 });
 export const fruitsACoques = genPrescription({
   id: 'a2e5b333-4fff-4f25-823d-2c0aef8d9568',
@@ -135,7 +149,8 @@ export const fruitsACoques = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A014C',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 3
 });
 export const houblon = genPrescription({
   id: '8facf692-60d2-43d1-9088-567786b94ccf',
@@ -143,7 +158,8 @@ export const houblon = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00YZ',
-  stages: ['STADE3']
+  stages: ['STADE3'],
+  sampleCount: 8
 });
 export const laituesEtSimilaires = genPrescription({
   id: 'f3ea9e45-378c-48db-a53e-6001e89d5a77',
@@ -151,7 +167,8 @@ export const laituesEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A0DLB',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 14
 });
 const legumesSecs = genPrescription({
   id: 'c4eca56b-5b87-4152-a8c8-6e4f27e32e24',
@@ -159,7 +176,8 @@ const legumesSecs = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A012R',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 84
 });
 export const lentilles = genPrescription({
   id: '74880178-aa79-4a57-85f4-2727ea9ebb1a',
@@ -167,7 +185,8 @@ export const lentilles = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A013Q',
-  stages: ['STADE1', 'STADE3']
+  stages: ['STADE1', 'STADE3'],
+  sampleCount: 33
 });
 export const litchis = genPrescription({
   id: 'eb344a0d-e309-44c8-a25a-f75f140faae3',
@@ -175,7 +194,8 @@ export const litchis = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A01JV',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 12
 });
 export const maches = genPrescription({
   id: 'e9f62e45-6890-4f2d-80eb-44a93dbb1f07',
@@ -183,7 +203,8 @@ export const maches = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00KT',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 22
 });
 export const mangues = genPrescription({
   id: 'b101f673-cb3e-4398-81ff-cdae2bd41241',
@@ -191,7 +212,8 @@ export const mangues = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A01LF',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 13
 });
 export const navets = genPrescription({
   id: 'd2887e1d-8868-4dd3-bfa0-3b796242dbf6',
@@ -199,7 +221,8 @@ export const navets = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00RE',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 31
 });
 export const oignons = genPrescription({
   id: '84c8ea38-8a20-42cf-ba10-b9418af4aa51',
@@ -207,7 +230,8 @@ export const oignons = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00HC',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 52
 });
 export const orgeEtSimilaires = genPrescription({
   id: '904e8eac-b05b-44dd-92b9-c20b82dedef2',
@@ -215,7 +239,8 @@ export const orgeEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A0D9Y',
-  stages: ['STADE1', 'STADE3']
+  stages: ['STADE1', 'STADE3'],
+  sampleCount: 64
 });
 export const patatesDouces = genPrescription({
   id: 'e98c900b-8ae0-40ad-b3cf-d36f6650c9c0',
@@ -223,7 +248,8 @@ export const patatesDouces = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A010C',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 21
 });
 export const pechesEtSimilaires = genPrescription({
   id: 'ba65c645-9bec-49e4-afe0-4bbd12e5a874',
@@ -231,7 +257,8 @@ export const pechesEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A01GL',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 36
 });
 export const poireauxEtSimilaires = genPrescription({
   id: 'bbab1f35-439f-4f93-aa8a-bff96c899643',
@@ -239,7 +266,8 @@ export const poireauxEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A0DEH',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 42
 });
 export const poires = genPrescription({
   id: '52c53b82-3ffb-43ba-8dd7-805671e84557',
@@ -247,7 +275,8 @@ export const poires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A01DP',
-  stages: ['STADE1']
+  stages: ['STADE1'],
+  sampleCount: 36
 });
 export const rizEtSimilaires = genPrescription({
   id: 'a86ac011-3f12-40e1-adf7-e03bfd66d8cb',
@@ -255,7 +284,8 @@ export const rizEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A001C',
-  stages: ['STADE2']
+  stages: ['STADE2'],
+  sampleCount: 17
 });
 export const fevesDeSoja = genPrescription({
   id: 'd4a1ade5-f0a7-4aca-81b0-a15856aabead',
@@ -263,7 +293,8 @@ export const fevesDeSoja = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A0DFR',
-  stages: ['STADE1', 'STADE3']
+  stages: ['STADE1', 'STADE3'],
+  sampleCount: 50
 });
 export const graineDeTournesol1 = genPrescription({
   id: '8140350b-23df-490d-8e00-95296d24ec6b',
@@ -271,7 +302,8 @@ export const graineDeTournesol1 = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A0DBP',
-  stages: ['STADE1', 'STADE3']
+  stages: ['STADE1', 'STADE3'],
+  sampleCount: 24
 });
 const graineDeTournesol2 = genPrescription({
   id: 'da04a0f4-8a63-4e93-8725-4adf25e3fc3e',
@@ -289,7 +321,8 @@ const graineDeTournesol2 = genPrescription({
     'STADE7',
     'STADE8',
     'STADE9'
-  ]
+  ],
+  sampleCount: 50
 });
 export const seed = async () => {
   const validatedProgrammingPlan = await ProgrammingPlans()

@@ -1,36 +1,30 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
+import clsx from 'clsx';
 import { t } from 'i18next';
 import { pick } from 'lodash-es';
-import {
-  ContextLabels,
-  type ProgrammingPlanContext
-} from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useMemo } from 'react';
 import FiltersTags from '../../../components/FilterTags/FiltersTags';
 import type { PrescriptionFilters } from '../../../store/reducers/prescriptionsSlice';
+import { pluralize } from '../../../utils/stringUtils';
 
 interface Props {
   options: {
     plans: ProgrammingPlanChecked[];
     programmingSubPlanIds: ProgrammingSubPlanId[];
-    contexts: ProgrammingPlanContext[];
   };
-  programmingPlans?: ProgrammingPlanChecked[];
   filters: PrescriptionFilters;
   onChange: (filters: Partial<PrescriptionFilters>) => void;
   renderMode: 'inline' | 'modal';
-  multiSelect?: boolean;
 }
 
 const ProgrammingPrescriptionFilters = ({
   options,
   filters,
   onChange,
-  renderMode,
-  multiSelect
+  renderMode
 }: Props) => {
   const filterClassName = useMemo(
     () =>
@@ -39,106 +33,97 @@ const ProgrammingPrescriptionFilters = ({
   );
 
   return (
-    <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-      <div className={filterClassName}>
-        <Select
-          label="Plan"
-          nativeSelectProps={{
-            value: filters.programmingPlanId ?? '',
-            onChange: (e) =>
-              onChange({
-                programmingPlanId: e.target.value as string
-              })
-          }}
-          className={cx('fr-mb-1v')}
-          disabled={options.plans.length <= 1}
-        >
-          {options.plans.length > 1 && (
-            <option value="">Sélectionner une valeur</option>
-          )}
-          {options.plans.map((plan) => (
-            <option key={`plan-${plan.id}`} value={plan.id}>
-              {plan.title}
-            </option>
-          ))}
-        </Select>
-      </div>
-      <div className={filterClassName}>
-        <Select
-          label="Sous-plan"
-          nativeSelectProps={{
-            value: filters.programmingSubPlanIds?.[0] ?? '',
-            onChange: (e) =>
-              onChange({
-                programmingSubPlanIds: multiSelect
-                  ? [
+    <div className={cx('fr-container', 'fr-px-5w', 'fr-mb-3w')}>
+      <div className={clsx(cx('fr-px-4w', 'fr-py-3w'), 'white-container')}>
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={filterClassName}>
+            <Select
+              label="Plan"
+              nativeSelectProps={{
+                value: '',
+                onChange: (e) =>
+                  onChange({
+                    programmingPlanIds: [
+                      ...(filters.programmingPlanIds ?? []),
+                      e.target.value as string
+                    ]
+                  })
+              }}
+              className={cx('fr-mb-1v')}
+              disabled={options.plans.length <= 1}
+            >
+              <option value="">
+                {filters.programmingPlanIds?.length
+                  ? t('programmingPlan', {
+                      count: filters.programmingPlanIds.length
+                    })
+                  : 'Tous'}
+              </option>
+              {options.plans
+                .filter(
+                  (plan) => !filters.programmingPlanIds?.includes(plan.id)
+                )
+                .map((plan) => (
+                  <option key={`plan-${plan.id}`} value={plan.id}>
+                    {plan.title}
+                  </option>
+                ))}
+            </Select>
+            <FiltersTags
+              filters={pick(filters, 'programmingPlanIds')}
+              programmingPlans={options.plans}
+              onChange={({ programmingPlanIds }) =>
+                onChange({ programmingPlanIds })
+              }
+            />
+          </div>
+          <div className={filterClassName}>
+            <Select
+              label="Sous-plan"
+              nativeSelectProps={{
+                value: '',
+                onChange: (e) =>
+                  onChange({
+                    programmingSubPlanIds: [
                       ...(filters.programmingSubPlanIds ?? []),
                       e.target.value as ProgrammingSubPlanId
                     ]
-                  : [e.target.value as ProgrammingSubPlanId]
-              })
-          }}
-          className={cx('fr-mb-1v')}
-          disabled={options.programmingSubPlanIds.length <= 1}
-        >
-          {options.programmingSubPlanIds.length > 1 && (
-            <option value="">
-              {multiSelect && filters.programmingSubPlanIds?.length
-                ? t('select', {
-                    count: filters.programmingSubPlanIds?.length
                   })
-                : multiSelect
-                  ? 'Tous'
-                  : 'Sélectionner une valeur'}
-            </option>
-          )}
-          {options.programmingSubPlanIds
-            .filter(
-              (subPlanId) =>
-                options.programmingSubPlanIds.length === 1 ||
-                !multiSelect ||
-                !filters.programmingSubPlanIds?.includes(subPlanId)
-            )
-            .map((subPlanId) => (
-              <option key={`subPlanId-${subPlanId}`} value={subPlanId}>
-                {
-                  options.plans
-                    .flatMap((p) => p.subPlans)
-                    .find((sp) => sp.id === subPlanId)?.label
-                }
+              }}
+              className={cx('fr-mb-1v')}
+              disabled={options.programmingSubPlanIds.length <= 1}
+            >
+              <option value="">
+                {filters.programmingSubPlanIds?.length
+                  ? pluralize(filters.programmingSubPlanIds.length, {
+                      preserveCount: true
+                    })('sous-plan')
+                  : 'Tous'}
               </option>
-            ))}
-        </Select>
-        {multiSelect && options.programmingSubPlanIds.length > 1 && (
-          <FiltersTags
-            filters={pick(filters, 'programmingSubPlanIds')}
-            programmingPlans={options.plans}
-            onChange={({ programmingSubPlanIds }) =>
-              onChange({ programmingSubPlanIds })
-            }
-          />
-        )}
-      </div>
-      <div className={filterClassName}>
-        <Select
-          label="Contexte"
-          nativeSelectProps={{
-            value: filters.context ?? '',
-            onChange: (e) =>
-              onChange({
-                context: e.target.value as ProgrammingPlanContext
-              })
-          }}
-          className={cx('fr-mb-1v')}
-          disabled={options.contexts.length <= 1}
-        >
-          {options.contexts.length > 1 && <option value="">Tous</option>}
-          {options.contexts.map((context) => (
-            <option key={`context-${context}`} value={context}>
-              {ContextLabels[context]}
-            </option>
-          ))}
-        </Select>
+              {options.programmingSubPlanIds
+                .filter(
+                  (subPlanId) =>
+                    !filters.programmingSubPlanIds?.includes(subPlanId)
+                )
+                .map((subPlanId) => (
+                  <option key={`subPlanId-${subPlanId}`} value={subPlanId}>
+                    {
+                      options.plans
+                        .flatMap((p) => p.subPlans)
+                        .find((sp) => sp.id === subPlanId)?.label
+                    }
+                  </option>
+                ))}
+            </Select>
+            <FiltersTags
+              filters={pick(filters, 'programmingSubPlanIds')}
+              programmingPlans={options.plans}
+              onChange={({ programmingSubPlanIds }) =>
+                onChange({ programmingSubPlanIds })
+              }
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

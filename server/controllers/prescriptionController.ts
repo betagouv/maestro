@@ -88,7 +88,12 @@ export const prescriptionsRouter = {
       const prescriptions =
         await prescriptionRepository.findMany(queryFindOptions);
       const localPrescriptions = await localPrescriptionRepository.findMany({
-        ...findOptions,
+        programmingPlanIds: queryFindOptions.programmingPlanId
+          ? [queryFindOptions.programmingPlanId]
+          : undefined,
+        contexts: queryFindOptions.contexts,
+        region: exportedRegion,
+        department: exportedDepartment,
         includes: ['comments', 'sampleCounts', 'laboratories']
       });
 
@@ -144,7 +149,8 @@ export const prescriptionsRouter = {
         notes: prescriptionUpdate.notes ?? prescription.notes,
         programmingInstruction:
           prescriptionUpdate.programmingInstruction ??
-          prescription.programmingInstruction
+          prescription.programmingInstruction,
+        sampleCount: prescriptionUpdate.sampleCount ?? prescription.sampleCount
       };
 
       await prescriptionRepository.update(updatedPrescription);

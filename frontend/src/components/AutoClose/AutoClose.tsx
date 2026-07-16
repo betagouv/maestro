@@ -13,7 +13,7 @@ const AutoClose = ({ delay, children, onClose }: ToastProps) => {
     const timeoutId = setTimeout(() => {
       setClose(true);
       onClose?.();
-    }, delay || 2000);
+    }, delay || 4000);
 
     return () => clearTimeout(timeoutId);
   }, []);

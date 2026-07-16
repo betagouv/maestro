@@ -179,11 +179,7 @@ export const RegionalCoordinatorView: Story = {
       Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
         el.textContent?.toLowerCase().includes('%')
       )
-    ).toHaveLength(
-      Regions[RegionalCoordinator.region].departments.length +
-        1 +
-        prescriptions.length
-    );
+    ).toHaveLength(prescriptions.length);
     await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
   }
 };
@@ -243,7 +239,7 @@ export const DepartmentalCoordinatorView: Story = {
       Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
         el.textContent?.toLowerCase().includes('%')
       )
-    ).toHaveLength(prescriptions.length + 1);
+    ).toHaveLength(prescriptions.length);
     await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
   }
 };
@@ -305,7 +301,7 @@ export const SamplerView: Story = {
       Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
         el.textContent?.toLowerCase().includes('%')
       )
-    ).toHaveLength(prescriptions.length + 1);
+    ).toHaveLength(prescriptions.length);
     await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
   }
 };

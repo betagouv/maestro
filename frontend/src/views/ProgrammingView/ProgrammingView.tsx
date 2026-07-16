@@ -10,12 +10,22 @@ import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPl
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { useParams, useSearchParams } from 'react-router';
 import programmation from '../../assets/illustrations/programmation.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
 import PrescriptionCommentsModal from '../../components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
+import UnsavedChangesModal, {
+  openUnsavedChangesModal
+} from '../../components/UnsavedChangesModal/UnsavedChangesModal';
 import YearSelector from '../../components/YearSelector/YearSelector';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
@@ -26,10 +36,8 @@ import prescriptionsSlice, {
   type PrescriptionFilters
 } from '../../store/reducers/prescriptionsSlice';
 import ProgrammingCommentList from './ProgrammingCommentList/ProgrammingCommentList';
-import ProgrammingInstructions from './ProgrammingInstructions/ProgrammingInstructions';
 import ProgrammingPlanDepartmentalValidationList from './ProgrammingPlanDepartmentalValidationList/ProgrammingPlanDepartmentalValidationList';
 import ProgrammingPlanRegionalValidationList from './ProgrammingPlanRegionalValidationList/ProgrammingPlanRegionalValidationList';
-import ProgrammingPrescriptionFilters from './ProgrammingPrescriptionFilters/ProgrammingPrescriptionFilters';
 import ProgrammingPrescriptionList from './ProgrammingPrescriptionList/ProgrammingPrescriptionList';
 
 type ProgrammingViewTab =
@@ -52,6 +60,45 @@ const ProgrammingView = () => {
     (state) => state.prescriptions
   );
 
+  const [listHasPendingChanges, setListHasPendingChanges] = useState(false);
+  const listResetFnRef = useRef<() => void>(() => {});
+  const pendingTabIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (listHasPendingChanges) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [listHasPendingChanges]);
+
+  const handleUnsavedConfirm = useCallback(() => {
+    listResetFnRef.current();
+    setListHasPendingChanges(false); // reset immediately — list may be unmounting so its useEffect won't fire
+    if (pendingTabIdRef.current) {
+      setSelectedTabId(pendingTabIdRef.current as ProgrammingViewTab);
+      pendingTabIdRef.current = null;
+    }
+  }, []);
+
+  const handleUnsavedCancel = useCallback(() => {
+    pendingTabIdRef.current = null;
+  }, []);
+
+  const handleTabChange = useCallback(
+    (tabId: string) => {
+      if (listHasPendingChanges) {
+        pendingTabIdRef.current = tabId;
+        openUnsavedChangesModal();
+      } else {
+        setSelectedTabId(tabId as ProgrammingViewTab);
+      }
+    },
+    [listHasPendingChanges]
+  );
+
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery({
     status: year
       ? ['Closed']
@@ -61,13 +108,8 @@ const ProgrammingView = () => {
   const [commentLocalPrescription, { isSuccess: isCommentSuccess }] =
     apiClient.useCommentLocalPrescriptionMutation();
 
-  const {
-    yearOptions,
-    programmingPlanOptions,
-    programmingSubPlanOptions,
-    contextOptions,
-    reduceFilters
-  } = usePrescriptionFilters(programmingPlans);
+  const { yearOptions, reduceFilters } =
+    usePrescriptionFilters(programmingPlans);
 
   useEffect(() => {
     dispatch(
@@ -77,24 +119,29 @@ const ProgrammingView = () => {
             searchParams.get('year') ??
               max(programmingPlans?.map((plan) => plan.year))
           ),
-          programmingPlanId: searchParams.get('programmingPlanId'),
+          programmingPlanIds:
+            (searchParams.get('programmingPlanIds')?.split(',') as string[]) ??
+            undefined,
           programmingSubPlanIds:
             (searchParams
               .get('programmingSubPlanIds')
               ?.split(',') as ProgrammingSubPlanId[]) ?? undefined,
-          context:
-            (searchParams.get('context') as ProgrammingPlanContext) ?? undefined
+          contexts:
+            (searchParams
+              .get('contexts')
+              ?.split(',') as ProgrammingPlanContext[]) ?? undefined
         })
       )
     );
   }, [searchParams, programmingPlans]);
 
-  const programmingPlan = useMemo(
+  const filteredProgrammingPlans = useMemo(
     () =>
-      (programmingPlans ?? []).find(
-        (plan) => prescriptionFilters.programmingPlanId === plan.id
+      (programmingPlans ?? []).filter(
+        (plan) =>
+          !prescriptionFilters.programmingPlanIds?.length ||
+          prescriptionFilters.programmingPlanIds.includes(plan.id)
       ),
-
     [prescriptionFilters, programmingPlans]
   );
 
@@ -144,12 +191,12 @@ const ProgrammingView = () => {
             title={
               <div className="d-flex-align-center">
                 Programmation{' '}
-                {yearOptions(prescriptionFilters).length <= 1 ? (
+                {yearOptions.length <= 1 ? (
                   prescriptionFilters.year
                 ) : (
                   <YearSelector
                     year={prescriptionFilters.year ?? 0}
-                    years={yearOptions(prescriptionFilters)}
+                    years={yearOptions}
                     onChange={(year) => changeFilter({ year })}
                   />
                 )}
@@ -158,27 +205,6 @@ const ProgrammingView = () => {
             subtitle={`${region ? Regions[region]?.name : ''}${user?.department ? ` - ${DepartmentLabels[user?.department]}` : ''}`}
             illustration={programmation}
           />
-          {programmingPlan && (
-            <ProgrammingInstructions programmingPlan={programmingPlan} />
-          )}
-          <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
-            <div className="d-flex-align-start">
-              <div className={clsx('flex-grow-1')}>
-                <ProgrammingPrescriptionFilters
-                  options={{
-                    plans: programmingPlanOptions(prescriptionFilters),
-                    programmingSubPlanIds:
-                      programmingSubPlanOptions(prescriptionFilters),
-                    contexts: contextOptions(prescriptionFilters)
-                  }}
-                  filters={prescriptionFilters}
-                  onChange={changeFilter}
-                  renderMode="inline"
-                  multiSelect
-                />
-              </div>
-            </div>
-          </div>
         </div>
         {programmingPlans && (
           <div className={cx('fr-container')}>
@@ -198,9 +224,7 @@ const ProgrammingView = () => {
                 ) : (
                   <Tabs
                     selectedTabId={selectedTabId}
-                    onTabChange={(tabId) =>
-                      setSelectedTabId(tabId as ProgrammingViewTab)
-                    }
+                    onTabChange={handleTabChange}
                     className={clsx({
                       'full-width':
                         (hasNationalView || hasRegionalView) &&
@@ -211,19 +235,22 @@ const ProgrammingView = () => {
                     }}
                     tabs={[
                       {
-                        label: 'Programmation',
+                        label: 'Tous les sous-plans',
                         tabId: 'ProgrammationTab',
                         iconId: 'fr-icon-survey-line' as const
                       },
-                      programmingPlan?.distributionKind === 'REGIONAL' &&
-                      hasUserPermission('manageProgrammingPlan')
+                      filteredProgrammingPlans.some(
+                        (p) => p.distributionKind === 'REGIONAL'
+                      ) && hasUserPermission('manageProgrammingPlan')
                         ? {
                             label: 'Phase de consultation',
                             tabId: 'ConsultationTab',
                             iconId: 'fr-icon-chat-check-line' as const
                           }
                         : undefined,
-                      programmingPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
+                      filteredProgrammingPlans.some(
+                        (p) => p.distributionKind === 'SLAUGHTERHOUSE'
+                      ) &&
                       (hasUserPermission('manageProgrammingPlan') ||
                         hasUserPermission(
                           'distributePrescriptionToDepartments'
@@ -236,8 +263,9 @@ const ProgrammingView = () => {
                             iconId: 'fr-icon-chat-check-line' as const
                           }
                         : undefined,
-                      programmingPlan?.distributionKind === 'REGIONAL' &&
-                      hasUserPermission('commentPrescription')
+                      filteredProgrammingPlans.some(
+                        (p) => p.distributionKind === 'REGIONAL'
+                      ) && hasUserPermission('commentPrescription')
                         ? {
                             label: 'Commentaires',
                             tabId: 'CommentsTab',
@@ -246,34 +274,45 @@ const ProgrammingView = () => {
                         : undefined
                     ].filter((tab) => !isNil(tab))}
                   >
-                    {programmingPlan ? (
+                    {filteredProgrammingPlans.length ? (
                       <>
-                        {selectedTabId === 'ProgrammationTab' && (
-                          <ProgrammingPrescriptionList
-                            programmingPlan={programmingPlan}
-                            region={region ?? undefined}
-                            department={user?.department ?? undefined}
-                            companies={user?.companies ?? undefined}
-                          />
-                        )}
-                        {selectedTabId === 'ConsultationTab' &&
-                          hasNationalView && (
-                            <ProgrammingPlanRegionalValidationList
-                              programmingPlan={programmingPlan}
+                        {selectedTabId === 'ProgrammationTab' &&
+                          filteredProgrammingPlans.length > 0 && (
+                            <ProgrammingPrescriptionList
+                              programmingPlans={filteredProgrammingPlans}
+                              region={region ?? undefined}
+                              department={user?.department ?? undefined}
+                              companies={user?.companies ?? undefined}
+                              onPendingChange={(hasPending, reset) => {
+                                setListHasPendingChanges(hasPending);
+                                listResetFnRef.current = reset;
+                              }}
                             />
                           )}
                         {selectedTabId === 'ConsultationTab' &&
-                          hasRegionalView && (
+                          hasNationalView &&
+                          filteredProgrammingPlans.map((plan) => (
+                            <ProgrammingPlanRegionalValidationList
+                              key={plan.id}
+                              programmingPlan={plan}
+                            />
+                          ))}
+                        {selectedTabId === 'ConsultationTab' &&
+                          hasRegionalView &&
+                          filteredProgrammingPlans.map((plan) => (
                             <ProgrammingPlanDepartmentalValidationList
-                              programmingPlan={programmingPlan}
+                              key={plan.id}
+                              programmingPlan={plan}
                               region={region as Region}
                             />
-                          )}
-                        {selectedTabId === 'CommentsTab' && (
-                          <ProgrammingCommentList
-                            programmingPlan={programmingPlan}
-                          />
-                        )}
+                          ))}
+                        {selectedTabId === 'CommentsTab' &&
+                          filteredProgrammingPlans.map((plan) => (
+                            <ProgrammingCommentList
+                              key={plan.id}
+                              programmingPlan={plan}
+                            />
+                          ))}
                       </>
                     ) : (
                       'Veuillez sélectionner un plan de programmation'
@@ -285,6 +324,10 @@ const ProgrammingView = () => {
           </div>
         )}
       </section>
+      <UnsavedChangesModal
+        onConfirm={handleUnsavedConfirm}
+        onCancel={handleUnsavedCancel}
+      />
       <PrescriptionCommentsModal
         onSubmitLocalPrescriptionComment={submitLocalPrescriptionComment}
       />

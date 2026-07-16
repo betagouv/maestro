@@ -11,7 +11,6 @@ import {
   RegionList,
   Regions
 } from 'maestro-shared/referential/Region';
-import { FindLocalPrescriptionOptions } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import {
@@ -49,9 +48,7 @@ const ProgrammingPlanRegionalValidationList = ({
   const findPrescriptionOptions = useMemo(
     () => ({
       programmingPlanId: programmingPlan.id,
-      contexts: prescriptionFilters.context
-        ? [prescriptionFilters.context]
-        : undefined
+      contexts: prescriptionFilters.contexts
     }),
     [programmingPlan, prescriptionFilters]
   );
@@ -65,24 +62,17 @@ const ProgrammingPlanRegionalValidationList = ({
 
   const findLocalPrescriptionOptions = useMemo(
     () => ({
-      ...findPrescriptionOptions,
-      includes: ['comments' as const, 'sampleCounts' as const]
+      programmingPlanIds: [programmingPlan.id],
+      contexts: prescriptionFilters.contexts,
+      includes: ['comments' as const]
     }),
-    [findPrescriptionOptions]
+    [programmingPlan, prescriptionFilters]
   );
 
   const { data: regionalPrescriptions } =
-    apiClient.useFindLocalPrescriptionsQuery(
-      {
-        ...findPrescriptionOptions,
-        includes: ['comments']
-      },
-      {
-        skip: !FindLocalPrescriptionOptions.safeParse(
-          findLocalPrescriptionOptions
-        ).success
-      }
-    );
+    apiClient.useFindLocalPrescriptionsQuery(findLocalPrescriptionOptions, {
+      skip: !findLocalPrescriptionOptions.programmingPlanIds?.length
+    });
 
   const regionalCommentedPrescriptions = useCallback(
     (region: Region) => {

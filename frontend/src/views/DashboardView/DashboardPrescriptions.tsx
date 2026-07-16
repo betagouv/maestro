@@ -71,7 +71,9 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
 
   const { data: localPrescriptionsData } =
     apiClient.useFindLocalPrescriptionsQuery({
-      ...findPrescriptionOptions,
+      programmingPlanIds: [programmingPlan.id],
+      contexts: [context],
+      region: Region.safeParse(regionFilter).success ? regionFilter : undefined,
       includes: ['sampleCounts']
     });
 

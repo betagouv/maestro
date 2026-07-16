@@ -134,7 +134,7 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const { data: localPrescriptions } = apiClient.useFindLocalPrescriptionsQuery(
     {
-      programmingPlanId: partialSample.programmingPlanId,
+      programmingPlanIds: [partialSample.programmingPlanId],
       contexts: toArray(
         ProgrammingPlanContext.safeParse(partialSample.context).data
       ),

@@ -282,6 +282,7 @@ export interface Prescriptions {
   programmingInstruction: string | null;
   programmingPlanId: string | null;
   programmingSubPlanId: ProgrammingSubPlanId | null;
+  sampleCount: number;
   stages: string[] | null;
 }
 

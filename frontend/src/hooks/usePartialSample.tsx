@@ -66,7 +66,7 @@ export const usePartialSample = (
   const { data: programmingPlanLocalPrescriptionsData } =
     apiClient.useFindLocalPrescriptionsQuery(
       {
-        programmingPlanId: programmingPlan?.id as string
+        programmingPlanIds: [programmingPlan?.id as string]
       },
       {
         skip: !programmingPlan

@@ -14,7 +14,11 @@ import {
   type LocalPrescription,
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import {
+  type LocalPrescriptionKey,
+  type LocalPrescriptionKeyString,
+  toLocalPrescriptionKeyString
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import {
   getPrescriptionTitle,
   type Prescription
@@ -38,7 +42,7 @@ import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import { pluralize } from '../../../utils/stringUtils';
 
 interface Props {
-  programmingPlan: ProgrammingPlanChecked;
+  programmingPlans: ProgrammingPlanChecked[];
   prescriptions: Prescription[];
   localPrescriptions: LocalPrescription[];
   subLocalPrescriptions: LocalPrescription[];
@@ -50,10 +54,11 @@ interface Props {
   selectedPrescriptions: Prescription[];
   onTogglePrescriptionSelection?: (prescription: Prescription) => void;
   companies?: Company[];
+  pendingLocalKeys?: Set<LocalPrescriptionKeyString>;
 }
 
 const ProgrammingLocalPrescriptionTable = ({
-  programmingPlan,
+  programmingPlans,
   prescriptions,
   localPrescriptions,
   subLocalPrescriptions,
@@ -61,7 +66,8 @@ const ProgrammingLocalPrescriptionTable = ({
   onChangeLocalPrescriptionCount,
   selectedPrescriptions,
   onTogglePrescriptionSelection,
-  companies
+  companies,
+  pendingLocalKeys
 }: Props) => {
   const dispatch = useAppDispatch();
   const {
@@ -70,6 +76,14 @@ const ProgrammingLocalPrescriptionTable = ({
     hasUserLocalPrescriptionPermission,
     hasRegionalView
   } = useAuthentication();
+
+  const getPrescriptionProgrammingPlan = useCallback(
+    (prescription: Prescription) =>
+      programmingPlans.find(
+        (p) => p.id === prescription.programmingPlanId
+      ) as ProgrammingPlanChecked,
+    [programmingPlans]
+  );
 
   const getLocalPrescription = useCallback(
     (prescriptionId: string) =>
@@ -89,14 +103,10 @@ const ProgrammingLocalPrescriptionTable = ({
 
   const departmentList = useMemo(
     () =>
-      [
-        ...(hasRegionalView && programmingPlan.distributionKind !== 'REGIONAL'
-          ? user?.department
-            ? [user.department]
-            : Regions[region].departments
-          : [])
-      ].sort(DepartmentSort),
-    [region, programmingPlan.distributionKind, hasRegionalView, user]
+      [...(hasRegionalView ? Regions[region].departments : [])].sort(
+        DepartmentSort
+      ),
+    [region, hasRegionalView, user]
   );
 
   const headers = useMemo(
@@ -170,10 +180,10 @@ const ProgrammingLocalPrescriptionTable = ({
               {getPrescriptionTitle(prescription)}
               <PrescriptionBreadcrumb
                 prescription={prescription}
-                programmingPlan={programmingPlan}
+                programmingPlan={getPrescriptionProgrammingPlan(prescription)}
               />
               <PrescriptionProgrammingInstruction
-                programmingPlan={programmingPlan}
+                programmingPlan={getPrescriptionProgrammingPlan(prescription)}
                 value={prescription.programmingInstruction}
               />
             </div>,
@@ -202,7 +212,7 @@ const ProgrammingLocalPrescriptionTable = ({
                       })('prélèvement programmé')}
                     </div>
                     {hasProgrammingPlanStatusForAuthUser(
-                      programmingPlan,
+                      getPrescriptionProgrammingPlan(prescription),
                       ['Validated', 'Closed'],
                       user,
                       userRole
@@ -224,11 +234,11 @@ const ProgrammingLocalPrescriptionTable = ({
                       </>
                     ) : (
                       (hasUserLocalPrescriptionPermission(
-                        programmingPlan,
+                        getPrescriptionProgrammingPlan(prescription),
                         localPrescription
                       )?.distributeToDepartments ||
                         hasUserLocalPrescriptionPermission(
-                          programmingPlan,
+                          getPrescriptionProgrammingPlan(prescription),
                           getLocalPrescription(prescription.id)
                         )?.distributeToSlaughterhouses) && (
                         <LocalPrescriptionDistributionBadge
@@ -244,7 +254,8 @@ const ProgrammingLocalPrescriptionTable = ({
                 ))}
             </div>,
             ...(hasRegionalView &&
-            programmingPlan.distributionKind !== 'REGIONAL'
+            getPrescriptionProgrammingPlan(prescription).distributionKind !==
+              'REGIONAL'
               ? getSubLocalPrescriptions(prescription.id).map(
                   (localPrescription) => (
                     <div
@@ -253,15 +264,25 @@ const ProgrammingLocalPrescriptionTable = ({
                       key={`cell-${prescription.id}-${localPrescription.region}`}
                     >
                       <DistributionCountCell
-                        programmingPlan={programmingPlan}
+                        programmingPlan={getPrescriptionProgrammingPlan(
+                          prescription
+                        )}
                         prescription={prescription}
                         localPrescription={localPrescription}
                         isEditable={
                           hasUserLocalPrescriptionPermission(
-                            programmingPlan,
+                            getPrescriptionProgrammingPlan(prescription),
                             localPrescription
                           )?.distributeToDepartments
                         }
+                        isPending={pendingLocalKeys?.has(
+                          toLocalPrescriptionKeyString({
+                            prescriptionId: localPrescription.prescriptionId,
+                            region: localPrescription.region,
+                            department: localPrescription.department,
+                            companySiret: undefined
+                          })
+                        )}
                         max={
                           (getLocalPrescription(prescription.id)?.sampleCount ??
                             0) -
@@ -297,7 +318,8 @@ const ProgrammingLocalPrescriptionTable = ({
                   dispatch(
                     prescriptionsSlice.actions.setPrescriptionModalData({
                       mode: 'details',
-                      programmingPlan,
+                      programmingPlan:
+                        getPrescriptionProgrammingPlan(prescription),
                       prescription
                     })
                   )
@@ -306,7 +328,7 @@ const ProgrammingLocalPrescriptionTable = ({
                 Info prélèvement
               </Button>
               <LocalPrescriptionButtons
-                programmingPlan={programmingPlan}
+                programmingPlan={getPrescriptionProgrammingPlan(prescription)}
                 prescription={prescription}
                 localPrescription={
                   getLocalPrescription(prescription.id) as LocalPrescription
@@ -321,7 +343,7 @@ const ProgrammingLocalPrescriptionTable = ({
           ].filter(isDefined)
         ),
     [
-      programmingPlan,
+      programmingPlans,
       prescriptions,
       subLocalPrescriptions,
       selectedPrescriptions,
@@ -351,25 +373,6 @@ const ProgrammingLocalPrescriptionTable = ({
               })('prélèvement programmé')}
             </div>
           </div>
-
-          {hasProgrammingPlanStatusForAuthUser(
-            programmingPlan,
-            ['Validated', 'Closed'],
-            user,
-            userRole
-          ) && (
-            <>
-              <div>
-                {pluralize(
-                  sumBy(localPrescriptions, 'realizedSampleCount') ?? 0,
-                  {
-                    preserveCount: true
-                  }
-                )('réalisé')}
-              </div>
-              <CompletionBadge localPrescriptions={localPrescriptions} />
-            </>
-          )}
         </div>,
         ...departmentList.map((department) => [
           <div
@@ -384,34 +387,11 @@ const ProgrammingLocalPrescriptionTable = ({
                 'sampleCount'
               )}
             </div>
-            {hasProgrammingPlanStatusForAuthUser(
-              programmingPlan,
-              ['Validated', 'Closed'],
-              user,
-              userRole
-            ) && (
-              <>
-                <div>
-                  {sumBy(
-                    subLocalPrescriptions.filter(
-                      (r) => r.department === department
-                    ),
-                    'realizedSampleCount'
-                  )}
-                </div>
-                <CompletionBadge
-                  localPrescriptions={subLocalPrescriptions.filter(
-                    (r) => r.department === department
-                  )}
-                  region={region}
-                />
-              </>
-            )}
           </div>
         ]),
         <div key="actions-total" className={clsx('border-left')}></div>
       ].filter(isDefined),
-    [subLocalPrescriptions, prescriptions, programmingPlan]
+    [subLocalPrescriptions, prescriptions, programmingPlans]
   );
 
   if (!prescriptions) {

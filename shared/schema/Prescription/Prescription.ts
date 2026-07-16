@@ -21,6 +21,7 @@ export const Prescription = z.object({
   matrixKind: MatrixKind,
   matrix: Matrix.nullish(),
   stages: z.array(Stage),
+  sampleCount: z.coerce.number().int().min(0).default(0),
   monoAnalysisCount: z.coerce.number().nullish(),
   multiAnalysisCount: z.coerce.number().nullish(),
   notes: z.string().nullish(),
@@ -36,7 +37,8 @@ export const PrescriptionUpdate = z.object({
   ...Prescription.pick({
     stages: true,
     notes: true,
-    programmingInstruction: true
+    programmingInstruction: true,
+    sampleCount: true
   }).partial().shape,
   substances: z
     .array(
