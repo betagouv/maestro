@@ -17,15 +17,24 @@ export const LocalPrescriptionKey = z.object({
 
 export type LocalPrescriptionKey = z.infer<typeof LocalPrescriptionKey>;
 
+export const LocalPrescriptionKeyString = z
+  .string()
+  .brand('LocalPrescriptionKeyString');
+export type LocalPrescriptionKeyString = z.infer<
+  typeof LocalPrescriptionKeyString
+>;
+
 export const toLocalPrescriptionKeyString = (
   key: Pick<
     LocalPrescriptionKey,
     'prescriptionId' | 'region' | 'department' | 'companySiret'
   >
-): string =>
-  [
-    key.prescriptionId,
-    key.region,
-    key.department ?? '',
-    key.companySiret ?? ''
-  ].join('|');
+): LocalPrescriptionKeyString =>
+  LocalPrescriptionKeyString.parse(
+    [
+      key.prescriptionId,
+      key.region,
+      key.department ?? '',
+      key.companySiret ?? ''
+    ].join('|')
+  );

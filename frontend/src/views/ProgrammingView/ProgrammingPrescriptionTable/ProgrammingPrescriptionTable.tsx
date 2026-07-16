@@ -9,6 +9,7 @@ import {
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
   type LocalPrescriptionKey,
+  type LocalPrescriptionKeyString,
   toLocalPrescriptionKeyString
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import {
@@ -41,7 +42,7 @@ interface Props {
     sampleCount: number
   ) => void;
   pendingPrescriptionIds?: Set<string>;
-  pendingLocalKeys?: Set<string>;
+  pendingLocalKeys?: Set<LocalPrescriptionKeyString>;
 }
 
 const Colgroup = () => (

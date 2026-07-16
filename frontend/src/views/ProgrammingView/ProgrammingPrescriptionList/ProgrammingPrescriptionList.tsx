@@ -11,6 +11,7 @@ import {
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
   type LocalPrescriptionKey,
+  type LocalPrescriptionKeyString,
   toLocalPrescriptionKeyString
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
@@ -85,7 +86,10 @@ const ProgrammingPrescriptionList = ({
   >([]);
 
   const [pendingLocalChanges, setPendingLocalChanges] = useState<
-    Map<string, { key: LocalPrescriptionKey; sampleCount: number }>
+    Map<
+      LocalPrescriptionKeyString,
+      { key: LocalPrescriptionKey; sampleCount: number }
+    >
   >(new Map());
   const [pendingPrescriptionSampleCounts, setPendingPrescriptionSampleCounts] =
     useState<Map<string, number>>(new Map());

@@ -16,6 +16,7 @@ import {
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
   type LocalPrescriptionKey,
+  type LocalPrescriptionKeyString,
   toLocalPrescriptionKeyString
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import {
@@ -53,7 +54,7 @@ interface Props {
   selectedPrescriptions: Prescription[];
   onTogglePrescriptionSelection?: (prescription: Prescription) => void;
   companies?: Company[];
-  pendingLocalKeys?: Set<string>;
+  pendingLocalKeys?: Set<LocalPrescriptionKeyString>;
 }
 
 const ProgrammingLocalPrescriptionTable = ({
