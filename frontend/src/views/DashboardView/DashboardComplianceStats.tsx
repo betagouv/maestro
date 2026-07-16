@@ -32,7 +32,9 @@ const DashboardComplianceStats: FunctionComponent<Props> = ({
   const [expandedRegions, setExpandedRegions] = useState<string[]>([]);
   const [expandedMatrixKinds, setExpandedMatrixKinds] = useState<string[]>([]);
 
-  const isPPV = programmingPlan.kinds.includes('PPV');
+  const isPPV = programmingPlan?.subPlans.some(
+    (sp) => sp.subPlanNumber === 'PPV'
+  );
 
   const { data: stats, isLoading } = apiClient.useGetComplianceStatsQuery({
     programmingPlanId: programmingPlan.id,

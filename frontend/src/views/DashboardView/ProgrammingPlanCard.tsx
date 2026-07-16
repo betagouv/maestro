@@ -137,7 +137,7 @@ const ProgrammingPlanCard = ({
         </div>
       </div>
 
-      {!programmingPlan.kinds.includes('PPV') && (
+      {!programmingPlan?.subPlans.some((sp) => sp.subPlanNumber === 'PPV') && (
         <div className={clsx('border', cx('fr-p-2w'))}>
           <ProgrammingPlanMap
             programmingPlan={programmingPlan}
