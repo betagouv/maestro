@@ -481,23 +481,32 @@ const ProgrammingPrescriptionTable = ({
                                       'border-right'
                                     )}
                                   >
-                                    <div className="prescription-sample-count-cell">
+                                    <div
+                                      className={clsx(
+                                        'prescription-sample-count-cell',
+                                        userRole &&
+                                          hasPrescriptionPermission(
+                                            userRole,
+                                            plan
+                                          ).update &&
+                                          onChangePrescriptionSampleCount
+                                          ? 'prescription-sample-count-cell--edit'
+                                          : 'prescription-sample-count-cell--read'
+                                      )}
+                                    >
                                       {userRole &&
                                       hasPrescriptionPermission(userRole, plan)
                                         .update &&
                                       onChangePrescriptionSampleCount ? (
                                         <input
-                                          className={[
+                                          className={clsx(
                                             'distribution-count-input',
                                             'distribution-count-input--wide',
                                             pendingPrescriptionIds?.has(
                                               prescription.id
-                                            )
-                                              ? 'distribution-count-input--pending'
-                                              : ''
-                                          ]
-                                            .filter(Boolean)
-                                            .join(' ')}
+                                            ) &&
+                                              'distribution-count-input--pending'
+                                          )}
                                           type="number"
                                           min={0}
                                           value={prescription.sampleCount}
