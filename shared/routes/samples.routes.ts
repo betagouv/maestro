@@ -1,9 +1,17 @@
 import z from 'zod';
 import {
+  FindResidueStatsOptions,
+  ResidueDetectionStat
+} from '../schema/Analysis/ResidueDetectionStat';
+import {
   DocumentChecked,
   SampleDocumentToCreate,
   SampleDocumentUpdate
 } from '../schema/Document/Document';
+import {
+  ComplianceStat,
+  FindComplianceStatsOptions
+} from '../schema/Sample/ComplianceStat';
 import { FindSampleOptions } from '../schema/Sample/FindSampleOptions';
 import {
   PartialSample,
@@ -14,6 +22,20 @@ import { SampleItemUpdate } from '../schema/Sample/SampleItem';
 import type { SubRoutes } from './routes';
 
 export const samplesRoutes = {
+  '/samples/compliance-stats': {
+    get: {
+      query: FindComplianceStatsOptions,
+      permissions: ['readSamples'],
+      response: z.array(ComplianceStat)
+    }
+  },
+  '/samples/residue-stats': {
+    get: {
+      query: FindResidueStatsOptions,
+      permissions: ['readSamples'],
+      response: z.array(ResidueDetectionStat)
+    }
+  },
   '/samples': {
     get: {
       query: FindSampleOptions,

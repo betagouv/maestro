@@ -37,7 +37,9 @@ export const LocalPrescription = z.object({
     .nullish(),
   inProgressSampleCount: z.coerce.number().nullish(),
   realizedSampleCount: z.coerce.number().nullish(),
-  notAdmissibleSampleCount: z.coerce.number().nullish()
+  notAdmissibleSampleCount: z.coerce.number().nullish(),
+  compliantSampleCount: z.coerce.number().nullish(),
+  nonCompliantSampleCount: z.coerce.number().nullish()
 });
 
 export const SlaughterhouseSampleCounts = z
