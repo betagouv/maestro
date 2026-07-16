@@ -9,7 +9,7 @@
     "tsc": "tsc",
     "build": "react-dsfr update-icons && tsc && vite build",
     "build-vite": "vite build",
-    "scalingo-postbuild": "run-p build-vite build-storybook",
+    "scalingo-postbuild": "react-dsfr update-icons && run-p build-vite build-storybook",
     "preview": "vite preview",
     "test": "vitest",
     "lint": "biome check",
