@@ -12,6 +12,7 @@ interface Props {
   prescription: Prescription;
   localPrescription: LocalPrescription;
   isEditable?: boolean;
+  isPending?: boolean;
   onChange: (value: number) => void;
   max?: number;
 }
@@ -21,6 +22,7 @@ const DistributionCountCell = ({
   prescription,
   localPrescription,
   isEditable,
+  isPending,
   onChange,
   max,
   ..._rest
@@ -58,7 +60,7 @@ const DistributionCountCell = ({
         onClose={() => setError(false)}
       />
       <input
-        className="distribution-count-input"
+        className={`distribution-count-input${isPending ? ' distribution-count-input--pending' : ''}`}
         type="number"
         min={0}
         value={localPrescription.sampleCount}

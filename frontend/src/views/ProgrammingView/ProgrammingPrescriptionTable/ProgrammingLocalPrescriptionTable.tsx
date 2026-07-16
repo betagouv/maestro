@@ -14,7 +14,10 @@ import {
   type LocalPrescription,
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import {
+  type LocalPrescriptionKey,
+  toLocalPrescriptionKeyString
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import {
   getPrescriptionTitle,
   type Prescription
@@ -50,6 +53,7 @@ interface Props {
   selectedPrescriptions: Prescription[];
   onTogglePrescriptionSelection?: (prescription: Prescription) => void;
   companies?: Company[];
+  pendingLocalKeys?: Set<string>;
 }
 
 const ProgrammingLocalPrescriptionTable = ({
@@ -61,7 +65,8 @@ const ProgrammingLocalPrescriptionTable = ({
   onChangeLocalPrescriptionCount,
   selectedPrescriptions,
   onTogglePrescriptionSelection,
-  companies
+  companies,
+  pendingLocalKeys
 }: Props) => {
   const dispatch = useAppDispatch();
   const {
@@ -269,6 +274,14 @@ const ProgrammingLocalPrescriptionTable = ({
                             localPrescription
                           )?.distributeToDepartments
                         }
+                        isPending={pendingLocalKeys?.has(
+                          toLocalPrescriptionKeyString({
+                            prescriptionId: localPrescription.prescriptionId,
+                            region: localPrescription.region,
+                            department: localPrescription.department,
+                            companySiret: undefined
+                          })
+                        )}
                         max={
                           (getLocalPrescription(prescription.id)?.sampleCount ??
                             0) -

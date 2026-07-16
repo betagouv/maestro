@@ -60,23 +60,23 @@ const ProgrammingView = () => {
     (state) => state.prescriptions
   );
 
-  const [listIsDirty, setListIsDirty] = useState(false);
+  const [listHasPendingChanges, setListHasPendingChanges] = useState(false);
   const listResetFnRef = useRef<() => void>(() => {});
   const pendingTabIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
-      if (listIsDirty) {
+      if (listHasPendingChanges) {
         e.preventDefault();
       }
     };
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
-  }, [listIsDirty]);
+  }, [listHasPendingChanges]);
 
   const handleUnsavedConfirm = useCallback(() => {
     listResetFnRef.current();
-    setListIsDirty(false); // reset immediately — list may be unmounting so its useEffect won't fire
+    setListHasPendingChanges(false); // reset immediately — list may be unmounting so its useEffect won't fire
     if (pendingTabIdRef.current) {
       setSelectedTabId(pendingTabIdRef.current as ProgrammingViewTab);
       pendingTabIdRef.current = null;
@@ -89,14 +89,14 @@ const ProgrammingView = () => {
 
   const handleTabChange = useCallback(
     (tabId: string) => {
-      if (listIsDirty) {
+      if (listHasPendingChanges) {
         pendingTabIdRef.current = tabId;
         openUnsavedChangesModal();
       } else {
         setSelectedTabId(tabId as ProgrammingViewTab);
       }
     },
-    [listIsDirty]
+    [listHasPendingChanges]
   );
 
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery({
@@ -283,8 +283,8 @@ const ProgrammingView = () => {
                               region={region ?? undefined}
                               department={user?.department ?? undefined}
                               companies={user?.companies ?? undefined}
-                              onDirtyChange={(dirty, reset) => {
-                                setListIsDirty(dirty);
+                              onPendingChange={(hasPending, reset) => {
+                                setListHasPendingChanges(hasPending);
                                 listResetFnRef.current = reset;
                               }}
                             />

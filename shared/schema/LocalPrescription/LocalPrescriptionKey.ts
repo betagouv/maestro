@@ -16,3 +16,16 @@ export const LocalPrescriptionKey = z.object({
 });
 
 export type LocalPrescriptionKey = z.infer<typeof LocalPrescriptionKey>;
+
+export const toLocalPrescriptionKeyString = (
+  key: Pick<
+    LocalPrescriptionKey,
+    'prescriptionId' | 'region' | 'department' | 'companySiret'
+  >
+): string =>
+  [
+    key.prescriptionId,
+    key.region,
+    key.department ?? '',
+    key.companySiret ?? ''
+  ].join('|');

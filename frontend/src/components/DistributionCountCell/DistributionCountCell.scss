@@ -24,6 +24,7 @@
     display: none;
   }
 
+  &--pending,
   &:focus {
     background-color: var(--background-default-grey);
     border-color: var(--background-contrast-grey);

@@ -7,7 +7,10 @@ import {
   type LocalPrescription,
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import {
+  type LocalPrescriptionKey,
+  toLocalPrescriptionKeyString
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import {
   getPrescriptionTitle,
   hasPrescriptionPermission,
@@ -37,6 +40,8 @@ interface Props {
     prescription: Prescription,
     sampleCount: number
   ) => void;
+  pendingPrescriptionIds?: Set<string>;
+  pendingLocalKeys?: Set<string>;
 }
 
 const Colgroup = () => (
@@ -56,7 +61,9 @@ const ProgrammingPrescriptionTable = ({
   prescriptions,
   regionalPrescriptions,
   onChangeLocalPrescriptionCount,
-  onChangePrescriptionSampleCount
+  onChangePrescriptionSampleCount,
+  pendingPrescriptionIds,
+  pendingLocalKeys
 }: Props) => {
   const { hasUserLocalPrescriptionPermission, userRole } = useAuthentication();
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
@@ -423,7 +430,17 @@ const ProgrammingPrescriptionTable = ({
                                   .update &&
                                 onChangePrescriptionSampleCount ? (
                                   <input
-                                    className="distribution-count-input distribution-count-input--wide"
+                                    className={[
+                                      'distribution-count-input',
+                                      'distribution-count-input--wide',
+                                      pendingPrescriptionIds?.has(
+                                        prescription.id
+                                      )
+                                        ? 'distribution-count-input--pending'
+                                        : ''
+                                    ]
+                                      .filter(Boolean)
+                                      .join(' ')}
                                     type="number"
                                     min={0}
                                     value={prescription.sampleCount}
@@ -468,6 +485,15 @@ const ProgrammingPrescriptionTable = ({
                                         localPrescription
                                       )?.updateSampleCount
                                     }
+                                    isPending={pendingLocalKeys?.has(
+                                      toLocalPrescriptionKeyString({
+                                        prescriptionId:
+                                          localPrescription.prescriptionId,
+                                        region: localPrescription.region,
+                                        department: undefined,
+                                        companySiret: undefined
+                                      })
+                                    )}
                                     onChange={async (value) =>
                                       onChangeLocalPrescriptionCount(
                                         {
