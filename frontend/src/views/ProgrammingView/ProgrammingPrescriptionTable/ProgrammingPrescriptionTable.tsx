@@ -385,7 +385,7 @@ const ProgrammingPrescriptionTable = ({
                                       (r) => r.region === region
                                     ),
                                     'sampleCount'
-                                  ) || ''}
+                                  )}
                                 </td>
                               ))}
                             </tr>
