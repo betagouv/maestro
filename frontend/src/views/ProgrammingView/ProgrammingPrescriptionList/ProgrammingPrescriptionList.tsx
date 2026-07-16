@@ -512,6 +512,7 @@ const ProgrammingPrescriptionList = ({
         open={saveSuccess}
         description={saveSuccessMessage}
         onClose={() => setSaveSuccess(false)}
+        autoClose={false}
       />
 
       {prescriptions && localPrescriptions && (
