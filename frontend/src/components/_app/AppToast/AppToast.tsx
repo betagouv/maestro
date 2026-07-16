@@ -7,33 +7,25 @@ interface Props {
   description: string;
   severity?: AlertProps.Severity;
   onClose?: () => void;
-  autoClose?: boolean;
 }
 
-const AppToast = ({
-  open,
-  description,
-  severity,
-  onClose,
-  autoClose = true
-}: Props) => {
+const AppToast = ({ open, description, severity, onClose }: Props) => {
   if (!open) {
     return null;
   }
 
-  const alert = (
-    <div className="toast">
-      <Alert
-        small
-        description={description}
-        closable
-        onClose={onClose}
-        severity={severity ?? 'success'}
-      />
-    </div>
+  return (
+    <AutoClose onClose={onClose}>
+      <div className="toast">
+        <Alert
+          small
+          description={description}
+          closable
+          severity={severity ?? 'success'}
+        />
+      </div>
+    </AutoClose>
   );
-
-  return autoClose ? <AutoClose onClose={onClose}>{alert}</AutoClose> : alert;
 };
 
 export default AppToast;
