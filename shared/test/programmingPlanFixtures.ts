@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { isDromRegion, RegionList, Regions } from '../referential/Region';
+import { RegionList } from '../referential/Region';
 import { ProgrammingPlanStatusList } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -64,6 +64,12 @@ export const genProgrammingSubPlan = (
   label: 'Test SubPlan',
   withSacha: (data?.id && SachaSubPlanIds.includes(data.id)) ?? false,
   substanceKinds: ['Any'],
+  nationalStatus: oneOf(ProgrammingPlanStatusList),
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: oneOf(ProgrammingPlanStatusList)
+  })),
+  departmentalStatus: [],
   ...data
 });
 
@@ -157,24 +163,13 @@ export const genProgrammingPlan = (
     id: planId,
     domain: 'PESTICIDE_RESIDUE',
     title: 'Production primaire végétale',
-    subPlans: [
-      {
-        ...PPVValidatedSubPlanFixture,
-        id: ProgrammingSubPlanId.parse(uuidv4()),
-        programmingPlanId: planId
-      }
-    ],
+    subPlanIds: [ProgrammingSubPlanId.parse(uuidv4())],
     distributionKind: 'REGIONAL',
     contexts: ['Control', 'Surveillance'],
     legalContexts: ['A', 'B'],
     samplesOutsidePlanAllowed: true,
     createdAt: new Date(),
     createdBy: uuidv4(),
-    regionalStatus: RegionList.map((region) => ({
-      region,
-      status: oneOf(ProgrammingPlanStatusList)
-    })),
-    departmentalStatus: [],
     year: new Date().getFullYear(),
     ...data
   };
@@ -184,7 +179,7 @@ export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
   id: PPVClosedProgrammingPlanId,
   domain: 'PESTICIDE_RESIDUE',
   title: 'Production primaire végétale',
-  subPlans: [PPVClosedSubPlanFixture],
+  subPlanIds: [PPVClosedSubPlanFixture.id],
   distributionKind: 'REGIONAL',
   contexts: ['Control', 'Surveillance'],
   samplesOutsidePlanAllowed: true,
@@ -192,10 +187,6 @@ export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
   createdBy: NationalCoordinatorId,
   closedAt: new Date(),
   closedBy: NationalCoordinatorId,
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: 'Closed'
-  })),
   year: new Date().getFullYear() - 1
 });
 
@@ -203,16 +194,12 @@ export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
   id: PPVValidatedProgrammingPlanId,
   domain: 'PESTICIDE_RESIDUE',
   title: 'Production primaire végétale',
-  subPlans: [PPVValidatedSubPlanFixture],
+  subPlanIds: [PPVValidatedSubPlanFixture.id],
   distributionKind: 'REGIONAL',
   contexts: ['Control', 'Surveillance'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
-  regionalStatus: RegionList.toSorted().map((region) => ({
-    region,
-    status: 'Validated'
-  })),
   year: new Date().getFullYear()
 });
 
@@ -220,16 +207,12 @@ export const PPVValidatedDromProgrammingPlanFixture = genProgrammingPlan({
   id: PPVValidatedDromProgrammingPlanId,
   domain: 'PESTICIDE_RESIDUE',
   title: 'Production primaire végétale - DROM',
-  subPlans: [PPVValidatedDromSubPlanFixture],
+  subPlanIds: [PPVValidatedDromSubPlanFixture.id],
   distributionKind: 'REGIONAL',
   contexts: ['Control', 'Surveillance'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: isDromRegion(region) ? 'Validated' : 'SubmittedToRegion'
-  })),
   year: new Date().getFullYear() + 10
 });
 
@@ -237,16 +220,12 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
   id: PPVInProgressProgrammingPlanId,
   domain: 'PESTICIDE_RESIDUE',
   title: 'Production primaire végétale',
-  subPlans: [PPVInProgressSubPlanFixture],
+  subPlanIds: [PPVInProgressSubPlanFixture.id],
   distributionKind: 'REGIONAL',
   contexts: ['Control', 'Surveillance'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: 'InProgress'
-  })),
   year: new Date().getFullYear() + 1
 });
 
@@ -254,16 +233,12 @@ export const PPVSubmittedProgrammingPlanFixture = genProgrammingPlan({
   id: PPVSubmittedProgrammingPlanId,
   domain: 'PESTICIDE_RESIDUE',
   title: 'Production primaire végétale',
-  subPlans: [PPVSubmittedSubPlanFixture],
+  subPlanIds: [PPVSubmittedSubPlanFixture.id],
   distributionKind: 'REGIONAL',
   contexts: ['Control', 'Surveillance'],
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: 'SubmittedToRegion'
-  })),
   year: new Date().getFullYear() + 2
 });
 
@@ -271,9 +246,9 @@ export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
   id: DAOAValidatedProgrammingPlanId,
   domain: 'PESTICIDE_RESIDUE',
   title: "Produit carné à l'abattoir",
-  subPlans: [
-    DAOAVolailleValidatedSubPlanFixture,
-    DAOABovinValidatedSubPlanFixture
+  subPlanIds: [
+    DAOAVolailleValidatedSubPlanFixture.id,
+    DAOABovinValidatedSubPlanFixture.id
   ],
   distributionKind: 'SLAUGHTERHOUSE',
   contexts: ['Surveillance'],
@@ -281,17 +256,6 @@ export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
   samplesOutsidePlanAllowed: false,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: 'Validated'
-  })),
-  departmentalStatus: RegionList.flatMap((region) =>
-    Regions[region].departments.map((department) => ({
-      region,
-      department,
-      status: 'Validated'
-    }))
-  ),
   year: new Date().getFullYear()
 });
 
@@ -299,9 +263,9 @@ export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   id: DAOAInProgressProgrammingPlanId,
   domain: 'PESTICIDE_RESIDUE',
   title: "Produit carné à l'abattoir",
-  subPlans: [
-    DAOAVolailleInProgressSubPlanFixture,
-    DAOABovinInProgressSubPlanFixture
+  subPlanIds: [
+    DAOAVolailleInProgressSubPlanFixture.id,
+    DAOABovinInProgressSubPlanFixture.id
   ],
   distributionKind: 'SLAUGHTERHOUSE',
   contexts: ['Surveillance'],
@@ -309,9 +273,5 @@ export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   samplesOutsidePlanAllowed: false,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: 'InProgress'
-  })),
   year: new Date().getFullYear() + 1
 });

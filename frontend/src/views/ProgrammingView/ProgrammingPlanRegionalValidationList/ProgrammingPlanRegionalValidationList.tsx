@@ -1,56 +1,92 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
-import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Select from '@codegouvfr/react-dsfr/Select';
-import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
-import { t } from 'i18next';
-import { sumBy } from 'lodash-es';
+import { groupBy } from 'lodash-es';
 import {
-  type Region,
-  RegionList,
-  Regions
-} from 'maestro-shared/referential/Region';
+  type Department,
+  DepartmentLabels
+} from 'maestro-shared/referential/Department';
+import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
-import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import {
+  getPrescriptionTitle,
+  type Prescription
+} from 'maestro-shared/schema/Prescription/Prescription';
+import {
+  ContextLabels,
+  type ProgrammingPlanContext
+} from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import {
   type ProgrammingPlanStatus,
   ProgrammingPlanStatusLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { useCallback, useContext, useMemo, useState } from 'react';
+import {
+  getPlanDepartmentalStatuses,
+  getPlanRegionalStatuses,
+  type ProgrammingPlanChecked
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { Fragment, useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
-import { useAuthentication } from '../../../hooks/useAuthentication';
-import { useAppDispatch, useAppSelector } from '../../../hooks/useStore';
 import { ApiClientContext } from '../../../services/apiClient';
-import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
-import { pluralize } from '../../../utils/stringUtils';
+import './ProgrammingPlanRegionalValidationList.scss';
 
 interface Props {
   programmingPlan: ProgrammingPlanChecked;
 }
+
+type BadgeSeverity = 'success' | 'warning' | 'error' | 'info' | 'new';
+
+const statusSeverity = (
+  status: ProgrammingPlanStatus | undefined
+): BadgeSeverity => {
+  switch (status) {
+    case 'InProgress':
+      return 'warning';
+    case 'SubmittedToRegion':
+    case 'SubmittedToDepartments':
+    case 'ApprovedByRegion':
+      return 'info';
+    case 'Validated':
+    case 'Closed':
+      return 'success';
+    default:
+      return 'new';
+  }
+};
 
 const ProgrammingPlanRegionalValidationList = ({
   programmingPlan,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
-  const dispatch = useAppDispatch();
   const apiClient = useContext(ApiClientContext);
-  const { hasUserPermission } = useAuthentication();
 
-  const { prescriptionFilters } = useAppSelector(
-    (state) => state.prescriptions
+  const [expandedPrescriptionIds, setExpandedPrescriptionIds] = useState<
+    Set<string>
+  >(new Set());
+  const [expandedRegionKeys, setExpandedRegionKeys] = useState<Set<string>>(
+    new Set()
   );
-  const [regionFilter, setRegionFilter] = useState<Region>();
-  const [statusFilter, setStatusFilter] = useState<ProgrammingPlanStatus>();
+
+  const togglePrescription = (id: string) =>
+    setExpandedPrescriptionIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+
+  const toggleRegion = (key: string) =>
+    setExpandedRegionKeys((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
 
   const findPrescriptionOptions = useMemo(
-    () => ({
-      programmingPlanId: programmingPlan.id,
-      contexts: prescriptionFilters.contexts
-    }),
-    [programmingPlan, prescriptionFilters]
+    () => ({ programmingPlanId: programmingPlan.id }),
+    [programmingPlan.id]
   );
 
   const { data: allPrescriptions } = apiClient.useFindPrescriptionsQuery(
@@ -60,65 +96,71 @@ const ProgrammingPlanRegionalValidationList = ({
     }
   );
 
-  const findLocalPrescriptionOptions = useMemo(
-    () => ({
-      programmingPlanIds: [programmingPlan.id],
-      contexts: prescriptionFilters.contexts,
-      includes: ['comments' as const]
-    }),
-    [programmingPlan, prescriptionFilters]
-  );
-
   const { data: regionalPrescriptions } =
-    apiClient.useFindLocalPrescriptionsQuery(findLocalPrescriptionOptions, {
-      skip: !findLocalPrescriptionOptions.programmingPlanIds?.length
-    });
+    apiClient.useFindLocalPrescriptionsQuery(
+      { programmingPlanIds: [programmingPlan.id] },
+      { skip: !programmingPlan.id }
+    );
 
-  const regionalCommentedPrescriptions = useCallback(
-    (region: Region) => {
-      if (!regionalPrescriptions || !allPrescriptions) {
-        return [];
-      }
-      return regionalPrescriptions
-        .filter(
-          (regionalPrescription) =>
-            regionalPrescription.region === region &&
-            (regionalPrescription.comments ?? []).length > 0
+  const regionalStatuses = getPlanRegionalStatuses(programmingPlan);
+  const departmentalStatuses = getPlanDepartmentalStatuses(programmingPlan);
+
+  const contextOrder = useMemo(
+    () => [...new Set(allPrescriptions?.map((p) => p.context) ?? [])],
+    [allPrescriptions]
+  );
+
+  const prescriptionsByContext = useMemo(
+    () => groupBy(allPrescriptions ?? [], 'context'),
+    [allPrescriptions]
+  );
+
+  const getSubPlan = (prescription: Prescription) =>
+    programmingPlan.subPlans.find(
+      (sp) => sp.id === prescription.programmingSubPlanId
+    );
+
+  const regionsWithSamples = (prescriptionId: string) =>
+    RegionList.filter((region) =>
+      (regionalPrescriptions ?? []).some(
+        (rp) =>
+          rp.prescriptionId === prescriptionId &&
+          rp.region === region &&
+          rp.sampleCount > 0
+      )
+    );
+
+  const regionalStatus = (region: string) =>
+    regionalStatuses.find((rs) => rs.region === region)?.status;
+
+  const nationalStatus = (prescription: Prescription) =>
+    getSubPlan(prescription)?.localStatuses.find(
+      (localStatus) =>
+        localStatus.region === 'None' && localStatus.department === 'None'
+    )?.status;
+
+  const departmentalStatus = (region: string, department: string) =>
+    departmentalStatuses.find(
+      (ds) => ds.region === region && ds.department === department
+    )?.status;
+
+  const departmentsWithPrescriptions = (
+    prescriptionId: string,
+    region: string
+  ): Department[] =>
+    (Regions[region as keyof typeof Regions]?.departments ?? []).filter(
+      (dept) =>
+        (regionalPrescriptions ?? []).some(
+          (rp) =>
+            rp.prescriptionId === prescriptionId &&
+            rp.region === region &&
+            rp.department === dept &&
+            rp.sampleCount > 0
+        ) ||
+        departmentalStatuses.some(
+          (ds) => ds.region === region && ds.department === dept
         )
-        .map((regionalPrescription) => ({
-          ...regionalPrescription,
-          prescription: allPrescriptions.find(
-            (allPrescription) =>
-              allPrescription.id === regionalPrescription.prescriptionId
-          ) as Prescription
-        }));
-    },
-    [allPrescriptions, regionalPrescriptions]
-  );
-
-  const validatedRegions = useMemo(
-    () =>
-      programmingPlan.regionalStatus.filter(
-        (regionalStatus) =>
-          !['InProgress', 'SubmittedToRegion'].includes(regionalStatus.status)
-      ),
-    [programmingPlan.regionalStatus]
-  );
-
-  const filteredRegions = useMemo(
-    () =>
-      RegionList.filter(
-        (region) =>
-          (!regionFilter || regionFilter === region) &&
-          (!statusFilter ||
-            programmingPlan.regionalStatus.some(
-              (regionalStatus) =>
-                regionalStatus.region === region &&
-                regionalStatus.status === statusFilter
-            ))
-      ),
-    [regionFilter, statusFilter, programmingPlan]
-  );
+    ) as Department[];
 
   if (!allPrescriptions || !regionalPrescriptions) {
     return null;
@@ -126,203 +168,280 @@ const ProgrammingPlanRegionalValidationList = ({
 
   return (
     <div
-      className={clsx(cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-px-0', 'fr-container'))}
+      className="programming-table validation-table"
+      data-testid="validation-table"
     >
-      <div className={clsx('d-flex-align-center')}>
-        <h4 className={clsx(cx('fr-mb-0', 'fr-mr-3w'), 'flex-grow-1')}>
-          {t(
-            programmingPlan.distributionKind === 'REGIONAL'
-              ? 'region_has_validated'
-              : 'region_has_sent',
-            {
-              count: validatedRegions.length
-            }
+      {/* Sticky header */}
+      <div className="header-wrapper">
+        <div
+          className={clsx(
+            'fr-table',
+            'fr-table--bordered',
+            'fr-table--no-caption',
+            'fr-table--no-scroll'
           )}
-        </h4>
-        <div className={cx('fr-mr-2w')}>
-          <Select
-            label="Région"
-            nativeSelectProps={{
-              value: regionFilter ?? '',
-              onChange: (e) => setRegionFilter(e.target.value as Region)
-            }}
-          >
-            <option value="">Toutes les régions</option>
-            {RegionList.map((region) => (
-              <option key={`select-region-${region}`} value={region}>
-                {Regions[region].name}
-              </option>
-            ))}
-          </Select>
-        </div>
-        <div>
-          <Select
-            label="Statut"
-            nativeSelectProps={{
-              value: statusFilter ?? '',
-              onChange: (e) =>
-                setStatusFilter(e.target.value as ProgrammingPlanStatus)
-            }}
-          >
-            <option value="">Tous les statuts</option>
-            {(programmingPlan.distributionKind === 'REGIONAL'
-              ? [
-                  'InProgress',
-                  'SubmittedToRegion',
-                  'ApprovedByRegion',
-                  'Validated'
-                ]
-              : [
-                  'InProgress',
-                  'SubmittedToRegion',
-                  'SubmittedToDepartments',
-                  'Validated'
-                ]
-            ).map((status) => (
-              <option key={`select-status-${status}`} value={status}>
-                {ProgrammingPlanStatusLabels[status as ProgrammingPlanStatus]}
-              </option>
-            ))}
-          </Select>
+        >
+          <table>
+            <colgroup>
+              <col className="col-name" />
+              <col className="col-status" />
+              <col className="col-status" />
+              <col className="col-status" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th scope="col">Nom du plan</th>
+                <th scope="col" className="border-left">
+                  Statut BGIR
+                </th>
+                <th scope="col" className="border-left">
+                  Statut région
+                </th>
+                <th scope="col" className="border-left">
+                  Statut département
+                </th>
+              </tr>
+            </thead>
+          </table>
         </div>
       </div>
-      <div>
-        {regionFilter && (
-          <Tag
-            dismissible
-            nativeButtonProps={{
-              onClick: () => setRegionFilter(undefined)
-            }}
-          >
-            {Regions[regionFilter].name}
-          </Tag>
-        )}
-        {statusFilter && (
-          <Tag
-            dismissible
-            nativeButtonProps={{
-              onClick: () => setStatusFilter(undefined)
-            }}
-          >
-            {ProgrammingPlanStatusLabels[statusFilter]}
-          </Tag>
-        )}
-      </div>
-      <div
-        className={clsx(cx('fr-grid-row', 'fr-grid-row--gutters'), 'fr-mt-2w')}
-      >
-        {filteredRegions.map((region) => (
-          <div className={cx('fr-col-12', 'fr-col-md-6')} key={region}>
-            <div
-              className={clsx(cx('fr-card', 'fr-card--sm'), 'regional-card')}
-            >
-              <div className={cx('fr-card__body')}>
-                <div className={cx('fr-card__content')}>
-                  <div className="d-flex-align-center">
-                    <h3
-                      className={clsx(
-                        cx('fr-card__title', 'fr-mb-0'),
-                        'flex-grow-1'
-                      )}
-                    >
-                      <div className="flex-grow-1">{Regions[region].name}</div>
-                    </h3>
-                  </div>
-                  <div className="fr-card__end">
-                    <div>
-                      {pluralize(
-                        regionalPrescriptions.filter(
-                          (rp) => rp.region === region && rp.sampleCount > 0
-                        ).length,
-                        { preserveCount: true }
-                      )('matrice')}
-                      {' • '}
-                      {pluralize(
-                        sumBy(
-                          regionalPrescriptions.filter(
-                            (rp) => rp.region === region
-                          ),
-                          'sampleCount'
-                        ),
-                        { preserveCount: true }
-                      )('prélèvement')}
-                    </div>
 
-                    <Badge
-                      noIcon
-                      severity={
-                        validatedRegions.some(
-                          (validatedRegion) => validatedRegion.region === region
-                        )
-                          ? 'success'
-                          : 'warning'
-                      }
-                      className={'fr-my-1w'}
-                    >
-                      {
-                        ProgrammingPlanStatusLabels[
-                          programmingPlan.regionalStatus.find(
-                            (rs) => rs.region === region
-                          )?.status as ProgrammingPlanStatus
-                        ]
-                      }
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-              {programmingPlan?.distributionKind === 'REGIONAL' &&
-                hasUserPermission('commentPrescription') && (
-                  <ButtonsGroup
-                    buttonsEquisized
-                    buttonsSize="small"
-                    alignment="center"
-                    inlineLayoutWhen="always"
-                    className={cx('fr-m-0')}
-                    buttons={[
-                      {
-                        children: (
-                          <span className="no-wrap">
-                            {t('comment', {
-                              count: sumBy(
-                                regionalCommentedPrescriptions(region),
-                                (rcp) => (rcp.comments ?? []).length
-                              )
-                            })}
-                          </span>
-                        ),
-                        disabled:
-                          sumBy(
-                            regionalCommentedPrescriptions(region),
-                            (rcp) => (rcp.comments ?? []).length
-                          ) === 0,
-                        priority: 'tertiary no outline',
-                        onClick: () =>
-                          dispatch(
-                            prescriptionsSlice.actions.setPrescriptionCommentsData(
-                              {
-                                viewBy: 'Region',
-                                region,
-                                prescriptionCommentsList:
-                                  regionalCommentedPrescriptions(region).map(
-                                    (rcp) => ({
-                                      programmingPlan,
-                                      prescription: rcp.prescription,
-                                      comments: rcp.comments ?? []
-                                    })
-                                  )
-                              }
-                            )
-                          ),
-                        iconId: 'fr-icon-chat-3-line',
-                        className: cx('fr-m-0')
-                      }
-                    ]}
-                  />
+      {/* Plan × context groups */}
+      {contextOrder.map((context) => {
+        const contextPrescriptions = prescriptionsByContext[context] ?? [];
+
+        return (
+          <Fragment key={`group-${programmingPlan.id}-${context}`}>
+            {/* Blue group header */}
+            <div
+              className="plan-group-sticky-container"
+              style={{ top: 0 /* header has no dynamic height here */ }}
+            >
+              <div
+                className={clsx(
+                  cx('fr-text--sm', 'fr-mb-0'),
+                  'plan-group-title'
                 )}
+              >
+                {[
+                  ProgrammingPlanDomainLabels[programmingPlan.domain],
+                  programmingPlan.title,
+                  ContextLabels[context as ProgrammingPlanContext]
+                ].join(' | ')}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+
+            {/* Prescription rows */}
+            {contextPrescriptions.map((prescription) => {
+              const isExpanded = expandedPrescriptionIds.has(prescription.id);
+              const subPlan = getSubPlan(prescription);
+              const regions = regionsWithSamples(prescription.id);
+              const submittedCount = regions.filter((r) => {
+                const s = regionalStatus(r);
+                return s && !['InProgress', 'SubmittedToRegion'].includes(s);
+              }).length;
+
+              return (
+                <Fragment key={prescription.id}>
+                  {/* Prescription row */}
+                  <div
+                    className={clsx(
+                      'fr-table',
+                      'fr-table--bordered',
+                      'fr-table--no-caption',
+                      'fr-table--no-scroll'
+                    )}
+                  >
+                    <table>
+                      <colgroup>
+                        <col className="col-name" />
+                        <col className="col-status" />
+                        <col className="col-status" />
+                        <col className="col-status" />
+                      </colgroup>
+                      <tbody>
+                        <tr>
+                          <td>
+                            <div className="row-reference">
+                              <span className="row-reference__number">
+                                {subPlan?.subPlanNumber}
+                              </span>
+                              <Button
+                                iconId={
+                                  isExpanded
+                                    ? 'fr-icon-arrow-up-s-line'
+                                    : 'fr-icon-arrow-down-s-line'
+                                }
+                                priority="tertiary no outline"
+                                size="small"
+                                title={
+                                  isExpanded ? 'Réduire' : 'Voir les détails'
+                                }
+                                onClick={() =>
+                                  togglePrescription(prescription.id)
+                                }
+                              />
+                              <span className={cx('fr-text--bold')}>
+                                {getPrescriptionTitle(prescription)}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="border-left align-center">
+                            {nationalStatus(prescription) ? (
+                              <Badge
+                                noIcon
+                                small
+                                severity={statusSeverity(
+                                  nationalStatus(prescription)
+                                )}
+                              >
+                                {
+                                  ProgrammingPlanStatusLabels[
+                                    nationalStatus(
+                                      prescription
+                                    ) as ProgrammingPlanStatus
+                                  ]
+                                }
+                              </Badge>
+                            ) : (
+                              <span className="text-muted">N/A</span>
+                            )}
+                          </td>
+                          <td className="border-left align-center">
+                            {regions.length > 0 ? (
+                              `${submittedCount}/${regions.length} région${regions.length > 1 ? 's' : ''}`
+                            ) : (
+                              <span className="text-muted">N/A</span>
+                            )}
+                          </td>
+                          <td className="border-left align-center">
+                            {/* dept summary shown at region level */}
+                          </td>
+                        </tr>
+
+                        {/* Region sub-rows */}
+                        {isExpanded &&
+                          regions.map((region) => {
+                            const regStatus = regionalStatus(region);
+                            const regionKey = `${prescription.id}-${region}`;
+                            const isRegionExpanded =
+                              expandedRegionKeys.has(regionKey);
+                            const depts = departmentsWithPrescriptions(
+                              prescription.id,
+                              region
+                            );
+                            const submittedDeptsCount = depts.filter((d) => {
+                              const s = departmentalStatus(region, d);
+                              return (
+                                s &&
+                                ![
+                                  'InProgress',
+                                  'SubmittedToDepartments'
+                                ].includes(s)
+                              );
+                            }).length;
+
+                            return (
+                              <Fragment key={region}>
+                                <tr className="region-row">
+                                  <td className="indent-1">
+                                    <div className="row-reference">
+                                      {depts.length > 0 && (
+                                        <Button
+                                          iconId={
+                                            isRegionExpanded
+                                              ? 'fr-icon-arrow-up-s-line'
+                                              : 'fr-icon-arrow-down-s-line'
+                                          }
+                                          priority="tertiary no outline"
+                                          size="small"
+                                          title={
+                                            isRegionExpanded
+                                              ? 'Réduire'
+                                              : 'Voir les départements'
+                                          }
+                                          onClick={() =>
+                                            toggleRegion(regionKey)
+                                          }
+                                        />
+                                      )}
+                                      {Regions[region as keyof typeof Regions]
+                                        ?.name ?? region}
+                                    </div>
+                                  </td>
+                                  <td className="border-left align-center">
+                                    <span className="text-muted"> </span>
+                                  </td>
+                                  <td className="border-left align-center">
+                                    {regStatus ? (
+                                      <Badge
+                                        noIcon
+                                        small
+                                        severity={statusSeverity(regStatus)}
+                                      >
+                                        {ProgrammingPlanStatusLabels[regStatus]}
+                                      </Badge>
+                                    ) : (
+                                      <span className="text-muted">N/A</span>
+                                    )}
+                                  </td>
+                                  <td className="border-left align-center">
+                                    {depts.length > 0
+                                      ? `${submittedDeptsCount}/${depts.length} dépt`
+                                      : null}
+                                  </td>
+                                </tr>
+
+                                {/* Department sub-rows */}
+                                {isRegionExpanded &&
+                                  depts.map((dept) => {
+                                    const deptStatus = departmentalStatus(
+                                      region,
+                                      dept
+                                    );
+                                    return (
+                                      <tr key={dept} className="dept-row">
+                                        <td className="indent-2">
+                                          {DepartmentLabels[dept]} ({dept})
+                                        </td>
+                                        <td className="border-left" />
+                                        <td className="border-left" />
+                                        <td className="border-left align-center">
+                                          {deptStatus ? (
+                                            <Badge
+                                              noIcon
+                                              small
+                                              severity={statusSeverity(
+                                                deptStatus
+                                              )}
+                                            >
+                                              {
+                                                ProgrammingPlanStatusLabels[
+                                                  deptStatus
+                                                ]
+                                              }
+                                            </Badge>
+                                          ) : (
+                                            <span className="text-muted">
+                                              N/A
+                                            </span>
+                                          )}
+                                        </td>
+                                      </tr>
+                                    );
+                                  })}
+                              </Fragment>
+                            );
+                          })}
+                      </tbody>
+                    </table>
+                  </div>
+                </Fragment>
+              );
+            })}
+          </Fragment>
+        );
+      })}
     </div>
   );
 };

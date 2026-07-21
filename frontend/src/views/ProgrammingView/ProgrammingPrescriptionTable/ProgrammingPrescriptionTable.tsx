@@ -24,10 +24,12 @@ import {
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { Fragment, useEffect, useRef, useState } from 'react';
+import type React from 'react';
+import { Fragment, useRef, useState } from 'react';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
 import PrescriptionDistributionBadge from 'src/components/Prescription/PrescriptionDistributionBadge/PrescriptionDistributionBadge';
 import TableHeaderCell from 'src/components/TableHeaderCell/TableHeaderCell';
+import { useTableScrollSync } from 'src/hooks/useTableScrollSync';
 import { z } from 'zod';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import './ProgrammingPrescriptionTable.scss';
@@ -89,91 +91,18 @@ const ProgrammingPrescriptionTable = ({
 }: Props) => {
   const { hasUserLocalPrescriptionPermission, userRole } = useAuthentication();
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
-  const [headerHeight, setHeaderHeight] = useState(0);
-  const syncingRef = useRef(false);
-  const tableContainerRef = useRef<HTMLDivElement>(null);
-  const headerWrapperRef = useRef<HTMLDivElement>(null);
-  const rowWrapperRefs = useRef<Map<RowWrapperKey, HTMLDivElement>>(new Map());
-  const stickyScrollRef = useRef<HTMLDivElement>(null);
-  const stickyInnerRef = useRef<HTMLDivElement>(null);
-
-  const sync = (source: HTMLDivElement) => {
-    if (syncingRef.current) {
-      return;
-    }
-    syncingRef.current = true;
-    [
-      headerWrapperRef.current,
-      ...Array.from(rowWrapperRefs.current.values()),
-      stickyScrollRef.current
-    ]
-      .filter((el): el is HTMLDivElement => !!el && el !== source)
-      .forEach((el) => {
-        el.scrollLeft = source.scrollLeft;
-      });
-    syncingRef.current = false;
-  };
-
-  useEffect(() => {
-    if (headerWrapperRef.current) {
-      headerWrapperRef.current.scrollLeft = 0;
-    }
-    if (stickyScrollRef.current) {
-      stickyScrollRef.current.scrollLeft = 0;
-    }
-    rowWrapperRefs.current.forEach((el) => {
-      el.scrollLeft = 0;
-    });
-  }, [prescriptions]);
-
-  useEffect(() => {
-    const header = headerWrapperRef.current;
-    const sticky = stickyScrollRef.current;
-    const inner = stickyInnerRef.current;
-    if (!header || !sticky || !inner) {
-      return;
-    }
-
-    const updateWidth = () => {
-      inner.style.width = `${header.scrollWidth}px`;
-      setHeaderHeight(header.offsetHeight);
-    };
-    const ro = new ResizeObserver(updateWidth);
-    ro.observe(header);
-    const tableEl = header.querySelector('table');
-    if (tableEl) {
-      ro.observe(tableEl);
-    }
-    updateWidth();
-
-    const onHeaderScroll = () => sync(header);
-    const onStickyScroll = () => sync(sticky);
-    header.addEventListener('scroll', onHeaderScroll, { passive: true });
-    sticky.addEventListener('scroll', onStickyScroll);
-
-    const tableContainer = tableContainerRef.current;
-    const onWheel = (e: WheelEvent) => {
-      if (sticky.contains(e.target as Node)) {
-        return;
-      }
-      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) {
-        return;
-      }
-      e.preventDefault();
-      let delta = e.deltaX;
-      if (e.deltaMode === 1) delta *= 24;
-      if (e.deltaMode === 2) delta *= sticky.clientWidth;
-      sticky.scrollLeft += delta;
-    };
-    tableContainer?.addEventListener('wheel', onWheel, { passive: false });
-
-    return () => {
-      ro.disconnect();
-      header.removeEventListener('scroll', onHeaderScroll);
-      sticky.removeEventListener('scroll', onStickyScroll);
-      tableContainer?.removeEventListener('wheel', onWheel);
-    };
-  }, []);
+  const {
+    tableContainerRef,
+    headerWrapperRef,
+    rowWrapperRefs: rowWrapperRefsBase,
+    stickyScrollRef,
+    stickyInnerRef,
+    headerHeight,
+    sync
+  } = useTableScrollSync(prescriptions);
+  const rowWrapperRefs = rowWrapperRefsBase as React.MutableRefObject<
+    Map<RowWrapperKey, HTMLDivElement>
+  >;
 
   const toggleExpand = (id: string) =>
     setExpandedIds((prev) => {

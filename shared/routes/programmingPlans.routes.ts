@@ -1,9 +1,14 @@
 import z from 'zod';
 import { FindProgrammingPlanOptions } from '../schema/ProgrammingPlan/FindProgrammingPlanOptions';
-import { ProgrammingPlanLocalStatus } from '../schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
-import { ProgrammingPlanStatus } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
+import {
+  ProgrammingPlanLocalStatus,
+  ProgrammingSubPlanLocalStatus
+} from '../schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
-import { ProgrammingSubPlanId } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  ProgrammingSubPlan,
+  ProgrammingSubPlanId
+} from '../schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   CreateProgrammingSubPlanFieldInput,
   UpdateProgrammingSubPlanFieldInput
@@ -44,41 +49,53 @@ export const programmingPlansRoutes = {
         'readProgrammingPlanClosed'
       ],
       response: ProgrammingPlanChecked
+    }
+  },
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId': {
+    params: {
+      programmingPlanId: z.guid(),
+      programmingSubPlanId: ProgrammingSubPlanId
     },
     put: {
       permissions: ['manageProgrammingPlan', 'approveProgrammingPlan'],
       body: z.object({
-        status: ProgrammingPlanStatus
+        status: ProgrammingSubPlanLocalStatus
       }),
-      response: ProgrammingPlanChecked
+      response: ProgrammingSubPlan
     }
   },
-  '/programming-plans/:programmingPlanId/local-status': {
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId': {
     params: {
-      programmingPlanId: z.guid()
+      programmingPlanId: z.guid(),
+      programmingSubPlanId: ProgrammingSubPlanId
     },
     put: {
-      permissions: [
-        'manageProgrammingPlan',
-        'approveProgrammingPlan',
-        'distributePrescriptionToDepartments',
-        'distributePrescriptionToSlaughterhouses'
-      ],
+      permissions: ['manageProgrammingPlan', 'approveProgrammingPlan'],
       body: z.object({
-        programmingPlanLocalStatusList: z.array(ProgrammingPlanLocalStatus)
+        status: ProgrammingSubPlanLocalStatus
       }),
-      response: ProgrammingPlanChecked
+      response: ProgrammingSubPlan
     }
   },
-  '/programming-plans/years/:year': {
-    params: {
-      year: z.number().int()
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/local-status':
+    {
+      params: {
+        programmingPlanId: z.guid(),
+        programmingSubPlanId: ProgrammingSubPlanId
+      },
+      put: {
+        permissions: [
+          'manageProgrammingPlan',
+          'approveProgrammingPlan',
+          'distributePrescriptionToDepartments',
+          'distributePrescriptionToSlaughterhouses'
+        ],
+        body: z.object({
+          programmingPlanLocalStatusList: z.array(ProgrammingPlanLocalStatus)
+        }),
+        response: ProgrammingSubPlan
+      }
     },
-    post: {
-      permissions: ['manageProgrammingPlan'],
-      response: ProgrammingPlanChecked
-    }
-  },
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields':
     {
       params: {

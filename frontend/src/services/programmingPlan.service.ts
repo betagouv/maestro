@@ -18,44 +18,9 @@ const programmingPlanApi = api.injectEndpoints({
       {
         providesTags: (result) => [{ type: 'ProgrammingPlan', id: result?.id }]
       }
-    ),
-    createProgrammingPlan: buildTypedMutation(
-      builder,
-      '/programming-plans/years/:year',
-      'post',
-      {
-        invalidatesTags: [{ type: 'ProgrammingPlan' }]
-      }
-    ),
-    updateProgrammingPlanStatus: buildTypedMutation(
-      builder,
-      '/programming-plans/:programmingPlanId',
-      'put',
-      {
-        invalidatesTags: (_result, _error, { programmingPlanId }) => [
-          { type: 'ProgrammingPlan', id: programmingPlanId },
-          { type: 'ProgrammingPlan', id: 'LIST' }
-        ]
-      }
-    ),
-    updateProgrammingPlanLocalStatus: buildTypedMutation(
-      builder,
-      '/programming-plans/:programmingPlanId/local-status',
-      'put',
-      {
-        invalidatesTags: (_result, _error, { programmingPlanId }) => [
-          { type: 'ProgrammingPlan', id: programmingPlanId },
-          { type: 'ProgrammingPlan', id: 'LIST' }
-        ]
-      }
     )
   })
 });
 
-export const {
-  useFindProgrammingPlansQuery,
-  useGetProgrammingPlanQuery,
-  useCreateProgrammingPlanMutation,
-  useUpdateProgrammingPlanStatusMutation,
-  useUpdateProgrammingPlanLocalStatusMutation
-} = programmingPlanApi;
+export const { useFindProgrammingPlansQuery, useGetProgrammingPlanQuery } =
+  programmingPlanApi;

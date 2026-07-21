@@ -2,7 +2,10 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tile from '@codegouvfr/react-dsfr/Tile';
 import clsx from 'clsx';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  getPlanRegionalStatuses,
+  type ProgrammingPlanChecked
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { PartialSample } from 'maestro-shared/schema/Sample/Sample';
 import type { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
 import { type FunctionComponent, useContext } from 'react';
@@ -59,7 +62,7 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
               .map((programmingPlan) => (
                 <>
                   {hasUserPermission('manageProgrammingPlan') &&
-                  programmingPlan.regionalStatus.every(
+                  getPlanRegionalStatuses(programmingPlan).every(
                     (_) => _.status === 'Validated'
                   ) ? (
                     <ProgrammingPlanClosing

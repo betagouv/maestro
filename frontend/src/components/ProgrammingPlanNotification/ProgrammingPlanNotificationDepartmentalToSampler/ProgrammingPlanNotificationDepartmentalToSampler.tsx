@@ -10,7 +10,10 @@ import {
   NextProgrammingPlanStatus,
   type ProgrammingPlanStatus
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  getPlanDepartmentalStatuses,
+  type ProgrammingPlanChecked
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type React from 'react';
 import { useContext, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -79,6 +82,8 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
     return null;
   }
 
+  const departmentalStatuses = getPlanDepartmentalStatuses(programmingPlan);
+
   return (
     <>
       {departmentalPrescriptions.some(
@@ -87,7 +92,7 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
             programmingPlan,
             companyPrescription
           )?.distributeToSlaughterhouses &&
-          programmingPlan.departmentalStatus?.some(
+          departmentalStatuses.some(
             (departmentalStatus) =>
               departmentalStatus.region === companyPrescription.region &&
               departmentalStatus.department ===

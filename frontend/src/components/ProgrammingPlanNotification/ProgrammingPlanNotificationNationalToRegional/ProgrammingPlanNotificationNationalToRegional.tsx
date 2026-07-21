@@ -17,7 +17,10 @@ import {
   NextProgrammingPlanStatus,
   type ProgrammingPlanStatus
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  getPlanRegionalStatuses,
+  type ProgrammingPlanChecked
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { isDefined } from 'maestro-shared/utils/utils';
 import type React from 'react';
 import { useCallback, useContext, useEffect, useState } from 'react';
@@ -58,13 +61,15 @@ const ProgrammingPlanNotificationNationalToRegional = ({
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
 
+  const regionalStatuses = getPlanRegionalStatuses(programmingPlan);
+
   const getRegionsByStatus = useCallback(
     (status: ProgrammingPlanStatus) =>
-      (programmingPlan?.regionalStatus || [])
+      regionalStatuses
         .filter((_) => _.status === status)
         .map((_) => _.region)
         .sort(RegionSort),
-    [programmingPlan]
+    [regionalStatuses]
   );
 
   const [status, setStatus] = useState<ProgrammingPlanStatus>('InProgress');
@@ -113,7 +118,7 @@ const ProgrammingPlanNotificationNationalToRegional = ({
 
   return (
     <>
-      {programmingPlan.regionalStatus.some((regionalStatus) =>
+      {regionalStatuses.some((regionalStatus) =>
         NotifiableStatusesByDistributionKind[
           programmingPlan.distributionKind
         ].includes(regionalStatus.status as ProgrammingPlanStatus)

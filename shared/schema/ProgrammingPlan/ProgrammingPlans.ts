@@ -2,28 +2,17 @@ import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { LegalContext } from '../../referential/LegalContext';
 import { checkSchema } from '../../utils/zod';
-import type { UserRefined } from '../User/User';
-import {
-  isNationalRole,
-  isRegionalRole,
-  type UserRole
-} from '../User/UserRole';
 import { ProgrammingPlanContext } from './Context';
 import { DistributionKind } from './DistributionKind';
 import { ProgrammingPlanDomain } from './ProgrammingPlanDomain';
-import {
-  ProgrammingPlanDepartmentalStatus,
-  ProgrammingPlanRegionalStatus
-} from './ProgrammingPlanLocalStatus';
-import type { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
-import { ProgrammingSubPlan } from './ProgrammingSubPlan';
+import { ProgrammingSubPlanId } from './ProgrammingSubPlan';
 
 export const ProgrammingPlanBase = z.object({
   id: z.guid(),
   domain: ProgrammingPlanDomain,
   title: z.string().min(1, 'Veuillez renseigner le titre.'),
-  subPlans: z
-    .array(ProgrammingSubPlan)
+  subPlanIds: z
+    .array(ProgrammingSubPlanId)
     .min(1, 'Veuillez renseigner au moins un sous-plan.'),
   contexts: z
     .array(ProgrammingPlanContext)
@@ -36,8 +25,6 @@ export const ProgrammingPlanBase = z.object({
   createdAt: z.coerce.date(),
   createdBy: z.guid(),
   year: z.number(),
-  regionalStatus: z.array(ProgrammingPlanRegionalStatus),
-  departmentalStatus: z.array(ProgrammingPlanDepartmentalStatus),
   closedAt: z.coerce.date().nullish(),
   closedBy: z.guid().nullish()
 });
@@ -53,17 +40,6 @@ export const ProgrammingPlanChecked = checkSchema(
         path: ['closedBy']
       });
     }
-    if (
-      ctx.value.closedAt &&
-      ctx.value.regionalStatus.some((status) => status.status !== 'Closed')
-    ) {
-      ctx.issues.push({
-        input: ctx.value,
-        code: 'custom',
-        message: 'Status régional doit être "Closed" si closedAt est renseigné',
-        path: ['regionalStatus']
-      });
-    }
   }
 );
 
@@ -77,28 +53,3 @@ export const ProgrammingPlanSort = (
   a: ProgrammingPlanChecked,
   b: ProgrammingPlanChecked
 ) => b.year - a.year || a.title.localeCompare(b.title);
-
-export const hasProgrammingPlanStatusForAuthUser = (
-  programmingPlan: ProgrammingPlanChecked,
-  status: ProgrammingPlanStatus[],
-  user?: Pick<UserRefined, 'region' | 'department'>,
-  userRole?: UserRole
-) =>
-  userRole &&
-  user &&
-  (isNationalRole(userRole)
-    ? programmingPlan.regionalStatus.every((regionalStatus) =>
-        status.includes(regionalStatus.status)
-      )
-    : isRegionalRole(userRole) ||
-        programmingPlan.distributionKind === 'REGIONAL'
-      ? programmingPlan.regionalStatus.some(
-          (regionalStatus) =>
-            regionalStatus.region === user.region &&
-            status.includes(regionalStatus.status)
-        )
-      : programmingPlan.departmentalStatus.some(
-          (departmentalStatus) =>
-            departmentalStatus.department === user.department &&
-            status.includes(departmentalStatus.status)
-        ));

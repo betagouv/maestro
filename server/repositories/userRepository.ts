@@ -33,7 +33,7 @@ const findUnique = async (
 ): Promise<(UserRefined & { loggedSecrets: string[] }) | undefined> => {
   console.log('Get User with id', userId);
 
-  return kysely
+  const user = await kysely
     .selectFrom('users')
     .selectAll()
     .where('id', '=', userId)
@@ -42,11 +42,18 @@ const findUnique = async (
       programmingSubPlansList(eb).as('programmingSubPlans')
     ])
     .executeTakeFirst();
+
+  return user
+    ? {
+        ...UserRefined.parse(user),
+        loggedSecrets: user.loggedSecrets
+      }
+    : undefined;
 };
 
 const findOne = async (email: string): Promise<UserRefined | undefined> => {
   console.log('Find user with email', email.toLowerCase());
-  return kysely
+  const user = await kysely
     .selectFrom('users')
     .selectAll()
     .where('email', '=', email.toLowerCase())
@@ -55,6 +62,8 @@ const findOne = async (email: string): Promise<UserRefined | undefined> => {
       programmingSubPlansList(eb).as('programmingSubPlans')
     ])
     .executeTakeFirst();
+
+  return user ? UserRefined.parse(user) : undefined;
 };
 
 const companies = (

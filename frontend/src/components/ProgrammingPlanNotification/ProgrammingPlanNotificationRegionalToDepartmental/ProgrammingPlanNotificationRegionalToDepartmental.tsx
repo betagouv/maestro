@@ -10,7 +10,10 @@ import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
 import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { NextProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  getPlanRegionalStatuses,
+  type ProgrammingPlanChecked
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type React from 'react';
 import { useContext, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -86,6 +89,8 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
     return null;
   }
 
+  const regionalStatuses = getPlanRegionalStatuses(programmingPlan);
+
   return (
     <>
       {regionalPrescriptions.some(
@@ -94,7 +99,7 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
             programmingPlan,
             regionalPrescription
           )?.distributeToDepartments &&
-          programmingPlan.regionalStatus.some(
+          regionalStatuses.some(
             (regionalStatus) =>
               regionalStatus.region === regionalPrescription.region &&
               regionalStatus.status === 'SubmittedToRegion'

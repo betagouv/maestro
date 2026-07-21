@@ -2,6 +2,11 @@ import { z } from 'zod';
 import { Stage } from '../../referential/Stage';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 import { UserRole } from '../User/UserRole';
+import {
+  ProgrammingPlanDepartmentalStatus,
+  ProgrammingPlanRegionalStatus
+} from './ProgrammingPlanLocalStatus';
+import { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
 
 export const ProgrammingSubPlanId = z.string().brand<'ProgrammingSubPlanId'>();
 export type ProgrammingSubPlanId = z.infer<typeof ProgrammingSubPlanId>;
@@ -15,7 +20,10 @@ export const ProgrammingSubPlan = z.object({
   analysisPermissionRole: UserRole.nullish(),
   contactListId: z.number().int().nullish(),
   withSacha: z.boolean(),
-  substanceKinds: z.array(SubstanceKind)
+  substanceKinds: z.array(SubstanceKind),
+  nationalStatus: ProgrammingPlanStatus,
+  regionalStatus: z.array(ProgrammingPlanRegionalStatus),
+  departmentalStatus: z.array(ProgrammingPlanDepartmentalStatus)
 });
 
 export type ProgrammingSubPlan = z.infer<typeof ProgrammingSubPlan>;

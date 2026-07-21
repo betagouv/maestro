@@ -43,7 +43,10 @@ import {
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type {
+  ProgrammingSubPlan,
+  ProgrammingSubPlanId
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   getSampleMatrixLabel,
   type PartialSample
@@ -416,6 +419,7 @@ const generateSamplesExportExcel = async (
 
 const generatePrescriptionsExportExcel = async (
   programmingPlan: ProgrammingPlanChecked,
+  programmingSubPlans: ProgrammingSubPlan[],
   prescriptions: Prescription[],
   localPrescriptions: LocalPrescription[],
   exportedRegion: Region | undefined,
@@ -438,7 +442,7 @@ const generatePrescriptionsExportExcel = async (
   );
 
   const effectiveSubstanceKinds = [
-    ...new Set(programmingPlan.subPlans.flatMap((sp) => sp.substanceKinds))
+    ...new Set(programmingSubPlans.flatMap((sp) => sp.substanceKinds))
   ];
 
   const columnTitles: string[] = [];
@@ -530,7 +534,7 @@ const generatePrescriptionsExportExcel = async (
               !isNil(department)) ||
             (programmingPlan.distributionKind === 'REGIONAL' && !isNil(region))
               ? (
-                  programmingPlan.subPlans.find(
+                  programmingSubPlans.find(
                     (sp) => sp.id === prescription.programmingSubPlanId
                   )?.substanceKinds ?? effectiveSubstanceKinds
                 ).flatMap(

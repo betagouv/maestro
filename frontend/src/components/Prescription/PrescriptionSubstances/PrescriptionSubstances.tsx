@@ -19,15 +19,18 @@ import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import { pluralize } from 'src/utils/stringUtils';
 import { ApiClientContext } from '../../../services/apiClient';
 import '../PrescriptionModal/PrescriptionModal.scss';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 
 interface Props {
   programmingPlan: ProgrammingPlanChecked;
+  programmingSubPlans: ProgrammingSubPlan[];
   prescription: Prescription;
   renderMode: 'inline' | 'modal';
 }
 
 const PrescriptionSubstances = ({
   programmingPlan,
+  programmingSubPlans,
   prescription,
   renderMode
 }: Props) => {
@@ -160,7 +163,7 @@ const PrescriptionSubstances = ({
           </Button>
         )}
       </div>
-      {programmingPlan.subPlans
+      {programmingSubPlans
         .find((sp) => sp.id === prescription.programmingSubPlanId)
         ?.substanceKinds?.filter((substance) =>
           AdditionalSubstanceKindList.includes(substance)

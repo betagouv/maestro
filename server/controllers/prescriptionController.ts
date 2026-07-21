@@ -5,9 +5,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
+import { getAndCheckProgrammingSubPlan } from '../middlewares/checks/programmingSubPlanCheck';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
+import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
 
@@ -24,8 +26,11 @@ export const prescriptionsRouter = {
       const programmingPlan = await getAndCheckProgrammingPlan(
         body.programmingPlanId
       );
+      const programmingSubPlan = await getAndCheckProgrammingSubPlan(
+        body.programmingSubPlanId
+      );
 
-      if (!hasPrescriptionPermission(userRole, programmingPlan).create) {
+      if (!hasPrescriptionPermission(userRole, programmingSubPlan).create) {
         return { status: HttpStatus.FORBIDDEN };
       }
 
@@ -74,6 +79,10 @@ export const prescriptionsRouter = {
       const programmingPlan = await getAndCheckProgrammingPlan(
         queryFindOptions.programmingPlanId
       );
+      const programmingSubPlans = await programmingSubPlanRepository.findMany({
+        programmingPlanId: queryFindOptions.programmingPlanId,
+        ids: queryFindOptions.programmingSubPlanIds
+      });
       const exportedRegion = user.region ?? undefined;
       const exportedDepartment = user.department ?? undefined;
 
@@ -107,6 +116,7 @@ export const prescriptionsRouter = {
 
       const buffer = await excelService.generatePrescriptionsExportExcel(
         programmingPlan,
+        programmingSubPlans,
         prescriptions,
         localPrescriptions,
         exportedRegion,
@@ -131,8 +141,11 @@ export const prescriptionsRouter = {
       const programmingPlan = await getAndCheckProgrammingPlan(
         prescriptionUpdate.programmingPlanId
       );
+      const programmingSubPlan = await getAndCheckProgrammingSubPlan(
+        prescriptionUpdate.programmingSubPlanId
+      );
 
-      if (!hasPrescriptionPermission(userRole, programmingPlan).update) {
+      if (!hasPrescriptionPermission(userRole, programmingSubPlan).update) {
         return { status: HttpStatus.FORBIDDEN };
       }
 
@@ -173,12 +186,10 @@ export const prescriptionsRouter = {
     delete: async ({ userRole }, { prescriptionId }) => {
       console.info('Delete prescription with id', prescriptionId);
 
-      const { prescription, programmingPlan } = await getAndCheckPrescription(
-        prescriptionId,
-        undefined
-      );
+      const { prescription, programmingSubPlan } =
+        await getAndCheckPrescription(prescriptionId, undefined);
 
-      if (!hasPrescriptionPermission(userRole, programmingPlan).delete) {
+      if (!hasPrescriptionPermission(userRole, programmingSubPlan).delete) {
         return { status: HttpStatus.FORBIDDEN };
       }
 

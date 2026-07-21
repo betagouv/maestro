@@ -31,6 +31,7 @@ import { PDFDocument } from 'pdf-lib';
 import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
+import { getAndCheckProgrammingSubPlan } from '../middlewares/checks/programmingSubPlanCheck';
 import {
   getAndCheckSample,
   getAndCheckSampleDepartement
@@ -218,8 +219,8 @@ export const sampleRouter = {
   '/samples/:sampleId/document': {
     get: async ({ user, userRole }, { sampleId }, { setHeader }) => {
       const sample = await getAndCheckSample(sampleId, user, userRole);
-      const programmingPlan = await getAndCheckProgrammingPlan(
-        sample.programmingPlanId
+      const programmingSubPlan = await getAndCheckProgrammingSubPlan(
+        sample.programmingSubPlanId
       );
       console.info('Get sample document', sample.id);
 
@@ -229,11 +230,7 @@ export const sampleRouter = {
         (sampleItems?.length
           ? [...sampleItems].sort(SampleItemSort)
           : Array.from(
-              Array(
-                programmingPlan.subPlans.find(
-                  (sp) => sp.id === sample.programmingSubPlanId
-                )?.substanceKinds.length ?? 1
-              ).keys()
+              Array(programmingSubPlan.substanceKinds.length ?? 1).keys()
             ).flatMap((itemNumber) =>
               Array.from(Array(SampleItemMaxCopyCount).keys()).map(
                 (copyNumber) => ({

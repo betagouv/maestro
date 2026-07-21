@@ -1,0 +1,172 @@
+// Shared styles for programming-style tree tables (PrescriptionTable, ValidationTable…)
+// Import this partial from each table's own .scss file.
+
+.programming-table {
+  $plan-group-title-height: 3rem;
+
+  border-left: 1px solid var(--border-contrast-grey);
+  border-right: 1px solid var(--border-contrast-grey);
+
+  .header-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    overflow: hidden;
+
+    .fr-table {
+      margin-top: 0;
+      margin-bottom: 0;
+
+      .fr-table__wrapper::after {
+        background-image: none !important;
+      }
+    }
+
+    table {
+      border-bottom: none !important;
+    }
+  }
+
+  .table-scroll-wrapper {
+    overflow-x: auto;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    .fr-table {
+      margin-top: 0;
+      margin-bottom: 0;
+
+      .fr-table__wrapper::after {
+        background-image: none !important;
+      }
+
+      tbody::after {
+        background-image: none !important;
+      }
+    }
+
+    table {
+      border-top: none !important;
+    }
+  }
+
+  .sticky-scrollbar {
+    position: sticky;
+    bottom: 0;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    height: 16px;
+    z-index: 10;
+    background-color: var(--background-default-grey);
+    margin-left: -1px;
+    margin-right: -1px;
+
+    > div {
+      height: 1px;
+    }
+  }
+
+  .fr-table table {
+    max-height: unset;
+    overflow: visible;
+    width: fit-content !important;
+    min-width: 100%;
+    display: table !important;
+    table-layout: fixed !important;
+    justify-self: start;
+    margin-left: 0;
+  }
+
+  .fr-table th.border-left,
+  .fr-table td.border-left {
+    border-left: 1px solid var(--border-contrast-grey);
+  }
+  .fr-table th.border-right,
+  .fr-table td.border-right {
+    border-right: 1px solid var(--border-contrast-grey);
+  }
+  .fr-table th.align-center,
+  .fr-table td.align-center {
+    text-align: center;
+  }
+
+  td,
+  th {
+    vertical-align: middle !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  thead,
+  tr {
+    background-image: linear-gradient(
+      0deg,
+      var(--border-contrast-grey),
+      var(--border-contrast-grey)
+    ) !important;
+  }
+
+  thead::after,
+  tbody::after {
+    background-image:
+      linear-gradient(
+        0deg,
+        var(--border-contrast-grey),
+        var(--border-contrast-grey)
+      ),
+      linear-gradient(
+        0deg,
+        var(--border-contrast-grey),
+        var(--border-contrast-grey)
+      ),
+      linear-gradient(
+        0deg,
+        var(--border-contrast-grey),
+        var(--border-contrast-grey)
+      );
+  }
+
+  tr td {
+    border-bottom: 1px solid var(--border-contrast-grey);
+  }
+
+  .plan-group-sticky-container {
+    position: sticky;
+    z-index: 2;
+  }
+
+  .plan-group-title {
+    height: $plan-group-title-height;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    font-weight: 500;
+    background-color: var(--background-open-blue-france);
+    color: var(--text-active-grey);
+    border-bottom: 1px solid var(--border-contrast-grey);
+  }
+
+  tr.plan-group-header-row {
+    td {
+      background-color: var(--background-open-blue-france) !important;
+      color: var(--text-default-grey) !important;
+    }
+  }
+
+  .row-reference {
+    display: flex;
+    align-items: center;
+  }
+
+  .prescription-expanded-content {
+    padding: 1rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    color: var(--text-mention-grey);
+    background-color: var(--background-alt-grey);
+    border-bottom: 1px solid var(--border-contrast-grey);
+  }
+}

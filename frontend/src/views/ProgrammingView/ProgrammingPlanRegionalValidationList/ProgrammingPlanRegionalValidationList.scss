@@ -1,0 +1,80 @@
+@use '../programmingTable.shared';
+
+.programming-table.validation-table {
+  $col-name-width: 30rem;
+  $col-status-width: 14rem;
+
+  col.col-name {
+    width: $col-name-width;
+  }
+  col.col-status {
+    width: $col-status-width;
+  }
+
+  thead tr:nth-child(1) th {
+    border-top: 1px solid var(--border-contrast-grey);
+    background-color: var(--background-alt-grey) !important;
+    overflow: visible;
+    text-overflow: unset;
+    white-space: nowrap;
+  }
+
+  thead th:nth-child(1),
+  tbody td:nth-child(1) {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background-color: var(--background-default-grey) !important;
+    min-width: $col-name-width;
+    max-width: $col-name-width;
+  }
+
+  thead th:nth-child(1) {
+    z-index: 2;
+    background-color: var(--background-alt-grey) !important;
+  }
+
+  tbody td:nth-child(2),
+  tbody td:nth-child(3),
+  tbody td:nth-child(4),
+  thead th:nth-child(2),
+  thead th:nth-child(3),
+  thead th:nth-child(4) {
+    min-width: $col-status-width;
+    max-width: $col-status-width;
+    text-align: center;
+  }
+
+  .region-row td {
+    background-color: var(--background-alt-grey) !important;
+  }
+
+  .dept-row td {
+    background-color: var(--background-contrast-grey) !important;
+  }
+
+  .indent-1 {
+    padding-left: 2rem !important;
+  }
+
+  .indent-2 {
+    padding-left: 4rem !important;
+  }
+
+  .row-reference {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    &__number {
+      min-width: 2rem;
+      color: var(--text-mention-grey);
+      font-size: 0.875rem;
+    }
+  }
+
+  .text-muted {
+    color: var(--text-mention-grey);
+    font-style: italic;
+  }
+}

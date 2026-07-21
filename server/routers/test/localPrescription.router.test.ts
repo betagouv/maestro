@@ -29,8 +29,10 @@ import {
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
   genProgrammingPlan,
+  genProgrammingSubPlan,
   PPVClosedProgrammingPlanFixture,
   PPVSubmittedProgrammingPlanFixture,
+  PPVSubmittedSubPlanFixture,
   PPVValidatedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -66,10 +68,12 @@ import { LocalPrescriptionSubstanceKindsLaboratories } from '../../repositories/
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatProgrammingPlan,
-  ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
-import { ProgrammingSubPlans } from '../../repositories/programmingSubPlanRepository';
+import {
+  ProgrammingSubPlanLocalStatus,
+  ProgrammingSubPlans
+} from '../../repositories/programmingSubPlanRepository';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
   formatPartialSample,
@@ -388,6 +392,7 @@ describe('Local prescriptions router', () => {
   describe('PUT /{prescriptionId}/regions/{region}', () => {
     const submittedLocalPrescriptionUpdate: LocalPrescriptionUpdate = {
       programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+      programmingSubPlanId: PPVSubmittedSubPlanFixture.id,
       key: 'sampleCount',
       sampleCount: 10
     };
@@ -916,7 +921,10 @@ describe('Local prescriptions router', () => {
     const programmingPlanSlaughterhouse = genProgrammingPlan({
       createdBy: NationalCoordinator.id,
       distributionKind: 'SLAUGHTERHOUSE',
-      year: 1922,
+      year: 1922
+    });
+    const programmingSubPlanSlaughterhouse = genProgrammingSubPlan({
+      programmingPlanId: programmingPlanSlaughterhouse.id,
       regionalStatus: RegionList.map((region) => ({
         region,
         status: 'SubmittedToDepartments' as const
@@ -933,7 +941,10 @@ describe('Local prescriptions router', () => {
     const programmingPlanSlaughterhouseClosed = genProgrammingPlan({
       createdBy: NationalCoordinator.id,
       distributionKind: 'SLAUGHTERHOUSE',
-      year: 1923,
+      year: 1923
+    });
+    const programmingSubPlanSlaughterhouseClosed = genProgrammingSubPlan({
+      programmingPlanId: programmingPlanSlaughterhouseClosed.id,
       regionalStatus: RegionList.map((region) => ({
         region,
         status: 'Closed' as const
@@ -987,26 +998,18 @@ describe('Local prescriptions router', () => {
 
     const sampleCountUpdate: LocalPrescriptionUpdate = {
       programmingPlanId: programmingPlanSlaughterhouse.id,
+      programmingSubPlanId: programmingSubPlanSlaughterhouse.id,
       key: 'sampleCount',
       sampleCount: 10
     };
 
-    const insertPlanWithStatus = async (
-      plan: ReturnType<typeof genProgrammingPlan>
+    const insertPlanWithSubPlansWithStatus = async (
+      plan: ReturnType<typeof genProgrammingPlan>,
+      subPlans: ReturnType<typeof genProgrammingSubPlan>[]
     ) => {
       await ProgrammingPlans().insert(formatProgrammingPlan(plan));
-      await ProgrammingPlanLocalStatus().insert([
-        ...plan.regionalStatus.map((rs) => ({
-          ...rs,
-          programmingPlanId: plan.id
-        })),
-        ...plan.departmentalStatus.map((ds) => ({
-          ...ds,
-          programmingPlanId: plan.id
-        }))
-      ]);
       await ProgrammingSubPlans().insert(
-        plan.subPlans.map((sp) => ({
+        subPlans.map((sp) => ({
           id: sp.id,
           programmingPlanId: plan.id,
           subPlanNumber: sp.subPlanNumber,
@@ -1017,11 +1020,30 @@ describe('Local prescriptions router', () => {
           withSacha: sp.withSacha
         }))
       );
+      await ProgrammingSubPlanLocalStatus().insert([
+        ...subPlans
+          .flatMap((sp) => sp.regionalStatus)
+          .map((rs) => ({
+            ...rs,
+            programmingPlanId: plan.id
+          })),
+        ...subPlans
+          .flatMap((sp) => sp.departmentalStatus)
+          .map((ds) => ({
+            ...ds,
+            programmingPlanId: plan.id
+          }))
+      ]);
     };
 
     beforeAll(async () => {
-      await insertPlanWithStatus(programmingPlanSlaughterhouse);
-      await insertPlanWithStatus(programmingPlanSlaughterhouseClosed);
+      await insertPlanWithSubPlansWithStatus(programmingPlanSlaughterhouse, [
+        programmingSubPlanSlaughterhouse
+      ]);
+      await insertPlanWithSubPlansWithStatus(
+        programmingPlanSlaughterhouseClosed,
+        [programmingSubPlanSlaughterhouseClosed]
+      );
       await Prescriptions().insert([
         slaughterhousePrescription,
         slaughterhousePrescriptionClosed
@@ -1523,6 +1545,7 @@ describe('Local prescriptions router', () => {
   describe('POST /{prescriptionId}/regions/{region}/comments', () => {
     const validComment: LocalPrescriptionCommentToCreate = {
       programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+      programmingSubPlanId: PPVSubmittedSubPlanFixture.id,
       comment: fakerFR.string.alphanumeric(32)
     };
 
@@ -1704,6 +1727,7 @@ describe('Local prescriptions router', () => {
   describe('POST /{prescriptionId}/regions/{region}/departments/{department}/comments', () => {
     const validComment: LocalPrescriptionCommentToCreate = {
       programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+      programmingSubPlanId: PPVSubmittedSubPlanFixture.id,
       comment: fakerFR.string.alphanumeric(32)
     };
 

@@ -77,12 +77,14 @@ const UsersSearchInput: FunctionComponent<{
 
   const { data: users } = apiClient.useFindUsersQuery({ disabled: false });
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery({});
+  const { data: programmingSubPlans } =
+    apiClient.useFindProgrammingSubPlansQuery({});
   const getSubPlanLabel = useCallback(
     (subPlanId: ProgrammingSubPlanId) => {
       const plan = programmingPlans?.find((p) =>
-        p.subPlans.some((sp) => sp.id === subPlanId)
+        p.subPlanIds.some((id) => id === subPlanId)
       );
-      const subPlan = plan?.subPlans.find((sp) => sp.id === subPlanId);
+      const subPlan = programmingSubPlans?.find((sp) => sp.id === subPlanId);
       if (!subPlan) return subPlanId;
       return `${subPlan.subPlanNumber} (${plan?.year})`;
     },

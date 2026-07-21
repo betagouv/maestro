@@ -7,8 +7,10 @@ import {
 import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import { Stage, StageLabels } from '../../referential/Stage';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
-import type { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
-import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
+import {
+  type ProgrammingSubPlan,
+  ProgrammingSubPlanId
+} from '../ProgrammingPlan/ProgrammingSubPlan';
 import { hasPermission } from '../User/User';
 import type { UserRole } from '../User/UserRole';
 import { PrescriptionSubstance } from './PrescriptionSubstance';
@@ -34,6 +36,7 @@ export const PrescriptionToCreate = Prescription.omit({
 
 export const PrescriptionUpdate = z.object({
   programmingPlanId: z.guid(),
+  programmingSubPlanId: ProgrammingSubPlanId,
   ...Prescription.pick({
     stages: true,
     notes: true,
@@ -75,21 +78,21 @@ export type PrescriptionPermission = z.infer<typeof PrescriptionPermission>;
 
 export const hasPrescriptionPermission = (
   userRole: UserRole,
-  programmingPlan: ProgrammingPlanChecked
+  programmingSubPlan: ProgrammingSubPlan
 ): Record<PrescriptionPermission, boolean> => ({
   create:
     hasPermission(userRole, 'createPrescription') &&
-    programmingPlan.regionalStatus.some(
+    programmingSubPlan.regionalStatus.some(
       (regionalStatus) => regionalStatus.status !== 'Closed'
     ),
   update:
     hasPermission(userRole, 'updatePrescription') &&
-    programmingPlan.regionalStatus.some(
+    programmingSubPlan.regionalStatus.some(
       (regionalStatus) => regionalStatus.status !== 'Closed'
     ),
   delete:
     hasPermission(userRole, 'deletePrescription') &&
-    programmingPlan.regionalStatus.some(
+    programmingSubPlan.regionalStatus.some(
       (regionalStatus) => regionalStatus.status !== 'Closed'
     )
 });

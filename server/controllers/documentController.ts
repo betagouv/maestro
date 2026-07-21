@@ -89,7 +89,7 @@ export const documentsRouter = {
               hasPermission(role, 'readDocuments') && role !== 'LaboratoryUser'
           ),
           programmingSubPlanIds: uniq(
-            programmingPlans.flatMap((plan) => plan.subPlans.map((sp) => sp.id))
+            programmingPlans.flatMap((plan) => plan.subPlanIds)
           )
         });
 

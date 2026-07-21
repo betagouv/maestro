@@ -1,9 +1,11 @@
 import { isNil } from 'lodash-es';
 import { z } from 'zod';
+import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 import { LocalPrescriptionKey } from './LocalPrescriptionKey';
 
 export const LocalPrescriptionCommentToCreate = z.object({
   programmingPlanId: z.guid(),
+  programmingSubPlanId: ProgrammingSubPlanId,
   comment: z
     .string({
       error: (issue) =>

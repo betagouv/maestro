@@ -4,8 +4,10 @@ import PrescriptionMissingError from 'maestro-shared/errors/prescriptionPlanMiss
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import prescriptionRepository from '../../repositories/prescriptionRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
+import { getAndCheckProgrammingSubPlan } from './programmingSubPlanCheck';
 
 export const getAndCheckPrescription = async (
   prescriptionId: string,
@@ -13,6 +15,7 @@ export const getAndCheckPrescription = async (
 ): Promise<{
   prescription: Prescription;
   programmingPlan: ProgrammingPlanChecked;
+  programmingSubPlan: ProgrammingSubPlan;
 }> => {
   const prescription = await prescriptionRepository.findUnique(prescriptionId);
 
@@ -37,5 +40,9 @@ export const getAndCheckPrescription = async (
     });
   }
 
-  return { prescription, programmingPlan };
+  const programmingSubPlan = await getAndCheckProgrammingSubPlan(
+    prescription.programmingSubPlanId
+  );
+
+  return { prescription, programmingPlan, programmingSubPlan };
 };

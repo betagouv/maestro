@@ -256,9 +256,7 @@ const ProgrammingView = () => {
                           'distributePrescriptionToDepartments'
                         ))
                         ? {
-                            label: hasNationalView
-                              ? 'Statut par région'
-                              : 'Statut par département',
+                            label: 'Suivi des plans',
                             tabId: 'ConsultationTab',
                             iconId: 'fr-icon-chat-check-line' as const
                           }

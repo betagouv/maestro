@@ -20,6 +20,7 @@ export const tagTypes = [
   'Prescription',
   'PrescriptionSubstance',
   'ProgrammingPlan',
+  'ProgrammingSubPlan',
   'SampleSpecificData',
   'SpecificDataField',
   'LocalPrescription',

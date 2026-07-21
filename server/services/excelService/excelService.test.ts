@@ -8,7 +8,11 @@ import {
   VolailleLocalPrescriptionFixture,
   VolaillePrescriptionFixture
 } from 'maestro-shared/test/prescriptionFixtures';
-import { DAOAInProgressProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  DAOABovinInProgressSubPlanFixture,
+  DAOAInProgressProgrammingPlanFixture,
+  DAOAVolailleInProgressSubPlanFixture
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { describe, expect, test, vi } from 'vitest';
 import { excelService } from './excelService';
 
@@ -43,6 +47,7 @@ describe('generatePrescriptionsExportExcel', async () => {
   test('export prescription for national coordinator', async () => {
     const buffer = await excelService.generatePrescriptionsExportExcel(
       DAOAInProgressProgrammingPlanFixture,
+      [DAOAVolailleInProgressSubPlanFixture, DAOABovinInProgressSubPlanFixture],
       prescriptions,
       localPrescriptions.filter((_) => isNil(_.department)),
       undefined,
@@ -123,6 +128,7 @@ describe('generatePrescriptionsExportExcel', async () => {
     const regionPDL = '52';
     const buffer = await excelService.generatePrescriptionsExportExcel(
       DAOAInProgressProgrammingPlanFixture,
+      [DAOAVolailleInProgressSubPlanFixture, DAOABovinInProgressSubPlanFixture],
       prescriptions,
       localPrescriptions.filter((_) => _.region === regionPDL),
       regionPDL,
@@ -171,6 +177,7 @@ describe('generatePrescriptionsExportExcel', async () => {
     const department = '85';
     const buffer = await excelService.generatePrescriptionsExportExcel(
       DAOAInProgressProgrammingPlanFixture,
+      [DAOAVolailleInProgressSubPlanFixture, DAOABovinInProgressSubPlanFixture],
       prescriptions,
       localPrescriptions
         .filter((_) => _.region === regionPDL && _.department === department)

@@ -2,14 +2,20 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { uniq } from 'lodash-es';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 
 interface Props {
   programmingPlan: ProgrammingPlanChecked;
+  programmingSubPlans: ProgrammingSubPlan[];
   prescription: Prescription;
 }
 
-const PrescriptionBreadcrumb = ({ programmingPlan, prescription }: Props) => {
-  const subPlan = programmingPlan.subPlans.find(
+const PrescriptionBreadcrumb = ({
+  programmingPlan,
+  programmingSubPlans,
+  prescription
+}: Props) => {
+  const subPlan = programmingSubPlans.find(
     (sp) => sp.id === prescription.programmingSubPlanId
   );
 

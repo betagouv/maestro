@@ -1,18 +1,29 @@
 import {
+  DAOABovinInProgressSubPlanFixture,
+  DAOABovinValidatedSubPlanFixture,
   DAOAInProgressProgrammingPlanFixture,
   DAOAValidatedProgrammingPlanFixture,
+  DAOAVolailleInProgressSubPlanFixture,
+  DAOAVolailleValidatedSubPlanFixture,
   PPVClosedProgrammingPlanFixture,
+  PPVClosedSubPlanFixture,
   PPVInProgressProgrammingPlanFixture,
+  PPVInProgressSubPlanFixture,
   PPVSubmittedProgrammingPlanFixture,
+  PPVSubmittedSubPlanFixture,
   PPVValidatedDromProgrammingPlanFixture,
-  PPVValidatedProgrammingPlanFixture
+  PPVValidatedDromSubPlanFixture,
+  PPVValidatedProgrammingPlanFixture,
+  PPVValidatedSubPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   formatProgrammingPlan,
-  ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
-import { ProgrammingSubPlans } from '../../repositories/programmingSubPlanRepository';
+import {
+  ProgrammingSubPlanLocalStatus,
+  ProgrammingSubPlans
+} from '../../repositories/programmingSubPlanRepository';
 
 export const seed = async (): Promise<void> => {
   await ProgrammingPlans().insert(
@@ -29,16 +40,18 @@ export const seed = async (): Promise<void> => {
 
   await Promise.all(
     [
-      PPVClosedProgrammingPlanFixture,
-      PPVValidatedProgrammingPlanFixture,
-      PPVValidatedDromProgrammingPlanFixture,
-      PPVInProgressProgrammingPlanFixture,
-      PPVSubmittedProgrammingPlanFixture,
-      DAOAValidatedProgrammingPlanFixture,
-      DAOAInProgressProgrammingPlanFixture
+      PPVClosedSubPlanFixture,
+      PPVValidatedSubPlanFixture,
+      PPVValidatedDromSubPlanFixture,
+      PPVInProgressSubPlanFixture,
+      PPVSubmittedSubPlanFixture,
+      DAOAVolailleValidatedSubPlanFixture,
+      DAOABovinValidatedSubPlanFixture,
+      DAOAVolailleInProgressSubPlanFixture,
+      DAOABovinInProgressSubPlanFixture
     ].flatMap((plan) =>
       plan.regionalStatus.map((regionalStatus) =>
-        ProgrammingPlanLocalStatus().insert({
+        ProgrammingSubPlanLocalStatus().insert({
           ...regionalStatus,
           programmingPlanId: plan.id
         })
@@ -46,20 +59,15 @@ export const seed = async (): Promise<void> => {
     )
   );
 
-  await ProgrammingSubPlans().insert(
-    [
-      PPVClosedProgrammingPlanFixture,
-      PPVValidatedProgrammingPlanFixture,
-      PPVValidatedDromProgrammingPlanFixture,
-      PPVInProgressProgrammingPlanFixture,
-      PPVSubmittedProgrammingPlanFixture,
-      DAOAValidatedProgrammingPlanFixture,
-      DAOAInProgressProgrammingPlanFixture
-    ].flatMap((plan) =>
-      plan.subPlans.map((subPlan) => ({
-        ...subPlan,
-        programmingPlanId: plan.id
-      }))
-    )
-  );
+  await ProgrammingSubPlans().insert([
+    PPVClosedSubPlanFixture,
+    PPVValidatedSubPlanFixture,
+    PPVValidatedDromSubPlanFixture,
+    PPVInProgressSubPlanFixture,
+    PPVSubmittedSubPlanFixture,
+    DAOAVolailleValidatedSubPlanFixture,
+    DAOABovinValidatedSubPlanFixture,
+    DAOAVolailleInProgressSubPlanFixture,
+    DAOABovinInProgressSubPlanFixture
+  ]);
 };

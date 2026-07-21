@@ -8,11 +8,7 @@ import {
   getPrescriptionTitle,
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
-import {
-  hasProgrammingPlanStatusForAuthUser,
-  type ProgrammingPlanChecked
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { pluralize } from 'src/utils/stringUtils';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { useAppDispatch } from '../../../hooks/useStore';
@@ -109,64 +105,26 @@ const LocalPrescriptionCard = ({
                 ?.name}
             <div className="fr-card__end">
               <div>
-                {hasProgrammingPlanStatusForAuthUser(
+                <span>
+                  {pluralize(localPrescription.sampleCount ?? 0, {
+                    preserveCount: true
+                  })('prélèvement programmé')}
+                </span>
+                {(hasUserLocalPrescriptionPermission(
                   programmingPlan,
-                  ['Validated', 'Closed'],
-                  user,
-                  userRole
-                ) ? (
+                  localPrescription
+                )?.distributeToDepartments ||
+                  hasUserLocalPrescriptionPermission(
+                    programmingPlan,
+                    localPrescription
+                  )?.distributeToSlaughterhouses) && (
                   <>
-                    <span className={cx('fr-text--bold')}>
-                      {pluralize(localPrescription.realizedSampleCount ?? 0, {
-                        preserveCount: true
-                      })('prélèvement réalisé')}
-                    </span>
-                    {' sur '}
-                    {pluralize(localPrescription.sampleCount ?? 0, {
-                      preserveCount: true
-                    })('programmé')}
                     {' • '}
-                    <CompletionBadge localPrescriptions={localPrescription} />
-                    {(localPrescription.notAdmissibleSampleCount ?? 0) > 0 && (
-                      <div
-                        className={cx('fr-hint-text', 'fr-text--sm', 'fr-mb-0')}
-                      >
-                        (
-                        {pluralize(
-                          localPrescription.notAdmissibleSampleCount ?? 0,
-                          {
-                            preserveCount: true,
-                            ignores: ['non']
-                          }
-                        )('non recevable')}
-                        )
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <span>
-                      {pluralize(localPrescription.sampleCount ?? 0, {
-                        preserveCount: true
-                      })('prélèvement programmé')}
-                    </span>
-                    {(hasUserLocalPrescriptionPermission(
-                      programmingPlan,
-                      localPrescription
-                    )?.distributeToDepartments ||
-                      hasUserLocalPrescriptionPermission(
-                        programmingPlan,
-                        localPrescription
-                      )?.distributeToSlaughterhouses) && (
-                      <>
-                        {' • '}
-                        <LocalPrescriptionDistributionBadge
-                          localPrescription={localPrescription}
-                          subLocalPrescriptions={subLocalPrescriptions}
-                          small
-                        />
-                      </>
-                    )}
+                    <LocalPrescriptionDistributionBadge
+                      localPrescription={localPrescription}
+                      subLocalPrescriptions={subLocalPrescriptions}
+                      small
+                    />
                   </>
                 )}
                 <div className={cx('fr-mt-2w')}>

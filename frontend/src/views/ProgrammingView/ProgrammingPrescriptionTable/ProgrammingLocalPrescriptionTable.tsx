@@ -23,13 +23,9 @@ import {
   getPrescriptionTitle,
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
-import {
-  hasProgrammingPlanStatusForAuthUser,
-  type ProgrammingPlanChecked
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { isDefined } from 'maestro-shared/utils/utils';
 import { useCallback, useMemo } from 'react';
-import CompletionBadge from 'src/components/CompletionBadge/CompletionBadge';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
 import TableHeaderCell from 'src/components/TableHeaderCell/TableHeaderCell';
 import { useAppDispatch } from 'src/hooks/useStore';
@@ -211,44 +207,21 @@ const ProgrammingLocalPrescriptionTable = ({
                         preserveCount: true
                       })('prélèvement programmé')}
                     </div>
-                    {hasProgrammingPlanStatusForAuthUser(
+                    {(hasUserLocalPrescriptionPermission(
                       getPrescriptionProgrammingPlan(prescription),
-                      ['Validated', 'Closed'],
-                      user,
-                      userRole
-                    ) ? (
-                      <>
-                        <div>
-                          {pluralize(
-                            localPrescription.realizedSampleCount ?? 0,
-                            {
-                              preserveCount: true
-                            }
-                          )('réalisé')}
-                        </div>
-                        <div>
-                          <CompletionBadge
-                            localPrescriptions={localPrescription}
-                          />
-                        </div>
-                      </>
-                    ) : (
-                      (hasUserLocalPrescriptionPermission(
+                      localPrescription
+                    )?.distributeToDepartments ||
+                      hasUserLocalPrescriptionPermission(
                         getPrescriptionProgrammingPlan(prescription),
-                        localPrescription
-                      )?.distributeToDepartments ||
-                        hasUserLocalPrescriptionPermission(
-                          getPrescriptionProgrammingPlan(prescription),
-                          getLocalPrescription(prescription.id)
-                        )?.distributeToSlaughterhouses) && (
-                        <LocalPrescriptionDistributionBadge
-                          localPrescription={localPrescription}
-                          subLocalPrescriptions={getSubLocalPrescriptions(
-                            prescription.id
-                          )}
-                          small
-                        />
-                      )
+                        getLocalPrescription(prescription.id)
+                      )?.distributeToSlaughterhouses) && (
+                      <LocalPrescriptionDistributionBadge
+                        localPrescription={localPrescription}
+                        subLocalPrescriptions={getSubLocalPrescriptions(
+                          prescription.id
+                        )}
+                        small
+                      />
                     )}
                   </>
                 ))}

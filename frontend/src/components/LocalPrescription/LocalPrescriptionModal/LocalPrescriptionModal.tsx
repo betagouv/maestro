@@ -73,7 +73,8 @@ const LocalPrescriptionModal = () => {
           .department as Department,
         key: 'laboratories' as const,
         substanceKindsLaboratories,
-        programmingPlanId: localPrescriptionModalData.programmingPlan.id
+        programmingPlanId: localPrescriptionModalData.programmingPlan.id,
+        programmingSubPlanId: localPrescriptionModalData.programmingSubPlan.id
       };
 
       if (localPrescriptionModalData.localPrescription.department) {
@@ -100,7 +101,9 @@ const LocalPrescriptionModal = () => {
             department: departmentalPrescription.department as Department,
             key: 'sampleCount',
             sampleCount: departmentalPrescription.sampleCount,
-            programmingPlanId: localPrescriptionModalData.programmingPlan.id
+            programmingPlanId: localPrescriptionModalData.programmingPlan.id,
+            programmingSubPlanId:
+              localPrescriptionModalData.programmingSubPlan.id
           })
         )
       );
@@ -114,7 +117,8 @@ const LocalPrescriptionModal = () => {
           .department as Department,
         key: 'slaughterhouseSampleCounts',
         slaughterhouseSampleCounts: subLocalPrescriptions,
-        programmingPlanId: localPrescriptionModalData.programmingPlan.id
+        programmingPlanId: localPrescriptionModalData.programmingPlan.id,
+        programmingSubPlanId: localPrescriptionModalData.programmingSubPlan.id
       });
       setIsUpdateSuccess(true);
     }
@@ -141,13 +145,8 @@ const LocalPrescriptionModal = () => {
       return 'La répartition de la programmation a bien été enregistrée pour ces abattoirs.';
     }
     return pluralize(
-      (
-        localPrescriptionModalData?.programmingPlan.subPlans.find(
-          (sp) =>
-            sp.id ===
-            localPrescriptionModalData.prescription.programmingSubPlanId
-        )?.substanceKinds ?? []
-      ).length,
+      (localPrescriptionModalData?.programmingSubPlan?.substanceKinds ?? [])
+        .length,
       {
         ignores: ['bien', 'été'],
         replacements: [
@@ -204,7 +203,7 @@ const LocalPrescriptionModal = () => {
                   localPrescriptionModalData.programmingPlan.id
                 }
                 programmingSubPlanId={
-                  localPrescriptionModalData.prescription.programmingSubPlanId
+                  localPrescriptionModalData.programmingSubPlan.id
                 }
                 substanceKindsLaboratories={
                   (
@@ -214,12 +213,8 @@ const LocalPrescriptionModal = () => {
                     ? (localPrescriptionModalData.localPrescription
                         .substanceKindsLaboratories as SubstanceKindLaboratory[])
                     : (
-                        localPrescriptionModalData.programmingPlan.subPlans.find(
-                          (sp) =>
-                            sp.id ===
-                            localPrescriptionModalData.prescription
-                              .programmingSubPlanId
-                        )?.substanceKinds ?? []
+                        localPrescriptionModalData.programmingSubPlan
+                          ?.substanceKinds ?? []
                       ).map((substanceKind) => ({
                         substanceKind,
                         laboratoryId: undefined

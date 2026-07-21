@@ -7,10 +7,8 @@ import {
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   formatProgrammingPlan,
-  ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../../repositories/programmingPlanRepository';
-import { ProgrammingSubPlans } from '../../../repositories/programmingSubPlanRepository';
 import { Users } from '../../../repositories/userRepository';
 
 export const seed = async () => {
@@ -32,33 +30,34 @@ export const seed = async () => {
 
   await ProgrammingPlans().insert(plans.map(formatProgrammingPlan));
 
-  await ProgrammingPlanLocalStatus().insert(
-    plans.flatMap((plan) =>
-      plan.regionalStatus.map((regionalStatus) => ({
-        programmingPlanId: plan.id,
-        region: regionalStatus.region,
-        status: regionalStatus.status
-      }))
-    )
-  );
-
-  await ProgrammingPlanLocalStatus().insert(
-    plans.flatMap((plan) =>
-      plan.departmentalStatus?.map((departmentalStatus) => ({
-        programmingPlanId: plan.id,
-        region: departmentalStatus.region,
-        department: departmentalStatus.department,
-        status: departmentalStatus.status
-      }))
-    )
-  );
-
-  await ProgrammingSubPlans().insert(
-    plans.flatMap((plan) =>
-      plan.subPlans.map((subPlan) => ({
-        ...subPlan,
-        programmingPlanId: plan.id
-      }))
-    )
-  );
+  // TODO à gérer au niveau sous plans
+  // await ProgrammingPlanLocalStatus().insert(
+  //   plans.flatMap((plan) =>
+  //     plan.regionalStatus.map((regionalStatus) => ({
+  //       programmingPlanId: plan.id,
+  //       region: regionalStatus.region,
+  //       status: regionalStatus.status
+  //     }))
+  //   )
+  // );
+  //
+  // await ProgrammingPlanLocalStatus().insert(
+  //   plans.flatMap((plan) =>
+  //     plan.departmentalStatus?.map((departmentalStatus) => ({
+  //       programmingPlanId: plan.id,
+  //       region: departmentalStatus.region,
+  //       department: departmentalStatus.department,
+  //       status: departmentalStatus.status
+  //     }))
+  //   )
+  // );
+  //
+  // await ProgrammingSubPlans().insert(
+  //   plans.flatMap((plan) =>
+  //     plan.subPlans.map((subPlan) => ({
+  //       ...subPlan,
+  //       programmingPlanId: plan.id
+  //     }))
+  //   )
+  // );
 };

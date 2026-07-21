@@ -5,6 +5,7 @@ import { type Region, RegionSort } from '../../referential/Region';
 import type { Company } from '../Company/Company';
 import { Prescription } from '../Prescription/Prescription';
 import type { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingSubPlan } from '../ProgrammingPlan/ProgrammingSubPlan';
 import { hasPermission, type UserBase, userRegionsForRole } from '../User/User';
 import type { UserRole } from '../User/UserRole';
 import { LocalPrescriptionComment } from './LocalPrescriptionComment';
@@ -57,17 +58,26 @@ export const LocalPrescriptionUpdate = z.discriminatedUnion('key', [
     ...LocalPrescription.pick({
       sampleCount: true
     }).shape,
-    ...Prescription.pick({ programmingPlanId: true }).shape
+    ...Prescription.pick({
+      programmingPlanId: true,
+      programmingSubPlanId: true
+    }).shape
   }),
   z.object({
     key: z.literal('laboratories'),
     substanceKindsLaboratories: z.array(SubstanceKindLaboratory),
-    ...Prescription.pick({ programmingPlanId: true }).shape
+    ...Prescription.pick({
+      programmingPlanId: true,
+      programmingSubPlanId: true
+    }).shape
   }),
   z.object({
     key: z.literal('slaughterhouseSampleCounts'),
     slaughterhouseSampleCounts: SlaughterhouseSampleCounts,
-    ...Prescription.pick({ programmingPlanId: true }).shape
+    ...Prescription.pick({
+      programmingPlanId: true,
+      programmingSubPlanId: true
+    }).shape
   })
 ]);
 
@@ -149,19 +159,20 @@ export const hasLocalPrescriptionPermission = (
   user: Pick<UserBase, 'region' | 'department'>,
   userRole: UserRole,
   programmingPlan: ProgrammingPlanChecked,
+  programmingSubPlan: ProgrammingSubPlan,
   localPrescription: { region: Region; department?: Department | null }
 ): Record<LocalPrescriptionPermission, boolean> => ({
   updateSampleCount:
     hasPermission(userRole, 'updatePrescription') &&
     userRegionsForRole(user, userRole).includes(localPrescription.region) &&
-    programmingPlan.regionalStatus.find(
+    programmingSubPlan.regionalStatus.find(
       (regionStatus) => regionStatus.region === localPrescription.region
     )?.status !== 'Closed',
   distributeToDepartments:
     programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
     hasPermission(userRole, 'distributePrescriptionToDepartments') &&
     userRegionsForRole(user, userRole).includes(localPrescription.region) &&
-    programmingPlan.regionalStatus.find(
+    programmingSubPlan.regionalStatus.find(
       (regionStatus) => regionStatus.region === localPrescription.region
     )?.status !== 'Closed',
   distributeToSlaughterhouses:
@@ -169,7 +180,7 @@ export const hasLocalPrescriptionPermission = (
     hasPermission(userRole, 'distributePrescriptionToSlaughterhouses') &&
     userRegionsForRole(user, userRole).includes(localPrescription.region) &&
     user.department === localPrescription.department &&
-    programmingPlan.departmentalStatus.some(
+    programmingSubPlan.departmentalStatus.some(
       (departmentalStatus) =>
         departmentalStatus.region === localPrescription.region &&
         departmentalStatus.department === localPrescription.department &&
@@ -181,7 +192,7 @@ export const hasLocalPrescriptionPermission = (
     hasPermission(userRole, 'commentPrescription') &&
     userRegionsForRole(user, userRole).includes(localPrescription.region) &&
     programmingPlan.distributionKind === 'REGIONAL' &&
-    programmingPlan.regionalStatus.some(
+    programmingSubPlan.regionalStatus.some(
       (regionStatus) =>
         regionStatus.region === localPrescription.region &&
         regionStatus.status === 'SubmittedToRegion'
@@ -190,14 +201,14 @@ export const hasLocalPrescriptionPermission = (
     hasPermission(userRole, 'updatePrescriptionLaboratories') &&
     userRegionsForRole(user, userRole).includes(localPrescription.region) &&
     ((programmingPlan.distributionKind === 'REGIONAL' &&
-      programmingPlan.regionalStatus.some(
+      programmingSubPlan.regionalStatus.some(
         (regionStatus) =>
           regionStatus.region === localPrescription.region &&
           regionStatus.status === 'Validated'
       )) ||
       (programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
         user.department === localPrescription.department &&
-        programmingPlan.departmentalStatus.some(
+        programmingSubPlan.departmentalStatus.some(
           (departmentalStatus) =>
             departmentalStatus.region === localPrescription.region &&
             departmentalStatus.department === localPrescription.department &&

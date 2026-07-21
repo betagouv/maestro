@@ -17,7 +17,10 @@ import {
   type ProgrammingPlanStatus,
   ProgrammingPlanStatusLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  getPlanDepartmentalStatuses,
+  type ProgrammingPlanChecked
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import LocalPrescriptionModal from '../../../components/LocalPrescription/LocalPrescriptionModal/LocalPrescriptionModal';
@@ -47,6 +50,10 @@ const ProgrammingPlanDepartmentalValidationList = ({
   const [statusFilter, setStatusFilter] = useState<ProgrammingPlanStatus>();
 
   const departmentList = useMemo(() => Regions[region].departments, [region]);
+  const departmentalStatuses = useMemo(
+    () => getPlanDepartmentalStatuses(programmingPlan),
+    [programmingPlan]
+  );
 
   const findPrescriptionOptions = useMemo(
     () => ({
@@ -84,10 +91,10 @@ const ProgrammingPlanDepartmentalValidationList = ({
 
   const validatedDepartments = useMemo(
     () =>
-      programmingPlan.departmentalStatus?.filter(
+      departmentalStatuses.filter(
         (departmentalStatus) => departmentalStatus.status === 'Validated'
-      ) || [],
-    [programmingPlan.departmentalStatus]
+      ),
+    [departmentalStatuses]
   );
 
   const filteredDepartments = useMemo(
@@ -96,18 +103,13 @@ const ProgrammingPlanDepartmentalValidationList = ({
         (department) =>
           (!departmentFilter || departmentFilter === department) &&
           (!statusFilter ||
-            programmingPlan.departmentalStatus?.some(
+            departmentalStatuses.some(
               (departmentalStatus) =>
                 departmentalStatus.department === department &&
                 departmentalStatus.status === statusFilter
             ))
       ),
-    [
-      departmentFilter,
-      statusFilter,
-      programmingPlan.departmentalStatus,
-      departmentList
-    ]
+    [departmentFilter, statusFilter, departmentalStatuses, departmentList]
   );
 
   if (!allPrescriptions || !departmentalPrescriptions) {
@@ -245,7 +247,7 @@ const ProgrammingPlanDepartmentalValidationList = ({
                       >
                         {
                           ProgrammingPlanStatusLabels[
-                            (programmingPlan.departmentalStatus.find(
+                            (departmentalStatuses.find(
                               (ds) => ds.department === department
                             )?.status ?? 'InProgress') as ProgrammingPlanStatus
                           ]

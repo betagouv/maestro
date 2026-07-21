@@ -82,15 +82,16 @@ const Header = () => {
     () =>
       uniq(
         programmingPlans
-          ?.filter((pp) =>
-            [...pp.regionalStatus, ...pp.departmentalStatus].some(
+          ?.filter((pp) => pp.cl
+            [...pp.regionalStatus, ...pp.departmentalStatus
+  ].some(
               (rs) => rs.status === 'Validated'
             )
           )
           .map((pp) => pp.year)
       ),
     [programmingPlans]
-  );
+  )
 
   const closedYears = useMemo(
     () => programmingPlans?.filter((pp) => isClosed(pp)).map((pp) => pp.year),

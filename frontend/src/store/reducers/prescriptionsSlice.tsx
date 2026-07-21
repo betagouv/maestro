@@ -7,7 +7,10 @@ import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { PrescriptionComments } from 'maestro-shared/schema/Prescription/PrescriptionComments';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  ProgrammingSubPlan,
+  ProgrammingSubPlanId
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   getStoredListDisplay,
   type ListDisplay,
@@ -67,6 +70,7 @@ const LocalPrescriptionModalData = z.discriminatedUnion('mode', [
   z.object({
     mode: z.literal('laboratory'),
     programmingPlan: ProgrammingPlanChecked,
+    programmingSubPlan: ProgrammingSubPlan,
     prescription: Prescription,
     localPrescription: LocalPrescription
   }),
@@ -76,6 +80,7 @@ const LocalPrescriptionModalData = z.discriminatedUnion('mode', [
       'distributionToSlaughterhouses'
     ]),
     programmingPlan: ProgrammingPlanChecked,
+    programmingSubPlan: ProgrammingSubPlan,
     prescription: Prescription,
     localPrescription: LocalPrescription,
     subLocalPrescriptions: z.array(LocalPrescription)

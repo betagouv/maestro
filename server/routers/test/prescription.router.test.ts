@@ -8,7 +8,10 @@ import {
   genPrescription,
   genPrescriptionSubstance
 } from 'maestro-shared/test/prescriptionFixtures';
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  genProgrammingPlan,
+  genProgrammingSubPlan
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
@@ -28,10 +31,12 @@ import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
 import {
   formatProgrammingPlan,
-  ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
-import { ProgrammingSubPlans } from '../../repositories/programmingSubPlanRepository';
+import {
+  ProgrammingSubPlanLocalStatus,
+  ProgrammingSubPlans
+} from '../../repositories/programmingSubPlanRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
@@ -40,27 +45,36 @@ describe('Prescriptions router', () => {
 
   const programmingPlanClosed = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
+    year: 1820
+  });
+  const programmingSubPlanClosed = genProgrammingSubPlan({
+    programmingPlanId: programmingPlanClosed.id,
     regionalStatus: RegionList.map((region) => ({
       region,
-      status: 'Closed'
-    })),
-    year: 1820
+      status: 'Closed' as const
+    }))
   });
   const programmingPlanSubmitted = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
+    year: 1821
+  });
+  const programmingSubPlanSubmitted = genProgrammingSubPlan({
+    programmingPlanId: programmingPlanSubmitted.id,
     regionalStatus: RegionList.map((region) => ({
       region,
-      status: 'SubmittedToRegion'
-    })),
-    year: 1821
+      status: 'SubmittedToRegion' as const
+    }))
   });
   const programmingPlanInProgress = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
+    year: 1822
+  });
+  const programmingSubPlanInProgress = genProgrammingSubPlan({
+    programmingPlanId: programmingPlanInProgress.id,
     regionalStatus: RegionList.map((region) => ({
       region,
-      status: 'InProgress'
-    })),
-    year: 1822
+      status: 'InProgress' as const
+    }))
   });
   const closedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanClosed.id,
@@ -99,29 +113,42 @@ describe('Prescriptions router', () => {
         programmingPlanClosed
       ].map(formatProgrammingPlan)
     );
-    await ProgrammingPlanLocalStatus().insert(
+    await ProgrammingSubPlanLocalStatus().insert(
       [
-        programmingPlanSubmitted,
-        programmingPlanInProgress,
-        programmingPlanClosed
-      ].flatMap((programmingPlan) =>
-        programmingPlan.regionalStatus.map((regionalStatus) => ({
+        programmingSubPlanSubmitted,
+        programmingSubPlanInProgress,
+        programmingSubPlanClosed
+      ].flatMap((subPlan) =>
+        subPlan.regionalStatus.map((regionalStatus) => ({
           ...regionalStatus,
-          programmingPlanId: programmingPlan.id
+          programmingPlanId: subPlan.id
         }))
       )
     );
-    await ProgrammingSubPlans().insert(
+    await ProgrammingSubPlans().insert([
+      programmingSubPlanSubmitted,
+      programmingSubPlanInProgress,
+      programmingSubPlanClosed
+    ]);
+    await ProgrammingSubPlanLocalStatus().insert(
       [
-        programmingPlanSubmitted,
-        programmingPlanInProgress,
-        programmingPlanClosed
-      ].flatMap((plan) =>
-        plan.subPlans.map((sp) => ({
-          ...sp,
-          programmingPlanId: plan.id
+        programmingSubPlanSubmitted,
+        programmingSubPlanInProgress,
+        programmingSubPlanClosed
+      ].map((subPlan) => [
+        {
+          subPlanId: subPlan.id,
+          region: 'None' as const,
+          department: 'None' as const,
+          status: 'InProgress' as const
+        },
+        ...subPlan.regionalStatus.map((regionalStatus) => ({
+          subPlanId: subPlan.id,
+          region: regionalStatus.region,
+          department: 'None' as const,
+          status: regionalStatus.status
         }))
-      )
+      ])
     );
     await Prescriptions().insert([
       closedControlPrescription,
@@ -351,6 +378,7 @@ describe('Prescriptions router', () => {
   describe('PUT /prescriptions/{prescriptionId}', () => {
     const prescriptionUpdate: PrescriptionUpdate = {
       programmingPlanId: programmingPlanInProgress.id,
+      programmingSubPlanId: programmingSubPlanInProgress.id,
       stages: ['STADE7'],
       notes: fakerFR.string.alphanumeric(32),
       programmingInstruction: fakerFR.string.alphanumeric(32)

@@ -18,6 +18,7 @@ import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckLocalPrescription } from '../middlewares/checks/localPrescriptionCheck';
 import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
+import { getAndCheckProgrammingSubPlan } from '../middlewares/checks/programmingSubPlanCheck';
 import localPrescriptionCommentRepository from '../repositories/localPrescriptionCommentRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import localPrescriptionLaboratoryRepository from '../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
@@ -157,6 +158,9 @@ export const localPrescriptionsRouter = {
       const programmingPlan = await getAndCheckProgrammingPlan(
         localPrescriptionUpdate.programmingPlanId
       );
+      const programmingSubPlan = await getAndCheckProgrammingSubPlan(
+        localPrescriptionUpdate.programmingSubPlanId
+      );
       await getAndCheckPrescription(params.prescriptionId, programmingPlan);
       const localPrescription = await getAndCheckLocalPrescription(params);
 
@@ -165,6 +169,7 @@ export const localPrescriptionsRouter = {
           user,
           userRole,
           programmingPlan,
+          programmingSubPlan,
           localPrescription
         ).updateSampleCount && localPrescriptionUpdate.key === 'sampleCount';
 
@@ -173,6 +178,7 @@ export const localPrescriptionsRouter = {
           user,
           userRole,
           programmingPlan,
+          programmingSubPlan,
           localPrescription
         ).updateLaboratories && localPrescriptionUpdate.key === 'laboratories';
 
@@ -219,6 +225,9 @@ export const localPrescriptionsRouter = {
       const programmingPlan = await getAndCheckProgrammingPlan(
         localPrescriptionUpdate.programmingPlanId
       );
+      const programmingSubPlan = await getAndCheckProgrammingSubPlan(
+        localPrescriptionUpdate.programmingSubPlanId
+      );
       await getAndCheckPrescription(params.prescriptionId, programmingPlan);
       const localPrescription = await getAndCheckLocalPrescription(params);
 
@@ -229,6 +238,7 @@ export const localPrescriptionsRouter = {
           user,
           userRole,
           programmingPlan,
+          programmingSubPlan,
           localPrescription
         ).distributeToDepartments &&
         localPrescriptionUpdate.key === 'sampleCount';
@@ -238,6 +248,7 @@ export const localPrescriptionsRouter = {
           user,
           userRole,
           programmingPlan,
+          programmingSubPlan,
           localPrescription
         ).updateLaboratories && localPrescriptionUpdate.key === 'laboratories';
 
@@ -246,6 +257,7 @@ export const localPrescriptionsRouter = {
           user,
           userRole,
           programmingPlan,
+          programmingSubPlan,
           localPrescription
         ).distributeToSlaughterhouses &&
         localPrescriptionUpdate.key === 'slaughterhouseSampleCounts';
@@ -342,6 +354,9 @@ export const localPrescriptionsRouter = {
       const programmingPlan = await getAndCheckProgrammingPlan(
         draftPrescriptionComment.programmingPlanId
       );
+      const programmingSubPlan = await getAndCheckProgrammingSubPlan(
+        draftPrescriptionComment.programmingSubPlanId
+      );
       const { prescription } = await getAndCheckPrescription(
         params.prescriptionId,
         programmingPlan
@@ -352,6 +367,7 @@ export const localPrescriptionsRouter = {
         user,
         userRole,
         programmingPlan,
+        programmingSubPlan,
         localPrescription
       ).comment;
 
@@ -371,7 +387,7 @@ export const localPrescriptionsRouter = {
       await localPrescriptionCommentRepository.insert(prescriptionComment);
 
       const recipients = await userRepository.findMany({
-        programmingSubPlanIds: programmingPlan.subPlans.map((sp) => sp.id),
+        programmingSubPlanIds: programmingPlan.subPlanIds,
         ...(userRole === 'NationalCoordinator'
           ? {
               region: localPrescription.region,
@@ -419,6 +435,9 @@ export const localPrescriptionsRouter = {
         const programmingPlan = await getAndCheckProgrammingPlan(
           draftPrescriptionComment.programmingPlanId
         );
+        const programmingSubPlan = await getAndCheckProgrammingSubPlan(
+          draftPrescriptionComment.programmingSubPlanId
+        );
         const { prescription } = await getAndCheckPrescription(
           params.prescriptionId,
           programmingPlan
@@ -429,6 +448,7 @@ export const localPrescriptionsRouter = {
           user,
           userRole,
           programmingPlan,
+          programmingSubPlan,
           localPrescription
         ).comment;
 
@@ -449,7 +469,7 @@ export const localPrescriptionsRouter = {
         await localPrescriptionCommentRepository.insert(prescriptionComment);
 
         const recipients = await userRepository.findMany({
-          programmingSubPlanIds: programmingPlan.subPlans.map((sp) => sp.id),
+          programmingSubPlanIds: programmingPlan.subPlanIds,
           ...(userRole === 'RegionalCoordinator'
             ? {
                 region: localPrescription.region,
