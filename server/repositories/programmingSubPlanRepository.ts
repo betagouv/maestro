@@ -1,5 +1,6 @@
 import { isNil } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
+import { Region } from 'maestro-shared/referential/Region';
 import { FindProgrammingSubPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingSubPlanOptions';
 import { ProgrammingPlanLocalStatus as ProgrammingPlanLocalStatusType } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import {
@@ -20,6 +21,7 @@ export const ProgrammingSubPlans = (transaction = db) =>
 const ProgrammingSubPlanLocalStatusDbo = z.object({
   ...ProgrammingPlanLocalStatusType.shape,
   programmingSubPlanId: z.string(),
+  region: z.union([Region, z.literal('None')]),
   department: z.union([Department, z.literal('None')])
 });
 
@@ -92,6 +94,7 @@ const insertManyLocalStatus = async (
     localStatusList.map((localStatus) => ({
       ...localStatus,
       programmingSubPlanId,
+      region: localStatus.region ?? 'None',
       department: localStatus.department ?? 'None'
     }))
   );
@@ -110,7 +113,7 @@ const updateLocalStatus = async (
   await ProgrammingSubPlanLocalStatus(transaction)
     .where({
       programmingSubPlanId,
-      region: localStatus.region,
+      region: localStatus.region ?? 'None',
       department: localStatus.department ?? 'None'
     })
     .update({

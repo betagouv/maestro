@@ -465,6 +465,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
           ...subPlan,
           id: ProgrammingSubPlanId.parse(uuidv4()),
           programmingPlanId: newPlanId,
+          nationalStatus: 'InProgress' as const,
           regionalStatus: RegionList.map((region) => ({
             region,
             status: 'InProgress' as const

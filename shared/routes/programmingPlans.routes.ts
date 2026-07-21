@@ -1,4 +1,5 @@
 import z from 'zod';
+import { Region } from '../referential/Region';
 import { FindProgrammingPlanOptions } from '../schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanLocalStatus } from '../schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import { ProgrammingPlanStatus } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
@@ -67,7 +68,8 @@ export const programmingPlansRoutes = {
       body: z.object({
         programmingPlanLocalStatusList: z.array(
           ProgrammingPlanLocalStatus.extend({
-            programmingSubPlanId: ProgrammingSubPlanId
+            programmingSubPlanId: ProgrammingSubPlanId,
+            region: Region
           })
         )
       }),

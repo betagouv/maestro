@@ -5,16 +5,19 @@ import { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
 
 export const ProgrammingPlanLocalStatus = z.object({
   status: ProgrammingPlanStatus,
-  region: Region,
+  region: Region.nullish(),
   department: Department.nullish()
 });
 
 export const ProgrammingPlanRegionalStatus = ProgrammingPlanLocalStatus.omit({
   department: true
+}).extend({
+  region: Region
 });
 
 export const ProgrammingPlanDepartmentalStatus = z.object({
   ...ProgrammingPlanLocalStatus.shape,
+  region: Region,
   department: Department
 });
 

@@ -55,6 +55,18 @@ export const up = async (knex: Knex) => {
       .onConflict(['programming_sub_plan_id', 'region', 'department'])
       .ignore();
   }
+
+  const nationalStatuses = programmingSubPlans.map((sp) => ({
+    programming_sub_plan_id: sp.id,
+    region: 'None',
+    department: 'None',
+    status: 'InProgress'
+  }));
+
+  await knex('programming_sub_plan_local_status')
+    .insert(nationalStatuses)
+    .onConflict(['programming_sub_plan_id', 'region', 'department'])
+    .ignore();
 };
 
 export const down = async (knex: Knex) => {

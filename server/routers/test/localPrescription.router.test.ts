@@ -1027,6 +1027,12 @@ describe('Local prescriptions router', () => {
         }))
       );
       await ProgrammingSubPlanLocalStatus().insert([
+        ...plan.subPlans.map((sp) => ({
+          programmingSubPlanId: sp.id,
+          region: 'None' as const,
+          department: 'None' as const,
+          status: sp.nationalStatus
+        })),
         ...plan.subPlans.flatMap((sp) =>
           sp.regionalStatus.map((rs) => ({
             ...rs,

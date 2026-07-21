@@ -6,6 +6,7 @@ import {
   ProgrammingPlanDepartmentalStatus,
   ProgrammingPlanRegionalStatus
 } from './ProgrammingPlanLocalStatus';
+import { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
 
 export const ProgrammingSubPlanId = z.string().brand<'ProgrammingSubPlanId'>();
 export type ProgrammingSubPlanId = z.infer<typeof ProgrammingSubPlanId>;
@@ -25,6 +26,7 @@ export const ProgrammingSubPlanBase = z.object({
 export type ProgrammingSubPlanBase = z.infer<typeof ProgrammingSubPlanBase>;
 
 export const ProgrammingSubPlan = ProgrammingSubPlanBase.extend({
+  nationalStatus: ProgrammingPlanStatus,
   regionalStatus: z.array(ProgrammingPlanRegionalStatus),
   departmentalStatus: z.array(ProgrammingPlanDepartmentalStatus)
 });

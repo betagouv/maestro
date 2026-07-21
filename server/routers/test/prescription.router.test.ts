@@ -125,7 +125,11 @@ describe('Prescriptions router', () => {
         programmingPlanClosed
       ].flatMap((plan) =>
         plan.subPlans.map((sp) => ({
-          ...omit(sp, ['regionalStatus', 'departmentalStatus']),
+          ...omit(sp, [
+            'nationalStatus',
+            'regionalStatus',
+            'departmentalStatus'
+          ]),
           programmingPlanId: plan.id
         }))
       )
@@ -137,6 +141,12 @@ describe('Prescriptions router', () => {
         programmingPlanClosed
       ].flatMap((plan) =>
         plan.subPlans.flatMap((subPlan) => [
+          {
+            programmingSubPlanId: subPlan.id,
+            region: 'None' as const,
+            department: 'None' as const,
+            status: subPlan.nationalStatus
+          },
           ...subPlan.regionalStatus.map((status) => ({
             ...status,
             programmingSubPlanId: subPlan.id,

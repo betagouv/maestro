@@ -64,6 +64,7 @@ export const genProgrammingSubPlan = (
   label: 'Test SubPlan',
   withSacha: (data?.id && SachaSubPlanIds.includes(data.id)) ?? false,
   substanceKinds: ['Any'],
+  nationalStatus: 'InProgress',
   regionalStatus: RegionList.map((region) => ({
     region,
     status: oneOf(ProgrammingPlanStatusList)

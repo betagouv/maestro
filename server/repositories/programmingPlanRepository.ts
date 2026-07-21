@@ -41,10 +41,16 @@ const ProgrammingPlanQuery = () =>
             'contactListId', sp.contact_list_id,
             'withSacha', sp.with_sacha,
             'substanceKinds', sp.substance_kinds,
+            'nationalStatus', (
+              SELECT pspls.status
+              FROM ${programmingSubPlanLocalStatusTable} pspls
+              WHERE pspls.programming_sub_plan_id = sp.id AND pspls.region = 'None' AND pspls.department = 'None'
+              LIMIT 1
+            ),
             'regionalStatus', (
               SELECT coalesce(json_agg(json_build_object('status', pspls.status, 'region', pspls.region) ORDER BY pspls.region), '[]'::json)
               FROM ${programmingSubPlanLocalStatusTable} pspls
-              WHERE pspls.programming_sub_plan_id = sp.id AND pspls.department = 'None'
+              WHERE pspls.programming_sub_plan_id = sp.id AND pspls.department = 'None' AND pspls.region != 'None'
             ),
             'departmentalStatus', (
               SELECT coalesce(json_agg(json_build_object('status', pspls.status, 'region', pspls.region, 'department', pspls.department) ORDER BY pspls.region, pspls.department), '[]'::json)
@@ -188,6 +194,11 @@ const insert = async (
 
       await Promise.all(
         programmingPlan.subPlans.flatMap((subPlan) => [
+          programmingSubPlanRepository.insertManyLocalStatus(
+            subPlan.id,
+            [{ status: subPlan.nationalStatus }],
+            transaction
+          ),
           programmingSubPlanRepository.insertManyLocalStatus(
             subPlan.id,
             subPlan.regionalStatus,

@@ -38,7 +38,11 @@ export const seed = async () => {
   await ProgrammingSubPlans().insert(
     plans.flatMap((plan) =>
       plan.subPlans.map((subPlan) => ({
-        ...omit(subPlan, ['regionalStatus', 'departmentalStatus']),
+        ...omit(subPlan, [
+          'nationalStatus',
+          'regionalStatus',
+          'departmentalStatus'
+        ]),
         programmingPlanId: plan.id
       }))
     )
@@ -47,6 +51,12 @@ export const seed = async () => {
   await ProgrammingSubPlanLocalStatus().insert(
     plans.flatMap((plan) =>
       plan.subPlans.flatMap((subPlan) => [
+        {
+          programmingSubPlanId: subPlan.id,
+          region: 'None' as const,
+          department: 'None' as const,
+          status: subPlan.nationalStatus
+        },
         ...subPlan.regionalStatus.map((regionalStatus) => ({
           programmingSubPlanId: subPlan.id,
           region: regionalStatus.region,
