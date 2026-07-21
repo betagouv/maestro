@@ -170,6 +170,7 @@ export const genProgrammingPlan = (
     samplesOutsidePlanAllowed: true,
     createdAt: new Date(),
     createdBy: uuidv4(),
+    nationalStatus: { status: oneOf(ProgrammingPlanStatusList) },
     regionalStatus: RegionList.map((region) => ({
       region,
       status: oneOf(ProgrammingPlanStatusList)

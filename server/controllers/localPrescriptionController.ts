@@ -21,6 +21,7 @@ import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPla
 import localPrescriptionCommentRepository from '../repositories/localPrescriptionCommentRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import localPrescriptionLaboratoryRepository from '../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
+import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import { userRepository } from '../repositories/userRepository';
@@ -194,6 +195,12 @@ export const localPrescriptionsRouter = {
         );
       }
 
+      if (canUpdateSampleCount || canUpdateLaboratories) {
+        await programmingPlanRepository.touchLocalStatus(programmingPlan.id, {
+          region: params.region
+        });
+      }
+
       const updatedLocalPrescription =
         await localPrescriptionRepository.findUnique(params);
 
@@ -296,6 +303,17 @@ export const localPrescriptionsRouter = {
           >,
           updatedSubLocalPrescriptions
         );
+      }
+
+      if (
+        canDistributeToDepartments ||
+        canUpdateLaboratories ||
+        canDistributePrescriptionToSlaughterhouses
+      ) {
+        await programmingPlanRepository.touchLocalStatus(programmingPlan.id, {
+          region: params.region,
+          department: params.department
+        });
       }
 
       const updatedLocalPrescription =

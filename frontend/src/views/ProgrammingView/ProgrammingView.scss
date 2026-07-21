@@ -1,0 +1,9 @@
+.push-last-tab-right {
+  > .fr-tabs__list {
+    display: flex;
+
+    > li:last-child {
+      margin-left: auto;
+    }
+  }
+}
