@@ -34,12 +34,16 @@ const findMany = async (
           'includes',
           'contexts',
           'programmingSubPlanIds',
-          'year'
+          'year',
+          'programmingPlanIds'
         ),
         isNil
       )
     )
     .modify((builder) => {
+      if (findOptions.programmingPlanIds) {
+        builder.whereIn('programming_plan_id', findOptions.programmingPlanIds);
+      }
       if (findOptions.year) {
         builder
           .join(

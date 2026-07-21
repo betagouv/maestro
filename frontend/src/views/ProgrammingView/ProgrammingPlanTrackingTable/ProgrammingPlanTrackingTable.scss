@@ -1,0 +1,100 @@
+.programming-plan-tracking-table {
+  $col-checkbox-width: 3rem;
+  $col-status-width: 14rem;
+  $plan-group-title-height: 3rem;
+
+  border-left: 1px solid var(--border-contrast-grey);
+  border-right: 1px solid var(--border-contrast-grey);
+
+  .header-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+
+    table {
+      border-bottom: none !important;
+    }
+  }
+
+  .plan-group-sticky-container {
+    position: sticky;
+    z-index: 2;
+  }
+
+  .fr-table {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .fr-table table {
+    max-height: unset;
+    overflow: visible;
+    width: fit-content !important;
+    min-width: 100%;
+    display: table !important;
+    table-layout: fixed !important;
+    justify-self: start;
+    margin-left: 0;
+    border-top: none !important;
+  }
+
+  col.col-checkbox {
+    width: $col-checkbox-width;
+  }
+  col.col-status {
+    width: $col-status-width;
+  }
+
+  thead tr th {
+    border-top: 1px solid var(--border-contrast-grey);
+    background-color: var(--background-alt-grey) !important;
+    white-space: nowrap;
+  }
+
+  td,
+  th {
+    vertical-align: middle !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  tr td {
+    border-bottom: 1px solid var(--border-contrast-grey);
+  }
+
+  .plan-group-title {
+    height: $plan-group-title-height;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    font-weight: 500;
+    background-color: var(--background-open-blue-france);
+    color: var(--text-active-grey);
+  }
+
+  tr.plan-group-header-row td {
+    background-color: var(--background-open-blue-france) !important;
+    color: var(--text-default-grey) !important;
+    padding: 0 !important;
+  }
+
+  .row-reference {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .checkbox-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .indent-1 .row-reference {
+    padding-left: 1.5rem;
+  }
+
+  .indent-2 {
+    padding-left: 4rem;
+  }
+}

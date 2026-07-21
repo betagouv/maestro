@@ -140,10 +140,14 @@ export const programmingPlanRouter = {
 
       await Promise.all(
         RegionList.map((region) =>
-          programmingPlanRepository.updateLocalStatus(programmingPlan.id, {
-            region,
-            status: newProgrammingPlanStatus
-          })
+          programmingPlanRepository.updateLocalStatus(
+            programmingPlan.id,
+            {
+              region,
+              status: newProgrammingPlanStatus
+            },
+            programmingPlan.distributionKind
+          )
         )
       );
 
@@ -226,7 +230,7 @@ export const programmingPlanRouter = {
           programmingPlanLocalStatusList.some(
             (programmingPlanLocalStatus) =>
               !userRegionsForRole(user, userRole).includes(
-                programmingPlanLocalStatus.region
+                programmingPlanLocalStatus.region as Region
               ) ||
               (programmingPlanLocalStatus.department &&
                 !Regions[user.region as Region].departments.includes(
@@ -294,6 +298,14 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
                   disabled: false
                 });
 
+                if (programmingPlanLocalStatus.status === 'SubmittedToRegion') {
+                  await programmingPlanRepository.updateNationalStatus(
+                    programmingPlanId,
+                    'SubmittedToRegion',
+                    programmingPlan.distributionKind
+                  );
+                }
+
                 await (programmingPlanLocalStatus.status === 'SubmittedToRegion'
                   ? notificationService.sendNotification(
                       {
@@ -338,7 +350,8 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
                   },
                   nationalCoordinators,
                   {
-                    region: Regions[programmingPlanLocalStatus.region].name
+                    region:
+                      Regions[programmingPlanLocalStatus.region as Region].name
                   }
                 );
               } else if (
@@ -346,13 +359,13 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
               ) {
                 await programmingPlanRepository.insertManyLocalStatus(
                   programmingPlanId,
-                  Regions[programmingPlanLocalStatus.region].departments.map(
-                    (department) => ({
-                      region: programmingPlanLocalStatus.region,
-                      department,
-                      status: 'SubmittedToDepartments' as const
-                    })
-                  )
+                  Regions[
+                    programmingPlanLocalStatus.region as Region
+                  ].departments.map((department) => ({
+                    region: programmingPlanLocalStatus.region as Region,
+                    department,
+                    status: 'SubmittedToDepartments' as const
+                  }))
                 );
 
                 const departmentalCoordinators = await userRepository.findMany({
@@ -379,7 +392,8 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
 
             await programmingPlanRepository.updateLocalStatus(
               programmingPlanId,
-              programmingPlanLocalStatus
+              programmingPlanLocalStatus,
+              programmingPlan.distributionKind
             );
 
             //TODO notif + test
@@ -392,7 +406,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
 
               if (updatedProgrammingPlan) {
                 const allDepartmentsApproved = Regions[
-                  programmingPlanLocalStatus.region
+                  programmingPlanLocalStatus.region as Region
                 ].departments.every(
                   (department) =>
                     updatedProgrammingPlan.departmentalStatus?.find(
@@ -408,7 +422,8 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
                     {
                       region: programmingPlanLocalStatus.region,
                       status: 'Validated'
-                    }
+                    },
+                    programmingPlan.distributionKind
                   );
                 }
               }
