@@ -64,6 +64,7 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
         programmingPlanId: programmingPlan.id,
         programmingPlanLocalStatusList: [
           {
+            programmingSubPlanId: programmingPlan.subPlans[0].id,
             region: user?.region as Region,
             status:
               NextProgrammingPlanStatus[programmingPlan.distributionKind][
@@ -94,7 +95,7 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
             programmingPlan,
             regionalPrescription
           )?.distributeToDepartments &&
-          programmingPlan.regionalStatus.some(
+          programmingPlan.subPlans[0]?.regionalStatus.some(
             (regionalStatus) =>
               regionalStatus.region === regionalPrescription.region &&
               regionalStatus.status === 'SubmittedToRegion'

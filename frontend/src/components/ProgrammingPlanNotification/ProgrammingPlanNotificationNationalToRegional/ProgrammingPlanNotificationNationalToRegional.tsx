@@ -60,7 +60,7 @@ const ProgrammingPlanNotificationNationalToRegional = ({
 
   const getRegionsByStatus = useCallback(
     (status: ProgrammingPlanStatus) =>
-      (programmingPlan?.regionalStatus || [])
+      (programmingPlan?.subPlans[0]?.regionalStatus || [])
         .filter((_) => _.status === status)
         .map((_) => _.region)
         .sort(RegionSort),
@@ -87,10 +87,11 @@ const ProgrammingPlanNotificationNationalToRegional = ({
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     setIsError(false);
-    if (programmingPlan) {
+    if (programmingPlan?.subPlans[0]) {
       await updateLocalStatus({
         programmingPlanId: programmingPlan.id,
         programmingPlanLocalStatusList: regionsToNotify.map((region) => ({
+          programmingSubPlanId: programmingPlan.subPlans[0].id,
           region,
           status: NextProgrammingPlanStatus[programmingPlan.distributionKind][
             status
@@ -113,7 +114,7 @@ const ProgrammingPlanNotificationNationalToRegional = ({
 
   return (
     <>
-      {programmingPlan.regionalStatus.some((regionalStatus) =>
+      {programmingPlan.subPlans[0]?.regionalStatus.some((regionalStatus) =>
         NotifiableStatusesByDistributionKind[
           programmingPlan.distributionKind
         ].includes(regionalStatus.status as ProgrammingPlanStatus)

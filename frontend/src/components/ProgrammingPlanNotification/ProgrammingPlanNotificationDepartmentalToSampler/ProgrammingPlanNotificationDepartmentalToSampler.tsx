@@ -59,6 +59,7 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
         programmingPlanId: programmingPlan.id,
         programmingPlanLocalStatusList: [
           {
+            programmingSubPlanId: programmingPlan.subPlans[0].id,
             region: user?.region as Region,
             department: user?.department as Department,
             status: NextProgrammingPlanStatus[programmingPlan.distributionKind][
@@ -87,7 +88,7 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
             programmingPlan,
             companyPrescription
           )?.distributeToSlaughterhouses &&
-          programmingPlan.departmentalStatus?.some(
+          programmingPlan.subPlans[0]?.departmentalStatus?.some(
             (departmentalStatus) =>
               departmentalStatus.region === companyPrescription.region &&
               departmentalStatus.department ===

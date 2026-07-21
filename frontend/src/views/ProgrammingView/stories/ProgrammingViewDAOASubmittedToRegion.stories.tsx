@@ -31,9 +31,12 @@ type Story = StoryObj<typeof meta>;
 
 const programmingPlan = {
   ...DAOAInProgressProgrammingPlanFixture,
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: 'SubmittedToRegion' as const
+  subPlans: DAOAInProgressProgrammingPlanFixture.subPlans.map((subPlan) => ({
+    ...subPlan,
+    regionalStatus: RegionList.map((region) => ({
+      region,
+      status: 'SubmittedToRegion' as const
+    }))
   }))
 };
 

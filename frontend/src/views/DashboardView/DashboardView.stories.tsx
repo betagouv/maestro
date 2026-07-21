@@ -33,18 +33,26 @@ type Story = StoryObj<typeof meta>;
 
 const currentProgrammingPlan = genProgrammingPlan({
   year: new Date().getFullYear(),
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: 'InProgress'
-  })),
+  subPlans: [
+    genProgrammingSubPlan({
+      regionalStatus: RegionList.map((region) => ({
+        region,
+        status: 'InProgress'
+      }))
+    })
+  ],
   contexts: ['Control', 'Surveillance']
 });
 const previousProgrammingPlan = genProgrammingPlan({
   year: new Date().getFullYear() - 1,
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: 'Validated'
-  })),
+  subPlans: [
+    genProgrammingSubPlan({
+      regionalStatus: RegionList.map((region) => ({
+        region,
+        status: 'Validated'
+      }))
+    })
+  ],
   contexts: ['Control', 'Surveillance']
 });
 

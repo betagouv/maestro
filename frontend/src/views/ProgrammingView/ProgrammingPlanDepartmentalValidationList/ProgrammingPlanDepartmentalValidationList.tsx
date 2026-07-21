@@ -84,10 +84,10 @@ const ProgrammingPlanDepartmentalValidationList = ({
 
   const validatedDepartments = useMemo(
     () =>
-      programmingPlan.departmentalStatus?.filter(
+      programmingPlan.subPlans[0]?.departmentalStatus.filter(
         (departmentalStatus) => departmentalStatus.status === 'Validated'
       ) || [],
-    [programmingPlan.departmentalStatus]
+    [programmingPlan.subPlans]
   );
 
   const filteredDepartments = useMemo(
@@ -96,18 +96,13 @@ const ProgrammingPlanDepartmentalValidationList = ({
         (department) =>
           (!departmentFilter || departmentFilter === department) &&
           (!statusFilter ||
-            programmingPlan.departmentalStatus?.some(
+            programmingPlan.subPlans[0]?.departmentalStatus.some(
               (departmentalStatus) =>
                 departmentalStatus.department === department &&
                 departmentalStatus.status === statusFilter
             ))
       ),
-    [
-      departmentFilter,
-      statusFilter,
-      programmingPlan.departmentalStatus,
-      departmentList
-    ]
+    [departmentFilter, statusFilter, programmingPlan.subPlans, departmentList]
   );
 
   if (!allPrescriptions || !departmentalPrescriptions) {
@@ -245,7 +240,7 @@ const ProgrammingPlanDepartmentalValidationList = ({
                       >
                         {
                           ProgrammingPlanStatusLabels[
-                            (programmingPlan.departmentalStatus.find(
+                            (programmingPlan.subPlans[0]?.departmentalStatus.find(
                               (ds) => ds.department === department
                             )?.status ?? 'InProgress') as ProgrammingPlanStatus
                           ]

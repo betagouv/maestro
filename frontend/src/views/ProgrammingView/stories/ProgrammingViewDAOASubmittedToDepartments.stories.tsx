@@ -39,17 +39,20 @@ type Story = StoryObj<typeof meta>;
 
 const programmingPlan = {
   ...DAOAInProgressProgrammingPlanFixture,
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: 'SubmittedToDepartments' as const
-  })),
-  departmentalStatus: RegionList.flatMap((region) =>
-    Regions[region].departments.map((department) => ({
+  subPlans: DAOAInProgressProgrammingPlanFixture.subPlans.map((subPlan) => ({
+    ...subPlan,
+    regionalStatus: RegionList.map((region) => ({
       region,
-      department,
       status: 'SubmittedToDepartments' as const
-    }))
-  )
+    })),
+    departmentalStatus: RegionList.flatMap((region) =>
+      Regions[region].departments.map((department) => ({
+        region,
+        department,
+        status: 'SubmittedToDepartments' as const
+      }))
+    )
+  }))
 };
 
 const prescriptions = [

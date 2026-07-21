@@ -5,7 +5,10 @@ import {
   genLocalPrescription,
   genPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  genProgrammingPlan,
+  genProgrammingSubPlan
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { genLocalPrescriptionComment } from 'maestro-shared/test/regionalPrescriptionCommentFixture';
 import {
   genAuthUser,
@@ -27,18 +30,26 @@ type Story = StoryObj<typeof meta>;
 
 const programmingPlan = {
   ...genProgrammingPlan({
-    regionalStatus: RegionList.map((region) => ({
-      region,
-      status: 'Validated'
-    }))
+    subPlans: [
+      genProgrammingSubPlan({
+        regionalStatus: RegionList.map((region) => ({
+          region,
+          status: 'Validated'
+        }))
+      })
+    ]
   })
 };
 const pastProgrammingPlan = {
   ...genProgrammingPlan({
-    regionalStatus: RegionList.map((region) => ({
-      region,
-      status: 'Validated'
-    }))
+    subPlans: [
+      genProgrammingSubPlan({
+        regionalStatus: RegionList.map((region) => ({
+          region,
+          status: 'Validated'
+        }))
+      })
+    ]
   }),
   year: new Date().getFullYear() - 1
 };

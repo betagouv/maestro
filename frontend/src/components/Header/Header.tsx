@@ -83,8 +83,10 @@ const Header = () => {
       uniq(
         programmingPlans
           ?.filter((pp) =>
-            [...pp.regionalStatus, ...pp.departmentalStatus].some(
-              (rs) => rs.status === 'Validated'
+            pp.subPlans.some((sp) =>
+              [...sp.regionalStatus, ...sp.departmentalStatus].some(
+                (rs) => rs.status === 'Validated'
+              )
             )
           )
           .map((pp) => pp.year)

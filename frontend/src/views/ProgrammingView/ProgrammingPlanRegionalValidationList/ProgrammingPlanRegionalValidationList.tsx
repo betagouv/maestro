@@ -98,11 +98,11 @@ const ProgrammingPlanRegionalValidationList = ({
 
   const validatedRegions = useMemo(
     () =>
-      programmingPlan.regionalStatus.filter(
+      (programmingPlan.subPlans[0]?.regionalStatus ?? []).filter(
         (regionalStatus) =>
           !['InProgress', 'SubmittedToRegion'].includes(regionalStatus.status)
       ),
-    [programmingPlan.regionalStatus]
+    [programmingPlan.subPlans]
   );
 
   const filteredRegions = useMemo(
@@ -111,7 +111,7 @@ const ProgrammingPlanRegionalValidationList = ({
         (region) =>
           (!regionFilter || regionFilter === region) &&
           (!statusFilter ||
-            programmingPlan.regionalStatus.some(
+            (programmingPlan.subPlans[0]?.regionalStatus ?? []).some(
               (regionalStatus) =>
                 regionalStatus.region === region &&
                 regionalStatus.status === statusFilter
@@ -261,7 +261,7 @@ const ProgrammingPlanRegionalValidationList = ({
                     >
                       {
                         ProgrammingPlanStatusLabels[
-                          programmingPlan.regionalStatus.find(
+                          programmingPlan.subPlans[0]?.regionalStatus.find(
                             (rs) => rs.region === region
                           )?.status as ProgrammingPlanStatus
                         ]

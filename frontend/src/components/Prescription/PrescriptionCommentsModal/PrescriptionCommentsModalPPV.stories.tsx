@@ -86,9 +86,12 @@ const allComments = [...oldComments, ...recentComments];
 
 const getProgrammingPlanWithStatus = (status: ProgrammingPlanStatus) => ({
   ...PPVInProgressProgrammingPlanFixture,
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status
+  subPlans: PPVInProgressProgrammingPlanFixture.subPlans.map((subPlan) => ({
+    ...subPlan,
+    regionalStatus: RegionList.map((region) => ({
+      region,
+      status
+    }))
   }))
 });
 

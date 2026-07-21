@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RegionList } from 'maestro-shared/referential/Region';
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  genProgrammingPlan,
+  genProgrammingSubPlan
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { genAuthUser } from 'maestro-shared/test/userFixtures';
 import { expect, fn, within } from 'storybook/test';
 import { MuiDsfrThemeProvider } from '../../App';
@@ -25,29 +28,41 @@ type Story = StoryObj<typeof meta>;
 
 const closedProgrammingPlan = {
   ...genProgrammingPlan({
-    regionalStatus: RegionList.map((region) => ({
-      region,
-      status: 'Closed'
-    })),
+    subPlans: [
+      genProgrammingSubPlan({
+        regionalStatus: RegionList.map((region) => ({
+          region,
+          status: 'Closed'
+        }))
+      })
+    ],
     year: new Date().getFullYear() - 1,
     closedAt: new Date()
   })
 };
 const validatedProgrammingPlan = {
   ...genProgrammingPlan({
-    regionalStatus: RegionList.map((region) => ({
-      region,
-      status: 'Validated'
-    })),
+    subPlans: [
+      genProgrammingSubPlan({
+        regionalStatus: RegionList.map((region) => ({
+          region,
+          status: 'Validated'
+        }))
+      })
+    ],
     year: new Date().getFullYear()
   })
 };
 const inProgressProgrammingPlan = {
   ...genProgrammingPlan({
-    regionalStatus: RegionList.map((region) => ({
-      region,
-      status: 'InProgress'
-    })),
+    subPlans: [
+      genProgrammingSubPlan({
+        regionalStatus: RegionList.map((region) => ({
+          region,
+          status: 'InProgress'
+        }))
+      })
+    ],
     year: new Date().getFullYear() + 1
   })
 };

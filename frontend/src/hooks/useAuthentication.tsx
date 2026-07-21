@@ -70,8 +70,13 @@ export const useAuthentication = () => {
     (
       programmingPlan?: ProgrammingPlanChecked
     ): Record<PrescriptionPermission, boolean> | null =>
-      !isNil(authUser?.user) && !isNil(programmingPlan)
-        ? hasPrescriptionPermission(authUser?.userRole, programmingPlan)
+      !isNil(authUser?.user) &&
+      !isNil(programmingPlan) &&
+      !isNil(programmingPlan.subPlans[0])
+        ? hasPrescriptionPermission(
+            authUser?.userRole,
+            programmingPlan.subPlans[0]
+          )
         : null,
     [authUser]
   );
@@ -83,11 +88,13 @@ export const useAuthentication = () => {
     ): Record<LocalPrescriptionPermission, boolean> | null =>
       !isNil(authUser?.user) &&
       !isNil(localPrescription) &&
-      !isNil(programmingPlan)
+      !isNil(programmingPlan) &&
+      !isNil(programmingPlan.subPlans[0])
         ? hasLocalPrescriptionPermission(
             authUser.user,
             authUser.userRole,
             programmingPlan,
+            programmingPlan.subPlans[0],
             localPrescription
           )
         : null,

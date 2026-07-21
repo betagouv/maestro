@@ -487,7 +487,7 @@ const ProgrammingPrescriptionTable = ({
                                         userRole &&
                                           hasPrescriptionPermission(
                                             userRole,
-                                            plan
+                                            plan.subPlans[0]
                                           ).update &&
                                           onChangePrescriptionSampleCount
                                           ? 'prescription-sample-count-cell--edit'
@@ -495,8 +495,10 @@ const ProgrammingPrescriptionTable = ({
                                       )}
                                     >
                                       {userRole &&
-                                      hasPrescriptionPermission(userRole, plan)
-                                        .update &&
+                                      hasPrescriptionPermission(
+                                        userRole,
+                                        plan.subPlans[0]
+                                      ).update &&
                                       onChangePrescriptionSampleCount ? (
                                         <input
                                           className={clsx(

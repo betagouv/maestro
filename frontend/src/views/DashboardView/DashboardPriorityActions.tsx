@@ -59,8 +59,8 @@ const DashboardPriorityActions: FunctionComponent<Props> = ({
               .map((programmingPlan) => (
                 <>
                   {hasUserPermission('manageProgrammingPlan') &&
-                  programmingPlan.regionalStatus.every(
-                    (_) => _.status === 'Validated'
+                  programmingPlan.subPlans.every((sp) =>
+                    sp.regionalStatus.every((_) => _.status === 'Validated')
                   ) ? (
                     <ProgrammingPlanClosing
                       programmingPlan={programmingPlan}
