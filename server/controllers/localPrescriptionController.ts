@@ -157,14 +157,25 @@ export const localPrescriptionsRouter = {
       const programmingPlan = await getAndCheckProgrammingPlan(
         localPrescriptionUpdate.programmingPlanId
       );
-      await getAndCheckPrescription(params.prescriptionId, programmingPlan);
+      const { prescription } = await getAndCheckPrescription(
+        params.prescriptionId,
+        programmingPlan
+      );
+      const subPlan = programmingPlan.subPlans.find(
+        (sp) => sp.id === prescription.programmingSubPlanId
+      );
       const localPrescription = await getAndCheckLocalPrescription(params);
+
+      if (!subPlan) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
 
       const canUpdateSampleCount =
         hasLocalPrescriptionPermission(
           user,
           userRole,
           programmingPlan,
+          subPlan,
           localPrescription
         ).updateSampleCount && localPrescriptionUpdate.key === 'sampleCount';
 
@@ -173,6 +184,7 @@ export const localPrescriptionsRouter = {
           user,
           userRole,
           programmingPlan,
+          subPlan,
           localPrescription
         ).updateLaboratories && localPrescriptionUpdate.key === 'laboratories';
 
@@ -219,16 +231,27 @@ export const localPrescriptionsRouter = {
       const programmingPlan = await getAndCheckProgrammingPlan(
         localPrescriptionUpdate.programmingPlanId
       );
-      await getAndCheckPrescription(params.prescriptionId, programmingPlan);
+      const { prescription } = await getAndCheckPrescription(
+        params.prescriptionId,
+        programmingPlan
+      );
+      const subPlan = programmingPlan.subPlans.find(
+        (sp) => sp.id === prescription.programmingSubPlanId
+      );
       const localPrescription = await getAndCheckLocalPrescription(params);
 
       // TODO: check department belongs to user region?
+
+      if (!subPlan) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
 
       const canDistributeToDepartments =
         hasLocalPrescriptionPermission(
           user,
           userRole,
           programmingPlan,
+          subPlan,
           localPrescription
         ).distributeToDepartments &&
         localPrescriptionUpdate.key === 'sampleCount';
@@ -238,6 +261,7 @@ export const localPrescriptionsRouter = {
           user,
           userRole,
           programmingPlan,
+          subPlan,
           localPrescription
         ).updateLaboratories && localPrescriptionUpdate.key === 'laboratories';
 
@@ -246,6 +270,7 @@ export const localPrescriptionsRouter = {
           user,
           userRole,
           programmingPlan,
+          subPlan,
           localPrescription
         ).distributeToSlaughterhouses &&
         localPrescriptionUpdate.key === 'slaughterhouseSampleCounts';
@@ -346,14 +371,20 @@ export const localPrescriptionsRouter = {
         params.prescriptionId,
         programmingPlan
       );
+      const subPlan = programmingPlan.subPlans.find(
+        (sp) => sp.id === prescription.programmingSubPlanId
+      );
       const localPrescription = await getAndCheckLocalPrescription(params);
 
-      const canComment = hasLocalPrescriptionPermission(
-        user,
-        userRole,
-        programmingPlan,
-        localPrescription
-      ).comment;
+      const canComment =
+        !!subPlan &&
+        hasLocalPrescriptionPermission(
+          user,
+          userRole,
+          programmingPlan,
+          subPlan,
+          localPrescription
+        ).comment;
 
       if (!canComment) {
         return { status: HttpStatus.FORBIDDEN };
@@ -423,14 +454,20 @@ export const localPrescriptionsRouter = {
           params.prescriptionId,
           programmingPlan
         );
+        const subPlan = programmingPlan.subPlans.find(
+          (sp) => sp.id === prescription.programmingSubPlanId
+        );
         const localPrescription = await getAndCheckLocalPrescription(params);
 
-        const canComment = hasLocalPrescriptionPermission(
-          user,
-          userRole,
-          programmingPlan,
-          localPrescription
-        ).comment;
+        const canComment =
+          !!subPlan &&
+          hasLocalPrescriptionPermission(
+            user,
+            userRole,
+            programmingPlan,
+            subPlan,
+            localPrescription
+          ).comment;
 
         if (!canComment) {
           return { status: HttpStatus.FORBIDDEN };

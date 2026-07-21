@@ -13,8 +13,10 @@ import {
   PPVClosedProgrammingPlanFixture,
   PPVInProgressProgrammingPlanFixture,
   PPVSubmittedProgrammingPlanFixture,
+  PPVSubmittedSubPlanFixture,
   PPVValidatedDromProgrammingPlanFixture,
-  PPVValidatedProgrammingPlanFixture
+  PPVValidatedProgrammingPlanFixture,
+  PPVValidatedSubPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
@@ -35,10 +37,8 @@ import {
 } from '../../repositories/localPrescriptionRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
-import {
-  ProgrammingPlanLocalStatus,
-  ProgrammingPlans
-} from '../../repositories/programmingPlanRepository';
+import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
+import { ProgrammingSubPlanLocalStatus } from '../../repositories/programmingSubPlanRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
@@ -47,12 +47,18 @@ describe('ProgrammingPlan router', () => {
 
   const programmingPlansMatch = (programmingPlans: ProgrammingPlanChecked[]) =>
     expect.arrayContaining(
-      programmingPlans.map((programmingPlan) =>
-        withISOStringDates({
-          ...programmingPlan,
-          regionalStatus: expect.arrayContaining(programmingPlan.regionalStatus)
-        })
-      )
+      programmingPlans.map((programmingPlan) => ({
+        ...withISOStringDates({ ...programmingPlan, subPlans: undefined }),
+        subPlans: expect.arrayContaining(
+          programmingPlan.subPlans.map((subPlan) => ({
+            ...subPlan,
+            regionalStatus: expect.arrayContaining(subPlan.regionalStatus),
+            departmentalStatus: expect.arrayContaining(
+              subPlan.departmentalStatus
+            )
+          }))
+        )
+      }))
     );
 
   const expectedBody = (
@@ -63,10 +69,12 @@ describe('ProgrammingPlan router', () => {
     const regionalProgrammingPlans = programmingPlans.map(
       (programmingPlan) => ({
         ...programmingPlan,
-        regionalStatus: programmingPlan.regionalStatus.filter(
-          (regionalStatus) => (region ? regionalStatus.region === region : true)
-        ),
-        departmentalStatus: []
+        subPlans: programmingPlan.subPlans.map((subPlan) => ({
+          ...subPlan,
+          regionalStatus: subPlan.regionalStatus.filter((regionalStatus) =>
+            region ? regionalStatus.region === region : true
+          )
+        }))
       })
     );
     expect(withISOStringDates(body)).toMatchObject(
@@ -82,9 +90,12 @@ describe('ProgrammingPlan router', () => {
     const regionalProgrammingPlans = programmingPlans.map(
       (programmingPlan) => ({
         ...programmingPlan,
-        regionalStatus: programmingPlan.regionalStatus.filter(
-          (regionalStatus) => (region ? regionalStatus.region === region : true)
-        )
+        subPlans: programmingPlan.subPlans.map((subPlan) => ({
+          ...subPlan,
+          regionalStatus: subPlan.regionalStatus.filter((regionalStatus) =>
+            region ? regionalStatus.region === region : true
+          )
+        }))
       })
     );
     expect(body).not.toMatchObject(
@@ -380,10 +391,16 @@ describe('ProgrammingPlan router', () => {
 
       expect(res.body).toMatchObject({
         year,
-        regionalStatus: RegionList.map((region) => ({
-          region,
-          status: 'InProgress' as const
-        }))
+        subPlans: expect.arrayContaining([
+          expect.objectContaining({
+            regionalStatus: expect.arrayContaining(
+              RegionList.map((region) => ({
+                region,
+                status: 'InProgress' as const
+              }))
+            )
+          })
+        ])
       });
 
       await expect(
@@ -393,15 +410,20 @@ describe('ProgrammingPlan router', () => {
       });
 
       await expect(
-        ProgrammingPlanLocalStatus().where('programmingPlanId', res.body.id)
+        ProgrammingSubPlanLocalStatus().whereIn(
+          'programmingSubPlanId',
+          res.body.subPlans.map((subPlan: { id: string }) => subPlan.id)
+        )
       ).resolves.toMatchObject(
         expect.arrayContaining(
-          RegionList.map((region) => ({
-            programmingPlanId: res.body.id,
-            region,
-            status: 'InProgress',
-            department: 'None'
-          }))
+          res.body.subPlans.flatMap((subPlan: { id: string }) =>
+            RegionList.map((region) => ({
+              programmingSubPlanId: subPlan.id,
+              region,
+              status: 'InProgress',
+              department: 'None'
+            }))
+          )
         )
       );
 
@@ -587,23 +609,28 @@ describe('ProgrammingPlan router', () => {
           ...PPVValidatedProgrammingPlanFixture,
           closedAt: expect.any(String),
           closedBy: NationalCoordinator.id,
-          regionalStatus: expect.arrayContaining(
-            RegionList.map((region) => ({
-              region,
-              status: 'Closed' as const
-            }))
-          )
+          subPlans: expect.arrayContaining([
+            expect.objectContaining({
+              id: PPVValidatedSubPlanFixture.id,
+              regionalStatus: expect.arrayContaining(
+                RegionList.map((region) => ({
+                  region,
+                  status: 'Closed' as const
+                }))
+              )
+            })
+          ])
         })
       );
 
       await expect(
-        ProgrammingPlanLocalStatus().where({
-          programmingPlanId: PPVValidatedProgrammingPlanFixture.id
+        ProgrammingSubPlanLocalStatus().where({
+          programmingSubPlanId: PPVValidatedSubPlanFixture.id
         })
       ).resolves.toMatchObject(
         expect.arrayContaining(
           RegionList.map((region) => ({
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+            programmingSubPlanId: PPVValidatedSubPlanFixture.id,
             region,
             status: 'Closed',
             department: 'None'
@@ -621,8 +648,8 @@ describe('ProgrammingPlan router', () => {
       });
 
       //Cleanup
-      await ProgrammingPlanLocalStatus()
-        .where('programmingPlanId', PPVSubmittedProgrammingPlanFixture.id)
+      await ProgrammingSubPlanLocalStatus()
+        .where('programmingSubPlanId', PPVSubmittedSubPlanFixture.id)
         .update({ status: 'SubmittedToRegion' });
     });
   });
@@ -631,7 +658,8 @@ describe('ProgrammingPlan router', () => {
     const programmingPlanLocalStatusList = [
       {
         status: 'ApprovedByRegion' as const,
-        region: oneOf(RegionList)
+        region: oneOf(RegionList),
+        programmingSubPlanId: PPVSubmittedSubPlanFixture.id
       }
     ];
 
@@ -719,22 +747,30 @@ describe('ProgrammingPlan router', () => {
       expect(res.body).toMatchObject(
         withISOStringDates({
           ...PPVSubmittedProgrammingPlanFixture,
-          regionalStatus: expect.arrayContaining(
-            PPVSubmittedProgrammingPlanFixture.regionalStatus.map(
-              (regionalStatus) =>
-                regionalStatus.region ===
-                programmingPlanLocalStatusList[0].region
-                  ? programmingPlanLocalStatusList[0]
-                  : regionalStatus
-            )
-          )
+          subPlans: expect.arrayContaining([
+            expect.objectContaining({
+              id: PPVSubmittedSubPlanFixture.id,
+              regionalStatus: expect.arrayContaining(
+                PPVSubmittedSubPlanFixture.regionalStatus.map(
+                  (regionalStatus) =>
+                    regionalStatus.region ===
+                    programmingPlanLocalStatusList[0].region
+                      ? {
+                          region: regionalStatus.region,
+                          status: programmingPlanLocalStatusList[0].status
+                        }
+                      : regionalStatus
+                )
+              )
+            })
+          ])
         })
       );
 
       await expect(
-        ProgrammingPlanLocalStatus()
+        ProgrammingSubPlanLocalStatus()
           .where({
-            programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+            programmingSubPlanId: PPVSubmittedSubPlanFixture.id,
             region: programmingPlanLocalStatusList[0].region
           })
           .first()
@@ -744,8 +780,8 @@ describe('ProgrammingPlan router', () => {
       });
 
       //Cleanup
-      await ProgrammingPlanLocalStatus()
-        .where('programmingPlanId', PPVSubmittedProgrammingPlanFixture.id)
+      await ProgrammingSubPlanLocalStatus()
+        .where('programmingSubPlanId', PPVSubmittedSubPlanFixture.id)
         .update({ status: 'SubmittedToRegion' });
     });
 
@@ -759,22 +795,30 @@ describe('ProgrammingPlan router', () => {
       expect(res.body).toMatchObject(
         withISOStringDates({
           ...PPVSubmittedProgrammingPlanFixture,
-          regionalStatus: expect.arrayContaining(
-            PPVSubmittedProgrammingPlanFixture.regionalStatus.map(
-              (regionalStatus) =>
-                regionalStatus.region ===
-                programmingPlanLocalStatusList[0].region
-                  ? programmingPlanLocalStatusList[0]
-                  : regionalStatus
-            )
-          )
+          subPlans: expect.arrayContaining([
+            expect.objectContaining({
+              id: PPVSubmittedSubPlanFixture.id,
+              regionalStatus: expect.arrayContaining(
+                PPVSubmittedSubPlanFixture.regionalStatus.map(
+                  (regionalStatus) =>
+                    regionalStatus.region ===
+                    programmingPlanLocalStatusList[0].region
+                      ? {
+                          region: regionalStatus.region,
+                          status: programmingPlanLocalStatusList[0].status
+                        }
+                      : regionalStatus
+                )
+              )
+            })
+          ])
         })
       );
 
       await expect(
-        ProgrammingPlanLocalStatus()
+        ProgrammingSubPlanLocalStatus()
           .where({
-            programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+            programmingSubPlanId: PPVSubmittedSubPlanFixture.id,
             region: programmingPlanLocalStatusList[0].region
           })
           .first()
@@ -784,8 +828,8 @@ describe('ProgrammingPlan router', () => {
       });
 
       //Cleanup
-      await ProgrammingPlanLocalStatus()
-        .where('programmingPlanId', PPVSubmittedProgrammingPlanFixture.id)
+      await ProgrammingSubPlanLocalStatus()
+        .where('programmingSubPlanId', PPVSubmittedSubPlanFixture.id)
         .update({ status: 'SubmittedToRegion' });
     });
   });

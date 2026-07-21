@@ -11,10 +11,6 @@ import {
 import { ProgrammingPlanContext } from './Context';
 import { DistributionKind } from './DistributionKind';
 import { ProgrammingPlanDomain } from './ProgrammingPlanDomain';
-import {
-  ProgrammingPlanDepartmentalStatus,
-  ProgrammingPlanRegionalStatus
-} from './ProgrammingPlanLocalStatus';
 import type { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
 import { ProgrammingSubPlan } from './ProgrammingSubPlan';
 
@@ -36,11 +32,19 @@ export const ProgrammingPlanBase = z.object({
   createdAt: z.coerce.date(),
   createdBy: z.guid(),
   year: z.number(),
-  regionalStatus: z.array(ProgrammingPlanRegionalStatus),
-  departmentalStatus: z.array(ProgrammingPlanDepartmentalStatus),
   closedAt: z.coerce.date().nullish(),
   closedBy: z.guid().nullish()
 });
+
+export const isProgrammingPlanFullyClosed = (
+  subPlans: Pick<ProgrammingSubPlan, 'regionalStatus'>[]
+): boolean =>
+  subPlans.length > 0 &&
+  subPlans.every(
+    (subPlan) =>
+      subPlan.regionalStatus.length > 0 &&
+      subPlan.regionalStatus.every((status) => status.status === 'Closed')
+  );
 
 export const ProgrammingPlanChecked = checkSchema(
   ProgrammingPlanBase,
@@ -55,13 +59,13 @@ export const ProgrammingPlanChecked = checkSchema(
     }
     if (
       ctx.value.closedAt &&
-      ctx.value.regionalStatus.some((status) => status.status !== 'Closed')
+      !isProgrammingPlanFullyClosed(ctx.value.subPlans)
     ) {
       ctx.issues.push({
         input: ctx.value,
         code: 'custom',
         message: 'Status régional doit être "Closed" si closedAt est renseigné',
-        path: ['regionalStatus']
+        path: ['subPlans']
       });
     }
   }
@@ -87,18 +91,24 @@ export const hasProgrammingPlanStatusForAuthUser = (
   userRole &&
   user &&
   (isNationalRole(userRole)
-    ? programmingPlan.regionalStatus.every((regionalStatus) =>
-        status.includes(regionalStatus.status)
+    ? programmingPlan.subPlans.every((subPlan) =>
+        subPlan.regionalStatus.every((regionalStatus) =>
+          status.includes(regionalStatus.status)
+        )
       )
     : isRegionalRole(userRole) ||
         programmingPlan.distributionKind === 'REGIONAL'
-      ? programmingPlan.regionalStatus.some(
-          (regionalStatus) =>
-            regionalStatus.region === user.region &&
-            status.includes(regionalStatus.status)
+      ? programmingPlan.subPlans.some((subPlan) =>
+          subPlan.regionalStatus.some(
+            (regionalStatus) =>
+              regionalStatus.region === user.region &&
+              status.includes(regionalStatus.status)
+          )
         )
-      : programmingPlan.departmentalStatus.some(
-          (departmentalStatus) =>
-            departmentalStatus.department === user.department &&
-            status.includes(departmentalStatus.status)
+      : programmingPlan.subPlans.some((subPlan) =>
+          subPlan.departmentalStatus.some(
+            (departmentalStatus) =>
+              departmentalStatus.department === user.department &&
+              status.includes(departmentalStatus.status)
+          )
         ));

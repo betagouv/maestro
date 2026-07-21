@@ -65,7 +65,11 @@ export const programmingPlansRoutes = {
         'distributePrescriptionToSlaughterhouses'
       ],
       body: z.object({
-        programmingPlanLocalStatusList: z.array(ProgrammingPlanLocalStatus)
+        programmingPlanLocalStatusList: z.array(
+          ProgrammingPlanLocalStatus.extend({
+            programmingSubPlanId: ProgrammingSubPlanId
+          })
+        )
       }),
       response: ProgrammingPlanChecked
     }

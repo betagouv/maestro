@@ -1,5 +1,6 @@
 import { constants } from 'node:http2';
 import { fakerFR } from '@faker-js/faker';
+import { omit } from 'lodash-es';
 import { MatrixKindEffective } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { RegionList } from 'maestro-shared/referential/Region';
 import type { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Prescription';
@@ -8,7 +9,10 @@ import {
   genPrescription,
   genPrescriptionSubstance
 } from 'maestro-shared/test/prescriptionFixtures';
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  genProgrammingPlan,
+  genProgrammingSubPlan
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
@@ -28,54 +32,68 @@ import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
 import {
   formatProgrammingPlan,
-  ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
-import { ProgrammingSubPlans } from '../../repositories/programmingSubPlanRepository';
+import {
+  ProgrammingSubPlanLocalStatus,
+  ProgrammingSubPlans
+} from '../../repositories/programmingSubPlanRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('Prescriptions router', () => {
   const { app } = createServer();
 
-  const programmingPlanClosed = genProgrammingPlan({
-    createdBy: NationalCoordinator.id,
+  const programmingPlanClosedSubPlan = genProgrammingSubPlan({
     regionalStatus: RegionList.map((region) => ({
       region,
       status: 'Closed'
-    })),
+    }))
+  });
+  const programmingPlanClosed = genProgrammingPlan({
+    createdBy: NationalCoordinator.id,
+    subPlans: [programmingPlanClosedSubPlan],
     year: 1820
   });
-  const programmingPlanSubmitted = genProgrammingPlan({
-    createdBy: NationalCoordinator.id,
+  const programmingPlanSubmittedSubPlan = genProgrammingSubPlan({
     regionalStatus: RegionList.map((region) => ({
       region,
       status: 'SubmittedToRegion'
-    })),
+    }))
+  });
+  const programmingPlanSubmitted = genProgrammingPlan({
+    createdBy: NationalCoordinator.id,
+    subPlans: [programmingPlanSubmittedSubPlan],
     year: 1821
   });
-  const programmingPlanInProgress = genProgrammingPlan({
-    createdBy: NationalCoordinator.id,
+  const programmingPlanInProgressSubPlan = genProgrammingSubPlan({
     regionalStatus: RegionList.map((region) => ({
       region,
       status: 'InProgress'
-    })),
+    }))
+  });
+  const programmingPlanInProgress = genProgrammingPlan({
+    createdBy: NationalCoordinator.id,
+    subPlans: [programmingPlanInProgressSubPlan],
     year: 1822
   });
   const closedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanClosed.id,
+    programmingSubPlanId: programmingPlanClosedSubPlan.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options),
     stages: ['STADE1']
   });
   const submittedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanSubmitted.id,
+    programmingSubPlanId: programmingPlanSubmittedSubPlan.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options),
     stages: ['STADE2']
   });
   const inProgressControlPrescription = genPrescription({
     programmingPlanId: programmingPlanInProgress.id,
+    programmingSubPlanId: programmingPlanInProgressSubPlan.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options),
     stages: ['STADE3', 'STADE4']
@@ -86,6 +104,7 @@ describe('Prescriptions router', () => {
   });
   const inProgressSurveillancePrescription = genPrescription({
     programmingPlanId: programmingPlanInProgress.id,
+    programmingSubPlanId: programmingPlanInProgressSubPlan.id,
     context: 'Surveillance',
     matrixKind: oneOf(MatrixKindEffective.options),
     stages: ['STADE5', 'STADE6', 'STADE8']
@@ -99,18 +118,6 @@ describe('Prescriptions router', () => {
         programmingPlanClosed
       ].map(formatProgrammingPlan)
     );
-    await ProgrammingPlanLocalStatus().insert(
-      [
-        programmingPlanSubmitted,
-        programmingPlanInProgress,
-        programmingPlanClosed
-      ].flatMap((programmingPlan) =>
-        programmingPlan.regionalStatus.map((regionalStatus) => ({
-          ...regionalStatus,
-          programmingPlanId: programmingPlan.id
-        }))
-      )
-    );
     await ProgrammingSubPlans().insert(
       [
         programmingPlanSubmitted,
@@ -118,9 +125,28 @@ describe('Prescriptions router', () => {
         programmingPlanClosed
       ].flatMap((plan) =>
         plan.subPlans.map((sp) => ({
-          ...sp,
+          ...omit(sp, ['regionalStatus', 'departmentalStatus']),
           programmingPlanId: plan.id
         }))
+      )
+    );
+    await ProgrammingSubPlanLocalStatus().insert(
+      [
+        programmingPlanSubmitted,
+        programmingPlanInProgress,
+        programmingPlanClosed
+      ].flatMap((plan) =>
+        plan.subPlans.flatMap((subPlan) => [
+          ...subPlan.regionalStatus.map((status) => ({
+            ...status,
+            programmingSubPlanId: subPlan.id,
+            department: 'None' as const
+          })),
+          ...subPlan.departmentalStatus.map((status) => ({
+            ...status,
+            programmingSubPlanId: subPlan.id
+          }))
+        ])
       )
     );
     await Prescriptions().insert([
@@ -256,6 +282,7 @@ describe('Prescriptions router', () => {
   describe('POST /prescriptions', () => {
     const validBody = genPrescription({
       programmingPlanId: programmingPlanInProgress.id,
+      programmingSubPlanId: programmingPlanInProgressSubPlan.id,
       context: 'Control'
     });
     const testRoute = '/api/prescriptions';

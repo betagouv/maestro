@@ -29,8 +29,11 @@ import {
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
   genProgrammingPlan,
+  genProgrammingSubPlan,
   PPVClosedProgrammingPlanFixture,
+  PPVClosedSubPlanId,
   PPVSubmittedProgrammingPlanFixture,
+  PPVSubmittedSubPlanFixture,
   PPVValidatedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -66,10 +69,12 @@ import { LocalPrescriptionSubstanceKindsLaboratories } from '../../repositories/
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import {
   formatProgrammingPlan,
-  ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
-import { ProgrammingSubPlans } from '../../repositories/programmingSubPlanRepository';
+import {
+  ProgrammingSubPlanLocalStatus,
+  ProgrammingSubPlans
+} from '../../repositories/programmingSubPlanRepository';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
   formatPartialSample,
@@ -92,6 +97,7 @@ describe('Local prescriptions router', () => {
   ];
   const closedControlPrescription = genPrescription({
     programmingPlanId: PPVClosedProgrammingPlanFixture.id,
+    programmingSubPlanId: PPVClosedSubPlanId,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options),
     stages: ['STADE1']
@@ -104,12 +110,14 @@ describe('Local prescriptions router', () => {
   });
   const submittedControlPrescription1 = genPrescription({
     programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+    programmingSubPlanId: PPVSubmittedSubPlanFixture.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options),
     stages: ['STADE3', 'STADE4']
   });
   const submittedControlPrescription2 = genPrescription({
     programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+    programmingSubPlanId: PPVSubmittedSubPlanFixture.id,
     context: 'Control',
     matrixKind: oneOf(MatrixKindEffective.options),
     stages: ['STADE5', 'STADE6', 'STADE8']
@@ -913,10 +921,7 @@ describe('Local prescriptions router', () => {
   });
 
   describe('PUT /{prescriptionId}/regions/{region}/departments/{department}', () => {
-    const programmingPlanSlaughterhouse = genProgrammingPlan({
-      createdBy: NationalCoordinator.id,
-      distributionKind: 'SLAUGHTERHOUSE',
-      year: 1922,
+    const programmingPlanSlaughterhouseSubPlan = genProgrammingSubPlan({
       regionalStatus: RegionList.map((region) => ({
         region,
         status: 'SubmittedToDepartments' as const
@@ -930,10 +935,14 @@ describe('Local prescriptions router', () => {
       ]
     });
 
-    const programmingPlanSlaughterhouseClosed = genProgrammingPlan({
+    const programmingPlanSlaughterhouse = genProgrammingPlan({
       createdBy: NationalCoordinator.id,
       distributionKind: 'SLAUGHTERHOUSE',
-      year: 1923,
+      year: 1922,
+      subPlans: [programmingPlanSlaughterhouseSubPlan]
+    });
+
+    const programmingPlanSlaughterhouseClosedSubPlan = genProgrammingSubPlan({
       regionalStatus: RegionList.map((region) => ({
         region,
         status: 'Closed' as const
@@ -941,14 +950,23 @@ describe('Local prescriptions router', () => {
       departmentalStatus: []
     });
 
+    const programmingPlanSlaughterhouseClosed = genProgrammingPlan({
+      createdBy: NationalCoordinator.id,
+      distributionKind: 'SLAUGHTERHOUSE',
+      year: 1923,
+      subPlans: [programmingPlanSlaughterhouseClosedSubPlan]
+    });
+
     const slaughterhousePrescription = genPrescription({
       programmingPlanId: programmingPlanSlaughterhouse.id,
+      programmingSubPlanId: programmingPlanSlaughterhouseSubPlan.id,
       context: 'Control',
       matrixKind: oneOf(MatrixKindEffective.options)
     });
 
     const slaughterhousePrescriptionClosed = genPrescription({
       programmingPlanId: programmingPlanSlaughterhouseClosed.id,
+      programmingSubPlanId: programmingPlanSlaughterhouseClosedSubPlan.id,
       context: 'Control',
       matrixKind: oneOf(MatrixKindEffective.options)
     });
@@ -995,16 +1013,6 @@ describe('Local prescriptions router', () => {
       plan: ReturnType<typeof genProgrammingPlan>
     ) => {
       await ProgrammingPlans().insert(formatProgrammingPlan(plan));
-      await ProgrammingPlanLocalStatus().insert([
-        ...plan.regionalStatus.map((rs) => ({
-          ...rs,
-          programmingPlanId: plan.id
-        })),
-        ...plan.departmentalStatus.map((ds) => ({
-          ...ds,
-          programmingPlanId: plan.id
-        }))
-      ]);
       await ProgrammingSubPlans().insert(
         plan.subPlans.map((sp) => ({
           id: sp.id,
@@ -1014,9 +1022,25 @@ describe('Local prescriptions router', () => {
           label: sp.label,
           analysisPermissionRole: sp.analysisPermissionRole ?? null,
           contactListId: sp.contactListId ?? null,
-          withSacha: sp.withSacha
+          withSacha: sp.withSacha,
+          substanceKinds: sp.substanceKinds
         }))
       );
+      await ProgrammingSubPlanLocalStatus().insert([
+        ...plan.subPlans.flatMap((sp) =>
+          sp.regionalStatus.map((rs) => ({
+            ...rs,
+            programmingSubPlanId: sp.id,
+            department: 'None' as const
+          }))
+        ),
+        ...plan.subPlans.flatMap((sp) =>
+          sp.departmentalStatus.map((ds) => ({
+            ...ds,
+            programmingSubPlanId: sp.id
+          }))
+        )
+      ]);
     };
 
     beforeAll(async () => {

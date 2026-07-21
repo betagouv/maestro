@@ -25,7 +25,11 @@ export const prescriptionsRouter = {
         body.programmingPlanId
       );
 
-      if (!hasPrescriptionPermission(userRole, programmingPlan).create) {
+      const subPlan = programmingPlan.subPlans.find(
+        (sp) => sp.id === body.programmingSubPlanId
+      );
+
+      if (!subPlan || !hasPrescriptionPermission(userRole, subPlan).create) {
         return { status: HttpStatus.FORBIDDEN };
       }
 
@@ -132,14 +136,18 @@ export const prescriptionsRouter = {
         prescriptionUpdate.programmingPlanId
       );
 
-      if (!hasPrescriptionPermission(userRole, programmingPlan).update) {
-        return { status: HttpStatus.FORBIDDEN };
-      }
-
       const { prescription } = await getAndCheckPrescription(
         prescriptionId,
         programmingPlan
       );
+
+      const subPlan = programmingPlan.subPlans.find(
+        (sp) => sp.id === prescription.programmingSubPlanId
+      );
+
+      if (!subPlan || !hasPrescriptionPermission(userRole, subPlan).update) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
 
       console.info('Update prescription with id', prescription.id);
 
@@ -178,7 +186,11 @@ export const prescriptionsRouter = {
         undefined
       );
 
-      if (!hasPrescriptionPermission(userRole, programmingPlan).delete) {
+      const subPlan = programmingPlan.subPlans.find(
+        (sp) => sp.id === prescription.programmingSubPlanId
+      );
+
+      if (!subPlan || !hasPrescriptionPermission(userRole, subPlan).delete) {
         return { status: HttpStatus.FORBIDDEN };
       }
 

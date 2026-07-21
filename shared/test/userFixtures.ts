@@ -1,7 +1,7 @@
 import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { RegionList, Regions } from '../referential/Region';
-import type { ProgrammingSubPlan } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { ProgrammingSubPlanBase } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
 import { AuthUserRefined } from '../schema/User/AuthUser';
 import {
   companiesIsRequired,
@@ -44,7 +44,7 @@ export const genUser = <T extends Partial<UserRefined>>(
       ? (data?.region ?? oneOf(RegionList))
       : null;
 
-  const programmingSubPlans: ProgrammingSubPlan[] =
+  const programmingSubPlans: ProgrammingSubPlanBase[] =
     programmingSubPlanIdsIsRequired({ roles })
       ? (data?.programmingSubPlans ??
         (roles?.includes('DepartmentalCoordinator')

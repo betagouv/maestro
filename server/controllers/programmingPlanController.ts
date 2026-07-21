@@ -34,6 +34,7 @@ import localPrescriptionRepository from '../repositories/localPrescriptionReposi
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
+import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
@@ -90,31 +91,43 @@ export const programmingPlanRouter = {
         .filter(([, permission]) => hasPermission(userRole, permission))
         .map(([status]) => status);
 
-      const filterProgrammingPlanStatus =
+      const isRegionalView =
         isNationalRole(userRole) ||
         isRegionalRole(userRole) ||
-        programmingPlan.distributionKind === 'REGIONAL'
-          ? programmingPlan.regionalStatus.filter(
+        programmingPlan.distributionKind === 'REGIONAL';
+
+      const filteredSubPlans = programmingPlan.subPlans.map((subPlan) => ({
+        ...subPlan,
+        regionalStatus: isRegionalView
+          ? subPlan.regionalStatus.filter(
               (_) =>
                 userStatusAuthorized.includes(_.status) &&
                 userRegionsForRole(user, userRole).includes(_.region)
             )
-          : programmingPlan.departmentalStatus.filter(
+          : subPlan.regionalStatus,
+        departmentalStatus: !isRegionalView
+          ? subPlan.departmentalStatus.filter(
               (_) =>
                 userStatusAuthorized.includes(_.status) &&
                 userRegionsForRole(user, userRole).includes(_.region) &&
                 userDepartmentsForRole(user, userRole).includes(_.department)
-            );
-      if (filterProgrammingPlanStatus.length === 0) {
+            )
+          : subPlan.departmentalStatus
+      }));
+
+      const hasAnyAuthorizedStatus = filteredSubPlans.some((subPlan) =>
+        isRegionalView
+          ? subPlan.regionalStatus.length > 0
+          : subPlan.departmentalStatus.length > 0
+      );
+
+      if (!hasAnyAuthorizedStatus) {
         return { status: HttpStatus.FORBIDDEN };
       }
 
       return {
         status: HttpStatus.OK,
-        response: {
-          ...programmingPlan,
-          regionalStatus: filterProgrammingPlanStatus
-        }
+        response: { ...programmingPlan, subPlans: filteredSubPlans }
       };
     },
     put: async ({ user, body }, { programmingPlanId }) => {
@@ -130,22 +143,26 @@ export const programmingPlanRouter = {
 
       if (
         newProgrammingPlanStatus !== 'Closed' ||
-        programmingPlan.regionalStatus.some(
-          (programmingPlanLocalStatus) =>
-            NextProgrammingPlanStatus[programmingPlan.distributionKind][
-              programmingPlanLocalStatus.status
-            ] !== newProgrammingPlanStatus
+        programmingPlan.subPlans.some((subPlan) =>
+          subPlan.regionalStatus.some(
+            (programmingPlanLocalStatus) =>
+              NextProgrammingPlanStatus[programmingPlan.distributionKind][
+                programmingPlanLocalStatus.status
+              ] !== newProgrammingPlanStatus
+          )
         )
       ) {
         return { status: HttpStatus.BAD_REQUEST };
       }
 
       await Promise.all(
-        RegionList.map((region) =>
-          programmingPlanRepository.updateLocalStatus(programmingPlan.id, {
-            region,
-            status: newProgrammingPlanStatus
-          })
+        programmingPlan.subPlans.flatMap((subPlan) =>
+          RegionList.map((region) =>
+            programmingSubPlanRepository.updateLocalStatus(subPlan.id, {
+              region,
+              status: newProgrammingPlanStatus
+            })
+          )
         )
       );
 
@@ -185,22 +202,26 @@ export const programmingPlanRouter = {
       );
 
       if (
-        programmingPlanLocalStatusList.some(
-          (programmingPlanLocalStatus) =>
+        programmingPlanLocalStatusList.some((programmingPlanLocalStatus) => {
+          const subPlan = programmingPlan.subPlans.find(
+            (sp) => sp.id === programmingPlanLocalStatus.programmingSubPlanId
+          );
+          return (
             (programmingPlanLocalStatus.department
               ? NextProgrammingPlanStatus[programmingPlan.distributionKind][
-                  programmingPlan.departmentalStatus?.find(
+                  subPlan?.departmentalStatus.find(
                     (_) =>
                       _.region === programmingPlanLocalStatus.region &&
                       _.department === programmingPlanLocalStatus.department
                   )?.status as ProgrammingPlanStatus
                 ]
               : NextProgrammingPlanStatus[programmingPlan.distributionKind][
-                  programmingPlan.regionalStatus.find(
+                  subPlan?.regionalStatus.find(
                     (_) => _.region === programmingPlanLocalStatus.region
                   )?.status as ProgrammingPlanStatus
                 ]) !== programmingPlanLocalStatus.status
-        )
+          );
+        })
       )
         if (
           programmingPlanLocalStatusList.some(
@@ -220,6 +241,14 @@ export const programmingPlanRouter = {
       await Promise.all(
         programmingPlanLocalStatusList.map(
           async (programmingPlanLocalStatus) => {
+            const subPlan = programmingPlan.subPlans.find(
+              (sp) => sp.id === programmingPlanLocalStatus.programmingSubPlanId
+            );
+
+            if (!subPlan) {
+              return { status: HttpStatus.BAD_REQUEST };
+            }
+
             const link = AppRouteLinks.ProgrammingRoute.link({
               year: programmingPlan.year,
               planIds: programmingPlan.id
@@ -240,9 +269,7 @@ export const programmingPlanRouter = {
                 roles: ['Sampler'],
                 region: programmingPlanLocalStatus.region,
                 department: programmingPlanLocalStatus.department as Department,
-                programmingSubPlanIds: programmingPlan.subPlans.map(
-                  (sp) => sp.id
-                ),
+                programmingSubPlanIds: [subPlan.id],
                 companySirets: localPrescriptions
                   .map((localPrescription) => localPrescription.companySiret)
                   .filter((_) => !isNil(_))
@@ -271,9 +298,7 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
                 const regionalCoordinators = await userRepository.findMany({
                   roles: ['RegionalCoordinator'],
                   region: programmingPlanLocalStatus.region,
-                  programmingSubPlanIds: programmingPlan.subPlans.map(
-                    (sp) => sp.id
-                  )
+                  programmingSubPlanIds: [subPlan.id]
                 });
 
                 await (programmingPlanLocalStatus.status === 'SubmittedToRegion'
@@ -297,9 +322,9 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
                         object:
                           NotificationCategoryTitles.ProgrammingPlanValidated,
                         content: `
-L’étape de programmation a été clôturée par la coordination nationale.  
+L’étape de programmation a été clôturée par la coordination nationale.
 
-En tant que coordinateur régional, vous pouvez dorénavant vous connecter à ${Brand} sur l’espace "programmation" afin d’attribuer le/les laboratoires responsables des analyses officielles en lien avec les matrices programmées pour la prochaine campagne du dispositif PSPC dans votre région.  
+En tant que coordinateur régional, vous pouvez dorénavant vous connecter à ${Brand} sur l’espace "programmation" afin d’attribuer le/les laboratoires responsables des analyses officielles en lien avec les matrices programmées pour la prochaine campagne du dispositif PSPC dans votre région.
 
 Une fois le/les laboratoires attribués, la campagne sera officiellement lancée et les inspecteurs/préleveurs de vos régions pourront initier leurs prélèvements.`
                       }
@@ -309,9 +334,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
               ) {
                 const nationalCoordinators = await userRepository.findMany({
                   roles: ['NationalCoordinator'],
-                  programmingSubPlanIds: programmingPlan.subPlans.map(
-                    (sp) => sp.id
-                  )
+                  programmingSubPlanIds: [subPlan.id]
                 });
 
                 await notificationService.sendNotification(
@@ -327,8 +350,8 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
               } else if (
                 programmingPlanLocalStatus.status === 'SubmittedToDepartments'
               ) {
-                await programmingPlanRepository.insertManyLocalStatus(
-                  programmingPlanId,
+                await programmingSubPlanRepository.insertManyLocalStatus(
+                  subPlan.id,
                   Regions[programmingPlanLocalStatus.region].departments.map(
                     (department) => ({
                       region: programmingPlanLocalStatus.region,
@@ -341,9 +364,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
                 const departmentalCoordinators = await userRepository.findMany({
                   roles: ['DepartmentalCoordinator'],
                   region: programmingPlanLocalStatus.region,
-                  programmingSubPlanIds: programmingPlan.subPlans.map(
-                    (sp) => sp.id
-                  )
+                  programmingSubPlanIds: [subPlan.id]
                 });
 
                 await notificationService.sendNotification(
@@ -361,8 +382,8 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
               }
             }
 
-            await programmingPlanRepository.updateLocalStatus(
-              programmingPlanId,
+            await programmingSubPlanRepository.updateLocalStatus(
+              subPlan.id,
               programmingPlanLocalStatus
             );
 
@@ -374,12 +395,16 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
               const updatedProgrammingPlan =
                 await programmingPlanRepository.findUnique(programmingPlanId);
 
-              if (updatedProgrammingPlan) {
+              const updatedSubPlan = updatedProgrammingPlan?.subPlans.find(
+                (sp) => sp.id === subPlan.id
+              );
+
+              if (updatedSubPlan) {
                 const allDepartmentsApproved = Regions[
                   programmingPlanLocalStatus.region
                 ].departments.every(
                   (department) =>
-                    updatedProgrammingPlan.departmentalStatus?.find(
+                    updatedSubPlan.departmentalStatus.find(
                       (_) =>
                         _.region === programmingPlanLocalStatus.region &&
                         _.department === department
@@ -387,8 +412,8 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
                 );
 
                 if (allDepartmentsApproved) {
-                  await programmingPlanRepository.updateLocalStatus(
-                    programmingPlanId,
+                  await programmingSubPlanRepository.updateLocalStatus(
+                    subPlan.id,
                     {
                       region: programmingPlanLocalStatus.region,
                       status: 'Validated'
@@ -422,8 +447,8 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
 
       if (
         !previousProgrammingPlan ||
-        previousProgrammingPlan.regionalStatus.some(
-          (_) => _.status !== 'Validated'
+        previousProgrammingPlan.subPlans.some((subPlan) =>
+          subPlan.regionalStatus.some((_) => _.status !== 'Validated')
         )
       ) {
         throw new ProgrammingPlanMissingError(String(year - 1));
@@ -439,19 +464,19 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
         subPlans: previousProgrammingPlan.subPlans.map((subPlan) => ({
           ...subPlan,
           id: ProgrammingSubPlanId.parse(uuidv4()),
-          programmingPlanId: newPlanId
+          programmingPlanId: newPlanId,
+          regionalStatus: RegionList.map((region) => ({
+            region,
+            status: 'InProgress' as const
+          })),
+          departmentalStatus: []
         })),
         contexts: previousProgrammingPlan.contexts,
         legalContexts: previousProgrammingPlan.legalContexts,
         samplesOutsidePlanAllowed:
           previousProgrammingPlan.samplesOutsidePlanAllowed,
         distributionKind: previousProgrammingPlan.distributionKind,
-        year,
-        regionalStatus: RegionList.map((region) => ({
-          region,
-          status: 'InProgress' as const
-        })),
-        departmentalStatus: []
+        year
       };
 
       await programmingPlanRepository.insert(newProgrammingPlan);

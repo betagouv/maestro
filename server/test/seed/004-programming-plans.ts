@@ -1,3 +1,4 @@
+import { omit } from 'lodash-es';
 import {
   DAOAInProgressProgrammingPlanFixture,
   DAOAValidatedProgrammingPlanFixture,
@@ -9,57 +10,52 @@ import {
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   formatProgrammingPlan,
-  ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
-import { ProgrammingSubPlans } from '../../repositories/programmingSubPlanRepository';
+import {
+  ProgrammingSubPlanLocalStatus,
+  ProgrammingSubPlans
+} from '../../repositories/programmingSubPlanRepository';
 
 export const seed = async (): Promise<void> => {
-  await ProgrammingPlans().insert(
-    [
-      PPVClosedProgrammingPlanFixture,
-      PPVValidatedProgrammingPlanFixture,
-      PPVValidatedDromProgrammingPlanFixture,
-      PPVInProgressProgrammingPlanFixture,
-      PPVSubmittedProgrammingPlanFixture,
-      DAOAValidatedProgrammingPlanFixture,
-      DAOAInProgressProgrammingPlanFixture
-    ].map(formatProgrammingPlan)
-  );
+  const programmingPlans = [
+    PPVClosedProgrammingPlanFixture,
+    PPVValidatedProgrammingPlanFixture,
+    PPVValidatedDromProgrammingPlanFixture,
+    PPVInProgressProgrammingPlanFixture,
+    PPVSubmittedProgrammingPlanFixture,
+    DAOAValidatedProgrammingPlanFixture,
+    DAOAInProgressProgrammingPlanFixture
+  ];
 
-  await Promise.all(
-    [
-      PPVClosedProgrammingPlanFixture,
-      PPVValidatedProgrammingPlanFixture,
-      PPVValidatedDromProgrammingPlanFixture,
-      PPVInProgressProgrammingPlanFixture,
-      PPVSubmittedProgrammingPlanFixture,
-      DAOAValidatedProgrammingPlanFixture,
-      DAOAInProgressProgrammingPlanFixture
-    ].flatMap((plan) =>
-      plan.regionalStatus.map((regionalStatus) =>
-        ProgrammingPlanLocalStatus().insert({
-          ...regionalStatus,
-          programmingPlanId: plan.id
-        })
-      )
+  await ProgrammingPlans().insert(programmingPlans.map(formatProgrammingPlan));
+
+  await ProgrammingSubPlans().insert(
+    programmingPlans.flatMap((plan) =>
+      plan.subPlans.map((subPlan) => ({
+        ...omit(subPlan, ['regionalStatus', 'departmentalStatus']),
+        programmingPlanId: plan.id
+      }))
     )
   );
 
-  await ProgrammingSubPlans().insert(
-    [
-      PPVClosedProgrammingPlanFixture,
-      PPVValidatedProgrammingPlanFixture,
-      PPVValidatedDromProgrammingPlanFixture,
-      PPVInProgressProgrammingPlanFixture,
-      PPVSubmittedProgrammingPlanFixture,
-      DAOAValidatedProgrammingPlanFixture,
-      DAOAInProgressProgrammingPlanFixture
-    ].flatMap((plan) =>
-      plan.subPlans.map((subPlan) => ({
-        ...subPlan,
-        programmingPlanId: plan.id
-      }))
+  await Promise.all(
+    programmingPlans.flatMap((plan) =>
+      plan.subPlans.flatMap((subPlan) => [
+        ...subPlan.regionalStatus.map((regionalStatus) =>
+          ProgrammingSubPlanLocalStatus().insert({
+            ...regionalStatus,
+            programmingSubPlanId: subPlan.id,
+            department: 'None'
+          })
+        ),
+        ...subPlan.departmentalStatus.map((departmentalStatus) =>
+          ProgrammingSubPlanLocalStatus().insert({
+            ...departmentalStatus,
+            programmingSubPlanId: subPlan.id
+          })
+        )
+      ])
     )
   );
 };

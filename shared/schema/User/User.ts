@@ -6,7 +6,7 @@ import { Region, RegionList, Regions } from '../../referential/Region';
 import type { Nullable } from '../../utils/typescript';
 import { superRefineSchema } from '../../utils/zod';
 import { Company } from '../Company/Company';
-import { ProgrammingSubPlan } from '../ProgrammingPlan/ProgrammingSubPlan';
+import { ProgrammingSubPlanBase } from '../ProgrammingPlan/ProgrammingSubPlan';
 import type { UserPermission } from './UserPermission';
 import {
   canHaveDepartment,
@@ -21,7 +21,7 @@ export const UserBase = z.object({
   id: z.guid(),
   email: z.email({ error: 'Veuillez renseigner un email valide.' }),
   name: z.string().nullable(),
-  programmingSubPlans: z.array(ProgrammingSubPlan),
+  programmingSubPlans: z.array(ProgrammingSubPlanBase),
   roles: z.array(UserRole).min(1, 'Veuillez renseigner au moins un rôle.'),
   region: Region.nullable(),
   department: Department.nullable(),

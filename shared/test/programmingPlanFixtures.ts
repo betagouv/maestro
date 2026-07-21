@@ -64,6 +64,11 @@ export const genProgrammingSubPlan = (
   label: 'Test SubPlan',
   withSacha: (data?.id && SachaSubPlanIds.includes(data.id)) ?? false,
   substanceKinds: ['Any'],
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: oneOf(ProgrammingPlanStatusList)
+  })),
+  departmentalStatus: [],
   ...data
 });
 
@@ -86,31 +91,52 @@ export const PPVValidatedSubPlanFixture = genProgrammingSubPlan({
   analysisPermissionRole: 'Sampler',
   contactListId: 7,
   withSacha: false,
-  substanceKinds: ['Any']
+  substanceKinds: ['Any'],
+  regionalStatus: RegionList.toSorted().map((region) => ({
+    region,
+    status: 'Validated'
+  })),
+  departmentalStatus: []
 });
 export const PPVValidatedDromSubPlanFixture = genProgrammingSubPlan({
   ...PPVValidatedSubPlanFixture,
   id: PPVValidatedDromSubPlanId,
   programmingPlanId: PPVValidatedDromProgrammingPlanId,
-  label: 'Production primaire végétale - DROM'
+  label: 'Production primaire végétale - DROM',
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: isDromRegion(region) ? 'Validated' : 'SubmittedToRegion'
+  }))
 });
 
 export const PPVClosedSubPlanFixture = genProgrammingSubPlan({
   ...PPVValidatedSubPlanFixture,
   id: PPVClosedSubPlanId,
-  programmingPlanId: PPVClosedProgrammingPlanId
+  programmingPlanId: PPVClosedProgrammingPlanId,
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: 'Closed'
+  }))
 });
 
 export const PPVInProgressSubPlanFixture = genProgrammingSubPlan({
   ...PPVValidatedSubPlanFixture,
   id: PPVInProgressSubPlanId,
-  programmingPlanId: PPVInProgressProgrammingPlanId
+  programmingPlanId: PPVInProgressProgrammingPlanId,
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: 'InProgress'
+  }))
 });
 
 export const PPVSubmittedSubPlanFixture = genProgrammingSubPlan({
   ...PPVValidatedSubPlanFixture,
   id: PPVSubmittedSubPlanId,
-  programmingPlanId: PPVSubmittedProgrammingPlanId
+  programmingPlanId: PPVSubmittedProgrammingPlanId,
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: 'SubmittedToRegion'
+  }))
 });
 
 export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
@@ -122,13 +148,29 @@ export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
   analysisPermissionRole: 'DepartmentalCoordinator',
   contactListId: 9,
   withSacha: true,
-  substanceKinds: ['Mono', 'Multi', 'Copper']
+  substanceKinds: ['Mono', 'Multi', 'Copper'],
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: 'Validated'
+  })),
+  departmentalStatus: RegionList.flatMap((region) =>
+    Regions[region].departments.map((department) => ({
+      region,
+      department,
+      status: 'Validated'
+    }))
+  )
 });
 
 export const DAOAVolailleInProgressSubPlanFixture = genProgrammingSubPlan({
   ...DAOAVolailleValidatedSubPlanFixture,
   id: DAOAInProgressVolailleSubPlanId,
-  programmingPlanId: DAOAInProgressProgrammingPlanId
+  programmingPlanId: DAOAInProgressProgrammingPlanId,
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: 'InProgress'
+  })),
+  departmentalStatus: []
 });
 
 export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
@@ -140,13 +182,29 @@ export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
   analysisPermissionRole: 'DepartmentalCoordinator',
   contactListId: 9,
   withSacha: true,
-  substanceKinds: ['Mono', 'Multi', 'Copper']
+  substanceKinds: ['Mono', 'Multi', 'Copper'],
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: 'Validated'
+  })),
+  departmentalStatus: RegionList.flatMap((region) =>
+    Regions[region].departments.map((department) => ({
+      region,
+      department,
+      status: 'Validated'
+    }))
+  )
 });
 
 export const DAOABovinInProgressSubPlanFixture = genProgrammingSubPlan({
   ...DAOABovinValidatedSubPlanFixture,
   id: DAOAInProgressBovinSubPlanId,
-  programmingPlanId: DAOAInProgressProgrammingPlanId
+  programmingPlanId: DAOAInProgressProgrammingPlanId,
+  regionalStatus: RegionList.map((region) => ({
+    region,
+    status: 'InProgress'
+  })),
+  departmentalStatus: []
 });
 
 export const genProgrammingPlan = (
@@ -170,11 +228,6 @@ export const genProgrammingPlan = (
     samplesOutsidePlanAllowed: true,
     createdAt: new Date(),
     createdBy: uuidv4(),
-    regionalStatus: RegionList.map((region) => ({
-      region,
-      status: oneOf(ProgrammingPlanStatusList)
-    })),
-    departmentalStatus: [],
     year: new Date().getFullYear(),
     ...data
   };
@@ -192,10 +245,6 @@ export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
   createdBy: NationalCoordinatorId,
   closedAt: new Date(),
   closedBy: NationalCoordinatorId,
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: 'Closed'
-  })),
   year: new Date().getFullYear() - 1
 });
 
@@ -209,10 +258,6 @@ export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
-  regionalStatus: RegionList.toSorted().map((region) => ({
-    region,
-    status: 'Validated'
-  })),
   year: new Date().getFullYear()
 });
 
@@ -226,10 +271,6 @@ export const PPVValidatedDromProgrammingPlanFixture = genProgrammingPlan({
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: isDromRegion(region) ? 'Validated' : 'SubmittedToRegion'
-  })),
   year: new Date().getFullYear() + 10
 });
 
@@ -243,10 +284,6 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: 'InProgress'
-  })),
   year: new Date().getFullYear() + 1
 });
 
@@ -260,10 +297,6 @@ export const PPVSubmittedProgrammingPlanFixture = genProgrammingPlan({
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: 'SubmittedToRegion'
-  })),
   year: new Date().getFullYear() + 2
 });
 
@@ -281,17 +314,6 @@ export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
   samplesOutsidePlanAllowed: false,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: 'Validated'
-  })),
-  departmentalStatus: RegionList.flatMap((region) =>
-    Regions[region].departments.map((department) => ({
-      region,
-      department,
-      status: 'Validated'
-    }))
-  ),
   year: new Date().getFullYear()
 });
 
@@ -309,9 +331,5 @@ export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   samplesOutsidePlanAllowed: false,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: 'InProgress'
-  })),
   year: new Date().getFullYear() + 1
 });
