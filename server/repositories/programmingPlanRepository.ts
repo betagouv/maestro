@@ -1,8 +1,11 @@
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
-import type { Region } from 'maestro-shared/referential/Region';
+import { Region } from 'maestro-shared/referential/Region';
+import type { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import type { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
+import { hasSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import { ProgrammingPlanLocalStatus as ProgrammingPlanLocalStatusType } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
+import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   ProgrammingPlanBase,
   ProgrammingPlanChecked,
@@ -21,6 +24,7 @@ const programmingPlanLocalStatusTable = 'programming_plan_local_status';
 
 const ProgrammingPlanDbo = ProgrammingPlanBase.omit({
   subPlans: true,
+  nationalStatus: true,
   regionalStatus: true,
   departmentalStatus: true
 });
@@ -30,12 +34,20 @@ type ProgrammingPlanDbo = z.infer<typeof ProgrammingPlanDbo>;
 const ProgrammingPlanLocalStatusDbo = z.object({
   ...ProgrammingPlanLocalStatusType.shape,
   programmingPlanId: z.string(),
+  region: z.union([Region, z.literal('None')]),
   department: z.union([Department, z.literal('None')])
 });
 
 type ProgrammingPlanLocalStatusDbo = z.infer<
   typeof ProgrammingPlanLocalStatusDbo
 >;
+
+type ProgrammingPlanRow = ProgrammingPlanDbo & {
+  nationalStatus: ProgrammingPlanLocalStatusDbo[];
+  regionalStatus: ProgrammingPlanLocalStatusDbo[];
+  departmentalStatus: ProgrammingPlanLocalStatusDbo[];
+  subPlans: unknown[];
+};
 
 export const ProgrammingPlans = (transaction = db) =>
   transaction<ProgrammingPlanDbo>(programmingPlansTable);
@@ -47,7 +59,10 @@ const ProgrammingPlanQuery = () =>
     .select(`${programmingPlansTable}.*`)
     .select(
       db.raw(
-        `coalesce(array_agg(to_json(${programmingPlanLocalStatusTable}.*) order by ${programmingPlanLocalStatusTable}.region) filter (where ${programmingPlanLocalStatusTable}.department = 'None'), '{}') as "regional_status"`
+        `coalesce(array_agg(to_json(${programmingPlanLocalStatusTable}.*)) filter (where ${programmingPlanLocalStatusTable}.region = 'None'), '{}') as "national_status"`
+      ),
+      db.raw(
+        `coalesce(array_agg(to_json(${programmingPlanLocalStatusTable}.*) order by ${programmingPlanLocalStatusTable}.region) filter (where ${programmingPlanLocalStatusTable}.department = 'None' and ${programmingPlanLocalStatusTable}.region != 'None'), '{}') as "regional_status"`
       ),
       db.raw(
         `coalesce(array_agg(to_json(${programmingPlanLocalStatusTable}.*) order by ${programmingPlanLocalStatusTable}.region, ${programmingPlanLocalStatusTable}.department) filter (where ${programmingPlanLocalStatusTable}.department != 'None'), '{}') as "departmental_status"`
@@ -70,7 +85,7 @@ const findUnique = async (
   return ProgrammingPlanQuery()
     .where({ id })
     .first()
-    .then((_) => _ && ProgrammingPlanChecked.parse(omitBy(_, isNil)));
+    .then((_) => _ && parseProgrammingPlan(_));
 };
 
 const findOne = async (
@@ -94,7 +109,7 @@ const findOne = async (
       }
     })
     .first()
-    .then((_) => _ && ProgrammingPlanChecked.parse(omitBy(_, isNil)));
+    .then((_) => _ && parseProgrammingPlan(_));
 };
 
 const findMany = async (
@@ -122,7 +137,7 @@ const findMany = async (
     })
     .then((programmingPlans) =>
       [...programmingPlans].sort(ProgrammingPlanSort).map((_: any) => {
-        return ProgrammingPlanChecked.parse(omitBy(_, isNil));
+        return parseProgrammingPlan(_);
       })
     );
 };
@@ -136,6 +151,13 @@ const insert = async (
     await ProgrammingPlans(transaction).insert(
       formatProgrammingPlan(programmingPlan)
     );
+
+    await ProgrammingPlanLocalStatus(transaction).insert({
+      ...programmingPlan.nationalStatus,
+      programmingPlanId: programmingPlan.id,
+      region: 'None',
+      department: 'None'
+    });
 
     if (programmingPlan.regionalStatus.length > 0) {
       await ProgrammingPlanLocalStatus(transaction).insert(
@@ -187,6 +209,7 @@ const insertManyLocalStatus = async (
     programmingPlanLocalStatusList.map((localStatus) => ({
       ...localStatus,
       programmingPlanId,
+      region: localStatus.region ?? 'None',
       department: localStatus.department ?? 'None'
     }))
   );
@@ -194,13 +217,17 @@ const insertManyLocalStatus = async (
 
 const updateLocalStatus = async (
   programmingPlanId: string,
-  localStatus: ProgrammingPlanLocalStatusType
+  localStatus: ProgrammingPlanLocalStatusType,
+  distributionKind: DistributionKind
 ): Promise<void> => {
   console.info(
     'Update programming plan local status',
     programmingPlanId,
     localStatus
   );
+  const echelon = localStatus.department ? 'Departmental' : 'Regional';
+  const isSend = hasSentOnward(echelon, distributionKind, localStatus.status);
+
   await ProgrammingPlanLocalStatus()
     .where({
       programmingPlanId,
@@ -208,13 +235,59 @@ const updateLocalStatus = async (
       department: localStatus.department ?? 'None'
     })
     .update({
-      status: localStatus.status
+      status: localStatus.status,
+      ...(isSend ? { sentAt: db.raw('coalesce(sent_at, now())') } : {})
     });
+};
+
+const updateNationalStatus = async (
+  programmingPlanId: string,
+  status: ProgrammingPlanStatus,
+  distributionKind: DistributionKind
+): Promise<void> => {
+  console.info(
+    'Update programming plan national status',
+    programmingPlanId,
+    status
+  );
+  const isSend = hasSentOnward('National', distributionKind, status);
+
+  await ProgrammingPlanLocalStatus()
+    .where({ programmingPlanId, region: 'None', department: 'None' })
+    .update({
+      status,
+      ...(isSend ? { sentAt: db.raw('coalesce(sent_at, now())') } : {})
+    });
+};
+
+const touchLocalStatus = async (
+  programmingPlanId: string,
+  scope: { region?: Region; department?: Department } = {}
+): Promise<void> => {
+  console.info('Touch programming plan local status', programmingPlanId, scope);
+  await ProgrammingPlanLocalStatus()
+    .where({ programmingPlanId })
+    .modify((builder) => {
+      if (scope.region) {
+        builder.andWhere('region', scope.region);
+      }
+      if (scope.department) {
+        builder.andWhere('department', scope.department);
+      }
+    })
+    .update({ lastModifiedAt: new Date() });
 };
 
 export const formatProgrammingPlan = (
   programmingPlan: ProgrammingPlanChecked
 ): ProgrammingPlanDbo => ProgrammingPlanDbo.parse(programmingPlan);
+
+const parseProgrammingPlan = (
+  row: ProgrammingPlanRow
+): ProgrammingPlanChecked =>
+  ProgrammingPlanChecked.parse(
+    omitBy({ ...row, nationalStatus: row.nationalStatus?.[0] }, isNil)
+  );
 
 export default {
   findUnique,
@@ -223,5 +296,7 @@ export default {
   insert,
   update,
   insertManyLocalStatus,
-  updateLocalStatus
+  updateLocalStatus,
+  updateNationalStatus,
+  touchLocalStatus
 };

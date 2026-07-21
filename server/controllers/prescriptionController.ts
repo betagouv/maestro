@@ -8,6 +8,7 @@ import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPla
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
+import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
 
@@ -62,6 +63,8 @@ export const prescriptionsRouter = {
           )
         );
       }
+
+      await programmingPlanRepository.touchLocalStatus(programmingPlan.id);
 
       return {
         status: HttpStatus.CREATED,
@@ -165,6 +168,8 @@ export const prescriptionsRouter = {
         await prescriptionSubstanceRepository.insertMany(substances);
       }
 
+      await programmingPlanRepository.touchLocalStatus(programmingPlan.id);
+
       return {
         status: HttpStatus.OK,
         response: updatedPrescription
@@ -183,6 +188,7 @@ export const prescriptionsRouter = {
       }
 
       await prescriptionRepository.deleteOne(prescription.id);
+      await programmingPlanRepository.touchLocalStatus(programmingPlan.id);
 
       return { status: HttpStatus.NO_CONTENT };
     }

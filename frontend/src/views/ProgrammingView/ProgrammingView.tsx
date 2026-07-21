@@ -1,8 +1,8 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Tabs from '@codegouvfr/react-dsfr/Tabs';
+import Tabs, { type TabsProps } from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
-import { isEmpty, isNil, mapValues, max, omitBy } from 'lodash-es';
+import { isEmpty, mapValues, max, omitBy } from 'lodash-es';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
@@ -10,6 +10,7 @@ import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPl
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { isDefined } from 'maestro-shared/utils/utils';
 import {
   useCallback,
   useContext,
@@ -38,12 +39,15 @@ import prescriptionsSlice, {
 import ProgrammingCommentList from './ProgrammingCommentList/ProgrammingCommentList';
 import ProgrammingPlanDepartmentalValidationList from './ProgrammingPlanDepartmentalValidationList/ProgrammingPlanDepartmentalValidationList';
 import ProgrammingPlanRegionalValidationList from './ProgrammingPlanRegionalValidationList/ProgrammingPlanRegionalValidationList';
+import ProgrammingPlanTrackingTable from './ProgrammingPlanTrackingTable/ProgrammingPlanTrackingTable';
 import ProgrammingPrescriptionList from './ProgrammingPrescriptionList/ProgrammingPrescriptionList';
+import './ProgrammingView.scss';
 
 type ProgrammingViewTab =
   | 'ProgrammationTab'
   | 'ConsultationTab'
-  | 'CommentsTab';
+  | 'CommentsTab'
+  | 'PlanTrackingTab';
 
 const ProgrammingView = () => {
   useDocumentTitle('Programmation');
@@ -54,7 +58,7 @@ const ProgrammingView = () => {
   const [selectedTabId, setSelectedTabId] =
     useState<ProgrammingViewTab>('ProgrammationTab');
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user, hasNationalView, hasRegionalView, hasUserPermission } =
+  const { user, hasNationalView, hasRegionalView, hasRole, hasUserPermission } =
     useAuthentication();
   const { prescriptionFilters, prescriptionListDisplay } = useAppSelector(
     (state) => state.prescriptions
@@ -182,6 +186,51 @@ const ProgrammingView = () => {
     [commentLocalPrescription]
   );
 
+  const rawTabs: (TabsProps.Controlled['tabs'][number] | undefined)[] = [
+    {
+      label: 'Tous les sous-plans',
+      tabId: 'ProgrammationTab',
+      iconId: 'fr-icon-survey-line'
+    },
+    filteredProgrammingPlans.some((p) => p.distributionKind === 'REGIONAL') &&
+    hasUserPermission('manageProgrammingPlan')
+      ? {
+          label: 'Phase de consultation',
+          tabId: 'ConsultationTab',
+          iconId: 'fr-icon-chat-check-line'
+        }
+      : undefined,
+    filteredProgrammingPlans.some(
+      (p) => p.distributionKind === 'SLAUGHTERHOUSE'
+    ) &&
+    (hasUserPermission('manageProgrammingPlan') ||
+      hasUserPermission('distributePrescriptionToDepartments'))
+      ? {
+          label: hasNationalView
+            ? 'Statut par région'
+            : 'Statut par département',
+          tabId: 'ConsultationTab',
+          iconId: 'fr-icon-chat-check-line'
+        }
+      : undefined,
+    filteredProgrammingPlans.some((p) => p.distributionKind === 'REGIONAL') &&
+    hasUserPermission('commentPrescription')
+      ? {
+          label: 'Commentaires',
+          tabId: 'CommentsTab',
+          iconId: 'fr-icon-chat-3-line'
+        }
+      : undefined,
+    hasRole('Administrator', 'NationalCoordinator')
+      ? {
+          label: 'Suivi des plans',
+          tabId: 'PlanTrackingTab',
+          iconId: 'fr-icon-list-check'
+        }
+      : undefined
+  ];
+  const tabs = rawTabs.filter(isDefined);
+
   return (
     <>
       <AppToast open={isCommentSuccess} description="Commentaire ajouté" />
@@ -228,51 +277,16 @@ const ProgrammingView = () => {
                     className={clsx({
                       'full-width':
                         (hasNationalView || hasRegionalView) &&
-                        prescriptionListDisplay === 'table'
+                        prescriptionListDisplay === 'table',
+                      'push-last-tab-right': hasRole(
+                        'Administrator',
+                        'NationalCoordinator'
+                      )
                     })}
                     classes={{
                       panel: clsx('white-container')
                     }}
-                    tabs={[
-                      {
-                        label: 'Tous les sous-plans',
-                        tabId: 'ProgrammationTab',
-                        iconId: 'fr-icon-survey-line' as const
-                      },
-                      filteredProgrammingPlans.some(
-                        (p) => p.distributionKind === 'REGIONAL'
-                      ) && hasUserPermission('manageProgrammingPlan')
-                        ? {
-                            label: 'Phase de consultation',
-                            tabId: 'ConsultationTab',
-                            iconId: 'fr-icon-chat-check-line' as const
-                          }
-                        : undefined,
-                      filteredProgrammingPlans.some(
-                        (p) => p.distributionKind === 'SLAUGHTERHOUSE'
-                      ) &&
-                      (hasUserPermission('manageProgrammingPlan') ||
-                        hasUserPermission(
-                          'distributePrescriptionToDepartments'
-                        ))
-                        ? {
-                            label: hasNationalView
-                              ? 'Statut par région'
-                              : 'Statut par département',
-                            tabId: 'ConsultationTab',
-                            iconId: 'fr-icon-chat-check-line' as const
-                          }
-                        : undefined,
-                      filteredProgrammingPlans.some(
-                        (p) => p.distributionKind === 'REGIONAL'
-                      ) && hasUserPermission('commentPrescription')
-                        ? {
-                            label: 'Commentaires',
-                            tabId: 'CommentsTab',
-                            iconId: 'fr-icon-chat-3-line' as const
-                          }
-                        : undefined
-                    ].filter((tab) => !isNil(tab))}
+                    tabs={tabs}
                   >
                     {filteredProgrammingPlans.length ? (
                       <>
@@ -313,6 +327,14 @@ const ProgrammingView = () => {
                               programmingPlan={plan}
                             />
                           ))}
+                        {selectedTabId === 'PlanTrackingTab' &&
+                          hasRole('Administrator', 'NationalCoordinator') && (
+                            <ProgrammingPlanTrackingTable
+                              programmingPlans={filteredProgrammingPlans.filter(
+                                (plan) => plan.year === prescriptionFilters.year
+                              )}
+                            />
+                          )}
                       </>
                     ) : (
                       'Veuillez sélectionner un plan de programmation'
