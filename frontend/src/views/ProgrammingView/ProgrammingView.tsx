@@ -37,7 +37,6 @@ import prescriptionsSlice, {
   type PrescriptionFilters
 } from '../../store/reducers/prescriptionsSlice';
 import ProgrammingCommentList from './ProgrammingCommentList/ProgrammingCommentList';
-import ProgrammingPlanDepartmentalValidationList from './ProgrammingPlanDepartmentalValidationList/ProgrammingPlanDepartmentalValidationList';
 import ProgrammingPlanRegionalValidationList from './ProgrammingPlanRegionalValidationList/ProgrammingPlanRegionalValidationList';
 import ProgrammingPlanTrackingTable from './ProgrammingPlanTrackingTable/ProgrammingPlanTrackingTable';
 import ProgrammingPrescriptionList from './ProgrammingPrescriptionList/ProgrammingPrescriptionList';
@@ -192,23 +191,11 @@ const ProgrammingView = () => {
       tabId: 'ProgrammationTab',
       iconId: 'fr-icon-survey-line'
     },
-    filteredProgrammingPlans.some((p) => p.distributionKind === 'REGIONAL') &&
-    hasUserPermission('manageProgrammingPlan')
-      ? {
-          label: 'Phase de consultation',
-          tabId: 'ConsultationTab',
-          iconId: 'fr-icon-chat-check-line'
-        }
-      : undefined,
     filteredProgrammingPlans.some(
       (p) => p.distributionKind === 'SLAUGHTERHOUSE'
-    ) &&
-    (hasUserPermission('manageProgrammingPlan') ||
-      hasUserPermission('distributePrescriptionToDepartments'))
+    ) && hasUserPermission('manageProgrammingPlan')
       ? {
-          label: hasNationalView
-            ? 'Statut par région'
-            : 'Statut par département',
+          label: 'Statut par région',
           tabId: 'ConsultationTab',
           iconId: 'fr-icon-chat-check-line'
         }
@@ -221,7 +208,7 @@ const ProgrammingView = () => {
           iconId: 'fr-icon-chat-3-line'
         }
       : undefined,
-    hasRole('AdministratorBGIR', 'NationalCoordinator')
+    hasRole('AdministratorBGIR', 'NationalCoordinator', 'RegionalCoordinator')
       ? {
           label: 'Suivi des plans',
           tabId: 'PlanTrackingTab',
@@ -278,7 +265,8 @@ const ProgrammingView = () => {
                       'full-width': hasNationalView || hasRegionalView,
                       'push-last-tab-right': hasRole(
                         'AdministratorBGIR',
-                        'NationalCoordinator'
+                        'NationalCoordinator',
+                        'RegionalCoordinator'
                       )
                     })}
                     classes={{
@@ -309,15 +297,6 @@ const ProgrammingView = () => {
                               programmingPlan={plan}
                             />
                           ))}
-                        {selectedTabId === 'ConsultationTab' &&
-                          hasRegionalView &&
-                          filteredProgrammingPlans.map((plan) => (
-                            <ProgrammingPlanDepartmentalValidationList
-                              key={plan.id}
-                              programmingPlan={plan}
-                              region={region as Region}
-                            />
-                          ))}
                         {selectedTabId === 'CommentsTab' &&
                           filteredProgrammingPlans.map((plan) => (
                             <ProgrammingCommentList
@@ -328,12 +307,16 @@ const ProgrammingView = () => {
                         {selectedTabId === 'PlanTrackingTab' &&
                           hasRole(
                             'AdministratorBGIR',
-                            'NationalCoordinator'
+                            'NationalCoordinator',
+                            'RegionalCoordinator'
                           ) && (
                             <ProgrammingPlanTrackingTable
                               programmingPlans={filteredProgrammingPlans.filter(
                                 (plan) => plan.year === prescriptionFilters.year
                               )}
+                              region={
+                                hasRegionalView ? (region as Region) : undefined
+                              }
                             />
                           )}
                       </>

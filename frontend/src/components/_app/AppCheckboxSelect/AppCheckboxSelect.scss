@@ -1,0 +1,38 @@
+.app-checkbox-select {
+  position: relative;
+
+  .app-checkbox-select__trigger {
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .app-checkbox-select__trigger--filled {
+    font-weight: 500;
+  }
+
+  .app-checkbox-select__menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    background: var(--background-default-grey);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    min-width: 100%;
+    max-width: 340px;
+  }
+
+  .app-checkbox-select__options {
+    max-height: 240px;
+    overflow-y: auto;
+
+    .fr-label {
+      white-space: normal;
+      word-break: break-word;
+    }
+  }
+
+  .app-checkbox-select__actions {
+    display: flex;
+    justify-content: space-between;
+  }
+}

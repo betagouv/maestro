@@ -65,6 +65,6 @@ export const NationalCoordinatorView: Story = {
       canvas.getAllByTestId(`cell-${FoieDeBovinPrescriptionFixture.id}`)
     ).toHaveLength(RegionList.length);
 
-    await expect(canvas.getByTestId('notify-button')).toBeInTheDocument();
+    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
 };

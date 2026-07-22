@@ -96,6 +96,7 @@ const AdministratorPermissionsList = [
 const userRolePermissions = {
   NationalCoordinator: [
     'manageProgrammingPlan',
+    'sendProgrammingPlansToRegions',
     'closeProgrammingPlan',
     'viewProgrammingPlans',
     'readProgrammingPlansInProgress',
@@ -138,7 +139,8 @@ const userRolePermissions = {
     'updatePrescriptionLaboratories',
     'commentPrescription',
     'distributePrescriptionToDepartments',
-    'manageUsers'
+    'manageUsers',
+    'sendProgrammingPlansToDepartments'
   ],
   NationalObserver: [
     ...ObserverPermissionsList,
@@ -178,7 +180,10 @@ const userRolePermissions = {
     // FIXME à ajouter pour les AdmnistratorBGIR et NationalCoordinator
     'manageProgrammingPlanSettings'
   ],
-  AdministratorBGIR: AdministratorPermissionsList,
+  AdministratorBGIR: [
+    ...AdministratorPermissionsList,
+    'sendProgrammingPlansToRegions'
+  ],
   LaboratoryUser: ['readDocuments', 'readProgrammingPlanValidated'],
   LaboratoryOffice: [
     'readPrescriptions',

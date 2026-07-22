@@ -1,8 +1,16 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { groupBy, sumBy } from 'lodash-es';
-import { RegionList, Regions } from 'maestro-shared/referential/Region';
+import { groupBy, isNil, sumBy } from 'lodash-es';
+import {
+  DepartmentLabels,
+  DepartmentSort
+} from 'maestro-shared/referential/Department';
+import {
+  type Region,
+  RegionList,
+  Regions
+} from 'maestro-shared/referential/Region';
 import {
   type LocalPrescription,
   LocalPrescriptionSort
@@ -71,28 +79,35 @@ interface Props {
   ) => void;
   pendingPrescriptionIds?: Set<string>;
   pendingLocalKeys?: Set<LocalPrescriptionKeyString>;
+  // Presence switches the table to regional mode: one column per department
+  // of this region instead of one per region, own-total column becomes the
+  // region's own (read-only) sampleCount instead of the national one.
+  region?: Region;
+  subLocalPrescriptions?: LocalPrescription[];
 }
 
-const Colgroup = () => (
+const Colgroup = ({ columnCount }: { columnCount: number }) => (
   <colgroup>
     <col className="col-n" />
     <col className="col-matrice" />
     <col className="col-analyte" />
     <col className="col-prelevements" />
-    {RegionList.map((region) => (
-      <col key={`col-${region}`} className="col-region" />
+    {Array.from({ length: columnCount }, (_, i) => (
+      <col key={`col-${i}`} className="col-region" />
     ))}
   </colgroup>
 );
 
 const ProgrammingPrescriptionTable = ({
   programmingPlans,
-  prescriptions,
+  prescriptions: allPrescriptions,
   regionalPrescriptions,
   onChangeLocalPrescriptionCount,
   onChangePrescriptionSampleCount,
   pendingPrescriptionIds,
-  pendingLocalKeys
+  pendingLocalKeys,
+  region,
+  subLocalPrescriptions = []
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { hasUserLocalPrescriptionPermission, userRole } = useAuthentication();
@@ -138,7 +153,7 @@ const ProgrammingPrescriptionTable = ({
     rowWrapperRefs.current.forEach((el) => {
       el.scrollLeft = 0;
     });
-  }, [prescriptions]);
+  }, [allPrescriptions]);
 
   useEffect(() => {
     const header = headerWrapperRef.current;
@@ -201,6 +216,14 @@ const ProgrammingPrescriptionTable = ({
       .filter((r) => r.prescriptionId === prescriptionId)
       .sort(LocalPrescriptionSort);
 
+  const getOwnRegionalPrescription = (prescriptionId: string) =>
+    regionalPrescriptions.find(
+      (r) => r.prescriptionId === prescriptionId && r.region === region
+    );
+
+  const getSubLocalPrescriptions = (prescriptionId: string) =>
+    subLocalPrescriptions.filter((r) => r.prescriptionId === prescriptionId);
+
   const getPlan = (prescription: Prescription) =>
     programmingPlans.find((p) =>
       p.subPlans.some((sp) => sp.id === prescription.programmingSubPlanId)
@@ -211,17 +234,31 @@ const ProgrammingPrescriptionTable = ({
       .flatMap((p) => p.subPlans)
       .find((sp) => sp.id === prescription.programmingSubPlanId);
 
-  if (!prescriptions) {
+  if (!allPrescriptions) {
     return null;
   }
+
+  // Regional mode only shows prescriptions that already have a local
+  // prescription for this region (mirrors ProgrammingLocalPrescriptionTable).
+  const prescriptions = region
+    ? allPrescriptions.filter((p) => !isNil(getOwnRegionalPrescription(p.id)))
+    : allPrescriptions;
+
+  const departmentList = region
+    ? [...Regions[region].departments].sort(DepartmentSort)
+    : [];
+  const columnCount = region ? departmentList.length : RegionList.length;
 
   const planOrder = [...new Set(prescriptions.map((p) => p.programmingPlanId))];
   const prescriptionsByPlan = groupBy(prescriptions, 'programmingPlanId');
 
-  // Only count regional prescriptions for currently visible prescriptions
-  // (prescriptions may be filtered by matrixQuery / missing filters)
+  // Only count regional/departmental prescriptions for currently visible
+  // prescriptions (prescriptions may be filtered by matrixQuery / missing filters)
   const visiblePrescriptionIds = new Set(prescriptions.map((p) => p.id));
   const visibleRegionalPrescriptions = regionalPrescriptions.filter((r) =>
+    visiblePrescriptionIds.has(r.prescriptionId)
+  );
+  const visibleSubLocalPrescriptions = subLocalPrescriptions.filter((r) =>
     visiblePrescriptionIds.has(r.prescriptionId)
   );
 
@@ -241,7 +278,7 @@ const ProgrammingPrescriptionTable = ({
           )}
         >
           <table>
-            <Colgroup />
+            <Colgroup columnCount={columnCount} />
             <thead>
               <tr>
                 <th scope="col">N°</th>
@@ -256,21 +293,37 @@ const ProgrammingPrescriptionTable = ({
                   <br />
                   programmés
                 </th>
-                {RegionList.map((region, regionIdx) => (
-                  <th
-                    scope="col"
-                    className={clsx(
-                      { 'border-left': regionIdx !== 0 },
-                      cx('fr-p-1w')
-                    )}
-                    key={`header-${region}`}
-                  >
-                    <TableHeaderCell
-                      shortName={Regions[region].shortName}
-                      name={Regions[region].name}
-                    />
-                  </th>
-                ))}
+                {region
+                  ? departmentList.map((department, columnIdx) => (
+                      <th
+                        scope="col"
+                        className={clsx(
+                          { 'border-left': columnIdx !== 0 },
+                          cx('fr-p-1w')
+                        )}
+                        key={`header-${department}`}
+                      >
+                        <TableHeaderCell
+                          shortName={department}
+                          name={DepartmentLabels[department]}
+                        />
+                      </th>
+                    ))
+                  : RegionList.map((regionColumn, columnIdx) => (
+                      <th
+                        scope="col"
+                        className={clsx(
+                          { 'border-left': columnIdx !== 0 },
+                          cx('fr-p-1w')
+                        )}
+                        key={`header-${regionColumn}`}
+                      >
+                        <TableHeaderCell
+                          shortName={Regions[regionColumn].shortName}
+                          name={Regions[regionColumn].name}
+                        />
+                      </th>
+                    ))}
               </tr>
               <tr className="total-row">
                 <td colSpan={3} className={cx('fr-text--bold')}>
@@ -284,25 +337,50 @@ const ProgrammingPrescriptionTable = ({
                     'align-center'
                   )}
                 >
-                  {sumBy(prescriptions, 'sampleCount')}
+                  {region
+                    ? sumBy(
+                        visibleRegionalPrescriptions.filter(
+                          (r) => r.region === region
+                        ),
+                        'sampleCount'
+                      )
+                    : sumBy(prescriptions, 'sampleCount')}
                 </td>
-                {RegionList.map((region, regionIdx) => (
-                  <td
-                    key={`total-${region}`}
-                    className={clsx(
-                      cx('fr-text--bold'),
-                      { 'border-left': regionIdx !== 0 },
-                      'align-center'
-                    )}
-                  >
-                    {sumBy(
-                      visibleRegionalPrescriptions.filter(
-                        (r) => r.region === region
-                      ),
-                      'sampleCount'
-                    )}
-                  </td>
-                ))}
+                {region
+                  ? departmentList.map((department, columnIdx) => (
+                      <td
+                        key={`total-${department}`}
+                        className={clsx(
+                          cx('fr-text--bold'),
+                          { 'border-left': columnIdx !== 0 },
+                          'align-center'
+                        )}
+                      >
+                        {sumBy(
+                          visibleSubLocalPrescriptions.filter(
+                            (r) => r.department === department
+                          ),
+                          'sampleCount'
+                        )}
+                      </td>
+                    ))
+                  : RegionList.map((regionColumn, columnIdx) => (
+                      <td
+                        key={`total-${regionColumn}`}
+                        className={clsx(
+                          cx('fr-text--bold'),
+                          { 'border-left': columnIdx !== 0 },
+                          'align-center'
+                        )}
+                      >
+                        {sumBy(
+                          visibleRegionalPrescriptions.filter(
+                            (r) => r.region === regionColumn
+                          ),
+                          'sampleCount'
+                        )}
+                      </td>
+                    ))}
               </tr>
             </thead>
           </table>
@@ -327,6 +405,9 @@ const ProgrammingPrescriptionTable = ({
                 (p) => p.id
               );
               const contextRegionalPrescriptions = regionalPrescriptions.filter(
+                (r) => contextPrescriptionIds.includes(r.prescriptionId)
+              );
+              const contextSubLocalPrescriptions = subLocalPrescriptions.filter(
                 (r) => contextPrescriptionIds.includes(r.prescriptionId)
               );
 
@@ -376,7 +457,7 @@ const ProgrammingPrescriptionTable = ({
                         )}
                       >
                         <table>
-                          <Colgroup />
+                          <Colgroup columnCount={columnCount} />
                           <tbody>
                             <tr className="plan-group-header-row plan-group-total-row">
                               <td colSpan={3}>Total prélèvements</td>
@@ -387,23 +468,47 @@ const ProgrammingPrescriptionTable = ({
                                   'align-center'
                                 )}
                               >
-                                {sumBy(contextPrescriptions, 'sampleCount')}
+                                {region
+                                  ? sumBy(
+                                      contextRegionalPrescriptions.filter(
+                                        (r) => r.region === region
+                                      ),
+                                      'sampleCount'
+                                    )
+                                  : sumBy(contextPrescriptions, 'sampleCount')}
                               </td>
-                              {RegionList.map((region, regionIdx) => (
-                                <td
-                                  key={region}
-                                  className={clsx('align-center', {
-                                    'border-left': regionIdx !== 0
-                                  })}
-                                >
-                                  {sumBy(
-                                    contextRegionalPrescriptions.filter(
-                                      (r) => r.region === region
-                                    ),
-                                    'sampleCount'
-                                  )}
-                                </td>
-                              ))}
+                              {region
+                                ? departmentList.map((department) => (
+                                    <td
+                                      key={department}
+                                      className={clsx('align-center', {
+                                        'border-left':
+                                          department !== departmentList[0]
+                                      })}
+                                    >
+                                      {sumBy(
+                                        contextSubLocalPrescriptions.filter(
+                                          (r) => r.department === department
+                                        ),
+                                        'sampleCount'
+                                      )}
+                                    </td>
+                                  ))
+                                : RegionList.map((regionColumn, columnIdx) => (
+                                    <td
+                                      key={regionColumn}
+                                      className={clsx('align-center', {
+                                        'border-left': columnIdx !== 0
+                                      })}
+                                    >
+                                      {sumBy(
+                                        contextRegionalPrescriptions.filter(
+                                          (r) => r.region === regionColumn
+                                        ),
+                                        'sampleCount'
+                                      )}
+                                    </td>
+                                  ))}
                             </tr>
                           </tbody>
                         </table>
@@ -424,6 +529,20 @@ const ProgrammingPrescriptionTable = ({
                     const isExpanded = expandedIds.has(prescription.id);
                     const showDistributionBadge =
                       prescription.sampleCount !== 0 || totalSampleCount !== 0;
+                    const ownRegionalPrescription = region
+                      ? getOwnRegionalPrescription(prescription.id)
+                      : undefined;
+                    const rowSubLocalPrescriptions = region
+                      ? getSubLocalPrescriptions(prescription.id)
+                      : [];
+                    const regionDistributedCount = sumBy(
+                      rowSubLocalPrescriptions,
+                      'sampleCount'
+                    );
+                    const showRegionDistributionBadge =
+                      plan.distributionKind === 'SLAUGHTERHOUSE' &&
+                      ((ownRegionalPrescription?.sampleCount ?? 0) !== 0 ||
+                        regionDistributedCount !== 0);
 
                     return (
                       <Fragment key={prescription.id}>
@@ -452,7 +571,7 @@ const ProgrammingPrescriptionTable = ({
                             )}
                           >
                             <table>
-                              <Colgroup />
+                              <Colgroup columnCount={columnCount} />
                               <tbody>
                                 <tr>
                                   <td>
@@ -497,103 +616,197 @@ const ProgrammingPrescriptionTable = ({
                                       'border-right'
                                     )}
                                   >
-                                    <div
-                                      className={clsx(
-                                        'prescription-sample-count-cell',
-                                        userRole &&
-                                          hasPrescriptionPermission(
-                                            userRole,
-                                            plan
-                                          ).update &&
-                                          onChangePrescriptionSampleCount
-                                          ? 'prescription-sample-count-cell--edit'
-                                          : 'prescription-sample-count-cell--read'
-                                      )}
-                                    >
-                                      {userRole &&
-                                      hasPrescriptionPermission(userRole, plan)
-                                        .update &&
-                                      onChangePrescriptionSampleCount ? (
-                                        <input
-                                          className={clsx(
-                                            'distribution-count-input',
-                                            'distribution-count-input--wide',
-                                            pendingPrescriptionIds?.has(
-                                              prescription.id
-                                            ) &&
-                                              'distribution-count-input--pending'
-                                          )}
-                                          type="number"
-                                          min={0}
-                                          value={prescription.sampleCount}
-                                          onChange={(e) => {
-                                            const v = Number(e.target.value);
-                                            if (!Number.isNaN(v)) {
-                                              onChangePrescriptionSampleCount(
-                                                prescription,
-                                                v
-                                              );
-                                            }
-                                          }}
-                                        />
-                                      ) : (
-                                        <div>{prescription.sampleCount}</div>
-                                      )}
-                                      {showDistributionBadge && (
-                                        <PrescriptionDistributionBadge
-                                          sampleCount={prescription.sampleCount}
-                                          distributedCount={totalSampleCount}
-                                          small
-                                        />
-                                      )}
-                                    </div>
-                                  </td>
-                                  {localPrescriptions.map(
-                                    (
-                                      localPrescription,
-                                      localPrescriptionIdx
-                                    ) => (
-                                      <td
-                                        className={clsx({
-                                          'border-left':
-                                            localPrescriptionIdx !== 0
-                                        })}
-                                        data-testid={`cell-${prescription.id}`}
-                                        key={`cell-${prescription.id}-${localPrescription.region}`}
+                                    {region ? (
+                                      <div
+                                        className={clsx(
+                                          'prescription-sample-count-cell',
+                                          'prescription-sample-count-cell--read'
+                                        )}
                                       >
-                                        <DistributionCountCell
-                                          programmingPlan={plan}
-                                          prescription={prescription}
-                                          localPrescription={localPrescription}
-                                          isEditable={
-                                            hasUserLocalPrescriptionPermission(
-                                              plan,
-                                              localPrescription
-                                            )?.updateSampleCount
-                                          }
-                                          isPending={pendingLocalKeys?.has(
-                                            toLocalPrescriptionKeyString({
-                                              prescriptionId:
-                                                localPrescription.prescriptionId,
-                                              region: localPrescription.region,
-                                              department: undefined,
-                                              companySiret: undefined
-                                            })
-                                          )}
-                                          onChange={async (value) =>
-                                            onChangeLocalPrescriptionCount(
-                                              {
-                                                prescriptionId:
-                                                  localPrescription.prescriptionId,
-                                                region: localPrescription.region
-                                              },
-                                              value
-                                            )
-                                          }
-                                        />
-                                      </td>
-                                    )
-                                  )}
+                                        <div>
+                                          {ownRegionalPrescription?.sampleCount ??
+                                            0}
+                                        </div>
+                                        {showRegionDistributionBadge && (
+                                          <PrescriptionDistributionBadge
+                                            sampleCount={
+                                              ownRegionalPrescription?.sampleCount ??
+                                              0
+                                            }
+                                            distributedCount={
+                                              regionDistributedCount
+                                            }
+                                            small
+                                          />
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <div
+                                        className={clsx(
+                                          'prescription-sample-count-cell',
+                                          userRole &&
+                                            hasPrescriptionPermission(
+                                              userRole,
+                                              plan
+                                            ).update &&
+                                            onChangePrescriptionSampleCount
+                                            ? 'prescription-sample-count-cell--edit'
+                                            : 'prescription-sample-count-cell--read'
+                                        )}
+                                      >
+                                        {userRole &&
+                                        hasPrescriptionPermission(
+                                          userRole,
+                                          plan
+                                        ).update &&
+                                        onChangePrescriptionSampleCount ? (
+                                          <input
+                                            className={clsx(
+                                              'distribution-count-input',
+                                              'distribution-count-input--wide',
+                                              pendingPrescriptionIds?.has(
+                                                prescription.id
+                                              ) &&
+                                                'distribution-count-input--pending'
+                                            )}
+                                            type="number"
+                                            min={0}
+                                            value={prescription.sampleCount}
+                                            onChange={(e) => {
+                                              const v = Number(e.target.value);
+                                              if (!Number.isNaN(v)) {
+                                                onChangePrescriptionSampleCount(
+                                                  prescription,
+                                                  v
+                                                );
+                                              }
+                                            }}
+                                          />
+                                        ) : (
+                                          <div>{prescription.sampleCount}</div>
+                                        )}
+                                        {showDistributionBadge && (
+                                          <PrescriptionDistributionBadge
+                                            sampleCount={
+                                              prescription.sampleCount
+                                            }
+                                            distributedCount={totalSampleCount}
+                                            small
+                                          />
+                                        )}
+                                      </div>
+                                    )}
+                                  </td>
+                                  {region
+                                    ? departmentList.map(
+                                        (department, columnIdx) => {
+                                          const localPrescription =
+                                            rowSubLocalPrescriptions.find(
+                                              (r) => r.department === department
+                                            );
+                                          return (
+                                            <td
+                                              className={clsx({
+                                                'border-left': columnIdx !== 0
+                                              })}
+                                              data-testid={`cell-${prescription.id}`}
+                                              key={`cell-${prescription.id}-${department}`}
+                                            >
+                                              {localPrescription ? (
+                                                <DistributionCountCell
+                                                  programmingPlan={plan}
+                                                  prescription={prescription}
+                                                  localPrescription={
+                                                    localPrescription
+                                                  }
+                                                  isEditable={
+                                                    hasUserLocalPrescriptionPermission(
+                                                      plan,
+                                                      localPrescription
+                                                    )?.distributeToDepartments
+                                                  }
+                                                  isPending={pendingLocalKeys?.has(
+                                                    toLocalPrescriptionKeyString(
+                                                      {
+                                                        prescriptionId:
+                                                          localPrescription.prescriptionId,
+                                                        region:
+                                                          localPrescription.region,
+                                                        department:
+                                                          localPrescription.department,
+                                                        companySiret: undefined
+                                                      }
+                                                    )
+                                                  )}
+                                                  onChange={async (value) =>
+                                                    onChangeLocalPrescriptionCount(
+                                                      {
+                                                        prescriptionId:
+                                                          localPrescription.prescriptionId,
+                                                        region:
+                                                          localPrescription.region,
+                                                        department:
+                                                          localPrescription.department
+                                                      },
+                                                      value
+                                                    )
+                                                  }
+                                                />
+                                              ) : null}
+                                            </td>
+                                          );
+                                        }
+                                      )
+                                    : localPrescriptions.map(
+                                        (
+                                          localPrescription,
+                                          localPrescriptionIdx
+                                        ) => (
+                                          <td
+                                            className={clsx({
+                                              'border-left':
+                                                localPrescriptionIdx !== 0
+                                            })}
+                                            data-testid={`cell-${prescription.id}`}
+                                            key={`cell-${prescription.id}-${localPrescription.region}`}
+                                          >
+                                            <DistributionCountCell
+                                              programmingPlan={plan}
+                                              prescription={prescription}
+                                              localPrescription={
+                                                localPrescription
+                                              }
+                                              isEditable={
+                                                hasUserLocalPrescriptionPermission(
+                                                  plan,
+                                                  localPrescription
+                                                )?.updateSampleCount
+                                              }
+                                              isPending={pendingLocalKeys?.has(
+                                                toLocalPrescriptionKeyString({
+                                                  prescriptionId:
+                                                    localPrescription.prescriptionId,
+                                                  region:
+                                                    localPrescription.region,
+                                                  department: undefined,
+                                                  companySiret: undefined
+                                                })
+                                              )}
+                                              onChange={async (value) =>
+                                                onChangeLocalPrescriptionCount(
+                                                  {
+                                                    prescriptionId:
+                                                      localPrescription.prescriptionId,
+                                                    region:
+                                                      localPrescription.region
+                                                  },
+                                                  value
+                                                )
+                                              }
+                                            />
+                                          </td>
+                                        )
+                                      )}
                                 </tr>
                               </tbody>
                             </table>
