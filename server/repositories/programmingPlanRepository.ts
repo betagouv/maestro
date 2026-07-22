@@ -269,7 +269,7 @@ const updateLocalStatus = async (
   await ProgrammingPlanLocalStatus()
     .where({
       programmingPlanId,
-      region: localStatus.region,
+      region: localStatus.region ?? 'None',
       department: localStatus.department ?? 'None'
     })
     .update({
