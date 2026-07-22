@@ -107,7 +107,8 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
       key.startsWith('useUpdate') ||
       key.startsWith('useDelete') ||
       key.startsWith('useMascarade') ||
-      key.startsWith('useReplay')
+      key.startsWith('useReplay') ||
+      key.startsWith('useSend')
     ) {
       // @ts-expect-error TS7053
       acc[key] = () => [
@@ -251,6 +252,8 @@ const defaultMockApiClientConf: MockApi = {
   useUpdatePrescriptionMutation: [fn(), {}],
   useUpdateProgrammingPlanLocalStatusMutation: [fn(), {}],
   useUpdateProgrammingPlanStatusMutation: [fn(), {}],
+  useSendProgrammingPlansToRegionsMutation: [fn(), {}],
+  useSendProgrammingPlansToDepartmentsMutation: [fn(), {}],
   useUpdateLaboratoryAnalyticalCompetenceMutation: [fn(), {}],
   useFindLaboratoryResidueMappingsQuery: { data: [] },
   useUpdateLaboratoryResidueMappingMutation: [fn(), {}],

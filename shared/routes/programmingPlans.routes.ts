@@ -30,6 +30,24 @@ export const programmingPlansRoutes = {
       response: z.array(ProgrammingPlanChecked)
     }
   },
+  '/programming-plans/send-to-regions': {
+    post: {
+      permissions: ['sendProgrammingPlansToRegions'],
+      body: z.object({
+        programmingPlanIds: z.array(z.guid()).min(1)
+      }),
+      response: z.array(ProgrammingPlanChecked)
+    }
+  },
+  '/programming-plans/send-to-departments': {
+    post: {
+      permissions: ['sendProgrammingPlansToDepartments'],
+      body: z.object({
+        programmingPlanIds: z.array(z.guid()).min(1)
+      }),
+      response: z.array(ProgrammingPlanChecked)
+    }
+  },
   '/programming-plans/:programmingPlanId': {
     params: {
       programmingPlanId: z.guid()

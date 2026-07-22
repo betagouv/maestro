@@ -26,7 +26,7 @@ const ProgrammingPlanDisplayStatusBadge = ({
   }
 
   return (
-    <div>
+    <div style={{ textAlign: 'right' }}>
       <Badge severity={severityByValue[result.value]} noIcon small={small}>
         {result.label}
       </Badge>

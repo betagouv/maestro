@@ -54,18 +54,24 @@ export const ProgrammingPlans = (transaction = db) =>
 export const ProgrammingPlanLocalStatus = (transaction = db) =>
   transaction<ProgrammingPlanLocalStatusDbo>(programmingPlanLocalStatusTable);
 
+// json_build_object with explicit camelCase keys, not to_json(table.*): knex-stringcase
+// only camelCases top-level query result columns, it never reaches into JSON blob
+// contents built by to_json() — sentAt/lastModifiedAt would silently parse as absent
+// (Zod .nullish()) since the raw blob keys would still be sent_at/last_modified_at.
+const localStatusJsonObject = `json_build_object('status', ${programmingPlanLocalStatusTable}.status, 'region', ${programmingPlanLocalStatusTable}.region, 'department', ${programmingPlanLocalStatusTable}.department, 'sentAt', ${programmingPlanLocalStatusTable}.sent_at, 'lastModifiedAt', ${programmingPlanLocalStatusTable}.last_modified_at)`;
+
 const ProgrammingPlanQuery = () =>
   ProgrammingPlans()
     .select(`${programmingPlansTable}.*`)
     .select(
       db.raw(
-        `coalesce(array_agg(to_json(${programmingPlanLocalStatusTable}.*)) filter (where ${programmingPlanLocalStatusTable}.region = 'None'), '{}') as "national_status"`
+        `coalesce(array_agg(${localStatusJsonObject}) filter (where ${programmingPlanLocalStatusTable}.region = 'None'), '{}') as "national_status"`
       ),
       db.raw(
-        `coalesce(array_agg(to_json(${programmingPlanLocalStatusTable}.*) order by ${programmingPlanLocalStatusTable}.region) filter (where ${programmingPlanLocalStatusTable}.department = 'None' and ${programmingPlanLocalStatusTable}.region != 'None'), '{}') as "regional_status"`
+        `coalesce(array_agg(${localStatusJsonObject} order by ${programmingPlanLocalStatusTable}.region) filter (where ${programmingPlanLocalStatusTable}.department = 'None' and ${programmingPlanLocalStatusTable}.region != 'None'), '{}') as "regional_status"`
       ),
       db.raw(
-        `coalesce(array_agg(to_json(${programmingPlanLocalStatusTable}.*) order by ${programmingPlanLocalStatusTable}.region, ${programmingPlanLocalStatusTable}.department) filter (where ${programmingPlanLocalStatusTable}.department != 'None'), '{}') as "departmental_status"`
+        `coalesce(array_agg(${localStatusJsonObject} order by ${programmingPlanLocalStatusTable}.region, ${programmingPlanLocalStatusTable}.department) filter (where ${programmingPlanLocalStatusTable}.department != 'None'), '{}') as "departmental_status"`
       ),
       db.raw(
         `(SELECT coalesce(json_agg(json_build_object('id', sp.id, 'programmingPlanId', sp.programming_plan_id, 'subPlanNumber', sp.sub_plan_number, 'stages', sp.stages, 'label', sp.label, 'analysisPermissionRole', sp.analysis_permission_role, 'contactListId', sp.contact_list_id, 'withSacha', sp.with_sacha, 'substanceKinds', sp.substance_kinds) ORDER BY sp.sub_plan_number), '[]'::json) FROM ${programmingSubPlansTable} sp WHERE sp.programming_plan_id = ${programmingPlansTable}.id) as "sub_plans"`
@@ -117,13 +123,22 @@ const findMany = async (
 ): Promise<ProgrammingPlanChecked[]> => {
   console.info('Find programming plans', omitBy(findOptions, isNil));
   return ProgrammingPlanQuery()
-    .where(omitBy(omit(findOptions, 'status', 'subPlanIds', 'ids'), isNil))
+    .where(
+      omitBy(
+        omit(
+          findOptions,
+          'status',
+          'subPlanIds',
+          'ids',
+          'region',
+          'department'
+        ),
+        isNil
+      )
+    )
     .modify((builder) => {
       if (isArray(findOptions.ids)) {
         builder.whereIn('id', findOptions.ids);
-      }
-      if (isArray(findOptions.status)) {
-        builder.whereIn('status', findOptions.status);
       }
       if (isArray(findOptions.subPlanIds)) {
         builder.whereExists(
@@ -133,6 +148,29 @@ const findMany = async (
               `${programmingSubPlansTable}.programming_plan_id = ${programmingPlansTable}.id`
             )
         );
+      }
+      // The national row (region = 'None') must always survive this row-level
+      // filter so nationalStatus can be populated by the aggregate below — region,
+      // department and status here only gate which REGIONAL/DEPARTMENTAL rows are
+      // visible to the requesting user, they have no bearing on the national row.
+      if (
+        findOptions.region ||
+        findOptions.department ||
+        isArray(findOptions.status)
+      ) {
+        builder.andWhere((qb) => {
+          qb.where('region', 'None').orWhere((qb2) => {
+            if (findOptions.region) {
+              qb2.andWhere('region', findOptions.region);
+            }
+            if (findOptions.department) {
+              qb2.andWhere('department', findOptions.department);
+            }
+            if (isArray(findOptions.status)) {
+              qb2.andWhere('status', 'in', findOptions.status);
+            }
+          });
+        });
       }
     })
     .then((programmingPlans) =>
@@ -260,11 +298,37 @@ const updateNationalStatus = async (
     });
 };
 
+const touchNationalSentAt = async (
+  programmingPlanId: string,
+  sentAt: Date = new Date()
+): Promise<void> => {
+  console.info('Touch programming plan national sentAt', programmingPlanId);
+  await ProgrammingPlanLocalStatus()
+    .where({ programmingPlanId, region: 'None', department: 'None' })
+    .update({ sentAt });
+};
+
+const touchRegionalSentAt = async (
+  programmingPlanId: string,
+  region: Region,
+  sentAt: Date = new Date()
+): Promise<void> => {
+  console.info(
+    'Touch programming plan regional sentAt',
+    programmingPlanId,
+    region
+  );
+  await ProgrammingPlanLocalStatus()
+    .where({ programmingPlanId, region, department: 'None' })
+    .update({ sentAt });
+};
+
 const touchLocalStatus = async (
   programmingPlanId: string,
   scope: { region?: Region; department?: Department } = {}
 ): Promise<void> => {
   console.info('Touch programming plan local status', programmingPlanId, scope);
+  const lastModifiedAt = new Date();
   await ProgrammingPlanLocalStatus()
     .where({ programmingPlanId })
     .modify((builder) => {
@@ -275,7 +339,26 @@ const touchLocalStatus = async (
         builder.andWhere('department', scope.department);
       }
     })
-    .update({ lastModifiedAt: new Date() });
+    .update({ lastModifiedAt });
+
+  // A department-level edit must also mark that region's own row as
+  // modified-since-sent, so the regional coordinator's bulk-send eligibility
+  // (send-to-departments) correctly flips back to "ready to send".
+  if (scope.region && scope.department) {
+    await ProgrammingPlanLocalStatus()
+      .where({ programmingPlanId, region: scope.region, department: 'None' })
+      .update({ lastModifiedAt });
+  }
+
+  // A regional/departmental edit must also mark the national row as
+  // modified-since-sent, otherwise bulk-send eligibility (computed solely
+  // from the national row's own sentAt/lastModifiedAt) never flips back to
+  // "ready to send" after the plan was already sent once.
+  if (scope.region) {
+    await ProgrammingPlanLocalStatus()
+      .where({ programmingPlanId, region: 'None', department: 'None' })
+      .update({ lastModifiedAt });
+  }
 };
 
 export const formatProgrammingPlan = (
@@ -298,5 +381,7 @@ export default {
   insertManyLocalStatus,
   updateLocalStatus,
   updateNationalStatus,
-  touchLocalStatus
+  touchLocalStatus,
+  touchNationalSentAt,
+  touchRegionalSentAt
 };

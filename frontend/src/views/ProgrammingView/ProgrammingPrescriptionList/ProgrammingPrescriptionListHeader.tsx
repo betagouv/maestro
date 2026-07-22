@@ -17,7 +17,6 @@ import useWindowSize from 'src/hooks/useWindowSize';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import ProgrammingPrescriptionListGroupedUpdate from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListGroupedUpdate';
 import ProgrammingPlanNotificationDepartmentalToSampler from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationDepartmentalToSampler/ProgrammingPlanNotificationDepartmentalToSampler';
-import ProgrammingPlanNotificationNationalToRegional from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationNationalToRegional/ProgrammingPlanNotificationNationalToRegional';
 import ProgrammingPlanNotificationRegionalToDepartmental from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationRegionalToDepartmental/ProgrammingPlanNotificationRegionalToDepartmental';
 import './ProgrammingPrescriptionList.scss';
 
@@ -136,9 +135,6 @@ const ProgrammingPrescriptionListHeader = ({
           onClick={() => window.open(exportURL)}
           title="Exporter"
           size={isMobile ? 'small' : 'medium'}
-        />
-        <ProgrammingPlanNotificationNationalToRegional
-          programmingPlan={programmingPlan}
         />
         {hasRegionalView && (
           <ProgrammingPlanNotificationRegionalToDepartmental

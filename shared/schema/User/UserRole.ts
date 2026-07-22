@@ -72,6 +72,7 @@ const ObserverPermissionsList = [
 export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   NationalCoordinator: [
     'manageProgrammingPlan',
+    'sendProgrammingPlansToRegions',
     'closeProgrammingPlan',
     'viewProgrammingPlans',
     'readProgrammingPlansInProgress',
@@ -113,7 +114,8 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'viewDashboard',
     'updatePrescriptionLaboratories',
     'commentPrescription',
-    'distributePrescriptionToDepartments'
+    'distributePrescriptionToDepartments',
+    'sendProgrammingPlansToDepartments'
   ],
   NationalObserver: [
     ...ObserverPermissionsList,
@@ -145,6 +147,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
   DepartmentalObserver: ObserverPermissionsList,
   Administrator: [
     'administrationMaestro',
+    'sendProgrammingPlansToRegions',
     'readSamples',
     'downloadSupportDocument',
     'downloadAnalysisRequestDocument',
