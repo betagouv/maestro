@@ -35,9 +35,14 @@ const prescriptionApi = api.injectEndpoints({
       '/prescriptions/:prescriptionId/regions/:region',
       'put',
       {
+        // Also touches programming_plan_local_status.lastModifiedAt server-side
+        // (touchLocalStatus), which feeds the display status shown in "Suivi des
+        // plans" — without invalidating ProgrammingPlan too, that tab keeps
+        // showing the pre-edit status until something else happens to refetch it.
         invalidatesTags: (_result, _error, { prescriptionId }) => [
           { type: 'LocalPrescription', id: 'LIST' },
-          { type: 'LocalPrescription', id: prescriptionId }
+          { type: 'LocalPrescription', id: prescriptionId },
+          { type: 'ProgrammingPlan', id: 'LIST' }
         ]
       }
     ),
@@ -48,7 +53,8 @@ const prescriptionApi = api.injectEndpoints({
       {
         invalidatesTags: (_result, _error, { prescriptionId }) => [
           { type: 'LocalPrescription', id: 'LIST' },
-          { type: 'LocalPrescription', id: prescriptionId }
+          { type: 'LocalPrescription', id: prescriptionId },
+          { type: 'ProgrammingPlan', id: 'LIST' }
         ]
       }
     ),

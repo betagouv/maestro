@@ -996,6 +996,12 @@ describe('Local prescriptions router', () => {
     ) => {
       await ProgrammingPlans().insert(formatProgrammingPlan(plan));
       await ProgrammingPlanLocalStatus().insert([
+        {
+          ...plan.nationalStatus,
+          programmingPlanId: plan.id,
+          region: 'None',
+          department: 'None'
+        },
         ...plan.regionalStatus.map((rs) => ({
           ...rs,
           programmingPlanId: plan.id

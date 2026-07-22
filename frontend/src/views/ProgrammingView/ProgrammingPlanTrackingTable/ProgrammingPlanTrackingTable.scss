@@ -3,12 +3,8 @@
   $col-status-width: 14rem;
   $plan-group-title-height: 3rem;
 
-  border-left: 1px solid var(--border-contrast-grey);
-  border-right: 1px solid var(--border-contrast-grey);
-
   .header-wrapper {
     position: sticky;
-    top: 0;
     z-index: 3;
 
     table {
@@ -62,6 +58,11 @@
     border-bottom: 1px solid var(--border-contrast-grey);
   }
 
+  td + td,
+  th + th {
+    border-left: 1px solid var(--border-contrast-grey);
+  }
+
   .plan-group-title {
     height: $plan-group-title-height;
     display: flex;
@@ -78,23 +79,48 @@
     padding: 0 !important;
   }
 
+  tr.plan-group-header-row td:first-child {
+    padding: 0.5rem 1rem !important;
+  }
+
   .row-reference {
     display: flex;
     align-items: center;
     gap: 4px;
   }
 
-  .checkbox-cell {
+  .sub-row-bar {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    width: 100%;
   }
 
-  .indent-1 .row-reference {
-    padding-left: 1.5rem;
+  tr.region-sub-row .region-name {
+    font-weight: 700;
+    color: var(--text-title-blue-france);
   }
 
-  .indent-2 {
-    padding-left: 4rem;
+  tr.department-sub-row .department-name {
+    font-weight: 700;
+  }
+
+  tr.region-sub-row .sub-count {
+    font-style: italic;
+    color: var(--text-mention-grey);
+  }
+
+  tr.region-sub-row.is-expanded td {
+    background-color: var(--background-open-blue-france) !important;
+    color: var(--text-default-grey) !important;
+  }
+
+  tr.region-sub-row.is-expanded .region-name,
+  tr.region-sub-row.is-expanded .sub-count {
+    color: inherit;
+  }
+
+  tr.department-sub-row td {
+    background-color: var(--background-alt-grey) !important;
   }
 }

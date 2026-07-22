@@ -22,6 +22,12 @@ export const FindLocalPrescriptionOptions = z.object({
   region: Region.nullish(),
   department: Department.nullish(),
   companySirets: z.array(z.string()).nullish(),
+  // Bypass the default "region-level aggregate only" scoping and return the
+  // aggregate row (companySiret = 'None') at every echelon — national, regional
+  // AND departmental — for the requested plans. Used by cross-plan national views
+  // (e.g. the plan tracking table) that need departmental completeness without
+  // being scoped to one region.
+  allLevels: z.boolean().nullish(),
   includes: z.array(LocalPrescriptionOptionsInclude).nullish()
 });
 

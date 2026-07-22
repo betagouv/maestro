@@ -16,11 +16,6 @@ if (!i18n.isInitialized) {
           has_been_commented_zero: "n'a été commentée",
           has_been_commented_one: 'a été commentée',
           has_been_commented_other: 'ont été commentées',
-          region_has_validated_zero:
-            'Aucune région n’a terminé la consultation',
-          region_has_validated_one: 'Une région a terminé la consultation',
-          region_has_validated_other:
-            '{{count}} régions ont terminé la consultation',
           region_has_sent_zero: 'Aucune région n’a diffusé la programmation',
           region_has_sent_one: 'Une région a diffusé la programmation',
           region_has_sent_other:

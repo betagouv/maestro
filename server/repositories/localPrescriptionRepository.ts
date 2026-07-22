@@ -70,7 +70,8 @@ const findMany = async (
           'region',
           'department',
           'contexts',
-          'companySirets'
+          'companySirets',
+          'allLevels'
         ),
         isNil
       )
@@ -99,7 +100,9 @@ const findMany = async (
         builder.whereIn(`${prescriptionsTable}.context`, findOptions.contexts);
       }
 
-      if (!findOptions.region) {
+      if (findOptions.allLevels) {
+        builder.where(`${localPrescriptionsTable}.companySiret`, 'None');
+      } else if (!findOptions.region) {
         builder.where(`${localPrescriptionsTable}.department`, 'None');
         builder.where(`${localPrescriptionsTable}.companySiret`, 'None');
       } else {

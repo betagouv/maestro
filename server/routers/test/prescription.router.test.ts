@@ -104,12 +104,18 @@ describe('Prescriptions router', () => {
         programmingPlanSubmitted,
         programmingPlanInProgress,
         programmingPlanClosed
-      ].flatMap((programmingPlan) =>
-        programmingPlan.regionalStatus.map((regionalStatus) => ({
+      ].flatMap((programmingPlan) => [
+        {
+          ...programmingPlan.nationalStatus,
+          programmingPlanId: programmingPlan.id,
+          region: 'None',
+          department: 'None'
+        },
+        ...programmingPlan.regionalStatus.map((regionalStatus) => ({
           ...regionalStatus,
           programmingPlanId: programmingPlan.id
         }))
-      )
+      ])
     );
     await ProgrammingSubPlans().insert(
       [

@@ -20,6 +20,8 @@ const categoryToEmailTemplate = {
   ProgrammingPlanApprovedByRegion: 'ApprovedProgrammingPlanTemplate',
   ProgrammingPlanSubmittedToDepartments: 'SubmittedProgrammingPlanTemplate',
   ProgrammingPlanValidated: 'GenericTemplate',
+  ProgrammingPlanModifiedAfterSubmission: 'GenericTemplate',
+  ProgrammingPlanReadyForAdminReview: 'GenericTemplate',
   ResourceDocumentUploaded: 'GenericTemplate',
   Control: 'NewLocalPrescriptionCommentTemplate',
   Surveillance: 'NewLocalPrescriptionCommentTemplate',
@@ -49,6 +51,8 @@ Une nouvelle programmation pour la prochaine campagne de surveillance / contrôl
 
 Merci de prendre connaissance de ces nouveaux éléments.`,
   ProgrammingPlanValidated: ({ content }) => content,
+  ProgrammingPlanModifiedAfterSubmission: ({ content }) => content,
+  ProgrammingPlanReadyForAdminReview: ({ content }) => content,
   AnalysisReviewTodo: () =>
     `Un rapport d'analyse de l'un de vos prélèvements vient d'être reçu par ${Brand}. Veuillez-vous connecter, faire la vérification des données issues de celui-ci et réaliser l'interprétation globale pour finaliser vos actions sur ce prélèvement.`,
   ResourceDocumentUploaded: ({ content }) => content

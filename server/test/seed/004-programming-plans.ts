@@ -36,14 +36,20 @@ export const seed = async (): Promise<void> => {
       PPVSubmittedProgrammingPlanFixture,
       DAOAValidatedProgrammingPlanFixture,
       DAOAInProgressProgrammingPlanFixture
-    ].flatMap((plan) =>
-      plan.regionalStatus.map((regionalStatus) =>
+    ].flatMap((plan) => [
+      ProgrammingPlanLocalStatus().insert({
+        ...plan.nationalStatus,
+        programmingPlanId: plan.id,
+        region: 'None',
+        department: 'None'
+      }),
+      ...plan.regionalStatus.map((regionalStatus) =>
         ProgrammingPlanLocalStatus().insert({
           ...regionalStatus,
           programmingPlanId: plan.id
         })
       )
-    )
+    ])
   );
 
   await ProgrammingSubPlans().insert(

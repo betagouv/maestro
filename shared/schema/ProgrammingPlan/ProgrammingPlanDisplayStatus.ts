@@ -126,6 +126,11 @@ export interface DisplayStatusResult {
   lastModifiedAt: Date | null;
 }
 
+export const isModifiedSinceSent = (
+  sentAt: Date | null,
+  lastModifiedAt: Date | null
+): boolean => Boolean(sentAt && lastModifiedAt && lastModifiedAt > sentAt);
+
 export const computeDisplayStatus = (
   input: DisplayStatusInput
 ): DisplayStatusResult => {
@@ -152,9 +157,7 @@ export const computeDisplayStatus = (
     };
   }
 
-  const modifiedSinceSent = Boolean(
-    sentAt && lastModifiedAt && lastModifiedAt > sentAt
-  );
+  const modifiedSinceSent = isModifiedSinceSent(sentAt, lastModifiedAt);
   const needsSend = input.isComplete && (sentAt === null || modifiedSinceSent);
 
   if (needsSend) {
@@ -195,9 +198,12 @@ export interface CompletenessResult {
 
 // Completeness = "has data been entered for this echelon's own share of the plan":
 // - National: every prescription has a non-zero national sampleCount ("matrices renseignées").
-// - Regional/Departmental: every prescription of the plan has a non-zero LocalPrescription
-//   sampleCount at this echelon's scope. This is a simplification flagged for validation against
-//   real usage (see plan risks) rather than a cross-echelon reconciliation of totals.
+// - Regional/Departmental: every prescription of the plan has a LocalPrescription row at this
+//   echelon's scope — a distributed count of 0 is a legitimate, final allocation (e.g. a matrix
+//   that isn't produced in that region), not "not yet entered", so it counts as done. Rows are
+//   created eagerly (sampleCount: 0) for every region/department as soon as a prescription
+//   exists (see prescriptionController.ts), so this only fails while a prescription is still
+//   missing entirely for that scope.
 export const computeCompleteness = (
   prescriptions: Pick<Prescription, 'id' | 'sampleCount'>[],
   localPrescriptions: Pick<
@@ -228,7 +234,7 @@ export const computeCompleteness = (
 
   return {
     isComplete: prescriptions.every(
-      (p) => sumBy(scopedByPrescription[p.id] ?? [], 'sampleCount') > 0
+      (p) => (scopedByPrescription[p.id] ?? []).length > 0
     ),
     hasAnyProgrammedSample: programmedCount > 0,
     programmedCount,

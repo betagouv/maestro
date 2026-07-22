@@ -145,10 +145,13 @@ export const RegionalCoordinatorView: Story = {
 
     await userEvent.click(canvas.getByTestId('prescriptions-table-segment'));
 
+    // The table view (ProgrammingPrescriptionTable, regional mode) doesn't
+    // carry over distribution badges from the old ProgrammingLocalPrescriptionTable —
+    // those only show in the cards view for now.
     await expect(
       Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
         el.textContent?.toLowerCase().includes('attribué')
       )
-    ).toHaveLength(prescriptions.length);
+    ).toHaveLength(0);
   }
 };

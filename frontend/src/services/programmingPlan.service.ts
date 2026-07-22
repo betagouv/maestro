@@ -48,6 +48,34 @@ const programmingPlanApi = api.injectEndpoints({
           { type: 'ProgrammingPlan', id: 'LIST' }
         ]
       }
+    ),
+    sendProgrammingPlansToRegions: buildTypedMutation(
+      builder,
+      '/programming-plans/send-to-regions',
+      'post',
+      {
+        invalidatesTags: (result) => [
+          ...(result ?? []).map(({ id }) => ({
+            type: 'ProgrammingPlan' as const,
+            id
+          })),
+          { type: 'ProgrammingPlan', id: 'LIST' }
+        ]
+      }
+    ),
+    sendProgrammingPlansToDepartments: buildTypedMutation(
+      builder,
+      '/programming-plans/send-to-departments',
+      'post',
+      {
+        invalidatesTags: (result) => [
+          ...(result ?? []).map(({ id }) => ({
+            type: 'ProgrammingPlan' as const,
+            id
+          })),
+          { type: 'ProgrammingPlan', id: 'LIST' }
+        ]
+      }
     )
   })
 });
@@ -57,5 +85,7 @@ export const {
   useGetProgrammingPlanQuery,
   useCreateProgrammingPlanMutation,
   useUpdateProgrammingPlanStatusMutation,
-  useUpdateProgrammingPlanLocalStatusMutation
+  useUpdateProgrammingPlanLocalStatusMutation,
+  useSendProgrammingPlansToRegionsMutation,
+  useSendProgrammingPlansToDepartmentsMutation
 } = programmingPlanApi;

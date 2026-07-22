@@ -74,6 +74,7 @@ const ProgrammingPrescriptionList = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const {
     hasNationalView,
+    hasRegionalView,
     hasUserPermission,
     hasUserPrescriptionPermission,
     hasUserLocalPrescriptionPermission,
@@ -647,26 +648,33 @@ const ProgrammingPrescriptionList = ({
             ))}
           {prescriptionListDisplay === 'table' &&
             prescriptions.length > 0 &&
-            (hasNationalView ? (
+            (hasNationalView || hasRegionalView ? (
               <ProgrammingPrescriptionTable
                 programmingPlans={programmingPlans}
                 prescriptions={prescriptions}
                 regionalPrescriptions={localPrescriptions}
                 onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
-                pendingPrescriptionIds={
-                  new Set(pendingPrescriptionSampleCounts.keys())
-                }
                 pendingLocalKeys={new Set(pendingLocalChanges.keys())}
-                onChangePrescriptionSampleCount={(
-                  prescription,
-                  sampleCount
-                ) => {
-                  setPendingPrescriptionSampleCounts((prev) => {
-                    const next = new Map(prev);
-                    next.set(prescription.id, sampleCount);
-                    return next;
-                  });
-                }}
+                {...(hasNationalView
+                  ? {
+                      pendingPrescriptionIds: new Set(
+                        pendingPrescriptionSampleCounts.keys()
+                      ),
+                      onChangePrescriptionSampleCount: (
+                        prescription,
+                        sampleCount
+                      ) => {
+                        setPendingPrescriptionSampleCounts((prev) => {
+                          const next = new Map(prev);
+                          next.set(prescription.id, sampleCount);
+                          return next;
+                        });
+                      }
+                    }
+                  : {
+                      region: user?.region as Region,
+                      subLocalPrescriptions: subLocalPrescriptions ?? []
+                    })}
               />
             ) : (
               <ProgrammingLocalPrescriptionTable

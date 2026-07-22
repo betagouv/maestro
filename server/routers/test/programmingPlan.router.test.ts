@@ -1,5 +1,9 @@
 import { constants } from 'node:http2';
-import { type Region, RegionList } from 'maestro-shared/referential/Region';
+import {
+  type Region,
+  RegionList,
+  Regions
+} from 'maestro-shared/referential/Region';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -40,6 +44,7 @@ import {
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
 import { createServer } from '../../server';
+import { mockSendNotification } from '../../test/setupTests';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('ProgrammingPlan router', () => {
@@ -48,9 +53,13 @@ describe('ProgrammingPlan router', () => {
   const programmingPlansMatch = (programmingPlans: ProgrammingPlanChecked[]) =>
     expect.arrayContaining(
       programmingPlans.map((programmingPlan) =>
-        withISOStringDates({
-          ...programmingPlan,
-          regionalStatus: expect.arrayContaining(programmingPlan.regionalStatus)
+        expect.objectContaining({
+          ...withISOStringDates(programmingPlan),
+          regionalStatus: expect.arrayContaining(
+            programmingPlan.regionalStatus.map((regionalStatus) =>
+              expect.objectContaining(regionalStatus)
+            )
+          )
         })
       )
     );
@@ -60,18 +69,29 @@ describe('ProgrammingPlan router', () => {
     programmingPlans: ProgrammingPlanChecked[],
     region?: Region | null
   ) => {
-    const regionalProgrammingPlans = programmingPlans.map(
-      (programmingPlan) => ({
-        ...programmingPlan,
-        regionalStatus: programmingPlan.regionalStatus.filter(
-          (regionalStatus) => (region ? regionalStatus.region === region : true)
+    // Asserted plan-by-plan (rather than as one array-level arrayContaining) so the
+    // asymmetric matchers stay shallow enough for toMatchObject to reliably apply
+    // partial/subset matching to the nested regionalStatus rows.
+    for (const programmingPlan of programmingPlans) {
+      const actual = body.find((_: any) => _.id === programmingPlan.id);
+      expect(
+        actual,
+        `expected plan ${programmingPlan.id} in body`
+      ).toBeDefined();
+
+      const expectedRegionalStatus = programmingPlan.regionalStatus.filter(
+        (regionalStatus) => (region ? regionalStatus.region === region : true)
+      );
+      expect(withISOStringDates(actual)).toMatchObject({
+        ...withISOStringDates(programmingPlan),
+        regionalStatus: expect.arrayContaining(
+          expectedRegionalStatus.map((regionalStatus) =>
+            expect.objectContaining(regionalStatus)
+          )
         ),
         departmentalStatus: []
-      })
-    );
-    expect(withISOStringDates(body)).toMatchObject(
-      programmingPlansMatch(regionalProgrammingPlans)
-    );
+      });
+    }
   };
 
   const notExpectedBody = (
@@ -396,12 +416,14 @@ describe('ProgrammingPlan router', () => {
         ProgrammingPlanLocalStatus().where('programmingPlanId', res.body.id)
       ).resolves.toMatchObject(
         expect.arrayContaining(
-          RegionList.map((region) => ({
-            programmingPlanId: res.body.id,
-            region,
-            status: 'InProgress',
-            department: 'None'
-          }))
+          RegionList.map((region) =>
+            expect.objectContaining({
+              programmingPlanId: res.body.id,
+              region,
+              status: 'InProgress',
+              department: 'None'
+            })
+          )
         )
       );
 
@@ -588,10 +610,12 @@ describe('ProgrammingPlan router', () => {
           closedAt: expect.any(String),
           closedBy: NationalCoordinator.id,
           regionalStatus: expect.arrayContaining(
-            RegionList.map((region) => ({
-              region,
-              status: 'Closed' as const
-            }))
+            RegionList.map((region) =>
+              expect.objectContaining({
+                region,
+                status: 'Closed' as const
+              })
+            )
           )
         })
       );
@@ -602,12 +626,14 @@ describe('ProgrammingPlan router', () => {
         })
       ).resolves.toMatchObject(
         expect.arrayContaining(
-          RegionList.map((region) => ({
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-            region,
-            status: 'Closed',
-            department: 'None'
-          }))
+          RegionList.map((region) =>
+            expect.objectContaining({
+              programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+              region,
+              status: 'Closed',
+              department: 'None'
+            })
+          )
         )
       );
       await expect(
@@ -722,10 +748,12 @@ describe('ProgrammingPlan router', () => {
           regionalStatus: expect.arrayContaining(
             PPVSubmittedProgrammingPlanFixture.regionalStatus.map(
               (regionalStatus) =>
-                regionalStatus.region ===
-                programmingPlanLocalStatusList[0].region
-                  ? programmingPlanLocalStatusList[0]
-                  : regionalStatus
+                expect.objectContaining(
+                  regionalStatus.region ===
+                    programmingPlanLocalStatusList[0].region
+                    ? programmingPlanLocalStatusList[0]
+                    : regionalStatus
+                )
             )
           )
         })
@@ -762,10 +790,12 @@ describe('ProgrammingPlan router', () => {
           regionalStatus: expect.arrayContaining(
             PPVSubmittedProgrammingPlanFixture.regionalStatus.map(
               (regionalStatus) =>
-                regionalStatus.region ===
-                programmingPlanLocalStatusList[0].region
-                  ? programmingPlanLocalStatusList[0]
-                  : regionalStatus
+                expect.objectContaining(
+                  regionalStatus.region ===
+                    programmingPlanLocalStatusList[0].region
+                    ? programmingPlanLocalStatusList[0]
+                    : regionalStatus
+                )
             )
           )
         })
@@ -787,6 +817,434 @@ describe('ProgrammingPlan router', () => {
       await ProgrammingPlanLocalStatus()
         .where('programmingPlanId', PPVSubmittedProgrammingPlanFixture.id)
         .update({ status: 'SubmittedToRegion' });
+    });
+  });
+
+  describe('POST /programming-plans/send-to-regions', () => {
+    const testRoute = '/api/programming-plans/send-to-regions';
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .post(testRoute)
+        .send({ programmingPlanIds: [PPVInProgressProgrammingPlanFixture.id] })
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user is not authorized', async () => {
+      await request(app)
+        .post(testRoute)
+        .send({ programmingPlanIds: [PPVInProgressProgrammingPlanFixture.id] })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('admin: first send cascades every region and sets the national sentAt', async () => {
+      mockSendNotification.mockClear();
+
+      const res = await request(app)
+        .post(testRoute)
+        .send({ programmingPlanIds: [PPVInProgressProgrammingPlanFixture.id] })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body[0]).toMatchObject({
+        id: PPVInProgressProgrammingPlanFixture.id,
+        nationalStatus: expect.objectContaining({
+          status: 'SubmittedToRegion'
+        })
+      });
+
+      await expect(
+        ProgrammingPlanLocalStatus()
+          .where({
+            programmingPlanId: PPVInProgressProgrammingPlanFixture.id,
+            region: 'None'
+          })
+          .first()
+      ).resolves.toMatchObject({
+        status: 'SubmittedToRegion',
+        sentAt: expect.any(Date)
+      });
+
+      const regionalRows = await ProgrammingPlanLocalStatus()
+        .where('programmingPlanId', PPVInProgressProgrammingPlanFixture.id)
+        .andWhere('region', '!=', 'None');
+      expect(
+        regionalRows.every((row) => row.status === 'SubmittedToRegion')
+      ).toBe(true);
+
+      expect(mockSendNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          category: 'ProgrammingPlanSubmittedToRegion'
+        }),
+        expect.anything(),
+        expect.anything()
+      );
+
+      //Cleanup
+      await ProgrammingPlanLocalStatus()
+        .where('programmingPlanId', PPVInProgressProgrammingPlanFixture.id)
+        .update({ status: 'InProgress', sentAt: null });
+    });
+
+    test('national: first send only notifies administrators, no db write', async () => {
+      mockSendNotification.mockClear();
+
+      const res = await request(app)
+        .post(testRoute)
+        .send({ programmingPlanIds: [PPVInProgressProgrammingPlanFixture.id] })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body[0]).toMatchObject({
+        id: PPVInProgressProgrammingPlanFixture.id,
+        nationalStatus: expect.objectContaining({
+          status: 'InProgress',
+          sentAt: null
+        })
+      });
+
+      const rows = await ProgrammingPlanLocalStatus().where(
+        'programmingPlanId',
+        PPVInProgressProgrammingPlanFixture.id
+      );
+      expect(
+        rows.every((row) => row.status === 'InProgress' && row.sentAt === null)
+      ).toBe(true);
+
+      expect(mockSendNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          category: 'ProgrammingPlanReadyForAdminReview'
+        }),
+        expect.anything(),
+        expect.anything()
+      );
+    });
+
+    test('admin: resend after modification is a no-op, only the national coordinator can do it', async () => {
+      const modifiedRegion =
+        PPVSubmittedProgrammingPlanFixture.regionalStatus[0].region;
+      const previousSentAt = new Date('2020-01-01');
+
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+          region: 'None'
+        })
+        .update({
+          sentAt: previousSentAt,
+          lastModifiedAt: new Date('2020-06-01')
+        });
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+          region: modifiedRegion
+        })
+        .update({ lastModifiedAt: new Date('2020-06-01') });
+
+      mockSendNotification.mockClear();
+
+      await request(app)
+        .post(testRoute)
+        .send({ programmingPlanIds: [PPVSubmittedProgrammingPlanFixture.id] })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const updatedNational = await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+          region: 'None'
+        })
+        .first();
+      expect(updatedNational?.status).toBe('SubmittedToRegion');
+      expect(
+        new Date(updatedNational?.sentAt as unknown as string).getTime()
+      ).toBe(previousSentAt.getTime());
+
+      const regionalRows = await ProgrammingPlanLocalStatus()
+        .where('programmingPlanId', PPVSubmittedProgrammingPlanFixture.id)
+        .andWhere('region', '!=', 'None');
+      expect(
+        regionalRows.every((row) => row.status === 'SubmittedToRegion')
+      ).toBe(true);
+
+      expect(mockSendNotification).not.toHaveBeenCalled();
+
+      //Cleanup
+      await ProgrammingPlanLocalStatus()
+        .where('programmingPlanId', PPVSubmittedProgrammingPlanFixture.id)
+        .update({ sentAt: null, lastModifiedAt: null });
+    });
+
+    test('national: a single call branches per plan (never sent vs already sent)', async () => {
+      const modifiedRegion =
+        PPVSubmittedProgrammingPlanFixture.regionalStatus[0].region;
+      const previousSentAt = new Date('2020-01-01');
+
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+          region: 'None'
+        })
+        .update({
+          sentAt: previousSentAt,
+          lastModifiedAt: new Date('2020-06-01')
+        });
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+          region: modifiedRegion
+        })
+        .update({ lastModifiedAt: new Date('2020-06-01') });
+
+      mockSendNotification.mockClear();
+
+      await request(app)
+        .post(testRoute)
+        .send({
+          programmingPlanIds: [
+            PPVInProgressProgrammingPlanFixture.id,
+            PPVSubmittedProgrammingPlanFixture.id
+          ]
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      // Never-sent plan: untouched, admin notified only.
+      const inProgressRows = await ProgrammingPlanLocalStatus().where(
+        'programmingPlanId',
+        PPVInProgressProgrammingPlanFixture.id
+      );
+      expect(
+        inProgressRows.every(
+          (row) => row.status === 'InProgress' && row.sentAt === null
+        )
+      ).toBe(true);
+
+      // Already-sent plan: sent directly, national sentAt refreshed.
+      const updatedNational = await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+          region: 'None'
+        })
+        .first();
+      expect(
+        new Date(updatedNational?.sentAt as unknown as string).getTime()
+      ).toBeGreaterThan(previousSentAt.getTime());
+
+      expect(mockSendNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          category: 'ProgrammingPlanReadyForAdminReview'
+        }),
+        expect.anything(),
+        expect.anything()
+      );
+      expect(mockSendNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          category: 'ProgrammingPlanModifiedAfterSubmission'
+        }),
+        expect.anything(),
+        expect.anything()
+      );
+
+      //Cleanup
+      await ProgrammingPlanLocalStatus()
+        .where('programmingPlanId', PPVSubmittedProgrammingPlanFixture.id)
+        .update({ sentAt: null, lastModifiedAt: null });
+    });
+  });
+
+  describe('POST /programming-plans/send-to-departments', () => {
+    const testRoute = '/api/programming-plans/send-to-departments';
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .post(testRoute)
+        .send({
+          programmingPlanIds: [DAOAInProgressProgrammingPlanFixture.id]
+        })
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user is not authorized', async () => {
+      await request(app)
+        .post(testRoute)
+        .send({
+          programmingPlanIds: [DAOAInProgressProgrammingPlanFixture.id]
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('first send cascades every department of the region and sets the regional sentAt', async () => {
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
+          region: RegionalCoordinator.region
+        })
+        .update({ status: 'SubmittedToRegion' });
+
+      mockSendNotification.mockClear();
+
+      const res = await request(app)
+        .post(testRoute)
+        .send({
+          programmingPlanIds: [DAOAInProgressProgrammingPlanFixture.id]
+        })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body[0]).toMatchObject({
+        id: DAOAInProgressProgrammingPlanFixture.id,
+        regionalStatus: expect.arrayContaining([
+          expect.objectContaining({
+            region: RegionalCoordinator.region,
+            status: 'SubmittedToDepartments'
+          })
+        ])
+      });
+
+      await expect(
+        ProgrammingPlanLocalStatus()
+          .where({
+            programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
+            region: RegionalCoordinator.region,
+            department: 'None'
+          })
+          .first()
+      ).resolves.toMatchObject({
+        status: 'SubmittedToDepartments',
+        sentAt: expect.any(Date)
+      });
+
+      const departmentRows = await ProgrammingPlanLocalStatus()
+        .where('programmingPlanId', DAOAInProgressProgrammingPlanFixture.id)
+        .andWhere('region', RegionalCoordinator.region)
+        .andWhere('department', '!=', 'None');
+      expect(departmentRows.length).toBeGreaterThan(0);
+      expect(
+        departmentRows.every((row) => row.status === 'SubmittedToDepartments')
+      ).toBe(true);
+
+      expect(mockSendNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          category: 'ProgrammingPlanSubmittedToDepartments'
+        }),
+        expect.anything(),
+        expect.anything()
+      );
+
+      //Cleanup
+      await ProgrammingPlanLocalStatus()
+        .where('programmingPlanId', DAOAInProgressProgrammingPlanFixture.id)
+        .andWhere('region', RegionalCoordinator.region)
+        .andWhere('department', '!=', 'None')
+        .delete();
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
+          region: RegionalCoordinator.region
+        })
+        .update({ status: 'InProgress', sentAt: null });
+    });
+
+    test('a REGIONAL plan is silently ignored (no department cascade)', async () => {
+      mockSendNotification.mockClear();
+
+      await request(app)
+        .post(testRoute)
+        .send({ programmingPlanIds: [PPVInProgressProgrammingPlanFixture.id] })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(mockSendNotification).not.toHaveBeenCalled();
+    });
+
+    test('resend after modification only touches the regional sentAt and notifies the modified departments', async () => {
+      // The test seed only inserts national/regional rows (see
+      // server/test/seed/004-programming-plans.ts) — department rows have to
+      // be created here to simulate a plan that was already fully sent once.
+      const departments = Regions[RegionalCoordinator.region].departments;
+      const modifiedDepartment = departments[0];
+      await ProgrammingPlanLocalStatus().insert(
+        departments.map((department) => ({
+          programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
+          region: RegionalCoordinator.region,
+          department,
+          status: 'Validated' as const
+        }))
+      );
+
+      const previousSentAt = new Date('2020-01-01');
+
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
+          region: RegionalCoordinator.region,
+          department: 'None'
+        })
+        .update({
+          sentAt: previousSentAt,
+          lastModifiedAt: new Date('2020-06-01')
+        });
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
+          region: RegionalCoordinator.region,
+          department: modifiedDepartment
+        })
+        .update({ lastModifiedAt: new Date('2020-06-01') });
+
+      mockSendNotification.mockClear();
+
+      await request(app)
+        .post(testRoute)
+        .send({
+          programmingPlanIds: [DAOAValidatedProgrammingPlanFixture.id]
+        })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const updatedRegional = await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
+          region: RegionalCoordinator.region,
+          department: 'None'
+        })
+        .first();
+      expect(
+        new Date(updatedRegional?.sentAt as unknown as string).getTime()
+      ).toBeGreaterThan(previousSentAt.getTime());
+
+      const departmentRows = await ProgrammingPlanLocalStatus()
+        .where('programmingPlanId', DAOAValidatedProgrammingPlanFixture.id)
+        .andWhere('region', RegionalCoordinator.region)
+        .andWhere('department', '!=', 'None');
+      expect(departmentRows.every((row) => row.status === 'Validated')).toBe(
+        true
+      );
+
+      expect(mockSendNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          category: 'ProgrammingPlanModifiedAfterSubmission'
+        }),
+        expect.anything(),
+        expect.anything()
+      );
+
+      //Cleanup
+      await ProgrammingPlanLocalStatus()
+        .where('programmingPlanId', DAOAValidatedProgrammingPlanFixture.id)
+        .andWhere('region', RegionalCoordinator.region)
+        .andWhere('department', '!=', 'None')
+        .delete();
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
+          region: RegionalCoordinator.region,
+          department: 'None'
+        })
+        .update({ sentAt: null, lastModifiedAt: null });
     });
   });
 });
