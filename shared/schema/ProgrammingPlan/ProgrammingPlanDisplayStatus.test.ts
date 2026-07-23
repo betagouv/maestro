@@ -69,6 +69,32 @@ describe('computeDisplayStatus — ReadyToSend/modified branch', () => {
     expect(result.value).toBe('Submitted');
     expect(result.modified).toBe(false);
   });
+
+  test('Regional, freshly received and never touched, complete -> InProgress, not ReadyToSend', () => {
+    // isComplete is true here because the region's LocalPrescription rows
+    // were eagerly created (sampleCount 0) as soon as the prescription
+    // existed nationally — not because this region has reviewed anything.
+    const result = computeDisplayStatus({
+      ...base,
+      echelon: 'Regional',
+      status: 'SubmittedToRegion',
+      sentAt: null,
+      lastModifiedAt: null
+    });
+    expect(result.value).toBe('InProgress');
+  });
+
+  test('Regional, received and touched, not sent onward -> ReadyToSend', () => {
+    const result = computeDisplayStatus({
+      ...base,
+      echelon: 'Regional',
+      status: 'SubmittedToRegion',
+      sentAt: null,
+      lastModifiedAt: new Date('2026-01-02')
+    });
+    expect(result.value).toBe('ReadyToSend');
+    expect(result.label).toBe('Terminé, à envoyer');
+  });
 });
 
 describe('computeCompleteness — Regional/Departmental: 0 is a legitimate final allocation', () => {

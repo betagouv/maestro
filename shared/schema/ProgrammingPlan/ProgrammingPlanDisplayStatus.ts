@@ -162,7 +162,20 @@ export const computeDisplayStatus = (
   }
 
   const modifiedSinceSent = isModifiedSinceSent(sentAt, lastModifiedAt);
-  const needsSend = input.isComplete && (sentAt === null || modifiedSinceSent);
+  // For Regional/Departmental, `isComplete` is satisfied the moment every
+  // prescription has a row at that scope — which happens eagerly (sampleCount
+  // 0) as soon as the prescription exists nationally, not when this echelon
+  // actually reviews/acts on it (see computeCompleteness). So a freshly
+  // received, never-touched region/department would otherwise look
+  // "ReadyToSend" immediately on receipt. National's `isComplete` doesn't
+  // have that problem (it reflects prescriptions the national coordinator
+  // actively created), so it's exempt from this extra guard.
+  const hasBeenTouched =
+    input.echelon === 'National' || lastModifiedAt !== null;
+  const needsSend =
+    input.isComplete &&
+    hasBeenTouched &&
+    (sentAt === null || modifiedSinceSent);
 
   if (needsSend) {
     return {

@@ -2,6 +2,8 @@ import { fakerFR } from '@faker-js/faker';
 import { CER30Id } from 'maestro-shared/schema/User/User';
 import {
   DAOABovinValidatedSubPlanId,
+  DAOAInProgressBovinSubPlanId,
+  DAOAInProgressVolailleSubPlanId,
   DAOAVolailleValidatedSubPlanId,
   PPVInProgressSubPlanId,
   PPVValidatedSubPlanId
@@ -17,7 +19,9 @@ import { AVIVOL, CHARAL } from './001-companies';
 
 const sachaSubPlanIds = [
   DAOAVolailleValidatedSubPlanId,
-  DAOABovinValidatedSubPlanId
+  DAOABovinValidatedSubPlanId,
+  DAOAInProgressVolailleSubPlanId,
+  DAOAInProgressBovinSubPlanId
 ];
 
 export const seed = async () => {
