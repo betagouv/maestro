@@ -9,6 +9,7 @@ import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+
 import type React from 'react';
 import { useMemo, useState } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -32,6 +33,12 @@ interface Props {
     substanceKindsLaboratories: SubstanceKindLaboratory[]
   ) => Promise<void>;
   onSelectAll: () => void;
+  // Regional coordinator only gets the table view — no grid/segmented control.
+  hideDisplayToggle?: boolean;
+  // Regional coordinator gets the SelectionActionBar-based bulk laboratory
+  // assignment banner instead (rendered by the parent) — this inline
+  // single-subPlan "Action groupée" flow stays for the departmental/cards path.
+  hideGroupedUpdateButton?: boolean;
 }
 
 const ProgrammingPrescriptionListHeader = ({
@@ -43,7 +50,9 @@ const ProgrammingPrescriptionListHeader = ({
   hasGroupedUpdatePermission,
   selectedCount,
   onGroupedUpdate,
-  onSelectAll
+  onSelectAll,
+  hideDisplayToggle,
+  hideGroupedUpdateButton
 }: Props) => {
   const dispatch = useAppDispatch();
   const { isMobile } = useWindowSize();
@@ -149,23 +158,25 @@ const ProgrammingPrescriptionListHeader = ({
               />
             )}
         </div>
-        {hasGroupedUpdatePermission && !isGroupedUpdate && (
-          <Button
-            iconId="fr-icon-list-ordered"
-            priority="secondary"
-            title="Action groupée"
-            size={isMobile ? 'small' : 'medium'}
-            onClick={() => setIsGroupedUpdate(true)}
-            disabled={
-              uniqBy(
-                prescriptions,
-                (prescription) => prescription.programmingSubPlanId
-              ).length !== 1
-            }
-          >
-            {isMobile ? undefined : 'Action groupée'}
-          </Button>
-        )}
+        {hasGroupedUpdatePermission &&
+          !hideGroupedUpdateButton &&
+          !isGroupedUpdate && (
+            <Button
+              iconId="fr-icon-list-ordered"
+              priority="secondary"
+              title="Action groupée"
+              size={isMobile ? 'small' : 'medium'}
+              onClick={() => setIsGroupedUpdate(true)}
+              disabled={
+                uniqBy(
+                  prescriptions,
+                  (prescription) => prescription.programmingSubPlanId
+                ).length !== 1
+              }
+            >
+              {isMobile ? undefined : 'Action groupée'}
+            </Button>
+          )}
       </div>
       {isGroupedUpdate && onGroupedUpdate && (
         <ProgrammingPrescriptionListGroupedUpdate
