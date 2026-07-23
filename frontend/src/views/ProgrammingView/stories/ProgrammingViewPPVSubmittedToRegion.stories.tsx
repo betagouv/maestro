@@ -144,10 +144,10 @@ export const RegionalCoordinatorView: Story = {
 
     await expect(
       canvas.queryByTestId('prescriptions-cards-segment')
-    ).toBeInTheDocument();
+    ).not.toBeInTheDocument();
     await expect(
       canvas.queryByTestId('prescriptions-table-segment')
-    ).toBeInTheDocument();
+    ).not.toBeInTheDocument();
 
     await expect(
       canvas.queryByTestId('update-laboratory-button')
