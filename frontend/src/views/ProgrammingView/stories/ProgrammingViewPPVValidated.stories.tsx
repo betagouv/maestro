@@ -142,7 +142,6 @@ export const RegionalCoordinatorView: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-
     await expect(canvas.getAllByTestId('update-laboratory-button').length).toBe(
       regionalPrescriptions.filter((_) => _.region === Sampler1Fixture.region)
         .length

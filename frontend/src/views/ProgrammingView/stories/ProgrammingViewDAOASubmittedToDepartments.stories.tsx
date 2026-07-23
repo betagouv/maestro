@@ -146,12 +146,6 @@ export const RegionalCoordinatorView: Story = {
       Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
         el.textContent?.toLowerCase().includes('attribué')
       )
-    ).toHaveLength(prescriptions.length);
-
-    await expect(
-      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
-        el.textContent?.toLowerCase().includes('attribué')
-      )
     ).toHaveLength(0);
   }
 };

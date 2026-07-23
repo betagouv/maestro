@@ -153,13 +153,6 @@ export const RegionalCoordinatorView: Story = {
       Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
         el.textContent?.toLowerCase().includes('%')
       )
-    ).toHaveLength(prescriptions.length);
-    await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
-
-    await expect(
-      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
-        el.textContent?.toLowerCase().includes('%')
-      )
     ).toHaveLength(0);
     await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
   }
