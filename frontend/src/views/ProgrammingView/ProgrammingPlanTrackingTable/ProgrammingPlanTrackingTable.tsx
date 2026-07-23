@@ -268,11 +268,16 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
       // mode, eligibility is governed by that region's own Regional echelon
       // status instead, and only SLAUGHTERHOUSE plans cascade to departments
       // (REGIONAL plans follow a separate approval workflow).
+      const isSubmittedToAdmin =
+        plan.nationalStatus.status === 'SubmittedToAdmin';
       const isEligible = region
         ? plan.distributionKind === 'SLAUGHTERHOUSE' &&
           regionalDisplayStatus?.value === 'ReadyToSend'
-        : nationalDisplayStatus.value === 'ReadyToSend' &&
-          (!hasRole('Administrator') || !nationalDisplayStatus.modified);
+        : hasRole('Administrator')
+          ? (nationalDisplayStatus.value === 'ReadyToSend' &&
+              !nationalDisplayStatus.modified) ||
+            isSubmittedToAdmin
+          : nationalDisplayStatus.value === 'ReadyToSend';
 
       map.set(plan.id, {
         nationalDisplayStatus,

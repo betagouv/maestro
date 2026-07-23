@@ -887,7 +887,7 @@ describe('ProgrammingPlan router', () => {
         .update({ status: 'InProgress', sentAt: null });
     });
 
-    test('national: first send only notifies administrators, no db write', async () => {
+    test('national: first send marks the plan SubmittedToAdmin and notifies administrators, regions untouched', async () => {
       mockSendNotification.mockClear();
 
       const res = await request(app)
@@ -899,17 +899,18 @@ describe('ProgrammingPlan router', () => {
       expect(res.body[0]).toMatchObject({
         id: PPVInProgressProgrammingPlanFixture.id,
         nationalStatus: expect.objectContaining({
-          status: 'InProgress',
-          sentAt: null
+          status: 'SubmittedToAdmin',
+          sentAt: expect.any(String)
         })
       });
 
-      const rows = await ProgrammingPlanLocalStatus().where(
-        'programmingPlanId',
-        PPVInProgressProgrammingPlanFixture.id
-      );
+      const regionalRows = await ProgrammingPlanLocalStatus()
+        .where('programmingPlanId', PPVInProgressProgrammingPlanFixture.id)
+        .andWhere('region', '!=', 'None');
       expect(
-        rows.every((row) => row.status === 'InProgress' && row.sentAt === null)
+        regionalRows.every(
+          (row) => row.status === 'InProgress' && row.sentAt === null
+        )
       ).toBe(true);
 
       expect(mockSendNotification).toHaveBeenCalledWith(
@@ -919,6 +920,14 @@ describe('ProgrammingPlan router', () => {
         expect.anything(),
         expect.anything()
       );
+
+      //Cleanup
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVInProgressProgrammingPlanFixture.id,
+          region: 'None'
+        })
+        .update({ status: 'InProgress', sentAt: null });
     });
 
     test('admin: resend after modification is a no-op, only the national coordinator can do it', async () => {
@@ -1010,16 +1019,26 @@ describe('ProgrammingPlan router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      // Never-sent plan: untouched, admin notified only.
-      const inProgressRows = await ProgrammingPlanLocalStatus().where(
-        'programmingPlanId',
-        PPVInProgressProgrammingPlanFixture.id
-      );
+      // Never-sent plan: national row marked SubmittedToAdmin, regions untouched, admin notified.
+      const inProgressRegionalRows = await ProgrammingPlanLocalStatus()
+        .where('programmingPlanId', PPVInProgressProgrammingPlanFixture.id)
+        .andWhere('region', '!=', 'None');
       expect(
-        inProgressRows.every(
+        inProgressRegionalRows.every(
           (row) => row.status === 'InProgress' && row.sentAt === null
         )
       ).toBe(true);
+
+      const inProgressNationalRow = await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVInProgressProgrammingPlanFixture.id,
+          region: 'None'
+        })
+        .first();
+      expect(inProgressNationalRow).toMatchObject({
+        status: 'SubmittedToAdmin',
+        sentAt: expect.any(Date)
+      });
 
       // Already-sent plan: sent directly, national sentAt refreshed.
       const updatedNational = await ProgrammingPlanLocalStatus()
@@ -1051,6 +1070,12 @@ describe('ProgrammingPlan router', () => {
       await ProgrammingPlanLocalStatus()
         .where('programmingPlanId', PPVSubmittedProgrammingPlanFixture.id)
         .update({ sentAt: null, lastModifiedAt: null });
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVInProgressProgrammingPlanFixture.id,
+          region: 'None'
+        })
+        .update({ status: 'InProgress', sentAt: null });
     });
   });
 
