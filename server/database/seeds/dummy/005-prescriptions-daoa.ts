@@ -24,7 +24,10 @@ import {
 
 export const seed = async () => {
   await Prescriptions().insert([
-    FoieDeBovinPrescriptionFixture,
+    // Foie de bovin's national sampleCount is left unset here (seed-only override,
+    // fixture itself keeps 80) so the "InProgress" DAOA plan's national completeness
+    // stays false, matching its "InProgress" (not ready to send) status.
+    { ...FoieDeBovinPrescriptionFixture, sampleCount: 0 },
     VolaillePrescriptionFixture,
     FoieDeBovinValidatedPrescriptionFixture,
     VolailleValidatedPrescriptionFixture

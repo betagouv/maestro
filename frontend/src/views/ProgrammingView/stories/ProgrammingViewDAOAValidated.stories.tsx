@@ -160,8 +160,9 @@ export const RegionalCoordinatorView: Story = {
     ).not.toBeInTheDocument();
 
     await expect(
-      canvas.getByText('Statut par département')
-    ).toBeInTheDocument();
+      canvas.queryByText('Statut par département')
+    ).not.toBeInTheDocument();
+    await expect(canvas.getByText('Suivi des plans')).toBeInTheDocument();
     await expect(canvas.queryByTestId('Commentaires')).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();

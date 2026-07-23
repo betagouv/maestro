@@ -81,6 +81,12 @@ export const programmingPlanRouter = {
         );
 
         if (userRole === 'NationalCoordinator' && !isModified) {
+          await programmingPlanRepository.updateNationalStatus(
+            plan.id,
+            'SubmittedToAdmin',
+            plan.distributionKind
+          );
+
           const admins = await userRepository.findMany({
             roles: ['Administrator'],
             programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
