@@ -76,6 +76,6 @@ export const NationalCoordinatorView: Story = {
 
     await userEvent.click(canvas.getByTestId('prescriptions-cards-segment'));
 
-    await expect(canvas.getByTestId('notify-button')).toBeInTheDocument();
+    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
 };

@@ -369,12 +369,56 @@ export const seed = async () => {
     graineDeTournesol2
   ];
 
-  const inProgressPrescriptions = prescriptions.map((prescription) => ({
+  const inProgressPrescriptions = prescriptions.map((prescription, index) => ({
     ...prescription,
     id: uuidv4(),
     programmingPlanId: PPVInProgressProgrammingPlanFixture.id,
-    programmingSubPlanId: PPVInProgressSubPlanId
+    programmingSubPlanId: PPVInProgressSubPlanId,
+    // Keep the last matrix's national sampleCount unset so the plan's national
+    // completeness stays false, matching its "InProgress" (not ready to send) status.
+    sampleCount:
+      index === prescriptions.length - 1 ? 0 : prescription.sampleCount
   }));
+
+  // Same per-region distribution as the Validated (2026) matrices below, in
+  // the same order as `prescriptions` — keeps each local prescription's total
+  // coherent with its national sampleCount. The last matrix's distribution is
+  // zeroed out to match its forced national sampleCount of 0 above.
+  const inProgressDistributions = [
+    [14, 0, 0, 0, 3, 2, 0, 0, 0, 3, 12, 0, 6, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 3, 3, 2],
+    [5, 8, 5, 4, 0, 8, 3, 0, 4, 6, 6, 4, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 2],
+    [3, 3, 5, 3, 2, 6, 7, 3, 6, 9, 3, 4, 2, 0, 0, 0, 0, 0],
+    [3, 0, 4, 0, 0, 6, 3, 0, 3, 5, 3, 4, 2, 0, 0, 0, 0, 0],
+    [7, 0, 0, 0, 0, 3, 0, 0, 0, 3, 5, 0, 6, 0, 0, 0, 0, 0],
+    [0, 0, 5, 0, 3, 6, 4, 0, 4, 3, 0, 3, 0, 2, 3, 2, 0, 5],
+    [2, 0, 13, 0, 0, 0, 7, 0, 6, 5, 0, 0, 3, 0, 0, 0, 0, 0],
+    [0, 0, 5, 0, 0, 4, 6, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [4, 0, 3, 0, 0, 0, 0, 0, 0, 5, 0, 0, 4, 0, 0, 0, 0, 0],
+    [0, 7, 0, 4, 0, 3, 4, 4, 4, 9, 5, 3, 0, 0, 0, 0, 0, 0],
+    [3, 0, 0, 0, 2, 0, 0, 0, 0, 0, 5, 0, 9, 0, 0, 0, 0, 0],
+    [4, 0, 0, 2, 3, 4, 0, 5, 0, 0, 3, 4, 6, 3, 4, 2, 0, 0],
+    [0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 6, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 3, 0, 4],
+    [6, 7, 6, 9, 2, 4, 9, 7, 6, 15, 10, 3, 0, 0, 0, 0, 0, 0],
+    [9, 5, 0, 5, 0, 3, 0, 0, 0, 6, 5, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6, 2],
+    [0, 0, 3, 0, 0, 0, 3, 0, 4, 4, 0, 5, 3, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 3, 4, 2],
+    [3, 0, 6, 0, 0, 0, 5, 3, 4, 4, 0, 3, 3, 0, 0, 0, 0, 0],
+    [6, 5, 0, 6, 4, 7, 6, 4, 3, 3, 5, 3, 0, 0, 0, 0, 0, 0],
+    [5, 6, 6, 5, 2, 8, 4, 3, 5, 8, 5, 7, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 3, 5, 4, 4, 3, 0],
+    [6, 0, 0, 0, 5, 3, 0, 0, 0, 5, 10, 0, 7, 0, 0, 0, 0, 0],
+    [6, 0, 3, 5, 0, 0, 4, 5, 6, 4, 3, 3, 0, 3, 0, 0, 0, 0],
+    [6, 0, 2, 2, 0, 3, 0, 0, 2, 4, 5, 7, 5, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 8, 0, 0, 6, 0, 0],
+    [7, 8, 0, 4, 0, 6, 0, 2, 0, 11, 12, 0, 0, 0, 0, 0, 0, 0],
+    [0, 6, 0, 0, 0, 4, 4, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0],
+    Array(18).fill(0)
+  ];
 
   await Prescriptions().insert([...prescriptions, ...inProgressPrescriptions]);
 
@@ -511,13 +555,8 @@ export const seed = async () => {
       graineDeTournesol2.id,
       [12, 0, 0, 8, 0, 0, 0, 0, 0, 17, 13, 0, 0, 0, 0, 0, 0, 0]
     ),
-    ...inProgressPrescriptions.flatMap((prescription) =>
-      genLocalPrescriptions(
-        prescription.id,
-        Array(18)
-          .fill(0)
-          .map(() => (Math.random() < 0.5 ? 0 : Math.ceil(Math.random() * 10)))
-      )
+    ...inProgressPrescriptions.flatMap((prescription, index) =>
+      genLocalPrescriptions(prescription.id, inProgressDistributions[index])
     )
   ]);
 

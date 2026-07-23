@@ -10,6 +10,7 @@ import {
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { NotificationCategoryTitles } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
+import { isModifiedSinceSent } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import {
   NextProgrammingPlanStatus,
   type ProgrammingPlanStatus,
@@ -61,6 +62,216 @@ export const programmingPlanRouter = {
       console.info('Found programmingPlans', programmingPlans);
 
       return { status: HttpStatus.OK, response: programmingPlans };
+    }
+  },
+  '/programming-plans/send-to-regions': {
+    post: async ({ userRole, body: { programmingPlanIds } }) => {
+      const plans = await programmingPlanRepository.findMany({
+        ids: programmingPlanIds
+      });
+
+      for (const plan of plans) {
+        const link = AppRouteLinks.ProgrammingRoute.link({
+          year: plan.year,
+          planIds: plan.id
+        });
+        const isModified = isModifiedSinceSent(
+          plan.nationalStatus.sentAt ?? null,
+          plan.nationalStatus.lastModifiedAt ?? null
+        );
+
+        if (userRole === 'NationalCoordinator' && !isModified) {
+          await programmingPlanRepository.updateNationalStatus(
+            plan.id,
+            'SubmittedToAdmin',
+            plan.distributionKind
+          );
+
+          const admins = await userRepository.findMany({
+            roles: ['Administrator'],
+            programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+          });
+
+          await notificationService.sendNotification(
+            { category: 'ProgrammingPlanReadyForAdminReview', link },
+            admins,
+            {
+              object:
+                NotificationCategoryTitles.ProgrammingPlanReadyForAdminReview,
+              content: `Le plan « ${plan.title} » est prêt à être diffusé aux régions.`
+            }
+          );
+          continue;
+        }
+
+        // A resend after modification is a National-only action: the admin's
+        // role stops at the first send, only the national coordinator can
+        // push a subsequent modification out to the regions.
+        if (userRole === 'Administrator' && isModified) {
+          continue;
+        }
+
+        if (!isModified) {
+          await Promise.all(
+            plan.regionalStatus.map((regionalStatus) =>
+              programmingPlanRepository.updateLocalStatus(
+                plan.id,
+                { region: regionalStatus.region, status: 'SubmittedToRegion' },
+                plan.distributionKind
+              )
+            )
+          );
+          await programmingPlanRepository.updateNationalStatus(
+            plan.id,
+            'SubmittedToRegion',
+            plan.distributionKind
+          );
+
+          const regionalCoordinators = await userRepository.findMany({
+            roles: ['RegionalCoordinator'],
+            programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+          });
+
+          await notificationService.sendNotification(
+            { category: 'ProgrammingPlanSubmittedToRegion', link },
+            regionalCoordinators,
+            {
+              sender:
+                userRole === 'Administrator'
+                  ? 'administration'
+                  : 'coordination nationale'
+            }
+          );
+        } else {
+          const previousSentAt = plan.nationalStatus.sentAt as Date;
+          await programmingPlanRepository.touchNationalSentAt(plan.id);
+
+          const affectedRegions = plan.regionalStatus.filter(
+            (regionalStatus) =>
+              regionalStatus.lastModifiedAt &&
+              regionalStatus.lastModifiedAt > previousSentAt
+          );
+
+          for (const affectedRegion of affectedRegions) {
+            const regionalCoordinators = await userRepository.findMany({
+              roles: ['RegionalCoordinator'],
+              region: affectedRegion.region,
+              programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+            });
+
+            await notificationService.sendNotification(
+              { category: 'ProgrammingPlanModifiedAfterSubmission', link },
+              regionalCoordinators,
+              {
+                object:
+                  NotificationCategoryTitles.ProgrammingPlanModifiedAfterSubmission,
+                content: `Le plan « ${plan.title} » a été modifié et renvoyé.`
+              }
+            );
+          }
+        }
+      }
+
+      const updatedPlans = await programmingPlanRepository.findMany({
+        ids: programmingPlanIds
+      });
+
+      return { status: HttpStatus.OK, response: updatedPlans };
+    }
+  },
+  '/programming-plans/send-to-departments': {
+    post: async ({ user, body: { programmingPlanIds } }) => {
+      const region = user.region as Region;
+      const plans = await programmingPlanRepository.findMany({
+        ids: programmingPlanIds
+      });
+
+      for (const plan of plans) {
+        // Only SLAUGHTERHOUSE plans cascade to a department echelon; REGIONAL
+        // plans go SubmittedToRegion → ApprovedByRegion → Validated instead,
+        // a separate approval workflow this action has no bearing on.
+        if (plan.distributionKind !== 'SLAUGHTERHOUSE') {
+          continue;
+        }
+
+        const regionalStatus = plan.regionalStatus.find(
+          (_) => _.region === region
+        );
+        if (!regionalStatus) {
+          continue;
+        }
+
+        const link = AppRouteLinks.ProgrammingRoute.link({
+          year: plan.year,
+          planIds: plan.id
+        });
+        const isModified = isModifiedSinceSent(
+          regionalStatus.sentAt ?? null,
+          regionalStatus.lastModifiedAt ?? null
+        );
+
+        if (!isModified) {
+          await programmingPlanRepository.insertManyLocalStatus(
+            plan.id,
+            Regions[region].departments.map((department) => ({
+              region,
+              department,
+              status: 'SubmittedToDepartments' as const
+            }))
+          );
+          await programmingPlanRepository.updateLocalStatus(
+            plan.id,
+            { region, status: 'SubmittedToDepartments' },
+            plan.distributionKind
+          );
+
+          const departmentalCoordinators = await userRepository.findMany({
+            roles: ['DepartmentalCoordinator'],
+            region,
+            programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+          });
+
+          await notificationService.sendNotification(
+            { category: 'ProgrammingPlanSubmittedToDepartments', link },
+            departmentalCoordinators,
+            { sender: 'coordination régionale' }
+          );
+        } else {
+          const previousSentAt = regionalStatus.sentAt as Date;
+          await programmingPlanRepository.touchRegionalSentAt(plan.id, region);
+
+          const affectedDepartments = plan.departmentalStatus.filter(
+            (departmentalStatus) =>
+              departmentalStatus.region === region &&
+              departmentalStatus.lastModifiedAt &&
+              departmentalStatus.lastModifiedAt > previousSentAt
+          );
+
+          if (affectedDepartments.length > 0) {
+            const departmentalCoordinators = await userRepository.findMany({
+              roles: ['DepartmentalCoordinator'],
+              region,
+              programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+            });
+
+            await notificationService.sendNotification(
+              { category: 'ProgrammingPlanModifiedAfterSubmission', link },
+              departmentalCoordinators,
+              {
+                object:
+                  NotificationCategoryTitles.ProgrammingPlanModifiedAfterSubmission,
+                content: `Le plan « ${plan.title} » a été modifié et renvoyé.`
+              }
+            );
+          }
+        }
+      }
+
+      const updatedPlans = await programmingPlanRepository.findMany({
+        ids: programmingPlanIds
+      });
+
+      return { status: HttpStatus.OK, response: updatedPlans };
     }
   },
   '/programming-plans/:programmingPlanId': {
@@ -142,10 +353,14 @@ export const programmingPlanRouter = {
 
       await Promise.all(
         RegionList.map((region) =>
-          programmingPlanRepository.updateLocalStatus(programmingPlan.id, {
-            region,
-            status: newProgrammingPlanStatus
-          })
+          programmingPlanRepository.updateLocalStatus(
+            programmingPlan.id,
+            {
+              region,
+              status: newProgrammingPlanStatus
+            },
+            programmingPlan.distributionKind
+          )
         )
       );
 
@@ -206,7 +421,7 @@ export const programmingPlanRouter = {
           programmingPlanLocalStatusList.some(
             (programmingPlanLocalStatus) =>
               !userRegionsForRole(user, userRole).includes(
-                programmingPlanLocalStatus.region
+                programmingPlanLocalStatus.region as Region
               ) ||
               (programmingPlanLocalStatus.department &&
                 !Regions[user.region as Region].departments.includes(
@@ -276,6 +491,14 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
                   )
                 });
 
+                if (programmingPlanLocalStatus.status === 'SubmittedToRegion') {
+                  await programmingPlanRepository.updateNationalStatus(
+                    programmingPlanId,
+                    'SubmittedToRegion',
+                    programmingPlan.distributionKind
+                  );
+                }
+
                 await (programmingPlanLocalStatus.status === 'SubmittedToRegion'
                   ? notificationService.sendNotification(
                       {
@@ -321,7 +544,8 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
                   },
                   nationalCoordinators,
                   {
-                    region: Regions[programmingPlanLocalStatus.region].name
+                    region:
+                      Regions[programmingPlanLocalStatus.region as Region].name
                   }
                 );
               } else if (
@@ -329,13 +553,13 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
               ) {
                 await programmingPlanRepository.insertManyLocalStatus(
                   programmingPlanId,
-                  Regions[programmingPlanLocalStatus.region].departments.map(
-                    (department) => ({
-                      region: programmingPlanLocalStatus.region,
-                      department,
-                      status: 'SubmittedToDepartments' as const
-                    })
-                  )
+                  Regions[
+                    programmingPlanLocalStatus.region as Region
+                  ].departments.map((department) => ({
+                    region: programmingPlanLocalStatus.region as Region,
+                    department,
+                    status: 'SubmittedToDepartments' as const
+                  }))
                 );
 
                 const departmentalCoordinators = await userRepository.findMany({
@@ -363,7 +587,8 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
 
             await programmingPlanRepository.updateLocalStatus(
               programmingPlanId,
-              programmingPlanLocalStatus
+              programmingPlanLocalStatus,
+              programmingPlan.distributionKind
             );
 
             //TODO notif + test
@@ -376,7 +601,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
 
               if (updatedProgrammingPlan) {
                 const allDepartmentsApproved = Regions[
-                  programmingPlanLocalStatus.region
+                  programmingPlanLocalStatus.region as Region
                 ].departments.every(
                   (department) =>
                     updatedProgrammingPlan.departmentalStatus?.find(
@@ -392,7 +617,8 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
                     {
                       region: programmingPlanLocalStatus.region,
                       status: 'Validated'
-                    }
+                    },
+                    programmingPlan.distributionKind
                   );
                 }
               }
@@ -447,6 +673,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
           previousProgrammingPlan.samplesOutsidePlanAllowed,
         distributionKind: previousProgrammingPlan.distributionKind,
         year,
+        nationalStatus: { status: 'InProgress' as const },
         regionalStatus: RegionList.map((region) => ({
           region,
           status: 'InProgress' as const

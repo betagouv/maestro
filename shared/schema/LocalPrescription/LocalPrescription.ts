@@ -193,7 +193,7 @@ export const hasLocalPrescriptionPermission = (
       programmingPlan.regionalStatus.some(
         (regionStatus) =>
           regionStatus.region === localPrescription.region &&
-          regionStatus.status === 'Validated'
+          ['Validated', 'SubmittedToRegion'].includes(regionStatus.status)
       )) ||
       (programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
         user.department === localPrescription.department &&

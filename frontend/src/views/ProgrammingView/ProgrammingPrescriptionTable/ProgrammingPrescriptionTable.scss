@@ -1,17 +1,37 @@
 .programming-table {
+  $col-checkbox-width: 3rem;
   $col-n-width: 5.25rem;
   $col-matrice-width: 12.5rem;
   $col-analyte-width: 18.75rem;
+  $col-laboratoire-width: 22rem;
   $col-prelevements-width: 8.75rem;
   $col-region-width: 4.375rem;
   $plan-group-title-height: 3rem;
+
+  // Sticky columns' left offsets are expressed relative to these two custom
+  // properties instead of hardcoded nth-child positions, so the checkbox and
+  // laboratory columns (both independently optional) can be added/removed
+  // without needing a separate hardcoded rule set for every combination.
+  --checkbox-w: 0px;
+  --lab-w: 0px;
+
+  &.programming-table--with-checkbox-column {
+    --checkbox-w: #{$col-checkbox-width};
+  }
+
+  &.programming-table--with-laboratory-column {
+    --lab-w: #{$col-laboratoire-width};
+  }
+
+  &.programming-table--with-checkbox-column .n-cell {
+    border-left: 1px solid var(--border-contrast-grey);
+  }
 
   border-left: 1px solid var(--border-contrast-grey);
   border-right: 1px solid var(--border-contrast-grey);
 
   .header-wrapper {
     position: sticky;
-    top: 0;
     z-index: 3;
     overflow: hidden;
 
@@ -69,6 +89,9 @@
       height: 1px;
     }
   }
+  col.col-checkbox {
+    width: $col-checkbox-width;
+  }
   col.col-n {
     width: $col-n-width;
   }
@@ -77,6 +100,9 @@
   }
   col.col-analyte {
     width: $col-analyte-width;
+  }
+  col.col-laboratoire {
+    width: $col-laboratoire-width;
   }
   col.col-prelevements {
     width: $col-prelevements-width;
@@ -96,29 +122,14 @@
     margin-left: 0;
   }
 
-  thead tr:nth-child(1) {
-    th:nth-child(1) {
-      min-width: $col-n-width;
-      max-width: $col-n-width;
-      padding-right: 0;
-    }
-    th:nth-child(2) {
-      min-width: $col-matrice-width;
-      max-width: $col-matrice-width;
-    }
-    th:nth-child(3) {
-      min-width: $col-analyte-width;
-      max-width: $col-analyte-width;
-    }
-    th:nth-child(4) {
-      min-width: $col-prelevements-width;
-      max-width: $col-prelevements-width;
-    }
-    th:nth-child(n + 5) {
-      min-width: $col-region-width;
-      max-width: $col-region-width;
-    }
+  thead tr:nth-child(1) th {
+    border-top: 1px solid var(--border-contrast-grey);
+    background-color: var(--background-alt-grey) !important;
+    overflow: visible;
+    text-overflow: unset;
+    white-space: nowrap;
   }
+
   thead tr.total-row {
     height: 32px;
 
@@ -126,50 +137,6 @@
       background-color: var(--background-alt-grey) !important;
       border-bottom: 1px solid var(--border-contrast-grey);
     }
-
-    td:nth-child(2) {
-      min-width: $col-prelevements-width;
-      max-width: $col-prelevements-width;
-    }
-    td:nth-child(n + 3) {
-      min-width: $col-region-width;
-      max-width: $col-region-width;
-    }
-
-    td:nth-child(1) {
-      left: 0;
-    }
-  }
-  tbody tr {
-    td:nth-child(1) {
-      min-width: $col-n-width;
-      max-width: $col-n-width;
-      padding-right: 0;
-    }
-    td:nth-child(2) {
-      min-width: $col-matrice-width;
-      max-width: $col-matrice-width;
-    }
-    td:nth-child(3) {
-      min-width: $col-analyte-width;
-      max-width: $col-analyte-width;
-    }
-    td:nth-child(4) {
-      min-width: $col-prelevements-width;
-      max-width: $col-prelevements-width;
-    }
-    td:nth-child(n + 5) {
-      min-width: $col-region-width;
-      max-width: $col-region-width;
-    }
-  }
-
-  thead tr:nth-child(1) th {
-    border-top: 1px solid var(--border-contrast-grey);
-    background-color: var(--background-alt-grey) !important;
-    overflow: visible;
-    text-overflow: unset;
-    white-space: nowrap;
   }
 
   td,
@@ -225,58 +192,77 @@
     border-bottom: 1px solid var(--border-contrast-grey);
   }
 
-  th:nth-child(1),
-  td:nth-child(1) {
+  // Sticky/frozen columns, positioned by explicit class rather than nth-child
+  // position — keeps this correct regardless of which optional leading
+  // columns (checkbox, laboratory) are present.
+  .checkbox-cell {
     position: sticky;
     left: 0;
     z-index: 1;
     background-color: var(--background-default-grey) !important;
   }
 
-  th:nth-child(2),
-  td:nth-child(2) {
+  .n-cell {
     position: sticky;
-    left: $col-n-width;
+    left: var(--checkbox-w);
     z-index: 1;
+    min-width: $col-n-width;
+    max-width: $col-n-width;
+    padding-right: 0;
     background-color: var(--background-default-grey) !important;
   }
 
-  th:nth-child(3),
-  td:nth-child(3) {
+  .matrice-cell {
     position: sticky;
-    left: calc(#{$col-n-width} + #{$col-matrice-width});
+    left: calc(var(--checkbox-w) + #{$col-n-width});
     z-index: 1;
+    min-width: $col-matrice-width;
+    max-width: $col-matrice-width;
     background-color: var(--background-default-grey) !important;
   }
 
-  th:nth-child(4),
-  td:nth-child(4) {
+  .analyte-cell {
     position: sticky;
-    left: calc(#{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width});
+    left: calc(var(--checkbox-w) + #{$col-n-width} + #{$col-matrice-width});
     z-index: 1;
+    min-width: $col-analyte-width;
+    max-width: $col-analyte-width;
     background-color: var(--background-default-grey) !important;
   }
 
-  thead th:nth-child(1),
-  thead th:nth-child(2),
-  thead th:nth-child(3),
-  thead th:nth-child(4) {
+  .laboratoire-cell {
+    position: sticky;
+    left: calc(
+      var(--checkbox-w) + #{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width}
+    );
+    z-index: 1;
+    min-width: $col-laboratoire-width;
+    max-width: $col-laboratoire-width;
+    background-color: var(--background-default-grey) !important;
+  }
+
+  .prelevements-cell {
+    position: sticky;
+    left: calc(
+      var(--checkbox-w) + #{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width} +
+        var(--lab-w)
+    );
+    z-index: 1;
+    min-width: $col-prelevements-width;
+    max-width: $col-prelevements-width;
+    background-color: var(--background-default-grey) !important;
+  }
+
+  // thead (both the column-header row and the grey total-row live in the
+  // same <thead>) always shows these sticky cells above body rows.
+  thead .checkbox-cell,
+  thead .n-cell,
+  thead .matrice-cell,
+  thead .analyte-cell,
+  thead .laboratoire-cell,
+  thead .prelevements-cell {
     z-index: 2;
     background-color: var(--background-alt-grey) !important;
-  }
-
-  thead tr.total-row td:nth-child(1) {
-    z-index: 2;
-  }
-
-  thead tr.total-row td:nth-child(2) {
-    left: calc(#{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width});
-    z-index: 2;
-  }
-
-  thead tr.total-row td:nth-child(n + 3) {
-    left: auto;
-    position: static;
   }
 
   .prescription-sample-count-cell {
@@ -332,27 +318,9 @@
     }
   }
 
-  tr.plan-group-total-row {
-    td:nth-child(2) {
-      position: sticky !important;
-      left: calc(
-        #{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width}
-      ) !important;
-      z-index: 2 !important;
-      min-width: $col-prelevements-width;
-      max-width: $col-prelevements-width;
-    }
-
-    td:nth-child(3),
-    td:nth-child(4) {
-      position: static !important;
-      left: auto !important;
-      z-index: auto !important;
-    }
-
-    td:nth-child(n + 3) {
-      min-width: $col-region-width;
-      max-width: $col-region-width;
-    }
+  // This row's own MiniTable has few enough cells that its sticky Prélèvements
+  // total needs to sit above other cells in the same row when scrolled.
+  tr.plan-group-total-row .prelevements-cell {
+    z-index: 2;
   }
 }

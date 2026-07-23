@@ -1,3 +1,4 @@
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { isEmpty, isNil, mapValues, omitBy, sumBy } from 'lodash-es';
@@ -22,6 +23,7 @@ import {
   type PrescriptionUpdate
 } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import {
   isDepartmentalRole,
   isNationalRole,
@@ -32,6 +34,7 @@ import { useSearchParams } from 'react-router';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import PrescriptionActionBar from 'src/components/Prescription/PrescriptionActionBar/PrescriptionActionBar';
 import PrescriptionCard from 'src/components/Prescription/PrescriptionCard/PrescriptionCard';
+import SelectionActionBar from 'src/components/SelectionActionBar/SelectionActionBar';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { usePrescriptionFilters } from 'src/hooks/usePrescriptionFilters';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
@@ -46,6 +49,9 @@ import { getApiUrl } from '../../../utils/fetchUtils';
 import ProgrammingPrescriptionFilters from '../ProgrammingPrescriptionFilters/ProgrammingPrescriptionFilters';
 import ProgrammingLocalPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingLocalPrescriptionTable';
 import ProgrammingPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingPrescriptionTable';
+import BulkAssignLaboratoriesModal, {
+  bulkAssignLaboratoriesModal
+} from './BulkAssignLaboratoriesModal';
 
 interface Props {
   programmingPlans: ProgrammingPlanChecked[];
@@ -67,19 +73,27 @@ const ProgrammingPrescriptionList = ({
 
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
-  const { prescriptionListDisplay, prescriptionFilters } = useAppSelector(
-    (state) => state.prescriptions
-  );
+  const { prescriptionListDisplay: storedListDisplay, prescriptionFilters } =
+    useAppSelector((state) => state.prescriptions);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const {
     hasNationalView,
+    hasRegionalView,
     hasUserPermission,
     hasUserPrescriptionPermission,
     hasUserLocalPrescriptionPermission,
     userRole,
     user
   } = useAuthentication();
+
+  // The regional coordinator only gets the table view — no grid/segmented
+  // control — since it's the only one wired for laboratory assignment and
+  // grouped selection.
+  const isRegionalCoordinatorView = hasRegionalView && !hasNationalView;
+  const prescriptionListDisplay = isRegionalCoordinatorView
+    ? 'table'
+    : storedListDisplay;
 
   const [selectedPrescriptions, setSelectedPrescriptions] = useState<
     Prescription[]
@@ -91,13 +105,24 @@ const ProgrammingPrescriptionList = ({
       { key: LocalPrescriptionKey; sampleCount: number }
     >
   >(new Map());
+  const [pendingLaboratoryChanges, setPendingLaboratoryChanges] = useState<
+    Map<
+      LocalPrescriptionKeyString,
+      {
+        key: LocalPrescriptionKey;
+        substanceKindsLaboratories: SubstanceKindLaboratory[];
+      }
+    >
+  >(new Map());
   const [pendingPrescriptionSampleCounts, setPendingPrescriptionSampleCounts] =
     useState<Map<string, number>>(new Map());
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   const hasPendingChanges =
-    pendingLocalChanges.size > 0 || pendingPrescriptionSampleCounts.size > 0;
+    pendingLocalChanges.size > 0 ||
+    pendingLaboratoryChanges.size > 0 ||
+    pendingPrescriptionSampleCounts.size > 0;
 
   const [_, { isSuccess: isAddSuccess }] =
     apiClient.useAddPrescriptionMutation();
@@ -226,9 +251,19 @@ const ProgrammingPrescriptionList = ({
           companySiret: lp.companySiret ?? undefined
         });
         const pending = pendingLocalChanges.get(key);
-        return pending ? { ...lp, sampleCount: pending.sampleCount } : lp;
+        const pendingLab = pendingLaboratoryChanges.get(key);
+        return {
+          ...lp,
+          ...(pending ? { sampleCount: pending.sampleCount } : {}),
+          ...(pendingLab
+            ? {
+                substanceKindsLaboratories:
+                  pendingLab.substanceKindsLaboratories
+              }
+            : {})
+        };
       }),
-    [allLocalPrescriptions, pendingLocalChanges]
+    [allLocalPrescriptions, pendingLocalChanges, pendingLaboratoryChanges]
   );
 
   const prescriptions = useMemo(() => {
@@ -405,6 +440,23 @@ const ProgrammingPrescriptionList = ({
     []
   );
 
+  const changeLocalPrescriptionLaboratories = useCallback(
+    (
+      key: LocalPrescriptionKey,
+      substanceKindsLaboratories: SubstanceKindLaboratory[]
+    ) => {
+      setPendingLaboratoryChanges((prev) => {
+        const next = new Map(prev);
+        next.set(toLocalPrescriptionKeyString(key), {
+          key,
+          substanceKindsLaboratories
+        });
+        return next;
+      });
+    },
+    []
+  );
+
   const changeSubstanceKindsLaboratories = async (
     substanceKindsLaboratories: SubstanceKindLaboratory[]
   ) => {
@@ -424,6 +476,7 @@ const ProgrammingPrescriptionList = ({
 
   const handleReset = useCallback(() => {
     setPendingLocalChanges(new Map());
+    setPendingLaboratoryChanges(new Map());
     setPendingPrescriptionSampleCounts(new Map());
   }, []);
 
@@ -443,6 +496,14 @@ const ProgrammingPrescriptionList = ({
               programmingPlanId: getPlanForPrescriptionId(key.prescriptionId).id
             })
         ),
+        ...Array.from(pendingLaboratoryChanges.values()).map(
+          ({ key, substanceKindsLaboratories }) =>
+            changeLocalPrescription(key, {
+              key: 'laboratories',
+              substanceKindsLaboratories,
+              programmingPlanId: getPlanForPrescriptionId(key.prescriptionId).id
+            })
+        ),
         ...Array.from(pendingPrescriptionSampleCounts.entries()).map(
           ([prescriptionId, sampleCount]) => {
             const prescription = allPrescriptions?.find(
@@ -454,6 +515,7 @@ const ProgrammingPrescriptionList = ({
         )
       ]);
       setPendingLocalChanges(new Map());
+      setPendingLaboratoryChanges(new Map());
       setPendingPrescriptionSampleCounts(new Map());
       setSaveSuccess(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -462,6 +524,7 @@ const ProgrammingPrescriptionList = ({
     }
   }, [
     pendingLocalChanges,
+    pendingLaboratoryChanges,
     pendingPrescriptionSampleCounts,
     changeLocalPrescription,
     changePrescription,
@@ -502,6 +565,102 @@ const ProgrammingPrescriptionList = ({
     ]
   );
 
+  const togglePrescriptionSelection = hasGroupedUpdatePermission
+    ? (prescription: Prescription) => {
+        setSelectedPrescriptions((prevState) =>
+          prevState.some((_) => _.id === prescription.id)
+            ? prevState.filter((_) => _.id !== prescription.id)
+            : [...prevState, prescription]
+        );
+      }
+    : undefined;
+
+  const [bulkAssignBannerHeight, setBulkAssignBannerHeight] = useState(0);
+
+  // Lab "slots" a regional prescription needs filled = its subPlan's
+  // substanceKinds (one LaboratorySelect each), paired with whatever
+  // laboratoryId is already assigned. Non-REGIONAL plans have no region-level
+  // laboratory assignment at all, so they contribute zero slots — which
+  // naturally conflicts with any REGIONAL row also selected, blocking the
+  // bulk action without extra special-casing.
+  const laboratorySlotsFor = useCallback(
+    (prescription: Prescription) => {
+      const plan = getPrescriptionPlan(prescription);
+      if (plan.distributionKind !== 'REGIONAL') {
+        return [];
+      }
+      const regional = localPrescriptions.find(
+        (lp) => lp.prescriptionId === prescription.id
+      );
+      if (!regional) {
+        return [];
+      }
+      const subPlan = plan.subPlans.find(
+        (sp) => sp.id === prescription.programmingSubPlanId
+      );
+      return [...(subPlan?.substanceKinds ?? [])]
+        .sort()
+        .map((substanceKind) => ({
+          substanceKind,
+          laboratoryId: regional.substanceKindsLaboratories?.find(
+            (skl) => skl.substanceKind === substanceKind
+          )?.laboratoryId
+        }));
+    },
+    [getPrescriptionPlan, localPrescriptions]
+  );
+
+  const bulkAssignCheck = useMemo(():
+    | {
+        commonSlots: { substanceKind: SubstanceKind; laboratoryId?: string }[];
+        blockReason?: undefined;
+      }
+    | { commonSlots: []; blockReason: string } => {
+    const slotsPerPrescription = selectedPrescriptions.map(laboratorySlotsFor);
+    const [firstSlots, ...otherSlots] = slotsPerPrescription;
+
+    const sameSubstanceKinds =
+      firstSlots &&
+      firstSlots.length > 0 &&
+      otherSlots.every(
+        (slots) =>
+          slots.length === firstSlots.length &&
+          slots.every((s, i) => s.substanceKind === firstSlots[i].substanceKind)
+      );
+
+    if (!sameSubstanceKinds) {
+      return {
+        commonSlots: [],
+        blockReason:
+          "Les sous-plans sélectionnés n'ont pas le même nombre de laboratoires à attribuer. L'action groupée n'est pas possible."
+      };
+    }
+
+    const slotLaboratoryIds = firstSlots.map((_, index) => {
+      const laboratoryIds = new Set(
+        slotsPerPrescription
+          .map((slots) => slots[index].laboratoryId)
+          .filter((id): id is string => !!id)
+      );
+      return laboratoryIds;
+    });
+
+    if (slotLaboratoryIds.some((laboratoryIds) => laboratoryIds.size > 1)) {
+      return {
+        commonSlots: [],
+        blockReason:
+          "Les sous-plans sélectionnés ont des laboratoires déjà attribués différents. L'action groupée n'est pas possible."
+      };
+    }
+
+    return {
+      commonSlots: firstSlots.map((slot, index) => ({
+        substanceKind: slot.substanceKind,
+        laboratoryId: [...slotLaboratoryIds[index]][0]
+      }))
+    };
+  }, [selectedPrescriptions, laboratorySlotsFor]);
+
   const headerPlan = programmingPlans[0];
 
   return (
@@ -529,6 +688,8 @@ const ProgrammingPrescriptionList = ({
               hasGroupedUpdatePermission={hasGroupedUpdatePermission}
               selectedCount={selectedPrescriptions.length}
               onGroupedUpdate={changeSubstanceKindsLaboratories}
+              hideDisplayToggle={isRegionalCoordinatorView}
+              hideGroupedUpdateButton={isRegionalCoordinatorView}
               onSelectAll={() => {
                 setSelectedPrescriptions(
                   selectedPrescriptions.length === prescriptions.length
@@ -645,28 +806,67 @@ const ProgrammingPrescriptionList = ({
                 )}
               </div>
             ))}
+          {isRegionalCoordinatorView && (
+            <SelectionActionBar
+              selectedCount={selectedPrescriptions.length}
+              itemLabel="sous-plan sélectionné"
+              onDeselectAll={() => setSelectedPrescriptions([])}
+              onHeightChange={setBulkAssignBannerHeight}
+              notice={
+                bulkAssignCheck.blockReason
+                  ? { description: bulkAssignCheck.blockReason }
+                  : undefined
+              }
+            >
+              <Button
+                priority="secondary"
+                size="small"
+                iconId="fr-icon-list-check"
+                disabled={!!bulkAssignCheck.blockReason}
+                onClick={() => bulkAssignLaboratoriesModal.open()}
+                className={cx('fr-ml-3w')}
+              >
+                Attribuer les laboratoires
+              </Button>
+            </SelectionActionBar>
+          )}
           {prescriptionListDisplay === 'table' &&
             prescriptions.length > 0 &&
-            (hasNationalView ? (
+            (hasNationalView || hasRegionalView ? (
               <ProgrammingPrescriptionTable
                 programmingPlans={programmingPlans}
                 prescriptions={prescriptions}
                 regionalPrescriptions={localPrescriptions}
                 onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
-                pendingPrescriptionIds={
-                  new Set(pendingPrescriptionSampleCounts.keys())
-                }
                 pendingLocalKeys={new Set(pendingLocalChanges.keys())}
-                onChangePrescriptionSampleCount={(
-                  prescription,
-                  sampleCount
-                ) => {
-                  setPendingPrescriptionSampleCounts((prev) => {
-                    const next = new Map(prev);
-                    next.set(prescription.id, sampleCount);
-                    return next;
-                  });
-                }}
+                onChangeLocalPrescriptionLaboratories={
+                  changeLocalPrescriptionLaboratories
+                }
+                pendingLaboratoryKeys={new Set(pendingLaboratoryChanges.keys())}
+                {...(hasNationalView
+                  ? {
+                      pendingPrescriptionIds: new Set(
+                        pendingPrescriptionSampleCounts.keys()
+                      ),
+                      onChangePrescriptionSampleCount: (
+                        prescription,
+                        sampleCount
+                      ) => {
+                        setPendingPrescriptionSampleCounts((prev) => {
+                          const next = new Map(prev);
+                          next.set(prescription.id, sampleCount);
+                          return next;
+                        });
+                      }
+                    }
+                  : {
+                      region: user?.region as Region,
+                      subLocalPrescriptions: subLocalPrescriptions ?? [],
+                      selectedPrescriptions,
+                      onTogglePrescriptionSelection:
+                        togglePrescriptionSelection,
+                      topOffset: bulkAssignBannerHeight
+                    })}
               />
             ) : (
               <ProgrammingLocalPrescriptionTable
@@ -678,17 +878,7 @@ const ProgrammingPrescriptionList = ({
                 onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
                 pendingLocalKeys={new Set(pendingLocalChanges.keys())}
                 selectedPrescriptions={selectedPrescriptions}
-                onTogglePrescriptionSelection={
-                  hasGroupedUpdatePermission
-                    ? (prescription) => {
-                        setSelectedPrescriptions((prevState) =>
-                          prevState.some((_) => _.id === prescription.id)
-                            ? prevState.filter((_) => _.id !== prescription.id)
-                            : [...prevState, prescription]
-                        );
-                      }
-                    : undefined
-                }
+                onTogglePrescriptionSelection={togglePrescriptionSelection}
                 companies={companies}
               />
             ))}
@@ -702,6 +892,22 @@ const ProgrammingPrescriptionList = ({
         }
       />
       <LocalPrescriptionModal />
+      {isRegionalCoordinatorView && (
+        <BulkAssignLaboratoriesModal
+          programmingPlanId={headerPlan.id}
+          commonSlots={bulkAssignCheck.commonSlots}
+          onSubmit={(substanceKindsLaboratories) => {
+            for (const prescription of selectedPrescriptions) {
+              changeLocalPrescriptionLaboratories(
+                { prescriptionId: prescription.id, region: region as Region },
+                substanceKindsLaboratories
+              );
+            }
+            bulkAssignLaboratoriesModal.close();
+            setSelectedPrescriptions([]);
+          }}
+        />
+      )}
       {hasPendingChanges && (
         <PrescriptionActionBar
           onReset={handleReset}

@@ -1,0 +1,15 @@
+.selection-action-bar-container {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background-color: #fff;
+
+  &:has(.selection-action-bar) {
+    padding-bottom: 0.5rem;
+  }
+
+  .selection-action-bar {
+    background-color: var(--background-contrast-info);
+    color: var(--blue-france-sun-113-625);
+  }
+}

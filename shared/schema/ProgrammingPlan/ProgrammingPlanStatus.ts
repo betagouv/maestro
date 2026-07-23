@@ -5,6 +5,7 @@ import type { DistributionKind } from './DistributionKind';
 export const ProgrammingPlanStatus = z.enum(
   [
     'InProgress',
+    'SubmittedToAdmin',
     'SubmittedToRegion',
     'SubmittedToDepartments',
     'ApprovedByRegion',
@@ -26,6 +27,7 @@ export const ProgrammingPlanStatusLabels: Record<
   string
 > = {
   InProgress: 'En cours',
+  SubmittedToAdmin: "Soumis à l'admin",
   SubmittedToRegion: 'Envoyée à la région',
   SubmittedToDepartments: 'Envoyée aux départements',
   ApprovedByRegion: 'Approuvé par la région',
@@ -38,6 +40,10 @@ export const ProgrammingPlanStatusPermissions: Record<
   UserPermission
 > = {
   InProgress: 'readProgrammingPlansInProgress',
+  // Only ever set on the National echelon row, which read-permission
+  // filtering here doesn't apply to (see programmingPlanController.ts) —
+  // reuses the InProgress permission so this Record stays exhaustive.
+  SubmittedToAdmin: 'readProgrammingPlansInProgress',
   SubmittedToRegion: 'readProgrammingPlanSubmittedToRegion',
   SubmittedToDepartments: 'readProgrammingPlanSubmittedToDepartments',
   ApprovedByRegion: 'readProgrammingPlanApprovedByRegion',
@@ -48,6 +54,7 @@ export const ProgrammingPlanStatusPermissions: Record<
 export const NextProgrammingPlanStatus = {
   REGIONAL: {
     InProgress: 'SubmittedToRegion',
+    SubmittedToAdmin: 'SubmittedToRegion',
     SubmittedToRegion: 'ApprovedByRegion',
     ApprovedByRegion: 'Validated',
     SubmittedToDepartments: null,
@@ -56,6 +63,7 @@ export const NextProgrammingPlanStatus = {
   },
   SLAUGHTERHOUSE: {
     InProgress: 'SubmittedToRegion',
+    SubmittedToAdmin: 'SubmittedToRegion',
     SubmittedToRegion: 'SubmittedToDepartments',
     ApprovedByRegion: null,
     SubmittedToDepartments: 'Validated',
@@ -64,6 +72,7 @@ export const NextProgrammingPlanStatus = {
   },
   TO_BE_DEFINED: {
     InProgress: 'SubmittedToRegion',
+    SubmittedToAdmin: 'SubmittedToRegion',
     SubmittedToRegion: 'SubmittedToDepartments',
     ApprovedByRegion: null,
     SubmittedToDepartments: 'Validated',

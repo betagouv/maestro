@@ -9,22 +9,6 @@
   flex-wrap: wrap;
 }
 
-.laboratory-agreements-notice-container {
-  position: sticky;
-  top: 0;
-  z-index: 3;
-  background-color: #fff;
-
-  &:has(.laboratory-agreements-notice) {
-    padding-bottom: 0.5rem;
-  }
-
-  .laboratory-agreements-notice {
-    background-color: var(--background-contrast-info);
-    color: var(--blue-france-sun-113-625);
-  }
-}
-
 .laboratory-agreements-table {
   .fr-table {
     margin-top: 0;

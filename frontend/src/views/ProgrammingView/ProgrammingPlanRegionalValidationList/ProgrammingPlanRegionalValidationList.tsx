@@ -1,5 +1,4 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
-import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import Tag from '@codegouvfr/react-dsfr/Tag';
@@ -12,18 +11,15 @@ import {
   Regions
 } from 'maestro-shared/referential/Region';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
-import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import {
   type ProgrammingPlanStatus,
   ProgrammingPlanStatusLabels
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { useCallback, useContext, useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
-import { useAuthentication } from '../../../hooks/useAuthentication';
-import { useAppDispatch, useAppSelector } from '../../../hooks/useStore';
+import { useAppSelector } from '../../../hooks/useStore';
 import { ApiClientContext } from '../../../services/apiClient';
-import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import { pluralize } from '../../../utils/stringUtils';
 
 interface Props {
@@ -35,9 +31,7 @@ const ProgrammingPlanRegionalValidationList = ({
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
-  const dispatch = useAppDispatch();
   const apiClient = useContext(ApiClientContext);
-  const { hasUserPermission } = useAuthentication();
 
   const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
@@ -63,8 +57,7 @@ const ProgrammingPlanRegionalValidationList = ({
   const findLocalPrescriptionOptions = useMemo(
     () => ({
       programmingPlanIds: [programmingPlan.id],
-      contexts: prescriptionFilters.contexts,
-      includes: ['comments' as const]
+      contexts: prescriptionFilters.contexts
     }),
     [programmingPlan, prescriptionFilters]
   );
@@ -73,28 +66,6 @@ const ProgrammingPlanRegionalValidationList = ({
     apiClient.useFindLocalPrescriptionsQuery(findLocalPrescriptionOptions, {
       skip: !findLocalPrescriptionOptions.programmingPlanIds?.length
     });
-
-  const regionalCommentedPrescriptions = useCallback(
-    (region: Region) => {
-      if (!regionalPrescriptions || !allPrescriptions) {
-        return [];
-      }
-      return regionalPrescriptions
-        .filter(
-          (regionalPrescription) =>
-            regionalPrescription.region === region &&
-            (regionalPrescription.comments ?? []).length > 0
-        )
-        .map((regionalPrescription) => ({
-          ...regionalPrescription,
-          prescription: allPrescriptions.find(
-            (allPrescription) =>
-              allPrescription.id === regionalPrescription.prescriptionId
-          ) as Prescription
-        }));
-    },
-    [allPrescriptions, regionalPrescriptions]
-  );
 
   const validatedRegions = useMemo(
     () =>
@@ -130,14 +101,9 @@ const ProgrammingPlanRegionalValidationList = ({
     >
       <div className={clsx('d-flex-align-center')}>
         <h4 className={clsx(cx('fr-mb-0', 'fr-mr-3w'), 'flex-grow-1')}>
-          {t(
-            programmingPlan.distributionKind === 'REGIONAL'
-              ? 'region_has_validated'
-              : 'region_has_sent',
-            {
-              count: validatedRegions.length
-            }
-          )}
+          {t('region_has_sent', {
+            count: validatedRegions.length
+          })}
         </h4>
         <div className={cx('fr-mr-2w')}>
           <Select
@@ -165,20 +131,12 @@ const ProgrammingPlanRegionalValidationList = ({
             }}
           >
             <option value="">Tous les statuts</option>
-            {(programmingPlan.distributionKind === 'REGIONAL'
-              ? [
-                  'InProgress',
-                  'SubmittedToRegion',
-                  'ApprovedByRegion',
-                  'Validated'
-                ]
-              : [
-                  'InProgress',
-                  'SubmittedToRegion',
-                  'SubmittedToDepartments',
-                  'Validated'
-                ]
-            ).map((status) => (
+            {[
+              'InProgress',
+              'SubmittedToRegion',
+              'SubmittedToDepartments',
+              'Validated'
+            ].map((status) => (
               <option key={`select-status-${status}`} value={status}>
                 {ProgrammingPlanStatusLabels[status as ProgrammingPlanStatus]}
               </option>
@@ -270,55 +228,6 @@ const ProgrammingPlanRegionalValidationList = ({
                   </div>
                 </div>
               </div>
-              {programmingPlan?.distributionKind === 'REGIONAL' &&
-                hasUserPermission('commentPrescription') && (
-                  <ButtonsGroup
-                    buttonsEquisized
-                    buttonsSize="small"
-                    alignment="center"
-                    inlineLayoutWhen="always"
-                    className={cx('fr-m-0')}
-                    buttons={[
-                      {
-                        children: (
-                          <span className="no-wrap">
-                            {t('comment', {
-                              count: sumBy(
-                                regionalCommentedPrescriptions(region),
-                                (rcp) => (rcp.comments ?? []).length
-                              )
-                            })}
-                          </span>
-                        ),
-                        disabled:
-                          sumBy(
-                            regionalCommentedPrescriptions(region),
-                            (rcp) => (rcp.comments ?? []).length
-                          ) === 0,
-                        priority: 'tertiary no outline',
-                        onClick: () =>
-                          dispatch(
-                            prescriptionsSlice.actions.setPrescriptionCommentsData(
-                              {
-                                viewBy: 'Region',
-                                region,
-                                prescriptionCommentsList:
-                                  regionalCommentedPrescriptions(region).map(
-                                    (rcp) => ({
-                                      programmingPlan,
-                                      prescription: rcp.prescription,
-                                      comments: rcp.comments ?? []
-                                    })
-                                  )
-                              }
-                            )
-                          ),
-                        iconId: 'fr-icon-chat-3-line',
-                        className: cx('fr-m-0')
-                      }
-                    ]}
-                  />
-                )}
             </div>
           </div>
         ))}

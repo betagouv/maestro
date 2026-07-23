@@ -11,6 +11,7 @@ export type PrescriptionOptionsInclude = z.infer<
 
 export const FindPrescriptionOptions = z.object({
   programmingPlanId: z.guid().nullish(),
+  programmingPlanIds: z.array(z.guid()).min(1).nullish(),
   year: z.number().int().nullish(),
   programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullish(),
   contexts: z.array(ProgrammingPlanContext).nullish(),

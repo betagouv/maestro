@@ -13,6 +13,7 @@ import { DistributionKind } from './DistributionKind';
 import { ProgrammingPlanDomain } from './ProgrammingPlanDomain';
 import {
   ProgrammingPlanDepartmentalStatus,
+  ProgrammingPlanNationalStatus,
   ProgrammingPlanRegionalStatus
 } from './ProgrammingPlanLocalStatus';
 import type { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
@@ -36,6 +37,7 @@ export const ProgrammingPlanBase = z.object({
   createdAt: z.coerce.date(),
   createdBy: z.guid(),
   year: z.number(),
+  nationalStatus: ProgrammingPlanNationalStatus,
   regionalStatus: z.array(ProgrammingPlanRegionalStatus),
   departmentalStatus: z.array(ProgrammingPlanDepartmentalStatus),
   closedAt: z.coerce.date().nullish(),

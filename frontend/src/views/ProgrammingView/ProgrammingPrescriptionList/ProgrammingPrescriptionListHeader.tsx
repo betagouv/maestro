@@ -17,7 +17,6 @@ import useWindowSize from 'src/hooks/useWindowSize';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import ProgrammingPrescriptionListGroupedUpdate from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListGroupedUpdate';
 import ProgrammingPlanNotificationDepartmentalToSampler from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationDepartmentalToSampler/ProgrammingPlanNotificationDepartmentalToSampler';
-import ProgrammingPlanNotificationNationalToRegional from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationNationalToRegional/ProgrammingPlanNotificationNationalToRegional';
 import ProgrammingPlanNotificationRegionalToDepartmental from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationRegionalToDepartmental/ProgrammingPlanNotificationRegionalToDepartmental';
 import './ProgrammingPrescriptionList.scss';
 
@@ -33,6 +32,12 @@ interface Props {
     substanceKindsLaboratories: SubstanceKindLaboratory[]
   ) => Promise<void>;
   onSelectAll: () => void;
+  // Regional coordinator only gets the table view — no grid/segmented control.
+  hideDisplayToggle?: boolean;
+  // Regional coordinator gets the SelectionActionBar-based bulk laboratory
+  // assignment banner instead (rendered by the parent) — this inline
+  // single-subPlan "Action groupée" flow stays for the departmental/cards path.
+  hideGroupedUpdateButton?: boolean;
 }
 
 const ProgrammingPrescriptionListHeader = ({
@@ -44,16 +49,20 @@ const ProgrammingPrescriptionListHeader = ({
   hasGroupedUpdatePermission,
   selectedCount,
   onGroupedUpdate,
-  onSelectAll
+  onSelectAll,
+  hideDisplayToggle,
+  hideGroupedUpdateButton
 }: Props) => {
   const dispatch = useAppDispatch();
   const { isMobile } = useWindowSize();
   const { hasRegionalView, hasDepartmentalView, hasUserPermission } =
     useAuthentication();
 
-  const { prescriptionListDisplay, prescriptionFilters } = useAppSelector(
-    (state) => state.prescriptions
-  );
+  const { prescriptionListDisplay: storedListDisplay, prescriptionFilters } =
+    useAppSelector((state) => state.prescriptions);
+  const prescriptionListDisplay = hideDisplayToggle
+    ? 'table'
+    : storedListDisplay;
 
   const [isGroupedUpdate, setIsGroupedUpdate] = useState(false);
 
@@ -96,7 +105,7 @@ const ProgrammingPrescriptionListHeader = ({
             wrap: cx('fr-mt-0')
           }}
         />
-        {!isMobile && (
+        {!isMobile && !hideDisplayToggle && (
           <SegmentedControl
             hideLegend
             legend="Légende"
@@ -136,9 +145,6 @@ const ProgrammingPrescriptionListHeader = ({
           onClick={() => window.open(exportURL)}
           title="Exporter"
           size={isMobile ? 'small' : 'medium'}
-        />
-        <ProgrammingPlanNotificationNationalToRegional
-          programmingPlan={programmingPlan}
         />
         {hasRegionalView && (
           <ProgrammingPlanNotificationRegionalToDepartmental
@@ -194,23 +200,25 @@ const ProgrammingPrescriptionListHeader = ({
               />
             )}
         </div>
-        {hasGroupedUpdatePermission && !isGroupedUpdate && (
-          <Button
-            iconId="fr-icon-list-ordered"
-            priority="secondary"
-            title="Action groupée"
-            size={isMobile ? 'small' : 'medium'}
-            onClick={() => setIsGroupedUpdate(true)}
-            disabled={
-              uniqBy(
-                prescriptions,
-                (prescription) => prescription.programmingSubPlanId
-              ).length !== 1
-            }
-          >
-            {isMobile ? undefined : 'Action groupée'}
-          </Button>
-        )}
+        {hasGroupedUpdatePermission &&
+          !hideGroupedUpdateButton &&
+          !isGroupedUpdate && (
+            <Button
+              iconId="fr-icon-list-ordered"
+              priority="secondary"
+              title="Action groupée"
+              size={isMobile ? 'small' : 'medium'}
+              onClick={() => setIsGroupedUpdate(true)}
+              disabled={
+                uniqBy(
+                  prescriptions,
+                  (prescription) => prescription.programmingSubPlanId
+                ).length !== 1
+              }
+            >
+              {isMobile ? undefined : 'Action groupée'}
+            </Button>
+          )}
       </div>
       {isGroupedUpdate && onGroupedUpdate && (
         <ProgrammingPrescriptionListGroupedUpdate

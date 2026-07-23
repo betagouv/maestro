@@ -283,15 +283,6 @@ const ProgrammingLocalPrescriptionTable = ({
                             companySiret: undefined
                           })
                         )}
-                        max={
-                          (getLocalPrescription(prescription.id)?.sampleCount ??
-                            0) -
-                          sumBy(
-                            getSubLocalPrescriptions(prescription.id),
-                            'sampleCount'
-                          ) +
-                          localPrescription.sampleCount
-                        }
                         onChange={async (value) =>
                           onChangeLocalPrescriptionCount(
                             {
