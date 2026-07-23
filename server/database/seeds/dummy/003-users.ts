@@ -4,9 +4,7 @@ import { CER30Id } from 'maestro-shared/schema/User/User';
 import {
   DAOABovinValidatedSubPlanFixture,
   DAOAVolailleValidatedSubPlanFixture,
-  PPVInProgressSubPlanId,
-  PPVValidatedSubPlanFixture,
-  PPVValidatedSubPlanId
+  PPVValidatedSubPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   AdminBGIRFixture,
