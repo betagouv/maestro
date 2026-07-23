@@ -20,6 +20,7 @@ import {
   type LocalPrescriptionKeyString,
   toLocalPrescriptionKeyString
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import {
   getPrescriptionTitle,
   hasPrescriptionPermission,
@@ -34,7 +35,9 @@ import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPl
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
+import LaboratorySelect from 'src/components/LaboratorySelect/LaboratorySelect';
 import PrescriptionDistributionBadge from 'src/components/Prescription/PrescriptionDistributionBadge/PrescriptionDistributionBadge';
+import SelectionCheckbox from 'src/components/SelectionCheckbox/SelectionCheckbox';
 import TableHeaderCell from 'src/components/TableHeaderCell/TableHeaderCell';
 import { z } from 'zod';
 import { useAuthentication } from '../../../hooks/useAuthentication';
@@ -72,18 +75,41 @@ interface Props {
   ) => void;
   pendingPrescriptionIds?: Set<string>;
   pendingLocalKeys?: Set<LocalPrescriptionKeyString>;
+  onChangeLocalPrescriptionLaboratories?: (
+    key: LocalPrescriptionKey,
+    substanceKindsLaboratories: SubstanceKindLaboratory[]
+  ) => void;
+  pendingLaboratoryKeys?: Set<LocalPrescriptionKeyString>;
   // Presence switches the table to regional mode: one column per department
   // of this region instead of one per region, own-total column becomes the
-  // region's own (read-only) sampleCount instead of the national one.
+  // region's own sampleCount instead of the national one (editable for
+  // REGIONAL-kind plans, which have no department cascade; read-only mirror
+  // for SLAUGHTERHOUSE, distributed to departments instead).
   region?: Region;
   subLocalPrescriptions?: LocalPrescription[];
+  selectedPrescriptions?: Prescription[];
+  onTogglePrescriptionSelection?: (prescription: Prescription) => void;
+  // Height of any sticky banner rendered above this table by the parent
+  // (e.g. the bulk laboratory assignment bar) — shifts this table's own
+  // sticky header/group-title offsets down so they don't sit underneath it.
+  topOffset?: number;
 }
 
-const Colgroup = ({ columnCount }: { columnCount: number }) => (
+const Colgroup = ({
+  columnCount,
+  showLaboratoryColumn,
+  showCheckboxColumn
+}: {
+  columnCount: number;
+  showLaboratoryColumn: boolean;
+  showCheckboxColumn: boolean;
+}) => (
   <colgroup>
+    {showCheckboxColumn && <col className="col-checkbox" />}
     <col className="col-n" />
     <col className="col-matrice" />
     <col className="col-analyte" />
+    {showLaboratoryColumn && <col className="col-laboratoire" />}
     <col className="col-prelevements" />
     {Array.from({ length: columnCount }, (_, i) => (
       <col key={`col-${i}`} className="col-region" />
@@ -99,10 +125,41 @@ const ProgrammingPrescriptionTable = ({
   onChangePrescriptionSampleCount,
   pendingPrescriptionIds,
   pendingLocalKeys,
+  onChangeLocalPrescriptionLaboratories,
+  pendingLaboratoryKeys,
   region,
-  subLocalPrescriptions = []
+  subLocalPrescriptions = [],
+  selectedPrescriptions = [],
+  onTogglePrescriptionSelection,
+  topOffset = 0
 }: Props) => {
   const { hasUserLocalPrescriptionPermission, userRole } = useAuthentication();
+  const showCheckboxColumn = !!onTogglePrescriptionSelection;
+
+  const isPrescriptionSelected = (prescription: Prescription) =>
+    selectedPrescriptions.some((p) => p.id === prescription.id);
+
+  const getSelectionState = (scope: Prescription[]) => {
+    const selectedCount = scope.filter(isPrescriptionSelected).length;
+    return {
+      checked: scope.length > 0 && selectedCount === scope.length,
+      indeterminate: selectedCount > 0 && selectedCount < scope.length
+    };
+  };
+
+  const toggleGroupSelection = (scope: Prescription[]) => {
+    if (!onTogglePrescriptionSelection) {
+      return;
+    }
+    const { checked } = getSelectionState(scope);
+    scope.forEach((prescription) => {
+      const selected = isPrescriptionSelected(prescription);
+      if (checked ? selected : !selected) {
+        onTogglePrescriptionSelection(prescription);
+      }
+    });
+  };
+
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [headerHeight, setHeaderHeight] = useState(0);
   const syncingRef = useRef(false);
@@ -224,6 +281,13 @@ const ProgrammingPrescriptionTable = ({
     return null;
   }
 
+  // REGIONAL-kind plans let the regional coordinator assign a laboratory
+  // directly at region level (no department step) — see updateLaboratories
+  // in hasLocalPrescriptionPermission. Only shown in regional mode, and only
+  // when at least one displayed plan is actually REGIONAL-kind.
+  const showLaboratoryColumn =
+    !!region && programmingPlans.some((p) => p.distributionKind === 'REGIONAL');
+
   // Regional mode only shows prescriptions that already have a local
   // prescription for this region (mirrors ProgrammingLocalPrescriptionTable).
   const prescriptions = region
@@ -238,6 +302,15 @@ const ProgrammingPrescriptionTable = ({
   const planOrder = [...new Set(prescriptions.map((p) => p.programmingPlanId))];
   const prescriptionsByPlan = groupBy(prescriptions, 'programmingPlanId');
 
+  // Department columns are only meaningful for SLAUGHTERHOUSE-kind plans. If
+  // none of the currently visible plans are SLAUGHTERHOUSE, every row is N/A
+  // for those columns, so the grand-total row must show N/A too instead of 0.
+  const hasVisibleSlaughterhousePlan = planOrder.some(
+    (planId) =>
+      programmingPlans.find((p) => p.id === planId)?.distributionKind ===
+      'SLAUGHTERHOUSE'
+  );
+
   // Only count regional/departmental prescriptions for currently visible
   // prescriptions (prescriptions may be filtered by matrixQuery / missing filters)
   const visiblePrescriptionIds = new Set(prescriptions.map((p) => p.id));
@@ -251,10 +324,17 @@ const ProgrammingPrescriptionTable = ({
   return (
     <div
       data-testid="prescription-table"
-      className="programming-table"
+      className={clsx('programming-table', {
+        'programming-table--with-laboratory-column': showLaboratoryColumn,
+        'programming-table--with-checkbox-column': showCheckboxColumn
+      })}
       ref={tableContainerRef}
     >
-      <div className="header-wrapper" ref={headerWrapperRef}>
+      <div
+        className="header-wrapper"
+        ref={headerWrapperRef}
+        style={{ top: topOffset }}
+      >
         <div
           className={clsx(
             'fr-table',
@@ -264,17 +344,47 @@ const ProgrammingPrescriptionTable = ({
           )}
         >
           <table>
-            <Colgroup columnCount={columnCount} />
+            <Colgroup
+              columnCount={columnCount}
+              showLaboratoryColumn={showLaboratoryColumn}
+              showCheckboxColumn={showCheckboxColumn}
+            />
             <thead>
               <tr>
-                <th scope="col">N°</th>
-                <th scope="col" className="border-left">
+                {showCheckboxColumn && (
+                  <th scope="col" className="checkbox-cell">
+                    <SelectionCheckbox
+                      variant="header"
+                      {...getSelectionState(prescriptions)}
+                      onChange={() => toggleGroupSelection(prescriptions)}
+                    />
+                  </th>
+                )}
+                <th scope="col" className="n-cell">
+                  N°
+                </th>
+                <th scope="col" className={clsx('matrice-cell', 'border-left')}>
                   Matrice
                 </th>
-                <th scope="col" className="border-left">
+                <th scope="col" className={clsx('analyte-cell', 'border-left')}>
                   Analyte
                 </th>
-                <th scope="col" className="border-left border-right">
+                {showLaboratoryColumn && (
+                  <th
+                    scope="col"
+                    className={clsx('laboratoire-cell', 'border-left')}
+                  >
+                    Attribution des laboratoires
+                  </th>
+                )}
+                <th
+                  scope="col"
+                  className={clsx(
+                    'prelevements-cell',
+                    'border-left',
+                    'border-right'
+                  )}
+                >
                   Prélèvements
                   <br />
                   programmés
@@ -312,11 +422,16 @@ const ProgrammingPrescriptionTable = ({
                     ))}
               </tr>
               <tr className="total-row">
-                <td colSpan={3} className={cx('fr-text--bold')}>
+                {showCheckboxColumn && <td className="checkbox-cell" />}
+                <td
+                  colSpan={showLaboratoryColumn ? 4 : 3}
+                  className={clsx('n-cell', cx('fr-text--bold'))}
+                >
                   Total prélèvements
                 </td>
                 <td
                   className={clsx(
+                    'prelevements-cell',
                     cx('fr-text--bold'),
                     'border-left',
                     'border-right',
@@ -342,12 +457,14 @@ const ProgrammingPrescriptionTable = ({
                           'align-center'
                         )}
                       >
-                        {sumBy(
-                          visibleSubLocalPrescriptions.filter(
-                            (r) => r.department === department
-                          ),
-                          'sampleCount'
-                        )}
+                        {hasVisibleSlaughterhousePlan
+                          ? sumBy(
+                              visibleSubLocalPrescriptions.filter(
+                                (r) => r.department === department
+                              ),
+                              'sampleCount'
+                            )
+                          : 'N/A'}
                       </td>
                     ))
                   : RegionList.map((regionColumn, columnIdx) => (
@@ -401,7 +518,7 @@ const ProgrammingPrescriptionTable = ({
                 <Fragment key={`plan-group-${planId}-${context}`}>
                   <div
                     className="plan-group-sticky-container"
-                    style={{ top: headerHeight }}
+                    style={{ top: topOffset + headerHeight }}
                   >
                     <div
                       className={clsx(
@@ -441,12 +558,33 @@ const ProgrammingPrescriptionTable = ({
                         )}
                       >
                         <table>
-                          <Colgroup columnCount={columnCount} />
+                          <Colgroup
+                            columnCount={columnCount}
+                            showLaboratoryColumn={showLaboratoryColumn}
+                            showCheckboxColumn={showCheckboxColumn}
+                          />
                           <tbody>
                             <tr className="plan-group-header-row plan-group-total-row">
-                              <td colSpan={3}>Total prélèvements</td>
+                              {showCheckboxColumn && (
+                                <td className="checkbox-cell">
+                                  <SelectionCheckbox
+                                    variant="header"
+                                    {...getSelectionState(contextPrescriptions)}
+                                    onChange={() =>
+                                      toggleGroupSelection(contextPrescriptions)
+                                    }
+                                  />
+                                </td>
+                              )}
+                              <td
+                                className="n-cell"
+                                colSpan={showLaboratoryColumn ? 4 : 3}
+                              >
+                                Total prélèvements
+                              </td>
                               <td
                                 className={clsx(
+                                  'prelevements-cell',
                                   'border-left',
                                   'border-right',
                                   'align-center'
@@ -470,12 +608,15 @@ const ProgrammingPrescriptionTable = ({
                                           department !== departmentList[0]
                                       })}
                                     >
-                                      {sumBy(
-                                        contextSubLocalPrescriptions.filter(
-                                          (r) => r.department === department
-                                        ),
-                                        'sampleCount'
-                                      )}
+                                      {plan.distributionKind ===
+                                      'SLAUGHTERHOUSE'
+                                        ? sumBy(
+                                            contextSubLocalPrescriptions.filter(
+                                              (r) => r.department === department
+                                            ),
+                                            'sampleCount'
+                                          )
+                                        : 'N/A'}
                                     </td>
                                   ))
                                 : RegionList.map((regionColumn, columnIdx) => (
@@ -555,10 +696,28 @@ const ProgrammingPrescriptionTable = ({
                             )}
                           >
                             <table>
-                              <Colgroup columnCount={columnCount} />
+                              <Colgroup
+                                columnCount={columnCount}
+                                showLaboratoryColumn={showLaboratoryColumn}
+                                showCheckboxColumn={showCheckboxColumn}
+                              />
                               <tbody>
                                 <tr>
-                                  <td>
+                                  {showCheckboxColumn && (
+                                    <td className="checkbox-cell">
+                                      <SelectionCheckbox
+                                        checked={isPrescriptionSelected(
+                                          prescription
+                                        )}
+                                        onChange={() =>
+                                          onTogglePrescriptionSelection?.(
+                                            prescription
+                                          )
+                                        }
+                                      />
+                                    </td>
+                                  )}
+                                  <td className="n-cell">
                                     <div className="row-reference">
                                       {subPlan?.subPlanNumber}
                                       <Button
@@ -582,6 +741,7 @@ const ProgrammingPrescriptionTable = ({
                                   </td>
                                   <td
                                     className={clsx(
+                                      'matrice-cell',
                                       cx('fr-text--bold'),
                                       'border-left'
                                     )}
@@ -589,41 +749,162 @@ const ProgrammingPrescriptionTable = ({
                                   >
                                     {getPrescriptionTitle(prescription)}
                                   </td>
-                                  <td className="border-left">
+                                  <td
+                                    className={clsx(
+                                      'analyte-cell',
+                                      'border-left'
+                                    )}
+                                  >
                                     {subPlan?.substanceKinds
                                       .map((sk) => SubstanceKindLabels[sk])
                                       .join(', ')}
                                   </td>
+                                  {showLaboratoryColumn && (
+                                    <td
+                                      className={clsx(
+                                        'laboratoire-cell',
+                                        'border-left'
+                                      )}
+                                    >
+                                      {plan.distributionKind === 'REGIONAL' &&
+                                      ownRegionalPrescription
+                                        ? (() => {
+                                            const substanceKindsLaboratories: SubstanceKindLaboratory[] =
+                                              (ownRegionalPrescription
+                                                .substanceKindsLaboratories
+                                                ?.length ?? 0) > 0
+                                                ? (ownRegionalPrescription.substanceKindsLaboratories as SubstanceKindLaboratory[])
+                                                : (
+                                                    subPlan?.substanceKinds ??
+                                                    []
+                                                  ).map((substanceKind) => ({
+                                                    substanceKind,
+                                                    laboratoryId: undefined
+                                                  }));
+                                            const isEditable =
+                                              hasUserLocalPrescriptionPermission(
+                                                plan,
+                                                ownRegionalPrescription
+                                              )?.updateLaboratories;
+                                            const isLaboratoryPending =
+                                              region &&
+                                              pendingLaboratoryKeys?.has(
+                                                toLocalPrescriptionKeyString({
+                                                  prescriptionId:
+                                                    prescription.id,
+                                                  region,
+                                                  department: undefined,
+                                                  companySiret: undefined
+                                                })
+                                              );
+                                            return substanceKindsLaboratories.map(
+                                              (skl) => (
+                                                <LaboratorySelect
+                                                  key={skl.substanceKind}
+                                                  programmingPlanId={plan.id}
+                                                  programmingSubPlanId={
+                                                    prescription.programmingSubPlanId
+                                                  }
+                                                  substanceKind={
+                                                    skl.substanceKind
+                                                  }
+                                                  laboratoryId={
+                                                    skl.laboratoryId
+                                                  }
+                                                  readonly={!isEditable}
+                                                  pending={isLaboratoryPending}
+                                                  hideLabel
+                                                  onSelect={(laboratoryId) =>
+                                                    onChangeLocalPrescriptionLaboratories?.(
+                                                      {
+                                                        prescriptionId:
+                                                          prescription.id,
+                                                        region: region as Region
+                                                      },
+                                                      substanceKindsLaboratories.map(
+                                                        (x) =>
+                                                          x.substanceKind ===
+                                                          skl.substanceKind
+                                                            ? {
+                                                                ...x,
+                                                                laboratoryId
+                                                              }
+                                                            : x
+                                                      )
+                                                    )
+                                                  }
+                                                />
+                                              )
+                                            );
+                                          })()
+                                        : null}
+                                    </td>
+                                  )}
                                   <td
                                     className={clsx(
+                                      'prelevements-cell',
                                       'border-left',
                                       'border-right'
                                     )}
                                   >
                                     {region ? (
-                                      <div
-                                        className={clsx(
-                                          'prescription-sample-count-cell',
-                                          'prescription-sample-count-cell--read'
-                                        )}
-                                      >
-                                        <div>
-                                          {ownRegionalPrescription?.sampleCount ??
-                                            0}
+                                      plan.distributionKind === 'REGIONAL' &&
+                                      ownRegionalPrescription ? (
+                                        <DistributionCountCell
+                                          programmingPlan={plan}
+                                          prescription={prescription}
+                                          localPrescription={
+                                            ownRegionalPrescription
+                                          }
+                                          isEditable={
+                                            hasUserLocalPrescriptionPermission(
+                                              plan,
+                                              ownRegionalPrescription
+                                            )?.updateSampleCount
+                                          }
+                                          isPending={pendingLocalKeys?.has(
+                                            toLocalPrescriptionKeyString({
+                                              prescriptionId: prescription.id,
+                                              region,
+                                              department: undefined,
+                                              companySiret: undefined
+                                            })
+                                          )}
+                                          onChange={async (value) =>
+                                            onChangeLocalPrescriptionCount(
+                                              {
+                                                prescriptionId: prescription.id,
+                                                region
+                                              },
+                                              value
+                                            )
+                                          }
+                                        />
+                                      ) : (
+                                        <div
+                                          className={clsx(
+                                            'prescription-sample-count-cell',
+                                            'prescription-sample-count-cell--read'
+                                          )}
+                                        >
+                                          <div>
+                                            {ownRegionalPrescription?.sampleCount ??
+                                              0}
+                                          </div>
+                                          {showRegionDistributionBadge && (
+                                            <PrescriptionDistributionBadge
+                                              sampleCount={
+                                                ownRegionalPrescription?.sampleCount ??
+                                                0
+                                              }
+                                              distributedCount={
+                                                regionDistributedCount
+                                              }
+                                              small
+                                            />
+                                          )}
                                         </div>
-                                        {showRegionDistributionBadge && (
-                                          <PrescriptionDistributionBadge
-                                            sampleCount={
-                                              ownRegionalPrescription?.sampleCount ??
-                                              0
-                                            }
-                                            distributedCount={
-                                              regionDistributedCount
-                                            }
-                                            small
-                                          />
-                                        )}
-                                      </div>
+                                      )
                                     ) : (
                                       <div
                                         className={clsx(
@@ -690,7 +971,7 @@ const ProgrammingPrescriptionTable = ({
                                             );
                                           return (
                                             <td
-                                              className={clsx({
+                                              className={clsx('align-center', {
                                                 'border-left': columnIdx !== 0
                                               })}
                                               data-testid={`cell-${prescription.id}`}
@@ -736,6 +1017,9 @@ const ProgrammingPrescriptionTable = ({
                                                     )
                                                   }
                                                 />
+                                              ) : plan.distributionKind !==
+                                                'SLAUGHTERHOUSE' ? (
+                                                'N/A'
                                               ) : null}
                                             </td>
                                           );

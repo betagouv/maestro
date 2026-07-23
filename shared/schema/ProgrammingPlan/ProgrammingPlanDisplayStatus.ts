@@ -205,7 +205,9 @@ interface CompletenessResult {
 }
 
 // Completeness = "has data been entered for this echelon's own share of the plan":
-// - National: every prescription has a non-zero national sampleCount ("matrices renseignées").
+// - National: every planned matrix has a Prescription row — a sampleCount of 0 is a legitimate,
+//   final allocation (a matrix included in the plan with no samples programmed this campaign),
+//   not "not yet entered", so it counts as done. Mirrors the Regional/Departmental reasoning below.
 // - Regional/Departmental: every prescription of the plan has a LocalPrescription row at this
 //   echelon's scope — a distributed count of 0 is a legitimate, final allocation (e.g. a matrix
 //   that isn't produced in that region), not "not yet entered", so it counts as done. Rows are
@@ -225,7 +227,7 @@ export const computeCompleteness = (
   if (echelon === 'National') {
     const attributedCount = sumBy(prescriptions, 'sampleCount');
     return {
-      isComplete: prescriptions.every((p) => p.sampleCount > 0),
+      isComplete: prescriptions.length > 0,
       hasAnyProgrammedSample: attributedCount > 0,
       programmedCount: attributedCount,
       attributedCount

@@ -1,5 +1,4 @@
 import Button from '@codegouvfr/react-dsfr/Button';
-import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { groupBy } from 'lodash-es';
@@ -22,6 +21,7 @@ import {
 } from 'react';
 import AppToast from '../../../components/_app/AppToast/AppToast';
 import ProgrammingPlanDisplayStatusBadge from '../../../components/ProgrammingPlanDisplayStatusBadge/ProgrammingPlanDisplayStatusBadge';
+import SelectionCheckbox from '../../../components/SelectionCheckbox/SelectionCheckbox';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../services/apiClient';
 import ProgrammingPlanBulkSendAdminModal, {
@@ -78,49 +78,6 @@ const ExpandButton = ({
     onClick={onClick}
   />
 );
-
-const SelectionCheckbox = ({
-  checked,
-  indeterminate,
-  disabled,
-  onChange,
-  variant = 'row'
-}: {
-  checked: boolean;
-  indeterminate?: boolean;
-  disabled?: boolean;
-  onChange?: () => void;
-  variant?: 'header' | 'row';
-}) => {
-  const checkbox = (
-    <Checkbox
-      options={[
-        {
-          label: '',
-          nativeInputProps: {
-            checked,
-            disabled,
-            onChange,
-            ref: (el: HTMLInputElement | null) => {
-              if (el) {
-                el.indeterminate = indeterminate ?? false;
-              }
-            }
-          }
-        }
-      ]}
-      small
-      className={cx('fr-pb-3w')}
-    />
-  );
-  return variant === 'header' ? (
-    <div className={clsx(cx('fr-checkbox-group'), 'selectable-cell')}>
-      {checkbox}
-    </div>
-  ) : (
-    <div className="selectable-cell">{checkbox}</div>
-  );
-};
 
 const MiniTable = ({
   statusColumnCount,
@@ -598,12 +555,23 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
                             )}
                           </td>
                           <td>
-                            {departmentalAggregate ? (
+                            {departmentalAggregate &&
+                            departmentalAggregate.value !== 'NotApplicable' ? (
                               <AggregateBadge
                                 aggregate={departmentalAggregate}
                               />
+                            ) : departmentalAggregate &&
+                              regionalAggregate.value === 'Pending' ? (
+                              <AggregateBadge
+                                aggregate={{
+                                  value: 'Pending',
+                                  label: 'En attente'
+                                }}
+                              />
                             ) : (
-                              '—'
+                              <span className="fr-text--sm fr-text-mention--grey">
+                                N/A
+                              </span>
                             )}
                           </td>
                         </tr>
@@ -780,9 +748,18 @@ const AggregateBadge = ({
       ? 'success'
       : aggregate.value === 'InProgress'
         ? 'new'
-        : 'warning';
+        : aggregate.value === 'Pending'
+          ? undefined
+          : 'warning';
   return (
-    <span className={cx('fr-badge', `fr-badge--${severity}`)}>
+    <span
+      className={cx(
+        'fr-badge',
+        severity && `fr-badge--${severity}`,
+        'fr-badge--sm',
+        'fr-badge--no-icon'
+      )}
+    >
       {aggregate.ratio
         ? `${aggregate.label} (${aggregate.ratio.sent}/${aggregate.ratio.total})`
         : aggregate.label}

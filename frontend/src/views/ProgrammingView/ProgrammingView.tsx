@@ -212,7 +212,7 @@ const ProgrammingView = () => {
       ? {
           label: 'Suivi des plans',
           tabId: 'PlanTrackingTab',
-          iconId: 'fr-icon-list-check'
+          iconId: 'fr-icon-chat-check-line'
         }
       : undefined
   ];
