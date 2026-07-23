@@ -11,7 +11,7 @@ interface Props {
 const severityByValue = {
   Submitted: 'success',
   InProgress: 'new',
-  Pending: 'warning',
+  Pending: undefined,
   ReadyToSend: 'info',
   NotApplicable: undefined
 } as const;
@@ -26,7 +26,7 @@ const ProgrammingPlanDisplayStatusBadge = ({
   }
 
   return (
-    <div style={{ textAlign: 'right' }}>
+    <div style={{ textAlign: 'left' }}>
       <Badge severity={severityByValue[result.value]} noIcon small={small}>
         {result.label}
       </Badge>

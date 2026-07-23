@@ -1,0 +1,8 @@
+// .fr-input's default background is already --background-contrast-grey (a
+// filled box, not white) and it has no real `border` — DSFR fakes one via an
+// inset box-shadow, which we drop here in favor of a real all-around border.
+.laboratory-select-input--pending {
+  background-color: var(--background-default-grey) !important;
+  border: 1px solid var(--background-contrast-grey) !important;
+  box-shadow: none !important;
+}
