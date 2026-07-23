@@ -150,10 +150,10 @@ export const RegionalCoordinatorView: Story = {
 
     await expect(
       canvas.queryByTestId('prescriptions-cards-segment')
-    ).toBeInTheDocument();
+    ).not.toBeInTheDocument();
     await expect(
       canvas.queryByTestId('prescriptions-table-segment')
-    ).toBeInTheDocument();
+    ).not.toBeInTheDocument();
 
     await expect(
       canvas.queryByTestId('update-laboratory-button')
@@ -167,18 +167,9 @@ export const RegionalCoordinatorView: Story = {
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
 
-    await expect(
-      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
-        el.textContent?.toLowerCase().includes('%')
-      )
-    ).toHaveLength(prescriptions.length);
-    await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
-
-    await userEvent.click(canvas.getByTestId('prescriptions-table-segment'));
-
     // The table view (ProgrammingPrescriptionTable, regional mode) doesn't
     // carry over completion badges from the old ProgrammingLocalPrescriptionTable —
-    // those only show in the cards view for now.
+    // those only showed in the cards view, which regional coordinators no longer have.
     await expect(
       Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
         el.textContent?.toLowerCase().includes('%')

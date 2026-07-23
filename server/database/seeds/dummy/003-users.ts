@@ -57,7 +57,7 @@ export const seed = async () => {
       id: uuidv4(),
       email: 'coordinateur.regional@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
-      programmingSubPlanIds: [PPVValidatedSubPlanId],
+      programmingSubPlanIds: [PPVValidatedSubPlanId, PPVInProgressSubPlanId],
       roles: ['RegionalCoordinator'],
       region: '44'
     },
@@ -65,7 +65,7 @@ export const seed = async () => {
       id: uuidv4(),
       email: 'coordinateur.regional.drom@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
-      programmingSubPlanIds: [PPVValidatedSubPlanId],
+      programmingSubPlanIds: [PPVValidatedSubPlanId, PPVInProgressSubPlanId],
       roles: ['RegionalCoordinator'],
       region: '01'
     },
