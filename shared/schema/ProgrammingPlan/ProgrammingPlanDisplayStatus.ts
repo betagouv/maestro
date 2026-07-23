@@ -25,7 +25,7 @@ export type ProgrammingPlanDisplayStatus = z.infer<
   typeof ProgrammingPlanDisplayStatus
 >;
 
-export const ProgrammingPlanDisplayStatusLabels: Record<
+const ProgrammingPlanDisplayStatusLabels: Record<
   ProgrammingPlanDisplayStatus,
   string
 > = {
@@ -36,12 +36,15 @@ export const ProgrammingPlanDisplayStatusLabels: Record<
   NotApplicable: 'N/A'
 };
 
-export const submittedLabel = (
+const submittedLabel = (
   echelon: ProgrammingPlanEchelon,
-  distributionKind: DistributionKind
+  distributionKind: DistributionKind,
+  status?: ProgrammingPlanStatus | null
 ): string => {
   if (echelon === 'National') {
-    return 'Soumis aux régions';
+    return status === 'SubmittedToAdmin'
+      ? "Soumis à l'admin"
+      : 'Soumis aux régions';
   }
   if (echelon === 'Regional') {
     return distributionKind === 'SLAUGHTERHOUSE'
@@ -67,7 +70,7 @@ const receivedStatusesByEchelon: Record<
   Departmental: ['SubmittedToDepartments', 'Validated', 'Closed']
 };
 
-export const hasReceivedFromAbove = (
+const hasReceivedFromAbove = (
   echelon: ProgrammingPlanEchelon,
   status?: ProgrammingPlanStatus | null
 ): boolean => {
@@ -84,6 +87,7 @@ const sentStatusesByEchelon = (
   distributionKind: DistributionKind
 ): Record<ProgrammingPlanEchelon, ProgrammingPlanStatus[]> => ({
   National: [
+    'SubmittedToAdmin',
     'SubmittedToRegion',
     'SubmittedToDepartments',
     'ApprovedByRegion',
@@ -108,7 +112,7 @@ export const hasSentOnward = (
   return sentStatusesByEchelon(distributionKind)[echelon].includes(status);
 };
 
-export interface DisplayStatusInput {
+interface DisplayStatusInput {
   status?: ProgrammingPlanStatus | null;
   sentAt?: Date | null;
   lastModifiedAt?: Date | null;
@@ -173,7 +177,11 @@ export const computeDisplayStatus = (
   if (hasSentOnward(input.echelon, input.distributionKind, input.status)) {
     return {
       value: 'Submitted',
-      label: submittedLabel(input.echelon, input.distributionKind),
+      label: submittedLabel(
+        input.echelon,
+        input.distributionKind,
+        input.status
+      ),
       modified: false,
       sentAt,
       lastModifiedAt
@@ -189,7 +197,7 @@ export const computeDisplayStatus = (
   };
 };
 
-export interface CompletenessResult {
+interface CompletenessResult {
   isComplete: boolean;
   hasAnyProgrammedSample: boolean;
   programmedCount: number;

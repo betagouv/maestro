@@ -369,11 +369,15 @@ export const seed = async () => {
     graineDeTournesol2
   ];
 
-  const inProgressPrescriptions = prescriptions.map((prescription) => ({
+  const inProgressPrescriptions = prescriptions.map((prescription, index) => ({
     ...prescription,
     id: uuidv4(),
     programmingPlanId: PPVInProgressProgrammingPlanFixture.id,
-    programmingSubPlanId: PPVInProgressSubPlanId
+    programmingSubPlanId: PPVInProgressSubPlanId,
+    // Keep the last matrix's national sampleCount unset so the plan's national
+    // completeness stays false, matching its "InProgress" (not ready to send) status.
+    sampleCount:
+      index === prescriptions.length - 1 ? 0 : prescription.sampleCount
   }));
 
   await Prescriptions().insert([...prescriptions, ...inProgressPrescriptions]);
