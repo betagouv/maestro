@@ -222,9 +222,7 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
       const isEligible = region
         ? regionalDisplayStatus?.value === 'ReadyToSend'
         : hasRole('Administrator')
-          ? (nationalDisplayStatus.value === 'ReadyToSend' &&
-              !nationalDisplayStatus.modified) ||
-            isSubmittedToAdmin
+          ? isSubmittedToAdmin
           : nationalDisplayStatus.value === 'ReadyToSend';
 
       map.set(plan.id, {
