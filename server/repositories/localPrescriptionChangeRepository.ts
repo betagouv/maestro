@@ -2,7 +2,7 @@ import type { Region } from 'maestro-shared/referential/Region';
 import type { LocalPrescriptionChange } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
 import { knexInstance as db } from './db';
 
-export const localPrescriptionChangesTable = 'local_prescription_changes';
+const localPrescriptionChangesTable = 'local_prescription_changes';
 
 type LocalPrescriptionChangeInsert = Pick<
   LocalPrescriptionChange,
