@@ -139,7 +139,13 @@ const filtersConfig = {
   },
   sampledDate: {
     prop: 'sampledDate',
-    getLabel: (value) => format(new Date(value), 'dd/MM/yyyy')
+    getLabel: (value) =>
+      `Date de prélèvement : ${format(new Date(value), 'dd/MM/yyyy')}`
+  },
+  sentDate: {
+    prop: 'sentDate',
+    getLabel: (value) =>
+      `Date d'envoi de la DAI : ${format(new Date(value), 'dd/MM/yyyy')}`
   },
   regions: {
     prop: 'regions',

@@ -32,6 +32,7 @@ export const FindSampleOptions = z.object({
   matrixKinds: z.array(MatrixKind).nullish(),
   sampledBy: z.array(z.guid()).nullish(),
   sampledDate: z.string().nullish(),
+  sentDate: z.string().nullish(),
   reference: z.string().nullish(),
   compliance: SampleCompliance.nullish(),
   withAtLeastOneResidue: z.boolean().nullish(),

@@ -160,6 +160,7 @@ const findRequest = (findOptions: FindSampleOptions) =>
           'matrices',
           'sampledBy',
           'sampledDate',
+          'sentDate',
           'page',
           'perPage',
           'status',
@@ -205,6 +206,12 @@ const findRequest = (findOptions: FindSampleOptions) =>
       }
       if (findOptions.sampledDate) {
         builder.where(`${samplesTable}.sampled_date`, findOptions.sampledDate);
+      }
+      if (findOptions.sentDate) {
+        builder.whereRaw(
+          `(${samplesTable}.sent_at AT TIME ZONE 'Europe/Paris')::date = ?`,
+          [findOptions.sentDate]
+        );
       }
       if (findOptions.reference) {
         builder.whereILike(
