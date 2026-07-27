@@ -1,5 +1,6 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Tooltip from '@codegouvfr/react-dsfr/Tooltip';
 import clsx from 'clsx';
 import { groupBy } from 'lodash-es';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
@@ -511,15 +512,37 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
                     const canExpandDepartments =
                       plan.distributionKind === 'SLAUGHTERHOUSE';
 
+                    // Only surface a reason when the block is that this
+                    // echelon's own repartition isn't finished yet — other
+                    // disabled cases (not received yet, already submitted)
+                    // are self-evident from the status badge next to it.
+                    const relevantStatus = region
+                      ? regionalDisplayStatus
+                      : nationalDisplayStatus;
+                    const isRepartitionIncomplete =
+                      !isEligible && relevantStatus?.value === 'InProgress';
+                    const checkbox = (
+                      <SelectionCheckbox
+                        checked={selectedPlanIds.has(plan.id)}
+                        disabled={!isEligible}
+                        onChange={() => togglePlanSelection(plan.id)}
+                      />
+                    );
+
                     return (
                       <Fragment key={plan.id}>
                         <tr>
                           <td>
-                            <SelectionCheckbox
-                              checked={selectedPlanIds.has(plan.id)}
-                              disabled={!isEligible}
-                              onChange={() => togglePlanSelection(plan.id)}
-                            />
+                            {isRepartitionIncomplete ? (
+                              <Tooltip
+                                kind="hover"
+                                title="Vous ne pouvez pas envoyer ce plan car la répartition n'est pas complète"
+                              >
+                                {checkbox}
+                              </Tooltip>
+                            ) : (
+                              checkbox
+                            )}
                           </td>
                           <td>
                             <div className="row-reference">

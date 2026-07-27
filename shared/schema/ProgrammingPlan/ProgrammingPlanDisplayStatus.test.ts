@@ -70,6 +70,17 @@ describe('computeDisplayStatus — ReadyToSend/modified branch', () => {
     expect(result.modified).toBe(false);
   });
 
+  test('sent, then modified into incomplete -> InProgress, not Submitted', () => {
+    const result = computeDisplayStatus({
+      ...base,
+      isComplete: false,
+      status: 'SubmittedToRegion',
+      sentAt: new Date('2026-01-01'),
+      lastModifiedAt: new Date('2026-01-05')
+    });
+    expect(result.value).toBe('InProgress');
+  });
+
   test('Regional, freshly received and never touched, complete -> InProgress, not ReadyToSend', () => {
     // isComplete is true here because the region's LocalPrescription rows
     // were eagerly created (sampleCount 0) as soon as the prescription
