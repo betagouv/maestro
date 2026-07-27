@@ -187,7 +187,16 @@ export const computeDisplayStatus = (
     };
   }
 
-  if (hasSentOnward(input.echelon, input.distributionKind, input.status)) {
+  // A plan whose workflow status already advanced past "sent" only counts as
+  // Submitted while its data is still complete — if a later save leaves it
+  // incomplete (e.g. volumes edited below target, or a lab unassigned), the
+  // status field itself doesn't revert (only an explicit send changes it), so
+  // we must gate on isComplete here too, or an incomplete-again plan would
+  // keep showing as sent.
+  if (
+    input.isComplete &&
+    hasSentOnward(input.echelon, input.distributionKind, input.status)
+  ) {
     return {
       value: 'Submitted',
       label: submittedLabel(
