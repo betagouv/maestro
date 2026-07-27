@@ -111,6 +111,13 @@ export const programmingPlanRouter = {
           continue;
         }
 
+        if (
+          userRole === 'Administrator' &&
+          plan.nationalStatus.status !== 'SubmittedToAdmin'
+        ) {
+          continue;
+        }
+
         if (!isModified) {
           await Promise.all(
             plan.regionalStatus.map((regionalStatus) =>

@@ -836,6 +836,12 @@ describe('ProgrammingPlan router', () => {
     });
 
     test('admin: first send cascades every region and sets the national sentAt', async () => {
+      await request(app)
+        .post(testRoute)
+        .send({ programmingPlanIds: [PPVInProgressProgrammingPlanFixture.id] })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
       mockSendNotification.mockClear();
 
       const res = await request(app)
@@ -882,6 +888,35 @@ describe('ProgrammingPlan router', () => {
       await ProgrammingPlanLocalStatus()
         .where('programmingPlanId', PPVInProgressProgrammingPlanFixture.id)
         .update({ status: 'InProgress', sentAt: null });
+    });
+
+    test('admin: sending a plan the national coordinator has not submitted yet is a no-op', async () => {
+      mockSendNotification.mockClear();
+
+      const res = await request(app)
+        .post(testRoute)
+        .send({ programmingPlanIds: [PPVInProgressProgrammingPlanFixture.id] })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body[0]).toMatchObject({
+        id: PPVInProgressProgrammingPlanFixture.id,
+        nationalStatus: expect.objectContaining({
+          status: 'InProgress',
+          sentAt: null
+        })
+      });
+
+      const regionalRows = await ProgrammingPlanLocalStatus()
+        .where('programmingPlanId', PPVInProgressProgrammingPlanFixture.id)
+        .andWhere('region', '!=', 'None');
+      expect(
+        regionalRows.every(
+          (row) => row.status === 'InProgress' && row.sentAt === null
+        )
+      ).toBe(true);
+
+      expect(mockSendNotification).not.toHaveBeenCalled();
     });
 
     test('national: first send marks the plan SubmittedToAdmin and notifies administrators, regions untouched', async () => {
