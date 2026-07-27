@@ -12,10 +12,6 @@ const prescriptionApi = api.injectEndpoints({
         }))
       ]
     }),
-    // These three also touch programming_plan_local_status.lastModifiedAt
-    // server-side (touchLocalStatus), which feeds the display status shown in
-    // "Suivi des plans" — ProgrammingPlan must be invalidated too, otherwise
-    // that tab keeps showing the pre-edit status until something else refetches it.
     addPrescription: buildTypedMutation(builder, '/prescriptions', 'post', {
       invalidatesTags: [
         { type: 'Prescription', id: 'LIST' },

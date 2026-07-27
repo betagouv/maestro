@@ -52,8 +52,6 @@ export const prescriptionsRouter = {
         }))
       );
 
-      // Every freshly-created region row is a "change" from the start — no
-      // previous value, hence null (displayed as "Avant : 0").
       await localPrescriptionChangeRepository.insertMany(
         RegionList.map((region) => ({
           prescriptionId: createdPrescription.id,
@@ -180,10 +178,6 @@ export const prescriptionsRouter = {
         await prescriptionSubstanceRepository.insertMany(substances);
       }
 
-      // This only edits the Prescription row itself (national-level target),
-      // not any region/department LocalPrescription row, so only National's
-      // own lastModifiedAt should move — regions/departments haven't had
-      // anything of theirs touched and must not flip to "modified since sent".
       await programmingPlanRepository.touchNationalLastModifiedAt(
         programmingPlan.id
       );

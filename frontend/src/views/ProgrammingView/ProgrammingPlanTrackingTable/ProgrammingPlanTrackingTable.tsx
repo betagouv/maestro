@@ -46,9 +46,6 @@ import './ProgrammingPlanTrackingTable.scss';
 
 interface Props {
   programmingPlans: ProgrammingPlanChecked[];
-  // Presence switches the table to regional mode: scoped to this single
-  // region, eligibility/actions governed by the Regional echelon instead of
-  // National, expansion goes straight to department rows (no region level).
   region?: Region;
 }
 
@@ -220,13 +217,6 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
 
       const deepestAggregate = departmentalAggregate ?? regionalAggregate;
 
-      // A resend after modification is National-only: the admin's role stops
-      // at the first send, so an already-sent-then-modified plan is not
-      // selectable for bulk-send when logged in as Administrator. In regional
-      // mode, eligibility is governed by that region's own Regional echelon
-      // status instead — this bulk action covers both the first send and any
-      // later resend for both distribution kinds (departments for
-      // SLAUGHTERHOUSE, straight back up to National for REGIONAL).
       const isSubmittedToAdmin =
         plan.nationalStatus.status === 'SubmittedToAdmin';
       const isEligible = region
@@ -309,10 +299,6 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
     [selectedPlans, planStatusInfo]
   );
 
-  // Only meaningful in regional mode: whether every currently-selected plan
-  // is a resend after modification rather than a first send — governs the
-  // wording of the regional send button/modal (REGIONAL-kind plans have no
-  // department echelon, so their copy talks about préleveurs instead).
   const selectedRegionalModified = useMemo(
     () =>
       selectedPlans.length > 0 &&
@@ -411,8 +397,6 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
     [displayedPlans]
   );
 
-  // Regional mode drops the "Statut BGIR" (national) column — only relevant
-  // to national/admin.
   const statusColumnCount = region ? 2 : 3;
 
   if (!prescriptions || !localPrescriptions) {
@@ -522,7 +506,6 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
                       (_) => localPrescriptionsByPrescription[_.id] ?? []
                     );
 
-                    // Always present: planStatusInfo is built from this same programmingPlans list.
                     const {
                       nationalDisplayStatus,
                       regionalDisplayStatus,
@@ -535,10 +518,6 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
                     const canExpandDepartments =
                       plan.distributionKind === 'SLAUGHTERHOUSE';
 
-                    // Only surface a reason when the block is that this
-                    // echelon's own repartition isn't finished yet — other
-                    // disabled cases (not received yet, already submitted)
-                    // are self-evident from the status badge next to it.
                     const relevantStatus = region
                       ? regionalDisplayStatus
                       : nationalDisplayStatus;

@@ -28,12 +28,6 @@ type LocalPrescriptionsDbo = z.infer<typeof LocalPrescriptionsDbo>;
 export const LocalPrescriptions = (transaction = db) =>
   transaction<LocalPrescriptionsDbo>(localPrescriptionsTable);
 
-// Oldest still-unviewed change per (prescriptionId, region), fetched as a
-// separate query rather than joined into findMany/findUnique's own query —
-// those already conditionally add GROUP BY clauses per requested `includes`,
-// and mixing a LATERAL join's plain columns into that would require touching
-// every one of those unrelated GROUP BY lists. DISTINCT ON keeps this
-// self-contained.
 const findPendingChanges = async (
   prescriptionIds: string[]
 ): Promise<
@@ -188,18 +182,9 @@ const findMany = async (
       localPrescriptions.map(parseLocalPrescription)
     )
     .then(async (localPrescriptions: LocalPrescription[]) => {
-      // Pending-change info is opt-in via includes: ['pendingChanges'] — the
-      // sole current caller is the region-scoped prescription table's own
-      // fetch, which needs it for the novelty badge. Every other caller
-      // (prescription export, the plan tracking table's completeness fetch,
-      // etc.) doesn't ask for it and must see unchanged rows — several
-      // existing tests assert an exact LocalPrescription shape without
-      // these fields.
       if (!findOptions.includes?.includes('pendingChanges')) {
         return localPrescriptions;
       }
-      // Pending-change info only makes sense on the region-level row
-      // (department undefined) — department/company rows never carry it.
       const regionLevel = localPrescriptions.filter(
         (_: LocalPrescription) => _.department == null
       );
@@ -356,10 +341,6 @@ const include = (opts?: Pick<FindLocalPrescriptionOptions, 'includes'>) => {
           `${localPrescriptionsTable}.companySiret`
         );
     },
-    // Handled outside the query builder entirely — see the
-    // withPendingChanges() step in findMany, a separate DISTINCT ON query
-    // rather than a join merged into this one (avoids interfering with the
-    // GROUP BY clauses the other includes above conditionally add).
     pendingChanges: () => {}
   };
 
@@ -437,10 +418,6 @@ const updateMany = async (
 export const formatLocalPrescription = (
   localPrescription: LocalPrescription
 ): LocalPrescriptionsDbo => ({
-  // previousSampleCount/changedAt are computed via a join against
-  // local_prescription_changes (see findMany/findUnique below) — there's no
-  // matching column on local_prescriptions itself, so they must never reach
-  // an insert/update payload.
   ...omit(localPrescription, ['previousSampleCount', 'changedAt']),
   department: localPrescription.department ?? 'None',
   companySiret: localPrescription.companySiret ?? 'None'

@@ -24,9 +24,6 @@ import {
 
 export const seed = async () => {
   await Prescriptions().insert([
-    // Foie de bovin's national sampleCount is left unset here (seed-only override,
-    // fixture itself keeps 80) so the "InProgress" DAOA plan's national completeness
-    // stays false, matching its "InProgress" (not ready to send) status.
     { ...FoieDeBovinPrescriptionFixture, sampleCount: 0 },
     VolaillePrescriptionFixture,
     FoieDeBovinValidatedPrescriptionFixture,
@@ -40,11 +37,6 @@ export const seed = async () => {
     ...VolailleValidatedLocalPrescriptionFixture
   ]);
 
-  // The fixtures above zero-fill every department's row (only the region-level
-  // aggregate carries a real count) so that the "InProgress" DAOA demo plan looks
-  // genuinely mid-distribution. The "Validated" plan is meant to look fully done
-  // at every echelon, so its department-level counts need to be real here too —
-  // split each region's fixture total across its departments, at least 1 each.
   const regionQuantities: Record<string, number[]> = {
     [FoieDeBovinValidatedPrescriptionFixture.id]: [
       3, 2, 5, 8, 10, 1, 2, 10, 3, 3, 2, 9, 4, 4, 2, 1, 5, 6

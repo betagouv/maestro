@@ -54,10 +54,6 @@ export const ProgrammingPlans = (transaction = db) =>
 export const ProgrammingPlanLocalStatus = (transaction = db) =>
   transaction<ProgrammingPlanLocalStatusDbo>(programmingPlanLocalStatusTable);
 
-// json_build_object with explicit camelCase keys, not to_json(table.*): knex-stringcase
-// only camelCases top-level query result columns, it never reaches into JSON blob
-// contents built by to_json() — sentAt/lastModifiedAt would silently parse as absent
-// (Zod .nullish()) since the raw blob keys would still be sent_at/last_modified_at.
 const localStatusJsonObject = `json_build_object('status', ${programmingPlanLocalStatusTable}.status, 'region', ${programmingPlanLocalStatusTable}.region, 'department', ${programmingPlanLocalStatusTable}.department, 'sentAt', ${programmingPlanLocalStatusTable}.sent_at, 'lastModifiedAt', ${programmingPlanLocalStatusTable}.last_modified_at)`;
 
 const ProgrammingPlanQuery = () =>
@@ -149,10 +145,6 @@ const findMany = async (
             )
         );
       }
-      // The national row (region = 'None') must always survive this row-level
-      // filter so nationalStatus can be populated by the aggregate below — region,
-      // department and status here only gate which REGIONAL/DEPARTMENTAL rows are
-      // visible to the requesting user, they have no bearing on the national row.
       if (
         findOptions.region ||
         findOptions.department ||
@@ -172,12 +164,6 @@ const findMany = async (
           });
         });
 
-        // The national row above being unconditionally kept alive is only
-        // meant to let nationalStatus still populate for plans that ARE
-        // otherwise visible — on its own it must not make an otherwise
-        // non-matching plan visible (e.g. a RegionalCoordinator seeing a
-        // plan whose only row so far is the eagerly-created national/regional
-        // InProgress rows, before anything has actually been sent to them).
         builder.whereExists(
           db(programmingPlanLocalStatusTable)
             .whereRaw(
@@ -290,10 +276,6 @@ const updateLocalStatus = async (
   const echelon = localStatus.department ? 'Departmental' : 'Regional';
   const isSend = hasSentOnward(echelon, distributionKind, localStatus.status);
 
-  // Always stamp sentAt to now on a send transition, not just the first time
-  // (coalesce would leave a stale sentAt in place on a legitimate resend
-  // after modification — e.g. re-approving after touching sampleCounts —
-  // which then keeps the row looking "modified since sent" forever).
   await ProgrammingPlanLocalStatus()
     .where({
       programmingPlanId,
@@ -382,19 +364,12 @@ const touchLocalStatus = async (
     })
     .update({ lastModifiedAt });
 
-  // A department-level edit must also mark that region's own row as
-  // modified-since-sent, so the regional coordinator's bulk-send eligibility
-  // (send-to-departments) correctly flips back to "ready to send".
   if (scope.region && scope.department) {
     await ProgrammingPlanLocalStatus()
       .where({ programmingPlanId, region: scope.region, department: 'None' })
       .update({ lastModifiedAt });
   }
 
-  // A regional/departmental edit must also mark the national row as
-  // modified-since-sent, otherwise bulk-send eligibility (computed solely
-  // from the national row's own sentAt/lastModifiedAt) never flips back to
-  // "ready to send" after the plan was already sent once.
   if (scope.region) {
     await ProgrammingPlanLocalStatus()
       .where({ programmingPlanId, region: 'None', department: 'None' })

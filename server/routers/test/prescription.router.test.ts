@@ -385,7 +385,7 @@ describe('Prescriptions router', () => {
         )
       ).toBe(true);
 
-      //Cleanup — cascades to local_prescriptions and local_prescription_changes
+      //Cleanup
       await Prescriptions().where({ id: res.body.id }).delete();
     });
   });

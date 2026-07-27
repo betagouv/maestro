@@ -59,10 +59,6 @@ interface Props {
   department?: Department;
   companies?: Company[];
   onPendingChange?: (hasPendingChanges: boolean, reset: () => void) => void;
-  // Region-scoped prescriptions whose novelty badge has an unviewed change
-  // but nothing left to act on (case B, see LocalPrescriptionChange.ts) —
-  // recomputed on every render, consumed by the parent on unmount to mark
-  // them viewed. Only meaningful when `region` is set.
   onChangeDismissalCandidatesChange?: (prescriptionIds: string[]) => void;
 }
 
@@ -222,8 +218,6 @@ const ProgrammingPrescriptionList = ({
         ...(hasUserPermission('updatePrescriptionLaboratories')
           ? ['laboratories' as const]
           : []),
-        // Novelty badge only ever renders in the region-scoped table — no
-        // point asking for it on the national multi-region grid.
         ...(region ? ['pendingChanges' as const] : [])
       ]
     }),
@@ -349,11 +343,6 @@ const ProgrammingPrescriptionList = ({
     [prescriptions, allLocalPrescriptionsWithPending, department, region]
   );
 
-  // Case B of the novelty badge (see LocalPrescriptionChange.ts): rows with
-  // an unviewed change but nothing left to act on only get dismissed once
-  // the user leaves the whole Programmation page — that unmount happens one
-  // level up (ProgrammingView.tsx), so just keep the parent informed of
-  // which ids currently qualify.
   useEffect(() => {
     if (!region) {
       onChangeDismissalCandidatesChange?.([]);

@@ -66,16 +66,9 @@ export const buildAggregateDisplayStatus = (
   const total = applicable.length;
 
   if (sent === total) {
-    // Every applicable result shares the same echelon/distributionKind for a
-    // given plan, so their "Submitted" label (e.g. "Soumis aux départements",
-    // "Diffusé aux préleveurs") is already consistent — reuse it as-is.
     return { value: 'Submitted', label: applicable[0].label };
   }
 
-  // "Pending" only when nothing has been received from above yet — once at
-  // least one row has received it (even if none have been sent onward yet),
-  // this is "In progress", not "waiting", otherwise a freshly-received batch
-  // looks indistinguishable from one that was never sent at all.
   const pending = applicable.filter((_) => _.value === 'Pending').length;
   if (pending === total) {
     return { value: 'Pending', label: 'En attente' };

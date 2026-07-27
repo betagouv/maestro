@@ -7,9 +7,6 @@ import { ApiClientContext } from '../../../../services/apiClient';
 
 interface Props {
   plans: ProgrammingPlanChecked[];
-  // Whether every selected plan is already sent and being resent after a
-  // modification, as opposed to a first send — only changes the copy for
-  // REGIONAL-kind plans (SLAUGHTERHOUSE keeps its own generic wording).
   modified: boolean;
   onSuccess: () => void;
 }
@@ -46,10 +43,6 @@ const ProgrammingPlanBulkSendRegionalModal = ({
     }
   };
 
-  // REGIONAL plans have no department echelon — this same action sends the
-  // region's approval straight up to National, and is described to the
-  // préleveurs-facing region's own coordinator as "diffuser aux préleveurs"
-  // rather than the SLAUGHTERHOUSE department-cascade wording.
   const allSlaughterhouse = plans.every(
     (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
   );
