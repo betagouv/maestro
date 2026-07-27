@@ -1,5 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import clsx from 'clsx';
 import { pluralize } from '../../../utils/stringUtils';
+import './ProgrammingPlanTrackingHeader.scss';
 
 interface Props {
   totalCount: number;
@@ -17,8 +19,10 @@ const ProgrammingPlanTrackingHeader = ({
   <div className={cx('fr-container', 'fr-px-5w', 'fr-mb-2w', 'fr-mb-md-3w')}>
     <h4 className={cx('fr-mb-1w')}>Suivi des plans</h4>
     <div
-      className="d-flex-align-center"
-      style={{ gap: '1.5rem', flexWrap: 'wrap' }}
+      className={clsx(
+        'd-flex-align-center',
+        'programming-plan-tracking-header-indicators'
+      )}
     >
       <span>{pluralize(totalCount, { preserveCount: true })('plan')}</span>
       <span>

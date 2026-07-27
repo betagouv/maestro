@@ -81,18 +81,10 @@ interface Props {
     substanceKindsLaboratories: SubstanceKindLaboratory[]
   ) => void;
   pendingLaboratoryKeys?: Set<LocalPrescriptionKeyString>;
-  // Presence switches the table to regional mode: one column per department
-  // of this region instead of one per region, own-total column becomes the
-  // region's own sampleCount instead of the national one (editable for
-  // REGIONAL-kind plans, which have no department cascade; read-only mirror
-  // for SLAUGHTERHOUSE, distributed to departments instead).
   region?: Region;
   subLocalPrescriptions?: LocalPrescription[];
   selectedPrescriptions?: Prescription[];
   onTogglePrescriptionSelection?: (prescription: Prescription) => void;
-  // Height of any sticky banner rendered above this table by the parent
-  // (e.g. the bulk laboratory assignment bar) — shifts this table's own
-  // sticky header/group-title offsets down so they don't sit underneath it.
   topOffset?: number;
 }
 
@@ -282,15 +274,9 @@ const ProgrammingPrescriptionTable = ({
     return null;
   }
 
-  // REGIONAL-kind plans let the regional coordinator assign a laboratory
-  // directly at region level (no department step) — see updateLaboratories
-  // in hasLocalPrescriptionPermission. Only shown in regional mode, and only
-  // when at least one displayed plan is actually REGIONAL-kind.
   const showLaboratoryColumn =
     !!region && programmingPlans.some((p) => p.distributionKind === 'REGIONAL');
 
-  // Regional mode only shows prescriptions that already have a local
-  // prescription for this region (mirrors ProgrammingLocalPrescriptionTable).
   const prescriptions = region
     ? allPrescriptions.filter((p) => !isNil(getOwnRegionalPrescription(p.id)))
     : allPrescriptions;
@@ -303,17 +289,12 @@ const ProgrammingPrescriptionTable = ({
   const planOrder = [...new Set(prescriptions.map((p) => p.programmingPlanId))];
   const prescriptionsByPlan = groupBy(prescriptions, 'programmingPlanId');
 
-  // Department columns are only meaningful for SLAUGHTERHOUSE-kind plans. If
-  // none of the currently visible plans are SLAUGHTERHOUSE, every row is N/A
-  // for those columns, so the grand-total row must show N/A too instead of 0.
   const hasVisibleSlaughterhousePlan = planOrder.some(
     (planId) =>
       programmingPlans.find((p) => p.id === planId)?.distributionKind ===
       'SLAUGHTERHOUSE'
   );
 
-  // Only count regional/departmental prescriptions for currently visible
-  // prescriptions (prescriptions may be filtered by matrixQuery / missing filters)
   const visiblePrescriptionIds = new Set(prescriptions.map((p) => p.id));
   const visibleRegionalPrescriptions = regionalPrescriptions.filter((r) =>
     visiblePrescriptionIds.has(r.prescriptionId)

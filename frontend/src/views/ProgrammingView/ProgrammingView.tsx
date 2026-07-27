@@ -66,15 +66,6 @@ const ProgrammingView = () => {
   const [listHasPendingChanges, setListHasPendingChanges] = useState(false);
   const listResetFnRef = useRef<() => void>(() => {});
   const pendingTabIdRef = useRef<string | null>(null);
-  // Case B of the novelty badge (see LocalPrescriptionChange.ts): rows with
-  // an unviewed change but nothing left to act on get marked viewed
-  // server-side as soon as the candidates are known for this page visit —
-  // but only ONCE per visit (this ref is fresh per mount of ProgrammingView,
-  // i.e. per navigation to the page, and guards against re-firing every time
-  // ProgrammingPrescriptionList itself remounts on internal tab switches).
-  // markLocalPrescriptionChangesViewed deliberately has no invalidatesTags,
-  // so this doesn't refetch/clear the badges the user is currently looking
-  // at — those only go away on the NEXT fetch (revisit or reload).
   const hasMarkedChangesViewedRef = useRef(false);
   const [markLocalPrescriptionChangesViewed] =
     apiClient.useMarkLocalPrescriptionChangesViewedMutation();

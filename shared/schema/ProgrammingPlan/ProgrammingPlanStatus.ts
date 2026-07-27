@@ -40,9 +40,6 @@ export const ProgrammingPlanStatusPermissions: Record<
   UserPermission
 > = {
   InProgress: 'readProgrammingPlansInProgress',
-  // Only ever set on the National echelon row, which read-permission
-  // filtering here doesn't apply to (see programmingPlanController.ts) —
-  // reuses the InProgress permission so this Record stays exhaustive.
   SubmittedToAdmin: 'readProgrammingPlansInProgress',
   SubmittedToRegion: 'readProgrammingPlanSubmittedToRegion',
   SubmittedToDepartments: 'readProgrammingPlanSubmittedToDepartments',

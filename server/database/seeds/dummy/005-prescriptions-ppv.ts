@@ -374,16 +374,10 @@ export const seed = async () => {
     id: uuidv4(),
     programmingPlanId: PPVInProgressProgrammingPlanFixture.id,
     programmingSubPlanId: PPVInProgressSubPlanId,
-    // Keep the last matrix's national sampleCount unset so the plan's national
-    // completeness stays false, matching its "InProgress" (not ready to send) status.
     sampleCount:
       index === prescriptions.length - 1 ? 0 : prescription.sampleCount
   }));
 
-  // Same per-region distribution as the Validated (2026) matrices below, in
-  // the same order as `prescriptions` — keeps each local prescription's total
-  // coherent with its national sampleCount. The last matrix's distribution is
-  // zeroed out to match its forced national sampleCount of 0 above.
   const inProgressDistributions = [
     [14, 0, 0, 0, 3, 2, 0, 0, 0, 3, 12, 0, 6, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 3, 3, 2],

@@ -10,8 +10,6 @@ export const up = async (knex: Knex) => {
       .inTable('prescriptions')
       .onDelete('CASCADE');
     table.text('region').notNullable();
-    // null = row created alongside a brand-new prescription (no "before"
-    // value), otherwise the sample_count just before this specific change.
     table.integer('previous_sample_count').nullable();
     table
       .timestamp('changed_at', { useTz: true })

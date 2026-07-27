@@ -107,9 +107,6 @@ export const programmingPlanRouter = {
           continue;
         }
 
-        // A resend after modification is a National-only action: the admin's
-        // role stops at the first send, only the national coordinator can
-        // push a subsequent modification out to the regions.
         if (userRole === 'Administrator' && isModified) {
           continue;
         }
@@ -206,14 +203,6 @@ export const programmingPlanRouter = {
           regionalStatus.lastModifiedAt ?? null
         );
 
-        // REGIONAL plans have no department echelon to cascade to — this
-        // action is their region's own approval, sent straight back up to
-        // National (ApprovedByRegion), covering both the first approval
-        // (still SubmittedToRegion) and a later re-diffusion after
-        // modification — which can happen from ApprovedByRegion just as well
-        // as from Validated/Closed (a live campaign whose sampleCounts get
-        // tweaked mid-year still needs to re-notify préleveurs), hence
-        // checking hasSentOnward generically instead of one hardcoded status.
         if (plan.distributionKind !== 'SLAUGHTERHOUSE') {
           const samplers = await userRepository.findMany({
             roles: ['Sampler'],

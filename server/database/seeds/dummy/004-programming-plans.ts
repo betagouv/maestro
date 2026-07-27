@@ -33,10 +33,6 @@ export const seed = async () => {
 
   await ProgrammingPlans().insert(plans.map(formatProgrammingPlan));
 
-  // Dummy plans are meant to already be at rest in their fixture's status
-  // (e.g. 'Validated' plans should display as already sent, not "à envoyer"),
-  // so sentAt must be backfilled here exactly like a real transition would set
-  // it — otherwise every echelon looks like it's still waiting to be sent.
   await ProgrammingPlanLocalStatus().insert(
     plans.map((plan) => ({
       programmingPlanId: plan.id,

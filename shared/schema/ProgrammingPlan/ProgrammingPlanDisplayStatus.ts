@@ -54,8 +54,6 @@ const submittedLabel = (
   return 'Diffusé aux préleveurs';
 };
 
-// A department row only exists in DB once its region has cascaded SubmittedToDepartments to it,
-// so "received" for Departmental is really "does a row exist at all" — status is always set once it does.
 const receivedStatusesByEchelon: Record<
   Exclude<ProgrammingPlanEchelon, 'National'>,
   ProgrammingPlanStatus[]
@@ -94,12 +92,6 @@ const sentStatusesByEchelon = (
     'Validated',
     'Closed'
   ],
-  // The region's own "I sent this onward" transition is SubmittedToDepartments
-  // for SLAUGHTERHOUSE (cascades to departments), ApprovedByRegion for REGIONAL
-  // (no department echelon — approval goes straight back up to National; see
-  // NextProgrammingPlanStatus.REGIONAL). Validated/Closed are later states
-  // reached after National's own final validation, not the region's own send
-  // action, but still count as "sent" since they imply it already happened.
   Regional:
     distributionKind === 'SLAUGHTERHOUSE'
       ? ['SubmittedToDepartments', 'Validated', 'Closed']
@@ -168,14 +160,6 @@ export const computeDisplayStatus = (
   }
 
   const modifiedSinceSent = isModifiedSinceSent(sentAt, lastModifiedAt);
-  // For Regional/Departmental, `isComplete` is satisfied the moment every
-  // prescription has a row at that scope — which happens eagerly (sampleCount
-  // 0) as soon as the prescription exists nationally, not when this echelon
-  // actually reviews/acts on it (see computeCompleteness). So a freshly
-  // received, never-touched region/department would otherwise look
-  // "ReadyToSend" immediately on receipt. National's `isComplete` doesn't
-  // have that problem (it reflects prescriptions the national coordinator
-  // actively created), so it's exempt from this extra guard.
   const hasBeenTouched =
     input.echelon === 'National' || lastModifiedAt !== null;
   const needsSend =
@@ -193,12 +177,6 @@ export const computeDisplayStatus = (
     };
   }
 
-  // A plan whose workflow status already advanced past "sent" only counts as
-  // Submitted while its data is still complete — if a later save leaves it
-  // incomplete (e.g. volumes edited below target, or a lab unassigned), the
-  // status field itself doesn't revert (only an explicit send changes it), so
-  // we must gate on isComplete here too, or an incomplete-again plan would
-  // keep showing as sent.
   if (
     input.isComplete &&
     hasSentOnward(input.echelon, input.distributionKind, input.status)
@@ -232,16 +210,6 @@ interface CompletenessResult {
   attributedCount: number;
 }
 
-// Completeness = "has data been entered for this echelon's own share of the plan":
-// - National: every planned matrix has a Prescription row — a sampleCount of 0 is a legitimate,
-//   final allocation (a matrix included in the plan with no samples programmed this campaign),
-//   not "not yet entered", so it counts as done. Mirrors the Regional/Departmental reasoning below.
-// - Regional/Departmental: every prescription of the plan has a LocalPrescription row at this
-//   echelon's scope — a distributed count of 0 is a legitimate, final allocation (e.g. a matrix
-//   that isn't produced in that region), not "not yet entered", so it counts as done. Rows are
-//   created eagerly (sampleCount: 0) for every region/department as soon as a prescription
-//   exists (see prescriptionController.ts), so this only fails while a prescription is still
-//   missing entirely for that scope.
 export const computeCompleteness = (
   prescriptions: Pick<Prescription, 'id' | 'sampleCount'>[],
   localPrescriptions: Pick<
@@ -254,11 +222,6 @@ export const computeCompleteness = (
 ): CompletenessResult => {
   if (echelon === 'National') {
     const attributedCount = sumBy(prescriptions, 'sampleCount');
-    // National isn't "done" just because prescriptions exist — its own share
-    // of the work is distributing each prescription's sampleCount across
-    // regions, so it's only complete once every region-level allocation sums
-    // back up to the national target (same reconciliation the
-    // PrescriptionDistributionBadge shows per row).
     const regionalByPrescription = groupBy(
       localPrescriptions.filter((lp) => isNil(lp.department)),
       'prescriptionId'

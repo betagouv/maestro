@@ -97,9 +97,6 @@ describe('computeDisplayStatus — ReadyToSend/modified branch', () => {
   });
 
   test('Regional, freshly received and never touched, complete -> InProgress, not ReadyToSend', () => {
-    // isComplete is true here because the region's LocalPrescription rows
-    // were eagerly created (sampleCount 0) as soon as the prescription
-    // existed nationally — not because this region has reviewed anything.
     const result = computeDisplayStatus({
       ...base,
       echelon: 'Regional',
@@ -123,10 +120,6 @@ describe('computeDisplayStatus — ReadyToSend/modified branch', () => {
   });
 
   test('Regional/REGIONAL kind, already approved then re-sent after modification, sentAt caught up -> Submitted again', () => {
-    // Mirrors what should happen once the region re-approves (ApprovedByRegion)
-    // after a modification: the server now stamps sentAt to now() on that
-    // transition instead of leaving the old one in place, so it should land
-    // back on Submitted rather than staying stuck on "Modifié, à envoyer".
     const result = computeDisplayStatus({
       ...base,
       echelon: 'Regional',

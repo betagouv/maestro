@@ -24,11 +24,6 @@ const insertMany = async (changes: LocalPrescriptionChangeInsert[]) => {
   }
 };
 
-// Marks every currently-unviewed change for this (prescriptionId, region) as
-// viewed — used both by an explicit corrective action (lab assigned,
-// distribution done) and by a plain "leave the page" dismissal when there
-// was nothing to fix. Region-scoped, not per-user: whoever acts/visits
-// clears it for every coordinator of that region.
 const markViewed = async ({
   prescriptionId,
   region,

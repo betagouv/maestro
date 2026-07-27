@@ -1,6 +1,7 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
 import type { DisplayStatusResult } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import { formatDate } from 'maestro-shared/utils/date';
+import './ProgrammingPlanDisplayStatusBadge.scss';
 
 interface Props {
   result: DisplayStatusResult;
@@ -26,7 +27,7 @@ const ProgrammingPlanDisplayStatusBadge = ({
   }
 
   return (
-    <div style={{ textAlign: 'left' }}>
+    <div className="programming-plan-display-status-badge">
       <Badge severity={severityByValue[result.value]} noIcon small={small}>
         {result.label}
       </Badge>

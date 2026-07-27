@@ -32,11 +32,7 @@ interface Props {
     substanceKindsLaboratories: SubstanceKindLaboratory[]
   ) => Promise<void>;
   onSelectAll: () => void;
-  // Regional coordinator only gets the table view — no grid/segmented control.
   hideDisplayToggle?: boolean;
-  // Regional coordinator gets the SelectionActionBar-based bulk laboratory
-  // assignment banner instead (rendered by the parent) — this inline
-  // single-subPlan "Action groupée" flow stays for the departmental/cards path.
   hideGroupedUpdateButton?: boolean;
 }
 

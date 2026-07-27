@@ -69,9 +69,6 @@ describe('ProgrammingPlan router', () => {
     programmingPlans: ProgrammingPlanChecked[],
     region?: Region | null
   ) => {
-    // Asserted plan-by-plan (rather than as one array-level arrayContaining) so the
-    // asymmetric matchers stay shallow enough for toMatchObject to reliably apply
-    // partial/subset matching to the nested regionalStatus rows.
     for (const programmingPlan of programmingPlans) {
       const actual = body.find((_: any) => _.id === programmingPlan.id);
       expect(
@@ -1019,7 +1016,6 @@ describe('ProgrammingPlan router', () => {
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
-      // Never-sent plan: national row marked SubmittedToAdmin, regions untouched, admin notified.
       const inProgressRegionalRows = await ProgrammingPlanLocalStatus()
         .where('programmingPlanId', PPVInProgressProgrammingPlanFixture.id)
         .andWhere('region', '!=', 'None');
@@ -1040,7 +1036,6 @@ describe('ProgrammingPlan router', () => {
         sentAt: expect.any(Date)
       });
 
-      // Already-sent plan: sent directly, national sentAt refreshed.
       const updatedNational = await ProgrammingPlanLocalStatus()
         .where({
           programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
@@ -1186,9 +1181,6 @@ describe('ProgrammingPlan router', () => {
     });
 
     test('resend after modification only touches the regional sentAt and notifies the modified departments', async () => {
-      // The test seed only inserts national/regional rows (see
-      // server/test/seed/004-programming-plans.ts) — department rows have to
-      // be created here to simulate a plan that was already fully sent once.
       const departments = Regions[RegionalCoordinator.region].departments;
       const modifiedDepartment = departments[0];
       await ProgrammingPlanLocalStatus().insert(

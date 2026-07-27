@@ -63,10 +63,6 @@ interface Props {
   department?: Department;
   companies?: Company[];
   onPendingChange?: (hasPendingChanges: boolean, reset: () => void) => void;
-  // Region-scoped prescriptions whose novelty badge has an unviewed change
-  // but nothing left to act on (case B, see LocalPrescriptionChange.ts) —
-  // recomputed on every render, consumed by the parent on unmount to mark
-  // them viewed. Only meaningful when `region` is set.
   onChangeDismissalCandidatesChange?: (prescriptionIds: string[]) => void;
 }
 
@@ -97,9 +93,6 @@ const ProgrammingPrescriptionList = ({
     user
   } = useAuthentication();
 
-  // The regional coordinator only gets the table view — no grid/segmented
-  // control — since it's the only one wired for laboratory assignment and
-  // grouped selection.
   const isRegionalCoordinatorView = hasRegionalView && !hasNationalView;
   const prescriptionListDisplay = isRegionalCoordinatorView
     ? 'table'
@@ -232,8 +225,6 @@ const ProgrammingPrescriptionList = ({
         ...(hasUserPermission('updatePrescriptionLaboratories')
           ? ['laboratories' as const]
           : []),
-        // Novelty badge only ever renders in the region-scoped table — no
-        // point asking for it on the national multi-region grid.
         ...(region ? ['pendingChanges' as const] : [])
       ]
     }),
@@ -359,11 +350,6 @@ const ProgrammingPrescriptionList = ({
     [prescriptions, allLocalPrescriptionsWithPending, department, region]
   );
 
-  // Case B of the novelty badge (see LocalPrescriptionChange.ts): rows with
-  // an unviewed change but nothing left to act on only get dismissed once
-  // the user leaves the whole Programmation page — that unmount happens one
-  // level up (ProgrammingView.tsx), so just keep the parent informed of
-  // which ids currently qualify.
   useEffect(() => {
     if (!region) {
       onChangeDismissalCandidatesChange?.([]);
@@ -627,12 +613,6 @@ const ProgrammingPrescriptionList = ({
 
   const [bulkAssignBannerHeight, setBulkAssignBannerHeight] = useState(0);
 
-  // Lab "slots" a regional prescription needs filled = its subPlan's
-  // substanceKinds (one LaboratorySelect each), paired with whatever
-  // laboratoryId is already assigned. Non-REGIONAL plans have no region-level
-  // laboratory assignment at all, so they contribute zero slots — which
-  // naturally conflicts with any REGIONAL row also selected, blocking the
-  // bulk action without extra special-casing.
   const laboratorySlotsFor = useCallback(
     (prescription: Prescription) => {
       const plan = getPrescriptionPlan(prescription);

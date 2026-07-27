@@ -98,12 +98,6 @@ export const localPrescriptionsRouter = {
       const localPrescriptions =
         await localPrescriptionRepository.findMany(findOptions);
 
-      // allLevels is used by the plan tracking table to compute completeness
-      // (every prescription must have a row per region/department, and a
-      // sampleCount of 0 is a legitimate final allocation — see
-      // computeCompleteness) — the zero-sampleCount filter below exists to
-      // declutter the prescription list UI for a single region/department,
-      // it must not silently drop rows that completeness needs to see.
       const filterEmptyLocalPrescriptions = findOptions.allLevels
         ? localPrescriptions
         : localPrescriptions.filter((localPrescription) => {
@@ -207,9 +201,6 @@ export const localPrescriptionsRouter = {
       }
 
       if (canUpdateSampleCount) {
-        // Append a history row before overwriting — never edit an existing
-        // change row, so a run of unseen edits keeps its true original
-        // "before" value (findMany/findUnique surface the oldest unviewed one).
         await localPrescriptionChangeRepository.insert({
           prescriptionId: localPrescription.prescriptionId,
           region: localPrescription.region,
@@ -227,8 +218,6 @@ export const localPrescriptionsRouter = {
           localPrescription,
           localPrescriptionUpdate.substanceKindsLaboratories
         );
-        // Only concerns REGIONAL plans in practice — SLAUGHTERHOUSE lab
-        // assignment goes through the department endpoint below.
         await localPrescriptionChangeRepository.markViewed({
           prescriptionId: localPrescription.prescriptionId,
           region: localPrescription.region,
@@ -355,9 +344,6 @@ export const localPrescriptionsRouter = {
           region: params.region,
           department: params.department
         });
-        // These three actions all happen on a department/company-level row,
-        // while the change-tracking flag lives on the parent region-level
-        // row — reach up and mark it viewed (any one of the three suffices).
         await localPrescriptionChangeRepository.markViewed({
           prescriptionId: params.prescriptionId,
           region: params.region,

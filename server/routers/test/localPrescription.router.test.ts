@@ -1985,11 +1985,6 @@ describe('Local prescriptions router', () => {
   });
 
   describe('Change history lifecycle', () => {
-    // Dedicated fixtures (own prescription/context) rather than reusing
-    // submittedControlPrescription1 — that one already accumulates
-    // sampleCount edits (and now change-history rows) from earlier tests in
-    // this file, which would make "don't overwrite while pending" hard to
-    // assert cleanly.
     const changeTrackingPrescription = genPrescription({
       programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
       context: 'Exploratory',
@@ -2025,13 +2020,6 @@ describe('Local prescriptions router', () => {
         })
         .orderBy('changedAt', 'asc');
 
-    // Creation itself (POST /prescriptions inserting one change row per
-    // region with previousSampleCount: null) is covered in
-    // prescription.router.test.ts, against a prescription actually created
-    // through the endpoint — the fixture here is seeded directly into the
-    // DB (same convention as every other fixture in this file), which never
-    // goes through prescriptionController.ts and so never triggers that hook.
-
     test('editing sampleCount appends a new row instead of overwriting, and a later edit does not touch the still-unviewed row', async () => {
       await request(app)
         .put(testRoute())
@@ -2061,9 +2049,6 @@ describe('Local prescriptions router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       const afterSecondEdit = await findChanges();
-      // A second history row for this edit — the append-only design means
-      // both survive; reading "the oldest unviewed one" (what the API
-      // response layer does) is what actually implements "don't overwrite".
       expect(afterSecondEdit).toHaveLength(2);
       expect(afterSecondEdit[0]).toMatchObject({
         previousSampleCount: 50,
@@ -2090,10 +2075,6 @@ describe('Local prescriptions router', () => {
       const rows = await findChanges();
       expect(rows.length).toBeGreaterThan(0);
       expect(rows.every((row) => row.changesViewedAt !== null)).toBe(true);
-      // laboratoryForRegion is intentionally left in place, not deleted —
-      // local_prescription_substance_kinds_laboratories now references it
-      // (same convention as the file-level `laboratory` fixture above,
-      // which is never deleted either).
     });
   });
 

@@ -38,10 +38,6 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
   const dispatch = useAppDispatch();
   const apiClient = useContext(ApiClientContext);
   const { user, hasUserLocalPrescriptionPermission } = useAuthentication();
-  // SLAUGHTERHOUSE cascades to a department echelon (this action sends
-  // there); REGIONAL has none — this same action instead sends the region's
-  // approval straight back up to National (ApprovedByRegion), so the
-  // department-specific copy/checks below don't apply to it.
   const isSlaughterhouse =
     programmingPlan.distributionKind === 'SLAUGHTERHOUSE';
 

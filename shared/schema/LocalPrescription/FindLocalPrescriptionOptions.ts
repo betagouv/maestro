@@ -8,10 +8,6 @@ export const LocalPrescriptionOptionsInclude = z.enum([
   'comments',
   'sampleCounts',
   'laboratories',
-  // Attaches previousSampleCount/changedAt (oldest unviewed row in
-  // local_prescription_changes) to each region-level row — see
-  // LocalPrescriptionChange.ts. Opt-in: several existing callers assert an
-  // exact LocalPrescription shape and must not see these fields.
   'pendingChanges'
 ]);
 
@@ -27,11 +23,6 @@ export const FindLocalPrescriptionOptions = z.object({
   region: Region.nullish(),
   department: Department.nullish(),
   companySirets: z.array(z.string()).nullish(),
-  // Bypass the default "region-level aggregate only" scoping and return the
-  // aggregate row (companySiret = 'None') at every echelon — national, regional
-  // AND departmental — for the requested plans. Used by cross-plan national views
-  // (e.g. the plan tracking table) that need departmental completeness without
-  // being scoped to one region.
   allLevels: z.boolean().nullish(),
   includes: z.array(LocalPrescriptionOptionsInclude).nullish()
 });

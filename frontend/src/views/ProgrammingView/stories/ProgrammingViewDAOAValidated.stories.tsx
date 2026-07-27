@@ -167,9 +167,6 @@ export const RegionalCoordinatorView: Story = {
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
 
-    // The table view (ProgrammingPrescriptionTable, regional mode) doesn't
-    // carry over completion badges from the old ProgrammingLocalPrescriptionTable —
-    // those only showed in the cards view, which regional coordinators no longer have.
     await expect(
       Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
         el.textContent?.toLowerCase().includes('%')
