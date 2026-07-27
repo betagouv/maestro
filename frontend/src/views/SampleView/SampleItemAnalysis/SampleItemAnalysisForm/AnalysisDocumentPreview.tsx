@@ -72,8 +72,8 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
           <span className={cx('fr-text--bold')}>Aucun rapport disponible</span>
         )}
       </div>
-      {!readonly && (
-        <div className={clsx(cx('fr-col-6'))}>
+      <div className={clsx(cx('fr-col-6'))}>
+        {!readonly && (
           <Button
             priority="tertiary"
             iconId="fr-icon-file-add-line"
@@ -87,18 +87,18 @@ export const AnalysisDocumentPreview: FunctionComponent<Props> = ({
               ? 'Actualiser le rapport'
               : 'Ajouter le rapport'}
           </Button>
-          {partialAnalysis &&
-            reportDocumentIds &&
-            reportDocumentIds.length > 0 && (
-              <ReportDocumentList
-                readonly={readonly}
-                sampleId={sampleId}
-                analysisId={partialAnalysis.id}
-                reportDocumentIds={reportDocumentIds}
-              />
-            )}
-        </div>
-      )}
+        )}
+        {partialAnalysis &&
+          reportDocumentIds &&
+          reportDocumentIds.length > 0 && (
+            <ReportDocumentList
+              readonly={readonly}
+              sampleId={sampleId}
+              analysisId={partialAnalysis.id}
+              reportDocumentIds={reportDocumentIds}
+            />
+          )}
+      </div>
       <AnalysisDocumentModal
         modal={addFileModal}
         sampleId={sampleId}
