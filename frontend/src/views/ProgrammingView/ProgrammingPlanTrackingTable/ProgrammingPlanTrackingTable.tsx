@@ -224,13 +224,13 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
       // at the first send, so an already-sent-then-modified plan is not
       // selectable for bulk-send when logged in as Administrator. In regional
       // mode, eligibility is governed by that region's own Regional echelon
-      // status instead, and only SLAUGHTERHOUSE plans cascade to departments
-      // (REGIONAL plans follow a separate approval workflow).
+      // status instead — this bulk action covers both the first send and any
+      // later resend for both distribution kinds (departments for
+      // SLAUGHTERHOUSE, straight back up to National for REGIONAL).
       const isSubmittedToAdmin =
         plan.nationalStatus.status === 'SubmittedToAdmin';
       const isEligible = region
-        ? plan.distributionKind === 'SLAUGHTERHOUSE' &&
-          regionalDisplayStatus?.value === 'ReadyToSend'
+        ? regionalDisplayStatus?.value === 'ReadyToSend'
         : hasRole('Administrator')
           ? (nationalDisplayStatus.value === 'ReadyToSend' &&
               !nationalDisplayStatus.modified) ||
@@ -308,6 +308,27 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
       ),
     [selectedPlans, planStatusInfo]
   );
+
+  // Only meaningful in regional mode: whether every currently-selected plan
+  // is a resend after modification rather than a first send — governs the
+  // wording of the regional send button/modal (REGIONAL-kind plans have no
+  // department echelon, so their copy talks about préleveurs instead).
+  const selectedRegionalModified = useMemo(
+    () =>
+      selectedPlans.length > 0 &&
+      selectedPlans.every(
+        (plan) => planStatusInfo.get(plan.id)?.regionalDisplayStatus?.modified
+      ),
+    [selectedPlans, planStatusInfo]
+  );
+  const selectedAllRegionalKind =
+    selectedPlans.length > 0 &&
+    selectedPlans.every((plan) => plan.distributionKind !== 'SLAUGHTERHOUSE');
+  const regionalActionLabel = selectedAllRegionalKind
+    ? selectedRegionalModified
+      ? 'Diffuser les modifications aux préleveurs'
+      : 'Diffuser les plans aux préleveurs'
+    : 'Soumettre les plans aux départements';
 
   const handleSendSuccess = () => {
     setSelectedPlanIds(new Set());
@@ -417,6 +438,7 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
         onOpenAdminModal={() => bulkSendAdminModal.open()}
         onOpenNationalModal={() => bulkSendNationalModal.open()}
         onOpenRegionalModal={() => bulkSendRegionalModal.open()}
+        regionalActionLabel={regionalActionLabel}
         onHeightChange={setBannerHeight}
       />
       <ProgrammingPlanBulkSendAdminModal
@@ -430,6 +452,7 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
       />
       <ProgrammingPlanBulkSendRegionalModal
         plans={selectedPlans}
+        modified={selectedRegionalModified}
         onSuccess={handleSendSuccess}
       />
       <div className="programming-plan-tracking-table">

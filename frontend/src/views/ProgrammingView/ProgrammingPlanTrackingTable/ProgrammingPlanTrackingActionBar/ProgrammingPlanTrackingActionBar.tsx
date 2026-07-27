@@ -9,6 +9,7 @@ interface Props {
   onOpenAdminModal: () => void;
   onOpenNationalModal: () => void;
   onOpenRegionalModal: () => void;
+  regionalActionLabel: string;
   onHeightChange: (height: number) => void;
 }
 
@@ -18,6 +19,7 @@ const ProgrammingPlanTrackingActionBar = ({
   onOpenAdminModal,
   onOpenNationalModal,
   onOpenRegionalModal,
+  regionalActionLabel,
   onHeightChange
 }: Props) => {
   const { hasRole } = useAuthentication();
@@ -61,7 +63,7 @@ const ProgrammingPlanTrackingActionBar = ({
           iconId="fr-icon-send-plane-line"
           iconPosition="right"
         >
-          Soumettre les plans aux départements
+          {regionalActionLabel}
         </Button>
       )}
       {/* TODO Feature B: bouton "Lancer la campagne" ici, rôle/permission à définir */}

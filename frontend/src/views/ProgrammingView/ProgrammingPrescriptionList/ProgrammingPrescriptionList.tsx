@@ -10,6 +10,10 @@ import {
   type LocalPrescriptionUpdate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
+  hasUnviewedChange,
+  regionRowNeedsChangeAction
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
+import {
   type LocalPrescriptionKey,
   type LocalPrescriptionKeyString,
   toLocalPrescriptionKeyString
@@ -55,6 +59,11 @@ interface Props {
   department?: Department;
   companies?: Company[];
   onPendingChange?: (hasPendingChanges: boolean, reset: () => void) => void;
+  // Region-scoped prescriptions whose novelty badge has an unviewed change
+  // but nothing left to act on (case B, see LocalPrescriptionChange.ts) —
+  // recomputed on every render, consumed by the parent on unmount to mark
+  // them viewed. Only meaningful when `region` is set.
+  onChangeDismissalCandidatesChange?: (prescriptionIds: string[]) => void;
 }
 
 const ProgrammingPrescriptionList = ({
@@ -63,6 +72,7 @@ const ProgrammingPrescriptionList = ({
   department,
   companies,
   onPendingChange,
+  onChangeDismissalCandidatesChange,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -211,7 +221,10 @@ const ProgrammingPrescriptionList = ({
           : []),
         ...(hasUserPermission('updatePrescriptionLaboratories')
           ? ['laboratories' as const]
-          : [])
+          : []),
+        // Novelty badge only ever renders in the region-scoped table — no
+        // point asking for it on the national multi-region grid.
+        ...(region ? ['pendingChanges' as const] : [])
       ]
     }),
     [planIds, prescriptionFilters, region, department, hasUserPermission]
@@ -335,6 +348,43 @@ const ProgrammingPrescriptionList = ({
         }),
     [prescriptions, allLocalPrescriptionsWithPending, department, region]
   );
+
+  // Case B of the novelty badge (see LocalPrescriptionChange.ts): rows with
+  // an unviewed change but nothing left to act on only get dismissed once
+  // the user leaves the whole Programmation page — that unmount happens one
+  // level up (ProgrammingView.tsx), so just keep the parent informed of
+  // which ids currently qualify.
+  useEffect(() => {
+    if (!region) {
+      onChangeDismissalCandidatesChange?.([]);
+      return;
+    }
+    const candidates = (prescriptions ?? [])
+      .map((prescription) => {
+        const own = localPrescriptions.find(
+          (lp) => lp.prescriptionId === prescription.id
+        );
+        if (!own || !hasUnviewedChange(own.changedAt)) {
+          return null;
+        }
+        const plan = getPrescriptionPlan(prescription);
+        const subs = (subLocalPrescriptions ?? []).filter(
+          (sub) => sub.prescriptionId === prescription.id
+        );
+        return regionRowNeedsChangeAction(plan.distributionKind, own, subs)
+          ? null
+          : prescription.id;
+      })
+      .filter((id): id is string => id !== null);
+    onChangeDismissalCandidatesChange?.(candidates);
+  }, [
+    region,
+    prescriptions,
+    localPrescriptions,
+    subLocalPrescriptions,
+    getPrescriptionPlan,
+    onChangeDismissalCandidatesChange
+  ]);
 
   useEffect(() => {
     if (

@@ -10,7 +10,10 @@ import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescri
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { withSubstanceKindLaboratories } from 'maestro-shared/schema/Sample/SampleItem';
-import { companiesIsRequired } from 'maestro-shared/schema/User/User';
+import {
+  companiesIsRequired,
+  userRegionsForRole
+} from 'maestro-shared/schema/User/User';
 import {
   isNationalRole,
   isRegionalRole
@@ -20,6 +23,7 @@ import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckLocalPrescription } from '../middlewares/checks/localPrescriptionCheck';
 import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
+import localPrescriptionChangeRepository from '../repositories/localPrescriptionChangeRepository';
 import localPrescriptionCommentRepository from '../repositories/localPrescriptionCommentRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import localPrescriptionLaboratoryRepository from '../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
@@ -88,40 +92,61 @@ export const localPrescriptionsRouter = {
       const localPrescriptions =
         await localPrescriptionRepository.findMany(findOptions);
 
-      const filterEmptyLocalPrescriptions = localPrescriptions.filter(
-        (localPrescription) => {
-          if (isNil(region)) {
-            return true;
-          }
-          if (isNil(department)) {
-            return isNil(localPrescription.department)
-              ? localPrescription.sampleCount > 0
-              : localPrescriptions.some(
-                  (_) =>
-                    _.region === localPrescription.region &&
-                    isNil(_.department) &&
-                    _.sampleCount > 0
-                );
-          }
-          if (isNil(companySirets)) {
-            return isNil(localPrescription.companySiret)
-              ? localPrescription.sampleCount > 0
-              : localPrescriptions.some(
-                  (_) =>
-                    _.region === localPrescription.region &&
-                    _.department === localPrescription.department &&
-                    isNil(_.companySiret) &&
-                    _.sampleCount > 0
-                );
-          }
-          return localPrescription.sampleCount > 0;
-        }
-      );
+      // allLevels is used by the plan tracking table to compute completeness
+      // (every prescription must have a row per region/department, and a
+      // sampleCount of 0 is a legitimate final allocation — see
+      // computeCompleteness) — the zero-sampleCount filter below exists to
+      // declutter the prescription list UI for a single region/department,
+      // it must not silently drop rows that completeness needs to see.
+      const filterEmptyLocalPrescriptions = findOptions.allLevels
+        ? localPrescriptions
+        : localPrescriptions.filter((localPrescription) => {
+            if (isNil(region)) {
+              return true;
+            }
+            if (isNil(department)) {
+              return isNil(localPrescription.department)
+                ? localPrescription.sampleCount > 0
+                : localPrescriptions.some(
+                    (_) =>
+                      _.region === localPrescription.region &&
+                      isNil(_.department) &&
+                      _.sampleCount > 0
+                  );
+            }
+            if (isNil(companySirets)) {
+              return isNil(localPrescription.companySiret)
+                ? localPrescription.sampleCount > 0
+                : localPrescriptions.some(
+                    (_) =>
+                      _.region === localPrescription.region &&
+                      _.department === localPrescription.department &&
+                      isNil(_.companySiret) &&
+                      _.sampleCount > 0
+                  );
+            }
+            return localPrescription.sampleCount > 0;
+          });
 
       return {
         status: HttpStatus.OK,
         response: filterEmptyLocalPrescriptions
       };
+    }
+  },
+  '/prescriptions/regions/:region/changes-viewed': {
+    put: async ({ user, userRole, body: { prescriptionIds } }, { region }) => {
+      if (!userRegionsForRole(user, userRole).includes(region)) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
+
+      await localPrescriptionChangeRepository.markManyViewed({
+        region,
+        prescriptionIds,
+        viewedBy: user.id
+      });
+
+      return { status: HttpStatus.NO_CONTENT };
     }
   },
   '/prescriptions/:prescriptionId/regions/:region': {
@@ -176,6 +201,15 @@ export const localPrescriptionsRouter = {
       }
 
       if (canUpdateSampleCount) {
+        // Append a history row before overwriting — never edit an existing
+        // change row, so a run of unseen edits keeps its true original
+        // "before" value (findMany/findUnique surface the oldest unviewed one).
+        await localPrescriptionChangeRepository.insert({
+          prescriptionId: localPrescription.prescriptionId,
+          region: localPrescription.region,
+          previousSampleCount: localPrescription.sampleCount,
+          changedAt: new Date()
+        });
         await localPrescriptionRepository.update({
           ...localPrescription,
           sampleCount: localPrescriptionUpdate.sampleCount
@@ -187,6 +221,13 @@ export const localPrescriptionsRouter = {
           localPrescription,
           localPrescriptionUpdate.substanceKindsLaboratories
         );
+        // Only concerns REGIONAL plans in practice — SLAUGHTERHOUSE lab
+        // assignment goes through the department endpoint below.
+        await localPrescriptionChangeRepository.markViewed({
+          prescriptionId: localPrescription.prescriptionId,
+          region: localPrescription.region,
+          viewedBy: user.id
+        });
       }
 
       if (canUpdateSampleCount || canUpdateLaboratories) {
@@ -307,6 +348,14 @@ export const localPrescriptionsRouter = {
         await programmingPlanRepository.touchLocalStatus(programmingPlan.id, {
           region: params.region,
           department: params.department
+        });
+        // These three actions all happen on a department/company-level row,
+        // while the change-tracking flag lives on the parent region-level
+        // row — reach up and mark it viewed (any one of the three suffices).
+        await localPrescriptionChangeRepository.markViewed({
+          prescriptionId: params.prescriptionId,
+          region: params.region,
+          viewedBy: user.id
         });
       }
 

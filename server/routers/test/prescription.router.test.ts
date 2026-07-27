@@ -27,6 +27,7 @@ import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { kysely } from '../../repositories/kysely';
+import { LocalPrescriptionChanges } from '../../repositories/localPrescriptionChangeRepository';
 import { LocalPrescriptions } from '../../repositories/localPrescriptionRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
@@ -372,7 +373,19 @@ describe('Prescriptions router', () => {
           .first()
       ).resolves.toMatchObject({ count: '18' });
 
-      //Cleanup
+      const changes = await LocalPrescriptionChanges().where({
+        prescriptionId: res.body.id
+      });
+      expect(changes).toHaveLength(RegionList.length);
+      expect(
+        changes.every(
+          (change) =>
+            change.previousSampleCount === null &&
+            change.changesViewedAt === null
+        )
+      ).toBe(true);
+
+      //Cleanup — cascades to local_prescriptions and local_prescription_changes
       await Prescriptions().where({ id: res.body.id }).delete();
     });
   });

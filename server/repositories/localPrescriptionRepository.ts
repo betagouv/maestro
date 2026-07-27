@@ -9,6 +9,7 @@ import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/Local
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { z } from 'zod';
 import { knexInstance as db } from './db';
+import { LocalPrescriptionChanges } from './localPrescriptionChangeRepository';
 import { localPrescriptionCommentsTable } from './localPrescriptionCommentRepository';
 import { localPrescriptionSubstanceKindsLaboratoriesTable } from './localPrescriptionSubstanceKindLaboratoryRepository';
 import { prescriptionsTable } from './prescriptionRepository';
@@ -26,6 +27,59 @@ type LocalPrescriptionsDbo = z.infer<typeof LocalPrescriptionsDbo>;
 
 export const LocalPrescriptions = (transaction = db) =>
   transaction<LocalPrescriptionsDbo>(localPrescriptionsTable);
+
+// Oldest still-unviewed change per (prescriptionId, region), fetched as a
+// separate query rather than joined into findMany/findUnique's own query —
+// those already conditionally add GROUP BY clauses per requested `includes`,
+// and mixing a LATERAL join's plain columns into that would require touching
+// every one of those unrelated GROUP BY lists. DISTINCT ON keeps this
+// self-contained.
+const findPendingChanges = async (
+  prescriptionIds: string[]
+): Promise<
+  Map<string, { previousSampleCount: number | null; changedAt: Date }>
+> => {
+  if (prescriptionIds.length === 0) {
+    return new Map();
+  }
+  const rows = await LocalPrescriptionChanges()
+    .distinctOn(['prescriptionId', 'region'])
+    .select('prescriptionId', 'region', 'previousSampleCount', 'changedAt')
+    .whereIn('prescriptionId', prescriptionIds)
+    .whereNull('changesViewedAt')
+    .orderBy([
+      { column: 'prescriptionId' },
+      { column: 'region' },
+      { column: 'changedAt', order: 'asc' }
+    ]);
+  return new Map(
+    rows.map((row) => [
+      `${row.prescriptionId}:${row.region}`,
+      {
+        previousSampleCount: row.previousSampleCount,
+        changedAt: row.changedAt
+      }
+    ])
+  );
+};
+
+const withPendingChanges = async (
+  localPrescriptions: LocalPrescription[]
+): Promise<LocalPrescription[]> => {
+  const pendingByKey = await findPendingChanges(
+    uniq(localPrescriptions.map((_) => _.prescriptionId))
+  );
+  return localPrescriptions.map((localPrescription) => {
+    const pending = pendingByKey.get(
+      `${localPrescription.prescriptionId}:${localPrescription.region}`
+    );
+    return {
+      ...localPrescription,
+      previousSampleCount: pending?.previousSampleCount ?? null,
+      changedAt: pending?.changedAt ?? null
+    };
+  });
+};
 
 const findUnique = async ({
   prescriptionId,
@@ -132,7 +186,33 @@ const findMany = async (
     .modify(include(findOptions))
     .then((localPrescriptions) =>
       localPrescriptions.map(parseLocalPrescription)
-    );
+    )
+    .then(async (localPrescriptions: LocalPrescription[]) => {
+      // Pending-change info is opt-in via includes: ['pendingChanges'] — the
+      // sole current caller is the region-scoped prescription table's own
+      // fetch, which needs it for the novelty badge. Every other caller
+      // (prescription export, the plan tracking table's completeness fetch,
+      // etc.) doesn't ask for it and must see unchanged rows — several
+      // existing tests assert an exact LocalPrescription shape without
+      // these fields.
+      if (!findOptions.includes?.includes('pendingChanges')) {
+        return localPrescriptions;
+      }
+      // Pending-change info only makes sense on the region-level row
+      // (department undefined) — department/company rows never carry it.
+      const regionLevel = localPrescriptions.filter(
+        (_: LocalPrescription) => _.department == null
+      );
+      const withChanges = await withPendingChanges(regionLevel);
+      const byKey = new Map(
+        withChanges.map((_) => [`${_.prescriptionId}:${_.region}`, _])
+      );
+      return localPrescriptions.map((_: LocalPrescription) =>
+        _.department == null
+          ? (byKey.get(`${_.prescriptionId}:${_.region}`) ?? _)
+          : _
+      );
+    });
 };
 
 const include = (opts?: Pick<FindLocalPrescriptionOptions, 'includes'>) => {
@@ -275,7 +355,12 @@ const include = (opts?: Pick<FindLocalPrescriptionOptions, 'includes'>) => {
           `${localPrescriptionsTable}.department`,
           `${localPrescriptionsTable}.companySiret`
         );
-    }
+    },
+    // Handled outside the query builder entirely — see the
+    // withPendingChanges() step in findMany, a separate DISTINCT ON query
+    // rather than a join merged into this one (avoids interfering with the
+    // GROUP BY clauses the other includes above conditionally add).
+    pendingChanges: () => {}
   };
 
   return (query: Knex.QueryBuilder) => {
@@ -352,7 +437,11 @@ const updateMany = async (
 export const formatLocalPrescription = (
   localPrescription: LocalPrescription
 ): LocalPrescriptionsDbo => ({
-  ...localPrescription,
+  // previousSampleCount/changedAt are computed via a join against
+  // local_prescription_changes (see findMany/findUnique below) — there's no
+  // matching column on local_prescriptions itself, so they must never reach
+  // an insert/update payload.
+  ...omit(localPrescription, ['previousSampleCount', 'changedAt']),
   department: localPrescription.department ?? 'None',
   companySiret: localPrescription.companySiret ?? 'None'
 });

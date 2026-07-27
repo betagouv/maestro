@@ -39,7 +39,12 @@ export const LocalPrescription = z.object({
   realizedSampleCount: z.coerce.number().nullish(),
   notAdmissibleSampleCount: z.coerce.number().nullish(),
   compliantSampleCount: z.coerce.number().nullish(),
-  nonCompliantSampleCount: z.coerce.number().nullish()
+  nonCompliantSampleCount: z.coerce.number().nullish(),
+  // Computed via join against local_prescription_changes (see
+  // LocalPrescriptionChange.ts) — the oldest unviewed change for this
+  // region row, if any. Not a column on local_prescriptions itself.
+  previousSampleCount: z.coerce.number().nullish(),
+  changedAt: z.coerce.date().nullish()
 });
 
 export const SlaughterhouseSampleCounts = z
@@ -157,13 +162,18 @@ export const hasLocalPrescriptionPermission = (
     programmingPlan.regionalStatus.find(
       (regionStatus) => regionStatus.region === localPrescription.region
     )?.status !== 'Closed',
+  // The region's own "send onward" action: to departments for SLAUGHTERHOUSE,
+  // straight back up to National (approval) for REGIONAL — see the matching
+  // distinction in hasSentOnward (ProgrammingPlanDisplayStatus.ts). Reuses
+  // this same flag/button for both, only the underlying permission differs.
   distributeToDepartments:
-    programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
-    hasPermission(userRole, 'distributePrescriptionToDepartments') &&
     userRegionsForRole(user, userRole).includes(localPrescription.region) &&
     programmingPlan.regionalStatus.find(
       (regionStatus) => regionStatus.region === localPrescription.region
-    )?.status !== 'Closed',
+    )?.status !== 'Closed' &&
+    (programmingPlan.distributionKind === 'SLAUGHTERHOUSE'
+      ? hasPermission(userRole, 'distributePrescriptionToDepartments')
+      : hasPermission(userRole, 'approveProgrammingPlan')),
   distributeToSlaughterhouses:
     programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
     hasPermission(userRole, 'distributePrescriptionToSlaughterhouses') &&

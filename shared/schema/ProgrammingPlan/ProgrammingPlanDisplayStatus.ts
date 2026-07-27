@@ -94,10 +94,16 @@ const sentStatusesByEchelon = (
     'Validated',
     'Closed'
   ],
+  // The region's own "I sent this onward" transition is SubmittedToDepartments
+  // for SLAUGHTERHOUSE (cascades to departments), ApprovedByRegion for REGIONAL
+  // (no department echelon — approval goes straight back up to National; see
+  // NextProgrammingPlanStatus.REGIONAL). Validated/Closed are later states
+  // reached after National's own final validation, not the region's own send
+  // action, but still count as "sent" since they imply it already happened.
   Regional:
     distributionKind === 'SLAUGHTERHOUSE'
       ? ['SubmittedToDepartments', 'Validated', 'Closed']
-      : ['Validated', 'Closed'],
+      : ['ApprovedByRegion', 'Validated', 'Closed'],
   Departmental: ['Validated', 'Closed']
 });
 
@@ -248,8 +254,24 @@ export const computeCompleteness = (
 ): CompletenessResult => {
   if (echelon === 'National') {
     const attributedCount = sumBy(prescriptions, 'sampleCount');
+    // National isn't "done" just because prescriptions exist — its own share
+    // of the work is distributing each prescription's sampleCount across
+    // regions, so it's only complete once every region-level allocation sums
+    // back up to the national target (same reconciliation the
+    // PrescriptionDistributionBadge shows per row).
+    const regionalByPrescription = groupBy(
+      localPrescriptions.filter((lp) => isNil(lp.department)),
+      'prescriptionId'
+    );
+    const isComplete =
+      prescriptions.length > 0 &&
+      prescriptions.every(
+        (p) =>
+          sumBy(regionalByPrescription[p.id] ?? [], 'sampleCount') ===
+          p.sampleCount
+      );
     return {
-      isComplete: prescriptions.length > 0,
+      isComplete,
       hasAnyProgrammedSample: attributedCount > 0,
       programmedCount: attributedCount,
       attributedCount

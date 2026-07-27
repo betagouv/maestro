@@ -265,6 +265,28 @@
     background-color: var(--background-alt-grey) !important;
   }
 
+  // A row with an unviewed volume change/new prescription — the sticky
+  // columns above hardcode their own background with !important so they
+  // stay opaque while horizontally scrolled, so a plain background-color on
+  // the <tr> wouldn't show through on them; this must win over that
+  // !important too, hence the extra tr.prescription-row--changed specificity.
+  tr.prescription-row--changed {
+    background-color: var(--background-alt-yellow-tournesol);
+
+    td {
+      background-color: inherit;
+    }
+
+    .checkbox-cell,
+    .n-cell,
+    .matrice-cell,
+    .analyte-cell,
+    .laboratoire-cell,
+    .prelevements-cell {
+      background-color: var(--background-alt-yellow-tournesol) !important;
+    }
+  }
+
   .prescription-sample-count-cell {
     display: flex;
     align-items: center;
@@ -278,6 +300,29 @@
     &--read {
       flex-direction: row;
     }
+
+    // Stacks the count above "Avant : X" regardless of the --edit/--read
+    // layout above — declared last so it wins on specificity when combined
+    // with either of those modifier classes.
+    &--changed {
+      flex-direction: column;
+    }
+  }
+
+  // Anchored to .prelevements-cell itself (already position: sticky, which
+  // — same as relative — establishes the containing block for an absolutely
+  // positioned child), not to the narrower count/"Avant" wrapper inside it,
+  // so this sits in the corner of the actual cell regardless of that
+  // wrapper's own size.
+  .prescription-sample-count-cell-icon {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+  }
+
+  .previous-sample-count {
+    font-size: 0.75rem;
+    color: var(--text-mention-grey);
   }
 
   .prescription-expanded-content {

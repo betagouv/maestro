@@ -38,6 +38,12 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
   const dispatch = useAppDispatch();
   const apiClient = useContext(ApiClientContext);
   const { user, hasUserLocalPrescriptionPermission } = useAuthentication();
+  // SLAUGHTERHOUSE cascades to a department echelon (this action sends
+  // there); REGIONAL has none — this same action instead sends the region's
+  // approval straight back up to National (ApprovedByRegion), so the
+  // department-specific copy/checks below don't apply to it.
+  const isSlaughterhouse =
+    programmingPlan.distributionKind === 'SLAUGHTERHOUSE';
 
   const [updateLocalStatus] =
     apiClient.useUpdateProgrammingPlanLocalStatusMutation();
@@ -106,25 +112,35 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
             iconPosition="right"
             id="notify-regions-button"
             onClick={() => submissionModal.open()}
-            disabled={regionalPrescriptions.some(
-              (regionalPrescription) =>
-                sumBy(
-                  departmentalPrescriptions.filter(
-                    (dp) =>
-                      dp.prescriptionId === regionalPrescription.prescriptionId
-                  ),
-                  'sampleCount'
-                ) < regionalPrescription.sampleCount
-            )}
+            disabled={
+              isSlaughterhouse &&
+              regionalPrescriptions.some(
+                (regionalPrescription) =>
+                  sumBy(
+                    departmentalPrescriptions.filter(
+                      (dp) =>
+                        dp.prescriptionId ===
+                        regionalPrescription.prescriptionId
+                    ),
+                    'sampleCount'
+                  ) < regionalPrescription.sampleCount
+              )
+            }
             className="no-wrap"
           >
-            Envoyer aux départements
+            {isSlaughterhouse ? 'Envoyer aux départements' : 'Envoyer'}
           </Button>
         </div>
       )}
 
       <submissionModal.Component
-        title={isSuccess ? 'Programmation envoyée' : 'Envoyer aux départements'}
+        title={
+          isSuccess
+            ? 'Programmation envoyée'
+            : isSlaughterhouse
+              ? 'Envoyer aux départements'
+              : 'Envoyer'
+        }
         buttons={
           isSuccess
             ? [
@@ -144,21 +160,26 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
                   children: 'Envoyer',
                   onClick: submit,
                   doClosesModal: false,
-                  disabled: departmentsToNotify.length === 0
+                  disabled: isSlaughterhouse && departmentsToNotify.length === 0
                 }
               ]
         }
       >
         {isSuccess ? (
-          <>
-            La soumission de la programmation a bien été envoyée aux départments{' '}
-            <b>
-              {departmentsToNotify
-                .map((department) => DepartmentLabels[department])
-                .join(', ')}
-              .
-            </b>
-          </>
+          isSlaughterhouse ? (
+            <>
+              La soumission de la programmation a bien été envoyée aux
+              départments{' '}
+              <b>
+                {departmentsToNotify
+                  .map((department) => DepartmentLabels[department])
+                  .join(', ')}
+                .
+              </b>
+            </>
+          ) : (
+            'La soumission de la programmation a bien été envoyée à la coordination nationale.'
+          )
         ) : (
           <>
             <Select
@@ -176,30 +197,34 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
                 {programmingPlan.title}
               </option>
             </Select>
-            <hr className={cx('fr-my-2w')} />
-            <div className={cx('fr-mt-3w')}>
-              <Checkbox
-                legend={
-                  <div className="d-flex-align-center">
-                    <span className="flex-grow-1">
-                      Départements (
-                      {pluralize(departmentsToNotify.length, {
-                        preserveCount: true
-                      })('sélectionné')}
-                      )
-                    </span>
-                  </div>
-                }
-                options={departmentsToNotify.map((department) => ({
-                  label: DepartmentLabels[department],
-                  nativeInputProps: {
-                    checked: true,
-                    disabled: true
-                  }
-                }))}
-                orientation="horizontal"
-              />
-            </div>
+            {isSlaughterhouse && (
+              <>
+                <hr className={cx('fr-my-2w')} />
+                <div className={cx('fr-mt-3w')}>
+                  <Checkbox
+                    legend={
+                      <div className="d-flex-align-center">
+                        <span className="flex-grow-1">
+                          Départements (
+                          {pluralize(departmentsToNotify.length, {
+                            preserveCount: true
+                          })('sélectionné')}
+                          )
+                        </span>
+                      </div>
+                    }
+                    options={departmentsToNotify.map((department) => ({
+                      label: DepartmentLabels[department],
+                      nativeInputProps: {
+                        checked: true,
+                        disabled: true
+                      }
+                    }))}
+                    orientation="horizontal"
+                  />
+                </div>
+              </>
+            )}
           </>
         )}
         {isError && (

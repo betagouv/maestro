@@ -171,6 +171,30 @@ const findMany = async (
             }
           });
         });
+
+        // The national row above being unconditionally kept alive is only
+        // meant to let nationalStatus still populate for plans that ARE
+        // otherwise visible — on its own it must not make an otherwise
+        // non-matching plan visible (e.g. a RegionalCoordinator seeing a
+        // plan whose only row so far is the eagerly-created national/regional
+        // InProgress rows, before anything has actually been sent to them).
+        builder.whereExists(
+          db(programmingPlanLocalStatusTable)
+            .whereRaw(
+              `${programmingPlanLocalStatusTable}.programming_plan_id = ${programmingPlansTable}.id`
+            )
+            .modify((qb3) => {
+              if (findOptions.region) {
+                qb3.andWhere('region', findOptions.region);
+              }
+              if (findOptions.department) {
+                qb3.andWhere('department', findOptions.department);
+              }
+              if (isArray(findOptions.status)) {
+                qb3.andWhere('status', 'in', findOptions.status);
+              }
+            })
+        );
       }
     })
     .then((programmingPlans) =>
@@ -266,6 +290,10 @@ const updateLocalStatus = async (
   const echelon = localStatus.department ? 'Departmental' : 'Regional';
   const isSend = hasSentOnward(echelon, distributionKind, localStatus.status);
 
+  // Always stamp sentAt to now on a send transition, not just the first time
+  // (coalesce would leave a stale sentAt in place on a legitimate resend
+  // after modification — e.g. re-approving after touching sampleCounts —
+  // which then keeps the row looking "modified since sent" forever).
   await ProgrammingPlanLocalStatus()
     .where({
       programmingPlanId,
@@ -274,7 +302,7 @@ const updateLocalStatus = async (
     })
     .update({
       status: localStatus.status,
-      ...(isSend ? { sentAt: db.raw('coalesce(sent_at, now())') } : {})
+      ...(isSend ? { sentAt: new Date() } : {})
     });
 };
 
@@ -294,7 +322,7 @@ const updateNationalStatus = async (
     .where({ programmingPlanId, region: 'None', department: 'None' })
     .update({
       status,
-      ...(isSend ? { sentAt: db.raw('coalesce(sent_at, now())') } : {})
+      ...(isSend ? { sentAt: new Date() } : {})
     });
 };
 
@@ -321,6 +349,19 @@ const touchRegionalSentAt = async (
   await ProgrammingPlanLocalStatus()
     .where({ programmingPlanId, region, department: 'None' })
     .update({ sentAt });
+};
+
+const touchNationalLastModifiedAt = async (
+  programmingPlanId: string,
+  lastModifiedAt: Date = new Date()
+): Promise<void> => {
+  console.info(
+    'Touch programming plan national lastModifiedAt',
+    programmingPlanId
+  );
+  await ProgrammingPlanLocalStatus()
+    .where({ programmingPlanId, region: 'None', department: 'None' })
+    .update({ lastModifiedAt });
 };
 
 const touchLocalStatus = async (
@@ -382,6 +423,7 @@ export default {
   updateLocalStatus,
   updateNationalStatus,
   touchLocalStatus,
+  touchNationalLastModifiedAt,
   touchNationalSentAt,
   touchRegionalSentAt
 };

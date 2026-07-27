@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
+import localPrescriptionChangeRepository from '../repositories/localPrescriptionChangeRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
@@ -48,6 +49,17 @@ export const prescriptionsRouter = {
           prescriptionId: createdPrescription.id,
           region,
           sampleCount: 0
+        }))
+      );
+
+      // Every freshly-created region row is a "change" from the start — no
+      // previous value, hence null (displayed as "Avant : 0").
+      await localPrescriptionChangeRepository.insertMany(
+        RegionList.map((region) => ({
+          prescriptionId: createdPrescription.id,
+          region,
+          previousSampleCount: null,
+          changedAt: new Date()
         }))
       );
 
@@ -168,7 +180,13 @@ export const prescriptionsRouter = {
         await prescriptionSubstanceRepository.insertMany(substances);
       }
 
-      await programmingPlanRepository.touchLocalStatus(programmingPlan.id);
+      // This only edits the Prescription row itself (national-level target),
+      // not any region/department LocalPrescription row, so only National's
+      // own lastModifiedAt should move — regions/departments haven't had
+      // anything of theirs touched and must not flip to "modified since sent".
+      await programmingPlanRepository.touchNationalLastModifiedAt(
+        programmingPlan.id
+      );
 
       return {
         status: HttpStatus.OK,

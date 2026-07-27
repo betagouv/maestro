@@ -2,8 +2,23 @@ import { describe, expect, test } from 'vitest';
 import {
   computeCompleteness,
   computeDisplayStatus,
+  hasSentOnward,
   isModifiedSinceSent
 } from './ProgrammingPlanDisplayStatus';
+
+describe('hasSentOnward — Regional, REGIONAL distributionKind', () => {
+  test("ApprovedByRegion counts as sent — it is the region's own send action, there is no department echelon to cascade to", () => {
+    expect(hasSentOnward('Regional', 'REGIONAL', 'ApprovedByRegion')).toBe(
+      true
+    );
+  });
+
+  test('SubmittedToRegion (just received, not yet acted on) does not count as sent', () => {
+    expect(hasSentOnward('Regional', 'REGIONAL', 'SubmittedToRegion')).toBe(
+      false
+    );
+  });
+});
 
 describe('isModifiedSinceSent', () => {
   test('never sent', () => {
@@ -105,6 +120,91 @@ describe('computeDisplayStatus — ReadyToSend/modified branch', () => {
     });
     expect(result.value).toBe('ReadyToSend');
     expect(result.label).toBe('Terminé, à envoyer');
+  });
+
+  test('Regional/REGIONAL kind, already approved then re-sent after modification, sentAt caught up -> Submitted again', () => {
+    // Mirrors what should happen once the region re-approves (ApprovedByRegion)
+    // after a modification: the server now stamps sentAt to now() on that
+    // transition instead of leaving the old one in place, so it should land
+    // back on Submitted rather than staying stuck on "Modifié, à envoyer".
+    const result = computeDisplayStatus({
+      ...base,
+      echelon: 'Regional',
+      status: 'ApprovedByRegion',
+      sentAt: new Date('2026-01-10'),
+      lastModifiedAt: new Date('2026-01-05')
+    });
+    expect(result.value).toBe('Submitted');
+  });
+});
+
+describe('computeCompleteness — National: complete only once regions reconcile to the national total', () => {
+  const prescriptions = [{ id: 'p1', sampleCount: 40 }];
+
+  test('national sampleCount matches sum of regional allocations -> complete', () => {
+    const result = computeCompleteness(
+      prescriptions,
+      [
+        {
+          prescriptionId: 'p1',
+          region: '01',
+          department: null,
+          sampleCount: 25
+        },
+        {
+          prescriptionId: 'p1',
+          region: '02',
+          department: null,
+          sampleCount: 15
+        }
+      ],
+      'National'
+    );
+    expect(result.isComplete).toBe(true);
+  });
+
+  test('national sampleCount changed without regions catching up -> incomplete', () => {
+    const result = computeCompleteness(
+      [{ id: 'p1', sampleCount: 50 }],
+      [
+        {
+          prescriptionId: 'p1',
+          region: '01',
+          department: null,
+          sampleCount: 25
+        },
+        {
+          prescriptionId: 'p1',
+          region: '02',
+          department: null,
+          sampleCount: 15
+        }
+      ],
+      'National'
+    );
+    expect(result.isComplete).toBe(false);
+  });
+
+  test('department-level rows are ignored for the national reconciliation (region-level only)', () => {
+    const result = computeCompleteness(
+      prescriptions,
+      [
+        {
+          prescriptionId: 'p1',
+          region: '01',
+          department: null,
+          sampleCount: 40
+        },
+        {
+          prescriptionId: 'p1',
+          region: '01',
+          department: '75',
+          sampleCount: 40
+        }
+      ],
+      'National'
+    );
+    expect(result.isComplete).toBe(true);
   });
 });
 
