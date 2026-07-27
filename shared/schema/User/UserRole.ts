@@ -34,6 +34,7 @@ export const UserRoleList: UserRole[] = UserRole.options;
 
 const UserSamplerPermissionsList = [
   'viewProgrammingPlans',
+  'readProgrammingPlanApprovedByRegion',
   'readProgrammingPlanValidated',
   'readProgrammingPlanClosed',
   'readPrescriptions',

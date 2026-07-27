@@ -547,10 +547,12 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
                           <td>
                             <div className="row-reference">
                               {plan.title}
-                              <ExpandButton
-                                isExpanded={isPlanExpanded}
-                                onClick={() => togglePlan(plan.id)}
-                              />
+                              {(!region || canExpandDepartments) && (
+                                <ExpandButton
+                                  isExpanded={isPlanExpanded}
+                                  onClick={() => togglePlan(plan.id)}
+                                />
+                              )}
                             </div>
                           </td>
                           {!region && (
