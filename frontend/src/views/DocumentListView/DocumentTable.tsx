@@ -33,7 +33,7 @@ const DocumentTable = ({
         data={documents.map((document) => [
           DocumentKindLabels[document.kind],
           <div key={`${document.id}-name`}>
-            {document.filename}
+            {document.name}
             <div className={cx('fr-hint-text')}>
               Version du {formatDate(document.createdAt)}
             </div>
