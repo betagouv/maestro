@@ -64,13 +64,25 @@ const SampleSecondaryFilters = ({
       )}
       <div className={cx('fr-col-12', 'fr-col-md-3')}>
         <Input
-          label="Date"
+          label="Date de prélèvement"
           nativeInputProps={{
             type: 'date',
             value: filters.sampledDate ?? '',
             min: `${year}-01-01`,
             max: `${year}-12-31`,
             onChange: (e) => onChange({ sampledDate: e.target.value })
+          }}
+        />
+      </div>
+      <div className={cx('fr-col-12', 'fr-col-md-3')}>
+        <Input
+          label="Date d'envoi de la DAI"
+          nativeInputProps={{
+            type: 'date',
+            value: filters.sentDate ?? '',
+            min: `${year}-01-01`,
+            max: `${year}-12-31`,
+            onChange: (e) => onChange({ sentDate: e.target.value })
           }}
         />
       </div>

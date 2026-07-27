@@ -109,6 +109,7 @@ const SampleListView = () => {
           undefined,
         sampledBy: searchParams.get('sampledBy')?.split(',') ?? undefined,
         sampledDate: searchParams.get('sampledDate'),
+        sentDate: searchParams.get('sentDate'),
         reference: searchParams.get('reference'),
         compliance:
           SampleCompliance.safeParse(searchParams.get('compliance')).data ??
