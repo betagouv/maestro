@@ -52,6 +52,14 @@ export const prescriptionsRoutes = {
       response: z.array(LocalPrescription)
     }
   },
+  '/prescriptions/regions/:region/changes-viewed': {
+    params: { region: Region },
+    put: {
+      body: z.object({ prescriptionIds: z.array(z.guid()) }),
+      permissions: ['updatePrescription', 'updatePrescriptionLaboratories'],
+      response: z.undefined()
+    }
+  },
   '/prescriptions/:prescriptionId/regions/:region/comments': {
     params: { prescriptionId: z.guid(), region: Region },
     post: {

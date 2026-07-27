@@ -106,6 +106,7 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
       key.startsWith('useComment') ||
       key.startsWith('useUpdate') ||
       key.startsWith('useDelete') ||
+      key.startsWith('useMark') ||
       key.startsWith('useMascarade') ||
       key.startsWith('useReplay') ||
       key.startsWith('useSend')
@@ -259,6 +260,7 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateLaboratoryResidueMappingMutation: [fn(), {}],
   useUpdateDepartmentalLocalPrescriptionMutation: [fn(), {}],
   useUpdateLocalPrescriptionMutation: [fn(), {}],
+  useMarkLocalPrescriptionChangesViewedMutation: [fn(), {}],
   useUpdateSampleMutation: [fn(), {}],
   useUpdateSampleComplianceMutation: [fn(), {}],
   useUpdateSampleItemMutation: [fn(), {}],

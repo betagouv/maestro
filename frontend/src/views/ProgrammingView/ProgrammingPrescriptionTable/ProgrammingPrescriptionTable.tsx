@@ -15,6 +15,7 @@ import {
   type LocalPrescription,
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import { hasUnviewedChange } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
 import {
   type LocalPrescriptionKey,
   type LocalPrescriptionKeyString,
@@ -668,6 +669,9 @@ const ProgrammingPrescriptionTable = ({
                       plan.distributionKind === 'SLAUGHTERHOUSE' &&
                       ((ownRegionalPrescription?.sampleCount ?? 0) !== 0 ||
                         regionDistributedCount !== 0);
+                    const rowHasUnviewedChange = hasUnviewedChange(
+                      ownRegionalPrescription?.changedAt
+                    );
 
                     return (
                       <Fragment key={prescription.id}>
@@ -702,7 +706,12 @@ const ProgrammingPrescriptionTable = ({
                                 showCheckboxColumn={showCheckboxColumn}
                               />
                               <tbody>
-                                <tr>
+                                <tr
+                                  className={clsx(
+                                    rowHasUnviewedChange &&
+                                      'prescription-row--changed'
+                                  )}
+                                >
                                   {showCheckboxColumn && (
                                     <td className="checkbox-cell">
                                       <SelectionCheckbox
@@ -847,44 +856,74 @@ const ProgrammingPrescriptionTable = ({
                                       'border-right'
                                     )}
                                   >
+                                    {region && rowHasUnviewedChange && (
+                                      <span
+                                        className={clsx(
+                                          cx(
+                                            'fr-icon-flashlight-fill',
+                                            'fr-icon--sm'
+                                          ),
+                                          'prescription-sample-count-cell-icon'
+                                        )}
+                                        aria-hidden
+                                      />
+                                    )}
                                     {region ? (
                                       plan.distributionKind === 'REGIONAL' &&
                                       ownRegionalPrescription ? (
-                                        <DistributionCountCell
-                                          programmingPlan={plan}
-                                          prescription={prescription}
-                                          localPrescription={
-                                            ownRegionalPrescription
-                                          }
-                                          isEditable={
-                                            hasUserLocalPrescriptionPermission(
-                                              plan,
-                                              ownRegionalPrescription
-                                            )?.updateSampleCount
-                                          }
-                                          isPending={pendingLocalKeys?.has(
-                                            toLocalPrescriptionKeyString({
-                                              prescriptionId: prescription.id,
-                                              region,
-                                              department: undefined,
-                                              companySiret: undefined
-                                            })
+                                        <div
+                                          className={clsx(
+                                            'prescription-sample-count-cell',
+                                            rowHasUnviewedChange &&
+                                              'prescription-sample-count-cell--changed'
                                           )}
-                                          onChange={async (value) =>
-                                            onChangeLocalPrescriptionCount(
-                                              {
+                                        >
+                                          <DistributionCountCell
+                                            programmingPlan={plan}
+                                            prescription={prescription}
+                                            localPrescription={
+                                              ownRegionalPrescription
+                                            }
+                                            isEditable={
+                                              hasUserLocalPrescriptionPermission(
+                                                plan,
+                                                ownRegionalPrescription
+                                              )?.updateSampleCount
+                                            }
+                                            isPending={pendingLocalKeys?.has(
+                                              toLocalPrescriptionKeyString({
                                                 prescriptionId: prescription.id,
-                                                region
-                                              },
-                                              value
-                                            )
-                                          }
-                                        />
+                                                region,
+                                                department: undefined,
+                                                companySiret: undefined
+                                              })
+                                            )}
+                                            onChange={async (value) =>
+                                              onChangeLocalPrescriptionCount(
+                                                {
+                                                  prescriptionId:
+                                                    prescription.id,
+                                                  region
+                                                },
+                                                value
+                                              )
+                                            }
+                                          />
+                                          {rowHasUnviewedChange && (
+                                            <div className="previous-sample-count">
+                                              Avant :{' '}
+                                              {ownRegionalPrescription.previousSampleCount ??
+                                                0}
+                                            </div>
+                                          )}
+                                        </div>
                                       ) : (
                                         <div
                                           className={clsx(
                                             'prescription-sample-count-cell',
-                                            'prescription-sample-count-cell--read'
+                                            'prescription-sample-count-cell--read',
+                                            rowHasUnviewedChange &&
+                                              'prescription-sample-count-cell--changed'
                                           )}
                                         >
                                           <div>
@@ -902,6 +941,13 @@ const ProgrammingPrescriptionTable = ({
                                               }
                                               small
                                             />
+                                          )}
+                                          {rowHasUnviewedChange && (
+                                            <div className="previous-sample-count">
+                                              Avant :{' '}
+                                              {ownRegionalPrescription?.previousSampleCount ??
+                                                0}
+                                            </div>
                                           )}
                                         </div>
                                       )

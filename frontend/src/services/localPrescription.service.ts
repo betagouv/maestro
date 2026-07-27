@@ -67,6 +67,15 @@ const prescriptionApi = api.injectEndpoints({
           { type: 'LocalPrescription', id: prescriptionId }
         ]
       }
+    ),
+    // Deliberately no invalidatesTags — this marks server-side state only.
+    // The badges already rendered from the current useFindLocalPrescriptionsQuery
+    // subscription must stay visible until the user actually leaves and comes
+    // back (or reloads), not vanish mid-session the moment this fires on arrival.
+    markLocalPrescriptionChangesViewed: buildTypedMutation(
+      builder,
+      '/prescriptions/regions/:region/changes-viewed',
+      'put'
     )
   })
 });
@@ -77,5 +86,6 @@ export const {
   useGetLocalPrescriptionByCompanyQuery,
   useUpdateLocalPrescriptionMutation,
   useUpdateDepartmentalLocalPrescriptionMutation,
-  useCommentLocalPrescriptionMutation
+  useCommentLocalPrescriptionMutation,
+  useMarkLocalPrescriptionChangesViewedMutation
 } = { ...prescriptionApi };

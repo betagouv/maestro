@@ -10,7 +10,10 @@ import {
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { NotificationCategoryTitles } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
-import { isModifiedSinceSent } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
+import {
+  hasSentOnward,
+  isModifiedSinceSent
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import {
   NextProgrammingPlanStatus,
   type ProgrammingPlanStatus,
@@ -187,13 +190,6 @@ export const programmingPlanRouter = {
       });
 
       for (const plan of plans) {
-        // Only SLAUGHTERHOUSE plans cascade to a department echelon; REGIONAL
-        // plans go SubmittedToRegion → ApprovedByRegion → Validated instead,
-        // a separate approval workflow this action has no bearing on.
-        if (plan.distributionKind !== 'SLAUGHTERHOUSE') {
-          continue;
-        }
-
         const regionalStatus = plan.regionalStatus.find(
           (_) => _.region === region
         );
@@ -209,6 +205,91 @@ export const programmingPlanRouter = {
           regionalStatus.sentAt ?? null,
           regionalStatus.lastModifiedAt ?? null
         );
+
+        // REGIONAL plans have no department echelon to cascade to — this
+        // action is their region's own approval, sent straight back up to
+        // National (ApprovedByRegion), covering both the first approval
+        // (still SubmittedToRegion) and a later re-diffusion after
+        // modification — which can happen from ApprovedByRegion just as well
+        // as from Validated/Closed (a live campaign whose sampleCounts get
+        // tweaked mid-year still needs to re-notify préleveurs), hence
+        // checking hasSentOnward generically instead of one hardcoded status.
+        if (plan.distributionKind !== 'SLAUGHTERHOUSE') {
+          const samplers = await userRepository.findMany({
+            roles: ['Sampler'],
+            region,
+            programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+          });
+
+          if (regionalStatus.status === 'SubmittedToRegion') {
+            await programmingPlanRepository.updateLocalStatus(
+              plan.id,
+              { region, status: 'ApprovedByRegion' },
+              plan.distributionKind
+            );
+
+            const nationalCoordinators = await userRepository.findMany({
+              roles: ['NationalCoordinator'],
+              programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+            });
+
+            await notificationService.sendNotification(
+              { category: 'ProgrammingPlanApprovedByRegion', link },
+              nationalCoordinators,
+              { region: Regions[region].name }
+            );
+
+            await notificationService.sendNotification(
+              { category: 'ProgrammingPlanValidated', link },
+              samplers,
+              {
+                object: NotificationCategoryTitles.ProgrammingPlanValidated,
+                content: `
+L’étape de la répartition de la programmation a été réalisée par votre coordinateur. La campagne est lancée !
+
+Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’onglet "Programmation" et saisir des prélèvements.`
+              }
+            );
+          } else if (
+            isModified &&
+            hasSentOnward(
+              'Regional',
+              plan.distributionKind,
+              regionalStatus.status
+            )
+          ) {
+            await programmingPlanRepository.touchRegionalSentAt(
+              plan.id,
+              region
+            );
+
+            const nationalCoordinators = await userRepository.findMany({
+              roles: ['NationalCoordinator'],
+              programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+            });
+
+            await notificationService.sendNotification(
+              { category: 'ProgrammingPlanModifiedAfterSubmission', link },
+              nationalCoordinators,
+              {
+                object:
+                  NotificationCategoryTitles.ProgrammingPlanModifiedAfterSubmission,
+                content: `Le plan « ${plan.title} » a été modifié et renvoyé.`
+              }
+            );
+
+            await notificationService.sendNotification(
+              { category: 'ProgrammingPlanModifiedAfterSubmission', link },
+              samplers,
+              {
+                object:
+                  NotificationCategoryTitles.ProgrammingPlanModifiedAfterSubmission,
+                content: `Le plan « ${plan.title} » a été modifié, les prélèvements concernés ont été mis à jour.`
+              }
+            );
+          }
+          continue;
+        }
 
         if (!isModified) {
           await programmingPlanRepository.insertManyLocalStatus(

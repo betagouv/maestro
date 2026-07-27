@@ -57,6 +57,7 @@ import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest';
 import { Laboratories } from '../../repositories/laboratoryRepository';
+import { LocalPrescriptionChanges } from '../../repositories/localPrescriptionChangeRepository';
 import { LocalPrescriptionComments } from '../../repositories/localPrescriptionCommentRepository';
 import {
   formatLocalPrescription,
@@ -1980,6 +1981,183 @@ describe('Local prescriptions router', () => {
         department: '01',
         companySiret: SlaughterhouseCompanyFixture1.siret
       });
+    });
+  });
+
+  describe('Change history lifecycle', () => {
+    // Dedicated fixtures (own prescription/context) rather than reusing
+    // submittedControlPrescription1 — that one already accumulates
+    // sampleCount edits (and now change-history rows) from earlier tests in
+    // this file, which would make "don't overwrite while pending" hard to
+    // assert cleanly.
+    const changeTrackingPrescription = genPrescription({
+      programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+      context: 'Exploratory',
+      matrixKind: oneOf(MatrixKindEffective.options),
+      stages: ['STADE1']
+    });
+    const changeTrackingLocalPrescription: LocalPrescription =
+      genLocalPrescription({
+        prescriptionId: changeTrackingPrescription.id,
+        region: RegionalCoordinator.region as Region,
+        sampleCount: 50,
+        substanceKindsLaboratories: []
+      });
+    const testRoute = () =>
+      `/api/prescriptions/${changeTrackingLocalPrescription.prescriptionId}/regions/${changeTrackingLocalPrescription.region}`;
+
+    beforeAll(async () => {
+      await Prescriptions().insert(changeTrackingPrescription);
+      await LocalPrescriptions().insert(
+        omit(formatLocalPrescription(changeTrackingLocalPrescription), [
+          'substanceKindsLaboratories',
+          'realizedSampleCount',
+          'inProgressSampleCount'
+        ])
+      );
+    });
+
+    const findChanges = () =>
+      LocalPrescriptionChanges()
+        .where({
+          prescriptionId: changeTrackingLocalPrescription.prescriptionId,
+          region: changeTrackingLocalPrescription.region
+        })
+        .orderBy('changedAt', 'asc');
+
+    // Creation itself (POST /prescriptions inserting one change row per
+    // region with previousSampleCount: null) is covered in
+    // prescription.router.test.ts, against a prescription actually created
+    // through the endpoint — the fixture here is seeded directly into the
+    // DB (same convention as every other fixture in this file), which never
+    // goes through prescriptionController.ts and so never triggers that hook.
+
+    test('editing sampleCount appends a new row instead of overwriting, and a later edit does not touch the still-unviewed row', async () => {
+      await request(app)
+        .put(testRoute())
+        .send({
+          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+          key: 'sampleCount',
+          sampleCount: 80
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const afterFirstEdit = await findChanges();
+      expect(afterFirstEdit).toHaveLength(1);
+      expect(afterFirstEdit[0]).toMatchObject({
+        previousSampleCount: 50,
+        changesViewedAt: null
+      });
+
+      await request(app)
+        .put(testRoute())
+        .send({
+          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+          key: 'sampleCount',
+          sampleCount: 120
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const afterSecondEdit = await findChanges();
+      // A second history row for this edit — the append-only design means
+      // both survive; reading "the oldest unviewed one" (what the API
+      // response layer does) is what actually implements "don't overwrite".
+      expect(afterSecondEdit).toHaveLength(2);
+      expect(afterSecondEdit[0]).toMatchObject({
+        previousSampleCount: 50,
+        changesViewedAt: null
+      });
+    });
+
+    test('assigning a laboratory marks every unviewed change for that row as viewed', async () => {
+      const laboratoryForRegion = genLaboratory();
+      await Laboratories().insert(toDbRow(laboratoryForRegion));
+
+      await request(app)
+        .put(testRoute())
+        .send({
+          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+          key: 'laboratories',
+          substanceKindsLaboratories: [
+            { substanceKind: 'Any', laboratoryId: laboratoryForRegion.id }
+          ]
+        })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const rows = await findChanges();
+      expect(rows.length).toBeGreaterThan(0);
+      expect(rows.every((row) => row.changesViewedAt !== null)).toBe(true);
+      // laboratoryForRegion is intentionally left in place, not deleted —
+      // local_prescription_substance_kinds_laboratories now references it
+      // (same convention as the file-level `laboratory` fixture above,
+      // which is never deleted either).
+    });
+  });
+
+  describe('PUT /prescriptions/regions/:region/changes-viewed', () => {
+    const testRoute = (region: string) =>
+      `/api/prescriptions/regions/${region}/changes-viewed`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(testRoute(RegionalCoordinator.region as string))
+        .send({ prescriptionIds: [] })
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail for a region outside the user scope', async () => {
+      await request(app)
+        .put(testRoute(Region2Fixture))
+        .send({ prescriptionIds: [submittedControlPrescription1.id] })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should mark the requested prescriptions as viewed for that region only', async () => {
+      const otherRegionPrescription = submittedControlLocalPrescriptions1.find(
+        (localPrescription) =>
+          localPrescription.region !== (RegionalCoordinator.region as Region)
+      ) as LocalPrescription;
+
+      await LocalPrescriptionChanges().insert([
+        {
+          prescriptionId: submittedControlPrescription1.id,
+          region: RegionalCoordinator.region as Region,
+          previousSampleCount: 1,
+          changedAt: new Date()
+        },
+        {
+          prescriptionId: submittedControlPrescription1.id,
+          region: otherRegionPrescription.region,
+          previousSampleCount: 1,
+          changedAt: new Date()
+        }
+      ]);
+
+      await request(app)
+        .put(testRoute(RegionalCoordinator.region as string))
+        .send({ prescriptionIds: [submittedControlPrescription1.id] })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
+
+      const ownRegionRows = await LocalPrescriptionChanges().where({
+        prescriptionId: submittedControlPrescription1.id,
+        region: RegionalCoordinator.region as Region
+      });
+      expect(ownRegionRows.every((row) => row.changesViewedAt !== null)).toBe(
+        true
+      );
+
+      const otherRegionRows = await LocalPrescriptionChanges().where({
+        prescriptionId: submittedControlPrescription1.id,
+        region: otherRegionPrescription.region
+      });
+      expect(otherRegionRows.every((row) => row.changesViewedAt === null)).toBe(
+        true
+      );
     });
   });
 });

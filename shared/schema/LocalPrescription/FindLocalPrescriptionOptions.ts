@@ -7,7 +7,12 @@ import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 export const LocalPrescriptionOptionsInclude = z.enum([
   'comments',
   'sampleCounts',
-  'laboratories'
+  'laboratories',
+  // Attaches previousSampleCount/changedAt (oldest unviewed row in
+  // local_prescription_changes) to each region-level row — see
+  // LocalPrescriptionChange.ts. Opt-in: several existing callers assert an
+  // exact LocalPrescription shape and must not see these fields.
+  'pendingChanges'
 ]);
 
 export type LocalPrescriptionOptionsInclude = z.infer<

@@ -146,13 +146,14 @@ const ProgrammingPrescriptionListHeader = ({
           title="Exporter"
           size={isMobile ? 'small' : 'medium'}
         />
-        {hasRegionalView && (
-          <ProgrammingPlanNotificationRegionalToDepartmental
-            programmingPlan={programmingPlan}
-            regionalPrescriptions={localPrescriptions}
-            departmentalPrescriptions={subLocalPrescriptions}
-          />
-        )}
+        {hasRegionalView &&
+          programmingPlan.distributionKind === 'SLAUGHTERHOUSE' && (
+            <ProgrammingPlanNotificationRegionalToDepartmental
+              programmingPlan={programmingPlan}
+              regionalPrescriptions={localPrescriptions}
+              departmentalPrescriptions={subLocalPrescriptions}
+            />
+          )}
         {hasDepartmentalView && (
           <ProgrammingPlanNotificationDepartmentalToSampler
             programmingPlan={programmingPlan}
