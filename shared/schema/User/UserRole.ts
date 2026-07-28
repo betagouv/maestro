@@ -34,7 +34,6 @@ export const UserRoleList: UserRole[] = UserRole.options;
 
 const UserSamplerPermissionsList = [
   'viewProgrammingPlans',
-  'readProgrammingPlanApprovedByRegion',
   'readProgrammingPlanValidated',
   'readProgrammingPlanClosed',
   'readPrescriptions',
@@ -60,7 +59,6 @@ const ObserverPermissionsList = [
   'viewProgrammingPlans',
   'readProgrammingPlansInProgress',
   'readProgrammingPlanSubmittedToRegion',
-  'readProgrammingPlanApprovedByRegion',
   'readProgrammingPlanValidated',
   'readProgrammingPlanClosed',
   'readPrescriptions',
@@ -78,7 +76,6 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'viewProgrammingPlans',
     'readProgrammingPlansInProgress',
     'readProgrammingPlanSubmittedToRegion',
-    'readProgrammingPlanApprovedByRegion',
     'readProgrammingPlanSubmittedToDepartments',
     'readProgrammingPlanValidated',
     'readProgrammingPlanClosed',
@@ -102,7 +99,6 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readProgrammingPlanValidated',
     'readProgrammingPlanClosed',
     'readProgrammingPlanSubmittedToRegion',
-    'readProgrammingPlanApprovedByRegion',
     'readProgrammingPlanSubmittedToDepartments',
     'approveProgrammingPlan',
     'readPrescriptions',
@@ -115,8 +111,7 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'viewDashboard',
     'updatePrescriptionLaboratories',
     'commentPrescription',
-    'distributePrescriptionToDepartments',
-    'sendProgrammingPlansToDepartments'
+    'distributePrescriptionToDepartments'
   ],
   NationalObserver: [
     ...ObserverPermissionsList,
@@ -155,7 +150,6 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'viewProgrammingPlans',
     'readProgrammingPlansInProgress',
     'readProgrammingPlanSubmittedToRegion',
-    'readProgrammingPlanApprovedByRegion',
     'readProgrammingPlanSubmittedToDepartments',
     'readProgrammingPlanValidated',
     'readProgrammingPlanClosed',
@@ -173,7 +167,6 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readPrescriptions',
     'readProgrammingPlansInProgress',
     'readProgrammingPlanSubmittedToRegion',
-    'readProgrammingPlanApprovedByRegion',
     'readProgrammingPlanSubmittedToDepartments',
     'readProgrammingPlanValidated',
     'readProgrammingPlanClosed',

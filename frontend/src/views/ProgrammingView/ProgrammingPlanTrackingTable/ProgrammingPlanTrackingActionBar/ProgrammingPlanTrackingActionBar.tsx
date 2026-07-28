@@ -66,7 +66,7 @@ const ProgrammingPlanTrackingActionBar = ({
           {regionalActionLabel}
         </Button>
       )}
-      {/* TODO Feature B: bouton "Lancer la campagne" ici, rôle/permission à définir */}
+      {/* TODO bouton "Lancer la campagne" */}
     </SelectionActionBar>
   );
 };

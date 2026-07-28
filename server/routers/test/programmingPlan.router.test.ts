@@ -569,10 +569,6 @@ describe('ProgrammingPlan router', () => {
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest(PPVInProgressProgrammingPlanFixture, 'InProgress');
-      await badRequestTest(
-        PPVInProgressProgrammingPlanFixture,
-        'ApprovedByRegion'
-      );
       await badRequestTest(PPVInProgressProgrammingPlanFixture, 'Validated');
       await badRequestTest(PPVInProgressProgrammingPlanFixture, 'Closed');
       await badRequestTest(
@@ -588,10 +584,6 @@ describe('ProgrammingPlan router', () => {
         'SubmittedToRegion'
       );
       await badRequestTest(PPVValidatedProgrammingPlanFixture, 'Validated');
-      await badRequestTest(
-        PPVValidatedProgrammingPlanFixture,
-        'ApprovedByRegion'
-      );
     });
 
     test('should update a validated programming plan to closed', async () => {
@@ -645,8 +637,11 @@ describe('ProgrammingPlan router', () => {
 
       //Cleanup
       await ProgrammingPlanLocalStatus()
-        .where('programmingPlanId', PPVSubmittedProgrammingPlanFixture.id)
-        .update({ status: 'SubmittedToRegion' });
+        .where('programmingPlanId', PPVValidatedProgrammingPlanFixture.id)
+        .update({ status: 'Validated' });
+      await ProgrammingPlans()
+        .where('id', PPVValidatedProgrammingPlanFixture.id)
+        .update({ closedAt: null, closedBy: null });
     });
   });
 
@@ -709,10 +704,6 @@ describe('ProgrammingPlan router', () => {
           .expect(constants.HTTP_STATUS_BAD_REQUEST);
 
       await badRequestTest(PPVInProgressProgrammingPlanFixture, 'InProgress');
-      await badRequestTest(
-        PPVInProgressProgrammingPlanFixture,
-        'ApprovedByRegion'
-      );
       await badRequestTest(PPVInProgressProgrammingPlanFixture, 'Validated');
       await badRequestTest(
         PPVSubmittedProgrammingPlanFixture,
@@ -726,10 +717,6 @@ describe('ProgrammingPlan router', () => {
         'SubmittedToRegion'
       );
       await badRequestTest(PPVValidatedProgrammingPlanFixture, 'Validated');
-      await badRequestTest(
-        PPVValidatedProgrammingPlanFixture,
-        'ApprovedByRegion'
-      );
     });
 
     test('should update a Submitted programming plan to Approved', async () => {
@@ -1297,6 +1284,122 @@ describe('ProgrammingPlan router', () => {
           department: 'None'
         })
         .update({ sentAt: null, lastModifiedAt: null });
+    });
+  });
+
+  describe('POST /programming-plans/send-to-samplers', () => {
+    const testRoute = '/api/programming-plans/send-to-samplers';
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .post(testRoute)
+        .send({
+          programmingPlanIds: [PPVSubmittedProgrammingPlanFixture.id]
+        })
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user is not authorized', async () => {
+      await request(app)
+        .post(testRoute)
+        .send({
+          programmingPlanIds: [PPVSubmittedProgrammingPlanFixture.id]
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('a SLAUGHTERHOUSE plan is silently ignored', async () => {
+      mockSendNotification.mockClear();
+
+      await request(app)
+        .post(testRoute)
+        .send({
+          programmingPlanIds: [DAOAInProgressProgrammingPlanFixture.id]
+        })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(mockSendNotification).not.toHaveBeenCalled();
+    });
+
+    test('first send validates the region and notifies samplers', async () => {
+      mockSendNotification.mockClear();
+
+      const res = await request(app)
+        .post(testRoute)
+        .send({
+          programmingPlanIds: [PPVSubmittedProgrammingPlanFixture.id]
+        })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body[0]).toMatchObject({
+        id: PPVSubmittedProgrammingPlanFixture.id,
+        regionalStatus: expect.arrayContaining([
+          expect.objectContaining({
+            region: RegionalCoordinator.region,
+            status: 'Validated'
+          })
+        ])
+      });
+
+      expect(mockSendNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          category: 'ProgrammingPlanValidated'
+        }),
+        expect.anything(),
+        expect.anything()
+      );
+
+      //Cleanup
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+          region: RegionalCoordinator.region
+        })
+        .update({ status: 'SubmittedToRegion' });
+    });
+
+    test('resend after modification only notifies national coordinators and samplers', async () => {
+      const previousSentAt = new Date('2020-01-01');
+
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+          region: RegionalCoordinator.region
+        })
+        .update({
+          status: 'Validated',
+          sentAt: previousSentAt,
+          lastModifiedAt: new Date('2020-06-01')
+        });
+
+      mockSendNotification.mockClear();
+
+      await request(app)
+        .post(testRoute)
+        .send({
+          programmingPlanIds: [PPVValidatedProgrammingPlanFixture.id]
+        })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(mockSendNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          category: 'ProgrammingPlanModifiedAfterSubmission'
+        }),
+        expect.anything(),
+        expect.anything()
+      );
+
+      //Cleanup
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+          region: RegionalCoordinator.region
+        })
+        .update({ status: 'Validated', sentAt: null, lastModifiedAt: null });
     });
   });
 });

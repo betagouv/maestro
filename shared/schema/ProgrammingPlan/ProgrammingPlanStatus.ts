@@ -8,7 +8,6 @@ export const ProgrammingPlanStatus = z.enum(
     'SubmittedToAdmin',
     'SubmittedToRegion',
     'SubmittedToDepartments',
-    'ApprovedByRegion',
     'Validated',
     'Closed'
   ],
@@ -30,7 +29,6 @@ export const ProgrammingPlanStatusLabels: Record<
   SubmittedToAdmin: "Soumis à l'admin",
   SubmittedToRegion: 'Envoyée à la région',
   SubmittedToDepartments: 'Envoyée aux départements',
-  ApprovedByRegion: 'Approuvé par la région',
   Validated: 'Campagne de prélèvements en cours',
   Closed: 'Campagne de prélèvements terminée'
 };
@@ -43,17 +41,15 @@ export const ProgrammingPlanStatusPermissions: Record<
   SubmittedToAdmin: 'readProgrammingPlansInProgress',
   SubmittedToRegion: 'readProgrammingPlanSubmittedToRegion',
   SubmittedToDepartments: 'readProgrammingPlanSubmittedToDepartments',
-  ApprovedByRegion: 'readProgrammingPlanApprovedByRegion',
   Validated: 'readProgrammingPlanValidated',
   Closed: 'readProgrammingPlanClosed'
 };
 
 export const NextProgrammingPlanStatus = {
   REGIONAL: {
-    InProgress: 'SubmittedToRegion',
+    InProgress: 'SubmittedToAdmin',
     SubmittedToAdmin: 'SubmittedToRegion',
-    SubmittedToRegion: 'ApprovedByRegion',
-    ApprovedByRegion: 'Validated',
+    SubmittedToRegion: 'Validated',
     SubmittedToDepartments: null,
     Validated: 'Closed',
     Closed: null
@@ -62,7 +58,6 @@ export const NextProgrammingPlanStatus = {
     InProgress: 'SubmittedToRegion',
     SubmittedToAdmin: 'SubmittedToRegion',
     SubmittedToRegion: 'SubmittedToDepartments',
-    ApprovedByRegion: null,
     SubmittedToDepartments: 'Validated',
     Validated: 'Closed',
     Closed: null
@@ -71,7 +66,6 @@ export const NextProgrammingPlanStatus = {
     InProgress: 'SubmittedToRegion',
     SubmittedToAdmin: 'SubmittedToRegion',
     SubmittedToRegion: 'SubmittedToDepartments',
-    ApprovedByRegion: null,
     SubmittedToDepartments: 'Validated',
     Validated: 'Closed',
     Closed: null

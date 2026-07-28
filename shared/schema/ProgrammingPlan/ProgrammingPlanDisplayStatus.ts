@@ -60,7 +60,6 @@ const receivedStatusesByEchelon: Record<
 > = {
   Regional: [
     'SubmittedToRegion',
-    'ApprovedByRegion',
     'SubmittedToDepartments',
     'Validated',
     'Closed'
@@ -88,14 +87,13 @@ const sentStatusesByEchelon = (
     'SubmittedToAdmin',
     'SubmittedToRegion',
     'SubmittedToDepartments',
-    'ApprovedByRegion',
     'Validated',
     'Closed'
   ],
   Regional:
-    distributionKind === 'SLAUGHTERHOUSE'
-      ? ['SubmittedToDepartments', 'Validated', 'Closed']
-      : ['ApprovedByRegion', 'Validated', 'Closed'],
+    distributionKind === 'REGIONAL'
+      ? ['Validated', 'Closed']
+      : ['SubmittedToDepartments', 'Validated', 'Closed'],
   Departmental: ['Validated', 'Closed']
 });
 

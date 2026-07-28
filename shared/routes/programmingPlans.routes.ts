@@ -21,7 +21,6 @@ export const programmingPlansRoutes = {
       permissions: [
         'readProgrammingPlansInProgress',
         'readProgrammingPlanSubmittedToRegion',
-        'readProgrammingPlanApprovedByRegion',
         'readProgrammingPlanSubmittedToDepartments',
         'readProgrammingPlanValidated',
         'readProgrammingPlanClosed'
@@ -41,7 +40,16 @@ export const programmingPlansRoutes = {
   },
   '/programming-plans/send-to-departments': {
     post: {
-      permissions: ['sendProgrammingPlansToDepartments'],
+      permissions: ['distributePrescriptionToDepartments'],
+      body: z.object({
+        programmingPlanIds: z.array(z.guid()).min(1)
+      }),
+      response: z.array(ProgrammingPlanChecked)
+    }
+  },
+  '/programming-plans/send-to-samplers': {
+    post: {
+      permissions: ['distributePrescriptionToDepartments'],
       body: z.object({
         programmingPlanIds: z.array(z.guid()).min(1)
       }),
@@ -56,7 +64,6 @@ export const programmingPlansRoutes = {
       permissions: [
         'readProgrammingPlansInProgress',
         'readProgrammingPlanSubmittedToRegion',
-        'readProgrammingPlanApprovedByRegion',
         'readProgrammingPlanSubmittedToDepartments',
         'readProgrammingPlanValidated',
         'readProgrammingPlanClosed'
