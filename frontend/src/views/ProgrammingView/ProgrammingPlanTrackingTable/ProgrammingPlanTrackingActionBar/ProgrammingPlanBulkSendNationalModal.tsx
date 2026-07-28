@@ -1,4 +1,5 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -58,7 +59,7 @@ const ProgrammingPlanBulkSendNationalModal = ({
           <p>Confirmez-vous la diffusion des plans ci-dessous :</p>
           {plansToAdmin.length > 0 && (
             <>
-              <p className="fr-mb-1v">
+              <p className={cx('fr-mb-1v')}>
                 <strong>À l'administrateur :</strong>
               </p>
               <ul>
@@ -72,7 +73,7 @@ const ProgrammingPlanBulkSendNationalModal = ({
           )}
           {plansToRegions.length > 0 && (
             <>
-              <p className="fr-mb-1v">
+              <p className={cx('fr-mb-1v')}>
                 <strong>Aux régions :</strong>
               </p>
               <ul>
@@ -84,7 +85,7 @@ const ProgrammingPlanBulkSendNationalModal = ({
               </ul>
             </>
           )}
-          <p className="fr-text--sm">
+          <p className={cx('fr-text--sm')}>
             En cas de modification, seules les régions concernées par la/les
             modifications seront notifiées.
           </p>
@@ -93,7 +94,7 @@ const ProgrammingPlanBulkSendNationalModal = ({
               severity="error"
               description="Une erreur est survenue lors de l'envoi, veuillez réessayer."
               small
-              className="fr-mt-2w"
+              className={cx('fr-mt-2w')}
             />
           )}
         </>

@@ -594,9 +594,7 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
                                 }}
                               />
                             ) : (
-                              <span className="fr-text--sm fr-text-mention--grey">
-                                N/A
-                              </span>
+                              <span className={cx('fr-text--sm')}>N/A</span>
                             )}
                           </td>
                         </tr>
@@ -682,7 +680,12 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
                                           {Regions[regionColumn].name}
                                         </span>
                                         {canExpandDepartments && (
-                                          <span className="fr-text--xs sub-count">
+                                          <span
+                                            className={clsx(
+                                              cx('fr-text--xs'),
+                                              'sub-count'
+                                            )}
+                                          >
                                             {submittedDepartmentsCount}/
                                             {departmentResultsForRegion.length}{' '}
                                             départements
@@ -766,7 +769,7 @@ const AggregateBadge = ({
   aggregate: AggregateDisplayStatus;
 }) => {
   if (aggregate.value === 'NotApplicable') {
-    return <span className="fr-text--sm fr-text-mention--grey">N/A</span>;
+    return <span className={cx('fr-text--sm')}>N/A</span>;
   }
   const severity =
     aggregate.value === 'Submitted'
