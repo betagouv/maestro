@@ -64,14 +64,17 @@ const renderLaboratoryInput =
     <div ref={slotProps.input.ref}>
       <input
         {...slotProps.htmlInput}
-        className={clsx('fr-input', 'laboratory-select-input', {
-          'laboratory-select-input--pending': pending
-        })}
+        className={clsx(
+          cx('fr-input', compact && ['fr-py-3v', 'fr-px-2w']),
+          'laboratory-select-input',
+          {
+            'laboratory-select-input--pending': pending
+          }
+        )}
         type="text"
         placeholder="Rechercher un laboratoire"
         data-testid="laboratorySelect-input"
         required={required}
-        style={compact ? { padding: '12px 16px' } : undefined}
       />
     </div>
   );
@@ -110,6 +113,7 @@ const LaboratorySelect = ({
       className={cx(
         'fr-input-group',
         'fr-mb-0',
+        hideLabel && ['fr-py-0', 'fr-px-2w'],
         (() => {
           switch (state) {
             case 'error':
@@ -121,7 +125,6 @@ const LaboratorySelect = ({
           }
         })()
       )}
-      style={hideLabel ? { padding: '0 16px' } : undefined}
     >
       {!hideLabel && (
         // biome-ignore lint/a11y/noLabelWithoutControl: libellé associé à l'input rendu par renderInput

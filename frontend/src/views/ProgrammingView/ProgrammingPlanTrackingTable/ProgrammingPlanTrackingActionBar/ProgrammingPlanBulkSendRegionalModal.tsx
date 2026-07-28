@@ -1,4 +1,5 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -89,7 +90,7 @@ const ProgrammingPlanBulkSendRegionalModal = ({
               severity="error"
               description="Une erreur est survenue lors de l'envoi, veuillez réessayer."
               small
-              className="fr-mt-2w"
+              className={cx('fr-mt-2w')}
             />
           )}
         </>

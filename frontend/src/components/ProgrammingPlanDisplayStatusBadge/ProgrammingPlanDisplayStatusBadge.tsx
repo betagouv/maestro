@@ -1,7 +1,7 @@
 import Badge from '@codegouvfr/react-dsfr/Badge';
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import type { DisplayStatusResult } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import { formatDate } from 'maestro-shared/utils/date';
-import './ProgrammingPlanDisplayStatusBadge.scss';
 
 interface Props {
   result: DisplayStatusResult;
@@ -23,16 +23,16 @@ const ProgrammingPlanDisplayStatusBadge = ({
   small
 }: Props) => {
   if (result.value === 'NotApplicable') {
-    return <span className="fr-text--sm fr-text-mention--grey">N/A</span>;
+    return <span className={cx('fr-text--sm')}>N/A</span>;
   }
 
   return (
-    <div className="programming-plan-display-status-badge">
+    <div className="align-left">
       <Badge severity={severityByValue[result.value]} noIcon small={small}>
         {result.label}
       </Badge>
       {showDates && result.sentAt && (
-        <div className="fr-text--xs fr-text-mention--grey fr-mt-1v">
+        <div className={cx('fr-text--xs', 'fr-mt-1v')}>
           Envoyé le {formatDate(result.sentAt)}
           {result.modified && result.lastModifiedAt && (
             <> · Modifié le {formatDate(result.lastModifiedAt)}</>
