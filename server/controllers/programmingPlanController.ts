@@ -89,8 +89,9 @@ export const programmingPlanRouter = {
           );
 
           const admins = await userRepository.findMany({
-            roles: ['Administrator'],
-            programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+            roles: ['AdministratorBGIR'],
+            disabled: false
+            //FIXME stages ... programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
           });
 
           await notificationService.sendNotification(
@@ -105,12 +106,12 @@ export const programmingPlanRouter = {
           continue;
         }
 
-        if (userRole === 'Administrator' && isModified) {
+        if (userRole === 'AdministratorBGIR' && isModified) {
           continue;
         }
 
         if (
-          userRole === 'Administrator' &&
+          userRole === 'AdministratorBGIR' &&
           plan.nationalStatus.status !== 'SubmittedToAdmin'
         ) {
           continue;
@@ -134,7 +135,8 @@ export const programmingPlanRouter = {
 
           const regionalCoordinators = await userRepository.findMany({
             roles: ['RegionalCoordinator'],
-            programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+            disabled: false
+            //FIXME stages ... programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
           });
 
           await notificationService.sendNotification(
@@ -142,7 +144,7 @@ export const programmingPlanRouter = {
             regionalCoordinators,
             {
               sender:
-                userRole === 'Administrator'
+                userRole === 'AdministratorBGIR'
                   ? 'administration'
                   : 'coordination nationale'
             }
@@ -161,7 +163,8 @@ export const programmingPlanRouter = {
             const regionalCoordinators = await userRepository.findMany({
               roles: ['RegionalCoordinator'],
               region: affectedRegion.region,
-              programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+              disabled: false
+              //FIXME stages ...programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
             });
 
             await notificationService.sendNotification(
@@ -208,80 +211,7 @@ export const programmingPlanRouter = {
           regionalStatus.lastModifiedAt ?? null
         );
 
-        if (plan.distributionKind !== 'SLAUGHTERHOUSE') {
-          const samplers = await userRepository.findMany({
-            roles: ['Sampler'],
-            region,
-            programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
-          });
-
-          if (regionalStatus.status === 'SubmittedToRegion') {
-            await programmingPlanRepository.updateLocalStatus(
-              plan.id,
-              { region, status: 'ApprovedByRegion' },
-              plan.distributionKind
-            );
-
-            const nationalCoordinators = await userRepository.findMany({
-              roles: ['NationalCoordinator'],
-              programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
-            });
-
-            await notificationService.sendNotification(
-              { category: 'ProgrammingPlanApprovedByRegion', link },
-              nationalCoordinators,
-              { region: Regions[region].name }
-            );
-
-            await notificationService.sendNotification(
-              { category: 'ProgrammingPlanValidated', link },
-              samplers,
-              {
-                object: NotificationCategoryTitles.ProgrammingPlanValidated,
-                content: `
-L’étape de la répartition de la programmation a été réalisée par votre coordinateur. La campagne est lancée !
-
-Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’onglet "Programmation" et saisir des prélèvements.`
-              }
-            );
-          } else if (
-            isModified &&
-            hasSentOnward(
-              'Regional',
-              plan.distributionKind,
-              regionalStatus.status
-            )
-          ) {
-            await programmingPlanRepository.touchRegionalSentAt(
-              plan.id,
-              region
-            );
-
-            const nationalCoordinators = await userRepository.findMany({
-              roles: ['NationalCoordinator'],
-              programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
-            });
-
-            await notificationService.sendNotification(
-              { category: 'ProgrammingPlanModifiedAfterSubmission', link },
-              nationalCoordinators,
-              {
-                object:
-                  NotificationCategoryTitles.ProgrammingPlanModifiedAfterSubmission,
-                content: `Le plan « ${plan.title} » a été modifié et renvoyé.`
-              }
-            );
-
-            await notificationService.sendNotification(
-              { category: 'ProgrammingPlanModifiedAfterSubmission', link },
-              samplers,
-              {
-                object:
-                  NotificationCategoryTitles.ProgrammingPlanModifiedAfterSubmission,
-                content: `Le plan « ${plan.title} » a été modifié, les prélèvements concernés ont été mis à jour.`
-              }
-            );
-          }
+        if (plan.distributionKind === 'REGIONAL') {
           continue;
         }
 
@@ -303,7 +233,8 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
           const departmentalCoordinators = await userRepository.findMany({
             roles: ['DepartmentalCoordinator'],
             region,
-            programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+            disabled: false
+            //FIXME stages ...programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
           });
 
           await notificationService.sendNotification(
@@ -326,7 +257,8 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
             const departmentalCoordinators = await userRepository.findMany({
               roles: ['DepartmentalCoordinator'],
               region,
-              programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+              disabled: false
+              //FIXME stages ...programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
             });
 
             await notificationService.sendNotification(
@@ -339,6 +271,104 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
               }
             );
           }
+        }
+      }
+
+      const updatedPlans = await programmingPlanRepository.findMany({
+        ids: programmingPlanIds
+      });
+
+      return { status: HttpStatus.OK, response: updatedPlans };
+    }
+  },
+  '/programming-plans/send-to-samplers': {
+    post: async ({ user, body: { programmingPlanIds } }) => {
+      const region = user.region as Region;
+      const plans = await programmingPlanRepository.findMany({
+        ids: programmingPlanIds
+      });
+
+      for (const plan of plans) {
+        if (plan.distributionKind !== 'REGIONAL') {
+          continue;
+        }
+
+        const regionalStatus = plan.regionalStatus.find(
+          (_) => _.region === region
+        );
+        if (!regionalStatus) {
+          continue;
+        }
+
+        const link = AppRouteLinks.ProgrammingRoute.link({
+          year: plan.year,
+          planIds: plan.id
+        });
+        const isModified = isModifiedSinceSent(
+          regionalStatus.sentAt ?? null,
+          regionalStatus.lastModifiedAt ?? null
+        );
+
+        const samplers = await userRepository.findMany({
+          roles: ['Sampler'],
+          region,
+          disabled: false
+          //FIXME stages ...programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+        });
+
+        if (regionalStatus.status === 'SubmittedToRegion') {
+          await programmingPlanRepository.updateLocalStatus(
+            plan.id,
+            { region, status: 'Validated' },
+            plan.distributionKind
+          );
+
+          await notificationService.sendNotification(
+            { category: 'ProgrammingPlanValidated', link },
+            samplers,
+            {
+              object: NotificationCategoryTitles.ProgrammingPlanValidated,
+              content: `
+L’étape de la répartition de la programmation a été réalisée par votre coordinateur. La campagne est lancée !
+
+Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’onglet "Programmation" et saisir des prélèvements.`
+            }
+          );
+        } else if (
+          isModified &&
+          hasSentOnward(
+            'Regional',
+            plan.distributionKind,
+            regionalStatus.status
+          )
+        ) {
+          await programmingPlanRepository.touchRegionalSentAt(plan.id, region);
+
+          const nationalCoordinators = await userRepository.findMany({
+            roles: ['NationalCoordinator'],
+            disabled: false
+            //Fixme stages ... programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+          });
+
+          await notificationService.sendNotification(
+            { category: 'ProgrammingPlanModifiedAfterSubmission', link },
+            nationalCoordinators,
+            {
+              object:
+                NotificationCategoryTitles.ProgrammingPlanModifiedAfterSubmission,
+              content: `Le plan « ${plan.title} » a été modifié et renvoyé.`
+            }
+          );
+
+          await notificationService.sendNotification(
+            { category: 'ProgrammingPlanModifiedAfterSubmission', link },
+            samplers,
+            {
+              object:
+                NotificationCategoryTitles.ProgrammingPlanModifiedAfterSubmission,
+              content: `Le plan « ${plan.title} » a été modifié, les prélèvements concernés ont été mis à jour.`
+            }
+          );
         }
       }
 
@@ -623,26 +653,6 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
                       }
                     ));
               } else if (
-                programmingPlanLocalStatus.status === 'ApprovedByRegion'
-              ) {
-                const nationalCoordinators = await userRepository.findMany({
-                  roles: ['NationalCoordinator'],
-                  stages: stagesFromSubPlans(programmingPlan.subPlans),
-                  disabled: false
-                });
-
-                await notificationService.sendNotification(
-                  {
-                    category: 'ProgrammingPlanApprovedByRegion',
-                    link
-                  },
-                  nationalCoordinators,
-                  {
-                    region:
-                      Regions[programmingPlanLocalStatus.region as Region].name
-                  }
-                );
-              } else if (
                 programmingPlanLocalStatus.status === 'SubmittedToDepartments'
               ) {
                 await programmingPlanRepository.insertManyLocalStatus(
@@ -673,9 +683,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
                     sender: 'coordination régionale'
                   }
                 );
-              } else {
-                return { status: HttpStatus.BAD_REQUEST };
-              }
+              } else return { status: HttpStatus.BAD_REQUEST };
             }
 
             await programmingPlanRepository.updateLocalStatus(

@@ -25,6 +25,8 @@ const ProgrammingPlanBulkSendRegionalModal = ({
   const apiClient = useContext(ApiClientContext);
   const [sendProgrammingPlansToDepartments] =
     apiClient.useSendProgrammingPlansToDepartmentsMutation();
+  const [sendProgrammingPlansToSamplers] =
+    apiClient.useSendProgrammingPlansToSamplersMutation();
   const [isError, setIsError] = useState(false);
 
   const isOpen = useIsModalOpen(bulkSendRegionalModal, {
@@ -34,9 +36,25 @@ const ProgrammingPlanBulkSendRegionalModal = ({
   const submit = async () => {
     setIsError(false);
     try {
-      await sendProgrammingPlansToDepartments({
-        programmingPlanIds: plans.map((plan) => plan.id)
-      }).unwrap();
+      const slaughterhousePlanIds = plans
+        .filter((plan) => plan.distributionKind === 'SLAUGHTERHOUSE')
+        .map((plan) => plan.id);
+      const regionalKindPlanIds = plans
+        .filter((plan) => plan.distributionKind !== 'SLAUGHTERHOUSE')
+        .map((plan) => plan.id);
+
+      await Promise.all([
+        slaughterhousePlanIds.length > 0
+          ? sendProgrammingPlansToDepartments({
+              programmingPlanIds: slaughterhousePlanIds
+            }).unwrap()
+          : undefined,
+        regionalKindPlanIds.length > 0
+          ? sendProgrammingPlansToSamplers({
+              programmingPlanIds: regionalKindPlanIds
+            }).unwrap()
+          : undefined
+      ]);
       bulkSendRegionalModal.close();
       onSuccess();
     } catch {

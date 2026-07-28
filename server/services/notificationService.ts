@@ -17,7 +17,6 @@ import { mattermostService } from './mattermostService';
 const categoryToEmailTemplate = {
   AnalysisReviewTodo: 'AnalysisReviewTodoTemplate',
   ProgrammingPlanSubmittedToRegion: 'SubmittedProgrammingPlanTemplate',
-  ProgrammingPlanApprovedByRegion: 'ApprovedProgrammingPlanTemplate',
   ProgrammingPlanSubmittedToDepartments: 'SubmittedProgrammingPlanTemplate',
   ProgrammingPlanValidated: 'GenericTemplate',
   ProgrammingPlanModifiedAfterSubmission: 'GenericTemplate',
@@ -41,9 +40,7 @@ ${Brand} vient d’être mis à jour !
 Une nouvelle programmation pour la prochaine campagne de surveillance / contrôle officielle a été déposée sur ${Brand} par la coordination nationale.   
 
 Merci de prendre connaissance de ces nouveaux éléments et y réagir le cas échéant.`,
-  ProgrammingPlanApprovedByRegion: ({ region }) => `
-La programmation de prélèvements pour la prochaine campagne de surveillance / contrôle officielle a été approuvée par la région ${region}
-  `,
+
   ProgrammingPlanSubmittedToDepartments: () => `
 ${Brand} vient d’être mis à jour !  
 

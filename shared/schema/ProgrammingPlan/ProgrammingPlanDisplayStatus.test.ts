@@ -7,12 +7,6 @@ import {
 } from './ProgrammingPlanDisplayStatus';
 
 describe('hasSentOnward — Regional, REGIONAL distributionKind', () => {
-  test("ApprovedByRegion counts as sent — it is the region's own send action, there is no department echelon to cascade to", () => {
-    expect(hasSentOnward('Regional', 'REGIONAL', 'ApprovedByRegion')).toBe(
-      true
-    );
-  });
-
   test('SubmittedToRegion (just received, not yet acted on) does not count as sent', () => {
     expect(hasSentOnward('Regional', 'REGIONAL', 'SubmittedToRegion')).toBe(
       false
@@ -117,17 +111,6 @@ describe('computeDisplayStatus — ReadyToSend/modified branch', () => {
     });
     expect(result.value).toBe('ReadyToSend');
     expect(result.label).toBe('Terminé, à envoyer');
-  });
-
-  test('Regional/REGIONAL kind, already approved then re-sent after modification, sentAt caught up -> Submitted again', () => {
-    const result = computeDisplayStatus({
-      ...base,
-      echelon: 'Regional',
-      status: 'ApprovedByRegion',
-      sentAt: new Date('2026-01-10'),
-      lastModifiedAt: new Date('2026-01-05')
-    });
-    expect(result.value).toBe('Submitted');
   });
 });
 

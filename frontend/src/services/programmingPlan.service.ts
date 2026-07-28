@@ -79,6 +79,20 @@ const programmingPlanApi = api.injectEndpoints({
           { type: 'ProgrammingPlan', id: 'LIST' }
         ]
       }
+    ),
+    sendProgrammingPlansToSamplers: buildTypedMutation(
+      builder,
+      '/programming-plans/send-to-samplers',
+      'post',
+      {
+        invalidatesTags: (result) => [
+          ...(result ?? []).map(({ id }) => ({
+            type: 'ProgrammingPlan' as const,
+            id
+          })),
+          { type: 'ProgrammingPlan', id: 'LIST' }
+        ]
+      }
     )
   })
 });
@@ -90,5 +104,6 @@ export const {
   useUpdateProgrammingPlanLocalStatusMutation,
   useUpdateProgrammingSubPlanMutation,
   useSendProgrammingPlansToRegionsMutation,
-  useSendProgrammingPlansToDepartmentsMutation
+  useSendProgrammingPlansToDepartmentsMutation,
+  useSendProgrammingPlansToSamplersMutation
 } = programmingPlanApi;

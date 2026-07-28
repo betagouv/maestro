@@ -35,7 +35,6 @@ export const UserRoleList: UserRole[] = UserRole.options;
 
 const UserSamplerPermissionsList = [
   'viewProgrammingPlans',
-  'readProgrammingPlanApprovedByRegion',
   'readProgrammingPlanValidated',
   'readProgrammingPlanClosed',
   'readPrescriptions',
@@ -61,7 +60,6 @@ const ObserverPermissionsList = [
   'viewProgrammingPlans',
   'readProgrammingPlansInProgress',
   'readProgrammingPlanSubmittedToRegion',
-  'readProgrammingPlanApprovedByRegion',
   'readProgrammingPlanValidated',
   'readProgrammingPlanClosed',
   'readPrescriptions',
@@ -102,7 +100,6 @@ const userRolePermissions = {
     'viewProgrammingPlans',
     'readProgrammingPlansInProgress',
     'readProgrammingPlanSubmittedToRegion',
-    'readProgrammingPlanApprovedByRegion',
     'readProgrammingPlanSubmittedToDepartments',
     'readProgrammingPlanValidated',
     'readProgrammingPlanClosed',
@@ -126,7 +123,6 @@ const userRolePermissions = {
     'readProgrammingPlanValidated',
     'readProgrammingPlanClosed',
     'readProgrammingPlanSubmittedToRegion',
-    'readProgrammingPlanApprovedByRegion',
     'readProgrammingPlanSubmittedToDepartments',
     'approveProgrammingPlan',
     'readPrescriptions',
@@ -141,7 +137,8 @@ const userRolePermissions = {
     'commentPrescription',
     'distributePrescriptionToDepartments',
     'manageUsers',
-    'sendProgrammingPlansToDepartments'
+    'sendProgrammingPlansToDepartments',
+    'distributePrescriptionToDepartments'
   ],
   NationalObserver: [
     ...ObserverPermissionsList,
@@ -190,7 +187,6 @@ const userRolePermissions = {
     'readPrescriptions',
     'readProgrammingPlansInProgress',
     'readProgrammingPlanSubmittedToRegion',
-    'readProgrammingPlanApprovedByRegion',
     'readProgrammingPlanSubmittedToDepartments',
     'readProgrammingPlanValidated',
     'readProgrammingPlanClosed',

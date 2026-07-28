@@ -38,8 +38,7 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
   const dispatch = useAppDispatch();
   const apiClient = useContext(ApiClientContext);
   const { user, hasUserLocalPrescriptionPermission } = useAuthentication();
-  const isSlaughterhouse =
-    programmingPlan.distributionKind === 'SLAUGHTERHOUSE';
+  const isRegional = programmingPlan.distributionKind === 'REGIONAL';
 
   const [updateLocalStatus] =
     apiClient.useUpdateProgrammingPlanLocalStatusMutation();
@@ -109,7 +108,7 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
             id="notify-regions-button"
             onClick={() => submissionModal.open()}
             disabled={
-              isSlaughterhouse &&
+              !isRegional &&
               regionalPrescriptions.some(
                 (regionalPrescription) =>
                   sumBy(
@@ -124,7 +123,7 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
             }
             className="no-wrap"
           >
-            {isSlaughterhouse ? 'Envoyer aux départements' : 'Envoyer'}
+            {!isRegional ? 'Envoyer aux départements' : 'Envoyer'}
           </Button>
         </div>
       )}
@@ -133,7 +132,7 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
         title={
           isSuccess
             ? 'Programmation envoyée'
-            : isSlaughterhouse
+            : !isRegional
               ? 'Envoyer aux départements'
               : 'Envoyer'
         }
@@ -156,13 +155,13 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
                   children: 'Envoyer',
                   onClick: submit,
                   doClosesModal: false,
-                  disabled: isSlaughterhouse && departmentsToNotify.length === 0
+                  disabled: !isRegional && departmentsToNotify.length === 0
                 }
               ]
         }
       >
         {isSuccess ? (
-          isSlaughterhouse ? (
+          !isRegional ? (
             <>
               La soumission de la programmation a bien été envoyée aux
               départments{' '}
@@ -193,7 +192,7 @@ const ProgrammingPlanNotificationRegionalToDepartmental = ({
                 {programmingPlan.title}
               </option>
             </Select>
-            {isSlaughterhouse && (
+            {!isRegional && (
               <>
                 <hr className={cx('fr-my-2w')} />
                 <div className={cx('fr-mt-3w')}>
