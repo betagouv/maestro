@@ -9,7 +9,9 @@ interface Props {
   onOpenAdminModal: () => void;
   onOpenNationalModal: () => void;
   onOpenRegionalModal: () => void;
+  onOpenDepartmentalModal: () => void;
   regionalActionLabel: string;
+  departmentalActionLabel: string;
   onHeightChange: (height: number) => void;
 }
 
@@ -19,7 +21,9 @@ const ProgrammingPlanTrackingActionBar = ({
   onOpenAdminModal,
   onOpenNationalModal,
   onOpenRegionalModal,
+  onOpenDepartmentalModal,
   regionalActionLabel,
+  departmentalActionLabel,
   onHeightChange
 }: Props) => {
   const { hasRole } = useAuthentication();
@@ -66,7 +70,18 @@ const ProgrammingPlanTrackingActionBar = ({
           {regionalActionLabel}
         </Button>
       )}
-      {/* TODO bouton "Lancer la campagne" */}
+      {hasRole('DepartmentalCoordinator') && (
+        <Button
+          priority="secondary"
+          size="small"
+          onClick={onOpenDepartmentalModal}
+          className={cx('fr-ml-3w')}
+          iconId="fr-icon-send-plane-line"
+          iconPosition="right"
+        >
+          {departmentalActionLabel}
+        </Button>
+      )}
     </SelectionActionBar>
   );
 };

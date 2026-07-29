@@ -32,6 +32,9 @@ import { ApiClientContext } from '../../../services/apiClient';
 import ProgrammingPlanBulkSendAdminModal, {
   bulkSendAdminModal
 } from './ProgrammingPlanTrackingActionBar/ProgrammingPlanBulkSendAdminModal';
+import ProgrammingPlanBulkSendDepartmentalModal, {
+  bulkSendDepartmentalModal
+} from './ProgrammingPlanTrackingActionBar/ProgrammingPlanBulkSendDepartmentalModal';
 import ProgrammingPlanBulkSendNationalModal, {
   bulkSendNationalModal
 } from './ProgrammingPlanTrackingActionBar/ProgrammingPlanBulkSendNationalModal';
@@ -252,7 +255,7 @@ const ProgrammingPlanTrackingTable = ({
       const isSubmittedToAdmin =
         plan.nationalStatus.status === 'SubmittedToAdmin';
       const isEligible = department
-        ? false
+        ? departmentalDisplayStatus?.value === 'ReadyToSend'
         : region
           ? regionalDisplayStatus?.value === 'ReadyToSend'
           : hasRole('Administrator')
@@ -343,6 +346,19 @@ const ProgrammingPlanTrackingTable = ({
       ),
     [selectedPlans, planStatusInfo]
   );
+  const selectedDepartmentalModified = useMemo(
+    () =>
+      selectedPlans.length > 0 &&
+      selectedPlans.every(
+        (plan) =>
+          planStatusInfo.get(plan.id)?.departmentalDisplayStatus?.modified
+      ),
+    [selectedPlans, planStatusInfo]
+  );
+  const departmentalActionLabel = selectedDepartmentalModified
+    ? 'Diffuser les modifications aux préleveurs'
+    : 'Lancer la campagne';
+
   const selectedAllRegionalKind =
     selectedPlans.length > 0 &&
     selectedPlans.every((plan) => plan.distributionKind !== 'SLAUGHTERHOUSE');
@@ -458,7 +474,9 @@ const ProgrammingPlanTrackingTable = ({
         onOpenAdminModal={() => bulkSendAdminModal.open()}
         onOpenNationalModal={() => bulkSendNationalModal.open()}
         onOpenRegionalModal={() => bulkSendRegionalModal.open()}
+        onOpenDepartmentalModal={() => bulkSendDepartmentalModal.open()}
         regionalActionLabel={regionalActionLabel}
+        departmentalActionLabel={departmentalActionLabel}
         onHeightChange={setBannerHeight}
       />
       <ProgrammingPlanBulkSendAdminModal
@@ -468,6 +486,11 @@ const ProgrammingPlanTrackingTable = ({
       <ProgrammingPlanBulkSendNationalModal
         plansToAdmin={plansToAdmin}
         plansToRegions={plansToRegions}
+        onSuccess={handleSendSuccess}
+      />
+      <ProgrammingPlanBulkSendDepartmentalModal
+        plans={selectedPlans}
+        modified={selectedDepartmentalModified}
         onSuccess={handleSendSuccess}
       />
       <ProgrammingPlanBulkSendRegionalModal
@@ -561,9 +584,7 @@ const ProgrammingPlanTrackingTable = ({
                         ? regionalDisplayStatus
                         : nationalDisplayStatus;
                     const isRepartitionIncomplete =
-                      !department &&
-                      !isEligible &&
-                      relevantStatus?.value === 'InProgress';
+                      !isEligible && relevantStatus?.value === 'InProgress';
                     const checkbox = (
                       <SelectionCheckbox
                         checked={selectedPlanIds.has(plan.id)}
