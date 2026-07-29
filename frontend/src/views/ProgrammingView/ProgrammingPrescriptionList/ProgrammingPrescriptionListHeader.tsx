@@ -12,7 +12,6 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
-import ProgrammingPlanNotificationDepartmentalToSampler from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationDepartmentalToSampler/ProgrammingPlanNotificationDepartmentalToSampler';
 import ProgrammingPlanNotificationRegionalToDepartmental from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationRegionalToDepartmental/ProgrammingPlanNotificationRegionalToDepartmental';
 import './ProgrammingPrescriptionList.scss';
 
@@ -65,13 +64,6 @@ const ProgrammingPrescriptionListHeader = ({
               departmentalPrescriptions={subLocalPrescriptions}
             />
           )}
-        {hasDepartmentalView && (
-          <ProgrammingPlanNotificationDepartmentalToSampler
-            programmingPlan={programmingPlan}
-            departmentalPrescriptions={localPrescriptions}
-            companyPrescriptions={subLocalPrescriptions}
-          />
-        )}
       </div>
       <div className="d-flex-align-center">
         <div className={clsx('flex-grow-1', 'd-flex-align-center')}>
