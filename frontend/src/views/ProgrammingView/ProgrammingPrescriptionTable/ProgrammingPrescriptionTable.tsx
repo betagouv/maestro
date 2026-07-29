@@ -119,6 +119,59 @@ const Colgroup = ({
   </colgroup>
 );
 
+const PrescriptionSampleCountInput = ({
+  value,
+  isPending,
+  onChange
+}: {
+  value: number;
+  isPending?: boolean;
+  onChange: (value: number) => void;
+}) => {
+  const [inputValue, setInputValue] = useState(String(value));
+
+  useEffect(() => {
+    setInputValue(String(value));
+  }, [value]);
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (value === 0) {
+      setInputValue('');
+      e.target.value = '';
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+    const newValue = Number(e.target.value);
+    if (!Number.isNaN(newValue) && newValue !== value) {
+      onChange(newValue);
+    }
+  };
+
+  const handleBlur = () => {
+    if (inputValue === '') {
+      setInputValue(String(value));
+    }
+  };
+
+  return (
+    <input
+      className={clsx(
+        'distribution-count-input',
+        'distribution-count-input--wide',
+        isPending && 'distribution-count-input--pending'
+      )}
+      type="number"
+      min={0}
+      value={inputValue}
+      onFocus={handleFocus}
+      onChange={handleChange}
+      onBlur={handleBlur}
+    />
+  );
+};
+
 const ProgrammingPrescriptionTable = ({
   programmingPlans,
   prescriptions: allPrescriptions,
@@ -1068,27 +1121,17 @@ const ProgrammingPrescriptionTable = ({
                                           plan
                                         ).update &&
                                         onChangePrescriptionSampleCount ? (
-                                          <input
-                                            className={clsx(
-                                              'distribution-count-input',
-                                              'distribution-count-input--wide',
-                                              pendingPrescriptionIds?.has(
-                                                prescription.id
-                                              ) &&
-                                                'distribution-count-input--pending'
-                                            )}
-                                            type="number"
-                                            min={0}
+                                          <PrescriptionSampleCountInput
                                             value={prescription.sampleCount}
-                                            onChange={(e) => {
-                                              const v = Number(e.target.value);
-                                              if (!Number.isNaN(v)) {
-                                                onChangePrescriptionSampleCount(
-                                                  prescription,
-                                                  v
-                                                );
-                                              }
-                                            }}
+                                            isPending={pendingPrescriptionIds?.has(
+                                              prescription.id
+                                            )}
+                                            onChange={(v) =>
+                                              onChangePrescriptionSampleCount(
+                                                prescription,
+                                                v
+                                              )
+                                            }
                                           />
                                         ) : (
                                           <div>{prescription.sampleCount}</div>
