@@ -2,12 +2,6 @@ import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { LegalContext } from '../../referential/LegalContext';
 import { checkSchema } from '../../utils/zod';
-import type { UserRefined } from '../User/User';
-import {
-  isNationalRole,
-  isRegionalRole,
-  type UserRole
-} from '../User/UserRole';
 import { ProgrammingPlanContext } from './Context';
 import { DistributionKind } from './DistributionKind';
 import { ProgrammingPlanDomain } from './ProgrammingPlanDomain';
@@ -16,7 +10,6 @@ import {
   ProgrammingPlanNationalStatus,
   ProgrammingPlanRegionalStatus
 } from './ProgrammingPlanLocalStatus';
-import type { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
 import { ProgrammingSubPlan } from './ProgrammingSubPlan';
 
 export const ProgrammingPlanBase = z.object({
@@ -79,28 +72,3 @@ export const ProgrammingPlanSort = (
   a: ProgrammingPlanChecked,
   b: ProgrammingPlanChecked
 ) => b.year - a.year || a.title.localeCompare(b.title);
-
-export const hasProgrammingPlanStatusForAuthUser = (
-  programmingPlan: ProgrammingPlanChecked,
-  status: ProgrammingPlanStatus[],
-  user?: Pick<UserRefined, 'region' | 'department'>,
-  userRole?: UserRole
-) =>
-  userRole &&
-  user &&
-  (isNationalRole(userRole)
-    ? programmingPlan.regionalStatus.every((regionalStatus) =>
-        status.includes(regionalStatus.status)
-      )
-    : isRegionalRole(userRole) ||
-        programmingPlan.distributionKind === 'REGIONAL'
-      ? programmingPlan.regionalStatus.some(
-          (regionalStatus) =>
-            regionalStatus.region === user.region &&
-            status.includes(regionalStatus.status)
-        )
-      : programmingPlan.departmentalStatus.some(
-          (departmentalStatus) =>
-            departmentalStatus.department === user.department &&
-            status.includes(departmentalStatus.status)
-        ));

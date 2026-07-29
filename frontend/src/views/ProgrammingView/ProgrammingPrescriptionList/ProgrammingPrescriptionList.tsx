@@ -1,13 +1,14 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { isEmpty, isNil, mapValues, omitBy, sumBy } from 'lodash-es';
+import { groupBy, isEmpty, isNil, mapValues, omitBy, sumBy } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import type { Region } from 'maestro-shared/referential/Region';
 import type { Company } from 'maestro-shared/schema/Company/Company';
 import {
   filteredLocalPrescriptions,
+  type LocalPrescription,
   type LocalPrescriptionUpdate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
@@ -37,7 +38,6 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import PrescriptionActionBar from 'src/components/Prescription/PrescriptionActionBar/PrescriptionActionBar';
-import PrescriptionCard from 'src/components/Prescription/PrescriptionCard/PrescriptionCard';
 import SelectionActionBar from 'src/components/SelectionActionBar/SelectionActionBar';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { usePrescriptionFilters } from 'src/hooks/usePrescriptionFilters';
@@ -45,13 +45,11 @@ import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import ProgrammingPrescriptionListHeader from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListHeader';
 import { assert, type Equals } from 'tsafe';
-import LocalPrescriptionCard from '../../../components/LocalPrescription/LocalPrescriptionCard/LocalPrescriptionCard';
 import LocalPrescriptionModal from '../../../components/LocalPrescription/LocalPrescriptionModal/LocalPrescriptionModal';
 import PrescriptionModal from '../../../components/Prescription/PrescriptionModal/PrescriptionModal';
 import { ApiClientContext } from '../../../services/apiClient';
 import { getApiUrl } from '../../../utils/fetchUtils';
 import ProgrammingPrescriptionFilters from '../ProgrammingPrescriptionFilters/ProgrammingPrescriptionFilters';
-import ProgrammingLocalPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingLocalPrescriptionTable';
 import ProgrammingPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingPrescriptionTable';
 import BulkAssignLaboratoriesModal, {
   bulkAssignLaboratoriesModal
@@ -79,8 +77,9 @@ const ProgrammingPrescriptionList = ({
 
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
-  const { prescriptionListDisplay: storedListDisplay, prescriptionFilters } =
-    useAppSelector((state) => state.prescriptions);
+  const { prescriptionFilters } = useAppSelector(
+    (state) => state.prescriptions
+  );
 
   const [searchParams, setSearchParams] = useSearchParams();
   const {
@@ -94,9 +93,6 @@ const ProgrammingPrescriptionList = ({
   } = useAuthentication();
 
   const isRegionalCoordinatorView = hasRegionalView && !hasNationalView;
-  const prescriptionListDisplay = isRegionalCoordinatorView
-    ? 'table'
-    : storedListDisplay;
 
   const [selectedPrescriptions, setSelectedPrescriptions] = useState<
     Prescription[]
@@ -134,8 +130,6 @@ const ProgrammingPrescriptionList = ({
     apiClient.useUpdateLocalPrescriptionMutation();
   const [updateDepartmentalLocalPrescription] =
     apiClient.useUpdateDepartmentalLocalPrescriptionMutation();
-  const [deletePrescription, { isSuccess: isDeleteSuccess }] =
-    apiClient.useDeletePrescriptionMutation();
 
   const { programmingPlanOptions, programmingSubPlanOptions, reduceFilters } =
     usePrescriptionFilters(programmingPlans);
@@ -210,6 +204,19 @@ const ProgrammingPrescriptionList = ({
     }
   );
 
+  const { data: departmentCompanies } = apiClient.useFindCompaniesQuery(
+    {
+      region,
+      department,
+      kinds: ['POULTRY_SLAUGHTERHOUSE', 'MEAT_SLAUGHTERHOUSE']
+    },
+    { skip: !region || !department }
+  );
+
+  const effectiveCompanies = department
+    ? (departmentCompanies ?? [])
+    : companies;
+
   const findLocalPrescriptionOptions = useMemo(
     () => ({
       programmingPlanIds: planIds,
@@ -245,30 +252,51 @@ const ProgrammingPrescriptionList = ({
     [allPrescriptions, pendingPrescriptionSampleCounts]
   );
 
-  const allLocalPrescriptionsWithPending = useMemo(
-    () =>
-      allLocalPrescriptions?.map((lp) => {
-        const key = toLocalPrescriptionKeyString({
+  const allLocalPrescriptionsWithPending = useMemo(() => {
+    const existing = (allLocalPrescriptions ?? []).map((lp) => {
+      const key = toLocalPrescriptionKeyString({
+        prescriptionId: lp.prescriptionId,
+        region: lp.region,
+        department: lp.department ?? undefined,
+        companySiret: lp.companySiret ?? undefined
+      });
+      const pending = pendingLocalChanges.get(key);
+      const pendingLab = pendingLaboratoryChanges.get(key);
+      return {
+        ...lp,
+        ...(pending ? { sampleCount: pending.sampleCount } : {}),
+        ...(pendingLab
+          ? {
+              substanceKindsLaboratories: pendingLab.substanceKindsLaboratories
+            }
+          : {})
+      };
+    });
+
+    const existingKeys = new Set(
+      existing.map((lp) =>
+        toLocalPrescriptionKeyString({
           prescriptionId: lp.prescriptionId,
           region: lp.region,
           department: lp.department ?? undefined,
           companySiret: lp.companySiret ?? undefined
-        });
-        const pending = pendingLocalChanges.get(key);
-        const pendingLab = pendingLaboratoryChanges.get(key);
-        return {
-          ...lp,
-          ...(pending ? { sampleCount: pending.sampleCount } : {}),
-          ...(pendingLab
-            ? {
-                substanceKindsLaboratories:
-                  pendingLab.substanceKindsLaboratories
-              }
-            : {})
-        };
-      }),
-    [allLocalPrescriptions, pendingLocalChanges, pendingLaboratoryChanges]
-  );
+        })
+      )
+    );
+    const pendingOnly: LocalPrescription[] = Array.from(
+      pendingLocalChanges.values()
+    )
+      .filter(({ key }) => !existingKeys.has(toLocalPrescriptionKeyString(key)))
+      .map(({ key, sampleCount }) => ({
+        prescriptionId: key.prescriptionId,
+        region: key.region,
+        department: key.department,
+        companySiret: key.companySiret,
+        sampleCount
+      }));
+
+    return [...existing, ...pendingOnly];
+  }, [allLocalPrescriptions, pendingLocalChanges, pendingLaboratoryChanges]);
 
   const prescriptions = useMemo(() => {
     return allPrescriptionsWithPending
@@ -327,10 +355,9 @@ const ProgrammingPrescriptionList = ({
     () =>
       filteredLocalPrescriptions(allLocalPrescriptionsWithPending ?? [], {
         region,
-        department,
-        companies
+        department
       }),
-    [allLocalPrescriptionsWithPending, department, region, companies]
+    [allLocalPrescriptionsWithPending, department, region]
   );
 
   const subLocalPrescriptions = useMemo(
@@ -418,10 +445,6 @@ const ProgrammingPrescriptionList = ({
     }
   }, [searchParams, localPrescriptions]);
 
-  const removePrescription = useCallback(async (prescriptionId: string) => {
-    await deletePrescription({ prescriptionId });
-  }, []);
-
   const changePrescription = useCallback(
     async (
       prescription: Prescription,
@@ -493,23 +516,6 @@ const ProgrammingPrescriptionList = ({
     []
   );
 
-  const changeSubstanceKindsLaboratories = async (
-    substanceKindsLaboratories: SubstanceKindLaboratory[]
-  ) => {
-    await Promise.all(
-      selectedPrescriptions.map((prescription) =>
-        updateDepartmentalLocalPrescription({
-          prescriptionId: prescription.id,
-          region: region as Region,
-          department: department as Department,
-          key: 'laboratories',
-          substanceKindsLaboratories,
-          programmingPlanId: getPrescriptionPlan(prescription).id
-        })
-      )
-    );
-  };
-
   const handleReset = useCallback(() => {
     setPendingLocalChanges(new Map());
     setPendingLaboratoryChanges(new Map());
@@ -523,15 +529,56 @@ const ProgrammingPrescriptionList = ({
   const handleSave = useCallback(async () => {
     setIsSaving(true);
     try {
+      const plainLocalChanges = Array.from(pendingLocalChanges.values()).filter(
+        ({ key }) => !key.companySiret
+      );
+      const slaughterhouseChangeGroups = Object.values(
+        groupBy(
+          Array.from(pendingLocalChanges.values()).filter(
+            ({ key }) => key.companySiret
+          ),
+          ({ key }) => `${key.prescriptionId}|${key.region}|${key.department}`
+        )
+      );
+
       await Promise.all([
-        ...Array.from(pendingLocalChanges.values()).map(
-          ({ key, sampleCount }) =>
-            changeLocalPrescription(key, {
-              key: 'sampleCount',
-              sampleCount,
-              programmingPlanId: getPlanForPrescriptionId(key.prescriptionId).id
-            })
+        ...plainLocalChanges.map(({ key, sampleCount }) =>
+          changeLocalPrescription(key, {
+            key: 'sampleCount',
+            sampleCount,
+            programmingPlanId: getPlanForPrescriptionId(key.prescriptionId).id
+          })
         ),
+        ...slaughterhouseChangeGroups.map((entries) => {
+          const { prescriptionId, region, department } = entries[0].key;
+          const pendingBySiret = new Map(
+            entries.map(({ key, sampleCount }) => [
+              key.companySiret as string,
+              sampleCount
+            ])
+          );
+          const slaughterhouseSampleCounts = (effectiveCompanies ?? []).map(
+            (company) => ({
+              companySiret: company.siret,
+              sampleCount:
+                pendingBySiret.get(company.siret) ??
+                subLocalPrescriptions?.find(
+                  (sp) =>
+                    sp.prescriptionId === prescriptionId &&
+                    sp.companySiret === company.siret
+                )?.sampleCount ??
+                0
+            })
+          );
+          return changeLocalPrescription(
+            { prescriptionId, region, department },
+            {
+              key: 'slaughterhouseSampleCounts',
+              slaughterhouseSampleCounts,
+              programmingPlanId: getPlanForPrescriptionId(prescriptionId).id
+            }
+          );
+        }),
         ...Array.from(pendingLaboratoryChanges.values()).map(
           ({ key, substanceKindsLaboratories }) =>
             changeLocalPrescription(key, {
@@ -565,7 +612,9 @@ const ProgrammingPrescriptionList = ({
     changeLocalPrescription,
     changePrescription,
     getPlanForPrescriptionId,
-    allPrescriptions
+    allPrescriptions,
+    effectiveCompanies,
+    subLocalPrescriptions
   ]);
 
   const saveSuccessMessage = useMemo(() => {
@@ -696,7 +745,6 @@ const ProgrammingPrescriptionList = ({
   return (
     <>
       <AppToast open={isAddSuccess} description="Matrice ajoutée" />
-      <AppToast open={isDeleteSuccess} description="Matrice supprimée" />
       <AppToast
         open={saveSuccess}
         description={saveSuccessMessage}
@@ -715,18 +763,6 @@ const ProgrammingPrescriptionList = ({
                 '/prescriptions/export',
                 exportPrescriptionOptions
               )}
-              hasGroupedUpdatePermission={hasGroupedUpdatePermission}
-              selectedCount={selectedPrescriptions.length}
-              onGroupedUpdate={changeSubstanceKindsLaboratories}
-              hideDisplayToggle={isRegionalCoordinatorView}
-              hideGroupedUpdateButton={isRegionalCoordinatorView}
-              onSelectAll={() => {
-                setSelectedPrescriptions(
-                  selectedPrescriptions.length === prescriptions.length
-                    ? []
-                    : prescriptions
-                );
-              }}
             />
           }
           <ProgrammingPrescriptionFilters
@@ -742,100 +778,13 @@ const ProgrammingPrescriptionList = ({
           {prescriptions.length === 0 && (
             <div
               className={clsx(
-                cx('fr-container', 'fr-mt-8w', {
-                  'fr-px-0': prescriptionListDisplay === 'cards',
-                  'fr-px-7w': prescriptionListDisplay === 'table'
-                }),
+                cx('fr-container', 'fr-mt-8w', 'fr-px-7w'),
                 'align-center'
               )}
             >
               Aucun prélèvement programmé pour les filtres sélectionnés
             </div>
           )}
-          {prescriptionListDisplay === 'cards' &&
-            prescriptions.length > 0 &&
-            (hasNationalView ? (
-              <div className="prescription-cards-container">
-                {prescriptions?.map((prescription) => (
-                  <PrescriptionCard
-                    key={`prescription_cards_${prescription.id}`}
-                    programmingPlan={getPrescriptionPlan(prescription)}
-                    prescription={prescription}
-                    regionalPrescriptions={localPrescriptions.filter(
-                      (rp) => rp.prescriptionId === prescription.id
-                    )}
-                    onChangeLocalPrescriptionCount={(region, value) =>
-                      changeLocalPrescriptionCount(
-                        {
-                          prescriptionId: prescription.id,
-                          region: region as Region
-                        },
-                        value
-                      )
-                    }
-                    onRemovePrescription={removePrescription}
-                    onChangePrescriptionStages={(stages) =>
-                      changePrescription(prescription, {
-                        stages
-                      })
-                    }
-                    onChangePrescriptionNotes={(notes) =>
-                      changePrescription(prescription, {
-                        notes
-                      })
-                    }
-                    onChangePrescriptionProgrammingInstruction={(
-                      programmingInstruction
-                    ) =>
-                      changePrescription(prescription, {
-                        programmingInstruction
-                      })
-                    }
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                {prescriptions?.flatMap((prescription) =>
-                  localPrescriptions
-                    .filter(
-                      (regionalPrescription) =>
-                        regionalPrescription.prescriptionId === prescription.id
-                    )
-                    .map((localPrescription) => (
-                      <LocalPrescriptionCard
-                        key={`prescription_cards_${prescription.id}`}
-                        programmingPlan={getPrescriptionPlan(prescription)}
-                        prescription={prescription}
-                        localPrescription={localPrescription}
-                        subLocalPrescriptions={subLocalPrescriptions?.filter(
-                          (departmentalPrescription) =>
-                            departmentalPrescription.prescriptionId ===
-                            prescription.id
-                        )}
-                        isSelected={selectedPrescriptions.some(
-                          (_) => _.id === prescription.id
-                        )}
-                        onToggleSelection={
-                          hasGroupedUpdatePermission
-                            ? () =>
-                                setSelectedPrescriptions((prevState) =>
-                                  prevState.some(
-                                    (_) => _.id === prescription.id
-                                  )
-                                    ? prevState.filter(
-                                        (_) => _.id !== prescription.id
-                                      )
-                                    : [...prevState, prescription]
-                                )
-                            : undefined
-                        }
-                        companies={companies}
-                      />
-                    ))
-                )}
-              </div>
-            ))}
           {isRegionalCoordinatorView && (
             <SelectionActionBar
               selectedCount={selectedPrescriptions.length}
@@ -860,58 +809,44 @@ const ProgrammingPrescriptionList = ({
               </Button>
             </SelectionActionBar>
           )}
-          {prescriptionListDisplay === 'table' &&
-            prescriptions.length > 0 &&
-            (hasNationalView || hasRegionalView ? (
-              <ProgrammingPrescriptionTable
-                programmingPlans={programmingPlans}
-                prescriptions={prescriptions}
-                regionalPrescriptions={localPrescriptions}
-                onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
-                pendingLocalKeys={new Set(pendingLocalChanges.keys())}
-                onChangeLocalPrescriptionLaboratories={
-                  changeLocalPrescriptionLaboratories
-                }
-                pendingLaboratoryKeys={new Set(pendingLaboratoryChanges.keys())}
-                {...(hasNationalView
-                  ? {
-                      pendingPrescriptionIds: new Set(
-                        pendingPrescriptionSampleCounts.keys()
-                      ),
-                      onChangePrescriptionSampleCount: (
-                        prescription,
-                        sampleCount
-                      ) => {
-                        setPendingPrescriptionSampleCounts((prev) => {
-                          const next = new Map(prev);
-                          next.set(prescription.id, sampleCount);
-                          return next;
-                        });
-                      }
+          {prescriptions.length > 0 && (
+            <ProgrammingPrescriptionTable
+              programmingPlans={programmingPlans}
+              prescriptions={prescriptions}
+              regionalPrescriptions={localPrescriptions}
+              onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
+              pendingLocalKeys={new Set(pendingLocalChanges.keys())}
+              onChangeLocalPrescriptionLaboratories={
+                changeLocalPrescriptionLaboratories
+              }
+              pendingLaboratoryKeys={new Set(pendingLaboratoryChanges.keys())}
+              {...(hasNationalView
+                ? {
+                    pendingPrescriptionIds: new Set(
+                      pendingPrescriptionSampleCounts.keys()
+                    ),
+                    onChangePrescriptionSampleCount: (
+                      prescription,
+                      sampleCount
+                    ) => {
+                      setPendingPrescriptionSampleCounts((prev) => {
+                        const next = new Map(prev);
+                        next.set(prescription.id, sampleCount);
+                        return next;
+                      });
                     }
-                  : {
-                      region: user?.region as Region,
-                      subLocalPrescriptions: subLocalPrescriptions ?? [],
-                      selectedPrescriptions,
-                      onTogglePrescriptionSelection:
-                        togglePrescriptionSelection,
-                      topOffset: bulkAssignBannerHeight
-                    })}
-              />
-            ) : (
-              <ProgrammingLocalPrescriptionTable
-                programmingPlans={programmingPlans}
-                prescriptions={prescriptions}
-                region={user?.region as Region}
-                localPrescriptions={localPrescriptions}
-                subLocalPrescriptions={subLocalPrescriptions ?? []}
-                onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
-                pendingLocalKeys={new Set(pendingLocalChanges.keys())}
-                selectedPrescriptions={selectedPrescriptions}
-                onTogglePrescriptionSelection={togglePrescriptionSelection}
-                companies={companies}
-              />
-            ))}
+                  }
+                : {
+                    region: user?.region as Region,
+                    department,
+                    companies: effectiveCompanies,
+                    subLocalPrescriptions: subLocalPrescriptions ?? [],
+                    selectedPrescriptions,
+                    onTogglePrescriptionSelection: togglePrescriptionSelection,
+                    topOffset: bulkAssignBannerHeight
+                  })}
+            />
+          )}
         </>
       )}
       <PrescriptionModal

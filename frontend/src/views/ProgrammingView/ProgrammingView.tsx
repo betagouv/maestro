@@ -59,7 +59,7 @@ const ProgrammingView = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, hasNationalView, hasRegionalView, hasRole, hasUserPermission } =
     useAuthentication();
-  const { prescriptionFilters, prescriptionListDisplay } = useAppSelector(
+  const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
   );
 
@@ -264,10 +264,7 @@ const ProgrammingView = () => {
                   <Tabs
                     selectedTabId={selectedTabId}
                     onTabChange={handleTabChange}
-                    className={clsx({
-                      'full-width':
-                        (hasNationalView || hasRegionalView) &&
-                        prescriptionListDisplay === 'table',
+                    className={clsx('full-width', {
                       'push-last-tab-right': hasRole(
                         'Administrator',
                         'NationalCoordinator',
