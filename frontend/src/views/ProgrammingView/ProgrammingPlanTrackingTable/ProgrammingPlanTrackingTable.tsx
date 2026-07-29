@@ -3,7 +3,11 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tooltip from '@codegouvfr/react-dsfr/Tooltip';
 import clsx from 'clsx';
 import { groupBy } from 'lodash-es';
-import { DepartmentLabels } from 'maestro-shared/referential/Department';
+import {
+  type Department,
+  DepartmentLabels,
+  DepartmentSort
+} from 'maestro-shared/referential/Department';
 import {
   type Region,
   RegionList,
@@ -44,9 +48,13 @@ import {
 } from './ProgrammingPlanTrackingTable.utils';
 import './ProgrammingPlanTrackingTable.scss';
 
+const sortedDepartments = (region: Region) =>
+  [...Regions[region].departments].sort(DepartmentSort);
+
 interface Props {
   programmingPlans: ProgrammingPlanChecked[];
   region?: Region;
+  department?: Department;
 }
 
 const Colgroup = ({ statusColumnCount }: { statusColumnCount: number }) => (
@@ -99,9 +107,17 @@ const MiniTable = ({
   </div>
 );
 
-const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
+const ProgrammingPlanTrackingTable = ({
+  programmingPlans,
+  region,
+  department
+}: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { hasRole } = useAuthentication();
+  const viewerOwnsNationalRow = hasRole(
+    'NationalCoordinator',
+    'NationalObserver'
+  );
   const [expandedPlanIds, setExpandedPlanIds] = useState<Set<string>>(
     new Set()
   );
@@ -157,6 +173,7 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
       {
         nationalDisplayStatus: DisplayStatusResult;
         regionalDisplayStatus: DisplayStatusResult | undefined;
+        departmentalDisplayStatus: DisplayStatusResult | undefined;
         isEligible: boolean;
         regionalAggregate: AggregateDisplayStatus;
         departmentalAggregate: AggregateDisplayStatus | undefined;
@@ -172,7 +189,10 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
         plan,
         planPrescriptions,
         planLocalPrescriptions,
-        'National'
+        'National',
+        undefined,
+        undefined,
+        viewerOwnsNationalRow
       );
 
       const regionalDisplayStatus = region
@@ -197,18 +217,30 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
         )
       );
 
+      const departmentalDisplayStatus =
+        department && plan.distributionKind === 'SLAUGHTERHOUSE'
+          ? buildEchelonDisplayStatus(
+              plan,
+              planPrescriptions,
+              planLocalPrescriptions,
+              'Departmental',
+              region,
+              department
+            )
+          : undefined;
+
       const departmentalAggregate =
-        plan.distributionKind === 'SLAUGHTERHOUSE'
+        !department && plan.distributionKind === 'SLAUGHTERHOUSE'
           ? buildAggregateDisplayStatus(
               (region ? [region] : RegionList).flatMap((regionColumn) =>
-                Regions[regionColumn].departments.map((department) =>
+                sortedDepartments(regionColumn).map((departmentColumn) =>
                   buildEchelonDisplayStatus(
                     plan,
                     planPrescriptions,
                     planLocalPrescriptions,
                     'Departmental',
                     regionColumn,
-                    department
+                    departmentColumn
                   )
                 )
               )
@@ -219,19 +251,24 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
 
       const isSubmittedToAdmin =
         plan.nationalStatus.status === 'SubmittedToAdmin';
-      const isEligible = region
-        ? regionalDisplayStatus?.value === 'ReadyToSend'
-        : hasRole('Administrator')
-          ? isSubmittedToAdmin
-          : nationalDisplayStatus.value === 'ReadyToSend';
+      const isEligible = department
+        ? false
+        : region
+          ? regionalDisplayStatus?.value === 'ReadyToSend'
+          : hasRole('Administrator')
+            ? isSubmittedToAdmin
+            : nationalDisplayStatus.value === 'ReadyToSend';
 
       map.set(plan.id, {
         nationalDisplayStatus,
         regionalDisplayStatus,
+        departmentalDisplayStatus,
         isEligible,
         regionalAggregate,
         departmentalAggregate,
-        isFinalized: deepestAggregate.value === 'Submitted'
+        isFinalized: department
+          ? departmentalDisplayStatus?.value === 'Submitted'
+          : deepestAggregate.value === 'Submitted'
       });
     }
     return map;
@@ -240,7 +277,8 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
     prescriptionsByPlan,
     localPrescriptionsByPrescription,
     hasRole,
-    region
+    region,
+    department
   ]);
 
   const indicators = useMemo(
@@ -395,7 +433,7 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
     [displayedPlans]
   );
 
-  const statusColumnCount = region ? 2 : 3;
+  const statusColumnCount = department ? 1 : region ? 2 : 3;
 
   if (!prescriptions || !localPrescriptions) {
     return null;
@@ -455,7 +493,7 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
                 </th>
                 <th scope="col">Nom du plan</th>
                 {!region && <th scope="col">Statut BGIR</th>}
-                <th scope="col">Statut région</th>
+                {!department && <th scope="col">Statut région</th>}
                 <th scope="col">Statut département</th>
               </tr>
             </thead>
@@ -507,6 +545,7 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
                     const {
                       nationalDisplayStatus,
                       regionalDisplayStatus,
+                      departmentalDisplayStatus,
                       isEligible,
                       regionalAggregate,
                       departmentalAggregate
@@ -514,13 +553,17 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
 
                     const isPlanExpanded = expandedPlanIds.has(plan.id);
                     const canExpandDepartments =
-                      plan.distributionKind === 'SLAUGHTERHOUSE';
+                      plan.distributionKind === 'SLAUGHTERHOUSE' && !department;
 
-                    const relevantStatus = region
-                      ? regionalDisplayStatus
-                      : nationalDisplayStatus;
+                    const relevantStatus = department
+                      ? departmentalDisplayStatus
+                      : region
+                        ? regionalDisplayStatus
+                        : nationalDisplayStatus;
                     const isRepartitionIncomplete =
-                      !isEligible && relevantStatus?.value === 'InProgress';
+                      !department &&
+                      !isEligible &&
+                      relevantStatus?.value === 'InProgress';
                     const checkbox = (
                       <SelectionCheckbox
                         checked={selectedPlanIds.has(plan.id)}
@@ -564,24 +607,37 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
                               />
                             </td>
                           )}
+                          {!department && (
+                            <td>
+                              {region ? (
+                                regionalDisplayStatus ? (
+                                  <ProgrammingPlanDisplayStatusBadge
+                                    result={regionalDisplayStatus}
+                                    showDates
+                                    small
+                                  />
+                                ) : (
+                                  '—'
+                                )
+                              ) : (
+                                <AggregateBadge aggregate={regionalAggregate} />
+                              )}
+                            </td>
+                          )}
                           <td>
-                            {region ? (
-                              regionalDisplayStatus ? (
+                            {department ? (
+                              departmentalDisplayStatus ? (
                                 <ProgrammingPlanDisplayStatusBadge
-                                  result={regionalDisplayStatus}
+                                  result={departmentalDisplayStatus}
                                   showDates
                                   small
                                 />
                               ) : (
-                                '—'
+                                <span className={cx('fr-text--sm')}>N/A</span>
                               )
-                            ) : (
-                              <AggregateBadge aggregate={regionalAggregate} />
-                            )}
-                          </td>
-                          <td>
-                            {departmentalAggregate &&
-                            departmentalAggregate.value !== 'NotApplicable' ? (
+                            ) : departmentalAggregate &&
+                              departmentalAggregate.value !==
+                                'NotApplicable' ? (
                               <AggregateBadge
                                 aggregate={departmentalAggregate}
                               />
@@ -602,7 +658,7 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
                         {isPlanExpanded &&
                           region &&
                           canExpandDepartments &&
-                          Regions[region].departments.map((department) => {
+                          sortedDepartments(region).map((department) => {
                             const departmentResult = buildEchelonDisplayStatus(
                               plan,
                               planPrescriptions,
@@ -648,7 +704,7 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
 
                             const departmentResultsForRegion =
                               canExpandDepartments
-                                ? Regions[regionColumn].departments.map(
+                                ? sortedDepartments(regionColumn).map(
                                     (department) =>
                                       buildEchelonDisplayStatus(
                                         plan,
@@ -715,7 +771,7 @@ const ProgrammingPlanTrackingTable = ({ programmingPlans, region }: Props) => {
 
                                 {isRegionExpanded &&
                                   canExpandDepartments &&
-                                  Regions[regionColumn].departments.map(
+                                  sortedDepartments(regionColumn).map(
                                     (department) => {
                                       const departmentResult =
                                         buildEchelonDisplayStatus(

@@ -1,15 +1,33 @@
 import { isNil, sumBy } from 'lodash-es';
 import { z } from 'zod';
+import { Department } from '../../referential/Department';
 import { Region } from '../../referential/Region';
 import type { DistributionKind } from '../ProgrammingPlan/DistributionKind';
+import { ProgrammingPlanEchelon } from '../ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { LocalPrescription } from './LocalPrescription';
+import { SubstanceKindLaboratory } from './LocalPrescriptionSubstanceKindLaboratory';
+
+export const LocalPrescriptionChangeKind = z.enum([
+  'sampleCount',
+  'laboratories'
+]);
+export type LocalPrescriptionChangeKind = z.infer<
+  typeof LocalPrescriptionChangeKind
+>;
 
 export const LocalPrescriptionChange = z.object({
   id: z.guid(),
   prescriptionId: z.guid(),
   region: Region,
+  department: Department.nullish(),
+  companySiret: z.string().nullish(),
+  echelon: ProgrammingPlanEchelon,
+  kind: LocalPrescriptionChangeKind,
+  sampleCount: z.coerce.number().nullable(),
+  substanceKindsLaboratories: z.array(SubstanceKindLaboratory).nullable(),
   previousSampleCount: z.coerce.number().nullable(),
   changedAt: z.coerce.date(),
+  diffusedAt: z.coerce.date().nullable(),
   changesViewedAt: z.coerce.date().nullable(),
   changesViewedBy: z.guid().nullable()
 });

@@ -17,7 +17,8 @@ export const buildEchelonDisplayStatus = (
   localPrescriptions: LocalPrescription[],
   echelon: ProgrammingPlanEchelon,
   region?: Region,
-  department?: Department
+  department?: Department,
+  viewerOwnsNationalRow = true
 ): DisplayStatusResult => {
   const localStatus: ProgrammingPlanLocalStatus | undefined =
     echelon === 'National'
@@ -32,6 +33,7 @@ export const buildEchelonDisplayStatus = (
     prescriptions,
     localPrescriptions,
     echelon,
+    programmingPlan.distributionKind,
     region,
     department
   );
@@ -40,10 +42,13 @@ export const buildEchelonDisplayStatus = (
     status: localStatus?.status,
     sentAt: localStatus?.sentAt,
     lastModifiedAt: localStatus?.lastModifiedAt,
+    hasPendingChange: localStatus?.hasPendingChange,
+    needsResend: localStatus?.needsResend,
     hasAnyProgrammedSample: completeness.hasAnyProgrammedSample,
     isComplete: completeness.isComplete,
     echelon,
-    distributionKind: programmingPlan.distributionKind
+    distributionKind: programmingPlan.distributionKind,
+    viewerOwnsNationalRow
   });
 };
 

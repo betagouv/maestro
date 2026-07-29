@@ -69,12 +69,12 @@ describe('generatePrescriptionsExportExcel', async () => {
       Taux de réalisation";"Région BRE
       Programmés";"Région BRE
       Réalisés";"Région BRE
-      Taux de réalisation";"Région CVL
-      Programmés";"Région CVL
-      Réalisés";"Région CVL
       Taux de réalisation";"Région COR
       Programmés";"Région COR
       Réalisés";"Région COR
+      Taux de réalisation";"Région CVL
+      Programmés";"Région CVL
+      Réalisés";"Région CVL
       Taux de réalisation";"Région GES
       Programmés";"Région GES
       Réalisés";"Région GES
@@ -90,28 +90,28 @@ describe('generatePrescriptionsExportExcel', async () => {
       Taux de réalisation";"Région IDF
       Programmés";"Région IDF
       Réalisés";"Région IDF
-      Taux de réalisation";"Région REU
-      Programmés";"Région REU
-      Réalisés";"Région REU
       Taux de réalisation";"Région MAR
       Programmés";"Région MAR
       Réalisés";"Région MAR
       Taux de réalisation";"Région MYT
       Programmés";"Région MYT
       Réalisés";"Région MYT
-      Taux de réalisation";"Région NOR
-      Programmés";"Région NOR
-      Réalisés";"Région NOR
       Taux de réalisation";"Région NAQ
       Programmés";"Région NAQ
       Réalisés";"Région NAQ
+      Taux de réalisation";"Région NOR
+      Programmés";"Région NOR
+      Réalisés";"Région NOR
       Taux de réalisation";"Région OCC
       Programmés";"Région OCC
       Réalisés";"Région OCC
+      Taux de réalisation";"Région PAC
+      Programmés";"Région PAC
+      Réalisés";"Région PAC
       Taux de réalisation";"Région PDL
       Programmés";"Région PDL
       Réalisés";"Région PDL
-      Taux de réalisation";"Région PAC
+      Taux de réalisation";"Région REU
       Programmés"
       Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;80;0;0;3;0;0;2;0;0;5;0;0;8;0;0;10;0;0;1;0;0;2;0;0;10;0;0;3;0;0;3;0;0;2;0;0;9;0;0;4;0;0;4;0;0;2;0;0;1;0;0;5;0;0;6
       Viande de volaille;Abattoir;;;77;0;0;2;0;0;3;0;0;8;0;0;1;0;0;9;0;0;1;0;0;11;0;0;3;0;0;2;0;0;1;0;0;1;0;0;4;0;0;6;0;0;1;0;0;5;0;0;6;0;0;3;0;0;10

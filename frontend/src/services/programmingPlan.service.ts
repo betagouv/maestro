@@ -48,7 +48,9 @@ const programmingPlanApi = api.injectEndpoints({
       {
         invalidatesTags: (_result, _error, { programmingPlanId }) => [
           { type: 'ProgrammingPlan', id: programmingPlanId },
-          { type: 'ProgrammingPlan', id: 'LIST' }
+          { type: 'ProgrammingPlan', id: 'LIST' },
+          { type: 'LocalPrescription', id: 'LIST' },
+          { type: 'Prescription', id: 'LIST' }
         ]
       }
     ),
@@ -62,7 +64,9 @@ const programmingPlanApi = api.injectEndpoints({
             type: 'ProgrammingPlan' as const,
             id
           })),
-          { type: 'ProgrammingPlan', id: 'LIST' }
+          { type: 'ProgrammingPlan', id: 'LIST' },
+          { type: 'LocalPrescription', id: 'LIST' },
+          { type: 'Prescription', id: 'LIST' }
         ]
       }
     ),
@@ -76,7 +80,9 @@ const programmingPlanApi = api.injectEndpoints({
             type: 'ProgrammingPlan' as const,
             id
           })),
-          { type: 'ProgrammingPlan', id: 'LIST' }
+          { type: 'ProgrammingPlan', id: 'LIST' },
+          { type: 'LocalPrescription', id: 'LIST' },
+          { type: 'Prescription', id: 'LIST' }
         ]
       }
     ),
@@ -90,7 +96,9 @@ const programmingPlanApi = api.injectEndpoints({
             type: 'ProgrammingPlan' as const,
             id
           })),
-          { type: 'ProgrammingPlan', id: 'LIST' }
+          { type: 'ProgrammingPlan', id: 'LIST' },
+          { type: 'LocalPrescription', id: 'LIST' },
+          { type: 'Prescription', id: 'LIST' }
         ]
       }
     )

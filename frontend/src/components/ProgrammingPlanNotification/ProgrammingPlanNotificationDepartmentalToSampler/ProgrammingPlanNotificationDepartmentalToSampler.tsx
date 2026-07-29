@@ -79,22 +79,27 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
     return null;
   }
 
+  const ownDepartmentalStatus = programmingPlan.departmentalStatus?.find(
+    (departmentalStatus) =>
+      departmentalStatus.region === user.region &&
+      departmentalStatus.department === user.department
+  );
+
+  const isRedeployment = ownDepartmentalStatus?.status === 'Validated';
+
+  const canShowButton =
+    !!ownDepartmentalStatus &&
+    (ownDepartmentalStatus.status === 'SubmittedToDepartments' ||
+      (isRedeployment && ownDepartmentalStatus.hasPendingChange)) &&
+    departmentalPrescriptions.some(
+      (companyPrescription) =>
+        hasUserLocalPrescriptionPermission(programmingPlan, companyPrescription)
+          ?.distributeToSlaughterhouses
+    );
+
   return (
     <>
-      {departmentalPrescriptions.some(
-        (companyPrescription) =>
-          hasUserLocalPrescriptionPermission(
-            programmingPlan,
-            companyPrescription
-          )?.distributeToSlaughterhouses &&
-          programmingPlan.departmentalStatus?.some(
-            (departmentalStatus) =>
-              departmentalStatus.region === companyPrescription.region &&
-              departmentalStatus.department ===
-                companyPrescription.department &&
-              departmentalStatus.status === 'SubmittedToDepartments'
-          )
-      ) && (
+      {canShowButton && (
         <div className="notify-regions-menu">
           <Button
             iconId="fr-icon-send-plane-fill"
@@ -119,7 +124,9 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
                 ) < departmentalPrescription.sampleCount
             )}
           >
-            Envoyer aux préleveurs
+            {isRedeployment
+              ? 'Diffuser les modifications aux préleveurs'
+              : 'Lancer la campagne'}
           </Button>
         </div>
       )}
@@ -139,13 +146,23 @@ const ProgrammingPlanNotificationDepartmentalToSampler = ({
         ]}
       >
         <div>
-          Vous êtes sur le point de signaler aux préleveurs des abattoirs ciblés
-          le lancement de la campagne de prélèvements pour l'année{' '}
-          {programmingPlan.year}.
-          <br />
-          La coordination régionale sera également notifiée que vous avez
-          terminé la phase de consultation et de paramètrage de la future
-          programmation.
+          {isRedeployment ? (
+            <>
+              Vous êtes sur le point de signaler aux préleveurs des abattoirs
+              ciblés les modifications apportées à la campagne de prélèvements
+              pour l'année {programmingPlan.year}.
+            </>
+          ) : (
+            <>
+              Vous êtes sur le point de signaler aux préleveurs des abattoirs
+              ciblés le lancement de la campagne de prélèvements pour l'année{' '}
+              {programmingPlan.year}.
+              <br />
+              La coordination régionale sera également notifiée que vous avez
+              terminé la phase de consultation et de paramètrage de la future
+              programmation.
+            </>
+          )}
         </div>
         {isError && (
           <Alert

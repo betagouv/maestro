@@ -67,19 +67,6 @@ const receivedStatusesByEchelon: Record<
   Departmental: ['SubmittedToDepartments', 'Validated', 'Closed']
 };
 
-const hasReceivedFromAbove = (
-  echelon: ProgrammingPlanEchelon,
-  status?: ProgrammingPlanStatus | null
-): boolean => {
-  if (echelon === 'National') {
-    return true;
-  }
-  if (!status) {
-    return false;
-  }
-  return receivedStatusesByEchelon[echelon].includes(status);
-};
-
 const sentStatusesByEchelon = (
   distributionKind: DistributionKind
 ): Record<ProgrammingPlanEchelon, ProgrammingPlanStatus[]> => ({
@@ -108,14 +95,35 @@ export const hasSentOnward = (
   return sentStatusesByEchelon(distributionKind)[echelon].includes(status);
 };
 
+const hasReceivedFromAbove = (
+  echelon: ProgrammingPlanEchelon,
+  status: ProgrammingPlanStatus | null | undefined,
+  distributionKind: DistributionKind,
+  viewerOwnsNationalRow: boolean
+): boolean => {
+  if (echelon === 'National') {
+    return (
+      viewerOwnsNationalRow ||
+      hasSentOnward('National', distributionKind, status)
+    );
+  }
+  if (!status) {
+    return false;
+  }
+  return receivedStatusesByEchelon[echelon].includes(status);
+};
+
 interface DisplayStatusInput {
   status?: ProgrammingPlanStatus | null;
   sentAt?: Date | null;
   lastModifiedAt?: Date | null;
+  hasPendingChange?: boolean | null;
+  needsResend?: boolean | null;
   hasAnyProgrammedSample: boolean;
   isComplete: boolean;
   echelon: ProgrammingPlanEchelon;
   distributionKind: DistributionKind;
+  viewerOwnsNationalRow?: boolean;
 }
 
 export interface DisplayStatusResult {
@@ -147,7 +155,14 @@ export const computeDisplayStatus = (
     };
   }
 
-  if (!hasReceivedFromAbove(input.echelon, input.status)) {
+  if (
+    !hasReceivedFromAbove(
+      input.echelon,
+      input.status,
+      input.distributionKind,
+      input.viewerOwnsNationalRow ?? true
+    )
+  ) {
     return {
       value: 'Pending',
       label: ProgrammingPlanDisplayStatusLabels.Pending,
@@ -157,19 +172,54 @@ export const computeDisplayStatus = (
     };
   }
 
-  const modifiedSinceSent = isModifiedSinceSent(sentAt, lastModifiedAt);
+  if (
+    input.echelon === 'National' &&
+    input.viewerOwnsNationalRow === false &&
+    input.status === 'SubmittedToAdmin'
+  ) {
+    return input.isComplete
+      ? {
+          value: 'ReadyToSend',
+          label: 'Terminé, à envoyer',
+          modified: false,
+          sentAt,
+          lastModifiedAt
+        }
+      : {
+          value: 'InProgress',
+          label: ProgrammingPlanDisplayStatusLabels.InProgress,
+          modified: false,
+          sentAt,
+          lastModifiedAt
+        };
+  }
+
   const hasBeenTouched =
     input.echelon === 'National' || lastModifiedAt !== null;
   const needsSend =
     input.isComplete &&
     hasBeenTouched &&
-    (sentAt === null || modifiedSinceSent);
+    (sentAt === null || input.hasPendingChange === true);
 
   if (needsSend) {
     return {
       value: 'ReadyToSend',
       label: sentAt === null ? 'Terminé, à envoyer' : 'Modifié, à envoyer',
       modified: sentAt !== null,
+      sentAt,
+      lastModifiedAt
+    };
+  }
+
+  if (
+    input.echelon !== 'National' &&
+    input.isComplete &&
+    input.needsResend === true
+  ) {
+    return {
+      value: 'InProgress',
+      label: ProgrammingPlanDisplayStatusLabels.InProgress,
+      modified: true,
       sentAt,
       lastModifiedAt
     };
@@ -212,9 +262,10 @@ export const computeCompleteness = (
   prescriptions: Pick<Prescription, 'id' | 'sampleCount'>[],
   localPrescriptions: Pick<
     LocalPrescription,
-    'prescriptionId' | 'region' | 'department' | 'sampleCount'
+    'prescriptionId' | 'region' | 'department' | 'companySiret' | 'sampleCount'
   >[],
   echelon: ProgrammingPlanEchelon,
+  distributionKind?: DistributionKind,
   region?: Region,
   department?: Department
 ): CompletenessResult => {
@@ -242,15 +293,38 @@ export const computeCompleteness = (
   const scoped = localPrescriptions.filter((lp) =>
     echelon === 'Regional'
       ? lp.region === region && isNil(lp.department)
-      : lp.region === region && lp.department === department
+      : lp.region === region &&
+        lp.department === department &&
+        isNil(lp.companySiret)
   );
   const scopedByPrescription = groupBy(scoped, 'prescriptionId');
   const programmedCount = sumBy(scoped, 'sampleCount');
 
+  const hasRowForEveryPrescription = prescriptions.every(
+    (p) => (scopedByPrescription[p.id] ?? []).length > 0
+  );
+
+  const isReconciledWithChildren =
+    echelon === 'Regional' && distributionKind !== 'REGIONAL'
+      ? prescriptions.every((p) => {
+          const regionalSampleCount =
+            scopedByPrescription[p.id]?.[0]?.sampleCount ?? 0;
+          const departmentSum = sumBy(
+            localPrescriptions.filter(
+              (lp) =>
+                lp.prescriptionId === p.id &&
+                lp.region === region &&
+                !isNil(lp.department) &&
+                isNil(lp.companySiret)
+            ),
+            'sampleCount'
+          );
+          return departmentSum === regionalSampleCount;
+        })
+      : true;
+
   return {
-    isComplete: prescriptions.every(
-      (p) => (scopedByPrescription[p.id] ?? []).length > 0
-    ),
+    isComplete: hasRowForEveryPrescription && isReconciledWithChildren,
     hasAnyProgrammedSample: programmedCount > 0,
     programmedCount,
     attributedCount: sumBy(prescriptions, 'sampleCount')
