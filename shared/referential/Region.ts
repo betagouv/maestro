@@ -496,7 +496,7 @@ export const Regions: Record<
 };
 
 export const RegionList: Region[] = Region.options.sort((a, b) => {
-  return Regions[a].name.localeCompare(Regions[b].name);
+  return Regions[a].shortName.localeCompare(Regions[b].shortName);
 });
 
 export const RegionSort = (a: Region, b: Region) => {

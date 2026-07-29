@@ -57,8 +57,14 @@ const ProgrammingView = () => {
   const [selectedTabId, setSelectedTabId] =
     useState<ProgrammingViewTab>('ProgrammationTab');
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user, hasNationalView, hasRegionalView, hasRole, hasUserPermission } =
-    useAuthentication();
+  const {
+    user,
+    hasNationalView,
+    hasRegionalView,
+    hasDepartmentalView,
+    hasRole,
+    hasUserPermission
+  } = useAuthentication();
   const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
   );
@@ -135,7 +141,8 @@ const ProgrammingView = () => {
           contexts:
             (searchParams
               .get('contexts')
-              ?.split(',') as ProgrammingPlanContext[]) ?? undefined
+              ?.split(',') as ProgrammingPlanContext[]) ?? undefined,
+          matrixQuery: searchParams.get('matrixQuery') ?? undefined
         })
       )
     );
@@ -211,7 +218,12 @@ const ProgrammingView = () => {
           iconId: 'fr-icon-chat-3-line'
         }
       : undefined,
-    hasRole('Administrator', 'NationalCoordinator', 'RegionalCoordinator')
+    hasRole(
+      'Administrator',
+      'NationalCoordinator',
+      'RegionalCoordinator',
+      'DepartmentalCoordinator'
+    )
       ? {
           label: 'Suivi des plans',
           tabId: 'PlanTrackingTab',
@@ -268,7 +280,8 @@ const ProgrammingView = () => {
                       'push-last-tab-right': hasRole(
                         'Administrator',
                         'NationalCoordinator',
-                        'RegionalCoordinator'
+                        'RegionalCoordinator',
+                        'DepartmentalCoordinator'
                       )
                     })}
                     classes={{
@@ -325,14 +338,22 @@ const ProgrammingView = () => {
                           hasRole(
                             'Administrator',
                             'NationalCoordinator',
-                            'RegionalCoordinator'
+                            'RegionalCoordinator',
+                            'DepartmentalCoordinator'
                           ) && (
                             <ProgrammingPlanTrackingTable
                               programmingPlans={filteredProgrammingPlans.filter(
                                 (plan) => plan.year === prescriptionFilters.year
                               )}
                               region={
-                                hasRegionalView ? (region as Region) : undefined
+                                hasRegionalView || hasDepartmentalView
+                                  ? (region as Region)
+                                  : undefined
+                              }
+                              department={
+                                hasDepartmentalView
+                                  ? (user?.department ?? undefined)
+                                  : undefined
                               }
                             />
                           )}

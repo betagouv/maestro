@@ -8,7 +8,9 @@ export const ProgrammingPlanLocalStatus = z.object({
   region: Region.nullish(),
   department: Department.nullish(),
   sentAt: z.coerce.date().nullish(),
-  lastModifiedAt: z.coerce.date().nullish()
+  lastModifiedAt: z.coerce.date().nullish(),
+  hasPendingChange: z.boolean().nullish(),
+  needsResend: z.boolean().nullish()
 });
 
 export const ProgrammingPlanNationalStatus = ProgrammingPlanLocalStatus.omit({

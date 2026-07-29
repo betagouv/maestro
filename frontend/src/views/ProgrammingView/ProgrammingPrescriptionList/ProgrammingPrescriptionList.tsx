@@ -836,15 +836,21 @@ const ProgrammingPrescriptionList = ({
                       });
                     }
                   }
-                : {
-                    region: user?.region as Region,
-                    department,
-                    companies: effectiveCompanies,
-                    subLocalPrescriptions: subLocalPrescriptions ?? [],
-                    selectedPrescriptions,
-                    onTogglePrescriptionSelection: togglePrescriptionSelection,
-                    topOffset: bulkAssignBannerHeight
-                  })}
+                : userRole === 'Sampler'
+                  ? {
+                      region: user?.region as Region,
+                      department
+                    }
+                  : {
+                      region: user?.region as Region,
+                      department,
+                      companies: effectiveCompanies,
+                      subLocalPrescriptions: subLocalPrescriptions ?? [],
+                      selectedPrescriptions,
+                      onTogglePrescriptionSelection:
+                        togglePrescriptionSelection,
+                      topOffset: bulkAssignBannerHeight
+                    })}
             />
           )}
         </>

@@ -1,4 +1,5 @@
 import { constants } from 'node:http2';
+import type { Department } from 'maestro-shared/referential/Department';
 import {
   type Region,
   RegionList,
@@ -23,8 +24,10 @@ import {
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
+  DepartmentalCoordinator,
   NationalCoordinator,
   RegionalCoordinator,
+  RegionalDaoaCoordinator,
   RegionalDromCoordinator,
   Sampler1Fixture,
   SamplerDromFixture
@@ -33,10 +36,12 @@ import { withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { describe, expect, test } from 'vitest';
+import { LocalPrescriptionChanges } from '../../repositories/localPrescriptionChangeRepository';
 import {
   formatLocalPrescription,
   LocalPrescriptions
 } from '../../repositories/localPrescriptionRepository';
+import { PrescriptionChanges } from '../../repositories/prescriptionChangeRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
 import {
@@ -44,6 +49,7 @@ import {
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
 import { createServer } from '../../server';
+import prescriptionDiffusionService from '../../services/prescriptionDiffusionService';
 import { mockSendNotification } from '../../test/setupTests';
 import { tokenProvider } from '../../test/testUtils';
 
@@ -330,6 +336,193 @@ describe('ProgrammingPlan router', () => {
         ...PPVValidatedProgrammingPlanFixture,
         createdAt: PPVValidatedProgrammingPlanFixture.createdAt.toISOString()
       });
+    });
+
+    test('a pending National edit targeting one region stays invisible to everyone but National itself; the region it targets is unaffected', async () => {
+      const targetRegion = RegionalCoordinator.region as Region;
+      const modifiedPrescription = genPrescription({
+        programmingPlanId: PPVSubmittedProgrammingPlanFixture.id
+      });
+      await Prescriptions().insert(modifiedPrescription);
+      await LocalPrescriptionChanges().insert({
+        prescriptionId: modifiedPrescription.id,
+        region: targetRegion,
+        department: 'None',
+        companySiret: 'None',
+        echelon: 'National',
+        kind: 'sampleCount',
+        sampleCount: modifiedPrescription.sampleCount + 1,
+        previousSampleCount: modifiedPrescription.sampleCount,
+        changedAt: new Date()
+      });
+
+      const nationalRes = await request(app)
+        .get(testRoute(PPVSubmittedProgrammingPlanFixture.id))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+      expect(nationalRes.body.nationalStatus).toMatchObject({
+        hasPendingChange: true
+      });
+
+      expect(
+        nationalRes.body.regionalStatus.find(
+          (_: any) => _.region === targetRegion
+        )
+      ).toMatchObject({ hasPendingChange: false });
+
+      const adminRes = await request(app)
+        .get(testRoute(PPVSubmittedProgrammingPlanFixture.id))
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+      expect(adminRes.body.nationalStatus).toMatchObject({
+        hasPendingChange: false
+      });
+      expect(
+        adminRes.body.regionalStatus.find((_: any) => _.region === targetRegion)
+      ).toMatchObject({ hasPendingChange: false });
+
+      const regionRes = await request(app)
+        .get(testRoute(PPVSubmittedProgrammingPlanFixture.id))
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+      expect(
+        regionRes.body.regionalStatus.find(
+          (_: any) => _.region === targetRegion
+        )
+      ).toMatchObject({ hasPendingChange: false });
+
+      await Prescriptions().where({ id: modifiedPrescription.id }).delete();
+    });
+
+    test('once diffused, a region whose live data outran its own sentAt shows needsResend to everyone, but only the region itself gets folded into hasPendingChange', async () => {
+      const targetRegion = RegionalCoordinator.region as Region;
+      const originalSentAt = new Date('2020-01-01');
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+          region: targetRegion
+        })
+        .update({ sentAt: originalSentAt });
+
+      const modifiedPrescription = genPrescription({
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id
+      });
+      await Prescriptions().insert(modifiedPrescription);
+      await LocalPrescriptionChanges().insert({
+        prescriptionId: modifiedPrescription.id,
+        region: targetRegion,
+        department: 'None',
+        companySiret: 'None',
+        echelon: 'National',
+        kind: 'sampleCount',
+        sampleCount: modifiedPrescription.sampleCount + 1,
+        previousSampleCount: modifiedPrescription.sampleCount,
+        changedAt: new Date()
+      });
+      await prescriptionDiffusionService.commitPendingNationalChanges(
+        PPVValidatedProgrammingPlanFixture.id
+      );
+
+      const nationalRes = await request(app)
+        .get(testRoute(PPVValidatedProgrammingPlanFixture.id))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+      expect(
+        nationalRes.body.regionalStatus.find(
+          (_: any) => _.region === targetRegion
+        )
+      ).toMatchObject({ needsResend: true, hasPendingChange: false });
+
+      const adminRes = await request(app)
+        .get(testRoute(PPVValidatedProgrammingPlanFixture.id))
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+      expect(
+        adminRes.body.regionalStatus.find((_: any) => _.region === targetRegion)
+      ).toMatchObject({ needsResend: true, hasPendingChange: false });
+
+      const regionRes = await request(app)
+        .get(testRoute(PPVValidatedProgrammingPlanFixture.id))
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+      expect(
+        regionRes.body.regionalStatus.find(
+          (_: any) => _.region === targetRegion
+        )
+      ).toMatchObject({ needsResend: true, hasPendingChange: true });
+
+      // Cleanup
+      await Prescriptions().where({ id: modifiedPrescription.id }).delete();
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+          region: targetRegion
+        })
+        .update({ sentAt: null });
+    });
+
+    test('SLAUGHTERHOUSE: a Regional-authored pending edit for one department stays invisible everywhere but the region aggregate — department itself unaffected until Regional sends', async () => {
+      const region = RegionalDaoaCoordinator.region as Region;
+      const department = Regions[region].departments[0] as Department;
+
+      await ProgrammingPlanLocalStatus().insert(
+        Regions[region].departments.map((dept) => ({
+          programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
+          region,
+          department: dept,
+          status: 'Validated' as const,
+          sentAt: new Date('2020-01-01')
+        }))
+      );
+
+      const modifiedPrescription = genPrescription({
+        programmingPlanId: DAOAValidatedProgrammingPlanFixture.id
+      });
+      await Prescriptions().insert(modifiedPrescription);
+      await LocalPrescriptionChanges().insert({
+        prescriptionId: modifiedPrescription.id,
+        region,
+        department,
+        companySiret: 'None',
+        echelon: 'Regional',
+        kind: 'sampleCount',
+        sampleCount: modifiedPrescription.sampleCount + 1,
+        previousSampleCount: modifiedPrescription.sampleCount,
+        changedAt: new Date()
+      });
+
+      const regionRes = await request(app)
+        .get(testRoute(DAOAValidatedProgrammingPlanFixture.id))
+        .use(tokenProvider(RegionalDaoaCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+      expect(
+        regionRes.body.regionalStatus.find((_: any) => _.region === region)
+      ).toMatchObject({ hasPendingChange: true });
+      expect(
+        regionRes.body.departmentalStatus.find(
+          (_: any) => _.region === region && _.department === department
+        )
+      ).toMatchObject({ status: 'Validated', hasPendingChange: false });
+
+      const departmentalRes = await request(app)
+        .get(testRoute(DAOAValidatedProgrammingPlanFixture.id))
+        .use(tokenProvider(DepartmentalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+      expect(
+        departmentalRes.body.departmentalStatus.find(
+          (_: any) => _.region === region && _.department === department
+        )
+      ).toMatchObject({ status: 'Validated', hasPendingChange: false });
+
+      // Cleanup
+      await Prescriptions().where({ id: modifiedPrescription.id }).delete();
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
+          region
+        })
+        .andWhere('department', '!=', 'None')
+        .delete();
     });
   });
 
@@ -648,7 +841,7 @@ describe('ProgrammingPlan router', () => {
   describe('PUT /programming-plans/:programmingPlanId/local-status', () => {
     const programmingPlanLocalStatusList = [
       {
-        status: 'ApprovedByRegion' as const,
+        status: 'Validated' as const,
         region: oneOf(RegionList)
       }
     ];
@@ -752,7 +945,7 @@ describe('ProgrammingPlan router', () => {
           .first()
       ).resolves.toMatchObject({
         region: programmingPlanLocalStatusList[0].region,
-        status: 'ApprovedByRegion'
+        status: 'Validated'
       });
 
       //Cleanup
@@ -794,13 +987,58 @@ describe('ProgrammingPlan router', () => {
           .first()
       ).resolves.toMatchObject({
         region: programmingPlanLocalStatusList[0].region,
-        status: 'ApprovedByRegion'
+        status: 'Validated'
       });
 
       //Cleanup
       await ProgrammingPlanLocalStatus()
         .where('programmingPlanId', PPVSubmittedProgrammingPlanFixture.id)
         .update({ status: 'SubmittedToRegion' });
+    });
+
+    test('departmental re-diffusion (Lancer la campagne) persists the sentAt bump', async () => {
+      const region = DepartmentalCoordinator.region as Region;
+      const department = DepartmentalCoordinator.department as Department;
+
+      await ProgrammingPlanLocalStatus().insert(
+        Regions[region].departments.map((dept) => ({
+          programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
+          region,
+          department: dept,
+          status: 'Validated' as const,
+          sentAt: new Date('2020-01-01')
+        }))
+      );
+
+      await request(app)
+        .put(testRoute(DAOAValidatedProgrammingPlanFixture.id))
+        .send({
+          programmingPlanLocalStatusList: [
+            { region, department, status: 'Validated' as const }
+          ]
+        })
+        .use(tokenProvider(DepartmentalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const after = await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
+          region,
+          department
+        })
+        .first();
+      expect(
+        new Date(after?.sentAt as unknown as string).getTime()
+      ).toBeGreaterThan(new Date('2020-01-01').getTime());
+
+      // Cleanup
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
+          region
+        })
+        .andWhere('department', '!=', 'None')
+        .delete();
     });
   });
 
@@ -1009,6 +1247,17 @@ describe('ProgrammingPlan router', () => {
         PPVSubmittedProgrammingPlanFixture.regionalStatus[0].region;
       const previousSentAt = new Date('2020-01-01');
 
+      const modifiedPrescription = genPrescription({
+        programmingPlanId: PPVSubmittedProgrammingPlanFixture.id
+      });
+      await Prescriptions().insert(modifiedPrescription);
+      await PrescriptionChanges().insert({
+        prescriptionId: modifiedPrescription.id,
+        sampleCount: modifiedPrescription.sampleCount + 1,
+        previousSampleCount: modifiedPrescription.sampleCount,
+        changedAt: new Date('2020-06-01')
+      });
+
       await ProgrammingPlanLocalStatus()
         .where({
           programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
@@ -1093,6 +1342,7 @@ describe('ProgrammingPlan router', () => {
           region: 'None'
         })
         .update({ status: 'InProgress', sentAt: null });
+      await Prescriptions().where({ id: modifiedPrescription.id }).delete();
     });
   });
 
@@ -1214,6 +1464,22 @@ describe('ProgrammingPlan router', () => {
         }))
       );
 
+      const modifiedPrescription = genPrescription({
+        programmingPlanId: DAOAValidatedProgrammingPlanFixture.id
+      });
+      await Prescriptions().insert(modifiedPrescription);
+      await LocalPrescriptionChanges().insert({
+        prescriptionId: modifiedPrescription.id,
+        region: RegionalCoordinator.region,
+        department: 'None',
+        companySiret: 'None',
+        echelon: 'Regional',
+        kind: 'sampleCount',
+        sampleCount: modifiedPrescription.sampleCount + 1,
+        previousSampleCount: modifiedPrescription.sampleCount,
+        changedAt: new Date('2020-06-01')
+      });
+
       const previousSentAt = new Date('2020-01-01');
 
       await ProgrammingPlanLocalStatus()
@@ -1284,6 +1550,7 @@ describe('ProgrammingPlan router', () => {
           department: 'None'
         })
         .update({ sentAt: null, lastModifiedAt: null });
+      await Prescriptions().where({ id: modifiedPrescription.id }).delete();
     });
   });
 
@@ -1364,6 +1631,22 @@ describe('ProgrammingPlan router', () => {
     test('resend after modification only notifies national coordinators and samplers', async () => {
       const previousSentAt = new Date('2020-01-01');
 
+      const modifiedPrescription = genPrescription({
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id
+      });
+      await Prescriptions().insert(modifiedPrescription);
+      await LocalPrescriptionChanges().insert({
+        prescriptionId: modifiedPrescription.id,
+        region: RegionalCoordinator.region,
+        department: 'None',
+        companySiret: 'None',
+        echelon: 'Regional',
+        kind: 'sampleCount',
+        sampleCount: modifiedPrescription.sampleCount + 1,
+        previousSampleCount: modifiedPrescription.sampleCount,
+        changedAt: new Date('2020-06-01')
+      });
+
       await ProgrammingPlanLocalStatus()
         .where({
           programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
@@ -1400,6 +1683,73 @@ describe('ProgrammingPlan router', () => {
           region: RegionalCoordinator.region
         })
         .update({ status: 'Validated', sentAt: null, lastModifiedAt: null });
+      await Prescriptions().where({ id: modifiedPrescription.id }).delete();
+    });
+
+    test('resend after a NATIONAL correction (not Regional-authored) still bumps sentAt and notifies', async () => {
+      const previousSentAt = new Date('2020-01-01');
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+          region: RegionalCoordinator.region
+        })
+        .update({ status: 'Validated', sentAt: previousSentAt });
+
+      const modifiedPrescription = genPrescription({
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id
+      });
+      await Prescriptions().insert(modifiedPrescription);
+      await LocalPrescriptionChanges().insert({
+        prescriptionId: modifiedPrescription.id,
+        region: RegionalCoordinator.region,
+        department: 'None',
+        companySiret: 'None',
+        echelon: 'National',
+        kind: 'sampleCount',
+        sampleCount: modifiedPrescription.sampleCount + 1,
+        previousSampleCount: modifiedPrescription.sampleCount,
+        changedAt: new Date()
+      });
+      await prescriptionDiffusionService.commitPendingNationalChanges(
+        PPVValidatedProgrammingPlanFixture.id
+      );
+
+      mockSendNotification.mockClear();
+
+      await request(app)
+        .post(testRoute)
+        .send({
+          programmingPlanIds: [PPVValidatedProgrammingPlanFixture.id]
+        })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const updatedRegional = await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+          region: RegionalCoordinator.region
+        })
+        .first();
+      expect(
+        new Date(updatedRegional?.sentAt as unknown as string).getTime()
+      ).toBeGreaterThan(previousSentAt.getTime());
+
+      expect(mockSendNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          category: 'ProgrammingPlanModifiedAfterSubmission'
+        }),
+        expect.anything(),
+        expect.anything()
+      );
+
+      //Cleanup
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+          region: RegionalCoordinator.region
+        })
+        .update({ status: 'Validated', sentAt: null, lastModifiedAt: null });
+      await Prescriptions().where({ id: modifiedPrescription.id }).delete();
     });
   });
 });

@@ -7,6 +7,7 @@ import type {
 } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import { z } from 'zod';
 import { knexInstance as db } from './db';
 import { LocalPrescriptionChanges } from './localPrescriptionChangeRepository';
@@ -29,7 +30,8 @@ export const LocalPrescriptions = (transaction = db) =>
   transaction<LocalPrescriptionsDbo>(localPrescriptionsTable);
 
 const findPendingChanges = async (
-  prescriptionIds: string[]
+  prescriptionIds: string[],
+  viewerEchelon?: ProgrammingPlanEchelon
 ): Promise<
   Map<string, { previousSampleCount: number | null; changedAt: Date }>
 > => {
@@ -40,14 +42,21 @@ const findPendingChanges = async (
     .distinctOn(['prescriptionId', 'region'])
     .select('prescriptionId', 'region', 'previousSampleCount', 'changedAt')
     .whereIn('prescriptionId', prescriptionIds)
+    .andWhere({ department: 'None', kind: 'sampleCount' })
+    .modify((query) => {
+      if (viewerEchelon) {
+        query.whereNot({ echelon: viewerEchelon });
+      }
+    })
     .whereNull('changesViewedAt')
+    .whereNotNull('diffusedAt')
     .orderBy([
       { column: 'prescriptionId' },
       { column: 'region' },
       { column: 'changedAt', order: 'asc' }
     ]);
   return new Map(
-    rows.map((row) => [
+    rows.map((row: (typeof rows)[number]) => [
       `${row.prescriptionId}:${row.region}`,
       {
         previousSampleCount: row.previousSampleCount,
@@ -58,10 +67,12 @@ const findPendingChanges = async (
 };
 
 const withPendingChanges = async (
-  localPrescriptions: LocalPrescription[]
+  localPrescriptions: LocalPrescription[],
+  viewerEchelon?: ProgrammingPlanEchelon
 ): Promise<LocalPrescription[]> => {
   const pendingByKey = await findPendingChanges(
-    uniq(localPrescriptions.map((_) => _.prescriptionId))
+    uniq(localPrescriptions.map((_) => _.prescriptionId)),
+    viewerEchelon
   );
   return localPrescriptions.map((localPrescription) => {
     const pending = pendingByKey.get(
@@ -101,7 +112,8 @@ const findUnique = async ({
 };
 
 const findMany = async (
-  findOptions: FindLocalPrescriptionOptions
+  findOptions: FindLocalPrescriptionOptions,
+  viewerEchelon?: ProgrammingPlanEchelon
 ): Promise<LocalPrescription[]> => {
   console.info('Find local prescriptions', omitBy(findOptions, isNil));
   return LocalPrescriptions()
@@ -188,7 +200,7 @@ const findMany = async (
       const regionLevel = localPrescriptions.filter(
         (_: LocalPrescription) => _.department == null
       );
-      const withChanges = await withPendingChanges(regionLevel);
+      const withChanges = await withPendingChanges(regionLevel, viewerEchelon);
       const byKey = new Map(
         withChanges.map((_) => [`${_.prescriptionId}:${_.region}`, _])
       );

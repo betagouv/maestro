@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { Region } from '../../referential/Region';
 import type { Nullable } from '../../utils/typescript';
+import type { ProgrammingPlanEchelon } from '../ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { UserRefined } from './User';
 import type { UserPermission } from './UserPermission';
 
@@ -200,6 +201,24 @@ export const isRegionalRole = (userRole?: UserRole) =>
 export const isDepartmentalRole = (userRole?: UserRole) =>
   //FIXME un sampler c'est pas un role départemental?!
   DepartmentalUserRole.safeParse(userRole).success;
+
+export const editingEchelonForRole = (
+  userRole: UserRole
+): ProgrammingPlanEchelon | null => {
+  switch (userRole) {
+    case 'NationalCoordinator':
+    case 'NationalObserver':
+      return 'National';
+    case 'RegionalCoordinator':
+    case 'RegionalObserver':
+      return 'Regional';
+    case 'DepartmentalCoordinator':
+    case 'DepartmentalObserver':
+      return 'Departmental';
+    default:
+      return null;
+  }
+};
 
 export const canHaveDepartment = (
   user: Nullable<Pick<UserRefined, 'roles'>>

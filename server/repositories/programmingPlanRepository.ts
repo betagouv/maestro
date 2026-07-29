@@ -54,7 +54,70 @@ export const ProgrammingPlans = (transaction = db) =>
 export const ProgrammingPlanLocalStatus = (transaction = db) =>
   transaction<ProgrammingPlanLocalStatusDbo>(programmingPlanLocalStatusTable);
 
-const localStatusJsonObject = `json_build_object('status', ${programmingPlanLocalStatusTable}.status, 'region', ${programmingPlanLocalStatusTable}.region, 'department', ${programmingPlanLocalStatusTable}.department, 'sentAt', ${programmingPlanLocalStatusTable}.sent_at, 'lastModifiedAt', ${programmingPlanLocalStatusTable}.last_modified_at)`;
+const hasPendingChangeExpression = `(
+  case
+    when ${programmingPlanLocalStatusTable}.region = 'None' then
+      exists (
+        select 1 from prescription_changes pc
+        join prescriptions p on p.id = pc.prescription_id
+        where p.programming_plan_id = ${programmingPlansTable}.id
+          and pc.diffused_at is null
+      )
+      or exists (
+        select 1 from local_prescription_changes lpc
+        join prescriptions p2 on p2.id = lpc.prescription_id
+        where p2.programming_plan_id = ${programmingPlansTable}.id
+          and lpc.echelon = 'National'
+          and lpc.diffused_at is null
+      )
+    when ${programmingPlanLocalStatusTable}.department = 'None' then
+      exists (
+        select 1 from local_prescription_changes lpc
+        join prescriptions p2 on p2.id = lpc.prescription_id
+        where p2.programming_plan_id = ${programmingPlansTable}.id
+          and lpc.echelon = 'Regional'
+          and lpc.region = ${programmingPlanLocalStatusTable}.region
+          and lpc.diffused_at is null
+      )
+    else
+      exists (
+        select 1 from local_prescription_changes lpc
+        join prescriptions p2 on p2.id = lpc.prescription_id
+        where p2.programming_plan_id = ${programmingPlansTable}.id
+          and lpc.echelon = 'Departmental'
+          and lpc.region = ${programmingPlanLocalStatusTable}.region
+          and lpc.department = ${programmingPlanLocalStatusTable}.department
+          and lpc.diffused_at is null
+      )
+  end
+)`;
+
+const needsResendExpression = `(
+  case
+    when ${programmingPlanLocalStatusTable}.region = 'None' then false
+    when ${programmingPlanLocalStatusTable}.department = 'None' then
+      exists (
+        select 1 from local_prescription_changes lpc
+        join prescriptions p2 on p2.id = lpc.prescription_id
+        where p2.programming_plan_id = ${programmingPlansTable}.id
+          and lpc.region = ${programmingPlanLocalStatusTable}.region
+          and lpc.diffused_at is not null
+          and lpc.diffused_at > ${programmingPlanLocalStatusTable}.sent_at
+      )
+    else
+      exists (
+        select 1 from local_prescription_changes lpc
+        join prescriptions p2 on p2.id = lpc.prescription_id
+        where p2.programming_plan_id = ${programmingPlansTable}.id
+          and lpc.region = ${programmingPlanLocalStatusTable}.region
+          and lpc.department = ${programmingPlanLocalStatusTable}.department
+          and lpc.diffused_at is not null
+          and lpc.diffused_at > ${programmingPlanLocalStatusTable}.sent_at
+      )
+  end
+)`;
+
+const localStatusJsonObject = `json_build_object('status', ${programmingPlanLocalStatusTable}.status, 'region', ${programmingPlanLocalStatusTable}.region, 'department', ${programmingPlanLocalStatusTable}.department, 'sentAt', ${programmingPlanLocalStatusTable}.sent_at, 'lastModifiedAt', ${programmingPlanLocalStatusTable}.last_modified_at, 'hasPendingChange', ${hasPendingChangeExpression}, 'needsResend', ${needsResendExpression})`;
 
 const ProgrammingPlanQuery = () =>
   ProgrammingPlans()
@@ -333,6 +396,23 @@ const touchRegionalSentAt = async (
     .update({ sentAt });
 };
 
+const touchDepartmentalSentAt = async (
+  programmingPlanId: string,
+  region: Region,
+  department: Department,
+  sentAt: Date = new Date()
+): Promise<void> => {
+  console.info(
+    'Touch programming plan departmental sentAt',
+    programmingPlanId,
+    region,
+    department
+  );
+  await ProgrammingPlanLocalStatus()
+    .where({ programmingPlanId, region, department })
+    .update({ sentAt });
+};
+
 const touchNationalLastModifiedAt = async (
   programmingPlanId: string,
   lastModifiedAt: Date = new Date()
@@ -400,5 +480,6 @@ export default {
   touchLocalStatus,
   touchNationalLastModifiedAt,
   touchNationalSentAt,
-  touchRegionalSentAt
+  touchRegionalSentAt,
+  touchDepartmentalSentAt
 };

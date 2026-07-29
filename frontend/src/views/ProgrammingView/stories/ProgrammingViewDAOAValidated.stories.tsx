@@ -192,6 +192,8 @@ export const DepartmentalCoordinatorView: Story = {
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
 
     await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
+
+    await expect(canvas.getByText('Suivi des plans')).toBeInTheDocument();
   }
 };
 
@@ -233,5 +235,15 @@ export const SamplerView: Story = {
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
 
     await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
+
+    await expect(
+      canvas.queryByText('Attribution des laboratoires')
+    ).not.toBeInTheDocument();
+    await expect(canvasElement.querySelectorAll('.checkbox-cell')).toHaveLength(
+      0
+    );
+    await expect(canvas.getAllByText('N°').length).toBeGreaterThan(0);
+    await expect(canvas.getAllByText('Matrice').length).toBeGreaterThan(0);
+    await expect(canvas.getAllByText('Analyte').length).toBeGreaterThan(0);
   }
 };

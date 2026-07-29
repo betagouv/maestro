@@ -58,10 +58,7 @@ export const seed = async () => {
             .where({ prescriptionId, region, department })
             .andWhere('companySiret', 'None')
             .update({
-              sampleCount: Math.max(
-                base + (departmentIndex < remainder ? 1 : 0),
-                1
-              )
+              sampleCount: base + (departmentIndex < remainder ? 1 : 0)
             })
         );
       })

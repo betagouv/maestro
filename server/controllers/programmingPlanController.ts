@@ -12,23 +12,27 @@ import { NotificationCategoryTitles } from 'maestro-shared/schema/Notification/N
 import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import {
   hasSentOnward,
-  isModifiedSinceSent
+  type ProgrammingPlanEchelon
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import {
   NextProgrammingPlanStatus,
   type ProgrammingPlanStatus,
   ProgrammingPlanStatusPermissions
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   hasPermission,
   programmingSubPlanIdsIsRequired,
+  type UserRefined,
   userDepartmentsForRole,
   userRegionsForRole
 } from 'maestro-shared/schema/User/User';
 import {
+  editingEchelonForRole,
   isNationalRole,
-  isRegionalRole
+  isRegionalRole,
+  type UserRole
 } from 'maestro-shared/schema/User/UserRole';
 import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
@@ -42,6 +46,53 @@ import { sampleRepository } from '../repositories/sampleRepository';
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
+import prescriptionDiffusionService from '../services/prescriptionDiffusionService';
+
+const maskHasPendingChangeForViewer = (
+  plan: ProgrammingPlanChecked,
+  userRole: UserRole,
+  user: UserRefined
+): ProgrammingPlanChecked => {
+  const viewerEchelon = editingEchelonForRole(userRole);
+  const isOwner = (
+    echelon: ProgrammingPlanEchelon,
+    region?: string,
+    department?: string
+  ) =>
+    viewerEchelon === echelon &&
+    (echelon !== 'Regional' || user.region === region) &&
+    (echelon !== 'Departmental' ||
+      (user.region === region && user.department === department));
+
+  return {
+    ...plan,
+    nationalStatus: {
+      ...plan.nationalStatus,
+      hasPendingChange: isOwner('National')
+        ? plan.nationalStatus.hasPendingChange
+        : false
+    },
+    regionalStatus: plan.regionalStatus.map((regionalStatus) => ({
+      ...regionalStatus,
+      hasPendingChange: isOwner('Regional', regionalStatus.region)
+        ? Boolean(regionalStatus.hasPendingChange || regionalStatus.needsResend)
+        : false
+    })),
+    departmentalStatus: plan.departmentalStatus.map((departmentalStatus) => ({
+      ...departmentalStatus,
+      hasPendingChange: isOwner(
+        'Departmental',
+        departmentalStatus.region,
+        departmentalStatus.department
+      )
+        ? Boolean(
+            departmentalStatus.hasPendingChange ||
+              departmentalStatus.needsResend
+          )
+        : false
+    }))
+  };
+};
 
 export const programmingPlanRouter = {
   '/programming-plans': {
@@ -64,11 +115,16 @@ export const programmingPlanRouter = {
 
       console.info('Found programmingPlans', programmingPlans);
 
-      return { status: HttpStatus.OK, response: programmingPlans };
+      return {
+        status: HttpStatus.OK,
+        response: programmingPlans.map((plan) =>
+          maskHasPendingChangeForViewer(plan, userRole, user)
+        )
+      };
     }
   },
   '/programming-plans/send-to-regions': {
-    post: async ({ userRole, body: { programmingPlanIds } }) => {
+    post: async ({ user, userRole, body: { programmingPlanIds } }) => {
       const plans = await programmingPlanRepository.findMany({
         ids: programmingPlanIds
       });
@@ -78,10 +134,13 @@ export const programmingPlanRouter = {
           year: plan.year,
           planIds: plan.id
         });
-        const isModified = isModifiedSinceSent(
-          plan.nationalStatus.sentAt ?? null,
-          plan.nationalStatus.lastModifiedAt ?? null
-        );
+        const isModified = plan.nationalStatus.hasPendingChange === true;
+
+        if (userRole === 'NationalCoordinator') {
+          await prescriptionDiffusionService.commitPendingNationalChanges(
+            plan.id
+          );
+        }
 
         if (userRole === 'NationalCoordinator' && !isModified) {
           await programmingPlanRepository.updateNationalStatus(
@@ -183,11 +242,16 @@ export const programmingPlanRouter = {
         ids: programmingPlanIds
       });
 
-      return { status: HttpStatus.OK, response: updatedPlans };
+      return {
+        status: HttpStatus.OK,
+        response: updatedPlans.map((plan) =>
+          maskHasPendingChangeForViewer(plan, userRole, user)
+        )
+      };
     }
   },
   '/programming-plans/send-to-departments': {
-    post: async ({ user, body: { programmingPlanIds } }) => {
+    post: async ({ user, userRole, body: { programmingPlanIds } }) => {
       const region = user.region as Region;
       const plans = await programmingPlanRepository.findMany({
         ids: programmingPlanIds
@@ -205,14 +269,18 @@ export const programmingPlanRouter = {
           year: plan.year,
           planIds: plan.id
         });
-        const isModified = isModifiedSinceSent(
-          regionalStatus.sentAt ?? null,
-          regionalStatus.lastModifiedAt ?? null
-        );
+        const isModified =
+          regionalStatus.hasPendingChange === true ||
+          regionalStatus.needsResend === true;
 
         if (plan.distributionKind === 'REGIONAL') {
           continue;
         }
+
+        await prescriptionDiffusionService.commitPendingRegionalChanges(
+          plan.id,
+          region
+        );
 
         if (!isModified) {
           await programmingPlanRepository.insertManyLocalStatus(
@@ -275,11 +343,16 @@ export const programmingPlanRouter = {
         ids: programmingPlanIds
       });
 
-      return { status: HttpStatus.OK, response: updatedPlans };
+      return {
+        status: HttpStatus.OK,
+        response: updatedPlans.map((plan) =>
+          maskHasPendingChangeForViewer(plan, userRole, user)
+        )
+      };
     }
   },
   '/programming-plans/send-to-samplers': {
-    post: async ({ user, body: { programmingPlanIds } }) => {
+    post: async ({ user, userRole, body: { programmingPlanIds } }) => {
       const region = user.region as Region;
       const plans = await programmingPlanRepository.findMany({
         ids: programmingPlanIds
@@ -301,9 +374,13 @@ export const programmingPlanRouter = {
           year: plan.year,
           planIds: plan.id
         });
-        const isModified = isModifiedSinceSent(
-          regionalStatus.sentAt ?? null,
-          regionalStatus.lastModifiedAt ?? null
+        const isModified =
+          regionalStatus.hasPendingChange === true ||
+          regionalStatus.needsResend === true;
+
+        await prescriptionDiffusionService.commitPendingRegionalChanges(
+          plan.id,
+          region
         );
 
         const samplers = await userRepository.findMany({
@@ -371,7 +448,12 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
         ids: programmingPlanIds
       });
 
-      return { status: HttpStatus.OK, response: updatedPlans };
+      return {
+        status: HttpStatus.OK,
+        response: updatedPlans.map((plan) =>
+          maskHasPendingChangeForViewer(plan, userRole, user)
+        )
+      };
     }
   },
   '/programming-plans/:programmingPlanId': {
@@ -401,16 +483,22 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
         .filter(([, permission]) => hasPermission(userRole, permission))
         .map(([status]) => status);
 
+      const maskedProgrammingPlan = maskHasPendingChangeForViewer(
+        programmingPlan,
+        userRole,
+        user
+      );
+
       const filterProgrammingPlanStatus =
         isNationalRole(userRole) ||
         isRegionalRole(userRole) ||
-        programmingPlan.distributionKind === 'REGIONAL'
-          ? programmingPlan.regionalStatus.filter(
+        maskedProgrammingPlan.distributionKind === 'REGIONAL'
+          ? maskedProgrammingPlan.regionalStatus.filter(
               (_) =>
                 userStatusAuthorized.includes(_.status) &&
                 userRegionsForRole(user, userRole).includes(_.region)
             )
-          : programmingPlan.departmentalStatus.filter(
+          : maskedProgrammingPlan.departmentalStatus.filter(
               (_) =>
                 userStatusAuthorized.includes(_.status) &&
                 userRegionsForRole(user, userRole).includes(_.region) &&
@@ -423,12 +511,12 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
       return {
         status: HttpStatus.OK,
         response: {
-          ...programmingPlan,
+          ...maskedProgrammingPlan,
           regionalStatus: filterProgrammingPlanStatus
         }
       };
     },
-    put: async ({ user, body }, { programmingPlanId }) => {
+    put: async ({ user, userRole, body }, { programmingPlanId }) => {
       const programmingPlan =
         await getAndCheckProgrammingPlan(programmingPlanId);
       const newProgrammingPlanStatus = body.status;
@@ -481,7 +569,11 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
       }
       return {
         status: HttpStatus.OK,
-        response: updatedProgrammingPlan
+        response: maskHasPendingChangeForViewer(
+          updatedProgrammingPlan,
+          userRole,
+          user
+        )
       };
     }
   },
@@ -499,38 +591,93 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
         programmingPlanLocalStatusList
       );
 
+      const isValidTransition = (
+        programmingPlanLocalStatus: (typeof programmingPlanLocalStatusList)[number]
+      ) =>
+        (programmingPlanLocalStatus.department
+          ? NextProgrammingPlanStatus[programmingPlan.distributionKind][
+              programmingPlan.departmentalStatus?.find(
+                (_) =>
+                  _.region === programmingPlanLocalStatus.region &&
+                  _.department === programmingPlanLocalStatus.department
+              )?.status as ProgrammingPlanStatus
+            ]
+          : NextProgrammingPlanStatus[programmingPlan.distributionKind][
+              programmingPlan.regionalStatus.find(
+                (_) => _.region === programmingPlanLocalStatus.region
+              )?.status as ProgrammingPlanStatus
+            ]) === programmingPlanLocalStatus.status;
+
+      const isAllowedDepartmentalReDiffusion = (
+        programmingPlanLocalStatus: (typeof programmingPlanLocalStatusList)[number]
+      ) =>
+        Boolean(programmingPlanLocalStatus.department) &&
+        programmingPlanLocalStatus.status === 'Validated' &&
+        programmingPlan.departmentalStatus?.some(
+          (_) =>
+            _.region === programmingPlanLocalStatus.region &&
+            _.department === programmingPlanLocalStatus.department &&
+            _.status === 'Validated'
+        );
+
       if (
         programmingPlanLocalStatusList.some(
           (programmingPlanLocalStatus) =>
-            (programmingPlanLocalStatus.department
-              ? NextProgrammingPlanStatus[programmingPlan.distributionKind][
-                  programmingPlan.departmentalStatus?.find(
-                    (_) =>
-                      _.region === programmingPlanLocalStatus.region &&
-                      _.department === programmingPlanLocalStatus.department
-                  )?.status as ProgrammingPlanStatus
-                ]
-              : NextProgrammingPlanStatus[programmingPlan.distributionKind][
-                  programmingPlan.regionalStatus.find(
-                    (_) => _.region === programmingPlanLocalStatus.region
-                  )?.status as ProgrammingPlanStatus
-                ]) !== programmingPlanLocalStatus.status
+            !userRegionsForRole(user, userRole).includes(
+              programmingPlanLocalStatus.region as Region
+            ) ||
+            (programmingPlanLocalStatus.department &&
+              !Regions[user.region as Region].departments.includes(
+                programmingPlanLocalStatus.department
+              ))
         )
-      )
-        if (
-          programmingPlanLocalStatusList.some(
-            (programmingPlanLocalStatus) =>
-              !userRegionsForRole(user, userRole).includes(
-                programmingPlanLocalStatus.region as Region
-              ) ||
-              (programmingPlanLocalStatus.department &&
-                !Regions[user.region as Region].departments.includes(
-                  programmingPlanLocalStatus.department
-                ))
-          )
-        ) {
-          return { status: HttpStatus.FORBIDDEN };
-        }
+      ) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
+
+      if (
+        programmingPlanLocalStatusList.some(
+          (programmingPlanLocalStatus) =>
+            !isValidTransition(programmingPlanLocalStatus) &&
+            !isAllowedDepartmentalReDiffusion(programmingPlanLocalStatus)
+        )
+      ) {
+        return { status: HttpStatus.BAD_REQUEST };
+      }
+
+      if (
+        programmingPlanLocalStatusList.some(
+          (_) => _.status === 'SubmittedToRegion'
+        )
+      ) {
+        await prescriptionDiffusionService.commitPendingNationalChanges(
+          programmingPlanId
+        );
+      }
+
+      const regionsSubmittingToDepartments = new Set(
+        programmingPlanLocalStatusList
+          .filter((_) => !_.department && _.status === 'SubmittedToDepartments')
+          .map((_) => _.region as Region)
+      );
+      for (const region of regionsSubmittingToDepartments) {
+        await prescriptionDiffusionService.commitPendingRegionalChanges(
+          programmingPlanId,
+          region
+        );
+      }
+
+      const departmentsLaunchingCampaign =
+        programmingPlanLocalStatusList.filter(
+          (_) => _.department && _.status === 'Validated'
+        ) as { region: Region; department: Department; status: 'Validated' }[];
+      for (const { region, department } of departmentsLaunchingCampaign) {
+        await prescriptionDiffusionService.commitPendingDepartmentalChanges(
+          programmingPlanId,
+          region,
+          department
+        );
+      }
 
       await Promise.all(
         programmingPlanLocalStatusList.map(
@@ -544,6 +691,13 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
               programmingPlanLocalStatus.department &&
               programmingPlanLocalStatus.status === 'Validated'
             ) {
+              const isRedeployment = programmingPlan.departmentalStatus?.some(
+                (_) =>
+                  _.region === programmingPlanLocalStatus.region &&
+                  _.department === programmingPlanLocalStatus.department &&
+                  _.status === 'Validated'
+              );
+
               const localPrescriptions =
                 await localPrescriptionRepository.findMany({
                   programmingPlanIds: [programmingPlanId],
@@ -564,18 +718,24 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
               });
 
               await notificationService.sendNotification(
-                {
-                  category: 'ProgrammingPlanValidated',
-                  link
-                },
+                isRedeployment
+                  ? { category: 'ProgrammingPlanModifiedAfterSubmission', link }
+                  : { category: 'ProgrammingPlanValidated', link },
                 samplers,
-                {
-                  object: NotificationCategoryTitles.ProgrammingPlanValidated,
-                  content: `
+                isRedeployment
+                  ? {
+                      object:
+                        NotificationCategoryTitles.ProgrammingPlanModifiedAfterSubmission,
+                      content: `Le plan « ${programmingPlan.title} » a été modifié, les prélèvements concernés ont été mis à jour.`
+                    }
+                  : {
+                      object:
+                        NotificationCategoryTitles.ProgrammingPlanValidated,
+                      content: `
 L’étape de la répartition de la programmation a été réalisée par votre coordinateur. La campagne est lancée !
 
 Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’onglet "Programmation" et saisir des prélèvements.`
-                }
+                    }
               );
             } else {
               if (
@@ -714,7 +874,11 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
       }
       return {
         status: HttpStatus.OK,
-        response: updatedProgrammingPlan
+        response: maskHasPendingChangeForViewer(
+          updatedProgrammingPlan,
+          userRole,
+          user
+        )
       };
     }
   },
