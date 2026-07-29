@@ -6,12 +6,9 @@
   $col-laboratoire-width: 22rem;
   $col-prelevements-width: 8.75rem;
   $col-region-width: 4.375rem;
+  $col-company-width: 9rem;
   $plan-group-title-height: 3rem;
 
-  // Sticky columns' left offsets are expressed relative to these two custom
-  // properties instead of hardcoded nth-child positions, so the checkbox and
-  // laboratory columns (both independently optional) can be added/removed
-  // without needing a separate hardcoded rule set for every combination.
   --checkbox-w: 0px;
   --lab-w: 0px;
 
@@ -110,6 +107,15 @@
   col.col-region {
     width: $col-region-width;
   }
+  col.col-company {
+    width: $col-company-width;
+  }
+
+  .company-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
   .fr-table table {
     max-height: unset;
@@ -192,9 +198,6 @@
     border-bottom: 1px solid var(--border-contrast-grey);
   }
 
-  // Sticky/frozen columns, positioned by explicit class rather than nth-child
-  // position — keeps this correct regardless of which optional leading
-  // columns (checkbox, laboratory) are present.
   .checkbox-cell {
     position: sticky;
     left: 0;
@@ -230,6 +233,35 @@
     background-color: var(--background-default-grey) !important;
   }
 
+  td.analyte-cell:has(.analyte-lines),
+  td.laboratoire-cell:has(.lab-line) {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    vertical-align: top !important;
+  }
+
+  .analyte-lines > div,
+  .lab-line {
+    display: flex;
+    align-items: center;
+    min-height: 4rem;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .lab-line > * {
+    width: 100%;
+  }
+
+  .analyte-lines > div:not(:first-child),
+  .lab-line:not(:first-child) {
+    box-shadow: inset 0 1px 0 0 var(--border-contrast-grey);
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
   .laboratoire-cell {
     position: sticky;
     left: calc(
@@ -253,8 +285,6 @@
     background-color: var(--background-default-grey) !important;
   }
 
-  // thead (both the column-header row and the grey total-row live in the
-  // same <thead>) always shows these sticky cells above body rows.
   thead .checkbox-cell,
   thead .n-cell,
   thead .matrice-cell,
@@ -265,11 +295,6 @@
     background-color: var(--background-alt-grey) !important;
   }
 
-  // A row with an unviewed volume change/new prescription — the sticky
-  // columns above hardcode their own background with !important so they
-  // stay opaque while horizontally scrolled, so a plain background-color on
-  // the <tr> wouldn't show through on them; this must win over that
-  // !important too, hence the extra tr.prescription-row--changed specificity.
   tr.prescription-row--changed {
     background-color: var(--background-alt-yellow-tournesol);
 
@@ -301,19 +326,11 @@
       flex-direction: row;
     }
 
-    // Stacks the count above "Avant : X" regardless of the --edit/--read
-    // layout above — declared last so it wins on specificity when combined
-    // with either of those modifier classes.
     &--changed {
       flex-direction: column;
     }
   }
 
-  // Anchored to .prelevements-cell itself (already position: sticky, which
-  // — same as relative — establishes the containing block for an absolutely
-  // positioned child), not to the narrower count/"Avant" wrapper inside it,
-  // so this sits in the corner of the actual cell regardless of that
-  // wrapper's own size.
   .prescription-sample-count-cell-icon {
     position: absolute;
     top: 4px;
@@ -363,8 +380,6 @@
     }
   }
 
-  // This row's own MiniTable has few enough cells that its sticky Prélèvements
-  // total needs to sit above other cells in the same row when scrolled.
   tr.plan-group-total-row .prelevements-cell {
     z-index: 2;
   }

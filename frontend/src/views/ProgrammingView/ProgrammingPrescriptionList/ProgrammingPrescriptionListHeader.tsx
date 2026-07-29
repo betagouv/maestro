@@ -1,22 +1,19 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Input from '@codegouvfr/react-dsfr/Input';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import { sumBy, uniqBy } from 'lodash-es';
+import { sumBy } from 'lodash-es';
 import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 
 import type React from 'react';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
-import ProgrammingPrescriptionListGroupedUpdate from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListGroupedUpdate';
 import ProgrammingPlanNotificationDepartmentalToSampler from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationDepartmentalToSampler/ProgrammingPlanNotificationDepartmentalToSampler';
 import ProgrammingPlanNotificationRegionalToDepartmental from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationRegionalToDepartmental/ProgrammingPlanNotificationRegionalToDepartmental';
 import './ProgrammingPrescriptionList.scss';
@@ -27,14 +24,6 @@ interface Props {
   localPrescriptions: LocalPrescription[];
   subLocalPrescriptions: LocalPrescription[];
   exportURL: string;
-  hasGroupedUpdatePermission?: boolean;
-  selectedCount?: number;
-  onGroupedUpdate?: (
-    substanceKindsLaboratories: SubstanceKindLaboratory[]
-  ) => Promise<void>;
-  onSelectAll: () => void;
-  hideDisplayToggle?: boolean;
-  hideGroupedUpdateButton?: boolean;
 }
 
 const ProgrammingPrescriptionListHeader = ({
@@ -42,13 +31,7 @@ const ProgrammingPrescriptionListHeader = ({
   prescriptions,
   localPrescriptions,
   subLocalPrescriptions,
-  exportURL,
-  hasGroupedUpdatePermission,
-  selectedCount,
-  onGroupedUpdate,
-  onSelectAll,
-  hideDisplayToggle,
-  hideGroupedUpdateButton
+  exportURL
 }: Props) => {
   const dispatch = useAppDispatch();
   const { isMobile } = useWindowSize();
@@ -58,8 +41,6 @@ const ProgrammingPrescriptionListHeader = ({
   const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
   );
-
-  const [isGroupedUpdate, setIsGroupedUpdate] = useState(false);
 
   const sampleCount = useMemo(
     () => sumBy(prescriptions, 'sampleCount'),
@@ -71,28 +52,6 @@ const ProgrammingPrescriptionListHeader = ({
         <h4 className={clsx(cx('fr-mb-0'), 'flex-grow-1')}>
           {t('plannedSample', { count: sampleCount ?? 0 })}
         </h4>
-        <Input
-          iconId="fr-icon-search-line"
-          hideLabel
-          label="Matrice"
-          nativeInputProps={{
-            type: 'search',
-            placeholder: 'Matrice',
-            value: prescriptionFilters.matrixQuery ?? '',
-            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-              dispatch(
-                prescriptionsSlice.actions.changePrescriptionFilters({
-                  ...prescriptionFilters,
-                  matrixQuery: e.target.value
-                })
-              );
-            }
-          }}
-          className={cx('fr-my-0', 'fr-hidden', 'fr-unhidden-md')}
-          classes={{
-            wrap: cx('fr-mt-0')
-          }}
-        />
         <Button
           iconId="fr-icon-file-download-line"
           priority="secondary"
@@ -155,40 +114,7 @@ const ProgrammingPrescriptionListHeader = ({
               />
             )}
         </div>
-        {hasGroupedUpdatePermission &&
-          !hideGroupedUpdateButton &&
-          !isGroupedUpdate && (
-            <Button
-              iconId="fr-icon-list-ordered"
-              priority="secondary"
-              title="Action groupée"
-              size={isMobile ? 'small' : 'medium'}
-              onClick={() => setIsGroupedUpdate(true)}
-              disabled={
-                uniqBy(
-                  prescriptions,
-                  (prescription) => prescription.programmingSubPlanId
-                ).length !== 1
-              }
-            >
-              {isMobile ? undefined : 'Action groupée'}
-            </Button>
-          )}
       </div>
-      {isGroupedUpdate && onGroupedUpdate && (
-        <ProgrammingPrescriptionListGroupedUpdate
-          programmingPlan={programmingPlan}
-          programmingSubPlanId={prescriptions[0].programmingSubPlanId}
-          selectedCount={selectedCount ?? 0}
-          totalCount={prescriptions.length}
-          onSubmit={async (laboratoryId) => {
-            await onGroupedUpdate(laboratoryId);
-            setIsGroupedUpdate(false);
-          }}
-          onCancel={() => setIsGroupedUpdate(false)}
-          onSelectAll={onSelectAll}
-        />
-      )}
     </div>
   );
 };

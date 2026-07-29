@@ -264,8 +264,7 @@ const ProgrammingView = () => {
                   <Tabs
                     selectedTabId={selectedTabId}
                     onTabChange={handleTabChange}
-                    className={clsx({
-                      'full-width': hasNationalView || hasRegionalView,
+                    className={clsx('full-width', {
                       'push-last-tab-right': hasRole(
                         'AdministratorBGIR',
                         'NationalCoordinator',

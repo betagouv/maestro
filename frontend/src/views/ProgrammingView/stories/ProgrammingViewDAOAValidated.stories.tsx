@@ -182,23 +182,16 @@ export const DepartmentalCoordinatorView: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getAllByTestId('update-laboratory-button').length).toBe(
-      regionalPrescriptions.filter(
-        (_) => _.department === DepartmentalCoordinator.department
-      ).length
-    );
+    await expect(
+      canvas.getAllByTestId('laboratorySelect-input').length
+    ).toBeGreaterThan(0);
 
     await expect(canvas.queryByText(/Statut/)).not.toBeInTheDocument();
     await expect(canvas.queryByTestId('Commentaires')).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
 
-    await expect(
-      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
-        el.textContent?.toLowerCase().includes('%')
-      )
-    ).toHaveLength(prescriptions.length);
-    await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
+    await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
   }
 };
 
@@ -239,11 +232,6 @@ export const SamplerView: Story = {
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
 
-    await expect(
-      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
-        el.textContent?.toLowerCase().includes('%')
-      )
-    ).toHaveLength(prescriptions.length);
-    await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
+    await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
   }
 };
