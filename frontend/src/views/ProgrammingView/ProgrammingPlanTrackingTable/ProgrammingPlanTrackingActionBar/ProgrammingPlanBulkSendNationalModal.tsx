@@ -5,6 +5,7 @@ import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useState } from 'react';
 import { ApiClientContext } from '../../../../services/apiClient';
+import { pluralize } from '../../../../utils/stringUtils';
 
 interface Props {
   plansToAdmin: ProgrammingPlanChecked[];
@@ -31,6 +32,8 @@ const ProgrammingPlanBulkSendNationalModal = ({
     onConceal: () => setIsError(false)
   });
 
+  const planCount = plansToAdmin.length + plansToRegions.length;
+
   const submit = async () => {
     setIsError(false);
     try {
@@ -48,7 +51,9 @@ const ProgrammingPlanBulkSendNationalModal = ({
 
   return (
     <bulkSendNationalModal.Component
-      title="Soumettre les plans à l'admin et/ou aux régions"
+      title={`Confirmez-vous la diffusion ${pluralize(planCount, {
+        replacements: [{ old: 'du', new: 'des' }]
+      })('du plan')} ci-dessous :`}
       buttons={[
         { children: 'Retour à la page', priority: 'secondary' },
         { children: 'Valider', onClick: submit, doClosesModal: false }
@@ -56,7 +61,6 @@ const ProgrammingPlanBulkSendNationalModal = ({
     >
       {isOpen && (
         <>
-          <p>Confirmez-vous la diffusion des plans ci-dessous :</p>
           {plansToAdmin.length > 0 && (
             <>
               <p className={cx('fr-mb-1v')}>
