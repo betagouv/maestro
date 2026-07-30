@@ -620,15 +620,28 @@ const ProgrammingPrescriptionList = ({
 
   const saveSuccessMessage = useMemo(() => {
     if (userRole === 'Administrator')
-      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux régions.';
+      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux régions dans "Suivi des plans".';
     if (isNationalRole(userRole))
-      return "Vos modifications ont été enregistrées avec succès. Pensez à les diffuser à l'administrateur et/ou aux régions.";
-    if (isRegionalRole(userRole))
-      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux départements.';
+      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser à l\'administrateur et/ou aux régions dans "Suivi des plans".';
+    if (isRegionalRole(userRole)) {
+      const hasRegionalKind = programmingPlans.some(
+        (plan) => plan.distributionKind === 'REGIONAL'
+      );
+      const hasSlaughterhouseKind = programmingPlans.some(
+        (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
+      );
+      if (hasRegionalKind && !hasSlaughterhouseKind) {
+        return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux préleveurs dans "Suivi des plans".';
+      }
+      if (hasSlaughterhouseKind && !hasRegionalKind) {
+        return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux départements dans "Suivi des plans".';
+      }
+      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux préleveurs et/ou aux départements dans "Suivi des plans".';
+    }
     if (isDepartmentalRole(userRole))
-      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux préleveurs.';
+      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux préleveurs dans "Suivi des plans".';
     return 'Vos modifications ont été enregistrées avec succès.';
-  }, [userRole]);
+  }, [userRole, programmingPlans]);
 
   const hasGroupedUpdatePermission = useMemo(
     () =>
