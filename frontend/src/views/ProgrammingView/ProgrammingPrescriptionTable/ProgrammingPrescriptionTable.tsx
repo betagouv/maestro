@@ -108,8 +108,8 @@ const Colgroup = ({
     <col className="col-n" />
     <col className="col-matrice" />
     <col className="col-analyte" />
-    {showLaboratoryColumn && <col className="col-laboratoire" />}
     <col className="col-prelevements" />
+    {showLaboratoryColumn && <col className="col-laboratoire" />}
     {Array.from({ length: columnCount }, (_, i) => (
       <col
         key={`col-${i}`}
@@ -386,7 +386,6 @@ const ProgrammingPrescriptionTable = ({
     <div
       data-testid="prescription-table"
       className={clsx('programming-table', {
-        'programming-table--with-laboratory-column': showLaboratoryColumn,
         'programming-table--with-checkbox-column': showCheckboxColumn
       })}
       ref={tableContainerRef}
@@ -431,26 +430,30 @@ const ProgrammingPrescriptionTable = ({
                 <th scope="col" className={clsx('analyte-cell', 'border-left')}>
                   Analyte
                 </th>
-                {showLaboratoryColumn && (
-                  <th
-                    scope="col"
-                    className={clsx('laboratoire-cell', 'border-left')}
-                  >
-                    Attribution des laboratoires
-                  </th>
-                )}
                 <th
                   scope="col"
                   className={clsx(
                     'prelevements-cell',
                     'border-left',
-                    'border-right'
+                    !showLaboratoryColumn && 'border-right'
                   )}
                 >
                   Prélèvements
                   <br />
                   programmés
                 </th>
+                {showLaboratoryColumn && (
+                  <th
+                    scope="col"
+                    className={clsx(
+                      'laboratoire-cell',
+                      'border-left',
+                      'border-right'
+                    )}
+                  >
+                    Attribution des laboratoires
+                  </th>
+                )}
                 {!isSamplerView &&
                   (department
                     ? companies.map((company, columnIdx) => (
@@ -511,10 +514,7 @@ const ProgrammingPrescriptionTable = ({
               </tr>
               <tr className="total-row">
                 {showCheckboxColumn && <td className="checkbox-cell" />}
-                <td
-                  colSpan={showLaboratoryColumn ? 4 : 3}
-                  className={clsx('n-cell', cx('fr-text--bold'))}
-                >
+                <td colSpan={3} className={clsx('n-cell', cx('fr-text--bold'))}>
                   Total prélèvements
                 </td>
                 <td
@@ -522,7 +522,7 @@ const ProgrammingPrescriptionTable = ({
                     'prelevements-cell',
                     cx('fr-text--bold'),
                     'border-left',
-                    'border-right',
+                    !showLaboratoryColumn && 'border-right',
                     'align-center'
                   )}
                 >
@@ -535,6 +535,15 @@ const ProgrammingPrescriptionTable = ({
                       )
                     : sumBy(prescriptions, 'sampleCount')}
                 </td>
+                {showLaboratoryColumn && (
+                  <td
+                    className={clsx(
+                      'laboratoire-cell',
+                      'border-left',
+                      'border-right'
+                    )}
+                  />
+                )}
                 {!isSamplerView &&
                   (department
                     ? companies.map((company, columnIdx) => (
@@ -684,17 +693,14 @@ const ProgrammingPrescriptionTable = ({
                                   />
                                 </td>
                               )}
-                              <td
-                                className="n-cell"
-                                colSpan={showLaboratoryColumn ? 4 : 3}
-                              >
+                              <td className="n-cell" colSpan={3}>
                                 Total prélèvements
                               </td>
                               <td
                                 className={clsx(
                                   'prelevements-cell',
                                   'border-left',
-                                  'border-right',
+                                  !showLaboratoryColumn && 'border-right',
                                   'align-center'
                                 )}
                               >
@@ -707,6 +713,15 @@ const ProgrammingPrescriptionTable = ({
                                     )
                                   : sumBy(contextPrescriptions, 'sampleCount')}
                               </td>
+                              {showLaboratoryColumn && (
+                                <td
+                                  className={clsx(
+                                    'laboratoire-cell',
+                                    'border-left',
+                                    'border-right'
+                                  )}
+                                />
+                              )}
                               {!isSamplerView &&
                                 (department
                                   ? companies.map((company, columnIdx) => (
@@ -932,88 +947,11 @@ const ProgrammingPrescriptionTable = ({
                                         .join(', ')
                                     )}
                                   </td>
-                                  {showLaboratoryColumn && (
-                                    <td
-                                      className={clsx(
-                                        'laboratoire-cell',
-                                        'border-left'
-                                      )}
-                                    >
-                                      {showRowLaboratoryCells
-                                        ? (() => {
-                                            const substanceKindsLaboratories =
-                                              rowSubstanceKindsLaboratories;
-                                            const isEditable =
-                                              hasUserLocalPrescriptionPermission(
-                                                plan,
-                                                ownRegionalPrescription
-                                              )?.updateLaboratories;
-                                            const isLaboratoryPending =
-                                              region &&
-                                              pendingLaboratoryKeys?.has(
-                                                toLocalPrescriptionKeyString({
-                                                  prescriptionId:
-                                                    prescription.id,
-                                                  region,
-                                                  department: undefined,
-                                                  companySiret: undefined
-                                                })
-                                              );
-                                            return substanceKindsLaboratories.map(
-                                              (skl) => (
-                                                <div
-                                                  className="lab-line"
-                                                  key={skl.substanceKind}
-                                                >
-                                                  <LaboratorySelect
-                                                    programmingPlanId={plan.id}
-                                                    programmingSubPlanId={
-                                                      prescription.programmingSubPlanId
-                                                    }
-                                                    substanceKind={
-                                                      skl.substanceKind
-                                                    }
-                                                    laboratoryId={
-                                                      skl.laboratoryId
-                                                    }
-                                                    readonly={!isEditable}
-                                                    pending={
-                                                      isLaboratoryPending
-                                                    }
-                                                    hideLabel
-                                                    onSelect={(laboratoryId) =>
-                                                      onChangeLocalPrescriptionLaboratories?.(
-                                                        {
-                                                          prescriptionId:
-                                                            prescription.id,
-                                                          region:
-                                                            region as Region
-                                                        },
-                                                        substanceKindsLaboratories.map(
-                                                          (x) =>
-                                                            x.substanceKind ===
-                                                            skl.substanceKind
-                                                              ? {
-                                                                  ...x,
-                                                                  laboratoryId
-                                                                }
-                                                              : x
-                                                        )
-                                                      )
-                                                    }
-                                                  />
-                                                </div>
-                                              )
-                                            );
-                                          })()
-                                        : null}
-                                    </td>
-                                  )}
                                   <td
                                     className={clsx(
                                       'prelevements-cell',
                                       'border-left',
-                                      'border-right'
+                                      !showLaboratoryColumn && 'border-right'
                                     )}
                                   >
                                     {region && rowHasUnviewedChange && (
@@ -1182,6 +1120,84 @@ const ProgrammingPrescriptionTable = ({
                                       })()
                                     )}
                                   </td>
+                                  {showLaboratoryColumn && (
+                                    <td
+                                      className={clsx(
+                                        'laboratoire-cell',
+                                        'border-left',
+                                        'border-right'
+                                      )}
+                                    >
+                                      {showRowLaboratoryCells
+                                        ? (() => {
+                                            const substanceKindsLaboratories =
+                                              rowSubstanceKindsLaboratories;
+                                            const isEditable =
+                                              hasUserLocalPrescriptionPermission(
+                                                plan,
+                                                ownRegionalPrescription
+                                              )?.updateLaboratories;
+                                            const isLaboratoryPending =
+                                              region &&
+                                              pendingLaboratoryKeys?.has(
+                                                toLocalPrescriptionKeyString({
+                                                  prescriptionId:
+                                                    prescription.id,
+                                                  region,
+                                                  department: undefined,
+                                                  companySiret: undefined
+                                                })
+                                              );
+                                            return substanceKindsLaboratories.map(
+                                              (skl) => (
+                                                <div
+                                                  className="lab-line"
+                                                  key={skl.substanceKind}
+                                                >
+                                                  <LaboratorySelect
+                                                    programmingPlanId={plan.id}
+                                                    programmingSubPlanId={
+                                                      prescription.programmingSubPlanId
+                                                    }
+                                                    substanceKind={
+                                                      skl.substanceKind
+                                                    }
+                                                    laboratoryId={
+                                                      skl.laboratoryId
+                                                    }
+                                                    readonly={!isEditable}
+                                                    pending={
+                                                      isLaboratoryPending
+                                                    }
+                                                    hideLabel
+                                                    onSelect={(laboratoryId) =>
+                                                      onChangeLocalPrescriptionLaboratories?.(
+                                                        {
+                                                          prescriptionId:
+                                                            prescription.id,
+                                                          region:
+                                                            region as Region
+                                                        },
+                                                        substanceKindsLaboratories.map(
+                                                          (x) =>
+                                                            x.substanceKind ===
+                                                            skl.substanceKind
+                                                              ? {
+                                                                  ...x,
+                                                                  laboratoryId
+                                                                }
+                                                              : x
+                                                        )
+                                                      )
+                                                    }
+                                                  />
+                                                </div>
+                                              )
+                                            );
+                                          })()
+                                        : null}
+                                    </td>
+                                  )}
                                   {!isSamplerView &&
                                     (department
                                       ? companies.map((company, columnIdx) => {

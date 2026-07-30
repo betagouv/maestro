@@ -39,10 +39,10 @@ export const toLocalPrescriptionKeyString = (
     ].join('|')
   );
 
-export const LocalPrescriptionRegionalKeyString = z
+const LocalPrescriptionRegionalKeyString = z
   .string()
   .brand('LocalPrescriptionRegionalKeyString');
-export type LocalPrescriptionRegionalKeyString = z.infer<
+type LocalPrescriptionRegionalKeyString = z.infer<
   typeof LocalPrescriptionRegionalKeyString
 >;
 
