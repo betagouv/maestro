@@ -1114,56 +1114,72 @@ const ProgrammingPrescriptionTable = ({
                                         </div>
                                       )
                                     ) : (
-                                      <div
-                                        className={clsx(
-                                          'prescription-sample-count-cell',
+                                      (() => {
+                                        const isNationalEditable =
                                           userRole &&
-                                            hasPrescriptionPermission(
-                                              userRole,
-                                              plan
-                                            ).update &&
-                                            onChangePrescriptionSampleCount
-                                            ? 'prescription-sample-count-cell--edit'
-                                            : 'prescription-sample-count-cell--read'
-                                        )}
-                                      >
-                                        <div className="prescription-sample-count-cell__value-row">
-                                          {userRole &&
                                           hasPrescriptionPermission(
                                             userRole,
                                             plan
                                           ).update &&
-                                          onChangePrescriptionSampleCount ? (
-                                            <PrescriptionSampleCountInput
-                                              value={prescription.sampleCount}
-                                              isPending={pendingPrescriptionIds?.has(
-                                                prescription.id
-                                              )}
-                                              onChange={(v) =>
-                                                onChangePrescriptionSampleCount(
-                                                  prescription,
-                                                  v
-                                                )
-                                              }
-                                            />
-                                          ) : (
-                                            <div>
-                                              {prescription.sampleCount}
-                                            </div>
-                                          )}
-                                          {showDistributionBadge && (
-                                            <PrescriptionDistributionBadge
-                                              sampleCount={
-                                                prescription.sampleCount
-                                              }
-                                              distributedCount={
-                                                totalSampleCount
-                                              }
-                                              small
-                                            />
-                                          )}
-                                        </div>
-                                      </div>
+                                          onChangePrescriptionSampleCount;
+                                        return (
+                                          <div
+                                            className={clsx(
+                                              'prescription-sample-count-cell',
+                                              isNationalEditable
+                                                ? 'prescription-sample-count-cell--edit'
+                                                : 'prescription-sample-count-cell--read'
+                                            )}
+                                          >
+                                            {isNationalEditable ? (
+                                              <>
+                                                <PrescriptionSampleCountInput
+                                                  value={
+                                                    prescription.sampleCount
+                                                  }
+                                                  isPending={pendingPrescriptionIds?.has(
+                                                    prescription.id
+                                                  )}
+                                                  onChange={(v) =>
+                                                    onChangePrescriptionSampleCount(
+                                                      prescription,
+                                                      v
+                                                    )
+                                                  }
+                                                />
+                                                {showDistributionBadge && (
+                                                  <PrescriptionDistributionBadge
+                                                    sampleCount={
+                                                      prescription.sampleCount
+                                                    }
+                                                    distributedCount={
+                                                      totalSampleCount
+                                                    }
+                                                    small
+                                                  />
+                                                )}
+                                              </>
+                                            ) : (
+                                              <div className="prescription-sample-count-cell__value-row">
+                                                <div>
+                                                  {prescription.sampleCount}
+                                                </div>
+                                                {showDistributionBadge && (
+                                                  <PrescriptionDistributionBadge
+                                                    sampleCount={
+                                                      prescription.sampleCount
+                                                    }
+                                                    distributedCount={
+                                                      totalSampleCount
+                                                    }
+                                                    small
+                                                  />
+                                                )}
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      })()
                                     )}
                                   </td>
                                   {!isSamplerView &&
