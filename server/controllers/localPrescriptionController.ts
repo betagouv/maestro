@@ -5,6 +5,7 @@ import {
   type LocalPrescription
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import type { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
+import { toLocalPrescriptionKeyString } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import {
@@ -29,19 +30,6 @@ import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
 
-const localPrescriptionPendingKey = (row: {
-  prescriptionId: string;
-  region: string;
-  department?: string | null;
-  companySiret?: string | null;
-}) =>
-  [
-    row.prescriptionId,
-    row.region,
-    row.department ?? 'None',
-    row.companySiret ?? 'None'
-  ].join(':');
-
 const withPendingLocalPrescriptionChanges = async (
   localPrescriptions: LocalPrescription[],
   echelon: ProgrammingPlanEchelon
@@ -52,12 +40,12 @@ const withPendingLocalPrescriptionChanges = async (
   );
   const pendingByKey = new Map(
     pendingRows.map((row) => [
-      `${localPrescriptionPendingKey(row)}:${row.kind}`,
+      `${toLocalPrescriptionKeyString(row)}:${row.kind}`,
       row
     ])
   );
   return localPrescriptions.map((localPrescription) => {
-    const key = localPrescriptionPendingKey(localPrescription);
+    const key = toLocalPrescriptionKeyString(localPrescription);
     const pendingSampleCount = pendingByKey.get(`${key}:sampleCount`);
     const pendingLaboratories = pendingByKey.get(`${key}:laboratories`);
     if (!pendingSampleCount && !pendingLaboratories) {
