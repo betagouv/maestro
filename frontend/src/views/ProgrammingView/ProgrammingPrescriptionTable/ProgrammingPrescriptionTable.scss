@@ -10,14 +10,9 @@
   $plan-group-title-height: 3rem;
 
   --checkbox-w: 0px;
-  --lab-w: 0px;
 
   &.programming-table--with-checkbox-column {
     --checkbox-w: #{$col-checkbox-width};
-  }
-
-  &.programming-table--with-laboratory-column {
-    --lab-w: #{$col-laboratoire-width};
   }
 
   &.programming-table--with-checkbox-column .n-cell {
@@ -262,26 +257,26 @@
     padding-right: 16px;
   }
 
-  .laboratoire-cell {
+  .prelevements-cell {
     position: sticky;
     left: calc(
       var(--checkbox-w) + #{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width}
     );
     z-index: 1;
-    min-width: $col-laboratoire-width;
-    max-width: $col-laboratoire-width;
+    min-width: $col-prelevements-width;
+    max-width: $col-prelevements-width;
     background-color: var(--background-default-grey) !important;
   }
 
-  .prelevements-cell {
+  .laboratoire-cell {
     position: sticky;
     left: calc(
       var(--checkbox-w) + #{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width} +
-        var(--lab-w)
+        #{$col-prelevements-width}
     );
     z-index: 1;
-    min-width: $col-prelevements-width;
-    max-width: $col-prelevements-width;
+    min-width: $col-laboratoire-width;
+    max-width: $col-laboratoire-width;
     background-color: var(--background-default-grey) !important;
   }
 
