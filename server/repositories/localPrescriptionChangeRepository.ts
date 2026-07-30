@@ -174,7 +174,7 @@ const scopedQuery = (
     query.andWhere({ region: scope.region });
   }
   if (!isNil(scope.department)) {
-    query.andWhere({ department: scope.department });
+    query.andWhere({ department: scope.department as string });
   }
   if (!isNil(scope.companySiret)) {
     query.andWhere({ companySiret: scope.companySiret });
@@ -182,7 +182,6 @@ const scopedQuery = (
   return query;
 };
 
-/** Marks every pending row in scope as diffused, in one batch. */
 const commitPending = async (
   scope: PendingScope,
   kind: LocalPrescriptionChangeKind,
@@ -210,7 +209,7 @@ const existsPendingForScope = async (
         query.andWhere({ region: scope.region });
       }
       if (!isNil(scope.department)) {
-        query.andWhere({ department: scope.department });
+        query.andWhere({ department: scope.department as string });
       }
       if (!isNil(scope.companySiret)) {
         query.andWhere({ companySiret: scope.companySiret });
