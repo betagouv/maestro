@@ -19,6 +19,7 @@ import {
   NationalCoordinatorDaoaFixture,
   NationalObserver,
   RegionalCoordinator,
+  RegionalDaoaCoordinator,
   RegionalDromCoordinator,
   RegionalObserver,
   Sampler1Fixture,
@@ -369,11 +370,15 @@ describe('Document router', () => {
       const [_notificationData, recipients, _params] =
         mockSendNotification.mock.calls[0];
 
-      expect(recipients).toHaveLength(2);
+      expect(recipients).toHaveLength(3);
 
       expect(recipients).toMatchObject(
         expect.arrayContaining(
-          [SamplerDaoaFixture, DepartmentalCoordinator].map((user) =>
+          [
+            SamplerDaoaFixture,
+            DepartmentalCoordinator,
+            RegionalDaoaCoordinator
+          ].map((user) =>
             expect.objectContaining({
               id: user.id
             })
@@ -459,15 +464,12 @@ describe('Document router', () => {
     test.each([
       ['SamplerDromFixture', SamplerDromFixture],
       ['RegionalDromCoordinator', RegionalDromCoordinator]
-    ])(
-      'should let %s read a document of a plan it does not hold but whose stages it shares',
-      async (_label, user) => {
-        await request(app)
-          .get(testRoute(ppvValidatedResourceDocument.id))
-          .use(tokenProvider(user))
-          .expect(constants.HTTP_STATUS_OK);
-      }
-    );
+    ])('should let %s read a document of a plan it does not hold but whose stages it shares', async (_label, user) => {
+      await request(app)
+        .get(testRoute(ppvValidatedResourceDocument.id))
+        .use(tokenProvider(user))
+        .expect(constants.HTTP_STATUS_OK);
+    });
 
     test('should get a global resource document with no programming plan', async () => {
       await request(app)

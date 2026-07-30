@@ -44,7 +44,7 @@ export const LocalPrescription = z.object({
   changedAt: z.coerce.date().nullish()
 });
 
-export const SlaughterhouseSampleCounts = z
+const SlaughterhouseSampleCounts = z
   .array(
     LocalPrescription.pick({
       companySiret: true,
@@ -73,9 +73,6 @@ export const LocalPrescriptionUpdate = z.discriminatedUnion('key', [
   })
 ]);
 
-export type SlaughterhouseSampleCounts = z.infer<
-  typeof SlaughterhouseSampleCounts
->;
 export type LocalPrescription = z.infer<typeof LocalPrescription>;
 export type LocalPrescriptionUpdate = z.infer<typeof LocalPrescriptionUpdate>;
 
