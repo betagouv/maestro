@@ -18,7 +18,8 @@ import {
 import {
   type LocalPrescriptionKey,
   type LocalPrescriptionKeyString,
-  toLocalPrescriptionKeyString
+  toLocalPrescriptionKeyString,
+  toLocalPrescriptionRegionalKeyString
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
@@ -538,7 +539,7 @@ const ProgrammingPrescriptionList = ({
           Array.from(pendingLocalChanges.values()).filter(
             ({ key }) => key.companySiret
           ),
-          ({ key }) => `${key.prescriptionId}|${key.region}|${key.department}`
+          ({ key }) => toLocalPrescriptionRegionalKeyString(key)
         )
       );
 
