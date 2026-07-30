@@ -174,7 +174,7 @@ const scopedQuery = (
     query.andWhere({ region: scope.region });
   }
   if (!isNil(scope.department)) {
-    query.andWhere({ department: scope.department as string });
+    query.andWhere('department', scope.department as string);
   }
   if (!isNil(scope.companySiret)) {
     query.andWhere({ companySiret: scope.companySiret });
@@ -209,7 +209,7 @@ const existsPendingForScope = async (
         query.andWhere({ region: scope.region });
       }
       if (!isNil(scope.department)) {
-        query.andWhere({ department: scope.department as string });
+        query.andWhere('department', scope.department as string);
       }
       if (!isNil(scope.companySiret)) {
         query.andWhere({ companySiret: scope.companySiret });
