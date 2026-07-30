@@ -16,15 +16,6 @@ if (!i18n.isInitialized) {
           has_been_commented_zero: "n'a été commentée",
           has_been_commented_one: 'a été commentée',
           has_been_commented_other: 'ont été commentées',
-          region_has_sent_zero: 'Aucune région n’a diffusé la programmation',
-          region_has_sent_one: 'Une région a diffusé la programmation',
-          region_has_sent_other:
-            '{{count}} régions ont diffusé la programmation',
-          department_has_sent_zero:
-            'Aucun département n’a diffusé la programmation',
-          department_has_sent_one: 'Un département a diffusé la programmation',
-          department_has_sent_other:
-            '{{count}} départements ont diffusé la programmation',
           matrix_zero: 'Aucune matrice',
           matrix_one: 'Une matrice',
           matrix_other: '{{count}} matrices',

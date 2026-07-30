@@ -37,14 +37,12 @@ import prescriptionsSlice, {
   type PrescriptionFilters
 } from '../../store/reducers/prescriptionsSlice';
 import ProgrammingCommentList from './ProgrammingCommentList/ProgrammingCommentList';
-import ProgrammingPlanRegionalValidationList from './ProgrammingPlanRegionalValidationList/ProgrammingPlanRegionalValidationList';
 import ProgrammingPlanTrackingTable from './ProgrammingPlanTrackingTable/ProgrammingPlanTrackingTable';
 import ProgrammingPrescriptionList from './ProgrammingPrescriptionList/ProgrammingPrescriptionList';
 import './ProgrammingView.scss';
 
 type ProgrammingViewTab =
   | 'ProgrammationTab'
-  | 'ConsultationTab'
   | 'CommentsTab'
   | 'PlanTrackingTab';
 
@@ -201,15 +199,6 @@ const ProgrammingView = () => {
       tabId: 'ProgrammationTab',
       iconId: 'fr-icon-survey-line'
     },
-    filteredProgrammingPlans.some(
-      (p) => p.distributionKind === 'SLAUGHTERHOUSE'
-    ) && hasUserPermission('manageProgrammingPlan')
-      ? {
-          label: 'Statut par région',
-          tabId: 'ConsultationTab',
-          iconId: 'fr-icon-chat-check-line'
-        }
-      : undefined,
     filteredProgrammingPlans.some((p) => p.distributionKind === 'REGIONAL') &&
     hasUserPermission('commentPrescription')
       ? {
@@ -319,14 +308,6 @@ const ProgrammingView = () => {
                               }}
                             />
                           )}
-                        {selectedTabId === 'ConsultationTab' &&
-                          hasNationalView &&
-                          filteredProgrammingPlans.map((plan) => (
-                            <ProgrammingPlanRegionalValidationList
-                              key={plan.id}
-                              programmingPlan={plan}
-                            />
-                          ))}
                         {selectedTabId === 'CommentsTab' &&
                           filteredProgrammingPlans.map((plan) => (
                             <ProgrammingCommentList

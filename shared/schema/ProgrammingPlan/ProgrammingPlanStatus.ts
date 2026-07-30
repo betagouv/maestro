@@ -21,18 +21,6 @@ export type ProgrammingPlanStatus = z.infer<typeof ProgrammingPlanStatus>;
 export const ProgrammingPlanStatusList: ProgrammingPlanStatus[] =
   ProgrammingPlanStatus.options;
 
-export const ProgrammingPlanStatusLabels: Record<
-  ProgrammingPlanStatus,
-  string
-> = {
-  InProgress: 'En cours',
-  SubmittedToAdmin: "Soumis à l'admin",
-  SubmittedToRegion: 'Envoyée à la région',
-  SubmittedToDepartments: 'Envoyée aux départements',
-  Validated: 'Campagne de prélèvements en cours',
-  Closed: 'Campagne de prélèvements terminée'
-};
-
 export const ProgrammingPlanStatusPermissions: Record<
   ProgrammingPlanStatus,
   UserPermission

@@ -102,7 +102,9 @@ export const NationalCoordinatorView: Story = {
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
 
-    await expect(canvas.getByText('Statut par région')).toBeInTheDocument();
+    await expect(
+      canvas.queryByText('Statut par région')
+    ).not.toBeInTheDocument();
     await expect(canvas.queryByTestId('Commentaires')).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
