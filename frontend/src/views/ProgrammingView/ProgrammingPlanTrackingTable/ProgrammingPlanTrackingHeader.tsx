@@ -25,11 +25,39 @@ const ProgrammingPlanTrackingHeader = ({
       )}
     >
       <span>{pluralize(totalCount, { preserveCount: true })('plan')}</span>
-      <span>
+      <div>
+        <span
+          className={cx(
+            'fr-icon--sm',
+            'fr-mr-1w',
+            'fr-label--success',
+            'fr-icon-checkbox-circle-line'
+          )}
+        />
         {pluralize(finalizedCount, { preserveCount: true })('finalisé')}
-      </span>
-      <span>{submittedCount} soumis aux régions</span>
-      <span>{readyToSendCount} à envoyer</span>
+      </div>
+      <div>
+        <span
+          className={cx(
+            'fr-icon--sm',
+            'fr-mr-1w',
+            'fr-label--success',
+            'fr-icon-send-plane-line'
+          )}
+        />
+        {submittedCount} soumis aux régions
+      </div>
+      <div>
+        <span
+          className={cx(
+            'fr-icon--sm',
+            'fr-mr-1w',
+            'fr-label--info',
+            'fr-icon-time-line'
+          )}
+        />
+        {readyToSendCount} à envoyer
+      </div>
     </div>
   </div>
 );
