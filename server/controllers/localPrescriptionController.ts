@@ -151,13 +151,17 @@ export const localPrescriptionsRouter = {
     }
   },
   '/prescriptions/regions/:region/changes-viewed': {
-    put: async ({ user, userRole, body: { prescriptionIds } }, { region }) => {
+    put: async (
+      { user, userRole, body: { prescriptionIds, department } },
+      { region }
+    ) => {
       if (!userRegionsForRole(user, userRole).includes(region)) {
         return { status: HttpStatus.FORBIDDEN };
       }
 
       await localPrescriptionChangeRepository.markManyViewed({
         region,
+        department,
         prescriptionIds,
         viewedBy: user.id
       });
@@ -252,6 +256,7 @@ export const localPrescriptionsRouter = {
         await localPrescriptionChangeRepository.markViewed({
           prescriptionId: localPrescription.prescriptionId,
           region: localPrescription.region,
+          kind: 'laboratories',
           viewedBy: user.id
         });
       }
@@ -403,9 +408,27 @@ export const localPrescriptionsRouter = {
           region: params.region,
           department: params.department
         });
+      }
+
+      if (
+        canDistributeToDepartments ||
+        canDistributePrescriptionToSlaughterhouses
+      ) {
         await localPrescriptionChangeRepository.markViewed({
           prescriptionId: params.prescriptionId,
           region: params.region,
+          department: params.department,
+          kind: 'sampleCount',
+          viewedBy: user.id
+        });
+      }
+
+      if (canUpdateLaboratories) {
+        await localPrescriptionChangeRepository.markViewed({
+          prescriptionId: params.prescriptionId,
+          region: params.region,
+          department: params.department,
+          kind: 'laboratories',
           viewedBy: user.id
         });
       }

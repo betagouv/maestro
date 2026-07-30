@@ -302,6 +302,7 @@ const ProgrammingView = () => {
                                   hasMarkedChangesViewedRef.current = true;
                                   markLocalPrescriptionChangesViewed({
                                     region,
+                                    department: user?.department ?? undefined,
                                     prescriptionIds
                                   });
                                 }

@@ -55,7 +55,10 @@ export const prescriptionsRoutes = {
   '/prescriptions/regions/:region/changes-viewed': {
     params: { region: Region },
     put: {
-      body: z.object({ prescriptionIds: z.array(z.guid()) }),
+      body: z.object({
+        prescriptionIds: z.array(z.guid()),
+        department: Department.nullish()
+      }),
       permissions: ['updatePrescription', 'updatePrescriptionLaboratories'],
       response: z.undefined()
     }
