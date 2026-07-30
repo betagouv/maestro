@@ -89,14 +89,23 @@ const insertMany = async (changes: LocalPrescriptionChangeInsert[]) => {
 const markViewed = async ({
   prescriptionId,
   region,
+  department,
+  kind,
   viewedBy
 }: {
   prescriptionId: string;
   region: Region;
+  department?: Department | null;
+  kind: LocalPrescriptionChangeKind;
   viewedBy: string;
 }) => {
   await LocalPrescriptionChanges()
-    .where({ prescriptionId, region })
+    .where({ prescriptionId, region, kind })
+    .modify((query) => {
+      if (!isNil(department)) {
+        query.andWhere('department', department as string);
+      }
+    })
     .whereNotNull('diffusedAt')
     .whereNull('changesViewedAt')
     .update({ changesViewedAt: new Date(), changesViewedBy: viewedBy });
@@ -104,10 +113,12 @@ const markViewed = async ({
 
 const markManyViewed = async ({
   region,
+  department,
   prescriptionIds,
   viewedBy
 }: {
   region: Region;
+  department?: Department | null;
   prescriptionIds: string[];
   viewedBy: string;
 }) => {
@@ -115,8 +126,13 @@ const markManyViewed = async ({
     return;
   }
   await LocalPrescriptionChanges()
-    .where({ region })
+    .where({ region, kind: 'sampleCount' })
     .whereIn('prescriptionId', prescriptionIds)
+    .modify((query) => {
+      if (!isNil(department)) {
+        query.andWhere('department', department as string);
+      }
+    })
     .whereNotNull('diffusedAt')
     .whereNull('changesViewedAt')
     .update({ changesViewedAt: new Date(), changesViewedBy: viewedBy });
