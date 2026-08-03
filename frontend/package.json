@@ -33,7 +33,7 @@
     "@codegouvfr/react-dsfr": "^1.32.4",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.14.1",
-    "@mui/material": "^9.1.2",
+    "@mui/material": "^9.2.0",
     "@reduxjs/toolkit": "^2.12.0",
     "@sentry/react": "^10.63.0",
     "@sentry/vite-plugin": "^5.3.0",
