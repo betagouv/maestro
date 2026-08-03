@@ -13,7 +13,7 @@ import type {
 import {
   csvToJson,
   frenchNumberStringValidator,
-  parseSampleReference
+  sampleReferenceValidator
 } from '../utils';
 
 const codeMethods = [
@@ -51,17 +51,7 @@ const codeMethodsAnalyseMethod = {
   'Méthode interne': 'Mono'
 } as const satisfies Record<(typeof codeMethods)[number], AnalysisMethod>;
 
-export const inovalysRefClientValidator = z.string().transform((l, ctx) => {
-  const parsed = parseSampleReference(l);
-  if (!parsed) {
-    ctx.addIssue({
-      code: 'custom',
-      message: `Référence inovalys invalide: ${l}`
-    });
-    return z.NEVER;
-  }
-  return parsed;
-});
+const inovalysRefClientValidator = sampleReferenceValidator('inovalys');
 
 // Visible for testing
 export const extractAnalyzes = (

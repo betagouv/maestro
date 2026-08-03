@@ -25,10 +25,28 @@ export const padReferenceSerial = (
   serial: number | string
 ): string => String(serial).padStart(year < 2026 ? 4 : 5, '0');
 
+export const sampleReferenceValidator = (
+  laboratoryName: string
+): z.ZodType<
+  { reference: string; copyNumber: number; itemNumber: number },
+  string
+> =>
+  z.string().transform((l, ctx) => {
+    const parsed = parseSampleReference(l);
+    if (!parsed) {
+      ctx.addIssue({
+        code: 'custom',
+        message: `Référence ${laboratoryName} invalide: ${l}`
+      });
+      return z.NEVER;
+    }
+    return parsed;
+  });
+
 export const parseSampleReference = (
   input: string
 ): { reference: string; copyNumber: number; itemNumber: number } | null => {
-  const parts = input.split('-');
+  const parts = input.replace(/\s/g, '').split('-');
   if (parts.length < 3) return null;
 
   const [shortName, yearPart, serialPart] = parts;

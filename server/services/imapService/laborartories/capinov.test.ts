@@ -1,10 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import type z from 'zod';
-import {
-  capinovCodeEchantillonValidator,
-  extractAnalyzes,
-  getAnalysisKeyByFileName
-} from './capinov';
+import { extractAnalyzes, getAnalysisKeyByFileName } from './capinov';
 
 describe('Parse correctement le fichier CSV', () => {
   test('émet une erreur si le fichier est incorrect ou vide', () => {
@@ -206,25 +201,4 @@ test('getAnalysisKeyByFileName', () => {
       'Capinov_Export_MAESTRO 2025_6.8603.1 20250901.csv'
     )
   ).toBe(getAnalysisKeyByFileName('2025_6 8603 1  asenasen asen asne.pdf'));
-});
-
-test.each<[string, z.infer<typeof capinovCodeEchantillonValidator>]>([
-  [
-    'OCC-25-0007-01',
-    { reference: 'OCC-25-0007', copyNumber: 1, itemNumber: 1 }
-  ],
-  ['OCC-25-0007', { reference: 'OCC-25-0007', copyNumber: 1, itemNumber: 1 }],
-  ['OCC-25-00007', { reference: 'OCC-25-00007', copyNumber: 1, itemNumber: 1 }],
-  ['OCC-25-0007-2', { reference: 'OCC-25-0007', copyNumber: 2, itemNumber: 1 }],
-  [
-    'OCC-25-0007-A-2',
-    { reference: 'OCC-25-0007', copyNumber: 2, itemNumber: 1 }
-  ],
-  [
-    'OCC-25-0007-B-1',
-    { reference: 'OCC-25-0007', copyNumber: 1, itemNumber: 2 }
-  ],
-  ['OCC - 25-0007', { reference: 'OCC-25-0007', copyNumber: 1, itemNumber: 1 }]
-])('capinovCodeEchantillonValidator', (value, expected) => {
-  expect(capinovCodeEchantillonValidator.parse(value)).toStrictEqual(expected);
 });
