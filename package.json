@@ -24,10 +24,13 @@
     "lint": "biome check",
     "knip": "npx --yes knip@6.0.5"
   },
+  "overrides": {
+    "@types/node": "$@types/node"
+  },
   "devDependencies": {
     "@biomejs/biome": "^2.5.2",
     "@types/lodash-es": "^4.17.12",
-    "@types/node": "^26.0.1",
+    "@types/node": "^26.1.2",
     "@types/ssh2-sftp-client": "^9.0.6",
     "lefthook": "^2.1.9",
     "npm-run-all2": "^9.0.3",
