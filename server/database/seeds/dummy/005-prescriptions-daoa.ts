@@ -24,7 +24,7 @@ import {
 
 export const seed = async () => {
   await Prescriptions().insert([
-    FoieDeBovinPrescriptionFixture,
+    { ...FoieDeBovinPrescriptionFixture, sampleCount: 0 },
     VolaillePrescriptionFixture,
     FoieDeBovinValidatedPrescriptionFixture,
     VolailleValidatedPrescriptionFixture
@@ -37,11 +37,33 @@ export const seed = async () => {
     ...VolailleValidatedLocalPrescriptionFixture
   ]);
 
-  await LocalPrescriptions()
-    .where('prescription_id', FoieDeBovinValidatedPrescriptionFixture.id)
-    .andWhere('department', '85')
-    .andWhere('companySiret', 'None')
-    .update({ sampleCount: 5 });
+  const regionQuantities: Record<string, number[]> = {
+    [FoieDeBovinValidatedPrescriptionFixture.id]: [
+      3, 2, 5, 8, 10, 1, 2, 10, 3, 3, 2, 9, 4, 4, 2, 1, 5, 6
+    ],
+    [VolailleValidatedPrescriptionFixture.id]: [
+      2, 3, 8, 1, 9, 1, 11, 3, 2, 1, 1, 4, 6, 1, 5, 6, 3, 10
+    ]
+  };
+
+  for (const prescriptionId of Object.keys(regionQuantities)) {
+    await Promise.all(
+      RegionList.flatMap((region, regionIndex) => {
+        const departments = Regions[region].departments;
+        const regionTotal = regionQuantities[prescriptionId][regionIndex];
+        const base = Math.floor(regionTotal / departments.length);
+        const remainder = regionTotal % departments.length;
+        return departments.map((department, departmentIndex) =>
+          LocalPrescriptions()
+            .where({ prescriptionId, region, department })
+            .andWhere('companySiret', 'None')
+            .update({
+              sampleCount: base + (departmentIndex < remainder ? 1 : 0)
+            })
+        );
+      })
+    );
+  }
 
   await LocalPrescriptions().insert({
     prescriptionId: FoieDeBovinValidatedPrescriptionFixture.id,
@@ -50,12 +72,6 @@ export const seed = async () => {
     companySiret: CHARAL.siret,
     sampleCount: 5
   });
-
-  await LocalPrescriptions()
-    .where('prescription_id', VolailleValidatedPrescriptionFixture.id)
-    .andWhere('department', '85')
-    .andWhere('companySiret', 'None')
-    .update({ sampleCount: 3 });
 
   await LocalPrescriptions().insert({
     prescriptionId: VolailleValidatedPrescriptionFixture.id,

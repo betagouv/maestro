@@ -57,6 +57,7 @@ import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest';
 import { Laboratories } from '../../repositories/laboratoryRepository';
+import { LocalPrescriptionChanges } from '../../repositories/localPrescriptionChangeRepository';
 import { LocalPrescriptionComments } from '../../repositories/localPrescriptionCommentRepository';
 import {
   formatLocalPrescription,
@@ -76,6 +77,7 @@ import {
   Samples
 } from '../../repositories/sampleRepository';
 import { createServer } from '../../server';
+import prescriptionDiffusionService from '../../services/prescriptionDiffusionService';
 import { toDbRow } from '../../test/seed/002-laboratories';
 import { mockSendNotification } from '../../test/setupTests';
 import { tokenProvider } from '../../test/testUtils';
@@ -520,7 +522,7 @@ describe('Local prescriptions router', () => {
         ...submittedLocalPrescription,
         department: 'None',
         companySiret: 'None',
-        sampleCount: submittedLocalPrescriptionUpdate.sampleCount,
+        sampleCount: submittedLocalPrescription.sampleCount,
         substanceKindsLaboratories: undefined
       });
 
@@ -550,17 +552,17 @@ describe('Local prescriptions router', () => {
         ...submittedLocalPrescription,
         department: 'None',
         companySiret: 'None',
-        sampleCount: 0,
+        sampleCount: submittedLocalPrescription.sampleCount,
         substanceKindsLaboratories: undefined
       });
 
-      //Restore the initial value
-      await LocalPrescriptions()
+      //Cleanup the pending changes inserted by this test
+      await LocalPrescriptionChanges()
         .where('prescription_id', submittedLocalPrescription.prescriptionId)
         .andWhere('region', submittedLocalPrescription.region)
-        .andWhere('department', 'None')
-        .andWhere('company_siret', 'None')
-        .update({ sampleCount: submittedLocalPrescription.sampleCount });
+        .andWhere('echelon', 'National')
+        .andWhere('kind', 'sampleCount')
+        .delete();
     });
 
     test('should update the substances laboratories of the prescription for a regional coordinator', async () => {
@@ -590,6 +592,11 @@ describe('Local prescriptions router', () => {
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
+      await prescriptionDiffusionService.commitPendingRegionalChanges(
+        PPVValidatedProgrammingPlanFixture.id,
+        validatedLocalPrescription.region
+      );
+
       await expect(
         LocalPrescriptionSubstanceKindsLaboratories().where(
           LocalPrescriptionKey.parse(validatedLocalPrescription)
@@ -610,6 +617,11 @@ describe('Local prescriptions router', () => {
         })
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
+
+      await prescriptionDiffusionService.commitPendingRegionalChanges(
+        PPVValidatedProgrammingPlanFixture.id,
+        validatedLocalPrescription.region
+      );
 
       await expect(
         LocalPrescriptionSubstanceKindsLaboratories().where(
@@ -698,6 +710,13 @@ describe('Local prescriptions router', () => {
           .use(tokenProvider(RegionalCoordinator))
           .expect(constants.HTTP_STATUS_OK);
 
+        // The sample-item cascade is itself data a sampler reads, so it
+        // waits for diffusion just like the lab assignment it follows from.
+        await prescriptionDiffusionService.commitPendingRegionalChanges(
+          PPVValidatedProgrammingPlanFixture.id,
+          validatedLocalPrescription.region
+        );
+
         const updatedLaboratoryItem = await SampleItems()
           .where({ sampleId: draftSample.id, itemNumber: 1, copyNumber: 1 })
           .first();
@@ -747,6 +766,11 @@ describe('Local prescriptions router', () => {
           })
           .use(tokenProvider(RegionalCoordinator))
           .expect(constants.HTTP_STATUS_OK);
+
+        await prescriptionDiffusionService.commitPendingRegionalChanges(
+          PPVValidatedProgrammingPlanFixture.id,
+          validatedLocalPrescription.region
+        );
 
         const updatedItem = await SampleItems()
           .where({ sampleId: draftSample.id, itemNumber: 1, copyNumber: 1 })
@@ -996,6 +1020,12 @@ describe('Local prescriptions router', () => {
     ) => {
       await ProgrammingPlans().insert(formatProgrammingPlan(plan));
       await ProgrammingPlanLocalStatus().insert([
+        {
+          ...plan.nationalStatus,
+          programmingPlanId: plan.id,
+          region: 'None',
+          department: 'None'
+        },
         ...plan.regionalStatus.map((rs) => ({
           ...rs,
           programmingPlanId: plan.id
@@ -1210,19 +1240,101 @@ describe('Local prescriptions router', () => {
           .andWhere('company_siret', 'None')
           .first()
       ).resolves.toMatchObject({
+        sampleCount: departmentalLocalPrescription.sampleCount
+      });
+
+      await prescriptionDiffusionService.commitPendingRegionalChanges(
+        programmingPlanSlaughterhouse.id,
+        departmentalLocalPrescription.region
+      );
+
+      await expect(
+        LocalPrescriptions()
+          .where(
+            'prescription_id',
+            departmentalLocalPrescription.prescriptionId
+          )
+          .andWhere('region', departmentalLocalPrescription.region)
+          .andWhere('department', departmentalLocalPrescription.department)
+          .andWhere('company_siret', 'None')
+          .first()
+      ).resolves.toMatchObject({
         sampleCount: sampleCountUpdate.sampleCount
       });
 
-      // Restore
+      // Cleanup
       await LocalPrescriptions()
         .where('prescription_id', departmentalLocalPrescription.prescriptionId)
         .andWhere('region', departmentalLocalPrescription.region)
         .andWhere('department', departmentalLocalPrescription.department)
         .andWhere('company_siret', 'None')
         .update({ sampleCount: departmentalLocalPrescription.sampleCount });
+      await LocalPrescriptionChanges()
+        .where('prescription_id', departmentalLocalPrescription.prescriptionId)
+        .andWhere('region', departmentalLocalPrescription.region)
+        .andWhere('department', departmentalLocalPrescription.department)
+        .andWhere('echelon', 'Regional')
+        .andWhere('kind', 'sampleCount')
+        .delete();
+    });
+
+    test("a Regional-authored, self-diffused department edit does not surface as a false 'new change' on the region's own row", async () => {
+      await request(app)
+        .put(testRoute())
+        .send(sampleCountUpdate)
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await prescriptionDiffusionService.commitPendingRegionalChanges(
+        programmingPlanSlaughterhouse.id,
+        departmentalLocalPrescription.region
+      );
+
+      const res = await request(app)
+        .get('/api/prescriptions/regions')
+        .query({
+          programmingPlanIds: programmingPlanSlaughterhouse.id,
+          region: departmentalLocalPrescription.region,
+          includes: 'pendingChanges'
+        })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const regionRow = res.body.find(
+        (_: { prescriptionId: string; department: string | null }) =>
+          _.prescriptionId === departmentalLocalPrescription.prescriptionId &&
+          !_.department
+      );
+      expect(regionRow.changedAt).toBeNull();
+      expect(regionRow.previousSampleCount).toBeNull();
+
+      // Cleanup
+      await LocalPrescriptions()
+        .where('prescription_id', departmentalLocalPrescription.prescriptionId)
+        .andWhere('region', departmentalLocalPrescription.region)
+        .andWhere('department', departmentalLocalPrescription.department)
+        .andWhere('company_siret', 'None')
+        .update({ sampleCount: departmentalLocalPrescription.sampleCount });
+      await LocalPrescriptionChanges()
+        .where('prescription_id', departmentalLocalPrescription.prescriptionId)
+        .andWhere('region', departmentalLocalPrescription.region)
+        .andWhere('department', departmentalLocalPrescription.department)
+        .andWhere('echelon', 'Regional')
+        .andWhere('kind', 'sampleCount')
+        .delete();
     });
 
     test('should update the substances laboratories for a departmental coordinator', async () => {
+      const seededLaboratories = [
+        {
+          prescriptionId: departmentalLocalPrescription.prescriptionId,
+          region: departmentalLocalPrescription.region,
+          department: departmentalLocalPrescription.department,
+          substanceKind: 'Any',
+          laboratoryId: laboratory.id
+        }
+      ];
+
       await request(app)
         .put(testRoute())
         .send({
@@ -1240,7 +1352,7 @@ describe('Local prescriptions router', () => {
           department: (departmentalLocalPrescription.department ??
             'None') as Department
         })
-      ).resolves.toEqual([]);
+      ).resolves.toEqual(seededLaboratories);
 
       await request(app)
         .put(testRoute())
@@ -1259,15 +1371,7 @@ describe('Local prescriptions router', () => {
           department: (departmentalLocalPrescription.department ??
             'None') as Department
         })
-      ).resolves.toEqual([
-        {
-          prescriptionId: departmentalLocalPrescription.prescriptionId,
-          region: departmentalLocalPrescription.region,
-          department: departmentalLocalPrescription.department,
-          substanceKind: 'Any',
-          laboratoryId: laboratory.id
-        }
-      ]);
+      ).resolves.toEqual(seededLaboratories);
     });
 
     describe('should update the samples laboratories of the prescription for a departmental coordinator', async () => {
@@ -1316,7 +1420,7 @@ describe('Local prescriptions router', () => {
           .update({ laboratoryId: null });
       });
 
-      test('should update laboratoryId on sample items with recipientKind Laboratory', async () => {
+      test("should keep the sample item's laboratoryId untouched until diffused (Departmental-authored, Phase C)", async () => {
         await request(app)
           .put(testRoute())
           .send({
@@ -1331,7 +1435,7 @@ describe('Local prescriptions router', () => {
           .where({ sampleId: draftSample.id, itemNumber: 1, copyNumber: 1 })
           .first();
 
-        expect(updatedItem?.laboratoryId).toBe(laboratory.id);
+        expect(updatedItem?.laboratoryId).toBeNull();
       });
 
       test('should not update laboratoryId on sample items with recipientKind !== Laboratory', async () => {
@@ -1352,7 +1456,7 @@ describe('Local prescriptions router', () => {
         expect(nonLabItem?.laboratoryId).toBeNull();
       });
 
-      test('should set laboratoryId to null when substanceKind has no matching laboratory', async () => {
+      test("should not touch the sample item's laboratoryId until diffused (Departmental-authored, Phase C)", async () => {
         await SampleItems()
           .where({ sampleId: draftSample.id, itemNumber: 1, copyNumber: 1 })
           .update({ laboratoryId: laboratory.id });
@@ -1371,7 +1475,7 @@ describe('Local prescriptions router', () => {
           .where({ sampleId: draftSample.id, itemNumber: 1, copyNumber: 1 })
           .first();
 
-        expect(updatedItem?.laboratoryId).toBeNull();
+        expect(updatedItem?.laboratoryId).toBe(laboratory.id);
       });
 
       test('should not update sample items from the same prescription but a different department', async () => {
@@ -1506,6 +1610,24 @@ describe('Local prescriptions router', () => {
           .andWhere('department', departmentalLocalPrescription.department)
           .andWhere('company_siret', SlaughterhouseCompanyFixture1.siret)
           .first()
+      ).resolves.toBeUndefined();
+
+      await prescriptionDiffusionService.commitPendingDepartmentalChanges(
+        programmingPlanSlaughterhouse.id,
+        departmentalLocalPrescription.region,
+        departmentalLocalPrescription.department as Department
+      );
+
+      await expect(
+        LocalPrescriptions()
+          .where(
+            'prescription_id',
+            departmentalLocalPrescription.prescriptionId
+          )
+          .andWhere('region', departmentalLocalPrescription.region)
+          .andWhere('department', departmentalLocalPrescription.department)
+          .andWhere('company_siret', SlaughterhouseCompanyFixture1.siret)
+          .first()
       ).resolves.toMatchObject({
         sampleCount: 5
       });
@@ -1516,6 +1638,64 @@ describe('Local prescriptions router', () => {
         .andWhere('region', departmentalLocalPrescription.region)
         .andWhere('department', departmentalLocalPrescription.department)
         .whereNot('company_siret', 'None')
+        .delete();
+    });
+
+    test('a Departmental-authored, diffused slaughterhouse split surfaces as a "new change" for a non-authoring viewer (e.g. the Sampler)', async () => {
+      const slaughterhouseSampleCounts = [
+        {
+          companySiret: SlaughterhouseCompanyFixture1.siret,
+          sampleCount: 7
+        }
+      ];
+
+      await request(app)
+        .put(testRoute())
+        .send({
+          programmingPlanId: programmingPlanSlaughterhouse.id,
+          key: 'slaughterhouseSampleCounts',
+          slaughterhouseSampleCounts
+        })
+        .use(tokenProvider(DepartmentalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await prescriptionDiffusionService.commitPendingDepartmentalChanges(
+        programmingPlanSlaughterhouse.id,
+        departmentalLocalPrescription.region,
+        departmentalLocalPrescription.department as Department
+      );
+
+      const res = await request(app)
+        .get('/api/prescriptions/regions')
+        .query({
+          programmingPlanIds: programmingPlanSlaughterhouse.id,
+          region: departmentalLocalPrescription.region,
+          department: departmentalLocalPrescription.department,
+          includes: 'pendingChanges'
+        })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const companyRow = res.body.find(
+        (_: { prescriptionId: string; companySiret: string | null }) =>
+          _.prescriptionId === departmentalLocalPrescription.prescriptionId &&
+          _.companySiret === SlaughterhouseCompanyFixture1.siret
+      );
+      expect(companyRow.changedAt).not.toBeNull();
+      expect(companyRow.previousSampleCount).toBe(0);
+
+      // Cleanup
+      await LocalPrescriptions()
+        .where('prescription_id', departmentalLocalPrescription.prescriptionId)
+        .andWhere('region', departmentalLocalPrescription.region)
+        .andWhere('department', departmentalLocalPrescription.department)
+        .whereNot('company_siret', 'None')
+        .delete();
+      await LocalPrescriptionChanges()
+        .where('prescription_id', departmentalLocalPrescription.prescriptionId)
+        .andWhere('region', departmentalLocalPrescription.region)
+        .andWhere('department', departmentalLocalPrescription.department)
+        .andWhere('company_siret', SlaughterhouseCompanyFixture1.siret)
         .delete();
     });
   });
@@ -1974,6 +2154,306 @@ describe('Local prescriptions router', () => {
         department: '01',
         companySiret: SlaughterhouseCompanyFixture1.siret
       });
+    });
+  });
+
+  describe('Change history lifecycle', () => {
+    const changeTrackingPrescription = genPrescription({
+      programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+      context: 'Exploratory',
+      matrixKind: oneOf(MatrixKindEffective.options),
+      stages: ['STADE1']
+    });
+    const changeTrackingLocalPrescription: LocalPrescription =
+      genLocalPrescription({
+        prescriptionId: changeTrackingPrescription.id,
+        region: RegionalCoordinator.region as Region,
+        sampleCount: 50,
+        substanceKindsLaboratories: []
+      });
+    const testRoute = () =>
+      `/api/prescriptions/${changeTrackingLocalPrescription.prescriptionId}/regions/${changeTrackingLocalPrescription.region}`;
+
+    beforeAll(async () => {
+      await Prescriptions().insert(changeTrackingPrescription);
+      await LocalPrescriptions().insert(
+        omit(formatLocalPrescription(changeTrackingLocalPrescription), [
+          'substanceKindsLaboratories',
+          'realizedSampleCount',
+          'inProgressSampleCount'
+        ])
+      );
+    });
+
+    const findChanges = () =>
+      LocalPrescriptionChanges()
+        .where({
+          prescriptionId: changeTrackingLocalPrescription.prescriptionId,
+          region: changeTrackingLocalPrescription.region
+        })
+        .orderBy('changedAt', 'asc');
+
+    test('editing sampleCount appends a new row instead of overwriting, and a later edit does not touch the still-unviewed row', async () => {
+      await request(app)
+        .put(testRoute())
+        .send({
+          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+          key: 'sampleCount',
+          sampleCount: 80
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const afterFirstEdit = await findChanges();
+      expect(afterFirstEdit).toHaveLength(1);
+      expect(afterFirstEdit[0]).toMatchObject({
+        previousSampleCount: 50,
+        changesViewedAt: null
+      });
+
+      await request(app)
+        .put(testRoute())
+        .send({
+          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+          key: 'sampleCount',
+          sampleCount: 120
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const afterSecondEdit = await findChanges();
+      expect(afterSecondEdit).toHaveLength(2);
+      expect(afterSecondEdit[0]).toMatchObject({
+        previousSampleCount: 50,
+        changesViewedAt: null
+      });
+    });
+
+    test('assigning a laboratory marks only that laboratories-kind change as viewed, leaving still-unseen sampleCount changes untouched', async () => {
+      await prescriptionDiffusionService.commitPendingNationalChanges(
+        PPVSubmittedProgrammingPlanFixture.id
+      );
+
+      const laboratoryForRegion = genLaboratory();
+      await Laboratories().insert(toDbRow(laboratoryForRegion));
+
+      await request(app)
+        .put(testRoute())
+        .send({
+          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+          key: 'laboratories',
+          substanceKindsLaboratories: [
+            { substanceKind: 'Any', laboratoryId: laboratoryForRegion.id }
+          ]
+        })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const rows = await findChanges();
+      expect(rows.length).toBeGreaterThan(0);
+      const sampleCountRows = rows.filter((row) => row.kind === 'sampleCount');
+      expect(sampleCountRows.length).toBeGreaterThan(0);
+      expect(sampleCountRows.every((row) => row.changesViewedAt === null)).toBe(
+        true
+      );
+
+      await LocalPrescriptionChanges()
+        .where({
+          prescriptionId: changeTrackingLocalPrescription.prescriptionId,
+          region: changeTrackingLocalPrescription.region,
+          kind: 'sampleCount'
+        })
+        .update({
+          changesViewedAt: new Date(),
+          changesViewedBy: RegionalCoordinator.id
+        });
+    });
+
+    test('a pending (not-yet-diffused) National edit does not surface as changedAt for the region until diffused', async () => {
+      await request(app)
+        .put(testRoute())
+        .send({
+          programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
+          key: 'sampleCount',
+          sampleCount: 200
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const beforeDiffusion = await request(app)
+        .get('/api/prescriptions/regions')
+        .query({
+          programmingPlanIds: PPVSubmittedProgrammingPlanFixture.id,
+          region: changeTrackingLocalPrescription.region,
+          contexts: 'Exploratory',
+          includes: 'pendingChanges'
+        })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const pendingRow = beforeDiffusion.body.find(
+        (_: { prescriptionId: string }) =>
+          _.prescriptionId === changeTrackingLocalPrescription.prescriptionId
+      );
+      expect(pendingRow.changedAt).toBeNull();
+
+      await prescriptionDiffusionService.commitPendingNationalChanges(
+        PPVSubmittedProgrammingPlanFixture.id
+      );
+
+      const afterDiffusion = await request(app)
+        .get('/api/prescriptions/regions')
+        .query({
+          programmingPlanIds: PPVSubmittedProgrammingPlanFixture.id,
+          region: changeTrackingLocalPrescription.region,
+          contexts: 'Exploratory',
+          includes: 'pendingChanges'
+        })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const diffusedRow = afterDiffusion.body.find(
+        (_: { prescriptionId: string }) =>
+          _.prescriptionId === changeTrackingLocalPrescription.prescriptionId
+      );
+      expect(diffusedRow.changedAt).not.toBeNull();
+    });
+  });
+
+  describe('PUT /prescriptions/regions/:region/changes-viewed', () => {
+    const testRoute = (region: string) =>
+      `/api/prescriptions/regions/${region}/changes-viewed`;
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(testRoute(RegionalCoordinator.region as string))
+        .send({ prescriptionIds: [] })
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail for a region outside the user scope', async () => {
+      await request(app)
+        .put(testRoute(Region2Fixture))
+        .send({ prescriptionIds: [submittedControlPrescription1.id] })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should mark the requested prescriptions as viewed for that region only', async () => {
+      const otherRegionPrescription = submittedControlLocalPrescriptions1.find(
+        (localPrescription) =>
+          localPrescription.region !== (RegionalCoordinator.region as Region)
+      ) as LocalPrescription;
+
+      await LocalPrescriptionChanges().insert([
+        {
+          prescriptionId: submittedControlPrescription1.id,
+          region: RegionalCoordinator.region as Region,
+          department: 'None',
+          companySiret: 'None',
+          echelon: 'Regional',
+          kind: 'sampleCount',
+          previousSampleCount: 1,
+          changedAt: new Date(),
+          diffusedAt: new Date()
+        },
+        {
+          prescriptionId: submittedControlPrescription1.id,
+          region: otherRegionPrescription.region,
+          department: 'None',
+          companySiret: 'None',
+          echelon: 'Regional',
+          kind: 'sampleCount',
+          previousSampleCount: 1,
+          changedAt: new Date(),
+          diffusedAt: new Date()
+        }
+      ]);
+
+      await request(app)
+        .put(testRoute(RegionalCoordinator.region as string))
+        .send({ prescriptionIds: [submittedControlPrescription1.id] })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
+
+      const ownRegionRows = await LocalPrescriptionChanges().where({
+        prescriptionId: submittedControlPrescription1.id,
+        region: RegionalCoordinator.region as Region
+      });
+      expect(ownRegionRows.every((row) => row.changesViewedAt !== null)).toBe(
+        true
+      );
+
+      const otherRegionRows = await LocalPrescriptionChanges().where({
+        prescriptionId: submittedControlPrescription1.id,
+        region: otherRegionPrescription.region
+      });
+      expect(otherRegionRows.every((row) => row.changesViewedAt === null)).toBe(
+        true
+      );
+    });
+
+    test('when a department is given, only marks that department’s changes as viewed, not a sibling department’s', async () => {
+      const region = DepartmentalCoordinator.region as Region;
+      const [ownDepartment, otherDepartment] = Regions[region].departments;
+
+      await LocalPrescriptionChanges().insert([
+        {
+          prescriptionId: submittedControlPrescription1.id,
+          region,
+          department: ownDepartment,
+          companySiret: 'None',
+          echelon: 'Regional',
+          kind: 'sampleCount',
+          previousSampleCount: 1,
+          changedAt: new Date(),
+          diffusedAt: new Date()
+        },
+        {
+          prescriptionId: submittedControlPrescription1.id,
+          region,
+          department: otherDepartment,
+          companySiret: 'None',
+          echelon: 'Regional',
+          kind: 'sampleCount',
+          previousSampleCount: 1,
+          changedAt: new Date(),
+          diffusedAt: new Date()
+        }
+      ]);
+
+      await request(app)
+        .put(testRoute(region))
+        .send({
+          prescriptionIds: [submittedControlPrescription1.id],
+          department: ownDepartment
+        })
+        .use(tokenProvider(DepartmentalCoordinator))
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
+
+      const ownDepartmentRows = await LocalPrescriptionChanges().where({
+        prescriptionId: submittedControlPrescription1.id,
+        region,
+        department: ownDepartment
+      });
+      expect(
+        ownDepartmentRows.every((row) => row.changesViewedAt !== null)
+      ).toBe(true);
+
+      const otherDepartmentRows = await LocalPrescriptionChanges().where({
+        prescriptionId: submittedControlPrescription1.id,
+        region,
+        department: otherDepartment
+      });
+      expect(
+        otherDepartmentRows.every((row) => row.changesViewedAt === null)
+      ).toBe(true);
+
+      // Cleanup
+      await LocalPrescriptionChanges()
+        .where({ prescriptionId: submittedControlPrescription1.id, region })
+        .whereIn('department', [ownDepartment, otherDepartment])
+        .delete();
     });
   });
 });

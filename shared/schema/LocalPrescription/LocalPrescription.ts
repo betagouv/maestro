@@ -39,10 +39,12 @@ export const LocalPrescription = z.object({
   realizedSampleCount: z.coerce.number().nullish(),
   notAdmissibleSampleCount: z.coerce.number().nullish(),
   compliantSampleCount: z.coerce.number().nullish(),
-  nonCompliantSampleCount: z.coerce.number().nullish()
+  nonCompliantSampleCount: z.coerce.number().nullish(),
+  previousSampleCount: z.coerce.number().nullish(),
+  changedAt: z.coerce.date().nullish()
 });
 
-export const SlaughterhouseSampleCounts = z
+const SlaughterhouseSampleCounts = z
   .array(
     LocalPrescription.pick({
       companySiret: true,
@@ -71,9 +73,6 @@ export const LocalPrescriptionUpdate = z.discriminatedUnion('key', [
   })
 ]);
 
-export type SlaughterhouseSampleCounts = z.infer<
-  typeof SlaughterhouseSampleCounts
->;
 export type LocalPrescription = z.infer<typeof LocalPrescription>;
 export type LocalPrescriptionUpdate = z.infer<typeof LocalPrescriptionUpdate>;
 
@@ -158,12 +157,13 @@ export const hasLocalPrescriptionPermission = (
       (regionStatus) => regionStatus.region === localPrescription.region
     )?.status !== 'Closed',
   distributeToDepartments:
-    programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
-    hasPermission(userRole, 'distributePrescriptionToDepartments') &&
     userRegionsForRole(user, userRole).includes(localPrescription.region) &&
     programmingPlan.regionalStatus.find(
       (regionStatus) => regionStatus.region === localPrescription.region
-    )?.status !== 'Closed',
+    )?.status !== 'Closed' &&
+    (programmingPlan.distributionKind === 'SLAUGHTERHOUSE'
+      ? hasPermission(userRole, 'distributePrescriptionToDepartments')
+      : hasPermission(userRole, 'approveProgrammingPlan')),
   distributeToSlaughterhouses:
     programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
     hasPermission(userRole, 'distributePrescriptionToSlaughterhouses') &&
@@ -193,7 +193,7 @@ export const hasLocalPrescriptionPermission = (
       programmingPlan.regionalStatus.some(
         (regionStatus) =>
           regionStatus.region === localPrescription.region &&
-          regionStatus.status === 'Validated'
+          ['Validated', 'SubmittedToRegion'].includes(regionStatus.status)
       )) ||
       (programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
         user.department === localPrescription.department &&

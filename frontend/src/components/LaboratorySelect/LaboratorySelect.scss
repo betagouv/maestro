@@ -1,0 +1,12 @@
+.laboratory-select-input {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 2.5rem !important;
+}
+
+.laboratory-select-input--pending {
+  background-color: var(--background-default-grey) !important;
+  border: 1px solid var(--background-contrast-grey) !important;
+  box-shadow: none !important;
+}

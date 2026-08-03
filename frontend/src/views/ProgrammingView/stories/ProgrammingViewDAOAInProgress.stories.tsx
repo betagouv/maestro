@@ -11,7 +11,7 @@ import {
   genAuthUser,
   NationalCoordinator
 } from 'maestro-shared/test/userFixtures';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, within } from 'storybook/test';
 import { getMockApi } from '../../../services/mockApiClient';
 import ProgrammingView from '../ProgrammingView';
 
@@ -53,15 +53,6 @@ export const NationalCoordinatorView: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(
-      canvas.getByTestId('prescriptions-cards-segment')
-    ).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId('prescriptions-table-segment')
-    ).toBeInTheDocument();
-
-    await userEvent.click(canvas.getByTestId('prescriptions-table-segment'));
-
     await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
 
     await expect(
@@ -74,8 +65,6 @@ export const NationalCoordinatorView: Story = {
       canvas.getAllByTestId(`cell-${FoieDeBovinPrescriptionFixture.id}`)
     ).toHaveLength(RegionList.length);
 
-    await userEvent.click(canvas.getByTestId('prescriptions-cards-segment'));
-
-    await expect(canvas.getByTestId('notify-button')).toBeInTheDocument();
+    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
 };

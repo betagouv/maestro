@@ -8,11 +8,6 @@ import { PrescriptionComments } from 'maestro-shared/schema/Prescription/Prescri
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import {
-  getStoredListDisplay,
-  type ListDisplay,
-  setStoredListDisplay
-} from 'src/store/localStorage';
 import { z } from 'zod';
 
 export const PrescriptionFilters = z.object({
@@ -71,10 +66,7 @@ const LocalPrescriptionModalData = z.discriminatedUnion('mode', [
     localPrescription: LocalPrescription
   }),
   z.object({
-    mode: z.enum([
-      'distributionToDepartments',
-      'distributionToSlaughterhouses'
-    ]),
+    mode: z.literal('distributionToDepartments'),
     programmingPlan: ProgrammingPlanChecked,
     prescription: Prescription,
     localPrescription: LocalPrescription,
@@ -88,7 +80,6 @@ type LocalPrescriptionModalData = z.infer<typeof LocalPrescriptionModalData>;
 
 type PrescriptionsState = {
   prescriptionFilters: PrescriptionFilters;
-  prescriptionListDisplay: ListDisplay;
   prescriptionModalData?: PrescriptionModalData;
   localPrescriptionModalData?: LocalPrescriptionModalData;
   prescriptionCommentsData?: PrescriptionCommentsData;
@@ -98,8 +89,7 @@ const initialState: PrescriptionsState = {
   prescriptionFilters: {
     missingSlaughterhouse: false,
     missingLaboratory: false
-  },
-  prescriptionListDisplay: getStoredListDisplay('prescriptionListDisplay')
+  }
 };
 
 const prescriptionsSlice = createSlice({
@@ -111,10 +101,6 @@ const prescriptionsSlice = createSlice({
       action: PayloadAction<PrescriptionFilters>
     ) => {
       state.prescriptionFilters = action.payload;
-    },
-    changeListDisplay: (state, action: PayloadAction<ListDisplay>) => {
-      state.prescriptionListDisplay = action.payload;
-      setStoredListDisplay('prescriptionListDisplay', action.payload);
     },
     setPrescriptionModalData: (
       state,

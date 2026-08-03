@@ -7,7 +7,8 @@ import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 export const LocalPrescriptionOptionsInclude = z.enum([
   'comments',
   'sampleCounts',
-  'laboratories'
+  'laboratories',
+  'pendingChanges'
 ]);
 
 export type LocalPrescriptionOptionsInclude = z.infer<
@@ -22,6 +23,7 @@ export const FindLocalPrescriptionOptions = z.object({
   region: Region.nullish(),
   department: Department.nullish(),
   companySirets: z.array(z.string()).nullish(),
+  allLevels: z.boolean().nullish(),
   includes: z.array(LocalPrescriptionOptionsInclude).nullish()
 });
 

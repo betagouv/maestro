@@ -1,8 +1,11 @@
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
-import type { Region } from 'maestro-shared/referential/Region';
+import { Region } from 'maestro-shared/referential/Region';
+import type { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import type { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
+import { hasSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import { ProgrammingPlanLocalStatus as ProgrammingPlanLocalStatusType } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
+import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   ProgrammingPlanBase,
   ProgrammingPlanChecked,
@@ -21,6 +24,7 @@ const programmingPlanLocalStatusTable = 'programming_plan_local_status';
 
 const ProgrammingPlanDbo = ProgrammingPlanBase.omit({
   subPlans: true,
+  nationalStatus: true,
   regionalStatus: true,
   departmentalStatus: true
 });
@@ -30,6 +34,7 @@ type ProgrammingPlanDbo = z.infer<typeof ProgrammingPlanDbo>;
 const ProgrammingPlanLocalStatusDbo = z.object({
   ...ProgrammingPlanLocalStatusType.shape,
   programmingPlanId: z.string(),
+  region: z.union([Region, z.literal('None')]),
   department: z.union([Department, z.literal('None')])
 });
 
@@ -37,20 +42,95 @@ type ProgrammingPlanLocalStatusDbo = z.infer<
   typeof ProgrammingPlanLocalStatusDbo
 >;
 
+type ProgrammingPlanRow = ProgrammingPlanDbo & {
+  nationalStatus: ProgrammingPlanLocalStatusDbo[];
+  regionalStatus: ProgrammingPlanLocalStatusDbo[];
+  departmentalStatus: ProgrammingPlanLocalStatusDbo[];
+  subPlans: unknown[];
+};
+
 export const ProgrammingPlans = (transaction = db) =>
   transaction<ProgrammingPlanDbo>(programmingPlansTable);
 export const ProgrammingPlanLocalStatus = (transaction = db) =>
   transaction<ProgrammingPlanLocalStatusDbo>(programmingPlanLocalStatusTable);
+
+const hasPendingChangeExpression = `(
+  case
+    when ${programmingPlanLocalStatusTable}.region = 'None' then
+      exists (
+        select 1 from prescription_changes pc
+        join prescriptions p on p.id = pc.prescription_id
+        where p.programming_plan_id = ${programmingPlansTable}.id
+          and pc.diffused_at is null
+      )
+      or exists (
+        select 1 from local_prescription_changes lpc
+        join prescriptions p2 on p2.id = lpc.prescription_id
+        where p2.programming_plan_id = ${programmingPlansTable}.id
+          and lpc.echelon = 'National'
+          and lpc.diffused_at is null
+      )
+    when ${programmingPlanLocalStatusTable}.department = 'None' then
+      exists (
+        select 1 from local_prescription_changes lpc
+        join prescriptions p2 on p2.id = lpc.prescription_id
+        where p2.programming_plan_id = ${programmingPlansTable}.id
+          and lpc.echelon = 'Regional'
+          and lpc.region = ${programmingPlanLocalStatusTable}.region
+          and lpc.diffused_at is null
+      )
+    else
+      exists (
+        select 1 from local_prescription_changes lpc
+        join prescriptions p2 on p2.id = lpc.prescription_id
+        where p2.programming_plan_id = ${programmingPlansTable}.id
+          and lpc.echelon = 'Departmental'
+          and lpc.region = ${programmingPlanLocalStatusTable}.region
+          and lpc.department = ${programmingPlanLocalStatusTable}.department
+          and lpc.diffused_at is null
+      )
+  end
+)`;
+
+const needsResendExpression = `(
+  case
+    when ${programmingPlanLocalStatusTable}.region = 'None' then false
+    when ${programmingPlanLocalStatusTable}.department = 'None' then
+      exists (
+        select 1 from local_prescription_changes lpc
+        join prescriptions p2 on p2.id = lpc.prescription_id
+        where p2.programming_plan_id = ${programmingPlansTable}.id
+          and lpc.region = ${programmingPlanLocalStatusTable}.region
+          and lpc.diffused_at is not null
+          and lpc.diffused_at > ${programmingPlanLocalStatusTable}.sent_at
+      )
+    else
+      exists (
+        select 1 from local_prescription_changes lpc
+        join prescriptions p2 on p2.id = lpc.prescription_id
+        where p2.programming_plan_id = ${programmingPlansTable}.id
+          and lpc.region = ${programmingPlanLocalStatusTable}.region
+          and lpc.department = ${programmingPlanLocalStatusTable}.department
+          and lpc.diffused_at is not null
+          and lpc.diffused_at > ${programmingPlanLocalStatusTable}.sent_at
+      )
+  end
+)`;
+
+const localStatusJsonObject = `json_build_object('status', ${programmingPlanLocalStatusTable}.status, 'region', ${programmingPlanLocalStatusTable}.region, 'department', ${programmingPlanLocalStatusTable}.department, 'sentAt', ${programmingPlanLocalStatusTable}.sent_at, 'lastModifiedAt', ${programmingPlanLocalStatusTable}.last_modified_at, 'hasPendingChange', ${hasPendingChangeExpression}, 'needsResend', ${needsResendExpression})`;
 
 const ProgrammingPlanQuery = () =>
   ProgrammingPlans()
     .select(`${programmingPlansTable}.*`)
     .select(
       db.raw(
-        `coalesce(array_agg(to_json(${programmingPlanLocalStatusTable}.*) order by ${programmingPlanLocalStatusTable}.region) filter (where ${programmingPlanLocalStatusTable}.department = 'None'), '{}') as "regional_status"`
+        `coalesce(array_agg(${localStatusJsonObject}) filter (where ${programmingPlanLocalStatusTable}.region = 'None'), '{}') as "national_status"`
       ),
       db.raw(
-        `coalesce(array_agg(to_json(${programmingPlanLocalStatusTable}.*) order by ${programmingPlanLocalStatusTable}.region, ${programmingPlanLocalStatusTable}.department) filter (where ${programmingPlanLocalStatusTable}.department != 'None'), '{}') as "departmental_status"`
+        `coalesce(array_agg(${localStatusJsonObject} order by ${programmingPlanLocalStatusTable}.region) filter (where ${programmingPlanLocalStatusTable}.department = 'None' and ${programmingPlanLocalStatusTable}.region != 'None'), '{}') as "regional_status"`
+      ),
+      db.raw(
+        `coalesce(array_agg(${localStatusJsonObject} order by ${programmingPlanLocalStatusTable}.region, ${programmingPlanLocalStatusTable}.department) filter (where ${programmingPlanLocalStatusTable}.department != 'None'), '{}') as "departmental_status"`
       ),
       db.raw(
         `(SELECT coalesce(json_agg(json_build_object('id', sp.id, 'programmingPlanId', sp.programming_plan_id, 'subPlanNumber', sp.sub_plan_number, 'stages', sp.stages, 'label', sp.label, 'analysisPermissionRole', sp.analysis_permission_role, 'contactListId', sp.contact_list_id, 'withSacha', sp.with_sacha, 'substanceKinds', sp.substance_kinds) ORDER BY sp.sub_plan_number), '[]'::json) FROM ${programmingSubPlansTable} sp WHERE sp.programming_plan_id = ${programmingPlansTable}.id) as "sub_plans"`
@@ -70,7 +150,7 @@ const findUnique = async (
   return ProgrammingPlanQuery()
     .where({ id })
     .first()
-    .then((_) => _ && ProgrammingPlanChecked.parse(omitBy(_, isNil)));
+    .then((_) => _ && parseProgrammingPlan(_));
 };
 
 const findOne = async (
@@ -94,7 +174,7 @@ const findOne = async (
       }
     })
     .first()
-    .then((_) => _ && ProgrammingPlanChecked.parse(omitBy(_, isNil)));
+    .then((_) => _ && parseProgrammingPlan(_));
 };
 
 const findMany = async (
@@ -102,13 +182,22 @@ const findMany = async (
 ): Promise<ProgrammingPlanChecked[]> => {
   console.info('Find programming plans', omitBy(findOptions, isNil));
   return ProgrammingPlanQuery()
-    .where(omitBy(omit(findOptions, 'status', 'subPlanIds', 'ids'), isNil))
+    .where(
+      omitBy(
+        omit(
+          findOptions,
+          'status',
+          'subPlanIds',
+          'ids',
+          'region',
+          'department'
+        ),
+        isNil
+      )
+    )
     .modify((builder) => {
       if (isArray(findOptions.ids)) {
         builder.whereIn('id', findOptions.ids);
-      }
-      if (isArray(findOptions.status)) {
-        builder.whereIn('status', findOptions.status);
       }
       if (isArray(findOptions.subPlanIds)) {
         builder.whereExists(
@@ -119,10 +208,47 @@ const findMany = async (
             )
         );
       }
+      if (
+        findOptions.region ||
+        findOptions.department ||
+        isArray(findOptions.status)
+      ) {
+        builder.andWhere((qb) => {
+          qb.where('region', 'None').orWhere((qb2) => {
+            if (findOptions.region) {
+              qb2.andWhere('region', findOptions.region);
+            }
+            if (findOptions.department) {
+              qb2.andWhere('department', findOptions.department);
+            }
+            if (isArray(findOptions.status)) {
+              qb2.andWhere('status', 'in', findOptions.status);
+            }
+          });
+        });
+
+        builder.whereExists(
+          db(programmingPlanLocalStatusTable)
+            .whereRaw(
+              `${programmingPlanLocalStatusTable}.programming_plan_id = ${programmingPlansTable}.id`
+            )
+            .modify((qb3) => {
+              if (findOptions.region) {
+                qb3.andWhere('region', findOptions.region);
+              }
+              if (findOptions.department) {
+                qb3.andWhere('department', findOptions.department);
+              }
+              if (isArray(findOptions.status)) {
+                qb3.andWhere('status', 'in', findOptions.status);
+              }
+            })
+        );
+      }
     })
     .then((programmingPlans) =>
       [...programmingPlans].sort(ProgrammingPlanSort).map((_: any) => {
-        return ProgrammingPlanChecked.parse(omitBy(_, isNil));
+        return parseProgrammingPlan(_);
       })
     );
 };
@@ -136,6 +262,13 @@ const insert = async (
     await ProgrammingPlans(transaction).insert(
       formatProgrammingPlan(programmingPlan)
     );
+
+    await ProgrammingPlanLocalStatus(transaction).insert({
+      ...programmingPlan.nationalStatus,
+      programmingPlanId: programmingPlan.id,
+      region: 'None',
+      department: 'None'
+    });
 
     if (programmingPlan.regionalStatus.length > 0) {
       await ProgrammingPlanLocalStatus(transaction).insert(
@@ -187,6 +320,7 @@ const insertManyLocalStatus = async (
     programmingPlanLocalStatusList.map((localStatus) => ({
       ...localStatus,
       programmingPlanId,
+      region: localStatus.region ?? 'None',
       department: localStatus.department ?? 'None'
     }))
   );
@@ -194,27 +328,145 @@ const insertManyLocalStatus = async (
 
 const updateLocalStatus = async (
   programmingPlanId: string,
-  localStatus: ProgrammingPlanLocalStatusType
+  localStatus: ProgrammingPlanLocalStatusType,
+  distributionKind: DistributionKind
 ): Promise<void> => {
   console.info(
     'Update programming plan local status',
     programmingPlanId,
     localStatus
   );
+  const echelon = localStatus.department ? 'Departmental' : 'Regional';
+  const isSend = hasSentOnward(echelon, distributionKind, localStatus.status);
+
   await ProgrammingPlanLocalStatus()
     .where({
       programmingPlanId,
-      region: localStatus.region,
+      region: localStatus.region ?? 'None',
       department: localStatus.department ?? 'None'
     })
     .update({
-      status: localStatus.status
+      status: localStatus.status,
+      ...(isSend ? { sentAt: new Date() } : {})
     });
+};
+
+const updateNationalStatus = async (
+  programmingPlanId: string,
+  status: ProgrammingPlanStatus,
+  distributionKind: DistributionKind
+): Promise<void> => {
+  console.info(
+    'Update programming plan national status',
+    programmingPlanId,
+    status
+  );
+  const isSend = hasSentOnward('National', distributionKind, status);
+
+  await ProgrammingPlanLocalStatus()
+    .where({ programmingPlanId, region: 'None', department: 'None' })
+    .update({
+      status,
+      ...(isSend ? { sentAt: new Date() } : {})
+    });
+};
+
+const touchNationalSentAt = async (
+  programmingPlanId: string,
+  sentAt: Date = new Date()
+): Promise<void> => {
+  console.info('Touch programming plan national sentAt', programmingPlanId);
+  await ProgrammingPlanLocalStatus()
+    .where({ programmingPlanId, region: 'None', department: 'None' })
+    .update({ sentAt });
+};
+
+const touchRegionalSentAt = async (
+  programmingPlanId: string,
+  region: Region,
+  sentAt: Date = new Date()
+): Promise<void> => {
+  console.info(
+    'Touch programming plan regional sentAt',
+    programmingPlanId,
+    region
+  );
+  await ProgrammingPlanLocalStatus()
+    .where({ programmingPlanId, region, department: 'None' })
+    .update({ sentAt });
+};
+
+const touchDepartmentalSentAt = async (
+  programmingPlanId: string,
+  region: Region,
+  department: Department,
+  sentAt: Date = new Date()
+): Promise<void> => {
+  console.info(
+    'Touch programming plan departmental sentAt',
+    programmingPlanId,
+    region,
+    department
+  );
+  await ProgrammingPlanLocalStatus()
+    .where({ programmingPlanId, region, department })
+    .update({ sentAt });
+};
+
+const touchNationalLastModifiedAt = async (
+  programmingPlanId: string,
+  lastModifiedAt: Date = new Date()
+): Promise<void> => {
+  console.info(
+    'Touch programming plan national lastModifiedAt',
+    programmingPlanId
+  );
+  await ProgrammingPlanLocalStatus()
+    .where({ programmingPlanId, region: 'None', department: 'None' })
+    .update({ lastModifiedAt });
+};
+
+const touchLocalStatus = async (
+  programmingPlanId: string,
+  scope: { region?: Region; department?: Department } = {}
+): Promise<void> => {
+  console.info('Touch programming plan local status', programmingPlanId, scope);
+  const lastModifiedAt = new Date();
+  await ProgrammingPlanLocalStatus()
+    .where({ programmingPlanId })
+    .modify((builder) => {
+      if (scope.region) {
+        builder.andWhere('region', scope.region);
+      }
+      if (scope.department) {
+        builder.andWhere('department', scope.department);
+      }
+    })
+    .update({ lastModifiedAt });
+
+  if (scope.region && scope.department) {
+    await ProgrammingPlanLocalStatus()
+      .where({ programmingPlanId, region: scope.region, department: 'None' })
+      .update({ lastModifiedAt });
+  }
+
+  if (scope.region) {
+    await ProgrammingPlanLocalStatus()
+      .where({ programmingPlanId, region: 'None', department: 'None' })
+      .update({ lastModifiedAt });
+  }
 };
 
 export const formatProgrammingPlan = (
   programmingPlan: ProgrammingPlanChecked
 ): ProgrammingPlanDbo => ProgrammingPlanDbo.parse(programmingPlan);
+
+const parseProgrammingPlan = (
+  row: ProgrammingPlanRow
+): ProgrammingPlanChecked =>
+  ProgrammingPlanChecked.parse(
+    omitBy({ ...row, nationalStatus: row.nationalStatus?.[0] }, isNil)
+  );
 
 export default {
   findUnique,
@@ -223,5 +475,11 @@ export default {
   insert,
   update,
   insertManyLocalStatus,
-  updateLocalStatus
+  updateLocalStatus,
+  updateNationalStatus,
+  touchLocalStatus,
+  touchNationalLastModifiedAt,
+  touchNationalSentAt,
+  touchRegionalSentAt,
+  touchDepartmentalSentAt
 };

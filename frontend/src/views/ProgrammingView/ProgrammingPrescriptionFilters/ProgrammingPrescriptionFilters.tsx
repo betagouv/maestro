@@ -1,10 +1,12 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Input from '@codegouvfr/react-dsfr/Input';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { pick } from 'lodash-es';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type React from 'react';
 import { useMemo } from 'react';
 import FiltersTags from '../../../components/FilterTags/FiltersTags';
 import type { PrescriptionFilters } from '../../../store/reducers/prescriptionsSlice';
@@ -121,6 +123,20 @@ const ProgrammingPrescriptionFilters = ({
               onChange={({ programmingSubPlanIds }) =>
                 onChange({ programmingSubPlanIds })
               }
+            />
+          </div>
+          <div className={filterClassName}>
+            <Input
+              label="Matrice"
+              iconId="fr-icon-search-line"
+              nativeInputProps={{
+                type: 'search',
+                placeholder: 'Matrice',
+                value: filters.matrixQuery ?? '',
+                onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                  onChange({ matrixQuery: e.target.value })
+              }}
+              className={cx('fr-mb-1v')}
             />
           </div>
         </div>

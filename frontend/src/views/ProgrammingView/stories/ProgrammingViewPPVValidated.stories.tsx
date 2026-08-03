@@ -13,7 +13,7 @@ import {
   RegionalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, within } from 'storybook/test';
 import { getMockApi } from '../../../services/mockApiClient';
 import ProgrammingView from '../ProgrammingView';
 
@@ -96,15 +96,6 @@ export const NationalCoordinatorView: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(
-      canvas.getByTestId('prescriptions-cards-segment')
-    ).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId('prescriptions-table-segment')
-    ).toBeInTheDocument();
-
-    await userEvent.click(canvas.getByTestId('prescriptions-table-segment'));
-
     await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
 
     await expect(
@@ -121,7 +112,9 @@ export const NationalCoordinatorView: Story = {
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
 
-    await expect(canvas.getByText('Phase de consultation')).toBeInTheDocument();
+    await expect(
+      canvas.queryByText('Phase de consultation')
+    ).not.toBeInTheDocument();
     await expect(canvas.getByText('Commentaires')).toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
@@ -151,16 +144,8 @@ export const RegionalCoordinatorView: Story = {
     const canvas = within(canvasElement);
 
     await expect(
-      canvas.queryByTestId('prescriptions-cards-segment')
-    ).toBeInTheDocument();
-    await expect(
-      canvas.queryByTestId('prescriptions-table-segment')
-    ).toBeInTheDocument();
-
-    await expect(canvas.getAllByTestId('update-laboratory-button').length).toBe(
-      regionalPrescriptions.filter((_) => _.region === Sampler1Fixture.region)
-        .length
-    );
+      canvas.queryByTestId('update-laboratory-button')
+    ).not.toBeInTheDocument();
 
     await expect(
       canvas.queryByText('Phase de consultation')
@@ -193,13 +178,6 @@ export const SamplerView: Story = {
     const canvas = within(canvasElement);
 
     await expect(
-      canvas.queryByTestId('prescriptions-cards-segment')
-    ).toBeInTheDocument();
-    await expect(
-      canvas.queryByTestId('prescriptions-table-segment')
-    ).toBeInTheDocument();
-
-    await expect(
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
 
@@ -209,5 +187,18 @@ export const SamplerView: Story = {
     await expect(canvas.queryByText('Commentaires')).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
+
+    await expect(
+      canvas.queryByText('Attribution des laboratoires')
+    ).not.toBeInTheDocument();
+    await expect(canvasElement.querySelectorAll('.checkbox-cell')).toHaveLength(
+      0
+    );
+    await expect(canvas.getAllByText('N°').length).toBeGreaterThan(0);
+    await expect(canvas.getAllByText('Matrice').length).toBeGreaterThan(0);
+    await expect(canvas.getAllByText('Analyte').length).toBeGreaterThan(0);
+    await expect(
+      canvasElement.querySelectorAll('.col-region, .col-company')
+    ).toHaveLength(0);
   }
 };

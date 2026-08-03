@@ -38,3 +38,17 @@ export const toLocalPrescriptionKeyString = (
       key.companySiret ?? ''
     ].join('|')
   );
+
+const LocalPrescriptionRegionalKeyString = z
+  .string()
+  .brand('LocalPrescriptionRegionalKeyString');
+type LocalPrescriptionRegionalKeyString = z.infer<
+  typeof LocalPrescriptionRegionalKeyString
+>;
+
+export const toLocalPrescriptionRegionalKeyString = (
+  key: Pick<LocalPrescriptionKey, 'prescriptionId' | 'region' | 'department'>
+): LocalPrescriptionRegionalKeyString =>
+  LocalPrescriptionRegionalKeyString.parse(
+    [key.prescriptionId, key.region, key.department ?? ''].join('|')
+  );

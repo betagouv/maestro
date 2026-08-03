@@ -6,9 +6,10 @@ import {
 
 export const NotificationCategory = z.enum([
   'ProgrammingPlanSubmittedToRegion',
-  'ProgrammingPlanApprovedByRegion',
   'ProgrammingPlanSubmittedToDepartments',
   'ProgrammingPlanValidated',
+  'ProgrammingPlanModifiedAfterSubmission',
+  'ProgrammingPlanReadyForAdminReview',
   'AnalysisReviewTodo',
   'ResourceDocumentUploaded',
   ...ProgrammingPlanContextList
@@ -23,10 +24,12 @@ export const NotificationCategoryTitles: Record<NotificationCategory, string> =
     ...ContextLabels,
     ProgrammingPlanSubmittedToRegion:
       'Nouveau plan de programmation disponible',
-    ProgrammingPlanApprovedByRegion: 'Plan de programmation approuvé',
     ProgrammingPlanSubmittedToDepartments:
       'Nouveau plan de programmation disponible',
     ProgrammingPlanValidated: 'Lancement de la campagne de prélèvements',
+    ProgrammingPlanModifiedAfterSubmission:
+      'Programmation modifiée après diffusion',
+    ProgrammingPlanReadyForAdminReview: 'Programmation prête pour diffusion',
     AnalysisReviewTodo: 'Analyse reçue, interprétation à faire',
     ResourceDocumentUploaded: 'Nouveau document'
   };

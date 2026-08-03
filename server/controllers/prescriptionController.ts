@@ -1,24 +1,55 @@
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
-import { hasPrescriptionPermission } from 'maestro-shared/schema/Prescription/Prescription';
+import {
+  hasPrescriptionPermission,
+  type Prescription
+} from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { editingEchelonForRole } from 'maestro-shared/schema/User/UserRole';
 import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
+import localPrescriptionChangeRepository from '../repositories/localPrescriptionChangeRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
+import prescriptionChangeRepository from '../repositories/prescriptionChangeRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
+import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
 
+const withPendingPrescriptionChanges = async (
+  prescriptions: Prescription[],
+  userRole: Parameters<typeof editingEchelonForRole>[0]
+): Promise<Prescription[]> => {
+  if (editingEchelonForRole(userRole) !== 'National') {
+    return prescriptions;
+  }
+  const pendingRows = await prescriptionChangeRepository.findLatestPending(
+    prescriptions.map((prescription) => prescription.id)
+  );
+  const pendingByPrescriptionId = new Map(
+    pendingRows.map((row) => [row.prescriptionId, row])
+  );
+  return prescriptions.map((prescription) => {
+    const pending = pendingByPrescriptionId.get(prescription.id);
+    return pending
+      ? { ...prescription, sampleCount: pending.sampleCount }
+      : prescription;
+  });
+};
+
 export const prescriptionsRouter = {
   '/prescriptions': {
-    get: async ({ query: findOptions }) => {
+    get: async ({ userRole, query: findOptions }) => {
       console.info('Find prescriptions', findOptions);
 
       const prescriptions = await prescriptionRepository.findMany(findOptions);
 
-      return { status: HttpStatus.OK, response: prescriptions };
+      return {
+        status: HttpStatus.OK,
+        response: await withPendingPrescriptionChanges(prescriptions, userRole)
+      };
     },
     post: async ({ userRole, body }) => {
       const programmingPlan = await getAndCheckProgrammingPlan(
@@ -50,6 +81,21 @@ export const prescriptionsRouter = {
         }))
       );
 
+      await localPrescriptionChangeRepository.insertMany(
+        RegionList.map((region) => {
+          const now = new Date();
+          return {
+            prescriptionId: createdPrescription.id,
+            region,
+            echelon: 'National' as const,
+            kind: 'sampleCount' as const,
+            previousSampleCount: null,
+            changedAt: now,
+            diffusedAt: now
+          };
+        })
+      );
+
       if (programmingPlan.distributionKind === 'SLAUGHTERHOUSE') {
         await localPrescriptionRepository.insertMany(
           RegionList.flatMap((region) =>
@@ -63,6 +109,8 @@ export const prescriptionsRouter = {
         );
       }
 
+      await programmingPlanRepository.touchLocalStatus(programmingPlan.id);
+
       return {
         status: HttpStatus.CREATED,
         response: createdPrescription
@@ -70,7 +118,11 @@ export const prescriptionsRouter = {
     }
   },
   '/prescriptions/export': {
-    get: async ({ user, query: queryFindOptions }, _params, response) => {
+    get: async (
+      { user, userRole, query: queryFindOptions },
+      _params,
+      response
+    ) => {
       const programmingPlan = await getAndCheckProgrammingPlan(
         queryFindOptions.programmingPlanId
       );
@@ -85,8 +137,10 @@ export const prescriptionsRouter = {
 
       console.info('Export prescriptions', user.id, findOptions);
 
-      const prescriptions =
-        await prescriptionRepository.findMany(queryFindOptions);
+      const prescriptions = await withPendingPrescriptionChanges(
+        await prescriptionRepository.findMany(queryFindOptions),
+        userRole
+      );
       const localPrescriptions = await localPrescriptionRepository.findMany({
         programmingPlanIds: queryFindOptions.programmingPlanId
           ? [queryFindOptions.programmingPlanId]
@@ -149,8 +203,7 @@ export const prescriptionsRouter = {
         notes: prescriptionUpdate.notes ?? prescription.notes,
         programmingInstruction:
           prescriptionUpdate.programmingInstruction ??
-          prescription.programmingInstruction,
-        sampleCount: prescriptionUpdate.sampleCount ?? prescription.sampleCount
+          prescription.programmingInstruction
       };
 
       await prescriptionRepository.update(updatedPrescription);
@@ -165,9 +218,24 @@ export const prescriptionsRouter = {
         await prescriptionSubstanceRepository.insertMany(substances);
       }
 
+      let pendingSampleCount = prescription.sampleCount;
+      if (prescriptionUpdate.sampleCount !== undefined) {
+        await prescriptionChangeRepository.insert({
+          prescriptionId: prescription.id,
+          sampleCount: prescriptionUpdate.sampleCount,
+          previousSampleCount: prescription.sampleCount,
+          changedAt: new Date()
+        });
+        pendingSampleCount = prescriptionUpdate.sampleCount;
+      }
+
+      await programmingPlanRepository.touchNationalLastModifiedAt(
+        programmingPlan.id
+      );
+
       return {
         status: HttpStatus.OK,
-        response: updatedPrescription
+        response: { ...updatedPrescription, sampleCount: pendingSampleCount }
       };
     },
     delete: async ({ userRole }, { prescriptionId }) => {
@@ -183,6 +251,7 @@ export const prescriptionsRouter = {
       }
 
       await prescriptionRepository.deleteOne(prescription.id);
+      await programmingPlanRepository.touchLocalStatus(programmingPlan.id);
 
       return { status: HttpStatus.NO_CONTENT };
     }

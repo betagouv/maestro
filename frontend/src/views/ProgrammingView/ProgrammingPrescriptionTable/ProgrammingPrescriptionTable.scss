@@ -1,17 +1,29 @@
 .programming-table {
+  $col-checkbox-width: 3rem;
   $col-n-width: 5.25rem;
   $col-matrice-width: 12.5rem;
   $col-analyte-width: 18.75rem;
+  $col-laboratoire-width: 22rem;
   $col-prelevements-width: 8.75rem;
   $col-region-width: 4.375rem;
+  $col-company-width: 9rem;
   $plan-group-title-height: 3rem;
+
+  --checkbox-w: 0px;
+
+  &.programming-table--with-checkbox-column {
+    --checkbox-w: #{$col-checkbox-width};
+  }
+
+  &.programming-table--with-checkbox-column .n-cell {
+    border-left: 1px solid var(--border-contrast-grey);
+  }
 
   border-left: 1px solid var(--border-contrast-grey);
   border-right: 1px solid var(--border-contrast-grey);
 
   .header-wrapper {
     position: sticky;
-    top: 0;
     z-index: 3;
     overflow: hidden;
 
@@ -69,6 +81,9 @@
       height: 1px;
     }
   }
+  col.col-checkbox {
+    width: $col-checkbox-width;
+  }
   col.col-n {
     width: $col-n-width;
   }
@@ -78,11 +93,23 @@
   col.col-analyte {
     width: $col-analyte-width;
   }
+  col.col-laboratoire {
+    width: $col-laboratoire-width;
+  }
   col.col-prelevements {
     width: $col-prelevements-width;
   }
   col.col-region {
     width: $col-region-width;
+  }
+  col.col-company {
+    width: $col-company-width;
+  }
+
+  .company-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .fr-table table {
@@ -96,29 +123,14 @@
     margin-left: 0;
   }
 
-  thead tr:nth-child(1) {
-    th:nth-child(1) {
-      min-width: $col-n-width;
-      max-width: $col-n-width;
-      padding-right: 0;
-    }
-    th:nth-child(2) {
-      min-width: $col-matrice-width;
-      max-width: $col-matrice-width;
-    }
-    th:nth-child(3) {
-      min-width: $col-analyte-width;
-      max-width: $col-analyte-width;
-    }
-    th:nth-child(4) {
-      min-width: $col-prelevements-width;
-      max-width: $col-prelevements-width;
-    }
-    th:nth-child(n + 5) {
-      min-width: $col-region-width;
-      max-width: $col-region-width;
-    }
+  thead tr:nth-child(1) th {
+    border-top: 1px solid var(--border-contrast-grey);
+    background-color: var(--background-alt-grey) !important;
+    overflow: visible;
+    text-overflow: unset;
+    white-space: nowrap;
   }
+
   thead tr.total-row {
     height: 32px;
 
@@ -126,50 +138,6 @@
       background-color: var(--background-alt-grey) !important;
       border-bottom: 1px solid var(--border-contrast-grey);
     }
-
-    td:nth-child(2) {
-      min-width: $col-prelevements-width;
-      max-width: $col-prelevements-width;
-    }
-    td:nth-child(n + 3) {
-      min-width: $col-region-width;
-      max-width: $col-region-width;
-    }
-
-    td:nth-child(1) {
-      left: 0;
-    }
-  }
-  tbody tr {
-    td:nth-child(1) {
-      min-width: $col-n-width;
-      max-width: $col-n-width;
-      padding-right: 0;
-    }
-    td:nth-child(2) {
-      min-width: $col-matrice-width;
-      max-width: $col-matrice-width;
-    }
-    td:nth-child(3) {
-      min-width: $col-analyte-width;
-      max-width: $col-analyte-width;
-    }
-    td:nth-child(4) {
-      min-width: $col-prelevements-width;
-      max-width: $col-prelevements-width;
-    }
-    td:nth-child(n + 5) {
-      min-width: $col-region-width;
-      max-width: $col-region-width;
-    }
-  }
-
-  thead tr:nth-child(1) th {
-    border-top: 1px solid var(--border-contrast-grey);
-    background-color: var(--background-alt-grey) !important;
-    overflow: visible;
-    text-overflow: unset;
-    white-space: nowrap;
   }
 
   td,
@@ -222,76 +190,148 @@
   }
 
   tr td {
-    border-bottom: 1px solid var(--border-contrast-grey);
+    border-bottom: 1px solid var(--border-contrast-grey) !important;
   }
 
-  th:nth-child(1),
-  td:nth-child(1) {
+  .checkbox-cell {
     position: sticky;
     left: 0;
     z-index: 1;
     background-color: var(--background-default-grey) !important;
   }
 
-  th:nth-child(2),
-  td:nth-child(2) {
+  .n-cell {
     position: sticky;
-    left: $col-n-width;
+    left: var(--checkbox-w);
     z-index: 1;
+    min-width: $col-n-width;
+    max-width: $col-n-width;
+    padding-right: 0;
     background-color: var(--background-default-grey) !important;
   }
 
-  th:nth-child(3),
-  td:nth-child(3) {
+  .matrice-cell {
     position: sticky;
-    left: calc(#{$col-n-width} + #{$col-matrice-width});
+    left: calc(var(--checkbox-w) + #{$col-n-width});
     z-index: 1;
+    min-width: $col-matrice-width;
+    max-width: $col-matrice-width;
     background-color: var(--background-default-grey) !important;
   }
 
-  th:nth-child(4),
-  td:nth-child(4) {
+  .analyte-cell {
     position: sticky;
-    left: calc(#{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width});
+    left: calc(var(--checkbox-w) + #{$col-n-width} + #{$col-matrice-width});
     z-index: 1;
+    min-width: $col-analyte-width;
+    max-width: $col-analyte-width;
     background-color: var(--background-default-grey) !important;
   }
 
-  thead th:nth-child(1),
-  thead th:nth-child(2),
-  thead th:nth-child(3),
-  thead th:nth-child(4) {
+  td.analyte-cell:has(.analyte-lines),
+  td.laboratoire-cell:has(.lab-line) {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    vertical-align: top !important;
+  }
+
+  .analyte-lines > div,
+  .lab-line {
+    display: flex;
+    align-items: center;
+    min-height: 4rem;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .lab-line > * {
+    width: 100%;
+  }
+
+  .analyte-lines > div:not(:first-child),
+  .lab-line:not(:first-child) {
+    box-shadow: inset 0 1px 0 0 var(--border-contrast-grey);
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .prelevements-cell {
+    position: sticky;
+    left: calc(
+      var(--checkbox-w) + #{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width}
+    );
+    z-index: 1;
+    min-width: $col-prelevements-width;
+    max-width: $col-prelevements-width;
+    background-color: var(--background-default-grey) !important;
+  }
+
+  .laboratoire-cell {
+    position: sticky;
+    left: calc(
+      var(--checkbox-w) + #{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width} +
+        #{$col-prelevements-width}
+    );
+    z-index: 1;
+    min-width: $col-laboratoire-width;
+    max-width: $col-laboratoire-width;
+    background-color: var(--background-default-grey) !important;
+  }
+
+  thead .checkbox-cell,
+  thead .n-cell,
+  thead .matrice-cell,
+  thead .analyte-cell,
+  thead .laboratoire-cell,
+  thead .prelevements-cell {
     z-index: 2;
     background-color: var(--background-alt-grey) !important;
   }
 
-  thead tr.total-row td:nth-child(1) {
-    z-index: 2;
-  }
+  tr.prescription-row--changed {
+    background-color: var(--background-alt-yellow-tournesol);
 
-  thead tr.total-row td:nth-child(2) {
-    left: calc(#{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width});
-    z-index: 2;
-  }
+    td {
+      background-color: inherit;
+    }
 
-  thead tr.total-row td:nth-child(n + 3) {
-    left: auto;
-    position: static;
+    .checkbox-cell,
+    .n-cell,
+    .matrice-cell,
+    .analyte-cell,
+    .laboratoire-cell,
+    .prelevements-cell {
+      background-color: var(--background-alt-yellow-tournesol) !important;
+    }
   }
 
   .prescription-sample-count-cell {
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+  }
+
+  .prescription-sample-count-cell__value-row {
+    display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
     gap: 8px;
+  }
 
-    &--edit {
-      flex-direction: column;
-    }
+  .prescription-sample-count-cell-icon {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+  }
 
-    &--read {
-      flex-direction: row;
-    }
+  .previous-sample-count {
+    font-size: 0.75rem;
+    color: var(--text-mention-grey);
   }
 
   .prescription-expanded-content {
@@ -332,27 +372,7 @@
     }
   }
 
-  tr.plan-group-total-row {
-    td:nth-child(2) {
-      position: sticky !important;
-      left: calc(
-        #{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width}
-      ) !important;
-      z-index: 2 !important;
-      min-width: $col-prelevements-width;
-      max-width: $col-prelevements-width;
-    }
-
-    td:nth-child(3),
-    td:nth-child(4) {
-      position: static !important;
-      left: auto !important;
-      z-index: auto !important;
-    }
-
-    td:nth-child(n + 3) {
-      min-width: $col-region-width;
-      max-width: $col-region-width;
-    }
+  tr.plan-group-total-row .prelevements-cell {
+    z-index: 2;
   }
 }

@@ -1,3 +1,4 @@
+import { hasSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import {
   DAOAInProgressProgrammingPlanFixture,
   DAOAValidatedProgrammingPlanFixture,
@@ -33,11 +34,34 @@ export const seed = async () => {
   await ProgrammingPlans().insert(plans.map(formatProgrammingPlan));
 
   await ProgrammingPlanLocalStatus().insert(
+    plans.map((plan) => ({
+      programmingPlanId: plan.id,
+      region: 'None' as const,
+      department: 'None' as const,
+      status: plan.nationalStatus.status,
+      sentAt: hasSentOnward(
+        'National',
+        plan.distributionKind,
+        plan.nationalStatus.status
+      )
+        ? plan.createdAt
+        : null
+    }))
+  );
+
+  await ProgrammingPlanLocalStatus().insert(
     plans.flatMap((plan) =>
       plan.regionalStatus.map((regionalStatus) => ({
         programmingPlanId: plan.id,
         region: regionalStatus.region,
-        status: regionalStatus.status
+        status: regionalStatus.status,
+        sentAt: hasSentOnward(
+          'Regional',
+          plan.distributionKind,
+          regionalStatus.status
+        )
+          ? plan.createdAt
+          : null
       }))
     )
   );
@@ -48,7 +72,14 @@ export const seed = async () => {
         programmingPlanId: plan.id,
         region: departmentalStatus.region,
         department: departmentalStatus.department,
-        status: departmentalStatus.status
+        status: departmentalStatus.status,
+        sentAt: hasSentOnward(
+          'Departmental',
+          plan.distributionKind,
+          departmentalStatus.status
+        )
+          ? plan.createdAt
+          : null
       }))
     )
   );

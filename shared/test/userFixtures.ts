@@ -182,6 +182,17 @@ export const NationalObserver = genUser({
   ],
   id: '99999999-9999-9999-9999-999999999999'
 });
+export const RegionalDaoaCoordinator = genUser({
+  roles: ['RegionalCoordinator'],
+  id: '10101010-1010-1010-1010-101010101010',
+  programmingSubPlans: [
+    DAOAVolailleInProgressSubPlanFixture,
+    DAOABovinInProgressSubPlanFixture,
+    DAOAVolailleValidatedSubPlanFixture,
+    DAOABovinValidatedSubPlanFixture
+  ],
+  region: Region1Fixture
+});
 export const DepartmentalCoordinator = genUser({
   roles: ['DepartmentalCoordinator'],
   id: '12121212-1212-1212-1212-121212121212',

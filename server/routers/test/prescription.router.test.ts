@@ -23,6 +23,7 @@ import {
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { LocalPrescriptionChanges } from '../../repositories/localPrescriptionChangeRepository';
 import { LocalPrescriptions } from '../../repositories/localPrescriptionRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
@@ -104,12 +105,18 @@ describe('Prescriptions router', () => {
         programmingPlanSubmitted,
         programmingPlanInProgress,
         programmingPlanClosed
-      ].flatMap((programmingPlan) =>
-        programmingPlan.regionalStatus.map((regionalStatus) => ({
+      ].flatMap((programmingPlan) => [
+        {
+          ...programmingPlan.nationalStatus,
+          programmingPlanId: programmingPlan.id,
+          region: 'None',
+          department: 'None'
+        },
+        ...programmingPlan.regionalStatus.map((regionalStatus) => ({
           ...regionalStatus,
           programmingPlanId: programmingPlan.id
         }))
-      )
+      ])
     );
     await ProgrammingSubPlans().insert(
       [
@@ -342,6 +349,18 @@ describe('Prescriptions router', () => {
           .count()
           .first()
       ).resolves.toMatchObject({ count: '18' });
+
+      const changes = await LocalPrescriptionChanges().where({
+        prescriptionId: res.body.id
+      });
+      expect(changes).toHaveLength(RegionList.length);
+      expect(
+        changes.every(
+          (change) =>
+            change.previousSampleCount === null &&
+            change.changesViewedAt === null
+        )
+      ).toBe(true);
 
       //Cleanup
       await Prescriptions().where({ id: res.body.id }).delete();
