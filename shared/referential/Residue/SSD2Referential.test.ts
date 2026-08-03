@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
-import { getSSD2Id } from './SSD2Referential';
+import { SSD2Id } from './SSD2Id';
+import { getSSD2Id, SSD2Referential } from './SSD2Referential';
 
 test('getSSD2IdByCasNumber', () => {
   expect(getSSD2Id('', null, 'wrongCasNumber')).toEqual(null);
@@ -20,4 +21,12 @@ test('getSSD2IdByLabel', () => {
   expect(getSSD2Id('DIphenylsulfon', null, null)).toMatchInlineSnapshot(
     `"RF-1063-001-PPP"`
   );
+});
+
+test('les codes générés par Maestro font partie du référentiel', () => {
+  expect(SSD2Referential['MAESTRO-CYPROSULFAMIDE']).toBeDefined();
+  expect(getSSD2Id('cyprosulfamide', null, null)).toEqual(
+    'MAESTRO-CYPROSULFAMIDE'
+  );
+  expect(SSD2Id.safeParse('MAESTRO-CYPROSULFAMIDE').success).toEqual(true);
 });

@@ -216,4 +216,11 @@ test('lmr can be optional for some reference', () => {
       reference: 'RF-0848-001-PPP'
     })
   ).toEqual(true);
+
+  expect(
+    LmrIsValid({
+      ...sampleWithRequiredLmr,
+      reference: 'MAESTRO-CYPROSULFAMIDE'
+    })
+  ).toEqual(true);
 });

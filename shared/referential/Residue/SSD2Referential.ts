@@ -1,7 +1,7 @@
 import { SandreToSSD2 } from './SandreToSSD2';
 import type { SSD2Id } from './SSD2Id';
 
-export const SSD2Referential =
+const EfsaSSD2Referential =
   // ----- ne pas supprimer cette ligne : début
   {
     'RF-00000007-PAR': {
@@ -12046,6 +12046,25 @@ type Referential = {
     lmrCanBeOptional?: true;
     deprecated?: true;
   };
+};
+
+// Codes générés par Maestro pour les substances remontées par les laboratoires qui n'ont
+// pas de code SSD2 EFSA
+// Ce bloc doit rester en dehors du bloc généré ci-dessus, que `ssd2-generate` réécrit.
+const MaestroResidueReferential = {
+  'MAESTRO-CYPROSULFAMIDE': {
+    reference: 'MAESTRO-CYPROSULFAMIDE',
+    name: 'Cyprosulfamide',
+    casNumber: null,
+    otherNames: [],
+    reportable: false,
+    lmrCanBeOptional: true
+  }
+} as const satisfies Referential;
+
+export const SSD2Referential = {
+  ...EfsaSSD2Referential,
+  ...MaestroResidueReferential
 };
 
 export const SSD2IdLabel = Object.values(SSD2Referential).reduce(
