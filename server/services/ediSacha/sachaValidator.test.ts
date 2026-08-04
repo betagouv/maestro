@@ -19,14 +19,14 @@ test.each([
   ).toMatchSnapshot();
 });
 
-test.each([
-  'example-an-1.xml',
-  'example-an-2.xml'
-])(`import un fichier AN de l'EDI Sacha %s`, (fileName) => {
-  expect(
-    validateAndDecodeSachaXml(
-      readSachaExample(fileName),
-      acquittementMessageValidator
-    )
-  ).toMatchSnapshot();
-});
+test.each(['example-an-1.xml', 'example-an-2.xml'])(
+  `import un fichier AN de l'EDI Sacha %s`,
+  (fileName) => {
+    expect(
+      validateAndDecodeSachaXml(
+        readSachaExample(fileName),
+        acquittementMessageValidator
+      )
+    ).toMatchSnapshot();
+  }
+);

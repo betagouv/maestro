@@ -28,7 +28,7 @@
     "@types/node": "$@types/node"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.2",
+    "@biomejs/biome": "^2.5.5",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^26.1.2",
     "@types/ssh2-sftp-client": "^9.0.6",
