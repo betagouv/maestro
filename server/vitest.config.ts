@@ -1,5 +1,5 @@
 import { defineConfig } from 'vitest/config';
-import RandomSeed from '../test/vitest-random-seed';
+import RandomSeed from '../test/vitest-random-seed.mts';
 
 const integrationTestFiles = [
   '**/*.router.test.ts',
