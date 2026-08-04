@@ -16,7 +16,7 @@
     "test",
     ".storybook",
     "../shared",
-    "../test/vitest-random-seed.ts",
+    "../test/vitest-random-seed.mts",
     "vite-env.d.ts"
   ]
 }
