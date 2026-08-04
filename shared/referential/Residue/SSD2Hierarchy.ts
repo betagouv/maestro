@@ -64,11 +64,6 @@ export const SSD2Hierarchy: { [reference in SSD2Id]?: SSD2Id[] } =
     'RF-0393-001-PPP': ['RF-0393-002-PPP', 'RF-0393-003-PPP'],
     'RF-0425-001-PPP': ['RF-0425-002-PPP', 'RF-0644-001-PPP'],
     'RF-0440-001-PPP': ['RF-00003354-PAR', 'RF-0440-002-PPP'],
-    'RF-0690-006-PPP': [
-      'RF-0690-005-PPP',
-      'RF-0690-006-PPP',
-      'RF-0690-004-PPP'
-    ],
     'RF-1078-002-PPP': [
       'RF-00007489-PAR',
       'RF-00007495-PAR',
