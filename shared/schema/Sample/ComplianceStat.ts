@@ -7,8 +7,8 @@ import { Region } from '../../referential/Region';
 export const ComplianceStat = z.object({
   region: Region,
   department: Department.optional(),
-  matrixKind: MatrixKind.optional(),
-  matrix: Matrix.optional(),
+  matrixKind: MatrixKind.optional().catch(undefined),
+  matrix: Matrix.optional().catch(undefined),
   totalCount: z.coerce.number(),
   compliantCount: z.coerce.number().default(0),
   nonCompliantCount: z.coerce.number().default(0)

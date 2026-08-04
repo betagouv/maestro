@@ -7,9 +7,15 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 import type { SevesId } from 'maestro-shared/schema/Sample/Seves';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
+import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import {
+  DAOAInProgressBovinSubPlanId,
+  DAOAInProgressProgrammingPlanFixture
+} from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  genCreatedPartialSample,
   genSampleItem,
   Sample2Fixture,
   Sample11Fixture,
@@ -18,7 +24,10 @@ import {
   SampleDAOA1Fixture,
   SampleDAOA2Fixture
 } from 'maestro-shared/test/sampleFixtures';
-import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import {
+  Sampler1Fixture,
+  SamplerDaoaFixture
+} from 'maestro-shared/test/userFixtures';
 import { toArray } from 'maestro-shared/utils/utils';
 import { describe, expect, test } from 'vitest';
 import { analysisRepository } from './analysisRepository';
@@ -212,6 +221,127 @@ describe('findMany samples', async () => {
     });
     expect(samples).toHaveLength(1);
     expect(samples[0].id).toBe(analysisWithResidues.sampleId);
+  });
+});
+
+describe('findComplianceStats', async () => {
+  const statsRegion = '84';
+
+  const insertStatsSample = (data: Partial<PartialSample>) =>
+    sampleRepository.insert(
+      genCreatedPartialSample({
+        sampler: SamplerDaoaFixture,
+        company: SlaughterhouseCompanyFixture1,
+        programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
+        programmingSubPlanId: DAOAInProgressBovinSubPlanId,
+        context: 'Surveillance',
+        region: statsRegion,
+        specificData: {},
+        ...data
+      })
+    );
+
+  test('counts compliant and non compliant samples by matrix', async () => {
+    await insertStatsSample({
+      reference: 'DAOA-69-24-101-A',
+      department: '69',
+      matrixKind: 'A00GY',
+      matrix: 'A00GZ',
+      compliance: 'Compliant'
+    });
+    await insertStatsSample({
+      reference: 'DAOA-69-24-102-A',
+      department: '69',
+      matrixKind: 'A00GY',
+      matrix: 'A00GZ',
+      compliance: 'NonCompliantAndHarmful'
+    });
+    await insertStatsSample({
+      reference: 'DAOA-69-24-103-A',
+      department: '69',
+      matrixKind: 'A00GY',
+      matrix: 'A00GZ'
+    });
+
+    const stats = await sampleRepository.findComplianceStats({
+      programmingPlanId: DAOAInProgressProgrammingPlanFixture.id
+    });
+
+    expect(stats).toContainEqual({
+      region: statsRegion,
+      matrixKind: 'A00GY',
+      matrix: 'A00GZ',
+      totalCount: 3,
+      compliantCount: 1,
+      nonCompliantCount: 1
+    });
+  });
+
+  test('ignores matrixKind and matrix filled as free text', async () => {
+    await insertStatsSample({
+      reference: 'DAOA-69-24-104-A',
+      department: '69',
+      matrixKind: 'Other',
+      matrix: 'Matrice saisie en champ libre'
+    });
+
+    const stats = await sampleRepository.findComplianceStats({
+      programmingPlanId: DAOAInProgressProgrammingPlanFixture.id
+    });
+
+    expect(stats).toContainEqual({
+      region: statsRegion,
+      matrixKind: undefined,
+      matrix: undefined,
+      totalCount: 1,
+      compliantCount: 0,
+      nonCompliantCount: 0
+    });
+  });
+
+  test('ignores an unset matrixKind', async () => {
+    await insertStatsSample({
+      reference: 'DAOA-69-24-105-A',
+      department: '69',
+      matrixKind: null,
+      matrix: 'A00HF'
+    });
+
+    const stats = await sampleRepository.findComplianceStats({
+      programmingPlanId: DAOAInProgressProgrammingPlanFixture.id
+    });
+
+    expect(stats).toContainEqual({
+      region: statsRegion,
+      matrixKind: undefined,
+      matrix: 'A00HF',
+      totalCount: 1,
+      compliantCount: 0,
+      nonCompliantCount: 0
+    });
+  });
+
+  test('groups by department, including samples without matrix', async () => {
+    await insertStatsSample({
+      reference: 'DAOA-38-24-106-A',
+      department: '38',
+      matrixKind: null,
+      matrix: null,
+      compliance: 'NonCompliant'
+    });
+
+    const stats = await sampleRepository.findComplianceStats({
+      programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
+      byDepartment: true
+    });
+
+    expect(stats).toContainEqual({
+      region: statsRegion,
+      department: '38',
+      totalCount: 1,
+      compliantCount: 0,
+      nonCompliantCount: 1
+    });
   });
 });
 
