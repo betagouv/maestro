@@ -15,7 +15,16 @@ import {
   sampleReferenceValidator
 } from '../utils';
 
-const codeMethods = ['M1', 'M26', 'M3', 'M18', 'M21', 'M23', 'M27'] as const;
+const codeMethods = [
+  'M1',
+  'M26',
+  'M3',
+  'M18',
+  'M21',
+  'M23',
+  'M27',
+  'M38'
+] as const;
 const codeMethodsAnalyseMethod = {
   M1: 'Multi',
   M26: 'Multi',
@@ -23,7 +32,8 @@ const codeMethodsAnalyseMethod = {
   M18: 'Mono',
   M21: 'Mono',
   M23: 'Mono',
-  M27: 'Mono'
+  M27: 'Mono',
+  M38: 'Mono'
 } as const satisfies Record<(typeof codeMethods)[number], AnalysisMethod>;
 const isCodeMethod = (code: string): code is (typeof codeMethods)[number] =>
   (codeMethods as Readonly<string[]>).includes(code);
