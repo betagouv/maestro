@@ -46,7 +46,13 @@ export const sampleReferenceValidator = (
 export const parseSampleReference = (
   input: string
 ): { reference: string; copyNumber: number; itemNumber: number } | null => {
-  const parts = input.replace(/\s/g, '').split('-');
+  // collapse spaces around separators, then drop any trailing free text (e.g. "GES-26-00621-A-1 BLE (FROMENT)")
+  const [normalized] = input
+    .trim()
+    .replace(/\s*-\s*/g, '-')
+    .split(/\s+/);
+
+  const parts = normalized.split('-');
   if (parts.length < 3) return null;
 
   const [shortName, yearPart, serialPart] = parts;
