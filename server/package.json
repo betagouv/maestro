@@ -19,6 +19,7 @@
     "migrate-rollback-all": "NODE_OPTIONS='--enable-source-maps --import ./loaders/register.mjs' knex migrate:rollback --all",
     "seed": "node --enable-source-maps --import ./loaders/register.mjs database/seeds/dummy/index.ts",
     "seed:laboratories": "node --enable-source-maps --import ./loaders/register.mjs database/seeds/laboratories/script.ts",
+    "seed:departments": "node --enable-source-maps --import ./loaders/register.mjs database/seeds/departments/script.ts",
     "ssd2-generate": "node --enable-source-maps --import ./loaders/register.mjs ./scripts/updateSSD2Referential.ts",
     "check:emails": "node --enable-source-maps --import ./loaders/register.mjs ./services/imapService/script.ts",
     "check:sftp": "node --enable-source-maps --import ./loaders/register.mjs ./services/ediSacha/script.ts",
