@@ -12,22 +12,10 @@ import type {
 import {
   csvToJson,
   frenchNumberStringValidator,
-  parseSampleReference
+  sampleReferenceValidator
 } from '../utils';
 
-export const capinovCodeEchantillonValidator = z
-  .string()
-  .transform((l, ctx) => {
-    const parsed = parseSampleReference(l.trim().replaceAll(' ', ''));
-    if (!parsed) {
-      ctx.addIssue({
-        code: 'custom',
-        message: `Référence capinov invalide: ${l}`
-      });
-      return z.NEVER;
-    }
-    return parsed;
-  });
+const capinovCodeEchantillonValidator = sampleReferenceValidator('capinov');
 // Visible for testing
 export const extractAnalyzes = (
   fileContent: Record<string, string>[]

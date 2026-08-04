@@ -10,7 +10,10 @@ import type {
   ExportDataSubstance,
   LaboratoryConf
 } from '../index';
-import { frenchNumberStringValidator, parseSampleReference } from '../utils';
+import {
+  frenchNumberStringValidator,
+  sampleReferenceValidator
+} from '../utils';
 
 const codeMethods = ['M1', 'M26', 'M3', 'M18', 'M21', 'M23', 'M27'] as const;
 const codeMethodsAnalyseMethod = {
@@ -56,17 +59,7 @@ export const analyseXmlValidator = z.object({
   )
 });
 
-export const girpaCodeEchantillonValidator = z.string().transform((l, ctx) => {
-  const parsed = parseSampleReference(l.replace(/\s/g, ''));
-  if (!parsed) {
-    ctx.addIssue({
-      code: 'custom',
-      message: `Code échantillon invalide: ${l}`
-    });
-    return z.NEVER;
-  }
-  return parsed;
-});
+const girpaCodeEchantillonValidator = sampleReferenceValidator('girpa');
 
 type GirpaAnaysis = Omit<ExportAnalysis, 'pdfFile'> & {
   girpaReference: string;

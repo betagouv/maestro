@@ -2,11 +2,7 @@ import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { describe, expect, test } from 'vitest';
 import type { z } from 'zod';
-import {
-  type analyseXmlValidator,
-  extractAnalyzes,
-  girpaCodeEchantillonValidator
-} from './girpa';
+import { type analyseXmlValidator, extractAnalyzes } from './girpa';
 
 const girpaXMLExample = (analyses: z.input<typeof analyseXmlValidator>[]) => ({
   Rapport: {
@@ -183,33 +179,4 @@ describe('getResidue', () => {
   ])('getResidue %#', (casNumber, englishName, expected) => {
     expect(getSSD2Id(englishName, null, casNumber)).toEqual(expected);
   });
-});
-
-test.each<[string, z.infer<typeof girpaCodeEchantillonValidator>]>([
-  [
-    'OCC-25-0007-01',
-    { reference: 'OCC-25-0007', copyNumber: 1, itemNumber: 1 }
-  ],
-  [
-    'OCC-25-00007-01',
-    { reference: 'OCC-25-00007', copyNumber: 1, itemNumber: 1 }
-  ],
-  [
-    'OCC-25-0007-02',
-    { reference: 'OCC-25-0007', copyNumber: 2, itemNumber: 1 }
-  ],
-  [
-    'OCC-25-0007-A-2',
-    { reference: 'OCC-25-0007', copyNumber: 2, itemNumber: 1 }
-  ],
-  [
-    'OCC-25-0007-B-1',
-    { reference: 'OCC-25-0007', copyNumber: 1, itemNumber: 2 }
-  ],
-  [
-    'OCC-25 -0007-01',
-    { reference: 'OCC-25-0007', copyNumber: 1, itemNumber: 1 }
-  ]
-])('girpaCodeEchantillonValidator', (value, expected) => {
-  expect(girpaCodeEchantillonValidator.parse(value)).toStrictEqual(expected);
 });

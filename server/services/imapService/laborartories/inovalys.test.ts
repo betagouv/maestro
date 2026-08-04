@@ -1,10 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import type { z } from 'zod';
-import {
-  extractAnalyzes,
-  getAnalysisKeyBySubject,
-  inovalysRefClientValidator
-} from './inovalys';
+import { extractAnalyzes, getAnalysisKeyBySubject } from './inovalys';
 
 test("Génère une erreur lisible si le format n'est pas respecté", () => {
   expect(() =>
@@ -430,28 +425,4 @@ describe('getAnalysisKeyBySubject', () => {
       getAnalysisKeyBySubject('Résultats OCC-25-0007 (Edition Ponctuelle)')
     ).toBe(getAnalysisKeyBySubject('Résultats OCC-25-0007'));
   });
-});
-
-test.each<[string, z.infer<typeof inovalysRefClientValidator>]>([
-  [
-    'OCC-25-0007-01',
-    { reference: 'OCC-25-0007', copyNumber: 1, itemNumber: 1 }
-  ],
-  ['OCC-25-0007-2', { reference: 'OCC-25-0007', copyNumber: 2, itemNumber: 1 }],
-  [
-    'REU-25-0015-A-01',
-    { reference: 'REU-25-0015', copyNumber: 1, itemNumber: 1 }
-  ],
-  [
-    'REU-25-00015-A-02',
-    { reference: 'REU-25-00015', copyNumber: 2, itemNumber: 1 }
-  ],
-  ['REU-25-150', { reference: 'REU-25-0150', copyNumber: 1, itemNumber: 1 }],
-  ['REU-26-150', { reference: 'REU-26-00150', copyNumber: 1, itemNumber: 1 }],
-  [
-    'REU-25-0015-B-01',
-    { reference: 'REU-25-0015', copyNumber: 1, itemNumber: 2 }
-  ]
-])('inovalysRefClientValidator', (value, expected) => {
-  expect(inovalysRefClientValidator.parse(value)).toEqual(expected);
 });

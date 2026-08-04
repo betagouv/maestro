@@ -9,23 +9,15 @@ import type {
   ExportDataSubstance,
   LaboratoryConf
 } from '../../index';
-import { parseSampleReference } from '../../utils';
+import { sampleReferenceValidator } from '../../utils';
 
 const methodValidator = z.literal(['Multi-résidus', 'Mono résidus']).nullish();
 
-export const cerecoRefValidator = z.string().transform((l, ctx) => {
+export const cerecoRefValidator = z
+  .string()
   // Strip matrix suffix (e.g. " : Olives" or " - Olives")
-  const withoutMatrix = l.split(/\s+[:-]\s+/)[0].trim();
-  const parsed = parseSampleReference(withoutMatrix);
-  if (!parsed) {
-    ctx.addIssue({
-      code: 'custom',
-      message: `Référence cereco invalide: ${l}`
-    });
-    return z.NEVER;
-  }
-  return parsed;
-});
+  .transform((l) => l.split(/\s+[:-]\s+/)[0])
+  .pipe(sampleReferenceValidator('cereco'));
 const fileValidator = z.array(
   z
     .looseObject({})
