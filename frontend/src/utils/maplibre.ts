@@ -1,6 +1,6 @@
 import * as maplibregl from 'maplibre-gl';
-// See https://github.com/maplibre/maplibre-gl-js/issues/7339.
-import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-csp-worker.js?url';
+// https://maplibre.org/maplibre-gl-js/docs/#vite.
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 
 maplibregl.setWorkerUrl(maplibreWorkerUrl);
 
