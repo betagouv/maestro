@@ -5,7 +5,10 @@ import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import type { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import type { Sampler } from 'maestro-shared/schema/User/User';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
-import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
+import {
+  genLocalPrescription,
+  genPrescription
+} from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
@@ -37,6 +40,15 @@ const prescription1 = genPrescription({
   context: 'Control',
   matrixKind: 'A001M',
   stages: ['STADE1', 'STADE5']
+});
+const localPrescription1 = genLocalPrescription({
+  prescriptionId: prescription1.id,
+  substanceKindsLaboratories: [
+    {
+      substanceKind: 'Any',
+      laboratoryId: LaboratoryFixture.id
+    }
+  ]
 });
 
 const partialSample = {
@@ -258,7 +270,8 @@ export const SubmittingSuccess: Story = {
         async (...args) => mockCreateOrUpdateSample(...args),
         { isSuccess: true }
       ],
-      useGetProgrammingPlanQuery: () => ({ data: programmingPlan })
+      useGetProgrammingPlanQuery: () => ({ data: programmingPlan }),
+      useGetLocalPrescriptionQuery: () => ({ data: localPrescription1 })
     })
   },
   play: async ({ canvasElement }) => {

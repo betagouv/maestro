@@ -17,7 +17,10 @@ import {
   sampleItemSealIdCheck
 } from 'maestro-shared/schema/Sample/Sample';
 
-import type { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
+import {
+  type PartialSampleItem,
+  withSubstanceKindLaboratories
+} from 'maestro-shared/schema/Sample/SampleItem';
 import type { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleSteps } from 'maestro-shared/schema/Sample/SampleStep';
 import { formatWithTz, type MaestroDate } from 'maestro-shared/utils/date';
@@ -104,30 +107,40 @@ const ItemsStep = ({ partialSample }: Props) => {
     localPrescriptionByRegion ?? localPrescriptionByCompany;
 
   useEffect(() => {
-    if (
-      programmingPlan &&
-      !items?.length &&
-      (localPrescription || !isProgrammingPlanSample(partialSample))
-    ) {
-      setItems(
-        [
-          ...(localPrescription?.substanceKindsLaboratories ??
-            (programmingSubPlan?.substanceKinds ?? []).map((substanceKind) => ({
-              substanceKind,
-              laboratoryId: undefined
-            })))
-        ]
-          .sort(SubstanceKindLaboratorySort)
-          .map((substanceKindLaboratory, index) => ({
-            sampleId: partialSample.id,
-            itemNumber: index + 1,
-            copyNumber: 1,
-            recipientKind: 'Laboratory',
-            laboratoryId: substanceKindLaboratory.laboratoryId,
-            substanceKind: substanceKindLaboratory.substanceKind,
-            compliance200263:
-              programmingSubPlan?.subPlanNumber === 'PPV' ? undefined : true
-          }))
+    if (!programmingPlan) {
+      return;
+    }
+    if (!items?.length) {
+      if (localPrescription || !isProgrammingPlanSample(partialSample)) {
+        setItems(
+          [
+            ...(localPrescription?.substanceKindsLaboratories ??
+              (programmingSubPlan?.substanceKinds ?? []).map(
+                (substanceKind) => ({
+                  substanceKind,
+                  laboratoryId: undefined
+                })
+              ))
+          ]
+            .sort(SubstanceKindLaboratorySort)
+            .map((substanceKindLaboratory, index) => ({
+              sampleId: partialSample.id,
+              itemNumber: index + 1,
+              copyNumber: 1,
+              recipientKind: 'Laboratory',
+              laboratoryId: substanceKindLaboratory.laboratoryId,
+              substanceKind: substanceKindLaboratory.substanceKind,
+              compliance200263:
+                programmingSubPlan?.subPlanNumber === 'PPV' ? undefined : true
+            }))
+        );
+      }
+    } else if (localPrescription) {
+      setItems((items) =>
+        withSubstanceKindLaboratories(
+          items,
+          localPrescription.substanceKindsLaboratories ?? []
+        )
       );
     }
   }, [localPrescription, programmingPlan]); // eslint-disable-line react-hooks/exhaustive-deps

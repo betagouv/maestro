@@ -7,6 +7,7 @@ import {
   AnalysisStatus,
   AnalysisStatusPriority
 } from '../Analysis/AnalysisStatus';
+import type { SubstanceKindLaboratory } from '../LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 import type { SampleChecked } from './Sample';
 import { SampleItemRecipientKind } from './SampleItemRecipientKind';
@@ -132,6 +133,20 @@ export const SampleItemSort = (a: PartialSampleItem, b: PartialSampleItem) =>
     : a.itemNumber - b.itemNumber;
 
 export const SampleItemMaxCopyCount = 3;
+
+export const withSubstanceKindLaboratories = <T extends PartialSampleItem>(
+  sampleItems: T[],
+  substanceKindsLaboratories: SubstanceKindLaboratory[]
+): T[] =>
+  sampleItems.map((sampleItem) => ({
+    ...sampleItem,
+    laboratoryId:
+      sampleItem.recipientKind === 'Laboratory'
+        ? (substanceKindsLaboratories.find(
+            (_) => _.substanceKind === sampleItem.substanceKind
+          )?.laboratoryId ?? null)
+        : undefined
+  }));
 
 export const getSampleItemReference = (
   sample: Pick<SampleChecked, 'reference'>,
