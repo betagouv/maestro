@@ -4,7 +4,10 @@ import { addDays, format } from 'date-fns';
 import { omit } from 'lodash-es';
 import { MatrixEffective } from 'maestro-shared/referential/Matrix/Matrix';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
-import type { UserRefined } from 'maestro-shared/schema/User/User';
+import {
+  DummyLaboratoryIds,
+  type UserRefined
+} from 'maestro-shared/schema/User/User';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import {
   CompanyFixture,
@@ -12,6 +15,7 @@ import {
 } from 'maestro-shared/test/companyFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import {
+  genLocalPrescription,
   genPrescription,
   PrescriptionFixture
 } from 'maestro-shared/test/prescriptionFixtures';
@@ -53,6 +57,11 @@ import { afterEach, beforeAll, describe, expect, test } from 'vitest';
 import { departmentsSeed } from '../../database/seeds/departments/departmentsSeed';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import { kysely } from '../../repositories/kysely';
+import {
+  formatLocalPrescription,
+  LocalPrescriptions
+} from '../../repositories/localPrescriptionRepository';
+import { LocalPrescriptionSubstanceKindsLaboratories } from '../../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
@@ -598,7 +607,10 @@ describe('Sample router', () => {
             lastUpdatedAt: expect.any(String),
             matrix: validBody.matrix,
             stage: validBody.stage,
-            items: validBody.items,
+            items: validBody.items.map((item) => ({
+              ...item,
+              laboratoryId: LaboratoryFixture.id
+            })),
             prescriptionId: PrescriptionFixture.id,
             monoSubstances: [],
             multiSubstances: []
@@ -686,6 +698,81 @@ describe('Sample router', () => {
         monoSubstances: [],
         multiSubstances: []
       });
+    });
+
+    test('should update the laboratory from the local prescription when the matrix changes', async () => {
+      const newMatrix = 'A00HF';
+      const newLaboratoryId = DummyLaboratoryIds[0];
+      const prescription = genPrescription({
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+        programmingSubPlanId: PPVValidatedSubPlanId,
+        context: PrescriptionFixture.context,
+        matrixKind: PrescriptionFixture.matrixKind,
+        matrix: newMatrix
+      });
+      const localPrescription = genLocalPrescription({
+        prescriptionId: prescription.id,
+        region: Sample11Fixture.region
+      });
+      await Prescriptions().insert(prescription);
+      await LocalPrescriptions().insert(
+        omit(formatLocalPrescription(localPrescription), [
+          'substanceKindsLaboratories',
+          'realizedSampleCount',
+          'notAdmissibleSampleCount',
+          'inProgressSampleCount'
+        ])
+      );
+      await LocalPrescriptionSubstanceKindsLaboratories().insert({
+        prescriptionId: prescription.id,
+        region: localPrescription.region,
+        department: 'None',
+        substanceKind: 'Any',
+        laboratoryId: newLaboratoryId
+      });
+
+      const sampleId = uuidv4();
+      const sample = genCreatedPartialSample({
+        id: sampleId,
+        reference: 'GS-08-24-999-A',
+        sampler: Sampler1Fixture,
+        region: Sample11Fixture.region,
+        department: Sample11Fixture.department,
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+        context: PrescriptionFixture.context,
+        matrixKind: PrescriptionFixture.matrixKind,
+        matrix: 'A00GZ',
+        prescriptionId: PrescriptionFixture.id,
+        company: CompanyFixture
+      });
+      const sampleItem = genSampleItem({
+        sampleId,
+        itemNumber: 1,
+        copyNumber: 1,
+        quantity: 42,
+        sealId: '654321',
+        substanceKind: 'Any',
+        laboratoryId: LaboratoryFixture.id
+      });
+      await Samples().insert(formatPartialSample(sample));
+      await SampleItems().insert(sampleItem);
+
+      await request(app)
+        .put(testRoute(sampleId))
+        .send({ ...sample, matrix: newMatrix, items: [sampleItem] })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await expect(
+        SampleItems().where({ sampleId, itemNumber: 1, copyNumber: 1 }).first()
+      ).resolves.toMatchObject({
+        laboratoryId: newLaboratoryId,
+        quantity: sampleItem.quantity,
+        sealId: sampleItem.sealId
+      });
+
+      await Samples().where({ id: sampleId }).delete();
+      await Prescriptions().where({ id: prescription.id }).delete();
     });
 
     test('should be forbidden to send a sample with sampleAt in the future', async () => {

@@ -21,7 +21,8 @@ import {
   type SampleAnalysisDataItemUpdate,
   SampleItem,
   SampleItemMaxCopyCount,
-  SampleItemSort
+  SampleItemSort,
+  withSubstanceKindLaboratories
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
 import { hasPermission } from 'maestro-shared/schema/User/User';
@@ -39,6 +40,7 @@ import { analysisReportDocumentsRepository } from '../repositories/analysisRepor
 import { analysisRepository } from '../repositories/analysisRepository';
 import { analysisResidueRepository } from '../repositories/analysisResidueRepository';
 import companyRepository from '../repositories/companyRepository';
+import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
@@ -575,6 +577,35 @@ export const sampleRouter = {
         sample.company?.siret !== sampleUpdate.company?.siret
       ) {
         await companyRepository.upsert(sampleUpdate.company);
+      }
+
+      if (
+        sampleUpdate.items?.length &&
+        prescription &&
+        sample.step !== 'Sent' &&
+        isProgrammingPlanSample(sampleUpdate)
+      ) {
+        const programmingPlan = await getAndCheckProgrammingPlan(
+          sampleUpdate.programmingPlanId
+        );
+        const localPrescription = await localPrescriptionRepository.findUnique({
+          prescriptionId: prescription.id,
+          region: sample.region,
+          ...(programmingPlan.distributionKind === 'SLAUGHTERHOUSE'
+            ? {
+                department: sampleUpdate.department,
+                companySiret: sampleUpdate.company?.siret
+              }
+            : {}),
+          includes: ['laboratories']
+        });
+
+        if (localPrescription) {
+          sampleUpdate.items = withSubstanceKindLaboratories(
+            sampleUpdate.items,
+            localPrescription.substanceKindsLaboratories ?? []
+          );
+        }
       }
 
       if (sampleUpdate.items) {
