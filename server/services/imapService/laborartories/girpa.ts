@@ -40,8 +40,6 @@ const isCodeMethod = (code: string): code is (typeof codeMethods)[number] =>
 
 const residueCasNumberValidator = z.string().brand('CAS number');
 
-const residueEnglishNameValidator = z.string().brand('ResidueEnglishName');
-
 export const analyseXmlValidator = z.object({
   Résultat: frenchNumberStringValidator.or(z.number()).transform((v) => v ?? 0),
   Limite_de_quantification: frenchNumberStringValidator
@@ -51,7 +49,8 @@ export const analyseXmlValidator = z.object({
     .union([z.literal('-'), z.number(), frenchNumberStringValidator])
     .transform((a) => (a === '-' ? null : a)),
   Substance_active_CAS: residueCasNumberValidator,
-  Substance_active_anglais: residueEnglishNameValidator,
+  Substance_active_anglais: z.string(),
+  Substance_active_français: z.string().optional(),
   //'16/04/2025 21:09:28'
   Date_analyse: z
     .string()
@@ -97,7 +96,9 @@ export const extractAnalyzes = (obj: unknown): GirpaAnaysis[] => {
 
   return result.Rapport.Echantillon.map((echantillon) => {
     const residues: ExportDataSubstance[] = echantillon.Analyse.filter(
-      (a) => a.Substance_active_anglais !== 'impression étiquettes'
+      (a) =>
+        a.Substance_active_anglais !== 'impression étiquettes' &&
+        a.Substance_active_français !== 'forfait administratif'
     ).map((a) => {
       const isND = a.Résultat < a.Limite_de_quantification / 3;
       const isNQ = !isND && a.Résultat < a.Limite_de_quantification;
