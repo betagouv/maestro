@@ -13,7 +13,7 @@ import type {
 import {
   csvToJson,
   frenchNumberStringValidator,
-  sampleReferenceValidator
+  parseSampleReference
 } from '../utils';
 
 const codeMethods = [
@@ -51,8 +51,6 @@ const codeMethodsAnalyseMethod = {
   'Méthode interne': 'Mono'
 } as const satisfies Record<(typeof codeMethods)[number], AnalysisMethod>;
 
-const inovalysRefClientValidator = sampleReferenceValidator('inovalys');
-
 // Visible for testing
 export const extractAnalyzes = (
   files: InovalysCSVFile[]
@@ -71,13 +69,29 @@ export const extractAnalyzes = (
   const echantillonValidator = z.string().brand();
 
   const sampleFileValidator = z.array(
-    z.object({
-      Dossier: dossierValidator,
-      Echant: echantillonValidator,
-      'Réf Client': inovalysRefClientValidator,
-      Commentaire: z.string(),
-      Conclusion: z.string()
-    })
+    z
+      .object({
+        Dossier: dossierValidator,
+        Echant: echantillonValidator,
+        'Réf Client': z.string(),
+        Description: z.string().optional(),
+        Commentaire: z.string(),
+        Conclusion: z.string()
+      })
+      .transform((row, ctx) => {
+        const refClient =
+          parseSampleReference(row['Réf Client']) ??
+          parseSampleReference(row.Description ?? '');
+        if (!refClient) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['Réf Client'],
+            message: `Référence inovalys invalide: ${row['Réf Client']}`
+          });
+          return z.NEVER;
+        }
+        return { ...row, 'Réf Client': refClient };
+      })
   );
 
   const { data: samplesData, error: samplesError } =

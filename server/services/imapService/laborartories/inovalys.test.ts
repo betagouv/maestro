@@ -383,6 +383,66 @@ test(`un résidu issue d'un calcul avec comme résultat <LQ est redéfini en ND`
     }
   `);
 });
+describe('Référence client', () => {
+  const resultRow = {
+    Echantillon: 'Echant1',
+    Dossier: 'Dossier1',
+    Détermination: 'Tébuconazole',
+    'Code Méth': 'LCMSMS',
+    'Réf Méthode': 'M-ARCO/M/021',
+    'Date Analyse': '23/10/2024',
+    'Résultat 1': 'ND',
+    'Spécification 1': '0.2',
+    'Code Sandre': '1694',
+    'Numéro CAS': '107534-96-3'
+  };
+  const extractWithSampleRow = (sampleRow: Record<string, string>) =>
+    extractAnalyzes([
+      { fileName: 'FILE_CO1.csv', content: [sampleRow] },
+      { fileName: 'FILE_CO2.csv', content: [resultRow] }
+    ]);
+
+  const sampleRow = {
+    Dossier: 'Dossier1',
+    Echant: 'Echant1',
+    'Réf Client': 'OCC-25-0007-01',
+    Description: 'LENTILLES SECHE A LA RECOLTE',
+    Commentaire: '',
+    Conclusion: ''
+  };
+
+  test('Est lue dans la colonne "Réf Client"', () => {
+    expect(extractWithSampleRow(sampleRow)).toMatchObject({
+      sampleReference: 'OCC-25-0007',
+      copyNumber: 1,
+      itemNumber: 1
+    });
+  });
+
+  test('Est lue dans la colonne "Description" si "Réf Client" ne contient pas de référence', () => {
+    expect(
+      extractWithSampleRow({
+        ...sampleRow,
+        'Réf Client': '',
+        Description: 'REU-25-00015-A-02'
+      })
+    ).toMatchObject({
+      sampleReference: 'REU-25-00015',
+      copyNumber: 2,
+      itemNumber: 1
+    });
+  });
+
+  test('Génère une erreur si aucune des deux colonnes ne contient de référence', () => {
+    expect(() =>
+      extractWithSampleRow({ ...sampleRow, 'Réf Client': 'Ref client' })
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [Error: ✖ Référence inovalys invalide: Ref client
+        → at [0]["Réf Client"]]
+    `);
+  });
+});
+
 // test('Extrait avec des fichiers', () => {
 //   const getBuffer = (
 //     fileName: string
