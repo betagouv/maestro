@@ -124,6 +124,16 @@ describe('parse correctement le XML', () => {
             Substance_active_anglais: 'fluxapyroxad',
             Code_méthode: 'M1',
             Date_analyse: '16/04/2025 21:09:28'
+          },
+          {
+            LMR: '-',
+            Limite_de_quantification: '1',
+            Résultat: 8,
+            Substance_active_CAS: '?',
+            Substance_active_anglais: '',
+            Substance_active_français: 'forfait administratif',
+            Code_méthode: 'M1',
+            Date_analyse: '16/04/2025 21:09:28'
           }
         ])
       )![0].residues
