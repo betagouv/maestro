@@ -316,10 +316,18 @@ describe('User router', () => {
       programmingSubPlans: [PPVValidatedSubPlanFixture]
     });
 
+    const regionalManagerAlsoNationalObserver = genUser({
+      roles: ['RegionalCoordinator', 'NationalObserver'],
+      region: Region1Fixture,
+      department: null,
+      programmingSubPlans: [PPVValidatedSubPlanFixture]
+    });
+
     const localUsers = [
       regionalManager,
       departmentalManager,
       departmentalManagerAlsoSampler,
+      regionalManagerAlsoNationalObserver,
       targetInScope,
       targetOtherRegion,
       targetMultiPlan,
@@ -430,6 +438,26 @@ describe('User router', () => {
             })
           )
           .use(tokenProvider(departmentalManagerAlsoSampler, 'Sampler'))
+          .expect(constants.HTTP_STATUS_CREATED);
+      });
+
+      test('should ignore the role selector even when the active role is national', async () => {
+        await request(app)
+          .post(testRoute())
+          .send(
+            genUser({
+              roles: ['Sampler'],
+              region: Region1Fixture,
+              department: Department1,
+              programmingSubPlans: [PPVValidatedSubPlanFixture]
+            })
+          )
+          .use(
+            tokenProvider(
+              regionalManagerAlsoNationalObserver,
+              'NationalObserver'
+            )
+          )
           .expect(constants.HTTP_STATUS_CREATED);
       });
     });

@@ -4,7 +4,7 @@ import { UserBase, userChecks } from './User';
 import { isNationalRole, isRegionalRole, UserRole } from './UserRole';
 
 // Identité brute du compte connecté : les valeurs telles qu'elles sont en base, non
-// neutralisées par le rôle actif.
+// écrasées par le rôle actif.
 export const UserAccount = UserBase.pick({
   id: true,
   roles: true,

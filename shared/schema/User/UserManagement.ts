@@ -34,7 +34,7 @@ export const ManageableUserRoles: Record<ManagerUserRole, UserRole[]> &
   LaboratoryOffice: []
 };
 
-export type UserManager = Pick<
+type UserManager = Pick<
   UserBase,
   'id' | 'roles' | 'region' | 'department' | 'programmingSubPlans'
 >;
@@ -44,11 +44,7 @@ export type ManagedUser = Pick<
   'roles' | 'region' | 'department' | 'programmingSubPlans'
 >;
 
-export type UserManagementScope =
-  | 'national'
-  | 'regional'
-  | 'departmental'
-  | 'none';
+type UserManagementScope = 'national' | 'regional' | 'departmental' | 'none';
 
 // Le périmètre le plus large de mes rôles l'emporte.
 export const managementScope = (
