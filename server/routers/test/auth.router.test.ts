@@ -2,8 +2,13 @@ import { constants } from 'node:http2';
 import { fakerFR } from '@faker-js/faker';
 import jwt from 'jsonwebtoken';
 import { COOKIE_MAESTRO_ACCESS_TOKEN } from 'maestro-shared/constants';
+import { Regions } from 'maestro-shared/referential/Region';
 import { genAuthRedirectUrl } from 'maestro-shared/test/authFixtures';
-import { genUser, Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import {
+  genUser,
+  Region1Fixture,
+  Sampler1Fixture
+} from 'maestro-shared/test/userFixtures';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { kysely } from '../../repositories/kysely';
@@ -18,7 +23,7 @@ import {
   mockGetAuthorizationUrl,
   mockGetLogoutUrl
 } from '../../test/setupTests';
-import { tokenProvider } from '../../test/testUtils';
+import { TEST_LOGGED_SECRET, tokenProvider } from '../../test/testUtils';
 import config from '../../utils/config';
 
 describe('Auth routes', () => {
@@ -140,6 +145,47 @@ describe('Auth routes', () => {
         .executeTakeFirst();
       expect(userInDb).toMatchObject({
         name: newName
+      });
+    });
+  });
+
+  describe('POST /auth/role', () => {
+    const testRoute = '/api/auth/role';
+
+    const multiRoleUser = genUser({
+      roles: ['RegionalCoordinator', 'DepartmentalCoordinator'],
+      region: Region1Fixture,
+      department: Regions[Region1Fixture].departments[0]
+    });
+
+    beforeAll(async () => {
+      const userToInsert = {
+        ...multiRoleUser,
+        loggedSecrets: [TEST_LOGGED_SECRET]
+      };
+      await userRepository.insert(userToInsert);
+    });
+
+    afterAll(async () => {
+      await UserCompanies().delete().where('userId', multiRoleUser.id);
+      await Users().delete().where('email', multiRoleUser.email);
+    });
+
+    test('should keep the raw department in identity when the active role neutralizes it', async () => {
+      const res = await request(app)
+        .post(testRoute)
+        .send({ newRole: 'RegionalCoordinator' })
+        .use(tokenProvider(multiRoleUser))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body.user).toMatchObject({
+        region: Region1Fixture,
+        department: null
+      });
+      expect(res.body.identity).toMatchObject({
+        roles: multiRoleUser.roles,
+        region: Region1Fixture,
+        department: Regions[Region1Fixture].departments[0]
       });
     });
   });

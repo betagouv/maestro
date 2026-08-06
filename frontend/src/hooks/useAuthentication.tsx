@@ -153,6 +153,7 @@ export const useAuthentication = () => {
   return {
     user: authUser?.user,
     userRole: authUser?.userRole,
+    identity: authUser?.identity,
     isAuthenticated,
     hasUserPermission,
     hasUserPrescriptionPermission,
