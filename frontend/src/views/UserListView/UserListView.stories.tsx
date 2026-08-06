@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { genUser } from 'maestro-shared/test/userFixtures';
+import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
 import { expect, userEvent, within } from 'storybook/test';
 import { getMockApi } from '../../services/mockApiClient';
 import { UserListView } from './UserListView';
@@ -9,6 +9,9 @@ const meta = {
   title: 'Views/Users',
   component: UserListView,
   parameters: {
+    preloadedState: {
+      auth: { authUser: genAuthUser({ roles: ['Administrator'] }) }
+    },
     apiClient: getMockApi({
       useFindUsersQuery: {
         data: userList
