@@ -69,7 +69,7 @@ const ObserverPermissionsList = [
   'viewDashboard'
 ] as const satisfies UserPermission[];
 
-export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
+const userRolePermissions = {
   NationalCoordinator: [
     'manageProgrammingPlan',
     'closeProgrammingPlan',
@@ -113,7 +113,8 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'viewDashboard',
     'updatePrescriptionLaboratories',
     'commentPrescription',
-    'distributePrescriptionToDepartments'
+    'distributePrescriptionToDepartments',
+    'manageUsers'
   ],
   NationalObserver: [
     ...ObserverPermissionsList,
@@ -140,7 +141,8 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'validateProgrammingPlan',
     'updatePrescriptionLaboratories',
     'distributePrescriptionToSlaughterhouses',
-    'commentPrescription'
+    'commentPrescription',
+    'manageUsers'
   ],
   DepartmentalObserver: ObserverPermissionsList,
   Administrator: [
@@ -162,7 +164,8 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readCompanies',
     'readAnalysis',
     'viewDashboard',
-    'manageLaboratoryAgreements'
+    'manageLaboratoryAgreements',
+    'manageUsers'
   ],
   LaboratoryUser: ['readDocuments', 'readProgrammingPlanValidated'],
   LaboratoryOffice: [
@@ -175,7 +178,16 @@ export const UserRolePermissions: Record<UserRole, UserPermission[]> = {
     'readProgrammingPlanClosed',
     'manageLaboratoryAgreements'
   ]
-};
+} as const satisfies Record<UserRole, UserPermission[]>;
+
+export const UserRolePermissions: Record<UserRole, UserPermission[]> =
+  userRolePermissions;
+
+export type UserRoleWithPermission<P extends UserPermission> = {
+  [R in UserRole]: P extends (typeof userRolePermissions)[R][number]
+    ? R
+    : never;
+}[UserRole];
 
 export const UserRoleLabels: Record<UserRole, string> = {
   NationalCoordinator: 'Coordinateur national',

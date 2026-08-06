@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const UserPermission = z.enum([
   'administrationMaestro',
+  'manageUsers',
   'createSample',
   'readSamples',
   'updateSample',
