@@ -13,6 +13,7 @@ import { ApiClientContext } from '../../services/apiClient';
 import { UserCard } from './components/UserCard';
 import { UserModal } from './components/UserModal';
 import { type FindUserOptions, UsersFilters } from './components/UsersFilters';
+import { useUserManagement } from './useUserManagement';
 
 const userFormModal = createModal({
   id: `user-form-modale-id`,
@@ -26,8 +27,14 @@ const confirmDisablingUserModal = createModal({
 
 export const UserListView = () => {
   const apiClient = useContext(ApiClientContext);
+  const { canManageUser } = useUserManagement();
 
-  const { data: users } = apiClient.useFindUsersQuery({});
+  const { data: allUsers } = apiClient.useFindUsersQuery({});
+
+  const users = useMemo(
+    () => (allUsers ?? []).filter((user) => canManageUser(user)),
+    [allUsers, canManageUser]
+  );
   const { data: programmingPlansData = [] } =
     apiClient.useFindProgrammingPlansQuery({});
   const programmingPlans = useMemo(
@@ -41,9 +48,7 @@ export const UserListView = () => {
   const [userToDisable, setUserToDisable] = useState<null | UserRefined>(null);
   const [alertMessage, setAlertMessage] = useState<null | string>(null);
 
-  const [usersFiltered, setUsersFiltered] = useState<UserRefined[]>(
-    users ?? []
-  );
+  const [usersFiltered, setUsersFiltered] = useState<UserRefined[]>(users);
 
   const onEdit = async (userToEdit: UserRefined) => {
     setUserToUpdate({ ...userToEdit });
@@ -81,7 +86,7 @@ export const UserListView = () => {
   const updateUsersFiltered = useCallback(
     (filters: FindUserOptions) => {
       setUsersFiltered(
-        (users ?? []).filter((u) => {
+        users.filter((u) => {
           if (filters.onlyDisabled && !u.disabled) {
             return false;
           }

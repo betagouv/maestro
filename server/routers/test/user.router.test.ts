@@ -2,11 +2,18 @@ import { constants } from 'node:http2';
 import { fakerFR } from '@faker-js/faker';
 import { COOKIE_MAESTRO_ACCESS_TOKEN } from 'maestro-shared/constants';
 import type { Region } from 'maestro-shared/referential/Region';
+import { Regions } from 'maestro-shared/referential/Region';
+import {
+  DAOAVolailleValidatedSubPlanFixture,
+  PPVValidatedSubPlanFixture
+} from 'maestro-shared/test/programmingPlanFixtures';
 import {
   AdminFixture,
   genUser,
   NationalCoordinator,
   NationalCoordinatorDaoaFixture,
+  Region1Fixture,
+  Region2Fixture,
   RegionalCoordinator,
   Sampler1Fixture,
   Sampler2Fixture,
@@ -16,14 +23,23 @@ import {
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { describe, expect, test } from 'vitest';
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import {
+  UserCompanies,
+  Users,
+  userRepository
+} from '../../repositories/userRepository';
 import { createServer } from '../../server';
 import {
   mockMailCreateContact,
   mockMailDeleteContact,
   mockMailUpdateContact
 } from '../../test/setupTests';
-import { accessTokenTest, tokenProvider } from '../../test/testUtils';
+import {
+  accessTokenTest,
+  TEST_LOGGED_SECRET,
+  tokenProvider
+} from '../../test/testUtils';
 
 describe('User router', () => {
   const { app } = createServer();
@@ -168,7 +184,7 @@ describe('User router', () => {
   describe('POST /', () => {
     const testRoute = () => `/api/users`;
 
-    test('should fail if the user is not administrator', async () => {
+    test('should fail if the role of the account manages nobody', async () => {
       await request(app)
         .post(testRoute())
         .use(tokenProvider(NationalCoordinator))
@@ -201,7 +217,7 @@ describe('User router', () => {
   describe('PUT /{userId}', () => {
     const testRoute = (userId: string) => `/api/users/${userId}`;
 
-    test('should fail if the user is not administrator', async () => {
+    test('should fail if the role of the account manages nobody', async () => {
       await request(app)
         .put(testRoute(NationalCoordinator.id))
         .send({ ...NationalCoordinator, role: 'Sampler', region: '01' })
@@ -247,6 +263,291 @@ describe('User router', () => {
       expect(mockMailDeleteContact).toHaveBeenCalledWith(
         NationalCoordinator.email
       );
+    });
+  });
+
+  describe('Délégation aux profils hiérarchiques', () => {
+    const Department1 = Regions[Region1Fixture].departments[0];
+    const Department2 = Regions[Region1Fixture].departments[1];
+
+    const regionalManager = genUser({
+      roles: ['RegionalCoordinator'],
+      region: Region1Fixture,
+      department: null,
+      programmingSubPlans: [PPVValidatedSubPlanFixture]
+    });
+    const departmentalManager = genUser({
+      roles: ['DepartmentalCoordinator'],
+      region: Region1Fixture,
+      department: Department1,
+      programmingSubPlans: [PPVValidatedSubPlanFixture]
+    });
+    const departmentalManagerAlsoSampler = genUser({
+      roles: ['DepartmentalCoordinator', 'Sampler'],
+      region: Region1Fixture,
+      department: Department1,
+      programmingSubPlans: [PPVValidatedSubPlanFixture]
+    });
+    const targetInScope = genUser({
+      roles: ['Sampler'],
+      region: Region1Fixture,
+      department: Department1,
+      programmingSubPlans: [PPVValidatedSubPlanFixture]
+    });
+    const targetOtherRegion = genUser({
+      roles: ['Sampler'],
+      region: Region2Fixture,
+      department: null,
+      programmingSubPlans: [PPVValidatedSubPlanFixture]
+    });
+    const targetMultiPlan = genUser({
+      roles: ['Sampler'],
+      region: Region1Fixture,
+      department: Department1,
+      programmingSubPlans: [
+        PPVValidatedSubPlanFixture,
+        DAOAVolailleValidatedSubPlanFixture
+      ]
+    });
+    const targetWithRoleOutsideMatrix = genUser({
+      roles: ['DepartmentalCoordinator', 'NationalObserver'],
+      region: Region1Fixture,
+      department: Department1,
+      programmingSubPlans: [PPVValidatedSubPlanFixture]
+    });
+
+    const regionalManagerAlsoNationalObserver = genUser({
+      roles: ['RegionalCoordinator', 'NationalObserver'],
+      region: Region1Fixture,
+      department: null,
+      programmingSubPlans: [PPVValidatedSubPlanFixture]
+    });
+
+    const localUsers = [
+      regionalManager,
+      departmentalManager,
+      departmentalManagerAlsoSampler,
+      regionalManagerAlsoNationalObserver,
+      targetInScope,
+      targetOtherRegion,
+      targetMultiPlan,
+      targetWithRoleOutsideMatrix
+    ];
+
+    beforeAll(async () => {
+      for (const user of localUsers) {
+        const userToInsert = { ...user, loggedSecrets: [TEST_LOGGED_SECRET] };
+        await userRepository.insert(userToInsert);
+      }
+    });
+
+    afterAll(async () => {
+      for (const user of localUsers) {
+        await UserCompanies().delete().where('userId', user.id);
+        await Users().delete().where('id', user.id);
+      }
+    });
+
+    describe('POST /', () => {
+      const testRoute = () => `/api/users`;
+
+      test('should let a regional coordinator create a sampler of their own region', async () => {
+        await request(app)
+          .post(testRoute())
+          .send(
+            genUser({
+              roles: ['Sampler'],
+              region: Region1Fixture,
+              department: Department1,
+              programmingSubPlans: [PPVValidatedSubPlanFixture]
+            })
+          )
+          .use(tokenProvider(regionalManager))
+          .expect(constants.HTTP_STATUS_CREATED);
+      });
+
+      test('should refuse a role outside the matrix', async () => {
+        await request(app)
+          .post(testRoute())
+          .send(
+            genUser({
+              roles: ['NationalObserver'],
+              region: null,
+              department: null,
+              programmingSubPlans: [PPVValidatedSubPlanFixture]
+            })
+          )
+          .use(tokenProvider(regionalManager))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+      });
+
+      test('should refuse another region', async () => {
+        await request(app)
+          .post(testRoute())
+          .send(
+            genUser({
+              roles: ['Sampler'],
+              region: Region2Fixture,
+              department: null,
+              programmingSubPlans: [PPVValidatedSubPlanFixture]
+            })
+          )
+          .use(tokenProvider(regionalManager))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+      });
+
+      test('should refuse another department for a departmental coordinator', async () => {
+        await request(app)
+          .post(testRoute())
+          .send(
+            genUser({
+              roles: ['Sampler'],
+              region: Region1Fixture,
+              department: Department2,
+              programmingSubPlans: [PPVValidatedSubPlanFixture]
+            })
+          )
+          .use(tokenProvider(departmentalManager))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+      });
+
+      test('should refuse a target sharing no sub plan', async () => {
+        await request(app)
+          .post(testRoute())
+          .send(
+            genUser({
+              roles: ['Sampler'],
+              region: Region1Fixture,
+              department: Department1,
+              programmingSubPlans: [DAOAVolailleValidatedSubPlanFixture]
+            })
+          )
+          .use(tokenProvider(regionalManager))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+      });
+
+      test('should ignore the role selector: a manager acting as Sampler still manages', async () => {
+        await request(app)
+          .post(testRoute())
+          .send(
+            genUser({
+              roles: ['Sampler'],
+              region: Region1Fixture,
+              department: Department1,
+              programmingSubPlans: [PPVValidatedSubPlanFixture]
+            })
+          )
+          .use(tokenProvider(departmentalManagerAlsoSampler, 'Sampler'))
+          .expect(constants.HTTP_STATUS_CREATED);
+      });
+
+      test('should ignore the role selector even when the active role is national', async () => {
+        await request(app)
+          .post(testRoute())
+          .send(
+            genUser({
+              roles: ['Sampler'],
+              region: Region1Fixture,
+              department: Department1,
+              programmingSubPlans: [PPVValidatedSubPlanFixture]
+            })
+          )
+          .use(
+            tokenProvider(
+              regionalManagerAlsoNationalObserver,
+              'NationalObserver'
+            )
+          )
+          .expect(constants.HTTP_STATUS_CREATED);
+      });
+    });
+
+    describe('PUT /{userId}', () => {
+      const testRoute = (userId: string) => `/api/users/${userId}`;
+
+      test('should refuse editing your own record, administrator included', async () => {
+        await request(app)
+          .put(testRoute(regionalManager.id))
+          .send({ ...regionalManager, disabled: true })
+          .use(tokenProvider(regionalManager))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+        await request(app)
+          .put(testRoute(AdminFixture.id))
+          .send({ ...AdminFixture, disabled: true })
+          .use(tokenProvider(AdminFixture))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+      });
+
+      test('should refuse a target of another region', async () => {
+        await request(app)
+          .put(testRoute(targetOtherRegion.id))
+          .send({ ...targetOtherRegion, disabled: true })
+          .use(tokenProvider(regionalManager))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+      });
+
+      test('should refuse a target carrying a role outside the matrix', async () => {
+        await request(app)
+          .put(testRoute(targetWithRoleOutsideMatrix.id))
+          .send({ ...targetWithRoleOutsideMatrix, disabled: true })
+          .use(tokenProvider(regionalManager))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+      });
+
+      test('should let a manager disable a target within scope', async () => {
+        await request(app)
+          .put(testRoute(targetInScope.id))
+          .send({ ...targetInScope, disabled: true })
+          .use(tokenProvider(regionalManager))
+          .expect(constants.HTTP_STATUS_OK);
+
+        const updated = await userRepository.findUnique(targetInScope.id);
+        expect(updated?.disabled).toBe(true);
+      });
+
+      test('should refuse moving a target out of my region', async () => {
+        await request(app)
+          .put(testRoute(targetInScope.id))
+          .send({ ...targetInScope, region: Region2Fixture, department: null })
+          .use(tokenProvider(regionalManager))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+      });
+
+      test('should refuse granting a role I cannot grant', async () => {
+        await request(app)
+          .put(testRoute(targetInScope.id))
+          .send({
+            ...targetInScope,
+            roles: ['NationalCoordinator'],
+            department: null
+          })
+          .use(tokenProvider(regionalManager))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+      });
+
+      test('should preserve the sub plans outside the manager scope', async () => {
+        await request(app)
+          .put(testRoute(targetMultiPlan.id))
+          .send({
+            ...targetMultiPlan,
+            programmingSubPlans: [PPVValidatedSubPlanFixture]
+          })
+          .use(tokenProvider(regionalManager))
+          .expect(constants.HTTP_STATUS_OK);
+
+        const updated = await userRepository.findUnique(targetMultiPlan.id);
+        expect(
+          (updated?.programmingSubPlans ?? [])
+            .map((subPlan) => subPlan.id)
+            .sort()
+        ).toEqual(
+          [
+            PPVValidatedSubPlanFixture.id,
+            DAOAVolailleValidatedSubPlanFixture.id
+          ].sort()
+        );
+      });
     });
   });
 });
