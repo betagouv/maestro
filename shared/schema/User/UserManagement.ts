@@ -1,10 +1,17 @@
 import { intersection, uniq } from 'lodash-es';
 import type { UserBase } from './User';
-import { type UserRole, UserRoleList } from './UserRole';
+import {
+  type UserRole,
+  UserRoleList,
+  type UserRoleWithPermission
+} from './UserRole';
+
+type ManagerUserRole = UserRoleWithPermission<'manageUsers'>;
 
 // Qui peut créer, modifier et désactiver qui ?
 // clé = gestionnaire, valeur = rôles gérés.
-export const ManageableUserRoles: Record<UserRole, UserRole[]> = {
+export const ManageableUserRoles: Record<ManagerUserRole, UserRole[]> &
+  Record<Exclude<UserRole, ManagerUserRole>, []> = {
   Administrator: UserRoleList,
   RegionalCoordinator: [
     'RegionalCoordinator',

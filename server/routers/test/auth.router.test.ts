@@ -171,7 +171,7 @@ describe('Auth routes', () => {
       await Users().delete().where('email', multiRoleUser.email);
     });
 
-    test('should keep the raw department in identity when the active role neutralizes it', async () => {
+    test('should keep the raw department in account when the active role neutralizes it', async () => {
       const res = await request(app)
         .post(testRoute)
         .send({ newRole: 'RegionalCoordinator' })
@@ -182,7 +182,7 @@ describe('Auth routes', () => {
         region: Region1Fixture,
         department: null
       });
-      expect(res.body.identity).toMatchObject({
+      expect(res.body.account).toMatchObject({
         roles: multiRoleUser.roles,
         region: Region1Fixture,
         department: Regions[Region1Fixture].departments[0]

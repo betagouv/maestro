@@ -25,6 +25,7 @@ import { z } from 'zod';
 import { RegionsFilter } from '../../../components/RegionsFilter/RegionsFilter';
 import useWindowSize from '../../../hooks/useWindowSize';
 import { pluralize } from '../../../utils/stringUtils';
+import { useUserManagement } from '../useUserManagement';
 import { UsersFilterTags } from './UsersFilterTags';
 
 const _findUserOptions = z.object({
@@ -157,6 +158,15 @@ const Filters: FunctionComponent<
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
+  const { scope, manageableRoles } = useUserManagement();
+  const canFilterByRegion = scope === 'national';
+  const canFilterByDepartment = scope !== 'departmental';
+
+  const roleOptions = useMemo(
+    () => UserRoleSorted.filter((role) => manageableRoles.includes(role)),
+    [manageableRoles]
+  );
+
   const subPlanLabelById = Object.fromEntries(
     programmingPlans.flatMap((p) =>
       p.subPlans.map((sp) => [sp.id, `${sp.subPlanNumber} (${p.year})`])
@@ -206,51 +216,57 @@ const Filters: FunctionComponent<
               ? pluralize(roles.length, { preserveCount: true })('rôle')
               : 'Tous'}
           </option>
-          {UserRoleSorted.filter((r) => !(roles ?? []).includes(r)).map((r) => (
-            <option key={`role-${r}`} value={r}>
-              {UserRoleLabels[r]}
-            </option>
-          ))}
-        </Select>
-      </div>
-      <div className={cx('fr-col-12', 'fr-col-md-3')}>
-        <RegionsFilter
-          values={regions ?? []}
-          onChange={(r) =>
-            onChange({ regions: [...(regions ?? []), r], departments: null })
-          }
-        />
-      </div>
-      <div className={cx('fr-col-12', 'fr-col-md-3')}>
-        <Select
-          label="Département"
-          nativeSelectProps={{
-            value: '',
-            onChange: (e) =>
-              onChange({
-                departments: [
-                  ...(departments ?? []),
-                  e.target.value as Department
-                ]
-              })
-          }}
-        >
-          <option value="">
-            {departments?.length
-              ? pluralize(departments.length, { preserveCount: true })(
-                  'département'
-                )
-              : 'Tous'}
-          </option>
-          {departmentOptions
-            .filter((d) => !(departments ?? []).includes(d))
-            .map((d) => (
-              <option key={`department-${d}`} value={d}>
-                {`${d} - ${DepartmentLabels[d]}`}
+          {roleOptions
+            .filter((r) => !(roles ?? []).includes(r))
+            .map((r) => (
+              <option key={`role-${r}`} value={r}>
+                {UserRoleLabels[r]}
               </option>
             ))}
         </Select>
       </div>
+      {canFilterByRegion && (
+        <div className={cx('fr-col-12', 'fr-col-md-3')}>
+          <RegionsFilter
+            values={regions ?? []}
+            onChange={(r) =>
+              onChange({ regions: [...(regions ?? []), r], departments: null })
+            }
+          />
+        </div>
+      )}
+      {canFilterByDepartment && (
+        <div className={cx('fr-col-12', 'fr-col-md-3')}>
+          <Select
+            label="Département"
+            nativeSelectProps={{
+              value: '',
+              onChange: (e) =>
+                onChange({
+                  departments: [
+                    ...(departments ?? []),
+                    e.target.value as Department
+                  ]
+                })
+            }}
+          >
+            <option value="">
+              {departments?.length
+                ? pluralize(departments.length, { preserveCount: true })(
+                    'département'
+                  )
+                : 'Tous'}
+            </option>
+            {departmentOptions
+              .filter((d) => !(departments ?? []).includes(d))
+              .map((d) => (
+                <option key={`department-${d}`} value={d}>
+                  {`${d} - ${DepartmentLabels[d]}`}
+                </option>
+              ))}
+          </Select>
+        </div>
+      )}
       <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
         <Select
           label="Sous-plans"

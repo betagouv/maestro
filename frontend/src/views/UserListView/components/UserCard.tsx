@@ -18,6 +18,7 @@ import './UserCard.scss';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useMascarade } from '../../../components/Mascarade/useMascarade';
+import { useAuthentication } from '../../../hooks/useAuthentication';
 
 type Props = {
   user: UserRefined;
@@ -37,6 +38,7 @@ export const UserCard: FunctionComponent<Props> = ({
   assert<Equals<keyof typeof _rest, never>>();
 
   const { setMascaradeUserId } = useMascarade();
+  const { hasUserPermission } = useAuthentication();
 
   const subPlanLabelById = Object.fromEntries(
     programmingPlans.flatMap((p) =>
@@ -76,14 +78,16 @@ export const UserCard: FunctionComponent<Props> = ({
                   iconId={'fr-icon-logout-box-r-line'}
                   data-testid={`user-disable-button-${user.id}`}
                 />
-                <Button
-                  size="small"
-                  onClick={() => setMascaradeUserId(user.id)}
-                  priority={'tertiary'}
-                  iconId={'fr-icon-group-line'}
-                  className={'fr-ml-1w'}
-                  title={`Usurper l'identité`}
-                />
+                {hasUserPermission('administrationMaestro') && (
+                  <Button
+                    size="small"
+                    onClick={() => setMascaradeUserId(user.id)}
+                    priority={'tertiary'}
+                    iconId={'fr-icon-group-line'}
+                    className={'fr-ml-1w'}
+                    title={`Usurper l'identité`}
+                  />
+                )}
               </>
             ) : (
               <Button

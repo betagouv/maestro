@@ -19,7 +19,7 @@ import type {
   RouteQuery,
   RouteResponse
 } from 'maestro-shared/routes/routes.infer';
-import type { UserIdentity } from 'maestro-shared/schema/User/AuthUser';
+import type { UserAccount } from 'maestro-shared/schema/User/AuthUser';
 import type { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
 import { hasPermission, type UserBase } from 'maestro-shared/schema/User/User';
 import type { UserRole } from 'maestro-shared/schema/User/UserRole';
@@ -63,7 +63,7 @@ type MaestroRouteMethod<
     ? {
         user: UserBase;
         userRole: UserRole;
-        identity: UserIdentity;
+        account: UserAccount;
         auth: TokenPayload;
       }
     : Record<never, never>),
@@ -163,11 +163,20 @@ export const generateRoutes = <
               .json(error);
           }
 
-          if ('permissions' in conf) {
+          if ('permissions' in conf || 'accountPermissions' in conf) {
             if (!request.user) {
               throw new AuthenticationMissingError(request.user);
             }
-            if (conf.permissions !== 'NONE') {
+
+            if ('accountPermissions' in conf) {
+              if (
+                !request.account.roles.some((role) =>
+                  hasPermission(role, ...conf.accountPermissions)
+                )
+              ) {
+                throw new UserPermissionMissingError();
+              }
+            } else if (conf.permissions !== 'NONE') {
               if (
                 !hasPermission(
                   request.userRole as unknown as UserRole,
@@ -193,7 +202,7 @@ export const generateRoutes = <
               user: request.user,
               auth: request.auth,
               userRole: request.userRole,
-              identity: request.identity,
+              account: request.account,
               cookies: request.cookies
             },
             validatedRequest.params,
