@@ -19,6 +19,7 @@ import type {
   RouteQuery,
   RouteResponse
 } from 'maestro-shared/routes/routes.infer';
+import type { UserIdentity } from 'maestro-shared/schema/User/AuthUser';
 import type { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
 import { hasPermission, type UserBase } from 'maestro-shared/schema/User/User';
 import type { UserRole } from 'maestro-shared/schema/User/UserRole';
@@ -62,6 +63,7 @@ type MaestroRouteMethod<
     ? {
         user: UserBase;
         userRole: UserRole;
+        identity: UserIdentity;
         auth: TokenPayload;
       }
     : Record<never, never>),
@@ -191,6 +193,7 @@ export const generateRoutes = <
               user: request.user,
               auth: request.auth,
               userRole: request.userRole,
+              identity: request.identity,
               cookies: request.cookies
             },
             validatedRequest.params,
