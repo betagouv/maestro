@@ -115,48 +115,43 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
           label: `${ContextLabels[context]} ${programmingPlan.year}`,
           content: (
             <>
+              <div className={clsx('d-flex-align-center', cx('fr-mb-4w'))}>
+                <h5 className={clsx('flex-grow-1', 'fr-mb-0')}>
+                  Détails des prélèvements par matrice
+                </h5>
+                {hasNationalView && (
+                  <Select
+                    label={<div className={cx('fr-hidden')}>Région</div>}
+                    nativeSelectProps={{
+                      value: regionFilter ?? '',
+                      onChange: (e) =>
+                        setRegionFilter(e.target.value as Region),
+                      className: cx('fr-mt-0')
+                    }}
+                  >
+                    <option value="">Toutes les régions</option>
+                    {RegionList.map((region) => (
+                      <option key={`select-region-${region}`} value={region}>
+                        {Regions[region].name}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              </div>
               {sortedPrescriptions.length > 0 && (
-                <>
-                  <div className={clsx('d-flex-align-center', cx('fr-mb-4w'))}>
-                    <h5 className={clsx('flex-grow-1', 'fr-mb-0')}>
-                      Détails des prélèvements par matrice
-                    </h5>
-                    {hasNationalView && (
-                      <Select
-                        label={<div className={cx('fr-hidden')}>Région</div>}
-                        nativeSelectProps={{
-                          value: regionFilter ?? '',
-                          onChange: (e) =>
-                            setRegionFilter(e.target.value as Region),
-                          className: cx('fr-mt-0')
-                        }}
-                      >
-                        <option value="">Toutes les régions</option>
-                        {RegionList.map((region) => (
-                          <option
-                            key={`select-region-${region}`}
-                            value={region}
-                          >
-                            {Regions[region].name}
-                          </option>
-                        ))}
-                      </Select>
-                    )}
-                  </div>
-                  <div className={cx('fr-grid-row')}>
-                    {sortedPrescriptions.map(
-                      ({ prescription, localPrescriptions }) => (
-                        <DashboardPrescriptionCard
-                          key={prescription.id}
-                          programmingPlan={programmingPlan}
-                          prescription={prescription}
-                          localPrescriptions={localPrescriptions}
-                          region={regionFilter}
-                        />
-                      )
-                    )}
-                  </div>
-                </>
+                <div className={cx('fr-grid-row')}>
+                  {sortedPrescriptions.map(
+                    ({ prescription, localPrescriptions }) => (
+                      <DashboardPrescriptionCard
+                        key={prescription.id}
+                        programmingPlan={programmingPlan}
+                        prescription={prescription}
+                        localPrescriptions={localPrescriptions}
+                        region={regionFilter}
+                      />
+                    )
+                  )}
+                </div>
               )}
             </>
           )
