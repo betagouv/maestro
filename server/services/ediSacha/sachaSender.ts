@@ -12,6 +12,8 @@ import createNodemailerService from '../mailService/nodemailerService';
 import { zip } from '../zipService';
 import { getZipFileName, type XmlFile } from './sachaToXML';
 
+const SFTP_DIRECTORY = '/uploads/masa_labo';
+
 export const sendSachaFile = async (
   xmlFile: XmlFile,
   dateNow: number,
@@ -120,7 +122,12 @@ export const sendSachaFile = async (
 
         await sftpClient.fastPut(
           zipFilePath,
-          `/uploads/masa_labo/data/${zipFileName}`
+          `${SFTP_DIRECTORY}/data/${zipFileName}`
+        );
+
+        await sftpClient.put(
+          Buffer.alloc(0),
+          `${SFTP_DIRECTORY}/ack/Ack_${path.basename(zipFileName, '.zip')}`
         );
       } catch (e) {
         throw new DaiProcessingError(
