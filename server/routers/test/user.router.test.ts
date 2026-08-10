@@ -323,14 +323,29 @@ describe('User router', () => {
       programmingSubPlans: [PPVValidatedSubPlanFixture]
     });
 
+    const regionalManagerAlsoSampler = genUser({
+      roles: ['RegionalCoordinator', 'Sampler'],
+      region: Region1Fixture,
+      department: Department1,
+      programmingSubPlans: [DAOAVolailleValidatedSubPlanFixture]
+    });
+    const targetOtherDepartmentDaoa = genUser({
+      roles: ['Sampler'],
+      region: Region1Fixture,
+      department: Department2,
+      programmingSubPlans: [DAOAVolailleValidatedSubPlanFixture]
+    });
+
     const localUsers = [
       regionalManager,
       departmentalManager,
       departmentalManagerAlsoSampler,
       regionalManagerAlsoNationalObserver,
+      regionalManagerAlsoSampler,
       targetInScope,
       targetOtherRegion,
       targetMultiPlan,
+      targetOtherDepartmentDaoa,
       targetWithRoleOutsideMatrix
     ];
 
@@ -441,6 +456,32 @@ describe('User router', () => {
           .expect(constants.HTTP_STATUS_CREATED);
       });
 
+      test('should bound the sub plans of the created user to the manager scope', async () => {
+        const newUser = genUser({
+          roles: ['Sampler'],
+          region: Region1Fixture,
+          department: Department1,
+          programmingSubPlans: [
+            PPVValidatedSubPlanFixture,
+            DAOAVolailleValidatedSubPlanFixture
+          ]
+        });
+
+        await request(app)
+          .post(testRoute())
+          .send(newUser)
+          .use(tokenProvider(regionalManager))
+          .expect(constants.HTTP_STATUS_CREATED);
+
+        const created = (
+          await userRepository.findMany({ region: Region1Fixture })
+        ).find((user) => user.email === newUser.email);
+
+        expect(
+          created?.programmingSubPlans.map((subPlan) => subPlan.id)
+        ).toEqual([PPVValidatedSubPlanFixture.id]);
+      });
+
       test('should ignore the role selector even when the active role is national', async () => {
         await request(app)
           .post(testRoute())
@@ -526,6 +567,20 @@ describe('User router', () => {
           .expect(constants.HTTP_STATUS_FORBIDDEN);
       });
 
+      test('should ignore an identifier forged in the body', async () => {
+        await request(app)
+          .put(testRoute(targetInScope.id))
+          .send({ ...targetInScope, id: targetOtherRegion.id })
+          .use(tokenProvider(regionalManager))
+          .expect(constants.HTTP_STATUS_OK);
+
+        const updated = await userRepository.findUnique(targetInScope.id);
+        expect(updated?.email).toBe(targetInScope.email);
+
+        const untouched = await userRepository.findUnique(targetOtherRegion.id);
+        expect(untouched?.email).toBe(targetOtherRegion.email);
+      });
+
       test('should preserve the sub plans outside the manager scope', async () => {
         await request(app)
           .put(testRoute(targetMultiPlan.id))
@@ -547,6 +602,42 @@ describe('User router', () => {
             DAOAVolailleValidatedSubPlanFixture.id
           ].sort()
         );
+      });
+    });
+
+    describe('GET /', () => {
+      const testRoute = () => `/api/users`;
+
+      test('should not widen the list when the active role is national', async () => {
+        const res = await request(app)
+          .get(testRoute())
+          .use(
+            tokenProvider(
+              regionalManagerAlsoNationalObserver,
+              'NationalObserver'
+            )
+          )
+          .expect(constants.HTTP_STATUS_OK);
+
+        expectArrayToContainElements(res.body, [
+          expect.objectContaining({ id: targetMultiPlan.id })
+        ]);
+        expect(res.body).not.toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ id: targetOtherRegion.id })
+          ])
+        );
+      });
+
+      test('should not narrow the list when the active role is a sampler', async () => {
+        const res = await request(app)
+          .get(testRoute())
+          .use(tokenProvider(regionalManagerAlsoSampler, 'Sampler'))
+          .expect(constants.HTTP_STATUS_OK);
+
+        expectArrayToContainElements(res.body, [
+          expect.objectContaining({ id: targetOtherDepartmentDaoa.id })
+        ]);
       });
     });
   });

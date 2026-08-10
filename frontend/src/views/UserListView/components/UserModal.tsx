@@ -17,6 +17,7 @@ import {
   type UserRefined,
   UserToCreateRefined
 } from 'maestro-shared/schema/User/User';
+import { managerSubPlanIds } from 'maestro-shared/schema/User/UserManagement';
 import {
   canHaveDepartment,
   isRegionalRole,
@@ -85,18 +86,32 @@ export const UserModal = ({
   const { account } = useAuthentication();
   const { manageableRoles, scope } = useUserManagement();
 
-  const allSubPlans = useMemo(() => {
-    const subPlans = programmingPlans.flatMap((p) =>
-      p.subPlans.map((sp) => ({ ...sp, year: p.year }))
-    );
-    const managerSubPlanIds = (account?.programmingSubPlans ?? []).map(
-      (sp) => sp.id
-    );
+  const allSubPlans = useMemo(
+    () =>
+      programmingPlans.flatMap((p) =>
+        p.subPlans.map((sp) => ({ ...sp, year: p.year }))
+      ),
+    [programmingPlans]
+  );
 
-    return managerSubPlanIds.length === 0
-      ? subPlans
-      : subPlans.filter((sp) => managerSubPlanIds.includes(sp.id));
-  }, [programmingPlans, account]);
+  const selectableSubPlans = useMemo(() => {
+    const managedIds = account ? managerSubPlanIds(account) : [];
+
+    return managedIds === null
+      ? allSubPlans
+      : allSubPlans.filter((sp) => managedIds.includes(sp.id));
+  }, [allSubPlans, account]);
+
+  // Les sous-plans de la cible hors du périmètre du gestionnaire restent affichés mais ne
+  // sont pas modifiables
+  const lockedSubPlans = useMemo(
+    () =>
+      (userToUpdate?.programmingSubPlans ?? []).filter(
+        (sp) =>
+          !selectableSubPlans.some((selectable) => selectable.id === sp.id)
+      ),
+    [userToUpdate, selectableSubPlans]
+  );
 
   const [findCompanies] = apiClient.useLazyFindCompaniesQuery();
 
@@ -195,7 +210,6 @@ export const UserModal = ({
         if (userToUpdate?.id) {
           await updateUser({
             ...n,
-            id: userToUpdate.id,
             userId: userToUpdate.id
           }).unwrap();
           setAlertMessage(
@@ -302,14 +316,17 @@ export const UserModal = ({
         <AppMultiSelect
           inputForm={form}
           inputKey={'programmingSubPlans'}
-          items={allSubPlans.map((sp) => sp.id)}
+          items={selectableSubPlans.map((sp) => sp.id)}
           onChange={(v) =>
             setUser((u) => ({
               ...u,
-              programmingSubPlans: v
-                .map((id) => allSubPlans.find((sp) => sp.id === id))
-                .filter((sp) => sp != null)
-                .map(({ year: _year, ...sp }): ProgrammingSubPlan => sp)
+              programmingSubPlans: [
+                ...lockedSubPlans,
+                ...v
+                  .map((id) => selectableSubPlans.find((sp) => sp.id === id))
+                  .filter((sp) => sp != null)
+                  .map(({ year: _year, ...sp }): ProgrammingSubPlan => sp)
+              ]
             }))
           }
           values={user.programmingSubPlans?.map((sp) => sp.id) ?? []}
@@ -320,7 +337,7 @@ export const UserModal = ({
           label={
             <>
               Sous-plans
-              {allSubPlans.some(
+              {selectableSubPlans.some(
                 (sp) =>
                   !user.programmingSubPlans?.some((usp) => usp.id === sp.id)
               ) && (
@@ -330,21 +347,29 @@ export const UserModal = ({
                   onClick={() =>
                     setUser((u) => ({
                       ...u,
-                      programmingSubPlans: allSubPlans.map(
-                        ({ year: _year, ...sp }): ProgrammingSubPlan => sp
-                      )
+                      programmingSubPlans: [
+                        ...lockedSubPlans,
+                        ...selectableSubPlans.map(
+                          ({ year: _year, ...sp }): ProgrammingSubPlan => sp
+                        )
+                      ]
                     }))
                   }
                 >
                   Tout sélectionner
                 </Button>
               )}
-              {(user.programmingSubPlans?.length ?? 0) > 0 && (
+              {selectableSubPlans.some((sp) =>
+                user.programmingSubPlans?.some((usp) => usp.id === sp.id)
+              ) && (
                 <Button
                   priority="tertiary no outline"
                   size="small"
                   onClick={() =>
-                    setUser((u) => ({ ...u, programmingSubPlans: [] }))
+                    setUser((u) => ({
+                      ...u,
+                      programmingSubPlans: lockedSubPlans
+                    }))
                   }
                 >
                   Tout désélectionner

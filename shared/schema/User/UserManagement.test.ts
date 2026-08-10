@@ -15,7 +15,8 @@ import {
   canManageUsers,
   ManageableUserRoles,
   manageableUserRoles,
-  managementScope
+  managementScope,
+  mergeManagedSubPlans
 } from './UserManagement';
 
 const Department1 = Regions[Region1Fixture].departments[0];
@@ -182,6 +183,36 @@ describe('UserManagement', () => {
       expect(canManageUser(regionalCoordinator, daoaSampler)).toBe(false);
     });
 
+    test('should not constrain an administrator carrying sub plans', () => {
+      const adminWithSubPlans = genUser({
+        roles: ['Administrator'],
+        region: null,
+        department: null,
+        programmingSubPlans: [PPVValidatedSubPlanFixture]
+      });
+      const daoaSampler = genUser({
+        roles: ['Sampler'],
+        region: Region1Fixture,
+        department: Department1,
+        programmingSubPlans: [DAOAVolailleValidatedSubPlanFixture]
+      });
+
+      expect(canManageUser(adminWithSubPlans, daoaSampler)).toBe(true);
+    });
+
+    test('should refuse any target for a regional manager without sub plan', () => {
+      const regionalCoordinatorWithoutSubPlan = genUser({
+        roles: ['RegionalCoordinator'],
+        region: Region1Fixture,
+        department: null,
+        programmingSubPlans: []
+      });
+
+      expect(
+        canManageUser(regionalCoordinatorWithoutSubPlan, samplerInScope)
+      ).toBe(false);
+    });
+
     test('should accept a target sharing only one sub plan out of several', () => {
       const multiPlanSampler = genUser({
         roles: ['Sampler'],
@@ -238,6 +269,39 @@ describe('UserManagement', () => {
           programmingSubPlans: [PPVValidatedSubPlanFixture]
         })
       ).toBe(false);
+    });
+  });
+
+  describe('mergeManagedSubPlans', () => {
+    test('should leave a national manager unconstrained', () => {
+      expect(
+        mergeManagedSubPlans(admin, [
+          PPVValidatedSubPlanFixture,
+          DAOAVolailleValidatedSubPlanFixture
+        ])
+      ).toEqual([
+        PPVValidatedSubPlanFixture,
+        DAOAVolailleValidatedSubPlanFixture
+      ]);
+    });
+
+    test('should drop the submitted sub plans outside the manager scope', () => {
+      expect(
+        mergeManagedSubPlans(regionalCoordinator, [
+          PPVValidatedSubPlanFixture,
+          DAOAVolailleValidatedSubPlanFixture
+        ])
+      ).toEqual([PPVValidatedSubPlanFixture]);
+    });
+
+    test('should preserve the current sub plans outside the manager scope', () => {
+      expect(
+        mergeManagedSubPlans(
+          regionalCoordinator,
+          [],
+          [PPVValidatedSubPlanFixture, DAOAVolailleValidatedSubPlanFixture]
+        )
+      ).toEqual([DAOAVolailleValidatedSubPlanFixture]);
     });
   });
 });

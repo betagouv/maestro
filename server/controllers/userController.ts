@@ -9,7 +9,11 @@ import {
 } from 'maestro-shared/schema/User/User';
 import {
   canCreateUser,
-  canManageUser
+  canManageUser,
+  canManageUsers,
+  managementScope,
+  managerSubPlanIds,
+  mergeManagedSubPlans
 } from 'maestro-shared/schema/User/UserManagement';
 import { isNationalRole } from 'maestro-shared/schema/User/UserRole';
 import { HttpStatus } from '../constants/httpStatus';
@@ -51,22 +55,14 @@ export const usersRouter = {
         return { status: HttpStatus.FORBIDDEN };
       }
 
-      const managerSubPlanIds = account.programmingSubPlans.map(
-        (subPlan) => subPlan.id
-      );
-      const programmingSubPlans =
-        managerSubPlanIds.length === 0
-          ? body.programmingSubPlans
-          : [
-              ...body.programmingSubPlans.filter((subPlan) =>
-                managerSubPlanIds.includes(subPlan.id)
-              ),
-              ...userToUpdate.programmingSubPlans.filter(
-                (subPlan) => !managerSubPlanIds.includes(subPlan.id)
-              )
-            ];
-
-      const updatedUser = { ...body, programmingSubPlans };
+      const updatedUser = {
+        ...body,
+        programmingSubPlans: mergeManagedSubPlans(
+          account,
+          body.programmingSubPlans,
+          userToUpdate.programmingSubPlans
+        )
+      };
 
       if (!canManageUser(account, { ...updatedUser, id: userId })) {
         return { status: HttpStatus.FORBIDDEN };
@@ -77,31 +73,43 @@ export const usersRouter = {
     }
   },
   '/users': {
-    get: async ({ user, userRole, query }) => {
-      const companySirets = companiesIsRequired({
-        ...user,
-        roles: [userRole]
-      })
-        ? user.companies.map((company) => company.siret)
-        : query.companySirets;
-
-      const findOptions = {
-        ...query,
-        region: isNationalRole(userRole) ? query.region : user.region,
-        department: departmentIsRequired({
-          ...user,
-          roles: [userRole]
-        })
-          ? (user.department as Department)
-          : query.department,
-        companySirets,
-        programmingSubPlanIds: programmingSubPlanIdsIsRequired({
-          ...user,
-          roles: [userRole]
-        })
-          ? user.programmingSubPlans.map((sp) => sp.id)
-          : query.programmingSubPlanIds
-      };
+    get: async ({ user, userRole, account, query }) => {
+      // TODO à revoir, cette route est utilisées par plusieurs écrans (utilisateurs, filtre et prélèvement)
+      // dans utilisateurs on ne prend pas en compte le role actif, alors que dans les autres oui, il faudrait revoir tout ça...
+      const scope = managementScope(account);
+      const findOptions = canManageUsers(account)
+        ? {
+            ...query,
+            region: scope === 'national' ? query.region : account.region,
+            department:
+              scope === 'departmental'
+                ? (account.department as Department)
+                : query.department,
+            programmingSubPlanIds:
+              managerSubPlanIds(account) ?? query.programmingSubPlanIds
+          }
+        : {
+            ...query,
+            region: isNationalRole(userRole) ? query.region : user.region,
+            department: departmentIsRequired({
+              ...user,
+              roles: [userRole]
+            })
+              ? (user.department as Department)
+              : query.department,
+            companySirets: companiesIsRequired({
+              ...user,
+              roles: [userRole]
+            })
+              ? user.companies.map((company) => company.siret)
+              : query.companySirets,
+            programmingSubPlanIds: programmingSubPlanIdsIsRequired({
+              ...user,
+              roles: [userRole]
+            })
+              ? user.programmingSubPlans.map((sp) => sp.id)
+              : query.programmingSubPlanIds
+          };
 
       console.info('Find users', findOptions);
 
@@ -116,7 +124,14 @@ export const usersRouter = {
         return { status: HttpStatus.FORBIDDEN };
       }
 
-      await userService.insert({ ...body, name: null });
+      await userService.insert({
+        ...body,
+        programmingSubPlans: mergeManagedSubPlans(
+          account,
+          body.programmingSubPlans
+        ),
+        name: null
+      });
       return { status: HttpStatus.CREATED };
     }
   }

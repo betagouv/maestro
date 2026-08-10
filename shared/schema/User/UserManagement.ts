@@ -1,4 +1,8 @@
 import { intersection, uniq } from 'lodash-es';
+import type {
+  ProgrammingSubPlan,
+  ProgrammingSubPlanId
+} from '../ProgrammingPlan/ProgrammingSubPlan';
 import type { UserBase } from './User';
 import {
   type UserRole,
@@ -66,6 +70,36 @@ export const manageableUserRoles = (
 export const canManageUsers = (manager: Pick<UserManager, 'roles'>): boolean =>
   manageableUserRoles(manager).length > 0;
 
+type SubPlanManager = Pick<UserManager, 'roles' | 'programmingSubPlans'>;
+
+// Les sous-plans sur lesquels le gestionnaire a la main. `null` = portée nationale, donc
+// aucune contrainte de sous-plan.
+export const managerSubPlanIds = (
+  manager: SubPlanManager
+): ProgrammingSubPlanId[] | null =>
+  managementScope(manager) === 'national'
+    ? null
+    : manager.programmingSubPlans.map((subPlan) => subPlan.id);
+
+// Un gestionnaire n'attribue que ses propres sous-plans : les sous-plans de la cible qui
+// sortent de son périmètre sont conservés tels quels.
+export const mergeManagedSubPlans = (
+  manager: SubPlanManager,
+  submittedSubPlans: ProgrammingSubPlan[],
+  currentSubPlans: ProgrammingSubPlan[] = []
+): ProgrammingSubPlan[] => {
+  const managedIds = managerSubPlanIds(manager);
+
+  if (managedIds === null) {
+    return submittedSubPlans;
+  }
+
+  return [
+    ...submittedSubPlans.filter((subPlan) => managedIds.includes(subPlan.id)),
+    ...currentSubPlans.filter((subPlan) => !managedIds.includes(subPlan.id))
+  ];
+};
+
 const isWithinScope = (manager: UserManager, target: ManagedUser): boolean => {
   const manageableRoles = manageableUserRoles(manager);
   if (!target.roles.every((role) => manageableRoles.includes(role))) {
@@ -89,10 +123,10 @@ const isWithinScope = (manager: UserManager, target: ManagedUser): boolean => {
     }
   }
 
-  // Un gestionnaire sans sous-plan (cas Administrator) n'est pas contraint sur les plans.
-  if (manager.programmingSubPlans.length > 0) {
+  const managedIds = managerSubPlanIds(manager);
+  if (managedIds !== null) {
     const sharedSubPlans = intersection(
-      manager.programmingSubPlans.map((subPlan) => subPlan.id),
+      managedIds,
       target.programmingSubPlans.map((subPlan) => subPlan.id)
     );
     if (sharedSubPlans.length === 0) {
