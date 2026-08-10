@@ -23,6 +23,7 @@ import { type FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { z } from 'zod';
 import { RegionsFilter } from '../../../components/RegionsFilter/RegionsFilter';
+import { useAuthentication } from '../../../hooks/useAuthentication';
 import useWindowSize from '../../../hooks/useWindowSize';
 import { pluralize } from '../../../utils/stringUtils';
 import { useUserManagement } from '../useUserManagement';
@@ -158,9 +159,10 @@ const Filters: FunctionComponent<
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
+  const { account } = useAuthentication();
   const { scope, manageableRoles } = useUserManagement();
   const canFilterByRegion = scope === 'national';
-  const canFilterByDepartment = scope !== 'departmental';
+  const canFilterByDepartment = scope === 'national' || scope === 'regional';
 
   const roleOptions = useMemo(
     () => UserRoleSorted.filter((role) => manageableRoles.includes(role)),
@@ -174,13 +176,18 @@ const Filters: FunctionComponent<
   );
 
   const departmentOptions = useMemo(() => {
-    if (regions?.length) {
-      return regions
-        .flatMap((r) => Regions[r].departments)
-        .sort(DepartmentSort);
-    }
-    return DepartmentList.sort(DepartmentSort);
-  }, [regions]);
+    const scopedRegions = canFilterByRegion
+      ? (regions ?? [])
+      : account?.region
+        ? [account.region]
+        : [];
+
+    return (
+      scopedRegions.length
+        ? scopedRegions.flatMap((r) => Regions[r].departments)
+        : [...DepartmentList]
+    ).sort(DepartmentSort);
+  }, [regions, account, canFilterByRegion]);
 
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
