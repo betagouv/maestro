@@ -4,11 +4,26 @@ import {
   type AuthUserRefined
 } from 'maestro-shared/schema/User/AuthUser';
 
+const storedAuthUser = () => {
+  const stored = JSON.parse(localStorage.getItem('authUser') ?? '{}');
+
+  // Fix temporaire, le temps de la mise en place de account. À supprimer une fois le déploiement digéré.
+  if (stored.user && !stored.account) {
+    localStorage.removeItem('authUser');
+    return undefined;
+  }
+
+  const { data: user, error } = AuthMaybeUnknownUser.safeParse(stored);
+  if (error) {
+    localStorage.removeItem('authUser');
+    return undefined;
+  }
+  return user;
+};
+
 const authUser = {
   laboratoryId: null,
-  ...AuthMaybeUnknownUser.safeParse(
-    JSON.parse(localStorage.getItem('authUser') ?? '{}')
-  ).data
+  ...storedAuthUser()
 };
 
 type AuthState = {
