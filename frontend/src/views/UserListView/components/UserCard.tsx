@@ -38,7 +38,7 @@ export const UserCard: FunctionComponent<Props> = ({
   assert<Equals<keyof typeof _rest, never>>();
 
   const { setMascaradeUserId } = useMascarade();
-  const { hasUserPermission } = useAuthentication();
+  const { hasAccountPermission } = useAuthentication();
 
   const subPlanLabelById = Object.fromEntries(
     programmingPlans.flatMap((p) =>
@@ -78,7 +78,7 @@ export const UserCard: FunctionComponent<Props> = ({
                   iconId={'fr-icon-logout-box-r-line'}
                   data-testid={`user-disable-button-${user.id}`}
                 />
-                {hasUserPermission('administrationMaestro') && (
+                {hasAccountPermission('administrationMaestro') && (
                   <Button
                     size="small"
                     onClick={() => setMascaradeUserId(user.id)}
