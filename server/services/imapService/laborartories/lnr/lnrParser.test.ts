@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { RESIDUE_MAPPINGS } from '../../../../database/migrations/109-lnr-residue-mappings';
-import { ExtractError } from '../../extractError';
+import { ExtractLabError } from '../../extractError';
 import { parseLnrReport } from './lnrParser';
 
 // fake fixture
@@ -156,7 +156,7 @@ describe('parseLnrReport', () => {
         'ALDRINE TRACES 0,005 50 % -'
       );
 
-      expect(() => parseLnrReport(unknownResult)).toThrow(ExtractError);
+      expect(() => parseLnrReport(unknownResult)).toThrow(ExtractLabError);
       expect(() => parseLnrReport(unknownResult)).toThrow(
         /Résultat non reconnu.*ALDRINE TRACES/
       );

@@ -2,7 +2,7 @@ import {
   type MaestroDate,
   maestroDateRefined
 } from 'maestro-shared/utils/date';
-import { ExtractError } from '../../extractError';
+import { ExtractLabError } from '../../extractError';
 import type { ExportAnalysis, ExportDataSubstance } from '../../index';
 import { frenchNumberStringValidator, parseSampleReference } from '../../utils';
 
@@ -29,7 +29,7 @@ const readField = (lines: string[], label: string): string | null => {
 const requireField = (lines: string[], label: string): string => {
   const value = readField(lines, label);
   if (value === null) {
-    throw new ExtractError(
+    throw new ExtractLabError(
       `Champ « ${label} » introuvable dans le rapport LNR`
     );
   }
@@ -43,7 +43,7 @@ const parseFrenchDate = (value: string, label: string): MaestroDate => {
   const parsed = maestroDateRefined.safeParse(`${fullYear}-${month}-${day}`);
 
   if (!parsed.success) {
-    throw new ExtractError(`Date « ${label} » invalide : ${value}`);
+    throw new ExtractLabError(`Date « ${label} » invalide : ${value}`);
   }
   return parsed.data;
 };
@@ -51,7 +51,7 @@ const parseFrenchDate = (value: string, label: string): MaestroDate => {
 const parseFrenchNumber = (value: string, label: string): number => {
   const parsed = frenchNumberStringValidator.safeParse(value);
   if (!parsed.success || parsed.data === null) {
-    throw new ExtractError(`Nombre « ${label} » invalide : ${value}`);
+    throw new ExtractLabError(`Nombre « ${label} » invalide : ${value}`);
   }
   return parsed.data;
 };
@@ -113,7 +113,7 @@ const parseResultRow = (line: string): ResultRow | null => {
 
   const result = takeResult(tokens);
   if (result === undefined) {
-    throw new ExtractError(
+    throw new ExtractLabError(
       `Résultat non reconnu dans la ligne « ${line} » du rapport LNR`
     );
   }
@@ -193,10 +193,12 @@ const parseResidues = (
     pendingLabel = [];
 
     if (!label) {
-      throw new ExtractError(`Résidu sans libellé dans la ligne « ${line} »`);
+      throw new ExtractLabError(
+        `Résidu sans libellé dans la ligne « ${line} »`
+      );
     }
     if (row.uncertainty !== EXPECTED_UNCERTAINTY) {
-      throw new ExtractError(
+      throw new ExtractLabError(
         `Incertitude inattendue pour ${label} : ${row.uncertainty} % (attendu ${EXPECTED_UNCERTAINTY} %)`
       );
     }
@@ -215,12 +217,12 @@ const parseResidues = (
   }
 
   if (pendingLabel.length > 0) {
-    throw new ExtractError(
+    throw new ExtractLabError(
       `Ligne(s) du tableau LNR sans résultat : ${pendingLabel.join(' / ')}`
     );
   }
   if (residues.length === 0) {
-    throw new ExtractError(`Aucun résidu trouvé dans le rapport LNR`);
+    throw new ExtractLabError(`Aucun résidu trouvé dans le rapport LNR`);
   }
 
   return residues;
@@ -234,12 +236,12 @@ export const parseLnrReport = (
   const rawReference = requireField(lines, 'Référence Echantillon Client');
   const sampleReference = parseSampleReference(rawReference);
   if (!sampleReference) {
-    throw new ExtractError(`Référence lnr invalide: ${rawReference}`);
+    throw new ExtractLabError(`Référence lnr invalide: ${rawReference}`);
   }
 
   const unit = requireField(lines, 'Unité de mesure');
   if (unit !== EXPECTED_UNIT) {
-    throw new ExtractError(
+    throw new ExtractLabError(
       `Unité de mesure inattendue : ${unit} (attendu ${EXPECTED_UNIT})`
     );
   }

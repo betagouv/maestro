@@ -11,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { Analysis } from '../../repositories/analysisRepository';
 import { kysely } from '../../repositories/kysely';
 import { createServer } from '../../server';
+import { ExtractLabError } from '../../services/imapService/extractError';
 import { tokenProvider } from '../../test/testUtils';
 
 vi.mock('../../services/imapService', async (importOriginal) => {
@@ -260,17 +261,20 @@ describe('AnalysisRai router', () => {
       expect(replayEmailRai).not.toHaveBeenCalled();
     });
 
-    test('should refuse (409) to replay a REJECTED RAI', async () => {
+    test('should allow replaying a REJECTED RAI', async () => {
       const id = await insertRai({ state: 'REJECTED', source: 'SFTP' });
+
+      vi.mocked(replaySftpRai).mockResolvedValue(undefined);
 
       await request(app)
         .post(replayRoute(id))
         .send({})
         .use(tokenProvider(AdminFixture))
-        .expect(constants.HTTP_STATUS_CONFLICT);
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
 
-      expect(replaySftpRai).not.toHaveBeenCalled();
-      expect(replayEmailRai).not.toHaveBeenCalled();
+      expect(replaySftpRai).toHaveBeenCalledWith(
+        expect.objectContaining({ id })
+      );
     });
 
     test('should mark RAI as ERROR with the new message when replay throws', async () => {
@@ -295,6 +299,32 @@ describe('AnalysisRai router', () => {
         .executeTakeFirstOrThrow();
       expect(row.state).toBe('INTERNAL_ERROR');
       expect(row.message).toBe('replay failed');
+    });
+
+    test('should mark RAI as REJECTED when replay throws a lab error', async () => {
+      const id = await insertRai({
+        state: 'INTERNAL_ERROR',
+        source: 'EMAIL',
+        message: 'old'
+      });
+
+      vi.mocked(replayEmailRai).mockRejectedValue(
+        new ExtractLabError("Date d'analyse invalide : 20266")
+      );
+
+      await request(app)
+        .post(replayRoute(id))
+        .send({})
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
+
+      const row = await kysely
+        .selectFrom('analysisRai')
+        .selectAll()
+        .where('id', '=', id)
+        .executeTakeFirstOrThrow();
+      expect(row.state).toBe('REJECTED');
+      expect(row.message).toBe("Date d'analyse invalide : 20266");
     });
   });
 });

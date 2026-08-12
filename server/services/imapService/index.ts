@@ -22,7 +22,8 @@ import { documentService } from '../documentService';
 import { mattermostService } from '../mattermostService';
 import { notificationService } from '../notificationService';
 import { analysisHandler } from './analysis-handler';
-import { ExtractError } from './extractError';
+import { ExtractError, ExtractLabError } from './extractError';
+import { sendLabErrorReply } from './labErrorReply';
 import { capinovConf } from './laborartories/capinov';
 import { cerecoConf } from './laborartories/cereco/cereco';
 import { girpaConf } from './laborartories/girpa';
@@ -66,6 +67,7 @@ export type LaboratoryConf = {
   exportDataFromEmail: ExportDataFromEmail;
   getAnalysisKey: (email: EmailWithMessageUid) => string;
   emailCountByAnalysis: number;
+  autoReplyOnLabError?: boolean;
 };
 
 export type LaboratoryWithConf = (typeof LaboratoryWithAutomation)[number];
@@ -101,9 +103,10 @@ const moveMessageToErrorbox = async (
   senderAddress: string,
   message: string,
   messageUids: string[],
-  client: ImapFlow
+  client: ImapFlow,
+  isLabError = false
 ) => {
-  const error = `Email "${subject}" from "${senderAddress}" ignoré => ${message} `;
+  const error = `${isLabError ? 'RAI rejetée (faute labo) : ' : ''}Email "${subject}" from "${senderAddress}" ignoré => ${message} `;
   console.error(error);
 
   for (const messageUid of messageUids) {
@@ -117,7 +120,7 @@ const moveMessageToErrorbox = async (
 
 type EmailWithMessageUid = { messageUid: string } & Pick<
   ParsedMail,
-  'subject' | 'attachments' | 'from' | 'date'
+  'subject' | 'attachments' | 'from' | 'date' | 'messageId'
 >;
 
 type EmailRaiResult = {
@@ -153,7 +156,9 @@ const processEmailRaiAttachments = async (
     await laboratoriesConf[laboratoryName].exportDataFromEmail(attachments);
 
   if (analyzes.length === 0) {
-    throw new ExtractError("Aucun résultat d'analyses trouvé dans cet email.");
+    throw new ExtractLabError(
+      "Aucun résultat d'analyses trouvé dans cet email."
+    );
   }
 
   const results: EmailRaiResult[] = [];
@@ -581,13 +586,14 @@ export const checkEmails = async () => {
               }
             } catch (e: any) {
               console.error(e);
+              const isLabError = e instanceof ExtractLabError;
               const errorDocumentIds = await uploadAttachmentsAsRaiSourceFiles(
                 emails.flatMap((email) => email.attachments)
               );
               const raiId = await analysisRaiRepository.insert({
                 source: 'EMAIL',
                 edi: false,
-                state: 'INTERNAL_ERROR',
+                state: isLabError ? 'REJECTED' : 'INTERNAL_ERROR',
                 analysisId: null,
                 laboratoryId,
                 payload,
@@ -599,12 +605,27 @@ export const checkEmails = async () => {
                 errorDocumentIds
               );
               const parsed = emails[0];
+              const senderAddress = parsed.from?.value[0].address;
+              if (isLabError) {
+                await sendLabErrorReply({
+                  laboratoryConf: laboratoriesConf[laboratoryName],
+                  senderAddress,
+                  subject: parsed.subject ?? '',
+                  messageId: parsed.messageId,
+                  filenames: emails
+                    .flatMap((email) => email.attachments)
+                    .map((a) => a.filename)
+                    .filter((f): f is string => f !== undefined),
+                  errorMessage: e.message
+                });
+              }
               await moveMessageToErrorbox(
                 parsed.subject ?? '',
-                parsed.from?.value[0].address ?? '',
+                senderAddress ?? '',
                 e.message,
                 emails.map((message) => message.messageUid),
-                client
+                client,
+                isLabError
               );
             } finally {
               if (warnings.size > 0) {

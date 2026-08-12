@@ -1,8 +1,10 @@
 import { HttpStatus } from '../constants/httpStatus';
 import { analysisRaiRepository } from '../repositories/analysisRaiRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
+import { RaiLabError } from '../services/ediSacha/sachaErrors';
 import { replayRai as replaySftpRai } from '../services/ediSacha/sftpService';
 import { replayRai as replayEmailRai } from '../services/imapService';
+import { ExtractLabError } from '../services/imapService/extractError';
 
 export const analysisRaiRouter = {
   '/analysis-rai': {
@@ -17,7 +19,7 @@ export const analysisRaiRouter = {
       if (!rai) {
         return { status: HttpStatus.NOT_FOUND };
       }
-      if (rai.state !== 'INTERNAL_ERROR') {
+      if (rai.state !== 'INTERNAL_ERROR' && rai.state !== 'REJECTED') {
         return { status: HttpStatus.CONFLICT };
       }
       try {
@@ -27,8 +29,10 @@ export const analysisRaiRouter = {
           await replaySftpRai(rai);
         }
       } catch (e: any) {
+        const isLabError =
+          e instanceof ExtractLabError || e instanceof RaiLabError;
         await analysisRaiRepository.update(rai.id, {
-          state: 'INTERNAL_ERROR',
+          state: isLabError ? 'REJECTED' : 'INTERNAL_ERROR',
           message: e?.message ?? 'Erreur inconnue'
         });
       }
