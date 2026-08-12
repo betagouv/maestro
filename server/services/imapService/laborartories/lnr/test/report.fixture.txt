@@ -1,0 +1,113 @@
+Laboratoire de sécurité des
+aliments de Maisons-Alfort
+RAPPORT D'ANALYSES PARTIEL N° 26Q999999
+Seul le rapport final fait foi.
+Référence Demande ANSES : D-26-99999
+Référence Demande Client : Sans objet
+Nom du Demandeur : DDPP DE L'EXEMPLE
+Motif de la Demande : Plan de surveillance / Plan de contrôle
+Référence Echantillon ANSES : 26Q999999
+Référence Echantillon Client : EXA-26-00042-A-1
+Date de Réception des Echantillons :08/04/2026
+Nature de l'Echantillon : Foie de bœuf - PSPC-2026-FOIE
+Informations Complémentaires : 202699999999
+Unité ou équipe : Pesticides et Biotoxines Marines- Pesticides
+E-mail : lnr.pesticides.daoa@anses.fr ou lnr.pesticides.mono@anses.fr
+A l'attention de Service Sécurité sanitaire des
+Aliments
+DDPP DE L'EXEMPLE
+1 rue de l’Exemple
+Immeuble "Exemple"
+99000 EXEMPLEVILLE CEDEX
+2
+France
+DEMANDE
+RESULTATS
+Date de début d'analyse : 21/05/26
+Méthode d'analyse : Méthode Anses LSA-INS-1461 – Pesticides dans le foie par GC-MS/MS (QuECHERS)
+Unité de mesure : mg/kg de produit
+Analyses effectuées Résultat Final Limite de
+quantification Incertitude LMR
+ALDRINE < LQ 0,005 50 % -
+DIELDRINE < LQ 0,005 50 % -
+ALDRINE & DIELDRINE (Somme de Aldrine et
+dieldrine, exprimée en dieldrine) < LQ 0,01 50 % -
+CHLORDANE CIS < LQ 0,005 50 % -
+CHLORDANE TRANS < LQ 0,005 50 % -
+CHLORDANE (Somme de cis- et trans-chlordane) < LQ 0,01 50 % -
+CHLORDANE OXY < LQ 0,005 50 % -
+CHLOROBENZILATE < LQ 0,010 50 % -
+DDD o,p' (TDE o,p') < LQ 0,005 50 % -
+DDD p,p' (TDE p,p') < LQ 0,005 50 % -
+DDE o,p' < LQ 0,005 50 % -
+DDE p,p' < LQ 0,005 50 % -
+DDT o,p' < LQ 0,005 50 % -
+DDT p,p' < LQ 0,005 50 % -
+Les résultats de ce rapport d'analyses ne concernent que les échantillons soumis à l'analyse, tels qu'ils ont été reçus. La reproduction de ce rapport d'analyses n'est autorisée
+que sous sa forme intégrale. Le laboratoire ne peut être tenu pour responsable en cas d’erreur concernant les informations fournies par le demandeur des analyses
+(informations repérées en italique).
+Ce rapport d'analyses ne comporte aucune annexe 1/3
+Agence nationale de sécurité sanitaire de l'alimentation, de l'environnement et du travail - Laboratoire de sécurité des aliments de Maisons-Alfort
+14, rue Pierre et Marie Curie - 94701 Maisons-Alfort Cedex - France - Téléphone : 01 49 77 13 00 - Télécopie : 01 43 68 97 62 - www.anses.fr
+Laboratoire de sécurité des
+aliments de Maisons-Alfort
+RAPPORT D'ANALYSES PARTIEL N° 26Q999999
+Seul le rapport final fait foi.
+Analyses effectuées Résultat Final Limite de
+quantification Incertitude LMR
+DDT (Somme de p,p'-DDT, o,p'-DDT, p,p'-DDE et
+p,p'-TDE (DDD), exprimée en DDT) < LQ 0,021 50 % -
+ENDOSULFAN ALPHA < LQ 0,005 50 % -
+ENDOSULFAN BETA < LQ 0,005 50 % -
+ENDOSULFAN SULFATE < LQ 0,005 50 % -
+ENDOSULFAN (Somme de alpha- et beta-
+isomères et endosulfan-sulfate, exprimée en
+endosulfan)
+< LQ 0,015 50 % -
+ENDRINE < LQ 0,005 50 % -
+HCB < LQ 0,005 50 % -
+HCH ALPHA < LQ 0,005 50 % -
+HCH BETA < LQ 0,005 50 % -
+HCH GAMMA < LQ 0,005 50 % -
+HEPTACHLORE < LQ 0,005 50 % -
+HEPTACHLORE EPOXIDE CIS < LQ 0,005 50 % -
+HEPTACHLORE EPOXIDE TRANS < LQ 0,005 50 % -
+HEPTACHLORE (Somme de heptachlore et
+heptachlore-epoxide, exprimée en heptachlore) < LQ 0,015 50 % -
+METOXYCHLORE < LQ 0,005 50 % -
+PENDIMETHALINE < LQ 0,005 50 % -
+QUINTOZENE < LQ 0,005 50 % -
+TECNAZENE < LQ 0,005 50 % -
+VINCLOZOLINE < LQ 0,005 50 % -
+BIFENTHRINE < LQ 0,005 50 % -
+CYFLUTHRINE < LQ 0,005 50 % -
+CYHALOTHRINE LAMBDA < LQ 0,005 50 % -
+CYPERMETHRINE < LQ 0,005 50 % -
+DELTAMETHRINE < LQ 0,005 50 % -
+FENVALERATE (Somme des isomères (RR, SS,
+RS et SR) et de esfenvalerate) < LQ 0,005 50 % -
+PERMETHRINE CIS < LQ 0,005 50 % -
+PERMETHRINE TRANS < LQ 0,005 50 % -
+Les résultats de ce rapport d'analyses ne concernent que les échantillons soumis à l'analyse, tels qu'ils ont été reçus. La reproduction de ce rapport d'analyses n'est autorisée
+que sous sa forme intégrale. Le laboratoire ne peut être tenu pour responsable en cas d’erreur concernant les informations fournies par le demandeur des analyses
+(informations repérées en italique).
+Ce rapport d'analyses ne comporte aucune annexe 2/3
+Agence nationale de sécurité sanitaire de l'alimentation, de l'environnement et du travail - Laboratoire de sécurité des aliments de Maisons-Alfort
+14, rue Pierre et Marie Curie - 94701 Maisons-Alfort Cedex - France - Téléphone : 01 49 77 13 00 - Télécopie : 01 43 68 97 62 - www.anses.fr
+Laboratoire de sécurité des
+aliments de Maisons-Alfort
+RAPPORT D'ANALYSES PARTIEL N° 26Q999999
+Seul le rapport final fait foi.
+Analyses effectuées Résultat Final Limite de
+quantification Incertitude LMR
+PERMETHRINE (Somme des isomères) < LQ 0,01 50 % -
+Observation(s) : Sans objet
+Ce rapport a été validé à Maisons-Alfort le Validé par : Prénom Nom
+Chef d'unité adjoint
+DGAL - BGIR (DDPP DE L'EXEMPLE )Copie à :
+Les résultats de ce rapport d'analyses ne concernent que les échantillons soumis à l'analyse, tels qu'ils ont été reçus. La reproduction de ce rapport d'analyses n'est autorisée
+que sous sa forme intégrale. Le laboratoire ne peut être tenu pour responsable en cas d’erreur concernant les informations fournies par le demandeur des analyses
+(informations repérées en italique).
+Ce rapport d'analyses ne comporte aucune annexe 3/3
+Agence nationale de sécurité sanitaire de l'alimentation, de l'environnement et du travail - Laboratoire de sécurité des aliments de Maisons-Alfort
+14, rue Pierre et Marie Curie - 94701 Maisons-Alfort Cedex - France - Téléphone : 01 49 77 13 00 - Télécopie : 01 43 68 97 62 - www.anses.fr07/07/26

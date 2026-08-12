@@ -129,5 +129,6 @@ export const LaboratoryWithAutomation = [
   'GIR 49',
   'LDA 72',
   'CAP 29',
-  'CER 30'
+  'CER 30',
+  'ANS 94a - LNR PEST'
 ] as const satisfies LaboratoryShortName[];
