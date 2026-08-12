@@ -59,7 +59,17 @@ const extractAnalysis = async (
     cellDates: true
   });
 
-  const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+  const nonEmptySheetNames = workbook.SheetNames.filter(
+    (name) => XLSX.utils.sheet_to_json(workbook.Sheets[name]).length > 0
+  );
+
+  if (nonEmptySheetNames.length > 1) {
+    throw new ExtractLabError(
+      `Le fichier Excel doit contenir une seule feuille non vide (${nonEmptySheetNames.join(', ')})`
+    );
+  }
+
+  const worksheet = workbook.Sheets[nonEmptySheetNames[0]];
   const raw_data = XLSX.utils.sheet_to_json(worksheet);
 
   const { data: result, error } = fileValidator.safeParse(raw_data);
