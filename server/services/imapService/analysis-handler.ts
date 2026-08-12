@@ -15,7 +15,7 @@ import { residueAnalyteRepository } from '../../repositories/residueAnalyteRepos
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { sampleRepository } from '../../repositories/sampleRepository';
 import { documentService } from '../documentService';
-import { ExtractError } from './extractError';
+import { ExtractError, ExtractLabError } from './extractError';
 import type { ExportAnalysis, ExportDataSubstanceWithSSD2Id } from './index';
 
 export type AnalysisWithResidueWithSSD2Id = Omit<ExportAnalysis, 'residues'> & {
@@ -59,7 +59,7 @@ export const analysisHandler = async (
     ])
     .executeTakeFirstOrThrow(
       () =>
-        new Error(
+        new ExtractLabError(
           `Impossible de trouver le prélèvement avec la référence ${analyse.sampleReference}`
         )
     );

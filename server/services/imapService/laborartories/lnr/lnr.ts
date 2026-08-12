@@ -1,4 +1,4 @@
-import { ExtractError } from '../../extractError';
+import { ExtractLabError } from '../../extractError';
 import type {
   ExportAnalysis,
   ExportDataFromEmail,
@@ -14,7 +14,9 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
   );
 
   if (pdfFiles.length === 0) {
-    throw new ExtractError(`Au moins un fichier PDF doit être présent en PJ`);
+    throw new ExtractLabError(
+      `Au moins un fichier PDF doit être présent en PJ`
+    );
   }
 
   const analyzes: ExportAnalysis[] = [];

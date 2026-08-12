@@ -2,7 +2,7 @@ import XLSX, { type WorkBook } from '@e965/xlsx';
 import { format } from 'date-fns';
 import { maestroDateRefined } from 'maestro-shared/utils/date';
 import { z } from 'zod';
-import { ExtractBadFormatError, ExtractError } from '../../extractError';
+import { ExtractBadFormatError, ExtractLabError } from '../../extractError';
 import type {
   ExportAnalysis,
   ExportDataFromEmail,
@@ -80,7 +80,7 @@ const extractAnalysis = async (
         d['Méthode'] || d["Méthode d'analyse"] || d['Numéro (MS)'];
 
       if (!analysisMethod) {
-        throw new ExtractError("Méthode d'analyse introuvable");
+        throw new ExtractLabError("Méthode d'analyse introuvable");
       }
       const commonData: Pick<
         ExportDataSubstance,
@@ -133,7 +133,9 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
   );
 
   if (xlsFiles.length === 0) {
-    throw new ExtractError(`Au moins un fichier XLS doit être présent en PJ`);
+    throw new ExtractLabError(
+      `Au moins un fichier XLS doit être présent en PJ`
+    );
   }
 
   const pdfFiles = attachments.filter(
@@ -157,7 +159,7 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
           );
 
     if (matchingPdfs.length !== 1) {
-      throw new ExtractError(
+      throw new ExtractLabError(
         `Impossible d'associer un unique fichier PDF à l'analyse ${analysis.sampleReference} (${xlsFile.filename ?? ''})`
       );
     }
@@ -176,5 +178,6 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
 export const cerecoConf: LaboratoryConf = {
   exportDataFromEmail,
   getAnalysisKey: (email) => email.messageUid,
-  emailCountByAnalysis: 1
+  emailCountByAnalysis: 1,
+  autoReplyOnLabError: true
 };

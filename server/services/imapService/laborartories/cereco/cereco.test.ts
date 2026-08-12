@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import XLSX from '@e965/xlsx';
 import { expect, test } from 'vitest';
 import type z from 'zod';
+import { ExtractLabError } from '../../extractError';
 import { cerecoConf, cerecoRefValidator } from './cereco';
 
 test('exportDataFromEmail', async () => {
@@ -152,6 +154,47 @@ test('exportDataFromEmail avec plusieurs analyses', async () => {
     { sampleReference: 'LAB-99-00001', pdf: 'B26-R9047-3266.pdf' },
     { sampleReference: 'LAB-99-00002', pdf: 'B26-R9047-3267.pdf' }
   ]);
+});
+
+test("exportDataFromEmail avec une date d'analyse incorrecte", async () => {
+  const worksheet = XLSX.utils.aoa_to_sheet([
+    [
+      'Sample Name',
+      "Date d'analyse",
+      'Méthode',
+      'Paramètre',
+      'Résultat',
+      'LMR',
+      'Conclusion'
+    ],
+    [
+      'OCC-25-0001-1',
+      '20266',
+      'Multi-résidus',
+      'Tebuconazole',
+      '0.37',
+      '0.5',
+      'CONFORME'
+    ]
+  ]);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Rapport');
+  const content: Buffer = XLSX.write(workbook, {
+    type: 'buffer',
+    bookType: 'xls'
+  });
+
+  const promise = cerecoConf.exportDataFromEmail([
+    { filename: 'rapport.xls', content, contentType: '' },
+    {
+      filename: 'rapport.pdf',
+      content: Buffer.from('pdf'),
+      contentType: 'application/pdf'
+    }
+  ]);
+
+  await expect(promise).rejects.toBeInstanceOf(ExtractLabError);
+  await expect(promise).rejects.toThrow(/Date d'analyse/);
 });
 
 type CerecoRef = z.infer<typeof cerecoRefValidator>;

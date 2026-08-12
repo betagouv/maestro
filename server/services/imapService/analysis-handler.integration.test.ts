@@ -7,6 +7,7 @@ import {
   type AnalysisWithResidueWithSSD2Id,
   analysisHandler
 } from './analysis-handler';
+import { ExtractLabError } from './extractError';
 
 let spyDeleteDocument = vi.spyOn(s3Service, 'deleteDocument');
 let spyUploadDocument = vi.spyOn(s3Service, 'uploadDocument');
@@ -331,6 +332,21 @@ test('Un résidu complexe Non Quantifiable est enregistré en Non détecté si t
   expect(analysisResidue).toHaveLength(1);
   expect(analysisResidue[0].reference).toBe(analysisToSave.residues[1].ssd2Id);
   expect(analysisResidue[0].resultKind).toBe('ND');
+});
+
+test(`emet une erreur labo si la référence du prélèvement est inconnue`, async () => {
+  const analysisToSave = {
+    notes: '',
+    pdfFile: new File([], 'fileName'),
+    sampleReference: 'XXX-99-99999',
+    copyNumber: 1,
+    itemNumber: 1,
+    residues: []
+  } as const satisfies AnalysisWithResidueWithSSD2Id;
+
+  await expect(
+    analysisHandler(analysisToSave, new Date(9999999))
+  ).rejects.toBeInstanceOf(ExtractLabError);
 });
 
 test(`emet une erreur si l'exemplaire n'existe pas`, async () => {

@@ -164,7 +164,7 @@ export const AnalysisRaiHistory = ({
           )
         ]
       : []),
-    rai.state === 'INTERNAL_ERROR' ? (
+    rai.state === 'INTERNAL_ERROR' || rai.state === 'REJECTED' ? (
       <Button
         key={`${rai.id}-action`}
         size="small"

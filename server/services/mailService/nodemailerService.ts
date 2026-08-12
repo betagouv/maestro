@@ -45,8 +45,17 @@ interface RawOptions {
   to: string;
   attachmentPath: string;
 }
+interface ReplyOptions {
+  to: string;
+  bcc?: string;
+  replyTo?: string;
+  subject: string;
+  text: string;
+  inReplyTo: string;
+}
 interface NodeMailService extends MailService {
   sendRaw(options: RawOptions): Promise<void>;
+  sendReply(options: ReplyOptions): Promise<void>;
 }
 class NodemailerService implements NodeMailService {
   private transport: nodemailer.Transporter<nodemailer.SentMessageInfo>;
@@ -80,6 +89,19 @@ class NodemailerService implements NodeMailService {
         content: a.content,
         encoding: 'base64'
       }))
+    });
+  }
+
+  async sendReply(option: ReplyOptions): Promise<void> {
+    return this.transport.sendMail({
+      from: config.mail.from,
+      to: option.to,
+      bcc: option.bcc,
+      replyTo: option.replyTo,
+      subject: option.subject,
+      text: option.text,
+      inReplyTo: option.inReplyTo,
+      references: [option.inReplyTo]
     });
   }
 
