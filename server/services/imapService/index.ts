@@ -27,6 +27,7 @@ import { capinovConf } from './laborartories/capinov';
 import { cerecoConf } from './laborartories/cereco/cereco';
 import { girpaConf } from './laborartories/girpa';
 import { inovalysConf } from './laborartories/inovalys';
+import { lnrConf } from './laborartories/lnr/lnr';
 
 export type ExportResultQuantifiable = {
   result_kind: 'Q';
@@ -40,6 +41,8 @@ export type ExportDataSubstance = {
   codeSandre: string | null;
   analysisMethod: AnalysisMethod;
   analysisDate: MaestroDate | null;
+  lq?: number | null;
+  preciseMethod?: string | null;
 } & (ExportResultNonQuantifiable | ExportResultQuantifiable);
 export type ExportDataSubstanceWithSSD2Id = OmitDistributive<
   ExportDataSubstance,
@@ -53,6 +56,7 @@ export type ExportAnalysis = {
   notes: string;
   pdfFile: File;
   residues: ExportDataSubstance[];
+  receiptDate?: MaestroDate | null;
 };
 export type ExportDataFromEmail = (
   attachments: Pick<Attachment, 'content' | 'filename' | 'contentType'>[]
@@ -69,7 +73,8 @@ export const laboratoriesConf = {
   'GIR 49': girpaConf,
   'LDA 72': inovalysConf,
   'CAP 29': capinovConf,
-  'CER 30': cerecoConf
+  'CER 30': cerecoConf,
+  'ANS 94a - LNR PEST': lnrConf
 } as const satisfies {
   [name in LaboratoryWithConf]: LaboratoryConf;
 };

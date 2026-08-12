@@ -275,7 +275,9 @@ const updateConfig = async (
     .updateTable('laboratories')
     .set({
       emails: payload.emails,
-      emailsAnalysisResult: payload.emailsAnalysisResult,
+      emailsAnalysisResult: payload.emailsAnalysisResult.map((e) =>
+        e.toLowerCase()
+      ),
       legacyDai: payload.legacyDai,
       ...buildSachaFields(payload.sacha)
     })

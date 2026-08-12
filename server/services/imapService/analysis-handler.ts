@@ -12,6 +12,7 @@ import { analysisRepository } from '../../repositories/analysisRepository';
 import { analysisResidueRepository } from '../../repositories/analysisResidueRepository';
 import { kysely } from '../../repositories/kysely';
 import { residueAnalyteRepository } from '../../repositories/residueAnalyteRepository';
+import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { sampleRepository } from '../../repositories/sampleRepository';
 import { documentService } from '../documentService';
 import { ExtractError } from './extractError';
@@ -225,6 +226,21 @@ export const analysisHandler = async (
 
       await sampleRepository.evaluateSampleCompliance(sampleId);
 
+      if (analyse.receiptDate) {
+        await sampleItemRepository.update(
+          sampleId,
+          analyse.itemNumber,
+          analyse.copyNumber,
+          {
+            sampleId,
+            itemNumber: analyse.itemNumber,
+            copyNumber: analyse.copyNumber,
+            receiptDate: analyse.receiptDate
+          },
+          trx
+        );
+      }
+
       await analysisReportDocumentsRepository.insert(
         analysisId,
         documentId,
@@ -246,6 +262,8 @@ export const analysisHandler = async (
               residueNumber,
               reference: residue.ssd2Id,
               analysisDate: residue.analysisDate,
+              lq: residue.lq ?? null,
+              preciseMethod: residue.preciseMethod ?? null,
               unknownLabel:
                 residue.ssd2Id === null ? residue.unknownLabel : null
             }
