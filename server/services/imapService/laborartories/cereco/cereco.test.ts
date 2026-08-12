@@ -197,6 +197,51 @@ test("exportDataFromEmail avec une date d'analyse incorrecte", async () => {
   await expect(promise).rejects.toThrow(/Date d'analyse/);
 });
 
+test('exportDataFromEmail avec plusieurs feuilles non vides', async () => {
+  const rows = [
+    [
+      'Sample Name',
+      "Date d'analyse",
+      'Méthode',
+      'Paramètre',
+      'Résultat',
+      'LMR',
+      'Conclusion'
+    ],
+    [
+      'OCC-25-0001-1',
+      new Date('2025-07-16'),
+      'Multi-résidus',
+      'Tebuconazole',
+      '0.37',
+      '0.5',
+      'CONFORME'
+    ]
+  ];
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(rows), 'OCC');
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet([]), 'Vide');
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(rows), 'ARA');
+  const content: Buffer = XLSX.write(workbook, {
+    type: 'buffer',
+    bookType: 'xls'
+  });
+
+  const promise = cerecoConf.exportDataFromEmail([
+    { filename: 'rapport.xls', content, contentType: '' },
+    {
+      filename: 'rapport.pdf',
+      content: Buffer.from('pdf'),
+      contentType: 'application/pdf'
+    }
+  ]);
+
+  await expect(promise).rejects.toBeInstanceOf(ExtractLabError);
+  await expect(promise).rejects.toThrow(
+    /une seule feuille non vide \(OCC, ARA\)/
+  );
+});
+
 type CerecoRef = z.infer<typeof cerecoRefValidator>;
 test.each<[string, CerecoRef]>([
   [
