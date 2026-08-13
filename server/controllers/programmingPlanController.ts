@@ -15,10 +15,13 @@ import {
   type ProgrammingPlanStatus,
   ProgrammingPlanStatusPermissions
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  ProgrammingSubPlanId,
+  stagesFromSubPlans
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   hasPermission,
-  programmingSubPlanIdsIsRequired,
+  stagesIsRequired,
   userDepartmentsForRole,
   userRegionsForRole
 } from 'maestro-shared/schema/User/User';
@@ -75,7 +78,7 @@ export const programmingPlanRouter = {
       }
 
       if (
-        programmingSubPlanIdsIsRequired(user) &&
+        stagesIsRequired(user) &&
         !intersection(
           user.programmingSubPlans.map((sp) => sp.id),
           programmingPlan.subPlans.map((sp) => sp.id)
@@ -240,9 +243,7 @@ export const programmingPlanRouter = {
                 roles: ['Sampler'],
                 region: programmingPlanLocalStatus.region,
                 department: programmingPlanLocalStatus.department as Department,
-                programmingSubPlanIds: programmingPlan.subPlans.map(
-                  (sp) => sp.id
-                ),
+                stages: stagesFromSubPlans(programmingPlan.subPlans),
                 companySirets: localPrescriptions
                   .map((localPrescription) => localPrescription.companySiret)
                   .filter((_) => !isNil(_))
@@ -271,9 +272,7 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
                 const regionalCoordinators = await userRepository.findMany({
                   roles: ['RegionalCoordinator'],
                   region: programmingPlanLocalStatus.region,
-                  programmingSubPlanIds: programmingPlan.subPlans.map(
-                    (sp) => sp.id
-                  )
+                  stages: stagesFromSubPlans(programmingPlan.subPlans)
                 });
 
                 await (programmingPlanLocalStatus.status === 'SubmittedToRegion'
@@ -309,9 +308,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
               ) {
                 const nationalCoordinators = await userRepository.findMany({
                   roles: ['NationalCoordinator'],
-                  programmingSubPlanIds: programmingPlan.subPlans.map(
-                    (sp) => sp.id
-                  )
+                  stages: stagesFromSubPlans(programmingPlan.subPlans)
                 });
 
                 await notificationService.sendNotification(
@@ -341,9 +338,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
                 const departmentalCoordinators = await userRepository.findMany({
                   roles: ['DepartmentalCoordinator'],
                   region: programmingPlanLocalStatus.region,
-                  programmingSubPlanIds: programmingPlan.subPlans.map(
-                    (sp) => sp.id
-                  )
+                  stages: stagesFromSubPlans(programmingPlan.subPlans)
                 });
 
                 await notificationService.sendNotification(

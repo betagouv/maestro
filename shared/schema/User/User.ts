@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { type RefinementCtx, z } from 'zod';
 import { Department } from '../../referential/Department';
 import { Region, RegionList, Regions } from '../../referential/Region';
+import { SlaughterhouseStage, Stage } from '../../referential/Stage';
 import type { Nullable } from '../../utils/typescript';
 import { superRefineSchema } from '../../utils/zod';
 import { Company } from '../Company/Company';
@@ -21,6 +22,7 @@ export const UserBase = z.object({
   id: z.guid(),
   email: z.email({ error: 'Veuillez renseigner un email valide.' }),
   name: z.string().nullable(),
+  stages: z.array(Stage),
   programmingSubPlans: z.array(ProgrammingSubPlan),
   roles: z.array(UserRole).min(1, 'Veuillez renseigner au moins un rôle.'),
   region: Region.nullable(),
@@ -33,25 +35,17 @@ export const UserBase = z.object({
 export const userChecks = <
   T extends Pick<
     UserBase,
-    | 'region'
-    | 'roles'
-    | 'department'
-    | 'companies'
-    | 'programmingSubPlans'
-    | 'laboratoryId'
+    'region' | 'roles' | 'department' | 'stages' | 'companies' | 'laboratoryId'
   >
 >(
   user: T,
   ctx: RefinementCtx<T>
 ) => {
-  if (
-    user.programmingSubPlans.length === 0 &&
-    programmingSubPlanIdsIsRequired(user)
-  ) {
+  if (user.stages.length === 0 && stagesIsRequired(user)) {
     ctx.addIssue({
       code: 'custom',
-      path: ['programmingSubPlanIds'],
-      message: 'Au moins un plan est obligatoire pour ce rôle.'
+      path: ['stages'],
+      message: 'Au moins un stade de prélèvement est obligatoire pour ce rôle.'
     });
   }
   if (
@@ -106,22 +100,16 @@ export const UserRefined = superRefineSchema(
   userChecks
 );
 
-export const UserToCreateRefined = superRefineSchema(
-  z.object(UserRefined.shape).omit({
-    id: true,
-    name: true
-  }),
-  userChecks
-);
+const UserToSave = z.object(UserBase.shape).omit({
+  id: true,
+  name: true,
+  programmingSubPlans: true
+});
+
+export const UserToCreateRefined = superRefineSchema(UserToSave, userChecks);
 export type UserToCreateRefined = z.infer<typeof UserToCreateRefined>;
 
-export const UserToUpdateRefined = superRefineSchema(
-  z.object(UserRefined.shape).omit({
-    id: true,
-    name: true
-  }),
-  userChecks
-);
+export const UserToUpdateRefined = superRefineSchema(UserToSave, userChecks);
 
 export type UserToUpdateRefined = z.infer<typeof UserToUpdateRefined>;
 
@@ -205,22 +193,25 @@ export const PPVDummyLaboratoryIds = [
   SCL91Id
 ];
 
-export const companiesIsRequired = (
-  user: Pick<Nullable<UserRefined>, 'programmingSubPlans' | 'roles'>
+const worksInSlaughterhouse = (
+  user: Pick<Nullable<UserRefined>, 'stages' | 'roles'>
 ): boolean =>
   (user.roles?.includes('Sampler') &&
-    user.programmingSubPlans?.some((_) => _.withSacha)) ??
+    user.stages?.includes(SlaughterhouseStage)) ??
   false;
+
+export const companiesIsRequired = (
+  user: Pick<Nullable<UserRefined>, 'stages' | 'roles'>
+): boolean => worksInSlaughterhouse(user);
 
 export const departmentIsRequired = (
-  user: Pick<Nullable<UserRefined>, 'programmingSubPlans' | 'roles'>
+  user: Pick<Nullable<UserRefined>, 'stages' | 'roles'>
 ): boolean =>
   (user.roles?.some((role) => isDepartmentalRole(role)) ||
-    (user.roles?.includes('Sampler') &&
-      user.programmingSubPlans?.some((_) => _.withSacha))) ??
+    worksInSlaughterhouse(user)) ??
   false;
 
-export const programmingSubPlanIdsIsRequired = (
+export const stagesIsRequired = (
   user: Pick<Nullable<UserRefined>, 'roles'>
 ): boolean =>
   !user.roles?.includes('Administrator') &&

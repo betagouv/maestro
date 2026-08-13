@@ -13,10 +13,15 @@ import { type DB, toSqlArray } from './kysely.type';
 export const usersTable = 'users';
 const userCompaniesTable = 'user_companies';
 
-// Type interne pour l'accès knex direct (seeds) — colonne DB brute
-type UserRow = Omit<UserRefined, 'programmingSubPlans' | 'companies'> & {
-  programmingSubPlanIds?: string[];
-};
+// Type interne pour l'accès knex direct (seeds) — `programmingSubPlans` est dérivé
+type UserRow = Omit<UserRefined, 'programmingSubPlans' | 'companies'>;
+
+// `programmingSubPlans` est dérivé : toléré en entrée, jamais écrit en base.
+type UserToWrite = Omit<
+  UserRefined,
+  'id' | 'loggedSecrets' | 'name' | 'programmingSubPlans'
+> &
+  Partial<Pick<UserRefined, 'name' | 'programmingSubPlans'>>;
 export const Users = () => db<UserRow>(usersTable);
 
 const UserCompany = z.object({
@@ -79,9 +84,7 @@ const programmingSubPlansList = (db: ExpressionBuilder<DB, 'users'>) => {
     db
       .selectFrom('programmingSubPlans')
       .selectAll('programmingSubPlans')
-      .where(
-        sql<boolean>`programming_sub_plans.id = ANY("users"."programming_sub_plan_ids")`
-      )
+      .where(sql<boolean>`programming_sub_plans.stages && "users"."stages"`)
   );
 };
 
@@ -115,15 +118,12 @@ const findMany = async (
           query = query.where('roles', '&&', toSqlArray(findOptions.roles));
         }
         break;
-      case 'programmingSubPlanIds':
-        if (
-          !isNil(findOptions.programmingSubPlanIds) &&
-          findOptions.programmingSubPlanIds.length > 0
-        ) {
+      case 'stages':
+        if (!isNil(findOptions.stages) && findOptions.stages.length > 0) {
           query = query.where(
-            'programmingSubPlanIds',
+            'stages',
             '&&',
-            toSqlArray(toArray(findOptions.programmingSubPlanIds) ?? [], 'uuid')
+            toSqlArray(toArray(findOptions.stages) ?? [])
           );
         }
         break;
@@ -162,13 +162,10 @@ const findMany = async (
   return users.map((u) => UserRefined.parse(u));
 };
 
-const insert = async (
-  user: Omit<UserRefined, 'id' | 'loggedSecrets' | 'name'>
-): Promise<void> => {
-  const { companies, programmingSubPlans, ...rest } = user;
+const insert = async (user: UserToWrite): Promise<void> => {
+  const { companies, programmingSubPlans: _derived, ...rest } = user;
   const newUser = {
     ...rest,
-    programmingSubPlanIds: programmingSubPlans.map((sp) => sp.id),
     email: rest.email.toLowerCase()
   };
 
@@ -195,16 +192,11 @@ const insert = async (
 };
 
 const update = async (
-  partialUser: Partial<Omit<UserRefined, 'id' | 'loggedSecrets'>>,
+  partialUser: Partial<UserToWrite>,
   id: UserRefined['id']
 ): Promise<void> => {
-  const { companies, programmingSubPlans, ...rest } = partialUser;
-  const toUpdate = {
-    ...rest,
-    ...(programmingSubPlans !== undefined
-      ? { programmingSubPlanIds: programmingSubPlans.map((sp) => sp.id) }
-      : {})
-  };
+  const { companies, programmingSubPlans: _derived, ...rest } = partialUser;
+  const toUpdate = { ...rest };
 
   await executeTransaction(async (trx) => {
     if (companies !== undefined) {

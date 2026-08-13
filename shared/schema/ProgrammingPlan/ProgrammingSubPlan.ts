@@ -1,3 +1,4 @@
+import { intersection, uniq } from 'lodash-es';
 import { z } from 'zod';
 import { Stage } from '../../referential/Stage';
 import { SubstanceKind } from '../Substance/SubstanceKind';
@@ -19,3 +20,13 @@ export const ProgrammingSubPlan = z.object({
 });
 
 export type ProgrammingSubPlan = z.infer<typeof ProgrammingSubPlan>;
+
+export const subPlansForStages = <T extends Pick<ProgrammingSubPlan, 'stages'>>(
+  subPlans: T[],
+  stages: Stage[]
+): T[] =>
+  subPlans.filter((subPlan) => intersection(subPlan.stages, stages).length > 0);
+
+export const stagesFromSubPlans = (
+  subPlans: Pick<ProgrammingSubPlan, 'stages'>[]
+): Stage[] => uniq(subPlans.flatMap((subPlan) => subPlan.stages));

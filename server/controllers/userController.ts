@@ -3,8 +3,9 @@ import type { Department } from 'maestro-shared/referential/Department';
 import {
   companiesIsRequired,
   departmentIsRequired,
-  programmingSubPlanIdsIsRequired,
+  stagesIsRequired,
   UserRefined,
+  UserToUpdateRefined,
   userRegionsForRole
 } from 'maestro-shared/schema/User/User';
 import {
@@ -12,8 +13,8 @@ import {
   canManageUser,
   canManageUsers,
   managementScope,
-  managerSubPlanIds,
-  mergeManagedSubPlans
+  managerStages,
+  mergeManagedStages
 } from 'maestro-shared/schema/User/UserManagement';
 import { isNationalRole } from 'maestro-shared/schema/User/UserRole';
 import { HttpStatus } from '../constants/httpStatus';
@@ -55,20 +56,20 @@ export const usersRouter = {
         return { status: HttpStatus.FORBIDDEN };
       }
 
-      const updatedUser = {
+      const mergedUser = {
         ...body,
-        programmingSubPlans: mergeManagedSubPlans(
-          account,
-          body.programmingSubPlans,
-          userToUpdate.programmingSubPlans
-        )
+        stages: mergeManagedStages(account, body.stages, userToUpdate.stages)
       };
 
-      if (!canManageUser(account, { ...updatedUser, id: userId })) {
+      if (!canManageUser(account, { ...mergedUser, id: userId })) {
         return { status: HttpStatus.FORBIDDEN };
       }
 
-      await userService.update(updatedUser, userId);
+      if (!UserToUpdateRefined.safeParse(mergedUser).success) {
+        return { status: HttpStatus.BAD_REQUEST };
+      }
+
+      await userService.update(mergedUser, userId);
       return { status: HttpStatus.OK };
     }
   },
@@ -85,8 +86,7 @@ export const usersRouter = {
               scope === 'departmental'
                 ? (account.department as Department)
                 : query.department,
-            programmingSubPlanIds:
-              managerSubPlanIds(account) ?? query.programmingSubPlanIds
+            stages: managerStages(account) ?? query.stages
           }
         : {
             ...query,
@@ -103,12 +103,12 @@ export const usersRouter = {
             })
               ? user.companies.map((company) => company.siret)
               : query.companySirets,
-            programmingSubPlanIds: programmingSubPlanIdsIsRequired({
+            stages: stagesIsRequired({
               ...user,
               roles: [userRole]
             })
-              ? user.programmingSubPlans.map((sp) => sp.id)
-              : query.programmingSubPlanIds
+              ? user.stages
+              : query.stages
           };
 
       console.info('Find users', findOptions);
@@ -124,14 +124,13 @@ export const usersRouter = {
         return { status: HttpStatus.FORBIDDEN };
       }
 
-      await userService.insert({
+      const userToCreate = {
         ...body,
-        programmingSubPlans: mergeManagedSubPlans(
-          account,
-          body.programmingSubPlans
-        ),
+        stages: mergeManagedStages(account, body.stages),
         name: null
-      });
+      };
+
+      await userService.insert(userToCreate);
       return { status: HttpStatus.CREATED };
     }
   }

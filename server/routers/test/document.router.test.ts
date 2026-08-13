@@ -19,10 +19,12 @@ import {
   NationalCoordinatorDaoaFixture,
   NationalObserver,
   RegionalCoordinator,
+  RegionalDromCoordinator,
   RegionalObserver,
   Sampler1Fixture,
   Sampler2Fixture,
-  SamplerDaoaFixture
+  SamplerDaoaFixture,
+  SamplerDromFixture
 } from 'maestro-shared/test/userFixtures';
 import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { withISOStringDates } from 'maestro-shared/utils/date';
@@ -310,14 +312,16 @@ describe('Document router', () => {
       const [notificationData, recipients, params] =
         mockSendNotification.mock.calls[0];
 
-      expect(recipients).toHaveLength(6);
+      expect(recipients).toHaveLength(8);
       expect(recipients).toMatchObject(
         expect.arrayContaining(
           [
             LaboratoryUserFixture,
             Sampler1Fixture,
             Sampler2Fixture,
+            SamplerDromFixture,
             RegionalCoordinator,
+            RegionalDromCoordinator,
             RegionalObserver,
             NationalObserver
           ].map((user) =>
@@ -451,6 +455,19 @@ describe('Document router', () => {
         withISOStringDates(ppvValidatedResourceDocument)
       );
     });
+
+    test.each([
+      ['SamplerDromFixture', SamplerDromFixture],
+      ['RegionalDromCoordinator', RegionalDromCoordinator]
+    ])(
+      'should let %s read a document of a plan it does not hold but whose stages it shares',
+      async (_label, user) => {
+        await request(app)
+          .get(testRoute(ppvValidatedResourceDocument.id))
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_OK);
+      }
+    );
 
     test('should get a global resource document with no programming plan', async () => {
       await request(app)

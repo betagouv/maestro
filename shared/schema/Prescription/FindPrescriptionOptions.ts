@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Stage } from '../../referential/Stage';
+import { SubStage } from '../../referential/SubStage';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 
@@ -15,7 +15,7 @@ export const FindPrescriptionOptions = z.object({
   programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullish(),
   contexts: z.array(ProgrammingPlanContext).nullish(),
   matrixKind: z.string().nullish(),
-  stage: Stage.nullish(),
+  stage: SubStage.nullish(),
   matrix: z.string().nullish(),
   includes: z.array(PrescriptionOptionsInclude).nullish()
 });

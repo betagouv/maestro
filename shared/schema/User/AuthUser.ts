@@ -10,6 +10,7 @@ export const UserAccount = UserBase.pick({
   roles: true,
   region: true,
   department: true,
+  stages: true,
   programmingSubPlans: true
 });
 export type UserAccount = z.infer<typeof UserAccount>;

@@ -16,7 +16,10 @@ import {
   OutsideProgrammingPlanContext,
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  type ProgrammingSubPlanId,
+  stagesFromSubPlans
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   isOutsideProgrammingPlanSample,
   type PartialSample,
@@ -183,7 +186,7 @@ const ContextStep = ({ partialSample }: Props) => {
         permissions.includes('updateSample')
       );
     }),
-    programmingSubPlanIds: programmingPlan?.subPlans.map((sp) => sp.id)
+    stages: stagesFromSubPlans(programmingPlan?.subPlans ?? [])
   });
 
   const Form = SampleContextData.omit({

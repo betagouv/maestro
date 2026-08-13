@@ -1,8 +1,16 @@
 import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
+import {
+  DAOABovinValidatedSubPlanFixture,
+  DAOAVolailleValidatedSubPlanFixture,
+  PPVValidatedSubPlanFixture
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { genUser } from 'maestro-shared/test/userFixtures';
 import { v4 as uuidv4 } from 'uuid';
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { userRepository } from './userRepository';
+
+const PPVStages = PPVValidatedSubPlanFixture.stages;
+const AbattoirStages = DAOAVolailleValidatedSubPlanFixture.stages;
 
 test("impossible d'avoir 2 utilisateurs avec le même email", async () => {
   const email = 'email@email.fr';
@@ -141,4 +149,135 @@ test('peut ajouter et supprimer un logged secret', async () => {
 
   user1InDb = await userRepository.findUnique(user1.id);
   expect(user1InDb?.loggedSecrets).toEqual([newSecret2]);
+});
+
+describe('stades de prélèvement', () => {
+  test('persiste les stades et dérive les sous-plans de tous les millésimes', async () => {
+    const user = genUser({
+      roles: ['NationalObserver'],
+      programmingSubPlans: [PPVValidatedSubPlanFixture]
+    });
+
+    await userRepository.insert(user);
+
+    const userInDb = await userRepository.findOne(user.email);
+    expect(userInDb?.stages).toEqual(PPVStages);
+
+    const derived = userInDb?.programmingSubPlans ?? [];
+    expect(derived.every((sp) => sp.subPlanNumber === 'PPV')).toBe(true);
+    expect(
+      new Set(derived.map((sp) => sp.programmingPlanId)).size
+    ).toBeGreaterThan(1);
+  });
+
+  test('le stade abattoir dérive M01 et M02, indissociables', async () => {
+    const user = genUser({
+      roles: ['NationalObserver'],
+      programmingSubPlans: [DAOAVolailleValidatedSubPlanFixture]
+    });
+
+    await userRepository.insert(user);
+
+    const userInDb = await userRepository.findOne(user.email);
+    expect(userInDb?.stages).toEqual(AbattoirStages);
+    expect(
+      new Set(userInDb?.programmingSubPlans.map((sp) => sp.subPlanNumber))
+    ).toEqual(new Set(['M01', 'M02']));
+  });
+
+  test('ignore les sous-plans fournis à la création, ils sont dérivés', async () => {
+    const user = genUser({
+      roles: ['NationalObserver'],
+      stages: AbattoirStages,
+      programmingSubPlans: [PPVValidatedSubPlanFixture]
+    });
+
+    await userRepository.insert(user);
+
+    const userInDb = await userRepository.findOne(user.email);
+    expect(userInDb?.stages).toEqual(AbattoirStages);
+    expect(
+      userInDb?.programmingSubPlans.every((sp) => sp.subPlanNumber !== 'PPV')
+    ).toBe(true);
+  });
+
+  test('recalcule les sous-plans dérivés après mise à jour des stades', async () => {
+    const user = genUser({
+      roles: ['NationalObserver'],
+      programmingSubPlans: [PPVValidatedSubPlanFixture]
+    });
+
+    await userRepository.insert(user);
+
+    await userRepository.update({ stages: AbattoirStages }, user.id);
+
+    const userInDb = await userRepository.findUnique(user.id);
+    expect(userInDb?.stages).toEqual(AbattoirStages);
+    expect(
+      new Set(userInDb?.programmingSubPlans.map((sp) => sp.subPlanNumber))
+    ).toEqual(new Set(['M01', 'M02']));
+  });
+
+  test('un rôle non restreint sans stade ne dérive aucun sous-plan', async () => {
+    const user = genUser({ roles: ['Administrator'] });
+
+    await userRepository.insert(user);
+
+    const userInDb = await userRepository.findOne(user.email);
+    expect(userInDb?.stages).toEqual([]);
+    expect(userInDb?.programmingSubPlans).toEqual([]);
+  });
+});
+
+describe('findMany par stade', () => {
+  test('retient les utilisateurs partageant au moins un stade', async () => {
+    const ppvUser = genUser({
+      roles: ['NationalObserver'],
+      programmingSubPlans: [PPVValidatedSubPlanFixture]
+    });
+    const abattoirUser = genUser({
+      roles: ['NationalObserver'],
+      programmingSubPlans: [DAOABovinValidatedSubPlanFixture]
+    });
+
+    await userRepository.insert(ppvUser);
+    await userRepository.insert(abattoirUser);
+
+    const emails = (
+      await userRepository.findMany({ stages: [PPVStages[0]] })
+    ).map((u) => u.email);
+
+    expect(emails).toContain(ppvUser.email);
+    expect(emails).not.toContain(abattoirUser.email);
+  });
+
+  test('accepte un stade seul autant qu une liste', async () => {
+    const abattoirUser = genUser({
+      roles: ['NationalObserver'],
+      programmingSubPlans: [DAOAVolailleValidatedSubPlanFixture]
+    });
+
+    await userRepository.insert(abattoirUser);
+
+    const emails = (
+      await userRepository.findMany({ stages: AbattoirStages[0] })
+    ).map((u) => u.email);
+
+    expect(emails).toContain(abattoirUser.email);
+  });
+
+  test('ne filtre pas quand aucun stade n est demandé', async () => {
+    const user = genUser({
+      roles: ['NationalObserver'],
+      programmingSubPlans: [PPVValidatedSubPlanFixture]
+    });
+
+    await userRepository.insert(user);
+
+    const emails = (await userRepository.findMany({ stages: [] })).map(
+      (u) => u.email
+    );
+
+    expect(emails).toContain(user.email);
+  });
 });

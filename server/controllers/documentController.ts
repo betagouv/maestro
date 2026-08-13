@@ -1,8 +1,9 @@
-import { intersection, uniq } from 'lodash-es';
+import { intersection } from 'lodash-es';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import type { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import { ResourceDocumentKindList } from 'maestro-shared/schema/Document/DocumentKind';
 import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
+import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { hasPermission } from 'maestro-shared/schema/User/User';
 import { UserRoleList } from 'maestro-shared/schema/User/UserRole';
 import { HttpStatus } from '../constants/httpStatus';
@@ -88,8 +89,8 @@ export const documentsRouter = {
             (role) =>
               hasPermission(role, 'readDocuments') && role !== 'LaboratoryUser'
           ),
-          programmingSubPlanIds: uniq(
-            programmingPlans.flatMap((plan) => plan.subPlans.map((sp) => sp.id))
+          stages: stagesFromSubPlans(
+            programmingPlans.flatMap((plan) => plan.subPlans)
           )
         });
 

@@ -1,8 +1,5 @@
 import { intersection, uniq } from 'lodash-es';
-import type {
-  ProgrammingSubPlan,
-  ProgrammingSubPlanId
-} from '../ProgrammingPlan/ProgrammingSubPlan';
+import type { Stage } from '../../referential/Stage';
 import type { UserBase } from './User';
 import {
   type UserRole,
@@ -40,12 +37,12 @@ export const ManageableUserRoles: Record<ManagerUserRole, UserRole[]> &
 
 type UserManager = Pick<
   UserBase,
-  'id' | 'roles' | 'region' | 'department' | 'programmingSubPlans'
+  'id' | 'roles' | 'region' | 'department' | 'stages'
 >;
 
 export type ManagedUser = Pick<
   UserBase,
-  'roles' | 'region' | 'department' | 'programmingSubPlans'
+  'roles' | 'region' | 'department' | 'stages'
 >;
 
 type UserManagementScope = 'national' | 'regional' | 'departmental' | 'none';
@@ -70,34 +67,30 @@ export const manageableUserRoles = (
 export const canManageUsers = (manager: Pick<UserManager, 'roles'>): boolean =>
   manageableUserRoles(manager).length > 0;
 
-type SubPlanManager = Pick<UserManager, 'roles' | 'programmingSubPlans'>;
+type StageManager = Pick<UserManager, 'roles' | 'stages'>;
 
-// Les sous-plans sur lesquels le gestionnaire a la main. `null` = portée nationale, donc
-// aucune contrainte de sous-plan.
-export const managerSubPlanIds = (
-  manager: SubPlanManager
-): ProgrammingSubPlanId[] | null =>
-  managementScope(manager) === 'national'
-    ? null
-    : manager.programmingSubPlans.map((subPlan) => subPlan.id);
+// Les stades sur lesquels le gestionnaire a la main. `null` = portée nationale, donc
+// aucune contrainte de stade.
+export const managerStages = (manager: StageManager): Stage[] | null =>
+  managementScope(manager) === 'national' ? null : manager.stages;
 
-// Un gestionnaire n'attribue que ses propres sous-plans : les sous-plans de la cible qui
-// sortent de son périmètre sont conservés tels quels.
-export const mergeManagedSubPlans = (
-  manager: SubPlanManager,
-  submittedSubPlans: ProgrammingSubPlan[],
-  currentSubPlans: ProgrammingSubPlan[] = []
-): ProgrammingSubPlan[] => {
-  const managedIds = managerSubPlanIds(manager);
+// Un gestionnaire n'attribue que ses propres stades : les stades de la cible qui sortent
+// de son périmètre sont conservés tels quels.
+export const mergeManagedStages = (
+  manager: StageManager,
+  submittedStages: Stage[],
+  currentStages: Stage[] = []
+): Stage[] => {
+  const managedStages = managerStages(manager);
 
-  if (managedIds === null) {
-    return submittedSubPlans;
+  if (managedStages === null) {
+    return submittedStages;
   }
 
-  return [
-    ...submittedSubPlans.filter((subPlan) => managedIds.includes(subPlan.id)),
-    ...currentSubPlans.filter((subPlan) => !managedIds.includes(subPlan.id))
-  ];
+  return uniq([
+    ...submittedStages.filter((stage) => managedStages.includes(stage)),
+    ...currentStages.filter((stage) => !managedStages.includes(stage))
+  ]);
 };
 
 const isWithinScope = (manager: UserManager, target: ManagedUser): boolean => {
@@ -123,13 +116,9 @@ const isWithinScope = (manager: UserManager, target: ManagedUser): boolean => {
     }
   }
 
-  const managedIds = managerSubPlanIds(manager);
-  if (managedIds !== null) {
-    const sharedSubPlans = intersection(
-      managedIds,
-      target.programmingSubPlans.map((subPlan) => subPlan.id)
-    );
-    if (sharedSubPlans.length === 0) {
+  const managedStages = managerStages(manager);
+  if (managedStages !== null) {
+    if (intersection(managedStages, target.stages).length === 0) {
       return false;
     }
   }

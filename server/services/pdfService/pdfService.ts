@@ -15,7 +15,7 @@ import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { StageLabels } from 'maestro-shared/referential/Stage';
+import { SubStageLabels } from 'maestro-shared/referential/SubStage';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
@@ -333,7 +333,7 @@ const generateSamplePDF = async (
     legalContext: sample.legalContext
       ? LegalContextLabels[sample.legalContext]
       : '',
-    stage: sample.stage ? StageLabels[sample.stage] : '',
+    stage: sample.stage ? SubStageLabels[sample.stage] : '',
     matrixKind: sample.matrixKind ? MatrixKindLabels[sample.matrixKind] : '',
     matrix: getSampleMatrixLabel(sample),
     matrixPart: matrixPartField

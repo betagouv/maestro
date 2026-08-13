@@ -21,7 +21,7 @@ import {
   SSD2IdLabel,
   SSD2Referential
 } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { StageLabels } from 'maestro-shared/referential/Stage';
+import { SubStageLabels } from 'maestro-shared/referential/SubStage';
 import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 import { ContaminationSourceLabels } from 'maestro-shared/schema/Analysis/Residue/ContaminationSource';
@@ -261,7 +261,7 @@ const generateSamplesExportExcel = async (
             sample.specificData['matrixPart']
           ) ?? '')
         : '',
-      stage: sample.stage ? StageLabels[sample.stage] : undefined,
+      stage: sample.stage ? SubStageLabels[sample.stage] : undefined,
       stageCode: sample.stage,
       specificData: fieldConfigs.map((fc) => {
         const rawValue = sample.specificData[fc.field.key];
@@ -572,7 +572,7 @@ const generatePrescriptionsExportExcel = async (
       return {
         matrix: getPrescriptionTitle(prescription),
         stages: prescription.stages
-          .map((stage) => StageLabels[stage])
+          .map((stage) => SubStageLabels[stage])
           .join(', '),
         instructions: prescription.programmingInstruction,
         notes: prescription.notes,
@@ -824,7 +824,7 @@ const generateLaboratoryAgreementsExportExcel = async (
         .join(', ');
 
       const stages = [...new Set(rowPrescriptions.flatMap((p) => p.stages))]
-        .map((s) => StageLabels[s])
+        .map((s) => SubStageLabels[s])
         .join(', ');
 
       const labCount = rowAgreements.filter(

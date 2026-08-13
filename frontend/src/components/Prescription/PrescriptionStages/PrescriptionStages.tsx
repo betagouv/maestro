@@ -2,7 +2,11 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import Tag from '@codegouvfr/react-dsfr/Tag';
-import { type Stage, StageLabels } from 'maestro-shared/referential/Stage';
+import {
+  type SubStage,
+  SubStageLabels,
+  subStagesForStages
+} from 'maestro-shared/referential/SubStage';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useState } from 'react';
@@ -13,7 +17,7 @@ interface Props {
   programmingPlan: ProgrammingPlanChecked;
   prescription: Prescription;
   label?: string;
-  onChangeStages?: (stages: Stage[]) => void;
+  onChangeStages?: (stages: SubStage[]) => void;
 }
 
 const PrescriptionStages = ({
@@ -24,12 +28,12 @@ const PrescriptionStages = ({
 }: Props) => {
   const { hasUserPrescriptionPermission } = useAuthentication();
 
-  const [newStage, setNewStage] = useState<Stage | ''>('');
+  const [newStage, setNewStage] = useState<SubStage | ''>('');
 
-  const removeStage = async (stage: Stage) =>
+  const removeStage = async (stage: SubStage) =>
     onChangeStages?.(prescription.stages.filter((s) => s !== stage));
 
-  const addStage = async (stage: Stage) =>
+  const addStage = async (stage: SubStage) =>
     onChangeStages?.([...prescription.stages, stage]);
 
   return (
@@ -40,20 +44,20 @@ const PrescriptionStages = ({
             label={label ?? ''}
             nativeSelectProps={{
               onChange: (e) => {
-                setNewStage(e.target.value as Stage);
+                setNewStage(e.target.value as SubStage);
               }
             }}
             className={cx('fr-mb-1w')}
           >
             {selectOptionsFromList(
-              (
+              subStagesForStages(
                 programmingPlan.subPlans.find(
                   (sp) => sp.id === prescription.programmingSubPlanId
                 )?.stages ?? []
               ).filter((s) => !prescription.stages.includes(s)),
               {
                 defaultLabel: 'Sélectionner',
-                labels: StageLabels,
+                labels: SubStageLabels,
                 withSort: true
               }
             ).map((option) => (
@@ -71,7 +75,7 @@ const PrescriptionStages = ({
             title="Ajouter"
             disabled={!newStage}
             onClick={async () => {
-              await addStage(newStage as Stage);
+              await addStage(newStage as SubStage);
               setNewStage('');
             }}
             className={cx(label ? 'fr-mt-3w' : 'fr-mb-1w', 'fr-ml-2w')}
@@ -95,7 +99,7 @@ const PrescriptionStages = ({
           }
           className={cx('fr-my-1v')}
         >
-          {StageLabels[stage]}
+          {SubStageLabels[stage]}
         </Tag>
       ))}
     </>

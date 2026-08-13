@@ -16,8 +16,11 @@ import {
   ManageableUserRoles,
   manageableUserRoles,
   managementScope,
-  mergeManagedSubPlans
+  mergeManagedStages
 } from './UserManagement';
+
+const PPVStages = PPVValidatedSubPlanFixture.stages;
+const AbattoirStages = DAOAVolailleValidatedSubPlanFixture.stages;
 
 const Department1 = Regions[Region1Fixture].departments[0];
 const Department2 = Regions[Region1Fixture].departments[1];
@@ -172,7 +175,7 @@ describe('UserManagement', () => {
       expect(canManageUser(regionalCoordinator, mixedTarget)).toBe(false);
     });
 
-    test('should refuse a target sharing no sub plan', () => {
+    test('should refuse a target sharing no stage', () => {
       const daoaSampler = genUser({
         roles: ['Sampler'],
         region: Region1Fixture,
@@ -183,7 +186,7 @@ describe('UserManagement', () => {
       expect(canManageUser(regionalCoordinator, daoaSampler)).toBe(false);
     });
 
-    test('should not constrain an administrator carrying sub plans', () => {
+    test('should not constrain an administrator carrying stages', () => {
       const adminWithSubPlans = genUser({
         roles: ['Administrator'],
         region: null,
@@ -200,7 +203,7 @@ describe('UserManagement', () => {
       expect(canManageUser(adminWithSubPlans, daoaSampler)).toBe(true);
     });
 
-    test('should refuse any target for a regional manager without sub plan', () => {
+    test('should refuse any target for a regional manager without stage', () => {
       const regionalCoordinatorWithoutSubPlan = genUser({
         roles: ['RegionalCoordinator'],
         region: Region1Fixture,
@@ -213,7 +216,7 @@ describe('UserManagement', () => {
       ).toBe(false);
     });
 
-    test('should accept a target sharing only one sub plan out of several', () => {
+    test('should accept a target sharing only one stage out of several', () => {
       const multiPlanSampler = genUser({
         roles: ['Sampler'],
         region: Region1Fixture,
@@ -248,7 +251,7 @@ describe('UserManagement', () => {
           roles: ['Sampler'],
           region: Region1Fixture,
           department: Department1,
-          programmingSubPlans: [PPVValidatedSubPlanFixture]
+          stages: PPVStages
         })
       ).toBe(true);
 
@@ -257,7 +260,7 @@ describe('UserManagement', () => {
           roles: ['NationalCoordinator'],
           region: null,
           department: null,
-          programmingSubPlans: [PPVValidatedSubPlanFixture]
+          stages: PPVStages
         })
       ).toBe(false);
 
@@ -266,42 +269,36 @@ describe('UserManagement', () => {
           roles: ['Sampler'],
           region: Region1Fixture,
           department: Department2,
-          programmingSubPlans: [PPVValidatedSubPlanFixture]
+          stages: PPVStages
         })
       ).toBe(false);
     });
   });
 
-  describe('mergeManagedSubPlans', () => {
+  describe('mergeManagedStages', () => {
     test('should leave a national manager unconstrained', () => {
       expect(
-        mergeManagedSubPlans(admin, [
-          PPVValidatedSubPlanFixture,
-          DAOAVolailleValidatedSubPlanFixture
-        ])
-      ).toEqual([
-        PPVValidatedSubPlanFixture,
-        DAOAVolailleValidatedSubPlanFixture
-      ]);
+        mergeManagedStages(admin, [...PPVStages, ...AbattoirStages])
+      ).toEqual([...PPVStages, ...AbattoirStages]);
     });
 
-    test('should drop the submitted sub plans outside the manager scope', () => {
+    test('should drop the submitted stages outside the manager scope', () => {
       expect(
-        mergeManagedSubPlans(regionalCoordinator, [
-          PPVValidatedSubPlanFixture,
-          DAOAVolailleValidatedSubPlanFixture
+        mergeManagedStages(regionalCoordinator, [
+          ...PPVStages,
+          ...AbattoirStages
         ])
-      ).toEqual([PPVValidatedSubPlanFixture]);
+      ).toEqual(PPVStages);
     });
 
-    test('should preserve the current sub plans outside the manager scope', () => {
+    test('should preserve the current stages outside the manager scope', () => {
       expect(
-        mergeManagedSubPlans(
+        mergeManagedStages(
           regionalCoordinator,
           [],
-          [PPVValidatedSubPlanFixture, DAOAVolailleValidatedSubPlanFixture]
+          [...PPVStages, ...AbattoirStages]
         )
-      ).toEqual([DAOAVolailleValidatedSubPlanFixture]);
+      ).toEqual(AbattoirStages);
     });
   });
 });

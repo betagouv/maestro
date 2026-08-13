@@ -8,6 +8,7 @@ import type { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescr
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
+import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { withSubstanceKindLaboratories } from 'maestro-shared/schema/Sample/SampleItem';
 import { companiesIsRequired } from 'maestro-shared/schema/User/User';
 import {
@@ -364,7 +365,7 @@ export const localPrescriptionsRouter = {
       await localPrescriptionCommentRepository.insert(prescriptionComment);
 
       const recipients = await userRepository.findMany({
-        programmingSubPlanIds: programmingPlan.subPlans.map((sp) => sp.id),
+        stages: stagesFromSubPlans(programmingPlan.subPlans),
         ...(userRole === 'NationalCoordinator'
           ? {
               region: localPrescription.region,
@@ -442,7 +443,7 @@ export const localPrescriptionsRouter = {
         await localPrescriptionCommentRepository.insert(prescriptionComment);
 
         const recipients = await userRepository.findMany({
-          programmingSubPlanIds: programmingPlan.subPlans.map((sp) => sp.id),
+          stages: stagesFromSubPlans(programmingPlan.subPlans),
           ...(userRole === 'RegionalCoordinator'
             ? {
                 region: localPrescription.region,

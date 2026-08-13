@@ -1,7 +1,7 @@
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { Regions } from 'maestro-shared/referential/Region';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { StageLabels } from 'maestro-shared/referential/Stage';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
@@ -10,21 +10,13 @@ import type { FindUserOptions } from './UsersFilters';
 type Props = {
   filters: FindUserOptions;
   onChange: (filters: Partial<FindUserOptions>) => void;
-  programmingPlans: ProgrammingPlanChecked[];
 };
 export const UsersFilterTags: FunctionComponent<Props> = ({
   filters,
   onChange,
-  programmingPlans,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
-
-  const subPlanLabelById = Object.fromEntries(
-    programmingPlans.flatMap((p) =>
-      p.subPlans.map((sp) => [sp.id, `${sp.subPlanNumber} (${p.year})`])
-    )
-  );
 
   return (
     <>
@@ -72,20 +64,18 @@ export const UsersFilterTags: FunctionComponent<Props> = ({
           {UserRoleLabels[role]}
         </Tag>
       ))}
-      {filters.programmingSubPlanIds?.map((id) => (
+      {filters.stages?.map((stage) => (
         <Tag
-          key={`programmingSubPlanId-${id}`}
+          key={`stage-${stage}`}
           dismissible
           nativeButtonProps={{
             onClick: () =>
               onChange({
-                programmingSubPlanIds: filters.programmingSubPlanIds!.filter(
-                  (k) => k !== id
-                )
+                stages: filters.stages!.filter((s) => s !== stage)
               })
           }}
         >
-          {subPlanLabelById[id]}
+          {StageLabels[stage]}
         </Tag>
       ))}
       {filters.onlyDisabled && (

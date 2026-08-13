@@ -12,7 +12,7 @@ import {
 import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import { Region } from '../../referential/Region';
 import { SSD2Id } from '../../referential/Residue/SSD2Id';
-import { Stage } from '../../referential/Stage';
+import { SubStage } from '../../referential/SubStage';
 import { maestroDateRefined, toMaestroDate } from '../../utils/date';
 import { isDefined } from '../../utils/utils';
 import { checkSchema } from '../../utils/zod';
@@ -64,7 +64,7 @@ export const SampleMatrixData = z.object({
     error: (issue) =>
       isNil(issue.input) ? 'Veuillez renseigner la matrice.' : issue.message
   }),
-  stage: Stage,
+  stage: SubStage,
   notesOnMatrix: z.string().nullish(),
   prescriptionId: z.guid().nullish(),
   monoSubstances: z.array(SSD2Id).nullish(),
@@ -203,7 +203,7 @@ const PartialSampleMatrixData = z.object({
   ...SampleMatrixData.partial().shape,
   matrixKind: z.union([MatrixKind, OtherMatrixKind]).nullish(),
   matrix: z.union([Matrix, z.string().nonempty()]).nullish(),
-  stage: Stage.nullish(),
+  stage: SubStage.nullish(),
   specificData: SpecificData
 });
 
