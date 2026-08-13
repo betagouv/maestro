@@ -112,6 +112,13 @@ export const useAuthentication = () => {
     [authUser]
   );
 
+  const hasAccountPermission = useCallback(
+    (permission: UserPermission) =>
+      isDefined(authUser?.account) &&
+      authUser.account.roles.some((role) => hasPermission(role, permission)),
+    [authUser]
+  );
+
   const availableRoutes = useMemo(() => {
     return isAuthenticated
       ? [
@@ -148,13 +155,15 @@ export const useAuthentication = () => {
           .flat()
           .filter(isDefined)
       : ['LoginRoute', 'LoginCallbackRoute'];
-  }, [isAuthenticated, hasUserPermission, authUser]);
+  }, [isAuthenticated, hasUserPermission, hasAccountPermission, authUser]);
 
   return {
     user: authUser?.user,
     userRole: authUser?.userRole,
+    account: authUser?.account,
     isAuthenticated,
     hasUserPermission,
+    hasAccountPermission,
     hasUserPrescriptionPermission,
     hasUserLocalPrescriptionPermission,
     hasUserSamplePermission,

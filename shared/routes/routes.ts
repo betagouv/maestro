@@ -178,6 +178,7 @@ export type ToRoute = {
       unprotected: true;
     }
   | { permissions: [UserPermission, ...UserPermission[]] | 'NONE' }
+  | { accountPermissions: [UserPermission, ...UserPermission[]] }
 );
 
 type ZodParseUrlParams<url> = url extends `${infer start}/${infer rest}`

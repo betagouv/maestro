@@ -3,9 +3,21 @@ import { superRefineSchema } from '../../utils/zod';
 import { UserBase, userChecks } from './User';
 import { isNationalRole, isRegionalRole, UserRole } from './UserRole';
 
+// Identité brute du compte connecté : les valeurs telles qu'elles sont en base, non
+// écrasées par le rôle actif.
+export const UserAccount = UserBase.pick({
+  id: true,
+  roles: true,
+  region: true,
+  department: true,
+  programmingSubPlans: true
+});
+export type UserAccount = z.infer<typeof UserAccount>;
+
 const AuthUser = z.object({
   user: UserBase,
-  userRole: UserRole
+  userRole: UserRole,
+  account: UserAccount.optional()
 });
 type AuthUser = z.infer<typeof AuthUser>;
 
@@ -30,7 +42,7 @@ const authUserCheck = (
 };
 
 export const AuthUserRefined = superRefineSchema(
-  AuthUser.transform(({ user, userRole }) => {
+  AuthUser.transform(({ user, userRole, account }) => {
     return {
       user: {
         ...user,
@@ -39,7 +51,8 @@ export const AuthUserRefined = superRefineSchema(
         companies: userRole === 'Sampler' ? user.companies : [],
         laboratoryId: userRole === 'LaboratoryUser' ? user.laboratoryId : null
       },
-      userRole
+      userRole,
+      account: account ?? UserAccount.parse(user)
     };
   }),
   authUserCheck

@@ -17,7 +17,7 @@ export const usersRoutes = {
     },
     post: {
       response: z.undefined(),
-      permissions: ['administrationMaestro'],
+      accountPermissions: ['manageUsers'],
       body: UserToCreateRefined
     }
   },
@@ -31,7 +31,7 @@ export const usersRoutes = {
     },
     put: {
       response: z.undefined(),
-      permissions: ['administrationMaestro'],
+      accountPermissions: ['manageUsers'],
       body: UserToUpdateRefined
     }
   }

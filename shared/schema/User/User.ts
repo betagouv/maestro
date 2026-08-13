@@ -117,6 +117,7 @@ export type UserToCreateRefined = z.infer<typeof UserToCreateRefined>;
 
 export const UserToUpdateRefined = superRefineSchema(
   z.object(UserRefined.shape).omit({
+    id: true,
     name: true
   }),
   userChecks

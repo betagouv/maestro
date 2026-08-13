@@ -17,11 +17,11 @@ import {
   type UserRefined,
   UserToCreateRefined
 } from 'maestro-shared/schema/User/User';
+import { managerSubPlanIds } from 'maestro-shared/schema/User/UserManagement';
 import {
   canHaveDepartment,
   isRegionalRole,
-  UserRoleLabels,
-  UserRoleList
+  UserRoleLabels
 } from 'maestro-shared/schema/User/UserRole';
 import type { Nullable } from 'maestro-shared/utils/typescript';
 import type React from 'react';
@@ -34,8 +34,10 @@ import AppSelect from '../../../components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from '../../../components/_app/AppSelect/AppSelectOption';
 import AppTextInput from '../../../components/_app/AppTextInput/AppTextInput';
 import CompanySearch from '../../../components/CompanySearch/CompanySearch';
+import { useAuthentication } from '../../../hooks/useAuthentication';
 import { useForm } from '../../../hooks/useForm';
 import { ApiClientContext } from '../../../services/apiClient';
+import { useUserManagement } from '../useUserManagement';
 
 interface Props {
   userToUpdate: null | UserRefined;
@@ -66,6 +68,10 @@ const userDefaultValue: Nullable<UserToCreateRefined> = {
   disabled: false
 };
 
+const needsRegion = (user: Nullable<UserToCreateRefined>): boolean =>
+  (user.roles?.some((role) => isRegionalRole(role)) ?? false) ||
+  canHaveDepartment(user);
+
 export const UserModal = ({
   userToUpdate,
   modal,
@@ -77,12 +83,34 @@ export const UserModal = ({
 
   const apiClient = useContext(ApiClientContext);
 
+  const { account } = useAuthentication();
+  const { manageableRoles, scope } = useUserManagement();
+
   const allSubPlans = useMemo(
     () =>
       programmingPlans.flatMap((p) =>
         p.subPlans.map((sp) => ({ ...sp, year: p.year }))
       ),
     [programmingPlans]
+  );
+
+  const selectableSubPlans = useMemo(() => {
+    const managedIds = account ? managerSubPlanIds(account) : [];
+
+    return managedIds === null
+      ? allSubPlans
+      : allSubPlans.filter((sp) => managedIds.includes(sp.id));
+  }, [allSubPlans, account]);
+
+  // Les sous-plans de la cible hors du périmètre du gestionnaire restent affichés mais ne
+  // sont pas modifiables
+  const lockedSubPlans = useMemo(
+    () =>
+      (userToUpdate?.programmingSubPlans ?? []).filter(
+        (sp) =>
+          !selectableSubPlans.some((selectable) => selectable.id === sp.id)
+      ),
+    [userToUpdate, selectableSubPlans]
   );
 
   const [findCompanies] = apiClient.useLazyFindCompaniesQuery();
@@ -92,6 +120,10 @@ export const UserModal = ({
 
   const [user, setUser] =
     useState<Nullable<UserToCreateRefined>>(userDefaultValue);
+
+  const forcedRegion = scope === 'national' ? null : (account?.region ?? null);
+  const forcedDepartment =
+    scope === 'departmental' ? (account?.department ?? null) : null;
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery(
     {},
@@ -127,12 +159,12 @@ export const UserModal = ({
       !canHaveDepartment(user) &&
       !user.roles?.some((role) => isRegionalRole(role))
     ) {
-      setUser((u) => ({ ...u, region: null }));
+      setUser((u) => ({ ...u, region: forcedRegion }));
     }
     if (!canHaveDepartment(user)) {
-      setUser((u) => ({ ...u, department: null }));
+      setUser((u) => ({ ...u, department: forcedDepartment }));
     }
-  }, [user.roles, user.region]);
+  }, [user.roles, user.region, forcedRegion, forcedDepartment]);
 
   const [companies, setCompanies] = useState<Company[]>([]);
   useEffect(() => {
@@ -178,7 +210,6 @@ export const UserModal = ({
         if (userToUpdate?.id) {
           await updateUser({
             ...n,
-            id: userToUpdate.id,
             userId: userToUpdate.id
           }).unwrap();
           setAlertMessage(
@@ -230,7 +261,7 @@ export const UserModal = ({
         <AppMultiSelect
           inputForm={form}
           inputKey={'roles'}
-          items={UserRoleList}
+          items={manageableRoles}
           onChange={(roles) =>
             setUser((u) => ({
               ...u,
@@ -246,8 +277,7 @@ export const UserModal = ({
           }}
           required
         />
-        {(user.roles?.some((role) => isRegionalRole(role)) ||
-          canHaveDepartment(user)) && (
+        {!forcedRegion && needsRegion(user) && (
           <AppSelect
             onChange={(e) => {
               const { data, success } = Region.safeParse(e.target.value);
@@ -263,34 +293,40 @@ export const UserModal = ({
             required
           />
         )}
-        {user.roles && user.region && canHaveDepartment(user) && (
-          <AppSelect
-            onChange={(e) => {
-              const { data, success } = Department.safeParse(e.target.value);
-              setUser((u) => ({
-                ...u,
-                department: success ? data : null
-              }));
-            }}
-            value={user.department ?? ''}
-            inputForm={form}
-            inputKey={'department'}
-            label="Département"
-            options={departmentOptions}
-            required={departmentIsRequired(user)}
-          />
-        )}
+        {!forcedDepartment &&
+          user.roles &&
+          user.region &&
+          canHaveDepartment(user) && (
+            <AppSelect
+              onChange={(e) => {
+                const { data, success } = Department.safeParse(e.target.value);
+                setUser((u) => ({
+                  ...u,
+                  department: success ? data : null
+                }));
+              }}
+              value={user.department ?? ''}
+              inputForm={form}
+              inputKey={'department'}
+              label="Département"
+              options={departmentOptions}
+              required={departmentIsRequired(user)}
+            />
+          )}
         <AppMultiSelect
           inputForm={form}
           inputKey={'programmingSubPlans'}
-          items={allSubPlans.map((sp) => sp.id)}
+          items={selectableSubPlans.map((sp) => sp.id)}
           onChange={(v) =>
             setUser((u) => ({
               ...u,
-              programmingSubPlans: v
-                .map((id) => allSubPlans.find((sp) => sp.id === id))
-                .filter((sp) => sp != null)
-                .map(({ year: _year, ...sp }): ProgrammingSubPlan => sp)
+              programmingSubPlans: [
+                ...lockedSubPlans,
+                ...v
+                  .map((id) => selectableSubPlans.find((sp) => sp.id === id))
+                  .filter((sp) => sp != null)
+                  .map(({ year: _year, ...sp }): ProgrammingSubPlan => sp)
+              ]
             }))
           }
           values={user.programmingSubPlans?.map((sp) => sp.id) ?? []}
@@ -301,7 +337,7 @@ export const UserModal = ({
           label={
             <>
               Sous-plans
-              {allSubPlans.some(
+              {selectableSubPlans.some(
                 (sp) =>
                   !user.programmingSubPlans?.some((usp) => usp.id === sp.id)
               ) && (
@@ -311,21 +347,29 @@ export const UserModal = ({
                   onClick={() =>
                     setUser((u) => ({
                       ...u,
-                      programmingSubPlans: allSubPlans.map(
-                        ({ year: _year, ...sp }): ProgrammingSubPlan => sp
-                      )
+                      programmingSubPlans: [
+                        ...lockedSubPlans,
+                        ...selectableSubPlans.map(
+                          ({ year: _year, ...sp }): ProgrammingSubPlan => sp
+                        )
+                      ]
                     }))
                   }
                 >
                   Tout sélectionner
                 </Button>
               )}
-              {(user.programmingSubPlans?.length ?? 0) > 0 && (
+              {selectableSubPlans.some((sp) =>
+                user.programmingSubPlans?.some((usp) => usp.id === sp.id)
+              ) && (
                 <Button
                   priority="tertiary no outline"
                   size="small"
                   onClick={() =>
-                    setUser((u) => ({ ...u, programmingSubPlans: [] }))
+                    setUser((u) => ({
+                      ...u,
+                      programmingSubPlans: lockedSubPlans
+                    }))
                   }
                 >
                   Tout désélectionner

@@ -100,6 +100,7 @@ export const userCheck =
       });
       request.user = parsed.user;
       request.userRole = parsed.userRole;
+      request.account = parsed.account;
     }
     next();
   };
