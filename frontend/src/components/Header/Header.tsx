@@ -52,7 +52,6 @@ const Header = () => {
   const {
     isAuthenticated,
     hasUserPermission,
-    hasAccountPermission,
     user,
     userRole,
     availableRoutes
@@ -286,7 +285,7 @@ const Header = () => {
                   AuthenticatedAppRoutes.DocumentsRoute.path
                 )
               },
-              hasAccountPermission('manageUsers')
+              hasUserPermission('administrationMaestro')
                 ? {
                     linkProps: {
                       to: AuthenticatedAppRoutes.UsersRoute.link(),
