@@ -25,7 +25,7 @@ import {
   RegionalCoordinator,
   SamplerDaoaFixture
 } from 'maestro-shared/test/userFixtures';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, within } from 'storybook/test';
 import { getMockApi } from '../../../services/mockApiClient';
 import ProgrammingView from '../ProgrammingView';
 
@@ -87,15 +87,6 @@ export const NationalCoordinatorView: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(
-      canvas.getByTestId('prescriptions-cards-segment')
-    ).toBeInTheDocument();
-    await expect(
-      canvas.getByTestId('prescriptions-table-segment')
-    ).toBeInTheDocument();
-
-    await userEvent.click(canvas.getByTestId('prescriptions-table-segment'));
-
     await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
 
     await expect(
@@ -107,8 +98,6 @@ export const NationalCoordinatorView: Story = {
     await expect(
       canvas.getAllByTestId(`cell-${FoieDeBovinPrescriptionFixture.id}`)
     ).toHaveLength(RegionList.length);
-
-    await userEvent.click(canvas.getByTestId('prescriptions-cards-segment'));
 
     await expect(
       canvas.queryByTestId('update-laboratory-button')
@@ -148,25 +137,10 @@ export const RegionalCoordinatorView: Story = {
     const canvas = within(canvasElement);
 
     await expect(
-      canvas.queryByTestId('prescriptions-cards-segment')
-    ).toBeInTheDocument();
-    await expect(
-      canvas.queryByTestId('prescriptions-table-segment')
-    ).toBeInTheDocument();
-
-    await expect(
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
-
-    await expect(
-      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
-        el.textContent?.toLowerCase().includes('attribué')
-      )
-    ).toHaveLength(prescriptions.length);
-
-    await userEvent.click(canvas.getByTestId('prescriptions-table-segment'));
 
     await expect(
       Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
@@ -200,13 +174,6 @@ export const DepartmentalCoordinatorView: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(
-      canvas.queryByTestId('prescriptions-cards-segment')
-    ).toBeInTheDocument();
-    await expect(
-      canvas.queryByTestId('prescriptions-table-segment')
-    ).toBeInTheDocument();
-
     await expect(canvas.getAllByTestId('update-laboratory-button').length).toBe(
       regionalPrescriptions.filter(
         (_) => _.department === DepartmentalCoordinator.department
@@ -214,14 +181,6 @@ export const DepartmentalCoordinatorView: Story = {
     );
 
     await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
-
-    await expect(
-      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
-        el.textContent?.toLowerCase().includes('attribué')
-      )
-    ).toHaveLength(prescriptions.length);
-
-    await userEvent.click(canvas.getByTestId('prescriptions-table-segment'));
 
     await expect(
       Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
@@ -254,13 +213,6 @@ export const SamplerView: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-
-    await expect(
-      canvas.queryByTestId('prescriptions-cards-segment')
-    ).not.toBeInTheDocument();
-    await expect(
-      canvas.queryByTestId('prescriptions-table-segment')
-    ).not.toBeInTheDocument();
 
     await expect(
       canvas.getByText('La programmation sera disponible une fois que', {
