@@ -8,11 +8,6 @@ import { PrescriptionComments } from 'maestro-shared/schema/Prescription/Prescri
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import {
-  getStoredListDisplay,
-  type ListDisplay,
-  setStoredListDisplay
-} from 'src/store/localStorage';
 import { z } from 'zod';
 
 export const PrescriptionFilters = z.object({
