@@ -88,7 +88,6 @@ type LocalPrescriptionModalData = z.infer<typeof LocalPrescriptionModalData>;
 
 type PrescriptionsState = {
   prescriptionFilters: PrescriptionFilters;
-  prescriptionListDisplay: ListDisplay;
   prescriptionModalData?: PrescriptionModalData;
   localPrescriptionModalData?: LocalPrescriptionModalData;
   prescriptionCommentsData?: PrescriptionCommentsData;
@@ -98,8 +97,7 @@ const initialState: PrescriptionsState = {
   prescriptionFilters: {
     missingSlaughterhouse: false,
     missingLaboratory: false
-  },
-  prescriptionListDisplay: getStoredListDisplay('prescriptionListDisplay')
+  }
 };
 
 const prescriptionsSlice = createSlice({
@@ -111,10 +109,6 @@ const prescriptionsSlice = createSlice({
       action: PayloadAction<PrescriptionFilters>
     ) => {
       state.prescriptionFilters = action.payload;
-    },
-    changeListDisplay: (state, action: PayloadAction<ListDisplay>) => {
-      state.prescriptionListDisplay = action.payload;
-      setStoredListDisplay('prescriptionListDisplay', action.payload);
     },
     setPrescriptionModalData: (
       state,

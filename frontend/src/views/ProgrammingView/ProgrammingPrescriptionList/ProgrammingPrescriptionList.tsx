@@ -67,7 +67,7 @@ const ProgrammingPrescriptionList = ({
 
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
-  const { prescriptionListDisplay, prescriptionFilters } = useAppSelector(
+  const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
   );
 
@@ -106,8 +106,6 @@ const ProgrammingPrescriptionList = ({
     apiClient.useUpdateLocalPrescriptionMutation();
   const [updateDepartmentalLocalPrescription] =
     apiClient.useUpdateDepartmentalLocalPrescriptionMutation();
-  const [deletePrescription, { isSuccess: isDeleteSuccess }] =
-    apiClient.useDeletePrescriptionMutation();
 
   const { programmingPlanOptions, programmingSubPlanOptions, reduceFilters } =
     usePrescriptionFilters(programmingPlans);
@@ -347,10 +345,6 @@ const ProgrammingPrescriptionList = ({
     }
   }, [searchParams, localPrescriptions]);
 
-  const removePrescription = useCallback(async (prescriptionId: string) => {
-    await deletePrescription({ prescriptionId });
-  }, []);
-
   const changePrescription = useCallback(
     async (
       prescription: Prescription,
@@ -507,7 +501,6 @@ const ProgrammingPrescriptionList = ({
   return (
     <>
       <AppToast open={isAddSuccess} description="Matrice ajoutée" />
-      <AppToast open={isDeleteSuccess} description="Matrice supprimée" />
       <AppToast
         open={saveSuccess}
         description={saveSuccessMessage}
@@ -551,102 +544,14 @@ const ProgrammingPrescriptionList = ({
           {prescriptions.length === 0 && (
             <div
               className={clsx(
-                cx('fr-container', 'fr-mt-8w', {
-                  'fr-px-0': prescriptionListDisplay === 'cards',
-                  'fr-px-7w': prescriptionListDisplay === 'table'
-                }),
+                cx('fr-container', 'fr-mt-8w', 'fr-px-7w'),
                 'align-center'
               )}
             >
               Aucun prélèvement programmé pour les filtres sélectionnés
             </div>
           )}
-          {prescriptionListDisplay === 'cards' &&
-            prescriptions.length > 0 &&
-            (hasNationalView ? (
-              <div className="prescription-cards-container">
-                {prescriptions?.map((prescription) => (
-                  <PrescriptionCard
-                    key={`prescription_cards_${prescription.id}`}
-                    programmingPlan={getPrescriptionPlan(prescription)}
-                    prescription={prescription}
-                    regionalPrescriptions={localPrescriptions.filter(
-                      (rp) => rp.prescriptionId === prescription.id
-                    )}
-                    onChangeLocalPrescriptionCount={(region, value) =>
-                      changeLocalPrescriptionCount(
-                        {
-                          prescriptionId: prescription.id,
-                          region: region as Region
-                        },
-                        value
-                      )
-                    }
-                    onRemovePrescription={removePrescription}
-                    onChangePrescriptionStages={(stages) =>
-                      changePrescription(prescription, {
-                        stages
-                      })
-                    }
-                    onChangePrescriptionNotes={(notes) =>
-                      changePrescription(prescription, {
-                        notes
-                      })
-                    }
-                    onChangePrescriptionProgrammingInstruction={(
-                      programmingInstruction
-                    ) =>
-                      changePrescription(prescription, {
-                        programmingInstruction
-                      })
-                    }
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                {prescriptions?.flatMap((prescription) =>
-                  localPrescriptions
-                    .filter(
-                      (regionalPrescription) =>
-                        regionalPrescription.prescriptionId === prescription.id
-                    )
-                    .map((localPrescription) => (
-                      <LocalPrescriptionCard
-                        key={`prescription_cards_${prescription.id}`}
-                        programmingPlan={getPrescriptionPlan(prescription)}
-                        prescription={prescription}
-                        localPrescription={localPrescription}
-                        subLocalPrescriptions={subLocalPrescriptions?.filter(
-                          (departmentalPrescription) =>
-                            departmentalPrescription.prescriptionId ===
-                            prescription.id
-                        )}
-                        isSelected={selectedPrescriptions.some(
-                          (_) => _.id === prescription.id
-                        )}
-                        onToggleSelection={
-                          hasGroupedUpdatePermission
-                            ? () =>
-                                setSelectedPrescriptions((prevState) =>
-                                  prevState.some(
-                                    (_) => _.id === prescription.id
-                                  )
-                                    ? prevState.filter(
-                                        (_) => _.id !== prescription.id
-                                      )
-                                    : [...prevState, prescription]
-                                )
-                            : undefined
-                        }
-                        companies={companies}
-                      />
-                    ))
-                )}
-              </div>
-            ))}
-          {prescriptionListDisplay === 'table' &&
-            prescriptions.length > 0 &&
+          {prescriptions.length > 0 &&
             (hasNationalView ? (
               <ProgrammingPrescriptionTable
                 programmingPlans={programmingPlans}
