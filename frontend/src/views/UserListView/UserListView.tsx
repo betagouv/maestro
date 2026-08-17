@@ -97,8 +97,8 @@ export const UserListView = () => {
           if (
             filters.label &&
             filters.label !== '' &&
-            !u.name?.toLowerCase().includes(filters.label) &&
-            !u.email.toLowerCase().includes(filters.label)
+            !u.name?.toLowerCase().includes(filters.label.toLowerCase()) &&
+            !u.email.toLowerCase().includes(filters.label.toLowerCase())
           ) {
             return false;
           }
