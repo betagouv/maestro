@@ -38,7 +38,8 @@ const _findUserOptions = z.object({
   roles: z.array(UserRole).nullable(),
   stages: z.array(Stage).nullable(),
   label: z.string().nullable(),
-  onlyDisabled: z.boolean().nullable()
+  onlyDisabled: z.boolean().nullable(),
+  onlyUncertified: z.boolean().nullable()
 });
 
 export type FindUserOptions = z.infer<typeof _findUserOptions>;
@@ -59,7 +60,8 @@ export const UsersFilters: FunctionComponent<Props> = ({
     departments: null,
     stages: null,
     label: null,
-    onlyDisabled: null
+    onlyDisabled: null,
+    onlyUncertified: null
   });
 
   const hasFilter: boolean = useMemo(() => {
@@ -137,6 +139,7 @@ const Filters: FunctionComponent<
   stages,
   label,
   onlyDisabled,
+  onlyUncertified,
   onChange,
   ..._rest
 }) => {
@@ -285,10 +288,20 @@ const Filters: FunctionComponent<
           label="Seulement les désactivés"
           labelPosition="left"
           inputTitle="affiche seulement les utilisateurs désactivés"
-          defaultChecked={onlyDisabled ?? false}
+          checked={onlyDisabled ?? false}
           onChange={(checked) =>
             onChange({ onlyDisabled: checked || undefined })
           }
+        />
+      </div>
+
+      <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
+        <ToggleSwitch
+          label="Seulement les non formés"
+          labelPosition="left"
+          inputTitle="affiche seulement les utilisateurs non formés"
+          checked={onlyUncertified ?? false}
+          onChange={(checked) => onChange({ onlyUncertified: checked || null })}
         />
       </div>
     </div>

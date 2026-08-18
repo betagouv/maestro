@@ -75,7 +75,8 @@ export const documentsRouter = {
       const laboratoryUsers = laboratoriesForDocument.length
         ? await userRepository.findMany({
             roles: ['LaboratoryUser'],
-            laboratoryIds: laboratoriesForDocument.map((lab) => lab.id)
+            laboratoryIds: laboratoriesForDocument.map((lab) => lab.id),
+            disabled: false
           })
         : [];
 
@@ -91,7 +92,8 @@ export const documentsRouter = {
           ),
           stages: stagesFromSubPlans(
             programmingPlans.flatMap((plan) => plan.subPlans)
-          )
+          ),
+          disabled: false
         });
 
       await notificationService.sendNotification(

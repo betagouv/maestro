@@ -43,6 +43,8 @@ export const UserListView = () => {
   );
 
   const [updateUser] = apiClient.useUpdateUserMutation();
+  const [updateUserCertification] =
+    apiClient.useUpdateUserCertificationMutation();
 
   const [userToUpdate, setUserToUpdate] = useState<null | UserRefined>(null);
   const [userToDisable, setUserToDisable] = useState<null | UserRefined>(null);
@@ -83,6 +85,16 @@ export const UserListView = () => {
     setAlertMessage(`L'utilisateur ${userToEnable.name} a bien été activé.`);
   };
 
+  const onToggleCertification = async (user: UserRefined) => {
+    const certified = !user.certified;
+    await updateUserCertification({ userId: user.id, certified });
+    setAlertMessage(
+      certified
+        ? `L'utilisateur ${user.name ?? user.email} a bien été marqué comme formé.`
+        : `L'utilisateur ${user.name ?? user.email} a bien été marqué comme non formé.`
+    );
+  };
+
   const updateUsersFiltered = useCallback(
     (filters: FindUserOptions) => {
       setUsersFiltered(
@@ -91,6 +103,10 @@ export const UserListView = () => {
             return false;
           }
           if (!filters.onlyDisabled && u.disabled) {
+            return false;
+          }
+
+          if (filters.onlyUncertified && u.certified) {
             return false;
           }
 
@@ -184,6 +200,7 @@ export const UserListView = () => {
                   onEdit={() => onEdit(user)}
                   onDisable={() => onDisable(user)}
                   onEnable={() => onEnableUser(user)}
+                  onToggleCertification={() => onToggleCertification(user)}
                 />
               </div>
             ))}

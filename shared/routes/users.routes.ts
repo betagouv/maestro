@@ -34,5 +34,15 @@ export const usersRoutes = {
       accountPermissions: ['manageUsers'],
       body: UserToUpdateRefined
     }
+  },
+  '/users/:userId/certification': {
+    params: {
+      userId: z.guid()
+    },
+    put: {
+      response: z.undefined(),
+      accountPermissions: ['administrationMaestro'],
+      body: z.object({ certified: z.boolean() })
+    }
   }
 } as const satisfies SubRoutes<'/users'>;

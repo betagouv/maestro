@@ -29,7 +29,8 @@ export const UserBase = z.object({
   department: Department.nullable(),
   companies: z.array(Company),
   laboratoryId: z.string().nullable(),
-  disabled: z.boolean()
+  disabled: z.boolean(),
+  certified: z.boolean()
 });
 
 export const userChecks = <
@@ -103,7 +104,8 @@ export const UserRefined = superRefineSchema(
 const UserToSave = z.object(UserBase.shape).omit({
   id: true,
   name: true,
-  programmingSubPlans: true
+  programmingSubPlans: true,
+  certified: true
 });
 
 export const UserToCreateRefined = superRefineSchema(UserToSave, userChecks);
@@ -221,3 +223,11 @@ export const stagesIsRequired = (
 export const laboratoryIsRequired = (
   user: Pick<Nullable<UserRefined>, 'roles'>
 ): boolean => user.roles?.includes('LaboratoryUser') ?? false;
+
+export const certificationIsRequired = (
+  user: Pick<Nullable<UserRefined>, 'roles'>
+): boolean => user.roles?.length === 1 && user.roles[0] === 'Sampler';
+
+export const canSignIn = (
+  user: Pick<UserBase, 'disabled' | 'certified'>
+): boolean => !user.disabled && user.certified;

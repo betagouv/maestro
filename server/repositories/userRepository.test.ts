@@ -111,23 +111,27 @@ test('peut ajouter une entreprise à un utilisateur', async () => {
   );
 });
 
-test('ne retourne par défaut que les utilisateurs non désactivés', async () => {
+test('filtre les utilisateurs sur leur désactivation', async () => {
   const enabledUser = genUser({ disabled: false });
   const disabledUser = genUser({ disabled: true });
 
   await userRepository.insert(enabledUser);
   await userRepository.insert(disabledUser);
 
-  const users = await userRepository.findMany({});
-
+  const users = await userRepository.findMany({ disabled: null });
   const emails = users.map((u) => u.email);
   expect(emails).toContain(enabledUser.email);
-  expect(emails).not.toContain(disabledUser.email);
+  expect(emails).toContain(disabledUser.email);
 
   const disabledUsers = await userRepository.findMany({ disabled: true });
   const disabledEmails = disabledUsers.map((u) => u.email);
   expect(disabledEmails).toContain(disabledUser.email);
   expect(disabledEmails).not.toContain(enabledUser.email);
+
+  const enabledUsers = await userRepository.findMany({ disabled: false });
+  const enabledEmails = enabledUsers.map((u) => u.email);
+  expect(enabledEmails).toContain(enabledUser.email);
+  expect(enabledEmails).not.toContain(disabledUser.email);
 });
 
 test('peut ajouter et supprimer un logged secret', async () => {
@@ -244,7 +248,10 @@ describe('findMany par stade', () => {
     await userRepository.insert(abattoirUser);
 
     const emails = (
-      await userRepository.findMany({ stages: [PPVStages[0]] })
+      await userRepository.findMany({
+        stages: [PPVStages[0]],
+        disabled: null
+      })
     ).map((u) => u.email);
 
     expect(emails).toContain(ppvUser.email);
@@ -260,7 +267,10 @@ describe('findMany par stade', () => {
     await userRepository.insert(abattoirUser);
 
     const emails = (
-      await userRepository.findMany({ stages: AbattoirStages[0] })
+      await userRepository.findMany({
+        stages: AbattoirStages[0],
+        disabled: null
+      })
     ).map((u) => u.email);
 
     expect(emails).toContain(abattoirUser.email);
@@ -274,9 +284,9 @@ describe('findMany par stade', () => {
 
     await userRepository.insert(user);
 
-    const emails = (await userRepository.findMany({ stages: [] })).map(
-      (u) => u.email
-    );
+    const emails = (
+      await userRepository.findMany({ stages: [], disabled: null })
+    ).map((u) => u.email);
 
     expect(emails).toContain(user.email);
   });

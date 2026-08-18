@@ -89,6 +89,17 @@ export const UsersFilterTags: FunctionComponent<Props> = ({
           Seulement les désactivés
         </Tag>
       )}
+      {filters.onlyUncertified && (
+        <Tag
+          key="onlyUncertified"
+          dismissible
+          nativeButtonProps={{
+            onClick: () => onChange({ onlyUncertified: null })
+          }}
+        >
+          Seulement les non formés
+        </Tag>
+      )}
     </>
   );
 };
