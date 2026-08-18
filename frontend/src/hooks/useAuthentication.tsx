@@ -139,7 +139,7 @@ export const useAuthentication = () => {
           hasUserPermission('performAnalysis')
             ? 'SampleAnalysisEditRoute'
             : undefined,
-          hasUserPermission('administrationMaestro') ? 'UsersRoute' : undefined,
+          hasAccountPermission('manageUsers') ? 'UsersRoute' : undefined,
           hasUserPermission('administrationMaestro') ? 'AdminRoute' : undefined,
           (hasUserPermission('readLaboratoryCompetences') ||
             hasUserPermission('manageLaboratoryCompetences')) &&

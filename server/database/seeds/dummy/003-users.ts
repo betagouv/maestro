@@ -7,6 +7,7 @@ import {
   PPVValidatedSubPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
+  AdminBGIRFixture,
   AdminFixture,
   NationalCoordinator,
   SamplerDaoaFixture
@@ -28,13 +29,23 @@ export const seed = async () => {
       email: 'admin@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       stages: [],
-      roles: ['Administrator']
+      certified: true,
+      roles: ['AdministratorMaestro']
+    },
+    {
+      id: AdminBGIRFixture.id,
+      email: 'admin.bgir@maestro.beta.gouv.fr',
+      name: `BGIR - ${fakerFR.person.fullName()}`,
+      stages: [],
+      certified: true,
+      roles: ['AdministratorBGIR']
     },
     {
       id: uuidv4(),
       email: 'laboratory@maestro.beta.gouv.fr',
       name: `Laboratoire - ${fakerFR.person.fullName()}`,
       stages: ppvStages,
+      certified: true,
       roles: ['LaboratoryUser'],
       laboratoryId: CER30Id
     },
@@ -43,6 +54,7 @@ export const seed = async () => {
       email: 'bureau.laboratoires@maestro.beta.gouv.fr',
       name: `Bureau des laboratoires - ${fakerFR.person.fullName()}`,
       stages: [],
+      certified: true,
       roles: ['LaboratoryOffice']
     },
 
@@ -52,6 +64,7 @@ export const seed = async () => {
       email: 'coordinateur.national@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       stages: ppvStages,
+      certified: true,
       roles: ['NationalCoordinator']
     },
     {
@@ -59,6 +72,7 @@ export const seed = async () => {
       email: 'coordinateur.regional@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       stages: ppvStages,
+      certified: true,
       roles: ['RegionalCoordinator'],
       region: '44'
     },
@@ -67,6 +81,7 @@ export const seed = async () => {
       email: 'coordinateur.regional.drom@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       stages: ppvStages,
+      certified: true,
       roles: ['RegionalCoordinator'],
       region: '01'
     },
@@ -75,6 +90,7 @@ export const seed = async () => {
       email: 'preleveur@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       stages: ppvStages,
+      certified: true,
       roles: ['Sampler'],
       region: '44'
     },
@@ -83,6 +99,7 @@ export const seed = async () => {
       email: 'preleveur.drom@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       stages: ppvStages,
+      certified: true,
       roles: ['Sampler'],
       region: '01'
     },
@@ -91,6 +108,7 @@ export const seed = async () => {
       email: 'suivi.national@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       stages: ppvStages,
+      certified: true,
       roles: ['NationalObserver']
     },
     {
@@ -98,6 +116,7 @@ export const seed = async () => {
       email: 'suivi.regional@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
       stages: ppvStages,
+      certified: true,
       roles: ['RegionalObserver'],
       region: '44'
     },
@@ -108,6 +127,7 @@ export const seed = async () => {
       email: 'coordinateur.national.daoa@maestro.beta.gouv.fr',
       name: `DAOA - ${fakerFR.person.fullName()}`,
       stages: sachaStages,
+      certified: true,
       roles: ['NationalCoordinator']
     },
     {
@@ -115,6 +135,7 @@ export const seed = async () => {
       email: 'coordinateur.regional.daoa@maestro.beta.gouv.fr',
       name: `DAOA - ${fakerFR.person.fullName()}`,
       stages: sachaStages,
+      certified: true,
       roles: ['RegionalCoordinator'],
       region: '52'
     },
@@ -123,6 +144,7 @@ export const seed = async () => {
       email: 'coordinateur.departemental.daoa@maestro.beta.gouv.fr',
       name: `DAOA - ${fakerFR.person.fullName()}`,
       stages: sachaStages,
+      certified: true,
       roles: ['DepartmentalCoordinator'],
       region: '52',
       department: '85'
@@ -132,6 +154,7 @@ export const seed = async () => {
       email: 'preleveur.daoa@maestro.beta.gouv.fr',
       name: `DAOA - ${fakerFR.person.fullName()}`,
       stages: sachaStages,
+      certified: true,
       roles: ['Sampler'],
       region: '52',
       department: '85'

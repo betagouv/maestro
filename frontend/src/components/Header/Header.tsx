@@ -52,6 +52,7 @@ const Header = () => {
   const {
     isAuthenticated,
     hasUserPermission,
+    hasAccountPermission,
     user,
     userRole,
     availableRoutes
@@ -285,7 +286,7 @@ const Header = () => {
                   AuthenticatedAppRoutes.DocumentsRoute.path
                 )
               },
-              hasUserPermission('administrationMaestro')
+              hasAccountPermission('manageUsers')
                 ? {
                     linkProps: {
                       to: AuthenticatedAppRoutes.UsersRoute.link(),
@@ -303,16 +304,18 @@ const Header = () => {
                     isActive: !!routeMatch(
                       AuthenticatedAppRoutes.AdminRoute.path
                     ),
-                    menuLinks: adminSections.map((s) => ({
-                      linkProps: {
-                        to: AuthenticatedAppRoutes.AdminRoute.link(s.slug),
-                        target: '_self'
-                      },
-                      text: s.label,
-                      isActive:
-                        location.pathname ===
-                        AuthenticatedAppRoutes.AdminRoute.link(s.slug)
-                    }))
+                    menuLinks: adminSections
+                      .filter((s) => hasUserPermission(s.permission))
+                      .map((s) => ({
+                        linkProps: {
+                          to: AuthenticatedAppRoutes.AdminRoute.link(s.slug),
+                          target: '_self'
+                        },
+                        text: s.label,
+                        isActive:
+                          location.pathname ===
+                          AuthenticatedAppRoutes.AdminRoute.link(s.slug)
+                      }))
                   }
                 : undefined,
               availableRoutes.includes('LaboratoryAnalyticalCompetencesRoute')

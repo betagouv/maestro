@@ -25,7 +25,7 @@ export const specificDataFieldsRoutes = {
       response: z.array(AdminFieldConfig)
     },
     post: {
-      permissions: ['administrationMaestro'],
+      permissions: ['manageSpecificDataFields'],
       body: CreateFieldInput,
       response: AdminFieldConfig
     }
@@ -35,12 +35,12 @@ export const specificDataFieldsRoutes = {
       fieldId: SpecificDataFieldId
     },
     put: {
-      permissions: ['administrationMaestro'],
+      permissions: ['manageSpecificDataFields'],
       body: UpdateFieldInput,
       response: AdminFieldConfig
     },
     delete: {
-      permissions: ['administrationMaestro'],
+      permissions: ['manageSpecificDataFields'],
       response: z.undefined()
     }
   },
@@ -49,7 +49,7 @@ export const specificDataFieldsRoutes = {
       fieldId: SpecificDataFieldId
     },
     post: {
-      permissions: ['administrationMaestro'],
+      permissions: ['manageSpecificDataFields'],
       body: CreateFieldOptionInput,
       response: AdminFieldOption
     }
@@ -60,19 +60,19 @@ export const specificDataFieldsRoutes = {
       optionId: SpecificDataFieldOptionId
     },
     put: {
-      permissions: ['administrationMaestro'],
+      permissions: ['manageSpecificDataFields'],
       body: UpdateFieldOptionInput,
       response: AdminFieldOption
     },
     delete: {
-      permissions: ['administrationMaestro'],
+      permissions: ['manageSpecificDataFields'],
       response: z.undefined()
     }
   },
   '/specific-data-fields/sacha': {
     get: {
       response: z.array(SachaFieldConfig),
-      permissions: ['administrationMaestro']
+      permissions: ['manageSpecificDataFields']
     }
   },
   '/specific-data-fields/attribute': {
@@ -80,7 +80,7 @@ export const specificDataFieldsRoutes = {
     post: {
       response: z.undefined(),
       body: SampleSpecificDataAttribute,
-      permissions: ['administrationMaestro']
+      permissions: ['manageSpecificDataFields']
     }
   },
   '/specific-data-fields/attribute/value': {
@@ -88,7 +88,7 @@ export const specificDataFieldsRoutes = {
     post: {
       response: z.undefined(),
       body: SampleSpecificDataAttributeValue,
-      permissions: ['administrationMaestro']
+      permissions: ['manageSpecificDataFields']
     }
   }
 } as const satisfies SubRoutes<'/specific-data-fields'>;

@@ -75,12 +75,12 @@ export const laboratoriesRoutes = {
     },
     get: {
       response: LaboratoryWithSacha,
-      permissions: ['administrationMaestro']
+      permissions: ['manageLaboratoryConfig']
     },
     put: {
       body: LaboratoryConfigUpdate,
       response: z.undefined(),
-      permissions: ['administrationMaestro']
+      permissions: ['manageLaboratoryConfig']
     }
   },
   '/laboratories/:laboratoryId/agreements': {

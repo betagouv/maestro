@@ -14,11 +14,11 @@ export const MascaradeButton: FunctionComponent<Props> = ({
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const { hasRole } = useAuthentication();
+  const { hasUserPermission } = useAuthentication();
 
   return (
     <>
-      {hasRole('Administrator') && (
+      {hasUserPermission('manageMascarade') && (
         <Button
           iconId="fr-icon-group-line"
           className={cx('fr-btn--icon-left', 'fr-mb-0')}

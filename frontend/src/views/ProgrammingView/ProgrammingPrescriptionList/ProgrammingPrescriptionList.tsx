@@ -462,7 +462,7 @@ const ProgrammingPrescriptionList = ({
   ]);
 
   const saveSuccessMessage = useMemo(() => {
-    if (userRole === 'Administrator')
+    if (userRole === 'AdministratorMaestro' || userRole === 'AdministratorBGIR')
       return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux régions.';
     if (isNationalRole(userRole))
       return "Vos modifications ont été enregistrées avec succès. Pensez à les diffuser à l'administrateur et/ou aux régions.";

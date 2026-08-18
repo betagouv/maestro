@@ -60,10 +60,10 @@ test('déduplique les entreprises identiques lors de la mise à jour', async () 
 
 test("peut modifier le nom et le prénom d'un utilisateur", async () => {
   const user1 = genUser({
-    roles: ['Administrator']
+    roles: ['AdministratorMaestro']
   });
   const user2 = genUser({
-    roles: ['Administrator']
+    roles: ['AdministratorMaestro']
   });
 
   await userRepository.insert(user1);
@@ -223,7 +223,7 @@ describe('stades de prélèvement', () => {
   });
 
   test('un rôle non restreint sans stade ne dérive aucun sous-plan', async () => {
-    const user = genUser({ roles: ['Administrator'] });
+    const user = genUser({ roles: ['AdministratorMaestro'] });
 
     await userRepository.insert(user);
 

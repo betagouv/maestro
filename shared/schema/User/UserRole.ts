@@ -5,7 +5,8 @@ import type { UserRefined } from './User';
 import type { UserPermission } from './UserPermission';
 
 const NationalUserRole = z.enum([
-  'Administrator',
+  'AdministratorMaestro',
+  'AdministratorBGIR',
   'NationalCoordinator',
   'NationalObserver',
   'LaboratoryUser',
@@ -67,6 +68,29 @@ const ObserverPermissionsList = [
   'readCompanies',
   'readAnalysis',
   'viewDashboard'
+] as const satisfies UserPermission[];
+
+const AdministratorPermissionsList = [
+  'administrationMaestro',
+  'readSamples',
+  'downloadSupportDocument',
+  'downloadAnalysisRequestDocument',
+  'viewProgrammingPlans',
+  'readProgrammingPlansInProgress',
+  'readProgrammingPlanSubmittedToRegion',
+  'readProgrammingPlanApprovedByRegion',
+  'readProgrammingPlanSubmittedToDepartments',
+  'readProgrammingPlanValidated',
+  'readProgrammingPlanClosed',
+  'readPrescriptions',
+  'createResource',
+  'readDocuments',
+  'deleteDocument',
+  'readCompanies',
+  'readAnalysis',
+  'viewDashboard',
+  'manageLaboratoryAgreements',
+  'manageUsers'
 ] as const satisfies UserPermission[];
 
 const userRolePermissions = {
@@ -145,28 +169,14 @@ const userRolePermissions = {
     'manageUsers'
   ],
   DepartmentalObserver: ObserverPermissionsList,
-  Administrator: [
-    'administrationMaestro',
-    'readSamples',
-    'downloadSupportDocument',
-    'downloadAnalysisRequestDocument',
-    'viewProgrammingPlans',
-    'readProgrammingPlansInProgress',
-    'readProgrammingPlanSubmittedToRegion',
-    'readProgrammingPlanApprovedByRegion',
-    'readProgrammingPlanSubmittedToDepartments',
-    'readProgrammingPlanValidated',
-    'readProgrammingPlanClosed',
-    'readPrescriptions',
-    'createResource',
-    'readDocuments',
-    'deleteDocument',
-    'readCompanies',
-    'readAnalysis',
-    'viewDashboard',
-    'manageLaboratoryAgreements',
-    'manageUsers'
+  AdministratorMaestro: [
+    ...AdministratorPermissionsList,
+    'manageMascarade',
+    'manageNotices',
+    'manageSpecificDataFields',
+    'manageLaboratoryConfig'
   ],
+  AdministratorBGIR: AdministratorPermissionsList,
   LaboratoryUser: ['readDocuments', 'readProgrammingPlanValidated'],
   LaboratoryOffice: [
     'readPrescriptions',
@@ -197,7 +207,8 @@ export const UserRoleLabels: Record<UserRole, string> = {
   DepartmentalCoordinator: 'Coordinateur départemental',
   DepartmentalObserver: 'Suivi départemental',
   Sampler: 'Préleveur',
-  Administrator: 'Administrateur',
+  AdministratorMaestro: 'Administrateur Maestro',
+  AdministratorBGIR: 'Administrateur BGIR',
   LaboratoryUser: 'Laboratoire',
   LaboratoryOffice: 'Bureau des laboratoires'
 };

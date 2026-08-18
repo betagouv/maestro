@@ -165,7 +165,8 @@ const SampleSecondaryFilters = ({
         ></ToggleSwitch>
       </div>
       {hasRole(
-        'Administrator',
+        'AdministratorMaestro',
+        'AdministratorBGIR',
         'NationalObserver',
         'RegionalObserver',
         'DepartmentalObserver'

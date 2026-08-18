@@ -11,7 +11,9 @@ describe('certificationIsRequired', () => {
     expect(
       certificationIsRequired({ roles: ['Sampler', 'DepartmentalCoordinator'] })
     ).toBe(false);
-    expect(certificationIsRequired({ roles: ['Administrator'] })).toBe(false);
+    expect(certificationIsRequired({ roles: ['AdministratorMaestro'] })).toBe(
+      false
+    );
   });
 });
 

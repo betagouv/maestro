@@ -27,13 +27,15 @@ const DashboardView = () => {
 
   const { data: programmingPlansData } = apiClient.useFindProgrammingPlansQuery(
     {
-      subPlanIds: hasRole('Administrator')
+      subPlanIds: hasRole('AdministratorMaestro', 'AdministratorBGIR')
         ? undefined
         : user?.programmingSubPlans?.map((sp) => sp.id),
       status: ['Validated', 'Closed']
     },
     {
-      skip: !user?.programmingSubPlans?.length && !hasRole('Administrator')
+      skip:
+        !user?.programmingSubPlans?.length &&
+        !hasRole('AdministratorMaestro', 'AdministratorBGIR')
     }
   );
   const programmingPlans = useMemo(
