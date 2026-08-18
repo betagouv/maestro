@@ -1,6 +1,7 @@
 import z from 'zod';
 import { FindUserOptions } from '../schema/User/FindUserOptions';
 import {
+  UserListItem,
   UserRefined,
   UserToCreateRefined,
   UserToUpdateRefined
@@ -11,7 +12,7 @@ export const usersRoutes = {
   '/users': {
     params: undefined,
     get: {
-      response: z.array(UserRefined),
+      response: z.array(UserListItem),
       query: FindUserOptions,
       permissions: 'NONE'
     },

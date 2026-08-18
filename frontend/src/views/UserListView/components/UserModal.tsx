@@ -15,7 +15,7 @@ import {
   departmentIsRequired,
   laboratoryIsRequired,
   stagesIsRequired,
-  type UserRefined,
+  type UserListItem,
   UserToCreateRefined
 } from 'maestro-shared/schema/User/User';
 import { managerStages } from 'maestro-shared/schema/User/UserManagement';
@@ -41,7 +41,7 @@ import { ApiClientContext } from '../../../services/apiClient';
 import { useUserManagement } from '../useUserManagement';
 
 interface Props {
-  userToUpdate: null | UserRefined;
+  userToUpdate: null | UserListItem;
   modal: ReturnType<typeof createModal>;
   setAlertMessage: (message: string) => void;
   programmingPlans: ProgrammingPlanChecked[];
@@ -151,7 +151,7 @@ export const UserModal = ({
 
   useEffect(() => {
     if (userToUpdate) {
-      const { id, name, programmingSubPlans: _derived, ...rest } = userToUpdate;
+      const { id, name, ...rest } = userToUpdate;
       setUser(rest);
     }
   }, [userToUpdate]);

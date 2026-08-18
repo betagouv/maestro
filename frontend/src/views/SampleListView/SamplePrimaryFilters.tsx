@@ -21,7 +21,7 @@ import {
   SampleStatusLabels,
   SampleStatusList
 } from 'maestro-shared/schema/Sample/SampleStatus';
-import type { UserRefined } from 'maestro-shared/schema/User/User';
+import type { UserListItem } from 'maestro-shared/schema/User/User';
 import AppSearchInput from 'src/components/_app/AppSearchInput/AppSearchInput';
 import {
   samplersOptions,
@@ -33,7 +33,7 @@ interface Props {
   filters: Partial<FindSampleOptions>;
   onChange: (filters: Partial<FindSampleOptions>) => void;
   programmingPlans?: ProgrammingPlanChecked[];
-  samplers?: UserRefined[];
+  samplers?: UserListItem[];
   prescriptions?: Prescription[];
   currentUserId: string | undefined;
 }

@@ -4,7 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { Brand } from 'maestro-shared/constants';
-import type { UserRefined } from 'maestro-shared/schema/User/User';
+import type { UserListItem } from 'maestro-shared/schema/User/User';
 import { useCallback, useContext, useMemo, useState } from 'react';
 import usersSvg from 'src/assets/illustrations/users.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
@@ -46,18 +46,18 @@ export const UserListView = () => {
   const [updateUserCertification] =
     apiClient.useUpdateUserCertificationMutation();
 
-  const [userToUpdate, setUserToUpdate] = useState<null | UserRefined>(null);
-  const [userToDisable, setUserToDisable] = useState<null | UserRefined>(null);
+  const [userToUpdate, setUserToUpdate] = useState<null | UserListItem>(null);
+  const [userToDisable, setUserToDisable] = useState<null | UserListItem>(null);
   const [alertMessage, setAlertMessage] = useState<null | string>(null);
 
-  const [usersFiltered, setUsersFiltered] = useState<UserRefined[]>(users);
+  const [usersFiltered, setUsersFiltered] = useState<UserListItem[]>(users);
 
-  const onEdit = async (userToEdit: UserRefined) => {
+  const onEdit = async (userToEdit: UserListItem) => {
     setUserToUpdate({ ...userToEdit });
     userFormModal.open();
   };
 
-  const onDisable = (userToDisable: UserRefined) => {
+  const onDisable = (userToDisable: UserListItem) => {
     setUserToDisable(userToDisable);
     confirmDisablingUserModal.open();
   };
@@ -76,7 +76,7 @@ export const UserListView = () => {
     }
   };
 
-  const onEnableUser = async (userToEnable: UserRefined) => {
+  const onEnableUser = async (userToEnable: UserListItem) => {
     await updateUser({
       ...userToEnable,
       userId: userToEnable.id,
@@ -85,7 +85,7 @@ export const UserListView = () => {
     setAlertMessage(`L'utilisateur ${userToEnable.name} a bien été activé.`);
   };
 
-  const onToggleCertification = async (user: UserRefined) => {
+  const onToggleCertification = async (user: UserListItem) => {
     const certified = !user.certified;
     await updateUserCertification({ userId: user.id, certified });
     setAlertMessage(

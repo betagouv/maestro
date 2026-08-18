@@ -8,7 +8,7 @@ import { Regions } from 'maestro-shared/referential/Region';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import {
   certificationIsRequired,
-  type UserRefined
+  type UserListItem
 } from 'maestro-shared/schema/User/User';
 import {
   canHaveDepartment,
@@ -25,7 +25,7 @@ import { useMascarade } from '../../../components/Mascarade/useMascarade';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 
 type Props = {
-  user: UserRefined;
+  user: UserListItem;
   onEdit: () => void;
   onDisable: () => void;
   onEnable: () => void;

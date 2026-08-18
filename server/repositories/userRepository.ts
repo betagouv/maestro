@@ -2,7 +2,10 @@ import { type Expression, type ExpressionBuilder, sql } from 'kysely';
 import { jsonArrayFrom } from 'kysely/helpers/postgres';
 import { isNil } from 'lodash-es';
 import { FindUserOptions } from 'maestro-shared/schema/User/FindUserOptions';
-import { UserRefined } from 'maestro-shared/schema/User/User';
+import {
+  UserListItem,
+  type UserRefined
+} from 'maestro-shared/schema/User/User';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { toArray } from 'maestro-shared/utils/utils';
 import z from 'zod';
@@ -95,15 +98,12 @@ type FindManyOptions = Omit<FindUserOptions, 'disabled'> & {
 
 const findMany = async (
   findOptions: FindManyOptions
-): Promise<UserRefined[]> => {
+): Promise<UserListItem[]> => {
   console.log('Find users', findOptions);
   let query = kysely
     .selectFrom('users')
     .selectAll()
-    .select((eb) => [
-      companies(eb.ref('users.id'), eb).as('companies'),
-      programmingSubPlansList(eb).as('programmingSubPlans')
-    ])
+    .select((eb) => [companies(eb.ref('users.id'), eb).as('companies')])
     .orderBy('name');
 
   for (const option of FindUserOptions.keyof().options) {
@@ -165,8 +165,8 @@ const findMany = async (
 
   console.log('Executing user findMany query:', query.compile().sql);
 
-  const users = (await query.execute()) as unknown as UserRefined[];
-  return users.map((u) => UserRefined.parse(u));
+  const users = (await query.execute()) as unknown as UserListItem[];
+  return users.map((u) => UserListItem.parse(u));
 };
 
 const insert = async (user: UserToWrite): Promise<void> => {

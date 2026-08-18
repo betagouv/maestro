@@ -1,4 +1,4 @@
-import type { UserRefined } from 'maestro-shared/schema/User/User';
+import type { UserListItem } from 'maestro-shared/schema/User/User';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 
 export interface AppSelectOption {
@@ -57,7 +57,7 @@ export const selectOptionsFromList = (
 };
 
 export const samplersOptions = (
-  samplers?: UserRefined[],
+  samplers?: UserListItem[],
   currentUserId?: string
 ): AppSelectOption[] =>
   (samplers ?? [])
