@@ -267,6 +267,7 @@ const defaultMockApiClientConf: MockApi = {
   useMascaradeStopMutation: [fn(), {}],
   useCreateUserMutation: [fn(), {}],
   useUpdateUserMutation: [fn(), {}],
+  useUpdateUserCertificationMutation: [fn(), {}],
   useChangeRoleMutation: [fn(), {}],
   useLazyFindCompaniesQuery: [[], {}],
   useUpdateSampleSpecificDataAttributeMutation: [fn(), {}],

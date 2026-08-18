@@ -246,7 +246,8 @@ export const programmingPlanRouter = {
                 stages: stagesFromSubPlans(programmingPlan.subPlans),
                 companySirets: localPrescriptions
                   .map((localPrescription) => localPrescription.companySiret)
-                  .filter((_) => !isNil(_))
+                  .filter((_) => !isNil(_)),
+                disabled: false
               });
 
               await notificationService.sendNotification(
@@ -272,7 +273,8 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
                 const regionalCoordinators = await userRepository.findMany({
                   roles: ['RegionalCoordinator'],
                   region: programmingPlanLocalStatus.region,
-                  stages: stagesFromSubPlans(programmingPlan.subPlans)
+                  stages: stagesFromSubPlans(programmingPlan.subPlans),
+                  disabled: false
                 });
 
                 await (programmingPlanLocalStatus.status === 'SubmittedToRegion'
@@ -308,7 +310,8 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
               ) {
                 const nationalCoordinators = await userRepository.findMany({
                   roles: ['NationalCoordinator'],
-                  stages: stagesFromSubPlans(programmingPlan.subPlans)
+                  stages: stagesFromSubPlans(programmingPlan.subPlans),
+                  disabled: false
                 });
 
                 await notificationService.sendNotification(
@@ -338,7 +341,8 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
                 const departmentalCoordinators = await userRepository.findMany({
                   roles: ['DepartmentalCoordinator'],
                   region: programmingPlanLocalStatus.region,
-                  stages: stagesFromSubPlans(programmingPlan.subPlans)
+                  stages: stagesFromSubPlans(programmingPlan.subPlans),
+                  disabled: false
                 });
 
                 await notificationService.sendNotification(

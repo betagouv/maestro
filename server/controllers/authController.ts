@@ -9,6 +9,7 @@ import {
   AuthUserRefined
 } from 'maestro-shared/schema/User/AuthUser';
 import type { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
+import { canSignIn } from 'maestro-shared/schema/User/User';
 import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
 import { getUser } from '../middlewares/checks/authCheck';
@@ -41,7 +42,10 @@ export const authUnprotectedRouter = {
         const { idToken, email, name } =
           await authService.authenticate(authRedirectUrl);
 
-        const user = await userRepository.findOne(email);
+        const existingUser = await userRepository.findOne(email);
+        const user =
+          existingUser && canSignIn(existingUser) ? existingUser : undefined;
+
         if (user && user.name !== name) {
           await userRepository.update({ name }, user.id);
         }

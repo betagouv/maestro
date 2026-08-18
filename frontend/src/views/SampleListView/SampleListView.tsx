@@ -175,7 +175,8 @@ const SampleListView = () => {
         permissions.includes('createSample') ||
         permissions.includes('updateSample')
       );
-    })
+    }),
+    disabled: false
   });
 
   const changeFilter = (findFilter: Partial<FindSampleOptions>) => {

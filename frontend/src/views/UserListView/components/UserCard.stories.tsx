@@ -10,7 +10,8 @@ const meta = {
     user: genUser({}),
     onEdit: fn(),
     onDisable: fn(),
-    onEnable: fn()
+    onEnable: fn(),
+    onToggleCertification: fn()
   }
 } satisfies Meta<typeof UserCard>;
 
@@ -19,4 +20,10 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {}
+};
+
+export const SamplerNotCertified: Story = {
+  args: {
+    user: genUser({ roles: ['Sampler'], certified: false })
+  }
 };

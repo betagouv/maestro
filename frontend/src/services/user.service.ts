@@ -23,6 +23,17 @@ const userApi = api.injectEndpoints({
         { type: 'User', id: userId }
       ]
     }),
+    updateUserCertification: buildTypedMutation(
+      builder,
+      '/users/:userId/certification',
+      'put',
+      {
+        invalidatesTags: (_result, _error, { userId }) => [
+          { type: 'User', id: 'LIST' },
+          { type: 'User', id: userId }
+        ]
+      }
+    ),
     createUser: buildTypedMutation(builder, '/users', 'post', {
       invalidatesTags: [{ type: 'User', id: 'LIST' }]
     })
@@ -34,5 +45,6 @@ export const {
   useFindUsersQuery,
   useLazyGetUserQuery,
   useCreateUserMutation,
-  useUpdateUserMutation
+  useUpdateUserMutation,
+  useUpdateUserCertificationMutation
 } = userApi;

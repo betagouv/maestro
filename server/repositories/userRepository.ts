@@ -88,8 +88,13 @@ const programmingSubPlansList = (db: ExpressionBuilder<DB, 'users'>) => {
   );
 };
 
+// Force to specify disabled
+type FindManyOptions = Omit<FindUserOptions, 'disabled'> & {
+  disabled: boolean | null;
+};
+
 const findMany = async (
-  findOptions: FindUserOptions
+  findOptions: FindManyOptions
 ): Promise<UserRefined[]> => {
   console.log('Find users', findOptions);
   let query = kysely
@@ -149,7 +154,9 @@ const findMany = async (
         }
         break;
       case 'disabled':
-        query = query.where('disabled', 'is', findOptions.disabled === true);
+        if (!isNil(findOptions.disabled)) {
+          query = query.where('disabled', 'is', findOptions.disabled);
+        }
         break;
       default:
         assertUnreachable(option);

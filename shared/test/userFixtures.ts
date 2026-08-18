@@ -77,6 +77,7 @@ export const genUser = <T extends Partial<UserRefined>>(
       ? (data?.laboratoryId ?? LaboratoryFixture.id)
       : null,
     disabled: false,
+    certified: true,
     ...data
   };
 };

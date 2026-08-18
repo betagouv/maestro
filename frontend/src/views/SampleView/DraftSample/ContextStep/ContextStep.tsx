@@ -186,7 +186,8 @@ const ContextStep = ({ partialSample }: Props) => {
         permissions.includes('updateSample')
       );
     }),
-    stages: stagesFromSubPlans(programmingPlan?.subPlans ?? [])
+    stages: stagesFromSubPlans(programmingPlan?.subPlans ?? []),
+    disabled: false
   });
 
   const Form = SampleContextData.omit({

@@ -366,6 +366,7 @@ export const localPrescriptionsRouter = {
 
       const recipients = await userRepository.findMany({
         stages: stagesFromSubPlans(programmingPlan.subPlans),
+        disabled: false,
         ...(userRole === 'NationalCoordinator'
           ? {
               region: localPrescription.region,
@@ -444,6 +445,7 @@ export const localPrescriptionsRouter = {
 
         const recipients = await userRepository.findMany({
           stages: stagesFromSubPlans(programmingPlan.subPlans),
+          disabled: false,
           ...(userRole === 'RegionalCoordinator'
             ? {
                 region: localPrescription.region,

@@ -1,3 +1,4 @@
+import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
@@ -5,7 +6,10 @@ import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { Regions } from 'maestro-shared/referential/Region';
 import { StageLabels } from 'maestro-shared/referential/Stage';
-import type { UserRefined } from 'maestro-shared/schema/User/User';
+import {
+  certificationIsRequired,
+  type UserRefined
+} from 'maestro-shared/schema/User/User';
 import {
   canHaveDepartment,
   isRegionalRole,
@@ -25,18 +29,24 @@ type Props = {
   onEdit: () => void;
   onDisable: () => void;
   onEnable: () => void;
+  onToggleCertification: () => void;
 };
 export const UserCard: FunctionComponent<Props> = ({
   user,
   onEdit,
   onDisable,
   onEnable,
+  onToggleCertification,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   const { setMascaradeUserId } = useMascarade();
   const { hasAccountPermission } = useAuthentication();
+
+  const canCertify =
+    hasAccountPermission('administrationMaestro') &&
+    (certificationIsRequired(user) || !user.certified);
 
   return (
     <Card
@@ -62,6 +72,25 @@ export const UserCard: FunctionComponent<Props> = ({
             />
             {!user.disabled ? (
               <>
+                {canCertify && (
+                  <Button
+                    size="small"
+                    className={clsx('fr-mr-1w')}
+                    onClick={onToggleCertification}
+                    priority={'tertiary'}
+                    iconId={
+                      user.certified
+                        ? 'fr-icon-award-fill'
+                        : 'fr-icon-award-line'
+                    }
+                    title={
+                      user.certified
+                        ? 'marquer comme non formé'
+                        : 'marquer comme formé'
+                    }
+                    data-testid={`user-certification-button-${user.id}`}
+                  />
+                )}
                 <Button
                   size="small"
                   onClick={onDisable}
@@ -96,9 +125,19 @@ export const UserCard: FunctionComponent<Props> = ({
       titleAs={'h6'}
       desc={
         <span className={clsx('user-card-desc')}>
+          {!user.certified && (
+            <Badge severity="warning" small noIcon>
+              Non formé
+            </Badge>
+          )}
           <span className={cx('fr-text--xl', 'fr-text--bold', 'fr-mb-0')}>
             {user.name ?? user.email}
           </span>
+          {!!user.name && (
+            <span className={cx('fr-text--sm', 'fr-text--light', 'fr-mb-0')}>
+              {user.email}
+            </span>
+          )}
           <span className={clsx('user-card-region')}>
             <span
               className={cx('fr-icon-france-line', 'fr-icon--sm')}

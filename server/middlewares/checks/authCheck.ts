@@ -12,7 +12,7 @@ import AuthenticationMissingError from 'maestro-shared/errors/authenticationMiss
 import UserMissingError from 'maestro-shared/errors/userMissingError';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { AuthUserRefined } from 'maestro-shared/schema/User/AuthUser';
-import type { UserRefined } from 'maestro-shared/schema/User/User';
+import { canSignIn, type UserRefined } from 'maestro-shared/schema/User/User';
 import { userRepository } from '../../repositories/userRepository';
 import config from '../../utils/config';
 
@@ -62,7 +62,7 @@ const getRequestUser = async (
       throw new AuthenticationFailedError();
     }
 
-    if (user.disabled) {
+    if (!canSignIn(user)) {
       throw new AuthenticationFailedError();
     }
 

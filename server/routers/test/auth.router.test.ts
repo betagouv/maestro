@@ -147,6 +147,65 @@ describe('Auth routes', () => {
         name: newName
       });
     });
+
+    describe('when the sampler has not been certified yet', () => {
+      const uncertifiedSampler = genUser({
+        roles: ['Sampler'],
+        region: Region1Fixture,
+        certified: false
+      });
+
+      beforeAll(async () => {
+        await userRepository.insert(uncertifiedSampler);
+      });
+
+      afterAll(async () => {
+        await UserCompanies().delete().where('userId', uncertifiedSampler.id);
+        await Users().delete().where('email', uncertifiedSampler.email);
+      });
+
+      const authenticateAsUncertifiedSampler = () => {
+        mockAuthenticate.mockResolvedValueOnce(
+          Promise.resolve({
+            idToken: fakerFR.string.alphanumeric(32),
+            email: uncertifiedSampler.email,
+            name: uncertifiedSampler.name
+          })
+        );
+        return request(app)
+          .post(testRoute)
+          .send(validBody)
+          .expect(constants.HTTP_STATUS_OK);
+      };
+
+      test('should be treated as an unknown user', async () => {
+        const res = await authenticateAsUncertifiedSampler();
+
+        expect(res.body).toMatchObject({
+          user: null,
+          userRole: null,
+          userEmail: uncertifiedSampler.email
+        });
+      });
+
+      test('should not receive a logged secret', async () => {
+        await authenticateAsUncertifiedSampler();
+
+        const userInDb = await userRepository.findUnique(uncertifiedSampler.id);
+        expect(userInDb?.loggedSecrets).toEqual([]);
+      });
+
+      test('should authenticate once certified', async () => {
+        await userRepository.update({ certified: true }, uncertifiedSampler.id);
+
+        const res = await authenticateAsUncertifiedSampler();
+
+        expect(res.body).toMatchObject({
+          user: { id: uncertifiedSampler.id },
+          userRole: 'Sampler'
+        });
+      });
+    });
   });
 
   describe('POST /auth/role', () => {

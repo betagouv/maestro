@@ -1,6 +1,7 @@
 import { intersection } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import {
+  certificationIsRequired,
   companiesIsRequired,
   departmentIsRequired,
   stagesIsRequired,
@@ -73,6 +74,23 @@ export const usersRouter = {
       return { status: HttpStatus.OK };
     }
   },
+  '/users/:userId/certification': {
+    put: async ({ body, account }, { userId }) => {
+      console.info('Update user certification', userId, body);
+
+      const user = await userRepository.findUnique(userId);
+      if (!user) {
+        return { status: HttpStatus.NOT_FOUND };
+      }
+
+      if (!canManageUser(account, user)) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
+
+      await userService.update({ certified: body.certified }, userId);
+      return { status: HttpStatus.OK };
+    }
+  },
   '/users': {
     get: async ({ user, userRole, account, query }) => {
       // TODO à revoir, cette route est utilisées par plusieurs écrans (utilisateurs, filtre et prélèvement)
@@ -81,6 +99,7 @@ export const usersRouter = {
       const findOptions = canManageUsers(account)
         ? {
             ...query,
+            disabled: query.disabled ?? null,
             region: scope === 'national' ? query.region : account.region,
             department:
               scope === 'departmental'
@@ -90,6 +109,7 @@ export const usersRouter = {
           }
         : {
             ...query,
+            disabled: query.disabled ?? null,
             region: isNationalRole(userRole) ? query.region : user.region,
             department: departmentIsRequired({
               ...user,
@@ -127,7 +147,8 @@ export const usersRouter = {
       const userToCreate = {
         ...body,
         stages: mergeManagedStages(account, body.stages),
-        name: null
+        name: null,
+        certified: !certificationIsRequired(body)
       };
 
       await userService.insert(userToCreate);

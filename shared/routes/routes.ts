@@ -88,7 +88,8 @@ export const MaestroRoutes = [
   '/specific-data-fields/attribute',
   '/specific-data-fields/attribute/value',
   '/users',
-  '/users/:userId'
+  '/users/:userId',
+  '/users/:userId/certification'
 ] as const;
 
 export const routes = {

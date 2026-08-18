@@ -117,7 +117,8 @@ describe('User router', () => {
         department: Sampler1Fixture.department || null,
         companies: Sampler1Fixture.companies || null,
         laboratoryId: null,
-        disabled: false
+        disabled: false,
+        certified: true
       });
     });
   });
@@ -125,6 +126,22 @@ describe('User router', () => {
   describe('GET /', () => {
     const testRoute = (params: Record<string, string>) =>
       `/api/users?${new URLSearchParams(params).toString()}`;
+
+    const disabledSampler = genUser({
+      roles: ['Sampler'],
+      region: Region1Fixture,
+      stages: PPVStages,
+      disabled: true
+    });
+
+    beforeAll(async () => {
+      await userRepository.insert(disabledSampler);
+    });
+
+    afterAll(async () => {
+      await UserCompanies().delete().where('userId', disabledSampler.id);
+      await Users().delete().where('id', disabledSampler.id);
+    });
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
@@ -183,6 +200,42 @@ describe('User router', () => {
         ])
       );
     });
+
+    test('should return both enabled and disabled users when no disabled filter is given', async () => {
+      const res = await request(app)
+        .get(testRoute({}))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expectArrayToContainElements(res.body, [
+        expect.objectContaining({ id: disabledSampler.id }),
+        expect.objectContaining({ id: Sampler1Fixture.id })
+      ]);
+    });
+
+    test('should filter users by disabled', async () => {
+      const res = await request(app)
+        .get(testRoute({ disabled: 'true' }))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toEqual([
+        expect.objectContaining({ id: disabledSampler.id })
+      ]);
+    });
+
+    test('should filter users by enabled', async () => {
+      const res = await request(app)
+        .get(testRoute({ disabled: 'false' }))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: disabledSampler.id })
+        ])
+      );
+    });
   });
 
   describe('POST /', () => {
@@ -215,6 +268,30 @@ describe('User router', () => {
       expect(mockMailCreateContact).toHaveBeenCalledWith(
         expect.objectContaining({ email: newUser.email })
       );
+    });
+
+    test('should create a sampler uncertified', async () => {
+      const newSampler = genUser({ roles: ['Sampler'] });
+      await request(app)
+        .post(testRoute())
+        .send(newSampler)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_CREATED);
+
+      const created = await userRepository.findOne(newSampler.email);
+      expect(created?.certified).toBe(false);
+    });
+
+    test('should create any other role already certified', async () => {
+      const newCoordinator = genUser({ roles: ['RegionalCoordinator'] });
+      await request(app)
+        .post(testRoute())
+        .send(newCoordinator)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_CREATED);
+
+      const created = await userRepository.findOne(newCoordinator.email);
+      expect(created?.certified).toBe(true);
     });
   });
 
@@ -267,6 +344,107 @@ describe('User router', () => {
       expect(mockMailDeleteContact).toHaveBeenCalledWith(
         NationalCoordinator.email
       );
+    });
+  });
+
+  describe('PUT /{userId}/certification', () => {
+    const testRoute = (userId: string) => `/api/users/${userId}/certification`;
+
+    const uncertifiedSampler = genUser({
+      roles: ['Sampler'],
+      region: Region1Fixture,
+      certified: false
+    });
+
+    const certifyingManager = genUser({
+      roles: ['RegionalCoordinator'],
+      region: Region1Fixture,
+      department: null
+    });
+
+    const localUsers = [uncertifiedSampler, certifyingManager];
+
+    beforeAll(async () => {
+      for (const user of localUsers) {
+        const userToInsert = { ...user, loggedSecrets: [TEST_LOGGED_SECRET] };
+        await userRepository.insert(userToInsert);
+      }
+    });
+
+    afterAll(async () => {
+      for (const user of localUsers) {
+        await UserCompanies().delete().where('userId', user.id);
+        await Users().delete().where('id', user.id);
+      }
+    });
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(testRoute(uncertifiedSampler.id))
+        .send({ certified: true })
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the account is not an administrator', async () => {
+      await request(app)
+        .put(testRoute(uncertifiedSampler.id))
+        .send({ certified: true })
+        .use(tokenProvider(certifyingManager))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if the user is unknown', async () => {
+      await request(app)
+        .put(testRoute('55555555-5555-5555-5555-555555555550'))
+        .send({ certified: true })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    test('should fail when certifying oneself', async () => {
+      await request(app)
+        .put(testRoute(AdminFixture.id))
+        .send({ certified: true })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should certify a sampler', async () => {
+      await request(app)
+        .put(testRoute(uncertifiedSampler.id))
+        .send({ certified: true })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const updated = await userRepository.findUnique(uncertifiedSampler.id);
+      expect(updated?.certified).toBe(true);
+      expect(updated?.email).toBe(uncertifiedSampler.email);
+    });
+
+    test('should revoke the certification of a sampler', async () => {
+      await request(app)
+        .put(testRoute(uncertifiedSampler.id))
+        .send({ certified: false })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const updated = await userRepository.findUnique(uncertifiedSampler.id);
+      expect(updated?.certified).toBe(false);
+    });
+
+    test('should reject a request without a certified flag', async () => {
+      await request(app)
+        .put(testRoute(uncertifiedSampler.id))
+        .send({})
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should refuse any request from an uncertified sampler', async () => {
+      await request(app)
+        .get(`/api/users/${AdminFixture.id}`)
+        .use(tokenProvider(uncertifiedSampler))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
   });
 
@@ -478,7 +656,10 @@ describe('User router', () => {
           .expect(constants.HTTP_STATUS_CREATED);
 
         const created = (
-          await userRepository.findMany({ region: Region1Fixture })
+          await userRepository.findMany({
+            region: Region1Fixture,
+            disabled: null
+          })
         ).find((user) => user.email === newUser.email);
 
         expect(created?.stages).toEqual(PPVStages);
@@ -502,7 +683,10 @@ describe('User router', () => {
           .expect(constants.HTTP_STATUS_CREATED);
 
         const created = (
-          await userRepository.findMany({ region: Region1Fixture })
+          await userRepository.findMany({
+            region: Region1Fixture,
+            disabled: null
+          })
         ).find((user) => user.email === newUser.email);
 
         expect(created?.stages).toEqual(PPVStages);

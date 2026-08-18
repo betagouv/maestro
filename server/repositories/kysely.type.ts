@@ -422,6 +422,7 @@ export interface Users {
   loggedSecrets: ColumnType<string[], string[] | null, string[]>;
   stages: Stage[];
   disabled: boolean;
+  certified: boolean;
   laboratoryId: string | null;
 }
 
