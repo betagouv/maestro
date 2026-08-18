@@ -9,6 +9,7 @@ import type { LaboratoryShortName } from 'maestro-shared/referential/Laboratory'
 import type { Region } from 'maestro-shared/referential/Region';
 import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import type { Stage } from 'maestro-shared/referential/Stage';
+import type { SubStage } from 'maestro-shared/referential/SubStage';
 import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import type { AnalysisKind } from 'maestro-shared/schema/Analysis/Residue/AnalysisKind';
@@ -382,7 +383,7 @@ export interface Samples {
   sampledBy: string | null;
   sentAt: Timestamp | null;
   seves: Seves | null;
-  stage: Stage | null;
+  stage: SubStage | null;
   step: SampleStep;
 }
 
@@ -419,7 +420,7 @@ export interface Users {
   department: Department | null;
   roles: UserRole[];
   loggedSecrets: ColumnType<string[], string[] | null, string[]>;
-  programmingSubPlanIds: ProgrammingSubPlanId[];
+  stages: Stage[];
   disabled: boolean;
   laboratoryId: string | null;
 }

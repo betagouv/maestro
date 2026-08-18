@@ -4,6 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { Regions } from 'maestro-shared/referential/Region';
+import { StageLabels } from 'maestro-shared/referential/Stage';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   canHaveDepartment,
@@ -16,20 +17,17 @@ import { assert, type Equals } from 'tsafe';
 import './UserCard.scss';
 
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useMascarade } from '../../../components/Mascarade/useMascarade';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 
 type Props = {
   user: UserRefined;
-  programmingPlans: ProgrammingPlanChecked[];
   onEdit: () => void;
   onDisable: () => void;
   onEnable: () => void;
 };
 export const UserCard: FunctionComponent<Props> = ({
   user,
-  programmingPlans,
   onEdit,
   onDisable,
   onEnable,
@@ -39,12 +37,6 @@ export const UserCard: FunctionComponent<Props> = ({
 
   const { setMascaradeUserId } = useMascarade();
   const { hasAccountPermission } = useAuthentication();
-
-  const subPlanLabelById = Object.fromEntries(
-    programmingPlans.flatMap((p) =>
-      p.subPlans.map((sp) => [sp.id, `${sp.subPlanNumber} (${p.year})`])
-    )
-  );
 
   return (
     <Card
@@ -118,16 +110,16 @@ export const UserCard: FunctionComponent<Props> = ({
                 ? Regions[user.region].name
                 : 'France'}
           </span>
-          {isNotEmpty(user.programmingSubPlans) && (
+          {isNotEmpty(user.stages) && (
             <span>
-              {user.programmingSubPlans.map((sp) => (
+              {user.stages.map((stage) => (
                 <Tag
-                  key={sp.id}
+                  key={stage}
                   as={'span'}
                   small={true}
                   className={clsx('fr-mb-1w')}
                 >
-                  {subPlanLabelById[sp.id] ?? sp.subPlanNumber}
+                  {StageLabels[stage]}
                 </Tag>
               ))}
             </span>

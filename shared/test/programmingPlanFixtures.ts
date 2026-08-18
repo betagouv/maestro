@@ -47,7 +47,7 @@ export const DAOAInProgressBovinSubPlanId = ProgrammingSubPlanId.parse(
   'c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c4'
 );
 
-export const SachaSubPlanIds = [
+const SachaSubPlanIds = [
   DAOAVolailleValidatedSubPlanId,
   DAOABovinValidatedSubPlanId,
   DAOAInProgressVolailleSubPlanId,
@@ -72,15 +72,9 @@ export const PPVValidatedSubPlanFixture = genProgrammingSubPlan({
   programmingPlanId: PPVValidatedProgrammingPlanId,
   subPlanNumber: 'PPV',
   stages: [
-    'STADE1',
-    'STADE2',
-    'STADE3',
-    'STADE4',
-    'STADE5',
-    'STADE6',
-    'STADE7',
-    'STADE8',
-    'STADE9'
+    'PRODUCTION_PRIMAIRE_VEGETALE',
+    'ALIMENTATION_ANIMALE',
+    'TRANSFORMATION'
   ],
   label: 'Production primaire végétale',
   analysisPermissionRole: 'Sampler',
@@ -117,7 +111,7 @@ export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
   id: DAOAVolailleValidatedSubPlanId,
   programmingPlanId: DAOAValidatedProgrammingPlanId,
   subPlanNumber: 'M01',
-  stages: ['STADE10'],
+  stages: ['ABATTAGE'],
   label: 'Abattoir / Viande de volaille',
   analysisPermissionRole: 'DepartmentalCoordinator',
   contactListId: 9,
@@ -135,7 +129,7 @@ export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
   id: DAOABovinValidatedSubPlanId,
   programmingPlanId: DAOAValidatedProgrammingPlanId,
   subPlanNumber: 'M02',
-  stages: ['STADE10'],
+  stages: ['ABATTAGE'],
   label: 'Abattoir / Foie de bovin',
   analysisPermissionRole: 'DepartmentalCoordinator',
   contactListId: 9,

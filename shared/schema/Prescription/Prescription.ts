@@ -5,7 +5,7 @@ import {
   MatrixKindLabels
 } from '../../referential/Matrix/MatrixKind';
 import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
-import { Stage, StageLabels } from '../../referential/Stage';
+import { SubStage, SubStageLabels } from '../../referential/SubStage';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
@@ -20,7 +20,7 @@ export const Prescription = z.object({
   context: ProgrammingPlanContext,
   matrixKind: MatrixKind,
   matrix: Matrix.nullish(),
-  stages: z.array(Stage),
+  stages: z.array(SubStage),
   sampleCount: z.coerce.number().int().min(0).default(0),
   monoAnalysisCount: z.coerce.number().nullish(),
   multiAnalysisCount: z.coerce.number().nullish(),
@@ -58,14 +58,14 @@ export const PrescriptionSort = (a: Prescription, b: Prescription) =>
   [
     a.programmingPlanId,
     MatrixKindLabels[a.matrixKind],
-    ...a.stages.map((_) => StageLabels[_])
+    ...a.stages.map((_) => SubStageLabels[_])
   ]
     .join()
     .localeCompare(
       [
         b.programmingPlanId,
         MatrixKindLabels[b.matrixKind],
-        ...b.stages.map((_) => StageLabels[_])
+        ...b.stages.map((_) => SubStageLabels[_])
       ].join()
     );
 

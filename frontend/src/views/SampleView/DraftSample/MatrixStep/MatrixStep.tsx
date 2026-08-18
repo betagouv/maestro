@@ -14,7 +14,11 @@ import {
 } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
-import { type Stage, StageLabels } from 'maestro-shared/referential/Stage';
+import {
+  type SubStage,
+  SubStageLabels,
+  subStagesForStages
+} from 'maestro-shared/referential/SubStage';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
 import {
@@ -107,10 +111,11 @@ const MatrixStep = ({ partialSample }: Props) => {
     (programmingPlan as ProgrammingPlanChecked)?.subPlans?.find(
       (sp) => sp.id === programmingSubPlanId
     )?.subPlanNumber ?? '';
-  const subPlanStages =
+  const subPlanSubStages = subStagesForStages(
     (programmingPlan as ProgrammingPlanChecked)?.subPlans?.find(
       (sp) => sp.id === programmingSubPlanId
-    )?.stages ?? [];
+    )?.stages ?? []
+  );
 
   const { data: fieldConfigs = [], isSuccess: isFieldConfigsLoaded } =
     apiClient.useFindProgrammingSubPlanFieldConfigsQuery({
@@ -364,7 +369,7 @@ const MatrixStep = ({ partialSample }: Props) => {
   const stageOptions = useMemo(
     () =>
       selectOptionsFromList(
-        subPlanStages.filter(
+        subPlanSubStages.filter(
           (stage) =>
             !isProgrammingPlanSample(partialSample) ||
             prescriptions?.find(
@@ -375,7 +380,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             )
         ),
         {
-          labels: StageLabels,
+          labels: SubStageLabels,
           defaultLabel: 'Sélectionner un stade',
           withDefault: 'auto'
         }
@@ -524,7 +529,7 @@ const MatrixStep = ({ partialSample }: Props) => {
               <AppSelect
                 value={stage ?? ''}
                 options={stageOptions}
-                onChange={(e) => setStage(e.target.value as Stage)}
+                onChange={(e) => setStage(e.target.value as SubStage)}
                 inputForm={form}
                 inputKey="stage"
                 whenValid="Stade de prélèvement correctement renseigné."

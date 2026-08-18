@@ -126,10 +126,8 @@ export const UserListView = () => {
           }
 
           if (
-            filters.programmingSubPlanIds?.length &&
-            !filters.programmingSubPlanIds.some((id) =>
-              u.programmingSubPlans.some((sp) => sp.id === id)
-            )
+            filters.stages?.length &&
+            !filters.stages.some((stage) => u.stages.includes(stage))
           ) {
             return false;
           }
@@ -160,10 +158,7 @@ export const UserListView = () => {
           </Button>
         }
       >
-        <UsersFilters
-          onChange={updateUsersFiltered}
-          programmingPlans={programmingPlans}
-        />
+        <UsersFilters onChange={updateUsersFiltered} />
 
         <div
           className={clsx(
@@ -186,7 +181,6 @@ export const UserListView = () => {
               <div className={cx('fr-col-12', 'fr-col-md-4')} key={user.id}>
                 <UserCard
                   user={user}
-                  programmingPlans={programmingPlans}
                   onEdit={() => onEdit(user)}
                   onDisable={() => onDisable(user)}
                   onEnable={() => onEnableUser(user)}

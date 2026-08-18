@@ -7,7 +7,7 @@ import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
 import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { StageLabels } from 'maestro-shared/referential/Stage';
+import { SubStageLabels } from 'maestro-shared/referential/SubStage';
 import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 import { getAnalysisReportDocumentFilename } from 'maestro-shared/schema/Document/DocumentKind';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
@@ -111,7 +111,7 @@ export const buildAnalysisRequestData = (
     sampledTime: updatedSample.sampledTime,
     context: ContextLabels[updatedSample.context],
     legalContext: LegalContextLabels[updatedSample.legalContext],
-    stage: StageLabels[updatedSample.stage],
+    stage: SubStageLabels[updatedSample.stage],
     matrixKindLabel: MatrixKindLabels[updatedSample.matrixKind],
     matrixLabel: getSampleMatrixLabel(updatedSample),
     matrixPart: matrixPartField

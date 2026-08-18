@@ -1,13 +1,16 @@
 import { fakerFR } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import { RegionList, Regions } from '../referential/Region';
-import type { ProgrammingSubPlan } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  type ProgrammingSubPlan,
+  stagesFromSubPlans
+} from '../schema/ProgrammingPlan/ProgrammingSubPlan';
 import { AuthUserRefined } from '../schema/User/AuthUser';
 import {
   companiesIsRequired,
   departmentIsRequired,
   laboratoryIsRequired,
-  programmingSubPlanIdsIsRequired,
+  stagesIsRequired,
   type UserRefined
 } from '../schema/User/User';
 import {
@@ -23,14 +26,11 @@ import {
   DAOABovinValidatedSubPlanFixture,
   DAOAVolailleInProgressSubPlanFixture,
   DAOAVolailleValidatedSubPlanFixture,
-  genProgrammingSubPlan,
   PPVClosedSubPlanFixture,
   PPVInProgressSubPlanFixture,
   PPVSubmittedSubPlanFixture,
   PPVValidatedDromSubPlanFixture,
-  PPVValidatedSubPlanFixture,
-  PPVValidatedSubPlanId,
-  SachaSubPlanIds
+  PPVValidatedSubPlanFixture
 } from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
 
@@ -44,26 +44,33 @@ export const genUser = <T extends Partial<UserRefined>>(
       ? (data?.region ?? oneOf(RegionList))
       : null;
 
-  const programmingSubPlans: ProgrammingSubPlan[] =
-    programmingSubPlanIdsIsRequired({ roles })
-      ? (data?.programmingSubPlans ??
-        (roles?.includes('DepartmentalCoordinator')
-          ? [genProgrammingSubPlan({ id: oneOf(SachaSubPlanIds) })]
-          : [genProgrammingSubPlan({ id: PPVValidatedSubPlanId })]))
-      : [];
+  const programmingSubPlans: ProgrammingSubPlan[] = stagesIsRequired({ roles })
+    ? (data?.programmingSubPlans ??
+      (roles?.includes('DepartmentalCoordinator')
+        ? [
+            oneOf([
+              DAOAVolailleValidatedSubPlanFixture,
+              DAOABovinValidatedSubPlanFixture
+            ])
+          ]
+        : [PPVValidatedSubPlanFixture]))
+    : [];
+
+  const stages = data?.stages ?? stagesFromSubPlans(programmingSubPlans);
 
   return {
     id: uuidv4(),
     email: fakerFR.internet.email().toLowerCase(),
     name: fakerFR.person.fullName(),
+    stages,
     programmingSubPlans,
     roles,
     region,
     department:
-      region && departmentIsRequired({ roles, programmingSubPlans })
+      region && departmentIsRequired({ roles, stages })
         ? oneOf(Regions[region].departments)
         : null,
-    companies: companiesIsRequired({ roles, programmingSubPlans })
+    companies: companiesIsRequired({ roles, stages })
       ? [SlaughterhouseCompanyFixture1]
       : [],
     laboratoryId: laboratoryIsRequired({ roles })

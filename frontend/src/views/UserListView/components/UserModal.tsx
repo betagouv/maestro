@@ -6,18 +6,19 @@ import {
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
 import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
+import { StageLabels, StageList } from 'maestro-shared/referential/Stage';
 import type { Company } from 'maestro-shared/schema/Company/Company';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { subPlansForStages } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   companiesIsRequired,
   departmentIsRequired,
   laboratoryIsRequired,
-  programmingSubPlanIdsIsRequired,
+  stagesIsRequired,
   type UserRefined,
   UserToCreateRefined
 } from 'maestro-shared/schema/User/User';
-import { managerSubPlanIds } from 'maestro-shared/schema/User/UserManagement';
+import { managerStages } from 'maestro-shared/schema/User/UserManagement';
 import {
   canHaveDepartment,
   isRegionalRole,
@@ -60,7 +61,7 @@ const regionOptions = selectOptionsFromList(RegionList, {
 const userDefaultValue: Nullable<UserToCreateRefined> = {
   email: null,
   roles: [],
-  programmingSubPlans: [],
+  stages: [],
   region: null,
   department: null,
   companies: [],
@@ -87,30 +88,26 @@ export const UserModal = ({
   const { manageableRoles, scope } = useUserManagement();
 
   const allSubPlans = useMemo(
-    () =>
-      programmingPlans.flatMap((p) =>
-        p.subPlans.map((sp) => ({ ...sp, year: p.year }))
-      ),
+    () => programmingPlans.flatMap((p) => p.subPlans),
     [programmingPlans]
   );
 
-  const selectableSubPlans = useMemo(() => {
-    const managedIds = account ? managerSubPlanIds(account) : [];
+  const selectableStages = useMemo(() => {
+    const managedStages = account ? managerStages(account) : [];
 
-    return managedIds === null
-      ? allSubPlans
-      : allSubPlans.filter((sp) => managedIds.includes(sp.id));
-  }, [allSubPlans, account]);
+    return managedStages === null
+      ? StageList
+      : StageList.filter((stage) => managedStages.includes(stage));
+  }, [account]);
 
-  // Les sous-plans de la cible hors du périmètre du gestionnaire restent affichés mais ne
+  // Les stades de la cible hors du périmètre du gestionnaire restent affichés mais ne
   // sont pas modifiables
-  const lockedSubPlans = useMemo(
+  const lockedStages = useMemo(
     () =>
-      (userToUpdate?.programmingSubPlans ?? []).filter(
-        (sp) =>
-          !selectableSubPlans.some((selectable) => selectable.id === sp.id)
+      (userToUpdate?.stages ?? []).filter(
+        (stage) => !selectableStages.includes(stage)
       ),
-    [userToUpdate, selectableSubPlans]
+    [userToUpdate, selectableStages]
   );
 
   const [findCompanies] = apiClient.useLazyFindCompaniesQuery();
@@ -120,6 +117,11 @@ export const UserModal = ({
 
   const [user, setUser] =
     useState<Nullable<UserToCreateRefined>>(userDefaultValue);
+
+  const programmingSubPlans = useMemo(
+    () => subPlansForStages(allSubPlans, user.stages ?? []),
+    [allSubPlans, user.stages]
+  );
 
   const forcedRegion = scope === 'national' ? null : (account?.region ?? null);
   const forcedDepartment =
@@ -149,7 +151,7 @@ export const UserModal = ({
 
   useEffect(() => {
     if (userToUpdate) {
-      const { id, name, ...rest } = userToUpdate;
+      const { id, name, programmingSubPlans: _derived, ...rest } = userToUpdate;
       setUser(rest);
     }
   }, [userToUpdate]);
@@ -169,11 +171,8 @@ export const UserModal = ({
   const [companies, setCompanies] = useState<Company[]>([]);
   useEffect(() => {
     if (
-      companiesIsRequired({
-        programmingSubPlans: user.programmingSubPlans,
-        roles: user.roles
-      }) &&
-      !user.programmingSubPlans?.some((_) => _.subPlanNumber === 'PPV')
+      companiesIsRequired({ stages: user.stages, roles: user.roles }) &&
+      !programmingSubPlans.some((_) => _.subPlanNumber === 'PPV')
     ) {
       findCompanies({
         kinds: ['MEAT_SLAUGHTERHOUSE', 'POULTRY_SLAUGHTERHOUSE'],
@@ -188,7 +187,7 @@ export const UserModal = ({
   }, [
     user.region,
     user.department,
-    user.programmingSubPlans,
+    programmingSubPlans,
     user.roles,
     findCompanies
   ]);
@@ -310,36 +309,33 @@ export const UserModal = ({
               inputKey={'department'}
               label="Département"
               options={departmentOptions}
-              required={departmentIsRequired(user)}
+              required={departmentIsRequired({
+                stages: user.stages,
+                roles: user.roles
+              })}
             />
           )}
         <AppMultiSelect
           inputForm={form}
-          inputKey={'programmingSubPlans'}
-          items={selectableSubPlans.map((sp) => sp.id)}
+          inputKey={'stages'}
+          items={selectableStages}
           onChange={(v) =>
             setUser((u) => ({
               ...u,
-              programmingSubPlans: [
-                ...lockedSubPlans,
-                ...v
-                  .map((id) => selectableSubPlans.find((sp) => sp.id === id))
-                  .filter((sp) => sp != null)
-                  .map(({ year: _year, ...sp }): ProgrammingSubPlan => sp)
+              stages: [
+                ...lockedStages,
+                ...v.filter((stage) => selectableStages.includes(stage))
               ]
             }))
           }
-          values={user.programmingSubPlans?.map((sp) => sp.id) ?? []}
-          keysWithLabels={Object.fromEntries(
-            allSubPlans.map((sp) => [sp.id, `${sp.subPlanNumber} (${sp.year})`])
-          )}
-          defaultLabel={'sous-plan sélectionné'}
+          values={user.stages ?? []}
+          keysWithLabels={StageLabels}
+          defaultLabel={'stade sélectionné'}
           label={
             <>
-              Sous-plans
-              {selectableSubPlans.some(
-                (sp) =>
-                  !user.programmingSubPlans?.some((usp) => usp.id === sp.id)
+              Stades de prélèvement
+              {selectableStages.some(
+                (stage) => !user.stages?.includes(stage)
               ) && (
                 <Button
                   priority="tertiary no outline"
@@ -347,20 +343,15 @@ export const UserModal = ({
                   onClick={() =>
                     setUser((u) => ({
                       ...u,
-                      programmingSubPlans: [
-                        ...lockedSubPlans,
-                        ...selectableSubPlans.map(
-                          ({ year: _year, ...sp }): ProgrammingSubPlan => sp
-                        )
-                      ]
+                      stages: [...lockedStages, ...selectableStages]
                     }))
                   }
                 >
                   Tout sélectionner
                 </Button>
               )}
-              {selectableSubPlans.some((sp) =>
-                user.programmingSubPlans?.some((usp) => usp.id === sp.id)
+              {selectableStages.some((stage) =>
+                user.stages?.includes(stage)
               ) && (
                 <Button
                   priority="tertiary no outline"
@@ -368,7 +359,7 @@ export const UserModal = ({
                   onClick={() =>
                     setUser((u) => ({
                       ...u,
-                      programmingSubPlans: lockedSubPlans
+                      stages: lockedStages
                     }))
                   }
                 >
@@ -377,10 +368,10 @@ export const UserModal = ({
               )}
             </>
           }
-          required={programmingSubPlanIdsIsRequired(user)}
+          required={stagesIsRequired(user)}
         />
 
-        {companiesIsRequired(user) && (
+        {companiesIsRequired({ stages: user.stages, roles: user.roles }) && (
           <CompanySearch
             label={
               <>

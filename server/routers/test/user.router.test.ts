@@ -41,6 +41,9 @@ import {
   tokenProvider
 } from '../../test/testUtils';
 
+const PPVStages = PPVValidatedSubPlanFixture.stages;
+const AbattoirStages = DAOAVolailleValidatedSubPlanFixture.stages;
+
 describe('User router', () => {
   const { app } = createServer();
 
@@ -101,6 +104,7 @@ describe('User router', () => {
 
       expect(res.body).toEqual({
         id: Sampler1Fixture.id,
+        stages: Sampler1Fixture.stages,
         programmingSubPlans: expect.arrayContaining(
           Sampler1Fixture.programmingSubPlans.map(({ id }) =>
             expect.objectContaining({ id })
@@ -163,7 +167,7 @@ describe('User router', () => {
       ]);
     });
 
-    test('should filter users by programmingPlanKind', async () => {
+    test('should filter users by stage', async () => {
       const res = await request(app)
         .get(testRoute({}))
         .use(tokenProvider(NationalCoordinatorDaoaFixture))
@@ -426,7 +430,7 @@ describe('User router', () => {
           .expect(constants.HTTP_STATUS_FORBIDDEN);
       });
 
-      test('should refuse a target sharing no sub plan', async () => {
+      test('should refuse a target sharing no stage', async () => {
         await request(app)
           .post(testRoute())
           .send(
@@ -456,7 +460,7 @@ describe('User router', () => {
           .expect(constants.HTTP_STATUS_CREATED);
       });
 
-      test('should bound the sub plans of the created user to the manager scope', async () => {
+      test('should bound the stages of the created user to the manager scope', async () => {
         const newUser = genUser({
           roles: ['Sampler'],
           region: Region1Fixture,
@@ -477,9 +481,36 @@ describe('User router', () => {
           await userRepository.findMany({ region: Region1Fixture })
         ).find((user) => user.email === newUser.email);
 
+        expect(created?.stages).toEqual(PPVStages);
+      });
+
+      test('should ignore sub plans forged in the body', async () => {
+        const newUser = genUser({
+          roles: ['Sampler'],
+          region: Region1Fixture,
+          department: Department1,
+          programmingSubPlans: [PPVValidatedSubPlanFixture]
+        });
+
+        await request(app)
+          .post(testRoute())
+          .send({
+            ...newUser,
+            programmingSubPlans: [DAOAVolailleValidatedSubPlanFixture]
+          })
+          .use(tokenProvider(regionalManager))
+          .expect(constants.HTTP_STATUS_CREATED);
+
+        const created = (
+          await userRepository.findMany({ region: Region1Fixture })
+        ).find((user) => user.email === newUser.email);
+
+        expect(created?.stages).toEqual(PPVStages);
         expect(
-          created?.programmingSubPlans.map((subPlan) => subPlan.id)
-        ).toEqual([PPVValidatedSubPlanFixture.id]);
+          created?.programmingSubPlans.every((subPlan) =>
+            subPlan.stages.some((stage) => PPVStages.includes(stage))
+          )
+        ).toBe(true);
       });
 
       test('should ignore the role selector even when the active role is national', async () => {
@@ -581,27 +612,51 @@ describe('User router', () => {
         expect(untouched?.email).toBe(targetOtherRegion.email);
       });
 
-      test('should preserve the sub plans outside the manager scope', async () => {
+      test('should refuse a body made invalid by the re-injected locked stage', async () => {
         await request(app)
           .put(testRoute(targetMultiPlan.id))
           .send({
             ...targetMultiPlan,
-            programmingSubPlans: [PPVValidatedSubPlanFixture]
+            stages: PPVStages,
+            companies: []
+          })
+          .use(tokenProvider(regionalManager))
+          .expect(constants.HTTP_STATUS_BAD_REQUEST);
+
+        const untouched = await userRepository.findUnique(targetMultiPlan.id);
+        expect(untouched?.companies).not.toHaveLength(0);
+        expect(untouched?.stages).toEqual(
+          expect.arrayContaining(AbattoirStages)
+        );
+      });
+
+      test('should preserve the stages outside the manager scope', async () => {
+        await request(app)
+          .put(testRoute(targetMultiPlan.id))
+          .send({
+            ...targetMultiPlan,
+            stages: PPVStages
           })
           .use(tokenProvider(regionalManager))
           .expect(constants.HTTP_STATUS_OK);
 
         const updated = await userRepository.findUnique(targetMultiPlan.id);
-        expect(
-          (updated?.programmingSubPlans ?? [])
-            .map((subPlan) => subPlan.id)
-            .sort()
-        ).toEqual(
-          [
-            PPVValidatedSubPlanFixture.id,
-            DAOAVolailleValidatedSubPlanFixture.id
-          ].sort()
+        expect((updated?.stages ?? []).sort()).toEqual(
+          [...PPVStages, ...AbattoirStages].sort()
         );
+      });
+
+      test('should derive both abattoir sub plans from the single abattoir stage', async () => {
+        const abattoirUser = await userRepository.findUnique(
+          targetOtherDepartmentDaoa.id
+        );
+
+        expect(abattoirUser?.stages).toEqual(AbattoirStages);
+        expect(
+          abattoirUser?.programmingSubPlans
+            .map((subPlan) => subPlan.subPlanNumber)
+            .sort()
+        ).toContain('M02');
       });
     });
 

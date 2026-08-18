@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { MatrixKindEffective } from '../referential/Matrix/MatrixKind';
 import { RegionList, Regions } from '../referential/Region';
 import { SSD2Ids } from '../referential/Residue/SSD2Id';
-import { StageList } from '../referential/Stage';
+import { subStagesForStages } from '../referential/SubStage';
 import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
 import type { LocalPrescription } from '../schema/LocalPrescription/LocalPrescription';
 import type { Prescription } from '../schema/Prescription/Prescription';
@@ -18,6 +18,7 @@ import {
   DAOAValidatedProgrammingPlanFixture,
   DAOAVolailleValidatedSubPlanId,
   PPVValidatedProgrammingPlanFixture,
+  PPVValidatedSubPlanFixture,
   PPVValidatedSubPlanId
 } from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
@@ -62,7 +63,7 @@ export const PrescriptionFixture = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: PPVValidatedProgrammingPlanFixture.contexts[0],
   matrixKind: 'A00GY',
-  stages: StageList
+  stages: subStagesForStages(PPVValidatedSubPlanFixture.stages)
 });
 
 export const LocalPrescriptionFixture = genLocalPrescription({

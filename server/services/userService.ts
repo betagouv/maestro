@@ -1,4 +1,5 @@
 import SyncContactError from 'maestro-shared/errors/syncContactError';
+import { subPlansForStages } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import { userRepository } from '../repositories/userRepository';
@@ -12,10 +13,16 @@ const catchSyncError = (err: unknown) => {
   throw err;
 };
 
-const resolveContactListIds = (
-  user: UserRefined
-): (number | null | undefined)[] => {
-  return user.programmingSubPlans.map((sp) => sp.contactListId);
+type UserToPersist = Omit<
+  UserRefined,
+  'id' | 'loggedSecrets' | 'programmingSubPlans'
+>;
+
+const resolveContactListIds = async (
+  user: Pick<UserRefined, 'stages'>
+): Promise<(number | null | undefined)[]> => {
+  const subPlans = await programmingSubPlanRepository.findMany();
+  return subPlansForStages(subPlans, user.stages).map((sp) => sp.contactListId);
 };
 
 const resolveAllContactListIds = async (): Promise<number[]> => {
@@ -29,18 +36,16 @@ const resolveAllContactListIds = async (): Promise<number[]> => {
   ];
 };
 
-const insert = async (
-  user: Omit<UserRefined, 'id' | 'loggedSecrets'>
-): Promise<void> => {
+const insert = async (user: UserToPersist): Promise<void> => {
   await userRepository.insert(user);
-  const contactListIds = resolveContactListIds(user as UserRefined);
+  const contactListIds = await resolveContactListIds(user);
   await mailService
     .createContact({ ...user, contactListIds })
     .catch(catchSyncError);
 };
 
 const update = async (
-  partialUser: Partial<Omit<UserRefined, 'id' | 'loggedSecrets'>>,
+  partialUser: Partial<UserToPersist>,
   id: UserRefined['id']
 ): Promise<void> => {
   const existing = await userRepository.findUnique(id);
@@ -59,23 +64,21 @@ const update = async (
 
   if (partialUser.email && partialUser.email !== existing.email) {
     await mailService.deleteContact(existing.email).catch(catchSyncError);
-    const contactListIds = resolveContactListIds(updated as UserRefined);
+    const contactListIds = await resolveContactListIds(updated);
     await mailService
       .createContact({ ...updated, contactListIds })
       .catch(catchSyncError);
     return;
   }
 
-  if (
-    !partialUser.email &&
-    !partialUser.programmingSubPlans &&
-    !partialUser.name
-  ) {
+  if (!partialUser.email && !partialUser.stages && !partialUser.name) {
     return;
   }
 
-  const [allContactlistids] = await Promise.all([resolveAllContactListIds()]);
-  const contactListIds = resolveContactListIds(updated as UserRefined);
+  const [allContactlistids, contactListIds] = await Promise.all([
+    resolveAllContactListIds(),
+    resolveContactListIds(updated)
+  ]);
   await mailService
     .updateContact({ ...updated, contactListIds, allContactlistids })
     .catch(catchSyncError);
