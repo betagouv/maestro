@@ -120,9 +120,12 @@ export const Sampler = z.object(UserRefined.shape).pick({
   name: true
 });
 
+export const UserListItem = UserBase.omit({ programmingSubPlans: true });
+
 export type UserRefined = z.infer<typeof UserRefined>;
 export type UserBase = z.infer<typeof UserBase>;
 export type Sampler = z.infer<typeof Sampler>;
+export type UserListItem = z.infer<typeof UserListItem>;
 
 export const userRegionsForRole = (
   user: Pick<UserBase, 'region'>,

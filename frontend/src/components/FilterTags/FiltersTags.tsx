@@ -15,7 +15,7 @@ import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPl
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { SampleComplianceLabels } from 'maestro-shared/schema/Sample/SampleCompliance';
 import { SampleStatusLabels } from 'maestro-shared/schema/Sample/SampleStatus';
-import type { UserRefined } from 'maestro-shared/schema/User/User';
+import type { UserListItem } from 'maestro-shared/schema/User/User';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { Fragment, type ReactNode, useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -35,7 +35,7 @@ interface Props {
   title?: string;
   filters: Partial<FilterableType>;
   onChange: (filters: Partial<FilterableType>) => void;
-  samplers?: UserRefined[];
+  samplers?: UserListItem[];
   programmingPlans?: ProgrammingPlanChecked[];
   laboratories?: Pick<Laboratory, 'id' | 'name'>[];
 }
@@ -265,7 +265,7 @@ const filtersConfig = {
           onChange: (filters: Partial<FilterableType>) => void,
           data: {
             programmingPlans?: ProgrammingPlanChecked[];
-            samplers?: UserRefined[];
+            samplers?: UserListItem[];
             laboratories?: Props['laboratories'];
             filters?: Partial<FilterableType>;
           }

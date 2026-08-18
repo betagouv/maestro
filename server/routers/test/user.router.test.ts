@@ -149,6 +149,18 @@ describe('User router', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
+    test('should not embed the programmingSubPlans', async () => {
+      const res = await request(app)
+        .get(testRoute({}))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body.length).toBeGreaterThan(0);
+      for (const user of res.body) {
+        expect(user).not.toHaveProperty('programmingSubPlans');
+      }
+    });
+
     test('should filter users by region', async () => {
       const res = await request(app)
         .get(testRoute({ region: Sampler1Fixture.region as Region }))
@@ -690,11 +702,6 @@ describe('User router', () => {
         ).find((user) => user.email === newUser.email);
 
         expect(created?.stages).toEqual(PPVStages);
-        expect(
-          created?.programmingSubPlans.every((subPlan) =>
-            subPlan.stages.some((stage) => PPVStages.includes(stage))
-          )
-        ).toBe(true);
       });
 
       test('should ignore the role selector even when the active role is national', async () => {

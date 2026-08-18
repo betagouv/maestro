@@ -3,14 +3,9 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import type { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { Brand } from 'maestro-shared/constants';
 import { Regions } from 'maestro-shared/referential/Region';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { StageLabels } from 'maestro-shared/referential/Stage';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
-import React, {
-  type FunctionComponent,
-  useCallback,
-  useContext,
-  useState
-} from 'react';
+import React, { type FunctionComponent, useContext, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
@@ -76,18 +71,6 @@ const UsersSearchInput: FunctionComponent<{
   const apiClient = useContext(ApiClientContext);
 
   const { data: users } = apiClient.useFindUsersQuery({ disabled: false });
-  const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery({});
-  const getSubPlanLabel = useCallback(
-    (subPlanId: ProgrammingSubPlanId) => {
-      const plan = programmingPlans?.find((p) =>
-        p.subPlans.some((sp) => sp.id === subPlanId)
-      );
-      const subPlan = plan?.subPlans.find((sp) => sp.id === subPlanId);
-      if (!subPlan) return subPlanId;
-      return `${subPlan.subPlanNumber} (${plan?.year})`;
-    },
-    [programmingPlans]
-  );
 
   return (
     <>
@@ -102,8 +85,8 @@ const UsersSearchInput: FunctionComponent<{
                   if (u.region) {
                     label += ` - ${Regions[u.region].name}`;
                   }
-                  if (u.programmingSubPlans.length > 0) {
-                    label += ` - [${u.programmingSubPlans.map((sp) => getSubPlanLabel(sp.id as ProgrammingSubPlanId)).join(',')}]`;
+                  if (u.stages.length > 0) {
+                    label += ` - [${u.stages.map((stage) => StageLabels[stage]).join(',')}]`;
                   }
                   acc[u.id] = label;
                   return acc;
