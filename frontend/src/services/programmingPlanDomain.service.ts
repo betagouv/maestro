@@ -1,4 +1,4 @@
-import { buildTypedQuery } from 'src/services/api.builder';
+import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
 
 const programmingPlanDomainApi = api.injectEndpoints({
@@ -9,8 +9,19 @@ const programmingPlanDomainApi = api.injectEndpoints({
       {
         providesTags: () => ['ProgrammingPlanDomain']
       }
+    ),
+    createProgrammingPlanDomain: buildTypedMutation(
+      builder,
+      '/programming-plan-domains',
+      'post',
+      {
+        invalidatesTags: ['ProgrammingPlanDomain']
+      }
     )
   })
 });
 
-export const { useFindProgrammingPlanDomainsQuery } = programmingPlanDomainApi;
+export const {
+  useFindProgrammingPlanDomainsQuery,
+  useCreateProgrammingPlanDomainMutation
+} = programmingPlanDomainApi;

@@ -1,5 +1,8 @@
 import z from 'zod';
-import { ProgrammingPlanDomain } from '../schema/ProgrammingPlan/ProgrammingPlanDomain';
+import {
+  ProgrammingPlanDomain,
+  ProgrammingPlanDomainCreateInput
+} from '../schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { SubRoutes } from './routes';
 
 export const programmingPlanDomainsRoutes = {
@@ -7,6 +10,11 @@ export const programmingPlanDomainsRoutes = {
     get: {
       permissions: 'NONE',
       response: z.array(ProgrammingPlanDomain)
+    },
+    post: {
+      permissions: ['manageProgrammingPlanSettings'],
+      body: ProgrammingPlanDomainCreateInput,
+      response: ProgrammingPlanDomain
     }
   }
 } as const satisfies SubRoutes<'/programming-plan-domains'>;

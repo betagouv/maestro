@@ -1,5 +1,6 @@
 import {
   ProgrammingPlanDomain,
+  type ProgrammingPlanDomainCreateInput,
   type ProgrammingPlanDomainId
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { kysely } from './kysely';
@@ -27,4 +28,21 @@ const findUnique = async (
   return domain ? ProgrammingPlanDomain.parse(domain) : undefined;
 };
 
-export const programmingPlanDomainRepository = { findMany, findUnique };
+const insert = async (
+  domain: ProgrammingPlanDomainCreateInput,
+  trx = kysely
+): Promise<ProgrammingPlanDomain> => {
+  const createdDomain = await trx
+    .insertInto('programmingPlanDomains')
+    .values(domain)
+    .returningAll()
+    .executeTakeFirstOrThrow();
+
+  return ProgrammingPlanDomain.parse(createdDomain);
+};
+
+export const programmingPlanDomainRepository = {
+  findMany,
+  findUnique,
+  insert
+};

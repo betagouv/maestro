@@ -1,7 +1,12 @@
 import { constants } from 'node:http2';
-import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
+import {
+  AdminFixture,
+  NationalCoordinator,
+  Sampler1Fixture
+} from 'maestro-shared/test/userFixtures';
 import request from 'supertest';
-import { describe, expect, test } from 'vitest';
+import { afterAll, describe, expect, test } from 'vitest';
+import { kysely } from '../../repositories/kysely';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
@@ -35,6 +40,60 @@ describe('Programming plan domain router', () => {
           },
         ]
       `);
+    });
+  });
+
+  describe('POST /programming-plan-domains', () => {
+    const testLabel = 'Domaine de test';
+
+    afterAll(async () => {
+      await kysely
+        .deleteFrom('programmingPlanDomains')
+        .where('label', '=', testLabel)
+        .execute();
+    });
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .post(testRoute)
+        .send({ label: testLabel })
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user does not have the permission', async () => {
+      await request(app)
+        .post(testRoute)
+        .send({ label: testLabel })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if the label is empty', async () => {
+      await request(app)
+        .post(testRoute)
+        .send({ label: ' ' })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should create the domain', async () => {
+      const res = await request(app)
+        .post(testRoute)
+        .send({ label: testLabel })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_CREATED);
+
+      expect(res.body).toMatchObject({
+        id: expect.any(String),
+        label: testLabel
+      });
+
+      const domains = await request(app)
+        .get(testRoute)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(domains.body).toContainEqual(res.body);
     });
   });
 });

@@ -1,11 +1,18 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { useContext } from 'react';
 import { AppPageWithYearTitle } from 'src/components/_app/AppPage/AppPageWithYearTitle';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
+import { ProgrammingPlanDomainCreateModal } from './ProgrammingPlanDomainCreateModal';
+
+const domainCreateModal = createModal({
+  id: 'programming-plan-domain-create-modal',
+  isOpenedByDefault: false
+});
 
 type Props = Record<never, never>;
 
@@ -31,7 +38,11 @@ export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
             <h4 className={clsx(cx('fr-m-0'))}>
               Tous les domaines ({domains.length})
             </h4>
-            <Button priority="tertiary" iconId="fr-icon-file-add-line">
+            <Button
+              priority="tertiary"
+              iconId="fr-icon-file-add-line"
+              onClick={domainCreateModal.open}
+            >
               Ajouter un domaine
             </Button>
           </div>
@@ -45,6 +56,7 @@ export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
               </div>
             ))}
           </div>
+          <ProgrammingPlanDomainCreateModal modal={domainCreateModal} />
         </div>
       )}
     />
