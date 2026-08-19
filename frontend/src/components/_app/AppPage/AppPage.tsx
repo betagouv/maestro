@@ -7,8 +7,8 @@ import { assert, type Equals } from 'tsafe';
 
 interface Props {
   title: string | React.ReactNode;
-  subtitle: string;
-  illustration: string;
+  subtitle?: string | React.ReactNode;
+  illustration?: string;
   documentTitle: string;
   action?: React.ReactNode;
   children: React.ReactNode;

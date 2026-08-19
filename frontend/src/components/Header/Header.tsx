@@ -264,6 +264,18 @@ const Header = () => {
                     ])
                   }
                 : undefined,
+              availableRoutes.includes('ProgrammingPlanSettingsRoute')
+                ? {
+                    linkProps: {
+                      to: AuthenticatedAppRoutes.ProgrammingPlanSettingsRoute.link(),
+                      target: '_self'
+                    },
+                    text: 'Paramétrage des plans',
+                    isActive: !!routeMatch(
+                      AuthenticatedAppRoutes.ProgrammingPlanSettingsRoute.path
+                    )
+                  }
+                : undefined,
               availableRoutes.includes('LaboratoryAgreementsRoute')
                 ? {
                     linkProps: {

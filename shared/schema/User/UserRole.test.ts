@@ -7,12 +7,14 @@ describe('UserRole', () => {
     const bgirPermissions = UserRolePermissions.AdministratorBGIR;
     const maestroPermissions = UserRolePermissions.AdministratorMaestro;
 
-    test('should not be able to use mascarade, notices, descriptors and laboratory config', () => {
+    test('should not be able to use mascarade, notices, descriptors, laboratory config and programming plan settings', () => {
       expect(difference(maestroPermissions, bgirPermissions)).toEqual([
         'manageMascarade',
         'manageNotices',
         'manageSpecificDataFields',
-        'manageLaboratoryConfig'
+        'manageLaboratoryConfig',
+        // FIXME à retirer quand les AdministratorBGIR auront cette permission
+        'manageProgrammingPlanSettings'
       ]);
     });
 

@@ -21,7 +21,8 @@ const appRoutePaths = {
   AdminRoute: '/admin/:section/:itemId?',
   UsersRoute: '/utilisateurs',
   LaboratoryAnalyticalCompetencesRoute: '/competences-analytiques',
-  LaboratoryAgreementsRoute: '/laboratoires/agrements'
+  LaboratoryAgreementsRoute: '/laboratoires/agrements',
+  ProgrammingPlanSettingsRoute: '/parametrage-des-plans'
 } as const;
 
 export type AppRouteKeys = keyof typeof appRoutePaths;
