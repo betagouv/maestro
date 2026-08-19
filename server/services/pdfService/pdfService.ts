@@ -18,7 +18,6 @@ import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential'
 import { SubStageLabels } from 'maestro-shared/referential/SubStage';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import {
   getSampleMatrixLabel,
   type PartialSample
@@ -35,6 +34,7 @@ import { formatMaestroDate } from 'maestro-shared/utils/date';
 import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
+import { programmingPlanDomainRepository } from '../../repositories/programmingPlanDomainRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../../repositories/programmingSubPlanRepository';
 import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
@@ -273,7 +273,11 @@ const generateSamplePDF = async (
     (c) => c.field.key === 'matrixPart'
   )?.field;
 
-  const planLabel = `${subPlanNumber} / ${ProgrammingPlanDomainLabels[programmingPlan.domain]} / ${(subPlan?.substanceKinds ?? []).map((s) => SubstanceKindLabels[s]).join(' ')} / ${subPlan?.label}`;
+  const domain = programmingPlan.domainId
+    ? await programmingPlanDomainRepository.findUnique(programmingPlan.domainId)
+    : undefined;
+
+  const planLabel = `${subPlanNumber} / ${domain?.label ?? ''} / ${(subPlan?.substanceKinds ?? []).map((s) => SubstanceKindLabels[s]).join(' ')} / ${subPlan?.label}`;
 
   return generatePDF(template, {
     fullVersion,

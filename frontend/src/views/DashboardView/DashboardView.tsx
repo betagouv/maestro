@@ -2,6 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
+import { isNil } from 'lodash-es';
 import {
   type ProgrammingPlanChecked,
   ProgrammingPlanSort
@@ -39,7 +40,7 @@ const DashboardView = () => {
     }
   );
   const programmingPlans = useMemo(
-    () => programmingPlansData?.filter((p) => p.domain !== 'TO_BE_DEFINED'),
+    () => programmingPlansData?.filter((p) => !isNil(p.domainId)),
     [programmingPlansData]
   );
 

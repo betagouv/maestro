@@ -31,6 +31,12 @@ export const Default: Story = {
 
     await expect(canvas.getByText('2026')).toBeInTheDocument();
 
+    await expect(canvas.getByText('Résidus de pesticides')).toBeInTheDocument();
+    await expect(
+      canvas.getByText('Contaminants chimiques')
+    ).toBeInTheDocument();
+    await expect(canvas.getByText('Tous les domaines (2)')).toBeInTheDocument();
+
     await userEvent.click(canvas.getByText('2026'));
     await userEvent.click(await canvas.findByText('2024'));
 

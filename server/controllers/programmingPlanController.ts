@@ -434,7 +434,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
         createdAt: new Date(),
         createdBy: user.id,
         title: previousProgrammingPlan.title,
-        domain: previousProgrammingPlan.domain,
+        domainId: previousProgrammingPlan.domainId,
         subPlans: previousProgrammingPlan.subPlans.map((subPlan) => ({
           ...subPlan,
           id: ProgrammingSubPlanId.parse(uuidv4()),

@@ -12,7 +12,11 @@ import {
 import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { genLocalPrescription } from 'maestro-shared/test/prescriptionFixtures';
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  ChemicalContaminantDomainId,
+  genProgrammingPlan,
+  PesticideResidueDomainId
+} from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedPartialSample,
   Sample11Fixture
@@ -168,6 +172,12 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateLaboratoryAgreementsMutation: [fn(), {}],
   useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },
+  useFindProgrammingPlanDomainsQuery: {
+    data: [
+      { id: PesticideResidueDomainId, label: 'Résidus de pesticides' },
+      { id: ChemicalContaminantDomainId, label: 'Contaminants chimiques' }
+    ]
+  },
   useFindProgrammingPlansQuery: { data: [] },
   useFindLocalPrescriptionsQuery: { data: [] },
   useFindResourcesQuery: { data: [] },
