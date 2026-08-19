@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { isDromRegion, RegionList, Regions } from '../referential/Region';
+import { ProgrammingPlanDomainId } from '../schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanStatusList } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -7,6 +8,13 @@ import {
   ProgrammingSubPlanId
 } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
 import { oneOf } from './testFixtures';
+
+export const PesticideResidueDomainId = ProgrammingPlanDomainId.parse(
+  '09a95048-64fe-46a1-8543-50146c6ab337'
+);
+export const ChemicalContaminantDomainId = ProgrammingPlanDomainId.parse(
+  'be1fb96c-e498-4e7a-bd2b-cd3d808f997f'
+);
 
 const NationalCoordinatorId = '55555555-5555-5555-5555-555555555555';
 
@@ -149,7 +157,7 @@ export const genProgrammingPlan = (
   const planId = data?.id ?? uuidv4();
   return {
     id: planId,
-    domain: 'PESTICIDE_RESIDUE',
+    domainId: PesticideResidueDomainId,
     title: 'Production primaire végétale',
     subPlans: [
       {
@@ -176,7 +184,7 @@ export const genProgrammingPlan = (
 
 export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
   id: PPVClosedProgrammingPlanId,
-  domain: 'PESTICIDE_RESIDUE',
+  domainId: PesticideResidueDomainId,
   title: 'Production primaire végétale',
   subPlans: [PPVClosedSubPlanFixture],
   distributionKind: 'REGIONAL',
@@ -195,7 +203,7 @@ export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
 
 export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
   id: PPVValidatedProgrammingPlanId,
-  domain: 'PESTICIDE_RESIDUE',
+  domainId: PesticideResidueDomainId,
   title: 'Production primaire végétale',
   subPlans: [PPVValidatedSubPlanFixture],
   distributionKind: 'REGIONAL',
@@ -212,7 +220,7 @@ export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
 
 export const PPVValidatedDromProgrammingPlanFixture = genProgrammingPlan({
   id: PPVValidatedDromProgrammingPlanId,
-  domain: 'PESTICIDE_RESIDUE',
+  domainId: PesticideResidueDomainId,
   title: 'Production primaire végétale - DROM',
   subPlans: [PPVValidatedDromSubPlanFixture],
   distributionKind: 'REGIONAL',
@@ -229,7 +237,7 @@ export const PPVValidatedDromProgrammingPlanFixture = genProgrammingPlan({
 
 export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
   id: PPVInProgressProgrammingPlanId,
-  domain: 'PESTICIDE_RESIDUE',
+  domainId: PesticideResidueDomainId,
   title: 'Production primaire végétale',
   subPlans: [PPVInProgressSubPlanFixture],
   distributionKind: 'REGIONAL',
@@ -246,7 +254,7 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
 
 export const PPVSubmittedProgrammingPlanFixture = genProgrammingPlan({
   id: PPVSubmittedProgrammingPlanId,
-  domain: 'PESTICIDE_RESIDUE',
+  domainId: PesticideResidueDomainId,
   title: 'Production primaire végétale',
   subPlans: [PPVSubmittedSubPlanFixture],
   distributionKind: 'REGIONAL',
@@ -263,7 +271,7 @@ export const PPVSubmittedProgrammingPlanFixture = genProgrammingPlan({
 
 export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
   id: DAOAValidatedProgrammingPlanId,
-  domain: 'PESTICIDE_RESIDUE',
+  domainId: PesticideResidueDomainId,
   title: "Produit carné à l'abattoir",
   subPlans: [
     DAOAVolailleValidatedSubPlanFixture,
@@ -291,7 +299,7 @@ export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
 
 export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   id: DAOAInProgressProgrammingPlanId,
-  domain: 'PESTICIDE_RESIDUE',
+  domainId: PesticideResidueDomainId,
   title: "Produit carné à l'abattoir",
   subPlans: [
     DAOAVolailleInProgressSubPlanFixture,

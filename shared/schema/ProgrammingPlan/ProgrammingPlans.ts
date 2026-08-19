@@ -10,7 +10,7 @@ import {
 } from '../User/UserRole';
 import { ProgrammingPlanContext } from './Context';
 import { DistributionKind } from './DistributionKind';
-import { ProgrammingPlanDomain } from './ProgrammingPlanDomain';
+import { ProgrammingPlanDomainId } from './ProgrammingPlanDomain';
 import {
   ProgrammingPlanDepartmentalStatus,
   ProgrammingPlanRegionalStatus
@@ -20,7 +20,7 @@ import { ProgrammingSubPlan } from './ProgrammingSubPlan';
 
 export const ProgrammingPlanBase = z.object({
   id: z.guid(),
-  domain: ProgrammingPlanDomain,
+  domainId: ProgrammingPlanDomainId.nullish(),
   title: z.string().min(1, 'Veuillez renseigner le titre.'),
   subPlans: z
     .array(ProgrammingSubPlan)

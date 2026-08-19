@@ -4,7 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Pagination from '@codegouvfr/react-dsfr/Pagination';
 import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
-import { isEmpty, mapValues, omit, omitBy } from 'lodash-es';
+import { isEmpty, isNil, mapValues, omit, omitBy } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
@@ -65,7 +65,7 @@ const SampleListView = () => {
     { skip: !year }
   );
   const programmingPlans = useMemo(
-    () => programmingPlansData?.filter((p) => p.domain !== 'TO_BE_DEFINED'),
+    () => programmingPlansData?.filter((p) => !isNil(p.domainId)),
     [programmingPlansData]
   );
   const programmingPlan = useMemo(

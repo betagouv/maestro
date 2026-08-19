@@ -21,15 +21,22 @@ import {
   ContextLabels,
   type ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { Fragment, useEffect, useRef, useState } from 'react';
+import {
+  Fragment,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
 import PrescriptionDistributionBadge from 'src/components/Prescription/PrescriptionDistributionBadge/PrescriptionDistributionBadge';
 import TableHeaderCell from 'src/components/TableHeaderCell/TableHeaderCell';
 import { z } from 'zod';
 import { useAuthentication } from '../../../hooks/useAuthentication';
+import { ApiClientContext } from '../../../services/apiClient';
 import './ProgrammingPrescriptionTable.scss';
 import PrescriptionSubstances from '../../../components/Prescription/PrescriptionSubstances/PrescriptionSubstances';
 
@@ -87,7 +94,14 @@ const ProgrammingPrescriptionTable = ({
   pendingPrescriptionIds,
   pendingLocalKeys
 }: Props) => {
+  const apiClient = useContext(ApiClientContext);
   const { hasUserLocalPrescriptionPermission, userRole } = useAuthentication();
+  const { data: domains } = apiClient.useFindProgrammingPlanDomainsQuery();
+  const domainLabels = useMemo(
+    () =>
+      Object.fromEntries((domains ?? []).map(({ id, label }) => [id, label])),
+    [domains]
+  );
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [headerHeight, setHeaderHeight] = useState(0);
   const syncingRef = useRef(false);
@@ -329,10 +343,12 @@ const ProgrammingPrescriptionTable = ({
                       )}
                     >
                       {[
-                        ProgrammingPlanDomainLabels[plan.domain],
+                        plan.domainId ? domainLabels[plan.domainId] : undefined,
                         plan.title,
                         ContextLabels[context]
-                      ].join(' | ')}
+                      ]
+                        .filter(Boolean)
+                        .join(' | ')}
                     </div>
 
                     <div

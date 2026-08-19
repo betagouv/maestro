@@ -9,6 +9,7 @@ import { mascaradeRoutes } from './mascarade.routes';
 import { noticesRoutes } from './notices.routes';
 import { notificationsRoutes } from './notifications.routes';
 import { prescriptionsRoutes } from './prescriptions.routes';
+import { programmingPlanDomainsRoutes } from './programmingPlanDomains.routes';
 import { programmingPlansRoutes } from './programmingPlans.routes';
 import { sachaCommemoratifsRoute } from './sachaCommemoratifs.route';
 import { samplesRoutes } from './samples.routes';
@@ -58,6 +59,7 @@ export const MaestroRoutes = [
   '/prescriptions/:prescriptionId/regions/:region/departments/:department/companies/:companySiret',
   '/prescriptions/:prescriptionId/substances',
   '/prescriptions/:prescriptionId',
+  '/programming-plan-domains',
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields',
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId',
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId/options',
@@ -102,6 +104,7 @@ export const routes = {
   ...noticesRoutes,
   ...notificationsRoutes,
   ...prescriptionsRoutes,
+  ...programmingPlanDomainsRoutes,
   ...programmingPlansRoutes,
   ...sachaCommemoratifsRoute,
   ...samplesRoutes,

@@ -31,6 +31,7 @@ import type { CompanyKind } from 'maestro-shared/schema/Company/CompanyKind';
 import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import type { LocalPrescriptionSubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type {
   CommemoratifSigle,
@@ -431,6 +432,11 @@ export interface UserCompanies {
   userId: string;
 }
 
+export interface ProgrammingPlanDomains {
+  id: Generated<ProgrammingPlanDomainId>;
+  label: string;
+}
+
 export interface ProgrammingSubPlans {
   id: ProgrammingSubPlanId;
   programmingPlanId: string;
@@ -512,6 +518,7 @@ export interface DB {
   notices: Notices;
   prescriptions: Prescriptions;
   prescriptionSubstances: PrescriptionSubstances;
+  programmingPlanDomains: ProgrammingPlanDomains;
   programmingSubPlans: ProgrammingSubPlans;
   programmingPlans: ProgrammingPlans;
   localPrescriptionComments: LocalPrescriptionComments;
