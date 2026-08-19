@@ -13,7 +13,10 @@ type ManagerUserRole = UserRoleWithPermission<'manageUsers'>;
 // clé = gestionnaire, valeur = rôles gérés.
 export const ManageableUserRoles: Record<ManagerUserRole, UserRole[]> &
   Record<Exclude<UserRole, ManagerUserRole>, []> = {
-  Administrator: UserRoleList,
+  AdministratorMaestro: UserRoleList,
+  AdministratorBGIR: UserRoleList.filter(
+    (role) => role !== 'AdministratorMaestro'
+  ),
   RegionalCoordinator: [
     'RegionalCoordinator',
     'RegionalObserver',
@@ -51,7 +54,9 @@ type UserManagementScope = 'national' | 'regional' | 'departmental' | 'none';
 export const managementScope = (
   manager: Pick<UserManager, 'roles'>
 ): UserManagementScope =>
-  manager.roles.includes('Administrator')
+  manager.roles.some(
+    (role) => role === 'AdministratorMaestro' || role === 'AdministratorBGIR'
+  )
     ? 'national'
     : manager.roles.includes('RegionalCoordinator')
       ? 'regional'

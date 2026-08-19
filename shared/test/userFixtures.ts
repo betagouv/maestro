@@ -166,8 +166,12 @@ export const NationalCoordinator = genUser({
   id: '55555555-5555-5555-5555-555555555555'
 });
 export const AdminFixture = genUser({
-  roles: ['Administrator'],
+  roles: ['AdministratorMaestro'],
   id: '77777777-7777-7777-7777-777777777777'
+});
+export const AdminBGIRFixture = genUser({
+  roles: ['AdministratorBGIR'],
+  id: '77777777-7777-7777-7777-777777777778'
 });
 export const RegionalObserver = genUser({
   roles: ['RegionalObserver'],

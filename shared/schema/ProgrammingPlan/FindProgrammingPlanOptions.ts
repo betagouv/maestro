@@ -44,7 +44,8 @@ export const buildFindProgrammingPlanOptions = (
     : ProgrammingPlanStatusList;
 
   const isUnrestricted = [
-    'Administrator',
+    'AdministratorMaestro',
+    'AdministratorBGIR',
     'LaboratoryUser',
     'LaboratoryOffice'
   ].includes(userRole);

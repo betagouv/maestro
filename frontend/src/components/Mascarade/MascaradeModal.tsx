@@ -20,7 +20,7 @@ interface Props {
 export const MascaradeModal = ({ modal, ..._rest }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const { hasRole } = useAuthentication();
+  const { hasUserPermission } = useAuthentication();
 
   const { setMascaradeUserId } = useMascarade();
 
@@ -36,7 +36,7 @@ export const MascaradeModal = ({ modal, ..._rest }: Props) => {
 
   return (
     <>
-      {hasRole('Administrator') && (
+      {hasUserPermission('manageMascarade') && (
         <modal.Component
           title="Mode mascarade"
           concealingBackdrop={false}

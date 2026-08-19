@@ -219,7 +219,8 @@ export const departmentIsRequired = (
 export const stagesIsRequired = (
   user: Pick<Nullable<UserRefined>, 'roles'>
 ): boolean =>
-  !user.roles?.includes('Administrator') &&
+  !user.roles?.includes('AdministratorMaestro') &&
+  !user.roles?.includes('AdministratorBGIR') &&
   !user.roles?.includes('LaboratoryUser') &&
   !user.roles?.includes('LaboratoryOffice');
 

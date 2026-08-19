@@ -8,7 +8,7 @@ export const mascaradeRoutes = {
     },
     post: {
       response: z.undefined(),
-      permissions: ['administrationMaestro']
+      permissions: ['manageMascarade']
     }
   },
   '/mascarade': {

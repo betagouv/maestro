@@ -1,4 +1,5 @@
 import {
+  AdminBGIRFixture,
   AdminFixture,
   DepartmentalCoordinator,
   LaboratoryOfficeUserFixture,
@@ -28,6 +29,7 @@ export const seed = async (): Promise<void> => {
     RegionalDromCoordinator,
     NationalCoordinator,
     AdminFixture,
+    AdminBGIRFixture,
     RegionalObserver,
     NationalObserver,
     NationalCoordinatorDaoaFixture,

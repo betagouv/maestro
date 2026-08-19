@@ -10,7 +10,7 @@ const meta = {
   component: UserListView,
   parameters: {
     preloadedState: {
-      auth: { authUser: genAuthUser({ roles: ['Administrator'] }) }
+      auth: { authUser: genAuthUser({ roles: ['AdministratorMaestro'] }) }
     },
     apiClient: getMockApi({
       useFindUsersQuery: {

@@ -131,7 +131,7 @@ export const NationalCoordinator: Story = {
   }
 };
 
-export const Administrator: Story = {
+export const AdministratorMaestro: Story = {
   args: {
     id: 'id',
     filters: {}
@@ -140,7 +140,7 @@ export const Administrator: Story = {
     preloadedState: {
       auth: {
         authUser: genAuthUser({
-          userRole: 'Administrator'
+          userRole: 'AdministratorMaestro'
         })
       }
     },

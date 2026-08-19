@@ -26,7 +26,14 @@ const Department1 = Regions[Region1Fixture].departments[0];
 const Department2 = Regions[Region1Fixture].departments[1];
 
 const admin = genUser({
-  roles: ['Administrator'],
+  roles: ['AdministratorMaestro'],
+  region: null,
+  department: null,
+  programmingSubPlans: []
+});
+
+const adminBGIR = genUser({
+  roles: ['AdministratorBGIR'],
   region: null,
   department: null,
   programmingSubPlans: []
@@ -56,7 +63,9 @@ const samplerInScope = genUser({
 describe('UserManagement', () => {
   describe('managementScope', () => {
     test('should widen to the broadest role of the account', () => {
-      expect(managementScope({ roles: ['Administrator'] })).toBe('national');
+      expect(managementScope({ roles: ['AdministratorMaestro'] })).toBe(
+        'national'
+      );
       expect(managementScope({ roles: ['RegionalCoordinator'] })).toBe(
         'regional'
       );
@@ -94,7 +103,7 @@ describe('UserManagement', () => {
     });
 
     test('should grant management to hierarchical roles', () => {
-      expect(canManageUsers({ roles: ['Administrator'] })).toBe(true);
+      expect(canManageUsers({ roles: ['AdministratorMaestro'] })).toBe(true);
       expect(canManageUsers({ roles: ['RegionalCoordinator'] })).toBe(true);
       expect(canManageUsers({ roles: ['DepartmentalCoordinator'] })).toBe(true);
     });
@@ -188,7 +197,7 @@ describe('UserManagement', () => {
 
     test('should not constrain an administrator carrying stages', () => {
       const adminWithSubPlans = genUser({
-        roles: ['Administrator'],
+        roles: ['AdministratorMaestro'],
         region: null,
         department: null,
         programmingSubPlans: [PPVValidatedSubPlanFixture]
@@ -272,6 +281,44 @@ describe('UserManagement', () => {
           stages: PPVStages
         })
       ).toBe(false);
+    });
+  });
+
+  describe('AdministratorBGIR privilege escalation', () => {
+    test('should not be able to create a Maestro administrator', () => {
+      expect(
+        canCreateUser(adminBGIR, {
+          roles: ['AdministratorMaestro'],
+          region: null,
+          department: null,
+          stages: []
+        })
+      ).toBe(false);
+    });
+
+    test('should not be able to promote anyone to Maestro administrator', () => {
+      expect(
+        canManageUser(adminBGIR, {
+          ...samplerInScope,
+          roles: ['AdministratorMaestro']
+        })
+      ).toBe(false);
+    });
+
+    test('should not be able to manage an existing Maestro administrator', () => {
+      expect(canManageUser(adminBGIR, admin)).toBe(false);
+    });
+
+    test('should still manage every other role, BGIR peers included', () => {
+      expect(canManageUser(adminBGIR, samplerInScope)).toBe(true);
+      expect(
+        canCreateUser(adminBGIR, {
+          roles: ['AdministratorBGIR'],
+          region: null,
+          department: null,
+          stages: []
+        })
+      ).toBe(true);
     });
   });
 

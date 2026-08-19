@@ -12,7 +12,11 @@ import AuthenticationMissingError from 'maestro-shared/errors/authenticationMiss
 import UserMissingError from 'maestro-shared/errors/userMissingError';
 import UserRoleMissingError from 'maestro-shared/errors/userRoleMissingError';
 import { AuthUserRefined } from 'maestro-shared/schema/User/AuthUser';
-import { canSignIn, type UserRefined } from 'maestro-shared/schema/User/User';
+import {
+  canSignIn,
+  hasPermission,
+  type UserRefined
+} from 'maestro-shared/schema/User/User';
 import { userRepository } from '../../repositories/userRepository';
 import config from '../../utils/config';
 
@@ -31,7 +35,7 @@ export const getUser = async (
   cookies: Record<string, string> | undefined,
   user: UserRefined
 ): Promise<UserRefined> => {
-  if (user.roles.includes('Administrator')) {
+  if (user.roles.some((role) => hasPermission(role, 'manageMascarade'))) {
     const mascaradeUserId = cookies?.[COOKIE_MAESTRO_MASCARADE];
     if (mascaradeUserId !== undefined) {
       const mascaradeUser = await userRepository.findUnique(mascaradeUserId);

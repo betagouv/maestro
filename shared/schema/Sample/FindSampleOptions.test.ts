@@ -83,12 +83,16 @@ describe('buildFindSampleOptions', () => {
       expect(result.companySirets).toBeUndefined();
     });
 
-    test('Administrator can access all regions and departments', () => {
-      const result = buildFindSampleOptions(AdminFixture, 'Administrator', {
-        ...baseQuery,
-        regions: [Region1Fixture],
-        departments: ['01', '02']
-      });
+    test('AdministratorMaestro can access all regions and departments', () => {
+      const result = buildFindSampleOptions(
+        AdminFixture,
+        'AdministratorMaestro',
+        {
+          ...baseQuery,
+          regions: [Region1Fixture],
+          departments: ['01', '02']
+        }
+      );
 
       expect(result.regions).toEqual([Region1Fixture]);
       expect(result.departments).toEqual(['01', '02']);
