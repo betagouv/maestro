@@ -179,6 +179,10 @@ export const AdministratorMaestro: Story = {
       within(navigation).getByText('Administration')
     ).toBeInTheDocument();
 
+    await expect(
+      within(navigation).getByText('Paramétrage des plans')
+    ).toBeInTheDocument();
+
     const historyMenu = within(navigation).getByText('Historique');
     await expect(historyMenu).toBeInTheDocument();
   }

@@ -23,8 +23,6 @@ import {
   useState
 } from 'react';
 import { LaboratoryAgreementDetailProvider } from 'src/components/LaboratoryAgreement/LaboratoryAgreementDetailModal/LaboratoryAgreementDetailContext';
-import SectionHeader from 'src/components/SectionHeader/SectionHeader';
-import { useDocumentTitle } from 'src/hooks/useDocumentTitle';
 import { ApiClientContext } from '../../services/apiClient';
 import { getLaboratoryAgreementsExportURL } from '../../services/laboratory.service';
 import { pluralize } from '../../utils/stringUtils';
@@ -34,7 +32,6 @@ import LaboratoryAgreementsTable, {
   toRowKey
 } from './LaboratoryAgreementsTable/LaboratoryAgreementsTable';
 import './LaboratoryAgreementsView.scss';
-import { isNil, uniq } from 'lodash-es';
 import type {
   LaboratoryAgreement,
   LaboratoryAgreementField,
@@ -44,18 +41,22 @@ import type {
   ProgrammingSubPlan,
   ProgrammingSubPlanId
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import YearSelector from '../../components/YearSelector/YearSelector';
+import { assert, type Equals } from 'tsafe';
+import { AppPageWithYearTitle } from '../../components/_app/AppPage/AppPageWithYearTitle';
 
 const agreementsModal = createModal({
   id: 'laboratory-agreements-modal',
   isOpenedByDefault: false
 });
 
-const LaboratoryAgreementsView = () => {
-  useDocumentTitle('Agréments laboratoires');
-  const apiClient = useContext(ApiClientContext);
+type Props = {
+  year: number;
+};
 
-  const [year, setYear] = useState<number>();
+const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
+  assert<Equals<keyof typeof _rest, never>>();
+
+  const apiClient = useContext(ApiClientContext);
   const [selectedStringRowKeys, setSelectedStringRowKeys] = useState<string[]>(
     []
   );
@@ -86,13 +87,11 @@ const LaboratoryAgreementsView = () => {
   );
   const [showWithoutLab, setShowWithoutLab] = useState(false);
 
-  const { data: agreements = [] } = apiClient.useFindLaboratoryAgreementsQuery(
-    { year },
-    { skip: !year }
-  );
+  const { data: agreements = [] } = apiClient.useFindLaboratoryAgreementsQuery({
+    year
+  });
   const { data: checks = [] } = apiClient.useFindLaboratoryAgreementChecksQuery(
-    { year },
-    { skip: !year }
+    { year }
   );
   const { data: allProgrammingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery({});
@@ -100,28 +99,6 @@ const LaboratoryAgreementsView = () => {
     () => allProgrammingPlans.filter((p) => p.year === year),
     [allProgrammingPlans, year]
   );
-  const { data: laboratories = [] } = apiClient.useFindLaboratoriesQuery({});
-  const [updateAgreements] = apiClient.useUpdateLaboratoryAgreementsMutation();
-  const [updateCheck] = apiClient.useUpdateLaboratoryAgreementCheckMutation();
-
-  const { data: allPrescriptions = [] } = apiClient.useFindPrescriptionsQuery(
-    { year },
-    { skip: !year }
-  );
-
-  const availableYears = useMemo(
-    () => uniq(allProgrammingPlans.map((p) => p.year)).sort((a, b) => b - a),
-    [allProgrammingPlans]
-  );
-
-  useEffect(() => {
-    if (
-      availableYears.length > 0 &&
-      (isNil(year) || !availableYears.includes(year))
-    ) {
-      setYear(availableYears[0]);
-    }
-  }, [availableYears, year]);
 
   const rows = useMemo(
     () =>
@@ -141,6 +118,27 @@ const LaboratoryAgreementsView = () => {
       ),
     [agreements, programmingPlans]
   );
+
+  const rowsWithLab = useMemo(
+    () =>
+      rows.filter((r) =>
+        r.laboratories.some(
+          (lab) =>
+            lab.referenceLaboratory ||
+            lab.detectionAnalysis ||
+            lab.confirmationAnalysis
+        )
+      ).length,
+    [rows]
+  );
+  const rowsWithoutLab = rows.length - rowsWithLab;
+  const { data: laboratories = [] } = apiClient.useFindLaboratoriesQuery({});
+  const [updateAgreements] = apiClient.useUpdateLaboratoryAgreementsMutation();
+  const [updateCheck] = apiClient.useUpdateLaboratoryAgreementCheckMutation();
+
+  const { data: allPrescriptions = [] } = apiClient.useFindPrescriptionsQuery({
+    year
+  });
 
   const subPlanOptions = useMemo(
     () =>
@@ -330,20 +328,6 @@ const LaboratoryAgreementsView = () => {
         rowAgreementsSignature(selectedRows[0].laboratories)
     );
 
-  const rowsWithLab = useMemo(
-    () =>
-      rows.filter((r) =>
-        r.laboratories.some(
-          (lab) =>
-            lab.referenceLaboratory ||
-            lab.detectionAnalysis ||
-            lab.confirmationAnalysis
-        )
-      ).length,
-    [rows]
-  );
-  const rowsWithoutLab = rows.length - rowsWithLab;
-
   const isDetailModalOpen = useRef(false);
 
   const handleOpenModal = useCallback(() => {
@@ -410,10 +394,6 @@ const LaboratoryAgreementsView = () => {
     }
   });
 
-  if (!year) {
-    return null;
-  }
-
   return (
     <LaboratoryAgreementDetailProvider
       onOpen={() => {
@@ -457,157 +437,145 @@ const LaboratoryAgreementsView = () => {
         );
       }}
     >
-      <section id="top" className={clsx(cx('fr-container'), 'main-section')}>
-        <SectionHeader
-          title={
-            <div className="d-flex-align-center">
-              Agréments laboratoires{' '}
-              {availableYears.length <= 1 ? (
-                year
-              ) : (
-                <YearSelector
-                  year={Number(year)}
-                  years={availableYears}
-                  onChange={setYear}
-                />
-              )}
-            </div>
-          }
-          subtitle={
-            <div
-              className={clsx(
-                cx('fr-text--regular', 'fr-pt-1w'),
-                'd-flex-align-center'
-              )}
-            >
-              <span>
-                {pluralize(rows.length, { preserveCount: true })('ligne')}
-              </span>
-              <span
-                className={cx(
-                  'fr-icon-checkbox-circle-line',
-                  'fr-label--success',
-                  'fr-icon--sm',
-                  'fr-ml-2w'
-                )}
-                aria-hidden="true"
-              />
-              <span className={cx('fr-ml-2v')}>
-                {rowsWithLab} avec laboratoire
-              </span>
-              <span
-                className={cx(
-                  'fr-icon-time-line',
-                  'fr-label--error',
-                  'fr-icon--sm',
-                  'fr-ml-2w'
-                )}
-                aria-hidden="true"
-              />
-              <span className={cx('fr-ml-2v')}>
-                {rowsWithoutLab} sans laboratoire
-              </span>
-            </div>
-          }
+      <div
+        className={clsx(
+          cx('fr-text--lg', 'fr-text--regular', 'fr-hint-text', 'fr-mb-0'),
+          'laboratory-agreements-counts',
+          'd-flex-align-center'
+        )}
+      >
+        <span>{pluralize(rows.length, { preserveCount: true })('ligne')}</span>
+        <span
+          className={cx(
+            'fr-icon-checkbox-circle-line',
+            'fr-label--success',
+            'fr-icon--sm',
+            'fr-ml-2w'
+          )}
+          aria-hidden="true"
         />
-        <div className={clsx('white-container', cx('fr-p-4w'))}>
-          <div
-            className={clsx(
-              cx('fr-mb-3w'),
-              'd-flex-align-center',
-              'd-flex-justify-end',
-              'no-wrap'
-            )}
-          >
-            <ToggleSwitch
-              label="Lignes sans laboratoires"
-              checked={showWithoutLab}
-              onChange={setShowWithoutLab}
-              showCheckedHint={false}
-              disabled={rowsWithoutLab === 0}
-            />
-            <Button
-              iconId="fr-icon-file-download-line"
-              priority="secondary"
-              onClick={() =>
-                window.open(
-                  getLaboratoryAgreementsExportURL({
-                    year: Number(year),
-                    programmingSubPlanIds: subPlanFilter.length
-                      ? subPlanFilter
-                      : undefined,
-                    substanceKinds: substanceFilter.length
-                      ? substanceFilter
-                      : undefined,
-                    laboratoryIds: labFilter.length ? labFilter : undefined,
-                    matrixKinds: matrixCombinedFilter
-                      .filter((v) => v.startsWith('kind:'))
-                      .map((v) => v.slice(5) as MatrixKind).length
-                      ? matrixCombinedFilter
-                          .filter((v) => v.startsWith('kind:'))
-                          .map((v) => v.slice(5) as MatrixKind)
-                      : undefined,
-                    withoutLab: showWithoutLab || undefined
-                  })
-                )
-              }
-              className={cx('fr-ml-3w')}
-            >
-              Exporter
-            </Button>
-          </div>
-          <LaboratoryAgreementsTable
-            rows={deferredFilteredRows}
-            selectedStringRowKeys={selectedStringRowKeys}
-            allSelected={allSelected}
-            selectedRowsConsistent={selectedRowsConsistent}
-            checks={checks}
-            laboratories={laboratories}
-            allPrescriptions={allPrescriptions}
-            kindFilter={subPlanFilter}
-            kindOptions={subPlanOptions}
-            onKindFilterChange={setSubPlanFilter}
-            substanceFilter={substanceFilter}
-            substanceOptions={substanceOptions}
-            onSubstanceFilterChange={setSubstanceFilter}
-            matrixCombinedFilter={matrixCombinedFilter}
-            matrixCombinedOptions={matrixCombinedOptions}
-            onMatrixCombinedFilterChange={setMatrixCombinedFilter}
-            labFilter={labFilter}
-            labOptions={labOptions}
-            onLabFilterChange={setLabFilter}
-            labAgreementTypeFilter={labAgreementTypeFilter}
-            onLabAgreementTypeFilterChange={setLabAgreementTypeFilter}
-            onToggleRow={handleToggleRow}
-            onToggleAll={handleToggleAll}
-            onDeselect={handleDeselect}
-            onOpenModal={handleOpenModal}
-            onOpenModalForRow={handleOpenModalForRow}
-            onUpdateCheck={updateCheck}
+        <span className={cx('fr-ml-2v')}>{rowsWithLab} avec laboratoire</span>
+        <span
+          className={cx(
+            'fr-icon-time-line',
+            'fr-label--error',
+            'fr-icon--sm',
+            'fr-ml-2w'
+          )}
+          aria-hidden="true"
+        />
+        <span className={cx('fr-ml-2v')}>
+          {rowsWithoutLab} sans laboratoire
+        </span>
+      </div>
+      <div className={clsx('white-container', cx('fr-p-4w'))}>
+        <div
+          className={clsx(
+            cx('fr-mb-3w'),
+            'd-flex-align-center',
+            'd-flex-justify-end',
+            'no-wrap'
+          )}
+        >
+          <ToggleSwitch
+            label="Lignes sans laboratoires"
+            checked={showWithoutLab}
+            onChange={setShowWithoutLab}
+            showCheckedHint={false}
+            disabled={rowsWithoutLab === 0}
           />
-        </div>
-        <LaboratoryAgreementsModal
-          modal={agreementsModal}
-          laboratoryAgreementRowKeys={modalRowKeys}
-          agreements={modalAgreements}
-          laboratories={laboratories}
-          programmingSubPlan={modalProgrammingSubPlan}
-          onSave={async (laboratoryId, input) => {
-            await updateAgreements({ laboratoryId, ...input }).unwrap();
-          }}
-        />
-        <div className={cx('fr-mt-2w')}>
           <Button
-            iconId="fr-icon-arrow-up-fill"
-            priority="tertiary no outline"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            iconId="fr-icon-file-download-line"
+            priority="secondary"
+            onClick={() =>
+              window.open(
+                getLaboratoryAgreementsExportURL({
+                  year,
+                  programmingSubPlanIds: subPlanFilter.length
+                    ? subPlanFilter
+                    : undefined,
+                  substanceKinds: substanceFilter.length
+                    ? substanceFilter
+                    : undefined,
+                  laboratoryIds: labFilter.length ? labFilter : undefined,
+                  matrixKinds: matrixCombinedFilter
+                    .filter((v) => v.startsWith('kind:'))
+                    .map((v) => v.slice(5) as MatrixKind).length
+                    ? matrixCombinedFilter
+                        .filter((v) => v.startsWith('kind:'))
+                        .map((v) => v.slice(5) as MatrixKind)
+                    : undefined,
+                  withoutLab: showWithoutLab || undefined
+                })
+              )
+            }
+            className={cx('fr-ml-3w')}
           >
-            Haut de page
+            Exporter
           </Button>
         </div>
-      </section>
+        <LaboratoryAgreementsTable
+          rows={deferredFilteredRows}
+          selectedStringRowKeys={selectedStringRowKeys}
+          allSelected={allSelected}
+          selectedRowsConsistent={selectedRowsConsistent}
+          checks={checks}
+          laboratories={laboratories}
+          allPrescriptions={allPrescriptions}
+          kindFilter={subPlanFilter}
+          kindOptions={subPlanOptions}
+          onKindFilterChange={setSubPlanFilter}
+          substanceFilter={substanceFilter}
+          substanceOptions={substanceOptions}
+          onSubstanceFilterChange={setSubstanceFilter}
+          matrixCombinedFilter={matrixCombinedFilter}
+          matrixCombinedOptions={matrixCombinedOptions}
+          onMatrixCombinedFilterChange={setMatrixCombinedFilter}
+          labFilter={labFilter}
+          labOptions={labOptions}
+          onLabFilterChange={setLabFilter}
+          labAgreementTypeFilter={labAgreementTypeFilter}
+          onLabAgreementTypeFilterChange={setLabAgreementTypeFilter}
+          onToggleRow={handleToggleRow}
+          onToggleAll={handleToggleAll}
+          onDeselect={handleDeselect}
+          onOpenModal={handleOpenModal}
+          onOpenModalForRow={handleOpenModalForRow}
+          onUpdateCheck={updateCheck}
+        />
+      </div>
+      <LaboratoryAgreementsModal
+        modal={agreementsModal}
+        laboratoryAgreementRowKeys={modalRowKeys}
+        agreements={modalAgreements}
+        laboratories={laboratories}
+        programmingSubPlan={modalProgrammingSubPlan}
+        onSave={async (laboratoryId, input) => {
+          await updateAgreements({ laboratoryId, ...input }).unwrap();
+        }}
+      />
+      <div className={cx('fr-mt-2w')}>
+        <Button
+          iconId="fr-icon-arrow-up-fill"
+          priority="tertiary no outline"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
+          Haut de page
+        </Button>
+      </div>
     </LaboratoryAgreementDetailProvider>
   );
 };
 
-export default LaboratoryAgreementsView;
+export const LaboratoryAgreementsView = ({
+  ..._rest
+}: Record<never, never> = {}) => {
+  assert<Equals<keyof typeof _rest, never>>();
+
+  return (
+    <AppPageWithYearTitle
+      title="Agréments laboratoires"
+      render={(year) => <LaboratoryAgreements year={year} />}
+    />
+  );
+};

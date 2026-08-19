@@ -90,6 +90,11 @@ export const AuthenticatedAppRoutes = {
     ...AppRouteLinks.LaboratoryAgreementsRoute,
     label: 'Agréments laboratoires',
     key: 'laboratory_agreements_route'
+  },
+  ProgrammingPlanSettingsRoute: {
+    ...AppRouteLinks.ProgrammingPlanSettingsRoute,
+    label: 'Paramétrage des plans',
+    key: 'programming_plan_settings_route'
   }
 } as const satisfies Partial<Record<AppRouteKeys, AppRoute>>;
 

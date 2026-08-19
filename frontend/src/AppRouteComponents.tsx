@@ -5,11 +5,12 @@ import DashboardView from './views/DashboardView/DashboardView';
 import DocumentListView from './views/DocumentListView/DocumentListView';
 import DocumentView from './views/DocumentView/DocumentView';
 import HomeView from './views/HomeView/HomeView';
-import LaboratoryAgreementsView from './views/LaboratoryAgreementsView/LaboratoryAgreementsView';
+import { LaboratoryAgreementsView } from './views/LaboratoryAgreementsView/LaboratoryAgreementsView';
 import LaboratoryAnalyticalCompetencesView from './views/LaboratoryAnalyticalCompetencesView/LaboratoryAnalyticalCompetencesView';
 import { LoginCallbackView } from './views/LoginCallbackView/LoginCallbackView';
 import { LogoutCallbackView } from './views/LogoutCallbackView/LogoutCallbackView';
 import NotificationsView from './views/NotificationsView/NotificationsView';
+import { ProgrammingPlanSettingsView } from './views/ProgrammingPlanSettingsView/ProgrammingPlanSettingsView';
 import ProgrammingView from './views/ProgrammingView/ProgrammingView';
 import SampleListView from './views/SampleListView/SampleListView';
 import SampleView from './views/SampleView/SampleView';
@@ -33,5 +34,6 @@ export const AppRouteComponents = {
   AdminRoute: AdminView,
   UsersRoute: UserListView,
   LaboratoryAnalyticalCompetencesRoute: LaboratoryAnalyticalCompetencesView,
-  LaboratoryAgreementsRoute: LaboratoryAgreementsView
+  LaboratoryAgreementsRoute: LaboratoryAgreementsView,
+  ProgrammingPlanSettingsRoute: ProgrammingPlanSettingsView
 } as const satisfies Record<AppRouteKeys, () => ReactElement | null>;

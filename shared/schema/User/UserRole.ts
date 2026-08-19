@@ -174,7 +174,9 @@ const userRolePermissions = {
     'manageMascarade',
     'manageNotices',
     'manageSpecificDataFields',
-    'manageLaboratoryConfig'
+    'manageLaboratoryConfig',
+    // FIXME à ajouter pour les AdmnistratorBGIR et NationalCoordinator
+    'manageProgrammingPlanSettings'
   ],
   AdministratorBGIR: AdministratorPermissionsList,
   LaboratoryUser: ['readDocuments', 'readProgrammingPlanValidated'],
