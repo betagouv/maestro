@@ -8,6 +8,8 @@ import { AppPageWithYearTitle } from 'src/components/_app/AppPage/AppPageWithYea
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
 
+import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
+import { ProgrammingPlanSettingsBadge } from '../ProgrammingPlanSettingsBadge/ProgrammingPlanSettingsBadge';
 import { ProgrammingPlanSettingsCard } from '../ProgrammingPlanSettingsCard/ProgrammingPlanSettingsCard';
 
 type Props = Record<never, never>;
@@ -49,7 +51,21 @@ export const ProgrammingPlanDomainView = ({ ..._rest }: Props = {}) => {
                   to: AppRouteLinks.ProgrammingPlanSettingsRoute.link({ year })
                 }}
               />
-              <h4 className={clsx(cx('fr-m-0'))}>{domain?.label}</h4>
+              <h4 className={clsx(cx('fr-m-0', 'fr-mr-2w'))}>
+                {domain?.label} ({domainPlans.length})
+              </h4>
+              <ProgrammingPlanSettingsBadge programmingPlans={domainPlans} />
+              <ProgrammingPlanSettingsActions className={cx('fr-ml-auto')} />
+              <Button
+                priority="tertiary"
+                iconId="fr-icon-file-add-line"
+                className={cx('fr-ml-1w')}
+                onClick={() => ({
+                  //FIXME DOMAIN implémenter l'action
+                })}
+              >
+                Ajouter un plan
+              </Button>
             </div>
             <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
               {domainPlans.map((plan) => (

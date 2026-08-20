@@ -8,6 +8,9 @@ import { AppPageWithYearTitle } from 'src/components/_app/AppPage/AppPageWithYea
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
 
+import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
+import { ProgrammingPlanSettingsBadge } from '../ProgrammingPlanSettingsBadge/ProgrammingPlanSettingsBadge';
+
 type Props = Record<never, never>;
 
 export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
@@ -49,7 +52,13 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                 )
               }}
             />
-            <h4 className={clsx(cx('fr-m-0'))}>{programmingPlan?.title}</h4>
+            <h4 className={clsx(cx('fr-m-0', 'fr-mr-2w'))}>
+              {programmingPlan?.title}
+            </h4>
+            <ProgrammingPlanSettingsBadge
+              programmingPlans={programmingPlan ? [programmingPlan] : []}
+            />
+            <ProgrammingPlanSettingsActions className={cx('fr-ml-auto')} />
           </div>
         </div>
       )}
