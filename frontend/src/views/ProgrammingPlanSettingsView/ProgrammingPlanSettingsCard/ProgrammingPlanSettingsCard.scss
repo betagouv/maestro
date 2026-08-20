@@ -1,0 +1,14 @@
+.programming-plan-settings-card {
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    // FIXME DOMAIN Garde les actions au dessus, le top serait d'enlever ces boutons
+    position: relative;
+    z-index: 2;
+    // Surcharge le hover pour ne pas avoir le même hover aue la card
+    --hover: var(--background-contrast-grey-hover);
+    --active: var(--background-contrast-grey-active);
+  }
+}

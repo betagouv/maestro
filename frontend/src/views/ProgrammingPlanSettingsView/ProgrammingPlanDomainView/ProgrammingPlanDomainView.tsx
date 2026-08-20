@@ -1,39 +1,35 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
-import { groupBy } from 'lodash-es';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { useContext } from 'react';
+import { useParams } from 'react-router';
 import { AppPageWithYearTitle } from 'src/components/_app/AppPage/AppPageWithYearTitle';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
 
-import { ProgrammingPlanDomainCreateModal } from './ProgrammingPlanDomainCreateModal';
-import { ProgrammingPlanSettingsCard } from './ProgrammingPlanSettingsCard/ProgrammingPlanSettingsCard';
-
-const domainCreateModal = createModal({
-  id: 'programming-plan-domain-create-modal',
-  isOpenedByDefault: false
-});
+import { ProgrammingPlanSettingsCard } from '../ProgrammingPlanSettingsCard/ProgrammingPlanSettingsCard';
 
 type Props = Record<never, never>;
 
-export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
+export const ProgrammingPlanDomainView = ({ ..._rest }: Props = {}) => {
   assert<Equals<keyof typeof _rest, never>>();
+
+  const { domainId = '' } = useParams<{ domainId: string }>();
 
   const apiClient = useContext(ApiClientContext);
   const { data: domains = [] } = apiClient.useFindProgrammingPlanDomainsQuery();
   const { data: programmingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery({});
 
+  const domain = domains.find((_) => _.id === domainId);
+
   return (
     <AppPageWithYearTitle
       title="Paramétrage des plans"
       render={(year) => {
-        const plansByDomainId = groupBy(
-          programmingPlans.filter((plan) => plan.year === year),
-          'domainId'
+        const domainPlans = programmingPlans.filter(
+          (plan) => plan.domainId === domainId && plan.year === year
         );
 
         return (
@@ -42,42 +38,39 @@ export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
               className={clsx(
                 'd-flex-row',
                 'd-flex-align-center',
-                'd-flex-justify-between',
                 cx('fr-pb-5w')
               )}
             >
-              <h4 className={clsx(cx('fr-m-0'))}>
-                Tous les domaines ({domains.length})
-              </h4>
               <Button
-                priority="tertiary"
-                iconId="fr-icon-file-add-line"
-                onClick={domainCreateModal.open}
-              >
-                Ajouter un domaine
-              </Button>
+                priority="tertiary no outline"
+                iconId="fr-icon-arrow-left-line"
+                title="Revenir à tous les domaines"
+                linkProps={{
+                  to: AppRouteLinks.ProgrammingPlanSettingsRoute.link({ year })
+                }}
+              />
+              <h4 className={clsx(cx('fr-m-0'))}>{domain?.label}</h4>
             </div>
             <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-              {domains.map((domain) => (
+              {domainPlans.map((plan) => (
                 <div
                   className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}
-                  key={domain.id}
+                  key={plan.id}
                 >
                   <ProgrammingPlanSettingsCard
-                    title={domain.label}
-                    programmingPlans={plansByDomainId[domain.id] ?? []}
+                    title={plan.title}
+                    programmingPlans={[plan]}
                     linkProps={{
-                      to: AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(
-                        domain.id,
+                      to: AppRouteLinks.ProgrammingPlanSettingsPlanRoute.link(
+                        domainId,
+                        plan.id,
                         { year }
                       )
                     }}
-                    withPlanCount
                   />
                 </div>
               ))}
             </div>
-            <ProgrammingPlanDomainCreateModal modal={domainCreateModal} />
           </div>
         );
       }}

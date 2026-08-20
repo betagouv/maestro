@@ -4,7 +4,7 @@ import { startReactDsfr } from '@codegouvfr/react-dsfr/spa';
 import { configureStore } from '@reduxjs/toolkit';
 import type { Preview } from '@storybook/react-vite';
 import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router';
+import { Link, MemoryRouter } from 'react-router';
 import '../src/App.scss';
 import '../src/i18n';
 import { ApiClientContext } from '../src/services/apiClient';
@@ -17,9 +17,15 @@ const createStore = (preloadedState = {}) =>
     preloadedState
   });
 
+declare module '@codegouvfr/react-dsfr/spa' {
+  interface RegisterLink {
+    Link: typeof Link;
+  }
+}
 startReactDsfr({
   defaultColorScheme: 'system',
-  useLang: () => 'fr'
+  useLang: () => 'fr',
+  Link
 });
 const preview: Preview = {
   parameters: {
