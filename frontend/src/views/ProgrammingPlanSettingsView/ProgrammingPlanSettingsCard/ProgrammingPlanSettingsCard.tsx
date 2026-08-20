@@ -1,6 +1,4 @@
 import type { FrIconClassName } from '@codegouvfr/react-dsfr';
-import Badge from '@codegouvfr/react-dsfr/Badge';
-import Button from '@codegouvfr/react-dsfr/Button';
 import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import type { RegisteredLinkProps } from '@codegouvfr/react-dsfr/link';
@@ -11,7 +9,9 @@ import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPl
 import type { CSSProperties } from 'react';
 import { pluralize } from 'src/utils/stringUtils';
 import { assert, type Equals } from 'tsafe';
-import './ProgrammingPlanSettingsCard.scss';
+
+import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
+import { ProgrammingPlanSettingsBadge } from '../ProgrammingPlanSettingsBadge/ProgrammingPlanSettingsBadge';
 
 type Props = {
   title: string;
@@ -19,12 +19,6 @@ type Props = {
   linkProps: RegisteredLinkProps;
   withPlanCount?: boolean;
 };
-
-//FIXME temporaire, à terme on souhaite savoir si le PARAMÉTRAGE de tous les plans/sous-plans est terminé ou non
-const hasSettingsInProgress = (plan: ProgrammingPlanChecked): boolean =>
-  [...plan.regionalStatus, ...plan.departmentalStatus].some(
-    ({ status }) => status === 'InProgress'
-  );
 
 const isCampaignLaunched = (plan: ProgrammingPlanChecked): boolean =>
   [...plan.regionalStatus, ...plan.departmentalStatus].some(({ status }) =>
@@ -43,10 +37,6 @@ export const ProgrammingPlanSettingsCard = ({
   const subPlanCount = sumBy(programmingPlans, (plan) => plan.subPlans.length);
 
   const launchedPlanCount = programmingPlans.filter(isCampaignLaunched).length;
-
-  const areSettingsCompleted =
-    programmingPlans.length > 0 &&
-    !programmingPlans.some(hasSettingsInProgress);
 
   const campaign: {
     label: string;
@@ -75,25 +65,11 @@ export const ProgrammingPlanSettingsCard = ({
       linkProps={linkProps}
       start={
         <span className={clsx('d-flex-align-center', 'd-flex-justify-between')}>
-          <Badge small severity={areSettingsCompleted ? 'success' : 'warning'}>
-            {areSettingsCompleted ? 'Terminé' : 'En cours'}
-          </Badge>
-          <span className="programming-plan-settings-card__actions">
-            <Button
-              size="small"
-              title="Dupliquer"
-              iconId="ri-file-copy-line"
-              priority="tertiary"
-              onClick={() => ({})}
-            />
-            <Button
-              size="small"
-              title="Supprimer"
-              iconId="fr-icon-delete-bin-line"
-              priority="tertiary"
-              onClick={() => ({})}
-            />
-          </span>
+          <ProgrammingPlanSettingsBadge
+            small
+            programmingPlans={programmingPlans}
+          />
+          <ProgrammingPlanSettingsActions size="small" />
         </span>
       }
       desc={

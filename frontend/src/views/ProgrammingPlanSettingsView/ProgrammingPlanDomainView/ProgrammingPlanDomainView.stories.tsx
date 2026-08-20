@@ -86,7 +86,9 @@ export const Default: Story = {
     const planCard = (title: string) =>
       within(canvas.getByText(title).closest('.fr-card') as HTMLElement);
 
-    await expect(canvas.getByText('Résidus de pesticides')).toBeInTheDocument();
+    await expect(
+      canvas.getByRole('heading', { name: 'Résidus de pesticides (2)' })
+    ).toBeInTheDocument();
     await expect(
       canvas.getByTitle('Revenir à tous les domaines')
     ).toBeInTheDocument();

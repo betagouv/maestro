@@ -1,3 +1,4 @@
+import Breadcrumb from '@codegouvfr/react-dsfr/Breadcrumb';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
@@ -7,6 +8,9 @@ import { useParams } from 'react-router';
 import { AppPageWithYearTitle } from 'src/components/_app/AppPage/AppPageWithYearTitle';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
+
+import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
+import { ProgrammingPlanSettingsBadge } from '../ProgrammingPlanSettingsBadge/ProgrammingPlanSettingsBadge';
 
 type Props = Record<never, never>;
 
@@ -19,9 +23,11 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
   }>();
 
   const apiClient = useContext(ApiClientContext);
+  const { data: domains = [] } = apiClient.useFindProgrammingPlanDomainsQuery();
   const { data: programmingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery({});
 
+  const domain = domains.find((_) => _.id === domainId);
   const programmingPlan = programmingPlans.find(
     (_) => _.id === programmingPlanId
   );
@@ -31,6 +37,27 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
       title="Paramétrage des plans"
       render={(year) => (
         <div className={clsx('white-container', cx('fr-px-8w', 'fr-py-5w'))}>
+          <Breadcrumb
+            className={cx('fr-mt-0', 'fr-mb-2w')}
+            segments={[
+              {
+                label: 'Tous les domaines',
+                linkProps: {
+                  to: AppRouteLinks.ProgrammingPlanSettingsRoute.link({ year })
+                }
+              },
+              {
+                label: domain?.label,
+                linkProps: {
+                  to: AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(
+                    domainId,
+                    { year }
+                  )
+                }
+              }
+            ]}
+            currentPageLabel={programmingPlan?.title}
+          />
           <div
             className={clsx(
               'd-flex-row',
@@ -49,7 +76,13 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                 )
               }}
             />
-            <h4 className={clsx(cx('fr-m-0'))}>{programmingPlan?.title}</h4>
+            <h4 className={clsx(cx('fr-m-0', 'fr-mr-2w'))}>
+              {programmingPlan?.title}
+            </h4>
+            <ProgrammingPlanSettingsBadge
+              programmingPlans={programmingPlan ? [programmingPlan] : []}
+            />
+            <ProgrammingPlanSettingsActions className={cx('fr-ml-auto')} />
           </div>
         </div>
       )}
