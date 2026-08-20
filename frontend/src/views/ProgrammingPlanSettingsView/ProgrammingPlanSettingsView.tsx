@@ -1,15 +1,16 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { groupBy } from 'lodash-es';
 import { useContext } from 'react';
 import { AppPageWithYearTitle } from 'src/components/_app/AppPage/AppPageWithYearTitle';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
-import { ProgrammingPlanDomainCreateModal } from './ProgrammingPlanDomainCreateModal';
 
 import { DomainCard } from './DomainCard/DomainCard';
-import { createModal } from '@codegouvfr/react-dsfr/Modal';
+import { ProgrammingPlanDomainCreateModal } from './ProgrammingPlanDomainCreateModal';
+
 const domainCreateModal = createModal({
   id: 'programming-plan-domain-create-modal',
   isOpenedByDefault: false
@@ -47,9 +48,12 @@ export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
               <h4 className={clsx(cx('fr-m-0'))}>
                 Tous les domaines ({domains.length})
               </h4>
-              <Button priority="tertiary" iconId="fr-icon-file-add-line"
+              <Button
+                priority="tertiary"
+                iconId="fr-icon-file-add-line"
                 onClick={domainCreateModal.open}
-            >Ajouter un domaine
+              >
+                Ajouter un domaine
               </Button>
             </div>
             <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
@@ -64,7 +68,8 @@ export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
                   />
                 </div>
               ))}
-            </div><ProgrammingPlanDomainCreateModal modal={domainCreateModal} />
+            </div>
+            <ProgrammingPlanDomainCreateModal modal={domainCreateModal} />
           </div>
         );
       }}
