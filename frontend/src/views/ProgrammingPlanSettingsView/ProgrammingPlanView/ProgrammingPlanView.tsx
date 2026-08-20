@@ -1,3 +1,4 @@
+import Breadcrumb from '@codegouvfr/react-dsfr/Breadcrumb';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
@@ -22,9 +23,11 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
   }>();
 
   const apiClient = useContext(ApiClientContext);
+  const { data: domains = [] } = apiClient.useFindProgrammingPlanDomainsQuery();
   const { data: programmingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery({});
 
+  const domain = domains.find((_) => _.id === domainId);
   const programmingPlan = programmingPlans.find(
     (_) => _.id === programmingPlanId
   );
@@ -34,6 +37,27 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
       title="Paramétrage des plans"
       render={(year) => (
         <div className={clsx('white-container', cx('fr-px-8w', 'fr-py-5w'))}>
+          <Breadcrumb
+            className={cx('fr-mt-0', 'fr-mb-2w')}
+            segments={[
+              {
+                label: 'Tous les domaines',
+                linkProps: {
+                  to: AppRouteLinks.ProgrammingPlanSettingsRoute.link({ year })
+                }
+              },
+              {
+                label: domain?.label,
+                linkProps: {
+                  to: AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(
+                    domainId,
+                    { year }
+                  )
+                }
+              }
+            ]}
+            currentPageLabel={programmingPlan?.title}
+          />
           <div
             className={clsx(
               'd-flex-row',

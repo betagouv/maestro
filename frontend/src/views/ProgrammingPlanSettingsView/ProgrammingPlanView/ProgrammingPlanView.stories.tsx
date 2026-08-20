@@ -63,8 +63,17 @@ export const Default: Story = {
     const canvas = within(canvasElement);
 
     await expect(
-      canvas.getByText('Production primaire végétale')
+      canvas.getByRole('heading', { name: 'Production primaire végétale' })
     ).toBeInTheDocument();
+
+    await expect(canvas.getByText('Tous les domaines')).toHaveAttribute(
+      'href',
+      '/parametrage-des-plans?year=2026'
+    );
+    await expect(canvas.getByText('Résidus de pesticides')).toHaveAttribute(
+      'href',
+      `/parametrage-des-plans/${PesticideResidueDomainId}?year=2026`
+    );
     await expect(
       canvas.queryByText('Transformation végétale')
     ).not.toBeInTheDocument();
