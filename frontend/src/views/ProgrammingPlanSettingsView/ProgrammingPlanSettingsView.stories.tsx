@@ -1,11 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import { RegionList } from 'maestro-shared/referential/Region';
+import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
+import {
+  ChemicalContaminantDomainId,
+  genProgrammingPlan,
+  genProgrammingSubPlan,
+  PesticideResidueDomainId
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { genAuthUser } from 'maestro-shared/test/userFixtures';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { getMockApi } from '../../services/mockApiClient';
 import { ProgrammingPlanSettingsView } from './ProgrammingPlanSettingsView';
 
-const years = [2024, 2025, 2026];
+const regionalStatus = (status: ProgrammingPlanStatus) =>
+  RegionList.map((region) => ({ region, status }));
 
 const createProgrammingPlanDomain = fn();
 
@@ -18,7 +26,39 @@ const meta = {
     },
     apiClient: getMockApi({
       useFindProgrammingPlansQuery: {
-        data: years.map((year) => genProgrammingPlan({ year }))
+        data: [
+          genProgrammingPlan({
+            year: 2024,
+            domainId: PesticideResidueDomainId,
+            regionalStatus: regionalStatus('InProgress')
+          }),
+          genProgrammingPlan({
+            year: 2025,
+            domainId: PesticideResidueDomainId,
+            regionalStatus: regionalStatus('Validated')
+          }),
+          genProgrammingPlan({
+            year: 2026,
+            domainId: PesticideResidueDomainId,
+            subPlans: [genProgrammingSubPlan(), genProgrammingSubPlan()],
+            regionalStatus: regionalStatus('Validated')
+          }),
+          genProgrammingPlan({
+            year: 2026,
+            domainId: PesticideResidueDomainId,
+            regionalStatus: regionalStatus('SubmittedToRegion')
+          }),
+          genProgrammingPlan({
+            year: 2026,
+            domainId: ChemicalContaminantDomainId,
+            subPlans: [
+              genProgrammingSubPlan(),
+              genProgrammingSubPlan(),
+              genProgrammingSubPlan()
+            ],
+            regionalStatus: regionalStatus('Validated')
+          })
+        ]
       },
       useCreateProgrammingPlanDomainMutation: [createProgrammingPlanDomain, {}]
     })
@@ -32,6 +72,9 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
+    const domainCard = (label: string) =>
+      within(canvas.getByText(label).closest('.fr-card') as HTMLElement);
+
     await expect(canvas.getByText('2026')).toBeInTheDocument();
 
     await expect(canvas.getByText('Résidus de pesticides')).toBeInTheDocument();
@@ -40,10 +83,37 @@ export const Default: Story = {
     ).toBeInTheDocument();
     await expect(canvas.getByText('Tous les domaines (2)')).toBeInTheDocument();
 
+    await expect(
+      domainCard('Résidus de pesticides').getByText('2 plans / 3 sous-plans')
+    ).toBeInTheDocument();
+    await expect(
+      domainCard('Contaminants chimiques').getByText('1 plan / 3 sous-plans')
+    ).toBeInTheDocument();
+
+    await expect(
+      domainCard('Résidus de pesticides').getByText('Campagne en partie lancée')
+    ).toBeInTheDocument();
+    await expect(
+      domainCard('Contaminants chimiques').getByText('Campagne lancée')
+    ).toBeInTheDocument();
+
     await userEvent.click(canvas.getByText('2026'));
     await userEvent.click(await canvas.findByText('2024'));
 
     await expect(canvas.getByText('2024')).toBeInTheDocument();
+    await expect(
+      domainCard('Résidus de pesticides').getByText('1 plan / 1 sous-plan')
+    ).toBeInTheDocument();
+    await expect(
+      domainCard('Contaminants chimiques').getByText('0 plan / 0 sous-plan')
+    ).toBeInTheDocument();
+
+    await expect(
+      domainCard('Résidus de pesticides').getByText('Campagne non lancée')
+    ).toBeInTheDocument();
+    await expect(
+      domainCard('Contaminants chimiques').getByText('Campagne non lancée')
+    ).toBeInTheDocument();
   }
 };
 
