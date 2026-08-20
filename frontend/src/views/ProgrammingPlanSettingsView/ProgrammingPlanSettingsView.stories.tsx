@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { RegionList } from 'maestro-shared/referential/Region';
+import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   ChemicalContaminantDomainId,
   genProgrammingPlan,
@@ -9,6 +11,9 @@ import { genAuthUser } from 'maestro-shared/test/userFixtures';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { getMockApi } from '../../services/mockApiClient';
 import { ProgrammingPlanSettingsView } from './ProgrammingPlanSettingsView';
+
+const regionalStatus = (status: ProgrammingPlanStatus) =>
+  RegionList.map((region) => ({ region, status }));
 
 const createProgrammingPlanDomain = fn();
 
@@ -24,20 +29,24 @@ const meta = {
         data: [
           genProgrammingPlan({
             year: 2024,
-            domainId: PesticideResidueDomainId
+            domainId: PesticideResidueDomainId,
+            regionalStatus: regionalStatus('InProgress')
           }),
           genProgrammingPlan({
             year: 2025,
-            domainId: PesticideResidueDomainId
+            domainId: PesticideResidueDomainId,
+            regionalStatus: regionalStatus('Validated')
           }),
           genProgrammingPlan({
             year: 2026,
             domainId: PesticideResidueDomainId,
-            subPlans: [genProgrammingSubPlan(), genProgrammingSubPlan()]
+            subPlans: [genProgrammingSubPlan(), genProgrammingSubPlan()],
+            regionalStatus: regionalStatus('Validated')
           }),
           genProgrammingPlan({
             year: 2026,
-            domainId: PesticideResidueDomainId
+            domainId: PesticideResidueDomainId,
+            regionalStatus: regionalStatus('SubmittedToRegion')
           }),
           genProgrammingPlan({
             year: 2026,
@@ -46,7 +55,8 @@ const meta = {
               genProgrammingSubPlan(),
               genProgrammingSubPlan(),
               genProgrammingSubPlan()
-            ]
+            ],
+            regionalStatus: regionalStatus('Validated')
           })
         ]
       },
@@ -74,16 +84,17 @@ export const Default: Story = {
     await expect(canvas.getByText('Tous les domaines (2)')).toBeInTheDocument();
 
     await expect(
-      domainCard('Résidus de pesticides').getByText('2 plans')
+      domainCard('Résidus de pesticides').getByText('2 plans / 3 sous-plans')
     ).toBeInTheDocument();
     await expect(
-      domainCard('Résidus de pesticides').getByText('3 sous-plans')
+      domainCard('Contaminants chimiques').getByText('1 plan / 3 sous-plans')
+    ).toBeInTheDocument();
+
+    await expect(
+      domainCard('Résidus de pesticides').getByText('Campagne en partie lancée')
     ).toBeInTheDocument();
     await expect(
-      domainCard('Contaminants chimiques').getByText('1 plan')
-    ).toBeInTheDocument();
-    await expect(
-      domainCard('Contaminants chimiques').getByText('3 sous-plans')
+      domainCard('Contaminants chimiques').getByText('Campagne lancée')
     ).toBeInTheDocument();
 
     await userEvent.click(canvas.getByText('2026'));
@@ -91,16 +102,17 @@ export const Default: Story = {
 
     await expect(canvas.getByText('2024')).toBeInTheDocument();
     await expect(
-      domainCard('Résidus de pesticides').getByText('1 plan')
+      domainCard('Résidus de pesticides').getByText('1 plan / 1 sous-plan')
     ).toBeInTheDocument();
     await expect(
-      domainCard('Résidus de pesticides').getByText('1 sous-plan')
+      domainCard('Contaminants chimiques').getByText('0 plan / 0 sous-plan')
+    ).toBeInTheDocument();
+
+    await expect(
+      domainCard('Résidus de pesticides').getByText('Campagne non lancée')
     ).toBeInTheDocument();
     await expect(
-      domainCard('Contaminants chimiques').getByText('0 plan')
-    ).toBeInTheDocument();
-    await expect(
-      domainCard('Contaminants chimiques').getByText('0 sous-plan')
+      domainCard('Contaminants chimiques').getByText('Campagne non lancée')
     ).toBeInTheDocument();
   }
 };
