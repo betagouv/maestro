@@ -145,7 +145,7 @@ const Filters: FunctionComponent<
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const { account } = useAuthentication();
+  const { account, hasRole } = useAuthentication();
   const { scope, manageableRoles } = useUserManagement();
   const canFilterByRegion = scope === 'national';
   const canFilterByDepartment = scope === 'national' || scope === 'regional';
@@ -295,15 +295,19 @@ const Filters: FunctionComponent<
         />
       </div>
 
-      <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
-        <ToggleSwitch
-          label="Seulement les non formés"
-          labelPosition="left"
-          inputTitle="affiche seulement les utilisateurs non formés"
-          checked={onlyUncertified ?? false}
-          onChange={(checked) => onChange({ onlyUncertified: checked || null })}
-        />
-      </div>
+      {hasRole('AdministratorMaestro') && (
+        <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
+          <ToggleSwitch
+            label="Seulement les non formés"
+            labelPosition="left"
+            inputTitle="affiche seulement les utilisateurs non formés"
+            checked={onlyUncertified ?? false}
+            onChange={(checked) =>
+              onChange({ onlyUncertified: checked || null })
+            }
+          />
+        </div>
+      )}
     </div>
   );
 };
