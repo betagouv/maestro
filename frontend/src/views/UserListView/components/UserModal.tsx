@@ -123,6 +123,11 @@ export const UserModal = ({
     [allSubPlans, user.stages]
   );
 
+  const showStages = useMemo(
+    () => stagesIsRequired(user) && selectableStages.length > 1,
+    [user.roles, selectableStages]
+  );
+
   const forcedRegion = scope === 'national' ? null : (account?.region ?? null);
   const forcedDepartment =
     scope === 'departmental' ? (account?.department ?? null) : null;
@@ -155,6 +160,15 @@ export const UserModal = ({
       setUser(rest);
     }
   }, [userToUpdate]);
+
+  useEffect(() => {
+    if (stagesIsRequired(user) && selectableStages.length === 1) {
+      setUser((u) => ({
+        ...u,
+        stages: [...lockedStages, ...selectableStages]
+      }));
+    }
+  }, [user.roles, selectableStages, lockedStages]);
 
   useEffect(() => {
     if (
@@ -315,61 +329,63 @@ export const UserModal = ({
               })}
             />
           )}
-        <AppMultiSelect
-          inputForm={form}
-          inputKey={'stages'}
-          items={selectableStages}
-          onChange={(v) =>
-            setUser((u) => ({
-              ...u,
-              stages: [
-                ...lockedStages,
-                ...v.filter((stage) => selectableStages.includes(stage))
-              ]
-            }))
-          }
-          values={user.stages ?? []}
-          keysWithLabels={StageLabels}
-          defaultLabel={'stade sélectionné'}
-          label={
-            <>
-              Stades de prélèvement
-              {selectableStages.some(
-                (stage) => !user.stages?.includes(stage)
-              ) && (
-                <Button
-                  priority="tertiary no outline"
-                  size="small"
-                  onClick={() =>
-                    setUser((u) => ({
-                      ...u,
-                      stages: [...lockedStages, ...selectableStages]
-                    }))
-                  }
-                >
-                  Tout sélectionner
-                </Button>
-              )}
-              {selectableStages.some((stage) =>
-                user.stages?.includes(stage)
-              ) && (
-                <Button
-                  priority="tertiary no outline"
-                  size="small"
-                  onClick={() =>
-                    setUser((u) => ({
-                      ...u,
-                      stages: lockedStages
-                    }))
-                  }
-                >
-                  Tout désélectionner
-                </Button>
-              )}
-            </>
-          }
-          required={stagesIsRequired(user)}
-        />
+        {showStages && (
+          <AppMultiSelect
+            inputForm={form}
+            inputKey={'stages'}
+            items={selectableStages}
+            onChange={(v) =>
+              setUser((u) => ({
+                ...u,
+                stages: [
+                  ...lockedStages,
+                  ...v.filter((stage) => selectableStages.includes(stage))
+                ]
+              }))
+            }
+            values={user.stages ?? []}
+            keysWithLabels={StageLabels}
+            defaultLabel={'stade sélectionné'}
+            label={
+              <>
+                Stades de prélèvement
+                {selectableStages.some(
+                  (stage) => !user.stages?.includes(stage)
+                ) && (
+                  <Button
+                    priority="tertiary no outline"
+                    size="small"
+                    onClick={() =>
+                      setUser((u) => ({
+                        ...u,
+                        stages: [...lockedStages, ...selectableStages]
+                      }))
+                    }
+                  >
+                    Tout sélectionner
+                  </Button>
+                )}
+                {selectableStages.some((stage) =>
+                  user.stages?.includes(stage)
+                ) && (
+                  <Button
+                    priority="tertiary no outline"
+                    size="small"
+                    onClick={() =>
+                      setUser((u) => ({
+                        ...u,
+                        stages: lockedStages
+                      }))
+                    }
+                  >
+                    Tout désélectionner
+                  </Button>
+                )}
+              </>
+            }
+            required={stagesIsRequired(user)}
+          />
+        )}
 
         {companiesIsRequired({ stages: user.stages, roles: user.roles }) && (
           <CompanySearch
