@@ -22,7 +22,10 @@ const appRoutePaths = {
   UsersRoute: '/utilisateurs',
   LaboratoryAnalyticalCompetencesRoute: '/competences-analytiques',
   LaboratoryAgreementsRoute: '/laboratoires/agrements',
-  ProgrammingPlanSettingsRoute: '/parametrage-des-plans'
+  ProgrammingPlanSettingsRoute: '/parametrage-des-plans',
+  ProgrammingPlanSettingsDomainRoute: '/parametrage-des-plans/:domainId',
+  ProgrammingPlanSettingsPlanRoute:
+    '/parametrage-des-plans/:domainId/:programmingPlanId'
 } as const;
 
 export type AppRouteKeys = keyof typeof appRoutePaths;
@@ -48,6 +51,15 @@ type AppRouteSearchParams = {
   };
   DocumentsRoute: {
     documentId?: string;
+  };
+  ProgrammingPlanSettingsRoute: {
+    year?: number;
+  };
+  ProgrammingPlanSettingsDomainRoute: {
+    year?: number;
+  };
+  ProgrammingPlanSettingsPlanRoute: {
+    year?: number;
   };
 };
 

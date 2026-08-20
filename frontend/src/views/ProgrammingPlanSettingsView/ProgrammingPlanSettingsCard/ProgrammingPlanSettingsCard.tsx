@@ -3,18 +3,21 @@ import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import type { RegisteredLinkProps } from '@codegouvfr/react-dsfr/link';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
 import { sumBy } from 'lodash-es';
-import type { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { CSSProperties } from 'react';
 import { pluralize } from 'src/utils/stringUtils';
 import { assert, type Equals } from 'tsafe';
+import './ProgrammingPlanSettingsCard.scss';
 
 type Props = {
-  domain: ProgrammingPlanDomain;
+  title: string;
   programmingPlans: ProgrammingPlanChecked[];
+  linkProps: RegisteredLinkProps;
+  withPlanCount?: boolean;
 };
 
 //FIXME temporaire, à terme on souhaite savoir si le PARAMÉTRAGE de tous les plans/sous-plans est terminé ou non
@@ -28,7 +31,13 @@ const isCampaignLaunched = (plan: ProgrammingPlanChecked): boolean =>
     ['Validated', 'Closed'].includes(status)
   );
 
-export const DomainCard = ({ domain, programmingPlans, ..._rest }: Props) => {
+export const ProgrammingPlanSettingsCard = ({
+  title,
+  programmingPlans,
+  linkProps,
+  withPlanCount,
+  ..._rest
+}: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   const subPlanCount = sumBy(programmingPlans, (plan) => plan.subPlans.length);
@@ -59,14 +68,17 @@ export const DomainCard = ({ domain, programmingPlans, ..._rest }: Props) => {
 
   return (
     <Card
-      title={domain.label}
+      className="programming-plan-settings-card"
+      title={title}
       titleAs="h6"
+      enlargeLink={true}
+      linkProps={linkProps}
       start={
         <span className={clsx('d-flex-align-center', 'd-flex-justify-between')}>
           <Badge small severity={areSettingsCompleted ? 'success' : 'warning'}>
             {areSettingsCompleted ? 'Terminé' : 'En cours'}
           </Badge>
-          <span className="d-flex-align-center" style={{ gap: '0.25rem' }}>
+          <span className="programming-plan-settings-card__actions">
             <Button
               size="small"
               title="Dupliquer"
@@ -100,10 +112,14 @@ export const DomainCard = ({ domain, programmingPlans, ..._rest }: Props) => {
               <span
                 className={cx('fr-icon-folder-2-line', 'fr-icon--sm')}
               ></span>
-              {pluralize(programmingPlans.length, { preserveCount: true })(
-                'plan'
+              {withPlanCount && (
+                <>
+                  {pluralize(programmingPlans.length, { preserveCount: true })(
+                    'plan'
+                  )}
+                  {' / '}
+                </>
               )}
-              {' / '}
               {pluralize(subPlanCount, { preserveCount: true })('sous-plan')}
             </span>
           </span>

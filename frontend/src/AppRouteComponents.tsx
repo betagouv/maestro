@@ -10,7 +10,9 @@ import LaboratoryAnalyticalCompetencesView from './views/LaboratoryAnalyticalCom
 import { LoginCallbackView } from './views/LoginCallbackView/LoginCallbackView';
 import { LogoutCallbackView } from './views/LogoutCallbackView/LogoutCallbackView';
 import NotificationsView from './views/NotificationsView/NotificationsView';
+import { ProgrammingPlanDomainView } from './views/ProgrammingPlanSettingsView/ProgrammingPlanDomainView/ProgrammingPlanDomainView';
 import { ProgrammingPlanSettingsView } from './views/ProgrammingPlanSettingsView/ProgrammingPlanSettingsView';
+import { ProgrammingPlanView } from './views/ProgrammingPlanSettingsView/ProgrammingPlanView/ProgrammingPlanView';
 import ProgrammingView from './views/ProgrammingView/ProgrammingView';
 import SampleListView from './views/SampleListView/SampleListView';
 import SampleView from './views/SampleView/SampleView';
@@ -35,5 +37,7 @@ export const AppRouteComponents = {
   UsersRoute: UserListView,
   LaboratoryAnalyticalCompetencesRoute: LaboratoryAnalyticalCompetencesView,
   LaboratoryAgreementsRoute: LaboratoryAgreementsView,
-  ProgrammingPlanSettingsRoute: ProgrammingPlanSettingsView
+  ProgrammingPlanSettingsRoute: ProgrammingPlanSettingsView,
+  ProgrammingPlanSettingsDomainRoute: ProgrammingPlanDomainView,
+  ProgrammingPlanSettingsPlanRoute: ProgrammingPlanView
 } as const satisfies Record<AppRouteKeys, () => ReactElement | null>;

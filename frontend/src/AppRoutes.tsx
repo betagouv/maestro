@@ -95,6 +95,16 @@ export const AuthenticatedAppRoutes = {
     ...AppRouteLinks.ProgrammingPlanSettingsRoute,
     label: 'Paramétrage des plans',
     key: 'programming_plan_settings_route'
+  },
+  ProgrammingPlanSettingsDomainRoute: {
+    ...AppRouteLinks.ProgrammingPlanSettingsDomainRoute,
+    label: 'Paramétrage des plans',
+    key: 'programming_plan_settings_domain_route'
+  },
+  ProgrammingPlanSettingsPlanRoute: {
+    ...AppRouteLinks.ProgrammingPlanSettingsPlanRoute,
+    label: 'Paramétrage des plans',
+    key: 'programming_plan_settings_plan_route'
   }
 } as const satisfies Partial<Record<AppRouteKeys, AppRoute>>;
 
