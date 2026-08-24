@@ -16,13 +16,14 @@ import {
   UserRoleLabels
 } from 'maestro-shared/schema/User/UserRole';
 import { isNotEmpty } from 'maestro-shared/utils/typescript';
-import type { FunctionComponent } from 'react';
+import { type FunctionComponent, useContext } from 'react';
 import { assert, type Equals } from 'tsafe';
 import './UserCard.scss';
 
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { useMascarade } from '../../../components/Mascarade/useMascarade';
 import { useAuthentication } from '../../../hooks/useAuthentication';
+import { ApiClientContext } from '../../../services/apiClient';
 
 type Props = {
   user: UserListItem;
@@ -43,6 +44,15 @@ export const UserCard: FunctionComponent<Props> = ({
 
   const { setMascaradeUserId } = useMascarade();
   const { hasAccountPermission } = useAuthentication();
+  const apiClient = useContext(ApiClientContext);
+
+  const { data: laboratories } = apiClient.useFindLaboratoriesQuery(
+    {},
+    { skip: !user.laboratoryId }
+  );
+  const laboratory = laboratories?.find(
+    (laboratory) => laboratory.id === user.laboratoryId
+  );
 
   const canCertify =
     hasAccountPermission('administrationMaestro') &&
@@ -149,6 +159,13 @@ export const UserCard: FunctionComponent<Props> = ({
                 ? Regions[user.region].name
                 : 'France'}
           </span>
+          {!!laboratory && (
+            <span>
+              <Tag as={'span'} small={true} className={clsx('fr-mb-1w')}>
+                {laboratory.name}
+              </Tag>
+            </span>
+          )}
           {isNotEmpty(user.stages) && (
             <span>
               {user.stages.map((stage) => (
