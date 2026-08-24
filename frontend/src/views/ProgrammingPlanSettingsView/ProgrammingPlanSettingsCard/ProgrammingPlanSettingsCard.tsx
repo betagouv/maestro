@@ -10,7 +10,6 @@ import type { CSSProperties } from 'react';
 import { pluralize } from 'src/utils/stringUtils';
 import { assert, type Equals } from 'tsafe';
 
-import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
 import { ProgrammingPlanSettingsBadge } from '../ProgrammingPlanSettingsBadge/ProgrammingPlanSettingsBadge';
 
 type Props = {
@@ -20,7 +19,7 @@ type Props = {
   withPlanCount?: boolean;
 };
 
-const isCampaignLaunched = (plan: ProgrammingPlanChecked): boolean =>
+export const isCampaignLaunched = (plan: ProgrammingPlanChecked): boolean =>
   [...plan.regionalStatus, ...plan.departmentalStatus].some(({ status }) =>
     ['Validated', 'Closed'].includes(status)
   );
@@ -64,13 +63,10 @@ export const ProgrammingPlanSettingsCard = ({
       enlargeLink={true}
       linkProps={linkProps}
       start={
-        <span className={clsx('d-flex-align-center', 'd-flex-justify-between')}>
-          <ProgrammingPlanSettingsBadge
-            small
-            programmingPlans={programmingPlans}
-          />
-          <ProgrammingPlanSettingsActions size="small" />
-        </span>
+        <ProgrammingPlanSettingsBadge
+          small
+          programmingPlans={programmingPlans}
+        />
       }
       desc={
         <>

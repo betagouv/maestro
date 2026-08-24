@@ -1,15 +1,13 @@
-import Button, { type ButtonProps } from '@codegouvfr/react-dsfr/Button';
+import Button from '@codegouvfr/react-dsfr/Button';
 import clsx from 'clsx';
 import { assert, type Equals } from 'tsafe';
 import './ProgrammingPlanSettingsActions.scss';
 
 type Props = {
-  size?: ButtonProps['size'];
   className?: string;
 };
 
 export const ProgrammingPlanSettingsActions = ({
-  size,
   className,
   ..._rest
 }: Props) => {
@@ -20,14 +18,12 @@ export const ProgrammingPlanSettingsActions = ({
   return (
     <span className={clsx('programming-plan-settings-actions', className)}>
       <Button
-        size={size}
         title="Dupliquer"
         iconId="ri-file-copy-line"
         priority="tertiary"
         onClick={() => ({})}
       />
       <Button
-        size={size}
         title="Supprimer"
         iconId="fr-icon-delete-bin-line"
         priority="tertiary"

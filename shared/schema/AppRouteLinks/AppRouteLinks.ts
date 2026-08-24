@@ -25,7 +25,9 @@ const appRoutePaths = {
   ProgrammingPlanSettingsRoute: '/parametrage-des-plans',
   ProgrammingPlanSettingsDomainRoute: '/parametrage-des-plans/:domainId',
   ProgrammingPlanSettingsPlanRoute:
-    '/parametrage-des-plans/:domainId/:programmingPlanId'
+    '/parametrage-des-plans/:domainId/:programmingPlanId',
+  ProgrammingPlanSettingsSubPlanRoute:
+    '/parametrage-des-plans/:domainId/:programmingPlanId/:subPlanId'
 } as const;
 
 export type AppRouteKeys = keyof typeof appRoutePaths;
@@ -59,6 +61,9 @@ type AppRouteSearchParams = {
     year?: number;
   };
   ProgrammingPlanSettingsPlanRoute: {
+    year?: number;
+  };
+  ProgrammingPlanSettingsSubPlanRoute: {
     year?: number;
   };
 };

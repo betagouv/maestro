@@ -39,5 +39,6 @@ export const AppRouteComponents = {
   LaboratoryAgreementsRoute: LaboratoryAgreementsView,
   ProgrammingPlanSettingsRoute: ProgrammingPlanSettingsView,
   ProgrammingPlanSettingsDomainRoute: ProgrammingPlanDomainView,
-  ProgrammingPlanSettingsPlanRoute: ProgrammingPlanView
+  ProgrammingPlanSettingsPlanRoute: ProgrammingPlanView,
+  ProgrammingPlanSettingsSubPlanRoute: ProgrammingPlanView
 } as const satisfies Record<AppRouteKeys, () => ReactElement | null>;
