@@ -12,6 +12,7 @@ import { assert, type Equals } from 'tsafe';
 import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
 import { ProgrammingPlanSettingsBadge } from '../ProgrammingPlanSettingsBadge/ProgrammingPlanSettingsBadge';
 import { isCampaignLaunched } from '../ProgrammingPlanSettingsCard/ProgrammingPlanSettingsCard.tsx';
+import { ProgrammingSubPlanList } from '../ProgrammingSubPlanList/ProgrammingSubPlanList';
 
 type Props = Record<never, never>;
 
@@ -37,70 +38,83 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
     <AppPageWithYearTitle
       title="Paramétrage des plans"
       render={(year) => (
-        <div className={clsx('white-container', cx('fr-px-8w', 'fr-py-5w'))}>
-          <Breadcrumb
-            className={cx('fr-mt-0', 'fr-mb-2w')}
-            segments={[
-              {
-                label: 'Tous les domaines',
-                linkProps: {
-                  to: AppRouteLinks.ProgrammingPlanSettingsRoute.link({ year })
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12', 'fr-col-lg-9', 'fr-pr-0')}>
+            <div
+              className={clsx('white-container', cx('fr-px-8w', 'fr-py-5w'))}
+            >
+              <Breadcrumb
+                className={cx('fr-mt-0', 'fr-mb-2w')}
+                segments={[
+                  {
+                    label: 'Tous les domaines',
+                    linkProps: {
+                      to: AppRouteLinks.ProgrammingPlanSettingsRoute.link({
+                        year
+                      })
+                    }
+                  },
+                  {
+                    label: domain?.label,
+                    linkProps: {
+                      to: AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(
+                        domainId,
+                        { year }
+                      )
+                    }
+                  }
+                ]}
+                currentPageLabel={programmingPlan?.title}
+              />
+              <div
+                className={clsx(
+                  'd-flex-row',
+                  'd-flex-align-center',
+                  cx('fr-pb-5w')
+                )}
+              >
+                <Button
+                  priority="tertiary no outline"
+                  iconId="fr-icon-arrow-left-line"
+                  title="Revenir au domaine"
+                  linkProps={{
+                    to: AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(
+                      domainId,
+                      { year }
+                    )
+                  }}
+                />
+                <h4 className={clsx(cx('fr-m-0', 'fr-mr-2w'))}>
+                  {programmingPlan?.title}
+                </h4>
+                <ProgrammingPlanSettingsBadge
+                  programmingPlans={programmingPlan ? [programmingPlan] : []}
+                />
+                <ProgrammingPlanSettingsActions className={cx('fr-ml-auto')} />
+              </div>
+              {!!programmingPlan && isCampaignLaunched(programmingPlan) && (
+                <Alert
+                  severity={'error'}
+                  small
+                  description={
+                    'La campagne est lancée pour ce plan. Seuls certains paramètres sont modifiables.'
+                  }
+                />
+              )}
+              <Alert
+                severity={'info'}
+                small
+                description={
+                  'Les paramètres du plan renseignés ci-dessous seront automatiquement attribués à tous ses sous-plans. Si besoin, vous pourrez ensuite modifier les sous-plans individuellement.'
                 }
-              },
-              {
-                label: domain?.label,
-                linkProps: {
-                  to: AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(
-                    domainId,
-                    { year }
-                  )
-                }
-              }
-            ]}
-            currentPageLabel={programmingPlan?.title}
-          />
-          <div
-            className={clsx(
-              'd-flex-row',
-              'd-flex-align-center',
-              cx('fr-pb-5w')
-            )}
-          >
-            <Button
-              priority="tertiary no outline"
-              iconId="fr-icon-arrow-left-line"
-              title="Revenir au domaine"
-              linkProps={{
-                to: AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(
-                  domainId,
-                  { year }
-                )
-              }}
-            />
-            <h4 className={clsx(cx('fr-m-0', 'fr-mr-2w'))}>
-              {programmingPlan?.title}
-            </h4>
-            <ProgrammingPlanSettingsBadge
-              programmingPlans={programmingPlan ? [programmingPlan] : []}
-            />
-            <ProgrammingPlanSettingsActions className={cx('fr-ml-auto')} />
+              />
+            </div>
           </div>
-          {!!programmingPlan && isCampaignLaunched(programmingPlan) && (
-            <Alert
-              severity={'error'}
-              small
-              description={
-                'La campagne est lancée pour ce plan. Seuls certains paramètres sont modifiables.'
-              }
+          <div className={cx('fr-col-12', 'fr-col-lg-3', 'fr-pl-0')}>
+            <ProgrammingSubPlanList
+              subPlans={programmingPlan?.subPlans ?? []}
             />
-          )}
-          <Alert
-            severity={'info'}
-            small
-            description={
-              'Les paramètres du plan renseignés ci-dessous seront automatiquement attribués à tous ses sous-plans. Si besoin, vous pourrez ensuite modifier les sous-plans individuellement.'
-            }
-          />
+          </div>
         </div>
       )}
     />

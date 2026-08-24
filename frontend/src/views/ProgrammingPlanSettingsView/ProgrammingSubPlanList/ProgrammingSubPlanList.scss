@@ -1,0 +1,22 @@
+.programming-sub-plan-list {
+  border-left-width: 0 !important;
+
+  .header {
+    color: var(--border-action-high-blue-france);
+    background-color: var(--background-action-low-blue-france);
+  }
+
+  .sub-plans {
+    padding: 0;
+    max-height: 60vh;
+    overflow-y: auto;
+
+    :not(:first-child) {
+      border-top: 1px solid var(--border-default-grey);
+    }
+  }
+
+  .settings-completed {
+    color: var(--text-default-success);
+  }
+}
