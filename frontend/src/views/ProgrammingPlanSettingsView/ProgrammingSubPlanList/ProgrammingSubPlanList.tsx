@@ -2,17 +2,33 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import clsx from 'clsx';
-import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
+import type {
+  ProgrammingSubPlan,
+  ProgrammingSubPlanId
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router';
 import { pluralize } from 'src/utils/stringUtils';
 import { assert, type Equals } from 'tsafe';
 import './ProgrammingSubPlanList.scss';
 
 type Props = {
   subPlans: ProgrammingSubPlan[];
+  domainId: string;
+  programmingPlanId: string;
+  year: number;
+  currentSubPlanId?: ProgrammingSubPlanId;
 };
 
-export const ProgrammingSubPlanList = ({ subPlans, ..._rest }: Props) => {
+export const ProgrammingSubPlanList = ({
+  subPlans,
+  domainId,
+  programmingPlanId,
+  year,
+  currentSubPlanId,
+  ..._rest
+}: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   const [search, setSearch] = useState('');
@@ -78,23 +94,33 @@ export const ProgrammingSubPlanList = ({ subPlans, ..._rest }: Props) => {
       ) : (
         <ul className="sub-plans" aria-label="Liste des sous-plans">
           {filteredSubPlans.map((subPlan) => (
-            <li
-              key={subPlan.id}
-              className={clsx(
-                'd-flex-align-center',
-                'd-flex-justify-between',
-                cx('fr-mx-2w', 'fr-py-1w', 'fr-text--sm', 'fr-mb-0')
-              )}
-            >
-              {subPlan.subPlanNumber} - {subPlan.label}
-              {/*FIXME DOMAIN afficher la pastille seulement si le paramétrage du sous-plan est terminé*/}
-              <span
+            <li key={subPlan.id} className={cx('fr-mx-2w', 'fr-mb-0')}>
+              <Link
                 className={clsx(
-                  'settings-completed',
-                  cx('fr-icon-checkbox-circle-fill', 'fr-icon--sm')
+                  'd-flex-align-center',
+                  'd-flex-justify-between',
+                  cx('fr-p-1w', 'fr-text--sm', 'fr-mb-0')
                 )}
-                title="Paramétrage terminé"
-              ></span>
+                to={AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+                  domainId,
+                  programmingPlanId,
+                  subPlan.id,
+                  { year }
+                )}
+                aria-current={
+                  subPlan.id === currentSubPlanId ? 'page' : undefined
+                }
+              >
+                {subPlan.subPlanNumber} - {subPlan.label}
+                {/*FIXME DOMAIN afficher la pastille seulement si le paramétrage du sous-plan est terminé*/}
+                <span
+                  className={clsx(
+                    'settings-completed',
+                    cx('fr-icon-checkbox-circle-fill', 'fr-icon--sm')
+                  )}
+                  title="Paramétrage terminé"
+                ></span>
+              </Link>
             </li>
           ))}
         </ul>

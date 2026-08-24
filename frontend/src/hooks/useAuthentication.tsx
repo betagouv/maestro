@@ -155,7 +155,8 @@ export const useAuthentication = () => {
             ? [
                 'ProgrammingPlanSettingsRoute',
                 'ProgrammingPlanSettingsDomainRoute',
-                'ProgrammingPlanSettingsPlanRoute'
+                'ProgrammingPlanSettingsPlanRoute',
+                'ProgrammingPlanSettingsSubPlanRoute'
               ]
             : undefined
         ]

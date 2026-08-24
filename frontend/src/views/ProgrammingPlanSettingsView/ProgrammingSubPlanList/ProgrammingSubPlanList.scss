@@ -10,9 +10,41 @@
     padding: 0;
     max-height: 60vh;
     overflow-y: auto;
+  list-style: none;
 
     :not(:first-child) {
       border-top: 1px solid var(--border-default-grey);
+    }
+
+    li{
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
+    }
+
+    a {
+      position: relative;
+      color: var(--text-default-grey);
+      text-decoration: none;
+      background-image: none;
+
+      &:hover {
+        background-color: var(--background-default-grey-hover);
+      }
+
+      &[aria-current='page'] {
+        color: var(--text-active-blue-france);
+
+        // Barre verticale de l'item actif, à l'identique du sidemenu DSFR
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          width: 2px;
+          background-color: var(--border-active-blue-france);
+        }
+      }
     }
   }
 

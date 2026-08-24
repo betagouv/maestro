@@ -19,9 +19,14 @@ type Props = Record<never, never>;
 export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const { domainId = '', programmingPlanId } = useParams<{
+  const {
+    domainId = '',
+    programmingPlanId = '',
+    subPlanId
+  } = useParams<{
     domainId: string;
     programmingPlanId: string;
+    subPlanId: string;
   }>();
 
   const apiClient = useContext(ApiClientContext);
@@ -33,6 +38,10 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
   const programmingPlan = programmingPlans.find(
     (_) => _.id === programmingPlanId
   );
+  const subPlan = programmingPlan?.subPlans.find((_) => _.id === subPlanId);
+  const title = subPlan
+    ? `${subPlan.subPlanNumber} - ${subPlan.label}`
+    : programmingPlan?.title;
 
   return (
     <AppPageWithYearTitle
@@ -62,9 +71,23 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                         { year }
                       )
                     }
-                  }
+                  },
+                  ...(subPlan
+                    ? [
+                        {
+                          label: programmingPlan?.title,
+                          linkProps: {
+                            to: AppRouteLinks.ProgrammingPlanSettingsPlanRoute.link(
+                              domainId,
+                              programmingPlanId,
+                              { year }
+                            )
+                          }
+                        }
+                      ]
+                    : [])
                 ]}
-                currentPageLabel={programmingPlan?.title}
+                currentPageLabel={title}
               />
               <div
                 className={clsx(
@@ -76,17 +99,21 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                 <Button
                   priority="tertiary no outline"
                   iconId="fr-icon-arrow-left-line"
-                  title="Revenir au domaine"
+                  title={subPlan ? 'Revenir au plan' : 'Revenir au domaine'}
                   linkProps={{
-                    to: AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(
-                      domainId,
-                      { year }
-                    )
+                    to: subPlan
+                      ? AppRouteLinks.ProgrammingPlanSettingsPlanRoute.link(
+                          domainId,
+                          programmingPlanId,
+                          { year }
+                        )
+                      : AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(
+                          domainId,
+                          { year }
+                        )
                   }}
                 />
-                <h4 className={clsx(cx('fr-m-0', 'fr-mr-2w'))}>
-                  {programmingPlan?.title}
-                </h4>
+                <h4 className={clsx(cx('fr-m-0', 'fr-mr-2w'))}>{title}</h4>
                 <ProgrammingPlanSettingsBadge
                   programmingPlans={programmingPlan ? [programmingPlan] : []}
                 />
@@ -113,6 +140,10 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
           <div className={cx('fr-col-12', 'fr-col-lg-3', 'fr-pl-0')}>
             <ProgrammingSubPlanList
               subPlans={programmingPlan?.subPlans ?? []}
+              domainId={domainId}
+              programmingPlanId={programmingPlanId}
+              year={year}
+              currentSubPlanId={subPlan?.id}
             />
           </div>
         </div>
