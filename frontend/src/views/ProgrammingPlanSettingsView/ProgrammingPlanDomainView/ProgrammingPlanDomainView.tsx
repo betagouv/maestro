@@ -1,3 +1,4 @@
+import Breadcrumb from '@codegouvfr/react-dsfr/Breadcrumb';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
@@ -36,6 +37,20 @@ export const ProgrammingPlanDomainView = ({ ..._rest }: Props = {}) => {
 
         return (
           <div className={clsx('white-container', cx('fr-px-8w', 'fr-py-5w'))}>
+            <Breadcrumb
+              className={cx('fr-mt-0', 'fr-mb-2w')}
+              segments={[
+                {
+                  label: 'Tous les domaines',
+                  linkProps: {
+                    to: AppRouteLinks.ProgrammingPlanSettingsRoute.link({
+                      year
+                    })
+                  }
+                }
+              ]}
+              currentPageLabel={domain?.label}
+            />
             <div
               className={clsx(
                 'd-flex-row',

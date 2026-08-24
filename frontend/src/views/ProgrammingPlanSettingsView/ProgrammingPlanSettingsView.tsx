@@ -1,3 +1,4 @@
+import Breadcrumb from '@codegouvfr/react-dsfr/Breadcrumb';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
@@ -38,6 +39,11 @@ export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
 
         return (
           <div className={clsx('white-container', cx('fr-px-8w', 'fr-py-5w'))}>
+            <Breadcrumb
+              className={cx('fr-mt-0', 'fr-mb-2w')}
+              segments={[]}
+              currentPageLabel="Tous les domaines"
+            />
             <div
               className={clsx(
                 'd-flex-row',
