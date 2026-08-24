@@ -20,7 +20,7 @@ type Props = {
   withPlanCount?: boolean;
 };
 
-const isCampaignLaunched = (plan: ProgrammingPlanChecked): boolean =>
+export const isCampaignLaunched = (plan: ProgrammingPlanChecked): boolean =>
   [...plan.regionalStatus, ...plan.departmentalStatus].some(({ status }) =>
     ['Validated', 'Closed'].includes(status)
   );

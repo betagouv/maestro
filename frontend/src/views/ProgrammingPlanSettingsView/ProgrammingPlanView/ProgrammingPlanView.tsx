@@ -1,3 +1,4 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import Breadcrumb from '@codegouvfr/react-dsfr/Breadcrumb';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
@@ -8,9 +9,9 @@ import { useParams } from 'react-router';
 import { AppPageWithYearTitle } from 'src/components/_app/AppPage/AppPageWithYearTitle';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
-
 import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
 import { ProgrammingPlanSettingsBadge } from '../ProgrammingPlanSettingsBadge/ProgrammingPlanSettingsBadge';
+import { isCampaignLaunched } from '../ProgrammingPlanSettingsCard/ProgrammingPlanSettingsCard.tsx';
 
 type Props = Record<never, never>;
 
@@ -84,6 +85,22 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
             />
             <ProgrammingPlanSettingsActions className={cx('fr-ml-auto')} />
           </div>
+          {!!programmingPlan && isCampaignLaunched(programmingPlan) && (
+            <Alert
+              severity={'error'}
+              small
+              description={
+                'La campagne est lancée pour ce plan. Seuls certains paramètres sont modifiables.'
+              }
+            />
+          )}
+          <Alert
+            severity={'info'}
+            small
+            description={
+              'Les paramètres du plan renseignés ci-dessous seront automatiquement attribués à tous ses sous-plans. Si besoin, vous pourrez ensuite modifier les sous-plans individuellement.'
+            }
+          />
         </div>
       )}
     />
