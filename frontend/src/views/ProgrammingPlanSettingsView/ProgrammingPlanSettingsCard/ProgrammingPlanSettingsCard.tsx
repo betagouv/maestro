@@ -10,7 +10,6 @@ import type { CSSProperties } from 'react';
 import { pluralize } from 'src/utils/stringUtils';
 import { assert, type Equals } from 'tsafe';
 
-import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
 import { ProgrammingPlanSettingsBadge } from '../ProgrammingPlanSettingsBadge/ProgrammingPlanSettingsBadge';
 
 type Props = {
@@ -64,13 +63,10 @@ export const ProgrammingPlanSettingsCard = ({
       enlargeLink={true}
       linkProps={linkProps}
       start={
-        <span className={clsx('d-flex-align-center', 'd-flex-justify-between')}>
-          <ProgrammingPlanSettingsBadge
-            small
-            programmingPlans={programmingPlans}
-          />
-          <ProgrammingPlanSettingsActions size="small" />
-        </span>
+        <ProgrammingPlanSettingsBadge
+          small
+          programmingPlans={programmingPlans}
+        />
       }
       desc={
         <>

@@ -32,16 +32,6 @@ export const Domain: Story = {
 
     await expect(canvas.getByText('Résidus de pesticides')).toBeInTheDocument();
     await expect(canvas.getByText('1 plan / 1 sous-plan')).toBeInTheDocument();
-
-    for (const title of ['Dupliquer', 'Supprimer']) {
-      const button = canvas.getByTitle(title);
-      const { left, top, width, height } = button.getBoundingClientRect();
-      const topElement = document.elementFromPoint(
-        left + width / 2,
-        top + height / 2
-      );
-      await expect(button.contains(topElement)).toBe(true);
-    }
   }
 };
 
