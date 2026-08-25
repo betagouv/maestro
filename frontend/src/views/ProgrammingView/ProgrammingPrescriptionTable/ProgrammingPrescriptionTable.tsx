@@ -446,11 +446,7 @@ const ProgrammingPrescriptionTable = ({
                 </th>
                 <th
                   scope="col"
-                  className={clsx(
-                    'prelevements-cell',
-                    'border-left',
-                    !showLaboratoryColumn && 'border-right'
-                  )}
+                  className={clsx('prelevements-cell', 'border-left')}
                 >
                   Prélèvements
                   <br />
@@ -459,11 +455,7 @@ const ProgrammingPrescriptionTable = ({
                 {showLaboratoryColumn && (
                   <th
                     scope="col"
-                    className={clsx(
-                      'laboratoire-cell',
-                      'border-left',
-                      'border-right'
-                    )}
+                    className={clsx('laboratoire-cell', 'border-right')}
                   >
                     Attribution des laboratoires
                   </th>
@@ -536,7 +528,6 @@ const ProgrammingPrescriptionTable = ({
                     'prelevements-cell',
                     cx('fr-text--bold'),
                     'border-left',
-                    !showLaboratoryColumn && 'border-right',
                     'align-center'
                   )}
                 >
@@ -550,13 +541,7 @@ const ProgrammingPrescriptionTable = ({
                     : sumBy(prescriptions, 'sampleCount')}
                 </td>
                 {showLaboratoryColumn && (
-                  <td
-                    className={clsx(
-                      'laboratoire-cell',
-                      'border-left',
-                      'border-right'
-                    )}
-                  />
+                  <td className={clsx('laboratoire-cell', 'border-right')} />
                 )}
                 {!isSamplerView &&
                   (department
@@ -716,7 +701,6 @@ const ProgrammingPrescriptionTable = ({
                                 className={clsx(
                                   'prelevements-cell',
                                   'border-left',
-                                  !showLaboratoryColumn && 'border-right',
                                   'align-center'
                                 )}
                               >
@@ -733,7 +717,6 @@ const ProgrammingPrescriptionTable = ({
                                 <td
                                   className={clsx(
                                     'laboratoire-cell',
-                                    'border-left',
                                     'border-right'
                                   )}
                                 />
@@ -966,8 +949,7 @@ const ProgrammingPrescriptionTable = ({
                                   <td
                                     className={clsx(
                                       'prelevements-cell',
-                                      'border-left',
-                                      !showLaboratoryColumn && 'border-right'
+                                      'border-left'
                                     )}
                                   >
                                     {region && rowHasUnviewedChange && (
@@ -1140,7 +1122,6 @@ const ProgrammingPrescriptionTable = ({
                                     <td
                                       className={clsx(
                                         'laboratoire-cell',
-                                        'border-left',
                                         'border-right'
                                       )}
                                     >

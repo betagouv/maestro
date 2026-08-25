@@ -28,6 +28,7 @@ export const LocalPrescriptionChange = z.object({
   previousSampleCount: z.coerce.number().nullable(),
   changedAt: z.coerce.date(),
   diffusedAt: z.coerce.date().nullable(),
+  appliedAt: z.coerce.date().nullable(),
   changesViewedAt: z.coerce.date().nullable(),
   changesViewedBy: z.guid().nullable()
 });

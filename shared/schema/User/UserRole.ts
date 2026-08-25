@@ -250,6 +250,13 @@ export const editingEchelonForRole = (
   }
 };
 
+export const seesUnappliedLocalPrescriptionChanges = (
+  userRole: UserRole
+): boolean =>
+  !(['Sampler', 'LaboratoryUser', 'LaboratoryOffice'] as UserRole[]).includes(
+    userRole
+  );
+
 export const canHaveDepartment = (
   user: Nullable<Pick<UserRefined, 'roles'>>
 ): user is {

@@ -14,7 +14,6 @@ import {
   Regions
 } from 'maestro-shared/referential/Region';
 import type { DisplayStatusResult } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
-import { ProgrammingPlanDomainLabels } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   Fragment,
@@ -160,6 +159,8 @@ const ProgrammingPlanTrackingTable = ({
     { programmingPlanIds: planIds, allLevels: true },
     { skip: planIds.length === 0 }
   );
+  const { data: programmingPlanDomains } =
+    apiClient.useFindProgrammingPlanDomainsQuery();
 
   const prescriptionsByPlan = useMemo(
     () => groupBy(prescriptions ?? [], 'programmingPlanId'),
@@ -258,7 +259,7 @@ const ProgrammingPlanTrackingTable = ({
         ? departmentalDisplayStatus?.value === 'ReadyToSend'
         : region
           ? regionalDisplayStatus?.value === 'ReadyToSend'
-          : hasRole('Administrator')
+          : hasRole('AdministratorBGIR')
             ? isSubmittedToAdmin
             : nationalDisplayStatus.value === 'ReadyToSend';
 
@@ -445,7 +446,7 @@ const ProgrammingPlanTrackingTable = ({
     });
 
   const domainGroups = useMemo(
-    () => groupBy(displayedPlans, 'domain'),
+    () => groupBy(displayedPlans, 'domainId'),
     [displayedPlans]
   );
 
@@ -523,11 +524,11 @@ const ProgrammingPlanTrackingTable = ({
           </MiniTable>
         </div>
 
-        {Object.entries(domainGroups).map(([domain, plansInDomain]) => {
+        {Object.entries(domainGroups).map(([domainId, plansInDomain]) => {
           const domainPlanIds = plansInDomain.map((plan) => plan.id);
 
           return (
-            <Fragment key={`domain-${domain}`}>
+            <Fragment key={`domain-${domainId}`}>
               <div
                 className="plan-group-sticky-container"
                 style={{ top: bannerHeight + headerHeight }}
@@ -546,9 +547,11 @@ const ProgrammingPlanTrackingTable = ({
                       </td>
                       <td colSpan={statusColumnCount + 1}>
                         <div className="plan-group-title">
-                          {ProgrammingPlanDomainLabels[
-                            domain as keyof typeof ProgrammingPlanDomainLabels
-                          ] ?? domain}
+                          {
+                            programmingPlanDomains?.find(
+                              (_) => _.id === domainId
+                            )?.label
+                          }
                         </div>
                       </td>
                     </tr>

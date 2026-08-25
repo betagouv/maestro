@@ -774,6 +774,7 @@ const ProgrammingPrescriptionList = ({
               prescriptions={prescriptions}
               localPrescriptions={localPrescriptions}
               subLocalPrescriptions={subLocalPrescriptions ?? []}
+              region={region}
               exportURL={getApiUrl(
                 '/prescriptions/export',
                 exportPrescriptionOptions

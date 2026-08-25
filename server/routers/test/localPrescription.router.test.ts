@@ -596,7 +596,8 @@ describe('Local prescriptions router', () => {
 
       await prescriptionDiffusionService.commitPendingRegionalChanges(
         PPVValidatedProgrammingPlanFixture.id,
-        validatedLocalPrescription.region
+        validatedLocalPrescription.region,
+        PPVValidatedProgrammingPlanFixture.distributionKind
       );
 
       await expect(
@@ -622,7 +623,8 @@ describe('Local prescriptions router', () => {
 
       await prescriptionDiffusionService.commitPendingRegionalChanges(
         PPVValidatedProgrammingPlanFixture.id,
-        validatedLocalPrescription.region
+        validatedLocalPrescription.region,
+        PPVValidatedProgrammingPlanFixture.distributionKind
       );
 
       await expect(
@@ -712,11 +714,10 @@ describe('Local prescriptions router', () => {
           .use(tokenProvider(RegionalCoordinator))
           .expect(constants.HTTP_STATUS_OK);
 
-        // The sample-item cascade is itself data a sampler reads, so it
-        // waits for diffusion just like the lab assignment it follows from.
         await prescriptionDiffusionService.commitPendingRegionalChanges(
           PPVValidatedProgrammingPlanFixture.id,
-          validatedLocalPrescription.region
+          validatedLocalPrescription.region,
+          PPVValidatedProgrammingPlanFixture.distributionKind
         );
 
         const updatedLaboratoryItem = await SampleItems()
@@ -771,7 +772,8 @@ describe('Local prescriptions router', () => {
 
         await prescriptionDiffusionService.commitPendingRegionalChanges(
           PPVValidatedProgrammingPlanFixture.id,
-          validatedLocalPrescription.region
+          validatedLocalPrescription.region,
+          PPVValidatedProgrammingPlanFixture.distributionKind
         );
 
         const updatedItem = await SampleItems()
@@ -1263,7 +1265,28 @@ describe('Local prescriptions router', () => {
 
       await prescriptionDiffusionService.commitPendingRegionalChanges(
         programmingPlanSlaughterhouse.id,
-        departmentalLocalPrescription.region
+        departmentalLocalPrescription.region,
+        programmingPlanSlaughterhouse.distributionKind
+      );
+
+      await expect(
+        LocalPrescriptions()
+          .where(
+            'prescription_id',
+            departmentalLocalPrescription.prescriptionId
+          )
+          .andWhere('region', departmentalLocalPrescription.region)
+          .andWhere('department', departmentalLocalPrescription.department)
+          .andWhere('company_siret', 'None')
+          .first()
+      ).resolves.toMatchObject({
+        sampleCount: departmentalLocalPrescription.sampleCount
+      });
+
+      await prescriptionDiffusionService.commitPendingDepartmentalChanges(
+        programmingPlanSlaughterhouse.id,
+        departmentalLocalPrescription.region,
+        departmentalLocalPrescription.department as Department
       );
 
       await expect(
@@ -1305,7 +1328,8 @@ describe('Local prescriptions router', () => {
 
       await prescriptionDiffusionService.commitPendingRegionalChanges(
         programmingPlanSlaughterhouse.id,
-        departmentalLocalPrescription.region
+        departmentalLocalPrescription.region,
+        programmingPlanSlaughterhouse.distributionKind
       );
 
       const res = await request(app)
@@ -2472,6 +2496,249 @@ describe('Local prescriptions router', () => {
         .where({ prescriptionId: submittedControlPrescription1.id, region })
         .whereIn('department', [ownDepartment, otherDepartment])
         .delete();
+    });
+  });
+
+  describe('National changes stay out of local_prescriptions until the region diffuses', () => {
+    const region = RegionalCoordinator.region as Region;
+    const localPrescription = validatedControlLocalPrescriptions.find(
+      (_) =>
+        _.prescriptionId === validatedControlPrescription.id &&
+        _.region === region
+    ) as LocalPrescription;
+
+    const initialSampleCount = localPrescription.sampleCount;
+    const updatedSampleCount = initialSampleCount + 10;
+
+    const updateRoute = `/api/prescriptions/${validatedControlPrescription.id}/regions/${region}`;
+
+    const liveRow = async () =>
+      LocalPrescriptions()
+        .where('prescription_id', validatedControlPrescription.id)
+        .andWhere('region', region)
+        .andWhere('department', 'None')
+        .andWhere('company_siret', 'None')
+        .first();
+
+    const readRow = async (user: UserRefined) => {
+      const res = await request(app)
+        .get('/api/prescriptions/regions')
+        .query({
+          programmingPlanIds: PPVValidatedProgrammingPlanFixture.id,
+          region,
+          contexts: 'Control',
+          includes: 'pendingChanges'
+        })
+        .use(tokenProvider(user))
+        .expect(constants.HTTP_STATUS_OK);
+      return res.body.find(
+        (_: { prescriptionId: string; department: string | null }) =>
+          _.prescriptionId === validatedControlPrescription.id && !_.department
+      );
+    };
+
+    const readSampleCount = async (user: UserRefined) =>
+      (await readRow(user))?.sampleCount;
+
+    const submitToRegion = async (sampleCount: number) => {
+      await request(app)
+        .put(updateRoute)
+        .send({
+          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+          key: 'sampleCount',
+          sampleCount
+        })
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+    };
+
+    afterEach(async () => {
+      await LocalPrescriptionChanges()
+        .where('prescription_id', validatedControlPrescription.id)
+        .andWhere('region', region)
+        .delete();
+      await LocalPrescriptions()
+        .where('prescription_id', validatedControlPrescription.id)
+        .andWhere('region', region)
+        .andWhere('department', 'None')
+        .andWhere('company_siret', 'None')
+        .update({ sampleCount: initialSampleCount });
+    });
+
+    test('a submitted national change leaves the live row untouched and is hidden from samplers only', async () => {
+      await submitToRegion(updatedSampleCount);
+      await prescriptionDiffusionService.commitPendingNationalChanges(
+        PPVValidatedProgrammingPlanFixture.id
+      );
+
+      await expect(liveRow()).resolves.toMatchObject({
+        sampleCount: initialSampleCount
+      });
+
+      await expect(readSampleCount(Sampler1Fixture)).resolves.toBe(
+        initialSampleCount
+      );
+      await expect(readSampleCount(RegionalCoordinator)).resolves.toBe(
+        updatedSampleCount
+      );
+      await expect(readSampleCount(NationalCoordinator)).resolves.toBe(
+        updatedSampleCount
+      );
+      await expect(readSampleCount(AdminFixture)).resolves.toBe(
+        updatedSampleCount
+      );
+
+      // The sampler reads the live row, so no before/after marker either:
+      // nothing changed for them yet.
+      const samplerRow = await readRow(Sampler1Fixture);
+      expect(samplerRow.changedAt).toBeNull();
+      expect(samplerRow.previousSampleCount).toBeNull();
+
+      const regionalRow = await readRow(RegionalCoordinator);
+      expect(regionalRow.changedAt).not.toBeNull();
+      expect(regionalRow.previousSampleCount).toBe(initialSampleCount);
+    });
+
+    test('the regional diffusion writes the national change to the live row and reveals it to samplers', async () => {
+      await submitToRegion(updatedSampleCount);
+      await prescriptionDiffusionService.commitPendingNationalChanges(
+        PPVValidatedProgrammingPlanFixture.id
+      );
+      await prescriptionDiffusionService.commitPendingRegionalChanges(
+        PPVValidatedProgrammingPlanFixture.id,
+        region,
+        PPVValidatedProgrammingPlanFixture.distributionKind
+      );
+
+      await expect(liveRow()).resolves.toMatchObject({
+        sampleCount: updatedSampleCount
+      });
+      await expect(readSampleCount(Sampler1Fixture)).resolves.toBe(
+        updatedSampleCount
+      );
+      await expect(readSampleCount(RegionalCoordinator)).resolves.toBe(
+        updatedSampleCount
+      );
+
+      const samplerRow = await readRow(Sampler1Fixture);
+      expect(samplerRow.changedAt).not.toBeNull();
+      expect(samplerRow.previousSampleCount).toBe(initialSampleCount);
+    });
+
+    test('a second national change shows the value from the completed cycle as its before, not the original one', async () => {
+      const secondSampleCount = initialSampleCount + 8;
+
+      await submitToRegion(updatedSampleCount);
+      await prescriptionDiffusionService.commitPendingNationalChanges(
+        PPVValidatedProgrammingPlanFixture.id
+      );
+      await prescriptionDiffusionService.commitPendingRegionalChanges(
+        PPVValidatedProgrammingPlanFixture.id,
+        region,
+        PPVValidatedProgrammingPlanFixture.distributionKind
+      );
+
+      await submitToRegion(secondSampleCount);
+      await prescriptionDiffusionService.commitPendingNationalChanges(
+        PPVValidatedProgrammingPlanFixture.id
+      );
+
+      const regionalRow = await readRow(RegionalCoordinator);
+      expect(regionalRow.sampleCount).toBe(secondSampleCount);
+      expect(regionalRow.previousSampleCount).toBe(updatedSampleCount);
+
+      // The sampler is still on the value the region diffused, and its marker
+      // keeps pointing at where that value came from.
+      const samplerRow = await readRow(Sampler1Fixture);
+      expect(samplerRow.sampleCount).toBe(updatedSampleCount);
+      expect(samplerRow.previousSampleCount).toBe(initialSampleCount);
+    });
+
+    test('only the latest of two national changes submitted before diffusion reaches the live row', async () => {
+      await submitToRegion(updatedSampleCount);
+      await prescriptionDiffusionService.commitPendingNationalChanges(
+        PPVValidatedProgrammingPlanFixture.id
+      );
+      await submitToRegion(updatedSampleCount + 5);
+      await prescriptionDiffusionService.commitPendingNationalChanges(
+        PPVValidatedProgrammingPlanFixture.id
+      );
+
+      await expect(readSampleCount(RegionalCoordinator)).resolves.toBe(
+        updatedSampleCount + 5
+      );
+
+      await prescriptionDiffusionService.commitPendingRegionalChanges(
+        PPVValidatedProgrammingPlanFixture.id,
+        region,
+        PPVValidatedProgrammingPlanFixture.distributionKind
+      );
+
+      await expect(liveRow()).resolves.toMatchObject({
+        sampleCount: updatedSampleCount + 5
+      });
+    });
+
+    test('applying a change to the live row makes it unviewed again, so the sampler gets the before/after marker', async () => {
+      await submitToRegion(updatedSampleCount);
+      await prescriptionDiffusionService.commitPendingNationalChanges(
+        PPVValidatedProgrammingPlanFixture.id
+      );
+
+      await LocalPrescriptionChanges()
+        .where('prescription_id', validatedControlPrescription.id)
+        .andWhere('region', region)
+        .andWhere('echelon', 'National')
+        .update({
+          changesViewedAt: new Date(),
+          changesViewedBy: RegionalCoordinator.id
+        });
+
+      await prescriptionDiffusionService.commitPendingRegionalChanges(
+        PPVValidatedProgrammingPlanFixture.id,
+        region,
+        PPVValidatedProgrammingPlanFixture.distributionKind
+      );
+
+      const rows = await LocalPrescriptionChanges()
+        .where('prescription_id', validatedControlPrescription.id)
+        .andWhere('region', region)
+        .andWhere('echelon', 'National')
+        .andWhere('kind', 'sampleCount');
+      expect(rows.length).toBeGreaterThan(0);
+      expect(rows.every((row) => row.changesViewedAt === null)).toBe(true);
+      expect(rows.every((row) => row.appliedAt !== null)).toBe(true);
+    });
+
+    test('the regional status seen in the tracking table is unchanged by the deferred write', async () => {
+      const statusBefore = await request(app)
+        .get('/api/programming-plans')
+        .query({ year: PPVValidatedProgrammingPlanFixture.year })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await submitToRegion(updatedSampleCount);
+      await prescriptionDiffusionService.commitPendingNationalChanges(
+        PPVValidatedProgrammingPlanFixture.id
+      );
+
+      const statusAfter = await request(app)
+        .get('/api/programming-plans')
+        .query({ year: PPVValidatedProgrammingPlanFixture.year })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const regionalStatusOf = (body: any) =>
+        body
+          .find(
+            (_: { id: string }) =>
+              _.id === PPVValidatedProgrammingPlanFixture.id
+          )
+          ?.regionalStatus.find((_: { region: Region }) => _.region === region);
+
+      expect(
+        omit(regionalStatusOf(statusAfter.body), 'lastModifiedAt')
+      ).toEqual(omit(regionalStatusOf(statusBefore.body), 'lastModifiedAt'));
     });
   });
 });

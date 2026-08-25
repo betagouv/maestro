@@ -268,23 +268,20 @@
     background-color: var(--background-default-grey) !important;
   }
 
+  .fr-table th.prelevements-cell,
+  .fr-table td.prelevements-cell {
+    border-right: 1px solid var(--border-contrast-grey);
+  }
+
   .laboratoire-cell {
-    position: sticky;
-    left: calc(
-      var(--checkbox-w) + #{$col-n-width} + #{$col-matrice-width} + #{$col-analyte-width} +
-        #{$col-prelevements-width}
-    );
-    z-index: 1;
     min-width: $col-laboratoire-width;
     max-width: $col-laboratoire-width;
-    background-color: var(--background-default-grey) !important;
   }
 
   thead .checkbox-cell,
   thead .n-cell,
   thead .matrice-cell,
   thead .analyte-cell,
-  thead .laboratoire-cell,
   thead .prelevements-cell {
     z-index: 2;
     background-color: var(--background-alt-grey) !important;
@@ -301,7 +298,6 @@
     .n-cell,
     .matrice-cell,
     .analyte-cell,
-    .laboratoire-cell,
     .prelevements-cell {
       background-color: var(--background-alt-yellow-tournesol) !important;
     }
@@ -369,6 +365,8 @@
     td {
       background-color: var(--background-open-blue-france) !important;
       color: var(--text-default-grey) !important;
+      border-bottom: none !important;
+      box-shadow: inset 0 -1px 0 0 var(--border-contrast-grey);
     }
   }
 

@@ -4,6 +4,7 @@ import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import { t } from 'i18next';
 import { sumBy } from 'lodash-es';
+import type { Region } from 'maestro-shared/referential/Region';
 import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -22,6 +23,7 @@ interface Props {
   prescriptions: Prescription[];
   localPrescriptions: LocalPrescription[];
   subLocalPrescriptions: LocalPrescription[];
+  region?: Region;
   exportURL: string;
 }
 
@@ -30,6 +32,7 @@ const ProgrammingPrescriptionListHeader = ({
   prescriptions,
   localPrescriptions,
   subLocalPrescriptions,
+  region,
   exportURL
 }: Props) => {
   const dispatch = useAppDispatch();
@@ -42,8 +45,11 @@ const ProgrammingPrescriptionListHeader = ({
   );
 
   const sampleCount = useMemo(
-    () => sumBy(prescriptions, 'sampleCount'),
-    [prescriptions]
+    () =>
+      region
+        ? sumBy(localPrescriptions, 'sampleCount')
+        : sumBy(prescriptions, 'sampleCount'),
+    [region, localPrescriptions, prescriptions]
   );
   return (
     <div className={cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-container', 'fr-px-5w')}>

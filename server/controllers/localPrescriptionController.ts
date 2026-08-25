@@ -17,7 +17,9 @@ import {
 import {
   editingEchelonForRole,
   isNationalRole,
-  isRegionalRole
+  isRegionalRole,
+  seesUnappliedLocalPrescriptionChanges,
+  type UserRole
 } from 'maestro-shared/schema/User/UserRole';
 import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
@@ -32,33 +34,36 @@ import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
 
-const withPendingLocalPrescriptionChanges = async (
+export const withEffectiveLocalPrescriptionChanges = async (
   localPrescriptions: LocalPrescription[],
-  echelon: ProgrammingPlanEchelon
+  userRole: UserRole
 ): Promise<LocalPrescription[]> => {
-  const pendingRows = await localPrescriptionChangeRepository.findLatestPending(
+  if (!seesUnappliedLocalPrescriptionChanges(userRole)) {
+    return localPrescriptions;
+  }
+  const changes = await localPrescriptionChangeRepository.findEffectiveChanges(
     uniq(localPrescriptions.map((lp) => lp.prescriptionId)),
-    echelon
+    editingEchelonForRole(userRole)
   );
-  const pendingByKey = new Map(
-    pendingRows.map((row) => [
+  const changeByKey = new Map(
+    changes.map((row) => [
       `${toLocalPrescriptionKeyString(row)}:${row.kind}`,
       row
     ])
   );
   return localPrescriptions.map((localPrescription) => {
     const key = toLocalPrescriptionKeyString(localPrescription);
-    const pendingSampleCount = pendingByKey.get(`${key}:sampleCount`);
-    const pendingLaboratories = pendingByKey.get(`${key}:laboratories`);
-    if (!pendingSampleCount && !pendingLaboratories) {
+    const sampleCountChange = changeByKey.get(`${key}:sampleCount`);
+    const laboratoriesChange = changeByKey.get(`${key}:laboratories`);
+    if (!sampleCountChange && !laboratoriesChange) {
       return localPrescription;
     }
     return {
       ...localPrescription,
       sampleCount:
-        pendingSampleCount?.sampleCount ?? localPrescription.sampleCount,
+        sampleCountChange?.sampleCount ?? localPrescription.sampleCount,
       substanceKindsLaboratories:
-        pendingLaboratories?.substanceKindsLaboratories ??
+        laboratoriesChange?.substanceKindsLaboratories ??
         localPrescription.substanceKindsLaboratories
     };
   });
@@ -88,19 +93,18 @@ export const localPrescriptionsRouter = {
 
       console.info('Find local prescriptions', user.id, findOptions);
 
-      const viewerEchelon = editingEchelonForRole(userRole);
-
       const liveLocalPrescriptions = await localPrescriptionRepository.findMany(
         findOptions,
-        viewerEchelon ?? undefined
+        {
+          echelon: editingEchelonForRole(userRole),
+          seesUnappliedChanges: seesUnappliedLocalPrescriptionChanges(userRole)
+        }
       );
 
-      const localPrescriptions = viewerEchelon
-        ? await withPendingLocalPrescriptionChanges(
-            liveLocalPrescriptions,
-            viewerEchelon
-          )
-        : liveLocalPrescriptions;
+      const localPrescriptions = await withEffectiveLocalPrescriptionChanges(
+        liveLocalPrescriptions,
+        userRole
+      );
 
       const filterEmptyLocalPrescriptions = findOptions.allLevels
         ? localPrescriptions
@@ -151,7 +155,8 @@ export const localPrescriptionsRouter = {
         region,
         department,
         prescriptionIds,
-        viewedBy: user.id
+        viewedBy: user.id,
+        onlyApplied: !seesUnappliedLocalPrescriptionChanges(userRole)
       });
 
       return { status: HttpStatus.NO_CONTENT };
@@ -170,15 +175,12 @@ export const localPrescriptionsRouter = {
         includes
       });
 
-      const viewerEchelon = editingEchelonForRole(userRole);
-      const response = viewerEchelon
-        ? (
-            await withPendingLocalPrescriptionChanges(
-              [localPrescription],
-              viewerEchelon
-            )
-          )[0]
-        : localPrescription;
+      const response = (
+        await withEffectiveLocalPrescriptionChanges(
+          [localPrescription],
+          userRole
+        )
+      )[0];
 
       return {
         status: HttpStatus.OK,
@@ -219,13 +221,18 @@ export const localPrescriptionsRouter = {
       }
 
       if (canUpdateSampleCount) {
+        const [effectiveLocalPrescription] =
+          await withEffectiveLocalPrescriptionChanges(
+            [localPrescription],
+            userRole
+          );
         await localPrescriptionChangeRepository.insert({
           prescriptionId: localPrescription.prescriptionId,
           region: localPrescription.region,
           echelon: 'National',
           kind: 'sampleCount',
           sampleCount: localPrescriptionUpdate.sampleCount,
-          previousSampleCount: localPrescription.sampleCount,
+          previousSampleCount: effectiveLocalPrescription.sampleCount,
           changedAt: new Date()
         });
       }
@@ -328,6 +335,11 @@ export const localPrescriptionsRouter = {
       }
 
       if (canDistributeToDepartments) {
+        const [effectiveLocalPrescription] =
+          await withEffectiveLocalPrescriptionChanges(
+            [localPrescription],
+            userRole
+          );
         await localPrescriptionChangeRepository.insert({
           prescriptionId: localPrescription.prescriptionId,
           region: localPrescription.region,
@@ -335,7 +347,7 @@ export const localPrescriptionsRouter = {
           echelon: 'Regional',
           kind: 'sampleCount',
           sampleCount: localPrescriptionUpdate.sampleCount,
-          previousSampleCount: localPrescription.sampleCount,
+          previousSampleCount: effectiveLocalPrescription.sampleCount,
           changedAt: new Date()
         });
       }
@@ -457,15 +469,12 @@ export const localPrescriptionsRouter = {
           includes
         });
 
-        const viewerEchelon = editingEchelonForRole(userRole);
-        const response = viewerEchelon
-          ? (
-              await withPendingLocalPrescriptionChanges(
-                [localPrescription],
-                viewerEchelon
-              )
-            )[0]
-          : localPrescription;
+        const response = (
+          await withEffectiveLocalPrescriptionChanges(
+            [localPrescription],
+            userRole
+          )
+        )[0];
 
         return {
           status: HttpStatus.OK,

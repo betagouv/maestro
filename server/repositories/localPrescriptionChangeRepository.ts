@@ -56,6 +56,7 @@ const formatChange = (
     ? JSON.stringify(change.substanceKindsLaboratories)
     : null,
   diffusedAt: null,
+  appliedAt: null,
   changesViewedAt: null,
   changesViewedBy: null
 });
@@ -115,12 +116,14 @@ const markManyViewed = async ({
   region,
   department,
   prescriptionIds,
-  viewedBy
+  viewedBy,
+  onlyApplied
 }: {
   region: Region;
   department?: Department | null;
   prescriptionIds: string[];
   viewedBy: string;
+  onlyApplied?: boolean;
 }) => {
   if (prescriptionIds.length === 0) {
     return;
@@ -132,39 +135,13 @@ const markManyViewed = async ({
       if (!isNil(department)) {
         query.andWhere('department', department as string);
       }
+      if (onlyApplied) {
+        query.whereNotNull('appliedAt');
+      }
     })
     .whereNotNull('diffusedAt')
     .whereNull('changesViewedAt')
     .update({ changesViewedAt: new Date(), changesViewedBy: viewedBy });
-};
-
-const findLatestPending = async (
-  prescriptionIds: string[],
-  echelon: ProgrammingPlanEchelon
-): Promise<LocalPrescriptionChange[]> => {
-  if (prescriptionIds.length === 0) {
-    return [];
-  }
-  const rows = await LocalPrescriptionChanges()
-    .distinctOn([
-      'prescriptionId',
-      'region',
-      'department',
-      'companySiret',
-      'kind'
-    ])
-    .whereIn('prescriptionId', prescriptionIds)
-    .andWhere({ echelon })
-    .whereNull('diffusedAt')
-    .orderBy([
-      { column: 'prescriptionId' },
-      { column: 'region' },
-      { column: 'department' },
-      { column: 'companySiret' },
-      { column: 'kind' },
-      { column: 'changedAt', order: 'desc' }
-    ]);
-  return rows.map(parseChange);
 };
 
 interface PendingScope {
@@ -174,15 +151,24 @@ interface PendingScope {
   companySiret?: string | null;
 }
 
-const scopedQuery = (
-  transaction: Knex,
-  scope: PendingScope,
-  kind: LocalPrescriptionChangeKind,
-  echelon: ProgrammingPlanEchelon
-) => {
-  const query = LocalPrescriptionChanges(transaction)
-    .where({ echelon, kind })
-    .whereNull('diffusedAt');
+const changeKeyColumns = [
+  'prescriptionId',
+  'region',
+  'department',
+  'companySiret',
+  'kind'
+];
+
+const latestFirstOrder = [
+  { column: 'prescriptionId' },
+  { column: 'region' },
+  { column: 'department' },
+  { column: 'companySiret' },
+  { column: 'kind' },
+  { column: 'changedAt', order: 'desc' as const }
+];
+
+const applyScope = (query: Knex.QueryBuilder, scope: PendingScope) => {
   if (scope.prescriptionIds) {
     query.whereIn('prescriptionId', scope.prescriptionIds);
   }
@@ -195,6 +181,72 @@ const scopedQuery = (
   if (!isNil(scope.companySiret)) {
     query.andWhere({ companySiret: scope.companySiret });
   }
+};
+
+const findLatestPending = async (
+  prescriptionIds: string[],
+  echelon: ProgrammingPlanEchelon
+): Promise<LocalPrescriptionChange[]> => {
+  if (prescriptionIds.length === 0) {
+    return [];
+  }
+  const rows = await LocalPrescriptionChanges()
+    .distinctOn(changeKeyColumns)
+    .whereIn('prescriptionId', prescriptionIds)
+    .andWhere({ echelon })
+    .whereNull('diffusedAt')
+    .orderBy(latestFirstOrder);
+  return rows.map(parseChange);
+};
+
+const findDiffusedUnapplied = async (
+  scope: PendingScope,
+  echelon: ProgrammingPlanEchelon
+): Promise<LocalPrescriptionChange[]> => {
+  if (scope.prescriptionIds?.length === 0) {
+    return [];
+  }
+  const rows = await LocalPrescriptionChanges()
+    .distinctOn(changeKeyColumns)
+    .where({ echelon })
+    .whereNotNull('diffusedAt')
+    .whereNull('appliedAt')
+    .modify((query) => applyScope(query, scope))
+    .orderBy(latestFirstOrder);
+  return rows.map(parseChange);
+};
+
+const findEffectiveChanges = async (
+  prescriptionIds: string[],
+  viewerEchelon: ProgrammingPlanEchelon | null
+): Promise<LocalPrescriptionChange[]> => {
+  if (prescriptionIds.length === 0) {
+    return [];
+  }
+  const rows = await LocalPrescriptionChanges()
+    .distinctOn(changeKeyColumns)
+    .whereIn('prescriptionId', prescriptionIds)
+    .whereNull('appliedAt')
+    .andWhere((query) => {
+      query.whereNotNull('diffusedAt');
+      if (viewerEchelon) {
+        query.orWhere({ echelon: viewerEchelon });
+      }
+    })
+    .orderBy(latestFirstOrder);
+  return rows.map(parseChange);
+};
+
+const scopedQuery = (
+  transaction: Knex,
+  scope: PendingScope,
+  kind: LocalPrescriptionChangeKind,
+  echelon: ProgrammingPlanEchelon
+) => {
+  const query = LocalPrescriptionChanges(transaction)
+    .where({ echelon, kind })
+    .whereNull('diffusedAt');
+  applyScope(query, scope);
   return query;
 };
 
@@ -211,26 +263,31 @@ const commitPending = async (
   });
 };
 
+const markApplied = async (
+  scope: PendingScope,
+  kind: LocalPrescriptionChangeKind,
+  echelon: ProgrammingPlanEchelon,
+  transaction: Knex = db
+): Promise<void> => {
+  await LocalPrescriptionChanges(transaction)
+    .where({ echelon, kind })
+    .whereNotNull('diffusedAt')
+    .whereNull('appliedAt')
+    .modify((query) => applyScope(query, scope))
+    .update({
+      appliedAt: new Date(),
+      changesViewedAt: null,
+      changesViewedBy: null
+    });
+};
+
 const existsPendingForScope = async (
   scope: PendingScope,
   echelon: ProgrammingPlanEchelon
 ): Promise<boolean> => {
   const row = await LocalPrescriptionChanges()
     .where({ echelon })
-    .modify((query) => {
-      if (scope.prescriptionIds) {
-        query.whereIn('prescriptionId', scope.prescriptionIds);
-      }
-      if (scope.region) {
-        query.andWhere({ region: scope.region });
-      }
-      if (!isNil(scope.department)) {
-        query.andWhere('department', scope.department as string);
-      }
-      if (!isNil(scope.companySiret)) {
-        query.andWhere({ companySiret: scope.companySiret });
-      }
-    })
+    .modify((query) => applyScope(query, scope))
     .whereNull('diffusedAt')
     .first();
   return !!row;
@@ -242,6 +299,9 @@ export default {
   markViewed,
   markManyViewed,
   findLatestPending,
+  findDiffusedUnapplied,
+  findEffectiveChanges,
   commitPending,
+  markApplied,
   existsPendingForScope
 };

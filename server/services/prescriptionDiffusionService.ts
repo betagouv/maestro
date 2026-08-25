@@ -1,6 +1,10 @@
 import { isNil } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import type { Region } from 'maestro-shared/referential/Region';
+import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
+import type { LocalPrescriptionChange } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
+import type { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
+import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import localPrescriptionChangeRepository from '../repositories/localPrescriptionChangeRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionChangeRepository from '../repositories/prescriptionChangeRepository';
@@ -22,6 +26,94 @@ interface DepartmentalCommitResult {
   companySirets: string[];
 }
 
+interface FlushScope {
+  prescriptionIds: string[];
+  region: Region;
+  department?: Department;
+}
+
+const findLiveRow = (
+  localPrescriptions: LocalPrescription[],
+  change: Pick<
+    LocalPrescriptionChange,
+    'prescriptionId' | 'region' | 'department'
+  >
+) =>
+  localPrescriptions.find(
+    (_) =>
+      _.prescriptionId === change.prescriptionId &&
+      _.region === change.region &&
+      (_.department ?? undefined) === (change.department ?? undefined) &&
+      isNil(_.companySiret)
+  );
+
+const writeChangeToLive = async (
+  change: LocalPrescriptionChange,
+  localPrescriptions: LocalPrescription[]
+): Promise<void> => {
+  const localPrescription = findLiveRow(localPrescriptions, change);
+  if (!localPrescription) {
+    return;
+  }
+  if (change.kind === 'sampleCount' && !isNil(change.sampleCount)) {
+    await localPrescriptionRepository.update({
+      ...localPrescription,
+      sampleCount: change.sampleCount
+    });
+  } else if (
+    change.kind === 'laboratories' &&
+    change.substanceKindsLaboratories
+  ) {
+    await localPrescriptionDiffusionService.commitLaboratories(
+      localPrescription,
+      change.substanceKindsLaboratories
+    );
+  }
+};
+
+/**
+ * Writes into `local_prescriptions` the changes an echelon has already
+ * submitted (`diffusedAt` set) but that were held back from the live rows
+ * (`appliedAt` null), then stamps them as applied. Live rows are what the
+ * echelon below reads — Samplers for the terminal one — so a change only
+ * lands there when the echelon that received it passes it on in turn.
+ * Resetting `changesViewedAt` mirrors what `commitPending` does when it sets
+ * `diffusedAt`: the recipients of the freshly applied value get the
+ * before/after marker.
+ */
+const flushDiffusedChanges = async (
+  scope: FlushScope,
+  echelon: ProgrammingPlanEchelon,
+  localPrescriptions: LocalPrescription[]
+): Promise<void> => {
+  const diffusedChanges =
+    await localPrescriptionChangeRepository.findDiffusedUnapplied(
+      scope,
+      echelon
+    );
+  for (const change of diffusedChanges) {
+    await writeChangeToLive(change, localPrescriptions);
+  }
+  await localPrescriptionChangeRepository.markApplied(
+    scope,
+    'sampleCount',
+    echelon
+  );
+  await localPrescriptionChangeRepository.markApplied(
+    scope,
+    'laboratories',
+    echelon
+  );
+};
+
+/**
+ * Submits the National echelon's edits to the regions. National sample counts
+ * (`prescriptions`) are committed right away, but the per-region
+ * `local_prescriptions` rows are left untouched: for REGIONAL plans they are
+ * the very rows Samplers read, so they are only written when the region
+ * diffuses in turn. Until then the regions read the new value through the
+ * `local_prescription_changes` overlay.
+ */
 const commitPendingNationalChanges = async (
   programmingPlanId: string
 ): Promise<CommitResult> => {
@@ -49,9 +141,6 @@ const commitPendingNationalChanges = async (
     programmingPlanIds: [programmingPlanId],
     allLevels: true
   });
-  const regionLocalPrescriptions = localPrescriptions.filter((_) =>
-    isNil(_.department)
-  );
 
   const pendingLocalChanges =
     await localPrescriptionChangeRepository.findLatestPending(
@@ -63,16 +152,7 @@ const commitPendingNationalChanges = async (
     if (pending.kind !== 'sampleCount' || isNil(pending.sampleCount)) {
       continue;
     }
-    const localPrescription = regionLocalPrescriptions.find(
-      (_) =>
-        _.prescriptionId === pending.prescriptionId &&
-        _.region === pending.region
-    );
-    if (localPrescription) {
-      await localPrescriptionRepository.update({
-        ...localPrescription,
-        sampleCount: pending.sampleCount
-      });
+    if (findLiveRow(localPrescriptions, pending)) {
       regions.add(pending.region);
     }
   }
@@ -85,18 +165,10 @@ const commitPendingNationalChanges = async (
   return { prescriptionIds, regions: Array.from(regions) };
 };
 
-/**
- * Applies the Regional echelon's pending edits, for one region, to the
- * live local_prescriptions tables: the region-level sampleCount/labs, and
- * the region's split by department (sampleCount + labs). Called right
- * before the plan advances that region past SubmittedToRegion, so
- * Departmental (and Samplers, for REGIONAL-kind plans) see these values
- * instead of a half-diffused mix. Company/abattoir-level bulk splits are a
- * Departmental-authored concern, not committed here.
- */
 const commitPendingRegionalChanges = async (
   programmingPlanId: string,
-  region: Region
+  region: Region,
+  distributionKind: DistributionKind
 ): Promise<RegionalCommitResult> => {
   const prescriptions = await prescriptionRepository.findMany({
     programmingPlanIds: [programmingPlanId]
@@ -109,6 +181,12 @@ const commitPendingRegionalChanges = async (
     allLevels: true
   });
 
+  await flushDiffusedChanges(
+    { prescriptionIds, region },
+    'National',
+    localPrescriptions
+  );
+
   const pendingChanges = (
     await localPrescriptionChangeRepository.findLatestPending(
       prescriptionIds,
@@ -118,30 +196,6 @@ const commitPendingRegionalChanges = async (
 
   const departments = new Set<Department>();
   for (const pending of pendingChanges) {
-    const localPrescription = localPrescriptions.find(
-      (_) =>
-        _.prescriptionId === pending.prescriptionId &&
-        _.region === pending.region &&
-        (_.department ?? undefined) === (pending.department ?? undefined) &&
-        isNil(_.companySiret)
-    );
-    if (!localPrescription) {
-      continue;
-    }
-    if (pending.kind === 'sampleCount' && !isNil(pending.sampleCount)) {
-      await localPrescriptionRepository.update({
-        ...localPrescription,
-        sampleCount: pending.sampleCount
-      });
-    } else if (
-      pending.kind === 'laboratories' &&
-      pending.substanceKindsLaboratories
-    ) {
-      await localPrescriptionDiffusionService.commitLaboratories(
-        localPrescription,
-        pending.substanceKindsLaboratories
-      );
-    }
     if (pending.department) {
       departments.add(pending.department);
     }
@@ -158,16 +212,17 @@ const commitPendingRegionalChanges = async (
     'Regional'
   );
 
+  if (distributionKind === 'REGIONAL') {
+    await flushDiffusedChanges(
+      { prescriptionIds, region },
+      'Regional',
+      localPrescriptions
+    );
+  }
+
   return { prescriptionIds, departments: Array.from(departments) };
 };
 
-/**
- * Applies the Departmental echelon's pending edits, for one department, to
- * the live local_prescriptions tables: department-level labs and the
- * abattoir-level sampleCount bulk split. Called right before
- * "Lancer la campagne" / a re-diffusion, so Samplers see these values
- * instead of a half-diffused mix.
- */
 const commitPendingDepartmentalChanges = async (
   programmingPlanId: string,
   region: Region,
@@ -185,6 +240,12 @@ const commitPendingDepartmentalChanges = async (
     allLevels: true
   });
 
+  await flushDiffusedChanges(
+    { prescriptionIds, region, department },
+    'Regional',
+    localPrescriptions
+  );
+
   const pendingChanges = (
     await localPrescriptionChangeRepository.findLatestPending(
       prescriptionIds,
@@ -196,8 +257,6 @@ const commitPendingDepartmentalChanges = async (
 
   const companySirets = new Set<string>();
 
-  // Department-level labs: a live row always pre-exists (seeded at
-  // prescription creation), so a direct commit is enough.
   for (const pending of pendingChanges) {
     if (
       pending.kind !== 'laboratories' ||
@@ -205,13 +264,7 @@ const commitPendingDepartmentalChanges = async (
     ) {
       continue;
     }
-    const localPrescription = localPrescriptions.find(
-      (_) =>
-        _.prescriptionId === pending.prescriptionId &&
-        _.region === pending.region &&
-        (_.department ?? undefined) === (pending.department ?? undefined) &&
-        isNil(_.companySiret)
-    );
+    const localPrescription = findLiveRow(localPrescriptions, pending);
     if (localPrescription) {
       await localPrescriptionDiffusionService.commitLaboratories(
         localPrescription,
@@ -220,11 +273,6 @@ const commitPendingDepartmentalChanges = async (
     }
   }
 
-  // Abattoir-level sampleCount bulk split: unlike region/department rows,
-  // a company's local_prescriptions row is never pre-seeded (companies are
-  // dynamic), so a plain .update() would silently no-op on a new abattoir.
-  // Mirror the live route's own semantics instead: one delete-then-reinsert
-  // per prescription, replacing the full company set at once.
   const sampleCountPendingByPrescription = new Map<
     string,
     typeof pendingChanges
@@ -267,6 +315,16 @@ const commitPendingDepartmentalChanges = async (
     'Departmental'
   );
   await localPrescriptionChangeRepository.commitPending(
+    { prescriptionIds, region, department },
+    'laboratories',
+    'Departmental'
+  );
+  await localPrescriptionChangeRepository.markApplied(
+    { prescriptionIds, region, department },
+    'sampleCount',
+    'Departmental'
+  );
+  await localPrescriptionChangeRepository.markApplied(
     { prescriptionIds, region, department },
     'laboratories',
     'Departmental'

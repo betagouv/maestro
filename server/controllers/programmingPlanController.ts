@@ -150,8 +150,8 @@ export const programmingPlanRouter = {
 
           const admins = await userRepository.findMany({
             roles: ['AdministratorBGIR'],
-            disabled: false
-            //FIXME stages ... programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+            disabled: false,
+            stages: stagesFromSubPlans(plan.subPlans)
           });
 
           await notificationService.sendNotification(
@@ -195,8 +195,8 @@ export const programmingPlanRouter = {
 
           const regionalCoordinators = await userRepository.findMany({
             roles: ['RegionalCoordinator'],
-            disabled: false
-            //FIXME stages ... programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+            disabled: false,
+            stages: stagesFromSubPlans(plan.subPlans)
           });
 
           await notificationService.sendNotification(
@@ -223,8 +223,8 @@ export const programmingPlanRouter = {
             const regionalCoordinators = await userRepository.findMany({
               roles: ['RegionalCoordinator'],
               region: affectedRegion.region,
-              disabled: false
-              //FIXME stages ...programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+              disabled: false,
+              stages: stagesFromSubPlans(plan.subPlans)
             });
 
             await notificationService.sendNotification(
@@ -281,7 +281,8 @@ export const programmingPlanRouter = {
 
         await prescriptionDiffusionService.commitPendingRegionalChanges(
           plan.id,
-          region
+          region,
+          plan.distributionKind
         );
 
         if (!isModified) {
@@ -302,8 +303,8 @@ export const programmingPlanRouter = {
           const departmentalCoordinators = await userRepository.findMany({
             roles: ['DepartmentalCoordinator'],
             region,
-            disabled: false
-            //FIXME stages ...programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+            disabled: false,
+            stages: stagesFromSubPlans(plan.subPlans)
           });
 
           await notificationService.sendNotification(
@@ -326,8 +327,8 @@ export const programmingPlanRouter = {
             const departmentalCoordinators = await userRepository.findMany({
               roles: ['DepartmentalCoordinator'],
               region,
-              disabled: false
-              //FIXME stages ...programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+              disabled: false,
+              stages: stagesFromSubPlans(plan.subPlans)
             });
 
             await notificationService.sendNotification(
@@ -384,14 +385,15 @@ export const programmingPlanRouter = {
 
         await prescriptionDiffusionService.commitPendingRegionalChanges(
           plan.id,
-          region
+          region,
+          plan.distributionKind
         );
 
         const samplers = await userRepository.findMany({
           roles: ['Sampler'],
           region,
-          disabled: false
-          //FIXME stages ...programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+          disabled: false,
+          stages: stagesFromSubPlans(plan.subPlans)
         });
 
         if (regionalStatus.status === 'SubmittedToRegion') {
@@ -424,8 +426,8 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
 
           const nationalCoordinators = await userRepository.findMany({
             roles: ['NationalCoordinator'],
-            disabled: false
-            //Fixme stages ... programmingSubPlanIds: plan.subPlans.map((sp) => sp.id)
+            disabled: false,
+            stages: stagesFromSubPlans(plan.subPlans)
           });
 
           await notificationService.sendNotification(
@@ -683,15 +685,22 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
         );
       }
 
-      const regionsSubmittingToDepartments = new Set(
+      const regionsDiffusing = new Set(
         programmingPlanLocalStatusList
-          .filter((_) => !_.department && _.status === 'SubmittedToDepartments')
+          .filter(
+            (_) =>
+              !_.department &&
+              (_.status === 'SubmittedToDepartments' ||
+                (_.status === 'Validated' &&
+                  programmingPlan.distributionKind === 'REGIONAL'))
+          )
           .map((_) => _.region as Region)
       );
-      for (const region of regionsSubmittingToDepartments) {
+      for (const region of regionsDiffusing) {
         await prescriptionDiffusionService.commitPendingRegionalChanges(
           programmingPlanId,
-          region
+          region,
+          programmingPlan.distributionKind
         );
       }
 

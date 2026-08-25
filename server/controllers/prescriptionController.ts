@@ -17,6 +17,7 @@ import prescriptionSubstanceRepository from '../repositories/prescriptionSubstan
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
+import { withEffectiveLocalPrescriptionChanges } from './localPrescriptionController';
 
 const withPendingPrescriptionChanges = async (
   prescriptions: Prescription[],
@@ -141,15 +142,18 @@ export const prescriptionsRouter = {
         await prescriptionRepository.findMany(queryFindOptions),
         userRole
       );
-      const localPrescriptions = await localPrescriptionRepository.findMany({
-        programmingPlanIds: queryFindOptions.programmingPlanId
-          ? [queryFindOptions.programmingPlanId]
-          : undefined,
-        contexts: queryFindOptions.contexts,
-        region: exportedRegion,
-        department: exportedDepartment,
-        includes: ['comments', 'sampleCounts', 'laboratories']
-      });
+      const localPrescriptions = await withEffectiveLocalPrescriptionChanges(
+        await localPrescriptionRepository.findMany({
+          programmingPlanIds: queryFindOptions.programmingPlanId
+            ? [queryFindOptions.programmingPlanId]
+            : undefined,
+          contexts: queryFindOptions.contexts,
+          region: exportedRegion,
+          department: exportedDepartment,
+          includes: ['comments', 'sampleCounts', 'laboratories']
+        }),
+        userRole
+      );
 
       const fileName = `prescriptions${
         findOptions.contexts

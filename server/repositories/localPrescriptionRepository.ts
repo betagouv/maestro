@@ -33,9 +33,14 @@ type LocalPrescriptionsDbo = z.infer<typeof LocalPrescriptionsDbo>;
 export const LocalPrescriptions = (transaction = db) =>
   transaction<LocalPrescriptionsDbo>(localPrescriptionsTable);
 
+export interface LocalPrescriptionViewer {
+  echelon: ProgrammingPlanEchelon | null;
+  seesUnappliedChanges: boolean;
+}
+
 const findPendingChanges = async (
   prescriptionIds: string[],
-  viewerEchelon?: ProgrammingPlanEchelon
+  viewer?: LocalPrescriptionViewer
 ): Promise<
   Map<
     LocalPrescriptionKeyString,
@@ -58,19 +63,18 @@ const findPendingChanges = async (
     .whereIn('prescriptionId', prescriptionIds)
     .andWhere({ kind: 'sampleCount' })
     .modify((query) => {
-      if (viewerEchelon) {
-        query.whereNot({ echelon: viewerEchelon });
+      if (viewer?.echelon) {
+        query.whereNot({ echelon: viewer.echelon });
+      }
+      if (!viewer?.seesUnappliedChanges) {
+        query.whereNotNull('appliedAt');
       }
     })
     .whereNull('changesViewedAt')
     .whereNotNull('diffusedAt')
-    .orderBy([
-      { column: 'prescriptionId' },
-      { column: 'region' },
-      { column: 'department' },
-      { column: 'companySiret' },
-      { column: 'changedAt', order: 'asc' }
-    ]);
+    .orderByRaw(
+      'prescription_id, region, department, company_siret, (applied_at is null) desc, changed_at asc'
+    );
   return new Map(
     rows.map((row: (typeof rows)[number]) => [
       toLocalPrescriptionKeyString({
@@ -89,11 +93,11 @@ const findPendingChanges = async (
 
 const withPendingChanges = async (
   localPrescriptions: LocalPrescription[],
-  viewerEchelon?: ProgrammingPlanEchelon
+  viewer?: LocalPrescriptionViewer
 ): Promise<LocalPrescription[]> => {
   const pendingByKey = await findPendingChanges(
     uniq(localPrescriptions.map((_) => _.prescriptionId)),
-    viewerEchelon
+    viewer
   );
   return localPrescriptions.map((localPrescription) => {
     const pending = pendingByKey.get(
@@ -134,7 +138,7 @@ const findUnique = async ({
 
 const findMany = async (
   findOptions: FindLocalPrescriptionOptions,
-  viewerEchelon?: ProgrammingPlanEchelon
+  viewer?: LocalPrescriptionViewer
 ): Promise<LocalPrescription[]> => {
   console.info('Find local prescriptions', omitBy(findOptions, isNil));
   return LocalPrescriptions()
@@ -218,7 +222,7 @@ const findMany = async (
       if (!findOptions.includes?.includes('pendingChanges')) {
         return localPrescriptions;
       }
-      return withPendingChanges(localPrescriptions, viewerEchelon);
+      return withPendingChanges(localPrescriptions, viewer);
     });
 };
 

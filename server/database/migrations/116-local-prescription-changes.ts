@@ -22,6 +22,7 @@ export const up = async (knex: Knex) => {
       .notNullable()
       .defaultTo(knex.fn.now());
     table.timestamp('diffused_at', { useTz: true }).nullable();
+    table.timestamp('applied_at', { useTz: true }).nullable();
     table.timestamp('changes_viewed_at', { useTz: true }).nullable();
     table
       .uuid('changes_viewed_by')
@@ -41,7 +42,8 @@ export const up = async (knex: Knex) => {
         'company_siret',
         'echelon',
         'kind',
-        'diffused_at'
+        'diffused_at',
+        'applied_at'
       ],
       'local_prescription_changes_diffusion_idx'
     );
