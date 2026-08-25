@@ -348,6 +348,8 @@
   .plan-group-sticky-container {
     position: sticky;
     z-index: 2;
+    background-color: var(--background-open-blue-france);
+    border-bottom: 1px solid var(--border-contrast-grey);
   }
 
   .plan-group-title {
@@ -366,7 +368,6 @@
       background-color: var(--background-open-blue-france) !important;
       color: var(--text-default-grey) !important;
       border-bottom: none !important;
-      box-shadow: inset 0 -1px 0 0 var(--border-contrast-grey);
     }
   }
 
