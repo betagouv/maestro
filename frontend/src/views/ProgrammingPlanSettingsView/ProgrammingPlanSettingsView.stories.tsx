@@ -84,15 +84,19 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
+    //le libellé d'un domaine apparaît aussi dans les selects de la section de rattachement
     const domainCard = (label: string) =>
-      within(canvas.getByText(label).closest('.fr-card') as HTMLElement);
+      within(
+        canvas
+          .getAllByText(label)
+          .map((element) => element.closest('.fr-card'))
+          .find((card) => card !== null) as HTMLElement
+      );
 
-    await expect(canvas.getByText('2026')).toBeInTheDocument();
-
-    await expect(canvas.getByText('Résidus de pesticides')).toBeInTheDocument();
     await expect(
-      canvas.getByText('Contaminants chimiques')
+      canvas.getByRole('button', { name: '2026' })
     ).toBeInTheDocument();
+
     await expect(canvas.getByText('Tous les domaines (2)')).toBeInTheDocument();
 
     await expect(
@@ -109,10 +113,12 @@ export const Default: Story = {
       domainCard('Contaminants chimiques').getByText('Campagne lancée')
     ).toBeInTheDocument();
 
-    await userEvent.click(canvas.getByText('2026'));
-    await userEvent.click(await canvas.findByText('2024'));
+    await userEvent.click(canvas.getByRole('button', { name: '2026' }));
+    await userEvent.click(await canvas.findByRole('button', { name: '2024' }));
 
-    await expect(canvas.getByText('2024')).toBeInTheDocument();
+    await expect(
+      canvas.getByRole('button', { name: '2024' })
+    ).toBeInTheDocument();
     await expect(
       domainCard('Résidus de pesticides').getByText('1 plan / 1 sous-plan')
     ).toBeInTheDocument();
