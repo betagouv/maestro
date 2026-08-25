@@ -1,8 +1,9 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Notice from '@codegouvfr/react-dsfr/Notice';
 import Tabs, { type TabsProps } from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
-import { isEmpty, mapValues, max, omitBy } from 'lodash-es';
+import { isEmpty, isNil, mapValues, max, omitBy } from 'lodash-es';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
@@ -36,8 +37,10 @@ import { ApiClientContext } from '../../services/apiClient';
 import prescriptionsSlice, {
   type PrescriptionFilters
 } from '../../store/reducers/prescriptionsSlice';
+import { pluralize } from '../../utils/stringUtils';
 import ProgrammingCommentList from './ProgrammingCommentList/ProgrammingCommentList';
 import ProgrammingPlanTrackingTable from './ProgrammingPlanTrackingTable/ProgrammingPlanTrackingTable';
+import { useProgrammingPlanTrackingStatus } from './ProgrammingPlanTrackingTable/useProgrammingPlanTrackingStatus';
 import ProgrammingPrescriptionList from './ProgrammingPrescriptionList/ProgrammingPrescriptionList';
 import './ProgrammingView.scss';
 
@@ -193,6 +196,50 @@ const ProgrammingView = () => {
     [commentLocalPrescription]
   );
 
+  const { readyToSendPlans } = useProgrammingPlanTrackingStatus(
+    programmingPlans ?? [],
+    region ?? undefined,
+    user?.department ?? undefined
+  );
+
+  const readyToSendSubtitle = useMemo(() => {
+    const count = readyToSendPlans.length;
+    if (!count) {
+      return undefined;
+    }
+    const plural = `${count} ${pluralize(count)('plan')} ${count > 1 ? 'sont prêts' : 'est prêt'}`;
+
+    if (hasRole('AdministratorBGIR')) {
+      return `${plural} à être soumis aux régions.`;
+    }
+    if (hasRole('NationalCoordinator')) {
+      return `${plural} à être soumis à l'administrateur et/ou aux régions.`;
+    }
+    if (hasRole('RegionalCoordinator')) {
+      const hasSlaughterhouse = readyToSendPlans.some(
+        (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
+      );
+      const hasRegional = readyToSendPlans.some(
+        (plan) => plan.distributionKind !== 'SLAUGHTERHOUSE'
+      );
+      if (hasSlaughterhouse && hasRegional) {
+        return `${plural} à être soumis aux départements et/ou diffusés aux préleveurs.`;
+      }
+      return hasSlaughterhouse
+        ? `${plural} à être soumis aux départements.`
+        : `${plural} à être diffusés aux préleveurs.`;
+    }
+    if (hasRole('DepartmentalCoordinator')) {
+      const awaitsLaunch = readyToSendPlans.some((plan) =>
+        isNil(plan.launchedAt)
+      );
+      return awaitsLaunch
+        ? `${plural} à être diffusés aux préleveurs. Ils seront visibles des préleveurs dès le lancement de la campagne par le BGIR.`
+        : `${plural} à être diffusés aux préleveurs.`;
+    }
+    return undefined;
+  }, [readyToSendPlans, hasRole]);
+
   const rawTabs: (TabsProps.Controlled['tabs'][number] | undefined)[] = [
     {
       label: 'Tous les sous-plans',
@@ -250,6 +297,30 @@ const ProgrammingView = () => {
           <div className={cx('fr-container')}>
             <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
               <div className={cx('fr-col-12')}>
+                {readyToSendSubtitle && (
+                  <div className="ready-to-send-notice">
+                    <Notice
+                      title="Plans à envoyer"
+                      description={readyToSendSubtitle}
+                      link={{
+                        linkProps: {
+                          to: '',
+                          // Notice forces target="_blank", which DSFR decorates with an
+                          // external-link icon. The tab is right here, not elsewhere.
+                          target: undefined,
+                          rel: undefined,
+                          onClick: (event) => {
+                            // The tab lives in this page: keep the anchor semantics
+                            // without letting the router navigate anywhere.
+                            event.preventDefault();
+                            handleTabChange('PlanTrackingTab');
+                          }
+                        },
+                        text: 'Voir le suivi des plans'
+                      }}
+                    />
+                  </div>
+                )}
                 {!programmingPlans.length ? (
                   <Alert
                     description={
