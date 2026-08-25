@@ -23,11 +23,12 @@ const appRoutePaths = {
   LaboratoryAnalyticalCompetencesRoute: '/competences-analytiques',
   LaboratoryAgreementsRoute: '/laboratoires/agrements',
   ProgrammingPlanSettingsRoute: '/parametrage-des-plans',
-  ProgrammingPlanSettingsDomainRoute: '/parametrage-des-plans/:domainId',
+  ProgrammingPlanSettingsDomainRoute:
+    '/parametrage-des-plans/domaines/:domainId',
   ProgrammingPlanSettingsPlanRoute:
-    '/parametrage-des-plans/:domainId/:programmingPlanId',
+    '/parametrage-des-plans/plans/:programmingPlanId',
   ProgrammingPlanSettingsSubPlanRoute:
-    '/parametrage-des-plans/:domainId/:programmingPlanId/:subPlanId'
+    '/parametrage-des-plans/plans/:programmingPlanId/:subPlanId'
 } as const;
 
 export type AppRouteKeys = keyof typeof appRoutePaths;
@@ -55,15 +56,6 @@ type AppRouteSearchParams = {
     documentId?: string;
   };
   ProgrammingPlanSettingsRoute: {
-    year?: number;
-  };
-  ProgrammingPlanSettingsDomainRoute: {
-    year?: number;
-  };
-  ProgrammingPlanSettingsPlanRoute: {
-    year?: number;
-  };
-  ProgrammingPlanSettingsSubPlanRoute: {
     year?: number;
   };
 };

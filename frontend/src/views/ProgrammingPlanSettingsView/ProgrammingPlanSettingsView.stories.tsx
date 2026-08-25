@@ -1,14 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RegionList } from 'maestro-shared/referential/Region';
+import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
-  ChemicalContaminantDomainId,
   genProgrammingPlan,
-  genProgrammingSubPlan,
-  PesticideResidueDomainId
+  genProgrammingPlanDomain,
+  genProgrammingSubPlan
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { genAuthUser } from 'maestro-shared/test/userFixtures';
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { getMockApi } from '../../services/mockApiClient';
 import { ProgrammingPlanSettingsView } from './ProgrammingPlanSettingsView';
 
@@ -16,6 +16,15 @@ const regionalStatus = (status: ProgrammingPlanStatus) =>
   RegionList.map((region) => ({ region, status }));
 
 const createProgrammingPlanDomain = fn();
+
+const pesticideDomains = [2024, 2025, 2026].map((year) =>
+  genProgrammingPlanDomain({ label: 'Résidus de pesticides', year })
+);
+const chemicalDomains = [2024, 2025, 2026].map((year) =>
+  genProgrammingPlanDomain({ label: 'Contaminants chimiques', year })
+);
+const [pesticide2024, pesticide2025, pesticide2026] = pesticideDomains;
+const [, , chemical2026] = chemicalDomains;
 
 const meta = {
   title: 'Views/ProgrammingPlanSettings',
@@ -25,32 +34,35 @@ const meta = {
       auth: { authUser: genAuthUser({ userRole: 'AdministratorMaestro' }) }
     },
     apiClient: getMockApi({
+      useFindProgrammingPlanDomainsQuery: {
+        data: [...pesticideDomains, ...chemicalDomains]
+      },
       useFindProgrammingPlansQuery: {
         data: [
           genProgrammingPlan({
             year: 2024,
-            domainId: PesticideResidueDomainId,
+            domainId: pesticide2024.id,
             regionalStatus: regionalStatus('InProgress')
           }),
           genProgrammingPlan({
             year: 2025,
-            domainId: PesticideResidueDomainId,
+            domainId: pesticide2025.id,
             regionalStatus: regionalStatus('Validated')
           }),
           genProgrammingPlan({
             year: 2026,
-            domainId: PesticideResidueDomainId,
+            domainId: pesticide2026.id,
             subPlans: [genProgrammingSubPlan(), genProgrammingSubPlan()],
             regionalStatus: regionalStatus('Validated')
           }),
           genProgrammingPlan({
             year: 2026,
-            domainId: PesticideResidueDomainId,
+            domainId: pesticide2026.id,
             regionalStatus: regionalStatus('SubmittedToRegion')
           }),
           genProgrammingPlan({
             year: 2026,
-            domainId: ChemicalContaminantDomainId,
+            domainId: chemical2026.id,
             subPlans: [
               genProgrammingSubPlan(),
               genProgrammingSubPlan(),
@@ -118,6 +130,11 @@ export const Default: Story = {
 };
 
 export const AddDomain: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsRoute.link({ year: 2026 })
+    ]
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
@@ -145,8 +162,11 @@ export const AddDomain: Story = {
     );
     await userEvent.click(modal.getByText('Ajouter'));
 
-    await expect(createProgrammingPlanDomain).toHaveBeenCalledWith({
-      label: 'Contaminants environnementaux'
-    });
+    await waitFor(() =>
+      expect(createProgrammingPlanDomain).toHaveBeenCalledWith({
+        label: 'Contaminants environnementaux',
+        year: 2026
+      })
+    );
   }
 };

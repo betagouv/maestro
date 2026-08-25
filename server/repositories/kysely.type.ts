@@ -435,6 +435,7 @@ export interface UserCompanies {
 export interface ProgrammingPlanDomains {
   id: Generated<ProgrammingPlanDomainId>;
   label: string;
+  year: number;
 }
 
 export interface ProgrammingSubPlans {

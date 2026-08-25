@@ -1,3 +1,4 @@
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { isNil } from 'lodash-es';
 import { assert, type Equals } from 'tsafe';
 import YearSelector from '../YearSelector/YearSelector';
@@ -6,7 +7,7 @@ type Props = {
   title: string;
   year: number | undefined;
   years: number[];
-  onChange: (year: number) => void;
+  onChange?: (year: number) => void;
 };
 
 export const YearTitle = ({
@@ -20,9 +21,9 @@ export const YearTitle = ({
 
   return (
     <div className="d-flex-align-center">
-      {title}{' '}
-      {isNil(year) || years.length <= 1 ? (
-        year
+      {title}
+      {isNil(year) || years.length <= 1 || !onChange ? (
+        <span className={cx('fr-px-2w', 'fr-py-1w')}>{year}</span>
       ) : (
         <YearSelector year={year} years={years} onChange={onChange} />
       )}

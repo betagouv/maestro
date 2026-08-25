@@ -15,10 +15,7 @@ import {
   type ProgrammingPlanStatus,
   ProgrammingPlanStatusPermissions
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import {
-  ProgrammingSubPlanId,
-  stagesFromSubPlans
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   hasPermission,
   stagesIsRequired,
@@ -29,13 +26,10 @@ import {
   isNationalRole,
   isRegionalRole
 } from 'maestro-shared/schema/User/UserRole';
-import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
-import prescriptionRepository from '../repositories/prescriptionRepository';
-import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import { userRepository } from '../repositories/userRepository';
@@ -409,97 +403,6 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
       return {
         status: HttpStatus.OK,
         response: updatedProgrammingPlan
-      };
-    }
-  },
-  '/programming-plans/years/:year': {
-    post: async ({ user }, { year }) => {
-      const previousProgrammingPlan = await programmingPlanRepository.findOne(
-        year - 1,
-        user.programmingSubPlans.map((sp) => sp.id)
-      );
-
-      if (
-        !previousProgrammingPlan ||
-        previousProgrammingPlan.regionalStatus.some(
-          (_) => _.status !== 'Validated'
-        )
-      ) {
-        throw new ProgrammingPlanMissingError(String(year - 1));
-      }
-
-      const newPlanId = uuidv4();
-      const newProgrammingPlan = {
-        id: newPlanId,
-        createdAt: new Date(),
-        createdBy: user.id,
-        title: previousProgrammingPlan.title,
-        domainId: previousProgrammingPlan.domainId,
-        subPlans: previousProgrammingPlan.subPlans.map((subPlan) => ({
-          ...subPlan,
-          id: ProgrammingSubPlanId.parse(uuidv4()),
-          programmingPlanId: newPlanId
-        })),
-        contexts: previousProgrammingPlan.contexts,
-        legalContexts: previousProgrammingPlan.legalContexts,
-        samplesOutsidePlanAllowed:
-          previousProgrammingPlan.samplesOutsidePlanAllowed,
-        distributionKind: previousProgrammingPlan.distributionKind,
-        year,
-        regionalStatus: RegionList.map((region) => ({
-          region,
-          status: 'InProgress' as const
-        })),
-        departmentalStatus: []
-      };
-
-      await programmingPlanRepository.insert(newProgrammingPlan);
-
-      const previousPrescriptions = await prescriptionRepository.findMany({
-        programmingPlanId: previousProgrammingPlan.id
-      });
-      const previousLocalPrescriptions =
-        await localPrescriptionRepository.findMany({
-          programmingPlanIds: [previousProgrammingPlan.id]
-        });
-
-      await Promise.all(
-        previousPrescriptions.map(async (prescription) => {
-          const newPrescription = {
-            ...prescription,
-            id: uuidv4(),
-            programmingPlanId: newProgrammingPlan.id
-          };
-
-          await prescriptionRepository.insert(newPrescription);
-
-          await localPrescriptionRepository.insertMany(
-            previousLocalPrescriptions
-              .filter(
-                (localPrescription) =>
-                  localPrescription.prescriptionId === prescription.id
-              )
-              .map((localPrescription) => ({
-                ...localPrescription,
-                prescriptionId: newPrescription.id
-              }))
-          );
-
-          const previousPrescriptionSubstances =
-            await prescriptionSubstanceRepository.findMany(prescription.id);
-
-          await prescriptionSubstanceRepository.insertMany(
-            previousPrescriptionSubstances.map((prescriptionSubstance) => ({
-              ...prescriptionSubstance,
-              prescriptionId: newPrescription.id
-            }))
-          );
-        })
-      );
-
-      return {
-        status: HttpStatus.CREATED,
-        response: newProgrammingPlan
       };
     }
   }

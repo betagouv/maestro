@@ -1,4 +1,5 @@
 import { constants } from 'node:http2';
+import { ProgrammingPlanDomainFixtures } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   AdminFixture,
   NationalCoordinator,
@@ -22,29 +23,24 @@ describe('Programming plan domain router', () => {
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    test('should get the domains sorted by label', async () => {
+    test('should get the domains sorted by label then year', async () => {
       const res = await request(app)
         .get(testRoute)
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchInlineSnapshot(`
-        [
-          {
-            "id": "be1fb96c-e498-4e7a-bd2b-cd3d808f997f",
-            "label": "Contaminants chimiques",
-          },
-          {
-            "id": "09a95048-64fe-46a1-8543-50146c6ab337",
-            "label": "Résidus de pesticides",
-          },
-        ]
-      `);
+      expect(res.body).toEqual(
+        [...ProgrammingPlanDomainFixtures].sort(
+          (a, b) => a.label.localeCompare(b.label) || a.year - b.year
+        )
+      );
     });
   });
 
   describe('POST /programming-plan-domains', () => {
     const testLabel = 'Domaine de test';
+    const testYear = 2042;
+    const testDomain = { label: testLabel, year: testYear };
 
     afterAll(async () => {
       await kysely
@@ -56,14 +52,14 @@ describe('Programming plan domain router', () => {
     test('should fail if the user is not authenticated', async () => {
       await request(app)
         .post(testRoute)
-        .send({ label: testLabel })
+        .send(testDomain)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     test('should fail if the user does not have the permission', async () => {
       await request(app)
         .post(testRoute)
-        .send({ label: testLabel })
+        .send(testDomain)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
@@ -71,7 +67,15 @@ describe('Programming plan domain router', () => {
     test('should fail if the label is empty', async () => {
       await request(app)
         .post(testRoute)
-        .send({ label: ' ' })
+        .send({ label: ' ', year: testYear })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should fail if the year is missing', async () => {
+      await request(app)
+        .post(testRoute)
+        .send({ label: testLabel })
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
@@ -79,13 +83,14 @@ describe('Programming plan domain router', () => {
     test('should create the domain', async () => {
       const res = await request(app)
         .post(testRoute)
-        .send({ label: testLabel })
+        .send(testDomain)
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_CREATED);
 
       expect(res.body).toMatchObject({
         id: expect.any(String),
-        label: testLabel
+        label: testLabel,
+        year: testYear
       });
 
       const domains = await request(app)

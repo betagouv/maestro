@@ -9,10 +9,16 @@ import { AppPage } from './AppPage';
 
 interface Props {
   title: string;
+  years?: number[];
   render: (year: number) => React.ReactNode;
 }
 
-export const AppPageWithYearTitle = ({ title, render, ..._rest }: Props) => {
+export const AppPageWithYearTitle = ({
+  title,
+  years,
+  render,
+  ..._rest
+}: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
@@ -22,8 +28,9 @@ export const AppPageWithYearTitle = ({ title, render, ..._rest }: Props) => {
     apiClient.useFindProgrammingPlansQuery({});
 
   const availableYears = useMemo(
-    () => uniq(programmingPlans.map((p) => p.year)).sort((a, b) => b - a),
-    [programmingPlans]
+    () =>
+      uniq(years ?? programmingPlans.map((p) => p.year)).sort((a, b) => b - a),
+    [years, programmingPlans]
   );
 
   const yearParam = searchParams.get('year');

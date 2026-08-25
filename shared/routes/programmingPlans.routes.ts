@@ -70,15 +70,6 @@ export const programmingPlansRoutes = {
       response: ProgrammingPlanChecked
     }
   },
-  '/programming-plans/years/:year': {
-    params: {
-      year: z.number().int()
-    },
-    post: {
-      permissions: ['manageProgrammingPlan'],
-      response: ProgrammingPlanChecked
-    }
-  },
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields':
     {
       params: {

@@ -5,8 +5,10 @@ import {
   PPVInProgressProgrammingPlanFixture,
   PPVSubmittedProgrammingPlanFixture,
   PPVValidatedDromProgrammingPlanFixture,
-  PPVValidatedProgrammingPlanFixture
+  PPVValidatedProgrammingPlanFixture,
+  ProgrammingPlanDomainFixtures
 } from 'maestro-shared/test/programmingPlanFixtures';
+import { kysely } from '../../repositories/kysely';
 import {
   formatProgrammingPlan,
   ProgrammingPlanLocalStatus,
@@ -15,6 +17,17 @@ import {
 import { ProgrammingSubPlans } from '../../repositories/programmingSubPlanRepository';
 
 export const seed = async (): Promise<void> => {
+  await kysely
+    .insertInto('programmingPlanDomains')
+    .values(ProgrammingPlanDomainFixtures)
+    .onConflict((oc) =>
+      oc.column('id').doUpdateSet((eb) => ({
+        label: eb.ref('excluded.label'),
+        year: eb.ref('excluded.year')
+      }))
+    )
+    .execute();
+
   await ProgrammingPlans().insert(
     [
       PPVClosedProgrammingPlanFixture,

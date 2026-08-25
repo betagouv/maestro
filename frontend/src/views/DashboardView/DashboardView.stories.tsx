@@ -7,6 +7,7 @@ import {
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
   genProgrammingPlan,
+  PesticideResidueDomainId,
   PPVValidatedSubPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { genCreatedPartialSample } from 'maestro-shared/test/sampleFixtures';
@@ -31,6 +32,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const currentProgrammingPlan = genProgrammingPlan({
+  domainId: PesticideResidueDomainId,
   year: new Date().getFullYear(),
   regionalStatus: RegionList.map((region) => ({
     region,
@@ -39,6 +41,7 @@ const currentProgrammingPlan = genProgrammingPlan({
   contexts: ['Control', 'Surveillance']
 });
 const previousProgrammingPlan = genProgrammingPlan({
+  domainId: PesticideResidueDomainId,
   year: new Date().getFullYear() - 1,
   regionalStatus: RegionList.map((region) => ({
     region,

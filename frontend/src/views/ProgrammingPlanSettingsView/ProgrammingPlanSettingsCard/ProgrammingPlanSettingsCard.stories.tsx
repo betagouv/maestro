@@ -15,8 +15,7 @@ const meta = {
     programmingPlans: [genProgrammingPlan({ year: 2026 })],
     linkProps: {
       to: AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(
-        PesticideResidueDomainId,
-        { year: 2026 }
+        PesticideResidueDomainId
       )
     },
     withPlanCount: true
@@ -40,9 +39,7 @@ export const Plan: Story = {
     title: 'Plan de surveillance',
     linkProps: {
       to: AppRouteLinks.ProgrammingPlanSettingsPlanRoute.link(
-        PesticideResidueDomainId,
-        'e0a9de3a-4f9a-4c0f-9a03-1f0dd4a3e6f1',
-        { year: 2026 }
+        'e0a9de3a-4f9a-4c0f-9a03-1f0dd4a3e6f1'
       )
     },
     withPlanCount: false
