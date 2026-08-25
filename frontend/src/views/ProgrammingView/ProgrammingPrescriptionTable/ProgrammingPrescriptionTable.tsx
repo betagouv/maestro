@@ -51,6 +51,7 @@ import TableHeaderCell from 'src/components/TableHeaderCell/TableHeaderCell';
 import { z } from 'zod';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../services/apiClient';
+import { pluralize } from '../../../utils/stringUtils';
 import './ProgrammingPrescriptionTable.scss';
 import PrescriptionSubstances from '../../../components/Prescription/PrescriptionSubstances/PrescriptionSubstances';
 
@@ -96,6 +97,7 @@ interface Props {
   subLocalPrescriptions?: LocalPrescription[];
   selectedPrescriptions?: Prescription[];
   onTogglePrescriptionSelection?: (prescription: Prescription) => void;
+  onOpenComments?: (prescription: Prescription) => void;
   topOffset?: number;
 }
 
@@ -195,10 +197,12 @@ const ProgrammingPrescriptionTable = ({
   subLocalPrescriptions = [],
   selectedPrescriptions = [],
   onTogglePrescriptionSelection,
+  onOpenComments,
   topOffset = 0
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
-  const { hasUserLocalPrescriptionPermission, userRole } = useAuthentication();
+  const { hasUserLocalPrescriptionPermission, hasUserPermission, userRole } =
+    useAuthentication();
   const { data: domains } = apiClient.useFindProgrammingPlanDomainsQuery();
   const domainLabels = useMemo(
     () =>
@@ -816,6 +820,18 @@ const ProgrammingPrescriptionTable = ({
                     const rowHasUnviewedChange = hasUnviewedChange(
                       ownRegionalPrescription?.changedAt
                     );
+                    const rowCommentCount = sumBy(
+                      regionalPrescriptions.filter(
+                        (_) =>
+                          _.prescriptionId === prescription.id &&
+                          isNil(_.department)
+                      ),
+                      (_) => (_.comments ?? []).length
+                    );
+                    const showComments =
+                      plan.distributionKind === 'REGIONAL' &&
+                      hasUserPermission('commentPrescription') &&
+                      !!onOpenComments;
                     const showRowLaboratoryCells =
                       (plan.distributionKind === 'REGIONAL' ||
                         (plan.distributionKind === 'SLAUGHTERHOUSE' &&
@@ -918,7 +934,32 @@ const ProgrammingPrescriptionTable = ({
                                     )}
                                     data-testid={`matrix-${prescription.id}`}
                                   >
-                                    {getPrescriptionTitle(prescription)}
+                                    <div className="matrice-cell__content">
+                                      <span className="matrice-cell__title">
+                                        {getPrescriptionTitle(prescription)}
+                                      </span>
+                                      {showComments && rowCommentCount > 0 && (
+                                        <Button
+                                          className="prescription-comments-badge"
+                                          priority="tertiary no outline"
+                                          size="small"
+                                          title={`${rowCommentCount} ${pluralize(rowCommentCount)('commentaire')}`}
+                                          onClick={() =>
+                                            onOpenComments(prescription)
+                                          }
+                                        >
+                                          <span
+                                            className={cx(
+                                              'fr-icon-chat-3-line'
+                                            )}
+                                            aria-hidden="true"
+                                          />
+                                          <span className="prescription-comments-badge__count">
+                                            {rowCommentCount}
+                                          </span>
+                                        </Button>
+                                      )}
+                                    </div>
                                   </td>
                                   <td
                                     className={clsx(
@@ -1394,6 +1435,31 @@ const ProgrammingPrescriptionTable = ({
                           <div className="prescription-expanded-content">
                             <div className={cx('fr-grid-row')}>
                               <div className={cx('fr-col-3')}>
+                                {showComments && (
+                                  <div className={cx('fr-mb-3w')}>
+                                    <div className="d-flex-align-center">
+                                      <span
+                                        className={cx(
+                                          'fr-icon-chat-3-line',
+                                          'fr-pr-1v'
+                                        )}
+                                      />
+                                      <b>Commentaires</b>
+                                    </div>
+                                    <Button
+                                      className="prescription-comments-link"
+                                      priority="tertiary no outline"
+                                      onClick={() =>
+                                        onOpenComments(prescription)
+                                      }
+                                    >
+                                      {rowCommentCount}{' '}
+                                      {pluralize(rowCommentCount)(
+                                        'commentaire'
+                                      )}
+                                    </Button>
+                                  </div>
+                                )}
                                 <div className={cx('fr-mb-3w')}>
                                   <div className="d-flex-align-center">
                                     <span

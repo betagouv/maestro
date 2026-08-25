@@ -447,6 +447,36 @@ const ProgrammingPrescriptionList = ({
     }
   }, [searchParams, localPrescriptions]);
 
+  const openComments = useCallback(
+    (prescription: Prescription) => {
+      const regionalCommentsList = (allLocalPrescriptions ?? [])
+        .filter(
+          (_) => _.prescriptionId === prescription.id && isNil(_.department)
+        )
+        .map((_) => ({
+          region: _.region,
+          department: _.department,
+          comments: _.comments ?? []
+        }));
+
+      const commentedRegions = regionalCommentsList.filter(
+        (_) => _.comments.length > 0
+      );
+
+      dispatch(
+        prescriptionsSlice.actions.setPrescriptionCommentsData({
+          viewBy: 'Prescription',
+          programmingPlan: getPrescriptionPlan(prescription),
+          prescription,
+          regionalCommentsList: commentedRegions.length
+            ? commentedRegions
+            : regionalCommentsList
+        })
+      );
+    },
+    [dispatch, getPrescriptionPlan, allLocalPrescriptions]
+  );
+
   const changePrescription = useCallback(
     async (
       prescription: Prescription,
@@ -830,6 +860,7 @@ const ProgrammingPrescriptionList = ({
               programmingPlans={programmingPlans}
               prescriptions={prescriptions}
               regionalPrescriptions={localPrescriptions}
+              onOpenComments={openComments}
               onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
               pendingLocalKeys={new Set(pendingLocalChanges.keys())}
               onChangeLocalPrescriptionLaboratories={

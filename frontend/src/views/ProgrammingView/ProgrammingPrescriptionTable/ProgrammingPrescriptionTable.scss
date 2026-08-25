@@ -340,6 +340,52 @@
     border-bottom: 1px solid var(--border-contrast-grey);
   }
 
+  .matrice-cell__content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .matrice-cell__title {
+    min-width: 0;
+  }
+
+  .prescription-comments-badge {
+    position: relative;
+    flex: 0 0 auto;
+    min-height: auto;
+    padding: 0;
+
+    &::before,
+    &::after {
+      content: none;
+    }
+
+    .fr-icon-chat-3-line::before {
+      --icon-size: 1.75rem;
+    }
+  }
+
+  .prescription-comments-badge__count {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 0;
+    color: var(--text-action-high-blue-france);
+    font-size: 0.625rem;
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .prescription-comments-link {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
   .row-reference {
     display: flex;
     align-items: center;

@@ -1,8 +1,8 @@
-.push-last-tab-right {
+.push-tabs-right {
   > .fr-tabs__list {
     display: flex;
 
-    > li:last-child {
+    > li:nth-child(2) {
       margin-left: auto;
     }
   }

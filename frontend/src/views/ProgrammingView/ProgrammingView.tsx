@@ -199,7 +199,7 @@ const ProgrammingView = () => {
       tabId: 'ProgrammationTab',
       iconId: 'fr-icon-survey-line'
     },
-    filteredProgrammingPlans.some((p) => p.distributionKind === 'REGIONAL') &&
+    (programmingPlans ?? []).some((p) => p.distributionKind === 'REGIONAL') &&
     hasUserPermission('commentPrescription')
       ? {
           label: 'Commentaires',
@@ -266,7 +266,7 @@ const ProgrammingView = () => {
                     selectedTabId={selectedTabId}
                     onTabChange={handleTabChange}
                     className={clsx('full-width', {
-                      'push-last-tab-right': hasRole(
+                      'push-tabs-right': hasRole(
                         'AdministratorBGIR',
                         'NationalCoordinator',
                         'RegionalCoordinator',
