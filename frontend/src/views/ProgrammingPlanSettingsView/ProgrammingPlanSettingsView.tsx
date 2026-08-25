@@ -3,13 +3,14 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
-import { groupBy } from 'lodash-es';
+import { groupBy, uniq } from 'lodash-es';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { useContext } from 'react';
 import { AppPageWithYearTitle } from 'src/components/_app/AppPage/AppPageWithYearTitle';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
 
+import { ProgrammingPlanDomainAssignment } from './ProgrammingPlanDomainAssignment/ProgrammingPlanDomainAssignment';
 import { ProgrammingPlanDomainCreateModal } from './ProgrammingPlanDomainCreateModal';
 import { ProgrammingPlanSettingsCard } from './ProgrammingPlanSettingsCard/ProgrammingPlanSettingsCard';
 
@@ -29,9 +30,13 @@ export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
     apiClient.useFindProgrammingPlansQuery({});
 
   return (
+    //FIXME DOMAIN les années des plans sont ajoutées à `years` le temps du rattachement, pour pouvoir créer un domaine sur une année qui n'en a aucun
     <AppPageWithYearTitle
       title="Paramétrage des plans"
-      years={domains.map((domain) => domain.year)}
+      years={uniq([
+        ...domains.map((domain) => domain.year),
+        ...programmingPlans.map((programmingPlan) => programmingPlan.year)
+      ])}
       render={(year) => {
         const plansByDomainId = groupBy(programmingPlans, 'domainId');
         const yearDomains = domains.filter((domain) => domain.year === year);
@@ -84,6 +89,14 @@ export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
             <ProgrammingPlanDomainCreateModal
               modal={domainCreateModal}
               year={year}
+            />
+            {/*FIXME DOMAIN section temporaire de rattachement, toutes années confondues*/}
+            <h4 className={cx('fr-my-2w')}>
+              Rattachement des plans à un domaine
+            </h4>
+            <ProgrammingPlanDomainAssignment
+              programmingPlans={programmingPlans}
+              domains={domains}
             />
           </div>
         );

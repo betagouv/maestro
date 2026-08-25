@@ -3,8 +3,11 @@ import { type Region, RegionList } from 'maestro-shared/referential/Region';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
+  ChemicalContaminantDomainId,
   DAOAInProgressProgrammingPlanFixture,
   DAOAValidatedProgrammingPlanFixture,
+  PesticideResidueDomainId,
+  PesticideResiduePreviousYearDomainId,
   PPVClosedProgrammingPlanFixture,
   PPVInProgressProgrammingPlanFixture,
   PPVSubmittedProgrammingPlanFixture,
@@ -598,6 +601,94 @@ describe('ProgrammingPlan router', () => {
       await ProgrammingPlanLocalStatus()
         .where('programmingPlanId', PPVSubmittedProgrammingPlanFixture.id)
         .update({ status: 'SubmittedToRegion' });
+    });
+  });
+
+  //FIXME DOMAIN interface temporaire de rattachement, à supprimer avec le passage de programming_plans.domain_id en notNullable
+  describe('PUT /programming-plans/:programmingPlanId/domain', () => {
+    const testRoute = (programmingPlanId: string) =>
+      `/api/programming-plans/${programmingPlanId}/domain`;
+
+    const validBody = {
+      domainId: ChemicalContaminantDomainId
+    };
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(testRoute(DAOAValidatedProgrammingPlanFixture.id))
+        .send(validBody)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user is not authorized', async () => {
+      await request(app)
+        .put(testRoute(DAOAValidatedProgrammingPlanFixture.id))
+        .send(validBody)
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if the programming plan does not exist', async () => {
+      await request(app)
+        .put(testRoute(uuidv4()))
+        .send(validBody)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    test('should get a valid body', async () => {
+      const badRequestTest = async (payload?: Record<string, unknown>) =>
+        request(app)
+          .put(testRoute(DAOAValidatedProgrammingPlanFixture.id))
+          .send({ ...validBody, ...payload })
+          .use(tokenProvider(AdminFixture))
+          .expect(constants.HTTP_STATUS_BAD_REQUEST);
+
+      await badRequestTest({ domainId: undefined });
+      await badRequestTest({ domainId: 123 });
+    });
+
+    test('should fail if the domain does not exist', async () => {
+      await request(app)
+        .put(testRoute(DAOAValidatedProgrammingPlanFixture.id))
+        .send({ domainId: uuidv4() })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should fail if the domain year does not match the programming plan year', async () => {
+      await request(app)
+        .put(testRoute(DAOAValidatedProgrammingPlanFixture.id))
+        .send({ domainId: PesticideResiduePreviousYearDomainId })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should update the programming plan domain', async () => {
+      const res = await request(app)
+        .put(testRoute(DAOAValidatedProgrammingPlanFixture.id))
+        .send(validBody)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject({
+        id: DAOAValidatedProgrammingPlanFixture.id,
+        domainId: ChemicalContaminantDomainId
+      });
+
+      await expect(
+        ProgrammingPlans()
+          .where('id', DAOAValidatedProgrammingPlanFixture.id)
+          .first()
+      ).resolves.toMatchObject({
+        id: DAOAValidatedProgrammingPlanFixture.id,
+        domainId: ChemicalContaminantDomainId
+      });
+
+      //Cleanup
+      await ProgrammingPlans()
+        .where('id', DAOAValidatedProgrammingPlanFixture.id)
+        .update({ domainId: PesticideResidueDomainId });
     });
   });
 });

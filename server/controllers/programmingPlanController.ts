@@ -30,6 +30,7 @@ import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
+import { programmingPlanDomainRepository } from '../repositories/programmingPlanDomainRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import { userRepository } from '../repositories/userRepository';
@@ -400,6 +401,42 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
       if (!updatedProgrammingPlan) {
         throw new Error('Programming plan not found after update');
       }
+      return {
+        status: HttpStatus.OK,
+        response: updatedProgrammingPlan
+      };
+    }
+  },
+  //FIXME DOMAIN interface temporaire de rattachement, à supprimer avec le passage de programming_plans.domain_id en notNullable
+  '/programming-plans/:programmingPlanId/domain': {
+    put: async ({ body: { domainId } }, { programmingPlanId }) => {
+      const programmingPlan =
+        await getAndCheckProgrammingPlan(programmingPlanId);
+
+      console.info(
+        'Update programming plan domain',
+        programmingPlanId,
+        domainId
+      );
+
+      const domain = await programmingPlanDomainRepository.findUnique(domainId);
+
+      if (!domain || domain.year !== programmingPlan.year) {
+        return { status: HttpStatus.BAD_REQUEST };
+      }
+
+      await programmingPlanRepository.update({
+        ...programmingPlan,
+        domainId
+      });
+
+      const updatedProgrammingPlan =
+        await programmingPlanRepository.findUnique(programmingPlanId);
+
+      if (!updatedProgrammingPlan) {
+        throw new Error('Programming plan not found after update');
+      }
+
       return {
         status: HttpStatus.OK,
         response: updatedProgrammingPlan
