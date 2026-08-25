@@ -24,7 +24,6 @@ import {
 import AppToast from '../../../components/_app/AppToast/AppToast';
 import ProgrammingPlanDisplayStatusBadge from '../../../components/ProgrammingPlanDisplayStatusBadge/ProgrammingPlanDisplayStatusBadge';
 import SelectionCheckbox from '../../../components/SelectionCheckbox/SelectionCheckbox';
-import { useAuthentication } from '../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../services/apiClient';
 import ProgrammingPlanBulkLaunchModal, {
   bulkLaunchModal
