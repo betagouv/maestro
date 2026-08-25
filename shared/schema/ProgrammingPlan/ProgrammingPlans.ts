@@ -34,12 +34,22 @@ export const ProgrammingPlanBase = z.object({
   regionalStatus: z.array(ProgrammingPlanRegionalStatus),
   departmentalStatus: z.array(ProgrammingPlanDepartmentalStatus),
   closedAt: z.coerce.date().nullish(),
-  closedBy: z.guid().nullish()
+  closedBy: z.guid().nullish(),
+  launchedAt: z.coerce.date().nullish(),
+  launchedBy: z.guid().nullish()
 });
 
 export const ProgrammingPlanChecked = checkSchema(
   ProgrammingPlanBase,
   (ctx) => {
+    if (ctx.value.launchedAt && !ctx.value.launchedBy) {
+      ctx.issues.push({
+        input: ctx.value,
+        code: 'custom',
+        message: 'Veuillez renseigner launchedBy si launchedAt est renseigné',
+        path: ['launchedBy']
+      });
+    }
     if (ctx.value.closedAt && !ctx.value.closedBy) {
       ctx.issues.push({
         input: ctx.value,

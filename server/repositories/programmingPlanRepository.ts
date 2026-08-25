@@ -190,12 +190,16 @@ const findMany = async (
           'subPlanIds',
           'ids',
           'region',
-          'department'
+          'department',
+          'launchedOnly'
         ),
         isNil
       )
     )
     .modify((builder) => {
+      if (findOptions.launchedOnly) {
+        builder.whereNotNull(`${programmingPlansTable}.launched_at`);
+      }
       if (isArray(findOptions.ids)) {
         builder.whereIn('id', findOptions.ids);
       }
@@ -305,6 +309,17 @@ const update = async (
   await ProgrammingPlans()
     .where({ id: programmingPlan.id })
     .update(formatProgrammingPlan(programmingPlan));
+};
+
+const launch = async (
+  programmingPlanIds: string[],
+  launchedBy: string
+): Promise<void> => {
+  console.info('Launch programming plans', programmingPlanIds);
+  await ProgrammingPlans()
+    .whereIn('id', programmingPlanIds)
+    .whereNull('launchedAt')
+    .update({ launchedAt: new Date(), launchedBy });
 };
 
 const insertManyLocalStatus = async (
@@ -474,6 +489,7 @@ export default {
   findMany,
   insert,
   update,
+  launch,
   insertManyLocalStatus,
   updateLocalStatus,
   updateNationalStatus,

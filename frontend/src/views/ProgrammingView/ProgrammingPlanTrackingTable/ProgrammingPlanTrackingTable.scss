@@ -34,6 +34,11 @@
     border-top: none !important;
   }
 
+  .launch-cell {
+    background-color: var(--background-alt-grey) !important;
+    text-align: center;
+  }
+
   col.col-checkbox {
     width: $col-checkbox-width;
   }

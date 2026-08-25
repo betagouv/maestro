@@ -41,6 +41,15 @@ export const programmingPlansRoutes = {
       response: z.array(ProgrammingPlanChecked)
     }
   },
+  '/programming-plans/launch-campaign': {
+    post: {
+      permissions: ['launchProgrammingPlanCampaign'],
+      body: z.object({
+        programmingPlanIds: z.array(z.guid()).min(1)
+      }),
+      response: z.array(ProgrammingPlanChecked)
+    }
+  },
   '/programming-plans/send-to-departments': {
     post: {
       permissions: ['distributePrescriptionToDepartments'],

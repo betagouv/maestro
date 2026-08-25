@@ -67,7 +67,7 @@ const ProgrammingPlanBulkSendDepartmentalModal = ({
 
   const title = modified
     ? 'Diffuser les modifications aux préleveurs'
-    : 'Lancer la campagne';
+    : 'Diffuser les plans aux préleveurs';
 
   return (
     <bulkSendDepartmentalModal.Component

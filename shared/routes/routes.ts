@@ -67,6 +67,7 @@ export const MaestroRoutes = [
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId/options',
   '/programming-plans',
   '/programming-plans/send-to-regions',
+  '/programming-plans/launch-campaign',
   '/programming-plans/send-to-departments',
   '/programming-plans/send-to-samplers',
   '/programming-plans/:programmingPlanId',

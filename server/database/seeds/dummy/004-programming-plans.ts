@@ -44,7 +44,14 @@ export const seed = async () => {
     DAOAInProgressProgrammingPlanFixture
   ];
 
-  await ProgrammingPlans().insert(plans.map(formatProgrammingPlan));
+  await ProgrammingPlans().insert(
+    plans.map((plan) => ({
+      ...formatProgrammingPlan(plan),
+      ...(plan.nationalStatus.status === 'InProgress'
+        ? { launchedAt: null, launchedBy: null }
+        : {})
+    }))
+  );
 
   await ProgrammingPlanLocalStatus().insert(
     plans.map((plan) => ({

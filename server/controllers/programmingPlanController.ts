@@ -252,6 +252,24 @@ export const programmingPlanRouter = {
       };
     }
   },
+  '/programming-plans/launch-campaign': {
+    post: async ({ user, userRole, body: { programmingPlanIds } }) => {
+      console.info('Launch campaign on programming plans', programmingPlanIds);
+
+      await programmingPlanRepository.launch(programmingPlanIds, user.id);
+
+      const updatedPlans = await programmingPlanRepository.findMany({
+        ids: programmingPlanIds
+      });
+
+      return {
+        status: HttpStatus.OK,
+        response: updatedPlans.map((plan) =>
+          maskHasPendingChangeForViewer(plan, userRole, user)
+        )
+      };
+    }
+  },
   '/programming-plans/send-to-departments': {
     post: async ({ user, userRole, body: { programmingPlanIds } }) => {
       const region = user.region as Region;
@@ -482,6 +500,10 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
           programmingPlan.subPlans.map((sp) => sp.id)
         ).length
       ) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
+
+      if (userRole === 'Sampler' && isNil(programmingPlan.launchedAt)) {
         return { status: HttpStatus.FORBIDDEN };
       }
 

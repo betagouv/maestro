@@ -258,6 +258,93 @@ describe('ProgrammingPlan router', () => {
       );
     });
 
+    test('should hide a validated plan from samplers until its campaign is launched', async () => {
+      const initial = await ProgrammingPlans()
+        .where({ id: PPVValidatedProgrammingPlanFixture.id })
+        .first();
+
+      try {
+        await ProgrammingPlans()
+          .where({ id: PPVValidatedProgrammingPlanFixture.id })
+          .update({ launchedAt: null, launchedBy: null });
+
+        const samplerRes = await request(app)
+          .get(testRoute())
+          .use(tokenProvider(Sampler1Fixture))
+          .expect(constants.HTTP_STATUS_OK);
+        notExpectedBody(
+          samplerRes.body,
+          [PPVValidatedProgrammingPlanFixture],
+          Sampler1Fixture.region
+        );
+
+        await request(app)
+          .get(
+            `/api/programming-plans/${PPVValidatedProgrammingPlanFixture.id}`
+          )
+          .use(tokenProvider(Sampler1Fixture))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+
+        await request(app)
+          .get(
+            `/api/programming-plans/${PPVValidatedProgrammingPlanFixture.id}`
+          )
+          .use(tokenProvider(NationalCoordinator))
+          .expect(constants.HTTP_STATUS_OK);
+
+        await request(app)
+          .post('/api/programming-plans/launch-campaign')
+          .send({ programmingPlanIds: [PPVValidatedProgrammingPlanFixture.id] })
+          .use(tokenProvider(AdminBGIRFixture))
+          .expect(constants.HTTP_STATUS_OK);
+
+        const launched = await ProgrammingPlans()
+          .where({ id: PPVValidatedProgrammingPlanFixture.id })
+          .first();
+        expect(launched?.launchedAt).not.toBeNull();
+
+        const afterLaunch = await request(app)
+          .get(testRoute())
+          .use(tokenProvider(Sampler1Fixture))
+          .expect(constants.HTTP_STATUS_OK);
+        expect(
+          afterLaunch.body.some(
+            (_: { id: string }) =>
+              _.id === PPVValidatedProgrammingPlanFixture.id
+          )
+        ).toBe(true);
+
+        // Launching again must not move the opening date of the campaign.
+        await request(app)
+          .post('/api/programming-plans/launch-campaign')
+          .send({ programmingPlanIds: [PPVValidatedProgrammingPlanFixture.id] })
+          .use(tokenProvider(AdminBGIRFixture))
+          .expect(constants.HTTP_STATUS_OK);
+
+        const relaunched = await ProgrammingPlans()
+          .where({ id: PPVValidatedProgrammingPlanFixture.id })
+          .first();
+        expect(relaunched?.launchedAt).toEqual(launched?.launchedAt);
+      } finally {
+        await ProgrammingPlans()
+          .where({ id: PPVValidatedProgrammingPlanFixture.id })
+          .update({
+            launchedAt: initial?.launchedAt ?? null,
+            launchedBy: initial?.launchedBy ?? null
+          });
+      }
+    });
+
+    test('should refuse the campaign launch to anyone but the BGIR administrator', async () => {
+      for (const user of [NationalCoordinator, AdminFixture, Sampler1Fixture]) {
+        await request(app)
+          .post('/api/programming-plans/launch-campaign')
+          .send({ programmingPlanIds: [PPVValidatedProgrammingPlanFixture.id] })
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_FORBIDDEN);
+      }
+    });
+
     test('should filter programming plans by status and user authorization', async () => {
       const res = await request(app)
         .get(testRoute({ status: 'SubmittedToRegion' }))
@@ -330,7 +417,8 @@ describe('ProgrammingPlan router', () => {
 
       expect(res.body).toMatchObject({
         ...PPVValidatedProgrammingPlanFixture,
-        createdAt: PPVValidatedProgrammingPlanFixture.createdAt.toISOString()
+        createdAt: PPVValidatedProgrammingPlanFixture.createdAt.toISOString(),
+        launchedAt: PPVValidatedProgrammingPlanFixture.launchedAt?.toISOString()
       });
     });
 

@@ -259,6 +259,7 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateProgrammingPlanStatusMutation: [fn(), {}],
   useUpdateProgrammingSubPlanMutation: [fn(), {}],
   useSendProgrammingPlansToRegionsMutation: [fn(), {}],
+  useLaunchProgrammingPlansCampaignMutation: [fn(), {}],
   useSendProgrammingPlansToDepartmentsMutation: [fn(), {}],
   useSendProgrammingPlansToSamplersMutation: [fn(), {}],
   useUpdateLaboratoryAnalyticalCompetenceMutation: [fn(), {}],

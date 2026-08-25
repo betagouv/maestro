@@ -7,6 +7,8 @@ interface Props {
   selectedCount: number;
   onDeselectAll: () => void;
   onOpenAdminModal: () => void;
+  onOpenLaunchModal: () => void;
+  isLaunchDisabled: boolean;
   onOpenNationalModal: () => void;
   onOpenRegionalModal: () => void;
   onOpenDepartmentalModal: () => void;
@@ -19,6 +21,8 @@ const ProgrammingPlanTrackingActionBar = ({
   selectedCount,
   onDeselectAll,
   onOpenAdminModal,
+  onOpenLaunchModal,
+  isLaunchDisabled,
   onOpenNationalModal,
   onOpenRegionalModal,
   onOpenDepartmentalModal,
@@ -45,6 +49,24 @@ const ProgrammingPlanTrackingActionBar = ({
           iconPosition="right"
         >
           Soumettre les plans aux régions
+        </Button>
+      )}
+      {hasRole('AdministratorBGIR') && (
+        <Button
+          priority="primary"
+          size="small"
+          onClick={onOpenLaunchModal}
+          className={cx('fr-ml-3w')}
+          iconId="fr-icon-check-line"
+          iconPosition="right"
+          disabled={isLaunchDisabled}
+          title={
+            isLaunchDisabled
+              ? 'La campagne est déjà lancée sur les plans sélectionnés'
+              : undefined
+          }
+        >
+          Lancer la campagne
         </Button>
       )}
       {hasRole('NationalCoordinator') && (

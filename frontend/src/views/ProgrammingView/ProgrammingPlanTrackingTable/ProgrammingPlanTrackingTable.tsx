@@ -2,7 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tooltip from '@codegouvfr/react-dsfr/Tooltip';
 import clsx from 'clsx';
-import { groupBy } from 'lodash-es';
+import { groupBy, isNil } from 'lodash-es';
 import {
   type Department,
   DepartmentLabels,
@@ -28,6 +28,9 @@ import ProgrammingPlanDisplayStatusBadge from '../../../components/ProgrammingPl
 import SelectionCheckbox from '../../../components/SelectionCheckbox/SelectionCheckbox';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../services/apiClient';
+import ProgrammingPlanBulkLaunchModal, {
+  bulkLaunchModal
+} from './ProgrammingPlanTrackingActionBar/ProgrammingPlanBulkLaunchModal';
 import ProgrammingPlanBulkSendAdminModal, {
   bulkSendAdminModal
 } from './ProgrammingPlanTrackingActionBar/ProgrammingPlanBulkSendAdminModal';
@@ -132,6 +135,7 @@ const ProgrammingPlanTrackingTable = ({
   const [headerHeight, setHeaderHeight] = useState(0);
   const [bannerHeight, setBannerHeight] = useState(0);
   const [sendSuccess, setSendSuccess] = useState(false);
+  const [launchSuccess, setLaunchSuccess] = useState(false);
   const headerWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -358,7 +362,7 @@ const ProgrammingPlanTrackingTable = ({
   );
   const departmentalActionLabel = selectedDepartmentalModified
     ? 'Diffuser les modifications aux préleveurs'
-    : 'Lancer la campagne';
+    : 'Diffuser les plans aux préleveurs';
 
   const selectedAllRegionalKind =
     selectedPlans.length > 0 &&
@@ -372,6 +376,17 @@ const ProgrammingPlanTrackingTable = ({
   const handleSendSuccess = () => {
     setSelectedPlanIds(new Set());
     setSendSuccess(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const plansToLaunch = useMemo(
+    () => selectedPlans.filter((plan) => isNil(plan.launchedAt)),
+    [selectedPlans]
+  );
+
+  const handleLaunchSuccess = () => {
+    setSelectedPlanIds(new Set());
+    setLaunchSuccess(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -450,7 +465,7 @@ const ProgrammingPlanTrackingTable = ({
     [displayedPlans]
   );
 
-  const statusColumnCount = department ? 1 : region ? 2 : 3;
+  const statusColumnCount = (department ? 1 : region ? 2 : 3) + 1;
 
   if (!prescriptions || !localPrescriptions) {
     return null;
@@ -463,6 +478,11 @@ const ProgrammingPlanTrackingTable = ({
         description="Les plans sélectionnés ont bien été envoyés."
         onClose={() => setSendSuccess(false)}
       />
+      <AppToast
+        open={launchSuccess}
+        description="La campagne a bien été lancée sur les plans sélectionnés."
+        onClose={() => setLaunchSuccess(false)}
+      />
       <ProgrammingPlanTrackingHeader {...indicators} />
       <ProgrammingPlanTrackingFilters
         plans={programmingPlans}
@@ -473,6 +493,8 @@ const ProgrammingPlanTrackingTable = ({
         selectedCount={selectedPlanIds.size}
         onDeselectAll={() => setSelectedPlanIds(new Set())}
         onOpenAdminModal={() => bulkSendAdminModal.open()}
+        onOpenLaunchModal={() => bulkLaunchModal.open()}
+        isLaunchDisabled={plansToLaunch.length === 0}
         onOpenNationalModal={() => bulkSendNationalModal.open()}
         onOpenRegionalModal={() => bulkSendRegionalModal.open()}
         onOpenDepartmentalModal={() => bulkSendDepartmentalModal.open()}
@@ -483,6 +505,10 @@ const ProgrammingPlanTrackingTable = ({
       <ProgrammingPlanBulkSendAdminModal
         plans={selectedPlans}
         onSuccess={handleSendSuccess}
+      />
+      <ProgrammingPlanBulkLaunchModal
+        plans={plansToLaunch}
+        onSuccess={handleLaunchSuccess}
       />
       <ProgrammingPlanBulkSendNationalModal
         plansToAdmin={plansToAdmin}
@@ -516,6 +542,9 @@ const ProgrammingPlanTrackingTable = ({
                   />
                 </th>
                 <th scope="col">Nom du plan</th>
+                <th scope="col" className="launch-cell">
+                  Lancement national
+                </th>
                 {!region && <th scope="col">Statut BGIR</th>}
                 {!department && <th scope="col">Statut région</th>}
                 <th scope="col">Statut département</th>
@@ -621,6 +650,19 @@ const ProgrammingPlanTrackingTable = ({
                                 />
                               )}
                             </div>
+                          </td>
+                          <td className="launch-cell">
+                            {!isNil(plan.launchedAt) && (
+                              <span
+                                className={clsx(
+                                  cx(
+                                    'fr-icon-checkbox-circle-fill',
+                                    'fr-label--success'
+                                  )
+                                )}
+                                title="Campagne lancée"
+                              />
+                            )}
                           </td>
                           {!region && (
                             <td>

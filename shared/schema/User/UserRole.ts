@@ -178,7 +178,8 @@ const userRolePermissions = {
   ],
   AdministratorBGIR: [
     ...AdministratorPermissionsList,
-    'sendProgrammingPlansToRegions'
+    'sendProgrammingPlansToRegions',
+    'launchProgrammingPlanCampaign'
   ],
   LaboratoryUser: ['readDocuments', 'readProgrammingPlanValidated'],
   LaboratoryOffice: [

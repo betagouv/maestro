@@ -17,6 +17,7 @@ export const UserPermission = z.enum([
   'manageProgrammingPlan',
   'manageProgrammingPlanSettings',
   'sendProgrammingPlansToRegions',
+  'launchProgrammingPlanCampaign',
   'approveProgrammingPlan',
   'validateProgrammingPlan',
   'closeProgrammingPlan',
