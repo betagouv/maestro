@@ -15,17 +15,13 @@ import './ProgrammingSubPlanList.scss';
 
 type Props = {
   subPlans: ProgrammingSubPlan[];
-  domainId: string;
   programmingPlanId: string;
-  year: number;
   currentSubPlanId?: ProgrammingSubPlanId;
 };
 
 export const ProgrammingSubPlanList = ({
   subPlans,
-  domainId,
   programmingPlanId,
-  year,
   currentSubPlanId,
   ..._rest
 }: Props) => {
@@ -102,10 +98,8 @@ export const ProgrammingSubPlanList = ({
                   cx('fr-p-1w', 'fr-text--sm', 'fr-mb-0')
                 )}
                 to={AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
-                  domainId,
                   programmingPlanId,
-                  subPlan.id,
-                  { year }
+                  subPlan.id
                 )}
                 aria-current={
                   subPlan.id === currentSubPlanId ? 'page' : undefined

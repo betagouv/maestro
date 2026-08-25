@@ -3,8 +3,8 @@ import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks
 import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   genProgrammingPlan,
-  genProgrammingSubPlan,
-  PesticideResidueDomainId
+  genProgrammingPlanDomain,
+  genProgrammingSubPlan
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { genAuthUser } from 'maestro-shared/test/userFixtures';
 import { Route, Routes } from 'react-router';
@@ -20,6 +20,11 @@ const FruitsSubPlanId = ProgrammingSubPlanId.parse(
   '7c3d9e51-8b24-4f0a-bd63-1a5e4c9f2d78'
 );
 
+const pesticide2026 = genProgrammingPlanDomain({
+  label: 'Résidus de pesticides',
+  year: 2026
+});
+
 const meta = {
   title: 'Views/ProgrammingPlan',
   component: ProgrammingPlanView,
@@ -28,12 +33,13 @@ const meta = {
       auth: { authUser: genAuthUser({ userRole: 'AdministratorMaestro' }) }
     },
     apiClient: getMockApi({
+      useFindProgrammingPlanDomainsQuery: { data: [pesticide2026] },
       useFindProgrammingPlansQuery: {
         data: [
           genProgrammingPlan({
             id: PPVPlanId,
             year: 2026,
-            domainId: PesticideResidueDomainId,
+            domainId: pesticide2026.id,
             title: 'Production primaire végétale',
             subPlans: [
               genProgrammingSubPlan({
@@ -50,17 +56,14 @@ const meta = {
           }),
           genProgrammingPlan({
             year: 2026,
-            domainId: PesticideResidueDomainId,
+            domainId: pesticide2026.id,
             title: 'Transformation végétale'
           })
         ]
       }
     }),
     initialEntries: [
-      AppRouteLinks.ProgrammingPlanSettingsPlanRoute.link(
-        PesticideResidueDomainId,
-        PPVPlanId
-      )
+      AppRouteLinks.ProgrammingPlanSettingsPlanRoute.link(PPVPlanId)
     ]
   },
   decorators: [
@@ -96,16 +99,21 @@ export const Default: Story = {
     );
     await expect(canvas.getByText('Résidus de pesticides')).toHaveAttribute(
       'href',
-      `/parametrage-des-plans/${PesticideResidueDomainId}?year=2026`
+      `/parametrage-des-plans/domaines/${pesticide2026.id}`
     );
+
+    await expect(canvas.getByText('2026')).toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('button', { name: '2026' })
+    ).not.toBeInTheDocument();
     await expect(
       canvas.queryByText('Transformation végétale')
     ).not.toBeInTheDocument();
 
-    // Le bouton retour ramène au domaine, année conservée
+    // Le bouton retour ramène au domaine
     await expect(canvas.getByTitle('Revenir au domaine')).toHaveAttribute(
       'href',
-      `/parametrage-des-plans/${PesticideResidueDomainId}?year=2026`
+      `/parametrage-des-plans/domaines/${pesticide2026.id}`
     );
   }
 };
@@ -138,7 +146,6 @@ export const SubPlan: Story = {
   parameters: {
     initialEntries: [
       AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
-        PesticideResidueDomainId,
         PPVPlanId,
         CerealesSubPlanId
       )
@@ -153,13 +160,10 @@ export const SubPlan: Story = {
 
     await expect(
       canvas.getByText('Production primaire végétale')
-    ).toHaveAttribute(
-      'href',
-      `/parametrage-des-plans/${PesticideResidueDomainId}/${PPVPlanId}?year=2026`
-    );
+    ).toHaveAttribute('href', `/parametrage-des-plans/plans/${PPVPlanId}`);
     await expect(canvas.getByTitle('Revenir au plan')).toHaveAttribute(
       'href',
-      `/parametrage-des-plans/${PesticideResidueDomainId}/${PPVPlanId}?year=2026`
+      `/parametrage-des-plans/plans/${PPVPlanId}`
     );
 
     await expect(

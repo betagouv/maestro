@@ -31,11 +31,9 @@ export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
   return (
     <AppPageWithYearTitle
       title="Paramétrage des plans"
+      years={domains.map((domain) => domain.year)}
       render={(year) => {
-        const plansByDomainId = groupBy(
-          programmingPlans.filter((plan) => plan.year === year),
-          'domainId'
-        );
+        const plansByDomainId = groupBy(programmingPlans, 'domainId');
         const yearDomains = domains.filter((domain) => domain.year === year);
 
         return (
@@ -75,8 +73,7 @@ export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
                     programmingPlans={plansByDomainId[domain.id] ?? []}
                     linkProps={{
                       to: AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(
-                        domain.id,
-                        { year }
+                        domain.id
                       )
                     }}
                     withPlanCount

@@ -3,10 +3,9 @@ import { RegionList } from 'maestro-shared/referential/Region';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
-  ChemicalContaminantDomainId,
   genProgrammingPlan,
-  genProgrammingSubPlan,
-  PesticideResidueDomainId
+  genProgrammingPlanDomain,
+  genProgrammingSubPlan
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { genAuthUser } from 'maestro-shared/test/userFixtures';
 import { Route, Routes } from 'react-router';
@@ -15,6 +14,19 @@ import { getMockApi } from '../../../services/mockApiClient';
 import { ProgrammingPlanDomainView } from './ProgrammingPlanDomainView';
 
 const PPVPlanId = 'e0a9de3a-4f9a-4c0f-9a03-1f0dd4a3e6f1';
+
+const pesticide2026 = genProgrammingPlanDomain({
+  label: 'Résidus de pesticides',
+  year: 2026
+});
+const pesticide2025 = genProgrammingPlanDomain({
+  label: 'Résidus de pesticides',
+  year: 2025
+});
+const chemical2026 = genProgrammingPlanDomain({
+  label: 'Contaminants chimiques',
+  year: 2026
+});
 
 const regionalStatus = (status: ProgrammingPlanStatus) =>
   RegionList.map((region) => ({ region, status }));
@@ -27,31 +39,34 @@ const meta = {
       auth: { authUser: genAuthUser({ userRole: 'AdministratorMaestro' }) }
     },
     apiClient: getMockApi({
+      useFindProgrammingPlanDomainsQuery: {
+        data: [pesticide2026, pesticide2025, chemical2026]
+      },
       useFindProgrammingPlansQuery: {
         data: [
           genProgrammingPlan({
             id: PPVPlanId,
             year: 2026,
-            domainId: PesticideResidueDomainId,
+            domainId: pesticide2026.id,
             title: 'Production primaire végétale',
             subPlans: [genProgrammingSubPlan(), genProgrammingSubPlan()],
             regionalStatus: regionalStatus('Validated')
           }),
           genProgrammingPlan({
             year: 2026,
-            domainId: PesticideResidueDomainId,
+            domainId: pesticide2026.id,
             title: 'Transformation végétale',
             regionalStatus: regionalStatus('InProgress')
           }),
           genProgrammingPlan({
             year: 2025,
-            domainId: PesticideResidueDomainId,
+            domainId: pesticide2025.id,
             title: 'Plan de l’année précédente',
             regionalStatus: regionalStatus('Closed')
           }),
           genProgrammingPlan({
             year: 2026,
-            domainId: ChemicalContaminantDomainId,
+            domainId: chemical2026.id,
             title: 'Plan d’un autre domaine',
             regionalStatus: regionalStatus('Validated')
           })
@@ -59,9 +74,7 @@ const meta = {
       }
     }),
     initialEntries: [
-      AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(
-        PesticideResidueDomainId
-      )
+      AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(pesticide2026.id)
     ]
   },
   decorators: [
@@ -93,9 +106,12 @@ export const Default: Story = {
       canvas.getByTitle('Revenir à tous les domaines')
     ).toBeInTheDocument();
 
+    // L'année du domaine s'affiche en label
     await expect(canvas.getByText('2026')).toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('button', { name: '2026' })
+    ).not.toBeInTheDocument();
 
-    // Seuls les plans du domaine et de l'année sélectionnée sont affichés
     await expect(
       canvas.queryByText('Plan de l’année précédente')
     ).not.toBeInTheDocument();
@@ -123,15 +139,16 @@ export const Default: Story = {
       planCard('Transformation végétale').getByText('En cours')
     ).toBeInTheDocument();
 
-    // La carte mène à la page du plan, année conservée
     await expect(
       canvas
         .getByText('Production primaire végétale')
         .closest('.fr-card')
         ?.querySelector('a')
-    ).toHaveAttribute(
-      'href',
-      `/parametrage-des-plans/${PesticideResidueDomainId}/${PPVPlanId}?year=2026`
-    );
+    ).toHaveAttribute('href', `/parametrage-des-plans/plans/${PPVPlanId}`);
+
+    // Le retour vers la liste rouvre la bonne année
+    await expect(
+      canvas.getByTitle('Revenir à tous les domaines')
+    ).toHaveAttribute('href', '/parametrage-des-plans?year=2026');
   }
 };

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RegionList } from 'maestro-shared/referential/Region';
+import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
   genProgrammingPlan,
@@ -129,6 +130,11 @@ export const Default: Story = {
 };
 
 export const AddDomain: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsRoute.link({ year: 2026 })
+    ]
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
