@@ -31,7 +31,7 @@
     "@e965/xlsx": "^0.20.3",
     "@gouvfr/dsfr": "^1.15.2",
     "@sentry/node": "^10.70.0",
-    "bwip-js": "^4.11.2",
+    "bwip-js": "^4.11.3",
     "carbone": "^3.8.2",
     "compose-middleware": "^5.0.1",
     "cookie-parser": "^1.4.7",
