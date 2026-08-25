@@ -35,7 +35,7 @@ const ProgrammingPlanTrackingActionBar = ({
       onDeselectAll={onDeselectAll}
       onHeightChange={onHeightChange}
     >
-      {hasRole('Administrator') && (
+      {hasRole('AdministratorBGIR') && (
         <Button
           priority="secondary"
           size="small"

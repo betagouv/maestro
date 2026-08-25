@@ -937,7 +937,7 @@ describe('ProgrammingPlan router', () => {
       const res = await request(app)
         .post(testRoute)
         .send({ programmingPlanIds: [PPVInProgressProgrammingPlanFixture.id] })
-        .use(tokenProvider(AdminFixture))
+        .use(tokenProvider(AdminBGIRFixture))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body[0]).toMatchObject({

@@ -9,7 +9,6 @@ import { toLocalPrescriptionKeyString } from 'maestro-shared/schema/LocalPrescri
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import { withSubstanceKindLaboratories } from 'maestro-shared/schema/Sample/SampleItem';
 import {
   companiesIsRequired,
   userRegionsForRole

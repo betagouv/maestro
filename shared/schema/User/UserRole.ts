@@ -78,7 +78,6 @@ const AdministratorPermissionsList = [
   'viewProgrammingPlans',
   'readProgrammingPlansInProgress',
   'readProgrammingPlanSubmittedToRegion',
-  'readProgrammingPlanApprovedByRegion',
   'readProgrammingPlanSubmittedToDepartments',
   'readProgrammingPlanValidated',
   'readProgrammingPlanClosed',
@@ -137,9 +136,7 @@ const userRolePermissions = {
     'updatePrescriptionLaboratories',
     'commentPrescription',
     'distributePrescriptionToDepartments',
-    'manageUsers',
-    'sendProgrammingPlansToDepartments',
-    'distributePrescriptionToDepartments'
+    'manageUsers'
   ],
   NationalObserver: [
     ...ObserverPermissionsList,

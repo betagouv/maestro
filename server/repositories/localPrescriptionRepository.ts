@@ -33,7 +33,7 @@ type LocalPrescriptionsDbo = z.infer<typeof LocalPrescriptionsDbo>;
 export const LocalPrescriptions = (transaction = db) =>
   transaction<LocalPrescriptionsDbo>(localPrescriptionsTable);
 
-export interface LocalPrescriptionViewer {
+interface LocalPrescriptionViewer {
   echelon: ProgrammingPlanEchelon | null;
   seesUnappliedChanges: boolean;
 }

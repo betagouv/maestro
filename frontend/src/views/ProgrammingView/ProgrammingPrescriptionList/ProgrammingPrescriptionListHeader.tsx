@@ -9,7 +9,6 @@ import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 
-import type React from 'react';
 import { useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';

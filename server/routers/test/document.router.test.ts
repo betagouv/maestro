@@ -464,12 +464,15 @@ describe('Document router', () => {
     test.each([
       ['SamplerDromFixture', SamplerDromFixture],
       ['RegionalDromCoordinator', RegionalDromCoordinator]
-    ])('should let %s read a document of a plan it does not hold but whose stages it shares', async (_label, user) => {
-      await request(app)
-        .get(testRoute(ppvValidatedResourceDocument.id))
-        .use(tokenProvider(user))
-        .expect(constants.HTTP_STATUS_OK);
-    });
+    ])(
+      'should let %s read a document of a plan it does not hold but whose stages it shares',
+      async (_label, user) => {
+        await request(app)
+          .get(testRoute(ppvValidatedResourceDocument.id))
+          .use(tokenProvider(user))
+          .expect(constants.HTTP_STATUS_OK);
+      }
+    );
 
     test('should get a global resource document with no programming plan', async () => {
       await request(app)
