@@ -13,9 +13,8 @@ import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { genLocalPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import {
-  ChemicalContaminantDomainId,
   genProgrammingPlan,
-  PesticideResidueDomainId
+  ProgrammingPlanDomainFixtures
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedPartialSample,
@@ -143,7 +142,6 @@ const defaultMockApiClientConf: MockApi = {
   useCreateSampleDocumentMutation: [fn(), {}],
   useCreateLaboratoryAnalyticalCompetenceMutation: [fn(), {}],
   useCreateOrUpdateSampleMutation: [fn(), { isLoading: false }],
-  useCreateProgrammingPlanMutation: [fn(), {}],
   useCreateProgrammingPlanDomainMutation: [fn(), {}],
   useDeleteAnalysisReportDocumentMutation: [fn(), {}],
   useDeleteResourceDocumentMutation: [fn(), {}],
@@ -173,12 +171,7 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateLaboratoryAgreementsMutation: [fn(), {}],
   useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },
-  useFindProgrammingPlanDomainsQuery: {
-    data: [
-      { id: PesticideResidueDomainId, label: 'Résidus de pesticides' },
-      { id: ChemicalContaminantDomainId, label: 'Contaminants chimiques' }
-    ]
-  },
+  useFindProgrammingPlanDomainsQuery: { data: ProgrammingPlanDomainFixtures },
   useFindProgrammingPlansQuery: { data: [] },
   useFindLocalPrescriptionsQuery: { data: [] },
   useFindResourcesQuery: { data: [] },

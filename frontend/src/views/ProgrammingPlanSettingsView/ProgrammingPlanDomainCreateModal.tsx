@@ -11,10 +11,12 @@ import { assert, type Equals } from 'tsafe';
 
 type Props = {
   modal: ReturnType<typeof createModal>;
+  year: number;
 };
 
 export const ProgrammingPlanDomainCreateModal = ({
   modal,
+  year,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -25,7 +27,7 @@ export const ProgrammingPlanDomainCreateModal = ({
 
   const [label, setLabel] = useState('');
 
-  const form = useForm(ProgrammingPlanDomainCreateInput, { label });
+  const form = useForm(ProgrammingPlanDomainCreateInput, { label, year });
 
   useIsModalOpen(modal, {
     onConceal: () => {

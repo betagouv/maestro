@@ -10,6 +10,7 @@ const findMany = async (trx = kysely): Promise<ProgrammingPlanDomain[]> => {
     .selectFrom('programmingPlanDomains')
     .selectAll()
     .orderBy('label')
+    .orderBy('year')
     .execute();
 
   return ProgrammingPlanDomain.array().parse(domains);

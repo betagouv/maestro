@@ -36,6 +36,7 @@ export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
           programmingPlans.filter((plan) => plan.year === year),
           'domainId'
         );
+        const yearDomains = domains.filter((domain) => domain.year === year);
 
         return (
           <div className={clsx('white-container', cx('fr-px-8w', 'fr-py-5w'))}>
@@ -53,7 +54,7 @@ export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
               )}
             >
               <h4 className={clsx(cx('fr-m-0'))}>
-                Tous les domaines ({domains.length})
+                Tous les domaines ({yearDomains.length})
               </h4>
               <Button
                 priority="tertiary"
@@ -64,7 +65,7 @@ export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
               </Button>
             </div>
             <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-              {domains.map((domain) => (
+              {yearDomains.map((domain) => (
                 <div
                   className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}
                   key={domain.id}
@@ -83,7 +84,10 @@ export const ProgrammingPlanSettingsView = ({ ..._rest }: Props = {}) => {
                 </div>
               ))}
             </div>
-            <ProgrammingPlanDomainCreateModal modal={domainCreateModal} />
+            <ProgrammingPlanDomainCreateModal
+              modal={domainCreateModal}
+              year={year}
+            />
           </div>
         );
       }}

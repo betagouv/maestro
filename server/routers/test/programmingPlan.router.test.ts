@@ -3,11 +3,6 @@ import { type Region, RegionList } from 'maestro-shared/referential/Region';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
-  genLocalPrescription,
-  genPrescription,
-  genPrescriptionSubstance
-} from 'maestro-shared/test/prescriptionFixtures';
-import {
   DAOAInProgressProgrammingPlanFixture,
   DAOAValidatedProgrammingPlanFixture,
   PPVClosedProgrammingPlanFixture,
@@ -29,12 +24,6 @@ import { withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { describe, expect, test } from 'vitest';
-import {
-  formatLocalPrescription,
-  LocalPrescriptions
-} from '../../repositories/localPrescriptionRepository';
-import { Prescriptions } from '../../repositories/prescriptionRepository';
-import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
 import {
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
@@ -313,184 +302,6 @@ describe('ProgrammingPlan router', () => {
         ...PPVValidatedProgrammingPlanFixture,
         createdAt: PPVValidatedProgrammingPlanFixture.createdAt.toISOString()
       });
-    });
-  });
-
-  describe('POST /programming-plans/years/:year', () => {
-    const testRoute = (year: string) => `/api/programming-plans/years/${year}`;
-
-    test('should fail if the user is not authenticated', async () => {
-      await request(app)
-        .post(testRoute('2020'))
-        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-    });
-
-    test('should fail if the user is not authorized', async () => {
-      await request(app)
-        .post(testRoute('2020'))
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_FORBIDDEN);
-    });
-
-    test('should fail if the previous programming plan does not exist', async () => {
-      await request(app)
-        .post(testRoute('2000'))
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_NOT_FOUND);
-    });
-
-    test('should fail if the previous programming plan is not validated', async () => {
-      await request(app)
-        .post(testRoute('2023'))
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_NOT_FOUND);
-    });
-
-    test('should create a new programming plan for the given year', async () => {
-      const controlPrescription = genPrescription({
-        programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-        context: 'Control',
-        matrixKind: 'A00RT'
-      });
-      const surveillancePrescription = genPrescription({
-        programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-        context: 'Surveillance'
-      });
-      const localPrescription = genLocalPrescription({
-        prescriptionId: controlPrescription.id
-      });
-      const prescriptionSubstance = genPrescriptionSubstance({
-        prescriptionId: controlPrescription.id
-      });
-
-      await Prescriptions().insert([
-        controlPrescription,
-        surveillancePrescription
-      ]);
-      await LocalPrescriptions().insert(
-        formatLocalPrescription(localPrescription)
-      );
-      await PrescriptionSubstances().insert(prescriptionSubstance);
-
-      const year = PPVValidatedProgrammingPlanFixture.year + 1;
-      const res = await request(app)
-        .post(testRoute(year.toString()))
-        .use(tokenProvider(NationalCoordinator))
-        .expect(constants.HTTP_STATUS_CREATED);
-
-      expect(res.body).toMatchObject({
-        year,
-        regionalStatus: RegionList.map((region) => ({
-          region,
-          status: 'InProgress' as const
-        }))
-      });
-
-      await expect(
-        ProgrammingPlans().where('year', year).first()
-      ).resolves.toMatchObject({
-        year
-      });
-
-      await expect(
-        ProgrammingPlanLocalStatus().where('programmingPlanId', res.body.id)
-      ).resolves.toMatchObject(
-        expect.arrayContaining(
-          RegionList.map((region) => ({
-            programmingPlanId: res.body.id,
-            region,
-            status: 'InProgress',
-            department: 'None'
-          }))
-        )
-      );
-
-      const newControlPrescription = await Prescriptions()
-        .where('programmingPlanId', res.body.id)
-        .andWhere('context', 'Control')
-        .andWhere('matrixKind', controlPrescription.matrixKind)
-        .first();
-
-      expect(newControlPrescription).toMatchObject({
-        id: expect.any(String),
-        context: 'Control',
-        programmingPlanId: res.body.id,
-        matrixKind: controlPrescription.matrixKind,
-        matrix: null,
-        stages: controlPrescription.stages,
-        programmingSubPlanId: controlPrescription.programmingSubPlanId,
-        programmingInstruction:
-          controlPrescription.programmingInstruction ?? null,
-        notes: controlPrescription.notes ?? null
-      });
-
-      const newSurveillancePrescription = await Prescriptions()
-        .where('programmingPlanId', res.body.id)
-        .andWhere('context', 'Surveillance')
-        .first();
-
-      expect(newSurveillancePrescription).toMatchObject({
-        id: expect.any(String),
-        context: 'Surveillance',
-        programmingPlanId: res.body.id,
-        matrixKind: surveillancePrescription.matrixKind,
-        matrix: null,
-        stages: surveillancePrescription.stages,
-        programmingSubPlanId: controlPrescription.programmingSubPlanId,
-        programmingInstruction:
-          controlPrescription.programmingInstruction ?? null,
-        notes: controlPrescription.notes ?? null
-      });
-
-      const controlLocalPrescriptions = await LocalPrescriptions().where(
-        'prescriptionId',
-        controlPrescription?.id
-      );
-
-      expect(controlLocalPrescriptions.length).toBe(1);
-      expect(controlLocalPrescriptions[0]).toMatchObject({
-        prescriptionId: controlPrescription?.id,
-        region: localPrescription.region,
-        department: localPrescription.department ?? 'None',
-        sampleCount: localPrescription.sampleCount
-      });
-
-      const newPrescriptionSubstances = await PrescriptionSubstances().where(
-        'prescriptionId',
-        newControlPrescription?.id
-      );
-
-      expect(newPrescriptionSubstances.length).toBe(1);
-      expect(newPrescriptionSubstances[0]).toMatchObject({
-        ...prescriptionSubstance,
-        prescriptionId: newControlPrescription?.id
-      });
-
-      //Cleanup
-      await PrescriptionSubstances()
-        .whereIn('prescriptionId', [
-          controlPrescription?.id,
-          surveillancePrescription?.id,
-          newControlPrescription?.id,
-          newSurveillancePrescription?.id
-        ] as string[])
-        .delete();
-      await LocalPrescriptions()
-        .whereIn('prescriptionId', [
-          controlPrescription?.id,
-          surveillancePrescription?.id,
-          newControlPrescription?.id,
-          newSurveillancePrescription?.id
-        ] as string[])
-        .delete();
-      await Prescriptions()
-        .whereIn('id', [
-          controlPrescription?.id,
-          surveillancePrescription?.id,
-          newControlPrescription?.id,
-          newSurveillancePrescription?.id
-        ] as string[])
-        .delete();
     });
   });
 

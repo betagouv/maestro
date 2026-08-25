@@ -3,8 +3,10 @@ import {
   DAOAValidatedProgrammingPlanFixture,
   PPVClosedProgrammingPlanFixture,
   PPVInProgressProgrammingPlanFixture,
-  PPVValidatedProgrammingPlanFixture
+  PPVValidatedProgrammingPlanFixture,
+  ProgrammingPlanDomainFixtures
 } from 'maestro-shared/test/programmingPlanFixtures';
+import { kysely } from '../../../repositories/kysely';
 import {
   formatProgrammingPlan,
   ProgrammingPlanLocalStatus,
@@ -14,6 +16,17 @@ import { ProgrammingSubPlans } from '../../../repositories/programmingSubPlanRep
 import { Users } from '../../../repositories/userRepository';
 
 export const seed = async () => {
+  await kysely
+    .insertInto('programmingPlanDomains')
+    .values(ProgrammingPlanDomainFixtures)
+    .onConflict((oc) =>
+      oc.column('id').doUpdateSet((eb) => ({
+        label: eb.ref('excluded.label'),
+        year: eb.ref('excluded.year')
+      }))
+    )
+    .execute();
+
   const user = await Users()
     .where('email', 'coordinateur.national@maestro.beta.gouv.fr')
     .first();
