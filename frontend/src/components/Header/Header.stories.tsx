@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RegionList } from 'maestro-shared/referential/Region';
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  genProgrammingPlan,
+  PesticideResidueDomainId
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { genAuthUser } from 'maestro-shared/test/userFixtures';
 import { expect, fn, within } from 'storybook/test';
 import { MuiDsfrThemeProvider } from '../../App';
@@ -25,6 +28,7 @@ type Story = StoryObj<typeof meta>;
 
 const closedProgrammingPlan = {
   ...genProgrammingPlan({
+    domainId: PesticideResidueDomainId,
     regionalStatus: RegionList.map((region) => ({
       region,
       status: 'Closed'
@@ -35,6 +39,7 @@ const closedProgrammingPlan = {
 };
 const validatedProgrammingPlan = {
   ...genProgrammingPlan({
+    domainId: PesticideResidueDomainId,
     regionalStatus: RegionList.map((region) => ({
       region,
       status: 'Validated'
@@ -44,6 +49,7 @@ const validatedProgrammingPlan = {
 };
 const inProgressProgrammingPlan = {
   ...genProgrammingPlan({
+    domainId: PesticideResidueDomainId,
     regionalStatus: RegionList.map((region) => ({
       region,
       status: 'InProgress'

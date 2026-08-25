@@ -8,7 +8,7 @@ import {
   genProgrammingSubPlan
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { genAuthUser } from 'maestro-shared/test/userFixtures';
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { getMockApi } from '../../services/mockApiClient';
 import { ProgrammingPlanSettingsView } from './ProgrammingPlanSettingsView';
 
@@ -162,9 +162,11 @@ export const AddDomain: Story = {
     );
     await userEvent.click(modal.getByText('Ajouter'));
 
-    await expect(createProgrammingPlanDomain).toHaveBeenCalledWith({
-      label: 'Contaminants environnementaux',
-      year: 2026
-    });
+    await waitFor(() =>
+      expect(createProgrammingPlanDomain).toHaveBeenCalledWith({
+        label: 'Contaminants environnementaux',
+        year: 2026
+      })
+    );
   }
 };
