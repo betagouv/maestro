@@ -305,13 +305,9 @@ const ProgrammingView = () => {
                       link={{
                         linkProps: {
                           to: '',
-                          // Notice forces target="_blank", which DSFR decorates with an
-                          // external-link icon. The tab is right here, not elsewhere.
                           target: undefined,
                           rel: undefined,
                           onClick: (event) => {
-                            // The tab lives in this page: keep the anchor semantics
-                            // without letting the router navigate anywhere.
                             event.preventDefault();
                             handleTabChange('PlanTrackingTab');
                           }
