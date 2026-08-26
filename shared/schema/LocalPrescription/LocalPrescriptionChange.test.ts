@@ -97,6 +97,30 @@ describe('regionRowNeedsChangeAction — SLAUGHTERHOUSE', () => {
     ).toBe(false);
   });
 
+  test('an undiffused national draft leaves the region alone until diffusion', () => {
+    expect(
+      regionRowNeedsChangeAction(
+        'SLAUGHTERHOUSE',
+        {
+          sampleCount: 600,
+          diffusedSampleCount: 400,
+          substanceKindsLaboratories: []
+        },
+        [{ sampleCount: 400, substanceKindsLaboratories: [] }]
+      )
+    ).toBe(false);
+  });
+
+  test('once diffused, the region has to share out the new volume', () => {
+    expect(
+      regionRowNeedsChangeAction(
+        'SLAUGHTERHOUSE',
+        { sampleCount: 600, substanceKindsLaboratories: [] },
+        [{ sampleCount: 400, substanceKindsLaboratories: [] }]
+      )
+    ).toBe(true);
+  });
+
   test('neither distributed nor laboratory-assigned anywhere -> needs action', () => {
     expect(
       regionRowNeedsChangeAction('SLAUGHTERHOUSE', own, [

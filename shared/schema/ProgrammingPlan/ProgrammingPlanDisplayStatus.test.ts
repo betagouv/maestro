@@ -467,7 +467,7 @@ describe('computeCompleteness — SLAUGHTERHOUSE: Regional/Departmental must als
     expect(result.isComplete).toBe(true);
   });
 
-  test('SLAUGHTERHOUSE: department row exists but abattoirs are only partially split -> still complete (unlike Regional/Departmental, the split is optional)', () => {
+  test('SLAUGHTERHOUSE: department row exists but abattoirs are only partially split -> incomplete, there is nothing whole to diffuse yet', () => {
     const result = computeCompleteness(
       prescriptions,
       [
@@ -489,6 +489,78 @@ describe('computeCompleteness — SLAUGHTERHOUSE: Regional/Departmental must als
       'SLAUGHTERHOUSE',
       '01',
       '75'
+    );
+    expect(result.isComplete).toBe(false);
+  });
+});
+
+describe('computeCompleteness — Departmental: complete only once abattoirs reconcile', () => {
+  const prescriptions = [{ id: 'p1', sampleCount: 40 }];
+  const departmentRow = {
+    prescriptionId: 'p1',
+    region: '01' as const,
+    department: '85' as const,
+    companySiret: null,
+    sampleCount: 12
+  };
+
+  test('abattoir split matches the department volume -> complete', () => {
+    const result = computeCompleteness(
+      prescriptions,
+      [
+        departmentRow,
+        {
+          prescriptionId: 'p1',
+          region: '01' as const,
+          department: '85' as const,
+          companySiret: 'siret-1',
+          sampleCount: 7
+        },
+        {
+          prescriptionId: 'p1',
+          region: '01' as const,
+          department: '85' as const,
+          companySiret: 'siret-2',
+          sampleCount: 5
+        }
+      ],
+      'Departmental',
+      'SLAUGHTERHOUSE',
+      '01',
+      '85'
+    );
+    expect(result.isComplete).toBe(true);
+  });
+
+  test('abattoir split still short of the department volume -> incomplete', () => {
+    const result = computeCompleteness(
+      prescriptions,
+      [
+        departmentRow,
+        {
+          prescriptionId: 'p1',
+          region: '01' as const,
+          department: '85' as const,
+          companySiret: 'siret-1',
+          sampleCount: 7
+        }
+      ],
+      'Departmental',
+      'SLAUGHTERHOUSE',
+      '01',
+      '85'
+    );
+    expect(result.isComplete).toBe(false);
+  });
+
+  test('a REGIONAL plan has no abattoir level to reconcile -> complete', () => {
+    const result = computeCompleteness(
+      prescriptions,
+      [departmentRow],
+      'Departmental',
+      'REGIONAL',
+      '01',
+      '85'
     );
     expect(result.isComplete).toBe(true);
   });

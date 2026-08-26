@@ -48,7 +48,7 @@ export const regionRowNeedsChangeAction = (
   distributionKind: DistributionKind,
   ownRegionalPrescription: Pick<
     LocalPrescription,
-    'sampleCount' | 'substanceKindsLaboratories'
+    'sampleCount' | 'diffusedSampleCount' | 'substanceKindsLaboratories'
   >,
   subLocalPrescriptions: Pick<
     LocalPrescription,
@@ -62,7 +62,9 @@ export const regionRowNeedsChangeAction = (
   }
   const distributedCount = sumBy(subLocalPrescriptions, 'sampleCount');
   const isFullyDistributed =
-    distributedCount === ownRegionalPrescription.sampleCount;
+    distributedCount ===
+    (ownRegionalPrescription.diffusedSampleCount ??
+      ownRegionalPrescription.sampleCount);
   const hasAnyDepartmentLaboratory = subLocalPrescriptions.some((sub) =>
     isLaboratoryAssignmentComplete(sub.substanceKindsLaboratories)
   );

@@ -300,6 +300,16 @@ const ProgrammingPrescriptionList = ({
     return [...existing, ...pendingOnly];
   }, [allLocalPrescriptions, pendingLocalChanges, pendingLaboratoryChanges]);
 
+  const editedPrescriptionIds = useMemo(
+    () =>
+      new Set(
+        Array.from(pendingLocalChanges.values()).map(
+          ({ key }) => key.prescriptionId
+        )
+      ),
+    [pendingLocalChanges]
+  );
+
   const prescriptions = useMemo(() => {
     return allPrescriptionsWithPending
       ?.filter((p) => planIds.includes(p.programmingPlanId))
@@ -341,8 +351,11 @@ const ProgrammingPrescriptionList = ({
         (p) =>
           hasNationalView ||
           allLocalPrescriptionsWithPending?.some(
-            (_) => _.prescriptionId === p.id && _.sampleCount > 0
-          )
+            (_) =>
+              _.prescriptionId === p.id &&
+              (_.sampleCount > 0 || _.hasUnappliedChange === true)
+          ) ||
+          editedPrescriptionIds.has(p.id)
       )
       .sort(PrescriptionSort);
   }, [
@@ -350,16 +363,18 @@ const ProgrammingPrescriptionList = ({
     planIds,
     prescriptionFilters,
     allLocalPrescriptionsWithPending,
-    hasNationalView
+    hasNationalView,
+    editedPrescriptionIds
   ]);
 
   const localPrescriptions = useMemo(
     () =>
       filteredLocalPrescriptions(allLocalPrescriptionsWithPending ?? [], {
         region,
-        department
+        department,
+        companies
       }),
-    [allLocalPrescriptionsWithPending, department, region]
+    [allLocalPrescriptionsWithPending, department, region, companies]
   );
 
   const subLocalPrescriptions = useMemo(
@@ -379,6 +394,11 @@ const ProgrammingPrescriptionList = ({
     [prescriptions, allLocalPrescriptionsWithPending, department, region]
   );
 
+  const canActOnPrescriptionRows =
+    hasUserPermission('updatePrescriptionLaboratories') ||
+    hasUserPermission('distributePrescriptionToDepartments') ||
+    hasUserPermission('distributePrescriptionToSlaughterhouses');
+
   useEffect(() => {
     if (!region) {
       onChangeDismissalCandidatesChange?.([]);
@@ -396,7 +416,8 @@ const ProgrammingPrescriptionList = ({
         const subs = (subLocalPrescriptions ?? []).filter(
           (sub) => sub.prescriptionId === prescription.id
         );
-        return regionRowNeedsChangeAction(plan.distributionKind, own, subs)
+        return canActOnPrescriptionRows &&
+          regionRowNeedsChangeAction(plan.distributionKind, own, subs)
           ? null
           : prescription.id;
       })

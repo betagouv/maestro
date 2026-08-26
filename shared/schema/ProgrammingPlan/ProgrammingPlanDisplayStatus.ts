@@ -262,7 +262,12 @@ export const computeCompleteness = (
   prescriptions: Pick<Prescription, 'id' | 'sampleCount'>[],
   localPrescriptions: Pick<
     LocalPrescription,
-    'prescriptionId' | 'region' | 'department' | 'companySiret' | 'sampleCount'
+    | 'prescriptionId'
+    | 'region'
+    | 'department'
+    | 'companySiret'
+    | 'sampleCount'
+    | 'diffusedSampleCount'
   >[],
   echelon: ProgrammingPlanEchelon,
   distributionKind?: DistributionKind,
@@ -307,8 +312,9 @@ export const computeCompleteness = (
   const isReconciledWithChildren =
     echelon === 'Regional' && distributionKind !== 'REGIONAL'
       ? prescriptions.every((p) => {
+          const regionalRow = scopedByPrescription[p.id]?.[0];
           const regionalSampleCount =
-            scopedByPrescription[p.id]?.[0]?.sampleCount ?? 0;
+            regionalRow?.diffusedSampleCount ?? regionalRow?.sampleCount ?? 0;
           const departmentSum = sumBy(
             localPrescriptions.filter(
               (lp) =>
@@ -321,7 +327,26 @@ export const computeCompleteness = (
           );
           return departmentSum === regionalSampleCount;
         })
-      : true;
+      : echelon === 'Departmental' && distributionKind === 'SLAUGHTERHOUSE'
+        ? prescriptions.every((p) => {
+            const departmentalRow = scopedByPrescription[p.id]?.[0];
+            const departmentalSampleCount =
+              departmentalRow?.diffusedSampleCount ??
+              departmentalRow?.sampleCount ??
+              0;
+            const companySum = sumBy(
+              localPrescriptions.filter(
+                (lp) =>
+                  lp.prescriptionId === p.id &&
+                  lp.region === region &&
+                  lp.department === department &&
+                  !isNil(lp.companySiret)
+              ),
+              'sampleCount'
+            );
+            return companySum === departmentalSampleCount;
+          })
+        : true;
 
   return {
     isComplete: hasRowForEveryPrescription && isReconciledWithChildren,

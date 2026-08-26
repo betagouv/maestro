@@ -246,15 +246,22 @@
 
   .lab-line > * {
     width: 100%;
+    min-width: 0;
   }
 
   .analyte-lines > div:not(:first-child),
   .lab-line:not(:first-child) {
-    box-shadow: inset 0 1px 0 0 var(--border-contrast-grey);
-    margin-left: -16px;
-    margin-right: -16px;
-    padding-left: 16px;
-    padding-right: 16px;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -16px;
+      right: -16px;
+      height: 1px;
+      background-color: var(--border-contrast-grey);
+    }
   }
 
   .prelevements-cell {
@@ -276,6 +283,7 @@
   .laboratoire-cell {
     min-width: $col-laboratoire-width;
     max-width: $col-laboratoire-width;
+    overflow: hidden;
   }
 
   thead .checkbox-cell,

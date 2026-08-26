@@ -51,8 +51,16 @@ export const useProgrammingPlanTrackingStatus = (
     { programmingPlanIds: planIds },
     { skip: planIds.length === 0 }
   );
+  const hasSlaughterhousePlan = programmingPlans.some(
+    (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
+  );
+
   const { data: localPrescriptions } = apiClient.useFindLocalPrescriptionsQuery(
-    { programmingPlanIds: planIds, allLevels: true },
+    {
+      programmingPlanIds: planIds,
+      allLevels: true,
+      includeCompanies: hasSlaughterhousePlan
+    },
     { skip: planIds.length === 0 }
   );
 

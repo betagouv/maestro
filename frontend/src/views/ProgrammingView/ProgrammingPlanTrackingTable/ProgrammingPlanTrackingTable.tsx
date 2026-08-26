@@ -640,7 +640,7 @@ const ProgrammingPlanTrackingTable = ({
                                     isRegionExpanded && 'is-expanded'
                                   )}
                                 >
-                                  <td colSpan={5}>
+                                  <td colSpan={statusColumnCount + 2}>
                                     <div className="sub-row-bar">
                                       <div className="row-reference">
                                         <span className="region-name">
@@ -698,7 +698,7 @@ const ProgrammingPlanTrackingTable = ({
                                           key={`${regionKey}:${department}`}
                                           className="department-sub-row"
                                         >
-                                          <td colSpan={5}>
+                                          <td colSpan={statusColumnCount + 2}>
                                             <div className="sub-row-bar">
                                               <span className="department-name">
                                                 {DepartmentLabels[department]} (

@@ -1,4 +1,5 @@
-import { isNil, uniq } from 'lodash-es';
+import { isNil, sumBy, uniq } from 'lodash-es';
+import type { Department } from 'maestro-shared/referential/Department';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import {
   hasLocalPrescriptionPermission,
@@ -57,10 +58,17 @@ export const withEffectiveLocalPrescriptionChanges = async (
     if (!sampleCountChange && !laboratoriesChange) {
       return localPrescription;
     }
+    const isDraft =
+      !isNil(sampleCountChange) && isNil(sampleCountChange.diffusedAt);
+
     return {
       ...localPrescription,
       sampleCount:
         sampleCountChange?.sampleCount ?? localPrescription.sampleCount,
+      ...(isDraft
+        ? { diffusedSampleCount: localPrescription.sampleCount }
+        : {}),
+      ...(isNil(sampleCountChange) ? {} : { hasUnappliedChange: true }),
       substanceKindsLaboratories:
         laboratoriesChange?.substanceKindsLaboratories ??
         localPrescription.substanceKindsLaboratories
@@ -105,6 +113,33 @@ export const localPrescriptionsRouter = {
         userRole
       );
 
+      const isRowVisible = (
+        own: Pick<LocalPrescription, 'sampleCount' | 'hasUnappliedChange'>,
+        children: Pick<
+          LocalPrescription,
+          'sampleCount' | 'hasUnappliedChange'
+        >[]
+      ) =>
+        own.sampleCount > 0 ||
+        sumBy(children, 'sampleCount') > 0 ||
+        own.hasUnappliedChange === true ||
+        children.some((_) => _.hasUnappliedChange === true);
+
+      const childrenOf = (
+        parent: Pick<LocalPrescription, 'prescriptionId' | 'region'> & {
+          department?: Department | null;
+        },
+        level: 'departments' | 'companies'
+      ) =>
+        localPrescriptions.filter(
+          (_) =>
+            _.prescriptionId === parent.prescriptionId &&
+            _.region === parent.region &&
+            (level === 'departments'
+              ? !isNil(_.department) && isNil(_.companySiret)
+              : _.department === parent.department && !isNil(_.companySiret))
+        );
+
       const filterEmptyLocalPrescriptions = findOptions.allLevels
         ? localPrescriptions
         : localPrescriptions.filter((localPrescription) => {
@@ -112,25 +147,40 @@ export const localPrescriptionsRouter = {
               return true;
             }
             if (isNil(department)) {
-              return isNil(localPrescription.department)
-                ? localPrescription.sampleCount > 0
-                : localPrescriptions.some(
+              const regionalRow = isNil(localPrescription.department)
+                ? localPrescription
+                : localPrescriptions.find(
                     (_) =>
+                      _.prescriptionId === localPrescription.prescriptionId &&
                       _.region === localPrescription.region &&
-                      isNil(_.department) &&
-                      _.sampleCount > 0
+                      isNil(_.department)
                   );
+              return isRowVisible(
+                regionalRow ?? { sampleCount: 0 },
+                childrenOf(localPrescription, 'departments')
+              );
             }
             if (isNil(companySirets)) {
-              return isNil(localPrescription.companySiret)
-                ? localPrescription.sampleCount > 0
-                : localPrescriptions.some(
+              const departmentalRow = isNil(localPrescription.companySiret)
+                ? localPrescription
+                : localPrescriptions.find(
                     (_) =>
+                      _.prescriptionId === localPrescription.prescriptionId &&
                       _.region === localPrescription.region &&
                       _.department === localPrescription.department &&
-                      isNil(_.companySiret) &&
-                      _.sampleCount > 0
+                      isNil(_.companySiret)
                   );
+              return isRowVisible(
+                departmentalRow ?? { sampleCount: 0 },
+                childrenOf(
+                  {
+                    prescriptionId: localPrescription.prescriptionId,
+                    region: localPrescription.region,
+                    department: localPrescription.department
+                  },
+                  'companies'
+                )
+              );
             }
             return localPrescription.sampleCount > 0;
           });

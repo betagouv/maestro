@@ -24,6 +24,7 @@ export const FindLocalPrescriptionOptions = z.object({
   department: Department.nullish(),
   companySirets: z.array(z.string()).nullish(),
   allLevels: z.boolean().nullish(),
+  includeCompanies: z.boolean().nullish(),
   includes: z.array(LocalPrescriptionOptionsInclude).nullish()
 });
 

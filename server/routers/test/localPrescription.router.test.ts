@@ -249,6 +249,94 @@ describe('Local prescriptions router', () => {
   describe('GET /prescriptions/regions', () => {
     const testRoute = '/api/prescriptions/regions';
 
+    test('keeps an emptied row visible while its own split still holds samples', async () => {
+      const emptied = validatedControlLocalPrescriptions.find(
+        (_) => _.region === RegionalCoordinator.region
+      ) as LocalPrescription;
+      const initial = emptied.sampleCount;
+
+      const read = async () => {
+        const res = await request(app)
+          .get(testRoute)
+          .query({
+            programmingPlanIds: PPVValidatedProgrammingPlanFixture.id,
+            region: emptied.region,
+            contexts: 'Control'
+          })
+          .use(tokenProvider(RegionalCoordinator))
+          .expect(constants.HTTP_STATUS_OK);
+        return res.body.filter(
+          (_: { prescriptionId: string }) =>
+            _.prescriptionId === emptied.prescriptionId
+        );
+      };
+
+      try {
+        await LocalPrescriptions()
+          .where('prescription_id', emptied.prescriptionId)
+          .andWhere('region', emptied.region)
+          .andWhere('department', 'None')
+          .update({ sampleCount: 0 });
+
+        await expect(read()).resolves.toHaveLength(0);
+
+        await LocalPrescriptions().insert(
+          formatLocalPrescription({
+            prescriptionId: emptied.prescriptionId,
+            region: emptied.region,
+            department: DepartmentalCoordinator.department as Department,
+            sampleCount: 4
+          })
+        );
+
+        const rows = await read();
+        expect(rows).toHaveLength(2);
+        expect(
+          rows.find((_: { department?: string }) => !_.department).sampleCount
+        ).toBe(0);
+
+        await LocalPrescriptionChanges().insert({
+          prescriptionId: emptied.prescriptionId,
+          region: emptied.region,
+          department: DepartmentalCoordinator.department as Department,
+          companySiret: 'None',
+          echelon: 'Regional',
+          kind: 'sampleCount',
+          sampleCount: 0,
+          previousSampleCount: 4,
+          changedAt: new Date(),
+          diffusedAt: null,
+          appliedAt: null,
+          changesViewedAt: null,
+          changesViewedBy: null,
+          substanceKindsLaboratories: null
+        });
+
+        const stillThere = await read();
+        expect(stillThere).toHaveLength(2);
+        expect(
+          stillThere.find((_: { department?: string }) => _.department)
+            .sampleCount
+        ).toBe(0);
+      } finally {
+        await LocalPrescriptionChanges()
+          .where('prescription_id', emptied.prescriptionId)
+          .andWhere('region', emptied.region)
+          .andWhere('echelon', 'Regional')
+          .delete();
+        await LocalPrescriptions()
+          .where('prescription_id', emptied.prescriptionId)
+          .andWhere('region', emptied.region)
+          .andWhere('department', DepartmentalCoordinator.department as string)
+          .delete();
+        await LocalPrescriptions()
+          .where('prescription_id', emptied.prescriptionId)
+          .andWhere('region', emptied.region)
+          .andWhere('department', 'None')
+          .update({ sampleCount: initial });
+      }
+    });
+
     test('should fail if the user is not authenticated', async () => {
       await request(app)
         .get(testRoute)

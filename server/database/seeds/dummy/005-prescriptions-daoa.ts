@@ -46,40 +46,42 @@ export const seed = async () => {
     ]
   };
 
+  const slaughterhouseByPrescription: Record<string, string> = {
+    [FoieDeBovinValidatedPrescriptionFixture.id]: CHARAL.siret,
+    [VolailleValidatedPrescriptionFixture.id]: AVIVOL.siret
+  };
+
   for (const prescriptionId of Object.keys(regionQuantities)) {
+    const companySiret = slaughterhouseByPrescription[prescriptionId];
+
     await Promise.all(
       RegionList.flatMap((region, regionIndex) => {
         const departments = Regions[region].departments;
         const regionTotal = regionQuantities[prescriptionId][regionIndex];
         const base = Math.floor(regionTotal / departments.length);
         const remainder = regionTotal % departments.length;
-        return departments.map((department, departmentIndex) =>
-          LocalPrescriptions()
+
+        return departments.map(async (department, departmentIndex) => {
+          const sampleCount = base + (departmentIndex < remainder ? 1 : 0);
+
+          await LocalPrescriptions()
             .where({ prescriptionId, region, department })
             .andWhere('companySiret', 'None')
-            .update({
-              sampleCount: base + (departmentIndex < remainder ? 1 : 0)
-            })
-        );
+            .update({ sampleCount });
+
+          if (sampleCount > 0) {
+            await LocalPrescriptions().insert({
+              prescriptionId,
+              region,
+              department,
+              companySiret,
+              sampleCount
+            });
+          }
+        });
       })
     );
   }
-
-  await LocalPrescriptions().insert({
-    prescriptionId: FoieDeBovinValidatedPrescriptionFixture.id,
-    region: '52' as const,
-    department: '85' as const,
-    companySiret: CHARAL.siret,
-    sampleCount: 5
-  });
-
-  await LocalPrescriptions().insert({
-    prescriptionId: VolailleValidatedPrescriptionFixture.id,
-    region: '52' as const,
-    department: '85' as const,
-    companySiret: AVIVOL.siret,
-    sampleCount: 3
-  });
 
   await LocalPrescriptionSubstanceKindsLaboratories().insert(
     [

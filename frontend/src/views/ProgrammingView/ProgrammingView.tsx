@@ -332,14 +332,22 @@ const ProgrammingView = () => {
                   <Tabs
                     selectedTabId={selectedTabId}
                     onTabChange={handleTabChange}
-                    className={clsx('full-width', {
-                      'push-tabs-right': hasRole(
-                        'AdministratorBGIR',
-                        'NationalCoordinator',
-                        'RegionalCoordinator',
-                        'DepartmentalCoordinator'
-                      )
-                    })}
+                    className={clsx(
+                      {
+                        'full-width': !(
+                          hasDepartmentalView &&
+                          selectedTabId === 'PlanTrackingTab'
+                        )
+                      },
+                      {
+                        'push-tabs-right': hasRole(
+                          'AdministratorBGIR',
+                          'NationalCoordinator',
+                          'RegionalCoordinator',
+                          'DepartmentalCoordinator'
+                        )
+                      }
+                    )}
                     classes={{
                       panel: clsx('white-container')
                     }}

@@ -102,11 +102,7 @@ const markViewed = async ({
 }) => {
   await LocalPrescriptionChanges()
     .where({ prescriptionId, region, kind })
-    .modify((query) => {
-      if (!isNil(department)) {
-        query.andWhere('department', department as string);
-      }
-    })
+    .andWhere('department', department ?? 'None')
     .whereNotNull('diffusedAt')
     .whereNull('changesViewedAt')
     .update({ changesViewedAt: new Date(), changesViewedBy: viewedBy });
@@ -131,10 +127,8 @@ const markManyViewed = async ({
   await LocalPrescriptionChanges()
     .where({ region, kind: 'sampleCount' })
     .whereIn('prescriptionId', prescriptionIds)
+    .andWhere('department', department ?? 'None')
     .modify((query) => {
-      if (!isNil(department)) {
-        query.andWhere('department', department as string);
-      }
       if (onlyApplied) {
         query.whereNotNull('appliedAt');
       }

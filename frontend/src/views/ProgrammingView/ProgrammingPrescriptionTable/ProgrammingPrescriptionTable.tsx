@@ -802,7 +802,9 @@ const ProgrammingPrescriptionTable = ({
                     );
                     const isExpanded = expandedIds.has(prescription.id);
                     const showDistributionBadge =
-                      prescription.sampleCount !== 0 || totalSampleCount !== 0;
+                      !isSamplerView &&
+                      (prescription.sampleCount !== 0 ||
+                        totalSampleCount !== 0);
                     const ownRegionalPrescription = region
                       ? getOwnRegionalPrescription(prescription.id)
                       : undefined;
@@ -814,6 +816,7 @@ const ProgrammingPrescriptionTable = ({
                       'sampleCount'
                     );
                     const showRegionDistributionBadge =
+                      !isSamplerView &&
                       plan.distributionKind === 'SLAUGHTERHOUSE' &&
                       ((ownRegionalPrescription?.sampleCount ?? 0) !== 0 ||
                         regionDistributedCount !== 0);

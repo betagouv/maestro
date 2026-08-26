@@ -156,7 +156,8 @@ const findMany = async (
           'department',
           'contexts',
           'companySirets',
-          'allLevels'
+          'allLevels',
+          'includeCompanies'
         ),
         isNil
       )
@@ -186,7 +187,9 @@ const findMany = async (
       }
 
       if (findOptions.allLevels) {
-        builder.where(`${localPrescriptionsTable}.companySiret`, 'None');
+        if (!findOptions.includeCompanies) {
+          builder.where(`${localPrescriptionsTable}.companySiret`, 'None');
+        }
       } else if (!findOptions.region) {
         builder.where(`${localPrescriptionsTable}.department`, 'None');
         builder.where(`${localPrescriptionsTable}.companySiret`, 'None');
@@ -444,7 +447,12 @@ const updateMany = async (
 export const formatLocalPrescription = (
   localPrescription: LocalPrescription
 ): LocalPrescriptionsDbo => ({
-  ...omit(localPrescription, ['previousSampleCount', 'changedAt']),
+  ...omit(localPrescription, [
+    'previousSampleCount',
+    'changedAt',
+    'diffusedSampleCount',
+    'hasUnappliedChange'
+  ]),
   department: localPrescription.department ?? 'None',
   companySiret: localPrescription.companySiret ?? 'None'
 });
