@@ -209,6 +209,12 @@ export const hasLocalPrescriptionPermission = (
         )))
 });
 
+export const isLaboratoryAssignmentComplete = (
+  substanceKindsLaboratories: LocalPrescription['substanceKindsLaboratories']
+): boolean =>
+  (substanceKindsLaboratories?.length ?? 0) > 0 &&
+  !substanceKindsLaboratories!.some((s) => isNil(s.laboratoryId));
+
 export const filteredLocalPrescriptions = (
   localPrescriptions: LocalPrescription[],
   {

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
+import { isLaboratoryAssignmentComplete } from './LocalPrescription';
 import {
   hasUnviewedChange,
-  isLaboratoryAssignmentComplete,
   regionRowNeedsChangeAction
 } from './LocalPrescriptionChange';
 

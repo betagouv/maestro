@@ -36,7 +36,8 @@ import { notificationService } from '../services/notificationService';
 
 export const withEffectiveLocalPrescriptionChanges = async (
   localPrescriptions: LocalPrescription[],
-  userRole: UserRole
+  userRole: UserRole,
+  includeCompanyDrafts = false
 ): Promise<LocalPrescription[]> => {
   if (!seesUnappliedLocalPrescriptionChanges(userRole)) {
     return localPrescriptions;
@@ -51,7 +52,35 @@ export const withEffectiveLocalPrescriptionChanges = async (
       row
     ])
   );
-  return localPrescriptions.map((localPrescription) => {
+  // A company row is never pre-created, so a volume given to an abattoir that
+  // has none yet would have nothing to sit on. Those drafts are surfaced as
+  // rows of their own, within the scope the caller asked for.
+  const knownKeys = new Set(
+    localPrescriptions.map((_) => toLocalPrescriptionKeyString(_))
+  );
+  const requestedScopes = new Set(
+    localPrescriptions.map((_) => `${_.region}:${_.department ?? ''}`)
+  );
+  const draftOnlyRows: LocalPrescription[] = !includeCompanyDrafts
+    ? []
+    : changes
+        .filter(
+          (change) =>
+            change.kind === 'sampleCount' &&
+            !isNil(change.companySiret) &&
+            !knownKeys.has(toLocalPrescriptionKeyString(change)) &&
+            requestedScopes.has(`${change.region}:${change.department ?? ''}`)
+        )
+        .map((change) => ({
+          prescriptionId: change.prescriptionId,
+          region: change.region,
+          department: change.department,
+          companySiret: change.companySiret,
+          sampleCount: change.sampleCount ?? 0,
+          hasUnappliedChange: true
+        }));
+
+  return [...localPrescriptions, ...draftOnlyRows].map((localPrescription) => {
     const key = toLocalPrescriptionKeyString(localPrescription);
     const sampleCountChange = changeByKey.get(`${key}:sampleCount`);
     const laboratoriesChange = changeByKey.get(`${key}:laboratories`);
@@ -110,7 +139,8 @@ export const localPrescriptionsRouter = {
 
       const localPrescriptions = await withEffectiveLocalPrescriptionChanges(
         liveLocalPrescriptions,
-        userRole
+        userRole,
+        !isNil(department) || findOptions.includeCompanies === true
       );
 
       const isRowVisible = (

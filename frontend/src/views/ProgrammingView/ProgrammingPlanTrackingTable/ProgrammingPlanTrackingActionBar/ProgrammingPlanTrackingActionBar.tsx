@@ -9,6 +9,7 @@ interface Props {
   onOpenAdminModal: () => void;
   onOpenLaunchModal: () => void;
   isLaunchDisabled: boolean;
+  isAdminSendDisabled: boolean;
   onOpenNationalModal: () => void;
   onOpenRegionalModal: () => void;
   onOpenDepartmentalModal: () => void;
@@ -23,6 +24,7 @@ const ProgrammingPlanTrackingActionBar = ({
   onOpenAdminModal,
   onOpenLaunchModal,
   isLaunchDisabled,
+  isAdminSendDisabled,
   onOpenNationalModal,
   onOpenRegionalModal,
   onOpenDepartmentalModal,
@@ -47,6 +49,12 @@ const ProgrammingPlanTrackingActionBar = ({
           className={cx('fr-ml-3w')}
           iconId="fr-icon-send-plane-line"
           iconPosition="right"
+          disabled={isAdminSendDisabled}
+          title={
+            isAdminSendDisabled
+              ? "Aucun plan sélectionné n'est en attente de soumission aux régions"
+              : undefined
+          }
         >
           Soumettre les plans aux régions
         </Button>

@@ -1,4 +1,9 @@
 import { describe, expect, test } from 'vitest';
+
+const assignedLaboratories = [
+  { substanceKind: 'Any' as const, laboratoryId: 'lab-1' }
+];
+
 import {
   computeCompleteness,
   computeDisplayStatus,
@@ -332,13 +337,15 @@ describe('computeCompleteness — Regional/Departmental: 0 is a legitimate final
           prescriptionId: 'p1',
           region: '01',
           department: null,
-          sampleCount: 5
+          sampleCount: 5,
+          substanceKindsLaboratories: assignedLaboratories
         },
         {
           prescriptionId: 'p2',
           region: '01',
           department: null,
-          sampleCount: 0
+          sampleCount: 0,
+          substanceKindsLaboratories: assignedLaboratories
         }
       ],
       'Regional',
@@ -374,13 +381,15 @@ describe('computeCompleteness — Regional/Departmental: 0 is a legitimate final
           prescriptionId: 'p1',
           region: '01',
           department: null,
-          sampleCount: 0
+          sampleCount: 0,
+          substanceKindsLaboratories: assignedLaboratories
         },
         {
           prescriptionId: 'p2',
           region: '01',
           department: null,
-          sampleCount: 0
+          sampleCount: 0,
+          substanceKindsLaboratories: assignedLaboratories
         }
       ],
       'Regional',
@@ -403,7 +412,8 @@ describe('computeCompleteness — SLAUGHTERHOUSE: Regional/Departmental must als
           prescriptionId: 'p1',
           region: '01',
           department: null,
-          sampleCount: 40
+          sampleCount: 40,
+          substanceKindsLaboratories: assignedLaboratories
         }
       ],
       'Regional',
@@ -501,7 +511,8 @@ describe('computeCompleteness — Departmental: complete only once abattoirs rec
     region: '01' as const,
     department: '85' as const,
     companySiret: null,
-    sampleCount: 12
+    sampleCount: 12,
+    substanceKindsLaboratories: assignedLaboratories
   };
 
   test('abattoir split matches the department volume -> complete', () => {
@@ -563,5 +574,104 @@ describe('computeCompleteness — Departmental: complete only once abattoirs rec
       '85'
     );
     expect(result.isComplete).toBe(true);
+  });
+});
+
+describe('computeCompleteness — the terminal echelon must have assigned its laboratories', () => {
+  const prescriptions = [{ id: 'p1', sampleCount: 40 }];
+  const regionalRow = {
+    prescriptionId: 'p1',
+    region: '01' as const,
+    department: null,
+    sampleCount: 40
+  };
+
+  test('REGIONAL: a region without laboratories cannot be diffused', () => {
+    expect(
+      computeCompleteness(
+        prescriptions,
+        [regionalRow],
+        'Regional',
+        'REGIONAL',
+        '01'
+      ).isComplete
+    ).toBe(false);
+  });
+
+  test('REGIONAL: a half-assigned region is no better', () => {
+    expect(
+      computeCompleteness(
+        prescriptions,
+        [
+          {
+            ...regionalRow,
+            substanceKindsLaboratories: [
+              { substanceKind: 'Mono' as const, laboratoryId: 'lab-1' },
+              { substanceKind: 'Multi' as const, laboratoryId: undefined }
+            ]
+          }
+        ],
+        'Regional',
+        'REGIONAL',
+        '01'
+      ).isComplete
+    ).toBe(false);
+  });
+
+  test('SLAUGHTERHOUSE: the requirement falls on the department, not the region', () => {
+    const departmentRow = {
+      prescriptionId: 'p1',
+      region: '01' as const,
+      department: '85' as const,
+      companySiret: null,
+      sampleCount: 40
+    };
+    const abattoirRow = {
+      prescriptionId: 'p1',
+      region: '01' as const,
+      department: '85' as const,
+      companySiret: 'siret-1',
+      sampleCount: 40
+    };
+
+    expect(
+      computeCompleteness(
+        prescriptions,
+        [departmentRow, abattoirRow],
+        'Departmental',
+        'SLAUGHTERHOUSE',
+        '01',
+        '85'
+      ).isComplete
+    ).toBe(false);
+
+    expect(
+      computeCompleteness(
+        prescriptions,
+        [
+          {
+            ...departmentRow,
+            substanceKindsLaboratories: assignedLaboratories
+          },
+          abattoirRow
+        ],
+        'Departmental',
+        'SLAUGHTERHOUSE',
+        '01',
+        '85'
+      ).isComplete
+    ).toBe(true);
+
+    // The region hands over to the departments, not to the samplers: it is not
+    // the one that assigns laboratories.
+    expect(
+      computeCompleteness(
+        prescriptions,
+        [departmentRow, abattoirRow],
+        'Regional',
+        'SLAUGHTERHOUSE',
+        '01'
+      ).isComplete
+    ).toBe(false);
   });
 });

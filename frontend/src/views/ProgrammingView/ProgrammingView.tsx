@@ -196,8 +196,18 @@ const ProgrammingView = () => {
     [commentLocalPrescription]
   );
 
+  // The banner speaks about the year shown in the title, not about every year
+  // the user has access to.
+  const yearProgrammingPlans = useMemo(
+    () =>
+      (programmingPlans ?? []).filter(
+        (plan) => plan.year === prescriptionFilters.year
+      ),
+    [programmingPlans, prescriptionFilters.year]
+  );
+
   const { readyToSendPlans } = useProgrammingPlanTrackingStatus(
-    programmingPlans ?? [],
+    yearProgrammingPlans,
     region ?? undefined,
     user?.department ?? undefined
   );
@@ -208,6 +218,8 @@ const ProgrammingView = () => {
       return undefined;
     }
     const plural = `${count} ${pluralize(count)('plan')} ${count > 1 ? 'sont prêts' : 'est prêt'}`;
+    // « soumis » is invariable, « diffusé » is not.
+    const diffused = pluralize(count)('diffusé');
 
     if (hasRole('AdministratorBGIR')) {
       return `${plural} à être soumis aux régions.`;
@@ -223,19 +235,23 @@ const ProgrammingView = () => {
         (plan) => plan.distributionKind !== 'SLAUGHTERHOUSE'
       );
       if (hasSlaughterhouse && hasRegional) {
-        return `${plural} à être soumis aux départements et/ou diffusés aux préleveurs.`;
+        return `${plural} à être soumis aux départements et/ou ${diffused} aux préleveurs.`;
       }
       return hasSlaughterhouse
         ? `${plural} à être soumis aux départements.`
-        : `${plural} à être diffusés aux préleveurs.`;
+        : `${plural} à être ${diffused} aux préleveurs.`;
     }
     if (hasRole('DepartmentalCoordinator')) {
       const awaitsLaunch = readyToSendPlans.some((plan) =>
         isNil(plan.launchedAt)
       );
       return awaitsLaunch
-        ? `${plural} à être diffusés aux préleveurs. Ils seront visibles des préleveurs dès le lancement de la campagne par le BGIR.`
-        : `${plural} à être diffusés aux préleveurs.`;
+        ? `${plural} à être ${diffused} aux préleveurs. ${pluralize(count, {
+            replacements: [{ old: 'sera', new: 'seront' }]
+          })(
+            'Il sera visible'
+          )} des préleveurs dès le lancement de la campagne par le BGIR.`
+        : `${plural} à être ${diffused} aux préleveurs.`;
     }
     return undefined;
   }, [readyToSendPlans, hasRole]);

@@ -1,10 +1,13 @@
-import { isNil, sumBy } from 'lodash-es';
+import { sumBy } from 'lodash-es';
 import { z } from 'zod';
 import { Department } from '../../referential/Department';
 import { Region } from '../../referential/Region';
 import type { DistributionKind } from '../ProgrammingPlan/DistributionKind';
 import { ProgrammingPlanEchelon } from '../ProgrammingPlan/ProgrammingPlanDisplayStatus';
-import type { LocalPrescription } from './LocalPrescription';
+import {
+  isLaboratoryAssignmentComplete,
+  type LocalPrescription
+} from './LocalPrescription';
 import { SubstanceKindLaboratory } from './LocalPrescriptionSubstanceKindLaboratory';
 
 export const LocalPrescriptionChangeKind = z.enum([
@@ -37,12 +40,6 @@ export type LocalPrescriptionChange = z.infer<typeof LocalPrescriptionChange>;
 export const hasUnviewedChange = (
   changedAt: Date | null | undefined
 ): boolean => changedAt != null;
-
-export const isLaboratoryAssignmentComplete = (
-  substanceKindsLaboratories: LocalPrescription['substanceKindsLaboratories']
-): boolean =>
-  (substanceKindsLaboratories?.length ?? 0) > 0 &&
-  !substanceKindsLaboratories!.some((s) => isNil(s.laboratoryId));
 
 export const regionRowNeedsChangeAction = (
   distributionKind: DistributionKind,

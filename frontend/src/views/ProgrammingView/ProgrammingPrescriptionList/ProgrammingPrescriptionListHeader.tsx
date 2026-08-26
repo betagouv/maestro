@@ -14,14 +14,12 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
-import ProgrammingPlanNotificationRegionalToDepartmental from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationRegionalToDepartmental/ProgrammingPlanNotificationRegionalToDepartmental';
 import './ProgrammingPrescriptionList.scss';
 
 interface Props {
   programmingPlan: ProgrammingPlanChecked;
   prescriptions: Prescription[];
   localPrescriptions: LocalPrescription[];
-  subLocalPrescriptions: LocalPrescription[];
   region?: Region;
   exportURL: string;
 }
@@ -30,7 +28,6 @@ const ProgrammingPrescriptionListHeader = ({
   programmingPlan,
   prescriptions,
   localPrescriptions,
-  subLocalPrescriptions,
   region,
   exportURL
 }: Props) => {
@@ -63,14 +60,6 @@ const ProgrammingPrescriptionListHeader = ({
           title="Exporter"
           size={isMobile ? 'small' : 'medium'}
         />
-        {hasRegionalView &&
-          programmingPlan.distributionKind === 'SLAUGHTERHOUSE' && (
-            <ProgrammingPlanNotificationRegionalToDepartmental
-              programmingPlan={programmingPlan}
-              regionalPrescriptions={localPrescriptions}
-              departmentalPrescriptions={subLocalPrescriptions}
-            />
-          )}
       </div>
       <div className="d-flex-align-center">
         <div className={clsx('flex-grow-1', 'd-flex-align-center')}>

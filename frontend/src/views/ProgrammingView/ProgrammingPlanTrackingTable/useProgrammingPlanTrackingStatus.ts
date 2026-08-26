@@ -1,4 +1,4 @@
-import { groupBy } from 'lodash-es';
+import { groupBy, isNil } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import { DepartmentSort } from 'maestro-shared/referential/Department';
 import {
@@ -25,6 +25,7 @@ interface PlanStatusInfo {
   regionalDisplayStatus: DisplayStatusResult | undefined;
   departmentalDisplayStatus: DisplayStatusResult | undefined;
   isEligible: boolean;
+  isLaunchable: boolean;
   regionalAggregate: AggregateDisplayStatus;
   departmentalAggregate: AggregateDisplayStatus | undefined;
   isFinalized: boolean;
@@ -59,7 +60,9 @@ export const useProgrammingPlanTrackingStatus = (
     {
       programmingPlanIds: planIds,
       allLevels: true,
-      includeCompanies: hasSlaughterhousePlan
+      includeCompanies: hasSlaughterhousePlan,
+      // Needed to tell whether the terminal echelon has assigned them.
+      includes: ['laboratories' as const]
     },
     { skip: planIds.length === 0 }
   );
@@ -154,11 +157,21 @@ export const useProgrammingPlanTrackingStatus = (
             ? isSubmittedToAdmin
             : nationalDisplayStatus.value === 'ReadyToSend';
 
+      // Opening the campaign is a gesture of its own: it does not follow the
+      // submission chain. It still takes a plan the national coordinator has
+      // handed over, and one that carries samples at all.
+      const isLaunchable =
+        hasRole('AdministratorBGIR') &&
+        isNil(plan.launchedAt) &&
+        nationalDisplayStatus.value !== 'Pending' &&
+        nationalDisplayStatus.value !== 'NotApplicable';
+
       map.set(plan.id, {
         nationalDisplayStatus,
         regionalDisplayStatus,
         departmentalDisplayStatus,
         isEligible,
+        isLaunchable,
         regionalAggregate,
         departmentalAggregate,
         isFinalized: department

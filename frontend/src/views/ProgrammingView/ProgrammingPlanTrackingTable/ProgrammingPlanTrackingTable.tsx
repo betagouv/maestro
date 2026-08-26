@@ -224,6 +224,16 @@ const ProgrammingPlanTrackingTable = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Selection now mixes both gestures, so each modal takes only the plans its
+  // own action applies to.
+  const plansToRegionsByAdmin = useMemo(
+    () =>
+      selectedPlans.filter(
+        (plan) => plan.nationalStatus.status === 'SubmittedToAdmin'
+      ),
+    [selectedPlans]
+  );
+
   const plansToLaunch = useMemo(
     () => selectedPlans.filter((plan) => isNil(plan.launchedAt)),
     [selectedPlans]
@@ -235,10 +245,15 @@ const ProgrammingPlanTrackingTable = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // A plan can be picked either to be submitted onward or to have its campaign
+  // opened; the two gestures do not follow the same chain.
+  const isSelectable = (planId: string) => {
+    const info = planStatusInfo.get(planId);
+    return info?.isEligible === true || info?.isLaunchable === true;
+  };
+
   const toggleSelectionForScope = (scopePlanIds: string[]) => {
-    const eligibleInScope = scopePlanIds.filter(
-      (id) => planStatusInfo.get(id)?.isEligible
-    );
+    const eligibleInScope = scopePlanIds.filter(isSelectable);
     setSelectedPlanIds((prev) => {
       const allSelected =
         eligibleInScope.length > 0 &&
@@ -267,9 +282,7 @@ const ProgrammingPlanTrackingTable = ({
     });
 
   const getScopeSelectionState = (scopePlanIds: string[]) => {
-    const eligibleInScope = scopePlanIds.filter(
-      (id) => planStatusInfo.get(id)?.isEligible
-    );
+    const eligibleInScope = scopePlanIds.filter(isSelectable);
     const selectedCount = eligibleInScope.filter((id) =>
       selectedPlanIds.has(id)
     ).length;
@@ -340,6 +353,7 @@ const ProgrammingPlanTrackingTable = ({
         onOpenAdminModal={() => bulkSendAdminModal.open()}
         onOpenLaunchModal={() => bulkLaunchModal.open()}
         isLaunchDisabled={plansToLaunch.length === 0}
+        isAdminSendDisabled={plansToRegionsByAdmin.length === 0}
         onOpenNationalModal={() => bulkSendNationalModal.open()}
         onOpenRegionalModal={() => bulkSendRegionalModal.open()}
         onOpenDepartmentalModal={() => bulkSendDepartmentalModal.open()}
@@ -348,7 +362,7 @@ const ProgrammingPlanTrackingTable = ({
         onHeightChange={setBannerHeight}
       />
       <ProgrammingPlanBulkSendAdminModal
-        plans={selectedPlans}
+        plans={plansToRegionsByAdmin}
         onSuccess={handleSendSuccess}
       />
       <ProgrammingPlanBulkLaunchModal
@@ -447,6 +461,7 @@ const ProgrammingPlanTrackingTable = ({
                       regionalDisplayStatus,
                       departmentalDisplayStatus,
                       isEligible,
+                      isLaunchable,
                       regionalAggregate,
                       departmentalAggregate
                     } = planStatusInfo.get(plan.id)!;
@@ -461,11 +476,13 @@ const ProgrammingPlanTrackingTable = ({
                         ? regionalDisplayStatus
                         : nationalDisplayStatus;
                     const isRepartitionIncomplete =
-                      !isEligible && relevantStatus?.value === 'InProgress';
+                      !isEligible &&
+                      !isLaunchable &&
+                      relevantStatus?.value === 'InProgress';
                     const checkbox = (
                       <SelectionCheckbox
                         checked={selectedPlanIds.has(plan.id)}
-                        disabled={!isEligible}
+                        disabled={!isSelectable(plan.id)}
                         onChange={() => togglePlanSelection(plan.id)}
                       />
                     );

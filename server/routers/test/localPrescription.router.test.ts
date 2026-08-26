@@ -249,6 +249,75 @@ describe('Local prescriptions router', () => {
   describe('GET /prescriptions/regions', () => {
     const testRoute = '/api/prescriptions/regions';
 
+    test('surfaces a draft given to an abattoir that has no row yet', async () => {
+      const departmentRow = validatedControlLocalPrescriptions.find(
+        (_) => _.region === RegionalCoordinator.region
+      ) as LocalPrescription;
+      const newSiret = '11111111111111';
+
+      const read = async () => {
+        const res = await request(app)
+          .get(testRoute)
+          .query({
+            programmingPlanIds: PPVValidatedProgrammingPlanFixture.id,
+            region: departmentRow.region,
+            department: DepartmentalCoordinator.department as string,
+            contexts: 'Control'
+          })
+          .use(tokenProvider(DepartmentalCoordinator))
+          .expect(constants.HTTP_STATUS_OK);
+        return res.body.filter(
+          (_: { companySiret?: string }) => _.companySiret === newSiret
+        );
+      };
+
+      try {
+        await LocalPrescriptions().insert(
+          formatLocalPrescription({
+            prescriptionId: departmentRow.prescriptionId,
+            region: departmentRow.region,
+            department: DepartmentalCoordinator.department as Department,
+            sampleCount: 6
+          })
+        );
+
+        // Nothing exists for that abattoir yet, so nothing shows.
+        await expect(read()).resolves.toHaveLength(0);
+
+        await LocalPrescriptionChanges().insert({
+          prescriptionId: departmentRow.prescriptionId,
+          region: departmentRow.region,
+          department: DepartmentalCoordinator.department as Department,
+          companySiret: newSiret,
+          echelon: 'Departmental',
+          kind: 'sampleCount',
+          sampleCount: 6,
+          previousSampleCount: 0,
+          changedAt: new Date(),
+          diffusedAt: null,
+          appliedAt: null,
+          changesViewedAt: null,
+          changesViewedBy: null,
+          substanceKindsLaboratories: null
+        });
+
+        // The draft has no live row to sit on: it must come back as one.
+        const rows = await read();
+        expect(rows).toHaveLength(1);
+        expect(rows[0].sampleCount).toBe(6);
+      } finally {
+        await LocalPrescriptionChanges()
+          .where('prescription_id', departmentRow.prescriptionId)
+          .andWhere('company_siret', newSiret)
+          .delete();
+        await LocalPrescriptions()
+          .where('prescription_id', departmentRow.prescriptionId)
+          .andWhere('region', departmentRow.region)
+          .andWhere('department', DepartmentalCoordinator.department as string)
+          .delete();
+      }
+    });
+
     test('keeps an emptied row visible while its own split still holds samples', async () => {
       const emptied = validatedControlLocalPrescriptions.find(
         (_) => _.region === RegionalCoordinator.region

@@ -949,6 +949,51 @@ describe('ProgrammingPlan router', () => {
   describe('POST /programming-plans/send-to-regions', () => {
     const testRoute = '/api/programming-plans/send-to-regions';
 
+    test('a first submission carrying pending edits still reaches the administrator', async () => {
+      const planId = PPVInProgressProgrammingPlanFixture.id;
+      const prescription = genPrescription({ programmingPlanId: planId });
+
+      try {
+        await Prescriptions().insert(prescription);
+        // Editing before submitting is the ordinary case, not a resend.
+        await LocalPrescriptionChanges().insert({
+          prescriptionId: prescription.id,
+          region: RegionalCoordinator.region as Region,
+          department: 'None',
+          companySiret: 'None',
+          echelon: 'National',
+          kind: 'sampleCount',
+          sampleCount: 12,
+          previousSampleCount: 0,
+          changedAt: new Date(),
+          diffusedAt: null,
+          appliedAt: null,
+          changesViewedAt: null,
+          changesViewedBy: null,
+          substanceKindsLaboratories: null
+        });
+
+        await request(app)
+          .post(testRoute)
+          .send({ programmingPlanIds: [planId] })
+          .use(tokenProvider(NationalCoordinator))
+          .expect(constants.HTTP_STATUS_OK);
+
+        const national = await ProgrammingPlanLocalStatus()
+          .where({ programmingPlanId: planId, region: 'None' })
+          .first();
+        expect(national?.status).toBe('SubmittedToAdmin');
+      } finally {
+        await LocalPrescriptionChanges()
+          .where('prescription_id', prescription.id)
+          .delete();
+        await Prescriptions().where('id', prescription.id).delete();
+        await ProgrammingPlanLocalStatus()
+          .where('programmingPlanId', planId)
+          .update({ status: 'InProgress', sentAt: null });
+      }
+    });
+
     test('should fail if the user is not authenticated', async () => {
       await request(app)
         .post(testRoute)
@@ -1252,6 +1297,89 @@ describe('ProgrammingPlan router', () => {
 
   describe('POST /programming-plans/send-to-departments', () => {
     const testRoute = '/api/programming-plans/send-to-departments';
+
+    test('a first share-out carrying pending edits still reaches the departments', async () => {
+      const planId = DAOAInProgressProgrammingPlanFixture.id;
+      const region = RegionalCoordinator.region as Region;
+      const prescription = genPrescription({ programmingPlanId: planId });
+
+      try {
+        await ProgrammingPlanLocalStatus()
+          .where({ programmingPlanId: planId, region })
+          .update({ status: 'SubmittedToRegion', sentAt: null });
+
+        await Prescriptions().insert(prescription);
+        // Sharing out is exactly what produces those pending edits.
+        await LocalPrescriptionChanges().insert({
+          prescriptionId: prescription.id,
+          region,
+          department: DepartmentalCoordinator.department as Department,
+          companySiret: 'None',
+          echelon: 'Regional',
+          kind: 'sampleCount',
+          sampleCount: 5,
+          previousSampleCount: 0,
+          changedAt: new Date(),
+          diffusedAt: null,
+          appliedAt: null,
+          changesViewedAt: null,
+          changesViewedBy: null,
+          substanceKindsLaboratories: null
+        });
+
+        await request(app)
+          .post(testRoute)
+          .send({ programmingPlanIds: [planId] })
+          .use(tokenProvider(RegionalCoordinator))
+          .expect(constants.HTTP_STATUS_OK);
+
+        const regional = await ProgrammingPlanLocalStatus()
+          .where({ programmingPlanId: planId, region, department: 'None' })
+          .first();
+        expect(regional?.status).toBe('SubmittedToDepartments');
+
+        // Without those rows the departmental coordinators see no plan at all.
+        const departmental = await ProgrammingPlanLocalStatus()
+          .where({ programmingPlanId: planId, region })
+          .whereNot({ department: 'None' });
+        expect(departmental.length).toBeGreaterThan(0);
+        expect(
+          departmental.every((_) => _.status === 'SubmittedToDepartments')
+        ).toBe(true);
+      } finally {
+        await LocalPrescriptionChanges()
+          .where('prescription_id', prescription.id)
+          .delete();
+        await Prescriptions().where('id', prescription.id).delete();
+        await ProgrammingPlanLocalStatus()
+          .where({ programmingPlanId: planId, region })
+          .whereNot({ department: 'None' })
+          .delete();
+        await ProgrammingPlanLocalStatus()
+          .where({ programmingPlanId: planId, region })
+          .update({ status: 'InProgress', sentAt: null });
+      }
+    });
+
+    test('a REGIONAL plan is untouched by this route: it goes straight to the samplers', async () => {
+      const planId = PPVSubmittedProgrammingPlanFixture.id;
+      const region = RegionalCoordinator.region as Region;
+
+      const before = await ProgrammingPlanLocalStatus()
+        .where({ programmingPlanId: planId, region, department: 'None' })
+        .first();
+
+      await request(app)
+        .post(testRoute)
+        .send({ programmingPlanIds: [planId] })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const after = await ProgrammingPlanLocalStatus()
+        .where({ programmingPlanId: planId, region, department: 'None' })
+        .first();
+      expect(after?.status).toBe(before?.status);
+    });
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)

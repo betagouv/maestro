@@ -2,7 +2,10 @@ import { groupBy, isNil, sumBy } from 'lodash-es';
 import { z } from 'zod';
 import type { Department } from '../../referential/Department';
 import type { Region } from '../../referential/Region';
-import type { LocalPrescription } from '../LocalPrescription/LocalPrescription';
+import {
+  isLaboratoryAssignmentComplete,
+  type LocalPrescription
+} from '../LocalPrescription/LocalPrescription';
 import type { Prescription } from '../Prescription/Prescription';
 import type { DistributionKind } from './DistributionKind';
 import type { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
@@ -268,6 +271,7 @@ export const computeCompleteness = (
     | 'companySiret'
     | 'sampleCount'
     | 'diffusedSampleCount'
+    | 'substanceKindsLaboratories'
   >[],
   echelon: ProgrammingPlanEchelon,
   distributionKind?: DistributionKind,
@@ -348,8 +352,28 @@ export const computeCompleteness = (
           })
         : true;
 
+  // The echelon that hands the plan to the samplers is the one that assigns
+  // the laboratories: region on a REGIONAL plan, department otherwise. Nothing
+  // can be diffused while that assignment is missing.
+  const isTerminalEchelon = isNil(distributionKind)
+    ? false
+    : distributionKind === 'REGIONAL'
+      ? echelon === 'Regional'
+      : echelon === 'Departmental';
+
+  const hasLaboratoriesAssigned =
+    !isTerminalEchelon ||
+    prescriptions.every((p) =>
+      isLaboratoryAssignmentComplete(
+        scopedByPrescription[p.id]?.[0]?.substanceKindsLaboratories
+      )
+    );
+
   return {
-    isComplete: hasRowForEveryPrescription && isReconciledWithChildren,
+    isComplete:
+      hasRowForEveryPrescription &&
+      isReconciledWithChildren &&
+      hasLaboratoriesAssigned,
     hasAnyProgrammedSample: programmedCount > 0,
     programmedCount,
     attributedCount: sumBy(prescriptions, 'sampleCount')

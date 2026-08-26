@@ -87,6 +87,7 @@ const ProgrammingPrescriptionList = ({
   const {
     hasNationalView,
     hasRegionalView,
+    hasDepartmentalView,
     hasUserPermission,
     hasUserPrescriptionPermission,
     hasUserLocalPrescriptionPermission,
@@ -94,7 +95,11 @@ const ProgrammingPrescriptionList = ({
     user
   } = useAuthentication();
 
-  const isRegionalCoordinatorView = hasRegionalView && !hasNationalView;
+  // Laboratories are assigned by the echelon that hands the plan to the
+  // samplers: the region on a REGIONAL plan, the department on a
+  // SLAUGHTERHOUSE one. Both get the bulk assignment.
+  const canBulkAssignLaboratories =
+    (hasRegionalView || hasDepartmentalView) && !hasNationalView;
 
   const [selectedPrescriptions, setSelectedPrescriptions] = useState<
     Prescription[]
@@ -731,7 +736,9 @@ const ProgrammingPrescriptionList = ({
   const laboratorySlotsFor = useCallback(
     (prescription: Prescription) => {
       const plan = getPrescriptionPlan(prescription);
-      if (plan.distributionKind !== 'REGIONAL') {
+      const isLaboratoryEchelon =
+        plan.distributionKind === 'REGIONAL' ? !department : !!department;
+      if (!isLaboratoryEchelon) {
         return [];
       }
       const regional = localPrescriptions.find(
@@ -752,7 +759,7 @@ const ProgrammingPrescriptionList = ({
           )?.laboratoryId
         }));
     },
-    [getPrescriptionPlan, localPrescriptions]
+    [getPrescriptionPlan, localPrescriptions, department]
   );
 
   const bulkAssignCheck = useMemo(():
@@ -824,7 +831,6 @@ const ProgrammingPrescriptionList = ({
               programmingPlan={headerPlan}
               prescriptions={prescriptions}
               localPrescriptions={localPrescriptions}
-              subLocalPrescriptions={subLocalPrescriptions ?? []}
               region={region}
               exportURL={getApiUrl(
                 '/prescriptions/export',
@@ -852,7 +858,7 @@ const ProgrammingPrescriptionList = ({
               Aucun prélèvement programmé pour les filtres sélectionnés
             </div>
           )}
-          {isRegionalCoordinatorView && (
+          {canBulkAssignLaboratories && (
             <SelectionActionBar
               selectedCount={selectedPrescriptions.length}
               itemLabel="sous-plan sélectionné"
@@ -931,14 +937,18 @@ const ProgrammingPrescriptionList = ({
         }
       />
       <LocalPrescriptionModal />
-      {isRegionalCoordinatorView && (
+      {canBulkAssignLaboratories && (
         <BulkAssignLaboratoriesModal
           programmingPlanId={headerPlan.id}
           commonSlots={bulkAssignCheck.commonSlots}
           onSubmit={(substanceKindsLaboratories) => {
             for (const prescription of selectedPrescriptions) {
               changeLocalPrescriptionLaboratories(
-                { prescriptionId: prescription.id, region: region as Region },
+                {
+                  prescriptionId: prescription.id,
+                  region: region as Region,
+                  department
+                },
                 substanceKindsLaboratories
               );
             }

@@ -134,6 +134,10 @@ export const programmingPlanRouter = {
           planIds: plan.id
         });
         const isModified = plan.nationalStatus.hasPendingChange === true;
+        // Whether the plan ever left the national desk, which is a different
+        // question from whether it holds edits: a first submission carries
+        // pending edits by definition, and they are committed just below.
+        const isFirstSend = isNil(plan.nationalStatus.sentAt);
 
         if (userRole === 'NationalCoordinator') {
           await prescriptionDiffusionService.commitPendingNationalChanges(
@@ -141,7 +145,7 @@ export const programmingPlanRouter = {
           );
         }
 
-        if (userRole === 'NationalCoordinator' && !isModified) {
+        if (userRole === 'NationalCoordinator' && isFirstSend) {
           await programmingPlanRepository.updateNationalStatus(
             plan.id,
             'SubmittedToAdmin',
@@ -177,7 +181,10 @@ export const programmingPlanRouter = {
           continue;
         }
 
-        if (!isModified) {
+        // Only two roles reach this point. The administrator passes the plan
+        // on to the regions; the national coordinator can only be resending an
+        // already submitted one, its first submission having returned above.
+        if (userRole === 'AdministratorBGIR') {
           await Promise.all(
             plan.regionalStatus.map((regionalStatus) =>
               programmingPlanRepository.updateLocalStatus(
@@ -292,6 +299,10 @@ export const programmingPlanRouter = {
         const isModified =
           regionalStatus.hasPendingChange === true ||
           regionalStatus.needsResend === true;
+        // Same distinction as the sampler route below: a region that has only
+        // received the plan is passing it on for the first time. A first
+        // share-out always carries pending edits, which is not a resend.
+        const isFirstSend = regionalStatus.status === 'SubmittedToRegion';
 
         if (plan.distributionKind === 'REGIONAL') {
           continue;
@@ -303,7 +314,7 @@ export const programmingPlanRouter = {
           plan.distributionKind
         );
 
-        if (!isModified) {
+        if (isFirstSend) {
           await programmingPlanRepository.insertManyLocalStatus(
             plan.id,
             Regions[region].departments.map((department) => ({
@@ -330,7 +341,8 @@ export const programmingPlanRouter = {
             departmentalCoordinators,
             { sender: 'coordination régionale' }
           );
-        } else {
+        } else if (isModified) {
+          // Already shared out: only an actual change is worth resending.
           const previousSentAt = regionalStatus.sentAt as Date;
           await programmingPlanRepository.touchRegionalSentAt(plan.id, region);
 
