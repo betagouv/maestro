@@ -52,9 +52,6 @@ export const withEffectiveLocalPrescriptionChanges = async (
       row
     ])
   );
-  // A company row is never pre-created, so a volume given to an abattoir that
-  // has none yet would have nothing to sit on. Those drafts are surfaced as
-  // rows of their own, within the scope the caller asked for.
   const knownKeys = new Set(
     localPrescriptions.map((_) => toLocalPrescriptionKeyString(_))
   );

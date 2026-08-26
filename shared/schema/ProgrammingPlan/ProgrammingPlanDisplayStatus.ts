@@ -352,9 +352,6 @@ export const computeCompleteness = (
           })
         : true;
 
-  // The echelon that hands the plan to the samplers is the one that assigns
-  // the laboratories: region on a REGIONAL plan, department otherwise. Nothing
-  // can be diffused while that assignment is missing.
   const isTerminalEchelon = isNil(distributionKind)
     ? false
     : distributionKind === 'REGIONAL'

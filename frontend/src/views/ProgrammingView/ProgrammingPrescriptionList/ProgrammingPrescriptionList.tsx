@@ -95,9 +95,6 @@ const ProgrammingPrescriptionList = ({
     user
   } = useAuthentication();
 
-  // Laboratories are assigned by the echelon that hands the plan to the
-  // samplers: the region on a REGIONAL plan, the department on a
-  // SLAUGHTERHOUSE one. Both get the bulk assignment.
   const canBulkAssignLaboratories =
     (hasRegionalView || hasDepartmentalView) && !hasNationalView;
 

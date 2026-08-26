@@ -196,8 +196,6 @@ const ProgrammingView = () => {
     [commentLocalPrescription]
   );
 
-  // The banner speaks about the year shown in the title, not about every year
-  // the user has access to.
   const yearProgrammingPlans = useMemo(
     () =>
       (programmingPlans ?? []).filter(
@@ -218,7 +216,6 @@ const ProgrammingView = () => {
       return undefined;
     }
     const plural = `${count} ${pluralize(count)('plan')} ${count > 1 ? 'sont prêts' : 'est prêt'}`;
-    // « soumis » is invariable, « diffusé » is not.
     const diffused = pluralize(count)('diffusé');
 
     if (hasRole('AdministratorBGIR')) {

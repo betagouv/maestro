@@ -662,8 +662,6 @@ describe('computeCompleteness — the terminal echelon must have assigned its la
       ).isComplete
     ).toBe(true);
 
-    // The region hands over to the departments, not to the samplers: it is not
-    // the one that assigns laboratories.
     expect(
       computeCompleteness(
         prescriptions,

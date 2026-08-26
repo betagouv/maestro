@@ -224,8 +224,6 @@ const ProgrammingPlanTrackingTable = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Selection now mixes both gestures, so each modal takes only the plans its
-  // own action applies to.
   const plansToRegionsByAdmin = useMemo(
     () =>
       selectedPlans.filter(
@@ -245,8 +243,6 @@ const ProgrammingPlanTrackingTable = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // A plan can be picked either to be submitted onward or to have its campaign
-  // opened; the two gestures do not follow the same chain.
   const isSelectable = (planId: string) => {
     const info = planStatusInfo.get(planId);
     return info?.isEligible === true || info?.isLaunchable === true;

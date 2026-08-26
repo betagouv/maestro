@@ -61,7 +61,6 @@ export const useProgrammingPlanTrackingStatus = (
       programmingPlanIds: planIds,
       allLevels: true,
       includeCompanies: hasSlaughterhousePlan,
-      // Needed to tell whether the terminal echelon has assigned them.
       includes: ['laboratories' as const]
     },
     { skip: planIds.length === 0 }
@@ -157,9 +156,6 @@ export const useProgrammingPlanTrackingStatus = (
             ? isSubmittedToAdmin
             : nationalDisplayStatus.value === 'ReadyToSend';
 
-      // Opening the campaign is a gesture of its own: it does not follow the
-      // submission chain. It still takes a plan the national coordinator has
-      // handed over, and one that carries samples at all.
       const isLaunchable =
         hasRole('AdministratorBGIR') &&
         isNil(plan.launchedAt) &&

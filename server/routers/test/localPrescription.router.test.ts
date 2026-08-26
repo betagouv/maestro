@@ -281,7 +281,6 @@ describe('Local prescriptions router', () => {
           })
         );
 
-        // Nothing exists for that abattoir yet, so nothing shows.
         await expect(read()).resolves.toHaveLength(0);
 
         await LocalPrescriptionChanges().insert({
@@ -301,7 +300,6 @@ describe('Local prescriptions router', () => {
           substanceKindsLaboratories: null
         });
 
-        // The draft has no live row to sit on: it must come back as one.
         const rows = await read();
         expect(rows).toHaveLength(1);
         expect(rows[0].sampleCount).toBe(6);
@@ -2745,8 +2743,6 @@ describe('Local prescriptions router', () => {
         updatedSampleCount
       );
 
-      // The sampler reads the live row, so no before/after marker either:
-      // nothing changed for them yet.
       const samplerRow = await readRow(Sampler1Fixture);
       expect(samplerRow.changedAt).toBeNull();
       expect(samplerRow.previousSampleCount).toBeNull();
@@ -2804,8 +2800,6 @@ describe('Local prescriptions router', () => {
       expect(regionalRow.sampleCount).toBe(secondSampleCount);
       expect(regionalRow.previousSampleCount).toBe(updatedSampleCount);
 
-      // The sampler is still on the value the region diffused, and its marker
-      // keeps pointing at where that value came from.
       const samplerRow = await readRow(Sampler1Fixture);
       expect(samplerRow.sampleCount).toBe(updatedSampleCount);
       expect(samplerRow.previousSampleCount).toBe(initialSampleCount);

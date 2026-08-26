@@ -1185,9 +1185,6 @@ const ProgrammingPrescriptionTable = ({
                                                   prescriptionId:
                                                     prescription.id,
                                                   region,
-                                                  // On a SLAUGHTERHOUSE plan
-                                                  // the assignment is held by
-                                                  // the department row.
                                                   department,
                                                   companySiret: undefined
                                                 })

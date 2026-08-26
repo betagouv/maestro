@@ -314,7 +314,6 @@ describe('ProgrammingPlan router', () => {
           )
         ).toBe(true);
 
-        // Launching again must not move the opening date of the campaign.
         await request(app)
           .post('/api/programming-plans/launch-campaign')
           .send({ programmingPlanIds: [PPVValidatedProgrammingPlanFixture.id] })
@@ -955,7 +954,6 @@ describe('ProgrammingPlan router', () => {
 
       try {
         await Prescriptions().insert(prescription);
-        // Editing before submitting is the ordinary case, not a resend.
         await LocalPrescriptionChanges().insert({
           prescriptionId: prescription.id,
           region: RegionalCoordinator.region as Region,
@@ -1309,7 +1307,6 @@ describe('ProgrammingPlan router', () => {
           .update({ status: 'SubmittedToRegion', sentAt: null });
 
         await Prescriptions().insert(prescription);
-        // Sharing out is exactly what produces those pending edits.
         await LocalPrescriptionChanges().insert({
           prescriptionId: prescription.id,
           region,
@@ -1338,7 +1335,6 @@ describe('ProgrammingPlan router', () => {
           .first();
         expect(regional?.status).toBe('SubmittedToDepartments');
 
-        // Without those rows the departmental coordinators see no plan at all.
         const departmental = await ProgrammingPlanLocalStatus()
           .where({ programmingPlanId: planId, region })
           .whereNot({ department: 'None' });

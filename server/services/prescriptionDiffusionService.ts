@@ -71,16 +71,6 @@ const writeChangeToLive = async (
   }
 };
 
-/**
- * Writes into `local_prescriptions` the changes an echelon has already
- * submitted (`diffusedAt` set) but that were held back from the live rows
- * (`appliedAt` null), then stamps them as applied. Live rows are what the
- * echelon below reads — Samplers for the terminal one — so a change only
- * lands there when the echelon that received it passes it on in turn.
- * Resetting `changesViewedAt` mirrors what `commitPending` does when it sets
- * `diffusedAt`: the recipients of the freshly applied value get the
- * before/after marker.
- */
 const flushDiffusedChanges = async (
   scope: FlushScope,
   echelon: ProgrammingPlanEchelon,
@@ -106,14 +96,6 @@ const flushDiffusedChanges = async (
   );
 };
 
-/**
- * Submits the National echelon's edits to the regions. National sample counts
- * (`prescriptions`) are committed right away, but the per-region
- * `local_prescriptions` rows are left untouched: for REGIONAL plans they are
- * the very rows Samplers read, so they are only written when the region
- * diffuses in turn. Until then the regions read the new value through the
- * `local_prescription_changes` overlay.
- */
 const commitPendingNationalChanges = async (
   programmingPlanId: string
 ): Promise<CommitResult> => {
