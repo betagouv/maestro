@@ -334,6 +334,69 @@ describe('ProgrammingPlan router', () => {
       }
     });
 
+    test('launching a campaign notifies the coordinators and the samplers of the validated scopes', async () => {
+      const initial = await ProgrammingPlans()
+        .where({ id: PPVValidatedProgrammingPlanFixture.id })
+        .first();
+
+      try {
+        await ProgrammingPlans()
+          .where({ id: PPVValidatedProgrammingPlanFixture.id })
+          .update({ launchedAt: null, launchedBy: null });
+        mockSendNotification.mockClear();
+
+        await request(app)
+          .post('/api/programming-plans/launch-campaign')
+          .send({ programmingPlanIds: [PPVValidatedProgrammingPlanFixture.id] })
+          .use(tokenProvider(AdminBGIRFixture))
+          .expect(constants.HTTP_STATUS_OK);
+
+        const launchCalls = mockSendNotification.mock.calls.filter(
+          ([notification]) =>
+            notification.category === 'ProgrammingPlanCampaignLaunched'
+        );
+        expect(launchCalls.length).toBeGreaterThan(0);
+
+        for (const [notification, , params, options] of launchCalls) {
+          expect(notification.link).toContain(
+            `${PPVValidatedProgrammingPlanFixture.year}`
+          );
+          expect(params.object).toContain(
+            `Campagne PSPC ${PPVValidatedProgrammingPlanFixture.year}`
+          );
+          expect(params.content).toContain(
+            PPVValidatedProgrammingPlanFixture.title
+          );
+          expect(options.message).toBe(
+            `Lancement de la campagne ${PPVValidatedProgrammingPlanFixture.year} sur un ou plusieurs plans`
+          );
+        }
+
+        expect(
+          launchCalls.some(([notification]) =>
+            notification.link.includes('tab=PlanTrackingTab')
+          )
+        ).toBe(true);
+
+        mockSendNotification.mockClear();
+
+        await request(app)
+          .post('/api/programming-plans/launch-campaign')
+          .send({ programmingPlanIds: [PPVValidatedProgrammingPlanFixture.id] })
+          .use(tokenProvider(AdminBGIRFixture))
+          .expect(constants.HTTP_STATUS_OK);
+
+        expect(mockSendNotification).not.toHaveBeenCalled();
+      } finally {
+        await ProgrammingPlans()
+          .where({ id: PPVValidatedProgrammingPlanFixture.id })
+          .update({
+            launchedAt: initial?.launchedAt ?? null,
+            launchedBy: initial?.launchedBy ?? null
+          });
+      }
+    });
+
     test('should refuse the campaign launch to anyone but the BGIR administrator', async () => {
       for (const user of [NationalCoordinator, AdminFixture, Sampler1Fixture]) {
         await request(app)
@@ -1053,7 +1116,10 @@ describe('ProgrammingPlan router', () => {
           category: 'ProgrammingPlanSubmittedToRegion'
         }),
         expect.anything(),
-        expect.anything()
+        expect.objectContaining({
+          object: expect.stringContaining('Campagne PSPC')
+        }),
+        expect.objectContaining({ message: expect.any(String) })
       );
 
       //Cleanup
@@ -1122,7 +1188,10 @@ describe('ProgrammingPlan router', () => {
           category: 'ProgrammingPlanReadyForAdminReview'
         }),
         expect.anything(),
-        expect.anything()
+        expect.objectContaining({
+          object: expect.stringContaining('Campagne PSPC')
+        }),
+        expect.objectContaining({ message: expect.any(String) })
       );
 
       //Cleanup
@@ -1269,14 +1338,20 @@ describe('ProgrammingPlan router', () => {
           category: 'ProgrammingPlanReadyForAdminReview'
         }),
         expect.anything(),
-        expect.anything()
+        expect.objectContaining({
+          object: expect.stringContaining('Campagne PSPC')
+        }),
+        expect.objectContaining({ message: expect.any(String) })
       );
       expect(mockSendNotification).toHaveBeenCalledWith(
         expect.objectContaining({
           category: 'ProgrammingPlanModifiedAfterSubmission'
         }),
         expect.anything(),
-        expect.anything()
+        expect.objectContaining({
+          object: expect.stringContaining('Campagne PSPC')
+        }),
+        expect.objectContaining({ message: expect.any(String) })
       );
 
       //Cleanup
@@ -1451,7 +1526,10 @@ describe('ProgrammingPlan router', () => {
           category: 'ProgrammingPlanSubmittedToDepartments'
         }),
         expect.anything(),
-        expect.anything()
+        expect.objectContaining({
+          object: expect.stringContaining('Campagne PSPC')
+        }),
+        expect.objectContaining({ message: expect.any(String) })
       );
 
       //Cleanup
@@ -1562,7 +1640,10 @@ describe('ProgrammingPlan router', () => {
           category: 'ProgrammingPlanModifiedAfterSubmission'
         }),
         expect.anything(),
-        expect.anything()
+        expect.objectContaining({
+          object: expect.stringContaining('Campagne PSPC')
+        }),
+        expect.objectContaining({ message: expect.any(String) })
       );
 
       //Cleanup
@@ -1701,7 +1782,10 @@ describe('ProgrammingPlan router', () => {
           category: 'ProgrammingPlanModifiedAfterSubmission'
         }),
         expect.anything(),
-        expect.anything()
+        expect.objectContaining({
+          object: expect.stringContaining('Campagne PSPC')
+        }),
+        expect.objectContaining({ message: expect.any(String) })
       );
 
       //Cleanup
@@ -1767,7 +1851,10 @@ describe('ProgrammingPlan router', () => {
           category: 'ProgrammingPlanModifiedAfterSubmission'
         }),
         expect.anything(),
-        expect.anything()
+        expect.objectContaining({
+          object: expect.stringContaining('Campagne PSPC')
+        }),
+        expect.objectContaining({ message: expect.any(String) })
       );
 
       //Cleanup

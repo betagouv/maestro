@@ -55,9 +55,15 @@ const ProgrammingView = () => {
   const dispatch = useAppDispatch();
   const { year } = useParams<{ year: string }>();
 
-  const [selectedTabId, setSelectedTabId] =
-    useState<ProgrammingViewTab>('ProgrammationTab');
   const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedTabId, setSelectedTabId] = useState<ProgrammingViewTab>(() => {
+    const tab = searchParams.get('tab');
+    return tab === 'CommentsTab' ||
+      tab === 'PlanTrackingTab' ||
+      tab === 'ProgrammationTab'
+      ? tab
+      : 'ProgrammationTab';
+  });
   const {
     user,
     hasNationalView,

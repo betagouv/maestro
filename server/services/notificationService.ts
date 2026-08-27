@@ -16,11 +16,14 @@ import { mattermostService } from './mattermostService';
 
 const categoryToEmailTemplate = {
   AnalysisReviewTodo: 'AnalysisReviewTodoTemplate',
-  ProgrammingPlanSubmittedToRegion: 'SubmittedProgrammingPlanTemplate',
-  ProgrammingPlanSubmittedToDepartments: 'SubmittedProgrammingPlanTemplate',
+  ProgrammingPlanSubmittedToRegion: 'GenericTemplate',
+  ProgrammingPlanSubmittedToDepartments: 'GenericTemplate',
   ProgrammingPlanValidated: 'GenericTemplate',
+  ProgrammingPlanCampaignLaunched: 'GenericTemplate',
   ProgrammingPlanModifiedAfterSubmission: 'GenericTemplate',
   ProgrammingPlanReadyForAdminReview: 'GenericTemplate',
+  LaboratoryAgreementsToManage: 'GenericTemplate',
+  LaboratoryAgreementLost: 'GenericTemplate',
   ResourceDocumentUploaded: 'GenericTemplate',
   Control: 'NewLocalPrescriptionCommentTemplate',
   Surveillance: 'NewLocalPrescriptionCommentTemplate',
@@ -34,22 +37,14 @@ const NotificationCategoryMessages = {
     `Nouveau commentaire sur la matrice **${matrix.toLowerCase()}**`,
   Exploratory: ({ matrix }) =>
     `Nouveau commentaire sur la matrice **${matrix.toLowerCase()}**`,
-  ProgrammingPlanSubmittedToRegion: () => `
-${Brand} vient d’être mis à jour !  
-
-Une nouvelle programmation pour la prochaine campagne de surveillance / contrôle officielle a été déposée sur ${Brand} par la coordination nationale.   
-
-Merci de prendre connaissance de ces nouveaux éléments et y réagir le cas échéant.`,
-
-  ProgrammingPlanSubmittedToDepartments: () => `
-${Brand} vient d’être mis à jour !  
-
-Une nouvelle programmation pour la prochaine campagne de surveillance / contrôle officielle a été déposée sur ${Brand} par la coordination régionale.   
-
-Merci de prendre connaissance de ces nouveaux éléments.`,
+  ProgrammingPlanSubmittedToRegion: ({ content }) => content,
+  ProgrammingPlanSubmittedToDepartments: ({ content }) => content,
   ProgrammingPlanValidated: ({ content }) => content,
+  ProgrammingPlanCampaignLaunched: ({ content }) => content,
   ProgrammingPlanModifiedAfterSubmission: ({ content }) => content,
   ProgrammingPlanReadyForAdminReview: ({ content }) => content,
+  LaboratoryAgreementsToManage: ({ content }) => content,
+  LaboratoryAgreementLost: ({ content }) => content,
   AnalysisReviewTodo: () =>
     `Un rapport d'analyse de l'un de vos prélèvements vient d'être reçu par ${Brand}. Veuillez-vous connecter, faire la vérification des données issues de celui-ci et réaliser l'interprétation globale pour finaliser vos actions sur ce prélèvement.`,
   ResourceDocumentUploaded: ({ content }) => content
@@ -76,9 +71,11 @@ const sendNotification = async <
   notificationToCreate: T,
   recipients: Pick<UserRefined, 'id' | 'email'>[],
   params: TemplateParams<T['category']>,
-  additionalEmails: string[] = []
+  additionalEmails: string[] = [],
+  options?: { message?: string }
 ) => {
   const message =
+    options?.message ??
     // @ts-expect-error TS2345 il n'arrive pas à faire le lien entre le type de la category dans la notification et les params souhaités. À voir si ça marche avec une nouvelle version de TS
     NotificationCategoryMessages[notificationToCreate.category](params);
 

@@ -1,4 +1,4 @@
-import { intersection, isNil } from 'lodash-es';
+import { groupBy, intersection, isNil } from 'lodash-es';
 import { Brand } from 'maestro-shared/constants';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import type { Department } from 'maestro-shared/referential/Department';
@@ -46,6 +46,189 @@ import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
 import prescriptionDiffusionService from '../services/prescriptionDiffusionService';
+
+const planBatches = (
+  plans: ProgrammingPlanChecked[]
+): ProgrammingPlanChecked[][] =>
+  Object.values(
+    groupBy(
+      plans,
+      (plan) =>
+        `${plan.year}|${stagesFromSubPlans(plan.subPlans).sort().join(',')}`
+    )
+  );
+
+const batchStages = (plans: ProgrammingPlanChecked[]) =>
+  stagesFromSubPlans(plans.flatMap((plan) => plan.subPlans));
+
+const batchLink = (plans: ProgrammingPlanChecked[], tab?: 'PlanTrackingTab') =>
+  AppRouteLinks.ProgrammingRoute.link({
+    year: plans[0].year,
+    planIds: plans.map((plan) => plan.id).join(','),
+    ...(tab ? { tab } : {})
+  });
+
+const readyForAdminReviewMessage = (year: number, author: string) =>
+  `Un ou plusieurs sous-plans viennent d’être ajoutés par ${author} pour la campagne ${year}.`;
+
+const readyForAdminReviewParams = (year: number, author: string) => ({
+  object: `Campagne PSPC ${year} / Nouveau(x) sous-plan(s) disponible(s) pour soumission aux régions`,
+  content: `${readyForAdminReviewMessage(year, author)} Vous pouvez maintenant les soumettre aux régions.`
+});
+
+const modifiedAuthors = {
+  National: {
+    inApp: 'la coordination nationale',
+    content: 'la coordination nationale'
+  },
+  Regional: {
+    inApp: 'la coordination régionale',
+    content: 'votre coordinateur ou coordinatrice régionale'
+  },
+  Departmental: {
+    inApp: 'la coordination départementale',
+    content: 'votre coordinateur ou coordinatrice départementale'
+  }
+} as const satisfies Record<
+  ProgrammingPlanEchelon,
+  { inApp: string; content: string }
+>;
+
+const modifiedMessage = (year: number, echelon: ProgrammingPlanEchelon) =>
+  `Modification sur un ou plusieurs sous-plans de la campagne ${year} par ${modifiedAuthors[echelon].inApp}`;
+
+const modifiedParams = (year: number, echelon: ProgrammingPlanEchelon) => ({
+  object: `Campagne PSPC ${year} / Modification sur un ou plusieurs sous-plans`,
+  content: `Un ou plusieurs sous-plans ont été modifiés par ${modifiedAuthors[echelon].content} pour la campagne ${year}.
+Ces modifications apparaissent en jaune jusqu’à ce qu’elles soient traitées par un utilisateur ou une utilisatrice. Si vous ne les voyez pas en arrivant sur Maestro, c’est qu’elles ont déjà été traitées.`
+});
+
+const submittedToRegionMessage = (year: number) =>
+  `Nouveau(x) sous-plans disponibles pour la campagne ${year}.`;
+
+const submittedToRegionParams = (year: number) => ({
+  object: `Campagne PSPC ${year} / Nouveau(x) sous-plan(s) disponible(s) pour répartition départementale`,
+  content: `Un ou plusieurs sous-plans viennent d’être ajoutés par la coordination nationale pour la campagne ${year}. Vous pouvez maintenant renseigner la répartition départementale.`
+});
+
+const submittedToDepartmentsMessage = (year: number) =>
+  `Un ou plusieurs sous-plans viennent d’être complétés par votre coordinateur ou coordinatrice régionale pour la campagne ${year}.`;
+
+const submittedToDepartmentsParams = (year: number) => ({
+  object: `Campagne PSPC ${year} / Nouveau(x) sous-plan(s) disponible(s)`,
+  content: `Un ou plusieurs sous-plans viennent d’être complétés par votre coordinateur ou coordinatrice régionale pour la campagne ${year}. Vous pouvez maintenant faire l’attribution des laboratoires et la répartition entre abattoirs (pour les plans à l’abattoir) puis les diffuser aux préleveurs et préleveuses.
+Si la campagne sur ces sous-plans a déjà été lancée par la coordination nationale, ils seront directement visibles par eux.`
+});
+
+const notifyCampaignLaunch = async (plans: ProgrammingPlanChecked[]) => {
+  const domains = await programmingPlanDomainRepository.findMany();
+  const planLabel = (plan: ProgrammingPlanChecked) => {
+    const domain = domains.find((_) => _.id === plan.domainId);
+    return domain ? `${domain.label} / ${plan.title}` : plan.title;
+  };
+
+  const year = plans[0].year;
+  const stages = stagesFromSubPlans(plans.flatMap((plan) => plan.subPlans));
+  const planLines = plans.map((plan) => `• ${planLabel(plan)}`).join('\n');
+  const planIds = plans.map((plan) => plan.id).join(',');
+  const inAppMessage = `Lancement de la campagne ${year} sur un ou plusieurs plans`;
+
+  const coordinators = await userRepository.findMany({
+    roles: [
+      'NationalCoordinator',
+      'NationalObserver',
+      'RegionalCoordinator',
+      'DepartmentalCoordinator'
+    ],
+    disabled: false,
+    stages
+  });
+
+  await notificationService.sendNotification(
+    {
+      category: 'ProgrammingPlanCampaignLaunched',
+      link: AppRouteLinks.ProgrammingRoute.link({
+        year,
+        planIds,
+        tab: 'PlanTrackingTab'
+      })
+    },
+    coordinators,
+    {
+      object: `Campagne PSPC ${year} / Lancement de la campagne sur un ou plusieurs plans`,
+      content: `La coordination nationale vient de lancer la campagne PSPC ${year} sur les plans suivants :
+${planLines}
+
+Les préleveurs et préleveuses peuvent dès à présent saisir des prélèvements sur ces plans si l’attribution des laboratoires et la répartition par abattoir pour les plans à l’abattoir, ont été faites.`
+    },
+    { message: inAppMessage }
+  );
+
+  const samplerScopes = new Map<
+    string,
+    { region: Region; department?: Department; plans: ProgrammingPlanChecked[] }
+  >();
+
+  for (const plan of plans) {
+    const validatedScopes =
+      plan.distributionKind === 'SLAUGHTERHOUSE'
+        ? plan.departmentalStatus
+            .filter((_) => _.status === 'Validated')
+            .map((_) => ({
+              region: _.region as Region,
+              department: _.department as Department
+            }))
+        : plan.regionalStatus
+            .filter((_) => _.status === 'Validated')
+            .map((_) => ({
+              region: _.region as Region,
+              department: undefined
+            }));
+
+    for (const scope of validatedScopes) {
+      const key = `${scope.region}-${scope.department ?? 'None'}`;
+      const existing = samplerScopes.get(key);
+      if (existing) {
+        existing.plans.push(plan);
+      } else {
+        samplerScopes.set(key, { ...scope, plans: [plan] });
+      }
+    }
+  }
+
+  for (const scope of samplerScopes.values()) {
+    const samplers = await userRepository.findMany({
+      roles: ['Sampler'],
+      region: scope.region,
+      department: scope.department,
+      disabled: false,
+      stages: stagesFromSubPlans(scope.plans.flatMap((plan) => plan.subPlans))
+    });
+
+    if (samplers.length === 0) {
+      continue;
+    }
+
+    await notificationService.sendNotification(
+      {
+        category: 'ProgrammingPlanCampaignLaunched',
+        link: AppRouteLinks.ProgrammingRoute.link({
+          year,
+          planIds: scope.plans.map((plan) => plan.id).join(',')
+        })
+      },
+      samplers,
+      {
+        object: `Campagne PSPC ${year} / Lancement de la campagne sur un ou plusieurs plans`,
+        content: `La campagne PSPC ${year} vient d’être lancée sur les plans suivants :
+${scope.plans.map((plan) => `- ${planLabel(plan)}`).join('\n')}
+
+Vous pouvez dès à présent saisir des prélèvements sur ces plans.`
+      },
+      { message: inAppMessage }
+    );
+  }
+};
 
 const maskHasPendingChangeForViewer = (
   plan: ProgrammingPlanChecked,
@@ -128,11 +311,11 @@ export const programmingPlanRouter = {
         ids: programmingPlanIds
       });
 
+      const readyForAdminReviewPlans: ProgrammingPlanChecked[] = [];
+      const submittedToRegionPlans: ProgrammingPlanChecked[] = [];
+      const modifiedPlansByRegion = new Map<Region, ProgrammingPlanChecked[]>();
+
       for (const plan of plans) {
-        const link = AppRouteLinks.ProgrammingRoute.link({
-          year: plan.year,
-          planIds: plan.id
-        });
         const isModified = plan.nationalStatus.hasPendingChange === true;
         const isFirstSend = isNil(plan.nationalStatus.sentAt);
 
@@ -149,21 +332,7 @@ export const programmingPlanRouter = {
             plan.distributionKind
           );
 
-          const admins = await userRepository.findMany({
-            roles: ['AdministratorBGIR'],
-            disabled: false,
-            stages: stagesFromSubPlans(plan.subPlans)
-          });
-
-          await notificationService.sendNotification(
-            { category: 'ProgrammingPlanReadyForAdminReview', link },
-            admins,
-            {
-              object:
-                NotificationCategoryTitles.ProgrammingPlanReadyForAdminReview,
-              content: `Le plan « ${plan.title} » est prêt à être diffusé aux régions.`
-            }
-          );
+          readyForAdminReviewPlans.push(plan);
           continue;
         }
 
@@ -194,22 +363,7 @@ export const programmingPlanRouter = {
             plan.distributionKind
           );
 
-          const regionalCoordinators = await userRepository.findMany({
-            roles: ['RegionalCoordinator'],
-            disabled: false,
-            stages: stagesFromSubPlans(plan.subPlans)
-          });
-
-          await notificationService.sendNotification(
-            { category: 'ProgrammingPlanSubmittedToRegion', link },
-            regionalCoordinators,
-            {
-              sender:
-                userRole === 'AdministratorBGIR'
-                  ? 'administration'
-                  : 'coordination nationale'
-            }
-          );
+          submittedToRegionPlans.push(plan);
         } else {
           const previousSentAt = plan.nationalStatus.sentAt as Date;
           await programmingPlanRepository.touchNationalSentAt(plan.id);
@@ -221,23 +375,94 @@ export const programmingPlanRouter = {
           );
 
           for (const affectedRegion of affectedRegions) {
-            const regionalCoordinators = await userRepository.findMany({
-              roles: ['RegionalCoordinator'],
-              region: affectedRegion.region,
-              disabled: false,
-              stages: stagesFromSubPlans(plan.subPlans)
-            });
-
-            await notificationService.sendNotification(
-              { category: 'ProgrammingPlanModifiedAfterSubmission', link },
-              regionalCoordinators,
-              {
-                object:
-                  NotificationCategoryTitles.ProgrammingPlanModifiedAfterSubmission,
-                content: `Le plan « ${plan.title} » a été modifié et renvoyé.`
-              }
-            );
+            const region = affectedRegion.region as Region;
+            modifiedPlansByRegion.set(region, [
+              ...(modifiedPlansByRegion.get(region) ?? []),
+              plan
+            ]);
           }
+        }
+      }
+
+      const author = user.name ?? 'la coordination nationale';
+
+      for (const batch of planBatches(readyForAdminReviewPlans)) {
+        const admins = await userRepository.findMany({
+          roles: ['AdministratorBGIR'],
+          disabled: false,
+          stages: batchStages(batch)
+        });
+
+        await notificationService.sendNotification(
+          {
+            category: 'ProgrammingPlanReadyForAdminReview',
+            link: batchLink(batch)
+          },
+          admins,
+          readyForAdminReviewParams(batch[0].year, author),
+          { message: readyForAdminReviewMessage(batch[0].year, author) }
+        );
+      }
+
+      for (const batch of planBatches(submittedToRegionPlans)) {
+        const regionalCoordinators = await userRepository.findMany({
+          roles: ['RegionalCoordinator'],
+          disabled: false,
+          stages: batchStages(batch)
+        });
+
+        await notificationService.sendNotification(
+          {
+            category: 'ProgrammingPlanSubmittedToRegion',
+            link: batchLink(batch)
+          },
+          regionalCoordinators,
+          submittedToRegionParams(batch[0].year),
+          { message: submittedToRegionMessage(batch[0].year) }
+        );
+
+        const laboratoryOffices = await userRepository.findMany({
+          roles: ['LaboratoryOffice'],
+          disabled: false
+        });
+
+        const year = batch[0].year;
+
+        await notificationService.sendNotification(
+          {
+            category: 'LaboratoryAgreementsToManage',
+            link: AppRouteLinks.LaboratoryAgreementsRoute.link()
+          },
+          laboratoryOffices,
+          {
+            object: `Campagne PSPC ${year} / Nouveau(x) sous-plan(s) ajoutés`,
+            content: `Un ou plusieurs sous-plans ont été ajoutés à la campagne ${year} par le BGIR.
+Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-plans.`
+          },
+          {
+            message: `Nouveau(x) sous-plan(s) ajoutés à la campagne ${year}. Agréments des laboratoires à gérer.`
+          }
+        );
+      }
+
+      for (const [region, regionPlans] of modifiedPlansByRegion) {
+        for (const batch of planBatches(regionPlans)) {
+          const regionalCoordinators = await userRepository.findMany({
+            roles: ['RegionalCoordinator'],
+            region,
+            disabled: false,
+            stages: batchStages(batch)
+          });
+
+          await notificationService.sendNotification(
+            {
+              category: 'ProgrammingPlanModifiedAfterSubmission',
+              link: batchLink(batch)
+            },
+            regionalCoordinators,
+            modifiedParams(batch[0].year, 'National'),
+            { message: modifiedMessage(batch[0].year, 'National') }
+          );
         }
       }
 
@@ -257,7 +482,16 @@ export const programmingPlanRouter = {
     post: async ({ user, userRole, body: { programmingPlanIds } }) => {
       console.info('Launch campaign on programming plans', programmingPlanIds);
 
+      const plans = await programmingPlanRepository.findMany({
+        ids: programmingPlanIds
+      });
+      const launchedPlans = plans.filter((plan) => isNil(plan.launchedAt));
+
       await programmingPlanRepository.launch(programmingPlanIds, user.id);
+
+      if (launchedPlans.length > 0) {
+        await notifyCampaignLaunch(launchedPlans);
+      }
 
       const updatedPlans = await programmingPlanRepository.findMany({
         ids: programmingPlanIds
@@ -278,6 +512,9 @@ export const programmingPlanRouter = {
         ids: programmingPlanIds
       });
 
+      const submittedToDepartmentsPlans: ProgrammingPlanChecked[] = [];
+      const modifiedPlans: ProgrammingPlanChecked[] = [];
+
       for (const plan of plans) {
         const regionalStatus = plan.regionalStatus.find(
           (_) => _.region === region
@@ -286,10 +523,6 @@ export const programmingPlanRouter = {
           continue;
         }
 
-        const link = AppRouteLinks.ProgrammingRoute.link({
-          year: plan.year,
-          planIds: plan.id
-        });
         const isModified =
           regionalStatus.hasPendingChange === true ||
           regionalStatus.needsResend === true;
@@ -320,18 +553,7 @@ export const programmingPlanRouter = {
             plan.distributionKind
           );
 
-          const departmentalCoordinators = await userRepository.findMany({
-            roles: ['DepartmentalCoordinator'],
-            region,
-            disabled: false,
-            stages: stagesFromSubPlans(plan.subPlans)
-          });
-
-          await notificationService.sendNotification(
-            { category: 'ProgrammingPlanSubmittedToDepartments', link },
-            departmentalCoordinators,
-            { sender: 'coordination régionale' }
-          );
+          submittedToDepartmentsPlans.push(plan);
         } else if (isModified) {
           const previousSentAt = regionalStatus.sentAt as Date;
           await programmingPlanRepository.touchRegionalSentAt(plan.id, region);
@@ -344,24 +566,47 @@ export const programmingPlanRouter = {
           );
 
           if (affectedDepartments.length > 0) {
-            const departmentalCoordinators = await userRepository.findMany({
-              roles: ['DepartmentalCoordinator'],
-              region,
-              disabled: false,
-              stages: stagesFromSubPlans(plan.subPlans)
-            });
-
-            await notificationService.sendNotification(
-              { category: 'ProgrammingPlanModifiedAfterSubmission', link },
-              departmentalCoordinators,
-              {
-                object:
-                  NotificationCategoryTitles.ProgrammingPlanModifiedAfterSubmission,
-                content: `Le plan « ${plan.title} » a été modifié et renvoyé.`
-              }
-            );
+            modifiedPlans.push(plan);
           }
         }
+      }
+
+      for (const batch of planBatches(submittedToDepartmentsPlans)) {
+        const departmentalCoordinators = await userRepository.findMany({
+          roles: ['DepartmentalCoordinator'],
+          region,
+          disabled: false,
+          stages: batchStages(batch)
+        });
+
+        await notificationService.sendNotification(
+          {
+            category: 'ProgrammingPlanSubmittedToDepartments',
+            link: batchLink(batch)
+          },
+          departmentalCoordinators,
+          submittedToDepartmentsParams(batch[0].year),
+          { message: submittedToDepartmentsMessage(batch[0].year) }
+        );
+      }
+
+      for (const batch of planBatches(modifiedPlans)) {
+        const departmentalCoordinators = await userRepository.findMany({
+          roles: ['DepartmentalCoordinator'],
+          region,
+          disabled: false,
+          stages: batchStages(batch)
+        });
+
+        await notificationService.sendNotification(
+          {
+            category: 'ProgrammingPlanModifiedAfterSubmission',
+            link: batchLink(batch)
+          },
+          departmentalCoordinators,
+          modifiedParams(batch[0].year, 'Regional'),
+          { message: modifiedMessage(batch[0].year, 'Regional') }
+        );
       }
 
       const updatedPlans = await programmingPlanRepository.findMany({
@@ -453,21 +698,15 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
           await notificationService.sendNotification(
             { category: 'ProgrammingPlanModifiedAfterSubmission', link },
             nationalCoordinators,
-            {
-              object:
-                NotificationCategoryTitles.ProgrammingPlanModifiedAfterSubmission,
-              content: `Le plan « ${plan.title} » a été modifié et renvoyé.`
-            }
+            modifiedParams(plan.year, 'Regional'),
+            { message: modifiedMessage(plan.year, 'Regional') }
           );
 
           await notificationService.sendNotification(
             { category: 'ProgrammingPlanModifiedAfterSubmission', link },
             samplers,
-            {
-              object:
-                NotificationCategoryTitles.ProgrammingPlanModifiedAfterSubmission,
-              content: `Le plan « ${plan.title} » a été modifié, les prélèvements concernés ont été mis à jour.`
-            }
+            modifiedParams(plan.year, 'Regional'),
+            { message: modifiedMessage(plan.year, 'Regional') }
           );
         }
       }
@@ -783,11 +1022,7 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
                   : { category: 'ProgrammingPlanValidated', link },
                 samplers,
                 isRedeployment
-                  ? {
-                      object:
-                        NotificationCategoryTitles.ProgrammingPlanModifiedAfterSubmission,
-                      content: `Le plan « ${programmingPlan.title} » a été modifié, les prélèvements concernés ont été mis à jour.`
-                    }
+                  ? modifiedParams(programmingPlan.year, 'Departmental')
                   : {
                       object:
                         NotificationCategoryTitles.ProgrammingPlanValidated,
@@ -795,7 +1030,15 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
 L’étape de la répartition de la programmation a été réalisée par votre coordinateur. La campagne est lancée !
 
 Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’onglet "Programmation" et saisir des prélèvements.`
+                    },
+                isRedeployment
+                  ? {
+                      message: modifiedMessage(
+                        programmingPlan.year,
+                        'Departmental'
+                      )
                     }
+                  : undefined
               );
             } else {
               if (
@@ -825,8 +1068,9 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
                         link
                       },
                       regionalCoordinators,
+                      submittedToRegionParams(programmingPlan.year),
                       {
-                        sender: 'coordination nationale'
+                        message: submittedToRegionMessage(programmingPlan.year)
                       }
                     )
                   : notificationService.sendNotification(
@@ -873,8 +1117,9 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
                     link
                   },
                   departmentalCoordinators,
+                  submittedToDepartmentsParams(programmingPlan.year),
                   {
-                    sender: 'coordination régionale'
+                    message: submittedToDepartmentsMessage(programmingPlan.year)
                   }
                 );
               } else return { status: HttpStatus.BAD_REQUEST };
