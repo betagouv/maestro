@@ -820,9 +820,11 @@ const ProgrammingPrescriptionTable = ({
                       plan.distributionKind === 'SLAUGHTERHOUSE' &&
                       ((ownRegionalPrescription?.sampleCount ?? 0) !== 0 ||
                         regionDistributedCount !== 0);
-                    const rowHasUnviewedChange = hasUnviewedChange(
-                      ownRegionalPrescription?.changedAt
-                    );
+                    const rowHasUnviewedChange = region
+                      ? hasUnviewedChange(ownRegionalPrescription?.changedAt)
+                      : localPrescriptions.some((_) =>
+                          hasUnviewedChange(_.changedAt)
+                        );
                     const rowCommentCount = sumBy(
                       regionalPrescriptions.filter(
                         (_) =>
@@ -1390,42 +1392,54 @@ const ProgrammingPrescriptionTable = ({
                                                 data-testid={`cell-${prescription.id}`}
                                                 key={`cell-${prescription.id}-${localPrescription.region}`}
                                               >
-                                                <DistributionCountCell
-                                                  programmingPlan={plan}
-                                                  prescription={prescription}
-                                                  localPrescription={
-                                                    localPrescription
-                                                  }
-                                                  isEditable={
-                                                    hasUserLocalPrescriptionPermission(
-                                                      plan,
+                                                <div className="prescription-sample-count-cell">
+                                                  <DistributionCountCell
+                                                    programmingPlan={plan}
+                                                    prescription={prescription}
+                                                    localPrescription={
                                                       localPrescription
-                                                    )?.updateSampleCount
-                                                  }
-                                                  isPending={pendingLocalKeys?.has(
-                                                    toLocalPrescriptionKeyString(
-                                                      {
-                                                        prescriptionId:
-                                                          localPrescription.prescriptionId,
-                                                        region:
-                                                          localPrescription.region,
-                                                        department: undefined,
-                                                        companySiret: undefined
-                                                      }
-                                                    )
+                                                    }
+                                                    isEditable={
+                                                      hasUserLocalPrescriptionPermission(
+                                                        plan,
+                                                        localPrescription
+                                                      )?.updateSampleCount
+                                                    }
+                                                    isPending={pendingLocalKeys?.has(
+                                                      toLocalPrescriptionKeyString(
+                                                        {
+                                                          prescriptionId:
+                                                            localPrescription.prescriptionId,
+                                                          region:
+                                                            localPrescription.region,
+                                                          department: undefined,
+                                                          companySiret:
+                                                            undefined
+                                                        }
+                                                      )
+                                                    )}
+                                                    onChange={async (value) =>
+                                                      onChangeLocalPrescriptionCount(
+                                                        {
+                                                          prescriptionId:
+                                                            localPrescription.prescriptionId,
+                                                          region:
+                                                            localPrescription.region
+                                                        },
+                                                        value
+                                                      )
+                                                    }
+                                                  />
+                                                  {hasUnviewedChange(
+                                                    localPrescription.changedAt
+                                                  ) && (
+                                                    <div className="previous-sample-count">
+                                                      Avant :{' '}
+                                                      {localPrescription.previousSampleCount ??
+                                                        0}
+                                                    </div>
                                                   )}
-                                                  onChange={async (value) =>
-                                                    onChangeLocalPrescriptionCount(
-                                                      {
-                                                        prescriptionId:
-                                                          localPrescription.prescriptionId,
-                                                        region:
-                                                          localPrescription.region
-                                                      },
-                                                      value
-                                                    )
-                                                  }
-                                                />
+                                                </div>
                                               </td>
                                             )
                                           ))}
