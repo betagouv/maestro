@@ -201,12 +201,13 @@ const ProgrammingPrescriptionList = ({
     [findPrescriptionOptions, programmingPlans]
   );
 
-  const { data: allPrescriptions } = apiClient.useFindPrescriptionsQuery(
-    findPrescriptionOptions,
-    {
-      skip: !FindPrescriptionOptions.safeParse(findPrescriptionOptions).success
-    }
-  );
+  const {
+    data: allPrescriptions,
+    refetch: refetchPrescriptions,
+    isUninitialized: isPrescriptionsUninitialized
+  } = apiClient.useFindPrescriptionsQuery(findPrescriptionOptions, {
+    skip: !FindPrescriptionOptions.safeParse(findPrescriptionOptions).success
+  });
 
   const { data: departmentCompanies } = apiClient.useFindCompaniesQuery(
     {
@@ -236,16 +237,19 @@ const ProgrammingPrescriptionList = ({
         ...(hasUserPermission('updatePrescriptionLaboratories')
           ? ['laboratories' as const]
           : []),
-        ...(region ? ['pendingChanges' as const] : [])
+        'pendingChanges' as const
       ]
     }),
     [planIds, prescriptionFilters, region, department, hasUserPermission]
   );
 
-  const { data: allLocalPrescriptions } =
-    apiClient.useFindLocalPrescriptionsQuery(findLocalPrescriptionOptions, {
-      skip: !findLocalPrescriptionOptions.programmingPlanIds?.length
-    });
+  const {
+    data: allLocalPrescriptions,
+    refetch: refetchLocalPrescriptions,
+    isUninitialized: isLocalPrescriptionsUninitialized
+  } = apiClient.useFindLocalPrescriptionsQuery(findLocalPrescriptionOptions, {
+    skip: !findLocalPrescriptionOptions.programmingPlanIds?.length
+  });
 
   const allPrescriptionsWithPending = useMemo(
     () =>
@@ -652,6 +656,12 @@ const ProgrammingPrescriptionList = ({
           }
         )
       ]);
+      await Promise.all([
+        isPrescriptionsUninitialized ? undefined : refetchPrescriptions(),
+        isLocalPrescriptionsUninitialized
+          ? undefined
+          : refetchLocalPrescriptions()
+      ]);
       setPendingLocalChanges(new Map());
       setPendingLaboratoryChanges(new Map());
       setPendingPrescriptionSampleCounts(new Map());
@@ -669,7 +679,11 @@ const ProgrammingPrescriptionList = ({
     getPlanForPrescriptionId,
     allPrescriptions,
     effectiveCompanies,
-    subLocalPrescriptions
+    subLocalPrescriptions,
+    refetchPrescriptions,
+    refetchLocalPrescriptions,
+    isPrescriptionsUninitialized,
+    isLocalPrescriptionsUninitialized
   ]);
 
   const saveSuccessMessage = useMemo(() => {
