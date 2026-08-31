@@ -20,7 +20,7 @@ import { ProgrammingSubPlan } from './ProgrammingSubPlan';
 
 export const ProgrammingPlanBase = z.object({
   id: z.guid(),
-  domainId: ProgrammingPlanDomainId.nullish(),
+  domainId: ProgrammingPlanDomainId,
   title: z.string().min(1, 'Veuillez renseigner le titre.'),
   subPlans: z
     .array(ProgrammingSubPlan)

@@ -29,6 +29,7 @@ import {
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
   genProgrammingPlan,
+  genProgrammingPlanDomain,
   PPVClosedProgrammingPlanFixture,
   PPVSubmittedProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
@@ -56,6 +57,7 @@ import { withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest';
+import { kysely } from '../../repositories/kysely';
 import { Laboratories } from '../../repositories/laboratoryRepository';
 import { LocalPrescriptionComments } from '../../repositories/localPrescriptionCommentRepository';
 import {
@@ -913,8 +915,12 @@ describe('Local prescriptions router', () => {
   });
 
   describe('PUT /{prescriptionId}/regions/{region}/departments/{department}', () => {
+    const slaughterhouseDomain = genProgrammingPlanDomain({ year: 1922 });
+    const slaughterhouseClosedDomain = genProgrammingPlanDomain({ year: 1923 });
+
     const programmingPlanSlaughterhouse = genProgrammingPlan({
       createdBy: NationalCoordinator.id,
+      domainId: slaughterhouseDomain.id,
       distributionKind: 'SLAUGHTERHOUSE',
       year: 1922,
       regionalStatus: RegionList.map((region) => ({
@@ -932,6 +938,7 @@ describe('Local prescriptions router', () => {
 
     const programmingPlanSlaughterhouseClosed = genProgrammingPlan({
       createdBy: NationalCoordinator.id,
+      domainId: slaughterhouseClosedDomain.id,
       distributionKind: 'SLAUGHTERHOUSE',
       year: 1923,
       regionalStatus: RegionList.map((region) => ({
@@ -1020,6 +1027,10 @@ describe('Local prescriptions router', () => {
     };
 
     beforeAll(async () => {
+      await kysely
+        .insertInto('programmingPlanDomains')
+        .values([slaughterhouseDomain, slaughterhouseClosedDomain])
+        .execute();
       await insertPlanWithStatus(programmingPlanSlaughterhouse);
       await insertPlanWithStatus(programmingPlanSlaughterhouseClosed);
       await Prescriptions().insert([
@@ -1066,6 +1077,13 @@ describe('Local prescriptions router', () => {
           programmingPlanSlaughterhouse.id,
           programmingPlanSlaughterhouseClosed.id
         ]);
+      await kysely
+        .deleteFrom('programmingPlanDomains')
+        .where('id', 'in', [
+          slaughterhouseDomain.id,
+          slaughterhouseClosedDomain.id
+        ])
+        .execute();
     });
 
     test('should fail if the user is not authenticated', async () => {

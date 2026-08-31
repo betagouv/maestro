@@ -3,7 +3,6 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
-import { isNil } from 'lodash-es';
 import { Brand } from 'maestro-shared/constants';
 import type { UserListItem } from 'maestro-shared/schema/User/User';
 import { useCallback, useContext, useMemo, useState } from 'react';
@@ -36,12 +35,8 @@ export const UserListView = () => {
     () => (allUsers ?? []).filter((user) => canManageUser(user)),
     [allUsers, canManageUser]
   );
-  const { data: programmingPlansData = [] } =
+  const { data: programmingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery({});
-  const programmingPlans = useMemo(
-    () => programmingPlansData.filter((p) => !isNil(p.domainId)),
-    [programmingPlansData]
-  );
 
   const [updateUser] = apiClient.useUpdateUserMutation();
   const [updateUserCertification] =

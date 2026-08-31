@@ -17,11 +17,12 @@ const currentYear = new Date().getFullYear();
 export const PesticideResidueDomainId = ProgrammingPlanDomainId.parse(
   '09a95048-64fe-46a1-8543-50146c6ab337'
 );
-export const ChemicalContaminantDomainId = ProgrammingPlanDomainId.parse(
+const ChemicalContaminantDomainId = ProgrammingPlanDomainId.parse(
   'be1fb96c-e498-4e7a-bd2b-cd3d808f997f'
 );
-export const PesticideResiduePreviousYearDomainId =
-  ProgrammingPlanDomainId.parse('1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d');
+const PesticideResiduePreviousYearDomainId = ProgrammingPlanDomainId.parse(
+  '1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d'
+);
 const PesticideResidueNextYearDomainId = ProgrammingPlanDomainId.parse(
   '2b3c4d5e-6f7a-4b8c-9d0e-1f2a3b4c5d6e'
 );
@@ -206,7 +207,7 @@ export const genProgrammingPlan = (
   const planId = data?.id ?? uuidv4();
   return {
     id: planId,
-    domainId: null,
+    domainId: PesticideResidueDomainId,
     title: 'Production primaire végétale',
     subPlans: [
       {

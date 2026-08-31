@@ -4,7 +4,7 @@ import { Header as DSFRHeader } from '@codegouvfr/react-dsfr/Header';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { Badge } from '@mui/material';
 import clsx from 'clsx';
-import { isNil, uniq } from 'lodash-es';
+import { uniq } from 'lodash-es';
 import { Brand } from 'maestro-shared/constants';
 import { isClosed } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { UserBase } from 'maestro-shared/schema/User/User';
@@ -59,13 +59,9 @@ const Header = () => {
   } = useAuthentication();
   const userRefined = UserBase.optional().parse(user);
   const { mascaradeEnabled, disableMascarade } = useMascarade();
-  const { data: programmingPlansData } = apiClient.useFindProgrammingPlansQuery(
+  const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
     {},
     { skip: !isAuthenticated }
-  );
-  const programmingPlans = useMemo(
-    () => programmingPlansData?.filter((p) => !isNil(p.domainId)),
-    [programmingPlansData]
   );
   const { data: unReadNotifications } = apiClient.useFindNotificationsQuery(
     {

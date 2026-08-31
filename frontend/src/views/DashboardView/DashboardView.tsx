@@ -2,12 +2,11 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
-import { isNil } from 'lodash-es';
 import {
   type ProgrammingPlanChecked,
   ProgrammingPlanSort
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import dashboard from 'src/assets/illustrations/dashboard.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -26,7 +25,7 @@ const DashboardView = () => {
     useAuthentication();
   const { isOnline } = useOnLine();
 
-  const { data: programmingPlansData } = apiClient.useFindProgrammingPlansQuery(
+  const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
     {
       subPlanIds: hasRole('AdministratorMaestro', 'AdministratorBGIR')
         ? undefined
@@ -38,10 +37,6 @@ const DashboardView = () => {
         !user?.programmingSubPlans?.length &&
         !hasRole('AdministratorMaestro', 'AdministratorBGIR')
     }
-  );
-  const programmingPlans = useMemo(
-    () => programmingPlansData?.filter((p) => !isNil(p.domainId)),
-    [programmingPlansData]
   );
 
   const [currentValidatedProgrammingPlan, setCurrentValidatedProgrammingPlan] =

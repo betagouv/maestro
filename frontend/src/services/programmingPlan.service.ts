@@ -30,18 +30,6 @@ const programmingPlanApi = api.injectEndpoints({
         ]
       }
     ),
-    //FIXME DOMAIN interface temporaire de rattachement, à supprimer avec le passage de programming_plans.domain_id en notNullable
-    updateProgrammingPlanDomain: buildTypedMutation(
-      builder,
-      '/programming-plans/:programmingPlanId/domain',
-      'put',
-      {
-        invalidatesTags: (_result, _error, { programmingPlanId }) => [
-          { type: 'ProgrammingPlan', id: programmingPlanId },
-          { type: 'ProgrammingPlan', id: 'LIST' }
-        ]
-      }
-    ),
     updateProgrammingPlanLocalStatus: buildTypedMutation(
       builder,
       '/programming-plans/:programmingPlanId/local-status',
@@ -60,6 +48,5 @@ export const {
   useFindProgrammingPlansQuery,
   useGetProgrammingPlanQuery,
   useUpdateProgrammingPlanStatusMutation,
-  useUpdateProgrammingPlanLocalStatusMutation,
-  useUpdateProgrammingPlanDomainMutation
+  useUpdateProgrammingPlanLocalStatusMutation
 } = programmingPlanApi;

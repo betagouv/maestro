@@ -273,9 +273,9 @@ const generateSamplePDF = async (
     (c) => c.field.key === 'matrixPart'
   )?.field;
 
-  const domain = programmingPlan.domainId
-    ? await programmingPlanDomainRepository.findUnique(programmingPlan.domainId)
-    : undefined;
+  const domain = await programmingPlanDomainRepository.findUnique(
+    programmingPlan.domainId
+  );
 
   const planLabel = `${subPlanNumber} / ${domain?.label ?? ''} / ${(subPlan?.substanceKinds ?? []).map((s) => SubstanceKindLabels[s]).join(' ')} / ${subPlan?.label}`;
 
