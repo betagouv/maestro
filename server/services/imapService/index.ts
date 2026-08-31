@@ -10,7 +10,6 @@ import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
 import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { AnalysisRai } from 'maestro-shared/schema/AnalysisRai/AnalysisRai';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import type { MaestroDate } from 'maestro-shared/utils/date';
 import {
