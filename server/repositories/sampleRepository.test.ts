@@ -343,6 +343,39 @@ describe('findComplianceStats', async () => {
       nonCompliantCount: 1
     });
   });
+
+  test('filters by context', async () => {
+    await insertStatsSample({
+      reference: 'DAOA-01-24-107-A',
+      department: '01',
+      context: 'Control',
+      matrixKind: null,
+      matrix: null,
+      compliance: 'NonCompliant'
+    });
+    await insertStatsSample({
+      reference: 'DAOA-01-24-108-A',
+      department: '01',
+      context: 'Surveillance',
+      matrixKind: null,
+      matrix: null,
+      compliance: 'NonCompliant'
+    });
+
+    const stats = await sampleRepository.findComplianceStats({
+      programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
+      context: 'Control',
+      byDepartment: true
+    });
+
+    expect(stats).toContainEqual({
+      region: statsRegion,
+      department: '01',
+      totalCount: 1,
+      compliantCount: 0,
+      nonCompliantCount: 1
+    });
+  });
 });
 
 describe('getSevesNotice', async () => {

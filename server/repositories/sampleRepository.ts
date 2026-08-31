@@ -769,6 +769,10 @@ const findComplianceStats = async (
     .whereIn(`${samplesTable}.programmingPlanId`, [options.programmingPlanId])
     .groupBy(...groupByFields);
 
+  if (options.context) {
+    query.where(`${samplesTable}.context`, options.context);
+  }
+
   if (!groupByDepartment) {
     query.whereNotNull(`${samplesTable}.matrix`);
   }

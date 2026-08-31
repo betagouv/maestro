@@ -27,12 +27,25 @@ const ProgrammingPlanCard = ({
 }: ProgrammingPlanCardProps) => {
   const apiClient = useContext(ApiClientContext);
 
+  const isPPV = programmingPlan.subPlans.some(
+    (sp) => sp.subPlanNumber === 'PPV'
+  );
+
   const { data: regionalPrescriptions } =
     apiClient.useFindLocalPrescriptionsQuery({
       programmingPlanIds: [programmingPlan.id],
       contexts: [context],
       includes: ['sampleCounts']
     });
+
+  const { data: complianceStats } = apiClient.useGetComplianceStatsQuery({
+    programmingPlanId: programmingPlan.id,
+    context,
+    byDepartment: !isPPV
+  });
+
+  const compliantSampleCount = sumBy(complianceStats, 'compliantCount');
+  const nonCompliantSampleCount = sumBy(complianceStats, 'nonCompliantCount');
 
   return (
     <>
@@ -86,7 +99,7 @@ const ProgrammingPlanCard = ({
           </span>
           <span style={{ width: 110, textAlign: 'center' }}>de l'objectif</span>
         </div>
-        {(sumBy(regionalPrescriptions, 'nonCompliantSampleCount') ?? 0) > 0 && (
+        {compliantSampleCount > 0 && (
           <div
             style={{
               display: 'flex',
@@ -95,13 +108,13 @@ const ProgrammingPlanCard = ({
             }}
           >
             <Badge severity="success" className={'fr-mt-2w'}>
-              {pluralize(sumBy(regionalPrescriptions, 'compliantSampleCount'), {
+              {pluralize(compliantSampleCount, {
                 preserveCount: true
               })('prélèvement conforme')}
             </Badge>
           </div>
         )}
-        {(sumBy(regionalPrescriptions, 'nonCompliantSampleCount') ?? 0) > 0 && (
+        {nonCompliantSampleCount > 0 && (
           <div
             style={{
               display: 'flex',
@@ -110,13 +123,10 @@ const ProgrammingPlanCard = ({
             }}
           >
             <Badge severity="error" className={'fr-mt-2w'}>
-              {pluralize(
-                sumBy(regionalPrescriptions, 'nonCompliantSampleCount'),
-                {
-                  preserveCount: true,
-                  ignores: ['non']
-                }
-              )('prélèvement non conforme')}
+              {pluralize(nonCompliantSampleCount, {
+                preserveCount: true,
+                ignores: ['non']
+              })('prélèvement non conforme')}
             </Badge>
           </div>
         )}
@@ -137,7 +147,7 @@ const ProgrammingPlanCard = ({
         </div>
       </div>
 
-      {!programmingPlan?.subPlans.some((sp) => sp.subPlanNumber === 'PPV') && (
+      {!isPPV && (
         <div className={clsx('border', cx('fr-p-2w'))}>
           <ProgrammingPlanMap
             programmingPlan={programmingPlan}

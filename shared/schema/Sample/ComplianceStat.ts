@@ -3,6 +3,7 @@ import { Department } from '../../referential/Department';
 import { Matrix } from '../../referential/Matrix/Matrix';
 import { MatrixKind } from '../../referential/Matrix/MatrixKind';
 import { Region } from '../../referential/Region';
+import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 
 export const ComplianceStat = z.object({
   region: Region,
@@ -16,6 +17,7 @@ export const ComplianceStat = z.object({
 
 export const FindComplianceStatsOptions = z.object({
   programmingPlanId: z.guid(),
+  context: ProgrammingPlanContext.optional(),
   byDepartment: z.coerce.boolean().optional()
 });
 
