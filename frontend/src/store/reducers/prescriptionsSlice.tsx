@@ -1,20 +1,31 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { Department } from 'maestro-shared/referential/Department';
+import { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region } from 'maestro-shared/referential/Region';
+import { Stage } from 'maestro-shared/referential/Stage';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { PrescriptionComments } from 'maestro-shared/schema/Prescription/PrescriptionComments';
 import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { z } from 'zod';
 
 export const PrescriptionFilters = z.object({
   year: z.coerce.number().int().nullish(),
+  stage: Stage.nullish(),
   programmingPlanIds: z.array(z.guid()).nullish(),
   programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullish(),
+  programmingPlanDomainIds: z.array(ProgrammingPlanDomainId).nullish(),
+  matrixKinds: z.array(MatrixKind).nullish(),
+  matrices: z.array(Matrix).nullish(),
   contexts: z.array(ProgrammingPlanContext).nullish(),
+  outsideProgrammingPlan: z.boolean().nullish(),
+  coordinatorIds: z.array(z.guid()).nullish(),
+  laboratoryIds: z.array(z.guid()).nullish(),
   matrixQuery: z.string().nullish(),
   missingSlaughterhouse: z.boolean().nullish(),
   missingLaboratory: z.boolean().nullish()

@@ -5,9 +5,13 @@ import Tabs, { type TabsProps } from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { isEmpty, isNil, mapValues, max, omitBy } from 'lodash-es';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
+import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
+import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
+import type { Stage } from 'maestro-shared/referential/Stage';
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
@@ -149,6 +153,24 @@ const ProgrammingView = () => {
             (searchParams
               .get('contexts')
               ?.split(',') as ProgrammingPlanContext[]) ?? undefined,
+          programmingPlanDomainIds:
+            (searchParams
+              .get('programmingPlanDomainIds')
+              ?.split(',') as ProgrammingPlanDomainId[]) ?? undefined,
+          matrixKinds:
+            (searchParams.get('matrixKinds')?.split(',') as MatrixKind[]) ??
+            undefined,
+          matrices:
+            (searchParams.get('matrices')?.split(',') as Matrix[]) ?? undefined,
+          coordinatorIds:
+            searchParams.get('coordinatorIds')?.split(',') ?? undefined,
+          laboratoryIds:
+            searchParams.get('laboratoryIds')?.split(',') ?? undefined,
+          outsideProgrammingPlan:
+            searchParams.get('outsideProgrammingPlan') === 'true'
+              ? true
+              : undefined,
+          stage: (searchParams.get('stage') as Stage) ?? undefined,
           matrixQuery: searchParams.get('matrixQuery') ?? undefined
         })
       )

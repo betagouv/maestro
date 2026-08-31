@@ -8,9 +8,11 @@ import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import { Regions } from 'maestro-shared/referential/Region';
+import { StageLabels } from 'maestro-shared/referential/Stage';
 import type { Pagination } from 'maestro-shared/schema/commons/Pagination';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import type { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { SampleComplianceLabels } from 'maestro-shared/schema/Sample/SampleCompliance';
@@ -24,11 +26,7 @@ import type { PrescriptionFilters } from '../../store/reducers/prescriptionsSlic
 type FilterableType = FindSampleOptions &
   Omit<
     PrescriptionFilters,
-    | 'year'
-    | 'missingSlaughterhouse'
-    | 'missingLaboratory'
-    | 'matrixQuery'
-    | 'contexts'
+    'year' | 'missingSlaughterhouse' | 'missingLaboratory' | 'contexts'
   >;
 
 interface Props {
@@ -38,6 +36,8 @@ interface Props {
   samplers?: UserListItem[];
   programmingPlans?: ProgrammingPlanChecked[];
   laboratories?: Pick<Laboratory, 'id' | 'name'>[];
+  domains?: ProgrammingPlanDomain[];
+  coordinators?: UserListItem[];
 }
 
 const tagProps = {
@@ -169,6 +169,64 @@ const filtersConfig = {
     getComponent: (value, onChange) =>
       renderArrayTags('contexts', value, (d) => ContextLabels[d], onChange)
   },
+  stage: {
+    prop: 'stage',
+    getLabel: (value) => StageLabels[value]
+  },
+  outsideProgrammingPlan: {
+    prop: 'outsideProgrammingPlan',
+    getLabel: () => 'Hors programmation'
+  },
+  programmingPlanDomainIds: {
+    prop: 'programmingPlanDomainIds',
+    getComponent: (value, onChange, { domains }) => (
+      <Fragment key="tag-programmingPlanDomainIds">
+        {value.map((id) => {
+          const domain = domains?.find((_) => _.id === id);
+          return domain ? (
+            <Tag
+              {...tagProps}
+              key={`tag-domain-${id}`}
+              nativeButtonProps={{
+                onClick: () =>
+                  onChange({
+                    programmingPlanDomainIds: value.filter((_) => _ !== id)
+                  })
+              }}
+            >
+              {domain.label}
+            </Tag>
+          ) : null;
+        })}
+      </Fragment>
+    )
+  },
+  coordinatorIds: {
+    prop: 'coordinatorIds',
+    getComponent: (value, onChange, { coordinators }) => (
+      <Fragment key="tag-coordinatorIds">
+        {value.map((id) => {
+          const coordinator = coordinators?.find((_) => _.id === id);
+          return coordinator ? (
+            <Tag
+              {...tagProps}
+              key={`tag-coordinator-${id}`}
+              nativeButtonProps={{
+                onClick: () =>
+                  onChange({ coordinatorIds: value.filter((_) => _ !== id) })
+              }}
+            >
+              {coordinator.name}
+            </Tag>
+          ) : null;
+        })}
+      </Fragment>
+    )
+  },
+  matrixQuery: {
+    prop: 'matrixQuery',
+    getLabel: (value) => (value ? `Matrice : ${value}` : null)
+  },
   compliance: {
     prop: 'compliance',
     getLabel: (value) => SampleComplianceLabels[value]
@@ -267,6 +325,8 @@ const filtersConfig = {
             programmingPlans?: ProgrammingPlanChecked[];
             samplers?: UserListItem[];
             laboratories?: Props['laboratories'];
+            domains?: ProgrammingPlanDomain[];
+            coordinators?: UserListItem[];
             filters?: Partial<FilterableType>;
           }
         ) => ReactNode;
@@ -281,7 +341,9 @@ const FiltersTags = ({
   onChange,
   samplers,
   programmingPlans,
-  laboratories
+  laboratories,
+  domains,
+  coordinators
 }: Props) => {
   const { hasNationalView } = useAuthentication();
 
@@ -327,6 +389,8 @@ const FiltersTags = ({
                 programmingPlans,
                 samplers,
                 laboratories,
+                domains,
+                coordinators,
                 filters
               });
             } else {

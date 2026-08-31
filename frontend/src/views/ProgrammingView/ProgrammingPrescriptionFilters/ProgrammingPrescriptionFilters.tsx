@@ -1,144 +1,332 @@
+import Accordion from '@codegouvfr/react-dsfr/Accordion';
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Input from '@codegouvfr/react-dsfr/Input';
-import Select from '@codegouvfr/react-dsfr/Select';
+import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
-import { t } from 'i18next';
-import { pick } from 'lodash-es';
+import { pick, sortBy } from 'lodash-es';
+import {
+  type Matrix,
+  MatrixList
+} from 'maestro-shared/referential/Matrix/Matrix';
+import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
+import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
+import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
+import type { Stage } from 'maestro-shared/referential/Stage';
+import { StageLabels } from 'maestro-shared/referential/Stage';
+import {
+  ContextLabels,
+  type ProgrammingPlanContext,
+  ProgrammingPlanContextList
+} from 'maestro-shared/schema/ProgrammingPlan/Context';
+import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import type React from 'react';
-import { useMemo } from 'react';
+import { useContext, useMemo, useState } from 'react';
+import AppCheckboxSelect from '../../../components/_app/AppCheckboxSelect/AppCheckboxSelect';
 import FiltersTags from '../../../components/FilterTags/FiltersTags';
+import { useAuthentication } from '../../../hooks/useAuthentication';
+import useWindowSize from '../../../hooks/useWindowSize';
+import { ApiClientContext } from '../../../services/apiClient';
 import type { PrescriptionFilters } from '../../../store/reducers/prescriptionsSlice';
-import { pluralize } from '../../../utils/stringUtils';
+import './ProgrammingPrescriptionFilters.scss';
 
 interface Props {
   options: {
     plans: ProgrammingPlanChecked[];
     programmingSubPlanIds: ProgrammingSubPlanId[];
+    matrixKinds: MatrixKind[];
   };
+  stageCounts: { stage: Stage; count: number }[];
   filters: PrescriptionFilters;
   onChange: (filters: Partial<PrescriptionFilters>) => void;
-  renderMode: 'inline' | 'modal';
 }
+
+const filterClassName = cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3');
 
 const ProgrammingPrescriptionFilters = ({
   options,
+  stageCounts,
   filters,
-  onChange,
-  renderMode
+  onChange
 }: Props) => {
-  const filterClassName = useMemo(
-    () =>
-      cx('fr-col-12', renderMode === 'inline' ? 'fr-col-md-4' : 'fr-col-md-6'),
-    [renderMode]
+  const apiClient = useContext(ApiClientContext);
+  const { isMobile } = useWindowSize();
+  const { hasRole, hasDepartmentalView } = useAuthentication();
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
+
+  const canFilterByCoordinator = hasRole(
+    'AdministratorMaestro',
+    'AdministratorBGIR'
   );
+
+  const { data: allDomains } = apiClient.useFindProgrammingPlanDomainsQuery();
+  const { data: coordinators } = apiClient.useFindUsersQuery(
+    { roles: ['NationalCoordinator'], disabled: false },
+    { skip: !canFilterByCoordinator }
+  );
+  const { data: laboratories } = apiClient.useFindLaboratoriesQuery(
+    { programmingPlanIds: options.plans.map((plan) => plan.id) },
+    { skip: !hasDepartmentalView || options.plans.length === 0 }
+  );
+
+  const subPlans = useMemo(
+    () => options.plans.flatMap((plan) => plan.subPlans),
+    [options.plans]
+  );
+
+  const domains = useMemo(
+    () => (allDomains ?? []).filter((domain) => domain.year === filters.year),
+    [allDomains, filters.year]
+  );
+
+  const matrixOptions = useMemo(() => {
+    const availableMatrices = new Set(
+      options.matrixKinds.flatMap((kind) => MatrixListByKind[kind])
+    );
+    return sortBy(
+      MatrixList.filter((matrix) => availableMatrices.has(matrix)).map(
+        (matrix) => ({ label: MatrixLabels[matrix], value: matrix })
+      ),
+      'label'
+    );
+  }, [options.matrixKinds]);
+
+  const contextValues = [
+    ...(filters.contexts ?? []),
+    ...(filters.outsideProgrammingPlan ? ['OutsideProgrammingPlan'] : [])
+  ];
+
+  const stageTags = (
+    <div className={clsx(cx('fr-mb-3w'), 'programming-filters-stages')}>
+      <Tag
+        nativeButtonProps={{ onClick: () => onChange({ stage: undefined }) }}
+        pressed={!filters.stage}
+        small
+      >
+        Tous
+      </Tag>
+      {stageCounts.map(({ stage, count }) => (
+        <Tag
+          key={`stage-${stage}`}
+          nativeButtonProps={{ onClick: () => onChange({ stage }) }}
+          pressed={filters.stage === stage}
+          small
+        >
+          {`${StageLabels[stage]} (${count})`}
+        </Tag>
+      ))}
+    </div>
+  );
+
+  const primaryFilters = (
+    <>
+      <div className={filterClassName}>
+        <AppCheckboxSelect
+          label="N° de sous-plan"
+          options={sortBy(
+            options.programmingSubPlanIds.map((subPlanId) => {
+              const subPlan = subPlans.find((_) => _.id === subPlanId);
+              return {
+                label: subPlan
+                  ? `${subPlan.subPlanNumber} - ${subPlan.label}`
+                  : subPlanId,
+                value: subPlanId
+              };
+            }),
+            'label'
+          )}
+          selectedValues={filters.programmingSubPlanIds ?? []}
+          onChange={(programmingSubPlanIds) =>
+            onChange({ programmingSubPlanIds })
+          }
+          summaryLabel="sous-plan"
+          searchable
+          disabled={options.programmingSubPlanIds.length <= 1}
+        />
+      </div>
+      <div className={filterClassName}>
+        <AppCheckboxSelect
+          label="Domaines"
+          options={domains.map((domain) => ({
+            label: domain.label,
+            value: domain.id
+          }))}
+          selectedValues={filters.programmingPlanDomainIds ?? []}
+          onChange={(programmingPlanDomainIds) =>
+            onChange({
+              programmingPlanDomainIds:
+                programmingPlanDomainIds as ProgrammingPlanDomainId[]
+            })
+          }
+          summaryLabel="domaine"
+          searchable
+          disabled={domains.length === 0}
+        />
+      </div>
+      <div className={filterClassName}>
+        <AppCheckboxSelect
+          label="Plans"
+          options={options.plans.map((plan) => ({
+            label: plan.title,
+            value: plan.id
+          }))}
+          selectedValues={filters.programmingPlanIds ?? []}
+          onChange={(programmingPlanIds) => onChange({ programmingPlanIds })}
+          summaryLabel="plan"
+          searchable
+          disabled={options.plans.length <= 1}
+        />
+      </div>
+      <div className={filterClassName}>
+        <AppCheckboxSelect
+          label="Matrices"
+          options={matrixOptions}
+          selectedValues={filters.matrices ?? []}
+          onChange={(matrices) => onChange({ matrices: matrices as Matrix[] })}
+          emptyLabel="Toutes"
+          summaryLabel="matrice"
+          searchable
+          disabled={matrixOptions.length === 0}
+        />
+      </div>
+    </>
+  );
+
+  const secondaryFilters = (
+    <>
+      <div className={filterClassName}>
+        <AppCheckboxSelect
+          label="Contexte"
+          options={[
+            ...ProgrammingPlanContextList.map((context) => ({
+              label: ContextLabels[context],
+              value: context as string
+            })),
+            { label: 'Hors programmation', value: 'OutsideProgrammingPlan' }
+          ]}
+          selectedValues={contextValues}
+          onChange={(values) =>
+            onChange({
+              contexts: values.filter(
+                (value) => value !== 'OutsideProgrammingPlan'
+              ) as ProgrammingPlanContext[],
+              outsideProgrammingPlan: values.includes('OutsideProgrammingPlan')
+                ? true
+                : undefined
+            })
+          }
+          summaryLabel="contexte"
+        />
+      </div>
+      {canFilterByCoordinator && (
+        <div className={filterClassName}>
+          <AppCheckboxSelect
+            label="Coordinateur·ices"
+            options={sortBy(
+              (coordinators ?? []).map((coordinator) => ({
+                label: coordinator.name ?? coordinator.email,
+                value: coordinator.id
+              })),
+              'label'
+            )}
+            selectedValues={filters.coordinatorIds ?? []}
+            onChange={(coordinatorIds) => onChange({ coordinatorIds })}
+            summaryLabel="coordinateur"
+            searchable
+            disabled={(coordinators ?? []).length === 0}
+          />
+        </div>
+      )}
+      {hasDepartmentalView && (
+        <div className={filterClassName}>
+          <AppCheckboxSelect
+            label="Laboratoires"
+            options={sortBy(
+              (laboratories ?? []).map((laboratory) => ({
+                label: laboratory.name,
+                value: laboratory.id
+              })),
+              'label'
+            )}
+            selectedValues={filters.laboratoryIds ?? []}
+            onChange={(laboratoryIds) => onChange({ laboratoryIds })}
+            summaryLabel="laboratoire"
+            searchable
+            disabled={(laboratories ?? []).length === 0}
+          />
+        </div>
+      )}
+    </>
+  );
+
+  const activeFilters = (
+    <FiltersTags
+      title="Filtres actifs"
+      filters={pick(filters, [
+        'programmingPlanIds',
+        'programmingSubPlanIds',
+        'programmingPlanDomainIds',
+        'matrices',
+        'contexts',
+        'outsideProgrammingPlan',
+        'coordinatorIds',
+        'laboratoryIds'
+      ])}
+      programmingPlans={options.plans}
+      domains={domains}
+      coordinators={coordinators}
+      laboratories={laboratories}
+      onChange={(changedFilters) =>
+        onChange(
+          pick(changedFilters, [
+            'programmingPlanIds',
+            'programmingSubPlanIds',
+            'programmingPlanDomainIds',
+            'matrices',
+            'contexts',
+            'outsideProgrammingPlan',
+            'coordinatorIds',
+            'laboratoryIds'
+          ]) as Partial<PrescriptionFilters>
+        )
+      }
+    />
+  );
+
+  if (isMobile) {
+    return (
+      <div className={cx('fr-container', 'fr-mb-3w')}>
+        {stageTags}
+        <Accordion label="Filtrer les résultats">
+          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+            {primaryFilters}
+            {secondaryFilters}
+          </div>
+          {activeFilters}
+        </Accordion>
+      </div>
+    );
+  }
 
   return (
     <div className={cx('fr-container', 'fr-px-5w', 'fr-mb-3w')}>
       <div className={clsx(cx('fr-px-4w', 'fr-py-3w'), 'white-container')}>
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={filterClassName}>
-            <Select
-              label="Plan"
-              nativeSelectProps={{
-                value: '',
-                onChange: (e) =>
-                  onChange({
-                    programmingPlanIds: [
-                      ...(filters.programmingPlanIds ?? []),
-                      e.target.value as string
-                    ]
-                  })
-              }}
-              className={cx('fr-mb-1v')}
-              disabled={options.plans.length <= 1}
-            >
-              <option value="">
-                {filters.programmingPlanIds?.length
-                  ? t('programmingPlan', {
-                      count: filters.programmingPlanIds.length
-                    })
-                  : 'Tous'}
-              </option>
-              {options.plans
-                .filter(
-                  (plan) => !filters.programmingPlanIds?.includes(plan.id)
-                )
-                .map((plan) => (
-                  <option key={`plan-${plan.id}`} value={plan.id}>
-                    {plan.title}
-                  </option>
-                ))}
-            </Select>
-            <FiltersTags
-              filters={pick(filters, 'programmingPlanIds')}
-              programmingPlans={options.plans}
-              onChange={({ programmingPlanIds }) =>
-                onChange({ programmingPlanIds })
-              }
-            />
+        {stageTags}
+        <div className="d-flex-align-start">
+          <div className="flex-grow-1">
+            <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+              {primaryFilters}
+              {isFilterExpanded && secondaryFilters}
+            </div>
+            {activeFilters}
           </div>
-          <div className={filterClassName}>
-            <Select
-              label="Sous-plan"
-              nativeSelectProps={{
-                value: '',
-                onChange: (e) =>
-                  onChange({
-                    programmingSubPlanIds: [
-                      ...(filters.programmingSubPlanIds ?? []),
-                      e.target.value as ProgrammingSubPlanId
-                    ]
-                  })
-              }}
-              className={cx('fr-mb-1v')}
-              disabled={options.programmingSubPlanIds.length <= 1}
-            >
-              <option value="">
-                {filters.programmingSubPlanIds?.length
-                  ? pluralize(filters.programmingSubPlanIds.length, {
-                      preserveCount: true
-                    })('sous-plan')
-                  : 'Tous'}
-              </option>
-              {options.programmingSubPlanIds
-                .filter(
-                  (subPlanId) =>
-                    !filters.programmingSubPlanIds?.includes(subPlanId)
-                )
-                .map((subPlanId) => (
-                  <option key={`subPlanId-${subPlanId}`} value={subPlanId}>
-                    {
-                      options.plans
-                        .flatMap((p) => p.subPlans)
-                        .find((sp) => sp.id === subPlanId)?.label
-                    }
-                  </option>
-                ))}
-            </Select>
-            <FiltersTags
-              filters={pick(filters, 'programmingSubPlanIds')}
-              programmingPlans={options.plans}
-              onChange={({ programmingSubPlanIds }) =>
-                onChange({ programmingSubPlanIds })
-              }
-            />
-          </div>
-          <div className={filterClassName}>
-            <Input
-              label="Matrice"
-              iconId="fr-icon-search-line"
-              nativeInputProps={{
-                type: 'search',
-                placeholder: 'Matrice',
-                value: filters.matrixQuery ?? '',
-                onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-                  onChange({ matrixQuery: e.target.value })
-              }}
-              className={cx('fr-mb-1v')}
-            />
-          </div>
+          <Button
+            onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+            priority="secondary"
+            className={cx('fr-ml-3w', 'fr-mt-4w')}
+          >
+            {isFilterExpanded ? 'Moins de filtres' : 'Plus de filtres'}
+          </Button>
         </div>
       </div>
     </div>
