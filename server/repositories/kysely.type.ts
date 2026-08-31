@@ -297,6 +297,7 @@ export interface PrescriptionSubstances {
 export interface ProgrammingPlans {
   createdAt: Generated<Timestamp | null>;
   createdBy: string | null;
+  domainId: ProgrammingPlanDomainId;
   id: Generated<string>;
   status: string;
   statusDrom: string | null;

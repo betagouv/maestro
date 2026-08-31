@@ -8,7 +8,10 @@ import {
   genPrescription,
   genPrescriptionSubstance
 } from 'maestro-shared/test/prescriptionFixtures';
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  genProgrammingPlan,
+  genProgrammingPlanDomain
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
@@ -23,6 +26,7 @@ import {
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { kysely } from '../../repositories/kysely';
 import { LocalPrescriptions } from '../../repositories/localPrescriptionRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import { PrescriptionSubstances } from '../../repositories/prescriptionSubstanceRepository';
@@ -38,8 +42,13 @@ import { tokenProvider } from '../../test/testUtils';
 describe('Prescriptions router', () => {
   const { app } = createServer();
 
+  const closedDomain = genProgrammingPlanDomain({ year: 1820 });
+  const submittedDomain = genProgrammingPlanDomain({ year: 1821 });
+  const inProgressDomain = genProgrammingPlanDomain({ year: 1822 });
+
   const programmingPlanClosed = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
+    domainId: closedDomain.id,
     regionalStatus: RegionList.map((region) => ({
       region,
       status: 'Closed'
@@ -48,6 +57,7 @@ describe('Prescriptions router', () => {
   });
   const programmingPlanSubmitted = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
+    domainId: submittedDomain.id,
     regionalStatus: RegionList.map((region) => ({
       region,
       status: 'SubmittedToRegion'
@@ -56,6 +66,7 @@ describe('Prescriptions router', () => {
   });
   const programmingPlanInProgress = genProgrammingPlan({
     createdBy: NationalCoordinator.id,
+    domainId: inProgressDomain.id,
     regionalStatus: RegionList.map((region) => ({
       region,
       status: 'InProgress'
@@ -92,6 +103,10 @@ describe('Prescriptions router', () => {
   });
 
   beforeAll(async () => {
+    await kysely
+      .insertInto('programmingPlanDomains')
+      .values([closedDomain, submittedDomain, inProgressDomain])
+      .execute();
     await ProgrammingPlans().insert(
       [
         programmingPlanSubmitted,
@@ -149,6 +164,14 @@ describe('Prescriptions router', () => {
         programmingPlanSubmitted.id,
         programmingPlanClosed.id
       ]);
+    await kysely
+      .deleteFrom('programmingPlanDomains')
+      .where('id', 'in', [
+        closedDomain.id,
+        submittedDomain.id,
+        inProgressDomain.id
+      ])
+      .execute();
   });
 
   describe('GET /prescriptions', () => {

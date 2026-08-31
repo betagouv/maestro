@@ -343,7 +343,7 @@ const ProgrammingPrescriptionTable = ({
                       )}
                     >
                       {[
-                        plan.domainId ? domainLabels[plan.domainId] : undefined,
+                        domainLabels[plan.domainId],
                         plan.title,
                         ContextLabels[context]
                       ]

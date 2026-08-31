@@ -1,6 +1,5 @@
 import z from 'zod';
 import { FindProgrammingPlanOptions } from '../schema/ProgrammingPlan/FindProgrammingPlanOptions';
-import { ProgrammingPlanDomainId } from '../schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanLocalStatus } from '../schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import { ProgrammingPlanStatus } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
@@ -67,19 +66,6 @@ export const programmingPlansRoutes = {
       ],
       body: z.object({
         programmingPlanLocalStatusList: z.array(ProgrammingPlanLocalStatus)
-      }),
-      response: ProgrammingPlanChecked
-    }
-  },
-  //FIXME DOMAIN interface temporaire de rattachement, à supprimer avec le passage de programming_plans.domain_id en notNullable
-  '/programming-plans/:programmingPlanId/domain': {
-    params: {
-      programmingPlanId: z.guid()
-    },
-    put: {
-      permissions: ['manageProgrammingPlanSettings'],
-      body: z.object({
-        domainId: ProgrammingPlanDomainId
       }),
       response: ProgrammingPlanChecked
     }
