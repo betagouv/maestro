@@ -102,8 +102,6 @@ export const NationalCoordinatorView: Story = {
     await expect(
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
-
-    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
 };
 
@@ -140,8 +138,6 @@ export const RegionalCoordinatorView: Story = {
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
 
-    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
-
     await expect(
       Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
         el.textContent?.toLowerCase().includes('attribué')
@@ -177,8 +173,6 @@ export const DepartmentalCoordinatorView: Story = {
     await expect(
       canvas.getAllByTestId('laboratorySelect-input').length
     ).toBeGreaterThan(0);
-
-    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
 
     await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
   }

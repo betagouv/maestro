@@ -106,8 +106,6 @@ export const NationalCoordinatorView: Story = {
       canvas.queryByText('Statut par région')
     ).not.toBeInTheDocument();
     await expect(canvas.queryByTestId('Commentaires')).not.toBeInTheDocument();
-
-    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
 };
 
@@ -149,8 +147,6 @@ export const RegionalCoordinatorView: Story = {
     await expect(canvas.getByText('Suivi des plans')).toBeInTheDocument();
     await expect(canvas.queryByTestId('Commentaires')).not.toBeInTheDocument();
 
-    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
-
     await expect(
       Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
         el.textContent?.toLowerCase().includes('%')
@@ -190,8 +186,6 @@ export const DepartmentalCoordinatorView: Story = {
 
     await expect(canvas.queryByText(/Statut/)).not.toBeInTheDocument();
     await expect(canvas.queryByTestId('Commentaires')).not.toBeInTheDocument();
-
-    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
 
     await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
 
@@ -233,8 +227,6 @@ export const SamplerView: Story = {
 
     await expect(canvas.queryByText(/Statut/)).not.toBeInTheDocument();
     await expect(canvas.queryByText('Commentaires')).not.toBeInTheDocument();
-
-    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
 
     await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
 

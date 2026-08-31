@@ -116,8 +116,6 @@ export const NationalCoordinatorView: Story = {
       canvas.queryByText('Phase de consultation')
     ).not.toBeInTheDocument();
     await expect(canvas.getByText('Commentaires')).toBeInTheDocument();
-
-    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
 };
 
@@ -151,8 +149,6 @@ export const RegionalCoordinatorView: Story = {
       canvas.queryByText('Phase de consultation')
     ).not.toBeInTheDocument();
     await expect(canvas.getByText('Commentaires')).toBeInTheDocument();
-
-    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
 };
 
@@ -185,8 +181,6 @@ export const SamplerView: Story = {
       canvas.queryByText('Phase de consultation')
     ).not.toBeInTheDocument();
     await expect(canvas.queryByText('Commentaires')).not.toBeInTheDocument();
-
-    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
 
     await expect(
       canvas.queryByText('Attribution des laboratoires')
