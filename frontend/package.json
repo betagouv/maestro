@@ -43,7 +43,7 @@
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.0.5",
     "@vitest/browser-playwright": "^4.1.10",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "^4.1.11",
     "clsx": "^2.1.0",
     "i18next": "^26.3.6",
     "maestro-shared": "^0.0.1",
