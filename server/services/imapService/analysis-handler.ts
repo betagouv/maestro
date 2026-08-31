@@ -1,3 +1,5 @@
+import type { Department } from 'maestro-shared/referential/Department';
+import type { Region } from 'maestro-shared/referential/Region';
 import {
   getAnalytes,
   isComplex
@@ -31,6 +33,9 @@ export const analysisHandler = async (
   documentId: string;
   samplerEmail: string;
   compliance: null | true;
+  region: Region;
+  department: Department | null;
+  programmingPlanId: string;
 }> => {
   const {
     sampleId,
@@ -38,7 +43,10 @@ export const analysisHandler = async (
     programmingSubPlanNumber,
     analyseId: oldAnalyseId,
     samplerId,
-    samplerEmail
+    samplerEmail,
+    region,
+    department,
+    programmingPlanId
   } = await kysely
     .selectFrom('samples')
     .innerJoin('users', 'samples.sampledBy', 'users.id')
@@ -55,7 +63,10 @@ export const analysisHandler = async (
       'programmingSubPlans.subPlanNumber as programmingSubPlanNumber',
       'analysis.id as analyseId',
       'users.email as samplerEmail',
-      'users.id as samplerId'
+      'users.id as samplerId',
+      'samples.region as region',
+      'samples.department as department',
+      'programmingSubPlans.programmingPlanId as programmingPlanId'
     ])
     .executeTakeFirstOrThrow(
       () =>
@@ -296,7 +307,10 @@ export const analysisHandler = async (
         analysisId,
         documentId,
         samplerEmail,
-        compliance
+        compliance,
+        region: region as Region,
+        department: department as Department | null,
+        programmingPlanId
       };
     }
   );

@@ -1,12 +1,16 @@
 import { ImapFlow } from 'imapflow';
 import { isNil } from 'lodash-es';
+import { getAlertEmails } from 'maestro-shared/referential/alertEmails';
+import type { Department } from 'maestro-shared/referential/Department';
 import type { LaboratoryWithAutomation } from 'maestro-shared/referential/Laboratory';
+import type { Region } from 'maestro-shared/referential/Region';
 import { SandreToSSD2 } from 'maestro-shared/referential/Residue/SandreToSSD2';
 import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { getSSD2Id } from 'maestro-shared/referential/Residue/SSD2Referential';
 import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { AnalysisRai } from 'maestro-shared/schema/AnalysisRai/AnalysisRai';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import type { MaestroDate } from 'maestro-shared/utils/date';
 import {
@@ -17,6 +21,7 @@ import { type Attachment, type ParsedMail, simpleParser } from 'mailparser';
 import { analysisRaiRepository } from '../../repositories/analysisRaiRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import { laboratoryResidueMappingRepository } from '../../repositories/laboratoryResidueMappingRepository';
+import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import config from '../../utils/config';
 import { documentService } from '../documentService';
 import { mattermostService } from '../mattermostService';
@@ -131,6 +136,9 @@ type EmailRaiResult = {
   compliance: null | true;
   pdfDocumentId: string;
   copyNumber: number;
+  region: Region;
+  department: Department | null;
+  programmingPlanId: string;
 };
 
 const processEmailRaiAttachments = async (
@@ -236,7 +244,10 @@ const processEmailRaiAttachments = async (
       samplerEmail,
       compliance,
       analysisId,
-      documentId: pdfDocumentId
+      documentId: pdfDocumentId,
+      region,
+      department,
+      programmingPlanId
     } = await analysisHandler(
       {
         ...analysis,
@@ -255,7 +266,10 @@ const processEmailRaiAttachments = async (
       samplerEmail,
       compliance,
       pdfDocumentId,
-      copyNumber: analysis.copyNumber
+      copyNumber: analysis.copyNumber,
+      region,
+      department,
+      programmingPlanId
     });
   }
 
@@ -564,13 +578,25 @@ export const checkEmails = async () => {
 
                 //si exemplaire 2 ou plus, alors il faut envoyer dans tous les cas
                 if (result.compliance === null || result.copyNumber !== 1) {
+                  const programmingPlan =
+                    await programmingPlanRepository.findUnique(
+                      result.programmingPlanId
+                    );
+
                   await notificationService.sendNotification(
                     {
                       category: 'AnalysisReviewTodo',
                       link: AppRouteLinks.SampleRoute.link(result.sampleId)
                     },
                     [{ id: result.samplerId, email: result.samplerEmail }],
-                    undefined
+                    undefined,
+                    programmingPlan
+                      ? getAlertEmails({
+                          distributionKind: programmingPlan.distributionKind,
+                          region: result.region,
+                          department: result.department
+                        })
+                      : []
                   );
                 }
               }

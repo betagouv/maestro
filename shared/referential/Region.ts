@@ -53,12 +53,14 @@ export const Regions: Record<
     departments: Department[];
     borderingDepartments: Department[];
     establishment: Establishment;
+    alertEmails: string[];
     isDrom?: boolean;
   }
 > = {
   '84': {
     name: 'Auvergne-Rhône-Alpes',
     shortName: 'ARA',
+    alertEmails: ['sral.draaf-auvergne-rhone-alpes@agriculture.gouv.fr'],
     center: {
       latitude: 45.4,
       longitude: 4.7
@@ -104,6 +106,7 @@ export const Regions: Record<
   '27': {
     name: 'Bourgogne-Franche-Comté',
     shortName: 'BFC',
+    alertEmails: ['sral.draaf-bourgogne-franche-comte@agriculture.gouv.fr'],
     center: {
       latitude: 47.09,
       longitude: 4.81
@@ -133,6 +136,7 @@ export const Regions: Record<
   '53': {
     name: 'Bretagne',
     shortName: 'BRE',
+    alertEmails: ['sral.draaf-bretagne@agriculture.gouv.fr'],
     center: {
       latitude: 48.12,
       longitude: -2.92
@@ -149,6 +153,7 @@ export const Regions: Record<
   '24': {
     name: 'Centre-Val de Loire',
     shortName: 'CVL',
+    alertEmails: ['sral.draaf-centre-val-de-loire@agriculture.gouv.fr'],
     center: {
       latitude: 47.5,
       longitude: 1.75
@@ -180,6 +185,7 @@ export const Regions: Record<
   '94': {
     name: 'Corse',
     shortName: 'COR',
+    alertEmails: ['sral.draaf-corse@agriculture.gouv.fr'],
     center: {
       latitude: 42.15,
       longitude: 9.1
@@ -197,6 +203,7 @@ export const Regions: Record<
   '44': {
     name: 'Grand Est',
     shortName: 'GES',
+    alertEmails: ['sral.draaf-grand-est@agriculture.gouv.fr'],
     center: {
       latitude: 48.7,
       longitude: 5.6
@@ -214,6 +221,7 @@ export const Regions: Record<
   '32': {
     name: 'Hauts-de-France',
     shortName: 'HDF',
+    alertEmails: ['intrants.draaf-hauts-de-france@agriculture.gouv.fr'],
     center: {
       latitude: 50,
       longitude: 2.88
@@ -231,6 +239,7 @@ export const Regions: Record<
   '11': {
     name: 'Île-de-France',
     shortName: 'IDF',
+    alertEmails: ['sral-rungis.draaf-ile-de-france@agriculture.gouv.fr'],
     center: {
       latitude: 48.7,
       longitude: 2.5
@@ -248,6 +257,7 @@ export const Regions: Record<
   '28': {
     name: 'Normandie',
     shortName: 'NOR',
+    alertEmails: ['intrants.sral.draaf-normandie@agriculture.gouv.fr'],
     center: {
       latitude: 49.1,
       longitude: 0
@@ -275,6 +285,7 @@ export const Regions: Record<
   '75': {
     name: 'Nouvelle-Aquitaine',
     shortName: 'NAQ',
+    alertEmails: ['sral.draaf-nouvelle-aquitaine@agriculture.gouv.fr'],
     center: {
       latitude: 45.5,
       longitude: 0.5
@@ -318,6 +329,7 @@ export const Regions: Record<
   '76': {
     name: 'Occitanie',
     shortName: 'OCC',
+    alertEmails: ['pspcvegetal.draaf-occitanie@agriculture.gouv.fr'],
     center: {
       latitude: 43.7,
       longitude: 2.1
@@ -360,6 +372,7 @@ export const Regions: Record<
   '52': {
     name: 'Pays de la Loire',
     shortName: 'PDL',
+    alertEmails: ['sral.draaf-pays-de-la-loire@agriculture.gouv.fr'],
     center: {
       latitude: 47.6,
       longitude: -0.6
@@ -388,6 +401,7 @@ export const Regions: Record<
   '93': {
     name: "Provence-Alpes-Côte d'Azur",
     shortName: 'PAC',
+    alertEmails: ['sral.draaf-paca@agriculture.gouv.fr'],
     center: {
       latitude: 43.8,
       longitude: 6.1
@@ -404,6 +418,7 @@ export const Regions: Record<
   '01': {
     name: 'Guadeloupe',
     shortName: 'GUA',
+    alertEmails: ['salim.daaf971@agriculture.gouv.fr'],
     center: {
       latitude: 45.6,
       longitude: -2.8
@@ -422,6 +437,7 @@ export const Regions: Record<
   '02': {
     name: 'Martinique',
     shortName: 'MAR',
+    alertEmails: ['salim.daaf972@agriculture.gouv.fr'],
     center: {
       latitude: 45.6,
       longitude: -5.8
@@ -441,6 +457,7 @@ export const Regions: Record<
   '03': {
     name: 'Guyane',
     shortName: 'GUY',
+    alertEmails: ['salim-973@guyane.gouv.fr'],
     center: {
       latitude: 47.1,
       longitude: -5.8
@@ -460,6 +477,7 @@ export const Regions: Record<
   '04': {
     name: 'La Réunion',
     shortName: 'REU',
+    alertEmails: ['alimentation.daaf974@agriculture.gouv.fr'],
     center: {
       latitude: 44.25,
       longitude: -2.45
@@ -478,6 +496,7 @@ export const Regions: Record<
   '06': {
     name: 'Mayotte',
     shortName: 'MYT',
+    alertEmails: ['alimentation.daaf976@agriculture.gouv.fr'],
     center: {
       latitude: 44.3,
       longitude: -3.9
