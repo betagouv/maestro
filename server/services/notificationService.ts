@@ -74,7 +74,8 @@ const sendNotification = async <
 >(
   notificationToCreate: T,
   recipients: Pick<UserRefined, 'id' | 'email'>[],
-  params: TemplateParams<T['category']>
+  params: TemplateParams<T['category']>,
+  additionalEmails: string[] = []
 ) => {
   const message =
     // @ts-expect-error TS2345 il n'arrive pas à faire le lien entre le type de la category dans la notification et les params souhaités. À voir si ça marche avec une nouvelle version de TS
@@ -105,7 +106,12 @@ const sendNotification = async <
     await mailService.send({
       templateName: emailTemplateName,
       params: { ...params, link: fullLink },
-      recipients: recipients.map((recipient) => recipient.email)
+      recipients: [
+        ...new Set([
+          ...recipients.map((recipient) => recipient.email),
+          ...additionalEmails
+        ])
+      ]
     });
   }
 };
