@@ -39,6 +39,7 @@ import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
+import { programmingPlanDomainRepository } from '../repositories/programmingPlanDomainRepository.ts';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
