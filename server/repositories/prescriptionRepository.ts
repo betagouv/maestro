@@ -1,13 +1,5 @@
 import type { Knex } from 'knex';
-import {
-  intersection,
-  isArray,
-  isNil,
-  omit,
-  omitBy,
-  pick,
-  uniq
-} from 'lodash-es';
+import { intersection, isArray, isNil, omit, omitBy, uniq } from 'lodash-es';
 import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import type {
@@ -282,55 +274,55 @@ const buildFindQuery = (
   { matrixKinds, subPlanIds }: ResolvedFilters,
   visibility?: PendingChangeVisibility
 ): Knex.QueryBuilder =>
-  Prescriptions()
-    .where(
-      omitBy(
-        pick(findOptions, 'programmingPlanId', 'matrixKind', 'matrix'),
-        isNil
-      )
-    )
-    .modify((builder) => {
-      if (findOptions.programmingPlanIds) {
-        builder.whereIn(
-          `${prescriptionsTable}.programming_plan_id`,
-          findOptions.programmingPlanIds
-        );
-      }
-      if (findOptions.year || findOptions.programmingPlanDomainIds) {
-        builder.join(
-          programmingPlansTable,
-          `${prescriptionsTable}.programming_plan_id`,
-          `${programmingPlansTable}.id`
-        );
-      }
-      if (findOptions.year) {
-        builder.where(`${programmingPlansTable}.year`, findOptions.year);
-      }
-      if (findOptions.programmingPlanDomainIds) {
-        builder.whereIn(
-          `${programmingPlansTable}.domain_id`,
-          findOptions.programmingPlanDomainIds
-        );
-      }
-      if (findOptions.stage) {
-        builder.where(`${prescriptionsTable}.stages`, '@>', [
-          findOptions.stage
-        ]);
-      }
-      if (findOptions.contexts) {
-        builder.whereIn(`${prescriptionsTable}.context`, findOptions.contexts);
-      }
-      if (subPlanIds) {
-        builder.whereIn(
-          `${prescriptionsTable}.programming_sub_plan_id`,
-          subPlanIds
-        );
-      }
-      if (matrixKinds) {
-        builder.whereIn(`${prescriptionsTable}.matrix_kind`, matrixKinds);
-      }
-      applyLocalPrescriptionFilters(builder, findOptions, visibility);
-    });
+  Prescriptions().modify((builder) => {
+    if (findOptions.programmingPlanId) {
+      builder.where(
+        `${prescriptionsTable}.programming_plan_id`,
+        findOptions.programmingPlanId
+      );
+    }
+    if (findOptions.programmingPlanIds) {
+      builder.whereIn(
+        `${prescriptionsTable}.programming_plan_id`,
+        findOptions.programmingPlanIds
+      );
+    }
+    if (findOptions.year || findOptions.programmingPlanDomainIds) {
+      builder.join(
+        programmingPlansTable,
+        `${prescriptionsTable}.programming_plan_id`,
+        `${programmingPlansTable}.id`
+      );
+    }
+    if (findOptions.year) {
+      builder.where(`${programmingPlansTable}.year`, findOptions.year);
+    }
+    if (findOptions.programmingPlanDomainIds) {
+      builder.whereIn(
+        `${programmingPlansTable}.domain_id`,
+        findOptions.programmingPlanDomainIds
+      );
+    }
+    if (findOptions.matrixKind) {
+      builder.where(
+        `${prescriptionsTable}.matrix_kind`,
+        findOptions.matrixKind
+      );
+    }
+    if (findOptions.contexts) {
+      builder.whereIn(`${prescriptionsTable}.context`, findOptions.contexts);
+    }
+    if (subPlanIds) {
+      builder.whereIn(
+        `${prescriptionsTable}.programming_sub_plan_id`,
+        subPlanIds
+      );
+    }
+    if (matrixKinds) {
+      builder.whereIn(`${prescriptionsTable}.matrix_kind`, matrixKinds);
+    }
+    applyLocalPrescriptionFilters(builder, findOptions, visibility);
+  });
 
 const findMany = async (
   findOptions: FindPrescriptionOptions,

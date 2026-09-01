@@ -24,6 +24,12 @@ vi.mock('../../repositories/companyRepository', () => ({
   }
 }));
 
+vi.mock('../../repositories/programmingPlanDomainRepository', () => ({
+  programmingPlanDomainRepository: {
+    findMany: vi.fn().mockResolvedValue([])
+  }
+}));
+
 const prescriptions = [
   FoieDeBovinPrescriptionFixture,
   VolaillePrescriptionFixture
@@ -54,13 +60,13 @@ describe('generatePrescriptionsExportExcel', async () => {
 
     worksheet['!ref'] = XLSX.utils.encode_range({
       s: { r: 0, c: 0 },
-      e: { r: prescriptions.length + 1, c: (RegionList.length + 1) * 3 + 1 }
+      e: { r: prescriptions.length + 1, c: (RegionList.length + 1) * 3 + 4 }
     });
 
     const csv = XLSX.utils.sheet_to_csv(worksheet, { FS: ';' });
 
     expect(csv.toString()).toMatchInlineSnapshot(`
-      "Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;Total national Programmés;Total national Réalisés;Total national Taux de réalisation;"Région ARA
+      "Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;Total national Programmés;Total national Réalisés;Total national Taux de réalisation;"Région ARA
       Programmés";"Région ARA
       Réalisés";"Région ARA
       Taux de réalisation";"Région BFC
@@ -113,9 +119,9 @@ describe('generatePrescriptionsExportExcel', async () => {
       Réalisés";"Région PDL
       Taux de réalisation";"Région REU
       Programmés"
-      Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;80;0;0;3;0;0;2;0;0;5;0;0;8;0;0;10;0;0;1;0;0;2;0;0;10;0;0;3;0;0;3;0;0;2;0;0;9;0;0;4;0;0;4;0;0;2;0;0;1;0;0;5;0;0;6
-      Viande de volaille;Abattoir;;;77;0;0;2;0;0;3;0;0;8;0;0;1;0;0;9;0;0;1;0;0;11;0;0;3;0;0;2;0;0;1;0;0;1;0;0;4;0;0;6;0;0;1;0;0;5;0;0;6;0;0;3;0;0;10
-      Total;;;;157;;0;5;;0;5;;0;13;;0;9;;0;19;;0;2;;0;13;;0;13;;0;5;;0;4;;0;3;;0;13;;0;10;;0;5;;0;7;;0;7;;0;8;;0;16"
+      ;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;80;0;0;3;0;0;2;0;0;5;0;0;8;0;0;10;0;0;1;0;0;2;0;0;10;0;0;3;0;0;3;0;0;2;0;0;9;0;0;4;0;0;4;0;0;2;0;0;1;0;0;5;0;0;6
+      ;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;77;0;0;2;0;0;3;0;0;8;0;0;1;0;0;9;0;0;1;0;0;11;0;0;3;0;0;2;0;0;1;0;0;1;0;0;4;0;0;6;0;0;1;0;0;5;0;0;6;0;0;3;0;0;10
+      ;;;Total;;;;157;;0;5;;0;5;;0;13;;0;9;;0;19;;0;2;;0;13;;0;13;;0;5;;0;4;;0;3;;0;13;;0;10;;0;5;;0;7;;0;7;;0;8;;0;16"
     `);
   });
 
@@ -136,14 +142,14 @@ describe('generatePrescriptionsExportExcel', async () => {
       s: { r: 0, c: 0 },
       e: {
         r: prescriptions.length + 1,
-        c: (Regions[regionPDL].departments.length + 1) * 3 + 1
+        c: (Regions[regionPDL].departments.length + 1) * 3 + 4
       }
     });
 
     const csv = XLSX.utils.sheet_to_csv(worksheet, { FS: ';' });
 
     expect(csv.toString()).toMatchInlineSnapshot(`
-      "Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;"Région PDL
+      "Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;"Région PDL
       Programmés";"Région PDL
       Réalisés";"Région PDL
       Taux de réalisation";"Département 44
@@ -160,9 +166,9 @@ describe('generatePrescriptionsExportExcel', async () => {
       Laboratoire multi-résidus";"Département 49
       Laboratoire cuivre";"Département 53
       Programmés"
-      Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;5;0;0;8;0;0;;;;13;0;0;;;;8
-      Viande de volaille;Abattoir;;;3;0;0;8;0;0;;;;13;0;0;;;;8
-      Total;;;;8;;0;16;;0;;;;26;;0;;;;16"
+      ;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;5;0;0;8;0;0;;;;13;0;0;;;;8
+      ;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;3;0;0;8;0;0;;;;13;0;0;;;;8
+      ;;;Total;;;;8;;0;16;;0;;;;26;;0;;;;16"
     `);
   });
 
@@ -193,18 +199,18 @@ describe('generatePrescriptionsExportExcel', async () => {
       s: { r: 0, c: 0 },
       e: {
         r: prescriptions.length + 1,
-        c: 4
+        c: 7
       }
     });
 
     const csv = XLSX.utils.sheet_to_csv(worksheet, { FS: ';' });
 
     expect(csv.toString()).toMatchInlineSnapshot(`
-      "Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;"Département 85
+      "Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;"Département 85
       Programmés"
-      Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;13
-      Viande de volaille;Abattoir;;;13
-      Total;;;;40"
+      ;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;13
+      ;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;13
+      ;;;Total;;;;40"
     `);
   });
 });

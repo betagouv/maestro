@@ -3,7 +3,6 @@ import { Department } from '../../referential/Department';
 import { Matrix } from '../../referential/Matrix/Matrix';
 import { Region } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
-import { SubStage } from '../../referential/SubStage';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import { ProgrammingPlanDomainId } from '../ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
@@ -23,9 +22,7 @@ export const FindPrescriptionOptions = z.object({
   contexts: z.array(ProgrammingPlanContext).nullish(),
   matrixKind: z.string().nullish(),
   matrices: z.array(Matrix).nullish(),
-  stage: SubStage.nullish(),
   subPlanStage: Stage.nullish(),
-  matrix: z.string().nullish(),
   coordinatorIds: z.array(z.guid()).nullish(),
   laboratoryIds: z.array(z.guid()).nullish(),
   region: Region.nullish(),
