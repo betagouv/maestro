@@ -257,7 +257,7 @@ const SampleListView = () => {
                     filters={findSampleOptions}
                     onChange={changeFilter}
                     programmingPlans={programmingPlans}
-                    samplers={samplers}
+                    users={samplers}
                     prescriptions={prescriptions}
                     currentUserId={user?.id}
                   />
@@ -276,7 +276,7 @@ const SampleListView = () => {
                   title="Filtres actifs"
                   filters={findSampleOptions}
                   programmingPlans={programmingPlans}
-                  samplers={samplers}
+                  users={samplers}
                   onChange={changeFilter}
                   laboratories={laboratories}
                 />
@@ -293,7 +293,7 @@ const SampleListView = () => {
                       filters={findSampleOptions}
                       onChange={changeFilter}
                       programmingPlans={programmingPlans}
-                      samplers={samplers}
+                      users={samplers}
                       prescriptions={prescriptions}
                       currentUserId={user?.id}
                     />
@@ -310,7 +310,7 @@ const SampleListView = () => {
                     title="Filtres actifs"
                     filters={findSampleOptions}
                     programmingPlans={programmingPlans}
-                    samplers={samplers}
+                    users={samplers}
                     laboratories={laboratories}
                     onChange={changeFilter}
                   />

@@ -274,7 +274,7 @@ const ProgrammingPrescriptionFilters = ({
       ])}
       programmingPlans={options.plans}
       domains={domains}
-      coordinators={coordinators}
+      users={coordinators}
       laboratories={laboratories}
       onChange={(changedFilters) =>
         onChange(

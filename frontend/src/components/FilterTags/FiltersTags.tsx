@@ -33,11 +33,10 @@ interface Props {
   title?: string;
   filters: Partial<FilterableType>;
   onChange: (filters: Partial<FilterableType>) => void;
-  samplers?: UserListItem[];
+  users?: UserListItem[];
   programmingPlans?: ProgrammingPlanChecked[];
   laboratories?: Pick<Laboratory, 'id' | 'name'>[];
   domains?: ProgrammingPlanDomain[];
-  coordinators?: UserListItem[];
 }
 
 const tagProps = {
@@ -54,26 +53,29 @@ type FilterableProp = keyof Omit<
 const renderArrayTags = <T extends string>(
   filterKey: string,
   value: T[],
-  getLabel: (item: T) => string,
+  getLabel: (item: T) => string | null | undefined,
   onChange: (filters: Partial<FilterableType>) => void,
   extraChanges?: Partial<FilterableType>
 ): ReactNode => (
   <Fragment key={`tag-${filterKey}`}>
-    {value.map((item) => (
-      <Tag
-        {...tagProps}
-        key={`tag-${filterKey}-${item}`}
-        nativeButtonProps={{
-          onClick: () =>
-            onChange({
-              [filterKey]: value.filter((v) => v !== item),
-              ...extraChanges
-            } as Partial<FilterableType>)
-        }}
-      >
-        {getLabel(item)}
-      </Tag>
-    ))}
+    {value.map((item) => {
+      const label = getLabel(item);
+      return label ? (
+        <Tag
+          {...tagProps}
+          key={`tag-${filterKey}-${item}`}
+          nativeButtonProps={{
+            onClick: () =>
+              onChange({
+                [filterKey]: value.filter((v) => v !== item),
+                ...extraChanges
+              } as Partial<FilterableType>)
+          }}
+        >
+          {label}
+        </Tag>
+      ) : null;
+    })}
   </Fragment>
 );
 
@@ -117,25 +119,13 @@ const filtersConfig = {
   },
   sampledBy: {
     prop: 'sampledBy',
-    getComponent: (value, onChange, { samplers }) => (
-      <Fragment key="tag-sampledBy">
-        {value.map((id) => {
-          const sampler = samplers?.find((u) => u.id === id);
-          return sampler ? (
-            <Tag
-              {...tagProps}
-              key={`tag-sampledBy-${id}`}
-              nativeButtonProps={{
-                onClick: () =>
-                  onChange({ sampledBy: value.filter((v) => v !== id) })
-              }}
-            >
-              {sampler.name}
-            </Tag>
-          ) : null;
-        })}
-      </Fragment>
-    )
+    getComponent: (value, onChange, { users }) =>
+      renderArrayTags(
+        'sampledBy',
+        value,
+        (id) => users?.find((user) => user.id === id)?.name,
+        onChange
+      )
   },
   sampledDate: {
     prop: 'sampledDate',
@@ -179,49 +169,23 @@ const filtersConfig = {
   },
   programmingPlanDomainIds: {
     prop: 'programmingPlanDomainIds',
-    getComponent: (value, onChange, { domains }) => (
-      <Fragment key="tag-programmingPlanDomainIds">
-        {value.map((id) => {
-          const domain = domains?.find((_) => _.id === id);
-          return domain ? (
-            <Tag
-              {...tagProps}
-              key={`tag-domain-${id}`}
-              nativeButtonProps={{
-                onClick: () =>
-                  onChange({
-                    programmingPlanDomainIds: value.filter((_) => _ !== id)
-                  })
-              }}
-            >
-              {domain.label}
-            </Tag>
-          ) : null;
-        })}
-      </Fragment>
-    )
+    getComponent: (value, onChange, { domains }) =>
+      renderArrayTags(
+        'programmingPlanDomainIds',
+        value,
+        (id) => domains?.find((domain) => domain.id === id)?.label,
+        onChange
+      )
   },
   coordinatorIds: {
     prop: 'coordinatorIds',
-    getComponent: (value, onChange, { coordinators }) => (
-      <Fragment key="tag-coordinatorIds">
-        {value.map((id) => {
-          const coordinator = coordinators?.find((_) => _.id === id);
-          return coordinator ? (
-            <Tag
-              {...tagProps}
-              key={`tag-coordinator-${id}`}
-              nativeButtonProps={{
-                onClick: () =>
-                  onChange({ coordinatorIds: value.filter((_) => _ !== id) })
-              }}
-            >
-              {coordinator.name}
-            </Tag>
-          ) : null;
-        })}
-      </Fragment>
-    )
+    getComponent: (value, onChange, { users }) =>
+      renderArrayTags(
+        'coordinatorIds',
+        value,
+        (id) => users?.find((user) => user.id === id)?.name,
+        onChange
+      )
   },
   matrixQuery: {
     prop: 'matrixQuery',
@@ -241,70 +205,36 @@ const filtersConfig = {
   },
   laboratoryIds: {
     prop: 'laboratoryIds',
-    getComponent: (value, onChange, { laboratories }) => (
-      <Fragment key="tag-laboratoryIds">
-        {value.map((id) => {
-          const lab = laboratories?.find((l) => l.id === id);
-          return lab ? (
-            <Tag
-              {...tagProps}
-              key={`tag-laboratory-${id}`}
-              nativeButtonProps={{
-                onClick: () =>
-                  onChange({ laboratoryIds: value.filter((v) => v !== id) })
-              }}
-            >
-              {lab.name}
-            </Tag>
-          ) : null;
-        })}
-      </Fragment>
-    )
+    getComponent: (value, onChange, { laboratories }) =>
+      renderArrayTags(
+        'laboratoryIds',
+        value,
+        (id) => laboratories?.find((laboratory) => laboratory.id === id)?.name,
+        onChange
+      )
   },
   programmingPlanIds: {
     prop: 'programmingPlanIds',
-    getComponent: (value, onChange, { programmingPlans }) => (
-      <Fragment key={`tag-programmingPlanIds`}>
-        {value.map((id) => (
-          <Tag
-            {...tagProps}
-            key={`tag-programmingPlanId-${id}`}
-            nativeButtonProps={{
-              onClick: () =>
-                onChange({ programmingPlanIds: value.filter((v) => v !== id) })
-            }}
-          >
-            {programmingPlans?.find((plan) => plan.id === id)?.title ?? id}
-          </Tag>
-        ))}
-      </Fragment>
-    )
+    getComponent: (value, onChange, { programmingPlans }) =>
+      renderArrayTags(
+        'programmingPlanIds',
+        value,
+        (id) => programmingPlans?.find((plan) => plan.id === id)?.title ?? id,
+        onChange
+      )
   },
   programmingSubPlanIds: {
     prop: 'programmingSubPlanIds',
-    getComponent: (value, onChange, { programmingPlans }) => (
-      <Fragment key="tag-programmingSubPlanIds">
-        {value.map((id) => {
-          const subPlan = programmingPlans
-            ?.flatMap((p) => p.subPlans)
-            .find((sp) => sp.id === id);
-          return (
-            <Tag
-              {...tagProps}
-              key={`tag-subPlan-${id}`}
-              nativeButtonProps={{
-                onClick: () =>
-                  onChange({
-                    programmingSubPlanIds: value.filter((v) => v !== id)
-                  })
-              }}
-            >
-              {subPlan?.label}
-            </Tag>
-          );
-        })}
-      </Fragment>
-    )
+    getComponent: (value, onChange, { programmingPlans }) =>
+      renderArrayTags(
+        'programmingSubPlanIds',
+        value,
+        (id) =>
+          programmingPlans
+            ?.flatMap((plan) => plan.subPlans)
+            .find((subPlan) => subPlan.id === id)?.label,
+        onChange
+      )
   }
 } as const satisfies {
   [key in FilterableProp]: {
@@ -323,10 +253,9 @@ const filtersConfig = {
           onChange: (filters: Partial<FilterableType>) => void,
           data: {
             programmingPlans?: ProgrammingPlanChecked[];
-            samplers?: UserListItem[];
+            users?: UserListItem[];
             laboratories?: Props['laboratories'];
             domains?: ProgrammingPlanDomain[];
-            coordinators?: UserListItem[];
             filters?: Partial<FilterableType>;
           }
         ) => ReactNode;
@@ -339,11 +268,10 @@ const FiltersTags = ({
   title,
   filters,
   onChange,
-  samplers,
+  users,
   programmingPlans,
   laboratories,
-  domains,
-  coordinators
+  domains
 }: Props) => {
   const { hasNationalView } = useAuthentication();
 
@@ -387,10 +315,9 @@ const FiltersTags = ({
               // @ts-expect-error TS2345 il est perdu
               return conf.getComponent(value, onChange, {
                 programmingPlans,
-                samplers,
+                users,
                 laboratories,
                 domains,
-                coordinators,
                 filters
               });
             } else {
