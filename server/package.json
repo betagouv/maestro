@@ -55,7 +55,7 @@
     "maestro-shared": "^0.0.1",
     "mailparser": "^3.9.16",
     "nodemailer": "^9.0.4",
-    "openid-client": "^6.8.5",
+    "openid-client": "^6.8.7",
     "pdf-lib": "^1.17.1",
     "pg": "^8.23.0",
     "puppeteer-core": "^25.8.0",
