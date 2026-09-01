@@ -10,7 +10,7 @@ import { ApiClientContext } from '../../../services/apiClient';
 import { ProgrammingSubPlanFieldItem } from './ProgrammingSubPlanFieldItem';
 
 const deleteFieldModal = createModal({
-  id: 'plan-kind-field-delete-modal',
+  id: 'sampler-form-field-delete-modal',
   isOpenedByDefault: false
 });
 
