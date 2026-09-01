@@ -257,7 +257,7 @@ const SampleListView = () => {
                     filters={findSampleOptions}
                     onChange={changeFilter}
                     programmingPlans={programmingPlans}
-                    users={samplers}
+                    samplers={samplers}
                     prescriptions={prescriptions}
                     currentUserId={user?.id}
                   />
@@ -293,7 +293,7 @@ const SampleListView = () => {
                       filters={findSampleOptions}
                       onChange={changeFilter}
                       programmingPlans={programmingPlans}
-                      users={samplers}
+                      samplers={samplers}
                       prescriptions={prescriptions}
                       currentUserId={user?.id}
                     />
