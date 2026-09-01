@@ -15,6 +15,7 @@ import { ProgrammingPlanGlobalSettings } from '../ProgrammingPlanGlobalSettings/
 import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
 import { ProgrammingPlanSettingsBadge } from '../ProgrammingPlanSettingsBadge/ProgrammingPlanSettingsBadge';
 import { isCampaignLaunched } from '../ProgrammingPlanSettingsCard/ProgrammingPlanSettingsCard.tsx';
+import { ProgrammingSubPlanActionBar } from '../ProgrammingSubPlanActionBar/ProgrammingSubPlanActionBar';
 import { ProgrammingSubPlanList } from '../ProgrammingSubPlanList/ProgrammingSubPlanList';
 
 type Props = Record<never, never>;
@@ -156,6 +157,7 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
           />
         </div>
       </div>
+      {subPlan && <ProgrammingSubPlanActionBar />}
     </AppPage>
   );
 };

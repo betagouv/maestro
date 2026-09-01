@@ -176,7 +176,6 @@ export const SubPlan: Story = {
       canvas.getByRole('link', { current: 'page' })
     ).toHaveTextContent('101 - Céréales');
 
-    // Les stades du sous-plan sont présélectionnés dans l'onglet
     await expect(
       canvas.getByRole('tab', { name: 'Paramétrage global' })
     ).toBeInTheDocument();
@@ -188,5 +187,15 @@ export const SubPlan: Story = {
     await expect(
       canvas.queryByText('Transformation', { selector: '.fr-tag' })
     ).not.toBeInTheDocument();
+
+    await expect(
+      canvas.getByRole('button', { name: 'Réinitialiser les modifications' })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByRole('button', { name: 'Enregistrer et terminer' })
+    ).toBeInTheDocument();
   }
 };
