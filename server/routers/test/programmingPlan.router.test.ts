@@ -1,12 +1,15 @@
 import { constants } from 'node:http2';
 import { type Region, RegionList } from 'maestro-shared/referential/Region';
+import type { Stage } from 'maestro-shared/referential/Stage';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   DAOAInProgressProgrammingPlanFixture,
   DAOAValidatedProgrammingPlanFixture,
+  DAOAVolailleValidatedSubPlanFixture,
   PPVClosedProgrammingPlanFixture,
   PPVInProgressProgrammingPlanFixture,
+  PPVInProgressSubPlanFixture,
   PPVSubmittedProgrammingPlanFixture,
   PPVValidatedDromProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
@@ -28,6 +31,7 @@ import {
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
+import { programmingSubPlanRepository } from '../../repositories/programmingSubPlanRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
@@ -598,6 +602,91 @@ describe('ProgrammingPlan router', () => {
       await ProgrammingPlanLocalStatus()
         .where('programmingPlanId', PPVSubmittedProgrammingPlanFixture.id)
         .update({ status: 'SubmittedToRegion' });
+    });
+  });
+
+  describe('PUT /programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId', () => {
+    const testRoute = (
+      programmingPlanId: string,
+      programmingSubPlanId: string
+    ) =>
+      `/api/programming-plans/${programmingPlanId}/sub-plans/${programmingSubPlanId}`;
+
+    const validBody = {
+      stages: ['ABATTAGE'] satisfies Stage[]
+    };
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .put(
+          testRoute(
+            PPVInProgressProgrammingPlanFixture.id,
+            PPVInProgressSubPlanFixture.id
+          )
+        )
+        .send(validBody)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user does not have the permission', async () => {
+      await request(app)
+        .put(
+          testRoute(
+            PPVInProgressProgrammingPlanFixture.id,
+            PPVInProgressSubPlanFixture.id
+          )
+        )
+        .send(validBody)
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should get a valid body', async () => {
+      await request(app)
+        .put(
+          testRoute(
+            PPVInProgressProgrammingPlanFixture.id,
+            PPVInProgressSubPlanFixture.id
+          )
+        )
+        .send({ stages: ['INVALID'] })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should fail if the sub-plan does not belong to the programming plan', async () => {
+      await request(app)
+        .put(
+          testRoute(
+            PPVInProgressProgrammingPlanFixture.id,
+            DAOAVolailleValidatedSubPlanFixture.id
+          )
+        )
+        .send(validBody)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    test('should update the sub-plan stages', async () => {
+      await request(app)
+        .put(
+          testRoute(
+            PPVInProgressProgrammingPlanFixture.id,
+            PPVInProgressSubPlanFixture.id
+          )
+        )
+        .send(validBody)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
+
+      await expect(
+        programmingSubPlanRepository.findUnique(PPVInProgressSubPlanFixture.id)
+      ).resolves.toMatchObject({
+        id: PPVInProgressSubPlanFixture.id,
+        stages: validBody.stages
+      });
+
+      await programmingSubPlanRepository.update(PPVInProgressSubPlanFixture);
     });
   });
 });

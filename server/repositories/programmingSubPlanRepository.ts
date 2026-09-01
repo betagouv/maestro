@@ -53,7 +53,20 @@ const findMany = async (
   return (await query.execute()).map((row) => ProgrammingSubPlan.parse(row));
 };
 
+const update = async (
+  programmingSubPlan: Pick<ProgrammingSubPlan, 'id' | 'stages'>
+): Promise<void> => {
+  console.info('Update programming sub-plan with id', programmingSubPlan.id);
+
+  await kysely
+    .updateTable('programmingSubPlans')
+    .set({ stages: programmingSubPlan.stages })
+    .where('id', '=', programmingSubPlan.id)
+    .execute();
+};
+
 export const programmingSubPlanRepository = {
   findUnique,
-  findMany
+  findMany,
+  update
 };

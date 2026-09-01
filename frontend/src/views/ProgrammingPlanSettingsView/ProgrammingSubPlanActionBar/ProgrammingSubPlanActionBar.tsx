@@ -6,11 +6,13 @@ import './ProgrammingSubPlanActionBar.scss';
 type Props = {
   hasChanges: boolean;
   onReset: () => void;
+  onSave: () => void;
 };
 
 export const ProgrammingSubPlanActionBar = ({
   hasChanges,
   onReset,
+  onSave,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -31,10 +33,13 @@ export const ProgrammingSubPlanActionBar = ({
             },
             {
               children: 'Enregistrer en brouillon',
-              priority: 'secondary'
+              priority: 'secondary',
+              onClick: onSave
             },
             {
-              children: 'Enregistrer et terminer'
+              children: 'Enregistrer et terminer',
+              //FIXME DOMAIN gère la notion de Terminer
+              onClick: onSave
             }
           ]}
         />

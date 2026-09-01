@@ -60,6 +60,7 @@ export const MaestroRoutes = [
   '/prescriptions/:prescriptionId/substances',
   '/prescriptions/:prescriptionId',
   '/programming-plan-domains',
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId',
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields',
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId',
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId/options',

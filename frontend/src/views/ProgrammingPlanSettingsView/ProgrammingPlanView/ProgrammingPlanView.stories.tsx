@@ -8,7 +8,7 @@ import {
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { genAuthUser } from 'maestro-shared/test/userFixtures';
 import { Route, Routes } from 'react-router';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { getMockApi } from '../../../services/mockApiClient';
 import { ProgrammingPlanView } from './ProgrammingPlanView';
 
@@ -19,6 +19,8 @@ const CerealesSubPlanId = ProgrammingSubPlanId.parse(
 const FruitsSubPlanId = ProgrammingSubPlanId.parse(
   '7c3d9e51-8b24-4f0a-bd63-1a5e4c9f2d78'
 );
+
+const updateProgrammingSubPlan = fn();
 
 const pesticide2026 = genProgrammingPlanDomain({
   label: 'Résidus de pesticides',
@@ -33,6 +35,7 @@ const meta = {
       auth: { authUser: genAuthUser({ userRole: 'AdministratorMaestro' }) }
     },
     apiClient: getMockApi({
+      useUpdateProgrammingSubPlanMutation: [updateProgrammingSubPlan, {}],
       useFindProgrammingPlanDomainsQuery: { data: [pesticide2026] },
       useFindProgrammingPlansQuery: {
         data: [
@@ -224,5 +227,43 @@ export const SubPlan: Story = {
     await expect(
       canvas.getByRole('button', { name: 'Réinitialiser les modifications' })
     ).toBeDisabled();
+  }
+};
+
+export const SubPlanSave: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingSubPlan.mockClear();
+
+    await userEvent.selectOptions(
+      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ }),
+      'ELEVAGE'
+    );
+
+    for (const buttonLabel of [
+      'Enregistrer en brouillon',
+      'Enregistrer et terminer'
+    ]) {
+      updateProgrammingSubPlan.mockClear();
+
+      await userEvent.click(canvas.getByRole('button', { name: buttonLabel }));
+
+      await waitFor(() =>
+        expect(updateProgrammingSubPlan).toHaveBeenCalledWith({
+          programmingPlanId: PPVPlanId,
+          programmingSubPlanId: CerealesSubPlanId,
+          stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'ELEVAGE']
+        })
+      );
+    }
   }
 };

@@ -3,7 +3,10 @@ import { FindProgrammingPlanOptions } from '../schema/ProgrammingPlan/FindProgra
 import { ProgrammingPlanLocalStatus } from '../schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import { ProgrammingPlanStatus } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
-import { ProgrammingSubPlanId } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  ProgrammingSubPlan,
+  ProgrammingSubPlanId
+} from '../schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   CreateProgrammingSubPlanFieldInput,
   UpdateProgrammingSubPlanFieldInput
@@ -68,6 +71,17 @@ export const programmingPlansRoutes = {
         programmingPlanLocalStatusList: z.array(ProgrammingPlanLocalStatus)
       }),
       response: ProgrammingPlanChecked
+    }
+  },
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId': {
+    params: {
+      programmingPlanId: z.guid(),
+      programmingSubPlanId: ProgrammingSubPlanId
+    },
+    put: {
+      permissions: ['manageProgrammingPlanSettings'],
+      body: ProgrammingSubPlan.pick({ stages: true }),
+      response: z.undefined()
     }
   },
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields':

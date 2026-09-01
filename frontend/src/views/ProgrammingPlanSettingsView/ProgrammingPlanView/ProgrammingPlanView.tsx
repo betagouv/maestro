@@ -33,6 +33,8 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
   const { data: domains = [] } = apiClient.useFindProgrammingPlanDomainsQuery();
   const { data: programmingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery({});
+  const [updateProgrammingSubPlan] =
+    apiClient.useUpdateProgrammingSubPlanMutation();
 
   const programmingPlan = programmingPlans.find(
     (_) => _.id === programmingPlanId
@@ -173,6 +175,13 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
         <ProgrammingSubPlanActionBar
           hasChanges={!isEqual(subPlanDraft, subPlan)}
           onReset={() => setSubPlanDraft(subPlan)}
+          onSave={() =>
+            updateProgrammingSubPlan({
+              programmingPlanId,
+              programmingSubPlanId: subPlanDraft.id,
+              stages: subPlanDraft.stages
+            })
+          }
         />
       )}
     </AppPage>
