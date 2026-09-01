@@ -45,12 +45,14 @@ const meta = {
               genProgrammingSubPlan({
                 id: FruitsSubPlanId,
                 subPlanNumber: '102',
-                label: 'Fruits et légumes'
+                label: 'Fruits et légumes',
+                stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'TRANSFORMATION']
               }),
               genProgrammingSubPlan({
                 id: CerealesSubPlanId,
                 subPlanNumber: '101',
-                label: 'Céréales'
+                label: 'Céréales',
+                stages: ['PRODUCTION_PRIMAIRE_VEGETALE']
               })
             ]
           }),
@@ -115,6 +117,10 @@ export const Default: Story = {
       'href',
       `/parametrage-des-plans/domaines/${pesticide2026.id}`
     );
+
+    await expect(
+      canvas.queryByRole('tab', { name: 'Paramétrage global' })
+    ).not.toBeInTheDocument();
   }
 };
 
@@ -159,7 +165,7 @@ export const SubPlan: Story = {
     ).toBeInTheDocument();
 
     await expect(
-      canvas.getByText('Production primaire végétale')
+      canvas.getByRole('link', { name: 'Production primaire végétale' })
     ).toHaveAttribute('href', `/parametrage-des-plans/plans/${PPVPlanId}`);
     await expect(canvas.getByTitle('Revenir au plan')).toHaveAttribute(
       'href',
@@ -169,5 +175,18 @@ export const SubPlan: Story = {
     await expect(
       canvas.getByRole('link', { current: 'page' })
     ).toHaveTextContent('101 - Céréales');
+
+    // Les stades du sous-plan sont présélectionnés dans l'onglet
+    await expect(
+      canvas.getByRole('tab', { name: 'Paramétrage global' })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByText('Production primaire végétale', {
+        selector: '.fr-tag'
+      })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.queryByText('Transformation', { selector: '.fr-tag' })
+    ).not.toBeInTheDocument();
   }
 };

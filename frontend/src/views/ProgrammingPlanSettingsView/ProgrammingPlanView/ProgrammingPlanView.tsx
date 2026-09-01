@@ -2,6 +2,7 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Breadcrumb from '@codegouvfr/react-dsfr/Breadcrumb';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { useContext } from 'react';
@@ -10,6 +11,7 @@ import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import { YearTitle } from 'src/components/YearTitle/YearTitle';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
+import { ProgrammingPlanGlobalSettings } from '../ProgrammingPlanGlobalSettings/ProgrammingPlanGlobalSettings';
 import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
 import { ProgrammingPlanSettingsBadge } from '../ProgrammingPlanSettingsBadge/ProgrammingPlanSettingsBadge';
 import { isCampaignLaunched } from '../ProgrammingPlanSettingsCard/ProgrammingPlanSettingsCard.tsx';
@@ -130,6 +132,20 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                 'Les paramètres du plan renseignés ci-dessous seront automatiquement attribués à tous ses sous-plans. Si besoin, vous pourrez ensuite modifier les sous-plans individuellement.'
               }
             />
+            {subPlan && (
+              <Tabs
+                className={cx('fr-mt-3w')}
+                tabs={[
+                  {
+                    label: 'Paramétrage global',
+                    content: <ProgrammingPlanGlobalSettings subPlan={subPlan} />
+                  },
+                  { label: 'Formulaire préleveur', content: <></> },
+                  { label: 'Gestion échantillons', content: <></> },
+                  { label: 'Gestion analyses', content: <></> }
+                ]}
+              />
+            )}
           </div>
         </div>
         <div className={cx('fr-col-12', 'fr-col-lg-3', 'fr-pl-0')}>
