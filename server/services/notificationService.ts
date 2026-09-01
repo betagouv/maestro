@@ -71,8 +71,7 @@ const sendNotification = async <
   notificationToCreate: T,
   recipients: Pick<UserRefined, 'id' | 'email'>[],
   params: TemplateParams<T['category']>,
-  additionalEmails: string[] = [],
-  options?: { message?: string }
+  options?: { message?: string; additionalEmails?: string[] }
 ) => {
   const message =
     options?.message ??
@@ -107,7 +106,7 @@ const sendNotification = async <
       recipients: [
         ...new Set([
           ...recipients.map((recipient) => recipient.email),
-          ...additionalEmails
+          ...(options?.additionalEmails ?? [])
         ])
       ]
     });

@@ -589,13 +589,15 @@ export const checkEmails = async () => {
                     },
                     [{ id: result.samplerId, email: result.samplerEmail }],
                     undefined,
-                    programmingPlan
-                      ? getAlertEmails({
-                          distributionKind: programmingPlan.distributionKind,
-                          region: result.region,
-                          department: result.department
-                        })
-                      : []
+                    {
+                      additionalEmails: programmingPlan
+                        ? getAlertEmails({
+                            distributionKind: programmingPlan.distributionKind,
+                            region: result.region,
+                            department: result.department
+                          })
+                        : []
+                    }
                   );
                 }
               }
