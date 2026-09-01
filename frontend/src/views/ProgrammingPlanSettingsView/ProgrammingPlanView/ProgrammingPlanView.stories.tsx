@@ -8,7 +8,7 @@ import {
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { genAuthUser } from 'maestro-shared/test/userFixtures';
 import { Route, Routes } from 'react-router';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { getMockApi } from '../../../services/mockApiClient';
 import { ProgrammingPlanView } from './ProgrammingPlanView';
 
@@ -19,6 +19,8 @@ const CerealesSubPlanId = ProgrammingSubPlanId.parse(
 const FruitsSubPlanId = ProgrammingSubPlanId.parse(
   '7c3d9e51-8b24-4f0a-bd63-1a5e4c9f2d78'
 );
+
+const updateProgrammingSubPlan = fn();
 
 const pesticide2026 = genProgrammingPlanDomain({
   label: 'Résidus de pesticides',
@@ -33,6 +35,7 @@ const meta = {
       auth: { authUser: genAuthUser({ userRole: 'AdministratorMaestro' }) }
     },
     apiClient: getMockApi({
+      useUpdateProgrammingSubPlanMutation: [updateProgrammingSubPlan, {}],
       useFindProgrammingPlanDomainsQuery: { data: [pesticide2026] },
       useFindProgrammingPlansQuery: {
         data: [
@@ -45,12 +48,14 @@ const meta = {
               genProgrammingSubPlan({
                 id: FruitsSubPlanId,
                 subPlanNumber: '102',
-                label: 'Fruits et légumes'
+                label: 'Fruits et légumes',
+                stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'TRANSFORMATION']
               }),
               genProgrammingSubPlan({
                 id: CerealesSubPlanId,
                 subPlanNumber: '101',
-                label: 'Céréales'
+                label: 'Céréales',
+                stages: ['PRODUCTION_PRIMAIRE_VEGETALE']
               })
             ]
           }),
@@ -115,6 +120,10 @@ export const Default: Story = {
       'href',
       `/parametrage-des-plans/domaines/${pesticide2026.id}`
     );
+
+    await expect(
+      canvas.queryByRole('tab', { name: 'Paramétrage global' })
+    ).not.toBeInTheDocument();
   }
 };
 
@@ -159,7 +168,7 @@ export const SubPlan: Story = {
     ).toBeInTheDocument();
 
     await expect(
-      canvas.getByText('Production primaire végétale')
+      canvas.getByRole('link', { name: 'Production primaire végétale' })
     ).toHaveAttribute('href', `/parametrage-des-plans/plans/${PPVPlanId}`);
     await expect(canvas.getByTitle('Revenir au plan')).toHaveAttribute(
       'href',
@@ -169,5 +178,92 @@ export const SubPlan: Story = {
     await expect(
       canvas.getByRole('link', { current: 'page' })
     ).toHaveTextContent('101 - Céréales');
+
+    await expect(
+      canvas.getByRole('tab', { name: 'Paramétrage global' })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByText('Production primaire végétale', {
+        selector: '.fr-tag'
+      })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.queryByText('Transformation', { selector: '.fr-tag' })
+    ).not.toBeInTheDocument();
+
+    await expect(
+      canvas.getByRole('button', { name: 'Réinitialiser les modifications' })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByRole('button', { name: 'Enregistrer et terminer' })
+    ).toBeInTheDocument();
+
+    await expect(
+      canvas.getByRole('button', { name: 'Réinitialiser les modifications' })
+    ).toBeDisabled();
+
+    await userEvent.selectOptions(
+      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ }),
+      'ELEVAGE'
+    );
+    await expect(
+      canvas.getByText('Élevage', { selector: '.fr-tag' })
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Réinitialiser les modifications' })
+    );
+    await expect(
+      canvas.queryByText('Élevage', { selector: '.fr-tag' })
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.getByText('Production primaire végétale', {
+        selector: '.fr-tag'
+      })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByRole('button', { name: 'Réinitialiser les modifications' })
+    ).toBeDisabled();
+  }
+};
+
+export const SubPlanSave: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingSubPlan.mockClear();
+
+    await userEvent.selectOptions(
+      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ }),
+      'ELEVAGE'
+    );
+
+    for (const buttonLabel of [
+      'Enregistrer en brouillon',
+      'Enregistrer et terminer'
+    ]) {
+      updateProgrammingSubPlan.mockClear();
+
+      await userEvent.click(canvas.getByRole('button', { name: buttonLabel }));
+
+      await waitFor(() =>
+        expect(updateProgrammingSubPlan).toHaveBeenCalledWith({
+          programmingPlanId: PPVPlanId,
+          programmingSubPlanId: CerealesSubPlanId,
+          stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'ELEVAGE']
+        })
+      );
+    }
   }
 };

@@ -31,6 +31,7 @@ import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPla
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
+import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
@@ -165,6 +166,28 @@ export const programmingPlanRouter = {
         status: HttpStatus.OK,
         response: updatedProgrammingPlan
       };
+    }
+  },
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId': {
+    put: async ({ body }, { programmingPlanId, programmingSubPlanId }) => {
+      console.info('Update programming sub-plan', programmingSubPlanId);
+
+      const programmingSubPlan =
+        await programmingSubPlanRepository.findUnique(programmingSubPlanId);
+
+      if (
+        !programmingSubPlan ||
+        programmingSubPlan.programmingPlanId !== programmingPlanId
+      ) {
+        return { status: HttpStatus.NOT_FOUND };
+      }
+
+      await programmingSubPlanRepository.update({
+        ...programmingSubPlan,
+        stages: body.stages
+      });
+
+      return { status: HttpStatus.NO_CONTENT };
     }
   },
   '/programming-plans/:programmingPlanId/local-status': {

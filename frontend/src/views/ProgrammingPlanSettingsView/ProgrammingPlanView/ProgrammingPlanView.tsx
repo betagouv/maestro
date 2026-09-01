@@ -2,17 +2,21 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Breadcrumb from '@codegouvfr/react-dsfr/Breadcrumb';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
+import { isEqual } from 'lodash-es';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import { YearTitle } from 'src/components/YearTitle/YearTitle';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
+import { ProgrammingPlanGlobalSettings } from '../ProgrammingPlanGlobalSettings/ProgrammingPlanGlobalSettings';
 import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
 import { ProgrammingPlanSettingsBadge } from '../ProgrammingPlanSettingsBadge/ProgrammingPlanSettingsBadge';
 import { isCampaignLaunched } from '../ProgrammingPlanSettingsCard/ProgrammingPlanSettingsCard.tsx';
+import { ProgrammingSubPlanActionBar } from '../ProgrammingSubPlanActionBar/ProgrammingSubPlanActionBar';
 import { ProgrammingSubPlanList } from '../ProgrammingSubPlanList/ProgrammingSubPlanList';
 
 type Props = Record<never, never>;
@@ -29,12 +33,20 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
   const { data: domains = [] } = apiClient.useFindProgrammingPlanDomainsQuery();
   const { data: programmingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery({});
+  const [updateProgrammingSubPlan] =
+    apiClient.useUpdateProgrammingSubPlanMutation();
 
   const programmingPlan = programmingPlans.find(
     (_) => _.id === programmingPlanId
   );
   const domain = domains.find((_) => _.id === programmingPlan?.domainId);
   const subPlan = programmingPlan?.subPlans.find((_) => _.id === subPlanId);
+  const [subPlanDraft, setSubPlanDraft] = useState(subPlan);
+
+  useEffect(() => {
+    setSubPlanDraft(subPlan);
+  }, [subPlan]);
+
   const title = subPlan
     ? `${subPlan.subPlanNumber} - ${subPlan.label}`
     : programmingPlan?.title;
@@ -130,6 +142,25 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                 'Les paramètres du plan renseignés ci-dessous seront automatiquement attribués à tous ses sous-plans. Si besoin, vous pourrez ensuite modifier les sous-plans individuellement.'
               }
             />
+            {subPlanDraft && (
+              <Tabs
+                className={cx('fr-mt-3w')}
+                tabs={[
+                  {
+                    label: 'Paramétrage global',
+                    content: (
+                      <ProgrammingPlanGlobalSettings
+                        subPlan={subPlanDraft}
+                        onChange={setSubPlanDraft}
+                      />
+                    )
+                  },
+                  { label: 'Formulaire préleveur', content: <></> },
+                  { label: 'Gestion échantillons', content: <></> },
+                  { label: 'Gestion analyses', content: <></> }
+                ]}
+              />
+            )}
           </div>
         </div>
         <div className={cx('fr-col-12', 'fr-col-lg-3', 'fr-pl-0')}>
@@ -140,6 +171,19 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
           />
         </div>
       </div>
+      {subPlanDraft && (
+        <ProgrammingSubPlanActionBar
+          hasChanges={!isEqual(subPlanDraft, subPlan)}
+          onReset={() => setSubPlanDraft(subPlan)}
+          onSave={() =>
+            updateProgrammingSubPlan({
+              programmingPlanId,
+              programmingSubPlanId: subPlanDraft.id,
+              stages: subPlanDraft.stages
+            })
+          }
+        />
+      )}
     </AppPage>
   );
 };
