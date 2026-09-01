@@ -6,7 +6,6 @@ import { LaboratoriesAdminView } from './LaboratoriesAdminView/LaboratoriesAdmin
 import { LaboratoryResidueMappingsView } from './LaboratoryResidueMappingsView/LaboratoryResidueMappingsView';
 import { AdminViewDashboardNotice } from './Notice/AdminViewDashboardNotice';
 import { AdminViewRootNotice } from './Notice/AdminViewRootNotice';
-import { ProgrammingSubPlanSpecificDataView } from './ProgrammingSubPlanSpecificData/ProgrammingSubPlanSpecificDataView';
 import { SpecificDataFieldsView } from './SpecificDataFields/SpecificDataFieldsView';
 
 export const adminSections = [
@@ -26,12 +25,6 @@ export const adminSections = [
     label: 'Dictionnaire des descripteurs',
     permission: 'manageSpecificDataFields',
     content: <SpecificDataFieldsView />
-  },
-  {
-    slug: 'plans',
-    label: 'Configuration des plans',
-    permission: 'administrationMaestro',
-    content: <ProgrammingSubPlanSpecificDataView />
   },
   {
     slug: 'dai',

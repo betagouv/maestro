@@ -13,6 +13,7 @@ import { YearTitle } from 'src/components/YearTitle/YearTitle';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
 import { ProgrammingPlanGlobalSettings } from '../ProgrammingPlanGlobalSettings/ProgrammingPlanGlobalSettings';
+import { ProgrammingPlanSamplerFormSettings } from '../ProgrammingPlanSamplerFormSettings/ProgrammingPlanSamplerFormSettings';
 import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
 import { ProgrammingPlanSettingsBadge } from '../ProgrammingPlanSettingsBadge/ProgrammingPlanSettingsBadge';
 import { isCampaignLaunched } from '../ProgrammingPlanSettingsCard/ProgrammingPlanSettingsCard.tsx';
@@ -155,7 +156,15 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                       />
                     )
                   },
-                  { label: 'Formulaire préleveur', content: <></> },
+                  {
+                    label: 'Formulaire préleveur',
+                    content: (
+                      <ProgrammingPlanSamplerFormSettings
+                        programmingPlanId={programmingPlanId}
+                        programmingSubPlanId={subPlanDraft.id}
+                      />
+                    )
+                  },
                   { label: 'Gestion échantillons', content: <></> },
                   { label: 'Gestion analyses', content: <></> }
                 ]}
