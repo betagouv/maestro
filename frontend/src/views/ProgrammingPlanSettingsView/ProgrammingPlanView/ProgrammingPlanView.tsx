@@ -4,8 +4,9 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
+import { isEqual } from 'lodash-es';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import { YearTitle } from 'src/components/YearTitle/YearTitle';
@@ -38,6 +39,12 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
   );
   const domain = domains.find((_) => _.id === programmingPlan?.domainId);
   const subPlan = programmingPlan?.subPlans.find((_) => _.id === subPlanId);
+  const [subPlanDraft, setSubPlanDraft] = useState(subPlan);
+
+  useEffect(() => {
+    setSubPlanDraft(subPlan);
+  }, [subPlan]);
+
   const title = subPlan
     ? `${subPlan.subPlanNumber} - ${subPlan.label}`
     : programmingPlan?.title;
@@ -133,13 +140,18 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                 'Les paramètres du plan renseignés ci-dessous seront automatiquement attribués à tous ses sous-plans. Si besoin, vous pourrez ensuite modifier les sous-plans individuellement.'
               }
             />
-            {subPlan && (
+            {subPlanDraft && (
               <Tabs
                 className={cx('fr-mt-3w')}
                 tabs={[
                   {
                     label: 'Paramétrage global',
-                    content: <ProgrammingPlanGlobalSettings subPlan={subPlan} />
+                    content: (
+                      <ProgrammingPlanGlobalSettings
+                        subPlan={subPlanDraft}
+                        onChange={setSubPlanDraft}
+                      />
+                    )
                   },
                   { label: 'Formulaire préleveur', content: <></> },
                   { label: 'Gestion échantillons', content: <></> },
@@ -157,7 +169,12 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
           />
         </div>
       </div>
-      {subPlan && <ProgrammingSubPlanActionBar />}
+      {subPlanDraft && (
+        <ProgrammingSubPlanActionBar
+          hasChanges={!isEqual(subPlanDraft, subPlan)}
+          onReset={() => setSubPlanDraft(subPlan)}
+        />
+      )}
     </AppPage>
   );
 };

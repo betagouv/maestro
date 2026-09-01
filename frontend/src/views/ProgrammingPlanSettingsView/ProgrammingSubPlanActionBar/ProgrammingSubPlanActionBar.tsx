@@ -3,9 +3,16 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { assert, type Equals } from 'tsafe';
 import './ProgrammingSubPlanActionBar.scss';
 
-type Props = Record<never, never>;
+type Props = {
+  hasChanges: boolean;
+  onReset: () => void;
+};
 
-export const ProgrammingSubPlanActionBar = ({ ..._rest }: Props = {}) => {
+export const ProgrammingSubPlanActionBar = ({
+  hasChanges,
+  onReset,
+  ..._rest
+}: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   return (
@@ -18,7 +25,9 @@ export const ProgrammingSubPlanActionBar = ({ ..._rest }: Props = {}) => {
             {
               children: 'Réinitialiser les modifications',
               priority: 'tertiary no outline',
-              iconId: 'fr-icon-arrow-go-back-fill'
+              iconId: 'fr-icon-arrow-go-back-fill',
+              disabled: !hasChanges,
+              onClick: onReset
             },
             {
               children: 'Enregistrer en brouillon',

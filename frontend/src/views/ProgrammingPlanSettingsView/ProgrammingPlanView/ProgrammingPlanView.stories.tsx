@@ -197,5 +197,32 @@ export const SubPlan: Story = {
     await expect(
       canvas.getByRole('button', { name: 'Enregistrer et terminer' })
     ).toBeInTheDocument();
+
+    await expect(
+      canvas.getByRole('button', { name: 'Réinitialiser les modifications' })
+    ).toBeDisabled();
+
+    await userEvent.selectOptions(
+      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ }),
+      'ELEVAGE'
+    );
+    await expect(
+      canvas.getByText('Élevage', { selector: '.fr-tag' })
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Réinitialiser les modifications' })
+    );
+    await expect(
+      canvas.queryByText('Élevage', { selector: '.fr-tag' })
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.getByText('Production primaire végétale', {
+        selector: '.fr-tag'
+      })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByRole('button', { name: 'Réinitialiser les modifications' })
+    ).toBeDisabled();
   }
 };
