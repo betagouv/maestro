@@ -132,6 +132,7 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
   }, {} as ApiClient);
 };
 const defaultMockApiClientConf: MockApi = {
+  useImportPrescriptionsMutation: [fn(), {}],
   useAddPrescriptionMutation: [fn(), {}],
   useAuthenticateMutation: [fn(), {}],
   useCommentLocalPrescriptionMutation: [fn(), {}],

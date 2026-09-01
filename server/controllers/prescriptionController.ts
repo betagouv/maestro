@@ -1,4 +1,4 @@
-import { uniq } from 'lodash-es';
+import { sumBy, uniq } from 'lodash-es';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { type Stage, StageList } from 'maestro-shared/referential/Stage';
 import {
@@ -6,6 +6,7 @@ import {
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   editingEchelonForRole,
@@ -25,6 +26,7 @@ import programmingPlanRepository from '../repositories/programmingPlanRepository
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
+import { parsePrescriptionImportFile } from '../services/prescriptionImportService';
 import { withEffectiveLocalPrescriptionChanges } from './localPrescriptionController';
 
 const withPendingPrescriptionChanges = async (
@@ -46,6 +48,39 @@ const withPendingPrescriptionChanges = async (
       ? { ...prescription, sampleCount: pending.sampleCount }
       : prescription;
   });
+};
+
+const prescriptionsBySubPlanNumberOf = async (
+  programmingPlans: ProgrammingPlanChecked[]
+): Promise<Map<string, Prescription[]>> => {
+  const subPlanNumberById = new Map(
+    programmingPlans.flatMap((programmingPlan) =>
+      programmingPlan.subPlans.map(
+        (subPlan) => [subPlan.id, subPlan.subPlanNumber] as const
+      )
+    )
+  );
+
+  const prescriptions = await prescriptionRepository.findMany({
+    programmingPlanIds: programmingPlans.map(
+      (programmingPlan) => programmingPlan.id
+    )
+  });
+
+  const bySubPlanNumber = new Map<string, Prescription[]>();
+  for (const prescription of prescriptions) {
+    const subPlanNumber = subPlanNumberById.get(
+      prescription.programmingSubPlanId
+    );
+    if (!subPlanNumber) {
+      continue;
+    }
+    bySubPlanNumber.set(subPlanNumber, [
+      ...(bySubPlanNumber.get(subPlanNumber) ?? []),
+      prescription
+    ]);
+  }
+  return bySubPlanNumber;
 };
 
 export const prescriptionsRouter = {
@@ -126,6 +161,118 @@ export const prescriptionsRouter = {
       return {
         status: HttpStatus.CREATED,
         response: createdPrescription
+      };
+    }
+  },
+  '/prescriptions/import': {
+    post: async ({ userRole, body }) => {
+      console.info('Import prescriptions for year', body.year);
+
+      const programmingPlans = await programmingPlanRepository.findMany({
+        year: body.year
+      });
+
+      if (
+        programmingPlans.length === 0 ||
+        programmingPlans.every(
+          (programmingPlan) =>
+            !hasPrescriptionPermission(userRole, programmingPlan).update
+        )
+      ) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
+
+      const { cells, unrecognized } = parsePrescriptionImportFile(
+        Buffer.from(body.content, 'base64'),
+        body.filename
+      );
+
+      const prescriptionsBySubPlanNumber =
+        await prescriptionsBySubPlanNumberOf(programmingPlans);
+
+      const now = new Date();
+      const importedPrescriptionIds = new Set<string>();
+      let importedCellCount = 0;
+
+      for (const cell of cells) {
+        const matching = prescriptionsBySubPlanNumber.get(cell.subPlanNumber);
+
+        if (matching?.length !== 1) {
+          unrecognized.push(`Ligne ${cell.rowNumber}`);
+          continue;
+        }
+
+        const [prescription] = matching;
+        const localPrescription = await localPrescriptionRepository.findUnique({
+          prescriptionId: prescription.id,
+          region: cell.region
+        });
+
+        if (!localPrescription) {
+          unrecognized.push(`Ligne ${cell.rowNumber}`);
+          continue;
+        }
+
+        await localPrescriptionChangeRepository.insert({
+          prescriptionId: prescription.id,
+          region: cell.region,
+          echelon: 'National',
+          kind: 'sampleCount',
+          sampleCount: cell.sampleCount,
+          previousSampleCount: localPrescription.sampleCount,
+          changedAt: now
+        });
+
+        importedPrescriptionIds.add(prescription.id);
+        importedCellCount += 1;
+      }
+
+      for (const prescriptionId of importedPrescriptionIds) {
+        const { prescription } = await getAndCheckPrescription(
+          prescriptionId,
+          undefined
+        );
+        const localPrescriptions = await localPrescriptionRepository.findMany({
+          prescriptionId
+        });
+        const importedByRegion = new Map(
+          cells
+            .filter(
+              (cell) =>
+                prescriptionsBySubPlanNumber.get(cell.subPlanNumber)?.at(0)
+                  ?.id === prescriptionId
+            )
+            .map((cell) => [cell.region, cell.sampleCount])
+        );
+
+        await prescriptionChangeRepository.insert({
+          prescriptionId,
+          sampleCount: sumBy(
+            localPrescriptions,
+            (localPrescription) =>
+              importedByRegion.get(localPrescription.region) ??
+              localPrescription.sampleCount
+          ),
+          previousSampleCount: prescription.sampleCount,
+          changedAt: now
+        });
+      }
+
+      if (importedPrescriptionIds.size > 0) {
+        await Promise.all(
+          uniq(
+            programmingPlans.map((programmingPlan) => programmingPlan.id)
+          ).map((programmingPlanId) =>
+            programmingPlanRepository.touchNationalLastModifiedAt(
+              programmingPlanId
+            )
+          )
+        );
+      }
+
+      return {
+        status: HttpStatus.OK,
+        response: { importedCellCount, unrecognized: uniq(unrecognized) }
       };
     }
   },

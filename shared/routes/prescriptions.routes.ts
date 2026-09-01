@@ -18,6 +18,10 @@ import {
   PrescriptionToCreate,
   PrescriptionUpdate
 } from '../schema/Prescription/Prescription';
+import {
+  PrescriptionImportFile,
+  PrescriptionImportResult
+} from '../schema/Prescription/PrescriptionImport';
 import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
 import type { SubRoutes } from './routes';
 
@@ -57,6 +61,14 @@ export const prescriptionsRoutes = {
       query: FindPrescriptionOptions.omit({ includes: true }),
       permissions: ['readPrescriptions'],
       response: z.custom<Buffer>()
+    }
+  },
+  '/prescriptions/import': {
+    params: undefined,
+    post: {
+      body: PrescriptionImportFile,
+      permissions: ['updatePrescription'],
+      response: PrescriptionImportResult
     }
   },
   '/prescriptions/regions': {

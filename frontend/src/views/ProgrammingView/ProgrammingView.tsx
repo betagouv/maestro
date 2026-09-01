@@ -174,11 +174,16 @@ const ProgrammingView = () => {
 
   const filteredProgrammingPlans = useMemo(
     () =>
-      (programmingPlans ?? []).filter(
-        (plan) =>
-          !prescriptionFilters.programmingPlanIds?.length ||
-          prescriptionFilters.programmingPlanIds.includes(plan.id)
-      ),
+      (programmingPlans ?? [])
+        .filter(
+          (plan) =>
+            !prescriptionFilters.year || plan.year === prescriptionFilters.year
+        )
+        .filter(
+          (plan) =>
+            !prescriptionFilters.programmingPlanIds?.length ||
+            prescriptionFilters.programmingPlanIds.includes(plan.id)
+        ),
     [prescriptionFilters, programmingPlans]
   );
 

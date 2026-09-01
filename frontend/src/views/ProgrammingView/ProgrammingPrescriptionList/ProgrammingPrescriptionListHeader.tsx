@@ -22,6 +22,7 @@ interface Props {
   localPrescriptions: LocalPrescription[];
   region?: Region;
   exportURL: string;
+  onImport?: () => void;
 }
 
 const ProgrammingPrescriptionListHeader = ({
@@ -29,7 +30,8 @@ const ProgrammingPrescriptionListHeader = ({
   prescriptions,
   localPrescriptions,
   region,
-  exportURL
+  exportURL,
+  onImport
 }: Props) => {
   const dispatch = useAppDispatch();
   const { isMobile } = useWindowSize();
@@ -53,6 +55,15 @@ const ProgrammingPrescriptionListHeader = ({
         <h4 className={clsx(cx('fr-mb-0'), 'flex-grow-1')}>
           {t('plannedSample', { count: sampleCount ?? 0 })}
         </h4>
+        {onImport && (
+          <Button
+            iconId="fr-icon-upload-line"
+            priority="secondary"
+            onClick={onImport}
+            title="Importer"
+            size={isMobile ? 'small' : 'medium'}
+          />
+        )}
         <Button
           iconId="fr-icon-file-download-line"
           priority="secondary"

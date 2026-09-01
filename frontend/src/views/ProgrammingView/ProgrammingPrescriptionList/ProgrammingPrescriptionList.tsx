@@ -1,3 +1,4 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
@@ -27,6 +28,7 @@ import {
   PrescriptionSort,
   type PrescriptionUpdate
 } from 'maestro-shared/schema/Prescription/Prescription';
+import type { PrescriptionImportResult } from 'maestro-shared/schema/Prescription/PrescriptionImport';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import {
@@ -43,6 +45,9 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { usePrescriptionFilters } from 'src/hooks/usePrescriptionFilters';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
+import PrescriptionImportModal, {
+  prescriptionImportModal
+} from 'src/views/ProgrammingView/ProgrammingPrescriptionList/PrescriptionImportModal';
 import ProgrammingPrescriptionListHeader from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListHeader';
 import { assert, type Equals } from 'tsafe';
 import LocalPrescriptionModal from '../../../components/LocalPrescription/LocalPrescriptionModal/LocalPrescriptionModal';
@@ -120,6 +125,11 @@ const ProgrammingPrescriptionList = ({
     useState<Map<string, number>>(new Map());
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [importResult, setImportResult] = useState<
+    PrescriptionImportResult | undefined
+  >(undefined);
+
+  const canImport = hasNationalView && hasUserPermission('updatePrescription');
 
   const hasPendingChanges =
     pendingLocalChanges.size > 0 ||
@@ -185,6 +195,7 @@ const ProgrammingPrescriptionList = ({
   const findPrescriptionCountsOptions = useMemo(
     () => ({
       programmingPlanIds: planIds,
+      year: prescriptionFilters.year,
       programmingSubPlanIds: prescriptionFilters.programmingSubPlanIds,
       programmingPlanDomainIds: prescriptionFilters.programmingPlanDomainIds,
       contexts: prescriptionFilters.outsideProgrammingPlan
@@ -800,6 +811,38 @@ const ProgrammingPrescriptionList = ({
 
   return (
     <>
+      {canImport && prescriptionFilters.year && (
+        <PrescriptionImportModal
+          year={prescriptionFilters.year}
+          onImported={setImportResult}
+        />
+      )}
+      <AppToast
+        open={importResult?.unrecognized.length === 0}
+        description="Votre fichier a été importé avec succès."
+        onClose={() => setImportResult(undefined)}
+      />
+      {importResult && importResult.unrecognized.length > 0 && (
+        <div className={cx('fr-container', 'fr-px-5w', 'fr-mb-2w')}>
+          <Alert
+            severity="warning"
+            closable
+            onClose={() => setImportResult(undefined)}
+            title="Vos fichier a été importé partiellement."
+            description={
+              <>
+                Les données suivantes n’ont pas pu être importées car Maestro ne
+                les a pas reconnues :
+                <ul>
+                  {importResult.unrecognized.map((label) => (
+                    <li key={label}>{label}</li>
+                  ))}
+                </ul>
+              </>
+            }
+          />
+        </div>
+      )}
       <AppToast open={isAddSuccess} description="Matrice ajoutée" />
       <AppToast
         open={saveSuccess}
@@ -819,6 +862,9 @@ const ProgrammingPrescriptionList = ({
                 '/prescriptions/export',
                 exportPrescriptionOptions
               )}
+              onImport={
+                canImport ? () => prescriptionImportModal.open() : undefined
+              }
             />
           }
           <ProgrammingPrescriptionFilters
