@@ -103,17 +103,7 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
         // @ts-expect-error TS7053
         mockApi[key][1]
       ];
-    } else if (
-      key.startsWith('useAdd') ||
-      key.startsWith('useCreate') ||
-      key.startsWith('useComment') ||
-      key.startsWith('useUpdate') ||
-      key.startsWith('useDelete') ||
-      key.startsWith('useMark') ||
-      key.startsWith('useMascarade') ||
-      key.startsWith('useReplay') ||
-      key.startsWith('useSend')
-    ) {
+    } else if (key.endsWith('Mutation')) {
       // @ts-expect-error TS7053
       acc[key] = () => [
         (arg?: any) => {

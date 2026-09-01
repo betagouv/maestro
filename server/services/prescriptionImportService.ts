@@ -6,14 +6,14 @@ import {
   Regions
 } from 'maestro-shared/referential/Region';
 
-export interface ImportedCell {
+interface ImportedCell {
   rowNumber: number;
   subPlanNumber: string;
   region: Region;
   sampleCount: number;
 }
 
-export interface ParsedImportFile {
+interface ParsedImportFile {
   cells: ImportedCell[];
   unrecognized: string[];
 }
