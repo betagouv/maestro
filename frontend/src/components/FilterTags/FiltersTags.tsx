@@ -187,10 +187,6 @@ const filtersConfig = {
         onChange
       )
   },
-  matrixQuery: {
-    prop: 'matrixQuery',
-    getLabel: (value) => (value ? `Matrice : ${value}` : null)
-  },
   compliance: {
     prop: 'compliance',
     getLabel: (value) => SampleComplianceLabels[value]

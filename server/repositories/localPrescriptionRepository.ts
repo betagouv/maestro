@@ -11,7 +11,7 @@ import {
   type LocalPrescriptionKeyString,
   toLocalPrescriptionKeyString
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
-import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
+import type { PendingChangeVisibility } from 'maestro-shared/schema/User/UserRole';
 import { z } from 'zod';
 import { knexInstance as db } from './db';
 import { LocalPrescriptionChanges } from './localPrescriptionChangeRepository';
@@ -33,14 +33,9 @@ type LocalPrescriptionsDbo = z.infer<typeof LocalPrescriptionsDbo>;
 export const LocalPrescriptions = (transaction = db) =>
   transaction<LocalPrescriptionsDbo>(localPrescriptionsTable);
 
-interface LocalPrescriptionViewer {
-  echelon: ProgrammingPlanEchelon | null;
-  seesUnappliedChanges: boolean;
-}
-
 const findPendingChanges = async (
   prescriptionIds: string[],
-  viewer?: LocalPrescriptionViewer
+  visibility?: PendingChangeVisibility
 ): Promise<
   Map<
     LocalPrescriptionKeyString,
@@ -63,10 +58,10 @@ const findPendingChanges = async (
     .whereIn('prescriptionId', prescriptionIds)
     .andWhere({ kind: 'sampleCount' })
     .modify((query) => {
-      if (viewer?.echelon) {
-        query.whereNot({ echelon: viewer.echelon });
+      if (visibility?.echelon) {
+        query.whereNot({ echelon: visibility.echelon });
       }
-      if (!viewer?.seesUnappliedChanges) {
+      if (!visibility?.seesUnappliedChanges) {
         query.whereNotNull('appliedAt');
       }
     })
@@ -93,11 +88,11 @@ const findPendingChanges = async (
 
 const withPendingChanges = async (
   localPrescriptions: LocalPrescription[],
-  viewer?: LocalPrescriptionViewer
+  visibility?: PendingChangeVisibility
 ): Promise<LocalPrescription[]> => {
   const pendingByKey = await findPendingChanges(
     uniq(localPrescriptions.map((_) => _.prescriptionId)),
-    viewer
+    visibility
   );
   return localPrescriptions.map((localPrescription) => {
     const pending = pendingByKey.get(
@@ -138,7 +133,7 @@ const findUnique = async ({
 
 const findMany = async (
   findOptions: FindLocalPrescriptionOptions,
-  viewer?: LocalPrescriptionViewer
+  visibility?: PendingChangeVisibility
 ): Promise<LocalPrescription[]> => {
   console.info('Find local prescriptions', omitBy(findOptions, isNil));
   return LocalPrescriptions()
@@ -225,7 +220,7 @@ const findMany = async (
       if (!findOptions.includes?.includes('pendingChanges')) {
         return localPrescriptions;
       }
-      return withPendingChanges(localPrescriptions, viewer);
+      return withPendingChanges(localPrescriptions, visibility);
     });
 };
 

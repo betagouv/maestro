@@ -1,10 +1,17 @@
+import { uniq } from 'lodash-es';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
+import { type Stage, StageList } from 'maestro-shared/referential/Stage';
 import {
   hasPrescriptionPermission,
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { editingEchelonForRole } from 'maestro-shared/schema/User/UserRole';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  editingEchelonForRole,
+  pendingChangeVisibilityForRole
+} from 'maestro-shared/schema/User/UserRole';
+import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckPrescription } from '../middlewares/checks/prescriptionCheck';
@@ -15,6 +22,7 @@ import prescriptionChangeRepository from '../repositories/prescriptionChangeRepo
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
+import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
 import { withEffectiveLocalPrescriptionChanges } from './localPrescriptionController';
@@ -45,7 +53,10 @@ export const prescriptionsRouter = {
     get: async ({ userRole, query: findOptions }) => {
       console.info('Find prescriptions', findOptions);
 
-      const prescriptions = await prescriptionRepository.findMany(findOptions);
+      const prescriptions = await prescriptionRepository.findMany(
+        findOptions,
+        pendingChangeVisibilityForRole(userRole)
+      );
 
       return {
         status: HttpStatus.OK,
@@ -118,14 +129,58 @@ export const prescriptionsRouter = {
       };
     }
   },
+  '/prescriptions/counts': {
+    get: async ({ userRole, query: findOptions }) => {
+      console.info('Count prescriptions', findOptions);
+
+      const rows = await prescriptionRepository.findCounts(
+        findOptions,
+        pendingChangeVisibilityForRole(userRole)
+      );
+
+      const subPlans = await programmingSubPlanRepository.findMany({
+        ids: uniq(rows.map((row) => row.subPlanId))
+      });
+      const stagesBySubPlanId = new Map<ProgrammingSubPlanId, Stage[]>(
+        subPlans.map((subPlan) => [subPlan.id, subPlan.stages])
+      );
+
+      const countByStage = new Map<Stage, number>();
+      for (const row of rows) {
+        for (const stage of stagesBySubPlanId.get(row.subPlanId) ?? []) {
+          countByStage.set(stage, (countByStage.get(stage) ?? 0) + 1);
+        }
+      }
+
+      return {
+        status: HttpStatus.OK,
+        response: {
+          stageCounts: StageList.filter((stage) => countByStage.has(stage)).map(
+            (stage) => ({
+              stage,
+              count: countByStage.get(stage) as number
+            })
+          ),
+          matrixKinds: uniq(rows.map((row) => row.matrixKind))
+        }
+      };
+    }
+  },
   '/prescriptions/export': {
     get: async (
       { user, userRole, query: queryFindOptions },
       _params,
       response
     ) => {
-      const programmingPlan = await getAndCheckProgrammingPlan(
-        queryFindOptions.programmingPlanId
+      const exportedPlanIds = uniq(
+        [
+          ...(queryFindOptions.programmingPlanIds ?? []),
+          queryFindOptions.programmingPlanId
+        ].filter(isDefinedAndNotNull)
+      );
+
+      const programmingPlans = await Promise.all(
+        exportedPlanIds.map((planId) => getAndCheckProgrammingPlan(planId))
       );
       const exportedRegion = user.region ?? undefined;
       const exportedDepartment = user.department ?? undefined;
@@ -139,14 +194,15 @@ export const prescriptionsRouter = {
       console.info('Export prescriptions', user.id, findOptions);
 
       const prescriptions = await withPendingPrescriptionChanges(
-        await prescriptionRepository.findMany(queryFindOptions),
+        await prescriptionRepository.findMany(
+          findOptions,
+          pendingChangeVisibilityForRole(userRole)
+        ),
         userRole
       );
       const localPrescriptions = await withEffectiveLocalPrescriptionChanges(
         await localPrescriptionRepository.findMany({
-          programmingPlanIds: queryFindOptions.programmingPlanId
-            ? [queryFindOptions.programmingPlanId]
-            : undefined,
+          programmingPlanIds: exportedPlanIds,
           contexts: queryFindOptions.contexts,
           region: exportedRegion,
           department: exportedDepartment,
@@ -164,7 +220,7 @@ export const prescriptionsRouter = {
       }.xlsx`;
 
       const buffer = await excelService.generatePrescriptionsExportExcel(
-        programmingPlan,
+        programmingPlans,
         prescriptions,
         localPrescriptions,
         exportedRegion,

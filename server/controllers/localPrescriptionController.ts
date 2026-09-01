@@ -18,6 +18,7 @@ import {
   editingEchelonForRole,
   isNationalRole,
   isRegionalRole,
+  pendingChangeVisibilityForRole,
   seesUnappliedLocalPrescriptionChanges,
   type UserRole
 } from 'maestro-shared/schema/User/UserRole';
@@ -128,10 +129,7 @@ export const localPrescriptionsRouter = {
 
       const liveLocalPrescriptions = await localPrescriptionRepository.findMany(
         findOptions,
-        {
-          echelon: editingEchelonForRole(userRole),
-          seesUnappliedChanges: seesUnappliedLocalPrescriptionChanges(userRole)
-        }
+        pendingChangeVisibilityForRole(userRole)
       );
 
       const localPrescriptions = await withEffectiveLocalPrescriptionChanges(

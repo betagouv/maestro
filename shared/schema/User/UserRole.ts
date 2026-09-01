@@ -255,6 +255,18 @@ export const seesUnappliedLocalPrescriptionChanges = (
     userRole
   );
 
+export interface PendingChangeVisibility {
+  echelon: ProgrammingPlanEchelon | null;
+  seesUnappliedChanges: boolean;
+}
+
+export const pendingChangeVisibilityForRole = (
+  userRole: UserRole
+): PendingChangeVisibility => ({
+  echelon: editingEchelonForRole(userRole),
+  seesUnappliedChanges: seesUnappliedLocalPrescriptionChanges(userRole)
+});
+
 export const canHaveDepartment = (
   user: Nullable<Pick<UserRefined, 'roles'>>
 ): user is {

@@ -6,7 +6,6 @@ import clsx from 'clsx';
 import { isEmpty, isNil, mapValues, max, omitBy } from 'lodash-es';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
-import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
 import type { Stage } from 'maestro-shared/referential/Stage';
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
@@ -157,9 +156,6 @@ const ProgrammingView = () => {
             (searchParams
               .get('programmingPlanDomainIds')
               ?.split(',') as ProgrammingPlanDomainId[]) ?? undefined,
-          matrixKinds:
-            (searchParams.get('matrixKinds')?.split(',') as MatrixKind[]) ??
-            undefined,
           matrices:
             (searchParams.get('matrices')?.split(',') as Matrix[]) ?? undefined,
           coordinatorIds:
@@ -170,8 +166,7 @@ const ProgrammingView = () => {
             searchParams.get('outsideProgrammingPlan') === 'true'
               ? true
               : undefined,
-          stage: (searchParams.get('stage') as Stage) ?? undefined,
-          matrixQuery: searchParams.get('matrixQuery') ?? undefined
+          stage: (searchParams.get('stage') as Stage) ?? undefined
         })
       )
     );

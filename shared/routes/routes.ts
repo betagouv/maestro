@@ -50,6 +50,7 @@ export const MaestroRoutes = [
   '/notifications/:notificationId',
   '/notices/:type',
   '/prescriptions',
+  '/prescriptions/counts',
   '/prescriptions/export',
   '/prescriptions/regions',
   '/prescriptions/regions/:region/changes-viewed',

@@ -35,6 +35,7 @@ interface Props {
     plans: ProgrammingPlanChecked[];
     programmingSubPlanIds: ProgrammingSubPlanId[];
     matrixKinds: MatrixKind[];
+    contexts: ProgrammingPlanContext[];
   };
   stageCounts: { stage: Stage; count: number }[];
   filters: PrescriptionFilters;
@@ -198,7 +199,9 @@ const ProgrammingPrescriptionFilters = ({
         <AppCheckboxSelect
           label="Contexte"
           options={[
-            ...ProgrammingPlanContextList.map((context) => ({
+            ...ProgrammingPlanContextList.filter((context) =>
+              options.contexts.includes(context)
+            ).map((context) => ({
               label: ContextLabels[context],
               value: context as string
             })),

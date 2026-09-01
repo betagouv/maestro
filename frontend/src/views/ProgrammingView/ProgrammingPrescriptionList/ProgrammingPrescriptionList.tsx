@@ -1,21 +1,9 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import {
-  groupBy,
-  intersection,
-  isEmpty,
-  isNil,
-  mapValues,
-  omitBy,
-  sumBy,
-  uniq
-} from 'lodash-es';
+import { groupBy, isEmpty, isNil, mapValues, omit, omitBy } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
-import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import type { Region } from 'maestro-shared/referential/Region';
-import { StageList } from 'maestro-shared/referential/Stage';
 import type { Company } from 'maestro-shared/schema/Company/Company';
 import {
   filteredLocalPrescriptions,
@@ -146,8 +134,12 @@ const ProgrammingPrescriptionList = ({
   const [updateDepartmentalLocalPrescription] =
     apiClient.useUpdateDepartmentalLocalPrescriptionMutation();
 
-  const { programmingPlanOptions, programmingSubPlanOptions, reduceFilters } =
-    usePrescriptionFilters(programmingPlans);
+  const {
+    programmingPlanOptions,
+    programmingSubPlanOptions,
+    contextOptions,
+    reduceFilters
+  } = usePrescriptionFilters(programmingPlans);
 
   const changeFilter = useCallback(
     (findFilter: Partial<typeof prescriptionFilters>) => {
@@ -190,28 +182,38 @@ const ProgrammingPrescriptionList = ({
     [programmingPlans]
   );
 
-  const findPrescriptionOptions = useMemo(
+  const findPrescriptionCountsOptions = useMemo(
     () => ({
-      programmingPlanId:
-        programmingPlans.length === 1 ? programmingPlans[0].id : undefined,
-      year:
-        programmingPlans.length !== 1 ? prescriptionFilters.year : undefined,
+      programmingPlanIds: planIds,
       programmingSubPlanIds: prescriptionFilters.programmingSubPlanIds,
+      programmingPlanDomainIds: prescriptionFilters.programmingPlanDomainIds,
       contexts: prescriptionFilters.outsideProgrammingPlan
         ? undefined
         : prescriptionFilters.contexts,
+      matrices: prescriptionFilters.matrices,
+      coordinatorIds: prescriptionFilters.coordinatorIds,
+      laboratoryIds: prescriptionFilters.laboratoryIds,
+      missingSlaughterhouse: prescriptionFilters.missingSlaughterhouse,
+      missingLaboratory: prescriptionFilters.missingLaboratory,
+      withSampleCountOnly: !hasNationalView,
       region,
+      department
+    }),
+    [planIds, prescriptionFilters, region, department, hasNationalView]
+  );
+
+  const findPrescriptionOptions = useMemo(
+    () => ({
+      ...findPrescriptionCountsOptions,
+      subPlanStage: prescriptionFilters.stage,
       includes: ['substanceCount' as const]
     }),
-    [programmingPlans, prescriptionFilters, region]
+    [findPrescriptionCountsOptions, prescriptionFilters.stage]
   );
 
   const exportPrescriptionOptions = useMemo(
-    () => ({
-      ...findPrescriptionOptions,
-      programmingPlanId: programmingPlans[0].id
-    }),
-    [findPrescriptionOptions, programmingPlans]
+    () => omit(findPrescriptionOptions, 'includes'),
+    [findPrescriptionOptions]
   );
 
   const {
@@ -219,7 +221,9 @@ const ProgrammingPrescriptionList = ({
     refetch: refetchPrescriptions,
     isUninitialized: isPrescriptionsUninitialized
   } = apiClient.useFindPrescriptionsQuery(findPrescriptionOptions, {
-    skip: !FindPrescriptionOptions.safeParse(findPrescriptionOptions).success
+    skip:
+      !planIds.length ||
+      !FindPrescriptionOptions.safeParse(findPrescriptionOptions).success
   });
 
   const { data: departmentCompanies } = apiClient.useFindCompaniesQuery(
@@ -321,194 +325,24 @@ const ProgrammingPrescriptionList = ({
     return [...existing, ...pendingOnly];
   }, [allLocalPrescriptions, pendingLocalChanges, pendingLaboratoryChanges]);
 
-  const editedPrescriptionIds = useMemo(
-    () =>
-      new Set(
-        Array.from(pendingLocalChanges.values()).map(
-          ({ key }) => key.prescriptionId
-        )
-      ),
-    [pendingLocalChanges]
-  );
-
-  const { data: coordinators } = apiClient.useFindUsersQuery(
-    { roles: ['NationalCoordinator'], disabled: false },
-    { skip: !prescriptionFilters.coordinatorIds?.length }
-  );
-
-  const subPlanById = useMemo(
-    () =>
-      new Map(
-        programmingPlans
-          .flatMap((plan) => plan.subPlans)
-          .map((subPlan) => [subPlan.id, subPlan])
-      ),
-    [programmingPlans]
-  );
-
-  const coordinatorSubPlanIds = useMemo(() => {
-    if (!prescriptionFilters.coordinatorIds?.length) {
-      return undefined;
-    }
-    const coordinatorStages = uniq(
-      (coordinators ?? [])
-        .filter((coordinator) =>
-          prescriptionFilters.coordinatorIds?.includes(coordinator.id)
-        )
-        .flatMap((coordinator) => coordinator.stages)
-    );
-    return new Set(
-      Array.from(subPlanById.values())
-        .filter(
-          (subPlan) =>
-            intersection(subPlan.stages, coordinatorStages).length > 0
-        )
-        .map((subPlan) => subPlan.id)
-    );
-  }, [prescriptionFilters.coordinatorIds, coordinators, subPlanById]);
-
-  const prescriptionsBeforeStageFilter = useMemo(() => {
-    return allPrescriptionsWithPending
-      ?.filter((p) => planIds.includes(p.programmingPlanId))
-      .filter((p) => {
-        const plan = programmingPlans.find((_) => _.id === p.programmingPlanId);
-        return (
-          !prescriptionFilters.programmingPlanDomainIds?.length ||
-          (!isNil(plan?.domainId) &&
-            prescriptionFilters.programmingPlanDomainIds.includes(
-              plan.domainId
-            ))
-        );
-      })
-      .filter((p) =>
-        prescriptionFilters.matrixKinds?.length
-          ? prescriptionFilters.matrixKinds.includes(p.matrixKind)
-          : true
-      )
-      .filter((p) =>
-        prescriptionFilters.matrices?.length
-          ? prescriptionFilters.matrices.some((matrix) =>
-              MatrixListByKind[p.matrixKind].includes(matrix)
-            )
-          : true
-      )
-      .filter((p) => {
-        if (!prescriptionFilters.outsideProgrammingPlan) {
-          return true;
-        }
-        const plan = programmingPlans.find((_) => _.id === p.programmingPlanId);
-        return (
-          plan?.samplesOutsidePlanAllowed === true ||
-          (prescriptionFilters.contexts ?? []).includes(p.context)
-        );
-      })
-      .filter((p) =>
-        coordinatorSubPlanIds
-          ? coordinatorSubPlanIds.has(p.programmingSubPlanId)
-          : true
-      )
-      .filter((p) =>
-        prescriptionFilters.laboratoryIds?.length
-          ? (allLocalPrescriptionsWithPending ?? []).some(
-              (_) =>
-                _.prescriptionId === p.id &&
-                (_.substanceKindsLaboratories ?? []).some(
-                  (substanceKindsLaboratory) =>
-                    !isNil(substanceKindsLaboratory.laboratoryId) &&
-                    prescriptionFilters.laboratoryIds?.includes(
-                      substanceKindsLaboratory.laboratoryId
-                    )
-                )
-            )
-          : true
-      )
-      .filter((p) =>
-        prescriptionFilters.matrixQuery
-          ? MatrixKindLabels[p.matrixKind]
-              .toLowerCase()
-              .includes(prescriptionFilters.matrixQuery.toLowerCase())
-          : true
-      )
-      .filter((p) =>
-        prescriptionFilters.missingSlaughterhouse
-          ? (allLocalPrescriptionsWithPending?.find(
-              (_) => _.prescriptionId === p.id && isNil(_.companySiret)
-            )?.sampleCount ?? 0) >
-            sumBy(
-              allLocalPrescriptionsWithPending?.filter(
-                (_) => _.prescriptionId === p.id && !isNil(_.companySiret)
-              ),
-              'sampleCount'
-            )
-          : true
-      )
-      .filter((p) =>
-        prescriptionFilters.missingLaboratory
-          ? (allLocalPrescriptionsWithPending ?? []).some(
-              (_) =>
-                _.prescriptionId === p.id &&
-                isNil(_.companySiret) &&
-                ((_.substanceKindsLaboratories ?? []).length === 0 ||
-                  _.substanceKindsLaboratories?.some(
-                    (substanceKindsLaboratory) =>
-                      isNil(substanceKindsLaboratory.laboratoryId)
-                  ))
-            )
-          : true
-      )
-      .filter(
-        (p) =>
-          hasNationalView ||
-          allLocalPrescriptionsWithPending?.some(
-            (_) =>
-              _.prescriptionId === p.id &&
-              (_.sampleCount > 0 || _.hasUnappliedChange === true)
-          ) ||
-          editedPrescriptionIds.has(p.id)
-      )
-      .sort(PrescriptionSort);
-  }, [
-    allPrescriptionsWithPending,
-    planIds,
-    prescriptionFilters,
-    allLocalPrescriptionsWithPending,
-    hasNationalView,
-    editedPrescriptionIds,
-    programmingPlans,
-    coordinatorSubPlanIds
-  ]);
-
-  const stageCounts = useMemo(
-    () =>
-      StageList.map((stage) => ({
-        stage,
-        count: (prescriptionsBeforeStageFilter ?? []).filter((p) =>
-          subPlanById.get(p.programmingSubPlanId)?.stages.includes(stage)
-        ).length
-      })).filter(({ count }) => count > 0),
-    [prescriptionsBeforeStageFilter, subPlanById]
+  const { data: prescriptionCounts } = apiClient.useFindPrescriptionCountsQuery(
+    findPrescriptionCountsOptions,
+    { skip: !planIds.length }
   );
 
   const prescriptions = useMemo(
-    () =>
-      prescriptionsBeforeStageFilter?.filter((p) =>
-        prescriptionFilters.stage
-          ? subPlanById
-              .get(p.programmingSubPlanId)
-              ?.stages.includes(prescriptionFilters.stage)
-          : true
-      ),
-    [prescriptionsBeforeStageFilter, prescriptionFilters.stage, subPlanById]
+    () => allPrescriptionsWithPending?.toSorted(PrescriptionSort),
+    [allPrescriptionsWithPending]
+  );
+
+  const stageCounts = useMemo(
+    () => prescriptionCounts?.stageCounts ?? [],
+    [prescriptionCounts]
   );
 
   const matrixKindOptions = useMemo(
-    () =>
-      uniq(
-        (allPrescriptionsWithPending ?? [])
-          .filter((p) => planIds.includes(p.programmingPlanId))
-          .map((p) => p.matrixKind)
-      ),
-    [allPrescriptionsWithPending, planIds]
+    () => prescriptionCounts?.matrixKinds ?? [],
+    [prescriptionCounts]
   );
 
   const localPrescriptions = useMemo(
@@ -992,7 +826,8 @@ const ProgrammingPrescriptionList = ({
               plans: programmingPlanOptions(prescriptionFilters),
               programmingSubPlanIds:
                 programmingSubPlanOptions(prescriptionFilters),
-              matrixKinds: matrixKindOptions
+              matrixKinds: matrixKindOptions,
+              contexts: contextOptions(prescriptionFilters)
             }}
             stageCounts={stageCounts}
             filters={prescriptionFilters}

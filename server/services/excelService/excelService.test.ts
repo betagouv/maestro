@@ -42,7 +42,7 @@ const localPrescriptions = [
 describe('generatePrescriptionsExportExcel', async () => {
   test('export prescription for national coordinator', async () => {
     const buffer = await excelService.generatePrescriptionsExportExcel(
-      DAOAInProgressProgrammingPlanFixture,
+      [DAOAInProgressProgrammingPlanFixture],
       prescriptions,
       localPrescriptions.filter((_) => isNil(_.department)),
       undefined,
@@ -122,7 +122,7 @@ describe('generatePrescriptionsExportExcel', async () => {
   test('export prescription for regional coordinator', async () => {
     const regionPDL = '52';
     const buffer = await excelService.generatePrescriptionsExportExcel(
-      DAOAInProgressProgrammingPlanFixture,
+      [DAOAInProgressProgrammingPlanFixture],
       prescriptions,
       localPrescriptions.filter((_) => _.region === regionPDL),
       regionPDL,
@@ -170,7 +170,7 @@ describe('generatePrescriptionsExportExcel', async () => {
     const regionPDL = '52';
     const department = '85';
     const buffer = await excelService.generatePrescriptionsExportExcel(
-      DAOAInProgressProgrammingPlanFixture,
+      [DAOAInProgressProgrammingPlanFixture],
       prescriptions,
       localPrescriptions
         .filter((_) => _.region === regionPDL && _.department === department)

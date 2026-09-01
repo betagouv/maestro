@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { Department } from '../referential/Department';
+import { MatrixKind } from '../referential/Matrix/MatrixKind';
 import { Region } from '../referential/Region';
+import { Stage } from '../referential/Stage';
 import { FindLocalPrescriptionOptions } from '../schema/LocalPrescription/FindLocalPrescriptionOptions';
 import {
   LocalPrescription,
@@ -33,13 +35,26 @@ export const prescriptionsRoutes = {
       response: Prescription
     }
   },
+  '/prescriptions/counts': {
+    params: undefined,
+    get: {
+      query: FindPrescriptionOptions.omit({
+        subPlanStage: true,
+        includes: true
+      }),
+      permissions: ['readPrescriptions'],
+      response: z.object({
+        stageCounts: z.array(
+          z.object({ stage: Stage, count: z.number().int() })
+        ),
+        matrixKinds: z.array(MatrixKind)
+      })
+    }
+  },
   '/prescriptions/export': {
     params: undefined,
     get: {
-      query: z.object({
-        ...FindPrescriptionOptions.omit({ includes: true }).shape,
-        programmingPlanId: z.guid()
-      }),
+      query: FindPrescriptionOptions.omit({ includes: true }),
       permissions: ['readPrescriptions'],
       response: z.custom<Buffer>()
     }
