@@ -268,7 +268,7 @@ describe('findMany par stade', () => {
 
     const emails = (
       await userRepository.findMany({
-        stages: AbattoirStages[0],
+        stages: [AbattoirStages[0]],
         disabled: null
       })
     ).map((u) => u.email);
