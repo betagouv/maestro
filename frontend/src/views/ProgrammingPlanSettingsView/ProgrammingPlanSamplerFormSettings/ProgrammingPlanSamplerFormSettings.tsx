@@ -2,7 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { ProgrammingSubPlanFieldSetting } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import { useContext } from 'react';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
@@ -15,26 +15,24 @@ const addFieldModal = createModal({
 });
 
 type Props = {
-  programmingPlanId: string;
-  programmingSubPlanId: ProgrammingSubPlanId;
+  fields: ProgrammingSubPlanFieldSetting[];
+  onChange: (fields: ProgrammingSubPlanFieldSetting[]) => void;
 };
 
 export const ProgrammingPlanSamplerFormSettings = ({
-  programmingPlanId,
-  programmingSubPlanId,
+  fields,
+  onChange,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
 
-  const { data: programmingSubPlanFields = [], isLoading: isLoadingFields } =
-    apiClient.useFindProgrammingSubPlanFieldConfigsQuery({
-      programmingPlanId,
-      programmingSubPlanId
-    });
-
   const { data: allFields = [] } = apiClient.useFindAllFieldConfigsQuery();
+
+  const availableFields = allFields.filter(
+    (globalField) => !fields.some(({ fieldId }) => fieldId === globalField.id)
+  );
 
   return (
     <>
@@ -46,34 +44,22 @@ export const ProgrammingPlanSamplerFormSettings = ({
           className={cx('fr-ml-auto')}
           iconId="fr-icon-add-line"
           onClick={() => addFieldModal.open()}
-          disabled={
-            allFields.filter(
-              (f) =>
-                !programmingSubPlanFields.some((pkf) => pkf.field.key === f.key)
-            ).length === 0
-          }
+          disabled={availableFields.length === 0}
         >
           Ajouter un champ
         </Button>
       </div>
 
-      {isLoadingFields ? (
-        <p>Chargement…</p>
-      ) : (
-        <ProgrammingSubPlanFieldList
-          programmingPlanId={programmingPlanId}
-          programmingSubPlanId={programmingSubPlanId}
-          programmingSubPlanFields={programmingSubPlanFields}
-          allFields={allFields}
-        />
-      )}
+      <ProgrammingSubPlanFieldList
+        fields={fields}
+        onChange={onChange}
+        allFields={allFields}
+      />
 
       <AddFieldToProgrammingSubPlanModal
         modal={addFieldModal}
-        programmingPlanId={programmingPlanId}
-        programmingSubPlanId={programmingSubPlanId}
-        allFields={allFields}
-        activeFields={programmingSubPlanFields}
+        availableFields={availableFields}
+        onAdd={(field) => onChange([...fields, field])}
       />
     </>
   );

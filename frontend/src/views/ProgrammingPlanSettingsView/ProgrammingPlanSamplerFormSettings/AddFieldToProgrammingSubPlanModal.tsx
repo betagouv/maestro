@@ -1,63 +1,52 @@
 import type { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import {
-  type AdminFieldConfig,
-  CreateProgrammingSubPlanFieldInput
+import type {
+  AdminFieldConfig,
+  ProgrammingSubPlanFieldSetting
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import type { ProgrammingSubPlanFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
+import { SpecificDataFieldId } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
+import { refineSchema } from 'maestro-shared/utils/zod';
 import type React from 'react';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { assert, type Equals } from 'tsafe';
-import AppServiceErrorAlert from '../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
+import { z } from 'zod';
 import AppSelect from '../../../components/_app/AppSelect/AppSelect';
 import { useForm } from '../../../hooks/useForm';
-import { ApiClientContext } from '../../../services/apiClient';
 
-type FormData = {
-  fieldId: string;
-  required: boolean;
+const AddFieldForm = z.object({
+  fieldId: refineSchema(
+    SpecificDataFieldId,
+    (value) => value.length > 0,
+    'Veuillez sélectionner un champ'
+  ),
+  required: z.boolean()
+});
+
+type FormData = z.infer<typeof AddFieldForm>;
+
+const emptyFormData: FormData = {
+  fieldId: '' as SpecificDataFieldId,
+  required: false
 };
 
 interface Props {
   modal: ReturnType<typeof createModal>;
-  programmingPlanId: string;
-  programmingSubPlanId: ProgrammingSubPlanId;
-  allFields: AdminFieldConfig[];
-  activeFields: ProgrammingSubPlanFieldConfig[];
+  availableFields: AdminFieldConfig[];
+  onAdd: (field: ProgrammingSubPlanFieldSetting) => void;
 }
 
 export const AddFieldToProgrammingSubPlanModal = ({
   modal,
-  programmingPlanId,
-  programmingSubPlanId,
-  allFields,
-  activeFields,
+  availableFields,
+  onAdd,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const apiClient = useContext(ApiClientContext);
-  const [addProgrammingSubPlanField, addProgrammingSubPlanFieldResult] =
-    apiClient.useAddProgrammingSubPlanFieldMutation();
+  const [formData, setFormData] = useState<FormData>(emptyFormData);
 
-  const nextOrder = activeFields.length + 1;
-  const [formData, setFormData] = useState<FormData>({
-    fieldId: '',
-    required: false
-  });
-
-  const form = useForm(CreateProgrammingSubPlanFieldInput, {
-    fieldId: formData.fieldId,
-    required: formData.required,
-    order: nextOrder
-  });
-
-  const activeFieldKeys = activeFields.map((f) => f.field.key);
-  const availableFields = allFields.filter(
-    (f) => !activeFieldKeys.includes(f.key)
-  );
+  const form = useForm(AddFieldForm, formData);
 
   const fieldOptions = [
     { value: '', label: '-- Sélectionner un champ --', hidden: true },
@@ -70,31 +59,21 @@ export const AddFieldToProgrammingSubPlanModal = ({
   useIsModalOpen(modal, {
     onConceal: () => {
       form.reset();
-      addProgrammingSubPlanFieldResult.reset();
-      setTimeout(
-        () =>
-          setFormData({
-            fieldId: '',
-            required: false
-          }),
-        2
-      );
+      setTimeout(() => setFormData(emptyFormData), 2);
     }
   });
 
   const submit = async (e: React.MouseEvent<HTMLElement>) => {
-    await form.validate(async (valid) => {
-      try {
-        await addProgrammingSubPlanField({
-          programmingPlanId,
-          programmingSubPlanId,
-          ...valid
-        }).unwrap();
-        e.preventDefault();
-        modal.close();
-      } catch (_e) {
-        /* empty */
-      }
+    await form.validate(async ({ fieldId, required }) => {
+      onAdd({
+        fieldId,
+        required,
+        optionIds: [],
+        inheritance: 'Own',
+        managedAtPlanLevel: false
+      });
+      e.preventDefault();
+      modal.close();
     });
   };
 
@@ -125,19 +104,19 @@ export const AddFieldToProgrammingSubPlanModal = ({
           inputKey="fieldId"
           options={fieldOptions}
           onChange={(e) =>
-            setFormData((d) => ({ ...d, fieldId: e.target.value }))
+            setFormData((d) => ({
+              ...d,
+              fieldId: e.target.value as SpecificDataFieldId
+            }))
           }
           required
         />
         <ToggleSwitch
           label="Obligatoire"
           checked={formData.required}
-          onChange={(checked) =>
-            setFormData((d) => ({ ...d, required: checked }))
-          }
+          onChange={(required) => setFormData((d) => ({ ...d, required }))}
           showCheckedHint={false}
         />
-        <AppServiceErrorAlert call={addProgrammingSubPlanFieldResult} />
       </form>
     </modal.Component>
   );

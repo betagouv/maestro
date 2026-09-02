@@ -1,37 +1,34 @@
+import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
+import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import {
-  fieldInputTypeHasOptions,
-  type ProgrammingSubPlanFieldConfig
-} from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
-import { useContext } from 'react';
+import type {
+  AdminFieldConfig,
+  ProgrammingSubPlanFieldSetting
+} from 'maestro-shared/schema/SpecificData/FieldConfigInput';
+import { fieldInputTypeHasOptions } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { assert, type Equals } from 'tsafe';
-import { ApiClientContext } from '../../../services/apiClient';
 import { ProgrammingSubPlanFieldActiveOptions } from './ProgrammingSubPlanFieldActiveOptions';
 
 interface Props {
-  item: ProgrammingSubPlanFieldConfig;
-  programmingPlanId: string;
-  programmingSubPlanId: ProgrammingSubPlanId;
+  field: ProgrammingSubPlanFieldSetting;
   globalField: AdminFieldConfig | undefined;
-  isFirst: boolean;
-  isLast: boolean;
-  onMoveUp: () => Promise<void>;
-  onMoveDown: () => Promise<void>;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  onChange: (field: ProgrammingSubPlanFieldSetting) => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
   onDelete: () => void;
 }
 
 export const ProgrammingSubPlanFieldItem = ({
-  item,
-  programmingPlanId,
-  programmingSubPlanId,
+  field,
   globalField,
-  isFirst,
-  isLast,
+  canMoveUp,
+  canMoveDown,
+  onChange,
   onMoveUp,
   onMoveDown,
   onDelete,
@@ -39,19 +36,9 @@ export const ProgrammingSubPlanFieldItem = ({
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const apiClient = useContext(ApiClientContext);
-  const [updateProgrammingSubPlanField] =
-    apiClient.useUpdateProgrammingSubPlanFieldMutation();
-
-  const handleRequiredToggle = async (checked: boolean) => {
-    await updateProgrammingSubPlanField({
-      programmingPlanId,
-      programmingSubPlanId,
-      programmingSubPlanFieldId: item.id,
-      required: checked,
-      order: item.order
-    });
-  };
+  const { managedAtPlanLevel, inheritance } = field;
+  const isReadOnly = inheritance === 'Inherited';
+  const isExcluded = inheritance === 'Excluded';
 
   return (
     <div className={clsx('white-container', 'border', cx('fr-p-2w'))}>
@@ -65,22 +52,46 @@ export const ProgrammingSubPlanFieldItem = ({
       >
         <div style={{ flex: 1 }}>
           <p className={cx('fr-text--bold', 'fr-mb-0')}>
-            {item.field.label}{' '}
+            {globalField?.label ?? field.fieldId}{' '}
             <span className={cx('fr-text--sm', 'fr-text--regular')}>
-              ({item.field.key})
+              ({globalField?.key})
             </span>
           </p>
-          {item.field.hintText && (
+          {globalField?.hintText && (
             <p className={cx('fr-text--sm', 'fr-mb-0', 'fr-hint-text')}>
-              {item.field.hintText}
+              {globalField.hintText}
             </p>
           )}
+          {managedAtPlanLevel && (
+            <Badge severity="info" small className={cx('fr-mt-1v')}>
+              {isReadOnly ? 'Hérité du plan' : 'Détaché du plan'}
+            </Badge>
+          )}
         </div>
+        {managedAtPlanLevel && (
+          <Checkbox
+            small
+            options={[
+              {
+                label: 'Actif',
+                nativeInputProps: {
+                  checked: !isExcluded,
+                  onChange: (e) =>
+                    onChange({
+                      ...field,
+                      inheritance: e.target.checked ? 'Inherited' : 'Excluded'
+                    })
+                }
+              }
+            ]}
+          />
+        )}
         <ToggleSwitch
           label="Obligatoire"
           labelPosition={'left'}
-          checked={item.required}
-          onChange={handleRequiredToggle}
+          checked={field.required}
+          disabled={isReadOnly || isExcluded}
+          onChange={(required) => onChange({ ...field, required })}
           showCheckedHint={false}
         />
         <div className={cx('fr-btns-group', 'fr-btns-group--inline')}>
@@ -89,7 +100,7 @@ export const ProgrammingSubPlanFieldItem = ({
             iconId="fr-icon-arrow-up-line"
             size="small"
             title="Monter"
-            disabled={isFirst}
+            disabled={managedAtPlanLevel || !canMoveUp}
             onClick={onMoveUp}
           />
           <Button
@@ -97,7 +108,7 @@ export const ProgrammingSubPlanFieldItem = ({
             iconId="fr-icon-arrow-down-line"
             size="small"
             title="Descendre"
-            disabled={isLast}
+            disabled={managedAtPlanLevel || !canMoveDown}
             onClick={onMoveDown}
           />
           <Button
@@ -105,17 +116,18 @@ export const ProgrammingSubPlanFieldItem = ({
             iconId="fr-icon-delete-line"
             size="small"
             title="Retirer"
+            disabled={managedAtPlanLevel}
             onClick={onDelete}
           />
         </div>
       </div>
 
-      {globalField && fieldInputTypeHasOptions(item.field.inputType) && (
+      {globalField && fieldInputTypeHasOptions(globalField.inputType) && (
         <ProgrammingSubPlanFieldActiveOptions
-          item={item}
-          programmingPlanId={programmingPlanId}
-          programmingSubPlanId={programmingSubPlanId}
+          optionIds={field.optionIds}
           globalField={globalField}
+          disabled={isReadOnly || isExcluded}
+          onChange={(optionIds) => onChange({ ...field, optionIds })}
         />
       )}
     </div>

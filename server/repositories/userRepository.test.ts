@@ -9,8 +9,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { describe, expect, test } from 'vitest';
 import { userRepository } from './userRepository';
 
-const PPVStages = PPVValidatedSubPlanFixture.stages;
-const AbattoirStages = DAOAVolailleValidatedSubPlanFixture.stages;
+const PPVStages = PPVValidatedSubPlanFixture.stages ?? [];
+const AbattoirStages = DAOAVolailleValidatedSubPlanFixture.stages ?? [];
 
 test("impossible d'avoir 2 utilisateurs avec le même email", async () => {
   const email = 'email@email.fr';

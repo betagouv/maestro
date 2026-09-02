@@ -6,6 +6,8 @@ import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { isEqual } from 'lodash-es';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
+import type { ProgrammingSubPlanSettingsForm } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
@@ -34,25 +36,33 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
   const { data: domains = [] } = apiClient.useFindProgrammingPlanDomainsQuery();
   const { data: programmingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery({});
-  const [updateProgrammingSubPlan] =
-    apiClient.useUpdateProgrammingSubPlanMutation();
+  const { data: settings } = apiClient.useFindProgrammingSubPlanSettingsQuery(
+    {
+      programmingPlanId,
+      programmingSubPlanId: subPlanId as ProgrammingSubPlanId
+    },
+    { skip: !subPlanId }
+  );
+  const [updateProgrammingSubPlanSettings] =
+    apiClient.useUpdateProgrammingSubPlanSettingsMutation();
 
   const programmingPlan = programmingPlans.find(
     (_) => _.id === programmingPlanId
   );
   const domain = domains.find((_) => _.id === programmingPlan?.domainId);
   const subPlan = programmingPlan?.subPlans.find((_) => _.id === subPlanId);
-  const [subPlanDraft, setSubPlanDraft] = useState(subPlan);
+
+  const [draft, setDraft] = useState<ProgrammingSubPlanSettingsForm>();
 
   useEffect(() => {
-    setSubPlanDraft(subPlan);
-  }, [subPlan]);
+    setDraft(settings);
+  }, [settings]);
 
   const title = subPlan
     ? `${subPlan.subPlanNumber} - ${subPlan.label}`
     : programmingPlan?.title;
 
-  return (
+  return !programmingPlan ? null : (
     <AppPage
       title={
         <YearTitle
@@ -136,14 +146,16 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                 }
               />
             )}
-            <Alert
-              severity={'info'}
-              small
-              description={
-                'Les paramètres du plan renseignés ci-dessous seront automatiquement attribués à tous ses sous-plans. Si besoin, vous pourrez ensuite modifier les sous-plans individuellement.'
-              }
-            />
-            {subPlanDraft && (
+            {!subPlan && (
+              <Alert
+                severity={'info'}
+                small
+                description={
+                  'Les paramètres du plan renseignés ci-dessous seront automatiquement attribués à tous ses sous-plans. Si besoin, vous pourrez ensuite modifier les sous-plans individuellement.'
+                }
+              />
+            )}
+            {subPlan && draft && (
               <Tabs
                 className={cx('fr-mt-3w')}
                 tabs={[
@@ -151,8 +163,8 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                     label: 'Paramétrage global',
                     content: (
                       <ProgrammingPlanGlobalSettings
-                        subPlan={subPlanDraft}
-                        onChange={setSubPlanDraft}
+                        subPlan={draft}
+                        onChange={setDraft}
                       />
                     )
                   },
@@ -160,8 +172,8 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                     label: 'Formulaire préleveur',
                     content: (
                       <ProgrammingPlanSamplerFormSettings
-                        programmingPlanId={programmingPlanId}
-                        programmingSubPlanId={subPlanDraft.id}
+                        fields={draft.fields}
+                        onChange={(fields) => setDraft({ ...draft, fields })}
                       />
                     )
                   },
@@ -180,15 +192,15 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
           />
         </div>
       </div>
-      {subPlanDraft && (
+      {subPlan && draft && (
         <ProgrammingSubPlanActionBar
-          hasChanges={!isEqual(subPlanDraft, subPlan)}
-          onReset={() => setSubPlanDraft(subPlan)}
+          hasChanges={!isEqual(draft, settings)}
+          onReset={() => setDraft(settings)}
           onSave={() =>
-            updateProgrammingSubPlan({
+            updateProgrammingSubPlanSettings({
               programmingPlanId,
-              programmingSubPlanId: subPlanDraft.id,
-              stages: subPlanDraft.stages
+              programmingSubPlanId: subPlan.id,
+              ...draft
             })
           }
         />

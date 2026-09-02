@@ -3,6 +3,7 @@ import {
   CommemoratifSigle,
   CommemoratifValueSigle
 } from '../SachaCommemoratif/SachaCommemoratif';
+import { FieldInheritance } from './FieldInheritance';
 import {
   FieldInputType,
   SpecificDataFieldId,
@@ -58,20 +59,20 @@ export type CreateFieldOptionInput = z.infer<typeof CreateFieldOptionInput>;
 export const UpdateFieldOptionInput = CreateFieldOptionInput.partial();
 export type UpdateFieldOptionInput = z.infer<typeof UpdateFieldOptionInput>;
 
-export const CreateProgrammingSubPlanFieldInput = z.object({
+export const ProgrammingPlanFieldSetting = z.object({
   fieldId: SpecificDataFieldId,
   required: z.boolean(),
-  order: z.number().int().nonnegative()
+  optionIds: z.array(SpecificDataFieldOptionId)
 });
-export type CreateProgrammingSubPlanFieldInput = z.infer<
-  typeof CreateProgrammingSubPlanFieldInput
+export type ProgrammingPlanFieldSetting = z.infer<
+  typeof ProgrammingPlanFieldSetting
 >;
 
-export const UpdateProgrammingSubPlanFieldInput =
-  CreateProgrammingSubPlanFieldInput.pick({
-    required: true,
-    order: true
+export const ProgrammingSubPlanFieldSetting =
+  ProgrammingPlanFieldSetting.extend({
+    inheritance: FieldInheritance,
+    managedAtPlanLevel: z.boolean()
   });
-export type UpdateProgrammingSubPlanFieldInput = z.infer<
-  typeof UpdateProgrammingSubPlanFieldInput
+export type ProgrammingSubPlanFieldSetting = z.infer<
+  typeof ProgrammingSubPlanFieldSetting
 >;

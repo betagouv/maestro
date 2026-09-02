@@ -30,12 +30,49 @@ const programmingPlanApi = api.injectEndpoints({
         ]
       }
     ),
-    updateProgrammingSubPlan: buildTypedMutation(
+    findProgrammingPlanSettings: buildTypedQuery(
       builder,
-      '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId',
+      '/programming-plans/:programmingPlanId/settings',
+      {
+        providesTags: (_result, _error, { programmingPlanId }) => [
+          { type: 'ProgrammingPlanSettings', id: programmingPlanId }
+        ]
+      }
+    ),
+    updateProgrammingPlanSettings: buildTypedMutation(
+      builder,
+      '/programming-plans/:programmingPlanId/settings',
       'put',
       {
         invalidatesTags: (_result, _error, { programmingPlanId }) => [
+          'ProgrammingPlanSettings',
+          'SpecificDataField',
+          { type: 'ProgrammingPlan', id: programmingPlanId },
+          { type: 'ProgrammingPlan', id: 'LIST' }
+        ]
+      }
+    ),
+    findProgrammingSubPlanSettings: buildTypedQuery(
+      builder,
+      '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/settings',
+      {
+        providesTags: (_result, _error, { programmingSubPlanId }) => [
+          { type: 'ProgrammingPlanSettings', id: programmingSubPlanId }
+        ]
+      }
+    ),
+    updateProgrammingSubPlanSettings: buildTypedMutation(
+      builder,
+      '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/settings',
+      'put',
+      {
+        invalidatesTags: (
+          _result,
+          _error,
+          { programmingPlanId, programmingSubPlanId }
+        ) => [
+          { type: 'ProgrammingPlanSettings', id: programmingSubPlanId },
+          'SpecificDataField',
           { type: 'ProgrammingPlan', id: programmingPlanId },
           { type: 'ProgrammingPlan', id: 'LIST' }
         ]
@@ -60,5 +97,8 @@ export const {
   useGetProgrammingPlanQuery,
   useUpdateProgrammingPlanStatusMutation,
   useUpdateProgrammingPlanLocalStatusMutation,
-  useUpdateProgrammingSubPlanMutation
+  useFindProgrammingPlanSettingsQuery,
+  useUpdateProgrammingPlanSettingsMutation,
+  useFindProgrammingSubPlanSettingsQuery,
+  useUpdateProgrammingSubPlanSettingsMutation
 } = programmingPlanApi;

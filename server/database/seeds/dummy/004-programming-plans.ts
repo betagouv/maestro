@@ -12,7 +12,7 @@ import {
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../../repositories/programmingPlanRepository';
-import { ProgrammingSubPlans } from '../../../repositories/programmingSubPlanRepository';
+import { ProgrammingSubPlansRaw } from '../../../repositories/programmingSubPlanRepository';
 import { Users } from '../../../repositories/userRepository';
 
 export const seed = async () => {
@@ -66,7 +66,7 @@ export const seed = async () => {
     )
   );
 
-  await ProgrammingSubPlans().insert(
+  await ProgrammingSubPlansRaw().insert(
     plans.flatMap((plan) =>
       plan.subPlans.map((subPlan) => ({
         ...subPlan,

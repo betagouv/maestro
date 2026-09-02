@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
+import type { ProgrammingSubPlanSettingsForm } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
 import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
+import { SpecificDataFieldId } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import {
   genProgrammingPlan,
   genProgrammingPlanDomain,
@@ -20,7 +23,51 @@ const FruitsSubPlanId = ProgrammingSubPlanId.parse(
   '7c3d9e51-8b24-4f0a-bd63-1a5e4c9f2d78'
 );
 
-const updateProgrammingSubPlan = fn();
+const updateProgrammingSubPlanSettings = fn();
+
+const genAdminField = (key: string, id: string): AdminFieldConfig => ({
+  id: SpecificDataFieldId.parse(id),
+  key,
+  inputType: 'text',
+  label: `Champ ${key}`,
+  hintText: null,
+  sachaCommemoratifSigle: null,
+  sachaInDai: false,
+  sachaOptional: false,
+  options: []
+});
+
+const matriceField = genAdminField(
+  'matrice',
+  '0c0f6a41-7a3d-4d6e-9f21-5b9c4a1e2d33'
+);
+const quantiteField = genAdminField(
+  'quantite',
+  '4a1e2d33-0c0f-6a41-7a3d-4d6e9f215b9c'
+);
+const especeField = genAdminField(
+  'espece',
+  '9f215b9c-4a1e-2d33-0c0f-6a417a3d4d6e'
+);
+
+const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
+  [CerealesSubPlanId]: {
+    stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
+    stagesManaged: true,
+    fields: [matriceField, quantiteField].map(({ id }) => ({
+      fieldId: id,
+      required: false,
+      optionIds: [],
+      inheritance: 'Own',
+      managedAtPlanLevel: false
+    }))
+  },
+  [FruitsSubPlanId]: {
+    stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'TRANSFORMATION'],
+    stagesManaged: true,
+    fields: []
+  }
+};
 
 const pesticide2026 = genProgrammingPlanDomain({
   label: 'Résidus de pesticides',
@@ -35,7 +82,18 @@ const meta = {
       auth: { authUser: genAuthUser({ userRole: 'AdministratorMaestro' }) }
     },
     apiClient: getMockApi({
-      useUpdateProgrammingSubPlanMutation: [updateProgrammingSubPlan, {}],
+      useUpdateProgrammingSubPlanSettingsMutation: [
+        updateProgrammingSubPlanSettings,
+        {}
+      ],
+      useFindProgrammingSubPlanSettingsQuery: ({
+        programmingSubPlanId
+      }: {
+        programmingSubPlanId: string;
+      }) => ({ data: subPlanSettings[programmingSubPlanId] }),
+      useFindAllFieldConfigsQuery: {
+        data: [matriceField, quantiteField, especeField]
+      },
       useFindProgrammingPlanDomainsQuery: { data: [pesticide2026] },
       useFindProgrammingPlansQuery: {
         data: [
@@ -242,7 +300,7 @@ export const SubPlanSave: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    updateProgrammingSubPlan.mockClear();
+    updateProgrammingSubPlanSettings.mockClear();
 
     await userEvent.selectOptions(
       canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ }),
@@ -253,17 +311,103 @@ export const SubPlanSave: Story = {
       'Enregistrer en brouillon',
       'Enregistrer et terminer'
     ]) {
-      updateProgrammingSubPlan.mockClear();
+      updateProgrammingSubPlanSettings.mockClear();
 
       await userEvent.click(canvas.getByRole('button', { name: buttonLabel }));
 
       await waitFor(() =>
-        expect(updateProgrammingSubPlan).toHaveBeenCalledWith({
+        expect(updateProgrammingSubPlanSettings).toHaveBeenCalledWith({
           programmingPlanId: PPVPlanId,
           programmingSubPlanId: CerealesSubPlanId,
-          stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'ELEVAGE']
+          stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'ELEVAGE'],
+          stagesManaged: true,
+          fields: subPlanSettings[CerealesSubPlanId].fields
         })
       );
     }
+  }
+};
+
+export const SubPlanSamplerForm: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingSubPlanSettings.mockClear();
+
+    await userEvent.click(
+      canvas.getByRole('tab', { name: 'Formulaire préleveur' })
+    );
+
+    const iconButtons = (title: string) => canvas.getAllByTitle(title);
+    const inModal = (id: string) =>
+      within(canvasElement.querySelector(`#${id}`) as HTMLElement);
+    const fieldCount = () => iconButtons('Monter').length;
+
+    await expect(canvas.getByText('Champ matrice')).toBeInTheDocument();
+    await expect(fieldCount()).toBe(2);
+    await expect(
+      canvas.getByRole('button', { name: 'Réinitialiser les modifications' })
+    ).toBeDisabled();
+
+    await userEvent.click(
+      canvas.getByText('Ajouter un champ', { selector: 'button' })
+    );
+    await userEvent.selectOptions(
+      inModal('sampler-form-add-field-modal').getByLabelText(/^Champ/),
+      especeField.id
+    );
+    await userEvent.click(
+      inModal('sampler-form-add-field-modal').getByText('Ajouter', {
+        selector: 'button'
+      })
+    );
+    await waitFor(() => expect(fieldCount()).toBe(3));
+    await expect(updateProgrammingSubPlanSettings).not.toHaveBeenCalled();
+
+    await userEvent.click(iconButtons('Monter')[1]);
+    await expect(canvas.getByText('Champ quantite')).toBeInTheDocument();
+
+    await userEvent.click(iconButtons('Retirer')[2]);
+    await userEvent.click(
+      inModal('sampler-form-field-delete-modal').getByText('Retirer', {
+        selector: 'button'
+      })
+    );
+    await waitFor(() =>
+      expect(canvas.queryByText('Champ espece')).not.toBeInTheDocument()
+    );
+
+    await expect(updateProgrammingSubPlanSettings).not.toHaveBeenCalled();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+
+    await waitFor(() =>
+      expect(updateProgrammingSubPlanSettings).toHaveBeenCalledTimes(1)
+    );
+    await expect(updateProgrammingSubPlanSettings).toHaveBeenCalledWith(
+      expect.objectContaining({
+        programmingPlanId: PPVPlanId,
+        programmingSubPlanId: CerealesSubPlanId,
+        stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
+        stagesManaged: true,
+        fields: [quantiteField, matriceField].map(({ id }) => ({
+          fieldId: id,
+          required: false,
+          optionIds: [],
+          inheritance: 'Own',
+          managedAtPlanLevel: false
+        }))
+      })
+    );
   }
 };

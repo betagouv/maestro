@@ -1,5 +1,6 @@
 import { isNil } from 'lodash-es';
 import { FindProgrammingSubPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingSubPlanOptions';
+import type { ProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import {
   ProgrammingSubPlan,
   type ProgrammingSubPlanId
@@ -7,10 +8,13 @@ import {
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
+import type { KyselyMaestro } from './kysely.type';
 
 export const programmingSubPlansTable = 'programming_sub_plans';
-export const ProgrammingSubPlans = (transaction = db) =>
-  transaction<ProgrammingSubPlan>(programmingSubPlansTable);
+const programmingSubPlansRawTable = 'programming_sub_plans_raw';
+
+export const ProgrammingSubPlansRaw = (transaction = db) =>
+  transaction<ProgrammingSubPlan>(programmingSubPlansRawTable);
 
 const findUnique = async (
   id: ProgrammingSubPlanId
@@ -53,20 +57,22 @@ const findMany = async (
   return (await query.execute()).map((row) => ProgrammingSubPlan.parse(row));
 };
 
-const update = async (
-  programmingSubPlan: Pick<ProgrammingSubPlan, 'id' | 'stages'>
+const updateSettings = async (
+  id: ProgrammingSubPlanId,
+  settings: ProgrammingPlanSettings,
+  executor: KyselyMaestro = kysely
 ): Promise<void> => {
-  console.info('Update programming sub-plan with id', programmingSubPlan.id);
+  console.info('Update programming sub-plan settings', id);
 
-  await kysely
-    .updateTable('programmingSubPlans')
-    .set({ stages: programmingSubPlan.stages })
-    .where('id', '=', programmingSubPlan.id)
+  await executor
+    .updateTable('programmingSubPlansRaw')
+    .set(settings)
+    .where('id', '=', id)
     .execute();
 };
 
 export const programmingSubPlanRepository = {
   findUnique,
   findMany,
-  update
+  updateSettings
 };

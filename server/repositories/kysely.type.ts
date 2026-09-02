@@ -42,7 +42,9 @@ import type { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/Sampl
 import type { SampleStatus as SampleStatusType } from 'maestro-shared/schema/Sample/SampleStatus';
 import type { SampleStep } from 'maestro-shared/schema/Sample/SampleStep';
 import type { Seves } from 'maestro-shared/schema/Sample/Seves';
+import type { FieldInheritance } from 'maestro-shared/schema/SpecificData/FieldInheritance';
 import {
+  ProgrammingPlanFieldId,
   ProgrammingSubPlanFieldId,
   SpecificDataFieldId,
   SpecificDataFieldOptionId
@@ -68,6 +70,7 @@ export const SachaResidueId = z.string().brand<'SachaResidueId'>();
 export type SachaResidueId = z.infer<typeof SachaResidueId>;
 
 export {
+  ProgrammingPlanFieldId,
   ProgrammingSubPlanFieldId,
   SpecificDataFieldId,
   SpecificDataFieldOptionId
@@ -294,13 +297,16 @@ export interface PrescriptionSubstances {
   substance: string;
 }
 
-export interface ProgrammingPlans {
+interface ProgrammingPlanSettings {
+  stages: Stage[] | null;
+  stagesManaged: Generated<boolean>;
+}
+
+export interface ProgrammingPlans extends ProgrammingPlanSettings {
   createdAt: Generated<Timestamp | null>;
   createdBy: string | null;
   domainId: ProgrammingPlanDomainId;
   id: Generated<string>;
-  status: string;
-  statusDrom: string | null;
   year: number;
 }
 
@@ -439,11 +445,10 @@ export interface ProgrammingPlanDomains {
   year: number;
 }
 
-export interface ProgrammingSubPlans {
+export interface ProgrammingSubPlans extends ProgrammingPlanSettings {
   id: ProgrammingSubPlanId;
   programmingPlanId: string;
   subPlanNumber: string;
-  stages: Stage[];
   label: string;
   analysisPermissionRole: UserRole | null;
   contactListId: number | null;
@@ -481,16 +486,40 @@ export interface SpecificDataFieldOptions {
   sachaCommemoratifValueSigle: CommemoratifValueSigle | null;
 }
 
-export interface ProgrammingSubPlanFields {
+export interface ProgrammingSubPlanFieldsRaw {
   id: Generated<ProgrammingSubPlanFieldId>;
   programmingSubPlanId: ProgrammingSubPlanId;
   fieldId: SpecificDataFieldId;
   required: Generated<boolean>;
   order: number;
+  inheritance: Generated<FieldInheritance>;
+}
+
+export interface ProgrammingSubPlanFields {
+  id: ProgrammingSubPlanFieldId;
+  programmingSubPlanId: ProgrammingSubPlanId;
+  fieldId: SpecificDataFieldId;
+  required: boolean;
+  order: number;
+  inheritance: FieldInheritance;
+  programmingPlanFieldId: ProgrammingPlanFieldId | null;
 }
 
 export interface ProgrammingSubPlanFieldOptions {
   programmingSubPlanFieldId: ProgrammingSubPlanFieldId;
+  specificDataFieldOptionId: SpecificDataFieldOptionId;
+}
+
+export interface ProgrammingPlanFields {
+  id: Generated<ProgrammingPlanFieldId>;
+  programmingPlanId: string;
+  fieldId: SpecificDataFieldId;
+  required: Generated<boolean>;
+  order: number;
+}
+
+export interface ProgrammingPlanFieldOptions {
+  programmingPlanFieldId: ProgrammingPlanFieldId;
   specificDataFieldOptionId: SpecificDataFieldOptionId;
 }
 
@@ -508,7 +537,11 @@ export interface DB {
   documentProgrammingPlans: DocumentProgrammingPlans;
   documents: Documents;
   programmingSubPlanFields: ProgrammingSubPlanFields;
+  programmingSubPlanFieldSettings: ProgrammingSubPlanFields;
+  programmingSubPlanFieldsRaw: ProgrammingSubPlanFieldsRaw;
   programmingSubPlanFieldOptions: ProgrammingSubPlanFieldOptions;
+  programmingPlanFields: ProgrammingPlanFields;
+  programmingPlanFieldOptions: ProgrammingPlanFieldOptions;
   specificDataFields: SpecificDataFields;
   specificDataFieldOptions: SpecificDataFieldOptions;
   knexMigrations: KnexMigrations;
@@ -522,6 +555,7 @@ export interface DB {
   prescriptionSubstances: PrescriptionSubstances;
   programmingPlanDomains: ProgrammingPlanDomains;
   programmingSubPlans: ProgrammingSubPlans;
+  programmingSubPlansRaw: ProgrammingSubPlans;
   programmingPlans: ProgrammingPlans;
   localPrescriptionComments: LocalPrescriptionComments;
   localPrescriptions: LocalPrescriptions;

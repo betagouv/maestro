@@ -159,10 +159,6 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateFieldOptionMutation: [fn(), {}],
   useDeleteFieldOptionMutation: [fn(), {}],
   useFindProgrammingSubPlanFieldConfigsQuery: { data: [] },
-  useAddProgrammingSubPlanFieldMutation: [fn(), {}],
-  useUpdateProgrammingSubPlanFieldMutation: [fn(), {}],
-  useDeleteProgrammingSubPlanFieldMutation: [fn(), {}],
-  useUpdateProgrammingSubPlanFieldOptionsMutation: [fn(), {}],
   useFindSachaFieldConfigsQuery: { data: [] },
   useFindLaboratoriesQuery: { data: [] },
   useFindLaboratoryAgreementsQuery: { data: [] },
@@ -255,7 +251,14 @@ const defaultMockApiClientConf: MockApi = {
   useUpdatePrescriptionMutation: [fn(), {}],
   useUpdateProgrammingPlanLocalStatusMutation: [fn(), {}],
   useUpdateProgrammingPlanStatusMutation: [fn(), {}],
-  useUpdateProgrammingSubPlanMutation: [fn(), {}],
+  useUpdateProgrammingSubPlanSettingsMutation: [fn(), {}],
+  useFindProgrammingPlanSettingsQuery: {
+    data: { stages: null, stagesManaged: false, fields: [] }
+  },
+  useUpdateProgrammingPlanSettingsMutation: [fn(), {}],
+  useFindProgrammingSubPlanSettingsQuery: {
+    data: { stages: null, stagesManaged: true, fields: [] }
+  },
   useUpdateLaboratoryAnalyticalCompetenceMutation: [fn(), {}],
   useFindLaboratoryResidueMappingsQuery: { data: [] },
   useUpdateLaboratoryResidueMappingMutation: [fn(), {}],
