@@ -4,6 +4,7 @@ import {
   CommemoratifSigle,
   CommemoratifValueSigle
 } from '../SachaCommemoratif/SachaCommemoratif';
+import { FieldInheritance } from './FieldInheritance';
 
 export const SpecificDataFieldId = z.string().brand<'SpecificDataFieldId'>();
 export type SpecificDataFieldId = z.infer<typeof SpecificDataFieldId>;
@@ -21,6 +22,11 @@ export const ProgrammingSubPlanFieldId = z
 export type ProgrammingSubPlanFieldId = z.infer<
   typeof ProgrammingSubPlanFieldId
 >;
+
+export const ProgrammingPlanFieldId = z
+  .string()
+  .brand<'ProgrammingPlanFieldId'>();
+export type ProgrammingPlanFieldId = z.infer<typeof ProgrammingPlanFieldId>;
 
 const FieldOption = z.object({
   value: z.string(),
@@ -68,7 +74,8 @@ export const ProgrammingSubPlanFieldConfig = z.object({
   required: z.boolean(),
   order: z.number(),
   field: FieldConfig,
-  id: ProgrammingSubPlanFieldId
+  id: ProgrammingSubPlanFieldId,
+  inheritance: FieldInheritance
 });
 
 export type FieldConfig = z.infer<typeof FieldConfig>;

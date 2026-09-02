@@ -15,6 +15,7 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: PPVValidatedSubPlanId,
+    inheritance: 'Own',
     required: false,
     order: 1,
     field: {
@@ -28,6 +29,7 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: PPVValidatedSubPlanId,
+    inheritance: 'Own',
     required: false,
     order: 2,
     field: {
@@ -56,6 +58,7 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: PPVValidatedSubPlanId,
+    inheritance: 'Own',
     required: true,
     order: 3,
     field: {
@@ -73,6 +76,7 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: PPVValidatedSubPlanId,
+    inheritance: 'Own',
     required: true,
     order: 4,
     field: {
@@ -97,6 +101,7 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: PPVValidatedSubPlanId,
+    inheritance: 'Own',
     required: false,
     order: 5,
     field: {
@@ -113,6 +118,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
+    inheritance: 'Own',
     required: true,
     order: 1,
     field: {
@@ -126,6 +132,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
+    inheritance: 'Own',
     required: true,
     order: 2,
     field: {
@@ -139,6 +146,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
+    inheritance: 'Own',
     required: true,
     order: 3,
     field: {
@@ -152,6 +160,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
+    inheritance: 'Own',
     required: true,
     order: 4,
     field: {
@@ -170,6 +179,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
+    inheritance: 'Own',
     required: true,
     order: 5,
     field: {
@@ -187,6 +197,7 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
+    inheritance: 'Own',
     required: true,
     order: 6,
     field: {
@@ -207,6 +218,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
+    inheritance: 'Own',
     required: true,
     order: 1,
     field: {
@@ -220,6 +232,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
+    inheritance: 'Own',
     required: true,
     order: 2,
     field: {
@@ -233,6 +246,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
+    inheritance: 'Own',
     required: true,
     order: 3,
     field: {
@@ -246,6 +260,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
+    inheritance: 'Own',
     required: true,
     order: 4,
     field: {
@@ -272,6 +287,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
+    inheritance: 'Own',
     required: true,
     order: 5,
     field: {
@@ -291,6 +307,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
+    inheritance: 'Own',
     required: true,
     order: 6,
     field: {
@@ -304,6 +321,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
+    inheritance: 'Own',
     required: true,
     order: 7,
     field: {
@@ -322,6 +340,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
+    inheritance: 'Own',
     required: true,
     order: 8,
     field: {
@@ -339,6 +358,7 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
+    inheritance: 'Own',
     required: true,
     order: 9,
     field: {

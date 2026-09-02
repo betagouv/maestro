@@ -1,0 +1,7 @@
+.programming-sub-plan-field-active-options {
+  .fr-fieldset__content {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 1rem;
+  }
+}
