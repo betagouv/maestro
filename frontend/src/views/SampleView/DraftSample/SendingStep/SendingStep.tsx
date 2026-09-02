@@ -5,7 +5,7 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
-import { isNil } from 'lodash-es';
+import { isEqual, isNil } from 'lodash-es';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import {
   isCreatedPartialSample,
@@ -60,6 +60,9 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
     usePartialSample(sample);
   const { trackEvent } = useAnalytics();
 
+  const isGeolocationEditable =
+    !readonly && isOnline && programmingSubPlan?.subPlanNumber === 'PPV';
+
   const isSubmittingRef = useRef<boolean>(false);
 
   const [sampledDate, _setSampledDate] = useState(sample.sampledDate);
@@ -74,7 +77,12 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
     sample.notesOnOwnerAgreement
   );
   const [specificData, setSpecificData] = useState(sample.specificData);
+  const [geolocationX, setGeolocationX] = useState(sample.geolocation?.x);
+  const [geolocationY, setGeolocationY] = useState(sample.geolocation?.y);
   const [isSaved, setIsSaved] = useState(false);
+
+  const initialGeolocationRef = useRef(sample.geolocation);
+  const hasTrackedGeolocationChangeRef = useRef(false);
 
   const [createOrUpdateSample, createOrUpdateSampleCall] =
     apiClient.useCreateOrUpdateSampleMutation({
@@ -109,9 +117,20 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
         })
         .safeParse(sample).success &&
       isOnline &&
+      hasAllLaboratories &&
+      (!isGeolocationEditable ||
+        (isDefined(geolocationX) && isDefined(geolocationY))),
+    [
+      sample,
+      isOnline,
       hasAllLaboratories,
-    [sample, isOnline, hasAllLaboratories]
+      isGeolocationEditable,
+      geolocationX,
+      geolocationY
+    ]
   );
+
+  const hasSaveError = createOrUpdateSampleCall.isError;
 
   const sendingSampleModal = useMemo(
     () =>
@@ -133,7 +152,26 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
       sampledDate: true,
       sentAt: true,
       specificData: true
-    }),
+    })
+      .extend({
+        geolocationX: z.number({
+          error: (issue) => {
+            return isNil(issue.input)
+              ? 'Veuillez renseigner la latitude.'
+              : 'Latitude invalide.';
+          }
+        }),
+        geolocationY: z.number({
+          error: (issue) => {
+            return isNil(issue.input)
+              ? 'Veuillez renseigner la longitude.'
+              : 'Longitude invalide.';
+          }
+        })
+      })
+      .partial(
+        !isGeolocationEditable ? { geolocationX: true, geolocationY: true } : {}
+      ),
     sampleSendCheck
   );
 
@@ -163,6 +201,20 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
 
   const save = async (step = sample.step) => {
     setIsSaved(false);
+
+    const geolocation =
+      isDefined(geolocationX) && isDefined(geolocationY)
+        ? { x: geolocationX, y: geolocationY }
+        : sample.geolocation;
+
+    if (
+      !hasTrackedGeolocationChangeRef.current &&
+      !isEqual(geolocation, initialGeolocationRef.current)
+    ) {
+      hasTrackedGeolocationChangeRef.current = true;
+      trackEvent('geolocation', 'update_summary', sample.id);
+    }
+
     await createOrUpdateSample({
       ...sample,
       resytalId,
@@ -172,6 +224,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
       ownerAgreement,
       notesOnOwnerAgreement,
       specificData,
+      geolocation,
       step
     });
   };
@@ -188,7 +241,9 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
       sampledDate,
       sampledTime,
       sentAt,
-      specificData
+      specificData,
+      geolocationX,
+      geolocationY
     },
     save
   );
@@ -224,6 +279,23 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
         <ContextStepSummary
           sample={sample}
           onChangeResytalId={setResytalId}
+          geolocationX={geolocationX}
+          geolocationY={geolocationY}
+          onChangeLocation={
+            isGeolocationEditable
+              ? (location) => {
+                  setGeolocationX(location.x);
+                  setGeolocationY(location.y);
+                }
+              : undefined
+          }
+          onChangeGeolocationX={
+            isGeolocationEditable ? setGeolocationX : undefined
+          }
+          onChangeGeolocationY={
+            isGeolocationEditable ? setGeolocationY : undefined
+          }
+          geolocationForm={isGeolocationEditable ? form : undefined}
           onEdit={
             !readonly
               ? async () => {
@@ -513,7 +585,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
                         sendingSampleModal.open()
                       );
                     }}
-                    disabled={!isSendable}
+                    disabled={!isSendable || hasSaveError}
                   >
                     Envoyer la demande d’analyse
                   </Button>
@@ -533,7 +605,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
         )}
         <SavedAlert isOpen={isSaved} sample={sample} />
       </div>
-      {!readonly && isSendable && (
+      {!readonly && isSendable && !hasSaveError && (
         <SendingModal
           modal={sendingSampleModal}
           substanceKindsLaboratories={substanceKindsLaboratories}

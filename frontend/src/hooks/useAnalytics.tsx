@@ -10,7 +10,7 @@ const TrackEventCategory = z.enum([
 type TrackEventCategory = z.infer<typeof TrackEventCategory>;
 
 const trackEventAction = {
-  geolocation: z.enum(['enable', 'disable']),
+  geolocation: z.enum(['enable', 'disable', 'update_summary']),
   sample: z.enum([
     'push_offline',
     ...(SampleStatus.options.map(

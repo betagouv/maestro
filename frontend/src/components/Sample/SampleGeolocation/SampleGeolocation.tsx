@@ -4,14 +4,19 @@ import type { Geolocation } from 'maestro-shared/schema/Geolocation/Geolocation'
 import { useMemo, useState } from 'react';
 import type { MapMouseEvent, MarkerDragEvent } from 'react-map-gl/maplibre';
 import AddressSearch from 'src/components/AddressSearch/AddressSearch';
-import { SampleMap } from '../../../../components/Sample/SampleMap/SampleMap';
+import { SampleMap } from 'src/components/Sample/SampleMap/SampleMap';
 
 interface Props {
   location?: Geolocation;
   onLocationChange: (coordinates: Geolocation) => void;
+  onGeolocateUnavailable: () => void;
 }
 
-const SampleGeolocation = ({ location, onLocationChange }: Props) => {
+const SampleGeolocation = ({
+  location,
+  onLocationChange,
+  onGeolocateUnavailable
+}: Props) => {
   const [mapZoom, setMapZoom] = useState<number>(location ? 15 : 5);
 
   const marker = useMemo(() => {
@@ -27,6 +32,13 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
     onLocationChange({
       x: Number(event.lngLat.lat.toFixed(6)),
       y: Number(event.lngLat.lng.toFixed(6))
+    });
+  };
+
+  const onGeolocate = (coords: { latitude: number; longitude: number }) => {
+    onLocationChange({
+      x: Number(coords.latitude.toFixed(6)),
+      y: Number(coords.longitude.toFixed(6))
     });
   };
 
@@ -55,6 +67,8 @@ const SampleGeolocation = ({ location, onLocationChange }: Props) => {
         markerY={marker.y}
         markerDraggable={true}
         onMarkerLocationUpdate={onMarkerLocationUpdate}
+        onGeolocate={onGeolocate}
+        onGeolocateUnavailable={onGeolocateUnavailable}
       />
     </>
   );

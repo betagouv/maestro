@@ -2,6 +2,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Input from '@codegouvfr/react-dsfr/Input';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
+import type { Geolocation } from 'maestro-shared/schema/Geolocation/Geolocation';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   isCreatedPartialSample,
@@ -10,7 +11,9 @@ import {
   type SampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { formatMaestroDate } from 'maestro-shared/utils/date';
+import SampleGeolocationForm from 'src/components/Sample/SampleGeolocationForm/SampleGeolocationForm';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import type { UseForm } from 'src/hooks/useForm';
 import { quote } from 'src/utils/stringUtils';
 import StepSummary, {
   type StepSummaryMode
@@ -23,13 +26,25 @@ interface Props {
   mode?: StepSummaryMode;
   onChangeResytalId: (resytalId: string) => void;
   onEdit?: () => void;
+  geolocationX?: number;
+  geolocationY?: number;
+  onChangeLocation?: (location: Geolocation) => void;
+  onChangeGeolocationX?: (x: number) => void;
+  onChangeGeolocationY?: (y: number) => void;
+  geolocationForm?: UseForm<any>;
 }
 
 const ContextStepSummary = ({
   sample,
   mode = 'section',
   onChangeResytalId,
-  onEdit
+  onEdit,
+  geolocationX,
+  geolocationY,
+  onChangeLocation,
+  onChangeGeolocationX,
+  onChangeGeolocationY,
+  geolocationForm
 }: Props) => {
   const { user } = useAuthentication();
   const { readonly, programmingPlan, programmingSubPlan } =
@@ -78,7 +93,22 @@ const ContextStepSummary = ({
               <span className="missing-data">Informations à compléter</span>
             </div>
           )}
-          {sample.geolocation ? (
+          {onChangeLocation &&
+          onChangeGeolocationX &&
+          onChangeGeolocationY &&
+          geolocationForm ? (
+            <SampleGeolocationForm
+              title="Emplacement de la parcelle contrôlée"
+              geolocationX={geolocationX}
+              geolocationY={geolocationY}
+              onChangeLocation={onChangeLocation}
+              onChangeGeolocationX={onChangeGeolocationX}
+              onChangeGeolocationY={onChangeGeolocationY}
+              inputForm={geolocationForm}
+              isOnline
+              readonly={false}
+            />
+          ) : sample.geolocation ? (
             <div>
               <div>
                 Latitude : <b>{sample.geolocation.x}</b> Longitude :
