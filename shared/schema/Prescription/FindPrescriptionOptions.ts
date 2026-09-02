@@ -27,8 +27,9 @@ export const FindPrescriptionOptions = z.object({
   laboratoryIds: z.array(z.guid()).nullish(),
   region: Region.nullish(),
   department: Department.nullish(),
-  missingSlaughterhouse: z.boolean().nullish(),
+  missingDistribution: z.boolean().nullish(),
   missingLaboratory: z.boolean().nullish(),
+  withNovelty: z.boolean().nullish(),
   withSampleCountOnly: z.boolean().nullish(),
   includes: z.array(PrescriptionOptionsInclude).nullish()
 });

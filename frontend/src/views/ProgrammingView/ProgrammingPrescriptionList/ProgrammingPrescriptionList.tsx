@@ -204,7 +204,8 @@ const ProgrammingPrescriptionList = ({
       matrices: prescriptionFilters.matrices,
       coordinatorIds: prescriptionFilters.coordinatorIds,
       laboratoryIds: prescriptionFilters.laboratoryIds,
-      missingSlaughterhouse: prescriptionFilters.missingSlaughterhouse,
+      missingDistribution: prescriptionFilters.missingDistribution,
+      withNovelty: prescriptionFilters.withNovelty,
       missingLaboratory: prescriptionFilters.missingLaboratory,
       withSampleCountOnly: !hasNationalView,
       region,
@@ -855,9 +856,7 @@ const ProgrammingPrescriptionList = ({
           {
             <ProgrammingPrescriptionListHeader
               programmingPlan={headerPlan}
-              prescriptions={prescriptions}
-              localPrescriptions={localPrescriptions}
-              region={region}
+              counts={prescriptionCounts}
               exportURL={getApiUrl(
                 '/prescriptions/export',
                 exportPrescriptionOptions

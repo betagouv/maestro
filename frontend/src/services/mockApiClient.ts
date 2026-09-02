@@ -165,7 +165,16 @@ const defaultMockApiClientConf: MockApi = {
   useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },
   useFindPrescriptionCountsQuery: {
-    data: { stageCounts: [], matrixKinds: [] }
+    data: {
+      subPlanCount: 0,
+      sampleCount: 0,
+      missingDistributionCount: 0,
+      missingLaboratoryCount: 0,
+      noveltyCount: 0,
+      distributedCount: 0,
+      stageCounts: [],
+      matrixKinds: []
+    }
   },
   useFindProgrammingPlanDomainsQuery: { data: ProgrammingPlanDomainFixtures },
   useFindProgrammingPlansQuery: { data: [] },

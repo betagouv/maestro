@@ -222,32 +222,107 @@ const applyLocalPrescriptionFilters = (
     });
   }
 
-  if (findOptions.missingSlaughterhouse) {
-    builder.whereRaw(
-      `coalesce((
-        select lp.sample_count from ${localPrescriptionsTable} lp
-        where lp.prescription_id = ${prescriptionsTable}.id
-          and lp.company_siret = 'None'
-          ${findOptions.region ? 'and lp.region = :region' : ''}
-          ${findOptions.department ? 'and lp.department = :department' : ''}
-        limit 1
-      ), 0) > coalesce((
-        select sum(lp.sample_count) from ${localPrescriptionsTable} lp
-        where lp.prescription_id = ${prescriptionsTable}.id
-          and lp.company_siret <> 'None'
-          ${findOptions.region ? 'and lp.region = :region' : ''}
-          ${findOptions.department ? 'and lp.department = :department' : ''}
-      ), 0)`,
-      omitBy(
-        {
-          region: findOptions.region,
-          department: findOptions.department
-        },
-        isNil
-      ) as Record<string, string>
-    );
+  if (findOptions.missingDistribution) {
+    builder.whereRaw(...missingDistributionExpression(findOptions));
+  }
+
+  if (findOptions.withNovelty) {
+    builder.whereRaw(...noveltyExpression(findOptions, visibility));
   }
 };
+
+const scopeBindings = (
+  findOptions: FindPrescriptionOptions
+): Record<string, string> =>
+  omitBy(
+    { region: findOptions.region, department: findOptions.department },
+    isNil
+  ) as Record<string, string>;
+
+const distributedToSlaughterhouses = (findOptions: FindPrescriptionOptions) => `
+  coalesce((
+    select lp.sample_count from ${localPrescriptionsTable} lp
+    where lp.prescription_id = ${prescriptionsTable}.id
+      and lp.company_siret = 'None'
+      ${findOptions.region ? 'and lp.region = :region' : ''}
+      ${findOptions.department ? 'and lp.department = :department' : ''}
+    limit 1
+  ), 0) > coalesce((
+    select sum(lp.sample_count) from ${localPrescriptionsTable} lp
+    where lp.prescription_id = ${prescriptionsTable}.id
+      and lp.company_siret <> 'None'
+      ${findOptions.region ? 'and lp.region = :region' : ''}
+      ${findOptions.department ? 'and lp.department = :department' : ''}
+  ), 0)`;
+
+const distributedToDepartments = `
+  coalesce((
+    select lp.sample_count from ${localPrescriptionsTable} lp
+    where lp.prescription_id = ${prescriptionsTable}.id
+      and lp.region = :region
+      and lp.department = 'None'
+      and lp.company_siret = 'None'
+    limit 1
+  ), 0) > coalesce((
+    select sum(lp.sample_count) from ${localPrescriptionsTable} lp
+    where lp.prescription_id = ${prescriptionsTable}.id
+      and lp.region = :region
+      and lp.department <> 'None'
+      and lp.company_siret = 'None'
+  ), 0)`;
+
+const distributedToRegions = `
+  coalesce(${prescriptionsTable}.sample_count, 0) > coalesce((
+    select sum(lp.sample_count) from ${localPrescriptionsTable} lp
+    where lp.prescription_id = ${prescriptionsTable}.id
+      and lp.department = 'None'
+      and lp.company_siret = 'None'
+  ), 0)`;
+
+const missingDistributionExpression = (
+  findOptions: FindPrescriptionOptions
+): [string, Record<string, string>] => {
+  const bindings = scopeBindings(findOptions);
+
+  if (findOptions.department) {
+    return [distributedToSlaughterhouses(findOptions), bindings];
+  }
+
+  if (findOptions.region) {
+    return [
+      `case when (
+         select pp.distribution_kind from ${programmingPlansTable} pp
+         where pp.id = ${prescriptionsTable}.programming_plan_id
+       ) = 'REGIONAL'
+       then ${distributedToDepartments}
+       else ${distributedToSlaughterhouses(findOptions)}
+       end`,
+      bindings
+    ];
+  }
+
+  return [distributedToRegions, bindings];
+};
+
+const noveltyExpression = (
+  findOptions: FindPrescriptionOptions,
+  visibility?: PendingChangeVisibility
+): [string, string[]] => [
+  `exists (
+     select 1 from ${localPrescriptionChangesTable} c
+     where c.prescription_id = ${prescriptionsTable}.id
+       and c.changes_viewed_at is null
+       and c.applied_at is null
+       and (c.diffused_at is not null ${visibility?.echelon ? 'or c.echelon = ?' : ''})
+       ${findOptions.region ? 'and c.region = ?' : ''}
+       ${findOptions.department ? 'and c.department = ?' : ''}
+   )`,
+  [
+    ...(visibility?.echelon ? [visibility.echelon] : []),
+    ...(findOptions.region ? [findOptions.region] : []),
+    ...(findOptions.department ? [findOptions.department] : [])
+  ]
+];
 
 const findUnique = async (id: string): Promise<Prescription | undefined> => {
   console.info('Find prescription by id', id);
@@ -342,23 +417,95 @@ const findMany = async (
     );
 };
 
+export interface PrescriptionCountRow {
+  subPlanId: ProgrammingSubPlanId;
+  matrixKind: MatrixKind;
+  sampleCount: number;
+  missingDistribution: boolean;
+  missingLaboratory: boolean;
+  hasNovelty: boolean;
+}
+
+const scopedSampleCount = (findOptions: FindPrescriptionOptions): string =>
+  findOptions.region
+    ? `coalesce((
+        select lp.sample_count from ${localPrescriptionsTable} lp
+        where lp.prescription_id = ${prescriptionsTable}.id
+          and lp.region = :region
+          and lp.department ${findOptions.department ? '= :department' : "= 'None'"}
+          and lp.company_siret = 'None'
+        limit 1
+      ), 0)`
+    : `coalesce(${prescriptionsTable}.sample_count, 0)`;
+
+const missingLaboratoryExpression = (
+  findOptions: FindPrescriptionOptions
+): string => `exists (
+     select 1 from ${localPrescriptionsTable} lp
+     where lp.prescription_id = ${prescriptionsTable}.id
+       and lp.company_siret = 'None'
+       ${findOptions.region ? 'and lp.region = :region' : ''}
+       ${findOptions.department ? 'and lp.department = :department' : ''}
+       and (
+         not exists (
+           select 1 from ${localPrescriptionSubstanceKindsLaboratoriesTable} skl
+           where skl.prescription_id = lp.prescription_id
+             and skl.region = lp.region
+             and skl.department = lp.department
+         )
+         or exists (
+           select 1 from ${localPrescriptionSubstanceKindsLaboratoriesTable} skl
+           where skl.prescription_id = lp.prescription_id
+             and skl.region = lp.region
+             and skl.department = lp.department
+             and skl.laboratory_id is null
+         )
+       )
+   )`;
+
 const findCounts = async (
   findOptions: FindPrescriptionOptions,
   visibility?: PendingChangeVisibility
-): Promise<{ subPlanId: ProgrammingSubPlanId; matrixKind: MatrixKind }[]> => {
+): Promise<PrescriptionCountRow[]> => {
   console.info('Count prescriptions', omitBy(findOptions, isNil));
 
-  const countOptions = omit(findOptions, 'subPlanStage');
+  const countOptions = omit(
+    findOptions,
+    'subPlanStage',
+    'missingDistribution',
+    'missingLaboratory',
+    'withNovelty'
+  );
   const resolved = await resolveFilters(countOptions);
+  const bindings = scopeBindings(countOptions);
+
+  const [distributionSql] = missingDistributionExpression(countOptions);
+  const [noveltySql, noveltyBindings] = noveltyExpression(
+    countOptions,
+    visibility
+  );
 
   return buildFindQuery(countOptions, resolved, visibility)
     .select(
       `${prescriptionsTable}.programming_sub_plan_id as subPlanId`,
-      `${prescriptionsTable}.matrix_kind as matrixKind`
+      `${prescriptionsTable}.matrix_kind as matrixKind`,
+      db.raw(`${scopedSampleCount(countOptions)} as "sampleCount"`, bindings),
+      db.raw(`(${distributionSql}) as "missingDistribution"`, bindings),
+      db.raw(
+        `${missingLaboratoryExpression(countOptions)} as "missingLaboratory"`,
+        bindings
+      ),
+      db.raw(`${noveltySql} as "hasNovelty"`, noveltyBindings)
     )
-    .then(
-      (rows: { subPlanId: ProgrammingSubPlanId; matrixKind: MatrixKind }[]) =>
-        rows.map(({ subPlanId, matrixKind }) => ({ subPlanId, matrixKind }))
+    .then((rows: PrescriptionCountRow[]) =>
+      rows.map((row) => ({
+        subPlanId: row.subPlanId,
+        matrixKind: row.matrixKind,
+        sampleCount: Number(row.sampleCount),
+        missingDistribution: row.missingDistribution,
+        missingLaboratory: row.missingLaboratory,
+        hasNovelty: row.hasNovelty
+      }))
     );
 };
 

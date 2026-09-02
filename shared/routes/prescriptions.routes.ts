@@ -1,8 +1,6 @@
 import { z } from 'zod';
 import { Department } from '../referential/Department';
-import { MatrixKind } from '../referential/Matrix/MatrixKind';
 import { Region } from '../referential/Region';
-import { Stage } from '../referential/Stage';
 import { FindLocalPrescriptionOptions } from '../schema/LocalPrescription/FindLocalPrescriptionOptions';
 import {
   LocalPrescription,
@@ -18,6 +16,7 @@ import {
   PrescriptionToCreate,
   PrescriptionUpdate
 } from '../schema/Prescription/Prescription';
+import { PrescriptionCounts } from '../schema/Prescription/PrescriptionCounts';
 import {
   PrescriptionImportFile,
   PrescriptionImportResult
@@ -47,12 +46,7 @@ export const prescriptionsRoutes = {
         includes: true
       }),
       permissions: ['readPrescriptions'],
-      response: z.object({
-        stageCounts: z.array(
-          z.object({ stage: Stage, count: z.number().int() })
-        ),
-        matrixKinds: z.array(MatrixKind)
-      })
+      response: PrescriptionCounts
     }
   },
   '/prescriptions/export': {

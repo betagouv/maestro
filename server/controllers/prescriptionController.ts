@@ -299,9 +299,30 @@ export const prescriptionsRouter = {
         }
       }
 
+      const subPlanCountOf = (
+        predicate: (row: (typeof rows)[number]) => boolean
+      ) => uniq(rows.filter(predicate).map((row) => row.subPlanId)).length;
+
+      const displayedRows = rows.filter(
+        (row) =>
+          (!findOptions.missingDistribution || row.missingDistribution) &&
+          (!findOptions.missingLaboratory || row.missingLaboratory) &&
+          (!findOptions.withNovelty || row.hasNovelty)
+      );
+
       return {
         status: HttpStatus.OK,
         response: {
+          subPlanCount: uniq(displayedRows.map((row) => row.subPlanId)).length,
+          sampleCount: sumBy(displayedRows, 'sampleCount'),
+          missingDistributionCount: subPlanCountOf(
+            (row) => row.missingDistribution
+          ),
+          missingLaboratoryCount: subPlanCountOf(
+            (row) => row.missingLaboratory
+          ),
+          noveltyCount: subPlanCountOf((row) => row.hasNovelty),
+          distributedCount: subPlanCountOf((row) => !row.missingDistribution),
           stageCounts: StageList.filter((stage) => countByStage.has(stage)).map(
             (stage) => ({
               stage,

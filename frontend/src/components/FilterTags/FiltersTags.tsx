@@ -26,7 +26,11 @@ import type { PrescriptionFilters } from '../../store/reducers/prescriptionsSlic
 type FilterableType = FindSampleOptions &
   Omit<
     PrescriptionFilters,
-    'year' | 'missingSlaughterhouse' | 'missingLaboratory' | 'contexts'
+    | 'year'
+    | 'missingDistribution'
+    | 'missingLaboratory'
+    | 'withNovelty'
+    | 'contexts'
   >;
 
 interface Props {

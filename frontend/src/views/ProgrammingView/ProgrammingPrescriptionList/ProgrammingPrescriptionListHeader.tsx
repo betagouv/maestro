@@ -1,15 +1,13 @@
+import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import { sumBy } from 'lodash-es';
-import type { Region } from 'maestro-shared/referential/Region';
-import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import type { PrescriptionCounts } from 'maestro-shared/schema/Prescription/PrescriptionCounts';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 
-import { useMemo } from 'react';
+import type { ReactNode } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
@@ -18,18 +16,19 @@ import './ProgrammingPrescriptionList.scss';
 
 interface Props {
   programmingPlan: ProgrammingPlanChecked;
-  prescriptions: Prescription[];
-  localPrescriptions: LocalPrescription[];
-  region?: Region;
+  counts?: PrescriptionCounts;
   exportURL: string;
   onImport?: () => void;
 }
 
+type ToggleFilterKey =
+  | 'missingDistribution'
+  | 'missingLaboratory'
+  | 'withNovelty';
+
 const ProgrammingPrescriptionListHeader = ({
   programmingPlan,
-  prescriptions,
-  localPrescriptions,
-  region,
+  counts,
   exportURL,
   onImport
 }: Props) => {
@@ -42,76 +41,104 @@ const ProgrammingPrescriptionListHeader = ({
     (state) => state.prescriptions
   );
 
-  const sampleCount = useMemo(
-    () =>
-      region
-        ? sumBy(localPrescriptions, 'sampleCount')
-        : sumBy(prescriptions, 'sampleCount'),
-    [region, localPrescriptions, prescriptions]
-  );
+  const missingDistributionCount = counts?.missingDistributionCount ?? 0;
+
+  const filterToggle = (
+    key: ToggleFilterKey,
+    label: string,
+    inputTitle: string,
+    count: number,
+    testId?: string
+  ): ReactNode => {
+    const checked = prescriptionFilters[key] ?? false;
+    return (
+      <ToggleSwitch
+        label={<span className="no-wrap">{`${label} (${count})`}</span>}
+        inputTitle={inputTitle}
+        checked={checked}
+        disabled={count === 0 && !checked}
+        onChange={(isChecked) =>
+          dispatch(
+            prescriptionsSlice.actions.changePrescriptionFilters({
+              ...prescriptionFilters,
+              [key]: isChecked
+            })
+          )
+        }
+        showCheckedHint={false}
+        data-testid={testId}
+      />
+    );
+  };
+
   return (
-    <div className={cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-container', 'fr-px-5w')}>
-      <div className="d-flex-align-center" style={{ gap: '1rem' }}>
-        <h4 className={clsx(cx('fr-mb-0'), 'flex-grow-1')}>
-          {t('plannedSample', { count: sampleCount ?? 0 })}
+    <div
+      className={clsx(
+        cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-container', 'fr-px-5w'),
+        'prescription-list-header'
+      )}
+    >
+      <div className="flex-grow-1">
+        <h4 className={cx('fr-mb-1v')}>
+          {`${t('subPlan', { count: counts?.subPlanCount ?? 0 })} (${t(
+            'sample',
+            { count: counts?.sampleCount ?? 0 }
+          )})`}
         </h4>
-        {onImport && (
-          <Button
-            iconId="fr-icon-upload-line"
-            priority="secondary"
-            onClick={onImport}
-            title="Importer"
-            size={isMobile ? 'small' : 'medium'}
-          />
+        <Badge
+          small
+          severity={missingDistributionCount > 0 ? 'warning' : 'success'}
+        >
+          {missingDistributionCount > 0
+            ? `${missingDistributionCount} à répartir`
+            : `${counts?.distributedCount ?? 0} répartis`}
+        </Badge>
+      </div>
+      <div className="prescription-list-header__filters">
+        {filterToggle(
+          'missingDistribution',
+          'Répartition à réaliser',
+          'Filtrer les sous-plans avec répartition à réaliser',
+          missingDistributionCount
         )}
-        <Button
-          iconId="fr-icon-file-download-line"
-          priority="secondary"
-          onClick={() => window.open(exportURL)}
-          title="Exporter"
-          size={isMobile ? 'small' : 'medium'}
-        />
-      </div>
-      <div className="d-flex-align-center">
-        <div className={clsx('flex-grow-1', 'd-flex-align-center')}>
-          {hasUserPermission('distributePrescriptionToSlaughterhouses') && (
-            <ToggleSwitch
-              label={<span className="no-wrap">Répartition à réaliser</span>}
-              inputTitle="Filtrer les prélèvements avec répartition à réaliser"
-              checked={prescriptionFilters.missingSlaughterhouse ?? false}
-              onChange={(checked) => {
-                dispatch(
-                  prescriptionsSlice.actions.changePrescriptionFilters({
-                    ...prescriptionFilters,
-                    missingSlaughterhouse: checked
-                  })
-                );
-              }}
-              showCheckedHint={false}
-            />
+        {hasUserPermission('updatePrescriptionLaboratories') &&
+          (hasDepartmentalView ||
+            (hasRegionalView &&
+              programmingPlan.distributionKind === 'REGIONAL')) &&
+          filterToggle(
+            'missingLaboratory',
+            'Laboratoires à attribuer',
+            'Filtrer les sous-plans avec laboratoire à attribuer',
+            counts?.missingLaboratoryCount ?? 0,
+            'missing-laboratory-toggle'
           )}
-          {hasUserPermission('updatePrescriptionLaboratories') &&
-            (hasDepartmentalView ||
-              (hasRegionalView &&
-                programmingPlan.distributionKind === 'REGIONAL')) && (
-              <ToggleSwitch
-                label={<span className="no-wrap">Laboratoire à attribuer</span>}
-                inputTitle="Filtrer les prélèvements avec laboratoire à attribuer"
-                checked={prescriptionFilters.missingLaboratory ?? false}
-                onChange={(checked) => {
-                  dispatch(
-                    prescriptionsSlice.actions.changePrescriptionFilters({
-                      ...prescriptionFilters,
-                      missingLaboratory: checked
-                    })
-                  );
-                }}
-                showCheckedHint={false}
-                data-testid="missing-laboratory-toggle"
-              />
-            )}
-        </div>
+        {filterToggle(
+          'withNovelty',
+          'Nouveautés',
+          'Filtrer les sous-plans présentant des nouveautés',
+          counts?.noveltyCount ?? 0
+        )}
       </div>
+      <Button
+        iconId="fr-icon-file-download-line"
+        priority="secondary"
+        onClick={() => window.open(exportURL)}
+        title="Exporter"
+        size={isMobile ? 'small' : 'medium'}
+      >
+        Exporter
+      </Button>
+      {onImport && (
+        <Button
+          iconId="fr-icon-upload-line"
+          priority="secondary"
+          onClick={onImport}
+          title="Importer"
+          size={isMobile ? 'small' : 'medium'}
+        >
+          Importer
+        </Button>
+      )}
     </div>
   );
 };

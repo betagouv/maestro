@@ -24,8 +24,9 @@ export const PrescriptionFilters = z.object({
   outsideProgrammingPlan: z.boolean().nullish(),
   coordinatorIds: z.array(z.guid()).nullish(),
   laboratoryIds: z.array(z.guid()).nullish(),
-  missingSlaughterhouse: z.boolean().nullish(),
-  missingLaboratory: z.boolean().nullish()
+  missingDistribution: z.boolean().nullish(),
+  missingLaboratory: z.boolean().nullish(),
+  withNovelty: z.boolean().nullish()
 });
 
 export type PrescriptionFilters = z.infer<typeof PrescriptionFilters>;
@@ -95,8 +96,9 @@ type PrescriptionsState = {
 
 const initialState: PrescriptionsState = {
   prescriptionFilters: {
-    missingSlaughterhouse: false,
-    missingLaboratory: false
+    missingDistribution: false,
+    missingLaboratory: false,
+    withNovelty: false
   }
 };
 
