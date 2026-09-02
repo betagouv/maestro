@@ -417,7 +417,7 @@ const findMany = async (
     );
 };
 
-export interface PrescriptionCountRow {
+interface PrescriptionCountRow {
   subPlanId: ProgrammingSubPlanId;
   matrixKind: MatrixKind;
   sampleCount: number;
