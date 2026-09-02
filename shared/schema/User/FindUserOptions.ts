@@ -8,7 +8,7 @@ export const FindUserOptions = z.object({
   region: Region.nullish(),
   department: Department.nullish(),
   roles: z.array(UserRole).nullish(),
-  stages: z.union([Stage, z.array(Stage)]).nullish(),
+  stages: z.array(Stage).nullish(),
   companySirets: z.array(z.string()).nullish(),
   disabled: z.boolean().nullish(),
   laboratoryIds: z.array(z.string()).nullish()
