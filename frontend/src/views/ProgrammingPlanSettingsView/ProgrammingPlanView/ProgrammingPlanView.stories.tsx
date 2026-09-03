@@ -450,11 +450,6 @@ export const SubPlanSamplerForm: Story = {
     await expect(canvas.getByText('Champ quantite')).toBeInTheDocument();
 
     await userEvent.click(iconButtons('Retirer')[2]);
-    await userEvent.click(
-      inModal('sampler-form-field-delete-modal').getByText('Retirer', {
-        selector: 'button'
-      })
-    );
     await waitFor(() =>
       expect(canvas.queryByText('Champ espece')).not.toBeInTheDocument()
     );
@@ -646,13 +641,6 @@ export const SubPlanManagedField: Story = {
     await expect(fieldItem().getByLabelText('Obligatoire')).toBeEnabled();
 
     await userEvent.click(fieldItem().getByTitle('Retirer'));
-    await userEvent.click(
-      within(
-        canvasElement.querySelector(
-          '#sampler-form-field-delete-modal'
-        ) as HTMLElement
-      ).getByText('Retirer', { selector: 'button' })
-    );
     await waitFor(() =>
       expect(
         canvas.queryByText('Champ espece', { selector: 'p' })
