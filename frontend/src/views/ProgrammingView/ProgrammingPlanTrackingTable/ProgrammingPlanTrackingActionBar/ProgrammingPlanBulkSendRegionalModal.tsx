@@ -100,8 +100,8 @@ const ProgrammingPlanBulkSendRegionalModal = ({
           </ul>
           <p>
             {allRegionalKind
-              ? 'En cas de modification, seuls les préleveurs et préleveuses concernés par la/les modifications seront notifiés.'
-              : 'En cas de modification, seuls les destinataires concernés par la/les modifications seront notifiés.'}
+              ? 'En cas de modification, seuls les préleveurs et préleveuses concernées par la/les modifications seront notifiés.'
+              : 'En cas de modification, seuls les destinataires concernées par la/les modifications seront notifiés.'}
           </p>
           {isError && (
             <Alert
