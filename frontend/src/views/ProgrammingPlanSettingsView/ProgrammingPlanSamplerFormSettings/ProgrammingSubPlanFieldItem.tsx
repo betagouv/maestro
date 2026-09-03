@@ -6,6 +6,7 @@ import type {
   AdminFieldConfig,
   ProgrammingSubPlanFieldSetting
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
+import { FieldInheritanceLabels } from 'maestro-shared/schema/SpecificData/FieldInheritance';
 import { fieldInputTypeHasOptions } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { assert, type Equals } from 'tsafe';
 import { SettingInheritanceLockButton } from '../SettingInheritanceLockButton/SettingInheritanceLockButton';
@@ -67,6 +68,7 @@ export const ProgrammingSubPlanFieldItem = ({
           {managedAtPlanLevel && (
             <SettingInheritanceLockButton
               isInherited={isReadOnly}
+              title={FieldInheritanceLabels[inheritance]}
               onClick={() =>
                 onChange({
                   ...field,
@@ -98,24 +100,28 @@ export const ProgrammingSubPlanFieldItem = ({
           showCheckedHint={false}
         />
         <div className={cx('fr-btns-group', 'fr-btns-group--inline')}>
+          {!managedAtPlanLevel && (
+            <>
+              <Button
+                priority="tertiary no outline"
+                iconId="fr-icon-arrow-up-line"
+                size="small"
+                title="Monter"
+                disabled={!canMoveUp}
+                onClick={onMoveUp}
+              />
+              <Button
+                priority="tertiary no outline"
+                iconId="fr-icon-arrow-down-line"
+                size="small"
+                title="Descendre"
+                disabled={!canMoveDown}
+                onClick={onMoveDown}
+              />
+            </>
+          )}
           <Button
-            priority="tertiary no outline"
-            iconId="fr-icon-arrow-up-line"
-            size="small"
-            title="Monter"
-            disabled={managedAtPlanLevel || !canMoveUp}
-            onClick={onMoveUp}
-          />
-          <Button
-            priority="tertiary no outline"
-            iconId="fr-icon-arrow-down-line"
-            size="small"
-            title="Descendre"
-            disabled={managedAtPlanLevel || !canMoveDown}
-            onClick={onMoveDown}
-          />
-          <Button
-            priority="tertiary no outline"
+            priority="tertiary"
             iconId="fr-icon-delete-line"
             size="small"
             title="Retirer"

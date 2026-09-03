@@ -6,11 +6,8 @@ export const FieldInheritance = z.enum(['Own', 'Inherited', 'Excluded'], {
 
 export type FieldInheritance = z.infer<typeof FieldInheritance>;
 
-// export const FieldInheritanceList: FieldInheritance[] =
-//   FieldInheritance.options;
-//
-// export const FieldInheritanceLabels: Record<FieldInheritance, string> = {
-//   Own: 'Piloté par le sous-plan',
-//   Inherited: 'Hérité du plan',
-//   Excluded: 'Retiré du formulaire'
-// };
+export const FieldInheritanceLabels: Record<FieldInheritance, string> = {
+  Own: 'Piloté par le sous-plan',
+  Inherited: 'Hérité du plan',
+  Excluded: 'Retiré du formulaire'
+};

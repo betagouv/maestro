@@ -318,7 +318,12 @@ h6,
   }
 
   .fr-btn[class*="fr-icon-"]:not([class*="fr-btn--icon-"]) {
+    padding-left: 0.5rem !important;
     padding-right: 0.5rem !important;
+  }
+
+  &--inline .fr-btn {
+    margin-bottom: 0;
   }
 }
 

@@ -47,6 +47,7 @@ export const ProgrammingPlanSettingInheritance = <
       {managedAtPlanLevel && (
         <SettingInheritanceLockButton
           isInherited={isInherited}
+          title={isInherited ? 'Géré par le plan' : 'Détaché du plan'}
           onClick={() =>
             change(
               isInherited

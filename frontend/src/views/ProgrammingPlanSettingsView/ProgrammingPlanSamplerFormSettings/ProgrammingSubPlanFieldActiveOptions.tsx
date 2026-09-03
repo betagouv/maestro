@@ -1,8 +1,10 @@
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import clsx from 'clsx';
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import type { SpecificDataFieldOptionId } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { assert, type Equals } from 'tsafe';
+import './ProgrammingSubPlanFieldActiveOptions.scss';
 
 interface Props {
   optionIds: SpecificDataFieldOptionId[];
@@ -38,10 +40,8 @@ export const ProgrammingSubPlanFieldActiveOptions = ({
   }
 
   return (
-    <div className={cx('fr-mt-1w')}>
+    <div className={clsx('programming-sub-plan-field-active-options')}>
       <Checkbox
-        legend="Options actives"
-        small
         disabled={disabled}
         options={sortedOptions.map((option) => ({
           label: option.label,

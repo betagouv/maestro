@@ -432,10 +432,10 @@ export const SubPlanSamplerForm: Story = {
     ).toBeDisabled();
 
     await userEvent.click(
-      canvas.getByText('Ajouter un champ', { selector: 'button' })
+      canvas.getByText('Ajouter un descripteur', { selector: 'button' })
     );
     await userEvent.selectOptions(
-      inModal('sampler-form-add-field-modal').getByLabelText(/^Champ/),
+      inModal('sampler-form-add-field-modal').getByLabelText(/^Descripteur/),
       especeField.id
     );
     await userEvent.click(
@@ -631,13 +631,13 @@ export const SubPlanManagedField: Story = {
           .closest('.programming-sub-plan-field-item') as HTMLElement
       );
 
-    await expect(
-      fieldItem().getByTitle('Géré par le plan')
-    ).toBeInTheDocument();
+    await expect(fieldItem().getByTitle('Hérité du plan')).toBeInTheDocument();
     await expect(fieldItem().getByLabelText('Obligatoire')).toBeDisabled();
 
-    await userEvent.click(fieldItem().getByTitle('Géré par le plan'));
-    await expect(fieldItem().getByTitle('Détaché du plan')).toBeInTheDocument();
+    await userEvent.click(fieldItem().getByTitle('Hérité du plan'));
+    await expect(
+      fieldItem().getByTitle('Piloté par le sous-plan')
+    ).toBeInTheDocument();
     await expect(fieldItem().getByLabelText('Obligatoire')).toBeEnabled();
 
     await userEvent.click(fieldItem().getByTitle('Retirer'));
@@ -648,7 +648,7 @@ export const SubPlanManagedField: Story = {
     );
 
     await userEvent.click(
-      canvas.getByText('Ajouter un champ', { selector: 'button' })
+      canvas.getByText('Ajouter un descripteur', { selector: 'button' })
     );
     const addModal = within(
       canvasElement.querySelector(
@@ -656,7 +656,7 @@ export const SubPlanManagedField: Story = {
       ) as HTMLElement
     );
     await userEvent.selectOptions(
-      addModal.getByLabelText(/^Champ/),
+      addModal.getByLabelText(/^Descripteur/),
       especeField.id
     );
     await userEvent.click(
@@ -668,7 +668,7 @@ export const SubPlanManagedField: Story = {
         canvas.getByText('Champ espece', { selector: 'p' })
       ).toBeInTheDocument()
     );
-    await expect(fieldItem().queryByTitle('Géré par le plan')).toBeNull();
-    await expect(fieldItem().queryByTitle('Détaché du plan')).toBeNull();
+    await expect(fieldItem().getByTitle('Hérité du plan')).toBeInTheDocument();
+    await expect(fieldItem().getByLabelText('Obligatoire')).toBeDisabled();
   }
 };

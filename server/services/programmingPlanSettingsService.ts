@@ -1,7 +1,8 @@
 import type { Transaction } from 'kysely';
 import {
   managedKey,
-  ProgrammingPlanSettingKey
+  ProgrammingPlanSettingKey,
+  type ProgrammingPlanSettings
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type {
   ProgrammingPlanSettingsForm,
@@ -243,9 +244,18 @@ const saveSubPlanSettings = (
   executeTransaction(async (trx) => {
     console.info('Update programming sub-plan settings', programmingSubPlanId);
 
+    const ownSettings: Partial<ProgrammingPlanSettings> = {};
+    for (const settingKey of ProgrammingPlanSettingKey.options) {
+      const managed = settings[managedKey(settingKey)];
+      ownSettings[managedKey(settingKey)] = managed;
+      if (managed) {
+        ownSettings[settingKey] = settings[settingKey];
+      }
+    }
+
     await programmingSubPlanRepository.updateSettings(
       programmingSubPlanId,
-      settings,
+      ownSettings,
       trx
     );
 

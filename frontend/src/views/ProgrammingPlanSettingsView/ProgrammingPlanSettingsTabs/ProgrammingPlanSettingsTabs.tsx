@@ -43,9 +43,9 @@ export const ProgrammingPlanSettingsTabs = ({
       { skip: !subPlan }
     );
 
-  const [updateProgrammingPlanSettings] =
+  const [updateProgrammingPlanSettings, updatePlanSettingsCall] =
     apiClient.useUpdateProgrammingPlanSettingsMutation();
-  const [updateProgrammingSubPlanSettings] =
+  const [updateProgrammingSubPlanSettings, updateSubPlanSettingsCall] =
     apiClient.useUpdateProgrammingSubPlanSettingsMutation();
 
   const settings: ProgrammingSubPlanSettingsForm | undefined = useMemo(
@@ -123,6 +123,7 @@ export const ProgrammingPlanSettingsTabs = ({
       />
       <ProgrammingSubPlanActionBar
         hasChanges={!isEqual(draft, settings)}
+        saveCall={subPlan ? updateSubPlanSettingsCall : updatePlanSettingsCall}
         onReset={() => setDraft(settings)}
         onSave={() => save(draft)}
       />

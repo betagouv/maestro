@@ -18,7 +18,7 @@ const AddFieldForm = z.object({
   fieldId: refineSchema(
     SpecificDataFieldId,
     (value) => value.length > 0,
-    'Veuillez sélectionner un champ'
+    'Veuillez sélectionner un descripteur'
   ),
   required: z.boolean()
 });
@@ -49,7 +49,7 @@ export const AddFieldToProgrammingSubPlanModal = ({
   const form = useForm(AddFieldForm, formData);
 
   const fieldOptions = [
-    { value: '', label: '-- Sélectionner un champ --', hidden: true },
+    { value: '', label: '-- Sélectionner un descripteur --', hidden: true },
     ...availableFields.map((f) => ({
       value: f.id,
       label: `${f.key} — ${f.label}`
@@ -79,7 +79,7 @@ export const AddFieldToProgrammingSubPlanModal = ({
 
   return (
     <modal.Component
-      title="Ajouter un champ"
+      title="Ajouter un descripteur"
       concealingBackdrop={false}
       topAnchor
       buttons={[
@@ -98,7 +98,7 @@ export const AddFieldToProgrammingSubPlanModal = ({
     >
       <form>
         <AppSelect
-          label="Champ"
+          label="Descripteur"
           value={formData.fieldId}
           inputForm={form}
           inputKey="fieldId"

@@ -50,7 +50,7 @@ export const ProgrammingPlanSamplerFormSettings = ({
           onClick={() => addFieldModal.open()}
           disabled={availableFields.length === 0}
         >
-          Ajouter un champ
+          Ajouter un descripteur
         </Button>
       </div>
 
@@ -64,10 +64,15 @@ export const ProgrammingPlanSamplerFormSettings = ({
         modal={addFieldModal}
         availableFields={availableFields}
         onAdd={(field) =>
-          onChange([
-            ...fields.filter((f) => f.fieldId !== field.fieldId),
-            field
-          ])
+          onChange(
+            fields.some(({ fieldId }) => fieldId === field.fieldId)
+              ? fields.map((f) =>
+                  f.fieldId === field.fieldId
+                    ? { ...f, inheritance: 'Inherited' as const }
+                    : f
+                )
+              : [...fields, field]
+          )
         }
       />
     </>

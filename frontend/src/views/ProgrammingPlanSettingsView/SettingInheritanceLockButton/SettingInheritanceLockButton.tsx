@@ -4,11 +4,13 @@ import './SettingInheritanceLockButton.scss';
 
 type Props = {
   isInherited: boolean;
+  title: string;
   onClick: () => void;
 };
 
 export const SettingInheritanceLockButton = ({
   isInherited,
+  title,
   onClick,
   ..._rest
 }: Props) => {
@@ -18,7 +20,7 @@ export const SettingInheritanceLockButton = ({
     <Button
       priority="tertiary"
       iconId={isInherited ? 'fr-icon-lock-fill' : 'fr-icon-lock-unlock-fill'}
-      title={isInherited ? 'Géré par le plan' : 'Détaché du plan'}
+      title={title}
       className={
         isInherited
           ? 'setting-inheritance-lock-btn--inherited'
