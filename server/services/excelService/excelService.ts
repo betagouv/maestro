@@ -417,7 +417,7 @@ const generateSamplesExportExcel = async (
 const generatePrescriptionsExportExcel = async (
   programmingPlans: ProgrammingPlanChecked[],
   prescriptions: Prescription[],
-  localPrescriptions: LocalPrescription[],
+  allLocalPrescriptions: LocalPrescription[],
   exportedRegion: Region | undefined,
   exportedDepartment: Department | undefined
 ): Promise<Buffer> => {
@@ -429,6 +429,11 @@ const generatePrescriptionsExportExcel = async (
       : [];
 
   console.log('Export prescriptions', exportedRegion, exportedDepartments);
+
+  const exportedPrescriptionIds = new Set(prescriptions.map((_) => _.id));
+  const localPrescriptions = allLocalPrescriptions.filter((_) =>
+    exportedPrescriptionIds.has(_.prescriptionId)
+  );
 
   const laboratories = await laboratoryRepository.findMany();
   const companySirets = uniq(
@@ -598,6 +603,7 @@ const generatePrescriptionsExportExcel = async (
       }
 
       return {
+        subPlanNumber: prescriptionSubPlan?.subPlanNumber ?? '',
         domain: prescriptionPlan?.domainId
           ? (domainLabelById.get(prescriptionPlan.domainId) ?? '')
           : '',
@@ -671,6 +677,7 @@ const generatePrescriptionsExportExcel = async (
       prescriptions: [
         ...prescriptionsWithColumns,
         {
+          subPlanNumber: '',
           domain: '',
           plan: '',
           context: '',
