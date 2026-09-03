@@ -13,7 +13,7 @@ interface Options {
   onDiscard?: () => void;
 }
 
-export interface UnsavedChangesGuardHandle {
+interface UnsavedChangesGuardHandle {
   run: (action: () => void) => void;
   confirm: () => void;
   cancel: () => void;
