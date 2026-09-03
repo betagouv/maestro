@@ -28,9 +28,9 @@ import programmation from '../../assets/illustrations/programmation.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
 import PrescriptionCommentsModal from '../../components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
-import UnsavedChangesModal, {
-  openUnsavedChangesModal
-} from '../../components/UnsavedChangesModal/UnsavedChangesModal';
+import UnsavedChangesGuard, {
+  useUnsavedChangesGuard
+} from '../../components/UnsavedChangesGuard/UnsavedChangesGuard';
 import YearSelector from '../../components/YearSelector/YearSelector';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
@@ -81,44 +81,24 @@ const ProgrammingView = () => {
 
   const [listHasPendingChanges, setListHasPendingChanges] = useState(false);
   const listResetFnRef = useRef<() => void>(() => {});
-  const pendingTabIdRef = useRef<string | null>(null);
   const hasMarkedChangesViewedRef = useRef(false);
   const [markLocalPrescriptionChangesViewed] =
     apiClient.useMarkLocalPrescriptionChangesViewedMutation();
 
-  useEffect(() => {
-    const handler = (e: BeforeUnloadEvent) => {
-      if (listHasPendingChanges) {
-        e.preventDefault();
-      }
-    };
-    window.addEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
-  }, [listHasPendingChanges]);
-
-  const handleUnsavedConfirm = useCallback(() => {
-    listResetFnRef.current();
-    setListHasPendingChanges(false); // reset immediately — list may be unmounting so its useEffect won't fire
-    if (pendingTabIdRef.current) {
-      setSelectedTabId(pendingTabIdRef.current as ProgrammingViewTab);
-      pendingTabIdRef.current = null;
-    }
-  }, []);
-
-  const handleUnsavedCancel = useCallback(() => {
-    pendingTabIdRef.current = null;
-  }, []);
+  const unsavedChangesGuard = useUnsavedChangesGuard({
+    when: listHasPendingChanges,
+    onDiscard: useCallback(() => {
+      listResetFnRef.current();
+      setListHasPendingChanges(false); // reset immediately — list may be unmounting so its useEffect won't fire
+    }, [])
+  });
 
   const handleTabChange = useCallback(
-    (tabId: string) => {
-      if (listHasPendingChanges) {
-        pendingTabIdRef.current = tabId;
-        openUnsavedChangesModal();
-      } else {
-        setSelectedTabId(tabId as ProgrammingViewTab);
-      }
-    },
-    [listHasPendingChanges]
+    (tabId: string) =>
+      unsavedChangesGuard.run(() =>
+        setSelectedTabId(tabId as ProgrammingViewTab)
+      ),
+    [unsavedChangesGuard]
   );
 
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery({
@@ -466,10 +446,7 @@ const ProgrammingView = () => {
           </div>
         )}
       </section>
-      <UnsavedChangesModal
-        onConfirm={handleUnsavedConfirm}
-        onCancel={handleUnsavedCancel}
-      />
+      <UnsavedChangesGuard guard={unsavedChangesGuard} />
       <PrescriptionCommentsModal
         onSubmitLocalPrescriptionComment={submitLocalPrescriptionComment}
       />
