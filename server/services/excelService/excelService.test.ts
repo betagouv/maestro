@@ -66,7 +66,7 @@ describe('generatePrescriptionsExportExcel', async () => {
     const csv = XLSX.utils.sheet_to_csv(worksheet, { FS: ';' });
 
     expect(csv.toString()).toMatchInlineSnapshot(`
-      "Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;Total national Programmés;"Région ARA
+      "N°;Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;Total national Programmés;"Région ARA
       Programmés";"Région BFC
       Programmés";"Région BRE
       Programmés";"Région COR
@@ -83,11 +83,10 @@ describe('generatePrescriptionsExportExcel', async () => {
       Programmés";"Région OCC
       Programmés";"Région PAC
       Programmés";"Région PDL
-      Programmés";"Région REU
       Programmés"
-      ;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;80;3;2;5;8;10;1;2;10;3;3;2;9;4;4;2;1;5;6
-      ;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;77;2;3;8;1;9;1;11;3;2;1;1;4;6;1;5;6;3;10
-      ;;;Total;;;;157;5;5;13;9;19;2;13;13;5;4;3;13;10;5;7;7;8;16"
+      M02;;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;80;3;2;5;8;10;1;2;10;3;3;2;9;4;4;2;1;5
+      M01;;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;77;2;3;8;1;9;1;11;3;2;1;1;4;6;1;5;6;3
+      ;;;;Total;;;;157;5;5;13;9;19;2;13;13;5;4;3;13;10;5;7;7;8"
     `);
   });
 
@@ -115,7 +114,7 @@ describe('generatePrescriptionsExportExcel', async () => {
     const csv = XLSX.utils.sheet_to_csv(worksheet, { FS: ';' });
 
     expect(csv.toString()).toMatchInlineSnapshot(`
-      "Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;"Région PDL
+      "N°;Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;"Région PDL
       Programmés";"Département 44
       Programmés";"Département 44
       Laboratoire mono-résidu";"Département 44
@@ -135,11 +134,10 @@ describe('generatePrescriptionsExportExcel', async () => {
       Laboratoire cuivre";"Département 85
       Programmés";"Département 85
       Laboratoire mono-résidu";"Département 85
-      Laboratoire multi-résidus";"Département 85
-      Laboratoire cuivre"
-      ;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;5;8;;;;13;;;;8;;;;9;;;;13;;;
-      ;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;3;8;;;;13;;;;8;;;;9;;;;13;;;
-      ;;;Total;;;;8;16;;;;26;;;;16;;;;18;;;;26;;;"
+      Laboratoire multi-résidus"
+      M02;;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;5;8;;;;13;;;;8;;;;9;;;;13;;
+      M01;;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;3;8;;;;13;;;;8;;;;9;;;;13;;
+      ;;;;Total;;;;8;16;;;;26;;;;16;;;;18;;;;26;;"
     `);
   });
 
@@ -177,12 +175,11 @@ describe('generatePrescriptionsExportExcel', async () => {
     const csv = XLSX.utils.sheet_to_csv(worksheet, { FS: ';' });
 
     expect(csv.toString()).toMatchInlineSnapshot(`
-      "Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;"Département 85
-      Programmés";"Département 85
-      Laboratoire mono-résidu"
-      ;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;13;
-      ;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;13;
-      ;;;Total;;;;40;"
+      "N°;Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;"Département 85
+      Programmés"
+      M02;;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;13
+      M01;;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;13
+      ;;;;Total;;;;40"
     `);
   });
 });
