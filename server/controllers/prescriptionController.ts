@@ -374,7 +374,7 @@ export const prescriptionsRouter = {
           contexts: queryFindOptions.contexts,
           region: exportedRegion,
           department: exportedDepartment,
-          includes: ['comments', 'sampleCounts', 'laboratories']
+          includes: ['comments', 'laboratories']
         }),
         userRole
       );

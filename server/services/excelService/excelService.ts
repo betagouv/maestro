@@ -32,7 +32,6 @@ import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { LaboratoryAgreement } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import type { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
 import {
-  getCompletionRate,
   type LocalPrescription,
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
@@ -467,15 +466,11 @@ const generatePrescriptionsExportExcel = async (
 
   if (!exportedRegion) {
     columnTitles.push('Total national Programmés');
-    columnTitles.push('Total national Réalisés');
-    columnTitles.push('Total national Taux de réalisation');
   }
   if (!exportedDepartment) {
     columnTitles.push(
       ...exportedRegions.flatMap((region) => [
         `Région ${Regions[region].shortName}\nProgrammés`,
-        `Région ${Regions[region].shortName}\nRéalisés`,
-        `Région ${Regions[region].shortName}\nTaux de réalisation`,
         ...(hasRegionalPlan
           ? effectiveSubstanceKinds.flatMap(
               (substanceKind) =>
@@ -489,8 +484,6 @@ const generatePrescriptionsExportExcel = async (
     columnTitles.push(
       ...exportedDepartments.flatMap((department) => [
         `Département ${department}\nProgrammés`,
-        `Département ${department}\nRéalisés`,
-        `Département ${department}\nTaux de réalisation`,
         ...effectiveSubstanceKinds.flatMap(
           (substanceKind) =>
             `Département ${department}\nLaboratoire ${SubstanceKindLabels[substanceKind].toLowerCase()}`
@@ -505,15 +498,11 @@ const generatePrescriptionsExportExcel = async (
         kinds: ['POULTRY_SLAUGHTERHOUSE', 'MEAT_SLAUGHTERHOUSE']
       });
       columnTitles.push(
-        ...companySirets.flatMap((companySiret) => {
+        ...companySirets.map((companySiret) => {
           const companyName =
             companies.find((c) => c.siret === companySiret)?.name ??
             (companySiret as string);
-          return [
-            `${companyName}\nProgrammés`,
-            `${companyName}\nRéalisés`,
-            `${companyName}\nTaux de réalisation`
-          ];
+          return `${companyName}\nProgrammés`;
         })
       );
     }
@@ -535,11 +524,7 @@ const generatePrescriptionsExportExcel = async (
 
       const columns: (string | number)[] = [];
       if (!exportedRegion) {
-        columns.push(
-          sumBy(filteredLocalPrescriptions, 'sampleCount'),
-          sumBy(filteredLocalPrescriptions, 'realizedSampleCount') ?? 0,
-          getCompletionRate(filteredLocalPrescriptions)
-        );
+        columns.push(sumBy(filteredLocalPrescriptions, 'sampleCount'));
       }
       if (!exportedDepartment) {
         columns.push(
@@ -549,11 +534,6 @@ const generatePrescriptionsExportExcel = async (
             );
             return [
               localPrescription?.sampleCount ?? 0,
-              localPrescription?.realizedSampleCount ?? 0,
-              getCompletionRate(
-                filteredLocalPrescriptions,
-                exportedRegionColumn
-              ),
               ...(hasRegionalPlan
                 ? effectiveSubstanceKinds.map((substanceKind) =>
                     prescriptionPlan?.distributionKind === 'REGIONAL' &&
@@ -585,8 +565,6 @@ const generatePrescriptionsExportExcel = async (
             );
             return [
               localPrescription?.sampleCount ?? 0,
-              localPrescription?.realizedSampleCount ?? 0,
-              getCompletionRate(localPrescription ?? [], undefined, true),
               ...effectiveSubstanceKinds.map((substanceKind) =>
                 prescriptionPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
                 (prescriptionSubPlan?.substanceKinds ?? []).includes(
@@ -608,22 +586,14 @@ const generatePrescriptionsExportExcel = async (
 
       if (exportedRegion && exportedDepartment) {
         columns.push(
-          ...companySirets.flatMap((companySiret) => {
-            const companyPrescription = localPrescriptions.find(
-              (_) =>
-                _.prescriptionId === prescription.id &&
-                _.companySiret === companySiret
-            ) ?? {
-              sampleCount: 0,
-              realizedSampleCount: 0,
-              region: exportedRegion
-            };
-            return [
-              companyPrescription?.sampleCount ?? 0,
-              companyPrescription?.realizedSampleCount ?? 0,
-              getCompletionRate(companyPrescription, undefined, true)
-            ];
-          })
+          ...companySirets.map(
+            (companySiret) =>
+              localPrescriptions.find(
+                (_) =>
+                  _.prescriptionId === prescription.id &&
+                  _.companySiret === companySiret
+              )?.sampleCount ?? 0
+          )
         );
       }
 
@@ -645,11 +615,7 @@ const generatePrescriptionsExportExcel = async (
 
   const totalColums: (string | number)[] = [];
   if (!exportedRegion) {
-    totalColums.push(
-      sumBy(localPrescriptions, 'sampleCount'),
-      sumBy(localPrescriptions, 'realizedSampleCount'),
-      getCompletionRate(localPrescriptions)
-    );
+    totalColums.push(sumBy(localPrescriptions, 'sampleCount'));
   }
   if (!exportedDepartment) {
     totalColums.push(
@@ -659,18 +625,6 @@ const generatePrescriptionsExportExcel = async (
             (_) => _.region === region && isNil(_.department)
           ),
           'sampleCount'
-        ),
-        sumBy(
-          localPrescriptions.filter(
-            (_) => _.region === region && isNil(_.department)
-          ),
-          'realizedSampleCount'
-        ),
-        getCompletionRate(
-          localPrescriptions.filter(
-            (_) => _.region === region && isNil(_.department)
-          ),
-          region
         ),
         ...(hasRegionalPlan ? effectiveSubstanceKinds.map(() => '') : [])
       ])
@@ -685,8 +639,6 @@ const generatePrescriptionsExportExcel = async (
         );
         return [
           sumBy(filteredLocalPrescriptions, 'sampleCount'),
-          sumBy(filteredLocalPrescriptions, 'realizedSampleCount'),
-          getCompletionRate(filteredLocalPrescriptions, undefined, true),
           ...effectiveSubstanceKinds.map(() => '')
         ];
       })
@@ -694,19 +646,17 @@ const generatePrescriptionsExportExcel = async (
 
     if (exportedRegion && exportedDepartment) {
       totalColums.push(
-        ...companySirets.flatMap((companySiret) => {
-          const filteredLocalPrescriptions = localPrescriptions.filter(
-            (_) =>
-              _.companySiret === companySiret &&
-              _.region === exportedRegion &&
-              _.department === exportedDepartment
-          );
-          return [
-            sumBy(filteredLocalPrescriptions, 'sampleCount'),
-            sumBy(filteredLocalPrescriptions, 'realizedSampleCount'),
-            getCompletionRate(filteredLocalPrescriptions, undefined, true)
-          ];
-        })
+        ...companySirets.map((companySiret) =>
+          sumBy(
+            localPrescriptions.filter(
+              (_) =>
+                _.companySiret === companySiret &&
+                _.region === exportedRegion &&
+                _.department === exportedDepartment
+            ),
+            'sampleCount'
+          )
+        )
       );
     }
   }

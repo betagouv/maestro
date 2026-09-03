@@ -60,68 +60,34 @@ describe('generatePrescriptionsExportExcel', async () => {
 
     worksheet['!ref'] = XLSX.utils.encode_range({
       s: { r: 0, c: 0 },
-      e: { r: prescriptions.length + 1, c: (RegionList.length + 1) * 3 + 4 }
+      e: { r: prescriptions.length + 1, c: RegionList.length + 7 }
     });
 
     const csv = XLSX.utils.sheet_to_csv(worksheet, { FS: ';' });
 
     expect(csv.toString()).toMatchInlineSnapshot(`
-      "Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;Total national Programmés;Total national Réalisés;Total national Taux de réalisation;"Région ARA
-      Programmés";"Région ARA
-      Réalisés";"Région ARA
-      Taux de réalisation";"Région BFC
+      "Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;Total national Programmés;"Région ARA
       Programmés";"Région BFC
-      Réalisés";"Région BFC
-      Taux de réalisation";"Région BRE
       Programmés";"Région BRE
-      Réalisés";"Région BRE
-      Taux de réalisation";"Région COR
       Programmés";"Région COR
-      Réalisés";"Région COR
-      Taux de réalisation";"Région CVL
       Programmés";"Région CVL
-      Réalisés";"Région CVL
-      Taux de réalisation";"Région GES
       Programmés";"Région GES
-      Réalisés";"Région GES
-      Taux de réalisation";"Région GUA
       Programmés";"Région GUA
-      Réalisés";"Région GUA
-      Taux de réalisation";"Région GUY
       Programmés";"Région GUY
-      Réalisés";"Région GUY
-      Taux de réalisation";"Région HDF
       Programmés";"Région HDF
-      Réalisés";"Région HDF
-      Taux de réalisation";"Région IDF
       Programmés";"Région IDF
-      Réalisés";"Région IDF
-      Taux de réalisation";"Région MAR
       Programmés";"Région MAR
-      Réalisés";"Région MAR
-      Taux de réalisation";"Région MYT
       Programmés";"Région MYT
-      Réalisés";"Région MYT
-      Taux de réalisation";"Région NAQ
       Programmés";"Région NAQ
-      Réalisés";"Région NAQ
-      Taux de réalisation";"Région NOR
       Programmés";"Région NOR
-      Réalisés";"Région NOR
-      Taux de réalisation";"Région OCC
       Programmés";"Région OCC
-      Réalisés";"Région OCC
-      Taux de réalisation";"Région PAC
       Programmés";"Région PAC
-      Réalisés";"Région PAC
-      Taux de réalisation";"Région PDL
       Programmés";"Région PDL
-      Réalisés";"Région PDL
-      Taux de réalisation";"Région REU
+      Programmés";"Région REU
       Programmés"
-      ;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;80;0;0;3;0;0;2;0;0;5;0;0;8;0;0;10;0;0;1;0;0;2;0;0;10;0;0;3;0;0;3;0;0;2;0;0;9;0;0;4;0;0;4;0;0;2;0;0;1;0;0;5;0;0;6
-      ;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;77;0;0;2;0;0;3;0;0;8;0;0;1;0;0;9;0;0;1;0;0;11;0;0;3;0;0;2;0;0;1;0;0;1;0;0;4;0;0;6;0;0;1;0;0;5;0;0;6;0;0;3;0;0;10
-      ;;;Total;;;;157;;0;5;;0;5;;0;13;;0;9;;0;19;;0;2;;0;13;;0;13;;0;5;;0;4;;0;3;;0;13;;0;10;;0;5;;0;7;;0;7;;0;8;;0;16"
+      ;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;80;3;2;5;8;10;1;2;10;3;3;2;9;4;4;2;1;5;6
+      ;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;77;2;3;8;1;9;1;11;3;2;1;1;4;6;1;5;6;3;10
+      ;;;Total;;;;157;5;5;13;9;19;2;13;13;5;4;3;13;10;5;7;7;8;16"
     `);
   });
 
@@ -142,7 +108,7 @@ describe('generatePrescriptionsExportExcel', async () => {
       s: { r: 0, c: 0 },
       e: {
         r: prescriptions.length + 1,
-        c: (Regions[regionPDL].departments.length + 1) * 3 + 4
+        c: Regions[regionPDL].departments.length * 4 + 7
       }
     });
 
@@ -150,25 +116,30 @@ describe('generatePrescriptionsExportExcel', async () => {
 
     expect(csv.toString()).toMatchInlineSnapshot(`
       "Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;"Région PDL
-      Programmés";"Région PDL
-      Réalisés";"Région PDL
-      Taux de réalisation";"Département 44
       Programmés";"Département 44
-      Réalisés";"Département 44
-      Taux de réalisation";"Département 44
+      Programmés";"Département 44
       Laboratoire mono-résidu";"Département 44
       Laboratoire multi-résidus";"Département 44
       Laboratoire cuivre";"Département 49
       Programmés";"Département 49
-      Réalisés";"Département 49
-      Taux de réalisation";"Département 49
       Laboratoire mono-résidu";"Département 49
       Laboratoire multi-résidus";"Département 49
       Laboratoire cuivre";"Département 53
-      Programmés"
-      ;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;5;0;0;8;0;0;;;;13;0;0;;;;8
-      ;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;3;0;0;8;0;0;;;;13;0;0;;;;8
-      ;;;Total;;;;8;;0;16;;0;;;;26;;0;;;;16"
+      Programmés";"Département 53
+      Laboratoire mono-résidu";"Département 53
+      Laboratoire multi-résidus";"Département 53
+      Laboratoire cuivre";"Département 72
+      Programmés";"Département 72
+      Laboratoire mono-résidu";"Département 72
+      Laboratoire multi-résidus";"Département 72
+      Laboratoire cuivre";"Département 85
+      Programmés";"Département 85
+      Laboratoire mono-résidu";"Département 85
+      Laboratoire multi-résidus";"Département 85
+      Laboratoire cuivre"
+      ;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;5;8;;;;13;;;;8;;;;9;;;;13;;;
+      ;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;3;8;;;;13;;;;8;;;;9;;;;13;;;
+      ;;;Total;;;;8;16;;;;26;;;;16;;;;18;;;;26;;;"
     `);
   });
 
@@ -199,7 +170,7 @@ describe('generatePrescriptionsExportExcel', async () => {
       s: { r: 0, c: 0 },
       e: {
         r: prescriptions.length + 1,
-        c: 7
+        c: 8
       }
     });
 
@@ -207,10 +178,11 @@ describe('generatePrescriptionsExportExcel', async () => {
 
     expect(csv.toString()).toMatchInlineSnapshot(`
       "Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;"Département 85
-      Programmés"
-      ;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;13
-      ;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;13
-      ;;;Total;;;;40"
+      Programmés";"Département 85
+      Laboratoire mono-résidu"
+      ;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;13;
+      ;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;13;
+      ;;;Total;;;;40;"
     `);
   });
 });
