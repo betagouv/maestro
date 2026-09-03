@@ -1,10 +1,12 @@
 import type { Geolocation } from 'maestro-shared/schema/Geolocation/Geolocation';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { type FunctionComponent, useEffect, useState } from 'react';
+import { type FunctionComponent, useEffect, useRef, useState } from 'react';
 import {
   FullscreenControl,
+  GeolocateControl,
   Map as MapLibre,
   type MapMouseEvent,
+  type MapRef,
   Marker,
   type MarkerDragEvent,
   NavigationControl
@@ -29,10 +31,14 @@ type Props = {
   | {
       markerDraggable: true;
       onMarkerLocationUpdate: (event: MarkerDragEvent | MapMouseEvent) => void;
+      onGeolocate: (coords: { latitude: number; longitude: number }) => void;
+      onGeolocateUnavailable: () => void;
     }
   | {
       markerDraggable?: never;
       onMarkerLocationUpdate?: never;
+      onGeolocate?: never;
+      onGeolocateUnavailable?: never;
     }
 );
 export const SampleMap: FunctionComponent<Props> = ({
@@ -42,9 +48,13 @@ export const SampleMap: FunctionComponent<Props> = ({
   markerY,
   markerDraggable,
   onMarkerLocationUpdate,
+  onGeolocate,
+  onGeolocateUnavailable,
   ..._rest
 }) => {
   assert<Equals<keyof typeof _rest, never>>();
+
+  const mapRef = useRef<MapRef>(null);
 
   const [mapLatitude, setMapLatitude] = useState<number>(
     location ? location.x : markerX
@@ -69,8 +79,24 @@ export const SampleMap: FunctionComponent<Props> = ({
     }
   }, [initialZoom]);
 
+  const disableGeolocateButton = () => {
+    const geolocateButton = mapRef.current
+      ?.getContainer()
+      .querySelector<HTMLButtonElement>('.maplibregl-ctrl-geolocate');
+
+    if (geolocateButton) {
+      geolocateButton.disabled = true;
+      geolocateButton.setAttribute(
+        'aria-label',
+        'Position indisponible. Placez le repère manuellement sur la carte.'
+      );
+    }
+    onGeolocateUnavailable?.();
+  };
+
   return (
     <MapLibre
+      ref={mapRef}
       attributionControl={false}
       id="sampleLocationMap"
       latitude={mapLatitude}
@@ -92,6 +118,22 @@ export const SampleMap: FunctionComponent<Props> = ({
     >
       <NavigationControl position="bottom-right" showCompass={false} />
       <FullscreenControl position="bottom-right" />
+      {markerDraggable && (
+        <GeolocateControl
+          position="bottom-right"
+          trackUserLocation={false}
+          showUserLocation={false}
+          positionOptions={{ enableHighAccuracy: true }}
+          fitBoundsOptions={{ maxZoom: 15 }}
+          onGeolocate={(e) =>
+            onGeolocate({
+              latitude: e.coords.latitude,
+              longitude: e.coords.longitude
+            })
+          }
+          onError={disableGeolocateButton}
+        />
+      )}
       <Marker
         longitude={markerY}
         latitude={markerX}

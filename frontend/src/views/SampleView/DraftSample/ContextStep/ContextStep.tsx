@@ -2,7 +2,6 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { intersection, isNil } from 'lodash-es';
 import {
@@ -52,11 +51,11 @@ import {
 } from 'src/components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
+import SampleGeolocationForm from 'src/components/Sample/SampleGeolocationForm/SampleGeolocationForm';
 import { useForm } from 'src/hooks/useForm';
 import { useOnLine } from 'src/hooks/useOnLine';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import SampleCompany from 'src/views/SampleView/DraftSample/ContextStep/SampleCompany';
-import SampleGeolocation from 'src/views/SampleView/DraftSample/ContextStep/SampleGeolocation';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
@@ -537,91 +536,35 @@ const ContextStep = ({ partialSample }: Props) => {
         </div>
       )}
       {subPlanNumber === 'PPV' && (
-        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-          <div className={cx('fr-col-12', 'fr-pb-0')}>
-            <div className={cx('fr-text--bold')}>
-              Emplacement{' '}
-              {subPlanNumber === 'PPV'
-                ? 'de la parcelle contrôlée'
-                : 'du contrôle'}
-            </div>
-            <div className={cx('fr-text--light')}>
-              Placez votre repère sur la zone correspondante ou renseignez
-              manuellement les coordonnées GPS
-            </div>
+        <SampleGeolocationForm
+          key={`geolocation-${isBrowserGeolocation}`}
+          title="Emplacement de la parcelle contrôlée"
+          geolocationX={geolocationX}
+          geolocationY={geolocationY}
+          onChangeLocation={(location) => {
+            setGeolocationX(location.x);
+            setGeolocationY(location.y);
+          }}
+          onChangeGeolocationX={setGeolocationX}
+          onChangeGeolocationY={setGeolocationY}
+          inputForm={form}
+          isOnline={isOnline}
+          readonly={readonly}
+        >
+          <div className={cx('fr-col-12')}>
+            <AppTextInput
+              defaultValue={parcel ?? ''}
+              onChange={(e) => setParcel(e.target.value)}
+              inputForm={form}
+              inputKey="parcel"
+              whenValid="Parcelle correctement renseignée."
+              data-testid="parcel-input"
+              label="N° ou appellation de la parcelle"
+              hintText="Facultatif"
+              disabled={readonly}
+            />
           </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-8')}>
-            {isOnline && !readonly ? (
-              <SampleGeolocation
-                key={`geolocation-${isBrowserGeolocation}`}
-                location={
-                  geolocationX && geolocationY
-                    ? { x: geolocationX, y: geolocationY }
-                    : undefined
-                }
-                onLocationChange={async (location) => {
-                  setGeolocationX(location.x);
-                  setGeolocationY(location.y);
-                }}
-              />
-            ) : (
-              <Skeleton variant="rectangular" height={375} />
-            )}
-          </div>
-          <div className={cx('fr-col-12', 'fr-col-sm-4')}>
-            <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-              <div className={cx('fr-col-12')}>
-                <AppTextInput
-                  type="number"
-                  step={0.000001}
-                  value={geolocationX ?? ''}
-                  onChange={(e) => setGeolocationX(Number(e.target.value))}
-                  inputForm={form}
-                  inputKey="geolocationX"
-                  whenValid="Latitude correctement renseignée."
-                  data-testid="geolocationX-input"
-                  label="Latitude"
-                  required={isOnline}
-                  min={-90}
-                  max={90}
-                  disabled={readonly}
-                />
-              </div>
-              <div className={cx('fr-col-12')}>
-                <AppTextInput
-                  type="number"
-                  step={0.000001}
-                  value={geolocationY ?? ''}
-                  onChange={(e) => setGeolocationY(Number(e.target.value))}
-                  inputForm={form}
-                  inputKey="geolocationY"
-                  whenValid="Longitude correctement renseignée."
-                  data-testid="geolocationY-input"
-                  label="Longitude"
-                  required={isOnline}
-                  min={-180}
-                  max={180}
-                  disabled={readonly}
-                />
-              </div>
-              {subPlanNumber === 'PPV' && (
-                <div className={cx('fr-col-12')}>
-                  <AppTextInput
-                    defaultValue={parcel ?? ''}
-                    onChange={(e) => setParcel(e.target.value)}
-                    inputForm={form}
-                    inputKey="parcel"
-                    whenValid="Parcelle correctement renseignée."
-                    data-testid="parcel-input"
-                    label="N° ou appellation de la parcelle"
-                    hintText="Facultatif"
-                    disabled={readonly}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        </SampleGeolocationForm>
       )}
       {programmingPlan.subPlans.length > 1 && (
         <AppSelect
