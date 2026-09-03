@@ -41,6 +41,7 @@ export const ProgrammingPlanSettingInheritance = <
 
   const composedLabel = (
     <span
+      className="setting-inheritance-label"
       style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
     >
       {managedAtPlanLevel && (

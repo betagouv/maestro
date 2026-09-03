@@ -1,4 +1,9 @@
 .programming-plan-setting-inheritance {
+  .setting-inheritance-label,
+  .fr-label--error {
+    vertical-align: middle;
+  }
+
   .setting-inheritance-lock-btn--inherited {
     background-color: var(--background-contrast-blue-france) !important;
 
