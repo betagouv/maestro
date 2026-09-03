@@ -1219,7 +1219,8 @@ const ProgrammingPrescriptionTable = ({
                                                           prescriptionId:
                                                             prescription.id,
                                                           region:
-                                                            region as Region
+                                                            region as Region,
+                                                          department
                                                         },
                                                         substanceKindsLaboratories.map(
                                                           (x) =>
