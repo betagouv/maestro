@@ -31,7 +31,11 @@ export const ProgrammingPlanSamplerFormSettings = ({
   const { data: allFields = [] } = apiClient.useFindAllFieldConfigsQuery();
 
   const availableFields = allFields.filter(
-    (globalField) => !fields.some(({ fieldId }) => fieldId === globalField.id)
+    (globalField) =>
+      !fields.some(
+        ({ fieldId, inheritance }) =>
+          fieldId === globalField.id && inheritance !== 'Excluded'
+      )
   );
 
   return (
@@ -59,7 +63,12 @@ export const ProgrammingPlanSamplerFormSettings = ({
       <AddFieldToProgrammingSubPlanModal
         modal={addFieldModal}
         availableFields={availableFields}
-        onAdd={(field) => onChange([...fields, field])}
+        onAdd={(field) =>
+          onChange([
+            ...fields.filter((f) => f.fieldId !== field.fieldId),
+            field
+          ])
+        }
       />
     </>
   );

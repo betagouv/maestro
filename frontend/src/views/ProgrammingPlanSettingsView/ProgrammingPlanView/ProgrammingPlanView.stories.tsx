@@ -25,6 +25,9 @@ const CerealesSubPlanId = ProgrammingSubPlanId.parse(
 const FruitsSubPlanId = ProgrammingSubPlanId.parse(
   '7c3d9e51-8b24-4f0a-bd63-1a5e4c9f2d78'
 );
+const AnimauxSubPlanId = ProgrammingSubPlanId.parse(
+  '2f6b9e14-5c8a-4d2f-9e01-6b3a8f0c1d47'
+);
 
 const updateProgrammingPlanSettings = fn();
 const updateProgrammingSubPlanSettings = fn();
@@ -70,6 +73,19 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     stages: ['TRANSFORMATION'],
     stagesManaged: false,
     fields: []
+  },
+  [AnimauxSubPlanId]: {
+    stages: ['ELEVAGE'],
+    stagesManaged: false,
+    fields: [
+      {
+        fieldId: especeField.id,
+        required: true,
+        optionIds: [],
+        inheritance: 'Inherited',
+        managedAtPlanLevel: true
+      }
+    ]
   }
 };
 
@@ -131,6 +147,12 @@ const meta = {
                 subPlanNumber: '101',
                 label: 'Céréales',
                 stages: ['PRODUCTION_PRIMAIRE_VEGETALE']
+              }),
+              genProgrammingSubPlan({
+                id: AnimauxSubPlanId,
+                subPlanNumber: '103',
+                label: 'Animaux',
+                stages: ['ELEVAGE']
               })
             ]
           }),
@@ -240,13 +262,14 @@ export const SubPlanList: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getByText('2 sous-plans')).toBeInTheDocument();
+    await expect(canvas.getByText('3 sous-plans')).toBeInTheDocument();
 
     const subPlans = within(
       canvas.getByRole('list', { name: 'Liste des sous-plans' })
     ).getAllByRole('listitem');
     await expect(subPlans[0]).toHaveTextContent('101 - Céréales');
     await expect(subPlans[1]).toHaveTextContent('102 - Fruits et légumes');
+    await expect(subPlans[2]).toHaveTextContent('103 - Animaux');
 
     // La recherche filtre la liste
     await userEvent.type(
@@ -510,9 +533,7 @@ export const SubPlanInheritedStages: Story = {
 
     updateProgrammingSubPlanSettings.mockClear();
 
-    await expect(
-      canvas.getByTitle('Paramètre au niveau du plan')
-    ).toBeInTheDocument();
+    await expect(canvas.getByTitle('Géré par le plan')).toBeInTheDocument();
     await expect(
       canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ })
     ).toBeDisabled();
@@ -523,10 +544,8 @@ export const SubPlanInheritedStages: Story = {
       canvas.queryByRole('button', { name: 'Transformation' })
     ).not.toBeInTheDocument();
 
-    await userEvent.click(canvas.getByTitle('Paramètre au niveau du plan'));
-    await expect(
-      canvas.getByTitle('Détaché du paramètre du plan')
-    ).toBeInTheDocument();
+    await userEvent.click(canvas.getByTitle('Géré par le plan'));
+    await expect(canvas.getByTitle('Détaché du plan')).toBeInTheDocument();
     await expect(
       canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ })
     ).toBeEnabled();
@@ -560,9 +579,7 @@ export const SubPlanDetachedStages: Story = {
 
     updateProgrammingSubPlanSettings.mockClear();
 
-    await expect(
-      canvas.getByTitle('Détaché du paramètre du plan')
-    ).toBeInTheDocument();
+    await expect(canvas.getByTitle('Détaché du plan')).toBeInTheDocument();
     await expect(
       canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ })
     ).toBeEnabled();
@@ -570,10 +587,8 @@ export const SubPlanDetachedStages: Story = {
       canvas.getByText('Production primaire végétale', { selector: '.fr-tag' })
     ).toBeInTheDocument();
 
-    await userEvent.click(canvas.getByTitle('Détaché du paramètre du plan'));
-    await expect(
-      canvas.getByTitle('Paramètre au niveau du plan')
-    ).toBeInTheDocument();
+    await userEvent.click(canvas.getByTitle('Détaché du plan'));
+    await expect(canvas.getByTitle('Géré par le plan')).toBeInTheDocument();
     await expect(
       canvas.getByText('Transformation', { selector: '.fr-tag' })
     ).toBeInTheDocument();
@@ -595,5 +610,77 @@ export const SubPlanDetachedStages: Story = {
         fields: subPlanSettings[CerealesSubPlanId].fields
       })
     );
+  }
+};
+
+export const SubPlanManagedField: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        AnimauxSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(
+      canvas.getByRole('tab', { name: 'Formulaire préleveur' })
+    );
+
+    const fieldItem = () =>
+      within(
+        canvas
+          .getByTitle('Retirer')
+          .closest('.programming-sub-plan-field-item') as HTMLElement
+      );
+
+    await expect(
+      fieldItem().getByTitle('Géré par le plan')
+    ).toBeInTheDocument();
+    await expect(fieldItem().getByLabelText('Obligatoire')).toBeDisabled();
+
+    await userEvent.click(fieldItem().getByTitle('Géré par le plan'));
+    await expect(fieldItem().getByTitle('Détaché du plan')).toBeInTheDocument();
+    await expect(fieldItem().getByLabelText('Obligatoire')).toBeEnabled();
+
+    await userEvent.click(fieldItem().getByTitle('Retirer'));
+    await userEvent.click(
+      within(
+        canvasElement.querySelector(
+          '#sampler-form-field-delete-modal'
+        ) as HTMLElement
+      ).getByText('Retirer', { selector: 'button' })
+    );
+    await waitFor(() =>
+      expect(
+        canvas.queryByText('Champ espece', { selector: 'p' })
+      ).not.toBeInTheDocument()
+    );
+
+    await userEvent.click(
+      canvas.getByText('Ajouter un champ', { selector: 'button' })
+    );
+    const addModal = within(
+      canvasElement.querySelector(
+        '#sampler-form-add-field-modal'
+      ) as HTMLElement
+    );
+    await userEvent.selectOptions(
+      addModal.getByLabelText(/^Champ/),
+      especeField.id
+    );
+    await userEvent.click(
+      addModal.getByText('Ajouter', { selector: 'button' })
+    );
+
+    await waitFor(() =>
+      expect(
+        canvas.getByText('Champ espece', { selector: 'p' })
+      ).toBeInTheDocument()
+    );
+    await expect(fieldItem().queryByTitle('Géré par le plan')).toBeNull();
+    await expect(fieldItem().queryByTitle('Détaché du plan')).toBeNull();
   }
 };

@@ -1,6 +1,4 @@
-import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
-import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
@@ -10,6 +8,8 @@ import type {
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import { fieldInputTypeHasOptions } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { assert, type Equals } from 'tsafe';
+import { SettingInheritanceLockButton } from '../SettingInheritanceLockButton/SettingInheritanceLockButton';
+import './ProgrammingSubPlanFieldItem.scss';
 import { ProgrammingSubPlanFieldActiveOptions } from './ProgrammingSubPlanFieldActiveOptions';
 
 interface Props {
@@ -38,10 +38,16 @@ export const ProgrammingSubPlanFieldItem = ({
 
   const { managedAtPlanLevel, inheritance } = field;
   const isReadOnly = inheritance === 'Inherited';
-  const isExcluded = inheritance === 'Excluded';
 
   return (
-    <div className={clsx('white-container', 'border', cx('fr-p-2w'))}>
+    <div
+      className={clsx(
+        'programming-sub-plan-field-item',
+        'white-container',
+        'border',
+        cx('fr-p-2w')
+      )}
+    >
       <div
         style={{
           display: 'flex',
@@ -50,47 +56,44 @@ export const ProgrammingSubPlanFieldItem = ({
           gap: '1rem'
         }}
       >
-        <div style={{ flex: 1 }}>
-          <p className={cx('fr-text--bold', 'fr-mb-0')}>
-            {globalField?.label ?? field.fieldId}{' '}
-            <span className={cx('fr-text--sm', 'fr-text--regular')}>
-              ({globalField?.key})
-            </span>
-          </p>
-          {globalField?.hintText && (
-            <p className={cx('fr-text--sm', 'fr-mb-0', 'fr-hint-text')}>
-              {globalField.hintText}
-            </p>
+        <div
+          className={clsx(
+            'd-flex-row',
+            'd-flex-align-center',
+            isReadOnly && 'field-label--read-only'
           )}
+          style={{ flex: 1, gap: '0.5rem' }}
+        >
           {managedAtPlanLevel && (
-            <Badge severity="info" small className={cx('fr-mt-1v')}>
-              {isReadOnly ? 'Hérité du plan' : 'Détaché du plan'}
-            </Badge>
-          )}
-        </div>
-        {managedAtPlanLevel && (
-          <Checkbox
-            small
-            options={[
-              {
-                label: 'Actif',
-                nativeInputProps: {
-                  checked: !isExcluded,
-                  onChange: (e) =>
-                    onChange({
-                      ...field,
-                      inheritance: e.target.checked ? 'Inherited' : 'Excluded'
-                    })
-                }
+            <SettingInheritanceLockButton
+              isInherited={isReadOnly}
+              onClick={() =>
+                onChange({
+                  ...field,
+                  inheritance: isReadOnly ? 'Own' : 'Inherited'
+                })
               }
-            ]}
-          />
-        )}
+            />
+          )}
+          <div>
+            <p className={cx('fr-text--bold', 'fr-mb-0')}>
+              {globalField?.label ?? field.fieldId}{' '}
+              <span className={cx('fr-text--sm', 'fr-text--regular')}>
+                ({globalField?.key})
+              </span>
+            </p>
+            {globalField?.hintText && (
+              <p className={cx('fr-text--sm', 'fr-mb-0', 'fr-hint-text')}>
+                {globalField.hintText}
+              </p>
+            )}
+          </div>
+        </div>
         <ToggleSwitch
           label="Obligatoire"
           labelPosition={'left'}
           checked={field.required}
-          disabled={isReadOnly || isExcluded}
+          disabled={isReadOnly}
           onChange={(required) => onChange({ ...field, required })}
           showCheckedHint={false}
         />
@@ -116,7 +119,6 @@ export const ProgrammingSubPlanFieldItem = ({
             iconId="fr-icon-delete-line"
             size="small"
             title="Retirer"
-            disabled={managedAtPlanLevel}
             onClick={onDelete}
           />
         </div>
@@ -126,7 +128,7 @@ export const ProgrammingSubPlanFieldItem = ({
         <ProgrammingSubPlanFieldActiveOptions
           optionIds={field.optionIds}
           globalField={globalField}
-          disabled={isReadOnly || isExcluded}
+          disabled={isReadOnly}
           onChange={(optionIds) => onChange({ ...field, optionIds })}
         />
       )}

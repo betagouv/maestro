@@ -1,4 +1,3 @@
-import Button from '@codegouvfr/react-dsfr/Button';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import {
@@ -8,6 +7,7 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type { ReactNode } from 'react';
 import { assert, type Equals } from 'tsafe';
+import { SettingInheritanceLockButton } from '../SettingInheritanceLockButton/SettingInheritanceLockButton';
 import './ProgrammingPlanSettingInheritance.scss';
 
 type Props<T extends ProgrammingPlanSettings> = {
@@ -45,21 +45,8 @@ export const ProgrammingPlanSettingInheritance = <
       style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
     >
       {managedAtPlanLevel && (
-        <Button
-          priority="tertiary"
-          iconId={
-            isInherited ? 'fr-icon-lock-fill' : 'fr-icon-lock-unlock-fill'
-          }
-          title={
-            isInherited
-              ? 'Paramètre au niveau du plan'
-              : 'Détaché du paramètre du plan'
-          }
-          className={
-            isInherited
-              ? 'setting-inheritance-lock-btn--inherited'
-              : 'setting-inheritance-lock-btn--detached'
-          }
+        <SettingInheritanceLockButton
+          isInherited={isInherited}
           onClick={() =>
             change(
               isInherited

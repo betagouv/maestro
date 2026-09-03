@@ -29,27 +29,38 @@ export const ProgrammingSubPlanFieldList = ({
 
   const [indexToDelete, setIndexToDelete] = useState<number | null>(null);
 
+  const visibleFields = fields
+    .map((field, index) => ({ field, index }))
+    .filter(({ field }) => field.inheritance !== 'Excluded');
+
   const replaceAt = (
     index: number,
     field: ProgrammingSubPlanFieldSetting
   ): void => onChange(fields.map((_, i) => (i === index ? field : _)));
 
-  const moveField = (index: number, direction: -1 | 1): void => {
-    const target = index + direction;
+  const moveField = (fromIndex: number, toIndex: number): void => {
     const moved = [...fields];
-    const [field] = moved.splice(index, 1);
-    moved.splice(target, 0, field);
+    [moved[fromIndex], moved[toIndex]] = [moved[toIndex], moved[fromIndex]];
     onChange(moved);
   };
 
   const confirmDelete = (): void => {
     if (indexToDelete !== null) {
-      onChange(fields.filter((_, i) => i !== indexToDelete));
+      const target = fields[indexToDelete];
+      onChange(
+        target.managedAtPlanLevel
+          ? fields.map((field, i) =>
+              i === indexToDelete
+                ? { ...field, inheritance: 'Excluded' as const }
+                : field
+            )
+          : fields.filter((_, i) => i !== indexToDelete)
+      );
     }
     deleteFieldModal.close();
   };
 
-  if (fields.length === 0) {
+  if (visibleFields.length === 0) {
     return (
       <p className={cx('fr-text--sm')}>
         Aucun champ configuré pour ce sous-plan.
@@ -63,16 +74,16 @@ export const ProgrammingSubPlanFieldList = ({
   return (
     <>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        {fields.map((field, index) => (
+        {visibleFields.map(({ field, index }, i) => (
           <ProgrammingSubPlanFieldItem
             key={field.fieldId}
             field={field}
             globalField={allFields.find(({ id }) => id === field.fieldId)}
-            canMoveUp={index > 0 && !fields[index - 1].managedAtPlanLevel}
-            canMoveDown={index < fields.length - 1}
+            canMoveUp={i > 0 && !visibleFields[i - 1].field.managedAtPlanLevel}
+            canMoveDown={i < visibleFields.length - 1}
             onChange={(updated) => replaceAt(index, updated)}
-            onMoveUp={() => moveField(index, -1)}
-            onMoveDown={() => moveField(index, 1)}
+            onMoveUp={() => moveField(index, visibleFields[i - 1].index)}
+            onMoveDown={() => moveField(index, visibleFields[i + 1].index)}
             onDelete={() => {
               setIndexToDelete(index);
               deleteFieldModal.open();
