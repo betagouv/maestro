@@ -102,7 +102,8 @@ export const ProgrammingPlanSettingsTabs = ({
             label: 'Paramétrage global',
             content: (
               <ProgrammingPlanGlobalSettings
-                subPlan={draft}
+                settings={draft}
+                planSettings={subPlan ? programmingPlan : undefined}
                 onChange={setDraft}
               />
             )

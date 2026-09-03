@@ -67,8 +67,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     }))
   },
   [FruitsSubPlanId]: {
-    stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'TRANSFORMATION'],
-    stagesManaged: true,
+    stages: ['TRANSFORMATION'],
+    stagesManaged: false,
     fields: []
   }
 };
@@ -117,6 +117,8 @@ const meta = {
             year: 2026,
             domainId: pesticide2026.id,
             title: 'Production primaire végétale',
+            stages: ['TRANSFORMATION'],
+            stagesManaged: true,
             subPlans: [
               genProgrammingSubPlan({
                 id: FruitsSubPlanId,
@@ -456,6 +458,141 @@ export const SubPlanSamplerForm: Story = {
           inheritance: 'Own',
           managedAtPlanLevel: false
         }))
+      })
+    );
+  }
+};
+
+export const PlanStagesSwitch: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+
+    const managedSwitch = canvas.getByTitle(
+      'Paramétrer « Stade(s) de prélèvement » au niveau du plan'
+    );
+    const stages = canvas.getByRole('combobox', {
+      name: /Stade\(s\) de prélèvement/
+    });
+
+    await expect(managedSwitch).toBeChecked();
+    await expect(stages).toBeEnabled();
+
+    await userEvent.click(managedSwitch);
+    await expect(stages).toBeDisabled();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+    await waitFor(() =>
+      expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        stages: ['TRANSFORMATION'],
+        stagesManaged: false,
+        fields: planSettings.fields
+      })
+    );
+  }
+};
+
+export const SubPlanInheritedStages: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        FruitsSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingSubPlanSettings.mockClear();
+
+    await expect(
+      canvas.getByTitle('Paramètre au niveau du plan')
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ })
+    ).toBeDisabled();
+    await expect(
+      canvas.getByText('Transformation', { selector: '.fr-tag' })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('button', { name: 'Transformation' })
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(canvas.getByTitle('Paramètre au niveau du plan'));
+    await expect(
+      canvas.getByTitle('Détaché du paramètre du plan')
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ })
+    ).toBeEnabled();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+    await waitFor(() =>
+      expect(updateProgrammingSubPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        programmingSubPlanId: FruitsSubPlanId,
+        stages: ['TRANSFORMATION'],
+        stagesManaged: true,
+        fields: []
+      })
+    );
+  }
+};
+
+export const SubPlanDetachedStages: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingSubPlanSettings.mockClear();
+
+    await expect(
+      canvas.getByTitle('Détaché du paramètre du plan')
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ })
+    ).toBeEnabled();
+    await expect(
+      canvas.getByText('Production primaire végétale', { selector: '.fr-tag' })
+    ).toBeInTheDocument();
+
+    await userEvent.click(canvas.getByTitle('Détaché du paramètre du plan'));
+    await expect(
+      canvas.getByTitle('Paramètre au niveau du plan')
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByText('Transformation', { selector: '.fr-tag' })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.queryByText('Production primaire végétale', {
+        selector: '.fr-tag'
+      })
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+    await waitFor(() =>
+      expect(updateProgrammingSubPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        programmingSubPlanId: CerealesSubPlanId,
+        stages: ['TRANSFORMATION'],
+        stagesManaged: false,
+        fields: subPlanSettings[CerealesSubPlanId].fields
       })
     );
   }
