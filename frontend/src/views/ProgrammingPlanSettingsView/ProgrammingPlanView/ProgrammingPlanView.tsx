@@ -2,24 +2,18 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Breadcrumb from '@codegouvfr/react-dsfr/Breadcrumb';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
-import { isEqual } from 'lodash-es';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import type { ProgrammingSubPlanSettingsForm } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { useParams } from 'react-router';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import { YearTitle } from 'src/components/YearTitle/YearTitle';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
-import { ProgrammingPlanGlobalSettings } from '../ProgrammingPlanGlobalSettings/ProgrammingPlanGlobalSettings';
-import { ProgrammingPlanSamplerFormSettings } from '../ProgrammingPlanSamplerFormSettings/ProgrammingPlanSamplerFormSettings';
 import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
 import { ProgrammingPlanSettingsBadge } from '../ProgrammingPlanSettingsBadge/ProgrammingPlanSettingsBadge';
 import { isCampaignLaunched } from '../ProgrammingPlanSettingsCard/ProgrammingPlanSettingsCard.tsx';
-import { ProgrammingSubPlanActionBar } from '../ProgrammingSubPlanActionBar/ProgrammingSubPlanActionBar';
+import { ProgrammingPlanSettingsTabs } from '../ProgrammingPlanSettingsTabs/ProgrammingPlanSettingsTabs';
 import { ProgrammingSubPlanList } from '../ProgrammingSubPlanList/ProgrammingSubPlanList';
 
 type Props = Record<never, never>;
@@ -36,27 +30,12 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
   const { data: domains = [] } = apiClient.useFindProgrammingPlanDomainsQuery();
   const { data: programmingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery({});
-  const { data: settings } = apiClient.useFindProgrammingSubPlanSettingsQuery(
-    {
-      programmingPlanId,
-      programmingSubPlanId: subPlanId as ProgrammingSubPlanId
-    },
-    { skip: !subPlanId }
-  );
-  const [updateProgrammingSubPlanSettings] =
-    apiClient.useUpdateProgrammingSubPlanSettingsMutation();
 
   const programmingPlan = programmingPlans.find(
     (_) => _.id === programmingPlanId
   );
   const domain = domains.find((_) => _.id === programmingPlan?.domainId);
   const subPlan = programmingPlan?.subPlans.find((_) => _.id === subPlanId);
-
-  const [draft, setDraft] = useState<ProgrammingSubPlanSettingsForm>();
-
-  useEffect(() => {
-    setDraft(settings);
-  }, [settings]);
 
   const title = subPlan
     ? `${subPlan.subPlanNumber} - ${subPlan.label}`
@@ -137,7 +116,7 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
               />
               <ProgrammingPlanSettingsActions className={cx('fr-ml-auto')} />
             </div>
-            {!!programmingPlan && isCampaignLaunched(programmingPlan) && (
+            {isCampaignLaunched(programmingPlan) && (
               <Alert
                 severity={'error'}
                 small
@@ -155,33 +134,10 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                 }
               />
             )}
-            {subPlan && draft && (
-              <Tabs
-                className={cx('fr-mt-3w')}
-                tabs={[
-                  {
-                    label: 'Paramétrage global',
-                    content: (
-                      <ProgrammingPlanGlobalSettings
-                        subPlan={draft}
-                        onChange={setDraft}
-                      />
-                    )
-                  },
-                  {
-                    label: 'Formulaire préleveur',
-                    content: (
-                      <ProgrammingPlanSamplerFormSettings
-                        fields={draft.fields}
-                        onChange={(fields) => setDraft({ ...draft, fields })}
-                      />
-                    )
-                  },
-                  { label: 'Gestion échantillons', content: <></> },
-                  { label: 'Gestion analyses', content: <></> }
-                ]}
-              />
-            )}
+            <ProgrammingPlanSettingsTabs
+              programmingPlan={programmingPlan}
+              subPlan={subPlan}
+            />
           </div>
         </div>
         <div className={cx('fr-col-12', 'fr-col-lg-3', 'fr-pl-0')}>
@@ -192,19 +148,6 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
           />
         </div>
       </div>
-      {subPlan && draft && (
-        <ProgrammingSubPlanActionBar
-          hasChanges={!isEqual(draft, settings)}
-          onReset={() => setDraft(settings)}
-          onSave={() =>
-            updateProgrammingSubPlanSettings({
-              programmingPlanId,
-              programmingSubPlanId: subPlan.id,
-              ...draft
-            })
-          }
-        />
-      )}
     </AppPage>
   );
 };

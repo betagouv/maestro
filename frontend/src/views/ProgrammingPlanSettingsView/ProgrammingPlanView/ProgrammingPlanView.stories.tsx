@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import type { ProgrammingSubPlanSettingsForm } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
+import type {
+  ProgrammingPlanSettingsForm,
+  ProgrammingSubPlanSettingsForm
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
 import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import { SpecificDataFieldId } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
@@ -23,6 +26,7 @@ const FruitsSubPlanId = ProgrammingSubPlanId.parse(
   '7c3d9e51-8b24-4f0a-bd63-1a5e4c9f2d78'
 );
 
+const updateProgrammingPlanSettings = fn();
 const updateProgrammingSubPlanSettings = fn();
 
 const genAdminField = (key: string, id: string): AdminFieldConfig => ({
@@ -69,6 +73,12 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
   }
 };
 
+const planSettings: ProgrammingPlanSettingsForm = {
+  stages: ['TRANSFORMATION'],
+  stagesManaged: true,
+  fields: [{ fieldId: especeField.id, required: true, optionIds: [] }]
+};
+
 const pesticide2026 = genProgrammingPlanDomain({
   label: 'Résidus de pesticides',
   year: 2026
@@ -82,6 +92,11 @@ const meta = {
       auth: { authUser: genAuthUser({ userRole: 'AdministratorMaestro' }) }
     },
     apiClient: getMockApi({
+      useUpdateProgrammingPlanSettingsMutation: [
+        updateProgrammingPlanSettings,
+        {}
+      ],
+      useFindProgrammingPlanSettingsQuery: { data: planSettings },
       useUpdateProgrammingSubPlanSettingsMutation: [
         updateProgrammingSubPlanSettings,
         {}
@@ -180,8 +195,42 @@ export const Default: Story = {
     );
 
     await expect(
-      canvas.queryByRole('tab', { name: 'Paramétrage global' })
-    ).not.toBeInTheDocument();
+      canvas.getByRole('tab', { name: 'Paramétrage global' })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByText('Transformation', { selector: '.fr-tag' })
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      canvas.getByRole('tab', { name: 'Formulaire préleveur' })
+    );
+    await expect(canvas.getByText('Champ espece')).toBeInTheDocument();
+  }
+};
+
+export const PlanSave: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+
+    await userEvent.selectOptions(
+      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ }),
+      'ELEVAGE'
+    );
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+
+    await waitFor(() =>
+      expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        stages: ['TRANSFORMATION', 'ELEVAGE'],
+        stagesManaged: true,
+        fields: planSettings.fields
+      })
+    );
   }
 };
 
