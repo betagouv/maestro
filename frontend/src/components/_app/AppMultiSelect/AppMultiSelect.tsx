@@ -64,11 +64,15 @@ export const AppMultiSelect = <T extends ZodObject, U>({
       {values.length > 0 && (
         <div className={clsx('fr-mb-3w')}>
           {values.map((value) => {
-            const label =
-              keysWithLabels[(idKey ? value[idKey] : value) as string] ?? '';
-            return (
+            const key = (idKey ? value[idKey] : value) as string;
+            const label = keysWithLabels[key] ?? '';
+            return props.disabled ? (
+              <Tag key={key} small={true}>
+                {label}
+              </Tag>
+            ) : (
               <Tag
-                key={(idKey ? value[idKey] : value) as string}
+                key={key}
                 small={true}
                 dismissible={true}
                 nativeButtonProps={{

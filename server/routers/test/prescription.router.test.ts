@@ -35,7 +35,7 @@ import {
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
-import { ProgrammingSubPlans } from '../../repositories/programmingSubPlanRepository';
+import { ProgrammingSubPlansRaw } from '../../repositories/programmingSubPlanRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
 
@@ -126,7 +126,7 @@ describe('Prescriptions router', () => {
         }))
       )
     );
-    await ProgrammingSubPlans().insert(
+    await ProgrammingSubPlansRaw().insert(
       [
         programmingPlanSubmitted,
         programmingPlanInProgress,

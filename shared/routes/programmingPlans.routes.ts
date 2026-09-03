@@ -1,21 +1,14 @@
 import z from 'zod';
 import { FindProgrammingPlanOptions } from '../schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { ProgrammingPlanLocalStatus } from '../schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
+import {
+  ProgrammingPlanSettingsForm,
+  ProgrammingSubPlanSettingsForm
+} from '../schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
 import { ProgrammingPlanStatus } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  ProgrammingSubPlan,
-  ProgrammingSubPlanId
-} from '../schema/ProgrammingPlan/ProgrammingSubPlan';
-import {
-  CreateProgrammingSubPlanFieldInput,
-  UpdateProgrammingSubPlanFieldInput
-} from '../schema/SpecificData/FieldConfigInput';
-import {
-  ProgrammingSubPlanFieldConfig,
-  ProgrammingSubPlanFieldId,
-  SpecificDataFieldOptionId
-} from '../schema/SpecificData/ProgrammingSubPlanFieldConfig';
+import { ProgrammingSubPlanId } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
+import { ProgrammingSubPlanFieldConfig } from '../schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type { SubRoutes } from './routes';
 
 export const programmingPlansRoutes = {
@@ -73,17 +66,36 @@ export const programmingPlansRoutes = {
       response: ProgrammingPlanChecked
     }
   },
-  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId': {
+  '/programming-plans/:programmingPlanId/settings': {
     params: {
-      programmingPlanId: z.guid(),
-      programmingSubPlanId: ProgrammingSubPlanId
+      programmingPlanId: z.guid()
+    },
+    get: {
+      permissions: ['manageProgrammingPlanSettings'],
+      response: ProgrammingPlanSettingsForm
     },
     put: {
       permissions: ['manageProgrammingPlanSettings'],
-      body: ProgrammingSubPlan.pick({ stages: true }),
+      body: ProgrammingPlanSettingsForm,
       response: z.undefined()
     }
   },
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/settings':
+    {
+      params: {
+        programmingPlanId: z.guid(),
+        programmingSubPlanId: ProgrammingSubPlanId
+      },
+      get: {
+        permissions: ['manageProgrammingPlanSettings'],
+        response: ProgrammingSubPlanSettingsForm
+      },
+      put: {
+        permissions: ['manageProgrammingPlanSettings'],
+        body: ProgrammingSubPlanSettingsForm,
+        response: z.undefined()
+      }
+    },
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields':
     {
       params: {
@@ -93,41 +105,6 @@ export const programmingPlansRoutes = {
       get: {
         response: z.array(ProgrammingSubPlanFieldConfig),
         permissions: 'NONE'
-      },
-      post: {
-        permissions: ['administrationMaestro'],
-        body: CreateProgrammingSubPlanFieldInput,
-        response: ProgrammingSubPlanFieldConfig
-      }
-    },
-  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId':
-    {
-      params: {
-        programmingPlanId: z.string(),
-        programmingSubPlanId: ProgrammingSubPlanId,
-        programmingSubPlanFieldId: ProgrammingSubPlanFieldId
-      },
-      put: {
-        permissions: ['administrationMaestro'],
-        body: UpdateProgrammingSubPlanFieldInput,
-        response: ProgrammingSubPlanFieldConfig
-      },
-      delete: {
-        permissions: ['administrationMaestro'],
-        response: z.undefined()
-      }
-    },
-  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId/options':
-    {
-      params: {
-        programmingPlanId: z.string(),
-        programmingSubPlanId: ProgrammingSubPlanId,
-        programmingSubPlanFieldId: ProgrammingSubPlanFieldId
-      },
-      put: {
-        permissions: ['administrationMaestro'],
-        body: z.object({ optionIds: z.array(SpecificDataFieldOptionId) }),
-        response: z.undefined()
       }
     }
 } as const satisfies SubRoutes<'/programming-plans'>;

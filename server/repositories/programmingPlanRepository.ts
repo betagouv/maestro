@@ -12,7 +12,7 @@ import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan
 import z from 'zod';
 import { knexInstance as db } from './db';
 import {
-  ProgrammingSubPlans,
+  ProgrammingSubPlansRaw,
   programmingSubPlansTable
 } from './programmingSubPlanRepository';
 
@@ -53,7 +53,7 @@ const ProgrammingPlanQuery = () =>
         `coalesce(array_agg(to_json(${programmingPlanLocalStatusTable}.*) order by ${programmingPlanLocalStatusTable}.region, ${programmingPlanLocalStatusTable}.department) filter (where ${programmingPlanLocalStatusTable}.department != 'None'), '{}') as "departmental_status"`
       ),
       db.raw(
-        `(SELECT coalesce(json_agg(json_build_object('id', sp.id, 'programmingPlanId', sp.programming_plan_id, 'subPlanNumber', sp.sub_plan_number, 'stages', sp.stages, 'label', sp.label, 'analysisPermissionRole', sp.analysis_permission_role, 'contactListId', sp.contact_list_id, 'withSacha', sp.with_sacha, 'substanceKinds', sp.substance_kinds) ORDER BY sp.sub_plan_number), '[]'::json) FROM ${programmingSubPlansTable} sp WHERE sp.programming_plan_id = ${programmingPlansTable}.id) as "sub_plans"`
+        `(SELECT coalesce(json_agg(json_build_object('id', sp.id, 'programmingPlanId', sp.programming_plan_id, 'subPlanNumber', sp.sub_plan_number, 'stages', sp.stages, 'stagesManaged', sp.stages_managed, 'label', sp.label, 'analysisPermissionRole', sp.analysis_permission_role, 'contactListId', sp.contact_list_id, 'withSacha', sp.with_sacha, 'substanceKinds', sp.substance_kinds) ORDER BY sp.sub_plan_number), '[]'::json) FROM ${programmingSubPlansTable} sp WHERE sp.programming_plan_id = ${programmingPlansTable}.id) as "sub_plans"`
       )
     )
     .join(
@@ -70,7 +70,7 @@ const findUnique = async (
   return ProgrammingPlanQuery()
     .where({ id })
     .first()
-    .then((_) => _ && ProgrammingPlanChecked.parse(omitBy(_, isNil)));
+    .then((_) => _ && ProgrammingPlanChecked.parse(_));
 };
 
 const findOne = async (
@@ -94,7 +94,7 @@ const findOne = async (
       }
     })
     .first()
-    .then((_) => _ && ProgrammingPlanChecked.parse(omitBy(_, isNil)));
+    .then((_) => _ && ProgrammingPlanChecked.parse(_));
 };
 
 const findMany = async (
@@ -121,9 +121,9 @@ const findMany = async (
       }
     })
     .then((programmingPlans) =>
-      [...programmingPlans].sort(ProgrammingPlanSort).map((_: any) => {
-        return ProgrammingPlanChecked.parse(omitBy(_, isNil));
-      })
+      [...programmingPlans]
+        .sort(ProgrammingPlanSort)
+        .map((_: any) => ProgrammingPlanChecked.parse(_))
     );
 };
 
@@ -148,17 +148,12 @@ const insert = async (
     }
 
     if (programmingPlan.subPlans.length > 0) {
-      await ProgrammingSubPlans(transaction).insert(
+      await ProgrammingSubPlansRaw(transaction).insert(
         programmingPlan.subPlans.map((subPlan) => ({
-          id: subPlan.id,
+          ...subPlan,
           programmingPlanId: programmingPlan.id,
-          subPlanNumber: subPlan.subPlanNumber,
-          stages: subPlan.stages,
-          label: subPlan.label,
           analysisPermissionRole: subPlan.analysisPermissionRole ?? null,
-          contactListId: subPlan.contactListId ?? null,
-          withSacha: subPlan.withSacha,
-          substanceKinds: subPlan.substanceKinds
+          contactListId: subPlan.contactListId ?? null
         }))
       );
     }

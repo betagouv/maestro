@@ -1,6 +1,5 @@
 import { constants } from 'node:http2';
 import type {
-  ProgrammingSubPlanFieldId,
   SpecificDataFieldId,
   SpecificDataFieldOptionId
 } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
@@ -9,6 +8,7 @@ import {
   DAOAInProgressProgrammingPlanFixture,
   DAOAInProgressVolailleSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
+import { DAOAVolailleFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
 import {
   AdminFixture,
   LaboratoryOfficeUserFixture,
@@ -504,294 +504,26 @@ describe('SpecificDataFieldConfig router', () => {
     });
   });
 
-  describe('POST /programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields', () => {
-    const programmingPlanId = DAOAInProgressProgrammingPlanFixture.id;
-    const testKey = 'testProgrammingSubPlanFieldPost';
-    let fieldId: SpecificDataFieldId;
-    let createdProgrammingSubPlanFieldId: string;
-
-    beforeAll(async () => {
-      const field = await kysely
-        .insertInto('specificDataFields')
-        .values({ key: testKey, inputType: 'text', label: 'Plan Kind Post' })
-        .returning('id')
-        .executeTakeFirstOrThrow();
-      fieldId = field.id;
-    });
-
-    afterAll(async () => {
-      await kysely
-        .deleteFrom('programmingSubPlanFields')
-        .where('fieldId', '=', fieldId)
-        .execute();
-      await kysely
-        .deleteFrom('specificDataFields')
-        .where('key', '=', testKey)
-        .execute();
-    });
-
-    const testRoute = `/api/programming-plans/${programmingPlanId}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields`;
+  describe('GET /programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields', () => {
+    const testRoute = `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
-        .post(testRoute)
-        .send({ fieldId, required: false, order: 99 })
+        .get(testRoute)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
-    test('should fail if the user does not have the permission', async () => {
-      await forbiddenRequestTest(Sampler1Fixture, 'post', testRoute, {
-        fieldId,
-        required: false,
-        order: 99
-      });
-      await forbiddenRequestTest(NationalCoordinator, 'post', testRoute, {
-        fieldId,
-        required: false,
-        order: 99
-      });
-      await forbiddenRequestTest(LaboratoryUserFixture, 'post', testRoute, {
-        fieldId,
-        required: false,
-        order: 99
-      });
-      await forbiddenRequestTest(
-        LaboratoryOfficeUserFixture,
-        'post',
-        testRoute,
-        {
-          fieldId,
-          required: false,
-          order: 99
-        }
-      );
-    });
-
-    test('should add a field to a plan kind', async () => {
+    test('should return the resolved sampler form to any authenticated user', async () => {
       const res = await request(app)
-        .post(testRoute)
-        .use(tokenProvider(AdminFixture))
-        .send({ fieldId, required: false, order: 99 })
-        .expect(constants.HTTP_STATUS_CREATED);
+        .get(testRoute)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject({
-        id: expect.any(String),
-        programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
-        required: false,
-        order: 99,
-        field: { key: testKey }
-      });
-      createdProgrammingSubPlanFieldId = res.body.id;
-    });
-
-    describe('PUT /programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId', () => {
-      test('should fail if the user is not authenticated', async () => {
-        await request(app)
-          .put(
-            `/api/programming-plans/${programmingPlanId}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${createdProgrammingSubPlanFieldId}`
-          )
-          .send({ required: true, order: 50 })
-          .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-      });
-
-      test('should fail if the user does not have the permission', async () => {
-        const route = `/api/programming-plans/${programmingPlanId}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${createdProgrammingSubPlanFieldId}`;
-        await forbiddenRequestTest(Sampler1Fixture, 'put', route, {
-          required: true,
-          order: 50
-        });
-        await forbiddenRequestTest(NationalCoordinator, 'put', route, {
-          required: true,
-          order: 50
-        });
-      });
-
-      test('should update the plan kind field', async () => {
-        const res = await request(app)
-          .put(
-            `/api/programming-plans/${programmingPlanId}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${createdProgrammingSubPlanFieldId}`
-          )
-          .use(tokenProvider(AdminFixture))
-          .send({ required: true, order: 50 })
-          .expect(constants.HTTP_STATUS_OK);
-
-        expect(res.body).toMatchObject({
-          id: createdProgrammingSubPlanFieldId,
-          programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
-          required: true,
-          order: 50
-        });
-      });
-    });
-
-    describe('DELETE /programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId', () => {
-      const deleteKey = 'testProgrammingSubPlanFieldDelete';
-      let deleteFieldId: SpecificDataFieldId;
-      let deleteProgrammingSubPlanFieldId: ProgrammingSubPlanFieldId;
-
-      beforeAll(async () => {
-        const field = await kysely
-          .insertInto('specificDataFields')
-          .values({
-            key: deleteKey,
-            inputType: 'text',
-            label: 'Plan Kind Delete'
-          })
-          .returning('id')
-          .executeTakeFirstOrThrow();
-        deleteFieldId = field.id;
-
-        const pkf = await kysely
-          .insertInto('programmingSubPlanFields')
-          .values({
-            programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
-            fieldId: deleteFieldId,
-            required: false,
-            order: 98
-          })
-          .returning('id')
-          .executeTakeFirstOrThrow();
-        deleteProgrammingSubPlanFieldId = pkf.id;
-      });
-
-      afterAll(async () => {
-        await kysely
-          .deleteFrom('specificDataFields')
-          .where('key', '=', deleteKey)
-          .execute();
-      });
-
-      test('should fail if the user is not authenticated', async () => {
-        await request(app)
-          .delete(
-            `/api/programming-plans/${programmingPlanId}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${deleteProgrammingSubPlanFieldId}`
-          )
-          .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-      });
-
-      test('should fail if the user does not have the permission', async () => {
-        const route = `/api/programming-plans/${programmingPlanId}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${deleteProgrammingSubPlanFieldId}`;
-        await forbiddenRequestTest(Sampler1Fixture, 'delete', route);
-        await forbiddenRequestTest(NationalCoordinator, 'delete', route);
-      });
-
-      test('should remove the plan kind field', async () => {
-        await request(app)
-          .delete(
-            `/api/programming-plans/${programmingPlanId}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${deleteProgrammingSubPlanFieldId}`
-          )
-          .use(tokenProvider(AdminFixture))
-          .expect(constants.HTTP_STATUS_NO_CONTENT);
-
-        const remaining = await kysely
-          .selectFrom('programmingSubPlanFields')
-          .select('id')
-          .where('id', '=', deleteProgrammingSubPlanFieldId)
-          .executeTakeFirst();
-        expect(remaining).toBeUndefined();
-      });
-    });
-
-    describe('PUT /programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields/:programmingSubPlanFieldId/options', () => {
-      const optionsKey = 'testProgrammingSubPlanFieldOptions';
-      let optionsFieldId: SpecificDataFieldId;
-      let optionsProgrammingSubPlanFieldId: ProgrammingSubPlanFieldId;
-      let optionId: string;
-
-      beforeAll(async () => {
-        const field = await kysely
-          .insertInto('specificDataFields')
-          .values({
-            key: optionsKey,
-            inputType: 'select',
-            label: 'Plan Kind Options'
-          })
-          .returning('id')
-          .executeTakeFirstOrThrow();
-        optionsFieldId = field.id;
-
-        const opt = await kysely
-          .insertInto('specificDataFieldOptions')
-          .values({
-            fieldKey: optionsKey,
-            value: 'v1',
-            label: 'Option 1',
-            order: 1,
-            sachaCommemoratifValueSigle: null
-          })
-          .returning('id')
-          .executeTakeFirstOrThrow();
-        optionId = opt.id;
-
-        const pkf = await kysely
-          .insertInto('programmingSubPlanFields')
-          .values({
-            programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
-            fieldId: optionsFieldId,
-            required: false,
-            order: 97
-          })
-          .returning('id')
-          .executeTakeFirstOrThrow();
-        optionsProgrammingSubPlanFieldId = pkf.id;
-      });
-
-      afterAll(async () => {
-        await kysely
-          .deleteFrom('programmingSubPlanFields')
-          .where('id', '=', optionsProgrammingSubPlanFieldId)
-          .execute();
-        await kysely
-          .deleteFrom('specificDataFields')
-          .where('key', '=', optionsKey)
-          .execute();
-      });
-
-      test('should fail if the user is not authenticated', async () => {
-        await request(app)
-          .put(
-            `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${optionsProgrammingSubPlanFieldId}/options`
-          )
-          .send({ optionIds: [optionId] })
-          .expect(constants.HTTP_STATUS_UNAUTHORIZED);
-      });
-
-      test('should fail if the user does not have the permission', async () => {
-        await forbiddenRequestTest(
-          Sampler1Fixture,
-          'put',
-          `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${optionsProgrammingSubPlanFieldId}/options`,
-          { optionIds: [] }
-        );
-        await forbiddenRequestTest(
-          NationalCoordinator,
-          'put',
-          `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${optionsProgrammingSubPlanFieldId}/options`,
-          { optionIds: [] }
-        );
-      });
-
-      test('should replace plan kind field options', async () => {
-        await request(app)
-          .put(
-            `/api/programming-plans/${DAOAInProgressProgrammingPlanFixture.id}/sub-plans/${DAOAInProgressVolailleSubPlanId}/specific-data-fields/${optionsProgrammingSubPlanFieldId}/options`
-          )
-          .use(tokenProvider(AdminFixture))
-          .send({ optionIds: [optionId] })
-          .expect(constants.HTTP_STATUS_NO_CONTENT);
-
-        const activeOptions = await kysely
-          .selectFrom('programmingSubPlanFieldOptions')
-          .select('specificDataFieldOptionId')
-          .where(
-            'programmingSubPlanFieldId',
-            '=',
-            optionsProgrammingSubPlanFieldId
-          )
-          .execute();
-        expect(activeOptions).toHaveLength(1);
-        expect(activeOptions[0].specificDataFieldOptionId).toBe(optionId);
-      });
+      expect(res.body).toMatchObject(
+        DAOAVolailleFieldConfigs.map(({ field }) => ({
+          field: { key: field.key }
+        }))
+      );
     });
   });
 });

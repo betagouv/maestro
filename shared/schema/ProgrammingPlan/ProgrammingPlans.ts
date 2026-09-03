@@ -15,6 +15,7 @@ import {
   ProgrammingPlanDepartmentalStatus,
   ProgrammingPlanRegionalStatus
 } from './ProgrammingPlanLocalStatus';
+import { ProgrammingPlanSettings } from './ProgrammingPlanSettings';
 import type { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
 import { ProgrammingSubPlan } from './ProgrammingSubPlan';
 
@@ -33,6 +34,7 @@ export const ProgrammingPlanBase = z.object({
     .min(1, 'Veuillez renseigner au moins un cadre juridique.'),
   samplesOutsidePlanAllowed: z.boolean(),
   distributionKind: DistributionKind,
+  ...ProgrammingPlanSettings.shape,
   createdAt: z.coerce.date(),
   createdBy: z.guid(),
   year: z.number(),

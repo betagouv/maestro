@@ -41,8 +41,8 @@ import {
   tokenProvider
 } from '../../test/testUtils';
 
-const PPVStages = PPVValidatedSubPlanFixture.stages;
-const AbattoirStages = DAOAVolailleValidatedSubPlanFixture.stages;
+const PPVStages = PPVValidatedSubPlanFixture.stages ?? [];
+const AbattoirStages = DAOAVolailleValidatedSubPlanFixture.stages ?? [];
 
 describe('User router', () => {
   const { app } = createServer();

@@ -71,7 +71,7 @@ import {
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
-import { ProgrammingSubPlans } from '../../repositories/programmingSubPlanRepository';
+import { ProgrammingSubPlansRaw } from '../../repositories/programmingSubPlanRepository';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
   formatPartialSample,
@@ -1012,16 +1012,12 @@ describe('Local prescriptions router', () => {
           programmingPlanId: plan.id
         }))
       ]);
-      await ProgrammingSubPlans().insert(
+      await ProgrammingSubPlansRaw().insert(
         plan.subPlans.map((sp) => ({
-          id: sp.id,
+          ...sp,
           programmingPlanId: plan.id,
-          subPlanNumber: sp.subPlanNumber,
-          stages: sp.stages,
-          label: sp.label,
           analysisPermissionRole: sp.analysisPermissionRole ?? null,
-          contactListId: sp.contactListId ?? null,
-          withSacha: sp.withSacha
+          contactListId: sp.contactListId ?? null
         }))
       );
     };
