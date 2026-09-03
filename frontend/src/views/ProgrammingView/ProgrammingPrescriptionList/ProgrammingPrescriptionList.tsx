@@ -1,18 +1,25 @@
+import Alert from '@codegouvfr/react-dsfr/Alert';
+import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { isEmpty, isNil, mapValues, omitBy, sumBy } from 'lodash-es';
+import { groupBy, isEmpty, isNil, mapValues, omit, omitBy } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import type { Region } from 'maestro-shared/referential/Region';
 import type { Company } from 'maestro-shared/schema/Company/Company';
 import {
   filteredLocalPrescriptions,
+  type LocalPrescription,
   type LocalPrescriptionUpdate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
+  hasUnviewedChange,
+  regionRowNeedsChangeAction
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
+import {
   type LocalPrescriptionKey,
   type LocalPrescriptionKeyString,
-  toLocalPrescriptionKeyString
+  toLocalPrescriptionKeyString,
+  toLocalPrescriptionRegionalKeyString
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
@@ -21,7 +28,9 @@ import {
   PrescriptionSort,
   type PrescriptionUpdate
 } from 'maestro-shared/schema/Prescription/Prescription';
+import type { PrescriptionImportResult } from 'maestro-shared/schema/Prescription/PrescriptionImport';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import {
   isDepartmentalRole,
   isNationalRole,
@@ -31,10 +40,14 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import AppToast from 'src/components/_app/AppToast/AppToast';
 import PrescriptionActionBar from 'src/components/Prescription/PrescriptionActionBar/PrescriptionActionBar';
+import SelectionActionBar from 'src/components/SelectionActionBar/SelectionActionBar';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { usePrescriptionFilters } from 'src/hooks/usePrescriptionFilters';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
+import PrescriptionImportModal, {
+  prescriptionImportModal
+} from 'src/views/ProgrammingView/ProgrammingPrescriptionList/PrescriptionImportModal';
 import ProgrammingPrescriptionListHeader from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListHeader';
 import { assert, type Equals } from 'tsafe';
 import LocalPrescriptionModal from '../../../components/LocalPrescription/LocalPrescriptionModal/LocalPrescriptionModal';
@@ -42,8 +55,10 @@ import PrescriptionModal from '../../../components/Prescription/PrescriptionModa
 import { ApiClientContext } from '../../../services/apiClient';
 import { getApiUrl } from '../../../utils/fetchUtils';
 import ProgrammingPrescriptionFilters from '../ProgrammingPrescriptionFilters/ProgrammingPrescriptionFilters';
-import ProgrammingLocalPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingLocalPrescriptionTable';
 import ProgrammingPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingPrescriptionTable';
+import BulkAssignLaboratoriesModal, {
+  bulkAssignLaboratoriesModal
+} from './BulkAssignLaboratoriesModal';
 
 interface Props {
   programmingPlans: ProgrammingPlanChecked[];
@@ -51,6 +66,7 @@ interface Props {
   department?: Department;
   companies?: Company[];
   onPendingChange?: (hasPendingChanges: boolean, reset: () => void) => void;
+  onChangeDismissalCandidatesChange?: (prescriptionIds: string[]) => void;
 }
 
 const ProgrammingPrescriptionList = ({
@@ -59,12 +75,14 @@ const ProgrammingPrescriptionList = ({
   department,
   companies,
   onPendingChange,
+  onChangeDismissalCandidatesChange,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
+
   const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
   );
@@ -72,12 +90,17 @@ const ProgrammingPrescriptionList = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const {
     hasNationalView,
+    hasRegionalView,
+    hasDepartmentalView,
     hasUserPermission,
     hasUserPrescriptionPermission,
     hasUserLocalPrescriptionPermission,
     userRole,
     user
   } = useAuthentication();
+
+  const canBulkAssignLaboratories =
+    (hasRegionalView || hasDepartmentalView) && !hasNationalView;
 
   const [selectedPrescriptions, setSelectedPrescriptions] = useState<
     Prescription[]
@@ -89,13 +112,29 @@ const ProgrammingPrescriptionList = ({
       { key: LocalPrescriptionKey; sampleCount: number }
     >
   >(new Map());
+  const [pendingLaboratoryChanges, setPendingLaboratoryChanges] = useState<
+    Map<
+      LocalPrescriptionKeyString,
+      {
+        key: LocalPrescriptionKey;
+        substanceKindsLaboratories: SubstanceKindLaboratory[];
+      }
+    >
+  >(new Map());
   const [pendingPrescriptionSampleCounts, setPendingPrescriptionSampleCounts] =
     useState<Map<string, number>>(new Map());
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [importResult, setImportResult] = useState<
+    PrescriptionImportResult | undefined
+  >(undefined);
+
+  const canImport = hasNationalView && hasUserPermission('updatePrescription');
 
   const hasPendingChanges =
-    pendingLocalChanges.size > 0 || pendingPrescriptionSampleCounts.size > 0;
+    pendingLocalChanges.size > 0 ||
+    pendingLaboratoryChanges.size > 0 ||
+    pendingPrescriptionSampleCounts.size > 0;
 
   const [_, { isSuccess: isAddSuccess }] =
     apiClient.useAddPrescriptionMutation();
@@ -105,8 +144,12 @@ const ProgrammingPrescriptionList = ({
   const [updateDepartmentalLocalPrescription] =
     apiClient.useUpdateDepartmentalLocalPrescriptionMutation();
 
-  const { programmingPlanOptions, programmingSubPlanOptions, reduceFilters } =
-    usePrescriptionFilters(programmingPlans);
+  const {
+    programmingPlanOptions,
+    programmingSubPlanOptions,
+    contextOptions,
+    reduceFilters
+  } = usePrescriptionFilters(programmingPlans);
 
   const changeFilter = useCallback(
     (findFilter: Partial<typeof prescriptionFilters>) => {
@@ -149,40 +192,72 @@ const ProgrammingPrescriptionList = ({
     [programmingPlans]
   );
 
+  const findPrescriptionCountsOptions = useMemo(
+    () => ({
+      programmingPlanIds: planIds,
+      year: prescriptionFilters.year,
+      programmingSubPlanIds: prescriptionFilters.programmingSubPlanIds,
+      programmingPlanDomainIds: prescriptionFilters.programmingPlanDomainIds,
+      contexts: prescriptionFilters.outsideProgrammingPlan
+        ? undefined
+        : prescriptionFilters.contexts,
+      matrices: prescriptionFilters.matrices,
+      coordinatorIds: prescriptionFilters.coordinatorIds,
+      laboratoryIds: prescriptionFilters.laboratoryIds,
+      missingDistribution: prescriptionFilters.missingDistribution,
+      withNovelty: prescriptionFilters.withNovelty,
+      missingLaboratory: prescriptionFilters.missingLaboratory,
+      withSampleCountOnly: !hasNationalView,
+      region,
+      department
+    }),
+    [planIds, prescriptionFilters, region, department, hasNationalView]
+  );
+
   const findPrescriptionOptions = useMemo(
     () => ({
-      programmingPlanId:
-        programmingPlans.length === 1 ? programmingPlans[0].id : undefined,
-      year:
-        programmingPlans.length !== 1 ? prescriptionFilters.year : undefined,
-      programmingSubPlanIds: prescriptionFilters.programmingSubPlanIds,
-      contexts: prescriptionFilters.contexts,
-      region,
+      ...findPrescriptionCountsOptions,
+      subPlanStage: prescriptionFilters.stage,
       includes: ['substanceCount' as const]
     }),
-    [programmingPlans, prescriptionFilters, region]
+    [findPrescriptionCountsOptions, prescriptionFilters.stage]
   );
 
   const exportPrescriptionOptions = useMemo(
-    () => ({
-      ...findPrescriptionOptions,
-      programmingPlanId: programmingPlans[0].id
-    }),
-    [findPrescriptionOptions, programmingPlans]
+    () => omit(findPrescriptionOptions, 'includes'),
+    [findPrescriptionOptions]
   );
 
-  const { data: allPrescriptions } = apiClient.useFindPrescriptionsQuery(
-    findPrescriptionOptions,
+  const {
+    data: allPrescriptions,
+    refetch: refetchPrescriptions,
+    isUninitialized: isPrescriptionsUninitialized
+  } = apiClient.useFindPrescriptionsQuery(findPrescriptionOptions, {
+    skip:
+      !planIds.length ||
+      !FindPrescriptionOptions.safeParse(findPrescriptionOptions).success
+  });
+
+  const { data: departmentCompanies } = apiClient.useFindCompaniesQuery(
     {
-      skip: !FindPrescriptionOptions.safeParse(findPrescriptionOptions).success
-    }
+      region,
+      department,
+      kinds: ['POULTRY_SLAUGHTERHOUSE', 'MEAT_SLAUGHTERHOUSE']
+    },
+    { skip: !region || !department }
   );
+
+  const effectiveCompanies = department
+    ? (departmentCompanies ?? [])
+    : companies;
 
   const findLocalPrescriptionOptions = useMemo(
     () => ({
       programmingPlanIds: planIds,
       programmingSubPlanIds: prescriptionFilters.programmingSubPlanIds,
-      contexts: prescriptionFilters.contexts,
+      contexts: prescriptionFilters.outsideProgrammingPlan
+        ? undefined
+        : prescriptionFilters.contexts,
       region,
       department,
       includes: [
@@ -192,16 +267,20 @@ const ProgrammingPrescriptionList = ({
           : []),
         ...(hasUserPermission('updatePrescriptionLaboratories')
           ? ['laboratories' as const]
-          : [])
+          : []),
+        'pendingChanges' as const
       ]
     }),
     [planIds, prescriptionFilters, region, department, hasUserPermission]
   );
 
-  const { data: allLocalPrescriptions } =
-    apiClient.useFindLocalPrescriptionsQuery(findLocalPrescriptionOptions, {
-      skip: !findLocalPrescriptionOptions.programmingPlanIds?.length
-    });
+  const {
+    data: allLocalPrescriptions,
+    refetch: refetchLocalPrescriptions,
+    isUninitialized: isLocalPrescriptionsUninitialized
+  } = apiClient.useFindLocalPrescriptionsQuery(findLocalPrescriptionOptions, {
+    skip: !findLocalPrescriptionOptions.programmingPlanIds?.length
+  });
 
   const allPrescriptionsWithPending = useMemo(
     () =>
@@ -212,73 +291,71 @@ const ProgrammingPrescriptionList = ({
     [allPrescriptions, pendingPrescriptionSampleCounts]
   );
 
-  const allLocalPrescriptionsWithPending = useMemo(
-    () =>
-      allLocalPrescriptions?.map((lp) => {
-        const key = toLocalPrescriptionKeyString({
+  const allLocalPrescriptionsWithPending = useMemo(() => {
+    const existing = (allLocalPrescriptions ?? []).map((lp) => {
+      const key = toLocalPrescriptionKeyString({
+        prescriptionId: lp.prescriptionId,
+        region: lp.region,
+        department: lp.department ?? undefined,
+        companySiret: lp.companySiret ?? undefined
+      });
+      const pending = pendingLocalChanges.get(key);
+      const pendingLab = pendingLaboratoryChanges.get(key);
+      return {
+        ...lp,
+        ...(pending ? { sampleCount: pending.sampleCount } : {}),
+        ...(pendingLab
+          ? {
+              substanceKindsLaboratories: pendingLab.substanceKindsLaboratories
+            }
+          : {})
+      };
+    });
+
+    const existingKeys = new Set(
+      existing.map((lp) =>
+        toLocalPrescriptionKeyString({
           prescriptionId: lp.prescriptionId,
           region: lp.region,
           department: lp.department ?? undefined,
           companySiret: lp.companySiret ?? undefined
-        });
-        const pending = pendingLocalChanges.get(key);
-        return pending ? { ...lp, sampleCount: pending.sampleCount } : lp;
-      }),
-    [allLocalPrescriptions, pendingLocalChanges]
+        })
+      )
+    );
+    const pendingOnly: LocalPrescription[] = Array.from(
+      pendingLocalChanges.values()
+    )
+      .filter(({ key }) => !existingKeys.has(toLocalPrescriptionKeyString(key)))
+      .map(({ key, sampleCount }) => ({
+        prescriptionId: key.prescriptionId,
+        region: key.region,
+        department: key.department,
+        companySiret: key.companySiret,
+        sampleCount
+      }));
+
+    return [...existing, ...pendingOnly];
+  }, [allLocalPrescriptions, pendingLocalChanges, pendingLaboratoryChanges]);
+
+  const { data: prescriptionCounts } = apiClient.useFindPrescriptionCountsQuery(
+    findPrescriptionCountsOptions,
+    { skip: !planIds.length }
   );
 
-  const prescriptions = useMemo(() => {
-    return allPrescriptionsWithPending
-      ?.filter((p) => planIds.includes(p.programmingPlanId))
-      .filter((p) =>
-        prescriptionFilters.matrixQuery
-          ? MatrixKindLabels[p.matrixKind]
-              .toLowerCase()
-              .includes(prescriptionFilters.matrixQuery.toLowerCase())
-          : true
-      )
-      .filter((p) =>
-        prescriptionFilters.missingSlaughterhouse
-          ? (allLocalPrescriptionsWithPending?.find(
-              (_) => _.prescriptionId === p.id && isNil(_.companySiret)
-            )?.sampleCount ?? 0) >
-            sumBy(
-              allLocalPrescriptionsWithPending?.filter(
-                (_) => _.prescriptionId === p.id && !isNil(_.companySiret)
-              ),
-              'sampleCount'
-            )
-          : true
-      )
-      .filter((p) =>
-        prescriptionFilters.missingLaboratory
-          ? (allLocalPrescriptionsWithPending ?? []).some(
-              (_) =>
-                _.prescriptionId === p.id &&
-                isNil(_.companySiret) &&
-                ((_.substanceKindsLaboratories ?? []).length === 0 ||
-                  _.substanceKindsLaboratories?.some(
-                    (substanceKindsLaboratory) =>
-                      isNil(substanceKindsLaboratory.laboratoryId)
-                  ))
-            )
-          : true
-      )
-      .filter(
-        (p) =>
-          hasNationalView ||
-          allLocalPrescriptionsWithPending?.some(
-            (_) => _.prescriptionId === p.id && _.sampleCount > 0
-          )
-      )
-      .sort(PrescriptionSort);
-  }, [
-    allPrescriptionsWithPending,
-    planIds,
-    prescriptionFilters,
-    allLocalPrescriptionsWithPending,
-    hasNationalView
-  ]);
+  const prescriptions = useMemo(
+    () => allPrescriptionsWithPending?.toSorted(PrescriptionSort),
+    [allPrescriptionsWithPending]
+  );
+
+  const stageCounts = useMemo(
+    () => prescriptionCounts?.stageCounts ?? [],
+    [prescriptionCounts]
+  );
+
+  const matrixKindOptions = useMemo(
+    () => prescriptionCounts?.matrixKinds ?? [],
+    [prescriptionCounts]
+  );
 
   const localPrescriptions = useMemo(
     () =>
@@ -306,6 +383,44 @@ const ProgrammingPrescriptionList = ({
         }),
     [prescriptions, allLocalPrescriptionsWithPending, department, region]
   );
+
+  const canActOnPrescriptionRows =
+    hasUserPermission('updatePrescriptionLaboratories') ||
+    hasUserPermission('distributePrescriptionToDepartments') ||
+    hasUserPermission('distributePrescriptionToSlaughterhouses');
+
+  useEffect(() => {
+    if (!region) {
+      onChangeDismissalCandidatesChange?.([]);
+      return;
+    }
+    const candidates = (prescriptions ?? [])
+      .map((prescription) => {
+        const own = localPrescriptions.find(
+          (lp) => lp.prescriptionId === prescription.id
+        );
+        if (!own || !hasUnviewedChange(own.changedAt)) {
+          return null;
+        }
+        const plan = getPrescriptionPlan(prescription);
+        const subs = (subLocalPrescriptions ?? []).filter(
+          (sub) => sub.prescriptionId === prescription.id
+        );
+        return canActOnPrescriptionRows &&
+          regionRowNeedsChangeAction(plan.distributionKind, own, subs)
+          ? null
+          : prescription.id;
+      })
+      .filter((id): id is string => id !== null);
+    onChangeDismissalCandidatesChange?.(candidates);
+  }, [
+    region,
+    prescriptions,
+    localPrescriptions,
+    subLocalPrescriptions,
+    getPrescriptionPlan,
+    onChangeDismissalCandidatesChange
+  ]);
 
   useEffect(() => {
     if (
@@ -342,6 +457,36 @@ const ProgrammingPrescriptionList = ({
       }, 1000);
     }
   }, [searchParams, localPrescriptions]);
+
+  const openComments = useCallback(
+    (prescription: Prescription) => {
+      const regionalCommentsList = (allLocalPrescriptions ?? [])
+        .filter(
+          (_) => _.prescriptionId === prescription.id && isNil(_.department)
+        )
+        .map((_) => ({
+          region: _.region,
+          department: _.department,
+          comments: _.comments ?? []
+        }));
+
+      const commentedRegions = regionalCommentsList.filter(
+        (_) => _.comments.length > 0
+      );
+
+      dispatch(
+        prescriptionsSlice.actions.setPrescriptionCommentsData({
+          viewBy: 'Prescription',
+          programmingPlan: getPrescriptionPlan(prescription),
+          prescription,
+          regionalCommentsList: commentedRegions.length
+            ? commentedRegions
+            : regionalCommentsList
+        })
+      );
+    },
+    [dispatch, getPrescriptionPlan, allLocalPrescriptions]
+  );
 
   const changePrescription = useCallback(
     async (
@@ -397,25 +542,26 @@ const ProgrammingPrescriptionList = ({
     []
   );
 
-  const changeSubstanceKindsLaboratories = async (
-    substanceKindsLaboratories: SubstanceKindLaboratory[]
-  ) => {
-    await Promise.all(
-      selectedPrescriptions.map((prescription) =>
-        updateDepartmentalLocalPrescription({
-          prescriptionId: prescription.id,
-          region: region as Region,
-          department: department as Department,
-          key: 'laboratories',
-          substanceKindsLaboratories,
-          programmingPlanId: getPrescriptionPlan(prescription).id
-        })
-      )
-    );
-  };
+  const changeLocalPrescriptionLaboratories = useCallback(
+    (
+      key: LocalPrescriptionKey,
+      substanceKindsLaboratories: SubstanceKindLaboratory[]
+    ) => {
+      setPendingLaboratoryChanges((prev) => {
+        const next = new Map(prev);
+        next.set(toLocalPrescriptionKeyString(key), {
+          key,
+          substanceKindsLaboratories
+        });
+        return next;
+      });
+    },
+    []
+  );
 
   const handleReset = useCallback(() => {
     setPendingLocalChanges(new Map());
+    setPendingLaboratoryChanges(new Map());
     setPendingPrescriptionSampleCounts(new Map());
   }, []);
 
@@ -426,12 +572,61 @@ const ProgrammingPrescriptionList = ({
   const handleSave = useCallback(async () => {
     setIsSaving(true);
     try {
+      const plainLocalChanges = Array.from(pendingLocalChanges.values()).filter(
+        ({ key }) => !key.companySiret
+      );
+      const slaughterhouseChangeGroups = Object.values(
+        groupBy(
+          Array.from(pendingLocalChanges.values()).filter(
+            ({ key }) => key.companySiret
+          ),
+          ({ key }) => toLocalPrescriptionRegionalKeyString(key)
+        )
+      );
+
       await Promise.all([
-        ...Array.from(pendingLocalChanges.values()).map(
-          ({ key, sampleCount }) =>
+        ...plainLocalChanges.map(({ key, sampleCount }) =>
+          changeLocalPrescription(key, {
+            key: 'sampleCount',
+            sampleCount,
+            programmingPlanId: getPlanForPrescriptionId(key.prescriptionId).id
+          })
+        ),
+        ...slaughterhouseChangeGroups.map((entries) => {
+          const { prescriptionId, region, department } = entries[0].key;
+          const pendingBySiret = new Map(
+            entries.map(({ key, sampleCount }) => [
+              key.companySiret as string,
+              sampleCount
+            ])
+          );
+          const slaughterhouseSampleCounts = (effectiveCompanies ?? []).map(
+            (company) => ({
+              companySiret: company.siret,
+              sampleCount:
+                pendingBySiret.get(company.siret) ??
+                subLocalPrescriptions?.find(
+                  (sp) =>
+                    sp.prescriptionId === prescriptionId &&
+                    sp.companySiret === company.siret
+                )?.sampleCount ??
+                0
+            })
+          );
+          return changeLocalPrescription(
+            { prescriptionId, region, department },
+            {
+              key: 'slaughterhouseSampleCounts',
+              slaughterhouseSampleCounts,
+              programmingPlanId: getPlanForPrescriptionId(prescriptionId).id
+            }
+          );
+        }),
+        ...Array.from(pendingLaboratoryChanges.values()).map(
+          ({ key, substanceKindsLaboratories }) =>
             changeLocalPrescription(key, {
-              key: 'sampleCount',
-              sampleCount,
+              key: 'laboratories',
+              substanceKindsLaboratories,
               programmingPlanId: getPlanForPrescriptionId(key.prescriptionId).id
             })
         ),
@@ -445,7 +640,14 @@ const ProgrammingPrescriptionList = ({
           }
         )
       ]);
+      await Promise.all([
+        isPrescriptionsUninitialized ? undefined : refetchPrescriptions(),
+        isLocalPrescriptionsUninitialized
+          ? undefined
+          : refetchLocalPrescriptions()
+      ]);
       setPendingLocalChanges(new Map());
+      setPendingLaboratoryChanges(new Map());
       setPendingPrescriptionSampleCounts(new Map());
       setSaveSuccess(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -454,24 +656,44 @@ const ProgrammingPrescriptionList = ({
     }
   }, [
     pendingLocalChanges,
+    pendingLaboratoryChanges,
     pendingPrescriptionSampleCounts,
     changeLocalPrescription,
     changePrescription,
     getPlanForPrescriptionId,
-    allPrescriptions
+    allPrescriptions,
+    effectiveCompanies,
+    subLocalPrescriptions,
+    refetchPrescriptions,
+    refetchLocalPrescriptions,
+    isPrescriptionsUninitialized,
+    isLocalPrescriptionsUninitialized
   ]);
 
   const saveSuccessMessage = useMemo(() => {
     if (userRole === 'AdministratorMaestro' || userRole === 'AdministratorBGIR')
-      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux régions.';
+      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux régions dans "Suivi des plans".';
     if (isNationalRole(userRole))
-      return "Vos modifications ont été enregistrées avec succès. Pensez à les diffuser à l'administrateur et/ou aux régions.";
-    if (isRegionalRole(userRole))
-      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux départements.';
+      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser à l\'administrateur et/ou aux régions dans "Suivi des plans".';
+    if (isRegionalRole(userRole)) {
+      const hasRegionalKind = programmingPlans.some(
+        (plan) => plan.distributionKind === 'REGIONAL'
+      );
+      const hasSlaughterhouseKind = programmingPlans.some(
+        (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
+      );
+      if (hasRegionalKind && !hasSlaughterhouseKind) {
+        return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux préleveurs dans "Suivi des plans".';
+      }
+      if (hasSlaughterhouseKind && !hasRegionalKind) {
+        return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux départements dans "Suivi des plans".';
+      }
+      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux préleveurs et/ou aux départements dans "Suivi des plans".';
+    }
     if (isDepartmentalRole(userRole))
-      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux préleveurs.';
+      return 'Vos modifications ont été enregistrées avec succès. Pensez à les diffuser aux préleveurs dans "Suivi des plans".';
     return 'Vos modifications ont été enregistrées avec succès.';
-  }, [userRole]);
+  }, [userRole, programmingPlans]);
 
   const hasGroupedUpdatePermission = useMemo(
     () =>
@@ -494,10 +716,134 @@ const ProgrammingPrescriptionList = ({
     ]
   );
 
+  const togglePrescriptionSelection = hasGroupedUpdatePermission
+    ? (prescription: Prescription) => {
+        setSelectedPrescriptions((prevState) =>
+          prevState.some((_) => _.id === prescription.id)
+            ? prevState.filter((_) => _.id !== prescription.id)
+            : [...prevState, prescription]
+        );
+      }
+    : undefined;
+
+  const [bulkAssignBannerHeight, setBulkAssignBannerHeight] = useState(0);
+
+  const laboratorySlotsFor = useCallback(
+    (prescription: Prescription) => {
+      const plan = getPrescriptionPlan(prescription);
+      const isLaboratoryEchelon =
+        plan.distributionKind === 'REGIONAL' ? !department : !!department;
+      if (!isLaboratoryEchelon) {
+        return [];
+      }
+      const regional = localPrescriptions.find(
+        (lp) => lp.prescriptionId === prescription.id
+      );
+      if (!regional) {
+        return [];
+      }
+      const subPlan = plan.subPlans.find(
+        (sp) => sp.id === prescription.programmingSubPlanId
+      );
+      return [...(subPlan?.substanceKinds ?? [])]
+        .sort()
+        .map((substanceKind) => ({
+          substanceKind,
+          laboratoryId: regional.substanceKindsLaboratories?.find(
+            (skl) => skl.substanceKind === substanceKind
+          )?.laboratoryId
+        }));
+    },
+    [getPrescriptionPlan, localPrescriptions, department]
+  );
+
+  const bulkAssignCheck = useMemo(():
+    | {
+        commonSlots: { substanceKind: SubstanceKind; laboratoryId?: string }[];
+        blockReason?: undefined;
+      }
+    | { commonSlots: []; blockReason: string } => {
+    const slotsPerPrescription = selectedPrescriptions.map(laboratorySlotsFor);
+    const [firstSlots, ...otherSlots] = slotsPerPrescription;
+
+    const sameSubstanceKinds =
+      firstSlots &&
+      firstSlots.length > 0 &&
+      otherSlots.every(
+        (slots) =>
+          slots.length === firstSlots.length &&
+          slots.every((s, i) => s.substanceKind === firstSlots[i].substanceKind)
+      );
+
+    if (!sameSubstanceKinds) {
+      return {
+        commonSlots: [],
+        blockReason:
+          "Les sous-plans sélectionnés n'ont pas le même nombre de laboratoires à attribuer. L'action groupée n'est pas possible."
+      };
+    }
+
+    const slotLaboratoryIds = firstSlots.map((_, index) => {
+      const laboratoryIds = new Set(
+        slotsPerPrescription
+          .map((slots) => slots[index].laboratoryId)
+          .filter((id): id is string => !!id)
+      );
+      return laboratoryIds;
+    });
+
+    if (slotLaboratoryIds.some((laboratoryIds) => laboratoryIds.size > 1)) {
+      return {
+        commonSlots: [],
+        blockReason:
+          "Les sous-plans sélectionnés ont des laboratoires déjà attribués différents. L'action groupée n'est pas possible."
+      };
+    }
+
+    return {
+      commonSlots: firstSlots.map((slot, index) => ({
+        substanceKind: slot.substanceKind,
+        laboratoryId: [...slotLaboratoryIds[index]][0]
+      }))
+    };
+  }, [selectedPrescriptions, laboratorySlotsFor]);
+
   const headerPlan = programmingPlans[0];
 
   return (
     <>
+      {canImport && prescriptionFilters.year && (
+        <PrescriptionImportModal
+          year={prescriptionFilters.year}
+          onImported={setImportResult}
+        />
+      )}
+      <AppToast
+        open={importResult?.unrecognized.length === 0}
+        description="Votre fichier a été importé avec succès."
+        onClose={() => setImportResult(undefined)}
+      />
+      {importResult && importResult.unrecognized.length > 0 && (
+        <div className={cx('fr-container', 'fr-px-5w', 'fr-mb-2w')}>
+          <Alert
+            severity="warning"
+            closable
+            onClose={() => setImportResult(undefined)}
+            title="Vos fichier a été importé partiellement."
+            description={
+              <>
+                Les données suivantes n’ont pas pu être importées car Maestro ne
+                les a pas reconnues :
+                <ul>
+                  {importResult.unrecognized.map((label) => (
+                    <li key={label}>{label}</li>
+                  ))}
+                </ul>
+              </>
+            }
+          />
+        </div>
+      )}
       <AppToast open={isAddSuccess} description="Matrice ajoutée" />
       <AppToast
         open={saveSuccess}
@@ -510,34 +856,27 @@ const ProgrammingPrescriptionList = ({
           {
             <ProgrammingPrescriptionListHeader
               programmingPlan={headerPlan}
-              prescriptions={prescriptions}
-              localPrescriptions={localPrescriptions}
-              subLocalPrescriptions={subLocalPrescriptions ?? []}
+              counts={prescriptionCounts}
               exportURL={getApiUrl(
                 '/prescriptions/export',
                 exportPrescriptionOptions
               )}
-              hasGroupedUpdatePermission={hasGroupedUpdatePermission}
-              selectedCount={selectedPrescriptions.length}
-              onGroupedUpdate={changeSubstanceKindsLaboratories}
-              onSelectAll={() => {
-                setSelectedPrescriptions(
-                  selectedPrescriptions.length === prescriptions.length
-                    ? []
-                    : prescriptions
-                );
-              }}
+              onImport={
+                canImport ? () => prescriptionImportModal.open() : undefined
+              }
             />
           }
           <ProgrammingPrescriptionFilters
             options={{
               plans: programmingPlanOptions(prescriptionFilters),
               programmingSubPlanIds:
-                programmingSubPlanOptions(prescriptionFilters)
+                programmingSubPlanOptions(prescriptionFilters),
+              matrixKinds: matrixKindOptions,
+              contexts: contextOptions(prescriptionFilters)
             }}
+            stageCounts={stageCounts}
             filters={prescriptionFilters}
             onChange={changeFilter}
-            renderMode="inline"
           />
           {prescriptions.length === 0 && (
             <div
@@ -549,52 +888,75 @@ const ProgrammingPrescriptionList = ({
               Aucun prélèvement programmé pour les filtres sélectionnés
             </div>
           )}
-          {prescriptions.length > 0 &&
-            (hasNationalView ? (
-              <ProgrammingPrescriptionTable
-                programmingPlans={programmingPlans}
-                prescriptions={prescriptions}
-                regionalPrescriptions={localPrescriptions}
-                onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
-                pendingPrescriptionIds={
-                  new Set(pendingPrescriptionSampleCounts.keys())
-                }
-                pendingLocalKeys={new Set(pendingLocalChanges.keys())}
-                onChangePrescriptionSampleCount={(
-                  prescription,
-                  sampleCount
-                ) => {
-                  setPendingPrescriptionSampleCounts((prev) => {
-                    const next = new Map(prev);
-                    next.set(prescription.id, sampleCount);
-                    return next;
-                  });
-                }}
-              />
-            ) : (
-              <ProgrammingLocalPrescriptionTable
-                programmingPlans={programmingPlans}
-                prescriptions={prescriptions}
-                region={user?.region as Region}
-                localPrescriptions={localPrescriptions}
-                subLocalPrescriptions={subLocalPrescriptions ?? []}
-                onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
-                pendingLocalKeys={new Set(pendingLocalChanges.keys())}
-                selectedPrescriptions={selectedPrescriptions}
-                onTogglePrescriptionSelection={
-                  hasGroupedUpdatePermission
-                    ? (prescription) => {
-                        setSelectedPrescriptions((prevState) =>
-                          prevState.some((_) => _.id === prescription.id)
-                            ? prevState.filter((_) => _.id !== prescription.id)
-                            : [...prevState, prescription]
-                        );
-                      }
-                    : undefined
-                }
-                companies={companies}
-              />
-            ))}
+          {canBulkAssignLaboratories && (
+            <SelectionActionBar
+              selectedCount={selectedPrescriptions.length}
+              itemLabel="sous-plan sélectionné"
+              onDeselectAll={() => setSelectedPrescriptions([])}
+              onHeightChange={setBulkAssignBannerHeight}
+              notice={
+                bulkAssignCheck.blockReason
+                  ? { description: bulkAssignCheck.blockReason }
+                  : undefined
+              }
+            >
+              <Button
+                priority="secondary"
+                size="small"
+                iconId="fr-icon-list-check"
+                disabled={!!bulkAssignCheck.blockReason}
+                onClick={() => bulkAssignLaboratoriesModal.open()}
+                className={cx('fr-ml-3w')}
+              >
+                Attribuer les laboratoires
+              </Button>
+            </SelectionActionBar>
+          )}
+          {prescriptions.length > 0 && (
+            <ProgrammingPrescriptionTable
+              programmingPlans={programmingPlans}
+              prescriptions={prescriptions}
+              regionalPrescriptions={localPrescriptions}
+              onOpenComments={openComments}
+              onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
+              pendingLocalKeys={new Set(pendingLocalChanges.keys())}
+              onChangeLocalPrescriptionLaboratories={
+                changeLocalPrescriptionLaboratories
+              }
+              pendingLaboratoryKeys={new Set(pendingLaboratoryChanges.keys())}
+              {...(hasNationalView
+                ? {
+                    pendingPrescriptionIds: new Set(
+                      pendingPrescriptionSampleCounts.keys()
+                    ),
+                    onChangePrescriptionSampleCount: (
+                      prescription,
+                      sampleCount
+                    ) => {
+                      setPendingPrescriptionSampleCounts((prev) => {
+                        const next = new Map(prev);
+                        next.set(prescription.id, sampleCount);
+                        return next;
+                      });
+                    }
+                  }
+                : userRole === 'Sampler'
+                  ? {
+                      region: user?.region as Region,
+                      department
+                    }
+                  : {
+                      region: user?.region as Region,
+                      department,
+                      companies: effectiveCompanies,
+                      subLocalPrescriptions: subLocalPrescriptions ?? [],
+                      selectedPrescriptions,
+                      onTogglePrescriptionSelection:
+                        togglePrescriptionSelection,
+                      topOffset: bulkAssignBannerHeight
+                    })}
+            />
+          )}
         </>
       )}
       <PrescriptionModal
@@ -605,6 +967,26 @@ const ProgrammingPrescriptionList = ({
         }
       />
       <LocalPrescriptionModal />
+      {canBulkAssignLaboratories && (
+        <BulkAssignLaboratoriesModal
+          programmingPlanId={headerPlan.id}
+          commonSlots={bulkAssignCheck.commonSlots}
+          onSubmit={(substanceKindsLaboratories) => {
+            for (const prescription of selectedPrescriptions) {
+              changeLocalPrescriptionLaboratories(
+                {
+                  prescriptionId: prescription.id,
+                  region: region as Region,
+                  department
+                },
+                substanceKindsLaboratories
+              );
+            }
+            bulkAssignLaboratoriesModal.close();
+            setSelectedPrescriptions([]);
+          }}
+        />
+      )}
       {hasPendingChanges && (
         <PrescriptionActionBar
           onReset={handleReset}

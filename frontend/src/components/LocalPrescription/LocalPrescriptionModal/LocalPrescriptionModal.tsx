@@ -11,7 +11,6 @@ import { ApiClientContext } from '../../../services/apiClient';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import { pluralize } from '../../../utils/stringUtils';
 import LocalPrescriptionDepartmentalDistribution from '../LocalPrescriptionDepartmentalDistribution/LocalPrescriptionDepartmentalDistribution';
-import LocalPrescriptionSlaughterhouseDistribution from '../LocalPrescriptionSlaughterhouseDistribution/LocalPrescriptionSlaughterhouseDistribution';
 import LocalPrescriptionSubstanceKindsLaboratories from '../LocalPrescriptionSubstanceKindsLaboratories/LocalPrescriptionSubstanceKindsLaboratories';
 
 const localPrescriptionModal = createModal({
@@ -106,18 +105,6 @@ const LocalPrescriptionModal = () => {
       );
       setIsUpdateSuccess(true);
     }
-    if (localPrescriptionModalData?.mode === 'distributionToSlaughterhouses') {
-      await updateDepartmentalLocalPrescription({
-        prescriptionId: localPrescriptionModalData.prescription.id,
-        region: localPrescriptionModalData.localPrescription.region,
-        department: localPrescriptionModalData.localPrescription
-          .department as Department,
-        key: 'slaughterhouseSampleCounts',
-        slaughterhouseSampleCounts: subLocalPrescriptions,
-        programmingPlanId: localPrescriptionModalData.programmingPlan.id
-      });
-      setIsUpdateSuccess(true);
-    }
   };
 
   const title = useMemo(() => {
@@ -136,9 +123,6 @@ const LocalPrescriptionModal = () => {
   const successMessage = useMemo(() => {
     if (localPrescriptionModalData?.mode === 'distributionToDepartments') {
       return 'La répartition de la programmation a bien été enregistrée pour ces départements.';
-    }
-    if (localPrescriptionModalData?.mode === 'distributionToSlaughterhouses') {
-      return 'La répartition de la programmation a bien été enregistrée pour ces abattoirs.';
     }
     return pluralize(
       (
@@ -165,8 +149,7 @@ const LocalPrescriptionModal = () => {
       title={title}
       topAnchor
       size={
-        localPrescriptionModalData?.mode === 'distributionToDepartments' ||
-        localPrescriptionModalData?.mode === 'distributionToSlaughterhouses'
+        localPrescriptionModalData?.mode === 'distributionToDepartments'
           ? 'large'
           : 'medium'
       }
@@ -239,20 +222,6 @@ const LocalPrescriptionModal = () => {
                   localPrescriptionModalData.localPrescription
                 }
                 departmentalPrescriptions={
-                  localPrescriptionModalData.subLocalPrescriptions
-                }
-                onSubmit={submitSubLocalDistribution}
-              />
-            )}
-            {localPrescriptionModalData?.mode ===
-              'distributionToSlaughterhouses' && (
-              <LocalPrescriptionSlaughterhouseDistribution
-                ref={modalContentRef}
-                prescription={localPrescriptionModalData.prescription}
-                departmentalPrescription={
-                  localPrescriptionModalData.localPrescription
-                }
-                slaughterhousePrescriptions={
                   localPrescriptionModalData.subLocalPrescriptions
                 }
                 onSubmit={submitSubLocalDistribution}

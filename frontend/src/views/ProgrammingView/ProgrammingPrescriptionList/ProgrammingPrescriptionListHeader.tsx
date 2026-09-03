@@ -1,50 +1,36 @@
+import Badge from '@codegouvfr/react-dsfr/Badge';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Input from '@codegouvfr/react-dsfr/Input';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
 import { t } from 'i18next';
-import { sumBy, uniqBy } from 'lodash-es';
-import type { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
-import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import type { PrescriptionCounts } from 'maestro-shared/schema/Prescription/PrescriptionCounts';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import type React from 'react';
-import { useMemo, useState } from 'react';
+
+import type { ReactNode } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
-import ProgrammingPrescriptionListGroupedUpdate from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListGroupedUpdate';
-import ProgrammingPlanNotificationDepartmentalToSampler from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationDepartmentalToSampler/ProgrammingPlanNotificationDepartmentalToSampler';
-import ProgrammingPlanNotificationNationalToRegional from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationNationalToRegional/ProgrammingPlanNotificationNationalToRegional';
-import ProgrammingPlanNotificationRegionalToDepartmental from '../../../components/ProgrammingPlanNotification/ProgrammingPlanNotificationRegionalToDepartmental/ProgrammingPlanNotificationRegionalToDepartmental';
 import './ProgrammingPrescriptionList.scss';
 
 interface Props {
   programmingPlan: ProgrammingPlanChecked;
-  prescriptions: Prescription[];
-  localPrescriptions: LocalPrescription[];
-  subLocalPrescriptions: LocalPrescription[];
+  counts?: PrescriptionCounts;
   exportURL: string;
-  hasGroupedUpdatePermission?: boolean;
-  selectedCount?: number;
-  onGroupedUpdate?: (
-    substanceKindsLaboratories: SubstanceKindLaboratory[]
-  ) => Promise<void>;
-  onSelectAll: () => void;
+  onImport?: () => void;
 }
+
+type ToggleFilterKey =
+  | 'missingDistribution'
+  | 'missingLaboratory'
+  | 'withNovelty';
 
 const ProgrammingPrescriptionListHeader = ({
   programmingPlan,
-  prescriptions,
-  localPrescriptions,
-  subLocalPrescriptions,
+  counts,
   exportURL,
-  hasGroupedUpdatePermission,
-  selectedCount,
-  onGroupedUpdate,
-  onSelectAll
+  onImport
 }: Props) => {
   const dispatch = useAppDispatch();
   const { isMobile } = useWindowSize();
@@ -55,135 +41,103 @@ const ProgrammingPrescriptionListHeader = ({
     (state) => state.prescriptions
   );
 
-  const [isGroupedUpdate, setIsGroupedUpdate] = useState(false);
+  const missingDistributionCount = counts?.missingDistributionCount ?? 0;
 
-  const sampleCount = useMemo(
-    () => sumBy(prescriptions, 'sampleCount'),
-    [prescriptions]
-  );
+  const filterToggle = (
+    key: ToggleFilterKey,
+    label: string,
+    inputTitle: string,
+    count: number,
+    testId?: string
+  ): ReactNode => {
+    const checked = prescriptionFilters[key] ?? false;
+    return (
+      <ToggleSwitch
+        label={<span className="no-wrap">{`${label} (${count})`}</span>}
+        inputTitle={inputTitle}
+        checked={checked}
+        disabled={count === 0 && !checked}
+        onChange={(isChecked) =>
+          dispatch(
+            prescriptionsSlice.actions.changePrescriptionFilters({
+              ...prescriptionFilters,
+              [key]: isChecked
+            })
+          )
+        }
+        showCheckedHint={false}
+        data-testid={testId}
+      />
+    );
+  };
+
   return (
-    <div className={cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-container', 'fr-px-5w')}>
-      <div className="d-flex-align-center" style={{ gap: '1rem' }}>
-        <h4 className={clsx(cx('fr-mb-0'), 'flex-grow-1')}>
-          {t('plannedSample', { count: sampleCount ?? 0 })}
+    <div
+      className={clsx(
+        cx('fr-mb-2w', 'fr-mb-md-5w', 'fr-container', 'fr-px-5w'),
+        'prescription-list-header'
+      )}
+    >
+      <div className="flex-grow-1">
+        <h4 className={cx('fr-mb-1v')}>
+          {`${t('subPlan', { count: counts?.subPlanCount ?? 0 })} (${t(
+            'sample',
+            { count: counts?.sampleCount ?? 0 }
+          )})`}
         </h4>
-        <Input
-          iconId="fr-icon-search-line"
-          hideLabel
-          label="Matrice"
-          nativeInputProps={{
-            type: 'search',
-            placeholder: 'Matrice',
-            value: prescriptionFilters.matrixQuery ?? '',
-            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-              dispatch(
-                prescriptionsSlice.actions.changePrescriptionFilters({
-                  ...prescriptionFilters,
-                  matrixQuery: e.target.value
-                })
-              );
-            }
-          }}
-          className={cx('fr-my-0', 'fr-hidden', 'fr-unhidden-md')}
-          classes={{
-            wrap: cx('fr-mt-0')
-          }}
-        />
-        <Button
-          iconId="fr-icon-file-download-line"
-          priority="secondary"
-          onClick={() => window.open(exportURL)}
-          title="Exporter"
-          size={isMobile ? 'small' : 'medium'}
-        />
-        <ProgrammingPlanNotificationNationalToRegional
-          programmingPlan={programmingPlan}
-        />
-        {hasRegionalView && (
-          <ProgrammingPlanNotificationRegionalToDepartmental
-            programmingPlan={programmingPlan}
-            regionalPrescriptions={localPrescriptions}
-            departmentalPrescriptions={subLocalPrescriptions}
-          />
-        )}
-        {hasDepartmentalView && (
-          <ProgrammingPlanNotificationDepartmentalToSampler
-            programmingPlan={programmingPlan}
-            departmentalPrescriptions={localPrescriptions}
-            companyPrescriptions={subLocalPrescriptions}
-          />
-        )}
+        <Badge
+          small
+          severity={missingDistributionCount > 0 ? 'warning' : 'success'}
+        >
+          {missingDistributionCount > 0
+            ? `${missingDistributionCount} à répartir`
+            : `${counts?.distributedCount ?? 0} répartis`}
+        </Badge>
       </div>
-      <div className="d-flex-align-center">
-        <div className={clsx('flex-grow-1', 'd-flex-align-center')}>
-          {hasUserPermission('distributePrescriptionToSlaughterhouses') && (
-            <ToggleSwitch
-              label={<span className="no-wrap">Répartition à réaliser</span>}
-              inputTitle="Filtrer les prélèvements avec répartition à réaliser"
-              checked={prescriptionFilters.missingSlaughterhouse ?? false}
-              onChange={(checked) => {
-                dispatch(
-                  prescriptionsSlice.actions.changePrescriptionFilters({
-                    ...prescriptionFilters,
-                    missingSlaughterhouse: checked
-                  })
-                );
-              }}
-              showCheckedHint={false}
-            />
+      <div className="prescription-list-header__filters">
+        {filterToggle(
+          'missingDistribution',
+          'Répartition à réaliser',
+          'Filtrer les sous-plans avec répartition à réaliser',
+          missingDistributionCount
+        )}
+        {hasUserPermission('updatePrescriptionLaboratories') &&
+          (hasDepartmentalView ||
+            (hasRegionalView &&
+              programmingPlan.distributionKind === 'REGIONAL')) &&
+          filterToggle(
+            'missingLaboratory',
+            'Laboratoires à attribuer',
+            'Filtrer les sous-plans avec laboratoire à attribuer',
+            counts?.missingLaboratoryCount ?? 0,
+            'missing-laboratory-toggle'
           )}
-          {hasUserPermission('updatePrescriptionLaboratories') &&
-            (hasDepartmentalView ||
-              (hasRegionalView &&
-                programmingPlan.distributionKind === 'REGIONAL')) && (
-              <ToggleSwitch
-                label={<span className="no-wrap">Laboratoire à attribuer</span>}
-                inputTitle="Filtrer les prélèvements avec laboratoire à attribuer"
-                checked={prescriptionFilters.missingLaboratory ?? false}
-                onChange={(checked) => {
-                  dispatch(
-                    prescriptionsSlice.actions.changePrescriptionFilters({
-                      ...prescriptionFilters,
-                      missingLaboratory: checked
-                    })
-                  );
-                }}
-                showCheckedHint={false}
-                data-testid="missing-laboratory-toggle"
-              />
-            )}
-        </div>
-        {hasGroupedUpdatePermission && !isGroupedUpdate && (
-          <Button
-            iconId="fr-icon-list-ordered"
-            priority="secondary"
-            title="Action groupée"
-            size={isMobile ? 'small' : 'medium'}
-            onClick={() => setIsGroupedUpdate(true)}
-            disabled={
-              uniqBy(
-                prescriptions,
-                (prescription) => prescription.programmingSubPlanId
-              ).length !== 1
-            }
-          >
-            {isMobile ? undefined : 'Action groupée'}
-          </Button>
+        {filterToggle(
+          'withNovelty',
+          'Nouveautés',
+          'Filtrer les sous-plans présentant des nouveautés',
+          counts?.noveltyCount ?? 0
         )}
       </div>
-      {isGroupedUpdate && onGroupedUpdate && (
-        <ProgrammingPrescriptionListGroupedUpdate
-          programmingPlan={programmingPlan}
-          programmingSubPlanId={prescriptions[0].programmingSubPlanId}
-          selectedCount={selectedCount ?? 0}
-          totalCount={prescriptions.length}
-          onSubmit={async (laboratoryId) => {
-            await onGroupedUpdate(laboratoryId);
-            setIsGroupedUpdate(false);
-          }}
-          onCancel={() => setIsGroupedUpdate(false)}
-          onSelectAll={onSelectAll}
-        />
+      <Button
+        iconId="fr-icon-file-download-line"
+        priority="secondary"
+        onClick={() => window.open(exportURL)}
+        title="Exporter"
+        size={isMobile ? 'small' : 'medium'}
+      >
+        Exporter
+      </Button>
+      {onImport && (
+        <Button
+          iconId="fr-icon-upload-line"
+          priority="secondary"
+          onClick={onImport}
+          title="Importer"
+          size={isMobile ? 'small' : 'medium'}
+        >
+          Importer
+        </Button>
       )}
     </div>
   );

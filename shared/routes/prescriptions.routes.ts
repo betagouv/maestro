@@ -16,6 +16,11 @@ import {
   PrescriptionToCreate,
   PrescriptionUpdate
 } from '../schema/Prescription/Prescription';
+import { PrescriptionCounts } from '../schema/Prescription/PrescriptionCounts';
+import {
+  PrescriptionImportFile,
+  PrescriptionImportResult
+} from '../schema/Prescription/PrescriptionImport';
 import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
 import type { SubRoutes } from './routes';
 
@@ -33,15 +38,31 @@ export const prescriptionsRoutes = {
       response: Prescription
     }
   },
+  '/prescriptions/counts': {
+    params: undefined,
+    get: {
+      query: FindPrescriptionOptions.omit({
+        subPlanStage: true,
+        includes: true
+      }),
+      permissions: ['readPrescriptions'],
+      response: PrescriptionCounts
+    }
+  },
   '/prescriptions/export': {
     params: undefined,
     get: {
-      query: z.object({
-        ...FindPrescriptionOptions.omit({ includes: true }).shape,
-        programmingPlanId: z.guid()
-      }),
+      query: FindPrescriptionOptions.omit({ includes: true }),
       permissions: ['readPrescriptions'],
       response: z.custom<Buffer>()
+    }
+  },
+  '/prescriptions/import': {
+    params: undefined,
+    post: {
+      body: PrescriptionImportFile,
+      permissions: ['updatePrescription'],
+      response: PrescriptionImportResult
     }
   },
   '/prescriptions/regions': {
@@ -50,6 +71,17 @@ export const prescriptionsRoutes = {
       query: FindLocalPrescriptionOptions,
       permissions: ['readPrescriptions'],
       response: z.array(LocalPrescription)
+    }
+  },
+  '/prescriptions/regions/:region/changes-viewed': {
+    params: { region: Region },
+    put: {
+      body: z.object({
+        prescriptionIds: z.array(z.guid()),
+        department: Department.nullish()
+      }),
+      permissions: ['updatePrescription', 'updatePrescriptionLaboratories'],
+      response: z.undefined()
     }
   },
   '/prescriptions/:prescriptionId/regions/:region/comments': {

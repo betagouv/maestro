@@ -102,8 +102,6 @@ export const NationalCoordinatorView: Story = {
     await expect(
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
-
-    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
 };
 
@@ -140,13 +138,11 @@ export const RegionalCoordinatorView: Story = {
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
 
-    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
-
     await expect(
       Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
         el.textContent?.toLowerCase().includes('attribué')
       )
-    ).toHaveLength(prescriptions.length);
+    ).toHaveLength(0);
   }
 };
 
@@ -174,19 +170,11 @@ export const DepartmentalCoordinatorView: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getAllByTestId('update-laboratory-button').length).toBe(
-      regionalPrescriptions.filter(
-        (_) => _.department === DepartmentalCoordinator.department
-      ).length
-    );
-
-    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
-
     await expect(
-      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
-        el.textContent?.toLowerCase().includes('attribué')
-      )
-    ).toHaveLength(prescriptions.length);
+      canvas.getAllByTestId('laboratorySelect-input').length
+    ).toBeGreaterThan(0);
+
+    await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
   }
 };
 

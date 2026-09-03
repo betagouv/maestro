@@ -3,7 +3,7 @@ import 'maestro-shared/utils/zodConfig';
 import { registerSW } from 'virtual:pwa-register';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Route, Routes } from 'react-router';
+import { createBrowserRouter, RouterProvider } from 'react-router';
 import App from './App';
 import './i18n';
 import * as Sentry from '@sentry/react';
@@ -35,12 +35,10 @@ const root = ReactDOM.createRoot(container!, {
   onCaughtError: Sentry.reactErrorHandler(),
   onRecoverableError: Sentry.reactErrorHandler()
 });
+const router = createBrowserRouter([{ path: '/*', element: <App /> }]);
+
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/*" element={<App />} />
-      </Routes>
-    </BrowserRouter>
+    <RouterProvider router={router} />
   </React.StrictMode>
 );

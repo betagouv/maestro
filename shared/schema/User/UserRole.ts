@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { Region } from '../../referential/Region';
 import type { Nullable } from '../../utils/typescript';
+import type { ProgrammingPlanEchelon } from '../ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { UserRefined } from './User';
 import type { UserPermission } from './UserPermission';
 
@@ -60,7 +61,6 @@ const ObserverPermissionsList = [
   'viewProgrammingPlans',
   'readProgrammingPlansInProgress',
   'readProgrammingPlanSubmittedToRegion',
-  'readProgrammingPlanApprovedByRegion',
   'readProgrammingPlanValidated',
   'readProgrammingPlanClosed',
   'readPrescriptions',
@@ -78,7 +78,6 @@ const AdministratorPermissionsList = [
   'viewProgrammingPlans',
   'readProgrammingPlansInProgress',
   'readProgrammingPlanSubmittedToRegion',
-  'readProgrammingPlanApprovedByRegion',
   'readProgrammingPlanSubmittedToDepartments',
   'readProgrammingPlanValidated',
   'readProgrammingPlanClosed',
@@ -96,11 +95,11 @@ const AdministratorPermissionsList = [
 const userRolePermissions = {
   NationalCoordinator: [
     'manageProgrammingPlan',
+    'sendProgrammingPlansToRegions',
     'closeProgrammingPlan',
     'viewProgrammingPlans',
     'readProgrammingPlansInProgress',
     'readProgrammingPlanSubmittedToRegion',
-    'readProgrammingPlanApprovedByRegion',
     'readProgrammingPlanSubmittedToDepartments',
     'readProgrammingPlanValidated',
     'readProgrammingPlanClosed',
@@ -124,7 +123,6 @@ const userRolePermissions = {
     'readProgrammingPlanValidated',
     'readProgrammingPlanClosed',
     'readProgrammingPlanSubmittedToRegion',
-    'readProgrammingPlanApprovedByRegion',
     'readProgrammingPlanSubmittedToDepartments',
     'approveProgrammingPlan',
     'readPrescriptions',
@@ -178,13 +176,16 @@ const userRolePermissions = {
     // FIXME à ajouter pour les AdmnistratorBGIR et NationalCoordinator
     'manageProgrammingPlanSettings'
   ],
-  AdministratorBGIR: AdministratorPermissionsList,
+  AdministratorBGIR: [
+    ...AdministratorPermissionsList,
+    'sendProgrammingPlansToRegions',
+    'launchProgrammingPlanCampaign'
+  ],
   LaboratoryUser: ['readDocuments', 'readProgrammingPlanValidated'],
   LaboratoryOffice: [
     'readPrescriptions',
     'readProgrammingPlansInProgress',
     'readProgrammingPlanSubmittedToRegion',
-    'readProgrammingPlanApprovedByRegion',
     'readProgrammingPlanSubmittedToDepartments',
     'readProgrammingPlanValidated',
     'readProgrammingPlanClosed',
@@ -228,6 +229,43 @@ export const isRegionalRole = (userRole?: UserRole) =>
 export const isDepartmentalRole = (userRole?: UserRole) =>
   //FIXME un sampler c'est pas un role départemental?!
   DepartmentalUserRole.safeParse(userRole).success;
+
+export const editingEchelonForRole = (
+  userRole: UserRole
+): ProgrammingPlanEchelon | null => {
+  switch (userRole) {
+    case 'NationalCoordinator':
+    case 'NationalObserver':
+      return 'National';
+    case 'RegionalCoordinator':
+    case 'RegionalObserver':
+      return 'Regional';
+    case 'DepartmentalCoordinator':
+    case 'DepartmentalObserver':
+      return 'Departmental';
+    default:
+      return null;
+  }
+};
+
+export const seesUnappliedLocalPrescriptionChanges = (
+  userRole: UserRole
+): boolean =>
+  !(['Sampler', 'LaboratoryUser', 'LaboratoryOffice'] as UserRole[]).includes(
+    userRole
+  );
+
+export interface PendingChangeVisibility {
+  echelon: ProgrammingPlanEchelon | null;
+  seesUnappliedChanges: boolean;
+}
+
+export const pendingChangeVisibilityForRole = (
+  userRole: UserRole
+): PendingChangeVisibility => ({
+  echelon: editingEchelonForRole(userRole),
+  seesUnappliedChanges: seesUnappliedLocalPrescriptionChanges(userRole)
+});
 
 export const canHaveDepartment = (
   user: Nullable<Pick<UserRefined, 'roles'>>

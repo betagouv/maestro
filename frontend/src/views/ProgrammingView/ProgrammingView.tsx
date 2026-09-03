@@ -1,15 +1,20 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Tabs from '@codegouvfr/react-dsfr/Tabs';
+import Notice from '@codegouvfr/react-dsfr/Notice';
+import Tabs, { type TabsProps } from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
 import { isEmpty, isNil, mapValues, max, omitBy } from 'lodash-es';
 import { DepartmentLabels } from 'maestro-shared/referential/Department';
+import type { Matrix } from 'maestro-shared/referential/Matrix/Matrix';
 import { type Region, Regions } from 'maestro-shared/referential/Region';
+import type { Stage } from 'maestro-shared/referential/Stage';
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanStatusList } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { isDefined } from 'maestro-shared/utils/utils';
 import {
   useCallback,
   useContext,
@@ -23,9 +28,9 @@ import programmation from '../../assets/illustrations/programmation.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
 import PrescriptionCommentsModal from '../../components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
 import SectionHeader from '../../components/SectionHeader/SectionHeader';
-import UnsavedChangesModal, {
-  openUnsavedChangesModal
-} from '../../components/UnsavedChangesModal/UnsavedChangesModal';
+import UnsavedChangesGuard, {
+  useUnsavedChangesGuard
+} from '../../components/UnsavedChangesGuard/UnsavedChangesGuard';
 import YearSelector from '../../components/YearSelector/YearSelector';
 import { useAuthentication } from '../../hooks/useAuthentication';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
@@ -35,15 +40,17 @@ import { ApiClientContext } from '../../services/apiClient';
 import prescriptionsSlice, {
   type PrescriptionFilters
 } from '../../store/reducers/prescriptionsSlice';
+import { pluralize } from '../../utils/stringUtils';
 import ProgrammingCommentList from './ProgrammingCommentList/ProgrammingCommentList';
-import ProgrammingPlanDepartmentalValidationList from './ProgrammingPlanDepartmentalValidationList/ProgrammingPlanDepartmentalValidationList';
-import ProgrammingPlanRegionalValidationList from './ProgrammingPlanRegionalValidationList/ProgrammingPlanRegionalValidationList';
+import ProgrammingPlanTrackingTable from './ProgrammingPlanTrackingTable/ProgrammingPlanTrackingTable';
+import { useProgrammingPlanTrackingStatus } from './ProgrammingPlanTrackingTable/useProgrammingPlanTrackingStatus';
 import ProgrammingPrescriptionList from './ProgrammingPrescriptionList/ProgrammingPrescriptionList';
+import './ProgrammingView.scss';
 
 type ProgrammingViewTab =
   | 'ProgrammationTab'
-  | 'ConsultationTab'
-  | 'CommentsTab';
+  | 'CommentsTab'
+  | 'PlanTrackingTab';
 
 const ProgrammingView = () => {
   useDocumentTitle('Programmation');
@@ -51,52 +58,47 @@ const ProgrammingView = () => {
   const dispatch = useAppDispatch();
   const { year } = useParams<{ year: string }>();
 
-  const [selectedTabId, setSelectedTabId] =
-    useState<ProgrammingViewTab>('ProgrammationTab');
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user, hasNationalView, hasRegionalView, hasUserPermission } =
-    useAuthentication();
+  const [selectedTabId, setSelectedTabId] = useState<ProgrammingViewTab>(() => {
+    const tab = searchParams.get('tab');
+    return tab === 'CommentsTab' ||
+      tab === 'PlanTrackingTab' ||
+      tab === 'ProgrammationTab'
+      ? tab
+      : 'ProgrammationTab';
+  });
+  const {
+    user,
+    hasNationalView,
+    hasRegionalView,
+    hasDepartmentalView,
+    hasRole,
+    hasUserPermission
+  } = useAuthentication();
   const { prescriptionFilters } = useAppSelector(
     (state) => state.prescriptions
   );
 
   const [listHasPendingChanges, setListHasPendingChanges] = useState(false);
   const listResetFnRef = useRef<() => void>(() => {});
-  const pendingTabIdRef = useRef<string | null>(null);
+  const hasMarkedChangesViewedRef = useRef(false);
+  const [markLocalPrescriptionChangesViewed] =
+    apiClient.useMarkLocalPrescriptionChangesViewedMutation();
 
-  useEffect(() => {
-    const handler = (e: BeforeUnloadEvent) => {
-      if (listHasPendingChanges) {
-        e.preventDefault();
-      }
-    };
-    window.addEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
-  }, [listHasPendingChanges]);
-
-  const handleUnsavedConfirm = useCallback(() => {
-    listResetFnRef.current();
-    setListHasPendingChanges(false); // reset immediately — list may be unmounting so its useEffect won't fire
-    if (pendingTabIdRef.current) {
-      setSelectedTabId(pendingTabIdRef.current as ProgrammingViewTab);
-      pendingTabIdRef.current = null;
-    }
-  }, []);
-
-  const handleUnsavedCancel = useCallback(() => {
-    pendingTabIdRef.current = null;
-  }, []);
+  const unsavedChangesGuard = useUnsavedChangesGuard({
+    when: listHasPendingChanges,
+    onDiscard: useCallback(() => {
+      listResetFnRef.current();
+      setListHasPendingChanges(false); // reset immediately — list may be unmounting so its useEffect won't fire
+    }, [])
+  });
 
   const handleTabChange = useCallback(
-    (tabId: string) => {
-      if (listHasPendingChanges) {
-        pendingTabIdRef.current = tabId;
-        openUnsavedChangesModal();
-      } else {
-        setSelectedTabId(tabId as ProgrammingViewTab);
-      }
-    },
-    [listHasPendingChanges]
+    (tabId: string) =>
+      unsavedChangesGuard.run(() =>
+        setSelectedTabId(tabId as ProgrammingViewTab)
+      ),
+    [unsavedChangesGuard]
   );
 
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery({
@@ -129,7 +131,22 @@ const ProgrammingView = () => {
           contexts:
             (searchParams
               .get('contexts')
-              ?.split(',') as ProgrammingPlanContext[]) ?? undefined
+              ?.split(',') as ProgrammingPlanContext[]) ?? undefined,
+          programmingPlanDomainIds:
+            (searchParams
+              .get('programmingPlanDomainIds')
+              ?.split(',') as ProgrammingPlanDomainId[]) ?? undefined,
+          matrices:
+            (searchParams.get('matrices')?.split(',') as Matrix[]) ?? undefined,
+          coordinatorIds:
+            searchParams.get('coordinatorIds')?.split(',') ?? undefined,
+          laboratoryIds:
+            searchParams.get('laboratoryIds')?.split(',') ?? undefined,
+          outsideProgrammingPlan:
+            searchParams.get('outsideProgrammingPlan') === 'true'
+              ? true
+              : undefined,
+          stage: (searchParams.get('stage') as Stage) ?? undefined
         })
       )
     );
@@ -137,11 +154,16 @@ const ProgrammingView = () => {
 
   const filteredProgrammingPlans = useMemo(
     () =>
-      (programmingPlans ?? []).filter(
-        (plan) =>
-          !prescriptionFilters.programmingPlanIds?.length ||
-          prescriptionFilters.programmingPlanIds.includes(plan.id)
-      ),
+      (programmingPlans ?? [])
+        .filter(
+          (plan) =>
+            !prescriptionFilters.year || plan.year === prescriptionFilters.year
+        )
+        .filter(
+          (plan) =>
+            !prescriptionFilters.programmingPlanIds?.length ||
+            prescriptionFilters.programmingPlanIds.includes(plan.id)
+        ),
     [prescriptionFilters, programmingPlans]
   );
 
@@ -182,6 +204,92 @@ const ProgrammingView = () => {
     [commentLocalPrescription]
   );
 
+  const yearProgrammingPlans = useMemo(
+    () =>
+      (programmingPlans ?? []).filter(
+        (plan) => plan.year === prescriptionFilters.year
+      ),
+    [programmingPlans, prescriptionFilters.year]
+  );
+
+  const { readyToSendPlans } = useProgrammingPlanTrackingStatus(
+    yearProgrammingPlans,
+    region ?? undefined,
+    user?.department ?? undefined
+  );
+
+  const readyToSendSubtitle = useMemo(() => {
+    const count = readyToSendPlans.length;
+    if (!count) {
+      return undefined;
+    }
+    const plural = `${count} ${pluralize(count)('plan')} ${count > 1 ? 'sont prêts' : 'est prêt'}`;
+    const diffused = pluralize(count)('diffusé');
+
+    if (hasRole('AdministratorBGIR')) {
+      return `${plural} à être soumis aux régions.`;
+    }
+    if (hasRole('NationalCoordinator')) {
+      return `${plural} à être soumis à l'administrateur et/ou aux régions.`;
+    }
+    if (hasRole('RegionalCoordinator')) {
+      const hasSlaughterhouse = readyToSendPlans.some(
+        (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
+      );
+      const hasRegional = readyToSendPlans.some(
+        (plan) => plan.distributionKind !== 'SLAUGHTERHOUSE'
+      );
+      if (hasSlaughterhouse && hasRegional) {
+        return `${plural} à être soumis aux départements et/ou ${diffused} aux préleveurs.`;
+      }
+      return hasSlaughterhouse
+        ? `${plural} à être soumis aux départements.`
+        : `${plural} à être ${diffused} aux préleveurs.`;
+    }
+    if (hasRole('DepartmentalCoordinator')) {
+      const awaitsLaunch = readyToSendPlans.some((plan) =>
+        isNil(plan.launchedAt)
+      );
+      return awaitsLaunch
+        ? `${plural} à être ${diffused} aux préleveurs. ${pluralize(count, {
+            replacements: [{ old: 'sera', new: 'seront' }]
+          })(
+            'Il sera visible'
+          )} des préleveurs dès le lancement de la campagne par le BGIR.`
+        : `${plural} à être ${diffused} aux préleveurs.`;
+    }
+    return undefined;
+  }, [readyToSendPlans, hasRole]);
+
+  const rawTabs: (TabsProps.Controlled['tabs'][number] | undefined)[] = [
+    {
+      label: 'Tous les sous-plans',
+      tabId: 'ProgrammationTab',
+      iconId: 'fr-icon-survey-line'
+    },
+    (programmingPlans ?? []).some((p) => p.distributionKind === 'REGIONAL') &&
+    hasUserPermission('commentPrescription')
+      ? {
+          label: 'Commentaires',
+          tabId: 'CommentsTab',
+          iconId: 'fr-icon-chat-3-line'
+        }
+      : undefined,
+    hasRole(
+      'AdministratorBGIR',
+      'NationalCoordinator',
+      'RegionalCoordinator',
+      'DepartmentalCoordinator'
+    )
+      ? {
+          label: 'Suivi des plans',
+          tabId: 'PlanTrackingTab',
+          iconId: 'fr-icon-chat-check-line'
+        }
+      : undefined
+  ];
+  const tabs = rawTabs.filter(isDefined);
+
   return (
     <>
       <AppToast open={isCommentSuccess} description="Commentaire ajouté" />
@@ -210,6 +318,26 @@ const ProgrammingView = () => {
           <div className={cx('fr-container')}>
             <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
               <div className={cx('fr-col-12')}>
+                {readyToSendSubtitle && (
+                  <div className="ready-to-send-notice">
+                    <Notice
+                      title="Plans à envoyer"
+                      description={readyToSendSubtitle}
+                      link={{
+                        linkProps: {
+                          to: '',
+                          target: undefined,
+                          rel: undefined,
+                          onClick: (event) => {
+                            event.preventDefault();
+                            handleTabChange('PlanTrackingTab');
+                          }
+                        },
+                        text: 'Voir le suivi des plans'
+                      }}
+                    />
+                  </div>
+                )}
                 {!programmingPlans.length ? (
                   <Alert
                     description={
@@ -225,52 +353,26 @@ const ProgrammingView = () => {
                   <Tabs
                     selectedTabId={selectedTabId}
                     onTabChange={handleTabChange}
-                    className={clsx({
-                      'full-width': hasNationalView || hasRegionalView
-                    })}
+                    className={clsx(
+                      {
+                        'full-width': !(
+                          hasDepartmentalView &&
+                          selectedTabId === 'PlanTrackingTab'
+                        )
+                      },
+                      {
+                        'push-tabs-right': hasRole(
+                          'AdministratorBGIR',
+                          'NationalCoordinator',
+                          'RegionalCoordinator',
+                          'DepartmentalCoordinator'
+                        )
+                      }
+                    )}
                     classes={{
                       panel: clsx('white-container')
                     }}
-                    tabs={[
-                      {
-                        label: 'Tous les sous-plans',
-                        tabId: 'ProgrammationTab',
-                        iconId: 'fr-icon-survey-line' as const
-                      },
-                      filteredProgrammingPlans.some(
-                        (p) => p.distributionKind === 'REGIONAL'
-                      ) && hasUserPermission('manageProgrammingPlan')
-                        ? {
-                            label: 'Phase de consultation',
-                            tabId: 'ConsultationTab',
-                            iconId: 'fr-icon-chat-check-line' as const
-                          }
-                        : undefined,
-                      filteredProgrammingPlans.some(
-                        (p) => p.distributionKind === 'SLAUGHTERHOUSE'
-                      ) &&
-                      (hasUserPermission('manageProgrammingPlan') ||
-                        hasUserPermission(
-                          'distributePrescriptionToDepartments'
-                        ))
-                        ? {
-                            label: hasNationalView
-                              ? 'Statut par région'
-                              : 'Statut par département',
-                            tabId: 'ConsultationTab',
-                            iconId: 'fr-icon-chat-check-line' as const
-                          }
-                        : undefined,
-                      filteredProgrammingPlans.some(
-                        (p) => p.distributionKind === 'REGIONAL'
-                      ) && hasUserPermission('commentPrescription')
-                        ? {
-                            label: 'Commentaires',
-                            tabId: 'CommentsTab',
-                            iconId: 'fr-icon-chat-3-line' as const
-                          }
-                        : undefined
-                    ].filter((tab) => !isNil(tab))}
+                    tabs={tabs}
                   >
                     {filteredProgrammingPlans.length ? (
                       <>
@@ -285,25 +387,24 @@ const ProgrammingView = () => {
                                 setListHasPendingChanges(hasPending);
                                 listResetFnRef.current = reset;
                               }}
+                              onChangeDismissalCandidatesChange={(
+                                prescriptionIds
+                              ) => {
+                                if (
+                                  region &&
+                                  prescriptionIds.length &&
+                                  !hasMarkedChangesViewedRef.current
+                                ) {
+                                  hasMarkedChangesViewedRef.current = true;
+                                  markLocalPrescriptionChangesViewed({
+                                    region,
+                                    department: user?.department ?? undefined,
+                                    prescriptionIds
+                                  });
+                                }
+                              }}
                             />
                           )}
-                        {selectedTabId === 'ConsultationTab' &&
-                          hasNationalView &&
-                          filteredProgrammingPlans.map((plan) => (
-                            <ProgrammingPlanRegionalValidationList
-                              key={plan.id}
-                              programmingPlan={plan}
-                            />
-                          ))}
-                        {selectedTabId === 'ConsultationTab' &&
-                          hasRegionalView &&
-                          filteredProgrammingPlans.map((plan) => (
-                            <ProgrammingPlanDepartmentalValidationList
-                              key={plan.id}
-                              programmingPlan={plan}
-                              region={region as Region}
-                            />
-                          ))}
                         {selectedTabId === 'CommentsTab' &&
                           filteredProgrammingPlans.map((plan) => (
                             <ProgrammingCommentList
@@ -311,6 +412,29 @@ const ProgrammingView = () => {
                               programmingPlan={plan}
                             />
                           ))}
+                        {selectedTabId === 'PlanTrackingTab' &&
+                          hasRole(
+                            'AdministratorBGIR',
+                            'NationalCoordinator',
+                            'RegionalCoordinator',
+                            'DepartmentalCoordinator'
+                          ) && (
+                            <ProgrammingPlanTrackingTable
+                              programmingPlans={filteredProgrammingPlans.filter(
+                                (plan) => plan.year === prescriptionFilters.year
+                              )}
+                              region={
+                                hasRegionalView || hasDepartmentalView
+                                  ? (region as Region)
+                                  : undefined
+                              }
+                              department={
+                                hasDepartmentalView
+                                  ? (user?.department ?? undefined)
+                                  : undefined
+                              }
+                            />
+                          )}
                       </>
                     ) : (
                       'Veuillez sélectionner un plan de programmation'
@@ -322,10 +446,7 @@ const ProgrammingView = () => {
           </div>
         )}
       </section>
-      <UnsavedChangesModal
-        onConfirm={handleUnsavedConfirm}
-        onCancel={handleUnsavedCancel}
-      />
+      <UnsavedChangesGuard guard={unsavedChangesGuard} />
       <PrescriptionCommentsModal
         onSubmitLocalPrescriptionComment={submitLocalPrescriptionComment}
       />

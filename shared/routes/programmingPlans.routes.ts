@@ -24,12 +24,47 @@ export const programmingPlansRoutes = {
       permissions: [
         'readProgrammingPlansInProgress',
         'readProgrammingPlanSubmittedToRegion',
-        'readProgrammingPlanApprovedByRegion',
         'readProgrammingPlanSubmittedToDepartments',
         'readProgrammingPlanValidated',
         'readProgrammingPlanClosed'
       ],
       query: FindProgrammingPlanOptions,
+      response: z.array(ProgrammingPlanChecked)
+    }
+  },
+  '/programming-plans/send-to-regions': {
+    post: {
+      permissions: ['sendProgrammingPlansToRegions'],
+      body: z.object({
+        programmingPlanIds: z.array(z.guid()).min(1)
+      }),
+      response: z.array(ProgrammingPlanChecked)
+    }
+  },
+  '/programming-plans/launch-campaign': {
+    post: {
+      permissions: ['launchProgrammingPlanCampaign'],
+      body: z.object({
+        programmingPlanIds: z.array(z.guid()).min(1)
+      }),
+      response: z.array(ProgrammingPlanChecked)
+    }
+  },
+  '/programming-plans/send-to-departments': {
+    post: {
+      permissions: ['distributePrescriptionToDepartments'],
+      body: z.object({
+        programmingPlanIds: z.array(z.guid()).min(1)
+      }),
+      response: z.array(ProgrammingPlanChecked)
+    }
+  },
+  '/programming-plans/send-to-samplers': {
+    post: {
+      permissions: ['distributePrescriptionToDepartments'],
+      body: z.object({
+        programmingPlanIds: z.array(z.guid()).min(1)
+      }),
       response: z.array(ProgrammingPlanChecked)
     }
   },
@@ -41,7 +76,6 @@ export const programmingPlansRoutes = {
       permissions: [
         'readProgrammingPlansInProgress',
         'readProgrammingPlanSubmittedToRegion',
-        'readProgrammingPlanApprovedByRegion',
         'readProgrammingPlanSubmittedToDepartments',
         'readProgrammingPlanValidated',
         'readProgrammingPlanClosed'

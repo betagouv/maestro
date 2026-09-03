@@ -24,7 +24,7 @@ import {
 
 export const seed = async () => {
   await Prescriptions().insert([
-    FoieDeBovinPrescriptionFixture,
+    { ...FoieDeBovinPrescriptionFixture, sampleCount: 0 },
     VolaillePrescriptionFixture,
     FoieDeBovinValidatedPrescriptionFixture,
     VolailleValidatedPrescriptionFixture
@@ -37,33 +37,51 @@ export const seed = async () => {
     ...VolailleValidatedLocalPrescriptionFixture
   ]);
 
-  await LocalPrescriptions()
-    .where('prescription_id', FoieDeBovinValidatedPrescriptionFixture.id)
-    .andWhere('department', '85')
-    .andWhere('companySiret', 'None')
-    .update({ sampleCount: 5 });
+  const regionQuantities: Record<string, number[]> = {
+    [FoieDeBovinValidatedPrescriptionFixture.id]: [
+      3, 2, 5, 8, 10, 1, 2, 10, 3, 3, 2, 9, 4, 4, 2, 1, 5, 6
+    ],
+    [VolailleValidatedPrescriptionFixture.id]: [
+      2, 3, 8, 1, 9, 1, 11, 3, 2, 1, 1, 4, 6, 1, 5, 6, 3, 10
+    ]
+  };
 
-  await LocalPrescriptions().insert({
-    prescriptionId: FoieDeBovinValidatedPrescriptionFixture.id,
-    region: '52' as const,
-    department: '85' as const,
-    companySiret: CHARAL.siret,
-    sampleCount: 5
-  });
+  const slaughterhouseByPrescription: Record<string, string> = {
+    [FoieDeBovinValidatedPrescriptionFixture.id]: CHARAL.siret,
+    [VolailleValidatedPrescriptionFixture.id]: AVIVOL.siret
+  };
 
-  await LocalPrescriptions()
-    .where('prescription_id', VolailleValidatedPrescriptionFixture.id)
-    .andWhere('department', '85')
-    .andWhere('companySiret', 'None')
-    .update({ sampleCount: 3 });
+  for (const prescriptionId of Object.keys(regionQuantities)) {
+    const companySiret = slaughterhouseByPrescription[prescriptionId];
 
-  await LocalPrescriptions().insert({
-    prescriptionId: VolailleValidatedPrescriptionFixture.id,
-    region: '52' as const,
-    department: '85' as const,
-    companySiret: AVIVOL.siret,
-    sampleCount: 3
-  });
+    await Promise.all(
+      RegionList.flatMap((region, regionIndex) => {
+        const departments = Regions[region].departments;
+        const regionTotal = regionQuantities[prescriptionId][regionIndex];
+        const base = Math.floor(regionTotal / departments.length);
+        const remainder = regionTotal % departments.length;
+
+        return departments.map(async (department, departmentIndex) => {
+          const sampleCount = base + (departmentIndex < remainder ? 1 : 0);
+
+          await LocalPrescriptions()
+            .where({ prescriptionId, region, department })
+            .andWhere('companySiret', 'None')
+            .update({ sampleCount });
+
+          if (sampleCount > 0) {
+            await LocalPrescriptions().insert({
+              prescriptionId,
+              region,
+              department,
+              companySiret,
+              sampleCount
+            });
+          }
+        });
+      })
+    );
+  }
 
   await LocalPrescriptionSubstanceKindsLaboratories().insert(
     [

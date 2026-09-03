@@ -29,11 +29,19 @@ const run = async () => {
   await daoaPrescriptionsSeed();
   await samplesSeed();
   await substanceAnalysisSeed();
-  await departmentsSeed();
   await laboratoryAgreementsSeed();
   await documentsSeed();
   await analysisSeed();
   await laboratoryAgreementChecksSeed();
+
+  try {
+    await departmentsSeed();
+  } catch (e) {
+    console.warn(
+      'Seed des contours départementaux ignoré (source distante injoignable)',
+      e
+    );
+  }
 };
 run()
   .then(() => {

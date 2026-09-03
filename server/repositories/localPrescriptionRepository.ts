@@ -6,9 +6,15 @@ import type {
   LocalPrescriptionOptionsInclude
 } from 'maestro-shared/schema/LocalPrescription/FindLocalPrescriptionOptions';
 import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import {
+  type LocalPrescriptionKey,
+  type LocalPrescriptionKeyString,
+  toLocalPrescriptionKeyString
+} from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import type { PendingChangeVisibility } from 'maestro-shared/schema/User/UserRole';
 import { z } from 'zod';
 import { knexInstance as db } from './db';
+import { LocalPrescriptionChanges } from './localPrescriptionChangeRepository';
 import { localPrescriptionCommentsTable } from './localPrescriptionCommentRepository';
 import { localPrescriptionSubstanceKindsLaboratoriesTable } from './localPrescriptionSubstanceKindLaboratoryRepository';
 import { prescriptionsTable } from './prescriptionRepository';
@@ -26,6 +32,79 @@ type LocalPrescriptionsDbo = z.infer<typeof LocalPrescriptionsDbo>;
 
 export const LocalPrescriptions = (transaction = db) =>
   transaction<LocalPrescriptionsDbo>(localPrescriptionsTable);
+
+const findPendingChanges = async (
+  prescriptionIds: string[],
+  visibility?: PendingChangeVisibility
+): Promise<
+  Map<
+    LocalPrescriptionKeyString,
+    { previousSampleCount: number | null; changedAt: Date }
+  >
+> => {
+  if (prescriptionIds.length === 0) {
+    return new Map();
+  }
+  const rows = await LocalPrescriptionChanges()
+    .distinctOn(['prescriptionId', 'region', 'department', 'companySiret'])
+    .select(
+      'prescriptionId',
+      'region',
+      'department',
+      'companySiret',
+      'previousSampleCount',
+      'changedAt'
+    )
+    .whereIn('prescriptionId', prescriptionIds)
+    .andWhere({ kind: 'sampleCount' })
+    .modify((query) => {
+      if (visibility?.echelon) {
+        query.whereNot({ echelon: visibility.echelon });
+      }
+      if (!visibility?.seesUnappliedChanges) {
+        query.whereNotNull('appliedAt');
+      }
+    })
+    .whereNull('changesViewedAt')
+    .whereNotNull('diffusedAt')
+    .orderByRaw(
+      'prescription_id, region, department, company_siret, (applied_at is null) desc, changed_at asc'
+    );
+  return new Map(
+    rows.map((row: (typeof rows)[number]) => [
+      toLocalPrescriptionKeyString({
+        prescriptionId: row.prescriptionId,
+        region: row.region,
+        department: row.department === 'None' ? undefined : row.department,
+        companySiret: row.companySiret === 'None' ? undefined : row.companySiret
+      }),
+      {
+        previousSampleCount: row.previousSampleCount,
+        changedAt: row.changedAt
+      }
+    ])
+  );
+};
+
+const withPendingChanges = async (
+  localPrescriptions: LocalPrescription[],
+  visibility?: PendingChangeVisibility
+): Promise<LocalPrescription[]> => {
+  const pendingByKey = await findPendingChanges(
+    uniq(localPrescriptions.map((_) => _.prescriptionId)),
+    visibility
+  );
+  return localPrescriptions.map((localPrescription) => {
+    const pending = pendingByKey.get(
+      toLocalPrescriptionKeyString(localPrescription)
+    );
+    return {
+      ...localPrescription,
+      previousSampleCount: pending?.previousSampleCount ?? null,
+      changedAt: pending?.changedAt ?? null
+    };
+  });
+};
 
 const findUnique = async ({
   prescriptionId,
@@ -53,7 +132,8 @@ const findUnique = async ({
 };
 
 const findMany = async (
-  findOptions: FindLocalPrescriptionOptions
+  findOptions: FindLocalPrescriptionOptions,
+  visibility?: PendingChangeVisibility
 ): Promise<LocalPrescription[]> => {
   console.info('Find local prescriptions', omitBy(findOptions, isNil));
   return LocalPrescriptions()
@@ -70,7 +150,9 @@ const findMany = async (
           'region',
           'department',
           'contexts',
-          'companySirets'
+          'companySirets',
+          'allLevels',
+          'includeCompanies'
         ),
         isNil
       )
@@ -99,7 +181,11 @@ const findMany = async (
         builder.whereIn(`${prescriptionsTable}.context`, findOptions.contexts);
       }
 
-      if (!findOptions.region) {
+      if (findOptions.allLevels) {
+        if (!findOptions.includeCompanies) {
+          builder.where(`${localPrescriptionsTable}.companySiret`, 'None');
+        }
+      } else if (!findOptions.region) {
         builder.where(`${localPrescriptionsTable}.department`, 'None');
         builder.where(`${localPrescriptionsTable}.companySiret`, 'None');
       } else {
@@ -129,7 +215,13 @@ const findMany = async (
     .modify(include(findOptions))
     .then((localPrescriptions) =>
       localPrescriptions.map(parseLocalPrescription)
-    );
+    )
+    .then(async (localPrescriptions: LocalPrescription[]) => {
+      if (!findOptions.includes?.includes('pendingChanges')) {
+        return localPrescriptions;
+      }
+      return withPendingChanges(localPrescriptions, visibility);
+    });
 };
 
 const include = (opts?: Pick<FindLocalPrescriptionOptions, 'includes'>) => {
@@ -272,7 +364,8 @@ const include = (opts?: Pick<FindLocalPrescriptionOptions, 'includes'>) => {
           `${localPrescriptionsTable}.department`,
           `${localPrescriptionsTable}.companySiret`
         );
-    }
+    },
+    pendingChanges: () => {}
   };
 
   return (query: Knex.QueryBuilder) => {
@@ -349,7 +442,12 @@ const updateMany = async (
 export const formatLocalPrescription = (
   localPrescription: LocalPrescription
 ): LocalPrescriptionsDbo => ({
-  ...localPrescription,
+  ...omit(localPrescription, [
+    'previousSampleCount',
+    'changedAt',
+    'diffusedSampleCount',
+    'hasUnappliedChange'
+  ]),
   department: localPrescription.department ?? 'None',
   companySiret: localPrescription.companySiret ?? 'None'
 });

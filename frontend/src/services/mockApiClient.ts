@@ -103,15 +103,7 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
         // @ts-expect-error TS7053
         mockApi[key][1]
       ];
-    } else if (
-      key.startsWith('useAdd') ||
-      key.startsWith('useCreate') ||
-      key.startsWith('useComment') ||
-      key.startsWith('useUpdate') ||
-      key.startsWith('useDelete') ||
-      key.startsWith('useMascarade') ||
-      key.startsWith('useReplay')
-    ) {
+    } else if (key.endsWith('Mutation')) {
       // @ts-expect-error TS7053
       acc[key] = () => [
         (arg?: any) => {
@@ -130,6 +122,7 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
   }, {} as ApiClient);
 };
 const defaultMockApiClientConf: MockApi = {
+  useImportPrescriptionsMutation: [fn(), {}],
   useAddPrescriptionMutation: [fn(), {}],
   useAuthenticateMutation: [fn(), {}],
   useCommentLocalPrescriptionMutation: [fn(), {}],
@@ -171,6 +164,18 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateLaboratoryAgreementsMutation: [fn(), {}],
   useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },
+  useFindPrescriptionCountsQuery: {
+    data: {
+      subPlanCount: 0,
+      sampleCount: 0,
+      missingDistributionCount: 0,
+      missingLaboratoryCount: 0,
+      noveltyCount: 0,
+      distributedCount: 0,
+      stageCounts: [],
+      matrixKinds: []
+    }
+  },
   useFindProgrammingPlanDomainsQuery: { data: ProgrammingPlanDomainFixtures },
   useFindProgrammingPlansQuery: { data: [] },
   useFindLocalPrescriptionsQuery: { data: [] },
@@ -256,11 +261,16 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateProgrammingPlanLocalStatusMutation: [fn(), {}],
   useUpdateProgrammingPlanStatusMutation: [fn(), {}],
   useUpdateProgrammingSubPlanMutation: [fn(), {}],
+  useSendProgrammingPlansToRegionsMutation: [fn(), {}],
+  useLaunchProgrammingPlansCampaignMutation: [fn(), {}],
+  useSendProgrammingPlansToDepartmentsMutation: [fn(), {}],
+  useSendProgrammingPlansToSamplersMutation: [fn(), {}],
   useUpdateLaboratoryAnalyticalCompetenceMutation: [fn(), {}],
   useFindLaboratoryResidueMappingsQuery: { data: [] },
   useUpdateLaboratoryResidueMappingMutation: [fn(), {}],
   useUpdateDepartmentalLocalPrescriptionMutation: [fn(), {}],
   useUpdateLocalPrescriptionMutation: [fn(), {}],
+  useMarkLocalPrescriptionChangesViewedMutation: [fn(), {}],
   useUpdateSampleMutation: [fn(), {}],
   useUpdateSampleComplianceMutation: [fn(), {}],
   useUpdateSampleItemMutation: [fn(), {}],

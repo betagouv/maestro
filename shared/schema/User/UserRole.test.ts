@@ -18,8 +18,11 @@ describe('UserRole', () => {
       ]);
     });
 
-    test('should have every other permission of the Maestro administrator', () => {
-      expect(difference(bgirPermissions, maestroPermissions)).toEqual([]);
+    test('should have every other permission of the Maestro administrator, plus the plan submission', () => {
+      expect(difference(bgirPermissions, maestroPermissions)).toEqual([
+        'sendProgrammingPlansToRegions',
+        'launchProgrammingPlanCampaign'
+      ]);
     });
   });
 });

@@ -1,7 +1,6 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import Notice from '@codegouvfr/react-dsfr/Notice';
 import clsx from 'clsx';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type {
@@ -12,18 +11,10 @@ import type {
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
-import {
-  memo,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ColumnFilterHeader from 'src/components/ColumnFilterHeader/ColumnFilterHeader';
 import LaboratoryAgreementButtons from 'src/components/LaboratoryAgreement/LaboratoryAgreementButtons/LaboratoryAgreementButtons';
-import { pluralize } from 'src/utils/stringUtils';
+import SelectionActionBar from 'src/components/SelectionActionBar/SelectionActionBar';
 import type { AgreementRow } from './AgreementTableRow';
 import AgreementTableRow from './AgreementTableRow';
 
@@ -102,21 +93,15 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
   const [animatingRowKeys, setAnimatingRowKeys] = useState<string[]>([]);
   const [pendingCheckRowKeys, setPendingCheckRowKeys] = useState<string[]>([]);
 
-  const noticeRef = useRef<HTMLDivElement>(null);
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const tableTopRef = useRef(0);
 
-  useLayoutEffect(() => {
-    const el = noticeRef.current;
-    if (!el) return;
-    const observer = new ResizeObserver(() => {
-      el.parentElement
-        ?.querySelector('.laboratory-agreements-table-wrapper')
-        ?.setAttribute('style', `--notice-height: ${el.offsetHeight}px`);
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [selectedStringRowKeys]);
+  const handleNoticeHeightChange = useCallback((height: number) => {
+    tableContainerRef.current?.style.setProperty(
+      '--notice-height',
+      `${height}px`
+    );
+  }, []);
 
   const [scrollTop, setScrollTop] = useState(
     typeof window !== 'undefined' ? window.scrollY : 0
@@ -225,53 +210,31 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
 
   return (
     <>
-      <div ref={noticeRef} className="laboratory-agreements-notice-container">
-        {selectedStringRowKeys.length > 0 && (
-          <div
-            className={clsx(
-              cx('fr-px-3w', 'fr-py-2w'),
-              'laboratory-agreements-notice'
-            )}
-          >
-            <div className="d-flex-justify-between d-flex-align-center">
-              <span className={clsx(cx('fr-text--bold'), 'no-wrap')}>
-                {pluralize(selectedStringRowKeys.length, {
-                  preserveCount: true
-                })('plan sélectionné')}
-              </span>
-              {!selectedRowsConsistent && (
-                <Notice
-                  className={cx('fr-m-0', 'fr-p-0')}
-                  title=""
-                  description="Les sous-plans sélectionnés ont des laboratoires affectés différents. L'action groupée n'est pas possible."
-                  severity="info"
-                  isClosable={false}
-                />
-              )}
-              <span className="d-flex-align-center no-wrap">
-                <Button
-                  priority="tertiary no outline"
-                  size="small"
-                  onClick={onDeselect}
-                  className="link-underline"
-                >
-                  Déselectionner tout
-                </Button>
-                <Button
-                  iconId="fr-icon-microscope-line"
-                  priority="secondary"
-                  size="small"
-                  onClick={onOpenModal}
-                  disabled={!selectedRowsConsistent}
-                  className={cx('fr-ml-3w')}
-                >
-                  Affecter les laboratoires
-                </Button>
-              </span>
-            </div>
-          </div>
-        )}
-      </div>
+      <SelectionActionBar
+        selectedCount={selectedStringRowKeys.length}
+        itemLabel="plan sélectionné"
+        onDeselectAll={onDeselect}
+        onHeightChange={handleNoticeHeightChange}
+        notice={
+          !selectedRowsConsistent
+            ? {
+                description:
+                  "Les sous-plans sélectionnés ont des laboratoires affectés différents. L'action groupée n'est pas possible."
+              }
+            : undefined
+        }
+      >
+        <Button
+          iconId="fr-icon-microscope-line"
+          priority="secondary"
+          size="small"
+          onClick={onOpenModal}
+          disabled={!selectedRowsConsistent}
+          className={cx('fr-ml-3w')}
+        >
+          Affecter les laboratoires
+        </Button>
+      </SelectionActionBar>
 
       <div
         ref={tableContainerRef}
