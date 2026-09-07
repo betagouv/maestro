@@ -23,8 +23,8 @@ import { laboratoryResidueMappingRepository } from '../../repositories/laborator
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 import config from '../../utils/config';
 import { documentService } from '../documentService';
-import { mattermostService } from '../mattermostService';
 import { notificationService } from '../notificationService';
+import { tchapService } from '../tchapService';
 import { analysisHandler } from './analysis-handler';
 import { ExtractError, ExtractLabError } from './extractError';
 import { sendLabErrorReply } from './labErrorReply';
@@ -119,7 +119,7 @@ const moveMessageToErrorbox = async (
     });
   }
 
-  await mattermostService.send(error);
+  await tchapService.send(error);
 };
 
 type EmailWithMessageUid = { messageUid: string } & Pick<
@@ -656,7 +656,7 @@ export const checkEmails = async () => {
               if (warnings.size > 0) {
                 const warningMessage = Array.from(warnings).join('\n -');
                 console.warn(warningMessage);
-                await mattermostService.send(warningMessage);
+                await tchapService.send(warningMessage);
               }
             }
           }

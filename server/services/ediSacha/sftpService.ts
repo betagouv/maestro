@@ -16,7 +16,7 @@ import { laboratoryRepository } from '../../repositories/laboratoryRepository';
 import { sachaConfRepository } from '../../repositories/sachaConfRepository';
 import config from '../../utils/config';
 import { documentService } from '../documentService';
-import { mattermostService } from '../mattermostService';
+import { tchapService } from '../tchapService';
 import { RaiLabError } from './sachaErrors';
 import { processSachaRAI } from './sachaRAI';
 import { sendSachaFile } from './sachaSender';
@@ -320,12 +320,12 @@ const notify = async (
     case 'PROCESSED':
       break;
     case 'REJECTED':
-      await mattermostService.send(
+      await tchapService.send(
         `[Maestro] RAI rejetée (faute labo) (file=${zipFile}, motif=${response.message})`
       );
       break;
     case 'INTERNAL_ERROR':
-      await mattermostService.send(
+      await tchapService.send(
         `[Maestro] Erreur RAI EDI interne (file=${zipFile}) : ${response.message}`
       );
       break;
@@ -401,7 +401,7 @@ export const doSftp = async () => {
         await notify(response, xmlFileName);
       } catch (e: any) {
         console.error(`[SFTP] Erreur sur ${xmlFileName} :`, e.message);
-        await mattermostService.send(
+        await tchapService.send(
           `[Maestro] Erreur RAI EDI interne (file=${xmlFileName}) : ${e.message}`
         );
       }
@@ -409,7 +409,7 @@ export const doSftp = async () => {
   } catch (e: any) {
     console.error(e.message);
 
-    await mattermostService.send(
+    await tchapService.send(
       `[Maestro] Erreur RAI, impossible de se connecter au SFTP`
     );
   } finally {

@@ -72,7 +72,9 @@ const configValidator = z
     INBOX_PORT: z.coerce.number().default(993),
     M2M_BASIC_TOKEN: devDefaultValue(z.string(), 'basicToken'),
     SEVES_BASIC_TOKEN: devDefaultValue(z.string(), 'basicTokenSeves'),
-    MATTERMOST_INCOMING_WEBHOOK: z.url().nullish(),
+    TCHAP_HOMESERVER_URL: z.url().nullish(),
+    TCHAP_ACCESS_TOKEN: z.string().nullish(),
+    TCHAP_ROOM_ID: z.string().nullish(),
     BROWSERLESS_URL: devDefaultValue(
       z.string(),
       'ws://localhost:3002?token=1234512345'
@@ -153,7 +155,11 @@ const configValidator = z
         port: c.INBOX_PORT
       },
       browserlessUrl: c.BROWSERLESS_URL,
-      mattermostIncomingWebhook: c.MATTERMOST_INCOMING_WEBHOOK,
+      tchap: {
+        homeserverUrl: c.TCHAP_HOMESERVER_URL,
+        accessToken: c.TCHAP_ACCESS_TOKEN,
+        roomId: c.TCHAP_ROOM_ID
+      },
       m2mBasicToken: c.M2M_BASIC_TOKEN,
       sevesBasicToken: c.SEVES_BASIC_TOKEN,
       sigal: {

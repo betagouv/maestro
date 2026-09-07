@@ -11,7 +11,7 @@ import { analysisRepository } from '../repositories/analysisRepository';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
-import { mattermostService } from '../services/mattermostService';
+import { tchapService } from '../services/tchapService';
 
 export const analysisRouter = {
   '/analysis': {
@@ -123,7 +123,7 @@ export const analysisRouter = {
           analysisUpdate.residues
         );
         if (!isEqual(oldResidues, newResidues)) {
-          await mattermostService.send(
+          await tchapService.send(
             `Une analyse vient d'être corrigée par un préleveur : SampleId ${analysis.sampleId}`
           );
           await analysisErrorsRepository.upsert(

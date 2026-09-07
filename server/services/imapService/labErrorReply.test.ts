@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import config from '../../utils/config.ts';
 import createNodemailerService from '../mailService/nodemailerService';
-import { mattermostService } from '../mattermostService';
+import { tchapService } from '../tchapService';
 import type { LaboratoryConf } from './index';
 import { sendLabErrorReply } from './labErrorReply';
 
@@ -9,8 +9,8 @@ const sendReply = vi.fn();
 vi.mock('../mailService/nodemailerService', () => ({
   default: vi.fn(() => ({ sendReply }))
 }));
-vi.mock('../mattermostService', () => ({
-  mattermostService: { send: vi.fn() }
+vi.mock('../tchapService', () => ({
+  tchapService: { send: vi.fn() }
 }));
 
 const conf = (autoReplyOnLabError: boolean): LaboratoryConf => ({
@@ -31,7 +31,7 @@ const params = {
 describe('sendLabErrorReply', () => {
   beforeEach(() => {
     sendReply.mockReset().mockResolvedValue(undefined);
-    vi.mocked(mattermostService.send).mockReset();
+    vi.mocked(tchapService.send).mockReset();
     vi.mocked(createNodemailerService).mockClear();
     config.mailer.host = 'smtp-relay.example.org';
     config.inbox.user = 'rai@maestro.beta.gouv.fr';
@@ -127,6 +127,6 @@ describe('sendLabErrorReply', () => {
     });
 
     expect(sent).toBe(false);
-    expect(mattermostService.send).toHaveBeenCalledOnce();
+    expect(tchapService.send).toHaveBeenCalledOnce();
   });
 });

@@ -8,7 +8,7 @@ export const mockAuthenticate: Mock<Procedure> = vi.fn();
 export const mockGetLogoutUrl: Mock<Procedure> = vi.fn();
 export const mockGenerateSampleSupportPDF: Mock<Procedure> = vi.fn();
 export const mockSendNotification: Mock<Procedure> = vi.fn();
-export const mockMattermostSend: Mock<Procedure> = vi.fn();
+export const mockTchapSend: Mock<Procedure> = vi.fn();
 export const mockMailSend: Mock<Procedure> = vi
   .fn()
   .mockResolvedValue(undefined);
@@ -34,9 +34,9 @@ vi.mock('../services/pdfService/pdfService', () => ({
     generateSampleSupportPDF: () => mockGenerateSampleSupportPDF()
   }
 }));
-vi.mock('../services/mattermostService', () => ({
-  mattermostService: {
-    send: (...args: any[]) => mockMattermostSend(...args)
+vi.mock('../services/tchapService', () => ({
+  tchapService: {
+    send: (...args: any[]) => mockTchapSend(...args)
   }
 }));
 vi.mock('../services/mailService', () => ({

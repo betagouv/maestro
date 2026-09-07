@@ -14,7 +14,7 @@ import {
   sendDAIWithoutEDI
 } from './daiSendingService';
 import { sendDAIWithEDI } from './ediSacha/sachaDAI';
-import { mattermostService } from './mattermostService';
+import { tchapService } from './tchapService';
 
 const processAnalysisDai = async (
   dai: Pick<AnalysisDai, 'id' | 'analysisId'>
@@ -136,7 +136,7 @@ const processPending = async (): Promise<void> => {
         const edi = err instanceof DaiProcessingError ? err.edi : null;
         const sentMethod =
           err instanceof DaiProcessingError ? err.sentMethod : null;
-        await mattermostService.send(
+        await tchapService.send(
           `[Maestro] Erreur lors de l'envoi de la DAI ${dai.id}: ${message}`
         );
 

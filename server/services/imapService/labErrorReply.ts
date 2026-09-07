@@ -1,7 +1,7 @@
 import { Brand } from 'maestro-shared/constants';
 import config from '../../utils/config';
 import createNodemailerService from '../mailService/nodemailerService';
-import { mattermostService } from '../mattermostService';
+import { tchapService } from '../tchapService';
 import type { LaboratoryConf } from './index';
 
 const replySubject = (subject: string): string =>
@@ -58,7 +58,7 @@ export const sendLabErrorReply = async ({
     return true;
   } catch (e) {
     console.error("Échec de l'envoi de la réponse au laboratoire", e);
-    await mattermostService.send(
+    await tchapService.send(
       `[${Brand}] Impossible de répondre à ${senderAddress} au sujet de "${subject}" : ${e instanceof Error ? e.message : e}`
     );
     return false;

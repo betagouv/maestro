@@ -14,7 +14,7 @@ OFF_DEVICE_LAPTOP(Utilisateurs, Utilisateurs)
 package Gouvernement {
   OFF_APPLICATION_SERVER(Sentry, Sentry)
   OFF_APPLICATION_SERVER(Matomo, Matomo)
-  OFF_APPLICATION_SERVER(Mattermost, Mattermost)
+  OFF_APPLICATION_SERVER(Tchap, Tchap)
   OFF_APPLICATION_SERVER(Entreprise, API Entreprise)
   OFF_REVERSE_PROXY(EAP, EAP)
 }
@@ -22,9 +22,11 @@ package Gouvernement {
 package Scalingo {
   OFF_APPLICATION_WEB(UI, UI)
   OFF_APPLICATION_SERVER(API, API)
+  OFF_APPLICATION_SERVER(Metabase, Metabase)
   OFF_DATABASE(Postgres, Postgres)
   UI <--> API
   Postgres <-- API
+  Postgres <-- Metabase
 }
 
 package Externes {
@@ -42,7 +44,7 @@ package Laboratoires {
 Utilisateurs --> UI
 API <--> EAP: authentification
 API --> Sentry: erreurs
-API --> Mattermost: notifications
+API --> Tchap: notifications
 Utilisateurs --> Matomo: statistiques
 API --> Brevo: envoi mail
 API <-- OVH_EMAIL: réception analyses
