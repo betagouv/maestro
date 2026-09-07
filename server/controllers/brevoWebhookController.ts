@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { z } from 'zod';
 import { HttpStatus } from '../constants/httpStatus';
-import { mattermostService } from '../services/mattermostService';
+import { tchapService } from '../services/tchapService';
 
 const BrevoWebhookPayload = z.object({
   event: z.string(),
@@ -21,7 +21,7 @@ export const brevoWebhook = async (
 
   const { event, email, reason } = parsed.data;
 
-  await mattermostService.send(
+  await tchapService.send(
     `[Maestro] Problème de délivrabilité email (${event}) vers ${email ?? '?'}${
       reason ? ` : ${reason}` : ''
     }`

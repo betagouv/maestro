@@ -12,7 +12,7 @@ import notificationRepository from '../repositories/notificationRepository';
 import config from '../utils/config';
 import { mailService } from './mailService';
 import type { TemplateName, Templates } from './mailService/mailService';
-import { mattermostService } from './mattermostService';
+import { tchapService } from './tchapService';
 
 const categoryToEmailTemplate = {
   AnalysisReviewTodo: 'AnalysisReviewTodoTemplate',
@@ -96,7 +96,7 @@ const sendNotification = async <
 
   const fullLink = `${config.application.host}${notificationToCreate.link}`;
 
-  await mattermostService.send(
+  await tchapService.send(
     `[${NotificationCategoryTitles[notificationToCreate.category]}] ${message} ${fullLink}`
   );
 

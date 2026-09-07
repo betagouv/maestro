@@ -132,5 +132,7 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          MATTERMOST_WEBHOOK: ${{ secrets.MATTERMOST_WEBHOOK }}
-        run: npx --package semantic-release@25.0.3 --package semantic-release-mattermost@1.2.3 semantic-release
+          TCHAP_HOMESERVER_URL: ${{ secrets.TCHAP_HOMESERVER_URL }}
+          TCHAP_ACCESS_TOKEN: ${{ secrets.TCHAP_ACCESS_TOKEN }}
+          TCHAP_ROOM_ID: ${{ secrets.TCHAP_ROOM_ID }}
+        run: npx --package semantic-release@25.0.3 semantic-release

@@ -71,7 +71,7 @@ import {
 import { createServer } from '../../server';
 import {
   mockGenerateSampleSupportPDF,
-  mockMattermostSend,
+  mockTchapSend,
   mockTriggerProcessing
 } from '../../test/setupTests';
 import { tokenProvider } from '../../test/testUtils';
@@ -966,7 +966,7 @@ describe('Sample router', () => {
         .expect(constants.HTTP_STATUS_OK);
 
       expect(mockTriggerProcessing).toHaveBeenCalledOnce();
-      expect(mockMattermostSend).not.toHaveBeenCalled();
+      expect(mockTchapSend).not.toHaveBeenCalled();
 
       const daiRows = await kysely
         .selectFrom('analysisDai')

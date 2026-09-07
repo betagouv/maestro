@@ -3,6 +3,9 @@ export default {
   ignoreDependencies: ['vite', '@gouvfr/dsfr'],
   ignoreBinaries: ['playwright', 'semantic-release'],
   workspaces: {
+    '.': {
+      entry: ['.github/semanticReleaseTchap.mjs']
+    },
     server: {
       ignoreDependencies: ['body-parser', 'superagent'],
       knex: false,
