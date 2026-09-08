@@ -648,6 +648,17 @@ const ProgrammingPrescriptionTable = ({
                     className="plan-group-sticky-container"
                     style={{ top: topOffset + headerHeight }}
                   >
+                    {showCheckboxColumn && (
+                      <div className="plan-group-checkbox">
+                        <SelectionCheckbox
+                          variant="header"
+                          {...getSelectionState(contextPrescriptions)}
+                          onChange={() =>
+                            toggleGroupSelection(contextPrescriptions)
+                          }
+                        />
+                      </div>
+                    )}
                     <div
                       className={clsx(
                         cx('fr-text--sm', 'fr-mb-0'),
@@ -697,15 +708,7 @@ const ProgrammingPrescriptionTable = ({
                           <tbody>
                             <tr className="plan-group-header-row plan-group-total-row">
                               {showCheckboxColumn && (
-                                <td className="checkbox-cell">
-                                  <SelectionCheckbox
-                                    variant="header"
-                                    {...getSelectionState(contextPrescriptions)}
-                                    onChange={() =>
-                                      toggleGroupSelection(contextPrescriptions)
-                                    }
-                                  />
-                                </td>
+                                <td className="checkbox-cell" />
                               )}
                               <td className="n-cell" colSpan={3}>
                                 Total prélèvements

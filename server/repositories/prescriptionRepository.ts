@@ -181,38 +181,10 @@ const applyLocalPrescriptionFilters = (
   }
 
   if (findOptions.missingLaboratory) {
-    builder.whereExists((exists) => {
-      exists
-        .select(db.raw('1'))
-        .from(`${localPrescriptionsTable} as lp`)
-        .where('lp.company_siret', 'None')
-        .modify((query) => {
-          scopedLocalPrescriptions(query, findOptions, 'lp');
-          query.where((sub) => {
-            sub.whereNotExists((inner) => {
-              inner
-                .select(db.raw('1'))
-                .from(
-                  `${localPrescriptionSubstanceKindsLaboratoriesTable} as skl`
-                )
-                .whereRaw('skl.prescription_id = lp.prescription_id')
-                .whereRaw('skl.region = lp.region')
-                .whereRaw('skl.department = lp.department');
-            });
-            sub.orWhereExists((inner) => {
-              inner
-                .select(db.raw('1'))
-                .from(
-                  `${localPrescriptionSubstanceKindsLaboratoriesTable} as skl`
-                )
-                .whereRaw('skl.prescription_id = lp.prescription_id')
-                .whereRaw('skl.region = lp.region')
-                .whereRaw('skl.department = lp.department')
-                .whereNull('skl.laboratory_id');
-            });
-          });
-        });
-    });
+    builder.whereRaw(
+      missingLaboratoryExpression(findOptions, visibility),
+      scopeBindings(findOptions, visibility)
+    );
   }
 
   if (findOptions.missingDistribution) {
@@ -476,28 +448,54 @@ const scopedSampleCount = (
       ), 0)`
     : `coalesce(${prescriptionsTable}.sample_count, 0)`;
 
+const effectiveLaboratories = (visibility?: PendingChangeVisibility): string =>
+  visibility?.seesUnappliedChanges === false
+    ? 'null::jsonb'
+    : `(
+        select c.substance_kinds_laboratories
+        from ${localPrescriptionChangesTable} c
+        where c.prescription_id = lp.prescription_id
+          and c.region = lp.region
+          and c.department = lp.department
+          and c.company_siret = lp.company_siret
+          and c.kind = 'laboratories'
+          and c.applied_at is null
+          and (c.diffused_at is not null ${visibility?.echelon ? 'or c.echelon = :echelon' : ''})
+        order by c.changed_at desc
+        limit 1
+      )`;
+
 const missingLaboratoryExpression = (
-  findOptions: FindPrescriptionOptions
+  findOptions: FindPrescriptionOptions,
+  visibility?: PendingChangeVisibility
 ): string => `exists (
      select 1 from ${localPrescriptionsTable} lp
      where lp.prescription_id = ${prescriptionsTable}.id
        and lp.company_siret = 'None'
        ${findOptions.region ? 'and lp.region = :region' : ''}
-       ${findOptions.department ? 'and lp.department = :department' : ''}
-       and (
-         not exists (
-           select 1 from ${localPrescriptionSubstanceKindsLaboratoriesTable} skl
-           where skl.prescription_id = lp.prescription_id
-             and skl.region = lp.region
-             and skl.department = lp.department
-         )
-         or exists (
-           select 1 from ${localPrescriptionSubstanceKindsLaboratoriesTable} skl
-           where skl.prescription_id = lp.prescription_id
-             and skl.region = lp.region
-             and skl.department = lp.department
-             and skl.laboratory_id is null
-         )
+       and lp.department ${findOptions.department ? '= :department' : "= 'None'"}
+       and not (
+         case when ${effectiveLaboratories(visibility)} is not null
+           then jsonb_array_length(${effectiveLaboratories(visibility)}) > 0
+             and not exists (
+               select 1
+               from jsonb_array_elements(${effectiveLaboratories(visibility)}) slot
+               where slot->>'laboratoryId' is null
+             )
+           else exists (
+               select 1 from ${localPrescriptionSubstanceKindsLaboratoriesTable} skl
+               where skl.prescription_id = lp.prescription_id
+                 and skl.region = lp.region
+                 and skl.department = lp.department
+             )
+             and not exists (
+               select 1 from ${localPrescriptionSubstanceKindsLaboratoriesTable} skl
+               where skl.prescription_id = lp.prescription_id
+                 and skl.region = lp.region
+                 and skl.department = lp.department
+                 and skl.laboratory_id is null
+             )
+         end
        )
    )`;
 
@@ -538,7 +536,7 @@ const findCounts = async (
       ),
       db.raw(`(${distributionSql}) as "missingDistribution"`, bindings),
       db.raw(
-        `${missingLaboratoryExpression(countOptions)} as "missingLaboratory"`,
+        `${missingLaboratoryExpression(countOptions, visibility)} as "missingLaboratory"`,
         bindings
       ),
       db.raw(`${noveltySql} as "hasNovelty"`, noveltyBindings)

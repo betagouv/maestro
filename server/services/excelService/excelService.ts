@@ -436,11 +436,19 @@ const generatePrescriptionsExportExcel = async (
   );
 
   const laboratories = await laboratoryRepository.findMany();
-  const companySirets = uniq(
-    localPrescriptions
+  const departmentCompanies = exportedDepartment
+    ? await companyRepository.findMany({
+        region: exportedRegion,
+        department: exportedDepartment,
+        kinds: ['POULTRY_SLAUGHTERHOUSE', 'MEAT_SLAUGHTERHOUSE']
+      })
+    : [];
+  const companySirets = uniq([
+    ...departmentCompanies.map((company) => company.siret),
+    ...localPrescriptions
       .filter((_) => !isNil(_.companySiret))
-      .map((_) => _.companySiret)
-  );
+      .map((_) => _.companySiret as string)
+  ]);
 
   const planById = new Map(programmingPlans.map((plan) => [plan.id, plan]));
   const subPlanById = new Map(
@@ -497,16 +505,11 @@ const generatePrescriptionsExportExcel = async (
     );
 
     if (exportedDepartment) {
-      const companies = await companyRepository.findMany({
-        region: exportedRegion,
-        department: exportedDepartment,
-        kinds: ['POULTRY_SLAUGHTERHOUSE', 'MEAT_SLAUGHTERHOUSE']
-      });
       columnTitles.push(
         ...companySirets.map((companySiret) => {
           const companyName =
-            companies.find((c) => c.siret === companySiret)?.name ??
-            (companySiret as string);
+            departmentCompanies.find((c) => c.siret === companySiret)?.name ??
+            companySiret;
           return `${companyName}\nProgrammés`;
         })
       );
@@ -641,7 +644,10 @@ const generatePrescriptionsExportExcel = async (
     totalColums.push(
       ...exportedDepartments.flatMap((dept) => {
         const filteredLocalPrescriptions = localPrescriptions.filter(
-          (_) => _.region === exportedRegion && _.department === dept
+          (_) =>
+            _.region === exportedRegion &&
+            _.department === dept &&
+            isNil(_.companySiret)
         );
         return [
           sumBy(filteredLocalPrescriptions, 'sampleCount'),

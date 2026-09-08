@@ -38,6 +38,7 @@ const prescriptionApi = api.injectEndpoints({
         invalidatesTags: (_result, _error, { prescriptionId }) => [
           { type: 'LocalPrescription', id: 'LIST' },
           { type: 'LocalPrescription', id: prescriptionId },
+          { type: 'Prescription', id: 'LIST' },
           { type: 'ProgrammingPlan', id: 'LIST' }
         ]
       }
@@ -50,6 +51,7 @@ const prescriptionApi = api.injectEndpoints({
         invalidatesTags: (_result, _error, { prescriptionId }) => [
           { type: 'LocalPrescription', id: 'LIST' },
           { type: 'LocalPrescription', id: prescriptionId },
+          { type: 'Prescription', id: 'LIST' },
           { type: 'ProgrammingPlan', id: 'LIST' }
         ]
       }
