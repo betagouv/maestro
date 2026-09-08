@@ -992,7 +992,7 @@ describe('ProgrammingPlan router', () => {
         .update({ status: 'SubmittedToRegion' });
     });
 
-    test('departmental re-diffusion (Lancer la campagne) persists the sentAt bump', async () => {
+    test('departmental re-diffusion (Lancer la campagne) keeps the first sentAt', async () => {
       const region = DepartmentalCoordinator.region as Region;
       const department = DepartmentalCoordinator.department as Department;
 
@@ -1023,9 +1023,9 @@ describe('ProgrammingPlan router', () => {
           department
         })
         .first();
-      expect(
-        new Date(after?.sentAt as unknown as string).getTime()
-      ).toBeGreaterThan(new Date('2020-01-01').getTime());
+      expect(new Date(after?.sentAt as unknown as string).getTime()).toBe(
+        new Date('2020-01-01').getTime()
+      );
 
       // Cleanup
       await ProgrammingPlanLocalStatus()
@@ -1361,7 +1361,7 @@ describe('ProgrammingPlan router', () => {
         .first();
       expect(
         new Date(updatedNational?.sentAt as unknown as string).getTime()
-      ).toBeGreaterThan(previousSentAt.getTime());
+      ).toBe(previousSentAt.getTime());
 
       expect(mockSendNotification).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1588,7 +1588,7 @@ describe('ProgrammingPlan router', () => {
       expect(mockSendNotification).not.toHaveBeenCalled();
     });
 
-    test('resend after modification only touches the regional sentAt and notifies the modified departments', async () => {
+    test('resend after modification keeps the regional sentAt and notifies the modified departments', async () => {
       const departments = Regions[RegionalCoordinator.region].departments;
       const modifiedDepartment = departments[0];
       await ProgrammingPlanLocalStatus().insert(
@@ -1655,7 +1655,7 @@ describe('ProgrammingPlan router', () => {
         .first();
       expect(
         new Date(updatedRegional?.sentAt as unknown as string).getTime()
-      ).toBeGreaterThan(previousSentAt.getTime());
+      ).toBe(previousSentAt.getTime());
 
       const departmentRows = await ProgrammingPlanLocalStatus()
         .where('programmingPlanId', DAOAValidatedProgrammingPlanFixture.id)
@@ -1828,7 +1828,7 @@ describe('ProgrammingPlan router', () => {
       await Prescriptions().where({ id: modifiedPrescription.id }).delete();
     });
 
-    test('resend after a NATIONAL correction (not Regional-authored) still bumps sentAt and notifies', async () => {
+    test('resend after a NATIONAL correction (not Regional-authored) keeps the first sentAt and notifies', async () => {
       const previousSentAt = new Date('2020-01-01');
       await ProgrammingPlanLocalStatus()
         .where({
@@ -1874,7 +1874,7 @@ describe('ProgrammingPlan router', () => {
         .first();
       expect(
         new Date(updatedRegional?.sentAt as unknown as string).getTime()
-      ).toBeGreaterThan(previousSentAt.getTime());
+      ).toBe(previousSentAt.getTime());
 
       expect(mockSendNotification).toHaveBeenCalledWith(
         expect.objectContaining({
