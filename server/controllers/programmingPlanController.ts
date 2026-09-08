@@ -10,6 +10,7 @@ import {
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { NotificationCategoryTitles } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
+import { inheritsUnmanagedSetting } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import {
   NextProgrammingPlanStatus,
   type ProgrammingPlanStatus,
@@ -33,9 +34,11 @@ import localPrescriptionRepository from '../repositories/localPrescriptionReposi
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
+import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
+import { programmingPlanSettingsService } from '../services/programmingPlanSettingsService';
 
 export const programmingPlanRouter = {
   '/programming-plans': {
@@ -168,28 +171,86 @@ export const programmingPlanRouter = {
       };
     }
   },
-  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId': {
-    put: async ({ body }, { programmingPlanId, programmingSubPlanId }) => {
-      console.info('Update programming sub-plan', programmingSubPlanId);
+  '/programming-plans/:programmingPlanId/settings': {
+    get: async (_, { programmingPlanId }) => {
+      const programmingPlan =
+        await getAndCheckProgrammingPlan(programmingPlanId);
 
-      const programmingSubPlan =
-        await programmingSubPlanRepository.findUnique(programmingSubPlanId);
+      return {
+        status: HttpStatus.OK,
+        response: {
+          stages: programmingPlan.stages,
+          stagesManaged: programmingPlan.stagesManaged,
+          fields:
+            await specificDataFieldConfigRepository.findPlanFieldSettings(
+              programmingPlanId
+            )
+        }
+      };
+    },
+    put: async ({ body }, { programmingPlanId }) => {
+      await getAndCheckProgrammingPlan(programmingPlanId);
 
-      if (
-        !programmingSubPlan ||
-        programmingSubPlan.programmingPlanId !== programmingPlanId
-      ) {
-        return { status: HttpStatus.NOT_FOUND };
-      }
-
-      await programmingSubPlanRepository.update({
-        ...programmingSubPlan,
-        stages: body.stages
-      });
+      await programmingPlanSettingsService.savePlanSettings(
+        programmingPlanId,
+        body
+      );
 
       return { status: HttpStatus.NO_CONTENT };
     }
   },
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/settings':
+    {
+      get: async (_, { programmingPlanId, programmingSubPlanId }) => {
+        const programmingSubPlan =
+          await programmingSubPlanRepository.findUnique(programmingSubPlanId);
+
+        if (
+          !programmingSubPlan ||
+          programmingSubPlan.programmingPlanId !== programmingPlanId
+        ) {
+          return { status: HttpStatus.NOT_FOUND };
+        }
+
+        return {
+          status: HttpStatus.OK,
+          response: {
+            stages: programmingSubPlan.stages,
+            stagesManaged: programmingSubPlan.stagesManaged,
+            fields:
+              await specificDataFieldConfigRepository.findSubPlanFieldSettings(
+                programmingSubPlanId
+              )
+          }
+        };
+      },
+      put: async ({ body }, { programmingPlanId, programmingSubPlanId }) => {
+        const programmingSubPlan =
+          await programmingSubPlanRepository.findUnique(programmingSubPlanId);
+
+        if (
+          !programmingSubPlan ||
+          programmingSubPlan.programmingPlanId !== programmingPlanId
+        ) {
+          return { status: HttpStatus.NOT_FOUND };
+        }
+
+        const programmingPlan =
+          await getAndCheckProgrammingPlan(programmingPlanId);
+
+        if (inheritsUnmanagedSetting(body, programmingPlan)) {
+          return { status: HttpStatus.CONFLICT };
+        }
+
+        await programmingPlanSettingsService.saveSubPlanSettings(
+          programmingPlanId,
+          programmingSubPlanId,
+          body
+        );
+
+        return { status: HttpStatus.NO_CONTENT };
+      }
+    },
   '/programming-plans/:programmingPlanId/local-status': {
     put: async (
       { user, userRole, body: { programmingPlanLocalStatusList } },

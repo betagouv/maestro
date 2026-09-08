@@ -1,16 +1,19 @@
 import ButtonGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import AppServiceErrorAlert from 'src/components/_app/AppErrorAlert/AppServiceErrorAlert';
 import { assert, type Equals } from 'tsafe';
 import './ProgrammingSubPlanActionBar.scss';
 
 type Props = {
   hasChanges: boolean;
+  saveCall: { isError: boolean; error?: unknown };
   onReset: () => void;
   onSave: () => void;
 };
 
 export const ProgrammingSubPlanActionBar = ({
   hasChanges,
+  saveCall,
   onReset,
   onSave,
   ..._rest
@@ -20,6 +23,7 @@ export const ProgrammingSubPlanActionBar = ({
   return (
     <div className="programming-sub-plan-action-bar">
       <div className={cx('fr-container', 'fr-pt-3w', 'fr-pb-1w')}>
+        <AppServiceErrorAlert call={saveCall} />
         <ButtonGroup
           alignment="right"
           inlineLayoutWhen="always"

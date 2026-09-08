@@ -2,36 +2,34 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import ToggleSwitch from '@codegouvfr/react-dsfr/ToggleSwitch';
 import clsx from 'clsx';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
-import {
-  fieldInputTypeHasOptions,
-  type ProgrammingSubPlanFieldConfig
-} from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
-import { useContext } from 'react';
+import type {
+  AdminFieldConfig,
+  ProgrammingSubPlanFieldSetting
+} from 'maestro-shared/schema/SpecificData/FieldConfigInput';
+import { FieldInheritanceLabels } from 'maestro-shared/schema/SpecificData/FieldInheritance';
+import { fieldInputTypeHasOptions } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { assert, type Equals } from 'tsafe';
-import { ApiClientContext } from '../../../services/apiClient';
+import { SettingInheritanceLockButton } from '../SettingInheritanceLockButton/SettingInheritanceLockButton';
+import './ProgrammingSubPlanFieldItem.scss';
 import { ProgrammingSubPlanFieldActiveOptions } from './ProgrammingSubPlanFieldActiveOptions';
 
 interface Props {
-  item: ProgrammingSubPlanFieldConfig;
-  programmingPlanId: string;
-  programmingSubPlanId: ProgrammingSubPlanId;
+  field: ProgrammingSubPlanFieldSetting;
   globalField: AdminFieldConfig | undefined;
-  isFirst: boolean;
-  isLast: boolean;
-  onMoveUp: () => Promise<void>;
-  onMoveDown: () => Promise<void>;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  onChange: (field: ProgrammingSubPlanFieldSetting) => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
   onDelete: () => void;
 }
 
 export const ProgrammingSubPlanFieldItem = ({
-  item,
-  programmingPlanId,
-  programmingSubPlanId,
+  field,
   globalField,
-  isFirst,
-  isLast,
+  canMoveUp,
+  canMoveDown,
+  onChange,
   onMoveUp,
   onMoveDown,
   onDelete,
@@ -39,22 +37,18 @@ export const ProgrammingSubPlanFieldItem = ({
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const apiClient = useContext(ApiClientContext);
-  const [updateProgrammingSubPlanField] =
-    apiClient.useUpdateProgrammingSubPlanFieldMutation();
-
-  const handleRequiredToggle = async (checked: boolean) => {
-    await updateProgrammingSubPlanField({
-      programmingPlanId,
-      programmingSubPlanId,
-      programmingSubPlanFieldId: item.id,
-      required: checked,
-      order: item.order
-    });
-  };
+  const { managedAtPlanLevel, inheritance } = field;
+  const isReadOnly = inheritance === 'Inherited';
 
   return (
-    <div className={clsx('white-container', 'border', cx('fr-p-2w'))}>
+    <div
+      className={clsx(
+        'programming-sub-plan-field-item',
+        'white-container',
+        'border',
+        cx('fr-p-2w')
+      )}
+    >
       <div
         style={{
           display: 'flex',
@@ -63,45 +57,71 @@ export const ProgrammingSubPlanFieldItem = ({
           gap: '1rem'
         }}
       >
-        <div style={{ flex: 1 }}>
-          <p className={cx('fr-text--bold', 'fr-mb-0')}>
-            {item.field.label}{' '}
-            <span className={cx('fr-text--sm', 'fr-text--regular')}>
-              ({item.field.key})
-            </span>
-          </p>
-          {item.field.hintText && (
-            <p className={cx('fr-text--sm', 'fr-mb-0', 'fr-hint-text')}>
-              {item.field.hintText}
-            </p>
+        <div
+          className={clsx(
+            'd-flex-row',
+            'd-flex-align-center',
+            isReadOnly && 'field-label--read-only'
           )}
+          style={{ flex: 1, gap: '0.5rem' }}
+        >
+          {managedAtPlanLevel && (
+            <SettingInheritanceLockButton
+              isInherited={isReadOnly}
+              title={FieldInheritanceLabels[inheritance]}
+              onClick={() =>
+                onChange({
+                  ...field,
+                  inheritance: isReadOnly ? 'Own' : 'Inherited'
+                })
+              }
+            />
+          )}
+          <div>
+            <p className={cx('fr-text--bold', 'fr-mb-0')}>
+              {globalField?.label ?? field.fieldId}{' '}
+              <span className={cx('fr-text--sm', 'fr-text--regular')}>
+                ({globalField?.key})
+              </span>
+            </p>
+            {globalField?.hintText && (
+              <p className={cx('fr-text--sm', 'fr-mb-0', 'fr-hint-text')}>
+                {globalField.hintText}
+              </p>
+            )}
+          </div>
         </div>
         <ToggleSwitch
           label="Obligatoire"
           labelPosition={'left'}
-          checked={item.required}
-          onChange={handleRequiredToggle}
+          checked={field.required}
+          disabled={isReadOnly}
+          onChange={(required) => onChange({ ...field, required })}
           showCheckedHint={false}
         />
         <div className={cx('fr-btns-group', 'fr-btns-group--inline')}>
+          {!managedAtPlanLevel && (
+            <>
+              <Button
+                priority="tertiary no outline"
+                iconId="fr-icon-arrow-up-line"
+                size="small"
+                title="Monter"
+                disabled={!canMoveUp}
+                onClick={onMoveUp}
+              />
+              <Button
+                priority="tertiary no outline"
+                iconId="fr-icon-arrow-down-line"
+                size="small"
+                title="Descendre"
+                disabled={!canMoveDown}
+                onClick={onMoveDown}
+              />
+            </>
+          )}
           <Button
-            priority="tertiary no outline"
-            iconId="fr-icon-arrow-up-line"
-            size="small"
-            title="Monter"
-            disabled={isFirst}
-            onClick={onMoveUp}
-          />
-          <Button
-            priority="tertiary no outline"
-            iconId="fr-icon-arrow-down-line"
-            size="small"
-            title="Descendre"
-            disabled={isLast}
-            onClick={onMoveDown}
-          />
-          <Button
-            priority="tertiary no outline"
+            priority="tertiary"
             iconId="fr-icon-delete-line"
             size="small"
             title="Retirer"
@@ -110,12 +130,12 @@ export const ProgrammingSubPlanFieldItem = ({
         </div>
       </div>
 
-      {globalField && fieldInputTypeHasOptions(item.field.inputType) && (
+      {globalField && fieldInputTypeHasOptions(globalField.inputType) && (
         <ProgrammingSubPlanFieldActiveOptions
-          item={item}
-          programmingPlanId={programmingPlanId}
-          programmingSubPlanId={programmingSubPlanId}
+          optionIds={field.optionIds}
           globalField={globalField}
+          disabled={isReadOnly}
+          onChange={(optionIds) => onChange({ ...field, optionIds })}
         />
       )}
     </div>

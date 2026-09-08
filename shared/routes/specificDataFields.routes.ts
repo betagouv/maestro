@@ -21,7 +21,7 @@ import type { SubRoutes } from './routes';
 export const specificDataFieldsRoutes = {
   '/specific-data-fields': {
     get: {
-      permissions: ['administrationMaestro'],
+      permissions: ['administrationMaestro', 'manageProgrammingPlanSettings'],
       response: z.array(AdminFieldConfig)
     },
     post: {

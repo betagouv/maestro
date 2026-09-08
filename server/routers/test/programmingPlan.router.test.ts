@@ -4,9 +4,10 @@ import type { Stage } from 'maestro-shared/referential/Stage';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
+  DAOABovinInProgressSubPlanFixture,
   DAOAInProgressProgrammingPlanFixture,
   DAOAValidatedProgrammingPlanFixture,
-  DAOAVolailleValidatedSubPlanFixture,
+  DAOAVolailleInProgressSubPlanFixture,
   PPVClosedProgrammingPlanFixture,
   PPVInProgressProgrammingPlanFixture,
   PPVInProgressSubPlanFixture,
@@ -14,6 +15,7 @@ import {
   PPVValidatedDromProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
+import { DAOAVolailleFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
@@ -26,17 +28,36 @@ import {
 import { withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { describe, expect, test } from 'vitest';
+import { afterEach, describe, expect, test } from 'vitest';
 import {
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../../repositories/programmingSubPlanRepository';
 import { createServer } from '../../server';
+import { programmingPlanSettingsService } from '../../services/programmingPlanSettingsService';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('ProgrammingPlan router', () => {
   const { app } = createServer();
+
+  const daoaInProgressSubPlanFixtures = [
+    DAOAVolailleInProgressSubPlanFixture,
+    DAOABovinInProgressSubPlanFixture
+  ];
+
+  const resetDaoaInProgressSettings = async () => {
+    await programmingPlanSettingsService.savePlanSettings(
+      DAOAInProgressProgrammingPlanFixture.id,
+      { stages: null, stagesManaged: false, fields: [] }
+    );
+    for (const subPlan of daoaInProgressSubPlanFixtures) {
+      await programmingSubPlanRepository.updateSettings(subPlan.id, {
+        stages: subPlan.stages,
+        stagesManaged: true
+      });
+    }
+  };
 
   const programmingPlansMatch = (programmingPlans: ProgrammingPlanChecked[]) =>
     expect.arrayContaining(
@@ -605,37 +626,35 @@ describe('ProgrammingPlan router', () => {
     });
   });
 
-  describe('PUT /programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId', () => {
-    const testRoute = (
-      programmingPlanId: string,
-      programmingSubPlanId: string
-    ) =>
-      `/api/programming-plans/${programmingPlanId}/sub-plans/${programmingSubPlanId}`;
+  describe('/programming-plans/:programmingPlanId/settings', () => {
+    const testRoute = (programmingPlanId: string) =>
+      `/api/programming-plans/${programmingPlanId}/settings`;
 
     const validBody = {
-      stages: ['ABATTAGE'] satisfies Stage[]
+      stages: ['TRANSFORMATION'] satisfies Stage[],
+      stagesManaged: true,
+      fields: []
     };
+
+    afterEach(resetDaoaInProgressSettings);
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
-        .put(
-          testRoute(
-            PPVInProgressProgrammingPlanFixture.id,
-            PPVInProgressSubPlanFixture.id
-          )
-        )
+        .get(testRoute(DAOAInProgressProgrammingPlanFixture.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+      await request(app)
+        .put(testRoute(DAOAInProgressProgrammingPlanFixture.id))
         .send(validBody)
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     test('should fail if the user does not have the permission', async () => {
       await request(app)
-        .put(
-          testRoute(
-            PPVInProgressProgrammingPlanFixture.id,
-            PPVInProgressSubPlanFixture.id
-          )
-        )
+        .get(testRoute(DAOAInProgressProgrammingPlanFixture.id))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+      await request(app)
+        .put(testRoute(DAOAInProgressProgrammingPlanFixture.id))
         .send(validBody)
         .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
@@ -643,50 +662,193 @@ describe('ProgrammingPlan router', () => {
 
     test('should get a valid body', async () => {
       await request(app)
-        .put(
-          testRoute(
-            PPVInProgressProgrammingPlanFixture.id,
-            PPVInProgressSubPlanFixture.id
-          )
-        )
-        .send({ stages: ['INVALID'] })
+        .put(testRoute(DAOAInProgressProgrammingPlanFixture.id))
+        .send({ ...validBody, stages: ['INVALID'] })
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    test('should fail if the sub-plan does not belong to the programming plan', async () => {
+    test('should get the whole level state, switches included', async () => {
       await request(app)
-        .put(
-          testRoute(
-            PPVInProgressProgrammingPlanFixture.id,
-            DAOAVolailleValidatedSubPlanFixture.id
-          )
-        )
+        .put(testRoute(DAOAInProgressProgrammingPlanFixture.id))
+        .send({ stages: ['TRANSFORMATION'], fields: [] })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should refuse a descriptor listed twice', async () => {
+      const fieldId = DAOAVolailleFieldConfigs[0].id;
+
+      await request(app)
+        .put(testRoute(DAOAInProgressProgrammingPlanFixture.id))
+        .send({
+          ...validBody,
+          fields: [
+            { fieldId, required: true, optionIds: [] },
+            { fieldId, required: false, optionIds: [] }
+          ]
+        })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should fail if the programming plan does not exist', async () => {
+      await request(app)
+        .get(testRoute(uuidv4()))
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+      await request(app)
+        .put(testRoute(uuidv4()))
         .send(validBody)
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
-    test('should update the sub-plan stages', async () => {
+    test('should update the plan settings', async () => {
       await request(app)
-        .put(
-          testRoute(
-            PPVInProgressProgrammingPlanFixture.id,
-            PPVInProgressSubPlanFixture.id
-          )
-        )
+        .put(testRoute(DAOAInProgressProgrammingPlanFixture.id))
         .send(validBody)
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_NO_CONTENT);
 
-      await expect(
-        programmingSubPlanRepository.findUnique(PPVInProgressSubPlanFixture.id)
-      ).resolves.toMatchObject({
-        id: PPVInProgressSubPlanFixture.id,
-        stages: validBody.stages
-      });
+      const res = await request(app)
+        .get(testRoute(DAOAInProgressProgrammingPlanFixture.id))
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
 
-      await programmingSubPlanRepository.update(PPVInProgressSubPlanFixture);
+      expect(res.body).toStrictEqual(validBody);
+
+      await expect(
+        programmingSubPlanRepository.findUnique(
+          DAOAVolailleInProgressSubPlanFixture.id
+        )
+      ).resolves.toMatchObject({
+        stages: validBody.stages,
+        stagesManaged: false
+      });
+    });
+  });
+
+  describe('/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/settings', () => {
+    const testRoute = (
+      programmingPlanId: string,
+      programmingSubPlanId: string
+    ) =>
+      `/api/programming-plans/${programmingPlanId}/sub-plans/${programmingSubPlanId}/settings`;
+
+    const daoaVolailleRoute = testRoute(
+      DAOAInProgressProgrammingPlanFixture.id,
+      DAOAVolailleInProgressSubPlanFixture.id
+    );
+
+    const validBody = {
+      stages: ['TRANSFORMATION'] satisfies Stage[],
+      stagesManaged: true,
+      fields: []
+    };
+
+    afterEach(resetDaoaInProgressSettings);
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .get(daoaVolailleRoute)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+      await request(app)
+        .put(daoaVolailleRoute)
+        .send(validBody)
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user does not have the permission', async () => {
+      await request(app)
+        .get(daoaVolailleRoute)
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+      await request(app)
+        .put(daoaVolailleRoute)
+        .send(validBody)
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should get a valid body', async () => {
+      await request(app)
+        .put(daoaVolailleRoute)
+        .send({ ...validBody, stages: ['INVALID'] })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('should fail if the sub-plan does not belong to the programming plan', async () => {
+      const foreignRoute = testRoute(
+        DAOAInProgressProgrammingPlanFixture.id,
+        PPVInProgressSubPlanFixture.id
+      );
+
+      await request(app)
+        .get(foreignRoute)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+      await request(app)
+        .put(foreignRoute)
+        .send(validBody)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NOT_FOUND);
+    });
+
+    test('should fail to inherit a setting the plan does not manage', async () => {
+      await request(app)
+        .put(daoaVolailleRoute)
+        .send({ ...validBody, stagesManaged: false })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_CONFLICT);
+    });
+
+    test('should return the whole settings form, sampler descriptors included', async () => {
+      const res = await request(app)
+        .get(daoaVolailleRoute)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body).toMatchObject({
+        stages: DAOAVolailleInProgressSubPlanFixture.stages,
+        stagesManaged: true,
+        fields: DAOAVolailleFieldConfigs.map(() => ({
+          inheritance: 'Own',
+          managedAtPlanLevel: false
+        }))
+      });
+    });
+
+    test('should update the sub-plan settings and leave its form untouched when written back', async () => {
+      const before = await request(app)
+        .get(daoaVolailleRoute)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await request(app)
+        .put(daoaVolailleRoute)
+        .send({ ...before.body, ...validBody, fields: before.body.fields })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
+
+      const after = await request(app)
+        .get(daoaVolailleRoute)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(after.body).toStrictEqual({
+        ...validBody,
+        fields: before.body.fields
+      });
+      await expect(
+        programmingSubPlanRepository.findUnique(
+          DAOAVolailleInProgressSubPlanFixture.id
+        )
+      ).resolves.toMatchObject({
+        stages: validBody.stages,
+        stagesManaged: true
+      });
     });
   });
 });

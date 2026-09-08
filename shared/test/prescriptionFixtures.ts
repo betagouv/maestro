@@ -63,7 +63,7 @@ export const PrescriptionFixture = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: PPVValidatedProgrammingPlanFixture.contexts[0],
   matrixKind: 'A00GY',
-  stages: subStagesForStages(PPVValidatedSubPlanFixture.stages)
+  stages: subStagesForStages(PPVValidatedSubPlanFixture.stages ?? [])
 });
 
 export const LocalPrescriptionFixture = genLocalPrescription({

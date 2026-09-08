@@ -1,0 +1,16 @@
+.setting-inheritance-lock-btn--inherited {
+  background-color: var(--background-contrast-blue-france) !important;
+
+  &:hover {
+    background-color: var(--background-contrast-blue-france-hover) !important;
+  }
+}
+
+.setting-inheritance-lock-btn--detached {
+  color: var(--text-default-error);
+  background-color: var(--background-contrast-warning) !important;
+
+  &:hover {
+    background-color: var(--background-contrast-warning-hover) !important;
+  }
+}

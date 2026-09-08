@@ -4,6 +4,7 @@ import type {
 } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import {
   DAOAInProgressBovinSubPlanId,
+  DAOAInProgressProgrammingPlanFixture,
   DAOAInProgressVolailleSubPlanId,
   PPVValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
@@ -15,7 +16,7 @@ import {
   SachaFieldConfigs
 } from 'maestro-shared/test/specificDataFixtures';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { kysely } from './kysely';
+import { executeTransaction, kysely } from './kysely';
 import { specificDataFieldConfigRepository } from './specificDataFieldConfigRepository';
 
 const sachaFieldKeys = [...new Set(SachaFieldConfigs.map((c) => c.field.key))];
@@ -236,8 +237,9 @@ describe('field option CRUD', () => {
   });
 });
 
-describe('plan kind field CRUD', () => {
+describe('settings form snapshots', () => {
   const testKey = 'testRepoProgrammingSubPlanFieldCRUD';
+  const programmingPlanId = DAOAInProgressProgrammingPlanFixture.id;
   let fieldId: SpecificDataFieldId;
   let optionId: SpecificDataFieldOptionId;
 
@@ -270,70 +272,79 @@ describe('plan kind field CRUD', () => {
       .execute();
   });
 
-  test('adds, updates, replaces options on, and removes a plan kind field', async () => {
-    // add
-    const added = await specificDataFieldConfigRepository.addFieldToPlanKind(
-      DAOAInProgressVolailleSubPlanId,
-      { fieldId, required: false, order: 99 }
-    );
-    expect(added).toMatchObject({
-      id: expect.any(String),
-      programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
-      required: false,
-      order: 99,
-      field: { key: testKey }
-    });
-    const programmingSubPlanFieldId = added!.id;
-
-    // update
-    const updated =
-      await specificDataFieldConfigRepository.updateProgrammingSubPlanField(
-        programmingSubPlanFieldId,
-        { required: true, order: 50 }
-      );
-    expect(updated).toMatchObject({
-      id: programmingSubPlanFieldId,
-      programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
-      required: true,
-      order: 50
-    });
-
-    // replace options (add one)
-    await specificDataFieldConfigRepository.replaceProgrammingSubPlanFieldOptions(
-      programmingSubPlanFieldId,
-      [optionId]
-    );
-    const withOptions =
-      await specificDataFieldConfigRepository.findByPlanSubPlan(
-        DAOAInProgressVolailleSubPlanId
-      );
-    const entry = withOptions.find((c) => c.id === programmingSubPlanFieldId);
-    expect(entry!.field.options).toHaveLength(1);
-    expect(entry!.field.options[0].value).toBe('OPT1');
-
-    // replace options (clear)
-    await specificDataFieldConfigRepository.replaceProgrammingSubPlanFieldOptions(
-      programmingSubPlanFieldId,
-      []
-    );
-    const cleared = await specificDataFieldConfigRepository.findByPlanSubPlan(
+  const subPlanForm = () =>
+    specificDataFieldConfigRepository.findSubPlanFieldSettings(
       DAOAInProgressVolailleSubPlanId
     );
-    expect(
-      cleared.find((c) => c.id === programmingSubPlanFieldId)!.field.options
-    ).toHaveLength(0);
 
-    // remove
-    await specificDataFieldConfigRepository.removeProgrammingSubPlanField(
-      programmingSubPlanFieldId
+  test('adds and drops a sub-plan descriptor through a whole-form write', async () => {
+    const before = await subPlanForm();
+    const added = {
+      fieldId,
+      required: false,
+      optionIds: [optionId],
+      inheritance: 'Own' as const,
+      managedAtPlanLevel: false
+    };
+
+    await executeTransaction((trx) =>
+      specificDataFieldConfigRepository.replaceSubPlanFields(
+        trx,
+        DAOAInProgressVolailleSubPlanId,
+        [...before, added]
+      )
     );
-    const afterRemove =
+
+    await expect(subPlanForm()).resolves.toEqual([...before, added]);
+
+    const config = (
       await specificDataFieldConfigRepository.findByPlanSubPlan(
         DAOAInProgressVolailleSubPlanId
-      );
-    expect(
-      afterRemove.find((c) => c.id === programmingSubPlanFieldId)
-    ).toBeUndefined();
+      )
+    ).find((_) => _.field.key === testKey);
+    expect(config).toMatchObject({
+      order: before.length + 1,
+      required: false
+    });
+    expect(config?.field.options.map((_) => _.value)).toEqual(['OPT1']);
+
+    await executeTransaction((trx) =>
+      specificDataFieldConfigRepository.replaceSubPlanFields(
+        trx,
+        DAOAInProgressVolailleSubPlanId,
+        before
+      )
+    );
+
+    await expect(subPlanForm()).resolves.toEqual(before);
+  });
+
+  test('adds and drops a plan descriptor through a whole-form write', async () => {
+    const planField = { fieldId, required: true, optionIds: [optionId] };
+
+    await executeTransaction((trx) =>
+      specificDataFieldConfigRepository.replacePlanFields(
+        trx,
+        programmingPlanId,
+        [planField]
+      )
+    );
+
+    await expect(
+      specificDataFieldConfigRepository.findPlanFieldSettings(programmingPlanId)
+    ).resolves.toEqual([planField]);
+
+    await executeTransaction((trx) =>
+      specificDataFieldConfigRepository.replacePlanFields(
+        trx,
+        programmingPlanId,
+        []
+      )
+    );
+
+    await expect(
+      specificDataFieldConfigRepository.findPlanFieldSettings(programmingPlanId)
+    ).resolves.toEqual([]);
   });
 });
 

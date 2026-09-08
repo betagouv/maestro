@@ -119,6 +119,7 @@ export const genProgrammingSubPlan = (
   programmingPlanId: uuidv4(),
   subPlanNumber: 'TEST',
   stages: [],
+  stagesManaged: true,
   label: 'Test SubPlan',
   withSacha: (data?.id && SachaSubPlanIds.includes(data.id)) ?? false,
   substanceKinds: ['Any'],
@@ -220,6 +221,8 @@ export const genProgrammingPlan = (
     contexts: ['Control', 'Surveillance'],
     legalContexts: ['A', 'B'],
     samplesOutsidePlanAllowed: true,
+    stages: null,
+    stagesManaged: false,
     createdAt: new Date(),
     createdBy: uuidv4(),
     regionalStatus: RegionList.map((region) => ({
@@ -228,6 +231,8 @@ export const genProgrammingPlan = (
     })),
     departmentalStatus: [],
     year: new Date().getFullYear(),
+    closedAt: null,
+    closedBy: null,
     ...data
   };
 };

@@ -14,7 +14,7 @@ import {
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
-import { ProgrammingSubPlans } from '../../repositories/programmingSubPlanRepository';
+import { ProgrammingSubPlansRaw } from '../../repositories/programmingSubPlanRepository';
 
 export const seed = async (): Promise<void> => {
   await kysely
@@ -59,7 +59,7 @@ export const seed = async (): Promise<void> => {
     )
   );
 
-  await ProgrammingSubPlans().insert(
+  await ProgrammingSubPlansRaw().insert(
     [
       PPVClosedProgrammingPlanFixture,
       PPVValidatedProgrammingPlanFixture,
