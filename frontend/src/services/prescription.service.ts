@@ -12,10 +12,26 @@ const prescriptionApi = api.injectEndpoints({
         }))
       ]
     }),
+    findPrescriptionCounts: buildTypedQuery(builder, '/prescriptions/counts', {
+      providesTags: [{ type: 'Prescription', id: 'LIST' }]
+    }),
+    importPrescriptions: buildTypedMutation(
+      builder,
+      '/prescriptions/import',
+      'post',
+      {
+        invalidatesTags: [
+          { type: 'Prescription', id: 'LIST' },
+          { type: 'LocalPrescription', id: 'LIST' },
+          { type: 'ProgrammingPlan', id: 'LIST' }
+        ]
+      }
+    ),
     addPrescription: buildTypedMutation(builder, '/prescriptions', 'post', {
       invalidatesTags: [
         { type: 'Prescription', id: 'LIST' },
-        { type: 'LocalPrescription', id: 'LIST' }
+        { type: 'LocalPrescription', id: 'LIST' },
+        { type: 'ProgrammingPlan', id: 'LIST' }
       ]
     }),
     updatePrescription: buildTypedMutation(
@@ -26,7 +42,8 @@ const prescriptionApi = api.injectEndpoints({
         invalidatesTags: (_result, _error, { prescriptionId }) => [
           { type: 'Prescription', id: 'LIST' },
           { type: 'Prescription', id: prescriptionId },
-          { type: 'PrescriptionSubstance', id: prescriptionId }
+          { type: 'PrescriptionSubstance', id: prescriptionId },
+          { type: 'ProgrammingPlan', id: 'LIST' }
         ]
       }
     ),
@@ -37,7 +54,8 @@ const prescriptionApi = api.injectEndpoints({
       {
         invalidatesTags: [
           { type: 'Prescription', id: 'LIST' },
-          { type: 'LocalPrescription', id: 'LIST' }
+          { type: 'LocalPrescription', id: 'LIST' },
+          { type: 'ProgrammingPlan', id: 'LIST' }
         ]
       }
     ),
@@ -56,6 +74,8 @@ const prescriptionApi = api.injectEndpoints({
 export const {
   useFindPrescriptionsQuery,
   useLazyFindPrescriptionsQuery,
+  useFindPrescriptionCountsQuery,
+  useImportPrescriptionsMutation,
   useUpdatePrescriptionMutation,
   useAddPrescriptionMutation,
   useDeletePrescriptionMutation,

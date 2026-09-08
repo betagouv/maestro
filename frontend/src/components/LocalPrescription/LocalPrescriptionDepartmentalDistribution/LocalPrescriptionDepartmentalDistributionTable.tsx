@@ -1,6 +1,5 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Table from '@codegouvfr/react-dsfr/Table';
-import { sumBy } from 'lodash-es';
 import {
   type Department,
   DepartmentLabels,
@@ -95,11 +94,6 @@ const LocalPrescriptionDepartmentalDistributionTable = ({
               programmingPlan={programmingPlan}
               prescription={prescription}
               localPrescription={departmentalPrescription}
-              max={
-                regionalPrescription.sampleCount -
-                sumBy(departmentalPrescriptions, 'sampleCount') +
-                departmentalPrescription.sampleCount
-              }
               isEditable={
                 hasUserLocalPrescriptionPermission(
                   programmingPlan,

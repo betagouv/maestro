@@ -34,6 +34,7 @@ import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import request from 'supertest';
 import { describe, expect, test } from 'vitest';
 import { createServer } from '../../server';
+import { mockSendNotification } from '../../test/setupTests';
 import { tokenProvider } from '../../test/testUtils';
 
 describe('Laboratory router', () => {
@@ -674,6 +675,48 @@ f2LgSfYvHNZbocMsQoVBhv3yF1i9/Hw=
         .use(tokenProvider(AdminFixture))
         .send(validBody)
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
+    });
+
+    test('removing an agreement notifies the coordinators that assigned this laboratory', async () => {
+      try {
+        await request(app)
+          .put(testRoute(LaboratoryFixture.id))
+          .use(tokenProvider(AdminFixture))
+          .send(validBody)
+          .expect(constants.HTTP_STATUS_OK);
+
+        mockSendNotification.mockClear();
+
+        await request(app)
+          .put(testRoute(LaboratoryFixture.id))
+          .use(tokenProvider(AdminFixture))
+          .send({
+            ...validBody,
+            referenceLaboratory: false,
+            detectionAnalysis: false,
+            confirmationAnalysis: false
+          })
+          .expect(constants.HTTP_STATUS_OK);
+
+        expect(mockSendNotification).toHaveBeenCalledWith(
+          expect.objectContaining({ category: 'LaboratoryAgreementLost' }),
+          expect.arrayContaining([
+            expect.objectContaining({ id: RegionalCoordinator.id })
+          ]),
+          expect.objectContaining({
+            object: expect.stringContaining('Perte d’agrément'),
+            content: expect.stringContaining(LaboratoryFixture.shortName)
+          }),
+          expect.objectContaining({
+            message: expect.stringContaining(LaboratoryFixture.shortName)
+          })
+        );
+      } finally {
+        await request(app)
+          .put(testRoute(LaboratoryFixture.id))
+          .use(tokenProvider(AdminFixture))
+          .send(validBody);
+      }
     });
 
     test('should update the laboratory agreement and return the updated list', async () => {
