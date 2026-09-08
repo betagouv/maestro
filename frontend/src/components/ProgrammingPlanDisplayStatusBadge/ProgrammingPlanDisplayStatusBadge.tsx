@@ -34,7 +34,7 @@ const ProgrammingPlanDisplayStatusBadge = ({
       {showDates && result.sentAt && (
         <div className={cx('fr-text--xs', 'fr-mt-1v')}>
           Envoyé le {formatDate(result.sentAt)}
-          {result.modified && result.lastModifiedAt && (
+          {result.lastModifiedAt && (
             <> · Modifié le {formatDate(result.lastModifiedAt)}</>
           )}
         </div>
