@@ -8,7 +8,8 @@ import {
 } from 'maestro-shared/referential/Region';
 import {
   type DisplayStatusResult,
-  hasSentOnward
+  hasSentOnward,
+  type ProgrammingPlanEchelon
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useMemo } from 'react';
@@ -31,6 +32,7 @@ interface PlanStatusInfo {
   isLaunchable: boolean;
   regionalAggregate: AggregateDisplayStatus;
   departmentalAggregate: AggregateDisplayStatus | undefined;
+  isSubmitted: boolean;
   isFinalized: boolean;
 }
 
@@ -106,7 +108,7 @@ export const useProgrammingPlanTrackingStatus = (
         : undefined;
 
       const regionalAggregate = buildAggregateDisplayStatus(
-        RegionList.map((regionColumn) =>
+        (region ? [region] : RegionList).map((regionColumn) =>
           buildEchelonDisplayStatus(
             plan,
             planPrescriptions,
@@ -147,8 +149,6 @@ export const useProgrammingPlanTrackingStatus = (
             )
           : undefined;
 
-      const deepestAggregate = departmentalAggregate ?? regionalAggregate;
-
       const isSubmittedToAdmin =
         plan.nationalStatus.status === 'SubmittedToAdmin';
       const isEligible = department
@@ -169,6 +169,21 @@ export const useProgrammingPlanTrackingStatus = (
         ) &&
         nationalDisplayStatus.value !== 'NotApplicable';
 
+      const isFinalized =
+        plan.distributionKind === 'SLAUGHTERHOUSE'
+          ? department
+            ? departmentalDisplayStatus?.value === 'Submitted'
+            : departmentalAggregate?.value === 'Submitted'
+          : region
+            ? regionalDisplayStatus?.value === 'Submitted'
+            : regionalAggregate.value === 'Submitted';
+
+      const ownDisplayStatus = department
+        ? departmentalDisplayStatus
+        : region
+          ? regionalDisplayStatus
+          : nationalDisplayStatus;
+
       map.set(plan.id, {
         nationalDisplayStatus,
         regionalDisplayStatus,
@@ -177,9 +192,8 @@ export const useProgrammingPlanTrackingStatus = (
         isLaunchable,
         regionalAggregate,
         departmentalAggregate,
-        isFinalized: department
-          ? departmentalDisplayStatus?.value === 'Submitted'
-          : deepestAggregate.value === 'Submitted'
+        isSubmitted: ownDisplayStatus?.value === 'Submitted',
+        isFinalized
       });
     }
     return map;
@@ -203,18 +217,21 @@ export const useProgrammingPlanTrackingStatus = (
 
   const indicators = useMemo(
     () => ({
+      echelon: (department
+        ? 'Departmental'
+        : region
+          ? 'Regional'
+          : 'National') as ProgrammingPlanEchelon,
       totalCount: programmingPlans.length,
       finalizedCount: programmingPlans.filter(
         (plan) => planStatusInfo.get(plan.id)?.isFinalized
       ).length,
       submittedCount: programmingPlans.filter(
-        (plan) =>
-          planStatusInfo.get(plan.id)?.nationalDisplayStatus.value ===
-          'Submitted'
+        (plan) => planStatusInfo.get(plan.id)?.isSubmitted
       ).length,
       readyToSendCount: readyToSendPlans.length
     }),
-    [programmingPlans, planStatusInfo, readyToSendPlans]
+    [programmingPlans, planStatusInfo, readyToSendPlans, region, department]
   );
 
   return {

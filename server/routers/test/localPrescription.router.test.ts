@@ -1832,6 +1832,12 @@ describe('Local prescriptions router', () => {
         .andWhere('department', departmentalLocalPrescription.department)
         .whereNot('company_siret', 'None')
         .delete();
+      await LocalPrescriptionChanges()
+        .where('prescription_id', departmentalLocalPrescription.prescriptionId)
+        .andWhere('region', departmentalLocalPrescription.region)
+        .andWhere('department', departmentalLocalPrescription.department)
+        .whereNot('company_siret', 'None')
+        .delete();
     });
 
     test('a Departmental-authored, diffused slaughterhouse split surfaces as a "new change" for a non-authoring viewer (e.g. the Sampler)', async () => {
@@ -1879,6 +1885,12 @@ describe('Local prescriptions router', () => {
 
       // Cleanup
       await LocalPrescriptions()
+        .where('prescription_id', departmentalLocalPrescription.prescriptionId)
+        .andWhere('region', departmentalLocalPrescription.region)
+        .andWhere('department', departmentalLocalPrescription.department)
+        .whereNot('company_siret', 'None')
+        .delete();
+      await LocalPrescriptionChanges()
         .where('prescription_id', departmentalLocalPrescription.prescriptionId)
         .andWhere('region', departmentalLocalPrescription.region)
         .andWhere('department', departmentalLocalPrescription.department)

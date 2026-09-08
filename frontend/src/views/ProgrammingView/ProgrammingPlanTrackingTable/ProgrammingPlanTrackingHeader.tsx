@@ -1,16 +1,25 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
+import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import { pluralize } from '../../../utils/stringUtils';
 import './ProgrammingPlanTrackingHeader.scss';
 
 interface Props {
+  echelon: ProgrammingPlanEchelon;
   totalCount: number;
   finalizedCount: number;
   submittedCount: number;
   readyToSendCount: number;
 }
 
+const submittedLabelByEchelon: Record<ProgrammingPlanEchelon, string> = {
+  National: 'soumis aux régions',
+  Regional: 'soumis aux départements',
+  Departmental: 'diffusés aux préleveur\u00b7ses'
+};
+
 const ProgrammingPlanTrackingHeader = ({
+  echelon,
   totalCount,
   finalizedCount,
   submittedCount,
@@ -45,7 +54,7 @@ const ProgrammingPlanTrackingHeader = ({
             'fr-icon-send-plane-line'
           )}
         />
-        {submittedCount} soumis aux régions
+        {submittedCount} {submittedLabelByEchelon[echelon]}
       </div>
       <div>
         <span
