@@ -72,7 +72,6 @@ const NotificationsView = () => {
     Surveillance: 'fr-icon-line-chart-fill',
     Control: 'fr-icon-line-chart-fill',
     ProgrammingPlanSubmittedToRegion: 'fr-icon-line-chart-fill',
-    ProgrammingPlanApprovedByRegion: 'fr-icon-line-chart-fill',
     ProgrammingPlanSubmittedToDepartments: 'fr-icon-line-chart-fill',
     ProgrammingPlanValidated: 'fr-icon-line-chart-fill',
     AnalysisReviewTodo: 'fr-icon-edit-box-line'

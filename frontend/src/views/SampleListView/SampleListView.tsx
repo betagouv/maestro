@@ -276,7 +276,7 @@ const SampleListView = () => {
                   title="Filtres actifs"
                   filters={findSampleOptions}
                   programmingPlans={programmingPlans}
-                  samplers={samplers}
+                  users={samplers}
                   onChange={changeFilter}
                   laboratories={laboratories}
                 />
@@ -310,7 +310,7 @@ const SampleListView = () => {
                     title="Filtres actifs"
                     filters={findSampleOptions}
                     programmingPlans={programmingPlans}
-                    samplers={samplers}
+                    users={samplers}
                     laboratories={laboratories}
                     onChange={changeFilter}
                   />

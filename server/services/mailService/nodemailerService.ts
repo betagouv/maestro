@@ -11,14 +11,6 @@ const TemplateData = {
     subject: 'Copie du document d’accompagnement',
     content: 'Voici une copie de votre document d’accompagnement'
   },
-  SubmittedProgrammingPlanTemplate: {
-    subject: 'Plan de programmation',
-    content: 'Le plan de programmation a été soumis'
-  },
-  ApprovedProgrammingPlanTemplate: {
-    subject: 'Plan de programmation approuvé',
-    content: 'Le plan de programmation a été approuvé'
-  },
   NewLocalPrescriptionCommentTemplate: {
     subject: 'Nouveau commentaire',
     content: 'Un nouveau commentaire a été ajouté'
