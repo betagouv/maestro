@@ -4,6 +4,7 @@ import {
   type AutocompleteRenderInputParams,
   Box
 } from '@mui/material';
+import clsx from 'clsx';
 import { sortBy } from 'lodash-es';
 import {
   getLaboratoryFullName,
@@ -20,6 +21,7 @@ import {
 } from 'react';
 import { ApiClientContext } from '../../services/apiClient';
 import AppRequiredInput from '../_app/AppRequired/AppRequiredInput';
+import './LaboratorySelect.scss';
 
 type Props = {
   programmingPlanId: string | undefined;
@@ -32,6 +34,8 @@ type Props = {
   required?: boolean;
   state?: 'success' | 'error' | 'default';
   stateRelatedMessage?: ReactNode;
+  hideLabel?: boolean;
+  pending?: boolean;
 };
 
 const renderLaboratoryOption = (
@@ -55,12 +59,18 @@ const renderLaboratoryOption = (
 };
 
 const renderLaboratoryInput =
-  (required?: boolean) =>
+  (required?: boolean, compact?: boolean, pending?: boolean) =>
   ({ slotProps }: AutocompleteRenderInputParams) => (
     <div ref={slotProps.input.ref}>
       <input
         {...slotProps.htmlInput}
-        className="fr-input"
+        className={clsx(
+          cx('fr-input', compact && ['fr-py-3v', 'fr-px-2w']),
+          'laboratory-select-input',
+          {
+            'laboratory-select-input--pending': pending
+          }
+        )}
         type="text"
         placeholder="Rechercher un laboratoire"
         data-testid="laboratorySelect-input"
@@ -79,7 +89,9 @@ const LaboratorySelect = ({
   readonly,
   required,
   state,
-  stateRelatedMessage
+  stateRelatedMessage,
+  hideLabel,
+  pending
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
 
@@ -101,6 +113,7 @@ const LaboratorySelect = ({
       className={cx(
         'fr-input-group',
         'fr-mb-0',
+        hideLabel && ['fr-py-0', 'fr-px-2w'],
         (() => {
           switch (state) {
             case 'error':
@@ -113,11 +126,13 @@ const LaboratorySelect = ({
         })()
       )}
     >
-      {/** biome-ignore lint/a11y/noLabelWithoutControl: libellé associé à l'input rendu par renderInput */}
-      <label className={cx('fr-label')}>
-        Laboratoire
-        {required && <AppRequiredInput />}
-      </label>
+      {!hideLabel && (
+        // biome-ignore lint/a11y/noLabelWithoutControl: libellé associé à l'input rendu par renderInput
+        <label className={cx('fr-label')}>
+          Laboratoire
+          {required && <AppRequiredInput />}
+        </label>
+      )}
       <div className="fr-input-wrap fr-icon-search-line">
         <Autocomplete
           autoComplete
@@ -130,7 +145,7 @@ const LaboratorySelect = ({
           disabled={readonly}
           renderOption={renderLaboratoryOption}
           onChange={(_, value) => onSelect(value?.id ?? undefined)}
-          renderInput={renderLaboratoryInput(required)}
+          renderInput={renderLaboratoryInput(required, hideLabel, pending)}
           noOptionsText="Aucun laboratoire"
         />
       </div>

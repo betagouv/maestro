@@ -1,3 +1,30 @@
+.prescription-list-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  .prescription-list-header__filters {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: 1rem;
+
+    .fr-toggle {
+      margin-bottom: 0;
+      width: auto;
+
+      & + .fr-toggle {
+        margin-left: 0;
+      }
+
+      label {
+        width: auto;
+      }
+    }
+  }
+}
+
 .grouped-update-container {
   width: 100%;
 

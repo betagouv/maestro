@@ -250,6 +250,9 @@ export const genProgrammingPlan = (
     settingsCompleted: true,
     createdAt: new Date(),
     createdBy: uuidv4(),
+    launchedAt: new Date(),
+    launchedBy: NationalCoordinatorId,
+    nationalStatus: { status: oneOf(ProgrammingPlanStatusList) },
     regionalStatus: RegionList.map((region) => ({
       region,
       status: oneOf(ProgrammingPlanStatusList)
@@ -274,6 +277,7 @@ export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
   createdBy: NationalCoordinatorId,
   closedAt: new Date(),
   closedBy: NationalCoordinatorId,
+  nationalStatus: { status: 'Closed' },
   regionalStatus: RegionList.map((region) => ({
     region,
     status: 'Closed'
@@ -291,6 +295,7 @@ export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
+  nationalStatus: { status: 'SubmittedToRegion' },
   regionalStatus: RegionList.toSorted().map((region) => ({
     region,
     status: 'Validated'
@@ -308,6 +313,7 @@ export const PPVValidatedDromProgrammingPlanFixture = genProgrammingPlan({
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
+  nationalStatus: { status: 'SubmittedToRegion' },
   regionalStatus: RegionList.map((region) => ({
     region,
     status: isDromRegion(region) ? 'Validated' : 'SubmittedToRegion'
@@ -325,6 +331,7 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
+  nationalStatus: { status: 'InProgress' },
   regionalStatus: RegionList.map((region) => ({
     region,
     status: 'InProgress'
@@ -342,6 +349,7 @@ export const PPVSubmittedProgrammingPlanFixture = genProgrammingPlan({
   samplesOutsidePlanAllowed: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
+  nationalStatus: { status: 'SubmittedToRegion' },
   regionalStatus: RegionList.map((region) => ({
     region,
     status: 'SubmittedToRegion'
@@ -364,6 +372,7 @@ export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
   samplesOutsidePlanAllowed: false,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
+  nationalStatus: { status: 'SubmittedToRegion' },
   regionalStatus: RegionList.map((region) => ({
     region,
     status: 'Validated'
@@ -394,6 +403,7 @@ export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   settingsCompleted: false,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
+  nationalStatus: { status: 'InProgress' },
   regionalStatus: RegionList.map((region) => ({
     region,
     status: 'InProgress'

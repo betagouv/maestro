@@ -37,7 +37,8 @@ const prescriptionApi = api.injectEndpoints({
       {
         invalidatesTags: (_result, _error, { prescriptionId }) => [
           { type: 'LocalPrescription', id: 'LIST' },
-          { type: 'LocalPrescription', id: prescriptionId }
+          { type: 'LocalPrescription', id: prescriptionId },
+          { type: 'ProgrammingPlan', id: 'LIST' }
         ]
       }
     ),
@@ -48,7 +49,8 @@ const prescriptionApi = api.injectEndpoints({
       {
         invalidatesTags: (_result, _error, { prescriptionId }) => [
           { type: 'LocalPrescription', id: 'LIST' },
-          { type: 'LocalPrescription', id: prescriptionId }
+          { type: 'LocalPrescription', id: prescriptionId },
+          { type: 'ProgrammingPlan', id: 'LIST' }
         ]
       }
     ),
@@ -61,6 +63,11 @@ const prescriptionApi = api.injectEndpoints({
           { type: 'LocalPrescription', id: prescriptionId }
         ]
       }
+    ),
+    markLocalPrescriptionChangesViewed: buildTypedMutation(
+      builder,
+      '/prescriptions/regions/:region/changes-viewed',
+      'put'
     )
   })
 });
@@ -71,5 +78,6 @@ export const {
   useGetLocalPrescriptionByCompanyQuery,
   useUpdateLocalPrescriptionMutation,
   useUpdateDepartmentalLocalPrescriptionMutation,
-  useCommentLocalPrescriptionMutation
+  useCommentLocalPrescriptionMutation,
+  useMarkLocalPrescriptionChangesViewedMutation
 } = { ...prescriptionApi };
