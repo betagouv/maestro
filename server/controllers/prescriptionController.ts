@@ -1,4 +1,4 @@
-import { sumBy, uniq } from 'lodash-es';
+import { isNil, sumBy, uniq } from 'lodash-es';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { type Stage, StageList } from 'maestro-shared/referential/Stage';
 import { lastDiffusedSampleCount } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
@@ -395,7 +395,8 @@ export const prescriptionsRouter = {
           department: exportedDepartment,
           includes: ['comments', 'laboratories']
         }),
-        userRole
+        userRole,
+        !isNil(exportedDepartment)
       );
 
       const fileName = `prescriptions${

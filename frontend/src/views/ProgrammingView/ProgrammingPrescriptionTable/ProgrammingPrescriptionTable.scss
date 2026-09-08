@@ -19,6 +19,11 @@
     border-left: 1px solid var(--border-contrast-grey);
   }
 
+  &.programming-table--with-checkbox-column .plan-group-title {
+    margin-left: $col-checkbox-width;
+    border-left: 1px solid var(--border-contrast-grey);
+  }
+
   border-left: 1px solid var(--border-contrast-grey);
   border-right: 1px solid var(--border-contrast-grey);
 
@@ -404,6 +409,19 @@
     z-index: 2;
     background-color: var(--background-open-blue-france);
     border-bottom: 1px solid var(--border-contrast-grey);
+  }
+
+  .plan-group-checkbox {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 3;
+    width: $col-checkbox-width;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--background-open-blue-france);
   }
 
   .plan-group-title {
