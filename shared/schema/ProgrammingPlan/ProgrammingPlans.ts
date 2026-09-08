@@ -35,6 +35,7 @@ export const ProgrammingPlanBase = z.object({
   samplesOutsidePlanAllowed: z.boolean(),
   distributionKind: DistributionKind,
   ...ProgrammingPlanSettings.shape,
+  settingsCompleted: z.boolean(),
   createdAt: z.coerce.date(),
   createdBy: z.guid(),
   year: z.number(),

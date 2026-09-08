@@ -5,17 +5,21 @@ import { assert, type Equals } from 'tsafe';
 import './ProgrammingSubPlanActionBar.scss';
 
 type Props = {
+  completed: boolean;
   hasChanges: boolean;
   saveCall: { isError: boolean; error?: unknown };
   onReset: () => void;
-  onSave: () => void;
+  onSaveDraft: () => void;
+  onComplete: () => void;
 };
 
 export const ProgrammingSubPlanActionBar = ({
+  completed,
   hasChanges,
   saveCall,
   onReset,
-  onSave,
+  onSaveDraft,
+  onComplete,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -35,15 +39,18 @@ export const ProgrammingSubPlanActionBar = ({
               disabled: !hasChanges,
               onClick: onReset
             },
+            ...(completed
+              ? []
+              : [
+                  {
+                    children: 'Enregistrer en brouillon',
+                    priority: 'secondary' as const,
+                    onClick: onSaveDraft
+                  }
+                ]),
             {
-              children: 'Enregistrer en brouillon',
-              priority: 'secondary',
-              onClick: onSave
-            },
-            {
-              children: 'Enregistrer et terminer',
-              //FIXME DOMAIN gère la notion de Terminer
-              onClick: onSave
+              children: completed ? 'Enregistrer' : 'Enregistrer et terminer',
+              onClick: onComplete
             }
           ]}
         />

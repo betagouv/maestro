@@ -304,6 +304,7 @@ interface ProgrammingPlanSettings {
 
 export interface ProgrammingPlans extends ProgrammingPlanSettings {
   createdAt: Generated<Timestamp | null>;
+  settingsCompleted: Generated<boolean>;
   createdBy: string | null;
   domainId: ProgrammingPlanDomainId;
   id: Generated<string>;
@@ -447,6 +448,7 @@ export interface ProgrammingPlanDomains {
 
 export interface ProgrammingSubPlans extends ProgrammingPlanSettings {
   id: ProgrammingSubPlanId;
+  settingsCompleted: Generated<boolean>;
   programmingPlanId: string;
   subPlanNumber: string;
   label: string;

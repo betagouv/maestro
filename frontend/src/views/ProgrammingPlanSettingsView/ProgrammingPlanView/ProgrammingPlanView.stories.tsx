@@ -61,6 +61,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
   [CerealesSubPlanId]: {
     stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
     stagesManaged: true,
+    settingsCompleted: false,
     fields: [matriceField, quantiteField].map(({ id }) => ({
       fieldId: id,
       required: false,
@@ -72,11 +73,13 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
   [FruitsSubPlanId]: {
     stages: ['TRANSFORMATION'],
     stagesManaged: false,
+    settingsCompleted: false,
     fields: []
   },
   [AnimauxSubPlanId]: {
     stages: ['ELEVAGE'],
     stagesManaged: false,
+    settingsCompleted: true,
     fields: [
       {
         fieldId: especeField.id,
@@ -92,6 +95,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
 const planSettings: ProgrammingPlanSettingsForm = {
   stages: ['TRANSFORMATION'],
   stagesManaged: true,
+  settingsCompleted: false,
   fields: [{ fieldId: especeField.id, required: true, optionIds: [] }]
 };
 
@@ -135,24 +139,28 @@ const meta = {
             title: 'Production primaire végétale',
             stages: ['TRANSFORMATION'],
             stagesManaged: true,
+            settingsCompleted: false,
             subPlans: [
               genProgrammingSubPlan({
                 id: FruitsSubPlanId,
                 subPlanNumber: '102',
                 label: 'Fruits et légumes',
-                stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'TRANSFORMATION']
+                stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'TRANSFORMATION'],
+                settingsCompleted: false
               }),
               genProgrammingSubPlan({
                 id: CerealesSubPlanId,
                 subPlanNumber: '101',
                 label: 'Céréales',
-                stages: ['PRODUCTION_PRIMAIRE_VEGETALE']
+                stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
+                settingsCompleted: false
               }),
               genProgrammingSubPlan({
                 id: AnimauxSubPlanId,
                 subPlanNumber: '103',
                 label: 'Animaux',
-                stages: ['ELEVAGE']
+                stages: ['ELEVAGE'],
+                settingsCompleted: true
               })
             ]
           }),
@@ -252,6 +260,7 @@ export const PlanSave: Story = {
         programmingPlanId: PPVPlanId,
         stages: ['TRANSFORMATION', 'ELEVAGE'],
         stagesManaged: true,
+        settingsCompleted: false,
         fields: planSettings.fields
       })
     );
@@ -270,6 +279,11 @@ export const SubPlanList: Story = {
     await expect(subPlans[0]).toHaveTextContent('101 - Céréales');
     await expect(subPlans[1]).toHaveTextContent('102 - Fruits et légumes');
     await expect(subPlans[2]).toHaveTextContent('103 - Animaux');
+
+    await expect(canvas.getAllByTitle('Paramétrage terminé')).toHaveLength(1);
+    await expect(
+      within(subPlans[2]).getByTitle('Paramétrage terminé')
+    ).toBeInTheDocument();
 
     // La recherche filtre la liste
     await userEvent.type(
@@ -381,10 +395,10 @@ export const SubPlanSave: Story = {
       'ELEVAGE'
     );
 
-    for (const buttonLabel of [
-      'Enregistrer en brouillon',
-      'Enregistrer et terminer'
-    ]) {
+    for (const [buttonLabel, settingsCompleted] of [
+      ['Enregistrer en brouillon', false],
+      ['Enregistrer et terminer', true]
+    ] as const) {
       updateProgrammingSubPlanSettings.mockClear();
 
       await userEvent.click(canvas.getByRole('button', { name: buttonLabel }));
@@ -395,10 +409,100 @@ export const SubPlanSave: Story = {
           programmingSubPlanId: CerealesSubPlanId,
           stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'ELEVAGE'],
           stagesManaged: true,
+          settingsCompleted,
           fields: subPlanSettings[CerealesSubPlanId].fields
         })
       );
     }
+  }
+};
+
+export const SubPlanCompleted: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        AnimauxSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingSubPlanSettings.mockClear();
+
+    await expect(
+      canvas.queryByRole('button', { name: 'Enregistrer en brouillon' })
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('button', { name: 'Enregistrer et terminer' })
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Enregistrer' }));
+
+    await waitFor(() =>
+      expect(updateProgrammingSubPlanSettings).toHaveBeenCalledWith(
+        expect.objectContaining({
+          programmingSubPlanId: AnimauxSubPlanId,
+          settingsCompleted: true
+        })
+      )
+    );
+  }
+};
+
+export const SubPlanIncompleteCannotComplete: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingSubPlanSettings.mockClear();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Production primaire végétale' })
+    );
+
+    await userEvent.click(
+      canvas.getByRole('tab', { name: 'Formulaire préleveur' })
+    );
+    await expect(
+      canvas.getByRole('tab', { name: 'Formulaire préleveur' })
+    ).toHaveAttribute('aria-selected', 'true');
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer et terminer' })
+    );
+
+    await waitFor(() =>
+      expect(
+        canvas.getByRole('tab', { name: 'Paramétrage global' })
+      ).toHaveAttribute('aria-selected', 'true')
+    );
+    await expect(
+      canvas.getByText('Veuillez renseigner au moins un stade de prélèvement.')
+    ).toBeInTheDocument();
+    await expect(updateProgrammingSubPlanSettings).not.toHaveBeenCalled();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+
+    await waitFor(() =>
+      expect(updateProgrammingSubPlanSettings).toHaveBeenCalledWith(
+        expect.objectContaining({
+          programmingSubPlanId: CerealesSubPlanId,
+          stages: [],
+          settingsCompleted: false
+        })
+      )
+    );
   }
 };
 
@@ -469,6 +573,7 @@ export const SubPlanSamplerForm: Story = {
         programmingSubPlanId: CerealesSubPlanId,
         stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
         stagesManaged: true,
+        settingsCompleted: false,
         fields: [quantiteField, matriceField].map(({ id }) => ({
           fieldId: id,
           required: false,
@@ -508,6 +613,7 @@ export const PlanStagesSwitch: Story = {
         programmingPlanId: PPVPlanId,
         stages: ['TRANSFORMATION'],
         stagesManaged: false,
+        settingsCompleted: false,
         fields: planSettings.fields
       })
     );
@@ -554,6 +660,7 @@ export const SubPlanInheritedStages: Story = {
         programmingSubPlanId: FruitsSubPlanId,
         stages: ['TRANSFORMATION'],
         stagesManaged: true,
+        settingsCompleted: false,
         fields: []
       })
     );
@@ -602,6 +709,7 @@ export const SubPlanDetachedStages: Story = {
         programmingSubPlanId: CerealesSubPlanId,
         stages: ['TRANSFORMATION'],
         stagesManaged: false,
+        settingsCompleted: false,
         fields: subPlanSettings[CerealesSubPlanId].fields
       })
     );

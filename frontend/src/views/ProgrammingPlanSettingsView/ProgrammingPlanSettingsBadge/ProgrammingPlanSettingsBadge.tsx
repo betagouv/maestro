@@ -7,11 +7,9 @@ type Props = {
   small?: boolean;
 };
 
-//FIXME temporaire, à terme on souhaite savoir si le PARAMÉTRAGE de tous les plans/sous-plans est terminé ou non
-const hasSettingsInProgress = (plan: ProgrammingPlanChecked): boolean =>
-  [...plan.regionalStatus, ...plan.departmentalStatus].some(
-    ({ status }) => status === 'InProgress'
-  );
+const hasSettingsCompleted = (plan: ProgrammingPlanChecked): boolean =>
+  plan.settingsCompleted &&
+  plan.subPlans.every(({ settingsCompleted }) => settingsCompleted);
 
 export const ProgrammingPlanSettingsBadge = ({
   programmingPlans,
@@ -21,8 +19,7 @@ export const ProgrammingPlanSettingsBadge = ({
   assert<Equals<keyof typeof _rest, never>>();
 
   const areSettingsCompleted =
-    programmingPlans.length > 0 &&
-    !programmingPlans.some(hasSettingsInProgress);
+    programmingPlans.length > 0 && programmingPlans.every(hasSettingsCompleted);
 
   return (
     <Badge

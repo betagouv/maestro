@@ -106,14 +106,15 @@ export const ProgrammingSubPlanList = ({
                 }
               >
                 {subPlan.subPlanNumber} - {subPlan.label}
-                {/*FIXME DOMAIN afficher la pastille seulement si le paramétrage du sous-plan est terminé*/}
-                <span
-                  className={clsx(
-                    'settings-completed',
-                    cx('fr-icon-checkbox-circle-fill', 'fr-icon--sm')
-                  )}
-                  title="Paramétrage terminé"
-                ></span>
+                {subPlan.settingsCompleted && (
+                  <span
+                    className={clsx(
+                      'settings-completed',
+                      cx('fr-icon-checkbox-circle-fill', 'fr-icon--sm')
+                    )}
+                    title="Paramétrage terminé"
+                  ></span>
+                )}
               </Link>
             </li>
           ))}

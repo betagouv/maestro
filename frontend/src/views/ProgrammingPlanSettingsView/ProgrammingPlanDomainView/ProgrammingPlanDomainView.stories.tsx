@@ -56,6 +56,7 @@ const meta = {
             year: 2026,
             domainId: pesticide2026.id,
             title: 'Transformation végétale',
+            subPlans: [genProgrammingSubPlan({ settingsCompleted: false })],
             regionalStatus: regionalStatus('InProgress')
           }),
           genProgrammingPlan({

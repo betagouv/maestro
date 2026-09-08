@@ -253,11 +253,21 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateProgrammingPlanStatusMutation: [fn(), {}],
   useUpdateProgrammingSubPlanSettingsMutation: [fn(), {}],
   useFindProgrammingPlanSettingsQuery: {
-    data: { stages: null, stagesManaged: false, fields: [] }
+    data: {
+      stages: null,
+      stagesManaged: false,
+      settingsCompleted: false,
+      fields: []
+    }
   },
   useUpdateProgrammingPlanSettingsMutation: [fn(), {}],
   useFindProgrammingSubPlanSettingsQuery: {
-    data: { stages: null, stagesManaged: true, fields: [] }
+    data: {
+      stages: null,
+      stagesManaged: true,
+      settingsCompleted: false,
+      fields: []
+    }
   },
   useUpdateLaboratoryAnalyticalCompetenceMutation: [fn(), {}],
   useFindLaboratoryResidueMappingsQuery: { data: [] },

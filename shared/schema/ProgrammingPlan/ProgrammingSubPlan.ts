@@ -13,6 +13,7 @@ export const ProgrammingSubPlan = z.object({
   programmingPlanId: z.guid(),
   subPlanNumber: z.string(),
   ...ProgrammingPlanSettings.shape,
+  settingsCompleted: z.boolean(),
   label: z.string(),
   analysisPermissionRole: UserRole.nullish(),
   contactListId: z.number().int().nullish(),

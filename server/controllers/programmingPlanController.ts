@@ -40,6 +40,11 @@ import type { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
 import { programmingPlanSettingsService } from '../services/programmingPlanSettingsService';
 
+const resumesDraft = (
+  stored: { settingsCompleted: boolean },
+  body: { settingsCompleted: boolean }
+): boolean => stored.settingsCompleted && !body.settingsCompleted;
+
 export const programmingPlanRouter = {
   '/programming-plans': {
     get: async ({ query: findOptions, user, userRole }) => {
@@ -181,6 +186,7 @@ export const programmingPlanRouter = {
         response: {
           stages: programmingPlan.stages,
           stagesManaged: programmingPlan.stagesManaged,
+          settingsCompleted: programmingPlan.settingsCompleted,
           fields:
             await specificDataFieldConfigRepository.findPlanFieldSettings(
               programmingPlanId
@@ -189,7 +195,12 @@ export const programmingPlanRouter = {
       };
     },
     put: async ({ body }, { programmingPlanId }) => {
-      await getAndCheckProgrammingPlan(programmingPlanId);
+      const programmingPlan =
+        await getAndCheckProgrammingPlan(programmingPlanId);
+
+      if (resumesDraft(programmingPlan, body)) {
+        return { status: HttpStatus.CONFLICT };
+      }
 
       await programmingPlanSettingsService.savePlanSettings(
         programmingPlanId,
@@ -217,6 +228,7 @@ export const programmingPlanRouter = {
           response: {
             stages: programmingSubPlan.stages,
             stagesManaged: programmingSubPlan.stagesManaged,
+            settingsCompleted: programmingSubPlan.settingsCompleted,
             fields:
               await specificDataFieldConfigRepository.findSubPlanFieldSettings(
                 programmingSubPlanId
@@ -238,7 +250,10 @@ export const programmingPlanRouter = {
         const programmingPlan =
           await getAndCheckProgrammingPlan(programmingPlanId);
 
-        if (inheritsUnmanagedSetting(body, programmingPlan)) {
+        if (
+          inheritsUnmanagedSetting(body, programmingPlan) ||
+          resumesDraft(programmingSubPlan, body)
+        ) {
           return { status: HttpStatus.CONFLICT };
         }
 
