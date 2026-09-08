@@ -179,7 +179,7 @@ describe('generatePrescriptionsExportExcel', async () => {
       Programmés"
       M02;;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;13
       M01;;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;13
-      ;;;;Total;;;;40"
+      ;;;;Total;;;;26"
     `);
   });
 });
