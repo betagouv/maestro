@@ -12,10 +12,12 @@ interface Props {
   readyToSendCount: number;
 }
 
-const submittedLabelByEchelon: Record<ProgrammingPlanEchelon, string> = {
+const submittedLabelByEchelon: Record<
+  Exclude<ProgrammingPlanEchelon, 'Departmental'>,
+  string
+> = {
   National: 'soumis aux régions',
-  Regional: 'soumis aux départements',
-  Departmental: 'diffusés aux préleveur\u00b7ses'
+  Regional: 'soumis aux départements'
 };
 
 const ProgrammingPlanTrackingHeader = ({
@@ -45,17 +47,19 @@ const ProgrammingPlanTrackingHeader = ({
         />
         {pluralize(finalizedCount, { preserveCount: true })('finalisé')}
       </div>
-      <div>
-        <span
-          className={cx(
-            'fr-icon--sm',
-            'fr-mr-1w',
-            'fr-label--success',
-            'fr-icon-send-plane-line'
-          )}
-        />
-        {submittedCount} {submittedLabelByEchelon[echelon]}
-      </div>
+      {echelon !== 'Departmental' && (
+        <div>
+          <span
+            className={cx(
+              'fr-icon--sm',
+              'fr-mr-1w',
+              'fr-label--success',
+              'fr-icon-send-plane-line'
+            )}
+          />
+          {submittedCount} {submittedLabelByEchelon[echelon]}
+        </div>
+      )}
       <div>
         <span
           className={cx(

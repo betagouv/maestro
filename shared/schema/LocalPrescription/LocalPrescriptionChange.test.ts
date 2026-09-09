@@ -142,8 +142,7 @@ describe('lastDiffusedSampleCount', () => {
     prescriptionId: '11111111-1111-1111-1111-111111111111',
     region: '52' as const,
     department: undefined,
-    companySiret: undefined,
-    sampleCount: 5
+    companySiret: undefined
   };
 
   const change = (
@@ -160,8 +159,8 @@ describe('lastDiffusedSampleCount', () => {
     ...overrides
   });
 
-  test('no change at all -> the live value stands', () => {
-    expect(lastDiffusedSampleCount(regionRow, [])).toBe(5);
+  test('nothing ever diffused -> no previous value', () => {
+    expect(lastDiffusedSampleCount(regionRow, [])).toBeNull();
   });
 
   test('an undiffused draft is ignored', () => {
@@ -169,7 +168,7 @@ describe('lastDiffusedSampleCount', () => {
       lastDiffusedSampleCount(regionRow, [
         change({ sampleCount: 9, diffusedAt: null })
       ])
-    ).toBe(5);
+    ).toBeNull();
   });
 
   test('a diffused but not yet applied change stands', () => {
@@ -212,7 +211,7 @@ describe('lastDiffusedSampleCount', () => {
           prescriptionId: '22222222-2222-2222-2222-222222222222'
         })
       ])
-    ).toBe(5);
+    ).toBeNull();
   });
 
   test('a laboratories change carries no sample count', () => {
@@ -220,15 +219,14 @@ describe('lastDiffusedSampleCount', () => {
       lastDiffusedSampleCount(regionRow, [
         change({ kind: 'laboratories', sampleCount: null })
       ])
-    ).toBe(5);
+    ).toBeNull();
   });
 
   test('a slaughterhouse row only keeps its own changes', () => {
     const companyRow = {
       ...regionRow,
       department: '85' as const,
-      companySiret: '54695037900216',
-      sampleCount: 1
+      companySiret: '54695037900216'
     };
     expect(
       lastDiffusedSampleCount(companyRow, [
@@ -242,7 +240,7 @@ describe('lastDiffusedSampleCount', () => {
     ).toBe(3);
   });
 
-  test('a diffused zero stands and does not fall back to the live value', () => {
+  test('a diffused zero is a real previous value, not the absence of one', () => {
     expect(
       lastDiffusedSampleCount(regionRow, [change({ sampleCount: 0 })])
     ).toBe(0);

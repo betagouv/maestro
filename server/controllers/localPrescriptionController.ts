@@ -452,17 +452,6 @@ export const localPrescriptionsRouter = {
       }
 
       if (canDistributePrescriptionToSlaughterhouses) {
-        const existingSubLocalPrescriptions =
-          await localPrescriptionRepository.findMany({
-            prescriptionId: localPrescription.prescriptionId,
-            region: localPrescription.region,
-            department: params.department
-          });
-        const liveSampleCountByCompany = new Map(
-          existingSubLocalPrescriptions
-            .filter((_) => !isNil(_.companySiret))
-            .map((_) => [_.companySiret, _.sampleCount])
-        );
         const lastDiffused =
           await localPrescriptionChangeRepository.findLastDiffused({
             prescriptionIds: [localPrescription.prescriptionId],
@@ -485,10 +474,7 @@ export const localPrescriptionsRouter = {
                   prescriptionId: localPrescription.prescriptionId,
                   region: localPrescription.region,
                   department: params.department,
-                  companySiret: slaughterhouse.companySiret,
-                  sampleCount:
-                    liveSampleCountByCompany.get(slaughterhouse.companySiret) ??
-                    0
+                  companySiret: slaughterhouse.companySiret
                 },
                 lastDiffused
               ),

@@ -226,9 +226,10 @@ export const useProgrammingPlanTrackingStatus = (
       finalizedCount: programmingPlans.filter(
         (plan) => planStatusInfo.get(plan.id)?.isFinalized
       ).length,
-      submittedCount: programmingPlans.filter(
-        (plan) => planStatusInfo.get(plan.id)?.isSubmitted
-      ).length,
+      submittedCount: programmingPlans.filter((plan) => {
+        const info = planStatusInfo.get(plan.id);
+        return info?.isSubmitted && !info.isFinalized;
+      }).length,
       readyToSendCount: readyToSendPlans.length
     }),
     [programmingPlans, planStatusInfo, readyToSendPlans, region, department]

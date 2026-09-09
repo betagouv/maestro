@@ -338,7 +338,12 @@ export const prescriptionsRouter = {
           ),
           missingLaboratoryCount: rowCountOf((row) => row.missingLaboratory),
           noveltyCount: rowCountOf((row) => row.hasNovelty),
-          distributedCount: rowCountOf((row) => !row.missingDistribution),
+          displayedMissingDistributionCount: displayedRows.filter(
+            (row) => row.missingDistribution
+          ).length,
+          displayedDistributedCount: displayedRows.filter(
+            (row) => !row.missingDistribution
+          ).length,
           stageCounts: StageList.filter((stage) => countByStage.has(stage)).map(
             (stage) => ({
               stage,

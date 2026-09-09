@@ -2,12 +2,14 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useEffect, useState } from 'react';
 import LaboratorySelect from 'src/components/LaboratorySelect/LaboratorySelect';
 
 interface Props {
   programmingPlanId: string;
+  programmingSubPlanIds: ProgrammingSubPlanId[];
   commonSlots: SubstanceKindLaboratory[];
   onSubmit: (substanceKindsLaboratories: SubstanceKindLaboratory[]) => void;
 }
@@ -19,6 +21,7 @@ export const bulkAssignLaboratoriesModal = createModal({
 
 const BulkAssignLaboratoriesModal = ({
   programmingPlanId,
+  programmingSubPlanIds,
   commonSlots,
   onSubmit
 }: Props) => {
@@ -62,7 +65,9 @@ const BulkAssignLaboratoriesModal = ({
               </div>
               <LaboratorySelect
                 programmingPlanId={programmingPlanId}
+                programmingSubPlanIds={programmingSubPlanIds}
                 substanceKind={skl.substanceKind}
+                noOptionsMessage="L’action groupée n’est pas possible sur cet analyte car les sous-plans n’ont aucun laboratoire agréé en commun."
                 laboratoryId={skl.laboratoryId}
                 onSelect={(laboratoryId) =>
                   setSubstanceKindsLaboratories((prev) =>

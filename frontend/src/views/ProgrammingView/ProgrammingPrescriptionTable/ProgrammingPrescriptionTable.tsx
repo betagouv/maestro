@@ -1069,13 +1069,17 @@ const ProgrammingPrescriptionTable = ({
                                               )
                                             }
                                           />
-                                          {rowHasUnviewedChange && (
-                                            <div className="previous-sample-count">
-                                              Avant :{' '}
-                                              {ownRegionalPrescription.previousSampleCount ??
-                                                0}
-                                            </div>
-                                          )}
+                                          {rowHasUnviewedChange &&
+                                            !isNil(
+                                              ownRegionalPrescription.previousSampleCount
+                                            ) && (
+                                              <div className="previous-sample-count">
+                                                Avant :{' '}
+                                                {
+                                                  ownRegionalPrescription.previousSampleCount
+                                                }
+                                              </div>
+                                            )}
                                         </div>
                                       ) : (
                                         <div
@@ -1104,13 +1108,17 @@ const ProgrammingPrescriptionTable = ({
                                               />
                                             )}
                                           </div>
-                                          {rowHasUnviewedChange && (
-                                            <div className="previous-sample-count">
-                                              Avant :{' '}
-                                              {ownRegionalPrescription?.previousSampleCount ??
-                                                0}
-                                            </div>
-                                          )}
+                                          {rowHasUnviewedChange &&
+                                            !isNil(
+                                              ownRegionalPrescription?.previousSampleCount
+                                            ) && (
+                                              <div className="previous-sample-count">
+                                                Avant :{' '}
+                                                {
+                                                  ownRegionalPrescription.previousSampleCount
+                                                }
+                                              </div>
+                                            )}
                                         </div>
                                       )
                                     ) : (
@@ -1451,13 +1459,17 @@ const ProgrammingPrescriptionTable = ({
                                                   />
                                                   {hasUnviewedChange(
                                                     localPrescription.changedAt
-                                                  ) && (
-                                                    <div className="previous-sample-count">
-                                                      Avant :{' '}
-                                                      {localPrescription.previousSampleCount ??
-                                                        0}
-                                                    </div>
-                                                  )}
+                                                  ) &&
+                                                    !isNil(
+                                                      localPrescription.previousSampleCount
+                                                    ) && (
+                                                      <div className="previous-sample-count">
+                                                        Avant :{' '}
+                                                        {
+                                                          localPrescription.previousSampleCount
+                                                        }
+                                                      </div>
+                                                    )}
                                                 </div>
                                               </td>
                                             )
