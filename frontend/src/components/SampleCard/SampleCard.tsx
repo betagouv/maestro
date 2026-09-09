@@ -8,7 +8,6 @@ import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   getSampleMatrixLabel,
   isCreatedPartialSample,
-  isDeletableSample,
   type PartialSample,
   type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
@@ -145,7 +144,7 @@ const SampleCard = ({ sample, horizontal }: Props) => {
             </Button>
             {isOnline &&
               hasUserPermission('deleteSample') &&
-              isDeletableSample(sample) && <RemoveSample sample={sample} />}
+              sample.step !== 'Sent' && <RemoveSample sample={sample} />}
           </div>
         )
       }

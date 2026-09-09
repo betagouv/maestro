@@ -297,12 +297,6 @@ export const isCreatedPartialSample = (
   partialSample !== undefined &&
   CreatedSampleData.safeParse(partialSample).success;
 
-export const DeletableSampleStatusList: SampleStatus[] = ['Draft', 'Submitted'];
-
-export const isDeletableSample = (
-  sample: Pick<PartialSampleToCreate, 'status'>
-) => DeletableSampleStatusList.includes(sample.status);
-
 export const isProgrammingPlanSample = (
   partialSample?: PartialSample | PartialSampleToCreate
 ) => ProgrammingPlanContext.safeParse(partialSample?.context).success;

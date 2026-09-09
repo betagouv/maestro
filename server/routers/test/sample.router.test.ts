@@ -446,29 +446,6 @@ describe('Sample router', () => {
       );
     });
 
-    test('should fallback on the user department when the sample has no geolocation', async () => {
-      const sampleId = uuidv4();
-      const res = await request(app)
-        .post(testRoute)
-        .send({
-          ...genSampleContextData({
-            id: sampleId,
-            programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
-            programmingSubPlanId: DAOAInProgressBovinSubPlanId,
-            sampler: SamplerDaoaFixture,
-            geolocation: null
-          })
-        })
-        .use(tokenProvider(SamplerDaoaFixture))
-        .expect(constants.HTTP_STATUS_CREATED);
-
-      expect(res.body).toMatchObject({
-        department: SamplerDaoaFixture.department
-      });
-
-      await Samples().delete().where('id', sampleId);
-    });
-
     test('should create a sample with incremental reference', async () => {
       const successRequestTest = async (
         user: UserRefined,
@@ -1127,38 +1104,11 @@ describe('Sample router', () => {
       await forbiddenRequestTest(AdminFixture);
     });
 
-    test('should be forbidden to delete a sample that has been sent to the laboratory', async () => {
+    test('should be forbidden to delete a sample that is not in draft status', async () => {
       await request(app)
         .delete(testRoute(Sample13Fixture.id))
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
-    });
-
-    test('should delete a sample that is submitted but not sent yet', async () => {
-      const sampleId = uuidv4();
-      await Samples().insert([
-        formatPartialSample(
-          genCreatedPartialSample({
-            id: sampleId,
-            sampler: Sampler1Fixture,
-            region: Sampler1Fixture.region ?? undefined,
-            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
-            company: CompanyFixture,
-            step: 'Submitted',
-            status: 'Submitted'
-          })
-        )
-      ]);
-      await SampleItems().insert(genSampleItem({ sampleId }));
-
-      await request(app)
-        .delete(testRoute(sampleId))
-        .use(tokenProvider(Sampler1Fixture))
-        .expect(constants.HTTP_STATUS_NO_CONTENT);
-
-      await expect(
-        Samples().where({ id: sampleId }).first()
-      ).resolves.toBeUndefined();
     });
 
     test('should delete the sample', async () => {

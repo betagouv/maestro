@@ -11,7 +11,6 @@ import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPl
 import { buildFindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   hasSamplePermission,
-  isDeletableSample,
   isProgrammingPlanSample,
   type PartialSample,
   SampleBase,
@@ -680,7 +679,7 @@ export const sampleRouter = {
       const sample = await getAndCheckSample(sampleId, user, userRole);
       console.info('Delete sample', sample.id);
 
-      if (!isDeletableSample(sample)) {
+      if (sample.status !== 'Draft') {
         return { status: HttpStatus.FORBIDDEN };
       }
 
