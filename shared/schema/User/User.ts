@@ -139,6 +139,15 @@ export const userRegionsForRole = (
         : []
     : [];
 
+export const userRegions = (
+  user: Pick<UserBase, 'region' | 'roles'>
+): Region[] =>
+  user?.roles?.some((role) => isNationalRole(role))
+    ? RegionList
+    : !isNil(user?.region)
+      ? [user.region]
+      : [];
+
 export const userDepartmentsForRole = (
   user: Pick<UserBase, 'region' | 'department'>,
   userRole: UserRole
