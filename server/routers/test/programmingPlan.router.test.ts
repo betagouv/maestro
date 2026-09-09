@@ -49,12 +49,18 @@ describe('ProgrammingPlan router', () => {
   const resetDaoaInProgressSettings = async () => {
     await programmingPlanSettingsService.savePlanSettings(
       DAOAInProgressProgrammingPlanFixture.id,
-      { stages: null, stagesManaged: false, fields: [] }
+      {
+        stages: null,
+        stagesManaged: false,
+        settingsCompleted: false,
+        fields: []
+      }
     );
     for (const subPlan of daoaInProgressSubPlanFixtures) {
       await programmingSubPlanRepository.updateSettings(subPlan.id, {
         stages: subPlan.stages,
-        stagesManaged: true
+        stagesManaged: true,
+        settingsCompleted: false
       });
     }
   };
@@ -633,6 +639,7 @@ describe('ProgrammingPlan router', () => {
     const validBody = {
       stages: ['TRANSFORMATION'] satisfies Stage[],
       stagesManaged: true,
+      settingsCompleted: false,
       fields: []
     };
 
@@ -704,6 +711,20 @@ describe('ProgrammingPlan router', () => {
         .expect(constants.HTTP_STATUS_NOT_FOUND);
     });
 
+    test('should refuse to resume a completed settings form as a draft', async () => {
+      await request(app)
+        .put(testRoute(DAOAInProgressProgrammingPlanFixture.id))
+        .send({ ...validBody, settingsCompleted: true })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
+
+      await request(app)
+        .put(testRoute(DAOAInProgressProgrammingPlanFixture.id))
+        .send(validBody)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_CONFLICT);
+    });
+
     test('should update the plan settings', async () => {
       await request(app)
         .put(testRoute(DAOAInProgressProgrammingPlanFixture.id))
@@ -744,6 +765,7 @@ describe('ProgrammingPlan router', () => {
     const validBody = {
       stages: ['TRANSFORMATION'] satisfies Stage[],
       stagesManaged: true,
+      settingsCompleted: false,
       fields: []
     };
 
@@ -804,6 +826,27 @@ describe('ProgrammingPlan router', () => {
         .expect(constants.HTTP_STATUS_CONFLICT);
     });
 
+    test('should refuse to resume a completed settings form as a draft', async () => {
+      const body = (
+        await request(app)
+          .get(daoaVolailleRoute)
+          .use(tokenProvider(AdminFixture))
+          .expect(constants.HTTP_STATUS_OK)
+      ).body;
+
+      await request(app)
+        .put(daoaVolailleRoute)
+        .send({ ...body, settingsCompleted: true })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
+
+      await request(app)
+        .put(daoaVolailleRoute)
+        .send(body)
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_CONFLICT);
+    });
+
     test('should return the whole settings form, sampler descriptors included', async () => {
       const res = await request(app)
         .get(daoaVolailleRoute)
@@ -813,6 +856,7 @@ describe('ProgrammingPlan router', () => {
       expect(res.body).toMatchObject({
         stages: DAOAVolailleInProgressSubPlanFixture.stages,
         stagesManaged: true,
+        settingsCompleted: false,
         fields: DAOAVolailleFieldConfigs.map(() => ({
           inheritance: 'Own',
           managedAtPlanLevel: false

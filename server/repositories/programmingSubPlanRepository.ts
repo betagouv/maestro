@@ -59,7 +59,9 @@ const findMany = async (
 
 const updateSettings = async (
   id: ProgrammingSubPlanId,
-  settings: Partial<ProgrammingPlanSettings>,
+  settings: Partial<
+    ProgrammingPlanSettings & Pick<ProgrammingSubPlan, 'settingsCompleted'>
+  >,
   executor: KyselyMaestro = kysely
 ): Promise<void> => {
   console.info('Update programming sub-plan settings', id);

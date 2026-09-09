@@ -69,7 +69,8 @@ export function useForm<
   }
 
   const validate = async (
-    onValid?: (validInput: z.infer<T>) => Promise<void>
+    onValid?: (validInput: z.infer<T>) => Promise<void>,
+    onInvalid?: (error: z.ZodError) => void
   ) => {
     try {
       const validInput: z.infer<T> = await schema.parseAsync(input);
@@ -80,6 +81,7 @@ export function useForm<
       console.error(error, (error as z.ZodError).issues);
       setIsTouched(true);
       setError(error as z.ZodError);
+      onInvalid?.(error as z.ZodError);
     }
   };
 

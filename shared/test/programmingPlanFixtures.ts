@@ -120,6 +120,7 @@ export const genProgrammingSubPlan = (
   subPlanNumber: 'TEST',
   stages: [],
   stagesManaged: true,
+  settingsCompleted: true,
   label: 'Test SubPlan',
   withSacha: (data?.id && SachaSubPlanIds.includes(data.id)) ?? false,
   substanceKinds: ['Any'],
@@ -181,7 +182,8 @@ export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
 export const DAOAVolailleInProgressSubPlanFixture = genProgrammingSubPlan({
   ...DAOAVolailleValidatedSubPlanFixture,
   id: DAOAInProgressVolailleSubPlanId,
-  programmingPlanId: DAOAInProgressProgrammingPlanId
+  programmingPlanId: DAOAInProgressProgrammingPlanId,
+  settingsCompleted: false
 });
 
 export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
@@ -199,7 +201,8 @@ export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
 export const DAOABovinInProgressSubPlanFixture = genProgrammingSubPlan({
   ...DAOABovinValidatedSubPlanFixture,
   id: DAOAInProgressBovinSubPlanId,
-  programmingPlanId: DAOAInProgressProgrammingPlanId
+  programmingPlanId: DAOAInProgressProgrammingPlanId,
+  settingsCompleted: false
 });
 
 export const genProgrammingPlan = (
@@ -223,6 +226,7 @@ export const genProgrammingPlan = (
     samplesOutsidePlanAllowed: true,
     stages: null,
     stagesManaged: false,
+    settingsCompleted: true,
     createdAt: new Date(),
     createdBy: uuidv4(),
     regionalStatus: RegionList.map((region) => ({
@@ -364,6 +368,7 @@ export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   contexts: ['Surveillance'],
   legalContexts: ['A'],
   samplesOutsidePlanAllowed: false,
+  settingsCompleted: false,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
   regionalStatus: RegionList.map((region) => ({

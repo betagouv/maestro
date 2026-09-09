@@ -49,12 +49,14 @@ describe('ProgrammingPlan settings inheritance', () => {
     await programmingPlanSettingsService.savePlanSettings(programmingPlanId, {
       stages: null,
       stagesManaged: false,
+      settingsCompleted: false,
       fields: []
     });
     for (const subPlan of subPlanFixtures) {
       await programmingSubPlanRepository.updateSettings(subPlan.id, {
         stages: subPlan.stages,
-        stagesManaged: true
+        stagesManaged: true,
+        settingsCompleted: false
       });
     }
   });
@@ -63,6 +65,7 @@ describe('ProgrammingPlan settings inheritance', () => {
     programmingPlanSettingsService.savePlanSettings(programmingPlanId, {
       stages,
       stagesManaged: true,
+      settingsCompleted: false,
       fields: []
     });
 
@@ -125,6 +128,7 @@ describe('ProgrammingPlan settings inheritance', () => {
       await programmingPlanSettingsService.savePlanSettings(programmingPlanId, {
         stages: ['TRANSFORMATION'],
         stagesManaged: false,
+        settingsCompleted: false,
         fields: []
       });
 
@@ -294,6 +298,7 @@ describe('ProgrammingPlan sampler form inheritance', () => {
   const savePlanForm = (fields: ProgrammingPlanFieldSetting[]) =>
     programmingPlanSettingsService.savePlanSettings(programmingPlanId, {
       ...planSettings,
+      settingsCompleted: false,
       fields
     });
 
@@ -310,7 +315,7 @@ describe('ProgrammingPlan sampler form inheritance', () => {
     await programmingPlanSettingsService.saveSubPlanSettings(
       programmingPlanId,
       programmingSubPlanId,
-      { ...settings!, fields }
+      { ...settings!, settingsCompleted: false, fields }
     );
   };
 
