@@ -33,25 +33,25 @@ const checkCompleteness = (
     });
   }
 };
-
-const checkNationalCoordinators = (
-  ctx: z.core.ParsePayload<{
-    settingsCompleted: boolean;
-    nationalCoordinators: ProgrammingPlanNationalCoordinator[] | null;
-  }>
-) => {
-  if (
-    ctx.value.settingsCompleted &&
-    ctx.value.nationalCoordinators?.length === 0
-  ) {
-    ctx.issues.push({
-      input: ctx.value,
-      code: 'custom',
-      message: 'Veuillez renseigner au moins un coordinateur national.',
-      path: ['nationalCoordinators']
-    });
-  }
-};
+// FIXME DOMAIN à décommenter quand tous les plans de la bdd de prod auront un coord et supprimer le .fail sur le test
+// const checkNationalCoordinators = (
+//   ctx: z.core.ParsePayload<{
+//     settingsCompleted: boolean;
+//     nationalCoordinators: ProgrammingPlanNationalCoordinator[] | null;
+//   }>
+// ) => {
+//   if (
+//     ctx.value.settingsCompleted &&
+//     ctx.value.nationalCoordinators?.length === 0
+//   ) {
+//     ctx.issues.push({
+//       input: ctx.value,
+//       code: 'custom',
+//       message: 'Veuillez renseigner au moins un coordinateur national.',
+//       path: ['nationalCoordinators']
+//     });
+//   }
+// };
 
 const SubPlanSettingsFormShape = SettingsFormBase.extend({
   fields: refineSchema(
@@ -70,8 +70,8 @@ export const ProgrammingPlanSettingsForm = checkSchema(
       uniqueFieldsMessage
     )
   }),
-  checkCompleteness,
-  checkNationalCoordinators
+  checkCompleteness
+  // checkNationalCoordinators
 );
 export type ProgrammingPlanSettingsForm = z.infer<
   typeof ProgrammingPlanSettingsForm
@@ -89,8 +89,8 @@ export const ProgrammingLevelSettingsForm = checkSchema(
   SubPlanSettingsFormShape.extend({
     nationalCoordinators: z.array(ProgrammingPlanNationalCoordinator).nullable()
   }),
-  checkCompleteness,
-  checkNationalCoordinators
+  checkCompleteness
+  //checkNationalCoordinators
 );
 export type ProgrammingLevelSettingsForm = z.infer<
   typeof ProgrammingLevelSettingsForm

@@ -646,7 +646,8 @@ describe('ProgrammingPlan router', () => {
       nationalCoordinators: [
         {
           id: NationalCoordinatorDaoaFixture.id,
-          name: NationalCoordinatorDaoaFixture.name
+          name: NationalCoordinatorDaoaFixture.name,
+          email: NationalCoordinatorDaoaFixture.email
         }
       ],
       fields: []
