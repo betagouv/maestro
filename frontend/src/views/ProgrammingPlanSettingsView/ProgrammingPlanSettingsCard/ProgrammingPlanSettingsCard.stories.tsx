@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import {
   genProgrammingPlan,
+  NationalCoordinatorId,
+  NationalCoordinatorName,
   PesticideResidueDomainId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { expect, within } from 'storybook/test';
@@ -31,6 +33,41 @@ export const Domain: Story = {
 
     await expect(canvas.getByText('Résidus de pesticides')).toBeInTheDocument();
     await expect(canvas.getByText('1 plan / 1 sous-plan')).toBeInTheDocument();
+    await expect(canvas.getByText(NationalCoordinatorName)).toBeInTheDocument();
+  }
+};
+
+export const DomainWithSeveralPlans: Story = {
+  args: {
+    programmingPlans: [
+      genProgrammingPlan({ year: 2026 }),
+      genProgrammingPlan({
+        year: 2026,
+        nationalCoordinators: [
+          { id: NationalCoordinatorId, name: NationalCoordinatorName },
+          {
+            id: '14141414-1414-1414-1414-141414141414',
+            name: 'Damien Coordination'
+          },
+          {
+            id: '15151515-1515-1515-1515-151515151515',
+            name: 'Zoé Coordination'
+          }
+        ]
+      })
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.getByText('2 plans / 2 sous-plans')
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByText(
+        `Damien Coordination, ${NationalCoordinatorName}, Zoé Coordination`
+      )
+    ).toBeInTheDocument();
   }
 };
 

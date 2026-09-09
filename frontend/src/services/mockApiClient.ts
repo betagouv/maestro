@@ -257,6 +257,7 @@ const defaultMockApiClientConf: MockApi = {
       stages: null,
       stagesManaged: false,
       settingsCompleted: false,
+      nationalCoordinators: [],
       fields: []
     }
   },

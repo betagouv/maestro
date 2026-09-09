@@ -10,12 +10,18 @@ import { SpecificDataFieldId } from 'maestro-shared/schema/SpecificData/Programm
 import {
   genProgrammingPlan,
   genProgrammingPlanDomain,
-  genProgrammingSubPlan
+  genProgrammingSubPlan,
+  NationalCoordinatorId,
+  NationalCoordinatorName
 } from 'maestro-shared/test/programmingPlanFixtures';
-import { genAuthUser } from 'maestro-shared/test/userFixtures';
+import {
+  genAuthUser,
+  genUser,
+  NationalCoordinatorDaoaFixture
+} from 'maestro-shared/test/userFixtures';
 import { Route, Routes } from 'react-router';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { getMockApi } from '../../../services/mockApiClient';
+import { getMockApi, type MockApi } from '../../../services/mockApiClient';
 import { ProgrammingPlanView } from './ProgrammingPlanView';
 
 const PPVPlanId = 'e0a9de3a-4f9a-4c0f-9a03-1f0dd4a3e6f1';
@@ -92,10 +98,21 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
   }
 };
 
+const nationalCoordinator = {
+  id: NationalCoordinatorId,
+  name: NationalCoordinatorName
+};
+
+const otherNationalCoordinator = {
+  id: NationalCoordinatorDaoaFixture.id,
+  name: NationalCoordinatorDaoaFixture.name
+};
+
 const planSettings: ProgrammingPlanSettingsForm = {
   stages: ['TRANSFORMATION'],
   stagesManaged: true,
   settingsCompleted: false,
+  nationalCoordinators: [nationalCoordinator],
   fields: [{ fieldId: especeField.id, required: true, optionIds: [] }]
 };
 
@@ -104,6 +121,70 @@ const pesticide2026 = genProgrammingPlanDomain({
   year: 2026
 });
 
+const mockApiConf: Partial<MockApi> = {
+  useUpdateProgrammingPlanSettingsMutation: [updateProgrammingPlanSettings, {}],
+  useFindProgrammingPlanSettingsQuery: { data: planSettings },
+  useUpdateProgrammingSubPlanSettingsMutation: [
+    updateProgrammingSubPlanSettings,
+    {}
+  ],
+  useFindProgrammingSubPlanSettingsQuery: ({
+    programmingSubPlanId
+  }: {
+    programmingSubPlanId: string;
+  }) => ({ data: subPlanSettings[programmingSubPlanId] }),
+  useFindAllFieldConfigsQuery: {
+    data: [matriceField, quantiteField, especeField]
+  },
+  useFindProgrammingPlanDomainsQuery: { data: [pesticide2026] },
+  useFindUsersQuery: {
+    data: [nationalCoordinator, otherNationalCoordinator].map((user) =>
+      genUser({ ...user, roles: ['NationalCoordinator'] })
+    )
+  },
+  useFindProgrammingPlansQuery: {
+    data: [
+      genProgrammingPlan({
+        id: PPVPlanId,
+        year: 2026,
+        domainId: pesticide2026.id,
+        title: 'Production primaire végétale',
+        stages: ['TRANSFORMATION'],
+        stagesManaged: true,
+        settingsCompleted: false,
+        subPlans: [
+          genProgrammingSubPlan({
+            id: FruitsSubPlanId,
+            subPlanNumber: '102',
+            label: 'Fruits et légumes',
+            stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'TRANSFORMATION'],
+            settingsCompleted: false
+          }),
+          genProgrammingSubPlan({
+            id: CerealesSubPlanId,
+            subPlanNumber: '101',
+            label: 'Céréales',
+            stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
+            settingsCompleted: false
+          }),
+          genProgrammingSubPlan({
+            id: AnimauxSubPlanId,
+            subPlanNumber: '103',
+            label: 'Animaux',
+            stages: ['ELEVAGE'],
+            settingsCompleted: true
+          })
+        ]
+      }),
+      genProgrammingPlan({
+        year: 2026,
+        domainId: pesticide2026.id,
+        title: 'Transformation végétale'
+      })
+    ]
+  }
+};
+
 const meta = {
   title: 'Views/ProgrammingPlan',
   component: ProgrammingPlanView,
@@ -111,67 +192,7 @@ const meta = {
     preloadedState: {
       auth: { authUser: genAuthUser({ userRole: 'AdministratorMaestro' }) }
     },
-    apiClient: getMockApi({
-      useUpdateProgrammingPlanSettingsMutation: [
-        updateProgrammingPlanSettings,
-        {}
-      ],
-      useFindProgrammingPlanSettingsQuery: { data: planSettings },
-      useUpdateProgrammingSubPlanSettingsMutation: [
-        updateProgrammingSubPlanSettings,
-        {}
-      ],
-      useFindProgrammingSubPlanSettingsQuery: ({
-        programmingSubPlanId
-      }: {
-        programmingSubPlanId: string;
-      }) => ({ data: subPlanSettings[programmingSubPlanId] }),
-      useFindAllFieldConfigsQuery: {
-        data: [matriceField, quantiteField, especeField]
-      },
-      useFindProgrammingPlanDomainsQuery: { data: [pesticide2026] },
-      useFindProgrammingPlansQuery: {
-        data: [
-          genProgrammingPlan({
-            id: PPVPlanId,
-            year: 2026,
-            domainId: pesticide2026.id,
-            title: 'Production primaire végétale',
-            stages: ['TRANSFORMATION'],
-            stagesManaged: true,
-            settingsCompleted: false,
-            subPlans: [
-              genProgrammingSubPlan({
-                id: FruitsSubPlanId,
-                subPlanNumber: '102',
-                label: 'Fruits et légumes',
-                stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'TRANSFORMATION'],
-                settingsCompleted: false
-              }),
-              genProgrammingSubPlan({
-                id: CerealesSubPlanId,
-                subPlanNumber: '101',
-                label: 'Céréales',
-                stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
-                settingsCompleted: false
-              }),
-              genProgrammingSubPlan({
-                id: AnimauxSubPlanId,
-                subPlanNumber: '103',
-                label: 'Animaux',
-                stages: ['ELEVAGE'],
-                settingsCompleted: true
-              })
-            ]
-          }),
-          genProgrammingPlan({
-            year: 2026,
-            domainId: pesticide2026.id,
-            title: 'Transformation végétale'
-          })
-        ]
-      }
-    }),
+    apiClient: getMockApi(mockApiConf),
     initialEntries: [
       AppRouteLinks.ProgrammingPlanSettingsPlanRoute.link(PPVPlanId)
     ]
@@ -261,6 +282,7 @@ export const PlanSave: Story = {
         stages: ['TRANSFORMATION', 'ELEVAGE'],
         stagesManaged: true,
         settingsCompleted: false,
+        nationalCoordinators: [nationalCoordinator],
         fields: planSettings.fields
       })
     );
@@ -619,6 +641,7 @@ export const PlanStagesSwitch: Story = {
         stages: ['TRANSFORMATION'],
         stagesManaged: false,
         settingsCompleted: false,
+        nationalCoordinators: [nationalCoordinator],
         fields: planSettings.fields
       })
     );
@@ -786,5 +809,164 @@ export const SubPlanManagedField: Story = {
     );
     await expect(fieldItem().getByTitle('Hérité du plan')).toBeInTheDocument();
     await expect(fieldItem().getByLabelText('Obligatoire')).toBeDisabled();
+  }
+};
+
+export const PlanNationalCoordinators: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+
+    const select = canvas.getByRole('combobox', {
+      name: /Coordinateur\(s\) national\(aux\)/
+    });
+    await expect(select).toBeEnabled();
+    await expect(
+      canvas.getByRole('button', { name: nationalCoordinator.name as string })
+    ).toBeInTheDocument();
+
+    await userEvent.selectOptions(select, otherNationalCoordinator.id);
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+
+    await waitFor(() =>
+      expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        stages: ['TRANSFORMATION'],
+        stagesManaged: true,
+        settingsCompleted: false,
+        nationalCoordinators: [nationalCoordinator, otherNationalCoordinator],
+        fields: planSettings.fields
+      })
+    );
+  }
+};
+
+export const PlanNationalCoordinatorsRequired: Story = {
+  parameters: {
+    apiClient: getMockApi({
+      ...mockApiConf,
+      useFindProgrammingPlanSettingsQuery: {
+        data: { ...planSettings, nationalCoordinators: [] }
+      }
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+
+    await userEvent.click(canvas.getByRole('tab', { name: 'Analyses' }));
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer et terminer' })
+    );
+
+    await waitFor(() =>
+      expect(
+        canvas.getByText(
+          'Veuillez renseigner au moins un coordinateur national.'
+        )
+      ).toBeInTheDocument()
+    );
+    await expect(updateProgrammingPlanSettings).not.toHaveBeenCalled();
+  }
+};
+
+export const PlanNationalCoordinatorsLockedForCoordinator: Story = {
+  parameters: {
+    preloadedState: {
+      auth: {
+        authUser: genAuthUser({
+          userRole: 'NationalCoordinator',
+          id: nationalCoordinator.id
+        })
+      }
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.getByRole('combobox', {
+        name: /Coordinateur\(s\) national\(aux\)/
+      })
+    ).toBeDisabled();
+    await expect(
+      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ })
+    ).toBeEnabled();
+    await expect(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    ).toBeInTheDocument();
+  }
+};
+
+export const PlanReadOnlyForNonCoordinator: Story = {
+  parameters: {
+    preloadedState: {
+      auth: {
+        authUser: genAuthUser({
+          userRole: 'NationalCoordinator',
+          id: otherNationalCoordinator.id
+        })
+      }
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const stages = canvas.getByRole('combobox', {
+      name: /Stade\(s\) de prélèvement/
+    });
+    stages.focus();
+    await expect(stages).not.toHaveFocus();
+
+    const coordinators = canvas.getByRole('combobox', {
+      name: /Coordinateur\(s\) national\(aux\)/
+    });
+    coordinators.focus();
+    await expect(coordinators).not.toHaveFocus();
+
+    await userEvent.click(
+      canvas.getByRole('tab', { name: 'Formulaire préleveur' })
+    );
+    const addField = canvas.getByRole('button', {
+      name: 'Ajouter un descripteur'
+    });
+    addField.focus();
+    await expect(addField).not.toHaveFocus();
+
+    await expect(
+      canvas.queryByRole('button', { name: 'Enregistrer en brouillon' })
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('button', { name: 'Enregistrer et terminer' })
+    ).not.toBeInTheDocument();
+  }
+};
+
+export const SubPlanHasNoNationalCoordinators: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('combobox', {
+        name: /Coordinateur\(s\) national\(aux\)/
+      })
+    ).not.toBeInTheDocument();
   }
 };

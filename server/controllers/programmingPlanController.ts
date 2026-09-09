@@ -10,6 +10,7 @@ import {
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { NotificationCategoryTitles } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
+import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import { inheritsUnmanagedSetting } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import {
   NextProgrammingPlanStatus,
@@ -187,6 +188,7 @@ export const programmingPlanRouter = {
           stages: programmingPlan.stages,
           stagesManaged: programmingPlan.stagesManaged,
           settingsCompleted: programmingPlan.settingsCompleted,
+          nationalCoordinators: programmingPlan.nationalCoordinators,
           fields:
             await specificDataFieldConfigRepository.findPlanFieldSettings(
               programmingPlanId
@@ -194,18 +196,27 @@ export const programmingPlanRouter = {
         }
       };
     },
-    put: async ({ body }, { programmingPlanId }) => {
+    put: async ({ user, userRole, body }, { programmingPlanId }) => {
       const programmingPlan =
         await getAndCheckProgrammingPlan(programmingPlanId);
+
+      if (!canUpdateProgrammingPlanSettings(programmingPlan, user, userRole)) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
 
       if (resumesDraft(programmingPlan, body)) {
         return { status: HttpStatus.CONFLICT };
       }
 
-      await programmingPlanSettingsService.savePlanSettings(
-        programmingPlanId,
-        body
-      );
+      await programmingPlanSettingsService.savePlanSettings(programmingPlanId, {
+        ...body,
+        nationalCoordinators: hasPermission(
+          userRole,
+          'manageProgrammingPlanNationalCoordinators'
+        )
+          ? body.nationalCoordinators
+          : programmingPlan.nationalCoordinators
+      });
 
       return { status: HttpStatus.NO_CONTENT };
     }
@@ -236,7 +247,19 @@ export const programmingPlanRouter = {
           }
         };
       },
-      put: async ({ body }, { programmingPlanId, programmingSubPlanId }) => {
+      put: async (
+        { user, userRole, body },
+        { programmingPlanId, programmingSubPlanId }
+      ) => {
+        const programmingPlan =
+          await getAndCheckProgrammingPlan(programmingPlanId);
+
+        if (
+          !canUpdateProgrammingPlanSettings(programmingPlan, user, userRole)
+        ) {
+          return { status: HttpStatus.FORBIDDEN };
+        }
+
         const programmingSubPlan =
           await programmingSubPlanRepository.findUnique(programmingSubPlanId);
 
@@ -246,9 +269,6 @@ export const programmingPlanRouter = {
         ) {
           return { status: HttpStatus.NOT_FOUND };
         }
-
-        const programmingPlan =
-          await getAndCheckProgrammingPlan(programmingPlanId);
 
         if (
           inheritsUnmanagedSetting(body, programmingPlan) ||

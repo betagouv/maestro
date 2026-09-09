@@ -20,6 +20,7 @@ import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
   NationalCoordinator,
+  NationalCoordinatorDaoaFixture,
   RegionalCoordinator,
   RegionalDromCoordinator,
   Sampler1Fixture,
@@ -53,6 +54,8 @@ describe('ProgrammingPlan router', () => {
         stages: null,
         stagesManaged: false,
         settingsCompleted: false,
+        nationalCoordinators:
+          DAOAInProgressProgrammingPlanFixture.nationalCoordinators,
         fields: []
       }
     );
@@ -640,6 +643,12 @@ describe('ProgrammingPlan router', () => {
       stages: ['TRANSFORMATION'] satisfies Stage[],
       stagesManaged: true,
       settingsCompleted: false,
+      nationalCoordinators: [
+        {
+          id: NationalCoordinatorDaoaFixture.id,
+          name: NationalCoordinatorDaoaFixture.name
+        }
+      ],
       fields: []
     };
 

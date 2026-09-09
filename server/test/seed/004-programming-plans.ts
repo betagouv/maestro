@@ -12,6 +12,7 @@ import { kysely } from '../../repositories/kysely';
 import {
   formatProgrammingPlan,
   ProgrammingPlanLocalStatus,
+  ProgrammingPlanNationalCoordinators,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
 import { ProgrammingSubPlansRaw } from '../../repositories/programmingSubPlanRepository';
@@ -56,6 +57,23 @@ export const seed = async (): Promise<void> => {
           programmingPlanId: plan.id
         })
       )
+    )
+  );
+
+  await ProgrammingPlanNationalCoordinators().insert(
+    [
+      PPVClosedProgrammingPlanFixture,
+      PPVValidatedProgrammingPlanFixture,
+      PPVValidatedDromProgrammingPlanFixture,
+      PPVInProgressProgrammingPlanFixture,
+      PPVSubmittedProgrammingPlanFixture,
+      DAOAValidatedProgrammingPlanFixture,
+      DAOAInProgressProgrammingPlanFixture
+    ].flatMap((plan) =>
+      plan.nationalCoordinators.map(({ id }) => ({
+        programmingPlanId: plan.id,
+        userId: id
+      }))
     )
   );
 

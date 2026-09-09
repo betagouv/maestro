@@ -4,7 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import type { RegisteredLinkProps } from '@codegouvfr/react-dsfr/link';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
-import { sumBy } from 'lodash-es';
+import { sortBy, sumBy, uniqBy } from 'lodash-es';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { CSSProperties } from 'react';
 import { pluralize } from 'src/utils/stringUtils';
@@ -35,6 +35,14 @@ export const ProgrammingPlanSettingsCard = ({
   assert<Equals<keyof typeof _rest, never>>();
 
   const subPlanCount = sumBy(programmingPlans, (plan) => plan.subPlans.length);
+
+  const nationalCoordinators = sortBy(
+    uniqBy(
+      programmingPlans.flatMap((plan) => plan.nationalCoordinators),
+      'id'
+    ),
+    ({ name }) => name ?? ''
+  ).map(({ name }) => name ?? 'Sans nom');
 
   const launchedPlanCount = programmingPlans.filter(isCampaignLaunched).length;
 
@@ -96,6 +104,14 @@ export const ProgrammingPlanSettingsCard = ({
               {pluralize(subPlanCount, { preserveCount: true })('sous-plan')}
             </span>
           </span>
+          {nationalCoordinators.length > 0 && (
+            <span className={cx('fr-text--xs', 'fr-mb-0')}>
+              <span className="icon-text">
+                <span className={cx('fr-icon-user-line', 'fr-icon--sm')}></span>
+                {nationalCoordinators.join(', ')}
+              </span>
+            </span>
+          )}
         </>
       }
     />

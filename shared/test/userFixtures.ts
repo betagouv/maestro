@@ -26,6 +26,8 @@ import {
   DAOABovinValidatedSubPlanFixture,
   DAOAVolailleInProgressSubPlanFixture,
   DAOAVolailleValidatedSubPlanFixture,
+  NationalCoordinatorId,
+  NationalCoordinatorName,
   PPVClosedSubPlanFixture,
   PPVInProgressSubPlanFixture,
   PPVSubmittedSubPlanFixture,
@@ -156,6 +158,7 @@ export const RegionalDromCoordinator = genUser({
 });
 export const NationalCoordinator = genUser({
   roles: ['NationalCoordinator'],
+  name: NationalCoordinatorName,
   programmingSubPlans: [
     PPVValidatedSubPlanFixture,
     PPVValidatedDromSubPlanFixture,
@@ -163,7 +166,7 @@ export const NationalCoordinator = genUser({
     PPVClosedSubPlanFixture,
     PPVSubmittedSubPlanFixture
   ],
-  id: '55555555-5555-5555-5555-555555555555'
+  id: NationalCoordinatorId
 });
 export const AdminFixture = genUser({
   roles: ['AdministratorMaestro'],
@@ -221,6 +224,7 @@ export const SamplerDaoaFixture = genUser({
 });
 export const NationalCoordinatorDaoaFixture = genUser({
   roles: ['NationalCoordinator'],
+  name: 'Damien Coordination',
   programmingSubPlans: [
     DAOAVolailleInProgressSubPlanFixture,
     DAOABovinInProgressSubPlanFixture,

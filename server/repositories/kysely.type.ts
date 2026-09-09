@@ -525,6 +525,11 @@ export interface ProgrammingPlanFieldOptions {
   specificDataFieldOptionId: SpecificDataFieldOptionId;
 }
 
+export interface ProgrammingPlanNationalCoordinators {
+  programmingPlanId: string;
+  userId: string;
+}
+
 export interface DB {
   analysisRai: AnalysisRai;
   analysisRaiDocuments: AnalysisRaiDocuments;
@@ -544,6 +549,7 @@ export interface DB {
   programmingSubPlanFieldOptions: ProgrammingSubPlanFieldOptions;
   programmingPlanFields: ProgrammingPlanFields;
   programmingPlanFieldOptions: ProgrammingPlanFieldOptions;
+  programmingPlanNationalCoordinators: ProgrammingPlanNationalCoordinators;
   specificDataFields: SpecificDataFields;
   specificDataFieldOptions: SpecificDataFieldOptions;
   knexMigrations: KnexMigrations;
