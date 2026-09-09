@@ -39,6 +39,19 @@ const AnimauxSubPlanId = ProgrammingSubPlanId.parse(
 const updateProgrammingPlanSettings = fn();
 const updateProgrammingSubPlanSettings = fn();
 
+const completionModal = (canvasElement: HTMLElement) =>
+  canvasElement.querySelector(
+    '#programming-plan-settings-completion-modal'
+  ) as HTMLElement;
+
+const confirmCompletion = async (canvasElement: HTMLElement) => {
+  const modal = within(completionModal(canvasElement));
+  await waitFor(() =>
+    expect(modal.getByText('Terminer', { selector: 'button' })).toBeVisible()
+  );
+  await userEvent.click(modal.getByText('Terminer', { selector: 'button' }));
+};
+
 const genAdminField = (key: string, id: string): AdminFieldConfig => ({
   id: SpecificDataFieldId.parse(id),
   key,
@@ -436,6 +449,10 @@ export const SubPlanSave: Story = {
 
       await userEvent.click(canvas.getByRole('button', { name: buttonLabel }));
 
+      if (settingsCompleted) {
+        await confirmCompletion(canvasElement);
+      }
+
       await waitFor(() =>
         expect(updateProgrammingSubPlanSettings).toHaveBeenCalledWith({
           programmingPlanId: PPVPlanId,
@@ -453,6 +470,37 @@ export const SubPlanSave: Story = {
         canvasElement.querySelector('.fr-select-group--valid')
       ).not.toBeInTheDocument()
     );
+  }
+};
+
+export const SubPlanCompletionCancelled: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingSubPlanSettings.mockClear();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer et terminer' })
+    );
+
+    const modal = within(completionModal(canvasElement));
+    await waitFor(() =>
+      expect(modal.getByText('Annuler', { selector: 'button' })).toBeVisible()
+    );
+    await userEvent.click(modal.getByText('Annuler', { selector: 'button' }));
+
+    await waitFor(() =>
+      expect(completionModal(canvasElement)).not.toBeVisible()
+    );
+    await expect(updateProgrammingSubPlanSettings).not.toHaveBeenCalled();
   }
 };
 
@@ -480,6 +528,8 @@ export const SubPlanSaveError: Story = {
     await userEvent.click(
       canvas.getByRole('button', { name: 'Enregistrer et terminer' })
     );
+    await confirmCompletion(canvasElement);
+
     await userEvent.click(
       canvas.getByRole('button', { name: 'Production primaire végétale' })
     );
@@ -525,6 +575,7 @@ export const SubPlanCompleted: Story = {
         })
       )
     );
+    await expect(completionModal(canvasElement)).not.toBeVisible();
   }
 };
 
@@ -565,6 +616,7 @@ export const SubPlanIncompleteCannotComplete: Story = {
     await expect(
       canvas.getByText('Veuillez renseigner au moins un stade de prélèvement.')
     ).toBeInTheDocument();
+    await expect(completionModal(canvasElement)).not.toBeVisible();
     await expect(updateProgrammingSubPlanSettings).not.toHaveBeenCalled();
 
     await userEvent.click(
@@ -922,6 +974,7 @@ export const PlanWithoutNationalCoordinator: Story = {
     await userEvent.click(
       canvas.getByRole('button', { name: 'Enregistrer et terminer' })
     );
+    await confirmCompletion(canvasElement);
 
     await waitFor(() =>
       expect(updateProgrammingPlanSettings).toHaveBeenCalledWith(

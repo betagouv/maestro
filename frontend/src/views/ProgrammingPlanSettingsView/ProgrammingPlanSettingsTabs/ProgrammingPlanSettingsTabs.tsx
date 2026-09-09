@@ -1,4 +1,5 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import { isEqual } from 'lodash-es';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
@@ -16,6 +17,7 @@ import {
   useMemo,
   useState
 } from 'react';
+import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { ApiClientContext } from 'src/services/apiClient';
@@ -52,6 +54,11 @@ type SettingsFieldKey = Exclude<
   keyof ProgrammingLevelSettingsForm,
   `${string}Managed` | 'settingsCompleted'
 >;
+
+const completionModal = createModal({
+  id: 'programming-plan-settings-completion-modal',
+  isOpenedByDefault: false
+});
 
 const tabIdBySettingsKey: Record<SettingsFieldKey, SettingsTabId> = {
   stages: 'global',
@@ -159,6 +166,15 @@ export const ProgrammingPlanSettingsTabs = ({
     return null;
   }
 
+  const complete = async () => {
+    try {
+      await save(draft, true).unwrap();
+      form.reset();
+    } catch (_err) {
+      /* empty */
+    }
+  };
+
   const tabContent = (tabId: SettingsTabId): ReactNode => {
     switch (tabId) {
       case 'global':
@@ -211,25 +227,37 @@ export const ProgrammingPlanSettingsTabs = ({
         </div>
       </Tabs>
       {!readOnly && (
-        <ProgrammingSubPlanActionBar
-          completed={draft.settingsCompleted}
-          hasChanges={!isEqual(draft, settings)}
-          saveCall={
-            subPlan ? updateSubPlanSettingsCall : updatePlanSettingsCall
-          }
-          onReset={() => setDraft(settings)}
-          onSaveDraft={() => save(draft, false)}
-          onComplete={() =>
-            form.validate(async () => {
-              try {
-                await save(draft, true).unwrap();
-                form.reset();
-              } catch (_err) {
-                /* empty */
-              }
-            }, selectTabInError)
-          }
-        />
+        <>
+          <ProgrammingSubPlanActionBar
+            completed={draft.settingsCompleted}
+            hasChanges={!isEqual(draft, settings)}
+            saveCall={
+              subPlan ? updateSubPlanSettingsCall : updatePlanSettingsCall
+            }
+            onReset={() => setDraft(settings)}
+            onSaveDraft={() => save(draft, false)}
+            onComplete={() =>
+              form.validate(
+                async () =>
+                  draft.settingsCompleted
+                    ? await complete()
+                    : completionModal.open(),
+                selectTabInError
+              )
+            }
+          />
+          <ConfirmationModal
+            modal={completionModal}
+            title="Terminer le paramétrage"
+            confirmLabel="Terminer"
+            onConfirm={complete}
+            closeOnConfirm
+          >
+            Vous vous apprêtez à terminer le paramétrage{' '}
+            {subPlan ? 'de ce sous-plan' : 'de ce plan'}. Il restera modifiable,
+            mais ne pourra plus revenir à l’état de brouillon.
+          </ConfirmationModal>
+        </>
       )}
     </>
   );
