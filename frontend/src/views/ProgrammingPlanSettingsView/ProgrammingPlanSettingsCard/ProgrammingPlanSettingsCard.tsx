@@ -41,8 +41,8 @@ export const ProgrammingPlanSettingsCard = ({
       programmingPlans.flatMap((plan) => plan.nationalCoordinators),
       'id'
     ),
-    ({ name }) => name ?? ''
-  ).map(({ name }) => name ?? 'Sans nom');
+    ({ name, email }) => name ?? email
+  ).map(({ name, email }) => name ?? email);
 
   const launchedPlanCount = programmingPlans.filter(isCampaignLaunched).length;
 

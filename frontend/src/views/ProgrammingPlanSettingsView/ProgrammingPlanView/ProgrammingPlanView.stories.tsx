@@ -447,6 +447,50 @@ export const SubPlanSave: Story = {
         })
       );
     }
+
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector('.fr-select-group--valid')
+      ).not.toBeInTheDocument()
+    );
+  }
+};
+
+export const SubPlanSaveError: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ],
+    apiClient: getMockApi({
+      ...mockApiConf,
+      useUpdateProgrammingSubPlanSettingsMutation: [
+        fn(async () => {
+          throw new Error('Erreur serveur');
+        }),
+        { isError: true }
+      ]
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer et terminer' })
+    );
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Production primaire végétale' })
+    );
+
+    await waitFor(() =>
+      expect(
+        canvas.getByText(
+          'Veuillez renseigner au moins un stade de prélèvement.'
+        )
+      ).toBeInTheDocument()
+    );
   }
 };
 
@@ -633,15 +677,20 @@ export const PlanStagesSwitch: Story = {
     const managedSwitch = canvas.getByTitle(
       'Paramétrer « Stade(s) de prélèvement » au niveau du plan'
     );
-    const stages = canvas.getByRole('combobox', {
-      name: /Stade\(s\) de prélèvement/
-    });
+    const stages = () =>
+      canvas.queryByRole('combobox', {
+        name: /Stade\(s\) de prélèvement/
+      });
 
     await expect(managedSwitch).toBeChecked();
-    await expect(stages).toBeEnabled();
+    await expect(stages()).toBeEnabled();
 
     await userEvent.click(managedSwitch);
-    await expect(stages).toBeDisabled();
+    await waitFor(() => expect(stages()).not.toBeInTheDocument());
+    await expect(
+      canvas.getByText('Stade(s) de prélèvement', { selector: '.fr-label' })
+    ).toBeInTheDocument();
+    await expect(managedSwitch).not.toBeChecked();
 
     await userEvent.click(
       canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
@@ -830,7 +879,7 @@ export const PlanNationalCoordinators: Story = {
     updateProgrammingPlanSettings.mockClear();
 
     const select = canvas.getByRole('combobox', {
-      name: /Coordinateur\(s\) national\(aux\)/
+      name: /Propriétaire\(s\) du plan/
     });
     await expect(select).toBeEnabled();
     await expect(
@@ -856,7 +905,7 @@ export const PlanNationalCoordinators: Story = {
   }
 };
 
-export const PlanNationalCoordinatorsRequired: Story = {
+export const PlanWithoutNationalCoordinator: Story = {
   parameters: {
     apiClient: getMockApi({
       ...mockApiConf,
@@ -870,20 +919,19 @@ export const PlanNationalCoordinatorsRequired: Story = {
 
     updateProgrammingPlanSettings.mockClear();
 
-    await userEvent.click(canvas.getByRole('tab', { name: 'Analyses' }));
-
     await userEvent.click(
       canvas.getByRole('button', { name: 'Enregistrer et terminer' })
     );
 
     await waitFor(() =>
-      expect(
-        canvas.getByText(
-          'Veuillez renseigner au moins un coordinateur national.'
-        )
-      ).toBeInTheDocument()
+      expect(updateProgrammingPlanSettings).toHaveBeenCalledWith(
+        expect.objectContaining({
+          programmingPlanId: PPVPlanId,
+          nationalCoordinators: [],
+          settingsCompleted: true
+        })
+      )
     );
-    await expect(updateProgrammingPlanSettings).not.toHaveBeenCalled();
   }
 };
 
@@ -903,7 +951,7 @@ export const PlanNationalCoordinatorsLockedForCoordinator: Story = {
 
     await expect(
       canvas.getByRole('combobox', {
-        name: /Coordinateur\(s\) national\(aux\)/
+        name: /Propriétaire\(s\) du plan/
       })
     ).toBeDisabled();
     await expect(
@@ -936,7 +984,7 @@ export const PlanReadOnlyForNonCoordinator: Story = {
     await expect(stages).not.toHaveFocus();
 
     const coordinators = canvas.getByRole('combobox', {
-      name: /Coordinateur\(s\) national\(aux\)/
+      name: /Propriétaire\(s\) du plan/
     });
     coordinators.focus();
     await expect(coordinators).not.toHaveFocus();
@@ -976,7 +1024,7 @@ export const SubPlanHasNoNationalCoordinators: Story = {
     ).toBeInTheDocument();
     await expect(
       canvas.queryByRole('combobox', {
-        name: /Coordinateur\(s\) national\(aux\)/
+        name: /Propriétaire\(s\) du plan/
       })
     ).not.toBeInTheDocument();
   }
@@ -990,7 +1038,7 @@ export const PlanNationalCoordinatorWithoutName: Story = {
 
     await userEvent.selectOptions(
       canvas.getByRole('combobox', {
-        name: /Coordinateur\(s\) national\(aux\)/
+        name: /Propriétaire\(s\) du plan/
       }),
       neverLoggedNationalCoordinator.id
     );

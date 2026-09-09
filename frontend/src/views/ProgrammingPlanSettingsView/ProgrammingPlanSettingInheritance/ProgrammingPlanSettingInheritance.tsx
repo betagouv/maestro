@@ -40,6 +40,7 @@ export const ProgrammingPlanSettingInheritance = <
   const managed = settings[managedKey(settingKey)];
   const managedAtPlanLevel = planSettings?.[managedKey(settingKey)] ?? false;
   const isInherited = managedAtPlanLevel && !managed;
+  const isFieldVisible = planSettings !== undefined || managed;
 
   const change = (patch: Partial<ProgrammingPlanSettings>) =>
     onChange({ ...settings, ...patch });
@@ -74,18 +75,22 @@ export const ProgrammingPlanSettingInheritance = <
       className={clsx(
         'programming-plan-setting-inheritance',
         'd-flex-row',
-        'd-flex-align-start',
+        isFieldVisible ? 'd-flex-align-start' : 'd-flex-align-center',
         'border',
         cx('fr-p-2w')
       )}
       style={{ gap: '0.5rem' }}
     >
       <div style={{ flex: 1 }}>
-        {children({
-          disabled: isInherited || (!planSettings && !managed),
-          label: composedLabel,
-          required: managed
-        })}
+        {isFieldVisible ? (
+          children({
+            disabled: isInherited,
+            label: composedLabel,
+            required: managed
+          })
+        ) : (
+          <span className={cx('fr-label', 'fr-label--disabled')}>{label}</span>
+        )}
       </div>
       {!planSettings && (
         <ToggleSwitch

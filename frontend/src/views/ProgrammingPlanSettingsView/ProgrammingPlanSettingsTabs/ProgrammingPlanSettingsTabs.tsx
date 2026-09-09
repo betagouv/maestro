@@ -131,7 +131,7 @@ export const ProgrammingPlanSettingsTabs = ({
     settingsCompleted: boolean
   ) => {
     if (subPlan) {
-      updateProgrammingSubPlanSettings({
+      return updateProgrammingSubPlanSettings({
         programmingPlanId,
         programmingSubPlanId: subPlan.id,
         stages: draft.stages,
@@ -140,7 +140,7 @@ export const ProgrammingPlanSettingsTabs = ({
         settingsCompleted
       });
     } else {
-      updateProgrammingPlanSettings({
+      return updateProgrammingPlanSettings({
         programmingPlanId,
         stages: draft.stages,
         stagesManaged: draft.stagesManaged,
@@ -220,7 +220,14 @@ export const ProgrammingPlanSettingsTabs = ({
           onReset={() => setDraft(settings)}
           onSaveDraft={() => save(draft, false)}
           onComplete={() =>
-            form.validate(async () => save(draft, true), selectTabInError)
+            form.validate(async () => {
+              try {
+                await save(draft, true).unwrap();
+                form.reset();
+              } catch (_err) {
+                /* empty */
+              }
+            }, selectTabInError)
           }
         />
       )}
