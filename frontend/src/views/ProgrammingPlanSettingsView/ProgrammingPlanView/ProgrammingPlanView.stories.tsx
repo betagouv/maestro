@@ -464,12 +464,6 @@ export const SubPlanSave: Story = {
         })
       );
     }
-
-    await waitFor(() =>
-      expect(
-        canvasElement.querySelector('.fr-select-group--valid')
-      ).not.toBeInTheDocument()
-    );
   }
 };
 
@@ -504,6 +498,59 @@ export const SubPlanCompletionCancelled: Story = {
   }
 };
 
+const touchWithStagesError = async (canvasElement: HTMLElement) => {
+  const canvas = within(canvasElement);
+
+  await userEvent.click(
+    canvas.getByRole('button', { name: 'Production primaire végétale' })
+  );
+  await userEvent.click(
+    canvas.getByRole('button', { name: 'Enregistrer et terminer' })
+  );
+  await waitFor(() =>
+    expect(
+      canvas.getByText('Veuillez renseigner au moins un stade de prélèvement.')
+    ).toBeInTheDocument()
+  );
+
+  await userEvent.selectOptions(
+    canvas.getByRole('combobox', { name: /Stade\(s\) de prélèvement/ }),
+    'ELEVAGE'
+  );
+  await waitFor(() =>
+    expect(
+      canvasElement.querySelector('.fr-select-group--valid')
+    ).toBeInTheDocument()
+  );
+};
+
+export const SubPlanSaveResetsFormState: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await touchWithStagesError(canvasElement);
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer et terminer' })
+    );
+    await confirmCompletion(canvasElement);
+
+    await waitFor(() =>
+      expect(
+        canvasElement.querySelector('.fr-select-group--valid')
+      ).not.toBeInTheDocument()
+    );
+  }
+};
+
 export const SubPlanSaveError: Story = {
   parameters: {
     initialEntries: [
@@ -525,14 +572,14 @@ export const SubPlanSaveError: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
+    await touchWithStagesError(canvasElement);
+
     await userEvent.click(
       canvas.getByRole('button', { name: 'Enregistrer et terminer' })
     );
     await confirmCompletion(canvasElement);
 
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Production primaire végétale' })
-    );
+    await userEvent.click(canvas.getByRole('button', { name: 'Élevage' }));
 
     await waitFor(() =>
       expect(

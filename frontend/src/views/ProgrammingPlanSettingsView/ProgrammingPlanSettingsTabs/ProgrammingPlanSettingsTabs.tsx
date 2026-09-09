@@ -95,12 +95,12 @@ export const ProgrammingPlanSettingsTabs = ({
   const [updateProgrammingSubPlanSettings, updateSubPlanSettingsCall] =
     apiClient.useUpdateProgrammingSubPlanSettingsMutation();
 
-  const { user, userRole } = useAuthentication();
+  const { user, account } = useAuthentication();
 
   const readOnly =
     !user ||
-    !userRole ||
-    !canUpdateProgrammingPlanSettings(programmingPlan, user, userRole);
+    !account ||
+    !canUpdateProgrammingPlanSettings(programmingPlan, user, account.roles);
 
   const settings: ProgrammingLevelSettingsForm | undefined = useMemo(
     () =>

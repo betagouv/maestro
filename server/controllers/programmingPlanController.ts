@@ -19,6 +19,7 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
+  hasAccountPermission,
   hasPermission,
   stagesIsRequired,
   userDepartmentsForRole,
@@ -196,11 +197,13 @@ export const programmingPlanRouter = {
         }
       };
     },
-    put: async ({ user, userRole, body }, { programmingPlanId }) => {
+    put: async ({ user, account, body }, { programmingPlanId }) => {
       const programmingPlan =
         await getAndCheckProgrammingPlan(programmingPlanId);
 
-      if (!canUpdateProgrammingPlanSettings(programmingPlan, user, userRole)) {
+      if (
+        !canUpdateProgrammingPlanSettings(programmingPlan, user, account.roles)
+      ) {
         return { status: HttpStatus.FORBIDDEN };
       }
 
@@ -210,8 +213,8 @@ export const programmingPlanRouter = {
 
       await programmingPlanSettingsService.savePlanSettings(programmingPlanId, {
         ...body,
-        nationalCoordinators: hasPermission(
-          userRole,
+        nationalCoordinators: hasAccountPermission(
+          account.roles,
           'manageProgrammingPlanNationalCoordinators'
         )
           ? body.nationalCoordinators
@@ -248,14 +251,18 @@ export const programmingPlanRouter = {
         };
       },
       put: async (
-        { user, userRole, body },
+        { user, account, body },
         { programmingPlanId, programmingSubPlanId }
       ) => {
         const programmingPlan =
           await getAndCheckProgrammingPlan(programmingPlanId);
 
         if (
-          !canUpdateProgrammingPlanSettings(programmingPlan, user, userRole)
+          !canUpdateProgrammingPlanSettings(
+            programmingPlan,
+            user,
+            account.roles
+          )
         ) {
           return { status: HttpStatus.FORBIDDEN };
         }

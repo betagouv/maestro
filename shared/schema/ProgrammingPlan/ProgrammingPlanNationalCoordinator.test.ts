@@ -26,7 +26,7 @@ describe('canUpdateProgrammingPlanSettings', () => {
         canUpdateProgrammingPlanSettings(
           programmingPlan,
           { id: NationalCoordinatorId },
-          userRole
+          [userRole]
         )
       ).toBe(true);
     }
@@ -39,25 +39,35 @@ describe('canUpdateProgrammingPlanSettings', () => {
         canUpdateProgrammingPlanSettings(
           programmingPlan,
           { id: '11111111-1111-1111-1111-111111111111' },
-          userRole
+          [userRole]
         )
       ).toBe(administratorRoles.includes(userRole));
     }
   );
+
+  test('should let an administrator update a plan they do not coordinate whatever their active role', () => {
+    expect(
+      canUpdateProgrammingPlanSettings(
+        programmingPlan,
+        { id: '11111111-1111-1111-1111-111111111111' },
+        ['Sampler', 'AdministratorBGIR']
+      )
+    ).toBe(true);
+  });
 
   test('should let nobody but an administrator update a plan without any coordinator', () => {
     expect(
       canUpdateProgrammingPlanSettings(
         { nationalCoordinators: [] },
         { id: NationalCoordinatorId },
-        'NationalCoordinator'
+        ['NationalCoordinator']
       )
     ).toBe(false);
     expect(
       canUpdateProgrammingPlanSettings(
         { nationalCoordinators: [] },
         { id: NationalCoordinatorId },
-        'AdministratorBGIR'
+        ['AdministratorBGIR']
       )
     ).toBe(true);
   });

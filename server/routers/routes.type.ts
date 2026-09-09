@@ -21,7 +21,11 @@ import type {
 } from 'maestro-shared/routes/routes.infer';
 import type { UserAccount } from 'maestro-shared/schema/User/AuthUser';
 import type { TokenPayload } from 'maestro-shared/schema/User/TokenPayload';
-import { hasPermission, type UserBase } from 'maestro-shared/schema/User/User';
+import {
+  hasAccountPermission,
+  hasPermission,
+  type UserBase
+} from 'maestro-shared/schema/User/User';
 import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import z, { type ZodObject } from 'zod';
 import type {
@@ -170,8 +174,9 @@ export const generateRoutes = <
 
             if ('accountPermissions' in conf) {
               if (
-                !request.account.roles.some((role) =>
-                  hasPermission(role, ...conf.accountPermissions)
+                !hasAccountPermission(
+                  request.account.roles,
+                  ...conf.accountPermissions
                 )
               ) {
                 throw new UserPermissionMissingError();

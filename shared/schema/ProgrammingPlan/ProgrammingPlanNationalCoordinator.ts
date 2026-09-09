@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { hasPermission, type UserBase, UserRefined } from '../User/User';
+import { hasAccountPermission, type UserBase, UserRefined } from '../User/User';
 import type { UserRole } from '../User/UserRole';
 
 export const ProgrammingPlanNationalCoordinator = z
@@ -15,7 +15,9 @@ export const canUpdateProgrammingPlanSettings = (
     nationalCoordinators: ProgrammingPlanNationalCoordinator[];
   },
   user: Pick<UserBase, 'id'>,
-  userRole: UserRole
+  userRoles: UserRole[]
 ): boolean =>
-  hasPermission(userRole, 'manageProgrammingPlanNationalCoordinators') ||
-  programmingPlan.nationalCoordinators.some(({ id }) => id === user.id);
+  hasAccountPermission(
+    userRoles,
+    'manageProgrammingPlanNationalCoordinators'
+  ) || programmingPlan.nationalCoordinators.some(({ id }) => id === user.id);
