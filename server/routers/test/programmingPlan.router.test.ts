@@ -403,8 +403,14 @@ describe('ProgrammingPlan router', () => {
           expect(params.content).toContain(
             PPVValidatedProgrammingPlanFixture.title
           );
-          expect(options.message).toBe(
-            `Lancement de la campagne ${PPVValidatedProgrammingPlanFixture.year} sur un ou plusieurs plans`
+          expect(options.message).toContain(
+            `Lancement de la campagne ${PPVValidatedProgrammingPlanFixture.year} sur un ou plusieurs plans :`
+          );
+          expect(options.message).toContain(
+            PPVValidatedProgrammingPlanFixture.title
+          );
+          expect(options.message).toContain(
+            'saisir des prélèvements sur ces plans'
           );
         }
 
@@ -1758,8 +1764,11 @@ describe('ProgrammingPlan router', () => {
 
       expect(mockSendNotification).toHaveBeenCalledWith(
         expect.objectContaining({
-          category: 'ProgrammingPlanValidated'
+          category: 'ProgrammingPlanCampaignLaunched'
         }),
+        expect.arrayContaining([
+          expect.objectContaining({ roles: ['Sampler'] })
+        ]),
         expect.anything(),
         expect.anything()
       );
