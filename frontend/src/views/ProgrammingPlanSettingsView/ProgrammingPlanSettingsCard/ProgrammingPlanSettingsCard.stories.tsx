@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import {
   genProgrammingPlan,
+  NationalCoordinatorEmail,
   NationalCoordinatorId,
   NationalCoordinatorName,
   PesticideResidueDomainId
@@ -44,14 +45,20 @@ export const DomainWithSeveralPlans: Story = {
       genProgrammingPlan({
         year: 2026,
         nationalCoordinators: [
-          { id: NationalCoordinatorId, name: NationalCoordinatorName },
+          {
+            id: NationalCoordinatorId,
+            name: NationalCoordinatorName,
+            email: NationalCoordinatorEmail
+          },
           {
             id: '14141414-1414-1414-1414-141414141414',
-            name: 'Damien Coordination'
+            name: 'Damien Coordination',
+            email: 'damien.coordination@example.net'
           },
           {
             id: '15151515-1515-1515-1515-151515151515',
-            name: 'Zoé Coordination'
+            name: null,
+            email: 'zoe.coordination@example.net'
           }
         ]
       })
@@ -65,7 +72,7 @@ export const DomainWithSeveralPlans: Story = {
     ).toBeInTheDocument();
     await expect(
       canvas.getByText(
-        `Damien Coordination, ${NationalCoordinatorName}, Zoé Coordination`
+        `Damien Coordination, ${NationalCoordinatorName}, zoe.coordination@example.net`
       )
     ).toBeInTheDocument();
   }

@@ -34,7 +34,7 @@ export const ProgrammingPlanNationalCoordinators = ({
 
   const items = uniqBy(
     [
-      ...users.map(({ id, name }) => ({ id, name: name })),
+      ...users.map(({ id, name, email }) => ({ id, name, email })),
       ...nationalCoordinators
     ] satisfies ProgrammingPlanNationalCoordinator[],
     'id'
@@ -49,7 +49,7 @@ export const ProgrammingPlanNationalCoordinators = ({
       values={nationalCoordinators}
       onChange={onChange}
       keysWithLabels={Object.fromEntries(
-        items.map(({ id, name }) => [id, name ?? ''])
+        items.map(({ id, name, email }) => [id, name ?? email])
       )}
       defaultLabel="coordinateur national sélectionné"
       label="Coordinateur(s) national(aux)"

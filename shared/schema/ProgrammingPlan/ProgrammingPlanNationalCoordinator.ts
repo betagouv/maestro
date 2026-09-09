@@ -4,7 +4,7 @@ import type { UserRole } from '../User/UserRole';
 
 export const ProgrammingPlanNationalCoordinator = z
   .object(UserRefined.shape)
-  .pick({ id: true, name: true });
+  .pick({ id: true, name: true, email: true });
 
 export type ProgrammingPlanNationalCoordinator = z.infer<
   typeof ProgrammingPlanNationalCoordinator

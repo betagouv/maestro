@@ -26,6 +26,7 @@ import {
   DAOABovinValidatedSubPlanFixture,
   DAOAVolailleInProgressSubPlanFixture,
   DAOAVolailleValidatedSubPlanFixture,
+  NationalCoordinatorEmail,
   NationalCoordinatorId,
   NationalCoordinatorName,
   PPVClosedSubPlanFixture,
@@ -159,6 +160,7 @@ export const RegionalDromCoordinator = genUser({
 export const NationalCoordinator = genUser({
   roles: ['NationalCoordinator'],
   name: NationalCoordinatorName,
+  email: NationalCoordinatorEmail,
   programmingSubPlans: [
     PPVValidatedSubPlanFixture,
     PPVValidatedDromSubPlanFixture,

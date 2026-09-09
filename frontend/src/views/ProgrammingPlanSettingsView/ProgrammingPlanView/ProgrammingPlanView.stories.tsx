@@ -11,6 +11,7 @@ import {
   genProgrammingPlan,
   genProgrammingPlanDomain,
   genProgrammingSubPlan,
+  NationalCoordinatorEmail,
   NationalCoordinatorId,
   NationalCoordinatorName
 } from 'maestro-shared/test/programmingPlanFixtures';
@@ -100,12 +101,20 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
 
 const nationalCoordinator = {
   id: NationalCoordinatorId,
-  name: NationalCoordinatorName
+  name: NationalCoordinatorName,
+  email: NationalCoordinatorEmail
 };
 
 const otherNationalCoordinator = {
   id: NationalCoordinatorDaoaFixture.id,
-  name: NationalCoordinatorDaoaFixture.name
+  name: NationalCoordinatorDaoaFixture.name,
+  email: NationalCoordinatorDaoaFixture.email
+};
+
+const neverLoggedNationalCoordinator = {
+  id: '16161616-1616-1616-1616-161616161616',
+  name: null,
+  email: 'nouvelle.coordination@example.net'
 };
 
 const planSettings: ProgrammingPlanSettingsForm = {
@@ -138,9 +147,11 @@ const mockApiConf: Partial<MockApi> = {
   },
   useFindProgrammingPlanDomainsQuery: { data: [pesticide2026] },
   useFindUsersQuery: {
-    data: [nationalCoordinator, otherNationalCoordinator].map((user) =>
-      genUser({ ...user, roles: ['NationalCoordinator'] })
-    )
+    data: [
+      nationalCoordinator,
+      otherNationalCoordinator,
+      neverLoggedNationalCoordinator
+    ].map((user) => genUser({ ...user, roles: ['NationalCoordinator'] }))
   },
   useFindProgrammingPlansQuery: {
     data: [
@@ -968,5 +979,44 @@ export const SubPlanHasNoNationalCoordinators: Story = {
         name: /Coordinateur\(s\) national\(aux\)/
       })
     ).not.toBeInTheDocument();
+  }
+};
+
+export const PlanNationalCoordinatorWithoutName: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+
+    await userEvent.selectOptions(
+      canvas.getByRole('combobox', {
+        name: /Coordinateur\(s\) national\(aux\)/
+      }),
+      neverLoggedNationalCoordinator.id
+    );
+
+    await expect(
+      canvas.getByRole('button', {
+        name: neverLoggedNationalCoordinator.email
+      })
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+
+    await waitFor(() =>
+      expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        stages: ['TRANSFORMATION'],
+        stagesManaged: true,
+        settingsCompleted: false,
+        nationalCoordinators: [
+          nationalCoordinator,
+          neverLoggedNationalCoordinator
+        ],
+        fields: planSettings.fields
+      })
+    );
   }
 };

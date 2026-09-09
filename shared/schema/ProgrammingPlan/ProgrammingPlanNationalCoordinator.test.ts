@@ -1,12 +1,21 @@
 import { describe, expect, test } from 'vitest';
-import { NationalCoordinatorId } from '../../test/programmingPlanFixtures';
+import {
+  NationalCoordinatorEmail,
+  NationalCoordinatorId
+} from '../../test/programmingPlanFixtures';
 import { UserRoleList } from '../User/UserRole';
 import { canUpdateProgrammingPlanSettings } from './ProgrammingPlanNationalCoordinator';
 
 const administratorRoles = ['AdministratorMaestro', 'AdministratorBGIR'];
 
 const programmingPlan = {
-  nationalCoordinators: [{ id: NationalCoordinatorId, name: 'Nadia' }]
+  nationalCoordinators: [
+    {
+      id: NationalCoordinatorId,
+      name: 'Nadia',
+      email: NationalCoordinatorEmail
+    }
+  ]
 };
 
 describe('canUpdateProgrammingPlanSettings', () => {

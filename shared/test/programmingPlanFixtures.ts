@@ -68,6 +68,7 @@ export const ProgrammingPlanDomainFixtures: ProgrammingPlanDomain[] = [
 
 export const NationalCoordinatorId = '55555555-5555-5555-5555-555555555555';
 export const NationalCoordinatorName = 'Nadia Coordination';
+export const NationalCoordinatorEmail = 'nadia.coordination@example.net';
 
 const PPVClosedProgrammingPlanId = 'f5d510ef-ab78-449a-acd6-392895a1994f';
 const PPVValidatedProgrammingPlanId = 'd78fb3eb-1998-482b-9014-282d51ae30b8';
@@ -226,7 +227,11 @@ export const genProgrammingPlan = (
     legalContexts: ['A', 'B'],
     samplesOutsidePlanAllowed: true,
     nationalCoordinators: [
-      { id: NationalCoordinatorId, name: NationalCoordinatorName }
+      {
+        id: NationalCoordinatorId,
+        name: NationalCoordinatorName,
+        email: NationalCoordinatorEmail
+      }
     ],
     stages: null,
     stagesManaged: false,
