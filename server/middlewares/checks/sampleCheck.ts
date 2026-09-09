@@ -74,5 +74,5 @@ export const getAndCheckSampleDepartement = async (
     });
   }
 
-  return department;
+  return department ?? user.department ?? null;
 };

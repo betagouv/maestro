@@ -6,6 +6,7 @@ import {
   type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import { useContext, useMemo } from 'react';
+import AppToast from 'src/components/_app/AppToast/AppToast';
 import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
 import { ApiClientContext } from '../../services/apiClient';
 
@@ -24,7 +25,8 @@ const RemoveSample = ({ sample }: RemoveSampleProps) => {
     [sample]
   );
 
-  const [deleteSample] = apiClient.useDeleteSampleMutation();
+  const [deleteSample, { isError, reset }] =
+    apiClient.useDeleteSampleMutation();
 
   return (
     <>
@@ -34,6 +36,12 @@ const RemoveSample = ({ sample }: RemoveSampleProps) => {
         priority="tertiary"
         size="small"
         onClick={removeModal.open}
+      />
+      <AppToast
+        open={isError}
+        description="La suppression du prélèvement a échoué."
+        severity="error"
+        onClose={reset}
       />
       <ConfirmationModal
         modal={removeModal}
