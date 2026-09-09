@@ -6,6 +6,7 @@ export const FindLaboratoryOptions = z.object({
   programmingPlanIds: z.array(z.guid()).nullish(),
   substanceKind: SubstanceKind.nullish(),
   programmingSubPlanId: ProgrammingSubPlanId.nullish(),
+  programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullish(),
   subPlanNumber: z.string().nullish()
 });
 

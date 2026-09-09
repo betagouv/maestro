@@ -2,7 +2,15 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { groupBy, isEmpty, isNil, mapValues, omit, omitBy } from 'lodash-es';
+import {
+  groupBy,
+  isEmpty,
+  isNil,
+  mapValues,
+  omit,
+  omitBy,
+  uniq
+} from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import type { Region } from 'maestro-shared/referential/Region';
 import type { Company } from 'maestro-shared/schema/Company/Company';
@@ -1011,6 +1019,9 @@ const ProgrammingPrescriptionList = ({
       {canBulkAssignLaboratories && (
         <BulkAssignLaboratoriesModal
           programmingPlanId={headerPlan.id}
+          programmingSubPlanIds={uniq(
+            selectedPrescriptions.map((_) => _.programmingSubPlanId)
+          )}
           commonSlots={bulkAssignCheck.commonSlots}
           onSubmit={(substanceKindsLaboratories) => {
             for (const prescription of selectedPrescriptions) {

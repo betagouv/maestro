@@ -57,10 +57,10 @@ export type DiffusedSampleCountChange = Pick<
 export const lastDiffusedSampleCount = (
   row: Pick<
     LocalPrescription,
-    'prescriptionId' | 'region' | 'department' | 'companySiret' | 'sampleCount'
+    'prescriptionId' | 'region' | 'department' | 'companySiret'
   >,
   changes: DiffusedSampleCountChange[]
-): number => {
+): number | null => {
   const rowKey = toLocalPrescriptionKeyString(row);
   const lastDiffused = changes
     .filter(
@@ -76,7 +76,7 @@ export const lastDiffusedSampleCount = (
       undefined
     );
 
-  return lastDiffused?.sampleCount ?? row.sampleCount;
+  return lastDiffused?.sampleCount ?? null;
 };
 
 export const regionRowNeedsChangeAction = (

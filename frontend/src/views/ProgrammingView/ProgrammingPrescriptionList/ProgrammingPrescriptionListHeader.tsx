@@ -43,6 +43,8 @@ const ProgrammingPrescriptionListHeader = ({
 
   const isSamplerView = userRole === 'Sampler';
   const missingDistributionCount = counts?.missingDistributionCount ?? 0;
+  const displayedMissingDistributionCount =
+    counts?.displayedMissingDistributionCount ?? 0;
 
   const filterToggle = (
     key: ToggleFilterKey,
@@ -88,11 +90,13 @@ const ProgrammingPrescriptionListHeader = ({
         </h4>
         <Badge
           small
-          severity={missingDistributionCount > 0 ? 'warning' : 'success'}
+          severity={
+            displayedMissingDistributionCount > 0 ? 'warning' : 'success'
+          }
         >
-          {missingDistributionCount > 0
-            ? `${missingDistributionCount} à répartir`
-            : `${counts?.distributedCount ?? 0} répartis`}
+          {displayedMissingDistributionCount > 0
+            ? `${displayedMissingDistributionCount} à répartir`
+            : `${counts?.displayedDistributedCount ?? 0} répartis`}
         </Badge>
       </div>
       <div className="prescription-list-header__filters">

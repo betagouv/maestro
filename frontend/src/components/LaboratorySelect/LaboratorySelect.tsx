@@ -5,7 +5,7 @@ import {
   Box
 } from '@mui/material';
 import clsx from 'clsx';
-import { sortBy } from 'lodash-es';
+import { isNil, sortBy } from 'lodash-es';
 import {
   getLaboratoryFullName,
   type Laboratory
@@ -26,6 +26,7 @@ import './LaboratorySelect.scss';
 type Props = {
   programmingPlanId: string | undefined;
   programmingSubPlanId?: ProgrammingSubPlanId;
+  programmingSubPlanIds?: ProgrammingSubPlanId[];
   substanceKind?: SubstanceKind;
   laboratoryId?: string | null;
   laboratoryIds?: string[];
@@ -36,6 +37,7 @@ type Props = {
   stateRelatedMessage?: ReactNode;
   hideLabel?: boolean;
   pending?: boolean;
+  noOptionsMessage?: ReactNode;
 };
 
 const renderLaboratoryOption = (
@@ -82,6 +84,7 @@ const renderLaboratoryInput =
 const LaboratorySelect = ({
   programmingPlanId,
   programmingSubPlanId,
+  programmingSubPlanIds,
   substanceKind,
   laboratoryId,
   laboratoryIds,
@@ -91,13 +94,15 @@ const LaboratorySelect = ({
   state,
   stateRelatedMessage,
   hideLabel,
-  pending
+  pending,
+  noOptionsMessage
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery({
     programmingPlanIds: toArray(programmingPlanId),
     programmingSubPlanId,
+    programmingSubPlanIds,
     substanceKind
   });
 
@@ -107,6 +112,9 @@ const LaboratorySelect = ({
 
   const selectedLaboratory =
     laboratories?.find((lab) => lab.id === laboratoryId) ?? null;
+
+  const hasNoOption = !isNil(laboratories) && options.length === 0;
+  const isDisabled = readonly || (hasNoOption && !isNil(noOptionsMessage));
 
   return (
     <div
@@ -142,13 +150,16 @@ const LaboratorySelect = ({
           value={selectedLaboratory}
           getOptionLabel={getLaboratoryFullName}
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          disabled={readonly}
+          disabled={isDisabled}
           renderOption={renderLaboratoryOption}
           onChange={(_, value) => onSelect(value?.id ?? undefined)}
           renderInput={renderLaboratoryInput(required, hideLabel, pending)}
           noOptionsText="Aucun laboratoire"
         />
       </div>
+      {hasNoOption && !isNil(noOptionsMessage) && (
+        <p className={cx('fr-hint-text', 'fr-mt-1w')}>{noOptionsMessage}</p>
+      )}
       {state && state !== 'default' && (
         <p
           className={cx(state === 'error' ? 'fr-error-text' : 'fr-valid-text')}
