@@ -9,6 +9,7 @@ import type { ReactNode } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { SettingInheritanceLockButton } from '../SettingInheritanceLockButton/SettingInheritanceLockButton';
 import './ProgrammingPlanSettingInheritance.scss';
+import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 
 type Props<T extends ProgrammingPlanSettings> = {
   settingKey: ProgrammingPlanSettingKey;
@@ -16,7 +17,11 @@ type Props<T extends ProgrammingPlanSettings> = {
   settings: T;
   planSettings: ProgrammingPlanSettings | undefined;
   onChange: (settings: T) => void;
-  children: (disabled: boolean, label: ReactNode) => ReactNode;
+  children: (props: {
+    disabled: boolean;
+    label: ReactNode;
+    required: boolean;
+  }) => ReactNode;
 };
 
 export const ProgrammingPlanSettingInheritance = <
@@ -69,12 +74,18 @@ export const ProgrammingPlanSettingInheritance = <
       className={clsx(
         'programming-plan-setting-inheritance',
         'd-flex-row',
-        'd-flex-align-start'
+        'd-flex-align-start',
+        'border',
+        cx('fr-p-2w')
       )}
       style={{ gap: '0.5rem' }}
     >
       <div style={{ flex: 1 }}>
-        {children(isInherited || (!planSettings && !managed), composedLabel)}
+        {children({
+          disabled: isInherited || (!planSettings && !managed),
+          label: composedLabel,
+          required: managed
+        })}
       </div>
       {!planSettings && (
         <ToggleSwitch

@@ -51,8 +51,8 @@ export const ProgrammingPlanNationalCoordinators = ({
       keysWithLabels={Object.fromEntries(
         items.map(({ id, name, email }) => [id, name ?? email])
       )}
-      defaultLabel="coordinateur national sélectionné"
-      label="Coordinateur(s) national(aux)"
+      defaultLabel="propriétaire sélectionné"
+      label="Propriétaire(s) du plan"
       disabled={
         !hasAccountPermission('manageProgrammingPlanNationalCoordinators')
       }
