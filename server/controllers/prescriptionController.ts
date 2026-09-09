@@ -7,6 +7,7 @@ import {
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { hasEverSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
@@ -204,12 +205,15 @@ export const prescriptionsRouter = {
         }
 
         const [prescription] = matching;
+        const prescriptionPlan = programmingPlans.find(
+          (_) => _.id === prescription.programmingPlanId
+        );
         const localPrescription = await localPrescriptionRepository.findUnique({
           prescriptionId: prescription.id,
           region: cell.region
         });
 
-        if (!localPrescription) {
+        if (!localPrescription || !prescriptionPlan) {
           unrecognized.push(`Ligne ${cell.rowNumber}`);
           continue;
         }
@@ -231,13 +235,13 @@ export const prescriptionsRouter = {
           previousSampleCount: previousSampleCountFor(
             localPrescription,
             lastDiffused,
-            isNil(
-              programmingPlans.find(
-                (_) => _.id === prescription.programmingPlanId
-              )?.nationalStatus.sentAt
+            hasEverSentOnward(
+              'National',
+              prescriptionPlan.distributionKind,
+              prescriptionPlan.nationalStatus
             )
-              ? null
-              : localPrescription.sampleCount
+              ? localPrescription.sampleCount
+              : null
           ),
           changedAt: now
         });
