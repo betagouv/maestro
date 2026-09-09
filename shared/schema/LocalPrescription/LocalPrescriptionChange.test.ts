@@ -4,6 +4,7 @@ import {
   type DiffusedSampleCountChange,
   hasUnviewedChange,
   lastDiffusedSampleCount,
+  previousSampleCountFor,
   regionRowNeedsChangeAction
 } from './LocalPrescriptionChange';
 
@@ -244,5 +245,58 @@ describe('lastDiffusedSampleCount', () => {
     expect(
       lastDiffusedSampleCount(regionRow, [change({ sampleCount: 0 })])
     ).toBe(0);
+  });
+});
+
+describe('previousSampleCountFor', () => {
+  const regionRow = {
+    prescriptionId: '11111111-1111-1111-1111-111111111111',
+    region: '52' as const,
+    department: undefined,
+    companySiret: undefined
+  };
+
+  const change = (
+    overrides: Partial<DiffusedSampleCountChange>
+  ): DiffusedSampleCountChange => ({
+    prescriptionId: regionRow.prescriptionId,
+    region: regionRow.region,
+    department: undefined,
+    companySiret: undefined,
+    kind: 'sampleCount',
+    sampleCount: 0,
+    diffusedAt: new Date('2026-01-01'),
+    changedAt: new Date('2026-01-01'),
+    ...overrides
+  });
+
+  test('a diffused change wins over the fallback', () => {
+    expect(
+      previousSampleCountFor(regionRow, [change({ sampleCount: 4 })], 9)
+    ).toBe(4);
+  });
+
+  test('a diffused zero wins over the fallback', () => {
+    expect(
+      previousSampleCountFor(regionRow, [change({ sampleCount: 0 })], 9)
+    ).toBe(0);
+  });
+
+  test('no change history falls back to the value already sent', () => {
+    expect(previousSampleCountFor(regionRow, [], 9)).toBe(9);
+  });
+
+  test('no change history and nothing ever sent -> no previous value', () => {
+    expect(previousSampleCountFor(regionRow, [], null)).toBeNull();
+  });
+
+  test('an undiffused draft does not shadow the fallback', () => {
+    expect(
+      previousSampleCountFor(
+        regionRow,
+        [change({ sampleCount: 4, diffusedAt: null })],
+        9
+      )
+    ).toBe(9);
   });
 });

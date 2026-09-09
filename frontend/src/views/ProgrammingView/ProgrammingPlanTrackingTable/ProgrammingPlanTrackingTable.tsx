@@ -2,7 +2,7 @@ import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tooltip from '@codegouvfr/react-dsfr/Tooltip';
 import clsx from 'clsx';
-import { groupBy, isNil } from 'lodash-es';
+import { groupBy, isNil, uniq } from 'lodash-es';
 import {
   type Department,
   DepartmentLabels
@@ -13,8 +13,11 @@ import {
   Regions
 } from 'maestro-shared/referential/Region';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { isDefined } from 'maestro-shared/utils/utils';
 import {
   Fragment,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -41,7 +44,12 @@ import ProgrammingPlanBulkSendRegionalModal, {
   bulkSendRegionalModal
 } from './ProgrammingPlanTrackingActionBar/ProgrammingPlanBulkSendRegionalModal';
 import ProgrammingPlanTrackingActionBar from './ProgrammingPlanTrackingActionBar/ProgrammingPlanTrackingActionBar';
-import ProgrammingPlanTrackingFilters from './ProgrammingPlanTrackingFilters';
+import ProgrammingPlanTrackingFilters, {
+  emptyTrackingFilters,
+  LaunchStatusLabels,
+  SettingsStatusLabels,
+  type TrackingFilters
+} from './ProgrammingPlanTrackingFilters';
 import ProgrammingPlanTrackingHeader from './ProgrammingPlanTrackingHeader';
 import {
   type AggregateDisplayStatus,
@@ -152,14 +160,110 @@ const ProgrammingPlanTrackingTable = ({
   const { data: programmingPlanDomains } =
     apiClient.useFindProgrammingPlanDomainsQuery();
 
-  const [planFilterIds, setPlanFilterIds] = useState<string[]>([]);
+  const [filters, setFilters] = useState<TrackingFilters>(emptyTrackingFilters);
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
+
+  const { data: coordinators } = apiClient.useFindUsersQuery({
+    roles: ['NationalCoordinator'],
+    disabled: false
+  });
+
+  const columnLabelsOf = useCallback(
+    (planId: string) => {
+      const info = planStatusInfo.get(planId);
+      return {
+        national: info?.nationalDisplayStatus.label,
+        regional: region
+          ? info?.regionalDisplayStatus?.label
+          : info?.regionalAggregate.label,
+        departmental: department
+          ? info?.departmentalDisplayStatus?.label
+          : info?.departmentalAggregate?.label
+      };
+    },
+    [planStatusInfo, region, department]
+  );
+
+  const matchesCoordinator = useCallback(
+    (plan: ProgrammingPlanChecked) => {
+      if (!filters.coordinatorIds.length) {
+        return true;
+      }
+      const planStages = stagesFromSubPlans(plan.subPlans);
+      return (coordinators ?? [])
+        .filter((coordinator) =>
+          filters.coordinatorIds.includes(coordinator.id)
+        )
+        .some((coordinator) =>
+          coordinator.stages.some((stage) => planStages.includes(stage))
+        );
+    },
+    [coordinators, filters.coordinatorIds]
+  );
+
+  const filterOptions = useMemo(
+    () => ({
+      domains: (programmingPlanDomains ?? []).filter((domain) =>
+        programmingPlans.some((plan) => plan.domainId === domain.id)
+      ),
+      plans: programmingPlans,
+      coordinators: (coordinators ?? []).filter((coordinator) =>
+        programmingPlans.some((plan) =>
+          stagesFromSubPlans(plan.subPlans).some((stage) =>
+            coordinator.stages.includes(stage)
+          )
+        )
+      ),
+      nationalStatuses: uniq(
+        programmingPlans
+          .map((plan) => columnLabelsOf(plan.id).national)
+          .filter(isDefined)
+      ),
+      regionalStatuses: uniq(
+        programmingPlans
+          .map((plan) => columnLabelsOf(plan.id).regional)
+          .filter(isDefined)
+      ),
+      departmentalStatuses: uniq(
+        programmingPlans
+          .map((plan) => columnLabelsOf(plan.id).departmental)
+          .filter(isDefined)
+      )
+    }),
+    [programmingPlans, programmingPlanDomains, coordinators, columnLabelsOf]
+  );
 
   const displayedPlans = useMemo(
     () =>
-      planFilterIds.length
-        ? programmingPlans.filter((plan) => planFilterIds.includes(plan.id))
-        : programmingPlans,
-    [programmingPlans, planFilterIds]
+      programmingPlans.filter((plan) => {
+        const labels = columnLabelsOf(plan.id);
+        const matchesStatus = (selected: string[], label?: string) =>
+          !selected.length || (!isNil(label) && selected.includes(label));
+
+        return (
+          (!filters.programmingPlanDomainIds.length ||
+            filters.programmingPlanDomainIds.includes(plan.domainId)) &&
+          (!filters.programmingPlanIds.length ||
+            filters.programmingPlanIds.includes(plan.id)) &&
+          matchesCoordinator(plan) &&
+          (!filters.launchStatuses.length ||
+            filters.launchStatuses.includes(
+              isNil(plan.launchedAt)
+                ? LaunchStatusLabels.NotLaunched
+                : LaunchStatusLabels.Launched
+            )) &&
+          (!filters.settingsStatuses.length ||
+            filters.settingsStatuses.includes(
+              plan.settingsCompleted
+                ? SettingsStatusLabels.Completed
+                : SettingsStatusLabels.NotCompleted
+            )) &&
+          matchesStatus(filters.nationalStatuses, labels.national) &&
+          matchesStatus(filters.regionalStatuses, labels.regional) &&
+          matchesStatus(filters.departmentalStatuses, labels.departmental)
+        );
+      }),
+    [programmingPlans, filters, columnLabelsOf, matchesCoordinator]
   );
 
   const displayedPlanIds = useMemo(
@@ -339,9 +443,13 @@ const ProgrammingPlanTrackingTable = ({
       />
       <ProgrammingPlanTrackingHeader {...indicators} />
       <ProgrammingPlanTrackingFilters
-        plans={programmingPlans}
-        selectedPlanIds={planFilterIds}
-        onChange={setPlanFilterIds}
+        filters={filters}
+        onChange={setFilters}
+        options={filterOptions}
+        isExpanded={isFilterExpanded}
+        onToggleExpanded={() => setIsFilterExpanded((prev) => !prev)}
+        region={region}
+        department={department}
       />
       <ProgrammingPlanTrackingActionBar
         selectedCount={selectedPlanIds.size}

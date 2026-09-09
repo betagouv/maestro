@@ -1,7 +1,7 @@
 import { isNil, sumBy, uniq } from 'lodash-es';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { type Stage, StageList } from 'maestro-shared/referential/Stage';
-import { lastDiffusedSampleCount } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
+import { previousSampleCountFor } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
 import {
   hasPrescriptionPermission,
   type Prescription
@@ -228,9 +228,16 @@ export const prescriptionsRouter = {
           echelon: 'National',
           kind: 'sampleCount',
           sampleCount: cell.sampleCount,
-          previousSampleCount: lastDiffusedSampleCount(
+          previousSampleCount: previousSampleCountFor(
             localPrescription,
-            lastDiffused
+            lastDiffused,
+            isNil(
+              programmingPlans.find(
+                (_) => _.id === prescription.programmingPlanId
+              )?.nationalStatus.sentAt
+            )
+              ? null
+              : localPrescription.sampleCount
           ),
           changedAt: now
         });

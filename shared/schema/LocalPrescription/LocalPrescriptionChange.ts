@@ -79,6 +79,16 @@ export const lastDiffusedSampleCount = (
   return lastDiffused?.sampleCount ?? null;
 };
 
+export const previousSampleCountFor = (
+  row: Pick<
+    LocalPrescription,
+    'prescriptionId' | 'region' | 'department' | 'companySiret'
+  >,
+  changes: DiffusedSampleCountChange[],
+  fallbackSampleCount: number | null
+): number | null =>
+  lastDiffusedSampleCount(row, changes) ?? fallbackSampleCount;
+
 export const regionRowNeedsChangeAction = (
   distributionKind: DistributionKind,
   ownRegionalPrescription: Pick<

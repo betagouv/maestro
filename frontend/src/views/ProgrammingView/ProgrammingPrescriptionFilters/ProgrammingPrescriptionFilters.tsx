@@ -238,7 +238,7 @@ const ProgrammingPrescriptionFilters = ({
       {canFilterByCoordinator && (
         <div className={filterClassName}>
           <AppCheckboxSelect
-            label="Coordinateur·ices"
+            label="Coordinateurs"
             options={sortBy(
               stageCoordinators.map((coordinator) => ({
                 label: coordinator.name ?? coordinator.email,
