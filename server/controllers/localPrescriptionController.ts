@@ -337,6 +337,12 @@ export const localPrescriptionsRouter = {
           kind: 'laboratories',
           viewedBy: user.id
         });
+        await localPrescriptionChangeRepository.markViewed({
+          prescriptionId: localPrescription.prescriptionId,
+          region: localPrescription.region,
+          kind: 'sampleCount',
+          viewedBy: user.id
+        });
       }
 
       if (canUpdateSampleCount || canUpdateLaboratories) {
