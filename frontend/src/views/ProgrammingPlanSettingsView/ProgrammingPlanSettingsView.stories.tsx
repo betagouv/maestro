@@ -150,6 +150,10 @@ export const AddDomain: Story = {
       ) as HTMLElement
     );
 
+    await waitFor(() =>
+      expect(modal.getByLabelText(/Libellé du domaine/)).toBeVisible()
+    );
+
     await userEvent.click(modal.getByText('Ajouter'));
     await expect(createProgrammingPlanDomain).not.toHaveBeenCalled();
     await expect(
