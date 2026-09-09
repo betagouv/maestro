@@ -5,7 +5,7 @@ import {
   hasLocalPrescriptionPermission,
   type LocalPrescription
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { lastDiffusedSampleCount } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
+import { previousSampleCountFor } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
 import type { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { toLocalPrescriptionKeyString } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
@@ -309,9 +309,12 @@ export const localPrescriptionsRouter = {
           echelon: 'National',
           kind: 'sampleCount',
           sampleCount: localPrescriptionUpdate.sampleCount,
-          previousSampleCount: lastDiffusedSampleCount(
+          previousSampleCount: previousSampleCountFor(
             localPrescription,
-            lastDiffused
+            lastDiffused,
+            isNil(programmingPlan.nationalStatus.sentAt)
+              ? null
+              : localPrescription.sampleCount
           ),
           changedAt: new Date()
         });
@@ -429,9 +432,16 @@ export const localPrescriptionsRouter = {
           echelon: 'Regional',
           kind: 'sampleCount',
           sampleCount: localPrescriptionUpdate.sampleCount,
-          previousSampleCount: lastDiffusedSampleCount(
+          previousSampleCount: previousSampleCountFor(
             localPrescription,
-            lastDiffused
+            lastDiffused,
+            isNil(
+              programmingPlan.regionalStatus.find(
+                (_) => _.region === params.region
+              )?.sentAt
+            )
+              ? null
+              : localPrescription.sampleCount
           ),
           changedAt: new Date()
         });
@@ -459,6 +469,22 @@ export const localPrescriptionsRouter = {
             department: params.department
           });
 
+        const departmentalSentAt = programmingPlan.departmentalStatus.find(
+          (_) =>
+            _.region === params.region && _.department === params.department
+        )?.sentAt;
+
+        const companyLocalPrescriptions = isNil(departmentalSentAt)
+          ? []
+          : await localPrescriptionRepository.findMany({
+              prescriptionId: localPrescription.prescriptionId,
+              region: localPrescription.region,
+              department: params.department,
+              companySirets: localPrescriptionUpdate.slaughterhouseSampleCounts
+                .map((_) => _.companySiret)
+                .filter((siret) => !isNil(siret))
+            });
+
         await localPrescriptionChangeRepository.insertMany(
           localPrescriptionUpdate.slaughterhouseSampleCounts.map(
             (slaughterhouse) => ({
@@ -469,14 +495,17 @@ export const localPrescriptionsRouter = {
               echelon: 'Departmental',
               kind: 'sampleCount',
               sampleCount: slaughterhouse.sampleCount,
-              previousSampleCount: lastDiffusedSampleCount(
+              previousSampleCount: previousSampleCountFor(
                 {
                   prescriptionId: localPrescription.prescriptionId,
                   region: localPrescription.region,
                   department: params.department,
                   companySiret: slaughterhouse.companySiret
                 },
-                lastDiffused
+                lastDiffused,
+                companyLocalPrescriptions.find(
+                  (_) => _.companySiret === slaughterhouse.companySiret
+                )?.sampleCount ?? null
               ),
               changedAt: new Date()
             })
