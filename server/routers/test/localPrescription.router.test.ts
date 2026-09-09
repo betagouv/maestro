@@ -2434,7 +2434,7 @@ describe('Local prescriptions router', () => {
       });
     });
 
-    test('assigning a laboratory marks only that laboratories-kind change as viewed, leaving still-unseen sampleCount changes untouched', async () => {
+    test('assigning a laboratory is an action on the row, so it also clears the still-unseen sampleCount changes', async () => {
       await prescriptionDiffusionService.commitPendingNationalChanges(
         PPVSubmittedProgrammingPlanFixture.id
       );
@@ -2458,7 +2458,7 @@ describe('Local prescriptions router', () => {
       expect(rows.length).toBeGreaterThan(0);
       const sampleCountRows = rows.filter((row) => row.kind === 'sampleCount');
       expect(sampleCountRows.length).toBeGreaterThan(0);
-      expect(sampleCountRows.every((row) => row.changesViewedAt === null)).toBe(
+      expect(sampleCountRows.every((row) => row.changesViewedAt !== null)).toBe(
         true
       );
 
