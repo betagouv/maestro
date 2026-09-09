@@ -8,6 +8,7 @@ import {
 } from '../LocalPrescription/LocalPrescription';
 import type { Prescription } from '../Prescription/Prescription';
 import type { DistributionKind } from './DistributionKind';
+import type { ProgrammingPlanLocalStatus } from './ProgrammingPlanLocalStatus';
 import type { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
 
 export const ProgrammingPlanEchelon = z.enum([
@@ -97,6 +98,17 @@ export const hasSentOnward = (
   }
   return sentStatusesByEchelon(distributionKind)[echelon].includes(status);
 };
+
+export const hasEverSentOnward = (
+  echelon: ProgrammingPlanEchelon,
+  distributionKind: DistributionKind,
+  localStatus:
+    | Pick<ProgrammingPlanLocalStatus, 'status' | 'sentAt'>
+    | null
+    | undefined
+): boolean =>
+  !isNil(localStatus?.sentAt) ||
+  hasSentOnward(echelon, distributionKind, localStatus?.status);
 
 const hasReceivedFromAbove = (
   echelon: ProgrammingPlanEchelon,

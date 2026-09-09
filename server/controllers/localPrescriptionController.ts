@@ -9,7 +9,10 @@ import { previousSampleCountFor } from 'maestro-shared/schema/LocalPrescription/
 import type { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { toLocalPrescriptionKeyString } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
-import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
+import {
+  hasEverSentOnward,
+  type ProgrammingPlanEchelon
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   companiesIsRequired,
@@ -312,9 +315,13 @@ export const localPrescriptionsRouter = {
           previousSampleCount: previousSampleCountFor(
             localPrescription,
             lastDiffused,
-            isNil(programmingPlan.nationalStatus.sentAt)
-              ? null
-              : localPrescription.sampleCount
+            hasEverSentOnward(
+              'National',
+              programmingPlan.distributionKind,
+              programmingPlan.nationalStatus
+            )
+              ? localPrescription.sampleCount
+              : null
           ),
           changedAt: new Date()
         });
@@ -441,13 +448,15 @@ export const localPrescriptionsRouter = {
           previousSampleCount: previousSampleCountFor(
             localPrescription,
             lastDiffused,
-            isNil(
+            hasEverSentOnward(
+              'Regional',
+              programmingPlan.distributionKind,
               programmingPlan.regionalStatus.find(
                 (_) => _.region === params.region
-              )?.sentAt
+              )
             )
-              ? null
-              : localPrescription.sampleCount
+              ? localPrescription.sampleCount
+              : null
           ),
           changedAt: new Date()
         });
@@ -475,12 +484,16 @@ export const localPrescriptionsRouter = {
             department: params.department
           });
 
-        const departmentalSentAt = programmingPlan.departmentalStatus.find(
-          (_) =>
-            _.region === params.region && _.department === params.department
-        )?.sentAt;
+        const hasDiffusedToCompanies = hasEverSentOnward(
+          'Departmental',
+          programmingPlan.distributionKind,
+          programmingPlan.departmentalStatus.find(
+            (_) =>
+              _.region === params.region && _.department === params.department
+          )
+        );
 
-        const companyLocalPrescriptions = isNil(departmentalSentAt)
+        const companyLocalPrescriptions = !hasDiffusedToCompanies
           ? []
           : await localPrescriptionRepository.findMany({
               prescriptionId: localPrescription.prescriptionId,
