@@ -484,25 +484,15 @@ export const localPrescriptionsRouter = {
             department: params.department
           });
 
-        const hasDiffusedToCompanies = hasEverSentOnward(
-          'Departmental',
-          programmingPlan.distributionKind,
-          programmingPlan.departmentalStatus.find(
-            (_) =>
-              _.region === params.region && _.department === params.department
-          )
-        );
-
-        const companyLocalPrescriptions = !hasDiffusedToCompanies
-          ? []
-          : await localPrescriptionRepository.findMany({
-              prescriptionId: localPrescription.prescriptionId,
-              region: localPrescription.region,
-              department: params.department,
-              companySirets: localPrescriptionUpdate.slaughterhouseSampleCounts
-                .map((_) => _.companySiret)
-                .filter((siret) => !isNil(siret))
-            });
+        const companyLocalPrescriptions =
+          await localPrescriptionRepository.findMany({
+            prescriptionId: localPrescription.prescriptionId,
+            region: localPrescription.region,
+            department: params.department,
+            companySirets: localPrescriptionUpdate.slaughterhouseSampleCounts
+              .map((_) => _.companySiret)
+              .filter((siret) => !isNil(siret))
+          });
 
         await localPrescriptionChangeRepository.insertMany(
           localPrescriptionUpdate.slaughterhouseSampleCounts.map(
@@ -524,7 +514,7 @@ export const localPrescriptionsRouter = {
                 lastDiffused,
                 companyLocalPrescriptions.find(
                   (_) => _.companySiret === slaughterhouse.companySiret
-                )?.sampleCount ?? null
+                )?.sampleCount ?? 0
               ),
               changedAt: new Date()
             })
