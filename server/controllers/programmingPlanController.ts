@@ -126,6 +126,30 @@ const submittedToDepartmentsParams = (year: number) => ({
 Si la campagne sur ces sous-plans a déjà été lancée par la coordination nationale, ils seront directement visibles par eux.`
 });
 
+const planLinesOf = async (
+  plans: ProgrammingPlanChecked[]
+): Promise<string> => {
+  const domains = await programmingPlanDomainRepository.findMany();
+  return plans
+    .map((plan) => {
+      const domain = domains.find((_) => _.id === plan.domainId);
+      return `- ${domain ? `${domain.label} / ${plan.title}` : plan.title}`;
+    })
+    .join('\n');
+};
+
+const samplerLaunchMessage = (year: number, planLines: string) =>
+  `Lancement de la campagne ${year} sur un ou plusieurs plans :
+
+${planLines}
+
+Vous pouvez dès à présent saisir des prélèvements sur ces plans.`;
+
+const samplerLaunchParams = (year: number, planLines: string) => ({
+  object: `Campagne PSPC ${year} / Lancement de la campagne sur un ou plusieurs plans`,
+  content: samplerLaunchMessage(year, planLines)
+});
+
 const notifyCampaignLaunch = async (plans: ProgrammingPlanChecked[]) => {
   const domains = await programmingPlanDomainRepository.findMany();
   const planLabel = (plan: ProgrammingPlanChecked) => {
@@ -135,9 +159,14 @@ const notifyCampaignLaunch = async (plans: ProgrammingPlanChecked[]) => {
 
   const year = plans[0].year;
   const stages = stagesFromSubPlans(plans.flatMap((plan) => plan.subPlans));
-  const planLines = plans.map((plan) => `• ${planLabel(plan)}`).join('\n');
+  const planLines = plans.map((plan) => `- ${planLabel(plan)}`).join('\n');
   const planIds = plans.map((plan) => plan.id).join(',');
-  const inAppMessage = `Lancement de la campagne ${year} sur un ou plusieurs plans`;
+  const samplersCanSampleNotice = `Les préleveurs et préleveuses peuvent dès à présent saisir des prélèvements sur ces plans si l’attribution des laboratoires et la répartition par abattoir pour les plans à l’abattoir, ont été faites.`;
+  const coordinatorMessage = `Lancement de la campagne ${year} sur un ou plusieurs plans :
+
+${planLines}
+
+${samplersCanSampleNotice}`;
 
   const coordinators = await userRepository.findMany({
     roles: [
@@ -165,9 +194,9 @@ const notifyCampaignLaunch = async (plans: ProgrammingPlanChecked[]) => {
       content: `La coordination nationale vient de lancer la campagne PSPC ${year} sur les plans suivants :
 ${planLines}
 
-Les préleveurs et préleveuses peuvent dès à présent saisir des prélèvements sur ces plans si l’attribution des laboratoires et la répartition par abattoir pour les plans à l’abattoir, ont été faites.`
+${samplersCanSampleNotice}`
     },
-    { message: inAppMessage }
+    { message: coordinatorMessage }
   );
 
   const samplerScopes = new Map<
@@ -215,6 +244,10 @@ Les préleveurs et préleveuses peuvent dès à présent saisir des prélèvemen
       continue;
     }
 
+    const scopePlanLines = scope.plans
+      .map((plan) => `- ${planLabel(plan)}`)
+      .join('\n');
+
     await notificationService.sendNotification(
       {
         category: 'ProgrammingPlanCampaignLaunched',
@@ -224,14 +257,8 @@ Les préleveurs et préleveuses peuvent dès à présent saisir des prélèvemen
         })
       },
       samplers,
-      {
-        object: `Campagne PSPC ${year} / Lancement de la campagne sur un ou plusieurs plans`,
-        content: `La campagne PSPC ${year} vient d’être lancée sur les plans suivants :
-${scope.plans.map((plan) => `- ${planLabel(plan)}`).join('\n')}
-
-Vous pouvez dès à présent saisir des prélèvements sur ces plans.`
-      },
-      { message: inAppMessage }
+      samplerLaunchParams(year, scopePlanLines),
+      { message: samplerLaunchMessage(year, scopePlanLines) }
     );
   }
 };
@@ -679,17 +706,15 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
             plan.distributionKind
           );
 
-          await notificationService.sendNotification(
-            { category: 'ProgrammingPlanValidated', link },
-            samplers,
-            {
-              object: NotificationCategoryTitles.ProgrammingPlanValidated,
-              content: `
-L’étape de la répartition de la programmation a été réalisée par votre coordinateur. La campagne est lancée !
-
-Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’onglet "Programmation" et saisir des prélèvements.`
-            }
-          );
+          if (!isNil(plan.launchedAt)) {
+            const planLines = await planLinesOf([plan]);
+            await notificationService.sendNotification(
+              { category: 'ProgrammingPlanCampaignLaunched', link },
+              samplers,
+              samplerLaunchParams(plan.year, planLines),
+              { message: samplerLaunchMessage(plan.year, planLines) }
+            );
+          }
         } else if (
           isModified &&
           hasSentOnward(
@@ -1120,30 +1145,32 @@ Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’on
                 disabled: false
               });
 
-              await notificationService.sendNotification(
-                isRedeployment
-                  ? { category: 'ProgrammingPlanModifiedAfterSubmission', link }
-                  : { category: 'ProgrammingPlanValidated', link },
-                samplers,
-                isRedeployment
-                  ? modifiedParams(programmingPlan.year, 'Departmental')
-                  : {
-                      object:
-                        NotificationCategoryTitles.ProgrammingPlanValidated,
-                      content: `
-L’étape de la répartition de la programmation a été réalisée par votre coordinateur. La campagne est lancée !
-
-Vous pouvez dorénavant consulter la programmation, vous concernant, dans l’onglet "Programmation" et saisir des prélèvements.`
-                    },
-                isRedeployment
-                  ? {
-                      message: modifiedMessage(
-                        programmingPlan.year,
-                        'Departmental'
-                      )
-                    }
-                  : undefined
-              );
+              if (isRedeployment) {
+                await notificationService.sendNotification(
+                  { category: 'ProgrammingPlanModifiedAfterSubmission', link },
+                  samplers,
+                  modifiedParams(programmingPlan.year, 'Departmental'),
+                  {
+                    message: modifiedMessage(
+                      programmingPlan.year,
+                      'Departmental'
+                    )
+                  }
+                );
+              } else if (!isNil(programmingPlan.launchedAt)) {
+                const planLines = await planLinesOf([programmingPlan]);
+                await notificationService.sendNotification(
+                  { category: 'ProgrammingPlanCampaignLaunched', link },
+                  samplers,
+                  samplerLaunchParams(programmingPlan.year, planLines),
+                  {
+                    message: samplerLaunchMessage(
+                      programmingPlan.year,
+                      planLines
+                    )
+                  }
+                );
+              }
             } else {
               if (
                 ['SubmittedToRegion', 'Validated'].includes(
