@@ -538,6 +538,11 @@ export const SubPlanSamplerForm: Story = {
     await userEvent.click(
       canvas.getByText('Ajouter un descripteur', { selector: 'button' })
     );
+    await waitFor(() =>
+      expect(
+        inModal('sampler-form-add-field-modal').getByLabelText(/^Descripteur/)
+      ).toBeVisible()
+    );
     await userEvent.selectOptions(
       inModal('sampler-form-add-field-modal').getByLabelText(/^Descripteur/),
       especeField.id
@@ -762,6 +767,9 @@ export const SubPlanManagedField: Story = {
       canvasElement.querySelector(
         '#sampler-form-add-field-modal'
       ) as HTMLElement
+    );
+    await waitFor(() =>
+      expect(addModal.getByLabelText(/^Descripteur/)).toBeVisible()
     );
     await userEvent.selectOptions(
       addModal.getByLabelText(/^Descripteur/),
