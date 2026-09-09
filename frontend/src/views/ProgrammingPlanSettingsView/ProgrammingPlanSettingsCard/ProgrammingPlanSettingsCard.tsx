@@ -11,6 +11,7 @@ import { pluralize } from 'src/utils/stringUtils';
 import { assert, type Equals } from 'tsafe';
 
 import { ProgrammingPlanSettingsBadge } from '../ProgrammingPlanSettingsBadge/ProgrammingPlanSettingsBadge';
+import './ProgrammingPlanSettingsCard.scss';
 
 type Props = {
   title: string;
