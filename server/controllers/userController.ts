@@ -7,6 +7,7 @@ import {
   stagesIsRequired,
   UserRefined,
   UserToUpdateRefined,
+  userRegions,
   userRegionsForRole
 } from 'maestro-shared/schema/User/User';
 import {
@@ -35,10 +36,8 @@ export const usersRouter = {
       }
 
       if (
-        intersection(
-          userRegionsForRole(user, userRole),
-          userRegionsForRole(authUser, userRole)
-        ).length === 0
+        intersection(userRegions(user), userRegionsForRole(authUser, userRole))
+          .length === 0
       ) {
         return { status: HttpStatus.FORBIDDEN };
       }

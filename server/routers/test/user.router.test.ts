@@ -96,6 +96,20 @@ describe('User router', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
+    test('should return a national user to a regional user', async () => {
+      await request(app)
+        .get(`/api/users/${NationalCoordinator.id}`)
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+    });
+
+    test('should return a national user to a sampler', async () => {
+      await request(app)
+        .get(`/api/users/${NationalCoordinator.id}`)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+    });
+
     test('should return user', async () => {
       const res = await request(app)
         .get(`/api/users/${Sampler1Fixture.id}`)

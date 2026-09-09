@@ -15,17 +15,13 @@ const PrescriptionCommentAuthor = ({
   const apiClient = useContext(ApiClientContext);
   const { data: author } = apiClient.useGetUserQuery({ userId: createdBy });
 
-  if (!author) {
-    return null;
-  }
-
   return (
     <>
       <div className={cx('fr-text--sm', 'fr-mb-0')}>
-        <b>{author.name}</b>{' '}
-        {author.department
+        <b>{author?.name ?? 'Auteur inconnu'}</b>{' '}
+        {author?.department
           ? DepartmentLabels[author.department]
-          : author.region
+          : author?.region
             ? Regions[author.region].name
             : ''}
       </div>
@@ -35,7 +31,7 @@ const PrescriptionCommentAuthor = ({
           Posté le{' '}
           {formatDateTime(
             createdAt,
-            author.region ? Regions[author.region].timezone : undefined
+            author?.region ? Regions[author.region].timezone : undefined
           )}
         </div>
       </div>
