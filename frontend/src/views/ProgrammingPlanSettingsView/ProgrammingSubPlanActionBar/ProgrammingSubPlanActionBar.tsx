@@ -26,7 +26,7 @@ export const ProgrammingSubPlanActionBar = ({
 
   return (
     <div className="programming-sub-plan-action-bar">
-      <div className={cx('fr-container', 'fr-pt-3w', 'fr-pb-1w')}>
+      <div className={cx('fr-container', 'fr-py-3w')}>
         <AppServiceErrorAlert call={saveCall} />
         <ButtonGroup
           alignment="right"

@@ -15,7 +15,10 @@ import {
   type SampleChecked,
   type SamplePermission
 } from 'maestro-shared/schema/Sample/Sample';
-import { hasPermission } from 'maestro-shared/schema/User/User';
+import {
+  hasAccountPermission as hasAccountPermissionForRoles,
+  hasPermission
+} from 'maestro-shared/schema/User/User';
 import type { UserPermission } from 'maestro-shared/schema/User/UserPermission';
 import {
   isDepartmentalRole,
@@ -115,7 +118,7 @@ export const useAuthentication = () => {
   const hasAccountPermission = useCallback(
     (permission: UserPermission) =>
       isDefined(authUser?.account) &&
-      authUser.account.roles.some((role) => hasPermission(role, permission)),
+      hasAccountPermissionForRoles(authUser.account.roles, permission),
     [authUser]
   );
 

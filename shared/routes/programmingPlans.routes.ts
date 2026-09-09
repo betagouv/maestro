@@ -71,11 +71,11 @@ export const programmingPlansRoutes = {
       programmingPlanId: z.guid()
     },
     get: {
-      permissions: ['manageProgrammingPlanSettings'],
+      accountPermissions: ['manageProgrammingPlanSettings'],
       response: ProgrammingPlanSettingsForm
     },
     put: {
-      permissions: ['manageProgrammingPlanSettings'],
+      accountPermissions: ['manageProgrammingPlanSettings'],
       body: ProgrammingPlanSettingsForm,
       response: z.undefined()
     }
@@ -87,11 +87,11 @@ export const programmingPlansRoutes = {
         programmingSubPlanId: ProgrammingSubPlanId
       },
       get: {
-        permissions: ['manageProgrammingPlanSettings'],
+        accountPermissions: ['manageProgrammingPlanSettings'],
         response: ProgrammingSubPlanSettingsForm
       },
       put: {
-        permissions: ['manageProgrammingPlanSettings'],
+        accountPermissions: ['manageProgrammingPlanSettings'],
         body: ProgrammingSubPlanSettingsForm,
         response: z.undefined()
       }

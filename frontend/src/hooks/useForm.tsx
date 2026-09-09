@@ -74,7 +74,6 @@ export function useForm<
   ) => {
     try {
       const validInput: z.infer<T> = await schema.parseAsync(input);
-      setIsTouched(true);
       setError(undefined);
       await onValid?.(validInput);
     } catch (error) {

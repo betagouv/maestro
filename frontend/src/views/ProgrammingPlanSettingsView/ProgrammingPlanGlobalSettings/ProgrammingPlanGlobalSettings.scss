@@ -1,0 +1,9 @@
+.programming-plan-global-settings {
+  display: grid;
+  gap: 12px;
+
+  :last-child[class*='fr-mb-'],
+  .fr-select[class*='fr-mb-'] {
+    margin-bottom: 0 !important;
+  }
+}

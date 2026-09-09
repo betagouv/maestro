@@ -10,6 +10,7 @@ import { kysely } from '../../../repositories/kysely';
 import {
   formatProgrammingPlan,
   ProgrammingPlanLocalStatus,
+  ProgrammingPlanNationalCoordinators,
   ProgrammingPlans
 } from '../../../repositories/programmingPlanRepository';
 import { ProgrammingSubPlansRaw } from '../../../repositories/programmingSubPlanRepository';
@@ -62,6 +63,15 @@ export const seed = async () => {
         region: departmentalStatus.region,
         department: departmentalStatus.department,
         status: departmentalStatus.status
+      }))
+    )
+  );
+
+  await ProgrammingPlanNationalCoordinators().insert(
+    plans.flatMap((plan) =>
+      plan.nationalCoordinators.map(({ id }) => ({
+        programmingPlanId: plan.id,
+        userId: id
       }))
     )
   );

@@ -90,7 +90,8 @@ const AdministratorPermissionsList = [
   'readAnalysis',
   'viewDashboard',
   'manageLaboratoryAgreements',
-  'manageUsers'
+  'manageUsers',
+  'manageProgrammingPlanNationalCoordinators'
 ] as const satisfies UserPermission[];
 
 const userRolePermissions = {

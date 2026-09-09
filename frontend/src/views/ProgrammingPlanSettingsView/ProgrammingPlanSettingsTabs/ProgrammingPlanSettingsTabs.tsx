@@ -1,7 +1,9 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import { isEqual } from 'lodash-es';
-import { ProgrammingSubPlanSettingsForm } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
+import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
+import { ProgrammingLevelSettingsForm } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type {
   ProgrammingSubPlan,
@@ -15,9 +17,12 @@ import {
   useMemo,
   useState
 } from 'react';
+import ConfirmationModal from 'src/components/ConfirmationModal/ConfirmationModal';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
+import './ProgrammingPlanSettingsTabs.scss';
 import type { z } from 'zod';
 import { ProgrammingPlanGlobalSettings } from '../ProgrammingPlanGlobalSettings/ProgrammingPlanGlobalSettings';
 import { ProgrammingPlanSamplerFormSettings } from '../ProgrammingPlanSamplerFormSettings/ProgrammingPlanSamplerFormSettings';
@@ -28,10 +33,11 @@ type Props = {
   subPlan: ProgrammingSubPlan | undefined;
 };
 
-const emptySettings: ProgrammingSubPlanSettingsForm = {
+const emptySettings: ProgrammingLevelSettingsForm = {
   stages: null,
   stagesManaged: false,
   settingsCompleted: false,
+  nationalCoordinators: null,
   fields: []
 };
 
@@ -45,12 +51,18 @@ const settingsTabs = [
 type SettingsTabId = (typeof settingsTabs)[number]['tabId'];
 
 type SettingsFieldKey = Exclude<
-  keyof ProgrammingSubPlanSettingsForm,
+  keyof ProgrammingLevelSettingsForm,
   `${string}Managed` | 'settingsCompleted'
 >;
 
+const completionModal = createModal({
+  id: 'programming-plan-settings-completion-modal',
+  isOpenedByDefault: false
+});
+
 const tabIdBySettingsKey: Record<SettingsFieldKey, SettingsTabId> = {
   stages: 'global',
+  nationalCoordinators: 'global',
   fields: 'sampler-form'
 };
 
@@ -83,10 +95,20 @@ export const ProgrammingPlanSettingsTabs = ({
   const [updateProgrammingSubPlanSettings, updateSubPlanSettingsCall] =
     apiClient.useUpdateProgrammingSubPlanSettingsMutation();
 
-  const settings: ProgrammingSubPlanSettingsForm | undefined = useMemo(
+  const { user, account } = useAuthentication();
+
+  const readOnly =
+    !user ||
+    !account ||
+    !canUpdateProgrammingPlanSettings(programmingPlan, user, account.roles);
+
+  const settings: ProgrammingLevelSettingsForm | undefined = useMemo(
     () =>
       subPlan
-        ? subPlanSettings
+        ? subPlanSettings && {
+            ...subPlanSettings,
+            nationalCoordinators: null
+          }
         : planSettings && {
             ...planSettings,
             fields: planSettings.fields.map((field) => ({
@@ -98,7 +120,7 @@ export const ProgrammingPlanSettingsTabs = ({
     [subPlan, subPlanSettings, planSettings]
   );
 
-  const [draft, setDraft] = useState<ProgrammingSubPlanSettingsForm>();
+  const [draft, setDraft] = useState<ProgrammingLevelSettingsForm>();
 
   useEffect(() => {
     setDraft(settings);
@@ -106,26 +128,30 @@ export const ProgrammingPlanSettingsTabs = ({
 
   const [selectedTabId, setSelectedTabId] = useState<SettingsTabId>('global');
 
-  const form = useForm(ProgrammingSubPlanSettingsForm, {
+  const form = useForm(ProgrammingLevelSettingsForm, {
     ...(draft ?? emptySettings),
     settingsCompleted: true
   });
 
   const save = (
-    draft: ProgrammingSubPlanSettingsForm,
+    draft: ProgrammingLevelSettingsForm,
     settingsCompleted: boolean
   ) => {
     if (subPlan) {
-      updateProgrammingSubPlanSettings({
+      return updateProgrammingSubPlanSettings({
         programmingPlanId,
         programmingSubPlanId: subPlan.id,
-        ...draft,
+        stages: draft.stages,
+        stagesManaged: draft.stagesManaged,
+        fields: draft.fields,
         settingsCompleted
       });
     } else {
-      updateProgrammingPlanSettings({
+      return updateProgrammingPlanSettings({
         programmingPlanId,
-        ...draft,
+        stages: draft.stages,
+        stagesManaged: draft.stagesManaged,
+        nationalCoordinators: draft.nationalCoordinators ?? [],
         settingsCompleted,
         fields: draft.fields.map(({ fieldId, required, optionIds }) => ({
           fieldId,
@@ -139,6 +165,15 @@ export const ProgrammingPlanSettingsTabs = ({
   if (!draft) {
     return null;
   }
+
+  const complete = async () => {
+    try {
+      await save(draft, true).unwrap();
+      form.reset();
+    } catch (_err) {
+      /* empty */
+    }
+  };
 
   const tabContent = (tabId: SettingsTabId): ReactNode => {
     switch (tabId) {
@@ -187,18 +222,43 @@ export const ProgrammingPlanSettingsTabs = ({
         selectedTabId={selectedTabId}
         onTabChange={(tabId) => setSelectedTabId(tabId as SettingsTabId)}
       >
-        {tabContent(selectedTabId)}
+        <div inert={readOnly} className="programming-plan-settings-panel">
+          {tabContent(selectedTabId)}
+        </div>
       </Tabs>
-      <ProgrammingSubPlanActionBar
-        completed={draft.settingsCompleted}
-        hasChanges={!isEqual(draft, settings)}
-        saveCall={subPlan ? updateSubPlanSettingsCall : updatePlanSettingsCall}
-        onReset={() => setDraft(settings)}
-        onSaveDraft={() => save(draft, false)}
-        onComplete={() =>
-          form.validate(async () => save(draft, true), selectTabInError)
-        }
-      />
+      {!readOnly && (
+        <>
+          <ProgrammingSubPlanActionBar
+            completed={draft.settingsCompleted}
+            hasChanges={!isEqual(draft, settings)}
+            saveCall={
+              subPlan ? updateSubPlanSettingsCall : updatePlanSettingsCall
+            }
+            onReset={() => setDraft(settings)}
+            onSaveDraft={() => save(draft, false)}
+            onComplete={() =>
+              form.validate(
+                async () =>
+                  draft.settingsCompleted
+                    ? await complete()
+                    : completionModal.open(),
+                selectTabInError
+              )
+            }
+          />
+          <ConfirmationModal
+            modal={completionModal}
+            title="Terminer le paramétrage"
+            confirmLabel="Terminer"
+            onConfirm={complete}
+            closeOnConfirm
+          >
+            Vous vous apprêtez à terminer le paramétrage{' '}
+            {subPlan ? 'de ce sous-plan' : 'de ce plan'}. Il restera modifiable,
+            mais ne pourra plus revenir à l’état de brouillon.
+          </ConfirmationModal>
+        </>
+      )}
     </>
   );
 };

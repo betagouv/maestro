@@ -163,6 +163,11 @@ export const hasPermission = (
   ...permissions: UserPermission[]
 ) => intersection(permissions, UserRolePermissions[userRole]).length > 0;
 
+export const hasAccountPermission = (
+  userRoles: UserRole[],
+  ...permissions: UserPermission[]
+) => userRoles.some((userRole) => hasPermission(userRole, ...permissions));
+
 export const ANS94ALnrEtmId = uuidv4();
 export const ANS94ALnrPestId = uuidv4();
 export const CAP29Id = uuidv4();

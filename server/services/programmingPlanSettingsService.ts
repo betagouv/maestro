@@ -1,4 +1,5 @@
 import type { Transaction } from 'kysely';
+import type { ProgrammingPlanNationalCoordinator } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import {
   managedKey,
   ProgrammingPlanSettingKey,
@@ -167,12 +168,42 @@ const attachPlanFieldsToSubPlans = async (
     .execute();
 };
 
+const replaceNationalCoordinators = async (
+  trx: Transaction<DB>,
+  programmingPlanId: string,
+  nationalCoordinators: ProgrammingPlanNationalCoordinator[]
+): Promise<void> => {
+  const userIds = nationalCoordinators.map(({ id }) => id);
+
+  await trx
+    .deleteFrom('programmingPlanNationalCoordinators')
+    .where('programmingPlanId', '=', programmingPlanId)
+    .$if(userIds.length > 0, (qb) => qb.where('userId', 'not in', userIds))
+    .execute();
+
+  if (userIds.length > 0) {
+    await trx
+      .insertInto('programmingPlanNationalCoordinators')
+      .values(userIds.map((userId) => ({ programmingPlanId, userId })))
+      .onConflict((oc) =>
+        oc.columns(['programmingPlanId', 'userId']).doNothing()
+      )
+      .execute();
+  }
+};
+
 const savePlanSettings = (
   programmingPlanId: string,
-  { fields, ...settings }: ProgrammingPlanSettingsForm
+  { fields, nationalCoordinators, ...settings }: ProgrammingPlanSettingsForm
 ): Promise<void> =>
   executeTransaction(async (trx) => {
     console.info('Update programming plan settings', programmingPlanId);
+
+    await replaceNationalCoordinators(
+      trx,
+      programmingPlanId,
+      nationalCoordinators
+    );
 
     const storedSettings = await trx
       .selectFrom('programmingPlans')

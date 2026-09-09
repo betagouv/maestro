@@ -50,6 +50,8 @@ describe('ProgrammingPlan settings inheritance', () => {
       stages: null,
       stagesManaged: false,
       settingsCompleted: false,
+      nationalCoordinators:
+        DAOAInProgressProgrammingPlanFixture.nationalCoordinators,
       fields: []
     });
     for (const subPlan of subPlanFixtures) {
@@ -66,6 +68,8 @@ describe('ProgrammingPlan settings inheritance', () => {
       stages,
       stagesManaged: true,
       settingsCompleted: false,
+      nationalCoordinators:
+        DAOAInProgressProgrammingPlanFixture.nationalCoordinators,
       fields: []
     });
 
@@ -129,6 +133,8 @@ describe('ProgrammingPlan settings inheritance', () => {
         stages: ['TRANSFORMATION'],
         stagesManaged: false,
         settingsCompleted: false,
+        nationalCoordinators:
+          DAOAInProgressProgrammingPlanFixture.nationalCoordinators,
         fields: []
       });
 
@@ -299,6 +305,8 @@ describe('ProgrammingPlan sampler form inheritance', () => {
     programmingPlanSettingsService.savePlanSettings(programmingPlanId, {
       ...planSettings,
       settingsCompleted: false,
+      nationalCoordinators:
+        DAOAInProgressProgrammingPlanFixture.nationalCoordinators,
       fields
     });
 
