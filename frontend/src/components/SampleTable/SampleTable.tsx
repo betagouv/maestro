@@ -5,6 +5,7 @@ import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
   getSampleMatrixLabel,
   isCreatedPartialSample,
+  isDeletableSample,
   type PartialSample,
   type PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
@@ -84,7 +85,7 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
           />
           {isOnline &&
             hasUserPermission('deleteSample') &&
-            sample.status === 'Draft' && <RemoveSample sample={sample} />}
+            isDeletableSample(sample) && <RemoveSample sample={sample} />}
         </div>
       ]),
     [samples]
