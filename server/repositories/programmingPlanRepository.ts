@@ -18,7 +18,7 @@ import {
 
 export const programmingPlansTable = 'programming_plans';
 const programmingPlanLocalStatusTable = 'programming_plan_local_status';
-export const programmingPlanNationalCoordinatorsTable =
+const programmingPlanNationalCoordinatorsTable =
   'programming_plan_national_coordinators';
 
 const ProgrammingPlanDbo = ProgrammingPlanBase.omit({
