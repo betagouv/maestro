@@ -668,8 +668,20 @@ describe('ProgrammingPlan router', () => {
     test('should fail if the user does not have the permission', async () => {
       await request(app)
         .get(testRoute(DAOAInProgressProgrammingPlanFixture.id))
-        .use(tokenProvider(NationalCoordinator))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
+      await request(app)
+        .put(testRoute(DAOAInProgressProgrammingPlanFixture.id))
+        .send(validBody)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should let a national coordinator read but not update a plan they do not own', async () => {
+      await request(app)
+        .get(testRoute(DAOAInProgressProgrammingPlanFixture.id))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
       await request(app)
         .put(testRoute(DAOAInProgressProgrammingPlanFixture.id))
         .send(validBody)
@@ -794,8 +806,20 @@ describe('ProgrammingPlan router', () => {
     test('should fail if the user does not have the permission', async () => {
       await request(app)
         .get(daoaVolailleRoute)
-        .use(tokenProvider(NationalCoordinator))
+        .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
+      await request(app)
+        .put(daoaVolailleRoute)
+        .send(validBody)
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should let a national coordinator read but not update a sub-plan they do not own', async () => {
+      await request(app)
+        .get(daoaVolailleRoute)
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
       await request(app)
         .put(daoaVolailleRoute)
         .send(validBody)

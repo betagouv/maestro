@@ -2,7 +2,7 @@ import { constants } from 'node:http2';
 import { ProgrammingPlanDomainFixtures } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   AdminFixture,
-  NationalCoordinator,
+  RegionalCoordinator,
   Sampler1Fixture
 } from 'maestro-shared/test/userFixtures';
 import request from 'supertest';
@@ -60,7 +60,7 @@ describe('Programming plan domain router', () => {
       await request(app)
         .post(testRoute)
         .send(testDomain)
-        .use(tokenProvider(NationalCoordinator))
+        .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 

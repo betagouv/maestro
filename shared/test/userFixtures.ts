@@ -10,6 +10,7 @@ import {
   companiesIsRequired,
   departmentIsRequired,
   laboratoryIsRequired,
+  programmingSubPlansAreRestricted,
   stagesIsRequired,
   type UserRefined
 } from '../schema/User/User';
@@ -26,6 +27,9 @@ import {
   DAOABovinValidatedSubPlanFixture,
   DAOAVolailleInProgressSubPlanFixture,
   DAOAVolailleValidatedSubPlanFixture,
+  NationalCoordinatorDaoaEmail,
+  NationalCoordinatorDaoaId,
+  NationalCoordinatorDaoaName,
   NationalCoordinatorEmail,
   NationalCoordinatorId,
   NationalCoordinatorName,
@@ -47,19 +51,24 @@ export const genUser = <T extends Partial<UserRefined>>(
       ? (data?.region ?? oneOf(RegionList))
       : null;
 
-  const programmingSubPlans: ProgrammingSubPlan[] = stagesIsRequired({ roles })
-    ? (data?.programmingSubPlans ??
-      (roles?.includes('DepartmentalCoordinator')
-        ? [
-            oneOf([
-              DAOAVolailleValidatedSubPlanFixture,
-              DAOABovinValidatedSubPlanFixture
-            ])
-          ]
-        : [PPVValidatedSubPlanFixture]))
-    : [];
+  const programmingSubPlans: ProgrammingSubPlan[] =
+    programmingSubPlansAreRestricted({ roles })
+      ? (data?.programmingSubPlans ??
+        (roles?.includes('DepartmentalCoordinator')
+          ? [
+              oneOf([
+                DAOAVolailleValidatedSubPlanFixture,
+                DAOABovinValidatedSubPlanFixture
+              ])
+            ]
+          : [PPVValidatedSubPlanFixture]))
+      : [];
 
-  const stages = data?.stages ?? stagesFromSubPlans(programmingSubPlans);
+  const stages =
+    data?.stages ??
+    (stagesIsRequired({ roles })
+      ? stagesFromSubPlans(programmingSubPlans)
+      : []);
 
   return {
     id: uuidv4(),
@@ -226,14 +235,15 @@ export const SamplerDaoaFixture = genUser({
 });
 export const NationalCoordinatorDaoaFixture = genUser({
   roles: ['NationalCoordinator'],
-  name: 'Damien Coordination',
+  name: NationalCoordinatorDaoaName,
+  email: NationalCoordinatorDaoaEmail,
   programmingSubPlans: [
     DAOAVolailleInProgressSubPlanFixture,
     DAOABovinInProgressSubPlanFixture,
     DAOAVolailleValidatedSubPlanFixture,
     DAOABovinValidatedSubPlanFixture
   ],
-  id: '14141414-1414-1414-1414-141414141414'
+  id: NationalCoordinatorDaoaId
 });
 export const LaboratoryUserFixture = genUser({
   roles: ['LaboratoryUser'],

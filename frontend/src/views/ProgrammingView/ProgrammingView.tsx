@@ -103,7 +103,8 @@ const ProgrammingView = () => {
     status: year
       ? ['Closed']
       : ProgrammingPlanStatusList.filter((status) => status !== 'Closed'),
-    year: year ? Number(year) : undefined
+    year: year ? Number(year) : undefined,
+    scope: 'owned'
   });
   const [commentLocalPrescription, { isSuccess: isCommentSuccess }] =
     apiClient.useCommentLocalPrescriptionMutation();

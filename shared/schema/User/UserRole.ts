@@ -91,6 +91,7 @@ const AdministratorPermissionsList = [
   'viewDashboard',
   'manageLaboratoryAgreements',
   'manageUsers',
+  'manageProgrammingPlanSettings',
   'manageProgrammingPlanNationalCoordinators'
 ] as const satisfies UserPermission[];
 
@@ -118,7 +119,8 @@ const userRolePermissions = {
     'readCompanies',
     'readAnalysis',
     'viewDashboard',
-    'exportSamplesWithCodes'
+    'exportSamplesWithCodes',
+    'manageProgrammingPlanSettings'
   ],
   RegionalCoordinator: [
     'viewProgrammingPlans',
@@ -175,9 +177,7 @@ const userRolePermissions = {
     'manageMascarade',
     'manageNotices',
     'manageSpecificDataFields',
-    'manageLaboratoryConfig',
-    // FIXME à ajouter pour les AdmnistratorBGIR et NationalCoordinator
-    'manageProgrammingPlanSettings'
+    'manageLaboratoryConfig'
   ],
   AdministratorBGIR: AdministratorPermissionsList,
   LaboratoryUser: ['readDocuments', 'readProgrammingPlanValidated'],

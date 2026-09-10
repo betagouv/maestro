@@ -70,6 +70,18 @@ export const NationalCoordinatorId = '55555555-5555-5555-5555-555555555555';
 export const NationalCoordinatorName = 'Nadia Coordination';
 export const NationalCoordinatorEmail = 'nadia.coordination@example.net';
 
+export const NationalCoordinatorDaoaId = '14141414-1414-1414-1414-141414141414';
+export const NationalCoordinatorDaoaName = 'Damien Coordination';
+export const NationalCoordinatorDaoaEmail = 'damien.coordination@example.net';
+
+const DaoaNationalCoordinators = [
+  {
+    id: NationalCoordinatorDaoaId,
+    name: NationalCoordinatorDaoaName,
+    email: NationalCoordinatorDaoaEmail
+  }
+];
+
 const PPVClosedProgrammingPlanId = 'f5d510ef-ab78-449a-acd6-392895a1994f';
 const PPVValidatedProgrammingPlanId = 'd78fb3eb-1998-482b-9014-282d51ae30b8';
 const PPVValidatedDromProgrammingPlanId =
@@ -339,6 +351,7 @@ export const PPVSubmittedProgrammingPlanFixture = genProgrammingPlan({
 
 export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
   id: DAOAValidatedProgrammingPlanId,
+  nationalCoordinators: DaoaNationalCoordinators,
   domainId: PesticideResidueDomainId,
   title: "Produit carné à l'abattoir",
   subPlans: [
@@ -367,6 +380,7 @@ export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
 
 export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   id: DAOAInProgressProgrammingPlanId,
+  nationalCoordinators: DaoaNationalCoordinators,
   domainId: PesticideResidueNextYearDomainId,
   title: "Produit carné à l'abattoir",
   subPlans: [

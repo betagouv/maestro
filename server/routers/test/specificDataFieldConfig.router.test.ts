@@ -48,7 +48,6 @@ describe('SpecificDataFieldConfig router', () => {
 
     test('should fail if the user does not have the permission', async () => {
       await forbiddenRequestTest(Sampler1Fixture, 'get', testRoute);
-      await forbiddenRequestTest(NationalCoordinator, 'get', testRoute);
       await forbiddenRequestTest(LaboratoryUserFixture, 'get', testRoute);
       await forbiddenRequestTest(LaboratoryOfficeUserFixture, 'get', testRoute);
     });

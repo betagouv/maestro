@@ -67,6 +67,28 @@ describe('buildFindSampleOptions', () => {
       expect(result.regions).toEqual(['93']);
     });
 
+    test('NationalCoordinator is restricted to the sub plans they own', () => {
+      const result = buildFindSampleOptions(
+        NationalCoordinator,
+        'NationalCoordinator',
+        { ...baseQuery, programmingSubPlanIds: [] }
+      );
+
+      expect(result.programmingSubPlanIds).toEqual(
+        NationalCoordinator.programmingSubPlans.map((subPlan) => subPlan.id)
+      );
+    });
+
+    test('AdministratorMaestro is not restricted to any sub plan', () => {
+      const result = buildFindSampleOptions(
+        AdminFixture,
+        'AdministratorMaestro',
+        baseQuery
+      );
+
+      expect(result.programmingSubPlanIds).toBeUndefined();
+    });
+
     test('NationalObserver can access all regions and departments', () => {
       const result = buildFindSampleOptions(
         NationalObserver,

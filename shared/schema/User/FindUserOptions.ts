@@ -5,6 +5,7 @@ import { Stage } from '../../referential/Stage';
 import { UserRole } from './UserRole';
 
 export const FindUserOptions = z.object({
+  ids: z.array(z.guid()).nullish(),
   region: Region.nullish(),
   department: Department.nullish(),
   roles: z.array(UserRole).nullish(),
