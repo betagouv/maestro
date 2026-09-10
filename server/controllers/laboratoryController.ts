@@ -89,6 +89,17 @@ export const laboratoriesRouter = {
       return { status: HttpStatus.OK, response: agreements };
     }
   },
+  '/laboratories/agreements/previous-year': {
+    post: async ({ body }) => {
+      console.info('Copy laboratory agreements from previous year', body.year);
+
+      const count = await laboratoryAgreementRepository.copyFromPreviousYear(
+        body.year
+      );
+
+      return { status: HttpStatus.OK, response: { count } };
+    }
+  },
   '/laboratories/agreements/checks': {
     get: async ({ query }) => {
       console.info('Find all laboratory agreement checks');

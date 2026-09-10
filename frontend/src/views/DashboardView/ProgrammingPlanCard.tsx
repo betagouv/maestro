@@ -9,6 +9,7 @@ import {
   type ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useContext } from 'react';
 import { pluralize } from 'src/utils/stringUtils';
 import ProgrammingPlanMap from 'src/views/DashboardView/ProgrammingPlanMap';
@@ -27,9 +28,7 @@ const ProgrammingPlanCard = ({
 }: ProgrammingPlanCardProps) => {
   const apiClient = useContext(ApiClientContext);
 
-  const isPPV = programmingPlan.subPlans.some(
-    (sp) => sp.subPlanNumber === 'PPV'
-  );
+  const isPPV = programmingPlan.subPlans.some((sp) => isPPVSubPlan(sp));
 
   const { data: regionalPrescriptions } =
     apiClient.useFindLocalPrescriptionsQuery({

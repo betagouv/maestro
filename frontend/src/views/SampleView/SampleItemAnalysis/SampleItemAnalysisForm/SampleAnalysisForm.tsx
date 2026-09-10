@@ -11,6 +11,7 @@ import {
   ResidueLmrChecked
 } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import type React from 'react';
 import {
@@ -112,7 +113,7 @@ export const SampleAnalysisForm: FunctionComponent<Props> = ({
           resultKind: 'Q',
           result: null,
           reference: undefined,
-          ...(programmingSubPlan.subPlanNumber === 'PPV'
+          ...(isPPVSubPlan(programmingSubPlan)
             ? {}
             : {
                 substanceApproved: 'NA',

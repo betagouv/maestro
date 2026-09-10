@@ -3,6 +3,7 @@ import Select from '@codegouvfr/react-dsfr/Select';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SubStageLabels } from 'maestro-shared/referential/SubStage';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   getSampleMatrixLabel,
   isProgrammingPlanSample,
@@ -41,10 +42,14 @@ const MatrixStepSummary = ({
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { data: fieldConfigs = [] } =
-    apiClient.useFindProgrammingSubPlanFieldConfigsQuery({
-      programmingPlanId: sample.programmingPlanId,
-      programmingSubPlanId: sample.programmingSubPlanId
-    });
+    apiClient.useFindProgrammingSubPlanFieldConfigsQuery(
+      {
+        programmingPlanId: sample.programmingPlanId,
+        programmingSubPlanId:
+          sample.programmingSubPlanId as ProgrammingSubPlanId
+      },
+      { skip: !sample.programmingSubPlanId }
+    );
 
   return (
     <StepSummary title="Matrice contrôlée" onEdit={onEdit} mode={mode}>

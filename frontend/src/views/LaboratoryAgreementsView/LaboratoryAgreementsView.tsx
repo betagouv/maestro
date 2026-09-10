@@ -22,6 +22,7 @@ import {
   useRef,
   useState
 } from 'react';
+import AppToast from 'src/components/_app/AppToast/AppToast';
 import BackToTopButton from 'src/components/BackToTopButton/BackToTopButton';
 import { LaboratoryAgreementDetailProvider } from 'src/components/LaboratoryAgreement/LaboratoryAgreementDetailModal/LaboratoryAgreementDetailContext';
 import { ApiClientContext } from '../../services/apiClient';
@@ -135,6 +136,9 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
   const rowsWithoutLab = rows.length - rowsWithLab;
   const { data: laboratories = [] } = apiClient.useFindLaboratoriesQuery({});
   const [updateAgreements] = apiClient.useUpdateLaboratoryAgreementsMutation();
+  const [copyFromPreviousYear, { isLoading: isCopying }] =
+    apiClient.useCopyLaboratoryAgreementsFromPreviousYearMutation();
+  const [copyResult, setCopyResult] = useState<string>();
   const [updateCheck] = apiClient.useUpdateLaboratoryAgreementCheckMutation();
 
   const { data: allPrescriptions = [] } = apiClient.useFindPrescriptionsQuery({
@@ -514,7 +518,28 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
           >
             Exporter
           </Button>
+          <Button
+            iconId="fr-icon-refresh-line"
+            priority="secondary"
+            disabled={isCopying}
+            onClick={async () => {
+              const { count } = await copyFromPreviousYear({
+                year
+              }).unwrap();
+              setCopyResult(
+                `${pluralize(count, { preserveCount: true })('agrément')} ${pluralize(count)('repris')} de ${year - 1}.`
+              );
+            }}
+            className={cx('fr-ml-3w')}
+          >
+            Reprendre {year - 1}
+          </Button>
         </div>
+        <AppToast
+          open={copyResult !== undefined}
+          description={copyResult ?? ''}
+          onClose={() => setCopyResult(undefined)}
+        />
         <LaboratoryAgreementsTable
           rows={deferredFilteredRows}
           selectedStringRowKeys={selectedStringRowKeys}

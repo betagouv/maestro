@@ -70,6 +70,14 @@ const laboratoryApi = api.injectEndpoints({
         invalidatesTags: [{ type: 'LaboratoryAgreement', id: 'LIST' }]
       }
     ),
+    copyLaboratoryAgreementsFromPreviousYear: buildTypedMutation(
+      builder,
+      '/laboratories/agreements/previous-year',
+      'post',
+      {
+        invalidatesTags: [{ type: 'LaboratoryAgreement', id: 'LIST' }]
+      }
+    ),
     getLaboratoryAnalyticalCompetences: buildTypedQuery(
       builder,
       '/laboratories/:laboratoryId/analytical-competences',
@@ -122,6 +130,7 @@ export const {
   useFindLaboratoryAgreementChecksQuery,
   useUpdateLaboratoryAgreementCheckMutation,
   useUpdateLaboratoryAgreementsMutation,
+  useCopyLaboratoryAgreementsFromPreviousYearMutation,
   useGetLaboratoryAnalyticalCompetencesQuery,
   useCreateLaboratoryAnalyticalCompetenceMutation,
   useUpdateLaboratoryAnalyticalCompetenceMutation

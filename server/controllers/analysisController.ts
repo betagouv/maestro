@@ -4,6 +4,7 @@ import { isAnalysisCorrectionReportable } from 'maestro-shared/referential/Labor
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
+import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { hasSamplePermission } from 'maestro-shared/schema/Sample/Sample';
 import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
@@ -160,7 +161,7 @@ export const analysisRouter = {
       };
       await analysisRepository.update(updatedAnalysis);
 
-      if (subPlan?.subPlanNumber === 'PPV') {
+      if (isPPVSubPlan(subPlan)) {
         await sampleRepository.update({
           ...sample,
           compliance: isNil(updatedAnalysis.compliance)
