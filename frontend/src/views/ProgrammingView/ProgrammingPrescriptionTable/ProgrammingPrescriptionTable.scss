@@ -71,6 +71,11 @@
     }
   }
 
+  .prescription-row-wrapper {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 4rem;
+  }
+
   .sticky-scrollbar {
     position: sticky;
     bottom: 0;

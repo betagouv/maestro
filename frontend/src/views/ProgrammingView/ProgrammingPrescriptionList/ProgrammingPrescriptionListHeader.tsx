@@ -83,21 +83,24 @@ const ProgrammingPrescriptionListHeader = ({
     >
       <div className="flex-grow-1">
         <h4 className={cx('fr-mb-1v')}>
-          {`${t('subPlan', { count: counts?.subPlanCount ?? 0 })} (${t(
-            'sample',
-            { count: counts?.sampleCount ?? 0 }
-          )})`}
+          {counts
+            ? `${t('subPlan', { count: counts.subPlanCount })} (${t('sample', {
+                count: counts.sampleCount
+              })})`
+            : ''}
         </h4>
-        <Badge
-          small
-          severity={
-            displayedMissingDistributionCount > 0 ? 'warning' : 'success'
-          }
-        >
-          {displayedMissingDistributionCount > 0
-            ? `${displayedMissingDistributionCount} à répartir`
-            : `${counts?.displayedDistributedCount ?? 0} répartis`}
-        </Badge>
+        {counts && (
+          <Badge
+            small
+            severity={
+              displayedMissingDistributionCount > 0 ? 'warning' : 'success'
+            }
+          >
+            {displayedMissingDistributionCount > 0
+              ? `${displayedMissingDistributionCount} à répartir`
+              : `${counts.displayedDistributedCount ?? 0} répartis`}
+          </Badge>
+        )}
       </div>
       <div className="prescription-list-header__filters">
         {!isSamplerView &&

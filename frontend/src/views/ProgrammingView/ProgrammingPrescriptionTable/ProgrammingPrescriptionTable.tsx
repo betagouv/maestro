@@ -1,4 +1,3 @@
-import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { groupBy, isNil, sumBy } from 'lodash-es';
@@ -17,69 +16,58 @@ import {
   type LocalPrescription,
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import { hasUnviewedChange } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
-import {
-  type LocalPrescriptionKey,
-  type LocalPrescriptionKeyString,
-  toLocalPrescriptionKeyString
+import type {
+  LocalPrescriptionKey,
+  LocalPrescriptionKeyString
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
-import {
-  getPrescriptionTitle,
-  hasPrescriptionPermission,
-  type Prescription
-} from 'maestro-shared/schema/Prescription/Prescription';
-import {
-  ContextLabels,
-  type ProgrammingPlanContext
-} from 'maestro-shared/schema/ProgrammingPlan/Context';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import {
   Fragment,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useRef,
   useState
 } from 'react';
-import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
-import LaboratorySelect from 'src/components/LaboratorySelect/LaboratorySelect';
-import PrescriptionDistributionBadge from 'src/components/Prescription/PrescriptionDistributionBadge/PrescriptionDistributionBadge';
 import SelectionCheckbox from 'src/components/SelectionCheckbox/SelectionCheckbox';
 import TableHeaderCell from 'src/components/TableHeaderCell/TableHeaderCell';
-import { z } from 'zod';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../services/apiClient';
-import { pluralize } from '../../../utils/stringUtils';
 import './ProgrammingPrescriptionTable.scss';
-import PrescriptionSubstances from '../../../components/Prescription/PrescriptionSubstances/PrescriptionSubstances';
+import ProgrammingPrescriptionRow from './ProgrammingPrescriptionRow';
+import {
+  Colgroup,
+  type RowWrapperKey,
+  toPlanHeaderRowKey,
+  toPrescriptionRowKey
+} from './ProgrammingPrescriptionTableParts';
 
-const PlanHeaderRowKey = z.string().brand('PlanHeaderRowKey');
-type PlanHeaderRowKey = z.infer<typeof PlanHeaderRowKey>;
+const INITIAL_ROW_COUNT = 60;
+const ROW_CHUNK_SIZE = 120;
 
-const PrescriptionRowKey = z.string().brand('PrescriptionRowKey');
-type PrescriptionRowKey = z.infer<typeof PrescriptionRowKey>;
+const useProgressiveRowCount = (total: number) => {
+  const [renderedCount, setRenderedCount] = useState(INITIAL_ROW_COUNT);
 
-type RowWrapperKey = PlanHeaderRowKey | PrescriptionRowKey;
+  useEffect(() => {
+    setRenderedCount(INITIAL_ROW_COUNT);
+  }, [total]);
 
-const toPlanHeaderRowKey = (
-  planId: string,
-  context: ProgrammingPlanContext
-): PlanHeaderRowKey =>
-  PlanHeaderRowKey.parse(`plan-header-${planId}-${context}`);
+  useEffect(() => {
+    if (renderedCount >= total) {
+      return;
+    }
+    const handle = window.requestIdleCallback(() =>
+      setRenderedCount((count) => Math.min(count + ROW_CHUNK_SIZE, total))
+    );
+    return () => window.cancelIdleCallback(handle);
+  }, [renderedCount, total]);
 
-const toPrescriptionRowKey = (id: string): PrescriptionRowKey =>
-  PrescriptionRowKey.parse(id);
-
-const bySubstanceKindLabel = (
-  a: Pick<SubstanceKindLaboratory, 'substanceKind'>,
-  b: Pick<SubstanceKindLaboratory, 'substanceKind'>
-) =>
-  SubstanceKindLabels[a.substanceKind].localeCompare(
-    SubstanceKindLabels[b.substanceKind],
-    'fr'
-  );
+  return renderedCount;
+};
 
 interface Props {
   programmingPlans: ProgrammingPlanChecked[];
@@ -110,86 +98,6 @@ interface Props {
   topOffset?: number;
 }
 
-const Colgroup = ({
-  columnCount,
-  showLaboratoryColumn,
-  showCheckboxColumn,
-  wideColumns
-}: {
-  columnCount: number;
-  showLaboratoryColumn: boolean;
-  showCheckboxColumn: boolean;
-  wideColumns: boolean;
-}) => (
-  <colgroup>
-    {showCheckboxColumn && <col className="col-checkbox" />}
-    <col className="col-n" />
-    <col className="col-matrice" />
-    <col className="col-analyte" />
-    <col className="col-prelevements" />
-    {showLaboratoryColumn && <col className="col-laboratoire" />}
-    {Array.from({ length: columnCount }, (_, i) => (
-      <col
-        key={`col-${i}`}
-        className={wideColumns ? 'col-company' : 'col-region'}
-      />
-    ))}
-  </colgroup>
-);
-
-const PrescriptionSampleCountInput = ({
-  value,
-  isPending,
-  onChange
-}: {
-  value: number;
-  isPending?: boolean;
-  onChange: (value: number) => void;
-}) => {
-  const [inputValue, setInputValue] = useState(String(value));
-
-  useEffect(() => {
-    setInputValue(String(value));
-  }, [value]);
-
-  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    if (value === 0) {
-      setInputValue('');
-      e.target.value = '';
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-    const newValue = Number(e.target.value);
-    if (!Number.isNaN(newValue) && newValue !== value) {
-      onChange(newValue);
-    }
-  };
-
-  const handleBlur = () => {
-    if (inputValue === '') {
-      setInputValue(String(value));
-    }
-  };
-
-  return (
-    <input
-      className={clsx(
-        'distribution-count-input',
-        'distribution-count-input--wide',
-        isPending && 'distribution-count-input--pending'
-      )}
-      type="number"
-      min={0}
-      value={inputValue}
-      onFocus={handleFocus}
-      onChange={handleChange}
-      onBlur={handleBlur}
-    />
-  );
-};
-
 const ProgrammingPrescriptionTable = ({
   programmingPlans,
   prescriptions: allPrescriptions,
@@ -210,8 +118,7 @@ const ProgrammingPrescriptionTable = ({
   topOffset = 0
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
-  const { hasUserLocalPrescriptionPermission, hasUserPermission, userRole } =
-    useAuthentication();
+  const { userRole } = useAuthentication();
   const { data: domains } = apiClient.useFindProgrammingPlanDomainsQuery();
   const domainLabels = useMemo(
     () =>
@@ -221,8 +128,13 @@ const ProgrammingPrescriptionTable = ({
   const showCheckboxColumn = !!onTogglePrescriptionSelection;
   const isSamplerView = userRole === 'Sampler';
 
+  const selectedPrescriptionIds = useMemo(
+    () => new Set(selectedPrescriptions.map((p) => p.id)),
+    [selectedPrescriptions]
+  );
+
   const isPrescriptionSelected = (prescription: Prescription) =>
-    selectedPrescriptions.some((p) => p.id === prescription.id);
+    selectedPrescriptionIds.has(prescription.id);
 
   const getSelectionState = (scope: Prescription[]) => {
     const selectedCount = scope.filter(isPrescriptionSelected).length;
@@ -245,33 +157,105 @@ const ProgrammingPrescriptionTable = ({
     });
   };
 
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [headerHeight, setHeaderHeight] = useState(0);
   const syncingRef = useRef(false);
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const headerWrapperRef = useRef<HTMLDivElement>(null);
   const rowWrapperRefs = useRef<Map<RowWrapperKey, HTMLDivElement>>(new Map());
+  const visibleRowWrappersRef = useRef<Set<HTMLDivElement>>(new Set());
+  const rowObserverRef = useRef<IntersectionObserver | null>(null);
+  const scrollLeftRef = useRef(0);
+  const syncFrameRef = useRef<number | null>(null);
   const stickyScrollRef = useRef<HTMLDivElement>(null);
   const stickyInnerRef = useRef<HTMLDivElement>(null);
 
-  const sync = (source: HTMLDivElement) => {
+  const applyScrollLeft = (el: HTMLDivElement | null, scrollLeft: number) => {
+    if (el && el.scrollLeft !== scrollLeft) {
+      el.scrollLeft = scrollLeft;
+    }
+  };
+
+  const sync = useCallback((source: HTMLDivElement) => {
     if (syncingRef.current) {
       return;
     }
-    syncingRef.current = true;
-    [
-      headerWrapperRef.current,
-      ...Array.from(rowWrapperRefs.current.values()),
-      stickyScrollRef.current
-    ]
-      .filter((el): el is HTMLDivElement => !!el && el !== source)
-      .forEach((el) => {
-        el.scrollLeft = source.scrollLeft;
+    scrollLeftRef.current = source.scrollLeft;
+    if (syncFrameRef.current !== null) {
+      return;
+    }
+    syncFrameRef.current = requestAnimationFrame(() => {
+      syncFrameRef.current = null;
+      const scrollLeft = scrollLeftRef.current;
+      syncingRef.current = true;
+      applyScrollLeft(headerWrapperRef.current, scrollLeft);
+      applyScrollLeft(stickyScrollRef.current, scrollLeft);
+      visibleRowWrappersRef.current.forEach((el) => {
+        applyScrollLeft(el, scrollLeft);
       });
-    syncingRef.current = false;
-  };
+      requestAnimationFrame(() => {
+        syncingRef.current = false;
+      });
+    });
+  }, []);
 
-  const prescriptionIdsKey = allPrescriptions.map((p) => p.id).join(',');
+  useEffect(
+    () => () => {
+      if (syncFrameRef.current !== null) {
+        cancelAnimationFrame(syncFrameRef.current);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const el = entry.target as HTMLDivElement;
+          if (entry.isIntersecting) {
+            visibleRowWrappersRef.current.add(el);
+            applyScrollLeft(el, scrollLeftRef.current);
+          } else {
+            visibleRowWrappersRef.current.delete(el);
+          }
+        }
+      },
+      { rootMargin: '400px 0px' }
+    );
+    rowObserverRef.current = observer;
+    rowWrapperRefs.current.forEach((el) => {
+      observer.observe(el);
+    });
+    return () => {
+      observer.disconnect();
+      rowObserverRef.current = null;
+      visibleRowWrappersRef.current.clear();
+    };
+  }, []);
+
+  const registerRowWrapper = useCallback(
+    (prescriptionId: string, el: HTMLDivElement | null) => {
+      const rowKey = toPrescriptionRowKey(prescriptionId);
+      const previous = rowWrapperRefs.current.get(rowKey);
+      if (previous && previous !== el) {
+        rowObserverRef.current?.unobserve(previous);
+        visibleRowWrappersRef.current.delete(previous);
+      }
+      if (el) {
+        rowWrapperRefs.current.set(rowKey, el);
+        applyScrollLeft(el, scrollLeftRef.current);
+        rowObserverRef.current?.observe(el);
+      } else {
+        rowWrapperRefs.current.delete(rowKey);
+      }
+    },
+    []
+  );
+
+  const prescriptionIdsKey = useMemo(
+    () => allPrescriptions.map((p) => p.id).join(','),
+    [allPrescriptions]
+  );
   useEffect(() => {
     if (headerWrapperRef.current) {
       headerWrapperRef.current.scrollLeft = 0;
@@ -279,6 +263,7 @@ const ProgrammingPrescriptionTable = ({
     if (stickyScrollRef.current) {
       stickyScrollRef.current.scrollLeft = 0;
     }
+    scrollLeftRef.current = 0;
     rowWrapperRefs.current.forEach((el) => {
       el.scrollLeft = 0;
     });
@@ -334,35 +319,108 @@ const ProgrammingPrescriptionTable = ({
     };
   }, []);
 
-  const toggleExpand = (id: string) =>
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+  const localPrescriptionsByPrescriptionId = useMemo(() => {
+    const index = new Map<string, LocalPrescription[]>();
+    for (const localPrescription of regionalPrescriptions) {
+      const list = index.get(localPrescription.prescriptionId);
+      if (list) {
+        list.push(localPrescription);
+      } else {
+        index.set(localPrescription.prescriptionId, [localPrescription]);
+      }
+    }
+    for (const list of index.values()) {
+      list.sort(LocalPrescriptionSort);
+    }
+    return index;
+  }, [regionalPrescriptions]);
+
+  const ownRegionalPrescriptionByPrescriptionId = useMemo(() => {
+    const index = new Map<string, LocalPrescription>();
+    if (!region) {
+      return index;
+    }
+    for (const localPrescription of regionalPrescriptions) {
+      if (
+        localPrescription.region === region &&
+        !index.has(localPrescription.prescriptionId)
+      ) {
+        index.set(localPrescription.prescriptionId, localPrescription);
+      }
+    }
+    return index;
+  }, [regionalPrescriptions, region]);
+
+  const subLocalPrescriptionsByPrescriptionId = useMemo(() => {
+    const index = new Map<string, LocalPrescription[]>();
+    for (const localPrescription of subLocalPrescriptions) {
+      const list = index.get(localPrescription.prescriptionId);
+      if (list) {
+        list.push(localPrescription);
+      } else {
+        index.set(localPrescription.prescriptionId, [localPrescription]);
+      }
+    }
+    return index;
+  }, [subLocalPrescriptions]);
+
+  const commentCountByPrescriptionId = useMemo(() => {
+    const index = new Map<string, number>();
+    for (const localPrescription of regionalPrescriptions) {
+      if (!isNil(localPrescription.department)) {
+        continue;
+      }
+      index.set(
+        localPrescription.prescriptionId,
+        (index.get(localPrescription.prescriptionId) ?? 0) +
+          (localPrescription.comments ?? []).length
+      );
+    }
+    return index;
+  }, [regionalPrescriptions]);
 
   const getLocalPrescriptions = (prescriptionId: string) =>
-    regionalPrescriptions
-      .filter((r) => r.prescriptionId === prescriptionId)
-      .sort(LocalPrescriptionSort);
+    localPrescriptionsByPrescriptionId.get(prescriptionId) ?? [];
 
   const getOwnRegionalPrescription = (prescriptionId: string) =>
-    regionalPrescriptions.find(
-      (r) => r.prescriptionId === prescriptionId && r.region === region
-    );
+    ownRegionalPrescriptionByPrescriptionId.get(prescriptionId);
 
   const getSubLocalPrescriptions = (prescriptionId: string) =>
-    subLocalPrescriptions.filter((r) => r.prescriptionId === prescriptionId);
+    subLocalPrescriptionsByPrescriptionId.get(prescriptionId) ?? [];
+
+  const planBySubPlanId = useMemo(() => {
+    const index = new Map<
+      string,
+      {
+        plan: ProgrammingPlanChecked;
+        subPlan: ProgrammingPlanChecked['subPlans'][number];
+      }
+    >();
+    for (const plan of programmingPlans) {
+      for (const subPlan of plan.subPlans) {
+        if (!index.has(subPlan.id)) {
+          index.set(subPlan.id, { plan, subPlan });
+        }
+      }
+    }
+    return index;
+  }, [programmingPlans]);
 
   const getPlan = (prescription: Prescription) =>
-    programmingPlans.find((p) =>
-      p.subPlans.some((sp) => sp.id === prescription.programmingSubPlanId)
-    ) ?? programmingPlans[0];
+    planBySubPlanId.get(prescription.programmingSubPlanId)?.plan ??
+    programmingPlans[0];
 
   const getSubPlan = (prescription: Prescription) =>
-    programmingPlans
-      .flatMap((p) => p.subPlans)
-      .find((sp) => sp.id === prescription.programmingSubPlanId);
+    planBySubPlanId.get(prescription.programmingSubPlanId)?.subPlan;
+
+  const renderedRowCount = useProgressiveRowCount(
+    allPrescriptions?.length ?? 0
+  );
+
+  const departmentList = useMemo(
+    () => (region ? [...Regions[region].departments].sort(DepartmentSort) : []),
+    [region]
+  );
 
   if (!allPrescriptions) {
     return null;
@@ -381,9 +439,6 @@ const ProgrammingPrescriptionTable = ({
     ? allPrescriptions.filter((p) => !isNil(getOwnRegionalPrescription(p.id)))
     : allPrescriptions;
 
-  const departmentList = region
-    ? [...Regions[region].departments].sort(DepartmentSort)
-    : [];
   const columnCount = isSamplerView
     ? 0
     : department
@@ -394,6 +449,19 @@ const ProgrammingPrescriptionTable = ({
 
   const planOrder = [...new Set(prescriptions.map((p) => p.programmingPlanId))];
   const prescriptionsByPlan = groupBy(prescriptions, 'programmingPlanId');
+
+  const renderedPrescriptionIds = new Set(
+    planOrder
+      .flatMap((planId) => {
+        const planPrescriptions = prescriptionsByPlan[planId] ?? [];
+        const byContext = groupBy(planPrescriptions, 'context');
+        return [...new Set(planPrescriptions.map((p) => p.context))].flatMap(
+          (context) => byContext[context] ?? []
+        );
+      })
+      .slice(0, renderedRowCount)
+      .map((p) => p.id)
+  );
 
   const hasVisibleSlaughterhousePlan = planOrder.some(
     (planId) =>
@@ -632,14 +700,14 @@ const ProgrammingPrescriptionTable = ({
             {contextOrder.map((context) => {
               const contextPrescriptions =
                 prescriptionsByContext[context] ?? [];
-              const contextPrescriptionIds = contextPrescriptions.map(
-                (p) => p.id
+              const contextPrescriptionIds = new Set(
+                contextPrescriptions.map((p) => p.id)
               );
               const contextRegionalPrescriptions = regionalPrescriptions.filter(
-                (r) => contextPrescriptionIds.includes(r.prescriptionId)
+                (r) => contextPrescriptionIds.has(r.prescriptionId)
               );
               const contextSubLocalPrescriptions = subLocalPrescriptions.filter(
-                (r) => contextPrescriptionIds.includes(r.prescriptionId)
+                (r) => contextPrescriptionIds.has(r.prescriptionId)
               );
 
               return (
@@ -802,756 +870,62 @@ const ProgrammingPrescriptionTable = ({
                     </div>
                   </div>
 
-                  {contextPrescriptions.map((prescription) => {
-                    const subPlan = getSubPlan(prescription);
-                    const plan = getPlan(prescription);
-                    const localPrescriptions = getLocalPrescriptions(
-                      prescription.id
-                    );
-                    const totalSampleCount = sumBy(
-                      localPrescriptions,
-                      'sampleCount'
-                    );
-                    const isExpanded = expandedIds.has(prescription.id);
-                    const showDistributionBadge =
-                      !isSamplerView &&
-                      (prescription.sampleCount !== 0 ||
-                        totalSampleCount !== 0);
-                    const ownRegionalPrescription = region
-                      ? getOwnRegionalPrescription(prescription.id)
-                      : undefined;
-                    const rowSubLocalPrescriptions = region
-                      ? getSubLocalPrescriptions(prescription.id)
-                      : [];
-                    const regionDistributedCount = sumBy(
-                      rowSubLocalPrescriptions,
-                      'sampleCount'
-                    );
-                    const showRegionDistributionBadge =
-                      !isSamplerView &&
-                      plan.distributionKind === 'SLAUGHTERHOUSE' &&
-                      ((ownRegionalPrescription?.sampleCount ?? 0) !== 0 ||
-                        regionDistributedCount !== 0);
-                    const rowHasUnviewedChange = region
-                      ? hasUnviewedChange(ownRegionalPrescription?.changedAt)
-                      : localPrescriptions.some((_) =>
-                          hasUnviewedChange(_.changedAt)
-                        );
-                    const rowCommentCount = sumBy(
-                      regionalPrescriptions.filter(
-                        (_) =>
-                          _.prescriptionId === prescription.id &&
-                          isNil(_.department)
-                      ),
-                      (_) => (_.comments ?? []).length
-                    );
-                    const showComments =
-                      plan.distributionKind === 'REGIONAL' &&
-                      hasUserPermission('commentPrescription') &&
-                      !!onOpenComments;
-                    const showRowLaboratoryCells =
-                      (plan.distributionKind === 'REGIONAL' ||
-                        (plan.distributionKind === 'SLAUGHTERHOUSE' &&
-                          department)) &&
-                      !!ownRegionalPrescription;
-                    const rowSubstanceKindsLaboratories: SubstanceKindLaboratory[] =
-                      (
-                        showRowLaboratoryCells
-                          ? (ownRegionalPrescription?.substanceKindsLaboratories
-                              ?.length ?? 0) > 0
-                            ? ((ownRegionalPrescription?.substanceKindsLaboratories ??
-                                []) as SubstanceKindLaboratory[])
-                            : (subPlan?.substanceKinds ?? []).map(
-                                (substanceKind) => ({
-                                  substanceKind,
-                                  laboratoryId: undefined
-                                })
-                              )
-                          : []
-                      ).toSorted(bySubstanceKindLabel);
-
-                    return (
-                      <Fragment key={prescription.id}>
-                        <div
-                          className="table-scroll-wrapper"
-                          ref={(el) => {
-                            if (el) {
-                              rowWrapperRefs.current.set(
-                                toPrescriptionRowKey(prescription.id),
-                                el
-                              );
-                            } else {
-                              rowWrapperRefs.current.delete(
-                                toPrescriptionRowKey(prescription.id)
-                              );
-                            }
-                          }}
-                          onScroll={(e) => sync(e.currentTarget)}
-                        >
-                          <div
-                            className={clsx(
-                              'fr-table',
-                              'fr-table--bordered',
-                              'fr-table--no-caption',
-                              'fr-table--no-scroll'
-                            )}
-                          >
-                            <table>
-                              <Colgroup
-                                columnCount={columnCount}
-                                showLaboratoryColumn={showLaboratoryColumn}
-                                showCheckboxColumn={showCheckboxColumn}
-                                wideColumns={!!department}
-                              />
-                              <tbody>
-                                <tr
-                                  className={clsx(
-                                    rowHasUnviewedChange &&
-                                      'prescription-row--changed'
-                                  )}
-                                >
-                                  {showCheckboxColumn && (
-                                    <td className="checkbox-cell">
-                                      <SelectionCheckbox
-                                        checked={isPrescriptionSelected(
-                                          prescription
-                                        )}
-                                        onChange={() =>
-                                          onTogglePrescriptionSelection?.(
-                                            prescription
-                                          )
-                                        }
-                                      />
-                                    </td>
-                                  )}
-                                  <td className="n-cell">
-                                    <div className="row-reference">
-                                      {subPlan?.subPlanNumber}
-                                      <Button
-                                        iconId={
-                                          isExpanded
-                                            ? 'fr-icon-arrow-up-s-line'
-                                            : 'fr-icon-arrow-down-s-line'
-                                        }
-                                        priority="tertiary no outline"
-                                        size="small"
-                                        title={
-                                          isExpanded
-                                            ? 'Réduire'
-                                            : 'Voir les détails'
-                                        }
-                                        onClick={() =>
-                                          toggleExpand(prescription.id)
-                                        }
-                                      />
-                                    </div>
-                                  </td>
-                                  <td
-                                    className={clsx(
-                                      'matrice-cell',
-                                      cx('fr-text--bold'),
-                                      'border-left'
-                                    )}
-                                    data-testid={`matrix-${prescription.id}`}
-                                  >
-                                    <div className="matrice-cell__content">
-                                      <span className="matrice-cell__title">
-                                        {getPrescriptionTitle(prescription)}
-                                      </span>
-                                      {showComments && rowCommentCount > 0 && (
-                                        <Button
-                                          className="prescription-comments-badge"
-                                          priority="tertiary no outline"
-                                          size="small"
-                                          title={`${rowCommentCount} ${pluralize(rowCommentCount)('commentaire')}`}
-                                          onClick={() =>
-                                            onOpenComments(prescription)
-                                          }
-                                        >
-                                          <span
-                                            className={cx(
-                                              'fr-icon-chat-3-line'
-                                            )}
-                                            aria-hidden="true"
-                                          />
-                                          <span className="prescription-comments-badge__count">
-                                            {rowCommentCount}
-                                          </span>
-                                        </Button>
-                                      )}
-                                    </div>
-                                  </td>
-                                  <td
-                                    className={clsx(
-                                      'analyte-cell',
-                                      'border-left'
-                                    )}
-                                  >
-                                    {showRowLaboratoryCells ? (
-                                      <div className="analyte-lines">
-                                        {rowSubstanceKindsLaboratories.map(
-                                          (skl) => (
-                                            <div key={skl.substanceKind}>
-                                              {
-                                                SubstanceKindLabels[
-                                                  skl.substanceKind
-                                                ]
-                                              }
-                                            </div>
-                                          )
-                                        )}
-                                      </div>
-                                    ) : (
-                                      (subPlan?.substanceKinds ?? [])
-                                        .map((sk) => SubstanceKindLabels[sk])
-                                        .toSorted((a, b) =>
-                                          a.localeCompare(b, 'fr')
-                                        )
-                                        .join(', ')
-                                    )}
-                                  </td>
-                                  <td
-                                    className={clsx(
-                                      'prelevements-cell',
-                                      'border-left'
-                                    )}
-                                  >
-                                    {region && rowHasUnviewedChange && (
-                                      <span
-                                        className={clsx(
-                                          cx(
-                                            'fr-icon-flashlight-fill',
-                                            'fr-icon--sm'
-                                          ),
-                                          'prescription-sample-count-cell-icon'
-                                        )}
-                                        aria-hidden
-                                      />
-                                    )}
-                                    {region ? (
-                                      plan.distributionKind === 'REGIONAL' &&
-                                      ownRegionalPrescription ? (
-                                        <div
-                                          className={clsx(
-                                            'prescription-sample-count-cell',
-                                            rowHasUnviewedChange &&
-                                              'prescription-sample-count-cell--changed'
-                                          )}
-                                        >
-                                          <DistributionCountCell
-                                            programmingPlan={plan}
-                                            prescription={prescription}
-                                            localPrescription={
-                                              ownRegionalPrescription
-                                            }
-                                            isEditable={
-                                              hasUserLocalPrescriptionPermission(
-                                                plan,
-                                                ownRegionalPrescription
-                                              )?.updateSampleCount
-                                            }
-                                            isPending={pendingLocalKeys?.has(
-                                              toLocalPrescriptionKeyString({
-                                                prescriptionId: prescription.id,
-                                                region,
-                                                department: undefined,
-                                                companySiret: undefined
-                                              })
-                                            )}
-                                            onChange={async (value) =>
-                                              onChangeLocalPrescriptionCount(
-                                                {
-                                                  prescriptionId:
-                                                    prescription.id,
-                                                  region
-                                                },
-                                                value
-                                              )
-                                            }
-                                          />
-                                          {rowHasUnviewedChange &&
-                                            !isNil(
-                                              ownRegionalPrescription.previousSampleCount
-                                            ) && (
-                                              <div className="previous-sample-count">
-                                                Avant :{' '}
-                                                {
-                                                  ownRegionalPrescription.previousSampleCount
-                                                }
-                                              </div>
-                                            )}
-                                        </div>
-                                      ) : (
-                                        <div
-                                          className={clsx(
-                                            'prescription-sample-count-cell',
-                                            'prescription-sample-count-cell--read',
-                                            rowHasUnviewedChange &&
-                                              'prescription-sample-count-cell--changed'
-                                          )}
-                                        >
-                                          <div className="prescription-sample-count-cell__value-row">
-                                            <div>
-                                              {ownRegionalPrescription?.sampleCount ??
-                                                0}
-                                            </div>
-                                            {showRegionDistributionBadge && (
-                                              <PrescriptionDistributionBadge
-                                                sampleCount={
-                                                  ownRegionalPrescription?.sampleCount ??
-                                                  0
-                                                }
-                                                distributedCount={
-                                                  regionDistributedCount
-                                                }
-                                                small
-                                              />
-                                            )}
-                                          </div>
-                                          {rowHasUnviewedChange &&
-                                            !isNil(
-                                              ownRegionalPrescription?.previousSampleCount
-                                            ) && (
-                                              <div className="previous-sample-count">
-                                                Avant :{' '}
-                                                {
-                                                  ownRegionalPrescription.previousSampleCount
-                                                }
-                                              </div>
-                                            )}
-                                        </div>
-                                      )
-                                    ) : (
-                                      (() => {
-                                        const isNationalEditable =
-                                          userRole &&
-                                          hasPrescriptionPermission(
-                                            userRole,
-                                            plan
-                                          ).update &&
-                                          onChangePrescriptionSampleCount;
-                                        return (
-                                          <div
-                                            className={clsx(
-                                              'prescription-sample-count-cell',
-                                              isNationalEditable
-                                                ? 'prescription-sample-count-cell--edit'
-                                                : 'prescription-sample-count-cell--read'
-                                            )}
-                                          >
-                                            {isNationalEditable ? (
-                                              <>
-                                                <PrescriptionSampleCountInput
-                                                  value={
-                                                    prescription.sampleCount
-                                                  }
-                                                  isPending={pendingPrescriptionIds?.has(
-                                                    prescription.id
-                                                  )}
-                                                  onChange={(v) =>
-                                                    onChangePrescriptionSampleCount(
-                                                      prescription,
-                                                      v
-                                                    )
-                                                  }
-                                                />
-                                                {showDistributionBadge && (
-                                                  <PrescriptionDistributionBadge
-                                                    sampleCount={
-                                                      prescription.sampleCount
-                                                    }
-                                                    distributedCount={
-                                                      totalSampleCount
-                                                    }
-                                                    small
-                                                  />
-                                                )}
-                                              </>
-                                            ) : (
-                                              <div className="prescription-sample-count-cell__value-row">
-                                                <div>
-                                                  {prescription.sampleCount}
-                                                </div>
-                                                {showDistributionBadge && (
-                                                  <PrescriptionDistributionBadge
-                                                    sampleCount={
-                                                      prescription.sampleCount
-                                                    }
-                                                    distributedCount={
-                                                      totalSampleCount
-                                                    }
-                                                    small
-                                                  />
-                                                )}
-                                              </div>
-                                            )}
-                                          </div>
-                                        );
-                                      })()
-                                    )}
-                                  </td>
-                                  {showLaboratoryColumn && (
-                                    <td
-                                      className={clsx(
-                                        'laboratoire-cell',
-                                        'border-right'
-                                      )}
-                                    >
-                                      {showRowLaboratoryCells
-                                        ? (() => {
-                                            const substanceKindsLaboratories =
-                                              rowSubstanceKindsLaboratories;
-                                            const isEditable =
-                                              hasUserLocalPrescriptionPermission(
-                                                plan,
-                                                ownRegionalPrescription
-                                              )?.updateLaboratories;
-                                            const isLaboratoryPending =
-                                              region &&
-                                              pendingLaboratoryKeys?.has(
-                                                toLocalPrescriptionKeyString({
-                                                  prescriptionId:
-                                                    prescription.id,
-                                                  region,
-                                                  department,
-                                                  companySiret: undefined
-                                                })
-                                              );
-                                            return substanceKindsLaboratories.map(
-                                              (skl) => (
-                                                <div
-                                                  className="lab-line"
-                                                  key={skl.substanceKind}
-                                                >
-                                                  <LaboratorySelect
-                                                    programmingPlanId={plan.id}
-                                                    programmingSubPlanId={
-                                                      prescription.programmingSubPlanId
-                                                    }
-                                                    substanceKind={
-                                                      skl.substanceKind
-                                                    }
-                                                    laboratoryId={
-                                                      skl.laboratoryId
-                                                    }
-                                                    readonly={!isEditable}
-                                                    pending={
-                                                      isLaboratoryPending
-                                                    }
-                                                    hideLabel
-                                                    onSelect={(laboratoryId) =>
-                                                      onChangeLocalPrescriptionLaboratories?.(
-                                                        {
-                                                          prescriptionId:
-                                                            prescription.id,
-                                                          region:
-                                                            region as Region,
-                                                          department
-                                                        },
-                                                        substanceKindsLaboratories.map(
-                                                          (x) =>
-                                                            x.substanceKind ===
-                                                            skl.substanceKind
-                                                              ? {
-                                                                  ...x,
-                                                                  laboratoryId
-                                                                }
-                                                              : x
-                                                        )
-                                                      )
-                                                    }
-                                                  />
-                                                </div>
-                                              )
-                                            );
-                                          })()
-                                        : null}
-                                    </td>
-                                  )}
-                                  {!isSamplerView &&
-                                    (department
-                                      ? companies.map((company, columnIdx) => {
-                                          const localPrescription =
-                                            rowSubLocalPrescriptions.find(
-                                              (r) =>
-                                                r.companySiret === company.siret
-                                            ) ?? {
-                                              prescriptionId: prescription.id,
-                                              region: region as Region,
-                                              department,
-                                              companySiret: company.siret,
-                                              sampleCount: 0
-                                            };
-                                          return (
-                                            <td
-                                              className={clsx('align-center', {
-                                                'border-left': columnIdx !== 0
-                                              })}
-                                              data-testid={`cell-${prescription.id}`}
-                                              key={`cell-${prescription.id}-${company.siret}`}
-                                            >
-                                              <DistributionCountCell
-                                                programmingPlan={plan}
-                                                prescription={prescription}
-                                                localPrescription={
-                                                  localPrescription
-                                                }
-                                                isEditable={
-                                                  hasUserLocalPrescriptionPermission(
-                                                    plan,
-                                                    localPrescription
-                                                  )?.distributeToSlaughterhouses
-                                                }
-                                                isPending={pendingLocalKeys?.has(
-                                                  toLocalPrescriptionKeyString({
-                                                    prescriptionId:
-                                                      localPrescription.prescriptionId,
-                                                    region:
-                                                      localPrescription.region,
-                                                    department:
-                                                      localPrescription.department,
-                                                    companySiret:
-                                                      localPrescription.companySiret
-                                                  })
-                                                )}
-                                                onChange={async (value) =>
-                                                  onChangeLocalPrescriptionCount(
-                                                    {
-                                                      prescriptionId:
-                                                        localPrescription.prescriptionId,
-                                                      region:
-                                                        localPrescription.region,
-                                                      department:
-                                                        localPrescription.department,
-                                                      companySiret:
-                                                        localPrescription.companySiret
-                                                    },
-                                                    value
-                                                  )
-                                                }
-                                              />
-                                            </td>
-                                          );
-                                        })
-                                      : region
-                                        ? departmentList.map(
-                                            (departmentColumn, columnIdx) => {
-                                              const localPrescription =
-                                                rowSubLocalPrescriptions.find(
-                                                  (r) =>
-                                                    r.department ===
-                                                    departmentColumn
-                                                );
-                                              return (
-                                                <td
-                                                  className={clsx(
-                                                    'align-center',
-                                                    {
-                                                      'border-left':
-                                                        columnIdx !== 0
-                                                    }
-                                                  )}
-                                                  data-testid={`cell-${prescription.id}`}
-                                                  key={`cell-${prescription.id}-${departmentColumn}`}
-                                                >
-                                                  {localPrescription ? (
-                                                    <DistributionCountCell
-                                                      programmingPlan={plan}
-                                                      prescription={
-                                                        prescription
-                                                      }
-                                                      localPrescription={
-                                                        localPrescription
-                                                      }
-                                                      isEditable={
-                                                        hasUserLocalPrescriptionPermission(
-                                                          plan,
-                                                          localPrescription
-                                                        )
-                                                          ?.distributeToDepartments
-                                                      }
-                                                      isPending={pendingLocalKeys?.has(
-                                                        toLocalPrescriptionKeyString(
-                                                          {
-                                                            prescriptionId:
-                                                              localPrescription.prescriptionId,
-                                                            region:
-                                                              localPrescription.region,
-                                                            department:
-                                                              localPrescription.department,
-                                                            companySiret:
-                                                              undefined
-                                                          }
-                                                        )
-                                                      )}
-                                                      onChange={async (value) =>
-                                                        onChangeLocalPrescriptionCount(
-                                                          {
-                                                            prescriptionId:
-                                                              localPrescription.prescriptionId,
-                                                            region:
-                                                              localPrescription.region,
-                                                            department:
-                                                              localPrescription.department
-                                                          },
-                                                          value
-                                                        )
-                                                      }
-                                                    />
-                                                  ) : plan.distributionKind !==
-                                                    'SLAUGHTERHOUSE' ? (
-                                                    'N/A'
-                                                  ) : null}
-                                                </td>
-                                              );
-                                            }
-                                          )
-                                        : localPrescriptions.map(
-                                            (
-                                              localPrescription,
-                                              localPrescriptionIdx
-                                            ) => (
-                                              <td
-                                                className={clsx({
-                                                  'border-left':
-                                                    localPrescriptionIdx !== 0
-                                                })}
-                                                data-testid={`cell-${prescription.id}`}
-                                                key={`cell-${prescription.id}-${localPrescription.region}`}
-                                              >
-                                                <div className="prescription-sample-count-cell">
-                                                  <DistributionCountCell
-                                                    programmingPlan={plan}
-                                                    prescription={prescription}
-                                                    localPrescription={
-                                                      localPrescription
-                                                    }
-                                                    isEditable={
-                                                      hasUserLocalPrescriptionPermission(
-                                                        plan,
-                                                        localPrescription
-                                                      )?.updateSampleCount
-                                                    }
-                                                    isPending={pendingLocalKeys?.has(
-                                                      toLocalPrescriptionKeyString(
-                                                        {
-                                                          prescriptionId:
-                                                            localPrescription.prescriptionId,
-                                                          region:
-                                                            localPrescription.region,
-                                                          department: undefined,
-                                                          companySiret:
-                                                            undefined
-                                                        }
-                                                      )
-                                                    )}
-                                                    onChange={async (value) =>
-                                                      onChangeLocalPrescriptionCount(
-                                                        {
-                                                          prescriptionId:
-                                                            localPrescription.prescriptionId,
-                                                          region:
-                                                            localPrescription.region
-                                                        },
-                                                        value
-                                                      )
-                                                    }
-                                                  />
-                                                  {hasUnviewedChange(
-                                                    localPrescription.changedAt
-                                                  ) &&
-                                                    !isNil(
-                                                      localPrescription.previousSampleCount
-                                                    ) && (
-                                                      <div className="previous-sample-count">
-                                                        Avant :{' '}
-                                                        {
-                                                          localPrescription.previousSampleCount
-                                                        }
-                                                      </div>
-                                                    )}
-                                                </div>
-                                              </td>
-                                            )
-                                          ))}
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                        {isExpanded && (
-                          <div className="prescription-expanded-content">
-                            <div className={cx('fr-grid-row')}>
-                              <div className={cx('fr-col-3')}>
-                                {showComments && (
-                                  <div className={cx('fr-mb-3w')}>
-                                    <div className="d-flex-align-center">
-                                      <span
-                                        className={cx(
-                                          'fr-icon-chat-3-line',
-                                          'fr-pr-1v'
-                                        )}
-                                      />
-                                      <b>Commentaires</b>
-                                    </div>
-                                    <Button
-                                      className="prescription-comments-link"
-                                      priority="tertiary no outline"
-                                      onClick={() =>
-                                        onOpenComments(prescription)
-                                      }
-                                    >
-                                      {rowCommentCount}{' '}
-                                      {pluralize(rowCommentCount)(
-                                        'commentaire'
-                                      )}
-                                    </Button>
-                                  </div>
-                                )}
-                                <div className={cx('fr-mb-3w')}>
-                                  <div className="d-flex-align-center">
-                                    <span
-                                      className={cx(
-                                        'fr-icon-chat-quote-line',
-                                        'fr-pr-1v'
-                                      )}
-                                    />
-                                    <b>Notes</b>
-                                  </div>
-                                  {prescription.notes ?? 'Aucune note'}
-                                </div>
-                                <div>
-                                  <div className="d-flex-align-center">
-                                    <span
-                                      className={cx(
-                                        'fr-icon-chat-quote-line',
-                                        'fr-pr-1v'
-                                      )}
-                                    />
-                                    <b>Consignes</b>
-                                  </div>
-                                  {prescription.programmingInstruction ??
-                                    'Aucune consigne'}
-                                </div>
-                              </div>
-                              <div className={cx('fr-col-3')}>
-                                <PrescriptionSubstances
-                                  programmingPlan={
-                                    programmingPlans.find(
-                                      (p) =>
-                                        p.id === prescription.programmingPlanId
-                                    ) ?? programmingPlans[0]
-                                  }
-                                  prescription={prescription}
-                                  renderMode="inline"
-                                />
-                              </div>
-                            </div>
-                          </div>
+                  {contextPrescriptions
+                    .filter((prescription) =>
+                      renderedPrescriptionIds.has(prescription.id)
+                    )
+                    .map((prescription) => (
+                      <ProgrammingPrescriptionRow
+                        key={prescription.id}
+                        prescription={prescription}
+                        plan={getPlan(prescription)}
+                        subPlan={getSubPlan(prescription)}
+                        programmingPlans={programmingPlans}
+                        localPrescriptions={getLocalPrescriptions(
+                          prescription.id
                         )}
-                      </Fragment>
-                    );
-                  })}
+                        ownRegionalPrescription={
+                          region
+                            ? getOwnRegionalPrescription(prescription.id)
+                            : undefined
+                        }
+                        rowSubLocalPrescriptions={
+                          region
+                            ? getSubLocalPrescriptions(prescription.id)
+                            : []
+                        }
+                        rowCommentCount={
+                          commentCountByPrescriptionId.get(prescription.id) ?? 0
+                        }
+                        isSelected={isPrescriptionSelected(prescription)}
+                        isSamplerView={isSamplerView}
+                        showCheckboxColumn={showCheckboxColumn}
+                        showLaboratoryColumn={showLaboratoryColumn}
+                        columnCount={columnCount}
+                        departmentList={departmentList}
+                        companies={companies}
+                        region={region}
+                        department={department}
+                        pendingLocalKeys={pendingLocalKeys}
+                        pendingLaboratoryKeys={pendingLaboratoryKeys}
+                        pendingPrescriptionIds={pendingPrescriptionIds}
+                        onChangeLocalPrescriptionCount={
+                          onChangeLocalPrescriptionCount
+                        }
+                        onChangeLocalPrescriptionLaboratories={
+                          onChangeLocalPrescriptionLaboratories
+                        }
+                        onChangePrescriptionSampleCount={
+                          onChangePrescriptionSampleCount
+                        }
+                        onTogglePrescriptionSelection={
+                          onTogglePrescriptionSelection
+                        }
+                        onOpenComments={onOpenComments}
+                        registerRowWrapper={registerRowWrapper}
+                        onRowScroll={sync}
+                      />
+                    ))}
                 </Fragment>
               );
             })}
