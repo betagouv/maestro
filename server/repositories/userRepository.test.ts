@@ -291,3 +291,30 @@ describe('findMany par stade', () => {
     expect(emails).toContain(user.email);
   });
 });
+
+describe('findMany par ids', () => {
+  test('ne renvoie que les utilisateurs demandés', async () => {
+    const user = genUser({ roles: ['NationalCoordinator'] });
+    const otherUser = genUser({ roles: ['NationalCoordinator'] });
+
+    await userRepository.insert(user);
+    await userRepository.insert(otherUser);
+
+    const emails = (
+      await userRepository.findMany({ ids: [user.id], disabled: null })
+    ).map((u) => u.email);
+
+    expect(emails).toContain(user.email);
+    expect(emails).not.toContain(otherUser.email);
+  });
+
+  test('ne renvoie personne quand la liste est vide', async () => {
+    const user = genUser({ roles: ['NationalCoordinator'] });
+
+    await userRepository.insert(user);
+
+    await expect(
+      userRepository.findMany({ ids: [], disabled: null })
+    ).resolves.toEqual([]);
+  });
+});

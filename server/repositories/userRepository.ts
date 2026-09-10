@@ -87,7 +87,27 @@ const programmingSubPlansList = (db: ExpressionBuilder<DB, 'users'>) => {
     db
       .selectFrom('programmingSubPlans')
       .selectAll('programmingSubPlans')
-      .where(sql<boolean>`programming_sub_plans.stages && "users"."stages"`)
+      .where((eb) =>
+        eb.or([
+          eb(
+            sql<boolean>`programming_sub_plans.stages && "users"."stages"`,
+            '=',
+            true
+          ),
+          eb(
+            'programmingSubPlans.programmingPlanId',
+            'in',
+            eb
+              .selectFrom('programmingPlanNationalCoordinators')
+              .select('programmingPlanNationalCoordinators.programmingPlanId')
+              .whereRef(
+                'programmingPlanNationalCoordinators.userId',
+                '=',
+                'users.id'
+              )
+          )
+        ])
+      )
   );
 };
 
@@ -100,6 +120,11 @@ const findMany = async (
   findOptions: FindManyOptions
 ): Promise<UserListItem[]> => {
   console.log('Find users', findOptions);
+
+  if (findOptions.ids?.length === 0) {
+    return [];
+  }
+
   let query = kysely
     .selectFrom('users')
     .selectAll()
@@ -108,6 +133,11 @@ const findMany = async (
 
   for (const option of FindUserOptions.keyof().options) {
     switch (option) {
+      case 'ids':
+        if (!isNil(findOptions.ids)) {
+          query = query.where('id', 'in', findOptions.ids);
+        }
+        break;
       case 'region':
         if (!isNil(findOptions.region)) {
           query = query.where('region', '=', findOptions.region);

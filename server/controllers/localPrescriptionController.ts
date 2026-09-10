@@ -364,18 +364,18 @@ export const localPrescriptionsRouter = {
 
       await localPrescriptionCommentRepository.insert(prescriptionComment);
 
-      const recipients = await userRepository.findMany({
-        stages: stagesFromSubPlans(programmingPlan.subPlans),
-        disabled: false,
-        ...(userRole === 'NationalCoordinator'
-          ? {
+      const recipients =
+        userRole === 'NationalCoordinator'
+          ? await userRepository.findMany({
+              stages: stagesFromSubPlans(programmingPlan.subPlans),
+              disabled: false,
               region: localPrescription.region,
               roles: ['RegionalCoordinator']
-            }
-          : {
-              roles: ['NationalCoordinator']
             })
-      });
+          : await userRepository.findMany({
+              ids: programmingPlan.nationalCoordinators.map(({ id }) => id),
+              disabled: false
+            });
 
       await notificationService.sendNotification(
         {

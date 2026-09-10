@@ -10,6 +10,7 @@ import {
   AdminBGIRFixture,
   AdminFixture,
   NationalCoordinator,
+  NationalCoordinatorDaoaFixture,
   SamplerDaoaFixture
 } from 'maestro-shared/test/userFixtures';
 import { v4 as uuidv4 } from 'uuid';
@@ -63,7 +64,7 @@ export const seed = async () => {
       id: NationalCoordinator.id,
       email: 'coordinateur.national@maestro.beta.gouv.fr',
       name: `PPV - ${fakerFR.person.fullName()}`,
-      stages: ppvStages,
+      stages: [],
       certified: true,
       roles: ['NationalCoordinator']
     },
@@ -123,10 +124,10 @@ export const seed = async () => {
 
     //DAOA
     {
-      id: uuidv4(),
+      id: NationalCoordinatorDaoaFixture.id,
       email: 'coordinateur.national.daoa@maestro.beta.gouv.fr',
       name: `DAOA - ${fakerFR.person.fullName()}`,
-      stages: sachaStages,
+      stages: [],
       certified: true,
       roles: ['NationalCoordinator']
     },

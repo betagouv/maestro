@@ -547,7 +547,7 @@ describe('Document router', () => {
           year: DAOAInProgressProgrammingPlanFixture.year,
           programmingPlanIds: [DAOAInProgressProgrammingPlanFixture.id]
         })
-        .use(tokenProvider(NationalCoordinator))
+        .use(tokenProvider(NationalObserver))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
@@ -589,7 +589,7 @@ describe('Document router', () => {
     test('should fail if the resource document is out of the user programming scope', async () => {
       await request(app)
         .delete(testRoute(daoaInProgressResourceDocument.id))
-        .use(tokenProvider(NationalCoordinator))
+        .use(tokenProvider(NationalObserver))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
   });

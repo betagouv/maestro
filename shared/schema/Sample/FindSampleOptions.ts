@@ -9,7 +9,7 @@ import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
 import {
   companiesIsRequired,
   departmentIsRequired,
-  stagesIsRequired,
+  programmingSubPlansAreRestricted,
   type UserRefined
 } from '../User/User';
 import {
@@ -67,7 +67,7 @@ export const buildFindSampleOptions = (
         ? [user.department as Department]
         : query.departments,
     companySirets,
-    programmingSubPlanIds: stagesIsRequired(user)
+    programmingSubPlanIds: programmingSubPlansAreRestricted(user)
       ? user.programmingSubPlans.map((sp) => sp.id)
       : query.programmingSubPlanIds
   } as FindSampleOptions;

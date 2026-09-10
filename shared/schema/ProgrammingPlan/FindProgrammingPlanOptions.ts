@@ -3,7 +3,12 @@ import { z } from 'zod';
 import { Department } from '../../referential/Department';
 import { Region } from '../../referential/Region';
 import type { Laboratory } from '../Laboratory/Laboratory';
-import { hasPermission, type UserRefined } from '../User/User';
+import {
+  hasPermission,
+  programmingSubPlansAreRestricted,
+  stagesIsRequired,
+  type UserRefined
+} from '../User/User';
 import {
   isNationalRole,
   isRegionalRole,
@@ -22,7 +27,8 @@ export const FindProgrammingPlanOptions = z.object({
   year: z.number().int().nullish(),
   status: z.array(ProgrammingPlanStatus).nullish(),
   region: Region.nullish(),
-  department: Department.nullish()
+  department: Department.nullish(),
+  scope: z.enum(['owned']).nullish()
 });
 
 export type FindProgrammingPlanOptions = z.infer<
@@ -43,12 +49,10 @@ export const buildFindProgrammingPlanOptions = (
     ? findOptions.status
     : ProgrammingPlanStatusList;
 
-  const isUnrestricted = [
-    'AdministratorMaestro',
-    'AdministratorBGIR',
-    'LaboratoryUser',
-    'LaboratoryOffice'
-  ].includes(userRole);
+  const isUnrestricted =
+    findOptions.scope === 'owned'
+      ? !programmingSubPlansAreRestricted({ roles: [userRole] })
+      : !stagesIsRequired({ roles: [userRole] });
 
   const subPlanIds = isUnrestricted
     ? (findOptions.subPlanIds ?? null)

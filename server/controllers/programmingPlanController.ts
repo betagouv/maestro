@@ -429,8 +429,7 @@ Une fois le/les laboratoires attribués, la campagne sera officiellement lancée
                 programmingPlanLocalStatus.status === 'ApprovedByRegion'
               ) {
                 const nationalCoordinators = await userRepository.findMany({
-                  roles: ['NationalCoordinator'],
-                  stages: stagesFromSubPlans(programmingPlan.subPlans),
+                  ids: programmingPlan.nationalCoordinators.map(({ id }) => id),
                   disabled: false
                 });
 

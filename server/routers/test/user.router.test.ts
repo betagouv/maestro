@@ -12,6 +12,7 @@ import {
   genUser,
   NationalCoordinator,
   NationalCoordinatorDaoaFixture,
+  NationalObserver,
   Region1Fixture,
   Region2Fixture,
   RegionalCoordinator,
@@ -210,21 +211,33 @@ describe('User router', () => {
       ]);
     });
 
-    test('should filter users by stage', async () => {
+    test('should restrict a stage scoped user to their own stages', async () => {
+      const res = await request(app)
+        .get(testRoute({}))
+        .use(tokenProvider(NationalObserver))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expectArrayToContainElements(res.body, [
+        expect.objectContaining({ id: NationalObserver.id }),
+        expect.objectContaining({ id: Sampler1Fixture.id })
+      ]);
+      expect(res.body).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: SamplerDaoaFixture.id })
+        ])
+      );
+    });
+
+    test('should not restrict a national coordinator to any stage', async () => {
       const res = await request(app)
         .get(testRoute({}))
         .use(tokenProvider(NationalCoordinatorDaoaFixture))
         .expect(constants.HTTP_STATUS_OK);
 
       expectArrayToContainElements(res.body, [
-        expect.objectContaining({ id: NationalCoordinatorDaoaFixture.id }),
-        expect.objectContaining({ id: SamplerDaoaFixture.id })
+        expect.objectContaining({ id: SamplerDaoaFixture.id }),
+        expect.objectContaining({ id: Sampler1Fixture.id })
       ]);
-      expect(res.body).not.toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ id: Sampler1Fixture.id })
-        ])
-      );
     });
 
     test('should return both enabled and disabled users when no disabled filter is given', async () => {

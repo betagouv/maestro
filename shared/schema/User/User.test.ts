@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'vitest';
 import { genUser } from '../../test/userFixtures';
-import { canSignIn, certificationIsRequired } from './User';
+import {
+  canSignIn,
+  certificationIsRequired,
+  programmingSubPlansAreRestricted,
+  stagesIsRequired
+} from './User';
 
 describe('certificationIsRequired', () => {
   test('should be required for a sampler only account', () => {
@@ -50,6 +55,56 @@ describe('canSignIn', () => {
           disabled: true
         })
       )
+    ).toBe(false);
+  });
+});
+
+describe('stagesIsRequired', () => {
+  test('should be required for a sampler', () => {
+    expect(stagesIsRequired({ roles: ['Sampler'] })).toBe(true);
+  });
+
+  test('should not be required for a national coordinator', () => {
+    expect(stagesIsRequired({ roles: ['NationalCoordinator'] })).toBe(false);
+    expect(
+      stagesIsRequired({ roles: ['NationalCoordinator', 'Sampler'] })
+    ).toBe(false);
+  });
+
+  test('should not be required for administrators and laboratories', () => {
+    expect(stagesIsRequired({ roles: ['AdministratorMaestro'] })).toBe(false);
+    expect(stagesIsRequired({ roles: ['AdministratorBGIR'] })).toBe(false);
+    expect(stagesIsRequired({ roles: ['LaboratoryUser'] })).toBe(false);
+    expect(stagesIsRequired({ roles: ['LaboratoryOffice'] })).toBe(false);
+  });
+});
+
+describe('programmingSubPlansAreRestricted', () => {
+  test('should restrict a national coordinator', () => {
+    expect(
+      programmingSubPlansAreRestricted({ roles: ['NationalCoordinator'] })
+    ).toBe(true);
+  });
+
+  test('should restrict every local role', () => {
+    expect(
+      programmingSubPlansAreRestricted({ roles: ['RegionalCoordinator'] })
+    ).toBe(true);
+    expect(programmingSubPlansAreRestricted({ roles: ['Sampler'] })).toBe(true);
+  });
+
+  test('should not restrict administrators and laboratories', () => {
+    expect(
+      programmingSubPlansAreRestricted({ roles: ['AdministratorMaestro'] })
+    ).toBe(false);
+    expect(
+      programmingSubPlansAreRestricted({ roles: ['AdministratorBGIR'] })
+    ).toBe(false);
+    expect(
+      programmingSubPlansAreRestricted({ roles: ['LaboratoryUser'] })
+    ).toBe(false);
+    expect(
+      programmingSubPlansAreRestricted({ roles: ['LaboratoryOffice'] })
     ).toBe(false);
   });
 });

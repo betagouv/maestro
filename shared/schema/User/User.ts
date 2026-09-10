@@ -230,13 +230,19 @@ export const departmentIsRequired = (
     worksInSlaughterhouse(user)) ??
   false;
 
-export const stagesIsRequired = (
+export const programmingSubPlansAreRestricted = (
   user: Pick<Nullable<UserRefined>, 'roles'>
 ): boolean =>
   !user.roles?.includes('AdministratorMaestro') &&
   !user.roles?.includes('AdministratorBGIR') &&
   !user.roles?.includes('LaboratoryUser') &&
   !user.roles?.includes('LaboratoryOffice');
+
+export const stagesIsRequired = (
+  user: Pick<Nullable<UserRefined>, 'roles'>
+): boolean =>
+  programmingSubPlansAreRestricted(user) &&
+  !user.roles?.includes('NationalCoordinator');
 
 export const laboratoryIsRequired = (
   user: Pick<Nullable<UserRefined>, 'roles'>

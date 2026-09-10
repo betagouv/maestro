@@ -88,7 +88,9 @@ export const documentsRouter = {
         await userRepository.findMany({
           roles: UserRoleList.filter(
             (role) =>
-              hasPermission(role, 'readDocuments') && role !== 'LaboratoryUser'
+              hasPermission(role, 'readDocuments') &&
+              role !== 'LaboratoryUser' &&
+              role !== 'NationalCoordinator'
           ),
           stages: stagesFromSubPlans(
             programmingPlans.flatMap((plan) => plan.subPlans)
@@ -96,15 +98,24 @@ export const documentsRouter = {
           disabled: false
         });
 
+      const nationalCoordinators = await userRepository.findMany({
+        ids: programmingPlans.flatMap((plan) =>
+          plan.nationalCoordinators.map(({ id }) => id)
+        ),
+        disabled: false
+      });
+
       await notificationService.sendNotification(
         {
           category: 'ResourceDocumentUploaded',
           author: user,
           link: AppRouteLinks.DocumentsRoute.link({ documentId: document.id })
         },
-        [...laboratoryUsers, ...otherUserConcernedByProgrammingPlans].filter(
-          (_) => _.id !== user.id
-        ),
+        [
+          ...laboratoryUsers,
+          ...otherUserConcernedByProgrammingPlans,
+          ...nationalCoordinators
+        ].filter((_) => _.id !== user.id),
         {
           object: 'Nouveau document disponible',
           content: `Une nouvelle ressource a été ajoutée ou mise à jour.
