@@ -1,0 +1,117 @@
+import { isNil, sumBy } from 'lodash-es';
+import { z } from 'zod';
+import { Department } from '../../referential/Department';
+import { Region } from '../../referential/Region';
+import type { DistributionKind } from '../ProgrammingPlan/DistributionKind';
+import { ProgrammingPlanEchelon } from '../ProgrammingPlan/ProgrammingPlanDisplayStatus';
+import {
+  isLaboratoryAssignmentComplete,
+  type LocalPrescription
+} from './LocalPrescription';
+import { toLocalPrescriptionKeyString } from './LocalPrescriptionKey';
+import { SubstanceKindLaboratory } from './LocalPrescriptionSubstanceKindLaboratory';
+
+export const LocalPrescriptionChangeKind = z.enum([
+  'sampleCount',
+  'laboratories'
+]);
+export type LocalPrescriptionChangeKind = z.infer<
+  typeof LocalPrescriptionChangeKind
+>;
+
+export const LocalPrescriptionChange = z.object({
+  id: z.guid(),
+  prescriptionId: z.guid(),
+  region: Region,
+  department: Department.nullish(),
+  companySiret: z.string().nullish(),
+  echelon: ProgrammingPlanEchelon,
+  kind: LocalPrescriptionChangeKind,
+  sampleCount: z.coerce.number().nullable(),
+  substanceKindsLaboratories: z.array(SubstanceKindLaboratory).nullable(),
+  previousSampleCount: z.coerce.number().nullable(),
+  changedAt: z.coerce.date(),
+  diffusedAt: z.coerce.date().nullable(),
+  appliedAt: z.coerce.date().nullable(),
+  changesViewedAt: z.coerce.date().nullable(),
+  changesViewedBy: z.guid().nullable()
+});
+export type LocalPrescriptionChange = z.infer<typeof LocalPrescriptionChange>;
+
+export const hasUnviewedChange = (
+  changedAt: Date | null | undefined
+): boolean => changedAt != null;
+
+export type DiffusedSampleCountChange = Pick<
+  LocalPrescriptionChange,
+  | 'prescriptionId'
+  | 'region'
+  | 'department'
+  | 'companySiret'
+  | 'kind'
+  | 'sampleCount'
+  | 'diffusedAt'
+  | 'changedAt'
+>;
+
+export const lastDiffusedSampleCount = (
+  row: Pick<
+    LocalPrescription,
+    'prescriptionId' | 'region' | 'department' | 'companySiret'
+  >,
+  changes: DiffusedSampleCountChange[]
+): number | null => {
+  const rowKey = toLocalPrescriptionKeyString(row);
+  const lastDiffused = changes
+    .filter(
+      (change) =>
+        change.kind === 'sampleCount' &&
+        !isNil(change.sampleCount) &&
+        !isNil(change.diffusedAt) &&
+        toLocalPrescriptionKeyString(change) === rowKey
+    )
+    .reduce<DiffusedSampleCountChange | undefined>(
+      (latest, change) =>
+        isNil(latest) || latest.changedAt <= change.changedAt ? change : latest,
+      undefined
+    );
+
+  return lastDiffused?.sampleCount ?? null;
+};
+
+export const previousSampleCountFor = (
+  row: Pick<
+    LocalPrescription,
+    'prescriptionId' | 'region' | 'department' | 'companySiret'
+  >,
+  changes: DiffusedSampleCountChange[],
+  fallbackSampleCount: number | null
+): number | null =>
+  lastDiffusedSampleCount(row, changes) ?? fallbackSampleCount;
+
+export const regionRowNeedsChangeAction = (
+  distributionKind: DistributionKind,
+  ownRegionalPrescription: Pick<
+    LocalPrescription,
+    'sampleCount' | 'diffusedSampleCount' | 'substanceKindsLaboratories'
+  >,
+  subLocalPrescriptions: Pick<
+    LocalPrescription,
+    'sampleCount' | 'substanceKindsLaboratories'
+  >[]
+): boolean => {
+  if (distributionKind === 'REGIONAL') {
+    return !isLaboratoryAssignmentComplete(
+      ownRegionalPrescription.substanceKindsLaboratories
+    );
+  }
+  const distributedCount = sumBy(subLocalPrescriptions, 'sampleCount');
+  const isFullyDistributed =
+    distributedCount ===
+    (ownRegionalPrescription.diffusedSampleCount ??
+      ownRegionalPrescription.sampleCount);
+  const hasAnyDepartmentLaboratory = subLocalPrescriptions.some((sub) =>
+    isLaboratoryAssignmentComplete(sub.substanceKindsLaboratories)
+  );
+  return !(isFullyDistributed || hasAnyDepartmentLaboratory);
+};

@@ -51,6 +51,7 @@ type AppRouteSearchParams = {
     context?: ProgrammingPlanContext;
     prescriptionId?: string;
     commentsRegion?: Region;
+    tab?: 'ProgrammationTab' | 'CommentsTab' | 'PlanTrackingTab';
   };
   DocumentsRoute: {
     documentId?: string;

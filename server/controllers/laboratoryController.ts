@@ -1,14 +1,83 @@
+import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
+import type { LaboratoryAgreementRowKey } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
+import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
 import { laboratoryAgreementCheckRepository } from '../repositories/laboratoryAgreementCheckRepository';
 import { laboratoryAgreementRepository } from '../repositories/laboratoryAgreementRepository';
 import laboratoryAnalyticalCompetenceRepository from '../repositories/laboratoryAnalyticalCompetenceRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
+import localPrescriptionSubstanceKindLaboratoryRepository from '../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
+import programmingPlanRepository from '../repositories/programmingPlanRepository';
+import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
 import { importPublicKey } from '../services/gpgService';
+import { notificationService } from '../services/notificationService';
+
+const notifyLaboratoryAgreementLost = async (
+  laboratoryId: string,
+  rowKey: LaboratoryAgreementRowKey
+) => {
+  const [laboratory, scopes] = await Promise.all([
+    laboratoryRepository.findUnique(laboratoryId),
+    localPrescriptionSubstanceKindLaboratoryRepository.findAgreementScopes(
+      laboratoryId,
+      rowKey.programmingSubPlanId,
+      rowKey.substanceKind
+    )
+  ]);
+
+  if (!laboratory || scopes.length === 0) {
+    return;
+  }
+
+  for (const scope of scopes) {
+    const plan = await programmingPlanRepository.findUnique(
+      scope.programmingPlanId
+    );
+    if (!plan) {
+      continue;
+    }
+
+    const recipients = await userRepository.findMany({
+      roles: [
+        scope.department ? 'DepartmentalCoordinator' : 'RegionalCoordinator'
+      ],
+      region: scope.region,
+      department: scope.department,
+      disabled: false,
+      stages: stagesFromSubPlans(plan.subPlans)
+    });
+
+    if (recipients.length === 0) {
+      continue;
+    }
+
+    await notificationService.sendNotification(
+      {
+        category: 'LaboratoryAgreementLost',
+        link: AppRouteLinks.ProgrammingRoute.link({
+          year: plan.year,
+          planIds: plan.id
+        })
+      },
+      recipients,
+      {
+        object: `Campagne PSPC ${plan.year} / Perte d’agrément d’un ou plusieurs laboratoires`,
+        content: `Le ou les laboratoires suivants ont perdu leur agrément sur un ou plusieurs sous-plans de votre programmation ${plan.year} :
+• ${laboratory.shortName} (${laboratory.name})
+
+Pour les sous-plans concernés vous devez attribuer un nouveau laboratoire pour que les prélèvements puissent continuer à être saisis.`
+      },
+      {
+        message: `Perte d’agrément du ${laboratory.shortName} sur un ou plusieurs sous-plans`
+      }
+    );
+  }
+};
 
 export const laboratoriesRouter = {
   '/laboratories/agreements': {
@@ -76,10 +145,32 @@ export const laboratoriesRouter = {
     put: async ({ body }, { laboratoryId }) => {
       console.info('Upsert laboratory agreements', laboratoryId);
 
+      const isAgreementLost =
+        !body.referenceLaboratory &&
+        !body.detectionAnalysis &&
+        !body.confirmationAnalysis;
+
+      const previousAgreements = isAgreementLost
+        ? await laboratoryAgreementRepository.findMany({
+            laboratoryIds: [laboratoryId],
+            programmingSubPlanIds: [
+              body.laboratoryAgreementRowKey.programmingSubPlanId
+            ],
+            substanceKinds: [body.laboratoryAgreementRowKey.substanceKind]
+          })
+        : [];
+
       const agreements = await laboratoryAgreementRepository.upsertMany(
         laboratoryId,
         body
       );
+
+      if (isAgreementLost && previousAgreements.length > 0) {
+        await notifyLaboratoryAgreementLost(
+          laboratoryId,
+          body.laboratoryAgreementRowKey
+        );
+      }
 
       return { status: HttpStatus.OK, response: agreements };
     }

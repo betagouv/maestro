@@ -29,12 +29,7 @@ const prioritySamplesStatusList = {
 } satisfies Record<DistributionKind, Partial<Record<UserRole, SampleStatus[]>>>;
 
 const priorityProgrammingPlansStatusList = {
-  NationalCoordinator: [
-    'InProgress',
-    'SubmittedToRegion',
-    'ApprovedByRegion',
-    'Validated'
-  ],
+  NationalCoordinator: ['InProgress', 'SubmittedToRegion', 'Validated'],
   RegionalCoordinator: ['SubmittedToRegion'],
   DepartmentalCoordinator: ['SubmittedToDepartments']
 } satisfies Partial<Record<UserRole, ProgrammingPlanStatus[]>>;

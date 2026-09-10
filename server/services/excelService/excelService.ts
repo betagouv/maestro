@@ -32,7 +32,6 @@ import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { LaboratoryAgreement } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
 import type { LaboratoryAnalyticalCompetence } from 'maestro-shared/schema/Laboratory/LaboratoryAnalyticalCompetence';
 import {
-  getCompletionRate,
   type LocalPrescription,
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
@@ -62,6 +61,7 @@ import { isDefined, isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import companyRepository from '../../repositories/companyRepository';
 import { laboratoryRepository } from '../../repositories/laboratoryRepository';
+import { programmingPlanDomainRepository } from '../../repositories/programmingPlanDomainRepository';
 import { programmingSubPlanRepository } from '../../repositories/programmingSubPlanRepository';
 import sampleItemRepository from '../../repositories/sampleItemRepository';
 import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
@@ -415,9 +415,9 @@ const generateSamplesExportExcel = async (
 };
 
 const generatePrescriptionsExportExcel = async (
-  programmingPlan: ProgrammingPlanChecked,
+  programmingPlans: ProgrammingPlanChecked[],
   prescriptions: Prescription[],
-  localPrescriptions: LocalPrescription[],
+  allLocalPrescriptions: LocalPrescription[],
   exportedRegion: Region | undefined,
   exportedDepartment: Department | undefined
 ): Promise<Buffer> => {
@@ -430,31 +430,61 @@ const generatePrescriptionsExportExcel = async (
 
   console.log('Export prescriptions', exportedRegion, exportedDepartments);
 
+  const exportedPrescriptionIds = new Set(prescriptions.map((_) => _.id));
+  const localPrescriptions = allLocalPrescriptions.filter((_) =>
+    exportedPrescriptionIds.has(_.prescriptionId)
+  );
+
   const laboratories = await laboratoryRepository.findMany();
-  const companySirets = uniq(
-    localPrescriptions
+  const departmentCompanies = exportedDepartment
+    ? await companyRepository.findMany({
+        region: exportedRegion,
+        department: exportedDepartment,
+        kinds: ['POULTRY_SLAUGHTERHOUSE', 'MEAT_SLAUGHTERHOUSE']
+      })
+    : [];
+  const companySirets = uniq([
+    ...departmentCompanies.map((company) => company.siret),
+    ...localPrescriptions
       .filter((_) => !isNil(_.companySiret))
-      .map((_) => _.companySiret)
+      .map((_) => _.companySiret as string)
+  ]);
+
+  const planById = new Map(programmingPlans.map((plan) => [plan.id, plan]));
+  const subPlanById = new Map(
+    programmingPlans.flatMap((plan) =>
+      plan.subPlans.map((subPlan) => [subPlan.id, subPlan] as const)
+    )
+  );
+  const hasRegionalPlan = programmingPlans.some(
+    (plan) => plan.distributionKind === 'REGIONAL'
+  );
+  const hasSlaughterhousePlan = programmingPlans.some(
+    (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
+  );
+  const domains = await programmingPlanDomainRepository.findMany();
+  const domainLabelById = new Map(
+    domains.map((domain) => [domain.id, domain.label])
   );
 
   const effectiveSubstanceKinds = [
-    ...new Set(programmingPlan.subPlans.flatMap((sp) => sp.substanceKinds))
+    ...new Set(
+      programmingPlans.flatMap((plan) =>
+        plan.subPlans.flatMap((sp) => sp.substanceKinds)
+      )
+    )
   ];
 
   const columnTitles: string[] = [];
 
   if (!exportedRegion) {
     columnTitles.push('Total national Programmés');
-    columnTitles.push('Total national Réalisés');
-    columnTitles.push('Total national Taux de réalisation');
   }
   if (!exportedDepartment) {
     columnTitles.push(
       ...exportedRegions.flatMap((region) => [
         `Région ${Regions[region].shortName}\nProgrammés`,
-        `Région ${Regions[region].shortName}\nRéalisés`,
-        `Région ${Regions[region].shortName}\nTaux de réalisation`,
-        ...(programmingPlan.distributionKind === 'REGIONAL'
+        ...(hasRegionalPlan
           ? effectiveSubstanceKinds.flatMap(
               (substanceKind) =>
                 `Région ${Regions[region].shortName}\nLaboratoire ${SubstanceKindLabels[substanceKind].toLowerCase()}`
@@ -463,12 +493,10 @@ const generatePrescriptionsExportExcel = async (
       ])
     );
   }
-  if (programmingPlan.distributionKind === 'SLAUGHTERHOUSE') {
+  if (hasSlaughterhousePlan) {
     columnTitles.push(
       ...exportedDepartments.flatMap((department) => [
         `Département ${department}\nProgrammés`,
-        `Département ${department}\nRéalisés`,
-        `Département ${department}\nTaux de réalisation`,
         ...effectiveSubstanceKinds.flatMap(
           (substanceKind) =>
             `Département ${department}\nLaboratoire ${SubstanceKindLabels[substanceKind].toLowerCase()}`
@@ -477,21 +505,12 @@ const generatePrescriptionsExportExcel = async (
     );
 
     if (exportedDepartment) {
-      const companies = await companyRepository.findMany({
-        region: exportedRegion,
-        department: exportedDepartment,
-        kinds: ['POULTRY_SLAUGHTERHOUSE', 'MEAT_SLAUGHTERHOUSE']
-      });
       columnTitles.push(
-        ...companySirets.flatMap((companySiret) => {
+        ...companySirets.map((companySiret) => {
           const companyName =
-            companies.find((c) => c.siret === companySiret)?.name ??
-            (companySiret as string);
-          return [
-            `${companyName}\nProgrammés`,
-            `${companyName}\nRéalisés`,
-            `${companyName}\nTaux de réalisation`
-          ];
+            departmentCompanies.find((c) => c.siret === companySiret)?.name ??
+            companySiret;
+          return `${companyName}\nProgrammés`;
         })
       );
     }
@@ -506,70 +525,93 @@ const generatePrescriptionsExportExcel = async (
         )
       ].toSorted(LocalPrescriptionSort);
 
-      const columns = [];
+      const prescriptionPlan = planById.get(prescription.programmingPlanId);
+      const prescriptionSubPlan = subPlanById.get(
+        prescription.programmingSubPlanId
+      );
+
+      const columns: (string | number)[] = [];
       if (!exportedRegion) {
+        columns.push(sumBy(filteredLocalPrescriptions, 'sampleCount'));
+      }
+      if (!exportedDepartment) {
         columns.push(
-          sumBy(filteredLocalPrescriptions, 'sampleCount'),
-          sumBy(filteredLocalPrescriptions, 'realizedSampleCount') ?? 0,
-          getCompletionRate(filteredLocalPrescriptions)
+          ...exportedRegions.flatMap((exportedRegionColumn) => {
+            const localPrescription = filteredLocalPrescriptions.find(
+              (_) => _.region === exportedRegionColumn
+            );
+            return [
+              localPrescription?.sampleCount ?? 0,
+              ...(hasRegionalPlan
+                ? effectiveSubstanceKinds.map((substanceKind) =>
+                    prescriptionPlan?.distributionKind === 'REGIONAL' &&
+                    (prescriptionSubPlan?.substanceKinds ?? []).includes(
+                      substanceKind
+                    )
+                      ? (laboratories.find((laboratory) =>
+                          localPrescription?.substanceKindsLaboratories?.some(
+                            (skl) =>
+                              skl.substanceKind === substanceKind &&
+                              laboratory.id === skl.laboratoryId
+                          )
+                        )?.shortName ?? '')
+                      : ''
+                  )
+                : [])
+            ];
+          })
         );
       }
-      columns.push(
-        ...filteredLocalPrescriptions.flatMap(
-          ({
-            sampleCount,
-            realizedSampleCount,
-            region,
-            department,
-            substanceKindsLaboratories
-          }) => [
-            sampleCount,
-            realizedSampleCount ?? 0,
-            getCompletionRate(filteredLocalPrescriptions, region),
-            ...((programmingPlan.distributionKind === 'SLAUGHTERHOUSE' &&
-              !isNil(department)) ||
-            (programmingPlan.distributionKind === 'REGIONAL' && !isNil(region))
-              ? (
-                  programmingPlan.subPlans.find(
-                    (sp) => sp.id === prescription.programmingSubPlanId
-                  )?.substanceKinds ?? effectiveSubstanceKinds
-                ).flatMap(
-                  (substanceKind) =>
-                    laboratories.find((laboratory) =>
-                      substanceKindsLaboratories?.some(
+      if (hasSlaughterhousePlan) {
+        columns.push(
+          ...exportedDepartments.flatMap((exportedDepartmentColumn) => {
+            const localPrescription = localPrescriptions.find(
+              (_) =>
+                _.prescriptionId === prescription.id &&
+                isNil(_.companySiret) &&
+                _.department === exportedDepartmentColumn
+            );
+            return [
+              localPrescription?.sampleCount ?? 0,
+              ...effectiveSubstanceKinds.map((substanceKind) =>
+                prescriptionPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
+                (prescriptionSubPlan?.substanceKinds ?? []).includes(
+                  substanceKind
+                )
+                  ? (laboratories.find((laboratory) =>
+                      localPrescription?.substanceKindsLaboratories?.some(
                         (skl) =>
                           skl.substanceKind === substanceKind &&
                           laboratory.id === skl.laboratoryId
                       )
-                    )?.shortName ?? ''
-                )
-              : [])
-          ]
-        )
-      );
-
-      if (exportedRegion && exportedDepartment) {
-        columns.push(
-          ...companySirets.flatMap((companySiret) => {
-            const companyPrescription = localPrescriptions.find(
-              (_) =>
-                _.prescriptionId === prescription.id &&
-                _.companySiret === companySiret
-            ) ?? {
-              sampleCount: 0,
-              realizedSampleCount: 0,
-              region: exportedRegion
-            };
-            return [
-              companyPrescription?.sampleCount ?? 0,
-              companyPrescription?.realizedSampleCount ?? 0,
-              getCompletionRate(companyPrescription, undefined, true)
+                    )?.shortName ?? '')
+                  : ''
+              )
             ];
           })
         );
       }
 
+      if (exportedRegion && exportedDepartment) {
+        columns.push(
+          ...companySirets.map(
+            (companySiret) =>
+              localPrescriptions.find(
+                (_) =>
+                  _.prescriptionId === prescription.id &&
+                  _.companySiret === companySiret
+              )?.sampleCount ?? 0
+          )
+        );
+      }
+
       return {
+        subPlanNumber: prescriptionSubPlan?.subPlanNumber ?? '',
+        domain: prescriptionPlan?.domainId
+          ? (domainLabelById.get(prescriptionPlan.domainId) ?? '')
+          : '',
+        plan: prescriptionPlan?.title ?? '',
+        context: ContextLabels[prescription.context],
         matrix: getPrescriptionTitle(prescription),
         stages: prescription.stages
           .map((stage) => SubStageLabels[stage])
@@ -580,13 +622,9 @@ const generatePrescriptionsExportExcel = async (
       };
     });
 
-  const totalColums = [];
+  const totalColums: (string | number)[] = [];
   if (!exportedRegion) {
-    totalColums.push(
-      sumBy(localPrescriptions, 'sampleCount'),
-      sumBy(localPrescriptions, 'realizedSampleCount'),
-      getCompletionRate(localPrescriptions)
-    );
+    totalColums.push(sumBy(localPrescriptions, 'sampleCount'));
   }
   if (!exportedDepartment) {
     totalColums.push(
@@ -597,35 +635,22 @@ const generatePrescriptionsExportExcel = async (
           ),
           'sampleCount'
         ),
-        sumBy(
-          localPrescriptions.filter(
-            (_) => _.region === region && isNil(_.department)
-          ),
-          'realizedSampleCount'
-        ),
-        getCompletionRate(
-          localPrescriptions.filter(
-            (_) => _.region === region && isNil(_.department)
-          ),
-          region
-        ),
-        ...(programmingPlan.distributionKind === 'REGIONAL'
-          ? effectiveSubstanceKinds.map(() => '')
-          : [])
+        ...(hasRegionalPlan ? effectiveSubstanceKinds.map(() => '') : [])
       ])
     );
   }
 
-  if (programmingPlan.distributionKind === 'SLAUGHTERHOUSE') {
+  if (hasSlaughterhousePlan) {
     totalColums.push(
       ...exportedDepartments.flatMap((dept) => {
         const filteredLocalPrescriptions = localPrescriptions.filter(
-          (_) => _.region === exportedRegion && _.department === dept
+          (_) =>
+            _.region === exportedRegion &&
+            _.department === dept &&
+            isNil(_.companySiret)
         );
         return [
           sumBy(filteredLocalPrescriptions, 'sampleCount'),
-          sumBy(filteredLocalPrescriptions, 'realizedSampleCount'),
-          getCompletionRate(filteredLocalPrescriptions, undefined, true),
           ...effectiveSubstanceKinds.map(() => '')
         ];
       })
@@ -633,19 +658,17 @@ const generatePrescriptionsExportExcel = async (
 
     if (exportedRegion && exportedDepartment) {
       totalColums.push(
-        ...companySirets.flatMap((companySiret) => {
-          const filteredLocalPrescriptions = localPrescriptions.filter(
-            (_) =>
-              _.companySiret === companySiret &&
-              _.region === exportedRegion &&
-              _.department === exportedDepartment
-          );
-          return [
-            sumBy(filteredLocalPrescriptions, 'sampleCount'),
-            sumBy(filteredLocalPrescriptions, 'realizedSampleCount'),
-            getCompletionRate(filteredLocalPrescriptions, undefined, true)
-          ];
-        })
+        ...companySirets.map((companySiret) =>
+          sumBy(
+            localPrescriptions.filter(
+              (_) =>
+                _.companySiret === companySiret &&
+                _.region === exportedRegion &&
+                _.department === exportedDepartment
+            ),
+            'sampleCount'
+          )
+        )
       );
     }
   }
@@ -660,8 +683,14 @@ const generatePrescriptionsExportExcel = async (
       prescriptions: [
         ...prescriptionsWithColumns,
         {
+          subPlanNumber: '',
+          domain: '',
+          plan: '',
+          context: '',
           matrix: 'Total',
           stages: '',
+          instructions: '',
+          notes: '',
           columns: totalColums.map((v) => ({ value: v }))
         }
       ]

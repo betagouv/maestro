@@ -24,7 +24,12 @@ export const usePrescriptionFilters = (
               !filters.programmingPlanIds?.length ||
               filters.programmingPlanIds.includes(plan.id)
           )
-          .flatMap((plan) => plan.subPlans.map((sp) => sp.id))
+          .flatMap((plan) => plan.subPlans)
+          .filter(
+            (subPlan) =>
+              !filters.stage || (subPlan.stages ?? []).includes(filters.stage)
+          )
+          .map((subPlan) => subPlan.id)
       ),
     [programmingPlanOptions]
   );

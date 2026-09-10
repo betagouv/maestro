@@ -194,6 +194,25 @@ const findMany = async (
           );
         }
         break;
+      case 'programmingSubPlanIds':
+        if (findOptions.programmingSubPlanIds?.length) {
+          const subPlanIds = findOptions.programmingSubPlanIds;
+          query = query
+            .where(
+              'laboratoryAgreements.programmingSubPlanId',
+              'in',
+              subPlanIds
+            )
+            .having(
+              ({ fn, ref }) =>
+                fn
+                  .count(ref('laboratoryAgreements.programmingSubPlanId'))
+                  .distinct(),
+              '=',
+              subPlanIds.length
+            );
+        }
+        break;
       case 'subPlanNumber':
         if (!isNil(findOptions.subPlanNumber)) {
           query = query.where(

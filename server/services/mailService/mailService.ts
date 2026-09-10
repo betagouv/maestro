@@ -17,18 +17,6 @@ export const Templates = {
       sampledAt: z.string()
     })
   },
-  SubmittedProgrammingPlanTemplate: {
-    id: 3,
-    params: z.object({
-      sender: z.string()
-    })
-  },
-  ApprovedProgrammingPlanTemplate: {
-    id: 13,
-    params: z.object({
-      region: z.string()
-    })
-  },
   NewLocalPrescriptionCommentTemplate: {
     id: 5,
     params: z.object({
