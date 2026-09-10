@@ -780,6 +780,32 @@ const ProgrammingPrescriptionList = ({
 
   const [bulkAssignBannerHeight, setBulkAssignBannerHeight] = useState(0);
 
+  const pendingLocalKeys = useMemo(
+    () => new Set(pendingLocalChanges.keys()),
+    [pendingLocalChanges]
+  );
+
+  const pendingLaboratoryKeys = useMemo(
+    () => new Set(pendingLaboratoryChanges.keys()),
+    [pendingLaboratoryChanges]
+  );
+
+  const pendingPrescriptionIds = useMemo(
+    () => new Set(pendingPrescriptionSampleCounts.keys()),
+    [pendingPrescriptionSampleCounts]
+  );
+
+  const changePrescriptionSampleCount = useCallback(
+    (prescription: Prescription, sampleCount: number) => {
+      setPendingPrescriptionSampleCounts((prev) => {
+        const next = new Map(prev);
+        next.set(prescription.id, sampleCount);
+        return next;
+      });
+    },
+    []
+  );
+
   const laboratorySlotsFor = useCallback(
     (prescription: Prescription) => {
       const plan = getPrescriptionPlan(prescription);
@@ -906,7 +932,7 @@ const ProgrammingPrescriptionList = ({
         onClose={() => setSaveSuccess(false)}
       />
 
-      {prescriptions && localPrescriptions && (
+      {prescriptions && localPrescriptions && prescriptionCounts && (
         <>
           {
             <ProgrammingPrescriptionListHeader
@@ -968,26 +994,16 @@ const ProgrammingPrescriptionList = ({
               regionalPrescriptions={localPrescriptions}
               onOpenComments={openComments}
               onChangeLocalPrescriptionCount={changeLocalPrescriptionCount}
-              pendingLocalKeys={new Set(pendingLocalChanges.keys())}
+              pendingLocalKeys={pendingLocalKeys}
               onChangeLocalPrescriptionLaboratories={
                 changeLocalPrescriptionLaboratories
               }
-              pendingLaboratoryKeys={new Set(pendingLaboratoryChanges.keys())}
+              pendingLaboratoryKeys={pendingLaboratoryKeys}
               {...(hasNationalView
                 ? {
-                    pendingPrescriptionIds: new Set(
-                      pendingPrescriptionSampleCounts.keys()
-                    ),
-                    onChangePrescriptionSampleCount: (
-                      prescription,
-                      sampleCount
-                    ) => {
-                      setPendingPrescriptionSampleCounts((prev) => {
-                        const next = new Map(prev);
-                        next.set(prescription.id, sampleCount);
-                        return next;
-                      });
-                    }
+                    pendingPrescriptionIds,
+                    onChangePrescriptionSampleCount:
+                      changePrescriptionSampleCount
                   }
                 : userRole === 'Sampler'
                   ? {
