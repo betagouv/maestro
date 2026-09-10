@@ -12,6 +12,7 @@ import {
   getLaboratoryFullName,
   type Laboratory
 } from 'maestro-shared/schema/Laboratory/Laboratory';
+import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   isProgrammingPlanSample,
   type PartialSample,
@@ -285,7 +286,7 @@ const SampleItemContent = ({
             </p>
           )}
         </div>
-        {programmingSubPlan?.subPlanNumber === 'PPV' && (
+        {isPPVSubPlan(programmingSubPlan) && (
           <>
             <div className={cx('fr-col-12', 'fr-col-sm-6')}>
               {itemsForm ? (

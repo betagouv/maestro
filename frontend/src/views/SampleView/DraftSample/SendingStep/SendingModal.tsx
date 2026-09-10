@@ -7,6 +7,7 @@ import {
   getLaboratoryFullName,
   type Laboratory
 } from 'maestro-shared/schema/Laboratory/Laboratory';
+import { isPPVSubPlanNumber } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   type SubstanceKind,
   SubstanceKindLabels
@@ -89,7 +90,7 @@ const SendingModal = ({
             .join(', ')}{' '}
           va être envoyée au laboratoire{' '}
           <b>{getLaboratoryFullName(itemLaboratory.laboratory)}</b>.
-          {programmingSubPlanNumber === 'PPV' &&
+          {isPPVSubPlanNumber(programmingSubPlanNumber) &&
             !(LaboratoryWithAutomation as string[]).includes(
               itemLaboratory.laboratory.shortName
             ) && (

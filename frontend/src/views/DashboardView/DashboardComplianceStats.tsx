@@ -14,6 +14,7 @@ import {
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { ComplianceStat } from 'maestro-shared/schema/Sample/ComplianceStat';
 import { type FunctionComponent, useContext, useState } from 'react';
 import { ApiClientContext } from '../../services/apiClient';
@@ -32,9 +33,7 @@ const DashboardComplianceStats: FunctionComponent<Props> = ({
   const [expandedRegions, setExpandedRegions] = useState<string[]>([]);
   const [expandedMatrixKinds, setExpandedMatrixKinds] = useState<string[]>([]);
 
-  const isPPV = programmingPlan?.subPlans.some(
-    (sp) => sp.subPlanNumber === 'PPV'
-  );
+  const isPPV = programmingPlan?.subPlans.some((sp) => isPPVSubPlan(sp));
 
   const { data: stats, isLoading } = apiClient.useGetComplianceStatsQuery({
     programmingPlanId: programmingPlan.id,

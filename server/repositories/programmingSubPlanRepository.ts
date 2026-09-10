@@ -23,8 +23,12 @@ export const ProgrammingSubPlansRaw = (transaction = db) =>
   );
 
 const findUnique = async (
-  id: ProgrammingSubPlanId
+  id: ProgrammingSubPlanId | null | undefined
 ): Promise<ProgrammingSubPlan | undefined> => {
+  if (isNil(id)) {
+    return undefined;
+  }
+
   const result = await kysely
     .selectFrom('programmingSubPlans')
     .selectAll()

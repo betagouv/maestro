@@ -217,12 +217,12 @@ const findMany = async (
             );
         }
         break;
-      case 'subPlanNumber':
-        if (!isNil(findOptions.subPlanNumber)) {
+      case 'subPlanNumberPrefix':
+        if (!isNil(findOptions.subPlanNumberPrefix)) {
           query = query.where(
             'programmingSubPlans.subPlanNumber',
-            '=',
-            findOptions.subPlanNumber
+            'like',
+            `${findOptions.subPlanNumberPrefix}%`
           );
         }
         break;

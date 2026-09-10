@@ -41,7 +41,7 @@ export const SampleContextData = z.object({
   department: Department.nullish(),
   parcel: z.string().nullish(),
   programmingPlanId: z.guid(),
-  programmingSubPlanId: ProgrammingSubPlanId,
+  programmingSubPlanId: ProgrammingSubPlanId.nullish(),
   context: Context,
   legalContext: LegalContext,
   company: Company.nullish(),
@@ -211,7 +211,6 @@ export const PartialSampleToCreate = z.object({
   ...SampleContextData.partial().required({
     id: true,
     programmingPlanId: true,
-    programmingSubPlanId: true,
     step: true,
     status: true,
     sampler: true

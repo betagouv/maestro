@@ -9,6 +9,7 @@ import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStat
 import { getSupportDocumentFilename } from 'maestro-shared/schema/Document/DocumentKind';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { hasNewerLaunchedCampaign } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { buildFindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   hasSamplePermission,
@@ -440,7 +441,7 @@ export const sampleRouter = {
       const subPlan = await programmingSubPlanRepository.findUnique(
         sample.programmingSubPlanId
       );
-      if (subPlan?.subPlanNumber === 'PPV') {
+      if (isPPVSubPlan(subPlan)) {
         return { status: HttpStatus.FORBIDDEN };
       }
 
@@ -530,7 +531,7 @@ export const sampleRouter = {
             withOptionalCopies: false
           }).map((item) => ({
             ...item,
-            compliance200263: subPlan.subPlanNumber === 'PPV' ? undefined : true
+            compliance200263: isPPVSubPlan(subPlan) ? undefined : true
           }));
         }
         if (

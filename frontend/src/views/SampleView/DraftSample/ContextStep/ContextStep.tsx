@@ -16,6 +16,8 @@ import {
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
+  isPPVSubPlan,
+  isPPVSubPlanNumber,
   type ProgrammingSubPlanId,
   stagesFromSubPlans
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
@@ -312,7 +314,9 @@ const ContextStep = ({ partialSample }: Props) => {
         : undefined,
     parcel,
     programmingPlanId: programmingPlan?.id as string,
-    programmingSubPlanId: programmingSubPlanId as ProgrammingSubPlanId,
+    programmingSubPlanId: (programmingSubPlanId || undefined) as
+      | ProgrammingSubPlanId
+      | undefined,
     context:
       context === 'OutsideProgrammingPlan'
         ? outsideProgrammingPlanContext
@@ -393,7 +397,9 @@ const ContextStep = ({ partialSample }: Props) => {
     geolocationX,
     geolocationY,
     parcel,
-    programmingSubPlanId: programmingSubPlanId as ProgrammingSubPlanId,
+    programmingSubPlanId: (programmingSubPlanId || undefined) as
+      | ProgrammingSubPlanId
+      | undefined,
     context,
     outsideProgrammingPlanContext,
     legalContext,
@@ -413,16 +419,18 @@ const ContextStep = ({ partialSample }: Props) => {
   }
   return (
     <form data-testid="draft_sample_creation_form" className="sample-form">
-      {subPlanNumber === 'PPV' && !isBrowserGeolocation && !readonly && (
-        <Alert
-          severity="info"
-          title=""
-          small
-          closable
-          description={`Autorisez le partage de votre position pour faciliter la localisation 
-            ${subPlanNumber === 'PPV' ? ' de la parcelle' : ' du contrôle'}.`}
-        />
-      )}
+      {isPPVSubPlanNumber(subPlanNumber) &&
+        !isBrowserGeolocation &&
+        !readonly && (
+          <Alert
+            severity="info"
+            title=""
+            small
+            closable
+            description={`Autorisez le partage de votre position pour faciliter la localisation 
+            ${isPPVSubPlanNumber(subPlanNumber) ? ' de la parcelle' : ' du contrôle'}.`}
+          />
+        )}
       <div>
         {partialSample &&
           (!readonly || SampleSteps[partialSample.step] > 1) && (
@@ -444,7 +452,7 @@ const ContextStep = ({ partialSample }: Props) => {
           )}
         <AppRequiredText />
       </div>
-      {subPlanNumber === 'PPV' && (
+      {isPPVSubPlanNumber(subPlanNumber) && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <div className={clsx('d-flex-align-start')}>
@@ -519,7 +527,7 @@ const ContextStep = ({ partialSample }: Props) => {
           )}
         </div>
       )}
-      {subPlanNumber === 'PPV' && (
+      {isPPVSubPlanNumber(subPlanNumber) && (
         <SampleGeolocationForm
           key={`geolocation-${isBrowserGeolocation}`}
           title="Emplacement de la parcelle contrôlée"
@@ -549,22 +557,23 @@ const ContextStep = ({ partialSample }: Props) => {
           </div>
         </SampleGeolocationForm>
       )}
-      {programmingPlan.subPlans.length > 1 && (
-        <AppSelect
-          value={programmingSubPlanId}
-          options={programmingSubPlanOptions}
-          onChange={(e) => setProgrammingSubPlanId(e.target.value)}
-          inputForm={form}
-          inputKey="specificData"
-          inputPathFromKey={['programmingSubPlanId']}
-          whenValid="Type de plan correctement renseigné."
-          data-testid="programmingSubPlan-select"
-          label="Type de plan"
-          disabled={readonly}
-          required
-          className={cx('fr-mb-0')}
-        />
-      )}
+      {programmingPlan.subPlans.length > 1 &&
+        !programmingPlan.subPlans.every(isPPVSubPlan) && (
+          <AppSelect
+            value={programmingSubPlanId}
+            options={programmingSubPlanOptions}
+            onChange={(e) => setProgrammingSubPlanId(e.target.value)}
+            inputForm={form}
+            inputKey="specificData"
+            inputPathFromKey={['programmingSubPlanId']}
+            whenValid="Type de plan correctement renseigné."
+            data-testid="programmingSubPlan-select"
+            label="Type de plan"
+            disabled={readonly}
+            required
+            className={cx('fr-mb-0')}
+          />
+        )}
       {contextOptions.length > 1 && (
         <AppRadioButtons
           legend="Contexte du prélèvement"
@@ -658,7 +667,7 @@ const ContextStep = ({ partialSample }: Props) => {
           </div>
         </div>
       )}
-      {subPlanNumber === 'PPV' && (
+      {isPPVSubPlanNumber(subPlanNumber) && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppTextInput
@@ -693,7 +702,7 @@ const ContextStep = ({ partialSample }: Props) => {
       />
 
       {!!programmingSubPlanId &&
-        subPlanNumber !== 'PPV' &&
+        !isPPVSubPlanNumber(subPlanNumber) &&
         !!company &&
         !readonly && (
           <SampleEmptyFormDownload partialSample={partialSample ?? formData} />

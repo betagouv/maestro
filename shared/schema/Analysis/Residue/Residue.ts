@@ -7,6 +7,7 @@ import { SSD2Id, SSD2Ids } from '../../../referential/Residue/SSD2Id';
 import { SSD2Referential } from '../../../referential/Residue/SSD2Referential';
 import { maestroDateRefined } from '../../../utils/date';
 import { checkSchema } from '../../../utils/zod';
+import { isPPVSubPlanNumber } from '../../ProgrammingPlan/ProgrammingSubPlan';
 import { SampleBase } from '../../Sample/Sample';
 import { AnalysisMethod } from '../AnalysisMethod';
 import { Analyte, PartialAnalyte } from '../Analyte';
@@ -141,7 +142,7 @@ export const LmrIsValid = (
   }
 
   // Hors PPV, la LMR est obligatoire.
-  if (sample.programmingSubPlanNumber !== 'PPV') {
+  if (!isPPVSubPlanNumber(sample.programmingSubPlanNumber)) {
     return false;
   }
 

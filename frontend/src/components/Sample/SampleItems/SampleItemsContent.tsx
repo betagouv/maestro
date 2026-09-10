@@ -1,5 +1,6 @@
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type {
   PartialSample,
   PartialSampleToCreate
@@ -75,8 +76,9 @@ const SampleItemsContent = ({
                   itemNumber: lastItem.itemNumber,
                   copyNumber: addedCopyNumber
                 }),
-                compliance200263:
-                  programmingSubPlan?.subPlanNumber === 'PPV' ? undefined : true
+                compliance200263: isPPVSubPlan(programmingSubPlan)
+                  ? undefined
+                  : true
               });
             }}
             className={cx('fr-my-1w')}

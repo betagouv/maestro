@@ -189,8 +189,12 @@ const generateSamplesExportExcel = async (
 
   const fieldConfigsCache = new Map<string, ProgrammingSubPlanFieldConfig[]>();
   const getFieldConfigs = async (
-    programmingSubPlanId: ProgrammingSubPlanId
+    programmingSubPlanId: ProgrammingSubPlanId | null | undefined
   ): Promise<ProgrammingSubPlanFieldConfig[]> => {
+    if (!programmingSubPlanId) {
+      return [];
+    }
+
     if (!fieldConfigsCache.has(programmingSubPlanId)) {
       fieldConfigsCache.set(
         programmingSubPlanId,

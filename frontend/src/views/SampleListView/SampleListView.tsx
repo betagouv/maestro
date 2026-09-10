@@ -14,6 +14,7 @@ import {
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import { SampleCompliance } from 'maestro-shared/schema/Sample/SampleCompliance';
 import type { SampleStatus } from 'maestro-shared/schema/Sample/SampleStatus';
@@ -155,7 +156,7 @@ const SampleListView = () => {
   }, [searchParams, user?.region, sampleListDisplay]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const canDownloadSupportDocument: boolean =
-    programmingPlan?.subPlans.some((sp) => sp.subPlanNumber === 'PPV') ?? false;
+    programmingPlan?.subPlans.some((sp) => isPPVSubPlan(sp)) ?? false;
 
   const findSampleOptionsWithYear = useMemo(
     () => ({
