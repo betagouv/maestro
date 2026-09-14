@@ -5,7 +5,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { useContext } from 'react';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import { YearTitle } from 'src/components/YearTitle/YearTitle';
 import { ApiClientContext } from 'src/services/apiClient';
@@ -25,6 +25,7 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
     programmingPlanId: string;
     subPlanId: string;
   }>();
+  const navigate = useNavigate();
 
   const apiClient = useContext(ApiClientContext);
   const { data: domains = [] } = apiClient.useFindProgrammingPlanDomainsQuery();
@@ -114,7 +115,25 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
               <ProgrammingPlanSettingsBadge
                 programmingPlans={programmingPlan ? [programmingPlan] : []}
               />
-              <ProgrammingPlanSettingsActions className={cx('fr-ml-auto')} />
+              <ProgrammingPlanSettingsActions
+                className={cx('fr-ml-auto')}
+                target={
+                  subPlan
+                    ? { kind: 'subPlan', programmingPlan, subPlan }
+                    : { kind: 'plan', programmingPlan }
+                }
+                onDeleted={() =>
+                  navigate(
+                    subPlan
+                      ? AppRouteLinks.ProgrammingPlanSettingsPlanRoute.link(
+                          programmingPlanId
+                        )
+                      : AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(
+                          domain?.id ?? ''
+                        )
+                  )
+                }
+              />
             </div>
             {isCampaignLaunched(programmingPlan) && (
               <Alert

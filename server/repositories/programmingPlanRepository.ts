@@ -11,6 +11,7 @@ import {
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import z from 'zod';
 import { knexInstance as db } from './db';
+import { kysely } from './kysely';
 import {
   ProgrammingSubPlansRaw,
   programmingSubPlansTable
@@ -219,6 +220,12 @@ const updateLocalStatus = async (
     });
 };
 
+const deleteOne = async (id: string): Promise<void> => {
+  console.info('Delete programming plan', id);
+
+  await kysely.deleteFrom('programmingPlans').where('id', '=', id).execute();
+};
+
 export const formatProgrammingPlan = (
   programmingPlan: ProgrammingPlanChecked
 ): ProgrammingPlanDbo => ProgrammingPlanDbo.parse(programmingPlan);
@@ -230,5 +237,6 @@ export default {
   insert,
   update,
   insertManyLocalStatus,
-  updateLocalStatus
+  updateLocalStatus,
+  deleteOne
 };

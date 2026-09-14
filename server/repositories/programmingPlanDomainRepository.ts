@@ -42,8 +42,18 @@ const insert = async (
   return ProgrammingPlanDomain.parse(createdDomain);
 };
 
+const deleteOne = async (id: ProgrammingPlanDomainId): Promise<void> => {
+  console.info('Delete programming plan domain', id);
+
+  await kysely
+    .deleteFrom('programmingPlanDomains')
+    .where('id', '=', id)
+    .execute();
+};
+
 export const programmingPlanDomainRepository = {
   findMany,
   findUnique,
-  insert
+  insert,
+  deleteOne
 };

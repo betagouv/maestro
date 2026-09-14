@@ -17,7 +17,11 @@ import {
   type ProgrammingPlanStatus,
   ProgrammingPlanStatusPermissions
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
-import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { isProgrammingPlanDeletable } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  isProgrammingSubPlanDeletable,
+  stagesFromSubPlans
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   hasAccountPermission,
   hasPermission,
@@ -40,6 +44,7 @@ import { specificDataFieldConfigRepository } from '../repositories/specificDataF
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
+import { programmingPlanDeletionService } from '../services/programmingPlanDeletionService';
 import { programmingPlanSettingsService } from '../services/programmingPlanSettingsService';
 
 const resumesDraft = (
@@ -176,6 +181,63 @@ export const programmingPlanRouter = {
         status: HttpStatus.OK,
         response: updatedProgrammingPlan
       };
+    },
+    delete: async ({ user, account }, { programmingPlanId }) => {
+      const programmingPlan =
+        await getAndCheckProgrammingPlan(programmingPlanId);
+
+      if (
+        !canUpdateProgrammingPlanSettings(programmingPlan, user, account.roles)
+      ) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
+
+      if (!isProgrammingPlanDeletable(programmingPlan)) {
+        throw programmingPlanDeletionService.settingsCompletedConflict();
+      }
+
+      console.info('Delete programming plan', programmingPlanId);
+
+      await programmingPlanDeletionService.deleteOrConflict(() =>
+        programmingPlanRepository.deleteOne(programmingPlan.id)
+      );
+
+      return { status: HttpStatus.NO_CONTENT };
+    }
+  },
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId': {
+    delete: async (
+      { user, account },
+      { programmingPlanId, programmingSubPlanId }
+    ) => {
+      const programmingPlan =
+        await getAndCheckProgrammingPlan(programmingPlanId);
+
+      if (
+        !canUpdateProgrammingPlanSettings(programmingPlan, user, account.roles)
+      ) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
+
+      const programmingSubPlan = programmingPlan.subPlans.find(
+        ({ id }) => id === programmingSubPlanId
+      );
+
+      if (!programmingSubPlan) {
+        return { status: HttpStatus.NOT_FOUND };
+      }
+
+      if (!isProgrammingSubPlanDeletable(programmingSubPlan)) {
+        throw programmingPlanDeletionService.settingsCompletedConflict();
+      }
+
+      console.info('Delete programming sub-plan', programmingSubPlanId);
+
+      await programmingPlanDeletionService.deleteOrConflict(() =>
+        programmingSubPlanRepository.deleteOne(programmingSubPlanId)
+      );
+
+      return { status: HttpStatus.NO_CONTENT };
     }
   },
   '/programming-plans/:programmingPlanId/settings': {

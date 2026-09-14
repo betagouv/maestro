@@ -3,11 +3,14 @@ import { type Region, RegionList } from 'maestro-shared/referential/Region';
 import type { Stage } from 'maestro-shared/referential/Stage';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import {
   DAOABovinInProgressSubPlanFixture,
   DAOAInProgressProgrammingPlanFixture,
   DAOAValidatedProgrammingPlanFixture,
   DAOAVolailleInProgressSubPlanFixture,
+  genDeletableProgrammingPlan,
+  genProgrammingSubPlan,
   PPVClosedProgrammingPlanFixture,
   PPVInProgressProgrammingPlanFixture,
   PPVInProgressSubPlanFixture,
@@ -29,8 +32,9 @@ import {
 import { withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { afterEach, describe, expect, test } from 'vitest';
-import {
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { kysely } from '../../repositories/kysely';
+import programmingPlanRepository, {
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
@@ -926,6 +930,153 @@ describe('ProgrammingPlan router', () => {
       ).resolves.toMatchObject({
         stages: validBody.stages,
         stagesManaged: true
+      });
+    });
+  });
+
+  describe('DELETE /programming-plans/:programmingPlanId', () => {
+    const planRoute = (programmingPlanId: string) =>
+      `/api/programming-plans/${programmingPlanId}`;
+
+    let deletablePlan: ProgrammingPlanChecked;
+
+    beforeEach(async () => {
+      deletablePlan = genDeletableProgrammingPlan();
+      await programmingPlanRepository.insert(deletablePlan);
+      await kysely
+        .insertInto('laboratoryAgreements')
+        .values({
+          programmingSubPlanId: deletablePlan.subPlans[0].id,
+          laboratoryId: LaboratoryFixture.id,
+          substanceKind: 'Any',
+          referenceLaboratory: false,
+          detectionAnalysis: true,
+          confirmationAnalysis: false
+        })
+        .execute();
+    });
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .delete(planRoute(deletablePlan.id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user does not have the permission', async () => {
+      await request(app)
+        .delete(planRoute(deletablePlan.id))
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if the user does not coordinate the plan', async () => {
+      await request(app)
+        .delete(planRoute(deletablePlan.id))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should refuse to delete a plan carrying prescriptions', async () => {
+      const res = await request(app)
+        .delete(planRoute(DAOAInProgressProgrammingPlanFixture.id))
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_CONFLICT);
+
+      expect(res.body.message).toContain(
+        'des prescriptions ou des prélèvements y sont rattachés'
+      );
+
+      await expect(
+        programmingPlanRepository.findUnique(
+          DAOAInProgressProgrammingPlanFixture.id
+        )
+      ).resolves.toBeDefined();
+    });
+
+    test('should delete the plan along with its sub-plans and their laboratory agreements', async () => {
+      await request(app)
+        .delete(planRoute(deletablePlan.id))
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
+
+      await expect(
+        programmingPlanRepository.findUnique(deletablePlan.id)
+      ).resolves.toBeUndefined();
+      await expect(
+        programmingSubPlanRepository.findUnique(deletablePlan.subPlans[0].id)
+      ).resolves.toBeUndefined();
+      await expect(
+        kysely
+          .selectFrom('laboratoryAgreements')
+          .selectAll()
+          .where('programmingSubPlanId', '=', deletablePlan.subPlans[0].id)
+          .execute()
+      ).resolves.toEqual([]);
+    });
+  });
+
+  describe('DELETE /programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId', () => {
+    const subPlanRoute = (
+      programmingPlanId: string,
+      programmingSubPlanId: string
+    ) =>
+      `/api/programming-plans/${programmingPlanId}/sub-plans/${programmingSubPlanId}`;
+
+    let deletablePlan: ProgrammingPlanChecked;
+
+    beforeEach(async () => {
+      const planId = uuidv4();
+      deletablePlan = genDeletableProgrammingPlan({
+        id: planId,
+        subPlans: [
+          genProgrammingSubPlan({
+            programmingPlanId: planId,
+            subPlanNumber: 'TEST1',
+            settingsCompleted: false
+          }),
+          genProgrammingSubPlan({
+            programmingPlanId: planId,
+            subPlanNumber: 'TEST2',
+            settingsCompleted: false
+          })
+        ]
+      });
+      await programmingPlanRepository.insert(deletablePlan);
+    });
+
+    test('should fail if the user is not authenticated', async () => {
+      await request(app)
+        .delete(subPlanRoute(deletablePlan.id, deletablePlan.subPlans[0].id))
+        .expect(constants.HTTP_STATUS_UNAUTHORIZED);
+    });
+
+    test('should fail if the user does not have the permission', async () => {
+      await request(app)
+        .delete(subPlanRoute(deletablePlan.id, deletablePlan.subPlans[0].id))
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should fail if the user does not coordinate the plan', async () => {
+      await request(app)
+        .delete(subPlanRoute(deletablePlan.id, deletablePlan.subPlans[0].id))
+        .use(tokenProvider(NationalCoordinator))
+        .expect(constants.HTTP_STATUS_FORBIDDEN);
+    });
+
+    test('should delete the sub-plan and leave the plan with its other sub-plans', async () => {
+      await request(app)
+        .delete(subPlanRoute(deletablePlan.id, deletablePlan.subPlans[0].id))
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
+
+      await expect(
+        programmingSubPlanRepository.findUnique(deletablePlan.subPlans[0].id)
+      ).resolves.toBeUndefined();
+      await expect(
+        programmingPlanRepository.findUnique(deletablePlan.id)
+      ).resolves.toMatchObject({
+        subPlans: [{ id: deletablePlan.subPlans[1].id }]
       });
     });
   });

@@ -78,6 +78,28 @@ const programmingPlanApi = api.injectEndpoints({
         ]
       }
     ),
+    deleteProgrammingPlan: buildTypedMutation(
+      builder,
+      '/programming-plans/:programmingPlanId',
+      'delete',
+      {
+        invalidatesTags: (_result, _error, { programmingPlanId }) => [
+          { type: 'ProgrammingPlan', id: programmingPlanId },
+          { type: 'ProgrammingPlan', id: 'LIST' }
+        ]
+      }
+    ),
+    deleteProgrammingSubPlan: buildTypedMutation(
+      builder,
+      '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId',
+      'delete',
+      {
+        invalidatesTags: (_result, _error, { programmingPlanId }) => [
+          { type: 'ProgrammingPlan', id: programmingPlanId },
+          { type: 'ProgrammingPlan', id: 'LIST' }
+        ]
+      }
+    ),
     updateProgrammingPlanLocalStatus: buildTypedMutation(
       builder,
       '/programming-plans/:programmingPlanId/local-status',
@@ -100,5 +122,7 @@ export const {
   useFindProgrammingPlanSettingsQuery,
   useUpdateProgrammingPlanSettingsMutation,
   useFindProgrammingSubPlanSettingsQuery,
-  useUpdateProgrammingSubPlanSettingsMutation
+  useUpdateProgrammingSubPlanSettingsMutation,
+  useDeleteProgrammingPlanMutation,
+  useDeleteProgrammingSubPlanMutation
 } = programmingPlanApi;

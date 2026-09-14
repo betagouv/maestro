@@ -18,15 +18,16 @@ import {
 import { ProgrammingPlanNationalCoordinator } from './ProgrammingPlanNationalCoordinator';
 import { ProgrammingPlanSettings } from './ProgrammingPlanSettings';
 import type { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
-import { ProgrammingSubPlan } from './ProgrammingSubPlan';
+import {
+  isProgrammingSubPlanDeletable,
+  ProgrammingSubPlan
+} from './ProgrammingSubPlan';
 
 export const ProgrammingPlanBase = z.object({
   id: z.guid(),
   domainId: ProgrammingPlanDomainId,
   title: z.string().min(1, 'Veuillez renseigner le titre.'),
-  subPlans: z
-    .array(ProgrammingSubPlan)
-    .min(1, 'Veuillez renseigner au moins un sous-plan.'),
+  subPlans: z.array(ProgrammingSubPlan),
   contexts: z
     .array(ProgrammingPlanContext)
     .min(1, 'Veuillez renseigner au moins un contexte.'),
@@ -77,6 +78,22 @@ export type ProgrammingPlanChecked = z.infer<typeof ProgrammingPlanChecked>;
 export const isClosed = (plan: ProgrammingPlanChecked): boolean => {
   return !isNil(plan.closedAt);
 };
+
+type DeletableProgrammingPlan = Pick<
+  ProgrammingPlanChecked,
+  'settingsCompleted'
+> & {
+  subPlans: Pick<ProgrammingSubPlan, 'settingsCompleted'>[];
+};
+
+export const isProgrammingPlanDeletable = (
+  plan: DeletableProgrammingPlan
+): boolean =>
+  !plan.settingsCompleted && plan.subPlans.every(isProgrammingSubPlanDeletable);
+
+export const isProgrammingPlanDomainDeletable = (
+  plans: DeletableProgrammingPlan[]
+): boolean => plans.every(isProgrammingPlanDeletable);
 
 export const ProgrammingPlanSort = (
   a: ProgrammingPlanChecked,

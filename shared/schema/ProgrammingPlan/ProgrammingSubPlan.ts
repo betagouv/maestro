@@ -23,6 +23,10 @@ export const ProgrammingSubPlan = z.object({
 
 export type ProgrammingSubPlan = z.infer<typeof ProgrammingSubPlan>;
 
+export const isProgrammingSubPlanDeletable = (
+  subPlan: Pick<ProgrammingSubPlan, 'settingsCompleted'>
+): boolean => !subPlan.settingsCompleted;
+
 export const subPlansForStages = <T extends Pick<ProgrammingSubPlan, 'stages'>>(
   subPlans: T[],
   stages: Stage[]
