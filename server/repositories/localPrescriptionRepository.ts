@@ -65,7 +65,11 @@ const findPendingChanges = async (
         query.whereNotNull('appliedAt');
       }
     })
-    .whereNull('changesViewedAt')
+    .whereNull(
+      visibility?.seesUnappliedChanges === false
+        ? 'appliedChangesViewedAt'
+        : 'changesViewedAt'
+    )
     .whereNotNull('diffusedAt')
     .orderByRaw(
       'prescription_id, region, department, company_siret, (applied_at is null) desc, changed_at asc'

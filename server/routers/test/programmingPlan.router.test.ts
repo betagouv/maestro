@@ -584,7 +584,7 @@ describe('ProgrammingPlan router', () => {
           programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
           region: targetRegion
         })
-        .update({ sentAt: originalSentAt });
+        .update({ sentAt: originalSentAt, lastSentAt: originalSentAt });
 
       const modifiedPrescription = genPrescription({
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id

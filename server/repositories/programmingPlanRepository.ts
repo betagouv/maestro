@@ -26,6 +26,11 @@ const programmingPlanNationalCoordinatorsTable =
 
 const firstSentAt = (sentAt: Date) => db.raw('coalesce(sent_at, ?)', [sentAt]);
 
+const sendStamps = (sentAt: Date) => ({
+  sentAt: firstSentAt(sentAt),
+  lastSentAt: sentAt
+});
+
 const ProgrammingPlanDbo = ProgrammingPlanBase.omit({
   subPlans: true,
   nationalStatus: true,
@@ -111,7 +116,7 @@ const needsResendExpression = `(
         where p2.programming_plan_id = ${programmingPlansTable}.id
           and lpc.region = ${programmingPlanLocalStatusTable}.region
           and lpc.diffused_at is not null
-          and lpc.diffused_at > ${programmingPlanLocalStatusTable}.sent_at
+          and lpc.diffused_at > ${programmingPlanLocalStatusTable}.last_sent_at
       )
     else
       exists (
@@ -121,7 +126,7 @@ const needsResendExpression = `(
           and lpc.region = ${programmingPlanLocalStatusTable}.region
           and lpc.department = ${programmingPlanLocalStatusTable}.department
           and lpc.diffused_at is not null
-          and lpc.diffused_at > ${programmingPlanLocalStatusTable}.sent_at
+          and lpc.diffused_at > ${programmingPlanLocalStatusTable}.last_sent_at
       )
   end
 )`;
@@ -370,7 +375,7 @@ const updateLocalStatus = async (
     })
     .update({
       status: localStatus.status,
-      ...(isSend ? { sentAt: firstSentAt(new Date()) } : {})
+      ...(isSend ? sendStamps(new Date()) : {})
     });
 };
 
@@ -390,7 +395,7 @@ const updateNationalStatus = async (
     .where({ programmingPlanId, region: 'None', department: 'None' })
     .update({
       status,
-      ...(isSend ? { sentAt: firstSentAt(new Date()) } : {})
+      ...(isSend ? sendStamps(new Date()) : {})
     });
 };
 
@@ -401,7 +406,7 @@ const touchNationalSentAt = async (
   console.info('Touch programming plan national sentAt', programmingPlanId);
   await ProgrammingPlanLocalStatus()
     .where({ programmingPlanId, region: 'None', department: 'None' })
-    .update({ sentAt: firstSentAt(sentAt) });
+    .update(sendStamps(sentAt));
 };
 
 const touchRegionalSentAt = async (
@@ -416,7 +421,7 @@ const touchRegionalSentAt = async (
   );
   await ProgrammingPlanLocalStatus()
     .where({ programmingPlanId, region, department: 'None' })
-    .update({ sentAt: firstSentAt(sentAt) });
+    .update(sendStamps(sentAt));
 };
 
 const touchDepartmentalSentAt = async (
@@ -433,7 +438,7 @@ const touchDepartmentalSentAt = async (
   );
   await ProgrammingPlanLocalStatus()
     .where({ programmingPlanId, region, department })
-    .update({ sentAt: firstSentAt(sentAt) });
+    .update(sendStamps(sentAt));
 };
 
 const touchNationalLastModifiedAt = async (
