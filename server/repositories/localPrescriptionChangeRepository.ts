@@ -58,7 +58,9 @@ const formatChange = (
   diffusedAt: null,
   appliedAt: null,
   changesViewedAt: null,
-  changesViewedBy: null
+  changesViewedBy: null,
+  appliedChangesViewedAt: null,
+  appliedChangesViewedBy: null
 });
 
 const parseChange = (
@@ -86,6 +88,11 @@ const insertMany = async (changes: LocalPrescriptionChangeInsert[]) => {
     await LocalPrescriptionChanges().insert(changes.map(formatChange));
   }
 };
+
+const viewedColumns = (onlyApplied?: boolean) =>
+  onlyApplied
+    ? ({ at: 'appliedChangesViewedAt', by: 'appliedChangesViewedBy' } as const)
+    : ({ at: 'changesViewedAt', by: 'changesViewedBy' } as const);
 
 const markViewed = async ({
   prescriptionId,
@@ -134,8 +141,11 @@ const markManyViewed = async ({
       }
     })
     .whereNotNull('diffusedAt')
-    .whereNull('changesViewedAt')
-    .update({ changesViewedAt: new Date(), changesViewedBy: viewedBy });
+    .whereNull(viewedColumns(onlyApplied).at)
+    .update({
+      [viewedColumns(onlyApplied).at]: new Date(),
+      [viewedColumns(onlyApplied).by]: viewedBy
+    });
 };
 
 interface PendingScope {
@@ -269,7 +279,9 @@ const commitPending = async (
   await scopedQuery(transaction, scope, kind, echelon).update({
     diffusedAt: new Date(),
     changesViewedAt: null,
-    changesViewedBy: null
+    changesViewedBy: null,
+    appliedChangesViewedAt: null,
+    appliedChangesViewedBy: null
   });
 };
 
@@ -284,11 +296,7 @@ const markApplied = async (
     .whereNotNull('diffusedAt')
     .whereNull('appliedAt')
     .modify((query) => applyScope(query, scope))
-    .update({
-      appliedAt: new Date(),
-      changesViewedAt: null,
-      changesViewedBy: null
-    });
+    .update({ appliedAt: new Date() });
 };
 
 const existsPendingForScope = async (

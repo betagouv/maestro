@@ -2838,7 +2838,7 @@ describe('Local prescriptions router', () => {
       });
     });
 
-    test('applying a change to the live row makes it unviewed again, so the sampler gets the before/after marker', async () => {
+    test('applying a change keeps it acknowledged for the echelon that handled it, while the sampler still gets the before/after marker', async () => {
       await submitToRegion(updatedSampleCount);
       await prescriptionDiffusionService.commitPendingNationalChanges(
         PPVValidatedProgrammingPlanFixture.id
@@ -2865,8 +2865,17 @@ describe('Local prescriptions router', () => {
         .andWhere('echelon', 'National')
         .andWhere('kind', 'sampleCount');
       expect(rows.length).toBeGreaterThan(0);
-      expect(rows.every((row) => row.changesViewedAt === null)).toBe(true);
+      expect(rows.every((row) => row.changesViewedAt !== null)).toBe(true);
+      expect(rows.every((row) => row.appliedChangesViewedAt === null)).toBe(
+        true
+      );
       expect(rows.every((row) => row.appliedAt !== null)).toBe(true);
+
+      const regionalRow = await readRow(RegionalCoordinator);
+      expect(regionalRow.changedAt).toBeNull();
+
+      const samplerRow = await readRow(Sampler1Fixture);
+      expect(samplerRow.changedAt).not.toBeNull();
     });
 
     test('the regional status seen in the tracking table is unchanged by the deferred write', async () => {

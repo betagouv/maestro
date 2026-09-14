@@ -546,6 +546,15 @@ export const localPrescriptionsRouter = {
         });
       }
 
+      if (canDistributeToDepartments) {
+        await localPrescriptionChangeRepository.markViewed({
+          prescriptionId: params.prescriptionId,
+          region: params.region,
+          kind: 'sampleCount',
+          viewedBy: user.id
+        });
+      }
+
       if (canUpdateLaboratories) {
         await localPrescriptionChangeRepository.markViewed({
           prescriptionId: params.prescriptionId,
