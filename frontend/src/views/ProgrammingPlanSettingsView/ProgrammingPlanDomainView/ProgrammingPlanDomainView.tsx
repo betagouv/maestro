@@ -4,7 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { useContext } from 'react';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import { YearTitle } from 'src/components/YearTitle/YearTitle';
 import { ApiClientContext } from 'src/services/apiClient';
@@ -20,6 +20,7 @@ export const ProgrammingPlanDomainView = ({ ..._rest }: Props = {}) => {
   assert<Equals<keyof typeof _rest, never>>();
 
   const { domainId = '' } = useParams<{ domainId: string }>();
+  const navigate = useNavigate();
 
   const apiClient = useContext(ApiClientContext);
   const { data: domains = [] } = apiClient.useFindProgrammingPlanDomainsQuery();
@@ -74,7 +75,19 @@ export const ProgrammingPlanDomainView = ({ ..._rest }: Props = {}) => {
             {domain?.label} ({domainPlans.length})
           </h4>
           <ProgrammingPlanSettingsBadge programmingPlans={domainPlans} />
-          <ProgrammingPlanSettingsActions className={cx('fr-ml-auto')} />
+          {domain && (
+            <ProgrammingPlanSettingsActions
+              className={cx('fr-ml-auto')}
+              target={{ kind: 'domain', domain, programmingPlans: domainPlans }}
+              onDeleted={() =>
+                navigate(
+                  AppRouteLinks.ProgrammingPlanSettingsRoute.link({
+                    year: domain.year
+                  })
+                )
+              }
+            />
+          )}
           <Button
             priority="tertiary"
             iconId="fr-icon-file-add-line"

@@ -262,6 +262,24 @@ export const genProgrammingPlan = (
   };
 };
 
+export const genDeletableProgrammingPlan = (
+  data?: Partial<ProgrammingPlanChecked>
+): ProgrammingPlanChecked => {
+  const planId = data?.id ?? uuidv4();
+  return genProgrammingPlan({
+    settingsCompleted: false,
+    createdBy: NationalCoordinatorId,
+    subPlans: [
+      genProgrammingSubPlan({
+        programmingPlanId: planId,
+        settingsCompleted: false
+      })
+    ],
+    ...data,
+    id: planId
+  });
+};
+
 export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
   id: PPVClosedProgrammingPlanId,
   domainId: PesticideResiduePreviousYearDomainId,

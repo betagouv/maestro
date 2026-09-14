@@ -38,6 +38,8 @@ const AnimauxSubPlanId = ProgrammingSubPlanId.parse(
 
 const updateProgrammingPlanSettings = fn();
 const updateProgrammingSubPlanSettings = fn();
+const deleteProgrammingPlan = fn();
+const deleteProgrammingSubPlan = fn();
 
 const completionModal = (canvasElement: HTMLElement) =>
   canvasElement.querySelector(
@@ -1104,6 +1106,9 @@ export const PlanReadOnlyForNonCoordinator: Story = {
     await expect(
       canvas.queryByRole('button', { name: 'Enregistrer et terminer' })
     ).not.toBeInTheDocument();
+    await expect(
+      canvasElement.querySelector('.fr-icon-delete-bin-line')
+    ).not.toBeInTheDocument();
   }
 };
 
@@ -1166,5 +1171,133 @@ export const PlanNationalCoordinatorWithoutName: Story = {
         fields: planSettings.fields
       })
     );
+  }
+};
+
+export const PlanDeleteForbiddenWhenSubPlanCompleted: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.getByTitle(
+        'Le paramétrage de ce plan ou de l’un de ses sous-plans est terminé.'
+      )
+    ).toBeDisabled();
+  }
+};
+
+export const PlanDelete: Story = {
+  parameters: {
+    apiClient: getMockApi({
+      ...mockApiConf,
+      useFindProgrammingPlansQuery: {
+        data: [
+          genProgrammingPlan({
+            id: PPVPlanId,
+            year: 2026,
+            domainId: pesticide2026.id,
+            title: 'Production primaire végétale',
+            settingsCompleted: false,
+            subPlans: [
+              genProgrammingSubPlan({
+                id: CerealesSubPlanId,
+                subPlanNumber: '101',
+                label: 'Céréales',
+                settingsCompleted: false
+              })
+            ]
+          })
+        ]
+      },
+      useDeleteProgrammingPlanMutation: [deleteProgrammingPlan, {}]
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    deleteProgrammingPlan.mockClear();
+
+    await userEvent.click(canvas.getByTitle('Supprimer'));
+
+    const modal = within(
+      canvasElement.querySelector<HTMLElement>(
+        '#programming-plan-delete-modal'
+      ) as HTMLElement
+    );
+
+    await waitFor(() =>
+      expect(modal.getByText('Production primaire végétale')).toBeVisible()
+    );
+    await expect(
+      modal.getByText(
+        'La suppression entraîne aussi celle de 1 sous-plan et de leur paramétrage.'
+      )
+    ).toBeInTheDocument();
+
+    await userEvent.click(modal.getByText('Supprimer'));
+
+    await waitFor(() =>
+      expect(deleteProgrammingPlan).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId
+      })
+    );
+  }
+};
+
+export const SubPlanDelete: Story = {
+  parameters: {
+    apiClient: getMockApi({
+      ...mockApiConf,
+      useDeleteProgrammingSubPlanMutation: [deleteProgrammingSubPlan, {}]
+    }),
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    deleteProgrammingSubPlan.mockClear();
+
+    await userEvent.click(canvas.getByTitle('Supprimer'));
+
+    const modal = within(
+      canvasElement.querySelector<HTMLElement>(
+        '#programming-plan-delete-modal'
+      ) as HTMLElement
+    );
+
+    await waitFor(() =>
+      expect(modal.getByText('101 - Céréales')).toBeVisible()
+    );
+    await userEvent.click(modal.getByText('Supprimer'));
+
+    await waitFor(() =>
+      expect(deleteProgrammingSubPlan).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        programmingSubPlanId: CerealesSubPlanId
+      })
+    );
+  }
+};
+
+export const SubPlanDeleteForbiddenWhenCompleted: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        AnimauxSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.getByTitle('Le paramétrage de ce sous-plan est terminé.')
+    ).toBeDisabled();
   }
 };

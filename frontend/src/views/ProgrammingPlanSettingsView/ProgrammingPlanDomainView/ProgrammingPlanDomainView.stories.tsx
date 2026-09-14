@@ -9,7 +9,7 @@ import {
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { genAuthUser } from 'maestro-shared/test/userFixtures';
 import { Route, Routes } from 'react-router';
-import { expect, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { getMockApi } from '../../../services/mockApiClient';
 import { ProgrammingPlanDomainView } from './ProgrammingPlanDomainView';
 
@@ -30,6 +30,8 @@ const chemical2026 = genProgrammingPlanDomain({
 
 const regionalStatus = (status: ProgrammingPlanStatus) =>
   RegionList.map((region) => ({ region, status }));
+
+const deleteProgrammingPlanDomain = fn();
 
 const meta = {
   title: 'Views/ProgrammingPlanDomain',
@@ -151,5 +153,73 @@ export const Default: Story = {
     await expect(
       canvas.getByTitle('Revenir à tous les domaines')
     ).toHaveAttribute('href', '/parametrage-des-plans?year=2026');
+  }
+};
+
+export const DeleteForbiddenWhenSettingsCompleted: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.getByTitle(
+        'Ce domaine contient un plan ou un sous-plan dont le paramétrage est terminé.'
+      )
+    ).toBeDisabled();
+  }
+};
+
+export const DeleteDomain: Story = {
+  parameters: {
+    apiClient: getMockApi({
+      useFindProgrammingPlanDomainsQuery: { data: [chemical2026] },
+      useFindProgrammingPlansQuery: {
+        data: [
+          genProgrammingPlan({
+            year: 2026,
+            domainId: chemical2026.id,
+            title: 'Plan en cours de paramétrage',
+            settingsCompleted: false,
+            subPlans: [
+              genProgrammingSubPlan({ settingsCompleted: false }),
+              genProgrammingSubPlan({ settingsCompleted: false })
+            ],
+            regionalStatus: regionalStatus('InProgress')
+          })
+        ]
+      },
+      useDeleteProgrammingPlanDomainMutation: [deleteProgrammingPlanDomain, {}]
+    }),
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(chemical2026.id)
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    deleteProgrammingPlanDomain.mockClear();
+
+    await userEvent.click(canvas.getByTitle('Supprimer'));
+
+    const modal = within(
+      canvasElement.querySelector<HTMLElement>(
+        '#programming-plan-delete-modal'
+      ) as HTMLElement
+    );
+
+    await waitFor(() =>
+      expect(
+        modal.getByText(
+          'La suppression entraîne aussi celle de 1 plan et 2 sous-plans et de leur paramétrage.'
+        )
+      ).toBeVisible()
+    );
+
+    await userEvent.click(modal.getByText('Supprimer'));
+
+    await waitFor(() =>
+      expect(deleteProgrammingPlanDomain).toHaveBeenCalledWith({
+        programmingPlanDomainId: chemical2026.id
+      })
+    );
   }
 };

@@ -147,6 +147,9 @@ const defaultMockApiClientConf: MockApi = {
   useDeleteResourceDocumentMutation: [fn(), {}],
   useDeleteSampleDocumentMutation: [fn(), {}],
   useDeletePrescriptionMutation: [fn(), {}],
+  useDeleteProgrammingPlanDomainMutation: [fn(), {}],
+  useDeleteProgrammingPlanMutation: [fn(), {}],
+  useDeleteProgrammingSubPlanMutation: [fn(), {}],
   useDeleteSampleMutation: [fn(), {}],
   useFindCompaniesQuery: {
     data: [SlaughterhouseCompanyFixture1, SlaughterhouseCompanyFixture2]

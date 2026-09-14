@@ -73,8 +73,18 @@ const updateSettings = async (
     .execute();
 };
 
+const deleteOne = async (id: ProgrammingSubPlanId): Promise<void> => {
+  console.info('Delete programming sub-plan', id);
+
+  await kysely
+    .deleteFrom('programmingSubPlansRaw')
+    .where('id', '=', id)
+    .execute();
+};
+
 export const programmingSubPlanRepository = {
   findUnique,
   findMany,
-  updateSettings
+  updateSettings,
+  deleteOne
 };

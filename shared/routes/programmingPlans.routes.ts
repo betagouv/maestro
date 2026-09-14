@@ -47,6 +47,20 @@ export const programmingPlansRoutes = {
         status: ProgrammingPlanStatus
       }),
       response: ProgrammingPlanChecked
+    },
+    delete: {
+      accountPermissions: ['manageProgrammingPlanSettings'],
+      response: z.undefined()
+    }
+  },
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId': {
+    params: {
+      programmingPlanId: z.guid(),
+      programmingSubPlanId: ProgrammingSubPlanId
+    },
+    delete: {
+      accountPermissions: ['manageProgrammingPlanSettings'],
+      response: z.undefined()
     }
   },
   '/programming-plans/:programmingPlanId/local-status': {
