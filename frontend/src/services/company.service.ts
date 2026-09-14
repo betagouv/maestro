@@ -1,4 +1,3 @@
-import { isNil, omitBy } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import type { CompanySearchResult } from 'maestro-shared/schema/Company/CompanySearchResult';
 import { api } from 'src/services/api.service';
