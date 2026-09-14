@@ -1,6 +1,6 @@
 import { isNil, omitBy } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
-import { CompanySearchResult } from 'maestro-shared/schema/Company/CompanySearchResult';
+import type { CompanySearchResult } from 'maestro-shared/schema/Company/CompanySearchResult';
 import { api } from 'src/services/api.service';
 import { buildTypedQuery } from './api.builder';
 
@@ -24,9 +24,7 @@ const companyApi = api.injectEndpoints({
         }
       }),
       transformResponse: (response: { results: CompanySearchResult[] }) =>
-        response.results.map((_) =>
-          CompanySearchResult.parse(omitBy(_, isNil))
-        ),
+        response.results,
       transformErrorResponse: () => {
         return [];
       }
