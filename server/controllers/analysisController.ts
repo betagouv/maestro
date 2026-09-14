@@ -1,17 +1,22 @@
 import { isEqual, isNil } from 'lodash-es';
 import AnalysisMissingError from 'maestro-shared/errors/analysisMissingError';
+import { isAnalysisCorrectionReportable } from 'maestro-shared/referential/Laboratory';
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { hasSamplePermission } from 'maestro-shared/schema/Sample/Sample';
 import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckSample } from '../middlewares/checks/sampleCheck';
 import { analysisErrorsRepository } from '../repositories/analysisErrorsRepository';
 import { analysisRepository } from '../repositories/analysisRepository';
+import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
+import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { tchapService } from '../services/tchapService';
+import config from '../utils/config';
 
 export const analysisRouter = {
   '/analysis': {
@@ -123,14 +128,29 @@ export const analysisRouter = {
           analysisUpdate.residues
         );
         if (!isEqual(oldResidues, newResidues)) {
-          await tchapService.send(
-            `Une analyse vient d'être corrigée par un préleveur : SampleId ${analysis.sampleId}`
+          const sampleItem = await sampleItemRepository.findUnique(
+            analysis.sampleId,
+            analysis.itemNumber,
+            analysis.copyNumber
           );
-          await analysisErrorsRepository.upsert(
-            analysis.id,
-            oldResidues,
-            newResidues
-          );
+          const laboratory = sampleItem?.laboratoryId
+            ? await laboratoryRepository.findUnique(sampleItem.laboratoryId)
+            : undefined;
+          if (
+            isAnalysisCorrectionReportable(
+              subPlan?.subPlanNumber,
+              laboratory?.shortName
+            )
+          ) {
+            await tchapService.send(
+              `Une analyse vient d'être corrigée par un préleveur : ${config.application.host}${AppRouteLinks.SampleRoute.link(analysis.sampleId)}`
+            );
+            await analysisErrorsRepository.upsert(
+              analysis.id,
+              oldResidues,
+              newResidues
+            );
+          }
         }
       }
 

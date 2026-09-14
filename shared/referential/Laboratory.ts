@@ -132,3 +132,13 @@ export const LaboratoryWithAutomation = [
   'CER 30',
   'ANS 94a - LNR PEST'
 ] as const satisfies LaboratoryShortName[];
+
+export const isAnalysisCorrectionReportable = (
+  subPlanNumber: string | undefined,
+  laboratoryShortName: LaboratoryShortName | undefined
+): boolean =>
+  subPlanNumber !== 'PPV' ||
+  (laboratoryShortName !== undefined &&
+    (LaboratoryWithAutomation as readonly string[]).includes(
+      laboratoryShortName
+    ));
