@@ -45,7 +45,7 @@
     "@vitest/browser-playwright": "^4.1.10",
     "@vitest/coverage-v8": "^4.1.10",
     "clsx": "^2.1.0",
-    "i18next": "^26.4.1",
+    "i18next": "^26.4.2",
     "maestro-shared": "^0.0.1",
     "maplibre-gl": "^6.7.0",
     "playwright": "^1.62.1",
