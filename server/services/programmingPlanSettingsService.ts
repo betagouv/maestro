@@ -1,18 +1,15 @@
 import type { Transaction } from 'kysely';
+import { pick } from 'lodash-es';
 import type { ProgrammingPlanNationalCoordinator } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import {
   managedKey,
-  ProgrammingPlanSettingKey,
-  type ProgrammingPlanSettings
+  ProgrammingPlanSettingKey
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type {
   ProgrammingPlanSettingsForm,
   ProgrammingSubPlanSettingsForm
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
-import type {
-  ProgrammingSubPlan,
-  ProgrammingSubPlanId
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { ProgrammingSubPlanFieldSetting } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import type {
   ProgrammingPlanFieldId,
@@ -278,16 +275,14 @@ const saveSubPlanSettings = (
   executeTransaction(async (trx) => {
     console.info('Update programming sub-plan settings', programmingSubPlanId);
 
-    const ownSettings: Partial<
-      ProgrammingPlanSettings & Pick<ProgrammingSubPlan, 'settingsCompleted'>
-    > = { settingsCompleted: settings.settingsCompleted };
-    for (const settingKey of ProgrammingPlanSettingKey.options) {
-      const managed = settings[managedKey(settingKey)];
-      ownSettings[managedKey(settingKey)] = managed;
-      if (managed) {
-        ownSettings[settingKey] = settings[settingKey];
-      }
-    }
+    const ownSettings = pick(settings, [
+      'settingsCompleted',
+      ...ProgrammingPlanSettingKey.options.flatMap((settingKey) =>
+        settings[managedKey(settingKey)]
+          ? [settingKey, managedKey(settingKey)]
+          : [managedKey(settingKey)]
+      )
+    ]);
 
     await programmingSubPlanRepository.updateSettings(
       programmingSubPlanId,

@@ -300,6 +300,8 @@ export interface PrescriptionSubstances {
 interface ProgrammingPlanSettings {
   stages: Stage[] | null;
   stagesManaged: Generated<boolean>;
+  substanceKinds: SubstanceKind[] | null;
+  substanceKindsManaged: Generated<boolean>;
 }
 
 export interface ProgrammingPlans extends ProgrammingPlanSettings {
@@ -455,7 +457,6 @@ export interface ProgrammingSubPlans extends ProgrammingPlanSettings {
   analysisPermissionRole: UserRole | null;
   contactListId: number | null;
   withSacha: boolean;
-  substanceKinds: SubstanceKind[];
 }
 
 export interface SampleDocuments {

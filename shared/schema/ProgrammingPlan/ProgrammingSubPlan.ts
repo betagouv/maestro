@@ -1,7 +1,6 @@
 import { intersection, uniq } from 'lodash-es';
 import { z } from 'zod';
 import type { Stage } from '../../referential/Stage';
-import { SubstanceKind } from '../Substance/SubstanceKind';
 import { UserRole } from '../User/UserRole';
 import { ProgrammingPlanSettings } from './ProgrammingPlanSettings';
 
@@ -17,8 +16,7 @@ export const ProgrammingSubPlan = z.object({
   label: z.string(),
   analysisPermissionRole: UserRole.nullish(),
   contactListId: z.number().int().nullish(),
-  withSacha: z.boolean(),
-  substanceKinds: z.array(SubstanceKind)
+  withSacha: z.boolean()
 });
 
 export type ProgrammingSubPlan = z.infer<typeof ProgrammingSubPlan>;

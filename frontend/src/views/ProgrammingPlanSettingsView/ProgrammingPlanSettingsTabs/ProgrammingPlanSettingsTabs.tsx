@@ -3,6 +3,10 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import { isEqual } from 'lodash-es';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
+import {
+  emptyProgrammingPlanSettings,
+  pickProgrammingPlanSettings
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import { ProgrammingLevelSettingsForm } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type {
@@ -34,8 +38,7 @@ type Props = {
 };
 
 const emptySettings: ProgrammingLevelSettingsForm = {
-  stages: null,
-  stagesManaged: false,
+  ...emptyProgrammingPlanSettings(false),
   settingsCompleted: false,
   nationalCoordinators: null,
   fields: []
@@ -62,6 +65,7 @@ const completionModal = createModal({
 
 const tabIdBySettingsKey: Record<SettingsFieldKey, SettingsTabId> = {
   stages: 'global',
+  substanceKinds: 'global',
   nationalCoordinators: 'global',
   fields: 'sampler-form'
 };
@@ -141,16 +145,14 @@ export const ProgrammingPlanSettingsTabs = ({
       return updateProgrammingSubPlanSettings({
         programmingPlanId,
         programmingSubPlanId: subPlan.id,
-        stages: draft.stages,
-        stagesManaged: draft.stagesManaged,
+        ...pickProgrammingPlanSettings(draft),
         fields: draft.fields,
         settingsCompleted
       });
     } else {
       return updateProgrammingPlanSettings({
         programmingPlanId,
-        stages: draft.stages,
-        stagesManaged: draft.stagesManaged,
+        ...pickProgrammingPlanSettings(draft),
         nationalCoordinators: draft.nationalCoordinators ?? [],
         settingsCompleted,
         fields: draft.fields.map(({ fieldId, required, optionIds }) => ({

@@ -488,7 +488,7 @@ const ProgrammingPrescriptionTable = ({
                                   </td>
                                   <td className="border-left">
                                     {subPlan?.substanceKinds
-                                      .map((sk) => SubstanceKindLabels[sk])
+                                      ?.map((sk) => SubstanceKindLabels[sk])
                                       .join(', ')}
                                   </td>
                                   <td

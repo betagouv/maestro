@@ -5,10 +5,32 @@ import {
   NationalCoordinatorName
 } from '../../test/programmingPlanFixtures';
 import {
+  emptyProgrammingPlanSettings,
+  managedKey,
+  ProgrammingPlanSettingKey,
+  type ProgrammingPlanSettings
+} from './ProgrammingPlanSettings';
+import {
   ProgrammingLevelSettingsForm,
   ProgrammingPlanSettingsForm,
   ProgrammingSubPlanSettingsForm
 } from './ProgrammingPlanSettingsForm';
+
+const completedSettings: {
+  [K in ProgrammingPlanSettingKey]: {
+    value: NonNullable<ProgrammingPlanSettings[K]>;
+    message: string;
+  };
+} = {
+  stages: {
+    value: ['TRANSFORMATION'],
+    message: 'Veuillez renseigner au moins un stade de prélèvement.'
+  },
+  substanceKinds: {
+    value: ['Mono'],
+    message: 'Veuillez renseigner au moins un analyte.'
+  }
+};
 
 const nationalCoordinator = {
   id: NationalCoordinatorId,
@@ -26,57 +48,67 @@ describe('ProgrammingPlanSettingsForm', () => {
     ['sub-plan', ProgrammingSubPlanSettingsForm, {}],
     ['level', ProgrammingLevelSettingsForm, { nationalCoordinators: null }]
   ])('%s level', (_, schema, levelSettings) => {
-    const form = (settings: {
-      stages: string[] | null;
-      stagesManaged: boolean;
-      settingsCompleted: boolean;
-    }) => schema.safeParse({ ...settings, ...levelSettings, fields: [] });
-
-    test('should accept a draft missing its required settings', () => {
-      expect(
-        form({
-          stages: null,
-          stagesManaged: true,
-          settingsCompleted: false
-        }).success
-      ).toBe(true);
-      expect(
-        form({ stages: [], stagesManaged: true, settingsCompleted: false })
-          .success
-      ).toBe(true);
-    });
-
-    test('should refuse to complete a level managing stages without any', () => {
-      const result = form({
-        stages: null,
-        stagesManaged: true,
-        settingsCompleted: true
+    const form = (
+      settings: Record<string, unknown> & { settingsCompleted: boolean }
+    ) =>
+      schema.safeParse({
+        ...emptyProgrammingPlanSettings(false),
+        ...settings,
+        ...levelSettings,
+        fields: []
       });
 
-      expect(result.success).toBe(false);
-      expect(result.error?.issues).toContainEqual(
-        expect.objectContaining({
-          path: ['stages'],
-          message: 'Veuillez renseigner au moins un stade de prélèvement.'
-        })
+    describe.each(ProgrammingPlanSettingKey.options)('%s', (settingKey) => {
+      const { value, message } = completedSettings[settingKey];
+
+      test.each([null, []])(
+        'should accept a draft managing it with %j',
+        (emptyValue) => {
+          expect(
+            form({
+              [settingKey]: emptyValue,
+              [managedKey(settingKey)]: true,
+              settingsCompleted: false
+            }).success
+          ).toBe(true);
+        }
       );
-    });
 
-    test('should accept a completed level managing stages', () => {
-      expect(
-        form({
-          stages: ['TRANSFORMATION'],
-          stagesManaged: true,
-          settingsCompleted: true
-        }).success
-      ).toBe(true);
-    });
+      test.each([null, []])(
+        'should refuse to complete a level managing it with %j',
+        (emptyValue) => {
+          const result = form({
+            [settingKey]: emptyValue,
+            [managedKey(settingKey)]: true,
+            settingsCompleted: true
+          });
 
-    test('should accept a completed level that does not manage stages', () => {
-      expect(
-        form({ stages: null, stagesManaged: false, settingsCompleted: true })
-          .success
-      ).toBe(true);
+          expect(result.success).toBe(false);
+          expect(result.error?.issues).toContainEqual(
+            expect.objectContaining({ path: [settingKey], message })
+          );
+        }
+      );
+
+      test('should accept a completed level managing it', () => {
+        expect(
+          form({
+            [settingKey]: value,
+            [managedKey(settingKey)]: true,
+            settingsCompleted: true
+          }).success
+        ).toBe(true);
+      });
+
+      test('should accept a completed level that does not manage it', () => {
+        expect(
+          form({
+            [settingKey]: null,
+            [managedKey(settingKey)]: false,
+            settingsCompleted: true
+          }).success
+        ).toBe(true);
+      });
     });
   });
 
@@ -86,8 +118,7 @@ describe('ProgrammingPlanSettingsForm', () => {
       settingsCompleted: boolean
     ) =>
       ProgrammingPlanSettingsForm.safeParse({
-        stages: null,
-        stagesManaged: false,
+        ...emptyProgrammingPlanSettings(false),
         settingsCompleted,
         nationalCoordinators,
         fields: []
@@ -115,8 +146,7 @@ describe('ProgrammingPlanSettingsForm', () => {
 
     test('should ignore the coordinators of a sub-plan', () => {
       const result = ProgrammingSubPlanSettingsForm.safeParse({
-        stages: null,
-        stagesManaged: false,
+        ...emptyProgrammingPlanSettings(false),
         settingsCompleted: true,
         nationalCoordinators: [],
         fields: []
@@ -129,8 +159,7 @@ describe('ProgrammingPlanSettingsForm', () => {
     test('should accept a completed sub-plan level, which manages no coordinator', () => {
       expect(
         ProgrammingLevelSettingsForm.safeParse({
-          stages: null,
-          stagesManaged: false,
+          ...emptyProgrammingPlanSettings(false),
           settingsCompleted: true,
           nationalCoordinators: null,
           fields: []

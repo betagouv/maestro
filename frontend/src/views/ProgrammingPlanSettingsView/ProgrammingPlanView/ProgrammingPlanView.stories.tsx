@@ -83,6 +83,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
   [CerealesSubPlanId]: {
     stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
     stagesManaged: true,
+    substanceKinds: ['Mono'],
+    substanceKindsManaged: true,
     settingsCompleted: false,
     fields: [matriceField, quantiteField].map(({ id }) => ({
       fieldId: id,
@@ -95,12 +97,16 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
   [FruitsSubPlanId]: {
     stages: ['TRANSFORMATION'],
     stagesManaged: false,
+    substanceKinds: ['Mono'],
+    substanceKindsManaged: true,
     settingsCompleted: false,
     fields: []
   },
   [AnimauxSubPlanId]: {
     stages: ['ELEVAGE'],
     stagesManaged: false,
+    substanceKinds: ['Mono'],
+    substanceKindsManaged: true,
     settingsCompleted: true,
     fields: [
       {
@@ -135,6 +141,8 @@ const neverLoggedNationalCoordinator = {
 const planSettings: ProgrammingPlanSettingsForm = {
   stages: ['TRANSFORMATION'],
   stagesManaged: true,
+  substanceKinds: null,
+  substanceKindsManaged: false,
   settingsCompleted: false,
   nationalCoordinators: [nationalCoordinator],
   fields: [{ fieldId: especeField.id, required: true, optionIds: [] }]
@@ -305,11 +313,8 @@ export const PlanSave: Story = {
     await waitFor(() =>
       expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
         programmingPlanId: PPVPlanId,
-        stages: ['TRANSFORMATION', 'ELEVAGE'],
-        stagesManaged: true,
-        settingsCompleted: false,
-        nationalCoordinators: [nationalCoordinator],
-        fields: planSettings.fields
+        ...planSettings,
+        stages: ['TRANSFORMATION', 'ELEVAGE']
       })
     );
   }
@@ -459,10 +464,9 @@ export const SubPlanSave: Story = {
         expect(updateProgrammingSubPlanSettings).toHaveBeenCalledWith({
           programmingPlanId: PPVPlanId,
           programmingSubPlanId: CerealesSubPlanId,
+          ...subPlanSettings[CerealesSubPlanId],
           stages: ['PRODUCTION_PRIMAIRE_VEGETALE', 'ELEVAGE'],
-          stagesManaged: true,
-          settingsCompleted,
-          fields: subPlanSettings[CerealesSubPlanId].fields
+          settingsCompleted
         })
       );
     }
@@ -799,11 +803,43 @@ export const PlanStagesSwitch: Story = {
     await waitFor(() =>
       expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
         programmingPlanId: PPVPlanId,
-        stages: ['TRANSFORMATION'],
-        stagesManaged: false,
-        settingsCompleted: false,
-        nationalCoordinators: [nationalCoordinator],
-        fields: planSettings.fields
+        ...planSettings,
+        stagesManaged: false
+      })
+    );
+  }
+};
+
+export const PlanSubstanceKindsSwitch: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+
+    const managedSwitch = canvas.getByTitle(
+      'Paramétrer « Analyte(s) » au niveau du plan'
+    );
+
+    await expect(managedSwitch).not.toBeChecked();
+    await expect(
+      canvas.queryByRole('combobox', { name: /Analyte\(s\)/ })
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(managedSwitch);
+    await userEvent.selectOptions(
+      await canvas.findByRole('combobox', { name: /Analyte\(s\)/ }),
+      'Multi'
+    );
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+    await waitFor(() =>
+      expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        ...planSettings,
+        substanceKinds: ['Multi'],
+        substanceKindsManaged: true
       })
     );
   }
@@ -847,10 +883,8 @@ export const SubPlanInheritedStages: Story = {
       expect(updateProgrammingSubPlanSettings).toHaveBeenCalledWith({
         programmingPlanId: PPVPlanId,
         programmingSubPlanId: FruitsSubPlanId,
-        stages: ['TRANSFORMATION'],
-        stagesManaged: true,
-        settingsCompleted: false,
-        fields: []
+        ...subPlanSettings[FruitsSubPlanId],
+        stagesManaged: true
       })
     );
   }
@@ -896,10 +930,9 @@ export const SubPlanDetachedStages: Story = {
       expect(updateProgrammingSubPlanSettings).toHaveBeenCalledWith({
         programmingPlanId: PPVPlanId,
         programmingSubPlanId: CerealesSubPlanId,
+        ...subPlanSettings[CerealesSubPlanId],
         stages: ['TRANSFORMATION'],
-        stagesManaged: false,
-        settingsCompleted: false,
-        fields: subPlanSettings[CerealesSubPlanId].fields
+        stagesManaged: false
       })
     );
   }
@@ -996,11 +1029,8 @@ export const PlanNationalCoordinators: Story = {
     await waitFor(() =>
       expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
         programmingPlanId: PPVPlanId,
-        stages: ['TRANSFORMATION'],
-        stagesManaged: true,
-        settingsCompleted: false,
-        nationalCoordinators: [nationalCoordinator, otherNationalCoordinator],
-        fields: planSettings.fields
+        ...planSettings,
+        nationalCoordinators: [nationalCoordinator, otherNationalCoordinator]
       })
     );
   }
@@ -1161,14 +1191,11 @@ export const PlanNationalCoordinatorWithoutName: Story = {
     await waitFor(() =>
       expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
         programmingPlanId: PPVPlanId,
-        stages: ['TRANSFORMATION'],
-        stagesManaged: true,
-        settingsCompleted: false,
+        ...planSettings,
         nationalCoordinators: [
           nationalCoordinator,
           neverLoggedNationalCoordinator
-        ],
-        fields: planSettings.fields
+        ]
       })
     );
   }

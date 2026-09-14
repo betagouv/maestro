@@ -4,6 +4,10 @@ import { StageLabels, StageList } from 'maestro-shared/referential/Stage';
 import type { ProgrammingPlanNationalCoordinator } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import type { ProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings.ts';
 import type { ProgrammingLevelSettingsForm } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
+import {
+  SubstanceKind,
+  SubstanceKindLabels
+} from 'maestro-shared/schema/Substance/SubstanceKind';
 import { AppMultiSelect } from 'src/components/_app/AppMultiSelect/AppMultiSelect';
 import type { UseForm } from 'src/hooks/useForm';
 import { assert, type Equals } from 'tsafe';
@@ -21,8 +25,6 @@ type Props<
   inputForm: UseForm<typeof ProgrammingLevelSettingsForm>;
   onChange: (settings: T) => void;
 };
-
-const stagesLabel = 'Stade(s) de prélèvement';
 
 export const ProgrammingPlanGlobalSettings = <
   T extends ProgrammingPlanSettings & {
@@ -52,7 +54,7 @@ export const ProgrammingPlanGlobalSettings = <
       )}
       <ProgrammingPlanSettingInheritance
         settingKey="stages"
-        label={stagesLabel}
+        label="Stade(s) de prélèvement"
         settings={settings}
         planSettings={planSettings}
         onChange={onChange}
@@ -66,6 +68,28 @@ export const ProgrammingPlanGlobalSettings = <
             onChange={(stages) => onChange({ ...settings, stages })}
             keysWithLabels={StageLabels}
             defaultLabel={'stade sélectionné'}
+            {...props}
+          />
+        )}
+      </ProgrammingPlanSettingInheritance>
+      <ProgrammingPlanSettingInheritance
+        settingKey="substanceKinds"
+        label="Analyte(s)"
+        settings={settings}
+        planSettings={planSettings}
+        onChange={onChange}
+      >
+        {(props) => (
+          <AppMultiSelect
+            inputForm={inputForm}
+            inputKey={'substanceKinds'}
+            items={SubstanceKind.options}
+            values={settings.substanceKinds ?? []}
+            onChange={(substanceKinds) =>
+              onChange({ ...settings, substanceKinds })
+            }
+            keysWithLabels={SubstanceKindLabels}
+            defaultLabel={'analyte sélectionné'}
             {...props}
           />
         )}
