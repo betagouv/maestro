@@ -6,6 +6,7 @@ import './ProgrammingPlanTrackingHeader.scss';
 
 interface Props {
   echelon: ProgrammingPlanEchelon;
+  hasSlaughterhousePlan: boolean;
   totalCount: number;
   finalizedCount: number;
   submittedCount: number;
@@ -22,6 +23,7 @@ const submittedLabelByEchelon: Record<
 
 const ProgrammingPlanTrackingHeader = ({
   echelon,
+  hasSlaughterhousePlan,
   totalCount,
   finalizedCount,
   submittedCount,
@@ -47,19 +49,20 @@ const ProgrammingPlanTrackingHeader = ({
         />
         {pluralize(finalizedCount, { preserveCount: true })('finalisé')}
       </div>
-      {echelon !== 'Departmental' && (
-        <div>
-          <span
-            className={cx(
-              'fr-icon--sm',
-              'fr-mr-1w',
-              'fr-label--success',
-              'fr-icon-send-plane-line'
-            )}
-          />
-          {submittedCount} {submittedLabelByEchelon[echelon]}
-        </div>
-      )}
+      {echelon !== 'Departmental' &&
+        (echelon === 'National' || hasSlaughterhousePlan) && (
+          <div>
+            <span
+              className={cx(
+                'fr-icon--sm',
+                'fr-mr-1w',
+                'fr-label--success',
+                'fr-icon-send-plane-line'
+              )}
+            />
+            {submittedCount} {submittedLabelByEchelon[echelon]}
+          </div>
+        )}
       <div>
         <span
           className={cx(

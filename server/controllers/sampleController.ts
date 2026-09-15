@@ -8,6 +8,7 @@ import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { getSupportDocumentFilename } from 'maestro-shared/schema/Document/DocumentKind';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { hasNewerLaunchedCampaign } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { buildFindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   hasSamplePermission,
@@ -44,6 +45,7 @@ import companyRepository from '../repositories/companyRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
+import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
@@ -155,6 +157,11 @@ export const sampleRouter = {
       const programmingPlan = await getAndCheckProgrammingPlan(
         sampleToCreate.programmingPlanId
       );
+
+      const programmingPlans = await programmingPlanRepository.findMany({});
+      if (hasNewerLaunchedCampaign(programmingPlan, programmingPlans)) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
 
       const reference = await getNewReference(
         user.region,

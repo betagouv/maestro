@@ -421,12 +421,21 @@ const generatePrescriptionsExportExcel = async (
   exportedRegion: Region | undefined,
   exportedDepartment: Department | undefined
 ): Promise<Buffer> => {
+  const hasRegionalPlan = programmingPlans.some(
+    (plan) => plan.distributionKind === 'REGIONAL'
+  );
+  const hasSlaughterhousePlan = programmingPlans.some(
+    (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
+  );
+
   const exportedRegions = exportedRegion ? [exportedRegion] : RegionList;
-  const exportedDepartments = exportedDepartment
-    ? [exportedDepartment]
-    : exportedRegion
-      ? Regions[exportedRegion].departments
-      : [];
+  const exportedDepartments = !hasSlaughterhousePlan
+    ? []
+    : exportedDepartment
+      ? [exportedDepartment]
+      : exportedRegion
+        ? Regions[exportedRegion].departments
+        : [];
 
   console.log('Export prescriptions', exportedRegion, exportedDepartments);
 
@@ -455,12 +464,6 @@ const generatePrescriptionsExportExcel = async (
     programmingPlans.flatMap((plan) =>
       plan.subPlans.map((subPlan) => [subPlan.id, subPlan] as const)
     )
-  );
-  const hasRegionalPlan = programmingPlans.some(
-    (plan) => plan.distributionKind === 'REGIONAL'
-  );
-  const hasSlaughterhousePlan = programmingPlans.some(
-    (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
   );
   const domains = await programmingPlanDomainRepository.findMany();
   const domainLabelById = new Map(

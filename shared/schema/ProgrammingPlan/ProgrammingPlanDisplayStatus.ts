@@ -198,15 +198,15 @@ export const computeDisplayStatus = (
           value: 'ReadyToSend',
           label: 'Terminé, à envoyer',
           modified: false,
-          sentAt,
-          lastModifiedAt
+          sentAt: null,
+          lastModifiedAt: null
         }
       : {
           value: 'InProgress',
           label: ProgrammingPlanDisplayStatusLabels.InProgress,
           modified: false,
-          sentAt,
-          lastModifiedAt
+          sentAt: null,
+          lastModifiedAt: null
         };
   }
 
@@ -322,13 +322,17 @@ export const computeCompleteness = (
   const scopedByPrescription = groupBy(scoped, 'prescriptionId');
   const programmedCount = sumBy(scoped, 'sampleCount');
 
-  const hasRowForEveryPrescription = prescriptions.every(
+  const scopedPrescriptions = prescriptions.filter(
+    (p) => (scopedByPrescription[p.id]?.[0]?.sampleCount ?? 0) > 0
+  );
+
+  const hasRowForEveryPrescription = scopedPrescriptions.every(
     (p) => (scopedByPrescription[p.id] ?? []).length > 0
   );
 
   const isReconciledWithChildren =
     echelon === 'Regional' && distributionKind !== 'REGIONAL'
-      ? prescriptions.every((p) => {
+      ? scopedPrescriptions.every((p) => {
           const regionalRow = scopedByPrescription[p.id]?.[0];
           const regionalSampleCount =
             regionalRow?.diffusedSampleCount ?? regionalRow?.sampleCount ?? 0;
@@ -345,7 +349,7 @@ export const computeCompleteness = (
           return departmentSum === regionalSampleCount;
         })
       : echelon === 'Departmental' && distributionKind === 'SLAUGHTERHOUSE'
-        ? prescriptions.every((p) => {
+        ? scopedPrescriptions.every((p) => {
             const departmentalRow = scopedByPrescription[p.id]?.[0];
             const departmentalSampleCount =
               departmentalRow?.diffusedSampleCount ??
@@ -373,7 +377,7 @@ export const computeCompleteness = (
 
   const hasLaboratoriesAssigned =
     !isTerminalEchelon ||
-    prescriptions.every((p) =>
+    scopedPrescriptions.every((p) =>
       isLaboratoryAssignmentComplete(
         scopedByPrescription[p.id]?.[0]?.substanceKindsLaboratories
       )
@@ -381,6 +385,7 @@ export const computeCompleteness = (
 
   return {
     isComplete:
+      scoped.length > 0 &&
       hasRowForEveryPrescription &&
       isReconciledWithChildren &&
       hasLaboratoriesAssigned,

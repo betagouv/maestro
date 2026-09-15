@@ -44,6 +44,7 @@ import food from '../../assets/illustrations/food.svg';
 import { ApiClientContext } from '../../services/apiClient';
 import SupportDocumentDownload from '../SampleView/DraftSample/SupportDocumentDownload';
 import './SampleList.scss';
+import { hasNewerLaunchedCampaign } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 
 const SampleListView = () => {
   const apiClient = useContext(ApiClientContext);
@@ -67,6 +68,17 @@ const SampleListView = () => {
   const programmingPlan = useMemo(
     () => (programmingPlans?.length === 1 ? programmingPlans[0] : undefined),
     [programmingPlans]
+  );
+
+  const { data: allProgrammingPlans } = apiClient.useFindProgrammingPlansQuery(
+    {}
+  );
+
+  const hasNewerCampaign = useMemo(
+    () =>
+      !!programmingPlan &&
+      hasNewerLaunchedCampaign(programmingPlan, allProgrammingPlans ?? []),
+    [programmingPlan, allProgrammingPlans]
   );
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery({
@@ -208,6 +220,7 @@ const SampleListView = () => {
       documentTitle="Liste des prélèvements"
       action={
         programmingPlan &&
+        !hasNewerCampaign &&
         hasUserPermission('createSample') && (
           <div
             className={clsx('d-flex-row', 'd-flex-justify-center')}

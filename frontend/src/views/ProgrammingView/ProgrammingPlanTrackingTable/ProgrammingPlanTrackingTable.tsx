@@ -157,6 +157,10 @@ const ProgrammingPlanTrackingTable = ({
     localPrescriptionsByPrescription
   } = useProgrammingPlanTrackingStatus(programmingPlans, region, department);
 
+  const hasSlaughterhousePlan = programmingPlans.some(
+    (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
+  );
+
   const { data: programmingPlanDomains } =
     apiClient.useFindProgrammingPlanDomainsQuery();
 
@@ -510,7 +514,9 @@ const ProgrammingPlanTrackingTable = ({
                 </th>
                 {!region && <th scope="col">Statut BGIR</th>}
                 {!department && <th scope="col">Statut région</th>}
-                <th scope="col">Statut département</th>
+                {hasSlaughterhousePlan && (
+                  <th scope="col">Statut département</th>
+                )}
               </tr>
             </thead>
           </MiniTable>
@@ -656,35 +662,37 @@ const ProgrammingPlanTrackingTable = ({
                               )}
                             </td>
                           )}
-                          <td>
-                            {department ? (
-                              departmentalDisplayStatus ? (
-                                <ProgrammingPlanDisplayStatusBadge
-                                  result={departmentalDisplayStatus}
-                                  showDates
-                                  small
+                          {hasSlaughterhousePlan && (
+                            <td>
+                              {department ? (
+                                departmentalDisplayStatus ? (
+                                  <ProgrammingPlanDisplayStatusBadge
+                                    result={departmentalDisplayStatus}
+                                    showDates
+                                    small
+                                  />
+                                ) : (
+                                  <span className={cx('fr-text--sm')}>N/A</span>
+                                )
+                              ) : departmentalAggregate &&
+                                departmentalAggregate.value !==
+                                  'NotApplicable' ? (
+                                <AggregateBadge
+                                  aggregate={departmentalAggregate}
+                                />
+                              ) : departmentalAggregate &&
+                                regionalAggregate.value === 'Pending' ? (
+                                <AggregateBadge
+                                  aggregate={{
+                                    value: 'Pending',
+                                    label: 'En attente'
+                                  }}
                                 />
                               ) : (
                                 <span className={cx('fr-text--sm')}>N/A</span>
-                              )
-                            ) : departmentalAggregate &&
-                              departmentalAggregate.value !==
-                                'NotApplicable' ? (
-                              <AggregateBadge
-                                aggregate={departmentalAggregate}
-                              />
-                            ) : departmentalAggregate &&
-                              regionalAggregate.value === 'Pending' ? (
-                              <AggregateBadge
-                                aggregate={{
-                                  value: 'Pending',
-                                  label: 'En attente'
-                                }}
-                              />
-                            ) : (
-                              <span className={cx('fr-text--sm')}>N/A</span>
-                            )}
-                          </td>
+                              )}
+                            </td>
+                          )}
                         </tr>
 
                         {isPlanExpanded &&

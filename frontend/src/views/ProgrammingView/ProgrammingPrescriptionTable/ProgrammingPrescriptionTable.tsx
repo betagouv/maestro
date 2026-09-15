@@ -69,6 +69,11 @@ const useProgressiveRowCount = (total: number) => {
   return renderedCount;
 };
 
+const EMPTY_COMPANIES: Company[] = [];
+const EMPTY_DEPARTMENTS: Department[] = [];
+const EMPTY_LOCAL_PRESCRIPTIONS: LocalPrescription[] = [];
+const EMPTY_PRESCRIPTIONS: Prescription[] = [];
+
 interface Props {
   programmingPlans: ProgrammingPlanChecked[];
   prescriptions: Prescription[];
@@ -110,9 +115,9 @@ const ProgrammingPrescriptionTable = ({
   pendingLaboratoryKeys,
   region,
   department,
-  companies = [],
-  subLocalPrescriptions = [],
-  selectedPrescriptions = [],
+  companies = EMPTY_COMPANIES,
+  subLocalPrescriptions = EMPTY_LOCAL_PRESCRIPTIONS,
+  selectedPrescriptions = EMPTY_PRESCRIPTIONS,
   onTogglePrescriptionSelection,
   onOpenComments,
   topOffset = 0
@@ -380,13 +385,15 @@ const ProgrammingPrescriptionTable = ({
   }, [regionalPrescriptions]);
 
   const getLocalPrescriptions = (prescriptionId: string) =>
-    localPrescriptionsByPrescriptionId.get(prescriptionId) ?? [];
+    localPrescriptionsByPrescriptionId.get(prescriptionId) ??
+    EMPTY_LOCAL_PRESCRIPTIONS;
 
   const getOwnRegionalPrescription = (prescriptionId: string) =>
     ownRegionalPrescriptionByPrescriptionId.get(prescriptionId);
 
   const getSubLocalPrescriptions = (prescriptionId: string) =>
-    subLocalPrescriptionsByPrescriptionId.get(prescriptionId) ?? [];
+    subLocalPrescriptionsByPrescriptionId.get(prescriptionId) ??
+    EMPTY_LOCAL_PRESCRIPTIONS;
 
   const planBySubPlanId = useMemo(() => {
     const index = new Map<
@@ -417,8 +424,11 @@ const ProgrammingPrescriptionTable = ({
     allPrescriptions?.length ?? 0
   );
 
-  const departmentList = useMemo(
-    () => (region ? [...Regions[region].departments].sort(DepartmentSort) : []),
+  const regionDepartmentList = useMemo(
+    () =>
+      region
+        ? [...Regions[region].departments].sort(DepartmentSort)
+        : EMPTY_DEPARTMENTS,
     [region]
   );
 
@@ -439,6 +449,19 @@ const ProgrammingPrescriptionTable = ({
     ? allPrescriptions.filter((p) => !isNil(getOwnRegionalPrescription(p.id)))
     : allPrescriptions;
 
+  const planOrder = [...new Set(prescriptions.map((p) => p.programmingPlanId))];
+  const prescriptionsByPlan = groupBy(prescriptions, 'programmingPlanId');
+
+  const hasVisibleSlaughterhousePlan = planOrder.some(
+    (planId) =>
+      programmingPlans.find((p) => p.id === planId)?.distributionKind ===
+      'SLAUGHTERHOUSE'
+  );
+
+  const departmentList = hasVisibleSlaughterhousePlan
+    ? regionDepartmentList
+    : EMPTY_DEPARTMENTS;
+
   const columnCount = isSamplerView
     ? 0
     : department
@@ -446,9 +469,6 @@ const ProgrammingPrescriptionTable = ({
       : region
         ? departmentList.length
         : RegionList.length;
-
-  const planOrder = [...new Set(prescriptions.map((p) => p.programmingPlanId))];
-  const prescriptionsByPlan = groupBy(prescriptions, 'programmingPlanId');
 
   const renderedPrescriptionIds = new Set(
     planOrder
@@ -461,12 +481,6 @@ const ProgrammingPrescriptionTable = ({
       })
       .slice(0, renderedRowCount)
       .map((p) => p.id)
-  );
-
-  const hasVisibleSlaughterhousePlan = planOrder.some(
-    (planId) =>
-      programmingPlans.find((p) => p.id === planId)?.distributionKind ===
-      'SLAUGHTERHOUSE'
   );
 
   const visiblePrescriptionIds = new Set(prescriptions.map((p) => p.id));
