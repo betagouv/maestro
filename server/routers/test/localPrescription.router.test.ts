@@ -71,6 +71,7 @@ import {
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
+import { toProgrammingPlanSettingsRow } from '../../repositories/programmingPlanSettingsRow';
 import { ProgrammingSubPlansRaw } from '../../repositories/programmingSubPlanRepository';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
@@ -1014,7 +1015,7 @@ describe('Local prescriptions router', () => {
       ]);
       await ProgrammingSubPlansRaw().insert(
         plan.subPlans.map((sp) => ({
-          ...sp,
+          ...toProgrammingPlanSettingsRow(sp),
           programmingPlanId: plan.id,
           analysisPermissionRole: sp.analysisPermissionRole ?? null,
           contactListId: sp.contactListId ?? null

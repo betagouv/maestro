@@ -13,6 +13,7 @@ import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/Programmi
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import {
   inheritsUnmanagedSetting,
+  managesSamplesAboveSubstanceKinds,
   pickProgrammingPlanSettings
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import {
@@ -271,7 +272,10 @@ export const programmingPlanRouter = {
         return { status: HttpStatus.FORBIDDEN };
       }
 
-      if (resumesDraft(programmingPlan, body)) {
+      if (
+        managesSamplesAboveSubstanceKinds.plan(body) ||
+        resumesDraft(programmingPlan, body)
+      ) {
         return { status: HttpStatus.CONFLICT };
       }
 
@@ -342,6 +346,7 @@ export const programmingPlanRouter = {
 
         if (
           inheritsUnmanagedSetting(body, programmingPlan) ||
+          managesSamplesAboveSubstanceKinds.subPlan(body) ||
           resumesDraft(programmingSubPlan, body)
         ) {
           return { status: HttpStatus.CONFLICT };

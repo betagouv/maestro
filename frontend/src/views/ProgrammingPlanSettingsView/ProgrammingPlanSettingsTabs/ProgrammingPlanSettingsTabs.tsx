@@ -5,7 +5,8 @@ import { isEqual } from 'lodash-es';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import {
   emptyProgrammingPlanSettings,
-  pickProgrammingPlanSettings
+  pickProgrammingPlanSettings,
+  withSamplesBelowSubstanceKinds
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import { ProgrammingLevelSettingsForm } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -30,6 +31,7 @@ import './ProgrammingPlanSettingsTabs.scss';
 import type { z } from 'zod';
 import { ProgrammingPlanGlobalSettings } from '../ProgrammingPlanGlobalSettings/ProgrammingPlanGlobalSettings';
 import { ProgrammingPlanSamplerFormSettings } from '../ProgrammingPlanSamplerFormSettings/ProgrammingPlanSamplerFormSettings';
+import { ProgrammingPlanSampleSettings } from '../ProgrammingPlanSampleSettings/ProgrammingPlanSampleSettings';
 import { ProgrammingSubPlanActionBar } from '../ProgrammingSubPlanActionBar/ProgrammingSubPlanActionBar';
 
 type Props = {
@@ -66,6 +68,7 @@ const completionModal = createModal({
 const tabIdBySettingsKey: Record<SettingsFieldKey, SettingsTabId> = {
   stages: 'global',
   substanceKinds: 'global',
+  samples: 'samples',
   nationalCoordinators: 'global',
   fields: 'sampler-form'
 };
@@ -177,6 +180,14 @@ export const ProgrammingPlanSettingsTabs = ({
     }
   };
 
+  const changeDraft = (draft: ProgrammingLevelSettingsForm) =>
+    setDraft(
+      withSamplesBelowSubstanceKinds(
+        draft,
+        subPlan ? programmingPlan : undefined
+      )
+    );
+
   const tabContent = (tabId: SettingsTabId): ReactNode => {
     switch (tabId) {
       case 'global':
@@ -185,7 +196,7 @@ export const ProgrammingPlanSettingsTabs = ({
             settings={draft}
             planSettings={subPlan ? programmingPlan : undefined}
             inputForm={form}
-            onChange={setDraft}
+            onChange={changeDraft}
           />
         );
       case 'sampler-form':
@@ -196,6 +207,14 @@ export const ProgrammingPlanSettingsTabs = ({
           />
         );
       case 'samples':
+        return (
+          <ProgrammingPlanSampleSettings
+            settings={draft}
+            planSettings={subPlan ? programmingPlan : undefined}
+            inputForm={form}
+            onChange={changeDraft}
+          />
+        );
       case 'analyses':
         return null;
       default:
