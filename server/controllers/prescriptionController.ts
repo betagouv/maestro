@@ -10,6 +10,7 @@ import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { hasEverSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { hasPermission } from 'maestro-shared/schema/User/User';
 import {
   editingEchelonForRole,
   pendingChangeVisibilityForRole
@@ -315,6 +316,26 @@ export const prescriptionsRouter = {
         subPlans.map((subPlan) => [subPlan.id, subPlan.stages ?? []])
       );
 
+      const plans = await programmingPlanRepository.findMany({
+        ids: uniq(rows.map((row) => row.planId))
+      });
+      const distributionKindByPlanId = new Map(
+        plans.map((plan) => [plan.id, plan.distributionKind])
+      );
+
+      const assignsLaboratories = (planId: string): boolean => {
+        if (!hasPermission(userRole, 'updatePrescriptionLaboratories')) {
+          return false;
+        }
+        return distributionKindByPlanId.get(planId) === 'REGIONAL'
+          ? !isNil(findOptions.region) && isNil(findOptions.department)
+          : !isNil(findOptions.department);
+      };
+
+      const missingFinalization = (row: (typeof rows)[number]) =>
+        row.missingDistribution ||
+        (row.missingLaboratory && assignsLaboratories(row.planId));
+
       const countByStage = new Map<Stage, number>();
       for (const row of rows) {
         for (const stage of stagesBySubPlanId.get(row.subPlanId) ?? []) {
@@ -354,6 +375,11 @@ export const prescriptionsRouter = {
           ).length,
           displayedDistributedCount: displayedRows.filter(
             (row) => !row.missingDistribution
+          ).length,
+          displayedMissingFinalizationCount:
+            displayedRows.filter(missingFinalization).length,
+          displayedFinalizedCount: displayedRows.filter(
+            (row) => !missingFinalization(row)
           ).length,
           stageCounts: StageList.filter((stage) => countByStage.has(stage)).map(
             (stage) => ({

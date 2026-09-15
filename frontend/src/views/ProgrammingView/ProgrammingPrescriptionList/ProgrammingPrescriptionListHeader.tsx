@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
 import './ProgrammingPrescriptionList.scss';
+import { pluralize } from 'src/utils/stringUtils';
 
 interface Props {
   programmingPlan: ProgrammingPlanChecked;
@@ -43,8 +44,8 @@ const ProgrammingPrescriptionListHeader = ({
 
   const isSamplerView = userRole === 'Sampler';
   const missingDistributionCount = counts?.missingDistributionCount ?? 0;
-  const displayedMissingDistributionCount =
-    counts?.displayedMissingDistributionCount ?? 0;
+  const displayedMissingFinalizationCount =
+    counts?.displayedMissingFinalizationCount ?? 0;
 
   const filterToggle = (
     key: ToggleFilterKey,
@@ -93,12 +94,14 @@ const ProgrammingPrescriptionListHeader = ({
           <Badge
             small
             severity={
-              displayedMissingDistributionCount > 0 ? 'warning' : 'success'
+              displayedMissingFinalizationCount > 0 ? 'warning' : 'success'
             }
           >
-            {displayedMissingDistributionCount > 0
-              ? `${displayedMissingDistributionCount} à répartir`
-              : `${counts.displayedDistributedCount ?? 0} répartis`}
+            {displayedMissingFinalizationCount > 0
+              ? `${displayedMissingFinalizationCount} à finaliser`
+              : pluralize(counts.displayedFinalizedCount, {
+                  preserveCount: true
+                })('finalisé')}
           </Badge>
         )}
       </div>

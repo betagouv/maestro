@@ -10,6 +10,7 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useState } from 'react';
+import { pluralize } from 'src/utils/stringUtils';
 import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../../services/apiClient';
 
@@ -86,7 +87,11 @@ const ProgrammingPlanBulkSendDepartmentalModal = ({
           <ul>
             {plans.map((plan) => (
               <li key={plan.id}>
-                {plan.title} ({plan.subPlans.length} sous-plans)
+                {plan.title} (
+                {pluralize(plan.subPlans.length, { preserveCount: true })(
+                  'sous-plan'
+                )}
+                )
               </li>
             ))}
           </ul>

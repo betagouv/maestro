@@ -173,6 +173,8 @@ const defaultMockApiClientConf: MockApi = {
       noveltyCount: 0,
       displayedMissingDistributionCount: 0,
       displayedDistributedCount: 0,
+      displayedMissingFinalizationCount: 0,
+      displayedFinalizedCount: 0,
       stageCounts: [],
       matrixKinds: [],
       programmingPlanIds: [],

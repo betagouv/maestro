@@ -4,6 +4,7 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import { useIsModalOpen } from '@codegouvfr/react-dsfr/Modal/useIsModalOpen';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useState } from 'react';
+import { pluralize } from 'src/utils/stringUtils';
 import { ApiClientContext } from '../../../../services/apiClient';
 
 interface Props {
@@ -56,7 +57,11 @@ const ProgrammingPlanBulkSendAdminModal = ({ plans, onSuccess }: Props) => {
           <ul>
             {plans.map((plan) => (
               <li key={plan.id}>
-                {plan.title} ({plan.subPlans.length} sous-plans)
+                {plan.title} (
+                {pluralize(plan.subPlans.length, { preserveCount: true })(
+                  'sous-plan'
+                )}
+                )
               </li>
             ))}
           </ul>
