@@ -23,6 +23,8 @@ import {
   DAOAInProgressBovinSubPlanId,
   DAOAInProgressProgrammingPlanFixture,
   DAOAInProgressVolailleSubPlanId,
+  PPVInProgressProgrammingPlanFixture,
+  PPVSubmittedProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture,
   PPVValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
@@ -53,7 +55,7 @@ import { expectArrayToContainElements } from 'maestro-shared/test/utils';
 import { toMaestroDate, withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { afterEach, beforeAll, describe, expect, test } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest';
 import { departmentsSeed } from '../../database/seeds/departments/departmentsSeed';
 import { analysisRepository } from '../../repositories/analysisRepository';
 import { kysely } from '../../repositories/kysely';
@@ -63,6 +65,7 @@ import {
 } from '../../repositories/localPrescriptionRepository';
 import { LocalPrescriptionSubstanceKindsLaboratories } from '../../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
+import { ProgrammingPlans } from '../../repositories/programmingPlanRepository';
 import { SampleItems } from '../../repositories/sampleItemRepository';
 import {
   formatPartialSample,
@@ -378,6 +381,23 @@ describe('Sample router', () => {
 
   describe('POST /samples', () => {
     const testRoute = '/api/samples';
+
+    const laterPlanIds = [
+      PPVInProgressProgrammingPlanFixture.id,
+      PPVSubmittedProgrammingPlanFixture.id
+    ];
+
+    beforeAll(async () => {
+      await ProgrammingPlans()
+        .whereIn('id', laterPlanIds)
+        .update({ launchedAt: null, launchedBy: null });
+    });
+
+    afterAll(async () => {
+      await ProgrammingPlans()
+        .whereIn('id', laterPlanIds)
+        .update({ launchedAt: new Date(), launchedBy: NationalCoordinator.id });
+    });
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
