@@ -83,6 +83,17 @@ export const isClosed = (plan: ProgrammingPlanChecked): boolean => {
   return !isNil(plan.closedAt);
 };
 
+export const hasNewerLaunchedCampaign = (
+  plan: Pick<ProgrammingPlanChecked, 'domainId' | 'year'>,
+  plans: Pick<ProgrammingPlanChecked, 'domainId' | 'year' | 'launchedAt'>[]
+): boolean =>
+  plans.some(
+    (other) =>
+      other.domainId === plan.domainId &&
+      other.year > plan.year &&
+      !isNil(other.launchedAt)
+  );
+
 export const ProgrammingPlanSort = (
   a: ProgrammingPlanChecked,
   b: ProgrammingPlanChecked

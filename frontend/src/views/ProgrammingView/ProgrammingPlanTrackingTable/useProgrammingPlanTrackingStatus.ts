@@ -226,6 +226,7 @@ export const useProgrammingPlanTrackingStatus = (
       finalizedCount: programmingPlans.filter(
         (plan) => planStatusInfo.get(plan.id)?.isFinalized
       ).length,
+      hasSlaughterhousePlan,
       submittedCount: programmingPlans.filter((plan) => {
         const info = planStatusInfo.get(plan.id);
         return info?.isSubmitted && !info.isFinalized;

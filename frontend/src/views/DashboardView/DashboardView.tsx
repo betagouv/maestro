@@ -3,6 +3,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
 import {
+  hasNewerLaunchedCampaign,
   type ProgrammingPlanChecked,
   ProgrammingPlanSort
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -82,6 +83,10 @@ const DashboardView = () => {
             </Select>
           )}
           {currentValidatedProgrammingPlan &&
+            !hasNewerLaunchedCampaign(
+              currentValidatedProgrammingPlan,
+              programmingPlans ?? []
+            ) &&
             hasUserPermission('createSample') && (
               <Button
                 size="large"
