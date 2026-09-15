@@ -11,7 +11,10 @@ import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks
 import { NotificationCategoryTitles } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
-import { inheritsUnmanagedSetting } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
+import {
+  inheritsUnmanagedSetting,
+  pickProgrammingPlanSettings
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import {
   NextProgrammingPlanStatus,
   type ProgrammingPlanStatus,
@@ -248,8 +251,7 @@ export const programmingPlanRouter = {
       return {
         status: HttpStatus.OK,
         response: {
-          stages: programmingPlan.stages,
-          stagesManaged: programmingPlan.stagesManaged,
+          ...pickProgrammingPlanSettings(programmingPlan),
           settingsCompleted: programmingPlan.settingsCompleted,
           nationalCoordinators: programmingPlan.nationalCoordinators,
           fields:
@@ -302,8 +304,7 @@ export const programmingPlanRouter = {
         return {
           status: HttpStatus.OK,
           response: {
-            stages: programmingSubPlan.stages,
-            stagesManaged: programmingSubPlan.stagesManaged,
+            ...pickProgrammingPlanSettings(programmingSubPlan),
             settingsCompleted: programmingSubPlan.settingsCompleted,
             fields:
               await specificDataFieldConfigRepository.findSubPlanFieldSettings(

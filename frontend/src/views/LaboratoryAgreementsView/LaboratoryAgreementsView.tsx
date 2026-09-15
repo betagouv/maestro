@@ -104,7 +104,7 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
     () =>
       programmingPlans.flatMap((plan) =>
         plan.subPlans.flatMap((subPlan) =>
-          subPlan.substanceKinds.map((substanceKind) => ({
+          (subPlan.substanceKinds ?? []).map((substanceKind) => ({
             programmingSubPlan: subPlan,
             programmingPlanYear: plan.year,
             substanceKind,

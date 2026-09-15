@@ -438,7 +438,9 @@ const generatePrescriptionsExportExcel = async (
   );
 
   const effectiveSubstanceKinds = [
-    ...new Set(programmingPlan.subPlans.flatMap((sp) => sp.substanceKinds))
+    ...new Set(
+      programmingPlan.subPlans.flatMap((sp) => sp.substanceKinds ?? [])
+    )
   ];
 
   const columnTitles: string[] = [];

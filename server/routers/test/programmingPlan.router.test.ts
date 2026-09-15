@@ -1,6 +1,10 @@
 import { constants } from 'node:http2';
 import { type Region, RegionList } from 'maestro-shared/referential/Region';
 import type { Stage } from 'maestro-shared/referential/Stage';
+import {
+  emptyProgrammingPlanSettings,
+  pickProgrammingPlanSettings
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
@@ -55,8 +59,7 @@ describe('ProgrammingPlan router', () => {
     await programmingPlanSettingsService.savePlanSettings(
       DAOAInProgressProgrammingPlanFixture.id,
       {
-        stages: null,
-        stagesManaged: false,
+        ...emptyProgrammingPlanSettings(false),
         settingsCompleted: false,
         nationalCoordinators:
           DAOAInProgressProgrammingPlanFixture.nationalCoordinators,
@@ -65,8 +68,7 @@ describe('ProgrammingPlan router', () => {
     );
     for (const subPlan of daoaInProgressSubPlanFixtures) {
       await programmingSubPlanRepository.updateSettings(subPlan.id, {
-        stages: subPlan.stages,
-        stagesManaged: true,
+        ...pickProgrammingPlanSettings(subPlan),
         settingsCompleted: false
       });
     }
@@ -644,6 +646,7 @@ describe('ProgrammingPlan router', () => {
       `/api/programming-plans/${programmingPlanId}/settings`;
 
     const validBody = {
+      ...emptyProgrammingPlanSettings(false),
       stages: ['TRANSFORMATION'] satisfies Stage[],
       stagesManaged: true,
       settingsCompleted: false,
@@ -789,8 +792,8 @@ describe('ProgrammingPlan router', () => {
     );
 
     const validBody = {
+      ...emptyProgrammingPlanSettings(true),
       stages: ['TRANSFORMATION'] satisfies Stage[],
-      stagesManaged: true,
       settingsCompleted: false,
       fields: []
     };

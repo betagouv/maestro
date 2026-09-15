@@ -110,7 +110,7 @@ const LocalPrescriptionButtons = ({
                   {pluralize(
                     programmingPlan.subPlans.find(
                       (sp) => sp.id === prescription.programmingSubPlanId
-                    )?.substanceKinds.length ?? 0
+                    )?.substanceKinds?.length ?? 0
                   )('Laboratoire')}
                 </span>
               ),

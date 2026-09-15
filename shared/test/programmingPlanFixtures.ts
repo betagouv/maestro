@@ -138,6 +138,7 @@ export const genProgrammingSubPlan = (
   label: 'Test SubPlan',
   withSacha: (data?.id && SachaSubPlanIds.includes(data.id)) ?? false,
   substanceKinds: ['Any'],
+  substanceKindsManaged: true,
   ...data
 });
 
@@ -247,6 +248,8 @@ export const genProgrammingPlan = (
     ],
     stages: null,
     stagesManaged: false,
+    substanceKinds: null,
+    substanceKindsManaged: false,
     settingsCompleted: true,
     createdAt: new Date(),
     createdBy: uuidv4(),

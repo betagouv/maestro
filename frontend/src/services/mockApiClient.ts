@@ -3,6 +3,7 @@ import type {
   TypedUseMutation,
   TypedUseQuery
 } from '@reduxjs/toolkit/query/react';
+import { emptyProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { genPartialAnalysis } from 'maestro-shared/test/analysisFixtures';
 import {
@@ -257,8 +258,7 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateProgrammingSubPlanSettingsMutation: [fn(), {}],
   useFindProgrammingPlanSettingsQuery: {
     data: {
-      stages: null,
-      stagesManaged: false,
+      ...emptyProgrammingPlanSettings(false),
       settingsCompleted: false,
       nationalCoordinators: [],
       fields: []
@@ -267,8 +267,7 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateProgrammingPlanSettingsMutation: [fn(), {}],
   useFindProgrammingSubPlanSettingsQuery: {
     data: {
-      stages: null,
-      stagesManaged: true,
+      ...emptyProgrammingPlanSettings(true),
       settingsCompleted: false,
       fields: []
     }

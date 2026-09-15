@@ -1,5 +1,9 @@
 import type { Stage } from 'maestro-shared/referential/Stage';
-import { ProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
+import {
+  emptyProgrammingPlanSettings,
+  ProgrammingPlanSettings,
+  pickProgrammingPlanSettings
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type {
   ProgrammingPlanFieldSetting,
@@ -31,7 +35,7 @@ const findOwnSettings = async (
 ): Promise<ProgrammingPlanSettings | undefined> => {
   const ownSettings = await kysely
     .selectFrom('programmingSubPlansRaw')
-    .select(['stages', 'stagesManaged'])
+    .select(ProgrammingPlanSettings.keyof().options)
     .where('id', '=', id)
     .executeTakeFirst();
 
@@ -45,33 +49,28 @@ describe('ProgrammingPlan settings inheritance', () => {
     DAOABovinInProgressSubPlanFixture
   ];
 
-  afterEach(async () => {
-    await programmingPlanSettingsService.savePlanSettings(programmingPlanId, {
-      stages: null,
-      stagesManaged: false,
+  const savePlanSettings = (settings: Partial<ProgrammingPlanSettings>) =>
+    programmingPlanSettingsService.savePlanSettings(programmingPlanId, {
+      ...emptyProgrammingPlanSettings(false),
+      ...settings,
       settingsCompleted: false,
       nationalCoordinators:
         DAOAInProgressProgrammingPlanFixture.nationalCoordinators,
       fields: []
     });
+
+  afterEach(async () => {
+    await savePlanSettings({});
     for (const subPlan of subPlanFixtures) {
       await programmingSubPlanRepository.updateSettings(subPlan.id, {
-        stages: subPlan.stages,
-        stagesManaged: true,
+        ...pickProgrammingPlanSettings(subPlan),
         settingsCompleted: false
       });
     }
   });
 
   const managePlanStages = (stages: Stage[] | null) =>
-    programmingPlanSettingsService.savePlanSettings(programmingPlanId, {
-      stages,
-      stagesManaged: true,
-      settingsCompleted: false,
-      nationalCoordinators:
-        DAOAInProgressProgrammingPlanFixture.nationalCoordinators,
-      fields: []
-    });
+    savePlanSettings({ stages, stagesManaged: true });
 
   describe('when the plan starts managing a setting', () => {
     test('should hand its value down to every sub-plan without touching their own value', async () => {
@@ -85,7 +84,7 @@ describe('ProgrammingPlan settings inheritance', () => {
           stagesManaged: false
         });
         await expect(findOwnSettings(subPlan.id)).resolves.toStrictEqual({
-          stages: subPlan.stages,
+          ...pickProgrammingPlanSettings(subPlan),
           stagesManaged: false
         });
       }
@@ -129,19 +128,49 @@ describe('ProgrammingPlan settings inheritance', () => {
     test('should freeze the inherited value on every sub-plan', async () => {
       await managePlanStages(['TRANSFORMATION']);
 
-      await programmingPlanSettingsService.savePlanSettings(programmingPlanId, {
+      await savePlanSettings({
         stages: ['TRANSFORMATION'],
-        stagesManaged: false,
-        settingsCompleted: false,
-        nationalCoordinators:
-          DAOAInProgressProgrammingPlanFixture.nationalCoordinators,
-        fields: []
+        stagesManaged: false
       });
 
       for (const subPlan of subPlanFixtures) {
         await expect(findOwnSettings(subPlan.id)).resolves.toStrictEqual({
+          ...pickProgrammingPlanSettings(subPlan),
           stages: ['TRANSFORMATION'],
           stagesManaged: true
+        });
+      }
+    });
+  });
+
+  describe('when the plan manages the substance kinds', () => {
+    const savePlanSubstanceKinds = (substanceKindsManaged: boolean) =>
+      savePlanSettings({ substanceKinds: ['Mono'], substanceKindsManaged });
+
+    test('should hand its value down to every sub-plan', async () => {
+      await savePlanSubstanceKinds(true);
+
+      for (const subPlan of subPlanFixtures) {
+        await expect(
+          programmingSubPlanRepository.findUnique(subPlan.id)
+        ).resolves.toMatchObject({
+          substanceKinds: ['Mono'],
+          substanceKindsManaged: false
+        });
+        await expect(findOwnSettings(subPlan.id)).resolves.toMatchObject({
+          substanceKinds: subPlan.substanceKinds
+        });
+      }
+    });
+
+    test('should freeze the inherited value once the plan stops managing it', async () => {
+      await savePlanSubstanceKinds(true);
+      await savePlanSubstanceKinds(false);
+
+      for (const subPlan of subPlanFixtures) {
+        await expect(findOwnSettings(subPlan.id)).resolves.toMatchObject({
+          substanceKinds: ['Mono'],
+          substanceKindsManaged: true
         });
       }
     });
@@ -266,7 +295,7 @@ describe('ProgrammingPlan sampler form inheritance', () => {
     planSettings = ProgrammingPlanSettings.parse(
       await kysely
         .selectFrom('programmingPlans')
-        .select(['stages', 'stagesManaged'])
+        .select(ProgrammingPlanSettings.keyof().options)
         .where('id', '=', programmingPlanId)
         .executeTakeFirstOrThrow()
     );
