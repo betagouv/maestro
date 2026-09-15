@@ -90,10 +90,9 @@ export const usePrescriptionFilters = (
         programmingPlanIds,
         programmingSubPlanIds
       });
-      const contexts =
-        aggregatedFilters?.contexts?.filter((context) =>
-          availableContexts.some((contextOption) => context === contextOption)
-        ) ?? getUniqOrUndefined(availableContexts);
+      const contexts = aggregatedFilters?.contexts?.filter((context) =>
+        availableContexts.some((contextOption) => context === contextOption)
+      );
 
       return {
         ...aggregatedFilters,
