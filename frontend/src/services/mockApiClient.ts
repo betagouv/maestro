@@ -83,7 +83,9 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
         return {
           isSuccess: resolved.data !== undefined && !resolved.isError,
           isLoading: resolved.data === undefined && !resolved.isError,
+          isFetching: false,
           isError: false,
+          currentData: resolved.data,
           ...resolved
         };
       };
