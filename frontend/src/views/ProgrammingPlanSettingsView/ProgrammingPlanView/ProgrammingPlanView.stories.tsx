@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
+import { defaultProgrammingPlanSample } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import type {
   ProgrammingPlanSettingsForm,
   ProgrammingSubPlanSettingsForm
@@ -85,6 +86,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     stagesManaged: true,
     substanceKinds: ['Mono'],
     substanceKindsManaged: true,
+    samples: [{ ...defaultProgrammingPlanSample, substanceKind: 'Mono' }],
+    samplesManaged: true,
     settingsCompleted: false,
     fields: [matriceField, quantiteField].map(({ id }) => ({
       fieldId: id,
@@ -99,6 +102,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     stagesManaged: false,
     substanceKinds: ['Mono'],
     substanceKindsManaged: true,
+    samples: null,
+    samplesManaged: true,
     settingsCompleted: false,
     fields: []
   },
@@ -107,6 +112,8 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     stagesManaged: false,
     substanceKinds: ['Mono'],
     substanceKindsManaged: true,
+    samples: [{ ...defaultProgrammingPlanSample, substanceKind: 'Mono' }],
+    samplesManaged: true,
     settingsCompleted: true,
     fields: [
       {
@@ -143,6 +150,8 @@ const planSettings: ProgrammingPlanSettingsForm = {
   stagesManaged: true,
   substanceKinds: null,
   substanceKindsManaged: false,
+  samples: null,
+  samplesManaged: false,
   settingsCompleted: false,
   nationalCoordinators: [nationalCoordinator],
   fields: [{ fieldId: especeField.id, required: true, optionIds: [] }]
@@ -840,6 +849,190 @@ export const PlanSubstanceKindsSwitch: Story = {
         ...planSettings,
         substanceKinds: ['Multi'],
         substanceKindsManaged: true
+      })
+    );
+  }
+};
+
+const samplesModal = (canvasElement: HTMLElement) =>
+  canvasElement.querySelector(
+    '#programming-plan-sample-copy-modal'
+  ) as HTMLElement;
+
+export const PlanSamples: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+
+    const samplesSwitch = () =>
+      canvas.getByTitle(
+        'Paramétrer « Échantillons / Exemplaires » au niveau du plan'
+      );
+    const substanceKindsSwitch = () =>
+      canvas.getByTitle('Paramétrer « Analyte(s) » au niveau du plan');
+
+    await userEvent.click(canvas.getByRole('tab', { name: 'Échantillons' }));
+    await expect(samplesSwitch()).toBeDisabled();
+    await expect(
+      canvas.getByText('Paramétrez d’abord les analytes au niveau du plan.')
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      canvas.getByRole('tab', { name: 'Paramétrage global' })
+    );
+    await userEvent.click(substanceKindsSwitch());
+    for (const substanceKind of ['Multi', 'Mono']) {
+      await userEvent.selectOptions(
+        await canvas.findByRole('combobox', { name: /Analyte\(s\)/ }),
+        substanceKind
+      );
+    }
+
+    await userEvent.click(canvas.getByRole('tab', { name: 'Échantillons' }));
+    await expect(samplesSwitch()).toBeEnabled();
+    await userEvent.click(samplesSwitch());
+
+    const firstSample = within(await canvas.findByTestId('sample-0'));
+    await userEvent.click(
+      firstSample.getByRole('button', { name: 'Multi-résidus' })
+    );
+    await expect(
+      firstSample.getByRole('button', { name: 'Multi-résidus' })
+    ).toHaveAttribute('aria-pressed', 'true');
+    await expect(
+      firstSample.getByTitle('Modifier l’exemplaire 1 de l’échantillon 1')
+    ).toBeDisabled();
+    await expect(
+      firstSample.getByTitle('Supprimer l’échantillon 1')
+    ).toBeDisabled();
+
+    await userEvent.click(
+      firstSample.getByTitle('Modifier l’exemplaire 2 de l’échantillon 1')
+    );
+    const modal = within(samplesModal(canvasElement));
+    await waitFor(() =>
+      expect(modal.getByRole('button', { name: 'Enregistrer' })).toBeVisible()
+    );
+    await expect(modal.getByLabelText('Préleveur')).toBeChecked();
+    await userEvent.click(modal.getByLabelText('Préleveur'));
+    await userEvent.click(modal.getByLabelText('Détenteur'));
+    await userEvent.click(modal.getByRole('button', { name: 'Enregistrer' }));
+    await expect(
+      modal.getByText('Veuillez sélectionner au moins un destinataire.')
+    ).toBeInTheDocument();
+    await userEvent.click(modal.getByLabelText('Détenteur'));
+    await userEvent.click(modal.getByLabelText('Obligatoire'));
+    await userEvent.click(modal.getByRole('button', { name: 'Enregistrer' }));
+    await waitFor(() => expect(samplesModal(canvasElement)).not.toBeVisible());
+    await expect(
+      firstSample.getByTitle('Modifier l’exemplaire 2 de l’échantillon 1')
+    ).toHaveTextContent('Détenteur(obligatoire)');
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Ajouter un échantillon' })
+    );
+    const secondSample = within(canvas.getByTestId('sample-1'));
+    await expect(
+      secondSample.getByTitle('Modifier l’exemplaire 2 de l’échantillon 2')
+    ).toHaveTextContent('Détenteur(obligatoire)');
+    await userEvent.click(
+      secondSample.getByRole('button', { name: 'Mono-résidu' })
+    );
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+    const [laboratoryCopy, , optionalCopy] =
+      defaultProgrammingPlanSample.copies;
+    const copies = [
+      laboratoryCopy,
+      { required: true, recipientKinds: ['Operator'] },
+      optionalCopy
+    ];
+    await waitFor(() =>
+      expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        ...planSettings,
+        substanceKinds: ['Multi', 'Mono'],
+        substanceKindsManaged: true,
+        samples: [
+          { substanceKind: 'Multi', copies },
+          { substanceKind: 'Mono', copies }
+        ],
+        samplesManaged: true
+      })
+    );
+
+    await userEvent.click(
+      canvas.getByRole('tab', { name: 'Paramétrage global' })
+    );
+    await userEvent.click(substanceKindsSwitch());
+    await userEvent.click(canvas.getByRole('tab', { name: 'Échantillons' }));
+    await expect(samplesSwitch()).not.toBeChecked();
+    await expect(samplesSwitch()).toBeDisabled();
+  }
+};
+
+export const SubPlanSamplesIncompleteCannotComplete: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        FruitsSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingSubPlanSettings.mockClear();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer et terminer' })
+    );
+
+    await waitFor(() =>
+      expect(canvas.getByRole('tab', { name: 'Échantillons' })).toHaveAttribute(
+        'aria-selected',
+        'true'
+      )
+    );
+    await expect(
+      canvas.getByText('Veuillez configurer au moins un échantillon.')
+    ).toBeInTheDocument();
+    await expect(completionModal(canvasElement)).not.toBeVisible();
+
+    await userEvent.click(
+      within(canvas.getByTestId('sample-0')).getByRole('button', {
+        name: 'Mono-résidu'
+      })
+    );
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Ajouter un échantillon' })
+    );
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer et terminer' })
+    );
+    await expect(
+      await canvas.findByText(
+        'Veuillez choisir un analyte pour l’échantillon 2.'
+      )
+    ).toBeInTheDocument();
+
+    await userEvent.click(canvas.getByTitle('Supprimer l’échantillon 2'));
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer et terminer' })
+    );
+    await confirmCompletion(canvasElement);
+
+    await waitFor(() =>
+      expect(updateProgrammingSubPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        programmingSubPlanId: FruitsSubPlanId,
+        ...subPlanSettings[FruitsSubPlanId],
+        samples: [{ ...defaultProgrammingPlanSample, substanceKind: 'Mono' }],
+        settingsCompleted: true
       })
     );
   }

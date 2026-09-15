@@ -35,6 +35,7 @@ import {
   ProgrammingPlanLocalStatus,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
+import { toProgrammingPlanSettingsRow } from '../../repositories/programmingPlanSettingsRow';
 import { ProgrammingSubPlansRaw } from '../../repositories/programmingSubPlanRepository';
 import { createServer } from '../../server';
 import { tokenProvider } from '../../test/testUtils';
@@ -133,7 +134,7 @@ describe('Prescriptions router', () => {
         programmingPlanClosed
       ].flatMap((plan) =>
         plan.subPlans.map((sp) => ({
-          ...sp,
+          ...toProgrammingPlanSettingsRow(sp),
           programmingPlanId: plan.id
         }))
       )

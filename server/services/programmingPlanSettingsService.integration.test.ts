@@ -1,5 +1,9 @@
 import type { Stage } from 'maestro-shared/referential/Stage';
 import {
+  defaultProgrammingPlanSample,
+  type ProgrammingPlanSampleSetting
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
+import {
   emptyProgrammingPlanSettings,
   ProgrammingPlanSettings,
   pickProgrammingPlanSettings
@@ -171,6 +175,79 @@ describe('ProgrammingPlan settings inheritance', () => {
         await expect(findOwnSettings(subPlan.id)).resolves.toMatchObject({
           substanceKinds: ['Mono'],
           substanceKindsManaged: true
+        });
+      }
+    });
+  });
+
+  describe('when the plan manages the samples', () => {
+    const samples: ProgrammingPlanSampleSetting[] = [
+      { ...defaultProgrammingPlanSample, substanceKind: 'Mono' },
+      {
+        substanceKind: 'Multi',
+        copies: [
+          { required: true, recipientKinds: ['Laboratory'] },
+          { required: true, recipientKinds: ['Laboratory', 'Operator'] },
+          { required: false, recipientKinds: ['Sampler'] }
+        ]
+      }
+    ];
+
+    const savePlanSamples = (managed: boolean) =>
+      savePlanSettings({
+        substanceKinds: ['Mono', 'Multi'],
+        substanceKindsManaged: true,
+        samples,
+        samplesManaged: managed
+      });
+
+    test('should hand its configuration down to every sub-plan', async () => {
+      await savePlanSamples(true);
+
+      for (const subPlan of subPlanFixtures) {
+        await expect(
+          programmingSubPlanRepository.findUnique(subPlan.id)
+        ).resolves.toMatchObject({ samples, samplesManaged: false });
+      }
+    });
+
+    test('should leave its own samples to a sub-plan managing its own substance kinds', async () => {
+      await savePlanSamples(false);
+      await programmingSubPlanRepository.updateSettings(
+        DAOAVolailleInProgressSubPlanFixture.id,
+        {
+          substanceKinds: ['Copper'],
+          substanceKindsManaged: true,
+          samples: [defaultProgrammingPlanSample],
+          samplesManaged: true
+        }
+      );
+
+      await savePlanSamples(true);
+
+      await expect(
+        programmingSubPlanRepository.findUnique(
+          DAOAVolailleInProgressSubPlanFixture.id
+        )
+      ).resolves.toMatchObject({
+        samples: [defaultProgrammingPlanSample],
+        samplesManaged: true
+      });
+      await expect(
+        programmingSubPlanRepository.findUnique(
+          DAOABovinInProgressSubPlanFixture.id
+        )
+      ).resolves.toMatchObject({ samples, samplesManaged: false });
+    });
+
+    test('should freeze the inherited configuration once the plan stops managing it', async () => {
+      await savePlanSamples(true);
+      await savePlanSamples(false);
+
+      for (const subPlan of subPlanFixtures) {
+        await expect(findOwnSettings(subPlan.id)).resolves.toMatchObject({
+          samples,
+          samplesManaged: true
         });
       }
     });

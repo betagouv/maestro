@@ -1,12 +1,14 @@
 import { constants } from 'node:http2';
 import { type Region, RegionList } from 'maestro-shared/referential/Region';
 import type { Stage } from 'maestro-shared/referential/Stage';
+import { defaultProgrammingPlanSample } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import {
   emptyProgrammingPlanSettings,
   pickProgrammingPlanSettings
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import {
   DAOABovinInProgressSubPlanFixture,
@@ -877,7 +879,14 @@ describe('ProgrammingPlan router', () => {
 
       await request(app)
         .put(daoaVolailleRoute)
-        .send({ ...body, settingsCompleted: true })
+        .send({
+          ...body,
+          samples: body.substanceKinds.map((substanceKind: SubstanceKind) => ({
+            ...defaultProgrammingPlanSample,
+            substanceKind
+          })),
+          settingsCompleted: true
+        })
         .use(tokenProvider(AdminFixture))
         .expect(constants.HTTP_STATUS_NO_CONTENT);
 
