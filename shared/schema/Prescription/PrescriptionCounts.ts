@@ -12,6 +12,8 @@ export const PrescriptionCounts = z.object({
   noveltyCount: z.number().int(),
   displayedMissingDistributionCount: z.number().int(),
   displayedDistributedCount: z.number().int(),
+  displayedMissingFinalizationCount: z.number().int(),
+  displayedFinalizedCount: z.number().int(),
   stageCounts: z.array(z.object({ stage: Stage, count: z.number().int() })),
   matrixKinds: z.array(MatrixKind),
   programmingPlanIds: z.array(z.guid()),

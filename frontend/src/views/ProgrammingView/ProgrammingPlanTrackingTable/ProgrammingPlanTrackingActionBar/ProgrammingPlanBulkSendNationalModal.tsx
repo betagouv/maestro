@@ -69,7 +69,11 @@ const ProgrammingPlanBulkSendNationalModal = ({
               <ul>
                 {plansToAdmin.map((plan) => (
                   <li key={plan.id}>
-                    {plan.title} ({plan.subPlans.length} sous-plans)
+                    {plan.title} (
+                    {pluralize(plan.subPlans.length, { preserveCount: true })(
+                      'sous-plan'
+                    )}
+                    )
                   </li>
                 ))}
               </ul>
@@ -83,7 +87,11 @@ const ProgrammingPlanBulkSendNationalModal = ({
               <ul>
                 {plansToRegions.map((plan) => (
                   <li key={plan.id}>
-                    {plan.title} ({plan.subPlans.length} sous-plans)
+                    {plan.title} (
+                    {pluralize(plan.subPlans.length, { preserveCount: true })(
+                      'sous-plan'
+                    )}
+                    )
                   </li>
                 ))}
               </ul>
