@@ -74,11 +74,26 @@ const SampleListView = () => {
     {}
   );
 
+  const { data: programmingPlanDomains } =
+    apiClient.useFindProgrammingPlanDomainsQuery();
+
+  const domainLabelById = useMemo(
+    () =>
+      new Map(
+        (programmingPlanDomains ?? []).map(({ id, label }) => [id, label])
+      ),
+    [programmingPlanDomains]
+  );
+
   const hasNewerCampaign = useMemo(
     () =>
       !!programmingPlan &&
-      hasNewerLaunchedCampaign(programmingPlan, allProgrammingPlans ?? []),
-    [programmingPlan, allProgrammingPlans]
+      hasNewerLaunchedCampaign(
+        programmingPlan,
+        allProgrammingPlans ?? [],
+        domainLabelById
+      ),
+    [programmingPlan, allProgrammingPlans, domainLabelById]
   );
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery({

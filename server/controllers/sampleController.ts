@@ -45,6 +45,7 @@ import companyRepository from '../repositories/companyRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
+import { programmingPlanDomainRepository } from '../repositories/programmingPlanDomainRepository';
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
@@ -159,7 +160,17 @@ export const sampleRouter = {
       );
 
       const programmingPlans = await programmingPlanRepository.findMany({});
-      if (hasNewerLaunchedCampaign(programmingPlan, programmingPlans)) {
+      const domains = await programmingPlanDomainRepository.findMany();
+      const domainLabelById = new Map(
+        domains.map((domain) => [domain.id, domain.label])
+      );
+      if (
+        hasNewerLaunchedCampaign(
+          programmingPlan,
+          programmingPlans,
+          domainLabelById
+        )
+      ) {
         return { status: HttpStatus.FORBIDDEN };
       }
 

@@ -7,6 +7,7 @@ import {
   type LocalPrescriptionChangeKind
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
 import type { ProgrammingPlanEchelon } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
+import type { ChangeViewAudience } from 'maestro-shared/schema/User/UserRole';
 import { z } from 'zod';
 import { knexInstance as db } from './db';
 
@@ -60,7 +61,11 @@ const formatChange = (
   changesViewedAt: null,
   changesViewedBy: null,
   appliedChangesViewedAt: null,
-  appliedChangesViewedBy: null
+  appliedChangesViewedBy: null,
+  adminChangesViewedAt: null,
+  adminChangesViewedBy: null,
+  departmentalChangesViewedAt: null,
+  departmentalChangesViewedBy: null
 });
 
 const parseChange = (
@@ -89,50 +94,73 @@ const insertMany = async (changes: LocalPrescriptionChangeInsert[]) => {
   }
 };
 
-const viewedColumns = (onlyApplied?: boolean) =>
-  onlyApplied
-    ? ({ at: 'appliedChangesViewedAt', by: 'appliedChangesViewedBy' } as const)
-    : ({ at: 'changesViewedAt', by: 'changesViewedBy' } as const);
+export const viewedColumns = (audience: ChangeViewAudience) => {
+  switch (audience) {
+    case 'Applied':
+      return {
+        at: 'appliedChangesViewedAt',
+        by: 'appliedChangesViewedBy'
+      } as const;
+    case 'Admin':
+      return {
+        at: 'adminChangesViewedAt',
+        by: 'adminChangesViewedBy'
+      } as const;
+    case 'Departmental':
+      return {
+        at: 'departmentalChangesViewedAt',
+        by: 'departmentalChangesViewedBy'
+      } as const;
+    default:
+      return { at: 'changesViewedAt', by: 'changesViewedBy' } as const;
+  }
+};
 
 const markViewed = async ({
   prescriptionId,
   region,
   department,
   kind,
-  viewedBy
+  viewedBy,
+  audience
 }: {
   prescriptionId: string;
   region: Region;
   department?: Department | null;
   kind: LocalPrescriptionChangeKind;
   viewedBy: string;
+  audience?: ChangeViewAudience;
 }) => {
+  const columns = viewedColumns(audience ?? 'Coordination');
   await LocalPrescriptionChanges()
     .where({ prescriptionId, region, kind })
     .andWhere('department', department ?? 'None')
     .whereNotNull('diffusedAt')
-    .whereNull('changesViewedAt')
-    .update({ changesViewedAt: new Date(), changesViewedBy: viewedBy });
+    .whereNull(columns.at)
+    .update({ [columns.at]: new Date(), [columns.by]: viewedBy });
 };
 
 const markManyViewed = async ({
-  region,
+  regions,
   department,
   prescriptionIds,
   viewedBy,
-  onlyApplied
+  onlyApplied,
+  audience
 }: {
-  region: Region;
+  regions: Region[];
   department?: Department | null;
   prescriptionIds: string[];
-  viewedBy: string;
+  viewedBy: string | null;
   onlyApplied?: boolean;
+  audience: ChangeViewAudience;
 }) => {
-  if (prescriptionIds.length === 0) {
+  if (prescriptionIds.length === 0 || regions.length === 0) {
     return;
   }
   await LocalPrescriptionChanges()
-    .where({ region, kind: 'sampleCount' })
+    .where({ kind: 'sampleCount' })
+    .whereIn('region', regions)
     .whereIn('prescriptionId', prescriptionIds)
     .andWhere('department', department ?? 'None')
     .modify((query) => {
@@ -141,10 +169,10 @@ const markManyViewed = async ({
       }
     })
     .whereNotNull('diffusedAt')
-    .whereNull(viewedColumns(onlyApplied).at)
+    .whereNull(viewedColumns(audience).at)
     .update({
-      [viewedColumns(onlyApplied).at]: new Date(),
-      [viewedColumns(onlyApplied).by]: viewedBy
+      [viewedColumns(audience).at]: new Date(),
+      [viewedColumns(audience).by]: viewedBy
     });
 };
 
@@ -281,7 +309,11 @@ const commitPending = async (
     changesViewedAt: null,
     changesViewedBy: null,
     appliedChangesViewedAt: null,
-    appliedChangesViewedBy: null
+    appliedChangesViewedBy: null,
+    adminChangesViewedAt: null,
+    adminChangesViewedBy: null,
+    departmentalChangesViewedAt: null,
+    departmentalChangesViewedBy: null
   });
 };
 

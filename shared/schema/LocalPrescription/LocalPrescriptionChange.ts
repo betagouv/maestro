@@ -36,7 +36,11 @@ export const LocalPrescriptionChange = z.object({
   changesViewedAt: z.coerce.date().nullable(),
   changesViewedBy: z.guid().nullable(),
   appliedChangesViewedAt: z.coerce.date().nullable(),
-  appliedChangesViewedBy: z.guid().nullable()
+  appliedChangesViewedBy: z.guid().nullable(),
+  adminChangesViewedAt: z.coerce.date().nullable(),
+  adminChangesViewedBy: z.guid().nullable(),
+  departmentalChangesViewedAt: z.coerce.date().nullable(),
+  departmentalChangesViewedBy: z.guid().nullable()
 });
 export type LocalPrescriptionChange = z.infer<typeof LocalPrescriptionChange>;
 

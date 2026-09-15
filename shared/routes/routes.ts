@@ -54,7 +54,7 @@ export const MaestroRoutes = [
   '/prescriptions/export',
   '/prescriptions/import',
   '/prescriptions/regions',
-  '/prescriptions/regions/:region/changes-viewed',
+  '/prescriptions/regions/changes-viewed',
   '/prescriptions/:prescriptionId/regions/:region/comments',
   '/prescriptions/:prescriptionId/regions/:region',
   '/prescriptions/:prescriptionId/regions/:region/departments/:department/comments',

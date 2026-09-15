@@ -83,7 +83,7 @@ const ProgrammingView = () => {
   const [listHasPendingChanges, setListHasPendingChanges] = useState(false);
   const listResetFnRef = useRef<() => void>(() => {});
   const changesToMarkViewedRef = useRef<{
-    region: Region;
+    region?: Region | null;
     department?: Department;
     prescriptionIds: string[];
   } | null>(null);
@@ -131,13 +131,19 @@ const ProgrammingView = () => {
     usePrescriptionFilters(programmingPlans);
 
   useEffect(() => {
+    const yearParam = searchParams.get('year');
+    const resolvedYear = yearParam
+      ? Number(yearParam)
+      : max(programmingPlans?.map((plan) => plan.year));
+
+    if (isNil(resolvedYear)) {
+      return;
+    }
+
     dispatch(
       prescriptionsSlice.actions.changePrescriptionFilters(
         reduceFilters(prescriptionFilters, {
-          year: Number(
-            searchParams.get('year') ??
-              max(programmingPlans?.map((plan) => plan.year))
-          ),
+          year: resolvedYear,
           programmingPlanIds:
             (searchParams.get('programmingPlanIds')?.split(',') as string[]) ??
             undefined,
@@ -425,7 +431,7 @@ const ProgrammingView = () => {
                                 prescriptionIds
                               ) => {
                                 changesToMarkViewedRef.current =
-                                  region && prescriptionIds.length
+                                  prescriptionIds.length
                                     ? {
                                         region,
                                         department:

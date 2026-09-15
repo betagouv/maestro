@@ -363,7 +363,7 @@ export const prescriptionsRouter = {
       return {
         status: HttpStatus.OK,
         response: {
-          subPlanCount: uniq(displayedRows.map((row) => row.subPlanId)).length,
+          subPlanCount: displayedRows.length,
           sampleCount: sumBy(displayedRows, 'sampleCount'),
           missingDistributionCount: rowCountOf(
             (row) => row.missingDistribution

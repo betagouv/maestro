@@ -612,6 +612,7 @@ const ProgrammingPrescriptionTable = ({
                             />
                           </th>
                         )))}
+                {columnCount === 0 && <th className="filler-cell" />}
               </tr>
               <tr className="total-row">
                 {showCheckboxColumn && <td className="checkbox-cell" />}
@@ -694,6 +695,7 @@ const ProgrammingPrescriptionTable = ({
                             )}
                           </td>
                         )))}
+                {columnCount === 0 && <td className="filler-cell" />}
               </tr>
             </thead>
           </table>
@@ -877,6 +879,9 @@ const ProgrammingPrescriptionTable = ({
                                           </td>
                                         )
                                       ))}
+                              {columnCount === 0 && (
+                                <td className="filler-cell" />
+                              )}
                             </tr>
                           </tbody>
                         </table>

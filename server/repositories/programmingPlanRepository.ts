@@ -117,7 +117,7 @@ const needsResendExpression = `(
         where p2.programming_plan_id = ${programmingPlansTable}.id
           and lpc.region = ${programmingPlanLocalStatusTable}.region
           and lpc.diffused_at is not null
-          and lpc.diffused_at > ${programmingPlanLocalStatusTable}.last_sent_at
+          and lpc.diffused_at > coalesce(${programmingPlanLocalStatusTable}.last_sent_at, ${programmingPlanLocalStatusTable}.sent_at)
       )
     else
       exists (
@@ -127,12 +127,12 @@ const needsResendExpression = `(
           and lpc.region = ${programmingPlanLocalStatusTable}.region
           and lpc.department = ${programmingPlanLocalStatusTable}.department
           and lpc.diffused_at is not null
-          and lpc.diffused_at > ${programmingPlanLocalStatusTable}.last_sent_at
+          and lpc.diffused_at > coalesce(${programmingPlanLocalStatusTable}.last_sent_at, ${programmingPlanLocalStatusTable}.sent_at)
       )
   end
 )`;
 
-const localStatusJsonObject = `json_build_object('status', ${programmingPlanLocalStatusTable}.status, 'region', ${programmingPlanLocalStatusTable}.region, 'department', ${programmingPlanLocalStatusTable}.department, 'sentAt', ${programmingPlanLocalStatusTable}.sent_at, 'lastModifiedAt', ${programmingPlanLocalStatusTable}.last_modified_at, 'hasPendingChange', ${hasPendingChangeExpression}, 'needsResend', ${needsResendExpression})`;
+const localStatusJsonObject = `json_build_object('status', ${programmingPlanLocalStatusTable}.status, 'region', ${programmingPlanLocalStatusTable}.region, 'department', ${programmingPlanLocalStatusTable}.department, 'sentAt', ${programmingPlanLocalStatusTable}.sent_at, 'lastSentAt', ${programmingPlanLocalStatusTable}.last_sent_at, 'lastModifiedAt', ${programmingPlanLocalStatusTable}.last_modified_at, 'hasPendingChange', ${hasPendingChangeExpression}, 'needsResend', ${needsResendExpression})`;
 
 const ProgrammingPlanQuery = () =>
   ProgrammingPlans()

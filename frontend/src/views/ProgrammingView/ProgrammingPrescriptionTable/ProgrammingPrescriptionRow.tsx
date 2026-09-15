@@ -625,6 +625,7 @@ const ProgrammingPrescriptionRow = ({
                             </td>
                           );
                         }))}
+                {columnCount === 0 && <td className="filler-cell" />}
               </tr>
             </tbody>
           </table>

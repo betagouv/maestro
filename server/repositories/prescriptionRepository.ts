@@ -19,6 +19,7 @@ import { userRepository } from './userRepository';
 export const prescriptionsTable = 'prescriptions';
 const localPrescriptionsTable = 'local_prescriptions';
 const localPrescriptionChangesTable = 'local_prescription_changes';
+const prescriptionChangesTable = 'prescription_changes';
 
 export const Prescriptions = () => db<Prescription>(prescriptionsTable);
 
@@ -231,6 +232,44 @@ const effectiveSampleCount = (
         limit 1
       ), ${alias}.sample_count)`;
 
+const draftOnlyChildSum = (
+  childFilter: (alias: string) => string,
+  visibility?: PendingChangeVisibility
+): string =>
+  visibility?.seesUnappliedChanges === false
+    ? '0'
+    : `coalesce((
+        select sum(draft.sample_count)
+        from (
+          select distinct on (c.region, c.department, c.company_siret)
+            c.sample_count
+          from ${localPrescriptionChangesTable} c
+          where c.prescription_id = ${prescriptionsTable}.id
+            and c.kind = 'sampleCount'
+            and c.applied_at is null
+            and (c.diffused_at is not null ${visibility?.echelon ? 'or c.echelon = :echelon' : ''})
+            ${childFilter('c')}
+            and not exists (
+              select 1 from ${localPrescriptionsTable} lp2
+              where lp2.prescription_id = c.prescription_id
+                and lp2.region = c.region
+                and lp2.department = c.department
+                and lp2.company_siret = c.company_siret
+            )
+          order by c.region, c.department, c.company_siret, c.changed_at desc
+        ) draft
+      ), 0)`;
+
+const effectiveChildSum = (
+  childFilter: (alias: string) => string,
+  visibility?: PendingChangeVisibility
+): string => `(coalesce((
+    select sum(${effectiveSampleCount('lp', visibility)})
+    from ${localPrescriptionsTable} lp
+    where lp.prescription_id = ${prescriptionsTable}.id
+      ${childFilter('lp')}
+  ), 0) + ${draftOnlyChildSum(childFilter, visibility)})`;
+
 const distributedToSlaughterhouses = (
   findOptions: FindPrescriptionOptions,
   visibility?: PendingChangeVisibility
@@ -243,14 +282,13 @@ const distributedToSlaughterhouses = (
       ${findOptions.region ? 'and lp.region = :region' : ''}
       ${findOptions.department ? 'and lp.department = :department' : ''}
     limit 1
-  ), 0) <> coalesce((
-    select sum(${effectiveSampleCount('lp', visibility)})
-    from ${localPrescriptionsTable} lp
-    where lp.prescription_id = ${prescriptionsTable}.id
-      and lp.company_siret <> 'None'
-      ${findOptions.region ? 'and lp.region = :region' : ''}
-      ${findOptions.department ? 'and lp.department = :department' : ''}
-  ), 0)`;
+  ), 0) <> ${effectiveChildSum(
+    (alias) => `
+      and ${alias}.company_siret <> 'None'
+      ${findOptions.region ? `and ${alias}.region = :region` : ''}
+      ${findOptions.department ? `and ${alias}.department = :department` : ''}`,
+    visibility
+  )}`;
 
 const distributedToDepartments = (visibility?: PendingChangeVisibility) => `
   coalesce((
@@ -261,23 +299,35 @@ const distributedToDepartments = (visibility?: PendingChangeVisibility) => `
       and lp.department = 'None'
       and lp.company_siret = 'None'
     limit 1
-  ), 0) <> coalesce((
-    select sum(${effectiveSampleCount('lp', visibility)})
-    from ${localPrescriptionsTable} lp
-    where lp.prescription_id = ${prescriptionsTable}.id
-      and lp.region = :region
-      and lp.department <> 'None'
-      and lp.company_siret = 'None'
-  ), 0)`;
+  ), 0) <> ${effectiveChildSum(
+    (alias) => `
+      and ${alias}.region = :region
+      and ${alias}.department <> 'None'
+      and ${alias}.company_siret = 'None'`,
+    visibility
+  )}`;
+
+const effectivePrescriptionSampleCount = (
+  visibility?: PendingChangeVisibility
+): string =>
+  visibility?.echelon === 'National'
+    ? `coalesce((
+        select pc.sample_count
+        from ${prescriptionChangesTable} pc
+        where pc.prescription_id = ${prescriptionsTable}.id
+          and pc.diffused_at is null
+        order by pc.changed_at desc
+        limit 1
+      ), ${prescriptionsTable}.sample_count, 0)`
+    : `coalesce(${prescriptionsTable}.sample_count, 0)`;
 
 const distributedToRegions = (visibility?: PendingChangeVisibility) => `
-  coalesce(${prescriptionsTable}.sample_count, 0) <> coalesce((
-    select sum(${effectiveSampleCount('lp', visibility)})
-    from ${localPrescriptionsTable} lp
-    where lp.prescription_id = ${prescriptionsTable}.id
-      and lp.department = 'None'
-      and lp.company_siret = 'None'
-  ), 0)`;
+  ${effectivePrescriptionSampleCount(visibility)} <> ${effectiveChildSum(
+    (alias) => `
+      and ${alias}.department = 'None'
+      and ${alias}.company_siret = 'None'`,
+    visibility
+  )}`;
 
 const missingDistributionExpression = (
   findOptions: FindPrescriptionOptions,
@@ -305,6 +355,19 @@ const missingDistributionExpression = (
   return [distributedToRegions(visibility), bindings];
 };
 
+const viewedAtColumn = (visibility?: PendingChangeVisibility): string => {
+  switch (visibility?.audience) {
+    case 'Applied':
+      return 'applied_changes_viewed_at';
+    case 'Admin':
+      return 'admin_changes_viewed_at';
+    case 'Departmental':
+      return 'departmental_changes_viewed_at';
+    default:
+      return 'changes_viewed_at';
+  }
+};
+
 const noveltyExpression = (
   findOptions: FindPrescriptionOptions,
   visibility?: PendingChangeVisibility
@@ -313,7 +376,7 @@ const noveltyExpression = (
      select 1 from ${localPrescriptionChangesTable} c
      where c.prescription_id = ${prescriptionsTable}.id
        and c.kind = 'sampleCount'
-       and c.changes_viewed_at is null
+       and c.${viewedAtColumn(visibility)} is null
        and c.diffused_at is not null
        and c.company_siret = 'None'
        ${visibility?.echelon ? 'and c.echelon <> ?' : ''}
@@ -446,7 +509,7 @@ const scopedSampleCount = (
           and lp.company_siret = 'None'
         limit 1
       ), 0)`
-    : `coalesce(${prescriptionsTable}.sample_count, 0)`;
+    : effectivePrescriptionSampleCount(visibility);
 
 const effectiveLaboratories = (visibility?: PendingChangeVisibility): string =>
   visibility?.seesUnappliedChanges === false

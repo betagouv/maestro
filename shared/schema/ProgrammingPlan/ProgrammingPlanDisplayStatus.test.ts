@@ -685,3 +685,146 @@ describe('computeCompleteness — the terminal echelon must have assigned its la
     ).toBe(false);
   });
 });
+
+describe('computeDisplayStatus — an outside viewer only sees transmitted modifications', () => {
+  const base = {
+    status: 'SubmittedToRegion' as const,
+    sentAt: new Date('2026-09-01'),
+    lastSentAt: new Date('2026-09-01'),
+    lastModifiedAt: new Date('2026-09-10'),
+    hasAnyProgrammedSample: true,
+    isComplete: true,
+    echelon: 'National' as const,
+    distributionKind: 'SLAUGHTERHOUSE' as const
+  };
+
+  test('an undiffused modification is hidden from the admin', () => {
+    expect(
+      computeDisplayStatus({
+        ...base,
+        hasPendingChange: true,
+        viewerOwnsNationalRow: false
+      }).lastModifiedAt
+    ).toBeNull();
+  });
+
+  test('a modification already sent onward stays hidden from the admin too', () => {
+    expect(
+      computeDisplayStatus({
+        ...base,
+        lastSentAt: new Date('2026-09-12'),
+        hasPendingChange: false,
+        viewerOwnsNationalRow: false
+      }).lastModifiedAt
+    ).toBeNull();
+  });
+
+  test('sending to the regions leaves the admin without a modification date', () => {
+    expect(
+      computeDisplayStatus({
+        ...base,
+        sentAt: new Date('2026-09-15'),
+        lastSentAt: new Date('2026-09-15'),
+        lastModifiedAt: new Date('2026-09-14'),
+        viewerOwnsNationalRow: false
+      }).lastModifiedAt
+    ).toBeNull();
+  });
+
+  test('a modification left undiffused stays hidden even without a pending change row', () => {
+    expect(
+      computeDisplayStatus({
+        ...base,
+        hasPendingChange: false,
+        viewerOwnsNationalRow: false
+      }).lastModifiedAt
+    ).toBeNull();
+  });
+
+  test('the national coordinator keeps seeing their own undiffused modification', () => {
+    expect(
+      computeDisplayStatus({
+        ...base,
+        hasPendingChange: true,
+        viewerOwnsNationalRow: true
+      }).lastModifiedAt
+    ).toEqual(base.lastModifiedAt);
+  });
+});
+
+describe('computeDisplayStatus — the owner only sees a modification left to send', () => {
+  const base = {
+    status: 'SubmittedToAdmin' as const,
+    sentAt: new Date('2026-09-15'),
+    lastSentAt: new Date('2026-09-15'),
+    hasAnyProgrammedSample: true,
+    isComplete: true,
+    hasPendingChange: true,
+    echelon: 'National' as const,
+    distributionKind: 'SLAUGHTERHOUSE' as const,
+    viewerOwnsNationalRow: true
+  };
+
+  test('a first send shows no modification date', () => {
+    expect(
+      computeDisplayStatus({
+        ...base,
+        lastModifiedAt: new Date('2026-09-14')
+      }).lastModifiedAt
+    ).toBeNull();
+  });
+
+  test('a modification made after the send is shown', () => {
+    const lastModifiedAt = new Date('2026-09-16');
+    expect(
+      computeDisplayStatus({ ...base, lastModifiedAt }).lastModifiedAt
+    ).toEqual(lastModifiedAt);
+  });
+
+  test('nothing ever sent: the pending modification is shown', () => {
+    const lastModifiedAt = new Date('2026-09-14');
+    expect(
+      computeDisplayStatus({
+        ...base,
+        sentAt: null,
+        lastSentAt: null,
+        lastModifiedAt
+      }).lastModifiedAt
+    ).toEqual(lastModifiedAt);
+  });
+});
+
+describe('computeDisplayStatus — a modification made above is not shown below', () => {
+  test('the region sees no modification date when only the national level has pending changes', () => {
+    expect(
+      computeDisplayStatus({
+        status: 'SubmittedToRegion',
+        sentAt: new Date('2026-09-01'),
+        lastSentAt: new Date('2026-09-01'),
+        lastModifiedAt: new Date('2026-09-10'),
+        hasPendingChange: false,
+        hasAnyProgrammedSample: true,
+        isComplete: true,
+        echelon: 'Regional',
+        distributionKind: 'SLAUGHTERHOUSE'
+      }).lastModifiedAt
+    ).toBeNull();
+  });
+
+  test('the region sees its own pending modification', () => {
+    const lastModifiedAt = new Date('2026-09-10');
+    expect(
+      computeDisplayStatus({
+        status: 'SubmittedToRegion',
+        sentAt: new Date('2026-09-01'),
+        lastSentAt: new Date('2026-09-01'),
+        lastModifiedAt,
+        hasPendingChange: true,
+        hasAnyProgrammedSample: true,
+        isComplete: true,
+        echelon: 'Regional',
+        distributionKind: 'SLAUGHTERHOUSE'
+      }).lastModifiedAt
+    ).toEqual(lastModifiedAt);
+  });
+});

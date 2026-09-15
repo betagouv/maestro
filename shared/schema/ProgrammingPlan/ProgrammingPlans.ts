@@ -101,12 +101,18 @@ export const isProgrammingPlanDomainDeletable = (
 ): boolean => plans.every(isProgrammingPlanDeletable);
 
 export const hasNewerLaunchedCampaign = (
-  plan: Pick<ProgrammingPlanChecked, 'domainId' | 'year'>,
-  plans: Pick<ProgrammingPlanChecked, 'domainId' | 'year' | 'launchedAt'>[]
+  plan: Pick<ProgrammingPlanChecked, 'domainId' | 'title' | 'year'>,
+  plans: Pick<
+    ProgrammingPlanChecked,
+    'domainId' | 'title' | 'year' | 'launchedAt'
+  >[],
+  domainLabelById: Map<string, string>
 ): boolean =>
   plans.some(
     (other) =>
-      other.domainId === plan.domainId &&
+      other.title === plan.title &&
+      domainLabelById.get(other.domainId) ===
+        domainLabelById.get(plan.domainId) &&
       other.year > plan.year &&
       !isNil(other.launchedAt)
   );
