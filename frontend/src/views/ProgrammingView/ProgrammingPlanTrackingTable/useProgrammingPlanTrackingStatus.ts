@@ -169,14 +169,17 @@ export const useProgrammingPlanTrackingStatus = (
         ) &&
         nationalDisplayStatus.value !== 'NotApplicable';
 
+      const regionalIsSubmitted = region
+        ? regionalDisplayStatus?.value === 'Submitted'
+        : regionalAggregate.value === 'Submitted';
+
       const isFinalized =
         plan.distributionKind === 'SLAUGHTERHOUSE'
           ? department
             ? departmentalDisplayStatus?.value === 'Submitted'
-            : departmentalAggregate?.value === 'Submitted'
-          : region
-            ? regionalDisplayStatus?.value === 'Submitted'
-            : regionalAggregate.value === 'Submitted';
+            : departmentalAggregate?.value === 'Submitted' &&
+              regionalIsSubmitted
+          : regionalIsSubmitted;
 
       const ownDisplayStatus = department
         ? departmentalDisplayStatus

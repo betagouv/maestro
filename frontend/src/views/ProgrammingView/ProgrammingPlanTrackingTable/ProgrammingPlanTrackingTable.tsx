@@ -427,7 +427,11 @@ const ProgrammingPlanTrackingTable = ({
     [displayedPlans]
   );
 
-  const statusColumnCount = (department ? 1 : region ? 2 : 3) + 1;
+  const statusColumnCount =
+    1 +
+    (region ? 0 : 1) +
+    (department ? 0 : 1) +
+    (hasSlaughterhousePlan ? 1 : 0);
 
   if (!programmingPlanDomains) {
     return null;

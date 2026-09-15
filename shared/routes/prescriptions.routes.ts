@@ -70,11 +70,12 @@ export const prescriptionsRoutes = {
       response: z.array(LocalPrescription)
     }
   },
-  '/prescriptions/regions/:region/changes-viewed': {
-    params: { region: Region },
+  '/prescriptions/regions/changes-viewed': {
+    params: undefined,
     put: {
       body: z.object({
         prescriptionIds: z.array(z.guid()),
+        region: Region.nullish(),
         department: Department.nullish()
       }),
       permissions: ['readPrescriptions'],

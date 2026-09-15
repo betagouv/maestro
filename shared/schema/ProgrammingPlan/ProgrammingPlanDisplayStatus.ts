@@ -131,6 +131,7 @@ const hasReceivedFromAbove = (
 interface DisplayStatusInput {
   status?: ProgrammingPlanStatus | null;
   sentAt?: Date | null;
+  lastSentAt?: Date | null;
   lastModifiedAt?: Date | null;
   hasPendingChange?: boolean | null;
   needsResend?: boolean | null;
@@ -158,7 +159,18 @@ export const computeDisplayStatus = (
   input: DisplayStatusInput
 ): DisplayStatusResult => {
   const sentAt = input.sentAt ?? null;
-  const lastModifiedAt = input.lastModifiedAt ?? null;
+  const viewsForeignNationalRow =
+    input.echelon === 'National' && input.viewerOwnsNationalRow === false;
+  const modifiedSinceLastSend =
+    !isNil(input.lastModifiedAt) &&
+    (isNil(input.lastSentAt) || input.lastModifiedAt > input.lastSentAt);
+  const lastModifiedAt =
+    isNil(input.lastModifiedAt) ||
+    viewsForeignNationalRow ||
+    !modifiedSinceLastSend ||
+    input.hasPendingChange !== true
+      ? null
+      : input.lastModifiedAt;
 
   if (!input.hasAnyProgrammedSample) {
     return {
@@ -211,7 +223,7 @@ export const computeDisplayStatus = (
   }
 
   const hasBeenTouched =
-    input.echelon === 'National' || lastModifiedAt !== null;
+    input.echelon === 'National' || !isNil(input.lastModifiedAt);
   const needsSend =
     input.isComplete &&
     hasBeenTouched &&

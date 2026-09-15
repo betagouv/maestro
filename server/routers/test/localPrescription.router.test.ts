@@ -2525,21 +2525,23 @@ describe('Local prescriptions router', () => {
     });
   });
 
-  describe('PUT /prescriptions/regions/:region/changes-viewed', () => {
-    const testRoute = (region: string) =>
-      `/api/prescriptions/regions/${region}/changes-viewed`;
+  describe('PUT /prescriptions/regions/changes-viewed', () => {
+    const testRoute = () => '/api/prescriptions/regions/changes-viewed';
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
-        .put(testRoute(RegionalCoordinator.region as string))
+        .put(testRoute())
         .send({ prescriptionIds: [] })
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
 
     test('should fail for a region outside the user scope', async () => {
       await request(app)
-        .put(testRoute(Region2Fixture))
-        .send({ prescriptionIds: [submittedControlPrescription1.id] })
+        .put(testRoute())
+        .send({
+          prescriptionIds: [submittedControlPrescription1.id],
+          region: Region2Fixture
+        })
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
@@ -2576,8 +2578,11 @@ describe('Local prescriptions router', () => {
       ]);
 
       await request(app)
-        .put(testRoute(RegionalCoordinator.region as string))
-        .send({ prescriptionIds: [submittedControlPrescription1.id] })
+        .put(testRoute())
+        .send({
+          prescriptionIds: [submittedControlPrescription1.id],
+          region: RegionalCoordinator.region as Region
+        })
         .use(tokenProvider(RegionalCoordinator))
         .expect(constants.HTTP_STATUS_NO_CONTENT);
 
@@ -2628,9 +2633,10 @@ describe('Local prescriptions router', () => {
       ]);
 
       await request(app)
-        .put(testRoute(region))
+        .put(testRoute())
         .send({
           prescriptionIds: [submittedControlPrescription1.id],
+          region,
           department: ownDepartment
         })
         .use(tokenProvider(DepartmentalCoordinator))
@@ -2642,7 +2648,9 @@ describe('Local prescriptions router', () => {
         department: ownDepartment
       });
       expect(
-        ownDepartmentRows.every((row) => row.changesViewedAt !== null)
+        ownDepartmentRows.every(
+          (row) => row.departmentalChangesViewedAt !== null
+        )
       ).toBe(true);
 
       const otherDepartmentRows = await LocalPrescriptionChanges().where({
@@ -2651,7 +2659,9 @@ describe('Local prescriptions router', () => {
         department: otherDepartment
       });
       expect(
-        otherDepartmentRows.every((row) => row.changesViewedAt === null)
+        otherDepartmentRows.every(
+          (row) => row.departmentalChangesViewedAt === null
+        )
       ).toBe(true);
 
       // Cleanup

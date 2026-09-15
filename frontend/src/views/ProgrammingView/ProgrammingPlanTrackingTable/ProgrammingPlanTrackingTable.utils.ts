@@ -41,6 +41,7 @@ export const buildEchelonDisplayStatus = (
   return computeDisplayStatus({
     status: localStatus?.status,
     sentAt: localStatus?.sentAt,
+    lastSentAt: localStatus?.lastSentAt,
     lastModifiedAt: localStatus?.lastModifiedAt,
     hasPendingChange: localStatus?.hasPendingChange,
     needsResend: localStatus?.needsResend,

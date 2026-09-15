@@ -256,16 +256,42 @@ export const seesUnappliedLocalPrescriptionChanges = (
     userRole
   );
 
+export type ChangeViewAudience =
+  | 'Coordination'
+  | 'Departmental'
+  | 'Admin'
+  | 'Applied';
+
+export const changeViewAudienceForRole = (
+  userRole: UserRole
+): ChangeViewAudience => {
+  if (!seesUnappliedLocalPrescriptionChanges(userRole)) {
+    return 'Applied';
+  }
+  if (
+    (['AdministratorMaestro', 'AdministratorBGIR'] as UserRole[]).includes(
+      userRole
+    )
+  ) {
+    return 'Admin';
+  }
+  return editingEchelonForRole(userRole) === 'Departmental'
+    ? 'Departmental'
+    : 'Coordination';
+};
+
 export interface PendingChangeVisibility {
   echelon: ProgrammingPlanEchelon | null;
   seesUnappliedChanges: boolean;
+  audience: ChangeViewAudience;
 }
 
 export const pendingChangeVisibilityForRole = (
   userRole: UserRole
 ): PendingChangeVisibility => ({
   echelon: editingEchelonForRole(userRole),
-  seesUnappliedChanges: seesUnappliedLocalPrescriptionChanges(userRole)
+  seesUnappliedChanges: seesUnappliedLocalPrescriptionChanges(userRole),
+  audience: changeViewAudienceForRole(userRole)
 });
 
 export const canHaveDepartment = (

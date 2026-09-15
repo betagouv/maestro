@@ -202,6 +202,13 @@ const commitPendingRegionalChanges = async (
     );
   }
 
+  await localPrescriptionChangeRepository.markManyViewed({
+    regions: [region],
+    prescriptionIds,
+    viewedBy: null,
+    audience: 'Coordination'
+  });
+
   return { prescriptionIds, departments: Array.from(departments) };
 };
 
@@ -311,6 +318,14 @@ const commitPendingDepartmentalChanges = async (
     'laboratories',
     'Departmental'
   );
+
+  await localPrescriptionChangeRepository.markManyViewed({
+    regions: [region],
+    department,
+    prescriptionIds,
+    viewedBy: null,
+    audience: 'Departmental'
+  });
 
   return { prescriptionIds, companySirets: Array.from(companySirets) };
 };

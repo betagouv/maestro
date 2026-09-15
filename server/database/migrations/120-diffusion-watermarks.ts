@@ -15,6 +15,18 @@ export const up = async (knex: Knex) => {
       .nullable()
       .references('id')
       .inTable('users');
+    table.timestamp('admin_changes_viewed_at').nullable();
+    table
+      .uuid('admin_changes_viewed_by')
+      .nullable()
+      .references('id')
+      .inTable('users');
+    table.timestamp('departmental_changes_viewed_at').nullable();
+    table
+      .uuid('departmental_changes_viewed_by')
+      .nullable()
+      .references('id')
+      .inTable('users');
   });
 };
 
@@ -25,5 +37,9 @@ export const down = async (knex: Knex) => {
   await knex.schema.alterTable('local_prescription_changes', (table) => {
     table.dropColumn('applied_changes_viewed_at');
     table.dropColumn('applied_changes_viewed_by');
+    table.dropColumn('admin_changes_viewed_at');
+    table.dropColumn('admin_changes_viewed_by');
+    table.dropColumn('departmental_changes_viewed_at');
+    table.dropColumn('departmental_changes_viewed_by');
   });
 };

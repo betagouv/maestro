@@ -68,7 +68,7 @@ const prescriptionApi = api.injectEndpoints({
     ),
     markLocalPrescriptionChangesViewed: buildTypedMutation(
       builder,
-      '/prescriptions/regions/:region/changes-viewed',
+      '/prescriptions/regions/changes-viewed',
       'put',
       {
         invalidatesTags: () => [

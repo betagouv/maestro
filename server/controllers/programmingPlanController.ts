@@ -427,8 +427,7 @@ export const programmingPlanRouter = {
       for (const batch of planBatches(readyForAdminReviewPlans)) {
         const admins = await userRepository.findMany({
           roles: ['AdministratorBGIR'],
-          disabled: false,
-          stages: batchStages(batch)
+          disabled: false
         });
 
         await notificationService.sendNotification(

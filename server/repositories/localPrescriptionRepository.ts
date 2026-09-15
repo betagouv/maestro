@@ -14,7 +14,10 @@ import {
 import type { PendingChangeVisibility } from 'maestro-shared/schema/User/UserRole';
 import { z } from 'zod';
 import { knexInstance as db } from './db';
-import { LocalPrescriptionChanges } from './localPrescriptionChangeRepository';
+import {
+  LocalPrescriptionChanges,
+  viewedColumns
+} from './localPrescriptionChangeRepository';
 import { localPrescriptionCommentsTable } from './localPrescriptionCommentRepository';
 import { localPrescriptionSubstanceKindsLaboratoriesTable } from './localPrescriptionSubstanceKindLaboratoryRepository';
 import { prescriptionsTable } from './prescriptionRepository';
@@ -65,11 +68,7 @@ const findPendingChanges = async (
         query.whereNotNull('appliedAt');
       }
     })
-    .whereNull(
-      visibility?.seesUnappliedChanges === false
-        ? 'appliedChangesViewedAt'
-        : 'changesViewedAt'
-    )
+    .whereNull(viewedColumns(visibility?.audience ?? 'Coordination').at)
     .whereNotNull('diffusedAt')
     .orderByRaw(
       'prescription_id, region, department, company_siret, (applied_at is null) desc, changed_at asc'

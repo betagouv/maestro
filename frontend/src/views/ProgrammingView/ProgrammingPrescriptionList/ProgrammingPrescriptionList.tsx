@@ -19,10 +19,7 @@ import {
   type LocalPrescription,
   type LocalPrescriptionUpdate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import {
-  hasUnviewedChange,
-  regionRowNeedsChangeAction
-} from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
+import { hasUnviewedChange } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
 import {
   type LocalPrescriptionKey,
   type LocalPrescriptionKeyString,
@@ -40,6 +37,7 @@ import type { PrescriptionImportResult } from 'maestro-shared/schema/Prescriptio
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import {
+  changeViewAudienceForRole,
   isDepartmentalRole,
   isNationalRole,
   isRegionalRole
@@ -360,12 +358,18 @@ const ProgrammingPrescriptionList = ({
   }, [allLocalPrescriptions, pendingLocalChanges, pendingLaboratoryChanges]);
 
   const {
-    data: prescriptionCounts,
+    data: lastPrescriptionCounts,
+    currentData: currentPrescriptionCounts,
+    isFetching: isFetchingPrescriptionCounts,
     refetch: refetchPrescriptionCounts,
     isUninitialized: isPrescriptionCountsUninitialized
   } = apiClient.useFindPrescriptionCountsQuery(findPrescriptionCountsOptions, {
     skip: !planIds.length
   });
+
+  const prescriptionCounts =
+    currentPrescriptionCounts ??
+    (isFetchingPrescriptionCounts ? lastPrescriptionCounts : undefined);
 
   const { data: filterOptionsCounts } =
     apiClient.useFindPrescriptionCountsQuery(findFilterOptionsCountsOptions, {
@@ -421,44 +425,29 @@ const ProgrammingPrescriptionList = ({
     [prescriptions, allLocalPrescriptionsWithPending, department, region]
   );
 
-  const canActOnPrescriptionRows =
-    hasUserPermission('updatePrescriptionLaboratories') ||
-    hasUserPermission('distributePrescriptionToDepartments') ||
-    hasUserPermission('distributePrescriptionToSlaughterhouses');
+  const clearsNoveltyOnNavigation =
+    !isNil(userRole) &&
+    ['Admin', 'Applied'].includes(changeViewAudienceForRole(userRole));
 
   useEffect(() => {
-    if (!region) {
+    if (!clearsNoveltyOnNavigation) {
       onChangeDismissalCandidatesChange?.([]);
       return;
     }
     const candidates = (prescriptions ?? [])
-      .map((prescription) => {
-        const own = localPrescriptions.find(
-          (lp) => lp.prescriptionId === prescription.id
-        );
-        if (!own || !hasUnviewedChange(own.changedAt)) {
-          return null;
-        }
-        const plan = getPrescriptionPlan(prescription);
-        if (!plan) {
-          return null;
-        }
-        const subs = (subLocalPrescriptions ?? []).filter(
-          (sub) => sub.prescriptionId === prescription.id
-        );
-        return canActOnPrescriptionRows &&
-          regionRowNeedsChangeAction(plan.distributionKind, own, subs)
-          ? null
-          : prescription.id;
-      })
-      .filter((id): id is string => id !== null);
+      .filter((prescription) =>
+        localPrescriptions.some(
+          (lp) =>
+            lp.prescriptionId === prescription.id &&
+            hasUnviewedChange(lp.changedAt)
+        )
+      )
+      .map((prescription) => prescription.id);
     onChangeDismissalCandidatesChange?.(candidates);
   }, [
-    region,
+    clearsNoveltyOnNavigation,
     prescriptions,
     localPrescriptions,
-    subLocalPrescriptions,
-    getPrescriptionPlan,
     onChangeDismissalCandidatesChange
   ]);
 

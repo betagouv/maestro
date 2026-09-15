@@ -66,6 +66,13 @@ export const seed = async () => {
         plan.nationalStatus.status
       )
         ? plan.createdAt
+        : null,
+      lastSentAt: hasSentOnward(
+        'National',
+        plan.distributionKind,
+        plan.nationalStatus.status
+      )
+        ? plan.createdAt
         : null
     }))
   );
@@ -77,6 +84,13 @@ export const seed = async () => {
         region: regionalStatus.region,
         status: regionalStatus.status,
         sentAt: hasSentOnward(
+          'Regional',
+          plan.distributionKind,
+          regionalStatus.status
+        )
+          ? plan.createdAt
+          : null,
+        lastSentAt: hasSentOnward(
           'Regional',
           plan.distributionKind,
           regionalStatus.status
@@ -95,6 +109,13 @@ export const seed = async () => {
         department: departmentalStatus.department,
         status: departmentalStatus.status,
         sentAt: hasSentOnward(
+          'Departmental',
+          plan.distributionKind,
+          departmentalStatus.status
+        )
+          ? plan.createdAt
+          : null,
+        lastSentAt: hasSentOnward(
           'Departmental',
           plan.distributionKind,
           departmentalStatus.status

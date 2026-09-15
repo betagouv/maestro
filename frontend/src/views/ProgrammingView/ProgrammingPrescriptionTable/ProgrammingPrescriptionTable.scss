@@ -112,6 +112,9 @@
   col.col-region {
     width: $col-region-width;
   }
+  col.col-filler {
+    width: auto;
+  }
   col.col-company {
     width: $col-company-width;
   }

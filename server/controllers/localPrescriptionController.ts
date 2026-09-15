@@ -19,6 +19,7 @@ import {
   userRegionsForRole
 } from 'maestro-shared/schema/User/User';
 import {
+  changeViewAudienceForRole,
   editingEchelonForRole,
   isNationalRole,
   isRegionalRole,
@@ -220,21 +221,24 @@ export const localPrescriptionsRouter = {
       };
     }
   },
-  '/prescriptions/regions/:region/changes-viewed': {
-    put: async (
-      { user, userRole, body: { prescriptionIds, department } },
-      { region }
-    ) => {
-      if (!userRegionsForRole(user, userRole).includes(region)) {
+  '/prescriptions/regions/changes-viewed': {
+    put: async ({
+      user,
+      userRole,
+      body: { prescriptionIds, region, department }
+    }) => {
+      const allowedRegions = userRegionsForRole(user, userRole);
+      if (!isNil(region) && !allowedRegions.includes(region)) {
         return { status: HttpStatus.FORBIDDEN };
       }
 
       await localPrescriptionChangeRepository.markManyViewed({
-        region,
+        regions: isNil(region) ? allowedRegions : [region],
         department,
         prescriptionIds,
         viewedBy: user.id,
-        onlyApplied: !seesUnappliedLocalPrescriptionChanges(userRole)
+        onlyApplied: !seesUnappliedLocalPrescriptionChanges(userRole),
+        audience: changeViewAudienceForRole(userRole)
       });
 
       return { status: HttpStatus.NO_CONTENT };
@@ -342,13 +346,15 @@ export const localPrescriptionsRouter = {
           prescriptionId: localPrescription.prescriptionId,
           region: localPrescription.region,
           kind: 'laboratories',
-          viewedBy: user.id
+          viewedBy: user.id,
+          audience: changeViewAudienceForRole(userRole)
         });
         await localPrescriptionChangeRepository.markViewed({
           prescriptionId: localPrescription.prescriptionId,
           region: localPrescription.region,
           kind: 'sampleCount',
-          viewedBy: user.id
+          viewedBy: user.id,
+          audience: changeViewAudienceForRole(userRole)
         });
       }
 
@@ -542,7 +548,8 @@ export const localPrescriptionsRouter = {
           region: params.region,
           department: params.department,
           kind: 'sampleCount',
-          viewedBy: user.id
+          viewedBy: user.id,
+          audience: changeViewAudienceForRole(userRole)
         });
       }
 
@@ -551,7 +558,8 @@ export const localPrescriptionsRouter = {
           prescriptionId: params.prescriptionId,
           region: params.region,
           kind: 'sampleCount',
-          viewedBy: user.id
+          viewedBy: user.id,
+          audience: changeViewAudienceForRole(userRole)
         });
       }
 
@@ -561,7 +569,8 @@ export const localPrescriptionsRouter = {
           region: params.region,
           department: params.department,
           kind: 'laboratories',
-          viewedBy: user.id
+          viewedBy: user.id,
+          audience: changeViewAudienceForRole(userRole)
         });
       }
 
