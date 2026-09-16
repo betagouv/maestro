@@ -15,6 +15,7 @@ import {
   ProgrammingPlanNationalCoordinators,
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
+import { toProgrammingPlanSettingsRow } from '../../repositories/programmingPlanSettingsRow';
 import { ProgrammingSubPlansRaw } from '../../repositories/programmingSubPlanRepository';
 
 export const seed = async (): Promise<void> => {
@@ -88,7 +89,7 @@ export const seed = async (): Promise<void> => {
       DAOAInProgressProgrammingPlanFixture
     ].flatMap((plan) =>
       plan.subPlans.map((subPlan) => ({
-        ...subPlan,
+        ...toProgrammingPlanSettingsRow(subPlan),
         programmingPlanId: plan.id
       }))
     )

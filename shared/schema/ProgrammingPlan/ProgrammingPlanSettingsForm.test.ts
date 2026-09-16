@@ -4,6 +4,8 @@ import {
   NationalCoordinatorId,
   NationalCoordinatorName
 } from '../../test/programmingPlanFixtures';
+import type { SubstanceKind } from '../Substance/SubstanceKind';
+import { defaultProgrammingPlanSample } from './ProgrammingPlanSampleSetting';
 import {
   emptyProgrammingPlanSettings,
   managedKey,
@@ -20,6 +22,7 @@ const completedSettings: {
   [K in ProgrammingPlanSettingKey]: {
     value: NonNullable<ProgrammingPlanSettings[K]>;
     message: string;
+    context?: Partial<ProgrammingPlanSettings>;
   };
 } = {
   stages: {
@@ -29,6 +32,11 @@ const completedSettings: {
   substanceKinds: {
     value: ['Mono'],
     message: 'Veuillez renseigner au moins un analyte.'
+  },
+  samples: {
+    value: [{ ...defaultProgrammingPlanSample, substanceKind: 'Mono' }],
+    message: 'Veuillez configurer au moins un échantillon.',
+    context: { substanceKinds: ['Mono'] }
   }
 };
 
@@ -59,7 +67,7 @@ describe('ProgrammingPlanSettingsForm', () => {
       });
 
     describe.each(ProgrammingPlanSettingKey.options)('%s', (settingKey) => {
-      const { value, message } = completedSettings[settingKey];
+      const { value, message, context } = completedSettings[settingKey];
 
       test.each([null, []])(
         'should accept a draft managing it with %j',
@@ -93,6 +101,7 @@ describe('ProgrammingPlanSettingsForm', () => {
       test('should accept a completed level managing it', () => {
         expect(
           form({
+            ...context,
             [settingKey]: value,
             [managedKey(settingKey)]: true,
             settingsCompleted: true
@@ -109,6 +118,84 @@ describe('ProgrammingPlanSettingsForm', () => {
           }).success
         ).toBe(true);
       });
+    });
+  });
+
+  describe('samples covering the analytes', () => {
+    const sample = (substanceKind: SubstanceKind | null) => ({
+      ...defaultProgrammingPlanSample,
+      substanceKind
+    });
+
+    const form = (
+      settings: Partial<ProgrammingPlanSettings> & {
+        settingsCompleted: boolean;
+      }
+    ) =>
+      ProgrammingSubPlanSettingsForm.safeParse({
+        ...emptyProgrammingPlanSettings(false),
+        substanceKinds: ['Mono', 'Multi'],
+        substanceKindsManaged: true,
+        samplesManaged: true,
+        ...settings,
+        fields: []
+      });
+
+    test('should accept a completed level whose samples cover every analyte', () => {
+      expect(
+        form({
+          samples: [sample('Multi'), sample('Mono'), sample('Mono')],
+          settingsCompleted: true
+        }).success
+      ).toBe(true);
+    });
+
+    test('should accept a draft whose samples do not cover the analytes', () => {
+      expect(
+        form({ samples: [sample(null)], settingsCompleted: false }).success
+      ).toBe(true);
+    });
+
+    test('should accept a completed level that does not manage the samples', () => {
+      expect(
+        form({
+          samples: [sample(null)],
+          samplesManaged: false,
+          settingsCompleted: true
+        }).success
+      ).toBe(true);
+    });
+
+    test.each([null, 'Copper' as const])(
+      'should refuse to complete a sample with the analyte %s',
+      (substanceKind) => {
+        const result = form({
+          samples: [sample('Mono'), sample(substanceKind), sample('Multi')],
+          settingsCompleted: true
+        });
+
+        expect(result.error?.issues).toStrictEqual([
+          expect.objectContaining({
+            path: ['samples', 1, 'substanceKind'],
+            message: 'Veuillez choisir un analyte pour l’échantillon 2.'
+          })
+        ]);
+      }
+    );
+
+    test('should refuse to complete a level with an analyte assigned to no sample', () => {
+      const result = form({
+        samples: [sample('Mono'), sample('Mono')],
+        settingsCompleted: true
+      });
+
+      expect(result.error?.issues).toStrictEqual([
+        expect.objectContaining({
+          path: ['samples'],
+          message:
+            'L’analyte « Multi-résidus » n’est affecté à aucun échantillon.'
+        })
+      ]);
     });
   });
 

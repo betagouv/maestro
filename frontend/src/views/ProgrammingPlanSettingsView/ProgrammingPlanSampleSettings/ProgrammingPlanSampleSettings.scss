@@ -1,0 +1,36 @@
+.programming-plan-sample-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  &__header {
+    gap: 1rem;
+
+    .fr-toggle__label::before {
+      margin-left: 0 !important;
+    }
+  }
+
+  &__rule {
+    flex: 1;
+    border-top: 1px solid var(--border-default-grey);
+  }
+
+  &__copies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .fr-tags-group {
+    row-gap: 0.5rem;
+
+    > li {
+      line-height: 1;
+    }
+
+    .fr-tag {
+      margin-bottom: 0;
+    }
+  }
+}

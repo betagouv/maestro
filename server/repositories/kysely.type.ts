@@ -32,6 +32,7 @@ import type { DocumentKind } from 'maestro-shared/schema/Document/DocumentKind';
 import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import type { LocalPrescriptionSubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
 import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
+import type { ProgrammingPlanSampleSetting } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type {
   CommemoratifSigle,
@@ -53,6 +54,7 @@ import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKin
 import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import type { MaestroDate } from 'maestro-shared/utils/date';
 import { z } from 'zod';
+import type { ProgrammingPlanSamplesJson } from './programmingPlanSettingsRow';
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>
@@ -302,6 +304,12 @@ interface ProgrammingPlanSettings {
   stagesManaged: Generated<boolean>;
   substanceKinds: SubstanceKind[] | null;
   substanceKindsManaged: Generated<boolean>;
+  samples: ColumnType<
+    ProgrammingPlanSampleSetting[] | null,
+    ProgrammingPlanSamplesJson | null | undefined,
+    ProgrammingPlanSamplesJson | null
+  >;
+  samplesManaged: Generated<boolean>;
 }
 
 export interface ProgrammingPlans extends ProgrammingPlanSettings {
