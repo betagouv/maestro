@@ -316,10 +316,10 @@ export const sendDAIWithEDI = async (
     (documentId) => Promise.resolve(documentId)
   );
 
-  const sentMethod = await sendSachaFile(xmlFile, dateNow, laboratory);
+  await sendSachaFile(xmlFile, dateNow, laboratory);
 
   return {
-    sentMethod,
+    sentMethod: 'SFTP',
     documentIds: [xmlDocumentId]
   };
 };

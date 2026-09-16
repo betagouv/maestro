@@ -2,33 +2,25 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
-import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
-import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import sftp from 'ssh2-sftp-client';
 import config from '../../utils/config';
 import { DaiProcessingError } from '../daiSendingService';
-import { encryptFile } from '../gpgService';
-import createNodemailerService from '../mailService/nodemailerService';
 import { zip } from '../zipService';
 import { getZipFileName, type XmlFile } from './sachaToXML';
 
-const SFTP_DIRECTORY = '/uploads/masa_labo';
+const SACHA_OUTBOX = '/uploads/Maestro-Sigal-Labo';
+
+//FIXME à supprimer, c'est juste pour un test grandeur nature
+const SEND_ZIP_AND_TRIGGER: boolean = false;
 
 export const sendSachaFile = async (
   xmlFile: XmlFile,
   dateNow: number,
   laboratory: LaboratoryWithSacha
-): Promise<SachaCommunicationMethod> => {
+): Promise<void> => {
   if (laboratory.sacha === null) {
     throw new DaiProcessingError(
       'Laboratoire en legacyDai routé par erreur vers SACHA',
-      true,
-      null
-    );
-  }
-  if (laboratory.sacha.communication === null) {
-    throw new DaiProcessingError(
-      'Configuration SACHA en attente pour ce laboratoire',
       true,
       null
     );
@@ -37,112 +29,73 @@ export const sendSachaFile = async (
     throw new DaiProcessingError(
       'Sigle SACHA non renseigné pour ce laboratoire',
       true,
-      laboratory.sacha.communication.method
+      'SFTP'
     );
   }
   if (!laboratory.sacha.activated) {
     throw new DaiProcessingError(
       'EDI Sacha désactivé pour ce laboratoire',
       true,
-      laboratory.sacha.communication.method
+      'SFTP'
+    );
+  }
+  if (
+    !config.sigal.sftp.privateKey ||
+    !config.sigal.sftp.passphrase ||
+    !config.sigal.sftp.host ||
+    !config.sigal.sftp.username
+  ) {
+    throw new DaiProcessingError(
+      'La configuration SFTP est incomplète',
+      true,
+      'SFTP'
     );
   }
 
-  const sentMethod: SachaCommunicationMethod =
-    laboratory.sacha.communication.method;
+  const directory = `${SACHA_OUTBOX}/${xmlFile.fileType}/${laboratory.sacha.sigle.toUpperCase()}`;
 
-  // Create directory with xml file inside
   const directoryPath = path.join(tmpdir(), xmlFile.fileName);
-  await mkdir(directoryPath);
+  await mkdir(directoryPath, { recursive: true });
 
   const filePath = path.join(directoryPath, `${xmlFile.fileName}.xml`);
   await writeFile(filePath, xmlFile.content);
 
-  // Zip directory
   const zipFileName = getZipFileName(
     xmlFile.fileType,
     laboratory.sacha.sigle,
     dateNow
   );
   const zipFilePath = await zip(directoryPath, zipFileName);
+  const triggerFileName = path.basename(zipFileName, '.zip');
 
-  switch (laboratory.sacha.communication.method) {
-    case 'EMAIL': {
-      if (!config.inbox.user) {
-        throw new DaiProcessingError(
-          'La variable INBOX_USER est manquante',
-          true,
-          'EMAIL'
-        );
-      }
-      if (!laboratory.sacha.communication.gpgEmail) {
-        throw new DaiProcessingError(
-          "La configuration EMAIL du laboratoire n'a pas de clé GPG",
-          true,
-          'EMAIL'
-        );
-      }
-      const encryptFileName = `${zipFileName}.gpg`;
-      const encryptFilePath = await encryptFile(
-        zipFilePath,
-        laboratory.sacha.communication.gpgEmail,
-        encryptFileName
+  const sftpClient = new sftp();
+  try {
+    await sftpClient.connect({
+      privateKey: config.sigal.sftp.privateKey,
+      passphrase: config.sigal.sftp.passphrase,
+      host: config.sigal.sftp.host,
+      username: config.sigal.sftp.username
+    });
+
+    await sftpClient.put(
+      Buffer.from(xmlFile.content),
+      `${directory}/${xmlFile.fileName}.xml`
+    );
+
+    if (SEND_ZIP_AND_TRIGGER) {
+      await sftpClient.fastPut(zipFilePath, `${directory}/${zipFileName}`);
+      await sftpClient.put(
+        Buffer.alloc(0),
+        `${directory}/Ack_${triggerFileName}`
       );
-
-      // Brevo REST API rejects ("Unsupported file format: gpg")
-      // So we need to use directly the Brevo SMTP Relay
-      await createNodemailerService().sendRaw({
-        from: config.sigal.email,
-        attachmentPath: encryptFilePath,
-        to: laboratory.sacha.communication.recipientEmail,
-        subject: zipFileName
-      });
-      break;
     }
-    case 'SFTP': {
-      if (
-        !config.sigal.sftp.privateKey ||
-        !config.sigal.sftp.passphrase ||
-        !config.sigal.sftp.host
-      ) {
-        throw new DaiProcessingError(
-          'La configuration SFTP est incomplète',
-          true,
-          'SFTP'
-        );
-      }
-      const sftpClient = new sftp();
-      try {
-        await sftpClient.connect({
-          privateKey: config.sigal.sftp.privateKey,
-          passphrase: config.sigal.sftp.passphrase,
-          host: config.sigal.sftp.host,
-          username: laboratory.sacha.communication.sftpLogin
-        });
-
-        await sftpClient.fastPut(
-          zipFilePath,
-          `${SFTP_DIRECTORY}/data/${zipFileName}`
-        );
-
-        await sftpClient.put(
-          Buffer.alloc(0),
-          `${SFTP_DIRECTORY}/ack/Ack_${path.basename(zipFileName, '.zip')}`
-        );
-      } catch (e) {
-        throw new DaiProcessingError(
-          `Échec de l'envoi SFTP (${laboratory.sacha.communication.sftpLogin}): ${e instanceof Error ? e.message : String(e)}`,
-          true,
-          sentMethod
-        );
-      } finally {
-        await sftpClient.end();
-      }
-      break;
-    }
-    default:
-      assertUnreachable(laboratory.sacha.communication);
+  } catch (e) {
+    throw new DaiProcessingError(
+      `Échec de l'envoi SFTP (${xmlFile.fileName}): ${e instanceof Error ? e.message : String(e)}`,
+      true,
+      'SFTP'
+    );
+  } finally {
+    await sftpClient.end();
   }
-
-  return sentMethod;
 };

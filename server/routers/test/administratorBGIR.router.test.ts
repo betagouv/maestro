@@ -56,7 +56,7 @@ describe('AdministratorBGIR permissions', () => {
           emails: ['contact@lab.fr'],
           emailsAnalysisResult: ['results@lab.fr'],
           legacyDai: false,
-          sacha: { activated: false, sigle: null, communication: null }
+          sacha: { activated: false, sigle: null, recipientEmail: null }
         })
         .use(tokenProvider(AdminBGIRFixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
