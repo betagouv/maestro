@@ -25,9 +25,9 @@ import { sachaContextRepository } from '../../repositories/sachaContextRepositor
 import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
 import type { DaiSentResult } from '../daiSendingService';
 import { documentService } from '../documentService';
+import { assertSachaLaboratory } from './sachaOutgoingFileService';
 import { referencesFromSample, SampleReference } from './sachaReferences';
 import { SiglePlanAnalyse } from './sachaReferential';
-import { sendSachaFile } from './sachaSender';
 import { generateXML, getSenderSachaSigle, type XmlFile } from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
 
@@ -180,7 +180,7 @@ export const generateXMLDAI = (
         DialogueActeurType: {
           DialogueActeur: {
             SigleIdentifiant: 'DEPADM',
-            Identifiant: getSenderSachaSigle(sample.department, false),
+            Identifiant: getSenderSachaSigle(sample.department),
             Nom: sample.sampler.name ?? ''
           }
         },
@@ -277,6 +277,8 @@ export const sendDAIWithEDI = async (
   sampleItem: SampleItem,
   laboratory: LaboratoryWithSacha
 ): Promise<DaiSentResult> => {
+  assertSachaLaboratory(laboratory);
+
   const [
     matrixReferential,
     sachaCommemoratifRecord,
@@ -316,10 +318,13 @@ export const sendDAIWithEDI = async (
     (documentId) => Promise.resolve(documentId)
   );
 
-  const sentMethod = await sendSachaFile(xmlFile, dateNow, laboratory);
-
   return {
-    sentMethod,
-    documentIds: [xmlDocumentId]
+    sentMethod: 'SFTP',
+    documentIds: [xmlDocumentId],
+    sachaFile: {
+      fileName: xmlFile.fileName,
+      documentId: xmlDocumentId,
+      laboratoryId: laboratory.id
+    }
   };
 };

@@ -114,11 +114,7 @@ describe('updateConfig', () => {
         legacyDai: false,
         sachaActivated: false,
         sachaSigle: null,
-        sachaCommunicationMethod: null,
-        sachaRecipientEmail: null,
-        sachaGpgEmail: null,
-        sachaGpgPublicKey: null,
-        sachaSftpLogin: null
+        sachaRecipientEmail: null
       })
       .where('id', '=', LaboratoryFixture.id)
       .execute();
@@ -139,110 +135,32 @@ describe('updateConfig', () => {
     expect(lab.sacha).toEqual({
       activated: false,
       sigle: null,
-      communication: null
+      recipientEmail: null
     });
   });
 
-  test('persiste une configuration SACHA en EMAIL', async () => {
+  test('persiste une configuration SACHA', async () => {
     await laboratoryRepository.updateConfig(LaboratoryFixture.id, {
       emails: ['contact@labo.fr'],
       emailsAnalysisResult: ['analysis@labo.fr'],
       legacyDai: false,
-      sacha: {
-        activated: true,
-        sigle: 'LAB1',
-        communication: {
-          method: 'EMAIL',
-          recipientEmail: 'sacha@labo.fr',
-          gpgEmail: 'sacha-gpg@labo.fr',
-          gpgPublicKey: 'PUBLIC_KEY'
-        }
-      }
+      sacha: { activated: true, sigle: 'LAB1', recipientEmail: 'sacha@labo.fr' }
     });
 
     const lab = await laboratoryRepository.findUnique(LaboratoryFixture.id);
     expect(lab.sacha).toEqual({
       activated: true,
       sigle: 'LAB1',
-      communication: {
-        method: 'EMAIL',
-        recipientEmail: 'sacha@labo.fr',
-        gpgEmail: 'sacha-gpg@labo.fr',
-        gpgPublicKey: 'PUBLIC_KEY'
-      }
+      recipientEmail: 'sacha@labo.fr'
     });
   });
 
-  test('persiste une configuration SACHA en SFTP', async () => {
+  test('legacyDai=true force sacha à null et vide les champs SACHA', async () => {
     await laboratoryRepository.updateConfig(LaboratoryFixture.id, {
       emails: ['contact@labo.fr'],
       emailsAnalysisResult: ['analysis@labo.fr'],
       legacyDai: false,
-      sacha: {
-        activated: true,
-        sigle: 'LAB1',
-        communication: { method: 'SFTP', sftpLogin: 'sftp-user' }
-      }
-    });
-
-    const lab = await laboratoryRepository.findUnique(LaboratoryFixture.id);
-    expect(lab.sacha).toEqual({
-      activated: true,
-      sigle: 'LAB1',
-      communication: { method: 'SFTP', sftpLogin: 'sftp-user' }
-    });
-  });
-
-  test('réinitialise les anciens champs SACHA quand on bascule de EMAIL à SFTP', async () => {
-    await laboratoryRepository.updateConfig(LaboratoryFixture.id, {
-      emails: ['contact@labo.fr'],
-      emailsAnalysisResult: ['analysis@labo.fr'],
-      legacyDai: false,
-      sacha: {
-        activated: true,
-        sigle: null,
-        communication: {
-          method: 'EMAIL',
-          recipientEmail: 'sacha@labo.fr',
-          gpgEmail: 'sacha-gpg@labo.fr',
-          gpgPublicKey: 'PUBLIC_KEY'
-        }
-      }
-    });
-
-    await laboratoryRepository.updateConfig(LaboratoryFixture.id, {
-      emails: ['contact@labo.fr'],
-      emailsAnalysisResult: ['analysis@labo.fr'],
-      legacyDai: false,
-      sacha: {
-        activated: true,
-        sigle: null,
-        communication: { method: 'SFTP', sftpLogin: 'sftp-user' }
-      }
-    });
-
-    const row = await kysely
-      .selectFrom('laboratories')
-      .selectAll()
-      .where('id', '=', LaboratoryFixture.id)
-      .executeTakeFirstOrThrow();
-    expect(row.sachaRecipientEmail).toBeNull();
-    expect(row.sachaGpgEmail).toBeNull();
-    expect(row.sachaGpgPublicKey).toBeNull();
-    expect(row.sachaSftpLogin).toEqual('sftp-user');
-    expect(row.sachaCommunicationMethod).toEqual('SFTP');
-  });
-
-  test('legacyDai=true force sacha à null et vide tous les champs SACHA', async () => {
-    await laboratoryRepository.updateConfig(LaboratoryFixture.id, {
-      emails: ['contact@labo.fr'],
-      emailsAnalysisResult: ['analysis@labo.fr'],
-      legacyDai: false,
-      sacha: {
-        activated: true,
-        sigle: 'LAB1',
-        communication: { method: 'SFTP', sftpLogin: 'sftp-user' }
-      }
+      sacha: { activated: true, sigle: 'LAB1', recipientEmail: 'sacha@labo.fr' }
     });
 
     await laboratoryRepository.updateConfig(LaboratoryFixture.id, {
@@ -263,11 +181,7 @@ describe('updateConfig', () => {
       .executeTakeFirstOrThrow();
     expect(row.sachaActivated).toBe(false);
     expect(row.sachaSigle).toBeNull();
-    expect(row.sachaCommunicationMethod).toBeNull();
     expect(row.sachaRecipientEmail).toBeNull();
-    expect(row.sachaGpgEmail).toBeNull();
-    expect(row.sachaGpgPublicKey).toBeNull();
-    expect(row.sachaSftpLogin).toBeNull();
   });
 });
 

@@ -1,13 +1,13 @@
-import fs, { readFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import path from 'node:path';
 import type { Readable } from 'node:stream';
-import { promisify } from 'node:util';
+import { buffer } from 'node:stream/consumers';
 import { Department } from 'maestro-shared/referential/Department';
 import type {
   AnalysisRai,
+  AnalysisRaiId,
   AnalysisRaiState
 } from 'maestro-shared/schema/AnalysisRai/AnalysisRai';
+import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import sftp from 'ssh2-sftp-client';
 import { analysisRaiRepository } from '../../repositories/analysisRaiRepository';
@@ -17,16 +17,18 @@ import { sachaConfRepository } from '../../repositories/sachaConfRepository';
 import config from '../../utils/config';
 import { documentService } from '../documentService';
 import { tchapService } from '../tchapService';
+import { unzip } from '../zipService';
 import { RaiLabError } from './sachaErrors';
+import {
+  assertSachaLaboratory,
+  depositSachaFiles,
+  queueSachaAcknowledgement
+} from './sachaOutgoingFileService';
 import { processSachaRAI } from './sachaRAI';
-import { sendSachaFile } from './sachaSender';
-import { generateXMLAcquitement } from './sachaToXML';
+import { generateXMLAcquitement, type XmlFile } from './sachaToXML';
 import type { SachaResultats } from './sachaValidator';
 import { resultatsMessageValidator, toSachaDateTime } from './sachaValidator';
 import { validateAndDecodeSachaXml } from './validateSachaXml';
-
-const readdir = promisify(fs.readdir);
-const unlink = promisify(fs.unlink);
 
 type Envelope = {
   senderSigle: string;
@@ -54,6 +56,10 @@ type RaiResponse = {
   analysisId: string | null;
   laboratoryId: string | null;
   message: string | null;
+  acknowledgement: {
+    xmlFile: XmlFile;
+    laboratory: LaboratoryWithSacha;
+  } | null;
 };
 
 const errorMessage = (e: unknown): string =>
@@ -142,6 +148,7 @@ const respond = async (
         const laboratory = await laboratoryRepository.findUnique(
           outcome.laboratoryId
         );
+        assertSachaLaboratory(laboratory);
         const xml = await generateXMLAcquitement(
           [
             {
@@ -155,19 +162,20 @@ const respond = async (
           sachaConf,
           laboratory
         );
-        await sendSachaFile(xml, dateNow, laboratory);
         return {
           state: 'PROCESSED',
           analysisId: outcome.analysisId,
           laboratoryId: outcome.laboratoryId,
-          message: null
+          message: null,
+          acknowledgement: { xmlFile: xml, laboratory }
         };
       } catch (e) {
         return {
           state: 'INTERNAL_ERROR',
           analysisId: outcome.analysisId,
           laboratoryId: outcome.laboratoryId,
-          message: errorMessage(e)
+          message: errorMessage(e),
+          acknowledgement: null
         };
       }
     }
@@ -181,10 +189,12 @@ const respond = async (
           state: 'INTERNAL_ERROR',
           analysisId: null,
           laboratoryId: laboratory?.id ?? null,
-          message: `Non-acquittement non adressable (émetteur=${envelope.senderSigle}, destinataire=${envelope.recipientSigle}) : ${outcome.motif}`
+          message: `Non-acquittement non adressable (émetteur=${envelope.senderSigle}, destinataire=${envelope.recipientSigle}) : ${outcome.motif}`,
+          acknowledgement: null
         };
       }
       try {
+        assertSachaLaboratory(laboratory);
         const dateNow = Date.now();
         const xml = await generateXMLAcquitement(
           undefined,
@@ -200,19 +210,20 @@ const respond = async (
           sachaConf,
           laboratory
         );
-        await sendSachaFile(xml, dateNow, laboratory);
         return {
           state: 'REJECTED',
           analysisId: null,
           laboratoryId: laboratory.id,
-          message: outcome.motif
+          message: outcome.motif,
+          acknowledgement: { xmlFile: xml, laboratory }
         };
       } catch (e) {
         return {
           state: 'INTERNAL_ERROR',
           analysisId: null,
           laboratoryId: laboratory.id,
-          message: errorMessage(e)
+          message: errorMessage(e),
+          acknowledgement: null
         };
       }
     }
@@ -221,7 +232,8 @@ const respond = async (
         state: 'INTERNAL_ERROR',
         analysisId: null,
         laboratoryId: outcome.laboratoryId,
-        message: outcome.message
+        message: outcome.message,
+        acknowledgement: null
       };
     default:
       return assertUnreachable(outcome);
@@ -240,7 +252,8 @@ export const processSachaContent = async (
       state: 'INTERNAL_ERROR',
       analysisId: null,
       laboratoryId: null,
-      message: decoded.message
+      message: decoded.message,
+      acknowledgement: null
     };
   }
   const outcome: RaiOutcome =
@@ -250,13 +263,32 @@ export const processSachaContent = async (
   return respond(decoded.envelope, outcome, sachaConf);
 };
 
-const streamToBuffer = async (stream: Readable): Promise<Buffer> => {
-  const chunks: Buffer[] = [];
-  return new Promise((resolve, reject) => {
-    stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
-    stream.on('end', () => resolve(Buffer.concat(chunks)));
-    stream.on('error', reject);
-  });
+const queueAcknowledgement = async (
+  raiId: AnalysisRaiId,
+  response: RaiResponse
+): Promise<RaiResponse> => {
+  if (response.acknowledgement === null) {
+    return response;
+  }
+  try {
+    await queueSachaAcknowledgement(
+      response.acknowledgement.xmlFile,
+      response.acknowledgement.laboratory,
+      raiId
+    );
+    return response;
+  } catch (e) {
+    const failed: RaiResponse = {
+      ...response,
+      state: 'INTERNAL_ERROR',
+      message: errorMessage(e)
+    };
+    await analysisRaiRepository.update(raiId, {
+      state: failed.state,
+      message: failed.message
+    });
+    return failed;
+  }
 };
 
 export const replayRai = async (
@@ -274,7 +306,7 @@ export const replayRai = async (
   if (!doc) {
     throw new Error(`Document XML ${xmlDocument.id} introuvable.`);
   }
-  const content = await streamToBuffer(doc.file as Readable);
+  const content = await buffer(doc.file as Readable);
 
   const sachaConf = await sachaConfRepository.get();
   const response = await processSachaContent(
@@ -289,44 +321,24 @@ export const replayRai = async (
     laboratoryId: response.laboratoryId,
     message: response.message
   });
-};
-
-const safeUnlink = async (filePath: string): Promise<void> => {
-  try {
-    await unlink(filePath);
-  } catch (e) {
-    console.warn(`[SFTP] Suppression locale impossible (${filePath}) :`, e);
-  }
-};
-
-const deleteSftpFile = async (
-  sftpClient: sftp,
-  dataDirectory: string,
-  xmlFileName: string
-): Promise<void> => {
-  try {
-    await sftpClient.delete(`${SFTP_RAI_DIR}/${xmlFileName}`);
-  } catch (e) {
-    console.error(`[SFTP] Échec de la suppression de ${xmlFileName} :`, e);
-  }
-  await safeUnlink(path.join(dataDirectory, xmlFileName));
+  await queueAcknowledgement(rai.id, response);
 };
 
 const notify = async (
   response: RaiResponse,
-  zipFile: string
+  fileName: string
 ): Promise<void> => {
   switch (response.state) {
     case 'PROCESSED':
       break;
     case 'REJECTED':
       await tchapService.send(
-        `[Maestro] RAI rejetée (faute labo) (file=${zipFile}, motif=${response.message})`
+        `[Maestro] RAI rejetée (faute labo) (file=${fileName}, motif=${response.message})`
       );
       break;
     case 'INTERNAL_ERROR':
       await tchapService.send(
-        `[Maestro] Erreur RAI EDI interne (file=${zipFile}) : ${response.message}`
+        `[Maestro] Erreur RAI EDI interne (file=${fileName}) : ${response.message}`
       );
       break;
     default:
@@ -334,8 +346,116 @@ const notify = async (
   }
 };
 
+const processRaiFile = async (
+  xmlFileName: string,
+  content: Buffer,
+  sachaConf: SachaConf
+): Promise<void> => {
+  const receivedAt = new Date();
+  try {
+    const xmlDocumentId = await documentService.insertDocument(
+      new File([new Uint8Array(content)], xmlFileName, {
+        type: 'application/xml'
+      }),
+      'RaiSourceFile',
+      null
+    );
+    const response = await processSachaContent(
+      content,
+      xmlDocumentId,
+      sachaConf,
+      xmlFileName
+    );
+    const raiId = await analysisRaiRepository.insert({
+      source: 'SFTP',
+      edi: true,
+      analysisId: response.analysisId,
+      laboratoryId: response.laboratoryId,
+      receivedAt,
+      state: response.state,
+      payload: null,
+      message: response.message
+    });
+    await analysisRaiRepository.linkDocuments(raiId, [xmlDocumentId]);
+    await notify(await queueAcknowledgement(raiId, response), xmlFileName);
+  } catch (e) {
+    console.error(`[SFTP] Erreur sur ${xmlFileName} :`, errorMessage(e));
+    await tchapService.send(
+      `[Maestro] Erreur RAI EDI interne (file=${xmlFileName}) : ${errorMessage(e)}`
+    );
+  }
+};
+
 const SFTP_RAI_DIR = 'uploads/Labo-Sigal-Maestro/RA01';
-export const doSftp = async () => {
+
+const readRaiArchives = async (
+  sftpClient: Pick<sftp, 'list' | 'get' | 'delete'>
+): Promise<void> => {
+  const fileNames = new Set(
+    (await sftpClient.list(SFTP_RAI_DIR)).map((file) => file.name)
+  );
+  const zipNames = [...fileNames].filter((name) => name.endsWith('.zip'));
+  if (zipNames.length === 0) {
+    return;
+  }
+
+  const sachaConf = await sachaConfRepository.get();
+
+  for (const zipName of zipNames) {
+    const triggerName = `Decl_${path.basename(zipName, '.zip')}`;
+    if (!fileNames.has(triggerName)) {
+      console.info(`[SFTP] ${zipName} sans déclencheur, ignoré`);
+      continue;
+    }
+
+    let archive: Buffer;
+    try {
+      archive = (await sftpClient.get(`${SFTP_RAI_DIR}/${zipName}`)) as Buffer;
+      await documentService.insertDocument(
+        new File([new Uint8Array(archive)], zipName, {
+          type: 'application/zip'
+        }),
+        'RaiSourceFile',
+        null
+      );
+      await sftpClient.delete(`${SFTP_RAI_DIR}/${zipName}`);
+      await sftpClient.delete(`${SFTP_RAI_DIR}/${triggerName}`);
+    } catch (e) {
+      console.error(`[SFTP] Erreur sur ${zipName} :`, errorMessage(e));
+      await tchapService.send(
+        `[Maestro] Erreur RAI EDI interne (file=${zipName}) : ${errorMessage(e)}`
+      );
+      continue;
+    }
+
+    let entries: Record<string, Uint8Array>;
+    try {
+      entries = unzip(new Uint8Array(archive));
+    } catch (e) {
+      await tchapService.send(
+        `[Maestro] Erreur RAI EDI interne (file=${zipName}) : archive illisible : ${errorMessage(e)}`
+      );
+      continue;
+    }
+
+    for (const [entryPath, content] of Object.entries(entries)) {
+      if (entryPath.endsWith('/')) {
+        continue;
+      }
+      if (!entryPath.endsWith('.xml')) {
+        console.warn(`[SFTP] ${zipName} : ${entryPath} n'est pas un XML`);
+        continue;
+      }
+      await processRaiFile(
+        path.basename(entryPath),
+        Buffer.from(content),
+        sachaConf
+      );
+    }
+  }
+};
+
+export const exchangeWithSachaSftp = async (): Promise<void> => {
   if (
     !config.sigal.sftp.privateKey ||
     !config.sigal.sftp.passphrase ||
@@ -343,7 +463,7 @@ export const doSftp = async () => {
     !config.sigal.sftp.username
   ) {
     console.warn(
-      'La configuration de SFTP est incomplète. La récupération des résultats sur le SFTP est donc désactivée.'
+      "La configuration de SFTP est incomplète. L'échange avec le SFTP SACHA est donc désactivé."
     );
     return;
   }
@@ -355,62 +475,21 @@ export const doSftp = async () => {
       host: config.sigal.sftp.host,
       username: config.sigal.sftp.username
     });
-
-    const sftpDirectory = path.join(tmpdir(), 'sftp');
-    await sftpClient.downloadDir(SFTP_RAI_DIR, sftpDirectory);
-
-    const sachaConf = await sachaConfRepository.get();
-
-    const files = await readdir(sftpDirectory);
-
-    for (const xmlFileName of files) {
-      if (!xmlFileName.endsWith('.xml')) {
-        console.warn(`Le fichier ${xmlFileName} n'est pas un XML`);
-        continue;
-      }
-
-      const receivedAt = new Date();
-      try {
-        const content = readFileSync(path.join(sftpDirectory, xmlFileName));
-        const xmlFile = new File([new Uint8Array(content)], xmlFileName, {
-          type: 'application/xml'
-        });
-        const xmlDocumentId = await documentService.insertDocument(
-          xmlFile,
-          'RaiSourceFile',
-          null
-        );
-        const response = await processSachaContent(
-          content,
-          xmlDocumentId,
-          sachaConf,
-          xmlFileName
-        );
-        const raiId = await analysisRaiRepository.insert({
-          source: 'SFTP',
-          edi: true,
-          analysisId: response.analysisId,
-          laboratoryId: response.laboratoryId,
-          receivedAt,
-          state: response.state,
-          payload: null,
-          message: response.message
-        });
-        await analysisRaiRepository.linkDocuments(raiId, [xmlDocumentId]);
-        await deleteSftpFile(sftpClient, sftpDirectory, xmlFileName);
-        await notify(response, xmlFileName);
-      } catch (e: any) {
-        console.error(`[SFTP] Erreur sur ${xmlFileName} :`, e.message);
-        await tchapService.send(
-          `[Maestro] Erreur RAI EDI interne (file=${xmlFileName}) : ${e.message}`
-        );
-      }
-    }
-  } catch (e: any) {
-    console.error(e.message);
-
+  } catch (e) {
+    console.error(errorMessage(e));
     await tchapService.send(
-      `[Maestro] Erreur RAI, impossible de se connecter au SFTP`
+      '[Maestro] Erreur EDI SACHA, impossible de se connecter au SFTP'
+    );
+    return;
+  }
+
+  try {
+    await readRaiArchives(sftpClient);
+    await depositSachaFiles(sftpClient, Date.now());
+  } catch (e) {
+    console.error(errorMessage(e));
+    await tchapService.send(
+      `[Maestro] Erreur lors de l'échange avec le SFTP SACHA : ${errorMessage(e)}`
     );
   } finally {
     await sftpClient.end();

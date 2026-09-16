@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { Pagination } from '../commons/Pagination';
-import { SachaCommunicationMethod } from '../Laboratory/SachaCommunicationMethod';
 import { AnalysisDaiState } from './AnalysisDaiState';
+import { DaiSentMethod } from './DaiSentMethod';
 
 export const FindAnalysisDaiOptions = z.object({
   states: z.array(AnalysisDaiState).nullish(),
@@ -9,7 +9,7 @@ export const FindAnalysisDaiOptions = z.object({
   sentDateTo: z.date().nullish(),
   laboratoryIds: z.array(z.guid()).nullish(),
   edi: z.boolean().nullish(),
-  sentMethods: z.array(SachaCommunicationMethod).nullish(),
+  sentMethods: z.array(DaiSentMethod).nullish(),
   sampleIds: z.array(z.guid()).nullish(),
   ...Pagination.partial().shape
 });
