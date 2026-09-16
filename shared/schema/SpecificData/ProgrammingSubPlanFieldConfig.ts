@@ -42,6 +42,7 @@ export const FieldInputType = z.enum([
   'text',
   'number',
   'textarea',
+  'date',
   'select',
   'selectWithUnknown',
   'checkbox',

@@ -1,4 +1,5 @@
 import { isNil } from 'lodash-es';
+import { formatMaestroDate, type MaestroDate } from '../../utils/date';
 import type { FieldConfig } from './ProgrammingSubPlanFieldConfig';
 import { UnknownValue, UnknownValueLabel } from './SpecificData';
 
@@ -27,6 +28,8 @@ export const getFieldValueLabel = (
         sortedOptions.find((o) => o.value === rawValue)?.label ||
         String(rawValue)
       );
+    case 'date':
+      return formatMaestroDate(rawValue as MaestroDate);
     case 'text':
     case 'number':
     case 'textarea':

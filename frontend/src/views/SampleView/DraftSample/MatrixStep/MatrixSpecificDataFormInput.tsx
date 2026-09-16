@@ -103,6 +103,36 @@ function MatrixSpecificDataFormInput<T extends ZodObject>(
               </div>
             );
 
+          case 'date':
+            return (
+              <div
+                className={clsx(
+                  cx('fr-col-12', 'fr-col-sm-6'),
+                  inputProps.classes?.container
+                )}
+              >
+                <AppTextInput
+                  type="date"
+                  defaultValue={(specificData as any)[inputKey] ?? ''}
+                  onChange={(e) =>
+                    onChange({
+                      ...specificData,
+                      [inputKey]: e.target.value || null
+                    })
+                  }
+                  inputForm={inputForm}
+                  inputKey="specificData"
+                  inputPathFromKey={[inputKey]}
+                  label={label}
+                  hintText={field.hintText ?? undefined}
+                  whenValid={whenValid}
+                  required={required}
+                  disabled={disabled}
+                  data-testid={testId}
+                />
+              </div>
+            );
+
           case 'number':
             return (
               <div className={cx('fr-col-12', 'fr-col-sm-6')}>

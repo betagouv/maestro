@@ -1,4 +1,5 @@
 import { type ZodTypeAny, z } from 'zod';
+import { maestroDateRefined } from '../../utils/date';
 import { assertUnreachable } from '../../utils/typescript';
 import type { ProgrammingSubPlanFieldConfig } from './ProgrammingSubPlanFieldConfig';
 import { UnknownValue } from './SpecificData';
@@ -31,6 +32,16 @@ export const buildSpecificDataSchema = (
           ? z.coerce.number({ error: errMsg }).int().nonnegative()
           : z.coerce.number().int().nonnegative().nullish();
         break;
+
+      case 'date': {
+        const dateSchema = z
+          .string({
+            error: (issue) => (issue.input == null ? errMsg : issue.message)
+          })
+          .pipe(maestroDateRefined);
+        fieldSchema = required ? dateSchema : dateSchema.nullish();
+        break;
+      }
 
       case 'select':
         if (optionValues.length > 0) {

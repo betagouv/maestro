@@ -107,6 +107,7 @@ export const FieldForm = ({ field, ..._rest }: Props) => {
             formData.inputType === 'text'
           )
             return c.typeDonnee === 'text';
+          if (formData.inputType === 'date') return c.typeDonnee === 'date';
           if (fieldInputTypeHasOptions(formData.inputType))
             return c.typeDonnee === 'list';
           return false;

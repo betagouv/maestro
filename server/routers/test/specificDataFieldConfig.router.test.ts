@@ -75,11 +75,12 @@ describe('SpecificDataFieldConfig router', () => {
   describe('POST /specific-data-fields', () => {
     const testRoute = '/api/specific-data-fields';
     const testKey = 'testAdminFieldPost';
+    const testDateKey = 'testAdminDateFieldPost';
 
     afterAll(async () => {
       await kysely
         .deleteFrom('specificDataFields')
-        .where('key', '=', testKey)
+        .where('key', 'in', [testKey, testDateKey])
         .execute();
     });
 
@@ -130,6 +131,23 @@ describe('SpecificDataFieldConfig router', () => {
         key: testKey,
         inputType: 'text',
         label: 'Test Field',
+        hintText: null,
+        options: []
+      });
+    });
+
+    test('should create a date field', async () => {
+      const res = await request(app)
+        .post(testRoute)
+        .use(tokenProvider(AdminFixture))
+        .send({ key: testDateKey, inputType: 'date', label: 'Test Date Field' })
+        .expect(constants.HTTP_STATUS_CREATED);
+
+      expect(res.body).toMatchObject({
+        id: expect.any(String),
+        key: testDateKey,
+        inputType: 'date',
+        label: 'Test Date Field',
         hintText: null,
         options: []
       });
