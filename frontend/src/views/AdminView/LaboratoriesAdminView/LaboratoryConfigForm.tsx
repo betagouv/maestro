@@ -9,8 +9,6 @@ import {
 } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { useContext, useMemo, useState } from 'react';
 import AppServiceErrorAlert from 'src/components/_app/AppErrorAlert/AppServiceErrorAlert';
-import AppRadioButtons from 'src/components/_app/AppRadioButtons/AppRadioButtons';
-import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppMultipleInput from 'src/components/_app/AppTextInput/AppMultipleInput';
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import AppToast from 'src/components/_app/AppToast/AppToast';
@@ -24,11 +22,7 @@ type FormState = {
   legacyDai: boolean;
   sachaActivated: boolean;
   sachaSigle: string;
-  sachaMethod: 'EMAIL' | 'SFTP' | 'NONE';
   sachaRecipientEmail: string;
-  sachaGpgEmail: string;
-  sachaGpgPublicKey: string;
-  sachaSftpLogin: string;
 };
 
 const LaboratoryConfigFormSchema = z.object({
@@ -39,35 +33,20 @@ const LaboratoryConfigFormSchema = z.object({
 });
 type LaboratoryConfigForm = z.infer<typeof LaboratoryConfigFormSchema>;
 
-const buildSacha = (state: FormState): SachaConfig | null => {
-  if (state.legacyDai) return null;
-  const communication =
-    state.sachaMethod === 'EMAIL'
-      ? {
-          method: 'EMAIL' as const,
-          recipientEmail: state.sachaRecipientEmail,
-          gpgEmail:
-            state.sachaGpgEmail.trim() === '' ? null : state.sachaGpgEmail,
-          gpgPublicKey:
-            state.sachaGpgPublicKey.trim() === ''
-              ? null
-              : state.sachaGpgPublicKey
-        }
-      : state.sachaMethod === 'SFTP'
-        ? { method: 'SFTP' as const, sftpLogin: state.sachaSftpLogin }
-        : null;
-  return {
-    activated: state.sachaActivated,
-    sigle: state.sachaSigle.trim() === '' ? null : state.sachaSigle.trim(),
-    communication
-  };
-};
-
 const buildPayload = (state: FormState): LaboratoryConfigForm => ({
   emails: state.emails,
   emailsAnalysisResult: state.emailsAnalysisResult,
   legacyDai: state.legacyDai,
-  sacha: state.legacyDai ? null : buildSacha(state)
+  sacha: state.legacyDai
+    ? null
+    : {
+        activated: state.sachaActivated,
+        sigle: state.sachaSigle.trim() === '' ? null : state.sachaSigle.trim(),
+        recipientEmail:
+          state.sachaRecipientEmail.trim() === ''
+            ? null
+            : state.sachaRecipientEmail.trim()
+      }
 });
 
 const initialState = (lab: LaboratoryWithSacha): FormState => ({
@@ -76,28 +55,7 @@ const initialState = (lab: LaboratoryWithSacha): FormState => ({
   legacyDai: lab.legacyDai,
   sachaActivated: lab.sacha?.activated ?? false,
   sachaSigle: lab.sacha?.sigle ?? '',
-  sachaMethod:
-    lab.sacha?.communication?.method === 'EMAIL'
-      ? 'EMAIL'
-      : lab.sacha?.communication?.method === 'SFTP'
-        ? 'SFTP'
-        : 'NONE',
-  sachaRecipientEmail:
-    lab.sacha?.communication?.method === 'EMAIL'
-      ? lab.sacha.communication.recipientEmail
-      : '',
-  sachaGpgEmail:
-    lab.sacha?.communication?.method === 'EMAIL'
-      ? (lab.sacha.communication.gpgEmail ?? '')
-      : '',
-  sachaGpgPublicKey:
-    lab.sacha?.communication?.method === 'EMAIL'
-      ? (lab.sacha.communication.gpgPublicKey ?? '')
-      : '',
-  sachaSftpLogin:
-    lab.sacha?.communication?.method === 'SFTP'
-      ? lab.sacha.communication.sftpLogin
-      : ''
+  sachaRecipientEmail: lab.sacha?.recipientEmail ?? ''
 });
 
 type Props = {
@@ -202,106 +160,16 @@ export const LaboratoryConfigForm = ({ laboratory }: Props) => {
           </div>
 
           <div className={cx('fr-fieldset__element')} style={{ width: '100%' }}>
-            <AppRadioButtons
-              legend="Méthode de communication"
-              options={[
-                {
-                  label: 'Aucune',
-                  nativeInputProps: {
-                    checked: state.sachaMethod === 'NONE',
-                    onChange: () => setField('sachaMethod', 'NONE')
-                  }
-                },
-                {
-                  label: 'Email',
-                  nativeInputProps: {
-                    checked: state.sachaMethod === 'EMAIL',
-                    onChange: () => setField('sachaMethod', 'EMAIL')
-                  }
-                },
-                {
-                  label: 'SFTP',
-                  nativeInputProps: {
-                    checked: state.sachaMethod === 'SFTP',
-                    onChange: () => setField('sachaMethod', 'SFTP')
-                  }
-                }
-              ]}
+            <AppTextInput
+              label="Email SACHA du laboratoire"
+              hintText="Reporté dans le Destinataire du XML SACHA"
+              value={state.sachaRecipientEmail}
+              onChange={(e) => setField('sachaRecipientEmail', e.target.value)}
               inputForm={form}
               inputKey="sacha"
-              inputPathFromKey={['communication', 'method']}
+              inputPathFromKey={['recipientEmail']}
             />
           </div>
-
-          {state.sachaMethod === 'EMAIL' && (
-            <>
-              <div
-                className={cx('fr-fieldset__element')}
-                style={{ width: '100%' }}
-              >
-                <AppTextInput
-                  label="Email destinataire"
-                  hintText="Adresse à laquelle la DAI chiffrée est envoyée"
-                  value={state.sachaRecipientEmail}
-                  onChange={(e) =>
-                    setField('sachaRecipientEmail', e.target.value)
-                  }
-                  inputForm={form}
-                  inputKey="sacha"
-                  inputPathFromKey={['communication', 'recipientEmail']}
-                  required
-                />
-              </div>
-              <div
-                className={cx('fr-fieldset__element')}
-                style={{ width: '100%' }}
-              >
-                <AppTextInput
-                  label="Email de la clé GPG"
-                  hintText="Identité de la clé publique GPG"
-                  value={state.sachaGpgEmail}
-                  onChange={(e) => setField('sachaGpgEmail', e.target.value)}
-                  inputForm={form}
-                  inputKey="sacha"
-                  inputPathFromKey={['communication', 'gpgEmail']}
-                  required={state.sachaActivated}
-                />
-              </div>
-              <div
-                className={cx('fr-fieldset__element')}
-                style={{ width: '100%' }}
-              >
-                <AppTextAreaInput
-                  label="Clé publique GPG"
-                  value={state.sachaGpgPublicKey}
-                  onChange={(e) =>
-                    setField('sachaGpgPublicKey', e.target.value)
-                  }
-                  inputForm={form}
-                  inputKey="sacha"
-                  inputPathFromKey={['communication', 'gpgPublicKey']}
-                  required={state.sachaActivated}
-                />
-              </div>
-            </>
-          )}
-
-          {state.sachaMethod === 'SFTP' && (
-            <div
-              className={cx('fr-fieldset__element')}
-              style={{ width: '100%' }}
-            >
-              <AppTextInput
-                label="Login SFTP"
-                value={state.sachaSftpLogin}
-                onChange={(e) => setField('sachaSftpLogin', e.target.value)}
-                inputForm={form}
-                inputKey="sacha"
-                inputPathFromKey={['communication', 'sftpLogin']}
-                required
-              />
-            </div>
-          )}
         </fieldset>
       )}
 

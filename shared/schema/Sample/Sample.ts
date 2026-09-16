@@ -221,8 +221,15 @@ export const SampleToCreate = z.object({
   ...SampleOwnerData.shape
 });
 
+export const numeroDAPValidator = z
+  .string()
+  .regex(/^\d{12}$/)
+  .brand('NumeroDAP');
+export type NumeroDAP = z.infer<typeof numeroDAPValidator>;
+
 export const CreatedSampleData = z.object({
   reference: z.string(),
+  dapNumber: numeroDAPValidator,
   region: Region,
   createdAt: z.coerce.date(),
   lastUpdatedAt: z.coerce.date(),

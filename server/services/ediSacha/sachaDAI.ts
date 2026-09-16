@@ -1,4 +1,5 @@
 import { uniq } from 'lodash-es';
+import type { AnalysisDai } from 'maestro-shared/schema/AnalysisDai/AnalysisDai';
 import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type { MatrixReferential } from 'maestro-shared/schema/Matrix/MatrixReferential';
 import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
@@ -22,12 +23,16 @@ import { matrixRepository } from '../../repositories/matrixRepository';
 import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
 import { sachaConfRepository } from '../../repositories/sachaConfRepository';
 import { sachaContextRepository } from '../../repositories/sachaContextRepository';
+import { sachaOutgoingFileRepository } from '../../repositories/sachaOutgoingFileRepository';
 import { specificDataFieldConfigRepository } from '../../repositories/specificDataFieldConfigRepository';
-import type { DaiSentResult } from '../daiSendingService';
+import type { DaiSentEDIResult } from '../daiSendingService';
 import { documentService } from '../documentService';
-import { referencesFromSample, SampleReference } from './sachaReferences';
+import { assertSachaLaboratory } from './sachaOutgoingFileService';
+import {
+  referencesFromSample,
+  sampleReferenceValidator
+} from './sachaReferences';
 import { SiglePlanAnalyse } from './sachaReferential';
-import { sendSachaFile } from './sachaSender';
 import { generateXML, getSenderSachaSigle, type XmlFile } from './sachaToXML';
 import { toSachaDateTime } from './sachaValidator';
 
@@ -102,7 +107,7 @@ export const generateXMLDAI = (
   sachaConf: SachaConf,
   laboratory: LaboratoryWithSacha,
   withSacha = true
-): Promise<XmlFile> => {
+): XmlFile => {
   if (!withSacha) {
     throw new Error(`Pas d'EDI Sacha pour ${subPlan.subPlanNumber}`);
   }
@@ -160,7 +165,7 @@ export const generateXMLDAI = (
       );
 
   const { numeroDAP, numeroEtiquette } = referencesFromSample(
-    SampleReference.parse(sample.reference),
+    sampleReferenceValidator.parse(sample.reference),
     sample.sentAt ? sample.sentAt.getTime() : dateNow,
     sampleItem.itemNumber
   );
@@ -180,7 +185,7 @@ export const generateXMLDAI = (
         DialogueActeurType: {
           DialogueActeur: {
             SigleIdentifiant: 'DEPADM',
-            Identifiant: getSenderSachaSigle(sample.department, false),
+            Identifiant: getSenderSachaSigle(sample.department),
             Nom: sample.sampler.name ?? ''
           }
         },
@@ -275,8 +280,11 @@ export const sendDAIWithEDI = async (
   sample: SampleChecked,
   subPlan: Pick<ProgrammingSubPlan, 'subPlanNumber' | 'sachaContextSigle'>,
   sampleItem: SampleItem,
-  laboratory: LaboratoryWithSacha
-): Promise<DaiSentResult> => {
+  laboratory: LaboratoryWithSacha,
+  dai: Pick<AnalysisDai, 'id' | 'analysisId'>
+): Promise<DaiSentEDIResult> => {
+  assertSachaLaboratory(laboratory);
+
   const [
     matrixReferential,
     sachaCommemoratifRecord,
@@ -294,7 +302,7 @@ export const sendDAIWithEDI = async (
   ]);
 
   const dateNow = Date.now();
-  const xmlFile = await generateXMLDAI(
+  const xmlFile = generateXMLDAI(
     matrixReferential,
     sample,
     subPlan,
@@ -316,10 +324,20 @@ export const sendDAIWithEDI = async (
     (documentId) => Promise.resolve(documentId)
   );
 
-  const sentMethod = await sendSachaFile(xmlFile, dateNow, laboratory);
-
+  const sachaFile: DaiSentEDIResult['sachaFile'] = {
+    fileName: xmlFile.fileName,
+    documentId: xmlDocumentId,
+    laboratoryId: laboratory.id
+  };
+  await sachaOutgoingFileRepository.insert({
+    ...sachaFile,
+    fileType: 'DA01',
+    analysisDaiId: dai.id
+  });
   return {
-    sentMethod,
-    documentIds: [xmlDocumentId]
+    edi: true,
+    sentMethod: 'SFTP',
+    documentIds: [xmlDocumentId],
+    sachaFile
   };
 };

@@ -9,8 +9,8 @@ group Via email
   Maestro -> Laboratoires : DAI (email)
 end
 
-group Via SFTP
-  Maestro -> SFTP : DAI (SFTP)
+group Via SFTP, toutes les heures
+  Maestro -> SFTP : zip DA01 (un dossier par labo) + Decl_
   Laboratoires -> SFTP : récupération DAI
 end
 

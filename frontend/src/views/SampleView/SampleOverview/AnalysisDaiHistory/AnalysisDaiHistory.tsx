@@ -22,6 +22,7 @@ import {
   documentsModal
 } from 'src/components/DocumentsModal/DocumentsModal';
 import { assert, type Equals } from 'tsafe';
+import { AnalysisDaiStateLabels } from './analysisDaiStateLabels';
 import { MarkErrorModal, markErrorModal } from './MarkErrorModal';
 import { RetryModal, retryModal } from './RetryModal';
 
@@ -30,13 +31,11 @@ type Props = {
   showSampleReference?: boolean;
 };
 
-const daiStateConfig: Record<
-  AnalysisDaiState,
-  { severity: BadgeProps['severity']; label: string }
-> = {
-  SENT: { severity: 'success', label: 'Envoyée' },
-  ERROR: { severity: 'error', label: 'Erreur' },
-  PENDING: { severity: 'info', label: 'En attente' }
+const daiStateSeverity: Record<AnalysisDaiState, BadgeProps['severity']> = {
+  SENT: 'success',
+  ERROR: 'error',
+  PENDING: 'info',
+  QUEUED: 'new'
 };
 
 const DaiStateBadge = ({
@@ -46,10 +45,9 @@ const DaiStateBadge = ({
   state: AnalysisDaiState;
   message?: string | null;
 }) => {
-  const { severity, label } = daiStateConfig[state];
   const badge = (
-    <Badge noIcon severity={severity}>
-      {label}
+    <Badge noIcon severity={daiStateSeverity[state]}>
+      {AnalysisDaiStateLabels[state]}
     </Badge>
   );
   if (state === 'ERROR' && message) {

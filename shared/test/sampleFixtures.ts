@@ -13,6 +13,7 @@ import {
 import { ProgrammingPlanContextList } from '../schema/ProgrammingPlan/Context';
 import {
   type CreatedSampleData,
+  numeroDAPValidator,
   type PartialSample,
   SampleChecked,
   SampleContextData
@@ -76,6 +77,10 @@ export const genCreatedSampleData = (
   reference: `GES-${oneOf(Regions['44'].departments)}-24-${fakerFR.number.int(9999)}-${oneOf(LegalContextList)}`,
   createdAt: new Date(),
   lastUpdatedAt: new Date(),
+  dapNumber: numeroDAPValidator.parse(
+    fakerFR.number.int(1_000_000_000_000).toString().padStart(12, '0')
+  ),
+
   ...data
 });
 export const genCreatedPartialSample = (
