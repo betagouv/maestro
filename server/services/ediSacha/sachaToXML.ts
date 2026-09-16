@@ -86,9 +86,7 @@ export const generateXML = async <T extends SachaFileType>(
     format: true
   });
 
-  const sacha = laboratory.sacha;
-  const communication = sacha?.communication;
-  const sigle = sacha?.sigle ?? '';
+  const sigle = laboratory.sacha?.sigle ?? '';
 
   const conf = fileTypeConf[fileType];
 
@@ -112,8 +110,8 @@ export const generateXML = async <T extends SachaFileType>(
     })
     .encode({
       MessageParametres: {
-        CodeScenario: 'E.D.I. SIGAL/LABOS',
-        VersionScenario: '1.0.1',
+        CodeScenario: 'MAESTRO',
+        VersionScenario: '1.0.0',
         TypeFichier: fileType,
         NomFichier: fileName,
         VersionReferenceStandardisees: sachaConf.versionReferenceStandardisees,
@@ -130,8 +128,7 @@ export const generateXML = async <T extends SachaFileType>(
       Destinataire: {
         Sigle: sigle,
         LibellePartenaire: laboratory.name,
-        EmailPartenaire:
-          communication?.method === 'EMAIL' ? communication.recipientEmail : ''
+        EmailPartenaire: laboratory.sacha?.recipientEmail ?? ''
       },
       ...content
     });

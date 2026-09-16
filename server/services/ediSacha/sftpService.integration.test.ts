@@ -61,9 +61,7 @@ describe('sftpService pipeline (decode, process, respond)', () => {
       .updateTable('laboratories')
       .set({
         sachaActivated: true,
-        sachaSigle: LAB_SIGLE,
-        sachaCommunicationMethod: 'EMAIL',
-        sachaRecipientEmail: 'labo@test.fr'
+        sachaSigle: LAB_SIGLE
       })
       .where('id', '=', LaboratoryFixture.id)
       .execute();

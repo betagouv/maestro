@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { DocumentKind } from '../Document/DocumentKind';
 import { Laboratory } from '../Laboratory/Laboratory';
-import { SachaCommunicationMethod } from '../Laboratory/SachaCommunicationMethod';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 import { AnalysisDaiId } from './AnalysisDai';
+import { DaiSentMethod } from './DaiSentMethod';
 
 const analysisDaiAttemptBase = {
   id: AnalysisDaiId,
@@ -20,14 +20,14 @@ export const AnalysisDaiAttempt = z.discriminatedUnion('state', [
     ...analysisDaiAttemptBase,
     state: z.literal('ERROR'),
     message: z.string(),
-    sentMethod: SachaCommunicationMethod.nullable(),
+    sentMethod: DaiSentMethod.nullable(),
     edi: z.boolean().nullable(),
     sentAt: z.coerce.date()
   }),
   z.object({
     ...analysisDaiAttemptBase,
     state: z.literal('SENT'),
-    sentMethod: SachaCommunicationMethod,
+    sentMethod: DaiSentMethod,
     edi: z.boolean(),
     sentAt: z.coerce.date()
   })
