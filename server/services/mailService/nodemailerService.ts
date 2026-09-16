@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer, { type SentMessageInfo, type Transporter } from 'nodemailer';
 import config from '../../utils/config';
 import type { MailService, SendOptions, TemplateName } from './mailService';
 
@@ -58,7 +58,7 @@ interface NodeMailService extends MailService {
   sendReply(options: ReplyOptions): Promise<void>;
 }
 class NodemailerService implements NodeMailService {
-  private transport: nodemailer.Transporter<nodemailer.SentMessageInfo>;
+  private transport: Transporter<SentMessageInfo>;
 
   constructor() {
     this.transport = nodemailer.createTransport({
@@ -79,7 +79,7 @@ class NodemailerService implements NodeMailService {
   async deleteContact(): Promise<void> {}
 
   async send<T extends TemplateName>(options: SendOptions<T>): Promise<void> {
-    return this.transport.sendMail({
+    await this.transport.sendMail({
       from: config.mail.from,
       to: options.recipients.join(','),
       subject: TemplateData[options.templateName].subject,
@@ -93,7 +93,7 @@ class NodemailerService implements NodeMailService {
   }
 
   async sendReply(option: ReplyOptions): Promise<void> {
-    return this.transport.sendMail({
+    await this.transport.sendMail({
       from: config.mail.from,
       to: option.to,
       bcc: option.bcc,
@@ -106,7 +106,7 @@ class NodemailerService implements NodeMailService {
   }
 
   async sendRaw(option: RawOptions): Promise<void> {
-    return this.transport.sendMail({
+    await this.transport.sendMail({
       from: option.from,
       to: option.to,
       subject: option.subject,
