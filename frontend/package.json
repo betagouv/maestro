@@ -16,7 +16,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
-  "license": "AGPL-3.0",
+  "license": "MIT",
   "browserslist": {
     "production": [
       ">0.2%",
