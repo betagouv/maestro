@@ -1,6 +1,7 @@
 import CallOut from '@codegouvfr/react-dsfr/CallOut';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import type { AnalysisDaiAttempt } from 'maestro-shared/schema/AnalysisDai/AnalysisDaiAnalysisGroup';
+import { AnalysisDaiStateLabels } from './analysisDaiStateLabels';
 
 export const retryModal = createModal({
   id: 'analysis-dai-retry-modal',
@@ -31,7 +32,10 @@ export const RetryModal = ({ selectedDai, onRetry }: Props) => (
       }
     ]}
   >
-    <p>Une nouvelle DAI en état "En attente" sera créée pour cette analyse.</p>
+    <p>
+      Une nouvelle DAI en état "{AnalysisDaiStateLabels.PENDING}" sera créée
+      pour cette analyse.
+    </p>
     {selectedDai?.state === 'ERROR' && selectedDai.message && (
       <CallOut title="Message d'erreur">{selectedDai.message}</CallOut>
     )}

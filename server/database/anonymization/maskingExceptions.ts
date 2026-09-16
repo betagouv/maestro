@@ -124,6 +124,7 @@ export const maskingExceptions: Record<string, string[]> = {
     'version_reference_prescripteur',
     'version_reference_standardisees'
   ],
+  sacha_outgoing_file: ['file_name', 'file_type', 'zip_name'],
   sacha_residue_mappings: ['label', 'ssd2_id'],
   sacha_sender: ['sacha_sigle'],
   sample_documents: ['document_id', 'sample_id'],
