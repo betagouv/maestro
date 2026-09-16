@@ -7,7 +7,6 @@ import {
   LaboratoryWithSacha,
   type SachaConfig
 } from 'maestro-shared/schema/Laboratory/Laboratory';
-import type { SachaCommunicationMethod } from 'maestro-shared/schema/Laboratory/SachaCommunicationMethod';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
@@ -17,26 +16,6 @@ const laboratoryTable = 'laboratories';
 
 export const Laboratories = () => db<Laboratory>(laboratoryTable);
 
-const buildCommunication = (
-  row: KyselyLaboratories
-): SachaConfig['communication'] => {
-  if (row.sachaCommunicationMethod === null) return null;
-  const method: SachaCommunicationMethod = row.sachaCommunicationMethod;
-  switch (method) {
-    case 'EMAIL':
-      return {
-        method: 'EMAIL',
-        recipientEmail: row.sachaRecipientEmail!,
-        gpgEmail: row.sachaGpgEmail,
-        gpgPublicKey: row.sachaGpgPublicKey
-      };
-    case 'SFTP':
-      return { method: 'SFTP', sftpLogin: row.sachaSftpLogin! };
-    default:
-      return assertUnreachable(method);
-  }
-};
-
 const mapRowToLaboratoryWithSacha = (
   row: KyselyLaboratories & { emails: (string | null)[] | null }
 ): LaboratoryWithSacha => {
@@ -45,7 +24,7 @@ const mapRowToLaboratoryWithSacha = (
     : {
         activated: row.sachaActivated,
         sigle: row.sachaSigle,
-        communication: buildCommunication(row)
+        recipientEmail: row.sachaRecipientEmail
       };
   return LaboratoryWithSacha.parse({
     ...row,
@@ -232,57 +211,14 @@ const findMany = async (
   return laboratories.map((l) => Laboratory.parse(omitBy(l, isNil)));
 };
 
-const buildSachaFields = (sacha: SachaConfig | null) => {
-  if (sacha === null) {
-    return {
-      sachaActivated: false,
-      sachaSigle: null,
-      sachaCommunicationMethod: null,
-      sachaRecipientEmail: null,
-      sachaGpgEmail: null,
-      sachaGpgPublicKey: null,
-      sachaSftpLogin: null
-    } as const;
-  }
-
-  const communication = sacha.communication;
-  if (communication === null) {
-    return {
-      sachaActivated: sacha.activated,
-      sachaSigle: sacha.sigle,
-      sachaCommunicationMethod: null,
-      sachaRecipientEmail: null,
-      sachaGpgEmail: null,
-      sachaGpgPublicKey: null,
-      sachaSftpLogin: null
-    } as const;
-  }
-
-  switch (communication.method) {
-    case 'EMAIL':
-      return {
+const buildSachaFields = (sacha: SachaConfig | null) =>
+  sacha === null
+    ? { sachaActivated: false, sachaSigle: null, sachaRecipientEmail: null }
+    : {
         sachaActivated: sacha.activated,
         sachaSigle: sacha.sigle,
-        sachaCommunicationMethod: 'EMAIL' as const,
-        sachaRecipientEmail: communication.recipientEmail,
-        sachaGpgEmail: communication.gpgEmail ?? null,
-        sachaGpgPublicKey: communication.gpgPublicKey ?? null,
-        sachaSftpLogin: null
+        sachaRecipientEmail: sacha.recipientEmail
       };
-    case 'SFTP':
-      return {
-        sachaActivated: sacha.activated,
-        sachaSigle: sacha.sigle,
-        sachaCommunicationMethod: 'SFTP' as const,
-        sachaRecipientEmail: null,
-        sachaGpgEmail: null,
-        sachaGpgPublicKey: null,
-        sachaSftpLogin: communication.sftpLogin
-      };
-    default:
-      return assertUnreachable(communication);
-  }
-};
 
 const updateConfig = async (
   id: string,

@@ -25,12 +25,7 @@ const laboratory: LaboratoryWithSacha = {
   sacha: {
     activated: true,
     sigle: 'LDA72',
-    communication: {
-      method: 'EMAIL',
-      recipientEmail: 'fake@email.fr',
-      gpgEmail: 'fake-gpg@email.fr',
-      gpgPublicKey: 'gpg'
-    }
+    recipientEmail: 'fake@email.fr'
   }
 };
 
@@ -219,8 +214,8 @@ test(`génère un XML de DAI`, async () => {
       "content": "<?xml version="1.0" encoding="UTF-8"?>
     <DemandesAnalyses schemavalidation="DemandesAnalyses.xsd">
       <MessageParametres>
-        <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
-        <VersionScenario>1.0.1</VersionScenario>
+        <CodeScenario>MAESTRO</CodeScenario>
+        <VersionScenario>1.0.0</VersionScenario>
         <TypeFichier>DA01</TypeFichier>
         <NomFichier>DA01MDDSV72LDA72251216100736798</NomFichier>
         <VersionReferenceStandardisees>v12341234</VersionReferenceStandardisees>
