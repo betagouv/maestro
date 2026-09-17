@@ -69,6 +69,27 @@ const useProgressiveRowCount = (total: number) => {
   return renderedCount;
 };
 
+const mergeOwnLocalPrescriptions = (
+  merged: LocalPrescription,
+  localPrescription: LocalPrescription
+): LocalPrescription => {
+  const changedAts = [merged.changedAt, localPrescription.changedAt].filter(
+    (changedAt): changedAt is Date => !isNil(changedAt)
+  );
+  return {
+    ...merged,
+    companySiret: undefined,
+    sampleCount: merged.sampleCount + localPrescription.sampleCount,
+    previousSampleCount:
+      isNil(merged.previousSampleCount) &&
+      isNil(localPrescription.previousSampleCount)
+        ? merged.previousSampleCount
+        : (merged.previousSampleCount ?? 0) +
+          (localPrescription.previousSampleCount ?? 0),
+    changedAt: changedAts.toSorted((a, b) => b.getTime() - a.getTime())[0]
+  };
+};
+
 const EMPTY_COMPANIES: Company[] = [];
 const EMPTY_DEPARTMENTS: Department[] = [];
 const EMPTY_LOCAL_PRESCRIPTIONS: LocalPrescription[] = [];
@@ -346,12 +367,16 @@ const ProgrammingPrescriptionTable = ({
       return index;
     }
     for (const localPrescription of regionalPrescriptions) {
-      if (
-        localPrescription.region === region &&
-        !index.has(localPrescription.prescriptionId)
-      ) {
-        index.set(localPrescription.prescriptionId, localPrescription);
+      if (localPrescription.region !== region) {
+        continue;
       }
+      const merged = index.get(localPrescription.prescriptionId);
+      index.set(
+        localPrescription.prescriptionId,
+        merged
+          ? mergeOwnLocalPrescriptions(merged, localPrescription)
+          : localPrescription
+      );
     }
     return index;
   }, [regionalPrescriptions, region]);
