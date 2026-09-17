@@ -14,6 +14,7 @@ import {
   hasSentOnward,
   type ProgrammingPlanEchelon
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
+import type { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import {
   inheritsUnmanagedSetting,
@@ -135,16 +136,22 @@ const submittedToDepartmentsParams = (year: number) => ({
 Si la campagne sur ces sous-plans a déjà été lancée par la coordination nationale, ils seront directement visibles par eux.`
 });
 
-const planLinesOf = async (
-  plans: ProgrammingPlanChecked[]
-): Promise<string> => {
-  const domains = await programmingPlanDomainRepository.findMany();
-  return plans
+const planLinesFor = (
+  plans: ProgrammingPlanChecked[],
+  domains: ProgrammingPlanDomain[]
+): string =>
+  plans
     .map((plan) => {
       const domain = domains.find((_) => _.id === plan.domainId);
       return `- ${domain ? `${domain.label} / ${plan.title}` : plan.title}`;
     })
     .join('\n');
+
+const planLinesOf = async (
+  plans: ProgrammingPlanChecked[]
+): Promise<string> => {
+  const domains = await programmingPlanDomainRepository.findMany();
+  return planLinesFor(plans, domains);
 };
 
 const samplerLaunchMessage = (year: number, planLines: string) =>
@@ -161,14 +168,10 @@ const samplerLaunchParams = (year: number, planLines: string) => ({
 
 const notifyCampaignLaunch = async (plans: ProgrammingPlanChecked[]) => {
   const domains = await programmingPlanDomainRepository.findMany();
-  const planLabel = (plan: ProgrammingPlanChecked) => {
-    const domain = domains.find((_) => _.id === plan.domainId);
-    return domain ? `${domain.label} / ${plan.title}` : plan.title;
-  };
 
   const year = plans[0].year;
   const stages = stagesFromSubPlans(plans.flatMap((plan) => plan.subPlans));
-  const planLines = plans.map((plan) => `- ${planLabel(plan)}`).join('\n');
+  const planLines = planLinesFor(plans, domains);
   const planIds = plans.map((plan) => plan.id).join(',');
   const samplersCanSampleNotice = `Les préleveurs et préleveuses peuvent dès à présent saisir des prélèvements sur ces plans si l’attribution des laboratoires et la répartition par abattoir pour les plans à l’abattoir, ont été faites.`;
   const coordinatorMessage = `Lancement de la campagne ${year} sur un ou plusieurs plans :
@@ -200,10 +203,7 @@ ${samplersCanSampleNotice}`;
     coordinators,
     {
       object: `Campagne PSPC ${year} / Lancement de la campagne sur un ou plusieurs plans`,
-      content: `La coordination nationale vient de lancer la campagne PSPC ${year} sur les plans suivants :
-${planLines}
-
-${samplersCanSampleNotice}`
+      content: coordinatorMessage
     },
     { message: coordinatorMessage }
   );
@@ -253,9 +253,7 @@ ${samplersCanSampleNotice}`
       continue;
     }
 
-    const scopePlanLines = scope.plans
-      .map((plan) => `- ${planLabel(plan)}`)
-      .join('\n');
+    const scopePlanLines = planLinesFor(scope.plans, domains);
 
     await notificationService.sendNotification(
       {
