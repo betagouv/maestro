@@ -6,6 +6,7 @@ export const FieldInputTypeLabels: Record<FieldInputType, string> = {
   text: 'Texte court',
   number: 'Nombre',
   textarea: 'Texte long',
+  date: 'Date',
   select: 'Liste',
   selectWithUnknown: `Liste avec "${UnknownValueLabel}"`,
   checkbox: 'Case à cocher',
