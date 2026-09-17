@@ -10,12 +10,20 @@ import {
   LocalPrescriptionComment,
   LocalPrescriptionCommentToCreate
 } from '../schema/LocalPrescription/LocalPrescriptionComment';
-import { FindPrescriptionOptions } from '../schema/Prescription/FindPrescriptionOptions';
+import {
+  ExportPrescriptionOptions,
+  FindPrescriptionOptions
+} from '../schema/Prescription/FindPrescriptionOptions';
 import {
   Prescription,
   PrescriptionToCreate,
   PrescriptionUpdate
 } from '../schema/Prescription/Prescription';
+import { PrescriptionCounts } from '../schema/Prescription/PrescriptionCounts';
+import {
+  PrescriptionImportFile,
+  PrescriptionImportResult
+} from '../schema/Prescription/PrescriptionImport';
 import { PrescriptionSubstance } from '../schema/Prescription/PrescriptionSubstance';
 import type { SubRoutes } from './routes';
 
@@ -33,15 +41,28 @@ export const prescriptionsRoutes = {
       response: Prescription
     }
   },
+  '/prescriptions/counts': {
+    params: undefined,
+    get: {
+      query: FindPrescriptionOptions.omit({ includes: true }),
+      permissions: ['readPrescriptions'],
+      response: PrescriptionCounts
+    }
+  },
   '/prescriptions/export': {
     params: undefined,
     get: {
-      query: z.object({
-        ...FindPrescriptionOptions.omit({ includes: true }).shape,
-        programmingPlanId: z.guid()
-      }),
+      query: ExportPrescriptionOptions,
       permissions: ['readPrescriptions'],
       response: z.custom<Buffer>()
+    }
+  },
+  '/prescriptions/import': {
+    params: undefined,
+    post: {
+      body: PrescriptionImportFile,
+      permissions: ['updatePrescription'],
+      response: PrescriptionImportResult
     }
   },
   '/prescriptions/regions': {
@@ -50,6 +71,18 @@ export const prescriptionsRoutes = {
       query: FindLocalPrescriptionOptions,
       permissions: ['readPrescriptions'],
       response: z.array(LocalPrescription)
+    }
+  },
+  '/prescriptions/regions/changes-viewed': {
+    params: undefined,
+    put: {
+      body: z.object({
+        prescriptionIds: z.array(z.guid()),
+        region: Region.nullish(),
+        department: Department.nullish()
+      }),
+      permissions: ['readPrescriptions'],
+      response: z.undefined()
     }
   },
   '/prescriptions/:prescriptionId/regions/:region/comments': {

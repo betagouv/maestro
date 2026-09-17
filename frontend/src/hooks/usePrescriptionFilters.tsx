@@ -24,7 +24,12 @@ export const usePrescriptionFilters = (
               !filters.programmingPlanIds?.length ||
               filters.programmingPlanIds.includes(plan.id)
           )
-          .flatMap((plan) => plan.subPlans.map((sp) => sp.id))
+          .flatMap((plan) => plan.subPlans)
+          .filter(
+            (subPlan) =>
+              !filters.stage || (subPlan.stages ?? []).includes(filters.stage)
+          )
+          .map((subPlan) => subPlan.id)
       ),
     [programmingPlanOptions]
   );
@@ -85,10 +90,9 @@ export const usePrescriptionFilters = (
         programmingPlanIds,
         programmingSubPlanIds
       });
-      const contexts =
-        aggregatedFilters?.contexts?.filter((context) =>
-          availableContexts.some((contextOption) => context === contextOption)
-        ) ?? getUniqOrUndefined(availableContexts);
+      const contexts = aggregatedFilters?.contexts?.filter((context) =>
+        availableContexts.some((contextOption) => context === contextOption)
+      );
 
       return {
         ...aggregatedFilters,

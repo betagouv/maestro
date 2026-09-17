@@ -107,7 +107,73 @@ const programmingPlanApi = api.injectEndpoints({
       {
         invalidatesTags: (_result, _error, { programmingPlanId }) => [
           { type: 'ProgrammingPlan', id: programmingPlanId },
-          { type: 'ProgrammingPlan', id: 'LIST' }
+          { type: 'ProgrammingPlan', id: 'LIST' },
+          { type: 'LocalPrescription', id: 'LIST' },
+          { type: 'Prescription', id: 'LIST' }
+        ]
+      }
+    ),
+    sendProgrammingPlansToRegions: buildTypedMutation(
+      builder,
+      '/programming-plans/send-to-regions',
+      'post',
+      {
+        invalidatesTags: (result) => [
+          ...(result ?? []).map(({ id }) => ({
+            type: 'ProgrammingPlan' as const,
+            id
+          })),
+          { type: 'ProgrammingPlan', id: 'LIST' },
+          { type: 'LocalPrescription', id: 'LIST' },
+          { type: 'Prescription', id: 'LIST' }
+        ]
+      }
+    ),
+    launchProgrammingPlansCampaign: buildTypedMutation(
+      builder,
+      '/programming-plans/launch-campaign',
+      'post',
+      {
+        invalidatesTags: (result) => [
+          ...(result ?? []).map(({ id }) => ({
+            type: 'ProgrammingPlan' as const,
+            id
+          })),
+          { type: 'ProgrammingPlan', id: 'LIST' },
+          { type: 'LocalPrescription', id: 'LIST' },
+          { type: 'Prescription', id: 'LIST' }
+        ]
+      }
+    ),
+    sendProgrammingPlansToDepartments: buildTypedMutation(
+      builder,
+      '/programming-plans/send-to-departments',
+      'post',
+      {
+        invalidatesTags: (result) => [
+          ...(result ?? []).map(({ id }) => ({
+            type: 'ProgrammingPlan' as const,
+            id
+          })),
+          { type: 'ProgrammingPlan', id: 'LIST' },
+          { type: 'LocalPrescription', id: 'LIST' },
+          { type: 'Prescription', id: 'LIST' }
+        ]
+      }
+    ),
+    sendProgrammingPlansToSamplers: buildTypedMutation(
+      builder,
+      '/programming-plans/send-to-samplers',
+      'post',
+      {
+        invalidatesTags: (result) => [
+          ...(result ?? []).map(({ id }) => ({
+            type: 'ProgrammingPlan' as const,
+            id
+          })),
+          { type: 'ProgrammingPlan', id: 'LIST' },
+          { type: 'LocalPrescription', id: 'LIST' },
+          { type: 'Prescription', id: 'LIST' }
         ]
       }
     )
@@ -124,5 +190,9 @@ export const {
   useFindProgrammingSubPlanSettingsQuery,
   useUpdateProgrammingSubPlanSettingsMutation,
   useDeleteProgrammingPlanMutation,
-  useDeleteProgrammingSubPlanMutation
+  useDeleteProgrammingSubPlanMutation,
+  useSendProgrammingPlansToRegionsMutation,
+  useLaunchProgrammingPlansCampaignMutation,
+  useSendProgrammingPlansToDepartmentsMutation,
+  useSendProgrammingPlansToSamplersMutation
 } = programmingPlanApi;

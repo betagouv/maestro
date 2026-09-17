@@ -1,61 +1,99 @@
-import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
-import { groupBy, sumBy } from 'lodash-es';
-import { RegionList, Regions } from 'maestro-shared/referential/Region';
+import { groupBy, isNil, sumBy } from 'lodash-es';
+import type { Department } from 'maestro-shared/referential/Department';
+import {
+  DepartmentLabels,
+  DepartmentSort
+} from 'maestro-shared/referential/Department';
+import {
+  type Region,
+  RegionList,
+  Regions
+} from 'maestro-shared/referential/Region';
+import type { Company } from 'maestro-shared/schema/Company/Company';
 import {
   type LocalPrescription,
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
-import {
-  type LocalPrescriptionKey,
-  type LocalPrescriptionKeyString,
-  toLocalPrescriptionKeyString
+import type {
+  LocalPrescriptionKey,
+  LocalPrescriptionKeyString
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
-import {
-  getPrescriptionTitle,
-  hasPrescriptionPermission,
-  type Prescription
-} from 'maestro-shared/schema/Prescription/Prescription';
-import {
-  ContextLabels,
-  type ProgrammingPlanContext
-} from 'maestro-shared/schema/ProgrammingPlan/Context';
+import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import {
   Fragment,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useRef,
   useState
 } from 'react';
-import DistributionCountCell from 'src/components/DistributionCountCell/DistributionCountCell';
-import PrescriptionDistributionBadge from 'src/components/Prescription/PrescriptionDistributionBadge/PrescriptionDistributionBadge';
+import SelectionCheckbox from 'src/components/SelectionCheckbox/SelectionCheckbox';
 import TableHeaderCell from 'src/components/TableHeaderCell/TableHeaderCell';
-import { z } from 'zod';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../services/apiClient';
 import './ProgrammingPrescriptionTable.scss';
-import PrescriptionSubstances from '../../../components/Prescription/PrescriptionSubstances/PrescriptionSubstances';
+import ProgrammingPrescriptionRow from './ProgrammingPrescriptionRow';
+import {
+  Colgroup,
+  type RowWrapperKey,
+  toPlanHeaderRowKey,
+  toPrescriptionRowKey
+} from './ProgrammingPrescriptionTableParts';
 
-const PlanHeaderRowKey = z.string().brand('PlanHeaderRowKey');
-type PlanHeaderRowKey = z.infer<typeof PlanHeaderRowKey>;
+const INITIAL_ROW_COUNT = 60;
+const ROW_CHUNK_SIZE = 120;
 
-const PrescriptionRowKey = z.string().brand('PrescriptionRowKey');
-type PrescriptionRowKey = z.infer<typeof PrescriptionRowKey>;
+const useProgressiveRowCount = (total: number) => {
+  const [renderedCount, setRenderedCount] = useState(INITIAL_ROW_COUNT);
 
-type RowWrapperKey = PlanHeaderRowKey | PrescriptionRowKey;
+  useEffect(() => {
+    setRenderedCount(INITIAL_ROW_COUNT);
+  }, [total]);
 
-const toPlanHeaderRowKey = (
-  planId: string,
-  context: ProgrammingPlanContext
-): PlanHeaderRowKey =>
-  PlanHeaderRowKey.parse(`plan-header-${planId}-${context}`);
+  useEffect(() => {
+    if (renderedCount >= total) {
+      return;
+    }
+    const handle = window.requestIdleCallback(() =>
+      setRenderedCount((count) => Math.min(count + ROW_CHUNK_SIZE, total))
+    );
+    return () => window.cancelIdleCallback(handle);
+  }, [renderedCount, total]);
 
-const toPrescriptionRowKey = (id: string): PrescriptionRowKey =>
-  PrescriptionRowKey.parse(id);
+  return renderedCount;
+};
+
+const mergeOwnLocalPrescriptions = (
+  merged: LocalPrescription,
+  localPrescription: LocalPrescription
+): LocalPrescription => {
+  const changedAts = [merged.changedAt, localPrescription.changedAt].filter(
+    (changedAt): changedAt is Date => !isNil(changedAt)
+  );
+  return {
+    ...merged,
+    companySiret: undefined,
+    sampleCount: merged.sampleCount + localPrescription.sampleCount,
+    previousSampleCount:
+      isNil(merged.previousSampleCount) &&
+      isNil(localPrescription.previousSampleCount)
+        ? merged.previousSampleCount
+        : (merged.previousSampleCount ?? 0) +
+          (localPrescription.previousSampleCount ?? 0),
+    changedAt: changedAts.toSorted((a, b) => b.getTime() - a.getTime())[0]
+  };
+};
+
+const EMPTY_COMPANIES: Company[] = [];
+const EMPTY_DEPARTMENTS: Department[] = [];
+const EMPTY_LOCAL_PRESCRIPTIONS: LocalPrescription[] = [];
+const EMPTY_PRESCRIPTIONS: Prescription[] = [];
 
 interface Props {
   programmingPlans: ProgrammingPlanChecked[];
@@ -71,63 +109,184 @@ interface Props {
   ) => void;
   pendingPrescriptionIds?: Set<string>;
   pendingLocalKeys?: Set<LocalPrescriptionKeyString>;
+  onChangeLocalPrescriptionLaboratories?: (
+    key: LocalPrescriptionKey,
+    substanceKindsLaboratories: SubstanceKindLaboratory[]
+  ) => void;
+  pendingLaboratoryKeys?: Set<LocalPrescriptionKeyString>;
+  region?: Region;
+  department?: Department;
+  companies?: Company[];
+  subLocalPrescriptions?: LocalPrescription[];
+  selectedPrescriptions?: Prescription[];
+  onTogglePrescriptionSelection?: (prescription: Prescription) => void;
+  onOpenComments?: (prescription: Prescription) => void;
+  topOffset?: number;
 }
-
-const Colgroup = () => (
-  <colgroup>
-    <col className="col-n" />
-    <col className="col-matrice" />
-    <col className="col-analyte" />
-    <col className="col-prelevements" />
-    {RegionList.map((region) => (
-      <col key={`col-${region}`} className="col-region" />
-    ))}
-  </colgroup>
-);
 
 const ProgrammingPrescriptionTable = ({
   programmingPlans,
-  prescriptions,
+  prescriptions: allPrescriptions,
   regionalPrescriptions,
   onChangeLocalPrescriptionCount,
   onChangePrescriptionSampleCount,
   pendingPrescriptionIds,
-  pendingLocalKeys
+  pendingLocalKeys,
+  onChangeLocalPrescriptionLaboratories,
+  pendingLaboratoryKeys,
+  region,
+  department,
+  companies = EMPTY_COMPANIES,
+  subLocalPrescriptions = EMPTY_LOCAL_PRESCRIPTIONS,
+  selectedPrescriptions = EMPTY_PRESCRIPTIONS,
+  onTogglePrescriptionSelection,
+  onOpenComments,
+  topOffset = 0
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
-  const { hasUserLocalPrescriptionPermission, userRole } = useAuthentication();
+  const { userRole } = useAuthentication();
   const { data: domains } = apiClient.useFindProgrammingPlanDomainsQuery();
   const domainLabels = useMemo(
     () =>
       Object.fromEntries((domains ?? []).map(({ id, label }) => [id, label])),
     [domains]
   );
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const showCheckboxColumn = !!onTogglePrescriptionSelection;
+  const isSamplerView = userRole === 'Sampler';
+
+  const selectedPrescriptionIds = useMemo(
+    () => new Set(selectedPrescriptions.map((p) => p.id)),
+    [selectedPrescriptions]
+  );
+
+  const isPrescriptionSelected = (prescription: Prescription) =>
+    selectedPrescriptionIds.has(prescription.id);
+
+  const getSelectionState = (scope: Prescription[]) => {
+    const selectedCount = scope.filter(isPrescriptionSelected).length;
+    return {
+      checked: scope.length > 0 && selectedCount === scope.length,
+      indeterminate: selectedCount > 0 && selectedCount < scope.length
+    };
+  };
+
+  const toggleGroupSelection = (scope: Prescription[]) => {
+    if (!onTogglePrescriptionSelection) {
+      return;
+    }
+    const { checked } = getSelectionState(scope);
+    scope.forEach((prescription) => {
+      const selected = isPrescriptionSelected(prescription);
+      if (checked ? selected : !selected) {
+        onTogglePrescriptionSelection(prescription);
+      }
+    });
+  };
+
   const [headerHeight, setHeaderHeight] = useState(0);
   const syncingRef = useRef(false);
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const headerWrapperRef = useRef<HTMLDivElement>(null);
   const rowWrapperRefs = useRef<Map<RowWrapperKey, HTMLDivElement>>(new Map());
+  const visibleRowWrappersRef = useRef<Set<HTMLDivElement>>(new Set());
+  const rowObserverRef = useRef<IntersectionObserver | null>(null);
+  const scrollLeftRef = useRef(0);
+  const syncFrameRef = useRef<number | null>(null);
   const stickyScrollRef = useRef<HTMLDivElement>(null);
   const stickyInnerRef = useRef<HTMLDivElement>(null);
 
-  const sync = (source: HTMLDivElement) => {
+  const applyScrollLeft = (el: HTMLDivElement | null, scrollLeft: number) => {
+    if (el && el.scrollLeft !== scrollLeft) {
+      el.scrollLeft = scrollLeft;
+    }
+  };
+
+  const sync = useCallback((source: HTMLDivElement) => {
     if (syncingRef.current) {
       return;
     }
-    syncingRef.current = true;
-    [
-      headerWrapperRef.current,
-      ...Array.from(rowWrapperRefs.current.values()),
-      stickyScrollRef.current
-    ]
-      .filter((el): el is HTMLDivElement => !!el && el !== source)
-      .forEach((el) => {
-        el.scrollLeft = source.scrollLeft;
+    scrollLeftRef.current = source.scrollLeft;
+    if (syncFrameRef.current !== null) {
+      return;
+    }
+    syncFrameRef.current = requestAnimationFrame(() => {
+      syncFrameRef.current = null;
+      const scrollLeft = scrollLeftRef.current;
+      syncingRef.current = true;
+      applyScrollLeft(headerWrapperRef.current, scrollLeft);
+      applyScrollLeft(stickyScrollRef.current, scrollLeft);
+      visibleRowWrappersRef.current.forEach((el) => {
+        applyScrollLeft(el, scrollLeft);
       });
-    syncingRef.current = false;
-  };
+      requestAnimationFrame(() => {
+        syncingRef.current = false;
+      });
+    });
+  }, []);
 
+  useEffect(
+    () => () => {
+      if (syncFrameRef.current !== null) {
+        cancelAnimationFrame(syncFrameRef.current);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const el = entry.target as HTMLDivElement;
+          if (entry.isIntersecting) {
+            visibleRowWrappersRef.current.add(el);
+            applyScrollLeft(el, scrollLeftRef.current);
+          } else {
+            visibleRowWrappersRef.current.delete(el);
+          }
+        }
+      },
+      { rootMargin: '400px 0px' }
+    );
+    rowObserverRef.current = observer;
+    rowWrapperRefs.current.forEach((el) => {
+      observer.observe(el);
+    });
+    return () => {
+      observer.disconnect();
+      rowObserverRef.current = null;
+      visibleRowWrappersRef.current.clear();
+    };
+  }, []);
+
+  const registerWrapper = useCallback(
+    (rowKey: RowWrapperKey, el: HTMLDivElement | null) => {
+      const previous = rowWrapperRefs.current.get(rowKey);
+      if (previous && previous !== el) {
+        rowObserverRef.current?.unobserve(previous);
+        visibleRowWrappersRef.current.delete(previous);
+      }
+      if (el) {
+        rowWrapperRefs.current.set(rowKey, el);
+        applyScrollLeft(el, scrollLeftRef.current);
+        rowObserverRef.current?.observe(el);
+      } else {
+        rowWrapperRefs.current.delete(rowKey);
+      }
+    },
+    []
+  );
+
+  const registerRowWrapper = useCallback(
+    (prescriptionId: string, el: HTMLDivElement | null) =>
+      registerWrapper(toPrescriptionRowKey(prescriptionId), el),
+    [registerWrapper]
+  );
+
+  const prescriptionIdsKey = useMemo(
+    () => allPrescriptions.map((p) => p.id).join(','),
+    [allPrescriptions]
+  );
   useEffect(() => {
     if (headerWrapperRef.current) {
       headerWrapperRef.current.scrollLeft = 0;
@@ -135,10 +294,12 @@ const ProgrammingPrescriptionTable = ({
     if (stickyScrollRef.current) {
       stickyScrollRef.current.scrollLeft = 0;
     }
+    scrollLeftRef.current = 0;
     rowWrapperRefs.current.forEach((el) => {
       el.scrollLeft = 0;
     });
-  }, [prescriptions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prescriptionIdsKey]);
 
   useEffect(() => {
     const header = headerWrapperRef.current;
@@ -189,473 +350,653 @@ const ProgrammingPrescriptionTable = ({
     };
   }, []);
 
-  const toggleExpand = (id: string) =>
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+  const localPrescriptionsByPrescriptionId = useMemo(() => {
+    const index = new Map<string, LocalPrescription[]>();
+    for (const localPrescription of regionalPrescriptions) {
+      const list = index.get(localPrescription.prescriptionId);
+      if (list) {
+        list.push(localPrescription);
+      } else {
+        index.set(localPrescription.prescriptionId, [localPrescription]);
+      }
+    }
+    for (const list of index.values()) {
+      list.sort(LocalPrescriptionSort);
+    }
+    return index;
+  }, [regionalPrescriptions]);
+
+  const ownRegionalPrescriptionByPrescriptionId = useMemo(() => {
+    const index = new Map<string, LocalPrescription>();
+    if (!region) {
+      return index;
+    }
+    for (const localPrescription of regionalPrescriptions) {
+      if (localPrescription.region !== region) {
+        continue;
+      }
+      const merged = index.get(localPrescription.prescriptionId);
+      index.set(
+        localPrescription.prescriptionId,
+        merged
+          ? mergeOwnLocalPrescriptions(merged, localPrescription)
+          : localPrescription
+      );
+    }
+    return index;
+  }, [regionalPrescriptions, region]);
+
+  const subLocalPrescriptionsByPrescriptionId = useMemo(() => {
+    const index = new Map<string, LocalPrescription[]>();
+    for (const localPrescription of subLocalPrescriptions) {
+      const list = index.get(localPrescription.prescriptionId);
+      if (list) {
+        list.push(localPrescription);
+      } else {
+        index.set(localPrescription.prescriptionId, [localPrescription]);
+      }
+    }
+    return index;
+  }, [subLocalPrescriptions]);
+
+  const commentCountByPrescriptionId = useMemo(() => {
+    const index = new Map<string, number>();
+    for (const localPrescription of regionalPrescriptions) {
+      if (!isNil(localPrescription.department)) {
+        continue;
+      }
+      index.set(
+        localPrescription.prescriptionId,
+        (index.get(localPrescription.prescriptionId) ?? 0) +
+          (localPrescription.comments ?? []).length
+      );
+    }
+    return index;
+  }, [regionalPrescriptions]);
 
   const getLocalPrescriptions = (prescriptionId: string) =>
-    regionalPrescriptions
-      .filter((r) => r.prescriptionId === prescriptionId)
-      .sort(LocalPrescriptionSort);
+    localPrescriptionsByPrescriptionId.get(prescriptionId) ??
+    EMPTY_LOCAL_PRESCRIPTIONS;
+
+  const getOwnRegionalPrescription = (prescriptionId: string) =>
+    ownRegionalPrescriptionByPrescriptionId.get(prescriptionId);
+
+  const getSubLocalPrescriptions = (prescriptionId: string) =>
+    subLocalPrescriptionsByPrescriptionId.get(prescriptionId) ??
+    EMPTY_LOCAL_PRESCRIPTIONS;
+
+  const planBySubPlanId = useMemo(() => {
+    const index = new Map<
+      string,
+      {
+        plan: ProgrammingPlanChecked;
+        subPlan: ProgrammingPlanChecked['subPlans'][number];
+      }
+    >();
+    for (const plan of programmingPlans) {
+      for (const subPlan of plan.subPlans) {
+        if (!index.has(subPlan.id)) {
+          index.set(subPlan.id, { plan, subPlan });
+        }
+      }
+    }
+    return index;
+  }, [programmingPlans]);
 
   const getPlan = (prescription: Prescription) =>
-    programmingPlans.find((p) =>
-      p.subPlans.some((sp) => sp.id === prescription.programmingSubPlanId)
-    ) ?? programmingPlans[0];
+    planBySubPlanId.get(prescription.programmingSubPlanId)?.plan ??
+    programmingPlans[0];
 
   const getSubPlan = (prescription: Prescription) =>
-    programmingPlans
-      .flatMap((p) => p.subPlans)
-      .find((sp) => sp.id === prescription.programmingSubPlanId);
+    planBySubPlanId.get(prescription.programmingSubPlanId)?.subPlan;
 
-  if (!prescriptions) {
+  const renderedRowCount = useProgressiveRowCount(
+    allPrescriptions?.length ?? 0
+  );
+
+  const regionDepartmentList = useMemo(
+    () =>
+      region
+        ? [...Regions[region].departments].sort(DepartmentSort)
+        : EMPTY_DEPARTMENTS,
+    [region]
+  );
+
+  if (!allPrescriptions) {
     return null;
   }
+
+  const showLaboratoryColumn =
+    !!region &&
+    userRole !== 'Sampler' &&
+    programmingPlans.some(
+      (p) =>
+        p.distributionKind === 'REGIONAL' ||
+        (p.distributionKind === 'SLAUGHTERHOUSE' && !!department)
+    );
+
+  const prescriptions = region
+    ? allPrescriptions.filter((p) => !isNil(getOwnRegionalPrescription(p.id)))
+    : allPrescriptions;
 
   const planOrder = [...new Set(prescriptions.map((p) => p.programmingPlanId))];
   const prescriptionsByPlan = groupBy(prescriptions, 'programmingPlanId');
 
-  // Only count regional prescriptions for currently visible prescriptions
-  // (prescriptions may be filtered by matrixQuery / missing filters)
+  const hasVisibleSlaughterhousePlan = planOrder.some(
+    (planId) =>
+      programmingPlans.find((p) => p.id === planId)?.distributionKind ===
+      'SLAUGHTERHOUSE'
+  );
+
+  const departmentList = hasVisibleSlaughterhousePlan
+    ? regionDepartmentList
+    : EMPTY_DEPARTMENTS;
+
+  const columnCount = isSamplerView
+    ? 0
+    : department
+      ? companies.length
+      : region
+        ? departmentList.length
+        : RegionList.length;
+
+  const renderedPrescriptionIds = new Set(
+    planOrder
+      .flatMap((planId) => {
+        const planPrescriptions = prescriptionsByPlan[planId] ?? [];
+        const byContext = groupBy(planPrescriptions, 'context');
+        return [...new Set(planPrescriptions.map((p) => p.context))].flatMap(
+          (context) => byContext[context] ?? []
+        );
+      })
+      .slice(0, renderedRowCount)
+      .map((p) => p.id)
+  );
+
   const visiblePrescriptionIds = new Set(prescriptions.map((p) => p.id));
   const visibleRegionalPrescriptions = regionalPrescriptions.filter((r) =>
     visiblePrescriptionIds.has(r.prescriptionId)
   );
+  const visibleSubLocalPrescriptions = subLocalPrescriptions.filter((r) =>
+    visiblePrescriptionIds.has(r.prescriptionId)
+  );
 
   return (
-    <div
-      data-testid="prescription-table"
-      className="programming-table"
-      ref={tableContainerRef}
-    >
-      <div className="header-wrapper" ref={headerWrapperRef}>
+    <div className={clsx(columnCount === 0 && cx('fr-container', 'fr-px-5w'))}>
+      <div
+        data-testid="prescription-table"
+        className={clsx('programming-table', {
+          'programming-table--with-checkbox-column': showCheckboxColumn,
+          'programming-table--fit': columnCount === 0
+        })}
+        ref={tableContainerRef}
+      >
         <div
-          className={clsx(
-            'fr-table',
-            'fr-table--bordered',
-            'fr-table--no-caption',
-            'fr-table--no-scroll'
-          )}
+          className="header-wrapper"
+          ref={headerWrapperRef}
+          style={{ top: topOffset }}
         >
-          <table>
-            <Colgroup />
-            <thead>
-              <tr>
-                <th scope="col">N°</th>
-                <th scope="col" className="border-left">
-                  Matrice
-                </th>
-                <th scope="col" className="border-left">
-                  Analyte
-                </th>
-                <th scope="col" className="border-left border-right">
-                  Prélèvements
-                  <br />
-                  programmés
-                </th>
-                {RegionList.map((region, regionIdx) => (
+          <div
+            className={clsx(
+              'fr-table',
+              'fr-table--bordered',
+              'fr-table--no-caption',
+              'fr-table--no-scroll'
+            )}
+          >
+            <table>
+              <Colgroup
+                columnCount={columnCount}
+                showLaboratoryColumn={showLaboratoryColumn}
+                showCheckboxColumn={showCheckboxColumn}
+                wideColumns={!!department}
+              />
+              <thead>
+                <tr>
+                  {showCheckboxColumn && (
+                    <th scope="col" className="checkbox-cell">
+                      <SelectionCheckbox
+                        variant="header"
+                        {...getSelectionState(prescriptions)}
+                        onChange={() => toggleGroupSelection(prescriptions)}
+                      />
+                    </th>
+                  )}
+                  <th scope="col" className="n-cell">
+                    N°
+                  </th>
                   <th
                     scope="col"
-                    className={clsx(
-                      { 'border-left': regionIdx !== 0 },
-                      cx('fr-p-1w')
-                    )}
-                    key={`header-${region}`}
+                    className={clsx('matrice-cell', 'border-left')}
                   >
-                    <TableHeaderCell
-                      shortName={Regions[region].shortName}
-                      name={Regions[region].name}
-                    />
+                    Matrice
                   </th>
-                ))}
-              </tr>
-              <tr className="total-row">
-                <td colSpan={3} className={cx('fr-text--bold')}>
-                  Total prélèvements
-                </td>
-                <td
-                  className={clsx(
-                    cx('fr-text--bold'),
-                    'border-left',
-                    'border-right',
-                    'align-center'
+                  <th
+                    scope="col"
+                    className={clsx('analyte-cell', 'border-left')}
+                  >
+                    Analyte
+                  </th>
+                  <th
+                    scope="col"
+                    className={clsx('prelevements-cell', 'border-left')}
+                  >
+                    Prélèvements
+                    <br />
+                    programmés
+                  </th>
+                  {showLaboratoryColumn && (
+                    <th
+                      scope="col"
+                      className={clsx('laboratoire-cell', 'border-right')}
+                    >
+                      Attribution des laboratoires
+                    </th>
                   )}
-                >
-                  {sumBy(prescriptions, 'sampleCount')}
-                </td>
-                {RegionList.map((region, regionIdx) => (
+                  {!isSamplerView &&
+                    (department
+                      ? companies.map((company, columnIdx) => (
+                          <th
+                            scope="col"
+                            className={clsx(
+                              { 'border-left': columnIdx !== 0 },
+                              cx('fr-p-1w')
+                            )}
+                            key={`header-${company.siret}`}
+                          >
+                            <div
+                              className={cx('fr-text--xs', 'fr-text--light')}
+                            >
+                              Abattoir
+                            </div>
+                            <div
+                              className={clsx(
+                                cx('fr-text--bold'),
+                                'company-name'
+                              )}
+                              title={`${company.name}${company.city ? ` - ${company.city}` : ''}`}
+                            >
+                              {company.name}
+                              {company.city ? ` - ${company.city}` : ''}
+                            </div>
+                          </th>
+                        ))
+                      : region
+                        ? departmentList.map((departmentColumn, columnIdx) => (
+                            <th
+                              scope="col"
+                              className={clsx(
+                                { 'border-left': columnIdx !== 0 },
+                                cx('fr-p-1w')
+                              )}
+                              key={`header-${departmentColumn}`}
+                            >
+                              <TableHeaderCell
+                                shortName={departmentColumn}
+                                name={DepartmentLabels[departmentColumn]}
+                              />
+                            </th>
+                          ))
+                        : RegionList.map((regionColumn, columnIdx) => (
+                            <th
+                              scope="col"
+                              className={clsx(
+                                { 'border-left': columnIdx !== 0 },
+                                cx('fr-p-1w')
+                              )}
+                              key={`header-${regionColumn}`}
+                            >
+                              <TableHeaderCell
+                                shortName={Regions[regionColumn].shortName}
+                                name={Regions[regionColumn].name}
+                              />
+                            </th>
+                          )))}
+                </tr>
+                <tr className="total-row">
+                  {showCheckboxColumn && <td className="checkbox-cell" />}
                   <td
-                    key={`total-${region}`}
+                    colSpan={3}
+                    className={clsx('n-cell', cx('fr-text--bold'))}
+                  >
+                    Total prélèvements
+                  </td>
+                  <td
                     className={clsx(
+                      'prelevements-cell',
                       cx('fr-text--bold'),
-                      { 'border-left': regionIdx !== 0 },
+                      'border-left',
                       'align-center'
                     )}
                   >
-                    {sumBy(
-                      visibleRegionalPrescriptions.filter(
-                        (r) => r.region === region
-                      ),
-                      'sampleCount'
-                    )}
+                    {region
+                      ? sumBy(
+                          visibleRegionalPrescriptions.filter(
+                            (r) => r.region === region
+                          ),
+                          'sampleCount'
+                        )
+                      : sumBy(prescriptions, 'sampleCount')}
                   </td>
-                ))}
-              </tr>
-            </thead>
-          </table>
-        </div>
-      </div>
-
-      {planOrder.map((planId) => {
-        const plan =
-          programmingPlans.find((p) => p.id === planId) ?? programmingPlans[0];
-        const planPrescriptions = prescriptionsByPlan[planId] ?? [];
-        const contextOrder = [
-          ...new Set(planPrescriptions.map((p) => p.context))
-        ];
-        const prescriptionsByContext = groupBy(planPrescriptions, 'context');
-
-        return (
-          <Fragment key={`plan-group-${planId}`}>
-            {contextOrder.map((context) => {
-              const contextPrescriptions =
-                prescriptionsByContext[context] ?? [];
-              const contextPrescriptionIds = contextPrescriptions.map(
-                (p) => p.id
-              );
-              const contextRegionalPrescriptions = regionalPrescriptions.filter(
-                (r) => contextPrescriptionIds.includes(r.prescriptionId)
-              );
-
-              return (
-                <Fragment key={`plan-group-${planId}-${context}`}>
-                  <div
-                    className="plan-group-sticky-container"
-                    style={{ top: headerHeight }}
-                  >
-                    <div
-                      className={clsx(
-                        cx('fr-text--sm', 'fr-mb-0'),
-                        'plan-group-title'
-                      )}
-                    >
-                      {[
-                        domainLabels[plan.domainId],
-                        plan.title,
-                        ContextLabels[context]
-                      ]
-                        .filter(Boolean)
-                        .join(' | ')}
-                    </div>
-
-                    <div
-                      className="table-scroll-wrapper"
-                      ref={(el) => {
-                        if (el) {
-                          rowWrapperRefs.current.set(
-                            toPlanHeaderRowKey(planId, context),
-                            el
-                          );
-                        } else {
-                          rowWrapperRefs.current.delete(
-                            toPlanHeaderRowKey(planId, context)
-                          );
-                        }
-                      }}
-                      onScroll={(e) => sync(e.currentTarget)}
-                    >
-                      <div
-                        className={clsx(
-                          'fr-table',
-                          'fr-table--bordered',
-                          'fr-table--no-caption',
-                          'fr-table--no-scroll'
-                        )}
-                      >
-                        <table>
-                          <Colgroup />
-                          <tbody>
-                            <tr className="plan-group-header-row plan-group-total-row">
-                              <td colSpan={3}>Total prélèvements</td>
-                              <td
-                                className={clsx(
-                                  'border-left',
-                                  'border-right',
-                                  'align-center'
-                                )}
-                              >
-                                {sumBy(contextPrescriptions, 'sampleCount')}
-                              </td>
-                              {RegionList.map((region, regionIdx) => (
-                                <td
-                                  key={region}
-                                  className={clsx('align-center', {
-                                    'border-left': regionIdx !== 0
-                                  })}
-                                >
-                                  {sumBy(
-                                    contextRegionalPrescriptions.filter(
-                                      (r) => r.region === region
-                                    ),
-                                    'sampleCount'
-                                  )}
-                                </td>
-                              ))}
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-
-                  {contextPrescriptions.map((prescription) => {
-                    const subPlan = getSubPlan(prescription);
-                    const plan = getPlan(prescription);
-                    const localPrescriptions = getLocalPrescriptions(
-                      prescription.id
-                    );
-                    const totalSampleCount = sumBy(
-                      localPrescriptions,
-                      'sampleCount'
-                    );
-                    const isExpanded = expandedIds.has(prescription.id);
-                    const showDistributionBadge =
-                      prescription.sampleCount !== 0 || totalSampleCount !== 0;
-
-                    return (
-                      <Fragment key={prescription.id}>
-                        <div
-                          className="table-scroll-wrapper"
-                          ref={(el) => {
-                            if (el) {
-                              rowWrapperRefs.current.set(
-                                toPrescriptionRowKey(prescription.id),
-                                el
-                              );
-                            } else {
-                              rowWrapperRefs.current.delete(
-                                toPrescriptionRowKey(prescription.id)
-                              );
-                            }
-                          }}
-                          onScroll={(e) => sync(e.currentTarget)}
-                        >
-                          <div
+                  {showLaboratoryColumn && (
+                    <td className={clsx('laboratoire-cell', 'border-right')} />
+                  )}
+                  {!isSamplerView &&
+                    (department
+                      ? companies.map((company, columnIdx) => (
+                          <td
+                            key={`total-${company.siret}`}
                             className={clsx(
-                              'fr-table',
-                              'fr-table--bordered',
-                              'fr-table--no-caption',
-                              'fr-table--no-scroll'
+                              cx('fr-text--bold'),
+                              { 'border-left': columnIdx !== 0 },
+                              'align-center'
                             )}
                           >
-                            <table>
-                              <Colgroup />
-                              <tbody>
-                                <tr>
-                                  <td>
-                                    <div className="row-reference">
-                                      {subPlan?.subPlanNumber}
-                                      <Button
-                                        iconId={
-                                          isExpanded
-                                            ? 'fr-icon-arrow-up-s-line'
-                                            : 'fr-icon-arrow-down-s-line'
-                                        }
-                                        priority="tertiary no outline"
-                                        size="small"
-                                        title={
-                                          isExpanded
-                                            ? 'Réduire'
-                                            : 'Voir les détails'
-                                        }
-                                        onClick={() =>
-                                          toggleExpand(prescription.id)
-                                        }
-                                      />
-                                    </div>
-                                  </td>
+                            {sumBy(
+                              visibleSubLocalPrescriptions.filter(
+                                (r) => r.companySiret === company.siret
+                              ),
+                              'sampleCount'
+                            )}
+                          </td>
+                        ))
+                      : region
+                        ? departmentList.map((departmentColumn, columnIdx) => (
+                            <td
+                              key={`total-${departmentColumn}`}
+                              className={clsx(
+                                cx('fr-text--bold'),
+                                { 'border-left': columnIdx !== 0 },
+                                'align-center'
+                              )}
+                            >
+                              {hasVisibleSlaughterhousePlan
+                                ? sumBy(
+                                    visibleSubLocalPrescriptions.filter(
+                                      (r) => r.department === departmentColumn
+                                    ),
+                                    'sampleCount'
+                                  )
+                                : 'N/A'}
+                            </td>
+                          ))
+                        : RegionList.map((regionColumn, columnIdx) => (
+                            <td
+                              key={`total-${regionColumn}`}
+                              className={clsx(
+                                cx('fr-text--bold'),
+                                { 'border-left': columnIdx !== 0 },
+                                'align-center'
+                              )}
+                            >
+                              {sumBy(
+                                visibleRegionalPrescriptions.filter(
+                                  (r) => r.region === regionColumn
+                                ),
+                                'sampleCount'
+                              )}
+                            </td>
+                          )))}
+                </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+
+        {planOrder.map((planId) => {
+          const plan =
+            programmingPlans.find((p) => p.id === planId) ??
+            programmingPlans[0];
+          const planPrescriptions = prescriptionsByPlan[planId] ?? [];
+          const contextOrder = [
+            ...new Set(planPrescriptions.map((p) => p.context))
+          ];
+          const prescriptionsByContext = groupBy(planPrescriptions, 'context');
+
+          return (
+            <Fragment key={`plan-group-${planId}`}>
+              {contextOrder.map((context) => {
+                const contextPrescriptions =
+                  prescriptionsByContext[context] ?? [];
+                const contextPrescriptionIds = new Set(
+                  contextPrescriptions.map((p) => p.id)
+                );
+                const contextRegionalPrescriptions =
+                  regionalPrescriptions.filter((r) =>
+                    contextPrescriptionIds.has(r.prescriptionId)
+                  );
+                const contextSubLocalPrescriptions =
+                  subLocalPrescriptions.filter((r) =>
+                    contextPrescriptionIds.has(r.prescriptionId)
+                  );
+
+                return (
+                  <Fragment key={`plan-group-${planId}-${context}`}>
+                    <div
+                      className="plan-group-sticky-container"
+                      style={{ top: topOffset + headerHeight }}
+                    >
+                      {showCheckboxColumn && (
+                        <div className="plan-group-checkbox">
+                          <SelectionCheckbox
+                            variant="header"
+                            {...getSelectionState(contextPrescriptions)}
+                            onChange={() =>
+                              toggleGroupSelection(contextPrescriptions)
+                            }
+                          />
+                        </div>
+                      )}
+                      <div
+                        className={clsx(
+                          cx('fr-text--sm', 'fr-mb-0'),
+                          'plan-group-title'
+                        )}
+                      >
+                        {[
+                          domainLabels[plan.domainId],
+                          plan.title,
+                          ContextLabels[context]
+                        ]
+                          .filter(Boolean)
+                          .join(' | ')}
+                      </div>
+
+                      <div
+                        className="table-scroll-wrapper"
+                        ref={(el) =>
+                          registerWrapper(
+                            toPlanHeaderRowKey(planId, context),
+                            el
+                          )
+                        }
+                        onScroll={(e) => sync(e.currentTarget)}
+                      >
+                        <div
+                          className={clsx(
+                            'fr-table',
+                            'fr-table--bordered',
+                            'fr-table--no-caption',
+                            'fr-table--no-scroll'
+                          )}
+                        >
+                          <table>
+                            <Colgroup
+                              columnCount={columnCount}
+                              showLaboratoryColumn={showLaboratoryColumn}
+                              showCheckboxColumn={showCheckboxColumn}
+                              wideColumns={!!department}
+                            />
+                            <tbody>
+                              <tr className="plan-group-header-row plan-group-total-row">
+                                {showCheckboxColumn && (
+                                  <td className="checkbox-cell" />
+                                )}
+                                <td className="n-cell" colSpan={3}>
+                                  Total prélèvements
+                                </td>
+                                <td
+                                  className={clsx(
+                                    'prelevements-cell',
+                                    'border-left',
+                                    'align-center'
+                                  )}
+                                >
+                                  {region
+                                    ? sumBy(
+                                        contextRegionalPrescriptions.filter(
+                                          (r) => r.region === region
+                                        ),
+                                        'sampleCount'
+                                      )
+                                    : sumBy(
+                                        contextPrescriptions,
+                                        'sampleCount'
+                                      )}
+                                </td>
+                                {showLaboratoryColumn && (
                                   <td
                                     className={clsx(
-                                      cx('fr-text--bold'),
-                                      'border-left'
-                                    )}
-                                    data-testid={`matrix-${prescription.id}`}
-                                  >
-                                    {getPrescriptionTitle(prescription)}
-                                  </td>
-                                  <td className="border-left">
-                                    {subPlan?.substanceKinds
-                                      ?.map((sk) => SubstanceKindLabels[sk])
-                                      .join(', ')}
-                                  </td>
-                                  <td
-                                    className={clsx(
-                                      'border-left',
+                                      'laboratoire-cell',
                                       'border-right'
                                     )}
-                                  >
-                                    <div
-                                      className={clsx(
-                                        'prescription-sample-count-cell',
-                                        userRole &&
-                                          hasPrescriptionPermission(
-                                            userRole,
-                                            plan
-                                          ).update &&
-                                          onChangePrescriptionSampleCount
-                                          ? 'prescription-sample-count-cell--edit'
-                                          : 'prescription-sample-count-cell--read'
-                                      )}
-                                    >
-                                      {userRole &&
-                                      hasPrescriptionPermission(userRole, plan)
-                                        .update &&
-                                      onChangePrescriptionSampleCount ? (
-                                        <input
-                                          className={clsx(
-                                            'distribution-count-input',
-                                            'distribution-count-input--wide',
-                                            pendingPrescriptionIds?.has(
-                                              prescription.id
-                                            ) &&
-                                              'distribution-count-input--pending'
+                                  />
+                                )}
+                                {!isSamplerView &&
+                                  (department
+                                    ? companies.map((company, columnIdx) => (
+                                        <td
+                                          key={company.siret}
+                                          className={clsx('align-center', {
+                                            'border-left': columnIdx !== 0
+                                          })}
+                                        >
+                                          {sumBy(
+                                            contextSubLocalPrescriptions.filter(
+                                              (r) =>
+                                                r.companySiret === company.siret
+                                            ),
+                                            'sampleCount'
                                           )}
-                                          type="number"
-                                          min={0}
-                                          value={prescription.sampleCount}
-                                          onChange={(e) => {
-                                            const v = Number(e.target.value);
-                                            if (!Number.isNaN(v)) {
-                                              onChangePrescriptionSampleCount(
-                                                prescription,
-                                                v
-                                              );
-                                            }
-                                          }}
-                                        />
-                                      ) : (
-                                        <div>{prescription.sampleCount}</div>
-                                      )}
-                                      {showDistributionBadge && (
-                                        <PrescriptionDistributionBadge
-                                          sampleCount={prescription.sampleCount}
-                                          distributedCount={totalSampleCount}
-                                          small
-                                        />
-                                      )}
-                                    </div>
-                                  </td>
-                                  {localPrescriptions.map(
-                                    (
-                                      localPrescription,
-                                      localPrescriptionIdx
-                                    ) => (
-                                      <td
-                                        className={clsx({
-                                          'border-left':
-                                            localPrescriptionIdx !== 0
-                                        })}
-                                        data-testid={`cell-${prescription.id}`}
-                                        key={`cell-${prescription.id}-${localPrescription.region}`}
-                                      >
-                                        <DistributionCountCell
-                                          programmingPlan={plan}
-                                          prescription={prescription}
-                                          localPrescription={localPrescription}
-                                          isEditable={
-                                            hasUserLocalPrescriptionPermission(
-                                              plan,
-                                              localPrescription
-                                            )?.updateSampleCount
-                                          }
-                                          isPending={pendingLocalKeys?.has(
-                                            toLocalPrescriptionKeyString({
-                                              prescriptionId:
-                                                localPrescription.prescriptionId,
-                                              region: localPrescription.region,
-                                              department: undefined,
-                                              companySiret: undefined
-                                            })
-                                          )}
-                                          onChange={async (value) =>
-                                            onChangeLocalPrescriptionCount(
-                                              {
-                                                prescriptionId:
-                                                  localPrescription.prescriptionId,
-                                                region: localPrescription.region
-                                              },
-                                              value
-                                            )
-                                          }
-                                        />
-                                      </td>
-                                    )
-                                  )}
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
+                                        </td>
+                                      ))
+                                    : region
+                                      ? departmentList.map(
+                                          (departmentColumn) => (
+                                            <td
+                                              key={departmentColumn}
+                                              className={clsx('align-center', {
+                                                'border-left':
+                                                  departmentColumn !==
+                                                  departmentList[0]
+                                              })}
+                                            >
+                                              {plan.distributionKind ===
+                                              'SLAUGHTERHOUSE'
+                                                ? sumBy(
+                                                    contextSubLocalPrescriptions.filter(
+                                                      (r) =>
+                                                        r.department ===
+                                                        departmentColumn
+                                                    ),
+                                                    'sampleCount'
+                                                  )
+                                                : 'N/A'}
+                                            </td>
+                                          )
+                                        )
+                                      : RegionList.map(
+                                          (regionColumn, columnIdx) => (
+                                            <td
+                                              key={regionColumn}
+                                              className={clsx('align-center', {
+                                                'border-left': columnIdx !== 0
+                                              })}
+                                            >
+                                              {sumBy(
+                                                contextRegionalPrescriptions.filter(
+                                                  (r) =>
+                                                    r.region === regionColumn
+                                                ),
+                                                'sampleCount'
+                                              )}
+                                            </td>
+                                          )
+                                        ))}
+                              </tr>
+                            </tbody>
+                          </table>
                         </div>
-                        {isExpanded && (
-                          <div className="prescription-expanded-content">
-                            <div className={cx('fr-grid-row')}>
-                              <div className={cx('fr-col-3')}>
-                                <div className={cx('fr-mb-3w')}>
-                                  <div className="d-flex-align-center">
-                                    <span
-                                      className={cx(
-                                        'fr-icon-chat-quote-line',
-                                        'fr-pr-1v'
-                                      )}
-                                    />
-                                    <b>Notes</b>
-                                  </div>
-                                  {prescription.notes ?? 'Aucune note'}
-                                </div>
-                                <div>
-                                  <div className="d-flex-align-center">
-                                    <span
-                                      className={cx(
-                                        'fr-icon-chat-quote-line',
-                                        'fr-pr-1v'
-                                      )}
-                                    />
-                                    <b>Consignes</b>
-                                  </div>
-                                  {prescription.programmingInstruction ??
-                                    'Aucune consigne'}
-                                </div>
-                              </div>
-                              <div className={cx('fr-col-3')}>
-                                <PrescriptionSubstances
-                                  programmingPlan={
-                                    programmingPlans.find(
-                                      (p) =>
-                                        p.id === prescription.programmingPlanId
-                                    ) ?? programmingPlans[0]
-                                  }
-                                  prescription={prescription}
-                                  renderMode="inline"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </Fragment>
-                    );
-                  })}
-                </Fragment>
-              );
-            })}
-          </Fragment>
-        );
-      })}
+                      </div>
+                    </div>
 
-      <div className="sticky-scrollbar" ref={stickyScrollRef}>
-        <div ref={stickyInnerRef} />
+                    {contextPrescriptions
+                      .filter((prescription) =>
+                        renderedPrescriptionIds.has(prescription.id)
+                      )
+                      .map((prescription) => (
+                        <ProgrammingPrescriptionRow
+                          key={prescription.id}
+                          prescription={prescription}
+                          plan={getPlan(prescription)}
+                          subPlan={getSubPlan(prescription)}
+                          programmingPlans={programmingPlans}
+                          localPrescriptions={getLocalPrescriptions(
+                            prescription.id
+                          )}
+                          ownRegionalPrescription={
+                            region
+                              ? getOwnRegionalPrescription(prescription.id)
+                              : undefined
+                          }
+                          rowSubLocalPrescriptions={
+                            region
+                              ? getSubLocalPrescriptions(prescription.id)
+                              : []
+                          }
+                          rowCommentCount={
+                            commentCountByPrescriptionId.get(prescription.id) ??
+                            0
+                          }
+                          isSelected={isPrescriptionSelected(prescription)}
+                          isSamplerView={isSamplerView}
+                          showCheckboxColumn={showCheckboxColumn}
+                          showLaboratoryColumn={showLaboratoryColumn}
+                          columnCount={columnCount}
+                          departmentList={departmentList}
+                          companies={companies}
+                          region={region}
+                          department={department}
+                          pendingLocalKeys={pendingLocalKeys}
+                          pendingLaboratoryKeys={pendingLaboratoryKeys}
+                          pendingPrescriptionIds={pendingPrescriptionIds}
+                          onChangeLocalPrescriptionCount={
+                            onChangeLocalPrescriptionCount
+                          }
+                          onChangeLocalPrescriptionLaboratories={
+                            onChangeLocalPrescriptionLaboratories
+                          }
+                          onChangePrescriptionSampleCount={
+                            onChangePrescriptionSampleCount
+                          }
+                          onTogglePrescriptionSelection={
+                            onTogglePrescriptionSelection
+                          }
+                          onOpenComments={onOpenComments}
+                          registerRowWrapper={registerRowWrapper}
+                          onRowScroll={sync}
+                        />
+                      ))}
+                  </Fragment>
+                );
+              })}
+            </Fragment>
+          );
+        })}
+
+        <div className="sticky-scrollbar" ref={stickyScrollRef}>
+          <div ref={stickyInnerRef} />
+        </div>
       </div>
     </div>
   );

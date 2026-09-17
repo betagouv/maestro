@@ -3,8 +3,9 @@ import MuiDsfrThemeProvider from '@codegouvfr/react-dsfr/mui';
 import { startReactDsfr } from '@codegouvfr/react-dsfr/spa';
 import { configureStore } from '@reduxjs/toolkit';
 import type { Preview } from '@storybook/react-vite';
+import { useMemo } from 'react';
 import { Provider } from 'react-redux';
-import { Link, MemoryRouter } from 'react-router';
+import { createMemoryRouter, Link, RouterProvider } from 'react-router';
 import '../src/App.scss';
 import '../src/i18n';
 import { ApiClientContext } from '../src/services/apiClient';
@@ -27,6 +28,23 @@ startReactDsfr({
   useLang: () => 'fr',
   Link
 });
+const StoryRouter = ({
+  Story,
+  initialEntries
+}: {
+  Story: React.ComponentType;
+  initialEntries: string[];
+}) => {
+  const router = useMemo(
+    () =>
+      createMemoryRouter([{ path: '/*', Component: Story }], {
+        initialEntries
+      }),
+    [Story, initialEntries]
+  );
+  return <RouterProvider router={router} />;
+};
+
 const preview: Preview = {
   parameters: {
     controls: {
@@ -45,13 +63,11 @@ const preview: Preview = {
     const store = createStore(preloadedState);
     return (
       <MuiDsfrThemeProvider>
-        <MemoryRouter initialEntries={initialEntries}>
-          <Provider store={store}>
-            <ApiClientContext.Provider value={apiClient}>
-              <Story />
-            </ApiClientContext.Provider>
-          </Provider>
-        </MemoryRouter>
+        <Provider store={store}>
+          <ApiClientContext.Provider value={apiClient}>
+            <StoryRouter Story={Story} initialEntries={initialEntries} />
+          </ApiClientContext.Provider>
+        </Provider>
       </MuiDsfrThemeProvider>
     );
   }

@@ -8,6 +8,7 @@ import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { getSupportDocumentFilename } from 'maestro-shared/schema/Document/DocumentKind';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { hasNewerLaunchedCampaign } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { buildFindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   hasSamplePermission,
@@ -44,6 +45,8 @@ import companyRepository from '../repositories/companyRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import prescriptionRepository from '../repositories/prescriptionRepository';
 import prescriptionSubstanceRepository from '../repositories/prescriptionSubstanceRepository';
+import { programmingPlanDomainRepository } from '../repositories/programmingPlanDomainRepository';
+import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
@@ -155,6 +158,21 @@ export const sampleRouter = {
       const programmingPlan = await getAndCheckProgrammingPlan(
         sampleToCreate.programmingPlanId
       );
+
+      const programmingPlans = await programmingPlanRepository.findMany({});
+      const domains = await programmingPlanDomainRepository.findMany();
+      const domainLabelById = new Map(
+        domains.map((domain) => [domain.id, domain.label])
+      );
+      if (
+        hasNewerLaunchedCampaign(
+          programmingPlan,
+          programmingPlans,
+          domainLabelById
+        )
+      ) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
 
       const reference = await getNewReference(
         user.region,

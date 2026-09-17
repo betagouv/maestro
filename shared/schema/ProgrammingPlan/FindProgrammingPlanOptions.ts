@@ -28,7 +28,8 @@ export const FindProgrammingPlanOptions = z.object({
   status: z.array(ProgrammingPlanStatus).nullish(),
   region: Region.nullish(),
   department: Department.nullish(),
-  scope: z.enum(['owned']).nullish()
+  scope: z.enum(['owned']).nullish(),
+  launchedOnly: z.boolean().nullish()
 });
 
 export type FindProgrammingPlanOptions = z.infer<
@@ -71,6 +72,7 @@ export const buildFindProgrammingPlanOptions = (
       userStatusAuthorized
     ) as ProgrammingPlanStatus[],
     subPlanIds: subPlanIds ?? undefined,
+    launchedOnly: userRole === 'Sampler',
     region: isNationalRole(userRole) ? findOptions.region : user.region,
     department:
       isNationalRole(userRole) || isRegionalRole(userRole)

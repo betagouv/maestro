@@ -2,22 +2,16 @@ import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { LegalContext } from '../../referential/LegalContext';
 import { checkSchema } from '../../utils/zod';
-import type { UserRefined } from '../User/User';
-import {
-  isNationalRole,
-  isRegionalRole,
-  type UserRole
-} from '../User/UserRole';
 import { ProgrammingPlanContext } from './Context';
 import { DistributionKind } from './DistributionKind';
 import { ProgrammingPlanDomainId } from './ProgrammingPlanDomain';
 import {
   ProgrammingPlanDepartmentalStatus,
+  ProgrammingPlanNationalStatus,
   ProgrammingPlanRegionalStatus
 } from './ProgrammingPlanLocalStatus';
 import { ProgrammingPlanNationalCoordinator } from './ProgrammingPlanNationalCoordinator';
 import { ProgrammingPlanSettings } from './ProgrammingPlanSettings';
-import type { ProgrammingPlanStatus } from './ProgrammingPlanStatus';
 import {
   isProgrammingSubPlanDeletable,
   ProgrammingSubPlan
@@ -42,15 +36,26 @@ export const ProgrammingPlanBase = z.object({
   createdAt: z.coerce.date(),
   createdBy: z.guid(),
   year: z.number(),
+  nationalStatus: ProgrammingPlanNationalStatus,
   regionalStatus: z.array(ProgrammingPlanRegionalStatus),
   departmentalStatus: z.array(ProgrammingPlanDepartmentalStatus),
   closedAt: z.coerce.date().nullish(),
-  closedBy: z.guid().nullish()
+  closedBy: z.guid().nullish(),
+  launchedAt: z.coerce.date().nullish(),
+  launchedBy: z.guid().nullish()
 });
 
 export const ProgrammingPlanChecked = checkSchema(
   ProgrammingPlanBase,
   (ctx) => {
+    if (ctx.value.launchedAt && !ctx.value.launchedBy) {
+      ctx.issues.push({
+        input: ctx.value,
+        code: 'custom',
+        message: 'Veuillez renseigner launchedBy si launchedAt est renseigné',
+        path: ['launchedBy']
+      });
+    }
     if (ctx.value.closedAt && !ctx.value.closedBy) {
       ctx.issues.push({
         input: ctx.value,
@@ -95,32 +100,24 @@ export const isProgrammingPlanDomainDeletable = (
   plans: DeletableProgrammingPlan[]
 ): boolean => plans.every(isProgrammingPlanDeletable);
 
+export const hasNewerLaunchedCampaign = (
+  plan: Pick<ProgrammingPlanChecked, 'domainId' | 'title' | 'year'>,
+  plans: Pick<
+    ProgrammingPlanChecked,
+    'domainId' | 'title' | 'year' | 'launchedAt'
+  >[],
+  domainLabelById: Map<string, string>
+): boolean =>
+  plans.some(
+    (other) =>
+      other.title === plan.title &&
+      domainLabelById.get(other.domainId) ===
+        domainLabelById.get(plan.domainId) &&
+      other.year > plan.year &&
+      !isNil(other.launchedAt)
+  );
+
 export const ProgrammingPlanSort = (
   a: ProgrammingPlanChecked,
   b: ProgrammingPlanChecked
 ) => b.year - a.year || a.title.localeCompare(b.title);
-
-export const hasProgrammingPlanStatusForAuthUser = (
-  programmingPlan: ProgrammingPlanChecked,
-  status: ProgrammingPlanStatus[],
-  user?: Pick<UserRefined, 'region' | 'department'>,
-  userRole?: UserRole
-) =>
-  userRole &&
-  user &&
-  (isNationalRole(userRole)
-    ? programmingPlan.regionalStatus.every((regionalStatus) =>
-        status.includes(regionalStatus.status)
-      )
-    : isRegionalRole(userRole) ||
-        programmingPlan.distributionKind === 'REGIONAL'
-      ? programmingPlan.regionalStatus.some(
-          (regionalStatus) =>
-            regionalStatus.region === user.region &&
-            status.includes(regionalStatus.status)
-        )
-      : programmingPlan.departmentalStatus.some(
-          (departmentalStatus) =>
-            departmentalStatus.department === user.department &&
-            status.includes(departmentalStatus.status)
-        ));

@@ -83,7 +83,9 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
         return {
           isSuccess: resolved.data !== undefined && !resolved.isError,
           isLoading: resolved.data === undefined && !resolved.isError,
+          isFetching: false,
           isError: false,
+          currentData: resolved.data,
           ...resolved
         };
       };
@@ -104,15 +106,7 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
         // @ts-expect-error TS7053
         mockApi[key][1]
       ];
-    } else if (
-      key.startsWith('useAdd') ||
-      key.startsWith('useCreate') ||
-      key.startsWith('useComment') ||
-      key.startsWith('useUpdate') ||
-      key.startsWith('useDelete') ||
-      key.startsWith('useMascarade') ||
-      key.startsWith('useReplay')
-    ) {
+    } else if (key.endsWith('Mutation')) {
       // @ts-expect-error TS7053
       acc[key] = () => [
         (arg?: any) => {
@@ -131,6 +125,7 @@ export const getMockApi = (partialMock: Partial<MockApi>): ApiClient => {
   }, {} as ApiClient);
 };
 const defaultMockApiClientConf: MockApi = {
+  useImportPrescriptionsMutation: [fn(), {}],
   useAddPrescriptionMutation: [fn(), {}],
   useAuthenticateMutation: [fn(), {}],
   useCommentLocalPrescriptionMutation: [fn(), {}],
@@ -171,6 +166,24 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateLaboratoryAgreementsMutation: [fn(), {}],
   useFindNotificationsQuery: { data: [] },
   useFindPrescriptionsQuery: { data: [] },
+  useFindPrescriptionCountsQuery: {
+    data: {
+      subPlanCount: 0,
+      sampleCount: 0,
+      missingDistributionCount: 0,
+      missingLaboratoryCount: 0,
+      noveltyCount: 0,
+      displayedMissingDistributionCount: 0,
+      displayedDistributedCount: 0,
+      displayedMissingFinalizationCount: 0,
+      displayedFinalizedCount: 0,
+      stageCounts: [],
+      matrixKinds: [],
+      programmingPlanIds: [],
+      programmingSubPlanIds: [],
+      contexts: []
+    }
+  },
   useFindProgrammingPlanDomainsQuery: { data: ProgrammingPlanDomainFixtures },
   useFindProgrammingPlansQuery: { data: [] },
   useFindLocalPrescriptionsQuery: { data: [] },
@@ -255,6 +268,10 @@ const defaultMockApiClientConf: MockApi = {
   useUpdatePrescriptionMutation: [fn(), {}],
   useUpdateProgrammingPlanLocalStatusMutation: [fn(), {}],
   useUpdateProgrammingPlanStatusMutation: [fn(), {}],
+  useSendProgrammingPlansToRegionsMutation: [fn(), {}],
+  useLaunchProgrammingPlansCampaignMutation: [fn(), {}],
+  useSendProgrammingPlansToDepartmentsMutation: [fn(), {}],
+  useSendProgrammingPlansToSamplersMutation: [fn(), {}],
   useUpdateProgrammingSubPlanSettingsMutation: [fn(), {}],
   useFindProgrammingPlanSettingsQuery: {
     data: {
@@ -277,6 +294,7 @@ const defaultMockApiClientConf: MockApi = {
   useUpdateLaboratoryResidueMappingMutation: [fn(), {}],
   useUpdateDepartmentalLocalPrescriptionMutation: [fn(), {}],
   useUpdateLocalPrescriptionMutation: [fn(), {}],
+  useMarkLocalPrescriptionChangesViewedMutation: [fn(), {}],
   useUpdateSampleMutation: [fn(), {}],
   useUpdateSampleComplianceMutation: [fn(), {}],
   useUpdateSampleItemMutation: [fn(), {}],

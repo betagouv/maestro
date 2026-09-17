@@ -3,10 +3,11 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import clsx from 'clsx';
 import {
+  hasNewerLaunchedCampaign,
   type ProgrammingPlanChecked,
   ProgrammingPlanSort
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import dashboard from 'src/assets/illustrations/dashboard.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import { useAuthentication } from 'src/hooks/useAuthentication';
@@ -37,6 +38,17 @@ const DashboardView = () => {
         !user?.programmingSubPlans?.length &&
         !hasRole('AdministratorMaestro', 'AdministratorBGIR')
     }
+  );
+
+  const { data: programmingPlanDomains } =
+    apiClient.useFindProgrammingPlanDomainsQuery();
+
+  const domainLabelById = useMemo(
+    () =>
+      new Map(
+        (programmingPlanDomains ?? []).map(({ id, label }) => [id, label])
+      ),
+    [programmingPlanDomains]
   );
 
   const [currentValidatedProgrammingPlan, setCurrentValidatedProgrammingPlan] =
@@ -82,6 +94,11 @@ const DashboardView = () => {
             </Select>
           )}
           {currentValidatedProgrammingPlan &&
+            !hasNewerLaunchedCampaign(
+              currentValidatedProgrammingPlan,
+              programmingPlans ?? [],
+              domainLabelById
+            ) &&
             hasUserPermission('createSample') && (
               <Button
                 size="large"

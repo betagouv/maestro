@@ -34,6 +34,20 @@ describe('AppRouteLinks', () => {
     );
   });
 
+  test('serializes programming filters under the names the view reads', () => {
+    expect(
+      decodeURIComponent(
+        AppRouteLinks.ProgrammingRoute.link({
+          year: 2025,
+          programmingPlanIds: ['plan-1', 'plan-2'],
+          contexts: ['Surveillance']
+        })
+      )
+    ).toBe(
+      '/programmation?year=2025&programmingPlanIds=plan-1,plan-2&contexts=Surveillance'
+    );
+  });
+
   test('appends a query after the path param', () => {
     expect(
       decodeURIComponent(

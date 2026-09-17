@@ -138,7 +138,7 @@ const ProgrammingPlanCard = ({
             linkProps={{
               to: AuthenticatedAppRoutes.ProgrammingRoute.link({
                 year: programmingPlan.year,
-                context
+                contexts: [context]
               })
             }}
           >

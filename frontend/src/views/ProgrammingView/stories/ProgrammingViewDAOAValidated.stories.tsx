@@ -102,10 +102,10 @@ export const NationalCoordinatorView: Story = {
       canvas.queryByTestId('update-laboratory-button')
     ).not.toBeInTheDocument();
 
-    await expect(canvas.getByText('Statut par région')).toBeInTheDocument();
+    await expect(
+      canvas.queryByText('Statut par région')
+    ).not.toBeInTheDocument();
     await expect(canvas.queryByTestId('Commentaires')).not.toBeInTheDocument();
-
-    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
   }
 };
 
@@ -142,17 +142,16 @@ export const RegionalCoordinatorView: Story = {
     ).not.toBeInTheDocument();
 
     await expect(
-      canvas.getByText('Statut par département')
-    ).toBeInTheDocument();
+      canvas.queryByText('Statut par département')
+    ).not.toBeInTheDocument();
+    await expect(canvas.getByText('Suivi des plans')).toBeInTheDocument();
     await expect(canvas.queryByTestId('Commentaires')).not.toBeInTheDocument();
-
-    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
 
     await expect(
       Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
         el.textContent?.toLowerCase().includes('%')
       )
-    ).toHaveLength(prescriptions.length);
+    ).toHaveLength(0);
     await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
   }
 };
@@ -181,23 +180,16 @@ export const DepartmentalCoordinatorView: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getAllByTestId('update-laboratory-button').length).toBe(
-      regionalPrescriptions.filter(
-        (_) => _.department === DepartmentalCoordinator.department
-      ).length
-    );
+    await expect(
+      canvas.getAllByTestId('laboratorySelect-input').length
+    ).toBeGreaterThan(0);
 
     await expect(canvas.queryByText(/Statut/)).not.toBeInTheDocument();
     await expect(canvas.queryByTestId('Commentaires')).not.toBeInTheDocument();
 
-    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
+    await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
 
-    await expect(
-      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
-        el.textContent?.toLowerCase().includes('%')
-      )
-    ).toHaveLength(prescriptions.length);
-    await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
+    await expect(canvas.getByText('Suivi des plans')).toBeInTheDocument();
   }
 };
 
@@ -236,13 +228,16 @@ export const SamplerView: Story = {
     await expect(canvas.queryByText(/Statut/)).not.toBeInTheDocument();
     await expect(canvas.queryByText('Commentaires')).not.toBeInTheDocument();
 
-    await expect(canvas.queryByTestId('notify-button')).not.toBeInTheDocument();
+    await expect(canvas.getByTestId('prescription-table')).toBeInTheDocument();
 
     await expect(
-      Array.from(canvasElement.querySelectorAll('.fr-badge')).filter((el) =>
-        el.textContent?.toLowerCase().includes('%')
-      )
-    ).toHaveLength(prescriptions.length);
-    await expect(canvas.queryByText('attribué')).not.toBeInTheDocument();
+      canvas.queryByText('Attribution des laboratoires')
+    ).not.toBeInTheDocument();
+    await expect(canvasElement.querySelectorAll('.checkbox-cell')).toHaveLength(
+      0
+    );
+    await expect(canvas.getAllByText('N°').length).toBeGreaterThan(0);
+    await expect(canvas.getAllByText('Matrice').length).toBeGreaterThan(0);
+    await expect(canvas.getAllByText('Analyte').length).toBeGreaterThan(0);
   }
 };

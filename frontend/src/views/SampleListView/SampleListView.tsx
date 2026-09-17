@@ -44,6 +44,7 @@ import food from '../../assets/illustrations/food.svg';
 import { ApiClientContext } from '../../services/apiClient';
 import SupportDocumentDownload from '../SampleView/DraftSample/SupportDocumentDownload';
 import './SampleList.scss';
+import { hasNewerLaunchedCampaign } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 
 const SampleListView = () => {
   const apiClient = useContext(ApiClientContext);
@@ -67,6 +68,32 @@ const SampleListView = () => {
   const programmingPlan = useMemo(
     () => (programmingPlans?.length === 1 ? programmingPlans[0] : undefined),
     [programmingPlans]
+  );
+
+  const { data: allProgrammingPlans } = apiClient.useFindProgrammingPlansQuery(
+    {}
+  );
+
+  const { data: programmingPlanDomains } =
+    apiClient.useFindProgrammingPlanDomainsQuery();
+
+  const domainLabelById = useMemo(
+    () =>
+      new Map(
+        (programmingPlanDomains ?? []).map(({ id, label }) => [id, label])
+      ),
+    [programmingPlanDomains]
+  );
+
+  const hasNewerCampaign = useMemo(
+    () =>
+      !!programmingPlan &&
+      hasNewerLaunchedCampaign(
+        programmingPlan,
+        allProgrammingPlans ?? [],
+        domainLabelById
+      ),
+    [programmingPlan, allProgrammingPlans, domainLabelById]
   );
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery({
@@ -208,6 +235,7 @@ const SampleListView = () => {
       documentTitle="Liste des prélèvements"
       action={
         programmingPlan &&
+        !hasNewerCampaign &&
         hasUserPermission('createSample') && (
           <div
             className={clsx('d-flex-row', 'd-flex-justify-center')}
@@ -276,7 +304,7 @@ const SampleListView = () => {
                   title="Filtres actifs"
                   filters={findSampleOptions}
                   programmingPlans={programmingPlans}
-                  samplers={samplers}
+                  users={samplers}
                   onChange={changeFilter}
                   laboratories={laboratories}
                 />
@@ -310,7 +338,7 @@ const SampleListView = () => {
                     title="Filtres actifs"
                     filters={findSampleOptions}
                     programmingPlans={programmingPlans}
-                    samplers={samplers}
+                    users={samplers}
                     laboratories={laboratories}
                     onChange={changeFilter}
                   />

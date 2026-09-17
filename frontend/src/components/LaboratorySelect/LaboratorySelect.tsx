@@ -4,7 +4,8 @@ import {
   type AutocompleteRenderInputParams,
   Box
 } from '@mui/material';
-import { sortBy } from 'lodash-es';
+import clsx from 'clsx';
+import { isNil, sortBy } from 'lodash-es';
 import {
   getLaboratoryFullName,
   type Laboratory
@@ -20,10 +21,12 @@ import {
 } from 'react';
 import { ApiClientContext } from '../../services/apiClient';
 import AppRequiredInput from '../_app/AppRequired/AppRequiredInput';
+import './LaboratorySelect.scss';
 
 type Props = {
   programmingPlanId: string | undefined;
   programmingSubPlanId?: ProgrammingSubPlanId;
+  programmingSubPlanIds?: ProgrammingSubPlanId[];
   substanceKind?: SubstanceKind;
   laboratoryId?: string | null;
   laboratoryIds?: string[];
@@ -32,6 +35,9 @@ type Props = {
   required?: boolean;
   state?: 'success' | 'error' | 'default';
   stateRelatedMessage?: ReactNode;
+  hideLabel?: boolean;
+  pending?: boolean;
+  noOptionsMessage?: ReactNode;
 };
 
 const renderLaboratoryOption = (
@@ -55,12 +61,18 @@ const renderLaboratoryOption = (
 };
 
 const renderLaboratoryInput =
-  (required?: boolean) =>
+  (required?: boolean, compact?: boolean, pending?: boolean) =>
   ({ slotProps }: AutocompleteRenderInputParams) => (
     <div ref={slotProps.input.ref}>
       <input
         {...slotProps.htmlInput}
-        className="fr-input"
+        className={clsx(
+          cx('fr-input', compact && ['fr-py-3v', 'fr-px-2w']),
+          'laboratory-select-input',
+          {
+            'laboratory-select-input--pending': pending
+          }
+        )}
         type="text"
         placeholder="Rechercher un laboratoire"
         data-testid="laboratorySelect-input"
@@ -72,6 +84,7 @@ const renderLaboratoryInput =
 const LaboratorySelect = ({
   programmingPlanId,
   programmingSubPlanId,
+  programmingSubPlanIds,
   substanceKind,
   laboratoryId,
   laboratoryIds,
@@ -79,13 +92,17 @@ const LaboratorySelect = ({
   readonly,
   required,
   state,
-  stateRelatedMessage
+  stateRelatedMessage,
+  hideLabel,
+  pending,
+  noOptionsMessage
 }: Props) => {
   const apiClient = useContext(ApiClientContext);
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery({
     programmingPlanIds: toArray(programmingPlanId),
     programmingSubPlanId,
+    programmingSubPlanIds,
     substanceKind
   });
 
@@ -96,11 +113,15 @@ const LaboratorySelect = ({
   const selectedLaboratory =
     laboratories?.find((lab) => lab.id === laboratoryId) ?? null;
 
+  const hasNoOption = !isNil(laboratories) && options.length === 0;
+  const isDisabled = readonly || (hasNoOption && !isNil(noOptionsMessage));
+
   return (
     <div
       className={cx(
         'fr-input-group',
         'fr-mb-0',
+        hideLabel && ['fr-py-0', 'fr-px-2w'],
         (() => {
           switch (state) {
             case 'error':
@@ -113,11 +134,13 @@ const LaboratorySelect = ({
         })()
       )}
     >
-      {/** biome-ignore lint/a11y/noLabelWithoutControl: libellé associé à l'input rendu par renderInput */}
-      <label className={cx('fr-label')}>
-        Laboratoire
-        {required && <AppRequiredInput />}
-      </label>
+      {!hideLabel && (
+        // biome-ignore lint/a11y/noLabelWithoutControl: libellé associé à l'input rendu par renderInput
+        <label className={cx('fr-label')}>
+          Laboratoire
+          {required && <AppRequiredInput />}
+        </label>
+      )}
       <div className="fr-input-wrap fr-icon-search-line">
         <Autocomplete
           autoComplete
@@ -127,13 +150,16 @@ const LaboratorySelect = ({
           value={selectedLaboratory}
           getOptionLabel={getLaboratoryFullName}
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          disabled={readonly}
+          disabled={isDisabled}
           renderOption={renderLaboratoryOption}
           onChange={(_, value) => onSelect(value?.id ?? undefined)}
-          renderInput={renderLaboratoryInput(required)}
+          renderInput={renderLaboratoryInput(required, hideLabel, pending)}
           noOptionsText="Aucun laboratoire"
         />
       </div>
+      {hasNoOption && !isNil(noOptionsMessage) && (
+        <p className={cx('fr-hint-text', 'fr-mt-1w')}>{noOptionsMessage}</p>
+      )}
       {state && state !== 'default' && (
         <p
           className={cx(state === 'error' ? 'fr-error-text' : 'fr-valid-text')}
