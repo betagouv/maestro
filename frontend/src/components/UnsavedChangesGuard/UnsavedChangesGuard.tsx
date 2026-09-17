@@ -38,19 +38,19 @@ export const useUnsavedChangesGuard = ({
     )
   );
 
-  const isModalOpen = useIsModalOpen(unsavedChangesModal);
+  useIsModalOpen(unsavedChangesModal, {
+    onConceal: () => {
+      if (blocker.state === 'blocked') {
+        blocker.reset();
+      }
+    }
+  });
 
   useEffect(() => {
     if (blocker.state === 'blocked') {
       unsavedChangesModal.open();
     }
   }, [blocker.state]);
-
-  useEffect(() => {
-    if (!isModalOpen && blocker.state === 'blocked') {
-      blocker.reset();
-    }
-  }, [isModalOpen, blocker]);
 
   useEffect(() => {
     const handler = (event: BeforeUnloadEvent) => {
