@@ -892,8 +892,6 @@ const ProgrammingPrescriptionList = ({
     };
   }, [selectedPrescriptions, laboratorySlotsFor]);
 
-  const headerPlan = programmingPlans[0];
-
   return (
     <>
       {canImport && prescriptionFilters.year && (
@@ -945,7 +943,7 @@ const ProgrammingPrescriptionList = ({
         <>
           {
             <ProgrammingPrescriptionListHeader
-              programmingPlan={headerPlan}
+              programmingPlans={programmingPlans}
               counts={prescriptionCounts}
               exportURL={getApiUrl(
                 '/prescriptions/export',

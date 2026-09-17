@@ -16,7 +16,7 @@ import './ProgrammingPrescriptionList.scss';
 import { pluralize } from 'src/utils/stringUtils';
 
 interface Props {
-  programmingPlan: ProgrammingPlanChecked;
+  programmingPlans: ProgrammingPlanChecked[];
   counts?: PrescriptionCounts;
   exportURL: string;
   onImport?: () => void;
@@ -28,7 +28,7 @@ type ToggleFilterKey =
   | 'withNovelty';
 
 const ProgrammingPrescriptionListHeader = ({
-  programmingPlan,
+  programmingPlans,
   counts,
   exportURL,
   onImport
@@ -116,7 +116,9 @@ const ProgrammingPrescriptionListHeader = ({
         {hasUserPermission('updatePrescriptionLaboratories') &&
           (hasDepartmentalView ||
             (hasRegionalView &&
-              programmingPlan.distributionKind === 'REGIONAL')) &&
+              programmingPlans.some(
+                (plan) => plan.distributionKind === 'REGIONAL'
+              ))) &&
           filterToggle(
             'missingLaboratory',
             'Laboratoires à attribuer',
