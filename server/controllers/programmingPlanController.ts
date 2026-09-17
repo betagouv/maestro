@@ -755,12 +755,14 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
             { message: modifiedMessage(plan.year, 'Regional') }
           );
 
-          await notificationService.sendNotification(
-            { category: 'ProgrammingPlanModifiedAfterSubmission', link },
-            samplers,
-            modifiedParams(plan.year, 'Regional'),
-            { message: modifiedMessage(plan.year, 'Regional') }
-          );
+          if (!isNil(plan.launchedAt)) {
+            await notificationService.sendNotification(
+              { category: 'ProgrammingPlanModifiedAfterSubmission', link },
+              samplers,
+              modifiedParams(plan.year, 'Regional'),
+              { message: modifiedMessage(plan.year, 'Regional') }
+            );
+          }
         }
       }
 
@@ -1217,31 +1219,36 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
                 disabled: false
               });
 
-              if (isRedeployment) {
-                await notificationService.sendNotification(
-                  { category: 'ProgrammingPlanModifiedAfterSubmission', link },
-                  samplers,
-                  modifiedParams(programmingPlan.year, 'Departmental'),
-                  {
-                    message: modifiedMessage(
-                      programmingPlan.year,
-                      'Departmental'
-                    )
-                  }
-                );
-              } else if (!isNil(programmingPlan.launchedAt)) {
-                const planLines = await planLinesOf([programmingPlan]);
-                await notificationService.sendNotification(
-                  { category: 'ProgrammingPlanCampaignLaunched', link },
-                  samplers,
-                  samplerLaunchParams(programmingPlan.year, planLines),
-                  {
-                    message: samplerLaunchMessage(
-                      programmingPlan.year,
-                      planLines
-                    )
-                  }
-                );
+              if (!isNil(programmingPlan.launchedAt)) {
+                if (isRedeployment) {
+                  await notificationService.sendNotification(
+                    {
+                      category: 'ProgrammingPlanModifiedAfterSubmission',
+                      link
+                    },
+                    samplers,
+                    modifiedParams(programmingPlan.year, 'Departmental'),
+                    {
+                      message: modifiedMessage(
+                        programmingPlan.year,
+                        'Departmental'
+                      )
+                    }
+                  );
+                } else {
+                  const planLines = await planLinesOf([programmingPlan]);
+                  await notificationService.sendNotification(
+                    { category: 'ProgrammingPlanCampaignLaunched', link },
+                    samplers,
+                    samplerLaunchParams(programmingPlan.year, planLines),
+                    {
+                      message: samplerLaunchMessage(
+                        programmingPlan.year,
+                        planLines
+                      )
+                    }
+                  );
+                }
               }
             } else {
               if (
