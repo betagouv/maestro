@@ -1,3 +1,4 @@
+import type { Knex } from 'knex';
 import { isArray, isNil, omit, omitBy } from 'lodash-es';
 import { Department } from 'maestro-shared/referential/Department';
 import { Region } from 'maestro-shared/referential/Region';
@@ -176,6 +177,20 @@ const findUnique = async (
     .then((_) => _ && parseProgrammingPlan(_));
 };
 
+const whereDepartmentOrRegionalDistribution = (
+  builder: Knex.QueryBuilder,
+  department: Department
+) =>
+  builder.andWhere((qb) =>
+    qb
+      .where(`${programmingPlanLocalStatusTable}.department`, department)
+      .orWhere((regional) =>
+        regional
+          .where(`${programmingPlansTable}.distribution_kind`, 'REGIONAL')
+          .where(`${programmingPlanLocalStatusTable}.department`, 'None')
+      )
+  );
+
 const findMany = async (
   findOptions: FindProgrammingPlanOptions
 ): Promise<ProgrammingPlanChecked[]> => {
@@ -223,7 +238,10 @@ const findMany = async (
               qb2.andWhere('region', findOptions.region);
             }
             if (findOptions.department) {
-              qb2.andWhere('department', findOptions.department);
+              whereDepartmentOrRegionalDistribution(
+                qb2,
+                findOptions.department
+              );
             }
             if (isArray(findOptions.status)) {
               qb2.andWhere('status', 'in', findOptions.status);
@@ -241,7 +259,10 @@ const findMany = async (
                 qb3.andWhere('region', findOptions.region);
               }
               if (findOptions.department) {
-                qb3.andWhere('department', findOptions.department);
+                whereDepartmentOrRegionalDistribution(
+                  qb3,
+                  findOptions.department
+                );
               }
               if (isArray(findOptions.status)) {
                 qb3.andWhere('status', 'in', findOptions.status);

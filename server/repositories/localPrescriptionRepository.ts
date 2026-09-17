@@ -21,6 +21,7 @@ import {
 import { localPrescriptionCommentsTable } from './localPrescriptionCommentRepository';
 import { localPrescriptionSubstanceKindsLaboratoriesTable } from './localPrescriptionSubstanceKindLaboratoryRepository';
 import { prescriptionsTable } from './prescriptionRepository';
+import { programmingPlansTable } from './programmingPlanRepository';
 import { sampleStatusView, samplesTable } from './sampleRepository';
 
 const localPrescriptionsTable = 'local_prescriptions';
@@ -165,6 +166,11 @@ const findMany = async (
       `${localPrescriptionsTable}.prescription_id`,
       `${prescriptionsTable}.id`
     )
+    .join(
+      programmingPlansTable,
+      `${prescriptionsTable}.programming_plan_id`,
+      `${programmingPlansTable}.id`
+    )
     .modify((builder) => {
       if (findOptions.programmingPlanIds?.length) {
         builder.whereIn(
@@ -196,16 +202,35 @@ const findMany = async (
         if (!findOptions.department) {
           builder.where(`${localPrescriptionsTable}.companySiret`, 'None');
         } else {
-          builder.where(
-            `${localPrescriptionsTable}.department`,
-            findOptions.department
+          builder.where((where) =>
+            where
+              .where(
+                `${localPrescriptionsTable}.department`,
+                findOptions.department
+              )
+              .orWhere((regional) =>
+                regional
+                  .where(
+                    `${programmingPlansTable}.distribution_kind`,
+                    'REGIONAL'
+                  )
+                  .where(`${localPrescriptionsTable}.department`, 'None')
+              )
           );
         }
       }
       if (findOptions.companySirets && findOptions.companySirets.length > 0) {
-        builder.whereIn(
-          `${localPrescriptionsTable}.company_siret`,
-          findOptions.companySirets
+        builder.where((where) =>
+          where
+            .whereIn(
+              `${localPrescriptionsTable}.company_siret`,
+              findOptions.companySirets as string[]
+            )
+            .orWhere((regional) =>
+              regional
+                .where(`${programmingPlansTable}.distribution_kind`, 'REGIONAL')
+                .where(`${localPrescriptionsTable}.company_siret`, 'None')
+            )
         );
       }
       if (findOptions.programmingSubPlanIds) {

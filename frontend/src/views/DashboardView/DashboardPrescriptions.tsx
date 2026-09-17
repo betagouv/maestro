@@ -81,10 +81,13 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
     () =>
       filteredLocalPrescriptions(localPrescriptionsData ?? [], {
         region: regionFilter ?? undefined,
-        department: user?.department ?? undefined,
+        department:
+          programmingPlan.distributionKind === 'REGIONAL'
+            ? undefined
+            : (user?.department ?? undefined),
         companies: user?.companies
       }),
-    [localPrescriptionsData, regionFilter, user]
+    [localPrescriptionsData, regionFilter, user, programmingPlan]
   );
 
   const sortedPrescriptions = useMemo(

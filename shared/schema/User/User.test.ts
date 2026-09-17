@@ -1,10 +1,13 @@
 import { describe, expect, test } from 'vitest';
-import { genUser } from '../../test/userFixtures';
+import { SlaughterhouseCompanyFixture1 } from '../../test/companyFixtures';
+import { genUser, Region1Fixture } from '../../test/userFixtures';
 import {
   canSignIn,
   certificationIsRequired,
   programmingSubPlansAreRestricted,
-  stagesIsRequired
+  regionIsRequired,
+  stagesIsRequired,
+  UserRefined
 } from './User';
 
 describe('certificationIsRequired', () => {
@@ -106,5 +109,80 @@ describe('programmingSubPlansAreRestricted', () => {
     expect(
       programmingSubPlansAreRestricted({ roles: ['LaboratoryOffice'] })
     ).toBe(false);
+  });
+});
+
+describe('regionIsRequired', () => {
+  test('should be required for regional, departmental and sampler roles', () => {
+    expect(regionIsRequired({ roles: ['RegionalCoordinator'] })).toBe(true);
+    expect(regionIsRequired({ roles: ['DepartmentalObserver'] })).toBe(true);
+    expect(regionIsRequired({ roles: ['Sampler'] })).toBe(true);
+  });
+
+  test('should not be required for national roles', () => {
+    expect(regionIsRequired({ roles: ['NationalCoordinator'] })).toBe(false);
+    expect(regionIsRequired({ roles: ['AdministratorMaestro'] })).toBe(false);
+  });
+});
+
+describe('UserRefined department', () => {
+  test('should refuse a department for a sampler who does not work in a slaughterhouse', () => {
+    const result = UserRefined.safeParse(
+      genUser({
+        roles: ['Sampler'],
+        stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
+        region: Region1Fixture,
+        department: '08'
+      })
+    );
+
+    expect(result.error?.issues).toEqual([
+      expect.objectContaining({
+        path: ['department'],
+        message: 'Ce rôle ne peut pas être lié à un département.'
+      })
+    ]);
+  });
+
+  test('should accept a sampler without department who does not work in a slaughterhouse', () => {
+    const result = UserRefined.safeParse(
+      genUser({
+        roles: ['Sampler'],
+        stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
+        region: Region1Fixture,
+        department: null
+      })
+    );
+
+    expect(result.success).toBe(true);
+  });
+
+  test('should require a region for a sampler who does not work in a slaughterhouse', () => {
+    const result = UserRefined.safeParse(
+      genUser({
+        roles: ['Sampler'],
+        stages: ['PRODUCTION_PRIMAIRE_VEGETALE'],
+        region: null,
+        department: null
+      })
+    );
+
+    expect(result.error?.issues).toEqual([
+      expect.objectContaining({ path: ['region'] })
+    ]);
+  });
+
+  test('should accept a department for a sampler working in a slaughterhouse', () => {
+    const result = UserRefined.safeParse(
+      genUser({
+        roles: ['Sampler'],
+        stages: ['ABATTAGE', 'PRODUCTION_PRIMAIRE_VEGETALE'],
+        region: Region1Fixture,
+        department: '08',
+        companies: [SlaughterhouseCompanyFixture1]
+      })
+    );
+
+    expect(result.success).toBe(true);
   });
 });

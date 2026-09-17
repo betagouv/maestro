@@ -404,9 +404,25 @@ const ProgrammingPrescriptionList = ({
       filteredLocalPrescriptions(allLocalPrescriptionsWithPending ?? [], {
         region,
         department,
-        companies
+        companies,
+        regionalPrescriptionIds: (allPrescriptions ?? [])
+          .filter((prescription) =>
+            programmingPlans.some(
+              (plan) =>
+                plan.id === prescription.programmingPlanId &&
+                plan.distributionKind === 'REGIONAL'
+            )
+          )
+          .map((prescription) => prescription.id)
       }),
-    [allLocalPrescriptionsWithPending, department, region, companies]
+    [
+      allLocalPrescriptionsWithPending,
+      allPrescriptions,
+      programmingPlans,
+      department,
+      region,
+      companies
+    ]
   );
 
   const subLocalPrescriptions = useMemo(
