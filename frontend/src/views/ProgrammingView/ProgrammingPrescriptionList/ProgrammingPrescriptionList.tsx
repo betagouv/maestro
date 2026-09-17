@@ -133,6 +133,7 @@ const ProgrammingPrescriptionList = ({
     useState<Map<string, number>>(new Map());
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState(false);
   const [importResult, setImportResult] = useState<
     PrescriptionImportResult | undefined
   >(undefined);
@@ -177,20 +178,6 @@ const ProgrammingPrescriptionList = ({
     (prescription: Prescription): ProgrammingPlanChecked | undefined =>
       yearProgrammingPlans.find((p) => p.id === prescription.programmingPlanId),
     [yearProgrammingPlans]
-  );
-
-  const getPlanForPrescriptionId = useCallback(
-    (prescriptionId: string): ProgrammingPlanChecked => {
-      const plan = yearProgrammingPlans.find(
-        (p) =>
-          p.id ===
-          allPrescriptions?.find((r) => r.id === prescriptionId)
-            ?.programmingPlanId
-      );
-      return plan ?? programmingPlans[0];
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [yearProgrammingPlans, programmingPlans]
   );
 
   const findPrescriptionCountsOptions = useMemo(
@@ -257,6 +244,17 @@ const ProgrammingPrescriptionList = ({
       !planIds.length ||
       !FindPrescriptionOptions.safeParse(findPrescriptionOptions).success
   });
+
+  const getPlanForPrescriptionId = useCallback(
+    (prescriptionId: string): ProgrammingPlanChecked | undefined =>
+      yearProgrammingPlans.find(
+        (p) =>
+          p.id ===
+          allPrescriptions?.find((r) => r.id === prescriptionId)
+            ?.programmingPlanId
+      ),
+    [yearProgrammingPlans, allPrescriptions]
+  );
 
   const { data: departmentCompanies } = apiClient.useFindCompaniesQuery(
     {
@@ -535,7 +533,7 @@ const ProgrammingPrescriptionList = ({
           prescriptionId: prescription.id,
           programmingPlanId: plan.id,
           ...prescriptionUpdate
-        });
+        }).unwrap();
       }
     },
     [getPrescriptionPlan, hasUserPrescriptionPermission, updatePrescription]
@@ -552,13 +550,13 @@ const ProgrammingPrescriptionList = ({
           region: key.region,
           department: key.department,
           ...prescriptionUpdate
-        });
+        }).unwrap();
       } else {
         await updateLocalPrescription({
           prescriptionId: key.prescriptionId,
           region: key.region,
           ...prescriptionUpdate
-        });
+        }).unwrap();
       }
     },
     [updateLocalPrescription, updateDepartmentalLocalPrescription]
@@ -607,7 +605,18 @@ const ProgrammingPrescriptionList = ({
 
   const handleSave = useCallback(async () => {
     setIsSaving(true);
+    setSaveError(false);
     try {
+      const planIdForPrescriptionId = (prescriptionId: string): string => {
+        const plan = getPlanForPrescriptionId(prescriptionId);
+        if (!plan) {
+          throw new Error(
+            `Plan de programmation introuvable pour la prescription ${prescriptionId}`
+          );
+        }
+        return plan.id;
+      };
+
       const plainLocalChanges = Array.from(pendingLocalChanges.values()).filter(
         ({ key }) => !key.companySiret
       );
@@ -625,7 +634,7 @@ const ProgrammingPrescriptionList = ({
           changeLocalPrescription(key, {
             key: 'sampleCount',
             sampleCount,
-            programmingPlanId: getPlanForPrescriptionId(key.prescriptionId).id
+            programmingPlanId: planIdForPrescriptionId(key.prescriptionId)
           })
         ),
         ...slaughterhouseChangeGroups.map((entries) => {
@@ -654,7 +663,7 @@ const ProgrammingPrescriptionList = ({
             {
               key: 'slaughterhouseSampleCounts',
               slaughterhouseSampleCounts,
-              programmingPlanId: getPlanForPrescriptionId(prescriptionId).id
+              programmingPlanId: planIdForPrescriptionId(prescriptionId)
             }
           );
         }),
@@ -663,7 +672,7 @@ const ProgrammingPrescriptionList = ({
             changeLocalPrescription(key, {
               key: 'laboratories',
               substanceKindsLaboratories,
-              programmingPlanId: getPlanForPrescriptionId(key.prescriptionId).id
+              programmingPlanId: planIdForPrescriptionId(key.prescriptionId)
             })
         ),
         ...Array.from(pendingPrescriptionSampleCounts.entries()).map(
@@ -671,7 +680,9 @@ const ProgrammingPrescriptionList = ({
             const prescription = allPrescriptions?.find(
               (p) => p.id === prescriptionId
             );
-            if (!prescription) return Promise.resolve();
+            if (!prescription) {
+              throw new Error(`Prescription introuvable : ${prescriptionId}`);
+            }
             return changePrescription(prescription, { sampleCount });
           }
         )
@@ -689,6 +700,9 @@ const ProgrammingPrescriptionList = ({
       setPendingLaboratoryChanges(new Map());
       setPendingPrescriptionSampleCounts(new Map());
       setSaveSuccess(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch {
+      setSaveError(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setIsSaving(false);
@@ -919,6 +933,12 @@ const ProgrammingPrescriptionList = ({
         open={saveSuccess}
         description={saveSuccessMessage}
         onClose={() => setSaveSuccess(false)}
+      />
+      <AppToast
+        open={saveError}
+        severity="error"
+        description="Une erreur est survenue lors de l'enregistrement. Vos modifications n'ont pas été enregistrées, veuillez réessayer."
+        onClose={() => setSaveError(false)}
       />
 
       {prescriptions && localPrescriptions && prescriptionCounts && (

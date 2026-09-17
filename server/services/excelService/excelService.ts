@@ -428,6 +428,11 @@ const generatePrescriptionsExportExcel = async (
     (plan) => plan.distributionKind === 'SLAUGHTERHOUSE'
   );
 
+  const hasCompanyColumns =
+    hasSlaughterhousePlan &&
+    !isNil(exportedRegion) &&
+    !isNil(exportedDepartment);
+
   const exportedRegions = exportedRegion ? [exportedRegion] : RegionList;
   const exportedDepartments = !hasSlaughterhousePlan
     ? []
@@ -445,7 +450,7 @@ const generatePrescriptionsExportExcel = async (
   );
 
   const laboratories = await laboratoryRepository.findMany();
-  const departmentCompanies = exportedDepartment
+  const departmentCompanies = hasCompanyColumns
     ? await companyRepository.findMany({
         region: exportedRegion,
         department: exportedDepartment,
@@ -507,7 +512,7 @@ const generatePrescriptionsExportExcel = async (
       ])
     );
 
-    if (exportedDepartment) {
+    if (hasCompanyColumns) {
       columnTitles.push(
         ...companySirets.map((companySiret) => {
           const companyName =
@@ -595,7 +600,7 @@ const generatePrescriptionsExportExcel = async (
         );
       }
 
-      if (exportedRegion && exportedDepartment) {
+      if (hasCompanyColumns) {
         columns.push(
           ...companySirets.map(
             (companySiret) =>
@@ -659,7 +664,7 @@ const generatePrescriptionsExportExcel = async (
       })
     );
 
-    if (exportedRegion && exportedDepartment) {
+    if (hasCompanyColumns) {
       totalColums.push(
         ...companySirets.map((companySiret) =>
           sumBy(

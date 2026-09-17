@@ -5,11 +5,18 @@ import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtur
 import {
   FoieDeBovinLocalPrescriptionFixture,
   FoieDeBovinPrescriptionFixture,
+  genLocalPrescription,
+  genPrescription,
   VolailleLocalPrescriptionFixture,
   VolaillePrescriptionFixture
 } from 'maestro-shared/test/prescriptionFixtures';
-import { DAOAInProgressProgrammingPlanFixture } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  DAOAInProgressProgrammingPlanFixture,
+  PPVInProgressProgrammingPlanFixture,
+  PPVInProgressSubPlanId
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { describe, expect, test, vi } from 'vitest';
+import companyRepository from '../../repositories/companyRepository';
 import { excelService } from './excelService';
 
 vi.mock('../../repositories/laboratoryRepository', () => ({
@@ -181,5 +188,56 @@ describe('generatePrescriptionsExportExcel', async () => {
       M01;;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;13
       ;;;;Total;;;;26"
     `);
+  });
+
+  test('export prescription for departmental coordinator on a regional plan', async () => {
+    const regionPDL = '52';
+    const department = '85';
+    vi.mocked(companyRepository.findMany).mockClear();
+    vi.mocked(companyRepository.findMany).mockResolvedValue([
+      SlaughterhouseCompanyFixture1
+    ]);
+
+    const prescription = genPrescription({
+      id: '3b2c8b1a-2f4e-4c6d-8a9b-0c1d2e3f4a5b',
+      programmingPlanId: PPVInProgressProgrammingPlanFixture.id,
+      programmingSubPlanId: PPVInProgressSubPlanId,
+      context: 'Surveillance',
+      matrixKind: 'A00GY',
+      stages: ['STADE1'],
+      sampleCount: 12
+    });
+
+    const buffer = await excelService.generatePrescriptionsExportExcel(
+      [PPVInProgressProgrammingPlanFixture],
+      [prescription],
+      [
+        genLocalPrescription({
+          prescriptionId: prescription.id,
+          region: regionPDL,
+          sampleCount: 7
+        })
+      ],
+      regionPDL,
+      department
+    );
+
+    const workbook = XLSX.read(buffer, { type: 'buffer' });
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+
+    worksheet['!ref'] = XLSX.utils.encode_range({
+      s: { r: 0, c: 0 },
+      e: { r: 2, c: 9 }
+    });
+
+    expect(
+      XLSX.utils.sheet_to_csv(worksheet, { FS: ';' })
+    ).toMatchInlineSnapshot(`
+      "N°;Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;;
+      PPV;;Production primaire végétale;Plan de surveillance;Aulx et échalotes;Végétal au stade récolte;;;;
+      ;;;;Total;;;;;"
+    `);
+
+    expect(companyRepository.findMany).not.toHaveBeenCalled();
   });
 });
