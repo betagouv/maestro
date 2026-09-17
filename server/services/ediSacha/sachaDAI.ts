@@ -103,7 +103,7 @@ export const generateXMLDAI = (
         DialogueActeurType: {
           DialogueActeur: {
             SigleIdentifiant: 'DEPADM',
-            Identifiant: getSenderSachaSigle(sample.department, false),
+            Identifiant: getSenderSachaSigle(sample.department),
             Nom: sample.sampler.name ?? ''
           }
         },

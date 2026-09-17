@@ -3,7 +3,6 @@ import {
   type Department,
   DepartmentLabels
 } from 'maestro-shared/referential/Department';
-import type { LaboratoryShortName } from 'maestro-shared/referential/Laboratory';
 import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { formatWithTz } from 'maestro-shared/utils/date';
 import { type ZodObject, z } from 'zod';
@@ -90,18 +89,9 @@ export const generateXML = async <T extends SachaFileType>(
 
   const conf = fileTypeConf[fileType];
 
-  const withPrefix = hasSenderPrefix(laboratory.shortName);
-  const senderEmail = withPrefix
-    ? config.sigal.emailDdsvPrefix
-    : config.sigal.email;
+  const senderEmail = config.sigal.email;
 
-  const fileName: string = getXmlFileName(
-    fileType,
-    department,
-    sigle,
-    dateNow,
-    withPrefix
-  );
+  const fileName: string = getXmlFileName(fileType, department, sigle, dateNow);
 
   const fullContent = z
     .object({
@@ -121,7 +111,7 @@ export const generateXML = async <T extends SachaFileType>(
         CodeReferentielPrescripteur: 'SIGAL'
       },
       Emetteur: {
-        Sigle: getSenderSachaSigle(department, withPrefix),
+        Sigle: getSenderSachaSigle(department),
         LibellePartenaire: `DDPP ${DepartmentLabels[department]}`,
         EmailPartenaire: senderEmail
       },
@@ -155,11 +145,10 @@ export const getXmlFileName = (
   fileType: SachaFileType,
   department: Department,
   sigle: string,
-  dateNow: number,
-  withPrefix: boolean = true
+  dateNow: number
 ): string => {
   const currentDate: string = formatWithTz(dateNow, 'yyMMddHHmmssSSS');
-  return `${fileType}${getSenderSachaSigle(department, withPrefix)}${sigle}${currentDate}`;
+  return `${fileType}${getSenderSachaSigle(department)}${sigle}${currentDate}`;
 };
 
 export const getZipFileName = (
@@ -172,12 +161,5 @@ export const getZipFileName = (
   return `${fileType}${sigle}${currentDate}_${orderNumber}.zip`;
 };
 
-export const getSenderSachaSigle = (
-  department: Department,
-  withPrefix: boolean = true
-) => `${withPrefix ? 'M' : ''}DDSV${department}`;
-
-const SACHA_PREFIXED_LABORATORY_SHORT_NAMES: LaboratoryShortName[] = ['LDA 72'];
-
-const hasSenderPrefix = (shortName: LaboratoryShortName): boolean =>
-  SACHA_PREFIXED_LABORATORY_SHORT_NAMES.includes(shortName);
+export const getSenderSachaSigle = (department: Department) =>
+  `DDSV${department}`;
