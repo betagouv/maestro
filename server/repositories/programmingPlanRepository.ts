@@ -11,7 +11,6 @@ import {
   ProgrammingPlanChecked,
   ProgrammingPlanSort
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import z from 'zod';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
@@ -167,30 +166,6 @@ const findUnique = async (
   console.info('Find programming plan', id);
   return ProgrammingPlanQuery()
     .where({ id })
-    .first()
-    .then((_) => _ && parseProgrammingPlan(_));
-};
-
-const findOne = async (
-  year: number,
-  subPlanIds: ProgrammingSubPlanId[],
-  region?: Region | null
-): Promise<ProgrammingPlanChecked | undefined> => {
-  console.info('Find programming plan', year, subPlanIds, region);
-  return ProgrammingPlanQuery()
-    .where({ year })
-    .whereExists(
-      db(programmingSubPlansTable)
-        .whereIn(`${programmingSubPlansTable}.id`, subPlanIds)
-        .whereRaw(
-          `${programmingSubPlansTable}.programming_plan_id = ${programmingPlansTable}.id`
-        )
-    )
-    .modify((builder) => {
-      if (region) {
-        builder.where('region', region);
-      }
-    })
     .first()
     .then((_) => _ && parseProgrammingPlan(_));
 };
@@ -506,7 +481,6 @@ const parseProgrammingPlan = (
 
 export default {
   findUnique,
-  findOne,
   findMany,
   insert,
   update,

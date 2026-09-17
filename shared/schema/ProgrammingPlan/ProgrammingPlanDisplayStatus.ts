@@ -346,10 +346,6 @@ export const computeCompleteness = (
     (p) => (scopedByPrescription[p.id]?.[0]?.sampleCount ?? 0) > 0
   );
 
-  const hasRowForEveryPrescription = scopedPrescriptions.every(
-    (p) => (scopedByPrescription[p.id] ?? []).length > 0
-  );
-
   const isReconciledWithChildren =
     echelon === 'Regional' && distributionKind !== 'REGIONAL'
       ? scopedPrescriptions.every((p) => {
@@ -405,10 +401,7 @@ export const computeCompleteness = (
 
   return {
     isComplete:
-      scoped.length > 0 &&
-      hasRowForEveryPrescription &&
-      isReconciledWithChildren &&
-      hasLaboratoriesAssigned,
+      scoped.length > 0 && isReconciledWithChildren && hasLaboratoriesAssigned,
     hasAnyProgrammedSample: programmedCount > 0,
     programmedCount,
     attributedCount: sumBy(prescriptions, 'sampleCount')
