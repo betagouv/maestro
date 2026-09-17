@@ -175,13 +175,16 @@ export const prescriptionsRouter = {
         year: body.year
       });
 
-      if (
-        programmingPlans.length === 0 ||
-        programmingPlans.every(
-          (programmingPlan) =>
-            !hasPrescriptionPermission(userRole, programmingPlan).update
-        )
-      ) {
+      const updatablePlanIds = new Set(
+        programmingPlans
+          .filter(
+            (programmingPlan) =>
+              hasPrescriptionPermission(userRole, programmingPlan).update
+          )
+          .map((programmingPlan) => programmingPlan.id)
+      );
+
+      if (updatablePlanIds.size === 0) {
         return { status: HttpStatus.FORBIDDEN };
       }
 
@@ -209,12 +212,18 @@ export const prescriptionsRouter = {
         const prescriptionPlan = programmingPlans.find(
           (_) => _.id === prescription.programmingPlanId
         );
+
+        if (!prescriptionPlan || !updatablePlanIds.has(prescriptionPlan.id)) {
+          unrecognized.push(`Ligne ${cell.rowNumber}`);
+          continue;
+        }
+
         const localPrescription = await localPrescriptionRepository.findUnique({
           prescriptionId: prescription.id,
           region: cell.region
         });
 
-        if (!localPrescription || !prescriptionPlan) {
+        if (!localPrescription) {
           unrecognized.push(`Ligne ${cell.rowNumber}`);
           continue;
         }
