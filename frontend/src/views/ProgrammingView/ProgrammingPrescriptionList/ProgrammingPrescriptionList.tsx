@@ -1043,7 +1043,6 @@ const ProgrammingPrescriptionList = ({
       <LocalPrescriptionModal />
       {canBulkAssignLaboratories && (
         <BulkAssignLaboratoriesModal
-          programmingPlanId={headerPlan.id}
           programmingSubPlanIds={uniq(
             selectedPrescriptions.map((_) => _.programmingSubPlanId)
           )}

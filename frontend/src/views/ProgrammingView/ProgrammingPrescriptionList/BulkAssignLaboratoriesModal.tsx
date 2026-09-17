@@ -8,7 +8,6 @@ import { useEffect, useState } from 'react';
 import LaboratorySelect from 'src/components/LaboratorySelect/LaboratorySelect';
 
 interface Props {
-  programmingPlanId: string;
   programmingSubPlanIds: ProgrammingSubPlanId[];
   commonSlots: SubstanceKindLaboratory[];
   onSubmit: (substanceKindsLaboratories: SubstanceKindLaboratory[]) => void;
@@ -20,7 +19,6 @@ export const bulkAssignLaboratoriesModal = createModal({
 });
 
 const BulkAssignLaboratoriesModal = ({
-  programmingPlanId,
   programmingSubPlanIds,
   commonSlots,
   onSubmit
@@ -48,7 +46,7 @@ const BulkAssignLaboratoriesModal = ({
         }
       ]}
     >
-      {isOpen && (
+      {isOpen && programmingSubPlanIds.length > 0 && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             Définissez le laboratoire destinataire des prélèvements{' '}
@@ -64,7 +62,7 @@ const BulkAssignLaboratoriesModal = ({
                 {SubstanceKindLabels[skl.substanceKind]}
               </div>
               <LaboratorySelect
-                programmingPlanId={programmingPlanId}
+                programmingPlanId={undefined}
                 programmingSubPlanIds={programmingSubPlanIds}
                 substanceKind={skl.substanceKind}
                 noOptionsMessage="L’action groupée n’est pas possible sur cet analyte car les sous-plans n’ont aucun laboratoire agréé en commun."
