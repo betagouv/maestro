@@ -112,9 +112,6 @@
   col.col-region {
     width: $col-region-width;
   }
-  col.col-filler {
-    width: auto;
-  }
   col.col-company {
     width: $col-company-width;
   }
@@ -291,6 +288,24 @@
   .fr-table th.prelevements-cell,
   .fr-table td.prelevements-cell {
     border-right: 1px solid var(--border-contrast-grey);
+  }
+
+  &.programming-table--fit {
+    width: fit-content;
+    max-width: 100%;
+
+    .fr-table table {
+      min-width: 0;
+    }
+
+    .fr-table th:last-child,
+    .fr-table td:last-child {
+      border-right: none;
+    }
+
+    .fr-table > table thead::after {
+      background-size: 100% 1px, 1px 100%, 0 0;
+    }
   }
 
   .laboratoire-cell {

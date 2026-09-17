@@ -55,7 +55,6 @@ export const Colgroup = ({
         className={wideColumns ? 'col-company' : 'col-region'}
       />
     ))}
-    {columnCount === 0 && <col className="col-filler" />}
   </colgroup>
 );
 

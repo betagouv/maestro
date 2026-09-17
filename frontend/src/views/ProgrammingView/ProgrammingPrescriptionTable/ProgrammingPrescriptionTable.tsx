@@ -517,195 +517,170 @@ const ProgrammingPrescriptionTable = ({
   );
 
   return (
-    <div
-      data-testid="prescription-table"
-      className={clsx('programming-table', {
-        'programming-table--with-checkbox-column': showCheckboxColumn
-      })}
-      ref={tableContainerRef}
-    >
+    <div className={clsx(columnCount === 0 && cx('fr-container', 'fr-px-5w'))}>
       <div
-        className="header-wrapper"
-        ref={headerWrapperRef}
-        style={{ top: topOffset }}
+        data-testid="prescription-table"
+        className={clsx('programming-table', {
+          'programming-table--with-checkbox-column': showCheckboxColumn,
+          'programming-table--fit': columnCount === 0
+        })}
+        ref={tableContainerRef}
       >
         <div
-          className={clsx(
-            'fr-table',
-            'fr-table--bordered',
-            'fr-table--no-caption',
-            'fr-table--no-scroll'
-          )}
+          className="header-wrapper"
+          ref={headerWrapperRef}
+          style={{ top: topOffset }}
         >
-          <table>
-            <Colgroup
-              columnCount={columnCount}
-              showLaboratoryColumn={showLaboratoryColumn}
-              showCheckboxColumn={showCheckboxColumn}
-              wideColumns={!!department}
-            />
-            <thead>
-              <tr>
-                {showCheckboxColumn && (
-                  <th scope="col" className="checkbox-cell">
-                    <SelectionCheckbox
-                      variant="header"
-                      {...getSelectionState(prescriptions)}
-                      onChange={() => toggleGroupSelection(prescriptions)}
-                    />
+          <div
+            className={clsx(
+              'fr-table',
+              'fr-table--bordered',
+              'fr-table--no-caption',
+              'fr-table--no-scroll'
+            )}
+          >
+            <table>
+              <Colgroup
+                columnCount={columnCount}
+                showLaboratoryColumn={showLaboratoryColumn}
+                showCheckboxColumn={showCheckboxColumn}
+                wideColumns={!!department}
+              />
+              <thead>
+                <tr>
+                  {showCheckboxColumn && (
+                    <th scope="col" className="checkbox-cell">
+                      <SelectionCheckbox
+                        variant="header"
+                        {...getSelectionState(prescriptions)}
+                        onChange={() => toggleGroupSelection(prescriptions)}
+                      />
+                    </th>
+                  )}
+                  <th scope="col" className="n-cell">
+                    N°
                   </th>
-                )}
-                <th scope="col" className="n-cell">
-                  N°
-                </th>
-                <th scope="col" className={clsx('matrice-cell', 'border-left')}>
-                  Matrice
-                </th>
-                <th scope="col" className={clsx('analyte-cell', 'border-left')}>
-                  Analyte
-                </th>
-                <th
-                  scope="col"
-                  className={clsx('prelevements-cell', 'border-left')}
-                >
-                  Prélèvements
-                  <br />
-                  programmés
-                </th>
-                {showLaboratoryColumn && (
                   <th
                     scope="col"
-                    className={clsx('laboratoire-cell', 'border-right')}
+                    className={clsx('matrice-cell', 'border-left')}
                   >
-                    Attribution des laboratoires
+                    Matrice
                   </th>
-                )}
-                {!isSamplerView &&
-                  (department
-                    ? companies.map((company, columnIdx) => (
-                        <th
-                          scope="col"
-                          className={clsx(
-                            { 'border-left': columnIdx !== 0 },
-                            cx('fr-p-1w')
-                          )}
-                          key={`header-${company.siret}`}
-                        >
-                          <div className={cx('fr-text--xs', 'fr-text--light')}>
-                            Abattoir
-                          </div>
-                          <div
-                            className={clsx(
-                              cx('fr-text--bold'),
-                              'company-name'
-                            )}
-                            title={`${company.name}${company.city ? ` - ${company.city}` : ''}`}
-                          >
-                            {company.name}
-                            {company.city ? ` - ${company.city}` : ''}
-                          </div>
-                        </th>
-                      ))
-                    : region
-                      ? departmentList.map((departmentColumn, columnIdx) => (
-                          <th
-                            scope="col"
-                            className={clsx(
-                              { 'border-left': columnIdx !== 0 },
-                              cx('fr-p-1w')
-                            )}
-                            key={`header-${departmentColumn}`}
-                          >
-                            <TableHeaderCell
-                              shortName={departmentColumn}
-                              name={DepartmentLabels[departmentColumn]}
-                            />
-                          </th>
-                        ))
-                      : RegionList.map((regionColumn, columnIdx) => (
-                          <th
-                            scope="col"
-                            className={clsx(
-                              { 'border-left': columnIdx !== 0 },
-                              cx('fr-p-1w')
-                            )}
-                            key={`header-${regionColumn}`}
-                          >
-                            <TableHeaderCell
-                              shortName={Regions[regionColumn].shortName}
-                              name={Regions[regionColumn].name}
-                            />
-                          </th>
-                        )))}
-                {columnCount === 0 && <th className="filler-cell" />}
-              </tr>
-              <tr className="total-row">
-                {showCheckboxColumn && <td className="checkbox-cell" />}
-                <td colSpan={3} className={clsx('n-cell', cx('fr-text--bold'))}>
-                  Total prélèvements
-                </td>
-                <td
-                  className={clsx(
-                    'prelevements-cell',
-                    cx('fr-text--bold'),
-                    'border-left',
-                    'align-center'
+                  <th
+                    scope="col"
+                    className={clsx('analyte-cell', 'border-left')}
+                  >
+                    Analyte
+                  </th>
+                  <th
+                    scope="col"
+                    className={clsx('prelevements-cell', 'border-left')}
+                  >
+                    Prélèvements
+                    <br />
+                    programmés
+                  </th>
+                  {showLaboratoryColumn && (
+                    <th
+                      scope="col"
+                      className={clsx('laboratoire-cell', 'border-right')}
+                    >
+                      Attribution des laboratoires
+                    </th>
                   )}
-                >
-                  {region
-                    ? sumBy(
-                        visibleRegionalPrescriptions.filter(
-                          (r) => r.region === region
-                        ),
-                        'sampleCount'
-                      )
-                    : sumBy(prescriptions, 'sampleCount')}
-                </td>
-                {showLaboratoryColumn && (
-                  <td className={clsx('laboratoire-cell', 'border-right')} />
-                )}
-                {!isSamplerView &&
-                  (department
-                    ? companies.map((company, columnIdx) => (
-                        <td
-                          key={`total-${company.siret}`}
-                          className={clsx(
-                            cx('fr-text--bold'),
-                            { 'border-left': columnIdx !== 0 },
-                            'align-center'
-                          )}
-                        >
-                          {sumBy(
-                            visibleSubLocalPrescriptions.filter(
-                              (r) => r.companySiret === company.siret
-                            ),
-                            'sampleCount'
-                          )}
-                        </td>
-                      ))
-                    : region
-                      ? departmentList.map((departmentColumn, columnIdx) => (
-                          <td
-                            key={`total-${departmentColumn}`}
+                  {!isSamplerView &&
+                    (department
+                      ? companies.map((company, columnIdx) => (
+                          <th
+                            scope="col"
                             className={clsx(
-                              cx('fr-text--bold'),
                               { 'border-left': columnIdx !== 0 },
-                              'align-center'
+                              cx('fr-p-1w')
                             )}
+                            key={`header-${company.siret}`}
                           >
-                            {hasVisibleSlaughterhousePlan
-                              ? sumBy(
-                                  visibleSubLocalPrescriptions.filter(
-                                    (r) => r.department === departmentColumn
-                                  ),
-                                  'sampleCount'
-                                )
-                              : 'N/A'}
-                          </td>
+                            <div
+                              className={cx('fr-text--xs', 'fr-text--light')}
+                            >
+                              Abattoir
+                            </div>
+                            <div
+                              className={clsx(
+                                cx('fr-text--bold'),
+                                'company-name'
+                              )}
+                              title={`${company.name}${company.city ? ` - ${company.city}` : ''}`}
+                            >
+                              {company.name}
+                              {company.city ? ` - ${company.city}` : ''}
+                            </div>
+                          </th>
                         ))
-                      : RegionList.map((regionColumn, columnIdx) => (
+                      : region
+                        ? departmentList.map((departmentColumn, columnIdx) => (
+                            <th
+                              scope="col"
+                              className={clsx(
+                                { 'border-left': columnIdx !== 0 },
+                                cx('fr-p-1w')
+                              )}
+                              key={`header-${departmentColumn}`}
+                            >
+                              <TableHeaderCell
+                                shortName={departmentColumn}
+                                name={DepartmentLabels[departmentColumn]}
+                              />
+                            </th>
+                          ))
+                        : RegionList.map((regionColumn, columnIdx) => (
+                            <th
+                              scope="col"
+                              className={clsx(
+                                { 'border-left': columnIdx !== 0 },
+                                cx('fr-p-1w')
+                              )}
+                              key={`header-${regionColumn}`}
+                            >
+                              <TableHeaderCell
+                                shortName={Regions[regionColumn].shortName}
+                                name={Regions[regionColumn].name}
+                              />
+                            </th>
+                          )))}
+                </tr>
+                <tr className="total-row">
+                  {showCheckboxColumn && <td className="checkbox-cell" />}
+                  <td
+                    colSpan={3}
+                    className={clsx('n-cell', cx('fr-text--bold'))}
+                  >
+                    Total prélèvements
+                  </td>
+                  <td
+                    className={clsx(
+                      'prelevements-cell',
+                      cx('fr-text--bold'),
+                      'border-left',
+                      'align-center'
+                    )}
+                  >
+                    {region
+                      ? sumBy(
+                          visibleRegionalPrescriptions.filter(
+                            (r) => r.region === region
+                          ),
+                          'sampleCount'
+                        )
+                      : sumBy(prescriptions, 'sampleCount')}
+                  </td>
+                  {showLaboratoryColumn && (
+                    <td className={clsx('laboratoire-cell', 'border-right')} />
+                  )}
+                  {!isSamplerView &&
+                    (department
+                      ? companies.map((company, columnIdx) => (
                           <td
-                            key={`total-${regionColumn}`}
+                            key={`total-${company.siret}`}
                             className={clsx(
                               cx('fr-text--bold'),
                               { 'border-left': columnIdx !== 0 },
@@ -713,272 +688,316 @@ const ProgrammingPrescriptionTable = ({
                             )}
                           >
                             {sumBy(
-                              visibleRegionalPrescriptions.filter(
-                                (r) => r.region === regionColumn
+                              visibleSubLocalPrescriptions.filter(
+                                (r) => r.companySiret === company.siret
                               ),
                               'sampleCount'
                             )}
                           </td>
-                        )))}
-                {columnCount === 0 && <td className="filler-cell" />}
-              </tr>
-            </thead>
-          </table>
+                        ))
+                      : region
+                        ? departmentList.map((departmentColumn, columnIdx) => (
+                            <td
+                              key={`total-${departmentColumn}`}
+                              className={clsx(
+                                cx('fr-text--bold'),
+                                { 'border-left': columnIdx !== 0 },
+                                'align-center'
+                              )}
+                            >
+                              {hasVisibleSlaughterhousePlan
+                                ? sumBy(
+                                    visibleSubLocalPrescriptions.filter(
+                                      (r) => r.department === departmentColumn
+                                    ),
+                                    'sampleCount'
+                                  )
+                                : 'N/A'}
+                            </td>
+                          ))
+                        : RegionList.map((regionColumn, columnIdx) => (
+                            <td
+                              key={`total-${regionColumn}`}
+                              className={clsx(
+                                cx('fr-text--bold'),
+                                { 'border-left': columnIdx !== 0 },
+                                'align-center'
+                              )}
+                            >
+                              {sumBy(
+                                visibleRegionalPrescriptions.filter(
+                                  (r) => r.region === regionColumn
+                                ),
+                                'sampleCount'
+                              )}
+                            </td>
+                          )))}
+                </tr>
+              </thead>
+            </table>
+          </div>
         </div>
-      </div>
 
-      {planOrder.map((planId) => {
-        const plan =
-          programmingPlans.find((p) => p.id === planId) ?? programmingPlans[0];
-        const planPrescriptions = prescriptionsByPlan[planId] ?? [];
-        const contextOrder = [
-          ...new Set(planPrescriptions.map((p) => p.context))
-        ];
-        const prescriptionsByContext = groupBy(planPrescriptions, 'context');
+        {planOrder.map((planId) => {
+          const plan =
+            programmingPlans.find((p) => p.id === planId) ??
+            programmingPlans[0];
+          const planPrescriptions = prescriptionsByPlan[planId] ?? [];
+          const contextOrder = [
+            ...new Set(planPrescriptions.map((p) => p.context))
+          ];
+          const prescriptionsByContext = groupBy(planPrescriptions, 'context');
 
-        return (
-          <Fragment key={`plan-group-${planId}`}>
-            {contextOrder.map((context) => {
-              const contextPrescriptions =
-                prescriptionsByContext[context] ?? [];
-              const contextPrescriptionIds = new Set(
-                contextPrescriptions.map((p) => p.id)
-              );
-              const contextRegionalPrescriptions = regionalPrescriptions.filter(
-                (r) => contextPrescriptionIds.has(r.prescriptionId)
-              );
-              const contextSubLocalPrescriptions = subLocalPrescriptions.filter(
-                (r) => contextPrescriptionIds.has(r.prescriptionId)
-              );
+          return (
+            <Fragment key={`plan-group-${planId}`}>
+              {contextOrder.map((context) => {
+                const contextPrescriptions =
+                  prescriptionsByContext[context] ?? [];
+                const contextPrescriptionIds = new Set(
+                  contextPrescriptions.map((p) => p.id)
+                );
+                const contextRegionalPrescriptions =
+                  regionalPrescriptions.filter((r) =>
+                    contextPrescriptionIds.has(r.prescriptionId)
+                  );
+                const contextSubLocalPrescriptions =
+                  subLocalPrescriptions.filter((r) =>
+                    contextPrescriptionIds.has(r.prescriptionId)
+                  );
 
-              return (
-                <Fragment key={`plan-group-${planId}-${context}`}>
-                  <div
-                    className="plan-group-sticky-container"
-                    style={{ top: topOffset + headerHeight }}
-                  >
-                    {showCheckboxColumn && (
-                      <div className="plan-group-checkbox">
-                        <SelectionCheckbox
-                          variant="header"
-                          {...getSelectionState(contextPrescriptions)}
-                          onChange={() =>
-                            toggleGroupSelection(contextPrescriptions)
-                          }
-                        />
-                      </div>
-                    )}
+                return (
+                  <Fragment key={`plan-group-${planId}-${context}`}>
                     <div
-                      className={clsx(
-                        cx('fr-text--sm', 'fr-mb-0'),
-                        'plan-group-title'
+                      className="plan-group-sticky-container"
+                      style={{ top: topOffset + headerHeight }}
+                    >
+                      {showCheckboxColumn && (
+                        <div className="plan-group-checkbox">
+                          <SelectionCheckbox
+                            variant="header"
+                            {...getSelectionState(contextPrescriptions)}
+                            onChange={() =>
+                              toggleGroupSelection(contextPrescriptions)
+                            }
+                          />
+                        </div>
                       )}
-                    >
-                      {[
-                        domainLabels[plan.domainId],
-                        plan.title,
-                        ContextLabels[context]
-                      ]
-                        .filter(Boolean)
-                        .join(' | ')}
-                    </div>
-
-                    <div
-                      className="table-scroll-wrapper"
-                      ref={(el) => {
-                        if (el) {
-                          rowWrapperRefs.current.set(
-                            toPlanHeaderRowKey(planId, context),
-                            el
-                          );
-                        } else {
-                          rowWrapperRefs.current.delete(
-                            toPlanHeaderRowKey(planId, context)
-                          );
-                        }
-                      }}
-                      onScroll={(e) => sync(e.currentTarget)}
-                    >
                       <div
                         className={clsx(
-                          'fr-table',
-                          'fr-table--bordered',
-                          'fr-table--no-caption',
-                          'fr-table--no-scroll'
+                          cx('fr-text--sm', 'fr-mb-0'),
+                          'plan-group-title'
                         )}
                       >
-                        <table>
-                          <Colgroup
-                            columnCount={columnCount}
-                            showLaboratoryColumn={showLaboratoryColumn}
-                            showCheckboxColumn={showCheckboxColumn}
-                            wideColumns={!!department}
-                          />
-                          <tbody>
-                            <tr className="plan-group-header-row plan-group-total-row">
-                              {showCheckboxColumn && (
-                                <td className="checkbox-cell" />
-                              )}
-                              <td className="n-cell" colSpan={3}>
-                                Total prélèvements
-                              </td>
-                              <td
-                                className={clsx(
-                                  'prelevements-cell',
-                                  'border-left',
-                                  'align-center'
+                        {[
+                          domainLabels[plan.domainId],
+                          plan.title,
+                          ContextLabels[context]
+                        ]
+                          .filter(Boolean)
+                          .join(' | ')}
+                      </div>
+
+                      <div
+                        className="table-scroll-wrapper"
+                        ref={(el) => {
+                          if (el) {
+                            rowWrapperRefs.current.set(
+                              toPlanHeaderRowKey(planId, context),
+                              el
+                            );
+                          } else {
+                            rowWrapperRefs.current.delete(
+                              toPlanHeaderRowKey(planId, context)
+                            );
+                          }
+                        }}
+                        onScroll={(e) => sync(e.currentTarget)}
+                      >
+                        <div
+                          className={clsx(
+                            'fr-table',
+                            'fr-table--bordered',
+                            'fr-table--no-caption',
+                            'fr-table--no-scroll'
+                          )}
+                        >
+                          <table>
+                            <Colgroup
+                              columnCount={columnCount}
+                              showLaboratoryColumn={showLaboratoryColumn}
+                              showCheckboxColumn={showCheckboxColumn}
+                              wideColumns={!!department}
+                            />
+                            <tbody>
+                              <tr className="plan-group-header-row plan-group-total-row">
+                                {showCheckboxColumn && (
+                                  <td className="checkbox-cell" />
                                 )}
-                              >
-                                {region
-                                  ? sumBy(
-                                      contextRegionalPrescriptions.filter(
-                                        (r) => r.region === region
-                                      ),
-                                      'sampleCount'
-                                    )
-                                  : sumBy(contextPrescriptions, 'sampleCount')}
-                              </td>
-                              {showLaboratoryColumn && (
+                                <td className="n-cell" colSpan={3}>
+                                  Total prélèvements
+                                </td>
                                 <td
                                   className={clsx(
-                                    'laboratoire-cell',
-                                    'border-right'
+                                    'prelevements-cell',
+                                    'border-left',
+                                    'align-center'
                                   )}
-                                />
-                              )}
-                              {!isSamplerView &&
-                                (department
-                                  ? companies.map((company, columnIdx) => (
-                                      <td
-                                        key={company.siret}
-                                        className={clsx('align-center', {
-                                          'border-left': columnIdx !== 0
-                                        })}
-                                      >
-                                        {sumBy(
-                                          contextSubLocalPrescriptions.filter(
-                                            (r) =>
-                                              r.companySiret === company.siret
-                                          ),
-                                          'sampleCount'
-                                        )}
-                                      </td>
-                                    ))
-                                  : region
-                                    ? departmentList.map((departmentColumn) => (
+                                >
+                                  {region
+                                    ? sumBy(
+                                        contextRegionalPrescriptions.filter(
+                                          (r) => r.region === region
+                                        ),
+                                        'sampleCount'
+                                      )
+                                    : sumBy(
+                                        contextPrescriptions,
+                                        'sampleCount'
+                                      )}
+                                </td>
+                                {showLaboratoryColumn && (
+                                  <td
+                                    className={clsx(
+                                      'laboratoire-cell',
+                                      'border-right'
+                                    )}
+                                  />
+                                )}
+                                {!isSamplerView &&
+                                  (department
+                                    ? companies.map((company, columnIdx) => (
                                         <td
-                                          key={departmentColumn}
+                                          key={company.siret}
                                           className={clsx('align-center', {
-                                            'border-left':
-                                              departmentColumn !==
-                                              departmentList[0]
+                                            'border-left': columnIdx !== 0
                                           })}
                                         >
-                                          {plan.distributionKind ===
-                                          'SLAUGHTERHOUSE'
-                                            ? sumBy(
-                                                contextSubLocalPrescriptions.filter(
-                                                  (r) =>
-                                                    r.department ===
-                                                    departmentColumn
-                                                ),
-                                                'sampleCount'
-                                              )
-                                            : 'N/A'}
+                                          {sumBy(
+                                            contextSubLocalPrescriptions.filter(
+                                              (r) =>
+                                                r.companySiret === company.siret
+                                            ),
+                                            'sampleCount'
+                                          )}
                                         </td>
                                       ))
-                                    : RegionList.map(
-                                        (regionColumn, columnIdx) => (
-                                          <td
-                                            key={regionColumn}
-                                            className={clsx('align-center', {
-                                              'border-left': columnIdx !== 0
-                                            })}
-                                          >
-                                            {sumBy(
-                                              contextRegionalPrescriptions.filter(
-                                                (r) => r.region === regionColumn
-                                              ),
-                                              'sampleCount'
-                                            )}
-                                          </td>
+                                    : region
+                                      ? departmentList.map(
+                                          (departmentColumn) => (
+                                            <td
+                                              key={departmentColumn}
+                                              className={clsx('align-center', {
+                                                'border-left':
+                                                  departmentColumn !==
+                                                  departmentList[0]
+                                              })}
+                                            >
+                                              {plan.distributionKind ===
+                                              'SLAUGHTERHOUSE'
+                                                ? sumBy(
+                                                    contextSubLocalPrescriptions.filter(
+                                                      (r) =>
+                                                        r.department ===
+                                                        departmentColumn
+                                                    ),
+                                                    'sampleCount'
+                                                  )
+                                                : 'N/A'}
+                                            </td>
+                                          )
                                         )
-                                      ))}
-                              {columnCount === 0 && (
-                                <td className="filler-cell" />
-                              )}
-                            </tr>
-                          </tbody>
-                        </table>
+                                      : RegionList.map(
+                                          (regionColumn, columnIdx) => (
+                                            <td
+                                              key={regionColumn}
+                                              className={clsx('align-center', {
+                                                'border-left': columnIdx !== 0
+                                              })}
+                                            >
+                                              {sumBy(
+                                                contextRegionalPrescriptions.filter(
+                                                  (r) =>
+                                                    r.region === regionColumn
+                                                ),
+                                                'sampleCount'
+                                              )}
+                                            </td>
+                                          )
+                                        ))}
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {contextPrescriptions
-                    .filter((prescription) =>
-                      renderedPrescriptionIds.has(prescription.id)
-                    )
-                    .map((prescription) => (
-                      <ProgrammingPrescriptionRow
-                        key={prescription.id}
-                        prescription={prescription}
-                        plan={getPlan(prescription)}
-                        subPlan={getSubPlan(prescription)}
-                        programmingPlans={programmingPlans}
-                        localPrescriptions={getLocalPrescriptions(
-                          prescription.id
-                        )}
-                        ownRegionalPrescription={
-                          region
-                            ? getOwnRegionalPrescription(prescription.id)
-                            : undefined
-                        }
-                        rowSubLocalPrescriptions={
-                          region
-                            ? getSubLocalPrescriptions(prescription.id)
-                            : []
-                        }
-                        rowCommentCount={
-                          commentCountByPrescriptionId.get(prescription.id) ?? 0
-                        }
-                        isSelected={isPrescriptionSelected(prescription)}
-                        isSamplerView={isSamplerView}
-                        showCheckboxColumn={showCheckboxColumn}
-                        showLaboratoryColumn={showLaboratoryColumn}
-                        columnCount={columnCount}
-                        departmentList={departmentList}
-                        companies={companies}
-                        region={region}
-                        department={department}
-                        pendingLocalKeys={pendingLocalKeys}
-                        pendingLaboratoryKeys={pendingLaboratoryKeys}
-                        pendingPrescriptionIds={pendingPrescriptionIds}
-                        onChangeLocalPrescriptionCount={
-                          onChangeLocalPrescriptionCount
-                        }
-                        onChangeLocalPrescriptionLaboratories={
-                          onChangeLocalPrescriptionLaboratories
-                        }
-                        onChangePrescriptionSampleCount={
-                          onChangePrescriptionSampleCount
-                        }
-                        onTogglePrescriptionSelection={
-                          onTogglePrescriptionSelection
-                        }
-                        onOpenComments={onOpenComments}
-                        registerRowWrapper={registerRowWrapper}
-                        onRowScroll={sync}
-                      />
-                    ))}
-                </Fragment>
-              );
-            })}
-          </Fragment>
-        );
-      })}
+                    {contextPrescriptions
+                      .filter((prescription) =>
+                        renderedPrescriptionIds.has(prescription.id)
+                      )
+                      .map((prescription) => (
+                        <ProgrammingPrescriptionRow
+                          key={prescription.id}
+                          prescription={prescription}
+                          plan={getPlan(prescription)}
+                          subPlan={getSubPlan(prescription)}
+                          programmingPlans={programmingPlans}
+                          localPrescriptions={getLocalPrescriptions(
+                            prescription.id
+                          )}
+                          ownRegionalPrescription={
+                            region
+                              ? getOwnRegionalPrescription(prescription.id)
+                              : undefined
+                          }
+                          rowSubLocalPrescriptions={
+                            region
+                              ? getSubLocalPrescriptions(prescription.id)
+                              : []
+                          }
+                          rowCommentCount={
+                            commentCountByPrescriptionId.get(prescription.id) ??
+                            0
+                          }
+                          isSelected={isPrescriptionSelected(prescription)}
+                          isSamplerView={isSamplerView}
+                          showCheckboxColumn={showCheckboxColumn}
+                          showLaboratoryColumn={showLaboratoryColumn}
+                          columnCount={columnCount}
+                          departmentList={departmentList}
+                          companies={companies}
+                          region={region}
+                          department={department}
+                          pendingLocalKeys={pendingLocalKeys}
+                          pendingLaboratoryKeys={pendingLaboratoryKeys}
+                          pendingPrescriptionIds={pendingPrescriptionIds}
+                          onChangeLocalPrescriptionCount={
+                            onChangeLocalPrescriptionCount
+                          }
+                          onChangeLocalPrescriptionLaboratories={
+                            onChangeLocalPrescriptionLaboratories
+                          }
+                          onChangePrescriptionSampleCount={
+                            onChangePrescriptionSampleCount
+                          }
+                          onTogglePrescriptionSelection={
+                            onTogglePrescriptionSelection
+                          }
+                          onOpenComments={onOpenComments}
+                          registerRowWrapper={registerRowWrapper}
+                          onRowScroll={sync}
+                        />
+                      ))}
+                  </Fragment>
+                );
+              })}
+            </Fragment>
+          );
+        })}
 
-      <div className="sticky-scrollbar" ref={stickyScrollRef}>
-        <div ref={stickyInnerRef} />
+        <div className="sticky-scrollbar" ref={stickyScrollRef}>
+          <div ref={stickyInnerRef} />
+        </div>
       </div>
     </div>
   );
