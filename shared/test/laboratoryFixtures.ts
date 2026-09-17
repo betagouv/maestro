@@ -23,7 +23,7 @@ export const genLaboratory = (
   emails: [fakerFR.internet.email()],
   emailsAnalysisResult: [],
   legacyDai: false,
-  sacha: { activated: false, sigle: null, communication: null },
+  sacha: { activated: false, sigle: null, recipientEmail: null },
   ...data
 });
 

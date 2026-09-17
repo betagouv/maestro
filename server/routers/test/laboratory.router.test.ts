@@ -139,7 +139,7 @@ describe('Laboratory router', () => {
         .send({
           ...baseBody,
           legacyDai: false,
-          sacha: { activated: false, sigle: null, communication: null }
+          sacha: { activated: false, sigle: null, recipientEmail: null }
         })
         .expect(constants.HTTP_STATUS_UNAUTHORIZED);
     });
@@ -152,7 +152,7 @@ describe('Laboratory router', () => {
           .send({
             ...baseBody,
             legacyDai: false,
-            sacha: { activated: false, sigle: null, communication: null }
+            sacha: { activated: false, sigle: null, recipientEmail: null }
           })
           .expect(constants.HTTP_STATUS_FORBIDDEN);
 
@@ -162,7 +162,7 @@ describe('Laboratory router', () => {
       await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
 
-    test('should accept a valid SACHA EMAIL config', async () => {
+    test('should accept a valid SACHA config', async () => {
       await request(app)
         .put(testRoute(LaboratoryFixture.id))
         .use(tokenProvider(AdminFixture))
@@ -172,84 +172,7 @@ describe('Laboratory router', () => {
           sacha: {
             activated: true,
             sigle: 'LAB1',
-            communication: {
-              method: 'EMAIL',
-              recipientEmail: 'sacha@lab.fr',
-              gpgEmail: 'sacha-gpg@lab.fr',
-              gpgPublicKey: `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
-f2LgSfYvHNZbocMsQoVBhv3yF1i9/Hw=
-=mKxP`
-            }
-          }
-        })
-        .expect(constants.HTTP_STATUS_OK);
-    });
-
-    test('should accept a SACHA EMAIL config without GPG', async () => {
-      await request(app)
-        .put(testRoute(LaboratoryFixture.id))
-        .use(tokenProvider(AdminFixture))
-        .send({
-          ...baseBody,
-          legacyDai: false,
-          sacha: {
-            activated: true,
-            sigle: 'LAB1',
-            communication: {
-              method: 'EMAIL',
-              recipientEmail: 'sacha@lab.fr'
-            }
-          }
-        })
-        .expect(constants.HTTP_STATUS_OK);
-    });
-
-    test('should accept a valid SACHA SFTP config', async () => {
-      await request(app)
-        .put(testRoute(LaboratoryFixture.id))
-        .use(tokenProvider(AdminFixture))
-        .send({
-          ...baseBody,
-          legacyDai: false,
-          sacha: {
-            activated: true,
-            sigle: 'LAB1',
-            communication: { method: 'SFTP', sftpLogin: 'sftp-user' }
+            recipientEmail: 'sacha@lab.fr'
           }
         })
         .expect(constants.HTTP_STATUS_OK);
@@ -270,23 +193,19 @@ f2LgSfYvHNZbocMsQoVBhv3yF1i9/Hw=
         .send({
           ...baseBody,
           legacyDai: true,
-          sacha: { activated: true, sigle: null, communication: null }
+          sacha: { activated: true, sigle: null, recipientEmail: null }
         })
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });
 
-    test('should reject an EMAIL communication without email', async () => {
+    test('should reject a SACHA config with an invalid activated flag', async () => {
       await request(app)
         .put(testRoute(LaboratoryFixture.id))
         .use(tokenProvider(AdminFixture))
         .send({
           ...baseBody,
           legacyDai: false,
-          sacha: {
-            activated: true,
-            sigle: 'LAB1',
-            communication: { method: 'EMAIL', gpgPublicKey: 'PUBKEY' }
-          }
+          sacha: { activated: 'oui', sigle: 'LAB1', recipientEmail: null }
         })
         .expect(constants.HTTP_STATUS_BAD_REQUEST);
     });

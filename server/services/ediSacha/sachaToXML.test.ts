@@ -21,12 +21,7 @@ const laboratory: LaboratoryWithSacha = {
   sacha: {
     activated: true,
     sigle: 'LDA72',
-    communication: {
-      method: 'EMAIL',
-      recipientEmail: 'fake@email.fr',
-      gpgEmail: 'fake-gpg@email.fr',
-      gpgPublicKey: 'gpg'
-    }
+    recipientEmail: 'fake@email.fr'
   }
 };
 
@@ -56,10 +51,10 @@ test(`génère un XML d'acquittement`, async () => {
       "content": "<?xml version="1.0" encoding="UTF-8"?>
     <AcquittementNonAcquittement schemavalidation="AcquittementNonAcquittement.xsd">
       <MessageParametres>
-        <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
-        <VersionScenario>1.0.1</VersionScenario>
+        <CodeScenario>MAESTRO</CodeScenario>
+        <VersionScenario>1.0.0</VersionScenario>
         <TypeFichier>AN01</TypeFichier>
-        <NomFichier>AN01MDDSV72LDA72251216100736798</NomFichier>
+        <NomFichier>AN01DDSV72LDA72251216100736798</NomFichier>
         <VersionReferenceStandardisees>v12341234</VersionReferenceStandardisees>
         <VersionReferencePrescripteur>v234</VersionReferencePrescripteur>
         <NomLogicielCreation>SIGAL</NomLogicielCreation>
@@ -67,9 +62,9 @@ test(`génère un XML d'acquittement`, async () => {
         <CodeReferentielPrescripteur>SIGAL</CodeReferentielPrescripteur>
       </MessageParametres>
       <Emetteur>
-        <Sigle>MDDSV72</Sigle>
+        <Sigle>DDSV72</Sigle>
         <LibellePartenaire>DDPP Sarthe</LibellePartenaire>
-        <EmailPartenaire>contact-ddsv@maestro.beta.gouv.fr</EmailPartenaire>
+        <EmailPartenaire>contact@maestro.beta.gouv.fr</EmailPartenaire>
       </Emetteur>
       <Destinataire>
         <Sigle>LDA72</Sigle>
@@ -82,7 +77,7 @@ test(`génère un XML d'acquittement`, async () => {
       </MessageAcquittement>
     </AcquittementNonAcquittement>
     ",
-      "fileName": "AN01MDDSV72LDA72251216100736798",
+      "fileName": "AN01DDSV72LDA72251216100736798",
       "fileType": "AN01",
     }
   `
@@ -109,10 +104,10 @@ test(`génère un XML de non-acquittement`, async () => {
     "<?xml version="1.0" encoding="UTF-8"?>
     <AcquittementNonAcquittement schemavalidation="AcquittementNonAcquittement.xsd">
       <MessageParametres>
-        <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
-        <VersionScenario>1.0.1</VersionScenario>
+        <CodeScenario>MAESTRO</CodeScenario>
+        <VersionScenario>1.0.0</VersionScenario>
         <TypeFichier>AN01</TypeFichier>
-        <NomFichier>AN01MDDSV72LDA72251216100736798</NomFichier>
+        <NomFichier>AN01DDSV72LDA72251216100736798</NomFichier>
         <VersionReferenceStandardisees>v12341234</VersionReferenceStandardisees>
         <VersionReferencePrescripteur>v234</VersionReferencePrescripteur>
         <NomLogicielCreation>SIGAL</NomLogicielCreation>
@@ -120,9 +115,9 @@ test(`génère un XML de non-acquittement`, async () => {
         <CodeReferentielPrescripteur>SIGAL</CodeReferentielPrescripteur>
       </MessageParametres>
       <Emetteur>
-        <Sigle>MDDSV72</Sigle>
+        <Sigle>DDSV72</Sigle>
         <LibellePartenaire>DDPP Sarthe</LibellePartenaire>
-        <EmailPartenaire>contact-ddsv@maestro.beta.gouv.fr</EmailPartenaire>
+        <EmailPartenaire>contact@maestro.beta.gouv.fr</EmailPartenaire>
       </Emetteur>
       <Destinataire>
         <Sigle>LDA72</Sigle>
@@ -168,17 +163,9 @@ test('getXmlFileName', () => {
       'LABERCA',
       new Date('2025-12-16T10:07:36.798+01:00').getTime()
     )
-  ).toBe('AN01MDDSV35LABERCA251216100736798');
-  expect(
-    getXmlFileName(
-      'AN01',
-      '35',
-      'LABERCA',
-      new Date('2025-12-16T10:07:36.798+01:00').getTime(),
-      false
-    )
   ).toBe('AN01DDSV35LABERCA251216100736798');
 });
+
 test('getZipFileName', () => {
   expect(
     getZipFileName(

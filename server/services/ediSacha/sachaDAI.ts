@@ -103,7 +103,7 @@ export const generateXMLDAI = (
         DialogueActeurType: {
           DialogueActeur: {
             SigleIdentifiant: 'DEPADM',
-            Identifiant: getSenderSachaSigle(sample.department, false),
+            Identifiant: getSenderSachaSigle(sample.department),
             Nom: sample.sampler.name ?? ''
           }
         },
@@ -247,10 +247,10 @@ export const sendDAIWithEDI = async (
     (documentId) => Promise.resolve(documentId)
   );
 
-  const sentMethod = await sendSachaFile(xmlFile, dateNow, laboratory);
+  await sendSachaFile(xmlFile, dateNow, laboratory);
 
   return {
-    sentMethod,
+    sentMethod: 'SFTP',
     documentIds: [xmlDocumentId]
   };
 };
