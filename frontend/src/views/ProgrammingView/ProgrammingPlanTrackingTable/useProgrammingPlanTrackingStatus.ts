@@ -8,8 +8,7 @@ import {
 } from 'maestro-shared/referential/Region';
 import {
   type DisplayStatusResult,
-  hasSentOnward,
-  type ProgrammingPlanEchelon
+  hasSentOnward
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useMemo } from 'react';
@@ -32,8 +31,6 @@ interface PlanStatusInfo {
   isLaunchable: boolean;
   regionalAggregate: AggregateDisplayStatus;
   departmentalAggregate: AggregateDisplayStatus | undefined;
-  isSubmitted: boolean;
-  isFinalized: boolean;
 }
 
 export const useProgrammingPlanTrackingStatus = (
@@ -169,24 +166,6 @@ export const useProgrammingPlanTrackingStatus = (
         ) &&
         nationalDisplayStatus.value !== 'NotApplicable';
 
-      const regionalIsSubmitted = region
-        ? regionalDisplayStatus?.value === 'Submitted'
-        : regionalAggregate.value === 'Submitted';
-
-      const isFinalized =
-        plan.distributionKind === 'SLAUGHTERHOUSE'
-          ? department
-            ? departmentalDisplayStatus?.value === 'Submitted'
-            : departmentalAggregate?.value === 'Submitted' &&
-              regionalIsSubmitted
-          : regionalIsSubmitted;
-
-      const ownDisplayStatus = department
-        ? departmentalDisplayStatus
-        : region
-          ? regionalDisplayStatus
-          : nationalDisplayStatus;
-
       map.set(plan.id, {
         nationalDisplayStatus,
         regionalDisplayStatus,
@@ -194,9 +173,7 @@ export const useProgrammingPlanTrackingStatus = (
         isEligible,
         isLaunchable,
         regionalAggregate,
-        departmentalAggregate,
-        isSubmitted: ownDisplayStatus?.value === 'Submitted',
-        isFinalized
+        departmentalAggregate
       });
     }
     return map;
@@ -218,30 +195,8 @@ export const useProgrammingPlanTrackingStatus = (
     [programmingPlans, planStatusInfo]
   );
 
-  const indicators = useMemo(
-    () => ({
-      echelon: (department
-        ? 'Departmental'
-        : region
-          ? 'Regional'
-          : 'National') as ProgrammingPlanEchelon,
-      totalCount: programmingPlans.length,
-      finalizedCount: programmingPlans.filter(
-        (plan) => planStatusInfo.get(plan.id)?.isFinalized
-      ).length,
-      hasSlaughterhousePlan,
-      submittedCount: programmingPlans.filter((plan) => {
-        const info = planStatusInfo.get(plan.id);
-        return info?.isSubmitted && !info.isFinalized;
-      }).length,
-      readyToSendCount: readyToSendPlans.length
-    }),
-    [programmingPlans, planStatusInfo, readyToSendPlans, region, department]
-  );
-
   return {
     planStatusInfo,
-    indicators,
     readyToSendPlans,
     prescriptionsByPlan,
     localPrescriptionsByPrescription

@@ -50,7 +50,6 @@ import ProgrammingPlanTrackingFilters, {
   SettingsStatusLabels,
   type TrackingFilters
 } from './ProgrammingPlanTrackingFilters';
-import ProgrammingPlanTrackingHeader from './ProgrammingPlanTrackingHeader';
 import {
   type AggregateDisplayStatus,
   buildEchelonDisplayStatus
@@ -152,7 +151,6 @@ const ProgrammingPlanTrackingTable = ({
 
   const {
     planStatusInfo,
-    indicators,
     prescriptionsByPlan,
     localPrescriptionsByPrescription
   } = useProgrammingPlanTrackingStatus(programmingPlans, region, department);
@@ -449,7 +447,11 @@ const ProgrammingPlanTrackingTable = ({
         description="La campagne a bien été lancée sur les plans sélectionnés."
         onClose={() => setLaunchSuccess(false)}
       />
-      <ProgrammingPlanTrackingHeader {...indicators} />
+      <div
+        className={cx('fr-container', 'fr-px-5w', 'fr-mb-2w', 'fr-mb-md-3w')}
+      >
+        <h4 className={cx('fr-mb-1w')}>Suivi des plans</h4>
+      </div>
       <ProgrammingPlanTrackingFilters
         filters={filters}
         onChange={setFilters}
