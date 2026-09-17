@@ -212,10 +212,19 @@ export const filteredLocalPrescriptions = (
   {
     region,
     department,
-    companies
-  }: { region?: Region; department?: Department; companies?: Company[] }
+    companies,
+    regionalPrescriptionIds = []
+  }: {
+    region?: Region;
+    department?: Department;
+    companies?: Company[];
+    regionalPrescriptionIds?: string[];
+  }
 ) =>
   (localPrescriptions ?? []).filter((_) => {
+    if (regionalPrescriptionIds.includes(_.prescriptionId)) {
+      return isNil(_.department);
+    }
     if (department && companies && companies.length > 0) {
       return (
         _.region === region &&

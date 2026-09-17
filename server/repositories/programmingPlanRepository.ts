@@ -114,9 +114,26 @@ const findMany = async (
   console.info('Find programming plans', omitBy(findOptions, isNil));
   return ProgrammingPlanQuery()
     .where(
-      omitBy(omit(findOptions, 'status', 'subPlanIds', 'ids', 'scope'), isNil)
+      omitBy(
+        omit(findOptions, 'status', 'subPlanIds', 'ids', 'scope', 'department'),
+        isNil
+      )
     )
     .modify((builder) => {
+      if (findOptions.department) {
+        builder.where((where) =>
+          where
+            .where(
+              `${programmingPlanLocalStatusTable}.department`,
+              findOptions.department
+            )
+            .orWhere((regional) =>
+              regional
+                .where(`${programmingPlansTable}.distribution_kind`, 'REGIONAL')
+                .where(`${programmingPlanLocalStatusTable}.department`, 'None')
+            )
+        );
+      }
       if (isArray(findOptions.ids)) {
         builder.whereIn('id', findOptions.ids);
       }

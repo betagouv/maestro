@@ -8,13 +8,10 @@ import { Regions } from 'maestro-shared/referential/Region';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import {
   certificationIsRequired,
+  regionIsRequired,
   type UserListItem
 } from 'maestro-shared/schema/User/User';
-import {
-  canHaveDepartment,
-  isRegionalRole,
-  UserRoleLabels
-} from 'maestro-shared/schema/User/UserRole';
+import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import { isNotEmpty } from 'maestro-shared/utils/typescript';
 import { type FunctionComponent, useContext } from 'react';
 import { assert, type Equals } from 'tsafe';
@@ -153,11 +150,9 @@ export const UserCard: FunctionComponent<Props> = ({
               className={cx('fr-icon-france-line', 'fr-icon--sm')}
               aria-hidden="true"
             />
-            {canHaveDepartment(user)
+            {regionIsRequired(user) && user.region
               ? `${Regions[user.region].name}${user.department ? ` - ${DepartmentLabels[user.department]}` : ''}`
-              : user.roles.some((role) => isRegionalRole(role)) && user.region
-                ? Regions[user.region].name
-                : 'France'}
+              : 'France'}
           </span>
           {!!laboratory && (
             <span>

@@ -28,10 +28,12 @@ import {
   genPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
+  DAOAVolailleValidatedSubPlanFixture,
   genProgrammingPlan,
   genProgrammingPlanDomain,
   PPVClosedProgrammingPlanFixture,
   PPVSubmittedProgrammingPlanFixture,
+  PPVSubmittedSubPlanFixture,
   PPVValidatedProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
@@ -42,10 +44,12 @@ import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
   DepartmentalCoordinator,
+  genUser,
   LaboratoryOfficeUserFixture,
   LaboratoryUserFixture,
   NationalCoordinator,
   NationalObserver,
+  Region1Fixture,
   Region2Fixture,
   RegionalCoordinator,
   RegionalObserver,
@@ -77,10 +81,15 @@ import {
   formatPartialSample,
   Samples
 } from '../../repositories/sampleRepository';
+import {
+  UserCompanies,
+  Users,
+  userRepository
+} from '../../repositories/userRepository';
 import { createServer } from '../../server';
 import { toDbRow } from '../../test/seed/002-laboratories';
 import { mockSendNotification } from '../../test/setupTests';
-import { tokenProvider } from '../../test/testUtils';
+import { TEST_LOGGED_SECRET, tokenProvider } from '../../test/testUtils';
 
 describe('Local prescriptions router', () => {
   const { app } = createServer();
@@ -334,6 +343,51 @@ describe('Local prescriptions router', () => {
       await successRequestTest(Sampler1Fixture);
       await successRequestTest(RegionalCoordinator);
       await successRequestTest(RegionalObserver);
+    });
+
+    describe('for a sampler with a department working on both PPV and DAOA', () => {
+      const multiPlanSampler = genUser({
+        roles: ['Sampler'],
+        programmingSubPlans: [
+          PPVSubmittedSubPlanFixture,
+          DAOAVolailleValidatedSubPlanFixture
+        ],
+        region: Region1Fixture,
+        department: Regions[Region1Fixture].departments[0]
+      });
+
+      beforeAll(async () => {
+        const userToInsert = {
+          ...multiPlanSampler,
+          loggedSecrets: [TEST_LOGGED_SECRET]
+        };
+        await userRepository.insert(userToInsert);
+      });
+
+      afterAll(async () => {
+        await UserCompanies().delete().where('userId', multiPlanSampler.id);
+        await Users().delete().where('id', multiPlanSampler.id);
+      });
+
+      test('should find the regional local prescriptions of a regional programming plan', async () => {
+        const res = await request(app)
+          .get(testRoute)
+          .query({
+            programmingPlanIds: PPVSubmittedProgrammingPlanFixture.id,
+            contexts: 'Control',
+            includes: 'laboratories'
+          })
+          .use(tokenProvider(multiPlanSampler))
+          .expect(constants.HTTP_STATUS_OK);
+
+        expect(res.body).toEqual(
+          submittedControlLocalPrescriptions1
+            .filter(({ region }) => region === Region1Fixture)
+            .map((_) =>
+              omit(_, ['realizedSampleCount', 'inProgressSampleCount'])
+            )
+        );
+      });
     });
 
     test('should retrieve the comments of the prescriptions and realized samples count if requested', async () => {
