@@ -532,16 +532,21 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
       });
       const launchablePlans = plans.filter(isCampaignLaunchable);
 
-      if (launchablePlans.length === 0) {
+      if (
+        launchablePlans.length === 0 &&
+        plans.some((plan) => isNil(plan.launchedAt))
+      ) {
         return { status: HttpStatus.FORBIDDEN };
       }
 
-      await programmingPlanRepository.launch(
-        launchablePlans.map((plan) => plan.id),
-        user.id
-      );
+      if (launchablePlans.length > 0) {
+        await programmingPlanRepository.launch(
+          launchablePlans.map((plan) => plan.id),
+          user.id
+        );
 
-      await notifyCampaignLaunch(launchablePlans);
+        await notifyCampaignLaunch(launchablePlans);
+      }
 
       const updatedPlans = await programmingPlanRepository.findMany({
         ids: programmingPlanIds
