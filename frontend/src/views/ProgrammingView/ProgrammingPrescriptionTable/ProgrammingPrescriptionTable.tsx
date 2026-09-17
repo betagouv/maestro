@@ -259,9 +259,8 @@ const ProgrammingPrescriptionTable = ({
     };
   }, []);
 
-  const registerRowWrapper = useCallback(
-    (prescriptionId: string, el: HTMLDivElement | null) => {
-      const rowKey = toPrescriptionRowKey(prescriptionId);
+  const registerWrapper = useCallback(
+    (rowKey: RowWrapperKey, el: HTMLDivElement | null) => {
       const previous = rowWrapperRefs.current.get(rowKey);
       if (previous && previous !== el) {
         rowObserverRef.current?.unobserve(previous);
@@ -276,6 +275,12 @@ const ProgrammingPrescriptionTable = ({
       }
     },
     []
+  );
+
+  const registerRowWrapper = useCallback(
+    (prescriptionId: string, el: HTMLDivElement | null) =>
+      registerWrapper(toPrescriptionRowKey(prescriptionId), el),
+    [registerWrapper]
   );
 
   const prescriptionIdsKey = useMemo(
@@ -799,18 +804,12 @@ const ProgrammingPrescriptionTable = ({
 
                       <div
                         className="table-scroll-wrapper"
-                        ref={(el) => {
-                          if (el) {
-                            rowWrapperRefs.current.set(
-                              toPlanHeaderRowKey(planId, context),
-                              el
-                            );
-                          } else {
-                            rowWrapperRefs.current.delete(
-                              toPlanHeaderRowKey(planId, context)
-                            );
-                          }
-                        }}
+                        ref={(el) =>
+                          registerWrapper(
+                            toPlanHeaderRowKey(planId, context),
+                            el
+                          )
+                        }
                         onScroll={(e) => sync(e.currentTarget)}
                       >
                         <div
