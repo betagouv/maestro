@@ -8,12 +8,49 @@ import {
   computeCompleteness,
   computeDisplayStatus,
   hasSentOnward,
+  isCampaignLaunchable,
   isModifiedSinceSent
 } from './ProgrammingPlanDisplayStatus';
 
 describe('hasSentOnward — Regional, REGIONAL distributionKind', () => {
   test('SubmittedToRegion (just received, not yet acted on) does not count as sent', () => {
     expect(hasSentOnward('Regional', 'REGIONAL', 'SubmittedToRegion')).toBe(
+      false
+    );
+  });
+});
+
+describe('isCampaignLaunchable', () => {
+  const plan = {
+    launchedAt: null,
+    distributionKind: 'REGIONAL' as const,
+    nationalStatus: { status: 'SubmittedToRegion' as const }
+  };
+
+  test('a plan submitted onward and never launched is launchable', () => {
+    expect(isCampaignLaunchable(plan)).toBe(true);
+  });
+
+  test('a plan submitted to the admin only is launchable', () => {
+    expect(
+      isCampaignLaunchable({
+        ...plan,
+        nationalStatus: { status: 'SubmittedToAdmin' }
+      })
+    ).toBe(true);
+  });
+
+  test('a plan still in progress nationally is not launchable', () => {
+    expect(
+      isCampaignLaunchable({
+        ...plan,
+        nationalStatus: { status: 'InProgress' }
+      })
+    ).toBe(false);
+  });
+
+  test('an already launched plan is not launchable', () => {
+    expect(isCampaignLaunchable({ ...plan, launchedAt: new Date() })).toBe(
       false
     );
   });

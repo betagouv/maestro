@@ -110,6 +110,14 @@ export const hasEverSentOnward = (
   !isNil(localStatus?.sentAt) ||
   hasSentOnward(echelon, distributionKind, localStatus?.status);
 
+export const isCampaignLaunchable = (plan: {
+  launchedAt?: Date | null;
+  distributionKind: DistributionKind;
+  nationalStatus: Pick<ProgrammingPlanLocalStatus, 'status'>;
+}): boolean =>
+  isNil(plan.launchedAt) &&
+  hasSentOnward('National', plan.distributionKind, plan.nationalStatus.status);
+
 const hasReceivedFromAbove = (
   echelon: ProgrammingPlanEchelon,
   status: ProgrammingPlanStatus | null | undefined,

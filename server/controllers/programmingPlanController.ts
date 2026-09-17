@@ -12,6 +12,7 @@ import { NotificationCategoryTitles } from 'maestro-shared/schema/Notification/N
 import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import {
   hasSentOnward,
+  isCampaignLaunchable,
   type ProgrammingPlanEchelon
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
@@ -529,13 +530,18 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
       const plans = await programmingPlanRepository.findMany({
         ids: programmingPlanIds
       });
-      const launchedPlans = plans.filter((plan) => isNil(plan.launchedAt));
+      const launchablePlans = plans.filter(isCampaignLaunchable);
 
-      await programmingPlanRepository.launch(programmingPlanIds, user.id);
-
-      if (launchedPlans.length > 0) {
-        await notifyCampaignLaunch(launchedPlans);
+      if (launchablePlans.length === 0) {
+        return { status: HttpStatus.FORBIDDEN };
       }
+
+      await programmingPlanRepository.launch(
+        launchablePlans.map((plan) => plan.id),
+        user.id
+      );
+
+      await notifyCampaignLaunch(launchablePlans);
 
       const updatedPlans = await programmingPlanRepository.findMany({
         ids: programmingPlanIds

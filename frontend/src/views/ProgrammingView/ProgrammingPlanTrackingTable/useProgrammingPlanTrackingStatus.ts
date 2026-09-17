@@ -1,4 +1,4 @@
-import { groupBy, isNil } from 'lodash-es';
+import { groupBy } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import { DepartmentSort } from 'maestro-shared/referential/Department';
 import {
@@ -8,7 +8,7 @@ import {
 } from 'maestro-shared/referential/Region';
 import {
   type DisplayStatusResult,
-  hasSentOnward
+  isCampaignLaunchable
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { useContext, useMemo } from 'react';
@@ -39,7 +39,7 @@ export const useProgrammingPlanTrackingStatus = (
   department?: Department
 ) => {
   const apiClient = useContext(ApiClientContext);
-  const { hasRole } = useAuthentication();
+  const { hasRole, hasUserPermission } = useAuthentication();
   const viewerOwnsNationalRow = hasRole(
     'NationalCoordinator',
     'NationalObserver'
@@ -157,13 +157,8 @@ export const useProgrammingPlanTrackingStatus = (
             : nationalDisplayStatus.value === 'ReadyToSend';
 
       const isLaunchable =
-        hasRole('AdministratorBGIR') &&
-        isNil(plan.launchedAt) &&
-        hasSentOnward(
-          'National',
-          plan.distributionKind,
-          plan.nationalStatus.status
-        ) &&
+        hasUserPermission('launchProgrammingPlanCampaign') &&
+        isCampaignLaunchable(plan) &&
         nationalDisplayStatus.value !== 'NotApplicable';
 
       map.set(plan.id, {
@@ -182,6 +177,7 @@ export const useProgrammingPlanTrackingStatus = (
     prescriptionsByPlan,
     localPrescriptionsByPrescription,
     hasRole,
+    hasUserPermission,
     region,
     department,
     viewerOwnsNationalRow
