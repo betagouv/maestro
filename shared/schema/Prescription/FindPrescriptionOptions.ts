@@ -1,8 +1,10 @@
+import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { Department } from '../../referential/Department';
 import { MatrixKind } from '../../referential/Matrix/MatrixKind';
 import { Region } from '../../referential/Region';
 import { Stage } from '../../referential/Stage';
+import { refineSchema } from '../../utils/zod';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import { ProgrammingPlanDomainId } from '../ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
@@ -35,3 +37,15 @@ export const FindPrescriptionOptions = z.object({
 });
 
 export type FindPrescriptionOptions = z.infer<typeof FindPrescriptionOptions>;
+
+export const ExportPrescriptionOptions = refineSchema(
+  FindPrescriptionOptions.omit({ includes: true }),
+  (options) =>
+    !isNil(options.programmingPlanId) ||
+    (options.programmingPlanIds ?? []).length > 0,
+  { message: 'programmingPlanId ou programmingPlanIds est requis' }
+);
+
+export type ExportPrescriptionOptions = z.infer<
+  typeof ExportPrescriptionOptions
+>;

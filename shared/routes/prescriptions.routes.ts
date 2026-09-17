@@ -10,7 +10,10 @@ import {
   LocalPrescriptionComment,
   LocalPrescriptionCommentToCreate
 } from '../schema/LocalPrescription/LocalPrescriptionComment';
-import { FindPrescriptionOptions } from '../schema/Prescription/FindPrescriptionOptions';
+import {
+  ExportPrescriptionOptions,
+  FindPrescriptionOptions
+} from '../schema/Prescription/FindPrescriptionOptions';
 import {
   Prescription,
   PrescriptionToCreate,
@@ -49,7 +52,7 @@ export const prescriptionsRoutes = {
   '/prescriptions/export': {
     params: undefined,
     get: {
-      query: FindPrescriptionOptions.omit({ includes: true }),
+      query: ExportPrescriptionOptions,
       permissions: ['readPrescriptions'],
       response: z.custom<Buffer>()
     }
