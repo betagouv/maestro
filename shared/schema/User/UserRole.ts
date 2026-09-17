@@ -1,7 +1,4 @@
 import { z } from 'zod';
-import type { Region } from '../../referential/Region';
-import type { Nullable } from '../../utils/typescript';
-import type { UserRefined } from './User';
 import type { UserPermission } from './UserPermission';
 
 const NationalUserRole = z.enum([
@@ -227,15 +224,5 @@ export const isRegionalRole = (userRole?: UserRole) =>
   RegionalUserRole.safeParse(userRole).success;
 
 export const isDepartmentalRole = (userRole?: UserRole) =>
-  //FIXME un sampler c'est pas un role départemental?!
+  //Attention en PPV un préleveur est au niveau régional, donc un préleveur n'est pas un role exclusivement départemental
   DepartmentalUserRole.safeParse(userRole).success;
-
-export const canHaveDepartment = (
-  user: Nullable<Pick<UserRefined, 'roles'>>
-): user is {
-  roles: (z.infer<typeof DepartmentalUserRole> | 'Sampler')[];
-  region: Region;
-} =>
-  //FIXME bouger la condition « role === 'Sampler' », dans isDepartmentalRole?
-  user?.roles?.some((role) => isDepartmentalRole(role) || role === 'Sampler') ??
-  false;

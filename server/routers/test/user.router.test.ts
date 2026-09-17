@@ -501,19 +501,25 @@ describe('User router', () => {
       roles: ['DepartmentalCoordinator'],
       region: Region1Fixture,
       department: Department1,
-      programmingSubPlans: [PPVValidatedSubPlanFixture]
+      programmingSubPlans: [DAOAVolailleValidatedSubPlanFixture]
     });
     const departmentalManagerAlsoSampler = genUser({
       roles: ['DepartmentalCoordinator', 'Sampler'],
       region: Region1Fixture,
       department: Department1,
-      programmingSubPlans: [PPVValidatedSubPlanFixture]
+      programmingSubPlans: [DAOAVolailleValidatedSubPlanFixture]
     });
     const targetInScope = genUser({
       roles: ['Sampler'],
       region: Region1Fixture,
-      department: Department1,
+      department: null,
       programmingSubPlans: [PPVValidatedSubPlanFixture]
+    });
+    const targetWithStageOutOfScope = genUser({
+      roles: ['Sampler'],
+      region: Region1Fixture,
+      department: null,
+      stages: [...PPVStages, 'ELEVAGE']
     });
     const targetOtherRegion = genUser({
       roles: ['Sampler'],
@@ -566,6 +572,7 @@ describe('User router', () => {
       targetInScope,
       targetOtherRegion,
       targetMultiPlan,
+      targetWithStageOutOfScope,
       targetOtherDepartmentDaoa,
       targetWithRoleOutsideMatrix
     ];
@@ -594,7 +601,7 @@ describe('User router', () => {
             genUser({
               roles: ['Sampler'],
               region: Region1Fixture,
-              department: Department1,
+              department: null,
               programmingSubPlans: [PPVValidatedSubPlanFixture]
             })
           )
@@ -640,7 +647,7 @@ describe('User router', () => {
               roles: ['Sampler'],
               region: Region1Fixture,
               department: Department2,
-              programmingSubPlans: [PPVValidatedSubPlanFixture]
+              programmingSubPlans: [DAOAVolailleValidatedSubPlanFixture]
             })
           )
           .use(tokenProvider(departmentalManager))
@@ -670,7 +677,7 @@ describe('User router', () => {
               roles: ['Sampler'],
               region: Region1Fixture,
               department: Department1,
-              programmingSubPlans: [PPVValidatedSubPlanFixture]
+              programmingSubPlans: [DAOAVolailleValidatedSubPlanFixture]
             })
           )
           .use(tokenProvider(departmentalManagerAlsoSampler, 'Sampler'))
@@ -681,11 +688,8 @@ describe('User router', () => {
         const newUser = genUser({
           roles: ['Sampler'],
           region: Region1Fixture,
-          department: Department1,
-          programmingSubPlans: [
-            PPVValidatedSubPlanFixture,
-            DAOAVolailleValidatedSubPlanFixture
-          ]
+          department: null,
+          stages: [...PPVStages, 'ELEVAGE']
         });
 
         await request(app)
@@ -704,11 +708,29 @@ describe('User router', () => {
         expect(created?.stages).toEqual(PPVStages);
       });
 
+      test('should refuse a user made invalid by the bounded stages', async () => {
+        await request(app)
+          .post(testRoute())
+          .send(
+            genUser({
+              roles: ['Sampler'],
+              region: Region1Fixture,
+              department: Department1,
+              programmingSubPlans: [
+                PPVValidatedSubPlanFixture,
+                DAOAVolailleValidatedSubPlanFixture
+              ]
+            })
+          )
+          .use(tokenProvider(regionalManager))
+          .expect(constants.HTTP_STATUS_BAD_REQUEST);
+      });
+
       test('should ignore sub plans forged in the body', async () => {
         const newUser = genUser({
           roles: ['Sampler'],
           region: Region1Fixture,
-          department: Department1,
+          department: null,
           programmingSubPlans: [PPVValidatedSubPlanFixture]
         });
 
@@ -738,7 +760,7 @@ describe('User router', () => {
             genUser({
               roles: ['Sampler'],
               region: Region1Fixture,
-              department: Department1,
+              department: null,
               programmingSubPlans: [PPVValidatedSubPlanFixture]
             })
           )
@@ -850,17 +872,19 @@ describe('User router', () => {
 
       test('should preserve the stages outside the manager scope', async () => {
         await request(app)
-          .put(testRoute(targetMultiPlan.id))
+          .put(testRoute(targetWithStageOutOfScope.id))
           .send({
-            ...targetMultiPlan,
+            ...targetWithStageOutOfScope,
             stages: PPVStages
           })
           .use(tokenProvider(regionalManager))
           .expect(constants.HTTP_STATUS_OK);
 
-        const updated = await userRepository.findUnique(targetMultiPlan.id);
+        const updated = await userRepository.findUnique(
+          targetWithStageOutOfScope.id
+        );
         expect((updated?.stages ?? []).sort()).toEqual(
-          [...PPVStages, ...AbattoirStages].sort()
+          [...PPVStages, 'ELEVAGE'].sort()
         );
       });
 

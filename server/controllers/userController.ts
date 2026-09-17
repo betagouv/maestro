@@ -6,6 +6,7 @@ import {
   departmentIsRequired,
   stagesIsRequired,
   UserRefined,
+  UserToCreateRefined,
   UserToUpdateRefined,
   userRegions,
   userRegionsForRole
@@ -149,6 +150,10 @@ export const usersRouter = {
         name: null,
         certified: !certificationIsRequired(body)
       };
+
+      if (!UserToCreateRefined.safeParse(userToCreate).success) {
+        return { status: HttpStatus.BAD_REQUEST };
+      }
 
       await userService.insert(userToCreate);
       return { status: HttpStatus.CREATED };

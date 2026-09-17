@@ -11,15 +11,11 @@ import {
   departmentIsRequired,
   laboratoryIsRequired,
   programmingSubPlansAreRestricted,
+  regionIsRequired,
   stagesIsRequired,
   type UserRefined
 } from '../schema/User/User';
-import {
-  canHaveDepartment,
-  isRegionalRole,
-  type UserRole,
-  UserRoleList
-} from '../schema/User/UserRole';
+import { type UserRole, UserRoleList } from '../schema/User/UserRole';
 import { SlaughterhouseCompanyFixture1 } from './companyFixtures';
 import { LaboratoryFixture } from './laboratoryFixtures';
 import {
@@ -46,10 +42,9 @@ export const genUser = <T extends Partial<UserRefined>>(
 ): UserRefined & T => {
   const roles = data?.roles ?? [oneOf(UserRoleList)];
 
-  const region =
-    roles.some((role) => isRegionalRole(role)) || canHaveDepartment({ roles })
-      ? (data?.region ?? oneOf(RegionList))
-      : null;
+  const region = regionIsRequired({ roles })
+    ? (data?.region ?? oneOf(RegionList))
+    : null;
 
   const programmingSubPlans: ProgrammingSubPlan[] =
     programmingSubPlansAreRestricted({ roles })
