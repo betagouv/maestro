@@ -199,7 +199,7 @@ const ProgrammingView = () => {
     [hasNationalView, user, searchParams]
   );
 
-  const changeYear = (year: number) => {
+  const applyYearChange = (year: number) => {
     dispatch(
       prescriptionsSlice.actions.changePrescriptionFilters({
         ...prescriptionFilters,
@@ -222,6 +222,9 @@ const ProgrammingView = () => {
       { replace: true }
     );
   };
+
+  const changeYear = (year: number) =>
+    unsavedChangesGuard.run(() => applyYearChange(year));
 
   const submitLocalPrescriptionComment = useCallback(
     async (
