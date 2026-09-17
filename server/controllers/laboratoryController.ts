@@ -61,7 +61,7 @@ const notifyLaboratoryAgreementLost = async (
         category: 'LaboratoryAgreementLost',
         link: AppRouteLinks.ProgrammingRoute.link({
           year: plan.year,
-          planIds: plan.id
+          programmingPlanIds: [plan.id]
         })
       },
       recipients,

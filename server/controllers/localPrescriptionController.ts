@@ -680,7 +680,7 @@ export const localPrescriptionsRouter = {
           author: user,
           link: AppRouteLinks.ProgrammingRoute.link({
             year: programmingPlan.year,
-            context: prescription.context,
+            contexts: [prescription.context],
             prescriptionId: prescription.id,
             commentsRegion: localPrescription.region
           })
@@ -761,7 +761,7 @@ export const localPrescriptionsRouter = {
             author: user,
             link: AppRouteLinks.ProgrammingRoute.link({
               year: programmingPlan.year,
-              context: prescription.context,
+              contexts: [prescription.context],
               prescriptionId: prescription.id,
               commentsRegion: localPrescription.region
             })

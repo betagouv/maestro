@@ -47,8 +47,8 @@ type AppRouteSearchParams = {
   >;
   ProgrammingRoute: {
     year?: number;
-    planIds?: string;
-    context?: ProgrammingPlanContext;
+    programmingPlanIds?: string[];
+    contexts?: ProgrammingPlanContext[];
     prescriptionId?: string;
     commentsRegion?: Region;
     tab?: 'ProgrammationTab' | 'CommentsTab' | 'PlanTrackingTab';

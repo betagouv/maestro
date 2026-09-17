@@ -166,10 +166,6 @@ const ProgrammingView = () => {
             searchParams.get('coordinatorIds')?.split(',') ?? undefined,
           laboratoryIds:
             searchParams.get('laboratoryIds')?.split(',') ?? undefined,
-          outsideProgrammingPlan:
-            searchParams.get('outsideProgrammingPlan') === 'true'
-              ? true
-              : undefined,
           stage: (searchParams.get('stage') as Stage) ?? undefined
         })
       )

@@ -80,7 +80,7 @@ const batchStages = (plans: ProgrammingPlanChecked[]) =>
 const batchLink = (plans: ProgrammingPlanChecked[], tab?: 'PlanTrackingTab') =>
   AppRouteLinks.ProgrammingRoute.link({
     year: plans[0].year,
-    planIds: plans.map((plan) => plan.id).join(','),
+    programmingPlanIds: plans.map((plan) => plan.id),
     ...(tab ? { tab } : {})
   });
 
@@ -172,7 +172,7 @@ const notifyCampaignLaunch = async (plans: ProgrammingPlanChecked[]) => {
   const year = plans[0].year;
   const stages = stagesFromSubPlans(plans.flatMap((plan) => plan.subPlans));
   const planLines = planLinesFor(plans, domains);
-  const planIds = plans.map((plan) => plan.id).join(',');
+  const programmingPlanIds = plans.map((plan) => plan.id);
   const samplersCanSampleNotice = `Les préleveurs et préleveuses peuvent dès à présent saisir des prélèvements sur ces plans si l’attribution des laboratoires et la répartition par abattoir pour les plans à l’abattoir, ont été faites.`;
   const coordinatorMessage = `Lancement de la campagne ${year} sur un ou plusieurs plans :
 
@@ -196,7 +196,7 @@ ${samplersCanSampleNotice}`;
       category: 'ProgrammingPlanCampaignLaunched',
       link: AppRouteLinks.ProgrammingRoute.link({
         year,
-        planIds,
+        programmingPlanIds,
         tab: 'PlanTrackingTab'
       })
     },
@@ -260,7 +260,7 @@ ${samplersCanSampleNotice}`;
         category: 'ProgrammingPlanCampaignLaunched',
         link: AppRouteLinks.ProgrammingRoute.link({
           year,
-          planIds: scope.plans.map((plan) => plan.id).join(',')
+          programmingPlanIds: scope.plans.map((plan) => plan.id)
         })
       },
       samplers,
@@ -686,7 +686,7 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
 
         const link = AppRouteLinks.ProgrammingRoute.link({
           year: plan.year,
-          planIds: plan.id
+          programmingPlanIds: [plan.id]
         });
         const isModified =
           regionalStatus.hasPendingChange === true ||
@@ -1174,7 +1174,7 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
           async (programmingPlanLocalStatus) => {
             const link = AppRouteLinks.ProgrammingRoute.link({
               year: programmingPlan.year,
-              planIds: programmingPlan.id
+              programmingPlanIds: [programmingPlan.id]
             });
 
             if (

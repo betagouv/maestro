@@ -167,10 +167,6 @@ const filtersConfig = {
     prop: 'stage',
     getLabel: (value) => StageLabels[value]
   },
-  outsideProgrammingPlan: {
-    prop: 'outsideProgrammingPlan',
-    getLabel: () => 'Hors programmation'
-  },
   programmingPlanDomainIds: {
     prop: 'programmingPlanDomainIds',
     getComponent: (value, onChange, { domains }) =>

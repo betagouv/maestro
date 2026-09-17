@@ -50,7 +50,9 @@ import SelectionActionBar from 'src/components/SelectionActionBar/SelectionActio
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { usePrescriptionFilters } from 'src/hooks/usePrescriptionFilters';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
-import prescriptionsSlice from 'src/store/reducers/prescriptionsSlice';
+import prescriptionsSlice, {
+  PrescriptionFilters
+} from 'src/store/reducers/prescriptionsSlice';
 import PrescriptionImportModal, {
   prescriptionImportModal
 } from 'src/views/ProgrammingView/ProgrammingPrescriptionList/PrescriptionImportModal';
@@ -158,15 +160,20 @@ const ProgrammingPrescriptionList = ({
   const changeFilter = useCallback(
     (findFilter: Partial<typeof prescriptionFilters>) => {
       const filteredParams = reduceFilters(prescriptionFilters, findFilter);
-      const urlSearchParams = new URLSearchParams(
-        omitBy(
-          mapValues(filteredParams, (value) => value?.toString()),
-          isEmpty
-        ) as Record<string, string>
-      );
+      const urlSearchParams = new URLSearchParams(searchParams);
+      for (const key of PrescriptionFilters.keyof().options) {
+        urlSearchParams.delete(key);
+      }
+      const nextParams = omitBy(
+        mapValues(filteredParams, (value) => value?.toString()),
+        isEmpty
+      ) as Record<string, string>;
+      for (const [key, value] of Object.entries(nextParams)) {
+        urlSearchParams.set(key, value);
+      }
       setSearchParams(urlSearchParams, { replace: true });
     },
-    [reduceFilters, prescriptionFilters, setSearchParams]
+    [reduceFilters, prescriptionFilters, searchParams, setSearchParams]
   );
 
   const planIds = useMemo(
@@ -186,9 +193,7 @@ const ProgrammingPrescriptionList = ({
       year: prescriptionFilters.year,
       programmingSubPlanIds: prescriptionFilters.programmingSubPlanIds,
       programmingPlanDomainIds: prescriptionFilters.programmingPlanDomainIds,
-      contexts: prescriptionFilters.outsideProgrammingPlan
-        ? undefined
-        : prescriptionFilters.contexts,
+      contexts: prescriptionFilters.contexts,
       matrixKinds: prescriptionFilters.matrixKinds,
       coordinatorIds: prescriptionFilters.coordinatorIds,
       laboratoryIds: prescriptionFilters.laboratoryIds,
@@ -273,9 +278,7 @@ const ProgrammingPrescriptionList = ({
     () => ({
       programmingPlanIds: planIds,
       programmingSubPlanIds: prescriptionFilters.programmingSubPlanIds,
-      contexts: prescriptionFilters.outsideProgrammingPlan
-        ? undefined
-        : prescriptionFilters.contexts,
+      contexts: prescriptionFilters.contexts,
       region,
       department,
       includes: [

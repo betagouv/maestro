@@ -21,7 +21,6 @@ export const PrescriptionFilters = z.object({
   programmingPlanDomainIds: z.array(ProgrammingPlanDomainId).nullish(),
   matrixKinds: z.array(MatrixKind).nullish(),
   contexts: z.array(ProgrammingPlanContext).nullish(),
-  outsideProgrammingPlan: z.boolean().nullish(),
   coordinatorIds: z.array(z.guid()).nullish(),
   laboratoryIds: z.array(z.guid()).nullish(),
   missingDistribution: z.boolean().nullish(),

@@ -103,11 +103,6 @@ const ProgrammingPrescriptionFilters = ({
     [coordinators, filters.stage]
   );
 
-  const contextValues = [
-    ...(filters.contexts ?? []),
-    ...(filters.outsideProgrammingPlan ? ['OutsideProgrammingPlan'] : [])
-  ];
-
   const stageTags =
     stageCounts.length <= 1 ? null : (
       <div className={clsx(cx('fr-mb-3w'), 'programming-filters-stages')}>
@@ -212,24 +207,16 @@ const ProgrammingPrescriptionFilters = ({
       <div className={filterClassName}>
         <AppCheckboxSelect
           label="Contexte"
-          options={[
-            ...ProgrammingPlanContextList.filter((context) =>
-              options.contexts.includes(context)
-            ).map((context) => ({
-              label: ContextLabels[context],
-              value: context as string
-            })),
-            { label: 'Hors programmation', value: 'OutsideProgrammingPlan' }
-          ]}
-          selectedValues={contextValues}
+          options={ProgrammingPlanContextList.filter((context) =>
+            options.contexts.includes(context)
+          ).map((context) => ({
+            label: ContextLabels[context],
+            value: context as string
+          }))}
+          selectedValues={filters.contexts ?? []}
           onChange={(values) =>
             onChange({
-              contexts: values.filter(
-                (value) => value !== 'OutsideProgrammingPlan'
-              ) as ProgrammingPlanContext[],
-              outsideProgrammingPlan: values.includes('OutsideProgrammingPlan')
-                ? true
-                : undefined
+              contexts: values as ProgrammingPlanContext[]
             })
           }
           summaryLabel="contexte"
@@ -294,7 +281,6 @@ const ProgrammingPrescriptionFilters = ({
           'programmingPlanDomainIds',
           'matrixKinds',
           'contexts',
-          'outsideProgrammingPlan',
           'coordinatorIds',
           'laboratoryIds'
         ]),
@@ -312,7 +298,6 @@ const ProgrammingPrescriptionFilters = ({
             'programmingPlanDomainIds',
             'matrixKinds',
             'contexts',
-            'outsideProgrammingPlan',
             'coordinatorIds',
             'laboratoryIds'
           ]) as Partial<PrescriptionFilters>
