@@ -9,7 +9,10 @@ import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStat
 import { getSupportDocumentFilename } from 'maestro-shared/schema/Document/DocumentKind';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { hasNewerLaunchedCampaign } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  isPPVSubPlan,
+  subPlanSampleSettings
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { buildFindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   hasSamplePermission,
@@ -348,7 +351,7 @@ export const sampleRouter = {
           user,
           userRole,
           sample,
-          subPlan?.analysisPermissionRole
+          subPlanSampleSettings(subPlan).analysisPermissionRole
         )['performAnalysis']
       ) {
         return { status: HttpStatus.FORBIDDEN };

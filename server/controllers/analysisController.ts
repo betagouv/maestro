@@ -4,7 +4,10 @@ import { isAnalysisCorrectionReportable } from 'maestro-shared/referential/Labor
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import type { PartialResidue } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  isPPVSubPlan,
+  subPlanSampleSettings
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { hasSamplePermission } from 'maestro-shared/schema/Sample/Sample';
 import { v4 as uuidv4 } from 'uuid';
 import { HttpStatus } from '../constants/httpStatus';
@@ -48,7 +51,7 @@ export const analysisRouter = {
           user,
           userRole,
           sample,
-          subPlan?.analysisPermissionRole
+          subPlanSampleSettings(subPlan).analysisPermissionRole
         )['performAnalysis']
       ) {
         return { status: HttpStatus.FORBIDDEN };
@@ -94,7 +97,7 @@ export const analysisRouter = {
           user,
           userRole,
           sample,
-          subPlan?.analysisPermissionRole
+          subPlanSampleSettings(subPlan).analysisPermissionRole
         )['performAnalysis']
       ) {
         return { status: HttpStatus.FORBIDDEN };

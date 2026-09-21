@@ -48,15 +48,7 @@ const buildLabels = (prescriptions: PrescriptionRow[]): Map<string, string> => {
 
 export const up = async (knex: Knex) => {
   const plans = await knex('programming_plans')
-    .select(
-      'id',
-      'stages',
-      'stagesManaged',
-      'settingsCompleted',
-      'analysisPermissionRole',
-      'contactListId',
-      'withSacha'
-    )
+    .select('id', 'stages', 'stagesManaged', 'settingsCompleted')
     .where('distributionKind', 'REGIONAL');
 
   for (const plan of plans) {
@@ -89,10 +81,9 @@ export const up = async (knex: Knex) => {
       stages: source?.stages ?? plan.stages ?? [],
       stagesManaged: source?.stagesManaged ?? true,
       settingsCompleted: source?.settingsCompleted ?? plan.settingsCompleted,
-      analysisPermissionRole:
-        source?.analysisPermissionRole ?? plan.analysisPermissionRole,
-      contactListId: source?.contactListId ?? plan.contactListId,
-      withSacha: source?.withSacha ?? plan.withSacha,
+      analysisPermissionRole: source?.analysisPermissionRole ?? null,
+      contactListId: source?.contactListId ?? null,
+      withSacha: source?.withSacha ?? false,
       substanceKinds: source?.substanceKinds ?? ['Any']
     };
 

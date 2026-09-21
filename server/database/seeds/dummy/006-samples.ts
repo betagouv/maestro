@@ -30,7 +30,8 @@ import {
   cerisesEtSimilaires,
   fevesDeSoja,
   lentilles,
-  oignons
+  oignons,
+  ppvSubPlanIdByPrescriptionId
 } from './005-prescriptions-ppv';
 
 export const seed = async () => {
@@ -64,6 +65,9 @@ export const seed = async () => {
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: abricotsEtSimilaires.id,
+          programmingSubPlanId: ppvSubPlanIdByPrescriptionId.get(
+            abricotsEtSimilaires.id
+          ),
           region: sampler.region as Region
         }),
       { count: 2 }
@@ -80,6 +84,9 @@ export const seed = async () => {
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: avoineEtSimilaires.id,
+          programmingSubPlanId: ppvSubPlanIdByPrescriptionId.get(
+            avoineEtSimilaires.id
+          ),
           region: sampler.region as Region
         }),
       { count: 8 }
@@ -96,6 +103,7 @@ export const seed = async () => {
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: carottes.id,
+          programmingSubPlanId: ppvSubPlanIdByPrescriptionId.get(carottes.id),
           region: sampler.region as Region
         }),
       { count: 3 }
@@ -112,6 +120,9 @@ export const seed = async () => {
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: cerisesEtSimilaires.id,
+          programmingSubPlanId: ppvSubPlanIdByPrescriptionId.get(
+            cerisesEtSimilaires.id
+          ),
           region: sampler.region as Region
         }),
       { count: 4 }
@@ -128,6 +139,7 @@ export const seed = async () => {
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: oignons.id,
+          programmingSubPlanId: ppvSubPlanIdByPrescriptionId.get(oignons.id),
           region: sampler.region as Region
         }),
       { count: 7 }
@@ -144,6 +156,7 @@ export const seed = async () => {
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: lentilles.id,
+          programmingSubPlanId: ppvSubPlanIdByPrescriptionId.get(lentilles.id),
           region: sampler.region as Region
         }),
       { count: 6 }
@@ -160,6 +173,9 @@ export const seed = async () => {
           department: oneOf(Regions[sampler.region as Region].departments),
           company: oneOf(companies),
           prescriptionId: fevesDeSoja.id,
+          programmingSubPlanId: ppvSubPlanIdByPrescriptionId.get(
+            fevesDeSoja.id
+          ),
           region: sampler.region as Region
         }),
       { count: 6 }

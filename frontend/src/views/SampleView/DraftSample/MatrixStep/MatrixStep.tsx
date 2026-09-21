@@ -112,29 +112,8 @@ const MatrixStep = ({ partialSample }: Props) => {
   const [deleteDocument] = apiClient.useDeleteSampleDocumentMutation();
 
   const programmingSubPlanId = partialSample.programmingSubPlanId;
-  const subPlanNumber =
-    (programmingPlan as ProgrammingPlanChecked)?.subPlans?.find(
-      (sp) => sp.id === programmingSubPlanId
-    )?.subPlanNumber ?? '';
   const planSubPlans =
     (programmingPlan as ProgrammingPlanChecked)?.subPlans ?? [];
-  const subPlanSubStages = subStagesForStages(
-    programmingSubPlanId
-      ? (planSubPlans.find((sp) => sp.id === programmingSubPlanId)?.stages ??
-          [])
-      : stagesFromSubPlans(planSubPlans)
-  );
-
-  const { data: fieldConfigs = [], isSuccess: isFieldConfigsLoaded } =
-    apiClient.useFindProgrammingSubPlanFieldConfigsQuery(
-      {
-        programmingPlanId: partialSample.programmingPlanId,
-        programmingSubPlanId: programmingSubPlanId as ProgrammingSubPlanId
-      },
-      { skip: !programmingSubPlanId }
-    );
-
-  const planLayout = specificDataFormLayout(subPlanNumber);
 
   const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
     {
@@ -176,6 +155,40 @@ const MatrixStep = ({ partialSample }: Props) => {
     );
   }, [prescriptionsData, localPrescriptions]);
 
+  const derivedSubPlanId = useMemo(
+    () =>
+      prescriptions?.find(
+        (p) =>
+          p.matrixKind === matrixKind &&
+          (isNil(p.matrix) || p.matrix === matrix) &&
+          (isNil(stage) || p.stages.includes(stage))
+      )?.programmingSubPlanId,
+    [prescriptions, matrixKind, matrix, stage]
+  );
+
+  const effectiveSubPlanId = programmingSubPlanId ?? derivedSubPlanId;
+
+  const subPlanNumber =
+    planSubPlans.find((sp) => sp.id === effectiveSubPlanId)?.subPlanNumber ??
+    '';
+
+  const subPlanSubStages = subStagesForStages(
+    effectiveSubPlanId
+      ? (planSubPlans.find((sp) => sp.id === effectiveSubPlanId)?.stages ?? [])
+      : stagesFromSubPlans(planSubPlans)
+  );
+
+  const { data: fieldConfigs = [], isSuccess: isFieldConfigsLoaded } =
+    apiClient.useFindProgrammingSubPlanFieldConfigsQuery(
+      {
+        programmingPlanId: partialSample.programmingPlanId,
+        programmingSubPlanId: effectiveSubPlanId as ProgrammingSubPlanId
+      },
+      { skip: !effectiveSubPlanId }
+    );
+
+  const planLayout = specificDataFormLayout(subPlanNumber);
+
   const FilesForm = z.object({
     files: FileInput(SampleDocumentTypeList, true)
   });
@@ -214,16 +227,9 @@ const MatrixStep = ({ partialSample }: Props) => {
   };
 
   const save = async (step: SampleStep = partialSample.step) => {
-    const derivedSubPlanId = prescriptions?.find(
-      (p) =>
-        p.matrixKind === matrixKind &&
-        (isNil(p.matrix) || p.matrix === matrix) &&
-        (isNil(stage) || p.stages.includes(stage))
-    )?.programmingSubPlanId;
-
     await createOrUpdateSample({
       ...partialSample,
-      programmingSubPlanId: programmingSubPlanId ?? derivedSubPlanId,
+      programmingSubPlanId: effectiveSubPlanId,
       matrixKind,
       matrix,
       stage,
