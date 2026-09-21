@@ -31,14 +31,6 @@ export const laboratoriesRoutes = {
       permissions: ['manageLaboratoryAgreements']
     }
   },
-  '/laboratories/agreements/previous-year': {
-    params: undefined,
-    post: {
-      body: z.object({ year: z.number().int() }),
-      response: z.object({ count: z.number().int() }),
-      permissions: ['manageLaboratoryAgreements']
-    }
-  },
   '/laboratories/agreements/checks': {
     params: undefined,
     get: {
