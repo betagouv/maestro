@@ -47,6 +47,11 @@ const buildLabels = (prescriptions: PrescriptionRow[]): Map<string, string> => {
 };
 
 export const up = async (knex: Knex) => {
+  await knex.raw(`
+    ALTER TABLE samples
+    ALTER COLUMN programming_sub_plan_id DROP NOT NULL
+  `);
+
   const plans = await knex('programming_plans')
     .select('id', 'stages', 'stagesManaged', 'settingsCompleted')
     .where('distributionKind', 'REGIONAL');
@@ -233,4 +238,19 @@ export const down = async (knex: Knex) => {
       .where('id', first.id)
       .update({ subPlanNumber: PPVPrefix });
   }
+
+  await knex.raw(`
+    update samples s
+    set programming_sub_plan_id = (select sp.id
+                                   from programming_sub_plans_raw sp
+                                   where sp.programming_plan_id = s.programming_plan_id
+                                   order by sp.sub_plan_number
+                                   limit 1)
+    where s.programming_sub_plan_id is null
+  `);
+
+  await knex.raw(`
+    ALTER TABLE samples
+    ALTER COLUMN programming_sub_plan_id SET NOT NULL
+  `);
 };

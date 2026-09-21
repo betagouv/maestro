@@ -8,7 +8,7 @@ export type SpecificDataFormInputProps = {
   };
 };
 
-export const SpecificDataForm: Record<
+const SpecificDataForm: Record<
   string,
   Record<string, SpecificDataFormInputProps> | undefined
 > = {
