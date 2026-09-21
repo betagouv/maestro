@@ -51,7 +51,7 @@ export const SampleItem = z.object({
         "Veuillez renseigner le laboratoire destinataire de l'échantillon."
     })
     .nullish(),
-  substanceKind: SubstanceKind,
+  substanceKinds: z.array(SubstanceKind).min(1),
   receiptDate: maestroDateRefined.nullish(),
   notesOnAdmissibility: z.string().nullish(),
   shippingDate: maestroDateRefined.nullish(),
@@ -134,6 +134,21 @@ export const SampleItemSort = (a: PartialSampleItem, b: PartialSampleItem) =>
 
 export const SampleItemMaxCopyCount = 3;
 
+export const resolveSubstanceKindsLaboratoryId = (
+  substanceKinds: SubstanceKind[],
+  substanceKindsLaboratories: SubstanceKindLaboratory[]
+): string | null => {
+  const laboratoryIds = new Set(
+    substanceKinds.map(
+      (substanceKind) =>
+        substanceKindsLaboratories.find(
+          (_) => _.substanceKind === substanceKind
+        )?.laboratoryId ?? null
+    )
+  );
+  return laboratoryIds.size === 1 ? ([...laboratoryIds][0] ?? null) : null;
+};
+
 export const withSubstanceKindLaboratories = <T extends PartialSampleItem>(
   sampleItems: T[],
   substanceKindsLaboratories: SubstanceKindLaboratory[]
@@ -142,9 +157,10 @@ export const withSubstanceKindLaboratories = <T extends PartialSampleItem>(
     ...sampleItem,
     laboratoryId:
       sampleItem.recipientKind === 'Laboratory'
-        ? (substanceKindsLaboratories.find(
-            (_) => _.substanceKind === sampleItem.substanceKind
-          )?.laboratoryId ?? null)
+        ? resolveSubstanceKindsLaboratoryId(
+            sampleItem.substanceKinds ?? [],
+            substanceKindsLaboratories
+          )
         : undefined
   }));
 

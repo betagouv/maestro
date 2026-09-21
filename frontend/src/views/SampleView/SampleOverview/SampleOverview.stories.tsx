@@ -58,7 +58,7 @@ export const DAOACompleted: Story = {
           sampleId: SampleDAOA1Fixture.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKind: 'Mono',
+          substanceKinds: ['Mono'],
           analysis: {
             status: 'Completed',
             compliance: true,
@@ -69,7 +69,7 @@ export const DAOACompleted: Story = {
           sampleId: SampleDAOA1Fixture.id,
           itemNumber: 2,
           copyNumber: 1,
-          substanceKind: 'Multi',
+          substanceKinds: ['Multi'],
           analysis: {
             status: 'Completed',
             compliance: true,
@@ -80,7 +80,7 @@ export const DAOACompleted: Story = {
           sampleId: SampleDAOA1Fixture.id,
           itemNumber: 3,
           copyNumber: 1,
-          substanceKind: 'Copper',
+          substanceKinds: ['Copper'],
           analysis: {
             status: 'NotAdmissible',
             compliance: true,
@@ -111,7 +111,7 @@ export const DAOAItemsAchievedStatusInReview: Story = {
           sampleId: SampleDAOA1Fixture.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKind: 'Mono',
+          substanceKinds: ['Mono'],
           analysis: {
             status: 'Completed',
             compliance: true,
@@ -122,7 +122,7 @@ export const DAOAItemsAchievedStatusInReview: Story = {
           sampleId: SampleDAOA1Fixture.id,
           itemNumber: 2,
           copyNumber: 1,
-          substanceKind: 'Multi',
+          substanceKinds: ['Multi'],
           analysis: {
             status: 'Completed',
             compliance: false,
@@ -133,7 +133,7 @@ export const DAOAItemsAchievedStatusInReview: Story = {
           sampleId: SampleDAOA1Fixture.id,
           itemNumber: 3,
           copyNumber: 1,
-          substanceKind: 'Copper',
+          substanceKinds: ['Copper'],
           analysis: {
             status: 'NotAdmissible',
             compliance: true,
@@ -171,7 +171,7 @@ export const DAOAItemsNotAchieved: Story = {
           sampleId: SampleDAOA1Fixture.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKind: 'Mono',
+          substanceKinds: ['Mono'],
           analysis: {
             status: 'InReview',
             compliance: true,
@@ -182,7 +182,7 @@ export const DAOAItemsNotAchieved: Story = {
           sampleId: SampleDAOA1Fixture.id,
           itemNumber: 2,
           copyNumber: 1,
-          substanceKind: 'Multi',
+          substanceKinds: ['Multi'],
           analysis: {
             status: 'Completed',
             compliance: true,
@@ -193,7 +193,7 @@ export const DAOAItemsNotAchieved: Story = {
           sampleId: SampleDAOA1Fixture.id,
           itemNumber: 3,
           copyNumber: 1,
-          substanceKind: 'Copper',
+          substanceKinds: ['Copper'],
           analysis: {
             status: 'NotAdmissible',
             compliance: true,

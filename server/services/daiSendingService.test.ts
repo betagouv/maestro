@@ -87,7 +87,7 @@ describe('buildAnalysisRequestData', () => {
       stage: 'Végétal au stade récolte',
       status: 'Draft',
       step: 'Draft',
-      substanceKind: 'Any'
+      substanceKinds: ['Any']
     });
   });
 });

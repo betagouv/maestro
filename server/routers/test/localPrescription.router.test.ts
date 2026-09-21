@@ -824,7 +824,7 @@ describe('Local prescriptions router', () => {
         sampleId: draftSample.id,
         itemNumber: 1,
         copyNumber: 1,
-        substanceKind: 'Any',
+        substanceKinds: ['Any'],
         recipientKind: 'Laboratory',
         laboratoryId: undefined
       });
@@ -833,7 +833,7 @@ describe('Local prescriptions router', () => {
         sampleId: draftSample.id,
         itemNumber: 2,
         copyNumber: 1,
-        substanceKind: 'Any',
+        substanceKinds: ['Any'],
         recipientKind: 'Sampler',
         laboratoryId: undefined
       });
@@ -957,7 +957,7 @@ describe('Local prescriptions router', () => {
           sampleId: sampleOtherRegion.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKind: 'Any',
+          substanceKinds: ['Any'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -1008,7 +1008,7 @@ describe('Local prescriptions router', () => {
           sampleId: otherPrescriptionSample.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKind: 'Any',
+          substanceKinds: ['Any'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -1061,7 +1061,7 @@ describe('Local prescriptions router', () => {
           sampleId: sentSample.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKind: 'Any',
+          substanceKinds: ['Any'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -1584,7 +1584,7 @@ describe('Local prescriptions router', () => {
         sampleId: draftSample.id,
         itemNumber: 1,
         copyNumber: 1,
-        substanceKind: 'Any',
+        substanceKinds: ['Any'],
         recipientKind: 'Laboratory',
         laboratoryId: null
       });
@@ -1593,7 +1593,7 @@ describe('Local prescriptions router', () => {
         sampleId: draftSample.id,
         itemNumber: 2,
         copyNumber: 1,
-        substanceKind: 'Any',
+        substanceKinds: ['Any'],
         recipientKind: 'Sampler',
         laboratoryId: null
       });
@@ -1693,7 +1693,7 @@ describe('Local prescriptions router', () => {
           sampleId: sampleOtherDepartment.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKind: 'Any',
+          substanceKinds: ['Any'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -1741,7 +1741,7 @@ describe('Local prescriptions router', () => {
           sampleId: sentSample.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKind: 'Any',
+          substanceKinds: ['Any'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });

@@ -267,9 +267,11 @@ const SampleOverview = ({ sample }: Props) => {
                       <div className="d-block">
                         <span>
                           Échantillon{' '}
-                          {SubstanceKindLabels[
-                            item.substanceKind
-                          ].toLowerCase()}
+                          {item.substanceKinds
+                            .map((substanceKind) =>
+                              SubstanceKindLabels[substanceKind].toLowerCase()
+                            )
+                            .join(', ')}
                         </span>
                         {getItemStatus(sampleItemCopies(item.itemNumber)) ===
                           'NotAdmissible' && (

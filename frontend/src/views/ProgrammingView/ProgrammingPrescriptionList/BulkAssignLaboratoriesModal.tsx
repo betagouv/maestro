@@ -64,7 +64,7 @@ const BulkAssignLaboratoriesModal = ({
               <LaboratorySelect
                 programmingPlanId={undefined}
                 programmingSubPlanIds={programmingSubPlanIds}
-                substanceKind={skl.substanceKind}
+                substanceKinds={[skl.substanceKind]}
                 noOptionsMessage="L’action groupée n’est pas possible sur cet analyte car les sous-plans n’ont aucun laboratoire agréé en commun."
                 laboratoryId={skl.laboratoryId}
                 onSelect={(laboratoryId) =>

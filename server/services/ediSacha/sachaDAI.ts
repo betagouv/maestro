@@ -43,7 +43,7 @@ export const generateXMLDAI = (
   subPlanNumber: string,
   sampleItem: Pick<
     SampleItem,
-    'sealId' | 'itemNumber' | 'copyNumber' | 'substanceKind'
+    'sealId' | 'itemNumber' | 'copyNumber' | 'substanceKinds'
   >,
   dateNow: number,
   sachaFieldConfigs: SachaFieldConfig[],
@@ -63,7 +63,7 @@ export const generateXMLDAI = (
     );
   }
 
-  const siglePlanAnalyse = SiglePlanAnalyse[sampleItem.substanceKind];
+  const siglePlanAnalyse = SiglePlanAnalyse[sampleItem.substanceKinds[0]];
   if (isNil(siglePlanAnalyse)) {
     throw new Error("Pas de plan d'analyse de configuré.");
   }

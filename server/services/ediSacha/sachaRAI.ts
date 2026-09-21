@@ -217,7 +217,7 @@ export const processSachaRAI = async (
       'sampleItems.itemNumber as itemNumber',
       'sampleItems.copyNumber as copyNumber',
       'sampleItems.laboratoryId as laboratoryId',
-      'sampleItems.substanceKind as substanceKind',
+      'sampleItems.substanceKinds as substanceKinds',
       'analysis.id as analysisId'
     ])
     .executeTakeFirst();
@@ -245,7 +245,7 @@ export const processSachaRAI = async (
   }
 
   const analysisMethod: AnalysisMethod =
-    sampleItem.substanceKind === 'Mono' ? 'Mono' : 'Multi';
+    sampleItem.substanceKinds[0] === 'Mono' ? 'Mono' : 'Multi';
 
   const { residues, compliance, status, receiptDate } = buildDaoaAnalysis(
     rai,

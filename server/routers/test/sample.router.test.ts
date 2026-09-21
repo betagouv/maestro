@@ -794,7 +794,7 @@ describe('Sample router', () => {
         copyNumber: 1,
         quantity: 42,
         sealId: '654321',
-        substanceKind: 'Any',
+        substanceKinds: ['Any'],
         laboratoryId: LaboratoryFixture.id
       });
       await Samples().insert(formatPartialSample(sample));

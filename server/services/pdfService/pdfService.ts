@@ -300,8 +300,8 @@ const generateSamplePDF = async (
         laboratory: !isNil(sampleItem.laboratoryId)
           ? laboratories.find((lab) => lab.id === sampleItem.laboratoryId)
           : null,
-        substanceKind: sampleItem.substanceKind
-          ? SubstanceKindLabels[sampleItem.substanceKind]
+        substanceKind: sampleItem.substanceKinds?.[0]
+          ? SubstanceKindLabels[sampleItem.substanceKinds[0]]
           : null,
         barcode: sampleReference
           ? getBarcodeSvg(
@@ -324,7 +324,7 @@ const generateSamplePDF = async (
           fullName: getLaboratoryFullName(currentLaboratory)
         }
       : null,
-    substanceKind: currentSampleItem?.substanceKind,
+    substanceKind: currentSampleItem?.substanceKinds?.[0],
     monoSubstances: sample.monoSubstances?.map(
       (substance) => SSD2IdLabel[substance]
     ),

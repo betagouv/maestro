@@ -27,7 +27,7 @@ type Props = {
   programmingPlanId: string | undefined;
   programmingSubPlanId?: ProgrammingSubPlanId;
   programmingSubPlanIds?: ProgrammingSubPlanId[];
-  substanceKind?: SubstanceKind;
+  substanceKinds?: SubstanceKind[];
   laboratoryId?: string | null;
   laboratoryIds?: string[];
   onSelect: (laboratoryId?: string) => void;
@@ -85,7 +85,7 @@ const LaboratorySelect = ({
   programmingPlanId,
   programmingSubPlanId,
   programmingSubPlanIds,
-  substanceKind,
+  substanceKinds,
   laboratoryId,
   laboratoryIds,
   onSelect,
@@ -103,7 +103,7 @@ const LaboratorySelect = ({
     programmingPlanIds: toArray(programmingPlanId),
     programmingSubPlanId,
     programmingSubPlanIds,
-    substanceKind
+    substanceKinds
   });
 
   const options = sortBy(laboratories ?? [], 'name').filter(

@@ -161,11 +161,11 @@ const MatrixStepSummary = ({
         </div>
       )}
       {sample.items
+        .flatMap(({ substanceKinds }) => substanceKinds)
         .filter(
-          ({ substanceKind }) =>
-            !['Any', 'Multi', 'Mono'].includes(substanceKind)
+          (substanceKind) => !['Any', 'Multi', 'Mono'].includes(substanceKind)
         )
-        .map(({ substanceKind }) => (
+        .map((substanceKind) => (
           <div key={substanceKind} className="summary-item icon-text">
             <div className={cx('fr-icon-list-ordered')}></div>
             <div>{SubstanceKindLabels[substanceKind]}</div>

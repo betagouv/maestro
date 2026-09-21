@@ -419,7 +419,7 @@ const ProgrammingPrescriptionRow = ({
                                 programmingSubPlanId={
                                   prescription.programmingSubPlanId
                                 }
-                                substanceKind={skl.substanceKind}
+                                substanceKinds={[skl.substanceKind]}
                                 laboratoryId={skl.laboratoryId}
                                 readonly={!isEditable}
                                 pending={isLaboratoryPending}

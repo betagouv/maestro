@@ -59,7 +59,7 @@ const LocalPrescriptionSubstanceKindsLaboratories = forwardRef<
               <LaboratorySelect
                 programmingPlanId={programmingPlanId}
                 programmingSubPlanId={programmingSubPlanId}
-                substanceKind={substanceKindLaboratory.substanceKind}
+                substanceKinds={[substanceKindLaboratory.substanceKind]}
                 laboratoryId={substanceKindLaboratory.laboratoryId}
                 onSelect={(laboratoryId) =>
                   setSubstanceKindsLaboratories(

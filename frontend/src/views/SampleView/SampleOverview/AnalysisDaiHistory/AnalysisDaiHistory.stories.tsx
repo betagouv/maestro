@@ -15,7 +15,7 @@ const groupPending: AnalysisDaiAnalysisGroup = {
   analysisId,
   sample: { id: sampleId, reference: 'GES-08-24-313-A' },
   analysis: { itemNumber: 1, copyNumber: 1 },
-  sampleItem: { substanceKind: 'Multi' },
+  sampleItem: { substanceKinds: ['Multi'] },
   laboratory: LaboratoryFixture,
   latestAttemptAt: new Date('2025-03-10T09:00:00'),
   attempts: [
@@ -33,7 +33,7 @@ const groupWithMultipleAttempts: AnalysisDaiAnalysisGroup = {
   analysisId: analysisId2,
   sample: { id: sampleId, reference: 'GES-08-24-313-A' },
   analysis: { itemNumber: 1, copyNumber: 1 },
-  sampleItem: { substanceKind: 'Multi' },
+  sampleItem: { substanceKinds: ['Multi'] },
   laboratory: LaboratoryFixture,
   latestAttemptAt: new Date('2025-03-12T14:00:00'),
   attempts: [
@@ -76,7 +76,7 @@ const groupError: AnalysisDaiAnalysisGroup = {
   analysisId: uuidv4(),
   sample: { id: sampleId, reference: 'GES-08-24-313-A' },
   analysis: { itemNumber: 2, copyNumber: 1 },
-  sampleItem: { substanceKind: 'Mono' },
+  sampleItem: { substanceKinds: ['Mono'] },
   laboratory: LaboratoryFixture,
   latestAttemptAt: new Date('2025-03-11T10:30:00'),
   attempts: [

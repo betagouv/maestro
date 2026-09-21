@@ -1,4 +1,6 @@
+import { PPVDummyLaboratoryIds } from 'maestro-shared/schema/User/User';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
+import { PPVValidatedSubPlanId } from 'maestro-shared/test/programmingPlanFixtures';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { kysely } from './kysely';
 import { laboratoryRepository } from './laboratoryRepository';
@@ -266,5 +268,62 @@ describe('updateConfig', () => {
     expect(row.sachaGpgEmail).toBeNull();
     expect(row.sachaGpgPublicKey).toBeNull();
     expect(row.sachaSftpLogin).toBeNull();
+  });
+});
+
+describe('findMany', () => {
+  const [fullyAgreedLaboratoryId, partlyAgreedLaboratoryId] =
+    PPVDummyLaboratoryIds;
+
+  beforeAll(async () => {
+    await kysely
+      .insertInto('laboratoryAgreements')
+      .values([
+        ...(['Mono', 'Multi'] as const).map((substanceKind) => ({
+          laboratoryId: fullyAgreedLaboratoryId,
+          programmingSubPlanId: PPVValidatedSubPlanId,
+          substanceKind,
+          referenceLaboratory: false,
+          detectionAnalysis: true,
+          confirmationAnalysis: false
+        })),
+        {
+          laboratoryId: partlyAgreedLaboratoryId,
+          programmingSubPlanId: PPVValidatedSubPlanId,
+          substanceKind: 'Mono',
+          referenceLaboratory: false,
+          detectionAnalysis: true,
+          confirmationAnalysis: false
+        }
+      ])
+      .execute();
+  });
+
+  test('renvoie seulement les laboratoires agréés pour chacun des analytes', async () => {
+    const laboratoryIds = (
+      await laboratoryRepository.findMany({
+        programmingSubPlanId: PPVValidatedSubPlanId,
+        substanceKinds: ['Mono', 'Multi']
+      })
+    ).map(({ id }) => id);
+
+    expect(laboratoryIds).toContain(fullyAgreedLaboratoryId);
+    expect(laboratoryIds).not.toContain(partlyAgreedLaboratoryId);
+  });
+
+  test('renvoie les laboratoires agréés pour un seul analyte', async () => {
+    const laboratoryIds = (
+      await laboratoryRepository.findMany({
+        programmingSubPlanId: PPVValidatedSubPlanId,
+        substanceKinds: ['Mono']
+      })
+    ).map(({ id }) => id);
+
+    expect(laboratoryIds).toEqual(
+      expect.arrayContaining([
+        fullyAgreedLaboratoryId,
+        partlyAgreedLaboratoryId
+      ])
+    );
   });
 });
