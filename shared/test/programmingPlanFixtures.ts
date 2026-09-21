@@ -194,6 +194,9 @@ export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
   subPlanNumber: 'M01',
   stages: ['ABATTAGE'],
   label: 'Abattoir / Viande de volaille',
+  analysisPermissionRole: 'DepartmentalCoordinator',
+  contactListId: 9,
+  withSacha: true,
   substanceKinds: ['Mono', 'Multi', 'Copper']
 });
 
@@ -210,6 +213,9 @@ export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
   subPlanNumber: 'M02',
   stages: ['ABATTAGE'],
   label: 'Abattoir / Foie de bovin',
+  analysisPermissionRole: 'DepartmentalCoordinator',
+  contactListId: 9,
+  withSacha: true,
   substanceKinds: ['Mono', 'Multi', 'Copper']
 });
 
