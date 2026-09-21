@@ -102,7 +102,23 @@ export const MaestroRoutes = [
   '/users/:userId/certification'
 ] as const;
 
-export const routes = {
+type Routes = typeof analysisRoutes &
+  typeof authRoutes &
+  typeof companiesRoutes &
+  typeof documentsRoutes &
+  typeof laboratoriesRoutes &
+  typeof mascaradeRoutes &
+  typeof noticesRoutes &
+  typeof notificationsRoutes &
+  typeof prescriptionsRoutes &
+  typeof programmingPlanDomainsRoutes &
+  typeof programmingPlansRoutes &
+  typeof sachaCommemoratifsRoute &
+  typeof samplesRoutes &
+  typeof specificDataFieldsRoutes &
+  typeof usersRoutes;
+
+export const routes: Routes = {
   ...analysisRoutes,
   ...authRoutes,
   ...companiesRoutes,
@@ -118,7 +134,7 @@ export const routes = {
   ...samplesRoutes,
   ...specificDataFieldsRoutes,
   ...usersRoutes
-} as const satisfies {
+} satisfies {
   [path in MaestroRoutes]: { [method in RouteMethod]?: ToRoute } & {
     params?: ZodUrlParams<path>;
   };
