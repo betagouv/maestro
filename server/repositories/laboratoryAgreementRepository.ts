@@ -120,45 +120,7 @@ const upsertMany = async (
   return findMany();
 };
 
-const copyFromPreviousYear = async (year: number): Promise<number> => {
-  console.info('Copy laboratory agreements from previous year to', year);
-
-  const inserted = await db.raw(
-    `insert into laboratory_agreements
-       (laboratory_id, programming_sub_plan_id, substance_kind,
-        reference_laboratory, detection_analysis, confirmation_analysis)
-     select distinct
-       previous_agreement.laboratory_id,
-       target.id,
-       previous_agreement.substance_kind,
-       previous_agreement.reference_laboratory,
-       previous_agreement.detection_analysis,
-       previous_agreement.confirmation_analysis
-     from programming_sub_plans_raw target
-     join programming_plans target_plan
-       on target_plan.id = target.programming_plan_id
-      and target_plan.year = ?
-     join programming_plans previous_plan
-       on previous_plan.year = ? - 1
-      and previous_plan.title = target_plan.title
-     join programming_sub_plans_raw previous
-       on previous.programming_plan_id = previous_plan.id
-      and previous.sub_plan_number = target.sub_plan_number
-     join laboratory_agreements previous_agreement
-       on previous_agreement.programming_sub_plan_id = previous.id
-     where not exists (select 1
-                       from laboratory_agreements existing
-                       where existing.programming_sub_plan_id = target.id
-                         and existing.laboratory_id = previous_agreement.laboratory_id
-                         and existing.substance_kind = previous_agreement.substance_kind)`,
-    [year, year]
-  );
-
-  return inserted.rowCount ?? 0;
-};
-
 export const laboratoryAgreementRepository = {
   findMany,
-  upsertMany,
-  copyFromPreviousYear
+  upsertMany
 };

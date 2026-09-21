@@ -26,6 +26,7 @@ import { LocalPrescriptions } from '../../../repositories/localPrescriptionRepos
 import { LocalPrescriptionSubstanceKindsLaboratories } from '../../../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
 import { Prescriptions } from '../../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
+import { toProgrammingPlanSettingsRow } from '../../../repositories/programmingPlanSettingsRow';
 import { ProgrammingSubPlansRaw } from '../../../repositories/programmingSubPlanRepository';
 
 export const abricotsEtSimilaires = genPrescription({
@@ -453,10 +454,11 @@ export const seed = async () => {
     ])
     .delete();
 
-  await ProgrammingSubPlansRaw().insert([
-    ...validatedSubPlans,
-    ...inProgressSubPlans
-  ]);
+  await ProgrammingSubPlansRaw().insert(
+    [...validatedSubPlans, ...inProgressSubPlans].map(
+      toProgrammingPlanSettingsRow
+    )
+  );
 
   const inProgressDistributions = [
     [14, 0, 0, 0, 3, 2, 0, 0, 0, 3, 12, 0, 6, 0, 0, 0, 0, 0],
