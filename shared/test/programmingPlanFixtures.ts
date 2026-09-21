@@ -151,7 +151,7 @@ export const genProgrammingSubPlan = (
 export const PPVValidatedSubPlanFixture = genProgrammingSubPlan({
   id: PPVValidatedSubPlanId,
   programmingPlanId: PPVValidatedProgrammingPlanId,
-  subPlanNumber: 'PPV',
+  subPlanNumber: 'PPV01',
   stages: [
     'PRODUCTION_PRIMAIRE_VEGETALE',
     'ALIMENTATION_ANIMALE',
@@ -194,9 +194,6 @@ export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
   subPlanNumber: 'M01',
   stages: ['ABATTAGE'],
   label: 'Abattoir / Viande de volaille',
-  analysisPermissionRole: 'DepartmentalCoordinator',
-  contactListId: 9,
-  withSacha: true,
   substanceKinds: ['Mono', 'Multi', 'Copper']
 });
 
@@ -213,9 +210,6 @@ export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
   subPlanNumber: 'M02',
   stages: ['ABATTAGE'],
   label: 'Abattoir / Foie de bovin',
-  analysisPermissionRole: 'DepartmentalCoordinator',
-  contactListId: 9,
-  withSacha: true,
   substanceKinds: ['Mono', 'Multi', 'Copper']
 });
 
@@ -252,9 +246,6 @@ export const genProgrammingPlan = (
         email: NationalCoordinatorEmail
       }
     ],
-    analysisPermissionRole: 'Sampler',
-    contactListId: 7,
-    withSacha: false,
     stages: null,
     stagesManaged: false,
     substanceKinds: null,
@@ -402,9 +393,6 @@ export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
   contexts: ['Surveillance'],
   legalContexts: ['A'],
   samplesOutsidePlanAllowed: false,
-  analysisPermissionRole: 'DepartmentalCoordinator',
-  contactListId: 9,
-  withSacha: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
   nationalStatus: { status: 'SubmittedToRegion' },
@@ -436,9 +424,6 @@ export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
   legalContexts: ['A'],
   samplesOutsidePlanAllowed: false,
   settingsCompleted: false,
-  analysisPermissionRole: 'DepartmentalCoordinator',
-  contactListId: 9,
-  withSacha: true,
   createdAt: new Date(),
   createdBy: NationalCoordinatorId,
   nationalStatus: { status: 'InProgress' },

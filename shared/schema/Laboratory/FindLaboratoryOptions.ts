@@ -1,13 +1,13 @@
-import { z } from "zod";
-import { ProgrammingSubPlanId } from "../ProgrammingPlan/ProgrammingSubPlan";
-import { SubstanceKind } from "../Substance/SubstanceKind";
+import { z } from 'zod';
+import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
+import { SubstanceKind } from '../Substance/SubstanceKind';
 
 export const FindLaboratoryOptions = z.object({
   programmingPlanIds: z.array(z.guid()).nullish(),
   substanceKinds: z.array(SubstanceKind).nullish(),
   programmingSubPlanId: ProgrammingSubPlanId.nullish(),
   programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullish(),
-  subPlanNumberPrefix: z.string().nullish(),
+  subPlanNumberPrefix: z.string().nullish()
 });
 
 export type FindLaboratoryOptions = z.infer<typeof FindLaboratoryOptions>;

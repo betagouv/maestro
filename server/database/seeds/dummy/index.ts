@@ -24,8 +24,8 @@ const run = async () => {
   await laboratoriesSeed();
   await usersSeed();
   await programmingPlansSeed();
-  await specificDataFieldsSeed();
   await ppvPrescriptionsSeed();
+  await specificDataFieldsSeed();
   await daoaPrescriptionsSeed();
   await samplesSeed();
   await substanceAnalysisSeed();
