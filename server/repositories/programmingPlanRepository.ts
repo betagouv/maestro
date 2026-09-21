@@ -15,6 +15,10 @@ import z from 'zod';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
 import {
+  type ProgrammingPlanSettingsRow,
+  toProgrammingPlanSettingsRow
+} from './programmingPlanSettingsRow';
+import {
   ProgrammingSubPlansRaw,
   programmingSubPlansTable
 } from './programmingSubPlanRepository';
@@ -60,7 +64,9 @@ type ProgrammingPlanRow = ProgrammingPlanDbo & {
 };
 
 export const ProgrammingPlans = (transaction = db) =>
-  transaction<ProgrammingPlanDbo>(programmingPlansTable);
+  transaction<ProgrammingPlanSettingsRow<ProgrammingPlanDbo>>(
+    programmingPlansTable
+  );
 export const ProgrammingPlanLocalStatus = (transaction = db) =>
   transaction<ProgrammingPlanLocalStatusDbo>(programmingPlanLocalStatusTable);
 export const ProgrammingPlanNationalCoordinators = (transaction = db) =>
@@ -150,7 +156,7 @@ const ProgrammingPlanQuery = () =>
         `(SELECT coalesce(json_agg(json_build_object('id', u.id, 'name', u.name, 'email', u.email) ORDER BY coalesce(u.name, u.email), u.id), '[]'::json) FROM ${programmingPlanNationalCoordinatorsTable} ppnc JOIN users u ON u.id = ppnc.user_id WHERE ppnc.programming_plan_id = ${programmingPlansTable}.id) as "national_coordinators"`
       ),
       db.raw(
-        `(SELECT coalesce(json_agg(json_build_object('id', sp.id, 'programmingPlanId', sp.programming_plan_id, 'subPlanNumber', sp.sub_plan_number, 'stages', sp.stages, 'stagesManaged', sp.stages_managed, 'settingsCompleted', sp.settings_completed, 'label', sp.label, 'analysisPermissionRole', sp.analysis_permission_role, 'contactListId', sp.contact_list_id, 'withSacha', sp.with_sacha, 'substanceKinds', sp.substance_kinds, 'substanceKindsManaged', sp.substance_kinds_managed) ORDER BY sp.sub_plan_number), '[]'::json) FROM ${programmingSubPlansTable} sp WHERE sp.programming_plan_id = ${programmingPlansTable}.id) as "sub_plans"`
+        `(SELECT coalesce(json_agg(json_build_object('id', sp.id, 'programmingPlanId', sp.programming_plan_id, 'subPlanNumber', sp.sub_plan_number, 'stages', sp.stages, 'stagesManaged', sp.stages_managed, 'settingsCompleted', sp.settings_completed, 'label', sp.label, 'analysisPermissionRole', sp.analysis_permission_role, 'contactListId', sp.contact_list_id, 'withSacha', sp.with_sacha, 'substanceKinds', sp.substance_kinds, 'substanceKindsManaged', sp.substance_kinds_managed, 'samples', sp.samples, 'samplesManaged', sp.samples_managed) ORDER BY sp.sub_plan_number), '[]'::json) FROM ${programmingSubPlansTable} sp WHERE sp.programming_plan_id = ${programmingPlansTable}.id) as "sub_plans"`
       )
     )
     .join(
@@ -281,7 +287,7 @@ const insert = async (
     if (programmingPlan.subPlans.length > 0) {
       await ProgrammingSubPlansRaw(transaction).insert(
         programmingPlan.subPlans.map((subPlan) => ({
-          ...subPlan,
+          ...toProgrammingPlanSettingsRow(subPlan),
           programmingPlanId: programmingPlan.id,
           analysisPermissionRole: subPlan.analysisPermissionRole ?? null,
           contactListId: subPlan.contactListId ?? null
@@ -469,7 +475,8 @@ const touchLocalStatus = async (
 
 export const formatProgrammingPlan = (
   programmingPlan: ProgrammingPlanChecked
-): ProgrammingPlanDbo => ProgrammingPlanDbo.parse(programmingPlan);
+): ProgrammingPlanSettingsRow<ProgrammingPlanDbo> =>
+  toProgrammingPlanSettingsRow(ProgrammingPlanDbo.parse(programmingPlan));
 
 const parseProgrammingPlan = (
   row: ProgrammingPlanRow

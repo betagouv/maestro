@@ -11,12 +11,74 @@ import { SettingInheritanceLockButton } from '../SettingInheritanceLockButton/Se
 import './ProgrammingPlanSettingInheritance.scss';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 
-type Props<T extends ProgrammingPlanSettings> = {
+type SettingInheritanceOptions<T extends ProgrammingPlanSettings> = {
   settingKey: ProgrammingPlanSettingKey;
   label: string;
   settings: T;
   planSettings: ProgrammingPlanSettings | undefined;
+  inheritanceDisabledReason?: string;
   onChange: (settings: T) => void;
+};
+
+export const useSettingInheritance = <T extends ProgrammingPlanSettings>({
+  settingKey,
+  label,
+  settings,
+  planSettings,
+  inheritanceDisabledReason,
+  onChange
+}: SettingInheritanceOptions<T>) => {
+  const managed = settings[managedKey(settingKey)];
+  const managedAtPlanLevel = planSettings?.[managedKey(settingKey)] ?? false;
+  const isInherited = managedAtPlanLevel && !managed;
+
+  const change = (patch: Partial<ProgrammingPlanSettings>) =>
+    onChange({ ...settings, ...patch });
+
+  return {
+    isInherited,
+    isFieldVisible: planSettings !== undefined || managed,
+    required: managed,
+    lockButton: managedAtPlanLevel && (
+      <SettingInheritanceLockButton
+        isInherited={isInherited}
+        title={
+          inheritanceDisabledReason ??
+          (isInherited ? 'Géré par le plan' : 'Détaché du plan')
+        }
+        disabled={inheritanceDisabledReason !== undefined}
+        onClick={() =>
+          change(
+            isInherited
+              ? { [managedKey(settingKey)]: true }
+              : {
+                  [managedKey(settingKey)]: false,
+                  [settingKey]: planSettings?.[settingKey]
+                }
+          )
+        }
+      />
+    ),
+    toggle: !planSettings && (
+      <ToggleSwitch
+        label={null}
+        labelPosition="left"
+        showCheckedHint={false}
+        inputTitle={`Paramétrer « ${label} » au niveau du plan`}
+        disabled={inheritanceDisabledReason !== undefined}
+        checked={managed}
+        onChange={(managed) => change({ [managedKey(settingKey)]: managed })}
+      />
+    ),
+    disabledReasonHint: !planSettings && inheritanceDisabledReason && (
+      <p className={cx('fr-hint-text', 'fr-mb-0')}>
+        {inheritanceDisabledReason}
+      </p>
+    )
+  };
+};
+
+type Props<T extends ProgrammingPlanSettings> = SettingInheritanceOptions<T> & {
   children: (props: {
     disabled: boolean;
     label: ReactNode;
@@ -31,41 +93,35 @@ export const ProgrammingPlanSettingInheritance = <
   label,
   settings,
   planSettings,
+  inheritanceDisabledReason,
   onChange,
   children,
   ..._rest
 }: Props<T>) => {
   assert<Equals<keyof typeof _rest, never>>();
 
-  const managed = settings[managedKey(settingKey)];
-  const managedAtPlanLevel = planSettings?.[managedKey(settingKey)] ?? false;
-  const isInherited = managedAtPlanLevel && !managed;
-  const isFieldVisible = planSettings !== undefined || managed;
-
-  const change = (patch: Partial<ProgrammingPlanSettings>) =>
-    onChange({ ...settings, ...patch });
+  const {
+    isInherited,
+    isFieldVisible,
+    required,
+    lockButton,
+    toggle,
+    disabledReasonHint
+  } = useSettingInheritance({
+    settingKey,
+    label,
+    settings,
+    planSettings,
+    inheritanceDisabledReason,
+    onChange
+  });
 
   const composedLabel = (
     <span
       className="setting-inheritance-label"
       style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
     >
-      {managedAtPlanLevel && (
-        <SettingInheritanceLockButton
-          isInherited={isInherited}
-          title={isInherited ? 'Géré par le plan' : 'Détaché du plan'}
-          onClick={() =>
-            change(
-              isInherited
-                ? { [managedKey(settingKey)]: true }
-                : {
-                    [managedKey(settingKey)]: false,
-                    [settingKey]: planSettings?.[settingKey]
-                  }
-            )
-          }
-        />
-      )}
+      {lockButton}
       {label}
     </span>
   );
@@ -86,22 +142,14 @@ export const ProgrammingPlanSettingInheritance = <
           children({
             disabled: isInherited,
             label: composedLabel,
-            required: managed
+            required
           })
         ) : (
           <span className={cx('fr-label', 'fr-label--disabled')}>{label}</span>
         )}
+        {disabledReasonHint}
       </div>
-      {!planSettings && (
-        <ToggleSwitch
-          label={null}
-          labelPosition="left"
-          showCheckedHint={false}
-          inputTitle={`Paramétrer « ${label} » au niveau du plan`}
-          checked={managed}
-          onChange={(managed) => change({ [managedKey(settingKey)]: managed })}
-        />
-      )}
+      {toggle}
     </div>
   );
 };

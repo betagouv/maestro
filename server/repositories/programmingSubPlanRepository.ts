@@ -9,12 +9,18 @@ import { assertUnreachable } from 'maestro-shared/utils/typescript';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
 import type { KyselyMaestro } from './kysely.type';
+import {
+  type ProgrammingPlanSettingsRow,
+  toProgrammingPlanSettingsRow
+} from './programmingPlanSettingsRow';
 
 export const programmingSubPlansTable = 'programming_sub_plans';
 const programmingSubPlansRawTable = 'programming_sub_plans_raw';
 
 export const ProgrammingSubPlansRaw = (transaction = db) =>
-  transaction<ProgrammingSubPlan>(programmingSubPlansRawTable);
+  transaction<ProgrammingPlanSettingsRow<ProgrammingSubPlan>>(
+    programmingSubPlansRawTable
+  );
 
 const findUnique = async (
   id: ProgrammingSubPlanId
@@ -68,7 +74,7 @@ const updateSettings = async (
 
   await executor
     .updateTable('programmingSubPlansRaw')
-    .set(settings)
+    .set(toProgrammingPlanSettingsRow(settings))
     .where('id', '=', id)
     .execute();
 };

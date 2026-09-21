@@ -19,6 +19,7 @@ import type { ProgrammingPlanDomain } from 'maestro-shared/schema/ProgrammingPla
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import {
   inheritsUnmanagedSetting,
+  managesSamplesAboveSubstanceKinds,
   pickProgrammingPlanSettings
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import {
@@ -988,7 +989,10 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
         return { status: HttpStatus.FORBIDDEN };
       }
 
-      if (resumesDraft(programmingPlan, body)) {
+      if (
+        managesSamplesAboveSubstanceKinds.plan(body) ||
+        resumesDraft(programmingPlan, body)
+      ) {
         return { status: HttpStatus.CONFLICT };
       }
 
@@ -1059,6 +1063,7 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
 
         if (
           inheritsUnmanagedSetting(body, programmingPlan) ||
+          managesSamplesAboveSubstanceKinds.subPlan(body) ||
           resumesDraft(programmingSubPlan, body)
         ) {
           return { status: HttpStatus.CONFLICT };

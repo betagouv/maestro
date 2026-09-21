@@ -18,6 +18,7 @@ import type {
 } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { executeTransaction } from '../repositories/kysely';
 import type { DB } from '../repositories/kysely.type';
+import { toProgrammingPlanSettingsRow } from '../repositories/programmingPlanSettingsRow';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import { specificDataFieldConfigRepository } from '../repositories/specificDataFieldConfigRepository';
 
@@ -210,7 +211,7 @@ const savePlanSettings = (
 
     await trx
       .updateTable('programmingPlans')
-      .set(settings)
+      .set(toProgrammingPlanSettingsRow(settings))
       .where('id', '=', programmingPlanId)
       .execute();
 
@@ -226,11 +227,14 @@ const savePlanSettings = (
           .updateTable('programmingSubPlansRaw')
           .set(managedKey(settingKey), false)
           .where('programmingPlanId', '=', programmingPlanId)
+          .$if(settingKey === 'samples', (qb) =>
+            qb.where('substanceKindsManaged', '=', false)
+          )
           .execute();
       } else {
         await trx
           .updateTable('programmingSubPlansRaw')
-          .set(settingKey, settings[settingKey])
+          .set(toProgrammingPlanSettingsRow(pick(settings, settingKey)))
           .set(managedKey(settingKey), true)
           .where('programmingPlanId', '=', programmingPlanId)
           .where(managedKey(settingKey), '=', false)

@@ -1,10 +1,13 @@
 import { describe, expect, test } from 'vitest';
+import { defaultProgrammingPlanSample } from './ProgrammingPlanSampleSetting';
 import {
   emptyProgrammingPlanSettings,
   inheritsUnmanagedSetting,
   managedKey,
+  managesSamplesAboveSubstanceKinds,
   ProgrammingPlanSettingKey,
-  pickProgrammingPlanSettings
+  pickProgrammingPlanSettings,
+  withSamplesBelowSubstanceKinds
 } from './ProgrammingPlanSettings';
 
 describe('ProgrammingPlanSettings', () => {
@@ -60,5 +63,110 @@ describe('ProgrammingPlanSettings', () => {
 
       expect(pickProgrammingPlanSettings(settingsForm)).toStrictEqual(settings);
     });
+  });
+
+  describe('managesSamplesAboveSubstanceKinds', () => {
+    const settings = (
+      samplesManaged: boolean,
+      substanceKindsManaged: boolean
+    ) => ({
+      ...emptyProgrammingPlanSettings(false),
+      samplesManaged,
+      substanceKindsManaged
+    });
+
+    test.each([
+      [false, false, false],
+      [false, true, false],
+      [true, true, false],
+      [true, false, true]
+    ])(
+      'plan managing samples: %s, analytes: %s => %s',
+      (samplesManaged, substanceKindsManaged, expected) => {
+        expect(
+          managesSamplesAboveSubstanceKinds.plan(
+            settings(samplesManaged, substanceKindsManaged)
+          )
+        ).toBe(expected);
+      }
+    );
+
+    test.each([
+      [false, false, false],
+      [true, false, false],
+      [true, true, false],
+      [false, true, true]
+    ])(
+      'sub-plan managing samples: %s, analytes: %s => %s',
+      (samplesManaged, substanceKindsManaged, expected) => {
+        expect(
+          managesSamplesAboveSubstanceKinds.subPlan(
+            settings(samplesManaged, substanceKindsManaged)
+          )
+        ).toBe(expected);
+      }
+    );
+  });
+
+  describe('withSamplesBelowSubstanceKinds', () => {
+    const planSamples = [
+      { ...defaultProgrammingPlanSample, substanceKind: 'Mono' as const }
+    ];
+
+    test('should stop a plan managing the samples once it stops managing the analytes', () => {
+      expect(
+        withSamplesBelowSubstanceKinds(
+          {
+            ...emptyProgrammingPlanSettings(false),
+            samples: planSamples,
+            samplesManaged: true
+          },
+          undefined
+        )
+      ).toStrictEqual({
+        ...emptyProgrammingPlanSettings(false),
+        samples: planSamples
+      });
+    });
+
+    test('should detach the samples of a sub-plan detaching its analytes, with the plan configuration', () => {
+      expect(
+        withSamplesBelowSubstanceKinds(
+          {
+            ...emptyProgrammingPlanSettings(false),
+            substanceKindsManaged: true
+          },
+          {
+            ...emptyProgrammingPlanSettings(true),
+            samples: planSamples
+          }
+        )
+      ).toStrictEqual({
+        ...emptyProgrammingPlanSettings(false),
+        substanceKindsManaged: true,
+        samples: planSamples,
+        samplesManaged: true
+      });
+    });
+
+    test.each([
+      ['plan', emptyProgrammingPlanSettings(true), undefined],
+      [
+        'sub-plan',
+        {
+          ...emptyProgrammingPlanSettings(false),
+          samples: planSamples,
+          samplesManaged: true
+        },
+        emptyProgrammingPlanSettings(true)
+      ]
+    ])(
+      'should leave coherent %s settings untouched',
+      (_, settings, planSettings) => {
+        expect(withSamplesBelowSubstanceKinds(settings, planSettings)).toBe(
+          settings
+        );
+      }
+    );
   });
 });
