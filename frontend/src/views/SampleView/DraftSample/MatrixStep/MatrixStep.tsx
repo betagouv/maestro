@@ -155,18 +155,17 @@ const MatrixStep = ({ partialSample }: Props) => {
     );
   }, [prescriptionsData, localPrescriptions]);
 
-  const derivedSubPlanId = useMemo(
+  const effectiveSubPlanId = useMemo(
     () =>
+      programmingSubPlanId ??
       prescriptions?.find(
         (p) =>
           p.matrixKind === matrixKind &&
           (isNil(p.matrix) || p.matrix === matrix) &&
           (isNil(stage) || p.stages.includes(stage))
       )?.programmingSubPlanId,
-    [prescriptions, matrixKind, matrix, stage]
+    [programmingSubPlanId, prescriptions, matrixKind, matrix, stage]
   );
-
-  const effectiveSubPlanId = programmingSubPlanId ?? derivedSubPlanId;
 
   const subPlanNumber =
     planSubPlans.find((sp) => sp.id === effectiveSubPlanId)?.subPlanNumber ??
