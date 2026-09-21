@@ -13,7 +13,6 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures.ts';
 import {
@@ -2153,10 +2152,12 @@ describe('ProgrammingPlan router', () => {
         .put(daoaVolailleRoute)
         .send({
           ...body,
-          samples: body.substanceKinds.map((substanceKind: SubstanceKind) => ({
-            ...defaultProgrammingPlanSample,
-            substanceKind
-          })),
+          samples: [
+            {
+              ...defaultProgrammingPlanSample,
+              substanceKinds: body.substanceKinds
+            }
+          ],
           settingsCompleted: true
         })
         .use(tokenProvider(AdminFixture))

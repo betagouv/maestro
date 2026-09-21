@@ -34,7 +34,7 @@ const completedSettings: {
     message: 'Veuillez renseigner au moins un analyte.'
   },
   samples: {
-    value: [{ ...defaultProgrammingPlanSample, substanceKind: 'Mono' }],
+    value: [{ ...defaultProgrammingPlanSample, substanceKinds: ['Mono'] }],
     message: 'Veuillez configurer au moins un échantillon.',
     context: { substanceKinds: ['Mono'] }
   }
@@ -122,9 +122,9 @@ describe('ProgrammingPlanSettingsForm', () => {
   });
 
   describe('samples covering the analytes', () => {
-    const sample = (substanceKind: SubstanceKind | null) => ({
+    const sample = (...substanceKinds: SubstanceKind[]) => ({
       ...defaultProgrammingPlanSample,
-      substanceKind
+      substanceKinds
     });
 
     const form = (
@@ -134,17 +134,17 @@ describe('ProgrammingPlanSettingsForm', () => {
     ) =>
       ProgrammingSubPlanSettingsForm.safeParse({
         ...emptyProgrammingPlanSettings(false),
-        substanceKinds: ['Mono', 'Multi'],
+        substanceKinds: ['Mono', 'Multi', 'Copper'],
         substanceKindsManaged: true,
         samplesManaged: true,
         ...settings,
         fields: []
       });
 
-    test('should accept a completed level whose samples cover every analyte', () => {
+    test('should accept a completed level whose samples hold every analyte exactly once', () => {
       expect(
         form({
-          samples: [sample('Multi'), sample('Mono'), sample('Mono')],
+          samples: [sample('Multi', 'Copper'), sample('Mono')],
           settingsCompleted: true
         }).success
       ).toBe(true);
@@ -152,40 +152,52 @@ describe('ProgrammingPlanSettingsForm', () => {
 
     test('should accept a draft whose samples do not cover the analytes', () => {
       expect(
-        form({ samples: [sample(null)], settingsCompleted: false }).success
+        form({ samples: [sample()], settingsCompleted: false }).success
       ).toBe(true);
     });
 
     test('should accept a completed level that does not manage the samples', () => {
       expect(
         form({
-          samples: [sample(null)],
+          samples: [sample()],
           samplesManaged: false,
           settingsCompleted: true
         }).success
       ).toBe(true);
     });
 
-    test.each([null, 'Copper' as const])(
-      'should refuse to complete a sample with the analyte %s',
-      (substanceKind) => {
-        const result = form({
-          samples: [sample('Mono'), sample(substanceKind), sample('Multi')],
-          settingsCompleted: true
-        });
+    test('should refuse to complete a sample without analyte', () => {
+      const result = form({
+        samples: [sample('Mono'), sample(), sample('Multi', 'Copper')],
+        settingsCompleted: true
+      });
 
-        expect(result.error?.issues).toStrictEqual([
-          expect.objectContaining({
-            path: ['samples', 1, 'substanceKind'],
-            message: 'Veuillez choisir un analyte pour l’échantillon 2.'
-          })
-        ]);
-      }
-    );
+      expect(result.error?.issues).toStrictEqual([
+        expect.objectContaining({
+          path: ['samples', 1, 'substanceKinds'],
+          message: 'Veuillez choisir au moins un analyte pour l’échantillon 2.'
+        })
+      ]);
+    });
+
+    test('should refuse to complete a sample with an analyte outside the level', () => {
+      const result = form({
+        samples: [sample('Mono'), sample('Multi', 'Copper', 'Any')],
+        settingsCompleted: true
+      });
+
+      expect(result.error?.issues).toStrictEqual([
+        expect.objectContaining({
+          path: ['samples', 1, 'substanceKinds'],
+          message:
+            'L’analyte « Mono-résidu et multi-résidus » de l’échantillon 2 ne fait pas partie des analytes.'
+        })
+      ]);
+    });
 
     test('should refuse to complete a level with an analyte assigned to no sample', () => {
       const result = form({
-        samples: [sample('Mono'), sample('Mono')],
+        samples: [sample('Mono'), sample('Copper')],
         settingsCompleted: true
       });
 
@@ -194,6 +206,21 @@ describe('ProgrammingPlanSettingsForm', () => {
           path: ['samples'],
           message:
             'L’analyte « Multi-résidus » n’est affecté à aucun échantillon.'
+        })
+      ]);
+    });
+
+    test('should refuse to complete a level with an analyte assigned to several samples', () => {
+      const result = form({
+        samples: [sample('Mono', 'Multi'), sample('Multi', 'Copper')],
+        settingsCompleted: true
+      });
+
+      expect(result.error?.issues).toStrictEqual([
+        expect.objectContaining({
+          path: ['samples'],
+          message:
+            'L’analyte « Multi-résidus » est affecté à plusieurs échantillons.'
         })
       ]);
     });

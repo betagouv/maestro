@@ -51,7 +51,6 @@ const checkCompleteness = (
   }
 };
 
-//FIXME DOMAIN attention une substance ne peut apparaitre qu'une fois et on peut mettre plusieurs substances par échantillon. Mais pour le moment la colonne sample_items.substance_kind n'est pas multi-value
 const checkSamplesCoverSubstanceKinds = (
   ctx: z.core.ParsePayload<z.infer<typeof SettingsFormBase>>
 ) => {
@@ -60,22 +59,33 @@ const checkSamplesCoverSubstanceKinds = (
   if (!settingsCompleted || !samplesManaged || !samples) {
     return;
   }
-  samples.forEach(({ substanceKind }, index) => {
-    if (!substanceKind || !substanceKinds?.includes(substanceKind)) {
+  samples.forEach((sample, index) => {
+    const outsideSubstanceKind = sample.substanceKinds.find(
+      (substanceKind) => !substanceKinds?.includes(substanceKind)
+    );
+    if (sample.substanceKinds.length === 0 || outsideSubstanceKind) {
       ctx.issues.push({
         input: ctx.value,
         code: 'custom',
-        message: `Veuillez choisir un analyte pour l’échantillon ${index + 1}.`,
-        path: ['samples', index, 'substanceKind']
+        message: outsideSubstanceKind
+          ? `L’analyte « ${SubstanceKindLabels[outsideSubstanceKind]} » de l’échantillon ${index + 1} ne fait pas partie des analytes.`
+          : `Veuillez choisir au moins un analyte pour l’échantillon ${index + 1}.`,
+        path: ['samples', index, 'substanceKinds']
       });
     }
   });
   for (const substanceKind of substanceKinds ?? []) {
-    if (!samples.some((sample) => sample.substanceKind === substanceKind)) {
+    const sampleCount = samples.filter((sample) =>
+      sample.substanceKinds.includes(substanceKind)
+    ).length;
+    if (sampleCount !== 1) {
       ctx.issues.push({
         input: ctx.value,
         code: 'custom',
-        message: `L’analyte « ${SubstanceKindLabels[substanceKind]} » n’est affecté à aucun échantillon.`,
+        message:
+          sampleCount === 0
+            ? `L’analyte « ${SubstanceKindLabels[substanceKind]} » n’est affecté à aucun échantillon.`
+            : `L’analyte « ${SubstanceKindLabels[substanceKind]} » est affecté à plusieurs échantillons.`,
         path: ['samples']
       });
     }
