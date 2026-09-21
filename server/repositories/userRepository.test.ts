@@ -1,3 +1,4 @@
+import { isPPVSubPlanNumber } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
 import {
   DAOABovinValidatedSubPlanFixture,
@@ -168,7 +169,9 @@ describe('stades de prélèvement', () => {
     expect(userInDb?.stages).toEqual(PPVStages);
 
     const derived = userInDb?.programmingSubPlans ?? [];
-    expect(derived.every((sp) => sp.subPlanNumber === 'PPV')).toBe(true);
+    expect(derived.every((sp) => isPPVSubPlanNumber(sp.subPlanNumber))).toBe(
+      true
+    );
     expect(
       new Set(derived.map((sp) => sp.programmingPlanId)).size
     ).toBeGreaterThan(1);
@@ -201,7 +204,9 @@ describe('stades de prélèvement', () => {
     const userInDb = await userRepository.findOne(user.email);
     expect(userInDb?.stages).toEqual(AbattoirStages);
     expect(
-      userInDb?.programmingSubPlans.every((sp) => sp.subPlanNumber !== 'PPV')
+      userInDb?.programmingSubPlans.every(
+        (sp) => !isPPVSubPlanNumber(sp.subPlanNumber)
+      )
     ).toBe(true);
   });
 
