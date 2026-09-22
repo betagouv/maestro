@@ -17,6 +17,7 @@ import type {
   LocalPrescriptionCommentToCreate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import { defaultProgrammingPlanSample } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
 import {
@@ -798,6 +799,67 @@ describe('Local prescriptions router', () => {
       ]);
     });
 
+    test('should refuse different laboratories for the analytes of a same sample', async () => {
+      const validatedLocalPrescription =
+        validatedControlLocalPrescriptions.find((localPrescription) =>
+          isEqual(
+            LocalPrescriptionKey.parse(localPrescription),
+            LocalPrescriptionKey.parse({
+              prescriptionId: validatedControlPrescription.id,
+              region: RegionalCoordinator.region as Region
+            })
+          )
+        ) as LocalPrescription;
+      const subPlanId = validatedControlPrescription.programmingSubPlanId;
+      const { samples, samplesManaged } = await kysely
+        .selectFrom('programmingSubPlansRaw')
+        .select(['samples', 'samplesManaged'])
+        .where('id', '=', subPlanId)
+        .executeTakeFirstOrThrow();
+      await ProgrammingSubPlansRaw()
+        .where({ id: subPlanId })
+        .update(
+          toProgrammingPlanSettingsRow({
+            samples: [
+              {
+                ...defaultProgrammingPlanSample,
+                substanceKinds: ['Mono', 'Multi']
+              }
+            ],
+            samplesManaged: true
+          })
+        );
+
+      const sendLaboratories = (multiLaboratoryId: string) =>
+        request(app)
+          .put(
+            testRoute(
+              validatedLocalPrescription.prescriptionId,
+              validatedLocalPrescription.region
+            )
+          )
+          .send({
+            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+            key: 'laboratories',
+            substanceKindsLaboratories: [
+              { substanceKind: 'Mono', laboratoryId: laboratory.id },
+              { substanceKind: 'Multi', laboratoryId: multiLaboratoryId }
+            ]
+          })
+          .use(tokenProvider(RegionalCoordinator));
+
+      try {
+        await sendLaboratories(LaboratoryFixture.id).expect(
+          constants.HTTP_STATUS_BAD_REQUEST
+        );
+        await sendLaboratories(laboratory.id).expect(constants.HTTP_STATUS_OK);
+      } finally {
+        await ProgrammingSubPlansRaw()
+          .where({ id: subPlanId })
+          .update(toProgrammingPlanSettingsRow({ samples, samplesManaged }));
+      }
+    });
+
     describe('should update the samples laboratories of the prescription for a regional coordinator', async () => {
       const validatedLocalPrescription =
         validatedControlLocalPrescriptions.find((localPrescription) =>
@@ -824,7 +886,7 @@ describe('Local prescriptions router', () => {
         sampleId: draftSample.id,
         itemNumber: 1,
         copyNumber: 1,
-        substanceKind: 'Any',
+        substanceKinds: ['Any'],
         recipientKind: 'Laboratory',
         laboratoryId: undefined
       });
@@ -833,7 +895,7 @@ describe('Local prescriptions router', () => {
         sampleId: draftSample.id,
         itemNumber: 2,
         copyNumber: 1,
-        substanceKind: 'Any',
+        substanceKinds: ['Any'],
         recipientKind: 'Sampler',
         laboratoryId: undefined
       });
@@ -957,7 +1019,7 @@ describe('Local prescriptions router', () => {
           sampleId: sampleOtherRegion.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKind: 'Any',
+          substanceKinds: ['Any'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -1008,7 +1070,7 @@ describe('Local prescriptions router', () => {
           sampleId: otherPrescriptionSample.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKind: 'Any',
+          substanceKinds: ['Any'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -1061,7 +1123,7 @@ describe('Local prescriptions router', () => {
           sampleId: sentSample.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKind: 'Any',
+          substanceKinds: ['Any'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -1584,7 +1646,7 @@ describe('Local prescriptions router', () => {
         sampleId: draftSample.id,
         itemNumber: 1,
         copyNumber: 1,
-        substanceKind: 'Any',
+        substanceKinds: ['Any'],
         recipientKind: 'Laboratory',
         laboratoryId: null
       });
@@ -1593,7 +1655,7 @@ describe('Local prescriptions router', () => {
         sampleId: draftSample.id,
         itemNumber: 2,
         copyNumber: 1,
-        substanceKind: 'Any',
+        substanceKinds: ['Any'],
         recipientKind: 'Sampler',
         laboratoryId: null
       });
@@ -1693,7 +1755,7 @@ describe('Local prescriptions router', () => {
           sampleId: sampleOtherDepartment.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKind: 'Any',
+          substanceKinds: ['Any'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });
@@ -1741,7 +1803,7 @@ describe('Local prescriptions router', () => {
           sampleId: sentSample.id,
           itemNumber: 1,
           copyNumber: 1,
-          substanceKind: 'Any',
+          substanceKinds: ['Any'],
           recipientKind: 'Laboratory',
           laboratoryId: LaboratoryFixture.id
         });

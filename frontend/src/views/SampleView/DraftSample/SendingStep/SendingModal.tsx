@@ -30,8 +30,9 @@ interface Props {
     id: string;
   };
   programmingSubPlanNumber?: string;
-  substanceKindsLaboratories: {
-    substanceKind: SubstanceKind;
+  itemsLaboratories: {
+    itemNumber: number;
+    substanceKinds: SubstanceKind[];
     laboratory: Laboratory;
   }[];
   onConfirm: () => Promise<void>;
@@ -39,7 +40,7 @@ interface Props {
 
 const SendingModal = ({
   modal,
-  substanceKindsLaboratories,
+  itemsLaboratories,
   programmingSubPlanNumber,
   onConfirm
 }: Props) => {
@@ -56,7 +57,7 @@ const SendingModal = ({
   return (
     <modal.Component
       title={`Vous vous apprêtez à envoyer ${pluralize(
-        substanceKindsLaboratories.length,
+        itemsLaboratories.length,
         {
           preserveCount: true
         }
@@ -77,18 +78,20 @@ const SendingModal = ({
         }
       ]}
     >
-      {substanceKindsLaboratories.map((substanceKindLaboratory, index) => (
-        <div key={substanceKindLaboratory.substanceKind}>
+      {itemsLaboratories.map((itemLaboratory, index) => (
+        <div key={itemLaboratory.itemNumber}>
           {index > 0 && <hr className={cx('fr-my-2w')} />}
           La demande d’analyse{' '}
-          {SubstanceKindLabels[
-            substanceKindLaboratory.substanceKind
-          ].toLowerCase()}{' '}
+          {itemLaboratory.substanceKinds
+            .map((substanceKind) =>
+              SubstanceKindLabels[substanceKind].toLowerCase()
+            )
+            .join(', ')}{' '}
           va être envoyée au laboratoire{' '}
-          <b>{getLaboratoryFullName(substanceKindLaboratory.laboratory)}</b>.
+          <b>{getLaboratoryFullName(itemLaboratory.laboratory)}</b>.
           {programmingSubPlanNumber === 'PPV' &&
             !(LaboratoryWithAutomation as string[]).includes(
-              substanceKindLaboratory.laboratory.shortName
+              itemLaboratory.laboratory.shortName
             ) && (
               <Alert
                 className={cx('fr-mt-2w')}
@@ -98,12 +101,8 @@ const SendingModal = ({
                   <>
                     Le processus d’automatisation est en cours pour le
                     laboratoire{' '}
-                    <b>
-                      {getLaboratoryFullName(
-                        substanceKindLaboratory.laboratory
-                      )}
-                    </b>
-                    . Les résultats d’analyses restent à renseigner manuellement
+                    <b>{getLaboratoryFullName(itemLaboratory.laboratory)}</b>.
+                    Les résultats d’analyses restent à renseigner manuellement
                     pour le moment dans {Brand}.
                   </>
                 }

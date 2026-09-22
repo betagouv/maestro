@@ -176,13 +176,17 @@ const findMany = async (
           );
         }
         break;
-      case 'substanceKind':
-        if (!isNil(findOptions.substanceKind)) {
-          query = query.where(
-            'laboratoryAgreements.substanceKind',
-            '=',
-            findOptions.substanceKind
-          );
+      case 'substanceKinds':
+        if (findOptions.substanceKinds?.length) {
+          const substanceKinds = findOptions.substanceKinds;
+          query = query
+            .where('laboratoryAgreements.substanceKind', 'in', substanceKinds)
+            .having(
+              ({ fn, ref }) =>
+                fn.count(ref('laboratoryAgreements.substanceKind')).distinct(),
+              '=',
+              substanceKinds.length
+            );
         }
         break;
       case 'programmingSubPlanId':

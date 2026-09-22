@@ -1,5 +1,6 @@
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import { withSubstanceKindLaboratories } from 'maestro-shared/schema/Sample/SampleItem';
 import localPrescriptionLaboratoryRepository from '../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
 import { sampleRepository } from '../repositories/sampleRepository';
@@ -27,15 +28,7 @@ const commitLaboratories = async (
       );
       await sampleItemRepository.updateMany(
         samplePrescription.id,
-        sampleItems.map((sampleItem) => ({
-          ...sampleItem,
-          laboratoryId:
-            sampleItem.recipientKind === 'Laboratory'
-              ? (substanceKindsLaboratories?.find(
-                  (s) => s.substanceKind === sampleItem.substanceKind
-                )?.laboratoryId ?? null)
-              : undefined
-        }))
+        withSubstanceKindLaboratories(sampleItems, substanceKindsLaboratories)
       );
     })
   );

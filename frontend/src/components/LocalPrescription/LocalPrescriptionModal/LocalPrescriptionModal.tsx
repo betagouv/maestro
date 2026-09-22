@@ -189,6 +189,14 @@ const LocalPrescriptionModal = () => {
                 programmingSubPlanId={
                   localPrescriptionModalData.prescription.programmingSubPlanId
                 }
+                samples={
+                  localPrescriptionModalData.programmingPlan.subPlans.find(
+                    (sp) =>
+                      sp.id ===
+                      localPrescriptionModalData.prescription
+                        .programmingSubPlanId
+                  )?.samples ?? null
+                }
                 substanceKindsLaboratories={
                   (
                     localPrescriptionModalData.localPrescription

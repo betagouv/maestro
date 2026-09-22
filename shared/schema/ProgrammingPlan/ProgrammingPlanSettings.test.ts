@@ -110,7 +110,7 @@ describe('ProgrammingPlanSettings', () => {
 
   describe('withSamplesBelowSubstanceKinds', () => {
     const planSamples = [
-      { ...defaultProgrammingPlanSample, substanceKind: 'Mono' as const }
+      { ...defaultProgrammingPlanSample, substanceKinds: ['Mono' as const] }
     ];
 
     test('should stop a plan managing the samples once it stops managing the analytes', () => {

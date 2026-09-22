@@ -5,7 +5,6 @@ import type { TagProps } from '@codegouvfr/react-dsfr/Tag';
 import TagsGroup from '@codegouvfr/react-dsfr/TagsGroup';
 import clsx from 'clsx';
 import {
-  addProgrammingPlanSample,
   defaultProgrammingPlanSample,
   type ProgrammingPlanSampleCopySetting,
   ProgrammingPlanSampleMaxCount,
@@ -21,6 +20,11 @@ import { assert, type Equals } from 'tsafe';
 import { useSettingInheritance } from '../ProgrammingPlanSettingInheritance/ProgrammingPlanSettingInheritance';
 import { ProgrammingPlanSampleCopyModal } from './ProgrammingPlanSampleCopyModal';
 import './ProgrammingPlanSampleSettings.scss';
+import {
+  addProgrammingPlanSample,
+  toggleSampleSubstanceKind,
+  unassignedSubstanceKinds
+} from './programmingPlanSamples';
 
 const copyModal = createModal({
   id: 'programming-plan-sample-copy-modal',
@@ -165,17 +169,18 @@ export const ProgrammingPlanSampleSettings = <
                             [firstSubstanceKind, ...otherSubstanceKinds].map(
                               (substanceKind): TagProps => ({
                                 children: SubstanceKindLabels[substanceKind],
-                                pressed: sample.substanceKind === substanceKind,
+                                pressed:
+                                  sample.substanceKinds.includes(substanceKind),
                                 nativeButtonProps: {
                                   disabled,
                                   onClick: () =>
-                                    changeSample(sampleIndex, {
-                                      ...sample,
-                                      substanceKind:
-                                        sample.substanceKind === substanceKind
-                                          ? null
-                                          : substanceKind
-                                    })
+                                    changeSamples(
+                                      toggleSampleSubstanceKind(
+                                        samples,
+                                        sampleIndex,
+                                        substanceKind
+                                      )
+                                    )
                                 }
                               })
                             ) as [TagProps, ...TagProps[]]
@@ -229,12 +234,12 @@ export const ProgrammingPlanSampleSettings = <
                   </div>
                   {inputForm.hasIssue('samples', [
                     sampleIndex,
-                    'substanceKind'
+                    'substanceKinds'
                   ]) && (
                     <p className={cx('fr-error-text')}>
                       {inputForm.message('samples', [
                         sampleIndex,
-                        'substanceKind'
+                        'substanceKinds'
                       ])}
                     </p>
                   )}
@@ -251,7 +256,12 @@ export const ProgrammingPlanSampleSettings = <
                   priority="secondary"
                   iconId="fr-icon-add-line"
                   disabled={
-                    disabled || samples.length >= ProgrammingPlanSampleMaxCount
+                    disabled ||
+                    samples.length >= ProgrammingPlanSampleMaxCount ||
+                    !unassignedSubstanceKinds(
+                      samples,
+                      settings.substanceKinds ?? []
+                    ).length
                   }
                   onClick={() =>
                     changeSamples(addProgrammingPlanSample(samples))

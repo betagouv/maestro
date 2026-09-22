@@ -1,16 +1,19 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
-import {
-  type SubstanceKindLaboratory,
-  SubstanceKindLaboratorySort
-} from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import type { ProgrammingPlanSampleSetting } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { forwardRef, useImperativeHandle, useState } from 'react';
+import {
+  assignSampleLaboratory,
+  groupSubstanceKindsLaboratoriesBySample
+} from '../../../utils/sampleLaboratories';
 import LaboratorySelect from '../../LaboratorySelect/LaboratorySelect';
 
 interface Props {
   programmingPlanId: string;
   programmingSubPlanId: ProgrammingSubPlanId;
+  samples: ProgrammingPlanSampleSetting[] | null;
   substanceKindsLaboratories: SubstanceKindLaboratory[];
   onSubmit: (
     substanceKindsLaboratories: SubstanceKindLaboratory[]
@@ -26,6 +29,7 @@ const LocalPrescriptionSubstanceKindsLaboratories = forwardRef<
     {
       programmingPlanId,
       programmingSubPlanId,
+      samples,
       substanceKindsLaboratories: defaultSubstanceKindsLaboratories,
       onSubmit,
       readonly
@@ -39,44 +43,46 @@ const LocalPrescriptionSubstanceKindsLaboratories = forwardRef<
       submit: async () => onSubmit(substanceKindsLaboratories)
     }));
 
+    const sampleLaboratories = groupSubstanceKindsLaboratoriesBySample(
+      samples,
+      substanceKindsLaboratories
+    );
+
     return (
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
           Définissez le laboratoire destinataire des prélèvements{' '}
-          {substanceKindsLaboratories.length > 1 && <>par type d’analyse</>}
+          {sampleLaboratories.length > 1 && <>par échantillon</>}
         </div>
-        {[...substanceKindsLaboratories]
-          .sort(SubstanceKindLaboratorySort)
-          .map((substanceKindLaboratory, index) => (
-            <div
-              className={cx('fr-col-12')}
-              key={`substanceKindLaboratory_${substanceKindLaboratory.substanceKind}`}
-            >
-              {index > 0 && <hr className={cx('fr-mb-2w')} />}
-              <div className={cx('fr-text--bold', 'fr-mb-2w')}>
-                {SubstanceKindLabels[substanceKindLaboratory.substanceKind]}
-              </div>
-              <LaboratorySelect
-                programmingPlanId={programmingPlanId}
-                programmingSubPlanId={programmingSubPlanId}
-                substanceKind={substanceKindLaboratory.substanceKind}
-                laboratoryId={substanceKindLaboratory.laboratoryId}
-                onSelect={(laboratoryId) =>
-                  setSubstanceKindsLaboratories(
-                    substanceKindsLaboratories.map((sl) =>
-                      sl.substanceKind === substanceKindLaboratory.substanceKind
-                        ? {
-                            ...sl,
-                            laboratoryId
-                          }
-                        : sl
-                    )
-                  )
-                }
-                readonly={readonly}
-              />
+        {sampleLaboratories.map((sampleLaboratory, index) => (
+          <div
+            className={cx('fr-col-12')}
+            key={`sampleLaboratory_${sampleLaboratory.substanceKinds.join('_')}`}
+          >
+            {index > 0 && <hr className={cx('fr-mb-2w')} />}
+            <div className={cx('fr-text--bold', 'fr-mb-2w')}>
+              {sampleLaboratory.substanceKinds
+                .map((substanceKind) => SubstanceKindLabels[substanceKind])
+                .join(', ')}
             </div>
-          ))}
+            <LaboratorySelect
+              programmingPlanId={programmingPlanId}
+              programmingSubPlanId={programmingSubPlanId}
+              substanceKinds={sampleLaboratory.substanceKinds}
+              laboratoryId={sampleLaboratory.laboratoryId}
+              onSelect={(laboratoryId) =>
+                setSubstanceKindsLaboratories(
+                  assignSampleLaboratory(
+                    substanceKindsLaboratories,
+                    sampleLaboratory.substanceKinds,
+                    laboratoryId
+                  )
+                )
+              }
+              readonly={readonly}
+            />
+          </div>
+        ))}
       </div>
     );
   }

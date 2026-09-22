@@ -4,6 +4,7 @@ import type {
   CommemoratifValueSigle,
   SachaCommemoratifRecord
 } from 'maestro-shared/schema/SachaCommemoratif/SachaCommemoratif';
+import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
 import { Sampler1Fixture } from 'maestro-shared/test/userFixtures';
@@ -143,12 +144,15 @@ const daiSample = {
   sampler: Sampler1Fixture
 } as const;
 
-const daiSampleItem = {
+const daiSampleItem: Pick<
+  SampleItem,
+  'sealId' | 'itemNumber' | 'copyNumber' | 'substanceKinds'
+> = {
   sealId: 'sealId',
   itemNumber: 1,
   copyNumber: 2,
-  substanceKind: 'Copper'
-} as const;
+  substanceKinds: ['Copper']
+};
 
 const daiFieldConfigs: SachaFieldConfig[] = [
   ...sachaFieldConfigs.filter(

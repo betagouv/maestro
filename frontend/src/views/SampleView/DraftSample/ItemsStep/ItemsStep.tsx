@@ -129,7 +129,7 @@ const ItemsStep = ({ partialSample }: Props) => {
               copyNumber: 1,
               recipientKind: 'Laboratory',
               laboratoryId: substanceKindLaboratory.laboratoryId,
-              substanceKind: substanceKindLaboratory.substanceKind,
+              substanceKinds: [substanceKindLaboratory.substanceKind],
               compliance200263:
                 programmingSubPlan?.subPlanNumber === 'PPV' ? undefined : true
             }))

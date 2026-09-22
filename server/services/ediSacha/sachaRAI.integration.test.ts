@@ -55,7 +55,7 @@ describe('processSachaRAI', () => {
         copyNumber: 1,
         recipientKind: 'Laboratory',
         laboratoryId: LaboratoryFixture.id,
-        substanceKind: 'Any'
+        substanceKinds: ['Any']
       })
     ]);
   });

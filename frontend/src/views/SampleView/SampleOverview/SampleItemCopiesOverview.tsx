@@ -70,9 +70,11 @@ const SampleItemCopiesOverview = ({
           status={getItemStatus(sampleItemCopies)}
           compliance={isItemCompliant(sampleItemCopies)}
         />
-        <Tag className={cx('fr-mx-1w')}>
-          {SubstanceKindLabels[sampleItemCopies[0].substanceKind]}
-        </Tag>
+        {sampleItemCopies[0].substanceKinds.map((substanceKind) => (
+          <Tag key={substanceKind} className={cx('fr-mx-1w')}>
+            {SubstanceKindLabels[substanceKind]}
+          </Tag>
+        ))}
       </div>
       {isItemAchieved(sampleItemCopies) && (
         <div className="d-flex-align-center">

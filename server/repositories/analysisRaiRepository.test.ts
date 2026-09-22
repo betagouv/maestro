@@ -120,7 +120,7 @@ describe('analysisRaiRepository', () => {
         id: Sample13Fixture.id,
         reference: Sample13Fixture.reference
       });
-      expect(rai.sampleItem).toEqual({ substanceKind: 'Any' });
+      expect(rai.sampleItem).toEqual({ substanceKinds: ['Any'] });
       expect(rai.laboratory).toMatchObject({
         id: LaboratoryFixture.id,
         shortName: LaboratoryFixture.shortName,

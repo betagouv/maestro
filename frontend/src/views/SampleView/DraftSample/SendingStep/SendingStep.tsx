@@ -89,23 +89,21 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
       fixedCacheKey: `sending-sample-${sample.id}`
     });
 
-  const substanceKindsLaboratories = useMemo(
+  const itemsLaboratories = useMemo(
     () =>
       sample.items
         .filter((_) => _.copyNumber === 1)
         .map((item) => ({
-          substanceKind: item.substanceKind,
+          itemNumber: item.itemNumber,
+          substanceKinds: item.substanceKinds,
           laboratory: getSampleItemLaboratory(item.itemNumber) as Laboratory
         })),
     [sample.items, getSampleItemLaboratory]
   );
 
   const hasAllLaboratories = useMemo(
-    () =>
-      substanceKindsLaboratories.every(({ laboratory }) =>
-        isDefined(laboratory)
-      ),
-    [substanceKindsLaboratories]
+    () => itemsLaboratories.every(({ laboratory }) => isDefined(laboratory)),
+    [itemsLaboratories]
   );
 
   const isSendable = useMemo(
@@ -608,7 +606,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
       {!readonly && isSendable && !hasSaveError && (
         <SendingModal
           modal={sendingSampleModal}
-          substanceKindsLaboratories={substanceKindsLaboratories}
+          itemsLaboratories={itemsLaboratories}
           programmingSubPlanNumber={programmingSubPlan?.subPlanNumber}
           onConfirm={submit}
         />

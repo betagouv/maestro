@@ -191,7 +191,7 @@ const findManyGrouped = async (
       'samples.reference as sampleReference',
       'analysis.itemNumber as itemNumber',
       'analysis.copyNumber as copyNumber',
-      'sampleItems.substanceKind as substanceKind',
+      'sampleItems.substanceKinds as substanceKinds',
       'laboratories.id as laboratoryId',
       'laboratories.shortName as laboratoryShortName',
       'laboratories.name as laboratoryName',
@@ -230,7 +230,7 @@ const findManyGrouped = async (
           itemNumber: row.itemNumber,
           copyNumber: row.copyNumber
         },
-        sampleItem: { substanceKind: row.substanceKind },
+        sampleItem: { substanceKinds: row.substanceKinds },
         laboratory:
           row.laboratoryId != null
             ? {

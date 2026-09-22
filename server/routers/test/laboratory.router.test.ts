@@ -295,7 +295,7 @@ f2LgSfYvHNZbocMsQoVBhv3yF1i9/Hw=
 
   describe('GET /laboratories', () => {
     const testRoute = (programmingPlanId?: string, substanceKind?: string) =>
-      `/api/laboratories${programmingPlanId || substanceKind ? '?' : ''}${programmingPlanId ? `programmingPlanId=${programmingPlanId}` : ''}${programmingPlanId && substanceKind ? '&' : ''}${substanceKind ? `substanceKind=${substanceKind}` : ''}`;
+      `/api/laboratories${programmingPlanId || substanceKind ? '?' : ''}${programmingPlanId ? `programmingPlanId=${programmingPlanId}` : ''}${programmingPlanId && substanceKind ? '&' : ''}${substanceKind ? `substanceKinds=${substanceKind}` : ''}`;
 
     test('should fail if the user is not authenticated', async () => {
       await request(app)
@@ -332,7 +332,7 @@ f2LgSfYvHNZbocMsQoVBhv3yF1i9/Hw=
       }
     });
 
-    test('should filter aggregated laboratories by programmingPlanId and substanceKind', async () => {
+    test('should filter aggregated laboratories by programmingPlanId and substanceKinds', async () => {
       const res = await request(app)
         .get(testRoute(PPVValidatedProgrammingPlanFixture.id, 'Any'))
         .use(tokenProvider(NationalCoordinator))

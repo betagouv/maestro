@@ -8,11 +8,14 @@ import {
 import { previousSampleCountFor } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
 import type { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { toLocalPrescriptionKeyString } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
 import {
   hasEverSentOnward,
   type ProgrammingPlanEchelon
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
+import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import { stagesFromSubPlans } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   companiesIsRequired,
@@ -107,6 +110,26 @@ export const withEffectiveLocalPrescriptionChanges = async (
     };
   });
 };
+
+const hasSampleWithSeveralLaboratories = (
+  programmingPlan: ProgrammingPlanChecked,
+  prescription: Prescription,
+  substanceKindsLaboratories: SubstanceKindLaboratory[]
+): boolean =>
+  (
+    programmingPlan.subPlans.find(
+      (subPlan) => subPlan.id === prescription.programmingSubPlanId
+    )?.samples ?? []
+  ).some(
+    (sample) =>
+      uniq(
+        substanceKindsLaboratories
+          .filter(({ substanceKind }) =>
+            sample.substanceKinds.includes(substanceKind)
+          )
+          .map(({ laboratoryId }) => laboratoryId ?? null)
+      ).length > 1
+  );
 
 export const localPrescriptionsRouter = {
   '/prescriptions/regions': {
@@ -279,7 +302,10 @@ export const localPrescriptionsRouter = {
       const programmingPlan = await getAndCheckProgrammingPlan(
         localPrescriptionUpdate.programmingPlanId
       );
-      await getAndCheckPrescription(params.prescriptionId, programmingPlan);
+      const { prescription } = await getAndCheckPrescription(
+        params.prescriptionId,
+        programmingPlan
+      );
       const localPrescription = await getAndCheckLocalPrescription(params);
 
       const canUpdateSampleCount =
@@ -300,6 +326,18 @@ export const localPrescriptionsRouter = {
 
       if (!canUpdateSampleCount && !canUpdateLaboratories) {
         return { status: HttpStatus.FORBIDDEN };
+      }
+
+      if (
+        localPrescriptionUpdate.key === 'laboratories' &&
+        canUpdateLaboratories &&
+        hasSampleWithSeveralLaboratories(
+          programmingPlan,
+          prescription,
+          localPrescriptionUpdate.substanceKindsLaboratories
+        )
+      ) {
+        return { status: HttpStatus.BAD_REQUEST };
       }
 
       if (canUpdateSampleCount) {
@@ -397,7 +435,10 @@ export const localPrescriptionsRouter = {
       const programmingPlan = await getAndCheckProgrammingPlan(
         localPrescriptionUpdate.programmingPlanId
       );
-      await getAndCheckPrescription(params.prescriptionId, programmingPlan);
+      const { prescription } = await getAndCheckPrescription(
+        params.prescriptionId,
+        programmingPlan
+      );
       const localPrescription = await getAndCheckLocalPrescription(params);
 
       // TODO: check department belongs to user region?
@@ -434,6 +475,18 @@ export const localPrescriptionsRouter = {
         !canDistributePrescriptionToSlaughterhouses
       ) {
         return { status: HttpStatus.FORBIDDEN };
+      }
+
+      if (
+        localPrescriptionUpdate.key === 'laboratories' &&
+        canUpdateLaboratories &&
+        hasSampleWithSeveralLaboratories(
+          programmingPlan,
+          prescription,
+          localPrescriptionUpdate.substanceKindsLaboratories
+        )
+      ) {
+        return { status: HttpStatus.BAD_REQUEST };
       }
 
       if (canDistributeToDepartments) {

@@ -39,7 +39,7 @@ export const AnalysisDaiAnalysisGroup = z.object({
   analysisId: z.guid(),
   sample: z.object({ id: z.guid(), reference: z.string() }),
   analysis: z.object({ itemNumber: z.number(), copyNumber: z.number() }),
-  sampleItem: z.object({ substanceKind: SubstanceKind }),
+  sampleItem: z.object({ substanceKinds: z.array(SubstanceKind) }),
   laboratory: Laboratory.pick({ shortName: true, name: true }).nullable(),
   attempts: z.array(AnalysisDaiAttempt),
   latestAttemptAt: z.coerce.date()

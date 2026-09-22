@@ -8,7 +8,7 @@ export const AnalysisRaiWithRelations = z.intersection(
   AnalysisRai,
   z.object({
     sample: z.object({ id: z.guid(), reference: z.string() }).nullable(),
-    sampleItem: z.object({ substanceKind: SubstanceKind }).nullable(),
+    sampleItem: z.object({ substanceKinds: z.array(SubstanceKind) }).nullable(),
     laboratory: Laboratory.pick({
       id: true,
       shortName: true,

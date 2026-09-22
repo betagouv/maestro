@@ -185,37 +185,37 @@ export const seed = async () => {
               sampleId,
               itemNumber: 1,
               copyNumber: 1,
-              substanceKind: 'Mono'
+              substanceKinds: ['Mono']
             }),
             genSampleItem({
               sampleId,
               itemNumber: 1,
               copyNumber: 2,
-              substanceKind: 'Mono'
+              substanceKinds: ['Mono']
             }),
             genSampleItem({
               sampleId,
               itemNumber: 1,
               copyNumber: 3,
-              substanceKind: 'Mono'
+              substanceKinds: ['Mono']
             }),
             genSampleItem({
               sampleId,
               itemNumber: 2,
               copyNumber: 1,
-              substanceKind: 'Multi'
+              substanceKinds: ['Multi']
             }),
             genSampleItem({
               sampleId,
               itemNumber: 2,
               copyNumber: 2,
-              substanceKind: 'Multi'
+              substanceKinds: ['Multi']
             }),
             genSampleItem({
               sampleId,
               itemNumber: 3,
               copyNumber: 1,
-              substanceKind: 'Copper'
+              substanceKinds: ['Copper']
             })
           ]
         });

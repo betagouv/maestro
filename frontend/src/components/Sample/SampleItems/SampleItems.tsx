@@ -7,10 +7,7 @@ import type {
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
 import type { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
-import {
-  type SubstanceKind,
-  SubstanceKindLabels
-} from 'maestro-shared/schema/Substance/SubstanceKind';
+import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { useMemo, useState } from 'react';
 import type { UseForm } from '../../../hooks/useForm';
 import SampleItemsContent from './SampleItemsContent';
@@ -68,7 +65,7 @@ const SampleItems = ({
           selectedTabId={selectedTabId}
           onTabChange={setSelectedTabId}
           tabs={groupedItems.map((groupedItem, groupIndex) => ({
-            label: `Éch. n°${groupIndex + 1} - ${SubstanceKindLabels[groupedItem[0].substanceKind as SubstanceKind]}`,
+            label: `Éch. n°${groupIndex + 1} - ${(groupedItem[0].substanceKinds ?? []).map((substanceKind) => SubstanceKindLabels[substanceKind]).join(', ')}`,
             tabId: String(groupIndex + 1)
           }))}
           classes={{

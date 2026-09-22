@@ -86,7 +86,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     stagesManaged: true,
     substanceKinds: ['Mono'],
     substanceKindsManaged: true,
-    samples: [{ ...defaultProgrammingPlanSample, substanceKind: 'Mono' }],
+    samples: [{ ...defaultProgrammingPlanSample, substanceKinds: ['Mono'] }],
     samplesManaged: true,
     settingsCompleted: false,
     fields: [matriceField, quantiteField].map(({ id }) => ({
@@ -112,7 +112,7 @@ const subPlanSettings: Record<string, ProgrammingSubPlanSettingsForm> = {
     stagesManaged: false,
     substanceKinds: ['Mono'],
     substanceKindsManaged: true,
-    samples: [{ ...defaultProgrammingPlanSample, substanceKind: 'Mono' }],
+    samples: [{ ...defaultProgrammingPlanSample, substanceKinds: ['Mono'] }],
     samplesManaged: true,
     settingsCompleted: true,
     fields: [
@@ -897,9 +897,21 @@ export const PlanSamples: Story = {
     await userEvent.click(
       firstSample.getByRole('button', { name: 'Multi-résidus' })
     );
+    await userEvent.click(
+      firstSample.getByRole('button', { name: 'Mono-résidu' })
+    );
     await expect(
       firstSample.getByRole('button', { name: 'Multi-résidus' })
     ).toHaveAttribute('aria-pressed', 'true');
+    await expect(
+      firstSample.getByRole('button', { name: 'Mono-résidu' })
+    ).toHaveAttribute('aria-pressed', 'true');
+    await userEvent.click(
+      firstSample.getByRole('button', { name: 'Mono-résidu' })
+    );
+    await expect(
+      firstSample.getByRole('button', { name: 'Mono-résidu' })
+    ).toHaveAttribute('aria-pressed', 'false');
     await expect(
       firstSample.getByTitle('Modifier l’exemplaire 1 de l’échantillon 1')
     ).toBeDisabled();
@@ -957,8 +969,8 @@ export const PlanSamples: Story = {
         substanceKinds: ['Multi', 'Mono'],
         substanceKindsManaged: true,
         samples: [
-          { substanceKind: 'Multi', copies },
-          { substanceKind: 'Mono', copies }
+          { substanceKinds: ['Multi'], copies },
+          { substanceKinds: ['Mono'], copies }
         ],
         samplesManaged: true
       })
@@ -1004,19 +1016,19 @@ export const SubPlanSamplesIncompleteCannotComplete: Story = {
     await expect(completionModal(canvasElement)).not.toBeVisible();
 
     await userEvent.click(
+      canvas.getByRole('button', { name: 'Ajouter un échantillon' })
+    );
+    await userEvent.click(
       within(canvas.getByTestId('sample-0')).getByRole('button', {
         name: 'Mono-résidu'
       })
-    );
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Ajouter un échantillon' })
     );
     await userEvent.click(
       canvas.getByRole('button', { name: 'Enregistrer et terminer' })
     );
     await expect(
       await canvas.findByText(
-        'Veuillez choisir un analyte pour l’échantillon 2.'
+        'Veuillez choisir au moins un analyte pour l’échantillon 2.'
       )
     ).toBeInTheDocument();
 
@@ -1031,10 +1043,51 @@ export const SubPlanSamplesIncompleteCannotComplete: Story = {
         programmingPlanId: PPVPlanId,
         programmingSubPlanId: FruitsSubPlanId,
         ...subPlanSettings[FruitsSubPlanId],
-        samples: [{ ...defaultProgrammingPlanSample, substanceKind: 'Mono' }],
+        samples: [
+          { ...defaultProgrammingPlanSample, substanceKinds: ['Mono'] }
+        ],
         settingsCompleted: true
       })
     );
+  }
+};
+
+export const SubPlanSampleAnalyteMovedToAnotherSample: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        FruitsSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const addSample = () =>
+      canvas.getByRole('button', { name: 'Ajouter un échantillon' });
+    const monoTag = (sampleIndex: number) =>
+      within(canvas.getByTestId(`sample-${sampleIndex}`)).getByRole('button', {
+        name: 'Mono-résidu'
+      });
+
+    await userEvent.click(canvas.getByRole('tab', { name: 'Échantillons' }));
+    await userEvent.click(addSample());
+    await userEvent.click(monoTag(1));
+
+    await expect(monoTag(1)).toHaveAttribute('aria-pressed', 'true');
+    await expect(monoTag(0)).toBeEnabled();
+    await expect(addSample()).toBeDisabled();
+
+    await userEvent.click(monoTag(0));
+
+    await expect(monoTag(0)).toHaveAttribute('aria-pressed', 'true');
+    await expect(monoTag(1)).toHaveAttribute('aria-pressed', 'false');
+
+    await userEvent.click(monoTag(0));
+
+    await expect(monoTag(0)).toHaveAttribute('aria-pressed', 'false');
+    await expect(addSample()).toBeEnabled();
   }
 };
 

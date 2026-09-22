@@ -128,7 +128,7 @@ const findManyWithRelations = async (
     .select([
       'samples.id as sampleId',
       'samples.reference as sampleReference',
-      'sampleItems.substanceKind as substanceKind',
+      'sampleItems.substanceKinds as substanceKinds',
       'laboratories.id as labId',
       'laboratories.shortName as labShortName',
       'laboratories.name as labName'
@@ -168,7 +168,9 @@ const findManyWithRelations = async (
           ? { id: row.sampleId, reference: row.sampleReference }
           : null,
       sampleItem:
-        row.substanceKind != null ? { substanceKind: row.substanceKind } : null,
+        row.substanceKinds != null
+          ? { substanceKinds: row.substanceKinds }
+          : null,
       laboratory:
         row.labId != null && row.labShortName != null && row.labName != null
           ? { id: row.labId, shortName: row.labShortName, name: row.labName }

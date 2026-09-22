@@ -239,7 +239,11 @@ export const AnalysisDaiHistory = ({
           key={`${group.analysisId}-analysis`}
           className="dai-group-header-analyse"
         >
-          <Tag small>{SubstanceKindLabels[group.sampleItem.substanceKind]}</Tag>
+          {group.sampleItem.substanceKinds.map((substanceKind) => (
+            <Tag key={substanceKind} small>
+              {SubstanceKindLabels[substanceKind]}
+            </Tag>
+          ))}
           {hasChildren && (
             <>
               <br />

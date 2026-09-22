@@ -27,6 +27,10 @@ import LaboratorySelect from 'src/components/LaboratorySelect/LaboratorySelect';
 import PrescriptionDistributionBadge from 'src/components/Prescription/PrescriptionDistributionBadge/PrescriptionDistributionBadge';
 import SelectionCheckbox from 'src/components/SelectionCheckbox/SelectionCheckbox';
 import { useAuthentication } from 'src/hooks/useAuthentication';
+import {
+  assignSampleLaboratory,
+  groupSubstanceKindsLaboratoriesBySample
+} from 'src/utils/sampleLaboratories';
 import { pluralize } from 'src/utils/stringUtils';
 import PrescriptionSubstances from '../../../components/Prescription/PrescriptionSubstances/PrescriptionSubstances';
 import {
@@ -147,6 +151,10 @@ const ProgrammingPrescriptionRow = ({
           }))
       : []
   ).toSorted(bySubstanceKindLabel);
+  const rowSampleLaboratories = groupSubstanceKindsLaboratoriesBySample(
+    subPlan?.samples ?? null,
+    rowSubstanceKindsLaboratories
+  );
   return (
     <>
       <div
@@ -235,9 +243,14 @@ const ProgrammingPrescriptionRow = ({
                 <td className={clsx('analyte-cell', 'border-left')}>
                   {showRowLaboratoryCells ? (
                     <div className="analyte-lines">
-                      {rowSubstanceKindsLaboratories.map((skl) => (
-                        <div key={skl.substanceKind}>
-                          {SubstanceKindLabels[skl.substanceKind]}
+                      {rowSampleLaboratories.map(({ substanceKinds }) => (
+                        <div key={substanceKinds.join('_')}>
+                          {substanceKinds
+                            .map(
+                              (substanceKind) =>
+                                SubstanceKindLabels[substanceKind]
+                            )
+                            .join(', ')}
                         </div>
                       ))}
                     </div>
@@ -396,8 +409,6 @@ const ProgrammingPrescriptionRow = ({
                   <td className={clsx('laboratoire-cell', 'border-right')}>
                     {showRowLaboratoryCells
                       ? (() => {
-                          const substanceKindsLaboratories =
-                            rowSubstanceKindsLaboratories;
                           const isEditable = hasUserLocalPrescriptionPermission(
                             plan,
                             ownRegionalPrescription
@@ -412,38 +423,42 @@ const ProgrammingPrescriptionRow = ({
                                 companySiret: undefined
                               })
                             );
-                          return substanceKindsLaboratories.map((skl) => (
-                            <div className="lab-line" key={skl.substanceKind}>
-                              <LaboratorySelect
-                                programmingPlanId={plan.id}
-                                programmingSubPlanId={
-                                  prescription.programmingSubPlanId
-                                }
-                                substanceKind={skl.substanceKind}
-                                laboratoryId={skl.laboratoryId}
-                                readonly={!isEditable}
-                                pending={isLaboratoryPending}
-                                hideLabel
-                                onSelect={(laboratoryId) =>
-                                  onChangeLocalPrescriptionLaboratories?.(
-                                    {
-                                      prescriptionId: prescription.id,
-                                      region: region as Region,
-                                      department
-                                    },
-                                    substanceKindsLaboratories.map((x) =>
-                                      x.substanceKind === skl.substanceKind
-                                        ? {
-                                            ...x,
-                                            laboratoryId
-                                          }
-                                        : x
+                          return rowSampleLaboratories.map(
+                            (sampleLaboratory) => (
+                              <div
+                                className="lab-line"
+                                key={sampleLaboratory.substanceKinds.join('_')}
+                              >
+                                <LaboratorySelect
+                                  programmingPlanId={plan.id}
+                                  programmingSubPlanId={
+                                    prescription.programmingSubPlanId
+                                  }
+                                  substanceKinds={
+                                    sampleLaboratory.substanceKinds
+                                  }
+                                  laboratoryId={sampleLaboratory.laboratoryId}
+                                  readonly={!isEditable}
+                                  pending={isLaboratoryPending}
+                                  hideLabel
+                                  onSelect={(laboratoryId) =>
+                                    onChangeLocalPrescriptionLaboratories?.(
+                                      {
+                                        prescriptionId: prescription.id,
+                                        region: region as Region,
+                                        department
+                                      },
+                                      assignSampleLaboratory(
+                                        rowSubstanceKindsLaboratories,
+                                        sampleLaboratory.substanceKinds,
+                                        laboratoryId
+                                      )
                                     )
-                                  )
-                                }
-                              />
-                            </div>
-                          ));
+                                  }
+                                />
+                              </div>
+                            )
+                          );
                         })()
                       : null}
                   </td>

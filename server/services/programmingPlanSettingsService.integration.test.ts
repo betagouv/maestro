@@ -182,9 +182,9 @@ describe('ProgrammingPlan settings inheritance', () => {
 
   describe('when the plan manages the samples', () => {
     const samples: ProgrammingPlanSampleSetting[] = [
-      { ...defaultProgrammingPlanSample, substanceKind: 'Mono' },
+      { ...defaultProgrammingPlanSample, substanceKinds: ['Mono'] },
       {
-        substanceKind: 'Multi',
+        substanceKinds: ['Multi', 'Copper'],
         copies: [
           { required: true, recipientKinds: ['Laboratory'] },
           { required: true, recipientKinds: ['Laboratory', 'Operator'] },
@@ -195,7 +195,7 @@ describe('ProgrammingPlan settings inheritance', () => {
 
     const savePlanSamples = (managed: boolean) =>
       savePlanSettings({
-        substanceKinds: ['Mono', 'Multi'],
+        substanceKinds: ['Mono', 'Multi', 'Copper'],
         substanceKindsManaged: true,
         samples,
         samplesManaged: managed

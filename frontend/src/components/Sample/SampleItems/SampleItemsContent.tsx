@@ -66,7 +66,7 @@ const SampleItemsContent = ({
                   copyNumber: lastItem.copyNumber + 1,
                   quantity: lastItem.quantity,
                   quantityUnit: lastItem.quantityUnit,
-                  substanceKind: lastItem.substanceKind,
+                  substanceKinds: lastItem.substanceKinds,
                   compliance200263:
                     programmingSubPlan?.subPlanNumber === 'PPV'
                       ? undefined

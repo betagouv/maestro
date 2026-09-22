@@ -1,8 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import {
-  addProgrammingPlanSample,
   defaultProgrammingPlanSample,
-  ProgrammingPlanSampleMaxCount,
   ProgrammingPlanSampleSetting
 } from './ProgrammingPlanSampleSetting';
 
@@ -55,45 +53,5 @@ describe('ProgrammingPlanSampleSetting', () => {
         )
       }).success
     ).toBe(false);
-  });
-
-  describe('addProgrammingPlanSample', () => {
-    test('should add a default sample to an empty configuration', () => {
-      expect(addProgrammingPlanSample([])).toStrictEqual([
-        defaultProgrammingPlanSample
-      ]);
-    });
-
-    test('should add a sample without analyte, with the copies of the last sample', () => {
-      const [laboratoryCopy] = defaultProgrammingPlanSample.copies;
-      const lastSample: ProgrammingPlanSampleSetting = {
-        substanceKind: 'Multi',
-        copies: [
-          laboratoryCopy,
-          { required: true, recipientKinds: ['Laboratory'] },
-          { required: false, recipientKinds: ['Operator'] }
-        ]
-      };
-
-      expect(
-        addProgrammingPlanSample([
-          { ...defaultProgrammingPlanSample, substanceKind: 'Mono' },
-          lastSample
-        ])
-      ).toStrictEqual([
-        { ...defaultProgrammingPlanSample, substanceKind: 'Mono' },
-        lastSample,
-        { substanceKind: null, copies: lastSample.copies }
-      ]);
-    });
-
-    test('should not add a sample beyond the maximum', () => {
-      const samples = Array.from(
-        { length: ProgrammingPlanSampleMaxCount },
-        () => defaultProgrammingPlanSample
-      );
-
-      expect(addProgrammingPlanSample(samples)).toBe(samples);
-    });
   });
 });

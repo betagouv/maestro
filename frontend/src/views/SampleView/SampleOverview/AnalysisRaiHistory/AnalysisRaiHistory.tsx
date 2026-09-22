@@ -122,9 +122,13 @@ export const AnalysisRaiHistory = ({
       </span>
     ),
     rai.sampleItem ? (
-      <Tag key={`${rai.id}-analysis`} small>
-        {SubstanceKindLabels[rai.sampleItem.substanceKind]}
-      </Tag>
+      <span key={`${rai.id}-analysis`}>
+        {rai.sampleItem.substanceKinds.map((substanceKind) => (
+          <Tag key={substanceKind} small>
+            {SubstanceKindLabels[substanceKind]}
+          </Tag>
+        ))}
+      </span>
     ) : (
       <span key={`${rai.id}-analysis`} className="rai-empty">
         —

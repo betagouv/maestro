@@ -256,7 +256,7 @@ export const SubmittingSuccess: Story = {
           recipientKind: 'Laboratory',
           compliance200263: false,
           laboratoryId: LaboratoryFixture.id,
-          substanceKind: 'Any'
+          substanceKinds: ['Any']
         }
       ]
     } as SampleChecked
@@ -293,7 +293,7 @@ export const SubmittingSuccess: Story = {
             recipientKind: 'Laboratory',
             compliance200263: false,
             laboratoryId: LaboratoryFixture.id,
-            substanceKind: 'Any'
+            substanceKinds: ['Any']
           })
         ]),
         step: 'Submitted'

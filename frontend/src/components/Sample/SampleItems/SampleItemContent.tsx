@@ -22,10 +22,7 @@ import {
   type SampleItemRecipientKind,
   SampleItemRecipientKindLabels
 } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
-import {
-  type SubstanceKind,
-  SubstanceKindLabels
-} from 'maestro-shared/schema/Substance/SubstanceKind';
+import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
 import type React from 'react';
 import { useMemo } from 'react';
 import { Link } from 'react-router';
@@ -111,10 +108,14 @@ const SampleItemContent = ({
           </div>
           <div className={clsx('d-flex-align-center')}>
             <span className={cx('fr-mr-1w')}>Analyse</span>
-            {SubstanceKindLabels[item.substanceKind as SubstanceKind]
-              .split(' et ')
+            {(item.substanceKinds ?? [])
+              .flatMap((substanceKind) =>
+                SubstanceKindLabels[substanceKind].split(' et ')
+              )
               .map((label) => (
-                <Tag key={label}>{label}</Tag>
+                <Tag key={label} className={cx('fr-mr-1w')}>
+                  {label}
+                </Tag>
               ))}
           </div>
         </div>
@@ -207,7 +208,7 @@ const SampleItemContent = ({
             ) : (
               <LaboratorySelect
                 programmingPlanId={partialSample?.programmingPlanId}
-                substanceKind={item.substanceKind}
+                substanceKinds={item.substanceKinds}
                 laboratoryId={item.laboratoryId}
                 onSelect={(laboratoryId) =>
                   onChangeItem?.({

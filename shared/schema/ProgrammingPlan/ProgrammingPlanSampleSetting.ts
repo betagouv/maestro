@@ -1,4 +1,3 @@
-import { last } from 'lodash-es';
 import { z } from 'zod';
 import { SampleItemRecipientKind } from '../Sample/SampleItemRecipientKind';
 import { SubstanceKind } from '../Substance/SubstanceKind';
@@ -14,7 +13,7 @@ export type ProgrammingPlanSampleCopySetting = z.infer<
 >;
 
 export const ProgrammingPlanSampleSetting = z.object({
-  substanceKind: SubstanceKind.nullable(),
+  substanceKinds: z.array(SubstanceKind),
   copies: z.tuple([
     z.object({
       required: z.literal(true),
@@ -31,23 +30,10 @@ export type ProgrammingPlanSampleSetting = z.infer<
 export const ProgrammingPlanSampleMaxCount = 10;
 
 export const defaultProgrammingPlanSample: ProgrammingPlanSampleSetting = {
-  substanceKind: null,
+  substanceKinds: [],
   copies: [
     { required: true, recipientKinds: ['Laboratory'] },
     { required: false, recipientKinds: ['Sampler', 'Operator'] },
     { required: false, recipientKinds: ['Sampler', 'Operator'] }
   ]
 };
-
-export const addProgrammingPlanSample = (
-  samples: ProgrammingPlanSampleSetting[]
-): ProgrammingPlanSampleSetting[] =>
-  samples.length >= ProgrammingPlanSampleMaxCount
-    ? samples
-    : [
-        ...samples,
-        {
-          substanceKind: null,
-          copies: (last(samples) ?? defaultProgrammingPlanSample).copies
-        }
-      ];
