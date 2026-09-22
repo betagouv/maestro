@@ -53,7 +53,6 @@ import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaIn
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import SampleGeolocationForm from 'src/components/Sample/SampleGeolocationForm/SampleGeolocationForm';
 import { useForm } from 'src/hooks/useForm';
-import { useOnLine } from 'src/hooks/useOnLine';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import SampleCompany from 'src/views/SampleView/DraftSample/ContextStep/SampleCompany';
 import SupportDocumentDownload from 'src/views/SampleView/DraftSample/SupportDocumentDownload';
@@ -74,7 +73,6 @@ type Props = {
 
 const ContextStep = ({ partialSample }: Props) => {
   const { navigateToSample, navigateToSamples } = useSamplesLink();
-  const { isOnline } = useOnLine();
   const {
     readonly,
     programmingPlan,
@@ -139,9 +137,7 @@ const ContextStep = ({ partialSample }: Props) => {
   );
 
   const [parcel, setParcel] = useState(partialSample?.parcel);
-  const [companyOffline, setCompanyOffline] = useState(
-    partialSample?.companyOffline
-  );
+  const [companyOffline] = useState(partialSample?.companyOffline);
   const [notesOnCreation, setNotesOnCreation] = useState(
     partialSample?.notesOnCreation
   );
@@ -212,7 +208,6 @@ const ContextStep = ({ partialSample }: Props) => {
         }
       })
     })
-    .partial(!isOnline ? { geolocationX: true, geolocationY: true } : {})
     .extend({
       context: z.enum(
         [...ProgrammingPlanContext.options, 'OutsideProgrammingPlan'],
@@ -226,18 +221,7 @@ const ContextStep = ({ partialSample }: Props) => {
       outsideProgrammingPlanContext:
         context === 'OutsideProgrammingPlan' ? Context : z.undefined()
     })
-    .extend(
-      isOnline
-        ? { company: Company }
-        : {
-            companyOffline: z.string({
-              error: (issue) =>
-                isNil(issue.input)
-                  ? "Veuillez renseigner l'entité contrôlée."
-                  : issue.message
-            })
-          }
-    );
+    .extend({ company: Company });
 
   const contextOptions = selectOptionsFromList(
     [
@@ -548,7 +532,6 @@ const ContextStep = ({ partialSample }: Props) => {
           onChangeGeolocationX={setGeolocationX}
           onChangeGeolocationY={setGeolocationY}
           inputForm={form}
-          isOnline={isOnline}
           readonly={readonly}
         >
           <div className={cx('fr-col-12')}>
@@ -700,11 +683,9 @@ const ContextStep = ({ partialSample }: Props) => {
         programmingSubPlanId={programmingSubPlanId as ProgrammingSubPlanId}
         company={company}
         companyOffline={companyOffline ?? undefined}
-        isOnline={isOnline}
         readonly={readonly}
         form={form}
         onCompanyChange={setCompany}
-        onCompanyOfflineChange={setCompanyOffline}
         onGeolocationChange={(x, y) => {
           setGeolocationX(x);
           setGeolocationY(y);
@@ -714,7 +695,6 @@ const ContextStep = ({ partialSample }: Props) => {
       {!!programmingSubPlanId &&
         subPlanNumber !== 'PPV' &&
         !!company &&
-        isOnline &&
         !readonly && (
           <SampleEmptyFormDownload partialSample={partialSample ?? formData} />
         )}
@@ -780,7 +760,7 @@ const ContextStep = ({ partialSample }: Props) => {
             </ul>
           )}
         </div>
-        {isOnline && !readonly && programmingSubPlanId && (
+        {!readonly && programmingSubPlanId && (
           <SupportDocumentDownload partialSample={partialSample ?? formData} />
         )}
       </div>

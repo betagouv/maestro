@@ -105,7 +105,6 @@ const ContextStepSummary = ({
               onChangeGeolocationX={onChangeGeolocationX}
               onChangeGeolocationY={onChangeGeolocationY}
               inputForm={geolocationForm}
-              isOnline
               readonly={false}
             />
           ) : sample.geolocation ? (

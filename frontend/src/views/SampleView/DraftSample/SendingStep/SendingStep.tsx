@@ -32,7 +32,6 @@ import AppTextAreaInput from 'src/components/_app/AppTextAreaInput/AppTextAreaIn
 import AppTextInput from 'src/components/_app/AppTextInput/AppTextInput';
 import SupportDocumentSelect from 'src/components/SupportDocumentSelect/SupportDocumentSelect';
 import { useForm } from 'src/hooks/useForm';
-import { useOnLine } from 'src/hooks/useOnLine';
 import { usePartialSample } from 'src/hooks/usePartialSample';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import { pluralize } from 'src/utils/stringUtils';
@@ -55,13 +54,12 @@ type Props = {
 const SendingStep: FunctionComponent<Props> = ({ sample }) => {
   const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
-  const { isOnline } = useOnLine();
   const { readonly, getSampleItemLaboratory, programmingSubPlan } =
     usePartialSample(sample);
   const { trackEvent } = useAnalytics();
 
   const isGeolocationEditable =
-    !readonly && isOnline && programmingSubPlan?.subPlanNumber === 'PPV';
+    !readonly && programmingSubPlan?.subPlanNumber === 'PPV';
 
   const isSubmittingRef = useRef<boolean>(false);
 
@@ -114,13 +112,11 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
           ...SampleOwnerData.partial().shape
         })
         .safeParse(sample).success &&
-      isOnline &&
       hasAllLaboratories &&
       (!isGeolocationEditable ||
         (isDefined(geolocationX) && isDefined(geolocationY))),
     [
       sample,
-      isOnline,
       hasAllLaboratories,
       isGeolocationEditable,
       geolocationX,
@@ -431,36 +427,28 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
         </div>
 
         <h5 className={cx('fr-m-0')}>Documents relatifs au prélèvement</h5>
-        {isOnline ? (
-          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-            <div className={cx('fr-col-12')}>
-              <SupportDocumentSelect
-                label="Compte rendu du prélèvement / Procès-verbal"
-                sample={sample}
-                renderButtons={(onClick) => (
-                  <ButtonsGroup
-                    inlineLayoutWhen="always"
-                    buttons={[
-                      {
-                        children: 'Aperçu',
-                        iconId: 'fr-icon-external-link-line',
-                        priority: 'secondary',
-                        className: cx('fr-mb-0'),
-                        onClick
-                      }
-                    ]}
-                  />
-                )}
-              />
-            </div>
+        <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+          <div className={cx('fr-col-12')}>
+            <SupportDocumentSelect
+              label="Compte rendu du prélèvement / Procès-verbal"
+              sample={sample}
+              renderButtons={(onClick) => (
+                <ButtonsGroup
+                  inlineLayoutWhen="always"
+                  buttons={[
+                    {
+                      children: 'Aperçu',
+                      iconId: 'fr-icon-external-link-line',
+                      priority: 'secondary',
+                      className: cx('fr-mb-0'),
+                      onClick
+                    }
+                  ]}
+                />
+              )}
+            />
           </div>
-        ) : (
-          <div className="d-flex-align-center">
-            <span className={cx('fr-icon-warning-line', 'fr-mr-1w')}></span>
-            Le compte rendu du prélèvement / Procès-verbal sera disponible
-            lorsque la connexion Internet sera rétablie.
-          </div>
-        )}
+        </div>
         {!readonly && (
           <div
             className={clsx('d-flex-row', 'd-flex-align-center')}
@@ -484,9 +472,8 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
             description={
               hasAllLaboratories ? (
                 <>
-                  En l’absence de connexion lors de la saisie, certaines
-                  informations n’ont pu être validées (<b>entité contrôlée</b>{' '}
-                  et
+                  Certaines informations n’ont pas été renseignées (
+                  <b>entité contrôlée</b> et
                   <b> localisation de la parcelle</b>)
                   <div>
                     <Link

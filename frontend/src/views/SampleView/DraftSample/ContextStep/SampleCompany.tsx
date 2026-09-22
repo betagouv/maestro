@@ -18,11 +18,9 @@ type Props = {
   programmingSubPlanId: string;
   company: Company | undefined;
   companyOffline: string | undefined;
-  isOnline: boolean;
   readonly: boolean;
   form: UseForm<any>;
   onCompanyChange: (company: Company | undefined) => void;
-  onCompanyOfflineChange: (companyOffline: string) => void;
   onGeolocationChange?: (x: number | undefined, y: number | undefined) => void;
 };
 
@@ -32,11 +30,9 @@ const SampleCompany = ({
   programmingSubPlanId,
   company,
   companyOffline,
-  isOnline,
   readonly,
   form,
   onCompanyChange,
-  onCompanyOfflineChange,
   onGeolocationChange
 }: Props) => {
   const { user } = useAuthentication();
@@ -108,7 +104,7 @@ const SampleCompany = ({
 
   return (
     <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-      {isOnline && companyOffline && !company && (
+      {companyOffline && !company && (
         <div
           className={cx(
             'fr-col-12',
@@ -123,7 +119,7 @@ const SampleCompany = ({
         </div>
       )}
       <div className={cx('fr-col-12')}>
-        {isOnline && !readonly ? (
+        {!readonly ? (
           <CompanySearch
             initialValue={company ?? undefined}
             onSelect={(result) => {
@@ -148,12 +144,10 @@ const SampleCompany = ({
           <AppTextInput
             type="text"
             defaultValue={companyOffline ?? ''}
-            onChange={(e) => onCompanyOfflineChange(e.target.value)}
             inputForm={form}
             inputKey="companyOffline"
             whenValid="Entité correctement renseignée."
             label="Entité contrôlée"
-            hintText="Saisissez le nom, un SIRET ou un SIREN"
             required
             disabled={readonly}
           />

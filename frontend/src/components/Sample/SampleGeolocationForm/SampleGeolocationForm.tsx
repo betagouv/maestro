@@ -16,7 +16,6 @@ interface Props {
   onChangeGeolocationX: (x: number) => void;
   onChangeGeolocationY: (y: number) => void;
   inputForm: UseForm<any>;
-  isOnline: boolean;
   readonly: boolean;
   children?: React.ReactNode;
 }
@@ -29,7 +28,6 @@ const SampleGeolocationForm = ({
   onChangeGeolocationX,
   onChangeGeolocationY,
   inputForm,
-  isOnline,
   readonly,
   children
 }: Props) => {
@@ -56,7 +54,7 @@ const SampleGeolocationForm = ({
         )}
       </div>
       <div className={cx('fr-col-12', 'fr-col-sm-8')}>
-        {isOnline && !readonly ? (
+        {!readonly ? (
           <SampleGeolocation
             location={
               geolocationX && geolocationY
@@ -83,7 +81,7 @@ const SampleGeolocationForm = ({
               whenValid="Latitude correctement renseignée."
               data-testid="geolocationX-input"
               label="Latitude"
-              required={isOnline}
+              required
               min={-90}
               max={90}
               disabled={readonly}
@@ -100,7 +98,7 @@ const SampleGeolocationForm = ({
               whenValid="Longitude correctement renseignée."
               data-testid="geolocationY-input"
               label="Longitude"
-              required={isOnline}
+              required
               min={-180}
               max={180}
               disabled={readonly}

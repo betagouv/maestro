@@ -2,7 +2,6 @@ import Accordion from '@codegouvfr/react-dsfr/Accordion';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Pagination from '@codegouvfr/react-dsfr/Pagination';
-import { Skeleton } from '@mui/material';
 import clsx from 'clsx';
 import { isEmpty, mapValues, omit, omitBy } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
@@ -30,7 +29,6 @@ import FiltersTags from 'src/components/FilterTags/FiltersTags';
 import SampleCard from 'src/components/SampleCard/SampleCard';
 import SampleTable from 'src/components/SampleTable/SampleTable';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
 import useWindowSize from 'src/hooks/useWindowSize';
 import samplesSlice from 'src/store/reducers/samplesSlice';
@@ -49,7 +47,6 @@ import { hasNewerLaunchedCampaign } from 'maestro-shared/schema/ProgrammingPlan/
 const SampleListView = () => {
   const apiClient = useContext(ApiClientContext);
   const dispatch = useAppDispatch();
-  const { isOnline } = useOnLine();
   const { isMobile } = useWindowSize();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -272,139 +269,126 @@ const SampleListView = () => {
         )
       }
     >
-      {isOnline ? (
-        <>
-          {isMobile ? (
-            <div>
-              <Accordion
-                label="Filtrer les résultats"
-                className="sample-filters-accordion"
-              >
-                <div className={cx('fr-container')}>
-                  <SamplePrimaryFilters
-                    filters={findSampleOptions}
-                    onChange={changeFilter}
-                    programmingPlans={programmingPlans}
-                    samplers={samplers}
-                    prescriptions={prescriptions}
-                    currentUserId={user?.id}
-                  />
-                  {programmingPlan && (
-                    <SampleSecondaryFilters
-                      year={Number(year)}
-                      filters={findSampleOptions}
-                      onChange={changeFilter}
-                      programmingPlanId={programmingPlan.id}
-                    />
-                  )}
-                </div>
-              </Accordion>
-              <div className={cx('fr-mx-2w')}>
-                <FiltersTags
-                  title="Filtres actifs"
-                  filters={findSampleOptions}
-                  programmingPlans={programmingPlans}
-                  users={samplers}
-                  onChange={changeFilter}
-                  laboratories={laboratories}
-                />
-              </div>
-            </div>
-          ) : (
-            <div
-              className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}
-            >
-              <div className="d-flex-align-start">
-                <div>
-                  <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                    <SamplePrimaryFilters
-                      filters={findSampleOptions}
-                      onChange={changeFilter}
-                      programmingPlans={programmingPlans}
-                      samplers={samplers}
-                      prescriptions={prescriptions}
-                      currentUserId={user?.id}
-                    />
-                    {isFilterExpanded && (
-                      <SampleSecondaryFilters
-                        year={Number(year)}
-                        filters={findSampleOptions}
-                        onChange={changeFilter}
-                        programmingPlanId={programmingPlan?.id}
-                      />
-                    )}
-                  </div>
-                  <FiltersTags
-                    title="Filtres actifs"
-                    filters={findSampleOptions}
-                    programmingPlans={programmingPlans}
-                    users={samplers}
-                    laboratories={laboratories}
-                    onChange={changeFilter}
-                  />
-                </div>
-                <Button
-                  onClick={() => setIsFilterExpanded(!isFilterExpanded)}
-                  priority="secondary"
-                  className={cx('fr-ml-3w', 'fr-mt-4w')}
-                  style={{ minWidth: '140px', justifyContent: 'center' }}
-                >
-                  {isFilterExpanded ? 'Fermer' : 'Plus de filtres'}
-                </Button>
-              </div>
-            </div>
-          )}
-          <div
-            className={clsx(
-              'white-container',
-              cx('fr-px-2w', 'fr-px-md-5w', 'fr-py-2w', 'fr-py-md-5w')
-            )}
+      {isMobile ? (
+        <div>
+          <Accordion
+            label="Filtrer les résultats"
+            className="sample-filters-accordion"
           >
-            <div
-              className={clsx(cx('fr-mb-2w', 'fr-mb-md-5w'), 'table-header')}
-            >
-              {
-                <SampleListHeader
-                  findSampleOptionsWithYear={findSampleOptionsWithYear}
-                  changeFilter={changeFilter}
-                  samplesCount={samplesCount?.count}
-                />
-              }
-            </div>
-            {sampleListDisplay === 'cards' && (
-              <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
-                {samples?.map((sample) => (
-                  <div
-                    className={cx('fr-col-12', 'fr-col-md-3')}
-                    key={sample.id}
-                  >
-                    <SampleCard sample={sample} />
-                  </div>
-                ))}
-              </div>
-            )}
-            {sampleListDisplay === 'table' && (
-              <SampleTable samples={samples ?? []} />
-            )}
-            {isDefinedAndNotNull(samplesCount?.count) &&
-              samplesCount.count > defaultPerPage && (
-                <Pagination
-                  count={Math.floor(samplesCount.count / defaultPerPage) + 1}
-                  defaultPage={Number(findSampleOptions.page) || 1}
-                  getPageLinkProps={(page: number) => ({
-                    to: getURLQuery({
-                      ...findSampleOptions,
-                      page: page.toString()
-                    })
-                  })}
-                  className={cx('fr-mt-5w')}
+            <div className={cx('fr-container')}>
+              <SamplePrimaryFilters
+                filters={findSampleOptions}
+                onChange={changeFilter}
+                programmingPlans={programmingPlans}
+                samplers={samplers}
+                prescriptions={prescriptions}
+                currentUserId={user?.id}
+              />
+              {programmingPlan && (
+                <SampleSecondaryFilters
+                  year={Number(year)}
+                  filters={findSampleOptions}
+                  onChange={changeFilter}
+                  programmingPlanId={programmingPlan.id}
                 />
               )}
+            </div>
+          </Accordion>
+          <div className={cx('fr-mx-2w')}>
+            <FiltersTags
+              title="Filtres actifs"
+              filters={findSampleOptions}
+              programmingPlans={programmingPlans}
+              users={samplers}
+              onChange={changeFilter}
+              laboratories={laboratories}
+            />
           </div>
-        </>
+        </div>
       ) : (
-        <Skeleton variant="rectangular" height={400} />
+        <div className={clsx('white-container', cx('fr-px-5w', 'fr-py-3w'))}>
+          <div className="d-flex-align-start">
+            <div>
+              <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+                <SamplePrimaryFilters
+                  filters={findSampleOptions}
+                  onChange={changeFilter}
+                  programmingPlans={programmingPlans}
+                  samplers={samplers}
+                  prescriptions={prescriptions}
+                  currentUserId={user?.id}
+                />
+                {isFilterExpanded && (
+                  <SampleSecondaryFilters
+                    year={Number(year)}
+                    filters={findSampleOptions}
+                    onChange={changeFilter}
+                    programmingPlanId={programmingPlan?.id}
+                  />
+                )}
+              </div>
+              <FiltersTags
+                title="Filtres actifs"
+                filters={findSampleOptions}
+                programmingPlans={programmingPlans}
+                users={samplers}
+                laboratories={laboratories}
+                onChange={changeFilter}
+              />
+            </div>
+            <Button
+              onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+              priority="secondary"
+              className={cx('fr-ml-3w', 'fr-mt-4w')}
+              style={{ minWidth: '140px', justifyContent: 'center' }}
+            >
+              {isFilterExpanded ? 'Fermer' : 'Plus de filtres'}
+            </Button>
+          </div>
+        </div>
       )}
+      <div
+        className={clsx(
+          'white-container',
+          cx('fr-px-2w', 'fr-px-md-5w', 'fr-py-2w', 'fr-py-md-5w')
+        )}
+      >
+        <div className={clsx(cx('fr-mb-2w', 'fr-mb-md-5w'), 'table-header')}>
+          {
+            <SampleListHeader
+              findSampleOptionsWithYear={findSampleOptionsWithYear}
+              changeFilter={changeFilter}
+              samplesCount={samplesCount?.count}
+            />
+          }
+        </div>
+        {sampleListDisplay === 'cards' && (
+          <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
+            {samples?.map((sample) => (
+              <div className={cx('fr-col-12', 'fr-col-md-3')} key={sample.id}>
+                <SampleCard sample={sample} />
+              </div>
+            ))}
+          </div>
+        )}
+        {sampleListDisplay === 'table' && (
+          <SampleTable samples={samples ?? []} />
+        )}
+        {isDefinedAndNotNull(samplesCount?.count) &&
+          samplesCount.count > defaultPerPage && (
+            <Pagination
+              count={Math.floor(samplesCount.count / defaultPerPage) + 1}
+              defaultPage={Number(findSampleOptions.page) || 1}
+              getPageLinkProps={(page: number) => ({
+                to: getURLQuery({
+                  ...findSampleOptions,
+                  page: page.toString()
+                })
+              })}
+              className={cx('fr-mt-5w')}
+            />
+          )}
+      </div>
     </AppPage>
   );
 };

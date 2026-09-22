@@ -8,8 +8,6 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
-import samplesSlice from 'src/store/reducers/samplesSlice';
-import { store } from 'src/store/store';
 import { getApiUrl } from 'src/utils/fetchUtils';
 
 const sampleApi = api.injectEndpoints({
@@ -49,18 +47,8 @@ const sampleApi = api.injectEndpoints({
         });
 
         if (result.error) {
-          if (!navigator.onLine) {
-            store.dispatch(
-              samplesSlice.actions.addPendingSample(partialSample)
-            );
-            return { data: partialSample };
-          }
           return { error: result.error as FetchBaseQueryError };
         }
-
-        store.dispatch(
-          samplesSlice.actions.removePendingSample(partialSample.id)
-        );
 
         return {
           data: PartialSample.parse(omitBy(result.data as any, isNil))

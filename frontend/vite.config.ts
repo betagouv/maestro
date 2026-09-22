@@ -44,10 +44,7 @@ export default defineConfig(({ mode }) => {
         strategies: 'injectManifest',
         filename: 'serviceWorker.js',
         injectManifest: {
-          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024
-        },
-        workbox: {
-          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024
+          injectionPoint: undefined
         }
       }),
       sentryVitePlugin({

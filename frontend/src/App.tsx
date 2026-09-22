@@ -1,4 +1,3 @@
-import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createMuiDsfrThemeProvider } from '@codegouvfr/react-dsfr/mui';
 import { startReactDsfr } from '@codegouvfr/react-dsfr/spa';
 import clsx from 'clsx';
@@ -11,7 +10,6 @@ import Header from 'src/components/Header/Header';
 import ScrollToTop from 'src/components/ScrollToTop/ScrollToTop';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import useMatomoTagManager from 'src/hooks/useMatomoTagManager';
-import { useOnLine } from 'src/hooks/useOnLine';
 import { useAppSelector } from 'src/hooks/useStore';
 import './App.scss';
 import { AppRouteComponents } from './AppRouteComponents';
@@ -55,7 +53,6 @@ function App() {
       (query) => query?.status === 'pending'
     )
   );
-  const { isOnline } = useOnLine();
 
   return (
     <React.Suspense>
@@ -65,21 +62,6 @@ function App() {
       {isSomeQueryPending && (
         <div className="toast">Chargement en cours...</div>
       )}
-      {!isOnline && (
-        <div className={cx('fr-badge--error')}>
-          <div
-            className={clsx(
-              cx('fr-container', 'fr-py-2w'),
-              'd-flex-align-center'
-            )}
-          >
-            <span className={cx('fr-icon-link-unlink', 'fr-mr-1w')}></span>
-            Votre connexion Internet est instable. Les données renseignées sont
-            conservées jusqu’au rétablissement de la connexion.
-          </div>
-        </div>
-      )}
-
       <main
         className={clsx({ 'main-nologged': !isAuthenticated })}
         style={{

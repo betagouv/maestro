@@ -11,7 +11,6 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import dashboard from 'src/assets/illustrations/dashboard.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useOnLine } from 'src/hooks/useOnLine';
 import ProgrammingPlanCard from 'src/views/DashboardView/ProgrammingPlanCard';
 import { AuthenticatedAppRoutes } from '../../AppRoutes';
 import { ApiClientContext } from '../../services/apiClient';
@@ -24,7 +23,6 @@ const DashboardView = () => {
   const apiClient = useContext(ApiClientContext);
   const { hasUserPermission, user, hasNationalView, hasRole } =
     useAuthentication();
-  const { isOnline } = useOnLine();
 
   const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery(
     {
@@ -116,45 +114,41 @@ const DashboardView = () => {
         </>
       }
     >
-      {isOnline && (
-        <>
-          <DashboardNoticeAndActions
-            currentValidatedProgrammingPlan={currentValidatedProgrammingPlan}
+      <DashboardNoticeAndActions
+        currentValidatedProgrammingPlan={currentValidatedProgrammingPlan}
+      />
+      <div className={clsx(cx('fr-grid-row', 'fr-grid-row--gutters'))}>
+        {hasNationalView &&
+          currentValidatedProgrammingPlan?.contexts.map((context) => (
+            <div
+              className={cx('fr-col-12', 'fr-col-md-6')}
+              key={`${currentValidatedProgrammingPlan.id}-${context}`}
+            >
+              <ProgrammingPlanCard
+                programmingPlan={currentValidatedProgrammingPlan}
+                context={context}
+              />
+            </div>
+          ))}
+
+        {currentValidatedProgrammingPlan && (
+          <DashboardPrescriptions
+            programmingPlan={currentValidatedProgrammingPlan}
+            className={clsx(cx('fr-col-12'))}
           />
-          <div className={clsx(cx('fr-grid-row', 'fr-grid-row--gutters'))}>
-            {hasNationalView &&
-              currentValidatedProgrammingPlan?.contexts.map((context) => (
-                <div
-                  className={cx('fr-col-12', 'fr-col-md-6')}
-                  key={`${currentValidatedProgrammingPlan.id}-${context}`}
-                >
-                  <ProgrammingPlanCard
-                    programmingPlan={currentValidatedProgrammingPlan}
-                    context={context}
-                  />
-                </div>
-              ))}
+        )}
 
-            {currentValidatedProgrammingPlan && (
-              <DashboardPrescriptions
-                programmingPlan={currentValidatedProgrammingPlan}
-                className={clsx(cx('fr-col-12'))}
-              />
-            )}
-
-            {hasNationalView && currentValidatedProgrammingPlan && (
-              <DashboardResidueStats
-                programmingPlan={currentValidatedProgrammingPlan}
-              />
-            )}
-            {hasNationalView && currentValidatedProgrammingPlan && (
-              <DashboardComplianceStats
-                programmingPlan={currentValidatedProgrammingPlan}
-              />
-            )}
-          </div>
-        </>
-      )}
+        {hasNationalView && currentValidatedProgrammingPlan && (
+          <DashboardResidueStats
+            programmingPlan={currentValidatedProgrammingPlan}
+          />
+        )}
+        {hasNationalView && currentValidatedProgrammingPlan && (
+          <DashboardComplianceStats
+            programmingPlan={currentValidatedProgrammingPlan}
+          />
+        )}
+      </div>
     </AppPage>
   );
 };
