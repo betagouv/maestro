@@ -29,7 +29,8 @@ import SelectionCheckbox from 'src/components/SelectionCheckbox/SelectionCheckbo
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import {
   assignSampleLaboratory,
-  groupSubstanceKindsLaboratoriesBySample
+  groupSubstanceKindsLaboratoriesBySample,
+  subPlanSubstanceKindsLaboratories
 } from 'src/utils/sampleLaboratories';
 import { pluralize } from 'src/utils/stringUtils';
 import PrescriptionSubstances from '../../../components/Prescription/PrescriptionSubstances/PrescriptionSubstances';
@@ -142,13 +143,11 @@ const ProgrammingPrescriptionRow = ({
     !!ownRegionalPrescription;
   const rowSubstanceKindsLaboratories: SubstanceKindLaboratory[] = (
     showRowLaboratoryCells
-      ? (ownRegionalPrescription?.substanceKindsLaboratories?.length ?? 0) > 0
-        ? ((ownRegionalPrescription?.substanceKindsLaboratories ??
-            []) as SubstanceKindLaboratory[])
-        : (subPlan?.substanceKinds ?? []).map((substanceKind) => ({
-            substanceKind,
-            laboratoryId: undefined
-          }))
+      ? subPlanSubstanceKindsLaboratories(
+          subPlan?.substanceKinds ?? [],
+          (ownRegionalPrescription?.substanceKindsLaboratories ??
+            []) as SubstanceKindLaboratory[]
+        )
       : []
   ).toSorted(bySubstanceKindLabel);
   const rowSampleLaboratories = groupSubstanceKindsLaboratoriesBySample(

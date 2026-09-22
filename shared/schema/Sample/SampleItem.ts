@@ -8,6 +8,7 @@ import {
   AnalysisStatusPriority
 } from '../Analysis/AnalysisStatus';
 import type { SubstanceKindLaboratory } from '../LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import type { ProgrammingPlanSampleSetting } from '../ProgrammingPlan/ProgrammingPlanSampleSetting';
 import { SubstanceKind } from '../Substance/SubstanceKind';
 import type { SampleChecked } from './Sample';
 import { SampleItemRecipientKind } from './SampleItemRecipientKind';
@@ -163,6 +164,66 @@ export const withSubstanceKindLaboratories = <T extends PartialSampleItem>(
           )
         : undefined
   }));
+
+export const withFirstCopyLaboratory = <T extends PartialSampleItem>(
+  sampleItems: T[]
+): T[] =>
+  sampleItems.map((sampleItem) =>
+    sampleItem.copyNumber === 1
+      ? sampleItem
+      : {
+          ...sampleItem,
+          laboratoryId:
+            sampleItem.recipientKind === 'Laboratory'
+              ? sampleItems.find(
+                  (_) =>
+                    _.itemNumber === sampleItem.itemNumber && _.copyNumber === 1
+                )?.laboratoryId
+              : undefined
+        }
+  );
+
+export const sampleItemsSettingsIssues = (
+  items: Pick<
+    PartialSampleItem,
+    'itemNumber' | 'copyNumber' | 'recipientKind'
+  >[],
+  samples: ProgrammingPlanSampleSetting[]
+): { path: (string | number)[]; message: string }[] => [
+  ...samples.flatMap((sample, sampleIndex) =>
+    sample.copies.flatMap((copy, copyIndex) =>
+      copy.required &&
+      !items.some(
+        (item) =>
+          item.itemNumber === sampleIndex + 1 &&
+          item.copyNumber === copyIndex + 1
+      )
+        ? [
+            {
+              path: ['items'],
+              message: `L’exemplaire ${copyIndex + 1} de l’échantillon ${sampleIndex + 1} est obligatoire.`
+            }
+          ]
+        : []
+    )
+  ),
+  ...items.flatMap((item, index) => {
+    const recipientKinds =
+      samples[item.itemNumber - 1]?.copies[item.copyNumber - 1]?.recipientKinds;
+    return recipientKinds &&
+      item.recipientKind &&
+      !(recipientKinds as SampleItemRecipientKind[]).includes(
+        item.recipientKind
+      )
+      ? [
+          {
+            path: ['items', index, 'recipientKind'],
+            message: 'Ce destinataire n’est pas autorisé pour cet exemplaire.'
+          }
+        ]
+      : [];
+  })
+];
 
 export const getSampleItemReference = (
   sample: Pick<SampleChecked, 'reference'>,

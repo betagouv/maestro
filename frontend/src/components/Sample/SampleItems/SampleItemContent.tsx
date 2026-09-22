@@ -36,6 +36,7 @@ import { type UseForm, useForm } from 'src/hooks/useForm';
 import { z } from 'zod';
 import { usePartialSample } from '../../../hooks/usePartialSample';
 import useWindowSize from '../../../hooks/useWindowSize';
+import { copyRecipientKinds } from './sampleItemCopies';
 
 const Form = z.object({
   items: z.array(z.looseObject({}))
@@ -45,6 +46,7 @@ interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
   item: PartialSampleItem;
   itemIndex: number;
+  removable?: boolean;
   onRemoveItem?: (item: PartialSampleItem) => void;
   onChangeItem?: (item: PartialSampleItem) => void;
   onChangeLaboratory?: (laboratoryId: string) => void;
@@ -58,6 +60,7 @@ const SampleItemContent = ({
   partialSample,
   item,
   itemIndex,
+  removable,
   onRemoveItem,
   onChangeItem,
   itemsForm,
@@ -73,6 +76,10 @@ const SampleItemContent = ({
     usePartialSample(partialSample);
 
   const form = itemsForm ?? fakeForm;
+  const recipientKinds = copyRecipientKinds(
+    programmingSubPlan?.samples ?? [],
+    item
+  );
   const readonly = useMemo(
     () => !itemsForm || forceReadonly,
     [itemsForm, forceReadonly]
@@ -92,7 +99,7 @@ const SampleItemContent = ({
             >
               Exemplaire n°{item.copyNumber}
             </Badge>
-            {item.copyNumber > 1 && !readonly && (
+            {removable && !readonly && (
               <AppResponsiveButton
                 title="Supprimer"
                 iconId="fr-icon-delete-line"
@@ -225,11 +232,11 @@ const SampleItemContent = ({
                 ])}
               />
             )
-          ) : item.copyNumber === 2 ? (
+          ) : recipientKinds.length > 1 ? (
             <AppRadioButtons
               legend="Destinataire de l’échantillon"
               options={
-                selectOptionsFromList(['Operator', 'Sampler'], {
+                selectOptionsFromList(recipientKinds, {
                   labels: SampleItemRecipientKindLabels,
                   withDefault: false
                 }).map(({ label, value }) => ({
@@ -262,6 +269,20 @@ const SampleItemContent = ({
                 <span className="missing-data">Information non disponible</span>
               )}
             </>
+          )}
+          {item.copyNumber > 1 && item.recipientKind === 'Laboratory' && (
+            <p className={cx('fr-mt-1w', 'fr-mb-0')}>
+              Laboratoire destinataire :{' '}
+              {item.laboratoryId ? (
+                <b>
+                  {getLaboratoryFullName(
+                    getSampleItemLaboratory(item.itemNumber)
+                  )}
+                </b>
+              ) : (
+                <span className="missing-data">Information non disponible</span>
+              )}
+            </p>
           )}
         </div>
         {programmingSubPlan?.subPlanNumber === 'PPV' && (

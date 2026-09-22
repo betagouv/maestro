@@ -4,10 +4,6 @@ import ButtonsGroup from '@codegouvfr/react-dsfr/ButtonsGroup';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import clsx from 'clsx';
 import { isNil, uniqBy } from 'lodash-es';
-import type { Department } from 'maestro-shared/referential/Department';
-import type { Region } from 'maestro-shared/referential/Region';
-import { SubstanceKindLaboratorySort } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
-import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import {
   isCreatedPartialSample,
   isProgrammingPlanSample,
@@ -19,9 +15,9 @@ import {
 
 import {
   type PartialSampleItem,
-  withSubstanceKindLaboratories
+  sampleItemsSettingsIssues,
+  withFirstCopyLaboratory
 } from 'maestro-shared/schema/Sample/SampleItem';
-import type { SampleItemRecipientKind } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { SampleSteps } from 'maestro-shared/schema/Sample/SampleStep';
 import { formatWithTz, type MaestroDate } from 'maestro-shared/utils/date';
 import { checkSchema } from 'maestro-shared/utils/zod';
@@ -38,33 +34,18 @@ import { z } from 'zod';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
 import SampleItems from '../../../../components/Sample/SampleItems/SampleItems';
+import { defaultCopyRecipientKind } from '../../../../components/Sample/SampleItems/sampleItemCopies';
 import SampleProcedure from '../../../../components/Sample/SampleProcedure/SampleProcedure';
 import { useAnalytics } from '../../../../hooks/useAnalytics';
-import { useAuthentication } from '../../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 import SupportDocumentDownload from '../SupportDocumentDownload';
 
-const oppositeSampleItemRecipientKind = (
-  recipientKind: SampleItemRecipientKind | undefined
-): SampleItemRecipientKind | undefined => {
-  switch (recipientKind) {
-    case 'Sampler':
-      return 'Operator';
-    case 'Operator':
-      return 'Sampler';
-    default:
-      return undefined;
-  }
-};
-
 const ItemsStep = ({ partialSample }: Props) => {
   const apiClient = useContext(ApiClientContext);
   const { navigateToSample } = useSamplesLink();
-  const { readonly, programmingPlan, programmingSubPlan } =
-    usePartialSample(partialSample);
+  const { readonly, programmingSubPlan } = usePartialSample(partialSample);
   const { trackEvent } = useAnalytics();
-  const { user } = useAuthentication();
 
   const isSubmittingRef = useRef<boolean>(false);
 
@@ -78,72 +59,11 @@ const ItemsStep = ({ partialSample }: Props) => {
   const [createOrUpdateSample, createOrUpdateSampleCall] =
     apiClient.useCreateOrUpdateSampleMutation();
 
-  const isSlaughterhouse =
-    (programmingPlan as ProgrammingPlanChecked).distributionKind ===
-    'SLAUGHTERHOUSE';
-  const skipQuery = !partialSample.prescriptionId || !user?.region;
-  const prescriptionQueryBase = {
-    prescriptionId: partialSample.prescriptionId as string,
-    region: isCreatedPartialSample(partialSample)
-      ? partialSample.region
-      : (user?.region as Region),
-    includes: ['laboratories' as const]
-  };
-
-  const { data: localPrescriptionByRegion } =
-    apiClient.useGetLocalPrescriptionQuery(prescriptionQueryBase, {
-      skip: skipQuery || isSlaughterhouse
-    });
-  const { data: localPrescriptionByCompany } =
-    apiClient.useGetLocalPrescriptionByCompanyQuery(
-      {
-        ...prescriptionQueryBase,
-        department: partialSample.department as Department,
-        companySiret: partialSample.company?.siret ?? ''
-      },
-      { skip: skipQuery || !isSlaughterhouse }
-    );
-  const localPrescription =
-    localPrescriptionByRegion ?? localPrescriptionByCompany;
-
   useEffect(() => {
-    if (!programmingPlan) {
-      return;
+    if (!items.length && partialSample.items?.length) {
+      setItems(partialSample.items);
     }
-    if (!items?.length) {
-      if (localPrescription || !isProgrammingPlanSample(partialSample)) {
-        setItems(
-          [
-            ...(localPrescription?.substanceKindsLaboratories ??
-              (programmingSubPlan?.substanceKinds ?? []).map(
-                (substanceKind) => ({
-                  substanceKind,
-                  laboratoryId: undefined
-                })
-              ))
-          ]
-            .sort(SubstanceKindLaboratorySort)
-            .map((substanceKindLaboratory, index) => ({
-              sampleId: partialSample.id,
-              itemNumber: index + 1,
-              copyNumber: 1,
-              recipientKind: 'Laboratory',
-              laboratoryId: substanceKindLaboratory.laboratoryId,
-              substanceKinds: [substanceKindLaboratory.substanceKind],
-              compliance200263:
-                programmingSubPlan?.subPlanNumber === 'PPV' ? undefined : true
-            }))
-        );
-      }
-    } else if (localPrescription) {
-      setItems((items) =>
-        withSubstanceKindLaboratories(
-          items,
-          localPrescription.substanceKindsLaboratories ?? []
-        )
-      );
-    }
-  }, [localPrescription, programmingPlan]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [partialSample.items, items.length]);
 
   const Form = z.object({
     sampledDateTime: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, {
@@ -154,6 +74,17 @@ const ItemsStep = ({ partialSample }: Props) => {
   });
 
   const FormChecked = checkSchema(Form, sampleItemSealIdCheck, (ctx) => {
+    sampleItemsSettingsIssues(
+      ctx.value.items,
+      programmingSubPlan?.samples ?? []
+    ).forEach(({ path, message }) => {
+      ctx.issues.push({
+        code: 'custom' as const,
+        path,
+        input: 'items',
+        message
+      });
+    });
     ctx.value.items.forEach((item, index) => {
       if (
         item.copyNumber === 1 &&
@@ -220,57 +151,41 @@ const ItemsStep = ({ partialSample }: Props) => {
     });
   };
 
-  const changeItem = (item: PartialSampleItem) =>
-    setItems(
-      items.map((_) => {
-        if (
-          _.itemNumber === item.itemNumber &&
-          _.copyNumber === item.copyNumber
-        ) {
-          return item;
-        }
-        //Le destinataire de l'exemplaire 3 est déduit de celui de l'exemplaire 2
-        if (
-          item.copyNumber === 2 &&
-          _.itemNumber === item.itemNumber &&
-          _.copyNumber === 3
-        ) {
-          return {
-            ..._,
-            recipientKind: oppositeSampleItemRecipientKind(item.recipientKind)
-          };
-        }
-        return _;
-      })
+  const changeItem = (item: PartialSampleItem) => {
+    const changedItems = items.map((_) =>
+      _.itemNumber === item.itemNumber && _.copyNumber === item.copyNumber
+        ? item
+        : _
     );
+    setItems(
+      withFirstCopyLaboratory(changedItems).map((_) =>
+        item.copyNumber === 2 &&
+        _.itemNumber === item.itemNumber &&
+        _.copyNumber === 3
+          ? {
+              ..._,
+              recipientKind: defaultCopyRecipientKind(
+                programmingSubPlan?.samples ?? [],
+                changedItems,
+                _
+              )
+            }
+          : _
+      )
+    );
+  };
 
-  const addItem = (item: PartialSampleItem) => {
-    const recipientKind =
-      item.copyNumber >= 3
-        ? oppositeSampleItemRecipientKind(
-            items.find(
-              (_) => _.itemNumber === item.itemNumber && _.copyNumber === 2
-            )?.recipientKind
+  const addItem = (item: PartialSampleItem) => setItems([...items, item]);
+
+  const removeItem = (item: PartialSampleItem) =>
+    setItems(
+      items.filter(
+        (_) =>
+          !(
+            _.itemNumber === item.itemNumber && _.copyNumber === item.copyNumber
           )
-        : item.recipientKind;
-    setItems([...items, { ...item, recipientKind }]);
-  };
-
-  const removeItem = (item: PartialSampleItem) => {
-    const filtered = items.filter(
-      (_) =>
-        !(_.itemNumber === item.itemNumber && _.copyNumber === item.copyNumber)
+      )
     );
-    setItems(
-      filtered.map((current) => ({
-        ...current,
-        copyNumber:
-          filtered
-            .filter((_) => _.itemNumber === current.itemNumber)
-            .indexOf(current) + 1
-      }))
-    );
-  };
 
   const form = useForm(
     FormChecked,

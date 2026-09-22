@@ -4,6 +4,7 @@ import {
   type ProgrammingPlanDomain,
   ProgrammingPlanDomainId
 } from '../schema/ProgrammingPlan/ProgrammingPlanDomain';
+import { defaultProgrammingPlanSample } from '../schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import { ProgrammingPlanStatusList } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
 import {
@@ -139,7 +140,10 @@ export const genProgrammingSubPlan = (
   withSacha: (data?.id && SachaSubPlanIds.includes(data.id)) ?? false,
   substanceKinds: ['Any'],
   substanceKindsManaged: true,
-  samples: null,
+  samples: (data?.substanceKinds ?? ['Any']).map((substanceKind) => ({
+    ...defaultProgrammingPlanSample,
+    substanceKinds: [substanceKind]
+  })),
   samplesManaged: true,
   ...data
 });

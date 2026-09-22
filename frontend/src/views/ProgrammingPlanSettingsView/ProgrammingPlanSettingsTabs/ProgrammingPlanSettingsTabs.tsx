@@ -2,19 +2,24 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import { isEqual } from 'lodash-es';
+import { planSaveConflicts } from 'maestro-shared/schema/ProgrammingPlan/completedSubPlanSettings';
 import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import {
   emptyProgrammingPlanSettings,
   pickProgrammingPlanSettings,
   withSamplesBelowSubstanceKinds
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
-import { ProgrammingLevelSettingsForm } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
+import {
+  ProgrammingLevelSettingsForm,
+  ProgrammingSubPlanLevelSettingsForm
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type {
   ProgrammingSubPlan,
   ProgrammingSubPlanId
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
+import { checkSchema } from 'maestro-shared/utils/zod';
 import {
   type ReactNode,
   useContext,
@@ -72,6 +77,14 @@ const tabIdBySettingsKey: Record<SettingsFieldKey, SettingsTabId> = {
   nationalCoordinators: 'global',
   fields: 'sampler-form'
 };
+
+const planSaveConflictMessage = ({
+  reason,
+  subPlanNumbers
+}: ReturnType<typeof planSaveConflicts>[number]) =>
+  reason === 'missing'
+    ? `Ne peut pas être vide : les sous-plans terminés ${subPlanNumbers.join(', ')} l’utilisent.`
+    : `Les échantillons des sous-plans terminés ${subPlanNumbers.join(', ')} ne correspondraient plus à leurs analytes.`;
 
 export const ProgrammingPlanSettingsTabs = ({
   programmingPlan,
@@ -135,9 +148,34 @@ export const ProgrammingPlanSettingsTabs = ({
 
   const [selectedTabId, setSelectedTabId] = useState<SettingsTabId>('global');
 
-  const form = useForm(ProgrammingLevelSettingsForm, {
+  const formSchema = useMemo(
+    () =>
+      subPlan
+        ? ProgrammingSubPlanLevelSettingsForm
+        : checkSchema(ProgrammingLevelSettingsForm, (ctx) => {
+            for (const conflict of planSaveConflicts(
+              programmingPlan.subPlans,
+              programmingPlan,
+              ctx.value
+            )) {
+              ctx.issues.push({
+                input: ctx.value,
+                code: 'custom',
+                message: planSaveConflictMessage(conflict),
+                path: [conflict.settingKey]
+              });
+            }
+          }),
+    [subPlan, programmingPlan]
+  );
+
+  const [validation, setValidation] = useState<{
+    settingsCompleted: boolean;
+  }>();
+
+  const form = useForm(formSchema, {
     ...(draft ?? emptySettings),
-    settingsCompleted: true
+    settingsCompleted: validation?.settingsCompleted ?? true
   });
 
   const save = (
@@ -167,11 +205,7 @@ export const ProgrammingPlanSettingsTabs = ({
     }
   };
 
-  if (!draft) {
-    return null;
-  }
-
-  const complete = async () => {
+  const complete = async (draft: ProgrammingLevelSettingsForm) => {
     try {
       await save(draft, true).unwrap();
       form.reset();
@@ -179,6 +213,38 @@ export const ProgrammingPlanSettingsTabs = ({
       /* empty */
     }
   };
+
+  const selectTabInError = ({ issues }: z.ZodError) => {
+    const tabIdsInError = Object.entries(tabIdBySettingsKey)
+      .filter(([settingsKey]) =>
+        issues.some(({ path }) => path[0] === settingsKey)
+      )
+      .map(([, tabId]) => tabId);
+
+    setSelectedTabId(
+      settingsTabs.find(({ tabId }) => tabIdsInError.includes(tabId))?.tabId ??
+        selectedTabId
+    );
+  };
+
+  useEffect(() => {
+    if (!validation || !draft) {
+      return;
+    }
+    form.validate(async () => {
+      if (!validation.settingsCompleted) {
+        await save(draft, false);
+      } else if (draft.settingsCompleted) {
+        await complete(draft);
+      } else {
+        completionModal.open();
+      }
+    }, selectTabInError);
+  }, [validation]);
+
+  if (!draft) {
+    return null;
+  }
 
   const changeDraft = (draft: ProgrammingLevelSettingsForm) =>
     setDraft(
@@ -222,19 +288,6 @@ export const ProgrammingPlanSettingsTabs = ({
     }
   };
 
-  const selectTabInError = ({ issues }: z.ZodError) => {
-    const tabIdsInError = Object.entries(tabIdBySettingsKey)
-      .filter(([settingsKey]) =>
-        issues.some(({ path }) => path[0] === settingsKey)
-      )
-      .map(([, tabId]) => tabId);
-
-    setSelectedTabId(
-      settingsTabs.find(({ tabId }) => tabIdsInError.includes(tabId))?.tabId ??
-        selectedTabId
-    );
-  };
-
   return (
     <>
       <Tabs
@@ -256,22 +309,14 @@ export const ProgrammingPlanSettingsTabs = ({
               subPlan ? updateSubPlanSettingsCall : updatePlanSettingsCall
             }
             onReset={() => setDraft(settings)}
-            onSaveDraft={() => save(draft, false)}
-            onComplete={() =>
-              form.validate(
-                async () =>
-                  draft.settingsCompleted
-                    ? await complete()
-                    : completionModal.open(),
-                selectTabInError
-              )
-            }
+            onSaveDraft={() => setValidation({ settingsCompleted: false })}
+            onComplete={() => setValidation({ settingsCompleted: true })}
           />
           <ConfirmationModal
             modal={completionModal}
             title="Terminer le paramétrage"
             confirmLabel="Terminer"
-            onConfirm={complete}
+            onConfirm={() => complete(draft)}
             closeOnConfirm
           >
             Vous vous apprêtez à terminer le paramétrage{' '}

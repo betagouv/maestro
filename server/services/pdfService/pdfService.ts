@@ -25,8 +25,7 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 import {
   getSampleItemReference,
-  type PartialSampleItem,
-  SampleItemMaxCopyCount
+  type PartialSampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
@@ -56,6 +55,7 @@ import {
   referencesFromSample,
   SampleReference
 } from '../ediSacha/sachaReferences';
+import { buildSampleItems } from '../sampleItemService';
 
 export const getSubstancesSections = (
   substanceKinds: SubstanceKind[],
@@ -273,21 +273,9 @@ const generateSamplePDF = async (
     ? await userRepository.findUnique(sample.additionalSampler.id)
     : null;
 
-  const emptySampleItems: PartialSampleItem[] = (
-    subPlan?.substanceKinds ?? []
-  ).flatMap((substanceKind, substanceIndex) =>
-    new Array(SampleItemMaxCopyCount).fill(null).map((_, copyIndex) => {
-      const itemNumber = substanceIndex + 1;
-      const copyNumber = copyIndex + 1;
-      return {
-        sampleId: sample.id,
-        itemNumber,
-        copyNumber,
-        recipientKind: copyNumber === 1 ? 'Laboratory' : undefined,
-        substanceKinds: [substanceKind]
-      };
-    })
-  );
+  const emptySampleItems = buildSampleItems(sample.id, subPlan?.samples ?? [], {
+    withOptionalCopies: true
+  });
 
   const sampleDocuments = await documentRepository.findMany({
     sampleId: sample.id

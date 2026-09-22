@@ -1,14 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { QuantityUnitList } from 'maestro-shared/referential/QuantityUnit';
+import { defaultProgrammingPlanSample } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import type { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import type { Sampler } from 'maestro-shared/schema/User/User';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
-import {
-  genLocalPrescription,
-  genPrescription
-} from 'maestro-shared/test/prescriptionFixtures';
+import { genPrescription } from 'maestro-shared/test/prescriptionFixtures';
 import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genCreatedSampleData,
@@ -40,15 +38,6 @@ const prescription1 = genPrescription({
   context: 'Control',
   matrixKind: 'A001M',
   stages: ['STADE1', 'STADE5']
-});
-const localPrescription1 = genLocalPrescription({
-  prescriptionId: prescription1.id,
-  substanceKindsLaboratories: [
-    {
-      substanceKind: 'Any',
-      laboratoryId: LaboratoryFixture.id
-    }
-  ]
 });
 
 const partialSample = {
@@ -183,13 +172,82 @@ export const AddThirdItem: Story = {
     );
     await userEvent.click(secondCopyRecipient.getByLabelText('Détenteur'));
 
-    //Ajout de l'exemplaire n°3 : le destinataire est déduit, sans radio à choisir
     await userEvent.click(canvas.getByTestId('add-item-button'));
     await expect(
-      canvas.queryByTestId('recipientKind-radio-2')
+      within(canvas.getByTestId('recipientKind-radio-2')).getByLabelText(
+        'Préleveur'
+      )
+    ).toBeChecked();
+    await expect(
+      canvas.queryByTestId('add-item-button')
+    ).not.toBeInTheDocument();
+  }
+};
+
+const [laboratoryCopy, , optionalCopy] = defaultProgrammingPlanSample.copies;
+const configuredProgrammingPlan = genProgrammingPlan({
+  subPlans: [
+    {
+      ...programmingPlan.subPlans[0],
+      samples: [
+        {
+          substanceKinds: ['Any'],
+          copies: [
+            laboratoryCopy,
+            { required: true, recipientKinds: ['Operator'] },
+            optionalCopy
+          ]
+        }
+      ]
+    }
+  ]
+});
+
+export const ConfiguredCopies: Story = {
+  args: {
+    partialSample: {
+      ...partialSample,
+      programmingPlanId: configuredProgrammingPlan.id,
+      programmingSubPlanId: configuredProgrammingPlan.subPlans[0].id,
+      items: [
+        genSampleItem({ itemNumber: 1, copyNumber: 1 }),
+        genSampleItem({
+          itemNumber: 1,
+          copyNumber: 2,
+          recipientKind: 'Operator'
+        })
+      ]
+    }
+  },
+  parameters: {
+    preloadedState: {
+      auth: { authUser: genAuthUser(Sampler1Fixture) }
+    },
+    apiClient: getMockApi({
+      useGetProgrammingPlanQuery: () => ({ data: configuredProgrammingPlan })
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.queryByTestId('recipientKind-radio-1')
     ).not.toBeInTheDocument();
     await expect(
-      canvas.getByText('Préleveur', { selector: 'b' })
+      canvas.getByText('Détenteur', { selector: 'b' })
+    ).toBeInTheDocument();
+    await expect(
+      canvas.queryByTestId('remove-item-button-1')
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(canvas.getByTestId('add-item-button'));
+    await expect(
+      within(canvas.getByTestId('recipientKind-radio-2')).getByLabelText(
+        'Préleveur'
+      )
+    ).toBeChecked();
+    await expect(
+      canvas.getByTestId('remove-item-button-2')
     ).toBeInTheDocument();
   }
 };
@@ -270,8 +328,7 @@ export const SubmittingSuccess: Story = {
         async (...args) => mockCreateOrUpdateSample(...args),
         { isSuccess: true }
       ],
-      useGetProgrammingPlanQuery: () => ({ data: programmingPlan }),
-      useGetLocalPrescriptionQuery: () => ({ data: localPrescription1 })
+      useGetProgrammingPlanQuery: () => ({ data: programmingPlan })
     })
   },
   play: async ({ canvasElement }) => {

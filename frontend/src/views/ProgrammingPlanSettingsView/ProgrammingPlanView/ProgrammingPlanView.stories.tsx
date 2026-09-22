@@ -329,6 +329,62 @@ export const PlanSave: Story = {
   }
 };
 
+export const PlanSaveBlockedByCompletedSubPlan: Story = {
+  parameters: {
+    apiClient: getMockApi({
+      ...mockApiConf,
+      useFindProgrammingPlansQuery: {
+        data: [
+          genProgrammingPlan({
+            id: PPVPlanId,
+            year: 2026,
+            domainId: pesticide2026.id,
+            title: 'Production primaire végétale',
+            stages: ['TRANSFORMATION'],
+            stagesManaged: true,
+            settingsCompleted: false,
+            subPlans: [
+              genProgrammingSubPlan({
+                id: AnimauxSubPlanId,
+                subPlanNumber: '103',
+                label: 'Animaux',
+                stages: ['TRANSFORMATION'],
+                stagesManaged: false,
+                settingsCompleted: true
+              })
+            ]
+          })
+        ]
+      }
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+
+    await userEvent.click(
+      canvas.getByText('Transformation', { selector: '.fr-tag' })
+    );
+    await userEvent.click(canvas.getByRole('tab', { name: 'Échantillons' }));
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+
+    await waitFor(() =>
+      expect(
+        canvas.getByRole('tab', { name: 'Paramétrage global' })
+      ).toHaveAttribute('aria-selected', 'true')
+    );
+    await expect(
+      canvas.getByText(
+        'Ne peut pas être vide : les sous-plans terminés 103 l’utilisent.'
+      )
+    ).toBeInTheDocument();
+    await expect(updateProgrammingPlanSettings).not.toHaveBeenCalled();
+  }
+};
+
 export const SubPlanList: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -697,6 +753,42 @@ export const SubPlanIncompleteCannotComplete: Story = {
   }
 };
 
+export const SubPlanErrorsClearedOnNavigation: Story = {
+  parameters: {
+    initialEntries: [
+      AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+        PPVPlanId,
+        CerealesSubPlanId
+      )
+    ]
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Production primaire végétale' })
+    );
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer et terminer' })
+    );
+    await expect(
+      await canvas.findByText(
+        'Veuillez renseigner au moins un stade de prélèvement.'
+      )
+    ).toBeInTheDocument();
+
+    await userEvent.click(canvas.getByText('102 - Fruits et légumes'));
+    await expect(
+      await canvas.findByRole('heading', { name: '102 - Fruits et légumes' })
+    ).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole('tab', { name: 'Échantillons' }));
+
+    await expect(
+      canvas.queryByText('Veuillez configurer au moins un échantillon.')
+    ).not.toBeInTheDocument();
+  }
+};
+
 export const SubPlanSamplerForm: Story = {
   parameters: {
     initialEntries: [
@@ -837,7 +929,7 @@ export const PlanSubstanceKindsSwitch: Story = {
     await userEvent.click(managedSwitch);
     await userEvent.selectOptions(
       await canvas.findByRole('combobox', { name: /Analyte\(s\)/ }),
-      'Multi'
+      'Any'
     );
 
     await userEvent.click(
@@ -847,7 +939,7 @@ export const PlanSubstanceKindsSwitch: Story = {
       expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
         programmingPlanId: PPVPlanId,
         ...planSettings,
-        substanceKinds: ['Multi'],
+        substanceKinds: ['Any'],
         substanceKindsManaged: true
       })
     );

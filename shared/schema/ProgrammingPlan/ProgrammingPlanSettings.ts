@@ -1,4 +1,4 @@
-import { pick } from 'lodash-es';
+import { isNil, pick } from 'lodash-es';
 import { z } from 'zod';
 import { Stage } from '../../referential/Stage';
 import { SubstanceKind } from '../Substance/SubstanceKind';
@@ -63,6 +63,9 @@ export const inheritsUnmanagedSetting = (
       !subPlanSettings[managedKey(settingKey)] &&
       !planSettings[managedKey(settingKey)]
   );
+
+export const isMissingSetting = (value: unknown[] | null): boolean =>
+  isNil(value) || value.length === 0;
 
 export const managesSamplesAboveSubstanceKinds = {
   plan: (planSettings: ProgrammingPlanSettings): boolean =>
