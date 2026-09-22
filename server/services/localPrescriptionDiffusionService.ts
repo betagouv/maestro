@@ -1,5 +1,6 @@
 import type { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
 import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionSubstanceKindLaboratory';
+import { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { withSubstanceKindLaboratories } from 'maestro-shared/schema/Sample/SampleItem';
 import localPrescriptionLaboratoryRepository from '../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
 import sampleItemRepository from '../repositories/sampleItemRepository';
@@ -17,6 +18,7 @@ const commitLaboratories = async (
   const prescriptionSamples = await sampleRepository.findMany({
     statuses: ['Draft', 'Submitted'],
     prescriptionId: key.prescriptionId,
+    contexts: ProgrammingPlanContext.options,
     regions: [key.region],
     departments: key.department ? [key.department] : undefined
   });

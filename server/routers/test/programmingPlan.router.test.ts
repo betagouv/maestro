@@ -13,8 +13,12 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { CompanyFixture } from 'maestro-shared/test/companyFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
-import { genPrescription } from 'maestro-shared/test/prescriptionFixtures.ts';
+import {
+  genLocalPrescription,
+  genPrescription
+} from 'maestro-shared/test/prescriptionFixtures.ts';
 import {
   DAOABovinInProgressSubPlanFixture,
   DAOAInProgressProgrammingPlanFixture,
@@ -31,6 +35,10 @@ import {
   PPVValidatedProgrammingPlanFixture,
   PPVValidatedSubPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  genCreatedPartialSample,
+  genSampleItem
+} from 'maestro-shared/test/sampleFixtures';
 import { DAOAVolailleFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
@@ -61,6 +69,10 @@ import {
 } from 'vitest';
 import { kysely } from '../../repositories/kysely';
 import { LocalPrescriptionChanges } from '../../repositories/localPrescriptionChangeRepository';
+import {
+  formatLocalPrescription,
+  LocalPrescriptions
+} from '../../repositories/localPrescriptionRepository';
 import { PrescriptionChanges } from '../../repositories/prescriptionChangeRepository';
 import { Prescriptions } from '../../repositories/prescriptionRepository';
 import programmingPlanRepository, {
@@ -68,6 +80,11 @@ import programmingPlanRepository, {
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../../repositories/programmingSubPlanRepository';
+import { SampleItems } from '../../repositories/sampleItemRepository';
+import {
+  formatPartialSample,
+  Samples
+} from '../../repositories/sampleRepository';
 import {
   UserCompanies,
   Users,
@@ -1993,6 +2010,107 @@ describe('ProgrammingPlan router', () => {
         })
         .update({ status: 'Validated', sentAt: null, lastModifiedAt: null });
       await Prescriptions().where({ id: modifiedPrescription.id }).delete();
+    });
+    test('diffusing the laboratories updates the unsent samples of the prescription only', async () => {
+      const prescription = genPrescription({
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id
+      });
+      const draftSample = genCreatedPartialSample({
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+        prescriptionId: prescription.id,
+        region: RegionalCoordinator.region,
+        company: CompanyFixture,
+        sampler: Sampler1Fixture,
+        context: 'Control',
+        status: 'Draft',
+        step: 'DraftItems'
+      });
+      const sentSample = genCreatedPartialSample({
+        programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+        prescriptionId: prescription.id,
+        region: RegionalCoordinator.region,
+        company: CompanyFixture,
+        sampler: Sampler1Fixture,
+        context: 'Control',
+        status: 'Sent',
+        step: 'Sent'
+      });
+      const draftItems = [1, 2].map((copyNumber) =>
+        genSampleItem({
+          sampleId: draftSample.id,
+          copyNumber,
+          substanceKinds: ['Mono'],
+          recipientKind: 'Laboratory',
+          laboratoryId: null
+        })
+      );
+      const sentItem = genSampleItem({
+        sampleId: sentSample.id,
+        substanceKinds: ['Mono'],
+        recipientKind: 'Laboratory',
+        laboratoryId: null
+      });
+
+      await Prescriptions().insert(prescription);
+      await LocalPrescriptions().insert(
+        formatLocalPrescription(
+          genLocalPrescription({
+            prescriptionId: prescription.id,
+            region: RegionalCoordinator.region
+          })
+        )
+      );
+      await Samples().insert([
+        formatPartialSample(draftSample),
+        formatPartialSample(sentSample)
+      ]);
+      await SampleItems().insert([...draftItems, sentItem]);
+      await LocalPrescriptionChanges().insert({
+        prescriptionId: prescription.id,
+        region: RegionalCoordinator.region,
+        department: 'None',
+        companySiret: 'None',
+        echelon: 'Regional',
+        kind: 'laboratories',
+        substanceKindsLaboratories: JSON.stringify([
+          { substanceKind: 'Mono', laboratoryId: LaboratoryFixture.id }
+        ]),
+        previousSampleCount: null,
+        changedAt: new Date()
+      });
+
+      await request(app)
+        .post(testRoute)
+        .send({
+          programmingPlanIds: [PPVValidatedProgrammingPlanFixture.id]
+        })
+        .use(tokenProvider(RegionalCoordinator))
+        .expect(constants.HTTP_STATUS_OK);
+
+      await expect(
+        SampleItems()
+          .where({ sampleId: draftSample.id })
+          .orderBy('copyNumber')
+          .select('copyNumber', 'laboratoryId')
+      ).resolves.toEqual([
+        { copyNumber: 1, laboratoryId: LaboratoryFixture.id },
+        { copyNumber: 2, laboratoryId: LaboratoryFixture.id }
+      ]);
+      await expect(
+        SampleItems().where({ sampleId: sentSample.id }).select('laboratoryId')
+      ).resolves.toEqual([{ laboratoryId: null }]);
+
+      await SampleItems()
+        .whereIn('sampleId', [draftSample.id, sentSample.id])
+        .delete();
+      await Samples().whereIn('id', [draftSample.id, sentSample.id]).delete();
+      await ProgrammingPlanLocalStatus()
+        .where({
+          programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+          region: RegionalCoordinator.region
+        })
+        .update({ status: 'Validated', sentAt: null, lastModifiedAt: null });
+      await Prescriptions().where({ id: prescription.id }).delete();
     });
   });
 
