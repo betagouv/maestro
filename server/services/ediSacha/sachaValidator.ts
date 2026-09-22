@@ -296,11 +296,13 @@ export const demandesAnalysesValidator = z.object({
         Nombre: z.coerce.number().int()
       })
     ).optional(),
-    ReferencePlanAnalyseType: z.object({
-      ReferencePlanAnalyseEffectuer: referencePlanAnalyseEffectuer,
-      ReferencePlanAnalyseContenu: referencePlanAnalyseContenu,
-      DialogueEchantillonSimple: dialogueEchantillonSimple
-    }),
+    ReferencePlanAnalyseType: z.array(
+      z.object({
+        ReferencePlanAnalyseEffectuer: referencePlanAnalyseEffectuer,
+        ReferencePlanAnalyseContenu: referencePlanAnalyseContenu,
+        DialogueEchantillonSimple: dialogueEchantillonSimple
+      })
+    ),
     DialogueAnalyseType: dialogueAnalyseType
   })
 });
