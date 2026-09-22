@@ -16,7 +16,6 @@ import { useState } from 'react';
 import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useOnLine } from 'src/hooks/useOnLine';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
 import useWindowSize from 'src/hooks/useWindowSize';
 import './SampleCard.scss';
@@ -30,7 +29,6 @@ type Props = {
 const SampleCard = ({ sample, horizontal }: Props) => {
   const { sampleLink } = useSamplesLink();
   const { user, hasUserPermission } = useAuthentication();
-  const { isOnline } = useOnLine();
   const { isMobile } = useWindowSize();
 
   const [isExpanded, setIsExpanded] = useState(!isMobile);
@@ -143,9 +141,9 @@ const SampleCard = ({ sample, horizontal }: Props) => {
             >
               {sample.step !== 'Sent' ? 'A compléter' : 'Consulter'}
             </Button>
-            {isOnline &&
-              hasUserPermission('deleteSample') &&
-              isDeletableSample(sample) && <RemoveSample sample={sample} />}
+            {hasUserPermission('deleteSample') && isDeletableSample(sample) && (
+              <RemoveSample sample={sample} />
+            )}
           </div>
         )
       }

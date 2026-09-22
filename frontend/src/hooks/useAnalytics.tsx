@@ -12,7 +12,6 @@ type TrackEventCategory = z.infer<typeof TrackEventCategory>;
 const trackEventAction = {
   geolocation: z.enum(['enable', 'disable', 'update_summary']),
   sample: z.enum([
-    'push_offline',
     ...(SampleStatus.options.map(
       (status) => `submit_${status}`
     ) as `submit_${SampleStatus}`[])

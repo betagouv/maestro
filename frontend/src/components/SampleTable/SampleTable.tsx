@@ -13,9 +13,7 @@ import { useMemo } from 'react';
 import { SampleStatusBadge } from 'src/components/SampleStatusBadge/SampleStatusBadge';
 import RemoveSample from 'src/components/SampleTable/RemoveSample';
 import { useAuthentication } from 'src/hooks/useAuthentication';
-import { useOnLine } from 'src/hooks/useOnLine';
 import { useSamplesLink } from 'src/hooks/useSamplesLink';
-import { useAppSelector } from 'src/hooks/useStore';
 import './SampleTable.scss';
 import { formatMaestroDate } from 'maestro-shared/utils/date';
 
@@ -26,11 +24,8 @@ interface Props {
 
 const SampleTable = ({ samples, tableFooter }: Props) => {
   const { sampleLink, navigateToSample } = useSamplesLink();
-  const { isOnline } = useOnLine();
 
   const { hasUserPermission, user } = useAuthentication();
-
-  const { pendingSamples } = useAppSelector((state) => state.samples);
 
   const tableHeaders = [
     '#',
@@ -51,9 +46,6 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
           isCreatedPartialSample(sample) ? sample.reference : '',
           getSampleMatrixLabel(sample),
           <div className="d-flex-align-center" key={`${sample.id}-name`}>
-            {pendingSamples[sample.id] && (
-              <span className="fr-icon-link-unlink fr-icon--sm fr-mr-1w"></span>
-            )}
             {isCreatedPartialSample(sample) ? sample.sampler.name : user?.name}
           </div>,
           formatMaestroDate(sample.sampledDate),
@@ -83,9 +75,9 @@ const SampleTable = ({ samples, tableFooter }: Props) => {
             size="small"
             priority="tertiary"
           />
-          {isOnline &&
-            hasUserPermission('deleteSample') &&
-            isDeletableSample(sample) && <RemoveSample sample={sample} />}
+          {hasUserPermission('deleteSample') && isDeletableSample(sample) && (
+            <RemoveSample sample={sample} />
+          )}
         </div>
       ]),
     [samples]
