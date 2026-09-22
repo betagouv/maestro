@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import {
   groupBy,
   isEmpty,
+  isEqual,
   isNil,
   mapValues,
   omit,
@@ -62,6 +63,7 @@ import LocalPrescriptionModal from '../../../components/LocalPrescription/LocalP
 import PrescriptionModal from '../../../components/Prescription/PrescriptionModal/PrescriptionModal';
 import { ApiClientContext } from '../../../services/apiClient';
 import { getApiUrl } from '../../../utils/fetchUtils';
+import { groupSubstanceKindsLaboratoriesBySample } from '../../../utils/sampleLaboratories';
 import ProgrammingPrescriptionFilters from '../ProgrammingPrescriptionFilters/ProgrammingPrescriptionFilters';
 import ProgrammingPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingPrescriptionTable';
 import BulkAssignLaboratoriesModal, {
@@ -844,12 +846,24 @@ const ProgrammingPrescriptionList = ({
     [getPrescriptionPlan, localPrescriptions, department]
   );
 
+  const sampleSubstanceKindsFor = useCallback(
+    (prescription: Prescription) =>
+      groupSubstanceKindsLaboratoriesBySample(
+        getPrescriptionPlan(prescription)?.subPlans.find(
+          (sp) => sp.id === prescription.programmingSubPlanId
+        )?.samples ?? null,
+        laboratorySlotsFor(prescription)
+      ).map(({ substanceKinds }) => ({ substanceKinds })),
+    [getPrescriptionPlan, laboratorySlotsFor]
+  );
+
   const bulkAssignCheck = useMemo(():
     | {
         commonSlots: { substanceKind: SubstanceKind; laboratoryId?: string }[];
+        commonSamples: { substanceKinds: SubstanceKind[] }[];
         blockReason?: undefined;
       }
-    | { commonSlots: []; blockReason: string } => {
+    | { commonSlots: []; commonSamples: []; blockReason: string } => {
     const slotsPerPrescription = selectedPrescriptions.map(laboratorySlotsFor);
     const [firstSlots, ...otherSlots] = slotsPerPrescription;
 
@@ -865,8 +879,22 @@ const ProgrammingPrescriptionList = ({
     if (!sameSubstanceKinds) {
       return {
         commonSlots: [],
+        commonSamples: [],
         blockReason:
           "Les sous-plans sélectionnés n'ont pas le même nombre de laboratoires à attribuer. L'action groupée n'est pas possible."
+      };
+    }
+
+    const [firstSamples, ...otherSamples] = selectedPrescriptions.map(
+      sampleSubstanceKindsFor
+    );
+
+    if (!otherSamples.every((samples) => isEqual(samples, firstSamples))) {
+      return {
+        commonSlots: [],
+        commonSamples: [],
+        blockReason:
+          "Les sous-plans sélectionnés ne regroupent pas les analytes dans les mêmes échantillons. L'action groupée n'est pas possible."
       };
     }
 
@@ -882,6 +910,7 @@ const ProgrammingPrescriptionList = ({
     if (slotLaboratoryIds.some((laboratoryIds) => laboratoryIds.size > 1)) {
       return {
         commonSlots: [],
+        commonSamples: [],
         blockReason:
           "Les sous-plans sélectionnés ont des laboratoires déjà attribués différents. L'action groupée n'est pas possible."
       };
@@ -891,9 +920,10 @@ const ProgrammingPrescriptionList = ({
       commonSlots: firstSlots.map((slot, index) => ({
         substanceKind: slot.substanceKind,
         laboratoryId: [...slotLaboratoryIds[index]][0]
-      }))
+      })),
+      commonSamples: firstSamples
     };
-  }, [selectedPrescriptions, laboratorySlotsFor]);
+  }, [selectedPrescriptions, laboratorySlotsFor, sampleSubstanceKindsFor]);
 
   return (
     <>
@@ -1048,6 +1078,7 @@ const ProgrammingPrescriptionList = ({
             selectedPrescriptions.map((_) => _.programmingSubPlanId)
           )}
           commonSlots={bulkAssignCheck.commonSlots}
+          samples={bulkAssignCheck.commonSamples}
           onSubmit={(substanceKindsLaboratories) => {
             for (const prescription of selectedPrescriptions) {
               changeLocalPrescriptionLaboratories(

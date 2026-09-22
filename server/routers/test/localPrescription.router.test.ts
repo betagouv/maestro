@@ -17,6 +17,7 @@ import type {
   LocalPrescriptionCommentToCreate
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { LocalPrescriptionKey } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionKey';
+import { defaultProgrammingPlanSample } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSampleSetting';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { SlaughterhouseCompanyFixture1 } from 'maestro-shared/test/companyFixtures';
 import {
@@ -796,6 +797,67 @@ describe('Local prescriptions router', () => {
           laboratoryId: laboratory.id
         }
       ]);
+    });
+
+    test('should refuse different laboratories for the analytes of a same sample', async () => {
+      const validatedLocalPrescription =
+        validatedControlLocalPrescriptions.find((localPrescription) =>
+          isEqual(
+            LocalPrescriptionKey.parse(localPrescription),
+            LocalPrescriptionKey.parse({
+              prescriptionId: validatedControlPrescription.id,
+              region: RegionalCoordinator.region as Region
+            })
+          )
+        ) as LocalPrescription;
+      const subPlanId = validatedControlPrescription.programmingSubPlanId;
+      const { samples, samplesManaged } = await kysely
+        .selectFrom('programmingSubPlansRaw')
+        .select(['samples', 'samplesManaged'])
+        .where('id', '=', subPlanId)
+        .executeTakeFirstOrThrow();
+      await ProgrammingSubPlansRaw()
+        .where({ id: subPlanId })
+        .update(
+          toProgrammingPlanSettingsRow({
+            samples: [
+              {
+                ...defaultProgrammingPlanSample,
+                substanceKinds: ['Mono', 'Multi']
+              }
+            ],
+            samplesManaged: true
+          })
+        );
+
+      const sendLaboratories = (multiLaboratoryId: string) =>
+        request(app)
+          .put(
+            testRoute(
+              validatedLocalPrescription.prescriptionId,
+              validatedLocalPrescription.region
+            )
+          )
+          .send({
+            programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
+            key: 'laboratories',
+            substanceKindsLaboratories: [
+              { substanceKind: 'Mono', laboratoryId: laboratory.id },
+              { substanceKind: 'Multi', laboratoryId: multiLaboratoryId }
+            ]
+          })
+          .use(tokenProvider(RegionalCoordinator));
+
+      try {
+        await sendLaboratories(LaboratoryFixture.id).expect(
+          constants.HTTP_STATUS_BAD_REQUEST
+        );
+        await sendLaboratories(laboratory.id).expect(constants.HTTP_STATUS_OK);
+      } finally {
+        await ProgrammingSubPlansRaw()
+          .where({ id: subPlanId })
+          .update(toProgrammingPlanSettingsRow({ samples, samplesManaged }));
+      }
     });
 
     describe('should update the samples laboratories of the prescription for a regional coordinator', async () => {
