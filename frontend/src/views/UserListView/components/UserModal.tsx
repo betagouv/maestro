@@ -14,16 +14,13 @@ import {
   companiesIsRequired,
   departmentIsRequired,
   laboratoryIsRequired,
+  regionIsRequired,
   stagesIsRequired,
   type UserListItem,
   UserToCreateRefined
 } from 'maestro-shared/schema/User/User';
 import { managerStages } from 'maestro-shared/schema/User/UserManagement';
-import {
-  canHaveDepartment,
-  isRegionalRole,
-  UserRoleLabels
-} from 'maestro-shared/schema/User/UserRole';
+import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
 import type { Nullable } from 'maestro-shared/utils/typescript';
 import type React from 'react';
 import { useContext, useEffect, useMemo, useState } from 'react';
@@ -68,10 +65,6 @@ const userDefaultValue: Nullable<UserToCreateRefined> = {
   laboratoryId: null,
   disabled: false
 };
-
-const needsRegion = (user: Nullable<UserToCreateRefined>): boolean =>
-  (user.roles?.some((role) => isRegionalRole(role)) ?? false) ||
-  canHaveDepartment(user);
 
 export const UserModal = ({
   userToUpdate,
@@ -171,16 +164,13 @@ export const UserModal = ({
   }, [user.roles, selectableStages, lockedStages]);
 
   useEffect(() => {
-    if (
-      !canHaveDepartment(user) &&
-      !user.roles?.some((role) => isRegionalRole(role))
-    ) {
+    if (!regionIsRequired(user)) {
       setUser((u) => ({ ...u, region: forcedRegion }));
     }
-    if (!canHaveDepartment(user)) {
+    if (!departmentIsRequired(user)) {
       setUser((u) => ({ ...u, department: forcedDepartment }));
     }
-  }, [user.roles, user.region, forcedRegion, forcedDepartment]);
+  }, [user.roles, user.stages, user.region, forcedRegion, forcedDepartment]);
 
   const [companies, setCompanies] = useState<Company[]>([]);
   useEffect(() => {
@@ -290,7 +280,7 @@ export const UserModal = ({
           }}
           required
         />
-        {!forcedRegion && needsRegion(user) && (
+        {!forcedRegion && regionIsRequired(user) && (
           <AppSelect
             onChange={(e) => {
               const { data, success } = Region.safeParse(e.target.value);
@@ -309,7 +299,7 @@ export const UserModal = ({
         {!forcedDepartment &&
           user.roles &&
           user.region &&
-          canHaveDepartment(user) && (
+          departmentIsRequired(user) && (
             <AppSelect
               onChange={(e) => {
                 const { data, success } = Department.safeParse(e.target.value);
@@ -323,10 +313,7 @@ export const UserModal = ({
               inputKey={'department'}
               label="Département"
               options={departmentOptions}
-              required={departmentIsRequired({
-                stages: user.stages,
-                roles: user.roles
-              })}
+              required
             />
           )}
         {showStages && (

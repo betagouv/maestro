@@ -10,7 +10,6 @@ import { Company } from '../Company/Company';
 import { ProgrammingSubPlan } from '../ProgrammingPlan/ProgrammingSubPlan';
 import type { UserPermission } from './UserPermission';
 import {
-  canHaveDepartment,
   isDepartmentalRole,
   isNationalRole,
   isRegionalRole,
@@ -49,17 +48,14 @@ export const userChecks = <
       message: 'Au moins un stade de prélèvement est obligatoire pour ce rôle.'
     });
   }
-  if (
-    !user.region &&
-    (user.roles.some((role) => isRegionalRole(role)) || canHaveDepartment(user))
-  ) {
+  if (!user.region && regionIsRequired(user)) {
     ctx.addIssue({
       code: 'custom',
       path: ['region'],
       message: 'La région est obligatoire pour ce rôle.'
     });
   }
-  if (user.department && !canHaveDepartment(user)) {
+  if (user.department && !departmentIsRequired(user)) {
     ctx.addIssue({
       code: 'custom',
       path: ['department'],
@@ -222,6 +218,14 @@ const worksInSlaughterhouse = (
 export const companiesIsRequired = (
   user: Pick<Nullable<UserRefined>, 'stages' | 'roles'>
 ): boolean => worksInSlaughterhouse(user);
+
+export const regionIsRequired = (
+  user: Pick<Nullable<UserRefined>, 'roles'>
+): boolean =>
+  user.roles?.some(
+    (role) =>
+      isRegionalRole(role) || isDepartmentalRole(role) || role === 'Sampler'
+  ) ?? false;
 
 export const departmentIsRequired = (
   user: Pick<Nullable<UserRefined>, 'stages' | 'roles'>

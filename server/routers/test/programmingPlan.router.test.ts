@@ -20,6 +20,7 @@ import {
   DAOAInProgressProgrammingPlanFixture,
   DAOAValidatedProgrammingPlanFixture,
   DAOAVolailleInProgressSubPlanFixture,
+  DAOAVolailleValidatedSubPlanFixture,
   genDeletableProgrammingPlan,
   genProgrammingSubPlan,
   PPVClosedProgrammingPlanFixture,
@@ -27,7 +28,8 @@ import {
   PPVInProgressSubPlanFixture,
   PPVSubmittedProgrammingPlanFixture,
   PPVValidatedDromProgrammingPlanFixture,
-  PPVValidatedProgrammingPlanFixture
+  PPVValidatedProgrammingPlanFixture,
+  PPVValidatedSubPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { DAOAVolailleFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
@@ -35,8 +37,10 @@ import {
   AdminBGIRFixture,
   AdminFixture,
   DepartmentalCoordinator,
+  genUser,
   NationalCoordinator,
   NationalCoordinatorDaoaFixture,
+  Region1Fixture,
   RegionalCoordinator,
   RegionalDaoaCoordinator,
   RegionalDromCoordinator,
@@ -46,7 +50,15 @@ import {
 import { withISOStringDates } from 'maestro-shared/utils/date';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
-import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test
+} from 'vitest';
 import { kysely } from '../../repositories/kysely';
 import { LocalPrescriptionChanges } from '../../repositories/localPrescriptionChangeRepository';
 import { PrescriptionChanges } from '../../repositories/prescriptionChangeRepository';
@@ -56,11 +68,16 @@ import programmingPlanRepository, {
   ProgrammingPlans
 } from '../../repositories/programmingPlanRepository';
 import { programmingSubPlanRepository } from '../../repositories/programmingSubPlanRepository';
+import {
+  UserCompanies,
+  Users,
+  userRepository
+} from '../../repositories/userRepository';
 import { createServer } from '../../server';
 import prescriptionDiffusionService from '../../services/prescriptionDiffusionService';
 import { programmingPlanSettingsService } from '../../services/programmingPlanSettingsService';
 import { mockSendNotification } from '../../test/setupTests';
-import { tokenProvider } from '../../test/testUtils';
+import { TEST_LOGGED_SECRET, tokenProvider } from '../../test/testUtils';
 
 describe('ProgrammingPlan router', () => {
   const { app } = createServer();
@@ -448,6 +465,71 @@ describe('ProgrammingPlan router', () => {
           .use(tokenProvider(user))
           .expect(constants.HTTP_STATUS_FORBIDDEN);
       }
+    });
+
+    describe('for a sampler with a department working on both PPV and DAOA', () => {
+      const multiPlanSampler = genUser({
+        roles: ['Sampler'],
+        programmingSubPlans: [
+          PPVValidatedSubPlanFixture,
+          DAOAVolailleValidatedSubPlanFixture
+        ],
+        region: Region1Fixture,
+        department: Regions[Region1Fixture].departments[0]
+      });
+
+      const departmentalStatus = {
+        programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
+        region: Region1Fixture,
+        department: multiPlanSampler.department,
+        status: 'Validated' as const
+      };
+
+      beforeAll(async () => {
+        const userToInsert = {
+          ...multiPlanSampler,
+          loggedSecrets: [TEST_LOGGED_SECRET]
+        };
+        await userRepository.insert(userToInsert);
+        await ProgrammingPlanLocalStatus().insert(departmentalStatus);
+      });
+
+      afterAll(async () => {
+        await ProgrammingPlanLocalStatus().delete().where(departmentalStatus);
+        await UserCompanies().delete().where('userId', multiPlanSampler.id);
+        await Users().delete().where('id', multiPlanSampler.id);
+      });
+
+      test('should find both the regional and the departmental validated programming plans', async () => {
+        const res = await request(app)
+          .get(testRoute())
+          .use(tokenProvider(multiPlanSampler))
+          .expect(constants.HTTP_STATUS_OK);
+
+        expect(res.body).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: PPVValidatedProgrammingPlanFixture.id,
+              regionalStatus: [
+                expect.objectContaining({
+                  region: Region1Fixture,
+                  status: 'Validated'
+                })
+              ]
+            }),
+            expect.objectContaining({
+              id: DAOAValidatedProgrammingPlanFixture.id,
+              departmentalStatus: [
+                expect.objectContaining({
+                  region: Region1Fixture,
+                  department: multiPlanSampler.department,
+                  status: 'Validated'
+                })
+              ]
+            })
+          ])
+        );
+      });
     });
 
     test('should filter programming plans by status and user authorization', async () => {
