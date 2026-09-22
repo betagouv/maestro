@@ -59,7 +59,6 @@ import PrescriptionImportModal, {
 } from 'src/views/ProgrammingView/ProgrammingPrescriptionList/PrescriptionImportModal';
 import ProgrammingPrescriptionListHeader from 'src/views/ProgrammingView/ProgrammingPrescriptionList/ProgrammingPrescriptionListHeader';
 import { assert, type Equals } from 'tsafe';
-import LocalPrescriptionModal from '../../../components/LocalPrescription/LocalPrescriptionModal/LocalPrescriptionModal';
 import PrescriptionModal from '../../../components/Prescription/PrescriptionModal/PrescriptionModal';
 import { ApiClientContext } from '../../../services/apiClient';
 import { getApiUrl } from '../../../utils/fetchUtils';
@@ -1071,7 +1070,6 @@ const ProgrammingPrescriptionList = ({
           })
         }
       />
-      <LocalPrescriptionModal />
       {canBulkAssignLaboratories && (
         <BulkAssignLaboratoriesModal
           programmingSubPlanIds={uniq(

@@ -3,7 +3,6 @@ import { Department } from 'maestro-shared/referential/Department';
 import { MatrixKind } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { Region } from 'maestro-shared/referential/Region';
 import { Stage } from 'maestro-shared/referential/Stage';
-import { LocalPrescription } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import { LocalPrescriptionComment } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionComment';
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import { PrescriptionComments } from 'maestro-shared/schema/Prescription/PrescriptionComments';
@@ -66,30 +65,12 @@ const PrescriptionModalData = z.object({
   prescription: Prescription
 });
 
-const LocalPrescriptionModalData = z.discriminatedUnion('mode', [
-  z.object({
-    mode: z.literal('laboratory'),
-    programmingPlan: ProgrammingPlanChecked,
-    prescription: Prescription,
-    localPrescription: LocalPrescription
-  }),
-  z.object({
-    mode: z.literal('distributionToDepartments'),
-    programmingPlan: ProgrammingPlanChecked,
-    prescription: Prescription,
-    localPrescription: LocalPrescription,
-    subLocalPrescriptions: z.array(LocalPrescription)
-  })
-]);
-
 type PrescriptionCommentsData = z.infer<typeof PrescriptionCommentsData>;
 type PrescriptionModalData = z.infer<typeof PrescriptionModalData>;
-type LocalPrescriptionModalData = z.infer<typeof LocalPrescriptionModalData>;
 
 type PrescriptionsState = {
   prescriptionFilters: PrescriptionFilters;
   prescriptionModalData?: PrescriptionModalData;
-  localPrescriptionModalData?: LocalPrescriptionModalData;
   prescriptionCommentsData?: PrescriptionCommentsData;
 };
 
@@ -116,12 +97,6 @@ const prescriptionsSlice = createSlice({
       action: PayloadAction<PrescriptionModalData | undefined>
     ) => {
       state.prescriptionModalData = action.payload;
-    },
-    setLocalPrescriptionModalData: (
-      state,
-      action: PayloadAction<LocalPrescriptionModalData | undefined>
-    ) => {
-      state.localPrescriptionModalData = action.payload;
     },
     setPrescriptionCommentsData: (
       state,
