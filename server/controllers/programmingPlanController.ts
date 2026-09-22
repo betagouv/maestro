@@ -9,6 +9,11 @@ import {
 } from 'maestro-shared/referential/Region';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { NotificationCategoryTitles } from 'maestro-shared/schema/Notification/NotificationCategory';
+import {
+  completedSubPlanSettingIssues,
+  effectiveSubPlanSettings,
+  planSaveConflicts
+} from 'maestro-shared/schema/ProgrammingPlan/completedSubPlanSettings';
 import { buildFindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import {
   hasSentOnward,
@@ -991,7 +996,9 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
 
       if (
         managesSamplesAboveSubstanceKinds.plan(body) ||
-        resumesDraft(programmingPlan, body)
+        resumesDraft(programmingPlan, body) ||
+        planSaveConflicts(programmingPlan.subPlans, programmingPlan, body)
+          .length > 0
       ) {
         return { status: HttpStatus.CONFLICT };
       }
@@ -1063,6 +1070,10 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
 
         if (
           inheritsUnmanagedSetting(body, programmingPlan) ||
+          (body.settingsCompleted &&
+            completedSubPlanSettingIssues(
+              effectiveSubPlanSettings(body, programmingPlan)
+            ).length > 0) ||
           managesSamplesAboveSubstanceKinds.subPlan(body) ||
           resumesDraft(programmingSubPlan, body)
         ) {

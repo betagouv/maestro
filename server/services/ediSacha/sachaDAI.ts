@@ -1,4 +1,4 @@
-import { isNil } from 'lodash-es';
+import { uniq } from 'lodash-es';
 import type { LaboratoryWithSacha } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type {
   CommemoratifSigle,
@@ -9,6 +9,7 @@ import type { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import type { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import type { SachaFieldConfig } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type { SpecificData } from 'maestro-shared/schema/SpecificData/SpecificData';
+import { isDefined } from 'maestro-shared/utils/utils';
 import type { SachaConf } from '../../repositories/kysely.type';
 import { sachaCommemoratifRepository } from '../../repositories/sachaCommemoratifRepository';
 import { sachaConfRepository } from '../../repositories/sachaConfRepository';
@@ -63,8 +64,12 @@ export const generateXMLDAI = (
     );
   }
 
-  const siglePlanAnalyse = SiglePlanAnalyse[sampleItem.substanceKinds[0]];
-  if (isNil(siglePlanAnalyse)) {
+  const siglesPlanAnalyse = uniq(
+    sampleItem.substanceKinds.map(
+      (substanceKind) => SiglePlanAnalyse[substanceKind]
+    )
+  );
+  if (!siglesPlanAnalyse.every(isDefined)) {
     throw new Error("Pas de plan d'analyse de configuré.");
   }
 
@@ -129,7 +134,7 @@ export const generateXMLDAI = (
             })
           }
         ],
-        ReferencePlanAnalyseType: {
+        ReferencePlanAnalyseType: siglesPlanAnalyse.map((siglePlanAnalyse) => ({
           ReferencePlanAnalyseEffectuer: {
             SiglePlanAnalyse: siglePlanAnalyse
           },
@@ -141,7 +146,7 @@ export const generateXMLDAI = (
             Confirmation: false,
             Statut: 'V'
           }
-        }
+        }))
       }
     },
     dateNow,

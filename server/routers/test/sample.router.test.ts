@@ -676,6 +676,29 @@ describe('Sample router', () => {
       await successRequestTest(Sampler1Fixture);
     });
 
+    test('should create the sample items from the sub-plan samples settings when reaching the items step', async () => {
+      const res = await request(app)
+        .put(`${testRoute(Sample11Fixture.id)}`)
+        .send({ ...Sample11Fixture, step: 'DraftItems', items: [] })
+        .use(tokenProvider(Sampler1Fixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      const expectedItems = [
+        {
+          sampleId: Sample11Fixture.id,
+          itemNumber: 1,
+          copyNumber: 1,
+          recipientKind: 'Laboratory',
+          substanceKinds: ['Any'],
+          laboratoryId: LaboratoryFixture.id
+        }
+      ];
+      expect(res.body.items).toStrictEqual(expectedItems);
+      await expect(
+        SampleItems().where({ sampleId: Sample11Fixture.id })
+      ).resolves.toMatchObject(expectedItems);
+    });
+
     test('should derive prescriptionId when a prescription has a matching specific matrix value', async () => {
       const specificMatrix = 'A00GZ';
       const prescription = genPrescription({

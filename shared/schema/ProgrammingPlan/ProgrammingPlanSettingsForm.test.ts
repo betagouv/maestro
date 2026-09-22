@@ -15,6 +15,7 @@ import {
 import {
   ProgrammingLevelSettingsForm,
   ProgrammingPlanSettingsForm,
+  ProgrammingSubPlanLevelSettingsForm,
   ProgrammingSubPlanSettingsForm
 } from './ProgrammingPlanSettingsForm';
 
@@ -40,6 +41,13 @@ const completedSettings: {
   }
 };
 
+const inheritedSettings: ProgrammingPlanSettings = {
+  ...emptyProgrammingPlanSettings(false),
+  stages: completedSettings.stages.value,
+  substanceKinds: completedSettings.substanceKinds.value,
+  samples: completedSettings.samples.value
+};
+
 const nationalCoordinator = {
   id: NationalCoordinatorId,
   name: NationalCoordinatorName,
@@ -51,16 +59,28 @@ describe('ProgrammingPlanSettingsForm', () => {
     [
       'plan',
       ProgrammingPlanSettingsForm,
-      { nationalCoordinators: [nationalCoordinator] }
+      { nationalCoordinators: [nationalCoordinator] },
+      'plan'
     ],
-    ['sub-plan', ProgrammingSubPlanSettingsForm, {}],
-    ['level', ProgrammingLevelSettingsForm, { nationalCoordinators: null }]
-  ])('%s level', (_, schema, levelSettings) => {
+    ['sub-plan', ProgrammingSubPlanSettingsForm, {}, 'subPlan'],
+    [
+      'plan form',
+      ProgrammingLevelSettingsForm,
+      { nationalCoordinators: null },
+      'plan'
+    ],
+    [
+      'sub-plan form',
+      ProgrammingSubPlanLevelSettingsForm,
+      { nationalCoordinators: null },
+      'subPlan'
+    ]
+  ] as const)('%s level', (_, schema, levelSettings, level) => {
     const form = (
       settings: Record<string, unknown> & { settingsCompleted: boolean }
     ) =>
       schema.safeParse({
-        ...emptyProgrammingPlanSettings(false),
+        ...inheritedSettings,
         ...settings,
         ...levelSettings,
         fields: []
@@ -109,15 +129,52 @@ describe('ProgrammingPlanSettingsForm', () => {
         ).toBe(true);
       });
 
-      test('should accept a completed level that does not manage it', () => {
-        expect(
-          form({
+      test.runIf(level === 'plan')(
+        'should accept a completed plan that does not manage it',
+        () => {
+          expect(
+            form({
+              [settingKey]: null,
+              [managedKey(settingKey)]: false,
+              settingsCompleted: true
+            }).success
+          ).toBe(true);
+        }
+      );
+
+      test.runIf(level === 'subPlan')(
+        'should refuse to complete a sub-plan inheriting it empty',
+        () => {
+          const result = form({
             [settingKey]: null,
             [managedKey(settingKey)]: false,
             settingsCompleted: true
-          }).success
-        ).toBe(true);
-      });
+          });
+
+          expect(result.success).toBe(false);
+          expect(result.error?.issues).toContainEqual(
+            expect.objectContaining({
+              path: [settingKey],
+              message:
+                'Ce paramètre est hérité du plan, qui ne l’a pas encore renseigné.'
+            })
+          );
+        }
+      );
+
+      test.runIf(level === 'subPlan')(
+        'should accept a completed sub-plan inheriting it filled',
+        () => {
+          expect(
+            form({
+              ...context,
+              [settingKey]: value,
+              [managedKey(settingKey)]: false,
+              settingsCompleted: true
+            }).success
+          ).toBe(true);
+        }
+      );
     });
   });
 
@@ -133,7 +190,7 @@ describe('ProgrammingPlanSettingsForm', () => {
       }
     ) =>
       ProgrammingSubPlanSettingsForm.safeParse({
-        ...emptyProgrammingPlanSettings(false),
+        ...inheritedSettings,
         substanceKinds: ['Mono', 'Multi', 'Copper'],
         substanceKindsManaged: true,
         samplesManaged: true,
@@ -156,14 +213,14 @@ describe('ProgrammingPlanSettingsForm', () => {
       ).toBe(true);
     });
 
-    test('should accept a completed level that does not manage the samples', () => {
+    test('should refuse to complete a sub-plan inheriting samples that do not cover its analytes', () => {
       expect(
         form({
           samples: [sample()],
           samplesManaged: false,
           settingsCompleted: true
         }).success
-      ).toBe(true);
+      ).toBe(false);
     });
 
     test('should refuse to complete a sample without analyte', () => {
@@ -260,7 +317,7 @@ describe('ProgrammingPlanSettingsForm', () => {
 
     test('should ignore the coordinators of a sub-plan', () => {
       const result = ProgrammingSubPlanSettingsForm.safeParse({
-        ...emptyProgrammingPlanSettings(false),
+        ...inheritedSettings,
         settingsCompleted: true,
         nationalCoordinators: [],
         fields: []
@@ -272,8 +329,8 @@ describe('ProgrammingPlanSettingsForm', () => {
 
     test('should accept a completed sub-plan level, which manages no coordinator', () => {
       expect(
-        ProgrammingLevelSettingsForm.safeParse({
-          ...emptyProgrammingPlanSettings(false),
+        ProgrammingSubPlanLevelSettingsForm.safeParse({
+          ...inheritedSettings,
           settingsCompleted: true,
           nationalCoordinators: null,
           fields: []

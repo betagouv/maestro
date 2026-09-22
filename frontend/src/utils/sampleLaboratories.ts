@@ -53,3 +53,14 @@ export const assignSampleLaboratory = (
       ? { ...substanceKindLaboratory, laboratoryId }
       : substanceKindLaboratory
   );
+
+export const subPlanSubstanceKindsLaboratories = (
+  subPlanSubstanceKinds: SubstanceKind[],
+  savedSubstanceKindsLaboratories: SubstanceKindLaboratory[]
+): SubstanceKindLaboratory[] =>
+  subPlanSubstanceKinds.map((substanceKind) => ({
+    substanceKind,
+    laboratoryId: savedSubstanceKindsLaboratories.find(
+      (saved) => saved.substanceKind === substanceKind
+    )?.laboratoryId
+  }));

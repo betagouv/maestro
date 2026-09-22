@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import bwipjs from 'bwip-js';
 import handlebars from 'handlebars';
-import { isNil, now } from 'lodash-es';
+import { isNil, now, uniq } from 'lodash-es';
 import PdfGenerationError from 'maestro-shared/errors/pdfGenerationError';
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import UserMissingError from 'maestro-shared/errors/userMissingError';
@@ -14,6 +14,7 @@ import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { QuantityUnitLabels } from 'maestro-shared/referential/QuantityUnit';
 import { Regions } from 'maestro-shared/referential/Region';
+import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
 import { SubStageLabels } from 'maestro-shared/referential/SubStage';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
@@ -24,12 +25,14 @@ import {
 } from 'maestro-shared/schema/Sample/Sample';
 import {
   getSampleItemReference,
-  type PartialSampleItem,
-  SampleItemMaxCopyCount
+  type PartialSampleItem
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { SampleItemRecipientKindLabels } from 'maestro-shared/schema/Sample/SampleItemRecipientKind';
 import { getFieldValueLabel } from 'maestro-shared/schema/SpecificData/getFieldValueLabel';
-import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
+import {
+  type SubstanceKind,
+  SubstanceKindLabels
+} from 'maestro-shared/schema/Substance/SubstanceKind';
 import { formatMaestroDate } from 'maestro-shared/utils/date';
 import puppeteer from 'puppeteer-core';
 import { documentRepository } from '../../repositories/documentRepository';
@@ -52,6 +55,55 @@ import {
   referencesFromSample,
   SampleReference
 } from '../ediSacha/sachaReferences';
+import { buildSampleItems } from '../sampleItemService';
+
+export const getSubstancesSections = (
+  substanceKinds: SubstanceKind[],
+  {
+    matrix,
+    monoSubstances,
+    multiSubstances
+  }: {
+    matrix: string;
+    monoSubstances?: SSD2Id[] | null;
+    multiSubstances?: SSD2Id[] | null;
+  }
+) => {
+  const substancesSections = uniq(
+    substanceKinds.flatMap((substanceKind) =>
+      substanceKind === 'Any' ? (['Mono', 'Multi'] as const) : [substanceKind]
+    )
+  ).map((substanceKind) => {
+    if (substanceKind !== 'Mono' && substanceKind !== 'Multi') {
+      return {
+        label: SubstanceKindLabels[substanceKind],
+        substances: [],
+        withEmptyLines: false
+      };
+    }
+    if (!matrix) {
+      return {
+        label: SubstanceKindLabels[substanceKind],
+        substances: [],
+        withEmptyLines: true
+      };
+    }
+    return {
+      label:
+        substanceKind === 'Mono'
+          ? SubstanceKindLabels.Mono
+          : `${SubstanceKindLabels.Multi} dont :`,
+      substances: (
+        (substanceKind === 'Mono' ? monoSubstances : multiSubstances) ?? []
+      ).map((substance) => SSD2IdLabel[substance]),
+      withEmptyLines: false
+    };
+  });
+  return {
+    substancesSections,
+    substancesColClass: substancesSections.length > 1 ? 'fr-col-6' : 'fr-col-12'
+  };
+};
 
 const generatePDF = async (template: Template, data: unknown) => {
   handlebars.registerHelper(
@@ -221,21 +273,9 @@ const generateSamplePDF = async (
     ? await userRepository.findUnique(sample.additionalSampler.id)
     : null;
 
-  const emptySampleItems: PartialSampleItem[] = (
-    subPlan?.substanceKinds ?? []
-  ).flatMap((substanceKind, substanceIndex) =>
-    new Array(SampleItemMaxCopyCount).fill(null).map((_, copyIndex) => {
-      const itemNumber = substanceIndex + 1;
-      const copyNumber = copyIndex + 1;
-      return {
-        sampleId: sample.id,
-        itemNumber,
-        copyNumber,
-        recipientKind: copyNumber === 1 ? 'Laboratory' : undefined,
-        substanceKind
-      };
-    })
-  );
+  const emptySampleItems = buildSampleItems(sample.id, subPlan?.samples ?? [], {
+    withOptionalCopies: true
+  });
 
   const sampleDocuments = await documentRepository.findMany({
     sampleId: sample.id
@@ -300,9 +340,9 @@ const generateSamplePDF = async (
         laboratory: !isNil(sampleItem.laboratoryId)
           ? laboratories.find((lab) => lab.id === sampleItem.laboratoryId)
           : null,
-        substanceKind: sampleItem.substanceKinds?.[0]
-          ? SubstanceKindLabels[sampleItem.substanceKinds[0]]
-          : null,
+        substanceKindsLabel: (sampleItem.substanceKinds ?? [])
+          .map((substanceKind) => SubstanceKindLabels[substanceKind])
+          .join(', '),
         barcode: sampleReference
           ? getBarcodeSvg(
               referencesFromSample(
@@ -324,13 +364,11 @@ const generateSamplePDF = async (
           fullName: getLaboratoryFullName(currentLaboratory)
         }
       : null,
-    substanceKind: currentSampleItem?.substanceKinds?.[0],
-    monoSubstances: sample.monoSubstances?.map(
-      (substance) => SSD2IdLabel[substance]
-    ),
-    multiSubstances: sample.multiSubstances?.map(
-      (substance) => SSD2IdLabel[substance]
-    ),
+    ...getSubstancesSections(currentSampleItem?.substanceKinds ?? [], {
+      matrix: getSampleMatrixLabel(sample),
+      monoSubstances: sample.monoSubstances,
+      multiSubstances: sample.multiSubstances
+    }),
     reference,
     sampledDate: formatMaestroDate(sample.sampledDate),
     context: sample.context ? ContextLabels[sample.context] : '',

@@ -154,6 +154,7 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
               />
             )}
             <ProgrammingPlanSettingsTabs
+              key={subPlan?.id ?? programmingPlan.id}
               programmingPlan={programmingPlan}
               subPlan={subPlan}
             />

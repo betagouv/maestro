@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { RaiMaestroError } from './sachaErrors';
-import { buildDaoaAnalysis } from './sachaRAI';
+import { buildDaoaAnalysis, getAnalysisMethod } from './sachaRAI';
 import type { SachaResultats } from './sachaValidator';
 import { decodeValidRai } from './testUtils';
 
@@ -51,5 +51,17 @@ describe('buildDaoaAnalysis', () => {
     expect(() => buildDaoaAnalysis(unmappedRai, 'Multi')).toThrow(
       /Analyte non mappé/
     );
+  });
+});
+
+describe('getAnalysisMethod', () => {
+  test.each([
+    [['Mono'], 'Mono'],
+    [['Mono', 'Copper'], 'Mono'],
+    [['Multi'], 'Multi'],
+    [['Mono', 'Multi'], 'Multi'],
+    [['Copper'], 'Multi']
+  ] as const)('%j → %s', (substanceKinds, expected) => {
+    expect(getAnalysisMethod([...substanceKinds])).toBe(expected);
   });
 });

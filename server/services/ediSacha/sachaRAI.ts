@@ -5,6 +5,7 @@ import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStat
 import type { AnalysisKind } from 'maestro-shared/schema/Analysis/Residue/AnalysisKind';
 import type { ResidueComplianceDAOA } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import type { ResultKind } from 'maestro-shared/schema/Analysis/Residue/ResultKind';
+import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import {
   type MaestroDate,
   maestroDateRefined
@@ -58,6 +59,14 @@ const frenchDateToMaestroDate = (
   }
   return parsed.data;
 };
+
+// FIXME RAI multi-analytes : une analyse par analyte plutôt qu'une méthode par exemplaire ?
+export const getAnalysisMethod = (
+  substanceKinds: SubstanceKind[]
+): AnalysisMethod =>
+  substanceKinds.includes('Mono') && !substanceKinds.includes('Multi')
+    ? 'Mono'
+    : 'Multi';
 
 export const buildDaoaAnalysis = (
   rai: SachaResultats,
@@ -244,8 +253,7 @@ export const processSachaRAI = async (
     );
   }
 
-  const analysisMethod: AnalysisMethod =
-    sampleItem.substanceKinds[0] === 'Mono' ? 'Mono' : 'Multi';
+  const analysisMethod = getAnalysisMethod(sampleItem.substanceKinds);
 
   const { residues, compliance, status, receiptDate } = buildDaoaAnalysis(
     rai,

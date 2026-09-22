@@ -1,7 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tabs from '@codegouvfr/react-dsfr/Tabs';
 import clsx from 'clsx';
-import { minBy, uniqBy } from 'lodash-es';
+import { minBy, sortBy, uniqBy } from 'lodash-es';
 import type {
   PartialSample,
   PartialSampleToCreate
@@ -37,20 +37,22 @@ const SampleItems = ({
 
   const groupedItems = useMemo(
     () =>
-      items?.reduce(
-        (acc, item, itemIndex) => {
-          acc[item.itemNumber - 1].push({
-            ...item,
-            sampleItemIndex: itemIndex
-          });
-          return acc;
-        },
-        Array.from({
-          length: uniqBy(items, 'itemNumber').length
-        }).map((_) => []) as (PartialSampleItem & {
-          sampleItemIndex: number;
-        })[][]
-      ),
+      items
+        ?.reduce(
+          (acc, item, itemIndex) => {
+            acc[item.itemNumber - 1].push({
+              ...item,
+              sampleItemIndex: itemIndex
+            });
+            return acc;
+          },
+          Array.from({
+            length: uniqBy(items, 'itemNumber').length
+          }).map((_) => []) as (PartialSampleItem & {
+            sampleItemIndex: number;
+          })[][]
+        )
+        .map((itemCopies) => sortBy(itemCopies, 'copyNumber')),
     [items]
   );
 

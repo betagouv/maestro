@@ -1,13 +1,13 @@
-import { isNil } from 'lodash-es';
 import { z } from 'zod';
 import { checkSchema, refineSchema } from '../../utils/zod';
 import {
   ProgrammingPlanFieldSetting,
   ProgrammingSubPlanFieldSetting
 } from '../SpecificData/FieldConfigInput';
-import { SubstanceKindLabels } from '../Substance/SubstanceKind';
+import { samplesCoverageIssues } from './completedSubPlanSettings';
 import { ProgrammingPlanNationalCoordinator } from './ProgrammingPlanNationalCoordinator';
 import {
+  isMissingSetting,
   managedKey,
   ProgrammingPlanSettingKey,
   ProgrammingPlanSettings
@@ -29,68 +29,52 @@ const missingSettingMessages: Record<ProgrammingPlanSettingKey, string> = {
   samples: 'Veuillez configurer au moins un échantillon.'
 };
 
-const checkCompleteness = (
-  ctx: z.core.ParsePayload<z.infer<typeof SettingsFormBase>>
-) => {
-  if (!ctx.value.settingsCompleted) {
-    return;
-  }
-  for (const settingKey of ProgrammingPlanSettingKey.options) {
-    const value = ctx.value[settingKey];
-    if (
-      ctx.value[managedKey(settingKey)] &&
-      (isNil(value) || value.length === 0)
-    ) {
-      ctx.issues.push({
-        input: ctx.value,
-        code: 'custom',
-        message: missingSettingMessages[settingKey],
-        path: [settingKey]
-      });
-    }
-  }
-};
+const inheritedMissingSettingMessage =
+  'Ce paramètre est hérité du plan, qui ne l’a pas encore renseigné.';
 
-const checkSamplesCoverSubstanceKinds = (
-  ctx: z.core.ParsePayload<z.infer<typeof SettingsFormBase>>
-) => {
-  const { settingsCompleted, samplesManaged, samples, substanceKinds } =
-    ctx.value;
-  if (!settingsCompleted || !samplesManaged || !samples) {
-    return;
-  }
-  samples.forEach((sample, index) => {
-    const outsideSubstanceKind = sample.substanceKinds.find(
-      (substanceKind) => !substanceKinds?.includes(substanceKind)
-    );
-    if (sample.substanceKinds.length === 0 || outsideSubstanceKind) {
-      ctx.issues.push({
-        input: ctx.value,
-        code: 'custom',
-        message: outsideSubstanceKind
-          ? `L’analyte « ${SubstanceKindLabels[outsideSubstanceKind]} » de l’échantillon ${index + 1} ne fait pas partie des analytes.`
-          : `Veuillez choisir au moins un analyte pour l’échantillon ${index + 1}.`,
-        path: ['samples', index, 'substanceKinds']
-      });
+const checkCompleteness =
+  (level: 'plan' | 'subPlan') =>
+  (ctx: z.core.ParsePayload<z.infer<typeof SettingsFormBase>>) => {
+    if (!ctx.value.settingsCompleted) {
+      return;
     }
-  });
-  for (const substanceKind of substanceKinds ?? []) {
-    const sampleCount = samples.filter((sample) =>
-      sample.substanceKinds.includes(substanceKind)
-    ).length;
-    if (sampleCount !== 1) {
-      ctx.issues.push({
-        input: ctx.value,
-        code: 'custom',
-        message:
-          sampleCount === 0
-            ? `L’analyte « ${SubstanceKindLabels[substanceKind]} » n’est affecté à aucun échantillon.`
-            : `L’analyte « ${SubstanceKindLabels[substanceKind]} » est affecté à plusieurs échantillons.`,
-        path: ['samples']
-      });
+    for (const settingKey of ProgrammingPlanSettingKey.options) {
+      const managed = ctx.value[managedKey(settingKey)];
+      if (
+        (managed || level === 'subPlan') &&
+        isMissingSetting(ctx.value[settingKey])
+      ) {
+        ctx.issues.push({
+          input: ctx.value,
+          code: 'custom',
+          message: managed
+            ? missingSettingMessages[settingKey]
+            : inheritedMissingSettingMessage,
+          path: [settingKey]
+        });
+      }
     }
-  }
-};
+  };
+
+const checkSamplesCoverSubstanceKinds =
+  (level: 'plan' | 'subPlan') =>
+  (ctx: z.core.ParsePayload<z.infer<typeof SettingsFormBase>>) => {
+    const { settingsCompleted, samplesManaged, samples, substanceKinds } =
+      ctx.value;
+    if (
+      !settingsCompleted ||
+      (!samplesManaged && level === 'plan') ||
+      !samples
+    ) {
+      return;
+    }
+    for (const { path, message } of samplesCoverageIssues(
+      samples,
+      substanceKinds ?? []
+    )) {
+      ctx.issues.push({ input: ctx.value, code: 'custom', message, path });
+    }
+  };
 // FIXME DOMAIN à décommenter quand tous les plans de la bdd de prod auront un coord et supprimer le .fail sur le test
 // const checkNationalCoordinators = (
 //   ctx: z.core.ParsePayload<{
@@ -128,8 +112,8 @@ export const ProgrammingPlanSettingsForm = checkSchema(
       uniqueFieldsMessage
     )
   }),
-  checkCompleteness,
-  checkSamplesCoverSubstanceKinds
+  checkCompleteness('plan'),
+  checkSamplesCoverSubstanceKinds('plan')
   // checkNationalCoordinators
 );
 export type ProgrammingPlanSettingsForm = z.infer<
@@ -138,21 +122,29 @@ export type ProgrammingPlanSettingsForm = z.infer<
 
 export const ProgrammingSubPlanSettingsForm = checkSchema(
   SubPlanSettingsFormShape,
-  checkCompleteness,
-  checkSamplesCoverSubstanceKinds
+  checkCompleteness('subPlan'),
+  checkSamplesCoverSubstanceKinds('subPlan')
 );
 export type ProgrammingSubPlanSettingsForm = z.infer<
   typeof ProgrammingSubPlanSettingsForm
 >;
 
+const ProgrammingLevelSettingsFormShape = SubPlanSettingsFormShape.extend({
+  nationalCoordinators: z.array(ProgrammingPlanNationalCoordinator).nullable()
+});
+
 export const ProgrammingLevelSettingsForm = checkSchema(
-  SubPlanSettingsFormShape.extend({
-    nationalCoordinators: z.array(ProgrammingPlanNationalCoordinator).nullable()
-  }),
-  checkCompleteness,
-  checkSamplesCoverSubstanceKinds
+  ProgrammingLevelSettingsFormShape,
+  checkCompleteness('plan'),
+  checkSamplesCoverSubstanceKinds('plan')
   //checkNationalCoordinators
 );
 export type ProgrammingLevelSettingsForm = z.infer<
   typeof ProgrammingLevelSettingsForm
 >;
+
+export const ProgrammingSubPlanLevelSettingsForm = checkSchema(
+  ProgrammingLevelSettingsFormShape,
+  checkCompleteness('subPlan'),
+  checkSamplesCoverSubstanceKinds('subPlan')
+);

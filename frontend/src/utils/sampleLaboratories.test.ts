@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import {
   assignSampleLaboratory,
-  groupSubstanceKindsLaboratoriesBySample
+  groupSubstanceKindsLaboratoriesBySample,
+  subPlanSubstanceKindsLaboratories
 } from './sampleLaboratories';
 
 const laboratoryId = '11111111-1111-4111-8111-111111111111';
@@ -91,6 +92,23 @@ describe('assignSampleLaboratory', () => {
       { substanceKind: 'Mono', laboratoryId },
       { substanceKind: 'Multi', laboratoryId },
       { substanceKind: 'Copper', laboratoryId: otherLaboratoryId }
+    ]);
+  });
+});
+
+describe('subPlanSubstanceKindsLaboratories', () => {
+  test('reporte les labos enregistrés sur les analytes du sous-plan', () => {
+    expect(
+      subPlanSubstanceKindsLaboratories(
+        ['Mono', 'Copper'],
+        [
+          { substanceKind: 'Mono', laboratoryId: 'lab-1' },
+          { substanceKind: 'Multi', laboratoryId: 'lab-2' }
+        ]
+      )
+    ).toStrictEqual([
+      { substanceKind: 'Mono', laboratoryId: 'lab-1' },
+      { substanceKind: 'Copper', laboratoryId: undefined }
     ]);
   });
 });

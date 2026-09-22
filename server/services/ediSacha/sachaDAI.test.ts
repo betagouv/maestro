@@ -324,6 +324,40 @@ test(`fige le NumeroEtiquette sur sentAt (date d'envoi), tout en datant le fichi
   expect(xmlFile.fileName).not.toContain('251216');
 });
 
+test('génère un plan d’analyse par sigle distinct des analytes de l’exemplaire', async () => {
+  const xmlFile = await generateXMLDAI(
+    daiSample,
+    'M01',
+    { ...daiSampleItem, substanceKinds: ['Mono', 'Copper', 'Multi'] },
+    1765876056798,
+    daiFieldConfigs,
+    daiCommemoratifRecord,
+    sachaConf,
+    laboratory
+  );
+
+  expect(
+    [
+      ...xmlFile.content.matchAll(/<SiglePlanAnalyse>(.*)<\/SiglePlanAnalyse>/g)
+    ].map(([, sigle]) => sigle)
+  ).toEqual(['RPDA', 'RPDA_CU']);
+});
+
+test('refuse un exemplaire dont un analyte n’a pas de plan d’analyse', () => {
+  expect(() =>
+    generateXMLDAI(
+      daiSample,
+      'M01',
+      { ...daiSampleItem, substanceKinds: ['Copper', 'Any'] },
+      1765876056798,
+      daiFieldConfigs,
+      daiCommemoratifRecord,
+      sachaConf,
+      laboratory
+    )
+  ).toThrow("Pas de plan d'analyse de configuré.");
+});
+
 describe('getCommemoratifs', () => {
   const specificData: SpecificData = {
     sampling: 'Aléatoire',

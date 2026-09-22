@@ -22,8 +22,9 @@ import {
 import {
   type SampleAnalysisDataItemUpdate,
   SampleItem,
-  SampleItemMaxCopyCount,
   SampleItemSort,
+  sampleItemsSettingsIssues,
+  withFirstCopyLaboratory,
   withSubstanceKindLaboratories
 } from 'maestro-shared/schema/Sample/SampleItem';
 import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
@@ -55,6 +56,7 @@ import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
 import { padReferenceSerial } from '../services/imapService/utils';
 import { pdfService } from '../services/pdfService/pdfService';
+import { buildSampleItems } from '../services/sampleItemService';
 import { supportDocumentProcessor } from '../services/supportDocumentProcessor';
 
 export const computeAnalysisStatus = (
@@ -245,24 +247,16 @@ export const sampleRouter = {
       console.info('Get sample document', sample.id);
 
       const sampleItems = await sampleItemRepository.findMany(sample.id);
+      const subPlan = programmingPlan.subPlans.find(
+        (sp) => sp.id === sample.programmingSubPlanId
+      );
 
       const pdfBuffers = await Promise.all(
         (sampleItems?.length
           ? [...sampleItems].sort(SampleItemSort)
-          : Array.from(
-              Array(
-                programmingPlan.subPlans.find(
-                  (sp) => sp.id === sample.programmingSubPlanId
-                )?.substanceKinds?.length ?? 1
-              ).keys()
-            ).flatMap((itemNumber) =>
-              Array.from(Array(SampleItemMaxCopyCount).keys()).map(
-                (copyNumber) => ({
-                  itemNumber: itemNumber + 1,
-                  copyNumber: copyNumber + 1
-                })
-              )
-            )
+          : buildSampleItems(sample.id, subPlan?.samples ?? [], {
+              withOptionalCopies: true
+            })
         ).map(({ itemNumber, copyNumber }) =>
           pdfService.generateSampleSupportPDF(
             sample,
@@ -521,6 +515,32 @@ export const sampleRouter = {
         }
       }
 
+      if (
+        ['DraftItems', 'Submitted'].includes(sampleUpdate.step) &&
+        sample.step !== 'Sent'
+      ) {
+        const subPlan = await programmingSubPlanRepository.findUnique(
+          sampleUpdate.programmingSubPlanId
+        );
+        if (!subPlan?.samples?.length) {
+          return { status: HttpStatus.BAD_REQUEST };
+        }
+        if (sampleUpdate.step === 'DraftItems' && !sampleUpdate.items?.length) {
+          sampleUpdate.items = buildSampleItems(sample.id, subPlan.samples, {
+            withOptionalCopies: false
+          }).map((item) => ({
+            ...item,
+            compliance200263: subPlan.subPlanNumber === 'PPV' ? undefined : true
+          }));
+        }
+        if (
+          sampleItemsSettingsIssues(sampleUpdate.items ?? [], subPlan.samples)
+            .length > 0
+        ) {
+          return { status: HttpStatus.BAD_REQUEST };
+        }
+      }
+
       const mustBeSent =
         sample.step === 'Submitted' && sampleUpdate.step === 'Sent';
 
@@ -628,6 +648,7 @@ export const sampleRouter = {
       }
 
       if (sampleUpdate.items) {
+        sampleUpdate.items = withFirstCopyLaboratory(sampleUpdate.items);
         await sampleItemRepository.updateMany(sample.id, sampleUpdate.items);
       }
 

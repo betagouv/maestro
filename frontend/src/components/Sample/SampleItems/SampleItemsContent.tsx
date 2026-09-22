@@ -4,14 +4,16 @@ import type {
   PartialSample,
   PartialSampleToCreate
 } from 'maestro-shared/schema/Sample/Sample';
-import {
-  type PartialSampleItem,
-  SampleItemMaxCopyCount
-} from 'maestro-shared/schema/Sample/SampleItem';
+import type { PartialSampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { Fragment } from 'react';
 import type { UseForm } from '../../../hooks/useForm';
 import { usePartialSample } from '../../../hooks/usePartialSample';
 import SampleItemContent from './SampleItemContent';
+import {
+  defaultCopyRecipientKind,
+  isRemovableCopy,
+  nextCopyNumber
+} from './sampleItemCopies';
 
 interface Props {
   partialSample: PartialSample | PartialSampleToCreate;
@@ -33,6 +35,9 @@ const SampleItemsContent = ({
   form
 }: Props) => {
   const { programmingSubPlan } = usePartialSample(partialSample);
+  const samples = programmingSubPlan?.samples ?? [];
+  const itemNumber = items[0]?.itemNumber;
+  const addedCopyNumber = itemNumber && nextCopyNumber(items, itemNumber);
 
   return (
     <div className="d-flex-column">
@@ -42,6 +47,7 @@ const SampleItemsContent = ({
             partialSample={partialSample}
             item={item}
             itemIndex={item.sampleItemIndex}
+            removable={isRemovableCopy(samples, items, item)}
             onRemoveItem={onRemoveItem}
             onChangeItem={onChangeItem}
             itemsForm={form}
@@ -50,40 +56,40 @@ const SampleItemsContent = ({
           {index < items.length - 1 && <hr className={cx('fr-mx-0')} />}
         </Fragment>
       ))}
-      {items[items.length - 1]?.copyNumber < SampleItemMaxCopyCount &&
-        !readonly &&
-        onAddItem && (
-          <>
-            <hr className={cx('fr-mx-0')} />
-            <Button
-              priority="tertiary no outline"
-              onClick={(e) => {
-                e.preventDefault();
-                const lastItem = items[items.length - 1];
-                onAddItem({
-                  sampleId: partialSample.id,
+      {addedCopyNumber && !readonly && onAddItem && (
+        <>
+          <hr className={cx('fr-mx-0')} />
+          <Button
+            priority="tertiary no outline"
+            onClick={(e) => {
+              e.preventDefault();
+              const lastItem = items[items.length - 1];
+              onAddItem({
+                sampleId: partialSample.id,
+                itemNumber: lastItem.itemNumber,
+                copyNumber: addedCopyNumber,
+                quantity: lastItem.quantity,
+                quantityUnit: lastItem.quantityUnit,
+                substanceKinds: lastItem.substanceKinds,
+                recipientKind: defaultCopyRecipientKind(samples, items, {
                   itemNumber: lastItem.itemNumber,
-                  copyNumber: lastItem.copyNumber + 1,
-                  quantity: lastItem.quantity,
-                  quantityUnit: lastItem.quantityUnit,
-                  substanceKinds: lastItem.substanceKinds,
-                  compliance200263:
-                    programmingSubPlan?.subPlanNumber === 'PPV'
-                      ? undefined
-                      : true
-                });
-              }}
-              className={cx('fr-my-1w')}
-              size="small"
-              style={{
-                alignSelf: 'center'
-              }}
-              data-testid="add-item-button"
-            >
-              Ajouter un exemplaire
-            </Button>
-          </>
-        )}
+                  copyNumber: addedCopyNumber
+                }),
+                compliance200263:
+                  programmingSubPlan?.subPlanNumber === 'PPV' ? undefined : true
+              });
+            }}
+            className={cx('fr-my-1w')}
+            size="small"
+            style={{
+              alignSelf: 'center'
+            }}
+            data-testid="add-item-button"
+          >
+            Ajouter un exemplaire
+          </Button>
+        </>
+      )}
     </div>
   );
 };
