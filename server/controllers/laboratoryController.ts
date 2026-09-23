@@ -14,7 +14,6 @@ import programmingPlanRepository from '../repositories/programmingPlanRepository
 import { userRepository } from '../repositories/userRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { excelService } from '../services/excelService/excelService';
-import { importPublicKey } from '../services/gpgService';
 import { notificationService } from '../services/notificationService';
 
 const notifyLaboratoryAgreementLost = async (
@@ -199,24 +198,7 @@ export const laboratoriesRouter = {
     put: async ({ body }, { laboratoryId }) => {
       console.info('Update laboratory config', laboratoryId);
 
-      const previousConfig =
-        await laboratoryRepository.findUnique(laboratoryId);
-
       await laboratoryRepository.updateConfig(laboratoryId, body);
-
-      const previousCommunication = previousConfig?.sacha?.communication;
-      const previousGpgPublicKey =
-        previousCommunication?.method === 'EMAIL'
-          ? previousCommunication.gpgPublicKey
-          : null;
-
-      if (
-        body.sacha?.communication?.method === 'EMAIL' &&
-        body.sacha.communication.gpgPublicKey &&
-        body.sacha.communication.gpgPublicKey !== previousGpgPublicKey
-      ) {
-        await importPublicKey(body.sacha.communication.gpgPublicKey);
-      }
 
       return { status: HttpStatus.OK };
     }

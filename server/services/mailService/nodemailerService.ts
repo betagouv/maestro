@@ -31,12 +31,6 @@ const TemplateData = {
   }
 >;
 
-interface RawOptions {
-  subject: string;
-  from: string;
-  to: string;
-  attachmentPath: string;
-}
 interface ReplyOptions {
   to: string;
   bcc?: string;
@@ -46,7 +40,6 @@ interface ReplyOptions {
   inReplyTo: string;
 }
 interface NodeMailService extends MailService {
-  sendRaw(options: RawOptions): Promise<void>;
   sendReply(options: ReplyOptions): Promise<void>;
 }
 class NodemailerService implements NodeMailService {
@@ -94,20 +87,6 @@ class NodemailerService implements NodeMailService {
       text: option.text,
       inReplyTo: option.inReplyTo,
       references: [option.inReplyTo]
-    });
-  }
-
-  async sendRaw(option: RawOptions): Promise<void> {
-    await this.transport.sendMail({
-      from: option.from,
-      to: option.to,
-      subject: option.subject,
-      text: '',
-      attachments: [
-        {
-          path: option.attachmentPath
-        }
-      ]
     });
   }
 }

@@ -26,12 +26,7 @@ const laboratory: LaboratoryWithSacha = {
   sacha: {
     activated: true,
     sigle: 'LDA72',
-    communication: {
-      method: 'EMAIL',
-      recipientEmail: 'fake@email.fr',
-      gpgEmail: 'fake-gpg@email.fr',
-      gpgPublicKey: 'gpg'
-    }
+    recipientEmail: 'fake@email.fr'
   }
 };
 
@@ -223,10 +218,10 @@ test(`génère un XML de DAI`, async () => {
       "content": "<?xml version="1.0" encoding="UTF-8"?>
     <DemandesAnalyses schemavalidation="DemandesAnalyses.xsd">
       <MessageParametres>
-        <CodeScenario>E.D.I. SIGAL/LABOS</CodeScenario>
-        <VersionScenario>1.0.1</VersionScenario>
+        <CodeScenario>MAESTRO</CodeScenario>
+        <VersionScenario>1.0.0</VersionScenario>
         <TypeFichier>DA01</TypeFichier>
-        <NomFichier>DA01MDDSV72LDA72251216100736798</NomFichier>
+        <NomFichier>DA01DDSV72LDA72251216100736798</NomFichier>
         <VersionReferenceStandardisees>v12341234</VersionReferenceStandardisees>
         <VersionReferencePrescripteur>v234</VersionReferencePrescripteur>
         <NomLogicielCreation>SIGAL</NomLogicielCreation>
@@ -234,9 +229,9 @@ test(`génère un XML de DAI`, async () => {
         <CodeReferentielPrescripteur>SIGAL</CodeReferentielPrescripteur>
       </MessageParametres>
       <Emetteur>
-        <Sigle>MDDSV72</Sigle>
+        <Sigle>DDSV72</Sigle>
         <LibellePartenaire>DDPP Sarthe</LibellePartenaire>
-        <EmailPartenaire>contact-ddsv@maestro.beta.gouv.fr</EmailPartenaire>
+        <EmailPartenaire>contact@maestro.beta.gouv.fr</EmailPartenaire>
       </Emetteur>
       <Destinataire>
         <Sigle>LDA72</Sigle>
@@ -297,7 +292,7 @@ test(`génère un XML de DAI`, async () => {
       </DemandeType>
     </DemandesAnalyses>
     ",
-      "fileName": "DA01MDDSV72LDA72251216100736798",
+      "fileName": "DA01DDSV72LDA72251216100736798",
       "fileType": "DA01",
     }
   `);
