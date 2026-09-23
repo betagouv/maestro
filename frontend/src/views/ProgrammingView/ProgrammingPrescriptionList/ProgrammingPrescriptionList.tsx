@@ -31,8 +31,8 @@ import type { SubstanceKindLaboratory } from 'maestro-shared/schema/LocalPrescri
 import { FindPrescriptionOptions } from 'maestro-shared/schema/Prescription/FindPrescriptionOptions';
 import {
   type Prescription,
-  PrescriptionSort,
-  type PrescriptionUpdate
+  type PrescriptionUpdate,
+  sortPrescriptions
 } from 'maestro-shared/schema/Prescription/Prescription';
 import type { PrescriptionImportResult } from 'maestro-shared/schema/Prescription/PrescriptionImport';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -428,8 +428,10 @@ const ProgrammingPrescriptionList = ({
     });
 
   const prescriptions = useMemo(
-    () => allPrescriptionsWithPending?.toSorted(PrescriptionSort),
-    [allPrescriptionsWithPending]
+    () =>
+      allPrescriptionsWithPending &&
+      sortPrescriptions(allPrescriptionsWithPending, programmingPlans),
+    [allPrescriptionsWithPending, programmingPlans]
   );
 
   const stageCounts = useMemo(

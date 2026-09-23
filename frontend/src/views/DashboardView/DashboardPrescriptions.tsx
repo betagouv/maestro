@@ -13,7 +13,7 @@ import {
 import {
   getPrescriptionTitle,
   type Prescription,
-  PrescriptionSort
+  sortPrescriptions
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -92,8 +92,7 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
 
   const sortedPrescriptions = useMemo(
     () =>
-      [...(prescriptions ?? [])]
-        .sort(PrescriptionSort)
+      sortPrescriptions(prescriptions ?? [], [programmingPlan])
         .map((prescription) => ({
           prescription,
           localPrescriptions: (localPrescriptions ?? []).filter(
@@ -102,7 +101,7 @@ const DashboardPrescriptions: FunctionComponent<Props> = ({
           )
         }))
         .filter(({ localPrescriptions }) => localPrescriptions.length > 0),
-    [prescriptions, localPrescriptions]
+    [prescriptions, localPrescriptions, programmingPlan]
   );
 
   return (

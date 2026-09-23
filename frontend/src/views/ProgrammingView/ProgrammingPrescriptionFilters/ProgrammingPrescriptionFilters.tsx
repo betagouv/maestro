@@ -72,6 +72,19 @@ const ProgrammingPrescriptionFilters = ({
     [options.plans]
   );
 
+  const subPlanSortKeys = useMemo(
+    () =>
+      new Map(
+        options.plans.flatMap((plan) =>
+          plan.subPlans.map(
+            (subPlan) =>
+              [subPlan.id, [plan.title, subPlan.subPlanNumber].join()] as const
+          )
+        )
+      ),
+    [options.plans]
+  );
+
   const domains = useMemo(
     () =>
       (allDomains ?? []).filter(
@@ -131,18 +144,19 @@ const ProgrammingPrescriptionFilters = ({
       <div className={filterClassName}>
         <AppCheckboxSelect
           label="N° de sous-plan"
-          options={sortBy(
-            options.programmingSubPlanIds.map((subPlanId) => {
+          options={options.programmingSubPlanIds
+            .map((subPlanId) => {
               const subPlan = subPlans.find((_) => _.id === subPlanId);
               return {
                 label: subPlan
                   ? `${subPlan.subPlanNumber} - ${subPlan.label}`
                   : subPlanId,
-                value: subPlanId
+                value: subPlanId,
+                sortKey: subPlanSortKeys.get(subPlanId) ?? ''
               };
-            }),
-            'label'
-          )}
+            })
+            .toSorted((a, b) => a.sortKey.localeCompare(b.sortKey))
+            .map(({ sortKey: _sortKey, ...option }) => option)}
           selectedValues={filters.programmingSubPlanIds ?? []}
           onChange={(programmingSubPlanIds) =>
             onChange({ programmingSubPlanIds })
