@@ -18,7 +18,7 @@ import {
 } from 'maestro-shared/test/programmingPlanFixtures';
 import {
   genAuthUser,
-  genUser,
+  genUserListItem,
   NationalCoordinatorDaoaFixture
 } from 'maestro-shared/test/userFixtures';
 import { Route, Routes } from 'react-router';
@@ -183,7 +183,9 @@ const mockApiConf: Partial<MockApi> = {
       nationalCoordinator,
       otherNationalCoordinator,
       neverLoggedNationalCoordinator
-    ].map((user) => genUser({ ...user, roles: ['NationalCoordinator'] }))
+    ].map((user) =>
+      genUserListItem({ ...user, roles: ['NationalCoordinator'] })
+    )
   },
   useFindProgrammingPlansQuery: {
     data: [

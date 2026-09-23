@@ -443,6 +443,7 @@ export interface Users {
   disabled: boolean;
   certified: boolean;
   laboratoryId: string | null;
+  createdAt: Generated<Date>;
 }
 
 export interface UserCompanies {

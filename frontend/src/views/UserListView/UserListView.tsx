@@ -9,6 +9,7 @@ import { useCallback, useContext, useMemo, useState } from 'react';
 import usersSvg from 'src/assets/illustrations/users.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import ConfirmationModal from '../../components/ConfirmationModal/ConfirmationModal';
+import { useAuthentication } from '../../hooks/useAuthentication';
 import { ApiClientContext } from '../../services/apiClient';
 import { UserCard } from './components/UserCard';
 import { UserModal } from './components/UserModal';
@@ -28,13 +29,20 @@ const confirmDisablingUserModal = createModal({
 export const UserListView = () => {
   const apiClient = useContext(ApiClientContext);
   const { canManageUser } = useUserManagement();
+  const { hasRole } = useAuthentication();
 
   const { data: allUsers } = apiClient.useFindUsersQuery({});
 
-  const users = useMemo(
-    () => (allUsers ?? []).filter((user) => canManageUser(user)),
-    [allUsers, canManageUser]
-  );
+  const users = useMemo(() => {
+    const manageableUsers = (allUsers ?? []).filter((user) =>
+      canManageUser(user)
+    );
+    return hasRole('AdministratorMaestro')
+      ? manageableUsers.toSorted(
+          (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+        )
+      : manageableUsers;
+  }, [allUsers, canManageUser, hasRole]);
   const { data: programmingPlans = [] } =
     apiClient.useFindProgrammingPlansQuery({});
 
