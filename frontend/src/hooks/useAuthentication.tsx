@@ -143,7 +143,10 @@ export const useAuthentication = () => {
             ? 'SampleAnalysisEditRoute'
             : undefined,
           hasAccountPermission('manageUsers') ? 'UsersRoute' : undefined,
-          hasUserPermission('administrationMaestro') ? 'AdminRoute' : undefined,
+          hasAccountPermission('administrationMaestro') ||
+          hasAccountPermission('readSpecificDataFields')
+            ? 'AdminRoute'
+            : undefined,
           (hasUserPermission('readLaboratoryCompetences') ||
             hasUserPermission('manageLaboratoryCompetences')) &&
           authUser?.user.programmingSubPlans?.some(

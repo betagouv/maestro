@@ -10,6 +10,7 @@ import { FieldInputTypeLabels } from './fieldInputTypeLabels';
 type Props = {
   fields: AdminFieldConfig[];
   sachaFields: SachaFieldConfig[];
+  readOnly: boolean;
   onAdd: () => void;
   onEdit: (field: AdminFieldConfig) => void;
   onDelete: (field: AdminFieldConfig) => void;
@@ -18,6 +19,7 @@ type Props = {
 export const FieldsTable = ({
   fields,
   sachaFields,
+  readOnly,
   onAdd,
   onEdit,
   onDelete,
@@ -41,12 +43,14 @@ export const FieldsTable = ({
           style={{ justifyContent: 'space-between' }}
         >
           <span>Actions</span>
-          <Button
-            size="small"
-            iconId="fr-icon-add-line"
-            onClick={onAdd}
-            title="Ajouter un descripteur"
-          />
+          {!readOnly && (
+            <Button
+              size="small"
+              iconId="fr-icon-add-line"
+              onClick={onAdd}
+              title="Ajouter un descripteur"
+            />
+          )}
         </div>
       ]}
       data={fields.map((field) => {
@@ -61,18 +65,20 @@ export const FieldsTable = ({
             key={field.id}
             className={cx('fr-btns-group', 'fr-btns-group--inline')}
           >
-            <Button
-              priority="tertiary no outline"
-              iconId="fr-icon-delete-line"
-              size="small"
-              title="Supprimer"
-              onClick={() => onDelete(field)}
-            />
+            {!readOnly && (
+              <Button
+                priority="tertiary no outline"
+                iconId="fr-icon-delete-line"
+                size="small"
+                title="Supprimer"
+                onClick={() => onDelete(field)}
+              />
+            )}
             <Button
               priority="tertiary no outline"
               iconId="fr-icon-arrow-right-line"
               size="small"
-              title="Modifier"
+              title={readOnly ? 'Consulter' : 'Modifier'}
               onClick={() => onEdit(field)}
             />
           </div>

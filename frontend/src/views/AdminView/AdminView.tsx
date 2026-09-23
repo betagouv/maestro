@@ -9,11 +9,12 @@ import { adminSections } from './adminSections';
 
 export const AdminView = () => {
   const { section: sectionSlug } = useParams();
-  const { hasUserPermission } = useAuthentication();
+  const { hasAccountPermission } = useAuthentication();
 
   const authorizedSections = useMemo(
-    () => adminSections.filter((s) => hasUserPermission(s.permission)),
-    [hasUserPermission]
+    () =>
+      adminSections.filter((s) => hasAccountPermission(s.accountPermission)),
+    [hasAccountPermission]
   );
 
   const section = authorizedSections.find((s) => s.slug === sectionSlug);

@@ -307,14 +307,14 @@ const Header = () => {
                     )
                   }
                 : undefined,
-              hasUserPermission('administrationMaestro')
+              availableRoutes.includes('AdminRoute')
                 ? {
                     text: 'Administration',
                     isActive: !!routeMatch(
                       AuthenticatedAppRoutes.AdminRoute.path
                     ),
                     menuLinks: adminSections
-                      .filter((s) => hasUserPermission(s.permission))
+                      .filter((s) => hasAccountPermission(s.accountPermission))
                       .map((s) => ({
                         linkProps: {
                           to: AuthenticatedAppRoutes.AdminRoute.link(s.slug),

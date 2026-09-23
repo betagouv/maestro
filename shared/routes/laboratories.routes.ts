@@ -75,12 +75,12 @@ export const laboratoriesRoutes = {
     },
     get: {
       response: LaboratoryWithSacha,
-      permissions: ['manageLaboratoryConfig']
+      accountPermissions: ['manageLaboratoryConfig']
     },
     put: {
       body: LaboratoryConfigUpdate,
       response: z.undefined(),
-      permissions: ['manageLaboratoryConfig']
+      accountPermissions: ['manageLaboratoryConfig']
     }
   },
   '/laboratories/:laboratoryId/agreements': {
@@ -134,12 +134,12 @@ export const laboratoriesRoutes = {
     },
     get: {
       response: z.array(LaboratoryResidueMapping),
-      permissions: ['administrationMaestro']
+      accountPermissions: ['administrationMaestro']
     },
     put: {
       body: LaboratoryResidueMappingToUpdate,
       response: LaboratoryResidueMapping,
-      permissions: ['administrationMaestro']
+      accountPermissions: ['administrationMaestro']
     }
   }
 } as const satisfies SubRoutes<'/laboratories'>;

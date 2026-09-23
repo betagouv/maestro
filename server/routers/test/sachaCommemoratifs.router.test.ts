@@ -32,7 +32,6 @@ describe('Sacha Commemoratifs router', () => {
           .expect(constants.HTTP_STATUS_FORBIDDEN);
 
       await forbiddenRequestTest(Sampler1Fixture);
-      await forbiddenRequestTest(NationalCoordinator);
       await forbiddenRequestTest(LaboratoryUserFixture);
       await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
@@ -40,7 +39,7 @@ describe('Sacha Commemoratifs router', () => {
     test('should get commemoratifs', async () => {
       const res = await request(app)
         .get(testRoute)
-        .use(tokenProvider(AdminFixture))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toStrictEqual({});

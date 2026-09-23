@@ -30,14 +30,16 @@ describe('AdministratorBGIR permissions', () => {
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });
 
-    test('should not be able to manage the specific data field dictionary', async () => {
+    test('should not be able to update the specific data field dictionary', async () => {
       await request(app)
-        .get('/api/specific-data-fields/sacha')
+        .post('/api/specific-data-fields')
+        .send({ key: 'bgirField', inputType: 'text', label: 'Champ BGIR' })
         .use(tokenProvider(AdminBGIRFixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
 
       await request(app)
-        .get('/api/sacha/commemoratifs')
+        .post('/api/sacha/commemoratifs')
+        .send({ xmlContent: '<Commemoratifs />' })
         .use(tokenProvider(AdminBGIRFixture))
         .expect(constants.HTTP_STATUS_FORBIDDEN);
     });

@@ -5,6 +5,7 @@ export const UserPermission = z.enum([
   'manageMascarade',
   'manageNotices',
   'manageSpecificDataFields',
+  'readSpecificDataFields',
   'manageLaboratoryConfig',
   'manageUsers',
   'createSample',

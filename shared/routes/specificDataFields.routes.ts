@@ -21,11 +21,14 @@ import type { SubRoutes } from './routes';
 export const specificDataFieldsRoutes = {
   '/specific-data-fields': {
     get: {
-      permissions: ['administrationMaestro', 'manageProgrammingPlanSettings'],
+      accountPermissions: [
+        'administrationMaestro',
+        'manageProgrammingPlanSettings'
+      ],
       response: z.array(AdminFieldConfig)
     },
     post: {
-      permissions: ['manageSpecificDataFields'],
+      accountPermissions: ['manageSpecificDataFields'],
       body: CreateFieldInput,
       response: AdminFieldConfig
     }
@@ -35,12 +38,12 @@ export const specificDataFieldsRoutes = {
       fieldId: SpecificDataFieldId
     },
     put: {
-      permissions: ['manageSpecificDataFields'],
+      accountPermissions: ['manageSpecificDataFields'],
       body: UpdateFieldInput,
       response: AdminFieldConfig
     },
     delete: {
-      permissions: ['manageSpecificDataFields'],
+      accountPermissions: ['manageSpecificDataFields'],
       response: z.undefined()
     }
   },
@@ -49,7 +52,7 @@ export const specificDataFieldsRoutes = {
       fieldId: SpecificDataFieldId
     },
     post: {
-      permissions: ['manageSpecificDataFields'],
+      accountPermissions: ['manageSpecificDataFields'],
       body: CreateFieldOptionInput,
       response: AdminFieldOption
     }
@@ -60,19 +63,19 @@ export const specificDataFieldsRoutes = {
       optionId: SpecificDataFieldOptionId
     },
     put: {
-      permissions: ['manageSpecificDataFields'],
+      accountPermissions: ['manageSpecificDataFields'],
       body: UpdateFieldOptionInput,
       response: AdminFieldOption
     },
     delete: {
-      permissions: ['manageSpecificDataFields'],
+      accountPermissions: ['manageSpecificDataFields'],
       response: z.undefined()
     }
   },
   '/specific-data-fields/sacha': {
     get: {
       response: z.array(SachaFieldConfig),
-      permissions: ['manageSpecificDataFields']
+      accountPermissions: ['readSpecificDataFields']
     }
   },
   '/specific-data-fields/attribute': {
@@ -80,7 +83,7 @@ export const specificDataFieldsRoutes = {
     post: {
       response: z.undefined(),
       body: SampleSpecificDataAttribute,
-      permissions: ['manageSpecificDataFields']
+      accountPermissions: ['manageSpecificDataFields']
     }
   },
   '/specific-data-fields/attribute/value': {
@@ -88,7 +91,7 @@ export const specificDataFieldsRoutes = {
     post: {
       response: z.undefined(),
       body: SampleSpecificDataAttributeValue,
-      permissions: ['manageSpecificDataFields']
+      accountPermissions: ['manageSpecificDataFields']
     }
   }
 } as const satisfies SubRoutes<'/specific-data-fields'>;

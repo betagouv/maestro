@@ -88,7 +88,8 @@ const AdministratorPermissionsList = [
   'manageLaboratoryAgreements',
   'manageUsers',
   'manageProgrammingPlanSettings',
-  'manageProgrammingPlanNationalCoordinators'
+  'manageProgrammingPlanNationalCoordinators',
+  'readSpecificDataFields'
 ] as const satisfies UserPermission[];
 
 const userRolePermissions = {
@@ -116,7 +117,8 @@ const userRolePermissions = {
     'readAnalysis',
     'viewDashboard',
     'exportSamplesWithCodes',
-    'manageProgrammingPlanSettings'
+    'manageProgrammingPlanSettings',
+    'readSpecificDataFields'
   ],
   RegionalCoordinator: [
     'viewProgrammingPlans',

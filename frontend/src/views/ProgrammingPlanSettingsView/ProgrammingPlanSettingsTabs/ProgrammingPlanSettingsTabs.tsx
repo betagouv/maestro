@@ -32,7 +32,6 @@ import { useAuthentication } from 'src/hooks/useAuthentication';
 import { useForm } from 'src/hooks/useForm';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
-import './ProgrammingPlanSettingsTabs.scss';
 import type { z } from 'zod';
 import { ProgrammingPlanGlobalSettings } from '../ProgrammingPlanGlobalSettings/ProgrammingPlanGlobalSettings';
 import { ProgrammingPlanSamplerFormSettings } from '../ProgrammingPlanSamplerFormSettings/ProgrammingPlanSamplerFormSettings';
@@ -296,9 +295,7 @@ export const ProgrammingPlanSettingsTabs = ({
         selectedTabId={selectedTabId}
         onTabChange={(tabId) => setSelectedTabId(tabId as SettingsTabId)}
       >
-        <div inert={readOnly} className="programming-plan-settings-panel">
-          {tabContent(selectedTabId)}
-        </div>
+        <div inert={readOnly}>{tabContent(selectedTabId)}</div>
       </Tabs>
       {!readOnly && (
         <>

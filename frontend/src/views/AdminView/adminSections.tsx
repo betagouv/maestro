@@ -12,7 +12,7 @@ export const adminSections = [
   {
     slug: 'alertes',
     label: 'Alerte et message',
-    permission: 'manageNotices',
+    accountPermission: 'manageNotices',
     content: (
       <>
         <AdminViewRootNotice />
@@ -23,36 +23,36 @@ export const adminSections = [
   {
     slug: 'descripteurs',
     label: 'Dictionnaire des descripteurs',
-    permission: 'manageSpecificDataFields',
+    accountPermission: 'readSpecificDataFields',
     content: <SpecificDataFieldsView />
   },
   {
     slug: 'dai',
     label: 'DAI',
-    permission: 'administrationMaestro',
+    accountPermission: 'administrationMaestro',
     content: <AnalysisDaiAdminView />
   },
   {
     slug: 'rai',
     label: 'RAI',
-    permission: 'administrationMaestro',
+    accountPermission: 'administrationMaestro',
     content: <AnalysisRaiAdminView />
   },
   {
     slug: 'laboratoires',
     label: 'Laboratoires',
-    permission: 'manageLaboratoryConfig',
+    accountPermission: 'manageLaboratoryConfig',
     content: <LaboratoriesAdminView />
   },
   {
     slug: 'analytes',
     label: "Dictionnaire d'analytes",
-    permission: 'administrationMaestro',
+    accountPermission: 'administrationMaestro',
     content: <LaboratoryResidueMappingsView />
   }
 ] as const satisfies {
   slug: string;
   label: string;
-  permission: UserPermission;
+  accountPermission: UserPermission;
   content: ReactNode;
 }[];

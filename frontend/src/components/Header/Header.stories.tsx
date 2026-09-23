@@ -129,8 +129,8 @@ export const NationalCoordinator: Story = {
     ).not.toBeInTheDocument();
 
     await expect(
-      within(navigation).queryByText('Administration')
-    ).not.toBeInTheDocument();
+      within(navigation).getByText('Administration')
+    ).toBeInTheDocument();
 
     const historyMenu = within(navigation).getByText('Historique');
     await expect(historyMenu).toBeInTheDocument();
