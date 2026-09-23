@@ -51,7 +51,6 @@ describe('SpecificDataFields router', () => {
           .expect(constants.HTTP_STATUS_FORBIDDEN);
 
       await forbiddenRequestTest(Sampler1Fixture);
-      await forbiddenRequestTest(NationalCoordinator);
       await forbiddenRequestTest(LaboratoryUserFixture);
       await forbiddenRequestTest(LaboratoryOfficeUserFixture);
     });
@@ -59,7 +58,7 @@ describe('SpecificDataFields router', () => {
     test('should return distinct sacha field configs', async () => {
       const res = await request(app)
         .get(testRoute)
-        .use(tokenProvider(AdminFixture))
+        .use(tokenProvider(NationalCoordinator))
         .expect(constants.HTTP_STATUS_OK);
 
       expect(res.body).toHaveLength(sachaFieldKeys.length);

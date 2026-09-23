@@ -8,7 +8,7 @@ export const analysisDaiRoutes = {
   '/analysis-dai': {
     get: {
       query: FindAnalysisDaiOptions,
-      permissions: ['administrationMaestro'],
+      accountPermissions: ['administrationMaestro'],
       response: PaginatedAnalysisDaiAnalyses
     },
     post: {

@@ -7,12 +7,12 @@ export const sachaCommemoratifsRoute = {
     params: undefined,
     get: {
       response: SachaCommemoratifRecord,
-      permissions: ['manageSpecificDataFields']
+      accountPermissions: ['readSpecificDataFields']
     },
     post: {
       response: z.undefined(),
       body: z.object({ xmlContent: z.string() }),
-      permissions: ['manageSpecificDataFields'],
+      accountPermissions: ['manageSpecificDataFields'],
       skipSanitization: true
     }
   }

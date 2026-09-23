@@ -8,7 +8,7 @@ export const analysisRaiRoutes = {
   '/analysis-rai': {
     get: {
       query: FindAnalysisRaiOptions,
-      permissions: ['administrationMaestro'],
+      accountPermissions: ['administrationMaestro'],
       response: PaginatedAnalysisRai
     }
   },

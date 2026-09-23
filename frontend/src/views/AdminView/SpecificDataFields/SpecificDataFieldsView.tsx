@@ -8,6 +8,7 @@ import { fieldInputTypeHasOptions } from 'maestro-shared/schema/SpecificData/Pro
 import { useContext, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { AuthenticatedAppRoutes } from 'src/AppRoutes';
+import { useAuthentication } from '../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../services/apiClient';
 import { FieldCreateForm } from './FieldCreateForm';
 import { FieldDeleteConfirm } from './FieldDeleteConfirm';
@@ -25,6 +26,9 @@ export const SpecificDataFieldsView = () => {
   const apiClient = useContext(ApiClientContext);
   const navigate = useNavigate();
   const { section, itemId } = useParams();
+  const { hasAccountPermission } = useAuthentication();
+
+  const readOnly = !hasAccountPermission('manageSpecificDataFields');
 
   const { data: fields = [] } = apiClient.useFindAllFieldConfigsQuery();
   const { data: sachaFields = [] } = apiClient.useFindSachaFieldConfigsQuery();
@@ -101,7 +105,10 @@ export const SpecificDataFieldsView = () => {
           />
           Descripteur : <code>{field.key}</code>
         </h3>
-        <div className={clsx('white-container', cx('fr-px-10w', 'fr-py-8w'))}>
+        <div
+          inert={readOnly}
+          className={clsx('white-container', cx('fr-px-10w', 'fr-py-8w'))}
+        >
           <FieldForm field={field} />
           <FieldOptionsSection field={field} />
         </div>
@@ -115,7 +122,7 @@ export const SpecificDataFieldsView = () => {
         className={clsx('d-flex-row', 'd-flex-align-center', cx('fr-mb-2w'))}
       >
         <h3 className={cx('fr-mb-0')}>Dictionnaire des descripteurs</h3>
-        <SachaCommemoratifsUpload />
+        {!readOnly && <SachaCommemoratifsUpload />}
       </div>
 
       {!isComplete && (
@@ -130,6 +137,7 @@ export const SpecificDataFieldsView = () => {
       <FieldsTable
         fields={fields}
         sachaFields={sachaFields}
+        readOnly={readOnly}
         onAdd={() =>
           navigate(
             AuthenticatedAppRoutes.AdminRoute.link(section as string, 'create')

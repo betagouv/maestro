@@ -13,7 +13,7 @@ export const noticesRoutes = {
     },
     put: {
       body: Notice.omit({ type: true }),
-      permissions: ['manageNotices'],
+      accountPermissions: ['manageNotices'],
       response: z.undefined()
     }
   }
