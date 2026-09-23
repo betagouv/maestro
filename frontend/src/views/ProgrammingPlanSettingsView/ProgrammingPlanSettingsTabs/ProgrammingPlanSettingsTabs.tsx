@@ -47,6 +47,7 @@ const emptySettings: ProgrammingLevelSettingsForm = {
   ...emptyProgrammingPlanSettings(false),
   settingsCompleted: false,
   nationalCoordinators: null,
+  technicalInstruction: null,
   fields: []
 };
 
@@ -74,6 +75,7 @@ const tabIdBySettingsKey: Record<SettingsFieldKey, SettingsTabId> = {
   substanceKinds: 'global',
   samples: 'samples',
   nationalCoordinators: 'global',
+  technicalInstruction: 'global',
   fields: 'sampler-form'
 };
 
@@ -113,6 +115,8 @@ export const ProgrammingPlanSettingsTabs = ({
     apiClient.useUpdateProgrammingPlanSettingsMutation();
   const [updateProgrammingSubPlanSettings, updateSubPlanSettingsCall] =
     apiClient.useUpdateProgrammingSubPlanSettingsMutation();
+  const [createDocumentUpload, createDocumentUploadCall] =
+    apiClient.useCreateDocumentUploadMutation();
 
   const { user, account } = useAuthentication();
 
@@ -126,7 +130,8 @@ export const ProgrammingPlanSettingsTabs = ({
       subPlan
         ? subPlanSettings && {
             ...subPlanSettings,
-            nationalCoordinators: null
+            nationalCoordinators: null,
+            technicalInstruction: null
           }
         : planSettings && {
             ...planSettings,
@@ -140,10 +145,16 @@ export const ProgrammingPlanSettingsTabs = ({
   );
 
   const [draft, setDraft] = useState<ProgrammingLevelSettingsForm>();
+  const [technicalInstructionFile, setTechnicalInstructionFile] =
+    useState<File>();
 
-  useEffect(() => {
+  const resetDraft = () => {
     setDraft(settings);
-  }, [settings]);
+    setTechnicalInstructionFile(undefined);
+    createDocumentUploadCall.reset();
+  };
+
+  useEffect(resetDraft, [settings]);
 
   const [selectedTabId, setSelectedTabId] = useState<SettingsTabId>('global');
 
@@ -177,39 +188,56 @@ export const ProgrammingPlanSettingsTabs = ({
     settingsCompleted: validation?.settingsCompleted ?? true
   });
 
-  const save = (
+  const uploadTechnicalInstruction = async (
+    technicalInstruction: ProgrammingLevelSettingsForm['technicalInstruction']
+  ) => {
+    if (!technicalInstructionFile) {
+      return technicalInstruction;
+    }
+    const { documentId } = await createDocumentUpload(
+      technicalInstructionFile
+    ).unwrap();
+    return { id: documentId, filename: technicalInstructionFile.name };
+  };
+
+  const save = async (
     draft: ProgrammingLevelSettingsForm,
     settingsCompleted: boolean
-  ) => {
-    if (subPlan) {
-      return updateProgrammingSubPlanSettings({
-        programmingPlanId,
-        programmingSubPlanId: subPlan.id,
-        ...pickProgrammingPlanSettings(draft),
-        fields: draft.fields,
-        settingsCompleted
-      });
-    } else {
-      return updateProgrammingPlanSettings({
-        programmingPlanId,
-        ...pickProgrammingPlanSettings(draft),
-        nationalCoordinators: draft.nationalCoordinators ?? [],
-        settingsCompleted,
-        fields: draft.fields.map(({ fieldId, required, optionIds }) => ({
-          fieldId,
-          required,
-          optionIds
-        }))
-      });
+  ): Promise<boolean> => {
+    try {
+      if (subPlan) {
+        await updateProgrammingSubPlanSettings({
+          programmingPlanId,
+          programmingSubPlanId: subPlan.id,
+          ...pickProgrammingPlanSettings(draft),
+          fields: draft.fields,
+          settingsCompleted
+        }).unwrap();
+      } else {
+        await updateProgrammingPlanSettings({
+          programmingPlanId,
+          ...pickProgrammingPlanSettings(draft),
+          nationalCoordinators: draft.nationalCoordinators ?? [],
+          technicalInstruction: await uploadTechnicalInstruction(
+            draft.technicalInstruction
+          ),
+          settingsCompleted,
+          fields: draft.fields.map(({ fieldId, required, optionIds }) => ({
+            fieldId,
+            required,
+            optionIds
+          }))
+        }).unwrap();
+      }
+      return true;
+    } catch (_err) {
+      return false;
     }
   };
 
   const complete = async (draft: ProgrammingLevelSettingsForm) => {
-    try {
-      await save(draft, true).unwrap();
+    if (await save(draft, true)) {
       form.reset();
-    } catch (_err) {
-      /* empty */
     }
   };
 
@@ -260,8 +288,10 @@ export const ProgrammingPlanSettingsTabs = ({
           <ProgrammingPlanGlobalSettings
             settings={draft}
             planSettings={subPlan ? programmingPlan : undefined}
+            technicalInstructionFile={technicalInstructionFile}
             inputForm={form}
             onChange={changeDraft}
+            onTechnicalInstructionFileChange={setTechnicalInstructionFile}
           />
         );
       case 'sampler-form':
@@ -301,11 +331,18 @@ export const ProgrammingPlanSettingsTabs = ({
         <>
           <ProgrammingSubPlanActionBar
             completed={draft.settingsCompleted}
-            hasChanges={!isEqual(draft, settings)}
-            saveCall={
-              subPlan ? updateSubPlanSettingsCall : updatePlanSettingsCall
+            hasChanges={
+              !isEqual(draft, settings) ||
+              technicalInstructionFile !== undefined
             }
-            onReset={() => setDraft(settings)}
+            saveCall={
+              subPlan
+                ? updateSubPlanSettingsCall
+                : createDocumentUploadCall.isError
+                  ? createDocumentUploadCall
+                  : updatePlanSettingsCall
+            }
+            onReset={resetDraft}
             onSaveDraft={() => setValidation({ settingsCompleted: false })}
             onComplete={() => setValidation({ settingsCompleted: true })}
           />

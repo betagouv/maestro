@@ -135,6 +135,7 @@ const defaultMockApiClientConf: MockApi = {
   useCreateAnalysisMutation: [fn(), {}],
   useCreateAnalysisReportDocumentMutation: [fn(), {}],
   useCreateResourceDocumentMutation: [fn(), {}],
+  useCreateDocumentUploadMutation: [fn(), {}],
   useCreateSampleDocumentMutation: [fn(), {}],
   useCreateLaboratoryAnalyticalCompetenceMutation: [fn(), {}],
   useCreateOrUpdateSampleMutation: [fn(), { isLoading: false }],
@@ -281,6 +282,7 @@ const defaultMockApiClientConf: MockApi = {
       ...emptyProgrammingPlanSettings(false),
       settingsCompleted: false,
       nationalCoordinators: [],
+      technicalInstruction: null,
       fields: []
     }
   },

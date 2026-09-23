@@ -48,6 +48,7 @@ const findMany = async (
       `${documentProgrammingPlansTable}.document_id`
     )
     .groupBy('id')
+    .orderBy(`${documentsTable}.created_at`, 'desc')
     .modify((query) => {
       if (findOptions.sampleId) {
         query

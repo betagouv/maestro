@@ -1,7 +1,10 @@
 import type { ResourceDocumentToCreate } from 'maestro-shared/schema/Document/Document';
 import { buildTypedMutation, buildTypedQuery } from 'src/services/api.builder';
 import { api } from 'src/services/api.service';
-import { buildDocumentUploadMutation } from 'src/services/uploadDocument';
+import {
+  buildDocumentUploadMutation,
+  buildUploadOnlyMutation
+} from 'src/services/uploadDocument';
 import { getApiUrl } from 'src/utils/fetchUtils';
 
 export type DocumentScope =
@@ -64,6 +67,7 @@ const documentApi = api.injectEndpoints({
         ]
       }
     ),
+    createDocumentUpload: buildUploadOnlyMutation(builder),
     getSampleDocument: buildTypedQuery(
       builder,
       '/samples/:sampleId/documents/:documentId',
@@ -109,6 +113,7 @@ export const {
   useCreateResourceDocumentMutation,
   useUpdateResourceDocumentMutation,
   useDeleteResourceDocumentMutation,
+  useCreateDocumentUploadMutation,
   useGetSampleDocumentQuery,
   useCreateSampleDocumentMutation,
   useUpdateSampleDocumentMutation,

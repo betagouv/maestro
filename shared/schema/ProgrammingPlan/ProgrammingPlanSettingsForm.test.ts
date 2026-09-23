@@ -59,20 +59,23 @@ describe('ProgrammingPlanSettingsForm', () => {
     [
       'plan',
       ProgrammingPlanSettingsForm,
-      { nationalCoordinators: [nationalCoordinator] },
+      {
+        nationalCoordinators: [nationalCoordinator],
+        technicalInstruction: null
+      },
       'plan'
     ],
     ['sub-plan', ProgrammingSubPlanSettingsForm, {}, 'subPlan'],
     [
       'plan form',
       ProgrammingLevelSettingsForm,
-      { nationalCoordinators: null },
+      { nationalCoordinators: null, technicalInstruction: null },
       'plan'
     ],
     [
       'sub-plan form',
       ProgrammingSubPlanLevelSettingsForm,
-      { nationalCoordinators: null },
+      { nationalCoordinators: null, technicalInstruction: null },
       'subPlan'
     ]
   ] as const)('%s level', (_, schema, levelSettings, level) => {
@@ -292,6 +295,7 @@ describe('ProgrammingPlanSettingsForm', () => {
         ...emptyProgrammingPlanSettings(false),
         settingsCompleted,
         nationalCoordinators,
+        technicalInstruction: null,
         fields: []
       });
 
@@ -333,6 +337,7 @@ describe('ProgrammingPlanSettingsForm', () => {
           ...inheritedSettings,
           settingsCompleted: true,
           nationalCoordinators: null,
+          technicalInstruction: null,
           fields: []
         }).success
       ).toBe(true);

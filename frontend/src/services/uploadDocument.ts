@@ -41,6 +41,21 @@ const uploadDocument = async (
   return { documentId };
 };
 
+export const buildUploadOnlyMutation = (
+  builder: any
+): MutationDefinition<File, any, string, { documentId: string }> =>
+  builder.mutation({
+    queryFn: async (
+      file: File,
+      _api: unknown,
+      _extra: unknown,
+      fetchWithBQ: any
+    ) => {
+      const upload = await uploadDocument(fetchWithBQ, file);
+      return 'error' in upload ? upload : { data: upload };
+    }
+  });
+
 const uploadAndCreateDocument = async <T>(
   fetchWithBQ: any,
   file: File,

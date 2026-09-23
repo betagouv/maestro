@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { checkSchema, refineSchema } from '../../utils/zod';
+import { DocumentBase } from '../Document/Document';
 import {
   ProgrammingPlanFieldSetting,
   ProgrammingSubPlanFieldSetting
@@ -95,6 +96,14 @@ const checkSamplesCoverSubstanceKinds =
 //   }
 // };
 
+export const ProgrammingPlanTechnicalInstruction = DocumentBase.pick({
+  id: true,
+  filename: true
+});
+export type ProgrammingPlanTechnicalInstruction = z.infer<
+  typeof ProgrammingPlanTechnicalInstruction
+>;
+
 const SubPlanSettingsFormShape = SettingsFormBase.extend({
   fields: refineSchema(
     z.array(ProgrammingSubPlanFieldSetting),
@@ -106,6 +115,7 @@ const SubPlanSettingsFormShape = SettingsFormBase.extend({
 export const ProgrammingPlanSettingsForm = checkSchema(
   SettingsFormBase.extend({
     nationalCoordinators: z.array(ProgrammingPlanNationalCoordinator),
+    technicalInstruction: ProgrammingPlanTechnicalInstruction.nullable(),
     fields: refineSchema(
       z.array(ProgrammingPlanFieldSetting),
       hasUniqueFields,
@@ -130,7 +140,8 @@ export type ProgrammingSubPlanSettingsForm = z.infer<
 >;
 
 const ProgrammingLevelSettingsFormShape = SubPlanSettingsFormShape.extend({
-  nationalCoordinators: z.array(ProgrammingPlanNationalCoordinator).nullable()
+  nationalCoordinators: z.array(ProgrammingPlanNationalCoordinator).nullable(),
+  technicalInstruction: ProgrammingPlanTechnicalInstruction.nullable()
 });
 
 export const ProgrammingLevelSettingsForm = checkSchema(
