@@ -9,7 +9,7 @@ import {
 } from './DocumentKind';
 
 const documentChecks: CheckFn<
-  Pick<z.infer<typeof DocumentBase>, 'kind' | 'name' | 'year'>
+  Pick<z.infer<typeof DocumentBase>, 'kind' | 'name'>
 > = ({ value, issues }) => {
   if (
     ResourceDocumentKindList.includes(value.kind) &&
@@ -20,14 +20,6 @@ const documentChecks: CheckFn<
       code: 'custom',
       message: `Le nom du document est obligatoire pour le type de document "${DocumentKindLabels[value.kind]}"`,
       path: ['name']
-    });
-  }
-  if (ResourceDocumentKindList.includes(value.kind) && !value.year) {
-    issues.push({
-      input: value,
-      code: 'custom',
-      message: `L'année est obligatoire pour le type de document "${DocumentKindLabels[value.kind]}"`,
-      path: ['year']
     });
   }
 };
@@ -74,7 +66,7 @@ const DocumentCreateBase = DocumentBase.pick({
 export const ResourceDocumentToCreate = DocumentCreateBase.extend({
   kind: ResourceDocumentKind,
   name: z.string().min(1),
-  year: z.number().int(),
+  year: z.number().int().nullish(),
   programmingPlanIds: z.array(z.guid()).nullish()
 });
 
