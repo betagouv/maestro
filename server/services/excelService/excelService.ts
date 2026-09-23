@@ -38,7 +38,7 @@ import {
 import {
   getPrescriptionTitle,
   type Prescription,
-  PrescriptionSort
+  sortPrescriptions
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
@@ -524,111 +524,112 @@ const generatePrescriptionsExportExcel = async (
     }
   }
 
-  const prescriptionsWithColumns = prescriptions
-    .toSorted(PrescriptionSort)
-    .map((prescription) => {
-      const filteredLocalPrescriptions = [
-        ...localPrescriptions.filter(
-          (_) => _.prescriptionId === prescription.id && isNil(_.companySiret)
-        )
-      ].toSorted(LocalPrescriptionSort);
+  const prescriptionsWithColumns = sortPrescriptions(
+    prescriptions,
+    programmingPlans
+  ).map((prescription) => {
+    const filteredLocalPrescriptions = [
+      ...localPrescriptions.filter(
+        (_) => _.prescriptionId === prescription.id && isNil(_.companySiret)
+      )
+    ].toSorted(LocalPrescriptionSort);
 
-      const prescriptionPlan = planById.get(prescription.programmingPlanId);
-      const prescriptionSubPlan = subPlanById.get(
-        prescription.programmingSubPlanId
-      );
+    const prescriptionPlan = planById.get(prescription.programmingPlanId);
+    const prescriptionSubPlan = subPlanById.get(
+      prescription.programmingSubPlanId
+    );
 
-      const columns: (string | number)[] = [];
-      if (!exportedRegion) {
-        columns.push(prescription.sampleCount);
-      }
-      if (!exportedDepartment) {
-        columns.push(
-          ...exportedRegions.flatMap((exportedRegionColumn) => {
-            const localPrescription = filteredLocalPrescriptions.find(
-              (_) => _.region === exportedRegionColumn
-            );
-            return [
-              localPrescription?.sampleCount ?? 0,
-              ...(hasRegionalPlan
-                ? effectiveSubstanceKinds.map((substanceKind) =>
-                    prescriptionPlan?.distributionKind === 'REGIONAL' &&
-                    (prescriptionSubPlan?.substanceKinds ?? []).includes(
-                      substanceKind
-                    )
-                      ? (laboratories.find((laboratory) =>
-                          localPrescription?.substanceKindsLaboratories?.some(
-                            (skl) =>
-                              skl.substanceKind === substanceKind &&
-                              laboratory.id === skl.laboratoryId
-                          )
-                        )?.shortName ?? '')
-                      : ''
+    const columns: (string | number)[] = [];
+    if (!exportedRegion) {
+      columns.push(prescription.sampleCount);
+    }
+    if (!exportedDepartment) {
+      columns.push(
+        ...exportedRegions.flatMap((exportedRegionColumn) => {
+          const localPrescription = filteredLocalPrescriptions.find(
+            (_) => _.region === exportedRegionColumn
+          );
+          return [
+            localPrescription?.sampleCount ?? 0,
+            ...(hasRegionalPlan
+              ? effectiveSubstanceKinds.map((substanceKind) =>
+                  prescriptionPlan?.distributionKind === 'REGIONAL' &&
+                  (prescriptionSubPlan?.substanceKinds ?? []).includes(
+                    substanceKind
                   )
-                : [])
-            ];
-          })
-        );
-      }
-      if (hasSlaughterhousePlan) {
-        columns.push(
-          ...exportedDepartments.flatMap((exportedDepartmentColumn) => {
-            const localPrescription = localPrescriptions.find(
+                    ? (laboratories.find((laboratory) =>
+                        localPrescription?.substanceKindsLaboratories?.some(
+                          (skl) =>
+                            skl.substanceKind === substanceKind &&
+                            laboratory.id === skl.laboratoryId
+                        )
+                      )?.shortName ?? '')
+                    : ''
+                )
+              : [])
+          ];
+        })
+      );
+    }
+    if (hasSlaughterhousePlan) {
+      columns.push(
+        ...exportedDepartments.flatMap((exportedDepartmentColumn) => {
+          const localPrescription = localPrescriptions.find(
+            (_) =>
+              _.prescriptionId === prescription.id &&
+              isNil(_.companySiret) &&
+              _.department === exportedDepartmentColumn
+          );
+          return [
+            localPrescription?.sampleCount ?? 0,
+            ...effectiveSubstanceKinds.map((substanceKind) =>
+              prescriptionPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
+              (prescriptionSubPlan?.substanceKinds ?? []).includes(
+                substanceKind
+              )
+                ? (laboratories.find((laboratory) =>
+                    localPrescription?.substanceKindsLaboratories?.some(
+                      (skl) =>
+                        skl.substanceKind === substanceKind &&
+                        laboratory.id === skl.laboratoryId
+                    )
+                  )?.shortName ?? '')
+                : ''
+            )
+          ];
+        })
+      );
+    }
+
+    if (hasCompanyColumns) {
+      columns.push(
+        ...companySirets.map(
+          (companySiret) =>
+            localPrescriptions.find(
               (_) =>
                 _.prescriptionId === prescription.id &&
-                isNil(_.companySiret) &&
-                _.department === exportedDepartmentColumn
-            );
-            return [
-              localPrescription?.sampleCount ?? 0,
-              ...effectiveSubstanceKinds.map((substanceKind) =>
-                prescriptionPlan?.distributionKind === 'SLAUGHTERHOUSE' &&
-                (prescriptionSubPlan?.substanceKinds ?? []).includes(
-                  substanceKind
-                )
-                  ? (laboratories.find((laboratory) =>
-                      localPrescription?.substanceKindsLaboratories?.some(
-                        (skl) =>
-                          skl.substanceKind === substanceKind &&
-                          laboratory.id === skl.laboratoryId
-                      )
-                    )?.shortName ?? '')
-                  : ''
-              )
-            ];
-          })
-        );
-      }
+                _.companySiret === companySiret
+            )?.sampleCount ?? 0
+        )
+      );
+    }
 
-      if (hasCompanyColumns) {
-        columns.push(
-          ...companySirets.map(
-            (companySiret) =>
-              localPrescriptions.find(
-                (_) =>
-                  _.prescriptionId === prescription.id &&
-                  _.companySiret === companySiret
-              )?.sampleCount ?? 0
-          )
-        );
-      }
-
-      return {
-        subPlanNumber: prescriptionSubPlan?.subPlanNumber ?? '',
-        domain: prescriptionPlan?.domainId
-          ? (domainLabelById.get(prescriptionPlan.domainId) ?? '')
-          : '',
-        plan: prescriptionPlan?.title ?? '',
-        context: ContextLabels[prescription.context],
-        matrix: getPrescriptionTitle(prescription),
-        stages: prescription.stages
-          .map((stage) => SubStageLabels[stage])
-          .join(', '),
-        instructions: prescription.programmingInstruction,
-        notes: prescription.notes,
-        columns: columns.map((v) => ({ value: v }))
-      };
-    });
+    return {
+      subPlanNumber: prescriptionSubPlan?.subPlanNumber ?? '',
+      domain: prescriptionPlan?.domainId
+        ? (domainLabelById.get(prescriptionPlan.domainId) ?? '')
+        : '',
+      plan: prescriptionPlan?.title ?? '',
+      context: ContextLabels[prescription.context],
+      matrix: getPrescriptionTitle(prescription),
+      stages: prescription.stages
+        .map((stage) => SubStageLabels[stage])
+        .join(', '),
+      instructions: prescription.programmingInstruction,
+      notes: prescription.notes,
+      columns: columns.map((v) => ({ value: v }))
+    };
+  });
 
   const totalColums: (string | number)[] = [];
   if (!exportedRegion) {

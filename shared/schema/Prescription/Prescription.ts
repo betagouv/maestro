@@ -54,20 +54,34 @@ export type Prescription = z.infer<typeof Prescription>;
 export type PrescriptionToCreate = z.infer<typeof PrescriptionToCreate>;
 export type PrescriptionUpdate = z.infer<typeof PrescriptionUpdate>;
 
-export const PrescriptionSort = (a: Prescription, b: Prescription) =>
-  [
-    a.programmingPlanId,
-    MatrixKindLabels[a.matrixKind],
-    ...a.stages.map((_) => SubStageLabels[_])
-  ]
-    .join()
-    .localeCompare(
-      [
-        b.programmingPlanId,
-        MatrixKindLabels[b.matrixKind],
-        ...b.stages.map((_) => SubStageLabels[_])
-      ].join()
-    );
+export const sortPrescriptions = <T extends Prescription>(
+  prescriptions: T[],
+  programmingPlans: Pick<ProgrammingPlanChecked, 'title' | 'subPlans'>[]
+): T[] => {
+  const subPlanKeys = new Map(
+    programmingPlans.flatMap((programmingPlan) =>
+      programmingPlan.subPlans.map(
+        (subPlan) =>
+          [
+            subPlan.id,
+            [programmingPlan.title, subPlan.subPlanNumber] as const
+          ] as const
+      )
+    )
+  );
+
+  const sortKey = (prescription: T) => {
+    const subPlanKey = subPlanKeys.get(prescription.programmingSubPlanId);
+    return [
+      subPlanKey ? '0' : '1',
+      ...(subPlanKey ?? ['', '']),
+      MatrixKindLabels[prescription.matrixKind],
+      ...prescription.stages.map((_) => SubStageLabels[_])
+    ].join();
+  };
+
+  return prescriptions.toSorted((a, b) => sortKey(a).localeCompare(sortKey(b)));
+};
 
 const PrescriptionPermission = z.enum(['create', 'update', 'delete']);
 
