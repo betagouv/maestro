@@ -13,12 +13,31 @@ interface ImportedCell {
   sampleCount: number;
 }
 
+interface ImportedTotal {
+  rowNumber: number;
+  subPlanNumber: string;
+  sampleCount: number;
+}
+
 interface ParsedImportFile {
   cells: ImportedCell[];
+  totals: ImportedTotal[];
   unrecognized: string[];
 }
 
 const HEADER_ROW_NUMBER = 1;
+
+const TOTAL_COLUMN_HEADER = 'total national programmé';
+
+const IGNORED_COLUMN_HEADERS = [
+  'domaine',
+  'plan',
+  'contexte',
+  'matrice',
+  'stade(s) de prélèvement',
+  'consignes de répartition',
+  'notes'
+];
 
 const columnLetter = (columnIndex: number): string => {
   let index = columnIndex;
@@ -33,6 +52,15 @@ const columnLetter = (columnIndex: number): string => {
 const regionByShortName = new Map(
   RegionList.map((region) => [Regions[region].shortName.toLowerCase(), region])
 );
+
+const normalizeHeader = (header: unknown): string =>
+  `${header ?? ''}`.replace(/\s+/g, ' ').trim().toLowerCase();
+
+const headerRegion = (label: string): Region | undefined =>
+  regionByShortName.get(label) ??
+  regionByShortName.get(
+    label.replace(/^région /, '').replace(/ programmés$/, '')
+  );
 
 const toRows = (content: Buffer, filename: string): string[][] => {
   if (filename.toLowerCase().endsWith('.csv')) {
@@ -61,21 +89,30 @@ export const parsePrescriptionImportFile = (
   const unrecognized: string[] = [];
 
   if (rows.length === 0) {
-    return { cells: [], unrecognized: ['Le fichier est vide'] };
+    return { cells: [], totals: [], unrecognized: ['Le fichier est vide'] };
   }
 
   const [headerRow, ...dataRows] = rows;
 
   const regionByColumnIndex = new Map<number, Region>();
+  let totalColumnIndex: number | undefined;
+
   headerRow.forEach((header, columnIndex) => {
     if (columnIndex === 0) {
       return;
     }
-    const label = `${header ?? ''}`.trim();
-    if (label === '') {
+    const label = normalizeHeader(header);
+    if (label === '' || IGNORED_COLUMN_HEADERS.includes(label)) {
       return;
     }
-    const region = regionByShortName.get(label.toLowerCase());
+    if (label.includes('laboratoire')) {
+      return;
+    }
+    if (label === TOTAL_COLUMN_HEADER) {
+      totalColumnIndex = columnIndex;
+      return;
+    }
+    const region = headerRegion(label);
     if (region) {
       regionByColumnIndex.set(columnIndex, region);
     } else {
@@ -84,6 +121,24 @@ export const parsePrescriptionImportFile = (
   });
 
   const cells: ImportedCell[] = [];
+  const totals: ImportedTotal[] = [];
+
+  const readSampleCount = (
+    row: string[] | undefined,
+    columnIndex: number,
+    rowNumber: number
+  ): number | undefined => {
+    const rawValue = `${row?.[columnIndex] ?? ''}`.trim();
+    if (rawValue === '') {
+      return undefined;
+    }
+    const sampleCount = Number(rawValue.replace(',', '.'));
+    if (!Number.isInteger(sampleCount) || sampleCount < 0) {
+      unrecognized.push(`Cellule ${columnLetter(columnIndex)}${rowNumber}`);
+      return undefined;
+    }
+    return sampleCount;
+  };
 
   dataRows.forEach((row, dataRowIndex) => {
     const rowNumber = dataRowIndex + HEADER_ROW_NUMBER + 1;
@@ -94,18 +149,19 @@ export const parsePrescriptionImportFile = (
     }
 
     for (const [columnIndex, region] of regionByColumnIndex) {
-      const rawValue = `${row?.[columnIndex] ?? ''}`.trim();
-      if (rawValue === '') {
-        continue;
+      const sampleCount = readSampleCount(row, columnIndex, rowNumber);
+      if (sampleCount !== undefined) {
+        cells.push({ rowNumber, subPlanNumber, region, sampleCount });
       }
-      const sampleCount = Number(rawValue.replace(',', '.'));
-      if (!Number.isInteger(sampleCount) || sampleCount < 0) {
-        unrecognized.push(`Cellule ${columnLetter(columnIndex)}${rowNumber}`);
-        continue;
+    }
+
+    if (totalColumnIndex !== undefined) {
+      const sampleCount = readSampleCount(row, totalColumnIndex, rowNumber);
+      if (sampleCount !== undefined) {
+        totals.push({ rowNumber, subPlanNumber, sampleCount });
       }
-      cells.push({ rowNumber, subPlanNumber, region, sampleCount });
     }
   });
 
-  return { cells, unrecognized };
+  return { cells, totals, unrecognized };
 };

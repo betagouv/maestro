@@ -1,13 +1,11 @@
 import { isNil, sumBy, uniq } from 'lodash-es';
 import { RegionList, Regions } from 'maestro-shared/referential/Region';
 import { type Stage, StageList } from 'maestro-shared/referential/Stage';
-import { previousSampleCountFor } from 'maestro-shared/schema/LocalPrescription/LocalPrescriptionChange';
 import {
   hasPrescriptionPermission,
   type Prescription
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import { hasEverSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { hasPermission } from 'maestro-shared/schema/User/User';
@@ -188,7 +186,7 @@ export const prescriptionsRouter = {
         return { status: HttpStatus.FORBIDDEN };
       }
 
-      const { cells, unrecognized } = parsePrescriptionImportFile(
+      const { cells, totals, unrecognized } = parsePrescriptionImportFile(
         Buffer.from(body.content, 'base64'),
         body.filename
       );
@@ -196,116 +194,60 @@ export const prescriptionsRouter = {
       const prescriptionsBySubPlanNumber =
         await prescriptionsBySubPlanNumberOf(programmingPlans);
 
-      const now = new Date();
-      const importedPrescriptionIds = new Set<string>();
-      let importedCellCount = 0;
-
-      for (const cell of cells) {
-        const matching = prescriptionsBySubPlanNumber.get(cell.subPlanNumber);
+      const resolvePrescriptionId = (
+        subPlanNumber: string,
+        rowNumber: number
+      ): string | undefined => {
+        const matching = prescriptionsBySubPlanNumber.get(subPlanNumber);
 
         if (matching?.length !== 1) {
-          unrecognized.push(`Ligne ${cell.rowNumber}`);
-          continue;
+          unrecognized.push(`Ligne ${rowNumber}`);
+          return undefined;
         }
 
         const [prescription] = matching;
-        const prescriptionPlan = programmingPlans.find(
-          (_) => _.id === prescription.programmingPlanId
-        );
 
-        if (!prescriptionPlan || !updatablePlanIds.has(prescriptionPlan.id)) {
-          unrecognized.push(`Ligne ${cell.rowNumber}`);
-          continue;
+        if (!updatablePlanIds.has(prescription.programmingPlanId)) {
+          unrecognized.push(`Ligne ${rowNumber}`);
+          return undefined;
         }
 
-        const localPrescription = await localPrescriptionRepository.findUnique({
-          prescriptionId: prescription.id,
-          region: cell.region
-        });
+        return prescription.id;
+      };
 
-        if (!localPrescription) {
-          unrecognized.push(`Ligne ${cell.rowNumber}`);
-          continue;
-        }
-
-        const lastDiffused =
-          await localPrescriptionChangeRepository.findLastDiffused({
-            prescriptionIds: [prescription.id],
-            region: cell.region,
-            department: 'None',
-            companySiret: 'None'
-          });
-
-        await localPrescriptionChangeRepository.insert({
-          prescriptionId: prescription.id,
-          region: cell.region,
-          echelon: 'National',
-          kind: 'sampleCount',
-          sampleCount: cell.sampleCount,
-          previousSampleCount: previousSampleCountFor(
-            localPrescription,
-            lastDiffused,
-            hasEverSentOnward(
-              'National',
-              prescriptionPlan.distributionKind,
-              prescriptionPlan.nationalStatus
-            )
-              ? localPrescription.sampleCount
-              : null
-          ),
-          changedAt: now
-        });
-
-        importedPrescriptionIds.add(prescription.id);
-        importedCellCount += 1;
-      }
-
-      for (const prescriptionId of importedPrescriptionIds) {
-        const { prescription } = await getAndCheckPrescription(
-          prescriptionId,
-          undefined
+      const localChanges = cells.flatMap((cell) => {
+        const prescriptionId = resolvePrescriptionId(
+          cell.subPlanNumber,
+          cell.rowNumber
         );
-        const localPrescriptions = await localPrescriptionRepository.findMany({
-          prescriptionId
-        });
-        const importedByRegion = new Map(
-          cells
-            .filter(
-              (cell) =>
-                prescriptionsBySubPlanNumber.get(cell.subPlanNumber)?.at(0)
-                  ?.id === prescriptionId
-            )
-            .map((cell) => [cell.region, cell.sampleCount])
-        );
+        return prescriptionId
+          ? [
+              {
+                prescriptionId,
+                region: cell.region,
+                sampleCount: cell.sampleCount
+              }
+            ]
+          : [];
+      });
 
-        await prescriptionChangeRepository.insert({
-          prescriptionId,
-          sampleCount: sumBy(
-            localPrescriptions,
-            (localPrescription) =>
-              importedByRegion.get(localPrescription.region) ??
-              localPrescription.sampleCount
-          ),
-          previousSampleCount: prescription.sampleCount,
-          changedAt: now
-        });
-      }
-
-      if (importedPrescriptionIds.size > 0) {
-        await Promise.all(
-          uniq(
-            programmingPlans.map((programmingPlan) => programmingPlan.id)
-          ).map((programmingPlanId) =>
-            programmingPlanRepository.touchNationalLastModifiedAt(
-              programmingPlanId
-            )
-          )
+      const resolvedTotals = totals.flatMap((total) => {
+        const prescriptionId = resolvePrescriptionId(
+          total.subPlanNumber,
+          total.rowNumber
         );
-      }
+        return prescriptionId
+          ? [{ prescriptionId, sampleCount: total.sampleCount }]
+          : [];
+      });
 
       return {
         status: HttpStatus.OK,
-        response: { importedCellCount, unrecognized: uniq(unrecognized) }
+        response: {
+          localChanges,
+          totals: resolvedTotals,
+          unrecognized: uniq(unrecognized)
+        }
       };
     }
   },

@@ -73,24 +73,7 @@ describe('generatePrescriptionsExportExcel', async () => {
     const csv = XLSX.utils.sheet_to_csv(worksheet, { FS: ';' });
 
     expect(csv.toString()).toMatchInlineSnapshot(`
-      "N°;Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;Total national Programmés;"Région ARA
-      Programmés";"Région BFC
-      Programmés";"Région BRE
-      Programmés";"Région COR
-      Programmés";"Région CVL
-      Programmés";"Région GES
-      Programmés";"Région GUA
-      Programmés";"Région GUY
-      Programmés";"Région HDF
-      Programmés";"Région IDF
-      Programmés";"Région MAR
-      Programmés";"Région MYT
-      Programmés";"Région NAQ
-      Programmés";"Région NOR
-      Programmés";"Région OCC
-      Programmés";"Région PAC
-      Programmés";"Région PDL
-      Programmés"
+      "N°;Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;Total national programmé;ARA;BFC;BRE;COR;CVL;GES;GUA;GUY;HDF;IDF;MAR;MYT;NAQ;NOR;OCC;PAC;PDL
       M02;;Produit carné à l'abattoir;Plan de surveillance;Foie de bovin non transformé;Abattoir;Instructions pour le foie de bovin;Prescription pour le foie de bovin;80;3;2;5;8;10;1;2;10;3;3;2;9;4;4;2;1;5
       M01;;Produit carné à l'abattoir;Plan de surveillance;Viande de volaille;Abattoir;;;77;2;3;8;1;9;1;11;3;2;1;1;4;6;1;5;6;3
       ;;;;Total;;;;157;5;5;13;9;19;2;13;13;5;4;3;13;10;5;7;7;8"
@@ -121,8 +104,7 @@ describe('generatePrescriptionsExportExcel', async () => {
     const csv = XLSX.utils.sheet_to_csv(worksheet, { FS: ';' });
 
     expect(csv.toString()).toMatchInlineSnapshot(`
-      "N°;Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;"Région PDL
-      Programmés";"Département 44
+      "N°;Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;PDL;"Département 44
       Programmés";"Département 44
       Laboratoire mono-résidu";"Département 44
       Laboratoire multi-résidus";"Département 44

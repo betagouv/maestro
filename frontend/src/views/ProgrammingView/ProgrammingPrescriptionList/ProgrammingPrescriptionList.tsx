@@ -359,6 +359,55 @@ const ProgrammingPrescriptionList = ({
     return [...existing, ...pendingOnly];
   }, [allLocalPrescriptions, pendingLocalChanges, pendingLaboratoryChanges]);
 
+  const handleImported = useCallback(
+    (result: PrescriptionImportResult) => {
+      setImportResult(result);
+
+      setPendingLocalChanges((current) => {
+        const next = new Map(current);
+        for (const {
+          prescriptionId,
+          region,
+          sampleCount
+        } of result.localChanges) {
+          const key = { prescriptionId, region };
+          const keyString = toLocalPrescriptionKeyString(key);
+          const persistedSampleCount = (allLocalPrescriptions ?? []).find(
+            (localPrescription) =>
+              localPrescription.prescriptionId === prescriptionId &&
+              localPrescription.region === region &&
+              isNil(localPrescription.department) &&
+              isNil(localPrescription.companySiret)
+          )?.sampleCount;
+
+          if (persistedSampleCount === sampleCount) {
+            next.delete(keyString);
+          } else {
+            next.set(keyString, { key, sampleCount });
+          }
+        }
+        return next;
+      });
+
+      setPendingPrescriptionSampleCounts((current) => {
+        const next = new Map(current);
+        for (const { prescriptionId, sampleCount } of result.totals) {
+          const persistedSampleCount = allPrescriptions?.find(
+            (prescription) => prescription.id === prescriptionId
+          )?.sampleCount;
+
+          if (persistedSampleCount === sampleCount) {
+            next.delete(prescriptionId);
+          } else {
+            next.set(prescriptionId, sampleCount);
+          }
+        }
+        return next;
+      });
+    },
+    [allLocalPrescriptions, allPrescriptions]
+  );
+
   const {
     data: lastPrescriptionCounts,
     currentData: currentPrescriptionCounts,
@@ -945,12 +994,12 @@ const ProgrammingPrescriptionList = ({
       {canImport && prescriptionFilters.year && (
         <PrescriptionImportModal
           year={prescriptionFilters.year}
-          onImported={setImportResult}
+          onImported={handleImported}
         />
       )}
       <AppToast
         open={importResult?.unrecognized.length === 0}
-        description="Votre fichier a été importé avec succès."
+        description="Fichier repris. Vérifiez les valeurs puis enregistrez."
         onClose={() => setImportResult(undefined)}
       />
       {importResult && importResult.unrecognized.length > 0 && (
@@ -959,11 +1008,11 @@ const ProgrammingPrescriptionList = ({
             severity="warning"
             closable
             onClose={() => setImportResult(undefined)}
-            title="Vos fichier a été importé partiellement."
+            title="Fichier repris partiellement."
             description={
               <>
-                Les données suivantes n’ont pas pu être importées car Maestro ne
-                les a pas reconnues :
+                Les données suivantes n’ont pas été reprises car Maestro ne les
+                a pas reconnues :
                 <ul>
                   {importResult.unrecognized.map((label) => (
                     <li key={label}>{label}</li>

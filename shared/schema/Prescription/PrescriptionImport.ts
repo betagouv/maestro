@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Region } from '../../referential/Region';
 
 export const PrescriptionImportFile = z.object({
   filename: z.string().min(1, 'Veuillez renseigner le nom du fichier.'),
@@ -9,7 +10,19 @@ export const PrescriptionImportFile = z.object({
 export type PrescriptionImportFile = z.infer<typeof PrescriptionImportFile>;
 
 export const PrescriptionImportResult = z.object({
-  importedCellCount: z.number().int(),
+  localChanges: z.array(
+    z.object({
+      prescriptionId: z.guid(),
+      region: Region,
+      sampleCount: z.number().int().nonnegative()
+    })
+  ),
+  totals: z.array(
+    z.object({
+      prescriptionId: z.guid(),
+      sampleCount: z.number().int().nonnegative()
+    })
+  ),
   unrecognized: z.array(z.string())
 });
 

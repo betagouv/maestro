@@ -486,12 +486,12 @@ const generatePrescriptionsExportExcel = async (
   const columnTitles: string[] = [];
 
   if (!exportedRegion) {
-    columnTitles.push('Total national Programmés');
+    columnTitles.push('Total national programmé');
   }
   if (!exportedDepartment) {
     columnTitles.push(
       ...exportedRegions.flatMap((region) => [
-        `Région ${Regions[region].shortName}\nProgrammés`,
+        Regions[region].shortName,
         ...(hasRegionalPlan
           ? effectiveSubstanceKinds.flatMap(
               (substanceKind) =>
@@ -540,7 +540,7 @@ const generatePrescriptionsExportExcel = async (
 
       const columns: (string | number)[] = [];
       if (!exportedRegion) {
-        columns.push(sumBy(filteredLocalPrescriptions, 'sampleCount'));
+        columns.push(prescription.sampleCount);
       }
       if (!exportedDepartment) {
         columns.push(
@@ -632,7 +632,7 @@ const generatePrescriptionsExportExcel = async (
 
   const totalColums: (string | number)[] = [];
   if (!exportedRegion) {
-    totalColums.push(sumBy(localPrescriptions, 'sampleCount'));
+    totalColums.push(sumBy(prescriptions, 'sampleCount'));
   }
   if (!exportedDepartment) {
     totalColums.push(
