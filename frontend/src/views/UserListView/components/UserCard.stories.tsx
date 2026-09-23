@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { genUser } from 'maestro-shared/test/userFixtures';
+import { genUserListItem } from 'maestro-shared/test/userFixtures';
 import { fn } from 'storybook/test';
 import { UserCard } from './UserCard';
 
@@ -7,7 +7,7 @@ const meta = {
   title: 'Views/Users/UserCard',
   component: UserCard,
   args: {
-    user: genUser({}),
+    user: genUserListItem({}),
     onEdit: fn(),
     onDisable: fn(),
     onEnable: fn(),
@@ -24,6 +24,6 @@ export const Default: Story = {
 
 export const SamplerNotCertified: Story = {
   args: {
-    user: genUser({ roles: ['Sampler'], certified: false })
+    user: genUserListItem({ roles: ['Sampler'], certified: false })
   }
 };

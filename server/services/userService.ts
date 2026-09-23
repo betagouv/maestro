@@ -1,8 +1,11 @@
+import { Brand } from 'maestro-shared/constants';
 import SyncContactError from 'maestro-shared/errors/syncContactError';
+import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
 import { subPlansForStages } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import { programmingSubPlanRepository } from '../repositories/programmingSubPlanRepository';
 import { userRepository } from '../repositories/userRepository';
+import config from '../utils/config';
 import { mailService } from './mailService';
 
 const catchSyncError = (err: unknown) => {
@@ -42,6 +45,17 @@ const insert = async (user: UserToPersist): Promise<void> => {
   await mailService
     .createContact({ ...user, contactListIds })
     .catch(catchSyncError);
+
+  if (!user.certified) {
+    await mailService.send({
+      templateName: 'GenericTemplate',
+      recipients: [config.mail.from],
+      params: {
+        object: '[Support] Nouvel utilisateur à former',
+        content: `Un nouvel utilisateur doit être formé avant de pouvoir accéder à ${Brand} : ${config.application.host}${AppRouteLinks.UsersRoute.link()}`
+      }
+    });
+  }
 };
 
 const update = async (

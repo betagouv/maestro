@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { genAuthUser, genUser } from 'maestro-shared/test/userFixtures';
+import { genAuthUser, genUserListItem } from 'maestro-shared/test/userFixtures';
 import { expect, userEvent, within } from 'storybook/test';
 import { getMockApi } from '../../services/mockApiClient';
 import { UserListView } from './UserListView';
 
-const userList = Array.from(Array(10).keys()).map(() => genUser({}));
+const userList = Array.from(Array(10).keys()).map(() => genUserListItem({}));
 const meta = {
   title: 'Views/Users',
   component: UserListView,

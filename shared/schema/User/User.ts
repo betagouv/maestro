@@ -116,7 +116,11 @@ export const Sampler = z.object(UserRefined.shape).pick({
   name: true
 });
 
-export const UserListItem = UserBase.omit({ programmingSubPlans: true });
+export const UserListItem = UserBase.omit({ programmingSubPlans: true }).extend(
+  {
+    createdAt: z.coerce.date()
+  }
+);
 
 export type UserRefined = z.infer<typeof UserRefined>;
 export type UserBase = z.infer<typeof UserBase>;

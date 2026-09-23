@@ -13,6 +13,7 @@ import {
   programmingSubPlansAreRestricted,
   regionIsRequired,
   stagesIsRequired,
+  type UserListItem,
   type UserRefined
 } from '../schema/User/User';
 import { type UserRole, UserRoleList } from '../schema/User/UserRole';
@@ -88,6 +89,15 @@ export const genUser = <T extends Partial<UserRefined>>(
     ...data
   };
 };
+
+export const genUserListItem = <
+  T extends Partial<UserRefined & Pick<UserListItem, 'createdAt'>>
+>(
+  data: T
+) => ({
+  createdAt: new Date('2026-01-15T10:00:00'),
+  ...genUser(data)
+});
 
 export const Region1Fixture = '44' as const;
 export const Region2Fixture = '52' as const;
