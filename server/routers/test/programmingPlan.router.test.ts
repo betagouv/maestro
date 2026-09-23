@@ -13,6 +13,7 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { genDocument } from 'maestro-shared/test/documentFixtures';
 import { LaboratoryFixture } from 'maestro-shared/test/laboratoryFixtures';
 import { genPrescription } from 'maestro-shared/test/prescriptionFixtures.ts';
 import {
@@ -59,6 +60,10 @@ import {
   expect,
   test
 } from 'vitest';
+import {
+  Documents,
+  documentRepository
+} from '../../repositories/documentRepository';
 import { kysely } from '../../repositories/kysely';
 import { LocalPrescriptionChanges } from '../../repositories/localPrescriptionChangeRepository';
 import { PrescriptionChanges } from '../../repositories/prescriptionChangeRepository';
@@ -95,6 +100,7 @@ describe('ProgrammingPlan router', () => {
         settingsCompleted: false,
         nationalCoordinators:
           DAOAInProgressProgrammingPlanFixture.nationalCoordinators,
+        technicalInstruction: null,
         fields: []
       }
     );
@@ -2012,6 +2018,7 @@ describe('ProgrammingPlan router', () => {
           email: NationalCoordinatorDaoaFixture.email
         }
       ],
+      technicalInstruction: null,
       fields: []
     };
 
@@ -2131,6 +2138,77 @@ describe('ProgrammingPlan router', () => {
         stages: validBody.stages,
         stagesManaged: false
       });
+    });
+
+    test('should create a new technical instruction and link it to the plan', async () => {
+      const previousTechnicalInstruction = genDocument({
+        kind: 'TechnicalInstruction',
+        createdBy: NationalCoordinator.id,
+        year: undefined,
+        programmingPlanIds: [
+          DAOAInProgressProgrammingPlanFixture.id,
+          PPVInProgressProgrammingPlanFixture.id
+        ]
+      });
+      await documentRepository.insert(previousTechnicalInstruction);
+      const technicalInstruction = { id: uuidv4(), filename: 'it.pdf' };
+
+      await request(app)
+        .put(testRoute(DAOAInProgressProgrammingPlanFixture.id))
+        .send({ ...validBody, technicalInstruction })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
+
+      const res = await request(app)
+        .get(testRoute(DAOAInProgressProgrammingPlanFixture.id))
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_OK);
+
+      expect(res.body.technicalInstruction).toEqual(technicalInstruction);
+      await expect(
+        documentRepository.findUnique(technicalInstruction.id)
+      ).resolves.toMatchObject({
+        kind: 'TechnicalInstruction',
+        name: `Instruction technique ${DAOAInProgressProgrammingPlanFixture.title} ${DAOAInProgressProgrammingPlanFixture.year}`,
+        createdBy: AdminFixture.id,
+        programmingPlanIds: [DAOAInProgressProgrammingPlanFixture.id]
+      });
+      await expect(
+        documentRepository.findUnique(previousTechnicalInstruction.id)
+      ).resolves.toMatchObject({
+        programmingPlanIds: [PPVInProgressProgrammingPlanFixture.id]
+      });
+
+      await request(app)
+        .put(testRoute(DAOAInProgressProgrammingPlanFixture.id))
+        .send({
+          ...validBody,
+          technicalInstruction: {
+            id: previousTechnicalInstruction.id,
+            filename: previousTechnicalInstruction.filename
+          }
+        })
+        .use(tokenProvider(AdminFixture))
+        .expect(constants.HTTP_STATUS_NO_CONTENT);
+
+      await expect(
+        documentRepository.findUnique(technicalInstruction.id)
+      ).resolves.toMatchObject({ programmingPlanIds: [] });
+      await expect(
+        documentRepository.findUnique(previousTechnicalInstruction.id)
+      ).resolves.toMatchObject({
+        programmingPlanIds: expect.arrayContaining([
+          DAOAInProgressProgrammingPlanFixture.id,
+          PPVInProgressProgrammingPlanFixture.id
+        ])
+      });
+
+      await Documents()
+        .delete()
+        .whereIn('id', [
+          technicalInstruction.id,
+          previousTechnicalInstruction.id
+        ]);
     });
   });
 

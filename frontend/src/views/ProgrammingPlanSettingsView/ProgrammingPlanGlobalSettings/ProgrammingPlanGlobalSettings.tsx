@@ -3,7 +3,10 @@ import clsx from 'clsx';
 import { StageLabels, StageList } from 'maestro-shared/referential/Stage';
 import type { ProgrammingPlanNationalCoordinator } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import type { ProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings.ts';
-import type { ProgrammingLevelSettingsForm } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
+import type {
+  ProgrammingLevelSettingsForm,
+  ProgrammingPlanTechnicalInstruction
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
 import {
   SubstanceKind,
   SubstanceKindLabels
@@ -11,6 +14,7 @@ import {
 import { AppMultiSelect } from 'src/components/_app/AppMultiSelect/AppMultiSelect';
 import type { UseForm } from 'src/hooks/useForm';
 import { assert, type Equals } from 'tsafe';
+import { ProgrammingPlanDocuments } from '../ProgrammingPlanDocuments/ProgrammingPlanDocuments';
 import { ProgrammingPlanNationalCoordinators } from '../ProgrammingPlanNationalCoordinators/ProgrammingPlanNationalCoordinators';
 import { ProgrammingPlanSettingInheritance } from '../ProgrammingPlanSettingInheritance/ProgrammingPlanSettingInheritance';
 import './ProgrammingPlanGlobalSettings.scss';
@@ -18,23 +22,29 @@ import './ProgrammingPlanGlobalSettings.scss';
 type Props<
   T extends ProgrammingPlanSettings & {
     nationalCoordinators: ProgrammingPlanNationalCoordinator[] | null;
+    technicalInstruction: ProgrammingPlanTechnicalInstruction | null;
   }
 > = {
   settings: T;
   planSettings: ProgrammingPlanSettings | undefined;
+  technicalInstructionFile: File | undefined;
   inputForm: UseForm<typeof ProgrammingLevelSettingsForm>;
   onChange: (settings: T) => void;
+  onTechnicalInstructionFileChange: (file: File | undefined) => void;
 };
 
 export const ProgrammingPlanGlobalSettings = <
   T extends ProgrammingPlanSettings & {
     nationalCoordinators: ProgrammingPlanNationalCoordinator[] | null;
+    technicalInstruction: ProgrammingPlanTechnicalInstruction | null;
   }
 >({
   settings,
   planSettings,
+  technicalInstructionFile,
   inputForm,
   onChange,
+  onTechnicalInstructionFileChange,
   ..._rest
 }: Props<T>) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -94,6 +104,17 @@ export const ProgrammingPlanGlobalSettings = <
           />
         )}
       </ProgrammingPlanSettingInheritance>
+      {!planSettings && (
+        <ProgrammingPlanDocuments
+          technicalInstruction={settings.technicalInstruction}
+          technicalInstructionFile={technicalInstructionFile}
+          inputForm={inputForm}
+          onChange={(technicalInstruction) =>
+            onChange({ ...settings, technicalInstruction })
+          }
+          onFileChange={onTechnicalInstructionFileChange}
+        />
+      )}
     </div>
   );
 };

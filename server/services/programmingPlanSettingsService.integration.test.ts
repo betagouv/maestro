@@ -60,6 +60,7 @@ describe('ProgrammingPlan settings inheritance', () => {
       settingsCompleted: false,
       nationalCoordinators:
         DAOAInProgressProgrammingPlanFixture.nationalCoordinators,
+      technicalInstruction: null,
       fields: []
     });
 
@@ -413,6 +414,7 @@ describe('ProgrammingPlan sampler form inheritance', () => {
       settingsCompleted: false,
       nationalCoordinators:
         DAOAInProgressProgrammingPlanFixture.nationalCoordinators,
+      technicalInstruction: null,
       fields
     });
 

@@ -48,7 +48,8 @@ const programmingPlanApi = api.injectEndpoints({
           'ProgrammingPlanSettings',
           'SpecificDataField',
           { type: 'ProgrammingPlan', id: programmingPlanId },
-          { type: 'ProgrammingPlan', id: 'LIST' }
+          { type: 'ProgrammingPlan', id: 'LIST' },
+          { type: 'Document', id: 'LIST' }
         ]
       }
     ),
