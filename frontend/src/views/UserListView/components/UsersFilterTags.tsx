@@ -3,6 +3,7 @@ import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { Regions } from 'maestro-shared/referential/Region';
 import { StageLabels } from 'maestro-shared/referential/Stage';
 import { UserRoleLabels } from 'maestro-shared/schema/User/UserRole';
+import { formatMaestroDate } from 'maestro-shared/utils/date';
 import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import type { FindUserOptions } from './UsersFilters';
@@ -98,6 +99,28 @@ export const UsersFilterTags: FunctionComponent<Props> = ({
           }}
         >
           Seulement les non formés
+        </Tag>
+      )}
+      {filters.createdFrom && (
+        <Tag
+          key="createdFrom"
+          dismissible
+          nativeButtonProps={{
+            onClick: () => onChange({ createdFrom: null })
+          }}
+        >
+          Créé depuis le {formatMaestroDate(filters.createdFrom)}
+        </Tag>
+      )}
+      {filters.createdTo && (
+        <Tag
+          key="createdTo"
+          dismissible
+          nativeButtonProps={{
+            onClick: () => onChange({ createdTo: null })
+          }}
+        >
+          Créé jusqu'au {formatMaestroDate(filters.createdTo)}
         </Tag>
       )}
     </>

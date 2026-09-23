@@ -5,6 +5,7 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { Brand } from 'maestro-shared/constants';
 import type { UserListItem } from 'maestro-shared/schema/User/User';
+import { toMaestroDate } from 'maestro-shared/utils/date';
 import { useCallback, useContext, useMemo, useState } from 'react';
 import usersSvg from 'src/assets/illustrations/users.svg';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
@@ -111,6 +112,20 @@ export const UserListView = () => {
           }
 
           if (filters.onlyUncertified && u.certified) {
+            return false;
+          }
+
+          if (
+            filters.createdFrom &&
+            toMaestroDate(u.createdAt) < filters.createdFrom
+          ) {
+            return false;
+          }
+
+          if (
+            filters.createdTo &&
+            toMaestroDate(u.createdAt) > filters.createdTo
+          ) {
             return false;
           }
 

@@ -21,6 +21,10 @@ import {
   UserRoleLabels,
   UserRoleSorted
 } from 'maestro-shared/schema/User/UserRole';
+import {
+  type MaestroDate,
+  maestroDateRefined
+} from 'maestro-shared/utils/date';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import { type FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { assert, type Equals } from 'tsafe';
@@ -39,7 +43,9 @@ const _findUserOptions = z.object({
   stages: z.array(Stage).nullable(),
   label: z.string().nullable(),
   onlyDisabled: z.boolean().nullable(),
-  onlyUncertified: z.boolean().nullable()
+  onlyUncertified: z.boolean().nullable(),
+  createdFrom: maestroDateRefined.nullable(),
+  createdTo: maestroDateRefined.nullable()
 });
 
 export type FindUserOptions = z.infer<typeof _findUserOptions>;
@@ -61,7 +67,9 @@ export const UsersFilters: FunctionComponent<Props> = ({
     stages: null,
     label: null,
     onlyDisabled: null,
-    onlyUncertified: null
+    onlyUncertified: null,
+    createdFrom: null,
+    createdTo: null
   });
 
   const hasFilter: boolean = useMemo(() => {
@@ -70,7 +78,6 @@ export const UsersFilters: FunctionComponent<Props> = ({
     return Object.values(rest).some(
       (value) =>
         isDefinedAndNotNull(value) &&
-        // @ts-expect-error TS2367
         value !== '' &&
         (Array.isArray(value) ? value.length > 0 : true)
     );
@@ -140,6 +147,8 @@ const Filters: FunctionComponent<
   label,
   onlyDisabled,
   onlyUncertified,
+  createdFrom,
+  createdTo,
   onChange,
   ..._rest
 }) => {
@@ -307,6 +316,38 @@ const Filters: FunctionComponent<
             }
           />
         </div>
+      )}
+      {hasRole('AdministratorMaestro') && (
+        <>
+          <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
+            <Input
+              label="Date de création (depuis)"
+              nativeInputProps={{
+                type: 'date',
+                value: createdFrom ?? '',
+                max: createdTo ?? undefined,
+                onChange: (e) =>
+                  onChange({
+                    createdFrom: (e.target.value || null) as MaestroDate | null
+                  })
+              }}
+            />
+          </div>
+          <div className={cx('fr-col-12', 'fr-col-md-6', 'fr-col-lg-3')}>
+            <Input
+              label="Date de création (jusqu'au)"
+              nativeInputProps={{
+                type: 'date',
+                value: createdTo ?? '',
+                min: createdFrom ?? undefined,
+                onChange: (e) =>
+                  onChange({
+                    createdTo: (e.target.value || null) as MaestroDate | null
+                  })
+              }}
+            />
+          </div>
+        </>
       )}
     </div>
   );
