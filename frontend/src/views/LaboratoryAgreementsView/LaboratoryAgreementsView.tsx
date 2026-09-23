@@ -22,6 +22,7 @@ import {
   useRef,
   useState
 } from 'react';
+import BackToTopButton from 'src/components/BackToTopButton/BackToTopButton';
 import { LaboratoryAgreementDetailProvider } from 'src/components/LaboratoryAgreement/LaboratoryAgreementDetailModal/LaboratoryAgreementDetailContext';
 import { ApiClientContext } from '../../services/apiClient';
 import { getLaboratoryAgreementsExportURL } from '../../services/laboratory.service';
@@ -554,15 +555,7 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
           await updateAgreements({ laboratoryId, ...input }).unwrap();
         }}
       />
-      <div className={cx('fr-mt-2w')}>
-        <Button
-          iconId="fr-icon-arrow-up-fill"
-          priority="tertiary no outline"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        >
-          Haut de page
-        </Button>
-      </div>
+      <BackToTopButton />
     </LaboratoryAgreementDetailProvider>
   );
 };

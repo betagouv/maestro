@@ -27,6 +27,7 @@ import {
   useState
 } from 'react';
 import { useParams, useSearchParams } from 'react-router';
+import BackToTopButton from 'src/components/BackToTopButton/BackToTopButton';
 import programmation from '../../assets/illustrations/programmation.svg';
 import AppToast from '../../components/_app/AppToast/AppToast';
 import PrescriptionCommentsModal from '../../components/Prescription/PrescriptionCommentsModal/PrescriptionCommentsModal';
@@ -482,6 +483,7 @@ const ProgrammingView = () => {
           </div>
         )}
       </section>
+      <BackToTopButton raised={listHasPendingChanges} />
       <UnsavedChangesGuard guard={unsavedChangesGuard} />
       <PrescriptionCommentsModal
         onSubmitLocalPrescriptionComment={submitLocalPrescriptionComment}
