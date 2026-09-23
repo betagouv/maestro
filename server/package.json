@@ -70,7 +70,7 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/mailparser": "^3.4.5",
-    "@types/nodemailer": "^8.0.1",
+    "@types/nodemailer": "^8.0.2",
     "@types/pg": "^8.23.1",
     "@types/sanitize-html": "^2.16.1",
     "@types/supertest": "^7.2.1",
