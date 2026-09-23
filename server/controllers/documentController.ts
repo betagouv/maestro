@@ -154,6 +154,7 @@ export const documentsRouter = {
       const updatedDocument = {
         ...document,
         ...documentUpdate,
+        year: documentUpdate.year ?? null,
         programmingPlanIds: documentUpdate.programmingPlanIds
       };
 

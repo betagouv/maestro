@@ -62,7 +62,19 @@ const findMany = async (
         query.whereIn('kind', findOptions.kinds);
       }
       if (findOptions.year) {
-        query.where('year', '=', findOptions.year);
+        const year = findOptions.year;
+        query.where(function () {
+          this.where(`${documentsTable}.year`, '=', year).orWhereExists(
+            db(`${documentProgrammingPlansTable} as dpp`)
+              .join(
+                'programming_plans as pp',
+                'pp.id',
+                'dpp.programming_plan_id'
+              )
+              .whereRaw(`dpp.document_id = ${documentsTable}.id`)
+              .where('pp.year', '=', year)
+          );
+        });
       }
       if (findOptions.programmingPlanIds) {
         if (findOptions.includeNoProgrammingPlan) {

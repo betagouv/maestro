@@ -59,19 +59,19 @@ describe('Document router', () => {
     createdBy: NationalCoordinator.id,
     kind: 'TechnicalInstruction' as const,
     programmingPlanIds: [PPVValidatedProgrammingPlanFixture.id],
-    year: PPVValidatedProgrammingPlanFixture.year
+    year: undefined
   });
   const ppvInProgressResourceDocument = genDocument({
     createdBy: NationalCoordinator.id,
     kind: 'TechnicalInstruction' as const,
     programmingPlanIds: [PPVInProgressProgrammingPlanFixture.id],
-    year: PPVInProgressProgrammingPlanFixture.year
+    year: undefined
   });
   const daoaInProgressResourceDocument = genDocument({
     createdBy: NationalCoordinator.id,
     kind: 'TechnicalInstruction' as const,
     programmingPlanIds: [DAOAInProgressProgrammingPlanFixture.id],
-    year: DAOAInProgressProgrammingPlanFixture.year
+    year: undefined
   });
 
   const sampleDocument = genDocument({
@@ -169,6 +169,9 @@ describe('Document router', () => {
         },
         { ...ppvInProgressResourceDocument, createdAt: expect.any(String) }
       ]);
+      expect(resByYear.body.map((_: { id: string }) => _.id)).not.toContain(
+        ppvValidatedResourceDocument.id
+      );
 
       const resByProgrammingPlan = await request(app)
         .get(
@@ -240,8 +243,7 @@ describe('Document router', () => {
       ...genDocumentToCreate(),
       kind: 'TechnicalInstruction',
       name: 'Resource Document',
-      programmingPlanIds: [PPVValidatedProgrammingPlanFixture.id],
-      year: PPVValidatedProgrammingPlanFixture.year
+      programmingPlanIds: [PPVValidatedProgrammingPlanFixture.id]
     };
 
     test('should fail if the user is not authenticated', async () => {
@@ -305,6 +307,7 @@ describe('Document router', () => {
         kind: 'TechnicalInstruction',
         legend: null,
         notes: null,
+        year: null,
         programmingPlanIds: undefined
       });
 
@@ -456,7 +459,7 @@ describe('Document router', () => {
         .use(tokenProvider(Sampler1Fixture))
         .expect(constants.HTTP_STATUS_OK);
 
-      expect(res.body).toMatchObject(
+      expect(res.body).toEqual(
         withISOStringDates(ppvValidatedResourceDocument)
       );
     });
@@ -563,7 +566,6 @@ describe('Document router', () => {
           kind: 'TechnicalInstruction',
           name: 'updated',
           legend: 'updated legend',
-          year: PPVInProgressProgrammingPlanFixture.year,
           programmingPlanIds: [PPVInProgressProgrammingPlanFixture.id]
         })
         .use(tokenProvider(NationalCoordinator))
@@ -571,7 +573,7 @@ describe('Document router', () => {
 
       await expect(
         Documents().where({ id: ppvInProgressResourceDocument.id }).first()
-      ).resolves.toMatchObject({ legend: 'updated legend' });
+      ).resolves.toMatchObject({ legend: 'updated legend', year: null });
     });
   });
 

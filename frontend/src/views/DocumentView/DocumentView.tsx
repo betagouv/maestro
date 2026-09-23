@@ -53,7 +53,7 @@ const DocumentView = () => {
   const [name, setName] = useState<string>(document?.name ?? '');
   const [notes, setNotes] = useState<string>(document?.notes ?? '');
   const [year, setYear] = useState<number | undefined>(
-    document?.year ?? new Date().getFullYear()
+    document?.year ?? undefined
   );
   const [programmingPlanIds, setProgrammingPlanIds] = useState<string[]>(
     document?.programmingPlanIds ?? []
@@ -82,7 +82,7 @@ const DocumentView = () => {
       setKind(document.kind);
       setName(document.name ?? '');
       setNotes(document.notes ?? '');
-      setYear(document.year ?? new Date().getFullYear());
+      setYear(document.year ?? undefined);
       setProgrammingPlanIds(document.programmingPlanIds ?? []);
     }
   }, [document]);
@@ -138,7 +138,7 @@ const DocumentView = () => {
     kind,
     notes,
     legend: undefined,
-    year,
+    year: programmingPlanIds.length ? null : (year ?? null),
     programmingPlanIds: programmingPlanIds.length
       ? programmingPlanIds
       : undefined
@@ -349,7 +349,6 @@ const DocumentView = () => {
                   }
                   inputForm={form}
                   inputKey="year"
-                  required
                 />
               </div>
               <div className={cx('fr-col-12', 'fr-col-md-6')}>

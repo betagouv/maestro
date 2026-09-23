@@ -5,12 +5,16 @@ import Card from '@codegouvfr/react-dsfr/Card';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
+import { uniq } from 'lodash-es';
 import type { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import { DocumentKindLabels } from 'maestro-shared/schema/Document/DocumentKind';
 import { NotificationCategoryTitles } from 'maestro-shared/schema/Notification/NotificationCategory';
 import { formatDate } from 'maestro-shared/utils/date';
+import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
+import { useContext, useMemo } from 'react';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import DocumentLink from '../../../components/DocumentLink/DocumentLink';
+import { ApiClientContext } from '../../../services/apiClient';
 import './DocumentCard.scss';
 
 type Props = {
@@ -21,7 +25,21 @@ type Props = {
 };
 
 const DocumentCard = ({ document, onViewNotes, onRemove, isNew }: Props) => {
+  const apiClient = useContext(ApiClientContext);
   const { hasUserPermission } = useAuthentication();
+  const { data: programmingPlans } = apiClient.useFindProgrammingPlansQuery({});
+
+  const years = useMemo(
+    () =>
+      document.programmingPlanIds?.length
+        ? uniq(
+            (programmingPlans ?? [])
+              .filter((plan) => document.programmingPlanIds?.includes(plan.id))
+              .map((plan) => plan.year)
+          ).sort()
+        : [document.year].filter(isDefinedAndNotNull),
+    [document, programmingPlans]
+  );
 
   return (
     <Card
@@ -29,7 +47,9 @@ const DocumentCard = ({ document, onViewNotes, onRemove, isNew }: Props) => {
         <div className={clsx('d-flex-align-center')}>
           <div className={clsx('d-flex-align-center', 'flex-grow-1')}>
             <Tag>{DocumentKindLabels[document.kind]}</Tag>
-            <Tag>{document.year}</Tag>
+            {years.map((year) => (
+              <Tag key={year}>{year}</Tag>
+            ))}
           </div>
           {hasUserPermission('createResource') && (
             <Button
