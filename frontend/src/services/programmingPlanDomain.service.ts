@@ -18,6 +18,17 @@ const programmingPlanDomainApi = api.injectEndpoints({
         invalidatesTags: ['ProgrammingPlanDomain']
       }
     ),
+    duplicateProgrammingPlanDomain: buildTypedMutation(
+      builder,
+      '/programming-plan-domains/:programmingPlanDomainId/duplicate',
+      'post',
+      {
+        invalidatesTags: () => [
+          'ProgrammingPlanDomain',
+          { type: 'ProgrammingPlan', id: 'LIST' }
+        ]
+      }
+    ),
     deleteProgrammingPlanDomain: buildTypedMutation(
       builder,
       '/programming-plan-domains/:programmingPlanDomainId',
@@ -35,5 +46,6 @@ const programmingPlanDomainApi = api.injectEndpoints({
 export const {
   useFindProgrammingPlanDomainsQuery,
   useCreateProgrammingPlanDomainMutation,
-  useDeleteProgrammingPlanDomainMutation
+  useDeleteProgrammingPlanDomainMutation,
+  useDuplicateProgrammingPlanDomainMutation
 } = programmingPlanDomainApi;

@@ -10,6 +10,8 @@ import { isProgrammingSubPlanDeletable } from 'maestro-shared/schema/Programming
 import type { UserBase } from 'maestro-shared/schema/User/User';
 import type { UserRole } from 'maestro-shared/schema/User/UserRole';
 import { assertUnreachable } from 'maestro-shared/utils/typescript';
+import { useState } from 'react';
+import AppToast from 'src/components/_app/AppToast/AppToast';
 import { useAuthentication } from 'src/hooks/useAuthentication';
 import { assert, type Equals } from 'tsafe';
 
@@ -17,6 +19,7 @@ import {
   ProgrammingPlanDeleteModal,
   type ProgrammingPlanDeletionTarget
 } from '../ProgrammingPlanDeleteModal/ProgrammingPlanDeleteModal';
+import { ProgrammingPlanDuplicateModal } from '../ProgrammingPlanDuplicateModal/ProgrammingPlanDuplicateModal';
 import './ProgrammingPlanSettingsActions.scss';
 
 const canDelete = (
@@ -36,6 +39,19 @@ const canDelete = (
   return plans.every((plan) =>
     canUpdateProgrammingPlanSettings(plan, user, userRoles)
   );
+};
+
+const duplicationLabel = (target: ProgrammingPlanDeletionTarget): string => {
+  switch (target.kind) {
+    case 'domain':
+      return `Le domaine ${target.domain.label}`;
+    case 'plan':
+      return `Le plan ${target.programmingPlan.title}`;
+    case 'subPlan':
+      return `Le sous-plan ${target.subPlan.subPlanNumber} - ${target.subPlan.label}`;
+    default:
+      return assertUnreachable(target);
+  }
 };
 
 const deletionForbiddenReason = (
@@ -64,15 +80,22 @@ const deleteModal = createModal({
   isOpenedByDefault: false
 });
 
+const duplicateModal = createModal({
+  id: 'programming-plan-duplicate-modal',
+  isOpenedByDefault: false
+});
+
 type Props = {
   target: ProgrammingPlanDeletionTarget;
   onDeleted: () => void;
+  onDuplicated: (duplicated: { id: string }) => void;
   className?: string;
 };
 
 export const ProgrammingPlanSettingsActions = ({
   target,
   onDeleted,
+  onDuplicated,
   className,
   ..._rest
 }: Props) => {
@@ -81,18 +104,30 @@ export const ProgrammingPlanSettingsActions = ({
   const { user, account } = useAuthentication();
 
   const forbiddenReason = deletionForbiddenReason(target);
-
-  //FIXME DOMAIN implémenter la duplication
+  const canManage = canDelete(target, user, account?.roles);
+  const [duplicatedLabel, setDuplicatedLabel] = useState<string>();
 
   return (
     <span className={clsx('programming-plan-settings-actions', className)}>
-      <Button
-        title="Dupliquer"
-        iconId="ri-file-copy-line"
-        priority="tertiary"
-        onClick={() => ({})}
-      />
-      {canDelete(target, user, account?.roles) && (
+      {canManage && (
+        <>
+          <Button
+            title="Dupliquer"
+            iconId="ri-file-copy-fill"
+            priority="tertiary"
+            onClick={duplicateModal.open}
+          />
+          <ProgrammingPlanDuplicateModal
+            modal={duplicateModal}
+            target={target}
+            onDuplicated={(duplicated) => {
+              setDuplicatedLabel(duplicationLabel(target));
+              onDuplicated(duplicated);
+            }}
+          />
+        </>
+      )}
+      {canManage && (
         <>
           <Button
             title={forbiddenReason ?? 'Supprimer'}
@@ -108,6 +143,11 @@ export const ProgrammingPlanSettingsActions = ({
           />
         </>
       )}
+      <AppToast
+        open={duplicatedLabel !== undefined}
+        description={`${duplicatedLabel} a été dupliqué avec succès.`}
+        onClose={() => setDuplicatedLabel(undefined)}
+      />
     </span>
   );
 };

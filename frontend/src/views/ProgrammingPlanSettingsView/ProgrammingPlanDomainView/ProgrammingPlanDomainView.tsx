@@ -86,6 +86,11 @@ export const ProgrammingPlanDomainView = ({ ..._rest }: Props = {}) => {
                   })
                 )
               }
+              onDuplicated={({ id }) =>
+                navigate(
+                  AppRouteLinks.ProgrammingPlanSettingsDomainRoute.link(id)
+                )
+              }
             />
           )}
           <Button

@@ -67,6 +67,7 @@ import type { ProtectedSubRouter } from '../routers/routes.type';
 import { notificationService } from '../services/notificationService';
 import prescriptionDiffusionService from '../services/prescriptionDiffusionService';
 import { programmingPlanDeletionService } from '../services/programmingPlanDeletionService';
+import { programmingPlanDuplicationService } from '../services/programmingPlanDuplicationService';
 
 import { programmingPlanSettingsService } from '../services/programmingPlanSettingsService';
 
@@ -931,6 +932,80 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
       return { status: HttpStatus.NO_CONTENT };
     }
   },
+  '/programming-plans/:programmingPlanId/duplicate': {
+    post: async ({ user, account }, { programmingPlanId }) => {
+      const programmingPlan =
+        await getAndCheckProgrammingPlan(programmingPlanId);
+
+      if (
+        !canUpdateProgrammingPlanSettings(programmingPlan, user, account.roles)
+      ) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
+
+      console.info('Duplicate programming plan', programmingPlanId);
+
+      const duplicatedPlanId =
+        await programmingPlanDuplicationService.duplicatePlan(
+          programmingPlanId,
+          user.id
+        );
+
+      const duplicatedPlan =
+        await programmingPlanRepository.findUnique(duplicatedPlanId);
+
+      if (!duplicatedPlan) {
+        return { status: HttpStatus.NOT_FOUND };
+      }
+
+      return { response: duplicatedPlan, status: HttpStatus.CREATED };
+    }
+  },
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/duplicate':
+    {
+      post: async (
+        { user, account },
+        { programmingPlanId, programmingSubPlanId }
+      ) => {
+        const programmingPlan =
+          await getAndCheckProgrammingPlan(programmingPlanId);
+
+        if (
+          !canUpdateProgrammingPlanSettings(
+            programmingPlan,
+            user,
+            account.roles
+          )
+        ) {
+          return { status: HttpStatus.FORBIDDEN };
+        }
+
+        if (
+          !programmingPlan.subPlans.some(
+            ({ id }) => id === programmingSubPlanId
+          )
+        ) {
+          return { status: HttpStatus.NOT_FOUND };
+        }
+
+        console.info('Duplicate programming sub-plan', programmingSubPlanId);
+
+        const duplicatedSubPlanId =
+          await programmingPlanDuplicationService.duplicateSubPlan(
+            programmingSubPlanId,
+            programmingPlanId
+          );
+
+        const duplicatedSubPlan =
+          await programmingSubPlanRepository.findUnique(duplicatedSubPlanId);
+
+        if (!duplicatedSubPlan) {
+          return { status: HttpStatus.NOT_FOUND };
+        }
+
+        return { response: duplicatedSubPlan, status: HttpStatus.CREATED };
+      }
+    },
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId': {
     delete: async (
       { user, account },

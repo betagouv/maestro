@@ -133,6 +133,16 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                         )
                   )
                 }
+                onDuplicated={({ id }) =>
+                  navigate(
+                    subPlan
+                      ? AppRouteLinks.ProgrammingPlanSettingsSubPlanRoute.link(
+                          programmingPlanId,
+                          id
+                        )
+                      : AppRouteLinks.ProgrammingPlanSettingsPlanRoute.link(id)
+                  )
+                }
               />
             </div>
             {isCampaignLaunched(programmingPlan) && (

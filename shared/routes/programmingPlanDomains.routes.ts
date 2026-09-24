@@ -18,6 +18,15 @@ export const programmingPlanDomainsRoutes = {
       response: ProgrammingPlanDomain
     }
   },
+  '/programming-plan-domains/:programmingPlanDomainId/duplicate': {
+    params: {
+      programmingPlanDomainId: ProgrammingPlanDomainId
+    },
+    post: {
+      accountPermissions: ['manageProgrammingPlanSettings'],
+      response: ProgrammingPlanDomain
+    }
+  },
   '/programming-plan-domains/:programmingPlanDomainId': {
     params: {
       programmingPlanDomainId: ProgrammingPlanDomainId
