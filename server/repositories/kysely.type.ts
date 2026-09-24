@@ -319,6 +319,15 @@ export interface ProgrammingPlans extends ProgrammingPlanSettings {
   domainId: ProgrammingPlanDomainId;
   id: Generated<string>;
   year: number;
+  title: string;
+  distributionKind: string;
+  contexts: string[];
+  legalContexts: string[];
+  samplesOutsidePlanAllowed: Generated<boolean>;
+  closedAt: Timestamp | null;
+  closedBy: string | null;
+  launchedAt: Timestamp | null;
+  launchedBy: string | null;
 }
 
 export interface LocalPrescriptionComments {
@@ -540,6 +549,16 @@ export interface ProgrammingPlanNationalCoordinators {
   userId: string;
 }
 
+export interface ProgrammingPlanLocalStatus {
+  programmingPlanId: string;
+  region: string;
+  department: string;
+  status: string;
+  sentAt: Timestamp | null;
+  lastSentAt: Timestamp | null;
+  lastModifiedAt: Timestamp | null;
+}
+
 export interface DB {
   analysisRai: AnalysisRai;
   analysisRaiDocuments: AnalysisRaiDocuments;
@@ -560,6 +579,7 @@ export interface DB {
   programmingPlanFields: ProgrammingPlanFields;
   programmingPlanFieldOptions: ProgrammingPlanFieldOptions;
   programmingPlanNationalCoordinators: ProgrammingPlanNationalCoordinators;
+  programmingPlanLocalStatus: ProgrammingPlanLocalStatus;
   specificDataFields: SpecificDataFields;
   specificDataFieldOptions: SpecificDataFieldOptions;
   knexMigrations: KnexMigrations;

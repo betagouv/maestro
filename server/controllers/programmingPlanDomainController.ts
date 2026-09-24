@@ -5,6 +5,7 @@ import { programmingPlanDomainRepository } from '../repositories/programmingPlan
 import programmingPlanRepository from '../repositories/programmingPlanRepository';
 import type { ProtectedSubRouter } from '../routers/routes.type';
 import { programmingPlanDeletionService } from '../services/programmingPlanDeletionService';
+import { programmingPlanDuplicationService } from '../services/programmingPlanDuplicationService';
 
 export const programmingPlanDomainRouter = {
   '/programming-plan-domains': {
@@ -18,6 +19,49 @@ export const programmingPlanDomainRouter = {
       const domain = await programmingPlanDomainRepository.insert(body);
 
       return { response: domain, status: HttpStatus.CREATED };
+    }
+  },
+  '/programming-plan-domains/:programmingPlanDomainId/duplicate': {
+    post: async ({ user, account }, { programmingPlanDomainId }) => {
+      const domain = await programmingPlanDomainRepository.findUnique(
+        programmingPlanDomainId
+      );
+
+      if (!domain) {
+        return { status: HttpStatus.NOT_FOUND };
+      }
+
+      const domainPlans = (
+        await programmingPlanRepository.findMany({ year: domain.year })
+      ).filter((plan) => plan.domainId === programmingPlanDomainId);
+
+      if (
+        !domainPlans.every((plan) =>
+          canUpdateProgrammingPlanSettings(plan, user, account.roles)
+        )
+      ) {
+        return { status: HttpStatus.FORBIDDEN };
+      }
+
+      console.info(
+        'Duplicate programming plan domain',
+        programmingPlanDomainId
+      );
+
+      const duplicatedDomainId =
+        await programmingPlanDuplicationService.duplicateDomain(
+          programmingPlanDomainId,
+          user.id
+        );
+
+      const duplicatedDomain =
+        await programmingPlanDomainRepository.findUnique(duplicatedDomainId);
+
+      if (!duplicatedDomain) {
+        return { status: HttpStatus.NOT_FOUND };
+      }
+
+      return { response: duplicatedDomain, status: HttpStatus.CREATED };
     }
   },
   '/programming-plan-domains/:programmingPlanDomainId': {

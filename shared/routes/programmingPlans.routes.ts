@@ -7,7 +7,10 @@ import {
 } from '../schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
 import { ProgrammingPlanStatus } from '../schema/ProgrammingPlan/ProgrammingPlanStatus';
 import { ProgrammingPlanChecked } from '../schema/ProgrammingPlan/ProgrammingPlans';
-import { ProgrammingSubPlanId } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  ProgrammingSubPlan,
+  ProgrammingSubPlanId
+} from '../schema/ProgrammingPlan/ProgrammingSubPlan';
 import { ProgrammingSubPlanFieldConfig } from '../schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type { SubRoutes } from './routes';
 
@@ -87,6 +90,26 @@ export const programmingPlansRoutes = {
       response: z.undefined()
     }
   },
+  '/programming-plans/:programmingPlanId/duplicate': {
+    params: {
+      programmingPlanId: z.guid()
+    },
+    post: {
+      accountPermissions: ['manageProgrammingPlanSettings'],
+      response: ProgrammingPlanChecked
+    }
+  },
+  '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/duplicate':
+    {
+      params: {
+        programmingPlanId: z.guid(),
+        programmingSubPlanId: ProgrammingSubPlanId
+      },
+      post: {
+        accountPermissions: ['manageProgrammingPlanSettings'],
+        response: ProgrammingSubPlan
+      }
+    },
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId': {
     params: {
       programmingPlanId: z.guid(),
