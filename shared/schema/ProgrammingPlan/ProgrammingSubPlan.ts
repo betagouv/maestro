@@ -34,20 +34,6 @@ export const isPPVSubPlan = (
   subPlan?: Pick<ProgrammingSubPlan, 'subPlanNumber'> | null
 ): boolean => isPPVSubPlanNumber(subPlan?.subPlanNumber);
 
-type SubPlanSampleSettings = Pick<
-  ProgrammingSubPlan,
-  'analysisPermissionRole' | 'withSacha'
->;
-
-const outsidePlanSubPlanSettings: SubPlanSampleSettings = {
-  analysisPermissionRole: 'Sampler',
-  withSacha: false
-};
-
-export const subPlanSampleSettings = (
-  subPlan?: SubPlanSampleSettings | null
-): SubPlanSampleSettings => subPlan ?? outsidePlanSubPlanSettings;
-
 export const subPlansForStages = <T extends Pick<ProgrammingSubPlan, 'stages'>>(
   subPlans: T[],
   stages: Stage[]

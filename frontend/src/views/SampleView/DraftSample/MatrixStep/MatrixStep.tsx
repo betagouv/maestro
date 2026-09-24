@@ -155,25 +155,14 @@ const MatrixStep = ({ partialSample }: Props) => {
     );
   }, [prescriptionsData, localPrescriptions]);
 
-  const effectiveSubPlanId = useMemo(
-    () =>
-      programmingSubPlanId ??
-      prescriptions?.find(
-        (p) =>
-          p.matrixKind === matrixKind &&
-          (isNil(p.matrix) || p.matrix === matrix) &&
-          (isNil(stage) || p.stages.includes(stage))
-      )?.programmingSubPlanId,
-    [programmingSubPlanId, prescriptions, matrixKind, matrix, stage]
-  );
-
   const subPlanNumber =
-    planSubPlans.find((sp) => sp.id === effectiveSubPlanId)?.subPlanNumber ??
+    planSubPlans.find((sp) => sp.id === programmingSubPlanId)?.subPlanNumber ??
     '';
 
   const subPlanSubStages = subStagesForStages(
-    effectiveSubPlanId
-      ? (planSubPlans.find((sp) => sp.id === effectiveSubPlanId)?.stages ?? [])
+    programmingSubPlanId
+      ? (planSubPlans.find((sp) => sp.id === programmingSubPlanId)?.stages ??
+          [])
       : stagesFromSubPlans(planSubPlans)
   );
 
@@ -181,9 +170,9 @@ const MatrixStep = ({ partialSample }: Props) => {
     apiClient.useFindProgrammingSubPlanFieldConfigsQuery(
       {
         programmingPlanId: partialSample.programmingPlanId,
-        programmingSubPlanId: effectiveSubPlanId as ProgrammingSubPlanId
+        programmingSubPlanId: programmingSubPlanId as ProgrammingSubPlanId
       },
-      { skip: !effectiveSubPlanId }
+      { skip: !programmingSubPlanId }
     );
 
   const planLayout = specificDataFormLayout(subPlanNumber);
@@ -228,7 +217,7 @@ const MatrixStep = ({ partialSample }: Props) => {
   const save = async (step: SampleStep = partialSample.step) => {
     await createOrUpdateSample({
       ...partialSample,
-      programmingSubPlanId: effectiveSubPlanId,
+      programmingSubPlanId: programmingSubPlanId,
       matrixKind,
       matrix,
       stage,

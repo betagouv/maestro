@@ -19,10 +19,7 @@ import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential'
 import { SubStageLabels } from 'maestro-shared/referential/SubStage';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
-import {
-  isPPVSubPlanNumber,
-  subPlanSampleSettings
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { isPPVSubPlanNumber } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   getSampleMatrixLabel,
   type PartialSample
@@ -307,9 +304,7 @@ const generateSamplePDF = async (
     SampleReference.safeParse(sample.reference).data ?? null;
 
   const barcodeReference =
-    itemNumber !== undefined &&
-    sampleReference &&
-    subPlanSampleSettings(subPlan).withSacha
+    itemNumber !== undefined && sampleReference && (subPlan?.withSacha ?? false)
       ? numeroDAPFromReference(sampleReference)
       : reference;
 

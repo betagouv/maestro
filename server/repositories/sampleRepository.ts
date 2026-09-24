@@ -184,15 +184,10 @@ const findRequest = (findOptions: FindSampleOptions) =>
         );
       }
       if (findOptions.programmingSubPlanIds) {
-        const programmingSubPlanIds = findOptions.programmingSubPlanIds;
-        builder.where((query) => {
-          query
-            .whereIn(
-              `${samplesTable}.programmingSubPlanId`,
-              programmingSubPlanIds
-            )
-            .orWhereNull(`${samplesTable}.programmingSubPlanId`);
-        });
+        builder.whereIn(
+          `${samplesTable}.programmingSubPlanId`,
+          findOptions.programmingSubPlanIds
+        );
       }
       if (findOptions.regions?.length) {
         builder.whereIn(`${samplesTable}.region`, findOptions.regions);

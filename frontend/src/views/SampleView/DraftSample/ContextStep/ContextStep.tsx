@@ -269,20 +269,18 @@ const ContextStep = ({ partialSample }: Props) => {
   const programmingSubPlanOptions = selectOptionsFromList(
     intersection(
       programmingPlan?.subPlans
-        .filter((subPlan) =>
-          programmingPlanPrescriptions?.some(
-            (prescription) =>
-              prescription.programmingSubPlanId === subPlan.id &&
-              programmingPlanLocalPrescriptions?.some(
-                (localPrescription) =>
-                  localPrescription.prescriptionId === prescription.id &&
-                  !isNil(localPrescription.companySiret) &&
-                  user?.companies
-                    ?.map((_) => _.siret)
-                    .includes(localPrescription.companySiret) &&
-                  localPrescription.sampleCount > 0
-              )
-          )
+        .filter(
+          (subPlan) =>
+            context === 'OutsideProgrammingPlan' ||
+            programmingPlanPrescriptions?.some(
+              (prescription) =>
+                prescription.programmingSubPlanId === subPlan.id &&
+                programmingPlanLocalPrescriptions?.some(
+                  (localPrescription) =>
+                    localPrescription.prescriptionId === prescription.id &&
+                    localPrescription.sampleCount > 0
+                )
+            )
         )
         .map((sp) => sp.id),
       user?.programmingSubPlans?.map((sp) => sp.id) ?? []
@@ -552,23 +550,22 @@ const ContextStep = ({ partialSample }: Props) => {
           </div>
         </SampleGeolocationForm>
       )}
-      {programmingPlan.subPlans.length > 1 &&
-        !programmingPlan.subPlans.every(isPPVSubPlan) && (
-          <AppSelect
-            value={programmingSubPlanId}
-            options={programmingSubPlanOptions}
-            onChange={(e) => setProgrammingSubPlanId(e.target.value)}
-            inputForm={form}
-            inputKey="specificData"
-            inputPathFromKey={['programmingSubPlanId']}
-            whenValid="Type de plan correctement renseigné."
-            data-testid="programmingSubPlan-select"
-            label="Type de plan"
-            disabled={readonly}
-            required
-            className={cx('fr-mb-0')}
-          />
-        )}
+      {programmingPlan.subPlans.length > 1 && (
+        <AppSelect
+          value={programmingSubPlanId}
+          options={programmingSubPlanOptions}
+          onChange={(e) => setProgrammingSubPlanId(e.target.value)}
+          inputForm={form}
+          inputKey="specificData"
+          inputPathFromKey={['programmingSubPlanId']}
+          whenValid="Type de plan correctement renseigné."
+          data-testid="programmingSubPlan-select"
+          label="Type de plan"
+          disabled={readonly}
+          required
+          className={cx('fr-mb-0')}
+        />
+      )}
       {contextOptions.length > 1 && (
         <AppRadioButtons
           legend="Contexte du prélèvement"
@@ -696,12 +693,9 @@ const ContextStep = ({ partialSample }: Props) => {
         }}
       />
 
-      {!!programmingSubPlanId &&
-        !isPPV &&
-        !!company &&
-        !readonly && (
-          <SampleEmptyFormDownload partialSample={partialSample ?? formData} />
-        )}
+      {!!programmingSubPlanId && !isPPV && !!company && !readonly && (
+        <SampleEmptyFormDownload partialSample={partialSample ?? formData} />
+      )}
 
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>
