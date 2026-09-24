@@ -2,7 +2,6 @@ import { constants } from 'node:http2';
 import AnalysisMissingError from 'maestro-shared/errors/analysisMissingError';
 import { HttpError } from 'maestro-shared/errors/httpError';
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
-import { subPlanSampleSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   hasSamplePermission,
   type PartialSample,
@@ -44,7 +43,7 @@ export const getAndCheckAnalysisSample = async (
         user,
         userRole,
         sample,
-        subPlanSampleSettings(subPlan).analysisPermissionRole
+        subPlan?.analysisPermissionRole
       )['performAnalysis']
     ) {
       throw new HttpError({

@@ -5,7 +5,6 @@ import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { v4 as uuidv4 } from 'uuid';
 
 const PPVPrefix = 'PPV';
-
 type PrescriptionRow = {
   id: string;
   matrixKind: string | null;
@@ -47,11 +46,6 @@ const buildLabels = (prescriptions: PrescriptionRow[]): Map<string, string> => {
 };
 
 export const up = async (knex: Knex) => {
-  await knex.raw(`
-    ALTER TABLE samples
-    ALTER COLUMN programming_sub_plan_id DROP NOT NULL
-  `);
-
   const plans = await knex('programming_plans')
     .select('id', 'stages', 'stagesManaged', 'settingsCompleted')
     .where('distributionKind', 'REGIONAL');
@@ -193,15 +187,6 @@ export const up = async (knex: Knex) => {
          and s.matrix_kind = matched.matrix_kind`,
       [plan.id, plan.id]
     );
-
-    await knex.raw(
-      `update samples s
-       set programming_sub_plan_id = null
-       where s.programming_plan_id = ?
-         and not exists (select 1 from programming_sub_plans_raw sp
-                         where sp.id = s.programming_sub_plan_id)`,
-      [plan.id]
-    );
   }
 };
 
@@ -238,19 +223,4 @@ export const down = async (knex: Knex) => {
       .where('id', first.id)
       .update({ subPlanNumber: PPVPrefix });
   }
-
-  await knex.raw(`
-    update samples s
-    set programming_sub_plan_id = (select sp.id
-                                   from programming_sub_plans_raw sp
-                                   where sp.programming_plan_id = s.programming_plan_id
-                                   order by sp.sub_plan_number
-                                   limit 1)
-    where s.programming_sub_plan_id is null
-  `);
-
-  await knex.raw(`
-    ALTER TABLE samples
-    ALTER COLUMN programming_sub_plan_id SET NOT NULL
-  `);
 };

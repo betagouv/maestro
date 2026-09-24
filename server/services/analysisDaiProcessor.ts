@@ -1,5 +1,4 @@
 import type { AnalysisDai } from 'maestro-shared/schema/AnalysisDai/AnalysisDai';
-import { subPlanSampleSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { SampleChecked } from 'maestro-shared/schema/Sample/Sample';
 import { SampleItem } from 'maestro-shared/schema/Sample/SampleItem';
 import { analysisDaiRepository } from '../repositories/analysisDaiRepository';
@@ -70,7 +69,7 @@ const processAnalysisDai = async (
     checkedSample.programmingSubPlanId
   );
   const subPlanNumber = subPlan?.subPlanNumber ?? '';
-  const programmingPlanWithEdiSacha = subPlanSampleSettings(subPlan).withSacha;
+  const programmingPlanWithEdiSacha = subPlan?.withSacha ?? false;
 
   if (programmingPlanWithEdiSacha && !laboratory.legacyDai) {
     return {
