@@ -10,9 +10,7 @@ import { assert, type Equals } from 'tsafe';
 
 import type { ProgrammingPlanDeletionTarget } from '../ProgrammingPlanDeleteModal/ProgrammingPlanDeleteModal';
 
-export type ProgrammingPlanDuplicationTarget = ProgrammingPlanDeletionTarget;
-
-const withDuplicationLabels = (target: ProgrammingPlanDuplicationTarget) => {
+const withDuplicationLabels = (target: ProgrammingPlanDeletionTarget) => {
   switch (target.kind) {
     case 'domain':
       return {
@@ -45,7 +43,7 @@ const withDuplicationLabels = (target: ProgrammingPlanDuplicationTarget) => {
 
 type Props = {
   modal: ReturnType<typeof createModal>;
-  target: ProgrammingPlanDuplicationTarget;
+  target: ProgrammingPlanDeletionTarget;
   onDuplicated: (duplicated: { id: string }) => void;
 };
 
