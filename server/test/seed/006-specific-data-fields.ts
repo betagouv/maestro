@@ -1,10 +1,67 @@
 /** biome-ignore-all lint/suspicious/noAssignInExpressions: old */
+import { PPVSubPlanNumberPrefix } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { AllFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
 import { kysely } from '../../repositories/kysely';
 import type {
   ProgrammingSubPlanFieldId,
   SpecificDataFieldOptionId
 } from '../../repositories/kysely.type';
+
+const spreadFieldsOverSiblingSubPlans = async (): Promise<void> => {
+  const subPlans = await kysely
+    .selectFrom('programmingSubPlansRaw')
+    .select(['id', 'programmingPlanId', 'subPlanNumber'])
+    .where('subPlanNumber', 'like', `${PPVSubPlanNumberPrefix}%`)
+    .orderBy('subPlanNumber')
+    .execute();
+
+  const sourceByPlanId = new Map<string, (typeof subPlans)[number]>();
+  for (const subPlan of subPlans) {
+    if (!sourceByPlanId.has(subPlan.programmingPlanId)) {
+      sourceByPlanId.set(subPlan.programmingPlanId, subPlan);
+    }
+  }
+
+  for (const subPlan of subPlans) {
+    const source = sourceByPlanId.get(subPlan.programmingPlanId);
+
+    if (!source || source.id === subPlan.id) {
+      continue;
+    }
+
+    const fields = await kysely
+      .selectFrom('programmingSubPlanFieldsRaw')
+      .select(['id', 'fieldId', 'required', 'order', 'inheritance'])
+      .where('programmingSubPlanId', '=', source.id)
+      .execute();
+
+    for (const { id, ...field } of fields) {
+      const { id: copiedFieldId } = await kysely
+        .insertInto('programmingSubPlanFieldsRaw')
+        .values({ ...field, programmingSubPlanId: subPlan.id })
+        .returning('id')
+        .executeTakeFirstOrThrow();
+
+      const options = await kysely
+        .selectFrom('programmingSubPlanFieldOptions')
+        .select('specificDataFieldOptionId')
+        .where('programmingSubPlanFieldId', '=', id)
+        .execute();
+
+      if (options.length > 0) {
+        await kysely
+          .insertInto('programmingSubPlanFieldOptions')
+          .values(
+            options.map((option) => ({
+              ...option,
+              programmingSubPlanFieldId: copiedFieldId
+            }))
+          )
+          .execute();
+      }
+    }
+  }
+};
 
 export const seed = async (): Promise<void> => {
   await kysely.deleteFrom('specificDataFields').execute();
@@ -125,4 +182,6 @@ export const seed = async (): Promise<void> => {
       .values(programmingSubPlanFieldOptionInserts)
       .execute();
   }
+
+  await spreadFieldsOverSiblingSubPlans();
 };
