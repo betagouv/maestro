@@ -1,6 +1,7 @@
 import Alert from '@codegouvfr/react-dsfr/Alert';
 import { residueResultExceedsLmr } from 'maestro-shared/schema/Analysis/Residue/Residue';
 import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 
 interface Props {
@@ -41,7 +42,7 @@ const ResidueResultAlert = ({
         small
         title={'Résultat brut supérieur à la LMR.'}
         description={
-          programmingSubPlan?.subPlanNumber === 'PPV' ? (
+          isPPVSubPlan(programmingSubPlan) ? (
             <>
               Merci de contacter la référente nationale résidus de pesticides
               pour pouvoir finaliser l'interprétation :{' '}

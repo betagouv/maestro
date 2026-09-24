@@ -16,6 +16,7 @@ import {
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import {
+  isPPVSubPlan,
   type ProgrammingSubPlanId,
   stagesFromSubPlans
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
@@ -152,11 +153,9 @@ const ContextStep = ({ partialSample }: Props) => {
     }
   }, [programmingPlan]);
 
-  const subPlanNumber = useMemo(
-    () =>
-      programmingPlan?.subPlans.find((sp) => sp.id === programmingSubPlanId)
-        ?.subPlanNumber,
-    [programmingPlan, programmingSubPlanId]
+  const isPPV = useMemo(
+    () => programmingPlan?.subPlans.some(isPPVSubPlan) ?? false,
+    [programmingPlan]
   );
 
   const specificData = useMemo(() => {
@@ -270,20 +269,18 @@ const ContextStep = ({ partialSample }: Props) => {
   const programmingSubPlanOptions = selectOptionsFromList(
     intersection(
       programmingPlan?.subPlans
-        .filter((subPlan) =>
-          programmingPlanPrescriptions?.some(
-            (prescription) =>
-              prescription.programmingSubPlanId === subPlan.id &&
-              programmingPlanLocalPrescriptions?.some(
-                (localPrescription) =>
-                  localPrescription.prescriptionId === prescription.id &&
-                  !isNil(localPrescription.companySiret) &&
-                  user?.companies
-                    ?.map((_) => _.siret)
-                    .includes(localPrescription.companySiret) &&
-                  localPrescription.sampleCount > 0
-              )
-          )
+        .filter(
+          (subPlan) =>
+            context === 'OutsideProgrammingPlan' ||
+            programmingPlanPrescriptions?.some(
+              (prescription) =>
+                prescription.programmingSubPlanId === subPlan.id &&
+                programmingPlanLocalPrescriptions?.some(
+                  (localPrescription) =>
+                    localPrescription.prescriptionId === prescription.id &&
+                    localPrescription.sampleCount > 0
+                )
+            )
         )
         .map((sp) => sp.id),
       user?.programmingSubPlans?.map((sp) => sp.id) ?? []
@@ -312,7 +309,9 @@ const ContextStep = ({ partialSample }: Props) => {
         : undefined,
     parcel,
     programmingPlanId: programmingPlan?.id as string,
-    programmingSubPlanId: programmingSubPlanId as ProgrammingSubPlanId,
+    programmingSubPlanId: (programmingSubPlanId || undefined) as
+      | ProgrammingSubPlanId
+      | undefined,
     context:
       context === 'OutsideProgrammingPlan'
         ? outsideProgrammingPlanContext
@@ -393,7 +392,9 @@ const ContextStep = ({ partialSample }: Props) => {
     geolocationX,
     geolocationY,
     parcel,
-    programmingSubPlanId: programmingSubPlanId as ProgrammingSubPlanId,
+    programmingSubPlanId: (programmingSubPlanId || undefined) as
+      | ProgrammingSubPlanId
+      | undefined,
     context,
     outsideProgrammingPlanContext,
     legalContext,
@@ -413,14 +414,14 @@ const ContextStep = ({ partialSample }: Props) => {
   }
   return (
     <form data-testid="draft_sample_creation_form" className="sample-form">
-      {subPlanNumber === 'PPV' && !isBrowserGeolocation && !readonly && (
+      {isPPV && !isBrowserGeolocation && !readonly && (
         <Alert
           severity="info"
           title=""
           small
           closable
           description={`Autorisez le partage de votre position pour faciliter la localisation 
-            ${subPlanNumber === 'PPV' ? ' de la parcelle' : ' du contrôle'}.`}
+            ${isPPV ? ' de la parcelle' : ' du contrôle'}.`}
         />
       )}
       <div>
@@ -444,7 +445,7 @@ const ContextStep = ({ partialSample }: Props) => {
           )}
         <AppRequiredText />
       </div>
-      {subPlanNumber === 'PPV' && (
+      {isPPV && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <div className={clsx('d-flex-align-start')}>
@@ -519,7 +520,7 @@ const ContextStep = ({ partialSample }: Props) => {
           )}
         </div>
       )}
-      {subPlanNumber === 'PPV' && (
+      {isPPV && (
         <SampleGeolocationForm
           key={`geolocation-${isBrowserGeolocation}`}
           title="Emplacement de la parcelle contrôlée"
@@ -658,7 +659,7 @@ const ContextStep = ({ partialSample }: Props) => {
           </div>
         </div>
       )}
-      {subPlanNumber === 'PPV' && (
+      {isPPV && (
         <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
           <div className={cx('fr-col-12')}>
             <AppTextInput
@@ -692,12 +693,9 @@ const ContextStep = ({ partialSample }: Props) => {
         }}
       />
 
-      {!!programmingSubPlanId &&
-        subPlanNumber !== 'PPV' &&
-        !!company &&
-        !readonly && (
-          <SampleEmptyFormDownload partialSample={partialSample ?? formData} />
-        )}
+      {!!programmingSubPlanId && !isPPV && !!company && !readonly && (
+        <SampleEmptyFormDownload partialSample={partialSample ?? formData} />
+      )}
 
       <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
         <div className={cx('fr-col-12')}>

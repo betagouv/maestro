@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isPPVSubPlanNumber } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
 
 const laboratoryShortNames = [
   'ANS 06',
@@ -137,7 +138,7 @@ export const isAnalysisCorrectionReportable = (
   subPlanNumber: string | undefined,
   laboratoryShortName: LaboratoryShortName | undefined
 ): boolean =>
-  subPlanNumber !== 'PPV' ||
+  !isPPVSubPlanNumber(subPlanNumber) ||
   (laboratoryShortName !== undefined &&
     (LaboratoryWithAutomation as readonly string[]).includes(
       laboratoryShortName

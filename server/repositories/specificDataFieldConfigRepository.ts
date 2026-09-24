@@ -132,8 +132,12 @@ const findSubPlanFieldOptions = async <
 };
 
 const findByPlanSubPlan = async (
-  programmingSubPlanId: ProgrammingSubPlanId
+  programmingSubPlanId: ProgrammingSubPlanId | null | undefined
 ): Promise<ProgrammingSubPlanFieldConfig[]> => {
+  if (!programmingSubPlanId) {
+    return [];
+  }
+
   console.info(
     'Find specific data field configs for sub-plan',
     programmingSubPlanId
@@ -239,7 +243,7 @@ const findSachaFields = async (): Promise<SachaFieldConfig[]> => {
       'sdf.sachaInDai',
       'sdf.sachaOptional'
     ])
-    .where('psp.subPlanNumber', '!=', 'PPV')
+    .where('psp.withSacha', '=', true)
     .distinctOn('sdf.id')
     .execute();
 

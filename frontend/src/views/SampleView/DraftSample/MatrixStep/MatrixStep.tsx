@@ -27,6 +27,11 @@ import {
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  isPPVSubPlanNumber,
+  stagesFromSubPlans
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   isCreatedPartialSample,
   isOutsideProgrammingPlanSample,
@@ -69,7 +74,7 @@ import { usePartialSample } from '../../../../hooks/usePartialSample';
 import { ApiClientContext } from '../../../../services/apiClient';
 import NextButton from '../NextButton';
 import MatrixSpecificDataFormInput from './MatrixSpecificDataFormInput';
-import { SpecificDataForm } from './SpecificDataForm';
+import { specificDataFormLayout } from './SpecificDataForm';
 
 type Props = {
   partialSample: PartialSample | PartialSampleToCreate;
@@ -107,23 +112,8 @@ const MatrixStep = ({ partialSample }: Props) => {
   const [deleteDocument] = apiClient.useDeleteSampleDocumentMutation();
 
   const programmingSubPlanId = partialSample.programmingSubPlanId;
-  const subPlanNumber =
-    (programmingPlan as ProgrammingPlanChecked)?.subPlans?.find(
-      (sp) => sp.id === programmingSubPlanId
-    )?.subPlanNumber ?? '';
-  const subPlanSubStages = subStagesForStages(
-    (programmingPlan as ProgrammingPlanChecked)?.subPlans?.find(
-      (sp) => sp.id === programmingSubPlanId
-    )?.stages ?? []
-  );
-
-  const { data: fieldConfigs = [], isSuccess: isFieldConfigsLoaded } =
-    apiClient.useFindProgrammingSubPlanFieldConfigsQuery({
-      programmingPlanId: partialSample.programmingPlanId,
-      programmingSubPlanId
-    });
-
-  const planLayout = SpecificDataForm[subPlanNumber];
+  const planSubPlans =
+    (programmingPlan as ProgrammingPlanChecked)?.subPlans ?? [];
 
   const { data: prescriptionsData } = apiClient.useFindPrescriptionsQuery(
     {
@@ -165,6 +155,28 @@ const MatrixStep = ({ partialSample }: Props) => {
     );
   }, [prescriptionsData, localPrescriptions]);
 
+  const subPlanNumber =
+    planSubPlans.find((sp) => sp.id === programmingSubPlanId)?.subPlanNumber ??
+    '';
+
+  const subPlanSubStages = subStagesForStages(
+    programmingSubPlanId
+      ? (planSubPlans.find((sp) => sp.id === programmingSubPlanId)?.stages ??
+          [])
+      : stagesFromSubPlans(planSubPlans)
+  );
+
+  const { data: fieldConfigs = [], isSuccess: isFieldConfigsLoaded } =
+    apiClient.useFindProgrammingSubPlanFieldConfigsQuery(
+      {
+        programmingPlanId: partialSample.programmingPlanId,
+        programmingSubPlanId: programmingSubPlanId as ProgrammingSubPlanId
+      },
+      { skip: !programmingSubPlanId }
+    );
+
+  const planLayout = specificDataFormLayout(subPlanNumber);
+
   const FilesForm = z.object({
     files: FileInput(SampleDocumentTypeList, true)
   });
@@ -205,6 +217,7 @@ const MatrixStep = ({ partialSample }: Props) => {
   const save = async (step: SampleStep = partialSample.step) => {
     await createOrUpdateSample({
       ...partialSample,
+      programmingSubPlanId: programmingSubPlanId,
       matrixKind,
       matrix,
       stage,
@@ -325,7 +338,8 @@ const MatrixStep = ({ partialSample }: Props) => {
               ? MatrixKindList.filter((matrixKind) =>
                   prescriptions?.some(
                     (p) =>
-                      p.programmingSubPlanId === programmingSubPlanId &&
+                      (!programmingSubPlanId ||
+                        p.programmingSubPlanId === programmingSubPlanId) &&
                       p.matrixKind === matrixKind
                   )
                 )
@@ -350,7 +364,8 @@ const MatrixStep = ({ partialSample }: Props) => {
                 isProgrammingPlanSample(partialSample)
                   ? prescriptions?.some(
                       (p) =>
-                        p.programmingSubPlanId === programmingSubPlanId &&
+                        (!programmingSubPlanId ||
+                          p.programmingSubPlanId === programmingSubPlanId) &&
                         p.matrixKind === matrixKind &&
                         (isNil(p.matrix) || p.matrix === m)
                     )
@@ -374,7 +389,8 @@ const MatrixStep = ({ partialSample }: Props) => {
             !isProgrammingPlanSample(partialSample) ||
             prescriptions?.find(
               (p) =>
-                p.programmingSubPlanId === programmingSubPlanId &&
+                (!programmingSubPlanId ||
+                  p.programmingSubPlanId === programmingSubPlanId) &&
                 p.matrixKind === matrixKind &&
                 p.stages.includes(stage)
             )
@@ -637,7 +653,7 @@ const MatrixStep = ({ partialSample }: Props) => {
                 data-testid="notes-input"
                 label="Note additionnelle"
                 hintText={
-                  subPlanNumber === 'PPV'
+                  isPPVSubPlanNumber(subPlanNumber)
                     ? 'Champ facultatif pour précisions supplémentaires (date de semis, précédent cultural, traitements faits, protocole de prélèvement et note inspecteur, etc.)'
                     : ''
                 }

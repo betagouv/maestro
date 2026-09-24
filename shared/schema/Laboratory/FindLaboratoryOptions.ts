@@ -7,7 +7,7 @@ export const FindLaboratoryOptions = z.object({
   substanceKinds: z.array(SubstanceKind).nullish(),
   programmingSubPlanId: ProgrammingSubPlanId.nullish(),
   programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullish(),
-  subPlanNumber: z.string().nullish()
+  subPlanNumberPrefix: z.string().nullish()
 });
 
 export type FindLaboratoryOptions = z.infer<typeof FindLaboratoryOptions>;

@@ -25,6 +25,15 @@ export const isProgrammingSubPlanDeletable = (
   subPlan: Pick<ProgrammingSubPlan, 'settingsCompleted'>
 ): boolean => !subPlan.settingsCompleted;
 
+export const PPVSubPlanNumberPrefix = 'PPV';
+
+export const isPPVSubPlanNumber = (subPlanNumber?: string | null): boolean =>
+  subPlanNumber?.startsWith(PPVSubPlanNumberPrefix) ?? false;
+
+export const isPPVSubPlan = (
+  subPlan?: Pick<ProgrammingSubPlan, 'subPlanNumber'> | null
+): boolean => isPPVSubPlanNumber(subPlan?.subPlanNumber);
+
 export const subPlansForStages = <T extends Pick<ProgrammingSubPlan, 'stages'>>(
   subPlans: T[],
   stages: Stage[]

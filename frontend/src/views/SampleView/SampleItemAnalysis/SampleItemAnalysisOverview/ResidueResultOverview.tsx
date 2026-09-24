@@ -19,6 +19,7 @@ import {
   type ResidueKind,
   ResidueKindLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
+import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import ResidueResultAlert from '../../../../components/ResidueResultAlert/ResidueResultAlert';
@@ -123,7 +124,7 @@ export const ResidueResultOverview: FunctionComponent<Props> = ({
           </div>
         )}
 
-        {programmingSubPlan?.subPlanNumber === 'PPV' && (
+        {isPPVSubPlan(programmingSubPlan) && (
           <>
             <div className="d-flex-align-center">
               Substance approuvée dans l'UE

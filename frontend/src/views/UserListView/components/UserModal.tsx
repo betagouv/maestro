@@ -9,7 +9,10 @@ import { Region, RegionList, Regions } from 'maestro-shared/referential/Region';
 import { StageLabels, StageList } from 'maestro-shared/referential/Stage';
 import type { Company } from 'maestro-shared/schema/Company/Company';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { subPlansForStages } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  isPPVSubPlan,
+  subPlansForStages
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   companiesIsRequired,
   departmentIsRequired,
@@ -176,7 +179,7 @@ export const UserModal = ({
   useEffect(() => {
     if (
       companiesIsRequired({ stages: user.stages, roles: user.roles }) &&
-      !programmingSubPlans.some((_) => _.subPlanNumber === 'PPV')
+      !programmingSubPlans.some((_) => isPPVSubPlan(_))
     ) {
       findCompanies({
         kinds: ['MEAT_SLAUGHTERHOUSE', 'POULTRY_SLAUGHTERHOUSE'],

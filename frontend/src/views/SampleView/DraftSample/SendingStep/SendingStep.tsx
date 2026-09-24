@@ -7,6 +7,7 @@ import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import { isEqual, isNil } from 'lodash-es';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
+import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   isCreatedPartialSample,
   SampleBase,
@@ -58,8 +59,7 @@ const SendingStep: FunctionComponent<Props> = ({ sample }) => {
     usePartialSample(sample);
   const { trackEvent } = useAnalytics();
 
-  const isGeolocationEditable =
-    !readonly && programmingSubPlan?.subPlanNumber === 'PPV';
+  const isGeolocationEditable = !readonly && isPPVSubPlan(programmingSubPlan);
 
   const isSubmittingRef = useRef<boolean>(false);
 
