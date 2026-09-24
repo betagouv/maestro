@@ -1,6 +1,7 @@
 import { isNil, omit, omitBy } from 'lodash-es';
 import { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import type { FindDocumentOptions } from 'maestro-shared/schema/Document/FindDocumentOptions';
+import type { ProgrammingPlanTechnicalInstruction } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
 import { knexInstance as db } from './db';
 import { kysely } from './kysely';
 import type { KyselyMaestro } from './kysely.type';
@@ -154,6 +155,33 @@ const update = async (
   }
 };
 
+const findProgrammingPlanTechnicalInstruction = async (
+  programmingPlanId: string
+): Promise<ProgrammingPlanTechnicalInstruction | null> => {
+  console.info(
+    'Find programming plan technical instruction',
+    programmingPlanId
+  );
+  return (
+    (await kysely
+      .selectFrom('documents')
+      .innerJoin(
+        'documentProgrammingPlans',
+        'documentProgrammingPlans.documentId',
+        'documents.id'
+      )
+      .select(['documents.id', 'documents.filename'])
+      .where(
+        'documentProgrammingPlans.programmingPlanId',
+        '=',
+        programmingPlanId
+      )
+      .where('documents.kind', '=', 'TechnicalInstruction')
+      .orderBy('documents.createdAt', 'desc')
+      .executeTakeFirst()) ?? null
+  );
+};
+
 const deleteOne = async (id: string): Promise<void> => {
   console.info('Delete document', id);
   await Documents().where({ id }).delete();
@@ -164,5 +192,6 @@ export const documentRepository = {
   update,
   findMany,
   findUnique,
+  findProgrammingPlanTechnicalInstruction,
   deleteOne
 };

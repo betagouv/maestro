@@ -55,6 +55,7 @@ import {
 } from 'maestro-shared/schema/User/UserRole';
 import { HttpStatus } from '../constants/httpStatus';
 import { getAndCheckProgrammingPlan } from '../middlewares/checks/programmingPlanCheck';
+import { documentRepository } from '../repositories/documentRepository';
 import { laboratoryRepository } from '../repositories/laboratoryRepository';
 import localPrescriptionRepository from '../repositories/localPrescriptionRepository';
 import { programmingPlanDomainRepository } from '../repositories/programmingPlanDomainRepository.ts';
@@ -977,6 +978,10 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
           ...pickProgrammingPlanSettings(programmingPlan),
           settingsCompleted: programmingPlan.settingsCompleted,
           nationalCoordinators: programmingPlan.nationalCoordinators,
+          technicalInstruction:
+            await documentRepository.findProgrammingPlanTechnicalInstruction(
+              programmingPlanId
+            ),
           fields:
             await specificDataFieldConfigRepository.findPlanFieldSettings(
               programmingPlanId
@@ -1003,15 +1008,38 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
         return { status: HttpStatus.CONFLICT };
       }
 
-      await programmingPlanSettingsService.savePlanSettings(programmingPlanId, {
-        ...body,
-        nationalCoordinators: hasAccountPermission(
-          account.roles,
-          'manageProgrammingPlanNationalCoordinators'
-        )
-          ? body.nationalCoordinators
-          : programmingPlan.nationalCoordinators
-      });
+      const storedTechnicalInstruction =
+        body.technicalInstruction &&
+        (await documentRepository.findUnique(body.technicalInstruction.id));
+
+      if (
+        storedTechnicalInstruction &&
+        storedTechnicalInstruction.kind !== 'TechnicalInstruction'
+      ) {
+        return { status: HttpStatus.CONFLICT };
+      }
+
+      await programmingPlanSettingsService.savePlanSettings(
+        programmingPlanId,
+        {
+          ...body,
+          nationalCoordinators: hasAccountPermission(
+            account.roles,
+            'manageProgrammingPlanNationalCoordinators'
+          )
+            ? body.nationalCoordinators
+            : programmingPlan.nationalCoordinators
+        },
+        body.technicalInstruction && !storedTechnicalInstruction
+          ? {
+              ...body.technicalInstruction,
+              kind: 'TechnicalInstruction',
+              name: `Instruction technique ${programmingPlan.title} ${programmingPlan.year}`,
+              createdAt: new Date(),
+              createdBy: user.id
+            }
+          : undefined
+      );
 
       return { status: HttpStatus.NO_CONTENT };
     }
