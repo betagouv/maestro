@@ -305,7 +305,7 @@ const deleteSftpFile = async (
   xmlFileName: string
 ): Promise<void> => {
   try {
-    await sftpClient.delete(`uploads/RA01Maestro/data/${xmlFileName}`);
+    await sftpClient.delete(`${SFTP_RAI_DIR}/${xmlFileName}`);
   } catch (e) {
     console.error(`[SFTP] Échec de la suppression de ${xmlFileName} :`, e);
   }
@@ -334,6 +334,7 @@ const notify = async (
   }
 };
 
+const SFTP_RAI_DIR = 'uploads/Labo-Sigal-Maestro/RA01';
 export const doSftp = async () => {
   if (
     !config.sigal.sftp.privateKey ||
@@ -356,12 +357,11 @@ export const doSftp = async () => {
     });
 
     const sftpDirectory = path.join(tmpdir(), 'sftp');
-    await sftpClient.downloadDir('uploads/RA01Maestro', sftpDirectory);
+    await sftpClient.downloadDir(SFTP_RAI_DIR, sftpDirectory);
 
     const sachaConf = await sachaConfRepository.get();
 
-    const dataDirectory = path.join(sftpDirectory, 'data');
-    const files = await readdir(dataDirectory);
+    const files = await readdir(sftpDirectory);
 
     for (const xmlFileName of files) {
       if (!xmlFileName.endsWith('.xml')) {
@@ -371,7 +371,7 @@ export const doSftp = async () => {
 
       const receivedAt = new Date();
       try {
-        const content = readFileSync(path.join(dataDirectory, xmlFileName));
+        const content = readFileSync(path.join(sftpDirectory, xmlFileName));
         const xmlFile = new File([new Uint8Array(content)], xmlFileName, {
           type: 'application/xml'
         });
@@ -397,7 +397,7 @@ export const doSftp = async () => {
           message: response.message
         });
         await analysisRaiRepository.linkDocuments(raiId, [xmlDocumentId]);
-        await deleteSftpFile(sftpClient, dataDirectory, xmlFileName);
+        await deleteSftpFile(sftpClient, sftpDirectory, xmlFileName);
         await notify(response, xmlFileName);
       } catch (e: any) {
         console.error(`[SFTP] Erreur sur ${xmlFileName} :`, e.message);
