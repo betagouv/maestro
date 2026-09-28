@@ -245,7 +245,7 @@ test(`génère un XML de DAI`, async () => {
       </Destinataire>
       <DemandeType>
         <DialogueDemandeIntervention>
-          <NumeroDAP>202584000073</NumeroDAP>
+          <NumeroDAP>666625000073</NumeroDAP>
           <SigleContexteIntervention>PR17_2026_RPDA_PVOL</SigleContexteIntervention>
           <DateIntervention>2025-12-16</DateIntervention>
           <DateModification>2025-12-16T10:07:36</DateModification>
@@ -269,7 +269,7 @@ test(`génère un XML de DAI`, async () => {
           <DialogueEchantillonComplet>
             <NumeroEchantillon>1</NumeroEchantillon>
             <SigleMatriceSpecifique>MSCL_VOL</SigleMatriceSpecifique>
-            <NumeroEtiquette>022025840000732025350001</NumeroEtiquette>
+            <NumeroEtiquette>026666250000732025350001</NumeroEtiquette>
             <Commentaire>sealId</Commentaire>
           </DialogueEchantillonComplet>
           <DialogueCommemoratif>
@@ -318,7 +318,7 @@ test(`fige le NumeroEtiquette sur sentAt (date d'envoi), tout en datant le fichi
   );
 
   expect(xmlFile.content).toContain(
-    '<NumeroEtiquette>022025840000732025350001</NumeroEtiquette>'
+    '<NumeroEtiquette>026666250000732025350001</NumeroEtiquette>'
   );
   expect(xmlFile.fileName).toContain('260105');
   expect(xmlFile.fileName).not.toContain('251216');

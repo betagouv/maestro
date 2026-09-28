@@ -27,7 +27,7 @@ const etiquetteFromRai = (rai: SachaResultats): NumeroEtiquette =>
 
 describe('processSachaRAI', () => {
   const rai = decodeValidRai();
-  const { reference, itemNumber } = referencesFromEtiquette(
+  const { referenceSuffix, itemNumber } = referencesFromEtiquette(
     etiquetteFromRai(rai)
   );
   const sampleId = 'aaaaaaaa-bbbb-cccc-dddd-000000000099';
@@ -44,7 +44,7 @@ describe('processSachaRAI', () => {
       status: 'Sent',
       region: '44',
       department: '08',
-      reference
+      reference: `GES-${referenceSuffix}`
     });
     await sampleRepository.insert(sample);
 
@@ -119,7 +119,7 @@ describe('processSachaRAI', () => {
   });
 
   test('lève une RaiLabError quand l’échantillon est introuvable', async () => {
-    const unknownEtiquette = NumeroEtiquette.parse('022026440008882026113002');
+    const unknownEtiquette = NumeroEtiquette.parse('026666260008882026113002');
     const orphanRai: SachaResultats = structuredClone(rai);
     orphanRai.DialogueResultatType.DialogueEchantillonCommemoratifType![0]
       .DialogueEchantillonComplet!.NumeroEtiquette = unknownEtiquette;
