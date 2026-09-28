@@ -28,8 +28,8 @@ const { processSachaContent, replayRai } = await import('./sftpService');
 
 const LAB_SIGLE = 'LABTEST';
 const SAMPLE_ID = 'aaaaaaaa-bbbb-cccc-dddd-000000000098';
-const KNOWN_ETIQUETTE = '022026440009992026113002';
-const UNKNOWN_ETIQUETTE = '022026440008882026113002';
+const KNOWN_ETIQUETTE = '026666260009992026113002';
+const UNKNOWN_ETIQUETTE = '026666260008882026113002';
 
 const baseXml = readSachaExample('example-rai-daoa-valid.xml');
 
@@ -52,7 +52,7 @@ const lastSentFile = () => {
 };
 
 describe('sftpService pipeline (decode, process, respond)', () => {
-  const { reference, itemNumber } = referencesFromEtiquette(
+  const { referenceSuffix, itemNumber } = referencesFromEtiquette(
     NumeroEtiquette.parse(KNOWN_ETIQUETTE)
   );
 
@@ -80,7 +80,7 @@ describe('sftpService pipeline (decode, process, respond)', () => {
         status: 'Sent',
         region: '44',
         department: '08',
-        reference
+        reference: `GES-${referenceSuffix}`
       })
     );
     await SampleItems().insert([
