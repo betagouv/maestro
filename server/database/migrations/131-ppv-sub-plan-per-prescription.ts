@@ -78,7 +78,7 @@ export const up = async (knex: Knex) => {
     const source = subPlans[0];
     const settings = {
       stages: source?.stages ?? plan.stages ?? [],
-      stagesManaged: source?.stagesManaged ?? true,
+      stagesManaged: source?.stagesManaged ?? false,
       settingsCompleted: source?.settingsCompleted ?? plan.settingsCompleted,
       analysisPermissionRole: source?.analysisPermissionRole ?? null,
       contactListId: source?.contactListId ?? null,
