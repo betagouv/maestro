@@ -23,7 +23,8 @@ const codeMethods = [
   'M21',
   'M23',
   'M27',
-  'M38'
+  'M38',
+  'M19'
 ] as const;
 const codeMethodsAnalyseMethod = {
   M1: 'Multi',
@@ -33,7 +34,8 @@ const codeMethodsAnalyseMethod = {
   M21: 'Mono',
   M23: 'Mono',
   M27: 'Mono',
-  M38: 'Mono'
+  M38: 'Mono',
+  M19: 'Multi'
 } as const satisfies Record<(typeof codeMethods)[number], AnalysisMethod>;
 const isCodeMethod = (code: string): code is (typeof codeMethods)[number] =>
   (codeMethods as Readonly<string[]>).includes(code);
@@ -82,10 +84,7 @@ export const extractAnalyzes = (obj: unknown): GirpaAnaysis[] => {
   });
   const validator = z.object({
     Rapport: z.object({
-      Echantillon: z.union([
-        echantillonValidator.transform((e) => [e]),
-        z.array(echantillonValidator)
-      ])
+      Echantillon: z.array(echantillonValidator)
     })
   });
 
@@ -147,7 +146,9 @@ const exportDataFromEmail: ExportDataFromEmail = async (attachments) => {
   );
 
   if (xmlFile !== undefined) {
-    const parser = new XMLParser();
+    const parser = new XMLParser({
+      isArray: (name) => name === 'Echantillon' || name === 'Analyse'
+    });
     const obj = parser.parse(xmlFile.content);
 
     const analyzes = extractAnalyzes(obj);
