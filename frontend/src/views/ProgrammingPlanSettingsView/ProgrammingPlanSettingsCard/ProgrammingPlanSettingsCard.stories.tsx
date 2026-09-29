@@ -11,7 +11,7 @@ import { expect, within } from 'storybook/test';
 import { ProgrammingPlanSettingsCard } from './ProgrammingPlanSettingsCard';
 
 const meta = {
-  title: 'Components/ProgrammingPlanSettingsCard',
+  title: 'Views/ProgrammingPlanSettingsView/ProgrammingPlanSettingsCard',
   component: ProgrammingPlanSettingsCard,
   args: {
     title: 'Résidus de pesticides',

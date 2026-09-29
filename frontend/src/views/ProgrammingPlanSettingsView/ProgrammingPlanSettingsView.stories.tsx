@@ -27,7 +27,7 @@ const [pesticide2024, pesticide2025, pesticide2026] = pesticideDomains;
 const [, , chemical2026] = chemicalDomains;
 
 const meta = {
-  title: 'Views/ProgrammingPlanSettings',
+  title: 'Views/ProgrammingPlanSettingsView',
   component: ProgrammingPlanSettingsView,
   parameters: {
     preloadedState: {

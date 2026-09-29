@@ -34,7 +34,7 @@ const regionalStatus = (status: ProgrammingPlanStatus) =>
 const deleteProgrammingPlanDomain = fn();
 
 const meta = {
-  title: 'Views/ProgrammingPlanDomain',
+  title: 'Views/ProgrammingPlanSettingsView/ProgrammingPlanDomainView',
   component: ProgrammingPlanDomainView,
   parameters: {
     preloadedState: {
