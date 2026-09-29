@@ -1,5 +1,6 @@
 import type { Transaction } from 'kysely';
 import { pick } from 'lodash-es';
+import type { DocumentChecked } from 'maestro-shared/schema/Document/Document';
 import type { ProgrammingPlanNationalCoordinator } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
 import {
   managedKey,
@@ -7,6 +8,7 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettings';
 import type {
   ProgrammingPlanSettingsForm,
+  ProgrammingPlanTechnicalInstruction,
   ProgrammingSubPlanSettingsForm
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
@@ -16,6 +18,7 @@ import type {
   ProgrammingSubPlanFieldId,
   SpecificDataFieldId
 } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
+import { documentRepository } from '../repositories/documentRepository';
 import { executeTransaction } from '../repositories/kysely';
 import type { DB } from '../repositories/kysely.type';
 import { toProgrammingPlanSettingsRow } from '../repositories/programmingPlanSettingsRow';
@@ -190,9 +193,44 @@ const replaceNationalCoordinators = async (
   }
 };
 
+const replaceTechnicalInstruction = async (
+  trx: Transaction<DB>,
+  programmingPlanId: string,
+  technicalInstruction: ProgrammingPlanTechnicalInstruction | null,
+  technicalInstructionToCreate: DocumentChecked | undefined
+): Promise<void> => {
+  await trx
+    .deleteFrom('documentProgrammingPlans')
+    .where('programmingPlanId', '=', programmingPlanId)
+    .where('documentId', 'in', (eb) =>
+      eb
+        .selectFrom('documents')
+        .select('id')
+        .where('kind', '=', 'TechnicalInstruction')
+    )
+    .execute();
+
+  if (technicalInstructionToCreate) {
+    await documentRepository.insert(technicalInstructionToCreate, trx);
+  }
+
+  if (technicalInstruction) {
+    await trx
+      .insertInto('documentProgrammingPlans')
+      .values({ documentId: technicalInstruction.id, programmingPlanId })
+      .execute();
+  }
+};
+
 const savePlanSettings = (
   programmingPlanId: string,
-  { fields, nationalCoordinators, ...settings }: ProgrammingPlanSettingsForm
+  {
+    fields,
+    nationalCoordinators,
+    technicalInstruction,
+    ...settings
+  }: ProgrammingPlanSettingsForm,
+  technicalInstructionToCreate?: DocumentChecked
 ): Promise<void> =>
   executeTransaction(async (trx) => {
     console.info('Update programming plan settings', programmingPlanId);
@@ -201,6 +239,13 @@ const savePlanSettings = (
       trx,
       programmingPlanId,
       nationalCoordinators
+    );
+
+    await replaceTechnicalInstruction(
+      trx,
+      programmingPlanId,
+      technicalInstruction,
+      technicalInstructionToCreate
     );
 
     const storedSettings = await trx

@@ -8,6 +8,7 @@ import type {
 import { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { AdminFieldConfig } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import { SpecificDataFieldId } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
+import { genDocument } from 'maestro-shared/test/documentFixtures';
 import {
   genProgrammingPlan,
   genProgrammingPlanDomain,
@@ -27,6 +28,7 @@ import { getMockApi, type MockApi } from '../../../services/mockApiClient';
 import { ProgrammingPlanView } from './ProgrammingPlanView';
 
 const PPVPlanId = 'e0a9de3a-4f9a-4c0f-9a03-1f0dd4a3e6f1';
+const uploadedDocumentId = '5a7c1e3b-9d2f-4b6a-8e0c-3f1d5b7a9c2e';
 const CerealesSubPlanId = ProgrammingSubPlanId.parse(
   'b5f1a0c2-2d6e-4a15-9f4c-3c2b7d1e8a90'
 );
@@ -39,6 +41,9 @@ const AnimauxSubPlanId = ProgrammingSubPlanId.parse(
 
 const updateProgrammingPlanSettings = fn();
 const updateProgrammingSubPlanSettings = fn();
+const createDocumentUpload = fn(async () => ({
+  documentId: uploadedDocumentId
+}));
 const deleteProgrammingPlan = fn();
 const deleteProgrammingSubPlan = fn();
 
@@ -154,6 +159,7 @@ const planSettings: ProgrammingPlanSettingsForm = {
   samplesManaged: false,
   settingsCompleted: false,
   nationalCoordinators: [nationalCoordinator],
+  technicalInstruction: null,
   fields: [{ fieldId: especeField.id, required: true, optionIds: [] }]
 };
 
@@ -162,8 +168,21 @@ const pesticide2026 = genProgrammingPlanDomain({
   year: 2026
 });
 
+const technicalInstruction = genDocument({
+  kind: 'TechnicalInstruction',
+  name: 'Instruction technique 2026',
+  filename: 'it-2026.pdf'
+});
+
 const mockApiConf: Partial<MockApi> = {
   useUpdateProgrammingPlanSettingsMutation: [updateProgrammingPlanSettings, {}],
+  useCreateDocumentUploadMutation: [createDocumentUpload, {}],
+  useFindResourcesQuery: {
+    data: [
+      technicalInstruction,
+      genDocument({ kind: 'RegulationResourceDocument', name: 'Règlement' })
+    ]
+  },
   useFindProgrammingPlanSettingsQuery: { data: planSettings },
   useUpdateProgrammingSubPlanSettingsMutation: [
     updateProgrammingSubPlanSettings,
@@ -1502,6 +1521,132 @@ export const SubPlanHasNoNationalCoordinators: Story = {
         name: /Propriétaire\(s\) du plan/
       })
     ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByRole('combobox', { name: 'Instruction technique' })
+    ).not.toBeInTheDocument();
+  }
+};
+
+export const PlanNewTechnicalInstruction: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+    createDocumentUpload.mockClear();
+
+    const file = new File(['%PDF'], 'nouvelle-it.pdf', {
+      type: 'application/pdf'
+    });
+    await userEvent.upload(
+      canvasElement.querySelector('input[type="file"]') as HTMLInputElement,
+      file
+    );
+    await expect(
+      canvas.getByRole('link', { name: 'nouvelle-it.pdf' })
+    ).toHaveAttribute('target', '_blank');
+    await expect(
+      canvas.queryByRole('combobox', { name: 'Instruction technique' })
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+
+    await waitFor(() =>
+      expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        ...planSettings,
+        technicalInstruction: {
+          id: uploadedDocumentId,
+          filename: 'nouvelle-it.pdf'
+        }
+      })
+    );
+    await expect(createDocumentUpload).toHaveBeenCalledWith(file);
+  }
+};
+
+export const PlanExistingTechnicalInstruction: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+    createDocumentUpload.mockClear();
+
+    const select = canvas.getByRole('combobox', {
+      name: 'Instruction technique'
+    });
+    await expect(
+      within(select).queryByRole('option', { name: 'Règlement' })
+    ).not.toBeInTheDocument();
+    await userEvent.selectOptions(select, technicalInstruction.id);
+
+    await expect(
+      canvas.getByRole('link', { name: 'Instruction technique 2026' })
+    ).toHaveAttribute('target', '_blank');
+    await expect(
+      canvas.queryByRole('combobox', { name: 'Instruction technique' })
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+
+    await waitFor(() =>
+      expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        ...planSettings,
+        technicalInstruction: {
+          id: technicalInstruction.id,
+          filename: technicalInstruction.filename
+        }
+      })
+    );
+    await expect(createDocumentUpload).not.toHaveBeenCalled();
+  }
+};
+
+export const PlanRemoveTechnicalInstruction: Story = {
+  parameters: {
+    apiClient: getMockApi({
+      ...mockApiConf,
+      useFindProgrammingPlanSettingsQuery: {
+        data: {
+          ...planSettings,
+          technicalInstruction: {
+            id: technicalInstruction.id,
+            filename: technicalInstruction.filename
+          }
+        }
+      }
+    })
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    updateProgrammingPlanSettings.mockClear();
+
+    await userEvent.click(
+      canvas.getByRole('button', {
+        name: 'Supprimer l’instruction technique'
+      })
+    );
+
+    await expect(
+      canvas.getByRole('combobox', { name: 'Instruction technique' })
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Enregistrer en brouillon' })
+    );
+
+    await waitFor(() =>
+      expect(updateProgrammingPlanSettings).toHaveBeenCalledWith({
+        programmingPlanId: PPVPlanId,
+        ...planSettings,
+        technicalInstruction: null
+      })
+    );
   }
 };
 
