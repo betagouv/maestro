@@ -14,6 +14,10 @@ export class ExtractLabError extends Error {}
 
 export class ExtractBadFormatError extends ExtractLabError {
   constructor(error: ZodError) {
-    super(z.prettifyError(error));
+    const [first, ...others] = error.issues;
+    super(
+      `✖ ${first.message}\n  → at ${z.core.toDotPath(first.path)}` +
+        (others.length > 0 ? `\n(+ ${others.length} autres erreurs)` : '')
+    );
   }
 }
