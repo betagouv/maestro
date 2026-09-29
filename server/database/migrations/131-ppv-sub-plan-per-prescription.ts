@@ -1,4 +1,5 @@
 import type { Knex } from 'knex';
+import { isNil } from 'lodash-es';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
@@ -76,6 +77,14 @@ export const up = async (knex: Knex) => {
     );
 
     const source = subPlans[0];
+
+    const asJsonb = (value: unknown): string | null =>
+      isNil(value)
+        ? null
+        : typeof value === 'string'
+          ? value
+          : JSON.stringify(value);
+
     const settings = {
       stages: source?.stages ?? plan.stages ?? [],
       stagesManaged: source?.stagesManaged ?? false,
@@ -83,7 +92,10 @@ export const up = async (knex: Knex) => {
       analysisPermissionRole: source?.analysisPermissionRole ?? null,
       contactListId: source?.contactListId ?? null,
       withSacha: source?.withSacha ?? false,
-      substanceKinds: source?.substanceKinds ?? ['Any']
+      substanceKinds: source?.substanceKinds ?? ['Any'],
+      substanceKindsManaged: source?.substanceKindsManaged ?? false,
+      samples: asJsonb(source?.samples),
+      samplesManaged: source?.samplesManaged ?? false
     };
 
     const subPlanIdByPrescriptionId = new Map<string, string>();
