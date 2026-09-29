@@ -9,7 +9,6 @@ import type { LaboratoryShortName } from 'maestro-shared/referential/Laboratory'
 import type { Region } from 'maestro-shared/referential/Region';
 import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import type { Stage } from 'maestro-shared/referential/Stage';
-import type { SubStage } from 'maestro-shared/referential/SubStage';
 import type { AnalysisMethod } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import type { AnalysisKind } from 'maestro-shared/schema/Analysis/Residue/AnalysisKind';
@@ -290,7 +289,6 @@ export interface Prescriptions {
   programmingPlanId: string | null;
   programmingSubPlanId: ProgrammingSubPlanId | null;
   sampleCount: number;
-  stages: string[] | null;
 }
 
 export interface PrescriptionSubstances {
@@ -411,7 +409,6 @@ export interface Samples {
   sampledBy: string | null;
   sentAt: Timestamp | null;
   seves: Seves | null;
-  stage: SubStage | null;
   step: SampleStep;
 }
 

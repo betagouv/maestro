@@ -611,7 +611,6 @@ describe('Sample router', () => {
     const validBody = {
       ...Sample11Fixture,
       matrix: oneOf(MatrixEffective.options),
-      stage: null,
       items: [
         genSampleItem({
           sampleId: Sample11Fixture.id,
@@ -649,7 +648,6 @@ describe('Sample router', () => {
             createdAt: Sample11Fixture.createdAt,
             lastUpdatedAt: expect.any(String),
             matrix: validBody.matrix,
-            stage: validBody.stage,
             items: validBody.items.map((item) => ({
               ...item,
               laboratoryId: LaboratoryFixture.id

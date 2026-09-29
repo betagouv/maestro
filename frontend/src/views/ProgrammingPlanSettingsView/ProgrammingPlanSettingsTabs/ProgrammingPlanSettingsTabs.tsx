@@ -98,10 +98,9 @@ export const ProgrammingPlanSettingsTabs = ({
 
   const programmingPlanId = programmingPlan.id;
 
-  const { data: planSettings } = apiClient.useFindProgrammingPlanSettingsQuery(
-    { programmingPlanId },
-    { skip: !!subPlan }
-  );
+  const { data: planSettings } = apiClient.useFindProgrammingPlanSettingsQuery({
+    programmingPlanId
+  });
   const { data: subPlanSettings } =
     apiClient.useFindProgrammingSubPlanSettingsQuery(
       {
@@ -110,6 +109,19 @@ export const ProgrammingPlanSettingsTabs = ({
       },
       { skip: !subPlan }
     );
+
+  const planOptionIdsByFieldId = useMemo(
+    () =>
+      subPlan && planSettings
+        ? Object.fromEntries(
+            planSettings.fields.map(({ fieldId, optionIds }) => [
+              fieldId,
+              optionIds
+            ])
+          )
+        : undefined,
+    [subPlan, planSettings]
+  );
 
   const [updateProgrammingPlanSettings, updatePlanSettingsCall] =
     apiClient.useUpdateProgrammingPlanSettingsMutation();
@@ -299,6 +311,7 @@ export const ProgrammingPlanSettingsTabs = ({
           <ProgrammingPlanSamplerFormSettings
             fields={draft.fields}
             onChange={(fields) => setDraft({ ...draft, fields })}
+            planOptionIdsByFieldId={planOptionIdsByFieldId}
           />
         );
       case 'samples':

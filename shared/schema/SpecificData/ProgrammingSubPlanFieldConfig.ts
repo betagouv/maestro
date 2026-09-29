@@ -79,6 +79,18 @@ export const ProgrammingSubPlanFieldConfig = z.object({
   inheritance: FieldInheritance
 });
 
+export const ProgrammingPlanFieldConfig = z.object({
+  programmingPlanId: z.guid(),
+  required: z.boolean(),
+  order: z.number(),
+  field: FieldConfig,
+  id: ProgrammingPlanFieldId
+});
+
+export type ProgrammingPlanFieldConfig = z.infer<
+  typeof ProgrammingPlanFieldConfig
+>;
+
 export type FieldConfig = z.infer<typeof FieldConfig>;
 export type SachaFieldConfig = z.infer<typeof SachaFieldConfig>;
 export type ProgrammingSubPlanFieldConfig = z.infer<

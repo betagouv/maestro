@@ -7,7 +7,10 @@ import type {
   ProgrammingSubPlanFieldSetting
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
 import { FieldInheritanceLabels } from 'maestro-shared/schema/SpecificData/FieldInheritance';
-import { fieldInputTypeHasOptions } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
+import {
+  fieldInputTypeHasOptions,
+  type SpecificDataFieldOptionId
+} from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { assert, type Equals } from 'tsafe';
 import { SettingInheritanceLockButton } from '../SettingInheritanceLockButton/SettingInheritanceLockButton';
 import './ProgrammingSubPlanFieldItem.scss';
@@ -16,6 +19,7 @@ import { ProgrammingSubPlanFieldActiveOptions } from './ProgrammingSubPlanFieldA
 interface Props {
   field: ProgrammingSubPlanFieldSetting;
   globalField: AdminFieldConfig | undefined;
+  planOptionIds: SpecificDataFieldOptionId[] | undefined;
   canMoveUp: boolean;
   canMoveDown: boolean;
   onChange: (field: ProgrammingSubPlanFieldSetting) => void;
@@ -27,6 +31,7 @@ interface Props {
 export const ProgrammingSubPlanFieldItem = ({
   field,
   globalField,
+  planOptionIds,
   canMoveUp,
   canMoveDown,
   onChange,
@@ -39,6 +44,17 @@ export const ProgrammingSubPlanFieldItem = ({
 
   const { managedAtPlanLevel, inheritance } = field;
   const isReadOnly = inheritance === 'Inherited';
+
+  const offeredField =
+    globalField && planOptionIds
+      ? {
+          ...globalField,
+          options: globalField.options.filter(
+            ({ id }) =>
+              planOptionIds.includes(id) || field.optionIds.includes(id)
+          )
+        }
+      : globalField;
 
   return (
     <div
@@ -130,10 +146,10 @@ export const ProgrammingSubPlanFieldItem = ({
         </div>
       </div>
 
-      {globalField && fieldInputTypeHasOptions(globalField.inputType) && (
+      {offeredField && fieldInputTypeHasOptions(offeredField.inputType) && (
         <ProgrammingSubPlanFieldActiveOptions
           optionIds={field.optionIds}
-          globalField={globalField}
+          globalField={offeredField}
           disabled={isReadOnly}
           onChange={(optionIds) => onChange({ ...field, optionIds })}
         />

@@ -3,6 +3,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import { createModal } from '@codegouvfr/react-dsfr/Modal';
 import clsx from 'clsx';
 import type { ProgrammingSubPlanFieldSetting } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
+import type { SpecificDataFieldOptionId } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { useContext } from 'react';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
@@ -17,11 +18,15 @@ const addFieldModal = createModal({
 type Props = {
   fields: ProgrammingSubPlanFieldSetting[];
   onChange: (fields: ProgrammingSubPlanFieldSetting[]) => void;
+  planOptionIdsByFieldId:
+    | Record<string, SpecificDataFieldOptionId[]>
+    | undefined;
 };
 
 export const ProgrammingPlanSamplerFormSettings = ({
   fields,
   onChange,
+  planOptionIdsByFieldId,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -58,6 +63,7 @@ export const ProgrammingPlanSamplerFormSettings = ({
         fields={fields}
         onChange={onChange}
         allFields={allFields}
+        planOptionIdsByFieldId={planOptionIdsByFieldId}
       />
 
       <AddFieldToProgrammingSubPlanModal

@@ -35,7 +35,6 @@ export const abricotsEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A0DVX',
-  stages: ['STADE1'],
   sampleCount: 40
 });
 export const avocats = genPrescription({
@@ -44,7 +43,6 @@ export const avocats = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A01LB',
-  stages: ['STADE1'],
   sampleCount: 14
 });
 export const avoineEtSimilaires = genPrescription({
@@ -53,7 +51,6 @@ export const avoineEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A000F',
-  stages: ['STADE1', 'STADE3'],
   sampleCount: 53
 });
 export const legumesFeuilles = genPrescription({
@@ -62,7 +59,6 @@ export const legumesFeuilles = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00KR',
-  stages: ['STADE1'],
   sampleCount: 9
 });
 export const carottes = genPrescription({
@@ -71,7 +67,6 @@ export const carottes = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00QH',
-  stages: ['STADE1'],
   sampleCount: 56
 });
 export const celeris = genPrescription({
@@ -80,7 +75,6 @@ export const celeris = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00RY',
-  stages: ['STADE1'],
   sampleCount: 33
 });
 export const cerisesEtSimilaires = genPrescription({
@@ -89,7 +83,6 @@ export const cerisesEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A01GG',
-  stages: ['STADE1'],
   sampleCount: 24
 });
 export const chouxVertsEtSimilaires = genPrescription({
@@ -98,7 +91,6 @@ export const chouxVertsEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00GL',
-  stages: ['STADE1'],
   sampleCount: 40
 });
 export const chouxFleurs = genPrescription({
@@ -107,7 +99,6 @@ export const chouxFleurs = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00FR',
-  stages: ['STADE1'],
   sampleCount: 36
 });
 export const endives = genPrescription({
@@ -116,7 +107,6 @@ export const endives = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00NE',
-  stages: ['STADE1'],
   sampleCount: 20
 });
 export const fenouils = genPrescription({
@@ -125,7 +115,6 @@ export const fenouils = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00SA',
-  stages: ['STADE1'],
   sampleCount: 16
 });
 export const fevesNonEcossees = genPrescription({
@@ -134,7 +123,6 @@ export const fevesNonEcossees = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00PH',
-  stages: ['STADE1'],
   sampleCount: 43
 });
 export const figues = genPrescription({
@@ -143,7 +131,6 @@ export const figues = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A01HG',
-  stages: ['STADE1'],
   sampleCount: 19
 });
 export const jeunesPousses = genPrescription({
@@ -152,7 +139,6 @@ export const jeunesPousses = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00MA',
-  stages: ['STADE1'],
   sampleCount: 40
 });
 export const fruitsACoques = genPrescription({
@@ -161,7 +147,6 @@ export const fruitsACoques = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A014C',
-  stages: ['STADE1'],
   sampleCount: 3
 });
 export const houblon = genPrescription({
@@ -170,7 +155,6 @@ export const houblon = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00YZ',
-  stages: ['STADE3'],
   sampleCount: 8
 });
 export const laituesEtSimilaires = genPrescription({
@@ -179,7 +163,6 @@ export const laituesEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A0DLB',
-  stages: ['STADE1'],
   sampleCount: 14
 });
 const legumesSecs = genPrescription({
@@ -188,7 +171,6 @@ const legumesSecs = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A012R',
-  stages: ['STADE1'],
   sampleCount: 84
 });
 export const lentilles = genPrescription({
@@ -197,7 +179,6 @@ export const lentilles = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A013Q',
-  stages: ['STADE1', 'STADE3'],
   sampleCount: 33
 });
 export const litchis = genPrescription({
@@ -206,7 +187,6 @@ export const litchis = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A01JV',
-  stages: ['STADE1'],
   sampleCount: 12
 });
 export const maches = genPrescription({
@@ -215,7 +195,6 @@ export const maches = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00KT',
-  stages: ['STADE1'],
   sampleCount: 22
 });
 export const mangues = genPrescription({
@@ -224,7 +203,6 @@ export const mangues = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A01LF',
-  stages: ['STADE1'],
   sampleCount: 13
 });
 export const navets = genPrescription({
@@ -233,7 +211,6 @@ export const navets = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00RE',
-  stages: ['STADE1'],
   sampleCount: 31
 });
 export const oignons = genPrescription({
@@ -242,7 +219,6 @@ export const oignons = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A00HC',
-  stages: ['STADE1'],
   sampleCount: 52
 });
 export const orgeEtSimilaires = genPrescription({
@@ -251,7 +227,6 @@ export const orgeEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A0D9Y',
-  stages: ['STADE1', 'STADE3'],
   sampleCount: 64
 });
 export const patatesDouces = genPrescription({
@@ -260,7 +235,6 @@ export const patatesDouces = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A010C',
-  stages: ['STADE1'],
   sampleCount: 21
 });
 export const pechesEtSimilaires = genPrescription({
@@ -269,7 +243,6 @@ export const pechesEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A01GL',
-  stages: ['STADE1'],
   sampleCount: 36
 });
 export const poireauxEtSimilaires = genPrescription({
@@ -278,7 +251,6 @@ export const poireauxEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A0DEH',
-  stages: ['STADE1'],
   sampleCount: 42
 });
 export const poires = genPrescription({
@@ -287,7 +259,6 @@ export const poires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A01DP',
-  stages: ['STADE1'],
   sampleCount: 36
 });
 export const rizEtSimilaires = genPrescription({
@@ -296,7 +267,6 @@ export const rizEtSimilaires = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A001C',
-  stages: ['STADE2'],
   sampleCount: 17
 });
 export const fevesDeSoja = genPrescription({
@@ -305,7 +275,6 @@ export const fevesDeSoja = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A0DFR',
-  stages: ['STADE1', 'STADE3'],
   sampleCount: 50
 });
 export const graineDeTournesol1 = genPrescription({
@@ -314,7 +283,6 @@ export const graineDeTournesol1 = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Control',
   matrixKind: 'A0DBP',
-  stages: ['STADE1', 'STADE3'],
   sampleCount: 24
 });
 const graineDeTournesol2 = genPrescription({
@@ -323,17 +291,6 @@ const graineDeTournesol2 = genPrescription({
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: 'Surveillance',
   matrixKind: 'A0DBP',
-  stages: [
-    'STADE1',
-    'STADE2',
-    'STADE3',
-    'STADE4',
-    'STADE5',
-    'STADE6',
-    'STADE7',
-    'STADE8',
-    'STADE9'
-  ],
   sampleCount: 50
 });
 const subPlanLabel = ({ matrixKind }: Prescription): string =>

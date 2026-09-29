@@ -11,7 +11,10 @@ import {
   ProgrammingSubPlan,
   ProgrammingSubPlanId
 } from '../schema/ProgrammingPlan/ProgrammingSubPlan';
-import { ProgrammingSubPlanFieldConfig } from '../schema/SpecificData/ProgrammingSubPlanFieldConfig';
+import {
+  ProgrammingPlanFieldConfig,
+  ProgrammingSubPlanFieldConfig
+} from '../schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import type { SubRoutes } from './routes';
 
 export const programmingPlansRoutes = {
@@ -167,6 +170,15 @@ export const programmingPlansRoutes = {
         response: z.undefined()
       }
     },
+  '/programming-plans/:programmingPlanId/specific-data-fields': {
+    params: {
+      programmingPlanId: z.string()
+    },
+    get: {
+      response: z.array(ProgrammingPlanFieldConfig),
+      permissions: 'NONE'
+    }
+  },
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/specific-data-fields':
     {
       params: {

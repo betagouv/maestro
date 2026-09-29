@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { MatrixKindEffective } from '../referential/Matrix/MatrixKind';
 import { RegionList, Regions } from '../referential/Region';
 import { SSD2Ids } from '../referential/Residue/SSD2Id';
-import { subStagesForStages } from '../referential/SubStage';
 import { AnalysisMethodList } from '../schema/Analysis/AnalysisMethod';
 import type { LocalPrescription } from '../schema/LocalPrescription/LocalPrescription';
 import type { Prescription } from '../schema/Prescription/Prescription';
@@ -18,7 +17,6 @@ import {
   DAOAValidatedProgrammingPlanFixture,
   DAOAVolailleValidatedSubPlanId,
   PPVValidatedProgrammingPlanFixture,
-  PPVValidatedSubPlanFixture,
   PPVValidatedSubPlanId
 } from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
@@ -31,7 +29,6 @@ export const genPrescription = (
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: oneOf(ProgrammingPlanContextList),
   matrixKind: oneOf(MatrixKindEffective.options),
-  stages: ['STADE1'],
   sampleCount: 0,
   ...data
 });
@@ -62,8 +59,7 @@ export const PrescriptionFixture = genPrescription({
   programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: PPVValidatedProgrammingPlanFixture.contexts[0],
-  matrixKind: 'A00GY',
-  stages: subStagesForStages(PPVValidatedSubPlanFixture.stages ?? [])
+  matrixKind: 'A00GY'
 });
 
 export const LocalPrescriptionFixture = genLocalPrescription({
@@ -85,7 +81,6 @@ export const FoieDeBovinPrescriptionFixture = genPrescription({
   context: 'Surveillance',
   matrixKind: 'A01QX',
   matrix: 'A01XF#F28.A0C0S',
-  stages: ['STADE10'],
   sampleCount: 80,
   notes: 'Prescription pour le foie de bovin',
   programmingInstruction: 'Instructions pour le foie de bovin'
@@ -96,7 +91,6 @@ export const VolaillePrescriptionFixture = genPrescription({
   programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
   context: 'Surveillance',
   matrixKind: 'A01SN',
-  stages: ['STADE10'],
   sampleCount: 77
 });
 export const FoieDeBovinValidatedPrescriptionFixture = {

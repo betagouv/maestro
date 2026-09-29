@@ -78,20 +78,17 @@ describe('Prescriptions router', () => {
   const closedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanClosed.id,
     context: 'Control',
-    matrixKind: oneOf(MatrixKindEffective.options),
-    stages: ['STADE1']
+    matrixKind: oneOf(MatrixKindEffective.options)
   });
   const submittedControlPrescription = genPrescription({
     programmingPlanId: programmingPlanSubmitted.id,
     context: 'Control',
-    matrixKind: oneOf(MatrixKindEffective.options),
-    stages: ['STADE2']
+    matrixKind: oneOf(MatrixKindEffective.options)
   });
   const inProgressControlPrescription = genPrescription({
     programmingPlanId: programmingPlanInProgress.id,
     context: 'Control',
-    matrixKind: oneOf(MatrixKindEffective.options),
-    stages: ['STADE3', 'STADE4']
+    matrixKind: oneOf(MatrixKindEffective.options)
   });
   const inProgressControlPrescriptionSubstance = genPrescriptionSubstance({
     prescriptionId: inProgressControlPrescription.id,
@@ -100,8 +97,7 @@ describe('Prescriptions router', () => {
   const inProgressSurveillancePrescription = genPrescription({
     programmingPlanId: programmingPlanInProgress.id,
     context: 'Surveillance',
-    matrixKind: oneOf(MatrixKindEffective.options),
-    stages: ['STADE5', 'STADE6', 'STADE8']
+    matrixKind: oneOf(MatrixKindEffective.options)
   });
 
   beforeAll(async () => {
@@ -316,8 +312,6 @@ describe('Prescriptions router', () => {
       await badRequestTest({ ...validBody, context: 'invalid' });
       await badRequestTest({ ...validBody, matrixKind: undefined });
       await badRequestTest({ ...validBody, matrixKind: 'invalid' });
-      await badRequestTest({ ...validBody, stages: undefined });
-      await badRequestTest({ ...validBody, stages: 'invalid' });
     });
 
     test('should fail if the user does not have the permission to create prescriptions', async () => {
@@ -394,7 +388,6 @@ describe('Prescriptions router', () => {
   describe('PUT /prescriptions/{prescriptionId}', () => {
     const prescriptionUpdate: PrescriptionUpdate = {
       programmingPlanId: programmingPlanInProgress.id,
-      stages: ['STADE7'],
       notes: fakerFR.string.alphanumeric(32),
       programmingInstruction: fakerFR.string.alphanumeric(32)
     };
@@ -482,7 +475,6 @@ describe('Prescriptions router', () => {
 
       expect(res.body).toMatchObject({
         ...inProgressControlPrescription,
-        stages: prescriptionUpdate.stages,
         notes: prescriptionUpdate.notes,
         programmingInstruction: prescriptionUpdate.programmingInstruction
       });
@@ -491,7 +483,6 @@ describe('Prescriptions router', () => {
         Prescriptions().where({ id: inProgressControlPrescription.id }).first()
       ).resolves.toMatchObject({
         ...inProgressControlPrescription,
-        stages: prescriptionUpdate.stages,
         notes: prescriptionUpdate.notes,
         programmingInstruction: prescriptionUpdate.programmingInstruction
       });

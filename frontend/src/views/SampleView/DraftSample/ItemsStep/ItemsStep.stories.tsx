@@ -36,8 +36,7 @@ const programmingPlan = genProgrammingPlan();
 const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
   context: 'Control',
-  matrixKind: 'A001M',
-  stages: ['STADE1', 'STADE5']
+  matrixKind: 'A001M'
 });
 
 const partialSample = {

@@ -9,9 +9,18 @@ const programmingProgrammingSubPlanFieldsApi = api.injectEndpoints({
       {
         providesTags: ['SpecificDataField']
       }
+    ),
+    findProgrammingPlanFieldConfigs: buildTypedQuery(
+      builder,
+      '/programming-plans/:programmingPlanId/specific-data-fields',
+      {
+        providesTags: ['SpecificDataField']
+      }
     )
   })
 });
 
-export const { useFindProgrammingSubPlanFieldConfigsQuery } =
-  programmingProgrammingSubPlanFieldsApi;
+export const {
+  useFindProgrammingSubPlanFieldConfigsQuery,
+  useFindProgrammingPlanFieldConfigsQuery
+} = programmingProgrammingSubPlanFieldsApi;

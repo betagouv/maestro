@@ -3,6 +3,7 @@ import type {
   AdminFieldConfig,
   ProgrammingSubPlanFieldSetting
 } from 'maestro-shared/schema/SpecificData/FieldConfigInput';
+import type { SpecificDataFieldOptionId } from 'maestro-shared/schema/SpecificData/ProgrammingSubPlanFieldConfig';
 import { assert, type Equals } from 'tsafe';
 import { ProgrammingSubPlanFieldItem } from './ProgrammingSubPlanFieldItem';
 
@@ -10,12 +11,16 @@ interface Props {
   fields: ProgrammingSubPlanFieldSetting[];
   onChange: (fields: ProgrammingSubPlanFieldSetting[]) => void;
   allFields: AdminFieldConfig[];
+  planOptionIdsByFieldId:
+    | Record<string, SpecificDataFieldOptionId[]>
+    | undefined;
 }
 
 export const ProgrammingSubPlanFieldList = ({
   fields,
   onChange,
   allFields,
+  planOptionIdsByFieldId,
   ..._rest
 }: Props) => {
   assert<Equals<keyof typeof _rest, never>>();
@@ -56,19 +61,23 @@ export const ProgrammingSubPlanFieldList = ({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-      {visibleFields.map(({ field, index }, i) => (
-        <ProgrammingSubPlanFieldItem
-          key={field.fieldId}
-          field={field}
-          globalField={allFields.find(({ id }) => id === field.fieldId)}
-          canMoveUp={i > 0 && !visibleFields[i - 1].field.managedAtPlanLevel}
-          canMoveDown={i < visibleFields.length - 1}
-          onChange={(updated) => replaceAt(index, updated)}
-          onMoveUp={() => moveField(index, visibleFields[i - 1].index)}
-          onMoveDown={() => moveField(index, visibleFields[i + 1].index)}
-          onDelete={() => deleteAt(index)}
-        />
-      ))}
+      {visibleFields.map(({ field, index }, i) => {
+        const globalField = allFields.find(({ id }) => id === field.fieldId);
+        return (
+          <ProgrammingSubPlanFieldItem
+            key={field.fieldId}
+            field={field}
+            globalField={globalField}
+            planOptionIds={planOptionIdsByFieldId?.[field.fieldId]}
+            canMoveUp={i > 0 && !visibleFields[i - 1].field.managedAtPlanLevel}
+            canMoveDown={i < visibleFields.length - 1}
+            onChange={(updated) => replaceAt(index, updated)}
+            onMoveUp={() => moveField(index, visibleFields[i - 1].index)}
+            onMoveDown={() => moveField(index, visibleFields[i + 1].index)}
+            onDelete={() => deleteAt(index)}
+          />
+        );
+      })}
     </div>
   );
 };

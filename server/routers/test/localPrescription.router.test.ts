@@ -108,26 +108,22 @@ describe('Local prescriptions router', () => {
   const closedControlPrescription = genPrescription({
     programmingPlanId: PPVClosedProgrammingPlanFixture.id,
     context: 'Control',
-    matrixKind: oneOf(MatrixKindEffective.options),
-    stages: ['STADE1']
+    matrixKind: oneOf(MatrixKindEffective.options)
   });
   const validatedControlPrescription = genPrescription({
     programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
     context: 'Control',
-    matrixKind: oneOf(MatrixKindEffective.options),
-    stages: ['STADE2']
+    matrixKind: oneOf(MatrixKindEffective.options)
   });
   const submittedControlPrescription1 = genPrescription({
     programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
     context: 'Control',
-    matrixKind: oneOf(MatrixKindEffective.options),
-    stages: ['STADE3', 'STADE4']
+    matrixKind: oneOf(MatrixKindEffective.options)
   });
   const submittedControlPrescription2 = genPrescription({
     programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
     context: 'Control',
-    matrixKind: oneOf(MatrixKindEffective.options),
-    stages: ['STADE5', 'STADE6', 'STADE8']
+    matrixKind: oneOf(MatrixKindEffective.options)
   });
   const closedControlLocalPrescriptions: LocalPrescription[] = RegionList.map(
     (region) => ({
@@ -2483,8 +2479,7 @@ describe('Local prescriptions router', () => {
     const changeTrackingPrescription = genPrescription({
       programmingPlanId: PPVSubmittedProgrammingPlanFixture.id,
       context: 'Exploratory',
-      matrixKind: oneOf(MatrixKindEffective.options),
-      stages: ['STADE1']
+      matrixKind: oneOf(MatrixKindEffective.options)
     });
     const changeTrackingLocalPrescription: LocalPrescription =
       genLocalPrescription({

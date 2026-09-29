@@ -5,7 +5,6 @@ import {
   MatrixKindLabels
 } from '../../referential/Matrix/MatrixKind';
 import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
-import { SubStage, SubStageLabels } from '../../referential/SubStage';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
@@ -20,7 +19,6 @@ export const Prescription = z.object({
   context: ProgrammingPlanContext,
   matrixKind: MatrixKind,
   matrix: Matrix.nullish(),
-  stages: z.array(SubStage),
   sampleCount: z.coerce.number().int().min(0).default(0),
   monoAnalysisCount: z.coerce.number().nullish(),
   multiAnalysisCount: z.coerce.number().nullish(),
@@ -35,7 +33,6 @@ export const PrescriptionToCreate = Prescription.omit({
 export const PrescriptionUpdate = z.object({
   programmingPlanId: z.guid(),
   ...Prescription.pick({
-    stages: true,
     notes: true,
     programmingInstruction: true,
     sampleCount: true
@@ -75,8 +72,7 @@ export const sortPrescriptions = <T extends Prescription>(
     return [
       subPlanKey ? '0' : '1',
       ...(subPlanKey ?? ['', '']),
-      MatrixKindLabels[prescription.matrixKind],
-      ...prescription.stages.map((_) => SubStageLabels[_])
+      MatrixKindLabels[prescription.matrixKind]
     ].join();
   };
 

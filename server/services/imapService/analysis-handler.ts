@@ -24,6 +24,23 @@ import type { ExportAnalysis, ExportDataSubstanceWithSSD2Id } from './index';
 export type AnalysisWithResidueWithSSD2Id = Omit<ExportAnalysis, 'residues'> & {
   residues: ExportDataSubstanceWithSSD2Id[];
 };
+
+const findSpecificDataValue = async (
+  sampleId: string,
+  key: string
+): Promise<string | undefined> => {
+  const row = await kysely
+    .selectFrom('sampleSpecificDataValues as sdv')
+    .innerJoin('specificDataFields as sdf', 'sdf.id', 'sdv.fieldId')
+    .leftJoin('specificDataFieldOptions as sdfo', 'sdfo.id', 'sdv.optionId')
+    .where('sdv.sampleId', '=', sampleId)
+    .where('sdf.key', '=', key)
+    .select(['sdv.value', 'sdfo.value as optionValue'])
+    .executeTakeFirst();
+
+  return row?.value ?? row?.optionValue ?? undefined;
+};
+
 export const analysisHandler = async (
   analyse: AnalysisWithResidueWithSSD2Id,
   emailReceivedAt: Date
@@ -40,7 +57,6 @@ export const analysisHandler = async (
 }> => {
   const {
     sampleId,
-    sampleStage,
     programmingSubPlanNumber,
     analyseId: oldAnalyseId,
     samplerId,
@@ -60,7 +76,6 @@ export const analysisHandler = async (
     .where('reference', '=', analyse.sampleReference)
     .select([
       'samples.id as sampleId',
-      'samples.stage as sampleStage',
       'programmingSubPlans.subPlanNumber as programmingSubPlanNumber',
       'analysis.id as analyseId',
       'users.email as samplerEmail',
@@ -76,23 +91,14 @@ export const analysisHandler = async (
         )
     );
 
-  if (sampleStage === null) {
+  const sampleStage = await findSpecificDataValue(sampleId, 'stage');
+
+  if (sampleStage === undefined) {
     throw new ExtractError(`Pas de stade de prélèvement`);
   }
 
   const matrixPart = isPPVSubPlanNumber(programmingSubPlanNumber)
-    ? await kysely
-        .selectFrom('sampleSpecificDataValues')
-        .innerJoin(
-          'specificDataFields',
-          'specificDataFields.id',
-          'sampleSpecificDataValues.fieldId'
-        )
-        .where('sampleSpecificDataValues.sampleId', '=', sampleId)
-        .where('specificDataFields.key', '=', 'matrixPart')
-        .select('sampleSpecificDataValues.value')
-        .executeTakeFirst()
-        .then((r) => r?.value ?? undefined)
+    ? await findSpecificDataValue(sampleId, 'matrixPart')
     : undefined;
 
   const complexResidues = analyse.residues.filter(

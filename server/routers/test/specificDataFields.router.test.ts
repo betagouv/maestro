@@ -2,7 +2,8 @@ import { constants } from 'node:http2';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
 import {
   AllFieldConfigs,
-  SachaFieldConfigs
+  SachaFieldConfigs,
+  StageFieldOptions
 } from 'maestro-shared/test/specificDataFixtures';
 import {
   AdminFixture,
@@ -21,13 +22,15 @@ const sachaFieldKeys = [...new Set(SachaFieldConfigs.map((c) => c.field.key))];
 const allOptionValuesByFieldKey = new Map(
   sachaFieldKeys.map((key) => [
     key,
-    [
-      ...new Map(
-        AllFieldConfigs.filter((c) => c.field.key === key)
-          .flatMap((c) => c.field.options)
-          .map((o) => [o.value, o.value])
-      ).values()
-    ]
+    key === 'stage'
+      ? StageFieldOptions.map((o) => o.value)
+      : [
+          ...new Map(
+            AllFieldConfigs.filter((c) => c.field.key === key)
+              .flatMap((c) => c.field.options)
+              .map((o) => [o.value, o.value])
+          ).values()
+        ]
   ])
 );
 
