@@ -14,7 +14,7 @@ export type MatrixKindSelection = {
 
 export type MatrixSelection = MatrixKindSelection[];
 
-export type MatrixKindOption = {
+type MatrixKindOption = {
   matrixKind: MatrixKind;
   matrices: Matrix[];
   matchedByMatrix: boolean;
