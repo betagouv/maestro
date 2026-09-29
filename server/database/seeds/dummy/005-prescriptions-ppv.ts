@@ -395,6 +395,47 @@ export const ppvSubPlanIdByPrescriptionId = new Map<
   )
 );
 
+const DEFAULT_STAGE_VALUES = ['STADE1'];
+
+const stageValuesByPrescription = new Map<Prescription, string[]>([
+  [avoineEtSimilaires, ['STADE1', 'STADE3']],
+  [houblon, ['STADE3']],
+  [lentilles, ['STADE1', 'STADE3']],
+  [orgeEtSimilaires, ['STADE1', 'STADE3']],
+  [rizEtSimilaires, ['STADE2']],
+  [fevesDeSoja, ['STADE1', 'STADE3']],
+  [graineDeTournesol1, ['STADE1', 'STADE3']],
+  [
+    graineDeTournesol2,
+    [
+      'STADE1',
+      'STADE2',
+      'STADE3',
+      'STADE4',
+      'STADE5',
+      'STADE6',
+      'STADE7',
+      'STADE8',
+      'STADE9'
+    ]
+  ]
+]);
+
+export const ppvStageValuesBySubPlanId = new Map<
+  ProgrammingSubPlanId,
+  string[]
+>(
+  basePrescriptions.flatMap((basePrescription, index) => {
+    const stageValues =
+      stageValuesByPrescription.get(basePrescription) ?? DEFAULT_STAGE_VALUES;
+
+    return [
+      [validatedSubPlans[index].id, stageValues] as const,
+      [inProgressSubPlans[index].id, stageValues] as const
+    ];
+  })
+);
+
 export const seed = async () => {
   const validatedProgrammingPlan = await ProgrammingPlans()
     .where({ id: PPVValidatedProgrammingPlanFixture.id })
