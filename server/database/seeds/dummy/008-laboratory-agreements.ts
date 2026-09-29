@@ -1,3 +1,4 @@
+import { PPVSubPlanNumberPrefix } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   ANS94ALnrPestId,
   CAP29Id,
@@ -18,12 +19,10 @@ import {
   DAOABovinValidatedSubPlanId,
   DAOAInProgressBovinSubPlanId,
   DAOAInProgressVolailleSubPlanId,
-  DAOAVolailleValidatedSubPlanId,
-  PPVClosedSubPlanId,
-  PPVInProgressSubPlanId,
-  PPVValidatedSubPlanId
+  DAOAVolailleValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { knexInstance as db } from '../../../repositories/db';
+import { ProgrammingSubPlansRaw } from '../../../repositories/programmingSubPlanRepository';
 
 export const DAOAMonoLaboratoryIds = [ANS94ALnrPestId];
 export const DAOABovinMultiLaboratoryIds = [ANS94ALnrPestId];
@@ -50,19 +49,21 @@ const PPVLaboratoryIds = [
 ];
 
 export const seed = async () => {
+  const ppvSubPlans = await ProgrammingSubPlansRaw()
+    .select('id')
+    .where('subPlanNumber', 'like', `${PPVSubPlanNumberPrefix}%`);
+
   await db('laboratory_agreements').insert([
-    ...[
-      PPVClosedSubPlanId,
-      PPVValidatedSubPlanId,
-      PPVInProgressSubPlanId
-    ].flatMap((programmingSubPlanId) =>
-      PPVLaboratoryIds.map((laboratoryId) => ({
-        laboratory_id: laboratoryId,
-        programming_sub_plan_id: programmingSubPlanId,
-        substance_kind: 'Any',
-        detection_analysis: true
-      }))
-    ),
+    ...ppvSubPlans
+      .map((_) => _.id)
+      .flatMap((programmingSubPlanId) =>
+        PPVLaboratoryIds.map((laboratoryId) => ({
+          laboratory_id: laboratoryId,
+          programming_sub_plan_id: programmingSubPlanId,
+          substance_kind: 'Any',
+          detection_analysis: true
+        }))
+      ),
     ...[DAOAVolailleValidatedSubPlanId].flatMap((programmingSubPlanId) => [
       ...DAOAMonoLaboratoryIds.map((laboratoryId) => ({
         laboratory_id: laboratoryId,

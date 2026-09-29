@@ -10,6 +10,7 @@ import {
   type PrescriptionPermission
 } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   hasSamplePermission,
   type SampleChecked,
@@ -149,9 +150,7 @@ export const useAuthentication = () => {
             : undefined,
           (hasUserPermission('readLaboratoryCompetences') ||
             hasUserPermission('manageLaboratoryCompetences')) &&
-          authUser?.user.programmingSubPlans?.some(
-            (_) => _.subPlanNumber === 'PPV'
-          )
+          authUser?.user.programmingSubPlans?.some((_) => isPPVSubPlan(_))
             ? 'LaboratoryAnalyticalCompetencesRoute'
             : undefined,
           hasUserPermission('manageLaboratoryAgreements')

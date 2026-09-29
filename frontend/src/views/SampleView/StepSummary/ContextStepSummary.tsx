@@ -4,6 +4,7 @@ import { DepartmentLabels } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
 import type { Geolocation } from 'maestro-shared/schema/Geolocation/Geolocation';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   isCreatedPartialSample,
   type SampleChecked,
@@ -172,7 +173,7 @@ const ContextStepSummary = ({
           )}
         </div>
       </div>
-      {programmingSubPlan?.subPlanNumber === 'PPV' && (
+      {isPPVSubPlan(programmingSubPlan) && (
         <div className="summary-item icon-text">
           <div className={cx('fr-icon-map-pin-user-line')}></div>
           <div>

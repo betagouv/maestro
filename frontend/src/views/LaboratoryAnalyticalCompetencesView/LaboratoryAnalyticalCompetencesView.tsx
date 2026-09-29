@@ -11,6 +11,7 @@ import {
   type ResidueKind,
   ResidueKindLabels
 } from 'maestro-shared/schema/Analysis/Residue/ResidueKind';
+import { PPVSubPlanNumberPrefix } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import microscope from 'src/assets/illustrations/microscope.svg';
@@ -48,7 +49,7 @@ const LaboratoryAnalyticalCompetencesView = () => {
     );
 
   const { data: laboratories } = apiClient.useFindLaboratoriesQuery({
-    subPlanNumber: 'PPV'
+    subPlanNumberPrefix: PPVSubPlanNumberPrefix
   });
   const filteredResidues = useMemo(
     () =>

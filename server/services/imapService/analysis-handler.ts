@@ -8,6 +8,7 @@ import type { SSD2Id } from 'maestro-shared/referential/Residue/SSD2Id';
 import { SSD2Referential } from 'maestro-shared/referential/Residue/SSD2Referential';
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import { LmrIsValid } from 'maestro-shared/schema/Analysis/Residue/Residue';
+import { isPPVSubPlanNumber } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { OmitDistributive } from 'maestro-shared/utils/typescript';
 import { analysisReportDocumentsRepository } from '../../repositories/analysisReportDocumentsRepository';
 import { analysisRepository } from '../../repositories/analysisRepository';
@@ -79,21 +80,20 @@ export const analysisHandler = async (
     throw new ExtractError(`Pas de stade de prélèvement`);
   }
 
-  const matrixPart =
-    programmingSubPlanNumber === 'PPV'
-      ? await kysely
-          .selectFrom('sampleSpecificDataValues')
-          .innerJoin(
-            'specificDataFields',
-            'specificDataFields.id',
-            'sampleSpecificDataValues.fieldId'
-          )
-          .where('sampleSpecificDataValues.sampleId', '=', sampleId)
-          .where('specificDataFields.key', '=', 'matrixPart')
-          .select('sampleSpecificDataValues.value')
-          .executeTakeFirst()
-          .then((r) => r?.value ?? undefined)
-      : undefined;
+  const matrixPart = isPPVSubPlanNumber(programmingSubPlanNumber)
+    ? await kysely
+        .selectFrom('sampleSpecificDataValues')
+        .innerJoin(
+          'specificDataFields',
+          'specificDataFields.id',
+          'sampleSpecificDataValues.fieldId'
+        )
+        .where('sampleSpecificDataValues.sampleId', '=', sampleId)
+        .where('specificDataFields.key', '=', 'matrixPart')
+        .select('sampleSpecificDataValues.value')
+        .executeTakeFirst()
+        .then((r) => r?.value ?? undefined)
+    : undefined;
 
   const complexResidues = analyse.residues.filter(
     (

@@ -1,4 +1,12 @@
+import { countBy } from 'lodash-es';
+import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { RegionList } from 'maestro-shared/referential/Region';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
+import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import {
+  type ProgrammingSubPlan,
+  ProgrammingSubPlanId
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { PPVDummyLaboratoryIds } from 'maestro-shared/schema/User/User';
 import {
   genLocalPrescriptions,
@@ -6,8 +14,10 @@ import {
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
   PPVInProgressProgrammingPlanFixture,
+  PPVInProgressSubPlanFixture,
   PPVInProgressSubPlanId,
   PPVValidatedProgrammingPlanFixture,
+  PPVValidatedSubPlanFixture,
   PPVValidatedSubPlanId
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { oneOf } from 'maestro-shared/test/testFixtures';
@@ -16,6 +26,8 @@ import { LocalPrescriptions } from '../../../repositories/localPrescriptionRepos
 import { LocalPrescriptionSubstanceKindsLaboratories } from '../../../repositories/localPrescriptionSubstanceKindLaboratoryRepository';
 import { Prescriptions } from '../../../repositories/prescriptionRepository';
 import { ProgrammingPlans } from '../../../repositories/programmingPlanRepository';
+import { toProgrammingPlanSettingsRow } from '../../../repositories/programmingPlanSettingsRow';
+import { ProgrammingSubPlansRaw } from '../../../repositories/programmingSubPlanRepository';
 
 export const abricotsEtSimilaires = genPrescription({
   id: '02b1d919-f5e7-4d67-afa6-dc8e7e8f3687',
@@ -324,6 +336,108 @@ const graineDeTournesol2 = genPrescription({
   ],
   sampleCount: 50
 });
+const subPlanLabel = ({ matrixKind }: Prescription): string =>
+  matrixKind ? MatrixKindLabels[matrixKind] : 'Sans matrice';
+
+const buildSubPlans = (
+  base: ProgrammingSubPlan,
+  prescriptions: Prescription[]
+): ProgrammingSubPlan[] => {
+  const occurrences = countBy(prescriptions, subPlanLabel);
+
+  return prescriptions.map((prescription, index) => {
+    const label = subPlanLabel(prescription);
+
+    return {
+      ...base,
+      id: index === 0 ? base.id : ProgrammingSubPlanId.parse(uuidv4()),
+      programmingPlanId: prescription.programmingPlanId,
+      subPlanNumber: `PPV${String(index + 1).padStart(2, '0')}`,
+      label:
+        occurrences[label] > 1
+          ? `${label} - ${ContextLabels[prescription.context]}`
+          : label
+    };
+  });
+};
+
+const basePrescriptions = [
+  abricotsEtSimilaires,
+  avocats,
+  avoineEtSimilaires,
+  legumesFeuilles,
+  carottes,
+  celeris,
+  cerisesEtSimilaires,
+  chouxVertsEtSimilaires,
+  chouxFleurs,
+  endives,
+  fenouils,
+  fevesNonEcossees,
+  figues,
+  jeunesPousses,
+  fruitsACoques,
+  houblon,
+  laituesEtSimilaires,
+  legumesSecs,
+  lentilles,
+  litchis,
+  maches,
+  mangues,
+  navets,
+  oignons,
+  orgeEtSimilaires,
+  patatesDouces,
+  pechesEtSimilaires,
+  poireauxEtSimilaires,
+  poires,
+  rizEtSimilaires,
+  fevesDeSoja,
+  graineDeTournesol1,
+  graineDeTournesol2
+];
+
+const baseInProgressPrescriptions = basePrescriptions.map(
+  (prescription, index) => ({
+    ...prescription,
+    id: uuidv4(),
+    programmingPlanId: PPVInProgressProgrammingPlanFixture.id,
+    programmingSubPlanId: PPVInProgressSubPlanId,
+    sampleCount:
+      index === basePrescriptions.length - 1 ? 0 : prescription.sampleCount
+  })
+);
+
+const validatedSubPlans = buildSubPlans(
+  PPVValidatedSubPlanFixture,
+  basePrescriptions
+);
+const inProgressSubPlans = buildSubPlans(
+  PPVInProgressSubPlanFixture,
+  baseInProgressPrescriptions
+);
+
+const prescriptions = basePrescriptions.map((prescription, index) => ({
+  ...prescription,
+  programmingSubPlanId: validatedSubPlans[index].id
+}));
+
+const inProgressPrescriptions = baseInProgressPrescriptions.map(
+  (prescription, index) => ({
+    ...prescription,
+    programmingSubPlanId: inProgressSubPlans[index].id
+  })
+);
+
+export const ppvSubPlanIdByPrescriptionId = new Map<
+  string,
+  ProgrammingSubPlanId
+>(
+  [...prescriptions, ...inProgressPrescriptions].map(
+    ({ id, programmingSubPlanId }) => [id, programmingSubPlanId]
+  )
+);
+
 export const seed = async () => {
   const validatedProgrammingPlan = await ProgrammingPlans()
     .where({ id: PPVValidatedProgrammingPlanFixture.id })
@@ -333,50 +447,18 @@ export const seed = async () => {
     return;
   }
 
-  const prescriptions = [
-    abricotsEtSimilaires,
-    avocats,
-    avoineEtSimilaires,
-    legumesFeuilles,
-    carottes,
-    celeris,
-    cerisesEtSimilaires,
-    chouxVertsEtSimilaires,
-    chouxFleurs,
-    endives,
-    fenouils,
-    fevesNonEcossees,
-    figues,
-    jeunesPousses,
-    fruitsACoques,
-    houblon,
-    laituesEtSimilaires,
-    legumesSecs,
-    lentilles,
-    litchis,
-    maches,
-    mangues,
-    navets,
-    oignons,
-    orgeEtSimilaires,
-    patatesDouces,
-    pechesEtSimilaires,
-    poireauxEtSimilaires,
-    poires,
-    rizEtSimilaires,
-    fevesDeSoja,
-    graineDeTournesol1,
-    graineDeTournesol2
-  ];
+  await ProgrammingSubPlansRaw()
+    .whereIn('programmingPlanId', [
+      PPVValidatedProgrammingPlanFixture.id,
+      PPVInProgressProgrammingPlanFixture.id
+    ])
+    .delete();
 
-  const inProgressPrescriptions = prescriptions.map((prescription, index) => ({
-    ...prescription,
-    id: uuidv4(),
-    programmingPlanId: PPVInProgressProgrammingPlanFixture.id,
-    programmingSubPlanId: PPVInProgressSubPlanId,
-    sampleCount:
-      index === prescriptions.length - 1 ? 0 : prescription.sampleCount
-  }));
+  await ProgrammingSubPlansRaw().insert(
+    [...validatedSubPlans, ...inProgressSubPlans].map(
+      toProgrammingPlanSettingsRow
+    )
+  );
 
   const inProgressDistributions = [
     [14, 0, 0, 0, 3, 2, 0, 0, 0, 3, 12, 0, 6, 0, 0, 0, 0, 0],

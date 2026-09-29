@@ -98,7 +98,7 @@ export const PPVValidatedSubPlanId = ProgrammingSubPlanId.parse(
 const PPVValidatedDromSubPlanId = ProgrammingSubPlanId.parse(
   'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a5'
 );
-export const PPVClosedSubPlanId = ProgrammingSubPlanId.parse(
+const PPVClosedSubPlanId = ProgrammingSubPlanId.parse(
   'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a2'
 );
 export const PPVInProgressSubPlanId = ProgrammingSubPlanId.parse(
@@ -151,7 +151,7 @@ export const genProgrammingSubPlan = (
 export const PPVValidatedSubPlanFixture = genProgrammingSubPlan({
   id: PPVValidatedSubPlanId,
   programmingPlanId: PPVValidatedProgrammingPlanId,
-  subPlanNumber: 'PPV',
+  subPlanNumber: 'PPV01',
   stages: [
     'PRODUCTION_PRIMAIRE_VEGETALE',
     'ALIMENTATION_ANIMALE',

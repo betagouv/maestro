@@ -19,6 +19,7 @@ import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential'
 import { SubStageLabels } from 'maestro-shared/referential/SubStage';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
+import { isPPVSubPlanNumber } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   getSampleMatrixLabel,
   type PartialSample
@@ -390,8 +391,9 @@ const generateSamplePDF = async (
         label: fc.field.label,
         value: getFieldValueLabel(fc.field, sample.specificData[fc.field.key])
       })),
-    releaseControl:
-      subPlanNumber === 'PPV' ? sample.specificData.releaseControl : undefined,
+    releaseControl: isPPVSubPlanNumber(subPlanNumber)
+      ? sample.specificData.releaseControl
+      : undefined,
     establishment:
       programmingPlan.distributionKind === 'REGIONAL'
         ? Regions[sample.region].establishment

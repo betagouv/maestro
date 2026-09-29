@@ -1,6 +1,7 @@
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Tag from '@codegouvfr/react-dsfr/Tag';
 import clsx from 'clsx';
+import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type {
   PartialSample,
   PartialSampleToCreate
@@ -34,7 +35,7 @@ const SampleProcedure = ({ partialSample }: Props) => {
         ></span>
         Modalités d'échantillonnage
       </h6>
-      {programmingSubPlan?.subPlanNumber !== 'PPV' && (
+      {!isPPVSubPlan(programmingSubPlan) && (
         <>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>
             <div className={cx('fr-col-12', 'fr-col-md-6')}>
@@ -80,7 +81,7 @@ const SampleProcedure = ({ partialSample }: Props) => {
           scope={{ type: 'resource' }}
         />
       </div>
-      {programmingSubPlan?.subPlanNumber === 'PPV' && (
+      {isPPVSubPlan(programmingSubPlan) && (
         <div>
           <hr className={cx('fr-my-3w')} />
           <span className={cx('fr-mr-1w')}>Analyses prévues</span>

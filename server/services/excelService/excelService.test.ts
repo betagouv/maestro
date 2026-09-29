@@ -216,7 +216,7 @@ describe('generatePrescriptionsExportExcel', async () => {
       XLSX.utils.sheet_to_csv(worksheet, { FS: ';' })
     ).toMatchInlineSnapshot(`
       "N°;Domaine;Plan;Contexte;Matrice;Stade(s) de prélèvement;Consignes de répartition;Notes;;
-      PPV;;Production primaire végétale;Plan de surveillance;Aulx et échalotes;Végétal au stade récolte;;;;
+      PPV01;;Production primaire végétale;Plan de surveillance;Aulx et échalotes;Végétal au stade récolte;;;;
       ;;;;Total;;;;;"
     `);
 

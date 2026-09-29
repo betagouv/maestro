@@ -4,6 +4,7 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import SideMenu from '@codegouvfr/react-dsfr/SideMenu';
 import clsx from 'clsx';
 import { getLaboratoryFullName } from 'maestro-shared/schema/Laboratory/Laboratory';
+import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type {
   PartialSampleToCreate,
   SampleChecked
@@ -103,7 +104,7 @@ const SampleOverview = ({ sample }: Props) => {
 
   useEffect(() => {
     setActiveCompliance(
-      programmingSubPlan?.subPlanNumber !== 'PPV' &&
+      !isPPVSubPlan(programmingSubPlan) &&
         sample.status === 'InReview' &&
         sample.items
           .filter((item) => item.copyNumber === 1)
@@ -357,7 +358,7 @@ const SampleOverview = ({ sample }: Props) => {
                     }
                   }
                 : undefined,
-              programmingSubPlan?.subPlanNumber !== 'PPV' &&
+              !isPPVSubPlan(programmingSubPlan) &&
               hasUserSamplePermission(
                 sample,
                 programmingSubPlan?.analysisPermissionRole

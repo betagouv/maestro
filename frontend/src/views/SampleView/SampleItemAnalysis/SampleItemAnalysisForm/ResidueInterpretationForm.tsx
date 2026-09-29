@@ -19,6 +19,7 @@ import {
   ResidueComplianceList
 } from 'maestro-shared/schema/Analysis/Residue/ResidueCompliance';
 import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { FunctionComponent } from 'react';
 import { assert, type Equals } from 'tsafe';
 import { AppMultiSelect } from '../../../../components/_app/AppMultiSelect/AppMultiSelect';
@@ -103,7 +104,7 @@ export const ResidueInterpretationForm: FunctionComponent<Props> = ({
               )}
             </>
           )}
-          {programmingSubPlan.subPlanNumber === 'PPV' && (
+          {isPPVSubPlan(programmingSubPlan) && (
             <>
               <hr />
               <AppSelect
