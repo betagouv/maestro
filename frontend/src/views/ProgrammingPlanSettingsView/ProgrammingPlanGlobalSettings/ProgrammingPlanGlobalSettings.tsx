@@ -11,10 +11,13 @@ import {
   SubstanceKind,
   SubstanceKindLabels
 } from 'maestro-shared/schema/Substance/SubstanceKind';
+import { useState } from 'react';
 import { AppMultiSelect } from 'src/components/_app/AppMultiSelect/AppMultiSelect';
 import type { UseForm } from 'src/hooks/useForm';
 import { assert, type Equals } from 'tsafe';
 import { ProgrammingPlanDocuments } from '../ProgrammingPlanDocuments/ProgrammingPlanDocuments';
+import type { MatrixSelection } from '../ProgrammingPlanMatrixSettings/matrixSelection';
+import { ProgrammingPlanMatrixSettings } from '../ProgrammingPlanMatrixSettings/ProgrammingPlanMatrixSettings';
 import { ProgrammingPlanNationalCoordinators } from '../ProgrammingPlanNationalCoordinators/ProgrammingPlanNationalCoordinators';
 import { ProgrammingPlanSettingInheritance } from '../ProgrammingPlanSettingInheritance/ProgrammingPlanSettingInheritance';
 import './ProgrammingPlanGlobalSettings.scss';
@@ -48,6 +51,8 @@ export const ProgrammingPlanGlobalSettings = <
   ..._rest
 }: Props<T>) => {
   assert<Equals<keyof typeof _rest, never>>();
+
+  const [matrixSelection, setMatrixSelection] = useState<MatrixSelection>([]);
 
   return (
     <div className={clsx('programming-plan-global-settings')}>
@@ -104,6 +109,12 @@ export const ProgrammingPlanGlobalSettings = <
           />
         )}
       </ProgrammingPlanSettingInheritance>
+      {planSettings !== undefined && (
+        <ProgrammingPlanMatrixSettings
+          selection={matrixSelection}
+          onChange={setMatrixSelection}
+        />
+      )}
       {!planSettings && (
         <ProgrammingPlanDocuments
           technicalInstruction={settings.technicalInstruction}

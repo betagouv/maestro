@@ -1,4 +1,4 @@
-#laboratory-agreements-modal {
+.app-selection-modal {
   .fr-col-lg-8 {
     flex: 0 0 100% !important;
     width: 100% !important;
@@ -30,34 +30,35 @@
     position: static;
     margin-top: 0;
   }
-}
 
-.agreement-modal {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-  height: 100%;
+  &__layout {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+  }
 
-  &-list {
+  &__list {
     min-width: 60%;
+    max-width: 60%;
     display: flex;
     flex-direction: column;
     min-height: 0;
   }
 
-  &-list-search {
+  &__list-search {
     flex-shrink: 0;
     background-color: var(--background-lifted-grey);
     padding-right: 1.5rem;
   }
 
-  &-list-body {
+  &__list-body {
     flex: 1;
     overflow-y: auto;
     padding-right: 1.5rem;
   }
 
-  &-selection {
+  &__selection {
     width: 40%;
     background-color: var(--beige-gris-galet-975-75);
     display: flex;

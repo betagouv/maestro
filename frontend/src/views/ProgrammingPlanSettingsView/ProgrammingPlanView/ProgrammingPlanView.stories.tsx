@@ -250,7 +250,7 @@ const mockApiConf: Partial<MockApi> = {
 };
 
 const meta = {
-  title: 'Views/ProgrammingPlan',
+  title: 'Views/ProgrammingPlanSettingsView/ProgrammingPlanView',
   component: ProgrammingPlanView,
   parameters: {
     preloadedState: {
