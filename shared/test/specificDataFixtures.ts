@@ -24,7 +24,13 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
       label: 'Stade de prélèvement',
       hintText: null,
       options: [
-        { value: 'STADE1', label: 'Végétal au stade récolte', order: 1 }
+        { value: 'STADE1', label: 'Végétal au stade récolte', order: 1 },
+        {
+          value: 'STADE2',
+          label: 'Végétal en cours de culture (avant récolte)',
+          order: 2
+        },
+        { value: 'STADE3', label: 'Végétal au stockage', order: 3 }
       ]
     }
   },
