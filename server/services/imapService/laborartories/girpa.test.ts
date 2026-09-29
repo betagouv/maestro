@@ -6,13 +6,15 @@ import { type analyseXmlValidator, extractAnalyzes } from './girpa';
 
 const girpaXMLExample = (analyses: z.input<typeof analyseXmlValidator>[]) => ({
   Rapport: {
-    Echantillon: {
-      Date_réception_échantillons: '01/09/2024',
-      Code_échantillon: 'REU-25-00015-A-02',
-      Nature_matrice: 'ORGE',
-      Commentaire: 'Une note',
-      Analyse: analyses
-    }
+    Echantillon: [
+      {
+        Date_réception_échantillons: '01/09/2024',
+        Code_échantillon: 'REU-25-00015-A-02',
+        Nature_matrice: 'ORGE',
+        Commentaire: 'Une note',
+        Analyse: analyses
+      }
+    ]
   }
 });
 describe('parse correctement le XML', () => {
