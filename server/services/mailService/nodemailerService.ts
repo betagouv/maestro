@@ -86,7 +86,7 @@ class NodemailerService implements NodeMailService {
 
   async sendReply(option: ReplyOptions): Promise<void> {
     await this.transport.sendMail({
-      from: config.mail.from,
+      from: config.inbox.user ?? config.mail.from,
       to: option.to,
       bcc: option.bcc,
       replyTo: option.replyTo,
