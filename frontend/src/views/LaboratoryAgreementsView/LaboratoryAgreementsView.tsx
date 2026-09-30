@@ -10,9 +10,10 @@ import {
   MatrixKindLabels
 } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
-import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
+import { getSubPlanMatrixTitle } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
+import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import {
   useCallback,
   useContext,
@@ -137,10 +138,6 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
   const [updateAgreements] = apiClient.useUpdateLaboratoryAgreementsMutation();
   const [updateCheck] = apiClient.useUpdateLaboratoryAgreementCheckMutation();
 
-  const { data: allPrescriptions = [] } = apiClient.useFindPrescriptionsQuery({
-    year
-  });
-
   const subPlanOptions = useMemo(
     () =>
       [...new Set(rows.map((r) => r.programmingSubPlan.id))].map((value) => {
@@ -183,7 +180,12 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
   );
 
   const matrixCombinedOptions = useMemo(() => {
-    const kindOptions = [...new Set(allPrescriptions.map((p) => p.matrixKind))]
+    const subPlans = programmingPlans.flatMap((plan) => plan.subPlans);
+
+    const kindOptions = [
+      ...new Set(subPlans.map((subPlan) => subPlan.matrixKind))
+    ]
+      .filter(isDefinedAndNotNull)
       .map((kind) => ({
         value: `kind:${kind}`,
         label: MatrixKindLabels[kind]
@@ -191,14 +193,14 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
       .toSorted((a, b) => a.label.localeCompare(b.label));
 
     const matrixToKind = new Map<string, MatrixKind>();
-    for (const p of allPrescriptions) {
-      if (p.matrix) {
-        matrixToKind.set(p.matrix, p.matrixKind);
+    for (const subPlan of subPlans) {
+      if (subPlan.matrix && subPlan.matrixKind) {
+        matrixToKind.set(subPlan.matrix, subPlan.matrixKind);
       }
     }
 
     const specificMatrixOptions = MatrixList.filter((m) =>
-      allPrescriptions.some((p) => p.matrix === m)
+      subPlans.some((subPlan) => subPlan.matrix === m)
     )
       .map((m) => {
         const kind = matrixToKind.get(m);
@@ -213,28 +215,12 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
       .toSorted((a, b) => a.label.localeCompare(b.label));
 
     return [...kindOptions, ...specificMatrixOptions];
-  }, [allPrescriptions]);
+  }, [programmingPlans]);
 
   const filteredRows = useMemo(() => {
-    const prescriptionsBySubPlanId = new Map<string, typeof allPrescriptions>();
-    for (const p of allPrescriptions) {
-      const arr = prescriptionsBySubPlanId.get(p.programmingSubPlanId) ?? [];
-      arr.push(p);
-      prescriptionsBySubPlanId.set(p.programmingSubPlanId, arr);
-    }
-
     const checksSet = new Set(
       checks.map((c) => `${c.programmingSubPlanId}_${c.substanceKind}`)
     );
-
-    const getFirstMatrixTitle = (programmingSubPlanId: string) => {
-      const prescriptions =
-        prescriptionsBySubPlanId.get(programmingSubPlanId) ?? [];
-      const titles = prescriptions
-        .map(getPrescriptionTitle)
-        .sort((a, b) => a.localeCompare(b));
-      return titles[0] ?? '';
-    };
 
     return rows
       .filter(
@@ -244,15 +230,13 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
           (substanceFilter.length === 0 ||
             substanceFilter.includes(r.substanceKind)) &&
           (matrixCombinedFilter.length === 0 ||
-            (prescriptionsBySubPlanId.get(r.programmingSubPlan.id) ?? []).some(
-              (p) =>
-                matrixCombinedFilter.some(
-                  (v) =>
-                    (v.startsWith('kind:') && p.matrixKind === v.slice(5)) ||
-                    (v.startsWith('matrix:') &&
-                      p.matrix != null &&
-                      p.matrix === v.slice(7))
-                )
+            matrixCombinedFilter.some(
+              (v) =>
+                (v.startsWith('kind:') &&
+                  r.programmingSubPlan.matrixKind === v.slice(5)) ||
+                (v.startsWith('matrix:') &&
+                  r.programmingSubPlan.matrix != null &&
+                  r.programmingSubPlan.matrix === v.slice(7))
             )) &&
           ((labFilter.length === 0 && labAgreementTypeFilter.length === 0) ||
             r.laboratories.some(
@@ -284,9 +268,9 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
         if (substanceCmp !== 0) {
           return substanceCmp;
         }
-        return getFirstMatrixTitle(a.programmingSubPlan.id).localeCompare(
-          getFirstMatrixTitle(b.programmingSubPlan.id)
-        );
+        return (
+          getSubPlanMatrixTitle(a.programmingSubPlan) ?? ''
+        ).localeCompare(getSubPlanMatrixTitle(b.programmingSubPlan) ?? '');
       });
   }, [
     rows,
@@ -296,7 +280,6 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
     labFilter,
     labAgreementTypeFilter,
     showWithoutLab,
-    allPrescriptions,
     checks
   ]);
 
@@ -522,7 +505,6 @@ const LaboratoryAgreements = ({ year, ..._rest }: Props) => {
           selectedRowsConsistent={selectedRowsConsistent}
           checks={checks}
           laboratories={laboratories}
-          allPrescriptions={allPrescriptions}
           kindFilter={subPlanFilter}
           kindOptions={subPlanOptions}
           onKindFilterChange={setSubPlanFilter}

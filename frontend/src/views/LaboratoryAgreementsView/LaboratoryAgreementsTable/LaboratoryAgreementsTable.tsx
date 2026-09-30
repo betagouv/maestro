@@ -8,7 +8,6 @@ import type {
   LaboratoryAgreementField,
   LaboratoryAgreementRowKey
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
-import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -34,7 +33,6 @@ interface Props {
   selectedRowsConsistent: boolean;
   checks: LaboratoryAgreementRowKey[];
   laboratories: Laboratory[];
-  allPrescriptions: Prescription[];
   kindFilter: ProgrammingSubPlanId[];
   kindOptions: { value: ProgrammingSubPlanId; label: string }[];
   onKindFilterChange: (values: ProgrammingSubPlanId[]) => void;
@@ -63,7 +61,6 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
   selectedRowsConsistent,
   checks,
   laboratories,
-  allPrescriptions,
   kindFilter,
   kindOptions,
   onKindFilterChange,
@@ -137,16 +134,6 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
       ),
     [checks]
   );
-
-  const prescriptionsBySubPlanId = useMemo(() => {
-    const map = new Map<string, Prescription[]>();
-    for (const p of allPrescriptions) {
-      const arr = map.get(p.programmingSubPlanId) ?? [];
-      arr.push(p);
-      map.set(p.programmingSubPlanId, arr);
-    }
-    return map;
-  }, [allPrescriptions]);
 
   const laboratoriesById = useMemo(
     () => new Map(laboratories.map((l) => [l.id, l])),
@@ -380,10 +367,6 @@ const LaboratoryAgreementsTable = memo(function LaboratoryAgreementsTable({
                     isAnimating={animatingRowKeys.includes(rowKey)}
                     isLabsExpanded={expandedLabRowKeys.includes(rowKey)}
                     isMatrixExpanded={expandedMatrixRowKeys.includes(rowKey)}
-                    prescriptions={
-                      prescriptionsBySubPlanId.get(row.programmingSubPlan.id) ??
-                      []
-                    }
                     laboratoriesById={laboratoriesById}
                     onToggleSelect={onToggleRow}
                     onToggleExpand={handleToggleExpand}

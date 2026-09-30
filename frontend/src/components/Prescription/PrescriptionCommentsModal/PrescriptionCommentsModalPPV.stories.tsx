@@ -7,8 +7,10 @@ import {
   genPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
 import {
-  PPVInProgressProgrammingPlanFixture,
-  PPVValidatedSubPlanId
+  DAOABovinInProgressSubPlanFixture,
+  DAOAInProgressVolailleSubPlanId,
+  DAOAVolailleInProgressSubPlanFixture,
+  PPVInProgressProgrammingPlanFixture
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { genLocalPrescriptionComment } from 'maestro-shared/test/regionalPrescriptionCommentFixture';
 import {
@@ -86,6 +88,11 @@ const allComments = [...oldComments, ...recentComments];
 
 const getProgrammingPlanWithStatus = (status: ProgrammingPlanStatus) => ({
   ...PPVInProgressProgrammingPlanFixture,
+  subPlans: [
+    ...PPVInProgressProgrammingPlanFixture.subPlans,
+    DAOABovinInProgressSubPlanFixture,
+    DAOAVolailleInProgressSubPlanFixture
+  ],
   regionalStatus: RegionList.map((region) => ({
     region,
     status
@@ -125,7 +132,10 @@ export const NationalCoordinatorViewByPrescription: Story = {
     const canvas = within(canvasElement);
 
     const title = canvas.queryByText(
-      getPrescriptionTitle(FoieDeBovinPrescriptionFixture)
+      getPrescriptionTitle(
+        [getProgrammingPlanWithStatus('SubmittedToRegion')],
+        FoieDeBovinPrescriptionFixture
+      )
     );
     await expect(title).toBeInTheDocument();
 
@@ -170,9 +180,8 @@ export const NationalCoordinatorViewByRegion: Story = {
           programmingPlan: getProgrammingPlanWithStatus('SubmittedToRegion'),
           prescription: genPrescription({
             id: '22222222-2222-2222-2222-222222222222',
-            programmingSubPlanId: PPVValidatedSubPlanId,
-            context: 'Surveillance',
-            matrixKind: 'A01SN'
+            programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
+            context: 'Surveillance'
           }),
           comments: [
             genLocalPrescriptionComment({
@@ -233,7 +242,10 @@ export const RegionalCoordinatorViewPlanSubmittedToRegions: Story = {
     const canvas = within(canvasElement);
 
     const title = canvas.queryByText(
-      getPrescriptionTitle(FoieDeBovinPrescriptionFixture)
+      getPrescriptionTitle(
+        [getProgrammingPlanWithStatus('SubmittedToRegion')],
+        FoieDeBovinPrescriptionFixture
+      )
     );
     await expect(title).toBeInTheDocument();
 

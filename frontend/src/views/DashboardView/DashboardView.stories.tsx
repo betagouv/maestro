@@ -8,7 +8,8 @@ import {
 import {
   genProgrammingPlan,
   PesticideResidueDomainId,
-  PPVValidatedSubPlanFixture
+  PPVValidatedSubPlanFixture,
+  withMatrixKindSubPlans
 } from 'maestro-shared/test/programmingPlanFixtures';
 import { genCreatedPartialSample } from 'maestro-shared/test/sampleFixtures';
 import {
@@ -31,15 +32,18 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const currentProgrammingPlan = genProgrammingPlan({
-  domainId: PesticideResidueDomainId,
-  year: new Date().getFullYear(),
-  regionalStatus: RegionList.map((region) => ({
-    region,
-    status: 'InProgress'
-  })),
-  contexts: ['Control', 'Surveillance']
-});
+const currentProgrammingPlan = withMatrixKindSubPlans(
+  genProgrammingPlan({
+    domainId: PesticideResidueDomainId,
+    year: new Date().getFullYear(),
+    regionalStatus: RegionList.map((region) => ({
+      region,
+      status: 'InProgress'
+    })),
+    contexts: ['Control', 'Surveillance']
+  }),
+  ['A0DEH', 'A0DQS']
+);
 const previousProgrammingPlan = genProgrammingPlan({
   domainId: PesticideResidueDomainId,
   year: new Date().getFullYear() - 1,
@@ -52,13 +56,11 @@ const previousProgrammingPlan = genProgrammingPlan({
 
 const prescription1 = genPrescription({
   programmingSubPlanId: currentProgrammingPlan.subPlans[0].id,
-  context: 'Control',
-  matrixKind: 'A0DEH'
+  context: 'Control'
 });
 const prescription2 = genPrescription({
-  programmingSubPlanId: currentProgrammingPlan.subPlans[0].id,
-  context: 'Control',
-  matrixKind: 'A0DQS'
+  programmingSubPlanId: currentProgrammingPlan.subPlans[1].id,
+  context: 'Control'
 });
 const sample1 = genCreatedPartialSample({
   status: 'InReview',

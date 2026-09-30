@@ -9,11 +9,13 @@ import type {
   LaboratoryAgreement,
   LaboratoryAgreementCheckUpdate
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
-import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
-import { getPrescriptionTitle } from 'maestro-shared/schema/Prescription/Prescription';
-import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  getSubPlanMatrixTitle,
+  type ProgrammingSubPlan
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
+import { isDefined } from 'maestro-shared/utils/utils';
 import { memo, useMemo } from 'react';
 import LaboratoryAgreementTag from 'src/components/LaboratoryAgreement/LaboratoryAgreementTag/LaboratoryAgreementTag';
 import { pluralize } from 'src/utils/stringUtils';
@@ -38,7 +40,6 @@ interface Props {
   isAnimating: boolean;
   isLabsExpanded: boolean;
   isMatrixExpanded: boolean;
-  prescriptions: Prescription[];
   laboratoriesById: Map<string, Laboratory>;
   onToggleSelect: (key: string) => void;
   onToggleExpand: (key: string) => void;
@@ -62,7 +63,6 @@ const AgreementTableRow = memo(function AgreementTableRow({
   isAnimating,
   isLabsExpanded,
   isMatrixExpanded,
-  prescriptions,
   laboratoriesById,
   onToggleSelect,
   onToggleExpand,
@@ -76,8 +76,8 @@ const AgreementTableRow = memo(function AgreementTableRow({
   onAnimatingEnd
 }: Props) {
   const allMatrices = useMemo(
-    () => prescriptions.map(getPrescriptionTitle),
-    [prescriptions]
+    () => [getSubPlanMatrixTitle(row.programmingSubPlan)].filter(isDefined),
+    [row.programmingSubPlan]
   );
   const visibleMatrices = isMatrixExpanded
     ? allMatrices

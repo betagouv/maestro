@@ -30,8 +30,7 @@ const programmingPlan = genProgrammingPlan({
 });
 const prescription1 = genPrescription({
   programmingSubPlanId: programmingPlan.subPlans[0].id,
-  context: 'Control',
-  matrixKind: 'A001M'
+  context: 'Control'
 });
 const laboratories = [LaboratoryFixture];
 

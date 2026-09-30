@@ -22,8 +22,11 @@ import {
   ProgrammingPlanContext
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import { isPPVSubPlanNumber } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  findPrescriptionSubPlan,
+  isPPVSubPlanNumber,
+  type ProgrammingSubPlanId
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   isCreatedPartialSample,
   isOutsideProgrammingPlanSample,
@@ -39,7 +42,7 @@ import {
   SampleSteps
 } from 'maestro-shared/schema/Sample/SampleStep';
 import { buildSpecificDataSchema } from 'maestro-shared/schema/SpecificData/buildSpecificDataSchema';
-import { toArray } from 'maestro-shared/utils/utils';
+import { isDefined, toArray } from 'maestro-shared/utils/utils';
 import { checkSchema } from 'maestro-shared/utils/zod';
 import type React from 'react';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -139,11 +142,16 @@ const MatrixStep = ({ partialSample }: Props) => {
     }
   );
 
-  const prescriptions = useMemo(() => {
-    return prescriptionsData?.filter((p) =>
-      localPrescriptions?.find((rp) => rp.prescriptionId === p.id)
-    );
-  }, [prescriptionsData, localPrescriptions]);
+  const prescriptionSubPlans = useMemo(
+    () =>
+      prescriptionsData
+        ?.filter((p) =>
+          localPrescriptions?.find((rp) => rp.prescriptionId === p.id)
+        )
+        .map((p) => findPrescriptionSubPlan([{ subPlans: planSubPlans }], p))
+        .filter(isDefined),
+    [prescriptionsData, localPrescriptions, planSubPlans]
+  );
 
   const subPlanNumber =
     planSubPlans.find((sp) => sp.id === programmingSubPlanId)?.subPlanNumber ??
@@ -313,15 +321,15 @@ const MatrixStep = ({ partialSample }: Props) => {
 
   const matrixKindOptions = useMemo(
     () =>
-      prescriptions
+      prescriptionSubPlans
         ? selectOptionsFromList(
             isProgrammingPlanSample(partialSample)
               ? MatrixKindList.filter((matrixKind) =>
-                  prescriptions?.some(
-                    (p) =>
+                  prescriptionSubPlans.some(
+                    (subPlan) =>
                       (!programmingSubPlanId ||
-                        p.programmingSubPlanId === programmingSubPlanId) &&
-                      p.matrixKind === matrixKind
+                        subPlan.id === programmingSubPlanId) &&
+                      subPlan.matrixKind === matrixKind
                   )
                 )
               : MatrixKindList,
@@ -332,7 +340,7 @@ const MatrixStep = ({ partialSample }: Props) => {
             }
           )
         : undefined,
-    [prescriptions, partialSample, programmingSubPlanId]
+    [prescriptionSubPlans, partialSample, programmingSubPlanId]
   );
 
   const matrixOptions = useMemo(
@@ -343,12 +351,12 @@ const MatrixStep = ({ partialSample }: Props) => {
           : matrixKind
             ? (MatrixListByKind[matrixKind]?.filter((m) =>
                 isProgrammingPlanSample(partialSample)
-                  ? prescriptions?.some(
-                      (p) =>
+                  ? prescriptionSubPlans?.some(
+                      (subPlan) =>
                         (!programmingSubPlanId ||
-                          p.programmingSubPlanId === programmingSubPlanId) &&
-                        p.matrixKind === matrixKind &&
-                        (isNil(p.matrix) || p.matrix === m)
+                          subPlan.id === programmingSubPlanId) &&
+                        subPlan.matrixKind === matrixKind &&
+                        (isNil(subPlan.matrix) || subPlan.matrix === m)
                     )
                   : true
               ) ?? matrixKind)
@@ -359,7 +367,7 @@ const MatrixStep = ({ partialSample }: Props) => {
           withDefault: false
         }
       ),
-    [matrixKind, prescriptions, partialSample, programmingSubPlanId]
+    [matrixKind, prescriptionSubPlans, partialSample, programmingSubPlanId]
   );
 
   return (

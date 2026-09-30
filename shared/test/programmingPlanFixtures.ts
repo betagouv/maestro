@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import type { MatrixKind } from '../referential/Matrix/MatrixKind';
 import { isDromRegion, RegionList, Regions } from '../referential/Region';
 import {
   type ProgrammingPlanDomain,
@@ -281,6 +282,22 @@ export const genProgrammingPlan = (
     ...data
   };
 };
+
+export const withMatrixKindSubPlans = <T extends ProgrammingPlanChecked>(
+  programmingPlan: T,
+  matrixKinds: MatrixKind[]
+): T => ({
+  ...programmingPlan,
+  subPlans: matrixKinds.map((matrixKind, index) => ({
+    ...programmingPlan.subPlans[0],
+    id:
+      index === 0
+        ? programmingPlan.subPlans[0].id
+        : ProgrammingSubPlanId.parse(uuidv4()),
+    subPlanNumber: `PPV${String(index + 1).padStart(2, '0')}`,
+    matrixKind
+  }))
+});
 
 export const genDeletableProgrammingPlan = (
   data?: Partial<ProgrammingPlanChecked>

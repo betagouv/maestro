@@ -1,11 +1,7 @@
 import { z } from 'zod';
 import { LocalPrescriptionComment } from '../LocalPrescription/LocalPrescriptionComment';
 import { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
-import {
-  findPrescriptionSubPlan,
-  getSubPlanMatrixTitle
-} from '../ProgrammingPlan/ProgrammingSubPlan';
-import { Prescription } from './Prescription';
+import { getPrescriptionTitle, Prescription } from './Prescription';
 
 export const PrescriptionComments = z.object({
   programmingPlan: ProgrammingPlanChecked,
@@ -26,10 +22,8 @@ export type PrescriptionComments = z.infer<typeof PrescriptionComments>;
 const prescriptionCommentsTitle = ({
   programmingPlan,
   prescription
-}: PrescriptionComments): string => {
-  const subPlan = findPrescriptionSubPlan([programmingPlan], prescription);
-  return (subPlan && getSubPlanMatrixTitle(subPlan)) ?? '';
-};
+}: PrescriptionComments): string =>
+  getPrescriptionTitle([programmingPlan], prescription);
 
 export const PrescriptionCommentSort = (
   pc1: PrescriptionComments,

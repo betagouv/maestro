@@ -4,7 +4,10 @@ import {
   genLocalPrescription,
   genPrescription
 } from 'maestro-shared/test/prescriptionFixtures';
-import { genProgrammingPlan } from 'maestro-shared/test/programmingPlanFixtures';
+import {
+  genProgrammingPlan,
+  withMatrixKindSubPlans
+} from 'maestro-shared/test/programmingPlanFixtures';
 import { genLocalPrescriptionComment } from 'maestro-shared/test/regionalPrescriptionCommentFixture';
 import {
   genAuthUser,
@@ -23,14 +26,15 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const programmingPlan = {
-  ...genProgrammingPlan({
+const programmingPlan = withMatrixKindSubPlans(
+  genProgrammingPlan({
     regionalStatus: RegionList.map((region) => ({
       region,
       status: 'SubmittedToRegion'
     }))
-  })
-};
+  }),
+  ['A0DEH', 'A0DQS']
+);
 const pastProgrammingPlan = {
   ...genProgrammingPlan({
     regionalStatus: RegionList.map((region) => ({
@@ -42,13 +46,11 @@ const pastProgrammingPlan = {
 };
 const prescription1 = genPrescription({
   programmingSubPlanId: programmingPlan.subPlans[0].id,
-  context: 'Control',
-  matrixKind: 'A0DEH'
+  context: 'Control'
 });
 const prescription2 = genPrescription({
-  programmingSubPlanId: programmingPlan.subPlans[0].id,
-  context: 'Control',
-  matrixKind: 'A0DQS'
+  programmingSubPlanId: programmingPlan.subPlans[1].id,
+  context: 'Control'
 });
 
 const programmingPlans = [programmingPlan, pastProgrammingPlan];

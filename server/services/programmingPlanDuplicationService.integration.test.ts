@@ -145,6 +145,17 @@ describe('duplicateSubPlan', () => {
     );
   });
 
+  test('should copy the matrix', async () => {
+    const copiedSubPlanId = await duplicateSubPlan();
+
+    await expect(
+      programmingSubPlanRepository.findUnique(copiedSubPlanId)
+    ).resolves.toMatchObject({
+      matrixKind: DAOAVolailleInProgressSubPlanFixture.matrixKind,
+      matrix: DAOAVolailleInProgressSubPlanFixture.matrix
+    });
+  });
+
   test('should leave the copy in draft', async () => {
     const copiedSubPlanId = await duplicateSubPlan();
 

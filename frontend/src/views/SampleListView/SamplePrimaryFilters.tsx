@@ -14,7 +14,10 @@ import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  findPrescriptionSubPlan,
+  type ProgrammingSubPlanId
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import type { FindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   type SampleStatus,
@@ -22,6 +25,7 @@ import {
   SampleStatusList
 } from 'maestro-shared/schema/Sample/SampleStatus';
 import type { UserListItem } from 'maestro-shared/schema/User/User';
+import { isDefinedAndNotNull } from 'maestro-shared/utils/utils';
 import AppSearchInput from 'src/components/_app/AppSearchInput/AppSearchInput';
 import {
   samplersOptions,
@@ -46,6 +50,14 @@ const SamplePrimaryFilters = ({
   prescriptions,
   currentUserId
 }: Props) => {
+  const prescriptionMatrixKinds = prescriptions
+    ?.map(
+      (prescription) =>
+        findPrescriptionSubPlan(programmingPlans ?? [], prescription)
+          ?.matrixKind
+    )
+    .filter(isDefinedAndNotNull);
+
   return (
     <>
       {(programmingPlans?.length ?? 0) > 1 && (
@@ -129,8 +141,8 @@ const SamplePrimaryFilters = ({
                 !filters.matrixKinds?.includes(matrixKind) &&
                 ((filters.programmingPlanIds ?? []).length === 0 ||
                   (filters.contexts ?? []).length === 0 ||
-                  !prescriptions ||
-                  prescriptions.find((p) => p.matrixKind === matrixKind))
+                  !prescriptionMatrixKinds ||
+                  prescriptionMatrixKinds.includes(matrixKind))
             ),
             {
               labels: MatrixKindLabels,
@@ -167,9 +179,9 @@ const SamplePrimaryFilters = ({
                 !filters.matrices?.includes(matrix) &&
                 ((filters.programmingPlanIds ?? []).length === 0 ||
                   (filters.contexts ?? []).length === 0 ||
-                  !prescriptions ||
-                  prescriptions.find((p) =>
-                    MatrixListByKind[p.matrixKind].includes(matrix)
+                  !prescriptionMatrixKinds ||
+                  prescriptionMatrixKinds.some((matrixKind) =>
+                    MatrixListByKind[matrixKind].includes(matrix)
                   )) &&
                 ((filters.matrixKinds ?? []).length === 0 ||
                   filters.matrixKinds!.some((kind) =>

@@ -2,7 +2,11 @@ import { z } from 'zod';
 import { MatrixKindLabels } from '../../referential/Matrix/MatrixKind';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
-import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
+import {
+  findPrescriptionSubPlan,
+  getSubPlanMatrixTitle,
+  ProgrammingSubPlanId
+} from '../ProgrammingPlan/ProgrammingSubPlan';
 import { hasPermission } from '../User/User';
 import type { UserRole } from '../User/UserRole';
 import { PrescriptionSubstance } from './PrescriptionSubstance';
@@ -95,3 +99,11 @@ export const hasPrescriptionPermission = (
       (regionalStatus) => regionalStatus.status !== 'Closed'
     )
 });
+
+export const getPrescriptionTitle = (
+  programmingPlans: Pick<ProgrammingPlanChecked, 'subPlans'>[],
+  prescription: Pick<Prescription, 'programmingSubPlanId'>
+): string => {
+  const subPlan = findPrescriptionSubPlan(programmingPlans, prescription);
+  return (subPlan && getSubPlanMatrixTitle(subPlan)) ?? '';
+};
