@@ -455,7 +455,7 @@ const buildFindQuery = (
       }
       if (findOptions.matrixKind) {
         builder.where(
-          `${prescriptionsTable}.matrix_kind`,
+          `${programmingSubPlansRawTable}.matrix_kind`,
           findOptions.matrixKind
         );
       }
@@ -469,7 +469,10 @@ const buildFindQuery = (
         );
       }
       if (matrixKinds) {
-        builder.whereIn(`${prescriptionsTable}.matrix_kind`, matrixKinds);
+        builder.whereIn(
+          `${programmingSubPlansRawTable}.matrix_kind`,
+          matrixKinds
+        );
       }
       applyLocalPrescriptionFilters(builder, findOptions, visibility);
     });
@@ -495,7 +498,7 @@ const findMany = async (
 interface PrescriptionCountRow {
   planId: string;
   subPlanId: ProgrammingSubPlanId;
-  matrixKind: MatrixKind;
+  matrixKind: MatrixKind | null;
   context: ProgrammingPlanContext;
   sampleCount: number;
   missingDistribution: boolean;
@@ -599,7 +602,7 @@ const findCounts = async (
     .select(
       `${programmingPlanIdColumn} as planId`,
       `${prescriptionsTable}.programming_sub_plan_id as subPlanId`,
-      `${prescriptionsTable}.matrix_kind as matrixKind`,
+      `${programmingSubPlansRawTable}.matrix_kind as matrixKind`,
       `${prescriptionsTable}.context as context`,
       db.raw(
         `${scopedSampleCount(countOptions, visibility)} as "sampleCount"`,

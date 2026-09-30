@@ -30,6 +30,7 @@ import {
   DAOAInProgressBovinSubPlanId,
   DAOAInProgressProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture,
+  PPVValidatedSubPlanFixture,
   PPVValidatedSubPlanId
 } from './programmingPlanFixtures';
 import { oneOf } from './testFixtures';
@@ -170,7 +171,7 @@ export const Sample11Fixture = genCreatedPartialSample({
   lastUpdatedAt: new Date('2024-03-04'),
   step: 'DraftMatrix' as const,
   status: 'Draft' as const,
-  matrixKind: PrescriptionFixture.matrixKind,
+  matrixKind: PPVValidatedSubPlanFixture.matrixKind,
   matrix: 'A00GZ',
   programmingSubPlanId: PPVValidatedSubPlanId,
   specificData: {

@@ -36,13 +36,15 @@ import {
   LocalPrescriptionSort
 } from 'maestro-shared/schema/LocalPrescription/LocalPrescription';
 import {
-  getPrescriptionTitle,
   type Prescription,
   sortPrescriptions
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  getSubPlanMatrixTitle,
+  type ProgrammingSubPlanId
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   getSampleMatrixLabel,
   type PartialSample
@@ -625,7 +627,9 @@ const generatePrescriptionsExportExcel = async (
         : '',
       plan: prescriptionPlan?.title ?? '',
       context: ContextLabels[prescription.context],
-      matrix: getPrescriptionTitle(prescription),
+      matrix:
+        (prescriptionSubPlan && getSubPlanMatrixTitle(prescriptionSubPlan)) ??
+        '',
       stages: (prescriptionSubPlan?.stages ?? [])
         .map((stage) => StageLabels[stage])
         .join(', '),
@@ -801,8 +805,7 @@ const generateLaboratoryAnalyticCompetencesExportExcel = async (
 
 const generateLaboratoryAgreementsExportExcel = async (
   agreements: LaboratoryAgreement[],
-  laboratories: Laboratory[],
-  prescriptions: Prescription[]
+  laboratories: Laboratory[]
 ): Promise<Buffer> => {
   const labsList = laboratories.toSorted((a, b) =>
     a.shortName.localeCompare(b.shortName)
@@ -856,14 +859,9 @@ const generateLaboratoryAgreementsExportExcel = async (
           a.substanceKind === substanceKind
       );
 
-      const rowPrescriptions = prescriptions.filter(
-        (p) => p.programmingSubPlanId === programmingSubPlanId
-      );
-
-      const matrices = [...new Set(rowPrescriptions.map((p) => p.matrixKind))]
-        .filter(isDefined)
-        .map((mk) => MatrixKindLabels[mk])
-        .join(', ');
+      const matrices = subPlan?.matrixKind
+        ? MatrixKindLabels[subPlan.matrixKind]
+        : '';
 
       const stages = (subPlan?.stages ?? [])
         .map((s) => StageLabels[s])

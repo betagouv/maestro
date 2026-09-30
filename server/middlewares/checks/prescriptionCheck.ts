@@ -4,6 +4,10 @@ import PrescriptionMissingError from 'maestro-shared/errors/prescriptionPlanMiss
 import ProgrammingPlanMissingError from 'maestro-shared/errors/programmingPlanMissingError';
 import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
+import {
+  findPrescriptionSubPlan,
+  type ProgrammingSubPlan
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import prescriptionRepository from '../../repositories/prescriptionRepository';
 import programmingPlanRepository from '../../repositories/programmingPlanRepository';
 
@@ -13,6 +17,7 @@ export const getAndCheckPrescription = async (
 ): Promise<{
   prescription: Prescription;
   programmingPlan: ProgrammingPlanChecked;
+  subPlan: ProgrammingSubPlan;
 }> => {
   const prescription = await prescriptionRepository.findUnique(prescriptionId);
 
@@ -31,11 +36,9 @@ export const getAndCheckPrescription = async (
     throw new ProgrammingPlanMissingError(prescription.programmingSubPlanId);
   }
 
-  if (
-    !programmingPlan.subPlans.some(
-      (subPlan) => subPlan.id === prescription.programmingSubPlanId
-    )
-  ) {
+  const subPlan = findPrescriptionSubPlan([programmingPlan], prescription);
+
+  if (!subPlan) {
     throw new HttpError({
       status: constants.HTTP_STATUS_FORBIDDEN,
       message: 'Bad programming plan',
@@ -43,5 +46,5 @@ export const getAndCheckPrescription = async (
     });
   }
 
-  return { prescription, programmingPlan };
+  return { prescription, programmingPlan, subPlan };
 };

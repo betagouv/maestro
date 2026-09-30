@@ -7,9 +7,13 @@ import { type Region, Regions } from 'maestro-shared/referential/Region';
 import type { PartialAnalysis } from 'maestro-shared/schema/Analysis/Analysis';
 import type { AnalysisStatus } from 'maestro-shared/schema/Analysis/AnalysisStatus';
 import { getSupportDocumentFilename } from 'maestro-shared/schema/Document/DocumentKind';
+import type { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import { hasNewerLaunchedCampaign } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import { isPPVSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  findPrescriptionSubPlan,
+  isPPVSubPlan
+} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import { buildFindSampleOptions } from 'maestro-shared/schema/Sample/FindSampleOptions';
 import {
   hasSamplePermission,
@@ -576,17 +580,24 @@ export const sampleRouter = {
         isProgrammingPlanSample(sampleUpdate) &&
         !isNil(sampleUpdate.context) &&
         !isNil(sampleUpdate.matrixKind)
-          ? await prescriptionRepository
-              .findMany({
+          ? await Promise.all([
+              prescriptionRepository.findMany({
                 programmingPlanId: sampleUpdate.programmingPlanId,
                 contexts: [sampleUpdate.context as ProgrammingPlanContext],
                 matrixKind: sampleUpdate.matrixKind
+              }),
+              programmingSubPlanRepository.findMany({
+                programmingPlanId: sampleUpdate.programmingPlanId
               })
-              .then(
-                (prescriptions) =>
-                  prescriptions.find((p) => p.matrix === sampleUpdate.matrix) ??
-                  prescriptions.find((p) => isNil(p.matrix))
-              )
+            ]).then(([prescriptions, subPlans]) => {
+              const matrixOf = (p: Prescription) =>
+                findPrescriptionSubPlan([{ subPlans }], p)?.matrix;
+              return (
+                prescriptions.find(
+                  (p) => matrixOf(p) === sampleUpdate.matrix
+                ) ?? prescriptions.find((p) => isNil(matrixOf(p)))
+              );
+            })
           : undefined;
 
       const prescriptionSubstances = prescription

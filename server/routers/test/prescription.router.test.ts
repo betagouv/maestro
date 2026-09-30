@@ -1,6 +1,5 @@
 import { constants } from 'node:http2';
 import { fakerFR } from '@faker-js/faker';
-import { MatrixKindEffective } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { RegionList } from 'maestro-shared/referential/Region';
 import type { PrescriptionUpdate } from 'maestro-shared/schema/Prescription/Prescription';
 import type { UserRefined } from 'maestro-shared/schema/User/User';
@@ -13,7 +12,6 @@ import {
   genProgrammingPlanDomain,
   genProgrammingSubPlan
 } from 'maestro-shared/test/programmingPlanFixtures';
-import { oneOf } from 'maestro-shared/test/testFixtures';
 import {
   AdminFixture,
   LaboratoryOfficeUserFixture,
@@ -86,18 +84,15 @@ describe('Prescriptions router', () => {
   });
   const closedControlPrescription = genPrescription({
     programmingSubPlanId: programmingPlanClosed.subPlans[0].id,
-    context: 'Control',
-    matrixKind: oneOf(MatrixKindEffective.options)
+    context: 'Control'
   });
   const submittedControlPrescription = genPrescription({
     programmingSubPlanId: programmingPlanSubmitted.subPlans[0].id,
-    context: 'Control',
-    matrixKind: oneOf(MatrixKindEffective.options)
+    context: 'Control'
   });
   const inProgressControlPrescription = genPrescription({
     programmingSubPlanId: programmingPlanInProgress.subPlans[0].id,
-    context: 'Control',
-    matrixKind: oneOf(MatrixKindEffective.options)
+    context: 'Control'
   });
   const inProgressControlPrescriptionSubstance = genPrescriptionSubstance({
     prescriptionId: inProgressControlPrescription.id,
@@ -105,8 +100,7 @@ describe('Prescriptions router', () => {
   });
   const inProgressSurveillancePrescription = genPrescription({
     programmingSubPlanId: inProgressSurveillanceSubPlan.id,
-    context: 'Surveillance',
-    matrixKind: oneOf(MatrixKindEffective.options)
+    context: 'Surveillance'
   });
 
   beforeAll(async () => {
@@ -324,8 +318,6 @@ describe('Prescriptions router', () => {
       await badRequestTest({ ...validBody, programmingSubPlanId: uuidv4() });
       await badRequestTest({ ...validBody, context: undefined });
       await badRequestTest({ ...validBody, context: 'invalid' });
-      await badRequestTest({ ...validBody, matrixKind: undefined });
-      await badRequestTest({ ...validBody, matrixKind: 'invalid' });
     });
 
     test('should fail if the user does not have the permission to create prescriptions', async () => {

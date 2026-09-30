@@ -145,6 +145,8 @@ export const genProgrammingSubPlan = (
     substanceKinds: [substanceKind]
   })),
   samplesManaged: true,
+  matrixKind: null,
+  matrix: null,
   ...data
 });
 
@@ -161,7 +163,8 @@ export const PPVValidatedSubPlanFixture = genProgrammingSubPlan({
   analysisPermissionRole: 'Sampler',
   contactListId: 7,
   withSacha: false,
-  substanceKinds: ['Any']
+  substanceKinds: ['Any'],
+  matrixKind: 'A00GY'
 });
 export const PPVValidatedDromSubPlanFixture = genProgrammingSubPlan({
   ...PPVValidatedSubPlanFixture,
@@ -197,7 +200,8 @@ export const DAOAVolailleValidatedSubPlanFixture = genProgrammingSubPlan({
   analysisPermissionRole: 'DepartmentalCoordinator',
   contactListId: 9,
   withSacha: true,
-  substanceKinds: ['Mono', 'Multi', 'Copper']
+  substanceKinds: ['Mono', 'Multi', 'Copper'],
+  matrixKind: 'A01SN'
 });
 
 export const DAOAVolailleInProgressSubPlanFixture = genProgrammingSubPlan({
@@ -216,7 +220,9 @@ export const DAOABovinValidatedSubPlanFixture = genProgrammingSubPlan({
   analysisPermissionRole: 'DepartmentalCoordinator',
   contactListId: 9,
   withSacha: true,
-  substanceKinds: ['Mono', 'Multi', 'Copper']
+  substanceKinds: ['Mono', 'Multi', 'Copper'],
+  matrixKind: 'A01QX',
+  matrix: 'A01XF#F28.A0C0S'
 });
 
 export const DAOABovinInProgressSubPlanFixture = genProgrammingSubPlan({
