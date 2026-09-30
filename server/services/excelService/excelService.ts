@@ -2,7 +2,6 @@ import carbone, { type RenderOptions } from 'carbone';
 import { isNil, sumBy, uniq } from 'lodash-es';
 import type { Department } from 'maestro-shared/referential/Department';
 import { LegalContextLabels } from 'maestro-shared/referential/LegalContext';
-import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import {
   type OptionalBoolean,
   OptionalBooleanLabels
@@ -41,10 +40,8 @@ import {
 } from 'maestro-shared/schema/Prescription/Prescription';
 import { ContextLabels } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
-import {
-  getSubPlanMatrixTitle,
-  type ProgrammingSubPlanId
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { getSubPlanMatrixLabels } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import {
   getSampleMatrixLabel,
   type PartialSample
@@ -627,9 +624,7 @@ const generatePrescriptionsExportExcel = async (
         : '',
       plan: prescriptionPlan?.title ?? '',
       context: ContextLabels[prescription.context],
-      matrix:
-        (prescriptionSubPlan && getSubPlanMatrixTitle(prescriptionSubPlan)) ??
-        '',
+      matrix: prescriptionSubPlan?.label ?? '',
       stages: (prescriptionSubPlan?.stages ?? [])
         .map((stage) => StageLabels[stage])
         .join(', '),
@@ -859,9 +854,9 @@ const generateLaboratoryAgreementsExportExcel = async (
           a.substanceKind === substanceKind
       );
 
-      const matrices = subPlan?.matrixKind
-        ? MatrixKindLabels[subPlan.matrixKind]
-        : '';
+      const matrices = getSubPlanMatrixLabels(subPlan?.matrices ?? null).join(
+        ', '
+      );
 
       const stages = (subPlan?.stages ?? [])
         .map((s) => StageLabels[s])

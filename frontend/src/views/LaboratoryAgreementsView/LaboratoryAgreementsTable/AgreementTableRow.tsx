@@ -9,13 +9,10 @@ import type {
   LaboratoryAgreement,
   LaboratoryAgreementCheckUpdate
 } from 'maestro-shared/schema/Laboratory/LaboratoryAgreement';
-import {
-  getSubPlanMatrixTitle,
-  type ProgrammingSubPlan
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import type { ProgrammingSubPlan } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { getSubPlanMatrixLabels } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import type { SubstanceKind } from 'maestro-shared/schema/Substance/SubstanceKind';
 import { SubstanceKindLabels } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { isDefined } from 'maestro-shared/utils/utils';
 import { memo, useMemo } from 'react';
 import LaboratoryAgreementTag from 'src/components/LaboratoryAgreement/LaboratoryAgreementTag/LaboratoryAgreementTag';
 import { pluralize } from 'src/utils/stringUtils';
@@ -76,7 +73,7 @@ const AgreementTableRow = memo(function AgreementTableRow({
   onAnimatingEnd
 }: Props) {
   const allMatrices = useMemo(
-    () => [getSubPlanMatrixTitle(row.programmingSubPlan)].filter(isDefined),
+    () => getSubPlanMatrixLabels(row.programmingSubPlan.matrices),
     [row.programmingSubPlan]
   );
   const visibleMatrices = isMatrixExpanded

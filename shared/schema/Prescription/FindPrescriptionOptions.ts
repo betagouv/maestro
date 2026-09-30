@@ -22,7 +22,6 @@ export const FindPrescriptionOptions = z.object({
   programmingSubPlanIds: z.array(ProgrammingSubPlanId).nullish(),
   programmingPlanDomainIds: z.array(ProgrammingPlanDomainId).nullish(),
   contexts: z.array(ProgrammingPlanContext).nullish(),
-  matrixKind: z.string().nullish(),
   matrixKinds: z.array(MatrixKind).nullish(),
   subPlanStage: Stage.nullish(),
   coordinatorIds: z.array(z.guid()).nullish(),

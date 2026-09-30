@@ -1140,6 +1140,7 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
           response: {
             ...pickProgrammingPlanSettings(programmingSubPlan),
             settingsCompleted: programmingSubPlan.settingsCompleted,
+            matrices: programmingSubPlan.matrices,
             fields:
               await specificDataFieldConfigRepository.findSubPlanFieldSettings(
                 programmingSubPlanId

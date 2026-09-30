@@ -428,10 +428,17 @@ describe('ProgrammingPlan sampler form inheritance', () => {
     fields: ProgrammingSubPlanFieldSetting[]
   ) => {
     const settings = await findOwnSettings(programmingSubPlanId);
+    const subPlan =
+      await programmingSubPlanRepository.findUnique(programmingSubPlanId);
     await programmingPlanSettingsService.saveSubPlanSettings(
       programmingPlanId,
       programmingSubPlanId,
-      { ...settings!, settingsCompleted: false, fields }
+      {
+        ...settings!,
+        matrices: subPlan!.matrices,
+        settingsCompleted: false,
+        fields
+      }
     );
   };
 

@@ -28,6 +28,7 @@ import {
   DAOAInProgressProgrammingPlanFixture,
   DAOAInProgressVolailleSubPlanId,
   genProgrammingSubPlan,
+  genSubPlanMatrices,
   PPVInProgressProgrammingPlanFixture,
   PPVSubmittedProgrammingPlanFixture,
   PPVValidatedProgrammingPlanFixture,
@@ -717,7 +718,7 @@ describe('Sample router', () => {
       await ProgrammingSubPlansRaw().insert(
         toProgrammingPlanSettingsRow({
           ...specificMatrixSubPlan,
-          matrix: specificMatrix
+          matrices: genSubPlanMatrices('A00GY', [specificMatrix])
         })
       );
       await Prescriptions().insert(prescription);
@@ -730,7 +731,7 @@ describe('Sample router', () => {
         department: Sample11Fixture.department,
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
         context: PrescriptionFixture.context,
-        matrixKind: PPVValidatedSubPlanFixture.matrixKind,
+        matrixKind: 'A00GY',
         matrix: specificMatrix,
         company: CompanyFixture
       });
@@ -762,7 +763,7 @@ describe('Sample router', () => {
         department: Sample11Fixture.department,
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
         context: PrescriptionFixture.context,
-        matrixKind: PPVValidatedSubPlanFixture.matrixKind,
+        matrixKind: 'A00GY',
         matrix: 'A00GZ',
         company: CompanyFixture
       });
@@ -795,7 +796,7 @@ describe('Sample router', () => {
       await ProgrammingSubPlansRaw().insert(
         toProgrammingPlanSettingsRow({
           ...specificMatrixSubPlan,
-          matrix: newMatrix
+          matrices: genSubPlanMatrices('A00GY', [newMatrix])
         })
       );
       await Prescriptions().insert(prescription);
@@ -824,7 +825,7 @@ describe('Sample router', () => {
         department: Sample11Fixture.department,
         programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
         context: PrescriptionFixture.context,
-        matrixKind: PPVValidatedSubPlanFixture.matrixKind,
+        matrixKind: 'A00GY',
         matrix: 'A00GZ',
         prescriptionId: PrescriptionFixture.id,
         company: CompanyFixture

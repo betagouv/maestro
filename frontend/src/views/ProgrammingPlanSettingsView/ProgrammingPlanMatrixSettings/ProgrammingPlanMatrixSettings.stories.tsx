@@ -1,25 +1,32 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { SubPlanMatrices } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import { useState } from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import type { MatrixSelection } from './matrixSelection';
 import { ProgrammingPlanMatrixSettings } from './ProgrammingPlanMatrixSettings';
 
 const meta = {
   title: 'Views/ProgrammingPlanSettingsView/ProgrammingPlanMatrixSettings',
   component: ProgrammingPlanMatrixSettings,
   args: {
-    selection: [],
+    matrices: null,
+    errorMessage: undefined,
     onChange: fn()
   },
-  render: function Render({ selection: initialSelection, onChange }) {
-    const [selection, setSelection] =
-      useState<MatrixSelection>(initialSelection);
+  render: function Render({
+    matrices: initialMatrices,
+    errorMessage,
+    onChange
+  }) {
+    const [matrices, setMatrices] = useState<SubPlanMatrices | null>(
+      initialMatrices
+    );
     return (
       <ProgrammingPlanMatrixSettings
-        selection={selection}
-        onChange={(selection) => {
-          setSelection(selection);
-          onChange(selection);
+        matrices={matrices}
+        errorMessage={errorMessage}
+        onChange={(matrices) => {
+          setMatrices(matrices);
+          onChange(matrices);
         }}
       />
     );
@@ -33,27 +40,124 @@ export const Empty: Story = {};
 
 export const MatrixKindOnly: Story = {
   args: {
-    selection: [{ matrixKind: 'A00QT', matrices: [] }]
+    matrices: {
+      operator: 'Or',
+      items: [{ matrixKind: 'A00QT', matrices: [] }]
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.queryByRole('radio', { name: 'Toutes (et)' })
+    ).not.toBeInTheDocument();
   }
 };
 
 export const MatrixKindWithMatrices: Story = {
   args: {
-    selection: [
-      {
-        matrixKind: 'A01GP',
-        matrices: ['A01GV', 'A01GY', 'A01GS', 'A0DVG']
-      }
-    ]
+    matrices: {
+      operator: 'Or',
+      items: [
+        {
+          matrixKind: 'A01GP',
+          matrices: ['A01GV', 'A01GY', 'A01GS', 'A0DVG']
+        }
+      ]
+    }
   }
 };
 
 export const SeveralMatrixKinds: Story = {
   args: {
-    selection: [
-      { matrixKind: 'A00QT', matrices: ['A00QV', 'A00QY'] },
-      { matrixKind: 'A01GP', matrices: [] }
-    ]
+    matrices: {
+      operator: 'Or',
+      items: [
+        { matrixKind: 'A00QT', matrices: ['A00QV', 'A00QY'] },
+        { matrixKind: 'A01GP', matrices: [] }
+      ]
+    }
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.getByRole('radio', { name: 'Une parmi (ou)' })
+    ).toBeChecked();
+
+    await userEvent.click(canvas.getByRole('radio', { name: 'Toutes (et)' }));
+
+    await expect(args.onChange).toHaveBeenLastCalledWith({
+      operator: 'And',
+      items: [
+        { matrixKind: 'A00QT', matrices: ['A00QV', 'A00QY'] },
+        { matrixKind: 'A01GP', matrices: [] }
+      ]
+    });
+    await expect(
+      canvas.getByRole('radio', { name: 'Toutes (et)' })
+    ).toBeChecked();
+  }
+};
+
+export const RemoveMatrixKindBackToOr: Story = {
+  args: {
+    matrices: {
+      operator: 'And',
+      items: [
+        { matrixKind: 'A00QT', matrices: [] },
+        { matrixKind: 'A01GP', matrices: [] }
+      ]
+    }
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Radis et similaires' })
+    );
+
+    await expect(args.onChange).toHaveBeenLastCalledWith({
+      operator: 'Or',
+      items: [{ matrixKind: 'A01GP', matrices: [] }]
+    });
+    await expect(
+      canvas.queryByRole('radio', { name: 'Toutes (et)' })
+    ).not.toBeInTheDocument();
+  }
+};
+
+export const RemoveLastMatrixKind: Story = {
+  args: {
+    matrices: {
+      operator: 'Or',
+      items: [{ matrixKind: 'A00QT', matrices: [] }]
+    }
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Radis et similaires' })
+    );
+
+    await expect(args.onChange).toHaveBeenLastCalledWith(null);
+    await expect(
+      canvas.getByRole('button', { name: 'Ajouter catégorie(s) de matrice' })
+    ).toBeInTheDocument();
+  }
+};
+
+export const WithError: Story = {
+  args: {
+    errorMessage: 'Veuillez renseigner au moins une catégorie de matrice.'
+  },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByText(
+        'Veuillez renseigner au moins une catégorie de matrice.'
+      )
+    ).toBeVisible();
   }
 };
 
@@ -90,9 +194,10 @@ export const SelectMatrixInModal: Story = {
     await userEvent.click(modal.getByRole('button', { name: 'Enregistrer' }));
 
     await waitFor(() => expect(modalElement).not.toBeVisible());
-    await expect(args.onChange).toHaveBeenCalledWith([
-      { matrixKind: 'A01GP', matrices: ['A01GS'] }
-    ]);
+    await expect(args.onChange).toHaveBeenCalledWith({
+      operator: 'Or',
+      items: [{ matrixKind: 'A01GP', matrices: ['A01GS'] }]
+    });
     await expect(
       canvas.queryByRole('button', { name: 'Ajouter catégorie(s) de matrice' })
     ).not.toBeInTheDocument();

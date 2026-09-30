@@ -6,11 +6,10 @@ import {
 } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
-
-export type MatrixKindSelection = {
-  matrixKind: MatrixKind;
-  matrices: Matrix[];
-};
+import {
+  isMatrixSelected,
+  type MatrixKindSelection
+} from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 
 export type MatrixSelection = MatrixKindSelection[];
 
@@ -19,13 +18,6 @@ type MatrixKindOption = {
   matrices: Matrix[];
   matchedByMatrix: boolean;
 };
-
-export const isMatrixSelected = (
-  item: MatrixKindSelection | undefined,
-  matrix: Matrix
-) =>
-  item !== undefined &&
-  (item.matrices.length === 0 || item.matrices.includes(matrix));
 
 export const removeMatrixKind = (
   selection: MatrixSelection,

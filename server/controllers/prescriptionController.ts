@@ -412,9 +412,7 @@ export const prescriptionsRouter = {
               count: countByStage.get(stage) as number
             })
           ),
-          matrixKinds: uniq(
-            stagedRows.map((row) => row.matrixKind).filter(isDefinedAndNotNull)
-          ),
+          matrixKinds: uniq(stagedRows.flatMap((row) => row.matrixKinds)),
           programmingPlanIds: uniq(stagedRows.map((row) => row.planId)),
           programmingSubPlanIds: uniq(stagedRows.map((row) => row.subPlanId)),
           contexts: uniq(stagedRows.map((row) => row.context))

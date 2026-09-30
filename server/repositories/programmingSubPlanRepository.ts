@@ -70,7 +70,8 @@ const findMany = async (
 const updateSettings = async (
   id: ProgrammingSubPlanId,
   settings: Partial<
-    ProgrammingPlanSettings & Pick<ProgrammingSubPlan, 'settingsCompleted'>
+    ProgrammingPlanSettings &
+      Pick<ProgrammingSubPlan, 'settingsCompleted' | 'matrices'>
   >,
   executor: KyselyMaestro = kysely
 ): Promise<void> => {

@@ -291,6 +291,7 @@ const defaultMockApiClientConf: MockApi = {
     data: {
       ...emptyProgrammingPlanSettings(true),
       settingsCompleted: false,
+      matrices: null,
       fields: []
     }
   },

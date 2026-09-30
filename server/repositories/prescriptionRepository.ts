@@ -8,15 +8,16 @@ import type {
 import { Prescription } from 'maestro-shared/schema/Prescription/Prescription';
 import type { ProgrammingPlanContext } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import {
+  getSubPlanMatrixKinds,
+  type SubPlanMatrices
+} from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import type { PendingChangeVisibility } from 'maestro-shared/schema/User/UserRole';
 import { knexInstance as db } from './db';
 import { localPrescriptionSubstanceKindsLaboratoriesTable } from './localPrescriptionSubstanceKindLaboratoryRepository';
 import { prescriptionSubstanceTable } from './prescriptionSubstanceRepository';
 import { programmingPlansTable } from './programmingPlanRepository';
-import {
-  programmingSubPlansRawTable,
-  programmingSubPlansTable
-} from './programmingSubPlanRepository';
+import { programmingSubPlansTable } from './programmingSubPlanRepository';
 import { userRepository } from './userRepository';
 
 export const prescriptionsTable = 'prescriptions';
@@ -26,7 +27,7 @@ const prescriptionChangesTable = 'prescription_changes';
 
 export const Prescriptions = () => db<Prescription>(prescriptionsTable);
 
-const programmingPlanIdColumn = `${programmingSubPlansRawTable}.programming_plan_id`;
+const programmingPlanIdColumn = `${programmingSubPlansTable}.programming_plan_id`;
 
 const matrixKindsFilter = (
   findOptions: FindPrescriptionOptions
@@ -423,8 +424,8 @@ const buildFindQuery = (
 ): Knex.QueryBuilder =>
   Prescriptions()
     .join(
-      programmingSubPlansRawTable,
-      `${programmingSubPlansRawTable}.id`,
+      programmingSubPlansTable,
+      `${programmingSubPlansTable}.id`,
       `${prescriptionsTable}.programming_sub_plan_id`
     )
     .modify((builder) => {
@@ -453,12 +454,6 @@ const buildFindQuery = (
           findOptions.programmingPlanDomainIds
         );
       }
-      if (findOptions.matrixKind) {
-        builder.where(
-          `${programmingSubPlansRawTable}.matrix_kind`,
-          findOptions.matrixKind
-        );
-      }
       if (findOptions.contexts) {
         builder.whereIn(`${prescriptionsTable}.context`, findOptions.contexts);
       }
@@ -469,9 +464,12 @@ const buildFindQuery = (
         );
       }
       if (matrixKinds) {
-        builder.whereIn(
-          `${programmingSubPlansRawTable}.matrix_kind`,
-          matrixKinds
+        builder.whereRaw(
+          `exists (
+            select 1 from jsonb_array_elements(${programmingSubPlansTable}.matrices->'items') item
+            where item->>'matrixKind' = any(?)
+          )`,
+          [matrixKinds]
         );
       }
       applyLocalPrescriptionFilters(builder, findOptions, visibility);
@@ -498,7 +496,7 @@ const findMany = async (
 interface PrescriptionCountRow {
   planId: string;
   subPlanId: ProgrammingSubPlanId;
-  matrixKind: MatrixKind | null;
+  matrixKinds: MatrixKind[];
   context: ProgrammingPlanContext;
   sampleCount: number;
   missingDistribution: boolean;
@@ -602,7 +600,7 @@ const findCounts = async (
     .select(
       `${programmingPlanIdColumn} as planId`,
       `${prescriptionsTable}.programming_sub_plan_id as subPlanId`,
-      `${programmingSubPlansRawTable}.matrix_kind as matrixKind`,
+      `${programmingSubPlansTable}.matrices as matrices`,
       `${prescriptionsTable}.context as context`,
       db.raw(
         `${scopedSampleCount(countOptions, visibility)} as "sampleCount"`,
@@ -615,17 +613,22 @@ const findCounts = async (
       ),
       db.raw(`${noveltySql} as "hasNovelty"`, noveltyBindings)
     )
-    .then((rows: PrescriptionCountRow[]) =>
-      rows.map((row) => ({
-        planId: row.planId,
-        subPlanId: row.subPlanId,
-        matrixKind: row.matrixKind,
-        context: row.context,
-        sampleCount: Number(row.sampleCount),
-        missingDistribution: row.missingDistribution,
-        missingLaboratory: row.missingLaboratory,
-        hasNovelty: row.hasNovelty
-      }))
+    .then(
+      (
+        rows: (Omit<PrescriptionCountRow, 'matrixKinds'> & {
+          matrices: SubPlanMatrices | null;
+        })[]
+      ) =>
+        rows.map((row) => ({
+          planId: row.planId,
+          subPlanId: row.subPlanId,
+          matrixKinds: getSubPlanMatrixKinds(row.matrices),
+          context: row.context,
+          sampleCount: Number(row.sampleCount),
+          missingDistribution: row.missingDistribution,
+          missingLaboratory: row.missingLaboratory,
+          hasNovelty: row.hasNovelty
+        }))
     );
 };
 

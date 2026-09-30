@@ -28,6 +28,10 @@ import {
   type ProgrammingSubPlanId
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
+  getSubPlanMatrixKinds,
+  isMatrixSelected
+} from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
+import {
   isCreatedPartialSample,
   isOutsideProgrammingPlanSample,
   isProgrammingPlanSample,
@@ -329,7 +333,9 @@ const MatrixStep = ({ partialSample }: Props) => {
                     (subPlan) =>
                       (!programmingSubPlanId ||
                         subPlan.id === programmingSubPlanId) &&
-                      subPlan.matrixKind === matrixKind
+                      getSubPlanMatrixKinds(subPlan.matrices).includes(
+                        matrixKind
+                      )
                   )
                 )
               : MatrixKindList,
@@ -355,8 +361,12 @@ const MatrixStep = ({ partialSample }: Props) => {
                       (subPlan) =>
                         (!programmingSubPlanId ||
                           subPlan.id === programmingSubPlanId) &&
-                        subPlan.matrixKind === matrixKind &&
-                        (isNil(subPlan.matrix) || subPlan.matrix === m)
+                        isMatrixSelected(
+                          subPlan.matrices?.items.find(
+                            (item) => item.matrixKind === matrixKind
+                          ),
+                          m
+                        )
                     )
                   : true
               ) ?? matrixKind)

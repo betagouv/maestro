@@ -2,31 +2,11 @@ import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListBy
 import { describe, expect, test } from 'vitest';
 import {
   filterMatrixKinds,
-  isMatrixSelected,
   removeMatrixKind,
   subMatrices,
   toggleMatrix,
   toggleMatrixKind
 } from './matrixSelection';
-
-describe('isMatrixSelected', () => {
-  test('should not select any matrix of an unselected matrix kind', () => {
-    expect(isMatrixSelected(undefined, 'A01GS')).toBe(false);
-  });
-
-  test('should select every matrix of a matrix kind without detailed matrices', () => {
-    expect(
-      isMatrixSelected({ matrixKind: 'A01GP', matrices: [] }, 'A01GS')
-    ).toBe(true);
-  });
-
-  test('should select only the detailed matrices of a matrix kind', () => {
-    const item = { matrixKind: 'A01GP' as const, matrices: ['A01GS' as const] };
-
-    expect(isMatrixSelected(item, 'A01GS')).toBe(true);
-    expect(isMatrixSelected(item, 'A0DVG')).toBe(false);
-  });
-});
 
 describe('removeMatrixKind', () => {
   test('should remove the matrix kind with its detailed matrices', () => {

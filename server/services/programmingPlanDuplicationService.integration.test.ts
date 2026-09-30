@@ -151,8 +151,7 @@ describe('duplicateSubPlan', () => {
     await expect(
       programmingSubPlanRepository.findUnique(copiedSubPlanId)
     ).resolves.toMatchObject({
-      matrixKind: DAOAVolailleInProgressSubPlanFixture.matrixKind,
-      matrix: DAOAVolailleInProgressSubPlanFixture.matrix
+      matrices: DAOAVolailleInProgressSubPlanFixture.matrices
     });
   });
 

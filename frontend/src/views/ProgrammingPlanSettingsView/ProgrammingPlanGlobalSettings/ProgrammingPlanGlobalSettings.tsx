@@ -7,16 +7,15 @@ import type {
   ProgrammingLevelSettingsForm,
   ProgrammingPlanTechnicalInstruction
 } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanSettingsForm';
+import type { SubPlanMatrices } from 'maestro-shared/schema/ProgrammingPlan/SubPlanMatrices';
 import {
   SubstanceKind,
   SubstanceKindLabels
 } from 'maestro-shared/schema/Substance/SubstanceKind';
-import { useState } from 'react';
 import { AppMultiSelect } from 'src/components/_app/AppMultiSelect/AppMultiSelect';
 import type { UseForm } from 'src/hooks/useForm';
 import { assert, type Equals } from 'tsafe';
 import { ProgrammingPlanDocuments } from '../ProgrammingPlanDocuments/ProgrammingPlanDocuments';
-import type { MatrixSelection } from '../ProgrammingPlanMatrixSettings/matrixSelection';
 import { ProgrammingPlanMatrixSettings } from '../ProgrammingPlanMatrixSettings/ProgrammingPlanMatrixSettings';
 import { ProgrammingPlanNationalCoordinators } from '../ProgrammingPlanNationalCoordinators/ProgrammingPlanNationalCoordinators';
 import { ProgrammingPlanSettingInheritance } from '../ProgrammingPlanSettingInheritance/ProgrammingPlanSettingInheritance';
@@ -26,6 +25,7 @@ type Props<
   T extends ProgrammingPlanSettings & {
     nationalCoordinators: ProgrammingPlanNationalCoordinator[] | null;
     technicalInstruction: ProgrammingPlanTechnicalInstruction | null;
+    matrices: SubPlanMatrices | null;
   }
 > = {
   settings: T;
@@ -40,6 +40,7 @@ export const ProgrammingPlanGlobalSettings = <
   T extends ProgrammingPlanSettings & {
     nationalCoordinators: ProgrammingPlanNationalCoordinator[] | null;
     technicalInstruction: ProgrammingPlanTechnicalInstruction | null;
+    matrices: SubPlanMatrices | null;
   }
 >({
   settings,
@@ -51,8 +52,6 @@ export const ProgrammingPlanGlobalSettings = <
   ..._rest
 }: Props<T>) => {
   assert<Equals<keyof typeof _rest, never>>();
-
-  const [matrixSelection, setMatrixSelection] = useState<MatrixSelection>([]);
 
   return (
     <div className={clsx('programming-plan-global-settings')}>
@@ -111,8 +110,9 @@ export const ProgrammingPlanGlobalSettings = <
       </ProgrammingPlanSettingInheritance>
       {planSettings !== undefined && (
         <ProgrammingPlanMatrixSettings
-          selection={matrixSelection}
-          onChange={setMatrixSelection}
+          matrices={settings.matrices}
+          errorMessage={inputForm.message('matrices')}
+          onChange={(matrices) => onChange({ ...settings, matrices })}
         />
       )}
       {!planSettings && (

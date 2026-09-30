@@ -1,3 +1,4 @@
+import { sql } from 'kysely';
 import type { FindLaboratoryAgreementsOptions } from 'maestro-shared/schema/Laboratory/FindLaboratoryAgreementsOptions';
 import {
   LaboratoryAgreement,
@@ -66,11 +67,13 @@ const findMany = async (
     );
   }
 
-  if (opts?.matrixKinds?.length) {
+  const matrixKinds = opts?.matrixKinds;
+  if (matrixKinds?.length) {
     query = query.where(
-      'programmingSubPlans.matrixKind',
-      'in',
-      opts.matrixKinds
+      (eb) => sql<boolean>`exists (
+        select 1 from jsonb_array_elements(${eb.ref('programmingSubPlans.matrices')}->'items') item
+        where item->>'matrixKind' in (${sql.join(matrixKinds)})
+      )`
     );
   }
 
