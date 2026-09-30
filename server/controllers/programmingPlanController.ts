@@ -1097,6 +1097,13 @@ Vous pouvez maintenant gérer l’affectation des laboratoires pour ces sous-pla
         return { status: HttpStatus.CONFLICT };
       }
 
+      if (body.title && body.title !== programmingPlan.title) {
+        await programmingPlanRepository.update({
+          ...programmingPlan,
+          title: body.title
+        });
+      }
+
       await programmingPlanSettingsService.savePlanSettings(
         programmingPlanId,
         {

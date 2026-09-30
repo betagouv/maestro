@@ -2,12 +2,15 @@ import Alert from '@codegouvfr/react-dsfr/Alert';
 import Breadcrumb from '@codegouvfr/react-dsfr/Breadcrumb';
 import Button from '@codegouvfr/react-dsfr/Button';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
+import Input from '@codegouvfr/react-dsfr/Input';
 import clsx from 'clsx';
 import { AppRouteLinks } from 'maestro-shared/schema/AppRouteLinks/AppRouteLinks';
-import { useContext } from 'react';
+import { canUpdateProgrammingPlanSettings } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanNationalCoordinator';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import { YearTitle } from 'src/components/YearTitle/YearTitle';
+import { useAuthentication } from 'src/hooks/useAuthentication';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
 import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
@@ -41,6 +44,21 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
   const title = subPlan
     ? `${subPlan.subPlanNumber} - ${subPlan.label}`
     : programmingPlan?.title;
+
+  const { user, account } = useAuthentication();
+  const [planTitle, setPlanTitle] = useState(programmingPlan?.title ?? '');
+
+  useEffect(
+    () => setPlanTitle(programmingPlan?.title ?? ''),
+    [programmingPlan?.title]
+  );
+
+  const canRenamePlan =
+    !subPlan &&
+    !!programmingPlan &&
+    !!user &&
+    !!account &&
+    canUpdateProgrammingPlanSettings(programmingPlan, user, account.roles);
 
   return !programmingPlan ? null : (
     <AppPage
@@ -111,7 +129,20 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                       )
                 }}
               />
-              <h4 className={clsx(cx('fr-m-0', 'fr-mr-2w'))}>{title}</h4>
+              {canRenamePlan ? (
+                <Input
+                  label="Nom du plan"
+                  hideLabel
+                  className={clsx('flex-grow-1', cx('fr-mb-0', 'fr-mr-2w'))}
+                  nativeInputProps={{
+                    value: planTitle,
+                    'aria-label': 'Nom du plan',
+                    onChange: (event) => setPlanTitle(event.currentTarget.value)
+                  }}
+                />
+              ) : (
+                <h4 className={clsx(cx('fr-m-0', 'fr-mr-2w'))}>{title}</h4>
+              )}
               <ProgrammingPlanSettingsBadge
                 programmingPlans={programmingPlan ? [programmingPlan] : []}
               />
@@ -167,6 +198,8 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
               key={subPlan?.id ?? programmingPlan.id}
               programmingPlan={programmingPlan}
               subPlan={subPlan}
+              titleDraft={canRenamePlan ? planTitle : undefined}
+              onResetTitle={() => setPlanTitle(programmingPlan.title ?? '')}
             />
           </div>
         </div>
