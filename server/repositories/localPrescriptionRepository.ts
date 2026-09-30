@@ -22,6 +22,7 @@ import { localPrescriptionCommentsTable } from './localPrescriptionCommentReposi
 import { localPrescriptionSubstanceKindsLaboratoriesTable } from './localPrescriptionSubstanceKindLaboratoryRepository';
 import { prescriptionsTable } from './prescriptionRepository';
 import { programmingPlansTable } from './programmingPlanRepository';
+import { programmingSubPlansRawTable } from './programmingSubPlanRepository';
 import { sampleStatusView, samplesTable } from './sampleRepository';
 
 const localPrescriptionsTable = 'local_prescriptions';
@@ -167,14 +168,19 @@ const findMany = async (
       `${prescriptionsTable}.id`
     )
     .join(
+      programmingSubPlansRawTable,
+      `${programmingSubPlansRawTable}.id`,
+      `${prescriptionsTable}.programming_sub_plan_id`
+    )
+    .join(
       programmingPlansTable,
-      `${prescriptionsTable}.programming_plan_id`,
+      `${programmingSubPlansRawTable}.programming_plan_id`,
       `${programmingPlansTable}.id`
     )
     .modify((builder) => {
       if (findOptions.programmingPlanIds?.length) {
         builder.whereIn(
-          `${prescriptionsTable}.programming_plan_id`,
+          `${programmingSubPlansRawTable}.programming_plan_id`,
           findOptions.programmingPlanIds
         );
       }

@@ -38,6 +38,7 @@ import TableHeaderCell from 'src/components/TableHeaderCell/TableHeaderCell';
 import { useAuthentication } from '../../../hooks/useAuthentication';
 import { ApiClientContext } from '../../../services/apiClient';
 import './ProgrammingPrescriptionTable.scss';
+import { findPrescriptionPlan } from '../prescriptionPlan';
 import ProgrammingPrescriptionRow from './ProgrammingPrescriptionRow';
 import {
   Colgroup,
@@ -479,8 +480,11 @@ const ProgrammingPrescriptionTable = ({
     ? allPrescriptions.filter((p) => !isNil(getOwnRegionalPrescription(p.id)))
     : allPrescriptions;
 
-  const planOrder = [...new Set(prescriptions.map((p) => p.programmingPlanId))];
-  const prescriptionsByPlan = groupBy(prescriptions, 'programmingPlanId');
+  const prescriptionsByPlan = groupBy(
+    prescriptions,
+    (prescription) => findPrescriptionPlan(programmingPlans, prescription)?.id
+  );
+  const planOrder = Object.keys(prescriptionsByPlan);
 
   const hasVisibleSlaughterhousePlan = planOrder.some(
     (planId) =>

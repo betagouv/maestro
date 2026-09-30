@@ -52,12 +52,12 @@ const programmingPlan = genProgrammingPlan({
   distributionKind: 'REGIONAL'
 });
 const prescription1 = genPrescription({
-  programmingPlanId: programmingPlan.id,
+  programmingSubPlanId: programmingPlan.subPlans[0].id,
   context: 'Control',
   matrixKind: 'A001M'
 });
 const prescription2 = genPrescription({
-  programmingPlanId: programmingPlan.id,
+  programmingSubPlanId: programmingPlan.subPlans[0].id,
   context: 'Control',
   matrixKind: 'A00TQ'
 });

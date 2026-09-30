@@ -3,7 +3,6 @@ import { z } from 'zod';
 import { type Department, DepartmentSort } from '../../referential/Department';
 import { type Region, RegionSort } from '../../referential/Region';
 import type { Company } from '../Company/Company';
-import { Prescription } from '../Prescription/Prescription';
 import type { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
 import { hasPermission, type UserBase, userRegionsForRole } from '../User/User';
 import type { UserRole } from '../User/UserRole';
@@ -61,17 +60,17 @@ export const LocalPrescriptionUpdate = z.discriminatedUnion('key', [
     ...LocalPrescription.pick({
       sampleCount: true
     }).shape,
-    ...Prescription.pick({ programmingPlanId: true }).shape
+    programmingPlanId: z.guid()
   }),
   z.object({
     key: z.literal('laboratories'),
     substanceKindsLaboratories: z.array(SubstanceKindLaboratory),
-    ...Prescription.pick({ programmingPlanId: true }).shape
+    programmingPlanId: z.guid()
   }),
   z.object({
     key: z.literal('slaughterhouseSampleCounts'),
     slaughterhouseSampleCounts: SlaughterhouseSampleCounts,
-    ...Prescription.pick({ programmingPlanId: true }).shape
+    programmingPlanId: z.guid()
   })
 ]);
 

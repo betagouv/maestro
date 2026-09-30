@@ -65,6 +65,7 @@ import { getApiUrl } from '../../../utils/fetchUtils';
 import { groupSubstanceKindsLaboratoriesBySample } from '../../../utils/sampleLaboratories';
 import ProgrammingPrescriptionFilters from '../ProgrammingPrescriptionFilters/ProgrammingPrescriptionFilters';
 import ProgrammingPrescriptionTable from '../ProgrammingPrescriptionTable/ProgrammingPrescriptionTable';
+import { findPrescriptionPlan } from '../prescriptionPlan';
 import BulkAssignLaboratoriesModal, {
   bulkAssignLaboratoriesModal
 } from './BulkAssignLaboratoriesModal';
@@ -187,7 +188,7 @@ const ProgrammingPrescriptionList = ({
 
   const getPrescriptionPlan = useCallback(
     (prescription: Prescription): ProgrammingPlanChecked | undefined =>
-      yearProgrammingPlans.find((p) => p.id === prescription.programmingPlanId),
+      findPrescriptionPlan(yearProgrammingPlans, prescription),
     [yearProgrammingPlans]
   );
 
@@ -255,13 +256,14 @@ const ProgrammingPrescriptionList = ({
   });
 
   const getPlanForPrescriptionId = useCallback(
-    (prescriptionId: string): ProgrammingPlanChecked | undefined =>
-      yearProgrammingPlans.find(
-        (p) =>
-          p.id ===
-          allPrescriptions?.find((r) => r.id === prescriptionId)
-            ?.programmingPlanId
-      ),
+    (prescriptionId: string): ProgrammingPlanChecked | undefined => {
+      const prescription = allPrescriptions?.find(
+        (r) => r.id === prescriptionId
+      );
+      return (
+        prescription && findPrescriptionPlan(yearProgrammingPlans, prescription)
+      );
+    },
     [yearProgrammingPlans, allPrescriptions]
   );
 
@@ -465,12 +467,10 @@ const ProgrammingPrescriptionList = ({
         department,
         companies,
         regionalPrescriptionIds: (allPrescriptions ?? [])
-          .filter((prescription) =>
-            programmingPlans.some(
-              (plan) =>
-                plan.id === prescription.programmingPlanId &&
-                plan.distributionKind === 'REGIONAL'
-            )
+          .filter(
+            (prescription) =>
+              findPrescriptionPlan(programmingPlans, prescription)
+                ?.distributionKind === 'REGIONAL'
           )
           .map((prescription) => prescription.id)
       }),

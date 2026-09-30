@@ -81,13 +81,15 @@ const hasPendingChangeExpression = `(
       exists (
         select 1 from prescription_changes pc
         join prescriptions p on p.id = pc.prescription_id
-        where p.programming_plan_id = ${programmingPlansTable}.id
+        join programming_sub_plans_raw sp on sp.id = p.programming_sub_plan_id
+        where sp.programming_plan_id = ${programmingPlansTable}.id
           and pc.diffused_at is null
       )
       or exists (
         select 1 from local_prescription_changes lpc
         join prescriptions p2 on p2.id = lpc.prescription_id
-        where p2.programming_plan_id = ${programmingPlansTable}.id
+        join programming_sub_plans_raw sp2 on sp2.id = p2.programming_sub_plan_id
+        where sp2.programming_plan_id = ${programmingPlansTable}.id
           and lpc.echelon = 'National'
           and lpc.diffused_at is null
       )
@@ -95,7 +97,8 @@ const hasPendingChangeExpression = `(
       exists (
         select 1 from local_prescription_changes lpc
         join prescriptions p2 on p2.id = lpc.prescription_id
-        where p2.programming_plan_id = ${programmingPlansTable}.id
+        join programming_sub_plans_raw sp2 on sp2.id = p2.programming_sub_plan_id
+        where sp2.programming_plan_id = ${programmingPlansTable}.id
           and lpc.echelon = 'Regional'
           and lpc.region = ${programmingPlanLocalStatusTable}.region
           and lpc.diffused_at is null
@@ -104,7 +107,8 @@ const hasPendingChangeExpression = `(
       exists (
         select 1 from local_prescription_changes lpc
         join prescriptions p2 on p2.id = lpc.prescription_id
-        where p2.programming_plan_id = ${programmingPlansTable}.id
+        join programming_sub_plans_raw sp2 on sp2.id = p2.programming_sub_plan_id
+        where sp2.programming_plan_id = ${programmingPlansTable}.id
           and lpc.echelon = 'Departmental'
           and lpc.region = ${programmingPlanLocalStatusTable}.region
           and lpc.department = ${programmingPlanLocalStatusTable}.department
@@ -120,7 +124,8 @@ const needsResendExpression = `(
       exists (
         select 1 from local_prescription_changes lpc
         join prescriptions p2 on p2.id = lpc.prescription_id
-        where p2.programming_plan_id = ${programmingPlansTable}.id
+        join programming_sub_plans_raw sp2 on sp2.id = p2.programming_sub_plan_id
+        where sp2.programming_plan_id = ${programmingPlansTable}.id
           and lpc.region = ${programmingPlanLocalStatusTable}.region
           and lpc.diffused_at is not null
           and lpc.diffused_at > coalesce(${programmingPlanLocalStatusTable}.last_sent_at, ${programmingPlanLocalStatusTable}.sent_at)
@@ -129,7 +134,8 @@ const needsResendExpression = `(
       exists (
         select 1 from local_prescription_changes lpc
         join prescriptions p2 on p2.id = lpc.prescription_id
-        where p2.programming_plan_id = ${programmingPlansTable}.id
+        join programming_sub_plans_raw sp2 on sp2.id = p2.programming_sub_plan_id
+        where sp2.programming_plan_id = ${programmingPlansTable}.id
           and lpc.region = ${programmingPlanLocalStatusTable}.region
           and lpc.department = ${programmingPlanLocalStatusTable}.department
           and lpc.diffused_at is not null

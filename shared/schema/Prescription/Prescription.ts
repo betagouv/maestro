@@ -14,7 +14,6 @@ import { PrescriptionSubstance } from './PrescriptionSubstance';
 
 export const Prescription = z.object({
   id: z.guid(),
-  programmingPlanId: z.guid(),
   programmingSubPlanId: ProgrammingSubPlanId,
   context: ProgrammingPlanContext,
   matrixKind: MatrixKind,

@@ -15,7 +15,7 @@ import {
 } from './programmingPlanSettingsRow';
 
 export const programmingSubPlansTable = 'programming_sub_plans';
-const programmingSubPlansRawTable = 'programming_sub_plans_raw';
+export const programmingSubPlansRawTable = 'programming_sub_plans_raw';
 
 export const ProgrammingSubPlansRaw = (transaction = db) =>
   transaction<ProgrammingPlanSettingsRow<ProgrammingSubPlan>>(

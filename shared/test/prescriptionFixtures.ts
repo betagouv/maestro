@@ -12,9 +12,7 @@ import { LaboratoryFixture } from './laboratoryFixtures';
 import {
   DAOABovinValidatedSubPlanId,
   DAOAInProgressBovinSubPlanId,
-  DAOAInProgressProgrammingPlanFixture,
   DAOAInProgressVolailleSubPlanId,
-  DAOAValidatedProgrammingPlanFixture,
   DAOAVolailleValidatedSubPlanId,
   PPVValidatedProgrammingPlanFixture,
   PPVValidatedSubPlanId
@@ -25,7 +23,6 @@ export const genPrescription = (
   data?: Partial<Prescription>
 ): Prescription => ({
   id: uuidv4(),
-  programmingPlanId: uuidv4(),
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: oneOf(ProgrammingPlanContextList),
   matrixKind: oneOf(MatrixKindEffective.options),
@@ -56,7 +53,6 @@ export const genPrescriptionSubstance = (
 
 export const PrescriptionFixture = genPrescription({
   id: '11111111-1111-1111-1111-111111111111',
-  programmingPlanId: PPVValidatedProgrammingPlanFixture.id,
   programmingSubPlanId: PPVValidatedSubPlanId,
   context: PPVValidatedProgrammingPlanFixture.contexts[0],
   matrixKind: 'A00GY'
@@ -76,7 +72,6 @@ export const LocalPrescriptionFixture = genLocalPrescription({
 
 export const FoieDeBovinPrescriptionFixture = genPrescription({
   id: '177e280f-7fc5-499f-9dcb-4970dc00af36',
-  programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
   programmingSubPlanId: DAOAInProgressBovinSubPlanId,
   context: 'Surveillance',
   matrixKind: 'A01QX',
@@ -87,7 +82,6 @@ export const FoieDeBovinPrescriptionFixture = genPrescription({
 });
 export const VolaillePrescriptionFixture = genPrescription({
   id: '608d0973-b472-4964-a8d7-246f91ad4d39',
-  programmingPlanId: DAOAInProgressProgrammingPlanFixture.id,
   programmingSubPlanId: DAOAInProgressVolailleSubPlanId,
   context: 'Surveillance',
   matrixKind: 'A01SN',
@@ -96,13 +90,11 @@ export const VolaillePrescriptionFixture = genPrescription({
 export const FoieDeBovinValidatedPrescriptionFixture = {
   ...FoieDeBovinPrescriptionFixture,
   id: '5e7fe72f-cb52-4adf-a36a-93e553f73935',
-  programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
   programmingSubPlanId: DAOABovinValidatedSubPlanId
 };
 export const VolailleValidatedPrescriptionFixture = {
   ...VolaillePrescriptionFixture,
   id: '17aee1c4-c8d0-4aad-9ed1-fb1f6d22bebb',
-  programmingPlanId: DAOAValidatedProgrammingPlanFixture.id,
   programmingSubPlanId: DAOAVolailleValidatedSubPlanId
 };
 

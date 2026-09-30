@@ -21,15 +21,21 @@ export const getAndCheckPrescription = async (
   }
   const programmingPlan =
     currentProgrammingPlan ??
-    (await programmingPlanRepository.findUnique(
-      prescription.programmingPlanId
-    ));
+    (
+      await programmingPlanRepository.findMany({
+        subPlanIds: [prescription.programmingSubPlanId]
+      })
+    )[0];
 
   if (!programmingPlan) {
-    throw new ProgrammingPlanMissingError(prescription.programmingPlanId);
+    throw new ProgrammingPlanMissingError(prescription.programmingSubPlanId);
   }
 
-  if (prescription.programmingPlanId !== programmingPlan.id) {
+  if (
+    !programmingPlan.subPlans.some(
+      (subPlan) => subPlan.id === prescription.programmingSubPlanId
+    )
+  ) {
     throw new HttpError({
       status: constants.HTTP_STATUS_FORBIDDEN,
       message: 'Bad programming plan',

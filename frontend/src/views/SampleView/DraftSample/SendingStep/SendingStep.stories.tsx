@@ -29,7 +29,7 @@ const programmingPlan = genProgrammingPlan({
   subPlans: [PPVValidatedSubPlanFixture]
 });
 const prescription1 = genPrescription({
-  programmingPlanId: programmingPlan.id,
+  programmingSubPlanId: programmingPlan.subPlans[0].id,
   context: 'Control',
   matrixKind: 'A001M'
 });
