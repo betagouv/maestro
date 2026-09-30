@@ -417,8 +417,6 @@ export const PPVSubmittedProgrammingPlanFixture = genProgrammingPlan({
 });
 
 export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
-  stages: ['ABATTAGE'],
-  stagesManaged: true,
   id: DAOAValidatedProgrammingPlanId,
   nationalCoordinators: DaoaNationalCoordinators,
   domainId: PesticideResidueDomainId,
@@ -449,8 +447,6 @@ export const DAOAValidatedProgrammingPlanFixture = genProgrammingPlan({
 });
 
 export const DAOAInProgressProgrammingPlanFixture = genProgrammingPlan({
-  stages: ['ABATTAGE'],
-  stagesManaged: true,
   id: DAOAInProgressProgrammingPlanId,
   nationalCoordinators: DaoaNationalCoordinators,
   domainId: PesticideResidueNextYearDomainId,
