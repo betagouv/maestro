@@ -715,9 +715,11 @@ export const SubPlanCompleted: Story = {
       canvas.queryByRole('button', { name: 'Enregistrer' })
     ).not.toBeInTheDocument();
 
-    await userEvent.selectOptions(
-      canvas.getByRole('combobox', { name: /Analyte\(s\)/ }),
-      'Multi'
+    await userEvent.click(
+      canvas.getByRole('tab', { name: 'Formulaire préleveur' })
+    );
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Hérité du plan' })
     );
 
     await expect(
