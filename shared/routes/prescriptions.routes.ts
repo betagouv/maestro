@@ -61,7 +61,11 @@ export const prescriptionsRoutes = {
     params: undefined,
     post: {
       body: PrescriptionImportFile,
-      permissions: ['updatePrescription'],
+      permissions: [
+        'updatePrescription',
+        'distributePrescriptionToDepartments',
+        'distributePrescriptionToSlaughterhouses'
+      ],
       response: PrescriptionImportResult
     }
   },

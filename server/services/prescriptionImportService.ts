@@ -1,15 +1,22 @@
 import XLSX from '@e965/xlsx';
 import { parse } from 'csv-parse/sync';
+import { Department } from 'maestro-shared/referential/Department';
 import {
   type Region,
   RegionList,
   Regions
 } from 'maestro-shared/referential/Region';
 
+export type ImportedScope =
+  | { echelon: 'Region'; region: Region }
+  | { echelon: 'Department'; department: Department }
+  | { echelon: 'Company'; department: Department; companySiret: string };
+
 interface ImportedCell {
   rowNumber: number;
   subPlanNumber: string;
-  region: Region;
+  columnLabel: string;
+  scope: ImportedScope;
   sampleCount: number;
 }
 
@@ -62,6 +69,17 @@ const headerRegion = (label: string): Region | undefined =>
     label.replace(/^région /, '').replace(/ programmés$/, '')
   );
 
+const headerDepartment = (label: string): Department | undefined => {
+  const match = label
+    .replace(/ programmés$/, '')
+    .match(/^département ([0-9ab]{2,3})$/);
+
+  return match ? Department.safeParse(match[1].toUpperCase()).data : undefined;
+};
+
+const headerCompanySiret = (label: string): string | undefined =>
+  label.replace(/ programmés$/, '').match(/(\d{14})$/)?.[1];
+
 const toRows = (content: Buffer, filename: string): string[][] => {
   if (filename.toLowerCase().endsWith('.csv')) {
     return parse(content, {
@@ -94,8 +112,9 @@ export const parsePrescriptionImportFile = (
 
   const [headerRow, ...dataRows] = rows;
 
-  const regionByColumnIndex = new Map<number, Region>();
+  const scopeByColumnIndex = new Map<number, ImportedScope>();
   let totalColumnIndex: number | undefined;
+  let currentDepartment: Department | undefined;
 
   headerRow.forEach((header, columnIndex) => {
     if (columnIndex === 0) {
@@ -112,12 +131,34 @@ export const parsePrescriptionImportFile = (
       totalColumnIndex = columnIndex;
       return;
     }
+
     const region = headerRegion(label);
     if (region) {
-      regionByColumnIndex.set(columnIndex, region);
-    } else {
-      unrecognized.push(`Colonne ${columnLetter(columnIndex)}`);
+      scopeByColumnIndex.set(columnIndex, { echelon: 'Region', region });
+      return;
     }
+
+    const department = headerDepartment(label);
+    if (department) {
+      currentDepartment = department;
+      scopeByColumnIndex.set(columnIndex, {
+        echelon: 'Department',
+        department
+      });
+      return;
+    }
+
+    const companySiret = headerCompanySiret(label);
+    if (companySiret && currentDepartment) {
+      scopeByColumnIndex.set(columnIndex, {
+        echelon: 'Company',
+        department: currentDepartment,
+        companySiret
+      });
+      return;
+    }
+
+    unrecognized.push(`Colonne ${columnLetter(columnIndex)}`);
   });
 
   const cells: ImportedCell[] = [];
@@ -148,10 +189,16 @@ export const parsePrescriptionImportFile = (
       return;
     }
 
-    for (const [columnIndex, region] of regionByColumnIndex) {
+    for (const [columnIndex, scope] of scopeByColumnIndex) {
       const sampleCount = readSampleCount(row, columnIndex, rowNumber);
       if (sampleCount !== undefined) {
-        cells.push({ rowNumber, subPlanNumber, region, sampleCount });
+        cells.push({
+          rowNumber,
+          subPlanNumber,
+          columnLabel: `Colonne ${columnLetter(columnIndex)}`,
+          scope,
+          sampleCount
+        });
       }
     }
 
