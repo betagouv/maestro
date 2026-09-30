@@ -1,5 +1,11 @@
 import { intersection, uniq } from 'lodash-es';
 import { z } from 'zod';
+import { Matrix } from '../../referential/Matrix/Matrix';
+import {
+  MatrixKind,
+  MatrixKindLabels
+} from '../../referential/Matrix/MatrixKind';
+import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
 import type { Stage } from '../../referential/Stage';
 import { UserRole } from '../User/UserRole';
 import { ProgrammingPlanSettings } from './ProgrammingPlanSettings';
@@ -16,10 +22,31 @@ export const ProgrammingSubPlan = z.object({
   label: z.string(),
   analysisPermissionRole: UserRole.nullish(),
   contactListId: z.number().int().nullish(),
-  withSacha: z.boolean()
+  withSacha: z.boolean(),
+  matrixKind: MatrixKind.nullish(),
+  matrix: Matrix.nullish()
 });
 
 export type ProgrammingSubPlan = z.infer<typeof ProgrammingSubPlan>;
+
+export const findPrescriptionSubPlan = <
+  T extends Pick<ProgrammingSubPlan, 'id'>
+>(
+  programmingPlans: { subPlans: T[] }[],
+  prescription: { programmingSubPlanId: ProgrammingSubPlanId }
+): T | undefined =>
+  programmingPlans
+    .flatMap((programmingPlan) => programmingPlan.subPlans)
+    .find((subPlan) => subPlan.id === prescription.programmingSubPlanId);
+
+export const getSubPlanMatrixTitle = (
+  subPlan: Pick<ProgrammingSubPlan, 'matrixKind' | 'matrix'>
+): string | undefined =>
+  subPlan.matrix
+    ? MatrixLabels[subPlan.matrix]
+    : subPlan.matrixKind
+      ? MatrixKindLabels[subPlan.matrixKind]
+      : undefined;
 
 export const isProgrammingSubPlanDeletable = (
   subPlan: Pick<ProgrammingSubPlan, 'settingsCompleted'>

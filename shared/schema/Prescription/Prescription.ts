@@ -1,10 +1,5 @@
 import { z } from 'zod';
-import { Matrix } from '../../referential/Matrix/Matrix';
-import {
-  MatrixKind,
-  MatrixKindLabels
-} from '../../referential/Matrix/MatrixKind';
-import { MatrixLabels } from '../../referential/Matrix/MatrixLabels';
+import { MatrixKindLabels } from '../../referential/Matrix/MatrixKind';
 import { ProgrammingPlanContext } from '../ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from '../ProgrammingPlan/ProgrammingPlans';
 import { ProgrammingSubPlanId } from '../ProgrammingPlan/ProgrammingSubPlan';
@@ -16,8 +11,6 @@ export const Prescription = z.object({
   id: z.guid(),
   programmingSubPlanId: ProgrammingSubPlanId,
   context: ProgrammingPlanContext,
-  matrixKind: MatrixKind,
-  matrix: Matrix.nullish(),
   sampleCount: z.coerce.number().int().min(0).default(0),
   monoAnalysisCount: z.coerce.number().nullish(),
   multiAnalysisCount: z.coerce.number().nullish(),
@@ -60,7 +53,11 @@ export const sortPrescriptions = <T extends Prescription>(
         (subPlan) =>
           [
             subPlan.id,
-            [programmingPlan.title, subPlan.subPlanNumber] as const
+            [
+              programmingPlan.title,
+              subPlan.subPlanNumber,
+              subPlan.matrixKind ? MatrixKindLabels[subPlan.matrixKind] : ''
+            ] as const
           ] as const
       )
     )
@@ -68,11 +65,7 @@ export const sortPrescriptions = <T extends Prescription>(
 
   const sortKey = (prescription: T) => {
     const subPlanKey = subPlanKeys.get(prescription.programmingSubPlanId);
-    return [
-      subPlanKey ? '0' : '1',
-      ...(subPlanKey ?? ['', '']),
-      MatrixKindLabels[prescription.matrixKind]
-    ].join();
+    return [subPlanKey ? '0' : '1', ...(subPlanKey ?? ['', '', ''])].join();
   };
 
   return prescriptions.toSorted((a, b) => sortKey(a).localeCompare(sortKey(b)));
@@ -102,8 +95,3 @@ export const hasPrescriptionPermission = (
       (regionalStatus) => regionalStatus.status !== 'Closed'
     )
 });
-
-export const getPrescriptionTitle = (prescription: Prescription) =>
-  prescription.matrix
-    ? MatrixLabels[prescription.matrix]
-    : MatrixKindLabels[prescription.matrixKind];
