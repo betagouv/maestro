@@ -5,6 +5,7 @@ import { Region } from 'maestro-shared/referential/Region';
 import type { DistributionKind } from 'maestro-shared/schema/ProgrammingPlan/DistributionKind';
 import type { FindProgrammingPlanOptions } from 'maestro-shared/schema/ProgrammingPlan/FindProgrammingPlanOptions';
 import { hasSentOnward } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDisplayStatus';
+import type { ProgrammingPlanDomainId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanLocalStatus as ProgrammingPlanLocalStatusType } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import type { ProgrammingPlanStatus } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlanStatus';
 import {
@@ -327,6 +328,17 @@ const update = async (
     .update(formatProgrammingPlan(programmingPlan));
 };
 
+const updateDomain = async (
+  id: string,
+  domainId: ProgrammingPlanDomainId
+): Promise<void> => {
+  await kysely
+    .updateTable('programmingPlans')
+    .set({ domainId })
+    .where('id', '=', id)
+    .execute();
+};
+
 const launch = async (
   programmingPlanIds: string[],
   launchedBy: string
@@ -512,6 +524,7 @@ export default {
   findMany,
   insert,
   update,
+  updateDomain,
   launch,
   insertManyLocalStatus,
   updateLocalStatus,

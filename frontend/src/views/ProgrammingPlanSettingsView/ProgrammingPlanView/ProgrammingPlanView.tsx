@@ -10,6 +10,7 @@ import { AppPage } from 'src/components/_app/AppPage/AppPage';
 import { YearTitle } from 'src/components/YearTitle/YearTitle';
 import { ApiClientContext } from 'src/services/apiClient';
 import { assert, type Equals } from 'tsafe';
+import { ProgrammingPlanDomainMove } from '../ProgrammingPlanDomainMove/ProgrammingPlanDomainMove';
 import { ProgrammingPlanSettingsActions } from '../ProgrammingPlanSettingsActions/ProgrammingPlanSettingsActions';
 import { ProgrammingPlanSettingsBadge } from '../ProgrammingPlanSettingsBadge/ProgrammingPlanSettingsBadge';
 import { isCampaignLaunched } from '../ProgrammingPlanSettingsCard/ProgrammingPlanSettingsCard.tsx';
@@ -144,6 +145,9 @@ export const ProgrammingPlanView = ({ ..._rest }: Props = {}) => {
                   )
                 }
               />
+              {!subPlan && (
+                <ProgrammingPlanDomainMove programmingPlan={programmingPlan} />
+              )}
             </div>
             {isCampaignLaunched(programmingPlan) && (
               <Alert

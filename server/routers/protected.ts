@@ -16,6 +16,7 @@ import { notificationsRouter } from '../controllers/notificationController';
 import { prescriptionsRouter } from '../controllers/prescriptionController';
 import { programmingPlanRouter } from '../controllers/programmingPlanController';
 import { programmingPlanDomainRouter } from '../controllers/programmingPlanDomainController';
+import { programmingPlanDomainMoveRouter } from '../controllers/programmingPlanDomainMoveController';
 import { sachaCommemoratifsProtectedRouter } from '../controllers/sachaCommemoratifsController';
 import { sampleRouter } from '../controllers/sampleController';
 import { sampleDocumentsRouter } from '../controllers/sampleDocumentController';
@@ -48,6 +49,7 @@ const router = {
   ...localPrescriptionsRouter,
   ...specificDataFieldConfigRouter,
   ...programmingPlanDomainRouter,
+  ...programmingPlanDomainMoveRouter,
   ...programmingPlanRouter,
   ...sachaCommemoratifsProtectedRouter,
   ...sampleRouter,

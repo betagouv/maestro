@@ -30,6 +30,14 @@ const programmingPlanApi = api.injectEndpoints({
         ]
       }
     ),
+    updateProgrammingPlanDomain: buildTypedMutation(
+      builder,
+      '/programming-plans/:programmingPlanId/domain',
+      'put',
+      {
+        invalidatesTags: ['ProgrammingPlan']
+      }
+    ),
     findProgrammingPlanSettings: buildTypedQuery(
       builder,
       '/programming-plans/:programmingPlanId/settings',
@@ -204,6 +212,7 @@ export const {
   useFindProgrammingPlansQuery,
   useGetProgrammingPlanQuery,
   useUpdateProgrammingPlanStatusMutation,
+  useUpdateProgrammingPlanDomainMutation,
   useUpdateProgrammingPlanLocalStatusMutation,
   useFindProgrammingPlanSettingsQuery,
   useUpdateProgrammingPlanSettingsMutation,

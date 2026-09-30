@@ -1,5 +1,6 @@
 import z from 'zod';
 import { FindProgrammingPlanOptions } from '../schema/ProgrammingPlan/FindProgrammingPlanOptions';
+import { ProgrammingPlanDomainId } from '../schema/ProgrammingPlan/ProgrammingPlanDomain';
 import { ProgrammingPlanLocalStatus } from '../schema/ProgrammingPlan/ProgrammingPlanLocalStatus';
 import {
   ProgrammingPlanSettingsForm,
@@ -149,6 +150,18 @@ export const programmingPlansRoutes = {
       accountPermissions: ['manageProgrammingPlanSettings'],
       body: ProgrammingPlanSettingsForm,
       response: z.undefined()
+    }
+  },
+  '/programming-plans/:programmingPlanId/domain': {
+    params: {
+      programmingPlanId: z.guid()
+    },
+    put: {
+      accountPermissions: ['administrationMaestro'],
+      body: z.object({
+        domainId: ProgrammingPlanDomainId
+      }),
+      response: ProgrammingPlanChecked
     }
   },
   '/programming-plans/:programmingPlanId/sub-plans/:programmingSubPlanId/settings':
