@@ -87,14 +87,15 @@ const sampleResidueCheck: CheckFn<z.infer<typeof ResidueBase>> = (ctx) => {
 
 export const ResidueChecked = checkSchema(ResidueBase, sampleResidueCheck);
 const sampleResidueLmrCheck: CheckFn<
-  Pick<z.infer<typeof SampleBase>, 'stage' | 'specificData'> & {
+  Pick<z.infer<typeof SampleBase>, 'specificData'> & {
     programmingSubPlanNumber: string;
   } & Pick<z.infer<typeof ResidueBase>, 'resultKind' | 'lmr' | 'reference'>
 > = (ctx) => {
   if (
     !LmrIsValid({
       ...ctx.value,
-      matrixPart: ctx.value.specificData?.matrixPart as string | undefined
+      matrixPart: ctx.value.specificData?.matrixPart as string | undefined,
+      stage: ctx.value.specificData?.stage as string | undefined
     })
   ) {
     ctx.issues.push({
@@ -109,7 +110,6 @@ const sampleResidueLmrCheck: CheckFn<
 const LmrCheckChecked = checkSchema(
   z.object({
     ...SampleBase.pick({
-      stage: true,
       specificData: true
     }).shape,
     programmingSubPlanNumber: z.string(),
@@ -125,9 +125,10 @@ const LmrCheckChecked = checkSchema(
 export const LmrIsValid = (
   sample: Pick<
     z.infer<typeof LmrCheckChecked>,
-    'reference' | 'resultKind' | 'programmingSubPlanNumber' | 'stage' | 'lmr'
+    'reference' | 'resultKind' | 'programmingSubPlanNumber' | 'lmr'
   > & {
     matrixPart: string | undefined;
+    stage: string | undefined;
   }
 ): boolean => {
   // La LMR n'est jamais requise lorsque le résultat n'est pas quantifiable.

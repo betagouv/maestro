@@ -13,7 +13,8 @@ import {
   DAOABovinFieldConfigs,
   DAOAVolailleFieldConfigs,
   PPVFieldConfigs,
-  SachaFieldConfigs
+  SachaFieldConfigs,
+  StageFieldOptions
 } from 'maestro-shared/test/specificDataFixtures';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { executeTransaction, kysely } from './kysely';
@@ -30,13 +31,15 @@ const ppvOnlyKeys = PPVFieldConfigs.map((c) => c.field.key).filter(
 const allOptionValuesByFieldKey = new Map(
   sachaFieldKeys.map((key) => [
     key,
-    [
-      ...new Map(
-        AllFieldConfigs.filter((c) => c.field.key === key)
-          .flatMap((c) => c.field.options)
-          .map((o) => [o.value, o.value])
-      ).values()
-    ]
+    key === 'stage'
+      ? StageFieldOptions.map((o) => o.value)
+      : [
+          ...new Map(
+            AllFieldConfigs.filter((c) => c.field.key === key)
+              .flatMap((c) => c.field.options)
+              .map((o) => [o.value, o.value])
+          ).values()
+        ]
   ])
 );
 

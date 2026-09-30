@@ -7,12 +7,10 @@ import {
 import type { PrescriptionSubstance } from 'maestro-shared/schema/Prescription/PrescriptionSubstance';
 import { useEffect, useMemo, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/hooks/useStore';
-import { pluralize } from 'src/utils/stringUtils';
 import prescriptionsSlice from '../../../store/reducers/prescriptionsSlice';
 import PrescriptionBreadcrumb from '../PrescriptionBreadcrumb/PrescriptionBreadcrumb';
 import PrescriptionEditSubstances from '../PrescriptionEditSubstances/PrescriptionEditSubstances';
 import PrescriptionNotes from '../PrescriptionNotes/PrescriptionNotes';
-import PrescriptionStages from '../PrescriptionStages/PrescriptionStages';
 import PrescriptionSubstances from '../PrescriptionSubstances/PrescriptionSubstances';
 import './PrescriptionModal.scss';
 
@@ -113,21 +111,6 @@ const PrescriptionModal = ({ onUpdatePrescriptionSubstances }: Props) => {
                     <PrescriptionSubstances
                       {...prescriptionModalData}
                       renderMode="inline"
-                    />
-                  )
-                },
-                {
-                  iconId:
-                    prescriptionModalData.prescription.stages.length > 0
-                      ? 'fr-icon-check-line'
-                      : undefined,
-                  label: pluralize(
-                    prescriptionModalData.prescription.stages.length
-                  )('Stade'),
-                  content: (
-                    <PrescriptionStages
-                      {...prescriptionModalData}
-                      label={`${pluralize(prescriptionModalData.prescription.stages.length)('Stade')} de prélèvement`}
                     />
                   )
                 },

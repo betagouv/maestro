@@ -54,8 +54,7 @@ const programmingPlan = genProgrammingPlan({
 const prescription1 = genPrescription({
   programmingPlanId: programmingPlan.id,
   context: 'Control',
-  matrixKind: 'A001M',
-  stages: ['STADE1', 'STADE5']
+  matrixKind: 'A001M'
 });
 const prescription2 = genPrescription({
   programmingPlanId: programmingPlan.id,
@@ -192,7 +191,7 @@ export const MatrixStepPPVSubmittingErrors: Story = {
       canvas.getByText('Veuillez renseigner le champ « Type de production ».')
     ).toBeInTheDocument();
     await expect(
-      canvas.getByText('Veuillez renseigner le stade de prélèvement.')
+      canvas.getByText('Veuillez renseigner le champ « Stade de prélèvement ».')
     ).toBeInTheDocument();
   }
 };
@@ -240,7 +239,9 @@ export const MatrixStepPPVSaveOnBlurWithoutHandlingErrors: Story = {
       canvas.queryByText('Veuillez renseigner la matrice.')
     ).not.toBeInTheDocument();
     await expect(
-      canvas.queryByText('Veuillez renseigner le stade de prélèvement.')
+      canvas.queryByText(
+        'Veuillez renseigner le champ « Stade de prélèvement ».'
+      )
     ).not.toBeInTheDocument();
     await expect(
       canvas.queryByText('Veuillez renseigner la partie du végétal.')

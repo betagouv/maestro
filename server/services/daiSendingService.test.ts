@@ -32,7 +32,7 @@ describe('buildAnalysisRequestData', () => {
     context: 'Surveillance',
     legalContext: 'B',
     reference: 'GES-44-00003',
-    specificData: { matrixPart: 'PART1', cultureKind: 'PD06A' }
+    specificData: { stage: 'STADE1', matrixPart: 'PART1', cultureKind: 'PD06A' }
   });
 
   test('builds AnalysisRequestData from sample', () => {

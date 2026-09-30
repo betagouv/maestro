@@ -3,7 +3,7 @@ import Checkbox from '@codegouvfr/react-dsfr/Checkbox';
 import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import RadioButtons from '@codegouvfr/react-dsfr/RadioButtons';
 import clsx from 'clsx';
-import { SubStageLabels } from 'maestro-shared/referential/SubStage';
+import { StageLabels } from 'maestro-shared/referential/Stage';
 import type { Laboratory } from 'maestro-shared/schema/Laboratory/Laboratory';
 import type {
   LaboratoryAgreement,
@@ -106,9 +106,8 @@ const AgreementTableRow = memo(function AgreementTableRow({
   const remainingLabs = allLabs.length - LABS_DISPLAY_LIMIT;
 
   const planStages = useMemo(
-    () =>
-      isExpanded ? [...new Set(prescriptions.flatMap((p) => p.stages))] : [],
-    [prescriptions, isExpanded]
+    () => (isExpanded ? (row.programmingSubPlan.stages ?? []) : []),
+    [row.programmingSubPlan.stages, isExpanded]
   );
 
   const handleCheck = () => {
@@ -324,7 +323,7 @@ const AgreementTableRow = memo(function AgreementTableRow({
                     <span>
                       {pluralize(planStages.length)('Stade')} de prélèvement :{' '}
                       <strong>
-                        {planStages.map((s) => SubStageLabels[s]).join(', ')}
+                        {planStages.map((s) => StageLabels[s]).join(', ')}
                       </strong>
                     </span>
                   </div>

@@ -2,7 +2,6 @@ import { cx } from '@codegouvfr/react-dsfr/fr/cx';
 import Select from '@codegouvfr/react-dsfr/Select';
 import { MatrixKindLabels } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { SSD2IdLabel } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { SubStageLabels } from 'maestro-shared/referential/SubStage';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   getSampleMatrixLabel,
@@ -65,13 +64,6 @@ const MatrixStepSummary = ({
           </div>
         </div>
       </div>
-      <div className="summary-item icon-text">
-        <div className={cx('fr-icon-sip-line')}></div>
-        <div>
-          Stade de prélèvement : <b>{SubStageLabels[sample.stage]}</b>
-        </div>
-      </div>
-
       {fieldConfigs.map((fc) => {
         const { field } = fc;
         const inputKey = field.key;

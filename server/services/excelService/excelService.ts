@@ -21,7 +21,7 @@ import {
   SSD2IdLabel,
   SSD2Referential
 } from 'maestro-shared/referential/Residue/SSD2Referential';
-import { SubStageLabels } from 'maestro-shared/referential/SubStage';
+import { StageLabels } from 'maestro-shared/referential/Stage';
 import { AnalysisMethodLabels } from 'maestro-shared/schema/Analysis/AnalysisMethod';
 import type { AnalysisRequestData } from 'maestro-shared/schema/Analysis/AnalysisRequestData';
 import { ContaminationSourceLabels } from 'maestro-shared/schema/Analysis/Residue/ContaminationSource';
@@ -98,8 +98,6 @@ type SamplesExportExcelData = SetAttributesNullOrUndefined<{
   matrix: string;
   matrixCode?: string;
   matrixPart: string;
-  stage: string;
-  stageCode: string;
   specificData: {
     key: string;
     label: string;
@@ -265,8 +263,6 @@ const generateSamplesExportExcel = async (
             sample.specificData['matrixPart']
           ) ?? '')
         : '',
-      stage: sample.stage ? SubStageLabels[sample.stage] : undefined,
-      stageCode: sample.stage,
       specificData: fieldConfigs.map((fc) => {
         const rawValue = sample.specificData[fc.field.key];
         const value = getFieldValueLabel(fc.field, rawValue);
@@ -626,8 +622,8 @@ const generatePrescriptionsExportExcel = async (
       plan: prescriptionPlan?.title ?? '',
       context: ContextLabels[prescription.context],
       matrix: getPrescriptionTitle(prescription),
-      stages: prescription.stages
-        .map((stage) => SubStageLabels[stage])
+      stages: (prescriptionSubPlan?.stages ?? [])
+        .map((stage) => StageLabels[stage])
         .join(', '),
       instructions: prescription.programmingInstruction,
       notes: prescription.notes,
@@ -865,8 +861,8 @@ const generateLaboratoryAgreementsExportExcel = async (
         .map((mk) => MatrixKindLabels[mk])
         .join(', ');
 
-      const stages = [...new Set(rowPrescriptions.flatMap((p) => p.stages))]
-        .map((s) => SubStageLabels[s])
+      const stages = (subPlan?.stages ?? [])
+        .map((s) => StageLabels[s])
         .join(', ');
 
       const labCount = rowAgreements.filter(

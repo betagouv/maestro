@@ -1,6 +1,10 @@
 /** biome-ignore-all lint/suspicious/noAssignInExpressions: old */
 import { PPVSubPlanNumberPrefix } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import { AllFieldConfigs } from 'maestro-shared/test/specificDataFixtures';
+import {
+  AllFieldConfigs,
+  StageFieldConfig,
+  StageFieldOptions
+} from 'maestro-shared/test/specificDataFixtures';
 import { kysely } from '../../repositories/kysely';
 import type {
   ProgrammingSubPlanFieldId,
@@ -60,6 +64,41 @@ const spreadFieldsOverSiblingSubPlans = async (): Promise<void> => {
           .execute();
       }
     }
+  }
+};
+
+const seedMissingStageOptions = async (): Promise<void> => {
+  const field = await kysely
+    .selectFrom('specificDataFields')
+    .select('id')
+    .where('key', '=', StageFieldConfig.key)
+    .executeTakeFirst();
+
+  if (!field) {
+    return;
+  }
+
+  const existing = await kysely
+    .selectFrom('specificDataFieldOptions')
+    .select('value')
+    .where('fieldKey', '=', StageFieldConfig.key)
+    .execute();
+
+  const existingValues = new Set(existing.map(({ value }) => value));
+  const missing = StageFieldOptions.filter(
+    ({ value }) => !existingValues.has(value)
+  );
+
+  if (missing.length > 0) {
+    await kysely
+      .insertInto('specificDataFieldOptions')
+      .values(
+        missing.map((option) => ({
+          fieldKey: StageFieldConfig.key,
+          ...option
+        }))
+      )
+      .execute();
   }
 };
 
@@ -184,4 +223,5 @@ export const seed = async (): Promise<void> => {
   }
 
   await spreadFieldsOverSiblingSubPlans();
+  await seedMissingStageOptions();
 };

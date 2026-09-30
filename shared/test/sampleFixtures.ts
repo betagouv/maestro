@@ -87,9 +87,9 @@ export const genCreatedPartialSample = (
     matrix: oneOf(MatrixEffective.options),
     monoSubstances: [],
     multiSubstances: [],
-    stage: 'STADE1',
     programmingSubPlanId: PPVValidatedSubPlanId,
     specificData: {
+      stage: 'STADE1',
       matrixPart: oneOf(['PART1', 'PART2']),
       productionKind: oneOf(['PD07A', 'Z0216', 'PD09A']),
       cultureKind: oneOf([
@@ -172,9 +172,9 @@ export const Sample11Fixture = genCreatedPartialSample({
   status: 'Draft' as const,
   matrixKind: PrescriptionFixture.matrixKind,
   matrix: 'A00GZ',
-  stage: PrescriptionFixture.stages[0],
   programmingSubPlanId: PPVValidatedSubPlanId,
   specificData: {
+    stage: 'STADE1',
     matrixPart: 'PART1',
     productionKind: 'PD07A',
     cultureKind: 'PD06A',
@@ -234,7 +234,7 @@ export const SampleDAOA1Fixture = genCreatedPartialSample({
     y: -0.734475
   },
   reference: 'DAOA-85-24-001-A',
-  specificData: {}
+  specificData: { stage: 'STADE10' }
 });
 export const SampleDAOA2Fixture = genCreatedPartialSample({
   sampler: SamplerDaoaFixture,
@@ -248,5 +248,6 @@ export const SampleDAOA2Fixture = genCreatedPartialSample({
     x: 46.642117,
     y: -0.734475
   },
-  reference: 'DAOA-85-24-002-A'
+  reference: 'DAOA-85-24-002-A',
+  specificData: { stage: 'STADE10' }
 });

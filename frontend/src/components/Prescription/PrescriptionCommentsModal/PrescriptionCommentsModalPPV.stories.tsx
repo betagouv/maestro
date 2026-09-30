@@ -173,8 +173,7 @@ export const NationalCoordinatorViewByRegion: Story = {
             programmingPlanId: PPVInProgressProgrammingPlanFixture.id,
             programmingSubPlanId: PPVValidatedSubPlanId,
             context: 'Surveillance',
-            matrixKind: 'A01SN',
-            stages: ['STADE10']
+            matrixKind: 'A01SN'
           }),
           comments: [
             genLocalPrescriptionComment({

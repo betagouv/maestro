@@ -195,6 +195,9 @@ const ResidueValueLabel = ({
     matrixPart: (residue as ResidueLmrChecked).specificData?.matrixPart as
       | string
       | undefined,
+    stage: (residue as ResidueLmrChecked).specificData?.stage as
+      | string
+      | undefined,
     lmr: null
   });
 

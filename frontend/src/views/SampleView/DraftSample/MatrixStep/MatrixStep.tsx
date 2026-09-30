@@ -14,11 +14,6 @@ import {
 } from 'maestro-shared/referential/Matrix/MatrixKind';
 import { MatrixLabels } from 'maestro-shared/referential/Matrix/MatrixLabels';
 import { MatrixListByKind } from 'maestro-shared/referential/Matrix/MatrixListByKind';
-import {
-  type SubStage,
-  SubStageLabels,
-  subStagesForStages
-} from 'maestro-shared/referential/SubStage';
 import { FileInput } from 'maestro-shared/schema/File/FileInput';
 import { SampleDocumentTypeList } from 'maestro-shared/schema/File/FileType';
 import {
@@ -28,10 +23,7 @@ import {
 } from 'maestro-shared/schema/ProgrammingPlan/Context';
 import type { ProgrammingPlanChecked } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingPlans';
 import type { ProgrammingSubPlanId } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
-import {
-  isPPVSubPlanNumber,
-  stagesFromSubPlans
-} from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
+import { isPPVSubPlanNumber } from 'maestro-shared/schema/ProgrammingPlan/ProgrammingSubPlan';
 import {
   isCreatedPartialSample,
   isOutsideProgrammingPlanSample,
@@ -61,7 +53,6 @@ import SavedAlert from 'src/views/SampleView/SavedAlert';
 import { unknown, z } from 'zod';
 import AppServiceErrorAlert from '../../../../components/_app/AppErrorAlert/AppServiceErrorAlert';
 import AppSearchInput from '../../../../components/_app/AppSearchInput/AppSearchInput';
-import AppSelect from '../../../../components/_app/AppSelect/AppSelect';
 import { selectOptionsFromList } from '../../../../components/_app/AppSelect/AppSelectOption';
 import AppTextAreaInput from '../../../../components/_app/AppTextAreaInput/AppTextAreaInput';
 import AppTextInput from '../../../../components/_app/AppTextInput/AppTextInput';
@@ -90,7 +81,6 @@ const MatrixStep = ({ partialSample }: Props) => {
   const isSubmittingRef = useRef<boolean>(false);
   const [matrixKind, setMatrixKind] = useState(partialSample.matrixKind);
   const [matrix, setMatrix] = useState(partialSample.matrix);
-  const [stage, setStage] = useState(partialSample.stage);
   const [notesOnMatrix, setNotesOnMatrix] = useState(
     partialSample.notesOnMatrix
   );
@@ -159,13 +149,6 @@ const MatrixStep = ({ partialSample }: Props) => {
     planSubPlans.find((sp) => sp.id === programmingSubPlanId)?.subPlanNumber ??
     '';
 
-  const subPlanSubStages = subStagesForStages(
-    programmingSubPlanId
-      ? (planSubPlans.find((sp) => sp.id === programmingSubPlanId)?.stages ??
-          [])
-      : stagesFromSubPlans(planSubPlans)
-  );
-
   const { data: fieldConfigs = [], isSuccess: isFieldConfigsLoaded } =
     apiClient.useFindProgrammingSubPlanFieldConfigsQuery(
       {
@@ -220,7 +203,6 @@ const MatrixStep = ({ partialSample }: Props) => {
       programmingSubPlanId: programmingSubPlanId,
       matrixKind,
       matrix,
-      stage,
       specificData,
       notesOnMatrix,
       monoSubstances,
@@ -246,7 +228,6 @@ const MatrixStep = ({ partialSample }: Props) => {
     {
       matrixKind,
       matrix,
-      stage,
       specificData,
       notesOnMatrix,
       prescriptionId: partialSample.prescriptionId,
@@ -381,29 +362,6 @@ const MatrixStep = ({ partialSample }: Props) => {
     [matrixKind, prescriptions, partialSample, programmingSubPlanId]
   );
 
-  const stageOptions = useMemo(
-    () =>
-      selectOptionsFromList(
-        subPlanSubStages.filter(
-          (stage) =>
-            !isProgrammingPlanSample(partialSample) ||
-            prescriptions?.find(
-              (p) =>
-                (!programmingSubPlanId ||
-                  p.programmingSubPlanId === programmingSubPlanId) &&
-                p.matrixKind === matrixKind &&
-                p.stages.includes(stage)
-            )
-        ),
-        {
-          labels: SubStageLabels,
-          defaultLabel: 'Sélectionner un stade',
-          withDefault: 'auto'
-        }
-      ),
-    [partialSample, prescriptions, matrixKind, programmingSubPlanId]
-  );
-
   return (
     <form data-testid="draft_sample_matrix_form" className="sample-form">
       <div>
@@ -464,7 +422,6 @@ const MatrixStep = ({ partialSample }: Props) => {
                 onSelect={(value) => {
                   setMatrixKind(value as MatrixKind);
                   setMatrix(null);
-                  setStage(null);
                 }}
                 state={form.messageType('matrixKind')}
                 stateRelatedMessage={form.message('matrixKind')}
@@ -540,20 +497,6 @@ const MatrixStep = ({ partialSample }: Props) => {
                   }}
                 />
               )}
-            </div>
-            <div className={cx('fr-col-12', 'fr-col-sm-6')}>
-              <AppSelect
-                value={stage ?? ''}
-                options={stageOptions}
-                onChange={(e) => setStage(e.target.value as SubStage)}
-                inputForm={form}
-                inputKey="stage"
-                whenValid="Stade de prélèvement correctement renseigné."
-                data-testid="stage-select"
-                label="Stade de prélèvement"
-                required
-                disabled={readonly}
-              />
             </div>
           </div>
           <div className={cx('fr-grid-row', 'fr-grid-row--gutters')}>

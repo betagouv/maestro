@@ -16,6 +16,28 @@ export const PPVFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: PPVValidatedSubPlanId,
     inheritance: 'Own',
+    required: true,
+    order: 0,
+    field: {
+      key: 'stage',
+      inputType: 'select',
+      label: 'Stade de prélèvement',
+      hintText: null,
+      options: [
+        { value: 'STADE1', label: 'Végétal au stade récolte', order: 1 },
+        {
+          value: 'STADE2',
+          label: 'Végétal en cours de culture (avant récolte)',
+          order: 2
+        },
+        { value: 'STADE3', label: 'Végétal au stockage', order: 3 }
+      ]
+    }
+  },
+  {
+    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    programmingSubPlanId: PPVValidatedSubPlanId,
+    inheritance: 'Own',
     required: false,
     order: 1,
     field: {
@@ -120,6 +142,20 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
     inheritance: 'Own',
     required: true,
+    order: 0,
+    field: {
+      key: 'stage',
+      inputType: 'select',
+      label: 'Stade de prélèvement',
+      hintText: null,
+      options: [{ value: 'STADE10', label: 'Abattoir', order: 10 }]
+    }
+  },
+  {
+    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    programmingSubPlanId: DAOAVolailleValidatedSubPlanId,
+    inheritance: 'Own',
+    required: true,
     order: 1,
     field: {
       key: 'sampling',
@@ -215,6 +251,20 @@ export const DAOAVolailleFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
 ];
 
 export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
+  {
+    id: ProgrammingSubPlanFieldId.parse(uuidv4()),
+    programmingSubPlanId: DAOABovinValidatedSubPlanId,
+    inheritance: 'Own',
+    required: true,
+    order: 0,
+    field: {
+      key: 'stage',
+      inputType: 'select',
+      label: 'Stade de prélèvement',
+      hintText: null,
+      options: [{ value: 'STADE10', label: 'Abattoir', order: 10 }]
+    }
+  },
   {
     id: ProgrammingSubPlanFieldId.parse(uuidv4()),
     programmingSubPlanId: DAOABovinValidatedSubPlanId,
@@ -374,6 +424,36 @@ export const DAOABovinFieldConfigs: ProgrammingSubPlanFieldConfig[] = [
     }
   }
 ];
+
+export const StageFieldOptions = [
+  { value: 'STADE1', label: 'Végétal au stade récolte', order: 1 },
+  {
+    value: 'STADE2',
+    label: 'Végétal en cours de culture (avant récolte)',
+    order: 2
+  },
+  { value: 'STADE3', label: 'Végétal au stockage', order: 3 },
+  { value: 'STADE4', label: 'Aliment pour animaux', order: 4 },
+  { value: 'STADE5', label: 'Eau', order: 5 },
+  {
+    value: 'STADE6',
+    label: 'Intrant (spécialité commerciale ou bouillie)',
+    order: 6
+  },
+  { value: 'STADE7', label: 'Produit végétal transformé', order: 7 },
+  { value: 'STADE8', label: 'Substrat', order: 8 },
+  { value: 'STADE9', label: 'Autre', order: 9 },
+  { value: 'STADE10', label: 'Abattoir', order: 10 },
+  { value: 'STADE11', label: 'Elevage pondeuse', order: 11 }
+];
+
+export const StageFieldConfig = {
+  key: 'stage',
+  inputType: 'select' as const,
+  label: 'Stade de prélèvement',
+  hintText: null,
+  options: StageFieldOptions
+};
 
 export const AllFieldConfigs = [
   ...PPVFieldConfigs,

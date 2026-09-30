@@ -295,6 +295,12 @@ export const genDeletableProgrammingPlan = (
 };
 
 export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
+  stages: [
+    'PRODUCTION_PRIMAIRE_VEGETALE',
+    'ALIMENTATION_ANIMALE',
+    'TRANSFORMATION'
+  ],
+  stagesManaged: true,
   id: PPVClosedProgrammingPlanId,
   domainId: PesticideResiduePreviousYearDomainId,
   title: 'Production primaire végétale',
@@ -315,6 +321,12 @@ export const PPVClosedProgrammingPlanFixture = genProgrammingPlan({
 });
 
 export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
+  stages: [
+    'PRODUCTION_PRIMAIRE_VEGETALE',
+    'ALIMENTATION_ANIMALE',
+    'TRANSFORMATION'
+  ],
+  stagesManaged: true,
   id: PPVValidatedProgrammingPlanId,
   domainId: PesticideResidueDomainId,
   title: 'Production primaire végétale',
@@ -333,6 +345,12 @@ export const PPVValidatedProgrammingPlanFixture = genProgrammingPlan({
 });
 
 export const PPVValidatedDromProgrammingPlanFixture = genProgrammingPlan({
+  stages: [
+    'PRODUCTION_PRIMAIRE_VEGETALE',
+    'ALIMENTATION_ANIMALE',
+    'TRANSFORMATION'
+  ],
+  stagesManaged: true,
   id: PPVValidatedDromProgrammingPlanId,
   domainId: PesticideResidueInTenYearsDomainId,
   title: 'Production primaire végétale - DROM',
@@ -351,6 +369,12 @@ export const PPVValidatedDromProgrammingPlanFixture = genProgrammingPlan({
 });
 
 export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
+  stages: [
+    'PRODUCTION_PRIMAIRE_VEGETALE',
+    'ALIMENTATION_ANIMALE',
+    'TRANSFORMATION'
+  ],
+  stagesManaged: true,
   id: PPVInProgressProgrammingPlanId,
   domainId: PesticideResidueNextYearDomainId,
   title: 'Production primaire végétale',
@@ -369,6 +393,12 @@ export const PPVInProgressProgrammingPlanFixture = genProgrammingPlan({
 });
 
 export const PPVSubmittedProgrammingPlanFixture = genProgrammingPlan({
+  stages: [
+    'PRODUCTION_PRIMAIRE_VEGETALE',
+    'ALIMENTATION_ANIMALE',
+    'TRANSFORMATION'
+  ],
+  stagesManaged: true,
   id: PPVSubmittedProgrammingPlanId,
   domainId: PesticideResidueInTwoYearsDomainId,
   title: 'Production primaire végétale',

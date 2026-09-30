@@ -56,19 +56,22 @@ export const ProgrammingSubPlanFieldList = ({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-      {visibleFields.map(({ field, index }, i) => (
-        <ProgrammingSubPlanFieldItem
-          key={field.fieldId}
-          field={field}
-          globalField={allFields.find(({ id }) => id === field.fieldId)}
-          canMoveUp={i > 0 && !visibleFields[i - 1].field.managedAtPlanLevel}
-          canMoveDown={i < visibleFields.length - 1}
-          onChange={(updated) => replaceAt(index, updated)}
-          onMoveUp={() => moveField(index, visibleFields[i - 1].index)}
-          onMoveDown={() => moveField(index, visibleFields[i + 1].index)}
-          onDelete={() => deleteAt(index)}
-        />
-      ))}
+      {visibleFields.map(({ field, index }, i) => {
+        const globalField = allFields.find(({ id }) => id === field.fieldId);
+        return (
+          <ProgrammingSubPlanFieldItem
+            key={field.fieldId}
+            field={field}
+            globalField={globalField}
+            canMoveUp={i > 0 && !visibleFields[i - 1].field.managedAtPlanLevel}
+            canMoveDown={i < visibleFields.length - 1}
+            onChange={(updated) => replaceAt(index, updated)}
+            onMoveUp={() => moveField(index, visibleFields[i - 1].index)}
+            onMoveDown={() => moveField(index, visibleFields[i + 1].index)}
+            onDelete={() => deleteAt(index)}
+          />
+        );
+      })}
     </div>
   );
 };

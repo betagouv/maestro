@@ -12,7 +12,7 @@ import { ResidueResultOverview } from './ResidueResultOverview';
 const residueWithOptionalLmr = (lmr: number | null): PartialResidue =>
   ({
     ...omit(Sample11Fixture, 'compliance'),
-    stage: 'STADE2',
+    specificData: { ...Sample11Fixture.specificData, stage: 'STADE2' },
     ...genPartialResidue({
       reference: 'RF-00000010-MCG',
       residueNumber: 1,
