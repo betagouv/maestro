@@ -712,6 +712,15 @@ export const SubPlanCompleted: Story = {
     updateProgrammingSubPlanSettings.mockClear();
 
     await expect(
+      canvas.queryByRole('button', { name: 'Enregistrer' })
+    ).not.toBeInTheDocument();
+
+    await userEvent.selectOptions(
+      canvas.getByRole('combobox', { name: /Analyte\(s\)/ }),
+      'Multi'
+    );
+
+    await expect(
       canvas.queryByRole('button', { name: 'Enregistrer en brouillon' })
     ).not.toBeInTheDocument();
     await expect(
